@@ -6,7 +6,7 @@ Class {
 		'specialSelectorTable',
 		'instructionStream',
 		'currentInstruction',
-		'instructions'
+		'irBuilder'
 	],
 	#category : #Druid
 }
@@ -54,7 +54,7 @@ Druid >> fetchNextInstruction [
 Druid >> initialize [
 
 	super initialize.
-	instructions := OrderedCollection new.
+	irBuilder := DRIRBuilder new.
 	
 	specialSelectorTable := Dictionary new.
 	specialSelectorTable at: #fetchNextBytecode put: #interpretFetchNextBytecodeOn:receiver:arguments:.
@@ -105,8 +105,7 @@ Druid >> interpretFetchNextBytecodeOn: aMessageSendNode receiver: aReceiver argu
 { #category : #'special-cases' }
 Druid >> interpretInternalPushOn: aRBMessageNode receiver: aStackInterpreterSimulatorLSB arguments: aCollection [ 
 	
-	self appendInstruction: (DRPush value: aCollection first).
-	^ DRInvalid new
+	^ irBuilder push: aCollection first
 ]
 
 { #category : #'special-cases' }
@@ -124,12 +123,9 @@ Druid >> interpretSumOn: aRBMessageNode receiver: aReceiver arguments: arguments
 	self assert: arguments size = 1.
 	
 	(aReceiver isConstantInteger and: [ arguments first isConstantInteger ])
-		ifTrue: [ ^ DRLoad value: aReceiver value + arguments first value ].
+		ifTrue: [ ^ irBuilder newConstant: aReceiver value + arguments first value ].
 	
-	^ DRAdd new
-		leftOperand: aReceiver;
-		rightOperand: arguments first;
-		yourself
+	^ irBuilder add: aReceiver and: arguments first
 ]
 
 { #category : #interpreting }
@@ -145,14 +141,14 @@ Druid >> lookupSelector: aSelector [
 Druid >> visitGlobalNode: aRBGlobalNode [ 
 	
 	self assert: aRBGlobalNode binding value isNumber.
-	^ DRLoad value: aRBGlobalNode binding value
+	^ irBuilder newConstant: aRBGlobalNode binding value
 ]
 
 { #category : #visiting }
 Druid >> visitInstanceVariableNode: aRBInstanceVariableNode [ 
 	
 	aRBInstanceVariableNode name = #localFP
-		ifTrue: [ ^ DRLoad basePointerRegister ].
+		ifTrue: [ ^ DRPhisicalRegister basePointer ].
 
 	aRBInstanceVariableNode name = #stackPages
 		ifTrue: [ ^ DRInvalid new ].

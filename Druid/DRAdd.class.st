@@ -1,11 +1,11 @@
 Class {
 	#name : #DRAdd,
-	#superclass : #Object,
+	#superclass : #DRInstruction,
 	#instVars : [
 		'leftOperand',
 		'rightOperand'
 	],
-	#category : #Druid
+	#category : #'Druid-instructions'
 }
 
 { #category : #accessing }
@@ -16,6 +16,24 @@ DRAdd >> leftOperand [
 { #category : #accessing }
 DRAdd >> leftOperand: anObject [
 	leftOperand := anObject
+]
+
+{ #category : #printing }
+DRAdd >> mnemonic [
+	
+	^ 'ADD'
+]
+
+{ #category : #'as yet unclassified' }
+DRAdd >> operands [
+
+	^ { leftOperand . rightOperand }
+]
+
+{ #category : #accessing }
+DRAdd >> result [
+	
+	^ 't2'
 ]
 
 { #category : #accessing }

@@ -1,6 +1,6 @@
 Class {
 	#name : #DROneArgumentInstruction,
-	#superclass : #Object,
+	#superclass : #DRInstruction,
 	#instVars : [
 		'value'
 	],
@@ -13,6 +13,12 @@ DROneArgumentInstruction class >> value: aValue [
 	^ self new
 		value: aValue;
 		yourself
+]
+
+{ #category : #'as yet unclassified' }
+DROneArgumentInstruction >> operands [
+
+	^ { value }
 ]
 
 { #category : #accessing }
