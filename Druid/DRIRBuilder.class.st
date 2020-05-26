@@ -30,6 +30,11 @@ DRIRBuilder >> initialize [
 	instructions := OrderedCollection new
 ]
 
+{ #category : #accessing }
+DRIRBuilder >> instructions [
+	^ instructions
+]
+
 { #category : #building }
 DRIRBuilder >> loadAddress: aValue [
 	
@@ -45,6 +50,5 @@ DRIRBuilder >> newConstant: aValue [
 { #category : #building }
 DRIRBuilder >> push: aValue [
 	
-	self appendInstruction: (DRPush value: aValue).
-	^ DRInvalid new
+	^ self appendInstruction: (DRPush value: aValue).
 ]
