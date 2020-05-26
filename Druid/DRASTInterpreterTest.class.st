@@ -7,7 +7,7 @@ Class {
 { #category : #helpers }
 DRASTInterpreterTest >> newASTInterpreter [
 	
-	^ Druid new
+	^ DRASTInterpreter new
 ]
 
 { #category : #'tests-specialcases' }
