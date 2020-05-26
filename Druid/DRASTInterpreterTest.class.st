@@ -10,6 +10,28 @@ DRASTInterpreterTest >> newASTInterpreter [
 	^ Druid new
 ]
 
+{ #category : #'tests-specialcases' }
+DRASTInterpreterTest >> testVisitBitShiftMessageWithConstantsCalculatesBitShift [
+
+	| interpreter result left right |
+	interpreter := self newASTInterpreter.
+	left := interpreter irBuilder newConstant: 3.
+	right := interpreter irBuilder newConstant: 2.
+	
+	interpreter
+		pushNewContextWithMethod: (RBMethodNode new arguments: { RBArgumentNode named: 'test' })
+		withReceiver: left
+		withArguments: { right }.
+	
+	result := (RBMessageNode 
+		receiver: RBSelfNode new
+		selector: #<<
+		arguments: { RBArgumentNode named: 'test' }) acceptVisitor: interpreter.
+	
+	self assert: result isConstant.
+	self assert: result value equals: (3 << 2).
+]
+
 { #category : #tests }
 DRASTInterpreterTest >> testVisitGlobalVariableCreatesConstant [
 
@@ -35,7 +57,7 @@ DRASTInterpreterTest >> testVisitInstanceVariableAccessesExistingValue [
 	self assert: result equals: 17.
 ]
 
-{ #category : #tests }
+{ #category : #'tests-specialcases' }
 DRASTInterpreterTest >> testVisitLocalFPInstanceVariableReturnsBasePointerRegister [
 
 	| interpreter result |

@@ -172,6 +172,11 @@ Druid >> interpretcCodeInSmalltalk: messageNode receiver: receiver arguments: ar
 	^ lastValue
 ]
 
+{ #category : #accessing }
+Druid >> irBuilder [
+	^ irBuilder
+]
+
 { #category : #interpreting }
 Druid >> lookupSelector: aSelector receiver: aReceiver [
 	
@@ -222,7 +227,7 @@ Druid >> receiver [
 { #category : #visiting }
 Druid >> visitArgumentNode: aRBArgumentNode [ 
 	
-	^ currentContext arguments at: aRBArgumentNode binding indexFromIR
+	^ currentContext argumentNamed: aRBArgumentNode name
 ]
 
 { #category : #visiting }

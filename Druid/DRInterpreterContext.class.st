@@ -12,6 +12,12 @@ Class {
 }
 
 { #category : #accessing }
+DRInterpreterContext >> argumentNamed: aString [ 
+	
+	^ arguments at: (method argumentNames indexOf: aString)
+]
+
+{ #category : #accessing }
 DRInterpreterContext >> arguments [
 	^ arguments
 ]
