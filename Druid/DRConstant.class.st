@@ -16,6 +16,12 @@ DRConstant class >> value: aValue [
 ]
 
 { #category : #testing }
+DRConstant >> isConstant [
+	
+	^ true
+]
+
+{ #category : #testing }
 DRConstant >> isConstantInteger [
 	
 	^ value isInteger

@@ -15,6 +15,20 @@ DRPhisicalRegister class >> basePointer [
 		yourself
 ]
 
+{ #category : #comparing }
+DRPhisicalRegister >> = aRegister [
+
+	(aRegister isKindOf: self species)
+		ifFalse: [ ^ false ].
+	^ aRegister name = name
+]
+
+{ #category : #comparing }
+DRPhisicalRegister >> hash [
+
+	^ name hash
+]
+
 { #category : #accessing }
 DRPhisicalRegister >> name [
 	^ name

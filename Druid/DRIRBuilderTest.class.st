@@ -1,17 +1,17 @@
 Class {
-	#name : #DRIRBuilderTests,
+	#name : #DRIRBuilderTest,
 	#superclass : #TestCase,
 	#category : #'Druid-Tests'
 }
 
 { #category : #tests }
-DRIRBuilderTests >> testIRBuilderStartsEmpty [
+DRIRBuilderTest >> testIRBuilderStartsEmpty [
 
 	self assert: DRIRBuilder new instructions isEmpty
 ]
 
 { #category : #tests }
-DRIRBuilderTests >> testLoadAddressAppendsCreatedInstruction [
+DRIRBuilderTest >> testLoadAddressAppendsCreatedInstruction [
 
 	| builder loadInstruction |
 	builder := DRIRBuilder new.
@@ -20,7 +20,7 @@ DRIRBuilderTests >> testLoadAddressAppendsCreatedInstruction [
 ]
 
 { #category : #tests }
-DRIRBuilderTests >> testLoadAddressAppendsInstruction [
+DRIRBuilderTest >> testLoadAddressAppendsInstruction [
 
 	| builder loadInstruction |
 	builder := DRIRBuilder new.
@@ -29,7 +29,7 @@ DRIRBuilderTests >> testLoadAddressAppendsInstruction [
 ]
 
 { #category : #tests }
-DRIRBuilderTests >> testNewConstantDoesNotAppendInstruction [
+DRIRBuilderTest >> testNewConstantDoesNotAppendInstruction [
 
 	| builder |
 	builder := DRIRBuilder new.
@@ -38,7 +38,7 @@ DRIRBuilderTests >> testNewConstantDoesNotAppendInstruction [
 ]
 
 { #category : #tests }
-DRIRBuilderTests >> testPushAppendsCreatedInstruction [
+DRIRBuilderTest >> testPushAppendsCreatedInstruction [
 
 	| builder pushInstruction |
 	builder := DRIRBuilder new.
@@ -47,7 +47,7 @@ DRIRBuilderTests >> testPushAppendsCreatedInstruction [
 ]
 
 { #category : #tests }
-DRIRBuilderTests >> testPushAppendsnstruction [
+DRIRBuilderTest >> testPushAppendsnstruction [
 
 	| builder pushInstruction |
 	builder := DRIRBuilder new.

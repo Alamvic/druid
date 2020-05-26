@@ -39,7 +39,7 @@ Druid class >> stackInterpreter [
 		yourself
 ]
 
-{ #category : #interpreting }
+{ #category : #'special-cases' }
 Druid >> fetchNextInstruction [
 
 	currentBytecode := instructionStream next
@@ -247,13 +247,11 @@ Druid >> visitInstanceVariableNode: aRBInstanceVariableNode [
 	aRBInstanceVariableNode name = #localFP
 		ifTrue: [ ^ DRPhisicalRegister basePointer ].
 
-	(#(stackPages objectMemory trueObj) includes: aRBInstanceVariableNode name)
-		ifTrue: [ ^ self receiver instVarNamed: aRBInstanceVariableNode name ].
-
 	aRBInstanceVariableNode name = #currentBytecode
 		ifTrue: [ ^ irBuilder newConstant: currentBytecode ].
 
-	^ self notYetImplemented
+	"By default, fetch the instance variable of the receiver"
+	^ self receiver instVarNamed: aRBInstanceVariableNode name
 ]
 
 { #category : #visiting }
