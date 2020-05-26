@@ -5,10 +5,11 @@ Class {
 		'vmInterpreter',
 		'specialSelectorTable',
 		'instructionStream',
-		'currentInstruction',
-		'irBuilder'
+		'irBuilder',
+		'currentContext',
+		'currentBytecode'
 	],
-	#category : #Druid
+	#category : #'Druid-Interpreter'
 }
 
 { #category : #generator }
@@ -38,16 +39,10 @@ Druid class >> stackInterpreter [
 		yourself
 ]
 
-{ #category : #'IR-building' }
-Druid >> appendInstruction: anInstruction [
-
-	instructions addLast: anInstruction
-]
-
 { #category : #interpreting }
 Druid >> fetchNextInstruction [
 
-	currentInstruction := instructionStream next
+	currentBytecode := instructionStream next
 ]
 
 { #category : #initialization }
@@ -60,7 +55,10 @@ Druid >> initialize [
 	specialSelectorTable at: #fetchNextBytecode put: #interpretFetchNextBytecodeOn:receiver:arguments:.
 	specialSelectorTable at: #longAt: put: #interpretLongAtOn:receiver:arguments:.
 	specialSelectorTable at: #internalPush: put: #interpretInternalPushOn:receiver:arguments:.
-	specialSelectorTable at: #+ put: #interpretSumOn:receiver:arguments:
+	specialSelectorTable at: #+ put: #interpretSumOn:receiver:arguments:.
+	specialSelectorTable at: #cCode:inSmalltalk: put: #interpretcCodeInSmalltalk:receiver:arguments:.
+	specialSelectorTable at: #bitAnd: put: #interpretBitAnd:receiver:arguments:.
+	specialSelectorTable at: #<< put: #interpretLeftShift:receiver:arguments:.
 ]
 
 { #category : #interpreting }
@@ -80,9 +78,24 @@ Druid >> interpretAST: aRBMethodNode withArguments: arguments [
 
 { #category : #interpreting }
 Druid >> interpretAST: aRBMethodNode withReceiver: aReceiver withArguments: arguments [ 
+
+	self pushNewContextWithMethod: aRBMethodNode withReceiver: aReceiver withArguments: arguments.
+	[ ^ aRBMethodNode acceptVisitor: self ]
+		ensure: [ self popContext ]
+]
+
+{ #category : #'special-cases' }
+Druid >> interpretBitAnd: aRBMessageNode receiver: aReceiver arguments: arguments [
 	
-	self assert: arguments isEmpty.
-	^ aRBMethodNode acceptVisitor: self
+	"This is a logical bitAnd.
+	Either both receiver and arguments are constants and we can fold them, only if they do not overflow.
+	Otherwise, we need to load the values and sum them."
+	self assert: arguments size = 1.
+	
+	(aReceiver isConstantInteger and: [ arguments first isConstantInteger ])
+		ifTrue: [ ^ irBuilder newConstant: (aReceiver value bitAnd: arguments first value) ].
+	
+	^ irBuilder bitAnd: aReceiver with: arguments first
 ]
 
 { #category : #interpreting }
@@ -90,9 +103,9 @@ Druid >> interpretBytecode: aCollection [
 	
 	instructionStream := aCollection readStream.
 	self fetchNextInstruction.
-	[ currentInstruction notNil ] whileTrue: [ | bytecodeSelector |
-		bytecodeSelector := vmInterpreter class bytecodeTable at: currentInstruction + 1.
-		self interpretAST: (self lookupSelector: bytecodeSelector)
+	[ currentBytecode notNil ] whileTrue: [ | bytecodeSelector |
+		bytecodeSelector := vmInterpreter class bytecodeTable at: currentBytecode + 1.
+		self interpretAST: (self lookupSelector: bytecodeSelector receiver: vmInterpreter)
 	]
 ]
 
@@ -109,9 +122,23 @@ Druid >> interpretInternalPushOn: aRBMessageNode receiver: aStackInterpreterSimu
 ]
 
 { #category : #'special-cases' }
+Druid >> interpretLeftShift: aRBMessageNode receiver: aReceiver arguments: arguments [ 
+	
+	"This is a left shift <<.
+	Either both receiver and arguments are constants and we can fold them.
+	Otherwise, we need to load the values and sum them."
+	self assert: arguments size = 1.
+	
+	(aReceiver isConstantInteger and: [ arguments first isConstantInteger ])
+		ifTrue: [ ^ irBuilder newConstant: aReceiver value << arguments first value ].
+	
+	^ irBuilder bitShift: aReceiver left: arguments first
+]
+
+{ #category : #'special-cases' }
 Druid >> interpretLongAtOn: aRBMessageNode receiver: aReceiver arguments: aCollection [ 
 	
-	^ DRLoad value: aCollection first
+	^ irBuilder loadAddress: aCollection first
 ]
 
 { #category : #'special-cases' }
@@ -128,13 +155,83 @@ Druid >> interpretSumOn: aRBMessageNode receiver: aReceiver arguments: arguments
 	^ irBuilder add: aReceiver and: arguments first
 ]
 
+{ #category : #'special-cases' }
+Druid >> interpretcCodeInSmalltalk: messageNode receiver: receiver arguments: arguments [
+	
+	| lastValue |
+	self
+		pushNewContextWithMethod: arguments second block
+		withReceiver: currentContext receiver
+		withArguments: #().
+	currentContext block: arguments second.
+
+	lastValue := nil.
+	arguments second block statements do: [ :e | 
+		lastValue := e acceptVisitor: self ].
+	self popContext.
+	^ lastValue
+]
+
 { #category : #interpreting }
-Druid >> lookupSelector: aSelector [
+Druid >> lookupSelector: aSelector receiver: aReceiver [
 	
 	| foundMethod |
-	foundMethod := vmInterpreter class lookupSelector: aSelector.
+	foundMethod := aReceiver class lookupSelector: aSelector.
 	foundMethod ifNil: [ self error: 'Selector ', aSelector, ' not found. Check if this needs to be implemented as a special case' ].
 	^ foundMethod ast
+]
+
+{ #category : #interpreting }
+Druid >> lookupSelector: aSelector receiver: aReceiver isSuper: isSuper [
+	
+	| foundMethod classToLookup |
+	
+	classToLookup := isSuper
+		ifTrue: [ currentContext method methodClass superclass ]
+		ifFalse: [ aReceiver class ].
+	
+	foundMethod := classToLookup lookupSelector: aSelector.
+	foundMethod ifNil: [ self error: 'Selector ', aSelector, ' not found. Check if this needs to be implemented as a special case' ].
+	^ foundMethod ast
+]
+
+{ #category : #interpreting }
+Druid >> popContext [
+	
+	currentContext := currentContext parent
+]
+
+{ #category : #interpreting }
+Druid >> pushNewContextWithMethod: aRBMethodNode withReceiver: aReceiver withArguments: arguments [
+	
+	| newContext |
+	newContext := DRInterpreterContext new.
+	newContext parent: currentContext.
+	newContext method: aRBMethodNode.
+	newContext receiver: aReceiver.
+	newContext arguments: arguments.
+	currentContext := newContext
+]
+
+{ #category : #accessing }
+Druid >> receiver [
+	
+	^ currentContext receiver
+]
+
+{ #category : #visiting }
+Druid >> visitArgumentNode: aRBArgumentNode [ 
+	
+	^ currentContext arguments at: aRBArgumentNode binding indexFromIR
+]
+
+{ #category : #visiting }
+Druid >> visitBlockNode: aRBBlockNode [ 
+	
+	^ DRBlock new
+		block: aRBBlockNode;
+		home: currentContext;
+		yourself
 ]
 
 { #category : #visiting }
@@ -150,27 +247,45 @@ Druid >> visitInstanceVariableNode: aRBInstanceVariableNode [
 	aRBInstanceVariableNode name = #localFP
 		ifTrue: [ ^ DRPhisicalRegister basePointer ].
 
-	aRBInstanceVariableNode name = #stackPages
-		ifTrue: [ ^ DRInvalid new ].
+	(#(stackPages objectMemory trueObj) includes: aRBInstanceVariableNode name)
+		ifTrue: [ ^ self receiver instVarNamed: aRBInstanceVariableNode name ].
+
+	aRBInstanceVariableNode name = #currentBytecode
+		ifTrue: [ ^ irBuilder newConstant: currentBytecode ].
 
 	^ self notYetImplemented
+]
+
+{ #category : #visiting }
+Druid >> visitLiteralValueNode: aRBLiteralValueNode [ 
+	
+	^ irBuilder newConstant: aRBLiteralValueNode value
 ]
 
 { #category : #visiting }
 Druid >> visitMessageNode: aRBMessageNode [ 
 	
 	| arguments astToInterpret receiver |
+	
+	"If this is an assertion, fast skip and do not look inside"
+	aRBMessageNode selector = #assert: 
+		ifTrue: [ ^ self ].
+	
 	"First interpret the arguments to generate instructions for them.
 	If this is a special selector, treat it specially with those arguments.
 	Otherwise, lookup and interpret the called method propagating the arguments"
 	receiver := aRBMessageNode receiver acceptVisitor: self.
 	arguments := aRBMessageNode arguments collect: [ :e | e acceptVisitor: self ].
+
 	specialSelectorTable
 		at: aRBMessageNode selector
 		ifPresent: [ :selfSelectorToInterpret |
 			^ self perform: selfSelectorToInterpret with: aRBMessageNode with: receiver with: arguments ].
 
-	astToInterpret := self lookupSelector: aRBMessageNode selector.
+	astToInterpret := self
+		lookupSelector: aRBMessageNode selector
+		receiver: receiver
+		isSuper: aRBMessageNode receiver isSuper.
 	^ self interpretAST: astToInterpret withReceiver: receiver withArguments: arguments.
 ]
 
@@ -196,7 +311,13 @@ Druid >> visitReturnNode: aRBReturnNode [
 { #category : #visiting }
 Druid >> visitSelfNode: aRBSelfNode [ 
 	
-	^ vmInterpreter
+	^ self receiver
+]
+
+{ #category : #visiting }
+Druid >> visitSuperNode: aRBSuperNode [ 
+	
+	^ self receiver
 ]
 
 { #category : #accessing }

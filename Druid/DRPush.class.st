@@ -1,7 +1,7 @@
 Class {
 	#name : #DRPush,
 	#superclass : #DROneArgumentInstruction,
-	#category : #'Druid-instructions'
+	#category : #'Druid-Instructions'
 }
 
 { #category : #printing }

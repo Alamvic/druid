@@ -5,7 +5,7 @@ Class {
 		'leftOperand',
 		'rightOperand'
 	],
-	#category : #'Druid-instructions'
+	#category : #'Druid-Instructions'
 }
 
 { #category : #accessing }

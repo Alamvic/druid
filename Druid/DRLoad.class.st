@@ -1,19 +1,13 @@
 Class {
 	#name : #DRLoad,
 	#superclass : #DROneArgumentInstruction,
-	#category : #'Druid-instructions'
+	#category : #'Druid-Instructions'
 }
 
 { #category : #'instance-creation' }
 DRLoad class >> basePointerRegister [
 	
 	^ self value: DRPhisicalRegister basePointer
-]
-
-{ #category : #testing }
-DRLoad >> isConstantInteger [
-	
-	^ value isInteger
 ]
 
 { #category : #printing }

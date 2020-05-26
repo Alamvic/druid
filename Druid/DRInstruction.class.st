@@ -1,7 +1,7 @@
 Class {
 	#name : #DRInstruction,
 	#superclass : #Object,
-	#category : #'Druid-instructions'
+	#category : #'Druid-Instructions'
 }
 
 { #category : #'as yet unclassified' }

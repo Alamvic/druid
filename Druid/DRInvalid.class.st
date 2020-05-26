@@ -1,5 +1,5 @@
 Class {
 	#name : #DRInvalid,
 	#superclass : #Object,
-	#category : #'Druid-instructions'
+	#category : #'Druid-Instructions'
 }

@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'value'
 	],
-	#category : #'Druid-instructions'
+	#category : #'Druid-Instructions'
 }
 
 { #category : #'instance creation' }

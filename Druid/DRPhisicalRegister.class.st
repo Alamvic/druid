@@ -1,10 +1,10 @@
 Class {
 	#name : #DRPhisicalRegister,
-	#superclass : #DRInstruction,
+	#superclass : #DRValue,
 	#instVars : [
 		'name'
 	],
-	#category : #'Druid-instructions'
+	#category : #'Druid-Instructions'
 }
 
 { #category : #'instance creation' }
@@ -13,12 +13,6 @@ DRPhisicalRegister class >> basePointer [
 	^ self new
 		name: #BasePointer;
 		yourself
-]
-
-{ #category : #'as yet unclassified' }
-DRPhisicalRegister >> appendOn: anInstructionBuilder [
-
-	"Do nothing. Registers are not appended. Only on access"
 ]
 
 { #category : #accessing }

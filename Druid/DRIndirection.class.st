@@ -1,5 +1,5 @@
 Class {
-	#name : #DRConstant,
+	#name : #DRIndirection,
 	#superclass : #DRValue,
 	#instVars : [
 		'value'
@@ -8,31 +8,25 @@ Class {
 }
 
 { #category : #accessing }
-DRConstant class >> value: aValue [
+DRIndirection class >> value: aValue [
 
 	^ self new
 		value: aValue;
 		yourself
 ]
 
-{ #category : #testing }
-DRConstant >> isConstantInteger [
-	
-	^ value isInteger
+{ #category : #accessing }
+DRIndirection >> result [
+
+	^ '(', self value result asString, ')'
 ]
 
 { #category : #accessing }
-DRConstant >> result [
-	
+DRIndirection >> value [
 	^ value
 ]
 
 { #category : #accessing }
-DRConstant >> value [
-	^ value
-]
-
-{ #category : #accessing }
-DRConstant >> value: anObject [
+DRIndirection >> value: anObject [
 	value := anObject
 ]

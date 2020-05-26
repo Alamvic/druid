@@ -4,22 +4,23 @@ Class {
 	#instVars : [
 		'instructions'
 	],
-	#category : #Druid
+	#category : #'Druid-Instructions'
 }
 
 { #category : #building }
 DRIRBuilder >> add: aValue and: anotherValue [
 	
-	^ DRAdd new
+	^ self appendInstruction: (DRAdd new
 		leftOperand: aValue;
 		rightOperand: anotherValue;
-		yourself
+		yourself)
 ]
 
 { #category : #accessing }
 DRIRBuilder >> appendInstruction: anInstruction [ 
 	
-	instructions add: anInstruction
+	instructions add: anInstruction.
+	^ anInstruction
 ]
 
 { #category : #initialization }
@@ -27,6 +28,12 @@ DRIRBuilder >> initialize [
 
 	super initialize.
 	instructions := OrderedCollection new
+]
+
+{ #category : #building }
+DRIRBuilder >> loadAddress: aValue [
+	
+	^ self appendInstruction: (DRLoad value: (DRIndirection value: aValue))
 ]
 
 { #category : #building }
@@ -38,9 +45,6 @@ DRIRBuilder >> newConstant: aValue [
 { #category : #building }
 DRIRBuilder >> push: aValue [
 	
-	| pushInstruction |
-	pushInstruction := DRPush value: aValue.
-	pushInstruction appendOn: self.
-
+	self appendInstruction: (DRPush value: aValue).
 	^ DRInvalid new
 ]
