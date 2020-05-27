@@ -223,7 +223,7 @@ DRASTInterpreter >> visitGlobalNode: aRBGlobalNode [
 DRASTInterpreter >> visitInstanceVariableNode: aRBInstanceVariableNode [ 
 	
 	aRBInstanceVariableNode name = #localFP
-		ifTrue: [ ^ DRPhisicalRegister basePointer ].
+		ifTrue: [ ^ DRPhysicalRegister basePointer ].
 
 	aRBInstanceVariableNode name = #currentBytecode
 		ifTrue: [ ^ irBuilder newConstant: currentBytecode ].

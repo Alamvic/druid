@@ -1,5 +1,5 @@
 Class {
-	#name : #DRPhisicalRegister,
+	#name : #DRRegister,
 	#superclass : #DRValue,
 	#instVars : [
 		'name'
@@ -8,15 +8,15 @@ Class {
 }
 
 { #category : #'instance creation' }
-DRPhisicalRegister class >> basePointer [
+DRRegister class >> named: aName [
 
 	^ self new
-		name: #BasePointer;
+		name: aName;
 		yourself
 ]
 
 { #category : #comparing }
-DRPhisicalRegister >> = aRegister [
+DRRegister >> = aRegister [
 
 	(aRegister isKindOf: self species)
 		ifFalse: [ ^ false ].
@@ -24,23 +24,35 @@ DRPhisicalRegister >> = aRegister [
 ]
 
 { #category : #comparing }
-DRPhisicalRegister >> hash [
+DRRegister >> hash [
 
 	^ name hash
 ]
 
+{ #category : #testing }
+DRRegister >> isConstant [
+	
+	^ false
+]
+
 { #category : #accessing }
-DRPhisicalRegister >> name [
+DRRegister >> name [
 	^ name
 ]
 
 { #category : #accessing }
-DRPhisicalRegister >> name: anObject [
+DRRegister >> name: anObject [
 	name := anObject
 ]
 
 { #category : #accessing }
-DRPhisicalRegister >> result [
+DRRegister >> printOn: aStream [
+
+	^ aStream nextPutAll: name
+]
+
+{ #category : #accessing }
+DRRegister >> result [
 	
-	^ name
+	^ self
 ]

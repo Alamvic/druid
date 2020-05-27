@@ -2,17 +2,20 @@ Class {
 	#name : #DRIRBuilder,
 	#superclass : #Object,
 	#instVars : [
-		'instructions'
+		'instructions',
+		'nextLogicalRegisterIndex',
+		'registerMapping'
 	],
 	#category : #'Druid-Instructions'
 }
 
 { #category : #building }
 DRIRBuilder >> add: aValue and: anotherValue [
-	
+
 	^ self appendInstruction: (DRAdd new
 		leftOperand: aValue;
 		rightOperand: anotherValue;
+		result: self newLogicalRegister;
 		yourself)
 ]
 
@@ -23,11 +26,65 @@ DRIRBuilder >> appendInstruction: anInstruction [
 	^ anInstruction
 ]
 
+{ #category : #'register allocation' }
+DRIRBuilder >> assignPhysicalRegisterToLogical: aCollectionOfLogicals [
+
+	| mappings aBinding |
+
+	mappings := Dictionary new.
+
+	aCollectionOfLogicals do: [ :aLogicalRegister | 
+		
+		aBinding := registerMapping associations
+			detect: [ :anAssociation | anAssociation value = aLogicalRegister ]
+			ifNone: [ registerMapping associations
+												detect: [ :anAssociation | anAssociation value isNil ]
+												ifNone: [ "We have to Spill "1 halt ] ].
+			
+		aBinding value: aLogicalRegister.
+		mappings at: aLogicalRegister put: aBinding key].
+
+	^ mappings
+]
+
+{ #category : #'register allocation' }
+DRIRBuilder >> assignPhysicalRegisters [
+	
+	| reversedInstructions newInstructions |
+	self initializeFreeRegisters: #(rax rbx rcx rdx rsi rdi r8 r9 r10).
+	reversedInstructions := instructions reverse.
+	newInstructions := OrderedCollection new.
+	
+	reversedInstructions do: [ :anInstruction | 
+		self assignPhysicalRegistersTo: anInstruction into: newInstructions ].
+	
+	instructions := newInstructions
+]
+
+{ #category : #'register allocation' }
+DRIRBuilder >> assignPhysicalRegistersTo: anInstruction into: newInstructions [ 
+
+	| mappings |
+	mappings := self assignPhysicalRegisterToLogical: anInstruction logicalRegisters.
+	anInstruction updateLogicalRegisters: mappings.
+	
+	newInstructions addFirst: anInstruction
+]
+
 { #category : #initialization }
 DRIRBuilder >> initialize [
 
 	super initialize.
+	nextLogicalRegisterIndex := 1.
 	instructions := OrderedCollection new
+]
+
+{ #category : #'register allocation' }
+DRIRBuilder >> initializeFreeRegisters: aCollectionOfNames [
+
+	registerMapping := (aCollectionOfNames
+		collect: [ :aName | (DRPhysicalRegister named: aName) -> nil ]) asDictionary
+		
 ]
 
 { #category : #accessing }
@@ -37,14 +94,30 @@ DRIRBuilder >> instructions [
 
 { #category : #building }
 DRIRBuilder >> loadAddress: aValue [
-	
-	^ self appendInstruction: (DRLoad value: (DRIndirection value: aValue))
+
+	^ self
+		appendInstruction:
+			(DRLoad
+				value: (DRIndirection value: aValue)
+				result: self newLogicalRegister)
 ]
 
 { #category : #building }
 DRIRBuilder >> newConstant: aValue [
 
 	^ DRConstant value: aValue
+]
+
+{ #category : #'logical registers' }
+DRIRBuilder >> newLogicalRegister [
+
+	| aNewRegister |
+	
+	aNewRegister := DRLogicalRegister named: 'l' , nextLogicalRegisterIndex printString.
+		
+	nextLogicalRegisterIndex := nextLogicalRegisterIndex + 1.
+	
+	^ aNewRegister 
 ]
 
 { #category : #building }

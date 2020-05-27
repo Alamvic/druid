@@ -27,10 +27,21 @@ DRConstant >> isConstantInteger [
 	^ value isInteger
 ]
 
+{ #category : #'as yet unclassified' }
+DRConstant >> printOn: aStream [
+
+	^ aStream nextPutAll: self value asString
+]
+
 { #category : #accessing }
-DRConstant >> result [
+DRConstant >> registers [
+	^ {}
+]
+
+{ #category : #'register allocation' }
+DRConstant >> updateLogicalRegisters: mappings [ 
 	
-	^ value
+	^ self
 ]
 
 { #category : #accessing }

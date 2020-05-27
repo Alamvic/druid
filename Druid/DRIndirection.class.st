@@ -2,6 +2,7 @@ Class {
 	#name : #DRIndirection,
 	#superclass : #DRValue,
 	#instVars : [
+		'valueInstruction',
 		'value'
 	],
 	#category : #'Druid-Instructions'
@@ -15,10 +16,44 @@ DRIndirection class >> value: aValue [
 		yourself
 ]
 
+{ #category : #testing }
+DRIndirection >> isConstant [
+	
+	^ value isConstant
+]
+
+{ #category : #testing }
+DRIndirection >> isPhysical [
+	
+	^ value isPhysical
+]
+
+{ #category : #accessing }
+DRIndirection >> printOn: aStream [
+
+	^ aStream nextPutAll: '(', self value asString, ')'
+]
+
+{ #category : #accessing }
+DRIndirection >> registers [
+	
+	^ value registers
+]
+
 { #category : #accessing }
 DRIndirection >> result [
 
-	^ '(', self value result asString, ')'
+	^ self
+]
+
+{ #category : #'register allocation' }
+DRIndirection >> updateLogicalRegisters: mappings [
+
+	value isConstant
+		ifFalse: [ value isPhysical
+				ifFalse: [ value := mappings at: value ] ].
+			
+	^ self
 ]
 
 { #category : #accessing }
@@ -27,6 +62,7 @@ DRIndirection >> value [
 ]
 
 { #category : #accessing }
-DRIndirection >> value: anObject [
-	value := anObject
+DRIndirection >> value: anInstruction [
+	valueInstruction := anInstruction.
+	value := valueInstruction result
 ]

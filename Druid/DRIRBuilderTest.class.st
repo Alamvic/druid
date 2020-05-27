@@ -15,7 +15,7 @@ DRIRBuilderTest >> testLoadAddressAppendsCreatedInstruction [
 
 	| builder loadInstruction |
 	builder := DRIRBuilder new.
-	loadInstruction := builder loadAddress: 17.
+	loadInstruction := builder loadAddress: (DRConstant value: 17).
 	self assert: (builder instructions includes: loadInstruction)
 ]
 
@@ -24,7 +24,7 @@ DRIRBuilderTest >> testLoadAddressAppendsInstruction [
 
 	| builder loadInstruction |
 	builder := DRIRBuilder new.
-	loadInstruction := builder loadAddress: 17.
+	loadInstruction := builder loadAddress: (DRConstant value: 17).
 	self assert: builder instructions size equals: 1
 ]
 
@@ -42,7 +42,7 @@ DRIRBuilderTest >> testPushAppendsCreatedInstruction [
 
 	| builder pushInstruction |
 	builder := DRIRBuilder new.
-	pushInstruction := builder push: 17.
+	pushInstruction := builder push: (DRConstant value: 17).
 	self assert: (builder instructions includes: pushInstruction)
 ]
 
@@ -51,6 +51,6 @@ DRIRBuilderTest >> testPushAppendsnstruction [
 
 	| builder pushInstruction |
 	builder := DRIRBuilder new.
-	pushInstruction := builder push: 17.
+	pushInstruction := builder push: (DRConstant value: 17).
 	self assert: builder instructions size equals: 1
 ]

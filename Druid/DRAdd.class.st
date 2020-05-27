@@ -2,20 +2,19 @@ Class {
 	#name : #DRAdd,
 	#superclass : #DRInstruction,
 	#instVars : [
-		'leftOperand',
-		'rightOperand'
+		'leftOperandRegister',
+		'rightOperandRegister',
+		'leftOperandInstruction',
+		'rightOperandInstruction'
 	],
 	#category : #'Druid-Instructions'
 }
 
 { #category : #accessing }
-DRAdd >> leftOperand [
-	^ leftOperand
-]
-
-{ #category : #accessing }
 DRAdd >> leftOperand: anObject [
-	leftOperand := anObject
+
+	leftOperandInstruction := anObject.
+	leftOperandRegister := anObject
 ]
 
 { #category : #printing }
@@ -24,24 +23,29 @@ DRAdd >> mnemonic [
 	^ 'ADD'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRAdd >> operands [
 
-	^ { leftOperand . rightOperand }
+	^ { leftOperandRegister . rightOperandRegister }
 ]
 
 { #category : #accessing }
-DRAdd >> result [
+DRAdd >> registers [
 	
-	^ 't2'
-]
-
-{ #category : #accessing }
-DRAdd >> rightOperand [
-	^ rightOperand
+	^ leftOperandRegister registers , rightOperandRegister registers, result registers
 ]
 
 { #category : #accessing }
 DRAdd >> rightOperand: anObject [
-	rightOperand := anObject
+
+	rightOperandInstruction := anObject.
+	rightOperandRegister := anObject
+]
+
+{ #category : #'register allocation' }
+DRAdd >> updateLogicalRegisters: mappings [ 
+
+	leftOperandRegister := leftOperandRegister updateLogicalRegisters: mappings.
+	rightOperandRegister := rightOperandRegister updateLogicalRegisters: mappings.
+	result := result updateLogicalRegisters: mappings.
 ]

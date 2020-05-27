@@ -7,7 +7,7 @@ Class {
 { #category : #'instance-creation' }
 DRLoad class >> basePointerRegister [
 	
-	^ self value: DRPhisicalRegister basePointer
+	^ self value: DRPhysicalRegister basePointer
 ]
 
 { #category : #printing }
@@ -17,7 +17,14 @@ DRLoad >> mnemonic [
 ]
 
 { #category : #accessing }
-DRLoad >> result [
+DRLoad >> registers [
 	
-	^ 't1'
+	^ valueRegister registers , result registers
+]
+
+{ #category : #'register allocation' }
+DRLoad >> updateLogicalRegisters: mappings [ 
+
+	result := result updateLogicalRegisters: mappings	.
+	valueRegister := valueRegister updateLogicalRegisters: mappings
 ]

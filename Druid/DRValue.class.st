@@ -10,8 +10,8 @@ DRValue >> appendOn: anInstructionBuilder [
 	"Do nothing. Registers are not appended. Only on access"
 ]
 
-{ #category : #'as yet unclassified' }
-DRValue >> printOn: aStream [
+{ #category : #printing }
+DRValue >> result [
 
-	^ aStream nextPutAll: self result asString
+	^ self
 ]

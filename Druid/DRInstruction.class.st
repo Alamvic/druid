@@ -1,6 +1,9 @@
 Class {
 	#name : #DRInstruction,
 	#superclass : #Object,
+	#instVars : [
+		'result'
+	],
 	#category : #'Druid-Instructions'
 }
 
@@ -15,6 +18,12 @@ DRInstruction >> appendOn: anInstructionBuilder [
 DRInstruction >> isConstantInteger [
 	
 	^ false
+]
+
+{ #category : #accessing }
+DRInstruction >> logicalRegisters [
+	
+	^ self registers reject: [ :e | e isPhysical ]
 ]
 
 { #category : #printing }
@@ -40,6 +49,22 @@ DRInstruction >> printOn: aStream [
 		do: [ :operand |
 			aStream nextPutAll: operand result asString.
 			aStream space ].
-		
-	aStream nextPutAll: self result
+	
+	self result 
+		ifNotNil: [ :aResult | 
+			aStream
+			 	nextPutAll: ' -> ';
+				nextPutAll: aResult printString ].
+]
+
+{ #category : #printing }
+DRInstruction >> result [ 
+
+	^ result
+]
+
+{ #category : #printing }
+DRInstruction >> result: aLogicalRegister [
+
+	result := aLogicalRegister
 ]

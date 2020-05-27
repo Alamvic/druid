@@ -2,26 +2,42 @@ Class {
 	#name : #DROneArgumentInstruction,
 	#superclass : #DRInstruction,
 	#instVars : [
-		'value'
+		'valueInstruction',
+		'valueRegister'
 	],
 	#category : #'Druid-Instructions'
 }
 
 { #category : #'instance creation' }
-DROneArgumentInstruction class >> value: aValue [ 
+DROneArgumentInstruction class >> value: aValue [
+
+	^ self value: aValue result: nil
+]
+
+{ #category : #'instance creation' }
+DROneArgumentInstruction class >> value: aValue result: aResult [
 
 	^ self new
 		value: aValue;
+		result: aResult
 		yourself
 ]
 
 { #category : #'as yet unclassified' }
 DROneArgumentInstruction >> operands [
 
-	^ { value }
+	^ { valueRegister }
+]
+
+{ #category : #accessing }
+DROneArgumentInstruction >> value [
+	
+	^ valueRegister
 ]
 
 { #category : #accessing }
 DROneArgumentInstruction >> value: aValue [
-	value := aValue
+
+	valueInstruction := aValue.
+	valueRegister := aValue result
 ]

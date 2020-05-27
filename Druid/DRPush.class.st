@@ -11,7 +11,13 @@ DRPush >> mnemonic [
 ]
 
 { #category : #accessing }
-DRPush >> result [
-	"no result"
-	^ ''
+DRPush >> registers [
+	^ valueRegister registers
+]
+
+{ #category : #'register allocation' }
+DRPush >> updateLogicalRegisters: mappings [ 
+
+	self assert: mappings size = 1.
+	valueRegister := mappings associations first value.
 ]

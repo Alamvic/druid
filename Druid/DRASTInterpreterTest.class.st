@@ -64,5 +64,5 @@ DRASTInterpreterTest >> testVisitLocalFPInstanceVariableReturnsBasePointerRegist
 	interpreter := self newASTInterpreter.
 	result := (RBInstanceVariableNode named: #localFP) acceptVisitor: interpreter.
 	
-	self assert: result equals: DRPhisicalRegister basePointer.
+	self assert: result equals: DRPhysicalRegister basePointer.
 ]
