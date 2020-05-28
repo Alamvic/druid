@@ -100,3 +100,34 @@ DRSimulateGeneratedBytecodeTest >> testPushSecondInstanceVariablePushesTheValue 
 	self assert: (self popAddress) equals: memory falseObject.
 	
 ]
+
+{ #category : #'tests - single bytecode' }
+DRSimulateGeneratedBytecodeTest >> testSendAddSpecialSelectorWithIntegers [
+
+	| address endAddress instanceVariableToWrite |
+	astInterpreter interpretBytecode: #[96].
+	astInterpreter irBuilder assignPhysicalRegisters.
+	
+	instanceVariableToWrite := 2.
+	
+	"Create an object with at least `instanceVariableToWrite` instance variables.
+	In memory, instance variables are 0-indexed so substract 1"
+	obj := self newObjectWithSlots: instanceVariableToWrite.
+	memory storePointer: instanceVariableToWrite - 1 ofObject: obj withValue: memory falseObject.
+
+	mcTranslator := DRIntermediateRepresentationToMachineCodeTranslator
+		translate: builder instructions
+		withCompiler: cogit.
+
+	address := cogit methodZone freeStart.
+	endAddress := mcTranslator generate.
+
+	self 
+		createInterpreterFramefulCallFrom: callerAddress 
+		receiver: obj arguments: #() temporaries: #().
+
+	self runFrom: address until: endAddress.
+
+	self assert: (self popAddress) equals: memory falseObject.
+	
+]

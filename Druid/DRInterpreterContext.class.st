@@ -6,7 +6,8 @@ Class {
 		'method',
 		'receiver',
 		'arguments',
-		'block'
+		'block',
+		'temporaries'
 	],
 	#category : #'Druid-Interpreter'
 }
@@ -14,7 +15,13 @@ Class {
 { #category : #accessing }
 DRInterpreterContext >> argumentNamed: aString [ 
 	
-	^ arguments at: (method argumentNames indexOf: aString)
+	| index |
+	index := (method argumentNames indexOf: aString).
+	
+	^ index ~= 0 
+		ifTrue: [ arguments at: index ]
+		ifFalse: [ block home argumentNamed: aString ]
+	
 ]
 
 { #category : #accessing }
@@ -31,6 +38,13 @@ DRInterpreterContext >> arguments: anObject [
 DRInterpreterContext >> block: aDRBlock [	
 
 	block := aDRBlock 
+]
+
+{ #category : #accessing }
+DRInterpreterContext >> initialize [
+
+	super initialize.
+	temporaries := Dictionary new
 ]
 
 { #category : #accessing }
@@ -61,4 +75,16 @@ DRInterpreterContext >> receiver [
 { #category : #accessing }
 DRInterpreterContext >> receiver: anObject [
 	receiver := anObject
+]
+
+{ #category : #temporaries }
+DRInterpreterContext >> tempNamed: aName put: aValue [ 
+	
+	temporaries at: aName put: aValue
+]
+
+{ #category : #accessing }
+DRInterpreterContext >> temporaryNamed: aName [ 
+	
+	^ temporaries at: aName ifAbsent: [ block home temporaryNamed: aName ]
 ]

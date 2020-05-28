@@ -10,6 +10,12 @@ DRPhysicalRegister class >> basePointer [
 	^ self named: #BasePointer
 ]
 
+{ #category : #'instance creation' }
+DRPhysicalRegister class >> stackPointer [
+
+	^ self named: #StackPointer
+]
+
 { #category : #tesing }
 DRPhysicalRegister >> isPhysical [
 	

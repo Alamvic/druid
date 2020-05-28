@@ -73,6 +73,40 @@ DRIRBuilder >> assignPhysicalRegistersTo: anInstruction into: newInstructions [
 	newInstructions addFirst: anInstruction
 ]
 
+{ #category : #building }
+DRIRBuilder >> bitAnd: aValue with: anotherValue [ 
+
+	^ self appendInstruction: (DRBitAnd new
+		leftOperand: aValue;
+		rightOperand: anotherValue;
+		result: self newLogicalRegister;
+		yourself)	
+]
+
+{ #category : #building }
+DRIRBuilder >> bitShift: aValue magnitude: anotherValue [
+
+	^ self
+		appendInstruction:
+			(DRBitShiftLeft new
+				leftOperand: aValue;
+				rightOperand: anotherValue;
+				result: self newLogicalRegister;
+				yourself)
+]
+
+{ #category : #building }
+DRIRBuilder >> compare: aValue with: anotherValue [ 
+
+	^ self
+		appendInstruction:
+			(DRCompare new
+				leftOperand: aValue;
+				rightOperand: anotherValue;
+				result: self newLogicalRegister;
+				yourself)
+]
+
 { #category : #initialization }
 DRIRBuilder >> initialize [
 
@@ -115,6 +149,24 @@ DRIRBuilder >> isa: anObject [
 ]
 
 { #category : #building }
+DRIRBuilder >> jump [
+
+	^ self appendInstruction: DRJump new
+]
+
+{ #category : #building }
+DRIRBuilder >> jumpFalse [
+
+	^ self appendInstruction: DRJumpFalse new
+]
+
+{ #category : #building }
+DRIRBuilder >> label [
+	
+	^ self appendInstruction: DRLabel new
+]
+
+{ #category : #building }
 DRIRBuilder >> loadAddress: aValue [
 
 	^ self
@@ -146,4 +198,16 @@ DRIRBuilder >> newLogicalRegister [
 DRIRBuilder >> push: aValue [
 	
 	^ self appendInstruction: (DRPush value: aValue).
+]
+
+{ #category : #building }
+DRIRBuilder >> substract: aValue and: anotherValue [
+
+	^ self
+		appendInstruction:
+			(DRSubstract new
+				leftOperand: aValue;
+				rightOperand: anotherValue;
+				result: self newLogicalRegister;
+				yourself)
 ]

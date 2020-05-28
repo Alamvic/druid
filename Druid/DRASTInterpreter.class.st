@@ -12,6 +12,25 @@ Class {
 	#category : #'Druid-Interpreter'
 }
 
+{ #category : #interpreting }
+DRASTInterpreter >> activateBlock: aDRBlock [
+
+	| lastValue |
+	self
+		pushNewContextWithMethod: aDRBlock block
+		withReceiver: currentContext receiver
+		withArguments: #().
+	currentContext block: aDRBlock.
+
+	lastValue := nil.
+	aDRBlock block statements do: [ :e | 
+		lastValue := e acceptVisitor: self ].
+	
+	self popContext.
+	
+	^ lastValue
+]
+
 { #category : #'special-cases' }
 DRASTInterpreter >> fetchNextInstruction [
 
@@ -28,10 +47,24 @@ DRASTInterpreter >> initialize [
 	specialSelectorTable at: #fetchNextBytecode put: #interpretFetchNextBytecodeOn:receiver:arguments:.
 	specialSelectorTable at: #longAt: put: #interpretLongAtOn:receiver:arguments:.
 	specialSelectorTable at: #internalPush: put: #interpretInternalPushOn:receiver:arguments:.
+
+	"Arithmetic messages"
 	specialSelectorTable at: #+ put: #interpretSumOn:receiver:arguments:.
-	specialSelectorTable at: #cCode:inSmalltalk: put: #interpretcCodeInSmalltalk:receiver:arguments:.
+	specialSelectorTable at: #* put: #interpretMultiplicationOn:receiver:arguments:.
+	specialSelectorTable at: #anyMask: put: #interpretAnyMask:receiver:arguments:.
 	specialSelectorTable at: #bitAnd: put: #interpretBitAnd:receiver:arguments:.
-	specialSelectorTable at: #<< put: #interpretLeftShift:receiver:arguments:.
+	specialSelectorTable at: #<< put: #interpretBitShift:receiver:arguments:.
+	specialSelectorTable at: #bitShift: put: #interpretBitShift:receiver:arguments:.
+	specialSelectorTable at: #negated put: #interpretNegated:receiver:arguments:.
+	specialSelectorTable at: #- put: #interpretSubstract:receiver:arguments:.
+
+	"Comparison"
+	specialSelectorTable at: #= put: #interpretEquals:receiver:arguments:.
+
+	"Control-flow"
+	specialSelectorTable at: #ifTrue:ifFalse: put: #interpretIfTrueIfFalse:receiver:arguments:.	
+	specialSelectorTable at: #cCode:inSmalltalk: put: #interpretcCodeInSmalltalk:receiver:arguments:.
+
 ]
 
 { #category : #interpreting }
@@ -58,6 +91,20 @@ DRASTInterpreter >> interpretAST: aRBMethodNode withReceiver: aReceiver withArgu
 ]
 
 { #category : #'special-cases' }
+DRASTInterpreter >> interpretAnyMask: aRBMessageNode receiver: aReceiver arguments: arguments [ 
+	
+	"This is a logical bitAnd.
+	Either both receiver and arguments are constants and we can fold them, only if they do not overflow.
+	Otherwise, we need to load the values and sum them."
+	self assert: arguments size = 1.
+	
+	(aReceiver isConstantInteger and: [ arguments first isConstantInteger ])
+		ifTrue: [ ^ irBuilder newConstant: (aReceiver value anyMask: arguments first value) ].
+	
+	^ irBuilder bitAnd: aReceiver with: arguments first
+]
+
+{ #category : #'special-cases' }
 DRASTInterpreter >> interpretBitAnd: aRBMessageNode receiver: aReceiver arguments: arguments [
 	
 	"This is a logical bitAnd.
@@ -69,6 +116,20 @@ DRASTInterpreter >> interpretBitAnd: aRBMessageNode receiver: aReceiver argument
 		ifTrue: [ ^ irBuilder newConstant: (aReceiver value bitAnd: arguments first value) ].
 	
 	^ irBuilder bitAnd: aReceiver with: arguments first
+]
+
+{ #category : #'special-cases' }
+DRASTInterpreter >> interpretBitShift: aRBMessageNode receiver: aReceiver arguments: arguments [ 
+	
+	"This is a bit shift.
+	Either both receiver and arguments are constants and we can fold them.
+	Otherwise, we need to load the values and sum them."
+	self assert: arguments size = 1.
+	
+	(aReceiver isConstantInteger and: [ arguments first isConstantInteger ])
+		ifTrue: [ ^ irBuilder newConstant: (aReceiver value bitShift: arguments first value) ].
+	
+	^ irBuilder bitShift: aReceiver magnitude: arguments first
 ]
 
 { #category : #interpreting }
@@ -83,9 +144,34 @@ DRASTInterpreter >> interpretBytecode: aCollection [
 ]
 
 { #category : #'special-cases' }
+DRASTInterpreter >> interpretEquals: aRBMessageNode receiver: aReceiver arguments: arguments [ 
+	
+	self assert: arguments size = 1.
+	
+	(aReceiver isConstantInteger and: [ arguments first isConstantInteger ])
+		ifTrue: [ ^ irBuilder newConstant: (aReceiver value = arguments first value) asBit ].
+	
+	^ irBuilder compare: aReceiver with: arguments first
+]
+
+{ #category : #'special-cases' }
 DRASTInterpreter >> interpretFetchNextBytecodeOn: aMessageSendNode receiver: aReceiver arguments: arguments [
 
 	self fetchNextInstruction
+]
+
+{ #category : #'special-cases' }
+DRASTInterpreter >> interpretIfTrueIfFalse: aRBMessageNode receiver: condition arguments: arguments [ 
+
+	| jumpFalse jumpEnd |
+	self assert: irBuilder instructions last canBeConditionalized.
+
+	jumpFalse := irBuilder jumpFalse.
+	self activateBlock: arguments first.
+	jumpEnd := irBuilder jump.
+	jumpFalse target: irBuilder label.
+	self activateBlock: arguments second.
+	jumpEnd target: irBuilder label.
 ]
 
 { #category : #'special-cases' }
@@ -95,23 +181,49 @@ DRASTInterpreter >> interpretInternalPushOn: aRBMessageNode receiver: aStackInte
 ]
 
 { #category : #'special-cases' }
-DRASTInterpreter >> interpretLeftShift: aRBMessageNode receiver: aReceiver arguments: arguments [ 
+DRASTInterpreter >> interpretLongAtOn: aRBMessageNode receiver: aReceiver arguments: aCollection [ 
 	
-	"This is a left shift <<.
+	^ irBuilder loadAddress: aCollection first
+]
+
+{ #category : #'special-cases' }
+DRASTInterpreter >> interpretMultiplicationOn: aRBMessageNode receiver: aReceiver arguments: arguments [ 
+	
+	"This is a multiplication.
 	Either both receiver and arguments are constants and we can fold them.
 	Otherwise, we need to load the values and sum them."
 	self assert: arguments size = 1.
 	
 	(aReceiver isConstantInteger and: [ arguments first isConstantInteger ])
-		ifTrue: [ ^ irBuilder newConstant: aReceiver value << arguments first value ].
+		ifTrue: [ ^ irBuilder newConstant: aReceiver value * arguments first value ].
 	
-	^ irBuilder bitShift: aReceiver left: arguments first
+	^ irBuilder multiply: aReceiver and: arguments first
+
 ]
 
 { #category : #'special-cases' }
-DRASTInterpreter >> interpretLongAtOn: aRBMessageNode receiver: aReceiver arguments: aCollection [ 
+DRASTInterpreter >> interpretNegated: aRBMessageNode receiver: aReceiver arguments: arguments [ 
 	
-	^ irBuilder loadAddress: aCollection first
+	self assert: arguments isEmpty.
+	
+	aReceiver isConstantInteger
+		ifTrue: [ ^ irBuilder newConstant: aReceiver value negated ].
+	
+	^ irBuilder negate: aReceiver
+]
+
+{ #category : #'special-cases' }
+DRASTInterpreter >> interpretSubstract: aRBMessageNode receiver: aReceiver arguments: arguments [ 
+	
+	"This is a substraction.
+	Either both receiver and arguments are constants and we can fold them, only if they do not overflow.
+	Otherwise, we need to load the values and sum them."
+	self assert: arguments size = 1.
+	
+	(aReceiver isConstantInteger and: [ arguments first isConstantInteger ])
+		ifTrue: [ ^ irBuilder newConstant: aReceiver value - arguments first value ].
+	
+	^ irBuilder substract: aReceiver and: arguments first
 ]
 
 { #category : #'special-cases' }
@@ -130,19 +242,10 @@ DRASTInterpreter >> interpretSumOn: aRBMessageNode receiver: aReceiver arguments
 
 { #category : #'special-cases' }
 DRASTInterpreter >> interpretcCodeInSmalltalk: messageNode receiver: receiver arguments: arguments [
-	
-	| lastValue |
-	self
-		pushNewContextWithMethod: arguments second block
-		withReceiver: currentContext receiver
-		withArguments: #().
-	currentContext block: arguments second.
 
-	lastValue := nil.
-	arguments second block statements do: [ :e | 
-		lastValue := e acceptVisitor: self ].
-	self popContext.
-	^ lastValue
+	^ self activateBlock: arguments second
+	
+
 ]
 
 { #category : #accessing }
@@ -209,6 +312,17 @@ DRASTInterpreter >> visitArgumentNode: aRBArgumentNode [
 ]
 
 { #category : #visiting }
+DRASTInterpreter >> visitAssignmentNode: aRBAssignmentNode [ 
+	
+	| value |
+	
+	value := aRBAssignmentNode value acceptVisitor: self.
+	
+	currentContext tempNamed: aRBAssignmentNode variable name put: value.
+	^ value
+]
+
+{ #category : #visiting }
 DRASTInterpreter >> visitBlockNode: aRBBlockNode [ 
 	
 	^ DRBlock new
@@ -229,6 +343,9 @@ DRASTInterpreter >> visitInstanceVariableNode: aRBInstanceVariableNode [
 	
 	aRBInstanceVariableNode name = #localFP
 		ifTrue: [ ^ DRPhysicalRegister basePointer ].
+
+	aRBInstanceVariableNode name = #localSP
+		ifTrue: [ ^ DRPhysicalRegister stackPointer ].
 
 	aRBInstanceVariableNode name = #currentBytecode
 		ifTrue: [ ^ irBuilder newConstant: currentBytecode ].
@@ -299,6 +416,12 @@ DRASTInterpreter >> visitSelfNode: aRBSelfNode [
 DRASTInterpreter >> visitSuperNode: aRBSuperNode [ 
 	
 	^ self receiver
+]
+
+{ #category : #visiting }
+DRASTInterpreter >> visitTemporaryNode: aRBTemporaryNode [ 
+	
+	^ currentContext temporaryNamed: aRBTemporaryNode name
 ]
 
 { #category : #accessing }
