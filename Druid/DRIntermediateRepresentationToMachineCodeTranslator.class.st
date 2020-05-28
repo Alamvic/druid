@@ -148,20 +148,20 @@ DRIntermediateRepresentationToMachineCodeTranslator >> translateRegister: aStrin
 { #category : #visiting }
 DRIntermediateRepresentationToMachineCodeTranslator >> visitAdd: aDRAdd [
 
-	aDRAdd leftOperandRegister isConstant
+	aDRAdd leftOperandRegister result isConstant
 		ifTrue: [ 
 			self
-				genMoveConstant: aDRAdd leftOperandRegister value
+				genMoveConstant: aDRAdd leftOperandRegister result value
 				toRegister: aDRAdd result name ]
 		ifFalse: [
 			self 
-				genMoveRegister: aDRAdd leftOperandRegister name 
+				genMoveRegister: aDRAdd leftOperandRegister result name 
 				toRegister: aDRAdd result name ].
 		
-	aDRAdd rightOperandRegister isConstant
+	aDRAdd rightOperandRegister result isConstant
 		ifTrue: [ 
 			^ self
-				genAdd: aDRAdd rightOperandRegister value
+				genAdd: aDRAdd rightOperandRegister result value
 				toRegister: aDRAdd result name ]
 		ifFalse: [ self halt ].
 ]

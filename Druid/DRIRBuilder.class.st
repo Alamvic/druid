@@ -92,9 +92,10 @@ DRIRBuilder >> initializeFreeRegisters: aCollectionOfNames [
 
 { #category : #'register allocation' }
 DRIRBuilder >> initializeFreeRegistersForIsa: anIsa [
-
+	
+	"We cannot use the R8 in SysV and R11 in Windows!!"
 	anIsa = #X64
-		ifTrue: [ self initializeFreeRegisters: #(rax rbx rcx rdx rsi rdi r8 r9 r10) ]
+		ifTrue: [ self initializeFreeRegisters: #(rax rbx rcx rdx rsi rdi r12 r9 r10) ]
 		ifFalse: [ self initializeFreeRegisters: #(eax ebx ecx edx esi edi) ]
 ]
 

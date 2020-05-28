@@ -27,7 +27,7 @@ DRConstant >> isConstantInteger [
 	^ value isInteger
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #printing }
 DRConstant >> printOn: aStream [
 
 	^ aStream nextPutAll: self value asString
