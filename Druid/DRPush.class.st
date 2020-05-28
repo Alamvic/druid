@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-Instructions'
 }
 
+{ #category : #visiting }
+DRPush >> accept: aTranslator [ 
+
+	aTranslator visitPush: self.
+]
+
 { #category : #printing }
 DRPush >> mnemonic [
 	
@@ -18,6 +24,5 @@ DRPush >> registers [
 { #category : #'register allocation' }
 DRPush >> updateLogicalRegisters: mappings [ 
 
-	self assert: mappings size = 1.
-	valueRegister := mappings associations first value.
+	valueRegister := valueRegister updateLogicalRegisters: mappings
 ]

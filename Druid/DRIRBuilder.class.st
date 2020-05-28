@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'instructions',
 		'nextLogicalRegisterIndex',
-		'registerMapping'
+		'registerMapping',
+		'isa'
 	],
 	#category : #'Druid-Instructions'
 }
@@ -51,7 +52,8 @@ DRIRBuilder >> assignPhysicalRegisterToLogical: aCollectionOfLogicals [
 DRIRBuilder >> assignPhysicalRegisters [
 	
 	| reversedInstructions newInstructions |
-	self initializeFreeRegisters: #(rax rbx rcx rdx rsi rdi r8 r9 r10).
+	self initializeFreeRegistersForIsa: isa.
+	
 	reversedInstructions := instructions reverse.
 	newInstructions := OrderedCollection new.
 	
@@ -76,7 +78,8 @@ DRIRBuilder >> initialize [
 
 	super initialize.
 	nextLogicalRegisterIndex := 1.
-	instructions := OrderedCollection new
+	instructions := OrderedCollection new.
+	isa := #'X64'
 ]
 
 { #category : #'register allocation' }
@@ -87,9 +90,27 @@ DRIRBuilder >> initializeFreeRegisters: aCollectionOfNames [
 		
 ]
 
+{ #category : #'register allocation' }
+DRIRBuilder >> initializeFreeRegistersForIsa: anIsa [
+
+	anIsa = #X64
+		ifTrue: [ self initializeFreeRegisters: #(rax rbx rcx rdx rsi rdi r8 r9 r10) ]
+		ifFalse: [ self initializeFreeRegisters: #(eax ebx ecx edx esi edi) ]
+]
+
 { #category : #accessing }
 DRIRBuilder >> instructions [
 	^ instructions
+]
+
+{ #category : #accessing }
+DRIRBuilder >> isa [
+	^ isa
+]
+
+{ #category : #accessing }
+DRIRBuilder >> isa: anObject [
+	isa := anObject
 ]
 
 { #category : #building }

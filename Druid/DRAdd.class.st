@@ -10,11 +10,22 @@ Class {
 	#category : #'Druid-Instructions'
 }
 
+{ #category : #visiting }
+DRAdd >> accept: aMCTranslator [ 
+
+	aMCTranslator visitAdd: self
+]
+
 { #category : #accessing }
 DRAdd >> leftOperand: anObject [
 
 	leftOperandInstruction := anObject.
 	leftOperandRegister := anObject
+]
+
+{ #category : #accessing }
+DRAdd >> leftOperandRegister [
+	^ leftOperandRegister
 ]
 
 { #category : #printing }
@@ -40,6 +51,11 @@ DRAdd >> rightOperand: anObject [
 
 	rightOperandInstruction := anObject.
 	rightOperandRegister := anObject
+]
+
+{ #category : #accessing }
+DRAdd >> rightOperandRegister [
+	^ rightOperandRegister
 ]
 
 { #category : #'register allocation' }

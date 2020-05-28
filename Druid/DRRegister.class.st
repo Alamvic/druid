@@ -35,6 +35,12 @@ DRRegister >> isConstant [
 	^ false
 ]
 
+{ #category : #testing }
+DRRegister >> isRegister [
+	
+	^ true
+]
+
 { #category : #accessing }
 DRRegister >> name [
 	^ name

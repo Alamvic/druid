@@ -150,6 +150,11 @@ DRASTInterpreter >> irBuilder [
 	^ irBuilder
 ]
 
+{ #category : #accessing }
+DRASTInterpreter >> irBuilder: aDRIRBuilder [ 
+	irBuilder := aDRIRBuilder
+]
+
 { #category : #interpreting }
 DRASTInterpreter >> lookupSelector: aSelector receiver: aReceiver [
 	

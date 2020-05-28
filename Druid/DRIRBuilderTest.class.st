@@ -38,19 +38,19 @@ DRIRBuilderTest >> testNewConstantDoesNotAppendInstruction [
 ]
 
 { #category : #tests }
+DRIRBuilderTest >> testPushAppendInstruction [
+
+	| builder pushInstruction |
+	builder := DRIRBuilder new.
+	pushInstruction := builder push: (DRConstant value: 17).
+	self assert: builder instructions size equals: 1
+]
+
+{ #category : #tests }
 DRIRBuilderTest >> testPushAppendsCreatedInstruction [
 
 	| builder pushInstruction |
 	builder := DRIRBuilder new.
 	pushInstruction := builder push: (DRConstant value: 17).
 	self assert: (builder instructions includes: pushInstruction)
-]
-
-{ #category : #tests }
-DRIRBuilderTest >> testPushAppendsnstruction [
-
-	| builder pushInstruction |
-	builder := DRIRBuilder new.
-	pushInstruction := builder push: (DRConstant value: 17).
-	self assert: builder instructions size equals: 1
 ]

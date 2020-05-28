@@ -23,9 +23,21 @@ DRIndirection >> isConstant [
 ]
 
 { #category : #testing }
+DRIndirection >> isIndirection [
+	
+	^ true
+]
+
+{ #category : #testing }
 DRIndirection >> isPhysical [
 	
 	^ value isPhysical
+]
+
+{ #category : #testing }
+DRIndirection >> isRegister [
+	
+	^ value isRegister
 ]
 
 { #category : #accessing }
