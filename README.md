@@ -163,17 +163,168 @@ The JIT'ted version of the addition bytecode (`genSpecialSelectorArithmetic`) is
 
 ### Overview of Druid
 
-A meta-interpreter analyzes the bytecode interpreter code and generates an intermediate representation from it.
+In Druid, a meta-interpreter analyzes the bytecode interpreter code and generates an intermediate representation from it.
 A compiler interface then generates machine code from the intermediate representation.
-The output of the intermediate representation should have the same behaviour as the existing Cogit JIT compiler.
+The output of the intermediate representation should have in general terms the same behaviour as the existing Cogit JIT compiler.
 
 To verify the correctness of the compiler we use:
  - a machine code simulator (Unicorn)
  - a disassembler (llvm)
 
+(please see the links to these projects in the references)
+
 ## The (meta-)interpreter
 
-## The compiler interface
+The meta-interpreter is an abstract AST interpreter that looks at the `StackInterpreter` code and analyzes it to generate an intermediate representation from it.
+Check `Fun with interpreters` from the references to see more details on what an ASTs and abstract interpreters are.
+
+```smalltalk
+builder := DRIRBuilder new.
+builder isa: #X64.
+
+astInterpreter := DRASTInterpreter new.
+astInterpreter vmInterpreter: Druid new newBytecodeInterpreter.
+astInterpreter irBuilder: builder.
+```
+
+This AST interpreter then receives as input a list of bytecodes to analize, it maps each bytecode to the routine to execute, obtains the AST and interprets each of the instructions of the AST using a visitor pattern.
+
+```smalltalk
+astInterpreter interpretBytecode: #[76].
+```
+
+### Visiting the AST
+
+The `DRASTInterpreter` class implements a `visiting` protocol where the visit methods are.
+Most of the visit methods are simple, like the following ones:
+
+```smalltalk
+DRASTInterpreter >> visitSelfNode: aRBSelfNode 
+
+	^ self receiver
+
+DRASTInterpreter >> visitTemporaryNode: aRBTemporaryNode 
+	
+	^ currentContext temporaryNamed: aRBTemporaryNode name
+```
+
+### Context reification
+
+To properly analyze the scope of temporary variables, the AST interpret reifies the contexts/stack frames.
+On each method or block activation, a new context is pushed to the stack.
+The temporary variables are then read and written from the current context.
+When a method or block returns, the current context is popped from the stack, to return to the caller context.
+
+### Interpreting Message sends
+
+The most important operation in a Pharo program are message sends.
+Message sends are used not only for normal method invocations, but also for common operators such as additions (`+`) and multiplications (`*`) and control flow such as conditionals (`ifTrue:`) and loops (`whileTrue:`).
+However, some of these special cases require special treatments when generating code.
+For example, a multiplication should directly generate a normal multiplication and not require interpreting how that multiplication is implemented.
+
+To manage such special cases, we keep a table in the interpreter that maps (special selector -> special interpretation).
+When we find a message send in the AST, we lookup the selector in the table.
+If we find a special case in the entry, we invoke that special entry in the interpreter.
+Otherwise, we lookup the method and activate the new method, which will recursively continue the interpretation
+
+```smalltalk
+DRASTInterpreter >> visitMessageNode: aRBMessageNode 
+	
+	| arguments astToInterpret receiver |
+	
+	"First interpret the arguments to generate instructions for them.
+	If this is a special selector, treat it specially with those arguments.
+	Otherwise, lookup and interpret the called method propagating the arguments"
+	receiver := aRBMessageNode receiver acceptVisitor: self.
+	arguments := aRBMessageNode arguments collect: [ :e | e acceptVisitor: self ].
+
+	specialSelectorTable
+		at: aRBMessageNode selector
+		ifPresent: [ :selfSelectorToInterpret |
+			^ self perform: selfSelectorToInterpret with: aRBMessageNode with: receiver with: arguments ].
+
+	astToInterpret := self
+		lookupSelector: aRBMessageNode selector
+		receiver: receiver
+		isSuper: aRBMessageNode receiver isSuper.
+	^ self interpretAST: astToInterpret withReceiver: receiver withArguments: arguments.
+```
+
+For example, the following code snippet shows how the `internalPush:` is mapped as just a normal push instruction in the intermediate representation.
+
+```smalltalk
+DRASTInterpreter >> initialize
+
+	super initialize.
+	irBuilder := DRIRBuilder new.
+	
+	specialSelectorTable := Dictionary new.
+    ...
+	specialSelectorTable at: #internalPush: put: #interpretInternalPushOn:receiver:arguments:.
+    
+DRASTInterpreter >> interpretInternalPushOn: aRBMessageNode receiver: aStackInterpreterSimulatorLSB arguments: aCollection 
+
+    ^ irBuilder push: aCollection first
+```
+
+### The intermediate representation
+
+The intermediate representation is generated by a builder object, instance of `DRIRBuilder`.
+The AST interpreter collaborates with it to create instructions, new basic blocks and so on.
+The intermediate representation that is created is somewhat inspired on a low-level intermediate representation as described in [Linear Scan Register Allocation for the Java HotSpot™ Client Compiler].
+
+### Some meta-interpretation of special cases
+
+Not all special cases generate instructions or interact with the DRIRBuilder.
+Some of them actually modify the state of the AST interpreter.
+For example, a special case is the `fetchNextBytecode` instruction, that makes the interpreter move to the next byte in the list of bytecodes.
+To simulate the same behaviour in our interpreter, its special case is implemented as follows:
+
+```smalltalk
+DRASTInterpreter >> interpretFetchNextBytecodeOn: aMessageSendNode receiver: aReceiver arguments: arguments
+
+	self fetchNextInstruction
+    
+DRASTInterpreter >> fetchNextInstruction
+
+	currentBytecode := instructionStream next
+```
+
+### The compiler interface
+
+Once the interpreter finishes its job, the irBuilder will contain the intermediate representation instructions.
+We can then generate machine code from them using the `DRIntermediateRepresentationToMachineCodeTranslator` class.
+
+```smalltalk
+	astInterpreter irBuilder assignPhysicalRegisters.
+
+	mcTranslator := DRIntermediateRepresentationToMachineCodeTranslator
+		translate: builder instructions
+		withCompiler: cogit.
+
+	address := cogit methodZone freeStart.
+	endAddress := mcTranslator generate.
+```
+
+`DRIntermediateRepresentationToMachineCodeTranslator` iterates all the instructions and uses the double-dispatch pattern to generate code for each of them.
+It uses a backend to generate the actual machine code.
+
+```smalltalk
+aCollection do: [ :anIRInstruction | 
+	anIRInstruction accept: self ].
+
+DRIntermediateRepresentationToMachineCodeTranslator >> visitAdd:
+DRIntermediateRepresentationToMachineCodeTranslator >> visitLoad:
+DRIntermediateRepresentationToMachineCodeTranslator >> visitPush:
+```
+
+## More examples and tests
+
+- The class `DRIRBuilderTest` tests the construction of the ir.
+- The class `DRASTInterpreterTest` tests the effect of interpreting ASTs
+- The class `DRSimulateGeneratedBytecodeTest` tests from end-to-end the generation of code of a bytecode and its execution in a machine code simulator
+
+Other test classes test a basic register allocation algorithm (`DRRegisterAllocationTest`), the generation of machine code from an IR without passing through the AST (`DRIntermediateRepresentationToMachineCodeTranslatorTest`) and the execution of machine code from an IR without passing through the AST  (`DRSimulateGeneratedCodeTest`).
 
 ## References
  - Linear Scan Register Allocation for the Java HotSpot™ Client Compiler
