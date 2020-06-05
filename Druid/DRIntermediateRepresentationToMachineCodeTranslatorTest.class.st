@@ -15,7 +15,8 @@ DRIntermediateRepresentationToMachineCodeTranslatorTest >> testPushConstantInstr
 	builder push: (DRConstant value: 17).
 	builder assignPhysicalRegisters.
 
-	mcTranslator := DRIntermediateRepresentationToMachineCodeTranslator translate: builder instructions withCompiler: cogit.
+	mcTranslator := DRIntermediateRepresentationToMachineCodeTranslator
+		translate: builder instructions withCompiler: cogit.
 	self assert: mcTranslator instructions first opcode equals: PushCw
 ]
 
@@ -27,7 +28,8 @@ DRIntermediateRepresentationToMachineCodeTranslatorTest >> testPushConstantInstr
 	builder push: (DRConstant value: 17).
 	builder assignPhysicalRegisters.
 
-	mcTranslator := DRIntermediateRepresentationToMachineCodeTranslator translate: builder instructions withCompiler: cogit.
+	mcTranslator := DRIntermediateRepresentationToMachineCodeTranslator
+		translate: builder instructions withCompiler: cogit.
 
 	self assert: mcTranslator instructions first operands first equals: 17	
 ]

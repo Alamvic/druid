@@ -34,6 +34,7 @@ DRSimulateGeneratedBytecodeTest >> newInterpreter [
 { #category : #helpers }
 DRSimulateGeneratedBytecodeTest >> setUp [ 
 	
+	| interpreter |
 	super setUp.
 	
 
@@ -41,7 +42,7 @@ DRSimulateGeneratedBytecodeTest >> setUp [
 	builder isa: isa.
 
 	astInterpreter := DRASTInterpreter new.
-	astInterpreter vmInterpreter: interpreter.
+	astInterpreter vmInterpreter: cogit coInterpreter.
 	astInterpreter irBuilder: builder.	
 
 ]
@@ -106,6 +107,7 @@ DRSimulateGeneratedBytecodeTest >> testSendAddSpecialSelectorWithIntegers [
 
 	| address endAddress instanceVariableToWrite |
 	astInterpreter interpretBytecode: #[96].
+	1halt.
 	astInterpreter irBuilder assignPhysicalRegisters.
 	
 	instanceVariableToWrite := 2.
