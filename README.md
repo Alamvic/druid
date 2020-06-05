@@ -175,8 +175,12 @@ To verify the correctness of the compiler we use:
 
 ## The (meta-)interpreter
 
-The meta-interpreter is an abstract AST interpreter that looks at the `StackInterpreter` code and analyzes it to generate an intermediate representation from it.
+The setup is the following: we have one Pharo AST interpreter that we call the meta-interpreter that executes the code code of the 
+`StackInterpreter` and generates the corresponding intermediate representation of `StackInterpreter` methods.
 Check `Fun with interpreters` from the references to see more details on what an ASTs and abstract interpreters are.
+In the code below, the meta-interpreter is called `DRASTInterpreter` (for the DruidAST interpreter) and it will analyse the methods 
+of the stack interpreter returned byt the expression `Druid new newBytecodeInterpreter`.
+For this task, the meta-interpreter uses an IR builder that is responsible for encapsulating the logic of IR building.
 
 ```smalltalk
 builder := DRIRBuilder new.
