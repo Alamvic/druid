@@ -6,7 +6,7 @@ This approach could benefit from having a single runtime implementation and havi
 ## Context
 
 JIT (Just-in-Time) compilers are an optimization technique often used for interpreted languages and virtual machines.
-They allow to spend time optimizing only frequently used code, while falling back in slower execution engines for non-frequent code.
+They allow one to spend time optimizing only frequently used code, while falling back in slower execution engines for non-frequent code.
 For example, the Pharo and the Java VM run on a bytecode interpreter and eventually compile machine code for methods that are frequently called.
 
 Nowadays, the Pharo Virtual Machine is implemented in a subset of the Pharo language called Slang.
