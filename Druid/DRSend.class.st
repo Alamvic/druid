@@ -19,6 +19,18 @@ DRSend >> arguments: anObject [
 	arguments := anObject
 ]
 
+{ #category : #printing }
+DRSend >> mnemonic [
+	
+	^ 'SEND ', selector
+]
+
+{ #category : #'as yet unclassified' }
+DRSend >> operands [
+	
+	^ { receiver }, arguments
+]
+
 { #category : #accessing }
 DRSend >> receiver [
 	^ receiver

@@ -1,6 +1,6 @@
 Class {
 	#name : #DRPhi,
-	#superclass : #DRValue,
+	#superclass : #DRInstruction,
 	#instVars : [
 		'values'
 	],
@@ -17,6 +17,17 @@ DRPhi >> mnemonic [
 DRPhi >> operands [
 	
 	^ values
+]
+
+{ #category : #printing }
+DRPhi >> printOn: aStream [
+
+	aStream
+		nextPutAll: 'PHI(';
+		print: self values asString;
+		nextPutAll: ' -> ';
+		print: self result;
+		nextPutAll: ')'
 ]
 
 { #category : #accessing }

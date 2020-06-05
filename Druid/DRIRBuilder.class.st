@@ -259,7 +259,6 @@ DRIRBuilder >> newLogicalRegister [
 { #category : #building }
 DRIRBuilder >> newPhiFunctionWithValues: aCollection [ 
 	
-	1halt.
 	^ DRPhi new
 		values: aCollection;
 		result: self newLogicalRegister;
