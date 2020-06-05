@@ -2,7 +2,8 @@ Class {
 	#name : #DRInstruction,
 	#superclass : #Object,
 	#instVars : [
-		'result'
+		'result',
+		'node'
 	],
 	#category : #'Druid-Instructions'
 }
@@ -12,6 +13,12 @@ DRInstruction >> appendOn: anInstructionBuilder [
 
 	self operands do: [ :e | e appendOn: anInstructionBuilder ].
 	anInstructionBuilder appendInstruction: self.
+]
+
+{ #category : #accessing }
+DRInstruction >> astNode: anASTNode [
+
+	node := anASTNode
 ]
 
 { #category : #testing }

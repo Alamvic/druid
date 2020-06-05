@@ -5,7 +5,10 @@ Class {
 		'instructions',
 		'nextLogicalRegisterIndex',
 		'registerMapping',
-		'isa'
+		'isa',
+		'currentBasicBlock',
+		'basicBlocks',
+		'currentNode'
 	],
 	#category : #'Druid-Instructions'
 }
@@ -23,7 +26,8 @@ DRIRBuilder >> add: aValue and: anotherValue [
 { #category : #accessing }
 DRIRBuilder >> appendInstruction: anInstruction [ 
 	
-	instructions add: anInstruction.
+	anInstruction astNode: currentNode.
+	currentBasicBlock appendInstruction: anInstruction.
 	^ anInstruction
 ]
 
@@ -54,13 +58,13 @@ DRIRBuilder >> assignPhysicalRegisters [
 	| reversedInstructions newInstructions |
 	self initializeFreeRegistersForIsa: isa.
 	
-	reversedInstructions := instructions reverse.
+	reversedInstructions := self instructions reverse.
 	newInstructions := OrderedCollection new.
 	
 	reversedInstructions do: [ :anInstruction | 
 		self assignPhysicalRegistersTo: anInstruction into: newInstructions ].
 	
-	instructions := newInstructions
+	^ newInstructions
 ]
 
 { #category : #'register allocation' }
@@ -96,7 +100,61 @@ DRIRBuilder >> bitShift: aValue magnitude: anotherValue [
 ]
 
 { #category : #building }
+DRIRBuilder >> bitShiftRight: aValue magnitude: anotherValue [
+
+	^ self
+		appendInstruction:
+			(DRBitShiftRight new
+				leftOperand: aValue;
+				rightOperand: anotherValue;
+				result: self newLogicalRegister;
+				yourself)
+]
+
+{ #category : #building }
+DRIRBuilder >> break [
+	"Append an instruction that breaks, for debugging"
+	^ self appendInstruction: DRBreak new
+]
+
+{ #category : #building }
+DRIRBuilder >> buildNewBlockWith: aBlockClosure [ 
+	
+	| newBasicBlock |
+	newBasicBlock := self pushNewBasicBlock.
+	aBlockClosure value.
+	^ newBasicBlock
+]
+
+{ #category : #building }
 DRIRBuilder >> compare: aValue with: anotherValue [ 
+
+	^ self
+		appendInstruction:
+			(DRCompare new
+				leftOperand: aValue;
+				rightOperand: anotherValue;
+				result: self newLogicalRegister;
+				yourself)
+]
+
+{ #category : #building }
+DRIRBuilder >> conditionalBranch [
+	
+	^ self appendInstruction: DRConditionalBranch new
+]
+
+{ #category : #debugging }
+DRIRBuilder >> currentNode: anASTNode [
+
+	"We store the current AST node.
+	We will bind all instructions generated to the current node, for debugging purposes"
+	
+	currentNode := anASTNode
+]
+
+{ #category : #building }
+DRIRBuilder >> greaterOrEquals: aValue than: anotherValue [ 
 
 	^ self
 		appendInstruction:
@@ -112,8 +170,11 @@ DRIRBuilder >> initialize [
 
 	super initialize.
 	nextLogicalRegisterIndex := 1.
-	instructions := OrderedCollection new.
-	isa := #'X64'
+	isa := #'X64'.
+	
+	"Start with a basic block"
+	basicBlocks := OrderedCollection new.
+	self pushNewBasicBlock.
 ]
 
 { #category : #'register allocation' }
@@ -135,7 +196,8 @@ DRIRBuilder >> initializeFreeRegistersForIsa: anIsa [
 
 { #category : #accessing }
 DRIRBuilder >> instructions [
-	^ instructions
+
+	^ basicBlocks gather: [ :e | e instructions ]
 ]
 
 { #category : #accessing }
@@ -195,9 +257,55 @@ DRIRBuilder >> newLogicalRegister [
 ]
 
 { #category : #building }
+DRIRBuilder >> newPhiFunctionWithValues: aCollection [ 
+	
+	1halt.
+	^ DRPhi new
+		values: aCollection;
+		result: self newLogicalRegister;
+		yourself
+]
+
+{ #category : #building }
+DRIRBuilder >> pop [
+
+	^ self appendInstruction: (DRPop new result: self newLogicalRegister)
+]
+
+{ #category : #building }
 DRIRBuilder >> push: aValue [
 	
 	^ self appendInstruction: (DRPush value: aValue).
+]
+
+{ #category : #building }
+DRIRBuilder >> pushNewBasicBlock [
+	
+	currentBasicBlock := DRBasicBlock new.
+	basicBlocks add: currentBasicBlock.
+	^ currentBasicBlock
+]
+
+{ #category : #building }
+DRIRBuilder >> send: aSelector to: aReceiver arguments: aCollection [ 
+	
+	^ self appendInstruction:
+			(DRSend new
+				selector: aSelector;
+				receiver: aReceiver;
+				arguments: aCollection;
+				result: self newLogicalRegister)
+]
+
+{ #category : #building }
+DRIRBuilder >> storeValue: origin into: destination [
+
+	^ self
+		appendInstruction:
+			(DRStore new
+				origin: origin;
+				destination: destination;
+				result: self newLogicalRegister)
 ]
 
 { #category : #building }

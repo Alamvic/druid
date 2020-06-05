@@ -67,6 +67,13 @@ DRInterpreterContext >> parent: anObject [
 	parent := anObject
 ]
 
+{ #category : #printing }
+DRInterpreterContext >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream space; print: method
+]
+
 { #category : #accessing }
 DRInterpreterContext >> receiver [
 	^ receiver
@@ -75,6 +82,15 @@ DRInterpreterContext >> receiver [
 { #category : #accessing }
 DRInterpreterContext >> receiver: anObject [
 	receiver := anObject
+]
+
+{ #category : #accessing }
+DRInterpreterContext >> stack [
+	
+	| stack |
+	stack := {self}.
+	self parent ifNotNil: [ :theParent | stack := stack, theParent stack].
+	^ stack
 ]
 
 { #category : #temporaries }
