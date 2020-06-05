@@ -142,7 +142,7 @@ When a bytecode method is executed a couple of times, the Pharo virtual machine 
 Compiling the method to machine code avoids performance overhead due to instruction fetching, and allows one to perform several optimizations.
 The compilation of a machine code method goes pretty similar to the interpretation of a method.
 The JIT compiler iterates the bytecode method and for each of the bytecodes it executes a code generation routine.
-This means that we will (almost) have a counterpart for each of the VM methods implementing bytecodes.
+This means that we will (almost) have a counterpart for each of the VM methods implementing bytecode interpretation.
 
 For example, the machine code generator implemented for `StackInterpreter>>pushLiteralConstantBytecode` is `Cogit>>genPushLiteralConstantBytecode`.
 
