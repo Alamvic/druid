@@ -191,7 +191,8 @@ astInterpreter vmInterpreter: Druid new newBytecodeInterpreter.
 astInterpreter irBuilder: builder.
 ```
 
-This AST interpreter then receives as input a list of bytecodes to analize, it maps each bytecode to the routine to execute, obtains the AST and interprets each of the instructions of the AST using a visitor pattern.
+This AST interpreter then receives as input a list of bytecodes to analyze, it maps each bytecode to the routine to execute, 
+obtains the AST and interprets each of the instructions of the AST using a visitor pattern.
 
 ```smalltalk
 astInterpreter interpretBytecode: #[76].
@@ -199,7 +200,7 @@ astInterpreter interpretBytecode: #[76].
 
 ### Visiting the AST
 
-The `DRASTInterpreter` class implements a `visiting` protocol where the visit methods are.
+The `DRASTInterpreter` class implements a `visiting` protocol where the `visit` methods are grouped.
 Most of the visit methods are simple, like the following ones:
 
 ```smalltalk
@@ -310,7 +311,8 @@ We can then generate machine code from them using the `DRIntermediateRepresentat
 	endAddress := mcTranslator generate.
 ```
 
-`DRIntermediateRepresentationToMachineCodeTranslator` iterates all the instructions and uses the double-dispatch pattern to generate code for each of them.
+`DRIntermediateRepresentationToMachineCodeTranslator` iterates all the instructions and uses the double-dispatch pattern to 
+generate code for each of them.
 It uses a backend to generate the actual machine code.
 
 ```smalltalk
