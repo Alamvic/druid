@@ -6,7 +6,7 @@ This approach could benefit from having a single runtime implementation and havi
 ## Context
 
 JIT (Just-in-Time) compilers are an optimization technique often used for interpreted languages and virtual machines.
-They allow one to spend time optimizing only frequently used code, while falling back in slower execution engines for non-frequent code.
+They allow to spend time optimizing only frequently used code, while falling back in slower execution engines for non-frequent code.
 For example, the Pharo and the Java VM run on a bytecode interpreter and eventually compile machine code for methods that are frequently called.
 
 Nowadays, the Pharo Virtual Machine is implemented in a subset of the Pharo language called Slang.
@@ -50,7 +50,7 @@ To produce a productive VM the Slang Pharo code is transpiled to C and then comp
 
 Druid works on the Slang part of the VM, and its scope does not touch (for now) the C-code generation.
 
-### (Prelude) Understanding the bytecode interpreter
+### (Prelude) Bytecodes and a stack machine
 
 Pharo methods are written as bytecodes and primitives.
 For example, the following method is compiled as a method made of platform independent bytecode and an array of literals (also called literal frame) used in that method.
@@ -79,7 +79,9 @@ Then, the third bytecode has to send a message `+`, so it pops two elements from
 When the execution of the message send finishes, the result is pushed to the stack.
 Finally, the last bytecode takes the top of the stack (the result of the addition), and returns it to the caller.
 
-Each of these bytecodes is implemented in the VM as routines/methods.
+### (Prelude) Understanding the bytecode interpreter
+
+When a bytecode method is executed by the interpreter, it iterates all bytecodes of a method and executes a VM routine for each of them.
 The class implementing the bytecode interpreter is `StackInterpreter`.
 For example, the `pushConstantOneBytecode` is the routine that pushes a 1 to the stack calling the `internalPush:` method.
 Since pushing the value 1 is a very common operation, a special bytecode is used for it to avoid putting the 1 in the literal frame.
@@ -135,6 +137,29 @@ StackInterpreter >> bytecodePrimAdd
 ```
 
 ### (Prelude) Understanding the existing Cogit JIT compiler
+
+When a bytecode method is executed a couple of times, the Pharo virtual machine decides to compile it to machine code.
+Compiling the method to machine code avoids performance overhead due to instruction fetching, and allows to perform several optimizations.
+The compilation of a machine code method goes pretty similar to the interpretation of a method.
+The JIT compiler iterates the bytecode method and for each of the bytecodes it executes a code generation routine.
+This means that we will (almost) have a counterpart for each of the VM methods implementing bytecodes.
+
+For example, the machine code generator implemented for `StackInterpreter>>pushLiteralConstantBytecode` is `Cogit>>genPushLiteralConstantBytecode`.
+
+```smalltalk
+Cogit >> genPushLiteralConstantBytecode
+	^self genPushLiteralIndex: (byte0 bitAnd: 31)
+
+StackToRegisterMappingCogit >> genPushLiteralIndex: literalIndex "<SmallInteger>"
+	"Override to avoid the BytecodeSetHasDirectedSuperSend check, which is unnecessary
+	 here given the simulation stack."
+	<inline: false>
+	| literal |
+	literal := self getLiteral: literalIndex.
+	^self genPushLiteral: literal
+```
+
+The JIT'ted version of the addition bytecode (`genSpecialSelectorArithmetic`) is slightly more complicated, but it pretty much matches what it is done in the bytecode.
 
 ### Overview of Druid
 
