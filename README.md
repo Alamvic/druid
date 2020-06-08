@@ -332,6 +332,14 @@ DRIntermediateRepresentationToMachineCodeTranslator >> visitPush:
 
 Other test classes test a basic register allocation algorithm (`DRRegisterAllocationTest`), the generation of machine code from an IR without passing through the AST (`DRIntermediateRepresentationToMachineCodeTranslatorTest`) and the execution of machine code from an IR without passing through the AST  (`DRSimulateGeneratedCodeTest`).
 
+## Little exercises
+- In tbe book [https://github.com/SquareBracketAssociates/PatternsOfDesign/releases](https://github.com/SquareBracketAssociates/PatternsOfDesign/releases)
+- Chapter 4: Die and DieHandle double Dispatch (if you want to make sure that Double Dispatch has been understood do the Stone Paper Scissor Chapter)
+- Chapter 3 A little expression interpreter
+- Chapter 6 Understanding visitor 
+- After reading [https://github.com/SquareBracketAssociates/Booklet-FunWithInterpreters](https://github.com/SquareBracketAssociates/Booklet-FunWithInterpreters)
+
+
 ## References
  - Linear Scan Register Allocation for the Java HotSpot™ Client Compiler
    http://www.ssw.uni-linz.ac.at/Research/Papers/Wimmer04Master/
