@@ -324,10 +324,20 @@ DRIntermediateRepresentationToMachineCodeTranslator >> visitLoad:
 DRIntermediateRepresentationToMachineCodeTranslator >> visitPush:
 ```
 
-## More examples and tests
+## About the Tests
+
+The whole process has the following steps:
+
+1. The bytecode interpreter is interpreted to generate the instructions in the IRBuilder
+2. Then the physical registers will be allocated to the Druid instructions
+3. The DRInstructions generates the AbstractInstructions (Cogit) that basically are one to one representations with the machine code
+4. Compilation to machine code byte array
+
+So, we have different tests to test different stages in the transformation:
 
 - The class `DRIRBuilderTest` tests the construction of the ir.
 - The class `DRASTInterpreterTest` tests the effect of interpreting ASTs
+- The DRIntermediateRepresentationToMachineCodeTranslatorTest simulates that each DR instrucion is correctly translated to the corresponding machine code
 - The class `DRSimulateGeneratedBytecodeTest` tests from end-to-end the generation of code of a bytecode and its execution in a machine code simulator
 
 Other test classes test a basic register allocation algorithm (`DRRegisterAllocationTest`), the generation of machine code from an IR without passing through the AST (`DRIntermediateRepresentationToMachineCodeTranslatorTest`) and the execution of machine code from an IR without passing through the AST  (`DRSimulateGeneratedCodeTest`).
