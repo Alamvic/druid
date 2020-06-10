@@ -359,6 +359,8 @@ Other test classes test a basic register allocation algorithm (`DRRegisterAlloca
    http://web.mit.edu/alexmv/6.037/sicp.pdf
  - Fun with Interpreters
    https://github.com/SquareBracketAssociates/Booklet-FunWithInterpreters/releases/download/continuous/fun-with-interpreters-wip.pdf
+ - Paper explaining the motivations behind Sista Bytecode
+   https://github.com/SquareBracketAssociates/Booklet-PharoVirtualMachine/raw/master/bib/iwst2014_A%20bytecode%20set%20for%20adaptive%20optimizations.pdf
 
  - https://github.com/unicorn-engine/unicorn
  - https://github.com/guillep/pharo-unicorn
