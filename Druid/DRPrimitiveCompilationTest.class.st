@@ -123,7 +123,7 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsRe
 	self assert: machineSimulator receiverRegisterValue equals: receiver.
 ]
 
-{ #category : #'tests-inlining' }
+{ #category : #'tests-methodactivations' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethod [
 
 	| receiver |
@@ -136,7 +136,7 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethod [
 	self assert: machineSimulator receiverRegisterValue equals: 73
 ]
 
-{ #category : #'tests-inlining' }
+{ #category : #'tests-methodactivations' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethodWithEarlyReturnCaseFalse [
 
 	self compileDruidPrimitive: #primitiveCallingMethodWithEarlyReturn.
@@ -147,7 +147,7 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethodWithEarlyReturnCa
 	self assert: machineSimulator receiverRegisterValue equals: 57
 ]
 
-{ #category : #'tests-inlining' }
+{ #category : #'tests-methodactivations' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethodWithEarlyReturnCaseTrue [
 
 	self compileDruidPrimitive: #primitiveCallingMethodWithEarlyReturn.
