@@ -24,6 +24,21 @@ DRPhiFunction >> acceptVisitor: aVisitor [
 	^ aVisitor visitPhiFunction: self
 ]
 
+{ #category : #adding }
+DRPhiFunction >> addValue: aValue from: aDRBasicBlock [ 
+	
+	joinedVariables add: aValue.
+	originBlocks add: aDRBasicBlock
+]
+
+{ #category : #accessing }
+DRPhiFunction >> initialize [
+
+	super initialize.
+	joinedVariables := OrderedCollection new.
+	originBlocks := OrderedCollection new.
+]
+
 { #category : #testing }
 DRPhiFunction >> isPhiFunction [
 

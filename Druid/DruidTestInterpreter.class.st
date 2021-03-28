@@ -25,11 +25,26 @@ DruidTestInterpreter >> emptyPrimitiveWithArguments [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithEarlyReturn [
+
+	self stackTop = 0 ifTrue: [ ^ 42 ].
+	^ 57
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveCallingMethodReturningConstant [
 
 	<numberOfArguments: 0>
 
 	self pop: 1 thenPush: self constant
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingMethodWithEarlyReturn [
+
+	<numberOfArguments: 0>
+
+	self pop: 1 thenPush: self methodWithEarlyReturn
 ]
 
 { #category : #'as yet unclassified' }

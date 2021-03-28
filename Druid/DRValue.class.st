@@ -49,7 +49,9 @@ DRValue >> isVirtualRegister [
 { #category : #joining }
 DRValue >> joinValue: anotherValue onIRGenerator: anIRGenerator from: originBlocks [
 
-	^ (DRPhiFunction joinedVariables: { self result. anotherValue result })
+	self == anotherValue ifTrue: [ ^ self ].
+
+	^ (DRPhiFunction joinedVariables: { self . anotherValue })
 		result: anIRGenerator allocateTemporaryRegister;
 		originBlocks: originBlocks;
 		addToBlock: anIRGenerator currentBasicBlock;

@@ -207,6 +207,10 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 	startingBasicBlock := self currentBasicBlock.
 
 	condition := aRBMessageNode receiver acceptVisitor: self.
+	"this is a hack for now"
+	self currentBasicBlock removeInstruction: condition.
+	self currentBasicBlock endInstruction: condition.
+
 	condition trueBranch: (self newBasicBlockDuring: [ 
 			 aRBMessageNode arguments first acceptVisitor: self ]).
 	trueBranchBasicBlockOut := self currentBasicBlock.
@@ -371,10 +375,10 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 	
 	| value poppedElements |
 	poppedElements := aRBMessageNode arguments first acceptVisitor: self.
-	poppedElements value isInteger
+	poppedElements operands first value isInteger
 		ifFalse: [ self error: 'expected an integer value' ].
 	
-	self pop: poppedElements value.
+	self pop: poppedElements operands first value.
 	^ self push: (aRBMessageNode arguments second acceptVisitor: self)
 ]
 
@@ -421,7 +425,11 @@ DRIRGenerator >> interpretSubstractWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [ 
 	
-	^ DRCogitTrueObject new
+	| copyInstruction |
+	copyInstruction := self
+		instantiate: DRCopy
+		operands: { DRCogitTrueObject new }.
+	^ self currentBasicBlock addInstruction: copyInstruction
 ]
 
 { #category : #accessing }
@@ -453,7 +461,7 @@ DRIRGenerator >> numberOfArguments: aValue [
 { #category : #'stack-management' }
 DRIRGenerator >> popFrame [
 	
-	^ interpretationStack removeLast returnValue first
+	^ interpretationStack removeLast returnValue
 ]
 
 { #category : #'stack-management' }
@@ -462,6 +470,8 @@ DRIRGenerator >> pushFrameWithReceiver: aReceiver [
 	| frame |
 	frame := DruidStackFrame new
 		receiver: aReceiver;
+		irGenerator: self;
+		exitBasicBlock: DRBasicBlock new;
 		yourself.
 	
 	interpretationStack addLast: frame
@@ -501,17 +511,14 @@ DRIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 { #category : #visiting }
 DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [ 
 	
-	| valueContainer copyInstruction |
+	| valueContainer |
 	valueContainer := aRBAssignmentNode value acceptVisitor: self.
 	
-	copyInstruction := self instantiate: DRCopy operands: { valueContainer }.
-	self currentBasicBlock addInstruction: copyInstruction.
-	
 	aRBAssignmentNode variable binding isTempVariable
-		ifTrue: [ ^ self temporaryAt: aRBAssignmentNode variable name put: copyInstruction ].
+		ifTrue: [ ^ self temporaryAt: aRBAssignmentNode variable name put: valueContainer ].
 	
 	aRBAssignmentNode variable binding isInstanceVariable
-		ifTrue: [ 1halt.^ (self receiver value instVarNamed: aRBAssignmentNode variable name put: copyInstruction) asDRInterpreterValue ].
+		ifTrue: [ 1halt.^ (self receiver value instVarNamed: aRBAssignmentNode variable name put: valueContainer) asDRInterpreterValue ].
 	
 	self halt
 ]
@@ -541,7 +548,11 @@ DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 { #category : #visiting }
 DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [ 
 	
-	^ DRConstant value: aRBLiteralValueNode value
+	| copyInstruction |
+	copyInstruction := self
+		instantiate: DRCopy
+		operands: { DRConstant value: aRBLiteralValueNode value }.
+	^ self currentBasicBlock addInstruction: copyInstruction
 ]
 
 { #category : #visiting }
@@ -571,16 +582,15 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 { #category : #visiting }
 DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
-	| newReturn return |
+	| newReturn |
 	newReturn := aRBReturnNode value acceptVisitor: self.
 
-	return := self currentFrame returnValue.
-	self haltIf: [ return first isPhiFunction ].
-	self currentFrame returnValue:
-		{(return first
-			 joinValue: newReturn
-			 onIRGenerator: self
-			 from: { self currentBasicBlock . return second }) . self currentBasicBlock}.
+	self currentFrame returnValue: newReturn.
+
+	self currentBasicBlock jumpTo: self currentFrame exitBasicBlock.
+	currentBasicBlock := self currentFrame exitBasicBlock.
+	self currentBasicBlock addInstruction: self currentFrame returnValue.
+	
 	^ DRNullValue new
 ]
 

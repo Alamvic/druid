@@ -35,6 +35,16 @@ DRLiveSet >> lastUsage: anInstruction [
 	lastUsage := anInstruction
 ]
 
+{ #category : #printing }
+DRLiveSet >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream
+		nextPut: $(;
+		print: definition result name;
+		nextPut: $)
+]
+
 { #category : #accessing }
 DRLiveSet >> register [
 	^ register

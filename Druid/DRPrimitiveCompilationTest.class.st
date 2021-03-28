@@ -43,7 +43,7 @@ DRPrimitiveCompilationTest >> jitOptions [
 		  yourself
 ]
 
-{ #category : #tests }
+{ #category : #running }
 DRPrimitiveCompilationTest >> setUp [
 
 	super setUp.
@@ -57,7 +57,7 @@ DRPrimitiveCompilationTest >> setUp [
 	initialAddress := #invalid "will be set by test"
 ]
 
-{ #category : #tests }
+{ #category : #'tests-iftrueiffalse' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCaseFalse [
 
 	self compileDruidPrimitive: #primitiveWithIfAssigningValue.
@@ -67,7 +67,7 @@ DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCas
 	self assert: machineSimulator receiverRegisterValue equals: 57
 ]
 
-{ #category : #tests }
+{ #category : #'tests-iftrueiffalse' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCaseTrue [
 
 	self compileDruidPrimitive: #primitiveWithIfAssigningValue.
@@ -77,7 +77,7 @@ DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCas
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #tests }
+{ #category : #'tests-iftrueiffalse' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowCaseFalse [
 
 	self compileDruidPrimitive: #primitiveWithIfReturningValue.
@@ -87,7 +87,7 @@ DRPrimitiveCompilationTest >> testCompileConditionalControlFlowCaseFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 57
 ]
 
-{ #category : #tests }
+{ #category : #'tests-iftrueiffalse' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowCaseTrue [
 
 	self compileDruidPrimitive: #primitiveWithIfReturningValue.
@@ -97,7 +97,7 @@ DRPrimitiveCompilationTest >> testCompileConditionalControlFlowCaseTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #tests }
+{ #category : #'tests-basic' }
 DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithArgumentsReturnsReceiver [
 
 	| receiver |
@@ -110,7 +110,7 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithArgumentsReturnsRecei
 	self assert: machineSimulator receiverRegisterValue equals: receiver.
 ]
 
-{ #category : #tests }
+{ #category : #'tests-basic' }
 DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsReceiver [
 
 	| receiver |
@@ -123,7 +123,7 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsRe
 	self assert: machineSimulator receiverRegisterValue equals: receiver.
 ]
 
-{ #category : #tests }
+{ #category : #'tests-inlining' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethod [
 
 	| receiver |
@@ -136,7 +136,29 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethod [
 	self assert: machineSimulator receiverRegisterValue equals: 73
 ]
 
-{ #category : #tests }
+{ #category : #'tests-inlining' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethodWithEarlyReturnCaseFalse [
+
+	self compileDruidPrimitive: #primitiveCallingMethodWithEarlyReturn.
+	
+	self executePrimitiveWithReceiver: 1237123.
+	
+	"An empty primitive does nothing and just returns, the return value is the receiver"
+	self assert: machineSimulator receiverRegisterValue equals: 57
+]
+
+{ #category : #'tests-inlining' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethodWithEarlyReturnCaseTrue [
+
+	self compileDruidPrimitive: #primitiveCallingMethodWithEarlyReturn.
+	
+	self executePrimitiveWithReceiver: 0.
+	
+	"An empty primitive does nothing and just returns, the return value is the receiver"
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #'tests-basic' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveReturningConstant [
 
 	| receiver |
@@ -149,7 +171,7 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveReturningConstant [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #tests }
+{ #category : #'tests-basic' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveReturningObjectReference [
 
 	| receiver |
