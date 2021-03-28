@@ -5,7 +5,6 @@ Class {
 		'receiver',
 		'temporaryFrame',
 		'irGenerator',
-		'methodExitBasicBlock',
 		'exitBasicBlock'
 	],
 	#category : #'Druid-CompilerCompiler'
@@ -48,18 +47,6 @@ DruidStackFrame >> irGenerator: anObject [
 	temporaryFrame at: '__return' put: (DRPhiFunction new
 		result: irGenerator allocateTemporaryRegister;
 		yourself).
-]
-
-{ #category : #accessing }
-DruidStackFrame >> methodExitBasicBlock [
-
-	^ methodExitBasicBlock
-]
-
-{ #category : #accessing }
-DruidStackFrame >> methodExitBasicBlock: anObject [
-
-	methodExitBasicBlock := anObject
 ]
 
 { #category : #accessing }
