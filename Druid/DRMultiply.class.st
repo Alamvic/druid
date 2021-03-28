@@ -1,11 +1,11 @@
 Class {
-	#name : #DRStore,
+	#name : #DRMultiply,
 	#superclass : #DRInstruction,
 	#category : #'Druid-IR'
 }
 
 { #category : #visiting }
-DRStore >> acceptVisitor: aVisitor [
+DRMultiply >> acceptVisitor: aVisitor [
 	
-	^ aVisitor visitStore: self
+	^ aVisitor visitMultiply: self
 ]

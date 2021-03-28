@@ -1,17 +1,11 @@
 Class {
 	#name : #DRBitAnd,
-	#superclass : #DRTwoArgumentsInstruction,
-	#category : #'Druid-Instructions'
+	#superclass : #DRInstruction,
+	#category : #'Druid-IR'
 }
 
-{ #category : #testing }
-DRBitAnd >> canBeConditionalized [
+{ #category : #visiting }
+DRBitAnd >> acceptVisitor: aVisitor [
 	
-	^ true
-]
-
-{ #category : #printing }
-DRBitAnd >> mnemonic [
-	
-	^ 'AND'
+	^ aVisitor visitBitAnd: self
 ]

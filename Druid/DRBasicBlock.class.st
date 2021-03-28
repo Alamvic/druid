@@ -2,56 +2,83 @@ Class {
 	#name : #DRBasicBlock,
 	#superclass : #Object,
 	#instVars : [
-		'instructions'
+		'instructions',
+		'blockValue',
+		'endInstruction'
 	],
-	#category : #'Druid-Instructions'
+	#category : #'Druid-IR'
 }
 
 { #category : #accessing }
-DRBasicBlock >> appendInstruction: anInstruction [
-
-	instructions add: anInstruction
-]
-
-{ #category : #'as yet unclassified' }
-DRBasicBlock >> gtInspectorInstructionsIn: composite [
-	<gtInspectorPresentationOrder: 0>
-	^ composite fastTable 
-		title: 'Instructions';
-		display: [ instructions ];
-		column: 'Instruction' evaluated: [ :e | e yourself ]
+DRBasicBlock >> addInstruction: anInstruction [
+	
+	self haltIf: [ (anInstruction isKindOf: DRNullValue) ].
+	^ instructions add: anInstruction
 ]
 
 { #category : #accessing }
-DRBasicBlock >> id [
+DRBasicBlock >> blockValue [
 	
-	^ self identityHash asString
+	^ blockValue
+]
+
+{ #category : #accessing }
+DRBasicBlock >> blockValue: aValue [
+	
+	self haltIf: [ (aValue isKindOf: DRValue) not ].
+	blockValue := aValue
+]
+
+{ #category : #accessing }
+DRBasicBlock >> endInstruction: aDRInstruction [ 
+	endInstruction := aDRInstruction
+]
+
+{ #category : #accessing }
+DRBasicBlock >> firstInstruction [
+	
+	^ instructions first
 ]
 
 { #category : #accessing }
 DRBasicBlock >> initialize [
-
-	super initialize.
-	instructions := OrderedCollection new
+	super initialize.	
+	instructions := OrderedCollection new.
+	blockValue := DRNullValue new
 ]
 
 { #category : #accessing }
 DRBasicBlock >> instructions [
-	^ instructions
+	^ instructions , { endInstruction }
+]
+
+{ #category : #iterating }
+DRBasicBlock >> instructionsDo: aFullBlockClosure [ 
+
+	instructions do: aFullBlockClosure.
+	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
+]
+
+{ #category : #building }
+DRBasicBlock >> jumpTo: aBasicBlock [ 
+
+	^ endInstruction := (DRJump new target: aBasicBlock)
 ]
 
 { #category : #accessing }
 DRBasicBlock >> lastInstruction [
 	
-	^ instructions last
+	^ endInstruction
 ]
 
-{ #category : #printing }
-DRBasicBlock >> printOn: aStream [
+{ #category : #instructions }
+DRBasicBlock >> removeInstruction: aDRInstruction [
+	
+	instructions remove: aDRInstruction
+]
 
-	super printOn: aStream.
-	aStream
-		nextPutAll: '(';
-		nextPutAll: self id asString;
-		nextPutAll: ')'
+{ #category : #accessing }
+DRBasicBlock >> successors [
+	
+	^ instructions last targets
 ]

@@ -1,35 +1,47 @@
 Class {
 	#name : #DRPhysicalRegister,
-	#superclass : #DRRegister,
-	#category : #'Druid-Instructions'
+	#superclass : #DRValue,
+	#instVars : [
+		'name'
+	],
+	#category : #'Druid-IR'
 }
 
-{ #category : #'instance creation' }
-DRPhysicalRegister class >> basePointer [
-
-	^ self named: #BasePointer
+{ #category : #'instance-creation' }
+DRPhysicalRegister class >> name: aString [ 
+	
+	^ self new
+		name: aString;
+		yourself
 ]
 
-{ #category : #'instance creation' }
-DRPhysicalRegister class >> stackPointer [
-
-	^ self named: #StackPointer
-]
-
-{ #category : #tesing }
-DRPhysicalRegister >> isPhysical [
+{ #category : #testing }
+DRPhysicalRegister >> isRegister [
 	
 	^ true
 ]
 
 { #category : #accessing }
-DRPhysicalRegister >> registers [
-	
-	^ { self }
+DRPhysicalRegister >> name [
+	^ name
 ]
 
-{ #category : #'register allocation' }
-DRPhysicalRegister >> updateLogicalRegisters: mappings [ 
+{ #category : #accessing }
+DRPhysicalRegister >> name: aString [ 
+	name := aString
+]
+
+{ #category : #printing }
+DRPhysicalRegister >> printOn: aStream [
+
+	aStream
+		nextPutAll: 'DRRegister(';
+		print: name;
+		nextPut: $)
+]
+
+{ #category : #'cogit-generation' }
+DRPhysicalRegister >> rtlOperandQualifier [
 	
-	^ self
+	^ 'R:'
 ]

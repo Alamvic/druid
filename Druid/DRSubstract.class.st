@@ -1,11 +1,11 @@
 Class {
 	#name : #DRSubstract,
-	#superclass : #DRTwoArgumentsInstruction,
-	#category : #'Druid-Instructions'
+	#superclass : #DRInstruction,
+	#category : #'Druid-IR'
 }
 
-{ #category : #printing }
-DRSubstract >> mnemonic [
-
-	^ 'SUB'
+{ #category : #visiting }
+DRSubstract >> acceptVisitor: aVisitor [
+	
+	^ aVisitor visitSubstract: self
 ]

@@ -4,14 +4,14 @@ Class {
 	#instVars : [
 		'value'
 	],
-	#category : #'Druid-Instructions'
+	#category : #'Druid-IR'
 }
 
 { #category : #accessing }
-DRConstant class >> value: aValue [
-
+DRConstant class >> value: anInteger [
+	
 	^ self new
-		value: aValue;
+		value: anInteger;
 		yourself
 ]
 
@@ -21,27 +21,16 @@ DRConstant >> isConstant [
 	^ true
 ]
 
-{ #category : #testing }
-DRConstant >> isConstantInteger [
+{ #category : #interpretation }
+DRConstant >> lookupClass [
 	
-	^ value isInteger
+	^ value class
 ]
 
-{ #category : #printing }
-DRConstant >> printOn: aStream [
-
-	^ aStream nextPutAll: self value asString
-]
-
-{ #category : #accessing }
-DRConstant >> registers [
-	^ {}
-]
-
-{ #category : #'register allocation' }
-DRConstant >> updateLogicalRegisters: mappings [ 
+{ #category : #'cogit-generation' }
+DRConstant >> rtlOperandQualifier [
 	
-	^ self
+	^ 'Cq:'
 ]
 
 { #category : #accessing }
@@ -50,6 +39,6 @@ DRConstant >> value [
 ]
 
 { #category : #accessing }
-DRConstant >> value: anObject [
-	value := anObject
+DRConstant >> value: anInteger [ 
+	value := anInteger
 ]

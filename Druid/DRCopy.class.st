@@ -1,11 +1,11 @@
 Class {
-	#name : #DRAdd,
+	#name : #DRCopy,
 	#superclass : #DRInstruction,
 	#category : #'Druid-IR'
 }
 
 { #category : #visiting }
-DRAdd >> acceptVisitor: aVisitor [
-
-	^ aVisitor visitAddition: self
+DRCopy >> acceptVisitor: aVisitor [
+	
+	^ aVisitor visitCopy: self
 ]

@@ -4,22 +4,28 @@ Class {
 	#instVars : [
 		'target'
 	],
-	#category : #'Druid-Instructions'
+	#category : #'Druid-IR'
 }
 
-{ #category : #printing }
-DRJump >> mnemonic [ 
-
-	^ 'JMP'
-]
-
-{ #category : #'as yet unclassified' }
-DRJump >> operands [
-		
-	^ {}
+{ #category : #visiting }
+DRJump >> acceptVisitor: aVisitor [
+	
+	^ aVisitor visitJump: self
 ]
 
 { #category : #accessing }
-DRJump >> target: aDRLabel [ 
-	target := aDRLabel
+DRJump >> target [
+	^ target
+]
+
+{ #category : #accessing }
+DRJump >> target: aBasicBlock [ 
+	
+	target := aBasicBlock
+]
+
+{ #category : #accessing }
+DRJump >> targets [
+	
+	^ { target }
 ]

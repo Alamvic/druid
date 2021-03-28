@@ -1,11 +1,11 @@
 Class {
-	#name : #DRStore,
+	#name : #DRLeftShift,
 	#superclass : #DRInstruction,
 	#category : #'Druid-IR'
 }
 
 { #category : #visiting }
-DRStore >> acceptVisitor: aVisitor [
+DRLeftShift >> acceptVisitor: aVisitor [
 	
-	^ aVisitor visitStore: self
+	^ aVisitor visitLeftShift: self
 ]

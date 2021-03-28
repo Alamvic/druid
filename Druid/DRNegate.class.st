@@ -1,11 +1,11 @@
 Class {
-	#name : #DRAdd,
+	#name : #DRNegate,
 	#superclass : #DRInstruction,
 	#category : #'Druid-IR'
 }
 
 { #category : #visiting }
-DRAdd >> acceptVisitor: aVisitor [
-
-	^ aVisitor visitAddition: self
+DRNegate >> acceptVisitor: aVisitor [ 
+	
+	^ aVisitor visitNegate: self
 ]

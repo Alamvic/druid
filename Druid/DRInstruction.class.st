@@ -1,77 +1,70 @@
 Class {
 	#name : #DRInstruction,
-	#superclass : #Object,
+	#superclass : #DRValue,
 	#instVars : [
+		'operands',
 		'result',
-		'node'
+		'order'
 	],
-	#category : #'Druid-Instructions'
+	#category : #'Druid-IR'
 }
 
-{ #category : #'as yet unclassified' }
-DRInstruction >> appendOn: anInstructionBuilder [
-
-	self operands do: [ :e | e appendOn: anInstructionBuilder ].
-	anInstructionBuilder appendInstruction: self.
-]
-
-{ #category : #accessing }
-DRInstruction >> astNode: anASTNode [
-
-	node := anASTNode
+{ #category : #'instance creation' }
+DRInstruction class >> operands: aCollection result: aResultRegister [
+	
+	^ self new
+		operands: aCollection;
+		result: aResultRegister;
+		yourself
 ]
 
 { #category : #testing }
-DRInstruction >> isConstantInteger [
-	
+DRInstruction >> isPhiFunction [
+
 	^ false
 ]
 
 { #category : #accessing }
-DRInstruction >> logicalRegisters [
+DRInstruction >> operand1 [
 	
-	^ self registers reject: [ :e | e isPhysical ]
+	^ operands at: 1
 ]
 
-{ #category : #printing }
-DRInstruction >> mnemonic [
+{ #category : #accessing }
+DRInstruction >> operand2 [
 
-	self subclassResponsibility
+	^ operands at: 2
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRInstruction >> operands [
-		
-	self subclassResponsibility
+	^ operands
 ]
 
-{ #category : #printing }
-DRInstruction >> printOn: aStream [
-
-	aStream
-		nextPutAll: self mnemonic;
-		space.
-	
-	self operands
-		do: [ :operand |
-			aStream nextPutAll: operand result asString.
-			aStream space ].
-	
-	self result 
-		ifNotNil: [ :aResult | 
-			aStream
-			 	nextPutAll: ' -> ';
-				nextPutAll: aResult printString ].
+{ #category : #accessing }
+DRInstruction >> operands: aCollection [ 
+	operands := aCollection
 ]
 
-{ #category : #printing }
-DRInstruction >> result [ 
+{ #category : #accessing }
+DRInstruction >> order [
+	
+	^ order
+]
+
+{ #category : #accessing }
+DRInstruction >> order: anInteger [ 
+	order := anInteger
+]
+
+{ #category : #accessing }
+DRInstruction >> result [
 
 	^ result
 ]
 
-{ #category : #printing }
-DRInstruction >> result: aLogicalRegister [
+{ #category : #accessing }
+DRInstruction >> result: anObject [
 
-	result := aLogicalRegister
+	result := anObject
 ]
