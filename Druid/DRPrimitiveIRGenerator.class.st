@@ -39,7 +39,7 @@ DRPrimitiveIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver argume
 	interpretationStack ifNotEmpty: [ ^ result ].
 	^ self currentBasicBlock endInstruction: (self
 		instantiate: DRReturn
-		operands: { DRConstant value: numberOfArguments + 1 * 8 "word size" }).
+		operands: { DRConstantValue value: numberOfArguments + 1 "Number of things to pop" }).
 ]
 
 { #category : #'special-cases' }
@@ -64,7 +64,7 @@ DRPrimitiveIRGenerator >> interpretSuccessfulWith: aRBMessageNode [
 
 	"If the primitive failed, we would have jumped already to the failure exit.
 	So this is always true"
-	^ self currentBasicBlock addInstruction: (DRConstantCondition value: (DRConstant value: true))
+	^ self currentBasicBlock addInstruction: (DRConstantCondition value: (DRConstantValue value: true))
 ]
 
 { #category : #accessing }

@@ -1,17 +1,17 @@
 Class {
-	#name : #DRCogitTrueObject,
+	#name : #DRTrueValue,
 	#superclass : #DRValue,
 	#category : #'Druid-IR'
 }
 
 { #category : #'cogit-generation' }
-DRCogitTrueObject >> name [
+DRTrueValue >> name [
 	
 	^ 'objectMemory trueObject'
 ]
 
 { #category : #'cogit-generation' }
-DRCogitTrueObject >> rtlOperandQualifier [
+DRTrueValue >> rtlOperandQualifier [
 
 	^ 'Cw:'
 ]

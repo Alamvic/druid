@@ -1,5 +1,5 @@
 Class {
-	#name : #DRConstant,
+	#name : #DRConstantValue,
 	#superclass : #DRValue,
 	#instVars : [
 		'value'
@@ -8,7 +8,7 @@ Class {
 }
 
 { #category : #accessing }
-DRConstant class >> value: anInteger [
+DRConstantValue class >> value: anInteger [
 	
 	^ self new
 		value: anInteger;
@@ -16,29 +16,29 @@ DRConstant class >> value: anInteger [
 ]
 
 { #category : #testing }
-DRConstant >> isConstant [
+DRConstantValue >> isConstant [
 	
 	^ true
 ]
 
 { #category : #interpretation }
-DRConstant >> lookupClass [
+DRConstantValue >> lookupClass [
 	
 	^ value class
 ]
 
 { #category : #'cogit-generation' }
-DRConstant >> rtlOperandQualifier [
+DRConstantValue >> rtlOperandQualifier [
 	
 	^ 'Cq:'
 ]
 
 { #category : #accessing }
-DRConstant >> value [
+DRConstantValue >> value [
 	^ value
 ]
 
 { #category : #accessing }
-DRConstant >> value: anInteger [ 
+DRConstantValue >> value: anInteger [ 
 	value := anInteger
 ]

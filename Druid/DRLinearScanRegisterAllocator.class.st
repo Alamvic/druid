@@ -84,11 +84,6 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 					(liveSets at: reg result) lastUsage: i ] ] ].
 ]
 
-{ #category : #'live-analysis' }
-DRLinearScanRegisterAllocator >> computeLocalLiveSets [
-	self shouldBeImplemented.
-]
-
 { #category : #'block-linearization' }
 DRLinearScanRegisterAllocator >> initialize [
 
@@ -98,9 +93,9 @@ DRLinearScanRegisterAllocator >> initialize [
 		DRPhysicalRegister name: 'TempReg'.
 		DRPhysicalRegister name: 'ClassReg'.
 		DRPhysicalRegister name: 'SendNumArgsReg'.
-		DRPhysicalRegister name: 'Extra0Reg'.
+"		DRPhysicalRegister name: 'Extra0Reg'.
 		DRPhysicalRegister name: 'Extra1Reg'.
-		DRPhysicalRegister name: 'Extra2Reg'.
+		DRPhysicalRegister name: 'Extra2Reg'."
 	} asOrderedCollection.
 ]
 

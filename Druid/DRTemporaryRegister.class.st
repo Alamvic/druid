@@ -56,3 +56,13 @@ DRTemporaryRegister >> name [
 
 	^ 'R' , self id asString
 ]
+
+{ #category : #accessing }
+DRTemporaryRegister >> printOn: aStream [
+
+	aStream
+		nextPutAll: self class name;
+		nextPutAll: '(t';
+		nextPutAll: self id asString;
+		nextPutAll: ')'
+]

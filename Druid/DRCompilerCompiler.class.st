@@ -187,6 +187,11 @@ DRCompilerCompiler >> visitReturn: aDRReturn [
 		RBMessageNode
 			receiver: RBVariableNode selfNode
 			selector: #RetN:
-			arguments: { 
-				RBVariableNode named: (self registerFor: aDRReturn operand1) })
+			arguments: {
+				RBMessageNode
+					receiver: (RBVariableNode named: (self registerFor: aDRReturn operand1))
+					selector: #*
+					arguments: { RBMessageNode 
+						receiver: (RBVariableNode named: 'objectMemory')
+						selector: #wordSize } } )
 ]

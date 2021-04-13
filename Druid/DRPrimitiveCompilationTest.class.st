@@ -183,3 +183,17 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveReturningObjectReference [
 	"An empty primitive does nothing and just returns, the return value is the receiver"
 	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
 ]
+
+{ #category : #'tests-stack' }
+DRPrimitiveCompilationTest >> testCompiledPrimitivePreservesStack [
+
+	| receiver |
+	self compileDruidPrimitive: #emptyPrimitive.
+	
+	receiver := memory integerObjectOf: 43.
+	self pushAddress: 55.
+	self executePrimitiveWithReceiver: receiver.
+	
+	"An empty primitive does nothing and just returns, the return value is the receiver"
+	self assert: self popAddress equals: 55
+]

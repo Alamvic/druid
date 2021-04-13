@@ -428,7 +428,7 @@ DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [
 	| copyInstruction |
 	copyInstruction := self
 		instantiate: DRCopy
-		operands: { DRCogitTrueObject new }.
+		operands: { DRTrueValue new }.
 	^ self currentBasicBlock addInstruction: copyInstruction
 ]
 
@@ -551,7 +551,7 @@ DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 	| copyInstruction |
 	copyInstruction := self
 		instantiate: DRCopy
-		operands: { DRConstant value: aRBLiteralValueNode value }.
+		operands: { DRConstantValue value: aRBLiteralValueNode value }.
 	^ self currentBasicBlock addInstruction: copyInstruction
 ]
 
