@@ -84,3 +84,32 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 					worklist add: target.
 					visited add: target ] ] ] ]
 ]
+
+{ #category : #validating }
+DRControlFlowGraph >> validate [
+	
+	| visited workqueue |
+	visited := Set new.
+	workqueue := OrderedCollection new.
+	workqueue add: initialBasicBlock.
+	
+	[ workqueue isEmpty ] whileFalse: [ | nextBlock |
+		nextBlock := workqueue removeFirst.
+		visited add: nextBlock.
+		self validateBlock: nextBlock.
+		nextBlock successors do: [ :e |
+			(visited includes: e)
+				ifFalse: [ workqueue add: e ] ] ]
+]
+
+{ #category : #validating }
+DRControlFlowGraph >> validateBlock: aDRBasicBlock [ 
+	
+	aDRBasicBlock predecessors do: [ :e |
+		(e successors includes: aDRBasicBlock)
+			ifFalse: [ self error: 'Predecessor-successor mismatch' ] ].
+		
+	aDRBasicBlock successors do: [ :e |
+		(e predecessors includes: aDRBasicBlock)
+			ifFalse: [ self error: 'Predecessor-successor mismatch' ] ].
+]

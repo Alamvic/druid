@@ -53,7 +53,10 @@ DRIRGenerator >> argRegisterNumber: anInteger [
 { #category : #'basic-blocks' }
 DRIRGenerator >> basicNewBasicBlock [
 
-	^ DRBasicBlock id: self nextBlockID
+	| block |
+	block := DRBasicBlock id: self nextBlockID.
+	block origin: thisContext stack.
+	^ block
 ]
 
 { #category : #accessing }
@@ -283,8 +286,20 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 		                                      temporaryFrame.
 
 	self newBasicBlock.
-	trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
-	falseBranchBasicBlockOut jumpTo: self currentBasicBlock.
+	"Could happen that the evaluated block had a non local return.
+	In that case, this block should not arrive to this merge point
+		=> do not add the jump"
+
+	"Also, in case both branches are finished at this point, the rest of this method is dead code"
+	(trueBranchBasicBlockOut hasFinalInstruction and: [ falseBranchBasicBlockOut hasFinalInstruction ])
+		ifTrue: [ self currentBasicBlock markAsDeadCode ].
+
+	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
+		trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
+	].
+	falseBranchBasicBlockOut hasFinalInstruction ifFalse: [
+		falseBranchBasicBlockOut jumpTo: self currentBasicBlock.
+	].
 
 	"join the values returned by the blocks"
 	joinInstruction := trueBranchBasicBlockOut blockValue
@@ -468,7 +483,7 @@ DRIRGenerator >> ir [
 
 { #category : #'basic-blocks' }
 DRIRGenerator >> newBasicBlock [
-	
+	self haltIf: [ nextBlockID = 16 ].
 	^ currentBasicBlock := self basicNewBasicBlock
 ]
 
@@ -562,8 +577,12 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 { #category : #visiting }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 	
+	| blockValue |
 	aRBBlockNode statements do: [ :e |
-		self currentBasicBlock blockValue: (e acceptVisitor: self) ].
+		blockValue := e acceptVisitor: self.
+		self currentBasicBlock hasFinalInstruction ifTrue: [ ^ blockValue ].
+		self currentBasicBlock blockValue: blockValue.
+	].
 	^ self currentBasicBlock blockValue
 ]
 
@@ -608,7 +627,8 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 DRIRGenerator >> visitMethodNode: aRBMethodNode [ 
 	
 	aRBMethodNode statements do: [ :each |
-		each acceptVisitor: self ]
+		each acceptVisitor: self.
+		self currentBasicBlock hasFinalInstruction ifTrue: [ ^ self ] ]
 ]
 
 { #category : #visiting }

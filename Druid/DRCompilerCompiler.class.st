@@ -182,7 +182,7 @@ DRCompilerCompiler >> visitConstantCondition: aDRConstantCondition [
 	"If true, jump to the true branch.
 	If false, jump to the false branch."
 	
-	self jumpForwardCogRTL: #JumpNonZero: instruction: aDRConstantCondition
+	"Code generated in the conditional jump"
 ]
 
 { #category : #visiting }

@@ -6,7 +6,8 @@ Class {
 		'instructions',
 		'blockValue',
 		'endInstruction',
-		'predecessors'
+		'predecessors',
+		'origin'
 	],
 	#category : #'Druid-IR'
 }
@@ -122,9 +123,11 @@ DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 
 { #category : #building }
 DRBasicBlock >> jumpTo: aBasicBlock [ 
-
+	
+	endInstruction ifNotNil: [ self error: 'Cannot override an end instruction' ].
+	endInstruction := (DRJump new target: aBasicBlock).
 	aBasicBlock addPredecessor: self.
-	^ endInstruction := (DRJump new target: aBasicBlock)
+	^ endInstruction
 ]
 
 { #category : #accessing }
@@ -133,10 +136,28 @@ DRBasicBlock >> lastInstruction [
 	^ endInstruction
 ]
 
+{ #category : #building }
+DRBasicBlock >> markAsDeadCode [
+	
+	"Put a symbol to mark this block is dead code.
+	It has no predecessors, so it will never be iterated in the CFG"
+	endInstruction := #deadCode
+]
+
 { #category : #accessing }
 DRBasicBlock >> numberOfPredecessors [
 	
 	^ predecessors size
+]
+
+{ #category : #accessing }
+DRBasicBlock >> origin: aCollection [ 
+	origin := aCollection
+]
+
+{ #category : #accessing }
+DRBasicBlock >> predecessors [
+	^ predecessors
 ]
 
 { #category : #printing }
@@ -144,6 +165,16 @@ DRBasicBlock >> printOn: aStream [
 
 	aStream nextPutAll: 'DRBasicBlock('.
 	aStream print: id.
+	aStream nextPutAll: ' => '.
+	self successors size = 1
+		ifTrue: [ aStream nextPutAll: self successors anyOne id asString ]
+		ifFalse: [
+			aStream nextPutAll: '{'.
+			self successors
+				do: [ :e | aStream nextPutAll: e id asString ]
+				separatedBy: [ aStream nextPutAll: ' ,' ].
+			aStream nextPutAll: '}'.
+		].
 	aStream nextPutAll: ')'
 ]
 
@@ -156,5 +187,6 @@ DRBasicBlock >> removeInstruction: aDRInstruction [
 { #category : #accessing }
 DRBasicBlock >> successors [
 	
-	^ instructions last targets
+	endInstruction ifNil: [ ^ #() ].
+	^ endInstruction targets
 ]

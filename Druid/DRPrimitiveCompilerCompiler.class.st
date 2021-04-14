@@ -119,13 +119,13 @@ DRPrimitiveCompilerCompiler >> twoOperandCogitRTL: aMnemonic operands: operands 
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> visitAddition: aDRCogitAdd [ 
 
-	^ self twoOperandCogitRTL: #AddR:R: instruction: aDRCogitAdd
+	^ self twoOperandCogitRTL: #Add instruction: aDRCogitAdd
 ]
 
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> visitBitAnd: aDRCogitBitAnd [ 
 
-	^ self twoOperandCogitRTL: #AndR:R: instruction: aDRCogitBitAnd
+	^ self twoOperandCogitRTL: #And instruction: aDRCogitBitAnd
 ]
 
 { #category : #visiting }
@@ -168,9 +168,7 @@ DRPrimitiveCompilerCompiler >> visitLeftShift: aDRCogitLeftShift [
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> visitLessOrEqualsComparison: aDRCogitLessOrEqualsComparison [ 
 	
-	self twoOperandCogitRTL: #Cmp operands: aDRCogitLessOrEqualsComparison operands.
-	"Fall-through true branch, jump to false branch"
-	self jumpForwardCogRTL: #JumpLessOrEqual: instruction: aDRCogitLessOrEqualsComparison
+	self twoOperandCogitRTL: #Cmp operands: aDRCogitLessOrEqualsComparison operands
 ]
 
 { #category : #visiting }
@@ -188,7 +186,7 @@ DRPrimitiveCompilerCompiler >> visitMultiply: aDRCogitMultiply [
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> visitNegate: aDRCogitNegate [ 
 	
-	self twoOperandCogitRTL: #MoveCq:R: instruction: aDRCogitNegate.
+	self twoOperandCogitRTL: #Move instruction: aDRCogitNegate.
 	generatorMethodBuilder addStatement: (
 		RBMessageNode
 			receiver: RBVariableNode selfNode
@@ -215,7 +213,7 @@ DRPrimitiveCompilerCompiler >> visitPhiFunction: aDRPhiFunction [
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> visitRightShift: aDRCogitRightShift [ 
 
-	^ self twoOperandCogitRTL: #LogicalShiftRightCq:R: instruction: aDRCogitRightShift
+	^ self twoOperandCogitRTL: #LogicalShiftRight instruction: aDRCogitRightShift
 ]
 
 { #category : #visiting }
@@ -227,7 +225,7 @@ DRPrimitiveCompilerCompiler >> visitStore: aDRCogitStore [
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> visitSubstract: aDRCogitSubstract [ 
 	
-	^ self twoOperandCogitRTL: #SubR:R: instruction: aDRCogitSubstract
+	^ self twoOperandCogitRTL: #Sub instruction: aDRCogitSubstract
 ]
 
 { #category : #visiting }

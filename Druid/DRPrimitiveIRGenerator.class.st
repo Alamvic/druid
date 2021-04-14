@@ -12,6 +12,7 @@ Class {
 DRPrimitiveIRGenerator >> initialize [
 
 	super initialize.
+	primitiveExitBlock := self basicNewBasicBlock.	
 ]
 
 { #category : #'special-cases' }

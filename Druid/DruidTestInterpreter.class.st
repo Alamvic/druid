@@ -32,6 +32,17 @@ DruidTestInterpreter >> methodWithEarlyReturn [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithTwoEarlyReturns [
+
+	self stackTop = 0
+		ifTrue: [ ^ 42 ]
+		ifFalse: [ ^ 57 ].
+
+	"Dead code"
+	^ 16rFFFF
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveCallingMethodReturningConstant [
 
 	<numberOfArguments: 0>
@@ -45,6 +56,14 @@ DruidTestInterpreter >> primitiveCallingMethodWithEarlyReturn [
 	<numberOfArguments: 0>
 
 	self pop: 1 thenPush: self methodWithEarlyReturn
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingMethodWithTwoEarlyReturns [
+
+	<numberOfArguments: 0>
+
+	self pop: 1 thenPush: self methodWithTwoEarlyReturns
 ]
 
 { #category : #'as yet unclassified' }
