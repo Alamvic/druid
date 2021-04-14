@@ -99,6 +99,14 @@ DRPhiFunction >> rtlOperandQualifier [
 	^ 'R:'
 ]
 
+{ #category : #accessing }
+DRPhiFunction >> simplify [
+
+	operands size > 1
+		ifTrue: [ self error: 'Cannot simplify a phi function with more than one operand for now' ].
+	^ operands first
+]
+
 { #category : #enumerating }
 DRPhiFunction >> valuesWithOriginDo: aFullBlockClosure [ 
 	

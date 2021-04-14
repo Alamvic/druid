@@ -46,6 +46,7 @@ DruidStackFrame >> irGenerator: anObject [
 	irGenerator := anObject.
 	temporaryFrame at: '__return' put: (DRPhiFunction new
 		result: irGenerator allocateTemporaryRegister;
+		origin: thisContext stack;
 		yourself).
 ]
 

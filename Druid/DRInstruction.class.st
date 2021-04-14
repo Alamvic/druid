@@ -4,7 +4,9 @@ Class {
 	#instVars : [
 		'operands',
 		'result',
-		'order'
+		'order',
+		'origin',
+		'originAST'
 	],
 	#category : #'Druid-IR'
 }
@@ -61,6 +63,24 @@ DRInstruction >> order [
 { #category : #accessing }
 DRInstruction >> order: anInteger [ 
 	order := anInteger
+]
+
+{ #category : #accessing }
+DRInstruction >> origin [
+
+	^ origin
+]
+
+{ #category : #accessing }
+DRInstruction >> origin: anObject [
+
+	origin := anObject
+]
+
+{ #category : #accessing }
+DRInstruction >> originAST: aNode [
+	
+	originAST := aNode
 ]
 
 { #category : #printing }

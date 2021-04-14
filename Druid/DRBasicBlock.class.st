@@ -5,7 +5,8 @@ Class {
 		'id',
 		'instructions',
 		'blockValue',
-		'endInstruction'
+		'endInstruction',
+		'predecessors'
 	],
 	#category : #'Druid-IR'
 }
@@ -23,6 +24,12 @@ DRBasicBlock >> addInstruction: anInstruction [
 	
 	self haltIf: [ (anInstruction isKindOf: DRNullValue) ].
 	^ instructions add: anInstruction
+]
+
+{ #category : #accessing }
+DRBasicBlock >> addPredecessor: aBasicBlock [
+
+	predecessors add: aBasicBlock
 ]
 
 { #category : #accessing }
@@ -49,6 +56,12 @@ DRBasicBlock >> firstInstruction [
 	^ instructions first
 ]
 
+{ #category : #testing }
+DRBasicBlock >> hasFinalInstruction [
+	
+	^ endInstruction notNil
+]
+
 { #category : #accessing }
 DRBasicBlock >> id [
 
@@ -65,7 +78,8 @@ DRBasicBlock >> id: anObject [
 DRBasicBlock >> initialize [
 	super initialize.	
 	instructions := OrderedCollection new.
-	blockValue := DRNullValue new
+	blockValue := DRNullValue new.
+	predecessors := OrderedCollection new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -80,7 +94,11 @@ DRBasicBlock >> inspectionInstructions: aBuilder [
 
 { #category : #accessing }
 DRBasicBlock >> instructions [
-	^ instructions , { endInstruction }
+
+	| allInstructions |
+	allInstructions := OrderedCollection new.
+	self instructionsDo: [ :i | allInstructions add: i ].
+	^ allInstructions
 ]
 
 { #category : #iterating }
@@ -91,8 +109,21 @@ DRBasicBlock >> instructionsDo: aFullBlockClosure [
 ]
 
 { #category : #building }
+DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [ 
+	
+	aDRBasicBlock addPredecessor: self.
+	aDRBasicBlock2 addPredecessor: self.
+	
+	^ endInstruction := DRConditionalJump new
+		trueBranch: aDRBasicBlock;
+		falseBranch: aDRBasicBlock2;
+		yourself
+]
+
+{ #category : #building }
 DRBasicBlock >> jumpTo: aBasicBlock [ 
 
+	aBasicBlock addPredecessor: self.
 	^ endInstruction := (DRJump new target: aBasicBlock)
 ]
 
@@ -100,6 +131,20 @@ DRBasicBlock >> jumpTo: aBasicBlock [
 DRBasicBlock >> lastInstruction [
 	
 	^ endInstruction
+]
+
+{ #category : #accessing }
+DRBasicBlock >> numberOfPredecessors [
+	
+	^ predecessors size
+]
+
+{ #category : #printing }
+DRBasicBlock >> printOn: aStream [
+
+	aStream nextPutAll: 'DRBasicBlock('.
+	aStream print: id.
+	aStream nextPutAll: ')'
 ]
 
 { #category : #instructions }

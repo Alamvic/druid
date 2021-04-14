@@ -22,19 +22,28 @@ DRControlFlowGraph >> blocks [
 { #category : #iterating }
 DRControlFlowGraph >> blocksDo: aFullBlockClosure [ 
 
-	| worklist visited |
-	visited := Set new.
-	worklist := OrderedCollection new.
-	worklist add: initialBasicBlock.
+	| workingQueue visited visitsSoFar |
+	visited := Dictionary new.
 	
-	[ worklist isEmpty ] whileFalse: [ | currentBlock |
-		currentBlock := worklist removeFirst.
+	
+	workingQueue := OrderedCollection new.
+	workingQueue add: initialBasicBlock.
+	
+	[ workingQueue isEmpty ] whileFalse: [ | currentBlock |
+		currentBlock := workingQueue removeFirst.
 		aFullBlockClosure value: currentBlock.
 		currentBlock instructions notEmpty ifTrue: [
 			currentBlock lastInstruction targets do: [ :target |
-				(visited includes: target) ifFalse: [ 
-					worklist addLast: target.
-					visited add: target ] ] ] ]
+				
+				"Count how many times we have visited this block"
+				visitsSoFar := visited
+					at: target
+					ifPresent: [ :p | p + 1 ]
+					ifAbsent: [ 1 ].
+				visited at: target put: visitsSoFar.
+				
+				visitsSoFar = target numberOfPredecessors ifTrue: [ 
+					workingQueue addLast: target  ] ] ] ]
 ]
 
 { #category : #accessing }

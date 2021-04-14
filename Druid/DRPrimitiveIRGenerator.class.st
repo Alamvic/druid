@@ -12,7 +12,6 @@ Class {
 DRPrimitiveIRGenerator >> initialize [
 
 	super initialize.
-	primitiveExitBlock := self basicNewBasicBlock.	
 ]
 
 { #category : #'special-cases' }
@@ -61,9 +60,7 @@ DRPrimitiveIRGenerator >> interpretSuccessfulWith: aRBMessageNode [
 
 	"If the primitive failed, we would have jumped already to the failure exit.
 	So this is always true"
-	^ self currentBasicBlock addInstruction: (self
-		instantiate: DRConstantCondition
-		operands: {DRConstantValue value: true})
+	^ self addInstructionFrom: aRBMessageNode instructionKind: DRConstantCondition operands: {DRConstantValue value: true}
 ]
 
 { #category : #accessing }

@@ -16,3 +16,9 @@ DRCondition >> cogitFalseConditionCode [
 	
 	^ #JumpNonZero:
 ]
+
+{ #category : #accessing }
+DRCondition >> simplify [
+	
+	^ self
+]

@@ -10,7 +10,7 @@ Class {
 { #category : #API }
 DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInterpreter as: primitiveCompilerName in: aCompilerClass [ 
 	
-	self new
+	^ self new
 		primitiveName: primitiveName;
 		interpreter: anInterpreter;
 		primitiveCompilerName: primitiveCompilerName;
@@ -233,9 +233,7 @@ DRPrimitiveCompilerCompiler >> visitSubstract: aDRCogitSubstract [
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> visitTest: aDRCogitTest [ 
 	
-	self twoOperandCogitRTL: #Tst instruction: aDRCogitTest.
-	"Fall-through true branch, jump to false branch"
-	self jumpForwardCogRTL: #JumpNonZero: instruction: aDRCogitTest.
+	self twoOperandCogitRTL: #Tst instruction: aDRCogitTest
 ]
 
 { #category : #visiting }

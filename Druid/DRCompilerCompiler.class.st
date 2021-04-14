@@ -9,7 +9,9 @@ Class {
 		'generatorMethodBuilder',
 		'nextJumpIndex',
 		'deferredBranches',
-		'registerAllocator'
+		'registerAllocator',
+		'druidIR',
+		'targetAST'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -22,8 +24,7 @@ DRCompilerCompiler >> buildStatementsForInstruction: anInstruction [
 
 { #category : #api }
 DRCompilerCompiler >> compile [
-	
-	| druidIR targetAST |
+
 	druidIR := self generateDruidIR.
 	registerAllocator allocateRegistersIn: druidIR.
 	self resolvePhiFunctionsIn: druidIR.
@@ -169,7 +170,10 @@ DRCompilerCompiler >> sourceName: anObject [
 DRCompilerCompiler >> visitConditionalJump: aDRConditionalJump [ 
 
 	"Fall-through true branch, jump to false branch"
-	self jumpForwardCogRTL: aDRConditionalJump condition cogitFalseConditionCode instruction: aDRConditionalJump
+	| simplifiedCondition |
+	simplifiedCondition := aDRConditionalJump condition simplify.
+	
+	self jumpForwardCogRTL: simplifiedCondition cogitFalseConditionCode instruction: aDRConditionalJump
 ]
 
 { #category : #visiting }

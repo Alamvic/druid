@@ -13,6 +13,18 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #visiting }
+DRIRGenerator >> addInstructionFrom: aNode instructionKind: instructionClass operands: operands [
+	
+	| copyInstruction |
+	copyInstruction := self
+		instantiate: instructionClass
+		operands: operands.
+	self currentBasicBlock addInstruction: copyInstruction.
+	copyInstruction originAST: aNode.
+	^ copyInstruction
+]
+
 { #category : #registers }
 DRIRGenerator >> allocateTemporaryRegister [
 	
@@ -116,51 +128,50 @@ DRIRGenerator >> initializeSpecialCases [
 { #category : #factory }
 DRIRGenerator >> instantiate: anInstructionClass operands: aCollection [ 
 	
-	^ anInstructionClass operands: aCollection result: self allocateTemporaryRegister
+	| instruction |
+	instruction := anInstructionClass operands: aCollection result: self allocateTemporaryRegister.
+	instruction origin: thisContext sender stack.
+	^ instruction
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretAddWith: aRBMessageNode [ 
 
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (self instantiate: DRAdd operands: { operand1 . operand2 })
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRAdd
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretAnyMaskWith: aRBMessageNode [ 
 
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (self instantiate: DRTest operands: { operand1 . operand2 })
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRTest
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretAsUnsignedIntegerWith: aRBMessageNode [ 
 	
-	| operand1 |
+	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRUnsignedCoercion
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretBinaryInstruction: aRBMessageNode instructionKind: anInstructionKind [
+
+	| operand1 operand2 |
 	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (self instantiate: DRUnsignedCoercion operands: { operand1 })
+	operand2 := aRBMessageNode arguments first acceptVisitor: self.
+
+	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { operand1 . operand2 }
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretBitAndWith: aRBMessageNode [
 	
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (self instantiate: DRBitAnd operands: { operand1 . operand2 })
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitAnd
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretBitShiftWith: aRBMessageNode [ 
 
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (self instantiate: DRBitShift operands: { operand1 . operand2 })
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitShift
 ]
 
 { #category : #'special-cases' }
@@ -172,11 +183,7 @@ DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretEqualityComparisonWith: aRBMessageNode [
 	
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	
-	^ self currentBasicBlock addInstruction: (self instantiate: DREqualsComparison operands: { operand1 . operand2 })
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DREqualsComparison
 ]
 
 { #category : #'special-cases' }
@@ -211,7 +218,7 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 
-	| trueBranchBasicBlockOut condition startingBasicBlock joinInstruction conditionalJump |
+	| trueBranchBasicBlockOut condition startingBasicBlock joinInstruction conditionalJump trueBranchSuccessor |
 	startingBasicBlock := self currentBasicBlock.
 
 	condition := aRBMessageNode receiver acceptVisitor: self.
@@ -219,12 +226,23 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 	
 	self currentBasicBlock endInstruction: conditionalJump.
 
-	conditionalJump trueBranch: (self newBasicBlockDuring: [ 
-			 aRBMessageNode arguments first acceptVisitor: self ]).
+	trueBranchSuccessor := self newBasicBlockDuring: [ 
+			 aRBMessageNode arguments first acceptVisitor: self ].
+	conditionalJump trueBranch: trueBranchSuccessor.
+	trueBranchSuccessor addPredecessor: startingBasicBlock.
 	trueBranchBasicBlockOut := self currentBasicBlock.
 
+	"Merge point"
 	self newBasicBlock.
-	trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
+	
+	"Could happen that the evaluated block had a non local return.
+	In that case, this block should not arrive to this merge point
+		=> do not add the jump"
+	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
+		trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
+	].
+	
+	self currentBasicBlock addPredecessor: startingBasicBlock.
 	conditionalJump falseBranch: self currentBasicBlock.
 
 	joinInstruction := startingBasicBlock blockValue
@@ -238,20 +256,28 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 
-	| trueBranchBasicBlockOut falseBranchBasicBlockOut condition joinInstruction temporaryFrameBeforeBranch temporaryFrameAfterTrueBranchJoin temporaryFrameAfterFalseBranchJoin joinPointTemporartFrame conditionalJump |
-	condition := aRBMessageNode receiver acceptVisitor: self.
-	conditionalJump := self instantiate: DRConditionalJump operands: { condition }.
-	self currentBasicBlock endInstruction: conditionalJump.
+	| trueBranchBasicBlockOut falseBranchBasicBlockOut condition joinInstruction temporaryFrameBeforeBranch temporaryFrameAfterTrueBranchJoin temporaryFrameAfterFalseBranchJoin joinPointTemporartFrame conditionalJump trueBranchEntry startingBasicBlock falseBranchEntry |
 	
+	condition := aRBMessageNode receiver acceptVisitor: self.
+	conditionalJump := self
+		                   instantiate: DRConditionalJump
+		                   operands: { condition }.
+	self currentBasicBlock endInstruction: conditionalJump.
+	startingBasicBlock := self currentBasicBlock.
+
 	temporaryFrameBeforeBranch := self currentFrame temporaryFrame copy.
-	conditionalJump trueBranch: (self newBasicBlockDuring: [ 
-			 aRBMessageNode arguments first acceptVisitor: self ]).
+	trueBranchEntry := self newBasicBlockDuring: [ 
+		aRBMessageNode arguments first acceptVisitor: self ].
+	trueBranchEntry addPredecessor: startingBasicBlock.
+	conditionalJump trueBranch: trueBranchEntry.
 	trueBranchBasicBlockOut := self currentBasicBlock.
 	temporaryFrameAfterTrueBranchJoin := self currentFrame temporaryFrame.
 
 	self currentFrame temporaryFrame: temporaryFrameBeforeBranch.
-	conditionalJump falseBranch: (self newBasicBlockDuring: [ 
-			 aRBMessageNode arguments second acceptVisitor: self ]).
+	falseBranchEntry := self newBasicBlockDuring: [ 
+			 aRBMessageNode arguments second acceptVisitor: self ].
+	conditionalJump falseBranch: falseBranchEntry.
+	falseBranchEntry addPredecessor: startingBasicBlock.
 	falseBranchBasicBlockOut := self currentBasicBlock.
 	temporaryFrameAfterFalseBranchJoin := self currentFrame
 		                                      temporaryFrame.
@@ -294,20 +320,13 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretLeftShiftWith: aRBMessageNode [ 
 
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (self instantiate: DRLeftShift operands: { operand1 . operand2 })
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRLeftShift
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretLessOrEqualsComparisonWith: aRBMessageNode [ 
 
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	
-	^ self currentBasicBlock addInstruction: (self instantiate: DRLessOrEqualsComparison operands: { operand1 . operand2 })
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRLessOrEqualsComparison
 ]
 
 { #category : #'special-cases' }
@@ -345,6 +364,11 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: argu
 		self temporaryAt: name put: value
 	].
 	aMethodAST acceptVisitor: self.
+	
+	"Fall through the exit block.
+	If the method had an explicit return, it is already done, no need to do it again."
+	currentBasicBlock hasFinalInstruction
+		ifFalse: [ currentBasicBlock jumpTo: self currentFrame exitBasicBlock ].
 	^ self popFrame.
 ]
 
@@ -360,9 +384,7 @@ DRIRGenerator >> interpretMultiplyWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretNegatedWith: aRBMessageNode [ 
 
-	| operand1 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (self instantiate: DRNegate operands: { operand1 })
+	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRNegate
 ]
 
 { #category : #visiting }
@@ -415,27 +437,28 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 	value := aRBMessageNode arguments first acceptVisitor: self.
 	value operand1 value isInteger ifFalse: [ self error: 'expected an integer value' ].
 	
-	^ self currentBasicBlock addInstruction: (self instantiate: DRCopy operands: {
-		self argRegisterNumber: value operand1 value })
+	^ self addInstructionFrom: aRBMessageNode instructionKind: DRCopy operands: { self argRegisterNumber: value operand1 value }
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretSubstractWith: aRBMessageNode [ 
 	
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (self instantiate: DRSubstract operands: { operand1 . operand2 })
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRSubstract
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [ 
+
+	^ self addInstructionFrom: aRBVariableNode instructionKind: DRCopy operands: { DRTrueValue new }
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretUnaryInstruction: aRBMessageNode instructionKind: anInstructionKind [
 	
-	| copyInstruction |
-	copyInstruction := self
-		instantiate: DRCopy
-		operands: { DRTrueValue new }.
-	^ self currentBasicBlock addInstruction: copyInstruction
+	| operand1 |
+	operand1 := aRBMessageNode receiver acceptVisitor: self.
+
+	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { operand1 }
 ]
 
 { #category : #accessing }
@@ -470,7 +493,11 @@ DRIRGenerator >> nextBlockID [
 { #category : #'stack-management' }
 DRIRGenerator >> popFrame [
 	
-	^ interpretationStack removeLast returnValue
+	| previousFrame |
+	previousFrame :=interpretationStack removeLast.
+	currentBasicBlock := previousFrame exitBasicBlock.
+	currentBasicBlock addInstruction: previousFrame returnValue.
+	^ previousFrame returnValue
 ]
 
 { #category : #'stack-management' }
@@ -557,11 +584,7 @@ DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 { #category : #visiting }
 DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [ 
 	
-	| copyInstruction |
-	copyInstruction := self
-		instantiate: DRCopy
-		operands: { DRConstantValue value: aRBLiteralValueNode value }.
-	^ self currentBasicBlock addInstruction: copyInstruction
+	^ self addInstructionFrom: aRBLiteralValueNode instructionKind: DRCopy operands: { DRConstantValue value: aRBLiteralValueNode value }
 ]
 
 { #category : #visiting }
@@ -595,11 +618,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	newReturn := aRBReturnNode value acceptVisitor: self.
 
 	self currentFrame returnValue: newReturn.
-
 	self currentBasicBlock jumpTo: self currentFrame exitBasicBlock.
-	currentBasicBlock := self currentFrame exitBasicBlock.
-	self currentBasicBlock addInstruction: self currentFrame returnValue.
-	
 	^ DRNullValue new
 ]
 
