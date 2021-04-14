@@ -67,6 +67,19 @@ DruidTestInterpreter >> primitiveCallingMethodWithTwoEarlyReturns [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveConditionWithAnyMask [
+
+	<numberOfArguments: 0>
+
+	| v |
+	v := (self stackTop anyMask: 1)
+		ifTrue: [ 1 ]
+		ifFalse: [ 2 ].
+	
+	self pop: 1 thenPush: v
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveReturnOne [
 
 	<numberOfArguments: 0>

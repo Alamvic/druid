@@ -229,9 +229,13 @@ DRPrimitiveCompilerCompiler >> visitSubstract: aDRCogitSubstract [
 ]
 
 { #category : #visiting }
-DRPrimitiveCompilerCompiler >> visitTest: aDRCogitTest [ 
-	
-	self twoOperandCogitRTL: #Tst instruction: aDRCogitTest
+DRPrimitiveCompilerCompiler >> visitTest: aDRCogitTest [
+	| firstTestOperand |
+	firstTestOperand := aDRCogitTest operand2 operands first.
+	firstTestOperand isConstant
+		ifFalse: [ self error: 'Cannot compile Tst instruction with non constant operand' ].
+	^ self twoOperandCogitRTL: #Tst operands: {
+		firstTestOperand. aDRCogitTest operand1 }
 ]
 
 { #category : #visiting }

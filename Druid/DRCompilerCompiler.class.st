@@ -172,7 +172,7 @@ DRCompilerCompiler >> visitConditionalJump: aDRConditionalJump [
 	"Fall-through true branch, jump to false branch"
 	| simplifiedCondition |
 	simplifiedCondition := aDRConditionalJump condition simplify.
-	
+
 	self jumpForwardCogRTL: simplifiedCondition cogitFalseConditionCode instruction: aDRConditionalJump
 ]
 

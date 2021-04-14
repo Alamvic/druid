@@ -57,6 +57,27 @@ DRPrimitiveCompilationTest >> setUp [
 	initialAddress := #invalid "will be set by test"
 ]
 
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testAnyMaskFalse [
+
+	self compileDruidPrimitive: #primitiveConditionWithAnyMask.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testAnyMaskTrue [
+
+	self compileDruidPrimitive: #primitiveConditionWithAnyMask.
+	
+	self executePrimitiveWithReceiver: 37.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+
+]
+
 { #category : #'tests-iftrueiffalse' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCaseFalse [
 
