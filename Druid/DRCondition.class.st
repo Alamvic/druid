@@ -8,25 +8,11 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #accessing }
-DRCondition >> falseBranch [
-	^ falseBranch
-]
-
-{ #category : #accessing }
-DRCondition >> falseBranch: aDruidIRGenerator [ 
-
-	falseBranch := aDruidIRGenerator 
-]
-
-{ #category : #accessing }
-DRCondition >> targets [
-
-	^ { trueBranch . falseBranch }
-]
-
-{ #category : #accessing }
-DRCondition >> trueBranch: aDruidIRGenerator [ 
+{ #category : #'rtl-translation' }
+DRCondition >> cogitFalseConditionCode [
 	
-	trueBranch := aDruidIRGenerator 
+	"Return the condition code used to jump if this condition is false.
+	Since we are checking equals, the we should return non-equals, represented as a NonZero in cogit rtl"
+	
+	^ #JumpNonZero:
 ]

@@ -166,6 +166,13 @@ DRCompilerCompiler >> sourceName: anObject [
 ]
 
 { #category : #visiting }
+DRCompilerCompiler >> visitConditionalJump: aDRConditionalJump [ 
+
+	"Fall-through true branch, jump to false branch"
+	self jumpForwardCogRTL: aDRConditionalJump condition cogitFalseConditionCode instruction: aDRConditionalJump
+]
+
+{ #category : #visiting }
 DRCompilerCompiler >> visitConstantCondition: aDRConstantCondition [
 	
 	"If true, jump to the true branch.

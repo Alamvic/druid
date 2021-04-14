@@ -185,6 +185,20 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveReturningObjectReference [
 ]
 
 { #category : #'tests-stack' }
+DRPrimitiveCompilationTest >> testCompiledPrimitiveInitializesCorrectlyTheSimulatedStack [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveReturnOneWithArguments.
+	
+	receiver := memory integerObjectOf: 43.
+	self pushAddress: 55.
+	self executePrimitiveWithReceiver: receiver withArguments: { 1. 2 }.
+	
+	"An empty primitive does nothing and just returns, the return value is the receiver"
+	self assert: self popAddress equals: 55
+]
+
+{ #category : #'tests-stack' }
 DRPrimitiveCompilationTest >> testCompiledPrimitivePreservesStack [
 
 	| receiver |

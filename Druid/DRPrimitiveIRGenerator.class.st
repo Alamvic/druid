@@ -12,7 +12,6 @@ Class {
 DRPrimitiveIRGenerator >> initialize [
 
 	"Create the exit block first, so later the first block becomes current"
-	operandStackPosition := 1.
 	primitiveExitBlock := self newBasicBlock.
 	super initialize.
 	
@@ -75,9 +74,16 @@ DRPrimitiveIRGenerator >> ir [
 		yourself
 ]
 
+{ #category : #accessing }
+DRPrimitiveIRGenerator >> numberOfArguments: aValue [ 
+	
+	numberOfArguments := aValue.
+	operandStackPosition := aValue + 1 "add the receiver"
+]
+
 { #category : #'operand-stack' }
 DRPrimitiveIRGenerator >> pop: anInteger [ 
-	
+
 	anInteger > operandStackPosition
 		ifTrue: [ self error: 'Operand stack underflow!' ].
 	operandStackPosition := operandStackPosition - anInteger.

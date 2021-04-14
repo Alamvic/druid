@@ -203,21 +203,21 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 
-	| trueBranchBasicBlockOut condition startingBasicBlock joinInstruction |
+	| trueBranchBasicBlockOut condition startingBasicBlock joinInstruction conditionalJump |
 	startingBasicBlock := self currentBasicBlock.
 
 	condition := aRBMessageNode receiver acceptVisitor: self.
-	"this is a hack for now"
-	self currentBasicBlock removeInstruction: condition.
-	self currentBasicBlock endInstruction: condition.
+	conditionalJump := self instantiate: DRConditionalJump operands: { condition }.
+	
+	self currentBasicBlock endInstruction: conditionalJump.
 
-	condition trueBranch: (self newBasicBlockDuring: [ 
+	conditionalJump trueBranch: (self newBasicBlockDuring: [ 
 			 aRBMessageNode arguments first acceptVisitor: self ]).
 	trueBranchBasicBlockOut := self currentBasicBlock.
 
 	self newBasicBlock.
 	trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
-	condition falseBranch: self currentBasicBlock.
+	conditionalJump falseBranch: self currentBasicBlock.
 
 	joinInstruction := startingBasicBlock blockValue
 		                   joinValue: trueBranchBasicBlockOut blockValue
@@ -230,21 +230,19 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 
-	| trueBranchBasicBlockOut falseBranchBasicBlockOut condition joinInstruction temporaryFrameBeforeBranch temporaryFrameAfterTrueBranchJoin temporaryFrameAfterFalseBranchJoin joinPointTemporartFrame |
+	| trueBranchBasicBlockOut falseBranchBasicBlockOut condition joinInstruction temporaryFrameBeforeBranch temporaryFrameAfterTrueBranchJoin temporaryFrameAfterFalseBranchJoin joinPointTemporartFrame conditionalJump |
 	condition := aRBMessageNode receiver acceptVisitor: self.
-
-	"this is a hack for now"
-	self currentBasicBlock removeInstruction: condition.
-	self currentBasicBlock endInstruction: condition.
+	conditionalJump := self instantiate: DRConditionalJump operands: { condition }.
+	self currentBasicBlock endInstruction: conditionalJump.
 	
 	temporaryFrameBeforeBranch := self currentFrame temporaryFrame copy.
-	condition trueBranch: (self newBasicBlockDuring: [ 
+	conditionalJump trueBranch: (self newBasicBlockDuring: [ 
 			 aRBMessageNode arguments first acceptVisitor: self ]).
 	trueBranchBasicBlockOut := self currentBasicBlock.
 	temporaryFrameAfterTrueBranchJoin := self currentFrame temporaryFrame.
 
 	self currentFrame temporaryFrame: temporaryFrameBeforeBranch.
-	condition falseBranch: (self newBasicBlockDuring: [ 
+	conditionalJump falseBranch: (self newBasicBlockDuring: [ 
 			 aRBMessageNode arguments second acceptVisitor: self ]).
 	falseBranchBasicBlockOut := self currentBasicBlock.
 	temporaryFrameAfterFalseBranchJoin := self currentFrame
@@ -450,12 +448,6 @@ DRIRGenerator >> newBasicBlockDuring: aFullBlockClosure [
 	inBasicBlock := self newBasicBlock.
 	aFullBlockClosure value.
 	^ inBasicBlock
-]
-
-{ #category : #accessing }
-DRIRGenerator >> numberOfArguments: aValue [ 
-	
-	numberOfArguments := aValue
 ]
 
 { #category : #'stack-management' }

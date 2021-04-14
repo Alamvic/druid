@@ -56,6 +56,14 @@ DruidTestInterpreter >> primitiveReturnOne [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveReturnOneWithArguments [
+
+	<numberOfArguments: 2>
+	
+	self pop: 3 "2 args + 1 receiver" thenPush: 1
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveReturnTrue [
 
 	<numberOfArguments: 0>

@@ -144,14 +144,11 @@ DRPrimitiveCompilerCompiler >> visitEqualsComparison: aDRCogitEqualsComparison [
 	Invert them  (and the condition if necessary, mostly for greaterThan comparisons)."
 	| comparands condition |
 	comparands := aDRCogitEqualsComparison operands.
-	condition := #JumpNonZero:.
 	aDRCogitEqualsComparison operands second isConstant
 		ifTrue: [ 
 			comparands := comparands reversed ].
 	
 	self twoOperandCogitRTL: #Cmp operands: comparands.
-	"Fall-through true branch, jump to false branch"
-	self jumpForwardCogRTL: condition instruction: aDRCogitEqualsComparison
 ]
 
 { #category : #visiting }

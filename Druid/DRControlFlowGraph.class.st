@@ -70,6 +70,7 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 		currentBlock instructionsDo: [ :e |
 			aFullBlockClosure value: e.
 			e targets do: [ :target |
+				1haltIf: [ target isNil ].
 				(visited includes: target) ifFalse: [ 
 					worklist add: target.
 					visited add: target ] ] ] ]
