@@ -9,3 +9,9 @@ DRLessOrEqualsComparison >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitLessOrEqualsComparison: self
 ]
+
+{ #category : #printing }
+DRLessOrEqualsComparison >> opcode [
+	
+	^ 'LessOrEquals'
+]

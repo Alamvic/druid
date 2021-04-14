@@ -27,6 +27,12 @@ DRConstantValue >> lookupClass [
 	^ value class
 ]
 
+{ #category : #accessing }
+DRConstantValue >> name [
+	
+	^ value asString
+]
+
 { #category : #'cogit-generation' }
 DRConstantValue >> rtlOperandQualifier [
 	

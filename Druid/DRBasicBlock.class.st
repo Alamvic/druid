@@ -2,12 +2,21 @@ Class {
 	#name : #DRBasicBlock,
 	#superclass : #Object,
 	#instVars : [
+		'id',
 		'instructions',
 		'blockValue',
 		'endInstruction'
 	],
 	#category : #'Druid-IR'
 }
+
+{ #category : #accessing }
+DRBasicBlock class >> id: anInteger [ 
+	
+	^ self new
+		id: anInteger;
+		yourself
+]
 
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
@@ -41,10 +50,32 @@ DRBasicBlock >> firstInstruction [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> id [
+
+	^ id
+]
+
+{ #category : #accessing }
+DRBasicBlock >> id: anObject [
+
+	id := anObject
+]
+
+{ #category : #accessing }
 DRBasicBlock >> initialize [
 	super initialize.	
 	instructions := OrderedCollection new.
 	blockValue := DRNullValue new
+]
+
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> inspectionInstructions: aBuilder [
+	<inspectorPresentationOrder: 0 title: 'Instructions'> 
+	
+	^ aBuilder newList
+		display: [ :each | StObjectPrinter asTruncatedTextFrom: each prettyPrint ];
+		items: self instructions;
+		yourself
 ]
 
 { #category : #accessing }

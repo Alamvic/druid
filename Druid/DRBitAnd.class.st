@@ -9,3 +9,9 @@ DRBitAnd >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitBitAnd: self
 ]
+
+{ #category : #printing }
+DRBitAnd >> opcode [
+	
+	^ 'AND'
+]

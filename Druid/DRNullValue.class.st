@@ -27,3 +27,9 @@ DRNullValue >> joinValue: anotherValue onIRGenerator: anIRGenerator from: origin
 
 	^ anotherValue
 ]
+
+{ #category : #accessing }
+DRNullValue >> name [
+	
+	^ 'NULL'
+]

@@ -13,6 +13,12 @@ DRJump >> acceptVisitor: aVisitor [
 	^ aVisitor visitJump: self
 ]
 
+{ #category : #printing }
+DRJump >> prettyPrint [
+
+	^ 'Jump -> ', target id asString
+]
+
 { #category : #accessing }
 DRJump >> target [
 	^ target

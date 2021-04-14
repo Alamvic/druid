@@ -9,3 +9,9 @@ DRBitShift >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitBitShift: self
 ]
+
+{ #category : #printing }
+DRBitShift >> opcode [
+	
+	^ 'BitShift'
+]

@@ -9,3 +9,9 @@ DRAdd >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitAddition: self
 ]
+
+{ #category : #printing }
+DRAdd >> opcode [
+	
+	^ 'ADD'
+]

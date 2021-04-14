@@ -1,10 +1,7 @@
 Class {
 	#name : #DRPhiFunction,
-	#superclass : #DRValue,
+	#superclass : #DRInstruction,
 	#instVars : [
-		'joinedVariables',
-		'order',
-		'result',
 		'originBlocks'
 	],
 	#category : #'Druid-IR'
@@ -27,7 +24,7 @@ DRPhiFunction >> acceptVisitor: aVisitor [
 { #category : #adding }
 DRPhiFunction >> addValue: aValue from: aDRBasicBlock [ 
 	
-	joinedVariables add: aValue.
+	operands add: aValue.
 	originBlocks add: aDRBasicBlock
 ]
 
@@ -35,7 +32,7 @@ DRPhiFunction >> addValue: aValue from: aDRBasicBlock [
 DRPhiFunction >> initialize [
 
 	super initialize.
-	joinedVariables := OrderedCollection new.
+	operands := OrderedCollection new.
 	originBlocks := OrderedCollection new.
 ]
 
@@ -47,25 +44,25 @@ DRPhiFunction >> isPhiFunction [
 
 { #category : #accessing }
 DRPhiFunction >> joinedVariables [
-	^ joinedVariables
+	^ operands
 ]
 
 { #category : #accessing }
 DRPhiFunction >> joinedVariables: aCollection [
 	
-	joinedVariables := aCollection
+	operands := aCollection
 ]
 
 { #category : #accessing }
-DRPhiFunction >> operands [
+DRPhiFunction >> name [
 	
-	^ joinedVariables
+	^ self result name
 ]
 
-{ #category : #accessing }
-DRPhiFunction >> operands: aCollection [ 
+{ #category : #printing }
+DRPhiFunction >> opcode [
 	
-	self joinedVariables: aCollection
+	^ 'ø'
 ]
 
 { #category : #accessing }
@@ -105,5 +102,5 @@ DRPhiFunction >> rtlOperandQualifier [
 { #category : #enumerating }
 DRPhiFunction >> valuesWithOriginDo: aFullBlockClosure [ 
 	
-	joinedVariables with: originBlocks do: aFullBlockClosure
+	operands with: originBlocks do: aFullBlockClosure
 ]

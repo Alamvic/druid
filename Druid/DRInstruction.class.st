@@ -24,6 +24,12 @@ DRInstruction >> isPhiFunction [
 	^ false
 ]
 
+{ #category : #printing }
+DRInstruction >> opcode [
+	
+	^ 'Return'
+]
+
 { #category : #accessing }
 DRInstruction >> operand1 [
 	
@@ -55,6 +61,16 @@ DRInstruction >> order [
 { #category : #accessing }
 DRInstruction >> order: anInteger [ 
 	order := anInteger
+]
+
+{ #category : #printing }
+DRInstruction >> prettyPrint [
+	
+	| print |
+	print := result
+		ifNil: [ '' ]
+		ifNotNil: [ result name, ' := ' ].
+	^ print, self opcode ,' ', (' ' join: (operands collect: [ :e | e result name ]))
 ]
 
 { #category : #accessing }

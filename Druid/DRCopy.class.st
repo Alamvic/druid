@@ -9,3 +9,9 @@ DRCopy >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitCopy: self
 ]
+
+{ #category : #printing }
+DRCopy >> prettyPrint [
+	
+	^ result name, ' := ', operands first name asString
+]

@@ -9,3 +9,9 @@ DRTest >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitTest: self
 ]
+
+{ #category : #printing }
+DRTest >> opcode [
+	
+	^ 'Test'
+]

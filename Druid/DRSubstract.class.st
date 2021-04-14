@@ -9,3 +9,9 @@ DRSubstract >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitSubstract: self
 ]
+
+{ #category : #printing }
+DRSubstract >> opcode [
+	
+	^ 'SUB'
+]

@@ -9,3 +9,9 @@ DRRightShift >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitRightShift: self
 ]
+
+{ #category : #printing }
+DRRightShift >> opcode [
+	
+	^ 'RightShift'
+]

@@ -9,3 +9,9 @@ DREqualsComparison >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitEqualsComparison: self
 ]
+
+{ #category : #printing }
+DREqualsComparison >> opcode [
+	
+	^ 'Equals'
+]

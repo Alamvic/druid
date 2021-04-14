@@ -7,7 +7,8 @@ Class {
 		'currentBasicBlock',
 		'firstBasicBlock',
 		'numberOfArguments',
-		'nextRegister'
+		'nextRegister',
+		'nextBlockID'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -37,6 +38,12 @@ DRIRGenerator >> argRegisterNumber: anInteger [
 	^ DRPhysicalRegister name: 'Arg', argumentIndex asString, 'Reg'
 ]
 
+{ #category : #'basic-blocks' }
+DRIRGenerator >> basicNewBasicBlock [
+
+	^ DRBasicBlock id: self nextBlockID
+]
+
 { #category : #accessing }
 DRIRGenerator >> currentBasicBlock [
 	^ currentBasicBlock
@@ -56,6 +63,7 @@ DRIRGenerator >> initialize [
 	self initializeSpecialCases.
 	
 	nextRegister := 0.
+	nextBlockID := 1.
 	interpretationStack := OrderedCollection new.
 	
 	firstBasicBlock := self newBasicBlock
@@ -134,7 +142,7 @@ DRIRGenerator >> interpretAsUnsignedIntegerWith: aRBMessageNode [
 	
 	| operand1 |
 	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (DRUnsignedCoercion operands: { operand1 })
+	^ self currentBasicBlock addInstruction: (self instantiate: DRUnsignedCoercion operands: { operand1 })
 ]
 
 { #category : #'special-cases' }
@@ -289,7 +297,7 @@ DRIRGenerator >> interpretLeftShiftWith: aRBMessageNode [
 	| operand1 operand2 |
 	operand1 := aRBMessageNode receiver acceptVisitor: self.
 	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (DRLeftShift operands: { operand1 . operand2 })
+	^ self currentBasicBlock addInstruction: (self instantiate: DRLeftShift operands: { operand1 . operand2 })
 ]
 
 { #category : #'special-cases' }
@@ -438,7 +446,7 @@ DRIRGenerator >> ir [
 { #category : #'basic-blocks' }
 DRIRGenerator >> newBasicBlock [
 	
-	^ currentBasicBlock := DRBasicBlock new
+	^ currentBasicBlock := self basicNewBasicBlock
 ]
 
 { #category : #'basic-blocks' }
@@ -448,6 +456,15 @@ DRIRGenerator >> newBasicBlockDuring: aFullBlockClosure [
 	inBasicBlock := self newBasicBlock.
 	aFullBlockClosure value.
 	^ inBasicBlock
+]
+
+{ #category : #'stack-management' }
+DRIRGenerator >> nextBlockID [
+
+	| allocatedID |
+	allocatedID := nextBlockID.
+	nextBlockID := nextBlockID + 1.
+	^ allocatedID
 ]
 
 { #category : #'stack-management' }
@@ -463,7 +480,7 @@ DRIRGenerator >> pushFrameWithReceiver: aReceiver [
 	frame := DruidStackFrame new
 		receiver: aReceiver;
 		irGenerator: self;
-		exitBasicBlock: DRBasicBlock new;
+		exitBasicBlock: self basicNewBasicBlock;
 		yourself.
 	
 	interpretationStack addLast: frame

@@ -9,3 +9,9 @@ DRNegate >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitNegate: self
 ]
+
+{ #category : #printing }
+DRNegate >> opcode [
+	
+	^ 'Negate'
+]
