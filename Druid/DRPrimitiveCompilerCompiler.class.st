@@ -25,7 +25,8 @@ DRPrimitiveCompilerCompiler >> buildStatementsForCFG: aDRControlFlowGraph [
 	aDRControlFlowGraph blocksDo: [ :b |
 		self preProcessBlock: b.
 		b instructionsDo: [ :e | 
-			self buildStatementsForInstruction: e ] ]
+			self buildStatementsForInstruction: e ] ].
+	generatorMethodBuilder addStatement: (RBReturnNode value: (RBVariableNode named: 'CompletePrimitive'))
 ]
 
 { #category : #visiting }
@@ -119,7 +120,10 @@ DRPrimitiveCompilerCompiler >> twoOperandCogitRTL: aMnemonic operands: operands 
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> visitAddition: aDRCogitAdd [ 
 
-	^ self twoOperandCogitRTL: #Add instruction: aDRCogitAdd
+	self twoOperandCogitRTL: #Move operands: {
+		aDRCogitAdd operand1. aDRCogitAdd result }.
+	^ self twoOperandCogitRTL: #Add operands: { 
+		aDRCogitAdd operand2. aDRCogitAdd result }
 ]
 
 { #category : #visiting }
@@ -225,13 +229,16 @@ DRPrimitiveCompilerCompiler >> visitStore: aDRCogitStore [
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> visitSubstract: aDRCogitSubstract [ 
 	
-	^ self twoOperandCogitRTL: #Sub instruction: aDRCogitSubstract
+	self twoOperandCogitRTL: #Move operands: {
+		aDRCogitSubstract operand1. aDRCogitSubstract result }.
+	^ self twoOperandCogitRTL: #Sub operands: { 
+		aDRCogitSubstract operand2. aDRCogitSubstract result }
 ]
 
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> visitTest: aDRCogitTest [
 	| firstTestOperand |
-	firstTestOperand := aDRCogitTest operand2 operands first.
+	firstTestOperand := aDRCogitTest operand2 singleChild operands first.
 	firstTestOperand isConstant
 		ifFalse: [ self error: 'Cannot compile Tst instruction with non constant operand' ].
 	^ self twoOperandCogitRTL: #Tst operands: {

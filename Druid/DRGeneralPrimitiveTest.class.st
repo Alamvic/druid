@@ -5,6 +5,19 @@ Class {
 }
 
 { #category : #running }
+DRGeneralPrimitiveTest >> argumentsOnRegisters [
+
+	"what our compiler does..."
+	^ true
+]
+
+{ #category : #running }
+DRGeneralPrimitiveTest >> interpreterClass [
+
+	^ CogVMSimulatorLSB
+]
+
+{ #category : #running }
 DRGeneralPrimitiveTest >> jitCompilerClass [
 
 	^ DruidCogit

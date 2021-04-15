@@ -17,6 +17,12 @@ DRNullValue >> addToBlock: aDRBasicBlock [
 ]
 
 { #category : #'control-flow' }
+DRNullValue >> joinNonNull: anotherValue onIRGenerator: anIRGenerator from: originBlocks [
+
+	^ anotherValue
+]
+
+{ #category : #'control-flow' }
 DRNullValue >> joinValue: aValue onIRGenerator: anObject [
 	
 	^ aValue

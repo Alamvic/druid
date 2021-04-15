@@ -80,6 +80,22 @@ DruidTestInterpreter >> primitiveConditionWithAnyMask [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDecrement [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: self stackTop - 1
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIncrement [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: self stackTop + 1
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveReturnOne [
 
 	<numberOfArguments: 0>

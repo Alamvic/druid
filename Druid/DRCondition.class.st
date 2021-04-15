@@ -11,11 +11,5 @@ Class {
 { #category : #'rtl-translation' }
 DRCondition >> cogitFalseConditionCode [
 	
-	self subclassResponsibility
-]
-
-{ #category : #accessing }
-DRCondition >> simplify [
-	
-	^ self
+	^ #JumpNonZero:
 ]

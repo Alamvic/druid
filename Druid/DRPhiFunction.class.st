@@ -37,6 +37,12 @@ DRPhiFunction >> initialize [
 ]
 
 { #category : #testing }
+DRPhiFunction >> isEmpty [
+	
+	^ operands isEmpty 
+]
+
+{ #category : #testing }
 DRPhiFunction >> isPhiFunction [
 
 	^ true
@@ -101,6 +107,15 @@ DRPhiFunction >> rtlOperandQualifier [
 
 { #category : #accessing }
 DRPhiFunction >> simplify [
+
+	(operands isEmpty or: [operands size > 1])
+		ifTrue: [ ^ self ].
+	
+	^ operands first simplify
+]
+
+{ #category : #accessing }
+DRPhiFunction >> singleChild [
 
 	operands size > 1
 		ifTrue: [ self error: 'Cannot simplify a phi function with more than one operand for now' ].

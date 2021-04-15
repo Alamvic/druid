@@ -103,6 +103,7 @@ DRPrimitiveIRGenerator >> push: aValue [
 	"Each position of the operand stack is related to a special register.
 	Translate the push to a copy with a concrete result register.
 	The concrete result register will be the one associated with the current position of the operand stack"
+	self haltIf: [ aValue isKindOf: DRNullValue ].
 	copyInstruction := self instantiate: DRCopy operands: { aValue }.
 	destinationRegister := operandStackPosition = 1
 		ifTrue: [ self receiverRegister ]

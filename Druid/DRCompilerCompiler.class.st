@@ -149,6 +149,7 @@ DRCompilerCompiler >> resolvePhiFunctionsIn: aDRControlFlowGraph [
 		i isPhiFunction ifTrue: [ 
 			i valuesWithOriginDo: [ :value :originBlock | | copy |
 				(value isKindOf: DRNullValue) ifFalse: [ 
+					self haltIf: [ value result isKindOf: DRNoRegister ].
 					copy := DRCopy operands: { value result } result: i result.
 					originBlock ifNotNil: [originBlock addInstruction: copy].
 			] ] ] ]
@@ -171,7 +172,7 @@ DRCompilerCompiler >> visitConditionalJump: aDRConditionalJump [
 
 	"Fall-through true branch, jump to false branch"
 	| simplifiedCondition |
-	simplifiedCondition := aDRConditionalJump condition simplify.
+	simplifiedCondition := aDRConditionalJump condition singleChild.
 
 	self jumpForwardCogRTL: simplifiedCondition cogitFalseConditionCode instruction: aDRConditionalJump
 ]
@@ -189,6 +190,19 @@ DRCompilerCompiler >> visitConstantCondition: aDRConstantCondition [
 DRCompilerCompiler >> visitCopy: aDRMove [
 
 	^ self twoOperandCogitRTL: #Move instruction: aDRMove
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitOr: aDROr [ 
+
+	^ self twoOperandCogitRTL: #Or instruction: aDROr
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitOverflowJump: aDROverflowJump [ 
+	
+	"Fall-through true branch, jump to false branch"
+	^ self jumpForwardCogRTL: #JumpNoOverflow: instruction: aDROverflowJump
 ]
 
 { #category : #visiting }

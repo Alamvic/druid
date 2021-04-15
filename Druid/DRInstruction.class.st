@@ -104,3 +104,15 @@ DRInstruction >> result: anObject [
 
 	result := anObject
 ]
+
+{ #category : #accessing }
+DRInstruction >> simplify [
+	
+	^ self
+]
+
+{ #category : #accessing }
+DRInstruction >> singleChild [
+
+	^ self
+]

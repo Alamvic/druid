@@ -58,6 +58,16 @@ DRPrimitiveCompilationTest >> setUp [
 ]
 
 { #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testAddition [
+
+	self compileDruidPrimitive: #primitiveIncrement.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 43
+]
+
+{ #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testAnyMaskFalse [
 
 	self compileDruidPrimitive: #primitiveConditionWithAnyMask.
@@ -231,4 +241,14 @@ DRPrimitiveCompilationTest >> testCompiledPrimitivePreservesStack [
 	
 	"An empty primitive does nothing and just returns, the return value is the receiver"
 	self assert: self popAddress equals: 55
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testSubstraction [
+
+	self compileDruidPrimitive: #primitiveDecrement.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 41
 ]
