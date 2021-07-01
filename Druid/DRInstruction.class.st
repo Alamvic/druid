@@ -26,10 +26,16 @@ DRInstruction >> isPhiFunction [
 	^ false
 ]
 
+{ #category : #accessing }
+DRInstruction >> name [
+	
+	^ result name
+]
+
 { #category : #printing }
 DRInstruction >> opcode [
 	
-	^ 'Return'
+	^ self subclassResponsibility
 ]
 
 { #category : #accessing }

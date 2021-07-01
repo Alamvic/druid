@@ -11,7 +11,8 @@ Class {
 		'deferredBranches',
 		'registerAllocator',
 		'druidIR',
-		'targetAST'
+		'targetAST',
+		'optimisations'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -26,8 +27,15 @@ DRCompilerCompiler >> buildStatementsForInstruction: anInstruction [
 DRCompilerCompiler >> compile [
 
 	druidIR := self generateDruidIR.
+
+	self optimize: druidIR.
+
 	registerAllocator allocateRegistersIn: druidIR.
+	
+	"Remove the phi functions.
+	From this point on, we are not in SSA form anymore"
 	self resolvePhiFunctionsIn: druidIR.
+	
 	targetAST := self generateTargetASTFromIR: druidIR.
 	self writeAST: targetAST
 ]
@@ -75,6 +83,9 @@ DRCompilerCompiler >> initialize [
 	deferredBranches := Dictionary new.
 	generatorMethodBuilder := DRGeneratorMethodBuilder new.
 	registerAllocator := DRLinearScanRegisterAllocator new.
+	
+	optimisations := OrderedCollection new.
+	optimisations add: DRConstantPropagation new
 ]
 
 { #category : #accessing }
@@ -102,6 +113,13 @@ DRCompilerCompiler >> nextJumpIndex [
 	allocatedJumpIndex := nextJumpIndex.
 	nextJumpIndex := nextJumpIndex + 1.
 	^ allocatedJumpIndex
+]
+
+{ #category : #api }
+DRCompilerCompiler >> optimize: anIR [
+
+	optimisations do: [ :optimization |
+		optimization applyTo: anIR ]
 ]
 
 { #category : #'ir-to-ast' }

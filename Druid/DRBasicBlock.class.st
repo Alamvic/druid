@@ -22,8 +22,7 @@ DRBasicBlock class >> id: anInteger [
 
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
-	
-	self haltIf: [ (anInstruction isKindOf: DRNullValue) ].
+
 	^ instructions add: anInstruction
 ]
 

@@ -169,7 +169,7 @@ DRIRGenerator >> interpretAddWith: aRBMessageNode [
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRAdd
 ]
 
-{ #category : #'special cases' }
+{ #category : #'special-cases' }
 DRIRGenerator >> interpretAndWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRAnd
@@ -389,7 +389,7 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 	^ joinInstruction
 ]
 
-{ #category : #'special cases' }
+{ #category : #'special-cases' }
 DRIRGenerator >> interpretIntegerSumWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and add them up"
@@ -506,7 +506,7 @@ DRIRGenerator >> interpretNotWith: aRBMessageNode [
 	self shouldBeImplemented.
 ]
 
-{ #category : #'special cases' }
+{ #category : #'special-cases' }
 DRIRGenerator >> interpretOrWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DROr

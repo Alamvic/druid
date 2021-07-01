@@ -9,3 +9,9 @@ DRReturn >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitReturn: self
 ]
+
+{ #category : #printing }
+DRReturn >> opcode [
+	
+	^ 'Return'
+]
