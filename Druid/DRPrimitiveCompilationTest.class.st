@@ -4,6 +4,17 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #'building suites' }
+DRPrimitiveCompilationTest class >> testParameters [
+
+	"IA32 disabled because the current compiler puts a lot of pressure on register allocation"
+	^ ParametrizedTestMatrix new
+		addCase: { #ISA -> #'aarch64'. #wordSize -> 8};
+		addCase: { #ISA -> #'X64'. #wordSize -> 8};
+		addCase: { #ISA -> #'ARMv5'. #wordSize -> 4};
+		yourself
+]
+
 { #category : #'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 	
