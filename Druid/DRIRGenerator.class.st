@@ -40,7 +40,7 @@ DRIRGenerator >> addInstructionWithNoResultFrom: aNode instructionKind: instruct
 	^ copyInstruction
 ]
 
-{ #category : #registers }
+{ #category : #factory }
 DRIRGenerator >> allocateTemporaryRegister [
 	
 	| allocatedRegisterId |
@@ -49,13 +49,13 @@ DRIRGenerator >> allocateTemporaryRegister [
 	^ DRTemporaryRegister id: allocatedRegisterId
 ]
 
-{ #category : #registers }
+{ #category : #factory }
 DRIRGenerator >> arg0register [
 	
 	^ self argRegisterNumber: 0
 ]
 
-{ #category : #registers }
+{ #category : #factory }
 DRIRGenerator >> argRegisterNumber: anInteger [
 
 	| argumentIndex |
@@ -74,12 +74,12 @@ DRIRGenerator >> basicNewBasicBlock [
 	^ block
 ]
 
-{ #category : #accessing }
+{ #category : #'basic-blocks' }
 DRIRGenerator >> currentBasicBlock [
 	^ currentBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : #'frame-access' }
 DRIRGenerator >> currentFrame [
 	
 	^ interpretationStack last
@@ -92,6 +92,7 @@ DRIRGenerator >> initialize [
 	specialCases := Dictionary new.
 	self initializeSpecialCases.
 	
+	pharoOperandStack := Stack new.
 	nextRegister := 0.
 	nextBlockID := 1.
 	interpretationStack := OrderedCollection new.
@@ -481,7 +482,7 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver [
 
 { #category : #API }
 DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: arguments [
-	| poppedFrame returnValue |
+	| returnValue |
 	self pushFrameWithReceiver: aReceiver.
 	aMethodAST argumentNames with: arguments do: [ :name :value |
 		self temporaryAt: name put: value
@@ -621,7 +622,7 @@ DRIRGenerator >> newBasicBlockDuring: aFullBlockClosure [
 	^ inBasicBlock
 ]
 
-{ #category : #'stack-management' }
+{ #category : #factory }
 DRIRGenerator >> nextBlockID [
 
 	| allocatedID |
@@ -630,13 +631,26 @@ DRIRGenerator >> nextBlockID [
 	^ allocatedID
 ]
 
-{ #category : #accessing }
+{ #category : #'frame-access' }
 DRIRGenerator >> operandStackTop [
 	
 	^ self currentFrame stackTop
 ]
 
-{ #category : #'stack-management' }
+{ #category : #'pharo-stack' }
+DRIRGenerator >> pop [
+
+	pharoOperandStack ifEmpty: [ self error: 'Operand stack underflow!' ].
+	^ pharoOperandStack pop
+]
+
+{ #category : #'pharo-stack' }
+DRIRGenerator >> pop: anInteger [ 
+
+	anInteger timesRepeat: [ self pop ]
+]
+
+{ #category : #'frame-access' }
 DRIRGenerator >> popFrame [
 	
 	| previousFrame simplifiedReturnValue |
@@ -649,7 +663,31 @@ DRIRGenerator >> popFrame [
 	^ simplifiedReturnValue
 ]
 
-{ #category : #'stack-management' }
+{ #category : #'frame-access' }
+DRIRGenerator >> popOperand [
+
+	^ self currentFrame pop
+]
+
+{ #category : #'pharo-stack' }
+DRIRGenerator >> push: aValue [
+	
+	"Update the operand stack to keep track of the new position"
+	pharoOperandStack push: aValue.
+	"Each position of the operand stack is related to a special register.
+	Translate the push to a copy with a concrete result register.
+	The concrete result register will be the one associated with the current position of the operand stack"
+	"self haltIf: [ aValue isKindOf: DRNullValue ].
+	copyInstruction := self instantiate: DRCopy operands: { aValue }.
+	destinationRegister := operandStackPosition = 1
+		ifTrue: [ self receiverRegister ]
+		ifFalse: [ DRPhysicalRegister name: 'Arg', (operandStackPosition - 2) asString, 'Reg' ].
+	
+	copyInstruction result: destinationRegister.
+	^ self currentBasicBlock addInstruction: copyInstruction"
+]
+
+{ #category : #'frame-access' }
 DRIRGenerator >> pushFrameWithReceiver: aReceiver [
 	
 	| frame |
@@ -662,25 +700,54 @@ DRIRGenerator >> pushFrameWithReceiver: aReceiver [
 	interpretationStack addLast: frame
 ]
 
-{ #category : #accessing }
+{ #category : #'frame-access' }
+DRIRGenerator >> pushOperand: anOperand [
+
+	self currentFrame push: anOperand
+]
+
+{ #category : #'frame-access' }
 DRIRGenerator >> receiver [
 	
 	^ self currentFrame receiver
 ]
 
-{ #category : #registers }
+{ #category : #factory }
 DRIRGenerator >> receiverRegister [
 	
 	^ DRPhysicalRegister name: 'ReceiverResultReg'
 ]
 
-{ #category : #accessing }
+{ #category : #'pharo-stack' }
+DRIRGenerator >> spillStack [
+	
+	pharoOperandStack size > (numberOfArguments + 1)
+		ifTrue: [ self error: 'Non Balanced Stack!' ].
+
+	[ pharoOperandStack isEmpty ] whileFalse: [ | destinationRegister copyInstruction |
+		destinationRegister := pharoOperandStack size = 1
+			ifTrue: [ self receiverRegister ]
+			ifFalse: [ DRPhysicalRegister name: 'Arg', (pharoOperandStack size - 2) asString, 'Reg' ].
+		copyInstruction := DRCopy
+			operands: { pharoOperandStack pop }
+			result: destinationRegister.
+		self currentBasicBlock addInstruction: copyInstruction.
+	]
+]
+
+{ #category : #'pharo-stack' }
+DRIRGenerator >> stackTop [
+	
+	^ pharoOperandStack top
+]
+
+{ #category : #'frame-access' }
 DRIRGenerator >> temporaryAt: aString [ 
 	
 	^ self currentFrame temporaryAt: aString
 ]
 
-{ #category : #interpretation }
+{ #category : #'frame-access' }
 DRIRGenerator >> temporaryAt: aString put: aValue [ 
 
 	^ self currentFrame temporaryAt: aString put: aValue
