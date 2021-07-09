@@ -3,7 +3,7 @@ Class {
 	#superclass : #DRIRGenerator,
 	#instVars : [
 		'primitiveExitBlock',
-		'operandStackPosition'
+		'operandStack'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -12,6 +12,7 @@ Class {
 DRPrimitiveIRGenerator >> initialize [
 
 	super initialize.
+	operandStack := Stack new.
 	primitiveExitBlock := self basicNewBasicBlock.	
 ]
 
@@ -26,14 +27,15 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 
 { #category : #API }
 DRPrimitiveIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: arguments [
-	
-	| result |
-	result := super interpretMethod: aMethodAST receiver: aReceiver arguments: arguments.
+
+	super interpretMethod: aMethodAST receiver: aReceiver arguments: arguments.
 
 	"If the interpretation stack is empty, we are returning from the primitive
 	- generate a return instruction popping receiver and arguments all at once
 	- amount to pop is expressed in bytes, so multiply by word size"
-	interpretationStack ifNotEmpty: [ ^ result ].
+	interpretationStack ifNotEmpty: [ ^ self ].
+	self pop.
+	self spillOperandStack.
 	^ self currentBasicBlock endInstruction: (self
 		instantiate: DRReturn
 		operands: { DRConstantValue value: numberOfArguments + 1 "Number of things to pop" }).
@@ -49,8 +51,9 @@ DRPrimitiveIRGenerator >> interpretPrimitiveFailWith: aRBMessageNode [
 DRPrimitiveIRGenerator >> interpretSuccessArgWith: aRBMessageNode [
 
 	| argument |
-	argument := aRBMessageNode arguments first acceptVisitor: self.
-	argument operand1 value = false
+	aRBMessageNode arguments first acceptVisitor: self.
+	argument := self pop.
+	argument value = false
 		ifFalse: [ self halt. "This is strange, somebody is setting it success to true explicitly" ].
 
 	^ self currentBasicBlock jumpTo: self primitiveExitBlock
@@ -76,15 +79,22 @@ DRPrimitiveIRGenerator >> ir [
 DRPrimitiveIRGenerator >> numberOfArguments: aValue [ 
 	
 	numberOfArguments := aValue.
-	operandStackPosition := aValue + 1 "add the receiver"
+	self push: self receiverRegister.
+	0 to: numberOfArguments - 1 do: [ :i |
+		self push: (self argRegisterNumber: i) ]
+]
+
+{ #category : #asd }
+DRPrimitiveIRGenerator >> pop [
+
+	operandStack ifEmpty: [ self error: 'Operand stack underflow!' ].
+	^ operandStack pop
 ]
 
 { #category : #'operand-stack' }
 DRPrimitiveIRGenerator >> pop: anInteger [ 
 
-	anInteger > operandStackPosition
-		ifTrue: [ self error: 'Operand stack underflow!' ].
-	operandStackPosition := operandStackPosition - anInteger.
+	anInteger timesRepeat: [ self pop ]
 ]
 
 { #category : #accessing }
@@ -97,18 +107,39 @@ DRPrimitiveIRGenerator >> primitiveExitBlock [
 DRPrimitiveIRGenerator >> push: aValue [
 	
 	"Update the operand stack to keep track of the new position"
-	| copyInstruction destinationRegister |
-	operandStackPosition := operandStackPosition + 1.
-	
+	operandStack push: aValue.
 	"Each position of the operand stack is related to a special register.
 	Translate the push to a copy with a concrete result register.
 	The concrete result register will be the one associated with the current position of the operand stack"
-	self haltIf: [ aValue isKindOf: DRNullValue ].
+	"self haltIf: [ aValue isKindOf: DRNullValue ].
 	copyInstruction := self instantiate: DRCopy operands: { aValue }.
 	destinationRegister := operandStackPosition = 1
 		ifTrue: [ self receiverRegister ]
 		ifFalse: [ DRPhysicalRegister name: 'Arg', (operandStackPosition - 2) asString, 'Reg' ].
 	
 	copyInstruction result: destinationRegister.
-	^ self currentBasicBlock addInstruction: copyInstruction
+	^ self currentBasicBlock addInstruction: copyInstruction"
+]
+
+{ #category : #'operand-stack' }
+DRPrimitiveIRGenerator >> spillOperandStack [
+	
+	operandStack size > (numberOfArguments + 1)
+		ifTrue: [ self error: 'Non Balanced Stack!' ].
+
+	[ operandStack isEmpty ] whileFalse: [ | destinationRegister copyInstruction |
+		destinationRegister := operandStack size = 1
+			ifTrue: [ self receiverRegister ]
+			ifFalse: [ DRPhysicalRegister name: 'Arg', (operandStack size - 2) asString, 'Reg' ].
+		copyInstruction := DRCopy
+			operands: { operandStack pop }
+			result: destinationRegister.
+		self currentBasicBlock addInstruction: copyInstruction.
+	]
+]
+
+{ #category : #'operand-stack' }
+DRPrimitiveIRGenerator >> stackTop [
+	
+	^ operandStack top
 ]

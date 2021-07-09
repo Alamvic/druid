@@ -25,6 +25,12 @@ DruidTestInterpreter >> emptyPrimitiveWithArguments [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> failingPrimitive [
+	<numberOfArguments: 0>
+	self success: false
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithEarlyReturn [
 
 	self stackTop = 0 ifTrue: [ ^ 42 ].

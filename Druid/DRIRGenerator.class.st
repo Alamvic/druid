@@ -16,13 +16,15 @@ Class {
 { #category : #visiting }
 DRIRGenerator >> addInstructionFrom: aNode instructionKind: instructionClass operands: operands [
 	
-	| copyInstruction |
-	copyInstruction := self
+	| instruction |
+	self haltIf: [ operands anySatisfy: [ :op | (op isKindOf: DRValue) not ] ].
+	instruction := self
 		instantiate: instructionClass
 		operands: operands.
-	self currentBasicBlock addInstruction: copyInstruction.
-	copyInstruction originAST: aNode.
-	^ copyInstruction
+	self currentBasicBlock addInstruction: instruction.
+	instruction originAST: aNode.
+	self push: instruction.
+	^ instruction
 ]
 
 { #category : #visiting }
@@ -191,8 +193,10 @@ DRIRGenerator >> interpretAsUnsignedIntegerWith: aRBMessageNode [
 DRIRGenerator >> interpretBinaryInstruction: aRBMessageNode instructionKind: anInstructionKind [
 
 	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
+	aRBMessageNode receiver acceptVisitor: self.
+	operand1 := self pop.
+	aRBMessageNode arguments first acceptVisitor: self.
+	operand2 := self pop.
 
 	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { operand1 . operand2 }
 ]
@@ -219,8 +223,10 @@ DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [
 DRIRGenerator >> interpretCondition: aRBMessageNode instructionKind: anInstructionKind [
 
 	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
+	aRBMessageNode receiver acceptVisitor: self.
+	operand1 := self pop.
+	aRBMessageNode arguments first acceptVisitor: self.
+	operand2 := self pop.
 
 	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: anInstructionKind operands: { operand1 . operand2 }
 ]
@@ -310,14 +316,13 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 		                   onIRGenerator: self
 								from: { startingBasicBlock. trueBranchBasicBlockOut }.
 	joinInstruction addToBlock: self currentBasicBlock.
-	^ joinInstruction
+	self push: joinInstruction
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 
 	| trueBranchBasicBlockOut falseBranchBasicBlockOut condition joinInstruction temporaryFrameBeforeBranch temporaryFrameAfterTrueBranchJoin temporaryFrameAfterFalseBranchJoin joinPointTemporartFrame conditionalJump trueBranchEntry startingBasicBlock falseBranchEntry |
-	
 	condition := aRBMessageNode receiver acceptVisitor: self.
 	conditionalJump := self
 		                   instantiate: DRConditionalJump
@@ -349,7 +354,9 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 
 	"Also, in case both branches are finished at this point, the rest of this method is dead code"
 	(trueBranchBasicBlockOut hasFinalInstruction and: [ falseBranchBasicBlockOut hasFinalInstruction ])
-		ifTrue: [ self currentBasicBlock markAsDeadCode ].
+		ifTrue: [ 
+			self currentBasicBlock markAsDeadCode.
+			 ].
 
 	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
 		trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
@@ -386,7 +393,7 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 		                           asDictionary.
 	self currentFrame temporaryFrame: joinPointTemporartFrame.
 
-	^ joinInstruction
+	self push: joinInstruction
 ]
 
 { #category : #'special-cases' }
@@ -473,7 +480,7 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver [
 
 { #category : #API }
 DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: arguments [
-	
+	| poppedFrame returnValue |
 	self pushFrameWithReceiver: aReceiver.
 	aMethodAST argumentNames with: arguments do: [ :name :value |
 		self temporaryAt: name put: value
@@ -483,7 +490,13 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: argu
 	If the method had an explicit return, it is already done, no need to do it again."
 	currentBasicBlock hasFinalInstruction
 		ifFalse: [ currentBasicBlock jumpTo: self currentFrame exitBasicBlock ].
-	^ self popFrame.
+	returnValue := self popFrame.
+	
+	self flag: #todo.
+	(returnValue isKindOf: DRNullValue) ifFalse: [
+		self currentBasicBlock addInstruction: returnValue.
+	].
+	self push: returnValue
 ]
 
 { #category : #'special-cases' }
@@ -521,13 +534,18 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 	Pop: keep track of the operand stack and remove one element
 	Push: move the value to the physical register assigned to the current stack position"
 	
-	| value poppedElements |
-	poppedElements := aRBMessageNode arguments first acceptVisitor: self.
-	poppedElements operands first value isInteger
+	| elementsToPop |
+	aRBMessageNode arguments first acceptVisitor: self.
+	elementsToPop := self pop value.
+	elementsToPop isInteger
 		ifFalse: [ self error: 'expected an integer value' ].
+	self pop: elementsToPop.
 	
-	self pop: poppedElements operands first value.
-	^ self push: (aRBMessageNode arguments second acceptVisitor: self)
+	"This will be pushed automatically"
+	aRBMessageNode arguments second acceptVisitor: self.
+	
+	"push:thenPop: does not return an interesting value"
+	self push: DRNullValue new.
 ]
 
 { #category : #'special-cases' }
@@ -544,7 +562,7 @@ DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
-	^ self argRegisterNumber: 0
+	self push: (self argRegisterNumber: 0)
 ]
 
 { #category : #'special-cases' }
@@ -618,7 +636,7 @@ DRIRGenerator >> popFrame [
 	currentBasicBlock := previousFrame exitBasicBlock.
 	simplifiedReturnValue := previousFrame returnValue isEmpty
 		ifTrue: [ DRNullValue new ]
-		ifFalse: [ previousFrame returnValue simplify ].
+		ifFalse: [ "self instantiate: DRCopy operands: {"previousFrame returnValue simplify"}" ].
 	simplifiedReturnValue addToBlock: currentBasicBlock.
 	^ simplifiedReturnValue
 ]
@@ -670,14 +688,13 @@ DRIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 { #category : #visiting }
 DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [ 
 	
-	| valueContainer |
-	valueContainer := aRBAssignmentNode value acceptVisitor: self.
+	aRBAssignmentNode value acceptVisitor: self.
 	
 	aRBAssignmentNode variable binding isTempVariable
-		ifTrue: [ ^ self temporaryAt: aRBAssignmentNode variable name put: valueContainer ].
+		ifTrue: [ ^ self temporaryAt: aRBAssignmentNode variable name put: self stackTop ].
 	
 	aRBAssignmentNode variable binding isInstanceVariable
-		ifTrue: [ 1halt.^ (self receiver value instVarNamed: aRBAssignmentNode variable name put: valueContainer) asDRInterpreterValue ].
+		ifTrue: [ 1halt.^ (self receiver value instVarNamed: aRBAssignmentNode variable name put: self stackTop) asDRInterpreterValue ].
 	
 	self halt
 ]
@@ -685,13 +702,22 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 { #category : #visiting }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 	
-	| blockValue |
+	| blockValue instruction |
 	aRBBlockNode statements do: [ :e |
-		blockValue := e acceptVisitor: self.
-		self currentBasicBlock hasFinalInstruction ifTrue: [ ^ blockValue ].
-		self currentBasicBlock blockValue: blockValue.
+		e acceptVisitor: self.
+		e isReturn ifTrue: [ ^ self ].
+		blockValue := self pop.
 	].
-	^ self currentBasicBlock blockValue
+	"At the end, transform the block value into a copy instruction"
+	self
+		addInstructionFrom: aRBBlockNode
+		instructionKind: DRCopy
+		operands: {blockValue}.
+	
+	"The add instruction pushes the instruction to the operand stack.
+	Pop it: at the end of the block execution, nothing should be in the stack"
+	self currentBasicBlock blockValue: self pop.
+
 ]
 
 { #category : #visiting }
@@ -711,7 +737,7 @@ DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 { #category : #visiting }
 DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [ 
 	
-	^ self addInstructionFrom: aRBLiteralValueNode instructionKind: DRCopy operands: { DRConstantValue value: aRBLiteralValueNode value }
+	self push: (DRConstantValue value: aRBLiteralValueNode value)
 ]
 
 { #category : #visiting }
@@ -736,18 +762,25 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 	
 	aRBMethodNode statements do: [ :each |
 		each acceptVisitor: self.
-		self currentBasicBlock hasFinalInstruction ifTrue: [ ^ self ] ]
+		each isReturn ifTrue: [ ^ self ].
+		self pop. ]
 ]
 
 { #category : #visiting }
 DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
-	| newReturn |
-	newReturn := aRBReturnNode value acceptVisitor: self.
+	aRBReturnNode value acceptVisitor: self.
 
-	self currentFrame returnValue: newReturn.
+	self addInstructionFrom: aRBReturnNode instructionKind: DRCopy operands: { self pop }.
+	self currentFrame returnValue: self pop.
+	
+	"If the block has no predecessors, do not add it any successors.
+	Otherwise, when searching for the entire list of blocks, this block will never be visited,
+	and it will avoid its successors to be visited (in reverse post order) too"
+	self flag: #todo.
+	self currentBasicBlock lastInstruction = #deadCode ifTrue: [ ^ self ].
+
 	self currentBasicBlock jumpTo: self currentFrame exitBasicBlock.
-	^ DRNullValue new
 ]
 
 { #category : #visiting }
@@ -759,5 +792,5 @@ DRIRGenerator >> visitSelfNode: aRBVariableNode [
 { #category : #visiting }
 DRIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [ 
 	
-	^ self temporaryAt: aRBVariableNode name
+	^ self push: (self temporaryAt: aRBVariableNode name)
 ]

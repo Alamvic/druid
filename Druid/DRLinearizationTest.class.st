@@ -1,6 +1,6 @@
 Class {
 	#name : #DRLinearizationTest,
-	#superclass : #DRPrimitiveCompilationTest,
+	#superclass : #DRDruidTests,
 	#category : #'Druid-Tests'
 }
 

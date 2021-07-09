@@ -63,7 +63,6 @@ DRCompilerCompiler >> deferBranch: aString to: aDRBasicBlock [
 DRCompilerCompiler >> generateDruidIR [
 	
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	
 	| method irGenerator |
 	method := interpreter class lookupSelector: sourceName.
 	irGenerator := self newIRGenerator.

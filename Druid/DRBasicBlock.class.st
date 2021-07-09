@@ -23,6 +23,7 @@ DRBasicBlock class >> id: anInteger [
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
 
+	self haltIf: [ anInstruction isInstruction not ].
 	^ instructions add: anInstruction
 ]
 
@@ -60,6 +61,12 @@ DRBasicBlock >> firstInstruction [
 DRBasicBlock >> hasFinalInstruction [
 	
 	^ endInstruction notNil
+]
+
+{ #category : #testing }
+DRBasicBlock >> hasPredecessors [
+	
+	^ predecessors notEmpty
 ]
 
 { #category : #accessing }
@@ -187,5 +194,7 @@ DRBasicBlock >> removeInstruction: aDRInstruction [
 DRBasicBlock >> successors [
 	
 	endInstruction ifNil: [ ^ #() ].
+	endInstruction = #deadCode
+		ifTrue: [ ^ #() ].
 	^ endInstruction targets
 ]

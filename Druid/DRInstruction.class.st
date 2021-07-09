@@ -20,6 +20,12 @@ DRInstruction class >> operands: aCollection result: aResultRegister [
 		yourself
 ]
 
+{ #category : #accessing }
+DRInstruction >> isInstruction [
+
+	^ true
+]
+
 { #category : #testing }
 DRInstruction >> isPhiFunction [
 

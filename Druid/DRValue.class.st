@@ -29,6 +29,12 @@ DRValue >> isConstant [
 ]
 
 { #category : #testing }
+DRValue >> isInstruction [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isPhiFunction [
 
 	^ false
@@ -73,6 +79,18 @@ DRValue >> lookupClass [
 { #category : #accessing }
 DRValue >> result [
 
+	^ self
+]
+
+{ #category : #accessing }
+DRValue >> simplify [
+	
+	^ self
+]
+
+{ #category : #accessing }
+DRValue >> singleChild [
+	
 	^ self
 ]
 
