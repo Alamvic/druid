@@ -539,14 +539,14 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 	aRBMessageNode arguments first acceptVisitor: self.
 	elementsToPop := self popOperand value.
 	elementsToPop isInteger
-		ifFalse: [ self error: 'expected an integer value' ].
-	self pop: elementsToPop.
-	
+		ifFalse: [ self error: 'expected an integer value' ].	
 	"This will be pushed automatically"
 	aRBMessageNode arguments second acceptVisitor: self.
 	
-	"push:thenPop: does not return an interesting value"
+	self pop: elementsToPop.
 	self push: self popOperand.
+
+	"pop:thenPush: does not return an interesting value"
 	self pushOperand: DRNullValue new.
 ]
 
