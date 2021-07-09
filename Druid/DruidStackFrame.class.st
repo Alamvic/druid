@@ -5,7 +5,8 @@ Class {
 		'receiver',
 		'temporaryFrame',
 		'irGenerator',
-		'exitBasicBlock'
+		'exitBasicBlock',
+		'operandStack'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -32,6 +33,7 @@ DruidStackFrame >> initialize [
 
 	super initialize.
 	temporaryFrame := Dictionary new.
+	operandStack := Stack new
 ]
 
 { #category : #accessing }
@@ -48,6 +50,18 @@ DruidStackFrame >> irGenerator: anObject [
 		result: irGenerator allocateTemporaryRegister;
 		origin: thisContext stack;
 		yourself).
+]
+
+{ #category : #accessing }
+DruidStackFrame >> pop [
+
+	^ operandStack pop
+]
+
+{ #category : #accessing }
+DruidStackFrame >> push: aValue [
+
+	operandStack push: aValue
 ]
 
 { #category : #accessing }
@@ -76,6 +90,12 @@ DruidStackFrame >> returnValue: aValue [
 	"If the value is a phi function, we have to merge it...
 	Implement it later"
 	phiFunction addValue: aValue from: self currentBasicBlock.
+]
+
+{ #category : #accessing }
+DruidStackFrame >> stackTop [
+	
+	^ operandStack top
 ]
 
 { #category : #accessing }
