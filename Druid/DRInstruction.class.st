@@ -20,6 +20,13 @@ DRInstruction class >> operands: aCollection result: aResultRegister [
 		yourself
 ]
 
+{ #category : #copying }
+DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode [ 
+	
+	"I'm an already an instruction with a value. No need to do anything"
+	^ self
+]
+
 { #category : #accessing }
 DRInstruction >> isInstruction [
 

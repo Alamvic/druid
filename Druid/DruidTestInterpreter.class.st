@@ -126,6 +126,17 @@ DruidTestInterpreter >> primitiveReturnTrue [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithDeadCode [
+
+	<numberOfArguments: 0>
+
+	self stackTop = 0
+		ifTrue: [ ^ self pop: 1 thenPush: 42 ]
+		ifFalse: [ ^ self pop: 1 thenPush: 55 ].
+	^ self pop: 1 thenPush: 10
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveWithIfAssigningValue [
 
 	<numberOfArguments: 0>

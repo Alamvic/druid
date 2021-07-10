@@ -15,6 +15,15 @@ DRConstantValue class >> value: anInteger [
 		yourself
 ]
 
+{ #category : #copying }
+DRConstantValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
+	
+	^ aDRIRGenerator
+		addInstructionFrom: aNode
+		instructionKind: DRCopy
+		operands: { self }.
+]
+
 { #category : #testing }
 DRConstantValue >> isConstant [
 	

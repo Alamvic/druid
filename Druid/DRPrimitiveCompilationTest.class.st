@@ -250,6 +250,24 @@ DRPrimitiveCompilationTest >> testFailingPrimitiveExecutesUntilStop [
 	self executeUntilStopPrimitiveWithReceiver: 1
 ]
 
+{ #category : #'tests-deadcode' }
+DRPrimitiveCompilationTest >> testPrimitiveWithDeadCodeGoesThroughFirstCase [
+
+	self compileDruidPrimitive: #primitiveWithDeadCode.
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #'tests-deadcode' }
+DRPrimitiveCompilationTest >> testPrimitiveWithDeadCodeGoesThroughSecondCase [
+
+	self compileDruidPrimitive: #primitiveWithDeadCode.
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 55
+]
+
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testSubstraction [
 

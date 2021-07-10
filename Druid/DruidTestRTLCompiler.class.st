@@ -179,16 +179,35 @@ DruidTestRTLCompiler >> gen_primitiveReturnTrue [
 	| currentBlock jump0 jump1 |
 	currentBlock := self Label.
 	self MoveCw: objectMemory trueObject R: TempReg.
-	self MoveR: TempReg R: ClassReg.
 	jump0 := self Jump: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
-	self MoveR: TempReg R: ClassReg.
-	self MoveR: TempReg R: ClassReg.
+	self MoveCw: objectMemory trueObject R: TempReg.
+	self MoveCw: objectMemory trueObject R: TempReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveR: ClassReg R: ReceiverResultReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveWithDeadCode [
+
+	| currentBlock jump0 jump1 jump2 |
+	currentBlock := self Label.
+	self CmpCq: 0 R: ReceiverResultReg.
+	jump0 := self JumpNonZero: 0.
+	currentBlock := self Label.
+	jump1 := self Jump: 0.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	jump2 := self Jump: 0.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	jump2 jmpTarget: currentBlock.
+	self MoveCq: 10 R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]

@@ -846,10 +846,11 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 { #category : #visiting }
 DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
+	| result |
 	aRBReturnNode value acceptVisitor: self.
 
-	self addInstructionFrom: aRBReturnNode instructionKind: DRCopy operands: { self popOperand }.
-	self currentFrame returnValue: self popOperand.
+	result := self popOperand copyToVariableIn: self inNode: aRBReturnNode.
+	self currentFrame returnValue: result.
 	
 	"If the block has no predecessors, do not add it any successors.
 	Otherwise, when searching for the entire list of blocks, this block will never be visited,
