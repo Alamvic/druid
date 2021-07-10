@@ -11,7 +11,7 @@ Class {
 DRPrimitiveIRGenerator >> initialize [
 
 	super initialize.
-pharoOperandStack := Stack new.
+	pharoOperandStack := Stack new.
 	primitiveExitBlock := self basicNewBasicBlock.	
 ]
 
