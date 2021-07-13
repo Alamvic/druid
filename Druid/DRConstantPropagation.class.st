@@ -18,7 +18,8 @@ Class {
 DRConstantPropagation >> applyTo: cfg [
 	
 	cfg blocksDo: [ :b | self initializeLatticeValues: b ].
-	cfg blocksDo: [ :b | self optimizeBlock: b ]
+	cfg blocksDo: [ :b | self optimizeBlock: b ].
+	cfg instructionsDo: [ :e | (e isPhiFunction) ifTrue: [ self interpretePhiFunction: e ] ]. 
 ]
 
 { #category : #operations }
@@ -44,6 +45,18 @@ DRConstantPropagation >> initializeLatticeValues: aBlock [
 ]
 
 { #category : #operations }
+DRConstantPropagation >> interpretePhiFunction: operation [
+
+	| operandsList |
+	
+	operation isPhiFunction ifTrue: [ 
+		operation operand1 operand1 value = operation operand2 operand1 value ifTrue: [ 
+			operandsList := OrderedCollection new. 
+			operandsList add: operation operand1 operand1. 
+			operation operands: operandsList]].
+]
+
+{ #category : #operations }
 DRConstantPropagation >> interpreterOverLatticeValue: operation withInstruction: anInstruction onblock: aBlock [
 
 	| operandCollection |
@@ -52,16 +65,6 @@ DRConstantPropagation >> interpreterOverLatticeValue: operation withInstruction:
 	operandCollection := OrderedCollection new.
 	operandCollection add: anInstruction operand1.
 	operation operands: operandCollection
-]
-
-{ #category : #operations }
-DRConstantPropagation >> interpreterPhiFunction: operation [
-
-	operation isPhiFunction ifTrue: [ 
-		operation operand1 value = operation operand2 value ifTrue: [ 
-			operation value: operation operand1 value.  ] ]. 
-	
-	
 ]
 
 { #category : #operations }
@@ -92,8 +95,6 @@ DRConstantPropagation >> optimizeBlock: aBlock [
 			self interpreterOverLatticeValue: op withInstruction: currentOperationProcessed onblock: aBlock. 
 			((self value: op) ~= t) ifTrue: [ 
 				workList add: op. ]]]].
-
-	aBlock instructionsDo: [ :e | e isPhiFunction ifTrue: [ self interpretePhiFunction: e ] ]. 
 ]
 
 { #category : #operations }
