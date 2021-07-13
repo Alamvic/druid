@@ -1,28 +1,38 @@
 "
-This class implements optimizations for Druid. 
-It provides constant folding and constant propagation. 
+Class: SCCP
+                                                                                                    
 
-Implementation :
-It used the SCPP algorithm (source: http://www.r-5.org/files/books/computers/compilers/writing/Keith_Cooper_Linda_Torczon-Engineering_a_Compiler-EN.pdf). This algorithm used lattices. In order not to implement a lattice class, we replaced it by a dictionnary named latticesValues. The 'top' and 'bottom' values were replaces respectively by 'true' and 'false' objects. 
+This class implements optimizations for Druid.
+It provides constant folding and constant propagation and dead code elimination using SCCP algorithm.
+
 "
 Class {
-	#name : #DRConstantPropagation,
+	#name : #SCCP,
 	#superclass : #Object,
 	#instVars : [
-		'latticeValues'
+		'latticeValues',
+		'CFGWorkList',
+		'SSAWorkList'
 	],
 	#category : #'Druid-Optimizations'
 }
 
 { #category : #operations }
-DRConstantPropagation >> applyTo: cfg [
+SCCP >> applyTo: cfg [
+	
+	CFGWorkList := Dictionary new: cfg initialBasicBlock successors.  
+	SSAWorkList := OrderedCollection new. 
+	
+	CFGWorkList do: [ :edge | edge value: 'Unexecuted']. 
+	
+	cfg blocksDo: [ :b | b instructionsDo: [ :i | latticeValues at: i put: 'Top'] ].
 	
 	cfg blocksDo: [ :b | self initializeLatticeValues: b ].
 	cfg blocksDo: [ :b | self optimizeBlock: b ]
 ]
 
 { #category : #operations }
-DRConstantPropagation >> getOperationList: aBlock regardingName: aRegister [
+SCCP >> getOperationList: aBlock regardingName: aRegister [
 	| operationList |
 	
 	operationList := OrderedCollection new. 
@@ -31,47 +41,44 @@ DRConstantPropagation >> getOperationList: aBlock regardingName: aRegister [
 ]
 
 { #category : #operations }
-DRConstantPropagation >> initialize [
+SCCP >> initialize [
 
 	super initialize.
 	latticeValues := Dictionary new.
 ]
 
 { #category : #operations }
-DRConstantPropagation >> initializeLatticeValues: aBlock [ 
+SCCP >> initializeLatticeValues: aBlock [ 
 
 	aBlock instructions do: [ :i | latticeValues at: i put: 'Top']
 ]
 
 { #category : #operations }
-DRConstantPropagation >> interpreterOverLatticeValue: operation withInstruction: anInstruction onblock: aBlock [
+SCCP >> interpreterOverLatticeValue: operation withInstruction: anInstruction onblock: aBlock [
 
-	| operandCollection |
-	operation operand1 = anInstruction ifFalse: [ ^ self ].
-
-	operandCollection := OrderedCollection new.
-	operandCollection add: anInstruction operand1.
-	operation operands: operandCollection
-]
-
-{ #category : #operations }
-DRConstantPropagation >> interpreterPhiFunction: operation [
+	| operandCollection|
+	(operation operand1 = anInstruction) ifTrue: [ 
+	
+	operandCollection := OrderedCollection new. 
+	operandCollection add: anInstruction operand1. 
+	
+	operation operands: operandCollection]. 
 
 	operation isPhiFunction ifTrue: [ 
 		operation operand1 value = operation operand2 value ifTrue: [ 
-			operation value: operation operand1 value.  ] ]. 
+			 ] ].
 	
-	
+
 ]
 
 { #category : #operations }
-DRConstantPropagation >> operationListOf: aRegister withList: aList [
+SCCP >> operationListOf: aRegister withList: aList [
 
 	^ aList select: [ :anInstruction | (anInstruction operands collect: [ :op | op result ] ) includes: aRegister ]
 ]
 
 { #category : #operations }
-DRConstantPropagation >> optimizeBlock: aBlock [
+SCCP >> optimizeBlock: aBlock [
 
 	| workList currentOperationProcessed operationList t|
 
@@ -92,12 +99,10 @@ DRConstantPropagation >> optimizeBlock: aBlock [
 			self interpreterOverLatticeValue: op withInstruction: currentOperationProcessed onblock: aBlock. 
 			((self value: op) ~= t) ifTrue: [ 
 				workList add: op. ]]]].
-
-	aBlock instructionsDo: [ :e | e isPhiFunction ifTrue: [ self interpretePhiFunction: e ] ]. 
 ]
 
 { #category : #operations }
-DRConstantPropagation >> value: aRegister [
+SCCP >> value: aRegister [
 
 	"Return the lattice value for the register"
 	^ latticeValues at: aRegister

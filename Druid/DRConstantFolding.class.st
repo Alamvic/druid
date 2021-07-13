@@ -1,3 +1,6 @@
+"
+This class calls constant folding on operations. 
+"
 Class {
 	#name : #DRConstantFolding,
 	#superclass : #Object,
@@ -19,5 +22,5 @@ DRConstantFolding >> applyTo: anIR [
 { #category : #operations }
 DRConstantFolding >> tryConstantFolding [ 
 
-	^ SubclassResponsibility. 
+	^ SubclassResponsibility.
 ]
