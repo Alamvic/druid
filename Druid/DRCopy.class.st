@@ -11,6 +11,17 @@ DRCopy >> acceptVisitor: aVisitor [
 ]
 
 { #category : #printing }
+DRCopy >> isCopy [ 
+
+	^true 
+]
+
+{ #category : #printing }
+DRCopy >> operands: aCollection [ 
+	operands := aCollection
+]
+
+{ #category : #printing }
 DRCopy >> prettyPrint [
 	
 	^ result name, ' := ', operands first name asString

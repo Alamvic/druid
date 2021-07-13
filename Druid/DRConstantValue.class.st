@@ -16,6 +16,14 @@ DRConstantValue class >> value: anInteger [
 ]
 
 { #category : #testing }
+DRConstantValue >> = anObject [
+
+	self class = anObject class ifTrue: [ 
+		self value = anObject value ifTrue: [ ^true. ] ].
+	^ false. 
+]
+
+{ #category : #testing }
 DRConstantValue >> isConstant [
 	
 	^ true

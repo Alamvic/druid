@@ -85,7 +85,8 @@ DRCompilerCompiler >> initialize [
 	registerAllocator := DRLinearScanRegisterAllocator new.
 	
 	optimisations := OrderedCollection new.
-	optimisations add: DRConstantPropagation new
+	optimisations add: DRConstantPropagation new.
+	optimisations add: DRConstantPropagation. 
 ]
 
 { #category : #accessing }

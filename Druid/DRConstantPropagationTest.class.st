@@ -5,6 +5,132 @@ Class {
 }
 
 { #category : #tests }
+DRConstantPropagationTest >> testConstantFoldingAddInSingleBasicBlock [
+
+	| optimisation bb cfg copy1 copy2 operandList|
+	optimisation := DRConstantPropagation new.
+	bb := DRBasicBlock new.
+		
+	cfg := DRControlFlowGraph new.
+	cfg initialBasicBlock: bb.
+	cfg exitBasicBlock: bb.	 
+
+	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 3 } result:  (DRTemporaryRegister id: 1)).
+	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 4 } result:  (DRTemporaryRegister id: 2)).
+	
+	operandList := OrderedCollection new. 
+	operandList add: copy1. 
+	operandList add: copy2.
+
+	bb addInstruction: (DRAdd  operands: operandList result:  (DRTemporaryRegister id: 3)).
+	optimisation applyTo: cfg.
+	
+
+	self assert: cfg instructions last operands equals: (DRConstantValue value: 7).
+	self assert: cfg instructions last isCopy. 
+]
+
+{ #category : #tests }
+DRConstantPropagationTest >> testConstantFoldingBitAndInSingleBasicBlock [
+
+	| optimisation bb cfg copy1 copy2 operandList|
+	optimisation := DRConstantPropagation new.
+	bb := DRBasicBlock new.
+		
+	cfg := DRControlFlowGraph new.
+	cfg initialBasicBlock: bb.
+	cfg exitBasicBlock: bb.	 
+
+	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 2r0101010110 } result:  (DRTemporaryRegister id: 1)).
+	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 2r0101011111 } result:  (DRTemporaryRegister id: 2)).
+	
+	operandList := OrderedCollection new. 
+	operandList add: copy1. 
+	operandList add: copy2.
+
+	bb addInstruction: (DRBitAnd  operands: operandList result:  (DRTemporaryRegister id: 3)).
+	optimisation applyTo: cfg.
+	
+
+	self assert: (cfg instructions last operands) equals: (DRConstantValue value: 2r0101010110)
+]
+
+{ #category : #tests }
+DRConstantPropagationTest >> testConstantFoldingBitShiftInSingleBasicBlock [
+
+	| optimisation bb cfg copy1 copy2 operandList|
+	optimisation := DRConstantPropagation new.
+	bb := DRBasicBlock new.
+		
+	cfg := DRControlFlowGraph new.
+	cfg initialBasicBlock: bb.
+	cfg exitBasicBlock: bb.	 
+
+	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 2r1000 } result:  (DRTemporaryRegister id: 1)).
+	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 1} result:  (DRTemporaryRegister id: 2)).
+	
+	operandList := OrderedCollection new. 
+	operandList add: copy1. 
+	operandList add: copy2.
+
+	bb addInstruction: (DRBitShift  operands: operandList result:  (DRTemporaryRegister id: 3)).
+	optimisation applyTo: cfg.
+	
+
+	self assert: (cfg instructions last operands) equals: (DRConstantValue value: 2r100)
+]
+
+{ #category : #tests }
+DRConstantPropagationTest >> testConstantFoldingMultiplyInSingleBasicBlock [
+
+	| optimisation bb cfg copy1 copy2 operandList|
+	optimisation := DRConstantPropagation new.
+	bb := DRBasicBlock new.
+		
+	cfg := DRControlFlowGraph new.
+	cfg initialBasicBlock: bb.
+	cfg exitBasicBlock: bb.	 
+
+	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 3 } result:  (DRTemporaryRegister id: 1)).
+	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 4 } result:  (DRTemporaryRegister id: 2)).
+	
+	operandList := OrderedCollection new. 
+	operandList add: copy1. 
+	operandList add: copy2.
+
+	bb addInstruction: (DRMultiply operands: operandList result:  (DRTemporaryRegister id: 3)).
+	optimisation applyTo: cfg.
+	
+
+	self assert: (cfg instructions last operands) equals: (DRConstantValue value: 12)
+]
+
+{ #category : #tests }
+DRConstantPropagationTest >> testConstantFoldingSubstractInSingleBasicBlock [
+
+	| optimisation bb cfg copy1 copy2 operandList|
+	optimisation := DRConstantPropagation new.
+	bb := DRBasicBlock new.
+		
+	cfg := DRControlFlowGraph new.
+	cfg initialBasicBlock: bb.
+	cfg exitBasicBlock: bb.	 
+
+	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 3 } result:  (DRTemporaryRegister id: 1)).
+	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 4 } result:  (DRTemporaryRegister id: 2)).
+	
+	operandList := OrderedCollection new. 
+	operandList add: copy1. 
+	operandList add: copy2.
+
+	bb addInstruction: (DRSubstract operands: operandList result:  (DRTemporaryRegister id: 3)).
+	optimisation applyTo: cfg.
+	
+
+	self assert: (cfg instructions last operands) equals: (DRConstantValue value: -1)
+]
+
+{ #category : #tests }
 DRConstantPropagationTest >> testPropagateInSingleBasicBlock [
 
 	| optimisation bb cfg copy1 |
@@ -19,7 +145,6 @@ DRConstantPropagationTest >> testPropagateInSingleBasicBlock [
 	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
 	"T2 := T1"
 	bb addInstruction: (DRCopy operands: { copy1 } result:  (DRTemporaryRegister id: 2)).
-	
 	optimisation applyTo: cfg.
 	
 	"The T1 access got replaced by the contant 1"

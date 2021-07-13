@@ -21,6 +21,21 @@ DRInstruction class >> operands: aCollection result: aResultRegister [
 ]
 
 { #category : #testing }
+DRInstruction >> = anObject [ 
+
+	self class = anObject class ifTrue: [ 
+		self result = anObject result ifTrue: [
+			self operands =  anObject operands ifTrue: [
+				^ true. ]]].
+	^ false. 
+]
+
+{ #category : #testing }
+DRInstruction >> isCopy [
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isPhiFunction [
 
 	^ false

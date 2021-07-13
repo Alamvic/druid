@@ -32,7 +32,7 @@ DRControlFlowGraph >> blocksDo: aFullBlockClosure [
 	[ workingQueue isEmpty ] whileFalse: [ | currentBlock |
 		currentBlock := workingQueue removeFirst.
 		aFullBlockClosure value: currentBlock.
-		currentBlock instructions notEmpty ifTrue: [
+		currentBlock hasFinalInstruction ifTrue: [
 			currentBlock lastInstruction targets do: [ :target |
 				
 				"Count how many times we have visited this block"
