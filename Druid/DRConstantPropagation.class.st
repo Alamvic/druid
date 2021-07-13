@@ -17,9 +17,27 @@ Class {
 { #category : #operations }
 DRConstantPropagation >> applyTo: cfg [
 	
+	| workList currentOperationProcessed operationList t|
 	cfg blocksDo: [ :b | self initializeLatticeValues: b ].
-	cfg blocksDo: [ :b | self optimizeBlock: b ].
-	cfg instructionsDo: [ :e | (e isPhiFunction) ifTrue: [ self interpretePhiFunction: e ] ]. 
+	
+	"Initialization"
+	
+	workList := OrderedCollection new. 
+	latticeValues keysDo: [ :key | ((self value: key) ~= 'Top') ifTrue: [ workList add: key]].
+	[ workList isNotEmpty ] whileTrue: [ 
+		currentOperationProcessed := workList removeFirst. 		
+		operationList := self dependentInstructionsOf: currentOperationProcessed inList: cfg instructions.
+		operationList do: [ :op | ((self value: op) ~= 'Bot') ifTrue: [ 
+			t := self value: op. 
+			self interpretOverLatticeValue: op withInstruction: currentOperationProcessed. 
+			((self value: op) ~= t) ifTrue: [ 
+				workList add: op. ]]]]
+]
+
+{ #category : #operations }
+DRConstantPropagation >> dependentInstructionsOf: aValue inList: aList [
+
+	^ aList select: [ :anInstruction | anInstruction operands includes: aValue ]
 ]
 
 { #category : #operations }
@@ -32,58 +50,47 @@ DRConstantPropagation >> initialize [
 { #category : #operations }
 DRConstantPropagation >> initializeLatticeValues: aBlock [ 
 
-	aBlock instructions do: [ :i | latticeValues at: i put: 'Top']
+	aBlock instructionsDo: [ :i | | value | 
+		value := (i isCopy and: [i operand1 isConstant])
+			ifTrue: [ i operand1 ]
+			ifFalse: [ 'Top' ].
+		latticeValues at: i put: value.
+	 ].
+
+]
+
+{ #category : #operations }
+DRConstantPropagation >> interpretOverLatticeValue: operation withInstruction: anInstruction [
+
+	|operandCollection|
+
+	operation isPhiFunction ifTrue: [ 
+		^ self interpretePhiFunction: operation ].
+	"Other instructions"
+	
+	((operation operand1 result = anInstruction result and: [anInstruction operand1 isConstant])) ifTrue: [ 
+		operation isCopy ifTrue: [ operation operands: anInstruction operands]
+								ifFalse: [ operandCollection := operation operands. 
+											  operandCollection at: 1 put: anInstruction operand1. 
+												operation operands: operandCollection ]. 
+		^ self.].
+		
+	operation order > 1 ifTrue: [ 
+	(operation operand2 result = anInstruction result and: [anInstruction operand1 isConstant]) ifTrue: [ 
+		operation operand2: anInstruction operands.
+		^ self.]
+		ifFalse: [ ^ self ]].
 ]
 
 { #category : #operations }
 DRConstantPropagation >> interpretePhiFunction: operation [
 
 	| operandsList |
-	
-	operation isPhiFunction ifTrue: [ 
-		operation operand1 operand1 value = operation operand2 operand1 value ifTrue: [ 
-			operandsList := OrderedCollection new. 
-			operandsList add: operation operand1 operand1. 
-			operation operands: operandsList]].
-]
-
-{ #category : #operations }
-DRConstantPropagation >> interpreterOverLatticeValue: operation withInstruction: anInstruction onblock: aBlock [
-
-	| operandCollection |
-	operation operand1 = anInstruction ifFalse: [ ^ self ].
-
-	operandCollection := OrderedCollection new.
-	operandCollection add: anInstruction operand1.
-	operation operands: operandCollection
-]
-
-{ #category : #operations }
-DRConstantPropagation >> operationListOf: aRegister withList: aList [
-
-	^ aList select: [ :anInstruction | (anInstruction operands collect: [ :op | op result ] ) includes: aRegister ]
-]
-
-{ #category : #operations }
-DRConstantPropagation >> optimizeBlock: aBlock [
-
-	| workList currentOperationProcessed operationList t|
-
-	"Initialization"
-	
-	workList := OrderedCollection new. 
-
-	aBlock instructionsDo: [ :e | e isCopy ifTrue: [ latticeValues at: e put: e operand1 ] ].
-	
-	latticeValues keysDo: [ :key | ((self value: key) ~= 'Top') ifTrue: [ workList add: key]].
-	[ workList isNotEmpty ] whileTrue: [ 
-		currentOperationProcessed := workList removeFirst. 		
-		operationList := self operationListOf: currentOperationProcessed result withList: aBlock instructions. 
-		operationList do: [ :op | ((self value: op) ~= 'Bot') ifTrue: [ 
-			t := self value: op. 
-			self interpreterOverLatticeValue: op withInstruction: currentOperationProcessed onblock: aBlock. 
-			((self value: op) ~= t) ifTrue: [ 
-				workList add: op. ]]]].
+	operation operand1 operand1 value = operation operand2 operand1 value 
+		ifTrue: [ 
+			operandsList := OrderedCollection new.
+			operandsList add: operation operand1 operand1.
+			operation operands: operandsList ]
 ]
 
 { #category : #operations }

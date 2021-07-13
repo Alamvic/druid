@@ -39,6 +39,12 @@ SCCP >> applyTo: cfg [
 ]
 
 { #category : #operations }
+SCCP >> dependentInstructionsOf: aRegister inList: aList [
+
+	^ aList select: [ :anInstruction | (anInstruction operands collect: [ :op | op result ] ) includes: aRegister ]
+]
+
+{ #category : #operations }
 SCCP >> getOperationList: aBlock regardingName: aRegister [
 	| operationList |
 	
@@ -79,12 +85,6 @@ SCCP >> interpreterOverLatticeValue: operation withInstruction: anInstruction on
 ]
 
 { #category : #operations }
-SCCP >> operationListOf: aRegister withList: aList [
-
-	^ aList select: [ :anInstruction | (anInstruction operands collect: [ :op | op result ] ) includes: aRegister ]
-]
-
-{ #category : #operations }
 SCCP >> optimizeBlock: aBlock [
 
 	| workList currentOperationProcessed operationList t|
@@ -100,7 +100,7 @@ SCCP >> optimizeBlock: aBlock [
 	latticeValues keysDo: [ :key | ((self value: key) ~= 'Top') ifTrue: [ workList add: key]].
 	[ workList isNotEmpty ] whileTrue: [ 
 		currentOperationProcessed := workList removeFirst. 		
-		operationList := self operationListOf: currentOperationProcessed result withList: workList. 
+		operationList := self dependentInstructionsOf: currentOperationProcessed result inList: workList. 
 		operationList do: [ :op | ((self value: op) ~= 'Bot') ifTrue: [ 
 			t := (self value: op). 
 			self interpreterOverLatticeValue: op withInstruction: currentOperationProcessed onblock: aBlock. 

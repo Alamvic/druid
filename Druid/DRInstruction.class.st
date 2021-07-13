@@ -31,6 +31,13 @@ DRInstruction >> = anObject [
 ]
 
 { #category : #testing }
+DRInstruction >> initialize [
+
+	super initialize.
+	operands := #()
+]
+
+{ #category : #testing }
 DRInstruction >> isCopy [
 	^ false
 ]
