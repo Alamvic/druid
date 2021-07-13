@@ -12,7 +12,8 @@ Class {
 	#instVars : [
 		'latticeValues',
 		'CFGWorkList',
-		'SSAWorkList'
+		'SSAWorkList',
+		'CFGWorkDict'
 	],
 	#category : #'Druid-Optimizations'
 }
@@ -20,15 +21,21 @@ Class {
 { #category : #operations }
 SCCP >> applyTo: cfg [
 	
-	CFGWorkList := Dictionary new: cfg initialBasicBlock successors.  
-	SSAWorkList := OrderedCollection new. 
+	| e |
 	
-	CFGWorkList do: [ :edge | edge value: 'Unexecuted']. 
+	CFGWorkList := OrderedCollection new: cfg initialBasicBlock successors.  
+	CFGWorkDict := Dictionary new. 
+	
+	CFGWorkList do: [ :edge | CFGWorkDict at: ( cfg initialBasicBlock, edge) put: 'Unexecuted' ]. 
+	SSAWorkList := OrderedCollection new. 
 	
 	cfg blocksDo: [ :b | b instructionsDo: [ :i | latticeValues at: i put: 'Top'] ].
 	
-	cfg blocksDo: [ :b | self initializeLatticeValues: b ].
-	cfg blocksDo: [ :b | self optimizeBlock: b ]
+	[CFGWorkList notEmpty or: SSAWorkList notEmpty] whileTrue: [ 
+		CFGWorkList notEmpty ifTrue: [ 
+			 e := CFGWorkList removeFirst. 
+			 (CFGWorkDict valueAt: e = 'Unexecuted') ifTrue: [ 
+				CFGWorkList at: e put: 'Executed'. . ]]].
 ]
 
 { #category : #operations }

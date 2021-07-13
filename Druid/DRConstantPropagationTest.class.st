@@ -60,8 +60,8 @@ DRConstantPropagationTest >> testPropagateInSingleBasicBlock [
 	"T2 := T1"
 	bb addInstruction: (DRCopy operands: { copy1 } result:  (DRTemporaryRegister id: 2)).
 	optimisation applyTo: cfg.
-	
-	"The T1 access got replaced by the contant 1"
+
+	"The T1 access got replaced by the constant 1"
 	self assert: cfg instructions last operand1 equals: (DRConstantValue value: 1)
 ]
 

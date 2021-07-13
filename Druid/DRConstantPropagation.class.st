@@ -23,15 +23,6 @@ DRConstantPropagation >> applyTo: cfg [
 ]
 
 { #category : #operations }
-DRConstantPropagation >> getOperationList: aBlock regardingName: aRegister [
-	| operationList |
-	
-	operationList := OrderedCollection new. 
-	aBlock instructionsDo: [ :e | ((e operands collect: [ :op | op name ] ) includes: aRegister) ifTrue: [operationList add: e]]. 
-	^ operationList 
-]
-
-{ #category : #operations }
 DRConstantPropagation >> initialize [
 
 	super initialize.
@@ -82,16 +73,14 @@ DRConstantPropagation >> optimizeBlock: aBlock [
 	
 	workList := OrderedCollection new. 
 
-	aBlock instructionsDo: [ :e | e isPhiFunction ifTrue: [ latticeValues at: e put: 'Top'  ]].
-	aBlock instructionsDo: [ :e | e className = 'DRCopy' ifTrue: [ latticeValues at: e put: (e operand1) ] ].
-	aBlock instructionsDo: [ :e | e operand1 isRegister ifTrue: [ latticeValues at: e put: 'Bot' ] ].
+	aBlock instructionsDo: [ :e | e isCopy ifTrue: [ latticeValues at: e put: e operand1 ] ].
 	
 	latticeValues keysDo: [ :key | ((self value: key) ~= 'Top') ifTrue: [ workList add: key]].
 	[ workList isNotEmpty ] whileTrue: [ 
 		currentOperationProcessed := workList removeFirst. 		
-		operationList := self operationListOf: currentOperationProcessed result withList: workList. 
+		operationList := self operationListOf: currentOperationProcessed result withList: aBlock instructions. 
 		operationList do: [ :op | ((self value: op) ~= 'Bot') ifTrue: [ 
-			t := (self value: op). 
+			t := self value: op. 
 			self interpreterOverLatticeValue: op withInstruction: currentOperationProcessed onblock: aBlock. 
 			((self value: op) ~= t) ifTrue: [ 
 				workList add: op. ]]]].
