@@ -29,9 +29,10 @@ DRConstantPropagation >> applyTo: cfg [
 		operationList := self dependentInstructionsOf: currentOperationProcessed inList: cfg instructions.
 		operationList do: [ :op | ((self value: op) ~= 'Bot') ifTrue: [ 
 			t := self value: op. 
-			self interpretOverLatticeValue: op withInstruction: currentOperationProcessed. 
+			"self interpretOverLatticeValue: op withInstruction: currentOperationProcessed. "
+			self interpretOverLatticeValue2: op. 
 			((self value: op) ~= t) ifTrue: [ 
-				workList add: op. ]]]]
+				workList add: op.]]]]
 ]
 
 { #category : #operations }
@@ -60,28 +61,12 @@ DRConstantPropagation >> initializeLatticeValues: aBlock [
 ]
 
 { #category : #operations }
-DRConstantPropagation >> interpretOverLatticeValue: operation withInstruction: anInstruction [
+DRConstantPropagation >> interpretOverLatticeValue2: operation [ 
 
-	|operandCollection|
+	operation isPhiFunction ifTrue: [ self interpretePhiFunction: operation. ^ self. ]. 
+	operation operands: (operation operands collect: [ :op | self interpreteValue: op ]). 
 
-	operation isPhiFunction ifTrue: [ 
-		^ self interpretePhiFunction: operation ].
-	"Other instructions"
 	
-	((operation operand1 result = anInstruction result and: [anInstruction operand1 isConstant])) ifTrue: [ 
-		operation isCopy ifTrue: [ operation operands: anInstruction operands]
-								ifFalse: [ operandCollection := operation operands. 
-											  operandCollection at: 1 put: anInstruction operand1. 
-												operation operands: operandCollection ]. 
-		^ self.].
-		
-	(operation operands size) > 1 ifTrue: [ 
-	(operation operand2 result = anInstruction result and: [anInstruction operand1 isConstant]) ifTrue: [ 
-		operation isCopy ifTrue: [ operation operands: anInstruction operands]
-								ifFalse: [ operandCollection := operation operands. 
-											  operandCollection at: 2 put: anInstruction operand1. 
-												operation operands: operandCollection ].
-		^ self.]].
 ]
 
 { #category : #operations }
@@ -92,7 +77,18 @@ DRConstantPropagation >> interpretePhiFunction: operation [
 		ifTrue: [ 
 			operandsList := OrderedCollection new.
 			operandsList add: operation operand1 operand1.
-			operation operands: operandsList ]
+			operation operands: operandsList.
+			latticeValues at: operation put: operation operand1. ]
+]
+
+{ #category : #operations }
+DRConstantPropagation >> interpreteValue: op [
+
+	|lv|
+	
+	lv := latticeValues at: op ifAbsent: [ op ]. 
+	(('Top', 'Bot') includes: lv) ifTrue: [ ^ op ]. 
+	^ lv. 
 ]
 
 { #category : #operations }
