@@ -184,6 +184,12 @@ DRBasicBlock >> removeInstruction: aDRInstruction [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [ 
+
+	instructions at: (instructions indexOf: anInstruction) put: anotherInstruction.
+]
+
+{ #category : #accessing }
 DRBasicBlock >> successors [
 	
 	endInstruction ifNil: [ ^ #() ].

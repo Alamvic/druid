@@ -83,5 +83,7 @@ DRValue >> targets [
 ]
 
 { #category : #accessing }
-DRValue >> tryConstantFolding [ 
+DRValue >> tryConstantFolding [
+
+	^ self
 ]

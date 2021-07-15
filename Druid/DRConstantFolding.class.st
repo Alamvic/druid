@@ -10,7 +10,7 @@ Class {
 { #category : #operations }
 DRConstantFolding >> applyTo: anIR [
 	
-	anIR blocksDo: [ :b | b tryConstantFolding ]. 
+	anIR blocksDo: [ :b | b instructionsDo: [ :i | b replaceInstruction: i by: (i tryConstantFolding) ]]. 
 	
 	
 	

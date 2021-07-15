@@ -8,7 +8,7 @@ Class {
 DRConstantFoldingTest >> testConstantFoldingAddInSingleBasicBlock [
 
 	| optimisation bb cfg copy1 copy2 operandList|
-	optimisation := DRConstantPropagation new.
+	optimisation := DRConstantFolding new.
 	bb := DRBasicBlock new.
 		
 	cfg := DRControlFlowGraph new.
@@ -34,7 +34,7 @@ DRConstantFoldingTest >> testConstantFoldingAddInSingleBasicBlock [
 DRConstantFoldingTest >> testConstantFoldingBitAndInSingleBasicBlock [
 
 	| optimisation bb cfg copy1 copy2 operandList|
-	optimisation := DRConstantPropagation new.
+	optimisation := DRConstantFolding new.
 	bb := DRBasicBlock new.
 		
 	cfg := DRControlFlowGraph new.
@@ -59,7 +59,7 @@ DRConstantFoldingTest >> testConstantFoldingBitAndInSingleBasicBlock [
 DRConstantFoldingTest >> testConstantFoldingBitShiftInSingleBasicBlock [
 
 	| optimisation bb cfg copy1 copy2 operandList|
-	optimisation := DRConstantPropagation new.
+	optimisation := DRConstantFolding new.
 	bb := DRBasicBlock new.
 		
 	cfg := DRControlFlowGraph new.
@@ -84,7 +84,7 @@ DRConstantFoldingTest >> testConstantFoldingBitShiftInSingleBasicBlock [
 DRConstantFoldingTest >> testConstantFoldingMultiplyInSingleBasicBlock [
 
 	| optimisation bb cfg copy1 copy2 operandList|
-	optimisation := DRConstantPropagation new.
+	optimisation := DRConstantFolding new.
 	bb := DRBasicBlock new.
 		
 	cfg := DRControlFlowGraph new.
@@ -109,7 +109,7 @@ DRConstantFoldingTest >> testConstantFoldingMultiplyInSingleBasicBlock [
 DRConstantFoldingTest >> testConstantFoldingSubstractInSingleBasicBlock [
 
 	| optimisation bb cfg copy1 copy2 operandList|
-	optimisation := DRConstantPropagation new.
+	optimisation := DRConstantFolding new.
 	bb := DRBasicBlock new.
 		
 	cfg := DRControlFlowGraph new.
