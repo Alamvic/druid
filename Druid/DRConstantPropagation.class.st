@@ -75,11 +75,13 @@ DRConstantPropagation >> interpretOverLatticeValue: operation withInstruction: a
 												operation operands: operandCollection ]. 
 		^ self.].
 		
-	operation order > 1 ifTrue: [ 
+	(operation operands size) > 1 ifTrue: [ 
 	(operation operand2 result = anInstruction result and: [anInstruction operand1 isConstant]) ifTrue: [ 
-		operation operand2: anInstruction operands.
-		^ self.]
-		ifFalse: [ ^ self ]].
+		operation isCopy ifTrue: [ operation operands: anInstruction operands]
+								ifFalse: [ operandCollection := operation operands. 
+											  operandCollection at: 2 put: anInstruction operand1. 
+												operation operands: operandCollection ].
+		^ self.]].
 ]
 
 { #category : #operations }

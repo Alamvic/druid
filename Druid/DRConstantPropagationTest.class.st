@@ -120,8 +120,8 @@ DRConstantPropagationTest >> testPropagateInComplexInstructionRight [
 	optimisation applyTo: cfg.
 
 	"The T1 access got replaced by the constant 1"
-	self assert: cfg instructions last operand1 equals: (DRConstantValue value: 1).
-	self assert: cfg instructions last operand2 equals: (DRConstantValue value: 2)
+	self assert: cfg instructions last operand1 equals: (DRConstantValue value: 2).
+	self assert: cfg instructions last operand2 equals: (DRConstantValue value: 1)
 ]
 
 { #category : #tests }
