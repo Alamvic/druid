@@ -9,7 +9,8 @@ Class {
 		'numberOfArguments',
 		'nextRegister',
 		'nextBlockID',
-		'pharoOperandStack'
+		'pharoOperandStack',
+		'currentOperandStack'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -85,6 +86,11 @@ DRIRGenerator >> currentFrame [
 	^ interpretationStack last
 ]
 
+{ #category : #'operand stack' }
+DRIRGenerator >> currentOperandStack [
+	^ self currentBasicBlock vmOperandStack
+]
+
 { #category : #initialization }
 DRIRGenerator >> initialize [
 
@@ -92,12 +98,10 @@ DRIRGenerator >> initialize [
 	specialCases := Dictionary new.
 	self initializeSpecialCases.
 	
-	pharoOperandStack := Stack new.
+	currentOperandStack := Stack new.
 	nextRegister := 0.
 	nextBlockID := 1.
-	interpretationStack := OrderedCollection new.
-	
-	firstBasicBlock := self newBasicBlock
+	interpretationStack := OrderedCollection new
 ]
 
 { #category : #'special-cases' }
@@ -146,6 +150,12 @@ DRIRGenerator >> initializeSpecialCases [
 	
 	"special simulation cases"
 	specialCases at: #cCode:inSmalltalk: put: #interpretCCodeInSmalltalkWith:.
+]
+
+{ #category : #factory }
+DRIRGenerator >> instantiate: anInstructionClass [ 
+	
+	^ self instantiate: anInstructionClass operands: #()
 ]
 
 { #category : #factory }
@@ -324,7 +334,7 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 
-	| trueBranchBasicBlockOut falseBranchBasicBlockOut condition joinInstruction temporaryFrameBeforeBranch temporaryFrameAfterTrueBranchJoin temporaryFrameAfterFalseBranchJoin joinPointTemporartFrame conditionalJump trueBranchEntry startingBasicBlock falseBranchEntry |
+	| trueBranchBasicBlockOut falseBranchBasicBlockOut condition joinInstruction temporaryFrameBeforeBranch temporaryFrameAfterTrueBranchJoin temporaryFrameAfterFalseBranchJoin joinPointTemporartFrame conditionalJump trueBranchEntry startingBasicBlock falseBranchEntry  |
 	condition := aRBMessageNode receiver acceptVisitor: self.
 	conditionalJump := self
 		                   instantiate: DRConditionalJump
@@ -333,14 +343,19 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 	startingBasicBlock := self currentBasicBlock.
 
 	temporaryFrameBeforeBranch := self currentFrame temporaryFrame copy.
+	
+	currentOperandStack := startingBasicBlock vmOperandStack copy.
 	trueBranchEntry := self newBasicBlockDuring: [ 
 		aRBMessageNode arguments first acceptVisitor: self ].
 	trueBranchEntry addPredecessor: startingBasicBlock.
 	conditionalJump trueBranch: trueBranchEntry.
 	trueBranchBasicBlockOut := self currentBasicBlock.
+	
+	"Restore the original operand stacks and keep the modified ones"
 	temporaryFrameAfterTrueBranchJoin := self currentFrame temporaryFrame.
-
 	self currentFrame temporaryFrame: temporaryFrameBeforeBranch.
+
+	currentOperandStack := startingBasicBlock vmOperandStack copy.
 	falseBranchEntry := self newBasicBlockDuring: [ 
 			 aRBMessageNode arguments second acceptVisitor: self ].
 	conditionalJump falseBranch: falseBranchEntry.
@@ -349,6 +364,8 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 	temporaryFrameAfterFalseBranchJoin := self currentFrame
 		                                      temporaryFrame.
 
+	"Start a new operand stack at this point"
+	currentOperandStack := startingBasicBlock vmOperandStack copy.
 	self newBasicBlock.
 	"Could happen that the evaluated block had a non local return.
 	In that case, this block should not arrive to this merge point
@@ -374,6 +391,8 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 		                   from: { 
 				                   trueBranchBasicBlockOut.
 				                   falseBranchBasicBlockOut }.
+
+	self currentBasicBlock mergeOperandStacksIn: self.
 
 	"join the temporary values modified by the blocks"
 	joinPointTemporartFrame := ((temporaryFrameAfterTrueBranchJoin keys
@@ -476,7 +495,7 @@ DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [
 
 { #category : #API }
 DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver [
-	
+
 	^ self interpretMethod: aMethodAST receiver: aReceiver arguments: #()
 ]
 
@@ -565,7 +584,7 @@ DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
-	self pushOperand: pharoOperandStack top
+	self pushOperand: self currentOperandStack top
 ]
 
 { #category : #'special-cases' }
@@ -607,10 +626,34 @@ DRIRGenerator >> ir [
 	^ self subclassResponsibility
 ]
 
+{ #category : #merging }
+DRIRGenerator >> mergeOperandStacks: aCollectionOfStacks fromBlocks: aListOfBlocks [
+	
+	"We can only merge two operand stacks with the same number of elements"
+	| stackSize newStack |
+	self assert: (aCollectionOfStacks collect: [ :e | e size ] as: Set) size = 1.
+	
+	stackSize := aCollectionOfStacks first size.
+	newStack := Stack new.
+	1 to: stackSize do: [ :e | | values |
+		values := aCollectionOfStacks collect: [ :stack | stack at: e ].
+		values with: aListOfBlocks do: [ :v :b |
+			b addInstruction: (self instantiate: DRCopy operands: { v }) ].
+		newStack push: ((DRPhiFunction joinedVariables: values)
+			result: self allocateTemporaryRegister;
+			originBlocks: aListOfBlocks;
+			origin: thisContext stack;
+			yourself)
+	].
+	^ newStack
+]
+
 { #category : #'basic-blocks' }
 DRIRGenerator >> newBasicBlock [
 
-	^ currentBasicBlock := self basicNewBasicBlock
+	currentBasicBlock := self basicNewBasicBlock.
+	currentBasicBlock vmOperandStack: currentOperandStack.
+	^ currentBasicBlock
 ]
 
 { #category : #'basic-blocks' }
@@ -640,8 +683,8 @@ DRIRGenerator >> operandStackTop [
 { #category : #'pharo-stack' }
 DRIRGenerator >> pop [
 
-	pharoOperandStack ifEmpty: [ self error: 'Operand stack underflow!' ].
-	^ pharoOperandStack pop
+	self currentOperandStack ifEmpty: [ self error: 'Operand stack underflow!' ].
+	^ self currentOperandStack pop
 ]
 
 { #category : #'pharo-stack' }
@@ -653,12 +696,14 @@ DRIRGenerator >> pop: anInteger [
 { #category : #'frame-access' }
 DRIRGenerator >> popFrame [
 	
-	| previousFrame simplifiedReturnValue |
-	previousFrame := interpretationStack removeLast.
-	currentBasicBlock := previousFrame exitBasicBlock.
-	simplifiedReturnValue := previousFrame returnValue isEmpty
+	| simplifiedReturnValue poppedFrame |
+	currentBasicBlock := self currentFrame exitBasicBlock.
+	currentBasicBlock mergeOperandStacksIn: self.
+	
+	poppedFrame := interpretationStack removeLast.
+	simplifiedReturnValue := poppedFrame returnValue isEmpty
 		ifTrue: [ DRNullValue new ]
-		ifFalse: [ "self instantiate: DRCopy operands: {"previousFrame returnValue simplify"}" ].
+		ifFalse: [ "self instantiate: DRCopy operands: {"poppedFrame returnValue simplify"}" ].
 	simplifiedReturnValue addToBlock: currentBasicBlock.
 	^ simplifiedReturnValue
 ]
@@ -673,7 +718,7 @@ DRIRGenerator >> popOperand [
 DRIRGenerator >> push: aValue [
 	
 	"Update the operand stack to keep track of the new position"
-	pharoOperandStack push: aValue.
+	self currentOperandStack push: aValue.
 	"Each position of the operand stack is related to a special register.
 	Translate the push to a copy with a concrete result register.
 	The concrete result register will be the one associated with the current position of the operand stack"
@@ -694,6 +739,7 @@ DRIRGenerator >> pushFrameWithReceiver: aReceiver [
 	frame := DruidStackFrame new
 		receiver: aReceiver;
 		irGenerator: self;
+		entryBasicBlock: self currentBasicBlock;
 		exitBasicBlock: self basicNewBasicBlock;
 		yourself.
 	
@@ -720,16 +766,19 @@ DRIRGenerator >> receiverRegister [
 
 { #category : #'pharo-stack' }
 DRIRGenerator >> spillStack [
-	
-	pharoOperandStack size > (numberOfArguments + 1)
+
+	"If there is no operand stack, the current block has no predecessors and is considered as dead code.
+	Do not spill the stack here."
+	self currentOperandStack ifNil: [ ^ self ].
+	self currentOperandStack size > (numberOfArguments + 1)
 		ifTrue: [ self error: 'Non Balanced Stack!' ].
 
-	[ pharoOperandStack isEmpty ] whileFalse: [ | destinationRegister copyInstruction |
-		destinationRegister := pharoOperandStack size = 1
+	[ self currentOperandStack isEmpty ] whileFalse: [ | destinationRegister copyInstruction |
+		destinationRegister := self currentOperandStack size = 1
 			ifTrue: [ self receiverRegister ]
-			ifFalse: [ DRPhysicalRegister name: 'Arg', (pharoOperandStack size - 2) asString, 'Reg' ].
+			ifFalse: [ DRPhysicalRegister name: 'Arg', (self currentOperandStack size - 2) asString, 'Reg' ].
 		copyInstruction := DRCopy
-			operands: { pharoOperandStack pop }
+			operands: { self currentOperandStack pop }
 			result: destinationRegister.
 		self currentBasicBlock addInstruction: copyInstruction.
 	]
@@ -738,7 +787,7 @@ DRIRGenerator >> spillStack [
 { #category : #'pharo-stack' }
 DRIRGenerator >> stackTop [
 	
-	^ pharoOperandStack top
+	^ self currentOperandStack top
 ]
 
 { #category : #'frame-access' }

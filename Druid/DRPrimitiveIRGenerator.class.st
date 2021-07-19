@@ -11,7 +11,6 @@ Class {
 DRPrimitiveIRGenerator >> initialize [
 
 	super initialize.
-	pharoOperandStack := Stack new.
 	primitiveExitBlock := self basicNewBasicBlock.	
 ]
 
@@ -22,22 +21,6 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 	specialCases at: #success: put: #interpretSuccessArgWith:.
 	specialCases at: #primitiveFail put: #interpretPrimitiveFailWith:.
 	specialCases at: #successful put: #interpretSuccessfulWith:.
-]
-
-{ #category : #API }
-DRPrimitiveIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: arguments [
-
-	| result |
-	result := super interpretMethod: aMethodAST receiver: aReceiver arguments: arguments.
-
-	"If the interpretation stack is empty, we are returning from the primitive
-	- generate a return instruction popping receiver and arguments all at once
-	- amount to pop is expressed in bytes, so multiply by word size"
-	interpretationStack ifNotEmpty: [ ^ result ].
-	self spillStack.
-	^ self currentBasicBlock endInstruction: (self
-		instantiate: DRReturn
-		operands: { DRConstantValue value: numberOfArguments + 1 "Number of things to pop" }).
 ]
 
 { #category : #'special-cases' }
@@ -69,9 +52,9 @@ DRPrimitiveIRGenerator >> interpretSuccessfulWith: aRBMessageNode [
 
 { #category : #accessing }
 DRPrimitiveIRGenerator >> ir [
+
 	^ DRControlFlowGraph new
 		initialBasicBlock: firstBasicBlock;
-		exitBasicBlock: primitiveExitBlock;
 		yourself
 ]
 
@@ -82,6 +65,29 @@ DRPrimitiveIRGenerator >> numberOfArguments: aValue [
 	self push: self receiverRegister.
 	0 to: numberOfArguments - 1 do: [ :i |
 		self push: (self argRegisterNumber: i) ]
+]
+
+{ #category : #'frame-access' }
+DRPrimitiveIRGenerator >> popFrame [
+
+	"If the interpretation stack is empty, we are returning from the primitive
+	- generate a return instruction popping receiver and arguments all at once
+	- amount to pop is expressed in bytes, so multiply by word size"
+	| result |
+	firstBasicBlock := self currentFrame entryBasicBlock.
+	result := super popFrame.
+	interpretationStack size = 0 ifTrue: [
+		self spillStack.
+		self currentBasicBlock hasFinalInstruction ifFalse: [
+			self currentBasicBlock endInstruction: (self
+				instantiate: DRReturn
+				operands: { DRConstantValue value: numberOfArguments + 1 "Number of things to pop" }).
+		].
+		"Make the end instruction of the failure exit finish with a Noop"
+		primitiveExitBlock endInstruction: (self instantiate: DRNoop)
+	].
+		
+	^ result
 ]
 
 { #category : #accessing }

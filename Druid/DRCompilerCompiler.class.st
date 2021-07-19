@@ -67,6 +67,7 @@ DRCompilerCompiler >> generateDruidIR [
 	method := interpreter class lookupSelector: sourceName.
 	irGenerator := self newIRGenerator.
 	irGenerator
+		newBasicBlock;
 		numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value;
 		interpretMethod: method ast
 		receiver: (DRInterpreterValue value: interpreter).
@@ -207,6 +208,12 @@ DRCompilerCompiler >> visitConstantCondition: aDRConstantCondition [
 DRCompilerCompiler >> visitCopy: aDRMove [
 
 	^ self twoOperandCogitRTL: #Move instruction: aDRMove
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitNoop: aDRNoop [ 
+	
+	"Do nothing"
 ]
 
 { #category : #visiting }

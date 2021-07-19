@@ -7,7 +7,8 @@ Class {
 		'blockValue',
 		'endInstruction',
 		'predecessors',
-		'origin'
+		'origin',
+		'vmOperandStack'
 	],
 	#category : #'Druid-IR'
 }
@@ -150,6 +151,36 @@ DRBasicBlock >> markAsDeadCode [
 	endInstruction := #deadCode
 ]
 
+{ #category : #'operand stack' }
+DRBasicBlock >> mergeOperandStacksIn: aBuilder [
+
+	"We can only merge two operand stacks with the same number of elements"
+	| stackSize newStack predecessorStacks phi |
+	
+	"If I have no predecessors, I'm very probably dead code.
+	No need to merge anything"
+	self predecessors ifEmpty: [ ^ self ].
+	
+	predecessorStacks := self predecessors collect: [ :e | e vmOperandStack ].
+	self assert: (predecessorStacks collect: [ :e | e size ] as: Set) size = 1.
+	
+	stackSize := predecessorStacks first size.
+	newStack := Stack new.
+	1 to: stackSize do: [ :e | | values |
+		values := predecessorStacks collect: [ :stack | stack at: e ].
+		values with: self predecessors do: [ :v :b |
+			b addInstruction: (aBuilder instantiate: DRCopy operands: { v }) ].
+		phi := (DRPhiFunction joinedVariables: values)
+			result: aBuilder allocateTemporaryRegister;
+			originBlocks: self predecessors;
+			origin: thisContext stack;
+			yourself.
+		newStack push: phi.
+		self addInstruction: phi.
+	].
+	^ vmOperandStack :=  newStack
+]
+
 { #category : #accessing }
 DRBasicBlock >> numberOfPredecessors [
 	
@@ -197,4 +228,16 @@ DRBasicBlock >> successors [
 	endInstruction = #deadCode
 		ifTrue: [ ^ #() ].
 	^ endInstruction targets
+]
+
+{ #category : #accessing }
+DRBasicBlock >> vmOperandStack [
+
+	^ vmOperandStack
+]
+
+{ #category : #accessing }
+DRBasicBlock >> vmOperandStack: anObject [
+
+	vmOperandStack := anObject
 ]

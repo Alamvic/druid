@@ -13,7 +13,6 @@ DRConstantPropagationTest >> testPropagateInSingleBasicBlock [
 		
 	cfg := DRControlFlowGraph new.
 	cfg initialBasicBlock: bb.
-	cfg exitBasicBlock: bb.
 	
 	"T1 := 1"
 	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).

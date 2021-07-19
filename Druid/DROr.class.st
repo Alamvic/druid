@@ -1,7 +1,7 @@
 Class {
 	#name : #DROr,
 	#superclass : #DRInstruction,
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-IR'
 }
 
 { #category : #visiting }

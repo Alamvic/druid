@@ -5,6 +5,7 @@ Class {
 		'receiver',
 		'temporaryFrame',
 		'irGenerator',
+		'entryBasicBlock',
 		'exitBasicBlock',
 		'operandStack'
 	],
@@ -15,6 +16,18 @@ Class {
 DruidStackFrame >> currentBasicBlock [
 	
 	^ irGenerator currentBasicBlock
+]
+
+{ #category : #accessing }
+DruidStackFrame >> entryBasicBlock [
+
+	^ entryBasicBlock
+]
+
+{ #category : #accessing }
+DruidStackFrame >> entryBasicBlock: anObject [
+
+	entryBasicBlock := anObject
 ]
 
 { #category : #accessing }
@@ -50,6 +63,18 @@ DruidStackFrame >> irGenerator: anObject [
 		result: irGenerator allocateTemporaryRegister;
 		origin: thisContext stack;
 		yourself).
+]
+
+{ #category : #accessing }
+DruidStackFrame >> operandStack [
+
+	^ operandStack
+]
+
+{ #category : #accessing }
+DruidStackFrame >> operandStack: anObject [
+
+	operandStack := anObject
 ]
 
 { #category : #accessing }
