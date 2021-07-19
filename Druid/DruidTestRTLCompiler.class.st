@@ -61,12 +61,12 @@ DruidTestRTLCompiler >> gen_primitiveCallingMethodReturningConstant [
 	jump0 jmpTarget: currentBlock.
 	self MoveCq: 73 R: TempReg.
 	self MoveCq: 73 R: TempReg.
-	self MoveR: TempReg R: Extra0Reg.
-	self MoveR: TempReg R: Extra1Reg.
+	self MoveCq: 73 R: Extra0Reg.
+	self MoveCq: 73 R: Extra1Reg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveR: Extra1Reg R: ReceiverResultReg.
+	self MoveCq: 73 R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
@@ -276,11 +276,11 @@ DruidTestRTLCompiler >> gen_primitiveWithIfAssigningValue [
 	jump1 jmpTarget: currentBlock.
 	jump2 jmpTarget: currentBlock.
 	self MoveR: SendNumArgsReg R: Extra1Reg.
-	self MoveR: SendNumArgsReg R: ClassReg.
+	self MoveR: SendNumArgsReg R: Extra0Reg.
 	jump3 := self Jump: 0.
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
-	self MoveR: ClassReg R: ReceiverResultReg.
+	self MoveR: Extra0Reg R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]

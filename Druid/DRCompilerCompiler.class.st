@@ -86,7 +86,6 @@ DRCompilerCompiler >> initialize [
 	
 	optimisations := OrderedCollection new.
 	optimisations add: DRConstantPropagation new.
-	optimisations add: DRConstantPropagation. 
 ]
 
 { #category : #accessing }
