@@ -31,7 +31,7 @@ DRControlFlowGraph >> blocksDo: aFullBlockClosure [
 	[ workingQueue isEmpty ] whileFalse: [ | currentBlock |
 		currentBlock := workingQueue removeFirst.
 		aFullBlockClosure value: currentBlock.
-		currentBlock instructions notEmpty ifTrue: [
+		currentBlock hasFinalInstruction ifTrue: [
 			currentBlock lastInstruction targets do: [ :target |
 				
 				"Count how many times we have visited this block"
@@ -43,6 +43,17 @@ DRControlFlowGraph >> blocksDo: aFullBlockClosure [
 				
 				visitsSoFar = target numberOfPredecessors ifTrue: [ 
 					workingQueue addLast: target  ] ] ] ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> exitBasicBlock [
+	
+	^ exitBasicBlock
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> initialBasicBlock [ 
+	^ initialBasicBlock
 ]
 
 { #category : #accessing }

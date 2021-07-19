@@ -20,11 +20,33 @@ DRInstruction class >> operands: aCollection result: aResultRegister [
 		yourself
 ]
 
+{ #category : #testing }
+DRInstruction >> = anObject [ 
+
+	self class = anObject class ifTrue: [ 
+		self result = anObject result ifTrue: [
+			self operands =  anObject operands ifTrue: [
+				^ true. ]]].
+	^ false. 
+]
+
 { #category : #copying }
 DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode [ 
 	
 	"I'm an already an instruction with a value. No need to do anything"
 	^ self
+]
+
+{ #category : #testing }
+DRInstruction >> initialize [
+
+	super initialize.
+	operands := #()
+]
+
+{ #category : #testing }
+DRInstruction >> isCopy [
+	^ false
 ]
 
 { #category : #accessing }

@@ -8,6 +8,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #accessing }
+DRConditionalJump class >> operands: operands [
+
+	^ self operands: operands result: DRNoRegister new
+]
+
 { #category : #visiting }
 DRConditionalJump >> acceptVisitor: aVisitor [
 

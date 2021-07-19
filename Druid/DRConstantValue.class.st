@@ -15,6 +15,14 @@ DRConstantValue class >> value: anInteger [
 		yourself
 ]
 
+{ #category : #testing }
+DRConstantValue >> = anObject [
+
+	self class = anObject class ifTrue: [ 
+		self value = anObject value ifTrue: [ ^true. ] ].
+	^ false. 
+]
+
 { #category : #copying }
 DRConstantValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 	
