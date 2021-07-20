@@ -55,11 +55,7 @@ DRValue >> isVirtualRegister [
 { #category : #joining }
 DRValue >> joinNonNull: anotherValue onIRGenerator: aBuilder from: originBlocks [
 
-	| copies |
-	copies := { anotherValue. self } with: originBlocks collect: [ :v :b |
-		b addInstruction: (aBuilder instantiate: DRCopy operands: { v }).
-	].
-	^ (DRPhiFunction joinedVariables: copies)
+	^ (DRPhiFunction joinedVariables: { anotherValue. self })
 		result: aBuilder allocateTemporaryRegister;
 		originBlocks: originBlocks;
 		addToBlock: aBuilder currentBasicBlock;

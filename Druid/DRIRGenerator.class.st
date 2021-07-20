@@ -554,7 +554,7 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 	
 	| elementsToPop |
 	aRBMessageNode arguments first acceptVisitor: self.
-	elementsToPop := self popOperand value.
+	elementsToPop := self popOperand operand1 value.
 	elementsToPop isInteger
 		ifFalse: [ self error: 'expected an integer value' ].	
 	"This will be pushed automatically"
@@ -833,7 +833,7 @@ DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 { #category : #visiting }
 DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [ 
 	
-	self pushOperand: (DRConstantValue value: aRBLiteralValueNode value)
+	self addInstructionFrom: aRBLiteralValueNode instructionKind: DRCopy operands: { (DRConstantValue value: aRBLiteralValueNode value) }
 ]
 
 { #category : #visiting }

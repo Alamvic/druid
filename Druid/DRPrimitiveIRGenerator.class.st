@@ -35,7 +35,7 @@ DRPrimitiveIRGenerator >> interpretSuccessArgWith: aRBMessageNode [
 	| argument |
 	aRBMessageNode arguments first acceptVisitor: self.
 	argument := self popOperand.
-	argument value = false
+	argument operand1 value = false
 		ifFalse: [ self halt. "This is strange, somebody is setting it success to true explicitly" ].
 	self pushOperand: DRNullValue new.
 	

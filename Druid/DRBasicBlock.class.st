@@ -166,11 +166,9 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 	
 	stackSize := predecessorStacks first size.
 	newStack := Stack new.
-	1 to: stackSize do: [ :e | | values copies |
+	1 to: stackSize do: [ :e | | values |
 		values := predecessorStacks collect: [ :stack | stack at: e ].
-		copies := values with: self predecessors collect: [ :v :b |
-			b addInstruction: (aBuilder instantiate: DRCopy operands: { v }) ].
-		phi := (DRPhiFunction joinedVariables: copies)
+		phi := (DRPhiFunction joinedVariables: values)
 			result: aBuilder allocateTemporaryRegister;
 			originBlocks: self predecessors;
 			origin: thisContext stack;
