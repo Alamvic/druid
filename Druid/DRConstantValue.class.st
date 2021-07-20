@@ -23,10 +23,22 @@ DRConstantValue >> = anObject [
 	^ false. 
 ]
 
+{ #category : #accessing }
+DRConstantValue >> includes: anInstruction [ 
+	
+	^ false
+]
+
 { #category : #testing }
 DRConstantValue >> isConstant [
 	
 	^ true
+]
+
+{ #category : #accessing }
+DRConstantValue >> isCopy [ 
+
+	^ false
 ]
 
 { #category : #interpretation }

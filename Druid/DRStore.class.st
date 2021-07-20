@@ -9,3 +9,9 @@ DRStore >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitStore: self
 ]
+
+{ #category : #visiting }
+DRStore >> isStore [ 
+
+	^ true
+]

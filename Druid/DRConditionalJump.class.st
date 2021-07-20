@@ -37,6 +37,12 @@ DRConditionalJump >> falseBranch: aDruidIRGenerator [
 	falseBranch := aDruidIRGenerator 
 ]
 
+{ #category : #accessing }
+DRConditionalJump >> isJump [ 
+
+	^ true
+]
+
 { #category : #printing }
 DRConditionalJump >> prettyPrint [
 	

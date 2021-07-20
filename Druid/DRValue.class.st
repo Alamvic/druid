@@ -28,6 +28,18 @@ DRValue >> isConstant [
 	^ false
 ]
 
+{ #category : #accessing }
+DRValue >> isJump [ 
+
+	^ false
+]
+
+{ #category : #visiting }
+DRValue >> isLoad [ 
+
+	^ false
+]
+
 { #category : #testing }
 DRValue >> isPhiFunction [
 
@@ -38,6 +50,12 @@ DRValue >> isPhiFunction [
 DRValue >> isRegister [
 
 	^ false
+]
+
+{ #category : #visiting }
+DRValue >> isStore [
+
+	^ false 
 ]
 
 { #category : #testing }
