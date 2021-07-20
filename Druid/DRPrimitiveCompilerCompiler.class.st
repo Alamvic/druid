@@ -2,7 +2,8 @@ Class {
 	#name : #DRPrimitiveCompilerCompiler,
 	#superclass : #DRCompilerCompiler,
 	#instVars : [
-		'primitiveCompilerName'
+		'primitiveCompilerName',
+		'fallthroughBlock'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -21,8 +22,11 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 { #category : #'ir-to-ast' }
 DRPrimitiveCompilerCompiler >> buildStatementsForCFG: aDRControlFlowGraph [ 
 	
+	| blocks |
 	generatorMethodBuilder addVariableNamed: 'currentBlock'.
-	aDRControlFlowGraph blocksDo: [ :b |
+	blocks := aDRControlFlowGraph blocks.
+	blocks withIndexDo: [ :b :i |
+		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
 		self preProcessBlock: b.
 		b instructionsDo: [ :e | 
 			self buildStatementsForInstruction: e ] ].
@@ -33,6 +37,9 @@ DRPrimitiveCompilerCompiler >> buildStatementsForCFG: aDRControlFlowGraph [
 DRPrimitiveCompilerCompiler >> generateJump: jumpKind target: aTarget [
 
 	| jumpStatement jumpVariableName |
+	"If the jump target is the next block in the order, do not add any jump to it"
+	aTarget = fallthroughBlock ifTrue: [ ^ self ].
+	
 	jumpVariableName := 'jump', self nextJumpIndex asString.
 	generatorMethodBuilder addVariableNamed: jumpVariableName.
 	

@@ -150,7 +150,7 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsTo
 	self executePrimitiveWithReceiver: receiver withArgument: memory trueObject.
 	
 	"An empty primitive does nothing and just returns, the return value is the receiver"
-	self assert: machineSimulator receiverRegisterValue equals: memory trueObject.
+	self assert: machineSimulator receiverRegisterValue equals: receiver
 ]
 
 { #category : #'tests-methodactivations' }
