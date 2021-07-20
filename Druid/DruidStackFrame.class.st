@@ -3,7 +3,6 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'receiver',
-		'temporaryFrame',
 		'irGenerator',
 		'entryBasicBlock',
 		'exitBasicBlock',
@@ -45,7 +44,6 @@ DruidStackFrame >> exitBasicBlock: aDRBasicBlock [
 DruidStackFrame >> initialize [
 
 	super initialize.
-	temporaryFrame := Dictionary new.
 	operandStack := Stack new
 ]
 
@@ -58,11 +56,7 @@ DruidStackFrame >> irGenerator [
 { #category : #accessing }
 DruidStackFrame >> irGenerator: anObject [
 
-	irGenerator := anObject.
-	temporaryFrame at: '__return' put: (DRPhiFunction new
-		result: irGenerator allocateTemporaryRegister;
-		origin: thisContext stack;
-		yourself).
+	irGenerator := anObject
 ]
 
 { #category : #accessing }
@@ -102,7 +96,7 @@ DruidStackFrame >> receiver: aCogVMSimulatorLSB [
 { #category : #accessing }
 DruidStackFrame >> returnValue [
 
-	^ temporaryFrame at: '__return'
+	^ self currentBasicBlock temporaryAt: '__return'
 ]
 
 { #category : #accessing }
@@ -121,28 +115,4 @@ DruidStackFrame >> returnValue: aValue [
 DruidStackFrame >> stackTop [
 	
 	^ operandStack top
-]
-
-{ #category : #accessing }
-DruidStackFrame >> temporaryAt: aString [
-	
-	^ temporaryFrame at: aString
-]
-
-{ #category : #accessing }
-DruidStackFrame >> temporaryAt: aString put: aValue [ 
-	
-	"Store an intermediate interpretation value in a temporary variable"
-	^ temporaryFrame at: aString put: aValue
-]
-
-{ #category : #accessing }
-DruidStackFrame >> temporaryFrame [
-
-	^ temporaryFrame
-]
-
-{ #category : #accessing }
-DruidStackFrame >> temporaryFrame: aCollection [ 
-	temporaryFrame := aCollection
 ]

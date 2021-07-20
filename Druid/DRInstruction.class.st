@@ -134,6 +134,15 @@ DRInstruction >> prettyPrint [
 	^ print, self opcode ,' ', (' ' join: (operands collect: [ :e | e result name ]))
 ]
 
+{ #category : #printing }
+DRInstruction >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream nextPut: $(.
+	aStream nextPutAll: self prettyPrint.
+	aStream nextPut: $)
+]
+
 { #category : #accessing }
 DRInstruction >> result [
 

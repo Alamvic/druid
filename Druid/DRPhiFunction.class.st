@@ -105,6 +105,14 @@ DRPhiFunction >> rtlOperandQualifier [
 	^ 'R:'
 ]
 
+{ #category : #simplification }
+DRPhiFunction >> simplify [
+	
+	operands asSet size = 0 ifTrue: [ ^ DRNullValue new ].
+	operands asSet size = 1 ifTrue: [ ^ operands first ].
+	^ self
+]
+
 { #category : #accessing }
 DRPhiFunction >> singleChild [
 

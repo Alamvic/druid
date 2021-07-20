@@ -8,6 +8,7 @@ Class {
 		'endInstruction',
 		'predecessors',
 		'origin',
+		'temporaryFrame',
 		'vmOperandStack'
 	],
 	#category : #'Druid-IR'
@@ -24,7 +25,6 @@ DRBasicBlock class >> id: anInteger [
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
 
-	self haltIf: [ anInstruction isInstruction not ].
 	^ instructions add: anInstruction
 ]
 
@@ -161,6 +161,10 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 	No need to merge anything"
 	self predecessors ifEmpty: [ ^ self ].
 	
+	"If I have a single predecessor, just copy the operand stack"
+	self predecessors size = 1 ifTrue: [
+		^ vmOperandStack := self predecessors first vmOperandStack ].
+	
 	predecessorStacks := self predecessors collect: [ :e | e vmOperandStack ].
 	self assert: (predecessorStacks collect: [ :e | e size ] as: Set) size = 1.
 	
@@ -176,7 +180,7 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 		newStack push: phi.
 		self addInstruction: phi.
 	].
-	^ vmOperandStack :=  newStack
+	^ vmOperandStack := newStack
 ]
 
 { #category : #accessing }
@@ -232,6 +236,28 @@ DRBasicBlock >> successors [
 	endInstruction = #deadCode
 		ifTrue: [ ^ #() ].
 	^ endInstruction targets
+]
+
+{ #category : #temporaries }
+DRBasicBlock >> temporaryAt: aString [ 
+	
+	^ temporaryFrame at: aString
+]
+
+{ #category : #temporaries }
+DRBasicBlock >> temporaryAt: aString put: aValue [ 
+	
+	temporaryFrame at: aString put: aValue
+]
+
+{ #category : #accessing }
+DRBasicBlock >> temporaryFrame [
+	^ temporaryFrame
+]
+
+{ #category : #accessing }
+DRBasicBlock >> temporaryFrame: aTemporaryFrame [ 
+	temporaryFrame := aTemporaryFrame
 ]
 
 { #category : #accessing }
