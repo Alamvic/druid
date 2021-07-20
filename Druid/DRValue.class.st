@@ -53,12 +53,16 @@ DRValue >> isVirtualRegister [
 ]
 
 { #category : #joining }
-DRValue >> joinNonNull: anotherValue onIRGenerator: anIRGenerator from: originBlocks [
+DRValue >> joinNonNull: anotherValue onIRGenerator: aBuilder from: originBlocks [
 
-	^ (DRPhiFunction joinedVariables: { anotherValue. self })
-		result: anIRGenerator allocateTemporaryRegister;
+	| copies |
+	copies := { anotherValue. self } with: originBlocks collect: [ :v :b |
+		b addInstruction: (aBuilder instantiate: DRCopy operands: { v }).
+	].
+	^ (DRPhiFunction joinedVariables: copies)
+		result: aBuilder allocateTemporaryRegister;
 		originBlocks: originBlocks;
-		addToBlock: anIRGenerator currentBasicBlock;
+		addToBlock: aBuilder currentBasicBlock;
 		origin: thisContext stack;
 		yourself
 ]
@@ -79,12 +83,6 @@ DRValue >> lookupClass [
 { #category : #accessing }
 DRValue >> result [
 
-	^ self
-]
-
-{ #category : #accessing }
-DRValue >> simplify [
-	
 	^ self
 ]
 

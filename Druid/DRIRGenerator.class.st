@@ -101,7 +101,10 @@ DRIRGenerator >> initialize [
 	currentOperandStack := Stack new.
 	nextRegister := 0.
 	nextBlockID := 1.
-	interpretationStack := OrderedCollection new
+	
+	"Push a top frame"
+	interpretationStack := OrderedCollection new.
+	interpretationStack addLast: DruidTopFrame new
 ]
 
 { #category : #'special-cases' }
@@ -162,7 +165,7 @@ DRIRGenerator >> instantiate: anInstructionClass [
 DRIRGenerator >> instantiate: anInstructionClass operands: aCollection [ 
 	
 	| instruction |
-	self haltIf: [ anInstructionClass = DRCopy and: [ aCollection first isKindOf: DRNullValue ] ].
+	self haltIf: [ anInstructionClass = DRCopy and: [ (aCollection first isKindOf: DRValue) not ] ].
 	instruction := anInstructionClass operands: aCollection result: self allocateTemporaryRegister.
 	instruction origin: thisContext sender stack.
 	^ instruction
@@ -511,13 +514,7 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: argu
 	If the method had an explicit return, it is already done, no need to do it again."
 	currentBasicBlock hasFinalInstruction
 		ifFalse: [ currentBasicBlock jumpTo: self currentFrame exitBasicBlock ].
-	returnValue := self popFrame.
-	
-	self flag: #todo.
-	(returnValue isKindOf: DRNullValue) ifFalse: [
-		self currentBasicBlock addInstruction: returnValue.
-	].
-	^ returnValue
+	self popFrame.
 ]
 
 { #category : #'special-cases' }
@@ -626,28 +623,6 @@ DRIRGenerator >> ir [
 	^ self subclassResponsibility
 ]
 
-{ #category : #merging }
-DRIRGenerator >> mergeOperandStacks: aCollectionOfStacks fromBlocks: aListOfBlocks [
-	
-	"We can only merge two operand stacks with the same number of elements"
-	| stackSize newStack |
-	self assert: (aCollectionOfStacks collect: [ :e | e size ] as: Set) size = 1.
-	
-	stackSize := aCollectionOfStacks first size.
-	newStack := Stack new.
-	1 to: stackSize do: [ :e | | values |
-		values := aCollectionOfStacks collect: [ :stack | stack at: e ].
-		values with: aListOfBlocks do: [ :v :b |
-			b addInstruction: (self instantiate: DRCopy operands: { v }) ].
-		newStack push: ((DRPhiFunction joinedVariables: values)
-			result: self allocateTemporaryRegister;
-			originBlocks: aListOfBlocks;
-			origin: thisContext stack;
-			yourself)
-	].
-	^ newStack
-]
-
 { #category : #'basic-blocks' }
 DRIRGenerator >> newBasicBlock [
 
@@ -696,16 +671,12 @@ DRIRGenerator >> pop: anInteger [
 { #category : #'frame-access' }
 DRIRGenerator >> popFrame [
 	
-	| simplifiedReturnValue poppedFrame |
+	| poppedFrame |
 	currentBasicBlock := self currentFrame exitBasicBlock.
 	currentBasicBlock mergeOperandStacksIn: self.
-	
 	poppedFrame := interpretationStack removeLast.
-	simplifiedReturnValue := poppedFrame returnValue isEmpty
-		ifTrue: [ DRNullValue new ]
-		ifFalse: [ "self instantiate: DRCopy operands: {"poppedFrame returnValue simplify"}" ].
-	simplifiedReturnValue addToBlock: currentBasicBlock.
-	^ simplifiedReturnValue
+	
+	self pushOperand: (currentBasicBlock addInstruction: poppedFrame returnValue)
 ]
 
 { #category : #'frame-access' }
@@ -879,8 +850,7 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 	arguments := aRBMessageNode arguments collect: [ :e | e acceptVisitor: self ].
 	aRBMessageNode isSuperSend ifTrue: [ self halt ].
 	method := receiver lookupClass lookupSelector: aRBMessageNode selector.
-	result := self interpretMethod: method ast receiver: receiver arguments: arguments.
-	self pushOperand: result
+	self interpretMethod: method ast receiver: receiver arguments: arguments
 ]
 
 { #category : #visiting }

@@ -147,12 +147,6 @@ DRInstruction >> result: anObject [
 ]
 
 { #category : #accessing }
-DRInstruction >> simplify [
-	
-	^ self
-]
-
-{ #category : #accessing }
 DRInstruction >> singleChild [
 
 	^ self

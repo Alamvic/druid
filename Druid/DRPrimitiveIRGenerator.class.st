@@ -73,10 +73,9 @@ DRPrimitiveIRGenerator >> popFrame [
 	"If the interpretation stack is empty, we are returning from the primitive
 	- generate a return instruction popping receiver and arguments all at once
 	- amount to pop is expressed in bytes, so multiply by word size"
-	| result |
 	firstBasicBlock := self currentFrame entryBasicBlock.
-	result := super popFrame.
-	interpretationStack size = 0 ifTrue: [
+	super popFrame.
+	interpretationStack size = 1 ifTrue: [
 		self spillStack.
 		self currentBasicBlock hasFinalInstruction ifFalse: [
 			self currentBasicBlock endInstruction: (self
@@ -85,9 +84,7 @@ DRPrimitiveIRGenerator >> popFrame [
 		].
 		"Make the end instruction of the failure exit finish with a Noop"
 		primitiveExitBlock endInstruction: (self instantiate: DRNoop)
-	].
-		
-	^ result
+	]
 ]
 
 { #category : #accessing }
