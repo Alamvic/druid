@@ -123,16 +123,17 @@ DRCompilerCompiler >> optimize: anIR [
 ]
 
 { #category : #'ir-to-ast' }
-DRCompilerCompiler >> preProcessBlock: aDRBasicBlock [ 
+DRCompilerCompiler >> preProcessBlock: aDRBasicBlock [
 	
 	| branches |
+	branches := deferredBranches at: aDRBasicBlock ifAbsent: [ ^ self ].
+	
 	generatorMethodBuilder addStatement: (RBAssignmentNode
 		variable: (RBVariableNode named: 'currentBlock')
 		value: (RBMessageNode
 			receiver: RBVariableNode selfNode
 			selector: #Label)).
-	
-	branches := deferredBranches at: aDRBasicBlock ifAbsent: [ ^ self ].
+
 	branches do: [ :e |
 		generatorMethodBuilder addStatement: (RBMessageNode
 			receiver: (RBVariableNode named: e)
