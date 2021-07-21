@@ -15,8 +15,7 @@ DRSCCPConstantPropagationTest >> testPropagateBetweenBasicBlocks [
 	
 	cfg := DRControlFlowGraph new.
 	cfg initialBasicBlock: bb.
-	cfg exitBasicBlock: bb2.
-	
+
 	"T1 := 1"
 	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
 	"T2 := T1"
@@ -30,7 +29,7 @@ DRSCCPConstantPropagationTest >> testPropagateBetweenBasicBlocks [
 { #category : #tests }
 DRSCCPConstantPropagationTest >> testPropagateDifferentValuesInPhi [
 
-	| optimisation bb cfg copy1 leftBlock rightBlock copy2 jump |
+	| optimisation bb cfg copy1 leftBlock rightBlock copy2 jump exitBasicBlock |
 	optimisation := DRSCCPConstantPropagation new.
 	bb := DRBasicBlock new.
 		
@@ -50,12 +49,12 @@ DRSCCPConstantPropagationTest >> testPropagateDifferentValuesInPhi [
 	jump trueBranch: leftBlock.
 	jump falseBranch: rightBlock.
 	
-	cfg exitBasicBlock: DRBasicBlock new.
-	leftBlock jumpTo: cfg exitBasicBlock.
-	rightBlock jumpTo: cfg exitBasicBlock.
+	exitBasicBlock := DRBasicBlock new.
+	leftBlock jumpTo: exitBasicBlock.
+	rightBlock jumpTo: exitBasicBlock.
 	
 	"T3 := ø(T1, T2)"
-	cfg exitBasicBlock addInstruction: ((DRPhiFunction joinedVariables: { copy1. copy2 })
+	exitBasicBlock addInstruction: ((DRPhiFunction joinedVariables: { copy1. copy2 })
 		result: (DRTemporaryRegister id: 3);
 		yourself).
 
@@ -77,7 +76,6 @@ DRSCCPConstantPropagationTest >> testPropagateInComplexInstructionLeft [
 		
 	cfg := DRControlFlowGraph new.
 	cfg initialBasicBlock: bb.
-	cfg exitBasicBlock: bb.
 	
 	"T1 := 1"
 	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 2 } result:  (DRTemporaryRegister id: 1)).
@@ -106,7 +104,6 @@ DRSCCPConstantPropagationTest >> testPropagateInComplexInstructionRight [
 		
 	cfg := DRControlFlowGraph new.
 	cfg initialBasicBlock: bb.
-	cfg exitBasicBlock: bb.
 	
 	"T1 := 1"
 	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
@@ -133,8 +130,7 @@ DRSCCPConstantPropagationTest >> testPropagateInSingleBasicBlock [
 		
 	cfg := DRControlFlowGraph new.
 	cfg initialBasicBlock: bb.
-	cfg exitBasicBlock: bb.
-	
+
 	"T1 := 1"
 	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
 	"T2 := T1"
@@ -170,7 +166,6 @@ DRSCCPConstantPropagationTest >> testPropagatePhiOnDifferentValues [
 	jump trueBranch: leftBlock.
 	jump falseBranch: rightBlock.
 	
-	cfg exitBasicBlock: bb3.
 	leftBlock jumpTo: bb2.
 	rightBlock jumpTo: bb2.
 	
@@ -195,7 +190,7 @@ DRSCCPConstantPropagationTest >> testPropagatePhiOnDifferentValues [
 { #category : #tests }
 DRSCCPConstantPropagationTest >> testPropagatePhiOnSameValue [
 
-	| optimisation bb cfg copy1 leftBlock rightBlock copy2 jump phi|
+	| optimisation bb cfg copy1 leftBlock rightBlock copy2 jump phi exitBasicBlock |
 	optimisation := DRSCCPConstantPropagation new.
 	bb := DRBasicBlock new.
 		
@@ -217,17 +212,17 @@ DRSCCPConstantPropagationTest >> testPropagatePhiOnSameValue [
 	rightBlock addPredecessor: cfg initialBasicBlock.
 	jump falseBranch: rightBlock.
 	
-	cfg exitBasicBlock: DRBasicBlock new.
-	leftBlock jumpTo: cfg exitBasicBlock.
-	rightBlock jumpTo: cfg exitBasicBlock.
+	exitBasicBlock := DRBasicBlock new.
+	leftBlock jumpTo: exitBasicBlock.
+	rightBlock jumpTo: exitBasicBlock.
 	
 	"T3 := ø(T1, T2)"
 	phi := ((DRPhiFunction joinedVariables: { copy1. copy2 })
 		result: (DRTemporaryRegister id: 3);
 		yourself).
-	cfg exitBasicBlock addInstruction: phi. 
+	exitBasicBlock addInstruction: phi. 
 	"T4 := T3"
-	cfg exitBasicBlock addInstruction: (DRCopy operands: {phi} result: (DRTemporaryRegister id: 4)). 
+	exitBasicBlock addInstruction: (DRCopy operands: {phi} result: (DRTemporaryRegister id: 4)). 
 
 
 	optimisation applyTo: cfg.
@@ -239,7 +234,7 @@ DRSCCPConstantPropagationTest >> testPropagatePhiOnSameValue [
 { #category : #tests }
 DRSCCPConstantPropagationTest >> testPropagateSameValuesInPhi [
 
-	| optimisation bb cfg copy1 leftBlock rightBlock copy2 jump |
+	| optimisation bb cfg copy1 leftBlock rightBlock copy2 jump exitBasicBlock |
 	optimisation := DRSCCPConstantPropagation new.
 	bb := DRBasicBlock new.
 		
@@ -261,12 +256,12 @@ DRSCCPConstantPropagationTest >> testPropagateSameValuesInPhi [
 	rightBlock addPredecessor: cfg initialBasicBlock.
 	jump falseBranch: rightBlock.
 	
-	cfg exitBasicBlock: DRBasicBlock new.
-	leftBlock jumpTo: cfg exitBasicBlock.
-	rightBlock jumpTo: cfg exitBasicBlock.
+	exitBasicBlock := DRBasicBlock new.
+	leftBlock jumpTo: exitBasicBlock.
+	rightBlock jumpTo: exitBasicBlock.
 	
 	"T3 := ø(T1, T2)"
-	cfg exitBasicBlock addInstruction: ((DRPhiFunction joinedVariables: { copy1. copy2 })
+	exitBasicBlock addInstruction: ((DRPhiFunction joinedVariables: { copy1. copy2 })
 		result: (DRTemporaryRegister id: 3);
 		yourself).
 

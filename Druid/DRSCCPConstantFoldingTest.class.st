@@ -13,7 +13,6 @@ DRSCCPConstantFoldingTest >> testConstantFoldingAddInSingleBasicBlock [
 		
 	cfg := DRControlFlowGraph new.
 	cfg initialBasicBlock: bb.
-	cfg exitBasicBlock: bb.	 
 
 	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 3 } result:  (DRTemporaryRegister id: 1)).
 	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 4 } result:  (DRTemporaryRegister id: 2)).
@@ -39,7 +38,6 @@ DRSCCPConstantFoldingTest >> testConstantFoldingBitAndInSingleBasicBlock [
 		
 	cfg := DRControlFlowGraph new.
 	cfg initialBasicBlock: bb.
-	cfg exitBasicBlock: bb.	 
 
 	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 2r0101010110 } result:  (DRTemporaryRegister id: 1)).
 	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 2r0101011111 } result:  (DRTemporaryRegister id: 2)).
@@ -64,7 +62,6 @@ DRSCCPConstantFoldingTest >> testConstantFoldingBitShiftInSingleBasicBlock [
 		
 	cfg := DRControlFlowGraph new.
 	cfg initialBasicBlock: bb.
-	cfg exitBasicBlock: bb.	 
 
 	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 2r1000 } result:  (DRTemporaryRegister id: 1)).
 	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 1} result:  (DRTemporaryRegister id: 2)).
@@ -89,7 +86,6 @@ DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyInSingleBasicBlock [
 		
 	cfg := DRControlFlowGraph new.
 	cfg initialBasicBlock: bb.
-	cfg exitBasicBlock: bb.	 
 
 	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 3 } result:  (DRTemporaryRegister id: 1)).
 	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 4 } result:  (DRTemporaryRegister id: 2)).
@@ -114,7 +110,6 @@ DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyInSingleBasicBlockWithZe
 		
 	cfg := DRControlFlowGraph new.
 	cfg initialBasicBlock: bb.
-	cfg exitBasicBlock: bb.	 
 
 	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 0 } result:  (DRTemporaryRegister id: 1)).
 	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 4} result:  (DRTemporaryRegister id: 2)).
@@ -139,7 +134,6 @@ DRSCCPConstantFoldingTest >> testConstantFoldingSubstractInSingleBasicBlock [
 		
 	cfg := DRControlFlowGraph new.
 	cfg initialBasicBlock: bb.
-	cfg exitBasicBlock: bb.	 
 
 	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 3 } result:  (DRTemporaryRegister id: 1)).
 	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 4 } result:  (DRTemporaryRegister id: 2)).
