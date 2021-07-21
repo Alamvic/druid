@@ -28,6 +28,12 @@ DRValue >> isConstant [
 	^ false
 ]
 
+{ #category : #testing }
+DRValue >> isInstruction [
+
+	^ false
+]
+
 { #category : #accessing }
 DRValue >> isJump [ 
 
@@ -65,12 +71,12 @@ DRValue >> isVirtualRegister [
 ]
 
 { #category : #joining }
-DRValue >> joinNonNull: anotherValue onIRGenerator: anIRGenerator from: originBlocks [
+DRValue >> joinNonNull: anotherValue onIRGenerator: aBuilder from: originBlocks [
 
 	^ (DRPhiFunction joinedVariables: { anotherValue. self })
-		result: anIRGenerator allocateTemporaryRegister;
+		result: aBuilder allocateTemporaryRegister;
 		originBlocks: originBlocks;
-		addToBlock: anIRGenerator currentBasicBlock;
+		addToBlock: aBuilder currentBasicBlock;
 		origin: thisContext stack;
 		yourself
 ]
@@ -91,6 +97,12 @@ DRValue >> lookupClass [
 { #category : #accessing }
 DRValue >> result [
 
+	^ self
+]
+
+{ #category : #accessing }
+DRValue >> singleChild [
+	
 	^ self
 ]
 

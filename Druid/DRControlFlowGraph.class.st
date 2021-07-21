@@ -2,8 +2,7 @@ Class {
 	#name : #DRControlFlowGraph,
 	#superclass : #Object,
 	#instVars : [
-		'initialBasicBlock',
-		'exitBasicBlock'
+		'initialBasicBlock'
 	],
 	#category : #'Druid-IR'
 }
@@ -50,11 +49,6 @@ DRControlFlowGraph >> blocksDo: aFullBlockClosure [
 DRControlFlowGraph >> exitBasicBlock [
 	
 	^ exitBasicBlock
-]
-
-{ #category : #accessing }
-DRControlFlowGraph >> exitBasicBlock: aDRBasicBlock [ 
-	exitBasicBlock := aDRBasicBlock
 ]
 
 { #category : #accessing }

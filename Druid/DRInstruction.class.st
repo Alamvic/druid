@@ -30,6 +30,13 @@ DRInstruction >> = anObject [
 	^ false. 
 ]
 
+{ #category : #copying }
+DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode [ 
+	
+	"I'm an already an instruction with a value. No need to do anything"
+	^ self
+]
+
 { #category : #testing }
 DRInstruction >> initialize [
 
@@ -40,6 +47,12 @@ DRInstruction >> initialize [
 { #category : #testing }
 DRInstruction >> isCopy [
 	^ false
+]
+
+{ #category : #accessing }
+DRInstruction >> isInstruction [
+
+	^ true
 ]
 
 { #category : #testing }
@@ -121,6 +134,15 @@ DRInstruction >> prettyPrint [
 	^ print, self opcode ,' ', (' ' join: (operands collect: [ :e | e result name ]))
 ]
 
+{ #category : #printing }
+DRInstruction >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream nextPut: $(.
+	aStream nextPutAll: self prettyPrint.
+	aStream nextPut: $)
+]
+
 { #category : #accessing }
 DRInstruction >> result [
 
@@ -131,12 +153,6 @@ DRInstruction >> result [
 DRInstruction >> result: anObject [
 
 	result := anObject
-]
-
-{ #category : #accessing }
-DRInstruction >> simplify [
-	
-	^ self
 ]
 
 { #category : #accessing }

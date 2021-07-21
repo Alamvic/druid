@@ -16,6 +16,14 @@ DRNullValue >> addToBlock: aDRBasicBlock [
 	"Nothing"
 ]
 
+{ #category : #copying }
+DRNullValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
+	
+	"I'm not a value, so I cannot be copied.
+	I propagate myself as a null  value"
+	^ self
+]
+
 { #category : #'control-flow' }
 DRNullValue >> joinNonNull: anotherValue onIRGenerator: anIRGenerator from: originBlocks [
 

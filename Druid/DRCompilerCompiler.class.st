@@ -63,11 +63,11 @@ DRCompilerCompiler >> deferBranch: aString to: aDRBasicBlock [
 DRCompilerCompiler >> generateDruidIR [
 	
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	
 	| method irGenerator |
 	method := interpreter class lookupSelector: sourceName.
 	irGenerator := self newIRGenerator.
 	irGenerator
+		newBasicBlock;
 		numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value;
 		interpretMethod: method ast
 		receiver: (DRInterpreterValue value: interpreter).
@@ -86,7 +86,6 @@ DRCompilerCompiler >> initialize [
 	
 	optimisations := OrderedCollection new.
 	optimisations add: DRConstantPropagation new.
-	optimisations add: DRConstantPropagation. 
 ]
 
 { #category : #accessing }
@@ -124,16 +123,17 @@ DRCompilerCompiler >> optimize: anIR [
 ]
 
 { #category : #'ir-to-ast' }
-DRCompilerCompiler >> preProcessBlock: aDRBasicBlock [ 
+DRCompilerCompiler >> preProcessBlock: aDRBasicBlock [
 	
 	| branches |
+	branches := deferredBranches at: aDRBasicBlock ifAbsent: [ ^ self ].
+	
 	generatorMethodBuilder addStatement: (RBAssignmentNode
 		variable: (RBVariableNode named: 'currentBlock')
 		value: (RBMessageNode
 			receiver: RBVariableNode selfNode
 			selector: #Label)).
-	
-	branches := deferredBranches at: aDRBasicBlock ifAbsent: [ ^ self ].
+
 	branches do: [ :e |
 		generatorMethodBuilder addStatement: (RBMessageNode
 			receiver: (RBVariableNode named: e)
@@ -209,6 +209,12 @@ DRCompilerCompiler >> visitConstantCondition: aDRConstantCondition [
 DRCompilerCompiler >> visitCopy: aDRMove [
 
 	^ self twoOperandCogitRTL: #Move instruction: aDRMove
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitNoop: aDRNoop [ 
+	
+	"Do nothing"
 ]
 
 { #category : #visiting }

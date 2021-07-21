@@ -1,5 +1,5 @@
 Class {
 	#name : #DRAnd,
 	#superclass : #DRInstruction,
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-IR'
 }

@@ -7,7 +7,9 @@ Class {
 		'blockValue',
 		'endInstruction',
 		'predecessors',
-		'origin'
+		'origin',
+		'temporaryFrame',
+		'vmOperandStack'
 	],
 	#category : #'Druid-IR'
 }
@@ -60,6 +62,12 @@ DRBasicBlock >> firstInstruction [
 DRBasicBlock >> hasFinalInstruction [
 	
 	^ endInstruction notNil
+]
+
+{ #category : #testing }
+DRBasicBlock >> hasPredecessors [
+	
+	^ predecessors notEmpty
 ]
 
 { #category : #accessing }
@@ -143,6 +151,38 @@ DRBasicBlock >> markAsDeadCode [
 	endInstruction := #deadCode
 ]
 
+{ #category : #'operand stack' }
+DRBasicBlock >> mergeOperandStacksIn: aBuilder [
+
+	"We can only merge two operand stacks with the same number of elements"
+	| stackSize newStack predecessorStacks phi |
+	
+	"If I have no predecessors, I'm very probably dead code.
+	No need to merge anything"
+	self predecessors ifEmpty: [ ^ self ].
+	
+	"If I have a single predecessor, just copy the operand stack"
+	self predecessors size = 1 ifTrue: [
+		^ vmOperandStack := self predecessors first vmOperandStack ].
+	
+	predecessorStacks := self predecessors collect: [ :e | e vmOperandStack ].
+	self assert: (predecessorStacks collect: [ :e | e size ] as: Set) size = 1.
+	
+	stackSize := predecessorStacks first size.
+	newStack := Stack new.
+	1 to: stackSize do: [ :e | | values |
+		values := predecessorStacks collect: [ :stack | stack at: e ].
+		phi := (DRPhiFunction joinedVariables: values)
+			result: aBuilder allocateTemporaryRegister;
+			originBlocks: self predecessors;
+			origin: thisContext stack;
+			yourself.
+		newStack push: phi.
+		self addInstruction: phi.
+	].
+	^ vmOperandStack := newStack
+]
+
 { #category : #accessing }
 DRBasicBlock >> numberOfPredecessors [
 	
@@ -193,5 +233,41 @@ DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [
 DRBasicBlock >> successors [
 	
 	endInstruction ifNil: [ ^ #() ].
+	endInstruction = #deadCode
+		ifTrue: [ ^ #() ].
 	^ endInstruction targets
+]
+
+{ #category : #temporaries }
+DRBasicBlock >> temporaryAt: aString [ 
+	
+	^ temporaryFrame at: aString
+]
+
+{ #category : #temporaries }
+DRBasicBlock >> temporaryAt: aString put: aValue [ 
+	
+	temporaryFrame at: aString put: aValue
+]
+
+{ #category : #accessing }
+DRBasicBlock >> temporaryFrame [
+	^ temporaryFrame
+]
+
+{ #category : #accessing }
+DRBasicBlock >> temporaryFrame: aTemporaryFrame [ 
+	temporaryFrame := aTemporaryFrame
+]
+
+{ #category : #accessing }
+DRBasicBlock >> vmOperandStack [
+
+	^ vmOperandStack
+]
+
+{ #category : #accessing }
+DRBasicBlock >> vmOperandStack: anObject [
+
+	vmOperandStack := anObject
 ]

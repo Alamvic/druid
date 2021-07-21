@@ -74,12 +74,12 @@ DRConstantPropagation >> interpretOverLatticeValue: operation [
 DRConstantPropagation >> interpretePhiFunction: operation [
 
 	| operandsList |
-	operation operand1 operand1 value = operation operand2 operand1 value 
+	(operation operands size = 1 or: [operation operand1 operand1 value = operation operand2 operand1 value ])
 		ifTrue: [ 
 			operandsList := OrderedCollection new.
 			operandsList add: operation operand1 operand1.
 			operation operands: operandsList.
-			latticeValues at: operation put: operation operand1. ] 
+			latticeValues at: operation put: operation operand1. ]
 ]
 
 { #category : #operations }

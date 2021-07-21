@@ -1,6 +1,6 @@
 Class {
 	#name : #DRLinearizationTest,
-	#superclass : #DRPrimitiveCompilationTest,
+	#superclass : #DRDruidTests,
 	#category : #'Druid-Tests'
 }
 
@@ -23,8 +23,7 @@ DRLinearizationTest >> testBranchingControlFlow [
 	b4 endInstruction: DRReturn new.
 	
 	cfg := DRControlFlowGraph new
-		initialBasicBlock: b1;
-		exitBasicBlock: b4.
+		initialBasicBlock: b1.
 		
 	self assert: cfg blocks asArray equals: { b1 . b2 . b3 . b4 }
 ]
@@ -48,8 +47,7 @@ DRLinearizationTest >> testBranchingControlFlowHasCorrectStructure [
 	b4 endInstruction: DRReturn new.
 	
 	cfg := DRControlFlowGraph new
-		initialBasicBlock: b1;
-		exitBasicBlock: b4.
+		initialBasicBlock: b1.
 	
 	"Smoke test. Should fail with an exception if the basic block structure is wrong (successors do not match predecessors)"
 	cfg validate
@@ -74,8 +72,7 @@ DRLinearizationTest >> testBranchingControlFlowWithUnevenBranches [
 	b4 endInstruction: DRReturn new.
 	
 	cfg := DRControlFlowGraph new
-		initialBasicBlock: b1;
-		exitBasicBlock: b4.
+		initialBasicBlock: b1.
 		
 	self assert: cfg blocks asArray equals: { b1 . b2 . b3 . b4 }
 ]
@@ -99,8 +96,7 @@ DRLinearizationTest >> testBranchingControlFlowWithUnevenBranchesHasCorrectStruc
 	b4 endInstruction: DRReturn new.
 	
 	cfg := DRControlFlowGraph new
-		initialBasicBlock: b1;
-		exitBasicBlock: b4.
+		initialBasicBlock: b1.
 	
 	"Smoke test. Should fail with an exception if the basic block structure is wrong (successors do not match predecessors)"
 	cfg validate
@@ -114,6 +110,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocks [
 
 	irGenerator :=  DRPrimitiveIRGenerator new.
 	irGenerator
+		newBasicBlock;
 		numberOfArguments: 0;
 		interpretMethod: method ast
 		receiver: (DRInterpreterValue value: interpreter).
@@ -130,12 +127,13 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWhenEarlyMethodReturns [
 
 	irGenerator :=  DRPrimitiveIRGenerator new.
 	irGenerator
+		newBasicBlock;
 		numberOfArguments: 0;
 		interpretMethod: method ast
 		receiver: (DRInterpreterValue value: interpreter).
 	cfg := irGenerator ir.
 	
-	self assert: cfg blocks size equals: 5
+	self assert: cfg blocks size equals: 6
 ]
 
 { #category : #'tests-building' }
@@ -146,12 +144,13 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWithTwoNonLocalReturns [
 
 	irGenerator :=  DRPrimitiveIRGenerator new.
 	irGenerator
+		newBasicBlock;
 		numberOfArguments: 0;
 		interpretMethod: method ast
 		receiver: (DRInterpreterValue value: interpreter).
 	cfg := irGenerator ir.
 	
-	self assert: cfg blocks size equals: 5
+	self assert: cfg blocks size equals: 6
 ]
 
 { #category : #'tests-building' }
@@ -162,6 +161,7 @@ DRLinearizationTest >> testBuildCFGHasCorrectStructure [
 
 	irGenerator :=  DRPrimitiveIRGenerator new.
 	irGenerator
+		newBasicBlock;
 		numberOfArguments: 0;
 		interpretMethod: method ast
 		receiver: (DRInterpreterValue value: interpreter).
@@ -180,6 +180,7 @@ DRLinearizationTest >> testBuildCFGHasCorrectStructureWhenEarlyMethodReturns [
 
 	irGenerator :=  DRPrimitiveIRGenerator new.
 	irGenerator
+		newBasicBlock;
 		numberOfArguments: 0;
 		interpretMethod: method ast
 		receiver: (DRInterpreterValue value: interpreter).
@@ -204,8 +205,7 @@ DRLinearizationTest >> testLinearControlFlow [
 	b3 endInstruction: DRReturn new.
 	
 	cfg := DRControlFlowGraph new
-		initialBasicBlock: b1;
-		exitBasicBlock: b3.
+		initialBasicBlock: b1.
 		
 	self assert: cfg blocks asArray equals: { b1 . b2 . b3 }
 ]

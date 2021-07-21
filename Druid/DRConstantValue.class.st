@@ -23,6 +23,15 @@ DRConstantValue >> = anObject [
 	^ false. 
 ]
 
+{ #category : #copying }
+DRConstantValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
+	
+	^ aDRIRGenerator
+		addInstructionFrom: aNode
+		instructionKind: DRCopy
+		operands: { self }.
+]
+
 { #category : #accessing }
 DRConstantValue >> includes: anInstruction [ 
 	

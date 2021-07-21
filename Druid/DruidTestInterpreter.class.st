@@ -25,6 +25,12 @@ DruidTestInterpreter >> emptyPrimitiveWithArguments [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> failingPrimitive [
+	<numberOfArguments: 0>
+	self success: false
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithEarlyReturn [
 
 	self stackTop = 0 ifTrue: [ ^ 42 ].
@@ -117,6 +123,17 @@ DruidTestInterpreter >> primitiveReturnTrue [
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: objectMemory trueObject
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithDeadCode [
+
+	<numberOfArguments: 0>
+
+	self stackTop = 0
+		ifTrue: [ ^ self pop: 1 thenPush: 42 ]
+		ifFalse: [ ^ self pop: 1 thenPush: 55 ].
+	^ self pop: 1 thenPush: 10
 ]
 
 { #category : #'as yet unclassified' }

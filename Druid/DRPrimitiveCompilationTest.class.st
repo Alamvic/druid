@@ -1,6 +1,9 @@
 Class {
 	#name : #DRPrimitiveCompilationTest,
-	#superclass : #VMJittedGeneralPrimitiveTest,
+	#superclass : #DRDruidTests,
+	#instVars : [
+		'stopAddress'
+	],
 	#category : #'Druid-Tests'
 }
 
@@ -18,7 +21,7 @@ DRPrimitiveCompilationTest class >> testParameters [
 { #category : #'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 	
-	| generatorSelector |
+	| generatorSelector stopInstruction |
 	generatorSelector := (#gen, '_' , aSelector) asSymbol.
 	"First generate druid code"
 	DRPrimitiveCompilerCompiler
@@ -30,42 +33,27 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 	"Then generate the machine code for that method"
 	initialAddress := self compile: [
 		cogit perform: generatorSelector.
+		stopInstruction := cogit Stop
 	].
+	stopAddress := stopInstruction address
+]
+
+{ #category : #helpers }
+DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop [
 	
+	^ self executeUntilStopPrimitiveWithReceiver: receiverOop withArguments: { }
 ]
 
 { #category : #'helpers-compiling' }
-DRPrimitiveCompilationTest >> interpreterClass [ 
-
-	^ DruidTestInterpreter
-]
-
-{ #category : #'helpers-compiling' }
-DRPrimitiveCompilationTest >> jitCompilerClass [
-
-	^ DruidTestRTLCompiler
-]
-
-{ #category : #'helpers-compiling' }
-DRPrimitiveCompilationTest >> jitOptions [
-
-	^ super jitOptions
-		  at: #bytecodeTableInitializer put: #initializeBytecodeTableForSistaV1;
-		  yourself
-]
-
-{ #category : #running }
-DRPrimitiveCompilationTest >> setUp [
-
-	super setUp.
-
-	cogit objectRepresentation: cogit.
-	cogit methodZone
-		setInterpreter: interpreter
-		objectRepresentation: cogit
-		cogit: cogit.
-		
-	initialAddress := #invalid "will be set by test"
+DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop withArguments: aCollection [
+	
+	"Simulate a primitive execution having an object as receiver and a single argument
+	  - the receiver goes to the receiver register
+	  - the argument should be pushed to the stack
+	If we are in a system without a link register, we need to push the caller IP to the stack to simulate a call"
+	
+	self prepareStackForSendReceiver: receiverOop arguments: aCollection.
+	self runFrom: initialAddress until: stopAddress.
 ]
 
 { #category : #'tests-comparisons' }
@@ -153,7 +141,7 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithArgumentsReturnsRecei
 ]
 
 { #category : #'tests-basic' }
-DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsReceiver [
+DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsTopOfTheStack [
 
 	| receiver |
 	self compileDruidPrimitive: #emptyPrimitiveWithArguments.
@@ -162,7 +150,7 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsRe
 	self executePrimitiveWithReceiver: receiver withArgument: memory trueObject.
 	
 	"An empty primitive does nothing and just returns, the return value is the receiver"
-	self assert: machineSimulator receiverRegisterValue equals: receiver.
+	self assert: machineSimulator receiverRegisterValue equals: receiver
 ]
 
 { #category : #'tests-methodactivations' }
@@ -252,6 +240,32 @@ DRPrimitiveCompilationTest >> testCompiledPrimitivePreservesStack [
 	
 	"An empty primitive does nothing and just returns, the return value is the receiver"
 	self assert: self popAddress equals: 55
+]
+
+{ #category : #'tests-failing-primitive' }
+DRPrimitiveCompilationTest >> testFailingPrimitiveExecutesUntilStop [
+
+	self compileDruidPrimitive: #failingPrimitive.
+	
+	self executeUntilStopPrimitiveWithReceiver: 1
+]
+
+{ #category : #'tests-deadcode' }
+DRPrimitiveCompilationTest >> testPrimitiveWithDeadCodeGoesThroughFirstCase [
+
+	self compileDruidPrimitive: #primitiveWithDeadCode.
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #'tests-deadcode' }
+DRPrimitiveCompilationTest >> testPrimitiveWithDeadCodeGoesThroughSecondCase [
+
+	self compileDruidPrimitive: #primitiveWithDeadCode.
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 55
 ]
 
 { #category : #'tests-comparisons' }
