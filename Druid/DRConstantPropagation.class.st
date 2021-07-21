@@ -30,7 +30,7 @@ DRConstantPropagation >> applyTo: cfg [
 		operationList do: [ :op | ((self value: op) ~= 'Bot') ifTrue: [ 
 			t := self value: op. 
 			"self interpretOverLatticeValue: op withInstruction: currentOperationProcessed. "
-			self interpretOverLatticeValue2: op. 
+			self interpretOverLatticeValue: op. 
 			((self value: op) ~= t) ifTrue: [ 
 				workList add: op.]]]]
 ]
@@ -61,7 +61,7 @@ DRConstantPropagation >> initializeLatticeValues: aBlock [
 ]
 
 { #category : #operations }
-DRConstantPropagation >> interpretOverLatticeValue2: operation [ 
+DRConstantPropagation >> interpretOverLatticeValue: operation [ 
 
 	operation isPhiFunction ifTrue: [ self interpretePhiFunction: operation. ^ self. ]. 
 	operation operands: (operation operands collect: [ :op | self interpreteValue: op ]). 

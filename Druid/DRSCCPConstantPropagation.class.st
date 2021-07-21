@@ -33,7 +33,7 @@ DRSCCPConstantPropagation >> applyTo: cfg [
 		operationList do: [ :op | ((self value: op) ~= 'Bot') ifTrue: [ 
 			t := self value: op. 
 			"self interpretOverLatticeValue: op withInstruction: currentOperationProcessed. "
-			self interpretOverLatticeValue2: op. 
+			self interpretOverLatticeValue: op. 
 			((self value: op) ~= t) ifTrue: [ 
 				cfg blocksDo: [ :b | b instructionsDo: [ :i | i isJump ifFalse: [ b replaceInstruction: i by: (i tryConstantFolding)]]].
 				workList add: op.]]]]
@@ -67,7 +67,7 @@ DRSCCPConstantPropagation >> initializeLatticeValues: aBlock [
 ]
 
 { #category : #operations }
-DRSCCPConstantPropagation >> interpretOverLatticeValue2: operation [ 
+DRSCCPConstantPropagation >> interpretOverLatticeValue: operation [ 
 
 	operation isPhiFunction ifTrue: [ self interpretePhiFunction: operation. ^ self. ]. 
 	operation operands: (operation operands collect: [ :op | self interpreteValue: op ]). 
