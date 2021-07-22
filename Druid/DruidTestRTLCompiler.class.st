@@ -286,8 +286,8 @@ DruidTestRTLCompiler >> gen_primitiveIsIntegerObject [
 	self MoveR: Extra1Reg R: TempReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveR: Extra0Reg R: SendNumArgsReg.
-	self MoveR: SendNumArgsReg R: ReceiverResultReg.
+	self MoveR: Extra0Reg R: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
@@ -554,7 +554,7 @@ DruidTestRTLCompiler >> gen_primitiveWithIfAssigningValue [
 	self MoveCq: 42 R: Extra1Reg.
 	self MoveR: Extra1Reg R: ClassReg.
 	self MoveR: ReceiverResultReg R: SendNumArgsReg.
-	self MoveR: Extra0Reg R: TempReg.
+	self MoveR: Extra0Reg R: Extra1Reg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
@@ -562,11 +562,11 @@ DruidTestRTLCompiler >> gen_primitiveWithIfAssigningValue [
 	self MoveCq: 57 R: TempReg.
 	self MoveR: TempReg R: ClassReg.
 	self MoveR: ReceiverResultReg R: SendNumArgsReg.
-	self MoveR: Extra2Reg R: TempReg.
+	self MoveR: Extra2Reg R: Extra1Reg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveCq: 1 R: Extra1Reg.
-	self MoveR: TempReg R: ReceiverResultReg.
+	self MoveCq: 1 R: TempReg.
+	self MoveR: Extra1Reg R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]

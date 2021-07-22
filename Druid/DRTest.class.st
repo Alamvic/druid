@@ -24,3 +24,9 @@ DRTest >> opcode [
 	
 	^ 'Test'
 ]
+
+{ #category : #converting }
+DRTest >> reversed [
+	
+	^ DRTest operands: operands reversed result: result
+]
