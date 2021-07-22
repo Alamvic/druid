@@ -8,8 +8,8 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #reversing }
+{ #category : #converting }
 DRCondition >> reversed [
 	
-	^ DRLessOrEqualsThanComparison operands: operands reversed result: result
+	self subclassResponsibility
 ]

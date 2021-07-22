@@ -259,7 +259,7 @@ DRBasicBlock >> removeInstruction: aDRInstruction [
 { #category : #replacing }
 DRBasicBlock >> replace: anInstruction by: aReplacementInstruction [
 	
-	instructions replaceAll: { anInstruction }  with: { aReplacementInstruction }
+	instructions replaceAll: anInstruction with: aReplacementInstruction
 ]
 
 { #category : #accessing }

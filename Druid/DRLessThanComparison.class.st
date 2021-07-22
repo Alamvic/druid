@@ -11,16 +11,21 @@ DRLessThanComparison >> acceptVisitor: aVisitor [
 ]
 
 { #category : #visiting }
-DRLessThanComparison >> cogitFalseConditionCode [
+DRLessThanComparison >> cogitTrueConditionCode [
 	
 	"Return the condition code used to jump if this condition is false.
 	Since we are checking lessOrEquals, the we should return greaterThan"
-	
-	^ #JumpGreaterOrEqual:
+	^ #JumpLess:
 ]
 
 { #category : #printing }
 DRLessThanComparison >> opcode [
 	
 	^ 'LessThan'
+]
+
+{ #category : #printing }
+DRLessThanComparison >> reversed [
+	
+	^ DRGreaterOrEqualsThanComparison operands: operands reversed result: result
 ]

@@ -7,7 +7,8 @@ Class {
 		'order',
 		'origin',
 		'originAST',
-		'basicBlock'
+		'basicBlock',
+		'users'
 	],
 	#category : #'Druid-IR'
 }
@@ -29,6 +30,12 @@ DRInstruction >> = anObject [
 			self operands =  anObject operands ifTrue: [
 				^ true. ]]].
 	^ false. 
+]
+
+{ #category : #'users-definitions' }
+DRInstruction >> addUser: anInstruction [
+	
+	users add: anInstruction
 ]
 
 { #category : #accessing }
@@ -54,7 +61,8 @@ DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode
 DRInstruction >> initialize [
 
 	super initialize.
-	operands := #()
+	operands := #().
+	users := OrderedCollection new.
 ]
 
 { #category : #testing }
@@ -105,7 +113,10 @@ DRInstruction >> operands [
 
 { #category : #accessing }
 DRInstruction >> operands: aCollection [ 
-	operands := aCollection
+
+	operands do: [ :each | each removeUser: self ].
+	operands := aCollection.
+	operands do: [ :each | each addUser: self ]
 ]
 
 { #category : #accessing }
@@ -156,10 +167,26 @@ DRInstruction >> printOn: aStream [
 	aStream nextPut: $)
 ]
 
+{ #category : #'users-definitions' }
+DRInstruction >> removeUser: anInstruction [
+	
+	users remove: anInstruction
+]
+
 { #category : #replacing }
 DRInstruction >> replaceBy: anotherInstruction [
 	
+	users do: [ :instruction |
+		instruction replaceOperand: self by: anotherInstruction ].
 	basicBlock replace: self by: anotherInstruction
+]
+
+{ #category : #'users-definitions' }
+DRInstruction >> replaceOperand: anOperand by: anotherOperand [
+
+	anOperand removeUser: self.
+	operands replaceAll: anOperand with: anotherOperand.
+	anotherOperand addUser: self.
 ]
 
 { #category : #accessing }

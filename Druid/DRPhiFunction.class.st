@@ -25,6 +25,7 @@ DRPhiFunction >> acceptVisitor: aVisitor [
 DRPhiFunction >> addValue: aValue from: aDRBasicBlock [ 
 	
 	operands add: aValue.
+	aValue addUser: self.
 	originBlocks add: aDRBasicBlock
 ]
 
@@ -50,13 +51,14 @@ DRPhiFunction >> isPhiFunction [
 
 { #category : #accessing }
 DRPhiFunction >> joinedVariables [
-	^ operands
+	
+	^ self operands
 ]
 
 { #category : #accessing }
 DRPhiFunction >> joinedVariables: aCollection [
 	
-	operands := aCollection
+	self operands: aCollection
 ]
 
 { #category : #accessing }

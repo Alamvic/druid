@@ -229,7 +229,7 @@ DRCompilerCompiler >> visitComparison: aComparison [
 DRCompilerCompiler >> visitConditionalJump: aDRConditionalJump [ 
 
 	"Fall-through true branch, jump to false branch"
-	self jumpForwardCogRTL: aDRConditionalJump condition singleChild cogitFalseConditionCode instruction: aDRConditionalJump
+	self jumpForwardCogRTL: aDRConditionalJump condition singleChild cogitTrueConditionCode instruction: aDRConditionalJump
 ]
 
 { #category : #visiting }
@@ -261,7 +261,7 @@ DRCompilerCompiler >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThan
 
 { #category : #visiting }
 DRCompilerCompiler >> visitGreaterThanComparison: aDRGreaterThanComparison [ 
-	
+
 	self visitComparison: aDRGreaterThanComparison
 ]
 
@@ -319,6 +319,12 @@ DRCompilerCompiler >> visitNegate: aDRCogitNegate [
 DRCompilerCompiler >> visitNoop: aDRNoop [ 
 	
 	"Do nothing"
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitNotEqualsComparison: aDRCogitNotEqualsComparison [ 
+	
+	self visitComparison: aDRCogitNotEqualsComparison
 ]
 
 { #category : #visiting }
@@ -387,13 +393,17 @@ DRCompilerCompiler >> visitSubstract: aDRCogitSubstract [
 ]
 
 { #category : #visiting }
-DRCompilerCompiler >> visitTest: aDRCogitTest [
-	| firstTestOperand |
-	firstTestOperand := aDRCogitTest operand2 singleChild.
-	firstTestOperand isConstant
-		ifFalse: [ self error: 'Cannot compile Tst instruction with non constant operand' ].
-	^ self twoOperandCogitRTL: #Tst operands: {
-		firstTestOperand. aDRCogitTest operand1 }
+DRCompilerCompiler >> visitTest: aTest [
+	
+	"Cogit RTL only supports constants as the first argument.
+	Invert them  (and the condition if necessary, mostly for greaterThan comparisons)."
+	| comparands |
+	comparands := aTest operands.
+	aTest operands second isConstant
+		ifTrue: [
+			aTest replaceBy: aTest reversed.
+			comparands := comparands reversed ].
+	self twoOperandCogitRTL: #Tst operands: comparands
 ]
 
 { #category : #visiting }

@@ -16,6 +16,12 @@ DRValue >> addToBlock: aDRBasicBlock [
 	aDRBasicBlock addInstruction: self
 ]
 
+{ #category : #'users-definitions' }
+DRValue >> addUser: anInstruction [
+	
+	"Nothing"
+]
+
 { #category : #converting }
 DRValue >> asDRInterpreterValue [
 
@@ -74,6 +80,12 @@ DRValue >> joinValue: anotherValue onIRGenerator: anIRGenerator from: originBloc
 DRValue >> lookupClass [
 	
 	self subclassResponsibility
+]
+
+{ #category : #'users-definitions' }
+DRValue >> removeUser: anInstruction [
+	
+	"Nothing"
 ]
 
 { #category : #accessing }

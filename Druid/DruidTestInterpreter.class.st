@@ -86,6 +86,20 @@ DruidTestInterpreter >> primitiveConditionWithAnyMask [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveConditionWithAnyMaskInverted [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+
+	| v |
+	v := (1 anyMask: self stackTop)
+		ifTrue: [ 1 ]
+		ifFalse: [ 2 ].
+	
+	self pop: 1 thenPush: v
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDecrement [
 
 	<numberOfArguments: 0>
@@ -103,11 +117,30 @@ DruidTestInterpreter >> primitiveGreaterOrEqualsThan [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveGreaterOrEqualsThanInverted [
+	"Put the constant as the receiver"
+	<numberOfArguments: 0>
+	| r |
+	r := 10 >= self stackTop ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveGreaterThan [
 
 	<numberOfArguments: 0>
 	| r |
 	r := self stackTop > 10 ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveGreaterThanInverted [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := 10 > self stackTop ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
 ]
 
@@ -125,6 +158,44 @@ DruidTestInterpreter >> primitiveIsIntegerObject [
 	<numberOfArguments: 0>
 
 	self pop: 1 thenPush: (objectMemory booleanObjectOf: (objectMemory isIntegerObject: self stackTop))
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLessOrEqualsThan [
+
+	<numberOfArguments: 0>
+	| r |
+	r := self stackTop <= 10 ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLessOrEqualsThanInverted [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := 10 <= self stackTop ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLessThan [
+
+	<numberOfArguments: 0>
+	| r |
+	r := self stackTop < 10 ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLessThanInverted [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := 10 < self stackTop ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
 ]
 
 { #category : #'as yet unclassified' }
@@ -149,24 +220,6 @@ DruidTestInterpreter >> primitiveReturnTrue [
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: objectMemory trueObject
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveSmallOrEqualsThan [
-
-	<numberOfArguments: 0>
-	| r |
-	r := self stackTop <= 10 ifTrue: [ 5 ] ifFalse: [11].
-	self pop: 1 thenPush: r
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveSmallThan [
-
-	<numberOfArguments: 0>
-	| r |
-	r := self stackTop < 10 ifTrue: [ 5 ] ifFalse: [11].
-	self pop: 1 thenPush: r
 ]
 
 { #category : #'as yet unclassified' }

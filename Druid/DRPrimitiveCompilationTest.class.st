@@ -77,9 +77,30 @@ DRPrimitiveCompilationTest >> testAnyMaskFalse [
 ]
 
 { #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testAnyMaskFalseInverted [
+
+	self compileDruidPrimitive: #primitiveConditionWithAnyMaskInverted.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testAnyMaskTrue [
 
 	self compileDruidPrimitive: #primitiveConditionWithAnyMask.
+	
+	self executePrimitiveWithReceiver: 37.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testAnyMaskTrueInverted [
+
+	self compileDruidPrimitive: #primitiveConditionWithAnyMaskInverted.
 	
 	self executePrimitiveWithReceiver: 37.
 	
@@ -271,11 +292,41 @@ DRPrimitiveCompilationTest >> testGreaterOrEqualsThanEquals [
 ]
 
 { #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testGreaterOrEqualsThanEqualsInverted [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualsThan.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testGreaterOrEqualsThanInverted [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanInverted.
+	
+	self executePrimitiveWithReceiver: 2.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testGreaterThan [
 
 	self compileDruidPrimitive: #primitiveGreaterThan.
 	
 	self executePrimitiveWithReceiver: 20.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testGreaterThanInverted [
+
+	self compileDruidPrimitive: #primitiveGreaterThanInverted.
+	
+	self executePrimitiveWithReceiver: 2.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
@@ -309,6 +360,16 @@ DRPrimitiveCompilationTest >> testNotGreaterOrEqualsThan [
 ]
 
 { #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotGreaterOrEqualsThanInverted [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanInverted.
+	
+	self executePrimitiveWithReceiver: 20.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testNotGreaterThan [
 
 	self compileDruidPrimitive: #primitiveGreaterThan.
@@ -329,9 +390,19 @@ DRPrimitiveCompilationTest >> testNotGreaterThanEquals [
 ]
 
 { #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotGreaterThanInverted [
+
+	self compileDruidPrimitive: #primitiveGreaterThanInverted.
+	
+	self executePrimitiveWithReceiver: 20.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testNotSmallerOrEqualsThan [
 
-	self compileDruidPrimitive: #primitiveSmallOrEqualsThan.
+	self compileDruidPrimitive: #primitiveLessOrEqualsThan.
 	
 	self executePrimitiveWithReceiver: 50.
 	
@@ -339,9 +410,19 @@ DRPrimitiveCompilationTest >> testNotSmallerOrEqualsThan [
 ]
 
 { #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotSmallerOrEqualsThanInverted [
+
+	self compileDruidPrimitive: #primitiveLessOrEqualsThanInverted.
+	
+	self executePrimitiveWithReceiver: 5.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testNotSmallerThan [
 
-	self compileDruidPrimitive: #primitiveSmallThan.
+	self compileDruidPrimitive: #primitiveLessThan.
 	
 	self executePrimitiveWithReceiver: 20.
 	
@@ -351,9 +432,19 @@ DRPrimitiveCompilationTest >> testNotSmallerThan [
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testNotSmallerThanEquals [
 
-	self compileDruidPrimitive: #primitiveSmallThan.
+	self compileDruidPrimitive: #primitiveLessThan.
 	
 	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotSmallerThanInverted [
+
+	self compileDruidPrimitive: #primitiveLessThanInverted.
+	
+	self executePrimitiveWithReceiver: 2.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
@@ -379,7 +470,7 @@ DRPrimitiveCompilationTest >> testPrimitiveWithDeadCodeGoesThroughSecondCase [
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testSmallerOrEqualsThan [
 
-	self compileDruidPrimitive: #primitiveSmallOrEqualsThan.
+	self compileDruidPrimitive: #primitiveLessOrEqualsThan.
 	
 	self executePrimitiveWithReceiver: 9.
 	
@@ -389,7 +480,7 @@ DRPrimitiveCompilationTest >> testSmallerOrEqualsThan [
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testSmallerOrEqualsThanEquals [
 
-	self compileDruidPrimitive: #primitiveSmallOrEqualsThan.
+	self compileDruidPrimitive: #primitiveLessOrEqualsThan.
 	
 	self executePrimitiveWithReceiver: 10.
 	
@@ -397,11 +488,31 @@ DRPrimitiveCompilationTest >> testSmallerOrEqualsThanEquals [
 ]
 
 { #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testSmallerOrEqualsThanInverted [
+
+	self compileDruidPrimitive: #primitiveLessOrEqualsThanInverted.
+	
+	self executePrimitiveWithReceiver: 20.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testSmallerThan [
 
-	self compileDruidPrimitive: #primitiveSmallThan.
+	self compileDruidPrimitive: #primitiveLessThan.
 	
 	self executePrimitiveWithReceiver: 9.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testSmallerThanInverted [
+
+	self compileDruidPrimitive: #primitiveLessThanInverted.
+	
+	self executePrimitiveWithReceiver: 20.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
