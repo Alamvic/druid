@@ -56,7 +56,7 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 	self runFrom: initialAddress until: stopAddress.
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-arithmetic' }
 DRPrimitiveCompilationTest >> testAddition [
 
 	self compileDruidPrimitive: #primitiveIncrement.
@@ -250,6 +250,36 @@ DRPrimitiveCompilationTest >> testFailingPrimitiveExecutesUntilStop [
 	self executeUntilStopPrimitiveWithReceiver: 1
 ]
 
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testGreaterOrEqualsThan [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualsThan.
+	
+	self executePrimitiveWithReceiver: 20.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testGreaterOrEqualsThanEquals [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualsThan.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testGreaterThan [
+
+	self compileDruidPrimitive: #primitiveGreaterThan.
+	
+	self executePrimitiveWithReceiver: 20.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
 { #category : #'tests-builtins' }
 DRPrimitiveCompilationTest >> testIsIntegerObjectWithIntegerObject [
 
@@ -266,6 +296,66 @@ DRPrimitiveCompilationTest >> testIsIntegerObjectWithNonIntegerObject [
 	self executePrimitiveWithReceiver: 0 "No tag".
 	
 	self assert: machineSimulator receiverRegisterValue equals: memory falseObject
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotGreaterOrEqualsThan [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualsThan.
+	
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotGreaterThan [
+
+	self compileDruidPrimitive: #primitiveGreaterThan.
+	
+	self executePrimitiveWithReceiver: 9.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotGreaterThanEquals [
+
+	self compileDruidPrimitive: #primitiveGreaterThan.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotSmallerOrEqualsThan [
+
+	self compileDruidPrimitive: #primitiveSmallOrEqualsThan.
+	
+	self executePrimitiveWithReceiver: 50.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotSmallerThan [
+
+	self compileDruidPrimitive: #primitiveSmallThan.
+	
+	self executePrimitiveWithReceiver: 20.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotSmallerThanEquals [
+
+	self compileDruidPrimitive: #primitiveSmallThan.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
 { #category : #'tests-deadcode' }
@@ -287,6 +377,36 @@ DRPrimitiveCompilationTest >> testPrimitiveWithDeadCodeGoesThroughSecondCase [
 ]
 
 { #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testSmallerOrEqualsThan [
+
+	self compileDruidPrimitive: #primitiveSmallOrEqualsThan.
+	
+	self executePrimitiveWithReceiver: 9.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testSmallerOrEqualsThanEquals [
+
+	self compileDruidPrimitive: #primitiveSmallOrEqualsThan.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testSmallerThan [
+
+	self compileDruidPrimitive: #primitiveSmallThan.
+	
+	self executePrimitiveWithReceiver: 9.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-arithmetic' }
 DRPrimitiveCompilationTest >> testSubstraction [
 
 	self compileDruidPrimitive: #primitiveDecrement.

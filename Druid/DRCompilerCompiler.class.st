@@ -188,6 +188,44 @@ DRCompilerCompiler >> sourceName: anObject [
 ]
 
 { #category : #visiting }
+DRCompilerCompiler >> visitAddition: aDRCogitAdd [ 
+
+	self twoOperandCogitRTL: #Move operands: {
+		aDRCogitAdd operand1. aDRCogitAdd result }.
+	^ self twoOperandCogitRTL: #Add operands: { 
+		aDRCogitAdd operand2. aDRCogitAdd result }
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitBitAnd: aDRCogitBitAnd [ 
+
+	^ self twoOperandCogitRTL: #And instruction: aDRCogitBitAnd
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitBitShift: aDRCogitBitShift [ 
+
+	self twoOperandCogitRTL: #Move operands: {
+		aDRCogitBitShift operand1. aDRCogitBitShift result }.
+	^ self twoOperandCogitRTL: #LogicalShiftLeft operands: { 
+		aDRCogitBitShift operand2. aDRCogitBitShift result }
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitComparison: aComparison [ 
+	
+	"Cogit RTL only supports constants as the first argument.
+	Invert them  (and the condition if necessary, mostly for greaterThan comparisons)."
+	| comparands |
+	comparands := aComparison operands.
+	aComparison operands second isConstant
+		ifTrue: [
+			aComparison replaceBy: aComparison reversed.
+			comparands := comparands reversed ].
+	self twoOperandCogitRTL: #Cmp operands: comparands
+]
+
+{ #category : #visiting }
 DRCompilerCompiler >> visitConditionalJump: aDRConditionalJump [ 
 
 	"Fall-through true branch, jump to false branch"
@@ -210,9 +248,85 @@ DRCompilerCompiler >> visitCopy: aDRMove [
 ]
 
 { #category : #visiting }
+DRCompilerCompiler >> visitEqualsComparison: aDRCogitEqualsComparison [ 
+	
+	self visitComparison: aDRCogitEqualsComparison
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanComparison [ 
+	
+	self visitComparison: aDRGreaterOrEqualsThanComparison
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitGreaterThanComparison: aDRGreaterThanComparison [ 
+	
+	self visitComparison: aDRGreaterThanComparison
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitJump: aDRJump [ 
+
+	self
+		generateJump: #Jump:
+		target: aDRJump target
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitLeftShift: aDRCogitLeftShift [ 
+
+	^ self twoOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitLeftShift
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitLessOrEqualsThanComparison: aDRCogitLessOrEqualsComparison [ 
+	
+	self visitComparison: aDRCogitLessOrEqualsComparison
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitLessThanComparison: aDRLessThanComparison [ 
+	
+	self visitComparison: aDRLessThanComparison
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitLoad: aDRCogitLoad [ 
+	
+	^ self twoOperandCogitRTL: #Move instruction: aDRCogitLoad
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitMultiply: aDRCogitMultiply [ 
+	
+	^ self twoOperandCogitRTL: #Mul instruction: aDRCogitMultiply
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitNegate: aDRCogitNegate [ 
+	
+	self twoOperandCogitRTL: #Move instruction: aDRCogitNegate.
+	generatorMethodBuilder addStatement: (
+		RBMessageNode
+			receiver: RBVariableNode selfNode
+			selector: #NegateR:
+			arguments: { 
+				RBVariableNode named: (self registerFor: aDRCogitNegate result) })
+]
+
+{ #category : #visiting }
 DRCompilerCompiler >> visitNoop: aDRNoop [ 
 	
 	"Do nothing"
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitNullValue: aDRNullValue [ 
+
+	^ RBMessageNode
+		receiver: RBVariableNode selfNode
+		selector: #Nop
 ]
 
 { #category : #visiting }
@@ -229,6 +343,13 @@ DRCompilerCompiler >> visitOverflowJump: aDROverflowJump [
 ]
 
 { #category : #visiting }
+DRCompilerCompiler >> visitPhiFunction: aDRPhiFunction [ 
+
+	"For the moment nothing"
+	^ self visitNullValue: aDRPhiFunction
+]
+
+{ #category : #visiting }
 DRCompilerCompiler >> visitReturn: aDRReturn [ 
 	
 	generatorMethodBuilder addStatement: (
@@ -242,4 +363,48 @@ DRCompilerCompiler >> visitReturn: aDRReturn [
 					arguments: { RBMessageNode 
 						receiver: (RBVariableNode named: 'objectMemory')
 						selector: #wordSize } } )
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitRightShift: aDRCogitRightShift [ 
+
+	^ self twoOperandCogitRTL: #LogicalShiftRight instruction: aDRCogitRightShift
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitStore: aDRCogitStore [
+
+	^ self twoOperandCogitRTL: #Move instruction: aDRCogitStore
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitSubstract: aDRCogitSubstract [ 
+	
+	self twoOperandCogitRTL: #Move operands: {
+		aDRCogitSubstract operand1. aDRCogitSubstract result }.
+	^ self twoOperandCogitRTL: #Sub operands: { 
+		aDRCogitSubstract operand2. aDRCogitSubstract result }
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitTest: aDRCogitTest [
+	| firstTestOperand |
+	firstTestOperand := aDRCogitTest operand2 singleChild.
+	firstTestOperand isConstant
+		ifFalse: [ self error: 'Cannot compile Tst instruction with non constant operand' ].
+	^ self twoOperandCogitRTL: #Tst operands: {
+		firstTestOperand. aDRCogitTest operand1 }
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitUnsignedCoercion: aDRCogitUnsignedCoercion [ 
+	
+	"Nothing for now"
+	^ self visitNullValue: aDRCogitUnsignedCoercion
+]
+
+{ #category : #'ast-to-source' }
+DRCompilerCompiler >> writeAST: aRBMethodNode [ 
+	
+	compilerClass compile: aRBMethodNode formattedCode classified: #generated
 ]

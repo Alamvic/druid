@@ -154,8 +154,10 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
 	specialCases at: #ifFalse: put: #interpretIfFalseWith:.
 	specialCases at: #= put: #interpretEqualityComparisonWith:.
-	specialCases at: #<= put: #interpretLessOrEqualsComparisonWith:.
-	specialCases at: #> put: #interpretGreaterComparisonWith:.
+	specialCases at: #< put: #interpretLessThanComparisonWith:.
+	specialCases at: #<= put: #interpretLessOrEqualsThanComparisonWith:.
+	specialCases at: #> put: #interpretGreaterThanComparisonWith:.
+	specialCases at: #>= put: #interpretGreaterOrEqualsThanComparisonWith:.
 	specialCases at: #or: put: #interpretOrWith:.
 	specialCases at: #and: put: #interpretAndWith:.
 
@@ -288,13 +290,25 @@ DRIRGenerator >> interpretCondition: aRBMessageNode instructionKind: anInstructi
 { #category : #'special-cases' }
 DRIRGenerator >> interpretEqualityComparisonWith: aRBMessageNode [
 	
-	^ self interpretCondition: aRBMessageNode instructionKind: DREqualsComparison
+	^ self interpretCondition: aRBMessageNode instructionKind: DREqualsThanComparison
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [ 
 	
 	self pushOperand: DRFalseObject new
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretGreaterOrEqualsThanComparisonWith: aRBMessageNode [ 
+	
+	^ self interpretCondition: aRBMessageNode instructionKind: DRGreaterOrEqualsThanComparison
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretGreaterThanComparisonWith: aRBMessageNode [ 
+	
+	^ self interpretCondition: aRBMessageNode instructionKind: DRGreaterThanComparison
 ]
 
 { #category : #'special-cases' }
@@ -469,9 +483,15 @@ DRIRGenerator >> interpretLeftShiftWith: aRBMessageNode [
 ]
 
 { #category : #'special-cases' }
-DRIRGenerator >> interpretLessOrEqualsComparisonWith: aRBMessageNode [ 
+DRIRGenerator >> interpretLessOrEqualsThanComparisonWith: aRBMessageNode [ 
 
-	^ self interpretCondition: aRBMessageNode instructionKind: DRLessOrEqualsComparison
+	^ self interpretCondition: aRBMessageNode instructionKind: DRLessOrEqualsThanComparison
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretLessThanComparisonWith: aRBMessageNode [ 
+
+	^ self interpretCondition: aRBMessageNode instructionKind: DRLessThanComparison
 ]
 
 { #category : #'special-cases' }
@@ -841,7 +861,7 @@ DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 	
 	"Resolve it as a variableAccess"
 	self haltIf: [ (self receiver isKindOf: DRInterpreterValue) not ].
-	^ DRInterpreterValue value: (self receiver value instVarNamed: aRBVariableNode name)
+	self pushOperand: (DRInterpreterValue value: (self receiver value instVarNamed: aRBVariableNode name))
 ]
 
 { #category : #visiting }
@@ -860,7 +880,8 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 			^ self perform: mapping withArguments: { aRBMessageNode } ].
 	
 	"Resolve it as a normal send"
-	receiver := aRBMessageNode receiver acceptVisitor: self.
+	aRBMessageNode receiver acceptVisitor: self.
+	receiver := self popOperand.
 	arguments := aRBMessageNode arguments collect: [ :e |
 		e acceptVisitor: self.
 		self popOperand ].
@@ -899,7 +920,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 { #category : #visiting }
 DRIRGenerator >> visitSelfNode: aRBVariableNode [ 
 	
-	^ self receiver
+	self pushOperand: self receiver
 ]
 
 { #category : #visiting }

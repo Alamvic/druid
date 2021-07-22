@@ -1,17 +1,17 @@
 Class {
-	#name : #DREqualsComparison,
+	#name : #DREqualsThanComparison,
 	#superclass : #DRCondition,
 	#category : #'Druid-IR'
 }
 
 { #category : #visiting }
-DREqualsComparison >> acceptVisitor: aVisitor [
+DREqualsThanComparison >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitEqualsComparison: self
 ]
 
 { #category : #'rtl-translation' }
-DREqualsComparison >> cogitFalseConditionCode [
+DREqualsThanComparison >> cogitFalseConditionCode [
 	
 	"Return the condition code used to jump if this condition is false.
 	Since we are checking equals, the we should return non-equals, represented as a NonZero in cogit rtl"
@@ -20,7 +20,7 @@ DREqualsComparison >> cogitFalseConditionCode [
 ]
 
 { #category : #printing }
-DREqualsComparison >> opcode [
+DREqualsThanComparison >> opcode [
 	
-	^ 'Equals'
+	^ 'EqualsThan'
 ]

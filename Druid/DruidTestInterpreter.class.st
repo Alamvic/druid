@@ -94,6 +94,24 @@ DruidTestInterpreter >> primitiveDecrement [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveGreaterOrEqualsThan [
+
+	<numberOfArguments: 0>
+	| r |
+	r := self stackTop >= 10 ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveGreaterThan [
+
+	<numberOfArguments: 0>
+	| r |
+	r := self stackTop > 10 ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveIncrement [
 
 	<numberOfArguments: 0>
@@ -131,6 +149,24 @@ DruidTestInterpreter >> primitiveReturnTrue [
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: objectMemory trueObject
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveSmallOrEqualsThan [
+
+	<numberOfArguments: 0>
+	| r |
+	r := self stackTop <= 10 ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveSmallThan [
+
+	<numberOfArguments: 0>
+	| r |
+	r := self stackTop < 10 ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
 ]
 
 { #category : #'as yet unclassified' }

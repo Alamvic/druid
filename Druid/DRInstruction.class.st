@@ -156,6 +156,12 @@ DRInstruction >> printOn: aStream [
 	aStream nextPut: $)
 ]
 
+{ #category : #replacing }
+DRInstruction >> replaceBy: anotherInstruction [
+	
+	basicBlock replace: self by: anotherInstruction
+]
+
 { #category : #accessing }
 DRInstruction >> result [
 

@@ -8,8 +8,8 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #'rtl-translation' }
-DRCondition >> cogitFalseConditionCode [
+{ #category : #reversing }
+DRCondition >> reversed [
 	
-	^ #JumpNonZero:
+	^ DRLessOrEqualsThanComparison operands: operands reversed result: result
 ]
