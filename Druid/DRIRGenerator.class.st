@@ -300,22 +300,22 @@ DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 
-	| falseBranchBasicBlockOut startingBasicBlock conditionalJump falseBranchSuccessor joinInstruction |
-	startingBasicBlock := self currentBasicBlock.
-
+	| falseBranchBasicBlockOut startingBasicBlock conditionalJump joinInstruction |
 	aRBMessageNode receiver acceptVisitor: self.
 	conditionalJump := self instantiate: DRConditionalJump operands: { self popOperand }.
 	
 	self currentBasicBlock endInstruction: conditionalJump.
 	
-	falseBranchSuccessor := self newBasicBlockDuring: [ 
-			 aRBMessageNode arguments first acceptVisitor: self ].
-	conditionalJump falseBranch: falseBranchSuccessor.
-	falseBranchSuccessor addPredecessor: startingBasicBlock.
-	falseBranchBasicBlockOut := self currentBasicBlock.
+	falseBranchBasicBlockOut := self
+		branchFrom: self currentBasicBlock
+		onEdge: [ :branchEntryBlock | conditionalJump falseBranch: branchEntryBlock ]
+		doing: [ aRBMessageNode arguments first acceptVisitor: self ].
 
 	"Merge point"
+	startingBasicBlock := self currentBasicBlock.
 	self newBasicBlock.
+	self currentBasicBlock addPredecessor: startingBasicBlock.
+	conditionalJump trueBranch: self currentBasicBlock.
 	
 	"Could happen that the evaluated block had a non local return.
 	In that case, this block should not arrive to this merge point
@@ -323,9 +323,6 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 	falseBranchBasicBlockOut hasFinalInstruction ifFalse: [
 		falseBranchBasicBlockOut jumpTo: self currentBasicBlock.
 	].
-
-	self currentBasicBlock addPredecessor: startingBasicBlock.
-	conditionalJump trueBranch: self currentBasicBlock.
 
 	joinInstruction := startingBasicBlock blockValue
 		                   joinValue: falseBranchBasicBlockOut blockValue
@@ -338,22 +335,22 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 
-	| trueBranchBasicBlockOut startingBasicBlock joinInstruction conditionalJump trueBranchSuccessor |
-	startingBasicBlock := self currentBasicBlock.
-
+	| trueBranchBasicBlockOut joinInstruction conditionalJump startingBasicBlock |
 	aRBMessageNode receiver acceptVisitor: self.
 	conditionalJump := self instantiate: DRConditionalJump operands: { self popOperand }.
 	
 	self currentBasicBlock endInstruction: conditionalJump.
 
-	trueBranchSuccessor := self newBasicBlockDuring: [ 
-			 aRBMessageNode arguments first acceptVisitor: self ].
-	conditionalJump trueBranch: trueBranchSuccessor.
-	trueBranchSuccessor addPredecessor: startingBasicBlock.
-	trueBranchBasicBlockOut := self currentBasicBlock.
+	trueBranchBasicBlockOut := self
+		branchFrom: self currentBasicBlock
+		onEdge: [ :branchEntryBlock | conditionalJump trueBranch: branchEntryBlock ]
+		doing: [ aRBMessageNode arguments first acceptVisitor: self ].
 
 	"Merge point"
+	startingBasicBlock := self currentBasicBlock.
 	self newBasicBlock.
+	self currentBasicBlock addPredecessor: startingBasicBlock.
+	conditionalJump falseBranch: self currentBasicBlock.
 	
 	"Could happen that the evaluated block had a non local return.
 	In that case, this block should not arrive to this merge point
@@ -361,9 +358,6 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
 		trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
 	].
-	
-	self currentBasicBlock addPredecessor: startingBasicBlock.
-	conditionalJump falseBranch: self currentBasicBlock.
 
 	joinInstruction := startingBasicBlock blockValue
 		                   joinValue: trueBranchBasicBlockOut blockValue
