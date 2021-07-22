@@ -29,7 +29,8 @@ DruidTestRTLCompiler >> gen_emptyPrimitiveWithArguments [
 DruidTestRTLCompiler >> gen_failingPrimitive [
 
 	| currentBlock |
-	self MoveCq: false R: TempReg.
+	self MoveCq: true asBit R: TempReg.
+	self MoveCq: false asBit R: ClassReg.
 	^ CompletePrimitive
 ]
 
@@ -139,17 +140,17 @@ DruidTestRTLCompiler >> gen_primitiveIsIntegerObject [
 	self MoveCw: objectMemory trueObject R: TempReg.
 	self MoveR: TempReg R: ClassReg.
 	self MoveR: ClassReg R: Extra0Reg.
-	self MoveR: ReceiverResultReg R: Extra2Reg.
+	self MoveR: ReceiverResultReg R: Extra1Reg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
 	self MoveCw: objectMemory falseObject R: SendNumArgsReg.
 	self MoveR: SendNumArgsReg R: Extra0Reg.
-	self MoveR: ReceiverResultReg R: Extra2Reg.
+	self MoveR: ReceiverResultReg R: Extra1Reg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveR: Extra0Reg R: Extra1Reg.
-	self MoveR: Extra1Reg R: ReceiverResultReg.
+	self MoveR: Extra0Reg R: Extra2Reg.
+	self MoveR: Extra2Reg R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
@@ -227,7 +228,7 @@ DruidTestRTLCompiler >> gen_primitiveWithIfAssigningValue [
 	self MoveCq: 42 R: Extra1Reg.
 	self MoveR: Extra1Reg R: ClassReg.
 	self MoveR: ReceiverResultReg R: SendNumArgsReg.
-	self MoveR: Extra0Reg R: Extra1Reg.
+	self MoveR: Extra0Reg R: ClassReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
@@ -235,11 +236,11 @@ DruidTestRTLCompiler >> gen_primitiveWithIfAssigningValue [
 	self MoveCq: 57 R: TempReg.
 	self MoveR: TempReg R: ClassReg.
 	self MoveR: ReceiverResultReg R: SendNumArgsReg.
-	self MoveR: Extra2Reg R: Extra1Reg.
+	self MoveR: Extra2Reg R: ClassReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveCq: 1 R: ClassReg.
-	self MoveR: Extra1Reg R: ReceiverResultReg.
+	self MoveCq: 1 R: Extra1Reg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]

@@ -116,7 +116,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocks [
 		receiver: (DRInterpreterValue value: interpreter).
 	cfg := irGenerator ir.
 	
-	self assert: cfg blocks size equals: 5
+	self assert: cfg blocks size equals: 8
 ]
 
 { #category : #'tests-building' }
@@ -133,7 +133,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWhenEarlyMethodReturns [
 		receiver: (DRInterpreterValue value: interpreter).
 	cfg := irGenerator ir.
 	
-	self assert: cfg blocks size equals: 6
+	self assert: cfg blocks size equals: 10
 ]
 
 { #category : #'tests-building' }
@@ -150,7 +150,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWithTwoNonLocalReturns [
 		receiver: (DRInterpreterValue value: interpreter).
 	cfg := irGenerator ir.
 	
-	self assert: cfg blocks size equals: 6
+	self assert: cfg blocks size equals: 10
 ]
 
 { #category : #'tests-building' }

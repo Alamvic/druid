@@ -880,7 +880,7 @@ DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 { #category : #visiting }
 DRIRGenerator >> visitMessageNode: aRBMessageNode [ 
 
-	| receiver arguments method result |
+	| receiver arguments method |
 	specialCases
 		at: aRBMessageNode selector
 		ifPresent: [ :mapping |

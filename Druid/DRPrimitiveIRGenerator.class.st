@@ -40,11 +40,13 @@ DRPrimitiveIRGenerator >> interpretPrimitiveFailWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRPrimitiveIRGenerator >> interpretSuccessArgWith: aRBMessageNode [
 
-	| argument |
+	| argument predecessor |
 	aRBMessageNode arguments first acceptVisitor: self.
 	argument := self popOperand.
+	predecessor := self newBasicBlock.
 	success := (DRPhiFunction joinedVariables: { success . argument })
 			result: self allocateTemporaryRegister;
+			originBlocks: {success basicBlock . predecessor};
 			origin: thisContext stack;
 			yourself.
 	self currentBasicBlock addInstruction: success.
