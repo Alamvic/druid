@@ -1,5 +1,11 @@
 Class {
 	#name : #DRFalseObject,
-	#superclass : #Object,
+	#superclass : #DRObjectReferenceValue,
 	#category : #'Druid-IR'
 }
+
+{ #category : #accessing }
+DRFalseObject >> name [
+	
+	^ 'objectMemory falseObject'
+]

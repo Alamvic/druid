@@ -250,6 +250,24 @@ DRPrimitiveCompilationTest >> testFailingPrimitiveExecutesUntilStop [
 	self executeUntilStopPrimitiveWithReceiver: 1
 ]
 
+{ #category : #'tests-builtins' }
+DRPrimitiveCompilationTest >> testIsIntegerObjectWithIntegerObject [
+
+	self compileDruidPrimitive: #primitiveIsIntegerObject.
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 0).
+	
+	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
+]
+
+{ #category : #'tests-builtins' }
+DRPrimitiveCompilationTest >> testIsIntegerObjectWithNonIntegerObject [
+
+	self compileDruidPrimitive: #primitiveIsIntegerObject.
+	self executePrimitiveWithReceiver: 0 "No tag".
+	
+	self assert: machineSimulator receiverRegisterValue equals: memory falseObject
+]
+
 { #category : #'tests-deadcode' }
 DRPrimitiveCompilationTest >> testPrimitiveWithDeadCodeGoesThroughFirstCase [
 

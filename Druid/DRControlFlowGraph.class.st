@@ -46,12 +46,6 @@ DRControlFlowGraph >> blocksDo: aFullBlockClosure [
 ]
 
 { #category : #accessing }
-DRControlFlowGraph >> exitBasicBlock [
-	
-	^ exitBasicBlock
-]
-
-{ #category : #accessing }
 DRControlFlowGraph >> initialBasicBlock [ 
 	^ initialBasicBlock
 ]

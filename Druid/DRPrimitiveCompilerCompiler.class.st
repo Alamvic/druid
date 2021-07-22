@@ -101,6 +101,17 @@ DRPrimitiveCompilerCompiler >> primitiveName: anObject [
 ]
 
 { #category : #visiting }
+DRPrimitiveCompilerCompiler >> rtlExpressionForValue: aValue [
+	
+	(#( true false ) includes: aValue value) ifTrue: [
+		^ RBMessageNode
+			receiver: (RBVariableNode named: aValue value asString)
+			selector: #asBit
+	].
+	^ RBVariableNode named: (self registerFor: aValue)
+]
+
+{ #category : #visiting }
 DRPrimitiveCompilerCompiler >> twoOperandCogitRTL: aMnemonic instruction: instruction [
 
 	self
@@ -120,8 +131,8 @@ DRPrimitiveCompilerCompiler >> twoOperandCogitRTL: aMnemonic operands: operands 
 				operands first result rtlOperandQualifier,
 				operands second result rtlOperandQualifier)
 			arguments: { 
-				RBVariableNode named: (self registerFor: (operands at: 1)).
-				RBVariableNode named: (self registerFor: (operands at: 2)). })
+				self rtlExpressionForValue: (operands at: 1).
+				self rtlExpressionForValue: (operands at: 2) })
 ]
 
 { #category : #visiting }

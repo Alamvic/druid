@@ -25,6 +25,8 @@ DRBasicBlock class >> id: anInteger [
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
 
+	self assert: anInstruction basicBlock isNil.
+	anInstruction basicBlock: self.
 	^ instructions add: anInstruction
 ]
 
@@ -247,6 +249,7 @@ DRBasicBlock >> temporaryAt: aString [
 { #category : #temporaries }
 DRBasicBlock >> temporaryAt: aString put: aValue [ 
 	
+	self haltIf: [ (aValue isKindOf: DRValue) not ].
 	temporaryFrame at: aString put: aValue
 ]
 

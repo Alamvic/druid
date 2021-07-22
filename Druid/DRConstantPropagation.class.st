@@ -87,8 +87,8 @@ DRConstantPropagation >> interpreteValue: op [
 	|lv|
 	
 	lv := latticeValues at: op ifAbsent: [ op ]. 
-	(('Top', 'Bot') includes: lv) ifTrue: [ ^ op ]. 
-	^ lv. 
+	(#('Top' 'Bot') includes: lv) ifTrue: [ ^ op ]. 
+	^ lv
 ]
 
 { #category : #operations }

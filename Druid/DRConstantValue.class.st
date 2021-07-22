@@ -23,6 +23,13 @@ DRConstantValue >> = anObject [
 	^ false. 
 ]
 
+{ #category : #'rtl-translation' }
+DRConstantValue >> cogitFalseConditionCode [
+	
+	"Jump false if the constant is a zero"
+	^ #JumpZero:
+]
+
 { #category : #copying }
 DRConstantValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 	
@@ -46,7 +53,7 @@ DRConstantValue >> lookupClass [
 
 { #category : #accessing }
 DRConstantValue >> name [
-	
+
 	^ value asString
 ]
 

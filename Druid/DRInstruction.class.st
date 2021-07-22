@@ -6,7 +6,8 @@ Class {
 		'result',
 		'order',
 		'origin',
-		'originAST'
+		'originAST',
+		'basicBlock'
 	],
 	#category : #'Druid-IR'
 }
@@ -28,6 +29,18 @@ DRInstruction >> = anObject [
 			self operands =  anObject operands ifTrue: [
 				^ true. ]]].
 	^ false. 
+]
+
+{ #category : #accessing }
+DRInstruction >> basicBlock [
+
+	^ basicBlock
+]
+
+{ #category : #accessing }
+DRInstruction >> basicBlock: anObject [
+
+	basicBlock := anObject
 ]
 
 { #category : #copying }

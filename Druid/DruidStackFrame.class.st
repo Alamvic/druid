@@ -6,16 +6,11 @@ Class {
 		'irGenerator',
 		'entryBasicBlock',
 		'exitBasicBlock',
-		'operandStack'
+		'operandStack',
+		'currentTemporaryFrame'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
-
-{ #category : #accessing }
-DruidStackFrame >> currentBasicBlock [
-	
-	^ irGenerator currentBasicBlock
-]
 
 { #category : #accessing }
 DruidStackFrame >> entryBasicBlock [
@@ -44,7 +39,8 @@ DruidStackFrame >> exitBasicBlock: aDRBasicBlock [
 DruidStackFrame >> initialize [
 
 	super initialize.
-	operandStack := Stack new
+	operandStack := Stack new.
+	currentTemporaryFrame := Dictionary new
 ]
 
 { #category : #accessing }
@@ -96,7 +92,7 @@ DruidStackFrame >> receiver: aCogVMSimulatorLSB [
 { #category : #accessing }
 DruidStackFrame >> returnValue [
 
-	^ self currentBasicBlock temporaryAt: '__return'
+	^ currentTemporaryFrame at: '__return'
 ]
 
 { #category : #accessing }
@@ -112,7 +108,31 @@ DruidStackFrame >> returnValue: aValue [
 ]
 
 { #category : #accessing }
+DruidStackFrame >> returnValue: aValue from: aBasicBlock [
+
+	"this is always a Phi function"
+	| phiFunction |
+	phiFunction := self returnValue.
+	
+	"If the value is a phi function, we have to merge it...
+	Implement it later"
+	phiFunction addValue: aValue from: aBasicBlock
+]
+
+{ #category : #accessing }
 DruidStackFrame >> stackTop [
 	
 	^ operandStack top
+]
+
+{ #category : #accessing }
+DruidStackFrame >> temporaryFrame [
+	
+	^ currentTemporaryFrame
+]
+
+{ #category : #accessing }
+DruidStackFrame >> temporaryFrame: anObject [
+
+	currentTemporaryFrame := anObject
 ]

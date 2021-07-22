@@ -102,6 +102,14 @@ DruidTestInterpreter >> primitiveIncrement [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIsIntegerObject [
+
+	<numberOfArguments: 0>
+
+	self pop: 1 thenPush: (objectMemory booleanObjectOf: (objectMemory isIntegerObject: self stackTop))
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveReturnOne [
 
 	<numberOfArguments: 0>

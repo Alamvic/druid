@@ -2,7 +2,9 @@ Class {
 	#name : #DRPrimitiveIRGenerator,
 	#superclass : #DRIRGenerator,
 	#instVars : [
-		'primitiveExitBlock'
+		'success',
+		'primitiveExitSuccessBlock',
+		'primitiveExitFailureBlock'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -11,7 +13,8 @@ Class {
 DRPrimitiveIRGenerator >> initialize [
 
 	super initialize.
-	primitiveExitBlock := self basicNewBasicBlock.	
+	primitiveExitSuccessBlock := self basicNewBasicBlock.
+	primitiveExitFailureBlock := self basicNewBasicBlock.
 ]
 
 { #category : #'special-cases' }
@@ -26,7 +29,12 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 { #category : #'special-cases' }
 DRPrimitiveIRGenerator >> interpretPrimitiveFailWith: aRBMessageNode [ 
 	
-	^ self currentBasicBlock jumpTo: self primitiveExitBlock
+	success := (DRPhiFunction joinedVariables: { success . (DRConstantValue value: false) })
+			result: self allocateTemporaryRegister;
+			origin: thisContext stack;
+			yourself.
+	self currentBasicBlock addInstruction: success.
+	self pushOperand: DRNullValue new
 ]
 
 { #category : #'special-cases' }
@@ -35,19 +43,18 @@ DRPrimitiveIRGenerator >> interpretSuccessArgWith: aRBMessageNode [
 	| argument |
 	aRBMessageNode arguments first acceptVisitor: self.
 	argument := self popOperand.
-	argument operand1 value = false
-		ifFalse: [ self halt. "This is strange, somebody is setting it success to true explicitly" ].
-	self pushOperand: DRNullValue new.
-	
-	^ self currentBasicBlock jumpTo: self primitiveExitBlock
+	success := (DRPhiFunction joinedVariables: { success . argument })
+			result: self allocateTemporaryRegister;
+			origin: thisContext stack;
+			yourself.
+	self currentBasicBlock addInstruction: success.
+	self pushOperand: success
 ]
 
 { #category : #'special-cases' }
 DRPrimitiveIRGenerator >> interpretSuccessfulWith: aRBMessageNode [ 
 
-	"If the primitive failed, we would have jumped already to the failure exit.
-	So this is always true"
-	^ self addInstructionFrom: aRBMessageNode instructionKind: DRConstantCondition operands: {DRConstantValue value: true}
+	self pushOperand: success
 ]
 
 { #category : #accessing }
@@ -56,6 +63,23 @@ DRPrimitiveIRGenerator >> ir [
 	^ DRControlFlowGraph new
 		initialBasicBlock: firstBasicBlock;
 		yourself
+]
+
+{ #category : #'special-cases' }
+DRPrimitiveIRGenerator >> newBasicBlock [
+
+	| newBasicBlock |
+	newBasicBlock := self basicNewBasicBlock.
+	currentBasicBlock := newBasicBlock.
+	firstBasicBlock ifNil: [ | instruction |
+		"If it is the first block, push the default success value"
+		firstBasicBlock := currentBasicBlock.
+		success := self
+			instantiate: DRCopy
+			operands: { DRConstantValue value: true }.
+		newBasicBlock addInstruction: success ].
+	^ currentBasicBlock
+
 ]
 
 { #category : #accessing }
@@ -73,22 +97,28 @@ DRPrimitiveIRGenerator >> popFrame [
 	"If the interpretation stack is empty, we are returning from the primitive
 	- generate a return instruction popping receiver and arguments all at once
 	- amount to pop is expressed in bytes, so multiply by word size"
-	firstBasicBlock := self currentFrame entryBasicBlock.
 	super popFrame.
 	interpretationStack size = 1 ifTrue: [
+		| conditionalJump |
 		self spillStack.
-		self currentBasicBlock hasFinalInstruction ifFalse: [
-			self currentBasicBlock endInstruction: (self
-				instantiate: DRReturn
-				operands: { DRConstantValue value: numberOfArguments + 1 "Number of things to pop" }).
-		].
+		
+		(success isCopy and: [ success operand1 result value ])
+			ifTrue: [
+				"Generate a single jump, there was no failure.
+				This could be simplified with a posterior SCCP pass"
+				currentBasicBlock jumpTo: primitiveExitSuccessBlock ]
+			ifFalse: [
+				conditionalJump := self instantiate: DRConditionalJump operands: { success }.
+				currentBasicBlock endInstruction: conditionalJump.
+				conditionalJump trueBranch: primitiveExitSuccessBlock.
+				primitiveExitSuccessBlock addPredecessor: currentBasicBlock.
+				conditionalJump falseBranch: primitiveExitFailureBlock.
+				primitiveExitFailureBlock addPredecessor: currentBasicBlock ].
+		
+		primitiveExitSuccessBlock endInstruction: (self
+			instantiate: DRReturn
+			operands: { DRConstantValue value: numberOfArguments + 1 "Number of things to pop" })..
 		"Make the end instruction of the failure exit finish with a Noop"
-		primitiveExitBlock endInstruction: (self instantiate: DRNoop)
+		primitiveExitFailureBlock endInstruction: (self instantiate: DRNoop)
 	]
-]
-
-{ #category : #accessing }
-DRPrimitiveIRGenerator >> primitiveExitBlock [
-	"Return a special block that represents the failure exit of the primitive"
-	^ primitiveExitBlock
 ]

@@ -47,3 +47,9 @@ DRNullValue >> name [
 	
 	^ 'NULL'
 ]
+
+{ #category : #visiting }
+DRNullValue >> rtlOperandQualifier [
+	
+	^ 'Null:'
+]

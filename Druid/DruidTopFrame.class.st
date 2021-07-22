@@ -2,7 +2,8 @@ Class {
 	#name : #DruidTopFrame,
 	#superclass : #Object,
 	#instVars : [
-		'result'
+		'result',
+		'temporaryFrame'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -11,4 +12,16 @@ Class {
 DruidTopFrame >> push: aDRPhiFunction [ 
 
 	result := aDRPhiFunction
+]
+
+{ #category : #accessing }
+DruidTopFrame >> temporaryFrame [
+	
+	^ temporaryFrame ifNil: [ temporaryFrame := Dictionary new ]
+]
+
+{ #category : #accessing }
+DruidTopFrame >> temporaryFrame: aDictionary [
+	
+	temporaryFrame := aDictionary
 ]

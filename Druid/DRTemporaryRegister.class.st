@@ -66,3 +66,9 @@ DRTemporaryRegister >> printOn: aStream [
 		nextPutAll: self id asString;
 		nextPutAll: ')'
 ]
+
+{ #category : #'cogit-generation' }
+DRTemporaryRegister >> rtlOperandQualifier [
+	
+	^ 'R:'
+]
