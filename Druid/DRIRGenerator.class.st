@@ -300,7 +300,7 @@ DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 
-	| falseBranchBasicBlockOut startingBasicBlock conditionalJump joinInstruction |
+	| falseBranchBasicBlockOut startingBasicBlock conditionalJump |
 	aRBMessageNode receiver acceptVisitor: self.
 	conditionalJump := self instantiate: DRConditionalJump operands: { self popOperand }.
 	
@@ -317,25 +317,24 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 	self currentBasicBlock addPredecessor: startingBasicBlock.
 	conditionalJump trueBranch: self currentBasicBlock.
 	
+	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
+	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+
+	"ifTrue: does not return anything useful"
+	self pushOperand: DRNullValue new.
+	
 	"Could happen that the evaluated block had a non local return.
 	In that case, this block should not arrive to this merge point
 		=> do not add the jump"
 	falseBranchBasicBlockOut hasFinalInstruction ifFalse: [
 		falseBranchBasicBlockOut jumpTo: self currentBasicBlock.
 	].
-
-	joinInstruction := startingBasicBlock blockValue
-		                   joinValue: falseBranchBasicBlockOut blockValue
-		                   onIRGenerator: self
-								from: { startingBasicBlock. falseBranchBasicBlockOut }.
-	joinInstruction addToBlock: self currentBasicBlock.
-	self pushOperand: joinInstruction
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 
-	| trueBranchBasicBlockOut joinInstruction conditionalJump startingBasicBlock |
+	| trueBranchBasicBlockOut conditionalJump startingBasicBlock |
 	aRBMessageNode receiver acceptVisitor: self.
 	conditionalJump := self instantiate: DRConditionalJump operands: { self popOperand }.
 	
@@ -352,19 +351,18 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 	self currentBasicBlock addPredecessor: startingBasicBlock.
 	conditionalJump falseBranch: self currentBasicBlock.
 	
+	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
+	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+	
+	"ifTrue: does not return anything useful"
+	self pushOperand: DRNullValue new.
+	
 	"Could happen that the evaluated block had a non local return.
 	In that case, this block should not arrive to this merge point
 		=> do not add the jump"
 	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
 		trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
 	].
-
-	joinInstruction := startingBasicBlock blockValue
-		                   joinValue: trueBranchBasicBlockOut blockValue
-		                   onIRGenerator: self
-								from: { startingBasicBlock. trueBranchBasicBlockOut }.
-	joinInstruction addToBlock: self currentBasicBlock.
-	self pushOperand: joinInstruction
 ]
 
 { #category : #'special-cases' }
@@ -415,26 +413,7 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 				                   falseBranchBasicBlockOut }.
 
 	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-
-	"join the temporary values modified by the blocks"
-	self currentTemporaryFrame: ((trueBranchBasicBlockOut temporaryFrame keys
-	                             ,
-	                             falseBranchBasicBlockOut temporaryFrame keys)
-		                            asSet collect: [ :e | 
-		                            e
-		                            -> ((trueBranchBasicBlockOut temporaryFrame
-				                              at: e
-				                              ifAbsent: [ DRNullValue new ])
-				                             joinValue:
-					                             (falseBranchBasicBlockOut temporaryFrame
-						                              at: e
-						                              ifAbsent: [ DRNullValue new ])
-				                             onIRGenerator: self
-				                             from: { 
-						                             trueBranchBasicBlockOut.
-						                             falseBranchBasicBlockOut }) ])
-		                           asDictionary.
-	currentBasicBlock temporaryFrame: self currentTemporaryFrame.
+	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
 	self pushOperand: joinInstruction
 ]
 

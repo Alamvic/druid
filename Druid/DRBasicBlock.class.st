@@ -185,6 +185,37 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 	^ vmOperandStack := newStack
 ]
 
+{ #category : #temporaries }
+DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
+
+	| temporaryNames newTemporaryFrame predecessorTemporaries |
+	"If I have no predecessors, I'm very probably dead code.
+	No need to merge anything"
+	self predecessors ifEmpty: [ ^ temporaryFrame ].
+	
+	predecessorTemporaries := self predecessors collect: [ :e | e temporaryFrame ].
+	self assert: (predecessorTemporaries collect: [ :e | e size ] as: Set) size = 1.
+	
+	"Do not include the return temporary variable as it is a special variable that will be resolved at the end of the method"
+	temporaryNames := predecessorTemporaries flatCollect: [ :e | e keys ] as: Set.
+	newTemporaryFrame := Dictionary new.
+	temporaryNames collect: [ :name | | values phi |
+		name ~= #'__return' ifTrue: [
+			values := self predecessors collect: [ :p | p temporaryAt: name ].
+			phi := (DRPhiFunction joinedVariables: values)
+				result: aBuilder allocateTemporaryRegister;
+				originBlocks: self predecessors;
+				origin: thisContext stack;
+				yourself.
+			newTemporaryFrame at: name put: phi.
+	 		self addInstruction: phi ]
+		ifFalse: [ 
+			newTemporaryFrame at: name put: (self predecessors anyOne temporaryAt: #'__return').
+			 ] ].
+	
+	^ temporaryFrame := newTemporaryFrame
+]
+
 { #category : #accessing }
 DRBasicBlock >> numberOfPredecessors [
 	
