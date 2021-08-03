@@ -38,6 +38,12 @@ DRConditionalJump >> falseBranch: aDruidIRGenerator [
 ]
 
 { #category : #accessing }
+DRConditionalJump >> isConditionalJump [ 
+
+	^ true
+]
+
+{ #category : #accessing }
 DRConditionalJump >> isJump [ 
 
 	^ true

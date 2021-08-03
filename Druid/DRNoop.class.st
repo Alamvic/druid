@@ -15,3 +15,9 @@ DRNoop >> opcode [
 	
 	^ 'Noop'
 ]
+
+{ #category : #SCCP }
+DRNoop >> sccpEvaluateFor: sccp [ 
+	
+	^ sccp top
+]

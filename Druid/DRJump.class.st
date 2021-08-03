@@ -8,9 +8,22 @@ Class {
 }
 
 { #category : #visiting }
+DRJump >> = aJump [
+
+	super = aJump ifFalse: [ ^ false ].
+	^ target = aJump target
+]
+
+{ #category : #visiting }
 DRJump >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitJump: self
+]
+
+{ #category : #visiting }
+DRJump >> hash [
+
+	^ super hash + target hash
 ]
 
 { #category : #accessing }
@@ -23,6 +36,13 @@ DRJump >> isJump [
 DRJump >> prettyPrint [
 
 	^ 'Jump -> ', target id asString
+]
+
+{ #category : #SCCP }
+DRJump >> sccpEvaluateFor: sccp [
+
+	sccp addJumpToCFGWorklist: self.
+	^ sccp top
 ]
 
 { #category : #accessing }

@@ -22,8 +22,20 @@ DRValue >> asDRInterpreterValue [
 	^ self
 ]
 
+{ #category : #accessing }
+DRValue >> isConditionalJump [ 
+
+	^ false
+]
+
 { #category : #testing }
 DRValue >> isConstant [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isCopy [ 
 	
 	^ false
 ]
