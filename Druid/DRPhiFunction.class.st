@@ -105,6 +105,11 @@ DRPhiFunction >> rtlOperandQualifier [
 	^ 'R:'
 ]
 
+{ #category : #enumerating }
+DRPhiFunction >> sccpEvaluateFor: sccp [
+	^ sccp value: self. 
+]
+
 { #category : #simplification }
 DRPhiFunction >> simplify [
 	

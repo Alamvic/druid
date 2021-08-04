@@ -15,3 +15,9 @@ DRLessOrEqualsComparison >> opcode [
 	
 	^ 'LessOrEquals'
 ]
+
+{ #category : #printing }
+DRLessOrEqualsComparison >> value [ 
+
+	^ self operand1 operand1 value <= self operand2 operand1 value
+]

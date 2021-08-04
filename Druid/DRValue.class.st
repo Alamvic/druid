@@ -1,6 +1,9 @@
 Class {
 	#name : #DRValue,
 	#superclass : #Object,
+	#instVars : [
+		'block'
+	],
 	#category : #'Druid-IR'
 }
 
@@ -20,6 +23,18 @@ DRValue >> addToBlock: aDRBasicBlock [
 DRValue >> asDRInterpreterValue [
 
 	^ self
+]
+
+{ #category : #accessing }
+DRValue >> block [
+	
+	^ block
+]
+
+{ #category : #accessing }
+DRValue >> block: aBlock [
+	
+	block := aBlock
 ]
 
 { #category : #accessing }

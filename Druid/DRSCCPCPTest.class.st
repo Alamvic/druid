@@ -5,24 +5,139 @@ Class {
 }
 
 { #category : #tests }
-DRSCCPCPTest >> testPropagateBetweenBasicBlocks [
+DRSCCPCPTest >> setUpCFG: n [
 
-	| optimisation bb cfg copy1 bb2 b0 |
-	optimisation := DRSCCP new.
-	b0 := DRBasicBlock id: 0.
-	bb := DRBasicBlock id: 1.
-	bb2 := DRBasicBlock id: 2.
-	b0 jumpTo: bb.
-	bb jumpTo: bb2.
-	bb2 endInstruction: DRNoop new. 
+	| cfg b0 b1 b2 b3 |
 	
-	cfg := DRControlFlowGraph new.
+	cfg := DRControlFlowGraphForTesting new. 
+	
+	b0 := DRBasicBlock id: 0.
+	b1 := DRBasicBlock id: 1.
+	b2 := DRBasicBlock id: 2.
+	b3 := DRBasicBlock id: 3.
+	
 	cfg initialBasicBlock: b0.
+	
+	n = 1 ifTrue: [ 
+		b0 endInstruction: DRNoop new.
+		cfg initialBasicBlock: b0. 
+		cfg b0: b0. ].
+	
+	n = 2 ifTrue: [ 
+		b1 endInstruction: DRNoop new. 
+		b0 jumpTo: b1. 
+		
+		cfg b0: b0. 
+		cfg b1: b1. ].
+
+	n = 3 ifTrue: [ 
+		b2 endInstruction: DRNoop new.
+		b0 jumpTo: b1.
+		b1 jumpTo: b2. 
+		
+		cfg b0: b0.
+		cfg b1: b1. 
+		cfg b2: b2. ].
+	
+	n = 4 ifTrue: [ 
+		b3 endInstruction: DRNoop new. 
+		b0 jumpTo: b1. 
+		b1 jumpTo: b2. 
+		b2 jumpTo: b3. 
+		
+		cfg b0: b0.
+		cfg b1: b1. 
+		cfg b2: b2. 
+		cfg b3: b3. ].
+
+	^ cfg. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+]
+
+{ #category : #tests }
+DRSCCPCPTest >> testPropagateAndFoldInComplexInstructionLeft [
+
+	| optimisation b0 b1 cfg copy1 operandList|
+	optimisation := DRSCCP new.
+		
+	cfg := self setUpCFG: 2. 
+	b0 := cfg b0. 
+	b1 := cfg b1. 
 
 	"T1 := 1"
-	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
+	b1 addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 2 } result:  (DRTemporaryRegister id: 1)).
+	"T2 := T1 + 2"
+	
+	operandList := OrderedCollection new.
+	operandList add: copy1. 
+	operandList add: (DRConstantValue value: 1). 
+	
+	b1 addInstruction: (DRAdd operands: operandList result:  (DRTemporaryRegister id: 2)).
+	optimisation applyTo: cfg.
+
+	"The T1 access got replaced by the constant 1"
+	self assert: cfg instructions allButLast last operand1 equals: (DRConstantValue value: 3).
+	
+]
+
+{ #category : #tests }
+DRSCCPCPTest >> testPropagateAndFoldInComplexInstructionRight [
+
+	| optimisation b0 b1 cfg copy1 operandList|
+	optimisation := DRSCCP new.
+		
+	cfg := self setUpCFG: 2. 
+	b0 := cfg b0. 
+	b1 := cfg b1. 
+	
+	"T1 := 1"
+	b1 addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
+	"T2 := 2 + T1"
+	
+	operandList := OrderedCollection new. 
+	operandList add: (DRConstantValue value: 2). 
+	operandList add: copy1. 
+	
+	b1 addInstruction: (DRAdd operands: operandList result:  (DRTemporaryRegister id: 2)).
+	optimisation applyTo: cfg.
+
+	"The T1 access got replaced by the constant 1"
+	self assert: cfg instructions allButLast last operand1 equals: (DRConstantValue value: 3).
+]
+
+{ #category : #tests }
+DRSCCPCPTest >> testPropagateBetweenBasicBlocks [
+
+	| optimisation b1 cfg copy1 b2 b0 |
+	optimisation := DRSCCP new.
+	
+	cfg := self setUpCFG: 3. 
+	b0 := cfg b0. 
+	b1 := cfg b1. 
+	b2 := cfg b2. 
+
+	"T1 := 1"
+	b1 addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
 	"T2 := T1"
-	bb2 addInstruction: (DRCopy operands: { copy1 } result:  (DRTemporaryRegister id: 2)).
+	b2 addInstruction: (DRCopy operands: { copy1 } result:  (DRTemporaryRegister id: 2)).
 	optimisation applyTo: cfg.
 
 	"The T1 access got replaced by the constant 1"
@@ -32,29 +147,27 @@ DRSCCPCPTest >> testPropagateBetweenBasicBlocks [
 { #category : #tests }
 DRSCCPCPTest >> testPropagateDifferentValuesInPhi [
 
-	| optimisation bb cfg copy1 leftBlock rightBlock copy2 jump exitBasicBlock |
+	| optimisation b0 b1 cfg copy1 leftBlock rightBlock copy2 jump exitBasicBlock |
 	optimisation := DRSCCP new.
-	bb := DRBasicBlock new.
-		
-	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock: bb.
 	
+	cfg := self setUpCFG: 4. 
+	b0 := cfg b0. 
+	b1 := cfg b1. 
+	leftBlock := cfg b2.
+	exitBasicBlock := cfg b3. 
 	
-	leftBlock := DRBasicBlock new.
+	rightBlock := DRBasicBlock id: 4. 
+	rightBlock jumpTo: exitBasicBlock. 
+	
 	"T1 := 1"
 	leftBlock addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
 	
-	rightBlock := DRBasicBlock new.
 	"T2 := 2"
 	rightBlock addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 2 } result:  (DRTemporaryRegister id: 2)).
 	
-	cfg initialBasicBlock endInstruction: (jump := DRConditionalJump operands: { DRConstantValue value: true }).
+	b1 endInstruction: (jump := DRConditionalJump operands: { DRConstantValue value: true }).
 	jump trueBranch: leftBlock.
 	jump falseBranch: rightBlock.
-	
-	exitBasicBlock := DRBasicBlock new.
-	leftBlock jumpTo: exitBasicBlock.
-	rightBlock jumpTo: exitBasicBlock.
 	
 	"T3 := ø(T1, T2)"
 	exitBasicBlock addInstruction: ((DRPhiFunction joinedVariables: { copy1. copy2 })
@@ -63,98 +176,45 @@ DRSCCPCPTest >> testPropagateDifferentValuesInPhi [
 
 	optimisation applyTo: cfg.
 	
-	"The T1 access got replaced by the contant 1"
-	self assert: cfg instructions last equals: ((DRPhiFunction joinedVariables: { copy1. copy2 })
+	self assert: cfg instructions allButLast last equals: ((DRPhiFunction joinedVariables: { copy1. copy2 })
 		result: (DRTemporaryRegister id: 3);
 		yourself).
 ]
 
 { #category : #tests }
-DRSCCPCPTest >> testPropagateInComplexInstructionLeft [
-
-	| optimisation bb cfg copy1 operandList|
-	optimisation := DRSCCP new.
-	bb := DRBasicBlock new.
-	 
-		
-	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock: bb.
-	
-	"T1 := 1"
-	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 2 } result:  (DRTemporaryRegister id: 1)).
-	"T2 := T1 + 2"
-	
-	operandList := OrderedCollection new.
-	operandList add: copy1. 
-	operandList add: (DRConstantValue value: 1). 
-	
-	bb addInstruction: (DRAdd operands: operandList result:  (DRTemporaryRegister id: 2)).
-	optimisation applyTo: cfg.
-
-	"The T1 access got replaced by the constant 1"
-	self assert: cfg instructions last operand2 equals: (DRConstantValue value: 1).
-	self assert: cfg instructions last operand1 equals: (DRConstantValue value: 2)
-	
-]
-
-{ #category : #tests }
-DRSCCPCPTest >> testPropagateInComplexInstructionRight [
-
-	| optimisation bb cfg copy1 operandList|
-	optimisation := DRSCCP new.
-	bb := DRBasicBlock new.
-	
-		
-	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock: bb.
-	
-	"T1 := 1"
-	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
-	"T2 := 2 + T1"
-	
-	operandList := OrderedCollection new. 
-	operandList add: (DRConstantValue value: 2). 
-	operandList add: copy1. 
-	
-	bb addInstruction: (DRAdd operands: operandList result:  (DRTemporaryRegister id: 2)).
-	optimisation applyTo: cfg.
-
-	"The T1 access got replaced by the constant 1"
-	self assert: cfg instructions last operand1 equals: (DRConstantValue value: 2).
-	self assert: cfg instructions last operand2 equals: (DRConstantValue value: 1)
-]
-
-{ #category : #tests }
 DRSCCPCPTest >> testPropagateInSingleBasicBlock [
 
-	| optimisation bb cfg copy1 |
+	| optimisation b0 b1 cfg copy1 |
 	optimisation := DRSCCP new.
-	bb := DRBasicBlock new.
-		
-	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock: bb.
+	
+	cfg := self setUpCFG: 2. 
+	b0 := cfg b0. 
+	b1 := cfg b1. 
+
 
 	"T1 := 1"
-	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
+	b1 addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
 	"T2 := T1"
-	bb addInstruction: (DRCopy operands: { copy1 } result:  (DRTemporaryRegister id: 2)).
+	b1 addInstruction: (DRCopy operands: { copy1 } result:  (DRTemporaryRegister id: 2)).
 	optimisation applyTo: cfg.
 
 	"The T1 access got replaced by the constant 1"
-	self assert: cfg instructions last operand1 equals: (DRConstantValue value: 1)
+	self assert: cfg instructions allButLast last operand1 equals: (DRConstantValue value: 1)
 ]
 
 { #category : #tests }
 DRSCCPCPTest >> testPropagatePhiOnDifferentValues [
 
-	| optimisation bb1 bb2 bb3 cfg copy1 leftBlock rightBlock copy2 jump phiInstruction copyInstruction |
+	| optimisation b0 b1 b3 cfg copy1 leftBlock rightBlock copy2 jump phiInstruction copyInstruction |
 	optimisation := DRSCCP new.
-	bb1 := DRBasicBlock new.
-	bb2 := DRBasicBlock new.
-	bb3 := DRBasicBlock new.
-		
-	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock: bb1.
+	cfg := self setUpCFG: 4. 
+	b0 := cfg b0. 
+	b1 := cfg b1. 
+	leftBlock := cfg b2.
+	b3 := cfg b3. 
+	
+	rightBlock := DRBasicBlock id: 4. 
+	rightBlock jumpTo: b3. 
 	
 	
 	leftBlock := DRBasicBlock new.
@@ -165,59 +225,55 @@ DRSCCPCPTest >> testPropagatePhiOnDifferentValues [
 	"T2 := 2"
 	rightBlock addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 2 } result:  (DRTemporaryRegister id: 2)).
 	
-	cfg initialBasicBlock endInstruction: (jump := DRConditionalJump operands: { DRConstantValue value: true }).
+	b1 endInstruction: (jump := DRConditionalJump operands: { DRConstantValue value: true }).
 	jump trueBranch: leftBlock.
 	jump falseBranch: rightBlock.
 	
-	leftBlock jumpTo: bb2.
-	rightBlock jumpTo: bb2.
-	
-	bb2 jumpTo: bb3. 
+	leftBlock jumpTo: b3.
+	rightBlock jumpTo: b3. 
 	
 	"T3 := ø(T1, T2)"
 	phiInstruction := ((DRPhiFunction joinedVariables: { copy1. copy2 })
 		result: (DRTemporaryRegister id: 3);
 		yourself).
-	bb2 addInstruction: phiInstruction. 
+	b3 addInstruction: phiInstruction. 
 	
 	copyInstruction := DRCopy operands: { phiInstruction } result: {DRTemporaryRegister id: 4}. 
-	bb3 addInstruction: copyInstruction . 
+	b3 addInstruction: copyInstruction . 
 	
 
 	optimisation applyTo: cfg.
 	
 	"The T1 access got replaced by the contant 1"
-	self assert: cfg instructions last equals: copyInstruction. 
+	self assert: cfg instructions allButLast last equals: copyInstruction. 
 ]
 
 { #category : #tests }
 DRSCCPCPTest >> testPropagatePhiOnSameValue [
 
-	| optimisation bb cfg copy1 leftBlock rightBlock copy2 jump phi exitBasicBlock |
+	| optimisation b0 b1 cfg copy1 leftBlock rightBlock copy2 jump phi exitBasicBlock |
 	optimisation := DRSCCP new.
-	bb := DRBasicBlock new.
-		
-	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock: bb.
+	
+	cfg := self setUpCFG: 4. 
+	b0 := cfg b0. 
+	b1 := cfg b1. 
+	leftBlock := cfg b2.
+	exitBasicBlock := cfg b3. 
+	
+	rightBlock := DRBasicBlock id: 4. 
+	rightBlock jumpTo: exitBasicBlock. 
 	
 	
-	leftBlock := DRBasicBlock new.
 	"T1 := 1"
 	leftBlock addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
 	
-	rightBlock := DRBasicBlock new.
+
 	"T2 := 1"
 	rightBlock addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 2)).
 	
-	cfg initialBasicBlock endInstruction: (jump := DRConditionalJump operands: { DRConstantValue value: true }).
-	leftBlock addPredecessor: cfg initialBasicBlock.
+	b1 endInstruction: (jump := DRConditionalJump operands: { DRConstantValue value: true }).
 	jump trueBranch: leftBlock.
-	rightBlock addPredecessor: cfg initialBasicBlock.
 	jump falseBranch: rightBlock.
-	
-	exitBasicBlock := DRBasicBlock new.
-	leftBlock jumpTo: exitBasicBlock.
-	rightBlock jumpTo: exitBasicBlock.
 	
 	"T3 := ø(T1, T2)"
 	phi := ((DRPhiFunction joinedVariables: { copy1. copy2 })
@@ -231,37 +287,33 @@ DRSCCPCPTest >> testPropagatePhiOnSameValue [
 	optimisation applyTo: cfg.
 	
 	"T4 := T3 should become T4 := 1"
-	self assert: cfg instructions last operand1 equals: (DRConstantValue value: 1)
+	self assert: cfg instructions allButLast last operand1 equals: (DRConstantValue value: 1)
 ]
 
 { #category : #tests }
 DRSCCPCPTest >> testPropagateSameValuesInPhi [
 
-	| optimisation bb cfg copy1 leftBlock rightBlock copy2 jump exitBasicBlock |
+	| optimisation b0 b1 cfg copy1 leftBlock rightBlock copy2 jump exitBasicBlock |
 	optimisation := DRSCCP new.
-	bb := DRBasicBlock new.
-		
-	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock: bb.
 	
+	cfg := self setUpCFG: 4. 
+	b0 := cfg b0. 
+	b1 := cfg b1. 
+	leftBlock := cfg b2.
+	exitBasicBlock := cfg b3. 
 	
-	leftBlock := DRBasicBlock new.
+	rightBlock := DRBasicBlock id: 4. 
+	rightBlock jumpTo: exitBasicBlock. 
+	
 	"T1 := 1"
 	leftBlock addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)).
 	
-	rightBlock := DRBasicBlock new.
 	"T2 := 1"
 	rightBlock addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 2)).
 	
 	cfg initialBasicBlock endInstruction: (jump := DRConditionalJump operands: { DRConstantValue value: true }).
-	leftBlock addPredecessor: cfg initialBasicBlock.
 	jump trueBranch: leftBlock.
-	rightBlock addPredecessor: cfg initialBasicBlock.
 	jump falseBranch: rightBlock.
-	
-	exitBasicBlock := DRBasicBlock new.
-	leftBlock jumpTo: exitBasicBlock.
-	rightBlock jumpTo: exitBasicBlock.
 	
 	"T3 := ø(T1, T2)"
 	exitBasicBlock addInstruction: ((DRPhiFunction joinedVariables: { copy1. copy2 })
@@ -271,5 +323,5 @@ DRSCCPCPTest >> testPropagateSameValuesInPhi [
 	optimisation applyTo: cfg.
 	
 	"T3 := ø(T1, T2) should become T3 := 1"
-	self assert: cfg instructions last operand1 equals: (DRConstantValue value: 1)
+	self assert: cfg instructions allButLast last operand1 equals: (DRConstantValue value: 1)
 ]

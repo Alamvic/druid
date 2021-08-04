@@ -17,6 +17,20 @@ DRBitAnd >> opcode [
 ]
 
 { #category : #printing }
+DRBitAnd >> sccpEvaluateFor: sccp [
+
+	| left right |
+	
+	left := sccp value: self operand1. 
+	right := sccp value: self operand2. 
+	
+	(left isInteger and: right isInteger) ifTrue: [ ^ left & right ].
+	((left isInteger and: right = sccp top) or: (left = sccp top and: right isInteger)) ifTrue: [ ^ sccp top ]. 
+	(left = sccp bottom or: right = sccp bottom) ifTrue: [ ^ sccp bottom ].
+	(left = sccp top or: right = sccp top) ifTrue: [ ^ sccp top]. 
+]
+
+{ #category : #printing }
 DRBitAnd >> tryConstantFolding [ 
 
 	|op1 op2|

@@ -26,7 +26,7 @@ DRControlFlowGraph >> blocksDo: aFullBlockClosure [
 	
 	
 	workingQueue := OrderedCollection new.
-	workingQueue add: initialBasicBlock.
+	workingQueue add: self initialBasicBlock.
 	
 	[ workingQueue isEmpty ] whileFalse: [ | currentBlock |
 		currentBlock := workingQueue removeFirst.
@@ -77,7 +77,7 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 	| worklist visited |
 	visited := Set new.
 	worklist := OrderedCollection new.
-	worklist add: initialBasicBlock.
+	worklist add: self initialBasicBlock.
 	
 	[ worklist isEmpty ] whileFalse: [ | currentBlock |
 		currentBlock := worklist removeFirst.
@@ -96,7 +96,7 @@ DRControlFlowGraph >> validate [
 	| visited workqueue |
 	visited := Set new.
 	workqueue := OrderedCollection new.
-	workqueue add: initialBasicBlock.
+	workqueue add: self initialBasicBlock.
 	
 	[ workqueue isEmpty ] whileFalse: [ | nextBlock |
 		nextBlock := workqueue removeFirst.

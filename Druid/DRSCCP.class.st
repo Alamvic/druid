@@ -15,26 +15,25 @@ Class {
 }
 
 { #category : #evaluating }
-DRSCCP >> addJumpToCFGWorklist: aDRJump [ 
-	
+DRSCCP >> addJumpToCFGWorklist: aDRJump [
+
 	^ edges detect: [ :e | 
-		e parent = (self getBlock: aDRJump from: instancecfg)
-			and: [ e child = aDRJump target ] ]
+		  e parent = (self getBlock: aDRJump) and: [ 
+			  e child = aDRJump target ] ]
 ]
 
 { #category : #operations }
 DRSCCP >> applyPropagation [
 
-	instancecfg blocksDo: [ :b | 
-		b instructionsDo: [ :i | 
+	instancecfg instructionsDo: [ :i | 
 			| lattice |
 			lattice := self value: i.
 			({ 
 				 self top.
 				 self bottom } includes: lattice) ifFalse: [ 
-				b replaceInstruction: i by: (DRCopy
+				i block replaceInstruction: i by: (DRCopy
 						 operands: { (DRConstantValue value: lattice) }
-						 result: i result) ] ] ]
+						 result: i result) ].  ]. 
 ]
 
 { #category : #operations }
@@ -77,7 +76,24 @@ DRSCCP >> buildEdges: cfg [
 
 { #category : #operations }
 DRSCCP >> dependenciesOf: anInstruction [
-
+	
+	| ret |
+	anInstruction isConditionalJump ifTrue: [
+		self value = self top ifTrue: [ 
+			ret := OrderedCollection new. 
+			ret addAll: anInstruction trueBranch instructions.
+			ret addAll: anInstruction falseBranch instructions. 
+			^ ret ]
+		ifFalse: [ 
+			"We assume self value = self bottom" 
+			anInstruction condition value ifTrue: [ 
+				 ret := OrderedCollection new. 
+				 ret addAll: anInstruction trueBranch instructions.
+				^ ret. ]
+			ifFalse: [ 
+				ret := OrderedCollection new. 
+				ret addAll: anInstruction falseBranch instructions.
+				^ ret. ] ] ]. 
 	^ instancecfg instructions select: [ :instruction | 
 		  instruction operands includes: anInstruction ]
 ]
@@ -91,7 +107,9 @@ DRSCCP >> dependentInstructionsOf: aValue inList: aList [
 { #category : #operations }
 DRSCCP >> evaluateAllPhisInBlock: anEdge [
 
-	^ nil
+	anEdge child instructionsDo: [ :i | i isPhiFunction ifTrue: [ self evaluateOperands: i ] ]. 
+	"self halt. "
+	"anEdge child instructionsDo: [ :i | i isPhiFunction ifFalse: [ self evaluateResult: i ] ]." 
 ]
 
 { #category : #operations }
@@ -99,17 +117,19 @@ DRSCCP >> evaluateAssign: anInstruction [
 
 	| previousValue newValue |
 	
+
 	previousValue := self value: anInstruction. 
 	self setValueOf: anInstruction at: (newValue := anInstruction sccpEvaluateFor: self).
 	
 	previousValue = newValue ifFalse: [
-		SSAWorkList addAll: (self dependenciesOf: anInstruction) ]
+		SSAWorkList addAll: (self dependenciesOf: anInstruction) ]. 
 ]
 
 { #category : #operations }
 DRSCCP >> evaluateConditionnal: aBlock [
 
 	| c  block|
+	self halt. 
 	aBlock instructionsDo: [ :s |
 		 s operands do: [ :d |
 			(self value: d ~= self bottom) ifTrue: [
@@ -136,9 +156,34 @@ DRSCCP >> evaluateInstruction: anInstruction [
 ]
 
 { #category : #operations }
-DRSCCP >> evaluatePhi: anInstruction [ 
+DRSCCP >> evaluateOperands: aPhi [
 
-	^ nil
+	"(self value: aPhi ~= self bottom) ifTrue: [ 
+		aPhi operands do: [ :o |
+			 ] ]"
+	aPhi operand1 operand1 value =  aPhi operand1 value 
+		ifTrue: [ 
+			self setValueOf: aPhi at: aPhi operand1. 
+			self halt.].
+	"self halt. "
+]
+
+{ #category : #operations }
+DRSCCP >> evaluatePhi: anInstruction [ 
+	
+	self evaluateOperands: anInstruction. 
+	self evaluateResult: anInstruction. 
+]
+
+{ #category : #operations }
+DRSCCP >> evaluateResult: aPhi [
+
+	| value |
+	((self value: aPhi) ~= self bottom) ifTrue: [ 
+		 value := self interpretePhiFunction: aPhi.
+		 (value ~= (self value: aPhi)) ifTrue: [ 
+			 self setValueOf: aPhi at: value. 
+			 SSAWorkList addAll: (self dependenciesOf: aPhi) ]].
 ]
 
 { #category : #operations }
@@ -149,30 +194,27 @@ DRSCCP >> executedEdgesEntering: aBlock [
 ]
 
 { #category : #operations }
-DRSCCP >> getBlock: anInstruction from: aCFG [
+DRSCCP >> getBlock: anInstruction [
 
 	"Returns a block from a control flow graph that contains the instruction"
 	
-	aCFG blocksDo: [ :b | b instructionsDo: [ :i | i = anInstruction ifTrue: [ ^ b ] ] ].
-	^ nil. 
+	^ anInstruction block
 ]
 
 { #category : #operations }
 DRSCCP >> initialize [
 
 	super initialize.
-	latticeValues := Dictionary new.
+	latticeValues := OrderedDictionary new.
 ]
 
 { #category : #operations }
 DRSCCP >> initializeLatticeValues: cfg [
 
-	cfg blocksDo: [ :b | 
-		b instructionsDo: [ :i |
-			
+	cfg instructionsDo: [ :i |
 			latticeValues at: i put: self top.
-			i operands do: [ :o | 
-				o isConstant ifTrue: [ self setValueOf: o at: o value ] ] ] ]
+			 i operands do: [ :o |
+				o isConstant ifTrue: [ self setValueOf: o at: o value ] ] ]. 
 ]
 
 { #category : #operations }
@@ -201,13 +243,21 @@ DRSCCP >> interpretOverLatticeValue: operation [
 { #category : #operations }
 DRSCCP >> interpretePhiFunction: operation [
 
-	| operandsList |
+	"| leftEdge rightEdge |
+	
+	edges do: [ :e | ((e parent = (self getBlock: operation operand1)) and:  (e child = (self getBlock: operation))) ifTrue: [ leftEdge := e ] ]. 
+	edges do: [ :e | ((e parent = (self getBlock: operation operand2)) and: (e child = (self getBlock: operation))) ifTrue: [ rightEdge := e ] ]. 
+	self halt. 
+	(leftEdge isExecuted and: rightEdge isExecuted) ifFalse: [ 
+		leftEdge isExecuted ifFalse: [ ^ self value: operation operand2 ].
+		rightEdge isExecuted ifFalse: [ ^ self value: operation operand1 ]]."
+	
+	
 	operation operand1 operand1 value = operation operand2 operand1 value 
 		ifTrue: [ 
-			operandsList := OrderedCollection new.
-			operandsList add: operation operand1 operand1.
-			operation operands: operandsList.
-			latticeValues at: operation put: operation operand1. ] 
+			^ operation operand1 operand1 value ]
+		ifFalse: [ 
+			^ self value: operation ]
 ]
 
 { #category : #operations }
@@ -249,7 +299,7 @@ DRSCCP >> stepSSAWorklist [
 	SSAWorkList isEmpty ifTrue: [ ^ self ].
 
 	currentInstruction := SSAWorkList removeFirst.
-	workingBlock := self getBlock: currentInstruction from: instancecfg.
+	workingBlock := self getBlock: currentInstruction.
 	(self executedEdgesEntering: workingBlock) isEmpty ifTrue: [ 
 		currentInstruction isPhiFunction
 			ifTrue: [ self evaluatePhi: currentInstruction ]
