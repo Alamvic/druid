@@ -27,23 +27,31 @@ DRSCCP >> applyPropagation [
 
 	instancecfg instructionsDo: [ :i | 
 			| lattice |
+			i isJump ifFalse: [ 
 			lattice := self value: i.
 			({ 
 				 self top.
 				 self bottom } includes: lattice) ifFalse: [ 
 				i block replaceInstruction: i by: (DRCopy
 						 operands: { (DRConstantValue value: lattice) }
-						 result: i result) ].  ]. 
+						 result: i result) ]. ] ]. 
 ]
 
 { #category : #operations }
 DRSCCP >> applyTo: cfg [
 
+
 	self initializeSCCPWithCFG: cfg.
 	[ CFGWorkList isEmpty and: SSAWorkList isEmpty ] whileFalse: [ 
 		self stepCFGWorklist.
-		self stepSSAWorklist ].
-	self applyPropagation
+		self stepSSAWorklist].
+
+	self applyPropagation. 
+	edges select: [ :e |  e isExecuted]. 
+	CFGWorkList. 
+	SSAWorkList. 
+	latticeValues. 
+	"self halt. "
 ]
 
 { #category : #'accessing - constants' }
@@ -78,6 +86,7 @@ DRSCCP >> buildEdges: cfg [
 DRSCCP >> dependenciesOf: anInstruction [
 	
 	| ret |
+
 	anInstruction isConditionalJump ifTrue: [
 		self value = self top ifTrue: [ 
 			ret := OrderedCollection new. 
@@ -99,17 +108,10 @@ DRSCCP >> dependenciesOf: anInstruction [
 ]
 
 { #category : #operations }
-DRSCCP >> dependentInstructionsOf: aValue inList: aList [
-
-	^ aList select: [ :anInstruction | anInstruction operands includes: aValue ]
-]
-
-{ #category : #operations }
 DRSCCP >> evaluateAllPhisInBlock: anEdge [
 
-	anEdge child instructionsDo: [ :i | i isPhiFunction ifTrue: [ self evaluateOperands: i ] ]. 
-	"self halt. "
-	"anEdge child instructionsDo: [ :i | i isPhiFunction ifFalse: [ self evaluateResult: i ] ]." 
+	anEdge child instructionsDo: [ :i | 
+		i isPhiFunction ifTrue: [ self evaluatePhi: i ] ]
 ]
 
 { #category : #operations }
@@ -117,61 +119,59 @@ DRSCCP >> evaluateAssign: anInstruction [
 
 	| previousValue newValue |
 	
-
+	anInstruction isJump ifTrue: [ ^ self ].
+	anInstruction operands do: [ :o | self setValueOf: o at: (o sccpEvaluateFor: self) ].
+	
 	previousValue := self value: anInstruction. 
 	self setValueOf: anInstruction at: (newValue := anInstruction sccpEvaluateFor: self).
 	
 	previousValue = newValue ifFalse: [
-		SSAWorkList addAll: (self dependenciesOf: anInstruction) ]. 
+		SSAWorkList addAll: (self dependenciesOf: anInstruction) ]
 ]
 
 { #category : #operations }
-DRSCCP >> evaluateConditionnal: aBlock [
-
-	| c  block|
-	self halt. 
-	aBlock instructionsDo: [ :s |
-		 s operands do: [ :d |
-			(self value: d ~= self bottom) ifTrue: [
-				(self value: d ~= self value: s) ifTrue:[
-				  self setValueOf: d at: (self value: s). 
-					(self value: d = self bottom) ifTrue: [edges do: [:e | e parent = aBlock ifTrue: [ CFGWorkList add: e]]]
-					ifFalse: [
-						c := aBlock instruction last.
-						c condition ifTrue: [
-							block := c trueBranch. ]
-						ifFalse: [block := c falseBranch]]]]]]. 
-]
-
-{ #category : #evaluation }
-DRSCCP >> evaluateInstruction: anInstruction [
-
-	self evaluateAssign: anInstruction
-"Add the successor of the block to the worklist"
-						"CFGWorkList addAll:
-							(currentEdge child successors collect: [ :successor | 
-								 edges detect: [ :succesorEdge | 
-									 succesorEdge parent = currentEdge child and: [ 
-										 succesorEdge child = successor ] ] ])"
+DRSCCP >> evaluateConditionnal: aConditionalJump [
+	
+	CFGWorkList. 
+	 (aConditionalJump sccpEvaluateFor: self) ~= (self bottom) ifTrue: [ aConditionalJump targets do: [ :t |
+			CFGWorkList add: (edges select: [:e | (e child = t) and: (e parent = (self getBlock: aConditionalJump))]) first]]
+		ifFalse: [
+			aConditionalJump condition value ifTrue: [ 
+				CFGWorkList add: (edges select: [:e | (e child = aConditionalJump trueBranch) and: (e parent = (self getBlock: aConditionalJump))]) first] 
+			ifFalse: [ 
+				CFGWorkList add: (edges select: [:e | (e child = aConditionalJump falseBranch) and: (e parent = (self getBlock: aConditionalJump))]) first]
+			]
+		
 ]
 
 { #category : #operations }
 DRSCCP >> evaluateOperands: aPhi [
 
-	"(self value: aPhi ~= self bottom) ifTrue: [ 
-		aPhi operands do: [ :o |
-			 ] ]"
-	aPhi operand1 operand1 value =  aPhi operand1 value 
+	| edge |
+
+	((self value: aPhi) ~= (self bottom)) ifTrue: [ 
+		aPhi operands do: [ :r |
+			 edge := edges select: [ :e | ((e parent) = (self getBlock: r)) and: ((e child) = (self getBlock: aPhi))]. 
+			 edge := edge first.
+			 edge isExecuted ifTrue: [
+				edge child instructionsDo: [:i |
+					i result = r ifTrue: [
+						self setValueOf: r at: i ]]]]].
+	
+	
+	
+	"aPhi operand1 operand1 value =  aPhi operand1 value 
 		ifTrue: [ 
 			self setValueOf: aPhi at: aPhi operand1. 
 			self halt.].
-	"self halt. "
+	self halt. "
 ]
 
 { #category : #operations }
 DRSCCP >> evaluatePhi: anInstruction [ 
+	|operandValues|
 	
-	self evaluateOperands: anInstruction. 
+	operandValues := self evaluateOperands: anInstruction. 
 	self evaluateResult: anInstruction. 
 ]
 
@@ -179,6 +179,7 @@ DRSCCP >> evaluatePhi: anInstruction [
 DRSCCP >> evaluateResult: aPhi [
 
 	| value |
+	
 	((self value: aPhi) ~= self bottom) ifTrue: [ 
 		 value := self interpretePhiFunction: aPhi.
 		 (value ~= (self value: aPhi)) ifTrue: [ 
@@ -211,10 +212,7 @@ DRSCCP >> initialize [
 { #category : #operations }
 DRSCCP >> initializeLatticeValues: cfg [
 
-	cfg instructionsDo: [ :i |
-			latticeValues at: i put: self top.
-			 i operands do: [ :o |
-				o isConstant ifTrue: [ self setValueOf: o at: o value ] ] ]. 
+	cfg instructionsDo: [ :i | latticeValues at: i put: self top ]
 ]
 
 { #category : #operations }
@@ -243,31 +241,20 @@ DRSCCP >> interpretOverLatticeValue: operation [
 { #category : #operations }
 DRSCCP >> interpretePhiFunction: operation [
 
-	"| leftEdge rightEdge |
+	| leftEdge rightEdge |
 	
 	edges do: [ :e | ((e parent = (self getBlock: operation operand1)) and:  (e child = (self getBlock: operation))) ifTrue: [ leftEdge := e ] ]. 
-	edges do: [ :e | ((e parent = (self getBlock: operation operand2)) and: (e child = (self getBlock: operation))) ifTrue: [ rightEdge := e ] ]. 
-	self halt. 
-	(leftEdge isExecuted and: rightEdge isExecuted) ifFalse: [ 
-		leftEdge isExecuted ifFalse: [ ^ self value: operation operand2 ].
-		rightEdge isExecuted ifFalse: [ ^ self value: operation operand1 ]]."
+	edges do: [ :e | ((e parent = (self getBlock: operation operand2)) and: (e child = (self getBlock: operation))) ifTrue: [ rightEdge := e ] ].
 	
+	(leftEdge isExecuted xor: rightEdge isExecuted) ifTrue: [ 
+		leftEdge isExecuted ifFalse: [ ^ self value: operation operand2 ].
+		rightEdge isExecuted ifFalse: [ ^ self value: operation operand1 ]].
 	
 	operation operand1 operand1 value = operation operand2 operand1 value 
 		ifTrue: [ 
 			^ operation operand1 operand1 value ]
 		ifFalse: [ 
 			^ self value: operation ]
-]
-
-{ #category : #operations }
-DRSCCP >> interpreteValue: op [
-
-	|lv|
-	
-	lv := latticeValues at: op ifAbsent: [ 1halt. op ]. 
-	({self bottom. self top} includes: lv) ifTrue: [  1halt. ^ op ]. 
-	^ lv. 
 ]
 
 { #category : #operations }
@@ -281,15 +268,22 @@ DRSCCP >> stepCFGWorklist [
 
 	| currentEdge edgeList |
 	CFGWorkList isEmpty ifTrue: [ ^ self ].
-
 	currentEdge := CFGWorkList removeFirst.
 	currentEdge isExecuted ifFalse: [ 
+		currentEdge mark. 
 		self evaluateAllPhisInBlock: currentEdge.
-		edgeList := self executedEdgesEntering: currentEdge child ].
+		edgeList := self executedEdgesEntering: currentEdge child.
+		edgeList size = 1 ifTrue: [ 
+			currentEdge child instructionsDo: [ :instruction | 
+				instruction isConditionalJump
+					ifFalse: [ 
+						currentEdge child instructions last isConditionalJump ifFalse: [ 
+						self evaluateAssign: instruction. 
+						CFGWorkList addAll: (edges select: [ :e | e parent = currentEdge child ])
+					]]
+					ifTrue: [ self evaluateConditionnal: instruction ] ] ] ] .
 
-	edgeList isEmpty ifTrue: [ 
-		currentEdge child instructionsDo: [ :instruction | 
-			self evaluateInstruction: instruction ] ]
+	
 ]
 
 { #category : #operations }
@@ -300,14 +294,11 @@ DRSCCP >> stepSSAWorklist [
 
 	currentInstruction := SSAWorkList removeFirst.
 	workingBlock := self getBlock: currentInstruction.
-	(self executedEdgesEntering: workingBlock) isEmpty ifTrue: [ 
+	(self executedEdgesEntering: workingBlock) isEmpty ifFalse: [ 
 		currentInstruction isPhiFunction
 			ifTrue: [ self evaluatePhi: currentInstruction ]
 			ifFalse: [ 
-				workingBlock lastInstruction isConditionalJump
-					ifFalse: [ 
-					workingBlock instructionsDo: [ :i | self evaluateAssign: i ] ]
-					ifTrue: [ self evaluateConditionnal: workingBlock ] ] ]
+					workingBlock instructionsDo: [ :i | self evaluateAssign: i ]]]
 ]
 
 { #category : #'accessing - constants' }
@@ -316,8 +307,9 @@ DRSCCP >> top [
 ]
 
 { #category : #operations }
-DRSCCP >> value: aRegister [
+DRSCCP >> value: aValue [
 
 	"Return the lattice value for the register"
-	^ latticeValues at: aRegister
+	aValue isConstant ifTrue: [^ aValue value ].
+	^ latticeValues at: aValue
 ]

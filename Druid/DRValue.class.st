@@ -73,6 +73,12 @@ DRValue >> isLoad [
 	^ false
 ]
 
+{ #category : #accessing }
+DRValue >> isNoop [ 
+	
+	^ false
+]
+
 { #category : #testing }
 DRValue >> isPhiFunction [
 

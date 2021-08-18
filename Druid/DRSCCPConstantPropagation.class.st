@@ -49,7 +49,7 @@ DRSCCPConstantPropagation >> dependentInstructionsOf: aValue inList: aList [
 DRSCCPConstantPropagation >> initialize [
 
 	super initialize.
-	latticeValues := Dictionary new.
+	latticeValues := OrderedDictionary new.
 ]
 
 { #category : #operations }

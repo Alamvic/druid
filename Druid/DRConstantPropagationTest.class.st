@@ -140,11 +140,11 @@ DRConstantPropagationTest >> testPropagateInLoop [
 	bb1 jumpTo: bb2. 
 	
 	"R3 := R1 - 1"
-	bb3 addInstruction: (subtract3 := DRSubstract operands: {copy1, 1} result: (DRTemporaryRegister id: 3)). 
+	bb3 addInstruction: (subtract3 := DRSubstract operands: {copy1 . (DRConstantValue value: 1)} result: (DRTemporaryRegister id: 3)). 
 	"R2 = ø(R1, R3)"
 	bb2 addInstruction: (DRCopy operands: { copy1 } result:  (DRTemporaryRegister id: 2)).
 	
-	bb addInstruction: (DRReturn new). 
+	bb1 addInstruction: (DRReturn new). 
 	optimisation applyTo: cfg.
 	"self halt. "
 	(jump := DRConditionalJump operands: { DRConstantValue value: true })

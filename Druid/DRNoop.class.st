@@ -10,6 +10,12 @@ DRNoop >> acceptVisitor: aVisitor [
 	^ aVisitor visitNoop: self
 ]
 
+{ #category : #SCCP }
+DRNoop >> isNoop [
+
+	^ true
+]
+
 { #category : #printing }
 DRNoop >> opcode [
 	

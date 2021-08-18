@@ -364,7 +364,7 @@ DRSCCPCFTest >> testSCCPPropagationLeftWithPhiFunction [
 	b1 addInstruction: copy2.
 
 	b2 addInstruction: (copy3 := DRCopy
-			          operands: { (DRConstantValue value: 3) }
+			          operands: { copy1 }
 			          result: (DRTemporaryRegister id: 3)).
 	b2 addInstruction: (copy4 := DRCopy
 			          operands: { (DRConstantValue value: 4) }
@@ -376,13 +376,13 @@ DRSCCPCFTest >> testSCCPPropagationLeftWithPhiFunction [
 		(add1 := DRAdd operands: b2OperandList result: (DRTemporaryRegister id: 7)).
 
 	b3 addInstruction: (copy5 := DRCopy
-			          operands: { (DRConstantValue value: 5) }
+			          operands: { copy2 }
 			          result: (DRTemporaryRegister id: 5)).
 	b3 addInstruction: (copy6 := DRCopy
 			          operands: { (DRConstantValue value: 6) }
 			          result: (DRTemporaryRegister id: 6)).
 	b3OperandList := OrderedCollection new.
-	b3OperandList add: copy5.
+	b3OperandList add: copy1.
 	b3OperandList add: copy6.
 	b3 addInstruction:
 		(add2 := DRAdd operands: b3OperandList result: (DRTemporaryRegister id: 8)).
@@ -392,7 +392,7 @@ DRSCCPCFTest >> testSCCPPropagationLeftWithPhiFunction [
 	optimisation applyTo: cfg.
 
 	cfg instructions. 
-	self assert: b4 instructions allButLast last value equals: 7. 
+	self assert: b4 instructions allButLast last operand1 value equals: 5. 
 ]
 
 { #category : #tests }
@@ -401,7 +401,8 @@ DRSCCPCFTest >> testSCCPPropagationRight [
 	"This test asserts that SCCP optimises only the blocks that are used.
 	Here the constants in the conditional jump are propagated, the algorithm knows that the block2 b2 will not be called because the condition is false. 
 	Only the block3 b3 is optimized."
-	| cfg b0 b1 b2 b3 b4 optimisation copy1 copy2 copy3 copy4 copy5 copy6 jump b2OperandList b3OperandList |
+
+	| cfg b0 b1 b2 b3 b4 optimisation copy1 copy2 copy3 copy4 copy5 copy6 jump |
 	optimisation := DRSCCP new.
 
 	copy1 := DRCopy
@@ -433,11 +434,11 @@ DRSCCPCFTest >> testSCCPPropagationRight [
 	b2 addInstruction: (copy4 := DRCopy
 			          operands: { (DRConstantValue value: 4) }
 			          result: (DRTemporaryRegister id: 4)).
-	b2OperandList := OrderedCollection new.
-	b2OperandList add: copy3.
-	b2OperandList add: copy4.
-	b2 addInstruction:
-		(DRAdd operands: b2OperandList result: (DRTemporaryRegister id: 7)).
+	b2 addInstruction: (DRAdd
+			 operands: { 
+					 copy3.
+					 copy4 }
+			 result: (DRTemporaryRegister id: 7)).
 
 	b3 addInstruction: (copy5 := DRCopy
 			          operands: { (DRConstantValue value: 5) }
@@ -445,15 +446,17 @@ DRSCCPCFTest >> testSCCPPropagationRight [
 	b3 addInstruction: (copy6 := DRCopy
 			          operands: { (DRConstantValue value: 6) }
 			          result: (DRTemporaryRegister id: 6)).
-	b3OperandList := OrderedCollection new.
-	b3OperandList add: copy5.
-	b3OperandList add: copy6.
-	b3 addInstruction:
-		(DRAdd operands: b3OperandList result: (DRTemporaryRegister id: 8)).
+	b3 addInstruction: (DRAdd
+			 operands: { 
+					 copy5.
+					 copy6 }
+			 result: (DRTemporaryRegister id: 8)).
 
 	optimisation applyTo: cfg.
 
 
-	self assert: (b3 instructions at: 3) operand1	equals: (DRConstantValue value: 11).
+	self
+		assert: (b3 instructions at: 3) operand1
+		equals: (DRConstantValue value: 11).
 	self assert: (b2 instructions at: 3) class equals: DRAdd
 ]

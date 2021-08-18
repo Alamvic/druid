@@ -73,6 +73,39 @@ DRSCCPCPTest >> setUpCFG: n [
 ]
 
 { #category : #tests }
+DRSCCPCPTest >> setUpCFGConditionnal: jump [
+
+	| cfg b0 b1 b2 b3 b4|
+	
+	cfg := DRControlFlowGraphForTesting new. 
+	
+	b0 := DRBasicBlock id: 0.
+	b1 := DRBasicBlock id: 1.
+	b2 := DRBasicBlock id: 2.
+	b3 := DRBasicBlock id: 3.
+	b4 := DRBasicBlock id: 4. 
+	
+	cfg initialBasicBlock: b0.
+	
+	b4 endInstruction: DRNoop new. 
+	b0 jumpTo: b1. 
+	b1 endInstruction: jump. 
+	jump trueBranch: b2.
+	jump falseBranch: b3.
+	b2 jumpTo: b4. 
+	b3 jumpTo: b4. 
+		
+	cfg b0: b0.
+	cfg b1: b1. 
+	cfg b2: b2. 
+	cfg b3: b3. 
+	cfg b4: b4. 
+	cfg conditionnalJump: jump. 
+
+	^ cfg.
+]
+
+{ #category : #tests }
 DRSCCPCPTest >> testPropagateAndFoldInComplexInstructionLeft [
 
 	| optimisation b0 b1 cfg copy1 operandList|
@@ -176,9 +209,7 @@ DRSCCPCPTest >> testPropagateDifferentValuesInPhi [
 
 	optimisation applyTo: cfg.
 	
-	self assert: cfg instructions allButLast last equals: ((DRPhiFunction joinedVariables: { copy1. copy2 })
-		result: (DRTemporaryRegister id: 3);
-		yourself).
+	self assert: cfg instructions allButLast last operand1 equals: (DRConstantValue value: 1)
 ]
 
 { #category : #tests }
@@ -238,14 +269,14 @@ DRSCCPCPTest >> testPropagatePhiOnDifferentValues [
 		yourself).
 	b3 addInstruction: phiInstruction. 
 	
-	copyInstruction := DRCopy operands: { phiInstruction } result: {DRTemporaryRegister id: 4}. 
+	copyInstruction := DRCopy operands: { phiInstruction } result: (DRTemporaryRegister id: 4). 
 	b3 addInstruction: copyInstruction . 
 	
 
 	optimisation applyTo: cfg.
 	
 	"The T1 access got replaced by the contant 1"
-	self assert: cfg instructions allButLast last equals: copyInstruction. 
+	self assert: cfg instructions allButLast last operand1 equals: (DRConstantValue value: 1).
 ]
 
 { #category : #tests }

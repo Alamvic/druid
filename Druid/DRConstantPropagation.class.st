@@ -45,7 +45,7 @@ DRConstantPropagation >> dependentInstructionsOf: aValue inList: aList [
 DRConstantPropagation >> initialize [
 
 	super initialize.
-	latticeValues := Dictionary new.
+	latticeValues := OrderedDictionary new.
 ]
 
 { #category : #operations }
