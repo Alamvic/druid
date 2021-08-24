@@ -90,6 +90,12 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 					visited add: target ] ] ] ]
 ]
 
+{ #category : #iterating }
+DRControlFlowGraph >> removeInstruction: aDRInstruction [
+	
+	self blocksDo: [ :b | b instructions do: [ :i | i = aDRInstruction ifTrue: [ b removeInstruction: aDRInstruction ] ] ]
+]
+
 { #category : #validating }
 DRControlFlowGraph >> validate [
 	

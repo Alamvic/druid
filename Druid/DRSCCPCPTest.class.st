@@ -50,26 +50,7 @@ DRSCCPCPTest >> setUpCFG: n [
 		cfg b2: b2. 
 		cfg b3: b3. ].
 
-	^ cfg. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	^ cfg.
 ]
 
 { #category : #tests }

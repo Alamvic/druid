@@ -15,3 +15,9 @@ DRStore >> isStore [
 
 	^ true
 ]
+
+{ #category : #visiting }
+DRStore >> opcode [
+	
+	^ 'Store'
+]
