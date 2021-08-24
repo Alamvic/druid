@@ -1,9 +1,11 @@
 "
-This class implements optimizations for Druid. 
-It provides constant folding and constant propagation. 
+This class is an available optimisations for Druid.
 
-Implementation :
-It used the SCPP algorithm (source: http://www.r-5.org/files/books/computers/compilers/writing/Keith_Cooper_Linda_Torczon-Engineering_a_Compiler-EN.pdf). This algorithm used lattices. In order not to implement a lattice class, we replaced it by a dictionnary named latticesValues. The 'top' and 'bottom' values were replaces respectively by 'true' and 'false' objects. 
+It is called on DRControlFlowGraph.
+
+It executes propagation on the operations when they contain constants, which reduces the number of useful code lines and allows dead code elimination.
+
+[Note] : This class is a step in the building of DRSCCP and is not meant to be called on use cases.
 "
 Class {
 	#name : #DRConstantPropagation,

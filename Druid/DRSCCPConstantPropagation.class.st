@@ -1,8 +1,15 @@
 "
-This class implements constant propagation and constant folding for Druid. 
-These optimisations work using the SCCP algorithm. 
+This class is an available optimisations for Druid.
 
-More information about the SCPP algoithm : 
+It is called on DRControlFlowGraph.
+
+It executes folding and propagation on the operations when they contain constants, which reduces the number of useful code lines and allows dead code elimination.
+
+This is a first version of SCCP that doesn't take the conditionnal jumps into account, but efficiently provides propagation and folding. 
+
+[Note] : This class is a step in the building of DRSCCP and is not meant to be called on use cases.
+
+More information about the SCPP algorithm : 
 http://www.r-5.org/files/books/computers/compilers/writing/Keith_Cooper_Linda_Torczon-Engineering_a_Compiler-EN.pdf
 Section 9.3 
 "

@@ -1,5 +1,23 @@
 "
-The true SCCP (with conditionnal jumps) 
+This class is an available optimisations for Druid.
+
+It is called on DRControlFlowGraph.
+
+It executes folding on the operations when they contain constants, which reduces the number of useful code lines and allows dead code elimination, as well as taking into account the conditionnal jumps of the control flow graph. If some conditions can be evaluated at compile time, the blocks that won't be called are not optimized and the phi functions that contain variables from these blocks are resolved. It includes constant folding and constant propagation. 
+
+The replacement values are firstly kept in a lattice while the computations are done. When the algorithm has finished exploring the graph, the replacement is done. 
+
+This is the final version of SCCP. This algorithm is meant to be called on use cases. 
+
+More information about SCCP algorithm : 
+http://www.r-5.org/files/books/computers/compilers/writing/Keith_Cooper_Linda_Torczon-Engineering_a_Compiler-EN.pdf
+Section 10.7
+
+[Note] : In the book above, the algorithm is built to optimise control flow graphs that contain only one operation by block (assign or conditionnal). This is not true for Druid, so some parts of the algorithm had to be changed to take this difference into account. 
+The algorithm was also refactored to fit Pharo's object model, so they are intermediate methods that are not in the book that were implemented. 
+Some parts were also divided into several methods for readability. 
+The CFGEdges were modeled by the DREdge objects. 
+The SSAEdges were replaced by the exiting instruction instead. 
 "
 Class {
 	#name : #DRSCCP,
@@ -46,12 +64,7 @@ DRSCCP >> applyTo: cfg [
 		self stepCFGWorklist.
 		self stepSSAWorklist].
 
-	self applyPropagation. 
-	edges select: [ :e |  e isExecuted]. 
-	CFGWorkList. 
-	SSAWorkList. 
-	latticeValues. 
-	"self halt. "
+	self applyPropagation.
 ]
 
 { #category : #'accessing - constants' }
@@ -157,14 +170,6 @@ DRSCCP >> evaluateOperands: aPhi [
 				edge child instructionsDo: [:i |
 					i result = r ifTrue: [
 						self setValueOf: r at: i ]]]]].
-	
-	
-	
-	"aPhi operand1 operand1 value =  aPhi operand1 value 
-		ifTrue: [ 
-			self setValueOf: aPhi at: aPhi operand1. 
-			self halt.].
-	self halt. "
 ]
 
 { #category : #operations }
@@ -190,8 +195,7 @@ DRSCCP >> evaluateResult: aPhi [
 { #category : #operations }
 DRSCCP >> executedEdgesEntering: aBlock [
 
-	^ edges select: [ :e | e child = aBlock and: [e isExecuted]]. 
-	
+	^ edges select: [ :e | e child = aBlock and: [e isExecuted]].
 ]
 
 { #category : #operations }
@@ -232,8 +236,7 @@ DRSCCP >> initializeSCCPWithCFG: cfg [
 DRSCCP >> interpretOverLatticeValue: operation [ 
 
 	operation isPhiFunction ifTrue: [ self interpretePhiFunction: operation. ^ self. ]. 
-	operation operands: (operation operands collect: [ :op | self interpreteValue: op ]). 
-	"Add constant folding here"
+	operation operands: (operation operands collect: [ :op | self interpreteValue: op ]).
 
 	
 ]
@@ -259,7 +262,7 @@ DRSCCP >> interpretePhiFunction: operation [
 
 { #category : #operations }
 DRSCCP >> setValueOf: aRegister at: aValue [
-	"Return the lattice value for the register"
+
 	latticeValues at: aRegister put: aValue. 
 ]
 
@@ -281,9 +284,7 @@ DRSCCP >> stepCFGWorklist [
 						self evaluateAssign: instruction. 
 						CFGWorkList addAll: (edges select: [ :e | e parent = currentEdge child ])
 					]]
-					ifTrue: [ self evaluateConditionnal: instruction ] ] ] ] .
-
-	
+					ifTrue: [ self evaluateConditionnal: instruction ] ] ] ].
 ]
 
 { #category : #operations }
