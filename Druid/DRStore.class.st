@@ -17,6 +17,12 @@ DRStore >> isStore [
 ]
 
 { #category : #visiting }
+DRStore >> isValidEndInstruction [ 
+
+	^ true
+]
+
+{ #category : #visiting }
 DRStore >> opcode [
 	
 	^ 'Store'

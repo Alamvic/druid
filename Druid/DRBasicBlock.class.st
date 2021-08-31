@@ -50,6 +50,12 @@ DRBasicBlock >> blockValue: aValue [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> endInstruction [
+
+	^ endInstruction
+]
+
+{ #category : #accessing }
 DRBasicBlock >> endInstruction: aDRInstruction [ 
 	aDRInstruction basicBlock: self. 
 	endInstruction := aDRInstruction

@@ -15,6 +15,12 @@ DRPhysicalRegister class >> name: aString [
 		yourself
 ]
 
+{ #category : #'cogit-generation' }
+DRPhysicalRegister >> isPhysicalRegister [ 
+
+	^ true
+]
+
 { #category : #testing }
 DRPhysicalRegister >> isRegister [
 	

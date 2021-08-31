@@ -1,20 +1,23 @@
 "
-Class: DRDeadCodeElimination
-                                                                                                    
-
 This class is an available optimisations for Druid.
 
-It is called on DRControlFlowGraph.
+It is called on DRDeadCodeElimination.
 
-It executes the elimination of the dead code on the CFG. 
-Each code branch that doesn't lead to a load or a store operation is eliminated, as well as the operations that have a duplicate. 
-The algorith recursivly goes through the instructions to determine if they lead to something useful or not.
+It removes the useless operations. The useless operations are the operations that are not called in a return, a load or a store. All the dependencies of those operations are also preserved. 
+
+All the dependencies of the main operations are kept in an intermediate data structures, and are checked before being removed or not. 
+
+In this algorithm, the jumps are considered as classic operations. 
+
+
 "
 Class {
 	#name : #DRDeadCodeElimination,
 	#superclass : #Object,
 	#instVars : [
-		'instancecfg'
+		'instancecfg',
+		'toKeepList',
+		'workList'
 	],
 	#category : #'Druid-Optimizations'
 }
@@ -22,34 +25,35 @@ Class {
 { #category : #operations }
 DRDeadCodeElimination >> applyTo: cfg [
 
-	instancecfg := cfg. 
-	cfg blocksDo: [ :b | self optimiseBlock: b ]. 
-	
+	instancecfg := cfg.
+	self markInitialInstructions: cfg.
+
+	[ workList isEmpty ] whileFalse: [ 
+		| instruction |
+		instruction := workList removeFirst.
+		toKeepList add: instruction.
+		workList addAll: (instruction block predecessors collect: [ :b | b endInstruction ]). 
+		workList addAll: (self dependenciesOf: instruction) ].
+	self sweepInstructions: cfg
 ]
 
 { #category : #operations }
 DRDeadCodeElimination >> dependenciesOf: anInstruction [
 	
-	| ret |
+	^ anInstruction operands select: [ :op | op isInstruction ]
+]
 
-	anInstruction isConditionalJump ifTrue: [
-		self value = self top ifTrue: [ 
-			ret := OrderedCollection new. 
-			ret addAll: anInstruction trueBranch instructions.
-			ret addAll: anInstruction falseBranch instructions. 
-			^ ret ]
-		ifFalse: [ 
-			"We assume self value = self bottom" 
-			anInstruction condition value ifTrue: [ 
-				 ret := OrderedCollection new. 
-				 ret addAll: anInstruction trueBranch instructions.
-				^ ret. ]
-			ifFalse: [ 
-				ret := OrderedCollection new. 
-				ret addAll: anInstruction falseBranch instructions.
-				^ ret. ] ] ]. 
-	^ instancecfg instructions select: [ :instruction | 
-		  instruction operands includes: anInstruction ]
+{ #category : #operations }
+DRDeadCodeElimination >> initialize [ 
+
+	toKeepList := OrderedCollection new. 
+	workList := OrderedCollection new. 
+]
+
+{ #category : #operations }
+DRDeadCodeElimination >> markInitialInstructions: cfg [
+
+	cfg instructionsDo: [ :i | i isValidEndInstruction ifTrue: [ workList add: i] ]
 ]
 
 { #category : #operations }
@@ -63,16 +67,14 @@ DRDeadCodeElimination >> optimiseBlock: aBlock [
 { #category : #operations }
 DRDeadCodeElimination >> removeDeadEndInstructions: aBlock [
 
-	| dependencies removeList|
+	| dependencies |
 
-	removeList := OrderedCollection new. 
 	aBlock instructionsDo: [ :i | 
-		((i isLoad or: i isStore) or: i isNoop) ifFalse: [
+		(i isValidEndInstruction) ifFalse: [
 			dependencies := self dependenciesOf: i. 
 			dependencies isEmpty ifTrue: [ 
 				 removeList add: i.
-				 i operands do: [:o | o isConstant ifFalse: [removeList add: o]]]]]. 
-	removeList do: [ :i | aBlock removeInstruction: i ]
+				 i operands do: [:o | o isConstant ifFalse: [removeList add: o]]]]].
 ]
 
 { #category : #operations }
@@ -86,5 +88,18 @@ DRDeadCodeElimination >> removeDuplicatedInstructions: aBlock [
 		 currentInstruction := instructionList removeFirst. 
 		 instructionList do: [:i | 
 			currentInstruction = i ifTrue: [
-				aBlock removeInstruction: i]]]. 
+				removeList add: i ]]]. 
+]
+
+{ #category : #operations }
+DRDeadCodeElimination >> sweepInstructions: cfg [
+
+	| toRemove |
+	
+	toRemove := OrderedCollection new. 
+	
+	cfg instructionsDo: [ :i | 
+		(toKeepList includes: i) ifFalse: [ toRemove add: i ] ].
+	
+	toRemove do: [ :i | i removeFromCFG ]
 ]

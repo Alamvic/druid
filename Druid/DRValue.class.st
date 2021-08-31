@@ -100,6 +100,12 @@ DRValue >> isStore [
 	^ false 
 ]
 
+{ #category : #visiting }
+DRValue >> isValidEndInstruction [
+
+	^ false
+]
+
 { #category : #testing }
 DRValue >> isVirtualRegister [
 	
@@ -128,6 +134,12 @@ DRValue >> joinValue: anotherValue onIRGenerator: anIRGenerator from: originBloc
 DRValue >> lookupClass [
 	
 	self subclassResponsibility
+]
+
+{ #category : #visiting }
+DRValue >> removeFromCFG [
+
+	block removeInstruction: self. 
 ]
 
 { #category : #'users-definitions' }
