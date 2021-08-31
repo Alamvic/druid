@@ -284,7 +284,7 @@ DRIRGenerator >> interpretCondition: aRBMessageNode instructionKind: anInstructi
 	aRBMessageNode arguments first acceptVisitor: self.
 	operand2 := self popOperand.
 
-	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: anInstructionKind operands: { operand1 . operand2 }
+	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { operand1 . operand2 }
 ]
 
 { #category : #'special-cases' }

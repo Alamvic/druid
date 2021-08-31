@@ -92,6 +92,7 @@ DRSCCPCFTest >> setUpCFGConditionnal: jump [
 	
 	b4 endInstruction: DRNoop new. 
 	b0 jumpTo: b1. 
+	b1 addInstruction: jump condition.
 	b1 endInstruction: jump. 
 	jump trueBranch: b2.
 	jump falseBranch: b3.
@@ -144,6 +145,7 @@ DRSCCPCFTest >> testConstantFoldingAddInSingleBasicBlock [
 	operandList add: copy2.
 
 	b1 addInstruction: (DRAdd  operands: operandList result:  (DRTemporaryRegister id: 3)).
+
 	optimisation applyTo: cfg.
 	
 
@@ -274,6 +276,7 @@ DRSCCPCFTest >> testSCCPPropagationLeft [
 	"This test asserts that SCCP optimises only the blocks that are used.
 	Here the constants in the conditional jump are propagated, the algorithm knows that the block2 b2 will not be called because the condition is false. 
 	Only the block3 b3 is optimized."
+
 	| cfg b0 b1 b2 b3 b4 optimisation copy1 copy2 copy3 copy4 copy5 copy6 jump b2OperandList b3OperandList |
 	optimisation := DRSCCP new.
 
@@ -283,10 +286,11 @@ DRSCCPCFTest >> testSCCPPropagationLeft [
 	copy2 := DRCopy
 		         operands: { (DRConstantValue value: 2) }
 		         result: (DRTemporaryRegister id: 2).
-	jump := DRConditionalJump operands:
-		        { (DRLessOrEqualsComparison new operands: { 
-				         copy1.
-				         copy2 }) }.
+	jump := DRConditionalJump operands: { (DRLessOrEqualsThanComparison
+			         operands: { 
+					         copy1.
+					         copy2 }
+			         result: (DRTemporaryRegister id: 10)) }.
 
 
 	cfg := self setUpCFGConditionnal: jump.
@@ -327,7 +331,9 @@ DRSCCPCFTest >> testSCCPPropagationLeft [
 	optimisation applyTo: cfg.
 
 
-	self assert: (b2 instructions at: 3) operand1	equals: (DRConstantValue value: 7).
+	self
+		assert: (b2 instructions at: 3) operand1
+		equals: (DRConstantValue value: 7).
 	self assert: (b3 instructions at: 3) class equals: DRAdd
 ]
 
@@ -347,7 +353,7 @@ DRSCCPCFTest >> testSCCPPropagationLeftWithPhiFunction [
 		         operands: { (DRConstantValue value: 2) }
 		         result: (DRTemporaryRegister id: 2).
 	jump := DRConditionalJump operands:
-		        { (DRLessOrEqualsComparison new operands: { 
+		        { (DRLessOrEqualsThanComparison new operands: { 
 				         copy1.
 				         copy2 }) }.
 
@@ -412,7 +418,7 @@ DRSCCPCFTest >> testSCCPPropagationRight [
 		         operands: { (DRConstantValue value: 1) }
 		         result: (DRTemporaryRegister id: 2).
 	jump := DRConditionalJump operands:
-		        { (DRLessOrEqualsComparison new operands: { 
+		        { (DRLessOrEqualsThanComparison new operands: { 
 				         copy1.
 				         copy2 }) }.
 

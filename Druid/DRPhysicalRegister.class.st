@@ -45,3 +45,9 @@ DRPhysicalRegister >> rtlOperandQualifier [
 	
 	^ 'R:'
 ]
+
+{ #category : #'cogit-generation' }
+DRPhysicalRegister >> sccpEvaluateFor: sccp [
+
+	^ self value
+]

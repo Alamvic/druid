@@ -60,7 +60,7 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 DRPrimitiveCompilationTest >> testAddition [
 
 	self compileDruidPrimitive: #primitiveIncrement.
-	
+
 	self executePrimitiveWithReceiver: 42.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 43

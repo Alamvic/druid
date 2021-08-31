@@ -88,5 +88,6 @@ DRConstantValue >> value [
 
 { #category : #accessing }
 DRConstantValue >> value: anInteger [ 
+
 	value := anInteger
 ]

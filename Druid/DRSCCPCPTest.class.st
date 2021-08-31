@@ -70,6 +70,7 @@ DRSCCPCPTest >> setUpCFGConditionnal: jump [
 	
 	b4 endInstruction: DRNoop new. 
 	b0 jumpTo: b1. 
+	b1 addInstruction: jump condition.
 	b1 endInstruction: jump. 
 	jump trueBranch: b2.
 	jump falseBranch: b3.
@@ -83,7 +84,26 @@ DRSCCPCPTest >> setUpCFGConditionnal: jump [
 	cfg b4: b4. 
 	cfg conditionnalJump: jump. 
 
-	^ cfg.
+	^ cfg. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ]
 
 { #category : #tests }
@@ -215,6 +235,35 @@ DRSCCPCPTest >> testPropagateInSingleBasicBlock [
 ]
 
 { #category : #tests }
+DRSCCPCPTest >> testPropagateOnOperand [
+
+	| optimisation bb cfg copy1 bb2 |
+	optimisation := DRSCCP new.
+	bb := DRBasicBlock new.
+	bb2 := DRBasicBlock new.
+	bb jumpTo: bb2.
+
+	cfg := DRControlFlowGraph new.
+	cfg initialBasicBlock: bb.
+	
+	"T1 := 1"
+	bb2 addInstruction: (copy1 := DRCopy
+		operands: { DRConstantValue value: 1 }
+		result:  (DRTemporaryRegister id: 1)).
+	bb2 addInstruction: (DRAdd
+		operands: { 
+			DRPhysicalRegister name: 'Rx'.
+			copy1 }
+		result:  (DRTemporaryRegister id: 2)).
+	
+	optimisation applyTo: cfg.
+	
+	"Asser that we propagated the constant to the ADD operand"
+	self assert: cfg instructions last isAdd.
+	self assert: cfg instructions last operand2 equals: (DRConstantValue value: 1)
+]
+
+{ #category : #tests }
 DRSCCPCPTest >> testPropagatePhiOnDifferentValues [
 
 	| optimisation b0 b1 b3 cfg copy1 leftBlock rightBlock copy2 jump phiInstruction copyInstruction |
@@ -294,7 +343,6 @@ DRSCCPCPTest >> testPropagatePhiOnSameValue [
 	exitBasicBlock addInstruction: phi. 
 	"T4 := T3"
 	exitBasicBlock addInstruction: (DRCopy operands: {phi} result: (DRTemporaryRegister id: 4)). 
-
 
 	optimisation applyTo: cfg.
 	

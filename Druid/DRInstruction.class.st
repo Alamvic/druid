@@ -106,6 +106,12 @@ DRInstruction >> operand2 [
 	^ operands at: 2
 ]
 
+{ #category : #operands }
+DRInstruction >> operandAt: anInteger put: aValue [ 
+	
+	operands at: anInteger put: aValue
+]
+
 { #category : #accessing }
 DRInstruction >> operands [
 	^ operands

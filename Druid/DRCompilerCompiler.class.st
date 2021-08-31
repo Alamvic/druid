@@ -27,7 +27,7 @@ DRCompilerCompiler >> buildStatementsForInstruction: anInstruction [
 DRCompilerCompiler >> compile [
 
 	druidIR := self generateDruidIR.
-
+1halt.
 	self optimize: druidIR.
 
 	registerAllocator allocateRegistersIn: druidIR.
@@ -85,7 +85,7 @@ DRCompilerCompiler >> initialize [
 	registerAllocator := DRLinearScanRegisterAllocator new.
 	
 	optimisations := OrderedCollection new.
-	optimisations add: DRConstantPropagation new.
+	optimisations add: DRSCCP new.
 ]
 
 { #category : #accessing }

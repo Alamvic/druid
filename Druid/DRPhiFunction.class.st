@@ -85,6 +85,11 @@ DRPhiFunction >> order: anInteger [
 ]
 
 { #category : #accessing }
+DRPhiFunction >> originBlocks [
+	^ originBlocks
+]
+
+{ #category : #accessing }
 DRPhiFunction >> originBlocks: aCollection [ 
 	originBlocks := aCollection
 ]
@@ -109,7 +114,8 @@ DRPhiFunction >> rtlOperandQualifier [
 
 { #category : #enumerating }
 DRPhiFunction >> sccpEvaluateFor: sccp [
-	^ sccp value: self. 
+
+	^ sccp interpretePhiFunction: self
 ]
 
 { #category : #simplification }

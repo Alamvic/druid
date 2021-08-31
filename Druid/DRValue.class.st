@@ -1,9 +1,6 @@
 Class {
 	#name : #DRValue,
 	#superclass : #Object,
-	#instVars : [
-		'block'
-	],
 	#category : #'Druid-IR'
 }
 
@@ -31,16 +28,10 @@ DRValue >> asDRInterpreterValue [
 	^ self
 ]
 
-{ #category : #accessing }
-DRValue >> block [
+{ #category : #convering }
+DRValue >> asDRValue [
 	
-	^ block
-]
-
-{ #category : #accessing }
-DRValue >> block: aBlock [
-	
-	block := aBlock
+	^ self
 ]
 
 { #category : #accessing }
@@ -59,6 +50,12 @@ DRValue >> isConstant [
 DRValue >> isCopy [ 
 	
 	^ false
+]
+
+{ #category : #testing }
+DRValue >> isDRValue [
+	
+	^ true
 ]
 
 { #category : #testing }

@@ -51,7 +51,7 @@ DRBasicBlock >> blockValue: aValue [
 
 { #category : #accessing }
 DRBasicBlock >> endInstruction: aDRInstruction [ 
-	aDRInstruction block: self. 
+	aDRInstruction basicBlock: self. 
 	endInstruction := aDRInstruction
 ]
 
@@ -137,7 +137,7 @@ DRBasicBlock >> jumpTo: aBasicBlock [
 	| jump |
 	endInstruction ifNotNil: [ self error: 'Cannot override an end instruction' ].
 	endInstruction := (jump := DRJump new target: aBasicBlock).
-	jump block: self. 
+	jump basicBlock: self. 
 	aBasicBlock addPredecessor: self.
 	^ endInstruction
 ]
@@ -268,7 +268,17 @@ DRBasicBlock >> replace: anInstruction by: aReplacementInstruction [
 { #category : #accessing }
 DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [ 
 
-	instructions at: (instructions indexOf: anInstruction) put: anotherInstruction.
+	anotherInstruction basicBlock: self.
+
+	"Check if it is in the main list of instructions"
+	(instructions includes: anInstruction) ifTrue: [ 
+		^ instructions at: (instructions indexOf: anInstruction) put: anotherInstruction ].
+	
+	"Otherwise check if it is the block end instruction"
+	endInstruction ~= anInstruction
+		ifTrue: [ self error: 'This block does not contain the instruction' ].
+	
+	endInstruction := anotherInstruction
 ]
 
 { #category : #accessing }

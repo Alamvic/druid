@@ -57,16 +57,16 @@ DRConditionalJump >> isJump [
 
 { #category : #printing }
 DRConditionalJump >> prettyPrint [
-	
-	^ 'Jump if true -> ', self trueBranch id asString, ' if false -> ', self falseBranch id asString
+
+	^ 'Jump if' , self condition result name , ' true -> '
+	  , self trueBranch id asString , ' if false -> '
+	  , self falseBranch id asString
 ]
 
 { #category : #accessing }
 DRConditionalJump >> sccpEvaluateFor: sccp [
 
-	self condition value ifTrue: [ ^ sccp bottom ]. 
-	self condition value ifFalse: [ ^ sccp bottom ]. 
-	^ sccp value: self. 
+	^ sccp bottom
 ]
 
 { #category : #accessing }
