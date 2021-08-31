@@ -201,6 +201,12 @@ DRInstruction >> result: anObject [
 	result := anObject
 ]
 
+{ #category : #SCCP }
+DRInstruction >> sccpEvaluateFor: sccp [ 
+	
+	self subclassResponsibility
+]
+
 { #category : #accessing }
 DRInstruction >> singleChild [
 

@@ -51,6 +51,7 @@ DRBasicBlock >> blockValue: aValue [
 
 { #category : #accessing }
 DRBasicBlock >> endInstruction: aDRInstruction [ 
+	aDRInstruction block: self. 
 	endInstruction := aDRInstruction
 ]
 
@@ -133,8 +134,10 @@ DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 { #category : #building }
 DRBasicBlock >> jumpTo: aBasicBlock [ 
 	
+	| jump |
 	endInstruction ifNotNil: [ self error: 'Cannot override an end instruction' ].
-	endInstruction := (DRJump new target: aBasicBlock).
+	endInstruction := (jump := DRJump new target: aBasicBlock).
+	jump block: self. 
 	aBasicBlock addPredecessor: self.
 	^ endInstruction
 ]

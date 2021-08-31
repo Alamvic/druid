@@ -27,6 +27,12 @@ DRConditionalJump >> condition [
 ]
 
 { #category : #accessing }
+DRConditionalJump >> condition: aCondition [
+
+	operands at: 1 put: aCondition
+]
+
+{ #category : #accessing }
 DRConditionalJump >> falseBranch [
 	^ falseBranch
 ]
@@ -37,10 +43,30 @@ DRConditionalJump >> falseBranch: aDruidIRGenerator [
 	falseBranch := aDruidIRGenerator 
 ]
 
+{ #category : #accessing }
+DRConditionalJump >> isConditionalJump [ 
+
+	^ true
+]
+
+{ #category : #accessing }
+DRConditionalJump >> isJump [ 
+
+	^ true
+]
+
 { #category : #printing }
 DRConditionalJump >> prettyPrint [
 	
 	^ 'Jump if true -> ', self trueBranch id asString, ' if false -> ', self falseBranch id asString
+]
+
+{ #category : #accessing }
+DRConditionalJump >> sccpEvaluateFor: sccp [
+
+	self condition value ifTrue: [ ^ sccp bottom ]. 
+	self condition value ifFalse: [ ^ sccp bottom ]. 
+	^ sccp value: self. 
 ]
 
 { #category : #accessing }

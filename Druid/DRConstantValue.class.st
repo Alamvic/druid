@@ -39,10 +39,22 @@ DRConstantValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 		operands: { self }.
 ]
 
+{ #category : #accessing }
+DRConstantValue >> includes: anInstruction [ 
+	
+	^ false
+]
+
 { #category : #testing }
 DRConstantValue >> isConstant [
 	
 	^ true
+]
+
+{ #category : #accessing }
+DRConstantValue >> isCopy [ 
+
+	^ false
 ]
 
 { #category : #interpretation }
@@ -61,6 +73,12 @@ DRConstantValue >> name [
 DRConstantValue >> rtlOperandQualifier [
 	
 	^ 'Cq:'
+]
+
+{ #category : #accessing }
+DRConstantValue >> sccpEvaluateFor: sccp [
+
+	^ self value
 ]
 
 { #category : #accessing }

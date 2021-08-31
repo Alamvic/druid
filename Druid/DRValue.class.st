@@ -1,6 +1,9 @@
 Class {
 	#name : #DRValue,
 	#superclass : #Object,
+	#instVars : [
+		'block'
+	],
 	#category : #'Druid-IR'
 }
 
@@ -28,6 +31,24 @@ DRValue >> asDRInterpreterValue [
 	^ self
 ]
 
+{ #category : #accessing }
+DRValue >> block [
+	
+	^ block
+]
+
+{ #category : #accessing }
+DRValue >> block: aBlock [
+	
+	block := aBlock
+]
+
+{ #category : #accessing }
+DRValue >> isConditionalJump [ 
+
+	^ false
+]
+
 { #category : #testing }
 DRValue >> isConstant [
 	
@@ -35,8 +56,32 @@ DRValue >> isConstant [
 ]
 
 { #category : #testing }
+DRValue >> isCopy [ 
+	
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isInstruction [
 
+	^ false
+]
+
+{ #category : #accessing }
+DRValue >> isJump [ 
+
+	^ false
+]
+
+{ #category : #visiting }
+DRValue >> isLoad [ 
+
+	^ false
+]
+
+{ #category : #accessing }
+DRValue >> isNoop [ 
+	
 	^ false
 ]
 
@@ -50,6 +95,12 @@ DRValue >> isPhiFunction [
 DRValue >> isRegister [
 
 	^ false
+]
+
+{ #category : #visiting }
+DRValue >> isStore [
+
+	^ false 
 ]
 
 { #category : #testing }

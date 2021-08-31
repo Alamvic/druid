@@ -26,3 +26,9 @@ DRCopy >> prettyPrint [
 	
 	^ result name, ' := ', operands first name asString
 ]
+
+{ #category : #SCCP }
+DRCopy >> sccpEvaluateFor: sccp [
+
+	^ sccp value: operands first
+]
