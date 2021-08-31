@@ -136,12 +136,6 @@ DRValue >> lookupClass [
 	self subclassResponsibility
 ]
 
-{ #category : #visiting }
-DRValue >> removeFromCFG [
-
-	block removeInstruction: self. 
-]
-
 { #category : #'users-definitions' }
 DRValue >> removeUser: anInstruction [
 	

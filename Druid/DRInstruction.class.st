@@ -173,6 +173,12 @@ DRInstruction >> printOn: aStream [
 	aStream nextPut: $)
 ]
 
+{ #category : #removing }
+DRInstruction >> removeFromCFG [
+
+	basicBlock removeInstruction: self
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> removeUser: anInstruction [
 	

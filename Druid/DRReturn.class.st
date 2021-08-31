@@ -10,6 +10,12 @@ DRReturn >> acceptVisitor: aVisitor [
 	^ aVisitor visitReturn: self
 ]
 
+{ #category : #visiting }
+DRReturn >> isValidEndInstruction [
+
+	^ true
+]
+
 { #category : #printing }
 DRReturn >> opcode [
 	

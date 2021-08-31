@@ -32,7 +32,7 @@ DRDeadCodeElimination >> applyTo: cfg [
 		| instruction |
 		instruction := workList removeFirst.
 		toKeepList add: instruction.
-		workList addAll: (instruction block predecessors collect: [ :b | b endInstruction ]). 
+		workList addAll: (instruction basicBlock predecessors collect: [ :b | b endInstruction ]). 
 		workList addAll: (self dependenciesOf: instruction) ].
 	self sweepInstructions: cfg
 ]

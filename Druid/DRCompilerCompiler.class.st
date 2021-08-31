@@ -85,6 +85,7 @@ DRCompilerCompiler >> initialize [
 	
 	optimisations := OrderedCollection new.
 	optimisations add: DRSCCP new.
+	optimisations add: DRDeadCodeElimination new.
 ]
 
 { #category : #accessing }
