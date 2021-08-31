@@ -9,3 +9,9 @@ DRObjectReferenceValue >> rtlOperandQualifier [
 
 	^ 'Cw:'
 ]
+
+{ #category : #sccp }
+DRObjectReferenceValue >> sccpEvaluateFor: aDRSCCP [ 
+
+	^ self value
+]

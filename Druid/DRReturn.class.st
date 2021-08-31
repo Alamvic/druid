@@ -15,3 +15,10 @@ DRReturn >> opcode [
 	
 	^ 'Return'
 ]
+
+{ #category : #SCCP }
+DRReturn >> sccpEvaluateFor: sccp [ 
+	
+	"This instruction has no value"
+	^ sccp bottom
+]

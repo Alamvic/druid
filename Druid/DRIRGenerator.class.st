@@ -409,6 +409,7 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 	(trueBranchBasicBlockOut hasFinalInstruction and: [ falseBranchBasicBlockOut hasFinalInstruction ])
 		ifTrue: [ 
 			self currentBasicBlock markAsDeadCode.
+			1halt.
 			 ].
 
 	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [

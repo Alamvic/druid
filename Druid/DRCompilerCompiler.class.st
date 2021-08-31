@@ -27,7 +27,6 @@ DRCompilerCompiler >> buildStatementsForInstruction: anInstruction [
 DRCompilerCompiler >> compile [
 
 	druidIR := self generateDruidIR.
-1halt.
 	self optimize: druidIR.
 
 	registerAllocator allocateRegistersIn: druidIR.

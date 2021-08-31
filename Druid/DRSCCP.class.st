@@ -240,26 +240,21 @@ DRSCCP >> initializeSCCPWithCFG: cfg [
 { #category : #operations }
 DRSCCP >> interpretePhiFunction: operation [
 
-	| incomingEdges executedIncomingEdges |
+	| incomingEdges executedIncomingEdges values |
 
 	operation operands size = 0 ifTrue: [ 
 		^ self value: operation ].
 	
-	incomingEdges := operation operands collect: [ :operand | | edge |
-		edge := edges detect: [ :potentialEdge | potentialEdge parent = operand basicBlock and: [ potentialEdge child = operation basicBlock ] ].
+	incomingEdges := operation operands with: operation originBlocks collect: [ :operand :block | | edge |
+		edge := edges detect: [ :potentialEdge | potentialEdge parent = block and: [ potentialEdge child = operation basicBlock ] ].
 		{ edge . operand } ].
 	
 	executedIncomingEdges := incomingEdges select: [ :edgePair | edgePair first isExecuted ].
-	
-	executedIncomingEdges size = 1 ifTrue: [ 
-		^ self value: executedIncomingEdges anyOne second ].
-	
-	1halt.
-	operation operand1 operand1 value = operation operand2 operand1 value 
-		ifTrue: [ 
-			^ operation operand1 operand1 value ]
-		ifFalse: [ 
-			^ self value: operation ]
+
+	values := executedIncomingEdges collect: [ :e | 
+		self value: e second ] as: Set.
+	values size = 1 ifTrue: [ ^ values anyOne ].
+	^ self top
 ]
 
 { #category : #operations }
