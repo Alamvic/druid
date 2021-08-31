@@ -22,6 +22,12 @@ DRNoop >> opcode [
 	^ 'Noop'
 ]
 
+{ #category : #visiting }
+DRNoop >> removeFromCFG [
+
+	"Do nothing for now"
+]
+
 { #category : #SCCP }
 DRNoop >> sccpEvaluateFor: sccp [ 
 	

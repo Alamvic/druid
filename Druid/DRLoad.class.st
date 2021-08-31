@@ -15,3 +15,9 @@ DRLoad >> isLoad [
 
 	^ true
 ]
+
+{ #category : #visiting }
+DRLoad >> isValidEndInstruction [ 
+
+	^ true
+]

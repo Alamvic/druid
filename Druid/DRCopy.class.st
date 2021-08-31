@@ -16,6 +16,13 @@ DRCopy >> isCopy [
 	^true 
 ]
 
+{ #category : #SCCP }
+DRCopy >> isValidEndInstruction [ 
+
+	self result isPhysicalRegister ifTrue: [ ^ true ].
+	^ false
+]
+
 { #category : #printing }
 DRCopy >> operands: aCollection [ 
 	operands := aCollection
