@@ -13,6 +13,8 @@ More information about SCCP algorithm :
 http://www.r-5.org/files/books/computers/compilers/writing/Keith_Cooper_Linda_Torczon-Engineering_a_Compiler-EN.pdf
 Section 10.7
 
+The tests use a special class named DRControlFlowGraphForTesting that has the same functionnalities and behavior as DRControlFlowGraph, but adds accessors and let the test set up be easier. 
+
 [Note] : In the book above, the algorithm is built to optimise control flow graphs that contain only one operation by block (assign or conditionnal). This is not true for Druid, so some parts of the algorithm had to be changed to take this difference into account. 
 The algorithm was also refactored to fit Pharo's object model, so they are intermediate methods that are not in the book that were implemented. 
 Some parts were also divided into several methods for readability. 
@@ -304,6 +306,7 @@ DRSCCP >> stepSSAWorklist [
 
 { #category : #'accessing - constants' }
 DRSCCP >> top [
+
 	^ 'Top'
 ]
 

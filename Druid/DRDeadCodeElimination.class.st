@@ -1,3 +1,15 @@
+"
+Class: DRDeadCodeElimination
+                                                                                                    
+
+This class is an available optimisations for Druid.
+
+It is called on DRControlFlowGraph.
+
+It executes the elimination of the dead code on the CFG. 
+Each code branch that doesn't lead to a load or a store operation is eliminated, as well as the operations that have a duplicate. 
+The algorith recursivly goes through the instructions to determine if they lead to something useful or not.
+"
 Class {
 	#name : #DRDeadCodeElimination,
 	#superclass : #Object,
@@ -43,7 +55,7 @@ DRDeadCodeElimination >> dependenciesOf: anInstruction [
 { #category : #operations }
 DRDeadCodeElimination >> optimiseBlock: aBlock [ 
 
-	self removeDuplicatedInstructions: aBlock. 
+	"self removeDuplicatedInstructions: aBlock. "
 	self removeDeadEndInstructions: aBlock. 
 	
 ]
