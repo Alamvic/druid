@@ -2,23 +2,29 @@ Class {
 	#name : #DREdge,
 	#superclass : #Object,
 	#instVars : [
-		'parent',
-		'child',
-		'executed'
+		'executed',
+		'destination',
+		'source'
 	],
-	#category : #'Druid-IR'
+	#category : #'Druid-Optimizations'
 }
 
 { #category : #accessing }
-DREdge >> child [ 
+DREdge >> destination [
 
-	^ child
+	^ destination
 ]
 
 { #category : #accessing }
-DREdge >> child: aBlock [
+DREdge >> destination: anObject [
 
-	child := aBlock
+	destination := anObject
+]
+
+{ #category : #accessing }
+DREdge >> executed: anObject [
+
+	executed := anObject
 ]
 
 { #category : #accessing }
@@ -40,13 +46,13 @@ DREdge >> mark [
 ]
 
 { #category : #accessing }
-DREdge >> parent [
+DREdge >> source [
 
-	^ parent
+	^ source
 ]
 
 { #category : #accessing }
-DREdge >> parent: aBlock [
+DREdge >> source: anObject [
 
-	parent := aBlock
+	source := anObject
 ]

@@ -15,6 +15,6 @@ DRSCCPInstructionEvaluationTest >> testEvaluateNonConstantConditionalJump [
 			2 asDRValue }
 			result: (DRTemporaryRegister id: 0) }.
 	
-	value := instruction sccpEvaluateFor: sccp.
+	value := instruction sccpLatticeValueFor: sccp.
 	self assert: value equals: sccp bottom
 ]

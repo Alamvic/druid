@@ -41,7 +41,12 @@ DRJump >> prettyPrint [
 { #category : #SCCP }
 DRJump >> sccpEvaluateFor: sccp [
 
-	sccp addJumpToCFGWorklist: self.
+	sccp addJumpToCFGWorklist: self
+]
+
+{ #category : #SCCP }
+DRJump >> sccpLatticeValueFor: sccp [
+
 	^ sccp top
 ]
 

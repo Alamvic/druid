@@ -214,7 +214,19 @@ DRInstruction >> result: anObject [
 ]
 
 { #category : #SCCP }
-DRInstruction >> sccpEvaluateFor: sccp [ 
+DRInstruction >> sccpEvaluateFor: sccp [
+
+	| previousValue newValue |
+	previousValue := sccp latticeValue: self. 
+	newValue := self sccpLatticeValueFor: sccp.
+	
+	previousValue = newValue ifFalse: [
+		"Set thew new value and invalidate the uses"
+		sccp setValueOf: self at: newValue ]
+]
+
+{ #category : #SCCP }
+DRInstruction >> sccpLatticeValueFor: sccp [ 
 	
 	self subclassResponsibility
 ]

@@ -23,7 +23,7 @@ DRReturn >> opcode [
 ]
 
 { #category : #SCCP }
-DRReturn >> sccpEvaluateFor: sccp [ 
+DRReturn >> sccpLatticeValueFor: sccp [ 
 	
 	"This instruction has no value"
 	^ sccp bottom

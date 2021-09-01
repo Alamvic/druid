@@ -55,7 +55,7 @@ DRNullValue >> rtlOperandQualifier [
 ]
 
 { #category : #sccp }
-DRNullValue >> sccpEvaluateFor: sccp [
+DRNullValue >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]

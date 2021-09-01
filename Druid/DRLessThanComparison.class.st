@@ -31,11 +31,11 @@ DRLessThanComparison >> reversed [
 ]
 
 { #category : #SCCP }
-DRLessThanComparison >> sccpEvaluateFor: sccp [
+DRLessThanComparison >> sccpLatticeValueFor: sccp [
 	
 	| operand1 operand2 |
-	operand1 := sccp value: self operand1.
-	operand2 := sccp value: self operand2.
+	operand1 := sccp latticeValue: self operand1.
+	operand2 := sccp latticeValue: self operand2.
 	
 	((({ sccp top. sccp bottom } includes: operand1) not
 		and: [ ({ sccp top. sccp bottom } includes: operand2) not ])

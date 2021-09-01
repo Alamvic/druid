@@ -17,11 +17,11 @@ DRMultiply >> opcode [
 ]
 
 { #category : #visiting }
-DRMultiply >> sccpEvaluateFor: sccp [
+DRMultiply >> sccpLatticeValueFor: sccp [
 
 	| operand1LatticeValue operand2LatticeValue operand1IsConstant operand2IsConstant nonConstantLattices |
-	operand1LatticeValue := sccp value: self operand1.
-	operand2LatticeValue := sccp value: self operand2.
+	operand1LatticeValue := sccp latticeValue: self operand1.
+	operand2LatticeValue := sccp latticeValue: self operand2.
 	
 	nonConstantLattices := { sccp top. sccp bottom }.
 	operand1IsConstant := (nonConstantLattices includes: operand1LatticeValue) not and: [

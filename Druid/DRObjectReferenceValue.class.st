@@ -11,7 +11,7 @@ DRObjectReferenceValue >> rtlOperandQualifier [
 ]
 
 { #category : #sccp }
-DRObjectReferenceValue >> sccpEvaluateFor: aDRSCCP [ 
+DRObjectReferenceValue >> sccpLatticeValueFor: aDRSCCP [ 
 
 	^ self value
 ]

@@ -29,7 +29,7 @@ DRNoop >> removeFromCFG [
 ]
 
 { #category : #SCCP }
-DRNoop >> sccpEvaluateFor: sccp [ 
+DRNoop >> sccpLatticeValueFor: sccp [ 
 	
 	^ sccp top
 ]

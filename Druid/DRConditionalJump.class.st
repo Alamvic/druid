@@ -63,8 +63,28 @@ DRConditionalJump >> prettyPrint [
 	  , self falseBranch id asString
 ]
 
-{ #category : #accessing }
+{ #category : #SCCP }
 DRConditionalJump >> sccpEvaluateFor: sccp [
+
+	| condition jumpTarget |
+	condition := self condition sccpLatticeValueFor: sccp.
+
+	"If we know nothing, do nothing yet"
+	condition = sccp top ifTrue: [ ^ self ].
+
+	condition = sccp bottom ifTrue: [ 
+		self targets do: [ :t | 
+			sccp addToEdgeCFGWorklistConditionalJump: self targetting: t ].
+		^ self ].
+
+	jumpTarget := condition
+		              ifTrue: [ self trueBranch ]
+		              ifFalse: [ self falseBranch ].
+	sccp addToEdgeCFGWorklistConditionalJump: self targetting: jumpTarget
+]
+
+{ #category : #SCCP }
+DRConditionalJump >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]

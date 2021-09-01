@@ -103,8 +103,11 @@ DRSCCPConstantFoldingTest >> setUpCFGWithConditional: jump [
 	cfg initialBasicBlock: b0.
 	
 	b4 endInstruction: DRNoop new. 
-	b0 jumpTo: b1. 
-	b1 addInstruction: jump condition.
+	b0 jumpTo: b1.
+	
+	jump condition isInstruction ifTrue: [
+		b1 addInstruction: jump condition.
+	].
 	b1 endInstruction: jump. 
 	jump trueBranch: b2.
 	jump falseBranch: b3.
@@ -141,9 +144,28 @@ DRSCCPConstantFoldingTest >> setUpCFGWithConditional: jump [
 ]
 
 { #category : #tests }
+DRSCCPConstantFoldingTest >> setUpControlFlowGraphWithConditionalJump: aJump [
+
+	| cfg copy3 copy4 copy5 copy6 |
+	cfg := self setUpCFGWithConditional: aJump.
+
+	"This block will always be executed"
+	cfg b2 addInstruction: (copy3 := instructionFactory copy: 3).
+	cfg b2 addInstruction: (copy4 := instructionFactory copy: 4).
+	cfg b2 addInstruction: (leftAddInstruction := instructionFactory add: copy3 to: copy4).
+
+	"And this block will never be executed"
+	cfg b3 addInstruction: (copy5 := instructionFactory copy: 5).
+	cfg b3 addInstruction: (copy6 := instructionFactory copy: 6).
+	cfg b3 addInstruction: (rightAddInstruction := instructionFactory add: copy5 to: copy6).
+
+	^ cfg
+]
+
+{ #category : #tests }
 DRSCCPConstantFoldingTest >> setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: onLeft [
 
-	| copy1 copy2 jump cfg copy3 copy4 copy5 copy6 |
+	| copy1 copy2 jump cfg |
 	copy1 := instructionFactory copy: 1.
 	copy2 := instructionFactory copy: 2.
 	
@@ -157,22 +179,10 @@ DRSCCPConstantFoldingTest >> setUpControlFlowGraphWithDecidableConditionalJumpOn
 	jump := instructionFactory jumpIf:
 		        (instructionFactory lessOrEquals: copy1 than: copy2).
 
-
-	cfg := self setUpCFGWithConditional: jump.
+	cfg := self setUpControlFlowGraphWithConditionalJump: jump.
 	cfg b1 addInstruction: copy1.
 	cfg b1 addInstruction: copy2.
 
-	"This block will always be executed"
-	cfg b2 addInstruction: (copy3 := instructionFactory copy: 3).
-	cfg b2 addInstruction: (copy4 := instructionFactory copy: 4).
-	cfg b2 addInstruction: (leftAddInstruction := instructionFactory add: copy3 to: copy4).
-
-	"And this block will never be executed"
-	cfg b3 addInstruction: (copy5 := instructionFactory copy: 5).
-	cfg b3 addInstruction: (copy6 := instructionFactory copy: 6).
-	cfg b3 addInstruction: (rightAddInstruction := instructionFactory add: copy5 to: copy6).
-
-	optimisation applyTo: cfg.
 	^ cfg
 ]
 
@@ -185,6 +195,8 @@ DRSCCPConstantFoldingTest >> testConditionalEvaluationOnLeftAppliesFolding [
 
 	| cfg |
 	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: true.
+	
+	optimisation applyTo: cfg.
 	
 	"Check that the block on the left was visited to apply constant folding"
 	self assert: (cfg b2 instructions at: 3) isCopy.
@@ -201,6 +213,8 @@ DRSCCPConstantFoldingTest >> testConditionalEvaluationOnLeftDoesNotApplyFolding 
 	| cfg |
 	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: false.
 	
+	optimisation applyTo: cfg.
+	
 	"Check that the block in the right was not visited to apply constant propagation"
 	self assert: (cfg b2 instructions at: 3) == leftAddInstruction
 ]
@@ -214,6 +228,8 @@ DRSCCPConstantFoldingTest >> testConditionalEvaluationOnRightAppliesFolding [
 
 	| cfg |
 	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: false.
+	
+	optimisation applyTo: cfg.
 	
 	"Check that the block on the left was visited to apply constant folding"
 	self assert: (cfg b3 instructions at: 3) isCopy.
@@ -229,6 +245,8 @@ DRSCCPConstantFoldingTest >> testConditionalEvaluationOnRightDoesNotApplyFolding
 
 	| cfg |
 	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: true.
+	
+	optimisation applyTo: cfg.
 	
 	"Check that the block in the right was not visited to apply constant propagation"
 	self assert: (cfg b3 instructions at: 3) == rightAddInstruction
@@ -292,6 +310,19 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction between: operand
 DRSCCPConstantFoldingTest >> testConstantFoldingSubstractInSingleBasicBlock [
 
 	self testConstantFoldingOf: DRSubtract between: 3 and: 4 equalsTo: -1
+]
+
+{ #category : #tests }
+DRSCCPConstantFoldingTest >> testSCCPPropagationBothWithPhiFunction [
+
+	| cfg phiInstruction |
+	cfg := self setUpControlFlowGraphWithConditionalJump: (instructionFactory jumpIf: (DRPhysicalRegister name: 'Parameter')).
+	cfg b4 addInstruction: (phiInstruction := instructionFactory phiWith: leftAddInstruction with: rightAddInstruction).
+
+	"Since both paths are valid, the Phi function should not be replaced"
+	optimisation applyTo: cfg.
+	
+	self assert: cfg b4 instructions allButLast last == phiInstruction
 ]
 
 { #category : #tests }

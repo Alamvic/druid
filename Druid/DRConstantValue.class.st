@@ -76,7 +76,7 @@ DRConstantValue >> rtlOperandQualifier [
 ]
 
 { #category : #accessing }
-DRConstantValue >> sccpEvaluateFor: sccp [
+DRConstantValue >> sccpLatticeValueFor: sccp [
 
 	^ self value
 ]

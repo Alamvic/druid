@@ -33,15 +33,15 @@ DRNonConditionalSCCP >> applyTo: cfg [
 	cfg blocksDo: [ :b | b instructionsDo: [ :i | i isJump ifFalse: [ b replaceInstruction: i by: (i tryConstantFolding)]]].
 	
 	workList := OrderedCollection new. 
-	latticeValues keysDo: [ :key | ((self value: key) ~= 'Top') ifTrue: [ workList add: key]].
+	latticeValues keysDo: [ :key | ((self latticeValue: key) ~= 'Top') ifTrue: [ workList add: key]].
 	[ workList isNotEmpty ] whileTrue: [ 
 		currentOperationProcessed := workList removeFirst. 		
 		operationList := self dependentInstructionsOf: currentOperationProcessed inList: cfg instructions.
-		operationList do: [ :op | ((self value: op) ~= 'Bot') ifTrue: [ 
-			t := self value: op. 
+		operationList do: [ :op | ((self latticeValue: op) ~= 'Bot') ifTrue: [ 
+			t := self latticeValue: op. 
 			"self interpretOverLatticeValue: op withInstruction: currentOperationProcessed. "
 			self interpretOverLatticeValue: op. 
-			((self value: op) ~= t) ifTrue: [ 
+			((self latticeValue: op) ~= t) ifTrue: [ 
 				cfg blocksDo: [ :b | b instructionsDo: [ :i | i isJump ifFalse: [ b replaceInstruction: i by: (i tryConstantFolding)]]].
 				workList add: op.]]]]
 ]

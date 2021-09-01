@@ -35,7 +35,7 @@ DRCopy >> prettyPrint [
 ]
 
 { #category : #SCCP }
-DRCopy >> sccpEvaluateFor: sccp [
+DRCopy >> sccpLatticeValueFor: sccp [
 
-	^ sccp value: operands first
+	^ sccp latticeValue: operands first
 ]

@@ -28,59 +28,72 @@ Class {
 		'latticeValues',
 		'edges',
 		'instancecfg',
-		'cfgWorkList',
-		'ssaWorkList'
+		'ssaWorkList',
+		'cfgEdgeWorkList'
 	],
 	#category : #'Druid-Optimizations'
 }
 
-{ #category : #evaluating }
+{ #category : #executing }
 DRSCCP >> addJumpToCFGWorklist: aDRJump [
 
-	^ edges detect: [ :e | 
-		  e parent = (self getBlock: aDRJump) and: [ 
-			  e child = aDRJump target ] ]
+	"Add to the edge work list the edge corresponding to this jump instruction"
+	cfgEdgeWorkList add: (edges detect: [ :e | 
+		  e source = aDRJump basicBlock and: [ 
+			  e destination = aDRJump target ] ])
 ]
 
-{ #category : #operations }
+{ #category : #executing }
+DRSCCP >> addToEdgeCFGWorklistConditionalJump: aDRJump targetting: aBasicBlock [
+
+	"Add to the edge work list the edge corresponding to this jump instruction"
+
+	| edge |
+	edge := edges detect: [ :e | 
+		        e destination = aBasicBlock and: [ 
+			        e source = aDRJump basicBlock ] ].
+	cfgEdgeWorkList add: edge
+]
+
+{ #category : #executing }
 DRSCCP >> applyPropagation [
 
 	| nonConstants |
 	nonConstants := { self top. self bottom }.
 	instancecfg instructionsDo: [ :i | 
 		i operands withIndexDo: [ :operand :index | | lattice |
-			lattice := self value: operand.
+			lattice := self latticeValue: operand.
 			(nonConstants includes: lattice) ifFalse: [
 				i operandAt: index put: lattice asDRValue.
 			] ].
 		i isJump ifFalse: [ | lattice |
-			lattice := self value: i.
+			lattice := self latticeValue: i.
 			(nonConstants includes: lattice) ifFalse: [ 
 				i basicBlock replaceInstruction: i by: (DRCopy
 						 operands: { lattice asDRValue }
 						 result: i result) ] ] ]
 ]
 
-{ #category : #operations }
+{ #category : #executing }
 DRSCCP >> applyTo: cfg [
 
 
 	self initializeSCCPWithCFG: cfg.
 
-	[ cfgWorkList isEmpty and: [ssaWorkList isEmpty] ] whileFalse: [ 
-		self stepCFGWorklist.
-		self stepSSAWorklist].
+	[ cfgEdgeWorkList isEmpty and: [ssaWorkList isEmpty] ] whileFalse: [ 
+		self stepCFGEdgeWorklist.
+		self stepInstructionWorklist].
 
 	self applyPropagation.
 ]
 
-{ #category : #'accessing - constants' }
+{ #category : #lattice }
 DRSCCP >> bottom [
 
 	^ 'Bot'
 ]
 
-{ #category : #operations }
+{ #category : #initialization }
 DRSCCP >> buildEdges: cfg [
 
 	| list workList currentBlock edge|
@@ -93,17 +106,124 @@ DRSCCP >> buildEdges: cfg [
 		currentBlock := workList removeFirst. 
 		currentBlock successors do: [ :s | 
 			edge := DREdge new. 
-			edge parent: currentBlock. 
-			edge child: s. 
+			edge source: currentBlock. 
+			edge destination: s. 
 			list add: edge. 
 			workList add: s]].
 	
 	^ list
-	
 ]
 
-{ #category : #operations }
-DRSCCP >> dependenciesOf: anInstruction [
+{ #category : #executing }
+DRSCCP >> evaluateInstruction: instruction [
+
+	instruction sccpEvaluateFor: self
+]
+
+{ #category : #querying }
+DRSCCP >> executedEdgesEntering: aBlock [
+
+	^ edges select: [ :e | e destination = aBlock and: [e isExecuted]].
+]
+
+{ #category : #initialization }
+DRSCCP >> initialize [
+
+	super initialize.
+	latticeValues := Dictionary new.
+	ssaWorkList := OrderedCollection new.
+	cfgEdgeWorkList := OrderedCollection new.
+]
+
+{ #category : #initialization }
+DRSCCP >> initializeSCCPWithCFG: cfg [
+
+	instancecfg := cfg.
+	
+	"This operation marks the edges as unexecuted."
+	edges := self buildEdges: cfg.
+
+	"Edges leaving the initial block."
+	cfgEdgeWorkList addAll: (edges select: [ :edge | edge source = cfg initialBasicBlock ])
+]
+
+{ #category : #executing }
+DRSCCP >> interpretePhiFunction: operation [
+
+	| incomingEdges executedIncomingEdges values |
+
+	values := operation operands collect: [ :e | 
+		self latticeValue: e ] as: Set.
+	values remove: self top ifAbsent: [ "Nothing" ].
+	values size = 1 ifTrue: [ ^ values anyOne ].
+	^ self bottom
+]
+
+{ #category : #lattice }
+DRSCCP >> latticeValue: aValue [
+
+	"Return the lattice value for the register"
+	(aValue isRegister and: [ aValue isVirtualRegister not ])
+		ifTrue: [ ^ self bottom ].
+	aValue isInstruction ifFalse: [ ^ aValue ].
+
+	^ latticeValues at: aValue ifAbsent: [ self top ]
+]
+
+{ #category : #lattice }
+DRSCCP >> setValueOf: anInstruction at: aValue [
+
+	"Set the new lattice value associated with the instruction.
+	Invalidate all its usages so they are recomputed"
+	latticeValues at: anInstruction put: aValue.
+	ssaWorkList addAll: (self usesOf: anInstruction)
+]
+
+{ #category : #executing }
+DRSCCP >> stepCFGEdgeWorklist [
+
+	"Each basic block is visited only once.
+	This means that edges are visited only once, and blocks with many predecessors are only visited on their first visit"
+	
+	| currentEdge edgeList |
+
+	cfgEdgeWorkList isEmpty ifTrue: [ ^ self ].
+
+	currentEdge := cfgEdgeWorkList removeFirst.
+	currentEdge isExecuted ifTrue: [ ^ self ].
+	
+	"Mark the current edge as executed"
+	currentEdge mark.
+
+	"If there are more than one edge executed arriving to this block already, this means that we already visited it before.
+	Quit"
+	edgeList := self executedEdgesEntering: currentEdge destination.
+	edgeList size > 1 ifTrue: [ ^ self ].
+
+	currentEdge destination instructionsDo: [ :instruction | 
+		self evaluateInstruction: instruction ]
+]
+
+{ #category : #executing }
+DRSCCP >> stepInstructionWorklist [
+
+	| currentInstruction workingBlock |
+	ssaWorkList isEmpty ifTrue: [ ^ self ].
+
+	currentInstruction := ssaWorkList removeFirst.
+	workingBlock := currentInstruction basicBlock.
+	(self executedEdgesEntering: workingBlock) isEmpty ifFalse: [ 
+		self evaluateInstruction: currentInstruction ]
+]
+
+{ #category : #lattice }
+DRSCCP >> top [
+
+	^ 'Top'
+]
+
+{ #category : #querying }
+DRSCCP >> usesOf: anInstruction [
 	
 	| ret |
 
@@ -125,186 +245,4 @@ DRSCCP >> dependenciesOf: anInstruction [
 				^ ret. ] ] ]. 
 	^ instancecfg instructions select: [ :instruction | 
 		  instruction operands includes: anInstruction ]
-]
-
-{ #category : #operations }
-DRSCCP >> evaluateAssign: anInstruction [
-
-	| previousValue newValue |
-	
-	anInstruction isJump ifTrue: [ 
-		cfgWorkList add: (edges detect: [ :e |
-			e parent = anInstruction basicBlock
-				and: [ e child = anInstruction target ] ]).
-		^ self ].
-	anInstruction operands do: [ :o | self setValueOf: o at: (o sccpEvaluateFor: self) ].
-	
-	previousValue := self value: anInstruction. 
-	self setValueOf: anInstruction at: (newValue := anInstruction sccpEvaluateFor: self).
-	
-	previousValue = newValue ifFalse: [
-		ssaWorkList addAll: (self dependenciesOf: anInstruction) ]
-]
-
-{ #category : #operations }
-DRSCCP >> evaluateConditionnal: aConditionalJump [
-
-	| condition edge jumpTarget |
-	condition := aConditionalJump condition sccpEvaluateFor: self.
-	
-	"If we know nothing, do nothing yet"
-	condition = self top ifTrue: [ ^ self ].
-	
-	condition = self bottom ifTrue: [ 
-		aConditionalJump targets do: [ :t | 
-			edge := edges detect: [ :e | e child = t and: e parent = (self getBlock: aConditionalJump) ].
-			cfgWorkList add: edge ].
-		^ self ].
-	
-	jumpTarget := condition
-		ifTrue: [ aConditionalJump trueBranch ]
-		ifFalse: [ aConditionalJump falseBranch ].
-	
-	edge := edges detect: [ :e | 
-		 e child = jumpTarget and:
-				 e parent = (self getBlock: aConditionalJump) ].
-	cfgWorkList add: edge.
-]
-
-{ #category : #operations }
-DRSCCP >> evaluateInstruction: instruction [
-
-	^ instruction isConditionalJump
-		  ifFalse: [ self evaluateAssign: instruction ]
-		  ifTrue: [ self evaluateConditionnal: instruction ]
-]
-
-{ #category : #operations }
-DRSCCP >> evaluateOperands: aPhi [
-
-	| edge |
-
-	((self value: aPhi) ~= (self bottom)) ifTrue: [ 
-		aPhi operands do: [ :r |
-			 edge := edges select: [ :e | ((e parent) = (self getBlock: r)) and: ((e child) = (self getBlock: aPhi))]. 
-			 edge := edge first.
-			 edge isExecuted ifTrue: [
-				edge child instructionsDo: [:i |
-					i result = r ifTrue: [
-						self setValueOf: r at: i ]]]]].
-]
-
-{ #category : #operations }
-DRSCCP >> executedEdgesEntering: aBlock [
-
-	^ edges select: [ :e | e child = aBlock and: [e isExecuted]].
-]
-
-{ #category : #operations }
-DRSCCP >> getBlock: anInstruction [
-
-	"Returns a block from a control flow graph that contains the instruction"
-	^ anInstruction basicBlock
-]
-
-{ #category : #operations }
-DRSCCP >> initialize [
-
-	super initialize.
-	latticeValues := OrderedDictionary new.
-]
-
-{ #category : #operations }
-DRSCCP >> initializeLatticeValues: cfg [
-
-	cfg instructionsDo: [ :i | latticeValues at: i put: self top ]
-]
-
-{ #category : #operations }
-DRSCCP >> initializeSCCPWithCFG: cfg [
-
-	instancecfg := cfg.
-	ssaWorkList := OrderedCollection new.
-	
-	"This operation marks the edges as unexecuted."
-	edges := OrderedCollection newFrom: (self buildEdges: cfg).
-
-	"Edges leaving the initial block."
-	cfgWorkList := OrderedCollection newFrom:
-		               (edges select: [ :edge | 
-			                edge parent = cfg initialBasicBlock ]).
-
-	self initializeLatticeValues: cfg
-]
-
-{ #category : #operations }
-DRSCCP >> interpretePhiFunction: operation [
-
-	| incomingEdges executedIncomingEdges values |
-
-	operation operands size = 0 ifTrue: [ 
-		^ self value: operation ].
-	
-	incomingEdges := operation operands with: operation basicBlock predecessors collect: [ :operand :block | | edge |
-		edge := edges detect: [ :potentialEdge | potentialEdge parent = block and: [ potentialEdge child = operation basicBlock ] ].
-		{ edge . operand } ].
-	
-	executedIncomingEdges := incomingEdges select: [ :edgePair | edgePair first isExecuted ].
-
-	values := executedIncomingEdges collect: [ :e | 
-		self value: e second ] as: Set.
-	values size = 1 ifTrue: [ ^ values anyOne ].
-	^ self top
-]
-
-{ #category : #operations }
-DRSCCP >> setValueOf: aRegister at: aValue [
-
-	self haltIf: [ aValue isKindOf: DRAdd ].
-	latticeValues at: aRegister put: aValue. 
-]
-
-{ #category : #operations }
-DRSCCP >> stepCFGWorklist [
-
-	| currentEdge edgeList |
-	cfgWorkList isEmpty ifTrue: [ ^ self ].
-	currentEdge := cfgWorkList removeFirst.
-	currentEdge isExecuted ifTrue: [ ^ self ].
-
-	currentEdge mark.
-
-	edgeList := self executedEdgesEntering: currentEdge child.
-	edgeList size > 1 ifTrue: [ ^ self ].
-
-	currentEdge child instructionsDo: [ :instruction | 
-		self evaluateInstruction: instruction ]
-]
-
-{ #category : #operations }
-DRSCCP >> stepSSAWorklist [
-
-	| currentInstruction workingBlock |
-	ssaWorkList isEmpty ifTrue: [ ^ self ].
-
-	currentInstruction := ssaWorkList removeFirst.
-	workingBlock := self getBlock: currentInstruction.
-	(self executedEdgesEntering: workingBlock) isEmpty ifFalse: [ 
-		self evaluateInstruction: currentInstruction ]
-]
-
-{ #category : #'accessing - constants' }
-DRSCCP >> top [
-
-	^ 'Top'
-]
-
-{ #category : #operations }
-DRSCCP >> value: aValue [
-
-	"Return the lattice value for the register"
-	(aValue isRegister and: [ aValue isVirtualRegister not ])
-		ifTrue: [ ^ self bottom ].
-	aValue isInstruction ifFalse: [ ^ aValue ].
-	^ latticeValues at: aValue
 ]

@@ -53,7 +53,7 @@ DRPhysicalRegister >> rtlOperandQualifier [
 ]
 
 { #category : #'cogit-generation' }
-DRPhysicalRegister >> sccpEvaluateFor: sccp [
+DRPhysicalRegister >> sccpLatticeValueFor: sccp [
 
-	^ self value
+	^ sccp bottom
 ]
