@@ -6,7 +6,11 @@ Class {
 		'optimisation',
 		'rightAddInstruction',
 		'instructionFactory',
-		'leftAddInstruction'
+		'leftAddInstruction',
+		'leftOperand1',
+		'leftOperand2',
+		'rightOperand1',
+		'rightOperand2'
 	],
 	#category : #'Druid-Tests'
 }
@@ -16,7 +20,14 @@ DRSCCPConstantFoldingTest >> setUp [
 
 	super setUp.
 	instructionFactory := DRInstructionFactory new.
-	optimisation := DRSCCP new
+	optimisation := DRSCCP new.
+	
+	"Set the operands of the add instructions"
+	leftOperand1 := 3.
+	leftOperand2 := 4.
+	
+	rightOperand1 := 5.
+	rightOperand2 := 6.
 ]
 
 { #category : #helpers }
@@ -150,13 +161,13 @@ DRSCCPConstantFoldingTest >> setUpControlFlowGraphWithConditionalJump: aJump [
 	cfg := self setUpCFGWithConditional: aJump.
 
 	"This block will always be executed"
-	cfg b2 addInstruction: (copy3 := instructionFactory copy: 3).
-	cfg b2 addInstruction: (copy4 := instructionFactory copy: 4).
+	cfg b2 addInstruction: (copy3 := instructionFactory copy: leftOperand1).
+	cfg b2 addInstruction: (copy4 := instructionFactory copy: leftOperand2).
 	cfg b2 addInstruction: (leftAddInstruction := instructionFactory add: copy3 to: copy4).
 
 	"And this block will never be executed"
-	cfg b3 addInstruction: (copy5 := instructionFactory copy: 5).
-	cfg b3 addInstruction: (copy6 := instructionFactory copy: 6).
+	cfg b3 addInstruction: (copy5 := instructionFactory copy: rightOperand1).
+	cfg b3 addInstruction: (copy6 := instructionFactory copy: rightOperand2).
 	cfg b3 addInstruction: (rightAddInstruction := instructionFactory add: copy5 to: copy6).
 
 	^ cfg
@@ -316,13 +327,18 @@ DRSCCPConstantFoldingTest >> testConstantFoldingSubstractInSingleBasicBlock [
 DRSCCPConstantFoldingTest >> testSCCPPropagationBothWithPhiFunction [
 
 	| cfg phiInstruction |
+	
+	"Use the same values on the left and the right"
+	rightOperand1 := leftOperand1.
+	rightOperand2 := leftOperand2.
+	
 	cfg := self setUpControlFlowGraphWithConditionalJump: (instructionFactory jumpIf: (DRPhysicalRegister name: 'Parameter')).
 	cfg b4 addInstruction: (phiInstruction := instructionFactory phiWith: leftAddInstruction with: rightAddInstruction).
 
 	"Since both paths are valid, the Phi function should not be replaced"
 	optimisation applyTo: cfg.
 	
-	self assert: cfg b4 instructions allButLast last == phiInstruction
+	self assert: cfg b4 instructions allButLast last operand1 value equals: leftOperand1 + leftOperand2
 ]
 
 { #category : #tests }
