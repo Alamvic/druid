@@ -245,7 +245,7 @@ DRSCCP >> interpretePhiFunction: operation [
 	operation operands size = 0 ifTrue: [ 
 		^ self value: operation ].
 	
-	incomingEdges := operation operands with: operation originBlocks collect: [ :operand :block | | edge |
+	incomingEdges := operation operands with: operation basicBlock predecessors collect: [ :operand :block | | edge |
 		edge := edges detect: [ :potentialEdge | potentialEdge parent = block and: [ potentialEdge child = operation basicBlock ] ].
 		{ edge . operand } ].
 	

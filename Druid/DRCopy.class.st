@@ -17,7 +17,7 @@ DRCopy >> isCopy [
 ]
 
 { #category : #SCCP }
-DRCopy >> isValidEndInstruction [ 
+DRCopy >> isMandatoryInstruction [ 
 
 	self result isPhysicalRegister ifTrue: [ ^ true ].
 	^ false

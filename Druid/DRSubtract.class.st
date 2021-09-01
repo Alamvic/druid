@@ -1,23 +1,23 @@
 Class {
-	#name : #DRSubstract,
+	#name : #DRSubtract,
 	#superclass : #DRInstruction,
 	#category : #'Druid-IR'
 }
 
 { #category : #visiting }
-DRSubstract >> acceptVisitor: aVisitor [
+DRSubtract >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitSubstract: self
 ]
 
 { #category : #printing }
-DRSubstract >> opcode [
+DRSubtract >> opcode [
 	
 	^ 'SUB'
 ]
 
 { #category : #printing }
-DRSubstract >> sccpEvaluateFor: sccp [
+DRSubtract >> sccpEvaluateFor: sccp [
 	
 	| operand1 operand2 |
 	operand1 := sccp value: self operand1.
@@ -35,7 +35,7 @@ DRSubstract >> sccpEvaluateFor: sccp [
 ]
 
 { #category : #printing }
-DRSubstract >> tryConstantFolding [ 
+DRSubtract >> tryConstantFolding [ 
 
 	|op1 op2|
 	

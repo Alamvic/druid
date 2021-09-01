@@ -14,7 +14,7 @@ http://www.r-5.org/files/books/computers/compilers/writing/Keith_Cooper_Linda_To
 Section 9.3 
 "
 Class {
-	#name : #DRSCCPConstantPropagation,
+	#name : #DRNonConditionalSCCP,
 	#superclass : #Object,
 	#instVars : [
 		'latticeValues'
@@ -23,7 +23,7 @@ Class {
 }
 
 { #category : #operations }
-DRSCCPConstantPropagation >> applyTo: cfg [
+DRNonConditionalSCCP >> applyTo: cfg [
 	
 	| workList currentOperationProcessed operationList t|
 	cfg blocksDo: [ :b | self initializeLatticeValues: b ].
@@ -47,20 +47,20 @@ DRSCCPConstantPropagation >> applyTo: cfg [
 ]
 
 { #category : #operations }
-DRSCCPConstantPropagation >> dependentInstructionsOf: aValue inList: aList [
+DRNonConditionalSCCP >> dependentInstructionsOf: aValue inList: aList [
 
 	^ aList select: [ :anInstruction | anInstruction operands includes: aValue ]
 ]
 
 { #category : #operations }
-DRSCCPConstantPropagation >> initialize [
+DRNonConditionalSCCP >> initialize [
 
 	super initialize.
 	latticeValues := OrderedDictionary new.
 ]
 
 { #category : #operations }
-DRSCCPConstantPropagation >> initializeLatticeValues: aBlock [ 
+DRNonConditionalSCCP >> initializeLatticeValues: aBlock [ 
 
 	aBlock instructionsDo: [ :i | | value | 
 		value := (i isCopy and: [i operand1 isConstant])
@@ -74,7 +74,7 @@ DRSCCPConstantPropagation >> initializeLatticeValues: aBlock [
 ]
 
 { #category : #operations }
-DRSCCPConstantPropagation >> interpretOverLatticeValue: operation [ 
+DRNonConditionalSCCP >> interpretOverLatticeValue: operation [ 
 
 	operation isPhiFunction ifTrue: [ self interpretePhiFunction: operation. ^ self. ]. 
 	operation operands: (operation operands collect: [ :op | self interpreteValue: op ]). 
@@ -84,7 +84,7 @@ DRSCCPConstantPropagation >> interpretOverLatticeValue: operation [
 ]
 
 { #category : #operations }
-DRSCCPConstantPropagation >> interpretePhiFunction: operation [
+DRNonConditionalSCCP >> interpretePhiFunction: operation [
 
 	| operandsList |
 	operation operand1 operand1 value = operation operand2 operand1 value 
@@ -96,7 +96,7 @@ DRSCCPConstantPropagation >> interpretePhiFunction: operation [
 ]
 
 { #category : #operations }
-DRSCCPConstantPropagation >> interpreteValue: op [
+DRNonConditionalSCCP >> interpreteValue: op [
 
 	|lv|
 	
@@ -106,7 +106,7 @@ DRSCCPConstantPropagation >> interpreteValue: op [
 ]
 
 { #category : #operations }
-DRSCCPConstantPropagation >> value: aRegister [
+DRNonConditionalSCCP >> value: aRegister [
 
 	"Return the lattice value for the register"
 	^ latticeValues at: aRegister

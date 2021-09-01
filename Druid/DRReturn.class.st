@@ -11,7 +11,7 @@ DRReturn >> acceptVisitor: aVisitor [
 ]
 
 { #category : #visiting }
-DRReturn >> isValidEndInstruction [
+DRReturn >> isMandatoryInstruction [
 
 	^ true
 ]

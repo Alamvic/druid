@@ -76,6 +76,12 @@ DRValue >> isLoad [
 	^ false
 ]
 
+{ #category : #visiting }
+DRValue >> isMandatoryInstruction [
+
+	^ false
+]
+
 { #category : #accessing }
 DRValue >> isNoop [ 
 	
@@ -98,12 +104,6 @@ DRValue >> isRegister [
 DRValue >> isStore [
 
 	^ false 
-]
-
-{ #category : #visiting }
-DRValue >> isValidEndInstruction [
-
-	^ false
 ]
 
 { #category : #testing }

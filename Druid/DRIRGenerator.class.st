@@ -10,7 +10,8 @@ Class {
 		'nextRegister',
 		'nextBlockID',
 		'pharoOperandStack',
-		'currentOperandStack'
+		'currentOperandStack',
+		'instructionFactory'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -45,10 +46,7 @@ DRIRGenerator >> addInstructionWithNoResultFrom: aNode instructionKind: instruct
 { #category : #factory }
 DRIRGenerator >> allocateTemporaryRegister [
 	
-	| allocatedRegisterId |
-	allocatedRegisterId := nextRegister.
-	nextRegister := nextRegister + 1.
-	^ DRTemporaryRegister id: allocatedRegisterId
+	^ instructionFactory allocateTemporaryRegister
 ]
 
 { #category : #factory }
@@ -138,7 +136,7 @@ DRIRGenerator >> initialize [
 	self initializeSpecialCases.
 	
 	currentOperandStack := Stack new.
-	nextRegister := 0.
+	instructionFactory := DRInstructionFactory new.
 	nextBlockID := 1.
 	
 	"Push a top frame"
@@ -619,7 +617,7 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretSubstractWith: aRBMessageNode [ 
 	
-	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRSubstract
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRSubtract
 ]
 
 { #category : #'special-cases' }

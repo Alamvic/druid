@@ -54,7 +54,7 @@ DRDeadCodeEliminationTest >> setUpCFG: n [
 ]
 
 { #category : #test }
-DRDeadCodeEliminationTest >> setUpCFGConditionnal: jump [
+DRDeadCodeEliminationTest >> setUpCFGWithConditional: jump [
 
 	| cfg b0 b1 b2 b3 b4|
 	
@@ -70,7 +70,9 @@ DRDeadCodeEliminationTest >> setUpCFGConditionnal: jump [
 	
 	b4 endInstruction: DRNoop new. 
 	b0 jumpTo: b1. 
-	b1 addInstruction: jump condition. 
+	jump condition isInstruction ifTrue: [
+		b1 addInstruction: jump condition. 
+	].
 	b1 endInstruction: jump. 
 	jump trueBranch: b2.
 	b2 addPredecessor: b1. 
@@ -112,7 +114,7 @@ DRDeadCodeEliminationTest >> setUpCFGConditionnal: jump [
 DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 
 
-	| cfg b0 b1 b2 b3 b4 optimisation copy1 copy2 copy3 copy4 copy5 copy6 jump b2OperandList b3OperandList add1 add2 phi|
+	| cfg optimisation copy1 copy2 copy3 copy4 copy5 copy6 jump add1 add2 phi|
 	optimisation := DRDeadCodeElimination new. 
 
 	copy1 := DRCopy
@@ -123,44 +125,31 @@ DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 		         result: (DRTemporaryRegister id: 2).
 	jump := DRConditionalJump operands: { DRConstantValue value: true  }.
 
-	cfg := self setUpCFGConditionnal: jump.
-	b0 := cfg b0.
-	b1 := cfg b1.
-	b2 := cfg b2.
-	b3 := cfg b3.
-	b4 := cfg b4.
+	cfg := self setUpCFGWithConditional: jump.
 
+	cfg b1 addInstruction: copy1.
+	cfg b1 addInstruction: copy2.
 
-	b1 addInstruction: copy1.
-	b1 addInstruction: copy2.
-
-	b2 addInstruction: (copy3 := DRCopy
+	cfg b2 addInstruction: (copy3 := DRCopy
 			          operands: { (DRConstantValue value: 3) }
 			          result: (DRTemporaryRegister id: 3)).
-	b2 addInstruction: (copy4 := DRCopy
+	cfg b2 addInstruction: (copy4 := DRCopy
 			          operands: { (DRConstantValue value: 4) }
 			          result: (DRTemporaryRegister id: 4)).
-	b2OperandList := OrderedCollection new.
-	b2OperandList add: copy3.
-	b2OperandList add: copy4.
-	b2 addInstruction:
-		(add1 := DRAdd operands: b2OperandList result: (DRTemporaryRegister id: 7)).
+	cfg b2 addInstruction:
+		(add1 := DRAdd operands: {copy3. copy4} result: (DRTemporaryRegister id: 7)).
 
-	b3 addInstruction: (copy5 := DRCopy
+	cfg b3 addInstruction: (copy5 := DRCopy
 			          operands: { (DRConstantValue value: 5) }
 			          result: (DRTemporaryRegister id: 5)).
-	b3 addInstruction: (copy6 := DRCopy
+	cfg b3 addInstruction: (copy6 := DRCopy
 			          operands: { (DRConstantValue value: 6) }
 			          result: (DRTemporaryRegister id: 6)).
-	b3OperandList := OrderedCollection new.
-	b3OperandList add: copy5.
-	b3OperandList add: copy6.
-	b3 addInstruction:
-		(add2 := DRAdd operands: b3OperandList result: (DRTemporaryRegister id: 8)).
+	cfg b3 addInstruction:
+		(add2 := DRAdd operands: { copy5. copy6 } result: (DRTemporaryRegister id: 8)).
  
-	b4 addInstruction: (phi := ((DRPhiFunction joinedVariables: { add1. add2 }) result: (DRTemporaryRegister id: 9); yourself)).
-
-	b4 addInstruction: (DRStore new operands: {phi}). 
+	cfg b4 addInstruction: (phi := ((DRPhiFunction joinedVariables: { add1. add2 }) result: (DRTemporaryRegister id: 9); yourself)).
+	cfg b4 addInstruction: (DRStore new operands: {phi}). 
 	optimisation applyTo: cfg.
 
 

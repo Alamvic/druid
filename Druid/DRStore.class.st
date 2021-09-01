@@ -11,13 +11,13 @@ DRStore >> acceptVisitor: aVisitor [
 ]
 
 { #category : #visiting }
-DRStore >> isStore [ 
+DRStore >> isMandatoryInstruction [ 
 
 	^ true
 ]
 
 { #category : #visiting }
-DRStore >> isValidEndInstruction [ 
+DRStore >> isStore [ 
 
 	^ true
 ]
