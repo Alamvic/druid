@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'nextAvailableRegister'
 	],
-	#category : #'Druid-Tests'
+	#category : #'Druid-IR'
 }
 
 { #category : #factory }

@@ -115,7 +115,7 @@ DRPhiFunction >> rtlOperandQualifier [
 { #category : #enumerating }
 DRPhiFunction >> sccpLatticeValueFor: sccp [
 
-	^ sccp interpretePhiFunction: self
+	^ sccp latticeValueOfPhiFunction: self
 ]
 
 { #category : #simplification }

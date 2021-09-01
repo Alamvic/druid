@@ -1,25 +1,28 @@
 "
-This class is an available optimisations for Druid.
+I am a Druid optimisation that implements the SCCP algorithm (Sparce Conditional Constant Propagation) on IR instructions.
 
-It is called on DRControlFlowGraph.
+I propagate constants in the control flow graph instructions and perform constant folding on the instructions when I determine they operands will be constant.
+This reduces the number of useful lines of code and allows a subsequent pass of dead code elimination.
 
-It executes folding on the operations when they contain constants, which reduces the number of useful code lines and allows dead code elimination, as well as taking into account the conditionnal jumps of the control flow graph. If some conditions can be evaluated at compile time, the blocks that won't be called are not optimized and the phi functions that contain variables from these blocks are resolved. It includes constant folding and constant propagation. 
+Moreover, I apply constant folding and propagation conditionally: edges in the control flow graph are visited only if I determine that they can be visited at runtime.
+On the contrary, if I can statically decide that some edge will never be visited, e.g., if a condition is always false, those edges will never be visited and allow more agressive propagations. 
 
-The replacement values are firstly kept in a lattice while the computations are done. When the algorithm has finished exploring the graph, the replacement is done. 
-
-This is the final version of SCCP. This algorithm is meant to be called on use cases. 
+I am implemented as a two-phase algorithm.
+The first phase does an abstract interpretation of the control flow graph and computes the lattice values that correspond to each instruction in the graph.
+The second phase replaces
+ - each instruction with a constant lattice value by a copy instruction with that value
+ - each operand with a constant lattive value by a that value
 
 More information about SCCP algorithm : 
 http://www.r-5.org/files/books/computers/compilers/writing/Keith_Cooper_Linda_Torczon-Engineering_a_Compiler-EN.pdf
 Section 10.7
 
-The tests use a special class named DRControlFlowGraphForTesting that has the same functionnalities and behavior as DRControlFlowGraph, but adds accessors and let the test set up be easier. 
+[Note]: In the book above, the algorithm is built to optimise control flow graphs that contain only one operation per block (assign or conditionnal).
+This is not true for Druid, so some parts of the algorithm had to be changed to take this difference into account. 
+The algorithm was also refactored for readability, so there are intermediate methods that are not in the book. 
 
-[Note] : In the book above, the algorithm is built to optimise control flow graphs that contain only one operation by block (assign or conditionnal). This is not true for Druid, so some parts of the algorithm had to be changed to take this difference into account. 
-The algorithm was also refactored to fit Pharo's object model, so they are intermediate methods that are not in the book that were implemented. 
-Some parts were also divided into several methods for readability. 
-The CFGEdges were modeled by the DREdge objects. 
-The SSAEdges were replaced by the exiting instruction instead. 
+The CFGEdges are modelled by the DREdge objects. 
+The SSAEdges are modelled by the instruction itself, because Druid IR is in SSA form. 
 "
 Class {
 	#name : #DRSCCP,
@@ -147,18 +150,6 @@ DRSCCP >> initializeSCCPWithCFG: cfg [
 	cfgEdgeWorkList addAll: (edges select: [ :edge | edge source = cfg initialBasicBlock ])
 ]
 
-{ #category : #executing }
-DRSCCP >> interpretePhiFunction: operation [
-
-	| incomingEdges executedIncomingEdges values |
-
-	values := operation operands collect: [ :e | 
-		self latticeValue: e ] as: Set.
-	values remove: self top ifAbsent: [ "Nothing" ].
-	values size = 1 ifTrue: [ ^ values anyOne ].
-	^ self bottom
-]
-
 { #category : #lattice }
 DRSCCP >> latticeValue: aValue [
 
@@ -168,6 +159,18 @@ DRSCCP >> latticeValue: aValue [
 	aValue isInstruction ifFalse: [ ^ aValue ].
 
 	^ latticeValues at: aValue ifAbsent: [ self top ]
+]
+
+{ #category : #executing }
+DRSCCP >> latticeValueOfPhiFunction: operation [
+
+	| values |
+
+	values := operation operands collect: [ :e | 
+		self latticeValue: e ] as: Set.
+	values remove: self top ifAbsent: [ "Nothing" ].
+	values size = 1 ifTrue: [ ^ values anyOne ].
+	^ self bottom
 ]
 
 { #category : #lattice }
