@@ -10,6 +10,12 @@ DRBitShift >> acceptVisitor: aVisitor [
 	^ aVisitor visitBitShift: self
 ]
 
+{ #category : #testing }
+DRBitShift >> isLogicalRightShift [
+	
+	^ true
+]
+
 { #category : #printing }
 DRBitShift >> opcode [
 	
@@ -17,16 +23,9 @@ DRBitShift >> opcode [
 ]
 
 { #category : #printing }
-DRBitShift >> sccpLatticeValueFor: sccp [
-
-	| left right |
+DRBitShift >> sccpOperateOnLattice: operand and: operand2 [
 	
-	left := sccp latticeValue: self operand1. 
-	right := sccp latticeValue: self operand2. 
-	
-	(left isConstant and: right isConstant) ifTrue: [ ^ left value >> right value ].
-	(left = sccp bottom or: [right = sccp bottom]) ifTrue: [ ^ sccp bottom ].
-	^ sccp top
+	^ operand >> operand2
 ]
 
 { #category : #printing }

@@ -54,30 +54,6 @@ DRConstantFoldingTest >> testConstantFoldingBitAndInSingleBasicBlock [
 ]
 
 { #category : #tests }
-DRConstantFoldingTest >> testConstantFoldingBitShiftInSingleBasicBlock [
-
-	| optimisation bb cfg copy1 copy2 operandList|
-	optimisation := DRConstantFolding new.
-	bb := DRBasicBlock new.
-		
-	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock: bb.
-
-	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 2r1000 } result:  (DRTemporaryRegister id: 1)).
-	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 1} result:  (DRTemporaryRegister id: 2)).
-	
-	operandList := OrderedCollection new. 
-	operandList add: copy1. 
-	operandList add: copy2.
-
-	bb addInstruction: (DRBitShift  operands: operandList result:  (DRTemporaryRegister id: 3)).
-	optimisation applyTo: cfg.
-	
-
-	self assert: (cfg instructions last operands) equals: (DRConstantValue value: 2r100)
-]
-
-{ #category : #tests }
 DRConstantFoldingTest >> testConstantFoldingMultiplyInSingleBasicBlock [
 
 	| optimisation bb cfg copy1 copy2 operandList|
@@ -123,4 +99,28 @@ DRConstantFoldingTest >> testConstantFoldingSubstractInSingleBasicBlock [
 	
 
 	self assert: (cfg instructions last operands) equals: (DRConstantValue value: -1)
+]
+
+{ #category : #tests }
+DRConstantFoldingTest >> testFoldBitShiftWithConstants [
+
+	| optimisation bb cfg copy1 copy2 operandList|
+	optimisation := DRConstantFolding new.
+	bb := DRBasicBlock new.
+		
+	cfg := DRControlFlowGraph new.
+	cfg initialBasicBlock: bb.
+
+	bb addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 2r1000 } result:  (DRTemporaryRegister id: 1)).
+	bb addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 1} result:  (DRTemporaryRegister id: 2)).
+	
+	operandList := OrderedCollection new. 
+	operandList add: copy1. 
+	operandList add: copy2.
+
+	bb addInstruction: (DRBitShift  operands: operandList result:  (DRTemporaryRegister id: 3)).
+	optimisation applyTo: cfg.
+	
+
+	self assert: (cfg instructions last operands) equals: (DRConstantValue value: 2r100)
 ]

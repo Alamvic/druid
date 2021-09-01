@@ -17,16 +17,9 @@ DRBitAnd >> opcode [
 ]
 
 { #category : #printing }
-DRBitAnd >> sccpLatticeValueFor: sccp [
-
-	| left right |
+DRBitAnd >> sccpOperateOnLattice: operand and: operand2 [
 	
-	left := sccp latticeValue: self operand1. 
-	right := sccp latticeValue: self operand2. 
-	
-	(left isConstant and: right isConstant) ifTrue: [ ^ left value & right value ].
-	(left = sccp bottom or: [right = sccp bottom]) ifTrue: [ ^ sccp bottom ].
-	^ sccp top
+	^ operand bitAnd: operand2
 ]
 
 { #category : #printing }

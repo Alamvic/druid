@@ -15,6 +15,13 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #tests }
+DRSCCPConstantFoldingTest >> assertLastInstructionOf: cfg isCopyValue: aValue [
+
+	self assert: cfg instructions allButLast last isCopy.
+	self assert: cfg instructions allButLast last operand1 equals: aValue asDRValue.
+]
+
 { #category : #running }
 DRSCCPConstantFoldingTest >> setUp [
 
@@ -266,41 +273,95 @@ DRSCCPConstantFoldingTest >> testConditionalEvaluationOnRightDoesNotApplyFolding
 { #category : #tests }
 DRSCCPConstantFoldingTest >> testConstantFoldingAddInSingleBasicBlock [
 
-	self testConstantFoldingOf: DRAdd between: 3 and: 4 equalsTo: 7
+	| cfg |
+	cfg := self testConstantFoldingOf: DRAdd between: 3 and: 4.
+
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1
+		equals: 7 asDRValue
+]
+
+{ #category : #tests }
+DRSCCPConstantFoldingTest >> testConstantFoldingAddOfLeftNonConstants [
+
+	| r cfg |
+	r := DRPhysicalRegister name: 'Parameter'.
+	cfg := self testConstantFoldingOf: DRAdd between: r and: 3.
+
+	self assert: cfg instructions allButLast last isAdd.
+	self
+		assert: cfg instructions allButLast last operand1 operands first
+		equals: r.
+	self
+		assert: cfg instructions allButLast last operand2
+		equals: 3 asDRValue
+]
+
+{ #category : #tests }
+DRSCCPConstantFoldingTest >> testConstantFoldingAddOfRightNonConstants [
+
+	| r cfg |
+	r := DRPhysicalRegister name: 'Parameter'.
+	cfg := self testConstantFoldingOf: DRAdd between: 3 and: r.
+
+	self assert: cfg instructions allButLast last isAdd.
+	self
+		assert: cfg instructions allButLast last operand1
+		equals: 3 asDRValue.
+	self
+		assert: cfg instructions allButLast last operand2 operands first
+		equals: r
 ]
 
 { #category : #tests }
 DRSCCPConstantFoldingTest >> testConstantFoldingBitAndInSingleBasicBlock [
 
-	self testConstantFoldingOf: DRBitAnd between: 2r0101010110 and: 2r0101011111 equalsTo: 2r0101010110
-]
+	| cfg |
+	cfg := self
+		       testConstantFoldingOf: DRBitAnd
+		       between: 2r0101010110
+		       and: 2r0101011111.
 
-{ #category : #tests }
-DRSCCPConstantFoldingTest >> testConstantFoldingBitShiftInSingleBasicBlock [
-
-	self testConstantFoldingOf: DRBitShift between: 2r1000 and: 1 equalsTo: 2r100
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1
+		equals: 2r0101010110 asDRValue
 ]
 
 { #category : #tests }
 DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyByZeroLeft [
 
-	self testConstantFoldingOf: DRMultiply between: 0 and: (DRPhysicalRegister name: 'Rx') equalsTo: 0
+	| cfg |
+	cfg := self
+		       testConstantFoldingOf: DRMultiply
+		       between: 0
+		       and: (DRPhysicalRegister name: 'Rx').
+
+	self assertLastInstructionOf: cfg isCopyValue: 0
 ]
 
 { #category : #tests }
 DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyByZeroRight [
 
-	self testConstantFoldingOf: DRMultiply between: (DRPhysicalRegister name: 'Rx') and: 0 equalsTo: 0
+	| cfg |
+	cfg := self
+		       testConstantFoldingOf: DRMultiply
+		       between: (DRPhysicalRegister name: 'Rx')
+		       and: 0.
+	self assertLastInstructionOf: cfg isCopyValue: 0
 ]
 
 { #category : #tests }
 DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyInSingleBasicBlock [
 
-	self testConstantFoldingOf: DRMultiply between: 3 and: 4 equalsTo: 12
+	| cfg |
+	cfg := self testConstantFoldingOf: DRMultiply between: 3 and: 4.
+	self assertLastInstructionOf: cfg isCopyValue: 12
 ]
 
 { #category : #helpers }
-DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction between: operand1 and: operand2 equalsTo: expectedResult [
+DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction between: operand1 and: operand2 [
 
 	| b0 b1 cfg copy1 copy2 |
 	cfg := self setUpCFG: 2. 
@@ -312,15 +373,40 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction between: operand
 	b1 addInstruction: (instruction operands: { copy1. copy2 } result:  (DRTemporaryRegister id: 3)).
 
 	optimisation applyTo: cfg.
-	
-	self assert: cfg instructions allButLast last operand1 equals: expectedResult asDRValue.
-	self assert: cfg instructions allButLast last isCopy.
+	^ cfg
 ]
 
 { #category : #tests }
 DRSCCPConstantFoldingTest >> testConstantFoldingSubstractInSingleBasicBlock [
 
-	self testConstantFoldingOf: DRSubtract between: 3 and: 4 equalsTo: -1
+	| cfg |
+	cfg := self testConstantFoldingOf: DRSubtract between: 3 and: 4.
+	self assertLastInstructionOf: cfg isCopyValue: -1
+]
+
+{ #category : #tests }
+DRSCCPConstantFoldingTest >> testFoldBitShiftWithConstants [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DRBitShift between: 2r1000 and: 1.
+
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1
+		equals: 2r100 asDRValue
+]
+
+{ #category : #tests }
+DRSCCPConstantFoldingTest >> testFoldBitShiftWithNonLeftConstant [
+
+	| cfg r lastInstruction |
+	r := DRPhysicalRegister name: 'Parameter'.
+	cfg := self testConstantFoldingOf: DRBitShift between: r and: 1.
+
+	lastInstruction := cfg instructions allButLast last.
+	self assert: lastInstruction isLogicalRightShift.
+	self assert: lastInstruction operand1 operand1 equals: r.
+	self assert: lastInstruction operand2 value equals: 1.
 ]
 
 { #category : #tests }
