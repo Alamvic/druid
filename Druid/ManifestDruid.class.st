@@ -6,8 +6,3 @@ Class {
 	#superclass : #PackageManifest,
 	#category : #'Druid-Manifest'
 }
-
-{ #category : #'code-critics' }
-ManifestDruid class >> ruleUsesAddRuleV1FalsePositive [
-	^ #(#(#(#RGMethodDefinition #(#DRAdd #tryConstantFolding #false)) #'2021-07-15T11:56:26.278621+02:00') #(#(#RGClassDefinition #(#DRAdd)) #'2021-07-15T11:56:55.103421+02:00') )
-]
