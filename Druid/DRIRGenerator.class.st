@@ -11,7 +11,8 @@ Class {
 		'nextBlockID',
 		'pharoOperandStack',
 		'currentOperandStack',
-		'instructionFactory'
+		'instructionFactory',
+		'currentPrimitiveFailureCode'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -70,6 +71,7 @@ DRIRGenerator >> basicNewBasicBlock [
 
 	| block |
 	block := DRBasicBlock id: self nextBlockID.
+	block primitiveFailureCode: currentPrimitiveFailureCode.
 	block vmOperandStack: currentOperandStack.
 	block temporaryFrame: self currentTemporaryFrame.
 	block origin: thisContext stack.
@@ -84,6 +86,7 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 	"Evaluate a block using a copy of the operand stack and temporary frame.
 	Copies are needed since branches make divergence points."
 	currentOperandStack := startingBasicBlock vmOperandStack copy.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
 	self currentTemporaryFrame: startingBasicBlock temporaryFrame copy.
 	branchEntryBlock := self newBasicBlockDuring: aBlockToEvaluate.
 	
@@ -95,6 +98,7 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 	branchExitBlock := self currentBasicBlock.
 	currentBasicBlock := startingBasicBlock.
 	currentOperandStack := startingBasicBlock vmOperandStack.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
 	self currentTemporaryFrame: startingBasicBlock temporaryFrame.
 	
 	^ branchExitBlock
@@ -152,6 +156,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
 	specialCases at: #ifFalse: put: #interpretIfFalseWith:.
 	specialCases at: #= put: #interpretEqualityComparisonWith:.
+	specialCases at: #~= put: #interpretInequalityComparisonWith:.
 	specialCases at: #< put: #interpretLessThanComparisonWith:.
 	specialCases at: #<= put: #interpretLessOrEqualsThanComparisonWith:.
 	specialCases at: #> put: #interpretGreaterThanComparisonWith:.
@@ -204,7 +209,6 @@ DRIRGenerator >> instantiate: anInstructionClass [
 DRIRGenerator >> instantiate: anInstructionClass operands: aCollection [ 
 	
 	| instruction |
-	self haltIf: [ anInstructionClass = DRCopy and: [ (aCollection first isKindOf: DRNullValue) ] ].
 	instruction := anInstructionClass operands: aCollection result: self allocateTemporaryRegister.
 	instruction origin: thisContext sender stack.
 	^ instruction
@@ -217,6 +221,11 @@ DRIRGenerator >> instantiateNoResultInstruction: anInstructionClass operands: aC
 	instruction := anInstructionClass operands: aCollection result: DRNoRegister new.
 	instruction origin: thisContext sender stack.
 	^ instruction
+]
+
+{ #category : #accessing }
+DRIRGenerator >> instructionFactory [
+	^ instructionFactory
 ]
 
 { #category : #'special-cases' }
@@ -287,7 +296,7 @@ DRIRGenerator >> interpretCondition: aRBMessageNode instructionKind: anInstructi
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretEqualityComparisonWith: aRBMessageNode [
-	
+
 	^ self interpretCondition: aRBMessageNode instructionKind: DREqualsThanComparison
 ]
 
@@ -330,6 +339,7 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 	conditionalJump trueBranch: self currentBasicBlock.
 	
 	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
 	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
 
 	"ifTrue: does not return anything useful"
@@ -364,6 +374,7 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 	conditionalJump falseBranch: self currentBasicBlock.
 	
 	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
 	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
 	
 	"ifTrue: does not return anything useful"
@@ -425,8 +436,15 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 				                   falseBranchBasicBlockOut }.
 
 	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
 	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
 	self pushOperand: joinInstruction
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretInequalityComparisonWith: aRBMessageNode [
+	
+	^ self interpretCondition: aRBMessageNode instructionKind: DRNotEqualsThanComparison
 ]
 
 { #category : #'special-cases' }
@@ -470,7 +488,7 @@ DRIRGenerator >> interpretIntegerSumWithOverflowWith: aRBMessageNode [
 		                   joinValue: overflowBlockOut blockValue
 		                   onIRGenerator: self
 								from: { startingBasicBlock. overflowBlockOut }.
-	joinInstruction addToBlock: self currentBasicBlock.
+	"joinInstruction addToBlock: self currentBasicBlock."
 	^ joinInstruction
 ]
 
@@ -688,13 +706,16 @@ DRIRGenerator >> pop: anInteger [
 { #category : #'frame-access' }
 DRIRGenerator >> popFrame [
 	
-	| poppedFrame |
+	| poppedFrame returnValue |
 	currentBasicBlock := self currentFrame exitBasicBlock.
 	currentOperandStack := currentBasicBlock mergeOperandStacksIn: self.
+	currentPrimitiveFailureCode := currentBasicBlock primitiveFailureCode.
 	poppedFrame := interpretationStack removeLast.
 
-	currentBasicBlock addInstruction: poppedFrame returnValue.
-	self pushOperand: poppedFrame returnValue.
+	returnValue := poppedFrame returnValue simplify.
+	returnValue isPhiFunction ifTrue: [
+		currentBasicBlock addInstruction: returnValue ].
+	self pushOperand: returnValue.
 	
 	self currentTemporaryFrame: currentBasicBlock temporaryFrame.
 	currentBasicBlock jumpTo: self newBasicBlock.
@@ -821,8 +842,10 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 			temporaryAt: aRBAssignmentNode variable name
 			put: self operandStackTop ].
 	
-	aRBAssignmentNode variable binding isInstanceVariable
-		ifTrue: [ 1halt.^ (self receiver value instVarNamed: aRBAssignmentNode variable name put: self stackTop) asDRInterpreterValue ].
+	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [ 
+		^ self receiver value
+			instVarNamed: aRBAssignmentNode variable name
+			put: self operandStackTop ].
 	
 	self halt
 ]
@@ -858,8 +881,7 @@ DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 			^ self perform: mapping withArguments: { aRBVariableNode } ].
 	
 	"Resolve it as a variableAccess"
-	self haltIf: [ (self receiver isKindOf: DRInterpreterValue) not ].
-	self pushOperand: (DRInterpreterValue value: (self receiver value instVarNamed: aRBVariableNode name))
+	self pushOperand: (self receiver value instVarNamed: aRBVariableNode name) asDRValue
 ]
 
 { #category : #visiting }
@@ -910,7 +932,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	Otherwise, when searching for the entire list of blocks, this block will never be visited,
 	and it will avoid its successors to be visited (in reverse post order) too"
 	self flag: #todo.
-	self currentBasicBlock lastInstruction = #deadCode ifTrue: [ ^ self ].
+	self currentBasicBlock isDeadCode ifTrue: [ ^ self ].
 
 	self currentBasicBlock jumpTo: self currentFrame exitBasicBlock.
 ]

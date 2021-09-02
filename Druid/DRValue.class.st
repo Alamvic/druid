@@ -117,10 +117,9 @@ DRValue >> joinNonNull: anotherValue onIRGenerator: aBuilder from: originBlocks 
 
 	^ (DRPhiFunction joinedVariables: { anotherValue. self })
 		result: aBuilder allocateTemporaryRegister;
-		originBlocks: originBlocks;
 		addToBlock: aBuilder currentBasicBlock;
 		origin: thisContext stack;
-		yourself
+		simplify
 ]
 
 { #category : #joining }

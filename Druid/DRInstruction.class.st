@@ -77,6 +77,12 @@ DRInstruction >> isInstruction [
 ]
 
 { #category : #testing }
+DRInstruction >> isNonConditionalJump [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isPhiFunction [
 
 	^ false
@@ -188,7 +194,7 @@ DRInstruction >> removeUser: anInstruction [
 { #category : #replacing }
 DRInstruction >> replaceBy: anotherInstruction [
 	
-	users do: [ :instruction |
+	users copy do: [ :instruction |
 		instruction replaceOperand: self by: anotherInstruction ].
 	basicBlock replace: self by: anotherInstruction
 ]

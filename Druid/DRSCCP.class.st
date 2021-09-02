@@ -63,12 +63,22 @@ DRSCCP >> applyPropagation [
 
 	| nonConstants |
 	nonConstants := { self top. self bottom }.
-	instancecfg instructionsDo: [ :i | 
-		i operands withIndexDo: [ :operand :index | | lattice |
-			lattice := self latticeValue: operand.
-			(nonConstants includes: lattice) ifFalse: [
-				i operandAt: index put: lattice asDRValue.
-			] ].
+	instancecfg instructionsDo: [ :i |
+		
+		i isPhiFunction ifFalse: [
+			"Replace the operands of instructions by their propagated values on non phi functions"
+			i operands withIndexDo: [ :operand :index | | lattice |
+				lattice := self latticeValue: operand.
+				(nonConstants includes: lattice) ifFalse: [
+					i operandAt: index put: lattice asDRValue.
+				] ]].
+		
+		(i isConditionalJump and: [ i condition isConstant ]) ifTrue: [ | constantTarget |
+			constantTarget := i condition	value ifTrue: [ i trueBranch ] ifFalse: [ i falseBranch ].
+			i replaceBy: (DRJump new target: constantTarget).
+		].
+			
+		"Replace the instruction itself if it has constant value"
 		i isJump ifFalse: [ | lattice |
 			lattice := self latticeValue: i.
 			(nonConstants includes: lattice) ifFalse: [ 
@@ -111,7 +121,8 @@ DRSCCP >> buildEdges: cfg [
 			edge := DREdge new. 
 			edge source: currentBlock. 
 			edge destination: s. 
-			list add: edge. 
+			list add: edge.
+			self haltIf: [ s isNil ].
 			workList add: s]].
 	
 	^ list
@@ -169,7 +180,7 @@ DRSCCP >> latticeValueOfPhiFunction: operation [
 	values := operation operands collect: [ :e | 
 		self latticeValue: e ] as: Set.
 	values remove: self top ifAbsent: [ "Nothing" ].
-	values size = 1 ifTrue: [ ^ values anyOne ].
+	values size = 1 ifTrue: [ ^ values anyOne value ].
 	^ self bottom
 ]
 

@@ -104,7 +104,7 @@ DruidStackFrame >> returnValue: aValue [
 	
 	"If the value is a phi function, we have to merge it...
 	Implement it later"
-	phiFunction addValue: aValue from: self currentBasicBlock.
+	phiFunction addValue: aValue.
 ]
 
 { #category : #accessing }
@@ -116,7 +116,7 @@ DruidStackFrame >> returnValue: aValue from: aBasicBlock [
 	
 	"If the value is a phi function, we have to merge it...
 	Implement it later"
-	phiFunction addValue: aValue from: aBasicBlock
+	phiFunction addValue: aValue
 ]
 
 { #category : #accessing }

@@ -5,6 +5,37 @@ Class {
 }
 
 { #category : #tests }
+DRSCCPConstantPropagationTest >> testDoNotPropagateInPhiFunctions [
+
+	"Phi functions should contain variables and not values"
+
+	| cfg copy1 b1 b2 b3 copy2 joinBlock phi |
+	cfg := DRControlFlowGraph new.
+	cfg initialBasicBlock: DRBasicBlock new.
+	
+	cfg initialBasicBlock jumpTo: (b1 := DRBasicBlock new).
+	b1 endInstruction: (instructionFactory jumpIf: (DRPhysicalRegister name: 'Parameter')).
+
+	"T1 := 1"
+	b1 endInstruction trueBranch: (b2 := DRBasicBlock new).
+	b2 addInstruction: (copy1 := instructionFactory copy: 1).
+	
+	"T2 := 2"
+	b1 endInstruction falseBranch: (b3 := DRBasicBlock new).
+	b3 addInstruction: (copy2 := instructionFactory copy: 2).
+	
+	joinBlock := DRBasicBlock new.
+	b2 jumpTo: joinBlock.
+	b3 jumpTo: joinBlock.
+	joinBlock addInstruction: (phi := instructionFactory phiWith: copy1 with: copy2).
+	
+	optimisation applyTo: cfg.
+
+	self assert: phi operand1 equals: copy1.
+	self assert: phi operand2 equals: copy2.
+]
+
+{ #category : #tests }
 DRSCCPConstantPropagationTest >> testPropagateBetweenBasicBlocks [
 
 	| cfg copy1 |

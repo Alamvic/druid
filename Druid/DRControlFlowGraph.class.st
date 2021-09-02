@@ -85,6 +85,14 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 ]
 
 { #category : #iterating }
+DRControlFlowGraph >> postOrderBlocks [
+
+	"Return the list of blocks based on a simple linearization algorithm"
+
+	^ self blocks reversed
+]
+
+{ #category : #iterating }
 DRControlFlowGraph >> removeInstruction: aDRInstruction [
 	
 	self blocksDo: [ :b | b instructions do: [ :i | i = aDRInstruction ifTrue: [ b removeInstruction: aDRInstruction ] ] ]

@@ -63,6 +63,15 @@ DRConditionalJump >> prettyPrint [
 	  , self falseBranch id asString
 ]
 
+{ #category : #replacing }
+DRConditionalJump >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [ 
+	
+	trueBranch = aDRBasicBlock ifTrue: [
+		trueBranch := aDRBasicBlock2 ].
+	falseBranch = aDRBasicBlock ifTrue: [
+		falseBranch := aDRBasicBlock2 ].
+]
+
 { #category : #SCCP }
 DRConditionalJump >> sccpEvaluateFor: sccp [
 
@@ -77,7 +86,7 @@ DRConditionalJump >> sccpEvaluateFor: sccp [
 			sccp addToEdgeCFGWorklistConditionalJump: self targetting: t ].
 		^ self ].
 
-	jumpTarget := condition
+	jumpTarget := condition value
 		              ifTrue: [ self trueBranch ]
 		              ifFalse: [ self falseBranch ].
 	sccp addToEdgeCFGWorklistConditionalJump: self targetting: jumpTarget

@@ -32,10 +32,23 @@ DRJump >> isJump [
 	^ true
 ]
 
+{ #category : #accessing }
+DRJump >> isNonConditionalJump [
+	
+	^ true
+]
+
 { #category : #printing }
 DRJump >> prettyPrint [
 
 	^ 'Jump -> ', target id asString
+]
+
+{ #category : #replacing }
+DRJump >> replaceTarget: previousTarget by: newTarget [
+	
+	target = previousTarget ifFalse: [ self error: 'Invalid target' ].
+	target := newTarget.
 ]
 
 { #category : #SCCP }

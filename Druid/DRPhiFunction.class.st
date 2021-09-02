@@ -1,15 +1,13 @@
 Class {
 	#name : #DRPhiFunction,
 	#superclass : #DRInstruction,
-	#instVars : [
-		'originBlocks'
-	],
 	#category : #'Druid-IR'
 }
 
 { #category : #'instance-creation' }
 DRPhiFunction class >> joinedVariables: aCollection [ 
 
+	self haltIf: [ aCollection anySatisfy: [ :e | e isConstant ] ].
 	^ self new
 		joinedVariables: aCollection;
 		yourself
@@ -21,12 +19,11 @@ DRPhiFunction >> acceptVisitor: aVisitor [
 	^ aVisitor visitPhiFunction: self
 ]
 
-{ #category : #adding }
-DRPhiFunction >> addValue: aValue from: aDRBasicBlock [ 
+{ #category : #accessing }
+DRPhiFunction >> addValue: anInstruction [
 	
-	operands add: aValue.
-	aValue addUser: self.
-	originBlocks add: aDRBasicBlock
+	operands add: anInstruction.
+	anInstruction addUser: self.
 ]
 
 { #category : #accessing }
@@ -34,7 +31,6 @@ DRPhiFunction >> initialize [
 
 	super initialize.
 	operands := OrderedCollection new.
-	originBlocks := OrderedCollection new.
 ]
 
 { #category : #testing }
@@ -85,16 +81,6 @@ DRPhiFunction >> order: anInteger [
 ]
 
 { #category : #accessing }
-DRPhiFunction >> originBlocks [
-	^ originBlocks
-]
-
-{ #category : #accessing }
-DRPhiFunction >> originBlocks: aCollection [ 
-	originBlocks := aCollection
-]
-
-{ #category : #accessing }
 DRPhiFunction >> result [
 	
 	^ result ifNil: [ self ]
@@ -132,10 +118,4 @@ DRPhiFunction >> singleChild [
 	operands size > 1
 		ifTrue: [ self error: 'Cannot simplify a phi function with more than one operand for now' ].
 	^ operands first
-]
-
-{ #category : #enumerating }
-DRPhiFunction >> valuesWithOriginDo: aFullBlockClosure [ 
-	
-	operands with: originBlocks do: aFullBlockClosure
 ]

@@ -85,6 +85,24 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftDoesNotAp
 ]
 
 { #category : #'tests - conditional folding' }
+DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftReplacesConditionalJump [
+
+	"This test asserts that SCCP optimises only the blocks that are used.
+	Here the constants in the conditional jump are propagated, the algorithm knows that the block2 b2 will not be called because the condition is always false. 
+	Only the b3 block is optimized."
+
+	| cfg originalConditionalJump |
+	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: true.
+	
+	originalConditionalJump := cfg b1 endInstruction.
+	optimisation applyTo: cfg.
+	
+	"Check that the block on the left was visited to apply constant folding"
+	self assert: cfg b1 endInstruction isNonConditionalJump.
+	self assert: cfg b1 endInstruction target equals: originalConditionalJump trueBranch.
+]
+
+{ #category : #'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnRightAppliesFolding [
 
 	"This test asserts that SCCP optimises only the blocks that are used.

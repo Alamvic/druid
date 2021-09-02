@@ -10,6 +10,7 @@ Class {
 { #category : #accessing }
 DRConstantValue class >> value: anInteger [
 	
+	self haltIf: [ anInteger isKindOf: DRInstruction ].
 	^ self new
 		value: anInteger;
 		yourself

@@ -38,6 +38,15 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 	stopAddress := stopInstruction address
 ]
 
+{ #category : #'helpers-compiling' }
+DRPrimitiveCompilationTest >> druidIROfPrimitive: aSelector [
+	
+	^ DRPrimitiveCompilerCompiler new
+		primitiveName: aSelector;
+		interpreter: self interpreter;
+		generateDruidIR
+]
+
 { #category : #helpers }
 DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop [
 	
@@ -261,6 +270,14 @@ DRPrimitiveCompilationTest >> testCompiledPrimitivePreservesStack [
 	
 	"An empty primitive does nothing and just returns, the return value is the receiver"
 	self assert: self popAddress equals: 55
+]
+
+{ #category : #'tests-failing-primitive' }
+DRPrimitiveCompilationTest >> testFailingPrimitive2ExecutesUntilStop [
+
+	self compileDruidPrimitive: #failingPrimitive2.
+	
+	self executeUntilStopPrimitiveWithReceiver: 1
 ]
 
 { #category : #'tests-failing-primitive' }

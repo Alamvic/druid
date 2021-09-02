@@ -9,7 +9,9 @@ Class {
 		'predecessors',
 		'origin',
 		'temporaryFrame',
-		'vmOperandStack'
+		'vmOperandStack',
+		'isDeadCode',
+		'primitiveFailureCode'
 	],
 	#category : #'Druid-IR'
 }
@@ -25,7 +27,6 @@ DRBasicBlock class >> id: anInteger [
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
 
-	self assert: anInstruction basicBlock isNil.
 	anInstruction basicBlock: self.
 	^ instructions add: anInstruction
 ]
@@ -33,6 +34,7 @@ DRBasicBlock >> addInstruction: anInstruction [
 { #category : #accessing }
 DRBasicBlock >> addPredecessor: aBasicBlock [
 
+	self haltIf:[ predecessors includes: aBasicBlock ].
 	predecessors add: aBasicBlock
 ]
 
@@ -57,7 +59,16 @@ DRBasicBlock >> endInstruction [
 
 { #category : #accessing }
 DRBasicBlock >> endInstruction: aDRInstruction [ 
+	| previousSuccessors newSuccessors lostSuccessors |
 	aDRInstruction basicBlock: self. 
+	
+	previousSuccessors := self successors.
+	newSuccessors := aDRInstruction targets.
+	lostSuccessors := previousSuccessors difference: newSuccessors.
+	
+	lostSuccessors do: [ :e |
+		e removePredecessor: self. ].
+	
 	endInstruction := aDRInstruction
 ]
 
@@ -70,7 +81,7 @@ DRBasicBlock >> firstInstruction [
 { #category : #testing }
 DRBasicBlock >> hasFinalInstruction [
 	
-	^ endInstruction notNil
+	^ endInstruction notNil and: [endInstruction isNoop not]
 ]
 
 { #category : #testing }
@@ -97,6 +108,10 @@ DRBasicBlock >> initialize [
 	instructions := OrderedCollection new.
 	blockValue := DRNullValue new.
 	predecessors := OrderedCollection new.
+	isDeadCode := false.
+
+	endInstruction := DRNoop new.
+	endInstruction basicBlock: self.
 ]
 
 { #category : #'as yet unclassified' }
@@ -126,6 +141,12 @@ DRBasicBlock >> instructionsDo: aFullBlockClosure [
 ]
 
 { #category : #building }
+DRBasicBlock >> isDeadCode [
+	
+	^ isDeadCode
+]
+
+{ #category : #building }
 DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [ 
 	
 	aDRBasicBlock addPredecessor: self.
@@ -140,10 +161,7 @@ DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 { #category : #building }
 DRBasicBlock >> jumpTo: aBasicBlock [ 
 	
-	| jump |
-	endInstruction ifNotNil: [ self error: 'Cannot override an end instruction' ].
-	endInstruction := (jump := DRJump new target: aBasicBlock).
-	jump basicBlock: self. 
+	self endInstruction: (DRJump new target: aBasicBlock).
 	aBasicBlock addPredecessor: self.
 	^ endInstruction
 ]
@@ -159,14 +177,14 @@ DRBasicBlock >> markAsDeadCode [
 	
 	"Put a symbol to mark this block is dead code.
 	It has no predecessors, so it will never be iterated in the CFG"
-	endInstruction := #deadCode
+	isDeadCode := true
 ]
 
 { #category : #'operand stack' }
 DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 
 	"We can only merge two operand stacks with the same number of elements"
-	| stackSize newStack predecessorStacks phi |
+	| stackSize newStack predecessorStacks phi predecessorFailures mergedPrimitiveFailure |
 	
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
@@ -174,10 +192,19 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 	
 	"If I have a single predecessor, just copy the operand stack"
 	self predecessors size = 1 ifTrue: [
+		primitiveFailureCode := self predecessors first primitiveFailureCode.
 		^ vmOperandStack := self predecessors first vmOperandStack ].
-	
+
 	predecessorStacks := self predecessors collect: [ :e | e vmOperandStack ].
 	self assert: (predecessorStacks collect: [ :e | e size ] as: Set) size = 1.
+	
+	predecessorFailures := self predecessors collect: [ :e | e primitiveFailureCode ].
+	mergedPrimitiveFailure := (DRPhiFunction joinedVariables: predecessorFailures)
+		result: aBuilder allocateTemporaryRegister;
+		origin: thisContext stack;
+		simplify.
+	primitiveFailureCode := mergedPrimitiveFailure.
+	mergedPrimitiveFailure isPhiFunction ifTrue: [ self addInstruction: mergedPrimitiveFailure ].
 	
 	stackSize := predecessorStacks first size.
 	newStack := Stack new.
@@ -185,11 +212,10 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 		values := predecessorStacks collect: [ :stack | stack at: e ].
 		phi := (DRPhiFunction joinedVariables: values)
 			result: aBuilder allocateTemporaryRegister;
-			originBlocks: self predecessors;
 			origin: thisContext stack;
-			yourself.
+			simplify.
 		newStack push: phi.
-		self addInstruction: phi.
+		phi isPhiFunction ifTrue: [ self addInstruction: phi].
 	].
 	^ vmOperandStack := newStack
 ]
@@ -213,11 +239,10 @@ DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 			values := self predecessors collect: [ :p | p temporaryAt: name ].
 			phi := (DRPhiFunction joinedVariables: values)
 				result: aBuilder allocateTemporaryRegister;
-				originBlocks: self predecessors;
 				origin: thisContext stack;
-				yourself.
+				simplify.
 			newTemporaryFrame at: name put: phi.
-	 		self addInstruction: phi ]
+			phi isPhiFunction ifTrue: [ self addInstruction: phi ] ]
 		ifFalse: [ 
 			newTemporaryFrame at: name put: (self predecessors anyOne temporaryAt: #'__return').
 			 ] ].
@@ -241,6 +266,16 @@ DRBasicBlock >> predecessors [
 	^ predecessors
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> primitiveFailureCode [
+	^ primitiveFailureCode
+]
+
+{ #category : #accessing }
+DRBasicBlock >> primitiveFailureCode: anInstruction [ 
+	primitiveFailureCode := anInstruction
+]
+
 { #category : #printing }
 DRBasicBlock >> printOn: aStream [
 
@@ -262,13 +297,24 @@ DRBasicBlock >> printOn: aStream [
 { #category : #instructions }
 DRBasicBlock >> removeInstruction: aDRInstruction [
 	
+	endInstruction = aDRInstruction
+		ifTrue: [ ^ self endInstruction: DRNoop new ].
+	
 	instructions remove: aDRInstruction
+]
+
+{ #category : #accessing }
+DRBasicBlock >> removePredecessor: aDRBasicBlock [ 
+	
+	predecessors remove: aDRBasicBlock
 ]
 
 { #category : #replacing }
 DRBasicBlock >> replace: anInstruction by: aReplacementInstruction [
 	
-	instructions replaceAll: anInstruction with: aReplacementInstruction
+	instructions replaceAll: anInstruction with: aReplacementInstruction.
+	endInstruction = anInstruction
+		ifTrue: [ self endInstruction: aReplacementInstruction ]
 ]
 
 { #category : #accessing }
@@ -287,12 +333,23 @@ DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [
 	endInstruction := anotherInstruction
 ]
 
+{ #category : #initialization }
+DRBasicBlock >> setUpInitialFailureCode [
+	self shouldBeImplemented.
+]
+
+{ #category : #accessing }
+DRBasicBlock >> successor [
+	
+	| successors |
+	successors := self successors.
+	successors size ~= 1 ifTrue: [ self error: 'This block does not contain a single successor' ].
+	^ successors first
+]
+
 { #category : #accessing }
 DRBasicBlock >> successors [
 	
-	endInstruction ifNil: [ ^ #() ].
-	endInstruction = #deadCode
-		ifTrue: [ ^ #() ].
 	^ endInstruction targets
 ]
 

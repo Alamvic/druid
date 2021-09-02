@@ -39,7 +39,7 @@ DRPrimitiveCompilerCompiler >> generateJump: jumpKind target: aTarget [
 	| jumpStatement jumpVariableName |
 	"If the jump target is the next block in the order, do not add any jump to it"
 	aTarget = fallthroughBlock ifTrue: [ ^ self ].
-	
+
 	jumpVariableName := 'jump', self nextJumpIndex asString.
 	generatorMethodBuilder addVariableNamed: jumpVariableName.
 	

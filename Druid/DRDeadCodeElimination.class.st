@@ -72,15 +72,16 @@ DRDeadCodeElimination >> markInstructions [
 		| instruction |
 		instruction := workList removeFirst.
 		"Mark the instruction"
-		markedInstructions add: instruction.
-		
-		"Consider the jump instructions that must be executed to arrive to this instruction"
-		workList addAll:
-			(instruction basicBlock predecessors collect: [ :b | 
-				 b endInstruction ]).
-		
-		"Consider for marking all dependencies of the current instruction"
-		workList addAll: (self usesOf: instruction) ]
+		(markedInstructions includes: instruction) ifFalse: [
+			markedInstructions add: instruction.
+			
+			"Consider the jump instructions that must be executed to arrive to this instruction"
+			workList addAll:
+				(instruction basicBlock predecessors collect: [ :b | 
+					 b endInstruction ]).
+			
+			"Consider for marking all dependencies of the current instruction"
+			workList addAll: (self usesOf: instruction) ] ]
 ]
 
 { #category : #operations }
@@ -91,7 +92,7 @@ DRDeadCodeElimination >> sweepInstructions: cfg [
 	| toRemove |
 	
 	toRemove := OrderedCollection new. 
-	
+
 	cfg instructionsDo: [ :i | 
 		(markedInstructions includes: i) ifFalse: [ toRemove add: i ] ].
 	

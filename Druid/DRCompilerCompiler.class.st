@@ -25,7 +25,6 @@ DRCompilerCompiler >> buildStatementsForInstruction: anInstruction [
 
 { #category : #api }
 DRCompilerCompiler >> compile [
-
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
@@ -62,14 +61,17 @@ DRCompilerCompiler >> deferBranch: aString to: aDRBasicBlock [
 DRCompilerCompiler >> generateDruidIR [
 	
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	| method irGenerator |
+	| method irGenerator initialBasicBlock initial |
 	method := interpreter class lookupSelector: sourceName.
 	irGenerator := self newIRGenerator.
-	irGenerator
-		newBasicBlock;
-		numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value;
-		interpretMethod: method ast
-		receiver: (DRInterpreterValue value: interpreter).
+	
+	"Create the initial basic block"
+	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
+	initialBasicBlock := irGenerator newBasicBlock.
+	initialBasicBlock addInstruction: initial.
+	
+	irGenerator numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value.
+	irGenerator interpretMethod: method ast receiver: (DRInterpreterValue value: interpreter).
 	^ irGenerator ir
 ]
 
@@ -86,6 +88,7 @@ DRCompilerCompiler >> initialize [
 	optimisations := OrderedCollection new.
 	optimisations add: DRSCCP new.
 	optimisations add: DRDeadCodeElimination new.
+	optimisations add: DRCleanControlFlow new.
 ]
 
 { #category : #accessing }
@@ -166,13 +169,14 @@ DRCompilerCompiler >> resolvePhiFunctionsIn: aDRControlFlowGraph [
 	
 	aDRControlFlowGraph instructionsDo: [ :i |
 		i isPhiFunction ifTrue: [ 
-			i valuesWithOriginDo: [ :value :originBlock | | copy |
-				(value isKindOf: DRNullValue) ifFalse: [ 
-					(value result isKindOf: DRNoRegister)
-						ifFalse: [ 
-							copy := DRCopy operands: { value result } result: i result.
-							originBlock ifNotNil: [originBlock addInstruction: copy] ].
-			] ] ] ]
+			i operands with: i basicBlock predecessors
+				do: [ :value :originBlock | | copy |
+					(value isKindOf: DRNullValue) ifFalse: [ 
+						(value result isKindOf: DRNoRegister)
+							ifFalse: [ 
+								copy := DRCopy operands: { value result } result: i result.
+								originBlock ifNotNil: [originBlock addInstruction: copy] ].
+				] ] ] ]
 ]
 
 { #category : #accessing }
@@ -199,7 +203,10 @@ DRCompilerCompiler >> visitAddition: aDRCogitAdd [
 { #category : #visiting }
 DRCompilerCompiler >> visitBitAnd: aDRCogitBitAnd [ 
 
-	^ self twoOperandCogitRTL: #And instruction: aDRCogitBitAnd
+	self twoOperandCogitRTL: #Move operands: {
+		aDRCogitBitAnd operand1. aDRCogitBitAnd result }.
+	^ self twoOperandCogitRTL: #And operands: { 
+		aDRCogitBitAnd operand2. aDRCogitBitAnd result }
 ]
 
 { #category : #visiting }
