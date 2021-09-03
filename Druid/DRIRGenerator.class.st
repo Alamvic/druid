@@ -547,7 +547,7 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: argu
 	aMethodAST acceptVisitor: self.
 	"Fall through the exit block.
 	If the method had an explicit return, it is already done, no need to do it again."
-	currentBasicBlock hasFinalInstruction
+	(currentBasicBlock hasFinalInstruction or: [ currentBasicBlock isDeadCode ])
 		ifFalse: [ currentBasicBlock jumpTo: self currentFrame exitBasicBlock ].
 	self popFrame.
 ]

@@ -34,7 +34,7 @@ DRBasicBlock >> addInstruction: anInstruction [
 { #category : #accessing }
 DRBasicBlock >> addPredecessor: aBasicBlock [
 
-	self haltIf:[ predecessors includes: aBasicBlock ].
+	self haltIf:[ predecessors size = 2 ].
 	predecessors add: aBasicBlock
 ]
 
