@@ -98,12 +98,27 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 					visited add: target ] ] ] ]
 ]
 
+{ #category : #building }
+DRControlFlowGraph >> newBasicBlock [
+	
+	| newBlock |
+	newBlock := DRBasicBlock id: basicBlocks size.
+	self addBasicBlock: newBlock.
+	^ newBlock
+]
+
 { #category : #iterating }
 DRControlFlowGraph >> postOrderBlocks [
 
 	"Return the list of blocks based on a simple linearization algorithm"
 
 	^ self reversePostOrderBlocks reversed
+]
+
+{ #category : #removing }
+DRControlFlowGraph >> removeBasicBlock: aDRBasicBlock [ 
+	
+	basicBlocks remove: aDRBasicBlock
 ]
 
 { #category : #iterating }

@@ -87,6 +87,7 @@ DRCompilerCompiler >> initialize [
 	registerAllocator := DRLinearScanRegisterAllocator new.
 	
 	optimisations := OrderedCollection new.
+	optimisations add: DRDeadBlockElimination new.
 	optimisations add: DRSCCP new.
 	optimisations add: DRDeadCodeElimination new.
 	"optimisations add: DRCleanControlFlow new."

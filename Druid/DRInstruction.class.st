@@ -185,6 +185,13 @@ DRInstruction >> removeFromCFG [
 	basicBlock removeInstruction: self
 ]
 
+{ #category : #operands }
+DRInstruction >> removeOperandAt: anInteger [ 
+
+	operands := operands asOrderedCollection.
+	operands removeAt: anInteger.
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> removeUser: anInstruction [
 	

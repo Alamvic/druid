@@ -85,6 +85,12 @@ DRBasicBlock >> hasFinalInstruction [
 ]
 
 { #category : #testing }
+DRBasicBlock >> hasPredecessor: aDRBasicBlock [ 
+	
+	^ predecessors includes: aDRBasicBlock
+]
+
+{ #category : #testing }
 DRBasicBlock >> hasPredecessors [
 	
 	^ predecessors notEmpty
@@ -290,6 +296,11 @@ DRBasicBlock >> removeInstruction: aDRInstruction [
 { #category : #accessing }
 DRBasicBlock >> removePredecessor: aDRBasicBlock [ 
 	
+	| index |
+	index := predecessors indexOf: aDRBasicBlock.
+	self instructionsDo: [ :e |
+		e isPhiFunction ifTrue: [ 
+			e removeOperandAt: index ] ].
 	predecessors remove: aDRBasicBlock
 ]
 

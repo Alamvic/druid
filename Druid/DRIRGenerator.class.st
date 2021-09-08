@@ -72,12 +72,12 @@ DRIRGenerator >> basicNewBasicBlock [
 
 	| block |
 	block := DRBasicBlock id: self nextBlockID.
+	controlFlowGraph addBasicBlock: block.
+	
 	block primitiveFailureCode: currentPrimitiveFailureCode.
 	block vmOperandStack: currentOperandStack.
 	block temporaryFrame: self currentTemporaryFrame.
 	block origin: thisContext stack.
-	
-	controlFlowGraph addBasicBlock: block.
 	
 	^ block
 ]
