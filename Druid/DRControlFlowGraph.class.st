@@ -2,26 +2,34 @@ Class {
 	#name : #DRControlFlowGraph,
 	#superclass : #Object,
 	#instVars : [
-		'initialBasicBlock'
+		'initialBasicBlock',
+		'basicBlocks'
 	],
 	#category : #'Druid-IR'
 }
 
 { #category : #iterating }
+DRControlFlowGraph >> addBasicBlock: aBlock [
+
+	basicBlocks add: aBlock
+]
+
+{ #category : #iterating }
 DRControlFlowGraph >> blocks [
 
-	"Return the list of blocks based on a simple linearization algorithm"
-
-	| blocks |
-	blocks := OrderedCollection new.
-	self blocksDo: [ :b | blocks add: b ].
-	^ blocks
+	^ basicBlocks
 ]
 
 { #category : #iterating }
 DRControlFlowGraph >> blocksDo: aFullBlockClosure [ 
 
-	| workingQueue visited visitsSoFar |
+	basicBlocks do: aFullBlockClosure
+]
+
+{ #category : #iterating }
+DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [ 
+
+	| workingQueue visited visitsToThisBlockSoFar |
 	visited := Dictionary new.
 	
 	
@@ -35,13 +43,13 @@ DRControlFlowGraph >> blocksDo: aFullBlockClosure [
 			currentBlock lastInstruction targets do: [ :target |
 				
 				"Count how many times we have visited this block"
-				visitsSoFar := visited
+				visitsToThisBlockSoFar := visited
 					at: target
 					ifPresent: [ :p | p + 1 ]
 					ifAbsent: [ 1 ].
-				visited at: target put: visitsSoFar.
+				visited at: target put: visitsToThisBlockSoFar.
 				
-				visitsSoFar = target numberOfPredecessors ifTrue: [ 
+				visitsToThisBlockSoFar = target numberOfPredecessors ifTrue: [ 
 					workingQueue addLast: target  ] ] ] ]
 ]
 
@@ -53,6 +61,13 @@ DRControlFlowGraph >> initialBasicBlock [
 { #category : #accessing }
 DRControlFlowGraph >> initialBasicBlock: aDRBasicBlock [ 
 	initialBasicBlock := aDRBasicBlock
+]
+
+{ #category : #iterating }
+DRControlFlowGraph >> initialize [
+
+	super initialize.
+	basicBlocks := OrderedCollection new
 ]
 
 { #category : #accessing }
@@ -78,7 +93,6 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 		currentBlock instructionsDo: [ :e |
 			aFullBlockClosure value: e.
 			e targets do: [ :target |
-				1haltIf: [ target isNil ].
 				(visited includes: target) ifFalse: [ 
 					worklist add: target.
 					visited add: target ] ] ] ]
@@ -89,13 +103,24 @@ DRControlFlowGraph >> postOrderBlocks [
 
 	"Return the list of blocks based on a simple linearization algorithm"
 
-	^ self blocks reversed
+	^ self reversePostOrderBlocks reversed
 ]
 
 { #category : #iterating }
 DRControlFlowGraph >> removeInstruction: aDRInstruction [
 	
-	self blocksDo: [ :b | b instructions do: [ :i | i = aDRInstruction ifTrue: [ b removeInstruction: aDRInstruction ] ] ]
+	self blocksInReversePostOrderDo: [ :b | b instructions do: [ :i | i = aDRInstruction ifTrue: [ b removeInstruction: aDRInstruction ] ] ]
+]
+
+{ #category : #iterating }
+DRControlFlowGraph >> reversePostOrderBlocks [
+
+	"Return the list of blocks based on a simple linearization algorithm"
+
+	| blocks |
+	blocks := OrderedCollection new.
+	self blocksInReversePostOrderDo: [ :b | blocks add: b ].
+	^ blocks
 ]
 
 { #category : #validating }

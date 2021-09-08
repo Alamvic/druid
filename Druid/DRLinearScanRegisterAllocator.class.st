@@ -110,7 +110,7 @@ DRLinearScanRegisterAllocator >> instructionsDo: aFullBlockClosure [
 DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [ 
 	
 	| order |
-	blocks := aDRControlFlowGraph blocks.
+	blocks := aDRControlFlowGraph reversePostOrderBlocks.
 	
 	order := 1.
 	self instructionsDo: [ :i | 

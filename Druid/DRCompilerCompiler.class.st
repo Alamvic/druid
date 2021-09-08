@@ -25,6 +25,7 @@ DRCompilerCompiler >> buildStatementsForInstruction: anInstruction [
 
 { #category : #api }
 DRCompilerCompiler >> compile [
+
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
@@ -88,7 +89,7 @@ DRCompilerCompiler >> initialize [
 	optimisations := OrderedCollection new.
 	optimisations add: DRSCCP new.
 	optimisations add: DRDeadCodeElimination new.
-	optimisations add: DRCleanControlFlow new.
+	"optimisations add: DRCleanControlFlow new."
 ]
 
 { #category : #accessing }

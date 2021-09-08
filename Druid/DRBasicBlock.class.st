@@ -10,7 +10,6 @@ Class {
 		'origin',
 		'temporaryFrame',
 		'vmOperandStack',
-		'isDeadCode',
 		'primitiveFailureCode'
 	],
 	#category : #'Druid-IR'
@@ -27,6 +26,8 @@ DRBasicBlock class >> id: anInteger [
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
 
+	self haltIf: [ anInstruction isPhiFunction and:
+		[ anInstruction operands size ~= self predecessors size ] ].
 	anInstruction basicBlock: self.
 	^ instructions add: anInstruction
 ]
@@ -34,7 +35,6 @@ DRBasicBlock >> addInstruction: anInstruction [
 { #category : #accessing }
 DRBasicBlock >> addPredecessor: aBasicBlock [
 
-	self haltIf:[ predecessors size = 2 ].
 	predecessors add: aBasicBlock
 ]
 
@@ -108,7 +108,6 @@ DRBasicBlock >> initialize [
 	instructions := OrderedCollection new.
 	blockValue := DRNullValue new.
 	predecessors := OrderedCollection new.
-	isDeadCode := false.
 
 	endInstruction := DRNoop new.
 	endInstruction basicBlock: self.
@@ -141,12 +140,6 @@ DRBasicBlock >> instructionsDo: aFullBlockClosure [
 ]
 
 { #category : #building }
-DRBasicBlock >> isDeadCode [
-	
-	^ isDeadCode
-]
-
-{ #category : #building }
 DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [ 
 	
 	aDRBasicBlock addPredecessor: self.
@@ -170,14 +163,6 @@ DRBasicBlock >> jumpTo: aBasicBlock [
 DRBasicBlock >> lastInstruction [
 	
 	^ endInstruction
-]
-
-{ #category : #building }
-DRBasicBlock >> markAsDeadCode [
-	
-	"Put a symbol to mark this block is dead code.
-	It has no predecessors, so it will never be iterated in the CFG"
-	isDeadCode := true
 ]
 
 { #category : #'operand stack' }
@@ -239,10 +224,9 @@ DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 			values := self predecessors collect: [ :p | p temporaryAt: name ].
 			phi := (DRPhiFunction joinedVariables: values)
 				result: aBuilder allocateTemporaryRegister;
-				origin: thisContext stack;
-				simplify.
+				origin: thisContext stack.
 			newTemporaryFrame at: name put: phi.
-			phi isPhiFunction ifTrue: [ self addInstruction: phi ] ]
+			self addInstruction: phi ]
 		ifFalse: [ 
 			newTemporaryFrame at: name put: (self predecessors anyOne temporaryAt: #'__return').
 			 ] ].

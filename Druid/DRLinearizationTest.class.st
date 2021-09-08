@@ -25,7 +25,7 @@ DRLinearizationTest >> testBranchingControlFlow [
 	cfg := DRControlFlowGraph new
 		initialBasicBlock: b1.
 		
-	self assert: cfg blocks asArray equals: { b1 . b2 . b3 . b4 }
+	self assert: cfg reversePostOrderBlocks asArray equals: { b1 . b2 . b3 . b4 }
 ]
 
 { #category : #'tests-basic' }
@@ -74,7 +74,7 @@ DRLinearizationTest >> testBranchingControlFlowWithUnevenBranches [
 	cfg := DRControlFlowGraph new
 		initialBasicBlock: b1.
 		
-	self assert: cfg blocks asArray equals: { b1 . b2 . b3 . b4 }
+	self assert: cfg reversePostOrderBlocks asArray equals: { b1 . b2 . b3 . b4 }
 ]
 
 { #category : #'tests-basic' }
@@ -116,7 +116,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocks [
 		receiver: (DRInterpreterValue value: interpreter).
 	cfg := irGenerator ir.
 	
-	self assert: cfg blocks size equals: 8
+	self assert: cfg reversePostOrderBlocks size equals: 8
 ]
 
 { #category : #'tests-building' }
@@ -133,7 +133,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWhenEarlyMethodReturns [
 		receiver: (DRInterpreterValue value: interpreter).
 	cfg := irGenerator ir.
 	
-	self assert: cfg blocks size equals: 10
+	self assert: cfg reversePostOrderBlocks size equals: 10
 ]
 
 { #category : #'tests-building' }
@@ -150,7 +150,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWithTwoNonLocalReturns [
 		receiver: (DRInterpreterValue value: interpreter).
 	cfg := irGenerator ir.
 	
-	self assert: cfg blocks size equals: 10
+	self assert: cfg reversePostOrderBlocks size equals: 10
 ]
 
 { #category : #'tests-building' }
@@ -207,5 +207,5 @@ DRLinearizationTest >> testLinearControlFlow [
 	cfg := DRControlFlowGraph new
 		initialBasicBlock: b1.
 		
-	self assert: cfg blocks asArray equals: { b1 . b2 . b3 }
+	self assert: cfg reversePostOrderBlocks asArray equals: { b1 . b2 . b3 }
 ]

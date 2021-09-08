@@ -38,9 +38,8 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aVariableNode [
 { #category : #accessing }
 DRPrimitiveIRGenerator >> ir [
 
-	^ DRControlFlowGraph new
-		initialBasicBlock: firstBasicBlock;
-		yourself
+	controlFlowGraph initialBasicBlock: firstBasicBlock.
+	^ controlFlowGraph
 ]
 
 { #category : #accessing }

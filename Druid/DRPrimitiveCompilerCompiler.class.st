@@ -24,7 +24,7 @@ DRPrimitiveCompilerCompiler >> buildStatementsForCFG: aDRControlFlowGraph [
 	
 	| blocks |
 	generatorMethodBuilder addVariableNamed: 'currentBlock'.
-	blocks := aDRControlFlowGraph blocks.
+	blocks := aDRControlFlowGraph reversePostOrderBlocks.
 	blocks withIndexDo: [ :b :i |
 		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
 		self preProcessBlock: b.

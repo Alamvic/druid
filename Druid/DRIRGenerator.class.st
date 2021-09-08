@@ -12,7 +12,8 @@ Class {
 		'pharoOperandStack',
 		'currentOperandStack',
 		'instructionFactory',
-		'currentPrimitiveFailureCode'
+		'currentPrimitiveFailureCode',
+		'controlFlowGraph'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -75,6 +76,9 @@ DRIRGenerator >> basicNewBasicBlock [
 	block vmOperandStack: currentOperandStack.
 	block temporaryFrame: self currentTemporaryFrame.
 	block origin: thisContext stack.
+	
+	controlFlowGraph addBasicBlock: block.
+	
 	^ block
 ]
 
@@ -136,6 +140,8 @@ DRIRGenerator >> currentTemporaryFrame: aCollection [
 DRIRGenerator >> initialize [
 
 	super initialize.
+	controlFlowGraph := DRControlFlowGraph new.
+
 	specialCases := Dictionary new.
 	self initializeSpecialCases.
 	
@@ -414,12 +420,6 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 	In that case, this block should not arrive to this merge point
 		=> do not add the jump"
 
-	"Also, in case both branches are finished at this point, the rest of this method is dead code"
-	(trueBranchBasicBlockOut hasFinalInstruction and: [ falseBranchBasicBlockOut hasFinalInstruction ])
-		ifTrue: [ 
-			self currentBasicBlock markAsDeadCode.
-			 ].
-
 	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
 		trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
 	].
@@ -539,16 +539,18 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver [
 
 { #category : #API }
 DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: arguments [
-	| returnValue |
+
 	self pushFrameWithReceiver: aReceiver.
 	aMethodAST argumentNames with: arguments do: [ :name :value |
 		self temporaryAt: name put: value
 	].
 	aMethodAST acceptVisitor: self.
+
 	"Fall through the exit block.
 	If the method had an explicit return, it is already done, no need to do it again."
-	(currentBasicBlock hasFinalInstruction or: [ currentBasicBlock isDeadCode ])
-		ifFalse: [ currentBasicBlock jumpTo: self currentFrame exitBasicBlock ].
+	currentBasicBlock hasFinalInstruction ifFalse: [ 
+		currentBasicBlock jumpTo: self currentFrame exitBasicBlock ].
+
 	self popFrame.
 ]
 
@@ -706,16 +708,15 @@ DRIRGenerator >> pop: anInteger [
 { #category : #'frame-access' }
 DRIRGenerator >> popFrame [
 	
-	| poppedFrame returnValue |
+	| poppedFrame "returnValue" |
 	currentBasicBlock := self currentFrame exitBasicBlock.
 	currentOperandStack := currentBasicBlock mergeOperandStacksIn: self.
 	currentPrimitiveFailureCode := currentBasicBlock primitiveFailureCode.
 	poppedFrame := interpretationStack removeLast.
 
-	returnValue := poppedFrame returnValue simplify.
-	returnValue isPhiFunction ifTrue: [
-		currentBasicBlock addInstruction: returnValue ].
-	self pushOperand: returnValue.
+	currentBasicBlock addInstruction: poppedFrame returnValue.
+	"returnValue := poppedFrame returnValue simplify."
+	self pushOperand: poppedFrame returnValue.
 	
 	self currentTemporaryFrame: currentBasicBlock temporaryFrame.
 	currentBasicBlock jumpTo: self newBasicBlock.
@@ -916,7 +917,10 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 	aRBMethodNode statements do: [ :each |
 		each acceptVisitor: self.
 		each isReturn ifTrue: [ ^ self ].
-		self popOperand. ]
+		self popOperand. ].
+
+	"If the method has no return statement, it should still return something"
+	self currentFrame returnValue: DRNullValue new from: self currentBasicBlock
 ]
 
 { #category : #visiting }
@@ -927,14 +931,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
 	result := self popOperand copyToVariableIn: self inNode: aRBReturnNode.
 	self currentFrame returnValue: result from: self currentBasicBlock.
-	
-	"If the block has no predecessors, do not add it any successors.
-	Otherwise, when searching for the entire list of blocks, this block will never be visited,
-	and it will avoid its successors to be visited (in reverse post order) too"
-	self flag: #todo.
-	self currentBasicBlock isDeadCode ifTrue: [ ^ self ].
-
-	self currentBasicBlock jumpTo: self currentFrame exitBasicBlock.
+	self currentBasicBlock jumpTo: self currentFrame exitBasicBlock
 ]
 
 { #category : #visiting }
