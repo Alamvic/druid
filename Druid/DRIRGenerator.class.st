@@ -8,7 +8,6 @@ Class {
 		'firstBasicBlock',
 		'numberOfArguments',
 		'nextRegister',
-		'nextBlockID',
 		'pharoOperandStack',
 		'currentOperandStack',
 		'instructionFactory',
@@ -65,21 +64,6 @@ DRIRGenerator >> argRegisterNumber: anInteger [
 		ifTrue: [ ^ self receiverRegister ].
 	argumentIndex := numberOfArguments - anInteger - 1.
 	^ DRPhysicalRegister name: 'Arg', argumentIndex asString, 'Reg'
-]
-
-{ #category : #'basic-blocks' }
-DRIRGenerator >> basicNewBasicBlock [
-
-	| block |
-	block := DRBasicBlock id: self nextBlockID.
-	controlFlowGraph addBasicBlock: block.
-	
-	block primitiveFailureCode: currentPrimitiveFailureCode.
-	block vmOperandStack: currentOperandStack.
-	block temporaryFrame: self currentTemporaryFrame.
-	block origin: thisContext stack.
-	
-	^ block
 ]
 
 { #category : #'special-cases' }
@@ -147,7 +131,6 @@ DRIRGenerator >> initialize [
 	
 	currentOperandStack := Stack new.
 	instructionFactory := DRInstructionFactory new.
-	nextBlockID := 1.
 	
 	"Push a top frame"
 	interpretationStack := OrderedCollection new.
@@ -673,15 +656,6 @@ DRIRGenerator >> newBasicBlockDuring: aFullBlockClosure [
 	inBasicBlock := self newBasicBlock.
 	aFullBlockClosure value.
 	^ inBasicBlock
-]
-
-{ #category : #factory }
-DRIRGenerator >> nextBlockID [
-
-	| allocatedID |
-	allocatedID := nextBlockID.
-	nextBlockID := nextBlockID + 1.
-	^ allocatedID
 ]
 
 { #category : #'frame-access' }

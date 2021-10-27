@@ -78,6 +78,7 @@ DRControlFlowGraph >> initialize [
 
 	super initialize.
 	basicBlocks := OrderedCollection new.
+	initialBasicBlock := DRBasicBlock id: 0.
 	nextBasicBlockId := 1.
 ]
 
@@ -86,17 +87,22 @@ DRControlFlowGraph >> inspectionCFG: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'CFG'> 
 	| view blockViews eb |
 	view := RSCanvas new.
-	blockViews := self blocks collect: [ :c | 
-		RSBox new
+	blockViews := self blocks collect: [ :c | | g |
+		g := RSGroup new.
+		g add: (RSBox new
 			size: 50;
-			model: c;
+			color: Color veryVeryLightGray;
+			yourself).
+		g add: (RSLabel new text: c id asString).
+		g asShape
 			@ RSDraggable;
+			model: c;
 			yourself ].
 	view addAll: blockViews.
 	
 	eb := RSEdgeBuilder arrowedLine.
 	eb canvas: view.
-	eb color: Color gray.
+	eb withBorderAttachPoint.
 	eb 	shapes: blockViews.
 	eb connectToAll: #successors.
 	

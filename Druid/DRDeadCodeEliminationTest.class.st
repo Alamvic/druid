@@ -1,57 +1,8 @@
 Class {
 	#name : #DRDeadCodeEliminationTest,
-	#superclass : #TestCase,
+	#superclass : #DROptimisationTest,
 	#category : #'Druid-Tests'
 }
-
-{ #category : #test }
-DRDeadCodeEliminationTest >> setUpCFG: n [
-
-	| cfg b0 b1 b2 b3 |
-	
-	cfg := DRControlFlowGraphForTesting new. 
-	
-	b0 := DRBasicBlock id: 0.
-	b1 := DRBasicBlock id: 1.
-	b2 := DRBasicBlock id: 2.
-	b3 := DRBasicBlock id: 3.
-	
-	cfg initialBasicBlock: b0.
-	
-	n = 1 ifTrue: [ 
-		b0 endInstruction: DRNoop new.
-		cfg initialBasicBlock: b0. 
-		cfg b0: b0. ].
-	
-	n = 2 ifTrue: [ 
-		b1 endInstruction: DRNoop new. 
-		b0 jumpTo: b1. 
-		
-		cfg b0: b0. 
-		cfg b1: b1. ].
-
-	n = 3 ifTrue: [ 
-		b2 endInstruction: DRNoop new.
-		b0 jumpTo: b1.
-		b1 jumpTo: b2. 
-		
-		cfg b0: b0.
-		cfg b1: b1. 
-		cfg b2: b2. ].
-	
-	n = 4 ifTrue: [ 
-		b3 endInstruction: DRNoop new. 
-		b0 jumpTo: b1. 
-		b1 jumpTo: b2. 
-		b2 jumpTo: b3. 
-		
-		cfg b0: b0.
-		cfg b1: b1. 
-		cfg b2: b2. 
-		cfg b3: b3. ].
-
-	^ cfg.
-]
 
 { #category : #test }
 DRDeadCodeEliminationTest >> setUpCFGWithConditional: jump [
@@ -60,11 +11,11 @@ DRDeadCodeEliminationTest >> setUpCFGWithConditional: jump [
 	
 	cfg := DRControlFlowGraphForTesting new. 
 	
-	b0 := DRBasicBlock id: 0.
-	b1 := DRBasicBlock id: 1.
-	b2 := DRBasicBlock id: 2.
-	b3 := DRBasicBlock id: 3.
-	b4 := DRBasicBlock id: 4. 
+	b0 := cfg newBasicBlock.
+	b1 := cfg newBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
+	b4 := cfg newBasicBlock. 
 	
 	cfg initialBasicBlock: b0.
 	
@@ -155,7 +106,7 @@ DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 
 
 	"Should eliminate R1:= and R2:="
-	self assert: cfg instructions size equals: 12.
+	self assert: cfg instructions size equals: 13.
 ]
 
 { #category : #test }
@@ -165,7 +116,7 @@ DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 	
 	optimisation := DRDeadCodeElimination new. 
 	
-	cfg := self setUpCFG: 2. 
+	cfg := self setUpCFG: 1. 
 	
 	b1 := cfg b1.
 	
@@ -192,11 +143,11 @@ DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 	
 	optimisation := DRDeadCodeElimination new. 
 	
-	cfg := self setUpCFG: 3. 
+	cfg := self setUpCFG: 2. 
 	
 	b1 := cfg b1.
 	b2 := cfg b2.
-	
+
 	b1 addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)). 
 	
 	b2 addInstruction: (DRStore new operands: {copy1} ). 

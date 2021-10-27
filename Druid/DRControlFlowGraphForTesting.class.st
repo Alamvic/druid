@@ -34,7 +34,6 @@ DRControlFlowGraphForTesting >> b1 [
 { #category : #accessing }
 DRControlFlowGraphForTesting >> b1: aBlock [
 
-	basicBlocks add: aBlock.
 	b1 := aBlock
 ]
 
@@ -47,7 +46,6 @@ DRControlFlowGraphForTesting >> b2 [
 { #category : #accessing }
 DRControlFlowGraphForTesting >> b2: aBlock [
 
-	basicBlocks add: aBlock.
 	b2 := aBlock
 ]
 
@@ -60,7 +58,6 @@ DRControlFlowGraphForTesting >> b3 [
 { #category : #accessing }
 DRControlFlowGraphForTesting >> b3: aBlock [
 
-	basicBlocks add: aBlock.
 	b3 := aBlock
 ]
 
@@ -73,7 +70,6 @@ DRControlFlowGraphForTesting >> b4 [
 { #category : #accessing }
 DRControlFlowGraphForTesting >> b4: aBlock [ 
 
-	basicBlocks add: aBlock.
 	b4 := aBlock
 ]
 

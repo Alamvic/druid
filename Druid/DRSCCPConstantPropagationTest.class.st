@@ -11,20 +11,20 @@ DRSCCPConstantPropagationTest >> testDoNotPropagateInPhiFunctions [
 
 	| cfg copy1 b1 b2 b3 copy2 joinBlock phi |
 	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock: DRBasicBlock new.
+	cfg initialBasicBlock: cfg newBasicBlock.
 	
-	cfg initialBasicBlock jumpTo: (b1 := DRBasicBlock new).
+	cfg initialBasicBlock jumpTo: (b1 := cfg newBasicBlock).
 	b1 endInstruction: (instructionFactory jumpIf: (DRPhysicalRegister name: 'Parameter')).
 
 	"T1 := 1"
-	b1 endInstruction trueBranch: (b2 := DRBasicBlock new).
+	b1 endInstruction trueBranch: (b2 := cfg newBasicBlock).
 	b2 addInstruction: (copy1 := instructionFactory copy: 1).
 	
 	"T2 := 2"
-	b1 endInstruction falseBranch: (b3 := DRBasicBlock new).
+	b1 endInstruction falseBranch: (b3 := cfg newBasicBlock).
 	b3 addInstruction: (copy2 := instructionFactory copy: 2).
 	
-	joinBlock := DRBasicBlock new.
+	joinBlock := cfg newBasicBlock.
 	b2 jumpTo: joinBlock.
 	b3 jumpTo: joinBlock.
 	joinBlock addInstruction: (phi := instructionFactory phiWith: copy1 with: copy2).
@@ -39,7 +39,7 @@ DRSCCPConstantPropagationTest >> testDoNotPropagateInPhiFunctions [
 DRSCCPConstantPropagationTest >> testPropagateBetweenBasicBlocks [
 
 	| cfg copy1 |
-	cfg := self setUpCFG: 3. 
+	cfg := self setUpCFG: 2.
 
 	"T1 := 1"
 	cfg b1 addInstruction: (copy1 := instructionFactory copy: 1).
@@ -57,7 +57,7 @@ DRSCCPConstantPropagationTest >> testPropagateBetweenBasicBlocks [
 DRSCCPConstantPropagationTest >> testPropagateToAddOperand [
 
 	| cfg copy1 |
-	cfg := self setUpCFG: 2.
+	cfg := self setUpCFG: 1.
 		
 	"T1 := 1"
 	cfg b1 addInstruction: (copy1 := instructionFactory copy: 1).
@@ -76,7 +76,7 @@ DRSCCPConstantPropagationTest >> testPropagateToAddOperand [
 DRSCCPConstantPropagationTest >> testPropagateToCopyOperand [
 
 	| cfg copy1 |
-	cfg := self setUpCFG: 2. 
+	cfg := self setUpCFG: 1.
 
 	"T1 := 1"
 	cfg b1 addInstruction: (copy1 := instructionFactory copy: 1).

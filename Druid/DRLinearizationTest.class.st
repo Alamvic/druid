@@ -10,10 +10,12 @@ DRLinearizationTest >> testBranchingControlFlow [
 	"A block should be visited after all its predecessors are visited"
 	
 	| b1 b2 b3 cfg b4 |
-	b1 := DRBasicBlock id: 1.
-	b2 := DRBasicBlock id: 2.
-	b3 := DRBasicBlock id: 3.
-	b4 := DRBasicBlock id: 4.
+	cfg := DRControlFlowGraph new.
+	cfg newBasicBlock.
+	b1 := cfg newBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
+	b4 := cfg newBasicBlock.
 	
 	b1
 		jumpIfTrueTo: b2
@@ -34,10 +36,12 @@ DRLinearizationTest >> testBranchingControlFlowHasCorrectStructure [
 	"A block should be visited after all its predecessors are visited"
 	
 	| b1 b2 b3 cfg b4 |
-	b1 := DRBasicBlock id: 1.
-	b2 := DRBasicBlock id: 2.
-	b3 := DRBasicBlock id: 3.
-	b4 := DRBasicBlock id: 4.
+	cfg := DRControlFlowGraph new.
+	cfg newBasicBlock.
+	b1 := cfg newBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
+	b4 := cfg newBasicBlock.
 	
 	b1
 		jumpIfTrueTo: b2
@@ -59,10 +63,11 @@ DRLinearizationTest >> testBranchingControlFlowWithUnevenBranches [
 	"A block should be visited after all its predecessors are visited"
 	
 	| b1 b2 b3 cfg b4 |
-	b1 := DRBasicBlock id: 1.
-	b2 := DRBasicBlock id: 2.
-	b3 := DRBasicBlock id: 3.
-	b4 := DRBasicBlock id: 4.
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
+	b4 := cfg newBasicBlock.
 	
 	b1
 		jumpIfTrueTo: b2
@@ -71,9 +76,6 @@ DRLinearizationTest >> testBranchingControlFlowWithUnevenBranches [
 	b3 jumpTo: b4.
 	b4 endInstruction: DRReturn new.
 	
-	cfg := DRControlFlowGraph new
-		initialBasicBlock: b1.
-		
 	self assert: cfg reversePostOrderBlocks asArray equals: { b1 . b2 . b3 . b4 }
 ]
 
@@ -83,10 +85,11 @@ DRLinearizationTest >> testBranchingControlFlowWithUnevenBranchesHasCorrectStruc
 	"A block should be visited after all its predecessors are visited"
 	
 	| b1 b2 b3 cfg b4 |
-	b1 := DRBasicBlock id: 1.
-	b2 := DRBasicBlock id: 2.
-	b3 := DRBasicBlock id: 3.
-	b4 := DRBasicBlock id: 4.
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
+	b4 := cfg newBasicBlock.
 	
 	b1
 		jumpIfTrueTo: b2
@@ -94,10 +97,7 @@ DRLinearizationTest >> testBranchingControlFlowWithUnevenBranchesHasCorrectStruc
 	b2 jumpTo: b3.
 	b3 jumpTo: b4.
 	b4 endInstruction: DRReturn new.
-	
-	cfg := DRControlFlowGraph new
-		initialBasicBlock: b1.
-	
+		
 	"Smoke test. Should fail with an exception if the basic block structure is wrong (successors do not match predecessors)"
 	cfg validate
 ]
@@ -196,16 +196,14 @@ DRLinearizationTest >> testLinearControlFlow [
 	"A block should be visited after all its predecessors are visited"
 	
 	| b1 b2 b3 cfg |
-	b1 := DRBasicBlock id: 1.
-	b2 := DRBasicBlock id: 2.
-	b3 := DRBasicBlock id: 3.
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
 	
 	b1 jumpTo: b2.
 	b2 jumpTo: b3.
 	b3 endInstruction: DRReturn new.
 	
-	cfg := DRControlFlowGraph new
-		initialBasicBlock: b1.
-		
 	self assert: cfg reversePostOrderBlocks asArray equals: { b1 . b2 . b3 }
 ]

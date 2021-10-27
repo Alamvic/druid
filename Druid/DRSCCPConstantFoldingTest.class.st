@@ -104,16 +104,15 @@ DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyInSingleBasicBlock [
 { #category : #helpers }
 DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction between: operand1 and: operand2 [
 
-	| b0 b1 cfg copy1 copy2 |
-	cfg := self setUpCFG: 2. 
-	b0 := cfg b0.
-	b1 := cfg b1. 
+	| b1 cfg copy1 copy2 |
+	cfg := self setUpCFG: 1. 
+	b1 := cfg b1.
 
 	b1 addInstruction: (copy1 := DRCopy operands: { operand1 asDRValue } result:  (DRTemporaryRegister id: 1)).
 	b1 addInstruction: (copy2 := DRCopy operands: { operand2 asDRValue } result:  (DRTemporaryRegister id: 2)).
 	b1 addInstruction: (instruction operands: { copy1. copy2 } result:  (DRTemporaryRegister id: 3)).
 
-	DRSCCP new applyTo: cfg.
+	optimisation applyTo: cfg.
 	^ cfg
 ]
 

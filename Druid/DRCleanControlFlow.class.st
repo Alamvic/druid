@@ -15,37 +15,6 @@ DRCleanControlFlow >> applyTo: aCFG [
 ]
 
 { #category : #combining }
-DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 [ 
-	
-	"Assume that
-	 - the first block contains a non conditional jump to the second block
-	 - the second block has as single predecessor the first block"
-	
-	| combinedBlock |
-
-	combinedBlock := DRBasicBlock new.
-	aDRBasicBlock predecessors copy do: [ :predecessor |
-		aDRBasicBlock basicRemovePredecessor: predecessor.
-		combinedBlock addPredecessor: predecessor.
-		predecessor endInstruction replaceTarget: aDRBasicBlock by: combinedBlock ].
-
-	aDRBasicBlock instructions allButLastDo: [ :e |
-		"Ignore the jump"
-		combinedBlock addInstruction: e.
-	].
-	aDRBasicBlock2 instructions allButLastDo: [ :e |
-		"Ignore the jump"
-		combinedBlock addInstruction: e.
-	].
-
-	combinedBlock endInstruction: aDRBasicBlock2 endInstruction.
-	aDRBasicBlock2 successors do: [ :e |
-		e replacePredecessor: aDRBasicBlock2 by: combinedBlock ].
-	"Unlink the basic block from its successors"
-	aDRBasicBlock2 basicEndInstruction: DRNoop new.
-]
-
-{ #category : #combining }
 DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: aCFG [
 	
 	"Assume that
@@ -54,7 +23,7 @@ DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: 
 	
 	| combinedBlock |
 
-	combinedBlock := DRBasicBlock new.
+	combinedBlock := aCFG newBasicBlock.
 	aDRBasicBlock predecessors copy do: [ :predecessor |
 		combinedBlock addPredecessor: predecessor.
 		predecessor endInstruction replaceTarget: aDRBasicBlock by: combinedBlock ].

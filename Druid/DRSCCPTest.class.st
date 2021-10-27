@@ -1,6 +1,6 @@
 Class {
 	#name : #DRSCCPTest,
-	#superclass : #TestCase,
+	#superclass : #DROptimisationTest,
 	#instVars : [
 		'optimisation',
 		'instructionFactory',
@@ -40,55 +40,6 @@ DRSCCPTest >> setUp [
 	rightOperand2 := 6.
 ]
 
-{ #category : #tests }
-DRSCCPTest >> setUpCFG: n [
-
-	| cfg b0 b1 b2 b3 |
-	
-	cfg := DRControlFlowGraphForTesting new. 
-	
-	b0 := DRBasicBlock id: 0.
-	b1 := DRBasicBlock id: 1.
-	b2 := DRBasicBlock id: 2.
-	b3 := DRBasicBlock id: 3.
-	
-	cfg initialBasicBlock: b0.
-	
-	n = 1 ifTrue: [ 
-		b0 endInstruction: DRNoop new.
-		cfg initialBasicBlock: b0. 
-		cfg b0: b0. ].
-	
-	n = 2 ifTrue: [ 
-		b1 endInstruction: DRNoop new. 
-		b0 jumpTo: b1. 
-		
-		cfg b0: b0. 
-		cfg b1: b1. ].
-
-	n = 3 ifTrue: [ 
-		b2 endInstruction: DRNoop new.
-		b0 jumpTo: b1.
-		b1 jumpTo: b2. 
-		
-		cfg b0: b0.
-		cfg b1: b1. 
-		cfg b2: b2. ].
-	
-	n = 4 ifTrue: [ 
-		b3 endInstruction: DRNoop new. 
-		b0 jumpTo: b1. 
-		b1 jumpTo: b2. 
-		b2 jumpTo: b3. 
-		
-		cfg b0: b0.
-		cfg b1: b1. 
-		cfg b2: b2. 
-		cfg b3: b3. ].
-
-	^ cfg
-]
-
 { #category : #helpers }
 DRSCCPTest >> setUpCFGWithConditional: jump [
 
@@ -96,13 +47,11 @@ DRSCCPTest >> setUpCFGWithConditional: jump [
 	
 	cfg := DRControlFlowGraphForTesting new. 
 	
-	b0 := DRBasicBlock id: 0.
-	b1 := DRBasicBlock id: 1.
-	b2 := DRBasicBlock id: 2.
-	b3 := DRBasicBlock id: 3.
-	b4 := DRBasicBlock id: 4. 
-	
-	cfg initialBasicBlock: b0.
+	b0 := cfg newBasicBlock.
+	b1 := cfg newBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
+	b4 := cfg newBasicBlock.
 	
 	b4 endInstruction: DRNoop new. 
 	b0 jumpTo: b1.
