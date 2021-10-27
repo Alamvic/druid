@@ -88,15 +88,13 @@ DRCleanControlFlow >> foldRedundantBranch: aDRConditionalJump [
 DRCleanControlFlow >> hoistBranchInto: aDRBasicBlock [ 
 
 	"Assume the basic branch has a single non conditional jump.
-	And that jump targets an empty branch with a conditional branch"
+	And that jump targets an empty block with a conditional branch"
 	
 	| skippedBlock |
 	skippedBlock := aDRBasicBlock successor.
 	aDRBasicBlock endInstruction: skippedBlock endInstruction.
-	
-	skippedBlock basicRemovePredecessor: aDRBasicBlock.
+
 	aDRBasicBlock successors do: [ :e |
-		e basicRemovePredecessor: skippedBlock.
 		e addPredecessor: aDRBasicBlock ]
 ]
 
