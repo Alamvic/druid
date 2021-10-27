@@ -255,7 +255,9 @@ DRInstruction >> sccpLatticeValueFor: sccp [
 	((({ sccp top. sccp bottom } includes: operand1) not
 		and: [ ({ sccp top. sccp bottom } includes: operand2) not ])
 			and: [ operand1 isConstant and: [ operand2 isConstant ]])
-				ifTrue: [ ^ self sccpOperateOnLattice: operand1 value and: operand2 value ].
+				ifTrue: [ 
+					"Compute the lattice value and wrap it as a DR value"
+					^ (self sccpOperateOnLattice: operand1 value and: operand2 value) asDRValue ].
 	(operand1 = sccp bottom or: [operand2 = sccp bottom])
 		ifTrue: [ ^ sccp bottom ].
 	^ sccp top

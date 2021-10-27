@@ -337,7 +337,7 @@ DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [
 	"Check if it is in the main list of instructions"
 	(instructions includes: anInstruction) ifTrue: [ 
 		^ instructions at: (instructions indexOf: anInstruction) put: anotherInstruction ].
-	
+
 	"Otherwise check if it is the block end instruction"
 	endInstruction ~= anInstruction
 		ifTrue: [ self error: 'This block does not contain the instruction' ].

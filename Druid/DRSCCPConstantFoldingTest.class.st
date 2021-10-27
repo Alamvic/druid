@@ -113,7 +113,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction between: operand
 	b1 addInstruction: (copy2 := DRCopy operands: { operand2 asDRValue } result:  (DRTemporaryRegister id: 2)).
 	b1 addInstruction: (instruction operands: { copy1. copy2 } result:  (DRTemporaryRegister id: 3)).
 
-	optimisation applyTo: cfg.
+	DRSCCP new applyTo: cfg.
 	^ cfg
 ]
 

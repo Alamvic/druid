@@ -70,6 +70,16 @@ DRConstantValue >> name [
 	^ value asString
 ]
 
+{ #category : #printing }
+DRConstantValue >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream
+		nextPutAll: '(';
+		print: value;
+		nextPutAll: ')'
+]
+
 { #category : #'cogit-generation' }
 DRConstantValue >> rtlOperandQualifier [
 	

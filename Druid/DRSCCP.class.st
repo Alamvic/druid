@@ -61,32 +61,18 @@ DRSCCP >> addToEdgeCFGWorklistConditionalJump: aDRJump targetting: aBasicBlock [
 { #category : #executing }
 DRSCCP >> applyPropagation [
 
-	| nonConstants |
-	nonConstants := { self top. self bottom }.
-	instancecfg instructionsDo: [ :i |
-		
-		i isPhiFunction ifFalse: [
-			"Replace the operands of instructions by their propagated values on non phi functions"
-			i operands withIndexDo: [ :operand :index | | lattice |
-				lattice := self latticeValue: operand.
-				(nonConstants includes: lattice) ifFalse: [
-					i operandAt: index put: lattice asDRValue.
-				] ]].
-		
-		(i isConditionalJump and: [ i condition isConstant ]) ifTrue: [ | constantTarget |
-			constantTarget := i condition	value ifTrue: [ i trueBranch ] ifFalse: [ i falseBranch ].
-			i replaceBy: (DRJump new target: constantTarget).
-		].
-			
-		"Replace the instruction itself if it has constant value"
-		i isJump ifFalse: [ | lattice replacement |
-			lattice := self latticeValue: i.
-			(nonConstants includes: lattice) ifFalse: [
-				replacement := DRCopy
-						 operands: { lattice asDRValue }
-						 result: i result.
-				i users do: [ :e | e replaceOperand: i by: replacement ].
-				i basicBlock replaceInstruction: i by: replacement ] ] ]
+	instancecfg instructions copy do: [ :i |
+		"Replace instructions and instruction operands using the computed lattices"
+		self applyPropagationToInstruction: i ]
+]
+
+{ #category : #executing }
+DRSCCP >> applyPropagationToInstruction: i [
+
+	"Replace the operands of instructions by their propagated values on non phi functions"
+	self tryReplaceInstructionOperands: i.
+	self tryReplaceConditionalJump: i.
+	self tryReplaceInstructionByFoldedValue: i
 ]
 
 { #category : #executing }
@@ -163,6 +149,14 @@ DRSCCP >> initializeSCCPWithCFG: cfg [
 	cfgEdgeWorkList addAll: (edges select: [ :edge | edge source = cfg initialBasicBlock ])
 ]
 
+{ #category : #executing }
+DRSCCP >> isConstantLattice: aLattice [
+
+	| nonConstants |
+	nonConstants := { self top. self bottom }.
+	^ (nonConstants includes: aLattice) not
+]
+
 { #category : #lattice }
 DRSCCP >> latticeValue: aValue [
 
@@ -171,7 +165,7 @@ DRSCCP >> latticeValue: aValue [
 		ifTrue: [ ^ self bottom ].
 	aValue isInstruction ifFalse: [ ^ aValue ].
 
-	^ latticeValues at: aValue ifAbsent: [ self top ]
+	^ latticeValues at: aValue result ifAbsent: [ self top ]
 ]
 
 { #category : #executing }
@@ -191,7 +185,7 @@ DRSCCP >> setValueOf: anInstruction at: aValue [
 
 	"Set the new lattice value associated with the instruction.
 	Invalidate all its usages so they are recomputed"
-	latticeValues at: anInstruction put: aValue.
+	latticeValues at: anInstruction result put: aValue.
 	ssaWorkList addAll: (self usesOf: anInstruction)
 ]
 
@@ -236,6 +230,46 @@ DRSCCP >> stepInstructionWorklist [
 DRSCCP >> top [
 
 	^ 'Top'
+]
+
+{ #category : #executing }
+DRSCCP >> tryReplaceConditionalJump: i [
+
+	(i isConditionalJump and: [ i condition isConstant ]) ifTrue: [ 
+		| constantTarget |
+		constantTarget := i condition value
+			                  ifTrue: [ i trueBranch ]
+			                  ifFalse: [ i falseBranch ].
+		i replaceBy: (DRJump new target: constantTarget) ]
+]
+
+{ #category : #executing }
+DRSCCP >> tryReplaceInstructionByFoldedValue: i [
+
+	| lattice replacement |
+	"Only replace if the instruction is not a jump"
+	i isJump ifTrue: [ ^ self ].
+
+	lattice := self latticeValue: i.
+	(self isConstantLattice: lattice) ifFalse: [ ^ self ].
+
+	replacement := DRCopy
+		               operands: { lattice asDRValue }
+		               result: i result.
+	i users do: [ :e | e replaceOperand: i by: replacement ].
+	i basicBlock replaceInstruction: i by: replacement.
+	
+]
+
+{ #category : #executing }
+DRSCCP >> tryReplaceInstructionOperands: i [
+
+	i isPhiFunction ifFalse: [ "Replace the operands of instructions by their propagated values on non phi functions"
+		i operands withIndexDo: [ :operand :index | 
+			| lattice |
+			lattice := self latticeValue: operand.
+			(self isConstantLattice: lattice) ifTrue: [ 
+				i operandAt: index put: lattice asDRValue ] ] ]
 ]
 
 { #category : #querying }
