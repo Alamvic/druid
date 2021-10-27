@@ -40,6 +40,12 @@ DRConstantValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 		operands: { self }.
 ]
 
+{ #category : #testing }
+DRConstantValue >> hash [
+
+	^ value hash
+]
+
 { #category : #accessing }
 DRConstantValue >> includes: anInstruction [ 
 	
