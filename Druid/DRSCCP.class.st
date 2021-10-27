@@ -235,12 +235,13 @@ DRSCCP >> top [
 { #category : #executing }
 DRSCCP >> tryReplaceConditionalJump: i [
 
-	(i isConditionalJump and: [ i condition isConstant ]) ifTrue: [ 
-		| constantTarget |
-		constantTarget := i condition value
-			                  ifTrue: [ i trueBranch ]
-			                  ifFalse: [ i falseBranch ].
-		i replaceBy: (DRJump new target: constantTarget) ]
+	| constantTarget |
+	(i isConditionalJump and: [ i condition isConstant ]) ifFalse: [ ^ self ].
+	
+	constantTarget := i condition value
+		                  ifTrue: [ i trueBranch ]
+		                  ifFalse: [ i falseBranch ].
+	i replaceBy: (DRJump new target: constantTarget)
 ]
 
 { #category : #executing }

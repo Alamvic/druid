@@ -324,9 +324,7 @@ DRBasicBlock >> removePredecessor: aDRBasicBlock [
 { #category : #replacing }
 DRBasicBlock >> replace: anInstruction by: aReplacementInstruction [
 	
-	instructions replaceAll: anInstruction with: aReplacementInstruction.
-	endInstruction = anInstruction
-		ifTrue: [ self endInstruction: aReplacementInstruction ]
+	self replaceInstruction: anInstruction by: aReplacementInstruction
 ]
 
 { #category : #accessing }
