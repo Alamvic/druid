@@ -58,6 +58,12 @@ DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode
 ]
 
 { #category : #testing }
+DRInstruction >> hash [
+
+	^ self result hash bitXor: self operands hash
+]
+
+{ #category : #testing }
 DRInstruction >> initialize [
 
 	super initialize.

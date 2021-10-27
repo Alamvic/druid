@@ -59,7 +59,6 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftAppliesFo
 	Only the b3 block is optimized."
 
 	| cfg |
-	1halt.
 	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: true.
 	
 	optimisation applyTo: cfg.
