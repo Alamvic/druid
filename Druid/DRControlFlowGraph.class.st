@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'initialBasicBlock',
-		'basicBlocks'
+		'basicBlocks',
+		'nextBasicBlockId'
 	],
 	#category : #'Druid-IR'
 }
@@ -12,6 +13,15 @@ Class {
 DRControlFlowGraph >> addBasicBlock: aBlock [
 
 	basicBlocks add: aBlock
+]
+
+{ #category : #building }
+DRControlFlowGraph >> allocateBasicBlockID [
+	
+	| allocatedID |
+	allocatedID := nextBasicBlockId.
+	nextBasicBlockId := nextBasicBlockId + 1.
+	^ allocatedID
 ]
 
 { #category : #iterating }
@@ -67,7 +77,8 @@ DRControlFlowGraph >> initialBasicBlock: aDRBasicBlock [
 DRControlFlowGraph >> initialize [
 
 	super initialize.
-	basicBlocks := OrderedCollection new
+	basicBlocks := OrderedCollection new.
+	nextBasicBlockId := 1.
 ]
 
 { #category : #'as yet unclassified' }
@@ -121,7 +132,7 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 DRControlFlowGraph >> newBasicBlock [
 	
 	| newBlock |
-	newBlock := DRBasicBlock id: basicBlocks size.
+	newBlock := DRBasicBlock id: self allocateBasicBlockID.
 	self addBasicBlock: newBlock.
 	^ newBlock
 ]
