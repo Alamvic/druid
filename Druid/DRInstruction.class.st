@@ -266,3 +266,9 @@ DRInstruction >> singleChild [
 
 	^ self
 ]
+
+{ #category : #replacing }
+DRInstruction >> users [
+
+	^ users
+]

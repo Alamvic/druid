@@ -81,21 +81,10 @@ DRControlFlowGraph >> instructions [
 ]
 
 { #category : #iterating }
-DRControlFlowGraph >> instructionsDo: aFullBlockClosure [ 
+DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 
-	| worklist visited |
-	visited := Set new.
-	worklist := OrderedCollection new.
-	worklist add: self initialBasicBlock.
-	
-	[ worklist isEmpty ] whileFalse: [ | currentBlock |
-		currentBlock := worklist removeFirst.
-		currentBlock instructionsDo: [ :e |
-			aFullBlockClosure value: e.
-			e targets do: [ :target |
-				(visited includes: target) ifFalse: [ 
-					worklist add: target.
-					visited add: target ] ] ] ]
+	self blocksDo: [ :b | 
+		b instructionsDo: [ :e | aFullBlockClosure value: e ] ]
 ]
 
 { #category : #building }
@@ -141,18 +130,7 @@ DRControlFlowGraph >> reversePostOrderBlocks [
 { #category : #validating }
 DRControlFlowGraph >> validate [
 	
-	| visited workqueue |
-	visited := Set new.
-	workqueue := OrderedCollection new.
-	workqueue add: self initialBasicBlock.
-	
-	[ workqueue isEmpty ] whileFalse: [ | nextBlock |
-		nextBlock := workqueue removeFirst.
-		visited add: nextBlock.
-		self validateBlock: nextBlock.
-		nextBlock successors do: [ :e |
-			(visited includes: e)
-				ifFalse: [ workqueue add: e ] ] ]
+	self blocks do: [ :e | e validate ]
 ]
 
 { #category : #validating }

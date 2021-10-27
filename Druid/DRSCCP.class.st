@@ -79,12 +79,14 @@ DRSCCP >> applyPropagation [
 		].
 			
 		"Replace the instruction itself if it has constant value"
-		i isJump ifFalse: [ | lattice |
+		i isJump ifFalse: [ | lattice replacement |
 			lattice := self latticeValue: i.
-			(nonConstants includes: lattice) ifFalse: [ 
-				i basicBlock replaceInstruction: i by: (DRCopy
+			(nonConstants includes: lattice) ifFalse: [
+				replacement := DRCopy
 						 operands: { lattice asDRValue }
-						 result: i result) ] ] ]
+						 result: i result.
+				i users do: [ :e | e replaceOperand: i by: replacement ].
+				i basicBlock replaceInstruction: i by: replacement ] ] ]
 ]
 
 { #category : #executing }
@@ -180,7 +182,7 @@ DRSCCP >> latticeValueOfPhiFunction: operation [
 	values := operation operands collect: [ :e | 
 		self latticeValue: e ] as: Set.
 	values remove: self top ifAbsent: [ "Nothing" ].
-	values size = 1 ifTrue: [ ^ values anyOne value ].
+	values size = 1 ifTrue: [ ^ values anyOne ].
 	^ self bottom
 ]
 

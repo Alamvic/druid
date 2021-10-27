@@ -26,8 +26,6 @@ DRBasicBlock class >> id: anInteger [
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
 
-	self haltIf: [ anInstruction isPhiFunction and:
-		[ anInstruction operands size ~= self predecessors size ] ].
 	anInstruction basicBlock: self.
 	^ instructions add: anInstruction
 ]
@@ -36,6 +34,19 @@ DRBasicBlock >> addInstruction: anInstruction [
 DRBasicBlock >> addPredecessor: aBasicBlock [
 
 	predecessors add: aBasicBlock
+]
+
+{ #category : #accessing }
+DRBasicBlock >> basicEndInstruction: aDRInstruction [ 
+
+	aDRInstruction basicBlock: self.
+	endInstruction := aDRInstruction
+]
+
+{ #category : #accessing }
+DRBasicBlock >> basicRemovePredecessor: aDRBasicBlock [ 
+	
+	predecessors remove: aDRBasicBlock
 ]
 
 { #category : #accessing }
@@ -59,17 +70,15 @@ DRBasicBlock >> endInstruction [
 
 { #category : #accessing }
 DRBasicBlock >> endInstruction: aDRInstruction [ 
-	| previousSuccessors newSuccessors lostSuccessors |
-	aDRInstruction basicBlock: self. 
-	
+	| previousSuccessors newSuccessors lostSuccessors |	
 	previousSuccessors := self successors.
 	newSuccessors := aDRInstruction targets.
 	lostSuccessors := previousSuccessors difference: newSuccessors.
 	
 	lostSuccessors do: [ :e |
 		e removePredecessor: self. ].
-	
-	endInstruction := aDRInstruction
+
+	self basicEndInstruction: aDRInstruction
 ]
 
 { #category : #accessing }
@@ -82,6 +91,12 @@ DRBasicBlock >> firstInstruction [
 DRBasicBlock >> hasFinalInstruction [
 	
 	^ endInstruction notNil and: [endInstruction isNoop not]
+]
+
+{ #category : #testing }
+DRBasicBlock >> hasPhiFunctions [
+
+	^ instructions anySatisfy: [ :e | e isPhiFunction ]
 ]
 
 { #category : #testing }
@@ -184,11 +199,8 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 	"If I have a single predecessor, just copy the operand stack"
 	self predecessors size = 1 ifTrue: [
 		primitiveFailureCode := self predecessors first primitiveFailureCode.
-		^ vmOperandStack := self predecessors first vmOperandStack ].
+		^ vmOperandStack := self predecessors first vmOperandStack copy ].
 
-	predecessorStacks := self predecessors collect: [ :e | e vmOperandStack ].
-	self assert: (predecessorStacks collect: [ :e | e size ] as: Set) size = 1.
-	
 	predecessorFailures := self predecessors collect: [ :e | e primitiveFailureCode ].
 	mergedPrimitiveFailure := (DRPhiFunction joinedVariables: predecessorFailures)
 		result: aBuilder allocateTemporaryRegister;
@@ -196,17 +208,22 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 		simplify.
 	primitiveFailureCode := mergedPrimitiveFailure.
 	mergedPrimitiveFailure isPhiFunction ifTrue: [ self addInstruction: mergedPrimitiveFailure ].
-	
-	stackSize := predecessorStacks first size.
+
+	predecessorStacks := self predecessors collect: [ :e | e vmOperandStack ].	
+	stackSize := predecessorStacks max: [ :e | e size ].
 	newStack := Stack new.
 	1 to: stackSize do: [ :e | | values |
-		values := predecessorStacks collect: [ :stack | stack at: e ].
+		values := predecessorStacks collect: [ :stack | 
+			stack size >= e
+				ifTrue: [ stack at: e ]
+				ifFalse: [ DRNullValue new ] ].
 		phi := (DRPhiFunction joinedVariables: values)
 			result: aBuilder allocateTemporaryRegister;
 			origin: thisContext stack;
-			simplify.
+			yourself.
+		self haltIf: [ phi operands isEmpty ].
 		newStack push: phi.
-		phi isPhiFunction ifTrue: [ self addInstruction: phi].
+		self addInstruction: phi.
 	].
 	^ vmOperandStack := newStack
 ]
@@ -301,7 +318,7 @@ DRBasicBlock >> removePredecessor: aDRBasicBlock [
 	self instructionsDo: [ :e |
 		e isPhiFunction ifTrue: [ 
 			e removeOperandAt: index ] ].
-	predecessors remove: aDRBasicBlock
+	self basicRemovePredecessor: aDRBasicBlock
 ]
 
 { #category : #replacing }
@@ -326,6 +343,12 @@ DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [
 		ifTrue: [ self error: 'This block does not contain the instruction' ].
 	
 	endInstruction := anotherInstruction
+]
+
+{ #category : #'control flow' }
+DRBasicBlock >> replacePredecessor: aDRBasicBlock by: aDRBasicBlock2 [ 
+	
+	predecessors replaceAll: aDRBasicBlock with: aDRBasicBlock2
 ]
 
 { #category : #initialization }
@@ -369,6 +392,41 @@ DRBasicBlock >> temporaryFrame [
 { #category : #accessing }
 DRBasicBlock >> temporaryFrame: aTemporaryFrame [ 
 	temporaryFrame := aTemporaryFrame
+]
+
+{ #category : #validating }
+DRBasicBlock >> validate [
+
+	self validatePhiFunctions.
+	self validatePredecessors.
+	self validateSuccessors
+]
+
+{ #category : #validating }
+DRBasicBlock >> validatePhiFunctions [
+	
+	self instructionsDo: [ :e | 
+		(e isPhiFunction and: [| ops |
+			ops := e operands asSet.
+			ops size > 1 or: [ (ops anyOne isKindOf: DRNullValue) not ] ]) ifTrue: [ 
+			e operands size = self predecessors size
+				ifFalse: [ self error: 'Phi-predecessor mismatch' ] ] ]
+]
+
+{ #category : #validating }
+DRBasicBlock >> validatePredecessors [
+	
+	self predecessors do: [ :p |
+		(p successors includes: self)
+			ifFalse: [ self error: 'Predecessor not pointing to me' ] ]
+]
+
+{ #category : #validating }
+DRBasicBlock >> validateSuccessors [
+	
+	self successors do: [ :s |
+		(s predecessors includes: self)
+			ifFalse: [ self error: 'Successor not pointing to me' ] ]
 ]
 
 { #category : #accessing }

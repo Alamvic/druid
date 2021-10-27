@@ -96,6 +96,9 @@ DRLinearScanRegisterAllocator >> initialize [
 		DRPhysicalRegister name: 'Extra0Reg'.
 		DRPhysicalRegister name: 'Extra1Reg'.
 		DRPhysicalRegister name: 'Extra2Reg'.
+		DRPhysicalRegister name: 'Extra3Reg'.
+		DRPhysicalRegister name: 'Extra4Reg'.
+		
 	} asOrderedCollection.
 ]
 

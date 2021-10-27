@@ -22,7 +22,13 @@ DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 [
 	 - the second block has as single predecessor the first block"
 	
 	| combinedBlock |
+
 	combinedBlock := DRBasicBlock new.
+	aDRBasicBlock predecessors copy do: [ :predecessor |
+		aDRBasicBlock basicRemovePredecessor: predecessor.
+		combinedBlock addPredecessor: predecessor.
+		predecessor endInstruction replaceTarget: aDRBasicBlock by: combinedBlock ].
+
 	aDRBasicBlock instructions allButLastDo: [ :e |
 		"Ignore the jump"
 		combinedBlock addInstruction: e.
@@ -31,21 +37,51 @@ DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 [
 		"Ignore the jump"
 		combinedBlock addInstruction: e.
 	].
+
 	combinedBlock endInstruction: aDRBasicBlock2 endInstruction.
-	
-	aDRBasicBlock predecessors do: [ :e |
-		combinedBlock addPredecessor: e.
-		e endInstruction replaceTarget: aDRBasicBlock by: combinedBlock ].
 	aDRBasicBlock2 successors do: [ :e |
-		e removePredecessor: aDRBasicBlock2.
-		e addPredecessor: combinedBlock ]
+		e replacePredecessor: aDRBasicBlock2 by: combinedBlock ].
+	"Unlink the basic block from its successors"
+	aDRBasicBlock2 basicEndInstruction: DRNoop new.
+]
+
+{ #category : #combining }
+DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: aCFG [
+	
+	"Assume that
+	 - the first block contains a non conditional jump to the second block
+	 - the second block has as single predecessor the first block"
+	
+	| combinedBlock |
+
+	combinedBlock := DRBasicBlock new.
+	aDRBasicBlock predecessors copy do: [ :predecessor |
+		combinedBlock addPredecessor: predecessor.
+		predecessor endInstruction replaceTarget: aDRBasicBlock by: combinedBlock ].
+
+	aDRBasicBlock instructions allButLastDo: [ :e |
+		"Ignore the jump"
+		combinedBlock addInstruction: e.
+	].
+	aDRBasicBlock2 instructions allButLastDo: [ :e |
+		"Ignore the jump"
+		combinedBlock addInstruction: e.
+	].
+
+	combinedBlock endInstruction: aDRBasicBlock2 endInstruction.
+	aDRBasicBlock2 successors do: [ :e |
+		e replacePredecessor: aDRBasicBlock2 by: combinedBlock ].
+
+	aCFG addBasicBlock: combinedBlock.	
+	aCFG removeBasicBlock: aDRBasicBlock.
+	aCFG removeBasicBlock: aDRBasicBlock2.
 ]
 
 { #category : #folding }
 DRCleanControlFlow >> foldRedundantBranch: aDRConditionalJump [ 
 	
-	aDRConditionalJump replaceBy: (DRJump new target: aDRConditionalJump trueBranch)
-		
+	aDRConditionalJump replaceBy: (DRJump new target: aDRConditionalJump trueBranch).
+
 ]
 
 { #category : #hoisting }
@@ -57,8 +93,10 @@ DRCleanControlFlow >> hoistBranchInto: aDRBasicBlock [
 	| skippedBlock |
 	skippedBlock := aDRBasicBlock successor.
 	aDRBasicBlock endInstruction: skippedBlock endInstruction.
+	
+	skippedBlock basicRemovePredecessor: aDRBasicBlock.
 	aDRBasicBlock successors do: [ :e |
-		e removePredecessor: skippedBlock.
+		e basicRemovePredecessor: skippedBlock.
 		e addPredecessor: aDRBasicBlock ]
 ]
 
@@ -69,11 +107,28 @@ DRCleanControlFlow >> removeEmptyBlock: aDRBasicBlock [
 	Rewire all predecessors to point to my single successor.
 	Require my single successor to have as predecessors all my predecessors"
 	
-	aDRBasicBlock successor removePredecessor: aDRBasicBlock.
-	aDRBasicBlock predecessors do: [ :e |
-		e endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock successor.
-		aDRBasicBlock successor addPredecessor: e.
-	]
+	aDRBasicBlock successor basicRemovePredecessor: aDRBasicBlock.
+	aDRBasicBlock predecessors copy do: [ :predecessor |
+		aDRBasicBlock basicRemovePredecessor: predecessor.
+		aDRBasicBlock successor addPredecessor: predecessor.
+		predecessor endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock successor
+	].
+	aDRBasicBlock basicEndInstruction: DRNoop new.
+]
+
+{ #category : #'empty blocks' }
+DRCleanControlFlow >> removeEmptyBlock: aDRBasicBlock fromCfg: aCFG [
+	
+	"Assume this is an empty block with a single non-conditional jump.
+	Rewire all predecessors to point to my single successor.
+	Require my single successor to have as predecessors all my predecessors"
+	
+	aDRBasicBlock successor basicRemovePredecessor: aDRBasicBlock.
+	aDRBasicBlock predecessors copy do: [ :predecessor |
+		aDRBasicBlock successor addPredecessor: predecessor.
+		predecessor endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock successor
+	].
+	aCFG removeBasicBlock: aDRBasicBlock
 ]
 
 { #category : #combining }
@@ -114,8 +169,15 @@ DRCleanControlFlow >> shouldHoistBranchInto: aDRBasicBlock [
 { #category : #'empty blocks' }
 DRCleanControlFlow >> shouldRemoveEmptyBlock: aDRBasicBlock [ 
 	
-	^ aDRBasicBlock instructions size = 1
-		and: [ aDRBasicBlock endInstruction isNonConditionalJump ]
+	aDRBasicBlock instructions size > 1
+		ifTrue: [ ^ false ].
+	aDRBasicBlock endInstruction isNonConditionalJump
+		ifFalse: [ ^ false ].
+	
+	"Avoid complex phi function rewriting"
+	(aDRBasicBlock predecessors size > 1 and: [ aDRBasicBlock successor hasPhiFunctions ])
+		ifTrue: [ ^ false ].
+	^ true
 ]
 
 { #category : #executing }
@@ -124,22 +186,22 @@ DRCleanControlFlow >> step: cfg [
 	| didChange |
 	didChange := false.
 	cfg postOrderBlocks allButLast do: [ :e |
-		didChange := didChange or: [self stepBlock: e]
-	].
+		didChange := didChange or: [ self stepBlock: e fromCfg: cfg ].
+		cfg validate ].
 	^ didChange
 ]
 
 { #category : #executing }
-DRCleanControlFlow >> stepBlock: aDRBasicBlock [
+DRCleanControlFlow >> stepBlock: aDRBasicBlock fromCfg: aCFG [
 
 	(self shouldFoldRedundantBranchIn: aDRBasicBlock) ifTrue: [ 
 		self foldRedundantBranch: aDRBasicBlock endInstruction.
 		^ true ].
 	(self shouldRemoveEmptyBlock: aDRBasicBlock) ifTrue: [ 
-		self removeEmptyBlock: aDRBasicBlock.
+		self removeEmptyBlock: aDRBasicBlock fromCfg: aCFG.
 		^ true ].
 	(self shouldCombineBlock: aDRBasicBlock) ifTrue: [ 
-		self combineBlocks: aDRBasicBlock and: aDRBasicBlock successor.
+		self combineBlocks: aDRBasicBlock and: aDRBasicBlock successor fromCfg: aCFG.
 		^ true ].
 	(self shouldHoistBranchInto: aDRBasicBlock) ifTrue: [ 
 		self hoistBranchInto: aDRBasicBlock.

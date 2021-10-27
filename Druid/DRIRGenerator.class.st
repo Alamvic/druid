@@ -378,20 +378,21 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 	self newBasicBlock.
 	self currentBasicBlock addPredecessor: startingBasicBlock.
 	conditionalJump falseBranch: self currentBasicBlock.
-	
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
-	
-	"ifTrue: does not return anything useful"
-	self pushOperand: DRNullValue new.
-	
+		
 	"Could happen that the evaluated block had a non local return.
 	In that case, this block should not arrive to this merge point
 		=> do not add the jump"
 	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
 		trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
 	].
+
+	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
+	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+	
+	"ifTrue: does not return anything useful"
+	self pushOperand: DRNullValue new.
+
 ]
 
 { #category : #'special-cases' }
@@ -488,8 +489,11 @@ DRIRGenerator >> interpretIntegerSumWithOverflowWith: aRBMessageNode [
 		                   joinValue: overflowBlockOut blockValue
 		                   onIRGenerator: self
 								from: { startingBasicBlock. overflowBlockOut }.
-	"joinInstruction addToBlock: self currentBasicBlock."
-	^ joinInstruction
+	
+	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
+	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+	self pushOperand: joinInstruction
 ]
 
 { #category : #'special-cases' }
@@ -606,12 +610,7 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [ 
 
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (DRRightShift
-		operands: { operand1 . operand2 }
-		result: self allocateTemporaryRegister)
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
 ]
 
 { #category : #'special-cases' }
@@ -649,10 +648,9 @@ DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretUnaryInstruction: aRBMessageNode instructionKind: anInstructionKind [
 	
-	| operand1 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
+	aRBMessageNode receiver acceptVisitor: self.
 
-	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { operand1 }
+	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { self popOperand }
 ]
 
 { #category : #accessing }
@@ -835,6 +833,12 @@ DRIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 
 { #category : #visiting }
 DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [ 
+	
+	specialCases
+		at: aRBAssignmentNode variable name
+		ifPresent: [ :mapping | | rawMapping |
+			rawMapping := mapping allButLast: 'With:' size.
+			^ self perform: (rawMapping , 'AssignmentWith:') asSymbol withArguments: { aRBAssignmentNode } ].
 	
 	aRBAssignmentNode value acceptVisitor: self.
 	

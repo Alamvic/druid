@@ -25,7 +25,7 @@ DRCompilerCompiler >> buildStatementsForInstruction: anInstruction [
 
 { #category : #api }
 DRCompilerCompiler >> compile [
-
+1halt.
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
@@ -90,7 +90,7 @@ DRCompilerCompiler >> initialize [
 	optimisations add: DRDeadBlockElimination new.
 	optimisations add: DRSCCP new.
 	optimisations add: DRDeadCodeElimination new.
-	"optimisations add: DRCleanControlFlow new."
+	optimisations add: DRCleanControlFlow new.
 ]
 
 { #category : #accessing }
@@ -169,8 +169,9 @@ DRCompilerCompiler >> resolvePhiFunctionsIn: aDRControlFlowGraph [
 	create a copy t3 := t1 at the end of block A
 	create a copy t3 := t2 at the end of block B"
 	
-	aDRControlFlowGraph instructionsDo: [ :i |
-		i isPhiFunction ifTrue: [ 
+	aDRControlFlowGraph instructions copy do: [ :i |
+		i isPhiFunction ifTrue: [
+			i removeFromCFG.
 			i operands with: i basicBlock predecessors
 				do: [ :value :originBlock | | copy |
 					(value isKindOf: DRNullValue) ifFalse: [ 

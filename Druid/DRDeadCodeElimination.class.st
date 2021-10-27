@@ -55,8 +55,8 @@ DRDeadCodeElimination >> applyTo: cfg [
 { #category : #operations }
 DRDeadCodeElimination >> initialize [ 
 
-	markedInstructions := OrderedCollection new. 
-	workList := OrderedCollection new. 
+	markedInstructions := IdentitySet new. 
+	workList := OrderedCollection new.
 ]
 
 { #category : #operations }

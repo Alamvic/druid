@@ -29,6 +29,17 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 	specialCases at: #primFailCode put: #interpretPrimFailCodeWith:
 ]
 
+{ #category : #'special cases' }
+DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode [ 
+	
+	| copy |
+	aRBAssignmentNode value acceptVisitor: self.
+	
+	"copy := instructionFactory copy: self popOperand."
+	self currentBasicBlock primitiveFailureCode: self operandStackTop.
+	"self pushOperand: copy"
+]
+
 { #category : #accessing }
 DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aVariableNode [
 
@@ -72,11 +83,11 @@ DRPrimitiveIRGenerator >> popFrame [
 	interpretationStack size = 1 ifTrue: [
 		| conditionalJump |
 		self spillStack.
-
+	
 		currentBasicBlock addInstruction: (comparison := self
 			instantiate: DREqualsThanComparison
 			operands: { 
-				(vm value instVarNamed: #primFailCode) asDRValue.
+				currentBasicBlock primitiveFailureCode.
 				0 asDRValue }).
 		conditionalJump := self instantiate: DRConditionalJump operands: { comparison }.
 		currentBasicBlock endInstruction: conditionalJump.
