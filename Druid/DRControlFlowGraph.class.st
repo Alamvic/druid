@@ -70,6 +70,36 @@ DRControlFlowGraph >> initialize [
 	basicBlocks := OrderedCollection new
 ]
 
+{ #category : #'as yet unclassified' }
+DRControlFlowGraph >> inspectionCFG: aBuilder [
+	<inspectorPresentationOrder: 0 title: 'CFG'> 
+	| view blockViews eb |
+	view := RSCanvas new.
+	blockViews := self blocks collect: [ :c | 
+		RSBox new
+			size: 50;
+			model: c;
+			@ RSDraggable;
+			yourself ].
+	view addAll: blockViews.
+	
+	eb := RSEdgeBuilder arrowedLine.
+	eb canvas: view.
+	eb color: Color gray.
+	eb 	shapes: blockViews.
+	eb connectToAll: #successors.
+	
+	"All the characters are displayed using a grid layout"
+	RSSugiyamaLayout new
+		horizontalGap: 50;
+		applyOn: blockViews.
+	view @ RSCanvasController.
+	
+	^ SpRoassal3InspectorPresenter new
+		canvas: view;
+		yourself
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> instructions [
 	

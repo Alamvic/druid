@@ -37,85 +37,55 @@ DruidCogit >> forCogit: aDruidCogit methodZone: aCogMethodZone [
 { #category : #generated }
 DruidCogit >> genPrimitiveAdd [
 
-	| currentBlock jump0 jump1 jump2 jump3 jump4 jump5 jump6 jump7 jump8 jump9 jump10 jump11 jump12 jump13 jump14 jump15 jump16 jump17 jump18 |
+	| currentBlock jump0 jump1 jump2 jump3 jump4 jump5 |
 	self MoveCq: 0 R: TempReg.
+	self MoveR: Extra1Reg R: Extra2Reg.
 	self MoveR: Arg0Reg R: ClassReg.
 	self MoveR: ReceiverResultReg R: SendNumArgsReg.
 	self MoveCq: 1 R: Extra0Reg.
-	self TstCq: 1 R: ClassReg.
-	self MoveR: Extra1Reg R: Extra2Reg.
-	self MoveR: SendNumArgsReg R: Extra1Reg.
-	self MoveR: ClassReg R: Extra2Reg.
+	self TstR: ClassReg R: Extra0Reg.
+	self MoveR: Extra1Reg R: Extra3Reg.
+	self MoveR: SendNumArgsReg R: Extra4Reg.
+	self MoveR: ClassReg R: Extra0Reg.
+	self MoveR: Extra3Reg R: Extra2Reg.
 	jump0 := self JumpZero: 0.
-	jump1 := self Jump: 0.
+	self MoveCq: 1 R: Extra1Reg.
+	self TstR: Extra4Reg R: Extra1Reg.
+	self MoveR: Extra1Reg R: Extra3Reg.
+	self MoveR: Extra4Reg R: Extra2Reg.
+	self MoveR: Extra0Reg R: SendNumArgsReg.
+	self MoveR: Extra1Reg R: Extra3Reg.
+	self MoveR: Extra3Reg R: Extra4Reg.
+	jump1 := self JumpZero: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
+	self MoveCq: 0 R: ClassReg.
+	self CmpR: TempReg R: ClassReg.
+	self MoveR: Arg0Reg R: R19.
+	self MoveR: ReceiverResultReg R: R20.
 	jump2 := self Jump: 0.
+	self MoveCq: 1 R: ClassReg.
+	self MoveR: SendNumArgsReg R: Extra1Reg.
+	self SubR: ClassReg R: Extra1Reg.
+	self MoveR: Extra4Reg R: Extra0Reg.
+	self AddR: Extra2Reg R: Extra0Reg.
+	self MoveR: R53 R: R59.
+	self MoveR: R55 R: R60.
+	self MoveR: R54 R: R61.
+	self MoveR: Extra4Reg R: ClassReg.
+	jump3 := self JumpNoOverflow: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	jump3 := self Jump: 0.
-	currentBlock := self Label.
-	jump2 jmpTarget: currentBlock.
+	self MoveCq: 0 R: SendNumArgsReg.
+	self CmpR: TempReg R: SendNumArgsReg.
+	self MoveR: Arg0Reg R: R36.
+	self MoveR: ReceiverResultReg R: R37.
 	jump4 := self Jump: 0.
-	currentBlock := self Label.
-	jump3 jmpTarget: currentBlock.
-	self MoveCq: 1 R: Extra0Reg.
+	self MoveCq: 0 R: Extra2Reg.
+	self CmpR: TempReg R: Extra2Reg.
+	self MoveR: Arg0Reg R: R54.
+	self MoveR: ReceiverResultReg R: R55.
 	jump5 := self Jump: 0.
-	currentBlock := self Label.
-	jump4 jmpTarget: currentBlock.
-	self CmpCq: 0 R: TempReg.
-	self MoveR: SendNumArgsReg R: ClassReg.
-	jump6 := self Jump: 0.
-	currentBlock := self Label.
-	jump5 jmpTarget: currentBlock.
-	jump7 := self Jump: 0.
-	currentBlock := self Label.
-	jump6 jmpTarget: currentBlock.
-	jump8 := self Jump: 0.
-	currentBlock := self Label.
-	jump7 jmpTarget: currentBlock.
-	self TstCq: 1 R: Extra1Reg.
-	self MoveR: Extra0Reg R: SendNumArgsReg.
-	jump9 := self Jump: 0.
-	currentBlock := self Label.
-	jump8 jmpTarget: currentBlock.
-	jump10 := self JumpNonZero: 0.
-	currentBlock := self Label.
-	jump9 jmpTarget: currentBlock.
-	jump11 := self Jump: 0.
-	jump12 := self Jump: 0.
-	currentBlock := self Label.
-	jump11 jmpTarget: currentBlock.
-	self MoveR: Extra1Reg R: ClassReg.
-	self MoveR: Extra2Reg R: Extra0Reg.
-	jump13 := self JumpZero: 0.
-	currentBlock := self Label.
-	jump10 jmpTarget: currentBlock.
-	jump12 jmpTarget: currentBlock.
-	jump14 := self Jump: 0.
-	jump15 := self Jump: 0.
-	currentBlock := self Label.
-	jump13 jmpTarget: currentBlock.
-	currentBlock := self Label.
-	jump14 jmpTarget: currentBlock.
-	jump16 := self Jump: 0.
-	currentBlock := self Label.
-	jump15 jmpTarget: currentBlock.
-	self MoveCq: 1 R: SendNumArgsReg.
-	self MoveR: Extra0Reg R: TempReg.
-	self SubCq: 1 R: TempReg.
-	jump17 := self Jump: 0.
-	currentBlock := self Label.
-	jump16 jmpTarget: currentBlock.
-	self MoveR: Arg0Reg R: R51.
-	self MoveR: ReceiverResultReg R: R52.
-	jump18 := self Jump: 0.
-	currentBlock := self Label.
-	jump17 jmpTarget: currentBlock.
-	self MoveR: TempReg R: Extra1Reg.
-	self MoveR: Extra1Reg R: Extra2Reg.
-	self MoveR: Extra2Reg R: SendNumArgsReg.
-	self AddR: ClassReg R: SendNumArgsReg.
 	^ CompletePrimitive
 ]
 
