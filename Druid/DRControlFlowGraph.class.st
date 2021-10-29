@@ -12,6 +12,7 @@ Class {
 { #category : #iterating }
 DRControlFlowGraph >> addBasicBlock: aBlock [
 
+	self assert: (basicBlocks noneSatisfy: [:b | b id = aBlock id]).
 	basicBlocks add: aBlock
 ]
 

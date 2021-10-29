@@ -186,6 +186,8 @@ DRSCCP >> setValueOf: anInstruction at: aValue [
 	"Set the new lattice value associated with the instruction.
 	Invalidate all its usages so they are recomputed"
 	latticeValues at: anInstruction result put: aValue.
+	self haltIf: [((self usesOf: anInstruction)
+		anySatisfy: [ :i | i result = 35 ])].
 	ssaWorkList addAll: (self usesOf: anInstruction)
 ]
 
@@ -235,12 +237,19 @@ DRSCCP >> top [
 { #category : #executing }
 DRSCCP >> tryReplaceConditionalJump: i [
 
-	| constantTarget |
+	| constantTarget removedTarget |
 	(i isConditionalJump and: [ i condition isConstant ]) ifFalse: [ ^ self ].
 	
-	constantTarget := i condition value
-		                  ifTrue: [ i trueBranch ]
-		                  ifFalse: [ i falseBranch ].
+	self haltIf: [ i basicBlock id = 54 ].
+	i condition value
+		ifTrue: [ 
+			constantTarget := i trueBranch.
+			removedTarget := i falseBranch ]
+		ifFalse: [ 
+			constantTarget := i falseBranch.
+			removedTarget := i trueBranch ].
+	
+	removedTarget removePredecessor: i basicBlock.
 	i replaceBy: (DRJump new target: constantTarget)
 ]
 
@@ -257,7 +266,7 @@ DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 	replacement := DRCopy
 		               operands: { lattice asDRValue }
 		               result: i result.
-	i users do: [ :e | e replaceOperand: i by: replacement ].
+	i users copy do: [ :e | e replaceOperand: i by: replacement ].
 	i basicBlock replaceInstruction: i by: replacement.
 	
 ]

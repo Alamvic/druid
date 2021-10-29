@@ -66,7 +66,8 @@ DRPhiFunction >> name [
 { #category : #printing }
 DRPhiFunction >> opcode [
 	
-	^ 'ø'
+	^ 'Ø'
+	 
 ]
 
 { #category : #accessing }

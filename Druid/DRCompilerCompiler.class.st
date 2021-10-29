@@ -25,6 +25,7 @@ DRCompilerCompiler >> buildStatementsForInstruction: anInstruction [
 
 { #category : #api }
 DRCompilerCompiler >> compile [
+
 1halt.
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
@@ -62,13 +63,15 @@ DRCompilerCompiler >> deferBranch: aString to: aDRBasicBlock [
 DRCompilerCompiler >> generateDruidIR [
 	
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	| method irGenerator initialBasicBlock initial |
+	| method irGenerator initialBasicBlock initial startBlock |
 	method := interpreter class lookupSelector: sourceName.
 	irGenerator := self newIRGenerator.
 	
 	"Create the initial basic block"
 	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
+	startBlock := irGenerator newBasicBlock.
 	initialBasicBlock := irGenerator newBasicBlock.
+	startBlock jumpTo: initialBasicBlock.
 	initialBasicBlock addInstruction: initial.
 	
 	irGenerator numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value.
@@ -124,7 +127,8 @@ DRCompilerCompiler >> nextJumpIndex [
 DRCompilerCompiler >> optimize: anIR [
 
 	optimisations do: [ :optimization |
-		optimization applyTo: anIR ]
+		optimization applyTo: anIR.
+		anIR validate ]
 ]
 
 { #category : #'ir-to-ast' }

@@ -18,8 +18,8 @@ DRPrimitiveIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 DRPrimitiveIRGenerator >> initialize [
 
 	super initialize.
-	primitiveExitSuccessBlock := self basicNewBasicBlock.
-	primitiveExitFailureBlock := self basicNewBasicBlock
+	primitiveExitSuccessBlock := controlFlowGraph newBasicBlock.
+	primitiveExitFailureBlock := controlFlowGraph newBasicBlock
 ]
 
 { #category : #accessing }

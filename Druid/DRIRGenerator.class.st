@@ -66,6 +66,20 @@ DRIRGenerator >> argRegisterNumber: anInteger [
 	^ DRPhysicalRegister name: 'Arg', argumentIndex asString, 'Reg'
 ]
 
+{ #category : #'basic-blocks' }
+DRIRGenerator >> basicNewBasicBlock [
+
+	| block |
+	block := controlFlowGraph newBasicBlock.
+	
+	block primitiveFailureCode: currentPrimitiveFailureCode.
+	block vmOperandStack: currentOperandStack.
+	block temporaryFrame: self currentTemporaryFrame.
+	block origin: thisContext stack.
+	
+	^ block
+]
+
 { #category : #'special-cases' }
 DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBlockToEvaluate [
 

@@ -72,15 +72,3 @@ DRControlFlowGraphForTesting >> b4: aBlock [
 
 	b4 := aBlock
 ]
-
-{ #category : #accessing }
-DRControlFlowGraphForTesting >> conditionnalJump [
-
-	^ ConditionnalJump
-]
-
-{ #category : #accessing }
-DRControlFlowGraphForTesting >> conditionnalJump: CJ [
-
-	ConditionnalJump := CJ
-]

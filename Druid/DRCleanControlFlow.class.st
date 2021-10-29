@@ -41,7 +41,6 @@ DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: 
 	aDRBasicBlock2 successors do: [ :e |
 		e replacePredecessor: aDRBasicBlock2 by: combinedBlock ].
 
-	aCFG addBasicBlock: combinedBlock.	
 	aCFG removeBasicBlock: aDRBasicBlock.
 	aCFG removeBasicBlock: aDRBasicBlock2.
 ]

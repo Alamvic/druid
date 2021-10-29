@@ -166,6 +166,18 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationLeftWithPhiFunction [
 ]
 
 { #category : #'tests - conditional folding' }
+DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationLeftWithPhiFunctionLeavesValidCFG [
+
+	| cfg phiInstruction |
+	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: true.
+	cfg b4 addInstruction: (phiInstruction := instructionFactory phiWith: leftAddInstruction with: rightAddInstruction).
+
+	optimisation applyTo: cfg.
+
+	cfg validate.
+]
+
+{ #category : #'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationRightWithPhiFunction [
 
 	| cfg phiInstruction |
@@ -175,4 +187,16 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationRightWithPhiFunction 
 	optimisation applyTo: cfg.
 
 	self assert: cfg b4 instructions allButLast last operand1 value equals: 11
+]
+
+{ #category : #'tests - conditional folding' }
+DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationRightWithPhiFunctionLevesValidCFG [
+
+	| cfg phiInstruction |
+	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: false.
+	cfg b4 addInstruction: (phiInstruction := instructionFactory phiWith: leftAddInstruction with: rightAddInstruction).
+
+	optimisation applyTo: cfg.
+
+	cfg validate.
 ]
