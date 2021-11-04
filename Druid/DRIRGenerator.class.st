@@ -134,6 +134,12 @@ DRIRGenerator >> currentTemporaryFrame: aCollection [
 	^ self currentFrame temporaryFrame: aCollection
 ]
 
+{ #category : #accessing }
+DRIRGenerator >> initialBasicBlock [
+	
+	^ controlFlowGraph initialBasicBlock
+]
+
 { #category : #initialization }
 DRIRGenerator >> initialize [
 
@@ -860,8 +866,7 @@ DRIRGenerator >> visitBlockNode: aRBBlockNode [
 	
 	"The add instruction pushes the instruction to the operand stack.
 	Pop it: at the end of the block execution, nothing should be in the stack"
-	self currentBasicBlock blockValue: self popOperand.
-
+	self currentBasicBlock blockValue: self stackTop.
 ]
 
 { #category : #visiting }
@@ -920,7 +925,6 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
 	| result |
 	aRBReturnNode value acceptVisitor: self.
-
 	result := self popOperand copyToVariableIn: self inNode: aRBReturnNode.
 	self currentFrame returnValue: result from: self currentBasicBlock.
 	self currentBasicBlock jumpTo: self currentFrame exitBasicBlock

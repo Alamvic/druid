@@ -31,15 +31,6 @@ DRConstantValue >> cogitTrueConditionCode [
 	^ #JumpZero:
 ]
 
-{ #category : #copying }
-DRConstantValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
-	
-	^ aDRIRGenerator
-		addInstructionFrom: aNode
-		instructionKind: DRCopy
-		operands: { self }.
-]
-
 { #category : #testing }
 DRConstantValue >> hash [
 

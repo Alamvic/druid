@@ -51,7 +51,7 @@ DROptimisationTest >> setUpCFGWithConditional: jump [
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock. 
 	
-	cfg initialBasicBlock: b0.
+	cfg initialBasicBlock jumpTo: b0.
 	
 	b4 endInstruction: DRNoop new. 
 	b0 jumpTo: b1. 

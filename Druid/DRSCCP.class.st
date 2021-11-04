@@ -240,7 +240,6 @@ DRSCCP >> tryReplaceConditionalJump: i [
 	| constantTarget removedTarget |
 	(i isConditionalJump and: [ i condition isConstant ]) ifFalse: [ ^ self ].
 	
-	self haltIf: [ i basicBlock id = 54 ].
 	i condition value
 		ifTrue: [ 
 			constantTarget := i trueBranch.

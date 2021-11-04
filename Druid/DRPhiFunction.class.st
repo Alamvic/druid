@@ -71,26 +71,9 @@ DRPhiFunction >> opcode [
 ]
 
 { #category : #accessing }
-DRPhiFunction >> order [
-	^ order
-]
-
-{ #category : #accessing }
-DRPhiFunction >> order: anInteger [
-	
-	order := anInteger
-]
-
-{ #category : #accessing }
 DRPhiFunction >> result [
 	
 	^ result ifNil: [ self ]
-]
-
-{ #category : #accessing }
-DRPhiFunction >> result: aPhisicalRegister [
-
-	result := aPhisicalRegister 
 ]
 
 { #category : #'cogit-generation' }

@@ -1,6 +1,6 @@
 Class {
 	#name : #DRNegate,
-	#superclass : #DRInstruction,
+	#superclass : #DRUnaryInstruction,
 	#category : #'Druid-IR'
 }
 
@@ -14,4 +14,10 @@ DRNegate >> acceptVisitor: aVisitor [
 DRNegate >> opcode [
 	
 	^ 'Negate'
+]
+
+{ #category : #SCCP }
+DRNegate >> sccpOperateOnLattice: operand [
+	
+	^ operand negated
 ]

@@ -56,6 +56,14 @@ DRInstructionFactory >> lessOrEquals: operand1 than: operand2 [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> phiWith: value1 [
+
+	^ (DRPhiFunction joinedVariables: { value1 asDRValue })
+		  result: self allocateTemporaryRegister;
+		  yourself
+]
+
+{ #category : #factory }
 DRInstructionFactory >> phiWith: value1 with: value2 [
 
 	^ (DRPhiFunction joinedVariables: { 

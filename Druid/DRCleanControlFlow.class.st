@@ -67,33 +67,25 @@ DRCleanControlFlow >> hoistBranchInto: aDRBasicBlock [
 ]
 
 { #category : #'empty blocks' }
-DRCleanControlFlow >> removeEmptyBlock: aDRBasicBlock [ 
-	
-	"Assume this is an empty block with a single non-conditional jump.
-	Rewire all predecessors to point to my single successor.
-	Require my single successor to have as predecessors all my predecessors"
-	
-	aDRBasicBlock successor basicRemovePredecessor: aDRBasicBlock.
-	aDRBasicBlock predecessors copy do: [ :predecessor |
-		aDRBasicBlock basicRemovePredecessor: predecessor.
-		aDRBasicBlock successor addPredecessor: predecessor.
-		predecessor endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock successor
-	].
-	aDRBasicBlock basicEndInstruction: DRNoop new.
-]
-
-{ #category : #'empty blocks' }
 DRCleanControlFlow >> removeEmptyBlock: aDRBasicBlock fromCfg: aCFG [
 	
 	"Assume this is an empty block with a single non-conditional jump.
 	Rewire all predecessors to point to my single successor.
 	Require my single successor to have as predecessors all my predecessors"
 	
-	aDRBasicBlock successor basicRemovePredecessor: aDRBasicBlock.
+	"Implement this by first duplicating all the predecessor links"
+	
 	aDRBasicBlock predecessors copy do: [ :predecessor |
-		aDRBasicBlock successor addPredecessor: predecessor.
+		aDRBasicBlock basicRemovePredecessor: predecessor.
+		"Duplicate should keep the phi functions valid"
+		aDRBasicBlock successor duplicatePredecessor: aDRBasicBlock from: predecessor.
 		predecessor endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock successor
 	].
+
+	"Remove the predecessor from our successor at the end"
+	aDRBasicBlock successor removePredecessor: aDRBasicBlock.
+	aDRBasicBlock basicEndInstruction: DRNoop new.
+	
 	aCFG removeBasicBlock: aDRBasicBlock
 ]
 
@@ -103,9 +95,14 @@ DRCleanControlFlow >> shouldCombineBlock: aDRBasicBlock [
 	"Assume that
 	 - the first block contains a non conditional jump to the second block
 	 - the second block has as single predecessor the first block"
+	aDRBasicBlock endInstruction isNonConditionalJump ifFalse: [ ^ false ].
 	
-	^ aDRBasicBlock endInstruction isNonConditionalJump and: [ 
-		aDRBasicBlock successor predecessors size = 1 ]
+	"Cannot combine blocks if the second block has phi functions.
+	This is because this may break phi function invariants such as:
+		- the operand of the phi function may not be in a predecessor but the block itself
+		- merging could increment the number of predecessors while keeping phi functions with the same arity"
+	^ aDRBasicBlock successor predecessors size = 1
+		and: [ aDRBasicBlock successor instructions noneSatisfy: [ :i | i isPhiFunction ] ]
 ]
 
 { #category : #folding }

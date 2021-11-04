@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'initialBasicBlock',
 		'basicBlocks',
-		'nextBasicBlockId'
+		'nextBasicBlockId',
+		'instructionFactory'
 	],
 	#category : #'Druid-IR'
 }
@@ -69,15 +70,12 @@ DRControlFlowGraph >> initialBasicBlock [
 	^ initialBasicBlock
 ]
 
-{ #category : #accessing }
-DRControlFlowGraph >> initialBasicBlock: aDRBasicBlock [ 
-	initialBasicBlock := aDRBasicBlock
-]
-
 { #category : #iterating }
 DRControlFlowGraph >> initialize [
 
 	super initialize.
+	instructionFactory := DRInstructionFactory new.
+	
 	basicBlocks := OrderedCollection new.
 	initialBasicBlock := DRBasicBlock id: 0.
 	nextBasicBlockId := 1.
@@ -119,6 +117,18 @@ DRControlFlowGraph >> inspectionCFG: aBuilder [
 ]
 
 { #category : #accessing }
+DRControlFlowGraph >> instructionFactory [
+
+	^ instructionFactory
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> instructionFactory: anObject [
+
+	instructionFactory := anObject
+]
+
+{ #category : #accessing }
 DRControlFlowGraph >> instructions [
 	
 	| instructions |
@@ -140,7 +150,17 @@ DRControlFlowGraph >> newBasicBlock [
 	
 	| newBlock |
 	newBlock := DRBasicBlock id: self allocateBasicBlockID.
+	newBlock controlFlowGraph: self.
 	self addBasicBlock: newBlock.
+	^ newBlock
+]
+
+{ #category : #building }
+DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [ 
+	
+	| newBlock |
+	newBlock := self newBasicBlock.
+	aFullBlockClosure value: newBlock.
 	^ newBlock
 ]
 

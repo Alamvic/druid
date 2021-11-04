@@ -39,7 +39,7 @@ DRDeadBlockEliminationTest >> setUp [
 	
 	exitBlock addInstruction: (exitPhi := instructionFactory phiWith: deadPhiOperand with: alivePhiOperand).
 
-	cfg initialBasicBlock: entryBlock.
+	cfg initialBasicBlock jumpTo: entryBlock.
 ]
 
 { #category : #tests }

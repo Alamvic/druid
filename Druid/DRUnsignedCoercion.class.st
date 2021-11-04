@@ -1,6 +1,6 @@
 Class {
 	#name : #DRUnsignedCoercion,
-	#superclass : #DRInstruction,
+	#superclass : #DRUnaryInstruction,
 	#category : #'Druid-IR'
 }
 
@@ -8,4 +8,17 @@ Class {
 DRUnsignedCoercion >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitUnsignedCoercion: self
+]
+
+{ #category : #printing }
+DRUnsignedCoercion >> opcode [
+	
+	^ '(unsigned)'
+]
+
+{ #category : #printing }
+DRUnsignedCoercion >> sccpOperateOnLattice: operand [
+	
+	self haltIf: [ operand < 0 ].
+	^ operand
 ]

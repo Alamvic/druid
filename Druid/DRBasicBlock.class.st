@@ -10,7 +10,8 @@ Class {
 		'origin',
 		'temporaryFrame',
 		'vmOperandStack',
-		'primitiveFailureCode'
+		'primitiveFailureCode',
+		'controlFlowGraph'
 	],
 	#category : #'Druid-IR'
 }
@@ -60,6 +61,49 @@ DRBasicBlock >> blockValue: aValue [
 	
 	self haltIf: [ (aValue isKindOf: DRValue) not ].
 	blockValue := aValue
+]
+
+{ #category : #validating }
+DRBasicBlock >> checkLivenessOf: aValue [
+	
+	"Check if the value exists within this branch of execution"
+	"It should be defined by myself, or by a predecessor"
+	
+	(instructions includes: aValue) ifTrue: [ ^ true ].
+	"Could check a predecessor multiple times... Less optimal but correct"
+	"Does not handle cycles yet"
+	^ self predecessors anySatisfy: [ :e | e checkLivenessOf: aValue ]
+]
+
+{ #category : #accessing }
+DRBasicBlock >> controlFlowGraph [
+
+	^ controlFlowGraph
+]
+
+{ #category : #accessing }
+DRBasicBlock >> controlFlowGraph: anObject [
+
+	controlFlowGraph := anObject
+]
+
+{ #category : #building }
+DRBasicBlock >> copy: aValue [
+	
+	^ self addInstruction: (self instructionFactory copy: aValue)
+]
+
+{ #category : #'control-flow' }
+DRBasicBlock >> duplicatePredecessor: existingPredecessor from: newPredecessor [
+	
+	"Add newPredecessor as predecessor, make sure all Phi functions in this block get a new value.
+	The value should be the same as the one coming from the existing predecessor.
+	
+	Assumption: newPredecessor is a predecessor of existingPredecessor"
+	
+	self addPredecessor: newPredecessor.
+	self phiFunctions do: [ :e |
+		e addValue: (e operandAt: (self indexOfPredecessor: existingPredecessor)) ].
 ]
 
 { #category : #accessing }
@@ -124,6 +168,12 @@ DRBasicBlock >> id: anObject [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> indexOfPredecessor: aDRBasicBlock [ 
+	
+	^ predecessors indexOf: aDRBasicBlock
+]
+
+{ #category : #accessing }
 DRBasicBlock >> initialize [
 	super initialize.	
 	instructions := OrderedCollection new.
@@ -142,6 +192,12 @@ DRBasicBlock >> inspectionInstructions: aBuilder [
 		display: [ :each | StObjectPrinter asTruncatedTextFrom: each prettyPrint ];
 		items: self instructions;
 		yourself
+]
+
+{ #category : #building }
+DRBasicBlock >> instructionFactory [
+	
+	^ controlFlowGraph instructionFactory
 ]
 
 { #category : #accessing }
@@ -204,8 +260,7 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 	predecessorFailures := self predecessors collect: [ :e | e primitiveFailureCode ].
 	mergedPrimitiveFailure := (DRPhiFunction joinedVariables: predecessorFailures)
 		result: aBuilder allocateTemporaryRegister;
-		origin: thisContext stack;
-		simplify.
+		origin: thisContext stack.
 	primitiveFailureCode := mergedPrimitiveFailure.
 	mergedPrimitiveFailure isPhiFunction ifTrue: [ self addInstruction: mergedPrimitiveFailure ].
 
@@ -266,6 +321,27 @@ DRBasicBlock >> numberOfPredecessors [
 { #category : #accessing }
 DRBasicBlock >> origin: aCollection [ 
 	origin := aCollection
+]
+
+{ #category : #accessing }
+DRBasicBlock >> phiFunctions [
+	
+	^ self instructions select: [ :e | e isPhiFunction ]
+]
+
+{ #category : #building }
+DRBasicBlock >> phiWith: aValue [
+
+	^ self addInstruction: (self instructionFactory phiWith: aValue)
+]
+
+{ #category : #building }
+DRBasicBlock >> phiWith: aValue with: aValue2 [
+
+	| phiFunction |
+	phiFunction := self addInstruction: (self instructionFactory phiWith: aValue with: aValue2).
+	self validatePhiFunctions.
+	^ phiFunction
 ]
 
 { #category : #accessing }
@@ -336,6 +412,7 @@ DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [
 	(instructions includes: anInstruction) ifTrue: [ 
 		^ instructions at: (instructions indexOf: anInstruction) put: anotherInstruction ].
 
+	self haltIf: [ endInstruction isKindOf: DROverflowJump ].
 	"Otherwise check if it is the block end instruction"
 	endInstruction ~= anInstruction
 		ifTrue: [ self error: 'This block does not contain the instruction' ].
@@ -343,7 +420,7 @@ DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [
 	endInstruction := anotherInstruction
 ]
 
-{ #category : #'control flow' }
+{ #category : #'control-flow' }
 DRBasicBlock >> replacePredecessor: aDRBasicBlock by: aDRBasicBlock2 [ 
 	
 	predecessors replaceAll: aDRBasicBlock with: aDRBasicBlock2
@@ -406,9 +483,18 @@ DRBasicBlock >> validatePhiFunctions [
 	self instructionsDo: [ :e | 
 		(e isPhiFunction and: [| ops |
 			ops := e operands asSet.
-			ops size > 1 or: [ (ops anyOne isKindOf: DRNullValue) not ] ]) ifTrue: [ 
+			ops size > 1 or: [ (ops anyOne isKindOf: DRNullValue) not ] ]) ifTrue: [
 			e operands size = self predecessors size
-				ifFalse: [ self error: 'Phi-predecessor mismatch' ] ] ]
+				ifFalse: [ self error: 'Phi-predecessor mismatch' ].
+			
+			"Validate that the order of the dependent variables is ok,
+			this by checking that the variables are reachable from the correct predecessors"
+			e operands withIndexDo: [ :dependency :index | 
+				self assert: (dependency isCopy not
+						or: [(self predecessors at: index) checkLivenessOf: dependency])
+			].
+		].
+	]
 ]
 
 { #category : #validating }

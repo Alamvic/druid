@@ -68,10 +68,11 @@ DRCompilerCompiler >> generateDruidIR [
 	irGenerator := self newIRGenerator.
 	
 	"Create the initial basic block"
-	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
-	startBlock := irGenerator newBasicBlock.
+	startBlock := irGenerator initialBasicBlock.
 	initialBasicBlock := irGenerator newBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
+
+	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
 	initialBasicBlock addInstruction: initial.
 	
 	irGenerator numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value.
@@ -92,6 +93,7 @@ DRCompilerCompiler >> initialize [
 	optimisations := OrderedCollection new.
 	optimisations add: DRDeadBlockElimination new.
 	optimisations add: DRSCCP new.
+	optimisations add: DRCopyPropagation new.
 	optimisations add: DRDeadCodeElimination new.
 	optimisations add: DRCleanControlFlow new.
 ]

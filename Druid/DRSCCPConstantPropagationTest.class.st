@@ -11,7 +11,7 @@ DRSCCPConstantPropagationTest >> testDoNotPropagateInPhiFunctions [
 
 	| cfg copy1 b1 b2 b3 copy2 joinBlock phi |
 	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock: cfg newBasicBlock.
+	cfg initialBasicBlock jumpTo: cfg newBasicBlock.
 	
 	cfg initialBasicBlock jumpTo: (b1 := cfg newBasicBlock).
 	b1 endInstruction: (instructionFactory jumpIf: (DRPhysicalRegister name: 'Parameter')).

@@ -17,6 +17,24 @@ DRCleanControlFlowTest >> setUp [
 ]
 
 { #category : #'tests - redundant branches' }
+DRCleanControlFlowTest >> testCannotCombineBlocksWhenSecondBlockContainsPhiFunctions [
+
+	| b0 b1 b2 copy cfg |
+	cfg := DRControlFlowGraph new.
+	b0 := cfg newBasicBlock.
+	b1 := cfg newBasicBlock.
+	b2 := cfg newBasicBlock.
+
+	b0 jumpTo: b1.
+	b1 addInstruction: (copy := instructionFactory copy: 2).	
+	
+	b1 jumpTo: b2.
+	b2 phiWith: copy.
+
+	self deny: (optimisation shouldCombineBlock: b1)
+]
+
+{ #category : #'tests - redundant branches' }
 DRCleanControlFlowTest >> testCombineBlocks [
 
 	| b0 b1 b2 copy add combinedBlock cfg |
@@ -95,9 +113,63 @@ DRCleanControlFlowTest >> testRemoveEmptyBlock [
 	b0 jumpTo: b1.
 	b1 jumpTo: b2.
 
-	optimisation removeEmptyBlock: b1.
+	optimisation removeEmptyBlock: b1 fromCfg: cfg.
 	
 	self assert: b0 endInstruction target equals: b2
+]
+
+{ #category : #'tests - redundant branches' }
+DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionFirstPredecessor [
+
+	| b0 b1 b2 cfg r0 r1 b3 |
+	cfg := DRControlFlowGraph new.
+	b0 := cfg newBasicBlock.
+	r0 := b0 copy: 0.
+	
+	b1 := cfg newBasicBlock.
+	r1 := b1 copy: 1.
+	
+	"Empty, to remove"
+	b2 := cfg newBasicBlock.
+	
+	b0 jumpIfTrueTo: b1 ifFalseTo: b2.
+	
+	"Joint point"
+	b3 := cfg newBasicBlock.
+	b1 jumpTo: b3.
+	b2 jumpTo: b3.
+	b3 phiWith: r1 with: r0.
+
+	optimisation removeEmptyBlock: b2 fromCfg: cfg.
+	
+	b3 validatePhiFunctions.
+]
+
+{ #category : #'tests - redundant branches' }
+DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionSecondPredecessor [
+
+	| b0 b1 b2 cfg r0 r1 b3 |
+	cfg := DRControlFlowGraph new.
+	b0 := cfg newBasicBlock.
+	r0 := b0 copy: 0.
+	
+	b1 := cfg newBasicBlock.
+	r1 := b1 copy: 1.
+	
+	"Empty, to remove"
+	b2 := cfg newBasicBlock.
+	
+	b0 jumpIfTrueTo: b1 ifFalseTo: b2.
+	
+	"Joint point"
+	b3 := cfg newBasicBlock.
+	b2 jumpTo: b3.
+	b1 jumpTo: b3.
+	b3 phiWith: r0 with: r1.
+
+	optimisation removeEmptyBlock: b2 fromCfg: cfg.
+	
+	b3 validatePhiFunctions.
 ]
 
 { #category : #'tests - redundant branches' }
@@ -118,7 +190,7 @@ DRCleanControlFlowTest >> testRemoveEmptyBlockWithManyPredecessors [
 	b2 jumpTo: emptyBlock.
 	emptyBlock jumpTo: b4.
 
-	optimisation removeEmptyBlock: emptyBlock.
+	optimisation removeEmptyBlock: emptyBlock fromCfg: cfg.
 	
 	self assert: b1 endInstruction target equals: b4.
 	self assert: b2 endInstruction target equals: b4.

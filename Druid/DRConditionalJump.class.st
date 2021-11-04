@@ -58,7 +58,7 @@ DRConditionalJump >> isJump [
 { #category : #printing }
 DRConditionalJump >> prettyPrint [
 
-	^ 'Jump if' , self condition result name , ' true -> '
+	^ 'Jump if ' , self condition result name , ' true -> '
 	  , self trueBranch id asString , ' if false -> '
 	  , self falseBranch id asString
 ]

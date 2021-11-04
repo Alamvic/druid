@@ -119,6 +119,12 @@ DRInstruction >> operand2 [
 ]
 
 { #category : #operands }
+DRInstruction >> operandAt: anInteger [
+	
+	^ operands at: anInteger
+]
+
+{ #category : #operands }
 DRInstruction >> operandAt: anInteger put: aValue [ 
 	
 	operands at: anInteger put: aValue
@@ -133,7 +139,7 @@ DRInstruction >> operands [
 DRInstruction >> operands: aCollection [ 
 
 	operands do: [ :each | each removeUser: self ].
-	operands := aCollection.
+	operands := aCollection asOrderedCollection.
 	operands do: [ :each | each addUser: self ]
 ]
 

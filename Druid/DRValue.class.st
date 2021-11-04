@@ -34,6 +34,15 @@ DRValue >> asDRValue [
 	^ self
 ]
 
+{ #category : #copying }
+DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
+	
+	^ aDRIRGenerator
+		addInstructionFrom: aNode
+		instructionKind: DRCopy
+		operands: { self }.
+]
+
 { #category : #accessing }
 DRValue >> isConditionalJump [ 
 
@@ -118,8 +127,7 @@ DRValue >> joinNonNull: anotherValue onIRGenerator: aBuilder from: originBlocks 
 	^ (DRPhiFunction joinedVariables: { anotherValue. self })
 		result: aBuilder allocateTemporaryRegister;
 		addToBlock: aBuilder currentBasicBlock;
-		origin: thisContext stack;
-		simplify
+		origin: thisContext stack
 ]
 
 { #category : #joining }
