@@ -344,10 +344,7 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 	self newBasicBlock.
 	self currentBasicBlock addPredecessor: startingBasicBlock.
 	conditionalJump trueBranch: self currentBasicBlock.
-	
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+
 
 	"ifTrue: does not return anything useful"
 	self pushOperand: DRNullValue new.
@@ -358,6 +355,10 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 	falseBranchBasicBlockOut hasFinalInstruction ifFalse: [
 		falseBranchBasicBlockOut jumpTo: self currentBasicBlock.
 	].
+
+	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
+	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
 ]
 
 { #category : #'special-cases' }
