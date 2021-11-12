@@ -19,7 +19,9 @@ DRPrimitiveIRGenerator >> initialize [
 
 	super initialize.
 	primitiveExitSuccessBlock := controlFlowGraph newBasicBlock.
-	primitiveExitFailureBlock := controlFlowGraph newBasicBlock
+	primitiveExitSuccessBlock beExitBlock.
+	primitiveExitFailureBlock := controlFlowGraph newBasicBlock.
+	primitiveExitFailureBlock beExitBlock.
 ]
 
 { #category : #accessing }
@@ -102,7 +104,7 @@ DRPrimitiveIRGenerator >> popFrame [
 			operands: { DRConstantValue value: numberOfArguments + 1 "Number of things to pop" }).
 
 		"Make the end instruction of the failure exit finish with a Noop"
-		primitiveExitFailureBlock endInstruction: (self instantiate: DRNoop)
+		primitiveExitFailureBlock endInstruction: (self instantiate: DRPrimitiveFail)
 	]
 	
 ]

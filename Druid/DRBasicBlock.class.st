@@ -91,6 +91,12 @@ DRBasicBlock >> basicRemovePredecessor: aDRBasicBlock [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> beExitBlock [
+
+	isExitBlock := true
+]
+
+{ #category : #accessing }
 DRBasicBlock >> blockValue [
 	
 	^ blockValue
@@ -219,6 +225,7 @@ DRBasicBlock >> initialize [
 	instructions := OrderedCollection new.
 	blockValue := DRNullValue new.
 	predecessors := OrderedCollection new.
+	isExitBlock := false.
 
 	endInstruction := DRNoop new.
 	endInstruction basicBlock: self.
@@ -254,6 +261,18 @@ DRBasicBlock >> instructionsDo: aFullBlockClosure [
 
 	instructions do: aFullBlockClosure.
 	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
+]
+
+{ #category : #accessing }
+DRBasicBlock >> isExitBlock [
+
+	^ isExitBlock
+]
+
+{ #category : #accessing }
+DRBasicBlock >> isExitBlock: anObject [
+
+	isExitBlock := anObject
 ]
 
 { #category : #building }

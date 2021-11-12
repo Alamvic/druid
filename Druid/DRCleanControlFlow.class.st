@@ -102,7 +102,9 @@ DRCleanControlFlow >> shouldCombineBlock: aDRBasicBlock [
 		- the operand of the phi function may not be in a predecessor but the block itself
 		- merging could increment the number of predecessors while keeping phi functions with the same arity"
 	^ aDRBasicBlock successor predecessors size = 1
-		and: [ aDRBasicBlock successor instructions noneSatisfy: [ :i | i isPhiFunction ] ]
+		and: [ 
+			aDRBasicBlock successor isExitBlock not
+				and: [ aDRBasicBlock successor instructions noneSatisfy: [ :i | i isPhiFunction ] ] ]
 ]
 
 { #category : #folding }
@@ -131,6 +133,8 @@ DRCleanControlFlow >> shouldHoistBranchInto: aDRBasicBlock [
 
 { #category : #'empty blocks' }
 DRCleanControlFlow >> shouldRemoveEmptyBlock: aDRBasicBlock [ 
+	
+	aDRBasicBlock isExitBlock ifTrue: [ ^ false ].
 	
 	aDRBasicBlock instructions size > 1
 		ifTrue: [ ^ false ].

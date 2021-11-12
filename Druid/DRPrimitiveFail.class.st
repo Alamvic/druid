@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #testing }
+DRPrimitiveFail >> isMandatoryInstruction [
+
+	^ true
+]
+
+{ #category : #testing }
 DRPrimitiveFail >> opcode [
 	
 	^ 'PrimitiveFail'
