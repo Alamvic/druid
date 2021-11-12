@@ -32,6 +32,12 @@ DRControlFlowGraph >> allocateTemporaryRegister [
 	^ instructionFactory allocateTemporaryRegister
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> blockById: anInteger [ 
+	
+	^ self blocks detect: [ :e | e id = anInteger ]
+]
+
 { #category : #iterating }
 DRControlFlowGraph >> blocks [
 
