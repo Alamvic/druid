@@ -101,6 +101,11 @@ DRControlFlowGraph >> inspectionCFG: aBuilder [
 		g add: (RSLabel new text: c id asString).
 		g asShape
 			@ RSDraggable;
+			@ (RSMenuActivable new menuDo: [ :menu :element | 
+				menu
+					add: 'Tail-duplicate'
+					target: element model
+					selector: #tailDuplicate ]);
 			model: c;
 			yourself ].
 	view addAll: blockViews.
