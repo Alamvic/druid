@@ -71,6 +71,42 @@ DRInstruction >> initialize [
 	users := OrderedCollection new.
 ]
 
+{ #category : #'as yet unclassified' }
+DRInstruction >> inspectionDependencies: aBuilder [
+	<inspectorPresentationOrder: 0 title: 'Dependency Graph'> 
+	| view blockViews eb |
+	view := RSCanvas new.
+	blockViews := self withAllDependencies collect: [ :c | | g |
+		g := RSGroup new.
+		g add: (RSCircle new
+			size: 50;
+			color: Color veryVeryLightGray;
+			yourself).
+		g add: (RSLabel new text: c label asString).
+		g asShape
+			@ RSDraggable;
+			model: c;
+			yourself ].
+	view addAll: blockViews.
+	
+	eb := RSEdgeBuilder arrowedLine.
+	eb canvas: view.
+	eb withBorderAttachPoint.
+	eb 	shapes: blockViews.
+	eb connectToAll: #operands.
+	
+	"All the characters are displayed using a grid layout"
+	RSDominanceTreeLayout new
+		horizontalGap: 50;
+		doNotValidateCycles;
+		applyOn: blockViews.
+	view @ RSCanvasController.
+	
+	^ SpRoassal3InspectorPresenter new
+		canvas: view;
+		yourself
+]
+
 { #category : #testing }
 DRInstruction >> isCopy [
 	^ false
@@ -92,6 +128,12 @@ DRInstruction >> isNonConditionalJump [
 DRInstruction >> isPhiFunction [
 
 	^ false
+]
+
+{ #category : #accessing }
+DRInstruction >> label [
+
+	^ self opcode, '(', self result name asString, ')'
 ]
 
 { #category : #accessing }
@@ -285,4 +327,15 @@ DRInstruction >> singleChild [
 DRInstruction >> users [
 
 	^ users
+]
+
+{ #category : #dependencies }
+DRInstruction >> withAllDependencies [
+	
+	| dependencies |
+	dependencies := OrderedCollection new.
+	dependencies add: self.
+	self operands do: [ :e |
+		dependencies addAll: e withAllDependencies ].
+	^ dependencies
 ]

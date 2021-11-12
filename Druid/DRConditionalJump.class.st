@@ -56,6 +56,12 @@ DRConditionalJump >> isJump [
 ]
 
 { #category : #printing }
+DRConditionalJump >> opcode [
+	
+	^ 'If'
+]
+
+{ #category : #printing }
 DRConditionalJump >> prettyPrint [
 
 	^ 'Jump if ' , self condition result name , ' true -> '

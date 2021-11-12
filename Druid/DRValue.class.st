@@ -137,10 +137,22 @@ DRValue >> joinValue: anotherValue onIRGenerator: anIRGenerator from: originBloc
 	^ anotherValue joinNonNull: self onIRGenerator: anIRGenerator from: originBlocks
 ]
 
+{ #category : #accessing }
+DRValue >> label [
+	
+	^ self name
+]
+
 { #category : #interpretation }
 DRValue >> lookupClass [
 	
 	self subclassResponsibility
+]
+
+{ #category : #accessing }
+DRValue >> operands [
+	
+	^ #()
 ]
 
 { #category : #'users-definitions' }
@@ -165,4 +177,10 @@ DRValue >> singleChild [
 DRValue >> targets [
 
 	^ #()
+]
+
+{ #category : #dependencies }
+DRValue >> withAllDependencies [
+	
+	^ { self }
 ]

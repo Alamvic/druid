@@ -24,6 +24,12 @@ DRCopy >> isMandatoryInstruction [
 ]
 
 { #category : #printing }
+DRCopy >> opcode [
+	
+	^ ':='
+]
+
+{ #category : #printing }
 DRCopy >> prettyPrint [
 	
 	^ result name, ' := ', operands first name asString
