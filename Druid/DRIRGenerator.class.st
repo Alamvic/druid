@@ -10,7 +10,6 @@ Class {
 		'nextRegister',
 		'pharoOperandStack',
 		'currentOperandStack',
-		'instructionFactory',
 		'currentPrimitiveFailureCode',
 		'controlFlowGraph'
 	],
@@ -47,7 +46,7 @@ DRIRGenerator >> addInstructionWithNoResultFrom: aNode instructionKind: instruct
 { #category : #factory }
 DRIRGenerator >> allocateTemporaryRegister [
 	
-	^ instructionFactory allocateTemporaryRegister
+	^ self instructionFactory allocateTemporaryRegister
 ]
 
 { #category : #factory }
@@ -150,7 +149,6 @@ DRIRGenerator >> initialize [
 	self initializeSpecialCases.
 	
 	currentOperandStack := Stack new.
-	instructionFactory := DRInstructionFactory new.
 	
 	"Push a top frame"
 	interpretationStack := OrderedCollection new.
@@ -234,7 +232,7 @@ DRIRGenerator >> instantiateNoResultInstruction: anInstructionClass operands: aC
 
 { #category : #accessing }
 DRIRGenerator >> instructionFactory [
-	^ instructionFactory
+	^ controlFlowGraph instructionFactory
 ]
 
 { #category : #'special-cases' }

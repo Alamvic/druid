@@ -26,6 +26,12 @@ DRControlFlowGraph >> allocateBasicBlockID [
 	^ allocatedID
 ]
 
+{ #category : #building }
+DRControlFlowGraph >> allocateTemporaryRegister [
+	
+	^ instructionFactory allocateTemporaryRegister
+]
+
 { #category : #iterating }
 DRControlFlowGraph >> blocks [
 
