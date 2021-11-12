@@ -11,7 +11,8 @@ Class {
 		'temporaryFrame',
 		'vmOperandStack',
 		'primitiveFailureCode',
-		'controlFlowGraph'
+		'controlFlowGraph',
+		'isExitBlock'
 	],
 	#category : #'Druid-IR'
 }
@@ -35,6 +36,45 @@ DRBasicBlock >> addInstruction: anInstruction [
 DRBasicBlock >> addPredecessor: aBasicBlock [
 
 	predecessors add: aBasicBlock
+]
+
+{ #category : #transformations }
+DRBasicBlock >> basicDuplicate [
+	
+	^ controlFlowGraph newBasicBlockWith: [ :newBlock | | newToOld |
+		newToOld := Dictionary new.
+		self predecessors do: [ :p | 
+			newBlock addPredecessor: p ].
+
+		"Duplicate instructions"
+		self instructions allButLast do: [ :instruction | | instructionCopy |
+			newToOld at: instruction put: (instructionCopy := instruction copy).
+			instructionCopy operands do: [ :e |
+				e addUser: instructionCopy.
+			].
+			newBlock addInstruction: instructionCopy.
+		 ].
+		newBlock endInstruction: self endInstruction copy.
+		newBlock endInstruction operands do: [ :e |
+				e addUser: newBlock endInstruction.
+		].
+
+1halt.
+		"Rewrite all operands"
+		newBlock instructions do: [ :newInstruction |
+			newInstruction users copy do: [ :user | | replacement |
+				"If an user comes from another block, keep using it"
+				replacement := newToOld at: user ifAbsent: [ user ].
+				newInstruction removeUser: user.
+				newInstruction addUser: replacement.
+			].
+			newInstruction operands copy do: [ :operand | | replacement |
+				"If an operand comes from another block, keep using it"
+				replacement := newToOld at: operand ifAbsent: [ operand ].
+				newInstruction replaceOperand: operand by: replacement.
+			]
+		].
+	]	
 ]
 
 { #category : #accessing }
@@ -391,10 +431,16 @@ DRBasicBlock >> removePredecessor: aDRBasicBlock [
 	
 	| index |
 	index := predecessors indexOf: aDRBasicBlock.
+	self removePredecessorAt: index
+]
+
+{ #category : #accessing }
+DRBasicBlock >> removePredecessorAt: index [ 
+	
 	self instructionsDo: [ :e |
 		e isPhiFunction ifTrue: [ 
 			e removeOperandAt: index ] ].
-	self basicRemovePredecessor: aDRBasicBlock
+	self basicRemovePredecessor: (predecessors at: index)
 ]
 
 { #category : #replacing }
@@ -426,6 +472,12 @@ DRBasicBlock >> replacePredecessor: aDRBasicBlock by: aDRBasicBlock2 [
 	predecessors replaceAll: aDRBasicBlock with: aDRBasicBlock2
 ]
 
+{ #category : #asd }
+DRBasicBlock >> replaceSuccessor: aDRBasicBlock by: aDRBasicBlock2 [ 
+	
+	endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock2
+]
+
 { #category : #initialization }
 DRBasicBlock >> setUpInitialFailureCode [
 	self shouldBeImplemented.
@@ -444,6 +496,29 @@ DRBasicBlock >> successor [
 DRBasicBlock >> successors [
 	
 	^ endInstruction targets
+]
+
+{ #category : #transformations }
+DRBasicBlock >> tailDuplicate [
+
+	"We can only tail duplicate if the instructions do not escape"
+	(self instructions first users allSatisfy: [:e | 
+		e users allSatisfy: [ :user | self instructions includes: user ] ])
+			ifFalse: [ 
+				self error: 'cannot tail duplicate if values escape this block. Otherwise we will break the SSA property' ].
+	
+	self predecessors allButFirst do: [ :predecessorToRewire | | duplicatedBlock |
+		duplicatedBlock := self basicDuplicate.
+		
+		self predecessors do: [ :predecessorToRemove |
+			predecessorToRemove = predecessorToRewire ifFalse: [ 
+				duplicatedBlock removePredecessor: predecessorToRemove ] ].
+		
+		self removePredecessor: predecessorToRewire.
+		predecessorToRewire replaceSuccessor: self by: duplicatedBlock.
+		duplicatedBlock successors do: [ :successor |
+			successor addPredecessor: duplicatedBlock ].
+	].
 ]
 
 { #category : #temporaries }

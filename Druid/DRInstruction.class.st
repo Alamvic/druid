@@ -214,6 +214,15 @@ DRInstruction >> originAST: aNode [
 	originAST := aNode
 ]
 
+{ #category : #copying }
+DRInstruction >> postCopy [
+
+	operands := operands copy.
+	users := users copy.
+	result := basicBlock controlFlowGraph allocateTemporaryRegister.
+	super postCopy.
+]
+
 { #category : #printing }
 DRInstruction >> prettyPrint [
 	
