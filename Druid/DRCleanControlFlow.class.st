@@ -49,7 +49,7 @@ DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: 
 DRCleanControlFlow >> foldRedundantBranch: aDRConditionalJump [ 
 	
 	aDRConditionalJump replaceBy: (DRJump new target: aDRConditionalJump trueBranch).
-
+	aDRConditionalJump trueBranch removePredecessor: aDRConditionalJump basicBlock.
 ]
 
 { #category : #hoisting }
