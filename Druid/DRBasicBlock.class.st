@@ -281,14 +281,18 @@ DRBasicBlock >> inspectionInstructions: aBuilder [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #inspection }
 DRBasicBlock >> inspectionSourceCode [
 	<inspectorPresentationOrder: 30 title: 'Source code'>
 
+	| sourceInterval |
+	sourceInterval := self sourceInterval.
 	^ SpCodePresenter new 
 		beForBehavior: self methodNode methodClass;
 		text: self source;
-		selectionInterval: self sourceInterval;
+		addTextSegmentDecoration: (SpTextPresenterDecorator forHighlight
+			interval: (sourceInterval first to: sourceInterval last + 1);
+			yourself);
 		yourself
 ]
 

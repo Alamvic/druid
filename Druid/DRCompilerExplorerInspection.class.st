@@ -61,7 +61,7 @@ DRCompilerExplorerInspection >> hasOutputActivationPort [
 	^ true
 ]
 
-{ #category : #'instance creation' }
+{ #category : #initialization }
 DRCompilerExplorerInspection >> initializePresenters [
 
 	self layout: (SpBoxLayout newVertical
@@ -72,9 +72,12 @@ DRCompilerExplorerInspection >> initializePresenters [
 		| toolbarButtom |
 		toolbarButtom := self newToolbarButton.
 		toolbarButtom label: opt name.
-		toolbarButtom action: [ 
+		toolbarButtom action: [ | oldBlock |
 			model apply: opt.
-			cfgPresenter refresh ].
+			"HACKSSSS"
+			oldBlock := cfgPresenter canvas inspectorContext presentation.
+			cfgPresenter refresh.
+			cfgPresenter whenActivatedDo: oldBlock ].
 		toolbar addItem: toolbarButtom.
 	]
 ]
