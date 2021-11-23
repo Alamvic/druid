@@ -245,7 +245,8 @@ DRInstruction >> printOn: aStream [
 { #category : #removing }
 DRInstruction >> removeFromCFG [
 
-	basicBlock removeInstruction: self
+	basicBlock removeInstruction: self.
+	self operands do: [ :e | e removeUser: self ]
 ]
 
 { #category : #operands }
@@ -323,7 +324,7 @@ DRInstruction >> sccpLatticeValueFor: sccp [
 { #category : #SCCP }
 DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 	
-	self subclassResponsibility
+	^ operand >> operand2
 ]
 
 { #category : #accessing }

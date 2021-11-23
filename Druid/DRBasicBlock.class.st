@@ -41,14 +41,14 @@ DRBasicBlock >> addPredecessor: aBasicBlock [
 { #category : #transformations }
 DRBasicBlock >> basicDuplicate [
 	
-	^ controlFlowGraph newBasicBlockWith: [ :newBlock | | newToOld |
-		newToOld := Dictionary new.
+	^ controlFlowGraph newBasicBlockWith: [ :newBlock | | oldToNew |
+		oldToNew := Dictionary new.
 		self predecessors do: [ :p | 
 			newBlock addPredecessor: p ].
 
 		"Duplicate instructions"
 		self instructions allButLast do: [ :instruction | | instructionCopy |
-			newToOld at: instruction put: (instructionCopy := instruction copy).
+			oldToNew at: instruction put: (instructionCopy := instruction copy).
 			instructionCopy operands do: [ :e |
 				e addUser: instructionCopy.
 			].
@@ -59,18 +59,17 @@ DRBasicBlock >> basicDuplicate [
 				e addUser: newBlock endInstruction.
 		].
 
-1halt.
 		"Rewrite all operands"
 		newBlock instructions do: [ :newInstruction |
 			newInstruction users copy do: [ :user | | replacement |
 				"If an user comes from another block, keep using it"
-				replacement := newToOld at: user ifAbsent: [ user ].
+				replacement := oldToNew at: user ifAbsent: [ user ].
 				newInstruction removeUser: user.
 				newInstruction addUser: replacement.
 			].
 			newInstruction operands copy do: [ :operand | | replacement |
 				"If an operand comes from another block, keep using it"
-				replacement := newToOld at: operand ifAbsent: [ operand ].
+				replacement := oldToNew at: operand ifAbsent: [ operand ].
 				newInstruction replaceOperand: operand by: replacement.
 			]
 		].
@@ -199,6 +198,47 @@ DRBasicBlock >> hasPredecessor: aDRBasicBlock [
 DRBasicBlock >> hasPredecessors [
 	
 	^ predecessors notEmpty
+]
+
+{ #category : #accessing }
+DRBasicBlock >> hyperblock [
+
+	| workingQueue visited visitsToThisBlockSoFar blocks |
+	visited := Dictionary new.
+	blocks := OrderedCollection new.
+	workingQueue := OrderedCollection new.
+	workingQueue add: self.
+	"Assume I've been alredy been visited.
+	This is to guarantee I will be processed regardless my predecessors"
+	visited
+		at: self
+		put: self numberOfPredecessors -1.
+
+	[ workingQueue isEmpty ] whileFalse: [ 
+		| currentBlock |
+		currentBlock := workingQueue removeFirst.
+
+		"Count how many times we have visited this block"
+		visitsToThisBlockSoFar := visited
+			                          at: currentBlock
+			                          ifPresent: [ :p | p ]
+			                          ifAbsent: [ 0 ].
+
+		visited at: currentBlock put: visitsToThisBlockSoFar + 1.
+		visitsToThisBlockSoFar + 1 = currentBlock numberOfPredecessors
+			ifTrue: [
+				
+				blocks add: currentBlock.
+
+				(workingQueue isEmpty and: [
+					blocks size > 1 and: [ blocks size = visited size ] ])
+						ifTrue: [ ^ DRHyperBlock blocks: blocks ].
+				
+				currentBlock hasFinalInstruction ifTrue: [ 
+					currentBlock lastInstruction targets do: [ :target | 
+						target isExitBlock ifFalse: [ workingQueue add: target ]  ] ] ] ].
+
+	^ DRHyperBlock blocks: blocks
 ]
 
 { #category : #accessing }

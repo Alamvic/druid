@@ -27,6 +27,13 @@ DRPhiFunction >> addValue: anInstruction [
 ]
 
 { #category : #accessing }
+DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [ 
+	
+	self assert: self basicBlock predecessors last = aDRBasicBlock.
+	operands addLast: anInstruction
+]
+
+{ #category : #accessing }
 DRPhiFunction >> initialize [
 
 	super initialize.
