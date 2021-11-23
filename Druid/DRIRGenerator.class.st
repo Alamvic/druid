@@ -891,6 +891,7 @@ DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 DRIRGenerator >> visitMessageNode: aRBMessageNode [ 
 
 	| receiver arguments method |
+	self haltIf: [ aRBMessageNode selector = #not ].
 	specialCases
 		at: aRBMessageNode selector
 		ifPresent: [ :mapping |

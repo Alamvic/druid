@@ -24,6 +24,12 @@ DRCompilerExplorer >> apply: aClass [
 	aClass new applyTo: self cfg
 ]
 
+{ #category : #accessing }
+DRCompilerExplorer >> blocks [
+	
+	^ self cfg blocks
+]
+
 { #category : #'as yet unclassified' }
 DRCompilerExplorer >> cfg [
 
@@ -56,7 +62,7 @@ DRCompilerExplorer >> initialize [
 DRCompilerExplorer >> inspectionCFG: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'CFG'> 
 	
-	^ self cfg inspectionCFG: aBuilder
+	^ DRCompilerExplorerInspection on: self
 ]
 
 { #category : #'as yet unclassified' }
@@ -85,6 +91,12 @@ DRCompilerExplorer >> methodClass [
 DRCompilerExplorer >> methodSource [
 
 	^ self method sourceCode
+]
+
+{ #category : #accessing }
+DRCompilerExplorer >> optimizations [
+	
+	^ { DRDeadBlockElimination . DRSCCP . DRCopyPropagation . DRDeadCodeElimination . DRCleanControlFlow }
 ]
 
 { #category : #'as yet unclassified' }

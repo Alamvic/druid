@@ -32,6 +32,13 @@ DRInstruction >> = anObject [
 	^ false. 
 ]
 
+{ #category : #'as yet unclassified' }
+DRInstruction >> RBArrayNodenSource: aBuilder [
+	<inspectorPresentationOrder: 0 title: 'Source'>
+	
+	^ originAST inspectionSourceCode
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> addUser: anInstruction [
 	
@@ -206,6 +213,12 @@ DRInstruction >> origin [
 DRInstruction >> origin: anObject [
 
 	origin := anObject
+]
+
+{ #category : #accessing }
+DRInstruction >> originAST [
+	
+	^ originAST
 ]
 
 { #category : #accessing }

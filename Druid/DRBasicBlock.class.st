@@ -281,6 +281,17 @@ DRBasicBlock >> inspectionInstructions: aBuilder [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> inspectionSourceCode [
+	<inspectorPresentationOrder: 30 title: 'Source code'>
+
+	^ SpCodePresenter new 
+		beForBehavior: self methodNode methodClass;
+		text: self source;
+		selectionInterval: self sourceInterval;
+		yourself
+]
+
 { #category : #building }
 DRBasicBlock >> instructionFactory [
 	
@@ -412,6 +423,12 @@ DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> methodNode [
+	
+	^ (self instructions select: [ :i | i originAST notNil ] thenCollect: [ :i | i originAST methodNode ]) anyOne
+]
+
+{ #category : #accessing }
 DRBasicBlock >> numberOfPredecessors [
 	
 	^ predecessors size
@@ -540,6 +557,20 @@ DRBasicBlock >> replaceSuccessor: aDRBasicBlock by: aDRBasicBlock2 [
 { #category : #initialization }
 DRBasicBlock >> setUpInitialFailureCode [
 	self shouldBeImplemented.
+]
+
+{ #category : #accessing }
+DRBasicBlock >> source [
+	
+	^ self methodNode source
+]
+
+{ #category : #accessing }
+DRBasicBlock >> sourceInterval [
+	
+	| nodes |
+	nodes := self instructions collect: [ :i | i originAST ] thenSelect: [ :e | e notNil ].
+	^ nodes first start to: nodes last stop
 ]
 
 { #category : #accessing }
