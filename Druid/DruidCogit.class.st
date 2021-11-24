@@ -37,7 +37,7 @@ DruidCogit >> forCogit: aDruidCogit methodZone: aCogMethodZone [
 { #category : #generated }
 DruidCogit >> genPrimitiveAdd [
 
-	| currentBlock jump0 jump1 |
+	| currentBlock jump0 jump1 jump2 |
 	self TstCq: 1 R: Arg0Reg.
 	jump0 := self JumpZero: 0.
 	self TstCq: 1 R: ReceiverResultReg.
@@ -46,11 +46,13 @@ DruidCogit >> genPrimitiveAdd [
 	self SubCq: 1 R: Extra1Reg.
 	self MoveR: Extra1Reg R: Extra2Reg.
 	self AddR: ReceiverResultReg R: Extra2Reg.
+	jump2 := self JumpOverflow: 0.
 	self MoveR: Extra2Reg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
 	jump1 jmpTarget: currentBlock.
+	jump2 jmpTarget: currentBlock.
 	^ CompletePrimitive
 ]
 

@@ -140,6 +140,7 @@ DRSCCP >> initialize [
 { #category : #initialization }
 DRSCCP >> initializeSCCPWithCFG: cfg [
 
+	self initialize.
 	instancecfg := cfg.
 	
 	"This operation marks the edges as unexecuted."

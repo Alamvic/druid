@@ -364,8 +364,8 @@ DRCompilerCompiler >> visitOr: aDROr [
 { #category : #visiting }
 DRCompilerCompiler >> visitOverflowJump: aDROverflowJump [ 
 	
-	"Fall-through true branch, jump to false branch"
-	^ self jumpForwardCogRTL: #JumpNoOverflow: instruction: aDROverflowJump
+	self generateJump: #JumpOverflow: target: aDROverflowJump trueBranch.
+	self generateJump: #JumpNoOverflow: target: aDROverflowJump falseBranch.
 ]
 
 { #category : #visiting }
