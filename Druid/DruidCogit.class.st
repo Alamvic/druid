@@ -37,48 +37,20 @@ DruidCogit >> forCogit: aDruidCogit methodZone: aCogMethodZone [
 { #category : #generated }
 DruidCogit >> genPrimitiveAdd [
 
-	| currentBlock jump0 jump1 jump2 jump3 jump4 jump5 |
-	self MoveCq: 0 R: TempReg.
+	| currentBlock jump0 jump1 |
 	self TstCq: 1 R: Arg0Reg.
 	jump0 := self JumpZero: 0.
 	self TstCq: 1 R: ReceiverResultReg.
 	jump1 := self JumpZero: 0.
-	currentBlock := self Label.
-	jump0 jmpTarget: currentBlock.
-	self MoveCq: 1 R: Extra2Reg.
-	self MoveR: Extra2Reg R: Extra0Reg.
-	self MoveR: ReceiverResultReg R: Extra3Reg.
-	self MoveR: Arg0Reg R: SendNumArgsReg.
-	jump2 := self Jump: 0.
-	self MoveR: Arg0Reg R: Extra3Reg.
-	self SubCq: 1 R: Extra3Reg.
-	self MoveR: Extra3Reg R: Extra4Reg.
-	self AddR: ReceiverResultReg R: Extra4Reg.
-	self MoveR: TempReg R: Extra0Reg.
-	self MoveR: Extra4Reg R: Extra3Reg.
-	jump3 := self JumpNoOverflow: 0.
-	currentBlock := self Label.
-	jump1 jmpTarget: currentBlock.
-	self MoveCq: 1 R: ClassReg.
-	self MoveR: ClassReg R: Extra0Reg.
-	self MoveR: ReceiverResultReg R: Extra3Reg.
-	self MoveR: Arg0Reg R: SendNumArgsReg.
-	jump4 := self Jump: 0.
-	self MoveCq: 1 R: Extra1Reg.
-	self MoveR: Extra1Reg R: Extra0Reg.
-	self MoveR: ReceiverResultReg R: Extra3Reg.
-	self MoveR: Arg0Reg R: SendNumArgsReg.
-	currentBlock := self Label.
-	jump2 jmpTarget: currentBlock.
-	jump3 jmpTarget: currentBlock.
-	jump4 jmpTarget: currentBlock.
-	self MoveR: SendNumArgsReg R: Arg0Reg.
-	self MoveR: Extra3Reg R: ReceiverResultReg.
-	self CmpCq: 0 R: Extra0Reg.
-	jump5 := self JumpNonZero: 0.
+	self MoveR: Arg0Reg R: Extra1Reg.
+	self SubCq: 1 R: Extra1Reg.
+	self MoveR: Extra1Reg R: Extra2Reg.
+	self AddR: ReceiverResultReg R: Extra2Reg.
+	self MoveR: Extra2Reg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	currentBlock := self Label.
-	jump5 jmpTarget: currentBlock.
+	jump0 jmpTarget: currentBlock.
+	jump1 jmpTarget: currentBlock.
 	^ CompletePrimitive
 ]
 
