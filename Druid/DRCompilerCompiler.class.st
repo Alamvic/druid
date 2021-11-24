@@ -260,7 +260,11 @@ DRCompilerCompiler >> visitConstantCondition: aDRConstantCondition [
 { #category : #visiting }
 DRCompilerCompiler >> visitCopy: aDRMove [
 
-	^ self twoOperandCogitRTL: #Move instruction: aDRMove
+	"Do not generate moves of null values"
+	aDRMove operands first isNullValue
+		ifTrue: [ ^ self ].
+	1 haltIf: [ aDRMove result  isPhysicalRegister ].
+	self twoOperandCogitRTL: #Move instruction: aDRMove
 ]
 
 { #category : #visiting }

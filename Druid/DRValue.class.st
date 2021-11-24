@@ -97,6 +97,12 @@ DRValue >> isNoop [
 	^ false
 ]
 
+{ #category : #visiting }
+DRValue >> isNullValue [
+
+	^ false
+]
+
 { #category : #testing }
 DRValue >> isPhiFunction [
 

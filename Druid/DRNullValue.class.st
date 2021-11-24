@@ -24,6 +24,12 @@ DRNullValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 	^ self
 ]
 
+{ #category : #visiting }
+DRNullValue >> isNullValue [
+
+	^ true
+]
+
 { #category : #'control-flow' }
 DRNullValue >> joinNonNull: anotherValue onIRGenerator: anIRGenerator from: originBlocks [
 
