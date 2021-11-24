@@ -47,6 +47,7 @@ Class {
 { #category : #operations }
 DRDeadCodeElimination >> applyTo: cfg [
 
+	self initialize.
 	self markInitialInstructions: cfg.
 	self markInstructions.
 	self sweepInstructions: cfg

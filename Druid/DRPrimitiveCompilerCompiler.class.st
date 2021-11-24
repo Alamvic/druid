@@ -77,6 +77,17 @@ DRPrimitiveCompilerCompiler >> newIRGenerator [
 ]
 
 { #category : #accessing }
+DRPrimitiveCompilerCompiler >> optimize: anIR [
+
+	"TailDuplicate the basic block that makes the success/failure decision"
+	DRCleanControlFlow new applyTo: anIR.
+	(anIR successExitBlock predecessors size = 1)
+		ifTrue: [ anIR successExitBlock predecessors anyOne tailDuplicate ].
+	super optimize: anIR.
+	super optimize: anIR.
+]
+
+{ #category : #accessing }
 DRPrimitiveCompilerCompiler >> primitiveCompilerName [
 
 	^ primitiveCompilerName

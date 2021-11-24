@@ -1,10 +1,6 @@
 Class {
 	#name : #DRPrimitiveIRGenerator,
 	#superclass : #DRIRGenerator,
-	#instVars : [
-		'primitiveExitSuccessBlock',
-		'primitiveExitFailureBlock'
-	],
 	#category : #'Druid-CompilerCompiler'
 }
 
@@ -18,10 +14,10 @@ DRPrimitiveIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 DRPrimitiveIRGenerator >> initialize [
 
 	super initialize.
-	primitiveExitSuccessBlock := controlFlowGraph newBasicBlock.
-	primitiveExitSuccessBlock beExitBlock.
-	primitiveExitFailureBlock := controlFlowGraph newBasicBlock.
-	primitiveExitFailureBlock beExitBlock.
+	controlFlowGraph successExitBlock:controlFlowGraph newBasicBlock.
+	controlFlowGraph successExitBlock beExitBlock.
+	controlFlowGraph failureExitBlock: controlFlowGraph newBasicBlock.
+	controlFlowGraph failureExitBlock beExitBlock.
 ]
 
 { #category : #accessing }
@@ -64,6 +60,12 @@ DRPrimitiveIRGenerator >> newBasicBlock [
 ]
 
 { #category : #accessing }
+DRPrimitiveIRGenerator >> newCFG [
+	
+	^ DRPrimitiveControlFlowGraph new
+]
+
+{ #category : #accessing }
 DRPrimitiveIRGenerator >> numberOfArguments: aValue [ 
 	
 	numberOfArguments := aValue.
@@ -81,10 +83,12 @@ DRPrimitiveIRGenerator >> popFrame [
 	| comparison vm |
 	vm := self currentFrame receiver.
 	super popFrame.
+	
+	"Plug the IR with the two exit blocks"
 	interpretationStack size = 1 ifTrue: [
 		| conditionalJump |
 		self spillStack.
-	
+
 		currentBasicBlock addInstruction: (comparison := self
 			instantiate: DREqualsThanComparison
 			operands: { 
@@ -92,19 +96,20 @@ DRPrimitiveIRGenerator >> popFrame [
 				0 asDRValue }).
 		conditionalJump := self instantiate: DRConditionalJump operands: { comparison }.
 		currentBasicBlock endInstruction: conditionalJump.
+		controlFlowGraph primitiveExitBlock: currentBasicBlock.
 		
-		conditionalJump trueBranch: primitiveExitSuccessBlock.
-		primitiveExitSuccessBlock addPredecessor: currentBasicBlock.
+		conditionalJump trueBranch: controlFlowGraph successExitBlock.
+		controlFlowGraph successExitBlock addPredecessor: currentBasicBlock.
 		
-		conditionalJump falseBranch: primitiveExitFailureBlock.
-		primitiveExitFailureBlock addPredecessor: currentBasicBlock.
+		conditionalJump falseBranch: controlFlowGraph failureExitBlock.
+		controlFlowGraph failureExitBlock addPredecessor: currentBasicBlock.
 		
-		primitiveExitSuccessBlock endInstruction: (self
+		controlFlowGraph successExitBlock endInstruction: (self
 			instantiate: DRReturn
 			operands: { DRConstantValue value: numberOfArguments + 1 "Number of things to pop" }).
 
 		"Make the end instruction of the failure exit finish with a Noop"
-		primitiveExitFailureBlock endInstruction: (self instantiate: DRPrimitiveFail)
+		controlFlowGraph failureExitBlock endInstruction: (self instantiate: DRPrimitiveFail)
 	]
 	
 ]

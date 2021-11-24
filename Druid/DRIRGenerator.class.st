@@ -143,7 +143,7 @@ DRIRGenerator >> initialBasicBlock [
 DRIRGenerator >> initialize [
 
 	super initialize.
-	controlFlowGraph := DRControlFlowGraph new.
+	controlFlowGraph := self newCFG.
 
 	specialCases := Dictionary new.
 	self initializeSpecialCases.
@@ -675,6 +675,12 @@ DRIRGenerator >> newBasicBlockDuring: aFullBlockClosure [
 	inBasicBlock := self newBasicBlock.
 	aFullBlockClosure value.
 	^ inBasicBlock
+]
+
+{ #category : #initialization }
+DRIRGenerator >> newCFG [
+	
+	^ DRControlFlowGraph new
 ]
 
 { #category : #'frame-access' }
