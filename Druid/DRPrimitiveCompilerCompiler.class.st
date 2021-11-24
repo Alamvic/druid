@@ -24,7 +24,13 @@ DRPrimitiveCompilerCompiler >> buildStatementsForCFG: aDRControlFlowGraph [
 	
 	| blocks |
 	generatorMethodBuilder addVariableNamed: 'currentBlock'.
+	
+	"Sort the blocks"
 	blocks := aDRControlFlowGraph reversePostOrderBlocks.
+	"Make sure the failure exit block is at the end, so it works as a fallthrough with the following bytecode"
+	blocks remove: aDRControlFlowGraph failureExitBlock.
+	blocks addLast: aDRControlFlowGraph failureExitBlock.
+	
 	blocks withIndexDo: [ :b :i |
 		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
 		self preProcessBlock: b.
