@@ -26,7 +26,7 @@ DRCompilerCompiler >> buildStatementsForInstruction: anInstruction [
 { #category : #api }
 DRCompilerCompiler >> compile [
 
-
+1halt.
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
@@ -393,7 +393,10 @@ DRCompilerCompiler >> visitReturn: aDRReturn [
 { #category : #visiting }
 DRCompilerCompiler >> visitRightShift: aDRCogitRightShift [ 
 
-	^ self twoOperandCogitRTL: #LogicalShiftRight instruction: aDRCogitRightShift
+	self twoOperandCogitRTL: #Move operands: {
+		aDRCogitRightShift operand1. aDRCogitRightShift result }.
+	^ self twoOperandCogitRTL: #LogicalShiftRight operands: { 
+		aDRCogitRightShift operand2. aDRCogitRightShift result }
 ]
 
 { #category : #visiting }

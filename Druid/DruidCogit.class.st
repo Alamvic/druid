@@ -123,7 +123,8 @@ DruidCogit >> genPrimitiveSubtract [
 	jump2 := self Jump: 0.
 	self MoveR: Arg0Reg R: Extra1Reg.
 	self SubR: ReceiverResultReg R: Extra1Reg.
-	self LogicalShiftRightR: Extra1Reg R: Extra2Reg.
+	self MoveR: Extra1Reg R: Extra2Reg.
+	self LogicalShiftRightCq: 60 R: Extra2Reg.
 	self MoveR: Extra2Reg R: Extra3Reg.
 	self AddCq: 1 R: Extra3Reg.
 	self MoveR: Extra3Reg R: Extra4Reg.
