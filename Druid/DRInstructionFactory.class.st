@@ -33,6 +33,16 @@ DRInstructionFactory >> copy: aValue [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> equals: operand1 to: operand2 [
+	
+	^ DREqualsThanComparison
+		  operands: { 
+				  operand1 asDRValue.
+				  operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> initialize [
 
 	super initialize.
@@ -71,4 +81,12 @@ DRInstructionFactory >> phiWith: value1 with: value2 [
 				   value2 asDRValue })
 		  result: self allocateTemporaryRegister;
 		  yourself
+]
+
+{ #category : #factory }
+DRInstructionFactory >> setReturnValue: aValue [ 
+	
+	^ DRCopy
+		  operands: { aValue asDRValue }
+		  result: (DRPhysicalRegister name: 'ReceiverResultReg')
 ]

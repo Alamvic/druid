@@ -23,6 +23,12 @@ DRCopy >> isMandatoryInstruction [
 	^ false
 ]
 
+{ #category : #testing }
+DRCopy >> isSetReturnValue [
+	
+	^ self result isPhysicalRegister and:  [ self result name = 'ReceiverResultReg' ]
+]
+
 { #category : #printing }
 DRCopy >> opcode [
 	

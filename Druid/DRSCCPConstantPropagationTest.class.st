@@ -54,6 +54,26 @@ DRSCCPConstantPropagationTest >> testPropagateBetweenBasicBlocks [
 ]
 
 { #category : #tests }
+DRSCCPConstantPropagationTest >> testPropagateToAddFixesUsers [
+
+	| cfg copy1 add |
+	cfg := self setUpCFG: 1.
+		
+	cfg b1 addInstruction: (copy1 := instructionFactory copy: 1).
+	
+	"T1 := 1"
+	"T2 := EqualsTo T1 0"
+	cfg b1 addInstruction: (add := instructionFactory equals: copy1 to: 0).
+
+	optimisation applyTo: cfg.
+	"T1 := 1"
+	"T2 := EqualsTo 1 0"
+
+	self assert: copy1 users isEmpty.
+	self deny: (add operands includes: copy1).
+]
+
+{ #category : #tests }
 DRSCCPConstantPropagationTest >> testPropagateToAddOperand [
 
 	| cfg copy1 |

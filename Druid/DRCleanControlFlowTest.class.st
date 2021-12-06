@@ -66,6 +66,7 @@ DRCleanControlFlowTest >> testFoldRedundantBranch [
 	b0 endInstruction: (jump := instructionFactory jumpIf: true asDRValue).
 	jump trueBranch: b1.
 	jump falseBranch: b1.
+	b1 addPredecessor: b0.
 
 	optimisation foldRedundantBranch: b0 endInstruction.
 	

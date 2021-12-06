@@ -26,7 +26,7 @@ DRCompilerCompiler >> buildStatementsForInstruction: anInstruction [
 { #category : #api }
 DRCompilerCompiler >> compile [
 
-1halt.
+
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
@@ -263,7 +263,6 @@ DRCompilerCompiler >> visitCopy: aDRMove [
 	"Do not generate moves of null values"
 	aDRMove operands first isNullValue
 		ifTrue: [ ^ self ].
-	1 haltIf: [ aDRMove result  isPhysicalRegister ].
 	self twoOperandCogitRTL: #Move instruction: aDRMove
 ]
 

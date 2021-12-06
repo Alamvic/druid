@@ -7,9 +7,11 @@ Class {
 { #category : #executing }
 DRCleanControlFlow >> applyTo: aCFG [
 
-	| didChange |
+	| didChange counter |
 	didChange := true.
+	counter := 0.
 	[ didChange ] whileTrue: [
+		counter := counter + 1.
 		didChange := self step: aCFG
 	]
 ]
@@ -85,7 +87,6 @@ DRCleanControlFlow >> removeEmptyBlock: aDRBasicBlock fromCfg: aCFG [
 	"Remove the predecessor from our successor at the end"
 	aDRBasicBlock successor removePredecessor: aDRBasicBlock.
 	aDRBasicBlock basicEndInstruction: DRNoop new.
-	
 	aCFG removeBasicBlock: aDRBasicBlock
 ]
 

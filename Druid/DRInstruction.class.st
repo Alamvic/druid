@@ -27,7 +27,7 @@ DRInstruction >> = anObject [
 
 	self class = anObject class ifTrue: [ 
 		self result = anObject result ifTrue: [
-			self operands =  anObject operands ifTrue: [
+			self operands = anObject operands ifTrue: [
 				^ true. ]]].
 	^ false. 
 ]
@@ -65,6 +65,18 @@ DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode
 ]
 
 { #category : #testing }
+DRInstruction >> hasOperand: anInstruction [
+	
+	^ operands includes: anInstruction
+]
+
+{ #category : #testing }
+DRInstruction >> hasUser: anInstruction [
+	
+	^ users includes: anInstruction
+]
+
+{ #category : #testing }
 DRInstruction >> hash [
 
 	^ self result hash bitXor: self operands hash
@@ -75,7 +87,7 @@ DRInstruction >> initialize [
 
 	super initialize.
 	operands := #().
-	users := OrderedCollection new.
+	users := IdentitySet new.
 ]
 
 { #category : #'as yet unclassified' }
@@ -232,7 +244,8 @@ DRInstruction >> postCopy [
 
 	operands := operands copy.
 	users := users copy.
-	result := basicBlock controlFlowGraph allocateTemporaryRegister.
+	(result notNil and: [ result isPhysicalRegister not ]) ifTrue: [ 
+		result := basicBlock controlFlowGraph allocateTemporaryRegister ].
 	super postCopy.
 ]
 
@@ -265,13 +278,18 @@ DRInstruction >> removeFromCFG [
 { #category : #operands }
 DRInstruction >> removeOperandAt: anInteger [ 
 
+	| removed |
 	operands := operands asOrderedCollection.
-	operands removeAt: anInteger.
+	removed := operands removeAt: anInteger.
+	
+	"It could happen a same instruction has the same operand twice.
+	Then only remove the user relationship if its not in the operands list after removal"
+	(operands includes: removed)
+		ifFalse: [ removed removeUser: self ]
 ]
 
 { #category : #'users-definitions' }
 DRInstruction >> removeUser: anInstruction [
-	
 	users remove: anInstruction
 ]
 
@@ -350,6 +368,15 @@ DRInstruction >> singleChild [
 DRInstruction >> users [
 
 	^ users
+]
+
+{ #category : #validation }
+DRInstruction >> validate [
+	
+	(self operands allSatisfy: [ :op | op hasUser: self ])
+		ifFalse: [ DRError signal: 'Operand-user mismatch in instruction: ', self asString ].
+	(self users allSatisfy: [ :user | user hasOperand: self ])
+		ifFalse: [ DRError signal: 'User-operand mismatch in instruction: ', self asString ].
 ]
 
 { #category : #dependencies }

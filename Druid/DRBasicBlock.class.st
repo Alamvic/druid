@@ -25,6 +25,12 @@ DRBasicBlock class >> id: anInteger [
 		yourself
 ]
 
+{ #category : #building }
+DRBasicBlock >> add: aValue to: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory add: aValue to: anotherValue)
+]
+
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
 
@@ -41,20 +47,22 @@ DRBasicBlock >> addPredecessor: aBasicBlock [
 { #category : #transformations }
 DRBasicBlock >> basicDuplicate [
 	
+	| instructionCopy |
 	^ controlFlowGraph newBasicBlockWith: [ :newBlock | | oldToNew |
 		oldToNew := Dictionary new.
 		self predecessors do: [ :p | 
 			newBlock addPredecessor: p ].
 
 		"Duplicate instructions"
-		self instructions allButLast do: [ :instruction | | instructionCopy |
+		self instructions allButLast do: [ :instruction |
 			oldToNew at: instruction put: (instructionCopy := instruction copy).
 			instructionCopy operands do: [ :e |
 				e addUser: instructionCopy.
 			].
 			newBlock addInstruction: instructionCopy.
 		 ].
-		newBlock endInstruction: self endInstruction copy.
+		oldToNew at: self endInstruction put: (instructionCopy := self endInstruction copy).
+		newBlock endInstruction: instructionCopy.
 		newBlock endInstruction operands do: [ :e |
 				e addUser: newBlock endInstruction.
 		].
@@ -168,6 +176,12 @@ DRBasicBlock >> endInstruction: aDRInstruction [
 		e removePredecessor: self. ].
 
 	self basicEndInstruction: aDRInstruction
+]
+
+{ #category : #building }
+DRBasicBlock >> equals: operand1 to: operand2 [ 
+	
+	^ self addInstruction: (self instructionFactory equals: operand1 to: operand2)
 ]
 
 { #category : #accessing }
@@ -331,6 +345,19 @@ DRBasicBlock >> isExitBlock: anObject [
 ]
 
 { #category : #building }
+DRBasicBlock >> jumpIf: condition to: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [ 
+	
+	aDRBasicBlock addPredecessor: self.
+	aDRBasicBlock2 addPredecessor: self.
+
+	^ endInstruction := DRConditionalJump new
+		operands: { condition };
+		trueBranch: aDRBasicBlock;
+		falseBranch: aDRBasicBlock2;
+		yourself
+]
+
+{ #category : #building }
 DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [ 
 	
 	aDRBasicBlock addPredecessor: self.
@@ -458,10 +485,7 @@ DRBasicBlock >> phiWith: aValue [
 { #category : #building }
 DRBasicBlock >> phiWith: aValue with: aValue2 [
 
-	| phiFunction |
-	phiFunction := self addInstruction: (self instructionFactory phiWith: aValue with: aValue2).
-	self validatePhiFunctions.
-	^ phiFunction
+	^ self addInstruction: (self instructionFactory phiWith: aValue with: aValue2)
 ]
 
 { #category : #accessing }
@@ -558,6 +582,12 @@ DRBasicBlock >> replaceSuccessor: aDRBasicBlock by: aDRBasicBlock2 [
 	endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock2
 ]
 
+{ #category : #building }
+DRBasicBlock >> setReturnValue: anInteger [
+	
+	^ self addInstruction: (self instructionFactory setReturnValue: anInteger)
+]
+
 { #category : #initialization }
 DRBasicBlock >> setUpInitialFailureCode [
 	self shouldBeImplemented.
@@ -595,11 +625,15 @@ DRBasicBlock >> successors [
 { #category : #transformations }
 DRBasicBlock >> tailDuplicate [
 
+	"Duplicate the receiver so there is a different copy of it for each predecessor"
+	
 	"We can only tail duplicate if the instructions do not escape"
-	(self instructions first users allSatisfy: [:e | 
-		e users allSatisfy: [ :user | self instructions includes: user ] ])
-			ifFalse: [ 
-				self error: 'cannot tail duplicate if values escape this block. Otherwise we will break the SSA property' ].
+	"If there is an instruction in this block"
+	(self instructions anySatisfy: [ :e | 
+		"That has a user that is not in this block"
+		e users anySatisfy: [ :user | (self instructions includes: user) not ] ])
+			ifTrue: [ 
+				DRError signal: 'cannot tail duplicate if values escape this block. Otherwise we will break the SSA property' ].
 	
 	self predecessors allButFirst do: [ :predecessorToRewire | | duplicatedBlock |
 		duplicatedBlock := self basicDuplicate.
@@ -643,7 +677,15 @@ DRBasicBlock >> validate [
 
 	self validatePhiFunctions.
 	self validatePredecessors.
-	self validateSuccessors
+	self validateSuccessors.
+	self validateInstructions
+]
+
+{ #category : #validating }
+DRBasicBlock >> validateInstructions [
+
+	self instructionsDo: [ :instruction |
+		instruction validate ]
 ]
 
 { #category : #validating }

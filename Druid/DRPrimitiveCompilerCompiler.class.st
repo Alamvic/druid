@@ -27,9 +27,11 @@ DRPrimitiveCompilerCompiler >> buildStatementsForCFG: aDRControlFlowGraph [
 	
 	"Sort the blocks"
 	blocks := aDRControlFlowGraph reversePostOrderBlocks.
+
 	"Make sure the failure exit block is at the end, so it works as a fallthrough with the following bytecode"
-	blocks remove: aDRControlFlowGraph failureExitBlock.
-	blocks addLast: aDRControlFlowGraph failureExitBlock.
+	(blocks includes: aDRControlFlowGraph failureExitBlock) ifTrue: [
+		blocks remove: aDRControlFlowGraph failureExitBlock.
+		blocks addLast: aDRControlFlowGraph failureExitBlock ].
 	
 	blocks withIndexDo: [ :b :i |
 		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
@@ -86,9 +88,12 @@ DRPrimitiveCompilerCompiler >> newIRGenerator [
 DRPrimitiveCompilerCompiler >> optimize: anIR [
 
 	"TailDuplicate the basic block that makes the success/failure decision"
+	DRDeadBlockElimination new applyTo: anIR.
+	anIR validate.
 	DRCleanControlFlow new applyTo: anIR.
+	anIR validate.
 	(anIR successExitBlock predecessors size = 1)
-		ifTrue: [ anIR successExitBlock predecessors anyOne tailDuplicate ].
+		ifTrue: [ anIR successExitBlock predecessors anyOne tailDuplicate. anIR validate ].
 	super optimize: anIR.
 	super optimize: anIR.
 ]

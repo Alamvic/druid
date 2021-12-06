@@ -43,6 +43,13 @@ DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 		operands: { self }.
 ]
 
+{ #category : #testing }
+DRValue >> hasUser: anInstruction [
+	
+	"For values non-instructions we can say this always holds"
+	^ true
+]
+
 { #category : #accessing }
 DRValue >> isConditionalJump [ 
 

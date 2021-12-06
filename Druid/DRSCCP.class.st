@@ -279,7 +279,7 @@ DRSCCP >> tryReplaceInstructionOperands: i [
 			| lattice |
 			lattice := self latticeValue: operand.
 			(self isConstantLattice: lattice) ifTrue: [ 
-				i operandAt: index put: lattice asDRValue ] ] ]
+				i replaceOperand: (i operands at: index) by: lattice asDRValue ] ] ]
 ]
 
 { #category : #querying }
