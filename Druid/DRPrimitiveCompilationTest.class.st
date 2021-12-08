@@ -75,6 +75,26 @@ DRPrimitiveCompilationTest >> testAddition [
 	self assert: machineSimulator receiverRegisterValue equals: 43
 ]
 
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testAdditionIntrinsecWithNoOverflow [
+
+	self compileDruidPrimitive: #primitiveSumWithOverflow.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 10 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 52)
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testAdditionIntrinsecWithOverflow [
+
+	self compileDruidPrimitive: #primitiveSumWithOverflow.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: memory maxSmallInteger) withArguments: { memory integerObjectOf: 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 99
+]
+
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testAnyMaskFalse [
 

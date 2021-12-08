@@ -26,7 +26,6 @@ DRCompilerCompiler >> buildStatementsForInstruction: anInstruction [
 { #category : #api }
 DRCompilerCompiler >> compile [
 
-1halt.
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
