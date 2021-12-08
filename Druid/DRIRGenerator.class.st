@@ -918,14 +918,14 @@ DRIRGenerator >> visitBlockNode: aRBBlockNode [
 		blockValue := self popOperand.
 	].
 	"At the end, transform the block value into a copy instruction"
-	self
+	blockValue := self
 		addInstructionFrom: aRBBlockNode
 		instructionKind: DRCopy
 		operands: {blockValue}.
 	
 	"The add instruction pushes the instruction to the operand stack.
 	Pop it: at the end of the block execution, nothing should be in the stack"
-	self currentBasicBlock blockValue: self stackTop.
+	self currentBasicBlock blockValue: blockValue
 ]
 
 { #category : #visiting }
