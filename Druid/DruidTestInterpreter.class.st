@@ -229,6 +229,19 @@ DruidTestInterpreter >> primitiveReturnTrue [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveSumWithOverflow [
+
+	<numberOfArguments: 1>
+	
+	| result |
+	result := self
+		sumSmallInteger: (self stackValue: 1)
+		withSmallInteger: (self stackValue: 0)
+		ifOverflow: [ 99 ].
+	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveWithDeadCode [
 
 	<numberOfArguments: 0>
