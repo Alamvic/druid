@@ -9,7 +9,7 @@ DRCopyPropagation >> applyTo: aDRControlFlowGraph [
 	
 	aDRControlFlowGraph instructions copy do: [ :i |
 		((i isCopy or: [ i isPhiFunction and: [ i operands size = 1 ] ])
-			and: [ i operand1 isConstant not ]) ifTrue: [
+			and: [ i operand1 isInstruction ]) ifTrue: [
 				self propagateCopyFrom: i ] ]
 ]
 
