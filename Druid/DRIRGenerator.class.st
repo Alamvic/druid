@@ -684,8 +684,8 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 	self currentBasicBlock addPredecessor: startingBasicBlock.
 	conditionalJump falseBranch: self currentBasicBlock.
 
-	joinInstruction := addResult
-		                   joinValue: overflowBlockOut blockValue
+	joinInstruction := overflowBlockOut blockValue
+		                   joinValue: addResult
 		                   onIRGenerator: self
 								from: { overflowBlockOut . startingBasicBlock }.
 	
