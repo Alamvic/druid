@@ -14,7 +14,7 @@ BaselineOfDruid >> baseline: spec [
 			baseline: 'PharoVM' 
 			with: [ spec
 				className: 'BaselineOfVMMaker';
-				repository: 'github://pharo-project/opensmalltalk-vm:gc-tests' ].
+				repository: 'github://pharo-project/opensmalltalk-vm:druid' ].
       spec package: 'Druid' with: [ spec requires: 'PharoVM' ] ]
 
 ]
