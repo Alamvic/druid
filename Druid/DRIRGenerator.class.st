@@ -178,7 +178,6 @@ DRIRGenerator >> initializeSpecialCases [
 
 	"Type coercions"
 	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
-	specialCases at: #sumInteger:withInteger:ifOverflow: put: #interpretIntegerSumWithOverflowWith:.
 	specialCases at: #sumSmallInteger:withSmallInteger:ifOverflow: put: #interpretSumSmallIntegerWithOverflowWith:.
 
 	"Memory accesses"
