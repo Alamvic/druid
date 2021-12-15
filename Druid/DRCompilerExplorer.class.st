@@ -51,7 +51,7 @@ DRCompilerExplorer >> initialize [
 			initializeWithOptions: {
 				#BytesPerWord. 8.
 				#ObjectMemory. theMemory class name.
-				#bytecodeTableInitializer. #initializeBytecodeTableForSqueakV3PlusClosures}
+				#bytecodeTableInitializer. #initializeBytecodeTableForSistaV1}
 				objectMemoryClass: theMemory class.
 	interpreter := CogVMSimulatorLSB basicNew
 		objectMemory: theMemory;
