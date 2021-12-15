@@ -639,21 +639,21 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and subtract them up"
-	| leftOperand rightOperand subResult startingBasicBlock conditionalJump overflowSuccessor overflowBlockOut joinInstruction resultWithoutTag |
+	| leftOperand rightOperand subResult startingBasicBlock conditionalJump overflowSuccessor overflowBlockOut joinInstruction withoutTag |
 	aRBMessageNode arguments first acceptVisitor: self.
 	leftOperand := self popOperand.
 	aRBMessageNode arguments second acceptVisitor: self.
 	rightOperand := self popOperand.
 	
-	resultWithoutTag := self
+	withoutTag := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRSubtract
-		operands: { leftOperand . rightOperand }.
+		operands: { rightOperand . 1 asDRValue }.
 	
 	subResult := self
 		addInstructionFrom: aRBMessageNode
-		instructionKind: DRAdd
-		operands: { resultWithoutTag . 1 asDRValue }.
+		instructionKind: DRSubtract
+		operands: { leftOperand . withoutTag }.
 
 	startingBasicBlock := self currentBasicBlock.	
 	conditionalJump := self instantiate: DROverflowJump operands: { subResult }.

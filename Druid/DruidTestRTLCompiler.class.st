@@ -428,10 +428,10 @@ DruidTestRTLCompiler >> gen_primitiveSubWithOverflow [
 	| currentBlock jump0 |
 	self MoveR: ReceiverResultReg R: TempReg.
 	self MoveR: Arg0Reg R: ClassReg.
-	self MoveR: TempReg R: SendNumArgsReg.
-	self SubR: ClassReg R: SendNumArgsReg.
-	self MoveR: SendNumArgsReg R: Extra0Reg.
-	self AddCq: 1 R: Extra0Reg.
+	self MoveR: ClassReg R: SendNumArgsReg.
+	self SubCq: 1 R: SendNumArgsReg.
+	self MoveR: TempReg R: Extra0Reg.
+	self SubR: SendNumArgsReg R: Extra0Reg.
 	self MoveR: Extra0Reg R: Extra3Reg.
 	jump0 := self JumpNoOverflow: 0.
 	self MoveCq: 99 R: Extra2Reg.
