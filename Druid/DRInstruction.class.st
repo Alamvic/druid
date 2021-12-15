@@ -325,7 +325,9 @@ DRInstruction >> result: anObject [
 DRInstruction >> sccpEvaluateFor: sccp [
 
 	| previousValue newValue |
-	previousValue := sccp latticeValue: self. 
+	previousValue := sccp latticeValue: self.
+	previousValue = sccp bottom ifTrue: [ ^ self ].
+
 	newValue := self sccpLatticeValueFor: sccp.
 	
 	previousValue = newValue ifFalse: [

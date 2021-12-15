@@ -162,8 +162,10 @@ DRSCCP >> isConstantLattice: aLattice [
 DRSCCP >> latticeValue: aValue [
 
 	"Return the lattice value for the register"
-	(aValue isRegister and: [ aValue isVirtualRegister not ])
-		ifTrue: [ ^ self bottom ].
+	(aValue result notNil
+		and: [aValue result isRegister
+			and: [ aValue result isVirtualRegister not ]])
+				ifTrue: [ ^ self bottom ].
 	aValue isInstruction ifFalse: [ ^ aValue ].
 
 	^ latticeValues at: aValue result ifAbsent: [ self top ]
@@ -187,8 +189,6 @@ DRSCCP >> setValueOf: anInstruction at: aValue [
 	"Set the new lattice value associated with the instruction.
 	Invalidate all its usages so they are recomputed"
 	latticeValues at: anInstruction result put: aValue.
-	self haltIf: [((self usesOf: anInstruction)
-		anySatisfy: [ :i | i result = 35 ])].
 	ssaWorkList addAll: (self usesOf: anInstruction)
 ]
 

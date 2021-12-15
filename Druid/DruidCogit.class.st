@@ -64,27 +64,29 @@ DruidCogit >> genPrimitiveLessThan [
 	self MoveR: TempReg R: ClassReg.
 	self AndR: Arg0Reg R: ClassReg.
 	self TstCq: 1 R: ClassReg.
-	self MoveR: ReceiverResultReg R: Extra3Reg.
+	self MoveR: Arg0Reg R: Extra3Reg.
+	self MoveR: ReceiverResultReg R: Extra4Reg.
 	jump0 := self JumpZero: 0.
 	self CmpR: TempReg R: Arg0Reg.
 	jump1 := self JumpLess: 0.
 	jump2 := self JumpGreaterOrEqual: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
-	self MoveR: Extra3Reg R: ReceiverResultReg.
+	self MoveR: Extra3Reg R: Arg0Reg.
+	self MoveR: Extra4Reg R: ReceiverResultReg.
 	jump3 := self Jump: 0.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self MoveCw: objectMemory trueObject R: Extra4Reg.
-	self MoveR: Extra4Reg R: Extra0Reg.
+	self MoveCw: objectMemory trueObject R: ClassReg.
+	self MoveR: ClassReg R: TempReg.
 	jump4 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveCw: objectMemory falseObject R: ClassReg.
-	self MoveR: ClassReg R: Extra0Reg.
+	self MoveCw: objectMemory falseObject R: Extra0Reg.
+	self MoveR: Extra0Reg R: TempReg.
 	currentBlock := self Label.
 	jump4 jmpTarget: currentBlock.
-	self MoveR: Extra0Reg R: ReceiverResultReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
