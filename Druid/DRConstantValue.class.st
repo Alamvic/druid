@@ -25,6 +25,13 @@ DRConstantValue >> = anObject [
 ]
 
 { #category : #'rtl-translation' }
+DRConstantValue >> cogitFalseConditionCode [
+	
+	"Jump false if the constant is a zero"
+	^ #JumpNonZero:
+]
+
+{ #category : #'rtl-translation' }
 DRConstantValue >> cogitTrueConditionCode [
 	
 	"Jump false if the constant is a zero"

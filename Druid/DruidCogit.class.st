@@ -57,6 +57,41 @@ DruidCogit >> genPrimitiveAdd [
 ]
 
 { #category : #generated }
+DruidCogit >> genPrimitiveLessThan [
+
+	| currentBlock jump0 jump1 jump2 jump3 jump4 |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveR: TempReg R: ClassReg.
+	self AndR: Arg0Reg R: ClassReg.
+	self TstCq: 1 R: ClassReg.
+	self MoveR: ReceiverResultReg R: Extra3Reg.
+	jump0 := self JumpZero: 0.
+	self CmpR: TempReg R: Arg0Reg.
+	jump1 := self JumpLess: 0.
+	jump2 := self JumpGreaterOrEqual: 0.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveR: Extra3Reg R: ReceiverResultReg.
+	jump3 := self Jump: 0.
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
+	self MoveCw: objectMemory trueObject R: Extra4Reg.
+	self MoveR: Extra4Reg R: Extra0Reg.
+	jump4 := self Jump: 0.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveCw: objectMemory falseObject R: ClassReg.
+	self MoveR: ClassReg R: Extra0Reg.
+	currentBlock := self Label.
+	jump4 jmpTarget: currentBlock.
+	self MoveR: Extra0Reg R: ReceiverResultReg.
+	self RetN: 2 * objectMemory wordSize.
+	currentBlock := self Label.
+	jump3 jmpTarget: currentBlock.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidCogit >> genPrimitiveSubtract [
 
 	| currentBlock jump0 jump1 jump2 jump3 jump4 jump5 jump6 |

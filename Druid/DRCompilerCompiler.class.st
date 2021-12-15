@@ -243,8 +243,9 @@ DRCompilerCompiler >> visitComparison: aComparison [
 { #category : #visiting }
 DRCompilerCompiler >> visitConditionalJump: aDRConditionalJump [ 
 
-	"Fall-through true branch, jump to false branch"
-	self jumpForwardCogRTL: aDRConditionalJump condition singleChild cogitTrueConditionCode instruction: aDRConditionalJump
+	"Generate both jumps, the fallthorugh will get ignored"
+	self generateJump: aDRConditionalJump condition singleChild cogitTrueConditionCode target: aDRConditionalJump falseBranch.
+	self generateJump: aDRConditionalJump condition singleChild cogitFalseConditionCode target: aDRConditionalJump trueBranch
 ]
 
 { #category : #visiting }
@@ -362,6 +363,7 @@ DRCompilerCompiler >> visitOr: aDROr [
 { #category : #visiting }
 DRCompilerCompiler >> visitOverflowJump: aDROverflowJump [ 
 	
+	"Generate both jumps, the fallthorugh will get ignored"
 	self generateJump: #JumpOverflow: target: aDROverflowJump trueBranch.
 	self generateJump: #JumpNoOverflow: target: aDROverflowJump falseBranch.
 ]
