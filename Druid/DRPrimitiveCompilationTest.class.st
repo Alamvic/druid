@@ -563,3 +563,23 @@ DRPrimitiveCompilationTest >> testSubstraction [
 	
 	self assert: machineSimulator receiverRegisterValue equals: 41
 ]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testSubtractionIntrinsecWithNoOverflow [
+
+	self compileDruidPrimitive: #primitiveSubWithOverflow.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 10 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 32)
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testSubtractionIntrinsecWithOverflow [
+
+	self compileDruidPrimitive: #primitiveSubWithOverflow.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: memory minSmallInteger) withArguments: { memory integerObjectOf: 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 99
+]

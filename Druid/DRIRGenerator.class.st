@@ -179,6 +179,7 @@ DRIRGenerator >> initializeSpecialCases [
 	"Type coercions"
 	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
 	specialCases at: #sumSmallInteger:withSmallInteger:ifOverflow: put: #interpretSumSmallIntegerWithOverflowWith:.
+	specialCases at: #subSmallInteger:withSmallInteger:ifOverflow: put: #interpretSubSmallIntegerWithOverflowWith:.
 
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
@@ -632,6 +633,60 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 	value operand1 value isInteger ifFalse: [ self error: 'expected an integer value' ].
 	
 	^ self addInstructionFrom: aRBMessageNode instructionKind: DRCopy operands: { self argRegisterNumber: value operand1 value }
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
+
+	"Interpret the two numbers and subtract them up"
+	| leftOperand rightOperand subResult startingBasicBlock conditionalJump overflowSuccessor overflowBlockOut joinInstruction resultWithoutTag |
+	aRBMessageNode arguments first acceptVisitor: self.
+	leftOperand := self popOperand.
+	aRBMessageNode arguments second acceptVisitor: self.
+	rightOperand := self popOperand.
+	
+	resultWithoutTag := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRSubtract
+		operands: { leftOperand . rightOperand }.
+	
+	subResult := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRAdd
+		operands: { resultWithoutTag . 1 asDRValue }.
+
+	startingBasicBlock := self currentBasicBlock.	
+	conditionalJump := self instantiate: DROverflowJump operands: { subResult }.
+	self currentBasicBlock endInstruction: conditionalJump.
+
+	overflowSuccessor := self newBasicBlockDuring: [ 
+			 aRBMessageNode arguments third acceptVisitor: self ].
+	conditionalJump trueBranch: overflowSuccessor.
+	overflowSuccessor addPredecessor: startingBasicBlock.
+	overflowBlockOut := self currentBasicBlock.
+
+	"Merge point"
+	self newBasicBlock.
+	
+	"Could happen that the evaluated block had a non local return.
+	In that case, this block should not arrive to this merge point
+		=> do not add the jump"
+	overflowSuccessor hasFinalInstruction ifFalse: [
+		overflowSuccessor jumpTo: self currentBasicBlock.
+	].
+	
+	self currentBasicBlock addPredecessor: startingBasicBlock.
+	conditionalJump falseBranch: self currentBasicBlock.
+
+	joinInstruction := overflowBlockOut blockValue
+		                   joinValue: subResult
+		                   onIRGenerator: self
+								from: { overflowBlockOut . startingBasicBlock }.
+	
+	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
+	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+	self pushOperand: joinInstruction
 ]
 
 { #category : #'special-cases' }

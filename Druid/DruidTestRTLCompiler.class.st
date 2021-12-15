@@ -423,6 +423,27 @@ DruidTestRTLCompiler >> gen_primitiveSmallThan [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveSubWithOverflow [
+
+	| currentBlock jump0 |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveR: Arg0Reg R: ClassReg.
+	self MoveR: TempReg R: SendNumArgsReg.
+	self SubR: ClassReg R: SendNumArgsReg.
+	self MoveR: SendNumArgsReg R: Extra0Reg.
+	self AddCq: 1 R: Extra0Reg.
+	self MoveR: Extra0Reg R: Extra3Reg.
+	jump0 := self JumpNoOverflow: 0.
+	self MoveCq: 99 R: Extra2Reg.
+	self MoveR: Extra2Reg R: Extra3Reg.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveR: Extra3Reg R: ReceiverResultReg.
+	self RetN: 2 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveSumWithOverflow [
 
 	| currentBlock jump0 |
