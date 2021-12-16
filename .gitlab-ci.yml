@@ -1,0 +1,4 @@
+image: hpiswa/smalltalkci
+
+Pharo64Alpha:
+  script: smalltalkci -s "Pharo64-alpha"
