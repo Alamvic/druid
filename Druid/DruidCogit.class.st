@@ -57,6 +57,80 @@ DruidCogit >> genPrimitiveAdd [
 ]
 
 { #category : #generated }
+DruidCogit >> genPrimitiveGreaterOrEqual [
+
+	| currentBlock jump0 jump1 jump2 jump3 jump4 |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveR: TempReg R: ClassReg.
+	self AndR: Arg0Reg R: ClassReg.
+	self TstCq: 1 R: ClassReg.
+	self MoveR: Arg0Reg R: Extra3Reg.
+	self MoveR: ReceiverResultReg R: Extra4Reg.
+	jump0 := self JumpZero: 0.
+	self CmpR: Arg0Reg R: TempReg.
+	jump1 := self JumpGreaterOrEqual: 0.
+	jump2 := self JumpLess: 0.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveR: Extra3Reg R: Arg0Reg.
+	self MoveR: Extra4Reg R: ReceiverResultReg.
+	jump3 := self Jump: 0.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveCw: objectMemory trueObject R: ClassReg.
+	self MoveR: ClassReg R: TempReg.
+	jump4 := self Jump: 0.
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
+	self MoveCw: objectMemory falseObject R: Extra0Reg.
+	self MoveR: Extra0Reg R: TempReg.
+	currentBlock := self Label.
+	jump4 jmpTarget: currentBlock.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self RetN: 2 * objectMemory wordSize.
+	currentBlock := self Label.
+	jump3 jmpTarget: currentBlock.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidCogit >> genPrimitiveGreaterThan [
+
+	| currentBlock jump0 jump1 jump2 jump3 jump4 |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveR: TempReg R: ClassReg.
+	self AndR: Arg0Reg R: ClassReg.
+	self TstCq: 1 R: ClassReg.
+	self MoveR: Arg0Reg R: Extra3Reg.
+	self MoveR: ReceiverResultReg R: Extra4Reg.
+	jump0 := self JumpZero: 0.
+	self CmpR: Arg0Reg R: TempReg.
+	jump1 := self JumpGreater: 0.
+	jump2 := self JumpLessOrEqual: 0.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveR: Extra3Reg R: Arg0Reg.
+	self MoveR: Extra4Reg R: ReceiverResultReg.
+	jump3 := self Jump: 0.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveCw: objectMemory trueObject R: ClassReg.
+	self MoveR: ClassReg R: TempReg.
+	jump4 := self Jump: 0.
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
+	self MoveCw: objectMemory falseObject R: SendNumArgsReg.
+	self MoveR: SendNumArgsReg R: TempReg.
+	currentBlock := self Label.
+	jump4 jmpTarget: currentBlock.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self RetN: 2 * objectMemory wordSize.
+	currentBlock := self Label.
+	jump3 jmpTarget: currentBlock.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidCogit >> genPrimitiveLessOrEqual [
 
 	| currentBlock jump0 jump1 jump2 jump3 jump4 |
