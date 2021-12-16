@@ -265,8 +265,10 @@ DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 	replacement := DRCopy
 		               operands: { lattice asDRValue }
 		               result: i result.
-	i basicBlock replaceInstruction: i by: replacement.
 	
+	"We tell the lattice values that the new instruction has the same vlue as the old one"
+	latticeValues at: replacement put: (latticeValues at: i).
+	i replaceBy: replacement.
 ]
 
 { #category : #executing }
