@@ -12,7 +12,7 @@ DRLinearizationTest >> testBranchingControlFlow [
 	| b1 b2 b3 cfg b4 |
 	cfg := DRControlFlowGraph new.
 	cfg newBasicBlock.
-	b1 := cfg newBasicBlock.
+	b1 := cfg initialBasicBlock.
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
@@ -23,9 +23,6 @@ DRLinearizationTest >> testBranchingControlFlow [
 	b2 jumpTo: b4.
 	b3 jumpTo: b4.
 	b4 endInstruction: DRReturn new.
-	
-	cfg := DRControlFlowGraph new
-		initialBasicBlock: b1.
 		
 	self assert: cfg reversePostOrderBlocks asArray equals: { b1 . b2 . b3 . b4 }
 ]
@@ -50,8 +47,8 @@ DRLinearizationTest >> testBranchingControlFlowHasCorrectStructure [
 	b3 jumpTo: b4.
 	b4 endInstruction: DRReturn new.
 	
-	cfg := DRControlFlowGraph new
-		initialBasicBlock: b1.
+	cfg := DRControlFlowGraph new.
+	cfg initialBasicBlock jumpTo: b1.
 	
 	"Smoke test. Should fail with an exception if the basic block structure is wrong (successors do not match predecessors)"
 	cfg validate
@@ -64,11 +61,11 @@ DRLinearizationTest >> testBranchingControlFlowWithUnevenBranches [
 	
 	| b1 b2 b3 cfg b4 |
 	cfg := DRControlFlowGraph new.
-	b1 := cfg newBasicBlock.
+	b1 := cfg initialBasicBlock.
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
-	
+		
 	b1
 		jumpIfTrueTo: b2
 		ifFalseTo: b4.
@@ -105,50 +102,37 @@ DRLinearizationTest >> testBranchingControlFlowWithUnevenBranchesHasCorrectStruc
 { #category : #'tests-building' }
 DRLinearizationTest >> testBuildCFGHasAllBlocks [
 
-	| method irGenerator cfg |
-	method := interpreter class lookupSelector: #primitiveWithIfAssigningValue.
-
-	irGenerator :=  DRPrimitiveIRGenerator new.
-	irGenerator
-		newBasicBlock;
-		numberOfArguments: 0;
-		interpretMethod: method ast
-		receiver: (DRInterpreterValue value: interpreter).
-	cfg := irGenerator ir.
-	
-	self assert: cfg reversePostOrderBlocks size equals: 8
-]
-
-{ #category : #'tests-building' }
-DRLinearizationTest >> testBuildCFGHasAllBlocksWhenEarlyMethodReturns [
-
-	| method irGenerator cfg |
-	method := interpreter class lookupSelector: #primitiveCallingMethodWithEarlyReturn.
-
-	irGenerator :=  DRPrimitiveIRGenerator new.
-	irGenerator
-		newBasicBlock;
-		numberOfArguments: 0;
-		interpretMethod: method ast
-		receiver: (DRInterpreterValue value: interpreter).
-	cfg := irGenerator ir.
+	| cfg |
+	cfg := DRPrimitiveCompilerCompiler new
+		primitiveName: #primitiveWithIfAssigningValue;
+		interpreter: interpreter;
+		generateDruidIR.
 	
 	self assert: cfg reversePostOrderBlocks size equals: 10
 ]
 
 { #category : #'tests-building' }
+DRLinearizationTest >> testBuildCFGHasAllBlocksWhenEarlyMethodReturns [
+
+	| cfg |
+
+	cfg := DRPrimitiveCompilerCompiler new
+		primitiveName: #primitiveCallingMethodWithEarlyReturn;
+		interpreter: interpreter;
+		generateDruidIR.
+	
+	self assert: cfg reversePostOrderBlocks size equals: 12
+]
+
+{ #category : #'tests-building' }
 DRLinearizationTest >> testBuildCFGHasAllBlocksWithTwoNonLocalReturns [
 
-	| method irGenerator cfg |
-	method := interpreter class lookupSelector: #primitiveCallingMethodWithTwoEarlyReturns.
-
-	irGenerator :=  DRPrimitiveIRGenerator new.
-	irGenerator
-		newBasicBlock;
-		numberOfArguments: 0;
-		interpretMethod: method ast
-		receiver: (DRInterpreterValue value: interpreter).
-	cfg := irGenerator ir.
+	| cfg |
+	
+	cfg := DRPrimitiveCompilerCompiler new
+		primitiveName: #primitiveCallingMethodWithTwoEarlyReturns;
+		interpreter: interpreter;
+		generateDruidIR.
 	
 	self assert: cfg reversePostOrderBlocks size equals: 10
 ]
@@ -156,17 +140,11 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWithTwoNonLocalReturns [
 { #category : #'tests-building' }
 DRLinearizationTest >> testBuildCFGHasCorrectStructure [
 
-	| method irGenerator cfg |
-	method := interpreter class lookupSelector: #primitiveWithIfAssigningValue.
-
-	irGenerator :=  DRPrimitiveIRGenerator new.
-	irGenerator
-		newBasicBlock;
-		numberOfArguments: 0;
-		interpretMethod: method ast
-		receiver: (DRInterpreterValue value: interpreter).
-	cfg := irGenerator ir.
-	
+	| cfg |
+	cfg := DRPrimitiveCompilerCompiler new
+		primitiveName: #primitiveWithIfAssigningValue;
+		interpreter: interpreter;
+		generateDruidIR.
 
 	"Smoke test. Should fail with an exception if the basic block structure is wrong (successors do not match predecessors)"
 	cfg validate
@@ -175,16 +153,11 @@ DRLinearizationTest >> testBuildCFGHasCorrectStructure [
 { #category : #'tests-building' }
 DRLinearizationTest >> testBuildCFGHasCorrectStructureWhenEarlyMethodReturns [
 
-	| method irGenerator cfg |
-	method := interpreter class lookupSelector: #primitiveCallingMethodWithEarlyReturn.
-
-	irGenerator :=  DRPrimitiveIRGenerator new.
-	irGenerator
-		newBasicBlock;
-		numberOfArguments: 0;
-		interpretMethod: method ast
-		receiver: (DRInterpreterValue value: interpreter).
-	cfg := irGenerator ir.
+	| cfg |
+	cfg := DRPrimitiveCompilerCompiler new
+		primitiveName: #primitiveCallingMethodWithEarlyReturn;
+		interpreter: interpreter;
+		generateDruidIR.
 	
 	"Smoke test. Should fail with an exception if the basic block structure is wrong (successors do not match predecessors)"
 	cfg validate
@@ -197,7 +170,7 @@ DRLinearizationTest >> testLinearControlFlow [
 	
 	| b1 b2 b3 cfg |
 	cfg := DRControlFlowGraph new.
-	b1 := cfg newBasicBlock.
+	b1 := cfg initialBasicBlock.
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	
