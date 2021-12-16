@@ -70,6 +70,29 @@ DRPrimitiveCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 	^ generatorMethodBuilder methodNode
 ]
 
+{ #category : #accessing }
+DRPrimitiveCompilerCompiler >> initialize [
+
+	super initialize.
+	
+	optimisations := OrderedCollection new.
+	optimisations add: DRDeadBlockElimination new.
+	optimisations add: DRCleanControlFlow new.
+	
+	"Basic set of optimizations twice for primitives"
+	optimisations add: DRFailureCodeBasedTailDuplication new.
+	optimisations add: DRSCCP new.
+	optimisations add: DRCopyPropagation new.
+	optimisations add: DRDeadCodeElimination new.
+	optimisations add: DRCleanControlFlow new.
+	
+	optimisations add: DRFailureCodeBasedTailDuplication new.
+	optimisations add: DRSCCP new.
+	optimisations add: DRCopyPropagation new.
+	optimisations add: DRDeadCodeElimination new.
+	optimisations add: DRCleanControlFlow new.
+]
+
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> jumpForwardCogRTL: jumpKind instruction: aConditionalInstruction [
 
@@ -82,20 +105,6 @@ DRPrimitiveCompilerCompiler >> jumpForwardCogRTL: jumpKind instruction: aConditi
 DRPrimitiveCompilerCompiler >> newIRGenerator [
 
 	^ DRPrimitiveIRGenerator new
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilerCompiler >> optimize: anIR [
-
-	"TailDuplicate the basic block that makes the success/failure decision"
-	DRDeadBlockElimination new applyTo: anIR.
-	anIR validate.
-	DRCleanControlFlow new applyTo: anIR.
-	anIR validate.
-	(anIR successExitBlock predecessors size = 1)
-		ifTrue: [ anIR successExitBlock predecessors anyOne tailDuplicate. anIR validate ].
-	super optimize: anIR.
-	super optimize: anIR.
 ]
 
 { #category : #accessing }

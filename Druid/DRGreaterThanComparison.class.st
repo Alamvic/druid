@@ -11,6 +11,15 @@ DRGreaterThanComparison >> acceptVisitor: aVisitor [
 ]
 
 { #category : #visiting }
+DRGreaterThanComparison >> cogitFalseConditionCode [
+	
+	"Return the condition code used to jump if this condition is false.
+	Since we are checking greaterOrEquals, the we should return lessThan"
+	
+	^ #JumpLessOrEqual:
+]
+
+{ #category : #visiting }
 DRGreaterThanComparison >> cogitTrueConditionCode [
 	
 	"Return the condition code used to jump if this condition is false.

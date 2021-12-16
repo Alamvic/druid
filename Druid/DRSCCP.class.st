@@ -72,7 +72,8 @@ DRSCCP >> applyPropagationToInstruction: i [
 	"Replace the operands of instructions by their propagated values on non phi functions"
 	self tryReplaceInstructionOperands: i.
 	self tryReplaceConditionalJump: i.
-	self tryReplaceInstructionByFoldedValue: i
+	self tryReplaceInstructionByFoldedValue: i.
+
 ]
 
 { #category : #executing }
@@ -110,7 +111,6 @@ DRSCCP >> buildEdges: cfg [
 			edge source: currentBlock. 
 			edge destination: s. 
 			list add: edge.
-			self haltIf: [ s isNil ].
 			workList add: s]].
 	
 	^ list
@@ -132,7 +132,8 @@ DRSCCP >> executedEdgesEntering: aBlock [
 DRSCCP >> initialize [
 
 	super initialize.
-	latticeValues := Dictionary new.
+	"Identify instructions by their identity to support modifying them"
+	latticeValues := IdentityDictionary new.
 	ssaWorkList := OrderedCollection new.
 	cfgEdgeWorkList := OrderedCollection new.
 ]
@@ -166,7 +167,7 @@ DRSCCP >> latticeValue: aValue [
 		ifTrue: [ ^ self bottom ].
 	aValue isInstruction ifFalse: [ ^ aValue ].
 
-	^ latticeValues at: aValue result ifAbsent: [ self top ]
+	^ latticeValues at: aValue ifAbsent: [ self top ]
 ]
 
 { #category : #executing }
@@ -186,9 +187,7 @@ DRSCCP >> setValueOf: anInstruction at: aValue [
 
 	"Set the new lattice value associated with the instruction.
 	Invalidate all its usages so they are recomputed"
-	latticeValues at: anInstruction result put: aValue.
-	self haltIf: [((self usesOf: anInstruction)
-		anySatisfy: [ :i | i result = 35 ])].
+	latticeValues at: anInstruction put: aValue.
 	ssaWorkList addAll: (self usesOf: anInstruction)
 ]
 
@@ -266,9 +265,10 @@ DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 	replacement := DRCopy
 		               operands: { lattice asDRValue }
 		               result: i result.
-	i users copy do: [ :e | e replaceOperand: i by: replacement ].
-	i basicBlock replaceInstruction: i by: replacement.
 	
+	"We tell the lattice values that the new instruction has the same vlue as the old one"
+	latticeValues at: replacement put: (latticeValues at: i).
+	i replaceBy: replacement.
 ]
 
 { #category : #executing }
