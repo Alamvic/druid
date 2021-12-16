@@ -229,14 +229,19 @@ DRCompilerCompiler >> visitBitShift: aDRCogitBitShift [
 { #category : #visiting }
 DRCompilerCompiler >> visitComparison: aComparison [ 
 	
-	"Cogit RTL only supports constants as the first argument.
-	Invert them  (and the condition if necessary, mostly for greaterThan comparisons)."
 	| comparands |
-	comparands := aComparison operands.
-	aComparison operands second isConstant
-		ifTrue: [
-			aComparison replaceBy: aComparison reversed.
-			comparands := comparands reversed ].
+	"Generate comparison instruction. In cogit, if you want to do A < B, you have to generate:
+	CMP B A
+	JumpLessThan xxx
+	Thus, operands are inverted always"
+	comparands := aComparison operands reversed.
+	
+	"Cogit RTL only supports constants as the first argument.
+	Invert the comparison and the condition if necessary, mostly for greaterThan comparisons)."
+	comparands second isConstant ifTrue: [
+		aComparison replaceBy: aComparison reversed.
+		comparands := comparands reversed ].
+
 	self twoOperandCogitRTL: #Cmp operands: comparands
 ]
 
@@ -244,8 +249,8 @@ DRCompilerCompiler >> visitComparison: aComparison [
 DRCompilerCompiler >> visitConditionalJump: aDRConditionalJump [ 
 
 	"Generate both jumps, the fallthorugh will get ignored"
-	self generateJump: aDRConditionalJump condition singleChild cogitTrueConditionCode target: aDRConditionalJump falseBranch.
-	self generateJump: aDRConditionalJump condition singleChild cogitFalseConditionCode target: aDRConditionalJump trueBranch
+	self generateJump: aDRConditionalJump condition singleChild cogitTrueConditionCode target: aDRConditionalJump trueBranch.
+	self generateJump: aDRConditionalJump condition singleChild cogitFalseConditionCode target: aDRConditionalJump falseBranch
 ]
 
 { #category : #visiting }
