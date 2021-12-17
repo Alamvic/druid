@@ -205,6 +205,19 @@ DruidTestInterpreter >> primitiveLessThanInverted [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveMultiplyWithOverflow [
+
+	<numberOfArguments: 1>
+	
+	| result |
+	result := self
+		multiplySmallInteger: (self stackValue: 1)
+		withSmallInteger: (self stackValue: 0)
+		ifOverflow: [ 99 ].
+	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveReturnOne [
 
 	<numberOfArguments: 0>

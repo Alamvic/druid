@@ -12,8 +12,8 @@ DRPrimitiveCompilationTest class >> testParameters [
 
 	"IA32 disabled because the current compiler puts a lot of pressure on register allocation"
 	^ ParametrizedTestMatrix new
-		addCase: { #ISA -> #'X64'. #wordSize -> 8};
 		addCase: { #ISA -> #'aarch64'. #wordSize -> 8};
+		addCase: { #ISA -> #'X64'. #wordSize -> 8};
 		addCase: { #ISA -> #'ARMv5'. #wordSize -> 4};
 		yourself
 ]
@@ -384,6 +384,26 @@ DRPrimitiveCompilationTest >> testIsIntegerObjectWithNonIntegerObject [
 	self executePrimitiveWithReceiver: 0 "No tag".
 	
 	self assert: machineSimulator receiverRegisterValue equals: memory falseObject
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testMultiplicationIntrinsecWithNoOverflow [
+
+	self compileDruidPrimitive: #primitiveMultiplyWithOverflow.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 10 }.
+		
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 420)
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testMultiplicationIntrinsecWithOverflow [
+
+	self compileDruidPrimitive: #primitiveMultiplyWithOverflow.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: memory maxSmallInteger) withArguments: { memory integerObjectOf: 2 }.
+
+	self assert: machineSimulator receiverRegisterValue equals: 99
 ]
 
 { #category : #'tests-comparisons' }

@@ -342,6 +342,34 @@ DruidTestRTLCompiler >> gen_primitiveLessThanThanInverted [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveMultiplyWithOverflow [
+
+	| currentBlock jump0 jump1 |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveR: Arg0Reg R: ClassReg.
+	self MoveR: TempReg R: SendNumArgsReg.
+	self LogicalShiftRightCq: 3 R: SendNumArgsReg.
+	self MoveR: ClassReg R: Extra0Reg.
+	self SubCq: 1 R: Extra0Reg.
+	self MoveR: SendNumArgsReg R: Extra1Reg.
+	self MulR: Extra0Reg R: Extra1Reg.
+	jump0 := self JumpNoOverflow: 0.
+	self MoveCq: 99 R: Extra3Reg.
+	self MoveR: Extra3Reg R: TempReg.
+	jump1 := self Jump: 0.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveR: Extra1Reg R: Extra4Reg.
+	self AddCq: 1 R: Extra4Reg.
+	self MoveR: Extra4Reg R: TempReg.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self RetN: 2 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveReturnOne [
 
 	| currentBlock |

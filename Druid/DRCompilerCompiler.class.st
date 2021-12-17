@@ -317,8 +317,12 @@ DRCompilerCompiler >> visitLoad: aDRCogitLoad [
 
 { #category : #visiting }
 DRCompilerCompiler >> visitMultiply: aDRCogitMultiply [ 
-	
-	^ self twoOperandCogitRTL: #Mul instruction: aDRCogitMultiply
+
+	"TODO: threeOperandCogitRTL"
+	self twoOperandCogitRTL: #Move operands: {
+		aDRCogitMultiply operand1. aDRCogitMultiply result }.
+	^ self twoOperandCogitRTL: #Mul operands: { 
+		aDRCogitMultiply operand2. aDRCogitMultiply result }
 ]
 
 { #category : #visiting }
