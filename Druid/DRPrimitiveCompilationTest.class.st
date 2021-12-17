@@ -66,16 +66,6 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 ]
 
 { #category : #'tests-arithmetic' }
-DRPrimitiveCompilationTest >> testAddition [
-
-	self compileDruidPrimitive: #primitiveIncrement.
-
-	self executePrimitiveWithReceiver: 42.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 43
-]
-
-{ #category : #'tests-arithmetic' }
 DRPrimitiveCompilationTest >> testAdditionIntrinsecWithNoOverflow [
 
 	self compileDruidPrimitive: #primitiveSumWithOverflow.
@@ -292,6 +282,16 @@ DRPrimitiveCompilationTest >> testCompiledPrimitivePreservesStack [
 	self assert: self popAddress equals: 55
 ]
 
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testDecrement [
+
+	self compileDruidPrimitive: #primitiveDecrement.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 41
+]
+
 { #category : #'tests-failing-primitive' }
 DRPrimitiveCompilationTest >> testFailingPrimitive2ExecutesUntilStop [
 
@@ -366,6 +366,16 @@ DRPrimitiveCompilationTest >> testGreaterThanInverted [
 	self executePrimitiveWithReceiver: 2.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testIncrement [
+
+	self compileDruidPrimitive: #primitiveIncrement.
+
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 43
 ]
 
 { #category : #'tests-builtins' }
@@ -572,16 +582,6 @@ DRPrimitiveCompilationTest >> testSmallerThanInverted [
 	self executePrimitiveWithReceiver: 20.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 5
-]
-
-{ #category : #'tests-arithmetic' }
-DRPrimitiveCompilationTest >> testSubstraction [
-
-	self compileDruidPrimitive: #primitiveDecrement.
-	
-	self executePrimitiveWithReceiver: 42.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 41
 ]
 
 { #category : #'tests-arithmetic' }
