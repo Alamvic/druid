@@ -1,6 +1,8 @@
 image: hpiswa/smalltalkci
 
 Pharo64Alpha:
+  before_script:
+    - apt install wget
   script:
       - wget https://files.pharo.org/vm/pharo-spur64/Linux-x86_64/third-party/libllvm-full.zip
       - unzip libllvm-full.zip
