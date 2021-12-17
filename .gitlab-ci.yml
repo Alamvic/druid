@@ -5,5 +5,7 @@ Pharo64Alpha:
     - apt install wget
   script:
       - wget https://files.pharo.org/vm/pharo-spur64/Linux-x86_64/third-party/libllvm-full.zip
+      - wget https://files.pharo.org/vm/pharo-spur64/Linux-x86_64/third-party/libunicorn.zip
       - unzip libllvm-full.zip
+      - unzip libunicorn.zip
       - smalltalkci -s "Pharo64-alpha"
