@@ -8,4 +8,5 @@ Pharo64Alpha:
       - wget https://files.pharo.org/vm/pharo-spur64/Linux-x86_64/third-party/libunicorn.zip
       - unzip libllvm-full.zip
       - unzip libunicorn.zip
+      - mv libunicorn.so.1 libunicorn.so
       - smalltalkci -s "Pharo64-alpha"
