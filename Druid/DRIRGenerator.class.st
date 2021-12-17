@@ -588,7 +588,7 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 		operands: { shiftedLeftOperand . withoutTagRightOperand }.
 
 	startingBasicBlock := self currentBasicBlock.	
-	conditionalJump := self instantiate: DROverflowJump operands: { mulResult }.
+	conditionalJump := self instantiate: DRMultiplyOverflowJump operands: { mulResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	overflowSuccessor := self newBasicBlockDuring: [ 

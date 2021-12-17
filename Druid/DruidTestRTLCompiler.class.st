@@ -353,7 +353,7 @@ DruidTestRTLCompiler >> gen_primitiveMultiplyWithOverflow [
 	self SubCq: 1 R: Extra0Reg.
 	self MoveR: SendNumArgsReg R: Extra1Reg.
 	self MulR: Extra0Reg R: Extra1Reg.
-	jump0 := self JumpNoOverflow: 0.
+	jump0 := self JumpMultiplyNoOverflow: 0.
 	self MoveCq: 99 R: Extra3Reg.
 	self MoveR: Extra3Reg R: TempReg.
 	jump1 := self Jump: 0.

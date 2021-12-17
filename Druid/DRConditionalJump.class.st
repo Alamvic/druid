@@ -62,9 +62,15 @@ DRConditionalJump >> opcode [
 ]
 
 { #category : #printing }
+DRConditionalJump >> prettyConditionPrint [
+
+	^ self condition result name , ' true'
+]
+
+{ #category : #printing }
 DRConditionalJump >> prettyPrint [
 
-	^ 'Jump if ' , self condition result name , ' true -> '
+	^ 'Jump if ' , self prettyConditionPrint , ' -> '
 	  , self trueBranch id asString , ' if false -> '
 	  , self falseBranch id asString
 ]

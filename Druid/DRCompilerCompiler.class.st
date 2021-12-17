@@ -326,6 +326,13 @@ DRCompilerCompiler >> visitMultiply: aDRCogitMultiply [
 ]
 
 { #category : #visiting }
+DRCompilerCompiler >> visitMultiplyOverflowJump: aDROverflowJump [ 
+	
+	self generateJump: #JumpMultiplyOverflow: target: aDROverflowJump trueBranch.
+	self generateJump: #JumpMultiplyNoOverflow: target: aDROverflowJump falseBranch.
+]
+
+{ #category : #visiting }
 DRCompilerCompiler >> visitNegate: aDRCogitNegate [ 
 	
 	self twoOperandCogitRTL: #Move instruction: aDRCogitNegate.
