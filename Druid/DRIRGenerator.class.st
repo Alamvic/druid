@@ -174,6 +174,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #+ put: #interpretAddWith:.
 	specialCases at: #- put: #interpretSubstractWith:.
 	specialCases at: #* put: #interpretMultiplyWith:.
+	specialCases at: #// put: #interpretDivisionWith:.
 	specialCases at: #negated put: #interpretNegatedWith:.
 	
 	specialCases at: #sumSmallInteger:withSmallInteger:ifOverflow: put: #interpretSumSmallIntegerWithOverflowWith:.
@@ -302,6 +303,48 @@ DRIRGenerator >> interpretCondition: aRBMessageNode instructionKind: anInstructi
 	operand2 := self popOperand.
 
 	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { operand1 . operand2 }
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretDivisionWith: aRBMessageNode [ 
+
+	"Interpret the two numbers and divide them up"
+	| leftOperand rightOperand divResult leftWithoutTag rightWithoutTag resultWithoutTag shiftedResult |
+	
+	aRBMessageNode receiver acceptVisitor: self.
+	leftOperand := self popOperand.
+	aRBMessageNode arguments first acceptVisitor: self.
+	rightOperand := self popOperand.
+	
+	leftWithoutTag := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRSubtract
+		operands: { leftOperand . 1 asDRValue }.
+	
+	rightWithoutTag := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRSubtract
+		operands: { rightOperand . 1 asDRValue }.
+	
+	resultWithoutTag := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRDivision 
+		operands: { leftWithoutTag . rightWithoutTag }.
+
+	shiftedResult := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRLeftShift 
+		operands: { 3 asDRValue . resultWithoutTag }.
+
+	divResult  := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRAdd 
+		operands: { shiftedResult . 1 asDRValue }.
+
+	"currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self."
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
+"	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self)."
+	self pushOperand: divResult 
 ]
 
 { #category : #'special-cases' }

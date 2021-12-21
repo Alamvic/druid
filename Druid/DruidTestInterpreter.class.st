@@ -114,6 +114,16 @@ DruidTestInterpreter >> primitiveDecrement [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDivide [
+
+	<numberOfArguments: 1>
+	
+	| result |
+	result := (self stackValue: 1) // (self stackValue: 0).
+	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveGreaterOrEqualsThan [
 
 	<numberOfArguments: 0>

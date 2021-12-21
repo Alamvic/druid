@@ -266,6 +266,16 @@ DRCompilerCompiler >> visitCopy: aDRMove [
 ]
 
 { #category : #visiting }
+DRCompilerCompiler >> visitDivision: aDRCogitDivision [ 
+
+	"TODO: threeOperandCogitRTL"
+	self twoOperandCogitRTL: #Move operands: {
+		aDRCogitDivision operand1. aDRCogitDivision result }.
+	^ self twoOperandCogitRTL: #Div operands: { 
+		aDRCogitDivision operand2. aDRCogitDivision result }
+]
+
+{ #category : #visiting }
 DRCompilerCompiler >> visitEqualsComparison: aDRCogitEqualsComparison [ 
 	
 	self visitComparison: aDRCogitEqualsComparison
@@ -292,9 +302,12 @@ DRCompilerCompiler >> visitJump: aDRJump [
 ]
 
 { #category : #visiting }
-DRCompilerCompiler >> visitLeftShift: aDRCogitLeftShift [ 
+DRCompilerCompiler >> visitLeftShift: aDRCogitLeftShift [
 
-	^ self twoOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitLeftShift
+	self twoOperandCogitRTL: #Move operands: {
+		aDRCogitLeftShift operand2. aDRCogitLeftShift result }.
+	^ self twoOperandCogitRTL: #LogicalShiftLeft operands: { 
+		aDRCogitLeftShift operand1. aDRCogitLeftShift result }
 ]
 
 { #category : #visiting }
