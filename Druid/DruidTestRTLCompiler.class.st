@@ -131,13 +131,16 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	self SubCq: 1 R: SendNumArgsReg.
 	self MoveR: ClassReg R: Extra0Reg.
 	self SubCq: 1 R: Extra0Reg.
-	self MoveR: SendNumArgsReg R: Extra1Reg.
-	self DivR: Extra0Reg R: Extra1Reg.
-	self MoveR: Extra1Reg R: Extra2Reg.
-	self LogicalShiftLeftCq: 3 R: Extra2Reg.
+	self
+		DivR: Extra0Reg
+		R: SendNumArgsReg
+		Quo: Extra2Reg
+		Rem: Extra1Reg.
 	self MoveR: Extra2Reg R: Extra3Reg.
-	self AddCq: 1 R: Extra3Reg.
-	self MoveR: Extra3Reg R: ReceiverResultReg.
+	self LogicalShiftLeftCq: 3 R: Extra3Reg.
+	self MoveR: Extra3Reg R: Extra4Reg.
+	self AddCq: 1 R: Extra4Reg.
+	self MoveR: Extra4Reg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	^ CompletePrimitive
 ]

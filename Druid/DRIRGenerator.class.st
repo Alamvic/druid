@@ -309,7 +309,7 @@ DRIRGenerator >> interpretCondition: aRBMessageNode instructionKind: anInstructi
 DRIRGenerator >> interpretDivisionWith: aRBMessageNode [ 
 
 	"Interpret the two numbers and divide them up"
-	| leftOperand rightOperand divResult leftWithoutTag rightWithoutTag resultWithoutTag shiftedResult |
+	| leftOperand rightOperand divResult leftWithoutTag rightWithoutTag resultWithoutTag shiftedResult remOperand |
 	
 	aRBMessageNode receiver acceptVisitor: self.
 	leftOperand := self popOperand.
@@ -326,10 +326,15 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 		instructionKind: DRSubtract
 		operands: { rightOperand . 1 asDRValue }.
 	
+	remOperand := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRNoop 
+		operands: { }.
+	
 	resultWithoutTag := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRDivision 
-		operands: { leftWithoutTag . rightWithoutTag }.
+		operands: { leftWithoutTag . rightWithoutTag . remOperand }.
 
 	shiftedResult := self
 		addInstructionFrom: aRBMessageNode
@@ -342,7 +347,7 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 		operands: { shiftedResult . 1 asDRValue }.
 
 	"currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self."
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode. "????"
 "	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self)."
 	self pushOperand: divResult 
 ]

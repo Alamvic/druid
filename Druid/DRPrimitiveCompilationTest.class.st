@@ -298,7 +298,7 @@ DRPrimitiveCompilationTest >> testDivision [
 	self compileDruidPrimitive: #primitiveDivide.
 
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 2 }.
-		
+	
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 21)
 ]
 

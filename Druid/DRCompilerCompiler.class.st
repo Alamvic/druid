@@ -261,8 +261,16 @@ DRCompilerCompiler >> visitCopy: aDRMove [
 { #category : #visiting }
 DRCompilerCompiler >> visitDivision: aDRCogitDivision [ 
 
-	^ self threeOperandCogitRTL: #Div instruction: aDRCogitDivision
-
+	^ generatorMethodBuilder addStatement: (
+		RBMessageNode
+			receiver: RBVariableNode selfNode
+			selector: #DivR:R:Quo:Rem:
+			arguments: { 
+				self rtlExpressionForValue: (aDRCogitDivision operands second).
+				self rtlExpressionForValue: (aDRCogitDivision operands first).
+				self rtlExpressionForValue: (aDRCogitDivision result).
+				self rtlExpressionForValue: (aDRCogitDivision operands third).
+			})
 ]
 
 { #category : #visiting }
