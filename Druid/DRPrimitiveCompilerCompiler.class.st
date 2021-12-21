@@ -134,6 +134,15 @@ DRPrimitiveCompilerCompiler >> rtlExpressionForValue: aValue [
 ]
 
 { #category : #visiting }
+DRPrimitiveCompilerCompiler >> threeOperandCogitRTL: aMnemonic instruction: instruction [
+
+	self twoOperandCogitRTL: #Move operands: {
+		instruction operand1. instruction result }.
+	^ self twoOperandCogitRTL: aMnemonic operands: { 
+		instruction operand2. instruction result }
+]
+
+{ #category : #visiting }
 DRPrimitiveCompilerCompiler >> twoOperandCogitRTL: aMnemonic instruction: instruction [
 
 	self
