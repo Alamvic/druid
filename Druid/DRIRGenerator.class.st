@@ -132,6 +132,16 @@ DRIRGenerator >> currentTemporaryFrame: aCollection [
 	^ self currentFrame temporaryFrame: aCollection
 ]
 
+{ #category : #'special-cases' }
+DRIRGenerator >> dummyOperandFrom: aRBMessageNode [
+
+	^ self 
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRNoop 
+		operands: { }
+
+]
+
 { #category : #accessing }
 DRIRGenerator >> initialBasicBlock [
 	
@@ -296,13 +306,7 @@ DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretCondition: aRBMessageNode instructionKind: anInstructionKind [
 
-	| operand1 operand2 |
-	aRBMessageNode receiver acceptVisitor: self.
-	operand1 := self popOperand.
-	aRBMessageNode arguments first acceptVisitor: self.
-	operand2 := self popOperand.
-
-	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { operand1 . operand2 }
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: anInstructionKind
 ]
 
 { #category : #'special-cases' }
@@ -316,35 +320,17 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 	aRBMessageNode arguments first acceptVisitor: self.
 	rightOperand := self popOperand.
 	
-	leftWithoutTag := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRSubtract
-		operands: { leftOperand . 1 asDRValue }.
+	leftWithoutTag := self untagSmallInteger: leftOperand  from: aRBMessageNode.
+	rightWithoutTag := self untagSmallInteger: rightOperand  from: aRBMessageNode.
 	
-	rightWithoutTag := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRSubtract
-		operands: { rightOperand . 1 asDRValue }.
-	
-	remOperand := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRNoop 
-		operands: { }.
-	
+	remOperand := self dummyOperandFrom: aRBMessageNode.
 	resultWithoutTag := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRDivision 
 		operands: { leftWithoutTag . rightWithoutTag . remOperand }.
 
-	shiftedResult := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRLeftShift 
-		operands: { 3 asDRValue . resultWithoutTag }.
-
-	divResult  := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRAdd 
-		operands: { shiftedResult . 1 asDRValue }.
+	shiftedResult := self shiftSmallInteger: resultWithoutTag from: aRBMessageNode.
+	divResult  := self tagSmallInteger: shiftedResult from: aRBMessageNode.
 
 	"currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self."
 	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode. "????"
@@ -502,54 +488,6 @@ DRIRGenerator >> interpretInequalityComparisonWith: aRBMessageNode [
 ]
 
 { #category : #'special-cases' }
-DRIRGenerator >> interpretIntegerSumWithOverflowWith: aRBMessageNode [
-
-	"Interpret the two numbers and add them up"
-	| leftOperand rightOperand addResult startingBasicBlock conditionalJump overflowSuccessor overflowBlockOut joinInstruction |
-	aRBMessageNode arguments first acceptVisitor: self.
-	leftOperand := self popOperand.
-	aRBMessageNode arguments second acceptVisitor: self.
-	rightOperand := self popOperand.
-	addResult := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRAdd
-		operands: { leftOperand . rightOperand }.
-
-	startingBasicBlock := self currentBasicBlock.	
-	conditionalJump := self instantiate: DROverflowJump operands: { addResult }.
-	self currentBasicBlock endInstruction: conditionalJump.
-
-	overflowSuccessor := self newBasicBlockDuring: [ 
-			 aRBMessageNode arguments third acceptVisitor: self ].
-	conditionalJump trueBranch: overflowSuccessor.
-	overflowSuccessor addPredecessor: startingBasicBlock.
-	overflowBlockOut := self currentBasicBlock.
-
-	"Merge point"
-	self newBasicBlock.
-	
-	"Could happen that the evaluated block had a non local return.
-	In that case, this block should not arrive to this merge point
-		=> do not add the jump"
-	overflowSuccessor hasFinalInstruction ifFalse: [
-		overflowSuccessor jumpTo: self currentBasicBlock.
-	].
-	
-	self currentBasicBlock addPredecessor: startingBasicBlock.
-	conditionalJump falseBranch: self currentBasicBlock.
-
-	joinInstruction := addResult
-		                   joinValue: overflowBlockOut blockValue
-		                   onIRGenerator: self
-								from: { startingBasicBlock. overflowBlockOut }.
-	
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
-	self pushOperand: joinInstruction
-]
-
-{ #category : #'special-cases' }
 DRIRGenerator >> interpretLeftShiftWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRLeftShift
@@ -614,62 +552,36 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: argu
 DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and multiply them up"
-	| leftOperand rightOperand mulResult startingBasicBlock conditionalJump overflowSuccessor overflowBlockOut joinInstruction shiftedLeftOperand withoutTagRightOperand taggedResult tagResultBlock |
+	| leftOperand rightOperand mulResult startingBasicBlock conditionalJump joinInstruction unshiftedLeftOperand withoutTagRightOperand taggedResult |
 	aRBMessageNode arguments first acceptVisitor: self.
 	leftOperand := self popOperand.
 	aRBMessageNode arguments second acceptVisitor: self.
 	rightOperand := self popOperand.
 	
-	shiftedLeftOperand := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRRightShift 
-		operands: { leftOperand . 3 asDRValue }.
-
-	withoutTagRightOperand := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRSubtract
-		operands: { rightOperand . 1 asDRValue }.
+	unshiftedLeftOperand := self unshiftSmallInteger: leftOperand from: aRBMessageNode.
+	withoutTagRightOperand := self untagSmallInteger: rightOperand from: aRBMessageNode.
 	
 	mulResult := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRMultiply 
-		operands: { shiftedLeftOperand . withoutTagRightOperand }.
+		operands: { unshiftedLeftOperand . withoutTagRightOperand }.
 
 	startingBasicBlock := self currentBasicBlock.	
 	conditionalJump := self instantiate: DRMultiplyOverflowJump operands: { mulResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
-	overflowSuccessor := self newBasicBlockDuring: [ 
-			 aRBMessageNode arguments third acceptVisitor: self ].
-	conditionalJump trueBranch: overflowSuccessor.
-	overflowSuccessor addPredecessor: startingBasicBlock.
-	overflowBlockOut := self currentBasicBlock.
-	
-	tagResultBlock := self newBasicBlock.
-
-	taggedResult := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRAdd 
-		operands: { mulResult . 1 asDRValue }.
-
+	"No overflow"
+	self newBasicBlock.
+	taggedResult := self tagSmallInteger: mulResult from: aRBMessageNode.
 	self currentBasicBlock addPredecessor: startingBasicBlock.
 	conditionalJump falseBranch: self currentBasicBlock.
 
-	"Merge point"
-	self newBasicBlock.
-	
-	"Could happen that the evaluated block had a non local return.
-	In that case, this block should not arrive to this merge point
-		=> do not add the jump"
-	overflowSuccessor hasFinalInstruction ifFalse: [
-		overflowSuccessor jumpTo: self currentBasicBlock.
-	].
-	tagResultBlock jumpTo: self currentBasicBlock.
-
-	joinInstruction := overflowBlockOut blockValue
-		                   joinValue: taggedResult
-		                   onIRGenerator: self
-								from: { overflowBlockOut . tagResultBlock }.
+	joinInstruction := self 
+		newOverflowBlockDuring:  [ 
+			 aRBMessageNode arguments third acceptVisitor: self 
+			]
+		fromJump: conditionalJump
+		joinValue: taggedResult.
 	
 	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
 	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
@@ -756,49 +668,29 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and subtract them up"
-	| leftOperand rightOperand subResult startingBasicBlock conditionalJump overflowSuccessor overflowBlockOut joinInstruction withoutTag |
+	| leftOperand rightOperand subResult startingBasicBlock conditionalJump joinInstruction untaggedRightOperand |
 	aRBMessageNode arguments first acceptVisitor: self.
 	leftOperand := self popOperand.
 	aRBMessageNode arguments second acceptVisitor: self.
 	rightOperand := self popOperand.
 	
-	withoutTag := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRSubtract
-		operands: { rightOperand . 1 asDRValue }.
+	untaggedRightOperand := self untagSmallInteger: rightOperand from: aRBMessageNode.
 	
 	subResult := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRSubtract
-		operands: { leftOperand . withoutTag }.
+		operands: { leftOperand . untaggedRightOperand }.
 
 	startingBasicBlock := self currentBasicBlock.	
 	conditionalJump := self instantiate: DROverflowJump operands: { subResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
-
-	overflowSuccessor := self newBasicBlockDuring: [ 
-			 aRBMessageNode arguments third acceptVisitor: self ].
-	conditionalJump trueBranch: overflowSuccessor.
-	overflowSuccessor addPredecessor: startingBasicBlock.
-	overflowBlockOut := self currentBasicBlock.
-
-	"Merge point"
-	self newBasicBlock.
 	
-	"Could happen that the evaluated block had a non local return.
-	In that case, this block should not arrive to this merge point
-		=> do not add the jump"
-	overflowSuccessor hasFinalInstruction ifFalse: [
-		overflowSuccessor jumpTo: self currentBasicBlock.
-	].
-	
-	self currentBasicBlock addPredecessor: startingBasicBlock.
-	conditionalJump falseBranch: self currentBasicBlock.
-
-	joinInstruction := overflowBlockOut blockValue
-		                   joinValue: subResult
-		                   onIRGenerator: self
-								from: { overflowBlockOut . startingBasicBlock }.
+	joinInstruction := self 
+		newOverflowBlockDuring:  [ 
+			 aRBMessageNode arguments third acceptVisitor: self 
+			]
+		fromJump: conditionalJump
+		joinValue: subResult.
 	
 	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
 	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
@@ -816,49 +708,29 @@ DRIRGenerator >> interpretSubstractWith: aRBMessageNode [
 DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and add them up"
-	| leftOperand rightOperand addResult startingBasicBlock conditionalJump overflowSuccessor overflowBlockOut joinInstruction withoutTag |
+	| leftOperand rightOperand addResult startingBasicBlock conditionalJump overflowSuccessor overflowBlockOut joinInstruction untaggedLeftOperand |
 	aRBMessageNode arguments first acceptVisitor: self.
 	leftOperand := self popOperand.
 	aRBMessageNode arguments second acceptVisitor: self.
 	rightOperand := self popOperand.
 	
-	withoutTag := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRSubtract
-		operands: { leftOperand . 1 asDRValue }.
+	untaggedLeftOperand := self untagSmallInteger: leftOperand from: aRBMessageNode.
 	
 	addResult := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRAdd
-		operands: { withoutTag . rightOperand }.
+		operands: { untaggedLeftOperand . rightOperand }.
 
 	startingBasicBlock := self currentBasicBlock.	
 	conditionalJump := self instantiate: DROverflowJump operands: { addResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
-	overflowSuccessor := self newBasicBlockDuring: [ 
-			 aRBMessageNode arguments third acceptVisitor: self ].
-	conditionalJump trueBranch: overflowSuccessor.
-	overflowSuccessor addPredecessor: startingBasicBlock.
-	overflowBlockOut := self currentBasicBlock.
-
-	"Merge point"
-	self newBasicBlock.
-	
-	"Could happen that the evaluated block had a non local return.
-	In that case, this block should not arrive to this merge point
-		=> do not add the jump"
-	overflowSuccessor hasFinalInstruction ifFalse: [
-		overflowSuccessor jumpTo: self currentBasicBlock.
-	].
-	
-	self currentBasicBlock addPredecessor: startingBasicBlock.
-	conditionalJump falseBranch: self currentBasicBlock.
-
-	joinInstruction := overflowBlockOut blockValue
-		                   joinValue: addResult
-		                   onIRGenerator: self
-								from: { overflowBlockOut . startingBasicBlock }.
+	joinInstruction := self 
+		newOverflowBlockDuring:  [ 
+			 aRBMessageNode arguments third acceptVisitor: self 
+			]
+		fromJump: conditionalJump
+		joinValue: addResult.
 	
 	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
 	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
@@ -906,6 +778,45 @@ DRIRGenerator >> newBasicBlockDuring: aFullBlockClosure [
 DRIRGenerator >> newCFG [
 	
 	^ DRControlFlowGraph new
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump joinValue: result [
+
+	| overflowBlock branchBlock resultBlock |
+	branchBlock := conditionalJump basicBlock. 
+	resultBlock := result basicBlock.
+
+	overflowBlock := self newBasicBlockDuring: continuation.
+	conditionalJump trueBranch: overflowBlock.
+	overflowBlock addPredecessor: branchBlock.
+
+	"Merge point"
+	self newBasicBlock.
+	
+	"Could happen that the evaluated block had a non local return.
+	In that case, this block should not arrive to this merge point
+		=> do not add the jump"
+	overflowBlock hasFinalInstruction ifFalse: [
+		overflowBlock jumpTo: self currentBasicBlock.
+	].
+
+	conditionalJump falseBranch 
+		ifNil: [ 
+			"If false branch doesnt exist then resultBlock = branchBlock"
+			self currentBasicBlock addPredecessor: resultBlock.
+			conditionalJump falseBranch: self currentBasicBlock.
+		] 
+		ifNotNil: [
+			"If false branch exists then there is block in the middle"
+			resultBlock jumpTo: self currentBasicBlock.
+		].
+
+	^ overflowBlock blockValue
+		joinValue: result
+		onIRGenerator: self
+		from: { overflowBlock . resultBlock }
+		
 ]
 
 { #category : #'frame-access' }
@@ -1011,6 +922,15 @@ DRIRGenerator >> receiverRegister [
 	^ DRPhysicalRegister name: 'ReceiverResultReg'
 ]
 
+{ #category : #'special-cases' }
+DRIRGenerator >> shiftSmallInteger: operand from: aRBMessageNode [
+
+	^ self 
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRLeftShift  
+		operands: { 3 asDRValue . operand }.
+]
+
 { #category : #'pharo-stack' }
 DRIRGenerator >> spillStack [
 
@@ -1037,6 +957,17 @@ DRIRGenerator >> stackTop [
 	^ self currentOperandStack top
 ]
 
+{ #category : #'special-cases' }
+DRIRGenerator >> tagSmallInteger: operand from: aRBMessageNode [
+
+	^ self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRAdd 
+		operands: { operand . 1 asDRValue }.
+	
+
+]
+
 { #category : #'frame-access' }
 DRIRGenerator >> temporaryAt: aString [ 
 	
@@ -1047,6 +978,26 @@ DRIRGenerator >> temporaryAt: aString [
 DRIRGenerator >> temporaryAt: aString put: aValue [ 
 
 	^ self currentBasicBlock temporaryAt: aString put: aValue
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> unshiftSmallInteger: operand from: aRBMessageNode [
+
+	^ self 
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRRightShift 
+		operands: { operand . 3 asDRValue }.
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> untagSmallInteger: operand from: aRBMessageNode [
+
+	^ self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRSubtract
+		operands: { operand . 1 asDRValue }.
+	
+
 ]
 
 { #category : #visiting }
