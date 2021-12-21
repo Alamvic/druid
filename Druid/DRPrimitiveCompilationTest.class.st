@@ -302,6 +302,16 @@ DRPrimitiveCompilationTest >> testDivision [
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 21)
 ]
 
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testDivisionByZero [
+
+	self compileDruidPrimitive: #primitiveDivide.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 0 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1 "??"
+]
+
 { #category : #'tests-failing-primitive' }
 DRPrimitiveCompilationTest >> testFailingPrimitive2ExecutesUntilStop [
 
