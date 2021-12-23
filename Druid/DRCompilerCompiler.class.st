@@ -301,12 +301,7 @@ DRCompilerCompiler >> visitJump: aDRJump [
 
 { #category : #visiting }
 DRCompilerCompiler >> visitLeftShift: aDRCogitLeftShift [
-
-	"Similar to threeOperandCogitRTL: but inverted"
-	self twoOperandCogitRTL: #Move operands: {
-		aDRCogitLeftShift operand2. aDRCogitLeftShift result }.
-	^ self twoOperandCogitRTL: #LogicalShiftLeft operands: { 
-		aDRCogitLeftShift operand1. aDRCogitLeftShift result }
+	^ self visitBitShift: (DRBitShift operands: aDRCogitLeftShift operands reversed result:  aDRCogitLeftShift result)
 ]
 
 { #category : #visiting }
