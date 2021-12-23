@@ -267,10 +267,8 @@ DRIRGenerator >> interpretAsUnsignedIntegerWith: aRBMessageNode [
 DRIRGenerator >> interpretBinaryInstruction: aRBMessageNode instructionKind: anInstructionKind [
 
 	| operand1 operand2 |
-	aRBMessageNode receiver acceptVisitor: self.
-	operand1 := self popOperand.
-	aRBMessageNode arguments first acceptVisitor: self.
-	operand2 := self popOperand.
+	operand1 := self visitOperand: aRBMessageNode receiver.
+	operand2 := self visitOperand: aRBMessageNode arguments first.
 
 	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { operand1 . operand2 }
 ]
@@ -304,11 +302,9 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 
 	"Interpret the two numbers and divide them up"
 	| leftOperand rightOperand divResult leftWithoutTag rightWithoutTag resultWithoutTag shiftedResult remOperand |
-	
-	aRBMessageNode receiver acceptVisitor: self.
-	leftOperand := self popOperand.
-	aRBMessageNode arguments first acceptVisitor: self.
-	rightOperand := self popOperand.
+
+	leftOperand := self visitOperand: aRBMessageNode receiver.
+	rightOperand := self visitOperand: aRBMessageNode arguments first.
 	
 	leftWithoutTag := self untagSmallInteger: leftOperand  from: aRBMessageNode.
 	rightWithoutTag := self untagSmallInteger: rightOperand  from: aRBMessageNode.
@@ -541,10 +537,10 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and multiply them up"
 	| leftOperand rightOperand mulResult startingBasicBlock conditionalJump joinInstruction unshiftedLeftOperand withoutTagRightOperand taggedResult |
-	aRBMessageNode arguments first acceptVisitor: self.
-	leftOperand := self popOperand.
-	aRBMessageNode arguments second acceptVisitor: self.
-	rightOperand := self popOperand.
+	
+	leftOperand := self visitOperand: aRBMessageNode arguments first.
+	rightOperand := self visitOperand: aRBMessageNode arguments second.
+
 	
 	unshiftedLeftOperand := self unshiftSmallInteger: leftOperand from: aRBMessageNode.
 	withoutTagRightOperand := self untagSmallInteger: rightOperand from: aRBMessageNode.
@@ -657,10 +653,9 @@ DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and subtract them up"
 	| leftOperand rightOperand subResult startingBasicBlock conditionalJump joinInstruction untaggedRightOperand |
-	aRBMessageNode arguments first acceptVisitor: self.
-	leftOperand := self popOperand.
-	aRBMessageNode arguments second acceptVisitor: self.
-	rightOperand := self popOperand.
+	
+	leftOperand := self visitOperand: aRBMessageNode arguments first.
+	rightOperand := self visitOperand: aRBMessageNode arguments second.
 	
 	untaggedRightOperand := self untagSmallInteger: rightOperand from: aRBMessageNode.
 	
@@ -696,11 +691,10 @@ DRIRGenerator >> interpretSubstractWith: aRBMessageNode [
 DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and add them up"
-	| leftOperand rightOperand addResult startingBasicBlock conditionalJump overflowSuccessor overflowBlockOut joinInstruction untaggedLeftOperand |
-	aRBMessageNode arguments first acceptVisitor: self.
-	leftOperand := self popOperand.
-	aRBMessageNode arguments second acceptVisitor: self.
-	rightOperand := self popOperand.
+	| leftOperand rightOperand addResult startingBasicBlock conditionalJump joinInstruction untaggedLeftOperand |
+	
+	leftOperand := self visitOperand: aRBMessageNode arguments first.
+	rightOperand := self visitOperand: aRBMessageNode arguments second.
 	
 	untaggedLeftOperand := self untagSmallInteger: leftOperand from: aRBMessageNode.
 	
@@ -1097,6 +1091,13 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 
 	"If the method has no return statement, it should still return something"
 	self currentFrame returnValue: DRNullValue new from: self currentBasicBlock
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> visitOperand: aDRValue [
+
+	aDRValue acceptVisitor: self.
+	^ self popOperand
 ]
 
 { #category : #visiting }
