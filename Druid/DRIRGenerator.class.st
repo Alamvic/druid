@@ -132,16 +132,6 @@ DRIRGenerator >> currentTemporaryFrame: aCollection [
 	^ self currentFrame temporaryFrame: aCollection
 ]
 
-{ #category : #'special-cases' }
-DRIRGenerator >> dummyOperandFrom: aRBMessageNode [
-
-	^ self 
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRNoop 
-		operands: { }
-
-]
-
 { #category : #accessing }
 DRIRGenerator >> initialBasicBlock [
 	
@@ -323,7 +313,8 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 	leftWithoutTag := self untagSmallInteger: leftOperand  from: aRBMessageNode.
 	rightWithoutTag := self untagSmallInteger: rightOperand  from: aRBMessageNode.
 	
-	remOperand := self dummyOperandFrom: aRBMessageNode.
+	"Backend needs a third operand for rem result"
+	remOperand := self noop: aRBMessageNode.
 	resultWithoutTag := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRDivision 
@@ -332,9 +323,6 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 	shiftedResult := self shiftSmallInteger: resultWithoutTag from: aRBMessageNode.
 	divResult  := self tagSmallInteger: shiftedResult from: aRBMessageNode.
 
-	"currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self."
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode. "????"
-"	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self)."
 	self pushOperand: divResult 
 ]
 
@@ -817,6 +805,16 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 		onIRGenerator: self
 		from: { overflowBlock . resultBlock }
 		
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> noop: aRBMessageNode [
+
+	^ self 
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRNoop 
+		operands: { }
+
 ]
 
 { #category : #'frame-access' }
