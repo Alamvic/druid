@@ -340,7 +340,7 @@ DRCompilerCompiler >> visitMultiplyOverflowJump: aDROverflowJump [
 DRCompilerCompiler >> visitNegate: aDRCogitNegate [ 
 	
 	self twoOperandCogitRTL: #Move instruction: aDRCogitNegate.
-	"TODO: oneOperandCogitRTL:"
+	self flag: #todo. "oneOperandCogitRTL:"
 	generatorMethodBuilder addStatement: (
 		RBMessageNode
 			receiver: RBVariableNode selfNode

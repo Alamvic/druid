@@ -316,6 +316,8 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 		instructionKind: DRDivision 
 		operands: { leftWithoutTag . rightWithoutTag . remOperand }.
 
+	self flag: #todo. "Check minValue / (-1) overflow"
+
 	shiftedResult := self shiftSmallInteger: resultWithoutTag from: aRBMessageNode.
 	divResult  := self tagSmallInteger: shiftedResult from: aRBMessageNode.
 
@@ -540,7 +542,6 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 	
 	leftOperand := self visitOperand: aRBMessageNode arguments first.
 	rightOperand := self visitOperand: aRBMessageNode arguments second.
-
 	
 	unshiftedLeftOperand := self unshiftSmallInteger: leftOperand from: aRBMessageNode.
 	withoutTagRightOperand := self untagSmallInteger: rightOperand from: aRBMessageNode.
@@ -585,7 +586,26 @@ DRIRGenerator >> interpretMultiplyWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretNegatedWith: aRBMessageNode [ 
 
-	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRNegate
+	| receiver untaggedGap shadowReceiver untaggedResult |
+	receiver := self visitOperand: aRBMessageNode receiver.
+	
+	"This value represents the different between positive and negative sizes (there is one more number in negatives) in SmallInteger representation.
+	And we want this number untagged because it will be substracted to iriginal one."
+	untaggedGap := self shiftSmallInteger: 1 asDRValue from: aRBMessageNode.
+	shadowReceiver := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRSubtract
+		operands: { receiver . untaggedGap }.
+
+	"After negate operation, the result number is correct but untagged."
+	untaggedResult := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRNegate
+		operands: { shadowReceiver }.
+
+	self flag: #todo. "Check minValue negated overflow"
+
+	 ^ self tagSmallInteger: untaggedResult from: aRBMessageNode 
 ]
 
 { #category : #visiting }
@@ -729,9 +749,10 @@ DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretUnaryInstruction: aRBMessageNode instructionKind: anInstructionKind [
 	
-	aRBMessageNode receiver acceptVisitor: self.
+	| receiver |
+	receiver := self visitOperand: aRBMessageNode receiver.
 
-	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { self popOperand }
+	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { receiver }
 ]
 
 { #category : #accessing }

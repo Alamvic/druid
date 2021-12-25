@@ -436,6 +436,26 @@ DRPrimitiveCompilationTest >> testMultiplicationIntrinsecWithOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: 99
 ]
 
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testNegatedNegative [
+
+	self compileDruidPrimitive: #primitiveNegated.
+	
+	self executePrimitiveWithReceiver: (memory integerObjectOf: -1).
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 1)
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testNegatedPositive [
+
+	self compileDruidPrimitive: #primitiveNegated.
+	
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 1).
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: -1)
+]
+
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testNotGreaterOrEqualsThan [
 

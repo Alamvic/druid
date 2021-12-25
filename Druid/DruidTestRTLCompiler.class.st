@@ -394,6 +394,21 @@ DruidTestRTLCompiler >> gen_primitiveMultiplyWithOverflow [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveNegated [
+
+	| currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self SubCq: 1 R: TempReg.
+	self MoveR: TempReg R: ClassReg.
+	self NegateR: ClassReg.
+	self MoveR: ClassReg R: SendNumArgsReg.
+	self AddCq: 1 R: SendNumArgsReg.
+	self MoveR: SendNumArgsReg R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveReturnOne [
 
 	| currentBlock |

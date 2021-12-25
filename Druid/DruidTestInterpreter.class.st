@@ -228,6 +228,14 @@ DruidTestInterpreter >> primitiveMultiplyWithOverflow [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNegated [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: self stackTop negated
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveReturnOne [
 
 	<numberOfArguments: 0>
