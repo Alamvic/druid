@@ -568,9 +568,6 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 		fromJump: conditionalJump
 		joinValue: taggedResult.
 	
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
 	self pushOperand: joinInstruction
 ]
 
@@ -695,9 +692,6 @@ DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
 		fromJump: conditionalJump
 		joinValue: subResult.
 	
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
 	self pushOperand: joinInstruction
 ]
 
@@ -734,9 +728,6 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 		fromJump: conditionalJump
 		joinValue: addResult.
 	
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
 	self pushOperand: joinInstruction
 ]
 
@@ -786,7 +777,7 @@ DRIRGenerator >> newCFG [
 { #category : #'special-cases' }
 DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump joinValue: result [
 
-	| overflowBlock branchBlock resultBlock |
+	| overflowBlock branchBlock resultBlock joinInstruction |
 	branchBlock := conditionalJump basicBlock. 
 	resultBlock := result basicBlock.
 
@@ -815,11 +806,16 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 			resultBlock jumpTo: self currentBasicBlock.
 		].
 
-	^ overflowBlock blockValue
+	joinInstruction := overflowBlock blockValue
 		joinValue: result
 		onIRGenerator: self
-		from: { overflowBlock . resultBlock }
-		
+		from: { overflowBlock . resultBlock }.
+
+	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
+	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+	
+	^ joinInstruction
 ]
 
 { #category : #'special-cases' }

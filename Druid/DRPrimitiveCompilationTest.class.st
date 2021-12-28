@@ -308,8 +308,20 @@ DRPrimitiveCompilationTest >> testDivisionByZero [
 	self compileDruidPrimitive: #primitiveDivide.
 
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 0 }.
+
+	self flag: #todo.
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 0) "??"
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testDivisionWithOverflow [
+
+	self compileDruidPrimitive: #primitiveDivide.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: memory minSmallInteger) withArguments: { memory integerObjectOf: (-1) }.
 	
-	self assert: machineSimulator receiverRegisterValue equals: 1 "??"
+	self flag: #todo.
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: memory minSmallInteger) "??"
 ]
 
 { #category : #'tests-failing-primitive' }
