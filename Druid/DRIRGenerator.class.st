@@ -17,16 +17,23 @@ Class {
 }
 
 { #category : #visiting }
+DRIRGenerator >> addInstruction: instruction from: aNode [
+	 
+	instruction origin: thisContext sender stack.
+	self currentBasicBlock addInstruction: instruction.
+	instruction originAST: aNode.
+	self pushOperand: instruction.
+	^ instruction
+]
+
+{ #category : #visiting }
 DRIRGenerator >> addInstructionFrom: aNode instructionKind: instructionClass operands: operands [
 	
 	| instruction |
 	instruction := self
 		instantiate: instructionClass
 		operands: operands.
-	self currentBasicBlock addInstruction: instruction.
-	instruction originAST: aNode.
-	self pushOperand: instruction.
-	^ instruction
+	^ self addInstruction: instruction from: aNode
 ]
 
 { #category : #visiting }
@@ -36,10 +43,7 @@ DRIRGenerator >> addInstructionWithNoResultFrom: aNode instructionKind: instruct
 	instruction := self
 		instantiateNoResultInstruction: instructionClass
 		operands: operands.
-	self currentBasicBlock addInstruction: instruction.
-	instruction originAST: aNode.
-	self pushOperand: instruction.
-	^ instruction
+	^ self addInstruction: instruction from: aNode
 ]
 
 { #category : #factory }
@@ -175,6 +179,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #- put: #interpretSubstractWith:.
 	specialCases at: #* put: #interpretMultiplyWith:.
 	specialCases at: #// put: #interpretDivisionWith:.
+	specialCases at: #\\ put: #interpretModWith:.
 	specialCases at: #negated put: #interpretNegatedWith:.
 	
 	specialCases at: #sumSmallInteger:withSmallInteger:ifOverflow: put: #interpretSumSmallIntegerWithOverflowWith:.
@@ -221,7 +226,6 @@ DRIRGenerator >> instantiate: anInstructionClass operands: aCollection [
 	
 	| instruction |
 	instruction := anInstructionClass operands: aCollection result: self allocateTemporaryRegister.
-	instruction origin: thisContext sender stack.
 	^ instruction
 ]
 
@@ -308,6 +312,9 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 	
 	leftWithoutTag := self untagSmallInteger: leftOperand  from: aRBMessageNode.
 	rightWithoutTag := self untagSmallInteger: rightOperand  from: aRBMessageNode.
+	
+	"resultWithoutTag := self addInstruction: (self instructionFactory divide: leftWithoutTag with: rightWithoutTag) from: aRBMessageNode."
+
 	
 	"Backend needs a third operand for rem result"
 	remOperand := self noop: aRBMessageNode.
@@ -532,6 +539,31 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: argu
 		currentBasicBlock jumpTo: self currentFrame exitBasicBlock ].
 
 	self popFrame.
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretModWith: aRBMessageNode [ 
+
+	"Interpret the two numbers and push the module operation result"
+	| leftOperand rightOperand modResult leftWithoutTag rightWithoutTag divOperand untagedModResult |
+
+	leftOperand := self visitOperand: aRBMessageNode receiver.
+	rightOperand := self visitOperand: aRBMessageNode arguments first.
+	
+	leftWithoutTag := self untagSmallInteger: leftOperand  from: aRBMessageNode.
+	rightWithoutTag := self untagSmallInteger: rightOperand  from: aRBMessageNode.
+	
+	"Backend needs a third operand for div result"
+	divOperand := self noop: aRBMessageNode.
+	untagedModResult := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRMod 
+		operands: { leftWithoutTag . rightWithoutTag . divOperand }.
+
+	"Since operands kept shifted, result is already shifted, only tag is needed"	
+	modResult  := self tagSmallInteger: untagedModResult from: aRBMessageNode.
+
+	self pushOperand: modResult
 ]
 
 { #category : #'special-cases' }

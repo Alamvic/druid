@@ -215,6 +215,16 @@ DruidTestInterpreter >> primitiveLessThanInverted [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveMod [
+
+	<numberOfArguments: 1>
+	
+	| result |
+	result := (self stackValue: 1) \\ (self stackValue: 0).
+	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveMultiplyWithOverflow [
 
 	<numberOfArguments: 1>

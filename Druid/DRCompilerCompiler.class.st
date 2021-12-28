@@ -323,6 +323,21 @@ DRCompilerCompiler >> visitLoad: aDRCogitLoad [
 ]
 
 { #category : #visiting }
+DRCompilerCompiler >> visitMod: aDRCogitDivision [ 
+
+	^ generatorMethodBuilder addStatement: (
+		RBMessageNode
+			receiver: RBVariableNode selfNode
+			selector: #DivR:R:Quo:Rem:
+			arguments: { 
+				self rtlExpressionForValue: (aDRCogitDivision operands second).
+				self rtlExpressionForValue: (aDRCogitDivision operands first).
+				self rtlExpressionForValue: (aDRCogitDivision operands third).
+				self rtlExpressionForValue: (aDRCogitDivision result).
+			})
+]
+
+{ #category : #visiting }
 DRCompilerCompiler >> visitMultiply: aDRCogitMultiply [ 
 
 	^ self threeOperandCogitRTL: #Mul instruction: aDRCogitMultiply

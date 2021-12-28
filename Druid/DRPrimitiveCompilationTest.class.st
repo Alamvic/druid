@@ -429,6 +429,16 @@ DRPrimitiveCompilationTest >> testIsIntegerObjectWithNonIntegerObject [
 ]
 
 { #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testMod [
+
+	self compileDruidPrimitive: #primitiveMod.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 3) withArguments: { memory integerObjectOf: 2 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 1)
+]
+
+{ #category : #'tests-arithmetic' }
 DRPrimitiveCompilationTest >> testMultiplicationIntrinsecWithNoOverflow [
 
 	self compileDruidPrimitive: #primitiveMultiplyWithOverflow.
