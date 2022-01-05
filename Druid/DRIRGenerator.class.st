@@ -174,7 +174,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #or: put: #interpretOrWith:.
 	specialCases at: #and: put: #interpretAndWith:.
 
-	"Arithmetics"
+	"Arithmetics for Numbers"
 	specialCases at: #+ put: #interpretAddWith:.
 	specialCases at: #- put: #interpretSubstractWith:.
 	specialCases at: #* put: #interpretMultiplyWith:.
@@ -182,11 +182,12 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #\\ put: #interpretModWith:.
 	specialCases at: #negated put: #interpretNegatedWith:.
 	
+	"Arithmetics for SmallIntegers"
 	specialCases at: #sumSmallInteger:withSmallInteger:ifOverflow: put: #interpretSumSmallIntegerWithOverflowWith:.
 	specialCases at: #subSmallInteger:withSmallInteger:ifOverflow: put: #interpretSubSmallIntegerWithOverflowWith:.
 	specialCases at: #multiplySmallInteger:withSmallInteger:ifOverflow: put: #interpretMultiplySmallIntegerWithOverflowWith:.
-	
-	
+
+
 	"Type coercions"
 	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
 
@@ -305,28 +306,17 @@ DRIRGenerator >> interpretCondition: aRBMessageNode instructionKind: anInstructi
 DRIRGenerator >> interpretDivisionWith: aRBMessageNode [ 
 
 	"Interpret the two numbers and divide them up"
-	| leftOperand rightOperand divResult leftWithoutTag rightWithoutTag resultWithoutTag shiftedResult remOperand |
+	| leftOperand rightOperand divResult remOperand |
 
 	leftOperand := self visitOperand: aRBMessageNode receiver.
 	rightOperand := self visitOperand: aRBMessageNode arguments first.
 	
-	leftWithoutTag := self untagSmallInteger: leftOperand  from: aRBMessageNode.
-	rightWithoutTag := self untagSmallInteger: rightOperand  from: aRBMessageNode.
-	
-	"resultWithoutTag := self addInstruction: (self instructionFactory divide: leftWithoutTag with: rightWithoutTag) from: aRBMessageNode."
-
-	
 	"Backend needs a third operand for rem result"
 	remOperand := self noop: aRBMessageNode.
-	resultWithoutTag := self
+	divResult := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRDivision 
-		operands: { leftWithoutTag . rightWithoutTag . remOperand }.
-
-	self flag: #todo. "Check minValue / (-1) overflow"
-
-	shiftedResult := self shiftSmallInteger: resultWithoutTag from: aRBMessageNode.
-	divResult  := self tagSmallInteger: shiftedResult from: aRBMessageNode.
+		operands: { leftOperand . rightOperand . remOperand }.
 
 	self pushOperand: divResult 
 ]
@@ -545,23 +535,17 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: argu
 DRIRGenerator >> interpretModWith: aRBMessageNode [ 
 
 	"Interpret the two numbers and push the module operation result"
-	| leftOperand rightOperand modResult leftWithoutTag rightWithoutTag divOperand untagedModResult |
+	| leftOperand rightOperand modResult divOperand |
 
 	leftOperand := self visitOperand: aRBMessageNode receiver.
 	rightOperand := self visitOperand: aRBMessageNode arguments first.
 	
-	leftWithoutTag := self untagSmallInteger: leftOperand  from: aRBMessageNode.
-	rightWithoutTag := self untagSmallInteger: rightOperand  from: aRBMessageNode.
-	
 	"Backend needs a third operand for div result"
 	divOperand := self noop: aRBMessageNode.
-	untagedModResult := self
+	modResult := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRMod 
-		operands: { leftWithoutTag . rightWithoutTag . divOperand }.
-
-	"Since operands kept shifted, result is already shifted, only tag is needed"	
-	modResult  := self tagSmallInteger: untagedModResult from: aRBMessageNode.
+		operands: { leftOperand . rightOperand . divOperand }.
 
 	self pushOperand: modResult
 ]
@@ -615,26 +599,7 @@ DRIRGenerator >> interpretMultiplyWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretNegatedWith: aRBMessageNode [ 
 
-	| receiver untaggedGap shadowReceiver untaggedResult |
-	receiver := self visitOperand: aRBMessageNode receiver.
-	
-	"This value represents the different between positive and negative sizes (there is one more number in negatives) in SmallInteger representation.
-	And we want this number untagged because it will be substracted to iriginal one."
-	untaggedGap := self shiftSmallInteger: 1 asDRValue from: aRBMessageNode.
-	shadowReceiver := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRSubtract
-		operands: { receiver . untaggedGap }.
-
-	"After negate operation, the result number is correct but untagged."
-	untaggedResult := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRNegate
-		operands: { shadowReceiver }.
-
-	self flag: #todo. "Check minValue negated overflow"
-
-	 ^ self tagSmallInteger: untaggedResult from: aRBMessageNode 
+	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRNegate
 ]
 
 { #category : #visiting }

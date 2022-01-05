@@ -65,7 +65,7 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 	self runFrom: initialAddress until: stopAddress.
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : #'tests-arithmetic-smallIntegers' }
 DRPrimitiveCompilationTest >> testAdditionIntrinsecWithNoOverflow [
 
 	self compileDruidPrimitive: #primitiveSumWithOverflow.
@@ -75,7 +75,7 @@ DRPrimitiveCompilationTest >> testAdditionIntrinsecWithNoOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 52)
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : #'tests-arithmetic-smallIntegers' }
 DRPrimitiveCompilationTest >> testAdditionIntrinsecWithOverflow [
 
 	self compileDruidPrimitive: #primitiveSumWithOverflow.
@@ -297,31 +297,42 @@ DRPrimitiveCompilationTest >> testDivision [
 
 	self compileDruidPrimitive: #primitiveDivide.
 
-	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 2 }.
+	self executePrimitiveWithReceiver: 42 withArguments: { 2 }.
 	
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 21)
+	self assert: machineSimulator receiverRegisterValue equals: 21
 ]
 
 { #category : #'tests-arithmetic' }
 DRPrimitiveCompilationTest >> testDivisionByZero [
 
+	<expectedFailure>
+
 	self compileDruidPrimitive: #primitiveDivide.
 
-	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 0 }.
-
-	self flag: #todo.
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 0) "??"
+	self executePrimitiveWithReceiver: 42 withArguments: { 0 }.
+	
+	self flag: #todo. "Fix simulator"
+	self assert: machineSimulator overflow "Replace with expected assertion"
 ]
 
 { #category : #'tests-arithmetic' }
-DRPrimitiveCompilationTest >> testDivisionWithOverflow [
+DRPrimitiveCompilationTest >> testDivisionNotExact [
 
 	self compileDruidPrimitive: #primitiveDivide.
 
-	self executePrimitiveWithReceiver: (memory integerObjectOf: memory minSmallInteger) withArguments: { memory integerObjectOf: (-1) }.
+	self executePrimitiveWithReceiver: 5 withArguments: { 3 }.
 	
-	self flag: #todo.
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: memory minSmallInteger) "??"
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testDivisionNotExactNegative [
+
+	self compileDruidPrimitive: #primitiveDivide.
+
+	self executePrimitiveWithReceiver: 5 withArguments: { -3 }.
+	
+	self assert: (machineSimulator receiverRegisterValue signedIntFromShort) equals: -1.   
 ]
 
 { #category : #'tests-failing-primitive' }
@@ -433,12 +444,22 @@ DRPrimitiveCompilationTest >> testMod [
 
 	self compileDruidPrimitive: #primitiveMod.
 
-	self executePrimitiveWithReceiver: (memory integerObjectOf: 3) withArguments: { memory integerObjectOf: 2 }.
+	self executePrimitiveWithReceiver: 43 withArguments: { 2 }.
 	
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 1)
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testModNegative [
+
+	self compileDruidPrimitive: #primitiveMod.
+
+	self executePrimitiveWithReceiver: 43 withArguments: { -2 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-arithmetic-smallIntegers' }
 DRPrimitiveCompilationTest >> testMultiplicationIntrinsecWithNoOverflow [
 
 	self compileDruidPrimitive: #primitiveMultiplyWithOverflow.
@@ -448,7 +469,7 @@ DRPrimitiveCompilationTest >> testMultiplicationIntrinsecWithNoOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 420)
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : #'tests-arithmetic-smallIntegers' }
 DRPrimitiveCompilationTest >> testMultiplicationIntrinsecWithOverflow [
 
 	self compileDruidPrimitive: #primitiveMultiplyWithOverflow.
@@ -459,23 +480,23 @@ DRPrimitiveCompilationTest >> testMultiplicationIntrinsecWithOverflow [
 ]
 
 { #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testNegated [
+
+	self compileDruidPrimitive: #primitiveNegated.
+	
+	self executePrimitiveWithReceiver: 5.
+
+	self assert: (machineSimulator receiverRegisterValue signedIntFromShort) equals: -5
+]
+
+{ #category : #'tests-arithmetic' }
 DRPrimitiveCompilationTest >> testNegatedNegative [
 
 	self compileDruidPrimitive: #primitiveNegated.
 	
-	self executePrimitiveWithReceiver: (memory integerObjectOf: -1).
-	
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 1)
-]
+	self executePrimitiveWithReceiver: -5.
 
-{ #category : #'tests-arithmetic' }
-DRPrimitiveCompilationTest >> testNegatedPositive [
-
-	self compileDruidPrimitive: #primitiveNegated.
-	
-	self executePrimitiveWithReceiver: (memory integerObjectOf: 1).
-	
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: -1)
+	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
 { #category : #'tests-comparisons' }
@@ -646,7 +667,7 @@ DRPrimitiveCompilationTest >> testSmallerThanInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : #'tests-arithmetic-smallIntegers' }
 DRPrimitiveCompilationTest >> testSubtractionIntrinsecWithNoOverflow [
 
 	self compileDruidPrimitive: #primitiveSubWithOverflow.
@@ -656,7 +677,7 @@ DRPrimitiveCompilationTest >> testSubtractionIntrinsecWithNoOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 32)
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : #'tests-arithmetic-smallIntegers' }
 DRPrimitiveCompilationTest >> testSubtractionIntrinsecWithOverflow [
 
 	self compileDruidPrimitive: #primitiveSubWithOverflow.

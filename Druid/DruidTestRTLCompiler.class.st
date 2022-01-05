@@ -127,20 +127,12 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	| currentBlock |
 	self MoveR: ReceiverResultReg R: TempReg.
 	self MoveR: Arg0Reg R: ClassReg.
-	self MoveR: TempReg R: SendNumArgsReg.
-	self SubCq: 1 R: SendNumArgsReg.
-	self MoveR: ClassReg R: Extra0Reg.
-	self SubCq: 1 R: Extra0Reg.
 	self
-		DivR: Extra0Reg
-		R: SendNumArgsReg
-		Quo: Extra2Reg
-		Rem: Extra1Reg.
-	self MoveR: Extra2Reg R: Extra3Reg.
-	self LogicalShiftLeftCq: 3 R: Extra3Reg.
-	self MoveR: Extra3Reg R: Extra4Reg.
-	self AddCq: 1 R: Extra4Reg.
-	self MoveR: Extra4Reg R: ReceiverResultReg.
+		DivR: ClassReg
+		R: TempReg
+		Quo: Extra0Reg
+		Rem: SendNumArgsReg.
+	self MoveR: Extra0Reg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
@@ -371,18 +363,12 @@ DruidTestRTLCompiler >> gen_primitiveMod [
 	| currentBlock |
 	self MoveR: ReceiverResultReg R: TempReg.
 	self MoveR: Arg0Reg R: ClassReg.
-	self MoveR: TempReg R: SendNumArgsReg.
-	self SubCq: 1 R: SendNumArgsReg.
-	self MoveR: ClassReg R: Extra0Reg.
-	self SubCq: 1 R: Extra0Reg.
 	self
-		DivR: Extra0Reg
-		R: SendNumArgsReg
-		Quo: Extra1Reg
-		Rem: Extra2Reg.
-	self MoveR: Extra2Reg R: Extra3Reg.
-	self AddCq: 1 R: Extra3Reg.
-	self MoveR: Extra3Reg R: ReceiverResultReg.
+		DivR: ClassReg
+		R: TempReg
+		Quo: SendNumArgsReg
+		Rem: Extra0Reg.
+	self MoveR: Extra0Reg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
@@ -420,12 +406,8 @@ DruidTestRTLCompiler >> gen_primitiveNegated [
 
 	| currentBlock |
 	self MoveR: ReceiverResultReg R: TempReg.
-	self SubCq: 1 R: TempReg.
-	self MoveR: TempReg R: ClassReg.
-	self NegateR: ClassReg.
-	self MoveR: ClassReg R: SendNumArgsReg.
-	self AddCq: 1 R: SendNumArgsReg.
-	self MoveR: SendNumArgsReg R: ReceiverResultReg.
+	self NegateR: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
