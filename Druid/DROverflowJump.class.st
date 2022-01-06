@@ -11,7 +11,7 @@ DROverflowJump >> acceptVisitor: aVisitor [
 ]
 
 { #category : #visiting }
-DROverflowJump >> prettyPrint [
-	
-	^ 'Jump if overflow -> ', self trueBranch id asString, ' if false -> ', self falseBranch id asString
+DROverflowJump >> prettyConditionPrint [
+
+	^ 'overflow'
 ]

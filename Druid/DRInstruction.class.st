@@ -16,6 +16,7 @@ Class {
 { #category : #'instance creation' }
 DRInstruction class >> operands: aCollection result: aResultRegister [
 	
+	"Validate operands collections size?"
 	^ self new
 		operands: aCollection;
 		result: aResultRegister;

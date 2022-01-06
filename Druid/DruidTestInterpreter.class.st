@@ -114,6 +114,16 @@ DruidTestInterpreter >> primitiveDecrement [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDivide [
+
+	<numberOfArguments: 1>
+	
+	| result |
+	result := (self stackValue: 1) // (self stackValue: 0).
+	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveGreaterOrEqualsThan [
 
 	<numberOfArguments: 0>
@@ -205,6 +215,37 @@ DruidTestInterpreter >> primitiveLessThanInverted [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveMod [
+
+	<numberOfArguments: 1>
+	
+	| result |
+	result := (self stackValue: 1) \\ (self stackValue: 0).
+	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveMultiplyWithOverflow [
+
+	<numberOfArguments: 1>
+	
+	| result |
+	result := self
+		multiplySmallInteger: (self stackValue: 1)
+		withSmallInteger: (self stackValue: 0)
+		ifOverflow: [ 99 ].
+	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNegated [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: self stackTop negated
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveReturnOne [
 
 	<numberOfArguments: 0>
@@ -226,6 +267,19 @@ DruidTestInterpreter >> primitiveReturnTrue [
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: objectMemory trueObject
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveSubWithOverflow [
+
+	<numberOfArguments: 1>
+	
+	| result |
+	result := self
+		subSmallInteger: (self stackValue: 1)
+		withSmallInteger: (self stackValue: 0)
+		ifOverflow: [ 99 ].
+	self pop: 2 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }

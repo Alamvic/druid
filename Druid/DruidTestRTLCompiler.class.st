@@ -122,6 +122,22 @@ DruidTestRTLCompiler >> gen_primitiveDecrement [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveDivide [
+
+	| currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveR: Arg0Reg R: ClassReg.
+	self
+		DivR: ClassReg
+		R: TempReg
+		Quo: Extra0Reg
+		Rem: SendNumArgsReg.
+	self MoveR: Extra0Reg R: ReceiverResultReg.
+	self RetN: 2 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualsThan [
 
 	| currentBlock jump0 jump1 |
@@ -342,6 +358,61 @@ DruidTestRTLCompiler >> gen_primitiveLessThanThanInverted [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveMod [
+
+	| currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveR: Arg0Reg R: ClassReg.
+	self
+		DivR: ClassReg
+		R: TempReg
+		Quo: SendNumArgsReg
+		Rem: Extra0Reg.
+	self MoveR: Extra0Reg R: ReceiverResultReg.
+	self RetN: 2 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveMultiplyWithOverflow [
+
+	| currentBlock jump0 jump1 |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveR: Arg0Reg R: ClassReg.
+	self MoveR: TempReg R: SendNumArgsReg.
+	self LogicalShiftRightCq: 3 R: SendNumArgsReg.
+	self MoveR: ClassReg R: Extra0Reg.
+	self SubCq: 1 R: Extra0Reg.
+	self MoveR: SendNumArgsReg R: Extra1Reg.
+	self MulR: Extra0Reg R: Extra1Reg.
+	jump0 := self JumpMultiplyNoOverflow: 0.
+	self MoveCq: 99 R: Extra3Reg.
+	self MoveR: Extra3Reg R: TempReg.
+	jump1 := self Jump: 0.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveR: Extra1Reg R: Extra4Reg.
+	self AddCq: 1 R: Extra4Reg.
+	self MoveR: Extra4Reg R: TempReg.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self RetN: 2 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveNegated [
+
+	| currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self NegateR: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveReturnOne [
 
 	| currentBlock |
@@ -419,6 +490,27 @@ DruidTestRTLCompiler >> gen_primitiveSmallThan [
 	self MoveCq: 1 R: Extra0Reg.
 	self MoveR: ClassReg R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveSubWithOverflow [
+
+	| currentBlock jump0 |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveR: Arg0Reg R: ClassReg.
+	self MoveR: ClassReg R: SendNumArgsReg.
+	self SubCq: 1 R: SendNumArgsReg.
+	self MoveR: TempReg R: Extra0Reg.
+	self SubR: SendNumArgsReg R: Extra0Reg.
+	self MoveR: Extra0Reg R: Extra3Reg.
+	jump0 := self JumpNoOverflow: 0.
+	self MoveCq: 99 R: Extra2Reg.
+	self MoveR: Extra2Reg R: Extra3Reg.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveR: Extra3Reg R: ReceiverResultReg.
+	self RetN: 2 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
 

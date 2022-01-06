@@ -202,28 +202,21 @@ DRCompilerCompiler >> sourceName: anObject [
 { #category : #visiting }
 DRCompilerCompiler >> visitAddition: aDRCogitAdd [ 
 
-	self twoOperandCogitRTL: #Move operands: {
-		aDRCogitAdd operand1. aDRCogitAdd result }.
-	^ self twoOperandCogitRTL: #Add operands: { 
-		aDRCogitAdd operand2. aDRCogitAdd result }
+	^ self threeOperandCogitRTL: #Add instruction: aDRCogitAdd 
 ]
 
 { #category : #visiting }
 DRCompilerCompiler >> visitBitAnd: aDRCogitBitAnd [ 
 
-	self twoOperandCogitRTL: #Move operands: {
-		aDRCogitBitAnd operand1. aDRCogitBitAnd result }.
-	^ self twoOperandCogitRTL: #And operands: { 
-		aDRCogitBitAnd operand2. aDRCogitBitAnd result }
+	^ self threeOperandCogitRTL: #And instruction: aDRCogitBitAnd
+
 ]
 
 { #category : #visiting }
 DRCompilerCompiler >> visitBitShift: aDRCogitBitShift [ 
 
-	self twoOperandCogitRTL: #Move operands: {
-		aDRCogitBitShift operand1. aDRCogitBitShift result }.
-	^ self twoOperandCogitRTL: #LogicalShiftLeft operands: { 
-		aDRCogitBitShift operand2. aDRCogitBitShift result }
+	^ self threeOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitBitShift
+
 ]
 
 { #category : #visiting }
@@ -272,6 +265,21 @@ DRCompilerCompiler >> visitCopy: aDRMove [
 ]
 
 { #category : #visiting }
+DRCompilerCompiler >> visitDivision: aDRCogitDivision [ 
+
+	^ generatorMethodBuilder addStatement: (
+		RBMessageNode
+			receiver: RBVariableNode selfNode
+			selector: #DivR:R:Quo:Rem:
+			arguments: { 
+				self rtlExpressionForValue: (aDRCogitDivision operands second).
+				self rtlExpressionForValue: (aDRCogitDivision operands first).
+				self rtlExpressionForValue: (aDRCogitDivision result).
+				self rtlExpressionForValue: (aDRCogitDivision operands third).
+			})
+]
+
+{ #category : #visiting }
 DRCompilerCompiler >> visitEqualsComparison: aDRCogitEqualsComparison [ 
 	
 	self visitComparison: aDRCogitEqualsComparison
@@ -298,9 +306,8 @@ DRCompilerCompiler >> visitJump: aDRJump [
 ]
 
 { #category : #visiting }
-DRCompilerCompiler >> visitLeftShift: aDRCogitLeftShift [ 
-
-	^ self twoOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitLeftShift
+DRCompilerCompiler >> visitLeftShift: aDRCogitLeftShift [
+	^ self visitBitShift: (DRBitShift operands: aDRCogitLeftShift operands reversed result:  aDRCogitLeftShift result)
 ]
 
 { #category : #visiting }
@@ -322,15 +329,39 @@ DRCompilerCompiler >> visitLoad: aDRCogitLoad [
 ]
 
 { #category : #visiting }
+DRCompilerCompiler >> visitMod: aDRCogitDivision [ 
+
+	^ generatorMethodBuilder addStatement: (
+		RBMessageNode
+			receiver: RBVariableNode selfNode
+			selector: #DivR:R:Quo:Rem:
+			arguments: { 
+				self rtlExpressionForValue: (aDRCogitDivision operands second).
+				self rtlExpressionForValue: (aDRCogitDivision operands first).
+				self rtlExpressionForValue: (aDRCogitDivision operands third).
+				self rtlExpressionForValue: (aDRCogitDivision result).
+			})
+]
+
+{ #category : #visiting }
 DRCompilerCompiler >> visitMultiply: aDRCogitMultiply [ 
+
+	^ self threeOperandCogitRTL: #Mul instruction: aDRCogitMultiply
+
+]
+
+{ #category : #visiting }
+DRCompilerCompiler >> visitMultiplyOverflowJump: aDROverflowJump [ 
 	
-	^ self twoOperandCogitRTL: #Mul instruction: aDRCogitMultiply
+	self generateJump: #JumpMultiplyOverflow: target: aDROverflowJump trueBranch.
+	self generateJump: #JumpMultiplyNoOverflow: target: aDROverflowJump falseBranch.
 ]
 
 { #category : #visiting }
 DRCompilerCompiler >> visitNegate: aDRCogitNegate [ 
 	
 	self twoOperandCogitRTL: #Move instruction: aDRCogitNegate.
+	self flag: #todo. "oneOperandCogitRTL:"
 	generatorMethodBuilder addStatement: (
 		RBMessageNode
 			receiver: RBVariableNode selfNode
@@ -362,6 +393,7 @@ DRCompilerCompiler >> visitNullValue: aDRNullValue [
 { #category : #visiting }
 DRCompilerCompiler >> visitOr: aDROr [ 
 
+	"Use threeOperandCogitRTL: ?"
 	^ self twoOperandCogitRTL: #Or instruction: aDROr
 ]
 
@@ -399,10 +431,8 @@ DRCompilerCompiler >> visitReturn: aDRReturn [
 { #category : #visiting }
 DRCompilerCompiler >> visitRightShift: aDRCogitRightShift [ 
 
-	self twoOperandCogitRTL: #Move operands: {
-		aDRCogitRightShift operand1. aDRCogitRightShift result }.
-	^ self twoOperandCogitRTL: #LogicalShiftRight operands: { 
-		aDRCogitRightShift operand2. aDRCogitRightShift result }
+	^ self threeOperandCogitRTL: #LogicalShiftRight instruction: aDRCogitRightShift
+
 ]
 
 { #category : #visiting }
@@ -414,10 +444,8 @@ DRCompilerCompiler >> visitStore: aDRCogitStore [
 { #category : #visiting }
 DRCompilerCompiler >> visitSubstract: aDRCogitSubstract [ 
 	
-	self twoOperandCogitRTL: #Move operands: {
-		aDRCogitSubstract operand1. aDRCogitSubstract result }.
-	^ self twoOperandCogitRTL: #Sub operands: { 
-		aDRCogitSubstract operand2. aDRCogitSubstract result }
+	^ self threeOperandCogitRTL: #Sub instruction: aDRCogitSubstract
+
 ]
 
 { #category : #visiting }
