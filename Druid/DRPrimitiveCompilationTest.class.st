@@ -351,6 +351,14 @@ DRPrimitiveCompilationTest >> testFailingPrimitiveExecutesUntilStop [
 	self executeUntilStopPrimitiveWithReceiver: 1
 ]
 
+{ #category : #'tests-failing-primitive' }
+DRPrimitiveCompilationTest >> testFailingPrimitiveWithArgExecutesUntilStop [
+
+	self compileDruidPrimitive: #failingPrimitiveWithArg.
+	
+	self executeUntilStopPrimitiveWithReceiver: 1 withArguments: { 42 }
+]
+
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testGreaterOrEqualsThan [
 

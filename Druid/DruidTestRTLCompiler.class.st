@@ -42,6 +42,20 @@ DruidTestRTLCompiler >> gen_failingPrimitive2 [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_failingPrimitiveWithArg [
+
+	| currentBlock jump0 |
+	self MoveR: Arg0Reg R: Arg0Reg.
+	self MoveR: ReceiverResultReg R: ReceiverResultReg.
+	self CmpCq: 0 R: Arg0Reg.
+	jump0 := self JumpNonZero: 0.
+	self RetN: 2 * objectMemory wordSize.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveCallingMethodReturningConstant [
 
 	| currentBlock |
