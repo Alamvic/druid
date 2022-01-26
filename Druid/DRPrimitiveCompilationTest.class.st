@@ -127,6 +127,14 @@ DRPrimitiveCompilationTest >> testAnyMaskTrueInverted [
 
 ]
 
+{ #category : #'tests-failing-primitive' }
+DRPrimitiveCompilationTest >> testAssertExecutesUntilStop [
+
+	self compileDruidPrimitive: #failingAssert.
+	
+	self executeUntilStopPrimitiveWithReceiver: 1
+]
+
 { #category : #'tests-iftrueiffalse' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCaseFalse [
 
@@ -608,7 +616,18 @@ DRPrimitiveCompilationTest >> testNotSmallerThanInverted [
 ]
 
 { #category : #'tests-failing-primitive' }
-DRPrimitiveCompilationTest >> testPassingSuccessExecutesUntilStop [
+DRPrimitiveCompilationTest >> testPassingAssert [
+
+	self flag: #FIXME. "FAILING! see interpretSignalWith:"
+	self compileDruidPrimitive: #passingAssert.
+	
+	self executeUntilStopPrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-failing-primitive' }
+DRPrimitiveCompilationTest >> testPassingSuccess [
 
 	self compileDruidPrimitive: #passingSuccess.
 	

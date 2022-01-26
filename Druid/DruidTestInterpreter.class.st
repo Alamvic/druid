@@ -25,6 +25,12 @@ DruidTestInterpreter >> emptyPrimitiveWithArguments [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> failingAssert [
+	<numberOfArguments: 0>
+	self assert: false
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> failingPrimitive2 [
 	<numberOfArguments: 0>
 	self primitiveFail
@@ -58,6 +64,13 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	"Dead code"
 	^ 16rFFFF
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> passingAssert [
+	<numberOfArguments: 0>
+	self assert: true.
+	self pop: 1 thenPush: 1
 ]
 
 { #category : #'as yet unclassified' }
