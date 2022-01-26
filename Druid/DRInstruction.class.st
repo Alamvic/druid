@@ -13,6 +13,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #accessing }
+DRInstruction class >> operands: operands [
+
+	^ self operands: operands result: DRNoRegister new
+]
+
 { #category : #'instance creation' }
 DRInstruction class >> operands: aCollection result: aResultRegister [
 	

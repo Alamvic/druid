@@ -87,12 +87,6 @@ DRValue >> isJump [
 ]
 
 { #category : #visiting }
-DRValue >> isLoad [ 
-
-	^ false
-]
-
-{ #category : #visiting }
 DRValue >> isMandatoryInstruction [
 
 	^ false
