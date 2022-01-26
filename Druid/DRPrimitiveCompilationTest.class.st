@@ -128,11 +128,13 @@ DRPrimitiveCompilationTest >> testAnyMaskTrueInverted [
 ]
 
 { #category : #'tests-failing-primitive' }
-DRPrimitiveCompilationTest >> testAssertExecutesUntilStop [
+DRPrimitiveCompilationTest >> testAssertIsIgnored [
 
-	self compileDruidPrimitive: #failingAssert.
+	self compileDruidPrimitive: #assertIsIgnored.
 	
-	self executeUntilStopPrimitiveWithReceiver: 1
+	self executeUntilStopPrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-iftrueiffalse' }
@@ -613,17 +615,6 @@ DRPrimitiveCompilationTest >> testNotSmallerThanInverted [
 	self executePrimitiveWithReceiver: 2.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 11
-]
-
-{ #category : #'tests-failing-primitive' }
-DRPrimitiveCompilationTest >> testPassingAssert [
-
-	self flag: #FIXME. "FAILING! see interpretSignalWith:"
-	self compileDruidPrimitive: #passingAssert.
-	
-	self executeUntilStopPrimitiveWithReceiver: 1.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-failing-primitive' }

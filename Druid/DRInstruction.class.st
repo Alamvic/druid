@@ -162,6 +162,12 @@ DRInstruction >> label [
 	^ self opcode, '(', self result name asString, ')'
 ]
 
+{ #category : #interpretation }
+DRInstruction >> lookupClass [
+	
+	^ result lookupClass 
+]
+
 { #category : #accessing }
 DRInstruction >> name [
 	

@@ -33,6 +33,12 @@ DRPhysicalRegister >> isRegister [
 	^ true
 ]
 
+{ #category : #interpretation }
+DRPhysicalRegister >> lookupClass [
+	
+	^ Integer "???"
+]
+
 { #category : #accessing }
 DRPhysicalRegister >> name [
 	^ name

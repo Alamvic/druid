@@ -5,6 +5,13 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> assertIsIgnored [
+	<numberOfArguments: 0>
+	self assert: false.
+	self pop: 1 thenPush: 1
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> constant [
 
 	^ 73
@@ -22,12 +29,6 @@ DruidTestInterpreter >> emptyPrimitiveWithArguments [
 
 	<numberOfArguments: 1>
 	"Do nothing"
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> failingAssert [
-	<numberOfArguments: 0>
-	self assert: false
 ]
 
 { #category : #'as yet unclassified' }
@@ -64,13 +65,6 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	"Dead code"
 	^ 16rFFFF
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> passingAssert [
-	<numberOfArguments: 0>
-	self assert: true.
-	self pop: 1 thenPush: 1
 ]
 
 { #category : #'as yet unclassified' }

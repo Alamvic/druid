@@ -63,6 +63,12 @@ DRPhiFunction >> joinedVariables: aCollection [
 	self operands: aCollection
 ]
 
+{ #category : #interpretation }
+DRPhiFunction >> lookupClass [
+	
+	^ operands first lookupClass 
+]
+
 { #category : #accessing }
 DRPhiFunction >> name [
 	

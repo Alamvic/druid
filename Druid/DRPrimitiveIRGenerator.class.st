@@ -25,7 +25,13 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 	specialCases at: #primFailCode put: #interpretPrimFailCodeWith:.
-	specialCases at: #signal: put: #interpretSignalWith:.
+	specialCases at: #assert: put: #interpretAssertWith:.
+]
+
+{ #category : #accessing }
+DRPrimitiveIRGenerator >> interpretAssertWith: aRBMessageNode [
+
+	self pushOperand: (self noop: aRBMessageNode)
 ]
 
 { #category : #'special cases' }
@@ -43,14 +49,6 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode
 DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aVariableNode [
 
 	self pushOperand: self currentBasicBlock primitiveFailureCode
-]
-
-{ #category : #accessing }
-DRPrimitiveIRGenerator >> interpretSignalWith: aRBMessageNode [
-
-	(aRBMessageNode arguments first) acceptVisitor: self.
-
-	self currentBasicBlock primitiveFailureCode: (self operandStackTop).
 ]
 
 { #category : #accessing }
