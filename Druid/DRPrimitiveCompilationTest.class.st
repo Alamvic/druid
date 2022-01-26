@@ -344,19 +344,19 @@ DRPrimitiveCompilationTest >> testFailingPrimitive2ExecutesUntilStop [
 ]
 
 { #category : #'tests-failing-primitive' }
-DRPrimitiveCompilationTest >> testFailingPrimitiveExecutesUntilStop [
-
-	self compileDruidPrimitive: #failingPrimitive.
-	
-	self executeUntilStopPrimitiveWithReceiver: 1
-]
-
-{ #category : #'tests-failing-primitive' }
 DRPrimitiveCompilationTest >> testFailingPrimitiveWithArgExecutesUntilStop [
 
 	self compileDruidPrimitive: #failingPrimitiveWithArg.
 	
 	self executeUntilStopPrimitiveWithReceiver: 1 withArguments: { 42 }
+]
+
+{ #category : #'tests-failing-primitive' }
+DRPrimitiveCompilationTest >> testFailingSuccessExecutesUntilStop [
+
+	self compileDruidPrimitive: #failingSuccess.
+	
+	self executeUntilStopPrimitiveWithReceiver: 1
 ]
 
 { #category : #'tests-comparisons' }
@@ -605,6 +605,16 @@ DRPrimitiveCompilationTest >> testNotSmallerThanInverted [
 	self executePrimitiveWithReceiver: 2.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-failing-primitive' }
+DRPrimitiveCompilationTest >> testPassingSuccessExecutesUntilStop [
+
+	self compileDruidPrimitive: #passingSuccess.
+	
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-deadcode' }
