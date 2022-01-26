@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCopyPropagation,
-	#superclass : #Object,
+	#superclass : #DROptimisation,
 	#category : #'Druid-Optimizations'
 }
 

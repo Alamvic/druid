@@ -200,3 +200,60 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationRightWithPhiFunctionL
 
 	cfg validate.
 ]
+
+{ #category : #'tests - conditional folding' }
+DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationWithFarAwayPhiFunctionLeavesValidCFAfterDeadCodeElimination [
+	" |0| - - - - - - - - - -> |4| 
+		  \-> |1| - - - -> |3| -^
+					\-> |2| -^
+	"
+
+	| cfg b0 b1 b2 b3 b4 rx copy1 copy2 copyRx innerJump mainJump innerPhiInstruction mainPhiInstruction |
+	
+	cfg := DRControlFlowGraphForTesting new. 
+	
+	b0 := cfg newBasicBlock.
+	cfg initialBasicBlock jumpTo: b0.
+	b0 addInstruction: (copy1 := instructionFactory copy: leftOperand1).
+	b0 addInstruction: (copy2 := instructionFactory copy: leftOperand2).
+	mainJump := instructionFactory jumpIf:
+		        (instructionFactory lessOrEquals: copy1 than: copy2).
+	b0 addInstruction: mainJump condition.
+	b0 endInstruction: mainJump. 
+
+	b1 := cfg newBasicBlock.
+	mainJump falseBranch: b1.
+	b1 addPredecessor: b0. 
+	b1 addInstruction: (rx := instructionFactory copy: (DRPhysicalRegister name: 'Rx')).
+	innerJump := instructionFactory jumpIf:
+		        (instructionFactory lessOrEquals: copy1 than: rx).
+	b1 addInstruction: innerJump condition.
+	b1 endInstruction: innerJump. 
+
+
+	b2 := cfg newBasicBlock.
+	innerJump falseBranch: b2.
+	b2 addPredecessor: b1. 
+	b2 addInstruction: (copyRx := instructionFactory copy: rx). 
+	b2 endInstruction: DRNoop new. 
+	
+	b3 := cfg newBasicBlock.
+	b2 jumpTo: b3.
+	innerJump trueBranch: b3.
+	b3 addPredecessor: b1. 
+	b3 addInstruction: (innerPhiInstruction := instructionFactory phiWith: copyRx with: copy1).
+	b3 endInstruction: DRNoop new. 
+
+	b4 := cfg newBasicBlock.
+	b3 jumpTo: b4.
+	mainJump trueBranch: b4.
+	b4 addPredecessor: b0. 
+	b4 addInstruction: (mainPhiInstruction := instructionFactory phiWith: innerPhiInstruction with: copy1).
+	b4 endInstruction: DRNoop new. 
+	
+	(optimisation then: DRDeadBlockElimination new) applyTo: cfg.
+
+	cfg validate.
+	
+	self assertCollection: cfg blocks hasSameElements: { b0 . b4 }
+]

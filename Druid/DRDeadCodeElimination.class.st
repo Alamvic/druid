@@ -36,7 +36,7 @@ Since we consider jumps as normal instructions, this will trigger the marking of
 "
 Class {
 	#name : #DRDeadCodeElimination,
-	#superclass : #Object,
+	#superclass : #DROptimisation,
 	#instVars : [
 		'workList',
 		'markedInstructions'

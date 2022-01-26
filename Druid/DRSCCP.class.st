@@ -26,7 +26,7 @@ The SSAEdges are modelled by the instruction itself, because Druid IR is in SSA 
 "
 Class {
 	#name : #DRSCCP,
-	#superclass : #Object,
+	#superclass : #DROptimisation,
 	#instVars : [
 		'latticeValues',
 		'edges',

@@ -7,7 +7,6 @@ Class {
 { #category : #'instance-creation' }
 DRPhiFunction class >> joinedVariables: aCollection [ 
 
-	self haltIf: [ aCollection anySatisfy: [ :e | e isConstant ] ].
 	^ self new
 		joinedVariables: aCollection;
 		yourself
