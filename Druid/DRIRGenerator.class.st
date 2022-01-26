@@ -193,6 +193,12 @@ DRIRGenerator >> initializeSpecialCases [
 
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
+	self flag: #TODO. "Are all alliases?"
+	specialCases at: #long64At: put: #interpretMachineWordAtWith:.
+	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
+	specialCases at: #byteAt: put: #interpretMachineWordAtWith:.
+
 	specialCases at: #longAt:put: put: #interpretMachineWordAtPutWith:.
 
 
@@ -204,6 +210,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
 
 	"Stack access"
+	specialCases at: #baseFP put: #interpretStackBaseWith:.
 	specialCases at: #stackTop put: #interpretStackTopWith:.
 	specialCases at: #stackValue: put: #interpretStackValueWith:.
 	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
@@ -501,11 +508,16 @@ DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [ 
 	
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
+	| result address |
 	
-	^ self currentBasicBlock addInstruction: (DRLoad operands: { operand1 . operand2 })
+	address := self visitOperand: aRBMessageNode arguments first.
+	
+	result := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRLoad
+		operands: { address }.
+
+	self pushOperand: result
 ]
 
 { #category : #API }
@@ -640,6 +652,12 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretStackBaseWith: aRBMessageNode [ 
+
+	self pushOperand: self currentOperandStack last
 ]
 
 { #category : #'special-cases' }
@@ -1040,6 +1058,12 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 	
 	| blockValue instruction |
+
+"
+	aRBBlockNode arguments do: [ :e |
+		self temporaryAt: e name put: (self visitOperand: e) .
+	].
+"	
 	aRBBlockNode statements do: [ :e |
 		e acceptVisitor: self.
 		e isReturn ifTrue: [ ^ self ].
@@ -1054,6 +1078,12 @@ DRIRGenerator >> visitBlockNode: aRBBlockNode [
 	"The add instruction pushes the instruction to the operand stack.
 	Pop it: at the end of the block execution, nothing should be in the stack"
 	self currentBasicBlock blockValue: blockValue
+]
+
+{ #category : #visiting }
+DRIRGenerator >> visitClassVariableNode: aRBVariableNode [ 
+
+	self pushOperand: aRBVariableNode value asDRValue "?"
 ]
 
 { #category : #visiting }
@@ -1090,8 +1120,9 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 	arguments := aRBMessageNode arguments collect: [ :e |
 		e acceptVisitor: self.
 		self popOperand ].
-	aRBMessageNode isSuperSend ifTrue: [ self halt ].
-	method := receiver lookupClass lookupSelector: aRBMessageNode selector.
+	method := aRBMessageNode isSuperSend 
+					ifTrue: [ receiver lookupClass superclass lookupSelector: aRBMessageNode selector ]
+					ifFalse: [ receiver lookupClass lookupSelector: aRBMessageNode selector ].
 	self interpretMethod: method ast receiver: receiver arguments: arguments
 ]
 
@@ -1128,6 +1159,12 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 DRIRGenerator >> visitSelfNode: aRBVariableNode [ 
 	
 	self pushOperand: self receiver
+]
+
+{ #category : #visiting }
+DRIRGenerator >> visitSuperNode: aRBVariableNode [ 
+	
+	self visitSelfNode: aRBVariableNode 
 ]
 
 { #category : #visiting }

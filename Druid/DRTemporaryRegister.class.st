@@ -57,6 +57,12 @@ DRTemporaryRegister >> isVirtualRegister [
 	^ true
 ]
 
+{ #category : #interpretation }
+DRTemporaryRegister >> lookupClass [
+	
+	^ Integer "???"
+]
+
 { #category : #accessing }
 DRTemporaryRegister >> name [
 

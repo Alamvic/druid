@@ -203,6 +203,23 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsTo
 	self assert: machineSimulator receiverRegisterValue equals: receiver
 ]
 
+{ #category : #'tests-basic' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
+
+	| class array |
+	self compileDruidPrimitive: #primitiveAt.
+	
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	array := memory instantiateClass: class indexableSize: 1.
+	memory storePointer: 0 ofObject: array withValue: 42.
+
+	self 	executePrimitiveWithReceiver: array 
+			withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+	
+]
+
 { #category : #'tests-methodactivations' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethod [
 
