@@ -529,7 +529,7 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver [
 { #category : #API }
 DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: arguments [
 
-	self pushFrameWithReceiver: aReceiver.
+	self pushFrameWithReceiver: aReceiver method: aMethodAST.
 	aMethodAST argumentNames with: arguments do: [ :name :value |
 		self temporaryAt: name put: value
 	].
@@ -904,7 +904,7 @@ DRIRGenerator >> push: aValue [
 ]
 
 { #category : #'frame-access' }
-DRIRGenerator >> pushFrameWithReceiver: aReceiver [
+DRIRGenerator >> pushFrameWithReceiver: aReceiver method: aMethod [
 	
 	| frame newMethodEntry |
 	newMethodEntry := self basicNewBasicBlock.
@@ -913,6 +913,7 @@ DRIRGenerator >> pushFrameWithReceiver: aReceiver [
 	
 	frame := DruidStackFrame new
 		receiver: aReceiver;
+		method: aMethod;
 		irGenerator: self;
 		entryBasicBlock: newMethodEntry;
 		exitBasicBlock: self basicNewBasicBlock;
