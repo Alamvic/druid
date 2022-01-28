@@ -165,6 +165,7 @@ DRSCCP >> latticeValue: aValue [
 	"Return the lattice value for the register"
 	(aValue isRegister and: [ aValue isVirtualRegister not ])
 		ifTrue: [ ^ self bottom ].
+	aValue isLoad ifTrue: [ ^ self bottom ].
 	aValue isInstruction ifFalse: [ ^ aValue ].
 
 	^ latticeValues at: aValue ifAbsent: [ self top ]
