@@ -199,12 +199,16 @@ DRIRGenerator >> initializeSpecialCases [
 
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
-	self flag: #TODO. "Are all alliases?"
+	self flag: #TODO. "Add types to Druid"
+	specialCases at: #long32At: put: #interpretMachineWordAtWith:.
 	specialCases at: #long64At: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
 	specialCases at: #byteAt: put: #interpretMachineWordAtWith:.
-
+	specialCases at: #shortAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
+	
+	
 	specialCases at: #longAt:put: put: #interpretMachineWordAtPutWith:.
 
 
@@ -224,6 +228,10 @@ DRIRGenerator >> initializeSpecialCases [
 	"special variables"
 	specialCases at: #trueObj put: #interpretTrueObjectWith:.
 	specialCases at: #falseObj put: #interpretFalseObjectWith:.
+	specialCases at: #nilObj put: #interpretNilObjectWith:.
+	
+	"Border case, this should not be defined here, it should be extensible"
+	specialCases at: #hiddenRootsObj put: #interpretNilObjectWith:.
 	
 	"special simulation cases"
 	specialCases at: #cCode:inSmalltalk: put: #interpretCCodeInSmalltalkWith:.
@@ -618,6 +626,12 @@ DRIRGenerator >> interpretMultiplyWith: aRBMessageNode [
 DRIRGenerator >> interpretNegatedWith: aRBMessageNode [ 
 
 	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRNegate
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [ 
+	
+	self pushOperand: DRNilObject new
 ]
 
 { #category : #visiting }
@@ -1091,7 +1105,7 @@ DRIRGenerator >> visitBlockNode: aRBBlockNode [
 { #category : #visiting }
 DRIRGenerator >> visitClassVariableNode: aRBVariableNode [ 
 
-	self pushOperand: aRBVariableNode value asDRValue "?"
+	self pushOperand: aRBVariableNode variable value asDRValue
 ]
 
 { #category : #visiting }
@@ -1108,9 +1122,12 @@ DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 ]
 
 { #category : #visiting }
-DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [ 
-	
-	self addInstructionFrom: aRBLiteralValueNode instructionKind: DRCopy operands: { (DRConstantValue value: aRBLiteralValueNode value) }
+DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
+
+	self
+		addInstructionFrom: aRBLiteralValueNode
+		instructionKind: DRCopy
+		operands: { (DRConstantValue value: aRBLiteralValueNode value) }
 ]
 
 { #category : #visiting }

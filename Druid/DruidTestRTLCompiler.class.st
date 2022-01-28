@@ -5,6 +5,15 @@ Class {
 }
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_assertIsIgnored [
+
+	| currentBlock |
+	self MoveCq: 1 R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_emptyPrimitive [
 
 	| currentBlock |

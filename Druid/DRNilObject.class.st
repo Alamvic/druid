@@ -1,11 +1,11 @@
 Class {
-	#name : #DRTrueObject,
+	#name : #DRNilObject,
 	#superclass : #DRObjectReferenceValue,
 	#category : #'Druid-IR'
 }
 
 { #category : #accessing }
-DRTrueObject >> name [
+DRNilObject >> name [
 	
-	^ 'objectMemory trueObject'
+	^ 'objectMemory nilObject'
 ]

@@ -203,7 +203,7 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsTo
 	self assert: machineSimulator receiverRegisterValue equals: receiver
 ]
 
-{ #category : #'tests-basic' }
+{ #category : #'tests-array' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
