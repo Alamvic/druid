@@ -119,6 +119,12 @@ DRIRGenerator >> currentFrame [
 	^ interpretationStack last
 ]
 
+{ #category : #lookup }
+DRIRGenerator >> currentMethod [
+
+	^ self currentFrame method
+]
+
 { #category : #'frame-access' }
 DRIRGenerator >> currentOperandStack [
 	^ self currentBasicBlock vmOperandStack
@@ -1123,7 +1129,7 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 		e acceptVisitor: self.
 		self popOperand ].
 	method := aRBMessageNode isSuperSend 
-					ifTrue: [ receiver lookupClass superclass lookupSelector: aRBMessageNode selector ]
+					ifTrue: [ self currentMethod methodClass superclass lookupSelector: aRBMessageNode selector ]
 					ifFalse: [ receiver lookupClass lookupSelector: aRBMessageNode selector ].
 	self interpretMethod: method ast receiver: receiver arguments: arguments
 ]
