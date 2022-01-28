@@ -99,7 +99,7 @@ DRInstruction >> initialize [
 
 { #category : #'as yet unclassified' }
 DRInstruction >> inspectionDependencies: aBuilder [
-	<inspectorPresentationOrder: 0 title: 'Dependency Graph'> 
+	"<inspectorPresentationOrder: 0 title: 'Dependency Graph'> "
 	| view blockViews eb |
 	view := RSCanvas new.
 	blockViews := self withAllDependencies collect: [ :c | | g |
@@ -371,6 +371,12 @@ DRInstruction >> sccpLatticeValueFor: sccp [
 DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand >> operand2
+]
+
+{ #category : #'constant folding' }
+DRInstruction >> simpleConstantFold [
+	
+	self subclassResponsibility
 ]
 
 { #category : #accessing }

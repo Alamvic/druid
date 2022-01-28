@@ -693,7 +693,7 @@ DRBasicBlock >> validatePhiFunctions [
 	
 	self instructionsDo: [ :e | 
 		(e isPhiFunction and: [| ops |
-			ops := e operands asSet.
+			ops := e operands asIdentitySet.
 			ops size > 1 or: [ (ops anyOne isKindOf: DRNullValue) not ] ]) ifTrue: [
 			e operands size = self predecessors size
 				ifFalse: [ self error: 'Phi-predecessor mismatch' ].

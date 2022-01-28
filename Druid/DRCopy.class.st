@@ -46,3 +46,9 @@ DRCopy >> sccpLatticeValueFor: sccp [
 
 	^ sccp latticeValue: operands first
 ]
+
+{ #category : #'constant folding' }
+DRCopy >> simpleConstantFold [
+	
+	^ self operand1 simpleConstantFold
+]

@@ -27,3 +27,11 @@ DRAdd >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand + operand2
 ]
+
+{ #category : #'constant folding' }
+DRAdd >> simpleConstantFold [
+	
+	^ self
+		sccpOperateOnLattice: self operand1 simpleConstantFold
+		and: self operand2 simpleConstantFold
+]

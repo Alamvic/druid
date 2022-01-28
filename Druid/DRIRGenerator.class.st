@@ -634,11 +634,12 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 	Pop: keep track of the operand stack and remove one element
 	Push: move the value to the physical register assigned to the current stack position"
 	
-	| elementsToPop |
+	| elementsToPop elementsToPopNode |
 	aRBMessageNode arguments first acceptVisitor: self.
-	elementsToPop := self popOperand operand1 value.
+	elementsToPopNode := self popOperand.
+	elementsToPop := elementsToPopNode simpleConstantFold.
 	elementsToPop isInteger
-		ifFalse: [ self error: 'expected an integer value' ].	
+		ifFalse: [ self error: 'expected an integer value' ].
 	"This will be pushed automatically"
 	aRBMessageNode arguments second acceptVisitor: self.
 	self pop: elementsToPop.
