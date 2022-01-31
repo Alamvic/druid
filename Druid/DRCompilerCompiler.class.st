@@ -28,6 +28,7 @@ DRCompilerCompiler >> compile [
 
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
+	1halt.
 
 	registerAllocator allocateRegistersIn: druidIR.
 	
@@ -324,7 +325,7 @@ DRCompilerCompiler >> visitLessThanComparison: aDRLessThanComparison [
 
 { #category : #visiting }
 DRCompilerCompiler >> visitLoad: aDRCogitLoad [ 
-	
+	self flag: #TODO. "Use correct #Move ?"
 	^ self twoOperandCogitRTL: #Move instruction: aDRCogitLoad
 ]
 
