@@ -38,7 +38,11 @@ DRCopyPropagationTest >> testCopyIsPropagatedFromSimplePhiFunctions [
 
 	DRCopyPropagation new applyTo: cfg.
 	
-	self assert: t3 operands first equals: t1 operands first
+	self assert: t3 operand1 equals: t1.
+
+	DRCopyPropagation new applyTo: cfg.
+	
+	self assert: t3 operand1 equals: t1 operand1
 ]
 
 { #category : #tests }
@@ -71,7 +75,7 @@ DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlock [
 
 	DRCopyPropagation new applyTo: cfg.
 	
-	self assert: t1 operands first equals: t2 operands first
+	self assert: t2 operands first equals: t1 operands first
 ]
 
 { #category : #tests }
