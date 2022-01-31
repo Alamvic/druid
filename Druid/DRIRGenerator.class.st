@@ -220,7 +220,6 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
 
 	"Stack access"
-	specialCases at: #baseFP put: #interpretStackBaseWith:.
 	specialCases at: #stackTop put: #interpretStackTopWith:.
 	specialCases at: #stackValue: put: #interpretStackValueWith:.
 	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
@@ -676,12 +675,6 @@ DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [
 ]
 
 { #category : #'special-cases' }
-DRIRGenerator >> interpretStackBaseWith: aRBMessageNode [ 
-
-	self pushOperand: self currentOperandStack last
-]
-
-{ #category : #'special-cases' }
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
 	self pushOperand: self currentOperandStack top
@@ -1079,13 +1072,8 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 { #category : #visiting }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 	
-	| blockValue instruction |
+	| blockValue |
 
-"
-	aRBBlockNode arguments do: [ :e |
-		self temporaryAt: e name put: (self visitOperand: e) .
-	].
-"	
 	aRBBlockNode statements do: [ :e |
 		e acceptVisitor: self.
 		e isReturn ifTrue: [ ^ self ].

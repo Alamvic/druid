@@ -159,7 +159,7 @@ DRValue >> label [
 { #category : #interpretation }
 DRValue >> lookupClass [
 	
-	self subclassResponsibility
+	^ Integer
 ]
 
 { #category : #accessing }
