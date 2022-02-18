@@ -13,6 +13,7 @@ DRDominatorTreeTest >> testCorrectDominatorTree [
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
+	cfg initialBasicBlock jumpTo: b0.
 	b0 jumpTo: b1.
 	jump := DRConditionalJump operands: { DRConstantValue value: true  }.
 	b1 endInstruction: jump. 
@@ -25,5 +26,5 @@ DRDominatorTreeTest >> testCorrectDominatorTree [
 	
 	dominatorTree := DRDominatorTree new.
 	dominatorTree dominatorTreeOf: cfg.
-	self assert: dominatorTree children size == 1.
+	self assert: dominatorTree tree children size == 1.
 ]

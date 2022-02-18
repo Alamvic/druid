@@ -11,27 +11,22 @@ Class {
 { #category : #'as yet unclassified' }
 DRDominatorTree >> dominatorTreeOf: cfg [
 
-	| hasChanged currentNode workList currentPredecessor nearestCommonAncestor |
+	| hasChanged currentNode currentPredecessor nearestCommonAncestor |
 	self initialize: cfg.
 	hasChanged := true.
-	workList := OrderedCollection new.
 	[ hasChanged ] whileTrue: [ 
+		hasChanged := false.
 		cfg blocksDo: [ :b | 
-			hasChanged := false.
 			currentNode := blockDictionary at: b.
-			workList add: b.
-			[ workList isNotEmpty ] whileTrue: [
-				(workList removeAt: 1) predecessors do: [ :p |
-					workList add: p.
-					currentPredecessor := blockDictionary at: p.
-					nearestCommonAncestor := (self nearestCommonAncestorOf: currentNode and: currentPredecessor).
-					(currentNode parent = currentPredecessor or:
-					currentNode parent = nearestCommonAncestor) ifFalse: [ 
-						currentNode parent children removeKey: b.
-						currentNode parent: nearestCommonAncestor.
-						nearestCommonAncestor children add: b->currentNode.
-						hasChanged := true.
-					]
+				b predecessors do: [ :p |
+				currentPredecessor := blockDictionary at: p.
+				nearestCommonAncestor := (self nearestCommonAncestorOf: (blockDictionary at: (b predecessors at: 1)) and: currentPredecessor).
+				(currentNode parent = currentPredecessor or:
+				currentNode parent = nearestCommonAncestor) ifFalse: [ 
+					currentNode parent children removeKey: b.
+					currentNode parent: nearestCommonAncestor.
+					nearestCommonAncestor children add: b->currentNode.
+					hasChanged := true.
 				]
 			]
 		]
@@ -70,14 +65,15 @@ DRDominatorTree >> initialize: cfg [
 
 { #category : #'as yet unclassified' }
 DRDominatorTree >> nearestCommonAncestorOf: n1 and: n2 [
-	| n1Path n2Path minPathLength |
+	| n1Path n2Path minPathLength lastIndex |
 	n1Path := self pathToRoot: n1.
 	n2Path := self pathToRoot: n2.
 	minPathLength := n1Path size min: n2Path size.
 	1 to: minPathLength do: [ :i |
-		(n1Path at: i) = (n2Path at: i) ifFalse: [ ^ n1Path at: i - 1 ]
+		(n1Path at: i) = (n2Path at: i) ifFalse: [ ^ n1Path at: i - 1 ].
+		lastIndex := i.
 	].
-	^ tree
+	^ n1Path at: (lastIndex - 1 max: 1).
 ]
 
 { #category : #'as yet unclassified' }
@@ -85,9 +81,15 @@ DRDominatorTree >> pathToRoot: node [
 	| currentNode path |
 	currentNode := node.
 	path := OrderedCollection new.
+	path addFirst: currentNode.
 	[ currentNode = tree ] whileFalse: [ 
 			currentNode := currentNode parent.
 			path addFirst: currentNode.
 	].
 	^ path
+]
+
+{ #category : #accessing }
+DRDominatorTree >> tree [
+	^ tree
 ]
