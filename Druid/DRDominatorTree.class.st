@@ -18,16 +18,17 @@ DRDominatorTree >> dominatorTreeOf: cfg [
 		hasChanged := false.
 		cfg blocksDo: [ :b | 
 			currentNode := blockDictionary at: b.
+			nearestCommonAncestor := blockDictionary at: (b predecessors at: 1).
 				b predecessors do: [ :p |
 				currentPredecessor := blockDictionary at: p.
-				nearestCommonAncestor := (self nearestCommonAncestorOf: (blockDictionary at: (b predecessors at: 1)) and: currentPredecessor).
-				(currentNode parent = currentPredecessor or:
-				currentNode parent = nearestCommonAncestor) ifFalse: [ 
-					currentNode parent children removeKey: b.
-					currentNode parent: nearestCommonAncestor.
-					nearestCommonAncestor children add: b->currentNode.
-					hasChanged := true.
-				]
+				nearestCommonAncestor := (self nearestCommonAncestorOf: nearestCommonAncestor and: currentPredecessor).
+			].
+			(currentNode parent = currentPredecessor or:
+			currentNode parent = nearestCommonAncestor) ifFalse: [ 
+				currentNode parent children removeKey: b.
+				currentNode parent: nearestCommonAncestor.
+				nearestCommonAncestor children add: b->currentNode.
+				hasChanged := true.
 			]
 		]
 	]
@@ -52,7 +53,7 @@ DRDominatorTree >> initialize: cfg [
 			node := DRDominatorTreeNode new.
 			blockDictionary at: b ifAbsent: [
 				blockDictionary add: b->node.
-				workList add: (node block: b;
+				workList addFirst: (node block: b;
 				parent: currentNode;
 				yourself).
 				currentNode children add: b->node.
