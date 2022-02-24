@@ -32,7 +32,8 @@ Class {
 		'edges',
 		'instancecfg',
 		'ssaWorkList',
-		'cfgEdgeWorkList'
+		'cfgEdgeWorkList',
+		'edgesByDestination'
 	],
 	#category : #'Druid-Optimizations'
 }
@@ -109,7 +110,15 @@ DRSCCP >> buildEdges: cfg [
 		currentBlock successors do: [ :s | 
 			edge := DREdge new. 
 			edge source: currentBlock. 
-			edge destination: s. 
+			edge destination: s.
+			
+			"Pre-compute the set of edges per destination.
+			This is an optimisation for large graphs"
+			(edgesByDestination
+				at: s
+				ifAbsentPut: [ OrderedCollection new ])
+					add: edge.
+			 
 			list add: edge.
 			workList add: s]].
 	
@@ -125,7 +134,10 @@ DRSCCP >> evaluateInstruction: instruction [
 { #category : #querying }
 DRSCCP >> executedEdgesEntering: aBlock [
 
-	^ edges select: [ :e | e destination = aBlock and: [e isExecuted]].
+	| theEdgesOfThisDestination |
+	theEdgesOfThisDestination := edgesByDestination
+		at: aBlock ifAbsent: [ #() ].
+	^ theEdgesOfThisDestination select: [ :e | e isExecuted ]
 ]
 
 { #category : #initialization }
@@ -136,6 +148,8 @@ DRSCCP >> initialize [
 	latticeValues := IdentityDictionary new.
 	ssaWorkList := OrderedCollection new.
 	cfgEdgeWorkList := OrderedCollection new.
+	
+	edgesByDestination := Dictionary new
 ]
 
 { #category : #initialization }
