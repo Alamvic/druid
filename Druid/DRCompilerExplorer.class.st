@@ -96,7 +96,7 @@ DRCompilerExplorer >> methodSource [
 { #category : #accessing }
 DRCompilerExplorer >> optimizations [
 	
-	^ { DRDeadBlockElimination . DRSCCP . DRCopyPropagation . DRDeadCodeElimination . DRCleanControlFlow }
+	^ { DRDeadBlockElimination . DRSCCP . DRCopyPropagation . DRDeadCodeElimination . DRCleanControlFlow . DRPhiSimplication}
 ]
 
 { #category : #'as yet unclassified' }

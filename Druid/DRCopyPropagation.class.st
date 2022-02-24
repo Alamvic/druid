@@ -8,8 +8,8 @@ Class {
 DRCopyPropagation >> applyTo: aDRControlFlowGraph [
 	
 	aDRControlFlowGraph instructions copy do: [ :i |
-		(i isCopy and: [ i operand1 isInstruction ]) ifTrue: [
-				self propagateCopyFrom: i operand1 ] ]
+		(i isCopy and: [ i operand1 isConstant not ]) ifTrue: [
+			self propagateCopyFrom: i ] ]
 ]
 
 { #category : #operations }
