@@ -86,9 +86,9 @@ DRValue >> isJump [
 	^ false
 ]
 
-{ #category : #visiting }
-DRValue >> isLoad [ 
-
+{ #category : #testing }
+DRValue >> isLoad [
+	
 	^ false
 ]
 
@@ -159,7 +159,7 @@ DRValue >> label [
 { #category : #interpretation }
 DRValue >> lookupClass [
 	
-	self subclassResponsibility
+	^ Integer
 ]
 
 { #category : #accessing }

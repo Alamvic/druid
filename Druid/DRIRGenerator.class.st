@@ -119,6 +119,12 @@ DRIRGenerator >> currentFrame [
 	^ interpretationStack last
 ]
 
+{ #category : #lookup }
+DRIRGenerator >> currentMethod [
+
+	^ self currentFrame method
+]
+
 { #category : #'frame-access' }
 DRIRGenerator >> currentOperandStack [
 	^ self currentBasicBlock vmOperandStack
@@ -193,6 +199,16 @@ DRIRGenerator >> initializeSpecialCases [
 
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
+	self flag: #TODO. "Add types to Druid"
+	specialCases at: #long32At: put: #interpretMachineWordAtWith:.
+	specialCases at: #long64At: put: #interpretMachineWordAtWith:.
+	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
+	specialCases at: #byteAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #shortAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
+	
+	
 	specialCases at: #longAt:put: put: #interpretMachineWordAtPutWith:.
 
 
@@ -211,6 +227,10 @@ DRIRGenerator >> initializeSpecialCases [
 	"special variables"
 	specialCases at: #trueObj put: #interpretTrueObjectWith:.
 	specialCases at: #falseObj put: #interpretFalseObjectWith:.
+	specialCases at: #nilObj put: #interpretNilObjectWith:.
+	
+	"Border case, this should not be defined here, it should be extensible"
+	specialCases at: #hiddenRootsObj put: #interpretNilObjectWith:.
 	
 	"special simulation cases"
 	specialCases at: #cCode:inSmalltalk: put: #interpretCCodeInSmalltalkWith:.
@@ -501,11 +521,16 @@ DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [ 
 	
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
+	| result address |
 	
-	^ self currentBasicBlock addInstruction: (DRLoad operands: { operand1 . operand2 })
+	address := self visitOperand: aRBMessageNode arguments first.
+	
+	result := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRLoad
+		operands: { address }.
+
+	self pushOperand: result
 ]
 
 { #category : #API }
@@ -517,7 +542,7 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver [
 { #category : #API }
 DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: arguments [
 
-	self pushFrameWithReceiver: aReceiver.
+	self pushFrameWithReceiver: aReceiver method: aMethodAST.
 	aMethodAST argumentNames with: arguments do: [ :name :value |
 		self temporaryAt: name put: value
 	].
@@ -602,6 +627,12 @@ DRIRGenerator >> interpretNegatedWith: aRBMessageNode [
 	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRNegate
 ]
 
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [ 
+	
+	self pushOperand: DRNilObject new
+]
+
 { #category : #visiting }
 DRIRGenerator >> interpretNotWith: aRBMessageNode [ 
 	self shouldBeImplemented.
@@ -622,11 +653,12 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 	Pop: keep track of the operand stack and remove one element
 	Push: move the value to the physical register assigned to the current stack position"
 	
-	| elementsToPop |
+	| elementsToPop elementsToPopNode |
 	aRBMessageNode arguments first acceptVisitor: self.
-	elementsToPop := self popOperand operand1 value.
+	elementsToPopNode := self popOperand.
+	elementsToPop := elementsToPopNode simpleConstantFold.
 	elementsToPop isInteger
-		ifFalse: [ self error: 'expected an integer value' ].	
+		ifFalse: [ self error: 'expected an integer value' ].
 	"This will be pushed automatically"
 	aRBMessageNode arguments second acceptVisitor: self.
 	self pop: elementsToPop.
@@ -886,7 +918,7 @@ DRIRGenerator >> push: aValue [
 ]
 
 { #category : #'frame-access' }
-DRIRGenerator >> pushFrameWithReceiver: aReceiver [
+DRIRGenerator >> pushFrameWithReceiver: aReceiver method: aMethod [
 	
 	| frame newMethodEntry |
 	newMethodEntry := self basicNewBasicBlock.
@@ -895,6 +927,7 @@ DRIRGenerator >> pushFrameWithReceiver: aReceiver [
 	
 	frame := DruidStackFrame new
 		receiver: aReceiver;
+		method: aMethod;
 		irGenerator: self;
 		entryBasicBlock: newMethodEntry;
 		exitBasicBlock: self basicNewBasicBlock;
@@ -1039,7 +1072,8 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 { #category : #visiting }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 	
-	| blockValue instruction |
+	| blockValue |
+
 	aRBBlockNode statements do: [ :e |
 		e acceptVisitor: self.
 		e isReturn ifTrue: [ ^ self ].
@@ -1057,6 +1091,12 @@ DRIRGenerator >> visitBlockNode: aRBBlockNode [
 ]
 
 { #category : #visiting }
+DRIRGenerator >> visitClassVariableNode: aRBVariableNode [ 
+
+	self pushOperand: aRBVariableNode variable value asDRValue
+]
+
+{ #category : #visiting }
 DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [ 
 	
 	| receiver arguments method |
@@ -1070,9 +1110,12 @@ DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 ]
 
 { #category : #visiting }
-DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [ 
-	
-	self addInstructionFrom: aRBLiteralValueNode instructionKind: DRCopy operands: { (DRConstantValue value: aRBLiteralValueNode value) }
+DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
+
+	self
+		addInstructionFrom: aRBLiteralValueNode
+		instructionKind: DRCopy
+		operands: { (DRConstantValue value: aRBLiteralValueNode value) }
 ]
 
 { #category : #visiting }
@@ -1090,8 +1133,9 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 	arguments := aRBMessageNode arguments collect: [ :e |
 		e acceptVisitor: self.
 		self popOperand ].
-	aRBMessageNode isSuperSend ifTrue: [ self halt ].
-	method := receiver lookupClass lookupSelector: aRBMessageNode selector.
+	method := aRBMessageNode isSuperSend 
+					ifTrue: [ self currentMethod methodClass superclass lookupSelector: aRBMessageNode selector ]
+					ifFalse: [ receiver lookupClass lookupSelector: aRBMessageNode selector ].
 	self interpretMethod: method ast receiver: receiver arguments: arguments
 ]
 
@@ -1128,6 +1172,12 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 DRIRGenerator >> visitSelfNode: aRBVariableNode [ 
 	
 	self pushOperand: self receiver
+]
+
+{ #category : #visiting }
+DRIRGenerator >> visitSuperNode: aRBVariableNode [ 
+	
+	self visitSelfNode: aRBVariableNode 
 ]
 
 { #category : #visiting }

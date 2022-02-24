@@ -11,6 +11,12 @@ DRPrimitiveIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 ]
 
 { #category : #accessing }
+DRPrimitiveIRGenerator >> ignoreMessageWith: aRBMessageNode [
+
+	self pushOperand: (self noop: aRBMessageNode)
+]
+
+{ #category : #accessing }
 DRPrimitiveIRGenerator >> initialize [
 
 	super initialize.
@@ -24,7 +30,21 @@ DRPrimitiveIRGenerator >> initialize [
 DRPrimitiveIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
-	specialCases at: #primFailCode put: #interpretPrimFailCodeWith:
+	specialCases at: #primFailCode put: #interpretPrimFailCodeWith:.
+	specialCases at: #assert: put: #ignoreMessageWith:.
+	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.
+
+	self flag: #TODO. "To support"
+	specialCases at: #stContext:at:format:fixedFields: put: #interpretPrimFailCodeWith:.
+	specialCases at: #firstByteIndexOfMethod: put: #interpretPrimFailCodeWith:.
+	specialCases at: #positive64BitIntegerFor: put: #interpretPrimFailCodeWith:.
+	
+]
+
+{ #category : #accessing }
+DRPrimitiveIRGenerator >> interpretCCoerceWith: aRBMessageNode [
+
+	^ aRBMessageNode arguments first acceptVisitor: self
 ]
 
 { #category : #'special cases' }
@@ -39,7 +59,7 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode
 ]
 
 { #category : #accessing }
-DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aVariableNode [
+DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aRBNode [
 
 	self pushOperand: self currentBasicBlock primitiveFailureCode
 ]

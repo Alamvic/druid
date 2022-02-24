@@ -1,6 +1,6 @@
 Class {
 	#name : #DRFailureCodeBasedTailDuplication,
-	#superclass : #Object,
+	#superclass : #DROptimisation,
 	#category : #'Druid-Optimizations'
 }
 

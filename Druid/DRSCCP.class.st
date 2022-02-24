@@ -26,7 +26,7 @@ The SSAEdges are modelled by the instruction itself, because Druid IR is in SSA 
 "
 Class {
 	#name : #DRSCCP,
-	#superclass : #Object,
+	#superclass : #DROptimisation,
 	#instVars : [
 		'latticeValues',
 		'edges',
@@ -165,6 +165,7 @@ DRSCCP >> latticeValue: aValue [
 	"Return the lattice value for the register"
 	(aValue isRegister and: [ aValue isVirtualRegister not ])
 		ifTrue: [ ^ self bottom ].
+	aValue isLoad ifTrue: [ ^ self bottom ].
 	aValue isInstruction ifFalse: [ ^ aValue ].
 
 	^ latticeValues at: aValue ifAbsent: [ self top ]

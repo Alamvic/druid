@@ -127,6 +127,16 @@ DRPrimitiveCompilationTest >> testAnyMaskTrueInverted [
 
 ]
 
+{ #category : #'tests-failing-primitive' }
+DRPrimitiveCompilationTest >> testAssertIsIgnored [
+
+	self compileDruidPrimitive: #assertIsIgnored.
+	
+	self executeUntilStopPrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
 { #category : #'tests-iftrueiffalse' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCaseFalse [
 
@@ -191,6 +201,24 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsTo
 	
 	"An empty primitive does nothing and just returns, the return value is the receiver"
 	self assert: machineSimulator receiverRegisterValue equals: receiver
+]
+
+{ #category : #'tests-array' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
+
+	| class array |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveAt.
+	
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	array := memory instantiateClass: class indexableSize: 1.
+	memory storePointer: 0 ofObject: array withValue: 42.
+
+	self 	executePrimitiveWithReceiver: array 
+			withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+	
 ]
 
 { #category : #'tests-methodactivations' }
@@ -344,9 +372,17 @@ DRPrimitiveCompilationTest >> testFailingPrimitive2ExecutesUntilStop [
 ]
 
 { #category : #'tests-failing-primitive' }
-DRPrimitiveCompilationTest >> testFailingPrimitiveExecutesUntilStop [
+DRPrimitiveCompilationTest >> testFailingPrimitiveWithArgExecutesUntilStop [
 
-	self compileDruidPrimitive: #failingPrimitive.
+	self compileDruidPrimitive: #failingPrimitiveWithArg.
+	
+	self executeUntilStopPrimitiveWithReceiver: 1 withArguments: { 42 }
+]
+
+{ #category : #'tests-failing-primitive' }
+DRPrimitiveCompilationTest >> testFailingSuccessExecutesUntilStop [
+
+	self compileDruidPrimitive: #failingSuccess.
 	
 	self executeUntilStopPrimitiveWithReceiver: 1
 ]
@@ -597,6 +633,16 @@ DRPrimitiveCompilationTest >> testNotSmallerThanInverted [
 	self executePrimitiveWithReceiver: 2.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-failing-primitive' }
+DRPrimitiveCompilationTest >> testPassingSuccess [
+
+	self compileDruidPrimitive: #passingSuccess.
+	
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-deadcode' }

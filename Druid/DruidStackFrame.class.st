@@ -3,6 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'receiver',
+		'method',
 		'irGenerator',
 		'entryBasicBlock',
 		'exitBasicBlock',
@@ -56,6 +57,18 @@ DruidStackFrame >> irGenerator: anObject [
 ]
 
 { #category : #accessing }
+DruidStackFrame >> method [
+
+	^ method
+]
+
+{ #category : #accessing }
+DruidStackFrame >> method: anObject [
+
+	method := anObject
+]
+
+{ #category : #accessing }
 DruidStackFrame >> operandStack [
 
 	^ operandStack
@@ -71,6 +84,16 @@ DruidStackFrame >> operandStack: anObject [
 DruidStackFrame >> pop [
 
 	^ operandStack pop
+]
+
+{ #category : #printing }
+DruidStackFrame >> printOn: stream [
+
+	super printOn: stream.
+	stream
+		nextPutAll: '(';
+		print: method selector;
+		nextPutAll: ')'
 ]
 
 { #category : #accessing }

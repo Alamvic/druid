@@ -13,6 +13,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #accessing }
+DRInstruction class >> operands: operands [
+
+	^ self operands: operands result: DRNoRegister new
+]
+
 { #category : #'instance creation' }
 DRInstruction class >> operands: aCollection result: aResultRegister [
 	
@@ -93,7 +99,7 @@ DRInstruction >> initialize [
 
 { #category : #'as yet unclassified' }
 DRInstruction >> inspectionDependencies: aBuilder [
-	<inspectorPresentationOrder: 0 title: 'Dependency Graph'> 
+	"<inspectorPresentationOrder: 0 title: 'Dependency Graph'> "
 	| view blockViews eb |
 	view := RSCanvas new.
 	blockViews := self withAllDependencies collect: [ :c | | g |
@@ -154,6 +160,12 @@ DRInstruction >> isPhiFunction [
 DRInstruction >> label [
 
 	^ self opcode, '(', self result name asString, ')'
+]
+
+{ #category : #interpretation }
+DRInstruction >> lookupClass [
+	
+	^ result lookupClass 
 ]
 
 { #category : #accessing }
@@ -359,6 +371,12 @@ DRInstruction >> sccpLatticeValueFor: sccp [
 DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand >> operand2
+]
+
+{ #category : #'constant folding' }
+DRInstruction >> simpleConstantFold [
+	
+	self subclassResponsibility
 ]
 
 { #category : #accessing }

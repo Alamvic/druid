@@ -15,3 +15,9 @@ DRLoad >> isLoad [
 
 	^ true
 ]
+
+{ #category : #printing }
+DRLoad >> opcode [
+	
+	^ 'LOAD'
+]

@@ -324,7 +324,7 @@ DRCompilerCompiler >> visitLessThanComparison: aDRLessThanComparison [
 
 { #category : #visiting }
 DRCompilerCompiler >> visitLoad: aDRCogitLoad [ 
-	
+
 	^ self twoOperandCogitRTL: #Move instruction: aDRCogitLoad
 ]
 

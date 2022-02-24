@@ -81,13 +81,13 @@ DRPrimitiveCompilerCompiler >> initialize [
 	
 	"Basic set of optimizations twice for primitives"
 	optimisations add: DRFailureCodeBasedTailDuplication new.
-	optimisations add: DRSCCP new.
+	optimisations add: (DRSCCP then: DRDeadBlockElimination).
 	optimisations add: DRCopyPropagation new.
 	optimisations add: DRDeadCodeElimination new.
 	optimisations add: DRCleanControlFlow new.
 	
 	optimisations add: DRFailureCodeBasedTailDuplication new.
-	optimisations add: DRSCCP new.
+	optimisations add: (DRSCCP then: DRDeadBlockElimination).
 	optimisations add: DRCopyPropagation new.
 	optimisations add: DRDeadCodeElimination new.
 	optimisations add: DRCleanControlFlow new.

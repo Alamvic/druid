@@ -12,6 +12,7 @@ DROptimisationTest class >> isAbstract [
 
 { #category : #test }
 DROptimisationTest >> setUpCFG: n [
+	"Creates a sequence of n + 1 blocks: |0| -> |1| -> ... -> |n|"
 
 	| cfg b0 b1 b2 b3 |
 	
@@ -19,6 +20,7 @@ DROptimisationTest >> setUpCFG: n [
 	
 	b0 := cfg initialBasicBlock.
 	cfg b0: b0.
+	n = 0 ifTrue: [ ^ cfg ].
 	
 	b1 := cfg newBasicBlock.
 	cfg b1: b1.
@@ -40,6 +42,9 @@ DROptimisationTest >> setUpCFG: n [
 
 { #category : #test }
 DROptimisationTest >> setUpCFGWithConditional: jump [
+	"|init| -> |0| -> |1| -> |2| -> |4|
+							  \ -> |3| --^
+	"
 
 	| cfg b0 b1 b2 b3 b4|
 	

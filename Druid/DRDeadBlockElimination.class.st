@@ -1,6 +1,6 @@
 Class {
 	#name : #DRDeadBlockElimination,
-	#superclass : #Object,
+	#superclass : #DROptimisation,
 	#category : #'Druid-Optimizations'
 }
 

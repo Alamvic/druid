@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCleanControlFlow,
-	#superclass : #Object,
+	#superclass : #DROptimisation,
 	#category : #'Druid-Optimizations'
 }
 

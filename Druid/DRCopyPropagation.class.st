@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCopyPropagation,
-	#superclass : #Object,
+	#superclass : #DROptimisation,
 	#category : #'Druid-Optimizations'
 }
 
@@ -8,9 +8,8 @@ Class {
 DRCopyPropagation >> applyTo: aDRControlFlowGraph [
 	
 	aDRControlFlowGraph instructions copy do: [ :i |
-		((i isCopy or: [ i isPhiFunction and: [ i operands size = 1 ] ])
-			and: [ i operand1 isInstruction ]) ifTrue: [
-				self propagateCopyFrom: i ] ]
+		(i isCopy and: [ i operand1 isInstruction ]) ifTrue: [
+				self propagateCopyFrom: i operand1 ] ]
 ]
 
 { #category : #operations }
