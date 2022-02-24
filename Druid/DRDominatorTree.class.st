@@ -5,7 +5,7 @@ Class {
 		'tree',
 		'blockDictionary'
 	],
-	#category : #'Druid-IR'
+	#category : #'Druid-Optimizations'
 }
 
 { #category : #'as yet unclassified' }
@@ -66,15 +66,14 @@ DRDominatorTree >> initialize: cfg [
 
 { #category : #'as yet unclassified' }
 DRDominatorTree >> nearestCommonAncestorOf: n1 and: n2 [
-	| n1Path n2Path minPathLength lastIndex |
+	| n1Path n2Path minPathLength |
 	n1Path := self pathToRoot: n1.
 	n2Path := self pathToRoot: n2.
 	minPathLength := n1Path size min: n2Path size.
 	1 to: minPathLength do: [ :i |
 		(n1Path at: i) = (n2Path at: i) ifFalse: [ ^ n1Path at: i - 1 ].
-		lastIndex := i.
 	].
-	^ n1Path at: (lastIndex - 1 max: 1).
+	^ n1Path at: minPathLength.
 ]
 
 { #category : #'as yet unclassified' }

@@ -6,7 +6,7 @@ Class {
 		'children',
 		'parent'
 	],
-	#category : #'Druid-IR'
+	#category : #'Druid-Optimizations'
 }
 
 { #category : #'instance creation' }
