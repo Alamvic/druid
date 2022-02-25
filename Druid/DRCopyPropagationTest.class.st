@@ -1,9 +1,6 @@
 Class {
 	#name : #DRCopyPropagationTest,
 	#superclass : #DROptimisationTest,
-	#instVars : [
-		'optimisation'
-	],
 	#category : #'Druid-Tests'
 }
 
