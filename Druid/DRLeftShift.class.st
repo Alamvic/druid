@@ -15,3 +15,9 @@ DRLeftShift >> opcode [
 	
 	^ 'LeftShift'
 ]
+
+{ #category : #SCCP }
+DRLeftShift >> sccpOperateOnLattice: anInteger and: anInteger2 [ 
+	
+	^ anInteger << anInteger2
+]

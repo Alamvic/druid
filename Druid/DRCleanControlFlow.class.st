@@ -154,8 +154,7 @@ DRCleanControlFlow >> step: cfg [
 	| didChange |
 	didChange := false.
 	cfg postOrderBlocks allButLast do: [ :e |
-		didChange := didChange or: [ self stepBlock: e fromCfg: cfg ].
-		cfg validate ].
+		didChange := didChange or: [ self stepBlock: e fromCfg: cfg ] ].
 	^ didChange
 ]
 

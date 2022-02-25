@@ -370,7 +370,7 @@ DRInstruction >> sccpLatticeValueFor: sccp [
 { #category : #SCCP }
 DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 	
-	^ operand >> operand2
+	self subclassResponsibility
 ]
 
 { #category : #'constant folding' }

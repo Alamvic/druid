@@ -23,29 +23,6 @@ DRCopyPropagationTest >> testCopyConstantIsNotPropagatedToPhiFunctions [
 ]
 
 { #category : #tests }
-DRCopyPropagationTest >> testCopyIsPropagatedFromSimplePhiFunctions [
-
-	| cfg t1 t2 b1 b2 t3 |
-	cfg := DRControlFlowGraph new.
-	b1 := cfg newBasicBlockWith: [ :block |
-		t1 := block copy: (DRPhysicalRegister name: 'argument').
-		t2 := block phiWith: t1.
-	].
-
-	b1 jumpTo: (b2 := cfg newBasicBlockWith: [ :block |
-		t3 := block copy: t2.
-	]).
-
-	DRCopyPropagation new applyTo: cfg.
-	
-	self assert: t3 operand1 equals: t1.
-
-	DRCopyPropagation new applyTo: cfg.
-	
-	self assert: t3 operand1 equals: t1 operand1
-]
-
-{ #category : #tests }
 DRCopyPropagationTest >> testCopyIsPropagatedInBlockSequence [
 
 	| cfg t1 t2 b1 b2 |
@@ -66,16 +43,17 @@ DRCopyPropagationTest >> testCopyIsPropagatedInBlockSequence [
 { #category : #tests }
 DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlock [
 
-	| cfg t1 t2 |
+	| cfg t1 t2 t3 |
 	cfg := DRControlFlowGraph new.
 	cfg newBasicBlockWith: [ :block |
 		t1 := block copy: (DRPhysicalRegister name: 'argument').
 		t2 := block copy: t1.
+		t3 := block copy: t2.
 	].
 
 	DRCopyPropagation new applyTo: cfg.
 	
-	self assert: t2 operands first equals: t1 operands first
+	self assert: t3 operand1 equals: t1 operand1
 ]
 
 { #category : #tests }
