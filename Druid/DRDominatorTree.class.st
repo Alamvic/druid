@@ -8,26 +8,24 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #accessing }
+DRDominatorTree >> blockDictionary [
+	^ blockDictionary
+]
+
 { #category : #'as yet unclassified' }
 DRDominatorTree >> dominatorTreeOf: cfg [
 
-	| hasChanged currentNode currentPredecessor nearestCommonAncestor |
+	| hasChanged currentNode newImmediateDominator|
 	self initialize: cfg.
 	hasChanged := true.
 	[ hasChanged ] whileTrue: [ 
 		hasChanged := false.
 		cfg blocksDo: [ :b | 
 			currentNode := blockDictionary at: b.
-			nearestCommonAncestor := blockDictionary at: (b predecessors at: 1).
-				b predecessors do: [ :p |
-				currentPredecessor := blockDictionary at: p.
-				nearestCommonAncestor := (self nearestCommonAncestorOf: nearestCommonAncestor and: currentPredecessor).
-			].
-			(currentNode parent = currentPredecessor or:
-			currentNode parent = nearestCommonAncestor) ifFalse: [ 
-				currentNode parent children removeKey: b.
-				currentNode parent: nearestCommonAncestor.
-				nearestCommonAncestor children add: b->currentNode.
+			newImmediateDominator := currentNode findImmediateDominator: self.
+			(currentNode parent = newImmediateDominator) ifFalse: [ 
+				currentNode replaceParent: newImmediateDominator.
 				hasChanged := true.
 			]
 		]
