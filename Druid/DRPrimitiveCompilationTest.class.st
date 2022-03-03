@@ -131,10 +131,11 @@ DRPrimitiveCompilationTest >> testAnyMaskTrueInverted [
 DRPrimitiveCompilationTest >> testAssertIsIgnored [
 
 	self compileDruidPrimitive: #assertIsIgnored.
+
+	self executePrimitiveWithReceiver: 37.
 	
-	self executeUntilStopPrimitiveWithReceiver: 1.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 1
+	self assert: machineSimulator receiverRegisterValue equals: 17
+
 ]
 
 { #category : #'tests-iftrueiffalse' }
@@ -469,7 +470,7 @@ DRPrimitiveCompilationTest >> testIsIntegerObjectWithIntegerObject [
 DRPrimitiveCompilationTest >> testIsIntegerObjectWithNonIntegerObject [
 
 	self compileDruidPrimitive: #primitiveIsIntegerObject.
-	self executePrimitiveWithReceiver: 99 "No tag".
+	self executePrimitiveWithReceiver: 0 "No tag".
 	
 	self assert: machineSimulator receiverRegisterValue equals: memory falseObject
 ]

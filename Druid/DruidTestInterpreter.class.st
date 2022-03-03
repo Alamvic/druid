@@ -8,7 +8,7 @@ Class {
 DruidTestInterpreter >> assertIsIgnored [
 	<numberOfArguments: 0>
 	self assert: false.
-	self pop: 1 thenPush: 1
+	self pop: 1 thenPush: 17
 ]
 
 { #category : #'as yet unclassified' }

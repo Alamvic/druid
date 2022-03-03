@@ -212,9 +212,9 @@ DRInstruction >> operands [
 { #category : #accessing }
 DRInstruction >> operands: aCollection [ 
 
-	operands do: [ :each | each removeUser: self ].
+	operands asSet do: [ :each | each removeUser: self ].
 	operands := aCollection asOrderedCollection.
-	operands do: [ :each | each addUser: self ]
+	operands asSet do: [ :each | each addUser: self ]
 ]
 
 { #category : #accessing }
