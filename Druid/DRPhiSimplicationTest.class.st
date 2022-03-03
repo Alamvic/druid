@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #tests }
-DRPhiSimplicationTest >> testNotSimplificateComplexPhi [
+DRPhiSimplicationTest >> testNotSimplificateDualPhi [
 
 	| cfg b1 t1 t2 t3 |
 	cfg := DRControlFlowGraph new.
@@ -20,6 +20,22 @@ DRPhiSimplicationTest >> testNotSimplificateComplexPhi [
 ]
 
 { #category : #tests }
+DRPhiSimplicationTest >> testSimplificateRedundantPhi [
+
+	| cfg b1 t1 t2 newT2 |
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlockWith: [ :block | 
+		      t1 := block copy: 1 asDRValue.
+		      t2 := block phiWith: t1 with: t1 ].
+
+	DRPhiSimplication new applyTo: cfg.
+	
+	newT2 := b1 instructions at: 2.
+	self assert: newT2 isCopy.
+	self assert: newT2 operand1 equals: t1
+]
+
+{ #category : #tests }
 DRPhiSimplicationTest >> testSimplificateSimplePhi [
 
 	| cfg b1 t1 t2 newT2 |
@@ -29,8 +45,10 @@ DRPhiSimplicationTest >> testSimplificateSimplePhi [
 		      t2 := block phiWith: t1 ].
 
 	DRPhiSimplication new applyTo: cfg.
-	
+
 	newT2 := b1 instructions at: 2.
 	self assert: newT2 isCopy.
-	self assert: newT2 operand1 equals: t1
+	self assert: newT2 operand1 equals: t1.
+	self assert: t1 users size equals: 1.
+	self assert: t1 users anyOne equals: newT2
 ]

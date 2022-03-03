@@ -562,7 +562,6 @@ DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [
 	(instructions includes: anInstruction) ifTrue: [ 
 		^ instructions at: (instructions indexOf: anInstruction) put: anotherInstruction ].
 
-	self haltIf: [ endInstruction isKindOf: DROverflowJump ].
 	"Otherwise check if it is the block end instruction"
 	endInstruction ~= anInstruction
 		ifTrue: [ self error: 'This block does not contain the instruction' ].

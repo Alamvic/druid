@@ -207,7 +207,6 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsTo
 DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
-	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 	
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
@@ -470,7 +469,7 @@ DRPrimitiveCompilationTest >> testIsIntegerObjectWithIntegerObject [
 DRPrimitiveCompilationTest >> testIsIntegerObjectWithNonIntegerObject [
 
 	self compileDruidPrimitive: #primitiveIsIntegerObject.
-	self executePrimitiveWithReceiver: 0 "No tag".
+	self executePrimitiveWithReceiver: 99 "No tag".
 	
 	self assert: machineSimulator receiverRegisterValue equals: memory falseObject
 ]

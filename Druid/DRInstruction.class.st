@@ -311,6 +311,10 @@ DRInstruction >> replaceBy: anotherInstruction [
 	
 	users copy do: [ :instruction |
 		instruction replaceOperand: self by: anotherInstruction ].
+
+	operands asSet do: [ :instruction |
+		instruction removeUser: self ].
+
 	basicBlock replace: self by: anotherInstruction
 ]
 

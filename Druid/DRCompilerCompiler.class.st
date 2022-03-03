@@ -28,13 +28,13 @@ DRCompilerCompiler >> compile [
 
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
-
+	
 	registerAllocator allocateRegistersIn: druidIR.
 	
 	"Remove the phi functions.
 	From this point on, we are not in SSA form anymore"
 	self resolvePhiFunctionsIn: druidIR.
-	
+
 	targetAST := self generateTargetASTFromIR: druidIR.
 	self writeAST: targetAST
 ]
@@ -60,10 +60,17 @@ DRCompilerCompiler >> deferBranch: aString to: aDRBasicBlock [
 
 { #category : #'generation-IR' }
 DRCompilerCompiler >> generateDruidIR [
+
+	| method |
+	method := interpreter class lookupSelector: sourceName.
+	^ self generateDruidIRFor: method
+]
+
+{ #category : #'generation-IR' }
+DRCompilerCompiler >> generateDruidIRFor: method [
 	
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	| method irGenerator initialBasicBlock initial startBlock |
-	method := interpreter class lookupSelector: sourceName.
+	| irGenerator initialBasicBlock initial startBlock |
 	irGenerator := self newIRGenerator.
 	
 	"Create the initial basic block"

@@ -10,6 +10,17 @@ DROptimisationTest class >> isAbstract [
 	^ self class == DROptimisationTest
 ]
 
+{ #category : #'as yet unclassified' }
+DROptimisationTest >> generateDruidIRFor: methodSelector [
+
+	| method cfg |
+	method := DruidTestInterpreter lookupSelector: methodSelector.
+	cfg := DRPrimitiveCompilerCompiler new generateDruidIRFor: method.
+	(DRPhiSimplication then: DRDeadCodeElimination) applyTo: cfg.
+
+	^ cfg
+]
+
 { #category : #test }
 DROptimisationTest >> setUpCFG: n [
 	"Creates a sequence of n + 1 blocks: |0| -> |1| -> ... -> |n|"

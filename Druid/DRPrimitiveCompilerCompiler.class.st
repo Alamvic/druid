@@ -74,23 +74,18 @@ DRPrimitiveCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 DRPrimitiveCompilerCompiler >> initialize [
 
 	super initialize.
-	
+
 	optimisations := OrderedCollection new.
-	optimisations add: DRDeadBlockElimination new.
-	optimisations add: DRCleanControlFlow new.
-	
+	optimisations add: (DRDeadBlockElimination then: DRCleanControlFlow).
+
 	"Basic set of optimizations twice for primitives"
-	optimisations add: DRFailureCodeBasedTailDuplication new.
-	optimisations add: (DRSCCP then: DRDeadBlockElimination).
-	optimisations add: DRCopyPropagation new.
-	optimisations add: DRDeadCodeElimination new.
-	optimisations add: DRCleanControlFlow new.
-	
-	optimisations add: DRFailureCodeBasedTailDuplication new.
-	optimisations add: (DRSCCP then: DRDeadBlockElimination).
-	optimisations add: DRCopyPropagation new.
-	optimisations add: DRDeadCodeElimination new.
-	optimisations add: DRCleanControlFlow new.
+	2 timesRepeat: [ 
+		optimisations add: DRFailureCodeBasedTailDuplication new.
+		optimisations add: (DRSCCP then: DRDeadBlockElimination).
+		optimisations add: DRCopyPropagation new.
+		optimisations add: DRPhiSimplication new.
+		optimisations add: DRDeadCodeElimination new.
+		optimisations add: DRCleanControlFlow new ]
 ]
 
 { #category : #visiting }

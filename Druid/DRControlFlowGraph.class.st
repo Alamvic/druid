@@ -133,6 +133,12 @@ DRControlFlowGraph >> inspectionCFG: aBuilder [
 		yourself
 ]
 
+{ #category : #'as yet unclassified' }
+DRControlFlowGraph >> instructionByResultId: anInteger [ 
+
+	^ self instructions detect: [ :i | i result ifNil: [ false ] ifNotNil: [ i result id = anInteger] ]
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> instructionFactory [
 

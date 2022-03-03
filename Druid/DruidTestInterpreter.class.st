@@ -18,6 +18,19 @@ DruidTestInterpreter >> constant [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> copyPropagationBetweenBranches [
+
+	<numberOfArguments: 0>
+	| a b res |
+	a := 1.
+	b := 2.
+	res := self stackTop > 0
+		ifTrue: [ a ]
+		ifFalse: [ b ].
+	self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> emptyPrimitive [
 
 	<numberOfArguments: 0>
