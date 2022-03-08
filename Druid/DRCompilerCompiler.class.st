@@ -28,7 +28,7 @@ DRCompilerCompiler >> compile [
 
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
-	self generatePaths: druidIR.
+"	self generatePaths: druidIR."
 	
 	registerAllocator allocateRegistersIn: druidIR.
 	

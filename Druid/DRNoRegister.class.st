@@ -4,12 +4,6 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #testing }
-DRNoRegister >> isPhysicalRegister [
-
-	^ false
-]
-
 { #category : #accessing }
 DRNoRegister >> name [
 	
