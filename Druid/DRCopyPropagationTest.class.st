@@ -8,7 +8,7 @@ Class {
 DRCopyPropagationTest >> testCopyIsNotPropagatedBetweenBranches [
 
 	| cfg instruction |
-	cfg := self generateDruidIRFor: #copyPropagationBetweenBranches.
+	cfg := self generateDruidIRFor: #branchingWithAssigments.
 
 	DRCopyPropagation new applyTo: cfg.
 

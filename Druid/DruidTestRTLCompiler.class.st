@@ -14,6 +14,23 @@ DruidTestRTLCompiler >> gen_assertIsIgnored [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_branchingWithAssigments [
+
+	| currentBlock jump0 jump1 |
+	self CmpCq: 0 R: ReceiverResultReg.
+	jump0 := self JumpLessOrEqual: 0.
+	self MoveCq: 17 R: ReceiverResultReg.
+	jump1 := self Jump: 0.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveCq: 42 R: ReceiverResultReg.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_emptyPrimitive [
 
 	| currentBlock |

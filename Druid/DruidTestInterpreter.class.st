@@ -12,22 +12,22 @@ DruidTestInterpreter >> assertIsIgnored [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> constant [
-
-	^ 73
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> copyPropagationBetweenBranches [
+DruidTestInterpreter >> branchingWithAssigments [
 
 	<numberOfArguments: 0>
 	| a b res |
-	a := 1.
-	b := 2.
+	a := 17.
+	b := 42.
 	res := self stackTop > 0
 		ifTrue: [ a ]
 		ifFalse: [ b ].
 	self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> constant [
+
+	^ 73
 ]
 
 { #category : #'as yet unclassified' }

@@ -138,6 +138,26 @@ DRPrimitiveCompilationTest >> testAssertIsIgnored [
 
 ]
 
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testBranchingWithAssigmentsFalse [
+
+	self compileDruidPrimitive: #branchingWithAssigments.
+	
+	self executePrimitiveWithReceiver: -1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testBranchingWithAssigmentsTrue [
+
+	self compileDruidPrimitive: #branchingWithAssigments.
+	
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
 { #category : #'tests-iftrueiffalse' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCaseFalse [
 
