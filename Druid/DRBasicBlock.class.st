@@ -12,7 +12,9 @@ Class {
 		'vmOperandStack',
 		'primitiveFailureCode',
 		'controlFlowGraph',
-		'isExitBlock'
+		'isExitBlock',
+		'incomingRegInfo',
+		'outgoingRegInfo'
 	],
 	#category : #'Druid-IR'
 }
@@ -268,6 +270,18 @@ DRBasicBlock >> id: anObject [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> incomingRegInfo [
+
+	^ incomingRegInfo
+]
+
+{ #category : #accessing }
+DRBasicBlock >> incomingRegInfo: anObject [
+
+	incomingRegInfo := anObject
+]
+
+{ #category : #accessing }
 DRBasicBlock >> indexOfPredecessor: aDRBasicBlock [ 
 	
 	^ predecessors indexOf: aDRBasicBlock
@@ -468,6 +482,18 @@ DRBasicBlock >> numberOfPredecessors [
 { #category : #accessing }
 DRBasicBlock >> origin: aCollection [ 
 	origin := aCollection
+]
+
+{ #category : #accessing }
+DRBasicBlock >> outgoingRegInfo [
+
+	^ outgoingRegInfo
+]
+
+{ #category : #accessing }
+DRBasicBlock >> outgoingRegInfo: anObject [
+
+	outgoingRegInfo := anObject
 ]
 
 { #category : #accessing }

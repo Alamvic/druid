@@ -7,7 +7,7 @@ Class {
 { #category : #visiting }
 DRValue >> acceptVisitor: aVisitor [
 
-	self subclassResponsibility
+	^ aVisitor visitConstant: self
 ]
 
 { #category : #building }

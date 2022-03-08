@@ -1,6 +1,9 @@
 Class {
 	#name : #DROptimisationTest,
 	#superclass : #TestCase,
+	#instVars : [
+		'compilerCompiler'
+	],
 	#category : #'Druid-Tests'
 }
 
@@ -10,15 +13,42 @@ DROptimisationTest class >> isAbstract [
 	^ self class == DROptimisationTest
 ]
 
+{ #category : #running }
+DROptimisationTest >> configureInterpreter [
+
+	super setUp.
+
+	compilerCompiler interpreter: DruidTestInterpreter new
+]
+
 { #category : #'as yet unclassified' }
 DROptimisationTest >> generateDruidIRFor: methodSelector [
 
 	| method cfg |
 	method := DruidTestInterpreter lookupSelector: methodSelector.
-	cfg := DRPrimitiveCompilerCompiler new generateDruidIRFor: method.
+	cfg := compilerCompiler generateDruidIRFor: method.
 	(DRPhiSimplication then: DRDeadCodeElimination) applyTo: cfg.
 
 	^ cfg
+]
+
+{ #category : #'as yet unclassified' }
+DROptimisationTest >> generatePaths: cfg [ 
+	compilerCompiler generatePaths: cfg
+]
+
+{ #category : #'as yet unclassified' }
+DROptimisationTest >> optimize: cfg [
+
+	compilerCompiler optimize: cfg
+]
+
+{ #category : #running }
+DROptimisationTest >> setUp [
+
+	super setUp.
+
+	compilerCompiler := DRPrimitiveCompilerCompiler new
 ]
 
 { #category : #test }
