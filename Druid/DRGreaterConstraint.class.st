@@ -33,3 +33,9 @@ DRGreaterConstraint >> negated [
 
 	^ DRLessOrEqualsConstraint withValue: constantValue
 ]
+
+{ #category : #printing }
+DRGreaterConstraint >> opCode [
+
+	^ '>'
+]

@@ -33,3 +33,9 @@ DREqualsConstraint >> negated [
 
 	^ DRNotEqualsConstraint withValue: constantValue
 ]
+
+{ #category : #printing }
+DREqualsConstraint >> opCode [
+
+	^ '='
+]

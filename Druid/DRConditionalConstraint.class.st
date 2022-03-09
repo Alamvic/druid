@@ -62,3 +62,18 @@ DRConditionalConstraint >> negated [
 
 	self subclassResponsibility
 ]
+
+{ #category : #printing }
+DRConditionalConstraint >> opCode [
+
+	self subclassResponsibility
+]
+
+{ #category : #printing }
+DRConditionalConstraint >> printOn: aStream [
+
+	aStream
+		nextPutAll: self opCode;
+		nextPutAll: ' ';
+		print: constantValue
+]

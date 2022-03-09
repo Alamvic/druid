@@ -89,6 +89,15 @@ DRRegisterConstraint >> negated [
 		  yourself
 ]
 
+{ #category : #printing }
+DRRegisterConstraint >> printOn: aStream [
+
+	aStream 
+		nextPutAll: reg name;
+		nextPutAll: ' ';
+		print: condition
+]
+
 { #category : #accessing }
 DRRegisterConstraint >> reg [
 

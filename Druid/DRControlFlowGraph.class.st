@@ -185,7 +185,7 @@ DRControlFlowGraph >> inspectionCFG [
 		line @ (RSPopup text: [ :model | 
 			(self edgeFrom: model key to: model value)
 				ifNotNil: [ :e | String streamContents: [:s | 
-						e constraints associations asStringOn: s delimiter: String cr] 
+						e constraints values asStringOn: s delimiter: String cr] 
  					]
 			]) 
 		].
