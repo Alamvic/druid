@@ -10,30 +10,30 @@ Class {
 }
 
 { #category : #allocation }
-DRLinearScanRegisterAllocator >> allocateRegisterForLiveSet: aDRLiveSet [
+DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiveRegisterInterval [
 	
 	| register |
 	register := availableRegisters removeFirst.
-	aDRLiveSet register: register.
+	aDRLiveRegisterInterval register: register.
 ]
 
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> allocateRegisters [
 	
-	| activeSets |
-	activeSets := Set new.
-	liveSets values do: [ :currentLiveSet |
+	| activeIntervals |
+	activeIntervals := Set new.
+	liveSets values do: [ :currentInterval |
 		
-		activeSets copy do: [ :activeSet |
-			(activeSet lastUsage isNil or:
-				[ activeSet lastUsage order < currentLiveSet definition order ])
+		activeIntervals copy do: [ :eachInterval |
+			(eachInterval lastUsage isNil or:
+				[ eachInterval lastUsage order <= currentInterval definition order ])
 					ifTrue: [ 
 						"not active anymore"
-						activeSets remove: activeSet.
-						self returnRegister: activeSet register ] ].
+						activeIntervals remove: eachInterval.
+						self returnRegister: eachInterval register ] ].
 		
-		self allocateRegisterForLiveSet: currentLiveSet.
-		currentLiveSet isSpilled ifFalse: [ activeSets add: currentLiveSet ].
+		self allocateRegisterForLiveRegisterInterval: currentInterval.
+		currentInterval isSpilled ifFalse: [ activeIntervals add: currentInterval ].
 	]
 ]
 
@@ -89,7 +89,7 @@ DRLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
 	liveSets := OrderedDictionary new.
-	availableRegisters := { 
+	self registers: { 
 		DRPhysicalRegister name: 'TempReg'.
 		DRPhysicalRegister name: 'ClassReg'.
 		DRPhysicalRegister name: 'SendNumArgsReg'.
@@ -97,9 +97,7 @@ DRLinearScanRegisterAllocator >> initialize [
 		DRPhysicalRegister name: 'Extra1Reg'.
 		DRPhysicalRegister name: 'Extra2Reg'.
 		DRPhysicalRegister name: 'Extra3Reg'.
-		DRPhysicalRegister name: 'Extra4Reg'.
-		
-	} asOrderedCollection.
+		DRPhysicalRegister name: 'Extra4Reg' }
 ]
 
 { #category : #enumerating }
@@ -121,8 +119,14 @@ DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [
 		order := order + 1 ]
 ]
 
+{ #category : #'block-linearization' }
+DRLinearScanRegisterAllocator >> registers: aCollection [
+
+	availableRegisters := aCollection asOrderedCollection
+]
+
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> returnRegister: aPhisicalRegister [
 
-	availableRegisters add: aPhisicalRegister
+	availableRegisters addLast: aPhisicalRegister
 ]
