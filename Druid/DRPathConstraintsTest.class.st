@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #constraints }
-DRPathConstraintsTest >> testConditionalConstraint [
+DRPathConstraintsTest >> testConditionalRegisterConstraint [
 
 	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThan.
@@ -17,6 +17,21 @@ DRPathConstraintsTest >> testConditionalConstraint [
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "< 10"
 	self assert: (trueConstraint includes: (DRRegisterConstraint greaterOrEquals: trueConstraint reg than: 10) ).
 	self assert: (falseConstraint includes: (DRRegisterConstraint less: falseConstraint reg than: 10) ).
+]
+
+{ #category : #constraints }
+DRPathConstraintsTest >> testConditionalRegisterConstraintInverted [
+
+	| cfg edges trueConstraint falseConstraint |
+	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThanInverted.
+	self optimize: cfg.
+	self generatePaths: cfg.
+
+	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
+	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "<= 10"
+	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "> 10"
+	self assert: (trueConstraint includes: (DRRegisterConstraint lessOrEquals: trueConstraint reg than: 10) ).
+	self assert: (falseConstraint includes: (DRRegisterConstraint greater: falseConstraint reg than: 10) ).
 ]
 
 { #category : #building }
@@ -66,7 +81,7 @@ DRPathConstraintsTest >> testCopyAddNewConstraint [
 ]
 
 { #category : #constraints }
-DRPathConstraintsTest >> testCopyConstraint [
+DRPathConstraintsTest >> testCopyRegisterConstraint [
 
 	| cfg edge constraint |
 	cfg := self generateDruidIRFor: #primitiveReturnOne.

@@ -157,6 +157,24 @@ DruidTestInterpreter >> primitiveDivide [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveEqualsThan [
+
+	<numberOfArguments: 0>
+	| r |
+	r := self stackTop = 10 ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveEqualsThanInverted [
+	"Put the constant as the receiver"
+	<numberOfArguments: 0>
+	| r |
+	r := 10 = self stackTop ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveGreaterOrEqualsThan [
 
 	<numberOfArguments: 0>
@@ -276,6 +294,24 @@ DruidTestInterpreter >> primitiveNegated [
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: self stackTop negated
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNotEqualsThan [
+
+	<numberOfArguments: 0>
+	| r |
+	r := self stackTop ~= 10 ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNotEqualsThanInverted [
+	"Put the constant as the receiver"
+	<numberOfArguments: 0>
+	| r |
+	r := 10 ~= self stackTop ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
 ]
 
 { #category : #'as yet unclassified' }

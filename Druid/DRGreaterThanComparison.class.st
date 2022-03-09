@@ -37,7 +37,7 @@ DRGreaterThanComparison >> opcode [
 { #category : #reversing }
 DRGreaterThanComparison >> reversed [
 	
-	^ DRLessOrEqualsThanComparison operands: operands reversed result: result
+	^ DRLessThanComparison operands: operands reversed result: result
 ]
 
 { #category : #SCCP }

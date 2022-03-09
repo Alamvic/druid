@@ -49,6 +49,25 @@ DRRegistersInfo >> printOn: aStream [
 ]
 
 { #category : #visiting }
+DRRegistersInfo >> visitAddition: aDRAdd [ 
+	"Do nothing"
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitComparison: aDRComparison andDo: aClosure [ 
+
+		| operands |
+	operands := aDRComparison operands.
+	((operands anySatisfy: #isConstant) and: [ operands anySatisfy: #isRegister ]) 
+		ifFalse: [ ^ self "We need a register and a constant" ].
+
+	aDRComparison operand1 isRegister ifFalse: [ "Check register is on left"
+		^ aDRComparison reversed acceptVisitor: self "if not reverse it" ]. 
+
+	^ aClosure value: aDRComparison operand1 value: (aDRComparison operand2 acceptVisitor: self)
+]
+
+{ #category : #visiting }
 DRRegistersInfo >> visitConditionalJump: aDRConditionalJump [
 
 	| constraint |
@@ -77,18 +96,97 @@ DRRegistersInfo >> visitCopy: aDRCopy [
 ]
 
 { #category : #visiting }
+DRRegistersInfo >> visitDivision: aDRDivision [ 
+		"Do nothing"
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitEqualsComparison: aDREqualsThanComparison [
+
+	^ self
+		  visitComparison: aDREqualsThanComparison
+		  andDo: [ :reg :value | 
+		  DRRegisterConstraint equals: reg than: value ]
+]
+
+{ #category : #visiting }
 DRRegistersInfo >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanComparison [
 
-	self flag: #TODO. "Visit operands"
-	^ DRRegisterConstraint
-		  greaterOrEquals: aDRGreaterOrEqualsThanComparison operand1
-		  than: aDRGreaterOrEqualsThanComparison operand2 value
+	^ self
+		  visitComparison: aDRGreaterOrEqualsThanComparison
+		  andDo: [ :reg :value | 
+		  DRRegisterConstraint greaterOrEquals: reg than: value ]
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitGreaterThanComparison: aDRGreaterThanComparison [ 
+
+	^ self
+		  visitComparison: aDRGreaterThanComparison
+		  andDo: [ :reg :value | 
+		  DRRegisterConstraint greater: reg than: value ]
 ]
 
 { #category : #visiting }
 DRRegistersInfo >> visitJump: aDRJump [ 
 
 	"Simple jumps do not have type constraints"
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitLessOrEqualsThanComparison: aDRLessOrEqualsThanComparison [
+
+	^ self
+		  visitComparison: aDRLessOrEqualsThanComparison
+		  andDo: [ :reg :value | 
+		  DRRegisterConstraint lessOrEquals: reg than: value ]
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitLessThanComparison: aDRLessThanComparison [
+
+	^ self
+		  visitComparison: aDRLessThanComparison
+		  andDo: [ :reg :value | DRRegisterConstraint less: reg than: value ]
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitMod: aDRMod [ 
+	"Do nothing"
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitMultiply: aDRMultiply [ 
+	"Do nothing"
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitMultiplyOverflowJump: aDRMultiplyOverflowJump [ 
+	self shouldBeImplemented.
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitNegate: aDRNegate [ 
+	"Do nothing"
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitNoop: aDRNoop [ 
+	"Do nothing"
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitNotEqualsComparison: aDRNotEqualsThanComparison [
+
+	^ self
+		  visitComparison: aDRNotEqualsThanComparison
+		  andDo: [ :reg :value | 
+		  DRRegisterConstraint notEquals: reg than: value ]
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitOverflowJump: aDROverflowJump [ 
+	self flag: #TODO. "Do nothing?"
 ]
 
 { #category : #visiting }
@@ -100,6 +198,17 @@ DRRegistersInfo >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
+DRRegistersInfo >> visitRightShift: aDRRightShift [ 
+	"Do nothing"
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitSubstract: aDRSubtract [ 
+	"Do nothing"
+]
+
+{ #category : #visiting }
 DRRegistersInfo >> visitTest: aDRTest [ 
-	self shouldBeImplemented.
+	self flag: #TODO. "Mask constraint"
+	self notImplemented
 ]

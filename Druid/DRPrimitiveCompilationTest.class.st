@@ -383,6 +383,46 @@ DRPrimitiveCompilationTest >> testDivisionNotExactNegative [
 	self assert: (machineSimulator receiverRegisterValue signedIntFromShort) equals: -1.   
 ]
 
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testEqualsThan [
+
+	self compileDruidPrimitive: #primitiveEqualsThan.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testEqualsThanFail [
+
+	self compileDruidPrimitive: #primitiveEqualsThan.
+	
+	self executePrimitiveWithReceiver: 9.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testEqualsThanInverted [
+
+	self compileDruidPrimitive: #primitiveEqualsThanInverted.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testEqualsThanInvertedFail [
+
+	self compileDruidPrimitive: #primitiveEqualsThanInverted.
+	
+	self executePrimitiveWithReceiver: 9.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
 { #category : #'tests-failing-primitive' }
 DRPrimitiveCompilationTest >> testFailingPrimitive2ExecutesUntilStop [
 
@@ -430,7 +470,7 @@ DRPrimitiveCompilationTest >> testGreaterOrEqualsThanEquals [
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testGreaterOrEqualsThanEqualsInverted [
 
-	self compileDruidPrimitive: #primitiveGreaterOrEqualsThan.
+	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanInverted.
 	
 	self executePrimitiveWithReceiver: 10.
 	
@@ -553,6 +593,46 @@ DRPrimitiveCompilationTest >> testNegatedNegative [
 	self executePrimitiveWithReceiver: -5.
 
 	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotEqualsThan [
+
+	self compileDruidPrimitive: #primitiveNotEqualsThan.
+	
+	self executePrimitiveWithReceiver: 9.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotEqualsThanFail [
+
+	self compileDruidPrimitive: #primitiveNotEqualsThan.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotEqualsThanInverted [
+
+	self compileDruidPrimitive: #primitiveNotEqualsThanInverted.
+	
+	self executePrimitiveWithReceiver: 9.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotEqualsThanInvertedFail [
+
+	self compileDruidPrimitive: #primitiveNotEqualsThanInverted.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
 { #category : #'tests-comparisons' }

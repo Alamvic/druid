@@ -34,7 +34,6 @@ DruidTestRTLCompiler >> gen_branchingWithAssigments [
 DruidTestRTLCompiler >> gen_emptyPrimitive [
 
 	| currentBlock |
-	self MoveR: ReceiverResultReg R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
@@ -43,8 +42,6 @@ DruidTestRTLCompiler >> gen_emptyPrimitive [
 DruidTestRTLCompiler >> gen_emptyPrimitiveWithArguments [
 
 	| currentBlock |
-	self MoveR: Arg0Reg R: Arg0Reg.
-	self MoveR: ReceiverResultReg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
@@ -62,7 +59,6 @@ DruidTestRTLCompiler >> gen_failingPrimitive [
 DruidTestRTLCompiler >> gen_failingPrimitive2 [
 
 	| currentBlock |
-	self MoveR: ReceiverResultReg R: ReceiverResultReg.
 	^ CompletePrimitive
 ]
 
@@ -70,8 +66,6 @@ DruidTestRTLCompiler >> gen_failingPrimitive2 [
 DruidTestRTLCompiler >> gen_failingPrimitiveWithArg [
 
 	| currentBlock jump0 |
-	self MoveR: Arg0Reg R: Arg0Reg.
-	self MoveR: ReceiverResultReg R: ReceiverResultReg.
 	self CmpCq: 0 R: Arg0Reg.
 	jump0 := self JumpNonZero: 0.
 	self RetN: 2 * objectMemory wordSize.
@@ -84,7 +78,6 @@ DruidTestRTLCompiler >> gen_failingPrimitiveWithArg [
 DruidTestRTLCompiler >> gen_failingSuccess [
 
 	| currentBlock |
-	self MoveR: ReceiverResultReg R: ReceiverResultReg.
 	^ CompletePrimitive
 ]
 
@@ -183,6 +176,40 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveEqualsThan [
+
+	| currentBlock jump0 jump1 |
+	self CmpCq: 10 R: ReceiverResultReg.
+	jump0 := self JumpNonZero: 0.
+	self MoveCq: 5 R: ReceiverResultReg.
+	jump1 := self Jump: 0.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveCq: 11 R: ReceiverResultReg.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveEqualsThanInverted [
+
+	| currentBlock jump0 jump1 |
+	self CmpCq: 10 R: ReceiverResultReg.
+	jump0 := self JumpNonZero: 0.
+	self MoveCq: 5 R: ReceiverResultReg.
+	jump1 := self Jump: 0.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveCq: 11 R: ReceiverResultReg.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualsThan [
 
 	| currentBlock jump0 jump1 |
@@ -204,7 +231,7 @@ DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualsThanInverted [
 
 	| currentBlock jump0 jump1 |
 	self CmpCq: 10 R: ReceiverResultReg.
-	jump0 := self JumpGreaterOrEqual: 0.
+	jump0 := self JumpGreater: 0.
 	self MoveCq: 5 R: ReceiverResultReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
@@ -421,6 +448,40 @@ DruidTestRTLCompiler >> gen_primitiveNegated [
 	self MoveR: ReceiverResultReg R: TempReg.
 	self NegateR: TempReg.
 	self MoveR: TempReg R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveNotEqualsThan [
+
+	| currentBlock jump0 jump1 |
+	self CmpCq: 10 R: ReceiverResultReg.
+	jump0 := self JumpZero: 0.
+	self MoveCq: 5 R: ReceiverResultReg.
+	jump1 := self Jump: 0.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveCq: 11 R: ReceiverResultReg.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveNotEqualsThanInverted [
+
+	| currentBlock jump0 jump1 |
+	self CmpCq: 10 R: ReceiverResultReg.
+	jump0 := self JumpZero: 0.
+	self MoveCq: 5 R: ReceiverResultReg.
+	jump1 := self Jump: 0.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveCq: 11 R: ReceiverResultReg.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]

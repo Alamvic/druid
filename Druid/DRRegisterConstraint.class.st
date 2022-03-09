@@ -18,6 +18,15 @@ DRRegisterConstraint class >> equals: register than: aValue [
 ]
 
 { #category : #'as yet unclassified' }
+DRRegisterConstraint class >> greater: register than: aValue [
+
+	^ self new
+		  reg: register;
+		  condition: (DRGreaterConstraint withValue: aValue);
+		  yourself
+]
+
+{ #category : #'as yet unclassified' }
 DRRegisterConstraint class >> greaterOrEquals: register than: aValue [
 
 	^ self new
@@ -32,6 +41,15 @@ DRRegisterConstraint class >> less: register than: aValue [
 	^ self new
 		  reg: register;
 		  condition: (DRLessConstraint withValue: aValue);
+		  yourself
+]
+
+{ #category : #'as yet unclassified' }
+DRRegisterConstraint class >> lessOrEquals: register than: aValue [
+
+	^ self new
+		  reg: register;
+		  condition: (DRLessOrEqualsConstraint withValue: aValue);
 		  yourself
 ]
 
