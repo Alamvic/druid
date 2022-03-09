@@ -75,6 +75,19 @@ DruidTestInterpreter >> passingSuccess [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveByteAt [
+
+	<numberOfArguments: 0>
+	
+	| aByte addressToRead |
+	addressToRead := self stackTop.
+	aByte := objectMemory byteAt: addressToRead.
+
+	"pop the receiver, push the result"	
+	self pop: 1 thenPush: aByte
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveCallingMethodReturningConstant [
 
 	<numberOfArguments: 0>

@@ -323,9 +323,28 @@ DRCompilerCompiler >> visitLessThanComparison: aDRLessThanComparison [
 ]
 
 { #category : #visiting }
-DRCompilerCompiler >> visitLoad: aDRCogitLoad [ 
+DRCompilerCompiler >> visitLoad: aDRLoad [
 
-	^ self twoOperandCogitRTL: #Move instruction: aDRCogitLoad
+	"Only implement register byte accesses for now"
+
+	| bytesToRead |
+	aDRLoad operand2 result rtlOperandQualifier = 'R:' ifFalse: [ 
+		self halt ].
+	bytesToRead := aDRLoad operand1 value.
+	bytesToRead = 1 ifFalse: [ self halt ].
+
+	"Zero the register before loading a byte"
+	self twoOperandCogitRTL: #Move operands: { 
+			0 asDRValue.
+			aDRLoad result }.
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #MoveMb:r:R:
+			 arguments: { 
+					 (self rtlExpressionForValue: 0 asDRValue).
+					 (self rtlExpressionForValue: aDRLoad operand2).
+					 (self rtlExpressionForValue: aDRLoad result) })
 ]
 
 { #category : #visiting }

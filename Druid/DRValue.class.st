@@ -180,6 +180,12 @@ DRValue >> result [
 	^ self
 ]
 
+{ #category : #'cogit-generation' }
+DRValue >> rtlOperandQualifier [
+
+	self subclassResponsibility
+]
+
 { #category : #accessing }
 DRValue >> singleChild [
 	

@@ -145,10 +145,12 @@ DRPrimitiveCompilerCompiler >> rtlExpressionForValue: aValue [
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> threeOperandCogitRTL: aMnemonic instruction: instruction [
 
-	self twoOperandCogitRTL: #Move operands: {
-		instruction operand1. instruction result }.
+	self twoOperandCogitRTL: #Move operands: { 
+			instruction operand1.
+			instruction result }.
 	^ self twoOperandCogitRTL: aMnemonic operands: { 
-		instruction operand2. instruction result }
+			  instruction operand2.
+			  instruction result }
 ]
 
 { #category : #visiting }
@@ -157,20 +159,19 @@ DRPrimitiveCompilerCompiler >> twoOperandCogitRTL: aMnemonic instruction: instru
 	self
 		twoOperandCogitRTL: aMnemonic
 		operands: {
-		instruction operand1.
-		instruction result }.
+			instruction operand1.
+			instruction result }.
 ]
 
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> twoOperandCogitRTL: aMnemonic operands: operands [
 
-	generatorMethodBuilder addStatement: (
-		RBMessageNode
-			receiver: RBVariableNode selfNode
-			selector: (aMnemonic, 
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: aMnemonic,
 				operands first result rtlOperandQualifier,
-				operands second result rtlOperandQualifier)
-			arguments: { 
-				self rtlExpressionForValue: (operands at: 1).
-				self rtlExpressionForValue: (operands at: 2) })
+				operands second result rtlOperandQualifier
+			 arguments: { 
+					 (self rtlExpressionForValue: (operands at: 1)).
+					 (self rtlExpressionForValue: (operands at: 2)) })
 ]

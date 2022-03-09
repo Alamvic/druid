@@ -204,7 +204,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #long64At: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
-	specialCases at: #byteAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #byteAt: put: #interpretLoadByteAtWith:.
 	specialCases at: #shortAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
 	
@@ -225,9 +225,9 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
 	
 	"special variables"
-	specialCases at: #trueObj put: #interpretTrueObjectWith:.
-	specialCases at: #falseObj put: #interpretFalseObjectWith:.
 	specialCases at: #nilObj put: #interpretNilObjectWith:.
+	specialCases at: #falseObj put: #interpretFalseObjectWith:.
+	specialCases at: #trueObj put: #interpretTrueObjectWith:.
 	
 	"Border case, this should not be defined here, it should be extensible"
 	specialCases at: #hiddenRootsObj put: #interpretNilObjectWith:.
@@ -508,6 +508,21 @@ DRIRGenerator >> interpretLessThanComparisonWith: aRBMessageNode [
 	^ self interpretCondition: aRBMessageNode instructionKind: DRLessThanComparison
 ]
 
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretLoadByteAtWith: aRBMessageNode [ 
+	
+	| result address |
+	
+	address := self visitOperand: aRBMessageNode arguments first.
+	
+	result := self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRLoad
+		operands: { 1 asDRValue "byte size". address }.
+
+	self pushOperand: result
+]
+
 { #category : #'special-cases' }
 DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [ 
 	
@@ -674,13 +689,13 @@ DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases - stack' }
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
 	self pushOperand: self currentOperandStack top
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases - stack' }
 DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 
 	"Interpret messages of the form 
@@ -1098,8 +1113,7 @@ DRIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
 { #category : #visiting }
 DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [ 
-	
-	| receiver arguments method |
+
 	specialCases
 		at: aRBVariableNode name
 		ifPresent: [ :mapping |

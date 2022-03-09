@@ -137,6 +137,66 @@ DRPrimitiveCompilationTest >> testAssertIsIgnored [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
+{ #category : #'test-memoryaccess' }
+DRPrimitiveCompilationTest >> testByteAt [
+
+	| object pointerToFirstSlot |
+	self compileDruidPrimitive: #primitiveByteAt.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+	memory storePointer: 0 ofObject: object withValue: 16r00000000000000FF.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 16rFF
+]
+
+{ #category : #'test-memoryaccess' }
+DRPrimitiveCompilationTest >> testByteAt2 [
+
+	| object pointerToFirstSlot |
+	self compileDruidPrimitive: #primitiveByteAt.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize + 1.
+	memory storePointer: 0 ofObject: object withValue: 16r000000000000FF00.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 16rFF
+]
+
+{ #category : #'test-memoryaccess' }
+DRPrimitiveCompilationTest >> testByteAt3 [
+
+	| object pointerToFirstSlot |
+	self compileDruidPrimitive: #primitiveByteAt.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize + 2.
+	memory storePointer: 0 ofObject: object withValue: 16r0000000000FF0000.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 16rFF
+]
+
+{ #category : #'test-memoryaccess' }
+DRPrimitiveCompilationTest >> testByteAt4 [
+
+	| object pointerToFirstSlot |
+	self compileDruidPrimitive: #primitiveByteAt.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize + 3.
+	memory storePointer: 0 ofObject: object withValue: 16r00000000FF000000.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 16rFF
+]
+
 { #category : #'tests-iftrueiffalse' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCaseFalse [
 
