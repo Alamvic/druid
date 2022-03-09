@@ -73,14 +73,14 @@ DRRegistersInfo >> visitCopy: aDRCopy [
 	
 	| operandConstraint constantValue |
 	constantValue := aDRCopy operand1 acceptVisitor: self.
-	self addConstraint: (DRConditionalRegisterConstraint equals: aDRCopy result than: constantValue)
+	self addConstraint: (DRRegisterConstraint equals: aDRCopy result than: constantValue)
 ]
 
 { #category : #visiting }
 DRRegistersInfo >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanComparison [
 
 	self flag: #TODO. "Visit operands"
-	^ DRConditionalRegisterConstraint
+	^ DRRegisterConstraint
 		  greaterOrEquals: aDRGreaterOrEqualsThanComparison operand1
 		  than: aDRGreaterOrEqualsThanComparison operand2 value
 ]

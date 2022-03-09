@@ -7,15 +7,16 @@ Class {
 { #category : #constraints }
 DRPathConstraintsTest >> testConditionalConstraint [
 
-	| cfg edges |
+	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThan.
 	self optimize: cfg.
 	self generatePaths: cfg.
-	1halt.
-	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
-	self assert: edges first constraints isEmpty.
-	self assert: edges second constraints equals: 1.
 
+	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
+	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. ">= 10"
+	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "< 10"
+	self assert: (trueConstraint includes: (DRRegisterConstraint greaterOrEquals: trueConstraint reg than: 10) ).
+	self assert: (falseConstraint includes: (DRRegisterConstraint less: falseConstraint reg than: 10) ).
 ]
 
 { #category : #building }
@@ -74,7 +75,7 @@ DRPathConstraintsTest >> testCopyConstraint [
 
 	edge := cfg outgoingEdgeFor: cfg firstBasicBlock.
 	constraint := edge constraintFor: 'ReceiverResultReg'.
-	self assert: (constraint includes: (DRConditionalRegisterConstraint equals: nil than: 1) ).
+	self assert: (constraint includes: (DRRegisterConstraint equals: constraint reg than: 1) ).
 ]
 
 { #category : #building }
