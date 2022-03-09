@@ -5,7 +5,8 @@ Class {
 		'initialBasicBlock',
 		'basicBlocks',
 		'nextBasicBlockId',
-		'instructionFactory'
+		'instructionFactory',
+		'edges'
 	],
 	#category : #'Druid-IR'
 }
@@ -15,6 +16,21 @@ DRControlFlowGraph >> addBasicBlock: aBlock [
 
 	self assert: (basicBlocks noneSatisfy: [:b | b id = aBlock id]).
 	basicBlocks add: aBlock
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> addEdge: anEdge [
+
+	edges add: anEdge
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock [
+	
+	| edge |
+	edge := DRRegistersInfo withSource: sourceBlock andDestination: destinationBlock.
+	self addEdge: edge.
+	^ edge
 ]
 
 { #category : #building }
@@ -77,6 +93,36 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 					workingQueue addLast: target  ] ] ] ]
 ]
 
+{ #category : #edges }
+DRControlFlowGraph >> edgeFrom: sourceBlock to: destinationBlock [
+
+	^ edges detect: [ :e | e source = sourceBlock and: [e destination = destinationBlock] ] ifNone: [ nil ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> edges [
+
+	^ edges
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> firstBasicBlock [
+
+	^ initialBasicBlock successor
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> incomingEdgeFor: aBlock [
+
+	^ (self incomingEdgesFor: aBlock) first "Check?"
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> incomingEdgesFor: aBlock [
+
+	^ edges select: [ :e | e destination = aBlock ]
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> initialBasicBlock [ 
 	^ initialBasicBlock
@@ -89,6 +135,7 @@ DRControlFlowGraph >> initialize [
 	instructionFactory := DRInstructionFactory new.
 	
 	basicBlocks := OrderedCollection new.
+	edges := OrderedCollection new.
 	initialBasicBlock := DRBasicBlock id: 0.
 	nextBasicBlockId := 1.
 ]
@@ -133,7 +180,7 @@ DRControlFlowGraph >> inspectionCFG: aBuilder [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRControlFlowGraph >> instructionByResultId: anInteger [ 
 
 	^ self instructions detect: [ :i | i result ifNil: [ false ] ifNotNil: [ i result id = anInteger] ]
@@ -168,6 +215,12 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 		b instructionsDo: [ :e | aFullBlockClosure value: e ] ]
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> lastBasicBlock [
+
+	^ self reversePostOrderBlocks last
+]
+
 { #category : #building }
 DRControlFlowGraph >> newBasicBlock [
 	
@@ -185,6 +238,18 @@ DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [
 	newBlock := self newBasicBlock.
 	aFullBlockClosure value: newBlock.
 	^ newBlock
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> outgoingEdgeFor: aBlock [
+
+	^ (self outgoingEdgesFor: aBlock) first
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> outgoingEdgesFor: aBlock [
+
+	^ edges select: [ :e | e source = aBlock ]
 ]
 
 { #category : #iterating }

@@ -12,9 +12,7 @@ Class {
 		'vmOperandStack',
 		'primitiveFailureCode',
 		'controlFlowGraph',
-		'isExitBlock',
-		'incomingRegInfo',
-		'outgoingRegInfo'
+		'isExitBlock'
 	],
 	#category : #'Druid-IR'
 }
@@ -270,18 +268,6 @@ DRBasicBlock >> id: anObject [
 ]
 
 { #category : #accessing }
-DRBasicBlock >> incomingRegInfo [
-
-	^ incomingRegInfo
-]
-
-{ #category : #accessing }
-DRBasicBlock >> incomingRegInfo: anObject [
-
-	incomingRegInfo := anObject
-]
-
-{ #category : #accessing }
 DRBasicBlock >> indexOfPredecessor: aDRBasicBlock [ 
 	
 	^ predecessors indexOf: aDRBasicBlock
@@ -299,7 +285,7 @@ DRBasicBlock >> initialize [
 	endInstruction basicBlock: self.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #inspection }
 DRBasicBlock >> inspectionInstructions: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Instructions'> 
 	
@@ -485,18 +471,6 @@ DRBasicBlock >> origin: aCollection [
 ]
 
 { #category : #accessing }
-DRBasicBlock >> outgoingRegInfo [
-
-	^ outgoingRegInfo
-]
-
-{ #category : #accessing }
-DRBasicBlock >> outgoingRegInfo: anObject [
-
-	outgoingRegInfo := anObject
-]
-
-{ #category : #accessing }
 DRBasicBlock >> phiFunctions [
 	
 	^ self instructions select: [ :e | e isPhiFunction ]
@@ -573,7 +547,7 @@ DRBasicBlock >> removePredecessorAt: index [
 	self basicRemovePredecessor: (predecessors at: index)
 ]
 
-{ #category : #replacing }
+{ #category : #instructions }
 DRBasicBlock >> replace: anInstruction by: aReplacementInstruction [
 	
 	self replaceInstruction: anInstruction by: aReplacementInstruction
@@ -601,7 +575,7 @@ DRBasicBlock >> replacePredecessor: aDRBasicBlock by: aDRBasicBlock2 [
 	predecessors replaceAll: aDRBasicBlock with: aDRBasicBlock2
 ]
 
-{ #category : #asd }
+{ #category : #'control-flow' }
 DRBasicBlock >> replaceSuccessor: aDRBasicBlock by: aDRBasicBlock2 [ 
 	
 	endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock2

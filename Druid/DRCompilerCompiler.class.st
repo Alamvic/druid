@@ -28,6 +28,7 @@ DRCompilerCompiler >> compile [
 
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
+	1halt.
 "	self generatePaths: druidIR."
 	
 	registerAllocator allocateRegistersIn: druidIR.
@@ -90,15 +91,7 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 { #category : #'as yet unclassified' }
 DRCompilerCompiler >> generatePaths: cfg [
 
-	| previousBlock |
-	previousBlock := cfg initialBasicBlock.
-	previousBlock outgoingRegInfo: DRRegistersInfo new.
-	cfg reversePostOrderBlocks allButFirst do: [ :b | 
-		| currentEdge |
-		b incomingRegInfo: previousBlock outgoingRegInfo.
-		b outgoingRegInfo: (currentEdge := DRRegistersInfo new: previousBlock outgoingRegInfo constraints copy).
-		b instructions do: [ :i | i acceptVisitor: currentEdge ].
-		previousBlock := b ]
+	(DRPathFactory withCFG: cfg) generatePaths
 ]
 
 { #category : #'generation-IR' }

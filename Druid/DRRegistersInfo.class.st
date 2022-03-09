@@ -1,24 +1,22 @@
 Class {
 	#name : #DRRegistersInfo,
-	#superclass : #Object,
+	#superclass : #DREdge,
 	#instVars : [
 		'constraints'
 	],
 	#category : #'Druid-Optimizations'
 }
 
-{ #category : #'instance creation' }
-DRRegistersInfo class >> new: constraints [
-
-	^ self new
-		  constraints: constraints;
-		  yourself
+{ #category : #adding }
+DRRegistersInfo >> addConstraint: aConditionalConstraint [
+	
+	constraints add: aConditionalConstraint reg name -> aConditionalConstraint
 ]
 
-{ #category : #adding }
-DRRegistersInfo >> addConstraint: aConstraint [ 
-	
-	constraints add: aConstraint
+{ #category : #accessing }
+DRRegistersInfo >> constraintFor: regKey [
+
+	^ constraints at: regKey
 ]
 
 { #category : #accessing }
@@ -39,18 +37,52 @@ DRRegistersInfo >> initialize [
 	constraints := Dictionary new.
 ]
 
+{ #category : #printing }
+DRRegistersInfo >> printOn: aStream [
+
+	aStream nextPutAll: self class name asString.
+	aStream nextPutAll: '('.
+	aStream print: source id.
+	aStream nextPutAll: ' -> '.
+	aStream print: destination id.
+	aStream nextPutAll: ')'
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitConditionalJump: aDRConditionalJump [
+
+	| constraint |
+	"Ignore hardcoded values"
+	aDRConditionalJump operand1 isInstruction ifFalse: [ ^ self ].
+
+	constraint := aDRConditionalJump operand1 acceptVisitor: self.
+	aDRConditionalJump trueBranch = destination ifTrue: [ 
+		self addConstraint: constraint ].
+	aDRConditionalJump falseBranch = destination ifTrue: [ 
+		self addConstraint: constraint negated ]
+]
+
 { #category : #visiting }
 DRRegistersInfo >> visitConstant: aDRConstantValue [ 
 	
-	^ DRConstantRegisterConstraint new: aDRConstantValue value 
+	^ aDRConstantValue value 
 ]
 
 { #category : #visiting }
 DRRegistersInfo >> visitCopy: aDRCopy [ 
 	
-	| operandConstraint |
-	operandConstraint := aDRCopy operands first acceptVisitor: self.
-	self addConstraint: aDRCopy result -> operandConstraint
+	| operandConstraint constantValue |
+	constantValue := aDRCopy operand1 acceptVisitor: self.
+	self addConstraint: (DRConditionalRegisterConstraint equals: aDRCopy result than: constantValue)
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanComparison [
+
+	self flag: #TODO. "Visit operands"
+	^ DRConditionalRegisterConstraint
+		  greaterOrEquals: aDRGreaterOrEqualsThanComparison operand1
+		  than: aDRGreaterOrEqualsThanComparison operand2 value
 ]
 
 { #category : #visiting }

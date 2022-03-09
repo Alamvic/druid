@@ -82,22 +82,29 @@ DROptimisationTest >> setUpCFG: n [
 ]
 
 { #category : #test }
+DROptimisationTest >> setUpCFGWithConditional [
+
+	| jump |
+	jump := DRConditionalJump operands: { (DRConstantValue value: true) }.
+	^ self setUpCFGWithConditional: jump.
+
+]
+
+{ #category : #test }
 DROptimisationTest >> setUpCFGWithConditional: jump [
-	"|init| -> |0| -> |1| -> |2| -> |4|
-							  \ -> |3| --^
+	"|0| -> |1| -> |2| -> |4|
+             \ -> |3| --^
 	"
 
 	| cfg b0 b1 b2 b3 b4|
 	
 	cfg := DRControlFlowGraphForTesting new. 
 	
-	b0 := cfg newBasicBlock.
+	b0 := cfg initialBasicBlock.
 	b1 := cfg newBasicBlock.
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock. 
-	
-	cfg initialBasicBlock jumpTo: b0.
 	
 	b4 endInstruction: DRNoop new. 
 	b0 jumpTo: b1. 

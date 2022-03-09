@@ -49,7 +49,7 @@ DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 
 
 	"Should eliminate R1:= and R2:="
-	self assert: cfg instructions size equals: 13.
+	self assert: cfg instructions size equals: 12.
 ]
 
 { #category : #test }
