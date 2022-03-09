@@ -265,7 +265,7 @@ DruidTestRTLCompiler >> gen_primitiveGreaterThanInverted [
 
 	| currentBlock jump0 jump1 |
 	self CmpCq: 10 R: ReceiverResultReg.
-	jump0 := self JumpGreater: 0.
+	jump0 := self JumpGreaterOrEqual: 0.
 	self MoveCq: 5 R: ReceiverResultReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
@@ -329,7 +329,7 @@ DruidTestRTLCompiler >> gen_primitiveLessOrEqualsThanInverted [
 
 	| currentBlock jump0 jump1 |
 	self CmpCq: 10 R: ReceiverResultReg.
-	jump0 := self JumpLessOrEqual: 0.
+	jump0 := self JumpLess: 0.
 	self MoveCq: 5 R: ReceiverResultReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
@@ -363,7 +363,7 @@ DruidTestRTLCompiler >> gen_primitiveLessThanInverted [
 
 	| currentBlock jump0 jump1 |
 	self CmpCq: 10 R: ReceiverResultReg.
-	jump0 := self JumpLess: 0.
+	jump0 := self JumpLessOrEqual: 0.
 	self MoveCq: 5 R: ReceiverResultReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.

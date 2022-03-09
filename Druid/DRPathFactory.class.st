@@ -28,15 +28,28 @@ DRPathFactory >> cfg: anObject [
 ]
 
 { #category : #building }
-DRPathFactory >> generatePaths [
+DRPathFactory >> createAllEdgesFrom: source to: destination [
+
+	| edge |
+	(cfg incomingEdgesFor: source) do: [ :e | "We should generate one outgoing for each incoming edge"
+		edge := cfg addEdgeFrom: source to: destination.
+		edge constraints: e constraints copy.
+		source instructions do: [ :i | i acceptVisitor: edge ] ]
+]
+
+{ #category : #building }
+DRPathFactory >> createInitialEdge [
 
 	| initialBlock |
 	initialBlock := cfg initialBasicBlock.
-	cfg addEdgeFrom: initialBlock to: initialBlock successor.
+	cfg addEdgeFrom: initialBlock to: initialBlock successor
+]
+
+{ #category : #building }
+DRPathFactory >> generatePaths [
+
+	self createInitialEdge.
 	cfg reversePostOrderBlocks allButFirst do: [ :source | "Create edge(s) from source block to sucessor(s)"
 		source successors do: [ :destination | 
-			| edge |
-			edge := cfg addEdgeFrom: source to: destination.
-			edge constraints: (cfg incomingEdgesFor: source) first constraints copy. "(Not) merge edges from branchs"
-			source instructions do: [ :i | i acceptVisitor: edge ] ] ]
+			self createAllEdgesFrom: source to: destination ] ]
 ]

@@ -128,6 +128,18 @@ DRPathConstraintsTest >> testGenerateExpectedEdgesCountLinear [
 ]
 
 { #category : #building }
+DRPathConstraintsTest >> testGenerateExpectedEdgesCountMerging [
+
+	| cfg edges |
+	cfg := self setUpCFGWithConditional.
+	cfg newBasicBlockWith: [ :b | cfg b4 jumpTo: b ].
+	self generatePaths: cfg.
+
+	edges := cfg incomingEdgesFor: cfg lastBasicBlock.
+	self assert: edges size equals: 2
+]
+
+{ #category : #building }
 DRPathConstraintsTest >> testJumpDoesNotAddConstraint [
 
 	| cfg edge |
