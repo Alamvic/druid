@@ -4,6 +4,18 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #assertions }
+DRPathConstraintsTest >> assert: aConstraint includes: includedConstraint [
+
+	self assert: (aConstraint includes: includedConstraint)
+]
+
+{ #category : #assertions }
+DRPathConstraintsTest >> deny: aConstraint includes: includedConstraint [
+
+	self deny: (aConstraint includes: includedConstraint)
+]
+
 { #category : #constraints }
 DRPathConstraintsTest >> testConditionalRegisterConstraint [
 
@@ -93,6 +105,21 @@ DRPathConstraintsTest >> testCopyRegisterConstraint [
 	self assert: (constraint includes: (DRRegisterConstraint equals: constraint reg than: 1) ).
 ]
 
+{ #category : #constraints }
+DRPathConstraintsTest >> testEqualsConstraint [
+
+	| constraint |
+	constraint := DREqualsConstraint withValue: 10.
+	
+	self assert: constraint includes: (DREqualsConstraint withValue: 10).
+	self deny: constraint includes: (DREqualsConstraint withValue: 20).
+	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRGreaterConstraint withValue: 10).
+	self deny: constraint includes: (DRLessConstraint withValue: 10).
+	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
+]
+
 { #category : #building }
 DRPathConstraintsTest >> testFirstIncomingInfoHasNoConstraints [
 
@@ -139,6 +166,42 @@ DRPathConstraintsTest >> testGenerateExpectedEdgesCountMerging [
 	self assert: edges size equals: 2
 ]
 
+{ #category : #constraints }
+DRPathConstraintsTest >> testGreaterConstraint [
+
+	| constraint |
+	constraint := DRGreaterConstraint withValue: 10.
+	
+	self deny: constraint includes: (DREqualsConstraint withValue: 10).
+	self assert: constraint includes: (DREqualsConstraint withValue: 11).
+	self deny: constraint includes: (DREqualsConstraint withValue: 9).
+	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self assert: constraint includes: (DRGreaterConstraint withValue: 10).
+	self assert: constraint includes: (DRGreaterConstraint withValue: 11).
+	self deny: constraint includes: (DRGreaterConstraint withValue: 9).
+	self deny: constraint includes: (DRLessConstraint withValue: 10).
+	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
+]
+
+{ #category : #constraints }
+DRPathConstraintsTest >> testGreaterOrEqualsConstraint [
+
+	| constraint |
+	constraint := DRGreaterOrEqualsConstraint withValue: 10.
+	
+	self assert: constraint includes: (DREqualsConstraint withValue: 10).
+	self assert: constraint includes: (DREqualsConstraint withValue: 11).
+	self deny: constraint includes: (DREqualsConstraint withValue: 9).
+	self assert: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self assert: constraint includes: (DRGreaterConstraint withValue: 10).
+	self assert: constraint includes: (DRGreaterConstraint withValue: 11).
+	self deny: constraint includes: (DRGreaterConstraint withValue: 9).
+	self deny: constraint includes: (DRLessConstraint withValue: 10).
+	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
+]
+
 { #category : #building }
 DRPathConstraintsTest >> testJumpDoesNotAddConstraint [
 
@@ -149,6 +212,42 @@ DRPathConstraintsTest >> testJumpDoesNotAddConstraint [
 	edge := cfg outgoingEdgeFor: cfg firstBasicBlock.
 	self assert: edge constraints isEmpty.
 
+]
+
+{ #category : #constraints }
+DRPathConstraintsTest >> testLessConstraint [
+
+	| constraint |
+	constraint := DRLessConstraint withValue: 10.
+	
+	self deny: constraint includes: (DREqualsConstraint withValue: 10).
+	self deny: constraint includes: (DREqualsConstraint withValue: 11).
+	self assert: constraint includes: (DREqualsConstraint withValue: 9).
+	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRGreaterConstraint withValue: 10).
+	self deny: constraint includes: (DRLessConstraint withValue: 11).
+	self assert: constraint includes: (DRLessConstraint withValue: 9).
+	self assert: constraint includes: (DRLessConstraint withValue: 10).
+	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
+]
+
+{ #category : #constraints }
+DRPathConstraintsTest >> testLessOrEqualsConstraint [
+
+	| constraint |
+	constraint := DRLessOrEqualsConstraint withValue: 10.
+	
+	self assert: constraint includes: (DREqualsConstraint withValue: 10).
+	self deny: constraint includes: (DREqualsConstraint withValue: 11).
+	self assert: constraint includes: (DREqualsConstraint withValue: 9).
+	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self assert: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRGreaterConstraint withValue: 10).
+	self deny: constraint includes: (DRLessConstraint withValue: 11).
+	self assert: constraint includes: (DRLessConstraint withValue: 9).
+	self assert: constraint includes: (DRLessConstraint withValue: 10).
+	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
 ]
 
 { #category : #building }
@@ -162,4 +261,24 @@ DRPathConstraintsTest >> testLinearContigousBlocksShareConstraints [
 	blocks := cfg reversePostOrderBlocks allButFirst.
 	self assert: (cfg outgoingEdgeFor: blocks first) equals: (cfg incomingEdgeFor: blocks second).
 
+]
+
+{ #category : #constraints }
+DRPathConstraintsTest >> testNotEqualsConstraint [
+
+	| constraint |
+	constraint := DRNotEqualsConstraint withValue: 10.
+	
+	self deny: constraint includes: (DREqualsConstraint withValue: 10).
+	self assert: constraint includes: (DREqualsConstraint withValue: 11).
+	self assert: constraint includes: (DREqualsConstraint withValue: 9).
+	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self assert: constraint includes: (DRGreaterConstraint withValue: 10).
+	self assert: constraint includes: (DRGreaterConstraint withValue: 11).
+	self deny: constraint includes: (DRGreaterConstraint withValue: 9).
+	self assert: constraint includes: (DRLessConstraint withValue: 10).
+	self assert: constraint includes: (DRLessConstraint withValue: 9).
+	self deny: constraint includes: (DRLessConstraint withValue: 11).
+	self assert: constraint includes: (DRNotEqualsConstraint withValue: 10).
 ]

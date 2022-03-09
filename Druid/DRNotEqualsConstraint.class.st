@@ -13,13 +13,13 @@ DRNotEqualsConstraint >> includesValue: otherConstantValue [
 { #category : #arithmetic }
 DRNotEqualsConstraint >> includesValuesGreaterThan: otherConstantValue [
 
-	^ false
+	^ otherConstantValue >= constantValue
 ]
 
 { #category : #arithmetic }
 DRNotEqualsConstraint >> includesValuesLessThan: otherConstantValue [
 
-	^ false
+	^ otherConstantValue <= constantValue
 ]
 
 { #category : #arithmetic }
