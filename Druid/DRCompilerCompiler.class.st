@@ -327,11 +327,13 @@ DRCompilerCompiler >> visitLoad: aDRLoad [
 
 	"Only implement register byte accesses for now"
 
-	| bytesToRead |
+	| bytesToRead sizeSuffix |
 	aDRLoad operand2 result rtlOperandQualifier = 'R:' ifFalse: [ 
 		self halt ].
 	bytesToRead := aDRLoad operand1 value.
-	bytesToRead = 1 ifFalse: [ self halt ].
+	bytesToRead = 1
+		ifTrue: [ sizeSuffix := 'b' ]
+		ifFalse: [ sizeSuffix := (bytesToRead * 8) asString ].
 
 	"Zero the register before loading a byte"
 	self twoOperandCogitRTL: #Move operands: { 
@@ -340,7 +342,7 @@ DRCompilerCompiler >> visitLoad: aDRLoad [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #MoveMb:r:R:
+			 selector: ('MoveM' , sizeSuffix , ':r:R:') asSymbol
 			 arguments: { 
 					 (self rtlExpressionForValue: 0 asDRValue).
 					 (self rtlExpressionForValue: aDRLoad operand2).

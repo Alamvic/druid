@@ -204,8 +204,8 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #long64At: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
-	specialCases at: #byteAt: put: #interpretLoadByteAtWith:.
-	specialCases at: #shortAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #uint8At: put: #interpretLoadUint8AtWith:.
+	specialCases at: #uint16At: put: #interpretLoadUint16AtWith:.
 	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
 	
 	
@@ -509,18 +509,31 @@ DRIRGenerator >> interpretLessThanComparisonWith: aRBMessageNode [
 ]
 
 { #category : #'special cases - memory access' }
-DRIRGenerator >> interpretLoadByteAtWith: aRBMessageNode [ 
-	
+DRIRGenerator >> interpretLoad: aRBMessageNode ofByteSize: byteSize [
+
 	| result address |
-	
 	address := self visitOperand: aRBMessageNode arguments first.
-	
+
 	result := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRLoad
-		operands: { 1 asDRValue "byte size". address }.
+		          addInstructionFrom: aRBMessageNode
+		          instructionKind: DRLoad
+		          operands: { 
+				          byteSize asDRValue.
+				          address }.
 
 	self pushOperand: result
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretLoadUint16AtWith: aRBMessageNode [ 
+	
+	^ self interpretLoad: aRBMessageNode ofByteSize: 2
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretLoadUint8AtWith: aRBMessageNode [ 
+	
+	^ self interpretLoad: aRBMessageNode ofByteSize: 1
 ]
 
 { #category : #'special-cases' }

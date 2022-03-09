@@ -75,19 +75,6 @@ DruidTestInterpreter >> passingSuccess [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveByteAt [
-
-	<numberOfArguments: 0>
-	
-	| aByte addressToRead |
-	addressToRead := self stackTop.
-	aByte := objectMemory byteAt: addressToRead.
-
-	"pop the receiver, push the result"	
-	self pop: 1 thenPush: aByte
-]
-
-{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveCallingMethodReturningConstant [
 
 	<numberOfArguments: 0>
@@ -326,6 +313,32 @@ DruidTestInterpreter >> primitiveSumWithOverflow [
 		withSmallInteger: (self stackValue: 0)
 		ifOverflow: [ 99 ].
 	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveUint16At [
+
+	<numberOfArguments: 0>
+	
+	| aByte addressToRead |
+	addressToRead := self stackTop.
+	aByte := objectMemory uint16At: addressToRead.
+
+	"pop the receiver, push the result"	
+	self pop: 1 thenPush: aByte
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveUint8At [
+
+	<numberOfArguments: 0>
+	
+	| aByte addressToRead |
+	addressToRead := self stackTop.
+	aByte := objectMemory uint8At: addressToRead.
+
+	"pop the receiver, push the result"	
+	self pop: 1 thenPush: aByte
 ]
 
 { #category : #'as yet unclassified' }

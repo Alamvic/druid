@@ -536,6 +536,28 @@ DruidTestRTLCompiler >> gen_primitiveSumWithOverflow [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveUint16At [
+
+	| currentBlock |
+	self MoveCq: 0 R: TempReg.
+	self MoveM16: 0 r: ReceiverResultReg R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveUint8At [
+
+	| currentBlock |
+	self MoveCq: 0 R: TempReg.
+	self MoveMb: 0 r: ReceiverResultReg R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveWithDeadCode [
 
 	| currentBlock jump0 jump1 |
