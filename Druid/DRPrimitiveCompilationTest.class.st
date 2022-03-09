@@ -733,7 +733,7 @@ DRPrimitiveCompilationTest >> testSubtractionIntrinsecWithOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: 99
 ]
 
-{ #category : #'test-memoryaccess' }
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint16At [
 
 	| object pointerToFirstSlot |
@@ -741,14 +741,14 @@ DRPrimitiveCompilationTest >> testUint16At [
 	
 	object := self newObjectWithSlots: 1.
 	pointerToFirstSlot := object + memory baseHeaderSize.
-	memory storePointer: 0 ofObject: object withValue: 16r0102030405060708.
+	memory storePointer: 0 ofObject: object withValue: 16r05060708.
 
 	self executePrimitiveWithReceiver: pointerToFirstSlot.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 16r0708
 ]
 
-{ #category : #'test-memoryaccess' }
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint16At2 [
 
 	| object pointerToFirstSlot |
@@ -756,14 +756,14 @@ DRPrimitiveCompilationTest >> testUint16At2 [
 	
 	object := self newObjectWithSlots: 1.
 	pointerToFirstSlot := object + memory baseHeaderSize + 1.
-	memory storePointer: 0 ofObject: object withValue: 16r0102030405060708.
+	memory storePointer: 0 ofObject: object withValue: 16r05060708.
 
 	self executePrimitiveWithReceiver: pointerToFirstSlot.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 16r0607
 ]
 
-{ #category : #'test-memoryaccess' }
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint16At3 [
 
 	| object pointerToFirstSlot |
@@ -771,32 +771,40 @@ DRPrimitiveCompilationTest >> testUint16At3 [
 	
 	object := self newObjectWithSlots: 1.
 	pointerToFirstSlot := object + memory baseHeaderSize + 2.
-	memory storePointer: 0 ofObject: object withValue: 16r0102030405060708.
+	memory storePointer: 0 ofObject: object withValue: 16r05060708.
 
 	self executePrimitiveWithReceiver: pointerToFirstSlot.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 16r0506
 ]
 
-{ #category : #'test-memoryaccess' }
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint16At4 [
 
 	| object pointerToFirstSlot |
+	
+	"Only for 64 bit platforms"
+	self wordSize = 4 ifTrue: [ self skip ].
+	
 	self compileDruidPrimitive: #primitiveUint16At.
 	
 	object := self newObjectWithSlots: 1.
 	pointerToFirstSlot := object + memory baseHeaderSize + 3.
-	memory storePointer: 0 ofObject: object withValue: 16r0102030405060708.
+	memory storePointer: 0 ofObject: object withValue: 16r0405060708.
 
 	self executePrimitiveWithReceiver: pointerToFirstSlot.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 16r0405
 ]
 
-{ #category : #'test-memoryaccess' }
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint16At5 [
 
 	| object pointerToFirstSlot |
+	
+	"Only for 64 bit platforms"
+	self wordSize = 4 ifTrue: [ self skip ].
+	
 	self compileDruidPrimitive: #primitiveUint16At.
 	
 	object := self newObjectWithSlots: 1.
@@ -808,10 +816,14 @@ DRPrimitiveCompilationTest >> testUint16At5 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r0304
 ]
 
-{ #category : #'test-memoryaccess' }
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint16At6 [
 
 	| object pointerToFirstSlot |
+
+	"Only for 64 bit platforms"
+	self wordSize = 4 ifTrue: [ self skip ].
+	
 	self compileDruidPrimitive: #primitiveUint16At.
 	
 	object := self newObjectWithSlots: 1.
@@ -823,10 +835,14 @@ DRPrimitiveCompilationTest >> testUint16At6 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r0203
 ]
 
-{ #category : #'test-memoryaccess' }
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint16At7 [
 
 	| object pointerToFirstSlot |
+	
+	"Only for 64 bit platforms"
+	self wordSize = 4 ifTrue: [ self skip ].
+	
 	self compileDruidPrimitive: #primitiveUint16At.
 	
 	object := self newObjectWithSlots: 1.
@@ -838,7 +854,117 @@ DRPrimitiveCompilationTest >> testUint16At7 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r0102
 ]
 
-{ #category : #'test-memoryaccess' }
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint32At [
+
+	| object pointerToFirstSlot |
+	self compileDruidPrimitive: #primitiveUint32At.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+	memory storePointer: 0 ofObject: object withValue: 16r05060708.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 16r05060708
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint32At2 [
+
+	| object pointerToFirstSlot |
+	
+	"Only for 64 bit platforms"
+	self wordSize = 4 ifTrue: [ self skip ].
+	
+	self compileDruidPrimitive: #primitiveUint32At.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize + 1.
+	memory storePointer: 0 ofObject: object withValue: 16r0102030405060708.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 16r04050607
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint32At3 [
+
+	| object pointerToFirstSlot |
+	
+	"Only for 64 bit platforms"
+	self wordSize = 4 ifTrue: [ self skip ].
+	
+	self compileDruidPrimitive: #primitiveUint32At.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize + 2.
+	memory storePointer: 0 ofObject: object withValue: 16r0102030405060708.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 16r03040506
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint32At4 [
+
+	| object pointerToFirstSlot |
+	
+	"Only for 64 bit platforms"
+	self wordSize = 4 ifTrue: [ self skip ].
+	
+	self compileDruidPrimitive: #primitiveUint32At.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize + 3.
+	memory storePointer: 0 ofObject: object withValue: 16r0102030405060708.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 16r02030405
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint32At5 [
+
+	| object pointerToFirstSlot |
+	
+	"Only for 64 bit platforms"
+	self wordSize = 4 ifTrue: [ self skip ].
+	
+	self compileDruidPrimitive: #primitiveUint32At.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize + 4.
+	memory storePointer: 0 ofObject: object withValue: 16r0102030405060708.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 16r01020304
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint64At [
+
+	| object pointerToFirstSlot |
+	
+	"Only for 64 bit platforms"
+	self wordSize = 4 ifTrue: [ self skip ].
+	
+	self compileDruidPrimitive: #primitiveUint64At.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+	memory storePointer: 0 ofObject: object withValue: 16r0102030405060708.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 16r0102030405060708
+]
+
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint8At [
 
 	| object pointerToFirstSlot |
@@ -853,7 +979,7 @@ DRPrimitiveCompilationTest >> testUint8At [
 	self assert: machineSimulator receiverRegisterValue equals: 16rFE
 ]
 
-{ #category : #'test-memoryaccess' }
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint8At2 [
 
 	| object pointerToFirstSlot |
@@ -868,7 +994,7 @@ DRPrimitiveCompilationTest >> testUint8At2 [
 	self assert: machineSimulator receiverRegisterValue equals: 16rCA
 ]
 
-{ #category : #'test-memoryaccess' }
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint8At3 [
 
 	| object pointerToFirstSlot |
@@ -883,7 +1009,7 @@ DRPrimitiveCompilationTest >> testUint8At3 [
 	self assert: machineSimulator receiverRegisterValue equals: 16rBE
 ]
 
-{ #category : #'test-memoryaccess' }
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint8At4 [
 
 	| object pointerToFirstSlot |

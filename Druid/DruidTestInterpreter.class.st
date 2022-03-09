@@ -329,6 +329,32 @@ DruidTestInterpreter >> primitiveUint16At [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveUint32At [
+
+	<numberOfArguments: 0>
+	
+	| aByte addressToRead |
+	addressToRead := self stackTop.
+	aByte := objectMemory uint32At: addressToRead.
+
+	"pop the receiver, push the result"	
+	self pop: 1 thenPush: aByte
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveUint64At [
+
+	<numberOfArguments: 0>
+	
+	| aByte addressToRead |
+	addressToRead := self stackTop.
+	aByte := objectMemory uint64At: addressToRead.
+
+	"pop the receiver, push the result"	
+	self pop: 1 thenPush: aByte
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveUint8At [
 
 	<numberOfArguments: 0>

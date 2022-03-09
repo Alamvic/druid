@@ -547,6 +547,28 @@ DruidTestRTLCompiler >> gen_primitiveUint16At [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveUint32At [
+
+	| currentBlock |
+	self MoveCq: 0 R: TempReg.
+	self MoveM32: 0 r: ReceiverResultReg R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveUint64At [
+
+	| currentBlock |
+	self MoveCq: 0 R: TempReg.
+	self MoveM64: 0 r: ReceiverResultReg R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveUint8At [
 
 	| currentBlock |

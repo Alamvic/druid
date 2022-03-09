@@ -200,12 +200,12 @@ DRIRGenerator >> initializeSpecialCases [
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
 	self flag: #TODO. "Add types to Druid"
-	specialCases at: #long32At: put: #interpretMachineWordAtWith:.
-	specialCases at: #long64At: put: #interpretMachineWordAtWith:.
-	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
-	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
 	specialCases at: #uint8At: put: #interpretLoadUint8AtWith:.
 	specialCases at: #uint16At: put: #interpretLoadUint16AtWith:.
+	specialCases at: #uint32At: put: #interpretLoadUint32AtWith:.
+	specialCases at: #uint64At: put: #interpretLoadUint64AtWith:.
+	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
 	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
 	
 	
@@ -528,6 +528,18 @@ DRIRGenerator >> interpretLoad: aRBMessageNode ofByteSize: byteSize [
 DRIRGenerator >> interpretLoadUint16AtWith: aRBMessageNode [ 
 	
 	^ self interpretLoad: aRBMessageNode ofByteSize: 2
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretLoadUint32AtWith: aRBMessageNode [ 
+	
+	^ self interpretLoad: aRBMessageNode ofByteSize: 4
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretLoadUint64AtWith: aRBMessageNode [ 
+	
+	^ self interpretLoad: aRBMessageNode ofByteSize: 8
 ]
 
 { #category : #'special cases - memory access' }
