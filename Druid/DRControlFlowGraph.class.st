@@ -140,41 +140,69 @@ DRControlFlowGraph >> initialize [
 	nextBasicBlockId := 1.
 ]
 
-{ #category : #'as yet unclassified' }
-DRControlFlowGraph >> inspectionCFG: aBuilder [
+{ #category : #inspecting }
+DRControlFlowGraph >> inspectionCFG [
 	<inspectorPresentationOrder: 0 title: 'CFG'> 
-	| view blockViews eb |
+	| view blockViews eb controller |
 	view := RSCanvas new.
-	blockViews := self blocks collect: [ :c | | g |
-		g := RSGroup new.
-		g add: (RSBox new
-			size: 50;
-			color: Color veryVeryLightGray;
-			yourself).
-		g add: (RSLabel new text: c id asString).
-		g asShape
+	blockViews := self blocks collect: [ :b | 
+		| label box |
+		box := RSBox new
+			noPaint;
+			border: (RSBorder new 
+				width: 1; 
+				color: Color black;
+				yourself);
+			cornerRadius: 2;
+			yourself.
+		label := RSLabel new 
+			text: b id asString;
+			color: Color black;
+			yourself.
+		box extent: 30@30.
+		{ box. label } asShape
 			@ RSDraggable;
+			@ (RSPopup text: [:model | 
+				String streamContents: [:s | (model instructions collect: #prettyPrint)
+					asStringOn: s delimiter: String cr] 
+				]);
 			@ (RSMenuActivable new menuDo: [ :menu :element | 
 				menu
 					add: 'Tail-duplicate'
 					target: element model
 					selector: #tailDuplicate ]);
-			model: c;
+			model: b;
 			yourself ].
 	view addAll: blockViews.
 	
-	eb := RSEdgeBuilder arrowedLine.
+	eb := RSLineBuilder arrowedLine.
 	eb canvas: view.
+	eb color: Color blue muchDarker.
 	eb withBorderAttachPoint.
 	eb 	shapes: blockViews.
 	eb connectToAll: #successors.
+	view lines do: [ :line | line model.
+		line @ (RSPopup text: [ :model | 
+			(self edgeFrom: model key to: model value)
+				ifNotNil: [ :e | String streamContents: [:s | 
+						e constraints associations asStringOn: s delimiter: String cr] 
+ 					]
+			]) 
+		].
 	
 	"All the characters are displayed using a grid layout"
 	RSSugiyamaLayout new
 		horizontalGap: 50;
 		applyOn: blockViews.
-	view @ RSCanvasController.
+	controller := RSCanvasController new.
+	controller noLegend.
+	view newAnimation
+		duration: 500 milliSeconds;
+		onStepDo: [ :t | view signalUpdate ];
+		when: RSAnimationEndEvent do: [:evt | 
+			controller configuration noZoomToFitOnExtendChanged ].
 	
+	view @ controller.
 	^ SpRoassal3InspectorPresenter new
 		canvas: view;
 		yourself
