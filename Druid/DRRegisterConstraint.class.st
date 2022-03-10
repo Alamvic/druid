@@ -62,6 +62,15 @@ DRRegisterConstraint class >> notEquals: register than: aValue [
 		  yourself
 ]
 
+{ #category : #'as yet unclassified' }
+DRRegisterConstraint class >> reg: register constraint: condition [
+
+	^ self new
+		  reg: register;
+		  condition: condition;
+		  yourself
+]
+
 { #category : #accessing }
 DRRegisterConstraint >> condition [
 
@@ -78,6 +87,15 @@ DRRegisterConstraint >> condition: anObject [
 DRRegisterConstraint >> includes: otherRegisterConstraint [
 
 	^ reg = otherRegisterConstraint reg and: [ condition includes: otherRegisterConstraint condition ]
+]
+
+{ #category : #operations }
+DRRegisterConstraint >> mergeWith: aDRRegisterConstraint [ 
+	
+	^ self class new
+		  reg: reg;
+		  condition: (condition unifyWith: aDRRegisterConstraint condition);
+		  yourself  
 ]
 
 { #category : #arithmetic }

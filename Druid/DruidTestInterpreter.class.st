@@ -63,6 +63,34 @@ DruidTestInterpreter >> failingSuccess [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> innerBranching [
+
+	<numberOfArguments: 0>
+	| res |
+	res := self stackTop > 10
+		       ifTrue: [ 
+			       self stackTop < 20
+				       ifTrue: [ 5 ]
+				       ifFalse: [ 17 ] ]
+		       ifFalse: [ 99 ].
+	self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> innerBranchingWithDeadBranch [
+
+	<numberOfArguments: 0>
+	| res |
+	res := self stackTop > 10
+		       ifTrue: [ 
+			       self stackTop < 5
+				       ifTrue: [ 5 "Dead" ]
+				       ifFalse: [ 17 ] ]
+		       ifFalse: [ 99 ].
+	self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithEarlyReturn [
 
 	self stackTop = 0 ifTrue: [ ^ 42 ].

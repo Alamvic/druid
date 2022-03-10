@@ -77,3 +77,14 @@ DRConditionalConstraint >> printOn: aStream [
 		nextPutAll: ' ';
 		print: constantValue
 ]
+
+{ #category : #'as yet unclassified' }
+DRConditionalConstraint >> unifyWith: otherConditionalConstraint [
+
+	(self includes: otherConditionalConstraint) ifTrue: [ 
+		^ otherConditionalConstraint ].
+	(otherConditionalConstraint includes: self) ifTrue: [ 
+		^ self ].
+	
+	^ DRIntersectionConstraint constraints: { self. otherConditionalConstraint }
+]

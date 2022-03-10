@@ -9,8 +9,10 @@ Class {
 
 { #category : #adding }
 DRRegistersInfo >> addConstraint: aConditionalConstraint [
-	
-	constraints add: aConditionalConstraint reg name -> aConditionalConstraint
+
+	constraints
+		at: aConditionalConstraint reg name
+		put: aConditionalConstraint
 ]
 
 { #category : #accessing }
@@ -37,6 +39,16 @@ DRRegistersInfo >> initialize [
 	constraints := Dictionary new.
 ]
 
+{ #category : #adding }
+DRRegistersInfo >> mergeConstraint: aConditionalConstraint [
+
+	constraints
+		at: aConditionalConstraint reg name
+		ifPresent: [ :oldConstraint | 
+			self addConstraint: (oldConstraint mergeWith: aConditionalConstraint) ]
+		ifAbsentPut: aConditionalConstraint
+]
+
 { #category : #printing }
 DRRegistersInfo >> printOn: aStream [
 
@@ -59,7 +71,7 @@ DRRegistersInfo >> visitComparison: aDRComparison andDo: aClosure [
 		| operands |
 	operands := aDRComparison operands.
 	((operands anySatisfy: #isConstant) and: [ operands anySatisfy: #isRegister ]) 
-		ifFalse: [ ^ self "We need a register and a constant" ].
+		ifFalse: [ ^ nil "We need a register and a constant" ].
 
 	aDRComparison operand1 isRegister ifFalse: [ "Check register is on left"
 		^ aDRComparison reversed acceptVisitor: self "if not reverse it" ]. 
@@ -76,9 +88,9 @@ DRRegistersInfo >> visitConditionalJump: aDRConditionalJump [
 
 	constraint := aDRConditionalJump operand1 acceptVisitor: self.
 	aDRConditionalJump trueBranch = destination ifTrue: [ 
-		self addConstraint: constraint ].
+		self mergeConstraint: constraint ].
 	aDRConditionalJump falseBranch = destination ifTrue: [ 
-		self addConstraint: constraint negated ]
+		self mergeConstraint: constraint negated ]
 ]
 
 { #category : #visiting }
@@ -88,11 +100,14 @@ DRRegistersInfo >> visitConstant: aDRConstantValue [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitCopy: aDRCopy [ 
-	
-	| operandConstraint constantValue |
+DRRegistersInfo >> visitCopy: aDRCopy [
+
+	| constantValue |
+	"Only constant copies are importants"
+	aDRCopy operand1 isConstant ifFalse: [ ^ self ].
 	constantValue := aDRCopy operand1 acceptVisitor: self.
-	self addConstraint: (DRRegisterConstraint equals: aDRCopy result than: constantValue)
+	self addConstraint:
+		(DRRegisterConstraint equals: aDRCopy result than: constantValue)
 ]
 
 { #category : #visiting }
@@ -187,6 +202,11 @@ DRRegistersInfo >> visitNotEqualsComparison: aDRNotEqualsThanComparison [
 { #category : #visiting }
 DRRegistersInfo >> visitOverflowJump: aDROverflowJump [ 
 	self flag: #TODO. "Do nothing?"
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitPhiFunction: aDRPhiFunction [ 
+	"Do nothing"
 ]
 
 { #category : #visiting }

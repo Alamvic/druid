@@ -17,7 +17,7 @@ DRPathConstraintsTest >> deny: aConstraint includes: includedConstraint [
 ]
 
 { #category : #constraints }
-DRPathConstraintsTest >> testConditionalRegisterConstraint [
+DRPathConstraintsTest >> testConditionalRegConstraintTypeBothBranches [
 
 	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThan.
@@ -32,7 +32,7 @@ DRPathConstraintsTest >> testConditionalRegisterConstraint [
 ]
 
 { #category : #constraints }
-DRPathConstraintsTest >> testConditionalRegisterConstraintInverted [
+DRPathConstraintsTest >> testConditionalRegConstraintTypeBothBranchesInverted [
 
 	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThanInverted.
@@ -44,6 +44,24 @@ DRPathConstraintsTest >> testConditionalRegisterConstraintInverted [
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "> 10"
 	self assert: (trueConstraint includes: (DRRegisterConstraint lessOrEquals: trueConstraint reg than: 10) ).
 	self assert: (falseConstraint includes: (DRRegisterConstraint greater: falseConstraint reg than: 10) ).
+]
+
+{ #category : #constraints }
+DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerBranches [
+
+	| cfg edges trueConstraint falseConstraint composedConstraint |
+	cfg := self generateDruidIRFor: #innerBranching.
+	self optimize: cfg.
+	self generatePaths: cfg.
+
+	edges := cfg outgoingEdgesFor: (cfg blockById: 6).
+	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "10 < Reg < 20"
+	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. ">= 20"
+	composedConstraint := DRRegisterConstraint
+		                      reg: trueConstraint reg
+		                      constraint: (DRIntersectionConstraint between: 10 and: 20).
+	self assert: trueConstraint includes: composedConstraint.
+	self assert: falseConstraint includes: (DRRegisterConstraint greaterOrEquals: falseConstraint reg than: 20)
 ]
 
 { #category : #building }
@@ -80,11 +98,11 @@ DRPathConstraintsTest >> testConstraintsAreStacked [
 ]
 
 { #category : #building }
-DRPathConstraintsTest >> testCopyAddNewConstraint [
+DRPathConstraintsTest >> testCopyConstantAddNewConstraint [
 
 	| cfg block |
-	cfg := self generateDruidIRFor: #primitiveReturnOne.
-	self optimize: cfg.
+	cfg := self setUpCFG: 2.
+	cfg b1 copy: 1 asDRValue.
 	self generatePaths: cfg.
 
 	block := cfg firstBasicBlock.
@@ -103,6 +121,19 @@ DRPathConstraintsTest >> testCopyRegisterConstraint [
 	edge := cfg outgoingEdgeFor: cfg firstBasicBlock.
 	constraint := edge constraintFor: 'ReceiverResultReg'.
 	self assert: (constraint includes: (DRRegisterConstraint equals: constraint reg than: 1) ).
+]
+
+{ #category : #building }
+DRPathConstraintsTest >> testCopyRegisterNotAddNewConstraint [
+
+	| cfg block |
+	cfg := self setUpCFG: 2.
+	cfg b1 copy: (DRPhysicalRegister name: 'Rx').
+	self generatePaths: cfg.
+
+	block := cfg firstBasicBlock.
+	self assert: (cfg incomingEdgeFor: block) constraints isEmpty.
+	self assert: (cfg outgoingEdgeFor: block) constraints isEmpty.
 ]
 
 { #category : #constraints }
@@ -200,6 +231,26 @@ DRPathConstraintsTest >> testGreaterOrEqualsConstraint [
 	self deny: constraint includes: (DRGreaterConstraint withValue: 9).
 	self deny: constraint includes: (DRLessConstraint withValue: 10).
 	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
+]
+
+{ #category : #constraints }
+DRPathConstraintsTest >> testIntersectionConstraint [
+
+	| constraint |
+	constraint := DRIntersectionConstraint between: 10 and: 20.
+	
+	self assert: constraint includes: (DREqualsConstraint withValue: 15).
+	self deny: constraint includes: (DREqualsConstraint withValue: 5).
+	self deny: constraint includes: (DREqualsConstraint withValue: 25).
+	self deny: constraint includes: (DRGreaterConstraint withValue: 15).
+	self deny: constraint includes: (DRLessConstraint withValue: 15).
+	self deny: constraint includes: (DRNotEqualsConstraint withValue: 15).
+	self assert: constraint includes: (DRIntersectionConstraint between: 10 and: 20).
+	self assert: constraint includes: (DRIntersectionConstraint between: 11 and: 19).
+	self deny: constraint includes: (DRIntersectionConstraint between: 9 and: 20).
+	self deny: constraint includes: (DRIntersectionConstraint between: 10 and: 21).
+	self deny: constraint includes: (DRIntersectionConstraint between: 9 and: 21).
+
 ]
 
 { #category : #building }

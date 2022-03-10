@@ -150,7 +150,7 @@ DRControlFlowGraph >> inspectionCFG [
 		box := RSBox new
 			noPaint;
 			border: (RSBorder new 
-				width: 1; 
+				width: 2; 
 				color: Color black;
 				yourself);
 			cornerRadius: 2;
@@ -178,6 +178,7 @@ DRControlFlowGraph >> inspectionCFG [
 	eb := RSLineBuilder arrowedLine.
 	eb canvas: view.
 	eb color: Color blue muchDarker.
+	eb width: 2.
 	eb withBorderAttachPoint.
 	eb 	shapes: blockViews.
 	eb connectToAll: #successors.
@@ -187,7 +188,7 @@ DRControlFlowGraph >> inspectionCFG [
 				ifNotNil: [ :e | String streamContents: [:s | 
 						e constraints values asStringOn: s delimiter: String cr] 
  					]
-			]) 
+			])
 		].
 	
 	"All the characters are displayed using a grid layout"
