@@ -15,6 +15,16 @@ DRRegistersInfo >> addConstraint: aConditionalConstraint [
 		put: aConditionalConstraint
 ]
 
+{ #category : #visiting }
+DRRegistersInfo >> composedConstraint: aConstraintClass from: aDRInstruction [
+
+	| operands |
+	operands := aDRInstruction operands collect: [ :o | o acceptVisitor: self ].
+	^ DRRegisterConstraint
+		  reg: aDRInstruction
+		  constraint: (aConstraintClass constraints: operands)
+]
+
 { #category : #accessing }
 DRRegistersInfo >> constraintFor: regKey [
 
@@ -66,14 +76,30 @@ DRRegistersInfo >> visitAddition: aDRAdd [
 ]
 
 { #category : #visiting }
+DRRegistersInfo >> visitAnd: aDRAnd [
+
+	^ self composedConstraint: DRIntersectionConstraint from: aDRAnd
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitBitAnd: aDRBitAnd [
+	"Do nothing"
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitBitShift: aDRBitShift [ 
+	"Do nothing"
+]
+
+{ #category : #visiting }
 DRRegistersInfo >> visitComparison: aDRComparison andDo: aClosure [ 
 
 		| operands |
 	operands := aDRComparison operands.
-	((operands anySatisfy: #isConstant) and: [ operands anySatisfy: #isRegister ]) 
+	((operands anySatisfy: #isConstant) and: [ operands anySatisfy: [:o | o isRegister or: o isInstruction ] ]) 
 		ifFalse: [ ^ nil "We need a register and a constant" ].
 
-	aDRComparison operand1 isRegister ifFalse: [ "Check register is on left"
+	aDRComparison operand2 isConstant ifFalse: [ "Check constant on right"
 		^ aDRComparison reversed acceptVisitor: self "if not reverse it" ]. 
 
 	^ aClosure value: aDRComparison operand1 value: (aDRComparison operand2 acceptVisitor: self)
@@ -87,6 +113,7 @@ DRRegistersInfo >> visitConditionalJump: aDRConditionalJump [
 	aDRConditionalJump operand1 isInstruction ifFalse: [ ^ self ].
 
 	constraint := aDRConditionalJump operand1 acceptVisitor: self.
+	constraint ifNil: [ 1halt. ^ self ].
 	aDRConditionalJump trueBranch = destination ifTrue: [ 
 		self mergeConstraint: constraint ].
 	aDRConditionalJump falseBranch = destination ifTrue: [ 
@@ -96,6 +123,7 @@ DRRegistersInfo >> visitConditionalJump: aDRConditionalJump [
 { #category : #visiting }
 DRRegistersInfo >> visitConstant: aDRConstantValue [ 
 	
+	self flag: #TODO. "Remove this, we must know when something is a constant"
 	^ aDRConstantValue value 
 ]
 
@@ -149,6 +177,11 @@ DRRegistersInfo >> visitJump: aDRJump [
 ]
 
 { #category : #visiting }
+DRRegistersInfo >> visitLeftShift: aDRLeftShift [ 
+	"Do nothing"
+]
+
+{ #category : #visiting }
 DRRegistersInfo >> visitLessOrEqualsThanComparison: aDRLessOrEqualsThanComparison [
 
 	^ self
@@ -165,6 +198,11 @@ DRRegistersInfo >> visitLessThanComparison: aDRLessThanComparison [
 		  andDo: [ :reg :value | DRRegisterConstraint less: reg than: value ]
 ]
 
+{ #category : #visitng }
+DRRegistersInfo >> visitLoad: aDRLoad [ 
+	"Do nothing"
+]
+
 { #category : #visiting }
 DRRegistersInfo >> visitMod: aDRMod [ 
 	"Do nothing"
@@ -177,7 +215,7 @@ DRRegistersInfo >> visitMultiply: aDRMultiply [
 
 { #category : #visiting }
 DRRegistersInfo >> visitMultiplyOverflowJump: aDRMultiplyOverflowJump [ 
-	self shouldBeImplemented.
+	self flag: #TODO. "Do nothing?"
 ]
 
 { #category : #visiting }
@@ -197,6 +235,12 @@ DRRegistersInfo >> visitNotEqualsComparison: aDRNotEqualsThanComparison [
 		  visitComparison: aDRNotEqualsThanComparison
 		  andDo: [ :reg :value | 
 		  DRRegisterConstraint notEquals: reg than: value ]
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitOr: aDROr [
+		
+	^ self composedConstraint: DRUnionConstraint from: aDROr
 ]
 
 { #category : #visiting }
@@ -228,7 +272,14 @@ DRRegistersInfo >> visitSubstract: aDRSubtract [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitTest: aDRTest [ 
-	self flag: #TODO. "Mask constraint"
-	self notImplemented
+DRRegistersInfo >> visitTest: aDRTest [
+
+	^ self
+		  visitComparison: aDRTest
+		  andDo: [ :reg :value | DRRegisterConstraint mask: reg with: value ]
+]
+
+{ #category : #visiting }
+DRRegistersInfo >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
+	"Do nothing"
 ]

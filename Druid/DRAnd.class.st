@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #visiting }
+DRAnd >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitAnd: self
+]
+
 { #category : #printing }
 DRAnd >> opcode [
 	

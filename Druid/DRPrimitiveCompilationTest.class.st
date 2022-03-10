@@ -130,7 +130,7 @@ DRPrimitiveCompilationTest >> testAnyMaskTrueInverted [
 { #category : #'tests-failing-primitive' }
 DRPrimitiveCompilationTest >> testAssertIsIgnored [
 
-	self compileDruidPrimitive: #assertIsIgnored.
+	self compileDruidPrimitive: #primitiveAssertIsIgnored.
 
 	self executePrimitiveWithReceiver: 37.
 	
@@ -141,7 +141,7 @@ DRPrimitiveCompilationTest >> testAssertIsIgnored [
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testBranchingWithAssigmentsFalse [
 
-	self compileDruidPrimitive: #branchingWithAssigments.
+	self compileDruidPrimitive: #primitiveBranchingWithAssigments.
 	
 	self executePrimitiveWithReceiver: -1.
 	
@@ -151,7 +151,7 @@ DRPrimitiveCompilationTest >> testBranchingWithAssigmentsFalse [
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testBranchingWithAssigmentsTrue [
 
-	self compileDruidPrimitive: #branchingWithAssigments.
+	self compileDruidPrimitive: #primitiveBranchingWithAssigments.
 	
 	self executePrimitiveWithReceiver: 1.
 	

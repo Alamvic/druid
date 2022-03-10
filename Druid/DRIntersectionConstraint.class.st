@@ -1,9 +1,6 @@
 Class {
 	#name : #DRIntersectionConstraint,
-	#superclass : #DRConditionalConstraint,
-	#instVars : [
-		'constraints'
-	],
+	#superclass : #DRComposedConstraint,
 	#category : #'Druid-Optimizations'
 }
 
@@ -15,24 +12,10 @@ DRIntersectionConstraint class >> between: minValue and: maxValue [
 			  (DRLessConstraint withValue: maxValue) }
 ]
 
-{ #category : #accessing }
-DRIntersectionConstraint class >> constraints: constraints [
+{ #category : #testing }
+DRIntersectionConstraint >> includes: otherConstraint [
 
-	^ self new
-		  constraints: constraints;
-		  yourself
-]
-
-{ #category : #accessing }
-DRIntersectionConstraint >> constraints [
-
-	^ constraints
-]
-
-{ #category : #accessing }
-DRIntersectionConstraint >> constraints: anObject [
-
-	constraints := anObject
+	^ constraints allSatisfy: [ :c | c includes: otherConstraint ]
 ]
 
 { #category : #arithmetic }
@@ -54,25 +37,13 @@ DRIntersectionConstraint >> includesValuesLessThan: otherConstantValue [
 ]
 
 { #category : #arithmetic }
-DRIntersectionConstraint >> isIncludedIn: otherConstraint [
+DRIntersectionConstraint >> negated [
 
-	^ constraints allSatisfy: [ :c | c isIncludedIn: otherConstraint ]
+	^ DRUnionConstraint constraints: (constraints collect: [ :c | c negated ])
 ]
 
 { #category : #printing }
 DRIntersectionConstraint >> opCode [
 
 	^ 'AND'
-]
-
-{ #category : #printing }
-DRIntersectionConstraint >> printOn: aStream [
-
-	aStream
-		nextPutAll: '(';
-		print: constraints first;
-		nextPutAll: self opCode;
-		print: constraints second;
-		nextPutAll: ')'
-
 ]

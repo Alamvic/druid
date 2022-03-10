@@ -50,7 +50,7 @@ DRPathConstraintsTest >> testConditionalRegConstraintTypeBothBranchesInverted [
 DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerBranches [
 
 	| cfg edges trueConstraint falseConstraint composedConstraint |
-	cfg := self generateDruidIRFor: #innerBranching.
+	cfg := self generateDruidIRFor: #primitiveInnerBranching.
 	self optimize: cfg.
 	self generatePaths: cfg.
 
@@ -62,6 +62,36 @@ DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerBranches [
 		                      constraint: (DRIntersectionConstraint between: 10 and: 20).
 	self assert: trueConstraint includes: composedConstraint.
 	self assert: falseConstraint includes: (DRRegisterConstraint greaterOrEquals: falseConstraint reg than: 20)
+]
+
+{ #category : #constraints }
+DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerDeadBranches [
+
+	| cfg edges trueConstraint falseConstraint |
+	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
+	self optimize: cfg.
+	self generatePaths: cfg.
+
+	edges := cfg outgoingEdgesFor: (cfg blockById: 6).
+	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "Dead"
+	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "> 10"
+	self assert: trueConstraint condition isNil.
+	self assert: falseConstraint includes: (DRRegisterConstraint greater: falseConstraint reg than: 10)
+]
+
+{ #category : #constraints }
+DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerX [
+
+	| cfg edges trueConstraint falseConstraint |
+	cfg := self generateDruidIRFor: #primitiveX.
+	self optimize: cfg.
+	self generatePaths: cfg.
+1halt.
+	edges := cfg outgoingEdgesFor: (cfg blockById: 6).
+	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "Dead"
+	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "> 10"
+	self assert: trueConstraint condition isNil.
+	self assert: falseConstraint includes: (DRRegisterConstraint greater: falseConstraint reg than: 10)
 ]
 
 { #category : #building }
@@ -206,13 +236,23 @@ DRPathConstraintsTest >> testGreaterConstraint [
 	self deny: constraint includes: (DREqualsConstraint withValue: 10).
 	self assert: constraint includes: (DREqualsConstraint withValue: 11).
 	self deny: constraint includes: (DREqualsConstraint withValue: 9).
+	
 	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	
 	self assert: constraint includes: (DRGreaterConstraint withValue: 10).
 	self assert: constraint includes: (DRGreaterConstraint withValue: 11).
 	self deny: constraint includes: (DRGreaterConstraint withValue: 9).
+	
 	self deny: constraint includes: (DRLessConstraint withValue: 10).
+	
 	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
+	
+	self assert: constraint includes: (DRIntersectionConstraint between: 10 and: 20).
+	self deny: constraint includes: (DRIntersectionConstraint between: 5 and: 20).
+	self deny: constraint includes: (DRIntersectionConstraint between: 5 and: 9).
+	
+	self deny: constraint includes: (DRUnionConstraint less: 5 greater: 15).
 ]
 
 { #category : #constraints }
@@ -242,14 +282,19 @@ DRPathConstraintsTest >> testIntersectionConstraint [
 	self assert: constraint includes: (DREqualsConstraint withValue: 15).
 	self deny: constraint includes: (DREqualsConstraint withValue: 5).
 	self deny: constraint includes: (DREqualsConstraint withValue: 25).
+	
 	self deny: constraint includes: (DRGreaterConstraint withValue: 15).
 	self deny: constraint includes: (DRLessConstraint withValue: 15).
 	self deny: constraint includes: (DRNotEqualsConstraint withValue: 15).
+	
 	self assert: constraint includes: (DRIntersectionConstraint between: 10 and: 20).
 	self assert: constraint includes: (DRIntersectionConstraint between: 11 and: 19).
 	self deny: constraint includes: (DRIntersectionConstraint between: 9 and: 20).
 	self deny: constraint includes: (DRIntersectionConstraint between: 10 and: 21).
 	self deny: constraint includes: (DRIntersectionConstraint between: 9 and: 21).
+
+	self deny: constraint includes: (DRUnionConstraint less: 9 greater: 21).
+	self deny: constraint includes: (DRUnionConstraint less: 11 greater: 19).
 
 ]
 
@@ -323,13 +368,57 @@ DRPathConstraintsTest >> testNotEqualsConstraint [
 	self deny: constraint includes: (DREqualsConstraint withValue: 10).
 	self assert: constraint includes: (DREqualsConstraint withValue: 11).
 	self assert: constraint includes: (DREqualsConstraint withValue: 9).
+	
 	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	
 	self assert: constraint includes: (DRGreaterConstraint withValue: 10).
 	self assert: constraint includes: (DRGreaterConstraint withValue: 11).
 	self deny: constraint includes: (DRGreaterConstraint withValue: 9).
+	
 	self assert: constraint includes: (DRLessConstraint withValue: 10).
 	self assert: constraint includes: (DRLessConstraint withValue: 9).
 	self deny: constraint includes: (DRLessConstraint withValue: 11).
+	
 	self assert: constraint includes: (DRNotEqualsConstraint withValue: 10).
+	
+	self assert: constraint includes: (DRIntersectionConstraint between: 5 and: 10).
+	self deny: constraint includes: (DRIntersectionConstraint between: 5 and: 15).
+	self assert: constraint includes: (DRIntersectionConstraint between: 10 and: 15).
+	
+	self assert: constraint includes: (DRUnionConstraint less: 10 greater: 20).
+	self assert: constraint includes: (DRUnionConstraint less: 10 greater: 10).
+	self deny: constraint includes: (DRUnionConstraint less: 15 greater: 20).
+]
+
+{ #category : #constraints }
+DRPathConstraintsTest >> testUnionConstraint [
+
+	| constraint |
+	constraint := DRUnionConstraint less: 10 greater: 20.
+	
+	self deny: constraint includes: (DREqualsConstraint withValue: 15).
+	self assert: constraint includes: (DREqualsConstraint withValue: 5).
+	self assert: constraint includes: (DREqualsConstraint withValue: 25).
+	
+	self deny: constraint includes: (DRGreaterConstraint withValue: 15).
+	self assert: constraint includes: (DRGreaterConstraint withValue: 20).
+	self deny: constraint includes: (DRGreaterConstraint withValue: 5).
+	
+	self deny: constraint includes: (DRLessConstraint withValue: 15).
+	self assert: constraint includes: (DRLessConstraint withValue: 5).
+	self deny: constraint includes: (DRLessConstraint withValue: 25).
+
+	self deny: constraint includes: (DRNotEqualsConstraint withValue: 15).
+	
+	self deny: constraint includes: (DRIntersectionConstraint between: 10 and: 20).
+	self deny: constraint includes: (DRIntersectionConstraint between: 5 and: 15).
+	self deny: constraint includes: (DRIntersectionConstraint between: 15 and: 25).
+	self assert: constraint includes: (DRIntersectionConstraint between: 20 and: 25).
+	self assert: constraint includes: (DRIntersectionConstraint between: 5 and: 10).
+
+	self assert: constraint includes: (DRUnionConstraint less: 10 greater: 20).
+	self deny: constraint includes: (DRUnionConstraint less: 11 greater: 19).
+	self assert: constraint includes: (DRUnionConstraint less: 9 greater: 21).
+
 ]

@@ -93,16 +93,16 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 					workingQueue addLast: target  ] ] ] ]
 ]
 
-{ #category : #edges }
-DRControlFlowGraph >> edgeFrom: sourceBlock to: destinationBlock [
-
-	^ edges detect: [ :e | e source = sourceBlock and: [e destination = destinationBlock] ] ifNone: [ nil ]
-]
-
 { #category : #accessing }
 DRControlFlowGraph >> edges [
 
 	^ edges
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> edgesFrom: sourceBlock to: destinationBlock [
+
+	^ edges select: [ :e | e source = sourceBlock and: [e destination = destinationBlock] ]
 ]
 
 { #category : #accessing }
@@ -184,10 +184,11 @@ DRControlFlowGraph >> inspectionCFG [
 	eb connectToAll: #successors.
 	view lines do: [ :line | line model.
 		line @ (RSPopup text: [ :model | 
-			(self edgeFrom: model key to: model value)
-				ifNotNil: [ :e | String streamContents: [:s | 
-						e constraints values asStringOn: s delimiter: String cr] 
- 					]
+			String streamContents: [:s | 
+				(self edgesFrom: model key to: model value) 
+					do: [ :e | e constraints values asStringOn: s delimiter: String cr]
+					separatedBy: [s << (String cr , '--o--o--o--o--o--o--o--' , String cr)]
+ 				]
 			])
 		].
 	

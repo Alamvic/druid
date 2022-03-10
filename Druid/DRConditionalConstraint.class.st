@@ -1,9 +1,6 @@
 Class {
 	#name : #DRConditionalConstraint,
 	#superclass : #Object,
-	#instVars : [
-		'constantValue'
-	],
 	#category : #'Druid-Optimizations'
 }
 
@@ -15,22 +12,10 @@ DRConditionalConstraint class >> withValue: aConstantValue [
 		  yourself
 ]
 
-{ #category : #accessing }
-DRConditionalConstraint >> constantValue [
-
-	^ constantValue
-]
-
-{ #category : #accessing }
-DRConditionalConstraint >> constantValue: anObject [
-
-	constantValue := anObject
-]
-
-{ #category : #arithmetic }
+{ #category : #testing }
 DRConditionalConstraint >> includes: otherConstraint [
 
-	^ otherConstraint isIncludedIn: self.
+	self subclassResponsibility
 ]
 
 { #category : #arithmetic }
@@ -52,12 +37,6 @@ DRConditionalConstraint >> includesValuesLessThan: otherConstantValue [
 ]
 
 { #category : #arithmetic }
-DRConditionalConstraint >> isIncludedIn: otherConstraint [
-
-	self subclassResponsibility 
-]
-
-{ #category : #arithmetic }
 DRConditionalConstraint >> negated [
 
 	self subclassResponsibility
@@ -72,10 +51,7 @@ DRConditionalConstraint >> opCode [
 { #category : #printing }
 DRConditionalConstraint >> printOn: aStream [
 
-	aStream
-		nextPutAll: self opCode;
-		nextPutAll: ' ';
-		print: constantValue
+	self subclassResponsibility 
 ]
 
 { #category : #'as yet unclassified' }
@@ -85,6 +61,8 @@ DRConditionalConstraint >> unifyWith: otherConditionalConstraint [
 		^ otherConditionalConstraint ].
 	(otherConditionalConstraint includes: self) ifTrue: [ 
 		^ self ].
+	(otherConditionalConstraint negated includes: self) ifTrue: [ 
+		^ nil "Dead branch" ].
 	
 	^ DRIntersectionConstraint constraints: { self. otherConditionalConstraint }
 ]

@@ -5,26 +5,6 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> assertIsIgnored [
-	<numberOfArguments: 0>
-	self assert: false.
-	self pop: 1 thenPush: 17
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> branchingWithAssigments [
-
-	<numberOfArguments: 0>
-	| a b res |
-	a := 17.
-	b := 42.
-	res := self stackTop > 0
-		ifTrue: [ a ]
-		ifFalse: [ b ].
-	self pop: 1 thenPush: res
-]
-
-{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> constant [
 
 	^ 73
@@ -63,34 +43,6 @@ DruidTestInterpreter >> failingSuccess [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> innerBranching [
-
-	<numberOfArguments: 0>
-	| res |
-	res := self stackTop > 10
-		       ifTrue: [ 
-			       self stackTop < 20
-				       ifTrue: [ 5 ]
-				       ifFalse: [ 17 ] ]
-		       ifFalse: [ 99 ].
-	self pop: 1 thenPush: res
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> innerBranchingWithDeadBranch [
-
-	<numberOfArguments: 0>
-	| res |
-	res := self stackTop > 10
-		       ifTrue: [ 
-			       self stackTop < 5
-				       ifTrue: [ 5 "Dead" ]
-				       ifFalse: [ 17 ] ]
-		       ifFalse: [ 99 ].
-	self pop: 1 thenPush: res
-]
-
-{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithEarlyReturn [
 
 	self stackTop = 0 ifTrue: [ ^ 42 ].
@@ -113,6 +65,26 @@ DruidTestInterpreter >> passingSuccess [
 	<numberOfArguments: 0>
 	self success: true.
 	self pop: 1 thenPush: 1
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAssertIsIgnored [
+	<numberOfArguments: 0>
+	self assert: false.
+	self pop: 1 thenPush: 17
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveBranchingWithAssigments [
+
+	<numberOfArguments: 0>
+	| a b res |
+	a := 17.
+	b := 42.
+	res := self stackTop > 0
+		ifTrue: [ a ]
+		ifFalse: [ b ].
+	self pop: 1 thenPush: res
 ]
 
 { #category : #'as yet unclassified' }
@@ -245,6 +217,34 @@ DruidTestInterpreter >> primitiveIncrement [
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: self stackTop + 1
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveInnerBranching [
+
+	<numberOfArguments: 0>
+	| res |
+	res := self stackTop > 10
+		       ifTrue: [ 
+			       self stackTop < 20
+				       ifTrue: [ 5 ]
+				       ifFalse: [ 17 ] ]
+		       ifFalse: [ 99 ].
+	self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveInnerBranchingWithDeadBranch [
+
+	<numberOfArguments: 0>
+	| res |
+	res := self stackTop > 10
+		       ifTrue: [ 
+			       self stackTop < 5
+				       ifTrue: [ 5 "Dead" ]
+				       ifFalse: [ 17 ] ]
+		       ifFalse: [ 99 ].
+	self pop: 1 thenPush: res
 ]
 
 { #category : #'as yet unclassified' }
@@ -423,4 +423,18 @@ DruidTestInterpreter >> primitiveWithIfReturningValue [
 		ifTrue: [ 42 ]
 		ifFalse: [ 57 ].
 	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveX [
+
+	<numberOfArguments: 0>
+	| res res2 |
+	res := self stackTop > 10
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 99 ].
+	res2 := self stackTop > 0
+		        ifTrue: [ 5 ]
+		        ifFalse: [ 17 ].
+	self pop: 1 thenPush: res + res2
 ]

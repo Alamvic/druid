@@ -54,6 +54,15 @@ DRRegisterConstraint class >> lessOrEquals: register than: aValue [
 ]
 
 { #category : #'as yet unclassified' }
+DRRegisterConstraint class >> mask: register with: aValue [
+
+	^ self new
+		  reg: register;
+		  condition: (DRMaskConstraint withValue: aValue);
+		  yourself
+]
+
+{ #category : #'as yet unclassified' }
 DRRegisterConstraint class >> notEquals: register than: aValue [
 
 	^ self new
@@ -113,7 +122,7 @@ DRRegisterConstraint >> printOn: aStream [
 	aStream 
 		nextPutAll: reg name;
 		nextPutAll: ' ';
-		print: condition
+		print: (condition ifNil: [ 'DEAD' ])
 ]
 
 { #category : #accessing }
