@@ -83,6 +83,18 @@ DRSCCPConstantFoldingTest >> testConstantFoldingFalseAndWhateverIsFalse [
 ]
 
 { #category : #'tests - folding' }
+DRSCCPConstantFoldingTest >> testConstantFoldingFalseOrWhateverIsWhatever [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DROr between: false and: 17.
+
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1
+		equals: 17 asDRValue
+]
+
+{ #category : #'tests - folding' }
 DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyByZeroLeft [
 
 	| cfg |
@@ -138,6 +150,18 @@ DRSCCPConstantFoldingTest >> testConstantFoldingSubstractInSingleBasicBlock [
 ]
 
 { #category : #'tests - folding' }
+DRSCCPConstantFoldingTest >> testConstantFoldingTrueAndWhateverIsWhatever [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DRAnd between: true and: 17.
+
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1
+		equals: 17 asDRValue
+]
+
+{ #category : #'tests - folding' }
 DRSCCPConstantFoldingTest >> testConstantFoldingTrueOrWhateverIsTrue [
 
 	| cfg |
@@ -159,6 +183,30 @@ DRSCCPConstantFoldingTest >> testConstantFoldingWhateverAndFalseIsFalse [
 	self
 		assert: cfg instructions allButLast last operand1
 		equals: false asDRValue
+]
+
+{ #category : #'tests - folding' }
+DRSCCPConstantFoldingTest >> testConstantFoldingWhateverAndTrueIsWhatever [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DRAnd between: 17 and: true.
+
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1
+		equals: 17 asDRValue
+]
+
+{ #category : #'tests - folding' }
+DRSCCPConstantFoldingTest >> testConstantFoldingWhateverOrFalseIsWhatever [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DROr between: 17 and: false.
+
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1
+		equals: 17 asDRValue
 ]
 
 { #category : #'tests - folding' }

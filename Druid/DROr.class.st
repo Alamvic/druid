@@ -26,6 +26,7 @@ DROr >> sccpLatticeValueFor: sccp [
 	(operand1 value = true
 		or: [ operand2 value = true ])
 			ifTrue: [ ^ true asDRValue ].
+	operand2 value = false ifTrue: [ 1halt. ^ operand1  ].
 	
 	^ super sccpLatticeValueFor: sccp
 ]

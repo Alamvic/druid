@@ -26,6 +26,7 @@ DRAnd >> sccpLatticeValueFor: sccp [
 	(operand1 value = false
 		or: [ operand2 value = false ])
 			ifTrue: [ ^ false asDRValue ].
+	operand2 value = true ifTrue: [ ^ operand1  ].
 	
 	^ super sccpLatticeValueFor: sccp
 ]
