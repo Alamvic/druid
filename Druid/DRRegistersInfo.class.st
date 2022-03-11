@@ -2,7 +2,8 @@ Class {
 	#name : #DRRegistersInfo,
 	#superclass : #DREdge,
 	#instVars : [
-		'constraints'
+		'constraints',
+		'parent'
 	],
 	#category : #'Druid-Optimizations'
 }
@@ -43,10 +44,23 @@ DRRegistersInfo >> constraints: anObject [
 	constraints := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+DRRegistersInfo >> deadTarget [
+
+	^ self isDead
+		  ifTrue: [ parent deadTarget ifNil: [ parent ] ]
+		  ifFalse: [ nil ]
+]
+
 { #category : #initialization }
 DRRegistersInfo >> initialize [ 
 
 	constraints := Dictionary new.
+]
+
+{ #category : #testing }
+DRRegistersInfo >> isDead [
+	^ constraints values anySatisfy: [ :c | c isDead ]
 ]
 
 { #category : #adding }
@@ -57,6 +71,13 @@ DRRegistersInfo >> mergeConstraint: aConditionalConstraint [
 		ifPresent: [ :oldConstraint | 
 			self addConstraint: (oldConstraint mergeWith: aConditionalConstraint) ]
 		ifAbsentPut: aConditionalConstraint
+]
+
+{ #category : #accessing }
+DRRegistersInfo >> parent: aDRRegistersInfo [
+
+	constraints := aDRRegistersInfo constraints copy.
+	parent := aDRRegistersInfo
 ]
 
 { #category : #printing }

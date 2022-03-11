@@ -166,6 +166,22 @@ DRPathConstraintsTest >> testCopyRegisterNotAddNewConstraint [
 	self assert: (cfg outgoingEdgeFor: block) constraints isEmpty.
 ]
 
+{ #category : #queries }
+DRPathConstraintsTest >> testDeadPath [
+
+	| cfg deadPath expectedTarget pathBlockIds |
+	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
+	self optimize: cfg.
+	self generatePaths: cfg.
+
+	deadPath := cfg deadPaths associations first.
+	pathBlockIds := deadPath value collect: [ :e | e destination id ].
+	expectedTarget := cfg incomingEdgeFor: (cfg blockById: 6).
+
+	self assert: deadPath key equals: expectedTarget.
+	self assertCollection: pathBlockIds hasSameElements: { 7. 16. 1 }
+]
+
 { #category : #constraints }
 DRPathConstraintsTest >> testEqualsConstraint [
 
@@ -357,6 +373,21 @@ DRPathConstraintsTest >> testLinearContigousBlocksShareConstraints [
 	blocks := cfg reversePostOrderBlocks allButFirst.
 	self assert: (cfg outgoingEdgeFor: blocks first) equals: (cfg incomingEdgeFor: blocks second).
 
+]
+
+{ #category : #queries }
+DRPathConstraintsTest >> testManyDeadPaths [
+
+	| cfg deadPaths deadTargetIds |
+	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranches.
+	self optimize: cfg.
+	self generatePaths: cfg.
+
+	deadPaths := cfg deadPaths.
+	deadTargetIds := deadPaths keys collect: [ :e | e destination id ].
+
+	self assert: deadPaths size equals: 2.
+	self assertCollection: deadTargetIds hasSameElements: { 10. 6 }
 ]
 
 { #category : #constraints }

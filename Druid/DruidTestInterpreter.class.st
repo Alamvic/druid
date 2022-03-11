@@ -248,6 +248,23 @@ DruidTestInterpreter >> primitiveInnerBranchingWithDeadBranch [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveInnerBranchingWithDeadBranches [
+
+	<numberOfArguments: 0>
+	| res |
+	res := self stackTop > 10
+		       ifTrue: [ 
+			       self stackTop < 5
+				       ifTrue: [ 5 "Dead" ]
+				       ifFalse: [ 17 ] ]
+		       ifFalse: [ 
+			       self stackTop > 15
+				       ifTrue: [ 25 "Dead" ]
+				       ifFalse: [ 27 ] ].
+	self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveIsIntegerObject [
 
 	<numberOfArguments: 0>

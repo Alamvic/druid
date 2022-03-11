@@ -33,7 +33,7 @@ DRPathFactory >> createAllEdgesFrom: source to: destination [
 	| edge |
 	(cfg incomingEdgesFor: source) do: [ :e | "We should generate one outgoing for each incoming edge"
 		edge := cfg addEdgeFrom: source to: destination.
-		edge constraints: e constraints copy.
+		edge parent: e.
 		source instructions do: [ :i | i acceptVisitor: edge ] ]
 ]
 

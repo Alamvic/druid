@@ -98,6 +98,11 @@ DRRegisterConstraint >> includes: otherRegisterConstraint [
 	^ reg = otherRegisterConstraint reg and: [ condition includes: otherRegisterConstraint condition ]
 ]
 
+{ #category : #testing }
+DRRegisterConstraint >> isDead [
+	^ condition isDead
+]
+
 { #category : #operations }
 DRRegisterConstraint >> mergeWith: aDRRegisterConstraint [ 
 	

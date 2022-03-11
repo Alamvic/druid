@@ -93,6 +93,25 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 					workingQueue addLast: target  ] ] ] ]
 ]
 
+{ #category : #'as yet unclassified' }
+DRControlFlowGraph >> clearPaths [
+
+	edges := OrderedCollection new
+]
+
+{ #category : #'as yet unclassified' }
+DRControlFlowGraph >> deadPaths [
+
+	| paths |
+	paths := Dictionary new.
+	edges select: [ :e | e isDead ] thenDo: [ :e | 
+		paths
+			at: e deadTarget
+			ifPresent: [ :collection | collection add: e ]
+			ifAbsentPut: { e } asOrderedCollection ].
+	^ paths
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> edges [
 
