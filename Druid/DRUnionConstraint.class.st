@@ -15,6 +15,9 @@ DRUnionConstraint class >> less: minValue greater: maxValue [
 { #category : #arithmetic }
 DRUnionConstraint >> includes: otherConstraint [
 
+	otherConstraint isUnion ifTrue: [ 
+		^ otherConstraint constraints allSatisfy: [ :c | self includes: c ] ].
+
 	^ constraints anySatisfy: [ :c | c includes: otherConstraint ]
 ]
 
@@ -34,6 +37,12 @@ DRUnionConstraint >> includesValuesGreaterThan: otherConstantValue [
 DRUnionConstraint >> includesValuesLessThan: otherConstantValue [
 
 	^ constraints anySatisfy: [ :c | c includesValuesLessThan: otherConstantValue ]
+]
+
+{ #category : #testing }
+DRUnionConstraint >> isUnion [ 
+
+	^ true
 ]
 
 { #category : #arithmetic }

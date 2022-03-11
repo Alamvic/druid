@@ -122,7 +122,7 @@ DRRegisterConstraint >> printOn: aStream [
 	aStream 
 		nextPutAll: reg name;
 		nextPutAll: ' ';
-		print: (condition ifNil: [ 'DEAD' ])
+		print: condition
 ]
 
 { #category : #accessing }

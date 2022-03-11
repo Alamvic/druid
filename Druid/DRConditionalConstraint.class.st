@@ -36,6 +36,18 @@ DRConditionalConstraint >> includesValuesLessThan: otherConstantValue [
 	self subclassResponsibility
 ]
 
+{ #category : #testing }
+DRConditionalConstraint >> isDead [
+
+	^ false
+]
+
+{ #category : #testing }
+DRConditionalConstraint >> isUnion [
+
+	^ false
+]
+
 { #category : #arithmetic }
 DRConditionalConstraint >> negated [
 
@@ -51,7 +63,7 @@ DRConditionalConstraint >> opCode [
 { #category : #printing }
 DRConditionalConstraint >> printOn: aStream [
 
-	self subclassResponsibility 
+	aStream nextPutAll: self opCode
 ]
 
 { #category : #'as yet unclassified' }
@@ -62,7 +74,7 @@ DRConditionalConstraint >> unifyWith: otherConditionalConstraint [
 	(otherConditionalConstraint includes: self) ifTrue: [ 
 		^ self ].
 	(otherConditionalConstraint negated includes: self) ifTrue: [ 
-		^ nil "Dead branch" ].
+		^ DRDeadConstraint new ].
 	
 	^ DRIntersectionConstraint constraints: { self. otherConditionalConstraint }
 ]

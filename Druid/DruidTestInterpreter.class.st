@@ -367,6 +367,20 @@ DruidTestInterpreter >> primitiveReturnTrue [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveSandClock [
+
+	<numberOfArguments: 0>
+	| res res2 |
+	res := self stackTop > 10
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 99 ].
+	res2 := self stackTop > 0
+		        ifTrue: [ 5 ]
+		        ifFalse: [ 17 ].
+	self pop: 1 thenPush: res + res2
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveSubWithOverflow [
 
 	<numberOfArguments: 1>
@@ -423,18 +437,4 @@ DruidTestInterpreter >> primitiveWithIfReturningValue [
 		ifTrue: [ 42 ]
 		ifFalse: [ 57 ].
 	self pop: 1 thenPush: result
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveX [
-
-	<numberOfArguments: 0>
-	| res res2 |
-	res := self stackTop > 10
-		       ifTrue: [ 1 ]
-		       ifFalse: [ 99 ].
-	res2 := self stackTop > 0
-		        ifTrue: [ 5 ]
-		        ifFalse: [ 17 ].
-	self pop: 1 thenPush: res + res2
 ]

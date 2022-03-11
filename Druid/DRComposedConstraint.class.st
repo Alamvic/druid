@@ -33,7 +33,9 @@ DRComposedConstraint >> printOn: aStream [
 	aStream
 		nextPutAll: '(';
 		print: constraints first;
+		nextPutAll: ' ';
 		nextPutAll: self opCode;
+		nextPutAll: ' ';
 		print: constraints second;
 		nextPutAll: ')'
 

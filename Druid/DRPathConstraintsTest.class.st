@@ -75,7 +75,7 @@ DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerDeadBranches [
 	edges := cfg outgoingEdgesFor: (cfg blockById: 6).
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "Dead"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "> 10"
-	self assert: trueConstraint condition isNil.
+	self assert: trueConstraint condition isDead.
 	self assert: falseConstraint includes: (DRRegisterConstraint greater: falseConstraint reg than: 10)
 ]
 
@@ -83,7 +83,7 @@ DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerDeadBranches [
 DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerX [
 
 	| cfg edges trueConstraint falseConstraint |
-	cfg := self generateDruidIRFor: #primitiveX.
+	cfg := self generateDruidIRFor: #primitiveSandClock.
 	self optimize: cfg.
 	self generatePaths: cfg.
 1halt.
