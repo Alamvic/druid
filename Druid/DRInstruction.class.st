@@ -346,7 +346,7 @@ DRInstruction >> sccpEvaluateFor: sccp [
 	previousValue = sccp bottom ifTrue: [ ^ self ].
 
 	newValue := self sccpLatticeValueFor: sccp.
-	
+
 	previousValue = newValue ifFalse: [
 		"Set thew new value and invalidate the uses"
 		sccp setValueOf: self at: newValue ]
