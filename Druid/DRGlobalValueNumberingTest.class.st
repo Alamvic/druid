@@ -17,7 +17,7 @@ DRGlobalValueNumberingTest >> testCommutativeOperationIsReplacedByPreviousInstan
 	cfg b1 addInstruction: (firstAddition := instructionFactory add: copy3 to: copy4).
 	cfg b1 addInstruction: (secondAddition := instructionFactory add: copy4 to: copy3).
 	optimisation applyTo: cfg.
-	self assert: (cfg b1 instructions at: 4) isCopy.
+	self assert: (cfg b1 instructions includes: secondAddition) not.
 	
 	
 ]
@@ -39,10 +39,10 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesMe
 	cfg b4 addInstruction: (phi3 := instructionFactory phiWith: copy3 with: copy5).
 	cfg b4 addInstruction: (phi4 := instructionFactory phiWith: copy3 with: copy5).
 	optimisation applyTo: cfg.
-	self assert: (cfg b4 instructions findFirst: phi1) == 0.
-	self assert: (cfg b4 instructions findFirst: phi2) ~~ 0.
-	self assert: (cfg b4 instructions findFirst: phi3) ~~ 0.
-	self assert: (cfg b4 instructions findFirst: phi4) == 0.
+	self assert: (cfg b4 instructions includes: phi1) not.
+	self assert: (cfg b4 instructions includes: phi2).
+	self assert: (cfg b4 instructions includes: phi3) not.
+	self assert: (cfg b4 instructions includes: phi4).
 	
 ]
 
@@ -60,8 +60,8 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesSp
 	cfg b2 addInstruction: (firstAddition := instructionFactory add: copy3 to: copy4).
 	cfg b3 addInstruction: (secondAddition := instructionFactory add: copy3 to: copy4).
 	optimisation applyTo: cfg.
-	self assert: (cfg b2 instructions at: 1) isCopy not.
-	self assert: (cfg b3 instructions at: 1) isCopy not.
+	self assert: (cfg b2 instructions includes: firstAddition).
+	self assert: (cfg b3 instructions includes: secondAddition).
 	
 	
 ]
@@ -79,7 +79,7 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsReplacedByPreviousInstanc
 	cfg b1 addInstruction: (firstAddition := instructionFactory add: copy3 to: copy4).
 	cfg b1 addInstruction: (secondAddition := instructionFactory add: copy3 to: copy4).
 	optimisation applyTo: cfg.
-	self assert: (cfg b1 instructions at: 4) isCopy.
+	self assert: (cfg b1 instructions includes: secondAddition) not.
 	
 	
 ]
@@ -88,18 +88,18 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsReplacedByPreviousInstanc
 DRGlobalValueNumberingTest >> testNonEquivalentOperationIsNotReplaced [
 	"This test asserts whether or not non equivalent operations are left alone by the optimisation"
 			
-	| cfg instructionFactory copy3 copy4 copy5 optimisation |
+	| cfg instructionFactory copy3 copy4 copy5 firstAddition secondAddition optimisation |
 	instructionFactory := DRInstructionFactory new.
 	optimisation := DRGlobalValueNumbering new.
 	cfg := self setUpCFG: 1.
 	cfg b1 addInstruction: (copy3 := instructionFactory copy: 3).
 	cfg b1 addInstruction: (copy4 := instructionFactory copy: 4).
 	cfg b1 addInstruction: (copy5 := instructionFactory copy: 5).
-	cfg b1 addInstruction: (instructionFactory add: copy3 to: copy4).
-	cfg b1 addInstruction: (instructionFactory add: copy3 to: copy5).
+	cfg b1 addInstruction: (firstAddition := instructionFactory add: copy3 to: copy4).
+	cfg b1 addInstruction: (secondAddition := instructionFactory add: copy3 to: copy5).
 	optimisation applyTo: cfg.
-	self assert: (cfg b1 instructions at: 4) isCopy not.
-	self assert: (cfg b1 instructions at: 5) isCopy not.
+	self assert: (cfg b1 instructions includes: firstAddition).
+	self assert: (cfg b1 instructions includes: secondAddition).
 	
 	
 ]
