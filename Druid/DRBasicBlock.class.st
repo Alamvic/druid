@@ -35,7 +35,9 @@ DRBasicBlock >> add: aValue to: anotherValue [
 DRBasicBlock >> addInstruction: anInstruction [
 
 	anInstruction basicBlock: self.
-	^ instructions add: anInstruction
+	^ anInstruction isPhiFunction
+		  ifTrue: [ instructions addFirst: anInstruction ]
+		  ifFalse: [ instructions add: anInstruction ]
 ]
 
 { #category : #accessing }
@@ -88,6 +90,8 @@ DRBasicBlock >> basicDuplicate [
 DRBasicBlock >> basicEndInstruction: aDRInstruction [ 
 
 	aDRInstruction basicBlock: self.
+	endInstruction ifNotNil: [ endInstruction operands do: [ :o |
+			o removeUser: endInstruction ] ].
 	endInstruction := aDRInstruction
 ]
 
@@ -332,6 +336,14 @@ DRBasicBlock >> instructionsDo: aFullBlockClosure [
 	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
 ]
 
+{ #category : #testing }
+DRBasicBlock >> instructionsUsedOutside [
+
+	^ self instructions select: [ :i | 
+		  i users anySatisfy: [ :user | 
+			  (self instructions includes: user) not ] ]
+]
+
 { #category : #accessing }
 DRBasicBlock >> isExitBlock [
 
@@ -370,10 +382,11 @@ DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 ]
 
 { #category : #building }
-DRBasicBlock >> jumpTo: aBasicBlock [ 
-	
+DRBasicBlock >> jumpTo: aBasicBlock [
+
 	self endInstruction: (DRJump new target: aBasicBlock).
-	aBasicBlock addPredecessor: self.
+	(aBasicBlock hasPredecessor: self) ifFalse: [ 
+		aBasicBlock addPredecessor: self ].
 	^ endInstruction
 ]
 
@@ -422,6 +435,23 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 		self addInstruction: phi.
 	].
 	^ vmOperandStack := newStack
+]
+
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> mergeOutsideUsersWith: duplicatedBlock [
+
+	self instructions
+		with: duplicatedBlock instructions
+		do: [ :myInstruction :duplicatedInstructions | 
+			(self instructionsUsedOutside includes: myInstruction) ifTrue: [ 
+				(myInstruction users copyWithout: self) do: [ :user | 
+					| phi |
+					phi := user basicBlock
+						       phiWith: myInstruction
+						       with: duplicatedInstructions.
+					user replaceOperand: myInstruction by: phi.
+
+					duplicatedInstructions removeUser: user ] ] ]
 ]
 
 { #category : #temporaries }
@@ -626,17 +656,10 @@ DRBasicBlock >> tailDuplicate [
 
 	"Duplicate the receiver so there is a different copy of it for each predecessor"
 	
-	"We can only tail duplicate if the instructions do not escape"
-	"If there is an instruction in this block"
-	(self instructions anySatisfy: [ :e | 
-		"That has a user that is not in this block"
-		e users anySatisfy: [ :user | (self instructions includes: user) not ] ])
-			ifTrue: [ 
-				DRError signal: 'cannot tail duplicate if values escape this block. Otherwise we will break the SSA property' ].
-	
 	self predecessors allButFirst do: [ :predecessorToRewire | | duplicatedBlock |
 		duplicatedBlock := self basicDuplicate.
-		
+		self mergeOutsideUsersWith: duplicatedBlock.
+
 		self predecessors do: [ :predecessorToRemove |
 			predecessorToRemove = predecessorToRewire ifFalse: [ 
 				duplicatedBlock removePredecessor: predecessorToRemove ] ].
