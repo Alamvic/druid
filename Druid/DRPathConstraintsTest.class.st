@@ -16,6 +16,25 @@ DRPathConstraintsTest >> deny: aConstraint includes: includedConstraint [
 	self deny: (aConstraint includes: includedConstraint)
 ]
 
+{ #category : #'as yet unclassified' }
+DRPathConstraintsTest >> eliminateDeathPaths: cfg [
+
+	cfg deadPaths associationsDo: [ :association | 
+		| blockToSplit newSucessors |
+		blockToSplit := association key destination.
+		newSucessors := blockToSplit successors copyWithout:
+			                association value first destination.
+
+		1 haltIf: [ newSucessors size ~= 1 ].
+
+		blockToSplit tailDuplicate.
+		blockToSplit jumpTo: newSucessors first ].
+
+
+
+	cfg validate
+]
+
 { #category : #constraints }
 DRPathConstraintsTest >> testConditionalRegConstraintTypeBothBranches [
 
@@ -76,21 +95,6 @@ DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerDeadBranches [
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "Dead"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "> 10"
 	self assert: trueConstraint condition isDead.
-	self assert: falseConstraint includes: (DRRegisterConstraint greater: falseConstraint reg than: 10)
-]
-
-{ #category : #constraints }
-DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerX [
-
-	| cfg edges trueConstraint falseConstraint |
-	cfg := self generateDruidIRFor: #primitiveSandClock.
-	self optimize: cfg.
-	self generatePaths: cfg.
-1halt.
-	edges := cfg outgoingEdgesFor: (cfg blockById: 6).
-	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "Dead"
-	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "> 10"
-	self assert: trueConstraint condition isNil.
 	self assert: falseConstraint includes: (DRRegisterConstraint greater: falseConstraint reg than: 10)
 ]
 
@@ -180,6 +184,24 @@ DRPathConstraintsTest >> testDeadPath [
 
 	self assert: deadPath key equals: expectedTarget.
 	self assertCollection: pathBlockIds hasSameElements: { 7. 16. 1 }
+]
+
+{ #category : #constraints }
+DRPathConstraintsTest >> testEliminateDeadPaths [
+
+	| cfg |
+	cfg := self generateDruidIRFor: #primitiveSandClock.
+	self optimize: cfg.
+	self generatePaths: cfg.
+
+	self assert: cfg deadPaths isNotEmpty.
+
+	self eliminateDeathPaths: cfg.
+	self optimize: cfg.
+	self generatePaths: cfg.
+
+	self assert: cfg deadPaths isEmpty.
+	
 ]
 
 { #category : #constraints }
