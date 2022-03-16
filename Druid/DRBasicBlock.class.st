@@ -191,7 +191,7 @@ DRBasicBlock >> equals: operand1 to: operand2 [
 { #category : #accessing }
 DRBasicBlock >> firstInstruction [
 	
-	^ instructions first
+	^ self instructions first
 ]
 
 { #category : #testing }

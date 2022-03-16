@@ -55,28 +55,26 @@ DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 { #category : #test }
 DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 
-	| optimisation b1 cfg copy1 copy2 copy3 phi1|
+	| optimisation cfg copy1 copy2 phi1|
 	
 	optimisation := DRDeadCodeElimination new. 
 	
-	cfg := self setUpCFG: 1. 
+	cfg := self setUpCFG: 2. 
 	
-	b1 := cfg b1.
+	cfg b1 addInstruction: (DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)). 
+	cfg b1 addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 2 } result:  (DRTemporaryRegister id: 2)). 
+	cfg b1 addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 3 } result:  (DRTemporaryRegister id: 3)). 
 	
-	b1 addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)). 
-	b1 addInstruction: (copy2 := DRCopy operands: { DRConstantValue value: 2 } result:  (DRTemporaryRegister id: 2)). 
-	b1 addInstruction: (copy3 := DRCopy operands: { DRConstantValue value: 3 } result:  (DRTemporaryRegister id: 3)). 
-	
-	phi1 := ((DRPhiFunction joinedVariables: { copy3. copy2 })
+	phi1 := ((DRPhiFunction joinedVariables: { copy2. copy1 })
 		result: (DRTemporaryRegister id: 4);
 		yourself).
-	b1 addInstruction: phi1. 
-	b1 addInstruction: (DRStore new operands: {phi1} ). 
+	cfg b2 addInstruction: phi1. 
+	cfg b2 addInstruction: (DRStore new operands: {phi1} ). 
 
 	optimisation applyTo: cfg.
 	
-	self assert: cfg instructions size equals: 5. 
-	self assert: cfg instructions first equals: copy2. 
+	self assert: cfg instructions size equals: 6. "4 + Jump + Noop" 
+	self assert: cfg instructions first equals: copy1. 
 ]
 
 { #category : #test }

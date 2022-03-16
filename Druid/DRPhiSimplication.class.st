@@ -6,10 +6,9 @@ Class {
 
 { #category : #operations }
 DRPhiSimplication >> applyTo: aDRControlFlowGraph [
-	
-	aDRControlFlowGraph instructions copy do: [ :i |
-		(i isPhiFunction and: [ i operands asSet size = 1 ]) ifTrue: [
-			i replaceBy: (DRCopy
-				operands: { i operand1 }
-		      result: i result) ] ]
+
+	aDRControlFlowGraph phiFunctions do: [ :i | 
+		i operands asSet isEmpty ifTrue: [ i removeFromCFG ].
+		i operands asSet size = 1 ifTrue: [ 
+			i replaceBy: (DRCopy operands: { i operand1 } result: i result) ] ]
 ]
