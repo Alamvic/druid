@@ -6,7 +6,7 @@ Class {
 
 { #category : #tests }
 DRDominatorTreeTest >> testCorrectDominatorTreeWithBranchAtDifferentDepth [
-	| cfg b1jump b0jump dominatorTree |
+	| cfg b1jump b0jump |
 	b1jump := DRConditionalJump operands: { DRConstantValue value: true }.
 	b0jump := DRConditionalJump operands: { DRConstantValue value: true }.
 	cfg := self setUpCFGWithConditional: b1jump.
@@ -15,19 +15,24 @@ DRDominatorTreeTest >> testCorrectDominatorTreeWithBranchAtDifferentDepth [
 	cfg b4 addPredecessor: cfg b0.
 	cfg b0 endInstruction: b0jump.
 	
-	dominatorTree := DRDominatorTree new.
-	dominatorTree dominatorTreeOf: cfg.
-	self assert: dominatorTree tree children size == 1.
-	self assert: (dominatorTree blockDictionary at: cfg b0) children size == 2.
-	self assert: (dominatorTree blockDictionary at: cfg b1) children size == 2.
-	self assert: (dominatorTree blockDictionary at: cfg b2) children size == 0.
-	self assert: (dominatorTree blockDictionary at: cfg b3) children size == 0.
-	self assert: (dominatorTree blockDictionary at: cfg b4) children size == 0.
+	cfg initialBasicBlock controlFlowGraph: cfg.
+	cfg b0 controlFlowGraph: cfg.
+	cfg b1 controlFlowGraph: cfg.
+	cfg b2 controlFlowGraph: cfg.
+	cfg b3 controlFlowGraph: cfg.
+	cfg b4 controlFlowGraph: cfg.
+	
+	self assert: (cfg initialBasicBlock isDominatorOf: { cfg b0 }).
+	self assert: (cfg b0 isDominatorOf: { cfg b1 . cfg b4 }).
+	self assert: (cfg b1 isDominatorOf: { cfg b2 . cfg b3 }).
+	self assert: (cfg b2 isDominatorOf: { }).
+	self assert: (cfg b3 isDominatorOf: { }).
+	self assert: (cfg b4 isDominatorOf: { }).
 ]
 
 { #category : #tests }
 DRDominatorTreeTest >> testCorrectDominatorTreeWithLoop [
-	| cfg jump dominatorTree |
+	| cfg jump |
 	jump := DRConditionalJump operands: { DRConstantValue value: true }.
 	cfg := self setUpCFG: 3.
 	jump trueBranch: cfg b3.
@@ -35,27 +40,35 @@ DRDominatorTreeTest >> testCorrectDominatorTreeWithLoop [
 	cfg b1 addPredecessor: cfg b2.
 	cfg b2 endInstruction: jump.
 	
-	dominatorTree := DRDominatorTree new.
-	dominatorTree dominatorTreeOf: cfg.
-	self assert: dominatorTree tree children size == 1.
-	self assert: (dominatorTree blockDictionary at: cfg b0) children size == 1.
-	self assert: (dominatorTree blockDictionary at: cfg b1) children size == 1.
-	self assert: (dominatorTree blockDictionary at: cfg b2) children size == 1.
-	self assert: (dominatorTree blockDictionary at: cfg b3) children size == 0.
+	cfg initialBasicBlock controlFlowGraph: cfg.
+	cfg b0 controlFlowGraph: cfg.
+	cfg b1 controlFlowGraph: cfg.
+	cfg b2 controlFlowGraph: cfg.
+	cfg b3 controlFlowGraph: cfg.
+	
+	self assert: (cfg b0 isDominatorOf: { cfg b1 }).
+	self assert: (cfg b1 isDominatorOf: { cfg b2 }).
+	self assert: (cfg b2 isDominatorOf: { cfg b3 }).
+	self assert: (cfg b3 isDominatorOf: { }).
 ]
 
 { #category : #tests }
 DRDominatorTreeTest >> testCorrectDominatorTreeWithSimpleBranch [
-	| cfg jump dominatorTree |
+	| cfg jump |
 	jump := DRConditionalJump operands: { DRConstantValue value: true }.
 	cfg := self setUpCFGWithConditional: jump.
 	
-	dominatorTree := DRDominatorTree new.
-	dominatorTree dominatorTreeOf: cfg.
-	self assert: dominatorTree tree children size == 1.
-	self assert: (dominatorTree blockDictionary at: cfg b0) children size == 1.
-	self assert: (dominatorTree blockDictionary at: cfg b1) children size == 3.
-	self assert: (dominatorTree blockDictionary at: cfg b2) children size == 0.
-	self assert: (dominatorTree blockDictionary at: cfg b3) children size == 0.
-	self assert: (dominatorTree blockDictionary at: cfg b4) children size == 0.
+	cfg initialBasicBlock controlFlowGraph: cfg.
+	cfg b0 controlFlowGraph: cfg.
+	cfg b1 controlFlowGraph: cfg.
+	cfg b2 controlFlowGraph: cfg.
+	cfg b3 controlFlowGraph: cfg.
+	cfg b4 controlFlowGraph: cfg.
+	
+	self assert: (cfg initialBasicBlock isDominatorOf: { cfg b0 }).
+	self assert: (cfg b0 isDominatorOf: { cfg b1 }).
+	self assert: (cfg b1 isDominatorOf: { cfg b2 . cfg b3 . cfg b4 }).
+	self assert: (cfg b2 isDominatorOf: { }).
+	self assert: (cfg b3 isDominatorOf: { }).
+	self assert: (cfg b4 isDominatorOf: { }).
 ]

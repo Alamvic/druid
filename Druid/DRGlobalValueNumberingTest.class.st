@@ -23,6 +23,26 @@ DRGlobalValueNumberingTest >> testCommutativeOperationIsReplacedByPreviousInstan
 ]
 
 { #category : #tests }
+DRGlobalValueNumberingTest >> testComplexEquivalentOperationIsReplacedByPreviousInstance [
+	"This test asserts whether or not equivalent operations are correctly identified and replaced by the optimisation"
+			
+	| cfg instructionFactory copy0 copy2 constant2 firstAddition secondAddition optimisation |
+	instructionFactory := DRInstructionFactory new.
+	optimisation := DRGlobalValueNumbering new.
+	cfg := self setUpCFG: 1.
+	cfg b1 addInstruction: (copy0 := instructionFactory copy: 0).
+	constant2 := DRConstantValue new;
+   value: 2.
+	cfg b1 addInstruction: (firstAddition := instructionFactory add: copy0 to: constant2).
+	cfg b1 addInstruction: (copy2 := instructionFactory copy: 2).
+	cfg b1 addInstruction: (secondAddition := instructionFactory add: copy0 to: copy2).
+	optimisation applyTo: cfg.
+	self assert: (cfg b1 instructions includes: secondAddition) not.
+	
+	
+]
+
+{ #category : #tests }
 DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesMerge [
 	"This test asserts whether operations in different branches are scoped differently"
 			
