@@ -2,12 +2,20 @@ Class {
 	#name : #DREdge,
 	#superclass : #Object,
 	#instVars : [
-		'executed',
 		'destination',
 		'source'
 	],
 	#category : #'Druid-Optimizations'
 }
+
+{ #category : #'as yet unclassified' }
+DREdge class >> withSource: aSource andDestination: aDestination [
+
+	^ self new
+		  source: aSource;
+		  destination: aDestination;
+		  yourself
+]
 
 { #category : #accessing }
 DREdge >> destination [
@@ -19,30 +27,6 @@ DREdge >> destination [
 DREdge >> destination: anObject [
 
 	destination := anObject
-]
-
-{ #category : #accessing }
-DREdge >> executed: anObject [
-
-	executed := anObject
-]
-
-{ #category : #accessing }
-DREdge >> initialize [ 
-
-	executed := false 
-]
-
-{ #category : #accessing }
-DREdge >> isExecuted [
-
-	^ executed
-]
-
-{ #category : #accessing }
-DREdge >> mark [ 
-
-	executed := true
 ]
 
 { #category : #accessing }

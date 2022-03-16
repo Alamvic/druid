@@ -108,9 +108,7 @@ DRSCCP >> buildEdges: cfg [
 	[workList isEmpty] whileFalse: [ 
 		currentBlock := workList removeFirst. 
 		currentBlock successors do: [ :s | 
-			edge := DREdge new. 
-			edge source: currentBlock. 
-			edge destination: s.
+			edge := DRSCCPEdge withSource: currentBlock andDestination: s.
 			
 			"Pre-compute the set of edges per destination.
 			This is an optimisation for large graphs"

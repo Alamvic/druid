@@ -7,7 +7,7 @@ Class {
 { #category : #visiting }
 DRValue >> acceptVisitor: aVisitor [
 
-	self subclassResponsibility
+	^ aVisitor visitConstant: self
 ]
 
 { #category : #building }
@@ -112,6 +112,12 @@ DRValue >> isNullValue [
 
 { #category : #testing }
 DRValue >> isPhiFunction [
+
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isPhysicalRegister [
 
 	^ false
 ]

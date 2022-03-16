@@ -13,6 +13,7 @@ Class {
 DRLinearScanRegisterAllocator >> allocateRegisterForLiveSet: aDRLiveSet [
 	
 	| register |
+	availableRegisters ifEmpty: [ self error: 'Not enough registers' ].
 	register := availableRegisters removeFirst.
 	aDRLiveSet register: register.
 ]

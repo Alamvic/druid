@@ -37,7 +37,7 @@ DREqualsThanComparison >> opcode [
 { #category : #printing }
 DREqualsThanComparison >> reversed [
 	
-	^ DRNotEqualsThanComparison operands: operands reversed result: result
+	^ DREqualsThanComparison operands: operands reversed result: result
 ]
 
 { #category : #SCCP }

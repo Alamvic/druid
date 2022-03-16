@@ -285,7 +285,7 @@ DRBasicBlock >> initialize [
 	endInstruction basicBlock: self.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #inspection }
 DRBasicBlock >> inspectionInstructions: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Instructions'> 
 	
@@ -547,7 +547,7 @@ DRBasicBlock >> removePredecessorAt: index [
 	self basicRemovePredecessor: (predecessors at: index)
 ]
 
-{ #category : #replacing }
+{ #category : #instructions }
 DRBasicBlock >> replace: anInstruction by: aReplacementInstruction [
 	
 	self replaceInstruction: anInstruction by: aReplacementInstruction
@@ -562,7 +562,6 @@ DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [
 	(instructions includes: anInstruction) ifTrue: [ 
 		^ instructions at: (instructions indexOf: anInstruction) put: anotherInstruction ].
 
-	self haltIf: [ endInstruction isKindOf: DROverflowJump ].
 	"Otherwise check if it is the block end instruction"
 	endInstruction ~= anInstruction
 		ifTrue: [ self error: 'This block does not contain the instruction' ].
@@ -576,7 +575,7 @@ DRBasicBlock >> replacePredecessor: aDRBasicBlock by: aDRBasicBlock2 [
 	predecessors replaceAll: aDRBasicBlock with: aDRBasicBlock2
 ]
 
-{ #category : #asd }
+{ #category : #'control-flow' }
 DRBasicBlock >> replaceSuccessor: aDRBasicBlock by: aDRBasicBlock2 [ 
 	
 	endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock2

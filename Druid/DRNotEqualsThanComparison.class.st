@@ -37,5 +37,5 @@ DRNotEqualsThanComparison >> opcode [
 { #category : #printing }
 DRNotEqualsThanComparison >> reversed [
 	
-	^ DREqualsThanComparison operands: operands reversed result: result
+	^ DRNotEqualsThanComparison operands: operands reversed result: result
 ]

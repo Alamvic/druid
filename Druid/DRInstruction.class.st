@@ -212,9 +212,9 @@ DRInstruction >> operands [
 { #category : #accessing }
 DRInstruction >> operands: aCollection [ 
 
-	operands do: [ :each | each removeUser: self ].
+	operands asSet do: [ :each | each removeUser: self ].
 	operands := aCollection asOrderedCollection.
-	operands do: [ :each | each addUser: self ]
+	operands asSet do: [ :each | each addUser: self ]
 ]
 
 { #category : #accessing }
@@ -311,6 +311,10 @@ DRInstruction >> replaceBy: anotherInstruction [
 	
 	users copy do: [ :instruction |
 		instruction replaceOperand: self by: anotherInstruction ].
+
+	operands asSet do: [ :instruction |
+		instruction removeUser: self ].
+
 	basicBlock replace: self by: anotherInstruction
 ]
 
@@ -342,7 +346,7 @@ DRInstruction >> sccpEvaluateFor: sccp [
 	previousValue = sccp bottom ifTrue: [ ^ self ].
 
 	newValue := self sccpLatticeValueFor: sccp.
-	
+
 	previousValue = newValue ifFalse: [
 		"Set thew new value and invalidate the uses"
 		sccp setValueOf: self at: newValue ]

@@ -5,7 +5,8 @@ Class {
 		'initialBasicBlock',
 		'basicBlocks',
 		'nextBasicBlockId',
-		'instructionFactory'
+		'instructionFactory',
+		'edges'
 	],
 	#category : #'Druid-IR'
 }
@@ -15,6 +16,21 @@ DRControlFlowGraph >> addBasicBlock: aBlock [
 
 	self assert: (basicBlocks noneSatisfy: [:b | b id = aBlock id]).
 	basicBlocks add: aBlock
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> addEdge: anEdge [
+
+	edges add: anEdge
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock [
+	
+	| edge |
+	edge := DRRegistersInfo withSource: sourceBlock andDestination: destinationBlock.
+	self addEdge: edge.
+	^ edge
 ]
 
 { #category : #building }
@@ -77,6 +93,55 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 					workingQueue addLast: target  ] ] ] ]
 ]
 
+{ #category : #'as yet unclassified' }
+DRControlFlowGraph >> clearPaths [
+
+	edges := OrderedCollection new
+]
+
+{ #category : #'as yet unclassified' }
+DRControlFlowGraph >> deadPaths [
+
+	| paths |
+	paths := Dictionary new.
+	edges select: [ :e | e isDead ] thenDo: [ :e | 
+		paths
+			at: e deadTarget
+			ifPresent: [ :collection | collection add: e ]
+			ifAbsentPut: { e } asOrderedCollection ].
+	^ paths
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> edges [
+
+	^ edges
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> edgesFrom: sourceBlock to: destinationBlock [
+
+	^ edges select: [ :e | e source = sourceBlock and: [e destination = destinationBlock] ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> firstBasicBlock [
+
+	^ initialBasicBlock successor
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> incomingEdgeFor: aBlock [
+
+	^ (self incomingEdgesFor: aBlock) first "Check?"
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> incomingEdgesFor: aBlock [
+
+	^ edges select: [ :e | e destination = aBlock ]
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> initialBasicBlock [ 
 	^ initialBasicBlock
@@ -89,48 +154,85 @@ DRControlFlowGraph >> initialize [
 	instructionFactory := DRInstructionFactory new.
 	
 	basicBlocks := OrderedCollection new.
+	edges := OrderedCollection new.
 	initialBasicBlock := DRBasicBlock id: 0.
 	nextBasicBlockId := 1.
 ]
 
-{ #category : #'as yet unclassified' }
-DRControlFlowGraph >> inspectionCFG: aBuilder [
+{ #category : #inspecting }
+DRControlFlowGraph >> inspectionCFG [
 	<inspectorPresentationOrder: 0 title: 'CFG'> 
-	| view blockViews eb |
+	| view blockViews eb controller |
 	view := RSCanvas new.
-	blockViews := self blocks collect: [ :c | | g |
-		g := RSGroup new.
-		g add: (RSBox new
-			size: 50;
-			color: Color veryVeryLightGray;
-			yourself).
-		g add: (RSLabel new text: c id asString).
-		g asShape
+	blockViews := self blocks collect: [ :b | 
+		| label box |
+		box := RSBox new
+			noPaint;
+			border: (RSBorder new 
+				width: 2; 
+				color: Color black;
+				yourself);
+			cornerRadius: 2;
+			yourself.
+		label := RSLabel new 
+			text: b id asString;
+			color: Color black;
+			yourself.
+		box extent: 30@30.
+		{ box. label } asShape
 			@ RSDraggable;
+			@ (RSPopup text: [:model | 
+				String streamContents: [:s | (model instructions collect: #prettyPrint)
+					asStringOn: s delimiter: String cr] 
+				]);
 			@ (RSMenuActivable new menuDo: [ :menu :element | 
 				menu
 					add: 'Tail-duplicate'
 					target: element model
 					selector: #tailDuplicate ]);
-			model: c;
+			model: b;
 			yourself ].
 	view addAll: blockViews.
 	
-	eb := RSEdgeBuilder arrowedLine.
+	eb := RSLineBuilder arrowedLine.
 	eb canvas: view.
+	eb color: Color blue muchDarker.
+	eb width: 2.
 	eb withBorderAttachPoint.
 	eb 	shapes: blockViews.
 	eb connectToAll: #successors.
+	view lines do: [ :line | line model.
+		line @ (RSPopup text: [ :model | 
+			String streamContents: [:s | 
+				(self edgesFrom: model key to: model value) 
+					do: [ :e | e constraints values asStringOn: s delimiter: String cr]
+					separatedBy: [s << (String cr , '--o--o--o--o--o--o--o--' , String cr)]
+ 				]
+			])
+		].
 	
 	"All the characters are displayed using a grid layout"
 	RSSugiyamaLayout new
 		horizontalGap: 50;
 		applyOn: blockViews.
-	view @ RSCanvasController.
+	controller := RSCanvasController new.
+	controller noLegend.
+	view newAnimation
+		duration: 500 milliSeconds;
+		onStepDo: [ :t | view signalUpdate ];
+		when: RSAnimationEndEvent do: [:evt | 
+			controller configuration noZoomToFitOnExtendChanged ].
 	
+	view @ controller.
 	^ SpRoassal3InspectorPresenter new
 		canvas: view;
 		yourself
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> instructionByResultId: anInteger [ 
+
+	^ self instructions detect: [ :i | i result ifNil: [ false ] ifNotNil: [ i result id = anInteger] ]
 ]
 
 { #category : #accessing }
@@ -162,6 +264,12 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 		b instructionsDo: [ :e | aFullBlockClosure value: e ] ]
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> lastBasicBlock [
+
+	^ self reversePostOrderBlocks last
+]
+
 { #category : #building }
 DRControlFlowGraph >> newBasicBlock [
 	
@@ -179,6 +287,18 @@ DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [
 	newBlock := self newBasicBlock.
 	aFullBlockClosure value: newBlock.
 	^ newBlock
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> outgoingEdgeFor: aBlock [
+
+	^ (self outgoingEdgesFor: aBlock) first
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> outgoingEdgesFor: aBlock [
+
+	^ edges select: [ :e | e source = aBlock ]
 ]
 
 { #category : #iterating }

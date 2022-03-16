@@ -1,8 +1,14 @@
 Class {
 	#name : #DRAnd,
-	#superclass : #DRInstruction,
+	#superclass : #DRBoolOperation,
 	#category : #'Druid-IR'
 }
+
+{ #category : #visiting }
+DRAnd >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitAnd: self
+]
 
 { #category : #printing }
 DRAnd >> opcode [
@@ -20,6 +26,9 @@ DRAnd >> sccpLatticeValueFor: sccp [
 	(operand1 value = false
 		or: [ operand2 value = false ])
 			ifTrue: [ ^ false asDRValue ].
+
+	operand1 value = true ifTrue: [ ^ self sccpLatticeValueOperand: 2 for: sccp ].	
+	operand2 value = true ifTrue: [ ^ self sccpLatticeValueOperand: 1 for: sccp ].
 	
 	^ super sccpLatticeValueFor: sccp
 ]
