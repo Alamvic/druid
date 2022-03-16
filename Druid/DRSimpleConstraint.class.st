@@ -7,6 +7,14 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #initialization }
+DRSimpleConstraint class >> withValue: aConstantValue [
+
+	^ self new
+		  constantValue: aConstantValue;
+		  yourself
+]
+
 { #category : #accessing }
 DRSimpleConstraint >> constantValue [
 

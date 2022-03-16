@@ -4,36 +4,28 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
-{ #category : #initialization }
-DRConditionalConstraint class >> withValue: aConstantValue [
-
-	^ self new
-		  constantValue: aConstantValue;
-		  yourself
-]
-
 { #category : #testing }
 DRConditionalConstraint >> includes: otherConstraint [
 
-	^ otherConstraint isDead
+	self subclassResponsibility
 ]
 
 { #category : #arithmetic }
 DRConditionalConstraint >> includesValue: otherConstantValue [
 
-	^ true
+	self subclassResponsibility
 ]
 
 { #category : #arithmetic }
 DRConditionalConstraint >> includesValuesGreaterThan: otherConstantValue [
 
-	^ true
+	self subclassResponsibility
 ]
 
 { #category : #arithmetic }
 DRConditionalConstraint >> includesValuesLessThan: otherConstantValue [
 
-	^ true
+	self subclassResponsibility
 ]
 
 { #category : #testing }
@@ -51,7 +43,7 @@ DRConditionalConstraint >> isUnion [
 { #category : #arithmetic }
 DRConditionalConstraint >> negated [
 
-	^ self
+	self subclassResponsibility
 ]
 
 { #category : #printing }

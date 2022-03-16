@@ -5,22 +5,17 @@ Class {
 }
 
 { #category : #tests }
-DRTailDuplicationTest >> testTailDuplicateBlockWithUsersShouldFail [
+DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFunction [
 
-	| cfg copy1 b1 b2 |
-	cfg := DRControlFlowGraph new.
-	b1 := cfg newBasicBlockWith: [ :b |
-		"R0 := 1"
-		copy1 := b copy: 1.
-	].
-	b2 := cfg newBasicBlockWith: [ :b |
-		"R1 := 1 + R0"
-		b add: 1 to: copy1.
-	].
+	| cfg copy1 userBlock |
+	cfg := self setUpCFGWithConditional.
 
-	self
-		should: [ b1 tailDuplicate ]
-		raise: DRError
+	copy1 := cfg b4 copy: 1.
+	userBlock := cfg newBasicBlockWith: [ :b | b add: 1 to: copy1 ].
+	cfg b4 jumpTo: userBlock.
+
+	cfg b4 tailDuplicate.
+	self assert: userBlock firstInstruction isPhiFunction
 ]
 
 { #category : #tests }

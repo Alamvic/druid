@@ -2,7 +2,8 @@ Class {
 	#name : #DROptimisationTest,
 	#superclass : #TestCase,
 	#instVars : [
-		'compilerCompiler'
+		'compilerCompiler',
+		'optimisation'
 	],
 	#category : #'Druid-Tests'
 }
@@ -21,26 +22,44 @@ DROptimisationTest >> configureInterpreter [
 	compilerCompiler interpreter: DruidTestInterpreter new
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #test }
 DROptimisationTest >> generateDruidIRFor: methodSelector [
 
 	| method cfg |
 	method := DruidTestInterpreter lookupSelector: methodSelector.
 	cfg := compilerCompiler generateDruidIRFor: method.
-	(DRPhiSimplication then: DRDeadCodeElimination) applyTo: cfg.
+ 	2 timesRepeat: [ self optimize: cfg ]. 
 
 	^ cfg
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #test }
 DROptimisationTest >> generatePaths: cfg [ 
 	compilerCompiler generatePaths: cfg
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #optimising }
+DROptimisationTest >> optimisation [
+
+	^ optimisation
+]
+
+{ #category : #optimising }
+DROptimisationTest >> optimisation: anObject [
+
+	optimisation := anObject
+]
+
+{ #category : #optimising }
 DROptimisationTest >> optimize: cfg [
 
-	compilerCompiler optimize: cfg
+	self previuosOptimizations do: [ :opt | opt applyTo: cfg ] 
+]
+
+{ #category : #optimising }
+DROptimisationTest >> previuosOptimizations [
+
+	^ {  }
 ]
 
 { #category : #running }

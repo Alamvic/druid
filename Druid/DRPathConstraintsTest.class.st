@@ -16,6 +16,26 @@ DRPathConstraintsTest >> deny: aConstraint includes: includedConstraint [
 	self deny: (aConstraint includes: includedConstraint)
 ]
 
+{ #category : #'as yet unclassified' }
+DRPathConstraintsTest >> previuosOptimizations [
+
+	^ { 
+		  DRFailureCodeBasedTailDuplication new.
+		  DRSCCP new.
+		  DRCopyPropagation new.
+		  (DRDeadBlockElimination then: DRCleanControlFlow).
+		  DRPhiSimplication new.
+		  DRDeadCodeElimination new }
+]
+
+{ #category : #initialization }
+DRPathConstraintsTest >> setUp [
+
+	super setUp.
+
+	optimisation := DRDeadPathElimination new
+]
+
 { #category : #constraints }
 DRPathConstraintsTest >> testConditionalRegConstraintTypeBothBranches [
 
@@ -62,21 +82,6 @@ DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerBranches [
 		                      constraint: (DRIntersectionConstraint between: 10 and: 20).
 	self assert: trueConstraint includes: composedConstraint.
 	self assert: falseConstraint includes: (DRRegisterConstraint greaterOrEquals: falseConstraint reg than: 20)
-]
-
-{ #category : #constraints }
-DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerDeadBranches [
-
-	| cfg edges trueConstraint falseConstraint |
-	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
-	self optimize: cfg.
-	self generatePaths: cfg.
-
-	edges := cfg outgoingEdgesFor: (cfg blockById: 6).
-	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "Dead"
-	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "> 10"
-	self assert: trueConstraint condition isDead.
-	self assert: falseConstraint includes: (DRRegisterConstraint greater: falseConstraint reg than: 10)
 ]
 
 { #category : #building }
@@ -151,12 +156,27 @@ DRPathConstraintsTest >> testCopyRegisterNotAddNewConstraint [
 	self assert: (cfg outgoingEdgeFor: block) constraints isEmpty.
 ]
 
+{ #category : #constraints }
+DRPathConstraintsTest >> testDeadConstraint [
+
+	| constraint |
+	constraint := (DRGreaterConstraint withValue: 10) unifyWith: (DRLessConstraint withValue: 0).
+	
+	self assert: constraint includes: (DREqualsConstraint withValue: 10).
+	self assert: constraint includes: (DREqualsConstraint withValue: 20).
+	self assert: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self assert: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self assert: constraint includes: (DRGreaterConstraint withValue: 10).
+	self assert: constraint includes: (DRLessConstraint withValue: 10).
+	self assert: constraint includes: (DRNotEqualsConstraint withValue: 10).
+]
+
 { #category : #queries }
 DRPathConstraintsTest >> testDeadPath [
 
 	| cfg deadPath expectedTarget pathBlockIds |
 	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
-	self optimize: cfg.
+
 	self generatePaths: cfg.
 
 	deadPath := cfg deadPaths associations first.
@@ -164,7 +184,7 @@ DRPathConstraintsTest >> testDeadPath [
 	expectedTarget := cfg incomingEdgeFor: (cfg blockById: 6).
 
 	self assert: deadPath key equals: expectedTarget.
-	self assertCollection: pathBlockIds hasSameElements: { 7. 16. 1 }
+	self assertCollection: pathBlockIds hasSameElements: { 7. 9. 14. 1 }
 ]
 
 { #category : #optimization }
@@ -172,12 +192,37 @@ DRPathConstraintsTest >> testEliminateDoubleDeadPaths [
 
 	| cfg lastBlocks |
 	cfg := self generateDruidIRFor: #primitiveADN.
+
+	optimisation applyTo: cfg.
+	self optimize: cfg.
+	compilerCompiler generatePaths: cfg.
+
+	lastBlocks := cfg lastBasicBlock predecessors.
+
+	self assert: cfg deadPaths isEmpty.
+	self assert: lastBlocks first firstInstruction isPhiFunction. "One branch finishes in a phi"
+	self assert: lastBlocks second firstInstruction isCopy.
+	self
+		assert: lastBlocks second firstInstruction operand1 value
+		equals: 158 "Other branch harcodes the value"
+]
+
+{ #category : #optimization }
+DRPathConstraintsTest >> testEliminateInnerDeadPaths [
+
+	| cfg lastBlocks |
+	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
+
+	optimisation applyTo: cfg.
 	self optimize: cfg.
 
-	lastBlocks := cfg lastBasicBlock predecessors .
+	lastBlocks := cfg lastBasicBlock predecessors.
 	
 	self assert: cfg deadPaths isEmpty.
-	
+	self assert: lastBlocks first firstInstruction isCopy.
+	self assert: lastBlocks first firstInstruction operand1 value equals: 17.
+	self assert: lastBlocks second firstInstruction isCopy.
+	self assert: lastBlocks second firstInstruction operand1 value equals: 99.
 ]
 
 { #category : #optimization }
@@ -185,14 +230,18 @@ DRPathConstraintsTest >> testEliminateSimpleDeadPaths [
 
 	| cfg lastBlocks |
 	cfg := self generateDruidIRFor: #primitiveSandClock.
+
+	optimisation applyTo: cfg.
 	self optimize: cfg.
-	
-	lastBlocks := cfg lastBasicBlock predecessors .
-	
+
+	lastBlocks := cfg lastBasicBlock predecessors.
+
 	self assert: cfg deadPaths isEmpty.
 	self assert: lastBlocks first firstInstruction isPhiFunction. "One branch finishes in a phi"
 	self assert: lastBlocks second firstInstruction isCopy.
-	self assert: lastBlocks second firstInstruction operand1 value equals: 116. "Other branch harcodes the value"
+	self
+		assert: lastBlocks second firstInstruction operand1 value
+		equals: 116 "Other branch harcodes the value"
 ]
 
 { #category : #constraints }
@@ -393,6 +442,7 @@ DRPathConstraintsTest >> testManyDeadPaths [
 
 	| cfg deadPaths deadTargetIds |
 	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranches.
+
 	self optimize: cfg.
 	self generatePaths: cfg.
 
