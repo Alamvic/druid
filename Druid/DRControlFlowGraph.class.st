@@ -301,6 +301,12 @@ DRControlFlowGraph >> outgoingEdgesFor: aBlock [
 	^ edges select: [ :e | e source = aBlock ]
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> phiFunctions [
+
+	^ self instructions select: [ :i | i isPhiFunction ]
+]
+
 { #category : #iterating }
 DRControlFlowGraph >> postOrderBlocks [
 

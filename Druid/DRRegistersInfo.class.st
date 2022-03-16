@@ -134,7 +134,7 @@ DRRegistersInfo >> visitConditionalJump: aDRConditionalJump [
 	aDRConditionalJump operand1 isInstruction ifFalse: [ ^ self ].
 
 	constraint := aDRConditionalJump operand1 acceptVisitor: self.
-	constraint ifNil: [ 1halt. ^ self ].
+	constraint ifNil: [ ^ self ].
 	aDRConditionalJump trueBranch = destination ifTrue: [ 
 		self mergeConstraint: constraint ].
 	aDRConditionalJump falseBranch = destination ifTrue: [ 

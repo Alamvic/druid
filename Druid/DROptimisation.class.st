@@ -11,7 +11,7 @@ DROptimisation class >> then: anotherOptimisationClass [
 ]
 
 { #category : #accessing }
-DROptimisation >> applyTo: anIR [
+DROptimisation >> applyTo: cfg [
 
 	self subclassResponsibility
 ]

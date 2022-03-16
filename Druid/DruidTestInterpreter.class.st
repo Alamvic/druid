@@ -68,6 +68,24 @@ DruidTestInterpreter >> passingSuccess [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveADN [
+
+	<numberOfArguments: 0>
+	| res res2 res3 |
+	res := self stackTop > 10
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 99 ].
+	res2 := self stackTop > 0
+		        ifTrue: [ 5 ]
+		        ifFalse: [ 17 ].
+	res3 := self stackTop > 7
+		        ifTrue: [ 15 ]
+		        ifFalse: [ 42 ].
+		
+	self pop: 1 thenPush: res + res2 + res3
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveAssertIsIgnored [
 	<numberOfArguments: 0>
 	self assert: false.
@@ -394,6 +412,7 @@ DruidTestInterpreter >> primitiveSandClock [
 	res2 := self stackTop > 0
 		        ifTrue: [ 5 ]
 		        ifFalse: [ 17 ].
+		
 	self pop: 1 thenPush: res + res2
 ]
 

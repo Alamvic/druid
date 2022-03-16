@@ -15,25 +15,25 @@ DRConditionalConstraint class >> withValue: aConstantValue [
 { #category : #testing }
 DRConditionalConstraint >> includes: otherConstraint [
 
-	self subclassResponsibility
+	^ otherConstraint isDead
 ]
 
 { #category : #arithmetic }
 DRConditionalConstraint >> includesValue: otherConstantValue [
 
-	self subclassResponsibility
+	^ true
 ]
 
 { #category : #arithmetic }
 DRConditionalConstraint >> includesValuesGreaterThan: otherConstantValue [
 
-	self subclassResponsibility
+	^ true
 ]
 
 { #category : #arithmetic }
 DRConditionalConstraint >> includesValuesLessThan: otherConstantValue [
 
-	self subclassResponsibility
+	^ true
 ]
 
 { #category : #testing }
@@ -51,7 +51,7 @@ DRConditionalConstraint >> isUnion [
 { #category : #arithmetic }
 DRConditionalConstraint >> negated [
 
-	self subclassResponsibility
+	^ self
 ]
 
 { #category : #printing }

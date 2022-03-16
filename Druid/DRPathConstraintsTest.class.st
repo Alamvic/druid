@@ -16,25 +16,6 @@ DRPathConstraintsTest >> deny: aConstraint includes: includedConstraint [
 	self deny: (aConstraint includes: includedConstraint)
 ]
 
-{ #category : #'as yet unclassified' }
-DRPathConstraintsTest >> eliminateDeathPaths: cfg [
-
-	cfg deadPaths associationsDo: [ :association | 
-		| blockToSplit newSucessors |
-		blockToSplit := association key destination.
-		newSucessors := blockToSplit successors copyWithout:
-			                association value first destination.
-
-		1 haltIf: [ newSucessors size ~= 1 ].
-
-		blockToSplit tailDuplicate.
-		blockToSplit jumpTo: newSucessors first ].
-
-
-
-	cfg validate
-]
-
 { #category : #constraints }
 DRPathConstraintsTest >> testConditionalRegConstraintTypeBothBranches [
 
@@ -186,22 +167,32 @@ DRPathConstraintsTest >> testDeadPath [
 	self assertCollection: pathBlockIds hasSameElements: { 7. 16. 1 }
 ]
 
-{ #category : #constraints }
-DRPathConstraintsTest >> testEliminateDeadPaths [
+{ #category : #optimization }
+DRPathConstraintsTest >> testEliminateDoubleDeadPaths [
 
-	| cfg |
-	cfg := self generateDruidIRFor: #primitiveSandClock.
+	| cfg lastBlocks |
+	cfg := self generateDruidIRFor: #primitiveADN.
 	self optimize: cfg.
-	self generatePaths: cfg.
 
-	self assert: cfg deadPaths isNotEmpty.
-
-	self eliminateDeathPaths: cfg.
-	self optimize: cfg.
-	self generatePaths: cfg.
-
+	lastBlocks := cfg lastBasicBlock predecessors .
+	
 	self assert: cfg deadPaths isEmpty.
 	
+]
+
+{ #category : #optimization }
+DRPathConstraintsTest >> testEliminateSimpleDeadPaths [
+
+	| cfg lastBlocks |
+	cfg := self generateDruidIRFor: #primitiveSandClock.
+	self optimize: cfg.
+	
+	lastBlocks := cfg lastBasicBlock predecessors .
+	
+	self assert: cfg deadPaths isEmpty.
+	self assert: lastBlocks first firstInstruction isPhiFunction. "One branch finishes in a phi"
+	self assert: lastBlocks second firstInstruction isCopy.
+	self assert: lastBlocks second firstInstruction operand1 value equals: 116. "Other branch harcodes the value"
 ]
 
 { #category : #constraints }
