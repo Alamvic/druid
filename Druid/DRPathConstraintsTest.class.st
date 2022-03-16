@@ -195,11 +195,12 @@ DRPathConstraintsTest >> testEliminateDoubleDeadPaths [
 
 	optimisation applyTo: cfg.
 	self optimize: cfg.
-	compilerCompiler generatePaths: cfg.
+	self generatePaths: cfg.
 
 	lastBlocks := cfg lastBasicBlock predecessors.
 
 	self assert: cfg deadPaths isEmpty.
+	self flag: #FIXME. "Both should be phis, there are 4 paths"
 	self assert: lastBlocks first firstInstruction isPhiFunction. "One branch finishes in a phi"
 	self assert: lastBlocks second firstInstruction isCopy.
 	self
@@ -217,7 +218,7 @@ DRPathConstraintsTest >> testEliminateInnerDeadPaths [
 	self optimize: cfg.
 
 	lastBlocks := cfg lastBasicBlock predecessors.
-	
+
 	self assert: cfg deadPaths isEmpty.
 	self assert: lastBlocks first firstInstruction isCopy.
 	self assert: lastBlocks first firstInstruction operand1 value equals: 17.

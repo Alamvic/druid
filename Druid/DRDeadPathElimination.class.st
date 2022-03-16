@@ -12,7 +12,7 @@ DRDeadPathElimination >> applyTo: cfg [
 	[ cfg deadPaths isNotEmpty ] whileTrue: [ 
 		| blockToSplit newSucessors path |
 		
-		path := cfg deadPaths values first.
+		path := cfg deadPaths values last.
 		blockToSplit := path first source.
 		newSucessors := blockToSplit successors copyWithout:
 			                path first destination.

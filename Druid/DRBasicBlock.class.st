@@ -188,6 +188,21 @@ DRBasicBlock >> equals: operand1 to: operand2 [
 	^ self addInstruction: (self instructionFactory equals: operand1 to: operand2)
 ]
 
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> findMergePoint: aDRBasicBlock [
+
+	| possibleMergePoints |
+	(aDRBasicBlock hasPredecessor: self) ifTrue: [ ^ aDRBasicBlock ].
+
+	possibleMergePoints := self successors select: [ :b | 
+		                       aDRBasicBlock hasRecursivePredecessor: b ].
+	possibleMergePoints size = 1
+		ifTrue: [ ^ possibleMergePoints first ]
+		ifFalse: [ 
+			1halt.
+			^ aDRBasicBlock ]
+]
+
 { #category : #accessing }
 DRBasicBlock >> firstInstruction [
 	
@@ -216,6 +231,14 @@ DRBasicBlock >> hasPredecessor: aDRBasicBlock [
 DRBasicBlock >> hasPredecessors [
 	
 	^ predecessors notEmpty
+]
+
+{ #category : #testing }
+DRBasicBlock >> hasRecursivePredecessor: aDRBasicBlock [
+
+	^ (self hasPredecessor: aDRBasicBlock) or: [ 
+		  self predecessors anySatisfy: [ :p | 
+			  p hasPredecessor: aDRBasicBlock ] ]
 ]
 
 { #category : #accessing }
@@ -440,15 +463,21 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 { #category : #'as yet unclassified' }
 DRBasicBlock >> mergeOutsideUsersWith: duplicatedBlock [
 
+	| phi |
 	self instructions
 		with: duplicatedBlock instructions
 		do: [ :myInstruction :duplicatedInstructions | 
 			(self instructionsUsedOutside includes: myInstruction) ifTrue: [ 
 				(myInstruction users copyWithout: self) do: [ :user | 
-					| phi |
-					phi := user basicBlock
-						       phiWith: myInstruction
-						       with: duplicatedInstructions.
+					(phi isNil or: [ 
+						 (phi basicBlock = user basicBlock or: [ 
+							  user basicBlock hasRecursivePredecessor: phi basicBlock ])
+							 not ]) ifTrue: [ 
+
+						phi := (self findMergePoint: user basicBlock)
+							       phiWith: myInstruction
+							       with: duplicatedInstructions ].
+
 					user replaceOperand: myInstruction by: phi.
 
 					duplicatedInstructions removeUser: user ] ] ]

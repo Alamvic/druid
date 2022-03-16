@@ -7,15 +7,37 @@ Class {
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFunction [
 
-	| cfg copy1 userBlock |
+	| cfg copy userBlock |
 	cfg := self setUpCFGWithConditional.
 
-	copy1 := cfg b4 copy: 1.
-	userBlock := cfg newBasicBlockWith: [ :b | b add: 1 to: copy1 ].
+	copy := cfg b4 copy: 1.
+	userBlock := cfg newBasicBlockWith: [ :b | b add: 1 to: copy ].
 	cfg b4 jumpTo: userBlock.
 
 	cfg b4 tailDuplicate.
+	self generatePaths: cfg.
+	
 	self assert: userBlock firstInstruction isPhiFunction
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldReusePhiFunctions [
+
+	| cfg copy closerUserBlock fartherUserBlock |
+	cfg := self setUpCFGWithConditional.
+
+	copy := cfg b4 copy: 1.
+	closerUserBlock := cfg newBasicBlockWith: [ :b | b add: 1 to: copy ].
+	cfg b4 jumpTo: closerUserBlock.
+	fartherUserBlock := cfg newBasicBlockWith: [ :b | b add: 1 to: copy ].
+	closerUserBlock jumpTo: fartherUserBlock.
+
+	cfg b4 tailDuplicate.
+	self generatePaths: cfg.
+
+	self assert: closerUserBlock firstInstruction isPhiFunction.
+	self deny: fartherUserBlock firstInstruction isPhiFunction.
+	self assert: (closerUserBlock firstInstruction hasUser: fartherUserBlock firstInstruction)
 ]
 
 { #category : #tests }

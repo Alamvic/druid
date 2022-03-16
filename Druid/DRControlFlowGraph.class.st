@@ -103,7 +103,7 @@ DRControlFlowGraph >> clearPaths [
 DRControlFlowGraph >> deadPaths [
 
 	| paths |
-	paths := Dictionary new.
+	paths := OrderedDictionary new.
 	edges select: [ :e | e isDead ] thenDo: [ :e | 
 		paths
 			at: e deadTarget
