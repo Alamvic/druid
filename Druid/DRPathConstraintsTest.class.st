@@ -156,21 +156,6 @@ DRPathConstraintsTest >> testCopyRegisterNotAddNewConstraint [
 	self assert: (cfg outgoingEdgeFor: block) constraints isEmpty.
 ]
 
-{ #category : #constraints }
-DRPathConstraintsTest >> testDeadConstraint [
-
-	| constraint |
-	constraint := (DRGreaterConstraint withValue: 10) unifyWith: (DRLessConstraint withValue: 0).
-	
-	self assert: constraint includes: (DREqualsConstraint withValue: 10).
-	self assert: constraint includes: (DREqualsConstraint withValue: 20).
-	self assert: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
-	self assert: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
-	self assert: constraint includes: (DRGreaterConstraint withValue: 10).
-	self assert: constraint includes: (DRLessConstraint withValue: 10).
-	self assert: constraint includes: (DRNotEqualsConstraint withValue: 10).
-]
-
 { #category : #queries }
 DRPathConstraintsTest >> testDeadPath [
 
@@ -243,6 +228,31 @@ DRPathConstraintsTest >> testEliminateSimpleDeadPaths [
 	self
 		assert: lastBlocks second firstInstruction operand1 value
 		equals: 116 "Other branch harcodes the value"
+]
+
+{ #category : #constraints }
+DRPathConstraintsTest >> testEmptyConstraint [
+
+	| constraint |
+	constraint := DREmptyConstraint new.
+	
+	self assert: constraint includes: (DREmptyConstraint new).
+	self deny: constraint includes: (DREqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRGreaterConstraint withValue: 10).
+	self deny: constraint includes: (DRLessConstraint withValue: 10).
+	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRFullConstraint new).
+	
+
+	self assert: (DREqualsConstraint withValue: 10) includes: constraint.
+	self assert: (DRGreaterOrEqualsConstraint withValue: 10) includes: constraint.
+	self assert: (DRLessOrEqualsConstraint withValue: 10) includes: constraint.
+	self assert: (DRGreaterConstraint withValue: 10) includes: constraint.
+	self assert: (DRLessConstraint withValue: 10) includes: constraint.
+	self assert: (DRNotEqualsConstraint withValue: 10) includes: constraint.
+	self assert: (DRFullConstraint new) includes: constraint.
 ]
 
 { #category : #constraints }

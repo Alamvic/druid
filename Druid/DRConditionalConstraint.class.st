@@ -66,7 +66,7 @@ DRConditionalConstraint >> unifyWith: otherConditionalConstraint [
 	(otherConditionalConstraint includes: self) ifTrue: [ 
 		^ self ].
 	(otherConditionalConstraint negated includes: self) ifTrue: [ 
-		^ DRDeadConstraint new ].
+		^ DREmptyConstraint new ].
 	
 	^ DRIntersectionConstraint constraints: { self. otherConditionalConstraint }
 ]

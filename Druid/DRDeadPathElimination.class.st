@@ -7,10 +7,11 @@ Class {
 { #category : #accessing }
 DRDeadPathElimination >> applyTo: cfg [
 
-	self generatePaths: cfg.
+| blockToSplit newSucessors path |
 
-	[ cfg deadPaths isNotEmpty ] whileTrue: [ 
-		| blockToSplit newSucessors path |
+		self generatePaths: cfg.
+
+"	[ cfg deadPaths isNotEmpty ] whileTrue: [ "
 		
 		path := cfg deadPaths values last.
 		blockToSplit := path first source.
@@ -26,7 +27,8 @@ DRDeadPathElimination >> applyTo: cfg [
 			ifNotEmpty: [ blockToSplit jumpTo: newSucessors first ].
 
 
-		self generatePaths: cfg ]
+		self generatePaths: cfg 
+		"]"
 ]
 
 { #category : #'as yet unclassified' }
