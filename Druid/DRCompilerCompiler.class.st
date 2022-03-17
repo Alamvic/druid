@@ -29,6 +29,7 @@ DRCompilerCompiler >> compile [
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 	self generatePaths: druidIR.
+
 	registerAllocator allocateRegistersIn: druidIR.
 	
 	"Remove the phi functions.
@@ -88,7 +89,7 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 
 { #category : #'as yet unclassified' }
 DRCompilerCompiler >> generatePaths: cfg [
-	cfg clearPaths.
+	cfg clearEdges.
 	(DRPathFactory withCFG: cfg) generatePaths
 ]
 
@@ -140,7 +141,7 @@ DRCompilerCompiler >> nextJumpIndex [
 { #category : #api }
 DRCompilerCompiler >> optimize: anIR [
 
-	optimisations do: [ :optimization |
+	optimisations do: [ :optimization | 
 		optimization applyTo: anIR.
 		anIR validate ]
 ]

@@ -7,39 +7,37 @@ Class {
 { #category : #accessing }
 DRDeadPathElimination >> applyTo: cfg [
 
-	| blockToSplit change newSucessors |
+	| targetBlock change newSucessors |
 	self generatePaths: cfg.
 
 	change := cfg deadPaths isNotEmpty.
 
-	[ change ] whileTrue: [ 
-		cfg deadPaths valuesDo: [ :path | 
-			change := false.
-			blockToSplit := path first source.
+	[ cfg deadPaths isNotEmpty and: change ] whileTrue: [ 
+		change := false.
+		cfg deadPaths values reversed do: [ :path | 
+			targetBlock := path first source.
 
-			blockToSplit predecessors size > 1
+			((cfg edgesFrom: targetBlock to: path first destination) 
+				 allSatisfy: [ :e | e isDead ])
 				ifTrue: [ 
-					blockToSplit tailDuplicate.
-					change := true ]
+					change := true.
+					newSucessors := targetBlock successors copyWithout:
+						                path first destination.
+					newSucessors
+						ifEmpty: [ targetBlock removeFromCFG ]
+						ifNotEmpty: [ 
+							1 haltIf: [ newSucessors size > 1 ].
+							targetBlock jumpTo: newSucessors first ] ]
 				ifFalse: [ 
-					(cfg edgesFrom: blockToSplit to: path first destination) size = 1 
-						ifTrue: [ 
-							newSucessors := blockToSplit successors copyWithout: path first destination.
-							newSucessors
-				ifEmpty: [ blockToSplit removeFromCFG ]
-				ifNotEmpty: [ 
-					1haltIf: [ newSucessors size > 1 ].
-					blockToSplit jumpTo: newSucessors first ].
-						] ].
-			"			
-"
+					targetBlock predecessors size > 1 ifTrue: [ 
+						targetBlock tailDuplicate.
+						change := true ] ].
 
-			self generatePaths: cfg ].
-	 ]
+			self generatePaths: cfg ] ]
 ]
 
 { #category : #'as yet unclassified' }
 DRDeadPathElimination >> generatePaths: cfg [
-	cfg clearPaths.
+	cfg clearEdges.
 	(DRPathFactory withCFG: cfg) generatePaths
 ]

@@ -120,8 +120,16 @@ DRCompilerExplorer >> methodSource [
 
 { #category : #accessing }
 DRCompilerExplorer >> optimizations [
-	
-	^ { DRDeadBlockElimination . DRSCCP . DRCopyPropagation . DRDeadCodeElimination . DRCleanControlFlow . DRPhiSimplication. DRDeadPathElimination }
+
+	^ { 
+		  DRFailureCodeBasedTailDuplication.
+		  DRDeadBlockElimination.
+		  DRSCCP.
+		  DRCopyPropagation.
+		  DRDeadCodeElimination.
+		  DRCleanControlFlow.
+		  DRPhiSimplication.
+		  DRDeadPathElimination }
 ]
 
 { #category : #'as yet unclassified' }

@@ -23,36 +23,7 @@ DRCompilerExplorerInspection >> blocks [
 { #category : #'instance creation' }
 DRCompilerExplorerInspection >> configureCFGCanvas: view [
 
-	| blockViews eb |
-	blockViews := self blocks collect: [ :c | | g |
-		g := RSGroup new.
-		g add: (RSBox new
-			size: 50;
-			color: Color veryVeryLightGray;
-			yourself).
-		g add: (RSLabel new text: c id asString).
-		g asShape
-			@ RSDraggable;
-			@ (RSMenuActivable new menuDo: [ :menu :element | 
-				menu
-					add: 'Tail-duplicate'
-					target: element model
-					selector: #tailDuplicate ]);
-			model: c;
-			yourself ].
-	view addAll: blockViews.
-	
-	eb := RSEdgeBuilder arrowedLine.
-	eb canvas: view.
-	eb withBorderAttachPoint.
-	eb 	shapes: blockViews.
-	eb connectToAll: #successors.
-	
-	"All the characters are displayed using a grid layout"
-	RSSugiyamaLayout new
-		horizontalGap: 50;
-		applyOn: blockViews.
-	view @ RSCanvasController.
+	model cfg showIn: view
 ]
 
 { #category : #api }

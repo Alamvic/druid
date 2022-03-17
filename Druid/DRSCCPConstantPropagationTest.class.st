@@ -9,30 +9,18 @@ DRSCCPConstantPropagationTest >> testDoNotPropagateInPhiFunctions [
 
 	"Phi functions should contain variables and not values"
 
-	| cfg copy1 b1 b2 b3 copy2 joinBlock phi |
-	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock jumpTo: cfg newBasicBlock.
-	
-	cfg initialBasicBlock jumpTo: (b1 := cfg newBasicBlock).
-	b1 endInstruction: (instructionFactory jumpIf: (DRPhysicalRegister name: 'Parameter')).
+	| cfg copy1 copy2 phi |
+	cfg := self setUpCFGWithConditional: (instructionFactory jumpIf: (DRPhysicalRegister name: 'Parameter')).
 
-	"T1 := 1"
-	b1 endInstruction trueBranch: (b2 := cfg newBasicBlock).
-	b2 addInstruction: (copy1 := instructionFactory copy: 1).
-	
-	"T2 := 2"
-	b1 endInstruction falseBranch: (b3 := cfg newBasicBlock).
-	b3 addInstruction: (copy2 := instructionFactory copy: 2).
-	
-	joinBlock := cfg newBasicBlock.
-	b2 jumpTo: joinBlock.
-	b3 jumpTo: joinBlock.
-	joinBlock addInstruction: (phi := instructionFactory phiWith: copy1 with: copy2).
-	
+	copy1 := cfg b2 copy: 1.
+	copy2 := cfg b3 copy: 2.
+	phi := cfg b4 phiWith: copy1 with: copy2.
+
 	optimisation applyTo: cfg.
 
+	self assert: cfg b4 firstInstruction equals: phi.
 	self assert: phi operand1 equals: copy1.
-	self assert: phi operand2 equals: copy2.
+	self assert: phi operand2 equals: copy2
 ]
 
 { #category : #tests }

@@ -15,94 +15,168 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
 	cfg b4 jumpTo: userBlock.
 
 	cfg b4 tailDuplicate.
-	self generatePaths: cfg.
-	
-	self assert: userBlock firstInstruction isPhiFunction
+	cfg validate.
+
+	self assert: userBlock firstInstruction isPhiFunction.
+	self
+		assertCollection: copy users
+		hasSameElements: { userBlock firstInstruction }
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFunctionsChain [
+
+	| cfg copy userBlock jump leftBlock rightBlock |
+	cfg := self setUpCFGWithConditional.
+
+	copy := cfg b4 copy: 1.
+	jump := cfg b4 endInstruction: self conditionalJump.
+
+	leftBlock := cfg newBasicBlock.
+	jump trueBranch: leftBlock.
+	leftBlock addPredecessor: cfg b4.
+
+	rightBlock := cfg newBasicBlock.
+	jump falseBranch: rightBlock.
+	rightBlock addPredecessor: cfg b4.
+
+	userBlock := cfg newBasicBlockWith: [ :b | b add: 1 to: copy ].
+	leftBlock jumpTo: userBlock.
+	rightBlock jumpTo: userBlock.
+
+	cfg b4 tailDuplicate.
+	cfg validate.
+
+	self assert: userBlock firstInstruction isPhiFunction. "Phi of 2 phis"
+	self assert: userBlock firstInstruction operand1 isPhiFunction.
+	self assert: userBlock firstInstruction operand2 isPhiFunction.
+	self
+		assertCollection: copy users
+		hasSameElements: userBlock firstInstruction operands
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldRefillPhiFunctions [
+
+	| cfg jump b5 b6 r1 r2 phi |
+	cfg := self setUpCFGWithConditional.
+
+
+	jump := cfg b3 endInstruction: self conditionalJump.
+
+	cfg b4 addPredecessor: cfg b3.
+	jump trueBranch: cfg b4.
+
+	b5 := cfg newBasicBlock.
+	b5 addPredecessor: cfg b3.
+	jump falseBranch: b5.
+
+
+	b6 := cfg newBasicBlock.
+	cfg b4 jumpTo: b6.
+	b5 jumpTo: b6.
+
+	r1 := cfg b4 copy: 1.
+	r2 := b5 copy: 2.
+	phi := b6 phiWith: r1 with: r2.
+
+	cfg b4 tailDuplicate.
+	cfg validate.
+
+
+	self assert: b6 phiFunctions size equals: 2.
+	self assert: phi operands third isNullValue.
+	self assert: b6 firstInstruction operand2 isNullValue
 ]
 
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldReusePhiFunctions [
 
-	| cfg copy closerUserBlock fartherUserBlock |
+	| cfg copy closerUserBlock fartherUserBlock fartherAdd |
 	cfg := self setUpCFGWithConditional.
 
 	copy := cfg b4 copy: 1.
 	closerUserBlock := cfg newBasicBlockWith: [ :b | b add: 1 to: copy ].
 	cfg b4 jumpTo: closerUserBlock.
-	fartherUserBlock := cfg newBasicBlockWith: [ :b | b add: 1 to: copy ].
+	fartherUserBlock := cfg newBasicBlockWith: [ :b | 
+		                    fartherAdd := b add: 1 to: copy ].
 	closerUserBlock jumpTo: fartherUserBlock.
 
 	cfg b4 tailDuplicate.
-	self generatePaths: cfg.
+	cfg validate.
 
 	self assert: closerUserBlock firstInstruction isPhiFunction.
-	self deny: fartherUserBlock firstInstruction isPhiFunction.
-	self assert: (closerUserBlock firstInstruction hasUser: fartherUserBlock firstInstruction)
+	self assert: fartherUserBlock firstInstruction equals: fartherAdd.
+	self
+		assertCollection: copy users
+		hasSameElements: { closerUserBlock firstInstruction }.
+	self
+		assertCollection: closerUserBlock firstInstruction users
+		hasSameElements: { 
+				closerUserBlock instructions second.
+				fartherUserBlock firstInstruction }
 ]
 
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateShouldCopyBlock [
 
-	| cfg copy1 b1 pred1 pred2 |
-	cfg := DRControlFlowGraph new.
-	pred1 := cfg newBasicBlock.
-	pred2 := cfg newBasicBlock.
-	b1 := cfg newBasicBlockWith: [ :b |
-		"R0 := 1"
-		copy1 := b copy: 1.
-	].
-	pred1 jumpTo: b1.
-	pred2 jumpTo: b1.
+	| cfg newBlock |
+	cfg := self setUpCFGWithConditional.
 
-	b1 tailDuplicate.
-	
+	cfg b4 tailDuplicate.
+	cfg validate.
+	newBlock := cfg blockById: 5.
+
 	self
-		deny: pred1 successor
-		equals: pred2 successor
+		assertCollection: cfg b4 predecessors
+		hasSameElements: { cfg b2 }.
+	self
+		assertCollection: newBlock predecessors
+		hasSameElements: { cfg b3 }
 ]
 
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateShouldGenerateNewVariables [
 
-	| cfg copy1 b1 pred1 pred2 |
-	cfg := DRControlFlowGraph new.
-	pred1 := cfg newBasicBlock.
-	pred2 := cfg newBasicBlock.
-	b1 := cfg newBasicBlockWith: [ :b |
-		"R0 := 1"
-		copy1 := b copy: 1.
-	].
-	pred1 jumpTo: b1.
-	pred2 jumpTo: b1.
+	| cfg newBlock |
+	cfg := self setUpCFGWithConditional.
 
-	b1 tailDuplicate.
-	
+	cfg b4 copy: 1.
+
+	cfg b4 tailDuplicate.
+	cfg validate.
+	newBlock := cfg blockById: 5.
+
 	self
-		deny: pred1 successor instructions first result
-		equals: pred2 successor instructions first result
+		assert: newBlock instructions size
+		equals: cfg b4 instructions size.
+	self
+		deny: cfg b4 firstInstruction result
+		equals: newBlock firstInstruction result
 ]
 
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateShouldKeepInstructionDependenciesInPhiWithinBlock [
 
-	| cfg copy1 copy2 b1 pred1 pred2 comingFrom1 comingFrom2 |
-	cfg := DRControlFlowGraph new.
-	pred1 := cfg newBasicBlockWith: [ :b | comingFrom1 := b copy: 1 ].
-	pred2 := cfg newBasicBlockWith: [ :b | comingFrom2 := b copy: 2 ].
-	b1 := cfg newBasicBlockWith: [ :b |
-		"R0 := Phi(comingFrom1, comingFrom2)"
-		copy1 := b phiWith: comingFrom1 with: comingFrom2.
-		"R1 := R0"
-		copy2 := b copy: copy1.
-	].
-	pred1 jumpTo: b1.
-	pred2 jumpTo: b1.
+	| cfg comingFrom1 comingFrom2 newBlock |
+	cfg := self setUpCFGWithConditional.
 
-	b1 tailDuplicate.
-	
-	"Validate the duplicated blocks"
-	pred1 successor validate.
-	pred2 successor validate.
+	comingFrom1 := cfg b2 copy: 1.
+	comingFrom2 := cfg b3 copy: 2.
+	"Rn := Phi(comingFrom1, comingFrom2)"
+	cfg b4 phiWith: comingFrom1 with: comingFrom2.
+
+	cfg b4 tailDuplicate.
+	cfg validate.
+	newBlock := cfg blockById: 5.
+
+	"On splitting, phis loses one argument"
+	self
+		assertCollection: comingFrom1 users
+		hasSameElements: { cfg b4 firstInstruction }.
+	self
+		assertCollection: comingFrom2 users
+		hasSameElements: { newBlock firstInstruction }
 ]
 
 { #category : #tests }

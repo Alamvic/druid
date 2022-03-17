@@ -291,7 +291,7 @@ DRSCCP >> tryReplaceInstructionOperands: i [
 		i operands withIndexDo: [ :operand :index | 
 			| lattice |
 			lattice := self latticeValue: operand.
-			(self isConstantLattice: lattice) ifTrue: [ 
+			(self isConstantLattice: lattice) ifTrue: [
 				i replaceOperand: (i operands at: index) by: lattice asDRValue ] ] ]
 ]
 

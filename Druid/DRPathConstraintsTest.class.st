@@ -20,6 +20,7 @@ DRPathConstraintsTest >> deny: aConstraint includes: includedConstraint [
 DRPathConstraintsTest >> previuosOptimizations [
 
 	^ { 
+		  DRFailureCodeBasedTailDuplication new.
 		  DRSCCP new.
 		  DRCopyPropagation new.
 		  (DRDeadBlockElimination then: DRCleanControlFlow).
@@ -175,9 +176,9 @@ DRPathConstraintsTest >> testDeadPath [
 DRPathConstraintsTest >> testEliminateDoubleDeadPaths [
 
 	| cfg lastBlocks |
-	cfg := self generateDruidIRFor: #primitiveADN.
+	cfg := self generateDruidIRFor: #primitiveDNA.
 
-	3 timesRepeat: [ 
+	2 timesRepeat: [ 
 		optimisation applyTo: cfg.
 		self optimize: cfg.
 		self generatePaths: cfg ].
@@ -216,7 +217,7 @@ DRPathConstraintsTest >> testEliminateInnerDeadPaths [
 DRPathConstraintsTest >> testEliminateSimpleDeadPaths [
 
 	| cfg lastBlocks |
-	cfg := self generateDruidIRFor: #primitiveSandClock.
+	cfg := self generateDruidIRFor: #primitiveSandclock.
 
 	optimisation applyTo: cfg.
 	self optimize: cfg.

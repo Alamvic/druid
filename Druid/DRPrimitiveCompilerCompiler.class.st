@@ -79,7 +79,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 	optimisations add: (DRDeadBlockElimination then: DRCleanControlFlow).
 
 	"Basic set of optimizations twice for primitives"
-	2 timesRepeat: [ 
+	3 timesRepeat: [ 
 		optimisations add: DRFailureCodeBasedTailDuplication new.
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
 		optimisations add: DRCopyPropagation new.

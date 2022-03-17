@@ -93,13 +93,13 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 					workingQueue addLast: target  ] ] ] ]
 ]
 
-{ #category : #'as yet unclassified' }
-DRControlFlowGraph >> clearPaths [
+{ #category : #edges }
+DRControlFlowGraph >> clearEdges [
 
 	edges := OrderedCollection new
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #edges }
 DRControlFlowGraph >> deadPaths [
 
 	| paths |
@@ -128,6 +128,13 @@ DRControlFlowGraph >> edgesFrom: sourceBlock to: destinationBlock [
 DRControlFlowGraph >> firstBasicBlock [
 
 	^ initialBasicBlock successor
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> generatePaths [
+
+	self clearEdges.
+	(DRPathFactory withCFG: self) generatePaths
 ]
 
 { #category : #edges }
@@ -161,72 +168,11 @@ DRControlFlowGraph >> initialize [
 
 { #category : #inspecting }
 DRControlFlowGraph >> inspectionCFG [
-	<inspectorPresentationOrder: 0 title: 'CFG'> 
-	| view blockViews eb controller |
+
+	<inspectorPresentationOrder: 0 title: 'CFG'>
+	| view |
 	view := RSCanvas new.
-	blockViews := self blocks collect: [ :b | 
-		| label box |
-		box := RSBox new
-			noPaint;
-			border: (RSBorder new 
-				width: 2; 
-				color: Color black;
-				yourself);
-			cornerRadius: 2;
-			yourself.
-		label := RSLabel new 
-			text: b id asString;
-			color: Color black;
-			yourself.
-		box extent: 30@30.
-		{ box. label } asShape
-			@ RSDraggable;
-			@ (RSPopup text: [:model | 
-				String streamContents: [:s | (model instructions collect: #prettyPrint)
-					asStringOn: s delimiter: String cr] 
-				]);
-			@ (RSMenuActivable new menuDo: [ :menu :element | 
-				menu
-					add: 'Tail-duplicate'
-					target: element model
-					selector: #tailDuplicate ]);
-			model: b;
-			yourself ].
-	view addAll: blockViews.
-	
-	eb := RSLineBuilder arrowedLine.
-	eb canvas: view.
-	eb color: Color blue muchDarker.
-	eb width: 2.
-	eb withBorderAttachPoint.
-	eb 	shapes: blockViews.
-	eb connectToAll: #successors.
-	view lines do: [ :line | line model.
-		line @ (RSPopup text: [ :model | 
-			String streamContents: [:s | 
-				(self edgesFrom: model key to: model value) 
-					do: [ :e | e constraints values asStringOn: s delimiter: String cr]
-					separatedBy: [s << (String cr , '--o--o--o--o--o--o--o--' , String cr)]
- 				]
-			])
-		].
-	
-	"All the characters are displayed using a grid layout"
-	RSSugiyamaLayout new
-		horizontalGap: 50;
-		applyOn: blockViews.
-	controller := RSCanvasController new.
-	controller noLegend.
-	view newAnimation
-		duration: 500 milliSeconds;
-		onStepDo: [ :t | view signalUpdate ];
-		when: RSAnimationEndEvent do: [:evt | 
-			controller configuration noZoomToFitOnExtendChanged ].
-	
-	view @ controller.
-	^ SpRoassal3InspectorPresenter new
-		canvas: view;
-		yourself
+	^ self showIn: view
 ]
 
 { #category : #accessing }
@@ -336,6 +282,75 @@ DRControlFlowGraph >> reversePostOrderBlocks [
 	blocks := OrderedCollection new.
 	self blocksInReversePostOrderDo: [ :b | blocks add: b ].
 	^ blocks
+]
+
+{ #category : #inspecting }
+DRControlFlowGraph >> showIn: view [
+
+	| blockViews eb controller |
+	blockViews := self blocks collect: [ :b | 
+		| label box |
+		box := RSBox new
+			noPaint;
+			border: (RSBorder new 
+				width: 2; 
+				color: Color black;
+				yourself);
+			cornerRadius: 2;
+			yourself.
+		label := RSLabel new 
+			text: b id asString;
+			color: Color black;
+			yourself.
+		box extent: 30@30.
+		{ box. label } asShape
+			@ RSDraggable;
+			@ (RSPopup text: [:model | 
+				String streamContents: [:s | (model instructions collect: #prettyPrint)
+					asStringOn: s delimiter: String cr] 
+				]);
+			@ (RSMenuActivable new menuDo: [ :menu :element | 
+				menu
+					add: 'Tail-duplicate'
+					target: element model
+					selector: #tailDuplicate ]);
+			model: b;
+			yourself ].
+	view addAll: blockViews.
+	
+	eb := RSLineBuilder arrowedLine.
+	eb canvas: view.
+	eb color: Color blue muchDarker.
+	eb width: 2.
+	eb withBorderAttachPoint.
+	eb 	shapes: blockViews.
+	eb connectToAll: #successors.
+	view lines do: [ :line | line model.
+		line @ (RSPopup text: [ :model | 
+			String streamContents: [:s | 
+				(self edgesFrom: model key to: model value) 
+					do: [ :e | e constraints values asStringOn: s delimiter: String cr]
+					separatedBy: [s << (String cr , '--o--o--o--o--o--o--o--' , String cr)]
+ 				]
+			])
+		].
+	
+	"All the characters are displayed using a grid layout"
+	RSSugiyamaLayout new
+		horizontalGap: 50;
+		applyOn: blockViews.
+	controller := RSCanvasController new.
+	controller noLegend.
+	view newAnimation
+		duration: 500 milliSeconds;
+		onStepDo: [ :t | view signalUpdate ];
+		when: RSAnimationEndEvent do: [:evt | 
+			controller configuration noZoomToFitOnExtendChanged ].
+	
+	view @ controller.
+	^ SpRoassal3InspectorPresenter new
+		canvas: view;
+		yourself
 ]
 
 { #category : #validating }

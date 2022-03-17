@@ -14,6 +14,12 @@ DROptimisationTest class >> isAbstract [
 	^ self class == DROptimisationTest
 ]
 
+{ #category : #'as yet unclassified' }
+DROptimisationTest >> conditionalJump [
+
+	^ DRConditionalJump operands: { (DRConstantValue value: true) }
+]
+
 { #category : #running }
 DROptimisationTest >> configureInterpreter [
 
@@ -51,9 +57,16 @@ DROptimisationTest >> optimisation: anObject [
 ]
 
 { #category : #optimising }
-DROptimisationTest >> optimize: cfg [
+DROptimisationTest >> optimize: anIR [
 
-	self previuosOptimizations do: [ :opt | opt applyTo: cfg ] 
+	self previuosOptimizations do: [ :optimization | 
+		optimization applyTo: anIR.
+		anIR validate ]
+
+"	({ anIR veryDeepCopy } , (self previuosOptimizations collect: [ :optimization | 
+		  optimization applyTo: anIR.
+		  anIR validate.
+		  anIR veryDeepCopy ])) inspect"
 ]
 
 { #category : #optimising }
@@ -103,9 +116,7 @@ DROptimisationTest >> setUpCFG: n [
 { #category : #test }
 DROptimisationTest >> setUpCFGWithConditional [
 
-	| jump |
-	jump := DRConditionalJump operands: { (DRConstantValue value: true) }.
-	^ self setUpCFGWithConditional: jump.
+	^ self setUpCFGWithConditional: self conditionalJump.
 
 ]
 

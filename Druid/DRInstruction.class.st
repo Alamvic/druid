@@ -64,6 +64,12 @@ DRInstruction >> basicBlock: anObject [
 	basicBlock := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+DRInstruction >> clearUsers [
+
+	users removeAll
+]
+
 { #category : #copying }
 DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode [ 
 	
@@ -402,6 +408,12 @@ DRInstruction >> validate [
 		ifFalse: [ DRError signal: 'Operand-user mismatch in instruction: ', self asString ].
 	(self users allSatisfy: [ :user | user hasOperand: self ])
 		ifFalse: [ DRError signal: 'User-operand mismatch in instruction: ', self asString ].
+]
+
+{ #category : #'as yet unclassified' }
+DRInstruction >> veryDeepCopyWith: deepCopier [
+	deepCopier references at: origin ifAbsentPut: [nil].
+	^ super veryDeepCopyWith: deepCopier
 ]
 
 { #category : #dependencies }
