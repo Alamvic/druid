@@ -198,9 +198,7 @@ DRBasicBlock >> findMergePoint: aDRBasicBlock [
 		                       aDRBasicBlock hasRecursivePredecessor: b ].
 	possibleMergePoints size = 1
 		ifTrue: [ ^ possibleMergePoints first ]
-		ifFalse: [ 
-			1halt.
-			^ aDRBasicBlock ]
+		ifFalse: [ ^ aDRBasicBlock ]
 ]
 
 { #category : #accessing }

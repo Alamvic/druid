@@ -7,28 +7,35 @@ Class {
 { #category : #accessing }
 DRDeadPathElimination >> applyTo: cfg [
 
-| blockToSplit newSucessors path |
+	| blockToSplit change newSucessors |
+	self generatePaths: cfg.
 
-		self generatePaths: cfg.
+	change := cfg deadPaths isNotEmpty.
 
-"	[ cfg deadPaths isNotEmpty ] whileTrue: [ "
-		
-		path := cfg deadPaths values last.
-		blockToSplit := path first source.
-		newSucessors := blockToSplit successors copyWithout:
-			                path first destination.
+	[ change ] whileTrue: [ 
+		cfg deadPaths valuesDo: [ :path | 
+			change := false.
+			blockToSplit := path first source.
 
-		1 haltIf: [ newSucessors size ~= 1 ].
+			blockToSplit predecessors size > 1
+				ifTrue: [ 
+					blockToSplit tailDuplicate.
+					change := true ]
+				ifFalse: [ 
+					(cfg edgesFrom: blockToSplit to: path first destination) size = 1 
+						ifTrue: [ 
+							newSucessors := blockToSplit successors copyWithout: path first destination.
+							newSucessors
+				ifEmpty: [ blockToSplit removeFromCFG ]
+				ifNotEmpty: [ 
+					1haltIf: [ newSucessors size > 1 ].
+					blockToSplit jumpTo: newSucessors first ].
+						] ].
+			"			
+"
 
-		blockToSplit tailDuplicate.
-
-		newSucessors
-			ifEmpty: [ blockToSplit removeFromCFG ]
-			ifNotEmpty: [ blockToSplit jumpTo: newSucessors first ].
-
-
-		self generatePaths: cfg 
-		"]"
+			self generatePaths: cfg ].
+	 ]
 ]
 
 { #category : #'as yet unclassified' }
