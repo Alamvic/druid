@@ -388,6 +388,24 @@ DRBasicBlock >> instructionsUsedOutside [
 			  (self instructions includes: user) not ] ]
 ]
 
+{ #category : #building }
+DRBasicBlock >> isDominatorOf: basicBlocks [
+
+	| dominatorTree node |
+	
+	dominatorTree := DRDominatorTree new.
+	dominatorTree dominatorTreeOf: controlFlowGraph.
+	node := dominatorTree blockDictionary at: self.
+	node children size = basicBlocks size ifTrue: [
+		node children do: [ :child |
+			basicBlocks indexOf: child block ifAbsent: [ ^ false ].
+		].
+		^ true
+	].
+	
+	^ false
+]
+
 { #category : #accessing }
 DRBasicBlock >> isExitBlock [
 
