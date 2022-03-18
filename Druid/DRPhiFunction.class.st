@@ -18,6 +18,12 @@ DRPhiFunction >> acceptVisitor: aVisitor [
 	^ aVisitor visitPhiFunction: self
 ]
 
+{ #category : #adding }
+DRPhiFunction >> addOperand [
+
+	operands add: DRNullValue new
+]
+
 { #category : #accessing }
 DRPhiFunction >> addValue: anInstruction [
 	
@@ -63,6 +69,13 @@ DRPhiFunction >> joinedVariables: aCollection [
 	self operands: aCollection
 ]
 
+{ #category : #'as yet unclassified' }
+DRPhiFunction >> mergeOperands: anotherOperands [
+
+	operands with: anotherOperands do: [ :op1 :op2 | 
+		self replaceOperand: op1 by: (self selectOperand: op1 with: op2) ]
+]
+
 { #category : #accessing }
 DRPhiFunction >> name [
 	
@@ -74,6 +87,19 @@ DRPhiFunction >> opcode [
 	
 	^ 'Ø'
 	 
+]
+
+{ #category : #'users-definitions' }
+DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
+
+	anotherOperand basicBlock = self basicBlock
+		ifTrue: [ "Have no sense a phi with an block's instruction"
+			anotherOperand isPhiFunction
+				ifTrue: [ "unless it is another phi, then merge both"
+					super replaceOperand: anOperand by: DRNullValue new.
+					self mergeOperands: anotherOperand operands ]
+				ifFalse: [ self error: 'Bad Phi operand' ] ]
+		ifFalse: [ super replaceOperand: anOperand by: anotherOperand ]
 ]
 
 { #category : #accessing }
@@ -92,6 +118,15 @@ DRPhiFunction >> rtlOperandQualifier [
 DRPhiFunction >> sccpLatticeValueFor: sccp [
 
 	^ sccp latticeValueOfPhiFunction: self
+]
+
+{ #category : #'as yet unclassified' }
+DRPhiFunction >> selectOperand: anOperand with: anotherOperand [
+
+	anOperand = anotherOperand ifTrue: [ ^ anOperand ].
+	anOperand isNullValue ifTrue: [ ^ anotherOperand ].
+	anotherOperand isNullValue ifTrue: [ ^ anOperand ].
+	self error: 'Incompatible operands'
 ]
 
 { #category : #simplification }

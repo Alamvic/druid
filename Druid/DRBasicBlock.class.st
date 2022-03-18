@@ -43,7 +43,9 @@ DRBasicBlock >> addInstruction: anInstruction [
 { #category : #accessing }
 DRBasicBlock >> addPredecessor: aBasicBlock [
 
-	predecessors add: aBasicBlock
+	predecessors add: aBasicBlock.
+	self phiFunctions do: [ :phi | 
+		phi operands size < self predecessors size ifTrue: [ phi addOperand ] ]
 ]
 
 { #category : #transformations }
@@ -196,6 +198,12 @@ DRBasicBlock >> endInstruction: aDRInstruction [
 DRBasicBlock >> equals: operand1 to: operand2 [ 
 	
 	^ self addInstruction: (self instructionFactory equals: operand1 to: operand2)
+]
+
+{ #category : #testing }
+DRBasicBlock >> existPathFrom: aDRBasicBlock [ 
+	
+	^ aDRBasicBlock = self or: [ self hasRecursivePredecessor: aDRBasicBlock ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -394,36 +402,19 @@ DRBasicBlock >> isExitBlock: anObject [
 { #category : #'as yet unclassified' }
 DRBasicBlock >> joinValues: myInstruction and: duplicatedInstruction in: userBlock [
 
-
-
-" TODO:
-A las viejas phis hay que agregarle la instrucción duplicada al final.
-A la nueva hay que inicializarla en null salvo por la instruccion que se copia y la nueva (duplicada, que estará al final)
-"
 	| possibleMergePoints |
-	possibleMergePoints := self commonSuccessors: userBlock.
+	possibleMergePoints := self commonSuccessors: userBlock. "Use dominator?"
 
-	possibleMergePoints size = 1 ifTrue: [ |phiVariables mergeBlock |
-		mergeBlock :=possibleMergePoints first.
-		phiVariables := mergeBlock predecessors collect: [ :b | 
-			b = myInstruction basicBlock 
-			ifTrue: [ myInstruction  ] 
-			ifFalse: [ DRNullValue new ] 
-			 ].
-		phiVariables add: duplicatedInstruction.
-		mergeBlock phiFunctions do: [ :phi | phi operands add: DRNullValue new ].
-		^ mergeBlock phiWithVariables: phiVariables ].
+	possibleMergePoints size = 1 ifTrue: [ 
+		| mergeBlock |
+		mergeBlock := possibleMergePoints first.
+		^ mergeBlock phiWith: myInstruction with: duplicatedInstruction ].
 
 	possibleMergePoints size = 2 ifTrue: [ 
 		| phis |
-		1halt.
 		phis := possibleMergePoints collect: [ :b | 
-			        self
-				        joinValues: myInstruction
-				        and: duplicatedInstruction
-				        in: b ].
-		userBlock predecessors size = 2 ifTrue: [ 
-			^ userBlock phiWith: phis first with: phis second ] ].
+			        b phiWith: myInstruction with: duplicatedInstruction ].
+		^ userBlock phiWith: phis first with: phis second ].
 	1 halt
 ]
 
@@ -521,12 +512,12 @@ DRBasicBlock >> mergeOutsideUsersWith: duplicatedBlock [
 						 (phi basicBlock = user basicBlock or: [ 
 							  user basicBlock hasRecursivePredecessor: phi basicBlock ])
 							 not ]) ifTrue: [ 
+						phi := self
+							       joinValues: myInstruction
+							       and: duplicatedInstruction
+							       in: user basicBlock ].
 
-						phi := self joinValues: myInstruction and: duplicatedInstruction in: user basicBlock ].
-
-					user replaceOperand: myInstruction by: phi.
-
-					"duplicatedInstructions removeUser: user" ] ] ]
+					user replaceOperand: myInstruction by: phi ] ] ]
 ]
 
 { #category : #temporaries }
@@ -584,20 +575,29 @@ DRBasicBlock >> phiFunctions [
 { #category : #building }
 DRBasicBlock >> phiWith: aValue [
 
-	^ self addInstruction: (self instructionFactory phiWith: aValue)
+	^ self phiWithVariables: { aValue }
 ]
 
 { #category : #building }
 DRBasicBlock >> phiWith: aValue with: aValue2 [
 
-	1haltIf:[ self predecessors size > 2].
-	^ self addInstruction: (self instructionFactory phiWith: aValue with: aValue2)
+	^ self phiWithVariables: { aValue. aValue2 }
 ]
 
 { #category : #factory }
 DRBasicBlock >> phiWithVariables: variables [
 
-	^ self addInstruction: (self instructionFactory phiWithVariables: variables)
+	| newVariables |
+	newVariables := self predecessors size > variables size
+		                ifTrue: [ 
+			                self predecessors collect: [ :b | 
+				                variables
+					                detect: [ :i | b existPathFrom: i basicBlock ]
+					                ifNone: [ DRNullValue new ] ] ]
+		                ifFalse: [ variables ].
+
+	^ self addInstruction:
+		  (self instructionFactory phiWithVariables: newVariables)
 ]
 
 { #category : #accessing }
@@ -740,6 +740,9 @@ DRBasicBlock >> tailDuplicate [
 	
 	self predecessors allButFirst do: [ :predecessorToRewire | | duplicatedBlock |
 		duplicatedBlock := self basicDuplicate.
+		duplicatedBlock successors do: [ :successor |
+			successor addPredecessor: duplicatedBlock ].
+
 		self mergeOutsideUsersWith: duplicatedBlock.
 
 		self predecessors do: [ :predecessorToRemove |
@@ -748,8 +751,6 @@ DRBasicBlock >> tailDuplicate [
 		
 		self removePredecessor: predecessorToRewire.
 		predecessorToRewire replaceSuccessor: self by: duplicatedBlock.
-		duplicatedBlock successors do: [ :successor |
-			successor addPredecessor: duplicatedBlock ].
 	].
 ]
 

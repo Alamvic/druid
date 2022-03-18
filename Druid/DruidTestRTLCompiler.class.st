@@ -194,9 +194,9 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 	jump1 jmpTarget: currentBlock.
 	self MoveR: SendNumArgsReg R: Extra3Reg.
 	self MoveR: SendNumArgsReg R: Extra4Reg.
-	self MoveCq: 5 R: ClassReg.
+	self MoveCq: 5 R: TempReg.
 	self CmpCq: 7 R: ReceiverResultReg.
-	self MoveR: Extra4Reg R: ClassReg.
+	self MoveR: Extra4Reg R: SendNumArgsReg.
 	jump4 := self Jump: 0.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
@@ -204,35 +204,35 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 	self MoveR: Extra0Reg R: Extra1Reg.
 	self MoveCq: 5 R: Extra3Reg.
 	self CmpCq: 7 R: ReceiverResultReg.
-	self MoveR: Extra1Reg R: ClassReg.
+	self MoveR: Extra1Reg R: SendNumArgsReg.
+	self MoveR: Extra2Reg R: TempReg.
+	self MoveR: Extra3Reg R: Extra1Reg.
 	jump5 := self JumpGreater: 0.
 	jump6 := self JumpLessOrEqual: 0.
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
-	self MoveCq: 99 R: TempReg.
+	self MoveCq: 99 R: ClassReg.
 	self MoveCq: 17 R: Extra0Reg.
+	self MoveR: ClassReg R: TempReg.
+	self MoveR: Extra0Reg R: Extra1Reg.
 	jump7 := self Jump: 0.
 	currentBlock := self Label.
 	jump4 jmpTarget: currentBlock.
 	jump5 jmpTarget: currentBlock.
-	self MoveR: ClassReg R: SendNumArgsReg.
-	self AddCq: 5 R: SendNumArgsReg.
-	self MoveR: SendNumArgsReg R: Extra4Reg.
-	self AddCq: 15 R: Extra4Reg.
-	self MoveR: Extra4Reg R: ReceiverResultReg.
+	self MoveR: SendNumArgsReg R: TempReg.
+	self AddCq: 5 R: TempReg.
+	self MoveR: TempReg R: Extra1Reg.
+	self AddCq: 15 R: Extra1Reg.
+	self MoveR: Extra1Reg R: ReceiverResultReg.
 	jump8 := self Jump: 0.
 	currentBlock := self Label.
 	jump6 jmpTarget: currentBlock.
 	jump7 jmpTarget: currentBlock.
-	self MoveR: Extra3Reg R: Extra1Reg.
-	self MoveR: Extra2Reg R: ClassReg.
-	self MoveR: TempReg R: SendNumArgsReg.
-	self MoveR: Extra0Reg R: Extra4Reg.
-	self MoveR: SendNumArgsReg R: Extra3Reg.
-	self AddR: Extra4Reg R: Extra3Reg.
-	self MoveR: Extra3Reg R: Extra1Reg.
-	self AddCq: 42 R: Extra1Reg.
-	self MoveR: Extra1Reg R: ReceiverResultReg.
+	self MoveR: TempReg R: Extra4Reg.
+	self AddR: Extra1Reg R: Extra4Reg.
+	self MoveR: Extra4Reg R: SendNumArgsReg.
+	self AddCq: 42 R: SendNumArgsReg.
+	self MoveR: SendNumArgsReg R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump8 jmpTarget: currentBlock.
 	self RetN: 1 * objectMemory wordSize.

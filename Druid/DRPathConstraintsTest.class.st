@@ -175,24 +175,24 @@ DRPathConstraintsTest >> testDeadPath [
 { #category : #optimization }
 DRPathConstraintsTest >> testEliminateDoubleDeadPaths [
 
-	| cfg lastBlocks |
+	| cfg lastBlocks lastPaths |
 	cfg := self generateDruidIRFor: #primitiveDNA.
 
 	2 timesRepeat: [ 
 		optimisation applyTo: cfg.
-		self optimize: cfg.
-		self generatePaths: cfg ].
+		self optimize: cfg ].
 
+	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
 
 	lastBlocks := cfg lastBasicBlock predecessors.
 
 	self assert: cfg deadPaths isEmpty.
-	self flag: #FIXME. "Both should be phis, there are 4 paths"
-	self assert: lastBlocks first firstInstruction isPhiFunction. "One branch finishes in a phi"
-	self assert: lastBlocks second firstInstruction isCopy.
-	self
-		assert: lastBlocks second firstInstruction operand1 value
-		equals: 158 "Other branch harcodes the value"
+	self assert: lastPaths size equals: 4. "2 phis with 2 options"
+	self assert: lastBlocks size equals: 2.
+	self assert:
+		(lastBlocks allSatisfy: [ :b | b firstInstruction isPhiFunction ]).
+	self assert:
+		(lastBlocks allSatisfy: [ :b | b firstInstruction operands size = 2 ])
 ]
 
 { #category : #optimization }

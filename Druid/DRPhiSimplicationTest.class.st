@@ -37,6 +37,23 @@ DRPhiSimplicationTest >> testSimplificateEmptyPhi [
 ]
 
 { #category : #tests }
+DRPhiSimplicationTest >> testSimplificatePhiWithNull [
+
+	| cfg b t1 |
+	cfg := DRControlFlowGraph new.
+	cfg newBasicBlockWith: [ :block | t1 := block copy: 1 asDRValue ].
+
+	b := cfg newBasicBlockWith: [ :block | block phiWith: t1 with: DRNullValue new].
+
+	DRPhiSimplication new applyTo: cfg.
+
+	self assert: b firstInstruction isCopy.
+	self assert: b firstInstruction operand1 equals: t1.
+	self assert: t1 users size equals: 1.
+	self assert: t1 users anyOne equals: b firstInstruction
+]
+
+{ #category : #tests }
 DRPhiSimplicationTest >> testSimplificateRedundantPhi [
 
 	| cfg b t1 |

@@ -56,9 +56,9 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
 ]
 
 { #category : #tests }
-DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldRefillPhiFunctions [
+DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunctions [
 
-	| cfg jump b5 b6 r1 r2 phi |
+	| cfg jump b5 b6 r1 r2 phi newBlock |
 	cfg := self setUpCFGWithConditional.
 
 
@@ -82,11 +82,14 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldRefillPhiFun
 
 	cfg b4 tailDuplicate.
 	cfg validate.
-
+	newBlock := cfg blockById: 7.
 
 	self assert: b6 phiFunctions size equals: 2.
-	self assert: phi operands third isNullValue.
-	self assert: b6 firstInstruction operand2 isNullValue
+	self assert: b6 firstInstruction operand2 isNullValue.
+	self assertCollection: phi operands hasSameElements: { 
+			r1.
+			r2.
+			newBlock firstInstruction }
 ]
 
 { #category : #tests }
