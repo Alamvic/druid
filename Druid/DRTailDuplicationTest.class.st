@@ -24,21 +24,51 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFunctionWithMultipleVariables [
+
+	"|0| -> |1| -> |2| --> |4| -> |7| -> |8|
+             \ -> |3| --> |5| ---^
+                     \ -> |6| ---^             
+	"
+
+	| cfg b5 b6 copy b7 b8 |
+	cfg := self setUpCFGWithConditional.
+	b5 := cfg newBasicBlock.
+	b6 := cfg newBasicBlock.
+	b7 := cfg newBasicBlock.
+	b8 := cfg newBasicBlock.
+
+	cfg b3 jumpIfTrueTo: b5 ifFalseTo: b6.
+	cfg b4 jumpTo: b7.
+	b5 jumpTo: b7.
+	b6 jumpTo: b7.
+	b7 jumpTo: b8.
+	
+	copy := b7 copy: 1.
+	b8 add: 1 to: copy.
+
+	b7 tailDuplicate.
+	cfg validate.
+
+	self assert: b8 predecessors size equals: 3.
+	self assert: b8 firstInstruction isPhiFunction.
+	self assert: b8 firstInstruction operands size equals: 3.
+	
+
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFunctionsChain [
 
-	| cfg copy userBlock jump leftBlock rightBlock |
+	| cfg copy userBlock leftBlock rightBlock |
 	cfg := self setUpCFGWithConditional.
 
 	copy := cfg b4 copy: 1.
-	jump := cfg b4 endInstruction: self conditionalJump.
 
 	leftBlock := cfg newBasicBlock.
-	jump trueBranch: leftBlock.
-	leftBlock addPredecessor: cfg b4.
-
 	rightBlock := cfg newBasicBlock.
-	jump falseBranch: rightBlock.
-	rightBlock addPredecessor: cfg b4.
+
+	cfg b4	 jumpIfTrueTo: leftBlock ifFalseTo: rightBlock.
 
 	userBlock := cfg newBasicBlockWith: [ :b | b add: 1 to: copy ].
 	leftBlock jumpTo: userBlock.
@@ -58,21 +88,19 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunctions [
 
-	| cfg jump b5 b6 r1 r2 phi newBlock |
+	"|0| -> |1| -> |2| --> |4| --> |6|
+             \ -> |3| ----^       ^
+                     \ -> |5| ----^             
+	"
+
+
+	| cfg b5 b6 r1 r2 phi newBlock |
 	cfg := self setUpCFGWithConditional.
-
-
-	jump := cfg b3 endInstruction: self conditionalJump.
-
-	cfg b4 addPredecessor: cfg b3.
-	jump trueBranch: cfg b4.
-
 	b5 := cfg newBasicBlock.
-	b5 addPredecessor: cfg b3.
-	jump falseBranch: b5.
-
-
 	b6 := cfg newBasicBlock.
+
+	cfg b4 removePredecessor: cfg b3.
+	cfg b3 jumpIfTrueTo: cfg b4 ifFalseTo: b5.
 	cfg b4 jumpTo: b6.
 	b5 jumpTo: b6.
 
@@ -89,6 +117,44 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunc
 	self assertCollection: phi operands hasSameElements: { 
 			r1.
 			r2.
+			newBlock firstInstruction }
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunctionsWithMultipleVariables [
+
+	"|0| -> |1| -> |2| --> |4| -> |7|
+             \       \ -> |5| ---^
+              \ -> |3| ---^      ^
+                     \ -> |6| ---^             
+	"
+
+	| cfg b5 b6 b7 copy1 copy2 copy3 phi newBlock |
+	cfg := self setUpCFGWithConditional.
+	b5 := cfg newBasicBlock.
+	b6 := cfg newBasicBlock.
+	b7 := cfg newBasicBlock.
+
+	cfg b2 jumpIfTrueTo: cfg b4 ifFalseTo: b5.
+	cfg b3 jumpIfTrueTo: b5 ifFalseTo: b6.
+	cfg b4 jumpTo: b7.
+	b5 jumpTo: b7.
+	b6 jumpTo: b7.
+
+	copy1 := cfg b4 copy: 1.
+	copy2 := b5 copy: 2.
+	copy3 := b6 copy: 3.
+	phi := b7 phiWithVariables: { copy1. copy2. copy3 }.
+
+	b5 tailDuplicate.
+	cfg validate.
+	newBlock := cfg blockById: 8.
+
+	self assert: b7 predecessors size equals: 4.
+	self assertCollection: phi operands hasSameElements: { 
+			copy1.
+			copy2.
+			copy3.
 			newBlock firstInstruction }
 ]
 

@@ -21,6 +21,7 @@ DRRegistersInfo >> composedConstraint: aConstraintClass from: aDRInstruction [
 
 	| operands |
 	operands := aDRInstruction operands collect: [ :o | o acceptVisitor: self ].
+	(operands anySatisfy: [ :o | (o isNil or: o = false) or: o = true ]) ifTrue: [ ^ nil ].
 	^ DRRegisterConstraint
 		  reg: aDRInstruction
 		  constraint: (aConstraintClass constraints: operands)
@@ -65,7 +66,7 @@ DRRegistersInfo >> isDead [
 
 { #category : #adding }
 DRRegistersInfo >> mergeConstraint: aConditionalConstraint [
-
+	aConditionalConstraint ifNil: [ 1halt ].
 	constraints
 		at: aConditionalConstraint reg name
 		ifPresent: [ :oldConstraint | 
@@ -153,7 +154,7 @@ DRRegistersInfo >> visitCopy: aDRCopy [
 
 	| constantValue |
 	"Only constant copies are importants"
-	aDRCopy operand1 isConstant ifFalse: [ ^ self ].
+	aDRCopy operand1 isConstant ifFalse: [ ^ nil ].
 	constantValue := aDRCopy operand1 acceptVisitor: self.
 	self addConstraint:
 		(DRRegisterConstraint equals: aDRCopy result than: constantValue)

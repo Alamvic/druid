@@ -228,6 +228,7 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsTo
 DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
+	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 	
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.

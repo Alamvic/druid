@@ -170,9 +170,10 @@ DRBasicBlock >> duplicatePredecessor: existingPredecessor from: newPredecessor [
 	
 	Assumption: newPredecessor is a predecessor of existingPredecessor"
 	
-	self addPredecessor: newPredecessor.
 	self phiFunctions do: [ :e |
 		e addValue: (e operandAt: (self indexOfPredecessor: existingPredecessor)) ].
+	self addPredecessor: newPredecessor.
+
 ]
 
 { #category : #accessing }
@@ -415,7 +416,8 @@ DRBasicBlock >> joinValues: myInstruction and: duplicatedInstruction in: userBlo
 		phis := possibleMergePoints collect: [ :b | 
 			        b phiWith: myInstruction with: duplicatedInstruction ].
 		^ userBlock phiWith: phis first with: phis second ].
-	1 halt
+
+	1 halt "Bad things happen here"
 ]
 
 { #category : #building }
@@ -437,10 +439,10 @@ DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 	aDRBasicBlock addPredecessor: self.
 	aDRBasicBlock2 addPredecessor: self.
 	
-	^ endInstruction := DRConditionalJump new
+	^ self endInstruction: (DRConditionalJump new
 		trueBranch: aDRBasicBlock;
 		falseBranch: aDRBasicBlock2;
-		yourself
+		yourself)
 ]
 
 { #category : #building }

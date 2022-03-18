@@ -6,7 +6,8 @@ Class {
 		'basicBlocks',
 		'nextBasicBlockId',
 		'instructionFactory',
-		'edges'
+		'edges',
+		'deadPaths'
 	],
 	#category : #'Druid-IR'
 }
@@ -96,20 +97,22 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 { #category : #edges }
 DRControlFlowGraph >> clearEdges [
 
-	edges := OrderedCollection new
+	edges := OrderedCollection new.
+	deadPaths := nil
 ]
 
 { #category : #edges }
 DRControlFlowGraph >> deadPaths [
 
 	| paths |
+	deadPaths ifNotNil: [ ^ deadPaths ].
 	paths := OrderedDictionary new.
 	edges select: [ :e | e isDead ] thenDo: [ :e | 
 		paths
 			at: e deadTarget
 			ifPresent: [ :collection | collection add: e ]
 			ifAbsentPut: { e } asOrderedCollection ].
-	^ paths
+	^ deadPaths := paths
 ]
 
 { #category : #accessing }
