@@ -69,7 +69,7 @@ DRGlobalValueNumbering >> processInstructions: block [
 	| expression |
 
 	block instructions copy do: [ :instruction |
-		instruction isPhiFunction ifFalse: [
+		(instruction isPhiFunction or: instruction isJump) ifFalse: [
 			self simplifyOperands: instruction.
 			expression := instruction asNumberedExpression.
 			self searchHashTables: expression ifPresent: [ :valueNumber |
@@ -79,6 +79,8 @@ DRGlobalValueNumbering >> processInstructions: block [
 			ifAbsent: [
 				valueNumbers at: instruction put: instruction.
 				(hashTables at: currentScope) at: expression put: instruction.
+				(instruction isCopy and: [ instruction operand1 isConstant ])
+				ifTrue: [ block removeInstruction: instruction ]
 			].
 
 		]
@@ -142,7 +144,10 @@ DRGlobalValueNumbering >> processRedundant: instruction in: block [
 DRGlobalValueNumbering >> searchHashTables: expression ifPresent: aPresentBlock ifAbsent: anAbsentBlock [
 
 	hashTables reverseDo: [ :table |
-		table at: expression ifPresent: [ :valueNumber | aPresentBlock cull: valueNumber ]
+		table at: expression ifPresent: [ :valueNumber |
+			aPresentBlock cull: valueNumber.
+			^ self
+		]
 	].
 	
 	anAbsentBlock value
@@ -151,8 +156,15 @@ DRGlobalValueNumbering >> searchHashTables: expression ifPresent: aPresentBlock 
 { #category : #operations }
 DRGlobalValueNumbering >> simplifyOperands: instruction [
 
+	| valueNumber |
+
 	instruction operands:
-	(instruction operands collect: [ :operand | self valueNumberOf: operand]).
+	(instruction operands collect: [ :operand |
+		valueNumber := self valueNumberOf: operand.
+		(valueNumber isCopy and: [valueNumber operand1 isConstant])
+		ifTrue: [ valueNumber operand1 ]
+		ifFalse: [ valueNumber ]
+	]).
 ]
 
 { #category : #operations }
