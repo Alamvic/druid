@@ -53,6 +53,17 @@ DRInstruction >> addUser: anInstruction [
 ]
 
 { #category : #accessing }
+DRInstruction >> asNumberedExpression [
+
+	| numberedExpression |
+	
+	numberedExpression := DRNumberedExpression new.
+	^ numberedExpression operation: self class;
+	operands: self operands;
+	yourself
+]
+
+{ #category : #accessing }
 DRInstruction >> basicBlock [
 
 	^ basicBlock

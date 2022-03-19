@@ -1,6 +1,6 @@
 Class {
 	#name : #DRGlobalValueNumbering,
-	#superclass : #Object,
+	#superclass : #DROptimisation,
 	#instVars : [
 		'dominatorTree',
 		'valueNumbers',
@@ -37,8 +37,8 @@ DRGlobalValueNumbering >> dominatorBasedValueNumbering: node [
 	symbolTable := self initializeScope.
 	self processPhiFunctions: node block.
 	self processInstructions: node block.
-	node children do: [ :child |
-		self adjustPhiFunctions: child block.
+	node block endInstruction targets do: [ :successor |
+		self adjustPhiFunctions: successor.
 	].
 	
 	node children do: [ :child |
@@ -70,10 +70,8 @@ DRGlobalValueNumbering >> processInstructions: block [
 
 	block instructions copy do: [ :instruction |
 		instruction isPhiFunction ifFalse: [
-			instruction operands:
-			(instruction operands collect: [ :operand | self valueNumberOf: operand]).
-			expression := instruction prettyPrint.
-			expression := expression copyFrom: (expression indexOf: $=) + 2 to: expression size.
+			self simplifyOperands: instruction.
+			expression := instruction asNumberedExpression.
 			self searchHashTables: expression ifPresent: [ :valueNumber |
 				valueNumbers at: instruction put: valueNumber.
 				block removeInstruction: instruction.
@@ -92,7 +90,7 @@ DRGlobalValueNumbering >> processMeaningless: instruction in: block [
 
 	instruction operands doWithIndex: [ :operand :index |
 		(instruction operands copyFrom: index + 1 to: instruction operands size) do: [ :other |
-			((self valueNumberOf: operand) = self valueNumberOf: other)
+			(self valueNumberOf: operand) = (self valueNumberOf: other)
 			ifFalse: [ ^ false ].
 		].
 	].
@@ -108,7 +106,8 @@ DRGlobalValueNumbering >> processPhiFunctions: block [
 
 	block phiFunctions copy do: [ :instruction |
 		((self processMeaningless: instruction in: block)
-		ifFalse: [ self processRedundant: instruction in: block ])
+		ifFalse: [ self processRedundant: instruction in: block ]
+		ifTrue: [ true ])
 		ifFalse: [
 			valueNumbers at: instruction put: instruction.
 			(hashTables at: currentScope) at: instruction put: instruction.
@@ -125,7 +124,7 @@ DRGlobalValueNumbering >> processRedundant: instruction in: block [
 		other = instruction ifFalse: [
 			isRedundant := true.
 			instruction operands with: other operands do: [ :instructionOperand :otherOperand |
-				((self valueNumberOf: otherOperand) = self valueNumberOf: instructionOperand)
+				(self valueNumberOf: otherOperand) = (self valueNumberOf: instructionOperand)
 				ifFalse: [ isRedundant := false ].
 			].
 			isRedundant ifTrue: [
@@ -147,6 +146,13 @@ DRGlobalValueNumbering >> searchHashTables: expression ifPresent: aPresentBlock 
 	].
 	
 	anAbsentBlock value
+]
+
+{ #category : #operations }
+DRGlobalValueNumbering >> simplifyOperands: instruction [
+
+	instruction operands:
+	(instruction operands collect: [ :operand | self valueNumberOf: operand]).
 ]
 
 { #category : #operations }

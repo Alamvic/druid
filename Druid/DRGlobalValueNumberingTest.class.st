@@ -46,13 +46,12 @@ DRGlobalValueNumberingTest >> testComplexEquivalentOperationIsReplacedByPrevious
 DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesMerge [
 	"This test asserts whether operations in different branches are scoped differently"
 			
-	| cfg instructionFactory jump copy3 copy4 copy5 phi1 phi2 phi3 phi4 optimisation |
+	| cfg instructionFactory copy3 copy4 copy5 phi1 phi2 phi3 phi4 optimisation |
 	instructionFactory := DRInstructionFactory new.
 	optimisation := DRGlobalValueNumbering new.
-	jump := DRConditionalJump operands: { DRConstantValue value: true }.
-	cfg := self setUpCFGWithConditional: jump.
+	cfg := self setUpCFGWithConditional.
 	cfg b2 addInstruction: (copy3 := instructionFactory copy: 3).
-	cfg b2 addInstruction: (copy4 := instructionFactory copy: 4).
+	cfg b3 addInstruction: (copy4 := instructionFactory copy: 4).
 	cfg b3 addInstruction: (copy5 := instructionFactory copy: 5).
 	cfg b4 addInstruction: (phi1 := instructionFactory phiWith: copy3 with: copy3).
 	cfg b4 addInstruction: (phi2 := instructionFactory phiWith: copy3 with: copy4).
