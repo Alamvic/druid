@@ -4,6 +4,26 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #visiting }
+DRAnd >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitAnd: self
+]
+
+{ #category : #visiting }
+DRAnd >> cogitFalseConditionCode [
+	
+	"Jump false if the constant is a zero"
+	^ #JumpZero:
+]
+
+{ #category : #visiting }
+DRAnd >> cogitTrueConditionCode [
+	
+	"Jump false if the constant is a zero"
+	^ #JumpNonZero:
+]
+
 { #category : #printing }
 DRAnd >> opcode [
 	

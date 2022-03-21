@@ -206,6 +206,13 @@ DRCompilerCompiler >> visitAddition: aDRCogitAdd [
 ]
 
 { #category : #visiting }
+DRCompilerCompiler >> visitAnd: aDRAnd [
+
+	"Use threeOperandCogitRTL: ?"
+	^ self twoOperandCogitRTL: #And instruction: aDRAnd
+]
+
+{ #category : #visiting }
 DRCompilerCompiler >> visitBitAnd: aDRCogitBitAnd [ 
 
 	^ self threeOperandCogitRTL: #And instruction: aDRCogitBitAnd

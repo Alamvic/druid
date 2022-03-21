@@ -156,11 +156,27 @@ DRPrimitiveCompilerCompiler >> threeOperandCogitRTL: aMnemonic instruction: inst
 { #category : #visiting }
 DRPrimitiveCompilerCompiler >> twoOperandCogitRTL: aMnemonic instruction: instruction [
 
-	self
-		twoOperandCogitRTL: aMnemonic
-		operands: {
-			instruction operand1.
-			instruction result }.
+	| destination replacement |
+	replacement := instruction operand1 isMemoryAddress
+		               ifTrue: [ 
+			               self twoOperandCogitRTL: 'Move' operands: { 
+					               instruction operand1.
+					               (DRPhysicalRegister name: 'TempReg') }.
+			               DRPhysicalRegister name: 'TempReg' ]
+		               ifFalse: [ instruction operand1 ].
+
+	destination := instruction result isMemoryAddress
+		               ifTrue: [ DRPhysicalRegister name: 'TempReg' ]
+		               ifFalse: [ instruction result ].
+
+	self twoOperandCogitRTL: aMnemonic operands: { 
+			replacement.
+			destination }.
+
+	instruction result isMemoryAddress ifTrue: [ 
+		self twoOperandCogitRTL: 'Move' operands: { 
+				destination.
+				(DRPhysicalRegister name: 'MEMORY0') } ]
 ]
 
 { #category : #visiting }

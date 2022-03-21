@@ -98,6 +98,12 @@ DRValue >> isMandatoryInstruction [
 	^ false
 ]
 
+{ #category : #testing }
+DRValue >> isMemoryAddress [
+	
+	^ false
+]
+
 { #category : #accessing }
 DRValue >> isNoop [ 
 	

@@ -69,7 +69,9 @@ DRInstructionFactory >> lessOrEquals: operand1 than: operand2 [
 DRInstructionFactory >> load: anAdress [
 
 	^ DRLoad
-		  operands: { anAdress asDRValue }
+		  operands: { 
+				  8 asDRValue. "Assume 64 bits for now"
+				  anAdress asDRValue }
 		  result: self allocateTemporaryRegister
 ]
 

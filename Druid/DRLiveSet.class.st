@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'definition',
 		'lastUsage',
-		'register'
+		'location'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -22,7 +22,7 @@ DRLiveSet >> definition: aDefiningInstruction [
 { #category : #testing }
 DRLiveSet >> isSpilled [
 	
-	^ false "yet"
+	^ location isMemoryAddress
 ]
 
 { #category : #accessing }
@@ -35,6 +35,17 @@ DRLiveSet >> lastUsage: anInstruction [
 	lastUsage := anInstruction
 ]
 
+{ #category : #accessing }
+DRLiveSet >> location [
+	^ location
+]
+
+{ #category : #accessing }
+DRLiveSet >> location: aLocation [
+	
+	location := aLocation
+]
+
 { #category : #printing }
 DRLiveSet >> printOn: aStream [
 
@@ -43,15 +54,4 @@ DRLiveSet >> printOn: aStream [
 		nextPut: $(;
 		print: definition result name;
 		nextPut: $)
-]
-
-{ #category : #accessing }
-DRLiveSet >> register [
-	^ register
-]
-
-{ #category : #accessing }
-DRLiveSet >> register: aPhisicalRegister [
-	
-	register := aPhisicalRegister
 ]

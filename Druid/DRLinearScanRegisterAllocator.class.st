@@ -10,11 +10,20 @@ Class {
 }
 
 { #category : #allocation }
-DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiveRegisterInterval [
+DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiveRegisterInterval withActiveIntervals: activeIntervals [
 	
-	| register |
-	register := availableRegisters removeFirst.
-	aDRLiveRegisterInterval register: register.
+	| register intervalToSpill |
+	
+	availableRegisters ifNotEmpty: [ 
+		register := availableRegisters removeFirst.
+		^ aDRLiveRegisterInterval location: register ].
+	
+	"If empty, spill an interval"
+	intervalToSpill := activeIntervals anyOne.
+	activeIntervals remove: intervalToSpill.
+	aDRLiveRegisterInterval location: intervalToSpill location.
+	
+	intervalToSpill location: self newStackLocation
 ]
 
 { #category : #allocation }
@@ -30,9 +39,9 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 					ifTrue: [ 
 						"not active anymore"
 						activeIntervals remove: eachInterval.
-						self returnRegister: eachInterval register ] ].
+						self returnRegister: eachInterval location ] ].
 		
-		self allocateRegisterForLiveRegisterInterval: currentInterval.
+		self allocateRegisterForLiveRegisterInterval: currentInterval withActiveIntervals: activeIntervals.
 		currentInterval isSpilled ifFalse: [ activeIntervals add: currentInterval ].
 	]
 ]
@@ -43,21 +52,17 @@ DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [
 	self linearizeBlocks: aDRControlFlowGraph.
 	self buildLiveIntervals.
 	self allocateRegisters.
+	1halt.
 	self assignRegisters.
 ]
 
 { #category : #assigning }
 DRLinearScanRegisterAllocator >> assignRegisters [
-	
-	self instructionsDo: [ :i |
-		i result ifNotNil: [
+
+	self instructionsDo: [ :i | 
+		i result ifNotNil: [ 
 			i result isVirtualRegister ifTrue: [ 
-				i result: (liveSets at: i result) register ].
-			i operands: (i operands
-				collect: [ :operand |
-					operand result isVirtualRegister
-						ifTrue: [ (liveSets at: operand result result) register ]
-						ifFalse: [ operand ] ]) ] ]
+				i result: (liveSets at: i result) location ] ] ]
 ]
 
 { #category : #'live-analysis' }
@@ -117,6 +122,12 @@ DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [
 	self instructionsDo: [ :i | 
 		i order: order.
 		order := order + 1 ]
+]
+
+{ #category : #allocation }
+DRLinearScanRegisterAllocator >> newStackLocation [
+	
+	^ DRMemoryAddress new
 ]
 
 { #category : #'block-linearization' }

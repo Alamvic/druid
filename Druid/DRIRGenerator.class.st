@@ -568,7 +568,9 @@ DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [
 	result := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRLoad
-		operands: { address }.
+		operands: { 
+			8 asDRValue. "Assume 64 bits for now"
+			address }.
 
 	self pushOperand: result
 ]
