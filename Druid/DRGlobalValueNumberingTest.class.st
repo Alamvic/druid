@@ -122,3 +122,33 @@ DRGlobalValueNumberingTest >> testNonEquivalentOperationIsNotReplaced [
 	
 	
 ]
+
+{ #category : #tests }
+DRGlobalValueNumberingTest >> testPhiOperandReplacement [
+	"This test asserts whether or not equivalent operations are correctly identified and replaced by the optimisation"
+			
+	| cfg optimisation jump copy b0 phi b1 b2 b3 b4 |
+	optimisation := DRGlobalValueNumbering new.
+	
+	cfg := DRControlFlowGraph new.
+	b0 := cfg initialBasicBlock.
+	b1 := cfg newBasicBlockWith: [ :b | copy := b copy: 1 ].
+	b2 := cfg newBasicBlockWith: [ :b | phi := b phiWith: copy ].
+	b3 := cfg newBasicBlock.
+	b4 := cfg newBasicBlock.
+	
+	b0 jumpTo: b1.
+	b1 jumpTo: b2.
+	jump := b2 jumpIf: phi.
+	
+	b3 addPredecessor: b1.
+	jump trueBranch: b3.
+	
+	b4 addPredecessor: b1.
+	jump falseBranch: b4.
+	
+	optimisation applyTo: cfg.
+	
+	"The jump should still be valid afterwards"
+	jump validate
+]
