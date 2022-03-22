@@ -424,6 +424,10 @@ DRBasicBlock >> joinValues: myInstruction and: duplicatedInstruction in: userBlo
 	| possibleMergePoints |
 	possibleMergePoints := self commonSuccessors: userBlock. "Use dominator?"
 
+	possibleMergePoints ifEmpty: [
+		"User is self"
+		^ self phiWith: myInstruction with: duplicatedInstruction ].
+
 	possibleMergePoints size = 1 ifTrue: [ 
 		| mergeBlock |
 		mergeBlock := possibleMergePoints first.

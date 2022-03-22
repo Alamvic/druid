@@ -213,10 +213,23 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 		b instructionsDo: [ :e | aFullBlockClosure value: e ] ]
 ]
 
+{ #category : #testing }
+DRControlFlowGraph >> isDeadBranch: aDRBasicBlock to: aDRBasicBlock2 [
+
+	^ (self edgesFrom: aDRBasicBlock to: aDRBasicBlock2) allSatisfy: [ :e | 
+		  e isDead ]
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> lastBasicBlock [
 
 	^ self reversePostOrderBlocks last
+]
+
+{ #category : #'as yet unclassified' }
+DRControlFlowGraph >> leafBlocks [
+
+	^ self blocks select: [ :b | b endInstruction isNoop ]
 ]
 
 { #category : #building }
@@ -328,14 +341,17 @@ DRControlFlowGraph >> showIn: view [
 	eb withBorderAttachPoint.
 	eb 	shapes: blockViews.
 	eb connectToAll: #successors.
-	view lines do: [ :line | line model.
+	view lines do: [ :line |
 		line @ (RSPopup text: [ :model | 
 			String streamContents: [:s | 
 				(self edgesFrom: model key to: model value) 
 					do: [ :e | e constraints values asStringOn: s delimiter: String cr]
 					separatedBy: [s << (String cr , '--o--o--o--o--o--o--o--' , String cr)]
  				]
-			])
+			]).
+		  (self isDeadBranch: line model key to: line model value) ifTrue: [
+				line color: Color red muchDarker
+			].
 		].
 	
 	"All the characters are displayed using a grid layout"

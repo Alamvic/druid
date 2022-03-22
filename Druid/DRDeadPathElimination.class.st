@@ -11,7 +11,7 @@ DRDeadPathElimination >> applyTo: cfg [
 	self generatePaths: cfg.
 
 	change := cfg deadPaths isNotEmpty.
-1halt.
+
 	[ cfg deadPaths isNotEmpty and: change ] whileTrue: [ 
 		change := false.
 		(cfg deadPaths values collect: [ :path |  path first source -> path first destination]) asSet
@@ -34,7 +34,7 @@ DRDeadPathElimination >> applyTo: cfg [
 					targetBlock predecessors size > 1 ifTrue: [ 
 						targetBlock tailDuplicate.
 						change := true ]
-					ifFalse: [ 1halt. ]
+					ifFalse: [  ]
 					 ].
 
 			self generatePaths: cfg ] ]
