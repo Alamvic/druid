@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCleanControlFlowTest,
-	#superclass : #TestCase,
+	#superclass : #DROptimisationTest,
 	#instVars : [
 		'instructionFactory',
 		'optimisation'
@@ -235,6 +235,27 @@ DRCleanControlFlowTest >> testShouldFoldRedundantBranch [
 ]
 
 { #category : #'tests - redundant branches' }
+DRCleanControlFlowTest >> testShouldFoldRedundantBranchWithSameTargetAndSamePhiValues [
+
+	| b0 b1 jump cfg r0 |
+	cfg := DRControlFlowGraph new.
+	b0 := cfg newBasicBlock.
+	b1 := cfg newBasicBlock.
+	
+	r0 := b0 copy: 1.
+	b0 endInstruction: (jump := instructionFactory jumpIf: true asDRValue).
+	b1 addPredecessor: b0.
+	b1 addPredecessor: b0.
+
+	jump trueBranch: b1.
+	jump falseBranch: b1.
+	
+	b1 phiWith: r0 with: r0.
+
+	self assert: (optimisation shouldFoldRedundantBranch: b0 endInstruction)
+]
+
+{ #category : #'tests - redundant branches' }
 DRCleanControlFlowTest >> testShouldHoistBranch [
 
 	| b0 b1 b2 b3 b4 branch cfg |
@@ -272,6 +293,28 @@ DRCleanControlFlowTest >> testShouldNotFoldRedundantBranch [
 	b0 endInstruction: (jump := instructionFactory jumpIf: true asDRValue).
 	jump trueBranch: b1.
 	jump falseBranch: b2.
+
+	self deny: (optimisation shouldFoldRedundantBranch: b0 endInstruction)
+]
+
+{ #category : #'tests - redundant branches' }
+DRCleanControlFlowTest >> testShouldNotFoldRedundantBranchWithSameTargetButDifferentPhiValues [
+
+	| b0 b1 jump cfg r0 r1 |
+	cfg := DRControlFlowGraph new.
+	b0 := cfg newBasicBlock.
+	b1 := cfg newBasicBlock.
+	
+	r0 := b0 copy: 1.
+	r1 := b0 copy: 2.
+	b0 endInstruction: (jump := instructionFactory jumpIf: true asDRValue).
+	b1 addPredecessor: b0.
+	b1 addPredecessor: b0.
+	
+	jump trueBranch: b1.
+	jump falseBranch: b1.
+	
+	b1 phiWith: r0 with: r1.
 
 	self deny: (optimisation shouldFoldRedundantBranch: b0 endInstruction)
 ]
