@@ -467,6 +467,21 @@ DRPathConstraintsTest >> testManyDeadPaths [
 ]
 
 { #category : #constraints }
+DRPathConstraintsTest >> testMaskConstraint [
+
+	| constraint |
+	constraint := DRMaskConstraint withValue: 1. "01"
+	
+	self assert: (constraint includesValue: 1). "01"
+	self deny: (constraint includesValue: 2). "10"
+	self assert: (constraint includesValue: 3). "11"
+	
+	self assert: constraint includes: constraint.
+	self assert: constraint includes: (DREqualsConstraint withValue: 1).
+
+]
+
+{ #category : #constraints }
 DRPathConstraintsTest >> testNotEqualsConstraint [
 
 	| constraint |
