@@ -110,8 +110,16 @@ DRCleanControlFlow >> shouldCombineBlock: aDRBasicBlock [
 
 { #category : #folding }
 DRCleanControlFlow >> shouldFoldRedundantBranch: aDRConditionalJump [ 
+
+	"If they are not the same branch, we cannot fold"	
+	| target |
+	aDRConditionalJump trueBranch = aDRConditionalJump falseBranch ifFalse: [ ^ false ].
 	
-	^ aDRConditionalJump trueBranch = aDRConditionalJump falseBranch
+	"Otherwise, we fold only if the target has phi functions with values that can be folded"
+	target := aDRConditionalJump trueBranch.
+	^ target phiFunctions allSatisfy: [ :phi |
+		(phi valuesForPredecessor: aDRConditionalJump basicBlock)
+			asSet size = 1 ].
 ]
 
 { #category : #folding }

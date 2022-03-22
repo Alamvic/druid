@@ -109,3 +109,16 @@ DRPhiFunction >> singleChild [
 		ifTrue: [ self error: 'Cannot simplify a phi function with more than one operand for now' ].
 	^ operands first
 ]
+
+{ #category : #accessing }
+DRPhiFunction >> valuesForPredecessor: aDRBasicBlock [ 
+	
+	"Return a collection of all values in this Phi that correspond to the given basic block"
+	"Automatic transformations could produce conditional branches that point to a single block in both branches"
+	| values |
+	values := OrderedCollection new.
+	self basicBlock predecessors withIndexDo: [ :pred :index |
+		pred = aDRBasicBlock ifTrue: [ values add: (operands at: index) ].
+	].
+	^ values
+]
