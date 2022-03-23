@@ -156,6 +156,7 @@ DRControlFlowGraph >> initialize [
 	basicBlocks := OrderedCollection new.
 	edges := OrderedCollection new.
 	initialBasicBlock := DRBasicBlock id: 0.
+	initialBasicBlock controlFlowGraph: self.
 	nextBasicBlockId := 1.
 ]
 

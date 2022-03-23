@@ -409,6 +409,9 @@ DRInstruction >> users [
 { #category : #validation }
 DRInstruction >> validate [
 	
+	(self operands allSatisfy: [ :op | 
+		op isInstruction not or: [self basicBlock checkLivenessOf: op] ])
+			ifFalse: [ DRError signal: 'Operand not live at ', self asString ].
 	(self operands allSatisfy: [ :op | op hasUser: self ])
 		ifFalse: [ DRError signal: 'Operand-user mismatch in instruction: ', self asString ].
 	(self users allSatisfy: [ :user | user hasOperand: self ])
