@@ -74,15 +74,17 @@ DRGlobalValueNumbering >> processInstructions: block [
 			expression := instruction asNumberedExpression.
 			self searchHashTables: expression ifPresent: [ :valueNumber |
 				valueNumbers at: instruction put: valueNumber.
+				instruction operands asSet do: [ :op |
+					op isConstant ifFalse: [
+						op removeUser: instruction.
+					]
+				].
 				block removeInstruction: instruction.
 			]
 			ifAbsent: [
 				valueNumbers at: instruction put: instruction.
 				(hashTables at: currentScope) at: expression put: instruction.
-				(instruction isCopy and: [ instruction operand1 isConstant ])
-				ifTrue: [ block removeInstruction: instruction ]
 			].
-
 		]
 	]
 ]
@@ -98,6 +100,9 @@ DRGlobalValueNumbering >> processMeaningless: instruction in: block [
 	].
 	
 	valueNumbers at: instruction put: instruction operand1.
+	instruction operands asSet do: [ :op |
+		op removeUser: instruction.
+	].
 	block removeInstruction: instruction.
 	
 	^ true
@@ -131,6 +136,9 @@ DRGlobalValueNumbering >> processRedundant: instruction in: block [
 			].
 			isRedundant ifTrue: [
 				valueNumbers at: instruction put: other.
+				instruction operands asSet do: [ :op |
+					op removeUser: instruction.
+				].
 				block removeInstruction: instruction.
 				^ true
 			]
@@ -161,9 +169,12 @@ DRGlobalValueNumbering >> simplifyOperands: instruction [
 	instruction operands:
 	(instruction operands collect: [ :operand |
 		valueNumber := self valueNumberOf: operand.
-		(valueNumber isCopy and: [valueNumber operand1 isConstant])
+		valueNumber isCopy
 		ifTrue: [ valueNumber operand1 ]
-		ifFalse: [ valueNumber ]
+		ifFalse: [
+			valueNumber.
+			valueNumber addUser: instruction.
+		]
 	]).
 ]
 
