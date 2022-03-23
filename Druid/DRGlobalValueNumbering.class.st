@@ -86,7 +86,9 @@ DRGlobalValueNumbering >> processInstructions: block [
 				(hashTables at: currentScope) at: expression put: instruction.
 			].
 		]
-	]
+	].
+
+	self simplifyOperands: block endInstruction
 ]
 
 { #category : #operations }
