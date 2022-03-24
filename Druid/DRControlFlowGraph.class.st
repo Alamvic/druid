@@ -226,7 +226,7 @@ DRControlFlowGraph >> lastBasicBlock [
 	^ self reversePostOrderBlocks last
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRControlFlowGraph >> leafBlocks [
 
 	^ self blocks select: [ :b | b endInstruction isNoop ]

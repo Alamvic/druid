@@ -273,6 +273,7 @@ DRRegistersInfo >> visitOverflowJump: aDROverflowJump [
 { #category : #visiting }
 DRRegistersInfo >> visitPhiFunction: aDRPhiFunction [ 
 	"Do nothing"
+	^ nil
 ]
 
 { #category : #visiting }

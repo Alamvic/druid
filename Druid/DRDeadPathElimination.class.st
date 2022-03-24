@@ -7,37 +7,29 @@ Class {
 { #category : #accessing }
 DRDeadPathElimination >> applyTo: cfg [
 
-	| targetBlock change newSucessors |
+	| newSucessors deadBranches |
 	self generatePaths: cfg.
 
-	change := cfg deadPaths isNotEmpty.
+	"Can exist many paths for the same branch"
+	deadBranches := cfg deadPaths values
+		                collect: [ :path | 
+		                path first source -> path first destination ]
+		                as: Set.
 
-	[ cfg deadPaths isNotEmpty and: change ] whileTrue: [ 
-		change := false.
-		(cfg deadPaths values collect: [ :path |  path first source -> path first destination]) asSet
-		do:  [ :association | |source destination|
+	deadBranches
+		select: [ :association | 
+			cfg isDeadBranch: association key to: association value ]
+		thenDo: [ :association | 
+			| source destination |
 			source := association key.
 			destination := association value.
-			targetBlock := source.
 
-			((cfg edgesFrom: targetBlock to: destination) 
-				 allSatisfy: [ :e | e isDead ])
-				ifTrue: [ 
-					change := true.
-					newSucessors := targetBlock successors copyWithout: destination.
-					newSucessors
-						ifEmpty: [ targetBlock removeFromCFG ]
-						ifNotEmpty: [ 
-							1 haltIf: [ newSucessors size > 1 ].
-							targetBlock jumpTo: newSucessors first ] ]
-				ifFalse: [ 
-					targetBlock predecessors size > 1 ifTrue: [ 
-						targetBlock tailDuplicate.
-						change := true ]
-					ifFalse: [  ]
-					 ].
+			newSucessors := source successors copyWithout: destination.
+			newSucessors ifEmpty: [ source removeFromCFG ] ifNotEmpty: [ 
+				1 haltIf: [ newSucessors size > 1 ].
+				source jumpTo: newSucessors first ].
 
-			self generatePaths: cfg ] ]
+			self generatePaths: cfg ]
 ]
 
 { #category : #'as yet unclassified' }

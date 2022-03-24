@@ -25,7 +25,7 @@ DROptimisationTest >> configureInterpreter [
 
 	super setUp.
 
-	compilerCompiler interpreter: DruidTestInterpreter new
+	compilerCompiler interpreter: DruidTestInterpreter basicNew 
 ]
 
 { #category : #test }
