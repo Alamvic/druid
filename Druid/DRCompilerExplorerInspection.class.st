@@ -36,21 +36,25 @@ DRCompilerExplorerInspection >> hasOutputActivationPort [
 DRCompilerExplorerInspection >> initializePresenters [
 
 	self layout: (SpBoxLayout newVertical
-		add: (toolbar := self newToolbar) expand: false;
-		add: (cfgPresenter := self newCFGPresenter);
-		yourself).
-	model optimizations do: [ :opt |
+			 add: (toolbar := self newToolbar) expand: false;
+			 add: (cfgPresenter := self newCFGPresenter);
+			 yourself).
+
+	toolbar addItem: (self newToolbarButton
+			 label: '< Back';
+			 action: [ 
+				 model goBack.
+				 self refresh ];
+			 yourself).
+
+	model optimizations do: [ :opt | 
 		| toolbarButtom |
 		toolbarButtom := self newToolbarButton.
 		toolbarButtom label: opt name.
-		toolbarButtom action: [ | oldBlock |
+		toolbarButtom action: [ 
 			model apply: opt.
-			"HACKSSSS"
-			oldBlock := cfgPresenter canvas inspectorContext presentation.
-			cfgPresenter refresh.
-			cfgPresenter whenActivatedDo: oldBlock ].
-		toolbar addItem: toolbarButtom.
-	]
+			self refresh ].
+		toolbar addItem: toolbarButtom ]
 ]
 
 { #category : #'instance creation' }
@@ -67,4 +71,15 @@ DRCompilerExplorerInspection >> outputActivationPort [
 	^ (SpActivationPort newPresenter: self)
 		delegateTo: [ cfgPresenter ];
 		yourself
+]
+
+{ #category : #initialization }
+DRCompilerExplorerInspection >> refresh [
+
+	"HACKSSSS"
+
+	| oldBlock |
+	oldBlock := cfgPresenter canvas inspectorContext presentation.
+	cfgPresenter refresh.
+	cfgPresenter whenActivatedDo: oldBlock
 ]

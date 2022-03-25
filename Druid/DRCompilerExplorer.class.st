@@ -6,7 +6,8 @@ Class {
 		'interpreter',
 		'interpreterClass',
 		'selector',
-		'cfg'
+		'cfg',
+		'previousCfg'
 	],
 	#category : #'Druid-UI'
 }
@@ -29,9 +30,10 @@ DRCompilerExplorer class >> onSelector: aSelector inClass: aClass [
 ]
 
 { #category : #optimising }
-DRCompilerExplorer >> apply: aClass [ 
-	
-	aClass new applyTo: self cfg
+DRCompilerExplorer >> apply: aClass [
+
+	previousCfg := self cfg veryDeepCopy.
+	self cfg applyOptimization: aClass new
 ]
 
 { #category : #accessing }
@@ -48,6 +50,13 @@ DRCompilerExplorer >> cfg [
 		primitiveName: self selector;
 		interpreter: self interpreter;
 		generateDruidIR
+]
+
+{ #category : #optimising }
+DRCompilerExplorer >> goBack [
+
+	cfg := previousCfg.
+	previousCfg := nil
 ]
 
 { #category : #'as yet unclassified' }
@@ -129,6 +138,7 @@ DRCompilerExplorer >> optimizations [
 		  DRDeadCodeElimination.
 		  DRCleanControlFlow.
 		  DRPhiSimplication.
+		  DRDeadPathSplitting.
 		  DRDeadPathElimination }
 ]
 

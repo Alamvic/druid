@@ -708,20 +708,18 @@ DruidTestRTLCompiler >> gen_primitiveSubWithOverflow [
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveSumWithOverflow [
 
-	| currentBlock jump0 jump1 |
+	| currentBlock jump0 |
 	self MoveR: ReceiverResultReg R: TempReg.
 	self SubCq: 1 R: TempReg.
 	self MoveR: TempReg R: ClassReg.
 	self AddR: Arg0Reg R: ClassReg.
+	self MoveR: ClassReg R: Extra1Reg.
 	jump0 := self JumpNoOverflow: 0.
-	self MoveCq: 99 R: ReceiverResultReg.
-	jump1 := self Jump: 0.
+	self MoveCq: 99 R: Extra0Reg.
+	self MoveR: Extra0Reg R: Extra1Reg.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
-	self MoveR: ClassReg R: Extra0Reg.
-	self MoveR: Extra0Reg R: ReceiverResultReg.
-	currentBlock := self Label.
-	jump1 jmpTarget: currentBlock.
+	self MoveR: Extra1Reg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	^ CompletePrimitive
 ]

@@ -49,6 +49,14 @@ DRControlFlowGraph >> allocateTemporaryRegister [
 	^ instructionFactory allocateTemporaryRegister
 ]
 
+{ #category : #'as yet unclassified' }
+DRControlFlowGraph >> applyOptimization: optimization [
+
+	optimization applyTo: self.
+	self generatePaths.
+	self validate
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> blockById: anInteger [ 
 	
@@ -99,6 +107,59 @@ DRControlFlowGraph >> clearEdges [
 
 	edges := OrderedCollection new.
 	deadPaths := nil
+]
+
+{ #category : #inspecting }
+DRControlFlowGraph >> createBlockView: aBlock [
+	| box label boxes composite labelBackground |
+	label := RSLabel new 
+		text: aBlock id asString;
+		color: Color black;
+		fontSize: 4;
+		yourself.
+	labelBackground := RSEllipse new
+		color: Color white;
+		border: (RSBorder new color: 'black');
+		extent: label extent + 5;
+		yourself.
+	box := RSBox new
+		noPaint;
+		border: (RSBorder new 
+			width: 2; 
+			color: Color black;
+			yourself);
+		cornerRadius: 2;
+		yourself.
+
+	boxes := aBlock instructions collect: [ :inst | 
+		RSBox new
+			model: inst;
+			color: (self instructionColor: inst);
+			border: (RSBorder new color: Color black; joinMiter);
+			yourself ] as: RSGroup.
+	RSGridLayout on: boxes.
+	box 
+		position: boxes position;
+		extent: boxes extent + 10.
+	composite := ({box},boxes) asShape
+		draggable;
+		@ (RSPopup text: [:model | 
+			String streamContents: [:s | (model instructions collect: #prettyPrint)
+				asStringOn: s delimiter: String cr] 
+			]);
+		@ (RSMenuActivable new menuDo: [ :menu :element | 
+			menu
+				add: 'Tail-duplicate'
+				target: element model
+				selector: #tailDuplicate ]);
+		model: aBlock;
+		yourself.
+	
+	RSLocation new outer; right; top; offset: 3@(-3); move: label on: boxes.
+	labelBackground position: label position.
+	composite add: labelBackground.
+	composite add: label.
+	^ composite
 ]
 
 { #category : #edges }
@@ -182,6 +243,15 @@ DRControlFlowGraph >> inspectionCFG [
 DRControlFlowGraph >> instructionByResultId: anInteger [ 
 
 	^ self instructions detect: [ :i | i result ifNil: [ false ] ifNotNil: [ i result id = anInteger] ]
+]
+
+{ #category : #inspecting }
+DRControlFlowGraph >> instructionColor: instruction [
+
+	instruction isPhiFunction ifTrue: [ ^ Color red ].
+	(instruction operands anySatisfy: [ :op | op isConstant ]) ifTrue: [ ^ Color yellow darker ].
+
+	^ Color white
 ]
 
 { #category : #accessing }
@@ -304,34 +374,7 @@ DRControlFlowGraph >> reversePostOrderBlocks [
 DRControlFlowGraph >> showIn: view [
 
 	| blockViews eb controller |
-	blockViews := self blocks collect: [ :b | 
-		| label box |
-		box := RSBox new
-			noPaint;
-			border: (RSBorder new 
-				width: 2; 
-				color: Color black;
-				yourself);
-			cornerRadius: 2;
-			yourself.
-		label := RSLabel new 
-			text: b id asString;
-			color: Color black;
-			yourself.
-		box extent: 30@30.
-		{ box. label } asShape
-			@ RSDraggable;
-			@ (RSPopup text: [:model | 
-				String streamContents: [:s | (model instructions collect: #prettyPrint)
-					asStringOn: s delimiter: String cr] 
-				]);
-			@ (RSMenuActivable new menuDo: [ :menu :element | 
-				menu
-					add: 'Tail-duplicate'
-					target: element model
-					selector: #tailDuplicate ]);
-			model: b;
-			yourself ].
+	blockViews := self blocks collect: [ :b | self createBlockView: b. ].
 	view addAll: blockViews.
 	
 	eb := RSLineBuilder arrowedLine.
@@ -341,15 +384,19 @@ DRControlFlowGraph >> showIn: view [
 	eb withBorderAttachPoint.
 	eb 	shapes: blockViews.
 	eb connectToAll: #successors.
-	view lines do: [ :line |
-		line @ (RSPopup text: [ :model | 
+	view lines pushBack.
+	view lines do: [ :line | | source destination |
+		source := line model key.
+		destination := line model value.
+	 	line model: (self edgesFrom: source to: destination).
+		line @ (RSPopup text: [ :edgs | 
 			String streamContents: [:s | 
-				(self edgesFrom: model key to: model value) 
+				edgs
 					do: [ :e | e constraints values asStringOn: s delimiter: String cr]
 					separatedBy: [s << (String cr , '--o--o--o--o--o--o--o--' , String cr)]
  				]
 			]).
-		  (self isDeadBranch: line model key to: line model value) ifTrue: [
+		  (self isDeadBranch: source to: destination) ifTrue: [
 				line color: Color red muchDarker
 			].
 		].

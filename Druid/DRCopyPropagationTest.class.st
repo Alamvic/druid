@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-DRCopyPropagationTest >> previuosOptimizations [
+DRCopyPropagationTest >> previousOptimizations [
 
 	^ { (DRPhiSimplication then: DRDeadCodeElimination) }
 ]

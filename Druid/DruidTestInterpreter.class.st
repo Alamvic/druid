@@ -61,6 +61,17 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> multipleReturnsWithDeadPath [
+
+	self stackTop <= 10
+		ifTrue: [ 
+			self stackTop = 5
+				ifTrue: [ ^ 1 ]
+				ifFalse: [ ^ 2 ] ]
+		ifFalse: [ ^ 3 ]
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> passingSuccess [
 	<numberOfArguments: 0>
 	self success: true.
@@ -109,6 +120,17 @@ DruidTestInterpreter >> primitiveCallingMethodWithTwoEarlyReturns [
 	<numberOfArguments: 0>
 
 	self pop: 1 thenPush: self methodWithTwoEarlyReturns
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveChangingVariableInOnePath [
+
+	<numberOfArguments: 0>
+	| res res2 |
+	res := 10.
+	res2 := 0.
+	self stackTop > 0 ifTrue: [ res := 42 ] ifFalse: [res2 := 1].
+	self pop: 1 thenPush: res + res2
 ]
 
 { #category : #'as yet unclassified' }
@@ -336,6 +358,20 @@ DruidTestInterpreter >> primitiveMod [
 	| result |
 	result := (self stackValue: 1) \\ (self stackValue: 0).
 	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveMultipleReturnBlocks [
+
+	<numberOfArguments: 0>
+	| res res2 |
+	res := self multipleReturnsWithDeadPath.
+
+	res2 := self stackTop > 5 
+				ifTrue: [ 1 ]
+				ifFalse: [ 2 ].
+
+	self pop: 1 thenPush: res + res2
 ]
 
 { #category : #'as yet unclassified' }

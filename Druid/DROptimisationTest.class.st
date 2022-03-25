@@ -59,18 +59,12 @@ DROptimisationTest >> optimisation: anObject [
 { #category : #optimising }
 DROptimisationTest >> optimize: anIR [
 
-	self previuosOptimizations do: [ :optimization | 
-		optimization applyTo: anIR.
-		anIR validate ]
-
-"	({ anIR veryDeepCopy } , (self previuosOptimizations collect: [ :optimization | 
-		  optimization applyTo: anIR.
-		  anIR validate.
-		  anIR veryDeepCopy ])) inspect"
+	self previousOptimizations do: [ :optimization | 
+		anIR applyOptimization: optimization ]
 ]
 
 { #category : #optimising }
-DROptimisationTest >> previuosOptimizations [
+DROptimisationTest >> previousOptimizations [
 
 	^ {  }
 ]

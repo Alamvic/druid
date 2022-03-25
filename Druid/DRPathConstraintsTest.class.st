@@ -17,7 +17,7 @@ DRPathConstraintsTest >> deny: aConstraint includes: includedConstraint [
 ]
 
 { #category : #'as yet unclassified' }
-DRPathConstraintsTest >> previuosOptimizations [
+DRPathConstraintsTest >> previousOptimizations [
 
 	^ { 
 		  DRFailureCodeBasedTailDuplication new.
@@ -32,8 +32,8 @@ DRPathConstraintsTest >> previuosOptimizations [
 DRPathConstraintsTest >> setUp [
 
 	super setUp.
-
-	optimisation := DRDeadPathElimination new
+	self configureInterpreter.
+	optimisation := DRDeadPathSplitting then: DRDeadPathElimination
 ]
 
 { #category : #constraints }
