@@ -1,11 +1,11 @@
 Class {
-	#name : #DRBoolOperation,
+	#name : #DRBooleanInstruction,
 	#superclass : #DRInstruction,
 	#category : #'Druid-IR'
 }
 
 { #category : #'as yet unclassified' }
-DRBoolOperation >> sccpLatticeValueOperand: index for: sccp [
+DRBooleanInstruction >> sccpLatticeValueOperand: index for: sccp [
 
 	| value |
 	value := (self operands at: index) sccpLatticeValueFor: sccp.

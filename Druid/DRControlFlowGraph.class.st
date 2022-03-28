@@ -29,7 +29,7 @@ DRControlFlowGraph >> addEdge: anEdge [
 DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock [
 	
 	| edge |
-	edge := DRRegistersInfo withSource: sourceBlock andDestination: destinationBlock.
+	edge := DRCPSEdge withSource: sourceBlock andDestination: destinationBlock.
 	self addEdge: edge.
 	^ edge
 ]
@@ -49,7 +49,7 @@ DRControlFlowGraph >> allocateTemporaryRegister [
 	^ instructionFactory allocateTemporaryRegister
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #optimization }
 DRControlFlowGraph >> applyOptimization: optimization [
 
 	optimization applyTo: self.

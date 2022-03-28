@@ -14,7 +14,7 @@ DROptimisationTest class >> isAbstract [
 	^ self class == DROptimisationTest
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #test }
 DROptimisationTest >> conditionalJump [
 
 	^ DRConditionalJump operands: { (DRConstantValue value: true) }
@@ -37,11 +37,6 @@ DROptimisationTest >> generateDruidIRFor: methodSelector [
  	2 timesRepeat: [ self optimize: cfg ]. 
 
 	^ cfg
-]
-
-{ #category : #test }
-DROptimisationTest >> generatePaths: cfg [ 
-	compilerCompiler generatePaths: cfg
 ]
 
 { #category : #optimising }

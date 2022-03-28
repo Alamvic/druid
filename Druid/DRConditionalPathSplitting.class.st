@@ -1,11 +1,11 @@
 Class {
-	#name : #DRDeadPathSplitting,
+	#name : #DRConditionalPathSplitting,
 	#superclass : #DROptimisation,
 	#category : #'Druid-Optimizations'
 }
 
 { #category : #operations }
-DRDeadPathSplitting >> applyTo: aCFG [
+DRConditionalPathSplitting >> applyTo: aCFG [
 
 	aCFG generatePaths.
 	(aCFG deadPaths keys 

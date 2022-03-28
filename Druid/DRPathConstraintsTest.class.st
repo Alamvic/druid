@@ -16,15 +16,15 @@ DRPathConstraintsTest >> deny: aConstraint includes: includedConstraint [
 	self deny: (aConstraint includes: includedConstraint)
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #initialization }
 DRPathConstraintsTest >> previousOptimizations [
 
 	^ { 
+		  DRPhiSimplication new.
+		  (DRDeadBlockElimination then: DRCleanControlFlow).
 		  DRFailureCodeBasedTailDuplication new.
 		  DRSCCP new.
 		  DRCopyPropagation new.
-		  (DRDeadBlockElimination then: DRCleanControlFlow).
-		  DRPhiSimplication new.
 		  DRDeadCodeElimination new }
 ]
 
@@ -33,16 +33,47 @@ DRPathConstraintsTest >> setUp [
 
 	super setUp.
 	self configureInterpreter.
-	optimisation := DRDeadPathSplitting then: DRDeadPathElimination
+	optimisation := DRConditionalPathSplitting then: DRDeadPathElimination
+]
+
+{ #category : #building }
+DRPathConstraintsTest >> testConditionalConstraintsArePropagated [
+
+	| cfg blocks edge12 edge23 |
+	cfg := self setUpCFG: 3.
+	cfg b1 copy: 1 asDRValue.
+	cfg generatePaths.
+
+	blocks := cfg reversePostOrderBlocks allButFirst.
+	edge12 := cfg outgoingEdgeFor: blocks first.
+	edge23 := cfg outgoingEdgeFor: blocks second.
+	self assert: edge12 constraints equals: edge23 constraints
+
+]
+
+{ #category : #building }
+DRPathConstraintsTest >> testConditionalConstraintsAreStacked [
+
+	| cfg blocks edge12 edge23 |
+	cfg := self setUpCFG: 3.
+	cfg b1 copy: 1 asDRValue.
+	cfg b2 copy: 2 asDRValue.
+	cfg generatePaths.
+
+	blocks := cfg reversePostOrderBlocks allButFirst.
+	edge12 := cfg outgoingEdgeFor: blocks first.
+	edge23 := cfg outgoingEdgeFor: blocks second.
+	self assert: edge12 constraints size equals: 1.
+	self assert: edge23 constraints size  equals: 2.
+	
+
 ]
 
 { #category : #constraints }
-DRPathConstraintsTest >> testConditionalRegConstraintTypeBothBranches [
+DRPathConstraintsTest >> testConditionalConstraintsInferenceFromBranches [
 
 	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThan.
-	self optimize: cfg.
-	self generatePaths: cfg.
 
 	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. ">= 10"
@@ -52,12 +83,10 @@ DRPathConstraintsTest >> testConditionalRegConstraintTypeBothBranches [
 ]
 
 { #category : #constraints }
-DRPathConstraintsTest >> testConditionalRegConstraintTypeBothBranchesInverted [
+DRPathConstraintsTest >> testConditionalConstraintsInferenceFromBranchesInverted [
 
 	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThanInverted.
-	self optimize: cfg.
-	self generatePaths: cfg.
 
 	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "<= 10"
@@ -67,12 +96,10 @@ DRPathConstraintsTest >> testConditionalRegConstraintTypeBothBranchesInverted [
 ]
 
 { #category : #constraints }
-DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerBranches [
+DRPathConstraintsTest >> testConditionalConstraintsInferenceFromInnerBranches [
 
 	| cfg edges trueConstraint falseConstraint composedConstraint |
 	cfg := self generateDruidIRFor: #primitiveInnerBranching.
-	self optimize: cfg.
-	self generatePaths: cfg.
 
 	edges := cfg outgoingEdgesFor: (cfg blockById: 6).
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "10 < Reg < 20"
@@ -85,45 +112,12 @@ DRPathConstraintsTest >> testConditionalRegConstraintTypeInnerBranches [
 ]
 
 { #category : #building }
-DRPathConstraintsTest >> testConstraintsArePropagated [
-
-	| cfg blocks edge12 edge23 |
-	cfg := self setUpCFG: 3.
-	cfg b1 copy: 1 asDRValue.
-	self generatePaths: cfg.
-
-	blocks := cfg reversePostOrderBlocks allButFirst.
-	edge12 := cfg outgoingEdgeFor: blocks first.
-	edge23 := cfg outgoingEdgeFor: blocks second.
-	self assert: edge12 constraints equals: edge23 constraints
-
-]
-
-{ #category : #building }
-DRPathConstraintsTest >> testConstraintsAreStacked [
-
-	| cfg blocks edge12 edge23 |
-	cfg := self setUpCFG: 3.
-	cfg b1 copy: 1 asDRValue.
-	cfg b2 copy: 2 asDRValue.
-	self generatePaths: cfg.
-
-	blocks := cfg reversePostOrderBlocks allButFirst.
-	edge12 := cfg outgoingEdgeFor: blocks first.
-	edge23 := cfg outgoingEdgeFor: blocks second.
-	self assert: edge12 constraints size equals: 1.
-	self assert: edge23 constraints size  equals: 2.
-	
-
-]
-
-{ #category : #building }
 DRPathConstraintsTest >> testCopyConstantAddNewConstraint [
 
 	| cfg block |
 	cfg := self setUpCFG: 2.
 	cfg b1 copy: 1 asDRValue.
-	self generatePaths: cfg.
+	cfg generatePaths.
 
 	block := cfg firstBasicBlock.
 	self assert: (cfg incomingEdgeFor: block) constraints isEmpty.
@@ -135,8 +129,6 @@ DRPathConstraintsTest >> testCopyRegisterConstraint [
 
 	| cfg edge constraint |
 	cfg := self generateDruidIRFor: #primitiveReturnOne.
-	self optimize: cfg.
-	self generatePaths: cfg.
 
 	edge := cfg outgoingEdgeFor: cfg firstBasicBlock.
 	constraint := edge constraintFor: 'ReceiverResultReg'.
@@ -149,7 +141,7 @@ DRPathConstraintsTest >> testCopyRegisterNotAddNewConstraint [
 	| cfg block |
 	cfg := self setUpCFG: 2.
 	cfg b1 copy: (DRPhysicalRegister name: 'Rx').
-	self generatePaths: cfg.
+	cfg generatePaths.
 
 	block := cfg firstBasicBlock.
 	self assert: (cfg incomingEdgeFor: block) constraints isEmpty.
@@ -162,14 +154,12 @@ DRPathConstraintsTest >> testDeadPath [
 	| cfg deadPath expectedTarget pathBlockIds |
 	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
 
-	self generatePaths: cfg.
-
 	deadPath := cfg deadPaths associations first.
 	pathBlockIds := deadPath value collect: [ :e | e destination id ].
 	expectedTarget := cfg incomingEdgeFor: (cfg blockById: 6).
 
 	self assert: deadPath key equals: expectedTarget.
-	self assertCollection: pathBlockIds hasSameElements: { 7. 9. 14. 1 }
+	self assertCollection: pathBlockIds hasSameElements: { 7. 16. 1 }
 ]
 
 { #category : #optimization }
@@ -178,21 +168,17 @@ DRPathConstraintsTest >> testEliminateDoubleDeadPaths [
 	| cfg lastBlocks lastPaths |
 	cfg := self generateDruidIRFor: #primitiveDNA.
 
-	2 timesRepeat: [ 
+	3 timesRepeat: [ 
 		optimisation applyTo: cfg.
 		self optimize: cfg ].
 
+	"TODO: cfg fullPaths"
 	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
-
 	lastBlocks := cfg lastBasicBlock predecessors.
 
 	self assert: cfg deadPaths isEmpty.
-	self assert: lastPaths size equals: 4. "2 phis with 2 options"
+	self assert: lastPaths size equals: 4. "X>10 || 10<=X>7 || 7<=X>0 || 0<=X"
 	self assert: lastBlocks size equals: 2.
-	self assert:
-		(lastBlocks allSatisfy: [ :b | b firstInstruction isPhiFunction ]).
-	self assert:
-		(lastBlocks allSatisfy: [ :b | b firstInstruction operands size = 2 ])
 ]
 
 { #category : #optimization }
@@ -214,13 +200,32 @@ DRPathConstraintsTest >> testEliminateInnerDeadPaths [
 ]
 
 { #category : #optimization }
+DRPathConstraintsTest >> testEliminateOnlyDeadPaths [
+
+	| cfg lastBlocks |
+	cfg := self generateDruidIRFor: #primitiveMultipleReturnBlocks.
+1halt.
+	optimisation applyTo: cfg.
+	self optimize: cfg.
+
+	lastBlocks := cfg lastBasicBlock predecessors.
+
+	self assert: cfg deadPaths isEmpty.
+	self assert: lastBlocks first firstInstruction isCopy.
+	self assert: lastBlocks first firstInstruction operand1 value equals: 17.
+	self assert: lastBlocks second firstInstruction isCopy.
+	self assert: lastBlocks second firstInstruction operand1 value equals: 99.
+]
+
+{ #category : #optimization }
 DRPathConstraintsTest >> testEliminateSimpleDeadPaths [
 
 	| cfg lastBlocks |
 	cfg := self generateDruidIRFor: #primitiveSandclock.
 
-	optimisation applyTo: cfg.
-	self optimize: cfg.
+	2 timesRepeat: [ 
+		optimisation applyTo: cfg.
+		self optimize: cfg ].
 
 	lastBlocks := cfg lastBasicBlock predecessors.
 
@@ -277,8 +282,6 @@ DRPathConstraintsTest >> testFirstIncomingInfoHasNoConstraints [
 
 	| cfg edge |
 	cfg := self generateDruidIRFor: #emptyPrimitive.
-	self optimize: cfg.
-	self generatePaths: cfg.
 	
 	edge := cfg incomingEdgeFor: cfg firstBasicBlock.
 	self assert: edge constraints isEmpty.
@@ -290,7 +293,7 @@ DRPathConstraintsTest >> testGenerateExpectedEdgesCountBranching [
 
 	| cfg |
 	cfg := self setUpCFGWithConditional.
-	self generatePaths: cfg.
+	cfg generatePaths.
 
 	self assert: cfg edges size equals: 5
 ]
@@ -300,7 +303,7 @@ DRPathConstraintsTest >> testGenerateExpectedEdgesCountLinear [
 
 	| cfg |
 	cfg := self setUpCFG: 3.
-	self generatePaths: cfg.
+	cfg generatePaths.
 	
 	self assert: cfg edges size equals: 3.
 
@@ -312,7 +315,7 @@ DRPathConstraintsTest >> testGenerateExpectedEdgesCountMerging [
 	| cfg edges |
 	cfg := self setUpCFGWithConditional.
 	cfg newBasicBlockWith: [ :b | cfg b4 jumpTo: b ].
-	self generatePaths: cfg.
+	cfg generatePaths.
 
 	edges := cfg incomingEdgesFor: cfg lastBasicBlock.
 	self assert: edges size equals: 2
@@ -394,7 +397,7 @@ DRPathConstraintsTest >> testJumpDoesNotAddConstraint [
 
 	| cfg edge |
 	cfg := self setUpCFG: 2.
-	self generatePaths: cfg.
+	cfg generatePaths.
 	
 	edge := cfg outgoingEdgeFor: cfg firstBasicBlock.
 	self assert: edge constraints isEmpty.
@@ -442,8 +445,7 @@ DRPathConstraintsTest >> testLinearContigousBlocksShareConstraints [
 
 	| cfg blocks |
 	cfg := self generateDruidIRFor: #primitiveReturnOne.
-	self optimize: cfg.
-	self generatePaths: cfg.
+	cfg generatePaths.
 	
 	blocks := cfg reversePostOrderBlocks allButFirst.
 	self assert: (cfg outgoingEdgeFor: blocks first) equals: (cfg incomingEdgeFor: blocks second).
@@ -455,9 +457,6 @@ DRPathConstraintsTest >> testManyDeadPaths [
 
 	| cfg deadPaths deadTargetIds |
 	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranches.
-
-	self optimize: cfg.
-	self generatePaths: cfg.
 
 	deadPaths := cfg deadPaths.
 	deadTargetIds := deadPaths keys collect: [ :e | e destination id ].

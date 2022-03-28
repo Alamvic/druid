@@ -4,11 +4,10 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : #operations }
 DRDeadPathElimination >> applyTo: cfg [
 
 	| newSucessors deadBranches |
-	self generatePaths: cfg.
 
 	"Can exist many paths for the same branch"
 	deadBranches := cfg deadPaths values
@@ -29,11 +28,5 @@ DRDeadPathElimination >> applyTo: cfg [
 				1 haltIf: [ newSucessors size > 1 ].
 				source jumpTo: newSucessors first ].
 
-			self generatePaths: cfg ]
-]
-
-{ #category : #'as yet unclassified' }
-DRDeadPathElimination >> generatePaths: cfg [
-	cfg clearEdges.
-	(DRPathFactory withCFG: cfg) generatePaths
+			cfg generatePaths ]
 ]

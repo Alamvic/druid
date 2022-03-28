@@ -28,9 +28,6 @@ DRCompilerCompiler >> compile [
 
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
-	self generatePaths: druidIR.
-	druidIR inspect.
-	1halt.
 
 	registerAllocator allocateRegistersIn: druidIR.
 	
@@ -73,7 +70,7 @@ DRCompilerCompiler >> generateDruidIR [
 DRCompilerCompiler >> generateDruidIRFor: method [
 	
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	| irGenerator initialBasicBlock initial startBlock ir |
+	| irGenerator initialBasicBlock initial startBlock |
 	irGenerator := self newIRGenerator.
 	
 	"Create the initial basic block"
@@ -87,12 +84,7 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 	irGenerator numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value.
 	irGenerator interpretMethod: method ast receiver: (DRInterpreterValue value: interpreter).
 	
-	ir := irGenerator ir.
-	"Revisar"
-	DRDeadBlockElimination new applyTo: ir.
-	ir generatePaths.
-	ir validate.
-	^ ir
+	^ irGenerator ir
 ]
 
 { #category : #'as yet unclassified' }

@@ -84,7 +84,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
 		optimisations add: DRCopyPropagation new.
 		optimisations add: DRPhiSimplication new.
-		optimisations add: (DRDeadCodeElimination then: DRRedundantCodeElimination).
+		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
 		optimisations add: (DRDeadPathElimination then: DRPhiSimplication) ]
 ]

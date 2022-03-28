@@ -1,5 +1,5 @@
 Class {
-	#name : #DRRegistersInfo,
+	#name : #DRCPSEdge,
 	#superclass : #DREdge,
 	#instVars : [
 		'constraints',
@@ -9,7 +9,7 @@ Class {
 }
 
 { #category : #adding }
-DRRegistersInfo >> addConstraint: aConditionalConstraint [
+DRCPSEdge >> addConstraint: aConditionalConstraint [
 
 	constraints
 		at: aConditionalConstraint reg name
@@ -17,7 +17,7 @@ DRRegistersInfo >> addConstraint: aConditionalConstraint [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> composedConstraint: aConstraintClass from: aDRInstruction [
+DRCPSEdge >> composedConstraint: aConstraintClass from: aDRInstruction [
 
 	| operands |
 	operands := aDRInstruction operands collect: [ :o | o acceptVisitor: self ].
@@ -28,25 +28,25 @@ DRRegistersInfo >> composedConstraint: aConstraintClass from: aDRInstruction [
 ]
 
 { #category : #accessing }
-DRRegistersInfo >> constraintFor: regKey [
+DRCPSEdge >> constraintFor: regKey [
 
 	^ constraints at: regKey
 ]
 
 { #category : #accessing }
-DRRegistersInfo >> constraints [
+DRCPSEdge >> constraints [
 
 	^ constraints
 ]
 
 { #category : #accessing }
-DRRegistersInfo >> constraints: anObject [
+DRCPSEdge >> constraints: anObject [
 
 	constraints := anObject
 ]
 
-{ #category : #'as yet unclassified' }
-DRRegistersInfo >> deadTarget [
+{ #category : #accessing }
+DRCPSEdge >> deadTarget [
 
 	^ self isDead
 		  ifTrue: [ parent deadTarget ifNil: [ parent ] ]
@@ -54,18 +54,18 @@ DRRegistersInfo >> deadTarget [
 ]
 
 { #category : #initialization }
-DRRegistersInfo >> initialize [ 
+DRCPSEdge >> initialize [ 
 
 	constraints := Dictionary new.
 ]
 
 { #category : #testing }
-DRRegistersInfo >> isDead [
+DRCPSEdge >> isDead [
 	^ constraints values anySatisfy: [ :c | c isDead ]
 ]
 
 { #category : #adding }
-DRRegistersInfo >> mergeConstraint: aConditionalConstraint [
+DRCPSEdge >> mergeConstraint: aConditionalConstraint [
 	aConditionalConstraint ifNil: [ 1halt ].
 	constraints
 		at: aConditionalConstraint reg name
@@ -75,14 +75,14 @@ DRRegistersInfo >> mergeConstraint: aConditionalConstraint [
 ]
 
 { #category : #accessing }
-DRRegistersInfo >> parent: aDRRegistersInfo [
+DRCPSEdge >> parent: aDRRegistersInfo [
 
 	constraints := aDRRegistersInfo constraints copy.
 	parent := aDRRegistersInfo
 ]
 
 { #category : #printing }
-DRRegistersInfo >> printOn: aStream [
+DRCPSEdge >> printOn: aStream [
 
 	aStream nextPutAll: self class name asString.
 	aStream nextPutAll: '('.
@@ -93,28 +93,28 @@ DRRegistersInfo >> printOn: aStream [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitAddition: aDRAdd [ 
+DRCPSEdge >> visitAddition: aDRAdd [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitAnd: aDRAnd [
+DRCPSEdge >> visitAnd: aDRAnd [
 
 	^ self composedConstraint: DRIntersectionConstraint from: aDRAnd
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitBitAnd: aDRBitAnd [
+DRCPSEdge >> visitBitAnd: aDRBitAnd [
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitBitShift: aDRBitShift [ 
+DRCPSEdge >> visitBitShift: aDRBitShift [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitComparison: aDRComparison andDo: aClosure [ 
+DRCPSEdge >> visitComparison: aDRComparison andDo: aClosure [ 
 
 		| operands |
 	operands := aDRComparison operands.
@@ -128,7 +128,7 @@ DRRegistersInfo >> visitComparison: aDRComparison andDo: aClosure [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitConditionalJump: aDRConditionalJump [
+DRCPSEdge >> visitConditionalJump: aDRConditionalJump [
 
 	| constraint |
 	"Ignore hardcoded values"
@@ -143,14 +143,14 @@ DRRegistersInfo >> visitConditionalJump: aDRConditionalJump [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitConstant: aDRConstantValue [ 
+DRCPSEdge >> visitConstant: aDRConstantValue [ 
 	
 	self flag: #TODO. "Remove this, we must know when something is a constant"
 	^ aDRConstantValue value 
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitCopy: aDRCopy [
+DRCPSEdge >> visitCopy: aDRCopy [
 
 	| constantValue |
 	"Only constant copies are importants"
@@ -161,12 +161,12 @@ DRRegistersInfo >> visitCopy: aDRCopy [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitDivision: aDRDivision [ 
+DRCPSEdge >> visitDivision: aDRDivision [ 
 		"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitEqualsComparison: aDREqualsThanComparison [
+DRCPSEdge >> visitEqualsComparison: aDREqualsThanComparison [
 
 	^ self
 		  visitComparison: aDREqualsThanComparison
@@ -175,7 +175,7 @@ DRRegistersInfo >> visitEqualsComparison: aDREqualsThanComparison [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanComparison [
+DRCPSEdge >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanComparison [
 
 	^ self
 		  visitComparison: aDRGreaterOrEqualsThanComparison
@@ -184,7 +184,7 @@ DRRegistersInfo >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanCom
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitGreaterThanComparison: aDRGreaterThanComparison [ 
+DRCPSEdge >> visitGreaterThanComparison: aDRGreaterThanComparison [ 
 
 	^ self
 		  visitComparison: aDRGreaterThanComparison
@@ -193,18 +193,18 @@ DRRegistersInfo >> visitGreaterThanComparison: aDRGreaterThanComparison [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitJump: aDRJump [ 
+DRCPSEdge >> visitJump: aDRJump [ 
 
 	"Simple jumps do not have type constraints"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitLeftShift: aDRLeftShift [ 
+DRCPSEdge >> visitLeftShift: aDRLeftShift [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitLessOrEqualsThanComparison: aDRLessOrEqualsThanComparison [
+DRCPSEdge >> visitLessOrEqualsThanComparison: aDRLessOrEqualsThanComparison [
 
 	^ self
 		  visitComparison: aDRLessOrEqualsThanComparison
@@ -213,45 +213,45 @@ DRRegistersInfo >> visitLessOrEqualsThanComparison: aDRLessOrEqualsThanCompariso
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitLessThanComparison: aDRLessThanComparison [
+DRCPSEdge >> visitLessThanComparison: aDRLessThanComparison [
 
 	^ self
 		  visitComparison: aDRLessThanComparison
 		  andDo: [ :reg :value | DRRegisterConstraint less: reg than: value ]
 ]
 
-{ #category : #visitng }
-DRRegistersInfo >> visitLoad: aDRLoad [ 
+{ #category : #visiting }
+DRCPSEdge >> visitLoad: aDRLoad [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitMod: aDRMod [ 
+DRCPSEdge >> visitMod: aDRMod [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitMultiply: aDRMultiply [ 
+DRCPSEdge >> visitMultiply: aDRMultiply [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitMultiplyOverflowJump: aDRMultiplyOverflowJump [ 
+DRCPSEdge >> visitMultiplyOverflowJump: aDRMultiplyOverflowJump [ 
 	self flag: #TODO. "Do nothing?"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitNegate: aDRNegate [ 
+DRCPSEdge >> visitNegate: aDRNegate [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitNoop: aDRNoop [ 
+DRCPSEdge >> visitNoop: aDRNoop [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitNotEqualsComparison: aDRNotEqualsThanComparison [
+DRCPSEdge >> visitNotEqualsComparison: aDRNotEqualsThanComparison [
 
 	^ self
 		  visitComparison: aDRNotEqualsThanComparison
@@ -260,24 +260,24 @@ DRRegistersInfo >> visitNotEqualsComparison: aDRNotEqualsThanComparison [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitOr: aDROr [
+DRCPSEdge >> visitOr: aDROr [
 		
 	^ self composedConstraint: DRUnionConstraint from: aDROr
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitOverflowJump: aDROverflowJump [ 
+DRCPSEdge >> visitOverflowJump: aDROverflowJump [ 
 	self flag: #TODO. "Do nothing?"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitPhiFunction: aDRPhiFunction [ 
+DRCPSEdge >> visitPhiFunction: aDRPhiFunction [ 
 	"Do nothing"
 	^ nil
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitReturn: aDRReturn [
+DRCPSEdge >> visitReturn: aDRReturn [
 
 	"Returns do not have type constraints"
 
@@ -285,17 +285,17 @@ DRRegistersInfo >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitRightShift: aDRRightShift [ 
+DRCPSEdge >> visitRightShift: aDRRightShift [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitSubstract: aDRSubtract [ 
+DRCPSEdge >> visitSubstract: aDRSubtract [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitTest: aDRTest [
+DRCPSEdge >> visitTest: aDRTest [
 
 	^ self
 		  visitComparison: aDRTest
@@ -303,6 +303,6 @@ DRRegistersInfo >> visitTest: aDRTest [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
+DRCPSEdge >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
 	"Do nothing"
 ]

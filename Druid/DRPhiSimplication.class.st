@@ -9,7 +9,7 @@ DRPhiSimplication >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph phiFunctions do: [ :i | 
 		| operands |
-		operands := i operands asSet select: [ :o | o isNullValue not ].
+		operands := i operands asSet reject: [ :o | o isNullValue ].
 		operands isEmpty ifTrue: [ i removeFromCFG ].
 		operands size = 1 ifTrue: [ 
 			i replaceBy: (DRCopy operands: { i operand1 } result: i result) ] ]

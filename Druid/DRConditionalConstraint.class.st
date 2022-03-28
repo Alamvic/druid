@@ -58,7 +58,7 @@ DRConditionalConstraint >> printOn: aStream [
 	aStream nextPutAll: self opCode
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #merging }
 DRConditionalConstraint >> unifyWith: otherConditionalConstraint [
 
 	(self includes: otherConditionalConstraint) ifTrue: [ 

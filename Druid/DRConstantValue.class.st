@@ -24,6 +24,12 @@ DRConstantValue >> = anObject [
 	^ false. 
 ]
 
+{ #category : #visiting }
+DRConstantValue >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitConstant: self
+]
+
 { #category : #'rtl-translation' }
 DRConstantValue >> cogitFalseConditionCode [
 	
