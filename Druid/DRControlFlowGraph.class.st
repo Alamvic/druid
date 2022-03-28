@@ -248,8 +248,17 @@ DRControlFlowGraph >> instructionByResultId: anInteger [
 { #category : #inspecting }
 DRControlFlowGraph >> instructionColor: instruction [
 
-	instruction isPhiFunction ifTrue: [ ^ Color red ].
-	(instruction operands anySatisfy: [ :op | op isConstant ]) ifTrue: [ ^ Color yellow darker ].
+	instruction isJump ifTrue: [ 
+		instruction isConditionalJump ifTrue: [ ^ Color red muchLighter ].
+		^ Color gray ].
+	instruction isMandatoryInstruction ifTrue: [ ^ Color purple ].
+	instruction users isEmpty ifTrue: [ ^ Color black ].
+	instruction isPhiFunction ifTrue: [ ^ Color orange ].
+	(instruction operands anySatisfy: [ :op | op isPhysicalRegister ]) 
+		ifTrue: [ ^ Color red darker ].
+	(instruction operands anySatisfy: [ :op | op isConstant ]) ifTrue: [ 
+		^ Color yellow darker ].
+	instruction isCopy ifTrue: [ ^ Color blue muchLighter ].
 
 	^ Color white
 ]
