@@ -5,9 +5,15 @@ Class {
 }
 
 { #category : #testing }
+DRNotMaskConstraint >> hasAllValuesWithMask: aMask [
+
+	^ false "always?"
+]
+
+{ #category : #testing }
 DRNotMaskConstraint >> hasAllValuesWithoutMask: aMask [ 
 	
-	^ aMask anyMask: constantValue
+	^ constantValue anyMask: aMask
 ]
 
 { #category : #arithmetic }
