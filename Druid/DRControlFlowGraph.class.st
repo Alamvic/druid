@@ -287,6 +287,13 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 ]
 
 { #category : #testing }
+DRControlFlowGraph >> isAlmostDeadBranch: aDRBasicBlock to: aDRBasicBlock2 [
+
+	^ (self edgesFrom: aDRBasicBlock to: aDRBasicBlock2) anySatisfy: [ :e | 
+		  e isDead ]
+]
+
+{ #category : #testing }
 DRControlFlowGraph >> isDeadBranch: aDRBasicBlock to: aDRBasicBlock2 [
 
 	^ (self edgesFrom: aDRBasicBlock to: aDRBasicBlock2) allSatisfy: [ :e | 
@@ -370,33 +377,11 @@ DRControlFlowGraph >> reversePostOrderBlocks [
 { #category : #inspecting }
 DRControlFlowGraph >> showIn: view [
 
-	| blockViews eb controller |
+	| blockViews controller |
 	blockViews := self blocks collect: [ :b | self createBlockView: b. ].
 	view addAll: blockViews.
-	
-	eb := RSLineBuilder arrowedLine.
-	eb canvas: view.
-	eb color: Color blue muchDarker.
-	eb width: 2.
-	eb withBorderAttachPoint.
-	eb 	shapes: blockViews.
-	eb connectToAll: #successors.
-	view lines pushBack.
-	view lines do: [ :line | | source destination |
-		source := line model key.
-		destination := line model value.
-	 	line model: (self edgesFrom: source to: destination).
-		line @ (RSPopup text: [ :edgs | 
-			String streamContents: [:s | 
-				edgs
-					do: [ :e | e constraints values asStringOn: s delimiter: String cr]
-					separatedBy: [s << (String cr , '--o--o--o--o--o--o--o--' , String cr)]
- 				]
-			]).
-		  (self isDeadBranch: source to: destination) ifTrue: [
-				line color: Color red muchDarker
-			].
-		].
+	self showLines: blockViews in: view.
+	self showInfoIn: view.
 	
 	"All the characters are displayed using a grid layout"
 	RSSugiyamaLayout new
@@ -414,6 +399,64 @@ DRControlFlowGraph >> showIn: view [
 	^ SpRoassal3InspectorPresenter new
 		canvas: view;
 		yourself
+]
+
+{ #category : #inspecting }
+DRControlFlowGraph >> showInfoIn: view [
+
+	| label instructions blocks loc |
+	label := [ :text | 
+	         RSLabel new
+		         text: text;
+		         color: Color black;
+		         fontSize: 44;
+		         bold;
+		         yourself ].
+
+	view add:
+		(blocks := label value: self blocks size asString , ' blocks').
+	view add: (instructions := label value:
+			                 self instructions size asString , ' instructions').
+
+	RSLocation new
+		outer;
+		offset: 2500 @ 0;
+		move: blocks on: view.
+	RSLocation new
+		outer;
+		offset: 1300 @ 0;
+		bottom;
+		move: instructions on: view
+]
+
+{ #category : #inspecting }
+DRControlFlowGraph >> showLines: blockViews in: view [
+
+	| eb |
+	eb := RSLineBuilder arrowedLine.
+	eb canvas: view.
+	eb color: Color blue muchDarker.
+	eb width: 2.
+	eb withBorderAttachPoint.
+	eb shapes: blockViews.
+	eb connectToAll: #successors.
+	view lines pushBack.
+	view lines do: [ :line | 
+		| source destination |
+		source := line model key.
+		destination := line model value.
+		line model: (self edgesFrom: source to: destination).
+		line @ (RSPopup text: [ :edgs | 
+			 String streamContents: [ :s | 
+				 edgs
+					 do: [ :e | 
+					 e constraints values asStringOn: s delimiter: String cr ]
+					 separatedBy: [ 
+					 s << (String cr , '--o--o--o--o--o--o--o--' , String cr) ] ] ]).
+		(self isAlmostDeadBranch: source to: destination) ifTrue: [ 
+			line color: Color green muchDarker ].
+		(self isDeadBranch: source to: destination) ifTrue: [ 
+			line color: Color red muchDarker ] ]
 ]
 
 { #category : #validating }

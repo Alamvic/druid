@@ -75,6 +75,11 @@ DRCPSEdge >> mergeConstraint: aConditionalConstraint [
 ]
 
 { #category : #accessing }
+DRCPSEdge >> parent [
+	^ parent
+]
+
+{ #category : #accessing }
 DRCPSEdge >> parent: aDRRegistersInfo [
 
 	constraints := aDRRegistersInfo constraints copy.

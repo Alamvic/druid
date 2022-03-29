@@ -742,6 +742,24 @@ DRBasicBlock >> sourceInterval [
 	^ nodes first start to: nodes last stop
 ]
 
+{ #category : #transformations }
+DRBasicBlock >> splitTo: predecessorToRewire [
+
+	| duplicatedBlock |
+	duplicatedBlock := self basicDuplicate.
+	duplicatedBlock successors do: [ :successor | 
+		successor addPredecessor: duplicatedBlock ].
+
+	self mergeOutsideUsersWith: duplicatedBlock.
+
+	self predecessors do: [ :predecessorToRemove | 
+		predecessorToRemove = predecessorToRewire ifFalse: [ 
+			duplicatedBlock removePredecessor: predecessorToRemove ] ].
+
+	self removePredecessor: predecessorToRewire.
+	predecessorToRewire replaceSuccessor: self by: duplicatedBlock
+]
+
 { #category : #accessing }
 DRBasicBlock >> successor [
 	
@@ -761,21 +779,9 @@ DRBasicBlock >> successors [
 DRBasicBlock >> tailDuplicate [
 
 	"Duplicate the receiver so there is a different copy of it for each predecessor"
-	
-	self predecessors allButFirst do: [ :predecessorToRewire | | duplicatedBlock |
-		duplicatedBlock := self basicDuplicate.
-		duplicatedBlock successors do: [ :successor |
-			successor addPredecessor: duplicatedBlock ].
 
-		self mergeOutsideUsersWith: duplicatedBlock.
-
-		self predecessors do: [ :predecessorToRemove |
-			predecessorToRemove = predecessorToRewire ifFalse: [ 
-				duplicatedBlock removePredecessor: predecessorToRemove ] ].
-		
-		self removePredecessor: predecessorToRewire.
-		predecessorToRewire replaceSuccessor: self by: duplicatedBlock.
-	].
+	self predecessors allButFirst do: [ :predecessorToRewire | 
+		self splitTo: predecessorToRewire ]
 ]
 
 { #category : #temporaries }
