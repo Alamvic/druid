@@ -4,6 +4,18 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #testing }
+DREqualsConstraint >> hasAllValuesWithMask: aMask [
+
+	^ false "always?"
+]
+
+{ #category : #testing }
+DREqualsConstraint >> hasAllValuesWithoutMask: aMask [
+
+	^ false "always?"
+]
+
 { #category : #arithmetic }
 DREqualsConstraint >> includesValue: otherConstantValue [
 

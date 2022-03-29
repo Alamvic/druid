@@ -14,6 +14,18 @@ DROptimisationTest class >> isAbstract [
 	^ self class == DROptimisationTest
 ]
 
+{ #category : #edges }
+DROptimisationTest >> anyIncomingEdge: cfg for: aBlock [
+
+	^ (cfg incomingEdgesFor: aBlock) first "unique?"
+]
+
+{ #category : #edges }
+DROptimisationTest >> anyOutgoingEdge: cfg for: aBlock [
+
+	^ (cfg outgoingEdgesFor: aBlock) first "unique?"
+]
+
 { #category : #test }
 DROptimisationTest >> conditionalJump [
 

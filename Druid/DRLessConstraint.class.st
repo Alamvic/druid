@@ -1,6 +1,6 @@
 Class {
 	#name : #DRLessConstraint,
-	#superclass : #DRSimpleConstraint,
+	#superclass : #DRRangeConstraint,
 	#category : #'Druid-Optimizations'
 }
 

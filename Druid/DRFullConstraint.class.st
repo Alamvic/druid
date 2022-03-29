@@ -5,6 +5,18 @@ Class {
 }
 
 { #category : #testing }
+DRFullConstraint >> hasAllValuesWithMask: aMask [
+
+	^ true
+]
+
+{ #category : #testing }
+DRFullConstraint >> hasAllValuesWithoutMask: aMask [
+
+	^ true
+]
+
+{ #category : #testing }
 DRFullConstraint >> includes: otherConstraint [
 
 	^ true
@@ -26,4 +38,16 @@ DRFullConstraint >> includesValuesGreaterThan: otherConstantValue [
 DRFullConstraint >> includesValuesLessThan: otherConstantValue [
 
 	^ true
+]
+
+{ #category : #arithmetic }
+DRFullConstraint >> negated [
+
+	^ DREmptyConstraint new
+]
+
+{ #category : #printing }
+DRFullConstraint >> opCode [
+
+	^ 'ANY'
 ]

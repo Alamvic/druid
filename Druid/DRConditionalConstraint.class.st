@@ -5,6 +5,18 @@ Class {
 }
 
 { #category : #testing }
+DRConditionalConstraint >> hasAllValuesWithMask: aMask [
+
+	self subclassResponsibility
+]
+
+{ #category : #testing }
+DRConditionalConstraint >> hasAllValuesWithoutMask: aMask [
+
+	self subclassResponsibility
+]
+
+{ #category : #testing }
 DRConditionalConstraint >> includes: otherConstraint [
 
 	self subclassResponsibility

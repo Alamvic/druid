@@ -202,12 +202,6 @@ DRControlFlowGraph >> generatePaths [
 ]
 
 { #category : #edges }
-DRControlFlowGraph >> incomingEdgeFor: aBlock [
-
-	^ (self incomingEdgesFor: aBlock) first "Check?"
-]
-
-{ #category : #edges }
 DRControlFlowGraph >> incomingEdgesFor: aBlock [
 
 	^ edges select: [ :e | e destination = aBlock ]
@@ -328,12 +322,6 @@ DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [
 	newBlock := self newBasicBlock.
 	aFullBlockClosure value: newBlock.
 	^ newBlock
-]
-
-{ #category : #edges }
-DRControlFlowGraph >> outgoingEdgeFor: aBlock [
-
-	^ (self outgoingEdgesFor: aBlock) first
 ]
 
 { #category : #edges }

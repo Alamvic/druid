@@ -5,6 +5,18 @@ Class {
 }
 
 { #category : #testing }
+DREmptyConstraint >> hasAllValuesWithMask: aMask [
+
+	^ false
+]
+
+{ #category : #testing }
+DREmptyConstraint >> hasAllValuesWithoutMask: aMask [
+
+	^ false
+]
+
+{ #category : #testing }
 DREmptyConstraint >> includes: otherConstraint [
 
 	^ otherConstraint isDead
@@ -43,5 +55,5 @@ DREmptyConstraint >> negated [
 { #category : #printing }
 DREmptyConstraint >> opCode [
 
-	^ 'DEAD'
+	^ 'EMPTY'
 ]

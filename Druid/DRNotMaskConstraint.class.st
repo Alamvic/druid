@@ -5,9 +5,9 @@ Class {
 }
 
 { #category : #testing }
-DRNotMaskConstraint >> hasAnyValueWithMask: otherMask [
+DRNotMaskConstraint >> hasAllValuesWithoutMask: aMask [ 
 	
- ^ self includesValue: otherMask
+	^ aMask anyMask: constantValue
 ]
 
 { #category : #arithmetic }
@@ -19,7 +19,7 @@ DRNotMaskConstraint >> includesValue: otherConstantValue [
 { #category : #arithmetic }
 DRNotMaskConstraint >> isIncludedIn: otherConstraint [
 
-	^ self error "TODO"
+	^ otherConstraint hasAllValuesWithoutMask: constantValue
 ]
 
 { #category : #arithmetic }
