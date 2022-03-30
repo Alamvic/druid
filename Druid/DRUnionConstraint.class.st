@@ -12,6 +12,22 @@ DRUnionConstraint class >> less: minValue greater: maxValue [
 			  (DRGreaterConstraint withValue: maxValue) }
 ]
 
+{ #category : #testing }
+DRUnionConstraint >> hasAllValuesWithMask: aMask [
+
+	"ATENTION: This implementation does not work mixing Masked & Ranged constraints"
+
+	^ constraints anySatisfy: [ :c | c hasAllValuesWithMask: aMask ]
+]
+
+{ #category : #arithmetic }
+DRUnionConstraint >> hasAllValuesWithoutMask: aMask [
+
+	"ATENTION: This implementation does not work mixing Masked & Ranged constraints"
+
+	^ constraints anySatisfy: [ :c | c hasAllValuesWithoutMask: aMask ]
+]
+
 { #category : #arithmetic }
 DRUnionConstraint >> includes: otherConstraint [
 

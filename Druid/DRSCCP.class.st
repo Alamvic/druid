@@ -26,7 +26,7 @@ The SSAEdges are modelled by the instruction itself, because Druid IR is in SSA 
 "
 Class {
 	#name : #DRSCCP,
-	#superclass : #DROptimisation,
+	#superclass : #DRControlFlowOptimisation,
 	#instVars : [
 		'latticeValues',
 		'edges',
@@ -77,19 +77,6 @@ DRSCCP >> applyPropagationToInstruction: i [
 
 ]
 
-{ #category : #executing }
-DRSCCP >> applyTo: cfg [
-
-
-	self initializeSCCPWithCFG: cfg.
-
-	[ cfgEdgeWorkList isEmpty and: [ssaWorkList isEmpty] ] whileFalse: [ 
-		self stepCFGEdgeWorklist.
-		self stepInstructionWorklist].
-
-	self applyPropagation.
-]
-
 { #category : #lattice }
 DRSCCP >> bottom [
 
@@ -121,6 +108,18 @@ DRSCCP >> buildEdges: cfg [
 			workList add: s]].
 	
 	^ list
+]
+
+{ #category : #executing }
+DRSCCP >> doApply: cfg [
+
+	self initializeSCCPWithCFG: cfg.
+
+	[ cfgEdgeWorkList isEmpty and: [ssaWorkList isEmpty] ] whileFalse: [ 
+		self stepCFGEdgeWorklist.
+		self stepInstructionWorklist].
+
+	self applyPropagation.
 ]
 
 { #category : #executing }

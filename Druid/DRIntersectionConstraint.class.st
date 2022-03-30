@@ -13,6 +13,22 @@ DRIntersectionConstraint class >> between: minValue and: maxValue [
 ]
 
 { #category : #testing }
+DRIntersectionConstraint >> hasAllValuesWithMask: aMask [
+
+	"ATENTION: This implementation does not work mixing Masked & Ranged constraints"
+
+	^ constraints allSatisfy: [ :c | c hasAllValuesWithMask: aMask ]
+]
+
+{ #category : #testing }
+DRIntersectionConstraint >> hasAllValuesWithoutMask: aMask [
+
+	"ATENTION: This implementation does not work mixing Masked & Ranged constraints"
+
+	^ constraints allSatisfy: [ :c | c hasAllValuesWithoutMask: aMask ]
+]
+
+{ #category : #testing }
 DRIntersectionConstraint >> includes: otherConstraint [
 
 	^ constraints allSatisfy: [ :c | c includes: otherConstraint ]

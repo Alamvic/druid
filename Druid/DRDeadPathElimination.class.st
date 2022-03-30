@@ -1,11 +1,11 @@
 Class {
 	#name : #DRDeadPathElimination,
-	#superclass : #DROptimisation,
+	#superclass : #DRControlFlowOptimisation,
 	#category : #'Druid-Optimizations'
 }
 
 { #category : #operations }
-DRDeadPathElimination >> applyTo: cfg [
+DRDeadPathElimination >> doApply: cfg [
 
 	| newSucessors deadBranches |
 

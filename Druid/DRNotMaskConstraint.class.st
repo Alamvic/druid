@@ -1,6 +1,6 @@
 Class {
 	#name : #DRNotMaskConstraint,
-	#superclass : #DRSimpleConstraint,
+	#superclass : #DRMaskedConstraint,
 	#category : #'Druid-Optimizations'
 }
 
@@ -13,7 +13,7 @@ DRNotMaskConstraint >> hasAllValuesWithMask: aMask [
 { #category : #testing }
 DRNotMaskConstraint >> hasAllValuesWithoutMask: aMask [ 
 	
-	^ constantValue anyMask: aMask
+	^ aMask allMask: constantValue
 ]
 
 { #category : #arithmetic }

@@ -1,13 +1,13 @@
 Class {
 	#name : #DRMaskConstraint,
-	#superclass : #DRSimpleConstraint,
+	#superclass : #DRMaskedConstraint,
 	#category : #'Druid-Optimizations'
 }
 
 { #category : #testing }
 DRMaskConstraint >> hasAllValuesWithMask: aMask [
 
-	^ constantValue anyMask: aMask
+	^ constantValue allMask: aMask
 ]
 
 { #category : #testing }

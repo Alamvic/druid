@@ -1,17 +1,17 @@
 Class {
-	#name : #DRRangeConstraint,
+	#name : #DRRangedConstraint,
 	#superclass : #DRSimpleConstraint,
 	#category : #'Druid-Optimizations'
 }
 
 { #category : #testing }
-DRRangeConstraint >> hasAllValuesWithMask: aMask [
+DRRangedConstraint >> hasAllValuesWithMask: aMask [
 
 	^ false "always?"
 ]
 
 { #category : #testing }
-DRRangeConstraint >> hasAllValuesWithoutMask: aMask [
+DRRangedConstraint >> hasAllValuesWithoutMask: aMask [
 
 	^ false "always?"
 ]

@@ -1,16 +1,16 @@
 Class {
-	#name : #DRConditionalPathSplitting,
-	#superclass : #DROptimisation,
+	#name : #DRDeadPathSplitting,
+	#superclass : #DRControlFlowOptimisation,
 	#category : #'Druid-Optimizations'
 }
 
 { #category : #operations }
-DRConditionalPathSplitting >> applyTo: aCFG [
+DRDeadPathSplitting >> doApply: aCFG [
 
 	aCFG generatePaths.
 	(aCFG deadPaths keys 
 		collect: [ :edge | edge source -> edge destination ] as: Set)
 		do: [ :association |
-			association value tailDuplicate "Duplicate only to source / key" ]
+			association value splitTo: association key ]
 		
 ]

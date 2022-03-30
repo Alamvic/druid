@@ -420,11 +420,8 @@ DRControlFlowGraph >> showInfoIn: view [
 
 	RSLocation new
 		outer;
-		offset: 2500 @ 0;
-		move: blocks on: view.
-	RSLocation new
-		outer;
-		offset: 1300 @ 0;
+		offset: -100@0;
+		move: blocks on: view;
 		bottom;
 		move: instructions on: view
 ]

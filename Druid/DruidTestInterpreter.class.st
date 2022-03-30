@@ -63,11 +63,10 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> multipleReturnsWithDeadPath [
 
+	(self stackTop anyMask: 2) ifTrue: [ ^ 1 ].
+
 	self stackTop <= 10
-		ifTrue: [ 
-			self stackTop = 5
-				ifTrue: [ ^ 1 ]
-				ifFalse: [ ^ 2 ] ]
+		ifTrue: [ ^ 2 ]
 		ifFalse: [ ^ 3 ]
 ]
 
@@ -169,6 +168,24 @@ DruidTestInterpreter >> primitiveDNA [
 		       ifTrue: [ 1 ]
 		       ifFalse: [ 99 ].
 	res2 := self stackTop > 0
+		        ifTrue: [ 5 ]
+		        ifFalse: [ 17 ].
+	res3 := self stackTop > 7
+		        ifTrue: [ 15 ]
+		        ifFalse: [ 42 ].
+		
+	self pop: 1 thenPush: res + res2 + res3
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDNA2 [
+
+	<numberOfArguments: 0>
+	| res res2 res3 |
+	res := self stackTop > 10
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 99 ].
+	res2 := self stackTop = 100
 		        ifTrue: [ 5 ]
 		        ifFalse: [ 17 ].
 	res3 := self stackTop > 7
@@ -361,15 +378,15 @@ DruidTestInterpreter >> primitiveMod [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveMultipleReturnBlocks [
+DruidTestInterpreter >> primitiveMultiplePathsOnlyOneDead [
 
 	<numberOfArguments: 0>
 	| res res2 |
 	res := self multipleReturnsWithDeadPath.
 
-	res2 := self stackTop > 5 
-				ifTrue: [ 1 ]
-				ifFalse: [ 2 ].
+	res2 := (self stackTop anyMask: 3)
+				ifTrue: [ 4 ]
+				ifFalse: [ 5 ].
 
 	self pop: 1 thenPush: res + res2
 ]

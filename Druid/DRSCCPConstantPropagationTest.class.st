@@ -143,23 +143,19 @@ DRSCCPConstantPropagationTest >> testPropagateWhenResultIsPhisicalRegister [
 
 	| cfg copy1 b1 b2 b3 copy2 joinBlock phi pr prcopy1 prcopy2 |
 	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock jumpTo: cfg newBasicBlock.
+	pr := DRPhysicalRegister name: 'PR'.
 	
 	cfg initialBasicBlock jumpTo: (b1 := cfg newBasicBlock).
-	b1 endInstruction: (instructionFactory jumpIf: (DRPhysicalRegister name: 'Parameter')).
-
-	pr := DRPhysicalRegister name: 'PR'.
+	b1 jumpIf: (DRPhysicalRegister name: 'Parameter') to: (b2 := cfg newBasicBlock) ifFalseTo: (b3 := cfg newBasicBlock).
 
 	"T1 := 1.
 	PR := T1"
-	b1 endInstruction trueBranch: (b2 := cfg newBasicBlock).
 	b2 addInstruction: (copy1 := instructionFactory copy: 1).
 	b2 addInstruction: (prcopy1 := instructionFactory copy: copy1).
 	prcopy1 result: pr.
 
 	"T2 := 2.
 	PR := T2"
-	b1 endInstruction falseBranch: (b3 := cfg newBasicBlock).
 	b3 addInstruction: (copy2 := instructionFactory copy: 2).
 	b3 addInstruction: (prcopy2 := instructionFactory copy: copy2).
 	prcopy2 result: pr.
@@ -168,7 +164,7 @@ DRSCCPConstantPropagationTest >> testPropagateWhenResultIsPhisicalRegister [
 	b2 jumpTo: joinBlock.
 	b3 jumpTo: joinBlock.
 	joinBlock addInstruction: (phi := instructionFactory phiWith: copy1 with: copy2).
-	
+
 	optimisation applyTo: cfg.
 
 	self assert: b2 instructions second operand1 equals: 1 asDRValue.

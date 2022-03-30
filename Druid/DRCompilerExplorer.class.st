@@ -138,7 +138,7 @@ DRCompilerExplorer >> optimizations [
 		  DRDeadCodeElimination.
 		  DRCleanControlFlow.
 		  DRPhiSimplication.
-		  DRConditionalPathSplitting.
+		  DRDeadPathSplitting.
 		  DRDeadPathElimination }
 ]
 
