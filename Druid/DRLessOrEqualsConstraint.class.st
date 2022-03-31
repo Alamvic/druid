@@ -5,19 +5,19 @@ Class {
 }
 
 { #category : #arithmetic }
-DRLessOrEqualsConstraint >> includesValue: otherConstantValue [
-
-	^ otherConstantValue <= constantValue
-]
-
-{ #category : #arithmetic }
-DRLessOrEqualsConstraint >> includesValuesGreaterThan: otherConstantValue [
+DRLessOrEqualsConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
 	^ false
 ]
 
 { #category : #arithmetic }
-DRLessOrEqualsConstraint >> includesValuesLessThan: otherConstantValue [
+DRLessOrEqualsConstraint >> hasAllValuesLessThan: otherConstantValue [
+
+	^ otherConstantValue <= constantValue
+]
+
+{ #category : #arithmetic }
+DRLessOrEqualsConstraint >> hasValue: otherConstantValue [
 
 	^ otherConstantValue <= constantValue
 ]
@@ -25,7 +25,7 @@ DRLessOrEqualsConstraint >> includesValuesLessThan: otherConstantValue [
 { #category : #arithmetic }
 DRLessOrEqualsConstraint >> isIncludedIn: otherConstraint [
 
-	^ (otherConstraint includesValue: constantValue) and: [otherConstraint includesValuesLessThan: constantValue]
+	^ (otherConstraint hasValue: constantValue) and: [otherConstraint hasAllValuesLessThan: constantValue]
 ]
 
 { #category : #arithmetic }

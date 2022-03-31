@@ -17,7 +17,7 @@ DRNotMaskConstraint >> hasAllValuesWithoutMask: aMask [
 ]
 
 { #category : #arithmetic }
-DRNotMaskConstraint >> includesValue: otherConstantValue [
+DRNotMaskConstraint >> hasValue: otherConstantValue [
 
 	^ (otherConstantValue anyMask: constantValue) not
 ]

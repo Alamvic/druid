@@ -4,6 +4,18 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #arithmetic }
+DRNotEqualsConstraint >> hasAllValuesGreaterThan: otherConstantValue [
+
+	^ otherConstantValue >= constantValue
+]
+
+{ #category : #arithmetic }
+DRNotEqualsConstraint >> hasAllValuesLessThan: otherConstantValue [
+
+	^ otherConstantValue <= constantValue
+]
+
 { #category : #testing }
 DRNotEqualsConstraint >> hasAllValuesWithMask: aMask [
 
@@ -17,27 +29,15 @@ DRNotEqualsConstraint >> hasAllValuesWithoutMask: aMask [
 ]
 
 { #category : #arithmetic }
-DRNotEqualsConstraint >> includesValue: otherConstantValue [
+DRNotEqualsConstraint >> hasValue: otherConstantValue [
 
 	^ otherConstantValue ~= constantValue 
 ]
 
 { #category : #arithmetic }
-DRNotEqualsConstraint >> includesValuesGreaterThan: otherConstantValue [
-
-	^ otherConstantValue >= constantValue
-]
-
-{ #category : #arithmetic }
-DRNotEqualsConstraint >> includesValuesLessThan: otherConstantValue [
-
-	^ otherConstantValue <= constantValue
-]
-
-{ #category : #arithmetic }
 DRNotEqualsConstraint >> isIncludedIn: otherConstraint [
 
-	^ (otherConstraint includesValuesLessThan: constantValue) and: [ otherConstraint includesValuesGreaterThan: constantValue ]
+	^ (otherConstraint hasAllValuesLessThan: constantValue) and: [ otherConstraint hasAllValuesGreaterThan: constantValue ]
 ]
 
 { #category : #arithmetic }

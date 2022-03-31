@@ -4,6 +4,18 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #arithmetic }
+DREqualsConstraint >> hasAllValuesGreaterThan: aConstantValue [
+
+	^ false
+]
+
+{ #category : #arithmetic }
+DREqualsConstraint >> hasAllValuesLessThan: aConstantValue [
+
+	^ false
+]
+
 { #category : #testing }
 DREqualsConstraint >> hasAllValuesWithMask: aMask [
 
@@ -17,27 +29,15 @@ DREqualsConstraint >> hasAllValuesWithoutMask: aMask [
 ]
 
 { #category : #arithmetic }
-DREqualsConstraint >> includesValue: otherConstantValue [
+DREqualsConstraint >> hasValue: otherConstantValue [
 
 	^ constantValue = otherConstantValue
 ]
 
 { #category : #arithmetic }
-DREqualsConstraint >> includesValuesGreaterThan: aConstantValue [
-
-	^ false
-]
-
-{ #category : #arithmetic }
-DREqualsConstraint >> includesValuesLessThan: aConstantValue [
-
-	^ false
-]
-
-{ #category : #arithmetic }
 DREqualsConstraint >> isIncludedIn: otherConstraint [
 
-	^ otherConstraint includesValue: constantValue.
+	^ otherConstraint hasValue: constantValue.
 ]
 
 { #category : #arithmetic }

@@ -175,11 +175,11 @@ DRConditionalConstraintTest >> testMaskConstraint [
 	| constraint |
 	constraint := DRMaskConstraint withValue: 3. "..-1-2-3-5-6-7-10-.."
 
-	self assert: (constraint includesValue: 1).
-	self assert: (constraint includesValue: 2).
-	self assert: (constraint includesValue: 3).
-	self deny: (constraint includesValue: 4).
-	self assert: (constraint includesValue: 5).
+	self assert: (constraint hasValue: 1).
+	self assert: (constraint hasValue: 2).
+	self assert: (constraint hasValue: 3).
+	self deny: (constraint hasValue: 4).
+	self assert: (constraint hasValue: 5).
 
 	self assert: constraint includes: (DRMaskConstraint withValue: 1).
 	self assert: constraint includes: (DRMaskConstraint withValue: 2).
@@ -249,11 +249,11 @@ DRConditionalConstraintTest >> testNotMaskConstraint [
 	| constraint |
 	constraint := DRNotMaskConstraint withValue: 3. "..-0-4-8-.."
 
-	self deny: (constraint includesValue: 1).
-	self deny: (constraint includesValue: 2).
-	self deny: (constraint includesValue: 3).
-	self assert: (constraint includesValue: 4).
-	self deny: (constraint includesValue: 5).
+	self deny: (constraint hasValue: 1).
+	self deny: (constraint hasValue: 2).
+	self deny: (constraint hasValue: 3).
+	self assert: (constraint hasValue: 4).
+	self deny: (constraint hasValue: 5).
 	
 	self deny: constraint includes: (DRNotMaskConstraint withValue: 1).
 	self deny: constraint includes: (DRNotMaskConstraint withValue: 2).

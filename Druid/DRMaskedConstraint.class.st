@@ -5,13 +5,13 @@ Class {
 }
 
 { #category : #arithmetic }
-DRMaskedConstraint >> includesValuesGreaterThan: otherConstantValue [
+DRMaskedConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
 	^ false
 ]
 
 { #category : #arithmetic }
-DRMaskedConstraint >> includesValuesLessThan: otherConstantValue [
+DRMaskedConstraint >> hasAllValuesLessThan: otherConstantValue [
 
 	^ false
 ]

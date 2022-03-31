@@ -22,7 +22,7 @@ DRCPSEdge >> composedConstraint: aConstraintClass from: aDRInstruction [
 	| operands |
 	operands := aDRInstruction operands collect: [ :o | o acceptVisitor: self ].
 	(operands anySatisfy: [ :o | (o isNil or: o = false) or: o = true ]) ifTrue: [ ^ nil ].
-	^ DRRegisterConstraint
+	^ DRRegisterDomain
 		  reg: aDRInstruction
 		  constraint: (aConstraintClass constraints: operands)
 ]
@@ -66,12 +66,11 @@ DRCPSEdge >> isDead [
 
 { #category : #adding }
 DRCPSEdge >> mergeConstraint: aConditionalConstraint [
-	aConditionalConstraint ifNil: [ 1halt ].
+
 	constraints
 		at: aConditionalConstraint reg name
-		ifPresent: [ :oldConstraint | 
-			self addConstraint: (oldConstraint mergeWith: aConditionalConstraint) ]
-		ifAbsentPut: aConditionalConstraint
+		update: [ :oldConstraint | oldConstraint mergedWith: aConditionalConstraint ]
+		initial: aConditionalConstraint
 ]
 
 { #category : #accessing }
@@ -162,7 +161,7 @@ DRCPSEdge >> visitCopy: aDRCopy [
 	aDRCopy operand1 isConstant ifFalse: [ ^ nil ].
 	constantValue := aDRCopy operand1 acceptVisitor: self.
 	self addConstraint:
-		(DRRegisterConstraint equals: aDRCopy result than: constantValue)
+		(DRRegisterDomain equals: aDRCopy result than: constantValue)
 ]
 
 { #category : #visiting }
@@ -176,7 +175,7 @@ DRCPSEdge >> visitEqualsComparison: aDREqualsThanComparison [
 	^ self
 		  visitComparison: aDREqualsThanComparison
 		  andDo: [ :reg :value | 
-		  DRRegisterConstraint equals: reg than: value ]
+		  DRRegisterDomain equals: reg than: value ]
 ]
 
 { #category : #visiting }
@@ -185,7 +184,7 @@ DRCPSEdge >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanCompariso
 	^ self
 		  visitComparison: aDRGreaterOrEqualsThanComparison
 		  andDo: [ :reg :value | 
-		  DRRegisterConstraint greaterOrEquals: reg than: value ]
+		  DRRegisterDomain greaterOrEquals: reg than: value ]
 ]
 
 { #category : #visiting }
@@ -194,7 +193,7 @@ DRCPSEdge >> visitGreaterThanComparison: aDRGreaterThanComparison [
 	^ self
 		  visitComparison: aDRGreaterThanComparison
 		  andDo: [ :reg :value | 
-		  DRRegisterConstraint greater: reg than: value ]
+		  DRRegisterDomain greater: reg than: value ]
 ]
 
 { #category : #visiting }
@@ -214,7 +213,7 @@ DRCPSEdge >> visitLessOrEqualsThanComparison: aDRLessOrEqualsThanComparison [
 	^ self
 		  visitComparison: aDRLessOrEqualsThanComparison
 		  andDo: [ :reg :value | 
-		  DRRegisterConstraint lessOrEquals: reg than: value ]
+		  DRRegisterDomain lessOrEquals: reg than: value ]
 ]
 
 { #category : #visiting }
@@ -222,7 +221,7 @@ DRCPSEdge >> visitLessThanComparison: aDRLessThanComparison [
 
 	^ self
 		  visitComparison: aDRLessThanComparison
-		  andDo: [ :reg :value | DRRegisterConstraint less: reg than: value ]
+		  andDo: [ :reg :value | DRRegisterDomain less: reg than: value ]
 ]
 
 { #category : #visiting }
@@ -261,7 +260,7 @@ DRCPSEdge >> visitNotEqualsComparison: aDRNotEqualsThanComparison [
 	^ self
 		  visitComparison: aDRNotEqualsThanComparison
 		  andDo: [ :reg :value | 
-		  DRRegisterConstraint notEquals: reg than: value ]
+		  DRRegisterDomain notEquals: reg than: value ]
 ]
 
 { #category : #visiting }
@@ -304,7 +303,7 @@ DRCPSEdge >> visitTest: aDRTest [
 
 	^ self
 		  visitComparison: aDRTest
-		  andDo: [ :reg :value | DRRegisterConstraint mask: reg with: value ]
+		  andDo: [ :reg :value | DRRegisterDomain mask: reg with: value ]
 ]
 
 { #category : #visiting }

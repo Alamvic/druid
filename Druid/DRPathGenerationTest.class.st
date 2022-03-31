@@ -46,8 +46,8 @@ DRPathGenerationTest >> testConditionalConstraintsInferenceFromBranches [
 	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. ">= 10"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "< 10"
-	self assert: (trueConstraint includes: (DRRegisterConstraint greaterOrEquals: trueConstraint reg than: 10) ).
-	self assert: (falseConstraint includes: (DRRegisterConstraint less: falseConstraint reg than: 10) ).
+	self assert: (trueConstraint includes: (DRRegisterDomain greaterOrEquals: trueConstraint reg than: 10) ).
+	self assert: (falseConstraint includes: (DRRegisterDomain less: falseConstraint reg than: 10) ).
 ]
 
 { #category : #constraints }
@@ -59,8 +59,8 @@ DRPathGenerationTest >> testConditionalConstraintsInferenceFromBranchesInverted 
 	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "<= 10"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "> 10"
-	self assert: (trueConstraint includes: (DRRegisterConstraint lessOrEquals: trueConstraint reg than: 10) ).
-	self assert: (falseConstraint includes: (DRRegisterConstraint greater: falseConstraint reg than: 10) ).
+	self assert: (trueConstraint includes: (DRRegisterDomain lessOrEquals: trueConstraint reg than: 10) ).
+	self assert: (falseConstraint includes: (DRRegisterDomain greater: falseConstraint reg than: 10) ).
 ]
 
 { #category : #constraints }
@@ -72,13 +72,13 @@ DRPathGenerationTest >> testConditionalConstraintsInferenceFromInnerBranches [
 	edges := cfg outgoingEdgesFor: (cfg blockById: 6).
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "10 < Reg < 20"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. ">= 20"
-	trueExpectedConstraint := DRRegisterConstraint
+	trueExpectedConstraint := DRRegisterDomain
 		                          reg: trueConstraint reg
 		                          constraint:
 		                          (DRIntersectionConstraint
 			                           between: 10
 			                           and: 20).
-	falseExpectedConstraint := DRRegisterConstraint
+	falseExpectedConstraint := DRRegisterDomain
 		                           greaterOrEquals: falseConstraint reg
 		                           than: 20.
 	self assert: (trueConstraint includes: trueExpectedConstraint).
@@ -106,7 +106,7 @@ DRPathGenerationTest >> testCopyRegisterConstraint [
 
 	edge := self anyOutgoingEdge: cfg for: cfg firstBasicBlock.
 	constraint := edge constraintFor: 'ReceiverResultReg'.
-	self assert: (constraint includes: (DRRegisterConstraint equals: constraint reg than: 1) ).
+	self assert: (constraint includes: (DRRegisterDomain equals: constraint reg than: 1) ).
 ]
 
 { #category : #constraints }

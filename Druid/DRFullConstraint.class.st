@@ -4,6 +4,18 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #arithmetic }
+DRFullConstraint >> hasAllValuesGreaterThan: otherConstantValue [
+
+	^ true
+]
+
+{ #category : #arithmetic }
+DRFullConstraint >> hasAllValuesLessThan: otherConstantValue [
+
+	^ true
+]
+
 { #category : #testing }
 DRFullConstraint >> hasAllValuesWithMask: aMask [
 
@@ -16,26 +28,14 @@ DRFullConstraint >> hasAllValuesWithoutMask: aMask [
 	^ true
 ]
 
+{ #category : #arithmetic }
+DRFullConstraint >> hasValue: otherConstantValue [
+
+	^ true
+]
+
 { #category : #testing }
 DRFullConstraint >> includes: otherConstraint [
-
-	^ true
-]
-
-{ #category : #arithmetic }
-DRFullConstraint >> includesValue: otherConstantValue [
-
-	^ true
-]
-
-{ #category : #arithmetic }
-DRFullConstraint >> includesValuesGreaterThan: otherConstantValue [
-
-	^ true
-]
-
-{ #category : #arithmetic }
-DRFullConstraint >> includesValuesLessThan: otherConstantValue [
 
 	^ true
 ]
