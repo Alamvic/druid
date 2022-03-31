@@ -4,11 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #SCCP }
 DRBooleanInstruction >> sccpLatticeValueOperand: index for: sccp [
 
-	| value |
-	value := (self operands at: index) sccpLatticeValueFor: sccp.
-	value = sccp top ifTrue: [ ^ self operand2 ].
+	| operand value |
+	operand := self operands at: index.
+	value := operand sccpLatticeValueFor: sccp.
+	value = sccp top ifTrue: [ ^ operand ].
 	^ value
 ]
