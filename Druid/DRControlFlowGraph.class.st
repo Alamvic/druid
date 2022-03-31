@@ -307,6 +307,14 @@ DRControlFlowGraph >> lastBasicBlock [
 ]
 
 { #category : #accessing }
+DRControlFlowGraph >> lastPaths [
+
+	^ (self blocks
+		   select: [ :b | b successors isEmpty ]
+		   thenCollect: [ :b | self incomingEdgesFor: b ]) flattened
+]
+
+{ #category : #accessing }
 DRControlFlowGraph >> leafBlocks [
 
 	^ self blocks select: [ :b | b endInstruction isNoop ]
@@ -335,6 +343,12 @@ DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [
 DRControlFlowGraph >> outgoingEdgesFor: aBlock [
 
 	^ edges select: [ :e | e source = aBlock ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> pathsSize [
+
+	^ self lastPaths size
 ]
 
 { #category : #accessing }
@@ -404,7 +418,7 @@ DRControlFlowGraph >> showIn: view [
 { #category : #inspecting }
 DRControlFlowGraph >> showInfoIn: view [
 
-	| label instructions blocks loc |
+	| label instructions blocks paths |
 	label := [ :text | 
 	         RSLabel new
 		         text: text;
@@ -413,17 +427,22 @@ DRControlFlowGraph >> showInfoIn: view [
 		         bold;
 		         yourself ].
 
-	view add:
-		(blocks := label value: self blocks size asString , ' blocks').
-	view add: (instructions := label value:
-			                 self instructions size asString , ' instructions').
+
+	blocks := label value: self blocks size asString , ' blocks'.
+	instructions := label value:
+		                self instructions size asString , ' instructions'.
+	paths := label value: self pathsSize asString , ' paths'.
 
 	RSLocation new
-		outer;
-		offset: -100@0;
+		below;
 		move: blocks on: view;
-		bottom;
-		move: instructions on: view
+		move: instructions on: blocks;
+		move: paths on: instructions.
+
+	view addAll: { 
+			blocks.
+			instructions.
+			paths }
 ]
 
 { #category : #inspecting }

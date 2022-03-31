@@ -28,7 +28,7 @@ DRCompilerCompiler >> compile [
 
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
-1halt.
+
 	registerAllocator allocateRegistersIn: druidIR.
 	
 	"Remove the phi functions.
