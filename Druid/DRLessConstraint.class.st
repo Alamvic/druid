@@ -1,31 +1,31 @@
 Class {
 	#name : #DRLessConstraint,
-	#superclass : #DRSimpleConstraint,
+	#superclass : #DRRangedConstraint,
 	#category : #'Druid-Optimizations'
 }
 
 { #category : #arithmetic }
-DRLessConstraint >> includesValue: otherConstantValue [
-
-	^ otherConstantValue < constantValue
-]
-
-{ #category : #arithmetic }
-DRLessConstraint >> includesValuesGreaterThan: otherConstantValue [
+DRLessConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
 	^ false
 ]
 
 { #category : #arithmetic }
-DRLessConstraint >> includesValuesLessThan: otherConstantValue [
+DRLessConstraint >> hasAllValuesLessThan: otherConstantValue [
 
 	^ otherConstantValue <= constantValue
 ]
 
 { #category : #arithmetic }
+DRLessConstraint >> hasValue: otherConstantValue [
+
+	^ otherConstantValue < constantValue
+]
+
+{ #category : #arithmetic }
 DRLessConstraint >> isIncludedIn: otherConstraint [
 
-	^ otherConstraint includesValuesLessThan: constantValue
+	^ otherConstraint hasAllValuesLessThan: constantValue
 ]
 
 { #category : #arithmetic }

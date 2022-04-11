@@ -92,6 +92,8 @@ DRConditionalJump >> sccpEvaluateFor: sccp [
 			sccp addToEdgeCFGWorklistConditionalJump: self targetting: t ].
 		^ self ].
 
+	condition isNullValue ifTrue: [ ^ self ].
+
 	jumpTarget := condition value
 		              ifTrue: [ self trueBranch ]
 		              ifFalse: [ self falseBranch ].

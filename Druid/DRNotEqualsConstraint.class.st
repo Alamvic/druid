@@ -5,27 +5,39 @@ Class {
 }
 
 { #category : #arithmetic }
-DRNotEqualsConstraint >> includesValue: otherConstantValue [
-
-	^ otherConstantValue ~= constantValue 
-]
-
-{ #category : #arithmetic }
-DRNotEqualsConstraint >> includesValuesGreaterThan: otherConstantValue [
+DRNotEqualsConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
 	^ otherConstantValue >= constantValue
 ]
 
 { #category : #arithmetic }
-DRNotEqualsConstraint >> includesValuesLessThan: otherConstantValue [
+DRNotEqualsConstraint >> hasAllValuesLessThan: otherConstantValue [
 
 	^ otherConstantValue <= constantValue
+]
+
+{ #category : #testing }
+DRNotEqualsConstraint >> hasAllValuesWithMask: aMask [
+
+	^ (constantValue anyMask: aMask) not
+]
+
+{ #category : #testing }
+DRNotEqualsConstraint >> hasAllValuesWithoutMask: aMask [
+	
+	^ constantValue anyMask: aMask
+]
+
+{ #category : #arithmetic }
+DRNotEqualsConstraint >> hasValue: otherConstantValue [
+
+	^ otherConstantValue ~= constantValue 
 ]
 
 { #category : #arithmetic }
 DRNotEqualsConstraint >> isIncludedIn: otherConstraint [
 
-	^ (otherConstraint includesValuesLessThan: constantValue) and: [ otherConstraint includesValuesGreaterThan: constantValue ]
+	^ (otherConstraint hasAllValuesLessThan: constantValue) and: [ otherConstraint hasAllValuesGreaterThan: constantValue ]
 ]
 
 { #category : #arithmetic }

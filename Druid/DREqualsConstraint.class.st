@@ -5,27 +5,39 @@ Class {
 }
 
 { #category : #arithmetic }
-DREqualsConstraint >> includesValue: otherConstantValue [
+DREqualsConstraint >> hasAllValuesGreaterThan: aConstantValue [
+
+	^ false
+]
+
+{ #category : #arithmetic }
+DREqualsConstraint >> hasAllValuesLessThan: aConstantValue [
+
+	^ false
+]
+
+{ #category : #testing }
+DREqualsConstraint >> hasAllValuesWithMask: aMask [
+
+	^ false "always?"
+]
+
+{ #category : #testing }
+DREqualsConstraint >> hasAllValuesWithoutMask: aMask [
+
+	^ false "always?"
+]
+
+{ #category : #arithmetic }
+DREqualsConstraint >> hasValue: otherConstantValue [
 
 	^ constantValue = otherConstantValue
 ]
 
 { #category : #arithmetic }
-DREqualsConstraint >> includesValuesGreaterThan: aConstantValue [
-
-	^ false
-]
-
-{ #category : #arithmetic }
-DREqualsConstraint >> includesValuesLessThan: aConstantValue [
-
-	^ false
-]
-
-{ #category : #arithmetic }
 DREqualsConstraint >> isIncludedIn: otherConstraint [
 
-	^ otherConstraint includesValue: constantValue.
+	^ otherConstraint hasValue: constantValue.
 ]
 
 { #category : #arithmetic }

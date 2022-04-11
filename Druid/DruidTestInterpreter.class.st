@@ -61,6 +61,16 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> multipleReturnsWithDeadPath [
+
+	(self stackTop anyMask: 2) ifTrue: [ ^ 1 ].
+
+	self stackTop <= 10
+		ifTrue: [ ^ 2 ]
+		ifFalse: [ ^ 3 ]
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> passingSuccess [
 	<numberOfArguments: 0>
 	self success: true.
@@ -112,6 +122,17 @@ DruidTestInterpreter >> primitiveCallingMethodWithTwoEarlyReturns [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveChangingVariableInOnePath [
+
+	<numberOfArguments: 0>
+	| res res2 |
+	res := 10.
+	res2 := 0.
+	self stackTop > 0 ifTrue: [ res := 42 ] ifFalse: [res2 := 1].
+	self pop: 1 thenPush: res + res2
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveConditionWithAnyMask [
 
 	<numberOfArguments: 0>
@@ -136,6 +157,42 @@ DruidTestInterpreter >> primitiveConditionWithAnyMaskInverted [
 		ifFalse: [ 2 ].
 	
 	self pop: 1 thenPush: v
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDNA [
+
+	<numberOfArguments: 0>
+	| res res2 res3 |
+	res := self stackTop > 10
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 99 ].
+	res2 := self stackTop > 0
+		        ifTrue: [ 5 ]
+		        ifFalse: [ 17 ].
+	res3 := self stackTop > 7
+		        ifTrue: [ 15 ]
+		        ifFalse: [ 42 ].
+		
+	self pop: 1 thenPush: res + res2 + res3
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDNA2 [
+
+	<numberOfArguments: 0>
+	| res res2 res3 |
+	res := self stackTop > 10
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 99 ].
+	res2 := self stackTop = 100
+		        ifTrue: [ 5 ]
+		        ifFalse: [ 17 ].
+	res3 := self stackTop > 7
+		        ifTrue: [ 15 ]
+		        ifFalse: [ 42 ].
+		
+	self pop: 1 thenPush: res + res2 + res3
 ]
 
 { #category : #'as yet unclassified' }
@@ -321,6 +378,20 @@ DruidTestInterpreter >> primitiveMod [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveMultiplePathsOnlyOneDead [
+
+	<numberOfArguments: 0>
+	| res res2 |
+	res := self multipleReturnsWithDeadPath.
+
+	res2 := (self stackTop anyMask: 3)
+				ifTrue: [ 4 ]
+				ifFalse: [ 5 ].
+
+	self pop: 1 thenPush: res + res2
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveMultiplyWithOverflow [
 
 	<numberOfArguments: 1>
@@ -384,7 +455,7 @@ DruidTestInterpreter >> primitiveReturnTrue [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveSandClock [
+DruidTestInterpreter >> primitiveSandclock [
 
 	<numberOfArguments: 0>
 	| res res2 |
@@ -394,6 +465,7 @@ DruidTestInterpreter >> primitiveSandClock [
 	res2 := self stackTop > 0
 		        ifTrue: [ 5 ]
 		        ifFalse: [ 17 ].
+		
 	self pop: 1 thenPush: res + res2
 ]
 
