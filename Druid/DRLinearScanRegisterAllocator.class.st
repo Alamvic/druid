@@ -52,7 +52,6 @@ DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [
 	self linearizeBlocks: aDRControlFlowGraph.
 	self buildLiveIntervals.
 	self allocateRegisters.
-	1halt.
 	self assignRegisters.
 ]
 
