@@ -123,6 +123,12 @@ DRValue >> isPhiFunction [
 ]
 
 { #category : #testing }
+DRValue >> isPhysicalRegister [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isRegister [
 
 	^ false

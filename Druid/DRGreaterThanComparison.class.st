@@ -36,8 +36,10 @@ DRGreaterThanComparison >> opcode [
 
 { #category : #reversing }
 DRGreaterThanComparison >> reversed [
-	
-	^ DRLessOrEqualsThanComparison operands: operands reversed result: result
+
+	"Returns the same condition but with reversed operands: x > y --> y < x"
+
+	^ DRLessThanComparison operands: operands reversed result: result
 ]
 
 { #category : #SCCP }

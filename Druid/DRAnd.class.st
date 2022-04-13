@@ -1,6 +1,6 @@
 Class {
 	#name : #DRAnd,
-	#superclass : #DRInstruction,
+	#superclass : #DRBooleanInstruction,
 	#category : #'Druid-IR'
 }
 
@@ -40,6 +40,9 @@ DRAnd >> sccpLatticeValueFor: sccp [
 	(operand1 value = false
 		or: [ operand2 value = false ])
 			ifTrue: [ ^ false asDRValue ].
+
+	operand1 value = true ifTrue: [ ^ self sccpLatticeValueOperand: 2 for: sccp ].	
+	operand2 value = true ifTrue: [ ^ self sccpLatticeValueOperand: 1 for: sccp ].
 	
 	^ super sccpLatticeValueFor: sccp
 ]

@@ -39,12 +39,6 @@ DRTemporaryRegister >> id: anInteger [
 	id := anInteger
 ]
 
-{ #category : #accessing }
-DRTemporaryRegister >> isPhysicalRegister [ 
-
-	^ false
-]
-
 { #category : #testing }
 DRTemporaryRegister >> isRegister [
 

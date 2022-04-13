@@ -4,8 +4,10 @@ Class {
 	#instVars : [
 		'method',
 		'interpreter',
+		'interpreterClass',
 		'selector',
-		'cfg'
+		'cfg',
+		'previousCfg'
 	],
 	#category : #'Druid-UI'
 }
@@ -18,10 +20,20 @@ DRCompilerExplorer class >> on: aSelector [
 		yourself
 ]
 
+{ #category : #'instance creation' }
+DRCompilerExplorer class >> onSelector: aSelector inClass: aClass [
+
+	^ self new
+		selector: aSelector;
+		interpreterClass: aClass;
+		yourself
+]
+
 { #category : #optimising }
-DRCompilerExplorer >> apply: aClass [ 
-	
-	aClass new applyTo: self cfg
+DRCompilerExplorer >> apply: aClass [
+
+	previousCfg := self cfg veryDeepCopy.
+	self cfg applyOptimization: aClass new
 ]
 
 { #category : #accessing }
@@ -36,26 +48,15 @@ DRCompilerExplorer >> cfg [
 	cfg ifNotNil: [ ^ cfg ].
 	^ cfg := DRPrimitiveCompilerCompiler new
 		primitiveName: self selector;
-		interpreter: interpreter;
+		interpreter: self interpreter;
 		generateDruidIR
 ]
 
-{ #category : #initialization }
-DRCompilerExplorer >> initialize [
+{ #category : #optimising }
+DRCompilerExplorer >> goBack [
 
-	| theMemory |
-	super initialize.
-	
-	theMemory := Spur64BitCoMemoryManager simulatorClass new.
-	CogVMSimulatorLSB
-			initializeWithOptions: {
-				#BytesPerWord. 8.
-				#ObjectMemory. theMemory class name.
-				#bytecodeTableInitializer. #initializeBytecodeTableForSistaV1}
-				objectMemoryClass: theMemory class.
-	interpreter := CogVMSimulatorLSB basicNew
-		objectMemory: theMemory;
-		basicInitialize.
+	cfg := previousCfg.
+	previousCfg := nil
 ]
 
 { #category : #'as yet unclassified' }
@@ -75,16 +76,49 @@ DRCompilerExplorer >> inspectionSource [
 		yourself
 ]
 
+{ #category : #initialization }
+DRCompilerExplorer >> interpreter [
+
+	| theMemory |
+	interpreter ifNotNil: [ ^ interpreter ].
+
+	theMemory := Spur64BitCoMemoryManager simulatorClass new.
+	self interpreterClass
+		initializeWithOptions: { 
+				#BytesPerWord.
+				8.
+				#ObjectMemory.
+				theMemory class name.
+				#bytecodeTableInitializer.
+				#initializeBytecodeTableForSistaV1 }
+		objectMemoryClass: theMemory class.
+	^ interpreter := self interpreterClass basicNew
+		                 objectMemory: theMemory;
+		                 basicInitialize
+]
+
+{ #category : #accessing }
+DRCompilerExplorer >> interpreterClass [
+
+	^ interpreterClass ifNil: [ CogVMSimulatorLSB ]
+]
+
+{ #category : #accessing }
+DRCompilerExplorer >> interpreterClass: anObject [
+
+	interpreterClass := anObject
+]
+
 { #category : #'as yet unclassified' }
 DRCompilerExplorer >> method [
 
-	^ interpreter class lookupSelector: selector
+	^ self interpreterClass lookupSelector: selector
 ]
 
 { #category : #'as yet unclassified' }
 DRCompilerExplorer >> methodClass [
 
-	^ interpreter class
+	^ self interpreter class
 ]
 
 { #category : #'as yet unclassified' }
@@ -95,8 +129,17 @@ DRCompilerExplorer >> methodSource [
 
 { #category : #accessing }
 DRCompilerExplorer >> optimizations [
-	
-	^ { DRDeadBlockElimination . DRSCCP . DRCopyPropagation . DRDeadCodeElimination . DRCleanControlFlow . DRPhiSimplication}
+
+	^ { 
+		  DRFailureCodeBasedTailDuplication.
+		  DRDeadBlockElimination.
+		  DRSCCP.
+		  DRCopyPropagation.
+		  DRDeadCodeElimination.
+		  DRCleanControlFlow.
+		  DRPhiSimplication.
+		  DRDeadPathSplitting.
+		  DRDeadPathElimination }
 ]
 
 { #category : #'as yet unclassified' }

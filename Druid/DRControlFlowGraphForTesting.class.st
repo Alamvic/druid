@@ -21,7 +21,6 @@ DRControlFlowGraphForTesting >> b0 [
 { #category : #accessing }
 DRControlFlowGraphForTesting >> b0: aBlock [
 
-	initialBasicBlock := aBlock.
 	b0 := aBlock
 ]
 

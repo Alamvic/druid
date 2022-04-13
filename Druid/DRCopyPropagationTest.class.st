@@ -1,19 +1,50 @@
 Class {
 	#name : #DRCopyPropagationTest,
 	#superclass : #DROptimisationTest,
-	#instVars : [
-		'optimisation'
-	],
 	#category : #'Druid-Tests'
 }
 
+{ #category : #'as yet unclassified' }
+DRCopyPropagationTest >> previousOptimizations [
+
+	^ { (DRPhiSimplication then: DRDeadCodeElimination) }
+]
+
 { #category : #tests }
-DRCopyPropagationTest >> testCopyConstantIsNotPropagatedToPhiFunctions [
+DRCopyPropagationTest >> testCopyIsNotPropagatedBetweenBranches [
+
+	| cfg instruction |
+	cfg := self generateDruidIRFor: #primitiveBranchingWithAssigments.
+
+	DRCopyPropagation new applyTo: cfg.
+
+	instruction := cfg instructionByResultId: 2.
+	self assert: instruction users size equals: 1.
+	self assert: instruction users anyOne isCopy
+]
+
+{ #category : #tests }
+DRCopyPropagationTest >> testCopyIsNotPropagatedFromConstantToPhiFunctions [
 
 	| cfg t1 t2 |
 	cfg := DRControlFlowGraph new.
 	cfg newBasicBlockWith: [ :block |
 		t1 := block copy: 1 asDRValue.
+		t2 := block phiWith: t1.
+	].
+
+	DRCopyPropagation new applyTo: cfg.
+	
+	self assert: t2 operands first equals: t1
+]
+
+{ #category : #tests }
+DRCopyPropagationTest >> testCopyIsNotPropagatedFromObjectReferenceToPhiFunctions [
+
+	| cfg t1 t2 |
+	cfg := DRControlFlowGraph new.
+	cfg newBasicBlockWith: [ :block |
+		t1 := block copy: DRTrueObject new.
 		t2 := block phiWith: t1.
 	].
 

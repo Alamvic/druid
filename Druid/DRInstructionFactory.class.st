@@ -78,17 +78,21 @@ DRInstructionFactory >> load: anAdress [
 { #category : #factory }
 DRInstructionFactory >> phiWith: value1 [
 
-	^ (DRPhiFunction joinedVariables: { value1 asDRValue })
-		  result: self allocateTemporaryRegister;
-		  yourself
+	^ self phiWithVariables: { value1 asDRValue }
 ]
 
 { #category : #factory }
 DRInstructionFactory >> phiWith: value1 with: value2 [
 
-	^ (DRPhiFunction joinedVariables: { 
-				   value1 asDRValue.
-				   value2 asDRValue })
+	^ self phiWithVariables: { 
+			  value1 asDRValue.
+			  value2 asDRValue }
+]
+
+{ #category : #factory }
+DRInstructionFactory >> phiWithVariables: variables [
+
+	^ (DRPhiFunction joinedVariables: variables)
 		  result: self allocateTemporaryRegister;
 		  yourself
 ]

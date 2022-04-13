@@ -5,13 +5,6 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> assertIsIgnored [
-	<numberOfArguments: 0>
-	self assert: false.
-	self pop: 1 thenPush: 1
-]
-
-{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> constant [
 
 	^ 73
@@ -68,10 +61,40 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> multipleReturnsWithDeadPath [
+
+	(self stackTop anyMask: 2) ifTrue: [ ^ 1 ].
+
+	self stackTop <= 10
+		ifTrue: [ ^ 2 ]
+		ifFalse: [ ^ 3 ]
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> passingSuccess [
 	<numberOfArguments: 0>
 	self success: true.
 	self pop: 1 thenPush: 1
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAssertIsIgnored [
+	<numberOfArguments: 0>
+	self assert: false.
+	self pop: 1 thenPush: 17
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveBranchingWithAssigments [
+
+	<numberOfArguments: 0>
+	| a b res |
+	a := 17.
+	b := 42.
+	res := self stackTop > 0
+		ifTrue: [ a ]
+		ifFalse: [ b ].
+	self pop: 1 thenPush: res
 ]
 
 { #category : #'as yet unclassified' }
@@ -96,6 +119,17 @@ DruidTestInterpreter >> primitiveCallingMethodWithTwoEarlyReturns [
 	<numberOfArguments: 0>
 
 	self pop: 1 thenPush: self methodWithTwoEarlyReturns
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveChangingVariableInOnePath [
+
+	<numberOfArguments: 0>
+	| res res2 |
+	res := 10.
+	res2 := 0.
+	self stackTop > 0 ifTrue: [ res := 42 ] ifFalse: [res2 := 1].
+	self pop: 1 thenPush: res + res2
 ]
 
 { #category : #'as yet unclassified' }
@@ -126,6 +160,42 @@ DruidTestInterpreter >> primitiveConditionWithAnyMaskInverted [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDNA [
+
+	<numberOfArguments: 0>
+	| res res2 res3 |
+	res := self stackTop > 10
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 99 ].
+	res2 := self stackTop > 0
+		        ifTrue: [ 5 ]
+		        ifFalse: [ 17 ].
+	res3 := self stackTop > 7
+		        ifTrue: [ 15 ]
+		        ifFalse: [ 42 ].
+		
+	self pop: 1 thenPush: res + res2 + res3
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDNA2 [
+
+	<numberOfArguments: 0>
+	| res res2 res3 |
+	res := self stackTop > 10
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 99 ].
+	res2 := self stackTop = 100
+		        ifTrue: [ 5 ]
+		        ifFalse: [ 17 ].
+	res3 := self stackTop > 7
+		        ifTrue: [ 15 ]
+		        ifFalse: [ 42 ].
+		
+	self pop: 1 thenPush: res + res2 + res3
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDecrement [
 
 	<numberOfArguments: 0>
@@ -141,6 +211,24 @@ DruidTestInterpreter >> primitiveDivide [
 	| result |
 	result := (self stackValue: 1) // (self stackValue: 0).
 	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveEqualsThan [
+
+	<numberOfArguments: 0>
+	| r |
+	r := self stackTop = 10 ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveEqualsThanInverted [
+	"Put the constant as the receiver"
+	<numberOfArguments: 0>
+	| r |
+	r := 10 = self stackTop ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
 ]
 
 { #category : #'as yet unclassified' }
@@ -186,6 +274,51 @@ DruidTestInterpreter >> primitiveIncrement [
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: self stackTop + 1
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveInnerBranching [
+
+	<numberOfArguments: 0>
+	| res |
+	res := self stackTop > 10
+		       ifTrue: [ 
+			       self stackTop < 20
+				       ifTrue: [ 5 ]
+				       ifFalse: [ 17 ] ]
+		       ifFalse: [ 99 ].
+	self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveInnerBranchingWithDeadBranch [
+
+	<numberOfArguments: 0>
+	| res |
+	res := self stackTop > 10
+		       ifTrue: [ 
+			       self stackTop < 5
+				       ifTrue: [ 5 "Dead" ]
+				       ifFalse: [ 17 ] ]
+		       ifFalse: [ 99 ].
+	self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveInnerBranchingWithDeadBranches [
+
+	<numberOfArguments: 0>
+	| res |
+	res := self stackTop > 10
+		       ifTrue: [ 
+			       self stackTop < 5
+				       ifTrue: [ 5 "Dead" ]
+				       ifFalse: [ 17 ] ]
+		       ifFalse: [ 
+			       self stackTop > 15
+				       ifTrue: [ 25 "Dead" ]
+				       ifFalse: [ 27 ] ].
+	self pop: 1 thenPush: res
 ]
 
 { #category : #'as yet unclassified' }
@@ -245,6 +378,20 @@ DruidTestInterpreter >> primitiveMod [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveMultiplePathsOnlyOneDead [
+
+	<numberOfArguments: 0>
+	| res res2 |
+	res := self multipleReturnsWithDeadPath.
+
+	res2 := (self stackTop anyMask: 3)
+				ifTrue: [ 4 ]
+				ifFalse: [ 5 ].
+
+	self pop: 1 thenPush: res + res2
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveMultiplyWithOverflow [
 
 	<numberOfArguments: 1>
@@ -263,6 +410,24 @@ DruidTestInterpreter >> primitiveNegated [
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: self stackTop negated
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNotEqualsThan [
+
+	<numberOfArguments: 0>
+	| r |
+	r := self stackTop ~= 10 ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNotEqualsThanInverted [
+	"Put the constant as the receiver"
+	<numberOfArguments: 0>
+	| r |
+	r := 10 ~= self stackTop ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
 ]
 
 { #category : #'as yet unclassified' }
@@ -287,6 +452,21 @@ DruidTestInterpreter >> primitiveReturnTrue [
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: objectMemory trueObject
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveSandclock [
+
+	<numberOfArguments: 0>
+	| res res2 |
+	res := self stackTop > 10
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 99 ].
+	res2 := self stackTop > 0
+		        ifTrue: [ 5 ]
+		        ifFalse: [ 17 ].
+		
+	self pop: 1 thenPush: res + res2
 ]
 
 { #category : #'as yet unclassified' }

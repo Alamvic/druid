@@ -160,7 +160,7 @@ DRCleanControlFlow >> step: cfg [
 
 { #category : #executing }
 DRCleanControlFlow >> stepBlock: aDRBasicBlock fromCfg: aCFG [
-
+	
 	(self shouldFoldRedundantBranchIn: aDRBasicBlock) ifTrue: [ 
 		self foldRedundantBranch: aDRBasicBlock endInstruction.
 		^ true ].

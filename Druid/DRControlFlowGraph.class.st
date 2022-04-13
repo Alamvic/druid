@@ -5,7 +5,9 @@ Class {
 		'initialBasicBlock',
 		'basicBlocks',
 		'nextBasicBlockId',
-		'instructionFactory'
+		'instructionFactory',
+		'edges',
+		'deadPaths'
 	],
 	#category : #'Druid-IR'
 }
@@ -15,6 +17,21 @@ DRControlFlowGraph >> addBasicBlock: aBlock [
 
 	self assert: (basicBlocks noneSatisfy: [:b | b id = aBlock id]).
 	basicBlocks add: aBlock
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> addEdge: anEdge [
+
+	edges add: anEdge
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock [
+	
+	| edge |
+	edge := DRCPSEdge withSource: sourceBlock andDestination: destinationBlock.
+	self addEdge: edge.
+	^ edge
 ]
 
 { #category : #building }
@@ -30,6 +47,14 @@ DRControlFlowGraph >> allocateBasicBlockID [
 DRControlFlowGraph >> allocateTemporaryRegister [
 	
 	^ instructionFactory allocateTemporaryRegister
+]
+
+{ #category : #optimization }
+DRControlFlowGraph >> applyOptimization: optimization [
+
+	optimization applyTo: self.
+	self generatePaths.
+	self validate
 ]
 
 { #category : #accessing }
@@ -77,6 +102,111 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 					workingQueue addLast: target  ] ] ] ]
 ]
 
+{ #category : #edges }
+DRControlFlowGraph >> clearEdges [
+
+	edges := OrderedCollection new.
+	deadPaths := nil
+]
+
+{ #category : #inspecting }
+DRControlFlowGraph >> createBlockView: aBlock [
+	| box label boxes composite labelBackground |
+	label := RSLabel new 
+		text: aBlock id asString;
+		color: Color black;
+		fontSize: 4;
+		yourself.
+	labelBackground := RSEllipse new
+		color: Color white;
+		border: (RSBorder new color: 'black');
+		extent: label extent + 5;
+		yourself.
+	box := RSBox new
+		noPaint;
+		border: (RSBorder new 
+			width: 2; 
+			color: Color black;
+			yourself);
+		cornerRadius: 2;
+		yourself.
+
+	boxes := aBlock instructions collect: [ :inst | 
+		RSBox new
+			model: inst;
+			color: (self instructionColor: inst);
+			border: (RSBorder new color: Color black; joinMiter);
+			yourself ] as: RSGroup.
+	RSGridLayout on: boxes.
+	box 
+		position: boxes position;
+		extent: boxes extent + 10.
+	composite := ({box},boxes) asShape
+		draggable;
+		@ (RSPopup text: [:model | 
+			String streamContents: [:s | (model instructions collect: #prettyPrint)
+				asStringOn: s delimiter: String cr] 
+			]);
+		@ (RSMenuActivable new menuDo: [ :menu :element | 
+			menu
+				add: 'Tail-duplicate'
+				target: element model
+				selector: #tailDuplicate ]);
+		model: aBlock;
+		yourself.
+	
+	RSLocation new outer; right; top; offset: 3@(-3); move: label on: boxes.
+	labelBackground position: label position.
+	composite add: labelBackground.
+	composite add: label.
+	^ composite
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> deadPaths [
+
+	| paths |
+	deadPaths ifNotNil: [ ^ deadPaths ].
+	paths := OrderedDictionary new.
+	edges select: [ :e | e isDead ] thenDo: [ :e | 
+		paths
+			at: e deadTarget
+			ifPresent: [ :collection | collection add: e ]
+			ifAbsentPut: { e } asOrderedCollection ].
+	^ deadPaths := paths
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> edges [
+
+	^ edges
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> edgesFrom: sourceBlock to: destinationBlock [
+
+	^ edges select: [ :e | e source = sourceBlock and: [e destination = destinationBlock] ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> firstBasicBlock [
+
+	^ initialBasicBlock successor
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> generatePaths [
+
+	self clearEdges.
+	(DRPathFactory withCFG: self) generatePaths
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> incomingEdgesFor: aBlock [
+
+	^ edges select: [ :e | e destination = aBlock ]
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> initialBasicBlock [ 
 	^ initialBasicBlock
@@ -89,48 +219,42 @@ DRControlFlowGraph >> initialize [
 	instructionFactory := DRInstructionFactory new.
 	
 	basicBlocks := OrderedCollection new.
+	edges := OrderedCollection new.
 	initialBasicBlock := DRBasicBlock id: 0.
 	nextBasicBlockId := 1.
 ]
 
-{ #category : #'as yet unclassified' }
-DRControlFlowGraph >> inspectionCFG: aBuilder [
-	<inspectorPresentationOrder: 0 title: 'CFG'> 
-	| view blockViews eb |
+{ #category : #inspecting }
+DRControlFlowGraph >> inspectionCFG [
+
+	<inspectorPresentationOrder: 0 title: 'CFG'>
+	| view |
 	view := RSCanvas new.
-	blockViews := self blocks collect: [ :c | | g |
-		g := RSGroup new.
-		g add: (RSBox new
-			size: 50;
-			color: Color veryVeryLightGray;
-			yourself).
-		g add: (RSLabel new text: c id asString).
-		g asShape
-			@ RSDraggable;
-			@ (RSMenuActivable new menuDo: [ :menu :element | 
-				menu
-					add: 'Tail-duplicate'
-					target: element model
-					selector: #tailDuplicate ]);
-			model: c;
-			yourself ].
-	view addAll: blockViews.
-	
-	eb := RSEdgeBuilder arrowedLine.
-	eb canvas: view.
-	eb withBorderAttachPoint.
-	eb 	shapes: blockViews.
-	eb connectToAll: #successors.
-	
-	"All the characters are displayed using a grid layout"
-	RSSugiyamaLayout new
-		horizontalGap: 50;
-		applyOn: blockViews.
-	view @ RSCanvasController.
-	
-	^ SpRoassal3InspectorPresenter new
-		canvas: view;
-		yourself
+	^ self showIn: view
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> instructionByResultId: anInteger [ 
+
+	^ self instructions detect: [ :i | i result ifNil: [ false ] ifNotNil: [ i result id = anInteger] ]
+]
+
+{ #category : #inspecting }
+DRControlFlowGraph >> instructionColor: instruction [
+
+	instruction isJump ifTrue: [ 
+		instruction isConditionalJump ifTrue: [ ^ Color red muchLighter ].
+		^ Color gray ].
+	instruction isMandatoryInstruction ifTrue: [ ^ Color purple ].
+	instruction users isEmpty ifTrue: [ ^ Color black ].
+	instruction isPhiFunction ifTrue: [ ^ Color orange ].
+	(instruction operands anySatisfy: [ :op | op isPhysicalRegister ]) 
+		ifTrue: [ ^ Color red darker ].
+	(instruction operands anySatisfy: [ :op | op isConstant ]) ifTrue: [ 
+		^ Color yellow darker ].
+	instruction isCopy ifTrue: [ ^ Color blue muchLighter ].
+
+	^ Color white
 ]
 
 { #category : #accessing }
@@ -162,6 +286,40 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 		b instructionsDo: [ :e | aFullBlockClosure value: e ] ]
 ]
 
+{ #category : #testing }
+DRControlFlowGraph >> isAlmostDeadBranch: aDRBasicBlock to: aDRBasicBlock2 [
+
+	^ (self edgesFrom: aDRBasicBlock to: aDRBasicBlock2) anySatisfy: [ :e | 
+		  e isDead ]
+]
+
+{ #category : #testing }
+DRControlFlowGraph >> isDeadBranch: aDRBasicBlock to: aDRBasicBlock2 [
+
+	^ (self edgesFrom: aDRBasicBlock to: aDRBasicBlock2) allSatisfy: [ :e | 
+		  e isDead ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> lastBasicBlock [
+
+	^ self reversePostOrderBlocks last
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> lastPaths [
+
+	^ (self blocks
+		   select: [ :b | b successors isEmpty ]
+		   thenCollect: [ :b | self incomingEdgesFor: b ]) flattened
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> leafBlocks [
+
+	^ self blocks select: [ :b | b endInstruction isNoop ]
+]
+
 { #category : #building }
 DRControlFlowGraph >> newBasicBlock [
 	
@@ -179,6 +337,24 @@ DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [
 	newBlock := self newBasicBlock.
 	aFullBlockClosure value: newBlock.
 	^ newBlock
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> outgoingEdgesFor: aBlock [
+
+	^ edges select: [ :e | e source = aBlock ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> pathsSize [
+
+	^ self lastPaths size
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> phiFunctions [
+
+	^ self instructions select: [ :i | i isPhiFunction ]
 ]
 
 { #category : #iterating }
@@ -210,6 +386,93 @@ DRControlFlowGraph >> reversePostOrderBlocks [
 	blocks := OrderedCollection new.
 	self blocksInReversePostOrderDo: [ :b | blocks add: b ].
 	^ blocks
+]
+
+{ #category : #inspecting }
+DRControlFlowGraph >> showIn: view [
+
+	| blockViews controller |
+	blockViews := self blocks collect: [ :b | self createBlockView: b. ].
+	view addAll: blockViews.
+	self showLines: blockViews in: view.
+	self showInfoIn: view.
+	
+	"All the characters are displayed using a grid layout"
+	RSSugiyamaLayout new
+		horizontalGap: 50;
+		applyOn: blockViews.
+	controller := RSCanvasController new.
+	controller noLegend.
+	view newAnimation
+		duration: 500 milliSeconds;
+		onStepDo: [ :t | view signalUpdate ];
+		when: RSAnimationEndEvent do: [:evt | 
+			controller configuration noZoomToFitOnExtendChanged ].
+	
+	view @ controller.
+	^ SpRoassal3InspectorPresenter new
+		canvas: view;
+		yourself
+]
+
+{ #category : #inspecting }
+DRControlFlowGraph >> showInfoIn: view [
+
+	| label instructions blocks paths |
+	label := [ :text | 
+	         RSLabel new
+		         text: text;
+		         color: Color black;
+		         fontSize: 44;
+		         bold;
+		         yourself ].
+
+
+	blocks := label value: self blocks size asString , ' blocks'.
+	instructions := label value:
+		                self instructions size asString , ' instructions'.
+	paths := label value: self pathsSize asString , ' paths'.
+
+	RSLocation new
+		below;
+		move: blocks on: view;
+		move: instructions on: blocks;
+		move: paths on: instructions.
+
+	view addAll: { 
+			blocks.
+			instructions.
+			paths }
+]
+
+{ #category : #inspecting }
+DRControlFlowGraph >> showLines: blockViews in: view [
+
+	| eb |
+	eb := RSLineBuilder arrowedLine.
+	eb canvas: view.
+	eb color: Color blue muchDarker.
+	eb width: 2.
+	eb withBorderAttachPoint.
+	eb shapes: blockViews.
+	eb connectToAll: #successors.
+	view lines pushBack.
+	view lines do: [ :line | 
+		| source destination |
+		source := line model key.
+		destination := line model value.
+		line model: (self edgesFrom: source to: destination).
+		line @ (RSPopup text: [ :edgs | 
+			 String streamContents: [ :s | 
+				 edgs
+					 do: [ :e | 
+					 e constraints values asStringOn: s delimiter: String cr ]
+					 separatedBy: [ 
+					 s << (String cr , '--o--o--o--o--o--o--o--' , String cr) ] ] ]).
+		(self isAlmostDeadBranch: source to: destination) ifTrue: [ 
+			line color: Color green muchDarker ].
+		(self isDeadBranch: source to: destination) ifTrue: [ 
+			line color: Color red muchDarker ] ]
 ]
 
 { #category : #validating }

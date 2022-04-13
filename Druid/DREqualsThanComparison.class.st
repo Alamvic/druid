@@ -36,8 +36,10 @@ DREqualsThanComparison >> opcode [
 
 { #category : #printing }
 DREqualsThanComparison >> reversed [
-	
-	^ DRNotEqualsThanComparison operands: operands reversed result: result
+
+	"Returns the same condition but with reversed operands: x = y --> y = x"
+
+	^ DREqualsThanComparison operands: operands reversed result: result
 ]
 
 { #category : #SCCP }
