@@ -10,6 +10,17 @@ DRAdd >> acceptVisitor: aVisitor [
 	^ aVisitor visitAddition: self
 ]
 
+{ #category : #printing }
+DRAdd >> asNumberedExpression [
+
+	| numberedExpression |
+	
+	numberedExpression := DRNumberedExpression new.
+	^ numberedExpression operation: self class;
+	operands: self operands asBag;
+	yourself
+]
+
 { #category : #testing }
 DRAdd >> isAdd [
 	

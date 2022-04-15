@@ -10,6 +10,17 @@ DROr >> acceptVisitor: aVisitor [
 	^ aVisitor visitOr: self
 ]
 
+{ #category : #SCCP }
+DROr >> asNumberedExpression [
+
+	| numberedExpression |
+	
+	numberedExpression := DRNumberedExpression new.
+	^ numberedExpression operation: self class;
+	operands: self operands asBag;
+	yourself
+]
+
 { #category : #printing }
 DROr >> opcode [
 	
