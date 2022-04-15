@@ -104,6 +104,28 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsReplacedByPreviousInstanc
 ]
 
 { #category : #tests }
+DRGlobalValueNumberingTest >> testEquivalentPhiFunctionsAreRemoved [
+			
+	| cfg instructionFactory optimisation copy1 copy2 copy3 copy4 phi1 phi2 |
+	
+	instructionFactory := DRInstructionFactory new.
+	optimisation := DRGlobalValueNumbering new.
+	cfg := self setUpCFGWithConditional.
+	cfg b2 addInstruction: (copy1 := instructionFactory copy: 3).
+	cfg b2 addInstruction: (copy2 := instructionFactory copy: 3).
+	cfg b3 addInstruction: (copy3 := instructionFactory copy: 4).
+	cfg b3 addInstruction: (copy4 := instructionFactory copy: 4).
+	cfg b4 addInstruction: (phi1 := instructionFactory phiWith: copy3 with: copy1).
+	cfg b4 addInstruction: (phi2 := instructionFactory phiWith: copy4 with: copy1).
+	
+	cfg initialBasicBlock controlFlowGraph: cfg.
+	
+	optimisation applyTo: cfg.
+		
+	self assert: (cfg b4 instructions includes: phi2).
+]
+
+{ #category : #tests }
 DRGlobalValueNumberingTest >> testNonEquivalentOperationIsNotReplaced [
 	"This test asserts whether or not non equivalent operations are left alone by the optimisation"
 			

@@ -54,7 +54,7 @@ DRDominatorTree >> initialize: cfg [
 				workList addFirst: (node block: b;
 				parent: currentNode;
 				yourself).
-				currentNode children addFirst: node.
+				currentNode children addLast: node.
 			].
 		].
 	]

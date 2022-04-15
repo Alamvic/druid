@@ -63,5 +63,5 @@ DRDominatorTreeNode >> parent: node [
 DRDominatorTreeNode >> replaceParent: node [
 	self parent children remove: self.
 	self parent: node.
-	node children addFirst: self.
+	node children addLast: self.
 ]
