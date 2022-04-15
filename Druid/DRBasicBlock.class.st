@@ -168,6 +168,12 @@ DRBasicBlock >> copy: aValue [
 	^ self addInstruction: (self instructionFactory copy: aValue)
 ]
 
+{ #category : #building }
+DRBasicBlock >> divide: aValue by: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory divide: aValue by: anotherValue)
+]
+
 { #category : #'control-flow' }
 DRBasicBlock >> duplicatePredecessor: existingPredecessor from: newPredecessor [
 	
@@ -583,6 +589,12 @@ DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 DRBasicBlock >> methodNode [
 	
 	^ (self instructions select: [ :i | i originAST notNil ] thenCollect: [ :i | i originAST methodNode ]) anyOne
+]
+
+{ #category : #building }
+DRBasicBlock >> modulo: aValue by: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory modulo: aValue by: anotherValue)
 ]
 
 { #category : #accessing }

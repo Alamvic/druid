@@ -273,18 +273,20 @@ DRCogitCodeGenerator >> visitCopy: aDRMove [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitDivision: aDRCogitDivision [ 
+DRCogitCodeGenerator >> visitDivision: aDRCogitDivision [
 
-	^ generatorMethodBuilder addStatement: (
-		RBMessageNode
-			receiver: RBVariableNode selfNode
-			selector: #DivR:R:Quo:Rem:
-			arguments: { 
-				self rtlExpressionForValue: (aDRCogitDivision operands second).
-				self rtlExpressionForValue: (aDRCogitDivision operands first).
-				self rtlExpressionForValue: (aDRCogitDivision result).
-				self rtlExpressionForValue: (aDRCogitDivision operands third).
-			})
+	"Cogit division is not in 2AC but in 4AC.
+	The (cogit specific) register allocator should inserts a register for REM destination implicitly yet unused.
+	It should also put all operands in registers as the cogit instruction does not support constants."
+
+	^ generatorMethodBuilder addStatement: (RBMessageNode
+			   receiver: RBVariableNode selfNode
+			   selector: #DivR:R:Quo:Rem:
+			   arguments: { 
+					   (self rtlExpressionForValue: aDRCogitDivision operands second).
+					   (self rtlExpressionForValue: aDRCogitDivision operands first).
+					   (self rtlExpressionForValue: aDRCogitDivision result).
+					   (self rtlExpressionForValue: aDRCogitDivision operands third) })
 ]
 
 { #category : #visiting }
@@ -358,18 +360,20 @@ DRCogitCodeGenerator >> visitLoad: aDRLoad [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitMod: aDRCogitDivision [ 
+DRCogitCodeGenerator >> visitMod: aDRCogitDivision [
 
-	^ generatorMethodBuilder addStatement: (
-		RBMessageNode
-			receiver: RBVariableNode selfNode
-			selector: #DivR:R:Quo:Rem:
-			arguments: { 
-				self rtlExpressionForValue: (aDRCogitDivision operands second).
-				self rtlExpressionForValue: (aDRCogitDivision operands first).
-				self rtlExpressionForValue: (aDRCogitDivision operands third).
-				self rtlExpressionForValue: (aDRCogitDivision result).
-			})
+	"Cogit division (and thus remainder too) is not in 2AC but in 4AC.
+	The (cogit specific) register allocator should inserts a register for quotient destination implicitly yet unused.
+	It should also put all operands in registers as the cogit instruction does not support constants."
+
+	^ generatorMethodBuilder addStatement: (RBMessageNode
+			   receiver: RBVariableNode selfNode
+			   selector: #DivR:R:Quo:Rem:
+			   arguments: { 
+					   (self rtlExpressionForValue: aDRCogitDivision operands second).
+					   (self rtlExpressionForValue: aDRCogitDivision operands first).
+					   (self rtlExpressionForValue: aDRCogitDivision operands third).
+					   (self rtlExpressionForValue: aDRCogitDivision result) })
 ]
 
 { #category : #visiting }

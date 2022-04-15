@@ -55,13 +55,24 @@ DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [
 	self assignRegisters.
 ]
 
+{ #category : #accessing }
+DRLinearScanRegisterAllocator >> allocatedRegisterFor: aValue [
+	
+	^ (liveSets at: aValue result) location
+]
+
 { #category : #assigning }
 DRLinearScanRegisterAllocator >> assignRegisters [
 
 	self instructionsDo: [ :i | 
 		i result ifNotNil: [ 
 			i result isVirtualRegister ifTrue: [ 
-				i result: (liveSets at: i result) location ] ] ]
+				i result: (self allocatedRegisterFor: i) ] ].
+		i operands withIndexDo: [ :op :index |
+			op isVirtualRegister ifTrue: [
+				i operandAt: index put: (self allocatedRegisterFor: op)
+			]
+		] ]
 ]
 
 { #category : #'live-analysis' }
@@ -74,18 +85,23 @@ DRLinearScanRegisterAllocator >> buildLiveIntervals [
 
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> computeLiveSets [
-	
-	self instructionsDo: [ :i |
-		"If the instruction has a result..."
-		i result ifNotNil: [ | liveSet |
-			liveSet := DRLiveSet new.
-			liveSet definition: i.
-			i result isVirtualRegister ifTrue: [
-				liveSets at: i result put: liveSet ].
-			i operands
-				select: [ :op | op result isVirtualRegister ]
-				thenDo: [ :reg |
-					(liveSets at: reg result) lastUsage: i ] ] ].
+
+	self instructionsDo: [ :i | "If the instruction has a result..." 
+		self computeLiveSetsForInstruction: i ]
+]
+
+{ #category : #'live-analysis' }
+DRLinearScanRegisterAllocator >> computeLiveSetsForInstruction: i [
+
+	^ i result ifNotNil: [ 
+		  | liveSet |
+		  liveSet := DRLiveSet new.
+		  liveSet definition: i.
+		  i result isVirtualRegister ifTrue: [ 
+			  liveSets at: i result put: liveSet ].
+		  i operands
+			  select: [ :op | op result isVirtualRegister ]
+			  thenDo: [ :reg | (liveSets at: reg result) lastUsage: i ] ] "If the instruction has a result..."
 ]
 
 { #category : #'block-linearization' }

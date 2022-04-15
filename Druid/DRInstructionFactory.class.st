@@ -41,6 +41,14 @@ DRInstructionFactory >> copy: aValue [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> divide: aValue by: anotherValue [
+
+	^ DRDivision
+		  operands: { aValue asDRValue. anotherValue asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> equals: operand1 to: operand2 [
 	
 	^ DREqualsThanComparison
@@ -80,6 +88,14 @@ DRInstructionFactory >> load: anAdress [
 		  operands: { 
 				  8 asDRValue. "Assume 64 bits for now"
 				  anAdress asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> modulo: aValue by: anotherValue [
+
+	^ DRMod
+		  operands: { aValue asDRValue. anotherValue asDRValue }
 		  result: self allocateTemporaryRegister
 ]
 

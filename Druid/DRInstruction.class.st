@@ -46,6 +46,13 @@ DRInstruction >> RBArrayNodenSource: aBuilder [
 	^ originAST inspectionSourceCode
 ]
 
+{ #category : #accessing }
+DRInstruction >> addOperand: anOperand [
+
+	operands add: anOperand.
+	anOperand addUser: self.
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> addUser: anInstruction [
 	
@@ -144,10 +151,22 @@ DRInstruction >> isCopy [
 	^ false
 ]
 
+{ #category : #testing }
+DRInstruction >> isDivision [
+	
+	^ false
+]
+
 { #category : #accessing }
 DRInstruction >> isInstruction [
 
 	^ true
+]
+
+{ #category : #testing }
+DRInstruction >> isModulo [
+	
+	^ false
 ]
 
 { #category : #testing }

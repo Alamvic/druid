@@ -10,6 +10,12 @@ DRDivision >> acceptVisitor: aVisitor [
 	^ aVisitor visitDivision: self
 ]
 
+{ #category : #testing }
+DRDivision >> isDivision [
+	
+	^ true
+]
+
 { #category : #printing }
 DRDivision >> opcode [
 	
