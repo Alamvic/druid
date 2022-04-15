@@ -36,6 +36,8 @@ DRGreaterOrEqualsThanComparison >> opcode [
 
 { #category : #reversing }
 DRGreaterOrEqualsThanComparison >> reversed [
+
+	"Returns the same condition but with reversed operands: x >= y --> y <= x"
 	
 	^ DRLessOrEqualsThanComparison operands: operands reversed result: result
 ]

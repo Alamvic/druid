@@ -4,12 +4,34 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
-{ #category : #initialization }
-DRConditionalConstraint class >> withValue: aConstantValue [
+{ #category : #arithmetic }
+DRConditionalConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
-	^ self new
-		  constantValue: aConstantValue;
-		  yourself
+	self subclassResponsibility
+]
+
+{ #category : #arithmetic }
+DRConditionalConstraint >> hasAllValuesLessThan: otherConstantValue [
+
+	self subclassResponsibility
+]
+
+{ #category : #testing }
+DRConditionalConstraint >> hasAllValuesWithMask: aMask [
+
+	self subclassResponsibility
+]
+
+{ #category : #testing }
+DRConditionalConstraint >> hasAllValuesWithoutMask: aMask [
+
+	self subclassResponsibility
+]
+
+{ #category : #arithmetic }
+DRConditionalConstraint >> hasValue: otherConstantValue [
+
+	self subclassResponsibility
 ]
 
 { #category : #testing }
@@ -18,26 +40,21 @@ DRConditionalConstraint >> includes: otherConstraint [
 	self subclassResponsibility
 ]
 
-{ #category : #arithmetic }
-DRConditionalConstraint >> includesValue: otherConstantValue [
+{ #category : #merging }
+DRConditionalConstraint >> intersectionWith: otherConditionalConstraint [
 
-	self subclassResponsibility
-]
-
-{ #category : #arithmetic }
-DRConditionalConstraint >> includesValuesGreaterThan: otherConstantValue [
-
-	self subclassResponsibility
-]
-
-{ #category : #arithmetic }
-DRConditionalConstraint >> includesValuesLessThan: otherConstantValue [
-
-	self subclassResponsibility
+	(self includes: otherConditionalConstraint) ifTrue: [ 
+		^ otherConditionalConstraint ].
+	(otherConditionalConstraint includes: self) ifTrue: [ 
+		^ self ].
+	(otherConditionalConstraint negated includes: self) ifTrue: [ 
+		^ DREmptyConstraint new ].
+	
+	^ DRIntersectionConstraint constraints: { self. otherConditionalConstraint }
 ]
 
 { #category : #testing }
-DRConditionalConstraint >> isDead [
+DRConditionalConstraint >> isEmpty [
 
 	^ false
 ]
@@ -64,17 +81,4 @@ DRConditionalConstraint >> opCode [
 DRConditionalConstraint >> printOn: aStream [
 
 	aStream nextPutAll: self opCode
-]
-
-{ #category : #'as yet unclassified' }
-DRConditionalConstraint >> unifyWith: otherConditionalConstraint [
-
-	(self includes: otherConditionalConstraint) ifTrue: [ 
-		^ otherConditionalConstraint ].
-	(otherConditionalConstraint includes: self) ifTrue: [ 
-		^ self ].
-	(otherConditionalConstraint negated includes: self) ifTrue: [ 
-		^ DRDeadConstraint new ].
-	
-	^ DRIntersectionConstraint constraints: { self. otherConditionalConstraint }
 ]

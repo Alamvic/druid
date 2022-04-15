@@ -15,7 +15,7 @@ DRRedundantCodeEliminationTest >> testRedundantCopyIsEliminated [
 				       result: (DRPhysicalRegister name: 'argument')) 
 	].
 
-	DRRedundantCodeElimination new applyTo: cfg.
+	DRRedundantCopyElimination new applyTo: cfg.
 
 	self assert: b1 instructions size equals: 1. "Noop"
 ]
@@ -29,7 +29,7 @@ DRRedundantCodeEliminationTest >> testValueCopyIsNotEliminated [
 		 block copy: 1 asDRValue
 	].
 
-	DRRedundantCodeElimination new applyTo: cfg.
+	DRRedundantCopyElimination new applyTo: cfg.
 
 	self assert: b1 instructions size equals: 2. "Copy + Noop"
 ]

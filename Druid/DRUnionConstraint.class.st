@@ -13,30 +13,46 @@ DRUnionConstraint class >> less: minValue greater: maxValue [
 ]
 
 { #category : #arithmetic }
+DRUnionConstraint >> hasAllValuesGreaterThan: otherConstantValue [
+
+	^ constraints anySatisfy: [ :c | c hasAllValuesGreaterThan: otherConstantValue ]
+]
+
+{ #category : #arithmetic }
+DRUnionConstraint >> hasAllValuesLessThan: otherConstantValue [
+
+	^ constraints anySatisfy: [ :c | c hasAllValuesLessThan: otherConstantValue ]
+]
+
+{ #category : #testing }
+DRUnionConstraint >> hasAllValuesWithMask: aMask [
+
+	"ATENTION: This implementation does not work mixing Masked & Ranged constraints"
+
+	^ constraints anySatisfy: [ :c | c hasAllValuesWithMask: aMask ]
+]
+
+{ #category : #arithmetic }
+DRUnionConstraint >> hasAllValuesWithoutMask: aMask [
+
+	"ATENTION: This implementation does not work mixing Masked & Ranged constraints"
+
+	^ constraints anySatisfy: [ :c | c hasAllValuesWithoutMask: aMask ]
+]
+
+{ #category : #arithmetic }
+DRUnionConstraint >> hasValue: otherConstantValue [
+
+	^ constraints anySatisfy: [ :c | c hasValue: otherConstantValue ]
+]
+
+{ #category : #arithmetic }
 DRUnionConstraint >> includes: otherConstraint [
 
 	otherConstraint isUnion ifTrue: [ 
 		^ otherConstraint constraints allSatisfy: [ :c | self includes: c ] ].
 
 	^ constraints anySatisfy: [ :c | c includes: otherConstraint ]
-]
-
-{ #category : #arithmetic }
-DRUnionConstraint >> includesValue: otherConstantValue [
-
-	^ constraints anySatisfy: [ :c | c includesValue: otherConstantValue ]
-]
-
-{ #category : #arithmetic }
-DRUnionConstraint >> includesValuesGreaterThan: otherConstantValue [
-
-	^ constraints anySatisfy: [ :c | c includesValuesGreaterThan: otherConstantValue ]
-]
-
-{ #category : #arithmetic }
-DRUnionConstraint >> includesValuesLessThan: otherConstantValue [
-
-	^ constraints anySatisfy: [ :c | c includesValuesLessThan: otherConstantValue ]
 ]
 
 { #category : #testing }

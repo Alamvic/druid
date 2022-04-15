@@ -1,18 +1,18 @@
 Class {
-	#name : #DRRedundantCodeElimination,
+	#name : #DRRedundantCopyElimination,
 	#superclass : #DROptimisation,
 	#category : #'Druid-Optimizations'
 }
 
 { #category : #operations }
-DRRedundantCodeElimination >> applyTo: aDRControlFlowGraph [
+DRRedundantCopyElimination >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph instructions copy do: [ :i | 
 		(i isCopy and: [ self isRedundant: i ]) ifTrue: [ i removeFromCFG ] ]
 ]
 
 { #category : #testing }
-DRRedundantCodeElimination >> isRedundant: aDRCopy [
+DRRedundantCopyElimination >> isRedundant: aDRCopy [
 
 	^ (aDRCopy operand1 isPhysicalRegister and:
 		   aDRCopy result isPhysicalRegister) and: [ 

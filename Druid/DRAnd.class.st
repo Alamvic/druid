@@ -1,6 +1,6 @@
 Class {
 	#name : #DRAnd,
-	#superclass : #DRBoolOperation,
+	#superclass : #DRBooleanInstruction,
 	#category : #'Druid-IR'
 }
 

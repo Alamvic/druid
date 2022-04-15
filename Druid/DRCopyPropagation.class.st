@@ -16,6 +16,6 @@ DRCopyPropagation >> applyTo: aDRControlFlowGraph [
 { #category : #operations }
 DRCopyPropagation >> propagateCopyFrom: i [
 
-	(i users reject: [ :user | user isPhiFunction ]) copy do: [ :user | 
+	(i users reject: [ :user | user isPhiFunction ]) do: [ :user | 
 		user replaceOperand: i by: i operands first ]
 ]

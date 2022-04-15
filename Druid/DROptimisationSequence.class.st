@@ -16,8 +16,7 @@ DROptimisationSequence >> addOptimisation: anOptimisation [
 { #category : #accessing }
 DROptimisationSequence >> applyTo: anIR [
 
-	sequence do: [ :each | 
-		each applyTo: anIR ]
+	sequence do: [ :each | anIR applyOptimization: each ]
 ]
 
 { #category : #initialization }
@@ -25,4 +24,11 @@ DROptimisationSequence >> initialize [
 
 	super initialize.
 	sequence := OrderedCollection new
+]
+
+{ #category : #accessing }
+DROptimisationSequence >> then: anotherOptimisation [
+
+	self addOptimisation: anotherOptimisation.
+	^ self
 ]

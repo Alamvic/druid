@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #'as yet unclassified' }
+DRCopyPropagationTest >> previousOptimizations [
+
+	^ { (DRPhiSimplication then: DRDeadCodeElimination) }
+]
+
 { #category : #tests }
 DRCopyPropagationTest >> testCopyIsNotPropagatedBetweenBranches [
 

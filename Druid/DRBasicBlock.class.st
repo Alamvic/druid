@@ -35,13 +35,17 @@ DRBasicBlock >> add: aValue to: anotherValue [
 DRBasicBlock >> addInstruction: anInstruction [
 
 	anInstruction basicBlock: self.
-	^ instructions add: anInstruction
+	^ anInstruction isPhiFunction
+		  ifTrue: [ instructions addFirst: anInstruction ]
+		  ifFalse: [ instructions add: anInstruction ]
 ]
 
 { #category : #accessing }
 DRBasicBlock >> addPredecessor: aBasicBlock [
 
-	predecessors add: aBasicBlock
+	predecessors add: aBasicBlock.
+	self phiFunctions do: [ :phi | 
+		phi operands size < self predecessors size ifTrue: [ phi addOperand ] ]
 ]
 
 { #category : #transformations }
@@ -56,6 +60,7 @@ DRBasicBlock >> basicDuplicate [
 		"Duplicate instructions"
 		self instructions allButLast do: [ :instruction |
 			oldToNew at: instruction put: (instructionCopy := instruction copy).
+			instructionCopy clearUsers.
 			instructionCopy operands do: [ :e |
 				e addUser: instructionCopy.
 			].
@@ -88,7 +93,9 @@ DRBasicBlock >> basicDuplicate [
 DRBasicBlock >> basicEndInstruction: aDRInstruction [ 
 
 	aDRInstruction basicBlock: self.
-	endInstruction := aDRInstruction
+	endInstruction ifNotNil: [ endInstruction operands do: [ :o |
+			o removeUser: endInstruction ] ].
+	^ endInstruction := aDRInstruction
 ]
 
 { #category : #accessing }
@@ -128,6 +135,15 @@ DRBasicBlock >> checkLivenessOf: aValue [
 	^ self predecessors anySatisfy: [ :e | e checkLivenessOf: aValue ]
 ]
 
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> commonSuccessors: aDRBasicBlock [
+
+	(aDRBasicBlock hasPredecessor: self) ifTrue: [ ^ {aDRBasicBlock} ].
+
+	^self successors select: [ :b | 
+		                       aDRBasicBlock hasRecursivePredecessor: b ].
+]
+
 { #category : #accessing }
 DRBasicBlock >> controlFlowGraph [
 
@@ -154,9 +170,10 @@ DRBasicBlock >> duplicatePredecessor: existingPredecessor from: newPredecessor [
 	
 	Assumption: newPredecessor is a predecessor of existingPredecessor"
 	
-	self addPredecessor: newPredecessor.
 	self phiFunctions do: [ :e |
 		e addValue: (e operandAt: (self indexOfPredecessor: existingPredecessor)) ].
+	self addPredecessor: newPredecessor.
+
 ]
 
 { #category : #accessing }
@@ -185,10 +202,33 @@ DRBasicBlock >> equals: operand1 to: operand2 [
 	^ self addInstruction: (self instructionFactory equals: operand1 to: operand2)
 ]
 
+{ #category : #testing }
+DRBasicBlock >> existPathFrom: aDRBasicBlock [ 
+	
+	^ aDRBasicBlock = self or: [ self hasRecursivePredecessor: aDRBasicBlock ]
+]
+
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> findMergePoint: aDRBasicBlock [
+
+	| possibleMergePoints |
+	(aDRBasicBlock hasPredecessor: self) ifTrue: [ ^ aDRBasicBlock ].
+
+	possibleMergePoints := self successors select: [ :b | 
+		                       aDRBasicBlock hasRecursivePredecessor: b ].
+	
+		possibleMergePoints select: [ :b | aDRBasicBlock hasRecursivePredecessor: b ].
+	
+	1halt.
+	possibleMergePoints size = 1
+		ifTrue: [ ^ possibleMergePoints first ]
+		ifFalse: [ ^ aDRBasicBlock ]
+]
+
 { #category : #accessing }
 DRBasicBlock >> firstInstruction [
 	
-	^ instructions first
+	^ self instructions first
 ]
 
 { #category : #testing }
@@ -213,6 +253,14 @@ DRBasicBlock >> hasPredecessor: aDRBasicBlock [
 DRBasicBlock >> hasPredecessors [
 	
 	^ predecessors notEmpty
+]
+
+{ #category : #testing }
+DRBasicBlock >> hasRecursivePredecessor: aDRBasicBlock [
+
+	^ (self hasPredecessor: aDRBasicBlock) or: [ 
+		  self predecessors anySatisfy: [ :p | 
+			  p hasPredecessor: aDRBasicBlock ] ]
 ]
 
 { #category : #accessing }
@@ -333,6 +381,14 @@ DRBasicBlock >> instructionsDo: aFullBlockClosure [
 	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
 ]
 
+{ #category : #testing }
+DRBasicBlock >> instructionsUsedOutside [
+
+	^ self instructions select: [ :i | 
+		  i users anySatisfy: [ :user | 
+			  (self instructions includes: user) not ] ]
+]
+
 { #category : #building }
 DRBasicBlock >> isDominatorOf: basicBlocks [
 
@@ -363,6 +419,30 @@ DRBasicBlock >> isExitBlock: anObject [
 	isExitBlock := anObject
 ]
 
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> joinValues: myInstruction and: duplicatedInstruction in: userBlock [
+
+	| possibleMergePoints |
+	possibleMergePoints := self commonSuccessors: userBlock. "Use dominator?"
+
+	possibleMergePoints ifEmpty: [
+		"User is self"
+		^ self phiWith: myInstruction with: duplicatedInstruction ].
+
+	possibleMergePoints size = 1 ifTrue: [ 
+		| mergeBlock |
+		mergeBlock := possibleMergePoints first.
+		^ mergeBlock phiWith: myInstruction with: duplicatedInstruction ].
+
+	possibleMergePoints size = 2 ifTrue: [ 
+		| phis |
+		phis := possibleMergePoints collect: [ :b | 
+			        b phiWith: myInstruction with: duplicatedInstruction ].
+		^ userBlock phiWith: phis first with: phis second ].
+
+	1 halt "Bad things happen here"
+]
+
 { #category : #building }
 DRBasicBlock >> jumpIf: aCondition [
 	
@@ -375,11 +455,11 @@ DRBasicBlock >> jumpIf: condition to: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 	aDRBasicBlock addPredecessor: self.
 	aDRBasicBlock2 addPredecessor: self.
 
-	^ endInstruction := DRConditionalJump new
+	^ self endInstruction: (DRConditionalJump new
 		operands: { condition };
 		trueBranch: aDRBasicBlock;
 		falseBranch: aDRBasicBlock2;
-		yourself
+		yourself)
 ]
 
 { #category : #building }
@@ -388,17 +468,18 @@ DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 	aDRBasicBlock addPredecessor: self.
 	aDRBasicBlock2 addPredecessor: self.
 	
-	^ endInstruction := DRConditionalJump new
+	^ self endInstruction: (DRConditionalJump new
 		trueBranch: aDRBasicBlock;
 		falseBranch: aDRBasicBlock2;
-		yourself
+		yourself)
 ]
 
 { #category : #building }
-DRBasicBlock >> jumpTo: aBasicBlock [ 
-	
+DRBasicBlock >> jumpTo: aBasicBlock [
+
 	self endInstruction: (DRJump new target: aBasicBlock).
-	aBasicBlock addPredecessor: self.
+	(aBasicBlock hasPredecessor: self) ifFalse: [ 
+		aBasicBlock addPredecessor: self ].
 	^ endInstruction
 ]
 
@@ -447,6 +528,27 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 		self addInstruction: phi.
 	].
 	^ vmOperandStack := newStack
+]
+
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> mergeOutsideUsersWith: duplicatedBlock [
+
+	| phi |
+	self instructions
+		with: duplicatedBlock instructions
+		do: [ :myInstruction :duplicatedInstruction | 
+			(self instructionsUsedOutside includes: myInstruction) ifTrue: [ 
+				myInstruction users copy do: [ :user | 
+					(phi isNil or: [ 
+						 (phi basicBlock = user basicBlock or: [ 
+							  user basicBlock hasRecursivePredecessor: phi basicBlock ])
+							 not ]) ifTrue: [ 
+						phi := self
+							       joinValues: myInstruction
+							       and: duplicatedInstruction
+							       in: user basicBlock ].
+
+					user replaceOperand: myInstruction by: phi ] ] ]
 ]
 
 { #category : #temporaries }
@@ -504,13 +606,29 @@ DRBasicBlock >> phiFunctions [
 { #category : #building }
 DRBasicBlock >> phiWith: aValue [
 
-	^ self addInstruction: (self instructionFactory phiWith: aValue)
+	^ self phiWithVariables: { aValue }
 ]
 
 { #category : #building }
 DRBasicBlock >> phiWith: aValue with: aValue2 [
 
-	^ self addInstruction: (self instructionFactory phiWith: aValue with: aValue2)
+	^ self phiWithVariables: { aValue. aValue2 }
+]
+
+{ #category : #factory }
+DRBasicBlock >> phiWithVariables: variables [
+
+	| newVariables |
+	newVariables := self predecessors size > variables size
+		                ifTrue: [ 
+			                self predecessors collect: [ :b | 
+				                variables
+					                detect: [ :i | b existPathFrom: i basicBlock ]
+					                ifNone: [ DRNullValue new ] ] ]
+		                ifFalse: [ variables ].
+
+	^ self addInstruction:
+		  (self instructionFactory phiWithVariables: newVariables)
 ]
 
 { #category : #accessing }
@@ -631,6 +749,24 @@ DRBasicBlock >> sourceInterval [
 	^ nodes first start to: nodes last stop
 ]
 
+{ #category : #transformations }
+DRBasicBlock >> splitTo: predecessorToRewire [
+
+	| duplicatedBlock |
+	duplicatedBlock := self basicDuplicate.
+	duplicatedBlock successors do: [ :successor | 
+		successor addPredecessor: duplicatedBlock ].
+
+	self mergeOutsideUsersWith: duplicatedBlock.
+
+	self predecessors do: [ :predecessorToRemove | 
+		predecessorToRemove = predecessorToRewire ifFalse: [ 
+			duplicatedBlock removePredecessor: predecessorToRemove ] ].
+
+	self removePredecessor: predecessorToRewire.
+	predecessorToRewire replaceSuccessor: self by: duplicatedBlock
+]
+
 { #category : #accessing }
 DRBasicBlock >> successor [
 	
@@ -650,27 +786,9 @@ DRBasicBlock >> successors [
 DRBasicBlock >> tailDuplicate [
 
 	"Duplicate the receiver so there is a different copy of it for each predecessor"
-	
-	"We can only tail duplicate if the instructions do not escape"
-	"If there is an instruction in this block"
-	(self instructions anySatisfy: [ :e | 
-		"That has a user that is not in this block"
-		e users anySatisfy: [ :user | (self instructions includes: user) not ] ])
-			ifTrue: [ 
-				DRError signal: 'cannot tail duplicate if values escape this block. Otherwise we will break the SSA property' ].
-	
-	self predecessors allButFirst do: [ :predecessorToRewire | | duplicatedBlock |
-		duplicatedBlock := self basicDuplicate.
-		
-		self predecessors do: [ :predecessorToRemove |
-			predecessorToRemove = predecessorToRewire ifFalse: [ 
-				duplicatedBlock removePredecessor: predecessorToRemove ] ].
-		
-		self removePredecessor: predecessorToRewire.
-		predecessorToRewire replaceSuccessor: self by: duplicatedBlock.
-		duplicatedBlock successors do: [ :successor |
-			successor addPredecessor: duplicatedBlock ].
-	].
+
+	self predecessors allButFirst do: [ :predecessorToRewire | 
+		self splitTo: predecessorToRewire ]
 ]
 
 { #category : #temporaries }
@@ -694,6 +812,16 @@ DRBasicBlock >> temporaryFrame [
 { #category : #accessing }
 DRBasicBlock >> temporaryFrame: aTemporaryFrame [ 
 	temporaryFrame := aTemporaryFrame
+]
+
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> upperCommonBlocks: aDRBasicBlock [
+
+	| possibleMergePoints |
+	(aDRBasicBlock hasPredecessor: self) ifTrue: [ ^ {aDRBasicBlock} ].
+
+	^self successors select: [ :b | 
+		                       aDRBasicBlock hasRecursivePredecessor: b ].
 ]
 
 { #category : #validating }
@@ -746,6 +874,12 @@ DRBasicBlock >> validateSuccessors [
 	self successors do: [ :s |
 		(s predecessors includes: self)
 			ifFalse: [ self error: 'Successor not pointing to me' ] ]
+]
+
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> veryDeepCopyWith: deepCopier [
+	deepCopier references at: origin ifAbsentPut: [nil].
+	^ super veryDeepCopyWith: deepCopier
 ]
 
 { #category : #accessing }

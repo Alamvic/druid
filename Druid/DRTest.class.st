@@ -36,6 +36,8 @@ DRTest >> opcode [
 
 { #category : #converting }
 DRTest >> reversed [
+
+	"Returns the same condition but with reversed operands: Test x y --> Test y x"
 	
 	^ DRTest operands: operands reversed result: result
 ]

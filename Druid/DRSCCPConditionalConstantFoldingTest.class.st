@@ -202,7 +202,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationRightWithPhiFunctionL
 ]
 
 { #category : #'tests - conditional folding' }
-DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationWithFarAwayPhiFunctionLeavesValidCFAfterDeadCodeElimination [
+DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationWithFarAwayPhiFunctionFinishWithValidCFG [
 	" |0| - - - - - - - - - -> |4| 
 		  \-> |1| - - - -> |3| -^
 					\-> |2| -^
@@ -217,7 +217,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationWithFarAwayPhiFunctio
 	b0 addInstruction: (copy1 := instructionFactory copy: leftOperand1).
 	b0 addInstruction: (copy2 := instructionFactory copy: leftOperand2).
 	mainJump := instructionFactory jumpIf:
-		        (instructionFactory lessOrEquals: copy1 than: copy2).
+		        	(instructionFactory lessOrEquals: copy1 than: copy2).
 	b0 addInstruction: mainJump condition.
 	b0 endInstruction: mainJump. 
 
@@ -249,11 +249,9 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationWithFarAwayPhiFunctio
 	mainJump trueBranch: b4.
 	b4 addPredecessor: b0. 
 	b4 addInstruction: (mainPhiInstruction := instructionFactory phiWith: innerPhiInstruction with: copy1).
-	b4 endInstruction: DRNoop new. 
-	
-	(optimisation then: DRDeadBlockElimination new) applyTo: cfg.
+	b4 endInstruction: DRNoop new.
 
-	cfg validate.
+	cfg applyOptimization: optimisation.
 	
 	self assertCollection: cfg blocks hasSameElements: { b0 . b4 }
 ]

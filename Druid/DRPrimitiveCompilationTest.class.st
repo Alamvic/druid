@@ -228,6 +228,7 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsTo
 DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
+	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 	
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
@@ -445,6 +446,46 @@ DRPrimitiveCompilationTest >> testFailingSuccessExecutesUntilStop [
 	self compileDruidPrimitive: #failingSuccess.
 	
 	self executeUntilStopPrimitiveWithReceiver: 1
+]
+
+{ #category : #'tests-deadcode' }
+DRPrimitiveCompilationTest >> testFourDeadBranchesFourBranches1 [
+
+	self compileDruidPrimitive: #primitiveDNA.
+	
+	self executePrimitiveWithReceiver: 11.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 21
+]
+
+{ #category : #'tests-deadcode' }
+DRPrimitiveCompilationTest >> testFourDeadBranchesFourBranches2 [
+
+	self compileDruidPrimitive: #primitiveDNA.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 119
+]
+
+{ #category : #'tests-deadcode' }
+DRPrimitiveCompilationTest >> testFourDeadBranchesFourBranches3 [
+
+	self compileDruidPrimitive: #primitiveDNA.
+	
+	self executePrimitiveWithReceiver: 7.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 146
+]
+
+{ #category : #'tests-deadcode' }
+DRPrimitiveCompilationTest >> testFourDeadBranchesFourBranches4 [
+
+	self compileDruidPrimitive: #primitiveDNA.
+	
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 158
 ]
 
 { #category : #'tests-comparisons' }
@@ -733,6 +774,36 @@ DRPrimitiveCompilationTest >> testNotSmallerThanInverted [
 	self executePrimitiveWithReceiver: 2.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-deadcode' }
+DRPrimitiveCompilationTest >> testOneDeadBranchThreeBranches1 [
+
+	self compileDruidPrimitive: #primitiveSandclock.
+	
+	self executePrimitiveWithReceiver: 11.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 6
+]
+
+{ #category : #'tests-deadcode' }
+DRPrimitiveCompilationTest >> testOneDeadBranchThreeBranches2 [
+
+	self compileDruidPrimitive: #primitiveSandclock.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 104
+]
+
+{ #category : #'tests-deadcode' }
+DRPrimitiveCompilationTest >> testOneDeadBranchThreeBranches3 [
+
+	self compileDruidPrimitive: #primitiveSandclock.
+	
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 116
 ]
 
 { #category : #'tests-failing-primitive' }

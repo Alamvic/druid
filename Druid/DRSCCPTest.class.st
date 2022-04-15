@@ -2,7 +2,6 @@ Class {
 	#name : #DRSCCPTest,
 	#superclass : #DROptimisationTest,
 	#instVars : [
-		'optimisation',
 		'instructionFactory',
 		'leftOperand1',
 		'leftOperand2',
@@ -11,18 +10,6 @@ Class {
 	],
 	#category : #'Druid-Tests'
 }
-
-{ #category : #accessing }
-DRSCCPTest >> optimisation [
-
-	^ optimisation
-]
-
-{ #category : #accessing }
-DRSCCPTest >> optimisation: anObject [
-
-	optimisation := anObject
-]
 
 { #category : #running }
 DRSCCPTest >> setUp [

@@ -1,5 +1,5 @@
 Class {
-	#name : #DRRegistersInfo,
+	#name : #DRCPSEdge,
 	#superclass : #DREdge,
 	#instVars : [
 		'constraints',
@@ -9,7 +9,7 @@ Class {
 }
 
 { #category : #adding }
-DRRegistersInfo >> addConstraint: aConditionalConstraint [
+DRCPSEdge >> addConstraint: aConditionalConstraint [
 
 	constraints
 		at: aConditionalConstraint reg name
@@ -17,35 +17,36 @@ DRRegistersInfo >> addConstraint: aConditionalConstraint [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> composedConstraint: aConstraintClass from: aDRInstruction [
+DRCPSEdge >> composedConstraint: aConstraintClass from: aDRInstruction [
 
 	| operands |
 	operands := aDRInstruction operands collect: [ :o | o acceptVisitor: self ].
-	^ DRRegisterConstraint
+	(operands anySatisfy: [ :o | (o isNil or: o = false) or: o = true ]) ifTrue: [ ^ nil ].
+	^ DRRegisterDomain
 		  reg: aDRInstruction
 		  constraint: (aConstraintClass constraints: operands)
 ]
 
 { #category : #accessing }
-DRRegistersInfo >> constraintFor: regKey [
+DRCPSEdge >> constraintFor: regKey [
 
 	^ constraints at: regKey
 ]
 
 { #category : #accessing }
-DRRegistersInfo >> constraints [
+DRCPSEdge >> constraints [
 
 	^ constraints
 ]
 
 { #category : #accessing }
-DRRegistersInfo >> constraints: anObject [
+DRCPSEdge >> constraints: anObject [
 
 	constraints := anObject
 ]
 
-{ #category : #'as yet unclassified' }
-DRRegistersInfo >> deadTarget [
+{ #category : #accessing }
+DRCPSEdge >> deadTarget [
 
 	^ self isDead
 		  ifTrue: [ parent deadTarget ifNil: [ parent ] ]
@@ -53,35 +54,39 @@ DRRegistersInfo >> deadTarget [
 ]
 
 { #category : #initialization }
-DRRegistersInfo >> initialize [ 
+DRCPSEdge >> initialize [ 
 
 	constraints := Dictionary new.
 ]
 
 { #category : #testing }
-DRRegistersInfo >> isDead [
+DRCPSEdge >> isDead [
 	^ constraints values anySatisfy: [ :c | c isDead ]
 ]
 
 { #category : #adding }
-DRRegistersInfo >> mergeConstraint: aConditionalConstraint [
+DRCPSEdge >> mergeConstraint: aConditionalConstraint [
 
 	constraints
 		at: aConditionalConstraint reg name
-		ifPresent: [ :oldConstraint | 
-			self addConstraint: (oldConstraint mergeWith: aConditionalConstraint) ]
-		ifAbsentPut: aConditionalConstraint
+		update: [ :oldConstraint | oldConstraint mergedWith: aConditionalConstraint ]
+		initial: aConditionalConstraint
 ]
 
 { #category : #accessing }
-DRRegistersInfo >> parent: aDRRegistersInfo [
+DRCPSEdge >> parent [
+	^ parent
+]
+
+{ #category : #accessing }
+DRCPSEdge >> parent: aDRRegistersInfo [
 
 	constraints := aDRRegistersInfo constraints copy.
 	parent := aDRRegistersInfo
 ]
 
 { #category : #printing }
-DRRegistersInfo >> printOn: aStream [
+DRCPSEdge >> printOn: aStream [
 
 	aStream nextPutAll: self class name asString.
 	aStream nextPutAll: '('.
@@ -92,28 +97,28 @@ DRRegistersInfo >> printOn: aStream [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitAddition: aDRAdd [ 
+DRCPSEdge >> visitAddition: aDRAdd [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitAnd: aDRAnd [
+DRCPSEdge >> visitAnd: aDRAnd [
 
 	^ self composedConstraint: DRIntersectionConstraint from: aDRAnd
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitBitAnd: aDRBitAnd [
+DRCPSEdge >> visitBitAnd: aDRBitAnd [
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitBitShift: aDRBitShift [ 
+DRCPSEdge >> visitBitShift: aDRBitShift [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitComparison: aDRComparison andDo: aClosure [ 
+DRCPSEdge >> visitComparison: aDRComparison andDo: aClosure [ 
 
 		| operands |
 	operands := aDRComparison operands.
@@ -127,14 +132,14 @@ DRRegistersInfo >> visitComparison: aDRComparison andDo: aClosure [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitConditionalJump: aDRConditionalJump [
+DRCPSEdge >> visitConditionalJump: aDRConditionalJump [
 
 	| constraint |
 	"Ignore hardcoded values"
 	aDRConditionalJump operand1 isInstruction ifFalse: [ ^ self ].
 
 	constraint := aDRConditionalJump operand1 acceptVisitor: self.
-	constraint ifNil: [ 1halt. ^ self ].
+	constraint ifNil: [ ^ self ].
 	aDRConditionalJump trueBranch = destination ifTrue: [ 
 		self mergeConstraint: constraint ].
 	aDRConditionalJump falseBranch = destination ifTrue: [ 
@@ -142,140 +147,141 @@ DRRegistersInfo >> visitConditionalJump: aDRConditionalJump [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitConstant: aDRConstantValue [ 
+DRCPSEdge >> visitConstant: aDRConstantValue [ 
 	
 	self flag: #TODO. "Remove this, we must know when something is a constant"
 	^ aDRConstantValue value 
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitCopy: aDRCopy [
+DRCPSEdge >> visitCopy: aDRCopy [
 
 	| constantValue |
 	"Only constant copies are importants"
-	aDRCopy operand1 isConstant ifFalse: [ ^ self ].
+	aDRCopy operand1 isConstant ifFalse: [ ^ nil ].
 	constantValue := aDRCopy operand1 acceptVisitor: self.
 	self addConstraint:
-		(DRRegisterConstraint equals: aDRCopy result than: constantValue)
+		(DRRegisterDomain equals: aDRCopy result than: constantValue)
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitDivision: aDRDivision [ 
+DRCPSEdge >> visitDivision: aDRDivision [ 
 		"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitEqualsComparison: aDREqualsThanComparison [
+DRCPSEdge >> visitEqualsComparison: aDREqualsThanComparison [
 
 	^ self
 		  visitComparison: aDREqualsThanComparison
 		  andDo: [ :reg :value | 
-		  DRRegisterConstraint equals: reg than: value ]
+		  DRRegisterDomain equals: reg than: value ]
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanComparison [
+DRCPSEdge >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanComparison [
 
 	^ self
 		  visitComparison: aDRGreaterOrEqualsThanComparison
 		  andDo: [ :reg :value | 
-		  DRRegisterConstraint greaterOrEquals: reg than: value ]
+		  DRRegisterDomain greaterOrEquals: reg than: value ]
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitGreaterThanComparison: aDRGreaterThanComparison [ 
+DRCPSEdge >> visitGreaterThanComparison: aDRGreaterThanComparison [ 
 
 	^ self
 		  visitComparison: aDRGreaterThanComparison
 		  andDo: [ :reg :value | 
-		  DRRegisterConstraint greater: reg than: value ]
+		  DRRegisterDomain greater: reg than: value ]
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitJump: aDRJump [ 
+DRCPSEdge >> visitJump: aDRJump [ 
 
 	"Simple jumps do not have type constraints"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitLeftShift: aDRLeftShift [ 
+DRCPSEdge >> visitLeftShift: aDRLeftShift [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitLessOrEqualsThanComparison: aDRLessOrEqualsThanComparison [
+DRCPSEdge >> visitLessOrEqualsThanComparison: aDRLessOrEqualsThanComparison [
 
 	^ self
 		  visitComparison: aDRLessOrEqualsThanComparison
 		  andDo: [ :reg :value | 
-		  DRRegisterConstraint lessOrEquals: reg than: value ]
+		  DRRegisterDomain lessOrEquals: reg than: value ]
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitLessThanComparison: aDRLessThanComparison [
+DRCPSEdge >> visitLessThanComparison: aDRLessThanComparison [
 
 	^ self
 		  visitComparison: aDRLessThanComparison
-		  andDo: [ :reg :value | DRRegisterConstraint less: reg than: value ]
+		  andDo: [ :reg :value | DRRegisterDomain less: reg than: value ]
 ]
 
-{ #category : #visitng }
-DRRegistersInfo >> visitLoad: aDRLoad [ 
+{ #category : #visiting }
+DRCPSEdge >> visitLoad: aDRLoad [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitMod: aDRMod [ 
+DRCPSEdge >> visitMod: aDRMod [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitMultiply: aDRMultiply [ 
+DRCPSEdge >> visitMultiply: aDRMultiply [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitMultiplyOverflowJump: aDRMultiplyOverflowJump [ 
+DRCPSEdge >> visitMultiplyOverflowJump: aDRMultiplyOverflowJump [ 
 	self flag: #TODO. "Do nothing?"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitNegate: aDRNegate [ 
+DRCPSEdge >> visitNegate: aDRNegate [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitNoop: aDRNoop [ 
+DRCPSEdge >> visitNoop: aDRNoop [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitNotEqualsComparison: aDRNotEqualsThanComparison [
+DRCPSEdge >> visitNotEqualsComparison: aDRNotEqualsThanComparison [
 
 	^ self
 		  visitComparison: aDRNotEqualsThanComparison
 		  andDo: [ :reg :value | 
-		  DRRegisterConstraint notEquals: reg than: value ]
+		  DRRegisterDomain notEquals: reg than: value ]
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitOr: aDROr [
+DRCPSEdge >> visitOr: aDROr [
 		
 	^ self composedConstraint: DRUnionConstraint from: aDROr
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitOverflowJump: aDROverflowJump [ 
+DRCPSEdge >> visitOverflowJump: aDROverflowJump [ 
 	self flag: #TODO. "Do nothing?"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitPhiFunction: aDRPhiFunction [ 
+DRCPSEdge >> visitPhiFunction: aDRPhiFunction [ 
 	"Do nothing"
+	^ nil
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitReturn: aDRReturn [
+DRCPSEdge >> visitReturn: aDRReturn [
 
 	"Returns do not have type constraints"
 
@@ -283,24 +289,24 @@ DRRegistersInfo >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitRightShift: aDRRightShift [ 
+DRCPSEdge >> visitRightShift: aDRRightShift [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitSubstract: aDRSubtract [ 
+DRCPSEdge >> visitSubstract: aDRSubtract [ 
 	"Do nothing"
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitTest: aDRTest [
+DRCPSEdge >> visitTest: aDRTest [
 
 	^ self
 		  visitComparison: aDRTest
-		  andDo: [ :reg :value | DRRegisterConstraint mask: reg with: value ]
+		  andDo: [ :reg :value | DRRegisterDomain mask: reg with: value ]
 ]
 
 { #category : #visiting }
-DRRegistersInfo >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
+DRCPSEdge >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
 	"Do nothing"
 ]

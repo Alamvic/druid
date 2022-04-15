@@ -36,6 +36,8 @@ DRNotEqualsThanComparison >> opcode [
 
 { #category : #printing }
 DRNotEqualsThanComparison >> reversed [
-	
+
+	"Returns the same condition but with reversed operands: x ~= y --> y ~= x"
+
 	^ DRNotEqualsThanComparison operands: operands reversed result: result
 ]
