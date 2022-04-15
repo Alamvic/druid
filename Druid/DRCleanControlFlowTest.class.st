@@ -2,8 +2,7 @@ Class {
 	#name : #DRCleanControlFlowTest,
 	#superclass : #DROptimisationTest,
 	#instVars : [
-		'instructionFactory',
-		'optimisation'
+		'instructionFactory'
 	],
 	#category : #'Druid-Tests'
 }
