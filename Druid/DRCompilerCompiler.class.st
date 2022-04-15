@@ -5,23 +5,15 @@ Class {
 		'interpreter',
 		'compilerClass',
 		'sourceName',
-		'allocatedRegisters',
-		'generatorMethodBuilder',
-		'nextJumpIndex',
 		'deferredBranches',
 		'registerAllocator',
 		'druidIR',
 		'targetAST',
-		'optimisations'
+		'optimisations',
+		'codeGenerator'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
-
-{ #category : #'ir-generation' }
-DRCompilerCompiler >> buildStatementsForInstruction: anInstruction [ 
-
-	^ anInstruction acceptVisitor: self
-]
 
 { #category : #api }
 DRCompilerCompiler >> compile [
@@ -49,13 +41,6 @@ DRCompilerCompiler >> compilerClass [
 DRCompilerCompiler >> compilerClass: anObject [
 
 	compilerClass := anObject
-]
-
-{ #category : #'jump-management' }
-DRCompilerCompiler >> deferBranch: aString to: aDRBasicBlock [ 
-	
-	(deferredBranches at: aDRBasicBlock ifAbsentPut: [ OrderedCollection new ])
-		add: aString
 ]
 
 { #category : #'generation-IR' }
@@ -93,14 +78,18 @@ DRCompilerCompiler >> generatePaths: cfg [
 	(DRPathFactory withCFG: cfg) generatePaths
 ]
 
+{ #category : #'code-generation' }
+DRCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
+
+	^ codeGenerator generateTargetASTFromIR: aDRControlFlowGraph primitiveName: self primitiveCompilerName
+]
+
 { #category : #'generation-IR' }
 DRCompilerCompiler >> initialize [
 
 	super initialize.
-	nextJumpIndex := 0.
-	allocatedRegisters := Dictionary new.
-	deferredBranches := Dictionary new.
-	generatorMethodBuilder := DRGeneratorMethodBuilder new.
+	
+	codeGenerator := DRCogitCodeGenerator new.
 	registerAllocator := DRLinearScanRegisterAllocator new.
 	
 	optimisations := OrderedCollection new.
@@ -129,50 +118,11 @@ DRCompilerCompiler >> newIRGenerator [
 	^ DRIRGenerator new
 ]
 
-{ #category : #'jump-management' }
-DRCompilerCompiler >> nextJumpIndex [
-	
-	| allocatedJumpIndex |
-	allocatedJumpIndex := nextJumpIndex.
-	nextJumpIndex := nextJumpIndex + 1.
-	^ allocatedJumpIndex
-]
-
 { #category : #api }
 DRCompilerCompiler >> optimize: anIR [
 
 	optimisations do: [ :optimization | 
 		anIR applyOptimization: optimization ]
-]
-
-{ #category : #'ir-to-ast' }
-DRCompilerCompiler >> preProcessBlock: aDRBasicBlock [
-	
-	| branches |
-	branches := deferredBranches at: aDRBasicBlock ifAbsent: [ ^ self ].
-	
-	generatorMethodBuilder addStatement: (RBAssignmentNode
-		variable: (RBVariableNode named: 'currentBlock')
-		value: (RBMessageNode
-			receiver: RBVariableNode selfNode
-			selector: #Label)).
-
-	branches do: [ :e |
-		generatorMethodBuilder addStatement: (RBMessageNode
-			receiver: (RBVariableNode named: e)
-			selector: #jmpTarget:
-			arguments: { RBVariableNode named: 'currentBlock' }). ]
-]
-
-{ #category : #registers }
-DRCompilerCompiler >> registerFor: aValue [
-	
-	aValue isConstant ifTrue: [ 
-		(aValue value isInteger and: [ aValue value > 5000 ])
-			ifTrue: [ ^ aValue value hex ].
-		^ aValue value asString ].
-
-	^ aValue result name
 ]
 
 { #category : #compilation }
@@ -210,304 +160,6 @@ DRCompilerCompiler >> sourceName [
 DRCompilerCompiler >> sourceName: anObject [
 
 	sourceName := anObject
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitAddition: aDRCogitAdd [ 
-
-	^ self threeOperandCogitRTL: #Add instruction: aDRCogitAdd 
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitAnd: aDRAnd [
-
-	"Use threeOperandCogitRTL: ?"
-	^ self twoOperandCogitRTL: #And instruction: aDRAnd
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitBitAnd: aDRCogitBitAnd [ 
-
-	^ self threeOperandCogitRTL: #And instruction: aDRCogitBitAnd
-
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitBitShift: aDRCogitBitShift [ 
-
-	^ self threeOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitBitShift
-
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitComparison: aComparison [ 
-	
-	| comparands |
-	"Generate comparison instruction. In cogit, if you want to do A < B, you have to generate:
-	CMP B A
-	JumpLessThan xxx
-	Thus, operands are inverted always"
-	comparands := aComparison operands reversed.
-	
-	"Cogit RTL only supports constants as the first argument.
-	Invert the comparison and the condition if necessary, mostly for greaterThan comparisons)."
-	comparands second isConstant ifTrue: [
-		aComparison replaceBy: aComparison reversed.
-		comparands := comparands reversed ].
-
-	self twoOperandCogitRTL: #Cmp operands: comparands
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitConditionalJump: aDRConditionalJump [ 
-
-	"Generate both jumps, the fallthorugh will get ignored"
-	self generateJump: aDRConditionalJump condition singleChild cogitTrueConditionCode target: aDRConditionalJump trueBranch.
-	self generateJump: aDRConditionalJump condition singleChild cogitFalseConditionCode target: aDRConditionalJump falseBranch
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitConstantCondition: aDRConstantCondition [
-	
-	"If true, jump to the true branch.
-	If false, jump to the false branch."
-	
-	"Code generated in the conditional jump"
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitCopy: aDRMove [
-
-	"Do not generate moves of null values"
-	aDRMove operands first isNullValue
-		ifTrue: [ ^ self ].
-	self twoOperandCogitRTL: #Move instruction: aDRMove
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitDivision: aDRCogitDivision [ 
-
-	^ generatorMethodBuilder addStatement: (
-		RBMessageNode
-			receiver: RBVariableNode selfNode
-			selector: #DivR:R:Quo:Rem:
-			arguments: { 
-				self rtlExpressionForValue: (aDRCogitDivision operands second).
-				self rtlExpressionForValue: (aDRCogitDivision operands first).
-				self rtlExpressionForValue: (aDRCogitDivision result).
-				self rtlExpressionForValue: (aDRCogitDivision operands third).
-			})
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitEqualsComparison: aDRCogitEqualsComparison [ 
-	
-	self visitComparison: aDRCogitEqualsComparison
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanComparison [ 
-	
-	self visitComparison: aDRGreaterOrEqualsThanComparison
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitGreaterThanComparison: aDRGreaterThanComparison [ 
-
-	self visitComparison: aDRGreaterThanComparison
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitJump: aDRJump [ 
-
-	self
-		generateJump: #Jump:
-		target: aDRJump target
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitLeftShift: aDRCogitLeftShift [
-	^ self visitBitShift: (DRBitShift operands: aDRCogitLeftShift operands reversed result:  aDRCogitLeftShift result)
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitLessOrEqualsThanComparison: aDRCogitLessOrEqualsComparison [ 
-	
-	self visitComparison: aDRCogitLessOrEqualsComparison
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitLessThanComparison: aDRLessThanComparison [ 
-	
-	self visitComparison: aDRLessThanComparison
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitLoad: aDRLoad [
-
-	"Only implement register byte accesses for now"
-
-	| bytesToRead sizeSuffix |
-	aDRLoad operand2 result rtlOperandQualifier = 'R:' ifFalse: [ 
-		self halt ].
-	bytesToRead := aDRLoad operand1 value.
-	bytesToRead = 1
-		ifTrue: [ sizeSuffix := 'b' ]
-		ifFalse: [ sizeSuffix := (bytesToRead * 8) asString ].
-
-	"Zero the register before loading a byte"
-	self twoOperandCogitRTL: #Move operands: { 
-			0 asDRValue.
-			aDRLoad result }.
-
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: ('MoveM' , sizeSuffix , ':r:R:') asSymbol
-			 arguments: { 
-					 (self rtlExpressionForValue: 0 asDRValue).
-					 (self rtlExpressionForValue: aDRLoad operand2).
-					 (self rtlExpressionForValue: aDRLoad result) })
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitMod: aDRCogitDivision [ 
-
-	^ generatorMethodBuilder addStatement: (
-		RBMessageNode
-			receiver: RBVariableNode selfNode
-			selector: #DivR:R:Quo:Rem:
-			arguments: { 
-				self rtlExpressionForValue: (aDRCogitDivision operands second).
-				self rtlExpressionForValue: (aDRCogitDivision operands first).
-				self rtlExpressionForValue: (aDRCogitDivision operands third).
-				self rtlExpressionForValue: (aDRCogitDivision result).
-			})
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitMultiply: aDRCogitMultiply [ 
-
-	^ self threeOperandCogitRTL: #Mul instruction: aDRCogitMultiply
-
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitMultiplyOverflowJump: aDROverflowJump [ 
-	
-	self generateJump: #JumpMultiplyOverflow: target: aDROverflowJump trueBranch.
-	self generateJump: #JumpMultiplyNoOverflow: target: aDROverflowJump falseBranch.
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitNegate: aDRCogitNegate [ 
-	
-	self twoOperandCogitRTL: #Move instruction: aDRCogitNegate.
-	self flag: #todo. "oneOperandCogitRTL:"
-	generatorMethodBuilder addStatement: (
-		RBMessageNode
-			receiver: RBVariableNode selfNode
-			selector: #NegateR:
-			arguments: { 
-				RBVariableNode named: (self registerFor: aDRCogitNegate result) })
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitNoop: aDRNoop [ 
-	
-	"Do nothing"
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitNotEqualsComparison: aDRCogitNotEqualsComparison [ 
-	
-	self visitComparison: aDRCogitNotEqualsComparison
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitNullValue: aDRNullValue [ 
-
-	^ RBMessageNode
-		receiver: RBVariableNode selfNode
-		selector: #Nop
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitOr: aDROr [ 
-
-	"Use threeOperandCogitRTL: ?"
-	^ self twoOperandCogitRTL: #Or instruction: aDROr
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitOverflowJump: aDROverflowJump [ 
-	
-	"Generate both jumps, the fallthorugh will get ignored"
-	self generateJump: #JumpOverflow: target: aDROverflowJump trueBranch.
-	self generateJump: #JumpNoOverflow: target: aDROverflowJump falseBranch.
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitPhiFunction: aDRPhiFunction [ 
-
-	"For the moment nothing"
-	^ self visitNullValue: aDRPhiFunction
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitReturn: aDRReturn [ 
-	
-	generatorMethodBuilder addStatement: (
-		RBMessageNode
-			receiver: RBVariableNode selfNode
-			selector: #RetN:
-			arguments: {
-				RBMessageNode
-					receiver: (RBVariableNode named: (self registerFor: aDRReturn operand1))
-					selector: #*
-					arguments: { RBMessageNode 
-						receiver: (RBVariableNode named: 'objectMemory')
-						selector: #wordSize } } )
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitRightShift: aDRCogitRightShift [ 
-
-	^ self threeOperandCogitRTL: #LogicalShiftRight instruction: aDRCogitRightShift
-
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitStore: aDRCogitStore [
-
-	^ self twoOperandCogitRTL: #Move instruction: aDRCogitStore
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitSubstract: aDRCogitSubstract [ 
-	
-	^ self threeOperandCogitRTL: #Sub instruction: aDRCogitSubstract
-
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitTest: aTest [
-	
-	"Cogit RTL only supports constants as the first argument.
-	Invert them  (and the condition if necessary, mostly for greaterThan comparisons)."
-	| comparands |
-	comparands := aTest operands.
-	aTest operands second isConstant
-		ifTrue: [
-			aTest replaceBy: aTest reversed.
-			comparands := comparands reversed ].
-	self twoOperandCogitRTL: #Tst operands: comparands
-]
-
-{ #category : #visiting }
-DRCompilerCompiler >> visitUnsignedCoercion: aDRCogitUnsignedCoercion [ 
-	
-	"Nothing for now"
-	^ self visitNullValue: aDRCogitUnsignedCoercion
 ]
 
 { #category : #'ast-to-source' }

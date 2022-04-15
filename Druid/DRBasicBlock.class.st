@@ -110,6 +110,12 @@ DRBasicBlock >> beExitBlock [
 	isExitBlock := true
 ]
 
+{ #category : #building }
+DRBasicBlock >> bitAnd: aValue with: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory bitAnd: aValue with: anotherValue)
+]
+
 { #category : #accessing }
 DRBasicBlock >> blockValue [
 	

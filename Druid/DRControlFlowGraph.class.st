@@ -56,6 +56,12 @@ DRControlFlowGraph >> applyOptimization: optimization [
 	self validate
 ]
 
+{ #category : #optimization }
+DRControlFlowGraph >> basicApplyOptimization: optimization [
+
+	optimization applyTo: self
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> blockById: anInteger [ 
 	
@@ -422,7 +428,7 @@ DRControlFlowGraph >> showInfoIn: view [
 	         RSLabel new
 		         text: text;
 		         color: Color black;
-		         fontSize: 44;
+		         fontSize: 20;
 		         bold;
 		         yourself ].
 

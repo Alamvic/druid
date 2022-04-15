@@ -25,6 +25,14 @@ DRInstructionFactory >> allocateTemporaryRegister [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> bitAnd: operand1 with: operand2 [
+
+	^ DRBitAnd
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> copy: aValue [
 
 	^ DRCopy
