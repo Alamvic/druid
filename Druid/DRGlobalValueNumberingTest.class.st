@@ -126,6 +126,23 @@ DRGlobalValueNumberingTest >> testEquivalentPhiFunctionsAreRemoved [
 ]
 
 { #category : #tests }
+DRGlobalValueNumberingTest >> testInstructionOperandsStayLive [
+
+	| cfg optimisation copy1 copy2 instructionFactory addition |
+
+	instructionFactory := DRInstructionFactory new.
+	optimisation := DRGlobalValueNumbering new.
+	cfg := self setUpCFG: 1.
+	cfg b1 addInstruction: (copy1 := instructionFactory copy: 3).
+	cfg b1 addInstruction: (copy2 := instructionFactory copy: 3).
+	cfg b1 addInstruction: (addition := instructionFactory add: copy1 to: copy2).
+	
+	optimisation applyTo: cfg.
+	
+	addition validate
+]
+
+{ #category : #tests }
 DRGlobalValueNumberingTest >> testNonEquivalentOperationIsNotReplaced [
 	"This test asserts whether or not non equivalent operations are left alone by the optimisation"
 			
@@ -143,6 +160,26 @@ DRGlobalValueNumberingTest >> testNonEquivalentOperationIsNotReplaced [
 	self assert: (cfg b1 instructions includes: secondAddition).
 	
 	
+]
+
+{ #category : #tests }
+DRGlobalValueNumberingTest >> testPhiFunctionOperandsStayLive [
+	"This test asserts whether operands of phi functions remain live after applying global value numbering"
+			
+	| cfg instructionFactory optimisation copy1 copy2 phi1 |
+	
+	instructionFactory := DRInstructionFactory new.
+	optimisation := DRGlobalValueNumbering new.
+	cfg := self setUpCFGWithConditional.
+	cfg b2 addInstruction: (copy1 := instructionFactory copy: 3).
+	cfg b3 addInstruction: (copy2 := instructionFactory copy: 4).
+	cfg b4 addInstruction: (phi1 := instructionFactory phiWith: copy2 with: copy1).
+	
+	cfg initialBasicBlock controlFlowGraph: cfg.
+	
+	optimisation applyTo: cfg.
+		
+	phi1 validate.
 ]
 
 { #category : #tests }
