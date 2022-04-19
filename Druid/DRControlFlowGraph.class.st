@@ -53,7 +53,7 @@ DRControlFlowGraph >> allocateTemporaryRegister [
 DRControlFlowGraph >> applyOptimization: optimization [
 
 	optimization applyTo: self.
-	self generatePaths.
+"	self generatePaths."
 	self validate
 ]
 
