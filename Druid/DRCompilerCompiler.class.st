@@ -90,7 +90,7 @@ DRCompilerCompiler >> initialize [
 	super initialize.
 	
 	codeGenerator := DRCogitCodeGenerator new.
-	registerAllocator := DRLinearScanRegisterAllocator new.
+	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 	
 	optimisations := OrderedCollection new.
 	optimisations add: DRDeadBlockElimination new.
