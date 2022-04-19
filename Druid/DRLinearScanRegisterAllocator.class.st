@@ -100,10 +100,10 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 		This will use spill registers if needed and return them to the pool.
 		Then, the result can use them if it is spilled too."
 
-	| allocatedLocation allocatedRegister usedSpillRegisters addressSize allocatedOperands |
+	| allocatedLocation allocatedRegister usedSpillRegisters addressSize |
 	usedSpillRegisters := OrderedCollection new: 3.
 	addressSize := 8 asDRValue.
-	allocatedOperands := i operands collect: [ :op |
+	i operands do: [ :op |
 		(liveSets includesKey: op) ifTrue: [
 			allocatedLocation := (liveSets at: op) location.
 			allocatedRegister := allocatedLocation isMemoryAddress
@@ -113,11 +113,8 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 			allocatedLocation isMemoryAddress ifTrue: [
 				i addBefore: (DRLoad
 					operands: { addressSize. allocatedLocation }
-					result: allocatedRegister) ].
-			allocatedRegister]
-		ifFalse: [ op ]].
+					result: allocatedRegister) ] ] ].
 	
-	i operands: allocatedOperands.
 	usedSpillRegisters do: [ :each | spillRegisters addFirst: each ]
 ]
 

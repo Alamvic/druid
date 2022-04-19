@@ -85,7 +85,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesLoadBeforeUse [
 	
 	self assert: basicBlock instructions fourth isLoad.
 	self assert: basicBlock instructions fourth result equals: spillRegister.
-	self assert: basicBlock instructions fifth operand1 equals: spillRegister.
+	self assert: basicBlock instructions fifth operand1 result equals: spillRegister.
 ]
 
 { #category : #tests }
