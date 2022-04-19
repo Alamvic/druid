@@ -25,6 +25,18 @@ DRBasicBlock class >> id: anInteger [
 		yourself
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> add: anInstruction after: anotherInstruction [
+	
+	instructions add: anInstruction after: anotherInstruction
+]
+
+{ #category : #accessing }
+DRBasicBlock >> add: anInstruction before: anotherInstruction [
+	
+	instructions add: anInstruction before: anotherInstruction
+]
+
 { #category : #building }
 DRBasicBlock >> add: aValue to: anotherValue [
 	
@@ -388,7 +400,7 @@ DRBasicBlock >> instructions [
 { #category : #iterating }
 DRBasicBlock >> instructionsDo: aFullBlockClosure [ 
 
-	instructions do: aFullBlockClosure.
+	instructions copy do: aFullBlockClosure.
 	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
 ]
 

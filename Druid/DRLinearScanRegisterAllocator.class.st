@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'blocks',
 		'liveSets',
-		'availableRegisters'
+		'availableRegisters',
+		'spillRegisters'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -22,7 +23,6 @@ DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiv
 	intervalToSpill := activeIntervals anyOne.
 	activeIntervals remove: intervalToSpill.
 	aDRLiveRegisterInterval location: intervalToSpill location.
-	
 	intervalToSpill location: self newStackLocation
 ]
 
@@ -62,17 +62,63 @@ DRLinearScanRegisterAllocator >> allocatedRegisterFor: aValue [
 ]
 
 { #category : #assigning }
+DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
+
+	| allocatedLocation allocatedRegister |
+	i result ifNil: [ ^ self ].
+	i result isVirtualRegister ifFalse: [ ^ self ].
+
+	allocatedLocation := (liveSets at: i) location.
+	allocatedRegister := allocatedLocation isMemoryAddress
+		ifTrue: [ spillRegisters first ]
+		ifFalse: [ allocatedLocation ].
+	
+	i result: allocatedRegister.
+
+	allocatedLocation isMemoryAddress ifTrue: [ 
+		i addNext: (DRStore
+			 operands: { allocatedRegister }
+			 result: allocatedLocation)]
+]
+
+{ #category : #assigning }
 DRLinearScanRegisterAllocator >> assignRegisters [
 
-	self instructionsDo: [ :i | 
-		i result ifNotNil: [ 
-			i result isVirtualRegister ifTrue: [ 
-				i result: (self allocatedRegisterFor: i) ] ].
-		i operands withIndexDo: [ :op :index |
-			op isVirtualRegister ifTrue: [
-				i operandAt: index put: (self allocatedRegisterFor: op)
-			]
-		] ]
+	self instructionsDo: [ :i | "Assign first registers to operands.
+		This will use spill registers if needed and return them to the pool.
+		Then, the result can use them if it is spilled too."
+		self assignRegistersToOperandsInInstruction: i.
+
+		"Replace the result by the allocated register if necessary"
+		self assignRegisterToResultInInstruction: i ]
+]
+
+{ #category : #assigning }
+DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
+
+	"Assign first registers to operands.
+		This will use spill registers if needed and return them to the pool.
+		Then, the result can use them if it is spilled too."
+
+	| allocatedLocation allocatedRegister usedSpillRegisters addressSize allocatedOperands |
+	usedSpillRegisters := OrderedCollection new: 3.
+	addressSize := 8 asDRValue.
+	allocatedOperands := i operands collect: [ :op |
+		(liveSets includesKey: op) ifTrue: [
+			allocatedLocation := (liveSets at: op) location.
+			allocatedRegister := allocatedLocation isMemoryAddress
+				ifTrue: [ usedSpillRegisters addFirst: spillRegisters removeFirst ]
+				ifFalse: [ allocatedLocation ].
+
+			allocatedLocation isMemoryAddress ifTrue: [
+				i addBefore: (DRLoad
+					operands: { addressSize. allocatedLocation }
+					result: allocatedRegister) ].
+			allocatedRegister]
+		ifFalse: [ op ]].
+	
+	i operands: allocatedOperands.
+	usedSpillRegisters do: [ :each | spillRegisters addFirst: each ]
 ]
 
 { #category : #'live-analysis' }
@@ -98,17 +144,17 @@ DRLinearScanRegisterAllocator >> computeLiveSetsForInstruction: i [
 		  liveSet := DRLiveSet new.
 		  liveSet definition: i.
 		  i result isVirtualRegister ifTrue: [ 
-			  liveSets at: i result put: liveSet ].
+			  liveSets at: i put: liveSet ].
 		  i operands
 			  select: [ :op | op result isVirtualRegister ]
-			  thenDo: [ :reg | (liveSets at: reg result) lastUsage: i ] ] "If the instruction has a result..."
+			  thenDo: [ :reg | (liveSets at: reg) lastUsage: i ] ] "If the instruction has a result..."
 ]
 
 { #category : #'block-linearization' }
 DRLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
-	liveSets := OrderedDictionary new.
+	liveSets := OrderedIdentityDictionary new.
 	self registers: { 
 		DRPhysicalRegister name: 'TempReg'.
 		DRPhysicalRegister name: 'ClassReg'.
@@ -155,4 +201,10 @@ DRLinearScanRegisterAllocator >> registers: aCollection [
 DRLinearScanRegisterAllocator >> returnRegister: aPhisicalRegister [
 
 	availableRegisters addLast: aPhisicalRegister
+]
+
+{ #category : #accessing }
+DRLinearScanRegisterAllocator >> spillRegisters: aCollection [
+	
+	spillRegisters := aCollection asOrderedCollection
 ]

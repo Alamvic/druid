@@ -47,6 +47,18 @@ DRInstruction >> RBArrayNodenSource: aBuilder [
 ]
 
 { #category : #accessing }
+DRInstruction >> addBefore: anotherInstruction [
+	
+	basicBlock add: anotherInstruction before: self
+]
+
+{ #category : #accessing }
+DRInstruction >> addNext: anotherInstruction [
+	
+	basicBlock add: anotherInstruction after: self
+]
+
+{ #category : #accessing }
 DRInstruction >> addOperand: anOperand [
 
 	operands add: anOperand.
