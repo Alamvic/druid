@@ -98,6 +98,17 @@ DruidTestInterpreter >> primitiveBranchingWithAssigments [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveBranchingWithComplexCondition [
+
+	<numberOfArguments: 0>
+	| n |
+	n := (self stackTop ~= 2 and: [ self stackTop < 5 ])
+		     ifTrue: [ 1 ]
+		     ifFalse: [ 7 ].
+	^ self pop: 1 thenPush: n
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveCallingMethodReturningConstant [
 
 	<numberOfArguments: 0>

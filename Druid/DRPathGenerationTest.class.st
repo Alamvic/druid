@@ -189,3 +189,25 @@ DRPathGenerationTest >> testLinearContigousBlocksShareEdge [
 		assert: (self anyOutgoingEdge: cfg for: blocks first)
 		equals: (self anyIncomingEdge: cfg for: blocks second)
 ]
+
+{ #category : #building }
+DRPathGenerationTest >> testinferDomainsFromComplexConditionalOnSameReg [
+
+	| cfg edges trueRegDomain falseRegDomain |
+	cfg := self generateDruidIRFor: #primitiveBranchingWithComplexCondition.
+	1halt.
+	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
+	trueRegDomain := edges first constraintFor: 'ReceiverResultReg'.  "(~= 2 AND < 5)"
+	falseRegDomain := edges second constraintFor: 'ReceiverResultReg'.  "(= 2 OR >= 5)"
+
+	self assert: (trueRegDomain constraint includes: (DRIntersectionConstraint constraints: {
+		DRNotEqualsConstraint withValue: 2.
+		DRLessConstraint withValue: 5
+	})).
+	
+	self assert: (falseRegDomain constraint includes: (DRUnionConstraint constraints: {
+		DREqualsConstraint withValue: 2.
+		DRGreaterOrEqualsConstraint withValue: 5
+	})).
+
+]
