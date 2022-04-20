@@ -5,6 +5,79 @@ Class {
 }
 
 { #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateASD [
+
+	| cfg duplicatedBlocks successors frontier |
+	cfg := self generateDruidIRFor: #primitiveDNA.
+
+	cfg applyOptimization:
+		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
+			 DRCleanControlFlow new).
+
+	duplicatedBlocks := (cfg blockById: 8) tailDuplicate.
+	cfg validate.
+
+	successors := duplicatedBlocks first successors.
+	frontier := cfg blockById: 11.
+
+	self assert: successors size equals: 2.
+
+	self assert: (successors allSatisfy: [ :b | b firstInstruction isPhiFunction ]).
+
+	self assert: frontier firstInstruction isPhiFunction.
+	self
+		assertCollection: frontier firstInstruction operands
+		hasSameElements: (successors collect: [ :b | b firstInstruction ])
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateASD2 [
+
+	| cfg duplicatedBlocks successors frontier |
+	cfg := self generateDruidIRFor: #primitiveDNA.
+
+	cfg applyOptimization:
+		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
+			 DRCleanControlFlow new).
+
+	(cfg blockById: 8) tailDuplicate.
+	duplicatedBlocks := (cfg blockById: 11) tailDuplicate.
+	cfg validate.
+
+	successors := duplicatedBlocks first successors.
+	frontier := cfg blockById: 16.
+
+	self assert: successors size equals: 2.
+
+	self assert: (successors allSatisfy: [ :b | b phiFunctions size = 2 ]).
+
+	self assert: frontier phiFunctions size equals: 3.
+	self
+		assertCollection: frontier instructions fourth operands
+		hasSameElements: { frontier instructions first . frontier instructions second }
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateBlockWithMultipleSuccessorsAndOnlyInsideUsersShouldKeepInstructionsDependecies [
+
+	| cfg copy duplicatedBlocks lastBlock1 lastBlock2 |
+	cfg := self setUpCFGWithConditional.
+
+	copy := cfg b4 copy: 1.
+	cfg b4 add: 1 to: copy.
+	lastBlock1 := cfg newBasicBlock.
+	lastBlock2 := cfg newBasicBlock.
+	cfg b4 jumpIfTrueTo: lastBlock1 ifFalseTo: lastBlock2 .
+
+	duplicatedBlocks := cfg b4 tailDuplicate.
+	cfg validate.
+
+	self assert: duplicatedBlocks size equals: 2.
+	duplicatedBlocks do: [ :b | 
+		self assert: (b instructions first users includes: b instructions second) ]
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFunction [
 
 	| cfg copy userBlock |
@@ -187,6 +260,48 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldReusePhiFunc
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateBlockWithSingleSuccessorAndOnlyInsideUsersShouldKeepInstructionsDependecies [
+
+	| cfg copy lastBlock duplicatedBlocks |
+	cfg := self setUpCFGWithConditional.
+
+	copy := cfg b4 copy: 1.
+	cfg b4 add: 1 to: copy.
+	lastBlock := cfg newBasicBlock.
+	cfg b4 jumpTo: lastBlock.
+
+	duplicatedBlocks := cfg b4 tailDuplicate.
+	cfg validate.
+
+	self assert: duplicatedBlocks size equals: 2.
+	duplicatedBlocks do: [ :b | 
+		self assert: (b instructions first users includes: b instructions second) ]
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateBlockWithSingleSuccessorAndOutsideAndInsideUsersShouldKeepInstructionsDependecies [
+
+	| cfg phi lastBlock duplicatedBlocks copy1 copy2 |
+	cfg := self setUpCFGWithConditional.
+
+	copy1 := cfg b2 copy: 1.
+	copy2 := cfg b3 copy: 2.
+	phi := cfg b4 phiWith: copy1 with: copy2.
+	cfg b4 add: 1 to: phi.
+	lastBlock := cfg newBasicBlockWith: [ :b | b add: 1 to: phi ].
+	cfg b4 jumpTo: lastBlock.
+
+	duplicatedBlocks := cfg b4 tailDuplicate.
+	cfg validate.
+
+	self assert: duplicatedBlocks size equals: 2.
+	duplicatedBlocks do: [ :b | 
+		self assert: (b instructions first users includes: b instructions second).
+		self assert: b phiFunctions first operands size equals: 1
+		 ]
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateShouldCopyBlock [
 
 	| cfg newBlock |
@@ -255,6 +370,8 @@ DRTailDuplicationTest >> testTailDuplicateShouldKeepInstructionDependenciesWithi
 	cfg := DRControlFlowGraph new.
 	pred1 := cfg newBasicBlock.
 	pred2 := cfg newBasicBlock.
+	cfg initialBasicBlock jumpIfTrueTo: pred1 ifFalseTo: pred2.
+	
 	b1 := cfg newBasicBlockWith: [ :b |
 		"R0 := 1"
 		copy1 := b copy: 1.
@@ -278,6 +395,8 @@ DRTailDuplicationTest >> testTailDuplicateShouldKeepInstructionUsersWithinBlock 
 	cfg := DRControlFlowGraph new.
 	pred1 := cfg newBasicBlock.
 	pred2 := cfg newBasicBlock.
+	cfg initialBasicBlock jumpIfTrueTo: pred1 ifFalseTo: pred2.
+	
 	b1 := cfg newBasicBlockWith: [ :b |
 		"R0 := 1"
 		copy1 := b copy: 1.
@@ -303,6 +422,8 @@ DRTailDuplicationTest >> testTailDuplicateShouldKeepPhiFunctionDependencies [
 	cfg := DRControlFlowGraph new.
 	pred1 := cfg newBasicBlockWith: [ :b | comingFrom1 := b copy: 1 ].
 	pred2 := cfg newBasicBlockWith: [ :b | comingFrom2 := b copy: 2 ].
+	cfg initialBasicBlock jumpIfTrueTo: pred1 ifFalseTo: pred2.
+	
 	b1 := cfg newBasicBlockWith: [ :b |
 		"R0 := Phi(comingFrom1, comingFrom2)"
 		copy1 := b phiWith: comingFrom1 with: comingFrom2.
@@ -332,6 +453,8 @@ DRTailDuplicationTest >> testTailDuplicateShouldNotGenerateNewVariablesForReturn
 	cfg := DRControlFlowGraph new.
 	pred1 := cfg newBasicBlock.
 	pred2 := cfg newBasicBlock.
+	cfg initialBasicBlock jumpIfTrueTo: pred1 ifFalseTo: pred2.
+	
 	b1 := cfg newBasicBlockWith: [ :b |
 		"ReturnValue := 1"
 		copy1 := b setReturnValue: 1.
@@ -352,6 +475,8 @@ DRTailDuplicationTest >> testTailDuplicateShouldSplitPhiFunctions [
 	cfg := DRControlFlowGraph new.
 	pred1 := cfg newBasicBlockWith: [ :b | comingFrom1 := b copy: 1 ].
 	pred2 := cfg newBasicBlockWith: [ :b | comingFrom2 := b copy: 2 ].
+	cfg initialBasicBlock jumpIfTrueTo: pred1 ifFalseTo: pred2.
+	
 	b1 := cfg newBasicBlockWith: [ :b |
 		"R0 := Phi(comingFrom1, comingFrom2)"
 		copy1 := b phiWith: comingFrom1 with: comingFrom2.

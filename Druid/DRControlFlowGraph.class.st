@@ -7,7 +7,8 @@ Class {
 		'nextBasicBlockId',
 		'instructionFactory',
 		'edges',
-		'deadPaths'
+		'deadPaths',
+		'tree'
 	],
 	#category : #'Druid-IR'
 }
@@ -221,6 +222,7 @@ DRControlFlowGraph >> initialize [
 	basicBlocks := OrderedCollection new.
 	edges := OrderedCollection new.
 	initialBasicBlock := DRBasicBlock id: 0.
+	initialBasicBlock controlFlowGraph: self.
 	nextBasicBlockId := 1.
 ]
 
@@ -423,7 +425,7 @@ DRControlFlowGraph >> showInfoIn: view [
 	         RSLabel new
 		         text: text;
 		         color: Color black;
-		         fontSize: 44;
+		         fontSize: 14;
 		         bold;
 		         yourself ].
 
@@ -473,6 +475,18 @@ DRControlFlowGraph >> showLines: blockViews in: view [
 			line color: Color green muchDarker ].
 		(self isDeadBranch: source to: destination) ifTrue: [ 
 			line color: Color red muchDarker ] ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> tree [
+
+	^ tree
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> tree: anObject [
+
+	tree := anObject
 ]
 
 { #category : #validating }

@@ -12,7 +12,8 @@ Class {
 		'vmOperandStack',
 		'primitiveFailureCode',
 		'controlFlowGraph',
-		'isExitBlock'
+		'isExitBlock',
+		'tree'
 	],
 	#category : #'Druid-IR'
 }
@@ -333,6 +334,61 @@ DRBasicBlock >> initialize [
 	endInstruction basicBlock: self.
 ]
 
+{ #category : #splitting }
+DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedInstruction [
+
+	| frontier users phiOperands masterPhi |
+	frontier := Set new.
+	users := myInstruction users copy.
+	
+	users ifEmpty: [ ^self ].
+	
+	phiOperands := { 
+		               myInstruction.
+		               duplicatedInstruction }.
+	frontier := (self successors collect: [ :b | 
+		             controlFlowGraph tree dominanceFrontierOf: b ])
+		            flattened asSet.
+
+	frontier size > 1 ifTrue: [ 1 halt "Bad things happen here" ].
+
+	self successors size = 1 ifTrue: [ 
+		masterPhi := self successors anyOne
+			             phiWith: phiOperands first
+			             with: phiOperands second.
+
+		users do: [ :user | 
+			masterPhi ifNotNil: [ 
+				(user basicBlock isDominatedBy: masterPhi basicBlock) ifTrue: [ 
+					user replaceOperand: myInstruction by: masterPhi ] ] ].
+		^ self ].
+
+
+	self successors size = 2 ifTrue: [ 
+		phiOperands := self successors collect: [ :b | 
+			               b
+				               phiWith: phiOperands first
+				               with: phiOperands second ].
+
+		frontier ifNotEmpty: [ 
+			masterPhi := frontier anyOne
+				             phiWith: phiOperands first
+				             with: phiOperands second ].
+
+		users do: [ :user | 
+			frontier ifNotEmpty: [ 
+				(user basicBlock isDominatedBy: masterPhi basicBlock) ifTrue: [ 
+					user replaceOperand: myInstruction by: masterPhi ] ].
+
+			(user basicBlock isDominatedBy: phiOperands first basicBlock) 
+				ifTrue: [ 
+				user replaceOperand: myInstruction by: phiOperands first ].
+
+			(user basicBlock isDominatedBy: phiOperands second basicBlock) 
+				ifTrue: [ 
+				user replaceOperand: myInstruction by: phiOperands second ] ] ]
+]
+
 { #category : #inspection }
 DRBasicBlock >> inspectionInstructions: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Instructions'> 
@@ -388,13 +444,19 @@ DRBasicBlock >> instructionsUsedOutside [
 			  (self instructions includes: user) not ] ]
 ]
 
+{ #category : #'testing - dominator' }
+DRBasicBlock >> isDominatedBy: dominatorBlock [
+	
+	^ controlFlowGraph tree isDominator: dominatorBlock of: self
+]
+
 { #category : #building }
 DRBasicBlock >> isDominatorOf: basicBlocks [
 
 	| dominatorTree node |
 	
 	dominatorTree := DRDominatorTree new.
-	dominatorTree dominatorTreeOf: controlFlowGraph.
+	dominatorTree buildDominatorTreeOf: controlFlowGraph.
 	node := dominatorTree blockDictionary at: self.
 	node children size = basicBlocks size ifTrue: [
 		node children do: [ :child |
@@ -418,30 +480,6 @@ DRBasicBlock >> isExitBlock: anObject [
 	isExitBlock := anObject
 ]
 
-{ #category : #'as yet unclassified' }
-DRBasicBlock >> joinValues: myInstruction and: duplicatedInstruction in: userBlock [
-
-	| possibleMergePoints |
-	possibleMergePoints := self commonSuccessors: userBlock. "Use dominator?"
-
-	possibleMergePoints ifEmpty: [
-		"User is self"
-		^ self phiWith: myInstruction with: duplicatedInstruction ].
-
-	possibleMergePoints size = 1 ifTrue: [ 
-		| mergeBlock |
-		mergeBlock := possibleMergePoints first.
-		^ mergeBlock phiWith: myInstruction with: duplicatedInstruction ].
-
-	possibleMergePoints size = 2 ifTrue: [ 
-		| phis |
-		phis := possibleMergePoints collect: [ :b | 
-			        b phiWith: myInstruction with: duplicatedInstruction ].
-		^ userBlock phiWith: phis first with: phis second ].
-
-	1 halt "Bad things happen here"
-]
-
 { #category : #building }
 DRBasicBlock >> jumpIf: condition to: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [ 
 	
@@ -456,15 +494,12 @@ DRBasicBlock >> jumpIf: condition to: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 ]
 
 { #category : #building }
-DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [ 
-	
-	aDRBasicBlock addPredecessor: self.
-	aDRBasicBlock2 addPredecessor: self.
-	
-	^ self endInstruction: (DRConditionalJump new
-		trueBranch: aDRBasicBlock;
-		falseBranch: aDRBasicBlock2;
-		yourself)
+DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
+
+	^ self
+		  jumpIf: true asDRValue
+		  to: aDRBasicBlock
+		  ifFalseTo: aDRBasicBlock2
 ]
 
 { #category : #building }
@@ -526,22 +561,12 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 { #category : #'as yet unclassified' }
 DRBasicBlock >> mergeOutsideUsersWith: duplicatedBlock [
 
-	| phi |
 	self instructions
 		with: duplicatedBlock instructions
 		do: [ :myInstruction :duplicatedInstruction | 
-			(self instructionsUsedOutside includes: myInstruction) ifTrue: [ 
-				myInstruction users copy do: [ :user | 
-					(phi isNil or: [ 
-						 (phi basicBlock = user basicBlock or: [ 
-							  user basicBlock hasRecursivePredecessor: phi basicBlock ])
-							 not ]) ifTrue: [ 
-						phi := self
-							       joinValues: myInstruction
-							       and: duplicatedInstruction
-							       in: user basicBlock ].
-
-					user replaceOperand: myInstruction by: phi ] ] ]
+			self
+				insertPhisAndReplaceUsersBetween: myInstruction
+				and: duplicatedInstruction ]
 ]
 
 { #category : #temporaries }
@@ -757,7 +782,9 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 			duplicatedBlock removePredecessor: predecessorToRemove ] ].
 
 	self removePredecessor: predecessorToRewire.
-	predecessorToRewire replaceSuccessor: self by: duplicatedBlock
+	predecessorToRewire replaceSuccessor: self by: duplicatedBlock.
+
+	^ duplicatedBlock
 ]
 
 { #category : #accessing }
@@ -780,8 +807,16 @@ DRBasicBlock >> tailDuplicate [
 
 	"Duplicate the receiver so there is a different copy of it for each predecessor"
 
-	self predecessors allButFirst do: [ :predecessorToRewire | 
-		self splitTo: predecessorToRewire ]
+	| duplicatedBlocks |
+	controlFlowGraph tree: (DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
+	controlFlowGraph tree computeDominanceFrontier.
+
+	duplicatedBlocks := self predecessors allButFirst collect: [ :predecessorToRewire | 
+		                    self splitTo: predecessorToRewire ].
+
+	self assert: (duplicatedBlocks allSatisfy: [ :b | b instructions size = self instructions size ]).
+
+	^ { self } , duplicatedBlocks
 ]
 
 { #category : #temporaries }
