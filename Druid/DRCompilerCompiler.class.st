@@ -87,12 +87,6 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 	^ irGenerator ir
 ]
 
-{ #category : #'as yet unclassified' }
-DRCompilerCompiler >> generatePaths: cfg [
-	cfg clearEdges.
-	(DRPathFactory withCFG: cfg) generatePaths
-]
-
 { #category : #'generation-IR' }
 DRCompilerCompiler >> initialize [
 

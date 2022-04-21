@@ -39,7 +39,7 @@ DRInstruction >> = anObject [
 	^ false. 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #inspecting }
 DRInstruction >> RBArrayNodenSource: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Source'>
 	
@@ -64,7 +64,7 @@ DRInstruction >> basicBlock: anObject [
 	basicBlock := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'users-definitions' }
 DRInstruction >> clearUsers [
 
 	users removeAll
@@ -75,6 +75,14 @@ DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode
 	
 	"I'm an already an instruction with a value. No need to do anything"
 	^ self
+]
+
+{ #category : #testing }
+DRInstruction >> hasNonLocalUsers [
+
+	"Answer if exist any user outside the block"
+
+	^ users anySatisfy: [ :u | u basicBlock ~= basicBlock ]
 ]
 
 { #category : #testing }
@@ -103,9 +111,9 @@ DRInstruction >> initialize [
 	users := IdentitySet new.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #inspecting }
 DRInstruction >> inspectionDependencies: aBuilder [
-	"<inspectorPresentationOrder: 0 title: 'Dependency Graph'> "
+	<inspectorPresentationOrder: 0 title: 'Dependency Graph'> 
 	| view blockViews eb |
 	view := RSCanvas new.
 	blockViews := self withAllDependencies collect: [ :c | | g |
@@ -324,12 +332,19 @@ DRInstruction >> replaceBy: anotherInstruction [
 	basicBlock replace: self by: anotherInstruction
 ]
 
-{ #category : #'users-definitions' }
+{ #category : #operands }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
 	anOperand removeUser: self.
 	operands replaceAll: anOperand with: anotherOperand.
-	anotherOperand addUser: self.
+	anotherOperand addUser: self
+]
+
+{ #category : #operands }
+DRInstruction >> replaceOperandIfDominated: myOperand by: anotherOperand [
+
+	(self basicBlock isDominatedBy: anotherOperand basicBlock) ifTrue: [ 
+		self replaceOperand: myOperand by: anotherOperand ]
 ]
 
 { #category : #accessing }
@@ -410,7 +425,7 @@ DRInstruction >> validate [
 		ifFalse: [ DRError signal: 'User-operand mismatch in instruction: ', self asString ].
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #copying }
 DRInstruction >> veryDeepCopyWith: deepCopier [
 	deepCopier references at: origin ifAbsentPut: [nil].
 	^ super veryDeepCopyWith: deepCopier

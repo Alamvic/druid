@@ -5,59 +5,6 @@ Class {
 }
 
 { #category : #tests }
-DRTailDuplicationTest >> testTailDuplicateASD [
-
-	| cfg duplicatedBlocks successors frontier |
-	cfg := self generateDruidIRFor: #primitiveDNA.
-
-	cfg applyOptimization:
-		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
-			 DRCleanControlFlow new).
-
-	duplicatedBlocks := (cfg blockById: 8) tailDuplicate.
-	cfg validate.
-
-	successors := duplicatedBlocks first successors.
-	frontier := cfg blockById: 11.
-
-	self assert: successors size equals: 2.
-
-	self assert: (successors allSatisfy: [ :b | b firstInstruction isPhiFunction ]).
-
-	self assert: frontier firstInstruction isPhiFunction.
-	self
-		assertCollection: frontier firstInstruction operands
-		hasSameElements: (successors collect: [ :b | b firstInstruction ])
-]
-
-{ #category : #tests }
-DRTailDuplicationTest >> testTailDuplicateASD2 [
-
-	| cfg duplicatedBlocks successors frontier |
-	cfg := self generateDruidIRFor: #primitiveDNA.
-
-	cfg applyOptimization:
-		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
-			 DRCleanControlFlow new).
-
-	(cfg blockById: 8) tailDuplicate.
-	duplicatedBlocks := (cfg blockById: 11) tailDuplicate.
-	cfg validate.
-
-	successors := duplicatedBlocks first successors.
-	frontier := cfg blockById: 16.
-
-	self assert: successors size equals: 2.
-
-	self assert: (successors allSatisfy: [ :b | b phiFunctions size = 2 ]).
-
-	self assert: frontier phiFunctions size equals: 3.
-	self
-		assertCollection: frontier instructions fourth operands
-		hasSameElements: { frontier instructions first . frontier instructions second }
-]
-
-{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateBlockWithMultipleSuccessorsAndOnlyInsideUsersShouldKeepInstructionsDependecies [
 
 	| cfg copy duplicatedBlocks lastBlock1 lastBlock2 |
@@ -181,12 +128,11 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunc
 	r2 := b5 copy: 2.
 	phi := b6 phiWith: r1 with: r2.
 
-	cfg b4 tailDuplicate.
+	newBlock := cfg b4 tailDuplicate last.
 	cfg validate.
-	newBlock := cfg blockById: 7.
 
 	self assert: b6 phiFunctions size equals: 2.
-	self assert: b6 firstInstruction operand2 isNullValue.
+	self assert: b6 phiFunctions second operand2 isNullValue.
 	self assertCollection: phi operands hasSameElements: { 
 			r1.
 			r2.
@@ -496,4 +442,57 @@ DRTailDuplicationTest >> testTailDuplicateShouldSplitPhiFunctions [
 	self assert: tailDuplicated instructions first isPhiFunction.
 	self assert: tailDuplicated instructions first operands size equals: 1.
 	self assert: tailDuplicated instructions first operands first equals: comingFrom2.
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateWithFrontierFirstBlock [
+
+	| cfg duplicatedBlocks successors frontier |
+	cfg := self generateDruidIRFor: #primitiveDNA.
+
+	cfg applyOptimization:
+		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
+			 DRCleanControlFlow new).
+
+	duplicatedBlocks := (cfg blockById: 8) tailDuplicate.
+	cfg validate.
+
+	successors := duplicatedBlocks first successors.
+	frontier := cfg blockById: 11.
+
+	self assert: successors size equals: 2.
+
+	self assert: (successors allSatisfy: [ :b | b firstInstruction isPhiFunction ]).
+
+	self assert: frontier phiFunctions size equals: 2.
+	self
+		assertCollection: frontier phiFunctions second operands
+		hasSameElements: (successors collect: [ :b | b firstInstruction ])
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateWithFrontierSecondBlock [
+
+	| cfg duplicatedBlocks successors frontier |
+	cfg := self generateDruidIRFor: #primitiveDNA.
+
+	cfg applyOptimization:
+		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
+			 DRCleanControlFlow new).
+
+	(cfg blockById: 8) tailDuplicate.
+	duplicatedBlocks := (cfg blockById: 11) tailDuplicate.
+	cfg validate.
+
+	successors := duplicatedBlocks first successors.
+	frontier := cfg blockById: 16.
+
+	self assert: successors size equals: 2.
+
+	self assert: (successors allSatisfy: [ :b | b phiFunctions size = 2 ]).
+
+	self assert: frontier phiFunctions size equals: 3.
+	self
+		assertCollection: frontier instructions fourth operands
+		hasSameElements: { frontier instructions second . frontier instructions third }
 ]

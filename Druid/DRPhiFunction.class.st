@@ -69,7 +69,7 @@ DRPhiFunction >> joinedVariables: aCollection [
 	self operands: aCollection
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #operands }
 DRPhiFunction >> mergeOperands: anotherOperands [
 
 	operands with: anotherOperands do: [ :op1 :op2 | 
@@ -120,7 +120,7 @@ DRPhiFunction >> sccpLatticeValueFor: sccp [
 	^ sccp latticeValueOfPhiFunction: self
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #operands }
 DRPhiFunction >> selectOperand: anOperand with: anotherOperand [
 
 	anOperand = anotherOperand ifTrue: [ ^ anOperand ].
