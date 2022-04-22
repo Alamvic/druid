@@ -13,8 +13,7 @@ Class {
 		'vmOperandStack',
 		'primitiveFailureCode',
 		'controlFlowGraph',
-		'isExitBlock',
-		'tree'
+		'isExitBlock'
 	],
 	#category : #'Druid-IR'
 }
@@ -136,6 +135,12 @@ DRBasicBlock >> checkLivenessOf: aValue [
 	"Could check a predecessor multiple times... Less optimal but correct"
 	"Does not handle cycles yet"
 	^ self predecessors anySatisfy: [ :e | e checkLivenessOf: aValue ]
+]
+
+{ #category : #instructions }
+DRBasicBlock >> cleanInstructions [
+
+	self instructions do: [ :i | i removeFromCFG ]
 ]
 
 { #category : #accessing }
@@ -333,20 +338,35 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedI
 
 
 	self successors size = 2 ifTrue: [ 
-		| masterPhi |
+		users do: [ :user | 
+			user replaceOperandIfDominated: myInstruction by: phis first.
+			user replaceOperandIfDominated: myInstruction by: phis second ].
+
 		"Create the phi of phis in the frontier and update uses based on blocks dominance"
 		frontier := self successorsDominanceFrontier.
 
-		frontier size > 1 ifTrue: [ 1 halt "Uncharted area" ].
+		frontier size > 2 ifTrue: [ 
+			1 halt "Uncharted area. Should we make a chain of merged pairs?" ].
 
-		frontier ifNotEmpty: [ 
-			masterPhi := frontier anyOne phiWithVariables: phis ].
+		frontier size = 1 ifTrue: [ 
+			| masterPhi |
+			masterPhi := frontier anyOne phiWithVariables: phis.
+			users do: [ :user | 
+				user replaceOperandIfDominated: myInstruction by: masterPhi ] ].
 
-		users do: [ :user | 
-			frontier ifNotEmpty: [ 
-				user replaceOperandIfDominated: myInstruction by: masterPhi ].
-			user replaceOperandIfDominated: myInstruction by: phis first.
-			user replaceOperandIfDominated: myInstruction by: phis second ].
+		frontier size = 2 ifTrue: [ 
+			| nextPhis remainedUsers |
+			nextPhis := frontier asOrderedCollection collect: [ :b | 
+				            b phiWithVariables: phis ].
+			"Change unreplaced users to new phi to be replaced in recursion"
+			remainedUsers := myInstruction users copyWithoutAll: phis.
+			remainedUsers do: [ :u | 
+				u replaceOperand: myInstruction by: nextPhis first ].
+
+			^ nextPhis first basicBlock
+				  insertPhisAndReplaceUsersBetween: nextPhis first
+				  and: nextPhis second ].
+
 		^ self ].
 
 	1 halt "Bad things happen here"
@@ -738,11 +758,21 @@ DRBasicBlock >> sourceInterval [
 	^ nodes first start to: nodes last stop
 ]
 
-{ #category : #transformations }
+{ #category : #splitting }
 DRBasicBlock >> splitTo: predecessorToRewire [
 
 	| duplicatedBlock |
-	controlFlowGraph tree: (DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
+	self successors do: [ :b | 
+		| newBlock |
+		newBlock := controlFlowGraph newBasicBlock.
+		newBlock addPredecessor: self.
+		self replaceSuccessor: b by: newBlock.
+		b replacePredecessor: self by: newBlock.
+		newBlock jumpTo: b ].
+
+
+	controlFlowGraph tree:
+		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
 	controlFlowGraph tree computeDominanceFrontier.
 
 	duplicatedBlock := self basicDuplicate.
@@ -834,8 +864,10 @@ DRBasicBlock >> validate [
 { #category : #validating }
 DRBasicBlock >> validateInstructions [
 
-	self instructionsDo: [ :instruction |
-		instruction validate ]
+	(self instructions allSatisfy: [ :i | i basicBlock = self ]) 
+		ifFalse: [ DRError signal: 'Block-instruction mismatch in block: ' , self asString ].
+
+	self instructionsDo: [ :instruction | instruction validate ]
 ]
 
 { #category : #validating }

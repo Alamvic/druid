@@ -35,7 +35,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
 	cfg b4 jumpTo: userBlock.
 
 	cfg b4 tailDuplicate.
-	cfg validate.
+	cfg applyOptimization: DRCleanControlFlow new.
 
 	self assert: userBlock firstInstruction isPhiFunction.
 	self
@@ -445,6 +445,43 @@ DRTailDuplicationTest >> testTailDuplicateShouldSplitPhiFunctions [
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateWithFrontierAsDirectSuccessor [
+
+	| cfg copy b5 b6 b7 bocksBefore phiHolders duplicatedBlocks frontier |
+	cfg := self setUpCFGWithConditional.
+
+	copy := cfg b4 copy: 1.
+	b5 := cfg newBasicBlockWith: [ :b | b copy: copy ].
+	b6 := cfg newBasicBlockWith: [ :b | b copy: copy ].
+	b7 := cfg newBasicBlockWith: [ :b | b copy: copy ].
+
+	cfg b4 jumpIfTrueTo: b5 ifFalseTo: b6.
+	b5 jumpTo: b6.
+	b6 jumpTo: b7.
+
+	bocksBefore := cfg blocks copy.
+	duplicatedBlocks := cfg b4 tailDuplicate.
+	cfg validate.
+
+	phiHolders := cfg b4 successors.
+
+	frontier := cfg blockById: 6.
+
+	self assert: cfg blocks size equals: bocksBefore size + 3. "Duplicated + 2 phi holders"
+
+	phiHolders do: [ :phiHolderBlock | 
+		self assert: phiHolderBlock phiFunctions size equals: 1.
+		self
+			assertCollection: phiHolderBlock phiFunctions first operands
+			hasSameElements: (duplicatedBlocks collect: [ :b | b firstInstruction ]) ].
+
+	self assert: frontier phiFunctions size equals: 1.
+	self
+		assertCollection: frontier phiFunctions first operands
+		hasSameElements: (phiHolders collect: [ :b | b firstInstruction ])
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierFirstBlock [
 
 	| cfg duplicatedBlocks successors frontier |
@@ -495,4 +532,33 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierSecondBlock [
 	self
 		assertCollection: frontier instructions fourth operands
 		hasSameElements: { frontier instructions second . frontier instructions third }
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocks [
+
+	| cfg lastFrontier firstFrontier |
+	cfg := self generateDruidIRFor: #primitiveDNA.
+
+	cfg applyOptimization:
+		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then: DRCleanControlFlow new).
+
+	(cfg blockById: 11) tailDuplicate.
+	(cfg blockById: 8) tailDuplicate.
+	cfg validate.
+
+	firstFrontier := {cfg blockById: 12 . cfg blockById: 13}.
+	lastFrontier := cfg blockById: 16.
+
+	self assert: lastFrontier phiFunctions size equals: 3. "Own + 2 splits"
+
+	self assert: (firstFrontier allSatisfy: [ :b | b phiFunctions size = 2 ]). "2 splits"
+
+	self
+		assertCollection: lastFrontier phiFunctions last operands
+		hasSameElements: (firstFrontier collect: [ :b | b phiFunctions last ]).
+		
+	self
+		assertCollection: lastFrontier instructions fourth operands
+		hasSameElements: { lastFrontier phiFunctions second . lastFrontier phiFunctions third }
 ]
