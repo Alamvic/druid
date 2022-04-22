@@ -46,7 +46,7 @@ DRGlobalValueNumberingTest >> testComplexEquivalentOperationIsReplacedByPrevious
 DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesMerge [
 	"This test asserts whether operations in different branches are scoped differently"
 			
-	| cfg instructionFactory copy3 copy4 copy5 phi1 phi2 phi3 phi4 optimisation |
+	| cfg instructionFactory copy3 copy4 copy5 phi1 phi2 phi3 phi4 |
 	instructionFactory := DRInstructionFactory new.
 	optimisation := DRGlobalValueNumbering new.
 	cfg := self setUpCFGWithConditional.
@@ -58,10 +58,8 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesMe
 	cfg b4 addInstruction: (phi3 := instructionFactory phiWith: copy3 with: copy5).
 	cfg b4 addInstruction: (phi4 := instructionFactory phiWith: copy3 with: copy5).
 	optimisation applyTo: cfg.
-	self assert: (cfg b4 instructions includes: phi1) not.
-	self assert: (cfg b4 instructions includes: phi2).
-	self assert: (cfg b4 instructions includes: phi3) not.
-	self assert: (cfg b4 instructions includes: phi4).
+	self assert: ((cfg b4 instructions includes: phi1) xor: (cfg b4 instructions includes: phi2)).
+	self assert: ((cfg b4 instructions includes: phi3) xor: (cfg b4 instructions includes: phi4)).
 	
 ]
 
@@ -106,7 +104,7 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsReplacedByPreviousInstanc
 { #category : #tests }
 DRGlobalValueNumberingTest >> testEquivalentPhiFunctionsAreRemoved [
 			
-	| cfg instructionFactory optimisation copy1 copy2 copy3 copy4 phi1 phi2 |
+	| cfg instructionFactory copy1 copy2 copy3 copy4 phi1 phi2 |
 	
 	instructionFactory := DRInstructionFactory new.
 	optimisation := DRGlobalValueNumbering new.
@@ -122,7 +120,7 @@ DRGlobalValueNumberingTest >> testEquivalentPhiFunctionsAreRemoved [
 	
 	optimisation applyTo: cfg.
 		
-	self assert: (cfg b4 instructions includes: phi2).
+	self assert: ((cfg b4 instructions includes: phi2) xor: (cfg b4 instructions includes: phi1)).
 ]
 
 { #category : #tests }
