@@ -1,9 +1,8 @@
 Class {
 	#name : #DRCleanControlFlowTest,
-	#superclass : #TestCase,
+	#superclass : #DROptimisationTest,
 	#instVars : [
-		'instructionFactory',
-		'optimisation'
+		'instructionFactory'
 	],
 	#category : #'Druid-Tests'
 }
@@ -171,28 +170,18 @@ DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionFirstPred
 { #category : #'tests - redundant branches' }
 DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionSecondPredecessor [
 
-	| b0 b1 b2 cfg r0 r1 b3 |
-	cfg := DRControlFlowGraph new.
-	b0 := cfg newBasicBlock.
-	r0 := b0 copy: 0.
+	| cfg r0 r1 phi |
+	cfg := self setUpCFGWithConditional.
+	r0 := cfg b1 copy: 0.
+	r1 := cfg b2 copy: 1.
+	"b3 empty"
+	phi := cfg b4 phiWith: r0 with: r1.
 	
-	b1 := cfg newBasicBlock.
-	r1 := b1 copy: 1.
-	
-	"Empty, to remove"
-	b2 := cfg newBasicBlock.
-	
-	b0 jumpIfTrueTo: b1 ifFalseTo: b2.
-	
-	"Joint point"
-	b3 := cfg newBasicBlock.
-	b2 jumpTo: b3.
-	b1 jumpTo: b3.
-	b3 phiWith: r0 with: r1.
+	self assertCollection: phi operands hasSameElements: {r0 . r1}.
 
-	optimisation removeEmptyBlock: b2 fromCfg: cfg.
+	optimisation removeEmptyBlock: cfg b3 fromCfg: cfg.
 	
-	b3 validatePhiFunctions.
+	cfg b4 validatePhiFunctions.
 ]
 
 { #category : #'tests - redundant branches' }

@@ -1,6 +1,6 @@
 Class {
 	#name : #DRControlFlowManipulationTest,
-	#superclass : #TestCase,
+	#superclass : #DROptimisationTest,
 	#category : #'Druid-Tests'
 }
 
@@ -8,15 +8,10 @@ Class {
 DRControlFlowManipulationTest >> testRemoveInstructionWithDuplicatedOperandRemovesBackpointer [
 
 	| cfg r0 r1 |
-	cfg := DRControlFlowGraph new.
+	cfg := self setUpCFGWithConditional.
 	
-	cfg newBasicBlockWith: [ :b |
-		"R0 := 1"
-		r0 := b copy: 1.
-		
-		"R1 := phi(R0, R0)"
-		r1 := b phiWith: r0 with: r0.
-	].
+	r0 := cfg b1 copy: 1.
+	r1 := cfg b4 phiWith: r0 with: r0.
 	
 	r1 removeFromCFG.
 	
@@ -26,48 +21,35 @@ DRControlFlowManipulationTest >> testRemoveInstructionWithDuplicatedOperandRemov
 { #category : #tests }
 DRControlFlowManipulationTest >> testRemovePredecessorRemovesPhiArgument [
 
-	| cfg comingFrom1 pred1 comingFrom2 pred2 copy1 b1 phiFunction |
-	cfg := DRControlFlowGraph new.
-	pred1 := cfg newBasicBlockWith: [ :b | comingFrom1 := b copy: 1 ].
-	pred2 := cfg newBasicBlockWith: [ :b | comingFrom2 := b copy: 2 ].
-	b1 := cfg newBasicBlockWith: [ :b |
-		"R0 := Phi(comingFrom1, comingFrom2)"
-		copy1 := b phiWith: comingFrom1 with: comingFrom2.
-	].
-	pred1 jumpTo: b1.
-	pred2 jumpTo: b1.
-	
-	b1 removePredecessor: pred1.
-	
-	phiFunction := b1 instructions first.
-	self assertCollection: phiFunction operands hasSameElements: {comingFrom2}.
+	| cfg comingFrom1 comingFrom2 phiFunction |
+	cfg := self setUpCFGWithConditional.
+	comingFrom1 := cfg b2 copy: 1.
+	comingFrom2 := cfg b3 copy: 2.
+	"R0 := Phi(comingFrom1, comingFrom2)"
+	phiFunction := cfg b4 phiWith: comingFrom1 with: comingFrom2.
+
+	cfg b4 removePredecessor: cfg b2.
+
+	self
+		assertCollection: phiFunction operands
+		hasSameElements: { comingFrom2 }.
 	self assert: (comingFrom2 users includes: phiFunction).
-	self deny: (comingFrom1 users includes: phiFunction).
+	self deny: (comingFrom1 users includes: phiFunction)
 ]
 
 { #category : #tests }
 DRControlFlowManipulationTest >> testRemovePredecessorWithRedundantPhiKeepsPhiOperandUser [
 
-	| cfg comingFromTop pred1 pred2 copy1 b1 phiFunction init |
-	cfg := DRControlFlowGraph new.
-	init := cfg newBasicBlockWith: [ :b | 
-		comingFromTop := b copy: 1 ].
-	pred1 := cfg newBasicBlock.
-	pred2 := cfg newBasicBlock.
-	init endInstruction: (cfg instructionFactory jumpIf: true).
-	init endInstruction trueBranch: pred1.
-	init endInstruction falseBranch: pred2.
-	
-	b1 := cfg newBasicBlockWith: [ :b |
-		"R0 := Phi(comingFromTop, comingFromTop)"
-		copy1 := b phiWith: comingFromTop with: comingFromTop.
-	].
-	pred1 jumpTo: b1.
-	pred2 jumpTo: b1.
-	
-	b1 removePredecessor: pred1.
-	
-	phiFunction := b1 instructions first.
-	self assertCollection: phiFunction operands hasSameElements: {comingFromTop}.
+	| cfg comingFromTop phiFunction |
+	cfg := self setUpCFGWithConditional.
+	comingFromTop := cfg b1 copy: 1.
+	phiFunction := cfg b4 phiWith: comingFromTop with: comingFromTop.
+
+	cfg b4 removePredecessor: cfg b2.
+
+	self assert: phiFunction operands size equals: 1.
+	self
+		assertCollection: phiFunction operands
+		hasSameElements: { comingFromTop }.
 	self assert: (comingFromTop users includes: phiFunction)
 ]

@@ -161,6 +161,17 @@ DRBasicBlock >> copy: aValue [
 	^ self addInstruction: (self instructionFactory copy: aValue)
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> distanceToPredecessor: predecessorBlock [ 
+
+	"Number of blocks between self and the argument"
+	
+	predecessorBlock = self ifTrue: [ ^ 0 ].
+	self hasPredecessors ifFalse: [ ^ Float infinity ].
+	^1 + (predecessors min: [ :b | b distanceToPredecessor: predecessorBlock ])
+
+]
+
 { #category : #'control-flow' }
 DRBasicBlock >> duplicatePredecessor: existingPredecessor from: newPredecessor [
 	
@@ -200,12 +211,6 @@ DRBasicBlock >> equals: operand1 to: operand2 [
 	^ self addInstruction: (self instructionFactory equals: operand1 to: operand2)
 ]
 
-{ #category : #testing }
-DRBasicBlock >> existPathFrom: aDRBasicBlock [ 
-	
-	^ aDRBasicBlock = self or: [ self hasRecursivePredecessor: aDRBasicBlock ]
-]
-
 { #category : #accessing }
 DRBasicBlock >> firstInstruction [
 	
@@ -234,15 +239,6 @@ DRBasicBlock >> hasPredecessor: aDRBasicBlock [
 DRBasicBlock >> hasPredecessors [
 	
 	^ predecessors notEmpty
-]
-
-{ #category : #testing }
-DRBasicBlock >> hasRecursivePredecessor: aDRBasicBlock [
-
-	self flag: #TODO. "Make a test to broke this method and do it recursive"
-	^ (self hasPredecessor: aDRBasicBlock) or: [ 
-		  self predecessors anySatisfy: [ :p | 
-			  p hasPredecessor: aDRBasicBlock ] ]
 ]
 
 { #category : #accessing }
@@ -322,6 +318,8 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedI
 
 	| frontier users valuesToMerge phis |
 	myInstruction hasNonLocalUsers ifFalse: [ ^ self ].
+	self successors size = 0 ifTrue: [ "Last block" ^ self ].
+
 
 	users := myInstruction users copy.
 	valuesToMerge := { 
@@ -347,7 +345,7 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedI
 
 		frontier size > 2 ifTrue: [ 
 			1 halt "Uncharted area. Should we make a chain of merged pairs?" ].
-
+1halt.
 		frontier size = 1 ifTrue: [ 
 			| masterPhi |
 			masterPhi := frontier anyOne phiWithVariables: phis.
@@ -366,6 +364,68 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedI
 			^ nextPhis first basicBlock
 				  insertPhisAndReplaceUsersBetween: nextPhis first
 				  and: nextPhis second ].
+
+		^ self ].
+
+	1 halt "Bad things happen here"
+]
+
+{ #category : #splitting }
+DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedInstruction withSuccessors: successors [
+
+	| frontier users valuesToMerge phis |
+	myInstruction hasNonLocalUsers ifFalse: [ ^ self ].
+	successors isEmpty ifTrue: [ "Last usefull block" ^ self ].
+
+	users := myInstruction users copy.
+	valuesToMerge := { 
+		                 myInstruction.
+		                 duplicatedInstruction }.
+
+	phis := successors collect: [ :b | b phiWithVariables: valuesToMerge ].
+
+	successors size = 1 ifTrue: [ "Create only one phi and update uses"
+		users do: [ :u | 
+			u replaceOperandIfDominated: myInstruction by: phis anyOne ].
+		^ self ].
+
+
+	successors size = 2 ifTrue: [ 
+		users do: [ :user | 
+			user replaceOperandIfDominated: myInstruction by: phis first.
+			user replaceOperandIfDominated: myInstruction by: phis second ].
+
+		"Create the phi of phis in the frontier and update uses based on blocks dominance"
+		frontier := self successorsDominanceFrontier.
+
+		"Uncharted area. Should we make a chain of merged pairs?"
+		frontier size > 2 ifTrue: [ 1 halt ].
+
+		frontier size = 1 ifTrue: [ 
+			| masterPhi |
+			masterPhi := frontier anyOne phiWithVariables: phis.
+			users do: [ :user | 
+				user replaceOperandIfDominated: myInstruction by: masterPhi ] ].
+
+		frontier size = 2 ifTrue: [ 
+			| nextPhis remainedUsers newSuccessors |
+			nextPhis := frontier asOrderedCollection collect: [ :b | 
+				            b phiWithVariables: phis ].
+			"Change unreplaced users to new phi to be replaced in recursion"
+			remainedUsers := myInstruction users copyWithoutAll: phis.
+			remainedUsers do: [ :u | 
+				u replaceOperand: myInstruction by: nextPhis first ].
+
+			newSuccessors := remainedUsers
+				                 collect: [ :i | i basicBlock ]
+				                 as: Set.
+
+			1 haltIf: [ newSuccessors size > 1 ].
+
+			^ nextPhis first basicBlock
+				  insertPhisAndReplaceUsersBetween: nextPhis first
+				  and: nextPhis second
+				  withSuccessors: newSuccessors ].
 
 		^ self ].
 
@@ -494,14 +554,15 @@ DRBasicBlock >> lastInstruction [
 ]
 
 { #category : #splitting }
-DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock [
+DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: successors [
 
 	self instructions copy
 		with: duplicatedBlock instructions copy
 		do: [ :myInstruction :duplicatedInstruction | 
 			self
 				insertPhisAndReplaceUsersBetween: myInstruction
-				and: duplicatedInstruction ]
+				and: duplicatedInstruction
+				withSuccessors: successors ]
 ]
 
 { #category : #'operand stack' }
@@ -580,6 +641,20 @@ DRBasicBlock >> methodNode [
 	^ (self instructions select: [ :i | i originAST notNil ] thenCollect: [ :i | i originAST methodNode ]) anyOne
 ]
 
+{ #category : #building }
+DRBasicBlock >> newEmptySuccessors [
+	"Create new block for each successor and insert it in between"
+
+	^ self successors collect: [ :b | 
+		| newBlock |
+		newBlock := controlFlowGraph newBasicBlock.
+		newBlock addPredecessor: self.
+		self replaceSuccessor: b by: newBlock.
+		b replacePredecessor: self by: newBlock.
+		newBlock jumpTo: b.
+		newBlock ].
+]
+
 { #category : #accessing }
 DRBasicBlock >> numberOfPredecessors [
 	
@@ -612,17 +687,23 @@ DRBasicBlock >> phiWith: aValue with: aValue2 [
 { #category : #factory }
 DRBasicBlock >> phiWithVariables: variables [
 
-	| newVariables |
-	newVariables := self predecessors size > variables size
-		                ifTrue: [ 
-			                self predecessors collect: [ :b | 
-				                variables
-					                detect: [ :i | b existPathFrom: i basicBlock ]
-					                ifNone: [ DRNullValue new ] ] ]
-		                ifFalse: [ variables ].
+	| finalVariables orderedVariables |
+	orderedVariables := variables asOrderedCollection sorted: [ :i1 :i2 | 
+		                    (self distanceToPredecessor: i1 basicBlock)
+		                    < (self distanceToPredecessor: i2 basicBlock) ].
+
+	finalVariables := self predecessors collect: [ :b | 
+		                  orderedVariables
+			                  detect: [ :i | b checkLivenessOf: i ]
+			                  ifFound: [ :i | 
+				                  orderedVariables remove: i.
+				                  i ]
+			                  ifNone: [ DRNullValue new ] ].
+
+	self assert: orderedVariables isEmpty.
 
 	^ self addInstruction:
-		  (self instructionFactory phiWithVariables: newVariables)
+		  (self instructionFactory phiWithVariables: finalVariables)
 ]
 
 { #category : #accessing }
@@ -761,16 +842,15 @@ DRBasicBlock >> sourceInterval [
 { #category : #splitting }
 DRBasicBlock >> splitTo: predecessorToRewire [
 
+	^ self
+		  splitTo: predecessorToRewire
+		  withSuccessors: self newEmptySuccessors
+]
+
+{ #category : #splitting }
+DRBasicBlock >> splitTo: predecessorToRewire withSuccessors: newSuccessors [
+
 	| duplicatedBlock |
-	self successors do: [ :b | 
-		| newBlock |
-		newBlock := controlFlowGraph newBasicBlock.
-		newBlock addPredecessor: self.
-		self replaceSuccessor: b by: newBlock.
-		b replacePredecessor: self by: newBlock.
-		newBlock jumpTo: b ].
-
-
 	controlFlowGraph tree:
 		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
 	controlFlowGraph tree computeDominanceFrontier.
@@ -779,7 +859,7 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 	duplicatedBlock successors do: [ :successor | 
 		successor addPredecessor: duplicatedBlock ].
 
-	self mergeInstructionsWithNewBlock: duplicatedBlock.
+	self mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: newSuccessors.
 
 	self predecessors do: [ :predecessorToRemove | 
 		predecessorToRemove = predecessorToRewire ifFalse: [ 
@@ -818,13 +898,19 @@ DRBasicBlock >> tailDuplicate [
 
 	"Duplicate the receiver so there is a different copy of it for each predecessor"
 
-	| duplicatedBlocks |
+	| duplicatedBlocks newSuccessors |
+	
+	"Only create one phi holder for each duplicated block"	
+	newSuccessors := self newEmptySuccessors. 
+	
 	duplicatedBlocks := self predecessors allButFirst collect: [ 
 		                    :predecessorToRewire | 
-		                    self splitTo: predecessorToRewire ].
+		                    self splitTo: predecessorToRewire withSuccessors: newSuccessors ].
 
 	self assert: (duplicatedBlocks allSatisfy: [ :b | 
 			 b instructions size = self instructions size ]).
+
+	controlFlowGraph validate.
 
 	^ { self } , duplicatedBlocks
 ]
@@ -883,7 +969,7 @@ DRBasicBlock >> validatePhiFunctions [
 			"Validate that the order of the dependent variables is ok,
 			this by checking that the variables are reachable from the correct predecessors"
 			e operands withIndexDo: [ :dependency :index | 
-				self assert: (dependency isCopy not
+				self assert: (dependency isInstruction not
 						or: [(self predecessors at: index) checkLivenessOf: dependency])
 			].
 		].

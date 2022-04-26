@@ -102,6 +102,16 @@ DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
 		ifFalse: [ super replaceOperand: anOperand by: anotherOperand ]
 ]
 
+{ #category : #operands }
+DRPhiFunction >> replaceOperandIfDominated: myOperand by: anotherOperand [
+
+	| frontier |
+	frontier := self basicBlock controlFlowGraph tree 
+		            dominanceFrontierOf: anotherOperand basicBlock.
+	(frontier includes: self basicBlock) ifTrue: [ 
+		self replaceOperand: myOperand by: anotherOperand ]
+]
+
 { #category : #accessing }
 DRPhiFunction >> result [
 	
@@ -126,7 +136,7 @@ DRPhiFunction >> selectOperand: anOperand with: anotherOperand [
 	anOperand = anotherOperand ifTrue: [ ^ anOperand ].
 	anOperand isNullValue ifTrue: [ ^ anotherOperand ].
 	anotherOperand isNullValue ifTrue: [ ^ anOperand ].
-	self error: 'Incompatible operands'
+	^ anotherOperand
 ]
 
 { #category : #simplification }
