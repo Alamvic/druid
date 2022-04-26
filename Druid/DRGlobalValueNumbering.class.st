@@ -119,7 +119,7 @@ DRGlobalValueNumbering >> processPhiFunctions: block [
 		ifTrue: [ true ])
 		ifFalse: [
 			valueNumbers at: instruction put: instruction.
-			(hashTables at: currentScope) at: instruction put: instruction.
+			(hashTables at: currentScope) at: instruction asNumberedExpression put: instruction.
 		]
 	]
 ]
@@ -173,10 +173,7 @@ DRGlobalValueNumbering >> simplifyOperands: instruction [
 		valueNumber := self valueNumberOf: operand.
 		valueNumber isCopy
 		ifTrue: [ valueNumber operand1 ]
-		ifFalse: [
-			valueNumber.
-			valueNumber addUser: instruction.
-		]
+		ifFalse: [ valueNumber ]
 	]).
 ]
 
