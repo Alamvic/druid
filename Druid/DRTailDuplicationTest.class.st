@@ -249,28 +249,6 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithSingleSuccessorAndOutsideAndI
 ]
 
 { #category : #tests }
-DRTailDuplicationTest >> testTailDuplicateHalfKite [
-
-	| cfg copy duplicatedBlocks lastBlock1 lastBlock2 b5 copy1 copy2 phi1 phi2 |
-	cfg := self setUpCFGWithConditional.
-
-	cfg b4 removePredecessorAt: 2.
-	cfg b4 removePredecessorAt: 1.
-	b5 := cfg newBasicBlock.
-	cfg b2 jumpIfTrueTo: cfg b3 ifFalseTo: cfg b4.
-	cfg b3 jumpIfTrueTo: cfg b4 ifFalseTo: b5.
-	cfg b4 jumpTo: b5.
-	
-	copy1 := cfg b2 copy: 1.
-	copy2 := cfg b3 copy: 2.
-	phi1 := cfg b4 phiWith: copy1 with: copy2.
-	phi2 := b5 phiWith: phi1 with: copy2.
-	b5 copy: phi2.
-	
-	self error: 'BLA_H'
-]
-
-{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateShouldCopyBlock [
 
 	| cfg newBlock |
@@ -506,6 +484,32 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierAsDirectSuccessor [
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateWithFrontierDominatedByItself [
+
+	| cfg b5 copy1 copy2 phi1 phi2 |
+	cfg := self setUpCFGWithConditional.
+
+	"Remove predecessors because jumps add it..."
+	cfg b4 removePredecessorAt: 2.
+	cfg b4 removePredecessorAt: 1.
+	b5 := cfg newBasicBlock.
+	cfg b2 jumpIfTrueTo: cfg b3 ifFalseTo: cfg b4.
+	cfg b3 jumpIfTrueTo: cfg b4 ifFalseTo: b5.
+	cfg b4 jumpTo: b5.
+	
+	copy1 := cfg b2 copy: 1.
+	copy2 := cfg b3 copy: 2.
+	phi1 := cfg b4 phiWith: copy1 with: copy2.
+	phi2 := b5 phiWith: phi1 with: copy2.
+	b5 copy: phi2.
+	
+	cfg b3 tailDuplicate.
+
+	self assert: cfg b4 phiFunctions size equals: 1.	"NOT create master phi here (frontier)"
+	self assert: b5 phiFunctions size equals: 2. "Create master phi here (frontier of frontier)"
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierFirstBlock [
 
 	| cfg duplicatedBlocks successors frontier |
@@ -569,7 +573,6 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocks [
 
 	(cfg blockById: 11) tailDuplicate.
 	(cfg blockById: 8) tailDuplicate.
-	cfg validate.
 
 	firstFrontier := {cfg blockById: 17 . cfg blockById: 18}.
 	lastFrontier := cfg blockById: 16.

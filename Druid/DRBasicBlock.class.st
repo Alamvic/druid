@@ -695,9 +695,7 @@ DRBasicBlock >> phiWithVariables: variables [
 	finalVariables := self predecessors collect: [ :b | 
 		                  orderedVariables
 			                  detect: [ :i | b checkLivenessOf: i ]
-			                  ifFound: [ :i | 
-				                  orderedVariables remove: i.
-				                  i ]
+			                  ifFound: [ :i | orderedVariables remove: i ]
 			                  ifNone: [ DRNullValue new ] ].
 
 	self assert: orderedVariables isEmpty.
@@ -889,8 +887,22 @@ DRBasicBlock >> successors [
 { #category : #splitting }
 DRBasicBlock >> successorsDominanceFrontier [
 
-	^ (self successors collect: [ :b | 
-		   controlFlowGraph tree dominanceFrontierOf: b ]) flattened asSet
+	| successorsDominanceFrontier result |
+	self flag: #TODOPHIS. "Reject blocks dominated (or frontiered) by others in the collection"
+
+	successorsDominanceFrontier := (self successors collect: [ :b | 
+		                                controlFlowGraph tree 
+			                                dominanceFrontierOf: b ]) flattened.
+
+	result := successorsDominanceFrontier reject: [ :b | 
+		          | frontier |
+		          frontier := controlFlowGraph tree dominanceFrontierOf: b.
+		          frontier anySatisfy: [ :f | 
+			          successorsDominanceFrontier includes: f ] ].
+	
+	1 haltIf: [ result isEmpty ].
+
+	^ result asSet
 ]
 
 { #category : #transformations }
