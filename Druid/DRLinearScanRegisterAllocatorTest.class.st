@@ -29,7 +29,7 @@ DRLinearScanRegisterAllocatorTest >> testInterferingIntervalsWithEnoughRegisters
 	
 	self assert: basicBlock instructions third operand1 result equals: firstRegister.
 	self assert: basicBlock instructions third operand2 result equals: secondRegister.
-	self assert: basicBlock instructions third result equals: firstRegister.
+	self assert: ({ firstRegister. secondRegister } includes: basicBlock instructions third result)
 ]
 
 { #category : #tests }
