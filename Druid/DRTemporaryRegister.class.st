@@ -2,7 +2,8 @@ Class {
 	#name : #DRTemporaryRegister,
 	#superclass : #DRValue,
 	#instVars : [
-		'id'
+		'id',
+		'physicalRegister'
 	],
 	#category : #'Druid-IR'
 }
@@ -58,6 +59,18 @@ DRTemporaryRegister >> name [
 ]
 
 { #category : #accessing }
+DRTemporaryRegister >> physicalRegister [
+
+	^ physicalRegister
+]
+
+{ #category : #accessing }
+DRTemporaryRegister >> physicalRegister: anObject [
+
+	physicalRegister := anObject
+]
+
+{ #category : #accessing }
 DRTemporaryRegister >> printOn: aStream [
 
 	aStream
@@ -65,6 +78,13 @@ DRTemporaryRegister >> printOn: aStream [
 		nextPutAll: '(t';
 		nextPutAll: self id asString;
 		nextPutAll: ')'
+]
+
+{ #category : #accessing }
+DRTemporaryRegister >> result [
+
+	physicalRegister ifNotNil: [ ^ physicalRegister ].
+	^ self
 ]
 
 { #category : #'cogit-generation' }

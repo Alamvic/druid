@@ -113,7 +113,12 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 			allocatedLocation isMemoryAddress ifTrue: [
 				i addBefore: (DRLoad
 					operands: { addressSize. allocatedLocation }
-					result: allocatedRegister) ] ] ].
+					result: allocatedRegister) ].
+			
+			"Special case for temporary registers created during register allocation."
+			op isVirtualRegister ifTrue: [
+				op physicalRegister: allocatedRegister ].
+	] ].
 	
 	usedSpillRegisters do: [ :each | spillRegisters addFirst: each ]
 ]
