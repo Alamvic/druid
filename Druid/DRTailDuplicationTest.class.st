@@ -450,7 +450,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldSplitPhiFunctions [
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateShouldWithPhiFunctionWithRepeatedOperands [
 
-	| cfg inst firstMergeBlock secondMergeBlock newOperands |
+	| cfg inst firstMergeBlock secondMergeBlock newOperands phi copy |
 	cfg := self generateDruidIRFor: #primitiveSandclock.
 	cfg applyOptimization:
 		(DRSCCP then: DRDeadCodeElimination then: DRCleanControlFlow).
@@ -459,14 +459,19 @@ DRTailDuplicationTest >> testTailDuplicateShouldWithPhiFunctionWithRepeatedOpera
 	secondMergeBlock := cfg blockById: 13.
 
 	inst := firstMergeBlock firstInstruction.
-	secondMergeBlock phiWith: inst with: inst.
+	phi := secondMergeBlock phiWith: inst with: inst.
+	copy := secondMergeBlock copy: phi.
 
 	newOperands := firstMergeBlock tailDuplicate collect: [ :b | 
 		               b firstInstruction ].
 
-	secondMergeBlock phiFunctions do: [ :phi | 
-		self assert: phi operands size equals: 2.
-		self deny: phi operand1 equals: phi operand2 ]
+	secondMergeBlock phiFunctions do: [ :i | 
+		self assert: i operands size equals: 2.
+		self deny: i operand1 equals: i operand2 ].
+
+	"Replace the phi with new one"
+	self deny: copy operand1 equals: phi.
+	self deny: (secondMergeBlock instructions includes: phi)
 ]
 
 { #category : #tests }
@@ -518,7 +523,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierDominatedByItself [
 	cfg b2 jumpIfTrueTo: cfg b3 ifFalseTo: cfg b4.
 	cfg b3 jumpIfTrueTo: cfg b4 ifFalseTo: b5.
 	cfg b4 jumpTo: b5.
-	
+
 	copy1 := cfg b2 copy: 1.
 	copy2 := cfg b3 copy: 2.
 	phi1 := cfg b4 phiWith: copy1 with: copy2.
@@ -587,6 +592,86 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierSecondBlock [
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocks [
 
+	| cfg b5 b6 b7 b8 b9 b10 copy multipleFrontier |
+	cfg := self setUpCFGWithConditional.
+
+	"Remove predecessors because jumps add it..."
+	cfg b4 removePredecessorAt: 2.
+	cfg b4 removePredecessorAt: 1.
+	b5 := cfg newBasicBlock.
+	b6 := cfg newBasicBlock.
+	b7 := cfg newBasicBlock.
+	b8 := cfg newBasicBlock.
+	b9 := cfg newBasicBlock.
+	b10 := cfg newBasicBlock.
+	cfg b4 jumpIfTrueTo: b5 ifFalseTo: b6.
+	b5 jumpIfTrueTo: b7 ifFalseTo: b8.
+	b6 jumpIfTrueTo: b7 ifFalseTo: b9.
+	b7 jumpTo: b10.
+	b8 jumpTo: b10.
+	b9 jumpTo: b10.
+	cfg b2 jumpIfTrueTo: b8 ifFalseTo: cfg b4.
+	cfg b3 jumpIfTrueTo: b9 ifFalseTo: cfg b4.
+
+	copy := cfg b4	copy: 1.
+	b10 copy: copy.	
+
+	cfg b4 tailDuplicate.
+	
+	multipleFrontier := { b7 . b8 . b9 }.
+
+	self assert: (multipleFrontier allSatisfy: [ :b | b phiFunctions size = 1 ]).
+	self assert: b10 firstInstruction isPhiFunction.
+	self 
+		assertCollection: (b10 firstInstruction operands collect: [ :i | i basicBlock ]) 
+		hasSameElements: multipleFrontier 
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocksTwice [
+
+	| cfg b5 b6 b7 b8 b9 b10 copy multipleFrontier b11 b12 |
+	cfg := self setUpCFGWithConditional.
+
+	"Remove predecessors because jumps add it..."
+	cfg b4 removePredecessorAt: 2.
+	cfg b4 removePredecessorAt: 1.
+	b5 := cfg newBasicBlock.
+	b6 := cfg newBasicBlock.
+	b7 := cfg newBasicBlock.
+	b8 := cfg newBasicBlock.
+	b9 := cfg newBasicBlock.
+	b10 := cfg newBasicBlock.
+	b11 := cfg newBasicBlock.
+	b12 := cfg newBasicBlock.
+	cfg b4 jumpIfTrueTo: b5 ifFalseTo: b6.
+	b5 jumpIfTrueTo: b7 ifFalseTo: b8.
+	b6 jumpIfTrueTo: b7 ifFalseTo: b9.
+	b7 jumpIfTrueTo: b10 ifFalseTo: b11.
+	b8 jumpTo: b10.
+	b9 jumpTo: b11.
+	b10 jumpTo: b12.
+	b11 jumpTo: b12.
+	cfg b2 jumpIfTrueTo: b8 ifFalseTo: cfg b4.
+	cfg b3 jumpIfTrueTo: b9 ifFalseTo: cfg b4.
+
+	copy := cfg b4	copy: 1.
+	b12 copy: copy.	
+1halt.
+	cfg b4 tailDuplicate.
+	
+	multipleFrontier := { b7 . b8 . b9 }.
+
+	self assert: (multipleFrontier allSatisfy: [ :b | b phiFunctions size = 1 ]).
+	self assert: b10 firstInstruction isPhiFunction.
+	self 
+		assertCollection: (b10 firstInstruction operands collect: [ :i | i basicBlock ]) 
+		hasSameElements: multipleFrontier 
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateWithFrontierWithTwoBlocks [
+
 	| cfg lastFrontier firstFrontier |
 	cfg := self generateDruidIRFor: #primitiveDNA.
 
@@ -600,7 +685,6 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocks [
 	lastFrontier := cfg blockById: 16.
 
 	self assert: lastFrontier phiFunctions size equals: 3. "Own + 2 splits"
-
 	self assert: (firstFrontier allSatisfy: [ :b | b phiFunctions size = 2 ]). "2 splits"
 
 	self

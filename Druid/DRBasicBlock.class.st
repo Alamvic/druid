@@ -35,6 +35,8 @@ DRBasicBlock >> add: aValue to: anotherValue [
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
 
+	(self instructions includes: anInstruction) ifTrue: [ 1halt. ^ self ].
+
 	anInstruction basicBlock: self.
 		
 	^ anInstruction isPhiFunction
@@ -379,16 +381,14 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedI
 ]
 
 { #category : #splitting }
-DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedInstruction withSuccessors: successors [
+DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedInstructions withSuccessors: successors [
 
 	| frontier users valuesToMerge phis |
 	myInstruction hasNonLocalUsers ifFalse: [ ^ self ].
 	successors isEmpty ifTrue: [ "Last usefull block" ^ self ].
 
 	users := myInstruction users copy.
-	valuesToMerge := { 
-		                 myInstruction.
-		                 duplicatedInstruction }.
+	valuesToMerge := { myInstruction }, duplicatedInstructions.
 
 	phis := successors collect: [ :b | b phiWithVariables: valuesToMerge ].
 
@@ -408,17 +408,16 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedI
 		"Create the phi of phis in the frontier and update uses based on blocks dominance"
 		frontier := self successorsDominanceFrontier.
 
-		"Uncharted area. Should we make a chain of merged pairs?"
-		frontier size > 2 ifTrue: [ 1 halt ].
-
 		frontier size = 1 ifTrue: [ 
 			| masterPhi |
 			masterPhi := frontier anyOne phiWithVariables: phis.
 			users do: [ :user | 
 				user replaceOperandIfDominated: myInstruction by: masterPhi ] ].
 
-		frontier size = 2 ifTrue: [ 
+		frontier size > 1 ifTrue: [ 
 			| nextPhis remainedUsers newSuccessors |
+			frontier size > 2 ifTrue: [ 1 halt ].
+			
 			nextPhis := frontier asOrderedCollection collect: [ :b | 
 				            b phiWithVariables: phis ].
 			"Change unreplaced users to new phi to be replaced in recursion"
@@ -434,7 +433,7 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedI
 
 			^ nextPhis first basicBlock
 				  insertPhisAndReplaceUsersBetween: nextPhis first
-				  and: nextPhis second
+				  and: nextPhis allButFirst
 				  withSuccessors: newSuccessors ].
 
 		^ self ].
@@ -571,7 +570,7 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 		do: [ :myInstruction :duplicatedInstruction | 
 			self
 				insertPhisAndReplaceUsersBetween: myInstruction
-				and: duplicatedInstruction
+				and: { duplicatedInstruction }
 				withSuccessors: successors ]
 ]
 
@@ -717,14 +716,15 @@ DRBasicBlock >> phiWithVariables: variables [
 	| finalVariables orderedVariables allPosibleVariables |
 	allPosibleVariables := variables.
 	self predecessors size > variables size ifTrue: [ 
-		(self predecessors size - variables size) timesRepeat: [ 
+		self predecessors size - variables size timesRepeat: [ 
 			allPosibleVariables := allPosibleVariables , variables ] ].
 
 	orderedVariables := allPosibleVariables asOrderedCollection sorted: [ 
 		                    :i1 
 		                    :i2 | 
-		                    (self distanceToPredecessor: i1 basicBlock)
-		                    < (self distanceToPredecessor: i2 basicBlock) ].
+		                    (i1 isNullValue or: [ i2 isNullValue ]) or: [ 
+			                    (self distanceToPredecessor: i1 basicBlock)
+			                    < (self distanceToPredecessor: i2 basicBlock) ] ].
 
 	finalVariables := self predecessors collect: [ :b | 
 		                  orderedVariables
@@ -805,6 +805,9 @@ DRBasicBlock >> replace: anInstruction by: aReplacementInstruction [
 
 { #category : #accessing }
 DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [
+
+	anotherInstruction basicBlock = self ifTrue: [ 
+		^ self removeInstruction: anInstruction ].
 
 	anotherInstruction basicBlock: self.
 
