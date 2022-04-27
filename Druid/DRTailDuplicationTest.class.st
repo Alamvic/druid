@@ -448,6 +448,28 @@ DRTailDuplicationTest >> testTailDuplicateShouldSplitPhiFunctions [
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateShouldWithPhiFunctionWithRepeatedOperands [
+
+	| cfg inst firstMergeBlock secondMergeBlock newOperands |
+	cfg := self generateDruidIRFor: #primitiveSandclock.
+	cfg applyOptimization:
+		(DRSCCP then: DRDeadCodeElimination then: DRCleanControlFlow).
+
+	firstMergeBlock := cfg blockById: 8.
+	secondMergeBlock := cfg blockById: 13.
+
+	inst := firstMergeBlock firstInstruction.
+	secondMergeBlock phiWith: inst with: inst.
+
+	newOperands := firstMergeBlock tailDuplicate collect: [ :b | 
+		               b firstInstruction ].
+
+	secondMergeBlock phiFunctions do: [ :phi | 
+		self assert: phi operands size equals: 2.
+		self deny: phi operand1 equals: phi operand2 ]
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierAsDirectSuccessor [
 
 	| cfg copy b5 b6 b7 bocksBefore phiHolders duplicatedBlocks frontier |

@@ -347,6 +347,13 @@ DRInstruction >> replaceOperandIfDominated: myOperand by: anotherOperand [
 		self replaceOperand: myOperand by: anotherOperand ]
 ]
 
+{ #category : #replace }
+DRInstruction >> replaceOperandsIfDominated: myOperand by: anotherOperand1 and: anotherOperand2 [
+
+	self replaceOperandIfDominated: myOperand by: anotherOperand1.
+	self replaceOperandIfDominated: myOperand by: anotherOperand2
+]
+
 { #category : #accessing }
 DRInstruction >> result [
 

@@ -24,18 +24,30 @@ DRDeadPathEliminationTest >> setUp [
 	optimisation := DRDeadPathSplitting then: DRDeadPathElimination
 ]
 
-{ #category : #queries }
-DRDeadPathEliminationTest >> testDeadPathsInference [
+{ #category : #optimization }
+DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 
-	| cfg deadPath expectedTarget pathBlockIds |
-	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
+	| cfg lastBlocks lastPaths newMergePoint oldMergePoint newBlock |
+	cfg := self generateDruidIRFor: #primitiveSandclock.
+	oldMergePoint := cfg blockById: 8.
+	newMergePoint := oldMergePoint newEmptyPredecessor.
+	newBlock := cfg newBasicBlockWith: [ :b | b copy: 1 ].
+	oldMergePoint removePredecessorAt: 1.
+	newMergePoint
+		jumpIf: (DRPhysicalRegister name: 'Parameter')
+		to: oldMergePoint
+		ifFalseTo: newBlock.
+	newBlock jumpTo: (cfg blockById: 1).
+	cfg generatePaths.
 
-	deadPath := cfg deadPaths associations first.
-	pathBlockIds := deadPath value collect: [ :e | e destination id ].
-	expectedTarget := self anyIncomingEdge: cfg for: (cfg blockById: 6).
+	2 timesRepeat: [ 
+		cfg applyOptimization: optimisation.
+		cfg applyOptimization: DRCleanControlFlow new ].
 
-	self assert: deadPath key equals: expectedTarget.
-	self assertCollection: pathBlockIds hasSameElements: { 7. 18. 1 }
+	lastBlocks := cfg lastBasicBlock predecessors.
+	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
+
+	self assert: cfg deadPaths isEmpty.
 ]
 
 { #category : #optimization }
@@ -141,7 +153,21 @@ DRDeadPathEliminationTest >> testEliminateSimpleDeadPaths [
 ]
 
 { #category : #queries }
-DRDeadPathEliminationTest >> testManyDeadPaths [
+DRDeadPathEliminationTest >> testInferenceDeadPaths [
+
+	| cfg deadPath expectedTarget pathBlockIds |
+	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
+
+	deadPath := cfg deadPaths associations first.
+	pathBlockIds := deadPath value collect: [ :e | e destination id ].
+	expectedTarget := self anyIncomingEdge: cfg for: (cfg blockById: 6).
+
+	self assert: deadPath key equals: expectedTarget.
+	self assertCollection: pathBlockIds hasSameElements: { 7. 18. 1 }
+]
+
+{ #category : #queries }
+DRDeadPathEliminationTest >> testInferenceManyDeadPaths [
 
 	| cfg deadPaths deadTargetIds |
 	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranches.

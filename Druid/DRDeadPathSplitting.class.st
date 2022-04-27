@@ -9,8 +9,11 @@ DRDeadPathSplitting >> doApply: aCFG [
 
 	| edge |
 	aCFG generatePaths.
-	1haltIf: [ aCFG deadPaths isEmpty ].
+	self assert: aCFG deadPaths isNotEmpty.
 	edge := aCFG deadPaths keys first.
+	[ edge destination predecessors size = 1 ] whileTrue: [ 
+		edge := edge parent.
+		edge ifNil: [ ^ self ] ].
 	edge destination splitTo: edge source.
 	aCFG validate.
 	aCFG generatePaths

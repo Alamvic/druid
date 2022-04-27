@@ -223,6 +223,14 @@ DRBasicBlock >> hasFinalInstruction [
 	^ endInstruction notNil and: [endInstruction isNoop not]
 ]
 
+{ #category : #dominance }
+DRBasicBlock >> hasFrontier: aBlock [
+
+	| frontier |
+	frontier := controlFlowGraph tree dominanceFrontierOf: self.
+	^ frontier includes: aBlock
+]
+
 { #category : #testing }
 DRBasicBlock >> hasPhiFunctions [
 
@@ -392,8 +400,10 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedI
 
 	successors size = 2 ifTrue: [ 
 		users do: [ :user | 
-			user replaceOperandIfDominated: myInstruction by: phis first.
-			user replaceOperandIfDominated: myInstruction by: phis second ].
+			user
+				replaceOperandsIfDominated: myInstruction
+				by: phis first
+				and: phis second ].
 
 		"Create the phi of phis in the frontier and update uses based on blocks dominance"
 		frontier := self successorsDominanceFrontier.
@@ -641,6 +651,23 @@ DRBasicBlock >> methodNode [
 	^ (self instructions select: [ :i | i originAST notNil ] thenCollect: [ :i | i originAST methodNode ]) anyOne
 ]
 
+{ #category : #splitting }
+DRBasicBlock >> newEmptyPredecessor [
+
+	| newBlock |
+	newBlock := controlFlowGraph newBasicBlock.
+	self phiFunctions do: [ :i | newBlock addInstruction: i ].
+	phiFunctions := OrderedCollection new.
+	predecessors copy do: [ :b | 
+		newBlock addPredecessor: b.
+		b replaceSuccessor: self by: newBlock.
+		self removePredecessor: b ].
+	self addPredecessor: newBlock.
+	newBlock jumpTo: self.
+	controlFlowGraph validate.
+	^ newBlock
+]
+
 { #category : #building }
 DRBasicBlock >> newEmptySuccessors [
 	"Create new block for each successor and insert it in between"
@@ -687,8 +714,15 @@ DRBasicBlock >> phiWith: aValue with: aValue2 [
 { #category : #factory }
 DRBasicBlock >> phiWithVariables: variables [
 
-	| finalVariables orderedVariables |
-	orderedVariables := variables asOrderedCollection sorted: [ :i1 :i2 | 
+	| finalVariables orderedVariables allPosibleVariables |
+	allPosibleVariables := variables.
+	self predecessors size > variables size ifTrue: [ 
+		(self predecessors size - variables size) timesRepeat: [ 
+			allPosibleVariables := allPosibleVariables , variables ] ].
+
+	orderedVariables := allPosibleVariables asOrderedCollection sorted: [ 
+		                    :i1 
+		                    :i2 | 
 		                    (self distanceToPredecessor: i1 basicBlock)
 		                    < (self distanceToPredecessor: i2 basicBlock) ].
 
@@ -697,8 +731,6 @@ DRBasicBlock >> phiWithVariables: variables [
 			                  detect: [ :i | b checkLivenessOf: i ]
 			                  ifFound: [ :i | orderedVariables remove: i ]
 			                  ifNone: [ DRNullValue new ] ].
-
-	self assert: orderedVariables isEmpty.
 
 	^ self addInstruction:
 		  (self instructionFactory phiWithVariables: finalVariables)
@@ -849,6 +881,9 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 DRBasicBlock >> splitTo: predecessorToRewire withSuccessors: newSuccessors [
 
 	| duplicatedBlock |
+	
+	self assert: self predecessors size > 1.
+	
 	controlFlowGraph tree:
 		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
 	controlFlowGraph tree computeDominanceFrontier.

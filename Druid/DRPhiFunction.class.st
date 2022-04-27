@@ -105,11 +105,30 @@ DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
 { #category : #operands }
 DRPhiFunction >> replaceOperandIfDominated: myOperand by: anotherOperand [
 
-	| frontier |
-	frontier := self basicBlock controlFlowGraph tree 
-		            dominanceFrontierOf: anotherOperand basicBlock.
-	(frontier includes: self basicBlock) ifTrue: [ 
+	(anotherOperand basicBlock hasFrontier: self basicBlock) ifTrue: [ 
 		self replaceOperand: myOperand by: anotherOperand ]
+]
+
+{ #category : #replace }
+DRPhiFunction >> replaceOperandsIfDominated: myOperand by: anotherOperand1 and: anotherOperand2 [
+
+	(operands occurrencesOf: myOperand) > 1 ifTrue: [ 
+		| newOperands |
+		newOperands := { anotherOperand1. anotherOperand2 }.
+		
+		(newOperands allSatisfy: [ :o | o basicBlock hasFrontier: self basicBlock ]) ifTrue: [ 
+			| fullNewOperands |
+			"Need to split repeated operand by new two"
+			fullNewOperands := (operands copyWithout: myOperand) , newOperands.
+			^ self basicBlock
+				  replace: self
+				  by: (self basicBlock phiWithVariables: fullNewOperands) ] ].
+
+
+	^ super
+		  replaceOperandsIfDominated: myOperand
+		  by: anotherOperand1
+		  and: anotherOperand2
 ]
 
 { #category : #accessing }
