@@ -188,6 +188,12 @@ DRInstruction >> name [
 	^ result name
 ]
 
+{ #category : #accessing }
+DRInstruction >> nonLocalUsers [
+
+	^ self users reject: [ :i | i basicBlock = self basicBlock ]
+]
+
 { #category : #printing }
 DRInstruction >> opcode [
 	
@@ -343,15 +349,21 @@ DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 { #category : #operands }
 DRInstruction >> replaceOperandIfDominated: myOperand by: anotherOperand [
 
-	(self basicBlock isDominatedBy: anotherOperand basicBlock) ifTrue: [ 
-		self replaceOperand: myOperand by: anotherOperand ]
+	(anotherOperand basicBlock = self basicBlock or: [ 
+		 self basicBlock isDominatedBy: anotherOperand basicBlock ]) 
+		ifFalse: [ ^ nil ].
+	self replaceOperand: myOperand by: anotherOperand
 ]
 
 { #category : #replace }
-DRInstruction >> replaceOperandsIfDominated: myOperand by: anotherOperand1 and: anotherOperand2 [
+DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
-	self replaceOperandIfDominated: myOperand by: anotherOperand1.
-	self replaceOperandIfDominated: myOperand by: anotherOperand2
+	| replaced |
+	replaced := nil.
+	newOperands do: [ :newOperand | 
+		(self replaceOperandIfDominated: myOperand by: newOperand) 
+			ifNotNil: [ replaced := self ] ].
+	^ replaced
 ]
 
 { #category : #accessing }

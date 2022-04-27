@@ -106,6 +106,21 @@ DRDominatorTree >> isDominator: dominatorBlock of: dominatedBlock [
 ]
 
 { #category : #'as yet unclassified' }
+DRDominatorTree >> minimalDominanceFrontierOfAll: blocks [
+
+	| frontier minimalFrontier |
+	frontier := (blocks collect: [ :b | self dominanceFrontierOf: b ])
+		            flattened asSet.
+
+	"Reject inner frontier"
+	minimalFrontier := frontier reject: [ :b | 
+		                   | innerFrontier |
+		                   innerFrontier := self dominanceFrontierOf: b.
+		                   innerFrontier anySatisfy: [ :f | frontier includes: f ] ].
+	^ minimalFrontier asOrderedCollection
+]
+
+{ #category : #'as yet unclassified' }
 DRDominatorTree >> nearestCommonAncestorOf: n1 and: n2 [
 	| n1Path n2Path minPathLength |
 	n1Path := self pathToRoot: n1.

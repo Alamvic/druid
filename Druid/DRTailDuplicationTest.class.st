@@ -52,7 +52,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
                      \ -> |6| ---^             
 	"
 
-	| cfg b5 b6 copy b7 b8 b9 add newPhi |
+	| cfg b5 b6 copy b7 b8 b9 add newPhi newBlocks phiHolder1 phiHolder2 phi1 phi2 |
 	cfg := self setUpCFGWithConditional.
 	b5 := cfg newBasicBlock.
 	b6 := cfg newBasicBlock.
@@ -64,22 +64,30 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
 	b5 jumpTo: b7.
 	b6 jumpTo: b7.
 	b7 jumpTo: b8.
-	
+
 	copy := b7 copy: 1.
 	add := b8 add: 1 to: copy.
 
-	b7 tailDuplicate.
-	cfg validate.
+	newBlocks := b7 tailDuplicate allButFirst.
 
-	b9 := cfg blockById: 9.
-	newPhi := b9 firstInstruction.
+	phi1 := (cfg blockById: 11) firstInstruction.
+	phi2 := (cfg blockById: 9) firstInstruction.
 
-	self assert: b9 predecessors size equals: 3.
-	self assert: newPhi isPhiFunction.
-	self assert: newPhi operands size equals: 3.
-	self assertCollection: newPhi users hasSameElements: { add }.
-	
+	self assert: phi1 isPhiFunction.
+	self
+		assertCollection: phi1 operands
+		hasSameElements: { 
+				b7 firstInstruction.
+				newBlocks last firstInstruction }.
 
+	self assert: phi2 isPhiFunction.
+	self
+		assertCollection: phi2 operands
+		hasSameElements: { 
+				phi1.
+				newBlocks first firstInstruction }.
+
+	self assert: (add operands includes: phi2).
 ]
 
 { #category : #tests }
@@ -100,7 +108,6 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
 	rightBlock jumpTo: userBlock.
 
 	cfg b4 tailDuplicate.
-	cfg validate.
 
 	self assert: userBlock firstInstruction isPhiFunction. "Phi of 2 phis"
 	self assert: userBlock firstInstruction operand1 isPhiFunction.
@@ -134,9 +141,10 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunc
 	copy1 := cfg b4 copy: 1.
 	copy2 := b5 copy: 2.
 	copy3 := b6 copy: 3.
-	phi := b7 phiWithVariables: { copy1. copy2. copy3 }.
+	b7 phiWithVariables: { copy1. copy2. copy3 }.
 
 	b5 tailDuplicate.
+	phi := b7 firstInstruction.
 	newPhi := (cfg blockById: 8) firstInstruction.
 
 	self assert: newPhi isPhiFunction.
@@ -194,9 +202,10 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithPhiUsersShouldUpdateOperandTo
 
 	r1 := cfg b4 copy: 1.
 	r2 := b5 copy: 2.
-	phi := b6 phiWith: r1 with: r2.
+	b6 phiWith: r1 with: r2.
 
 	newBlock := cfg b4 tailDuplicate last.
+	phi := b6 firstInstruction.
 	newPhi := (cfg blockById: 7) firstInstruction.
 
 	self assert: newPhi isPhiFunction.
@@ -630,7 +639,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocks [
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocksTwice [
 
-	| cfg b5 b6 b7 b8 b9 b10 copy multipleFrontier b11 b12 |
+	| cfg b5 b6 b7 b8 b9 b10 copy multipleFrontier b11 b12 firstFrontier secondFrontier user |
 	cfg := self setUpCFGWithConditional.
 
 	"Remove predecessors because jumps add it..."
@@ -656,17 +665,17 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocksTwice [
 	cfg b3 jumpIfTrueTo: b9 ifFalseTo: cfg b4.
 
 	copy := cfg b4	copy: 1.
-	b12 copy: copy.	
-1halt.
+	user := b12 copy: copy.	
+
 	cfg b4 tailDuplicate.
 	
-	multipleFrontier := { b7 . b8 . b9 }.
+	firstFrontier := { b7 . b8 . b9 }.
+	secondFrontier := { b10 . b11 }.
 
-	self assert: (multipleFrontier allSatisfy: [ :b | b phiFunctions size = 1 ]).
-	self assert: b10 firstInstruction isPhiFunction.
-	self 
-		assertCollection: (b10 firstInstruction operands collect: [ :i | i basicBlock ]) 
-		hasSameElements: multipleFrontier 
+	self assert: (firstFrontier allSatisfy: [ :b | b phiFunctions size = 1 ]).
+	self assert: (secondFrontier allSatisfy: [ :b | b phiFunctions size = 1 ]).
+	self assert: b12 firstInstruction isPhiFunction.
+	self assert: (user operands includes: b12 firstInstruction) 
 ]
 
 { #category : #tests }

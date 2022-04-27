@@ -105,27 +105,24 @@ DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
 { #category : #operands }
 DRPhiFunction >> replaceOperandIfDominated: myOperand by: anotherOperand [
 
-	(anotherOperand basicBlock hasFrontier: self basicBlock) ifTrue: [ 
-		self replaceOperand: myOperand by: anotherOperand ]
+	(anotherOperand basicBlock hasFrontier: self basicBlock) ifFalse: [ 
+		^ nil ].
+	self replaceOperand: myOperand by: anotherOperand
 ]
 
 { #category : #replace }
-DRPhiFunction >> replaceOperandsIfDominated: myOperand by: anotherOperand1 and: anotherOperand2 [
+DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
-	| newOperands |
-	newOperands := { anotherOperand1. anotherOperand2 }.
-	
-	(newOperands allSatisfy: [ :o | o basicBlock hasFrontier: self basicBlock ]) ifTrue: [ 
+	"TOCHECK: Do it when myOperand is repeated. Why not always?"
+	(newOperands allSatisfy: [ :o | 
+		 o basicBlock hasFrontier: self basicBlock ]) ifTrue: [ 
 		| fullNewOperands |
 		"Need to split repeated operand by new two"
-		fullNewOperands := (operands copyWithout: myOperand) , newOperands. 1halt.
-		^ self replaceBy: (self basicBlock phiWithVariables: fullNewOperands) ].
+		fullNewOperands := (operands copyWithout: myOperand) , newOperands.
+		^ self replaceBy:
+			  (self basicBlock phiWithVariables: fullNewOperands) ].
 
-
-	^ super
-		  replaceOperandsIfDominated: myOperand
-		  by: anotherOperand1
-		  and: anotherOperand2
+	^ super replaceOperandsIfDominated: myOperand withAll: newOperands
 ]
 
 { #category : #accessing }

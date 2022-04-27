@@ -324,121 +324,40 @@ DRBasicBlock >> initialize [
 ]
 
 { #category : #splitting }
-DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedInstruction [
+DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicatedInstructions withFrontier: frontier withUsers: users [
 
-	| frontier users valuesToMerge phis |
-	myInstruction hasNonLocalUsers ifFalse: [ ^ self ].
-	self successors size = 0 ifTrue: [ "Last block" ^ self ].
-
-
-	users := myInstruction users copy.
-	valuesToMerge := { 
-		                 myInstruction.
-		                 duplicatedInstruction }.
-
-	phis := self successors collect: [ :b | 
-		        b phiWithVariables: valuesToMerge ].
-
-	self successors size = 1 ifTrue: [ "Create only one phi and update uses"
-		users do: [ :u | 
-			u replaceOperandIfDominated: myInstruction by: phis anyOne ].
+	| nextFrontier valuesToMerge phis |
+	
+	self flag: #TODO. "Move this responsability to another object"
+	
+	myInstruction hasNonLocalUsers ifFalse: [ "Nothing to do"
+		self assert: users isEmpty.
+		^ self ].
+	frontier isEmpty ifTrue: [ "Last usefull block"
+		self assert: users isEmpty.
 		^ self ].
 
+	valuesToMerge := { myInstruction } , duplicatedInstructions.
 
-	self successors size = 2 ifTrue: [ 
-		users do: [ :user | 
-			user replaceOperandIfDominated: myInstruction by: phis first.
-			user replaceOperandIfDominated: myInstruction by: phis second ].
+	"Create phis on frontier"
+	phis := frontier collect: [ :b | b phiWithVariables: valuesToMerge ].
 
-		"Create the phi of phis in the frontier and update uses based on blocks dominance"
-		frontier := self successorsDominanceFrontier.
+	"Replace dominated users"
+	users copy do: [ :u | 
+		(u replaceOperandsIfDominated: myInstruction withAll: phis) 
+			ifNotNil: [ users remove: u ] ].
 
-		frontier size > 2 ifTrue: [ 
-			1 halt "Uncharted area. Should we make a chain of merged pairs?" ].
-1halt.
-		frontier size = 1 ifTrue: [ 
-			| masterPhi |
-			masterPhi := frontier anyOne phiWithVariables: phis.
-			users do: [ :user | 
-				user replaceOperandIfDominated: myInstruction by: masterPhi ] ].
-
-		frontier size = 2 ifTrue: [ 
-			| nextPhis remainedUsers |
-			nextPhis := frontier asOrderedCollection collect: [ :b | 
-				            b phiWithVariables: phis ].
-			"Change unreplaced users to new phi to be replaced in recursion"
-			remainedUsers := myInstruction users copyWithoutAll: phis.
-			remainedUsers do: [ :u | 
-				u replaceOperand: myInstruction by: nextPhis first ].
-
-			^ nextPhis first basicBlock
-				  insertPhisAndReplaceUsersBetween: nextPhis first
-				  and: nextPhis second ].
-
+	phis size = 1 ifTrue: [ "Last phi, all users should be replaced"
+		self assert: users isEmpty.
 		^ self ].
 
-	1 halt "Bad things happen here"
-]
-
-{ #category : #splitting }
-DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction and: duplicatedInstructions withSuccessors: successors [
-
-	| frontier users valuesToMerge phis |
-	myInstruction hasNonLocalUsers ifFalse: [ ^ self ].
-	successors isEmpty ifTrue: [ "Last usefull block" ^ self ].
-
-	users := myInstruction users copy.
-	valuesToMerge := { myInstruction }, duplicatedInstructions.
-
-	phis := successors collect: [ :b | b phiWithVariables: valuesToMerge ].
-
-	successors size = 1 ifTrue: [ "Create only one phi and update uses"
-		users do: [ :u | 
-			u replaceOperandIfDominated: myInstruction by: phis anyOne ].
-		^ self ].
-
-
-	successors size = 2 ifTrue: [ 
-		users do: [ :user | 
-			user
-				replaceOperandsIfDominated: myInstruction
-				by: phis first
-				and: phis second ].
-
-		"Create the phi of phis in the frontier and update uses based on blocks dominance"
-		frontier := self successorsDominanceFrontier.
-
-		frontier size = 1 ifTrue: [ 
-			| masterPhi |
-			masterPhi := frontier anyOne phiWithVariables: phis.
-			users do: [ :user | 
-				user replaceOperandIfDominated: myInstruction by: masterPhi ] ].
-
-		frontier size > 1 ifTrue: [ 
-			| nextPhis remainedUsers newSuccessors |
-			frontier size > 2 ifTrue: [ 1 halt ].
-			
-			nextPhis := frontier asOrderedCollection collect: [ :b | 
-				            b phiWithVariables: phis ].
-			"Change unreplaced users to new phi to be replaced in recursion"
-			remainedUsers := myInstruction users copyWithoutAll: phis.
-			remainedUsers do: [ :u | 
-				u replaceOperand: myInstruction by: nextPhis first ].
-
-			newSuccessors := remainedUsers
-				                 collect: [ :i | i basicBlock ]
-				                 as: Set.
-
-			1 haltIf: [ newSuccessors size > 1 ].
-
-			^ nextPhis first basicBlock
-				  insertPhisAndReplaceUsersBetween: nextPhis first
-				  and: nextPhis allButFirst
-				  withSuccessors: newSuccessors ].
-
-		^ self ].
-
-	1 halt "Bad things happen here"
+	"Create the phi of phis in the frontier and update uses based on blocks dominance"
+	nextFrontier := controlFlowGraph tree minimalDominanceFrontierOfAll: frontier.
+	^ self
+		  insertPhisAndReplaceUsersBetween: myInstruction
+		  andAll: phis
+		  withFrontier: nextFrontier
+		  withUsers: users
 ]
 
 { #category : #inspection }
@@ -570,8 +489,9 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 		do: [ :myInstruction :duplicatedInstruction | 
 			self
 				insertPhisAndReplaceUsersBetween: myInstruction
-				and: { duplicatedInstruction }
-				withSuccessors: successors ]
+				andAll: { duplicatedInstruction }
+				withFrontier: successors
+				withUsers: myInstruction nonLocalUsers ]
 ]
 
 { #category : #'operand stack' }
@@ -875,18 +795,12 @@ DRBasicBlock >> sourceInterval [
 { #category : #splitting }
 DRBasicBlock >> splitTo: predecessorToRewire [
 
-	^ self
-		  splitTo: predecessorToRewire
-		  withSuccessors: self newEmptySuccessors
-]
-
-{ #category : #splitting }
-DRBasicBlock >> splitTo: predecessorToRewire withSuccessors: newSuccessors [
-
-	| duplicatedBlock |
+	| duplicatedBlock newSuccessors |
 	
 	self assert: self predecessors size > 1.
-	
+
+	newSuccessors := self newEmptySuccessors. 
+
 	controlFlowGraph tree:
 		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
 	controlFlowGraph tree computeDominanceFrontier.
@@ -922,40 +836,16 @@ DRBasicBlock >> successors [
 	^ endInstruction targets
 ]
 
-{ #category : #splitting }
-DRBasicBlock >> successorsDominanceFrontier [
-
-	| successorsDominanceFrontier result |
-	self flag: #TODOPHIS. "Reject blocks dominated (or frontiered) by others in the collection"
-
-	successorsDominanceFrontier := (self successors collect: [ :b | 
-		                                controlFlowGraph tree 
-			                                dominanceFrontierOf: b ]) flattened.
-
-	result := successorsDominanceFrontier reject: [ :b | 
-		          | frontier |
-		          frontier := controlFlowGraph tree dominanceFrontierOf: b.
-		          frontier anySatisfy: [ :f | 
-			          successorsDominanceFrontier includes: f ] ].
-	
-	1 haltIf: [ result isEmpty ].
-
-	^ result asSet
-]
-
 { #category : #transformations }
 DRBasicBlock >> tailDuplicate [
 
 	"Duplicate the receiver so there is a different copy of it for each predecessor"
 
-	| duplicatedBlocks newSuccessors |
-	
-	"Only create one phi holder for each duplicated block"	
-	newSuccessors := self newEmptySuccessors. 
+	| duplicatedBlocks |
 	
 	duplicatedBlocks := self predecessors allButFirst collect: [ 
 		                    :predecessorToRewire | 
-		                    self splitTo: predecessorToRewire withSuccessors: newSuccessors ].
+		                    self splitTo: predecessorToRewire ].
 
 	self assert: (duplicatedBlocks allSatisfy: [ :b | 
 			 b instructions size = self instructions size ]).
