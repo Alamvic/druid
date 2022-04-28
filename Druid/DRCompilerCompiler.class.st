@@ -136,7 +136,7 @@ DRCompilerCompiler >> nextJumpIndex [
 DRCompilerCompiler >> optimize: anIR [
 
 	optimisations do: [ :optimization | 
-		anIR applyOptimization: optimization ]
+		anIR applyOptimisation: optimization ]
 ]
 
 { #category : #'ir-to-ast' }

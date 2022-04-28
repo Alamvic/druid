@@ -51,7 +51,7 @@ DRControlFlowGraph >> allocateTemporaryRegister [
 ]
 
 { #category : #optimization }
-DRControlFlowGraph >> applyOptimization: optimization [
+DRControlFlowGraph >> applyOptimisation: optimization [
 
 	optimization applyTo: self.
 	self generatePaths.

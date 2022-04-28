@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #tests }
+DRPhiSimplicationTest >> setUp [ 
+
+	optimisation := DRPhiSimplication new
+]
+
+{ #category : #tests }
 DRPhiSimplicationTest >> testNotSimplifyDualPhi [
 
 	| cfg t1 t2 phi |
@@ -20,20 +26,7 @@ DRPhiSimplicationTest >> testNotSimplifyDualPhi [
 ]
 
 { #category : #tests }
-DRPhiSimplicationTest >> testSimplifyEmptyPhi [
-
-	| cfg block |
-	cfg := DRControlFlowGraph new.
-
-	block := cfg newBasicBlockWith: [ :b | b phiWithVariables: {  } ].
-
-	DRPhiSimplication new applyTo: cfg.
-
-	self assert: block firstInstruction isNoop
-]
-
-{ #category : #tests }
-DRPhiSimplicationTest >> testSimplifyPhiWithNull [
+DRPhiSimplicationTest >> testNotSimplifyPhiWithNull [
 
 	| cfg  t1 block phi |
 	cfg := self setUpCFGWithConditional.
@@ -42,15 +35,24 @@ DRPhiSimplicationTest >> testSimplifyPhiWithNull [
 	t1 := cfg b2 copy: 1.
 	phi := block phiWith: t1.
 
+	cfg applyOptimisation: optimisation.
+
 	self assert: phi operands size equals: 2.
 	self assert: phi operands last isNullValue.
 
+]
+
+{ #category : #tests }
+DRPhiSimplicationTest >> testSimplifyEmptyPhi [
+
+	| cfg |
+	cfg := self setUpCFG: 1.
+
+	cfg b1 phiWithVariables: {  } .
+
 	DRPhiSimplication new applyTo: cfg.
 
-	self assert: block firstInstruction isCopy.
-	self assert: block firstInstruction operand1 equals: t1.
-	self assert: t1 users size equals: 1.
-	self assert: t1 users anyOne equals: block firstInstruction
+	self assert: cfg b1 firstInstruction isNoop
 ]
 
 { #category : #tests }
@@ -68,7 +70,7 @@ DRPhiSimplicationTest >> testSimplifyRedundantPhi [
 			t1.
 			t1 }.
 
-	DRPhiSimplication new applyTo: cfg.
+	cfg applyOptimisation: optimisation.
 
 	self assert: block firstInstruction isCopy.
 	self assert: block firstInstruction operand1 equals: t1

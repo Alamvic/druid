@@ -461,7 +461,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldWithPhiFunctionWithRepeatedOpera
 
 	| cfg inst firstMergeBlock secondMergeBlock newOperands phi copy |
 	cfg := self generateDruidIRFor: #primitiveSandclock.
-	cfg applyOptimization:
+	cfg applyOptimisation:
 		(DRSCCP then: DRDeadCodeElimination then: DRCleanControlFlow).
 
 	firstMergeBlock := cfg blockById: 8.
@@ -552,7 +552,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierFirstBlock [
 	| cfg duplicatedBlocks successors frontier |
 	cfg := self generateDruidIRFor: #primitiveDNA.
 
-	cfg applyOptimization:
+	cfg applyOptimisation:
 		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
 			 DRCleanControlFlow new).
 
@@ -578,7 +578,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierSecondBlock [
 	| cfg duplicatedBlocks successors frontier |
 	cfg := self generateDruidIRFor: #primitiveDNA.
 
-	cfg applyOptimization:
+	cfg applyOptimisation:
 		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
 			 DRCleanControlFlow new).
 
@@ -685,7 +685,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithTwoBlocks [
 	| cfg lastFrontier firstFrontier |
 	cfg := self generateDruidIRFor: #primitiveDNA.
 
-	cfg applyOptimization:
+	cfg applyOptimisation:
 		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then: DRCleanControlFlow new).
 
 	(cfg blockById: 11) tailDuplicate.
