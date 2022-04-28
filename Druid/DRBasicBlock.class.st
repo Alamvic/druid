@@ -128,15 +128,12 @@ DRBasicBlock >> blockValue: aValue [
 ]
 
 { #category : #validating }
-DRBasicBlock >> checkLivenessOf: aValue [
-	
+DRBasicBlock >> checkLivenessOf: operand [
+
 	"Check if the value exists within this branch of execution"
 	"It should be defined by myself, or by a predecessor"
-	
-	(self instructions includes: aValue) ifTrue: [ ^ true ].
-	"Could check a predecessor multiple times... Less optimal but correct"
-	"Does not handle cycles yet"
-	^ self predecessors anySatisfy: [ :e | e checkLivenessOf: aValue ]
+	operand isNullValue ifTrue: [ ^ true ].
+	^ self isDominatedBy: operand basicBlock
 ]
 
 { #category : #instructions }
@@ -327,9 +324,9 @@ DRBasicBlock >> initialize [
 DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicatedInstructions withFrontier: frontier withUsers: users [
 
 	| nextFrontier valuesToMerge phis |
-	
 	self flag: #TODO. "Move this responsability to another object"
-	
+
+	users ifEmpty: [ "Finish" ^ self ].
 	myInstruction hasNonLocalUsers ifFalse: [ "Nothing to do"
 		self assert: users isEmpty.
 		^ self ].
@@ -352,7 +349,8 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 		^ self ].
 
 	"Create the phi of phis in the frontier and update uses based on blocks dominance"
-	nextFrontier := controlFlowGraph tree minimalDominanceFrontierOfAll: frontier.
+	nextFrontier := controlFlowGraph tree minimalDominanceFrontierOfAll:
+		                frontier.
 	^ self
 		  insertPhisAndReplaceUsersBetween: myInstruction
 		  andAll: phis
@@ -633,7 +631,10 @@ DRBasicBlock >> phiWith: aValue with: aValue2 [
 { #category : #factory }
 DRBasicBlock >> phiWithVariables: variables [
 
-	| finalVariables orderedVariables allPosibleVariables |
+	| finalVariables orderedVariables allPosibleVariables phi |
+	
+	controlFlowGraph buildDominatorTree.
+	
 	allPosibleVariables := variables.
 	self predecessors size > variables size ifTrue: [ 
 		self predecessors size - variables size timesRepeat: [ 
@@ -652,8 +653,9 @@ DRBasicBlock >> phiWithVariables: variables [
 			                  ifFound: [ :i | orderedVariables remove: i ]
 			                  ifNone: [ DRNullValue new ] ].
 
-	^ self addInstruction:
-		  (self instructionFactory phiWithVariables: finalVariables)
+	phi := self instructionFactory phiWithVariables: finalVariables.
+	1haltIf: [ phi result id = 944 ].
+	^ self addInstruction: phi.
 ]
 
 { #category : #accessing }
@@ -801,15 +803,9 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 
 	newSuccessors := self newEmptySuccessors. 
 
-	controlFlowGraph tree:
-		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
-	controlFlowGraph tree computeDominanceFrontier.
-
 	duplicatedBlock := self basicDuplicate.
 	duplicatedBlock successors do: [ :successor | 
 		successor addPredecessor: duplicatedBlock ].
-
-	self mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: newSuccessors.
 
 	self predecessors do: [ :predecessorToRemove | 
 		predecessorToRemove = predecessorToRewire ifFalse: [ 
@@ -817,6 +813,12 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 
 	self removePredecessor: predecessorToRewire.
 	predecessorToRewire replaceSuccessor: self by: duplicatedBlock.
+
+	controlFlowGraph tree:
+		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
+	controlFlowGraph tree computeDominanceFrontier.
+
+	self mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: newSuccessors.
 
 	^ duplicatedBlock
 ]

@@ -14,6 +14,9 @@ DRDeadPathSplitting >> doApply: aCFG [
 	[ edge destination predecessors size = 1 ] whileTrue: [ 
 		edge := edge parent.
 		edge ifNil: [ ^ self ] ].
+
+	('Splitting: ' , edge destination id asString , ' -> ' , edge source id asString) traceCr.
+
 	edge destination splitTo: edge source.
 	aCFG validate.
 	aCFG generatePaths

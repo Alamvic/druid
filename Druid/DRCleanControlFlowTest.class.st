@@ -19,15 +19,12 @@ DRCleanControlFlowTest >> setUp [
 DRCleanControlFlowTest >> testCannotCombineBlocksWhenSecondBlockContainsPhiFunctions [
 
 	| b0 b1 b2 copy cfg |
-	cfg := DRControlFlowGraph new.
-	b0 := cfg newBasicBlock.
-	b1 := cfg newBasicBlock.
-	b2 := cfg newBasicBlock.
+	cfg := self setUpCFG: 3.
+	b0 := cfg b1.
+	b1 := cfg b2.
+	b2 := cfg b3.
 
-	b0 jumpTo: b1.
-	b1 addInstruction: (copy := instructionFactory copy: 2).	
-	
-	b1 jumpTo: b2.
+	copy := b1 copy: 2.	
 	b2 phiWith: copy.
 
 	self deny: (optimisation shouldCombineBlock: b1)
@@ -144,22 +141,18 @@ DRCleanControlFlowTest >> testRemoveEmptyBlock [
 DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionFirstPredecessor [
 
 	| b0 b1 b2 cfg r0 r1 b3 |
-	cfg := DRControlFlowGraph new.
-	b0 := cfg newBasicBlock.
+	cfg := self setUpCFGWithConditional.
+	b0 := cfg b1.
 	r0 := b0 copy: 0.
 	
-	b1 := cfg newBasicBlock.
+	b1 := cfg b2.
 	r1 := b1 copy: 1.
 	
 	"Empty, to remove"
-	b2 := cfg newBasicBlock.
-	
-	b0 jumpIfTrueTo: b1 ifFalseTo: b2.
+	b2 := cfg b3.
 	
 	"Joint point"
-	b3 := cfg newBasicBlock.
-	b1 jumpTo: b3.
-	b2 jumpTo: b3.
+	b3 := cfg b4.
 	b3 phiWith: r1 with: r0.
 
 	optimisation removeEmptyBlock: b2 fromCfg: cfg.

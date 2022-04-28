@@ -8,6 +8,8 @@ Class {
 DRDeadPathElimination >> doApply: cfg [
 
 	| newSucessors deadBranches |
+	
+	cfg generatePaths.
 
 	"Can exist many paths for the same branch"
 	deadBranches := cfg deadPaths values

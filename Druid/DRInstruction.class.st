@@ -113,7 +113,7 @@ DRInstruction >> initialize [
 
 { #category : #inspecting }
 DRInstruction >> inspectionDependencies: aBuilder [
-	<inspectorPresentationOrder: 0 title: 'Dependency Graph'> 
+	"<inspectorPresentationOrder: 0 title: 'Dependency Graph'>" 
 	| view blockViews eb |
 	view := RSCanvas new.
 	blockViews := self withAllDependencies collect: [ :c | | g |
@@ -150,6 +150,13 @@ DRInstruction >> inspectionDependencies: aBuilder [
 { #category : #testing }
 DRInstruction >> isCopy [
 	^ false
+]
+
+{ #category : #dominance }
+DRInstruction >> isDominatedBy: anotherOperand [
+
+	^ anotherOperand basicBlock = self basicBlock or: [ 
+		  self basicBlock isDominatedBy: anotherOperand basicBlock ]
 ]
 
 { #category : #accessing }
@@ -349,9 +356,7 @@ DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 { #category : #operands }
 DRInstruction >> replaceOperandIfDominated: myOperand by: anotherOperand [
 
-	(anotherOperand basicBlock = self basicBlock or: [ 
-		 self basicBlock isDominatedBy: anotherOperand basicBlock ]) 
-		ifFalse: [ ^ nil ].
+	(self isDominatedBy: anotherOperand) ifFalse: [ ^ nil ].
 	self replaceOperand: myOperand by: anotherOperand
 ]
 
@@ -437,11 +442,20 @@ DRInstruction >> users [
 
 { #category : #validation }
 DRInstruction >> validate [
-	
-	(self operands allSatisfy: [ :op | op hasUser: self ])
-		ifFalse: [ DRError signal: 'Operand-user mismatch in instruction: ', self asString ].
-	(self users allSatisfy: [ :user | user hasOperand: self ])
-		ifFalse: [ DRError signal: 'User-operand mismatch in instruction: ', self asString ].
+
+	(self operands allSatisfy: [ :op | op hasUser: self ]) ifFalse: [ 
+		DRError signal:
+			'Operand-user mismatch in instruction: ' , self asString ].
+	(self users allSatisfy: [ :user | user hasOperand: self ]) ifFalse: [ 
+		DRError signal:
+			'User-operand mismatch in instruction: ' , self asString ].
+
+	self isPhiFunction ifTrue: [ ^ self ].
+
+	self operands do: [ :o | 
+		(o isInstruction not or: [ 
+			 self basicBlock isDominatedBy: o basicBlock ]) ifFalse: [ 
+			DRError signal: 'Tenés cualquier operando en: ' , self asString ] ]
 ]
 
 { #category : #copying }

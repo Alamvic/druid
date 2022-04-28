@@ -8,8 +8,8 @@ Class {
 DRDeadPathEliminationTest >> previousOptimizations [
 
 	^ { 
-		  DRPhiSimplication new.
 		  (DRDeadBlockElimination then: DRCleanControlFlow).
+		  DRPhiSimplication new.
 		  DRFailureCodeBasedTailDuplication new.
 		  DRSCCP new.
 		  DRCopyPropagation new.

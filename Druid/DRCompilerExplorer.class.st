@@ -30,10 +30,10 @@ DRCompilerExplorer class >> onSelector: aSelector inClass: aClass [
 ]
 
 { #category : #optimising }
-DRCompilerExplorer >> apply: aClass [
+DRCompilerExplorer >> apply: opt [
 
 	previousCfgs add: self cfg veryDeepCopy.
-	self cfg applyOptimization: aClass new
+	self cfg applyOptimization: opt
 ]
 
 { #category : #accessing }

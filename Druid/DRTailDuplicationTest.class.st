@@ -538,6 +538,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierDominatedByItself [
 	phi1 := cfg b4 phiWith: copy1 with: copy2.
 	phi2 := b5 phiWith: phi1 with: copy2.
 	b5 copy: phi2.
+	b5 copy: copy2.
 	
 	cfg b3 tailDuplicate.
 

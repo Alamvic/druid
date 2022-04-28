@@ -45,6 +45,13 @@ DRPhiFunction >> initialize [
 	operands := OrderedCollection new.
 ]
 
+{ #category : #operands }
+DRPhiFunction >> isDominatedBy: anotherOperand [
+
+	^ (super isDominatedBy: anotherOperand) or: [ 
+		  anotherOperand basicBlock hasFrontier: self basicBlock ]
+]
+
 { #category : #testing }
 DRPhiFunction >> isEmpty [
 	
@@ -102,27 +109,13 @@ DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
 		ifFalse: [ super replaceOperand: anOperand by: anotherOperand ]
 ]
 
-{ #category : #operands }
-DRPhiFunction >> replaceOperandIfDominated: myOperand by: anotherOperand [
-
-	(anotherOperand basicBlock hasFrontier: self basicBlock) ifFalse: [ 
-		^ nil ].
-	self replaceOperand: myOperand by: anotherOperand
-]
-
 { #category : #replace }
 DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
-	"TOCHECK: Do it when myOperand is repeated. Why not always?"
-	(newOperands allSatisfy: [ :o | 
-		 o basicBlock hasFrontier: self basicBlock ]) ifTrue: [ 
-		| fullNewOperands |
-		"Need to split repeated operand by new two"
-		fullNewOperands := (operands copyWithout: myOperand) , newOperands.
-		^ self replaceBy:
-			  (self basicBlock phiWithVariables: fullNewOperands) ].
-
-	^ super replaceOperandsIfDominated: myOperand withAll: newOperands
+	| fullNewOperands |
+	"Replace phis operands is hard, we build a new one and replace"
+	fullNewOperands := (operands copyWithout: myOperand) , newOperands.
+	^ self replaceBy: (self basicBlock phiWithVariables: fullNewOperands)
 ]
 
 { #category : #accessing }

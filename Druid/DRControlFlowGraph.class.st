@@ -103,6 +103,13 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 					workingQueue addLast: target  ] ] ] ]
 ]
 
+{ #category : #dominance }
+DRControlFlowGraph >> buildDominatorTree [
+
+	self tree: (DRDominatorTree new buildDominatorTreeOf: self).
+	self tree computeDominanceFrontier
+]
+
 { #category : #edges }
 DRControlFlowGraph >> clearEdges [
 
@@ -492,7 +499,8 @@ DRControlFlowGraph >> tree: anObject [
 
 { #category : #validating }
 DRControlFlowGraph >> validate [
-	
+
+	self buildDominatorTree.
 	self blocks do: [ :e | e validate ]
 ]
 
