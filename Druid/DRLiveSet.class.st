@@ -5,10 +5,21 @@ Class {
 		'definition',
 		'lastUsage',
 		'location',
-		'start'
+		'start',
+		'liveRanges'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
+
+{ #category : #ranges }
+DRLiveSet >> addRangeFrom: firstInstruction to: lastInstruction [
+	
+	"Add a liveness range that goes from the first instruction to just before the last instruction"
+	liveRanges add: (DRLiveRange new
+		start: firstInstruction;
+		stop: lastInstruction;
+		yourself)
+]
 
 { #category : #accessing }
 DRLiveSet >> definition [
@@ -30,14 +41,21 @@ DRLiveSet >> definitionOrder [
 { #category : #accessing }
 DRLiveSet >> end [
 
-	^ (lastUsage ifNil: [
-			"No usages, then the instruction is live during its definition" 
-			self start + 1 ]
-		ifNotNil: [
-			"Otherwise, it is live until 
-			 - just after its last usage
-			 - but before the last usage defines a new value"
-			lastUsage order ]) - 1
+	^ lastUsage
+		  ifNil: [
+				"No usages, then the instruction is live during its definition"
+				self start ]
+		  ifNotNil: [
+				"Otherwise, it is live until
+				- just after its last usage
+			 	- but before the last usage defines a new value"
+				lastUsage order - 1 ]
+]
+
+{ #category : #testing }
+DRLiveSet >> initialize [
+	super initialize.
+	liveRanges := OrderedCollection new
 ]
 
 { #category : #testing }

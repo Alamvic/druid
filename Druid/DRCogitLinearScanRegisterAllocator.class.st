@@ -5,10 +5,10 @@ Class {
 }
 
 { #category : #'live-analysis' }
-DRCogitLinearScanRegisterAllocator >> buildLiveIntervals [
+DRCogitLinearScanRegisterAllocator >> buildLiveSets [
 
 	| shouldRecompute |
-	[ super buildLiveIntervals.
+	[ super buildLiveSets.
 	shouldRecompute := self coalesceIntervalsForTwoAddressCode ]
 		doWhileTrue: [ shouldRecompute ]
 ]

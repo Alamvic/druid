@@ -50,7 +50,7 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [ 
 
 	controlFlowGraph := aDRControlFlowGraph.
-	self buildLiveIntervals.
+	self buildLiveSets.
 	self allocateRegisters.
 	self assignRegisters.
 ]
@@ -156,7 +156,7 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 ]
 
 { #category : #'live-analysis' }
-DRLinearScanRegisterAllocator >> buildLiveIntervals [
+DRLinearScanRegisterAllocator >> buildLiveSets [
 	
 	"For now do a simple live interval computation.
 	This could be further improved with range splitting and other optimizations"
@@ -181,9 +181,17 @@ DRLinearScanRegisterAllocator >> computeLiveSetsForInstruction: i [
 		  liveSet definition: i.
 		  i result isVirtualRegister ifTrue: [ 
 			  liveSets at: i put: liveSet ].
-		  i operands
+		
+		"Update the live sets of the operands."
+		i operands
 			  select: [ :operand | operand result isVirtualRegister ]
-			  thenDo: [ :operand | self updateLastUsageOf: operand toInstruction: i ] ]
+			  thenDo: [ :operand | self updateLastUsageOf: operand toInstruction: i ].
+		  
+		"If the instruction is used outside the block,
+		consider it is live until the end of the block.
+		Otherwise, it's value is dead and do nothing"
+		(i users anySatisfy: [ :user | user basicBlock ~= i basicBlock ])
+			ifTrue: [ liveSet addRangeFrom: i to: i basicBlock lastInstruction ] ]
 ]
 
 { #category : #enumerating }
@@ -236,7 +244,14 @@ DRLinearScanRegisterAllocator >> spillRegisters: aCollection [
 ]
 
 { #category : #'live-analysis' }
-DRLinearScanRegisterAllocator >> updateLastUsageOf: operand toInstruction: instruction [
+DRLinearScanRegisterAllocator >> updateLastUsageOf: instruction toInstruction: usage [
 
-	(self liveIntervalOf: operand) lastUsage: instruction
+	| rangeStart |
+	rangeStart := instruction basicBlock = usage basicBlock
+		ifTrue: [ instruction ]
+		ifFalse: [ usage basicBlock firstInstruction ].
+
+	(self liveIntervalOf: instruction)
+		addRangeFrom: rangeStart to: usage;
+		lastUsage: usage
 ]

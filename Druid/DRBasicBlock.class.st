@@ -28,12 +28,14 @@ DRBasicBlock class >> id: anInteger [
 { #category : #accessing }
 DRBasicBlock >> add: anInstruction after: anotherInstruction [
 	
+	anInstruction basicBlock: self.
 	instructions add: anInstruction after: anotherInstruction
 ]
 
 { #category : #accessing }
 DRBasicBlock >> add: anInstruction before: anotherInstruction [
 	
+	anInstruction basicBlock: self.
 	instructions add: anInstruction before: anotherInstruction
 ]
 
