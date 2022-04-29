@@ -27,10 +27,23 @@ DRLiveSet >> definitionOrder [
 	^ definition order
 ]
 
+{ #category : #accessing }
+DRLiveSet >> end [
+
+	^ (lastUsage ifNil: [
+			"No usages, then the instruction is live during its definition" 
+			self start + 1 ]
+		ifNotNil: [
+			"Otherwise, it is live until 
+			 - just after its last usage
+			 - but before the last usage defines a new value"
+			lastUsage order ]) - 1
+]
+
 { #category : #testing }
 DRLiveSet >> isActiveAt: position [
 
-	^ self lastUsage notNil and: [ self lastUsage order > position ]
+	^ self end >= position
 ]
 
 { #category : #testing }
@@ -77,23 +90,14 @@ DRLiveSet >> mergeWith: aDRLiveSet [
 
 	^ DRLiveSet new
 		  definition: first definition;
-		  lastUsage: second lastUsage;
+		  lastUsage: (second lastUsage ifNil: [ first lastUsage ]);
 		  yourself
 ]
 
 { #category : #accessing }
 DRLiveSet >> orderInterval [
 
-	| end |
-	end := lastUsage ifNil: [
-			"No usages, then the instruction is live during its definition" 
-			definition order + 1 ]
-		ifNotNil: [
-			"Otherwise, it is live until 
-			 - just after its last usage
-			 - but before the last usage defines a new value"
-			lastUsage order - 1 ].
-	^ definition order to: end
+	^ self start to: self end
 ]
 
 { #category : #testing }

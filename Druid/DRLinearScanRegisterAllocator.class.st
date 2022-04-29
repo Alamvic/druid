@@ -33,7 +33,7 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 	| activeIntervals |
 	activeIntervals := Set new.
 	(liveSets values asSet sorted: [ :a :b | 
-		 a definitionOrder < b definitionOrder ]) do: [ :currentInterval | 
+		 a start < b start ]) do: [ :currentInterval | 
 		activeIntervals copy do: [ :eachInterval | 
 			(eachInterval isActiveAt: currentInterval start) ifFalse: [ "not active anymore"
 				activeIntervals remove: eachInterval.

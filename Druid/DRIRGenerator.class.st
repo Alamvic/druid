@@ -326,17 +326,16 @@ DRIRGenerator >> interpretCondition: aRBMessageNode instructionKind: anInstructi
 DRIRGenerator >> interpretDivisionWith: aRBMessageNode [ 
 
 	"Interpret the two numbers and divide them up"
-	| leftOperand rightOperand divResult remOperand |
+	| leftOperand rightOperand divResult |
 
 	leftOperand := self visitOperand: aRBMessageNode receiver.
 	rightOperand := self visitOperand: aRBMessageNode arguments first.
 	
 	"Backend needs a third operand for rem result"
-	remOperand := self noop: aRBMessageNode.
 	divResult := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRDivision 
-		operands: { leftOperand . rightOperand . remOperand }.
+		operands: { leftOperand . rightOperand }.
 
 	self pushOperand: divResult 
 ]
@@ -602,17 +601,16 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: argu
 DRIRGenerator >> interpretModWith: aRBMessageNode [ 
 
 	"Interpret the two numbers and push the module operation result"
-	| leftOperand rightOperand modResult divOperand |
+	| leftOperand rightOperand modResult |
 
 	leftOperand := self visitOperand: aRBMessageNode receiver.
 	rightOperand := self visitOperand: aRBMessageNode arguments first.
 	
 	"Backend needs a third operand for div result"
-	divOperand := self noop: aRBMessageNode.
 	modResult := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRMod 
-		operands: { leftOperand . rightOperand . divOperand }.
+		operands: { leftOperand . rightOperand }.
 
 	self pushOperand: modResult
 ]
