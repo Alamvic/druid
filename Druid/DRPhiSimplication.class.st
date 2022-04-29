@@ -8,7 +8,6 @@ Class {
 DRPhiSimplication >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph phiFunctions do: [ :i | 
-		(i operands allSatisfy: [ :o | o isNullValue ]) ifTrue: [ ^ i removeFromCFG ].
 		i operands asSet size = 1 ifTrue: [ 
 			i replaceBy: (DRCopy operands: { i operand1 } result: i result) ] ]
 ]

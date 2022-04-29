@@ -24,7 +24,6 @@ DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: 
 	 - the second block has as single predecessor the first block"
 	
 	| combinedBlock |
-
 	combinedBlock := aCFG newBasicBlock.
 	aDRBasicBlock predecessors copy do: [ :predecessor |
 		combinedBlock addPredecessor: predecessor.

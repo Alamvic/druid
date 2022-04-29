@@ -312,7 +312,8 @@ DRInstruction >> printOn: aStream [
 DRInstruction >> removeFromCFG [
 
 	basicBlock removeInstruction: self.
-	self operands asSet do: [ :e | e removeUser: self ]
+	self operands asSet do: [ :e | e removeUser: self ].
+	self users asSet do: [ :e | e replaceOperand: self by: DRNullValue new  ]
 ]
 
 { #category : #operands }

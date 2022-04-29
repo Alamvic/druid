@@ -43,16 +43,17 @@ DRPhiSimplicationTest >> testNotSimplifyPhiWithNull [
 ]
 
 { #category : #tests }
-DRPhiSimplicationTest >> testSimplifyEmptyPhi [
+DRPhiSimplicationTest >> testSimplifyPhiOnlyWithNulls [
 
 	| cfg |
 	cfg := self setUpCFG: 1.
 
-	cfg b1 phiWithVariables: {  } .
+	cfg b1 phiWithVariables: { DRNullValue new }.
 
 	DRPhiSimplication new applyTo: cfg.
 
-	self assert: cfg b1 firstInstruction isNoop
+	self assert: cfg b1 firstInstruction isCopy.
+	self assert: cfg b1 firstInstruction operand1 isNullValue
 ]
 
 { #category : #tests }

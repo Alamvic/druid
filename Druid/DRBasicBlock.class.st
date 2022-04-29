@@ -654,7 +654,6 @@ DRBasicBlock >> phiWithVariables: variables [
 			                  ifNone: [ DRNullValue new ] ].
 
 	phi := self instructionFactory phiWithVariables: finalVariables.
-	1haltIf: [ phi result id = 944 ].
 	^ self addInstruction: phi.
 ]
 
