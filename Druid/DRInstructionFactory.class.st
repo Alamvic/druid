@@ -25,6 +25,14 @@ DRInstructionFactory >> allocateTemporaryRegister [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> anyMask: operand1 with: operand2 [
+
+	^ DRTest
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> bitAnd: operand1 with: operand2 [
 
 	^ DRBitAnd
@@ -52,6 +60,16 @@ DRInstructionFactory >> divide: aValue by: anotherValue [
 DRInstructionFactory >> equals: operand1 to: operand2 [
 	
 	^ DREqualsThanComparison
+		  operands: { 
+				  operand1 asDRValue.
+				  operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> greater: operand1 than: operand2 [
+
+	^ DRGreaterThanComparison
 		  operands: { 
 				  operand1 asDRValue.
 				  operand2 asDRValue }

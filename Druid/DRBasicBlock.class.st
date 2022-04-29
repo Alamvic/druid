@@ -60,6 +60,12 @@ DRBasicBlock >> addPredecessor: aBasicBlock [
 		phi operands size < self predecessors size ifTrue: [ phi addOperand ] ]
 ]
 
+{ #category : #building }
+DRBasicBlock >> anyMask: aValue with: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory anyMask: aValue with: anotherValue)
+]
+
 { #category : #transformations }
 DRBasicBlock >> basicDuplicate [
 	
@@ -252,6 +258,12 @@ DRBasicBlock >> findMergePoint: aDRBasicBlock [
 DRBasicBlock >> firstInstruction [
 	
 	^ self instructions first
+]
+
+{ #category : #building }
+DRBasicBlock >> greater: operand1 than: operand2 [
+	
+	^ self addInstruction: (self instructionFactory greater: operand1 than: operand2)
 ]
 
 { #category : #testing }
