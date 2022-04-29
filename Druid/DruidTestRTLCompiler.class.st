@@ -748,39 +748,36 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 	| currentBlock jump0 jump1 jump2 jump3 jump4 jump5 |
 	self CmpCq: 10 R: ReceiverResultReg.
 	jump0 := self JumpLessOrEqual: 0.
-	self MoveCq: 1 R: SendNumArgsReg.
-	self MoveR: SendNumArgsReg R: Extra1Reg.
+	self MoveCq: 1 R: TempReg.
+	self MoveR: TempReg R: TempReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
-	self MoveCq: 99 R: Extra0Reg.
-	self MoveR: Extra0Reg R: Extra1Reg.
+	self MoveCq: 99 R: ClassReg.
+	self MoveR: ClassReg R: TempReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self CmpCq: 0 R: ReceiverResultReg.
 	jump2 := self JumpLessOrEqual: 0.
-	self MoveCq: 5 R: Extra4Reg.
-	self MoveR: Extra4Reg R: ClassReg.
+	self MoveCq: 5 R: ClassReg.
+	self MoveR: ClassReg R: ClassReg.
 	jump3 := self Jump: 0.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self MoveCq: 17 R: TempReg.
-	self MoveR: TempReg R: ClassReg.
+	self MoveCq: 17 R: SendNumArgsReg.
+	self MoveR: SendNumArgsReg R: ClassReg.
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
 	self CmpCq: 7 R: ReceiverResultReg.
 	jump4 := self JumpLessOrEqual: 0.
-	self MoveR: Extra1Reg R: Extra2Reg.
-	self AddR: ClassReg R: Extra2Reg.
-	self MoveR: Extra2Reg R: Extra3Reg.
-	self AddCq: 15 R: Extra3Reg.
-	self MoveR: Extra3Reg R: ReceiverResultReg.
+	self MoveR: TempReg R: SendNumArgsReg.
+	self AddR: ClassReg R: SendNumArgsReg.
+	self AddCq: 15 R: SendNumArgsReg.
+	self MoveR: SendNumArgsReg R: ReceiverResultReg.
 	jump5 := self Jump: 0.
 	currentBlock := self Label.
 	jump4 jmpTarget: currentBlock.
-	self MoveR: Extra1Reg R: Extra4Reg.
-	self AddR: ClassReg R: Extra4Reg.
-	self MoveR: Extra4Reg R: TempReg.
+	self AddR: ClassReg R: TempReg.
 	self AddCq: 42 R: TempReg.
 	self MoveR: TempReg R: ReceiverResultReg.
 	currentBlock := self Label.
@@ -1063,16 +1060,14 @@ DruidTestRTLCompiler >> gen_primitiveMultiplyWithOverflow [
 	self LogicalShiftRightCq: 3 R: TempReg.
 	self MoveR: Arg0Reg R: ClassReg.
 	self SubCq: 1 R: ClassReg.
-	self MoveR: TempReg R: SendNumArgsReg.
-	self MulR: ClassReg R: SendNumArgsReg.
+	self MulR: ClassReg R: TempReg.
 	jump0 := self JumpMultiplyNoOverflow: 0.
 	self MoveCq: 99 R: ReceiverResultReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
-	self MoveR: SendNumArgsReg R: Extra1Reg.
-	self AddCq: 1 R: Extra1Reg.
-	self MoveR: Extra1Reg R: ReceiverResultReg.
+	self AddCq: 1 R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self RetN: 2 * objectMemory wordSize.
@@ -1157,24 +1152,23 @@ DruidTestRTLCompiler >> gen_primitiveSandclock [
 	| currentBlock jump0 jump1 jump2 jump3 |
 	self CmpCq: 10 R: ReceiverResultReg.
 	jump0 := self JumpLessOrEqual: 0.
-	self MoveCq: 1 R: SendNumArgsReg.
-	self MoveR: SendNumArgsReg R: Extra1Reg.
+	self MoveCq: 1 R: TempReg.
+	self MoveR: TempReg R: TempReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
-	self MoveCq: 99 R: Extra0Reg.
-	self MoveR: Extra0Reg R: Extra1Reg.
+	self MoveCq: 99 R: ClassReg.
+	self MoveR: ClassReg R: TempReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self CmpCq: 0 R: ReceiverResultReg.
 	jump2 := self JumpLessOrEqual: 0.
-	self MoveR: Extra1Reg R: Extra4Reg.
-	self AddCq: 5 R: Extra4Reg.
-	self MoveR: Extra4Reg R: ReceiverResultReg.
+	self MoveR: TempReg R: ClassReg.
+	self AddCq: 5 R: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	jump3 := self Jump: 0.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self MoveR: Extra1Reg R: TempReg.
 	self AddCq: 17 R: TempReg.
 	self MoveR: TempReg R: ReceiverResultReg.
 	currentBlock := self Label.
@@ -1263,14 +1257,14 @@ DruidTestRTLCompiler >> gen_primitiveSumWithOverflow [
 	| currentBlock jump0 jump1 |
 	self MoveR: ReceiverResultReg R: TempReg.
 	self SubCq: 1 R: TempReg.
-	self MoveR: TempReg R: ClassReg.
-	self AddR: Arg0Reg R: ClassReg.
+	self MoveR: Arg0Reg R: ClassReg.
+	self AddR: ClassReg R: TempReg.
 	jump0 := self JumpNoOverflow: 0.
 	self MoveCq: 99 R: ReceiverResultReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
-	self MoveR: ClassReg R: ReceiverResultReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self RetN: 2 * objectMemory wordSize.
