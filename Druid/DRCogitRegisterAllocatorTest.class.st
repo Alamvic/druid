@@ -69,3 +69,635 @@ DRCogitRegisterAllocatorTest >> testAllocateRegistersForModuloIntroducesQuotient
 	self assert: ({ firstRegister . secondRegister } includes: basicBlock instructions third operands third result).
 	self assert: ({ firstRegister . secondRegister } includes: basicBlock instructions third result).
 ]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testCmpSpecialRegisterDoesNotModifyInstruction [
+
+	| cfg basicBlock firstRegister specialRegister |
+
+	"From
+	
+	R0 := Receiver > 1.
+	"
+
+	specialRegister := DRPhysicalRegister name: 'Receiver'.
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
+		"R0 := Receiver > 1"
+		r0 := block greater: specialRegister than: 1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: { firstRegister };
+		allocateRegistersIn: cfg.
+
+	self assert: basicBlock instructions first isComparison.
+	self assert: basicBlock instructions first operands first equals: specialRegister
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testCmpSpecialRegisterDoesNotModifyInstructionInversed [
+
+	| cfg basicBlock firstRegister specialRegister |
+
+	"From
+	
+	R0 := 1 > Receiver.
+	"
+
+	specialRegister := DRPhysicalRegister name: 'Receiver'.
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
+		"R0 := Receiver > 1"
+		r0 := block greater: 1 than: specialRegister ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: { firstRegister };
+		allocateRegistersIn: cfg.
+
+	self assert: basicBlock instructions first isComparison.
+	self assert: basicBlock instructions first operands second equals: specialRegister
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testFirstArgumentFarDefinitionNotUsed [
+
+	| cfg basicBlock firstRegister secondRegister |
+
+	"From
+	
+	R0 := 1.
+	R1 := 2.
+	R2 := R0 + R1.
+	
+	To
+	
+	R0 := 1.
+	R1 := 2.
+	R1 := R0 + R1.
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		"R0 := 1"
+		r0 := block copy: 1.
+		"R1 := 2"
+		r1 := block copy: 2.
+		"R2 := R0 + R1"
+		r2 := block add: r0 to: r1. ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	secondRegister := DRPhysicalRegister name: 'PR2'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: { firstRegister. secondRegister };
+		allocateRegistersIn: cfg.
+	
+	self assert: basicBlock instructions first result equals: firstRegister.
+	self assert: basicBlock instructions second result equals: secondRegister.
+	self assert: basicBlock instructions third result equals: firstRegister.
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testFirstArgumentIsConstant [
+
+	| cfg basicBlock firstRegister |
+
+	"From
+	
+	R0 := 1.
+	R1 := 1 + R0.
+	
+	To
+	
+	R0 := 1.
+	R1 := 1 + R0.
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 |
+		"R0 := 1"
+		r0 := block copy: 1.
+		"R1 := 1 + R0"
+		r1 := block add: 1 to: r0.].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: { firstRegister };
+		allocateRegistersIn: cfg.
+	
+	self assert: basicBlock instructions first result equals: firstRegister.
+	self assert: basicBlock instructions second result equals: firstRegister.
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testFirstArgumentNotUsed [
+
+	| cfg basicBlock firstRegister secondRegister |
+
+	"From
+	
+	R0 := 1.
+	R1 := 2.
+	R2 := R1 + R0.
+	
+	To
+	
+	R0 := 1.
+	R1 := 2.
+	R0 := R1 + R0.
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		"R0 := 1"
+		r0 := block copy: 1.
+		"R1 := 2"
+		r1 := block copy: 2.
+		"R2 := R1 + R0"
+		r2 := block add: r1 to: r0. ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	secondRegister := DRPhysicalRegister name: 'PR2'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: { firstRegister. secondRegister };
+		allocateRegistersIn: cfg.
+	
+	self assert: basicBlock instructions first result equals: firstRegister.
+	self assert: basicBlock instructions second result equals: secondRegister.
+	self assert: basicBlock instructions third result equals: secondRegister.
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testFirstArgumentSpecialRegisterShouldAddMove [
+
+	| cfg basicBlock firstRegister physicalRegister |
+
+	"From
+	
+	R1 := 1 + Receiver.
+	
+	To
+	
+	R1 := Receiver.
+	R1 := 1 + R1.
+	"
+	physicalRegister := DRPhysicalRegister name: 'Receiver'.
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r1 |
+		"R1 := 1 + Receiver"
+		r1 := block add: 1 to: physicalRegister.].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: { firstRegister };
+		allocateRegistersIn: cfg.
+	
+	"Copt was inserted R1 := Receiver."
+	self assert: basicBlock instructions first operand1 equals: physicalRegister.
+	self assert: basicBlock instructions first result equals: firstRegister.
+	
+	self assert: basicBlock instructions second operand2 result equals: firstRegister.
+	self assert: basicBlock instructions second result equals: firstRegister.
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testFirstArgumentUsedCreatesCopy [
+
+	| cfg basicBlock firstRegister secondRegister thirdRegister |
+
+	"From
+	
+	R0 := 1.
+	R1 := 2.
+	R2 := R1 + R0.
+	R3 := R1.
+	
+	To (still SSA)
+	
+	R0 := 1.
+	R1 := 2.
+	R17 := R1.
+	R2 := R17 + R0.
+	R3 := R1.
+	
+	To
+	
+	R0 := 1.
+	R1 := 2.
+	R2 := R1.
+	R0 := R2 + R0.
+	R0/R1/R2 := R1.
+	
+	After the first four instructions, all three registers are free, so all solutions are valid
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 r3 |
+		"R0 := 1"
+		r0 := block copy: 1.
+		"R1 := 2"
+		r1 := block copy: 2.
+		"R2 := R1 + R0"
+		r2 := block add: r1 to: r0.
+		"R3 := R1"
+		r3 := block copy: r1. ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+
+	firstRegister := DRPhysicalRegister name: 'PR0'.
+	secondRegister := DRPhysicalRegister name: 'PR1'.
+	thirdRegister := DRPhysicalRegister name: 'PR2'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: { firstRegister. secondRegister. thirdRegister };
+		allocateRegistersIn: cfg.
+	
+	self assert: basicBlock instructions first result equals: firstRegister.
+	self assert: basicBlock instructions second result equals: secondRegister.
+	
+	self assert: basicBlock instructions third isCopy.
+	self assert: basicBlock instructions third operand1 result equals: secondRegister.
+	self assert: basicBlock instructions third result equals: thirdRegister.
+	
+	self assert: basicBlock instructions fourth operand1 result equals: thirdRegister.
+	self assert: basicBlock instructions fourth result equals: thirdRegister.
+	
+	self assert: ({ firstRegister . secondRegister. thirdRegister } includes: basicBlock instructions fourth result).
+]
+
+{ #category : #'tests - live set overlap' }
+DRCogitRegisterAllocatorTest >> testLiveSetCoversCompletelyThenOverlaps [
+
+	| cfg basicBlock r0 r1 r0Interval r1Interval r2 r3 |
+
+	"
+	R0 := 1.
+	R1 := 2.
+	R2 := R1.
+	R3 := R0.
+	
+	R1 is used before R0 last usage
+	=> They cannot occupy the same register
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"R0 := 1"
+		r0 := block copy: 1.
+		r0 order: 1.
+		"R1 := 2"
+		r1 := block copy: 2.
+		r1 order: 2.
+		"R2 := R1"
+		r2 := block copy: r1.
+		r2 order: 3.
+		"R3 := R0"
+		r3 := block copy: r0.
+		r3 order: 4. ].
+
+	r0Interval := DRLiveSet new
+		definition: r0;
+		lastUsage: r3;
+		yourself.
+	
+	r1Interval := DRLiveSet new
+		definition: r1;
+		lastUsage: r2;
+		yourself.
+		
+	self assert: (r0Interval overlaps: r1Interval)
+]
+
+{ #category : #'tests - live set overlap' }
+DRCogitRegisterAllocatorTest >> testLiveSetCoversCompletelyThenOverlapsCommutative [
+
+	| cfg basicBlock r0 r1 r0Interval r1Interval r2 r3 |
+
+	"
+	R0 := 1.
+	R1 := 2.
+	R2 := R1.
+	R3 := R0.
+	
+	R1 is used before R0 last usage
+	=> They cannot occupy the same register
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"R0 := 1"
+		r0 := block copy: 1.
+		r0 order: 1.
+		"R1 := 2"
+		r1 := block copy: 2.
+		r1 order: 2.
+		"R2 := R1"
+		r2 := block copy: r1.
+		r2 order: 3.
+		"R3 := R0"
+		r3 := block copy: r0.
+		r3 order: 4. ].
+
+	r0Interval := DRLiveSet new
+		definition: r0;
+		lastUsage: r3;
+		yourself.
+	
+	r1Interval := DRLiveSet new
+		definition: r1;
+		lastUsage: r2;
+		yourself.
+		
+	self assert: (r1Interval overlaps: r0Interval)
+]
+
+{ #category : #'tests - live set overlap' }
+DRCogitRegisterAllocatorTest >> testLiveSetDoesNotOverlapsIfLastUsageIsDefinition [
+
+	| cfg basicBlock r0 r1 r0Interval r1Interval |
+
+	"
+	R0 := 1.
+	R1 := R0.
+	
+	=> We can reuse the register assigned to R0 for R1 if not used below.
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"R0 := 1"
+		r0 := block copy: 1.
+		r0 order: 1.
+		"R1 := R0"
+		r1 := block copy: r0.
+		r1 order: 2 ].
+
+	r0Interval := DRLiveSet new
+		definition: r0;
+		lastUsage: r1;
+		yourself.
+	
+	r1Interval := DRLiveSet new
+		definition: r1;
+		yourself.
+		
+	self deny: (r0Interval overlaps: r1Interval)
+]
+
+{ #category : #'tests - live set overlap' }
+DRCogitRegisterAllocatorTest >> testLiveSetDoesNotOverlapsIfLastUsageIsDefinitionCommutative [
+
+	| cfg basicBlock r0 r1 r0Interval r1Interval |
+
+	"
+	R0 := 1.
+	R1 := R0.
+	
+	=> We can reuse the register assigned to R0 for R1 if not used below.
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"R0 := 1"
+		r0 := block copy: 1.
+		r0 order: 1.
+		"R1 := R0"
+		r1 := block copy: r0.
+		r1 order: 2 ].
+
+	r0Interval := DRLiveSet new
+		definition: r0;
+		lastUsage: r1;
+		yourself.
+	
+	r1Interval := DRLiveSet new
+		definition: r1;
+		yourself.
+		
+	self deny: (r1Interval overlaps: r0Interval)
+]
+
+{ #category : #'tests - live set overlap' }
+DRCogitRegisterAllocatorTest >> testLiveSetOverlaps [
+
+	| cfg basicBlock r0 r1 r0Interval r1Interval r2 r3 |
+
+	"
+	R0 := 1.
+	R1 := 2.
+	R2 := R0.
+	R3 := R1.
+	
+	R01 is used before R1 last usage
+	=> We cannot reuse the register assigned to R1 for R2.
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"R0 := 1"
+		r0 := block copy: 1.
+		r0 order: 1.
+		"R1 := 2"
+		r1 := block copy: 2.
+		r1 order: 2.
+		"R2 := R0"
+		r2 := block copy: r0.
+		r2 order: 3.
+		"R3 := R1"
+		r3 := block copy: r1.
+		r3 order: 4. ].
+
+	r0Interval := DRLiveSet new
+		definition: r0;
+		lastUsage: r2;
+		yourself.
+	
+	r1Interval := DRLiveSet new
+		definition: r1;
+		lastUsage: r3;
+		yourself.
+		
+	self assert: (r0Interval overlaps: r1Interval)
+]
+
+{ #category : #'tests - live set overlap' }
+DRCogitRegisterAllocatorTest >> testLiveSetOverlapsCommutative [
+
+	| cfg basicBlock r0 r1 r0Interval r1Interval r2 r3 |
+
+	"
+	R0 := 1.
+	R1 := 2.
+	R2 := R0.
+	R3 := R1.
+	
+	R01 is used before R1 last usage
+	=> We cannot reuse the register assigned to R1 for R2.
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"R0 := 1"
+		r0 := block copy: 1.
+		r0 order: 1.
+		"R1 := 2"
+		r1 := block copy: 2.
+		r1 order: 2.
+		"R2 := R0"
+		r2 := block copy: r0.
+		r2 order: 3.
+		"R3 := R1"
+		r3 := block copy: r1.
+		r3 order: 4. ].
+
+	r0Interval := DRLiveSet new
+		definition: r0;
+		lastUsage: r2;
+		yourself.
+	
+	r1Interval := DRLiveSet new
+		definition: r1;
+		lastUsage: r3;
+		yourself.
+		
+	self assert: (r1Interval overlaps: r0Interval)
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testSecondArgumentIsConstant [
+
+	| cfg basicBlock firstRegister secondRegister |
+
+	"From
+	
+	R0 := 1.
+	R1 := R0 + 1.
+	
+	To
+	
+	R0 := 1.
+	R0 := R0 + 1.
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 |
+		"R0 := 1"
+		r0 := block copy: 1.
+		"R1 := R0 + 1"
+		r1 := block add: r0 to: 1.].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	secondRegister := DRPhysicalRegister name: 'PR2'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: { firstRegister. secondRegister };
+		allocateRegistersIn: cfg.
+	
+	self assert: basicBlock instructions first result equals: firstRegister.
+	self assert: basicBlock instructions second operand1 result equals: firstRegister.
+	self assert: basicBlock instructions second result equals: firstRegister.
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testSecondArgumentUsedButNotFirst [
+
+	| cfg basicBlock firstRegister secondRegister |
+
+	"From
+	
+	R0 := 1.
+	R1 := 2.
+	R2 := R0 + R1.
+	R3 := R0.
+	
+	To
+	
+	R0 := 1.
+	R1 := 2.
+	R1 := R1 + R0.
+	R0/R1 := R0.
+	
+	After the first three instructions, both registers are free, so both solutions are valid
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 r3 |
+		"R0 := 1"
+		r0 := block copy: 1.
+		"R1 := 2"
+		r1 := block copy: 2.
+		"R2 := R0 + R1"
+		r2 := block add: r1 to: r0.
+		"R3 := R0"
+		r3 := block copy: r0. ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	secondRegister := DRPhysicalRegister name: 'PR2'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: { firstRegister. secondRegister };
+		allocateRegistersIn: cfg.
+	
+	self assert: basicBlock instructions first result equals: firstRegister.
+	self assert: basicBlock instructions second result equals: secondRegister.
+	self assert: basicBlock instructions third result equals: secondRegister.
+	self assert: ({ firstRegister . secondRegister } includes: basicBlock instructions fourth result).
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testTestSpecialRegisterDoesNotModifyInstruction [
+
+	| cfg basicBlock firstRegister specialRegister |
+
+	"From
+	
+	R0 := Receiver Test 1.
+	"
+
+	specialRegister := DRPhysicalRegister name: 'Receiver'.
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
+		"R0 := Receiver Test 1"
+		r0 := block anyMask: specialRegister with: 1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: { firstRegister };
+		allocateRegistersIn: cfg.
+
+	self assert: basicBlock instructions first isComparison.
+	self assert: basicBlock instructions first operands first equals: specialRegister
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testTestSpecialRegisterDoesNotModifyInstructionInversed [
+
+	| cfg basicBlock firstRegister specialRegister |
+
+	"From
+	
+	R0 := 1 TEST Receiver.
+	"
+
+	specialRegister := DRPhysicalRegister name: 'Receiver'.
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
+		"R0 := Receiver TEST 1"
+		r0 := block anyMask: 1 with: specialRegister ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: { firstRegister };
+		allocateRegistersIn: cfg.
+
+	self assert: basicBlock instructions first isComparison.
+	self assert: basicBlock instructions first operands second equals: specialRegister
+]

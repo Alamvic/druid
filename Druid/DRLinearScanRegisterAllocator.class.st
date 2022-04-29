@@ -5,7 +5,8 @@ Class {
 		'blocks',
 		'liveSets',
 		'availableRegisters',
-		'spillRegisters'
+		'spillRegisters',
+		'controlFlowGraph'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -28,28 +29,27 @@ DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiv
 
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> allocateRegisters [
-	
+
 	| activeIntervals |
 	activeIntervals := Set new.
-	liveSets values do: [ :currentInterval |
-		
-		activeIntervals copy do: [ :eachInterval |
-			(eachInterval lastUsage isNil or:
-				[ eachInterval lastUsage order <= currentInterval definition order ])
-					ifTrue: [ 
-						"not active anymore"
-						activeIntervals remove: eachInterval.
-						self returnRegister: eachInterval location ] ].
-		
-		self allocateRegisterForLiveRegisterInterval: currentInterval withActiveIntervals: activeIntervals.
-		currentInterval isSpilled ifFalse: [ activeIntervals add: currentInterval ].
-	]
+	(liveSets values asSet sorted: [ :a :b | 
+		 a definitionOrder < b definitionOrder ]) do: [ :currentInterval | 
+		activeIntervals copy do: [ :eachInterval | 
+			(eachInterval isActiveAt: currentInterval start) ifFalse: [ "not active anymore"
+				activeIntervals remove: eachInterval.
+				self returnRegister: eachInterval location ] ].
+
+		self
+			allocateRegisterForLiveRegisterInterval: currentInterval
+			withActiveIntervals: activeIntervals.
+		currentInterval isSpilled ifFalse: [ 
+			activeIntervals add: currentInterval ] ]
 ]
 
 { #category : #api }
 DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [ 
 
-	self linearizeBlocks: aDRControlFlowGraph.
+	controlFlowGraph := aDRControlFlowGraph.
 	self buildLiveIntervals.
 	self allocateRegisters.
 	self assignRegisters.
@@ -58,17 +58,32 @@ DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> allocatedRegisterFor: aValue [
 	
-	^ (liveSets at: aValue result) location
+	^ (self liveIntervalOf: aValue) location
 ]
 
 { #category : #assigning }
 DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 
 	| allocatedLocation allocatedRegister |
+	
+	"Rewrite the result of the instruction given as argument, using the location in its pre-computed live interval.
+	If the instruction result goes to memory, we need to store it after operating.
+	E.g., from
+	
+	M0 := R1 + R2.
+	
+	=>
+	
+	R17 := R1 + R2.
+	Store R17 => M0.
+
+	This means that we should reserve at least 1 registers for spilled results.
+	"
+	
 	i result ifNil: [ ^ self ].
 	i result isVirtualRegister ifFalse: [ ^ self ].
 
-	allocatedLocation := (liveSets at: i) location.
+	allocatedLocation := self allocatedRegisterFor: i.
 	allocatedRegister := allocatedLocation isMemoryAddress
 		ifTrue: [ spillRegisters first ]
 		ifFalse: [ allocatedLocation ].
@@ -98,28 +113,45 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 
 	"Assign first registers to operands.
 		This will use spill registers if needed and return them to the pool.
-		Then, the result can use them if it is spilled too."
+		Then, the result can use them if it is spilled too.
+	
+	If the instruction operands are in memory, we need to load them before operating.
+	E.g., from
+	
+	R1 := M0 + M1.
+	
+	=>
+	
+	R17 := Load M0.
+	R18 := Load M1.
+	R1 := R17 + R18.
+	
+	This means that we should reserve at least N registers for spilled operands where N is the maximum number of operands in our instruction set.
+	"
 
 	| allocatedLocation allocatedRegister usedSpillRegisters addressSize |
 	usedSpillRegisters := OrderedCollection new: 3.
 	addressSize := 8 asDRValue.
-	i operands do: [ :op |
-		(liveSets includesKey: op) ifTrue: [
-			allocatedLocation := (liveSets at: op) location.
+	i operands do: [ :op | 
+		(liveSets includesKey: op) ifTrue: [ 
+			allocatedLocation := self allocatedRegisterFor: op.
 			allocatedRegister := allocatedLocation isMemoryAddress
-				ifTrue: [ usedSpillRegisters addFirst: spillRegisters removeFirst ]
-				ifFalse: [ allocatedLocation ].
+				                     ifTrue: [ 
+				                     usedSpillRegisters addFirst:
+					                     spillRegisters removeFirst ]
+				                     ifFalse: [ allocatedLocation ].
 
-			allocatedLocation isMemoryAddress ifTrue: [
+			allocatedLocation isMemoryAddress ifTrue: [ 
 				i addBefore: (DRLoad
-					operands: { addressSize. allocatedLocation }
-					result: allocatedRegister) ].
-			
-			"Special case for temporary registers created during register allocation."
-			op isVirtualRegister ifTrue: [
-				op physicalRegister: allocatedRegister ].
-	] ].
-	
+						 operands: { 
+								 addressSize.
+								 allocatedLocation }
+						 result: allocatedRegister) ] ].
+
+		"Special case for temporary registers created during register allocation."
+		op isVirtualRegister ifTrue: [ 
+			op physicalRegister: allocatedRegister ] ].
+
 	usedSpillRegisters do: [ :each | spillRegisters addFirst: each ]
 ]
 
@@ -128,6 +160,8 @@ DRLinearScanRegisterAllocator >> buildLiveIntervals [
 	
 	"For now do a simple live interval computation.
 	This could be further improved with range splitting and other optimizations"
+	liveSets := OrderedIdentityDictionary new.
+	self linearizeBlocks: controlFlowGraph.
 	self computeLiveSets.
 ]
 
@@ -148,15 +182,8 @@ DRLinearScanRegisterAllocator >> computeLiveSetsForInstruction: i [
 		  i result isVirtualRegister ifTrue: [ 
 			  liveSets at: i put: liveSet ].
 		  i operands
-			  select: [ :op | op result isVirtualRegister ]
-			  thenDo: [ :reg | (liveSets at: reg) lastUsage: i ] ] "If the instruction has a result..."
-]
-
-{ #category : #'block-linearization' }
-DRLinearScanRegisterAllocator >> initialize [
-
-	super initialize.
-	liveSets := OrderedIdentityDictionary new
+			  select: [ :operand | operand result isVirtualRegister ]
+			  thenDo: [ :operand | self updateLastUsageOf: operand toInstruction: i ] ]
 ]
 
 { #category : #enumerating }
@@ -178,6 +205,12 @@ DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [
 		order := order + 1 ]
 ]
 
+{ #category : #accessing }
+DRLinearScanRegisterAllocator >> liveIntervalOf: anInstruction [
+	
+	^ liveSets at: anInstruction
+]
+
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> newStackLocation [
 	
@@ -193,11 +226,17 @@ DRLinearScanRegisterAllocator >> registers: aCollection [
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> returnRegister: aPhisicalRegister [
 
-	availableRegisters addLast: aPhisicalRegister
+	availableRegisters addFirst: aPhisicalRegister
 ]
 
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> spillRegisters: aCollection [
 	
 	spillRegisters := aCollection asOrderedCollection
+]
+
+{ #category : #'live-analysis' }
+DRLinearScanRegisterAllocator >> updateLastUsageOf: operand toInstruction: instruction [
+
+	(self liveIntervalOf: operand) lastUsage: instruction
 ]

@@ -89,6 +89,12 @@ DRInstruction >> clearUsers [
 	users removeAll
 ]
 
+{ #category : #accessing }
+DRInstruction >> controlFlowGraph [
+	
+	^ basicBlock controlFlowGraph
+]
+
 { #category : #copying }
 DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode [ 
 	
@@ -156,6 +162,12 @@ DRInstruction >> inspectionDependencies: aBuilder [
 	^ SpRoassal3InspectorPresenter new
 		canvas: view;
 		yourself
+]
+
+{ #category : #testing }
+DRInstruction >> isComparison [
+
+	^ false
 ]
 
 { #category : #testing }
