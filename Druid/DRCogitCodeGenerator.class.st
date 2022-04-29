@@ -152,9 +152,11 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 { #category : #visiting }
 DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction [
 
-	self twoOperandCogitRTL: #Move operands: { 
-			instruction operand1.
-			instruction result }.
+	"Verify that the 3 address code instruction is actually in 2AC after register allocation"
+	| allocatedOperands |
+	allocatedOperands := ({instruction result }, (instruction operands collect: [:op | op result])) asSet.
+	allocatedOperands size > 2 ifTrue: [ self error: 'Cannot write instruction with more than 2 operands: ', instruction asString ].
+	
 	^ self twoOperandCogitRTL: aMnemonic operands: { 
 			  instruction operand2.
 			  instruction result }
