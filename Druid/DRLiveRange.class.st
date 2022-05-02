@@ -9,6 +9,18 @@ Class {
 }
 
 { #category : #accessing }
+DRLiveRange >> orderInterval [
+
+	^ self start order to: self stop order - 1
+]
+
+{ #category : #testing }
+DRLiveRange >> overlaps: aDRLiveRange [ 
+
+	^ (self orderInterval intersection: aDRLiveRange orderInterval) notEmpty
+]
+
+{ #category : #accessing }
 DRLiveRange >> start [
 
 	^ start

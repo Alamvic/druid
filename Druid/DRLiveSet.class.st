@@ -11,6 +11,12 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #accessing }
+DRLiveSet >> addLiveRanges: someLiveRanges [
+
+	liveRanges addAll: someLiveRanges
+]
+
 { #category : #ranges }
 DRLiveSet >> addRangeFrom: firstInstruction to: lastInstruction [
 	
@@ -30,12 +36,6 @@ DRLiveSet >> definition [
 DRLiveSet >> definition: aDefiningInstruction [ 
 
 	definition := aDefiningInstruction
-]
-
-{ #category : #accessing }
-DRLiveSet >> definitionOrder [
-	
-	^ definition order
 ]
 
 { #category : #accessing }
@@ -82,6 +82,11 @@ DRLiveSet >> lastUsage: anInstruction [
 ]
 
 { #category : #accessing }
+DRLiveSet >> liveRanges [
+	^ liveRanges
+]
+
+{ #category : #accessing }
 DRLiveSet >> location [
 	^ location
 ]
@@ -109,19 +114,21 @@ DRLiveSet >> mergeWith: aDRLiveSet [
 	^ DRLiveSet new
 		  definition: first definition;
 		  lastUsage: (second lastUsage ifNil: [ first lastUsage ]);
+			addLiveRanges: first liveRanges;
+			addLiveRanges: second liveRanges;
 		  yourself
-]
-
-{ #category : #accessing }
-DRLiveSet >> orderInterval [
-
-	^ self start to: self end
 ]
 
 { #category : #testing }
 DRLiveSet >> overlaps: aDRLiveSet [ 
 	
-	^ (self orderInterval intersection: aDRLiveSet orderInterval) notEmpty
+	^ liveRanges anySatisfy: [ :e | aDRLiveSet overlivesLiveRange: e ]
+]
+
+{ #category : #testing }
+DRLiveSet >> overlivesLiveRange: aDRLiveRange [ 
+	
+	^ liveRanges anySatisfy: [ :e | e overlaps: aDRLiveRange ]
 ]
 
 { #category : #printing }

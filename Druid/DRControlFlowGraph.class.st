@@ -16,7 +16,8 @@ Class {
 DRControlFlowGraph >> addBasicBlock: aBlock [
 
 	self assert: (basicBlocks noneSatisfy: [:b | b id = aBlock id]).
-	basicBlocks add: aBlock
+	basicBlocks add: aBlock.
+	^ aBlock
 ]
 
 { #category : #edges }
@@ -225,8 +226,10 @@ DRControlFlowGraph >> initialize [
 	
 	basicBlocks := OrderedCollection new.
 	edges := OrderedCollection new.
-	initialBasicBlock := DRBasicBlock id: 0.
-	nextBasicBlockId := 1.
+	
+	nextBasicBlockId := 0.
+	initialBasicBlock := self privateNewBasicBlock.
+	
 ]
 
 { #category : #inspecting }
@@ -328,11 +331,7 @@ DRControlFlowGraph >> leafBlocks [
 { #category : #building }
 DRControlFlowGraph >> newBasicBlock [
 	
-	| newBlock |
-	newBlock := DRBasicBlock id: self allocateBasicBlockID.
-	newBlock controlFlowGraph: self.
-	self addBasicBlock: newBlock.
-	^ newBlock
+	^ self addBasicBlock: self privateNewBasicBlock
 ]
 
 { #category : #building }
@@ -368,6 +367,15 @@ DRControlFlowGraph >> postOrderBlocks [
 	"Return the list of blocks based on a simple linearization algorithm"
 
 	^ self reversePostOrderBlocks reversed
+]
+
+{ #category : #building }
+DRControlFlowGraph >> privateNewBasicBlock [
+	
+	| newBlock |
+	newBlock := DRBasicBlock id: self allocateBasicBlockID.
+	newBlock controlFlowGraph: self.
+	^ newBlock
 ]
 
 { #category : #removing }

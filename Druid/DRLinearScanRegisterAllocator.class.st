@@ -49,7 +49,7 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 { #category : #api }
 DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [ 
 
-	controlFlowGraph := aDRControlFlowGraph.
+	self controlFlowGraph: aDRControlFlowGraph.
 	self buildLiveSets.
 	self allocateRegisters.
 	self assignRegisters.
@@ -58,7 +58,7 @@ DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> allocatedRegisterFor: aValue [
 	
-	^ (self liveIntervalOf: aValue) location
+	^ (self liveSetOf: aValue) location
 ]
 
 { #category : #assigning }
@@ -168,8 +168,10 @@ DRLinearScanRegisterAllocator >> buildLiveSets [
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> computeLiveSets [
 
-	self instructionsDo: [ :i | "If the instruction has a result..." 
-		self computeLiveSetsForInstruction: i ]
+	self instructionsDo: [ :i |
+		"If the instruction is not a phi function..." 
+		i isPhiFunction ifFalse: [
+			self computeLiveSetsForInstruction: i] ]
 ]
 
 { #category : #'live-analysis' }
@@ -191,7 +193,14 @@ DRLinearScanRegisterAllocator >> computeLiveSetsForInstruction: i [
 		consider it is live until the end of the block.
 		Otherwise, it's value is dead and do nothing"
 		(i users anySatisfy: [ :user | user basicBlock ~= i basicBlock ])
-			ifTrue: [ liveSet addRangeFrom: i to: i basicBlock lastInstruction ] ]
+			ifTrue: [ liveSet addRangeFrom: i to: i basicBlock lastInstruction ]
+			ifFalse: [ liveSet addRangeFrom: i to: i nextInstruction ] ]
+]
+
+{ #category : #api }
+DRLinearScanRegisterAllocator >> controlFlowGraph: aDRControlFlowGraph [
+
+	controlFlowGraph := aDRControlFlowGraph
 ]
 
 { #category : #enumerating }
@@ -214,7 +223,7 @@ DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [
 ]
 
 { #category : #accessing }
-DRLinearScanRegisterAllocator >> liveIntervalOf: anInstruction [
+DRLinearScanRegisterAllocator >> liveSetOf: anInstruction [
 	
 	^ liveSets at: anInstruction
 ]
@@ -251,7 +260,7 @@ DRLinearScanRegisterAllocator >> updateLastUsageOf: instruction toInstruction: u
 		ifTrue: [ instruction ]
 		ifFalse: [ usage basicBlock firstInstruction ].
 
-	(self liveIntervalOf: instruction)
+	(self liveSetOf: instruction)
 		addRangeFrom: rangeStart to: usage;
 		lastUsage: usage
 ]

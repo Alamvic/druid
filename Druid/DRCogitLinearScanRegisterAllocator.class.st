@@ -50,8 +50,8 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 				ifTrue: [ i operand1 ]
 				ifFalse: [ i operand2 ].
 			
-			secondOperandInterval := self liveIntervalOf: operandToMergeInterval.
-			currentInterval := self liveIntervalOf: i.
+			secondOperandInterval := self liveSetOf: operandToMergeInterval.
+			currentInterval := self liveSetOf: i.
 
 			(secondOperandInterval overlaps: currentInterval)
 				ifTrue: [ | copyInstruction |

@@ -223,6 +223,12 @@ DRInstruction >> name [
 	^ result name
 ]
 
+{ #category : #accessing }
+DRInstruction >> nextInstruction [
+	
+	^ self basicBlock instructionAfter: self
+]
+
 { #category : #printing }
 DRInstruction >> opcode [
 	

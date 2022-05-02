@@ -396,6 +396,14 @@ DRBasicBlock >> inspectionSourceCode [
 		yourself
 ]
 
+{ #category : #'enumerating instructions' }
+DRBasicBlock >> instructionAfter: anInstruction [
+	
+	instructions last = anInstruction
+		ifTrue: [ ^ endInstruction ].
+	^ instructions after: anInstruction
+]
+
 { #category : #building }
 DRBasicBlock >> instructionFactory [
 	
