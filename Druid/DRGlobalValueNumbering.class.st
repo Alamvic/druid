@@ -71,20 +71,22 @@ DRGlobalValueNumbering >> processInstructions: block [
 	block instructions copy do: [ :instruction |
 		(instruction isPhiFunction or: instruction isJump) ifFalse: [
 			self simplifyOperands: instruction.
-			expression := instruction asNumberedExpression.
-			self searchHashTables: expression ifPresent: [ :valueNumber |
-				valueNumbers at: instruction put: valueNumber.
-				instruction operands asSet do: [ :op |
-					op isConstant ifFalse: [
-						op removeUser: instruction.
-					]
+			instruction result name = 'ReceiverResultReg' ifFalse: [
+				expression := instruction asNumberedExpression.
+				self searchHashTables: expression ifPresent: [ :valueNumber |
+					valueNumbers at: instruction put: valueNumber.
+					instruction operands asSet do: [ :op |
+						op isConstant ifFalse: [
+							op removeUser: instruction.
+						]
+					].
+					block removeInstruction: instruction.
+				]
+				ifAbsent: [
+					valueNumbers at: instruction put: instruction.
+					(hashTables at: currentScope) at: expression put: instruction.
 				].
-				block removeInstruction: instruction.
 			]
-			ifAbsent: [
-				valueNumbers at: instruction put: instruction.
-				(hashTables at: currentScope) at: expression put: instruction.
-			].
 		]
 	].
 
