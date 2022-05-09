@@ -10,6 +10,13 @@ DRReturn >> acceptVisitor: aVisitor [
 	^ aVisitor visitReturn: self
 ]
 
+{ #category : #initialization }
+DRReturn >> initialize [
+
+	super initialize.
+	result := DRNoRegister new
+]
+
 { #category : #visiting }
 DRReturn >> isMandatoryInstruction [
 

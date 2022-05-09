@@ -5,6 +5,34 @@ Class {
 }
 
 { #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testCoallescePhiArguments [
+
+	| cfg basicBlockTrue basicBlockFalse basicBlockJoin firstRegister secondRegister r0 r1 r2 |
+	cfg := DRControlFlowGraph new.
+	basicBlockTrue := cfg newBasicBlockWith: [ :block |
+		r0 := block copy: 2 ].
+	basicBlockFalse := cfg newBasicBlockWith: [ :block |
+		r1 := block copy: 3 ].
+	cfg initialBasicBlock jumpIfTrueTo: basicBlockTrue ifFalseTo: basicBlockFalse.
+	basicBlockJoin := cfg newBasicBlock.
+	basicBlockTrue jumpTo: basicBlockJoin.
+	basicBlockFalse jumpTo: basicBlockJoin.
+	
+	r2 := basicBlockJoin phiWith: r0 with: r1.
+	basicBlockJoin copy: r2.
+	
+	
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	secondRegister := DRPhysicalRegister name: 'PR2'.
+	DRLinearScanRegisterAllocator new
+		registers: { firstRegister. secondRegister };
+		allocateRegistersIn: cfg.
+	
+	self assert: basicBlockTrue instructions second result equals: firstRegister.
+	self assert: basicBlockFalse instructions second result equals: firstRegister.
+]
+
+{ #category : #tests }
 DRLinearScanRegisterAllocatorTest >> testInterferingIntervalsWithEnoughRegisters [
 
 	| cfg basicBlock firstRegister secondRegister |
@@ -129,12 +157,11 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetDoesNotOverlapsIfLastUsageIsDefi
 		r1 order: 2 ].
 
 	r0Interval := DRLiveSet new
-		definition: r0;
-		lastUsage: r1;
+		addRangeFrom: r0 to: r1;
 		yourself.
 	
 	r1Interval := DRLiveSet new
-		definition: r1;
+		addRangeFrom: r1 to: r1;
 		yourself.
 		
 	self deny: (r0Interval overlaps: r1Interval)
@@ -144,32 +171,28 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetDoesNotOverlapsIfLastUsageIsDefi
 DRLinearScanRegisterAllocatorTest >> testLiveSetDoesNotOverlapsIfLastUsageIsDefinitionCommutative [
 
 	| cfg basicBlock r0 r1 r0Interval r1Interval |
-
 	"
 	R0 := 1.
 	R1 := R0.
 	
 	=> We can reuse the register assigned to R0 for R1 if not used below.
 	"
-
 	cfg := DRControlFlowGraph new.
-	basicBlock := cfg newBasicBlockWith: [ :block |
-		"R0 := 1"
-		r0 := block copy: 1.
-		r0 order: 1.
-		"R1 := R0"
-		r1 := block copy: r0.
-		r1 order: 2 ].
+	basicBlock := cfg newBasicBlockWith: [ :block | "R0 := 1"
+		              r0 := block copy: 1.
+		              r0 order: 1.
+		              "R1 := R0"
+		              r1 := block copy: r0.
+		              r1 order: 2 ].
 
 	r0Interval := DRLiveSet new
-		definition: r0;
-		lastUsage: r1;
-		yourself.
-	
+		              addRangeFrom: r0 to: r1;
+		              yourself.
+
 	r1Interval := DRLiveSet new
-		definition: r1;
-		yourself.
-		
+		              addRangeFrom: r1 to: r1;
+		              yourself.
+
 	self deny: (r1Interval overlaps: r0Interval)
 ]
 
@@ -320,43 +343,40 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetWithManyIntervalsOverlapsIfOther
 	self assert: (r0Interval overlaps: r1Interval)
 ]
 
-{ #category : #'tests - live set overlap' }
-DRLinearScanRegisterAllocatorTest >> testNoOverlapInConditionalBranches [
+{ #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testLiveSetsForReturnInstruction [
 
-	| cfg r0 r1 r0Interval r1Interval r2 allocator b2 b3 b4 |
-
-	"
-	B1:
-	 JumpIf x B2 else B3
-	B2:
-	 R0 := 0
-	 Jump B4
-	B3:
-	 R1 := 1
-	 Jump B4
-	B4:
-	 R2 := phi(R0, R1)
-	
-	Since B2 and B3 are exclusive, they cannot overlap.
-	"
-
+	| cfg basicBlock |
 	cfg := DRControlFlowGraph new.
-	b2 := cfg newBasicBlockWith: [ :b | r0 := b copy: 0 ].
-	b3 := cfg newBasicBlockWith: [ :b | r1 := b copy: 1 ].
-	b4 := cfg newBasicBlock.
-	cfg initialBasicBlock jumpIfTrueTo: b2 ifFalseTo: b3.
-	b2 jumpTo: b4.
-	b3 jumpTo: b4.
-	b4 phiWith: r0 with: r1.
-
-	allocator := DRLinearScanRegisterAllocator new
-		controlFlowGraph: cfg;
-		buildLiveSets;
-		yourself.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		block return ].
+	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	r0Interval := allocator liveSetOf: r0.
-	r1Interval := allocator liveSetOf: r1.
-	self deny: (r0Interval overlaps: r1Interval)
+	DRLinearScanRegisterAllocator new
+		registers: { };
+		allocateRegistersIn: cfg.
+		
+	"Kind of smoke test, should not fail"
+]
+
+{ #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testNoSpillHasNoSpillSlots [
+
+	| cfg basicBlock r |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 |
+		"R0 := 2"
+		r0 := block copy: 2.
+		"R1 := R0 + 1"
+		r1 := block add: r0 to: 1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	r := DRPhysicalRegister name: 'PR1'.
+	DRLinearScanRegisterAllocator new
+		registers: { r };
+		allocateRegistersIn: cfg.
+	
+	self assert: cfg numberOfSpillSlots equals: 0
 ]
 
 { #category : #tests }
@@ -379,6 +399,39 @@ DRLinearScanRegisterAllocatorTest >> testNonInterferingIntervals [
 	self assert: basicBlock instructions first result equals: r.
 	self assert: basicBlock instructions second operand1 result equals: r.
 	self assert: basicBlock instructions second result equals: r.
+]
+
+{ #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testOverlappingPhiArguments [
+
+	| cfg basicBlockTrue basicBlockJoin firstRegister secondRegister r0 r1 r2 topBasicBlock |
+	cfg := DRControlFlowGraph new.
+
+	topBasicBlock := cfg newBasicBlockWith: [ :block |
+		r0 := block copy: 2 ].
+	basicBlockTrue := cfg newBasicBlockWith: [ :block |
+		r1 := block copy: 1 ].
+	basicBlockJoin := cfg newBasicBlock.
+	
+	cfg initialBasicBlock jumpTo: topBasicBlock.
+	topBasicBlock
+		jumpIf: true asDRValue
+		to: basicBlockTrue
+		ifFalseTo: basicBlockJoin.
+	
+	basicBlockTrue jumpTo: basicBlockJoin.
+	
+	r2 := basicBlockJoin phiWith: r0 with: r1.
+	basicBlockJoin copy: r0.
+
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	secondRegister := DRPhysicalRegister name: 'PR2'.
+	DRLinearScanRegisterAllocator new
+		registers: { firstRegister. secondRegister };
+		allocateRegistersIn: cfg.
+	
+	self assert: topBasicBlock instructions first result equals: firstRegister.
+	self assert: basicBlockTrue instructions first result equals: secondRegister.
 ]
 
 { #category : #tests }
@@ -447,4 +500,141 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesStore [
 	self assert: basicBlock instructions first result equals: spillRegister.
 	self assert: basicBlock instructions second isStore.
 	self assert: basicBlock instructions second operand1 equals: spillRegister.
+]
+
+{ #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testSpillStoresAndLoadsToSameAddress [
+
+	| cfg basicBlock spillRegister1 spillRegister2 |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		"R0 := 2"
+		r0 := block copy: 2.
+		"R1 := 3"
+		r1 := block copy: 3.
+		"R2 := R0 + r1"
+		r2 := block add: r0 to: r1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	"SPR1 is a spill register reserved for spill allocations"
+	spillRegister1 := DRPhysicalRegister name: 'SPR1'.
+	spillRegister2 := DRPhysicalRegister name: 'SPR2'.
+	DRLinearScanRegisterAllocator new
+		spillRegisters: { spillRegister1. spillRegister2 };
+		allocateRegistersIn: cfg.
+	
+	"SPR1 := 2
+	Store M0 SPR1
+	SPR1 := 3
+	Store M1 SPR1
+	SPR1 := Load M0
+	SPR2 := Load M1
+	SPR1 := SPR1 + SPR2"
+	
+	self
+		assert: basicBlock instructions second result
+		equals: basicBlock instructions fifth operand1.
+	self
+		assert: basicBlock instructions fourth result
+		equals: basicBlock instructions sixth operand1
+]
+
+{ #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testSpillTwice [
+
+	| cfg basicBlock spillRegister1 spillRegister2 |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		"R0 := 2"
+		r0 := block copy: 2.
+		"R1 := 3"
+		r1 := block copy: 3.
+		"R2 := R0 + r1"
+		r2 := block add: r0 to: r1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	"SPR1 is a spill register reserved for spill allocations"
+	spillRegister1 := DRPhysicalRegister name: 'SPR1'.
+	spillRegister2 := DRPhysicalRegister name: 'SPR2'.
+	DRLinearScanRegisterAllocator new
+		spillRegisters: { spillRegister1. spillRegister2 };
+		allocateRegistersIn: cfg.
+	
+	"SPR1 := 2
+	Store M0 SPR1
+	SPR1 := 3
+	Store M1 SPR1
+	SPR1 := Load M0
+	SPR2 := Load M1
+	SPR1 := SPR1 + SPR2"
+	
+	self assert: basicBlock instructions first result equals: spillRegister1.
+	self assert: basicBlock instructions second isStore.
+	self assert: basicBlock instructions third result equals: spillRegister1.
+	self assert: basicBlock instructions fourth isStore.
+	self assert: basicBlock instructions fifth result equals: spillRegister1.
+	self assert: basicBlock instructions sixth result equals: spillRegister2.
+]
+
+{ #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testSpillTwiceIncrementsSpillSlotsToTwo [
+
+	| cfg basicBlock spillRegister1 spillRegister2 |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		"R0 := 2"
+		r0 := block copy: 2.
+		"R1 := 3"
+		r1 := block copy: 3.
+		"R2 := R0 + r1"
+		r2 := block add: r0 to: r1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	"SPR1 is a spill register reserved for spill allocations"
+	spillRegister1 := DRPhysicalRegister name: 'SPR1'.
+	spillRegister2 := DRPhysicalRegister name: 'SPR2'.
+	DRLinearScanRegisterAllocator new
+		spillRegisters: { spillRegister1. spillRegister2 };
+		allocateRegistersIn: cfg.
+	
+	"Since we have no registers, we need three spill slots: 
+	 - two for the ADD operands
+	 - one for the ADD result "
+	self assert: cfg numberOfSpillSlots equals: 3
+]
+
+{ #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testSpillTwiceUsesDifferentAddresses [
+
+	| cfg basicBlock spillRegister1 spillRegister2 |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		"R0 := 2"
+		r0 := block copy: 2.
+		"R1 := 3"
+		r1 := block copy: 3.
+		"R2 := R0 + r1"
+		r2 := block add: r0 to: r1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	"SPR1 is a spill register reserved for spill allocations"
+	spillRegister1 := DRPhysicalRegister name: 'SPR1'.
+	spillRegister2 := DRPhysicalRegister name: 'SPR2'.
+	DRLinearScanRegisterAllocator new
+		spillRegisters: { spillRegister1. spillRegister2 };
+		allocateRegistersIn: cfg.
+	
+	"SPR1 := 2
+	Store M0 SPR1
+	SPR1 := 3
+	Store M1 SPR1
+	SPR1 := Load M0
+	SPR2 := Load M1
+	SPR1 := SPR1 + SPR2"
+	
+	self assert: basicBlock instructions second result stackOffset equals: 1.
+	self assert: basicBlock instructions fourth result stackOffset equals: 2.
+	self
+		deny: basicBlock instructions second result
+		equals: basicBlock instructions fourth result
 ]

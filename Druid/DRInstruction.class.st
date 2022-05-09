@@ -13,10 +13,13 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #accessing }
-DRInstruction class >> operands: operands [
-
-	^ self operands: operands result: DRNoRegister new
+{ #category : #'instance creation' }
+DRInstruction class >> operands: aCollection [
+	
+	"Validate operands collections size?"
+	^ self new
+		operands: aCollection;
+		yourself
 ]
 
 { #category : #'instance creation' }
@@ -312,7 +315,7 @@ DRInstruction >> postCopy [
 
 	operands := operands copy.
 	users := users copy.
-	(result notNil and: [ result isPhysicalRegister not ]) ifTrue: [ 
+	((result isKindOf: DRNoRegister) not and: [ result isPhysicalRegister not ]) ifTrue: [ 
 		result := basicBlock controlFlowGraph allocateTemporaryRegister ].
 	super postCopy.
 ]

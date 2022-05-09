@@ -27,7 +27,7 @@ DRCogitCodeGenerator >> deferBranch: aString to: aDRBasicBlock [
 DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 
 	| blocks |
-	generatorMethodBuilder addVariableNamed: 'currentBlock'.
+	self generatePreambleForCFG: aDRControlFlowGraph.
 	
 	"Sort the blocks"
 	blocks := aDRControlFlowGraph reversePostOrderBlocks.
@@ -64,6 +64,27 @@ DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 	
 	generatorMethodBuilder addStatement: jumpStatement.
 	self deferBranch: jumpVariableName to: aTarget.
+]
+
+{ #category : #'as yet unclassified' }
+DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
+
+	| addStatement |
+	generatorMethodBuilder addVariableNamed: 'currentBlock'.
+	
+	"If we need no spill slots, do nothing"
+	aDRControlFlowGraph numberOfSpillSlots = 0 ifTrue: [ ^ self ].
+	
+	"Otherwise, increment the stack pointer by N*WordSize where N is the number of required spill slots.
+	The first spill slot will be [SP], the second will be [SP+WordSize] and so on."
+	addStatement := RBMessageNode
+		receiver: RBVariableNode selfNode
+		selector: #AddCq:R:
+		arguments: {
+			RBLiteralValueNode value: aDRControlFlowGraph numberOfSpillSlots * 8 "bytes".
+			RBVariableNode named: 'SPReg'
+		}.
+	generatorMethodBuilder addStatement: addStatement.
 ]
 
 { #category : #'ir-to-ast' }
@@ -130,6 +151,19 @@ DRCogitCodeGenerator >> registerFor: aValue [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> rtlArgumentsForValue: aValue [
+
+	"If it is a spilling stack location, we need to return a pair (offset, baseRegister)"
+	aValue isMemoryAddress ifTrue: [ 
+		^ { 
+			  (self rtlExpressionForValue: (aValue stackOffset * 8 "bytes") asDRValue).
+			  (self rtlExpressionForValue: (DRPhysicalRegister name: 'SPReg')) } ].
+
+	"Otherwise just return the expression for the value"
+	^ { (self rtlExpressionForValue: aValue) }
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 
 	(#( true false ) includes: aValue value) ifTrue: [ 
@@ -193,13 +227,10 @@ DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: 
-				aMnemonic
-					, operands first result rtlOperandQualifier
-				 	, operands second result rtlOperandQualifier
-			 arguments: { 
-					 (self rtlExpressionForValue: operands first).
-					 (self rtlExpressionForValue: operands second) })
+			 selector: aMnemonic , operands first result rtlOperandQualifier
+				 , operands second result rtlOperandQualifier
+			 arguments: (self rtlArgumentsForValue: operands first)
+				 , (self rtlArgumentsForValue: operands second))
 ]
 
 { #category : #visiting }
@@ -470,7 +501,9 @@ DRCogitCodeGenerator >> visitRightShift: aDRCogitRightShift [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitStore: aDRCogitStore [
 
-	^ self twoOperandCogitRTL: #Move instruction: aDRCogitStore
+	self twoOperandCogitRTL: #Move operands: { 
+			aDRCogitStore operand1.
+			aDRCogitStore result }
 ]
 
 { #category : #visiting }

@@ -136,18 +136,9 @@ DRCompilerCompiler >> resolvePhiFunctionsIn: aDRControlFlowGraph [
 		with t1 coming from block A and t2 coming from block B.
 	create a copy t3 := t1 at the end of block A
 	create a copy t3 := t2 at the end of block B"
-	
-	aDRControlFlowGraph instructions copy do: [ :i |
-		i isPhiFunction ifTrue: [
-			i removeFromCFG.
-			i operands with: i basicBlock predecessors
-				do: [ :value :originBlock | | copy |
-					(value isKindOf: DRNullValue) ifFalse: [ 
-						(value result isKindOf: DRNoRegister)
-							ifFalse: [ 
-								copy := DRCopy operands: { value result } result: i result.
-								originBlock ifNotNil: [originBlock addInstruction: copy] ].
-				] ] ] ]
+
+	aDRControlFlowGraph instructions copy do: [ :i | 
+		i isPhiFunction ifTrue: [ i removeFromCFG ] ]
 ]
 
 { #category : #accessing }

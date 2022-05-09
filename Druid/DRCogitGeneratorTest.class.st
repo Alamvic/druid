@@ -13,6 +13,15 @@ DRCogitGeneratorTest >> generateCogitForInstruction: aDRInstruction [
 	^ generator
 ]
 
+{ #category : #helpers }
+DRCogitGeneratorTest >> generateCogitPreambleFor: aDRControlFlowGraph [ 
+	
+	| generator |
+	generator := DRCogitCodeGenerator new.
+	generator generatePreambleForCFG: aDRControlFlowGraph.
+	^ generator
+]
+
 { #category : #tests }
 DRCogitGeneratorTest >> testConstantsBiggerThan5000AreInHexa [
 
@@ -70,6 +79,28 @@ DRCogitGeneratorTest >> testGenerateDivision [
 ]
 
 { #category : #tests }
+DRCogitGeneratorTest >> testGenerateMethodWithSpillingAllocatesStackSpace [
+
+	| cfg basicBlock cogitAST spillRegister1 stackAllocationInstruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		block copy: 2 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	spillRegister1 := DRPhysicalRegister name: 'SPR1'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: #();
+		spillRegisters: { spillRegister1 };
+		allocateRegistersIn: cfg.
+
+	cogitAST := self generateCogitPreambleFor: cfg.
+	stackAllocationInstruction := cogitAST generatorMethodBuilder statements first.
+	self assert: stackAllocationInstruction selector equals: #AddCq:R:.
+	self assert: stackAllocationInstruction arguments second name equals: 'SPReg'.
+	self assert: stackAllocationInstruction arguments first value equals: cfg numberOfSpillSlots * 8 "bytes".
+]
+
+{ #category : #tests }
 DRCogitGeneratorTest >> testGenerateModulo [
 
 	| cfg basicBlock r1 cogitAST divideASTInstruction r2 |
@@ -101,4 +132,28 @@ DRCogitGeneratorTest >> testGenerateModulo [
 	self assert: divideASTInstruction arguments second name equals: 'R0'.
 	self assert: divideASTInstruction arguments third name equals: 'R3'.
 	self assert: divideASTInstruction arguments fourth name equals: 'R2'.
+]
+
+{ #category : #tests }
+DRCogitGeneratorTest >> testGenerateSpillLoadInstruction [
+
+	| cfg basicBlock cogitAST spillRegister1 spillStoreInstruction storeInstruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		block copy: 2 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	spillRegister1 := DRPhysicalRegister name: 'SPR1'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: #();
+		spillRegisters: { spillRegister1 };
+		allocateRegistersIn: cfg.
+
+	storeInstruction := basicBlock instructions second.
+	cogitAST := self generateCogitForInstruction: storeInstruction.
+	spillStoreInstruction := cogitAST generatorMethodBuilder statements first.
+	self assert: spillStoreInstruction selector equals: #MoveR:Mw:r:.
+	self assert: spillStoreInstruction arguments first name equals: spillRegister1 name.
+	self assert: spillStoreInstruction arguments second value equals: storeInstruction result stackOffset * 8 "bytes".
+	self assert: spillStoreInstruction arguments third name equals: 'SPReg'.
 ]

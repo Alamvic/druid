@@ -10,6 +10,13 @@ DRNoop >> acceptVisitor: aVisitor [
 	^ aVisitor visitNoop: self
 ]
 
+{ #category : #initialization }
+DRNoop >> initialize [
+
+	super initialize.
+	result := DRNoRegister new
+]
+
 { #category : #SCCP }
 DRNoop >> isNoop [
 

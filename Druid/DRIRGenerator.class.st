@@ -251,10 +251,16 @@ DRIRGenerator >> instantiate: anInstructionClass operands: aCollection [
 ]
 
 { #category : #factory }
+DRIRGenerator >> instantiateNoResultInstruction: anInstructionClass [
+	
+	^ self instantiateNoResultInstruction: anInstructionClass operands: #()
+]
+
+{ #category : #factory }
 DRIRGenerator >> instantiateNoResultInstruction: anInstructionClass operands: aCollection [ 
 	
 	| instruction |
-	instruction := anInstructionClass operands: aCollection result: DRNoRegister new.
+	instruction := anInstructionClass operands: aCollection.
 	instruction origin: thisContext sender stack.
 	^ instruction
 ]
@@ -369,7 +375,9 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 
 	| falseBranchBasicBlockOut startingBasicBlock conditionalJump |
 	aRBMessageNode receiver acceptVisitor: self.
-	conditionalJump := self instantiate: DRConditionalJump operands: { self popOperand }.
+	conditionalJump := self
+		instantiateNoResultInstruction: DRConditionalJump
+		operands: { self popOperand }.
 	
 	self currentBasicBlock endInstruction: conditionalJump.
 	
@@ -405,7 +413,9 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 
 	| trueBranchBasicBlockOut conditionalJump startingBasicBlock |
 	aRBMessageNode receiver acceptVisitor: self.
-	conditionalJump := self instantiate: DRConditionalJump operands: { self popOperand }.
+	conditionalJump := self
+		instantiateNoResultInstruction: DRConditionalJump
+		operands: { self popOperand }.
 	
 	self currentBasicBlock endInstruction: conditionalJump.
 
@@ -442,7 +452,7 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 	| trueBranchBasicBlockOut falseBranchBasicBlockOut joinInstruction conditionalJump  |
 	aRBMessageNode receiver acceptVisitor: self.
 	conditionalJump := self
-		                   instantiate: DRConditionalJump
+		                   instantiateNoResultInstruction: DRConditionalJump
 		                   operands: { self popOperand }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
@@ -633,7 +643,9 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 		operands: { unshiftedLeftOperand . withoutTagRightOperand }.
 
 	startingBasicBlock := self currentBasicBlock.	
-	conditionalJump := self instantiate: DRMultiplyOverflowJump operands: { mulResult }.
+	conditionalJump := self
+		instantiateNoResultInstruction: DRMultiplyOverflowJump
+		operands: { mulResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	"No overflow"
@@ -751,7 +763,7 @@ DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
 		operands: { leftOperand . untaggedRightOperand }.
 
 	startingBasicBlock := self currentBasicBlock.	
-	conditionalJump := self instantiate: DROverflowJump operands: { subResult }.
+	conditionalJump := self instantiateNoResultInstruction: DROverflowJump operands: { subResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 	
 	joinInstruction := self 
@@ -787,7 +799,7 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 		operands: { untaggedLeftOperand . rightOperand }.
 
 	startingBasicBlock := self currentBasicBlock.	
-	conditionalJump := self instantiate: DROverflowJump operands: { addResult }.
+	conditionalJump := self instantiateNoResultInstruction: DROverflowJump operands: { addResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	joinInstruction := self 

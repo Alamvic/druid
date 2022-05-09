@@ -21,6 +21,9 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 	Otherwise => split the intervals by creating a copy instruction"
 
 	self instructionsDo: [ :i |
+	
+		"We should have a special case for phi functions"		
+		i isPhiFunction ifFalse: [
 		
 		"If one of the operands is a physical registers, it gives us an additional constraint that could prevent the 2AC transformation.
 		Introduce a copy instruction to cut the instruction in two different and remove this constraint.
@@ -67,31 +70,8 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 					liveSets keys do: [ :k |
 						({ secondOperandInterval . currentInterval } includes: (liveSets at: k))
 							ifTrue: [ liveSets at: k put: mergedInterval ]
-					] ] ] ].
+					] ] ] ] ].
 		^ false
-]
-
-{ #category : #'live-analysis' }
-DRCogitLinearScanRegisterAllocator >> computeLiveSetsForInstruction: i [
-
-	"If the instruction is a division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
-	This instruction requires 4 different registers and not one.
-	We model this by adding an extra operand at this point."
-	
-	"First register the live interval for the division itself so it does not overlap"
-	super computeLiveSetsForInstruction: i.
-	
-	"Then regiter the live interval for the new synthetic operand"
-	(i isDivision or: [ i isModulo ]) ifTrue: [ | newOperand liveSet |
-		newOperand := i basicBlock controlFlowGraph allocateTemporaryRegister.
-		liveSet := DRLiveSet new.
-		"The operand is its own definition.
-		The register assignment sets register to each definition"
-		liveSet definition: newOperand.
-		"This live set starts in the next instruction, but it is not used so it will be freed"
-		liveSet start: i order.
-		liveSets at: newOperand put: liveSet.
-		i addOperand: newOperand ].
 ]
 
 { #category : #initialization }
@@ -113,11 +93,21 @@ DRCogitLinearScanRegisterAllocator >> initialize [
 ]
 
 { #category : #'live-analysis' }
-DRCogitLinearScanRegisterAllocator >> updateLastUsageOf: operand toInstruction: instruction [
+DRCogitLinearScanRegisterAllocator >> updateLiveSetOfOperand: op ofInstruction: i inBlock: b [
 
-	"Do not set last usage for the extra unused remainder/quotient register"
-	((instruction isDivision or: [ instruction isModulo ]) and: [ 
-		 operand = instruction operands last ]) ifTrue: [ ^ self ].
+	"If the instruction is a division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
+	This instruction requires 4 different registers and not three (operands + destination).
+	We model this by adding an extra operand at this point."
 
-	super updateLastUsageOf: operand toInstruction: instruction
+	"First register the live interval for the division itself so it does not overlap"
+	super updateLiveSetOfOperand: op ofInstruction: i inBlock: b.
+		
+	"Then regiter the live interval for the new synthetic operand"
+	(i isDivision or: [ i isModulo ]) ifTrue: [ | newOperand |
+		newOperand := i basicBlock controlFlowGraph allocateTemporaryRegister.
+		"This live set starts in the next instruction, but it is not used so it will be freed"
+		(self liveSetOf: newOperand) addRangeFrom: i to: i nextInstruction.
+		i addOperand: newOperand ].
+	
+
 ]

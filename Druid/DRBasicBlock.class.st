@@ -770,6 +770,12 @@ DRBasicBlock >> replaceSuccessor: aDRBasicBlock by: aDRBasicBlock2 [
 ]
 
 { #category : #building }
+DRBasicBlock >> return [
+
+	^ self endInstruction: DRReturn new
+]
+
+{ #category : #building }
 DRBasicBlock >> setReturnValue: anInteger [
 	
 	^ self addInstruction: (self instructionFactory setReturnValue: anInteger)

@@ -21,8 +21,9 @@ DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiv
 		^ aDRLiveRegisterInterval location: register ].
 	
 	"If empty, spill an interval"
-	intervalToSpill := activeIntervals anyOne.
-	activeIntervals remove: intervalToSpill.
+	intervalToSpill := activeIntervals
+		ifEmpty: [ aDRLiveRegisterInterval ]
+		ifNotEmpty: [ activeIntervals remove: activeIntervals anyOne ].
 	aDRLiveRegisterInterval location: intervalToSpill location.
 	intervalToSpill location: self newStackLocation
 ]
@@ -50,6 +51,7 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [ 
 
 	self controlFlowGraph: aDRControlFlowGraph.
+	self prepareSSA.
 	self buildLiveSets.
 	self allocateRegisters.
 	self assignRegisters.
@@ -141,16 +143,18 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 					                     spillRegisters removeFirst ]
 				                     ifFalse: [ allocatedLocation ].
 
-			allocatedLocation isMemoryAddress ifTrue: [ 
-				i addBefore: (DRLoad
+			allocatedLocation isMemoryAddress ifTrue: [ | load |
+				load := (DRLoad
 						 operands: { 
 								 addressSize.
 								 allocatedLocation }
-						 result: allocatedRegister) ] ].
-
+						 result: allocatedRegister).
+				i addBefore: load.
+				i replaceOperand: op by: load ].
+		
 		"Special case for temporary registers created during register allocation."
 		op isVirtualRegister ifTrue: [ 
-			op physicalRegister: allocatedRegister ] ].
+			op physicalRegister: allocatedRegister ] ] ].
 
 	usedSpillRegisters do: [ :each | spillRegisters addFirst: each ]
 ]
@@ -163,44 +167,84 @@ DRLinearScanRegisterAllocator >> buildLiveSets [
 	liveSets := OrderedIdentityDictionary new.
 	self linearizeBlocks: controlFlowGraph.
 	self computeLiveSets.
+	self coallescePhiIntervals.
+]
+
+{ #category : #coallescing }
+DRLinearScanRegisterAllocator >> coallescePhiIntervals [
+	
+	self instructionsDo: [ :i |
+		i isPhiFunction ifTrue: [ | phiSet operandSets allSets mergedSet |
+			phiSet := self liveSetOf: i.
+			operandSets := i operands collect: [ :op | self liveSetOf: op ].
+			allSets := {phiSet}, operandSets.
+			
+			mergedSet := operandSets
+				inject: phiSet
+				into: [ :accum :each | accum mergeWith: each ].
+			
+			liveSets keys do: [ :k |
+				(allSets includes: (liveSets at: k))
+					ifTrue: [ liveSets at: k put: mergedSet ]
+			]
+		]
+	]
 ]
 
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> computeLiveSets [
 
+	| liveVariablesPerBlock |
+	liveVariablesPerBlock := Dictionary new.
+	
+	controlFlowGraph postOrderBlocks do: [ :b | | live |
+		live := Set new.
+		liveVariablesPerBlock at: b put: live.
+		b successors withIndexDo: [ :s :si |
+			live addAll: (liveVariablesPerBlock at: s ifAbsentPut: [ Set new ]).
+			s phiFunctions do: [ :phi |
+				live remove: phi ifAbsent: [ ].
+				live remove: (phi operandAt: si) ifAbsent: [ ].
+			] ].
+		live do: [ :i | | instructionLiveSet |
+			instructionLiveSet := self liveSetOf: i.
+			(b instructions includes: i)
+				ifTrue: [ instructionLiveSet addRangeFrom: i to: b instructions last ]
+				ifFalse: [ instructionLiveSet addRangeFrom: b instructions first to: b instructions last ]	
+		].
+		b instructions reversed
+			select: [ :i | i result isVirtualRegister ]
+			thenDo: [ :i |
+				live
+					remove: i
+					ifAbsent: [ | liveSetOfOp |
+						liveSetOfOp := self liveSetOf: i.
+						liveSetOfOp addRangeFrom: i to: i nextInstruction ].
+				
+				i operands do: [ :op |
+					(op result isVirtualRegister and: [(live includes: op) not]) ifTrue: [
+						live add: op.
+						self updateLiveSetOfOperand: op ofInstruction: i inBlock: b
+					]
+				]
+			]
+		].
+"
 	self instructionsDo: [ :i |
-		"If the instruction is not a phi function..." 
-		i isPhiFunction ifFalse: [
-			self computeLiveSetsForInstruction: i] ]
-]
-
-{ #category : #'live-analysis' }
-DRLinearScanRegisterAllocator >> computeLiveSetsForInstruction: i [
-
-	^ i result ifNotNil: [ 
-		  | liveSet |
-		  liveSet := DRLiveSet new.
-		  liveSet definition: i.
-		  i result isVirtualRegister ifTrue: [ 
-			  liveSets at: i put: liveSet ].
-		
-		"Update the live sets of the operands."
-		i operands
-			  select: [ :operand | operand result isVirtualRegister ]
-			  thenDo: [ :operand | self updateLastUsageOf: operand toInstruction: i ].
-		  
-		"If the instruction is used outside the block,
-		consider it is live until the end of the block.
-		Otherwise, it's value is dead and do nothing"
-		(i users anySatisfy: [ :user | user basicBlock ~= i basicBlock ])
-			ifTrue: [ liveSet addRangeFrom: i to: i basicBlock lastInstruction ]
-			ifFalse: [ liveSet addRangeFrom: i to: i nextInstruction ] ]
+		self computeLiveSetsForInstruction: i ]"
 ]
 
 { #category : #api }
 DRLinearScanRegisterAllocator >> controlFlowGraph: aDRControlFlowGraph [
 
 	controlFlowGraph := aDRControlFlowGraph
+]
+
+{ #category : #initialization }
+DRLinearScanRegisterAllocator >> initialize [
+
+	super initialize.
+	availableRegisters := #()
 ]
 
 { #category : #enumerating }
@@ -225,13 +269,35 @@ DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> liveSetOf: anInstruction [
 	
-	^ liveSets at: anInstruction
+	^ liveSets at: anInstruction ifAbsentPut: [ DRLiveSet new ]
 ]
 
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> newStackLocation [
 	
-	^ DRMemoryAddress new
+	| allocatedSpillSlot |
+	allocatedSpillSlot := controlFlowGraph incrementSpillSlots.
+	^ DRSpilledMemoryAddress stackOffset: allocatedSpillSlot
+]
+
+{ #category : #'as yet unclassified' }
+DRLinearScanRegisterAllocator >> prepareSSA [
+	
+	"Prepare the SSA CFG by adding copies above Phi functions.
+	Phi function arguments are short lived between 
+	 - the end of their predecessors and
+	 - the beginning of phi defining block
+	
+	This copy allows simpler coallescing of the life ranges of the  phi function and its operands.
+	"
+	
+	controlFlowGraph phiFunctions do: [ :e |
+		e operands with: e basicBlock predecessors do: [ :operand :predecessor |
+			| copy |
+			copy := predecessor copy: operand.
+			e replaceOperand: operand by: copy
+		]
+	]
 ]
 
 { #category : #'block-linearization' }
@@ -253,14 +319,11 @@ DRLinearScanRegisterAllocator >> spillRegisters: aCollection [
 ]
 
 { #category : #'live-analysis' }
-DRLinearScanRegisterAllocator >> updateLastUsageOf: instruction toInstruction: usage [
+DRLinearScanRegisterAllocator >> updateLiveSetOfOperand: op ofInstruction: i inBlock: b [
 
-	| rangeStart |
-	rangeStart := instruction basicBlock = usage basicBlock
-		ifTrue: [ instruction ]
-		ifFalse: [ usage basicBlock firstInstruction ].
-
-	(self liveSetOf: instruction)
-		addRangeFrom: rangeStart to: usage;
-		lastUsage: usage
+	| liveSetOfOp |
+	liveSetOfOp := self liveSetOf: op.
+	(b instructions includes: op)
+		ifTrue: [ liveSetOfOp addRangeFrom: op to: i ]
+		ifFalse: [ liveSetOfOp addRangeFrom: b instructions first to: i ]
 ]

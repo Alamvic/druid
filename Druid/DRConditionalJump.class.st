@@ -37,6 +37,13 @@ DRConditionalJump >> falseBranch: aDruidIRGenerator [
 	falseBranch := aDruidIRGenerator 
 ]
 
+{ #category : #initialization }
+DRConditionalJump >> initialize [
+
+	super initialize.
+	result := DRNoRegister new
+]
+
 { #category : #accessing }
 DRConditionalJump >> isConditionalJump [ 
 

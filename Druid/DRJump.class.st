@@ -26,6 +26,13 @@ DRJump >> hash [
 	^ super hash + target hash
 ]
 
+{ #category : #initialization }
+DRJump >> initialize [
+
+	super initialize.
+	result := DRNoRegister new
+]
+
 { #category : #accessing }
 DRJump >> isJump [ 
 
@@ -49,6 +56,12 @@ DRJump >> replaceTarget: previousTarget by: newTarget [
 	
 	target = previousTarget ifFalse: [ self error: 'Invalid target' ].
 	target := newTarget.
+]
+
+{ #category : #initialization }
+DRJump >> result: r [
+
+	self halt.
 ]
 
 { #category : #SCCP }

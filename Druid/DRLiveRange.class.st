@@ -8,6 +8,12 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #testing }
+DRLiveRange >> isActiveAt: aPosition [
+	
+	^ aPosition between: self start order and: self stop order
+]
+
 { #category : #accessing }
 DRLiveRange >> orderInterval [
 
@@ -18,6 +24,15 @@ DRLiveRange >> orderInterval [
 DRLiveRange >> overlaps: aDRLiveRange [ 
 
 	^ (self orderInterval intersection: aDRLiveRange orderInterval) notEmpty
+]
+
+{ #category : #printing }
+DRLiveRange >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream << '('.
+	aStream << self orderInterval asString.
+	aStream << ')'.
 ]
 
 { #category : #accessing }

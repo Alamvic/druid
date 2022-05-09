@@ -7,7 +7,8 @@ Class {
 		'nextBasicBlockId',
 		'instructionFactory',
 		'edges',
-		'deadPaths'
+		'deadPaths',
+		'numberOfSpillSlots'
 	],
 	#category : #'Druid-IR'
 }
@@ -213,6 +214,12 @@ DRControlFlowGraph >> incomingEdgesFor: aBlock [
 	^ edges select: [ :e | e destination = aBlock ]
 ]
 
+{ #category : #spilling }
+DRControlFlowGraph >> incrementSpillSlots [
+	
+	^ numberOfSpillSlots := numberOfSpillSlots + 1
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> initialBasicBlock [ 
 	^ initialBasicBlock
@@ -226,6 +233,9 @@ DRControlFlowGraph >> initialize [
 	
 	basicBlocks := OrderedCollection new.
 	edges := OrderedCollection new.
+	
+	"How many spill slots we need in memory to execute the compiled method"
+	numberOfSpillSlots := 0.
 	
 	nextBasicBlockId := 0.
 	initialBasicBlock := self privateNewBasicBlock.
@@ -341,6 +351,12 @@ DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [
 	newBlock := self newBasicBlock.
 	aFullBlockClosure value: newBlock.
 	^ newBlock
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> numberOfSpillSlots [
+	
+	^ numberOfSpillSlots
 ]
 
 { #category : #edges }
