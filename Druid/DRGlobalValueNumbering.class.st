@@ -71,7 +71,7 @@ DRGlobalValueNumbering >> processInstructions: block [
 	block instructions copy do: [ :instruction |
 		(instruction isPhiFunction or: instruction isJump) ifFalse: [
 			self simplifyOperands: instruction.
-			instruction result name = 'ReceiverResultReg' ifFalse: [
+			(instruction isNoop or: [instruction result name = 'ReceiverResultReg']) ifFalse: [
 				expression := instruction asNumberedExpression.
 				self searchHashTables: expression ifPresent: [ :valueNumber |
 					valueNumbers at: instruction put: valueNumber.
