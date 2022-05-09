@@ -262,6 +262,12 @@ DRInstruction >> operandAt: anInteger put: aValue [
 	operands at: anInteger put: aValue
 ]
 
+{ #category : #operands }
+DRInstruction >> operandAtPredecessor: aPredecessor [
+	
+	^ operands at: (self basicBlock indexOfPredecessor: aPredecessor)
+]
+
 { #category : #accessing }
 DRInstruction >> operands [
 	^ operands
@@ -273,6 +279,14 @@ DRInstruction >> operands: aCollection [
 	operands asSet do: [ :each | each removeUser: self ].
 	operands := aCollection asOrderedCollection.
 	operands asSet do: [ :each | each addUser: self ]
+]
+
+{ #category : #operands }
+DRInstruction >> operandsAtPredecessorsOtherThan: aPredecessor [
+	
+	| index |
+	index := self basicBlock indexOfPredecessor: aPredecessor.
+	^ operands withIndexSelect: [ :op :in | in ~= index ]
 ]
 
 { #category : #accessing }

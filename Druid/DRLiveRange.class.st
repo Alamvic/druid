@@ -11,7 +11,9 @@ Class {
 { #category : #testing }
 DRLiveRange >> isActiveAt: aPosition [
 	
-	^ aPosition between: self start order and: self stop order
+	"We consider that the stop of the live range is open at the end.
+	"
+	^ aPosition between: self start order and: self stop order - 1
 ]
 
 { #category : #accessing }
@@ -30,9 +32,11 @@ DRLiveRange >> overlaps: aDRLiveRange [
 DRLiveRange >> printOn: aStream [
 
 	super printOn: aStream.
-	aStream << '('.
-	aStream << self orderInterval asString.
-	aStream << ')'.
+	aStream << '['.
+	aStream << self start order asString.
+	aStream << ', '.
+	aStream << self stop order asString.
+	aStream << '['.
 ]
 
 { #category : #accessing }

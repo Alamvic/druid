@@ -371,8 +371,6 @@ DRCogitCodeGenerator >> visitLoad: aDRLoad [
 	"Only implement register byte accesses for now"
 
 	| sizeSuffix |
-	aDRLoad operand1 result rtlOperandQualifier = 'R:' ifFalse: [ 
-		self halt ].
 	aDRLoad size = 1
 		ifTrue: [ sizeSuffix := 'b' ]
 		ifFalse: [ sizeSuffix := (aDRLoad size * 8) asString ].

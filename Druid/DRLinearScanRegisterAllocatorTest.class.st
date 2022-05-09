@@ -21,7 +21,6 @@ DRLinearScanRegisterAllocatorTest >> testCoallescePhiArguments [
 	r2 := basicBlockJoin phiWith: r0 with: r1.
 	basicBlockJoin copy: r2.
 	
-	
 	firstRegister := DRPhysicalRegister name: 'PR1'.
 	secondRegister := DRPhysicalRegister name: 'PR2'.
 	DRLinearScanRegisterAllocator new
@@ -402,6 +401,38 @@ DRLinearScanRegisterAllocatorTest >> testNonInterferingIntervals [
 ]
 
 { #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testNonOverlappingVariableInHoleCanReuseHoleRegister [
+
+	| cfg basicBlockTrue basicBlockFalse basicBlockJoin firstRegister r0 r1 r2 rNotOverlapping1 rNotOverlapping2 initialOne |
+	cfg := DRControlFlowGraph new.
+	initialOne := cfg newBasicBlock.
+	basicBlockTrue := cfg newBasicBlockWith: [ :block |
+		"will not overlap r1/r0, so it can reuse the same register"
+		rNotOverlapping1 := block copy: 70.
+		r0 := block copy: 2 ].
+	basicBlockFalse := cfg newBasicBlockWith: [ :block |
+		"will not overlap r1/r0, so it can reuse the same register"
+		rNotOverlapping2 := block copy: 7.
+		r1 := block copy: 3 ].
+	cfg initialBasicBlock jumpTo: initialOne.
+	initialOne jumpIfTrueTo: basicBlockTrue ifFalseTo: basicBlockFalse.
+	basicBlockJoin := cfg newBasicBlock.
+	basicBlockTrue jumpTo: basicBlockJoin.
+	basicBlockFalse jumpTo: basicBlockJoin.
+	
+	r2 := basicBlockJoin phiWith: r0 with: r1.
+	basicBlockJoin copy: r2.
+	
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	DRLinearScanRegisterAllocator new
+		registers: { firstRegister };
+		allocateRegistersIn: cfg.
+	
+	self assert: rNotOverlapping1 result equals: r2 result.
+	self assert: rNotOverlapping2 result equals: r2 result.
+]
+
+{ #category : #tests }
 DRLinearScanRegisterAllocatorTest >> testOverlappingPhiArguments [
 
 	| cfg basicBlockTrue basicBlockJoin firstRegister secondRegister r0 r1 r2 topBasicBlock |
@@ -423,7 +454,6 @@ DRLinearScanRegisterAllocatorTest >> testOverlappingPhiArguments [
 	
 	r2 := basicBlockJoin phiWith: r0 with: r1.
 	basicBlockJoin copy: r0.
-
 	firstRegister := DRPhysicalRegister name: 'PR1'.
 	secondRegister := DRPhysicalRegister name: 'PR2'.
 	DRLinearScanRegisterAllocator new

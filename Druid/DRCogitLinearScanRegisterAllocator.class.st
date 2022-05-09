@@ -93,21 +93,54 @@ DRCogitLinearScanRegisterAllocator >> initialize [
 ]
 
 { #category : #'live-analysis' }
-DRCogitLinearScanRegisterAllocator >> updateLiveSetOfOperand: op ofInstruction: i inBlock: b [
+DRCogitLinearScanRegisterAllocator >> initializeLiveSetOfInstruction: anInstruction [
 
 	"If the instruction is a division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
 	This instruction requires 4 different registers and not three (operands + destination).
 	We model this by adding an extra operand at this point."
 
 	"First register the live interval for the division itself so it does not overlap"
-	super updateLiveSetOfOperand: op ofInstruction: i inBlock: b.
+	super initializeLiveSetOfInstruction: anInstruction.
 		
 	"Then regiter the live interval for the new synthetic operand"
-	(i isDivision or: [ i isModulo ]) ifTrue: [ | newOperand |
-		newOperand := i basicBlock controlFlowGraph allocateTemporaryRegister.
+	(anInstruction isDivision or: [ anInstruction isModulo ]) ifTrue: [ | newOperand |
+		newOperand := anInstruction basicBlock controlFlowGraph allocateTemporaryRegister.
 		"This live set starts in the next instruction, but it is not used so it will be freed"
-		(self liveSetOf: newOperand) addRangeFrom: i to: i nextInstruction.
-		i addOperand: newOperand ].
+		(self liveSetOf: newOperand) addRangeFrom: anInstruction to: anInstruction nextInstruction.
+		anInstruction addOperand: newOperand ].
 	
 
+]
+
+{ #category : #'live-analysis' }
+DRCogitLinearScanRegisterAllocator >> updateLiveSet: liveSet ofOperand: op ofInstruction: anInstruction inBlock: b [
+
+	"If the instruction is a division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
+	This instruction requires 4 different registers and not three (operands + destination).
+	We model this by adding an extra operand at this point."
+
+	"We need to ignore the last operand"
+	((anInstruction isDivision or: [ anInstruction isModulo ]) and: [ 
+		 op = anInstruction operands last ]) ifTrue: [ ^ self ].
+
+	^ super
+		  updateLiveSet: liveSet
+		  ofOperand: op
+		  ofInstruction: anInstruction
+		  inBlock: b
+]
+
+{ #category : #'live-analysis' }
+DRCogitLinearScanRegisterAllocator >> updateLiveSetOfOperand: op ofInstruction: anInstruction inBlock: b [
+
+	"If the instruction is a division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
+	This instruction requires 4 different registers and not three (operands + destination).
+	We model this by adding an extra operand at this point."
+
+	
+	(anInstruction isDivision or: [ anInstruction isModulo ]) ifFalse: [ ^ self ].
+	"We need to ignore the last operand"
+	op = anInstruction operands last ifTrue: [ ^ self ].
+	
+	^ super updateLiveSetOfOperand: op ofInstruction: anInstruction inBlock: b
 ]

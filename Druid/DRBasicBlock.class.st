@@ -507,7 +507,7 @@ DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 	aDRBasicBlock addPredecessor: self.
 	aDRBasicBlock2 addPredecessor: self.
 	
-	^ self endInstruction: (DRConditionalJump new
+	^ self endInstruction: ((DRConditionalJump operands: {true asDRValue})
 		trueBranch: aDRBasicBlock;
 		falseBranch: aDRBasicBlock2;
 		yourself)

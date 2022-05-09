@@ -17,7 +17,7 @@ DRCogitRegisterAllocatorTest >> testAllocateRegistersForDivisionIntroducesRemain
 		"R2 := R0 / R1"
 		r2 := block divide: r0 by: r1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
-	
+
 	firstRegister := DRPhysicalRegister name: 'PR1'.
 	secondRegister := DRPhysicalRegister name: 'PR2'.
 	DRCogitLinearScanRegisterAllocator new

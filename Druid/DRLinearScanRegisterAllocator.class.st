@@ -6,20 +6,31 @@ Class {
 		'liveSets',
 		'availableRegisters',
 		'spillRegisters',
-		'controlFlowGraph'
+		'controlFlowGraph',
+		'activeIntervals',
+		'inactiveIntervals',
+		'unhandledIntervals'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
 
 { #category : #allocation }
-DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiveRegisterInterval withActiveIntervals: activeIntervals [
+DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiveRegisterInterval [
 	
-	| register intervalToSpill |
+	| intervalToSpill currentRegisters |
+	currentRegisters := availableRegisters copy.
+	inactiveIntervals
+		select: [ :e | e overlaps: aDRLiveRegisterInterval ]
+		thenDo: [ :e | self takeRegister: e location ].
+	unhandledIntervals
+		select: [ :e | e location notNil and: [ e overlaps: aDRLiveRegisterInterval ] ]
+		thenDo: [ :e | e halt ].
 	
-	availableRegisters ifNotEmpty: [ 
-		register := availableRegisters removeFirst.
-		^ aDRLiveRegisterInterval location: register ].
-	
+	currentRegisters ifNotEmpty: [ | selectedRegister |
+		selectedRegister := currentRegisters first.
+		availableRegisters remove: selectedRegister.
+		^ aDRLiveRegisterInterval location: currentRegisters first ].
+
 	"If empty, spill an interval"
 	intervalToSpill := activeIntervals
 		ifEmpty: [ aDRLiveRegisterInterval ]
@@ -31,18 +42,30 @@ DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiv
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> allocateRegisters [
 
-	| activeIntervals |
 	activeIntervals := Set new.
-	(liveSets values asSet sorted: [ :a :b | 
-		 a start < b start ]) do: [ :currentInterval | 
+	inactiveIntervals := Set new.
+
+	unhandledIntervals := (liveSets values asSet sorted: [ :a :b | 
+		                       a start < b start ]) asOrderedCollection.
+
+	[ unhandledIntervals isEmpty ] whileFalse: [ 
+		| currentInterval |
+		currentInterval := unhandledIntervals removeFirst.
 		activeIntervals copy do: [ :eachInterval | 
 			(eachInterval isActiveAt: currentInterval start) ifFalse: [ "not active anymore"
 				activeIntervals remove: eachInterval.
-				self returnRegister: eachInterval location ] ].
+				self returnRegister: eachInterval location.
 
-		self
-			allocateRegisterForLiveRegisterInterval: currentInterval
-			withActiveIntervals: activeIntervals.
+				"If the interval is not active but not yet dead, add it to inactive"
+				currentInterval start < eachInterval stop ifTrue: [ 
+					inactiveIntervals add: eachInterval ] ] ].
+		inactiveIntervals copy do: [ :eachInterval | 
+			(eachInterval isActiveAt: currentInterval start) ifTrue: [ 
+				inactiveIntervals remove: eachInterval.
+				activeIntervals add: eachInterval.
+				self takeRegister: eachInterval location ] ].
+
+		self allocateRegisterForLiveRegisterInterval: currentInterval.
 		currentInterval isSpilled ifFalse: [ 
 			activeIntervals add: currentInterval ] ]
 ]
@@ -196,7 +219,7 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 
 	| liveVariablesPerBlock |
 	liveVariablesPerBlock := Dictionary new.
-	
+
 	controlFlowGraph postOrderBlocks do: [ :b | | live |
 		live := Set new.
 		liveVariablesPerBlock at: b put: live.
@@ -204,7 +227,9 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 			live addAll: (liveVariablesPerBlock at: s ifAbsentPut: [ Set new ]).
 			s phiFunctions do: [ :phi |
 				live remove: phi ifAbsent: [ ].
-				live remove: (phi operandAt: si) ifAbsent: [ ].
+				(phi operandsAtPredecessorsOtherThan: b) do: [ :notIncomingInstruction |
+					(live includes: notIncomingInstruction)
+						ifTrue: [ live remove: notIncomingInstruction ] ].
 			] ].
 		live do: [ :i | | instructionLiveSet |
 			instructionLiveSet := self liveSetOf: i.
@@ -217,21 +242,14 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 			thenDo: [ :i |
 				live
 					remove: i
-					ifAbsent: [ | liveSetOfOp |
-						liveSetOfOp := self liveSetOf: i.
-						liveSetOfOp addRangeFrom: i to: i nextInstruction ].
-				
+					ifAbsent: [ self initializeLiveSetOfInstruction: i ].
 				i operands do: [ :op |
 					(op result isVirtualRegister and: [(live includes: op) not]) ifTrue: [
-						live add: op.
-						self updateLiveSetOfOperand: op ofInstruction: i inBlock: b
+						self updateLiveSet: live ofOperand: op ofInstruction: i inBlock: b
 					]
 				]
 			]
 		].
-"
-	self instructionsDo: [ :i |
-		self computeLiveSetsForInstruction: i ]"
 ]
 
 { #category : #api }
@@ -245,6 +263,17 @@ DRLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
 	availableRegisters := #()
+]
+
+{ #category : #'live-analysis' }
+DRLinearScanRegisterAllocator >> initializeLiveSetOfInstruction: anInstruction [
+
+	| liveSetOfOp |
+	liveSetOfOp := self liveSetOf: anInstruction.
+
+	liveSetOfOp
+		addRangeFrom: anInstruction
+		to: anInstruction nextInstruction
 ]
 
 { #category : #enumerating }
@@ -316,6 +345,23 @@ DRLinearScanRegisterAllocator >> returnRegister: aPhisicalRegister [
 DRLinearScanRegisterAllocator >> spillRegisters: aCollection [
 	
 	spillRegisters := aCollection asOrderedCollection
+]
+
+{ #category : #registers }
+DRLinearScanRegisterAllocator >> takeRegister: aDRPhysicalRegister [ 
+	
+	availableRegisters remove: aDRPhysicalRegister
+]
+
+{ #category : #'live-analysis' }
+DRLinearScanRegisterAllocator >> updateLiveSet: liveSet ofOperand: op ofInstruction: i inBlock: b [
+
+	| liveSetOfOp |
+	liveSet add: op.
+	liveSetOfOp := self liveSetOf: op.
+	(b instructions includes: op)
+		ifTrue: [ liveSetOfOp addRangeFrom: op to: i ]
+		ifFalse: [ liveSetOfOp addRangeFrom: b instructions first to: i ]
 ]
 
 { #category : #'live-analysis' }

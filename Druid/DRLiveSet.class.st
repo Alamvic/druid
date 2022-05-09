@@ -23,12 +23,13 @@ DRLiveSet >> addLiveRanges: someLiveRanges [
 
 { #category : #ranges }
 DRLiveSet >> addRangeFrom: firstInstruction to: lastInstruction [
-	
+
 	"Add a liveness range that goes from the first instruction to just before the last instruction"
+
 	self addLiveRange: (DRLiveRange new
-		start: firstInstruction;
-		stop: lastInstruction;
-		yourself)
+			 start: firstInstruction;
+			 stop: lastInstruction;
+			 yourself).
 ]
 
 { #category : #testing }
@@ -67,7 +68,6 @@ DRLiveSet >> location: aLocation [
 
 { #category : #merging }
 DRLiveSet >> mergeWith: aDRLiveSet [
-
 	"Merge two non overlapping live sets"
 	^ DRLiveSet new
 		  addLiveRanges: self liveRanges;
@@ -91,4 +91,10 @@ DRLiveSet >> overlivesLiveRange: aDRLiveRange [
 DRLiveSet >> start [
 	
 	^ liveRanges min: [ :e | e start order ]
+]
+
+{ #category : #accessing }
+DRLiveSet >> stop [
+	
+	^ liveRanges max: [ :e | e stop order ]
 ]
