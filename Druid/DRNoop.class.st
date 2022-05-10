@@ -32,7 +32,11 @@ DRNoop >> opcode [
 { #category : #visiting }
 DRNoop >> removeFromCFG [
 
-	"Do nothing for now"
+	"If I am the ending instruction of a block, keep me around"
+	self basicBlock endInstruction = self
+		ifTrue: [ ^ self ].
+	
+	super removeFromCFG
 ]
 
 { #category : #SCCP }

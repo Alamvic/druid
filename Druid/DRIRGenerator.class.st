@@ -902,11 +902,10 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 { #category : #'special-cases' }
 DRIRGenerator >> noop: aRBMessageNode [
 
-	^ self 
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRNoop 
-		operands: { }
-
+	^ self
+		  addInstructionWithNoResultFrom: aRBMessageNode
+		  instructionKind: DRNoop
+		  operands: #(  )
 ]
 
 { #category : #'frame-access' }
