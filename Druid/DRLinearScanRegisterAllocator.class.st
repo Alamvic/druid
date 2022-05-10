@@ -28,7 +28,7 @@ DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiv
 	
 	currentRegisters ifNotEmpty: [ | selectedRegister |
 		selectedRegister := currentRegisters first.
-		availableRegisters remove: selectedRegister.
+		self takeRegister: selectedRegister.
 		^ aDRLiveRegisterInterval location: currentRegisters first ].
 
 	"If empty, spill an interval"
