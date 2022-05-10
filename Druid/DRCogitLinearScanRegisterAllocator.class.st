@@ -84,9 +84,7 @@ DRCogitLinearScanRegisterAllocator >> initialize [
 		DRPhysicalRegister name: 'SendNumArgsReg'.
 		DRPhysicalRegister name: 'Extra0Reg'.
 		DRPhysicalRegister name: 'Extra1Reg'.
-		DRPhysicalRegister name: 'Extra2Reg'.
-		DRPhysicalRegister name: 'Extra3Reg'.
-		DRPhysicalRegister name: 'Extra4Reg' }.
+		DRPhysicalRegister name: 'Extra2Reg' }.
 	self spillRegisters: { 
 		DRPhysicalRegister name: 'Extra3Reg'.
 		DRPhysicalRegister name: 'Extra4Reg' }

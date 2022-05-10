@@ -36,6 +36,8 @@ DRBasicBlock >> add: anInstruction after: anotherInstruction [
 DRBasicBlock >> add: anInstruction before: anotherInstruction [
 	
 	anInstruction basicBlock: self.
+	anotherInstruction = endInstruction
+		ifTrue: [ ^ instructions addLast: anInstruction ].
 	instructions add: anInstruction before: anotherInstruction
 ]
 

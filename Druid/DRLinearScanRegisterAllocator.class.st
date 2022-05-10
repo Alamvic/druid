@@ -21,7 +21,7 @@ DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiv
 	currentRegisters := availableRegisters copy.
 	inactiveIntervals
 		select: [ :e | e overlaps: aDRLiveRegisterInterval ]
-		thenDo: [ :e | self takeRegister: e location ].
+		thenDo: [ :e | currentRegisters remove: e location ifAbsent: [ "ignore if it is in use" ] ].
 	unhandledIntervals
 		select: [ :e | e location notNil and: [ e overlaps: aDRLiveRegisterInterval ] ]
 		thenDo: [ :e | e halt ].
@@ -155,6 +155,8 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 	"
 
 	| allocatedLocation allocatedRegister usedSpillRegisters addressSize |
+	i isPhiFunction ifTrue: [ ^ self ].
+
 	usedSpillRegisters := OrderedCollection new: 3.
 	addressSize := 8 asDRValue.
 	i operands do: [ :op | 

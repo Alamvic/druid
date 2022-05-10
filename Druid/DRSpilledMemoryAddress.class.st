@@ -24,7 +24,7 @@ DRSpilledMemoryAddress >> isMemoryAddress [
 { #category : #printing }
 DRSpilledMemoryAddress >> name [
 	
-	^ 'M0'
+	^ 'StackEntry-', stackOffset asString
 ]
 
 { #category : #'cogit-generation' }
