@@ -393,6 +393,9 @@ DRInstruction >> replaceBy: anotherInstruction [
 { #category : #'users-definitions' }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
+	self flag: #careful.
+	"If we have the same operand twice, this will BREAK"
+	
 	anOperand removeUser: self.
 	operands replaceAll: anOperand with: anotherOperand.
 	anotherOperand addUser: self.

@@ -9,7 +9,8 @@ Class {
 		'controlFlowGraph',
 		'activeIntervals',
 		'inactiveIntervals',
-		'unhandledIntervals'
+		'unhandledIntervals',
+		'spillingStrategy'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -18,6 +19,10 @@ Class {
 DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiveRegisterInterval [
 	
 	| intervalToSpill currentRegisters |
+	
+	"For now it is active, unless we decide to spill it later"
+	activeIntervals add: aDRLiveRegisterInterval.
+	
 	currentRegisters := availableRegisters copy.
 	inactiveIntervals
 		select: [ :e | e overlaps: aDRLiveRegisterInterval ]
@@ -31,10 +36,10 @@ DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiv
 		self takeRegister: selectedRegister.
 		^ aDRLiveRegisterInterval location: currentRegisters first ].
 
+
 	"If empty, spill an interval"
-	intervalToSpill := activeIntervals
-		ifEmpty: [ aDRLiveRegisterInterval ]
-		ifNotEmpty: [ activeIntervals remove: activeIntervals anyOne ].
+	intervalToSpill := self selectIntervalToSpill.
+	activeIntervals remove: intervalToSpill.
 	aDRLiveRegisterInterval location: intervalToSpill location.
 	intervalToSpill location: self newStackLocation
 ]
@@ -65,9 +70,7 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 				activeIntervals add: eachInterval.
 				self takeRegister: eachInterval location ] ].
 
-		self allocateRegisterForLiveRegisterInterval: currentInterval.
-		currentInterval isSpilled ifFalse: [ 
-			activeIntervals add: currentInterval ] ]
+		self allocateRegisterForLiveRegisterInterval: currentInterval ]
 ]
 
 { #category : #api }
@@ -195,7 +198,7 @@ DRLinearScanRegisterAllocator >> buildLiveSets [
 	self coallescePhiIntervals.
 ]
 
-{ #category : #coallescing }
+{ #category : #steps }
 DRLinearScanRegisterAllocator >> coallescePhiIntervals [
 	
 	self instructionsDo: [ :i |
@@ -264,6 +267,7 @@ DRLinearScanRegisterAllocator >> controlFlowGraph: aDRControlFlowGraph [
 DRLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
+	self withRandomSpilling.
 	availableRegisters := #()
 ]
 
@@ -311,7 +315,7 @@ DRLinearScanRegisterAllocator >> newStackLocation [
 	^ DRSpilledMemoryAddress stackOffset: allocatedSpillSlot
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #steps }
 DRLinearScanRegisterAllocator >> prepareSSA [
 	
 	"Prepare the SSA CFG by adding copies above Phi functions.
@@ -326,12 +330,12 @@ DRLinearScanRegisterAllocator >> prepareSSA [
 		e operands with: e basicBlock predecessors do: [ :operand :predecessor |
 			| copy |
 			copy := predecessor copy: operand.
-			e replaceOperand: operand by: copy
+			e replaceOperandAtPredecessor: predecessor by: copy
 		]
 	]
 ]
 
-{ #category : #'block-linearization' }
+{ #category : #accessing }
 DRLinearScanRegisterAllocator >> registers: aCollection [
 
 	availableRegisters := aCollection asOrderedCollection
@@ -343,13 +347,19 @@ DRLinearScanRegisterAllocator >> returnRegister: aPhisicalRegister [
 	availableRegisters addFirst: aPhisicalRegister
 ]
 
+{ #category : #allocation }
+DRLinearScanRegisterAllocator >> selectIntervalToSpill [
+
+	^ spillingStrategy value
+]
+
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> spillRegisters: aCollection [
 	
 	spillRegisters := aCollection asOrderedCollection
 ]
 
-{ #category : #registers }
+{ #category : #allocation }
 DRLinearScanRegisterAllocator >> takeRegister: aDRPhysicalRegister [ 
 	
 	availableRegisters remove: aDRPhysicalRegister
@@ -374,4 +384,17 @@ DRLinearScanRegisterAllocator >> updateLiveSetOfOperand: op ofInstruction: i inB
 	(b instructions includes: op)
 		ifTrue: [ liveSetOfOp addRangeFrom: op to: i ]
 		ifFalse: [ liveSetOfOp addRangeFrom: b instructions first to: i ]
+]
+
+{ #category : #'as yet unclassified' }
+DRLinearScanRegisterAllocator >> withFurthestIntervalSpilling [
+
+	spillingStrategy := [ 
+		activeIntervals detectMax: [ :e | e stop ] ].
+]
+
+{ #category : #'as yet unclassified' }
+DRLinearScanRegisterAllocator >> withRandomSpilling [
+
+	spillingStrategy := [ activeIntervals atRandom ].
 ]
