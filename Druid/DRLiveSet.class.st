@@ -87,6 +87,23 @@ DRLiveSet >> overlivesLiveRange: aDRLiveRange [
 	^ liveRanges anySatisfy: [ :e | e overlaps: aDRLiveRange ]
 ]
 
+{ #category : #printing }
+DRLiveSet >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream << '['.
+	aStream << self start asString.
+	aStream << ', '.
+	aStream << self stop asString.
+	aStream << '['.
+]
+
+{ #category : #printing }
+DRLiveSet >> size [
+
+	^ self stop - self start
+]
+
 { #category : #accessing }
 DRLiveSet >> start [
 	

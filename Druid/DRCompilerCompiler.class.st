@@ -93,6 +93,7 @@ DRCompilerCompiler >> initialize [
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 	
 	optimisations := OrderedCollection new.
+	optimisations add: DRBranchCollapse new.
 	optimisations add: DRDeadBlockElimination new.
 	optimisations add: DRSCCP new.
 	optimisations add: DRCopyPropagation new.

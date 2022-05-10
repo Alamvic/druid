@@ -174,6 +174,12 @@ DRInstruction >> isComparison [
 ]
 
 { #category : #testing }
+DRInstruction >> isConditionalBranch [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isCopy [
 	^ false
 ]

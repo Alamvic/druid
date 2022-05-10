@@ -44,6 +44,12 @@ DRConditionalJump >> initialize [
 	result := DRNoRegister new
 ]
 
+{ #category : #testing }
+DRConditionalJump >> isConditionalBranch [
+
+	^ true
+]
+
 { #category : #accessing }
 DRConditionalJump >> isConditionalJump [ 
 
