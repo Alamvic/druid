@@ -25,6 +25,14 @@ DRInstructionFactory >> allocateTemporaryRegister [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> and: operand1 with: operand2 [
+
+	^ DRAnd
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> anyMask: operand1 with: operand2 [
 
 	^ DRTest

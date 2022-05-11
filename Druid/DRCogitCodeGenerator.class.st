@@ -7,7 +7,7 @@ Class {
 		'deferredBranches',
 		'nextJumpIndex'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-Cogit'
 }
 
 { #category : #'ir-generation' }
@@ -244,8 +244,7 @@ DRCogitCodeGenerator >> visitAddition: aDRCogitAdd [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitAnd: aDRAnd [
 
-	"Use threeOperandCogitRTL: ?"
-	^ self twoOperandCogitRTL: #And instruction: aDRAnd
+	^ self threeOperandCogitRTL: #And instruction: aDRAnd
 ]
 
 { #category : #visiting }

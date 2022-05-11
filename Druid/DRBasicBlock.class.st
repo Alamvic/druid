@@ -65,6 +65,12 @@ DRBasicBlock >> addPredecessor: aBasicBlock [
 ]
 
 { #category : #building }
+DRBasicBlock >> and: aValue with: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory and: aValue with: anotherValue)
+]
+
+{ #category : #building }
 DRBasicBlock >> anyMask: aValue with: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory anyMask: aValue with: anotherValue)
