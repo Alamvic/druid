@@ -13,10 +13,13 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #accessing }
-DRInstruction class >> operands: operands [
-
-	^ self operands: operands result: DRNoRegister new
+{ #category : #'instance creation' }
+DRInstruction class >> operands: aCollection [
+	
+	"Validate operands collections size?"
+	^ self new
+		operands: aCollection;
+		yourself
 ]
 
 { #category : #'instance creation' }
@@ -46,6 +49,25 @@ DRInstruction >> RBArrayNodenSource: aBuilder [
 	^ originAST inspectionSourceCode
 ]
 
+{ #category : #accessing }
+DRInstruction >> addBefore: anotherInstruction [
+	
+	basicBlock add: anotherInstruction before: self
+]
+
+{ #category : #accessing }
+DRInstruction >> addNext: anotherInstruction [
+	
+	basicBlock add: anotherInstruction after: self
+]
+
+{ #category : #accessing }
+DRInstruction >> addOperand: anOperand [
+
+	operands add: anOperand.
+	anOperand addUser: self.
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> addUser: anInstruction [
 	
@@ -68,6 +90,12 @@ DRInstruction >> basicBlock: anObject [
 DRInstruction >> clearUsers [
 
 	users removeAll
+]
+
+{ #category : #accessing }
+DRInstruction >> controlFlowGraph [
+	
+	^ basicBlock controlFlowGraph
 ]
 
 { #category : #copying }
@@ -140,7 +168,25 @@ DRInstruction >> inspectionDependencies: aBuilder [
 ]
 
 { #category : #testing }
+DRInstruction >> isComparison [
+
+	^ false
+]
+
+{ #category : #testing }
+DRInstruction >> isConditionalBranch [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isCopy [
+	^ false
+]
+
+{ #category : #testing }
+DRInstruction >> isDivision [
+	
 	^ false
 ]
 
@@ -148,6 +194,12 @@ DRInstruction >> isCopy [
 DRInstruction >> isInstruction [
 
 	^ true
+]
+
+{ #category : #testing }
+DRInstruction >> isModulo [
+	
+	^ false
 ]
 
 { #category : #testing }
@@ -180,6 +232,12 @@ DRInstruction >> name [
 	^ result name
 ]
 
+{ #category : #accessing }
+DRInstruction >> nextInstruction [
+	
+	^ self basicBlock instructionAfter: self
+]
+
 { #category : #printing }
 DRInstruction >> opcode [
 	
@@ -210,6 +268,12 @@ DRInstruction >> operandAt: anInteger put: aValue [
 	operands at: anInteger put: aValue
 ]
 
+{ #category : #operands }
+DRInstruction >> operandAtPredecessor: aPredecessor [
+	
+	^ operands at: (self basicBlock indexOfPredecessor: aPredecessor)
+]
+
 { #category : #accessing }
 DRInstruction >> operands [
 	^ operands
@@ -221,6 +285,14 @@ DRInstruction >> operands: aCollection [
 	operands asSet do: [ :each | each removeUser: self ].
 	operands := aCollection asOrderedCollection.
 	operands asSet do: [ :each | each addUser: self ]
+]
+
+{ #category : #operands }
+DRInstruction >> operandsAtPredecessorsOtherThan: aPredecessor [
+	
+	| index |
+	index := self basicBlock indexOfPredecessor: aPredecessor.
+	^ operands withIndexSelect: [ :op :in | in ~= index ]
 ]
 
 { #category : #accessing }
@@ -263,7 +335,7 @@ DRInstruction >> postCopy [
 
 	operands := operands copy.
 	users := users copy.
-	(result notNil and: [ result isPhysicalRegister not ]) ifTrue: [ 
+	((result isKindOf: DRNoRegister) not and: [ result isPhysicalRegister not ]) ifTrue: [ 
 		result := basicBlock controlFlowGraph allocateTemporaryRegister ].
 	super postCopy.
 ]
@@ -327,6 +399,9 @@ DRInstruction >> replaceBy: anotherInstruction [
 { #category : #'users-definitions' }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
+	self flag: #careful.
+	"If we have the same operand twice, this will BREAK"
+	
 	anOperand removeUser: self.
 	operands replaceAll: anOperand with: anotherOperand.
 	anotherOperand addUser: self.

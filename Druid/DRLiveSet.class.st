@@ -2,56 +2,116 @@ Class {
 	#name : #DRLiveSet,
 	#superclass : #Object,
 	#instVars : [
-		'definition',
-		'lastUsage',
-		'register'
+		'location',
+		'liveRanges'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
 
-{ #category : #accessing }
-DRLiveSet >> definition [
-	^ definition
+{ #category : #ranges }
+DRLiveSet >> addLiveRange: aRange [
+	
+	"Add a liveness range that goes from the first instruction to just before the last instruction"
+	liveRanges add: aRange
 ]
 
 { #category : #accessing }
-DRLiveSet >> definition: aDefiningInstruction [ 
-	definition := aDefiningInstruction
+DRLiveSet >> addLiveRanges: someLiveRanges [
+
+	someLiveRanges do: [ :e | self addLiveRange: e ]
+]
+
+{ #category : #ranges }
+DRLiveSet >> addRangeFrom: firstInstruction to: lastInstruction [
+
+	"Add a liveness range that goes from the first instruction to just before the last instruction"
+
+	self addLiveRange: (DRLiveRange new
+			 start: firstInstruction;
+			 stop: lastInstruction;
+			 yourself).
+]
+
+{ #category : #testing }
+DRLiveSet >> initialize [
+	super initialize.
+	liveRanges := OrderedCollection new
+]
+
+{ #category : #testing }
+DRLiveSet >> isActiveAt: position [
+
+	^ liveRanges anySatisfy: [ :e | e isActiveAt: position ]
 ]
 
 { #category : #testing }
 DRLiveSet >> isSpilled [
 	
-	^ false "yet"
+	^ location isMemoryAddress
 ]
 
 { #category : #accessing }
-DRLiveSet >> lastUsage [
-	^ lastUsage
+DRLiveSet >> liveRanges [
+	^ liveRanges
 ]
 
 { #category : #accessing }
-DRLiveSet >> lastUsage: anInstruction [ 
-	lastUsage := anInstruction
+DRLiveSet >> location [
+	^ location
+]
+
+{ #category : #accessing }
+DRLiveSet >> location: aLocation [
+	
+	location := aLocation
+]
+
+{ #category : #merging }
+DRLiveSet >> mergeWith: aDRLiveSet [
+	"Merge two non overlapping live sets"
+	^ DRLiveSet new
+		  addLiveRanges: self liveRanges;
+		  addLiveRanges: aDRLiveSet liveRanges;
+		  yourself
+]
+
+{ #category : #testing }
+DRLiveSet >> overlaps: aDRLiveSet [ 
+	
+	^ liveRanges anySatisfy: [ :e | aDRLiveSet overlivesLiveRange: e ]
+]
+
+{ #category : #testing }
+DRLiveSet >> overlivesLiveRange: aDRLiveRange [ 
+	
+	^ liveRanges anySatisfy: [ :e | e overlaps: aDRLiveRange ]
 ]
 
 { #category : #printing }
 DRLiveSet >> printOn: aStream [
 
 	super printOn: aStream.
-	aStream
-		nextPut: $(;
-		print: definition result name;
-		nextPut: $)
+	aStream << '['.
+	aStream << self start asString.
+	aStream << ', '.
+	aStream << self stop asString.
+	aStream << '['.
+]
+
+{ #category : #printing }
+DRLiveSet >> size [
+
+	^ self stop - self start
 ]
 
 { #category : #accessing }
-DRLiveSet >> register [
-	^ register
-]
-
-{ #category : #accessing }
-DRLiveSet >> register: aPhisicalRegister [
+DRLiveSet >> start [
 	
-	register := aPhisicalRegister
+	^ liveRanges min: [ :e | e start order ]
+]
+
+{ #category : #accessing }
+DRLiveSet >> stop [
+	
+	^ liveRanges max: [ :e | e stop order ]
 ]

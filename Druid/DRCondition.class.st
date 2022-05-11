@@ -8,6 +8,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #testing }
+DRCondition >> isComparison [
+
+	^ true
+]
+
 { #category : #converting }
 DRCondition >> reversed [
 	

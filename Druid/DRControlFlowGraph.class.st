@@ -7,7 +7,8 @@ Class {
 		'nextBasicBlockId',
 		'instructionFactory',
 		'edges',
-		'deadPaths'
+		'deadPaths',
+		'numberOfSpillSlots'
 	],
 	#category : #'Druid-IR'
 }
@@ -16,7 +17,8 @@ Class {
 DRControlFlowGraph >> addBasicBlock: aBlock [
 
 	self assert: (basicBlocks noneSatisfy: [:b | b id = aBlock id]).
-	basicBlocks add: aBlock
+	basicBlocks add: aBlock.
+	^ aBlock
 ]
 
 { #category : #edges }
@@ -53,8 +55,13 @@ DRControlFlowGraph >> allocateTemporaryRegister [
 DRControlFlowGraph >> applyOptimization: optimization [
 
 	optimization applyTo: self.
-	self generatePaths.
 	self validate
+]
+
+{ #category : #optimization }
+DRControlFlowGraph >> basicApplyOptimization: optimization [
+
+	optimization applyTo: self
 ]
 
 { #category : #accessing }
@@ -207,6 +214,12 @@ DRControlFlowGraph >> incomingEdgesFor: aBlock [
 	^ edges select: [ :e | e destination = aBlock ]
 ]
 
+{ #category : #spilling }
+DRControlFlowGraph >> incrementSpillSlots [
+	
+	^ numberOfSpillSlots := numberOfSpillSlots + 1
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> initialBasicBlock [ 
 	^ initialBasicBlock
@@ -220,8 +233,13 @@ DRControlFlowGraph >> initialize [
 	
 	basicBlocks := OrderedCollection new.
 	edges := OrderedCollection new.
-	initialBasicBlock := DRBasicBlock id: 0.
-	nextBasicBlockId := 1.
+	
+	"How many spill slots we need in memory to execute the compiled method"
+	numberOfSpillSlots := 0.
+	
+	nextBasicBlockId := 0.
+	initialBasicBlock := self privateNewBasicBlock.
+	
 ]
 
 { #category : #inspecting }
@@ -236,7 +254,7 @@ DRControlFlowGraph >> inspectionCFG [
 { #category : #accessing }
 DRControlFlowGraph >> instructionByResultId: anInteger [ 
 
-	^ self instructions detect: [ :i | i result ifNil: [ false ] ifNotNil: [ i result id = anInteger] ]
+	^ self instructions detect: [ :i | i result hasId: anInteger ]
 ]
 
 { #category : #inspecting }
@@ -323,11 +341,7 @@ DRControlFlowGraph >> leafBlocks [
 { #category : #building }
 DRControlFlowGraph >> newBasicBlock [
 	
-	| newBlock |
-	newBlock := DRBasicBlock id: self allocateBasicBlockID.
-	newBlock controlFlowGraph: self.
-	self addBasicBlock: newBlock.
-	^ newBlock
+	^ self addBasicBlock: self privateNewBasicBlock
 ]
 
 { #category : #building }
@@ -337,6 +351,12 @@ DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [
 	newBlock := self newBasicBlock.
 	aFullBlockClosure value: newBlock.
 	^ newBlock
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> numberOfSpillSlots [
+	
+	^ numberOfSpillSlots
 ]
 
 { #category : #edges }
@@ -363,6 +383,15 @@ DRControlFlowGraph >> postOrderBlocks [
 	"Return the list of blocks based on a simple linearization algorithm"
 
 	^ self reversePostOrderBlocks reversed
+]
+
+{ #category : #building }
+DRControlFlowGraph >> privateNewBasicBlock [
+	
+	| newBlock |
+	newBlock := DRBasicBlock id: self allocateBasicBlockID.
+	newBlock controlFlowGraph: self.
+	^ newBlock
 ]
 
 { #category : #removing }
@@ -423,7 +452,7 @@ DRControlFlowGraph >> showInfoIn: view [
 	         RSLabel new
 		         text: text;
 		         color: Color black;
-		         fontSize: 44;
+		         fontSize: 20;
 		         bold;
 		         yourself ].
 

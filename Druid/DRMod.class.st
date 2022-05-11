@@ -11,6 +11,12 @@ DRMod >> acceptVisitor: aVisitor [
 ]
 
 { #category : #printing }
+DRMod >> isModulo [
+	
+	^ true
+]
+
+{ #category : #printing }
 DRMod >> opcode [
 	
 	^ 'MOD'

@@ -25,6 +25,22 @@ DRBasicBlock class >> id: anInteger [
 		yourself
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> add: anInstruction after: anotherInstruction [
+	
+	anInstruction basicBlock: self.
+	instructions add: anInstruction after: anotherInstruction
+]
+
+{ #category : #accessing }
+DRBasicBlock >> add: anInstruction before: anotherInstruction [
+	
+	anInstruction basicBlock: self.
+	anotherInstruction = endInstruction
+		ifTrue: [ ^ instructions addLast: anInstruction ].
+	instructions add: anInstruction before: anotherInstruction
+]
+
 { #category : #building }
 DRBasicBlock >> add: aValue to: anotherValue [
 	
@@ -46,6 +62,12 @@ DRBasicBlock >> addPredecessor: aBasicBlock [
 	predecessors add: aBasicBlock.
 	self phiFunctions do: [ :phi | 
 		phi operands size < self predecessors size ifTrue: [ phi addOperand ] ]
+]
+
+{ #category : #building }
+DRBasicBlock >> anyMask: aValue with: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory anyMask: aValue with: anotherValue)
 ]
 
 { #category : #transformations }
@@ -110,6 +132,12 @@ DRBasicBlock >> beExitBlock [
 	isExitBlock := true
 ]
 
+{ #category : #building }
+DRBasicBlock >> bitAnd: aValue with: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory bitAnd: aValue with: anotherValue)
+]
+
 { #category : #accessing }
 DRBasicBlock >> blockValue [
 	
@@ -160,6 +188,12 @@ DRBasicBlock >> controlFlowGraph: anObject [
 DRBasicBlock >> copy: aValue [
 	
 	^ self addInstruction: (self instructionFactory copy: aValue)
+]
+
+{ #category : #building }
+DRBasicBlock >> divide: aValue by: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory divide: aValue by: anotherValue)
 ]
 
 { #category : #'control-flow' }
@@ -228,6 +262,12 @@ DRBasicBlock >> findMergePoint: aDRBasicBlock [
 DRBasicBlock >> firstInstruction [
 	
 	^ self instructions first
+]
+
+{ #category : #building }
+DRBasicBlock >> greater: operand1 than: operand2 [
+	
+	^ self addInstruction: (self instructionFactory greater: operand1 than: operand2)
 ]
 
 { #category : #testing }
@@ -358,6 +398,14 @@ DRBasicBlock >> inspectionSourceCode [
 		yourself
 ]
 
+{ #category : #'enumerating instructions' }
+DRBasicBlock >> instructionAfter: anInstruction [
+	
+	instructions last = anInstruction
+		ifTrue: [ ^ endInstruction ].
+	^ instructions after: anInstruction
+]
+
 { #category : #building }
 DRBasicBlock >> instructionFactory [
 	
@@ -376,7 +424,7 @@ DRBasicBlock >> instructions [
 { #category : #iterating }
 DRBasicBlock >> instructionsDo: aFullBlockClosure [ 
 
-	instructions do: aFullBlockClosure.
+	instructions copy do: aFullBlockClosure.
 	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
 ]
 
@@ -461,7 +509,7 @@ DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 	aDRBasicBlock addPredecessor: self.
 	aDRBasicBlock2 addPredecessor: self.
 	
-	^ self endInstruction: (DRConditionalJump new
+	^ self endInstruction: ((DRConditionalJump operands: {true asDRValue})
 		trueBranch: aDRBasicBlock;
 		falseBranch: aDRBasicBlock2;
 		yourself)
@@ -577,6 +625,12 @@ DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 DRBasicBlock >> methodNode [
 	
 	^ (self instructions select: [ :i | i originAST notNil ] thenCollect: [ :i | i originAST methodNode ]) anyOne
+]
+
+{ #category : #building }
+DRBasicBlock >> modulo: aValue by: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory modulo: aValue by: anotherValue)
 ]
 
 { #category : #accessing }
@@ -715,6 +769,12 @@ DRBasicBlock >> replacePredecessor: aDRBasicBlock by: aDRBasicBlock2 [
 DRBasicBlock >> replaceSuccessor: aDRBasicBlock by: aDRBasicBlock2 [ 
 	
 	endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock2
+]
+
+{ #category : #building }
+DRBasicBlock >> return [
+
+	^ self endInstruction: DRReturn new
 ]
 
 { #category : #building }

@@ -114,7 +114,9 @@ DRPrimitiveIRGenerator >> popFrame [
 			operands: { 
 				currentBasicBlock primitiveFailureCode.
 				0 asDRValue }).
-		conditionalJump := self instantiate: DRConditionalJump operands: { comparison }.
+		conditionalJump := self
+			instantiateNoResultInstruction: DRConditionalJump
+			operands: { comparison }.
 		currentBasicBlock endInstruction: conditionalJump.
 		controlFlowGraph primitiveExitBlock: currentBasicBlock.
 		
@@ -125,11 +127,11 @@ DRPrimitiveIRGenerator >> popFrame [
 		controlFlowGraph failureExitBlock addPredecessor: currentBasicBlock.
 		
 		controlFlowGraph successExitBlock endInstruction: (self
-			instantiate: DRReturn
+			instantiateNoResultInstruction: DRReturn
 			operands: { DRConstantValue value: numberOfArguments + 1 "Number of things to pop" }).
 
 		"Make the end instruction of the failure exit finish with a Noop"
-		controlFlowGraph failureExitBlock endInstruction: (self instantiate: DRPrimitiveFail)
+		controlFlowGraph failureExitBlock endInstruction: (self instantiateNoResultInstruction: DRPrimitiveFail)
 	]
 	
 ]

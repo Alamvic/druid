@@ -1,6 +1,9 @@
 Class {
 	#name : #DRLoad,
 	#superclass : #DRInstruction,
+	#instVars : [
+		'size'
+	],
 	#category : #'Druid-IR'
 }
 
@@ -20,4 +23,17 @@ DRLoad >> isLoad [
 DRLoad >> opcode [
 	
 	^ 'LOAD'
+]
+
+{ #category : #accessing }
+DRLoad >> operands: operandList [
+
+	size := operandList first value.
+	super operands: operandList allButFirst
+]
+
+{ #category : #accessing }
+DRLoad >> size [
+
+	^ size
 ]

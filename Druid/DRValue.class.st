@@ -98,6 +98,12 @@ DRValue >> isMandatoryInstruction [
 	^ false
 ]
 
+{ #category : #testing }
+DRValue >> isMemoryAddress [
+	
+	^ false
+]
+
 { #category : #accessing }
 DRValue >> isNoop [ 
 	
@@ -184,6 +190,12 @@ DRValue >> removeUser: anInstruction [
 DRValue >> result [
 
 	^ self
+]
+
+{ #category : #'cogit-generation' }
+DRValue >> rtlOperandQualifier [
+
+	self subclassResponsibility
 ]
 
 { #category : #accessing }

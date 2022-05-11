@@ -44,3 +44,8 @@ DRGeneratorMethodBuilder >> selector: aSelector [
 	
 	selector := aSelector
 ]
+
+{ #category : #accessing }
+DRGeneratorMethodBuilder >> statements [
+	^ statements
+]

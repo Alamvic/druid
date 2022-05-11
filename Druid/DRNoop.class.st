@@ -10,6 +10,13 @@ DRNoop >> acceptVisitor: aVisitor [
 	^ aVisitor visitNoop: self
 ]
 
+{ #category : #initialization }
+DRNoop >> initialize [
+
+	super initialize.
+	result := DRNoRegister new
+]
+
 { #category : #SCCP }
 DRNoop >> isNoop [
 
@@ -25,7 +32,11 @@ DRNoop >> opcode [
 { #category : #visiting }
 DRNoop >> removeFromCFG [
 
-	"Do nothing for now"
+	"If I am the ending instruction of a block, keep me around"
+	self basicBlock endInstruction = self
+		ifTrue: [ ^ self ].
+	
+	super removeFromCFG
 ]
 
 { #category : #SCCP }
