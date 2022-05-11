@@ -513,7 +513,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesStore [
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
 	firstRegister := DRPhysicalRegister name: 'PR1'.
-	
+
 	"SPR1 is a spill register reserved for spill allocations"
 	spillRegister := DRPhysicalRegister name: 'SPR1'.
 	DRLinearScanRegisterAllocator new

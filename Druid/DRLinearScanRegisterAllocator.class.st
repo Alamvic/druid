@@ -47,7 +47,7 @@ DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiv
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> allocateRegisters [
 
-	activeIntervals := Set new.
+	activeIntervals := OrderedCollection new.
 	inactiveIntervals := Set new.
 
 	unhandledIntervals := (liveSets values asSet sorted: [ :a :b | 
@@ -89,7 +89,7 @@ DRLinearScanRegisterAllocator >> allocatedRegisterFor: aValue [
 	^ (self liveSetOf: aValue) location
 ]
 
-{ #category : #assigning }
+{ #category : #steps }
 DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 
 	| allocatedLocation allocatedRegister |
@@ -124,7 +124,7 @@ DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 			 result: allocatedLocation)]
 ]
 
-{ #category : #assigning }
+{ #category : #steps }
 DRLinearScanRegisterAllocator >> assignRegisters [
 
 	self instructionsDo: [ :i | "Assign first registers to operands.
@@ -136,7 +136,7 @@ DRLinearScanRegisterAllocator >> assignRegisters [
 		self assignRegisterToResultInInstruction: i ]
 ]
 
-{ #category : #assigning }
+{ #category : #steps }
 DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 
 	"Assign first registers to operands.
@@ -257,7 +257,7 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 		].
 ]
 
-{ #category : #api }
+{ #category : #accessing }
 DRLinearScanRegisterAllocator >> controlFlowGraph: aDRControlFlowGraph [
 
 	controlFlowGraph := aDRControlFlowGraph
@@ -267,7 +267,7 @@ DRLinearScanRegisterAllocator >> controlFlowGraph: aDRControlFlowGraph [
 DRLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
-	self withRandomSpilling.
+	self withFirstSpilling.
 	availableRegisters := #()
 ]
 
@@ -386,14 +386,26 @@ DRLinearScanRegisterAllocator >> updateLiveSetOfOperand: op ofInstruction: i inB
 		ifFalse: [ liveSetOfOp addRangeFrom: b instructions first to: i ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'spilling strategies' }
+DRLinearScanRegisterAllocator >> withFirstSpilling [
+
+	spillingStrategy := [ activeIntervals first ].
+]
+
+{ #category : #'spilling strategies' }
 DRLinearScanRegisterAllocator >> withFurthestIntervalSpilling [
 
 	spillingStrategy := [ 
 		activeIntervals detectMax: [ :e | e stop ] ].
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'spilling strategies' }
+DRLinearScanRegisterAllocator >> withLastSpilling [
+
+	spillingStrategy := [ activeIntervals last ].
+]
+
+{ #category : #'spilling strategies' }
 DRLinearScanRegisterAllocator >> withRandomSpilling [
 
 	spillingStrategy := [ activeIntervals atRandom ].
