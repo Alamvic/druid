@@ -154,10 +154,7 @@ DRCogitCodeGenerator >> registerFor: aValue [
 DRCogitCodeGenerator >> rtlArgumentsForValue: aValue [
 
 	"If it is a spilling stack location, we need to return a pair (offset, baseRegister)"
-	aValue isMemoryAddress ifTrue: [ 
-		^ { 
-			  (self rtlExpressionForValue: (aValue stackOffset * 8 "bytes") asDRValue).
-			  (self rtlExpressionForValue: (DRPhysicalRegister name: 'SPReg')) } ].
+	aValue isMemoryAddress ifTrue: [ ^ aValue rtlArgumentExpressions ].
 
 	"Otherwise just return the expression for the value"
 	^ { (self rtlExpressionForValue: aValue) }
@@ -187,15 +184,22 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction [
 
 	"Verify that the 3 address code instruction is actually in 2AC after register allocation"
+
 	| allocatedOperands |
-	allocatedOperands := (instruction operands collect: [:op | op result]) asSet.
-	instruction result isNoResult
-		ifFalse: [ allocatedOperands add: instruction result ].
-	allocatedOperands size > 2 ifTrue: [ self error: 'Cannot write instruction with more than 2 operands: ', instruction asString ].
-	
-	^ self twoOperandCogitRTL: aMnemonic operands: { 
-			  instruction operand2.
-			  instruction operand1 }
+	allocatedOperands := (instruction operands collect: [ :op | 
+		                      op result ]) asSet.
+	instruction result isNoResult ifFalse: [ 
+		allocatedOperands add: instruction result ].
+	allocatedOperands size > 2 ifTrue: [ 
+		self error: 'Cannot write instruction with more than 2 operands: '
+			, instruction asString ].
+
+	^ self
+		  twoOperandCogitRTL: aMnemonic
+		  operands: { 
+				  instruction operand2.
+				  instruction operand1 }
+		  instruction: instruction
 ]
 
 { #category : #visiting }
@@ -204,9 +208,12 @@ DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic instruction: instruction [
 	| destination replacement |
 	replacement := instruction operand1 isMemoryAddress
 		               ifTrue: [ 
-			               self twoOperandCogitRTL: 'Move' operands: { 
-					               instruction operand1.
-					               (DRPhysicalRegister name: 'TempReg') }.
+			               self
+				               twoOperandCogitRTL: 'Move'
+				               operands: { 
+						               instruction operand1.
+						               (DRPhysicalRegister name: 'TempReg') }
+				               instruction: instruction.
 			               DRPhysicalRegister name: 'TempReg' ]
 		               ifFalse: [ instruction operand1 ].
 
@@ -214,23 +221,33 @@ DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic instruction: instruction [
 		               ifTrue: [ DRPhysicalRegister name: 'TempReg' ]
 		               ifFalse: [ instruction result ].
 
-	self twoOperandCogitRTL: aMnemonic operands: { 
-			replacement.
-			destination }.
+	self
+		twoOperandCogitRTL: aMnemonic
+		operands: { 
+				replacement.
+				destination }
+		instruction: instruction.
 
 	instruction result isMemoryAddress ifTrue: [ 
-		self twoOperandCogitRTL: 'Move' operands: { 
-				destination.
-				(DRPhysicalRegister name: 'MEMORY0') } ]
+		self
+			twoOperandCogitRTL: 'Move'
+			operands: { 
+					destination.
+					(DRPhysicalRegister name: 'MEMORY0') }
+			instruction: instruction ]
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands [
+DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruction: anInstruction [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: aMnemonic , operands first result rtlOperandQualifier
-				 , operands second result rtlOperandQualifier
+			 selector:
+				 aMnemonic
+				 , (operands first result rtlOperandQualifierForInstruction:
+						  anInstruction)
+				 , (operands second result rtlOperandQualifierForInstruction:
+						  anInstruction)
 			 arguments: (self rtlArgumentsForValue: operands first)
 				 , (self rtlArgumentsForValue: operands second))
 ]
@@ -262,22 +279,25 @@ DRCogitCodeGenerator >> visitBitShift: aDRCogitBitShift [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitComparison: aComparison [ 
-	
+DRCogitCodeGenerator >> visitComparison: aComparison [
+
 	| comparands |
 	"Generate comparison instruction. In cogit, if you want to do A < B, you have to generate:
 	CMP B A
 	JumpLessThan xxx
 	Thus, operands are inverted always"
 	comparands := aComparison operands reversed.
-	
+
 	"Cogit RTL only supports constants as the first argument.
 	Invert the comparison and the condition if necessary, mostly for greaterThan comparisons)."
-	comparands second isConstant ifTrue: [
+	comparands second isConstant ifTrue: [ 
 		aComparison replaceBy: aComparison reversed.
 		comparands := comparands reversed ].
 
-	self twoOperandCogitRTL: #Cmp operands: comparands
+	self
+		twoOperandCogitRTL: #Cmp
+		operands: comparands
+		instruction: aComparison
 ]
 
 { #category : #visiting }
@@ -369,25 +389,22 @@ DRCogitCodeGenerator >> visitLessThanComparison: aDRLessThanComparison [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLoad: aDRLoad [
 
-	"Only implement register byte accesses for now"
+	"If it is smaller than the word size, zero the target register before"
 
-	| sizeSuffix |
-	aDRLoad size = 1
-		ifTrue: [ sizeSuffix := 'b' ]
-		ifFalse: [ sizeSuffix := (aDRLoad size * 8) asString ].
+	aDRLoad size < 8 ifTrue: [ 
+		self
+			twoOperandCogitRTL: #Move
+			operands: { 
+					0 asDRValue.
+					aDRLoad result }
+			instruction: aDRLoad ].
 
-	"Zero the register before loading a byte"
-	self twoOperandCogitRTL: #Move operands: { 
-			0 asDRValue.
-			aDRLoad result }.
-
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: ('MoveM' , sizeSuffix , ':r:R:') asSymbol
-			 arguments: { 
-					 (self rtlExpressionForValue: 0 asDRValue).
-					 (self rtlExpressionForValue: aDRLoad operand1).
-					 (self rtlExpressionForValue: aDRLoad result) })
+	^ self
+		  twoOperandCogitRTL: #Move
+		  operands: { 
+				  aDRLoad operand1 asMemoryAddress.
+				  aDRLoad result }
+		  instruction: aDRLoad
 ]
 
 { #category : #visiting }
@@ -499,9 +516,12 @@ DRCogitCodeGenerator >> visitRightShift: aDRCogitRightShift [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitStore: aDRCogitStore [
 
-	self twoOperandCogitRTL: #Move operands: { 
-			aDRCogitStore operand1.
-			aDRCogitStore result }
+	self
+		twoOperandCogitRTL: #Move
+		operands: { 
+				aDRCogitStore operand1.
+				aDRCogitStore result }
+		instruction: aDRCogitStore
 ]
 
 { #category : #visiting }
@@ -513,16 +533,16 @@ DRCogitCodeGenerator >> visitSubstract: aDRCogitSubstract [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitTest: aTest [
-	
+
 	"Cogit RTL only supports constants as the first argument.
 	Invert them  (and the condition if necessary, mostly for greaterThan comparisons)."
+
 	| comparands |
 	comparands := aTest operands.
-	aTest operands second isConstant
-		ifTrue: [
-			aTest replaceBy: aTest reversed.
-			comparands := comparands reversed ].
-	self twoOperandCogitRTL: #Tst operands: comparands
+	aTest operands second isConstant ifTrue: [ 
+		aTest replaceBy: aTest reversed.
+		comparands := comparands reversed ].
+	self twoOperandCogitRTL: #Tst operands: comparands instruction: aTest
 ]
 
 { #category : #visiting }

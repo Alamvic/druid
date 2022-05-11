@@ -36,7 +36,10 @@ DRPrimitiveCompilerCompiler >> initialize [
 		optimisations add: DRPhiSimplication new.
 		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
-		optimisations add: (DRDeadPathElimination then: DRPhiSimplication) ]
+		optimisations add: (DRDeadPathElimination then: DRPhiSimplication) ].
+	
+	"Last Phase, make code coggable"
+	optimisations add: DRCogitJITConstantSplitting new
 ]
 
 { #category : #accessing }

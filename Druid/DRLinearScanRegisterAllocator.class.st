@@ -187,6 +187,13 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 	usedSpillRegisters do: [ :each | spillRegisters addFirst: each ]
 ]
 
+{ #category : #accessing }
+DRLinearScanRegisterAllocator >> basicLiveSetOf: anInstruction [
+	
+	"Low level accessor, use only if you want to escape from the high level accessor"
+	^ liveSets at: anInstruction ifAbsentPut: [ DRLiveSet new ]
+]
+
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> buildLiveSets [
 	
@@ -225,36 +232,51 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 	| liveVariablesPerBlock |
 	liveVariablesPerBlock := Dictionary new.
 
-	controlFlowGraph postOrderBlocks do: [ :b | | live |
+	controlFlowGraph postOrderBlocks do: [ :b | 
+		| live |
 		live := Set new.
 		liveVariablesPerBlock at: b put: live.
-		b successors withIndexDo: [ :s :si |
+
+		"Collect all live variables from successors"
+		b successors withIndexDo: [ :s :si | 
 			live addAll: (liveVariablesPerBlock at: s ifAbsentPut: [ Set new ]).
-			s phiFunctions do: [ :phi |
-				live remove: phi ifAbsent: [ ].
-				(phi operandsAtPredecessorsOtherThan: b) do: [ :notIncomingInstruction |
-					(live includes: notIncomingInstruction)
-						ifTrue: [ live remove: notIncomingInstruction ] ].
-			] ].
-		live do: [ :i | | instructionLiveSet |
+			s phiFunctions do: [ :phi | 
+				live remove: phi ifAbsent: [  ].
+				(phi operandsAtPredecessorsOtherThan: b) do: [ 
+					:notIncomingInstruction | 
+					(live includes: notIncomingInstruction) ifTrue: [ 
+						live remove: notIncomingInstruction ] ] ] ].
+
+		"Check which live values are defined in this block, or defined in predecessors"
+		live do: [ :i | 
+			| instructionLiveSet |
 			instructionLiveSet := self liveSetOf: i.
 			(b instructions includes: i)
-				ifTrue: [ instructionLiveSet addRangeFrom: i to: b instructions last ]
-				ifFalse: [ instructionLiveSet addRangeFrom: b instructions first to: b instructions last ]	
-		].
-		b instructions reversed
-			select: [ :i | i result isVirtualRegister ]
-			thenDo: [ :i |
-				live
-					remove: i
-					ifAbsent: [ self initializeLiveSetOfInstruction: i ].
-				i operands do: [ :op |
-					(op result isVirtualRegister and: [(live includes: op) not]) ifTrue: [
-						self updateLiveSet: live ofOperand: op ofInstruction: i inBlock: b
-					]
-				]
-			]
-		].
+				ifTrue: [ 
+				instructionLiveSet addRangeFrom: i to: b instructions last ]
+				ifFalse: [ 
+					instructionLiveSet
+						addRangeFrom: b instructions first
+						to: b instructions last ] ].
+
+		"Finally, for each instruction we define, augment the live set"
+		b instructions reversed do: [ :i | 
+			self computeLivenessOfInstruction: i inBlock: b withLiveSet: live ] ]
+]
+
+{ #category : #'live-analysis' }
+DRLinearScanRegisterAllocator >> computeLivenessOfInstruction: i inBlock: b withLiveSet: live [
+
+	i result isVirtualRegister ifTrue: [ 
+		live remove: i ifAbsent: [ self initializeLiveSetOfInstruction: i ] ].
+	^ i operands do: [ :op | 
+		  (op result isVirtualRegister and: [ (live includes: op) not ]) 
+			  ifTrue: [ 
+				  self
+					  updateLiveSet: live
+					  ofOperand: op
+					  ofInstruction: i
+					  inBlock: b ] ]
 ]
 
 { #category : #accessing }
@@ -303,7 +325,9 @@ DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [
 
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> liveSetOf: anInstruction [
-	
+
+	"Main entry point to get the live set of an instruction"
+
 	^ liveSets at: anInstruction ifAbsentPut: [ DRLiveSet new ]
 ]
 
@@ -370,16 +394,6 @@ DRLinearScanRegisterAllocator >> updateLiveSet: liveSet ofOperand: op ofInstruct
 
 	| liveSetOfOp |
 	liveSet add: op.
-	liveSetOfOp := self liveSetOf: op.
-	(b instructions includes: op)
-		ifTrue: [ liveSetOfOp addRangeFrom: op to: i ]
-		ifFalse: [ liveSetOfOp addRangeFrom: b instructions first to: i ]
-]
-
-{ #category : #'live-analysis' }
-DRLinearScanRegisterAllocator >> updateLiveSetOfOperand: op ofInstruction: i inBlock: b [
-
-	| liveSetOfOp |
 	liveSetOfOp := self liveSetOf: op.
 	(b instructions includes: op)
 		ifTrue: [ liveSetOfOp addRangeFrom: op to: i ]

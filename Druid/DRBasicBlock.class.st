@@ -64,6 +64,12 @@ DRBasicBlock >> addPredecessor: aBasicBlock [
 		phi operands size < self predecessors size ifTrue: [ phi addOperand ] ]
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> allInstructions [
+	
+	^ instructions , { endInstruction  }
+]
+
 { #category : #building }
 DRBasicBlock >> and: aValue with: anotherValue [
 	
@@ -262,6 +268,14 @@ DRBasicBlock >> findMergePoint: aDRBasicBlock [
 	possibleMergePoints size = 1
 		ifTrue: [ ^ possibleMergePoints first ]
 		ifFalse: [ ^ aDRBasicBlock ]
+]
+
+{ #category : #accessing }
+DRBasicBlock >> first [
+	
+	instructions ifEmpty: [ ^ endInstruction ].
+	
+	^ instructions first
 ]
 
 { #category : #accessing }
@@ -536,6 +550,12 @@ DRBasicBlock >> lastInstruction [
 	^ endInstruction
 ]
 
+{ #category : #building }
+DRBasicBlock >> load: anAddress [
+
+	^ self addInstruction: (self instructionFactory load: anAddress)
+]
+
 { #category : #'operand stack' }
 DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 
@@ -787,6 +807,12 @@ DRBasicBlock >> replaceSuccessor: aDRBasicBlock by: aDRBasicBlock2 [
 DRBasicBlock >> return [
 
 	^ self endInstruction: DRReturn new
+]
+
+{ #category : #accessing }
+DRBasicBlock >> second [
+	
+	^ self allInstructions second
 ]
 
 { #category : #building }

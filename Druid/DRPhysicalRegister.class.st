@@ -15,6 +15,12 @@ DRPhysicalRegister class >> name: aString [
 		yourself
 ]
 
+{ #category : #memory }
+DRPhysicalRegister >> asMemoryAddress [
+	
+	^ DRRegisterMemoryAddress register: self
+]
+
 { #category : #accessing }
 DRPhysicalRegister >> id [
 	

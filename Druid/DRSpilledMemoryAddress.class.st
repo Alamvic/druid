@@ -15,6 +15,12 @@ DRSpilledMemoryAddress class >> stackOffset: offset [
 		yourself
 ]
 
+{ #category : #memory }
+DRSpilledMemoryAddress >> asMemoryAddress [
+	
+	^ self
+]
+
 { #category : #testing }
 DRSpilledMemoryAddress >> isMemoryAddress [
 	
@@ -25,6 +31,14 @@ DRSpilledMemoryAddress >> isMemoryAddress [
 DRSpilledMemoryAddress >> name [
 	
 	^ 'StackEntry-', stackOffset asString
+]
+
+{ #category : #cogit }
+DRSpilledMemoryAddress >> rtlArgumentExpressions [
+
+	^ { 
+		  (RBLiteralValueNode value: self stackOffset * 8). "bytes"
+		  (RBVariableNode named: 'SPReg') }
 ]
 
 { #category : #'cogit-generation' }

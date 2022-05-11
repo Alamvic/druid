@@ -407,6 +407,20 @@ DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 	anotherOperand addUser: self.
 ]
 
+{ #category : #'users-definitions' }
+DRInstruction >> replaceOperandAtIndex: index by: anotherOperand [
+
+	| operand |
+	operand := operands at: index.
+
+	operands at: index put: anotherOperand.
+
+	anotherOperand addUser: self.
+	"Only remove myself as user if we just removed the LAST use"
+	(operands includes: operand)
+		ifFalse: 	[operand removeUser: self].
+]
+
 { #category : #accessing }
 DRInstruction >> result [
 

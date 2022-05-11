@@ -452,6 +452,7 @@ DRPrimitiveCompilationTest >> testFailingSuccessExecutesUntilStop [
 DRPrimitiveCompilationTest >> testFourDeadBranchesFourBranches1 [
 
 	self compileDruidPrimitive: #primitiveDNA.
+1halt.
 	
 	self executePrimitiveWithReceiver: 11.
 	

@@ -103,20 +103,6 @@ DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
 ]
 
 { #category : #'users-definitions' }
-DRPhiFunction >> replaceOperandAtIndex: index by: anotherOperand [
-
-	| operand |
-	operand := operands at: index.
-
-	operands at: index put: anotherOperand.
-
-	anotherOperand addUser: self.
-	"Only remove myself as user if we just removed the LAST use"
-	(operands includes: operand)
-		ifFalse: 	[operand removeUser: self].
-]
-
-{ #category : #'users-definitions' }
 DRPhiFunction >> replaceOperandAtPredecessor: predecessor by: anotherOperand [
 
 	| index |

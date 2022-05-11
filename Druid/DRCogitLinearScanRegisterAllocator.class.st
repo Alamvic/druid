@@ -1,7 +1,7 @@
 Class {
 	#name : #DRCogitLinearScanRegisterAllocator,
 	#superclass : #DRLinearScanRegisterAllocator,
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-Cogit'
 }
 
 { #category : #'live-analysis' }
@@ -74,6 +74,23 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 		^ false
 ]
 
+{ #category : #'live-analysis' }
+DRCogitLinearScanRegisterAllocator >> computeLivenessOfInstruction: anInstruction inBlock: b withLiveSet: live [
+
+	"If the instruction is a division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
+	This instruction requires 4 different registers and not three (operands + destination).
+	We model this by adding an extra operand at this point."
+		
+	"Then regiter the live interval for the new synthetic operand"
+	(anInstruction isDivision or: [ anInstruction isModulo ]) ifTrue: [ | newOperand |
+		newOperand := anInstruction basicBlock controlFlowGraph allocateTemporaryRegister.
+		"This live set starts in the next instruction, but it is not used so it will be freed"
+		(self liveSetOf: newOperand) addRangeFrom: anInstruction to: anInstruction nextInstruction.
+		anInstruction addOperand: newOperand ].
+	
+	^ super computeLivenessOfInstruction: anInstruction inBlock: b withLiveSet: live
+]
+
 { #category : #initialization }
 DRCogitLinearScanRegisterAllocator >> initialize [
 
@@ -88,26 +105,6 @@ DRCogitLinearScanRegisterAllocator >> initialize [
 	self spillRegisters: { 
 		DRPhysicalRegister name: 'Extra3Reg'.
 		DRPhysicalRegister name: 'Extra4Reg' }
-]
-
-{ #category : #'live-analysis' }
-DRCogitLinearScanRegisterAllocator >> initializeLiveSetOfInstruction: anInstruction [
-
-	"If the instruction is a division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
-	This instruction requires 4 different registers and not three (operands + destination).
-	We model this by adding an extra operand at this point."
-
-	"First register the live interval for the division itself so it does not overlap"
-	super initializeLiveSetOfInstruction: anInstruction.
-		
-	"Then regiter the live interval for the new synthetic operand"
-	(anInstruction isDivision or: [ anInstruction isModulo ]) ifTrue: [ | newOperand |
-		newOperand := anInstruction basicBlock controlFlowGraph allocateTemporaryRegister.
-		"This live set starts in the next instruction, but it is not used so it will be freed"
-		(self liveSetOf: newOperand) addRangeFrom: anInstruction to: anInstruction nextInstruction.
-		anInstruction addOperand: newOperand ].
-	
-
 ]
 
 { #category : #'live-analysis' }
@@ -126,19 +123,4 @@ DRCogitLinearScanRegisterAllocator >> updateLiveSet: liveSet ofOperand: op ofIns
 		  ofOperand: op
 		  ofInstruction: anInstruction
 		  inBlock: b
-]
-
-{ #category : #'live-analysis' }
-DRCogitLinearScanRegisterAllocator >> updateLiveSetOfOperand: op ofInstruction: anInstruction inBlock: b [
-
-	"If the instruction is a division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
-	This instruction requires 4 different registers and not three (operands + destination).
-	We model this by adding an extra operand at this point."
-
-	
-	(anInstruction isDivision or: [ anInstruction isModulo ]) ifFalse: [ ^ self ].
-	"We need to ignore the last operand"
-	op = anInstruction operands last ifTrue: [ ^ self ].
-	
-	^ super updateLiveSetOfOperand: op ofInstruction: anInstruction inBlock: b
 ]

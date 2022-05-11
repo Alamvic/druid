@@ -34,6 +34,12 @@ DRValue >> asDRValue [
 	^ self
 ]
 
+{ #category : #memory }
+DRValue >> asMemoryAddress [
+	
+	self subclassResponsibility
+]
+
 { #category : #copying }
 DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 	
@@ -123,6 +129,12 @@ DRValue >> isNullValue [
 ]
 
 { #category : #testing }
+DRValue >> isObjectReferenceValue [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isPhiFunction [
 
 	^ false
@@ -202,6 +214,12 @@ DRValue >> result [
 DRValue >> rtlOperandQualifier [
 
 	self subclassResponsibility
+]
+
+{ #category : #'cogit-generation' }
+DRValue >> rtlOperandQualifierForInstruction: instruction [
+
+	^ self rtlOperandQualifier
 ]
 
 { #category : #accessing }

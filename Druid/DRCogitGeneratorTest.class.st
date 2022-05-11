@@ -45,6 +45,33 @@ DRCogitGeneratorTest >> testConstantsBiggerThan5000AreInHexa [
 ]
 
 { #category : #tests }
+DRCogitGeneratorTest >> testGenerateAndBetweenRegistersAndNoResult [
+
+	| cfg basicBlock r0 r1 cogitAST orASTInstruction r2 |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"R0 := 2"
+		r0 := block copy: 2.
+		r1 := block copy: 3.
+		"R2 := R0 AND R1"
+		r2 := block and: r0 with: r1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	"Guarantee we are in two address code, and we need no result value"	
+	r2 result: DRNoRegister new.
+	
+	cogitAST := self generateCogitForInstruction: r2.	
+	orASTInstruction := cogitAST generatorMethodBuilder statements first.
+
+	"Should generate: cogit AndR: R1 R: R0.
+	In Druid 2AC, the destination is bound to the first operand.
+	In Cogit, to the second operand"
+	self assert: orASTInstruction selector equals: #AndR:R:.
+	self assert: orASTInstruction arguments first name equals: 'R1'.
+	self assert: orASTInstruction arguments second name equals: 'R0'
+]
+
+{ #category : #tests }
 DRCogitGeneratorTest >> testGenerateDivision [
 
 	| cfg basicBlock r1 cogitAST divideASTInstruction r2 |
@@ -76,6 +103,30 @@ DRCogitGeneratorTest >> testGenerateDivision [
 	self assert: divideASTInstruction arguments second name equals: 'R0'.
 	self assert: divideASTInstruction arguments third name equals: 'R2'.
 	self assert: divideASTInstruction arguments fourth name equals: 'R3'.
+]
+
+{ #category : #tests }
+DRCogitGeneratorTest >> testGenerateLoadSpilledMemoryAddress [
+
+	| cfg basicBlock cogitAST loadInstruction r0 |
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"R0 := LOAD STACK-1"
+		r0 := block load: (DRSpilledMemoryAddress stackOffset: 1) ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+			
+	"Should generate
+	
+	self MoveM64: 8 r: SPReg R: R0
+	"
+
+	cogitAST := self generateCogitForInstruction: r0.	
+	loadInstruction := cogitAST generatorMethodBuilder statements first.
+	self assert: loadInstruction selector equals: #MoveMw:r:R:.
+	self assert: loadInstruction arguments first value equals: 8.
+	self assert: loadInstruction arguments second name equals: 'SPReg'.
+	self assert: loadInstruction arguments third name equals: 'R0'
 ]
 
 { #category : #tests }
