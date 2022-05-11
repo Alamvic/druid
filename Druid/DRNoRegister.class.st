@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #accessing }
+DRNoRegister >> hasId: id [
+
+	^ false
+]
+
+{ #category : #accessing }
 DRNoRegister >> name [
 	
 	^ '_'

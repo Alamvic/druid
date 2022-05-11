@@ -254,7 +254,7 @@ DRControlFlowGraph >> inspectionCFG [
 { #category : #accessing }
 DRControlFlowGraph >> instructionByResultId: anInteger [ 
 
-	^ self instructions detect: [ :i | i result ifNil: [ false ] ifNotNil: [ i result id = anInteger] ]
+	^ self instructions detect: [ :i | i result hasId: anInteger ]
 ]
 
 { #category : #inspecting }

@@ -24,6 +24,12 @@ DRTemporaryRegister >> = aRegister [
 	^ self id = aRegister id
 ]
 
+{ #category : #testing }
+DRTemporaryRegister >> hasId: anId [
+
+	^ id = anId
+]
+
 { #category : #accessing }
 DRTemporaryRegister >> hash [
 
