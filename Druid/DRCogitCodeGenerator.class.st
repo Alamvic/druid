@@ -166,19 +166,19 @@ DRCogitCodeGenerator >> rtlArgumentsForValue: aValue [
 { #category : #visiting }
 DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 
-	(#( true false ) includes: aValue value) ifTrue: [ 
-		^ RBMessageNode
-			  receiver: (RBVariableNode named: aValue value asString)
-			  selector: #asBit ].
-
+	| constantValue |
 	aValue isConstant ifTrue: [ 
-		(aValue value isInteger and: [ aValue value > 5000 ]) ifTrue: [ 
+		constantValue := (#( true false ) includes: aValue value)
+			ifTrue: [ aValue value asBit ]
+			ifFalse: [ aValue value ].
+
+		(constantValue isInteger and: [ constantValue > 5000 ]) ifTrue: [ 
 			^ RBLiteralValueNode new
-				  value: aValue value
+				  value: constantValue
 				  start: 0
 				  stop: -1
-				  source: aValue value hex ].
-		^ RBLiteralValueNode value: aValue value ].
+				  source: constantValue hex ].
+		^ RBLiteralValueNode value: constantValue ].
 
 	^ RBVariableNode named: (self registerFor: aValue)
 ]
@@ -188,12 +188,14 @@ DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction
 
 	"Verify that the 3 address code instruction is actually in 2AC after register allocation"
 	| allocatedOperands |
-	allocatedOperands := ({instruction result }, (instruction operands collect: [:op | op result])) asSet.
+	allocatedOperands := (instruction operands collect: [:op | op result]) asSet.
+	instruction result isNoResult
+		ifFalse: [ allocatedOperands add: instruction result ].
 	allocatedOperands size > 2 ifTrue: [ self error: 'Cannot write instruction with more than 2 operands: ', instruction asString ].
 	
 	^ self twoOperandCogitRTL: aMnemonic operands: { 
 			  instruction operand2.
-			  instruction result }
+			  instruction operand1 }
 ]
 
 { #category : #visiting }
@@ -456,8 +458,7 @@ DRCogitCodeGenerator >> visitNullValue: aDRNullValue [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitOr: aDROr [ 
 
-	"Use threeOperandCogitRTL: ?"
-	^ self twoOperandCogitRTL: #Or instruction: aDROr
+	^ self threeOperandCogitRTL: #Or instruction: aDROr
 ]
 
 { #category : #visiting }

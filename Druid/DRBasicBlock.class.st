@@ -639,6 +639,12 @@ DRBasicBlock >> numberOfPredecessors [
 	^ predecessors size
 ]
 
+{ #category : #building }
+DRBasicBlock >> or: aValue with: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory or: aValue with: anotherValue)
+]
+
 { #category : #accessing }
 DRBasicBlock >> origin: aCollection [ 
 	origin := aCollection

@@ -135,6 +135,52 @@ DRCogitGeneratorTest >> testGenerateModulo [
 ]
 
 { #category : #tests }
+DRCogitGeneratorTest >> testGenerateOrConstant [
+
+	| cfg basicBlock r0 r1 cogitAST orASTInstruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"R0 := 2"
+		r0 := block copy: 2.
+		"R1 := R0 OR false"
+		r1 := block or: r0 with: false asDRValue ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	"Guarantee we are in two address code, not in SSA anymore"	
+	r1 result: r0 result.
+	
+	cogitAST := self generateCogitForInstruction: r1.	
+	orASTInstruction := cogitAST generatorMethodBuilder statements first.
+
+	self assert: orASTInstruction selector equals: #OrCq:R:.
+	self assert: orASTInstruction arguments first value equals: 0.
+	self assert: orASTInstruction arguments second name equals: 'R0'
+]
+
+{ #category : #tests }
+DRCogitGeneratorTest >> testGenerateOrConstantWithNoResult [
+
+	| cfg basicBlock r0 r1 cogitAST orASTInstruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"R0 := 2"
+		r0 := block copy: 2.
+		"R1 := R0 OR false"
+		r1 := block or: r0 with: false asDRValue ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	"Guarantee we are in two address code, not in SSA anymore"	
+	r1 result: DRNoRegister new.
+	
+	cogitAST := self generateCogitForInstruction: r1.	
+	orASTInstruction := cogitAST generatorMethodBuilder statements first.
+
+	self assert: orASTInstruction selector equals: #OrCq:R:.
+	self assert: orASTInstruction arguments first value equals: 0.
+	self assert: orASTInstruction arguments second name equals: 'R0'
+]
+
+{ #category : #tests }
 DRCogitGeneratorTest >> testGenerateSpillLoadInstruction [
 
 	| cfg basicBlock cogitAST spillRegister1 spillStoreInstruction storeInstruction |

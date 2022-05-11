@@ -118,6 +118,14 @@ DRInstructionFactory >> modulo: aValue by: anotherValue [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> or: operand1 with: operand2 [
+
+	^ DROr
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> phiWith: value1 [
 
 	^ self phiWithVariables: { value1 asDRValue }

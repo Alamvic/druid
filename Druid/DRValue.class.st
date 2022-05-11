@@ -104,6 +104,12 @@ DRValue >> isMemoryAddress [
 	^ false
 ]
 
+{ #category : #testing }
+DRValue >> isNoResult [
+	
+	^ false
+]
+
 { #category : #accessing }
 DRValue >> isNoop [ 
 	

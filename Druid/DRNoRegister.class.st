@@ -10,6 +10,12 @@ DRNoRegister >> hasId: id [
 	^ false
 ]
 
+{ #category : #testing }
+DRNoRegister >> isNoResult [
+	
+	^ true
+]
+
 { #category : #accessing }
 DRNoRegister >> name [
 	
