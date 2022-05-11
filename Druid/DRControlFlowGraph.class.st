@@ -52,9 +52,10 @@ DRControlFlowGraph >> allocateTemporaryRegister [
 ]
 
 { #category : #optimization }
-DRControlFlowGraph >> applyOptimization: optimization [
+DRControlFlowGraph >> applyOptimisation: optimisation [
 
-	optimization applyTo: self.
+	optimisation applyTo: self.
+	self generatePaths.
 	self validate
 ]
 
@@ -107,6 +108,13 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 				
 				visitsToThisBlockSoFar = target numberOfPredecessors ifTrue: [ 
 					workingQueue addLast: target  ] ] ] ]
+]
+
+{ #category : #dominance }
+DRControlFlowGraph >> buildDominatorTree [
+
+	self tree: (DRDominatorTree new buildDominatorTreeOf: self).
+	self tree computeDominanceFrontier
 ]
 
 { #category : #edges }
@@ -396,7 +404,8 @@ DRControlFlowGraph >> privateNewBasicBlock [
 
 { #category : #removing }
 DRControlFlowGraph >> removeBasicBlock: aDRBasicBlock [ 
-	
+
+	"aDRBasicBlock cleanInstructions."
 	basicBlocks remove: aDRBasicBlock
 ]
 
@@ -504,9 +513,22 @@ DRControlFlowGraph >> showLines: blockViews in: view [
 			line color: Color red muchDarker ] ]
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> tree [
+
+	^ tree
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> tree: anObject [
+
+	tree := anObject
+]
+
 { #category : #validating }
 DRControlFlowGraph >> validate [
-	
+
+	self buildDominatorTree.
 	self blocks do: [ :e | e validate ]
 ]
 

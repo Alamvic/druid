@@ -38,7 +38,7 @@ DROptimisationTest >> optimisation: anObject [
 DROptimisationTest >> optimize: anIR [
 
 	self previousOptimizations do: [ :optimization | 
-		anIR applyOptimization: optimization ]
+		anIR applyOptimisation: optimization ]
 ]
 
 { #category : #optimising }

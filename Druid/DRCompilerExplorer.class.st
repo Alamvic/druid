@@ -7,7 +7,7 @@ Class {
 		'interpreterClass',
 		'selector',
 		'cfg',
-		'previousCfg'
+		'previousCfgs'
 	],
 	#category : #'Druid-UI'
 }
@@ -30,10 +30,10 @@ DRCompilerExplorer class >> onSelector: aSelector inClass: aClass [
 ]
 
 { #category : #optimising }
-DRCompilerExplorer >> apply: aClass [
+DRCompilerExplorer >> apply: opt [
 
-	previousCfg := self cfg veryDeepCopy.
-	self cfg applyOptimization: aClass new
+	previousCfgs add: self cfg veryDeepCopy.
+	self cfg applyOptimisation: opt
 ]
 
 { #category : #accessing }
@@ -42,7 +42,7 @@ DRCompilerExplorer >> blocks [
 	^ self cfg blocks
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRCompilerExplorer >> cfg [
 
 	cfg ifNotNil: [ ^ cfg ].
@@ -55,18 +55,24 @@ DRCompilerExplorer >> cfg [
 { #category : #optimising }
 DRCompilerExplorer >> goBack [
 
-	cfg := previousCfg.
-	previousCfg := nil
+	cfg := previousCfgs removeLast
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #initialization }
+DRCompilerExplorer >> initialize [
+
+	super initialize.
+	previousCfgs := OrderedCollection new
+]
+
+{ #category : #inspecting }
 DRCompilerExplorer >> inspectionCFG: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'CFG'> 
 	
 	^ DRCompilerExplorerInspection on: self
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #inspecting }
 DRCompilerExplorer >> inspectionSource [
 	<inspectorPresentationOrder: 30 title: 'Source'>
 	
@@ -109,19 +115,19 @@ DRCompilerExplorer >> interpreterClass: anObject [
 	interpreterClass := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRCompilerExplorer >> method [
 
 	^ self interpreterClass lookupSelector: selector
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRCompilerExplorer >> methodClass [
 
 	^ self interpreter class
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRCompilerExplorer >> methodSource [
 
 	^ self method sourceCode
@@ -142,13 +148,13 @@ DRCompilerExplorer >> optimizations [
 		  DRDeadPathElimination }
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRCompilerExplorer >> selector [
 
 	^ selector
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRCompilerExplorer >> selector: aSelector [
 
 	selector := aSelector

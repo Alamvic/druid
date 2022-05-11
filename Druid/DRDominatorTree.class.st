@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'tree',
-		'blockDictionary'
+		'blockDictionary',
+		'dominanceFrontiers'
 	],
 	#category : #'Druid-Optimizations'
 }
@@ -14,7 +15,7 @@ DRDominatorTree >> blockDictionary [
 ]
 
 { #category : #'as yet unclassified' }
-DRDominatorTree >> dominatorTreeOf: cfg [
+DRDominatorTree >> buildDominatorTreeOf: cfg [
 
 	| hasChanged currentNode newImmediateDominator|
 	self initialize: cfg.
@@ -30,6 +31,40 @@ DRDominatorTree >> dominatorTreeOf: cfg [
 			]
 		]
 	]
+]
+
+{ #category : #'as yet unclassified' }
+DRDominatorTree >> computeDominanceFrontier [
+
+	dominanceFrontiers ifNotNil: [ ^ dominanceFrontiers ].
+	
+	dominanceFrontiers := Dictionary new.
+	blockDictionary keys do: [ :b | 
+		b predecessors size > 1 ifTrue: [ 
+			b predecessors do: [ :p | 
+				| runner previousFrontier |
+				runner := p.
+				[ runner ~= (self immediateDominatorOf: b) ] whileTrue: [ 
+					previousFrontier := dominanceFrontiers
+						                    at: runner
+						                    ifAbsentPut: [ Set new ].
+					previousFrontier add: b.
+					runner := self immediateDominatorOf: runner ] ] ] ].
+	^ dominanceFrontiers
+]
+
+{ #category : #'as yet unclassified' }
+DRDominatorTree >> dominanceFrontierOf: aBlock [
+
+	^ self computeDominanceFrontier at: aBlock ifAbsent: [ Set new ]
+]
+
+{ #category : #asd }
+DRDominatorTree >> immediateDominatorOf: aBlock [
+
+	| node |
+	node := blockDictionary at: aBlock.
+	^ node parent block
 ]
 
 { #category : #'as yet unclassified' }
@@ -60,6 +95,29 @@ DRDominatorTree >> initialize: cfg [
 	]
 	
 	
+]
+
+{ #category : #testing }
+DRDominatorTree >> isDominator: dominatorBlock of: dominatedBlock [
+	
+	| node |
+	node := blockDictionary at: dominatedBlock.
+	^ node isDominatedByBlock: dominatorBlock.
+]
+
+{ #category : #'as yet unclassified' }
+DRDominatorTree >> minimalDominanceFrontierOfAll: blocks [
+
+	| frontier minimalFrontier |
+	frontier := (blocks collect: [ :b | self dominanceFrontierOf: b ])
+		            flattened asSet.
+
+	"Reject inner frontier"
+	minimalFrontier := frontier reject: [ :b | 
+		                   | innerFrontier |
+		                   innerFrontier := self dominanceFrontierOf: b.
+		                   innerFrontier anySatisfy: [ :f | frontier includes: f ] ].
+	^ minimalFrontier asOrderedCollection
 ]
 
 { #category : #'as yet unclassified' }

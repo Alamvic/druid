@@ -45,6 +45,13 @@ DRPhiFunction >> initialize [
 	operands := OrderedCollection new.
 ]
 
+{ #category : #operands }
+DRPhiFunction >> isDominatedBy: anotherOperand [
+
+	^ (super isDominatedBy: anotherOperand) or: [ 
+		  anotherOperand basicBlock hasFrontier: self basicBlock ]
+]
+
 { #category : #testing }
 DRPhiFunction >> isEmpty [
 	
@@ -69,7 +76,7 @@ DRPhiFunction >> joinedVariables: aCollection [
 	self operands: aCollection
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #operands }
 DRPhiFunction >> mergeOperands: anotherOperands [
 
 	operands with: anotherOperands do: [ :op1 :op2 | 
@@ -110,6 +117,15 @@ DRPhiFunction >> replaceOperandAtPredecessor: predecessor by: anotherOperand [
 	self replaceOperandAtIndex: index by: anotherOperand
 ]
 
+{ #category : #replace }
+DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
+
+	| fullNewOperands |
+	"Replace phis operands is hard, we build a new one and replace"
+	fullNewOperands := (operands copyWithout: myOperand) , newOperands.
+	^ self replaceBy: (self basicBlock phiWithVariables: fullNewOperands)
+]
+
 { #category : #accessing }
 DRPhiFunction >> result [
 	
@@ -128,13 +144,13 @@ DRPhiFunction >> sccpLatticeValueFor: sccp [
 	^ sccp latticeValueOfPhiFunction: self
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #operands }
 DRPhiFunction >> selectOperand: anOperand with: anotherOperand [
 
 	anOperand = anotherOperand ifTrue: [ ^ anOperand ].
 	anOperand isNullValue ifTrue: [ ^ anotherOperand ].
 	anotherOperand isNullValue ifTrue: [ ^ anOperand ].
-	self error: 'Incompatible operands'
+	^ anotherOperand
 ]
 
 { #category : #simplification }

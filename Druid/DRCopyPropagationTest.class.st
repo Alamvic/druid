@@ -26,31 +26,29 @@ DRCopyPropagationTest >> testCopyIsNotPropagatedBetweenBranches [
 { #category : #tests }
 DRCopyPropagationTest >> testCopyIsNotPropagatedFromConstantToPhiFunctions [
 
-	| cfg t1 t2 |
-	cfg := DRControlFlowGraph new.
-	cfg newBasicBlockWith: [ :block |
-		t1 := block copy: 1 asDRValue.
-		t2 := block phiWith: t1.
-	].
+	| cfg copy phi |
+	cfg := self setUpCFG: 2.
+
+	copy := cfg b1 copy: 1.
+	phi := cfg b2 phiWith: copy.
 
 	DRCopyPropagation new applyTo: cfg.
-	
-	self assert: t2 operands first equals: t1
+
+	self assert: phi operands first equals: copy
 ]
 
 { #category : #tests }
 DRCopyPropagationTest >> testCopyIsNotPropagatedFromObjectReferenceToPhiFunctions [
 
-	| cfg t1 t2 |
-	cfg := DRControlFlowGraph new.
-	cfg newBasicBlockWith: [ :block |
-		t1 := block copy: DRTrueObject new.
-		t2 := block phiWith: t1.
-	].
+	| cfg copy phi |
+	cfg := self setUpCFG: 2.
+
+	copy := cfg b1 copy: DRTrueObject new.
+	phi := cfg b2 phiWith: copy.
 
 	DRCopyPropagation new applyTo: cfg.
 	
-	self assert: t2 operands first equals: t1
+	self assert: phi operands first equals: copy
 ]
 
 { #category : #tests }

@@ -42,7 +42,7 @@ DRInstruction >> = anObject [
 	^ false. 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #inspecting }
 DRInstruction >> RBArrayNodenSource: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Source'>
 	
@@ -86,7 +86,7 @@ DRInstruction >> basicBlock: anObject [
 	basicBlock := anObject
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'users-definitions' }
 DRInstruction >> clearUsers [
 
 	users removeAll
@@ -103,6 +103,14 @@ DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode
 	
 	"I'm an already an instruction with a value. No need to do anything"
 	^ self
+]
+
+{ #category : #testing }
+DRInstruction >> hasNonLocalUsers [
+
+	"Answer if exist any user outside the block"
+
+	^ users anySatisfy: [ :u | u basicBlock ~= basicBlock ]
 ]
 
 { #category : #testing }
@@ -131,9 +139,9 @@ DRInstruction >> initialize [
 	users := IdentitySet new.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #inspecting }
 DRInstruction >> inspectionDependencies: aBuilder [
-	"<inspectorPresentationOrder: 0 title: 'Dependency Graph'> "
+	"<inspectorPresentationOrder: 0 title: 'Dependency Graph'>" 
 	| view blockViews eb |
 	view := RSCanvas new.
 	blockViews := self withAllDependencies collect: [ :c | | g |
@@ -190,6 +198,13 @@ DRInstruction >> isDivision [
 	^ false
 ]
 
+{ #category : #dominance }
+DRInstruction >> isDominatedBy: anotherOperand [
+
+	^ anotherOperand basicBlock = self basicBlock or: [ 
+		  self basicBlock isDominatedBy: anotherOperand basicBlock ]
+]
+
 { #category : #accessing }
 DRInstruction >> isInstruction [
 
@@ -236,6 +251,12 @@ DRInstruction >> name [
 DRInstruction >> nextInstruction [
 	
 	^ self basicBlock instructionAfter: self
+]
+
+{ #category : #accessing }
+DRInstruction >> nonLocalUsers [
+
+	^ self users reject: [ :i | i basicBlock = self basicBlock ]
 ]
 
 { #category : #printing }
@@ -363,7 +384,8 @@ DRInstruction >> printOn: aStream [
 DRInstruction >> removeFromCFG [
 
 	basicBlock removeInstruction: self.
-	self operands asSet do: [ :e | e removeUser: self ]
+	self operands asSet do: [ :e | e removeUser: self ].
+	self users asSet do: [ :e | e replaceOperand: self by: DRNullValue new  ]
 ]
 
 { #category : #operands }
@@ -419,6 +441,24 @@ DRInstruction >> replaceOperandAtIndex: index by: anotherOperand [
 	"Only remove myself as user if we just removed the LAST use"
 	(operands includes: operand)
 		ifFalse: 	[operand removeUser: self].
+]
+
+{ #category : #operands }
+DRInstruction >> replaceOperandIfDominated: myOperand by: anotherOperand [
+
+	(self isDominatedBy: anotherOperand) ifFalse: [ ^ nil ].
+	self replaceOperand: myOperand by: anotherOperand
+]
+
+{ #category : #replace }
+DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
+
+	| replaced |
+	replaced := nil.
+	newOperands do: [ :newOperand | 
+		(self replaceOperandIfDominated: myOperand by: newOperand) 
+			ifNotNil: [ replaced := self ] ].
+	^ replaced
 ]
 
 { #category : #accessing }
@@ -492,14 +532,23 @@ DRInstruction >> users [
 
 { #category : #validation }
 DRInstruction >> validate [
-	
-	(self operands allSatisfy: [ :op | op hasUser: self ])
-		ifFalse: [ DRError signal: 'Operand-user mismatch in instruction: ', self asString ].
-	(self users allSatisfy: [ :user | user hasOperand: self ])
-		ifFalse: [ DRError signal: 'User-operand mismatch in instruction: ', self asString ].
+
+	(self operands allSatisfy: [ :op | op hasUser: self ]) ifFalse: [ 
+		DRError signal:
+			'Operand-user mismatch in instruction: ' , self asString ].
+	(self users allSatisfy: [ :user | user hasOperand: self ]) ifFalse: [ 
+		DRError signal:
+			'User-operand mismatch in instruction: ' , self asString ].
+
+	self isPhiFunction ifTrue: [ ^ self ].
+
+	self operands do: [ :o | 
+		(o isInstruction not or: [ 
+			 self basicBlock isDominatedBy: o basicBlock ]) ifFalse: [ 
+			DRError signal: 'Tenés cualquier operando en: ' , self asString ] ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #copying }
 DRInstruction >> veryDeepCopyWith: deepCopier [
 	deepCopier references at: origin ifAbsentPut: [nil].
 	^ super veryDeepCopyWith: deepCopier

@@ -72,12 +72,6 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 	^ irGenerator ir
 ]
 
-{ #category : #'as yet unclassified' }
-DRCompilerCompiler >> generatePaths: cfg [
-	cfg clearEdges.
-	(DRPathFactory withCFG: cfg) generatePaths
-]
-
 { #category : #'code-generation' }
 DRCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 
@@ -123,7 +117,7 @@ DRCompilerCompiler >> newIRGenerator [
 DRCompilerCompiler >> optimize: anIR [
 
 	optimisations do: [ :optimization | 
-		anIR applyOptimization: optimization ]
+		anIR applyOptimisation: optimization ]
 ]
 
 { #category : #compilation }

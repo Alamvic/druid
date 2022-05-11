@@ -49,6 +49,14 @@ DRDominatorTreeNode >> findImmediateDominator: tree [
 	^ nearestCommonAncestor
 ]
 
+{ #category : #testing }
+DRDominatorTreeNode >> isDominatedByBlock: dominatorBlock [
+
+	block = dominatorBlock ifTrue: [ ^ true ].
+	parent ifNil: [ ^ false ].
+	^ parent isDominatedByBlock: dominatorBlock
+]
+
 { #category : #accessing }
 DRDominatorTreeNode >> parent [
 	^ parent
