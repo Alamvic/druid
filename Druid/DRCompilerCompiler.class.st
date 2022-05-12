@@ -22,10 +22,6 @@ DRCompilerCompiler >> compile [
 	self optimize: druidIR.
 
 	registerAllocator allocateRegistersIn: druidIR.
-	
-	"Remove the phi functions.
-	From this point on, we are not in SSA form anymore"
-	self resolvePhiFunctionsIn: druidIR.
 
 	targetAST := self generateTargetASTFromIR: druidIR.
 	self writeAST: targetAST
@@ -118,22 +114,6 @@ DRCompilerCompiler >> optimize: anIR [
 
 	optimisations do: [ :optimization | 
 		anIR applyOptimisation: optimization ]
-]
-
-{ #category : #compilation }
-DRCompilerCompiler >> resolvePhiFunctionsIn: aDRControlFlowGraph [
-
-	"Create a copy instruction for each of the values of the Phi function.
-	Put the copy instruction at the end of the block generating the value.
-	
-	For example
-	for t3 := phi(t1,t2)
-		with t1 coming from block A and t2 coming from block B.
-	create a copy t3 := t1 at the end of block A
-	create a copy t3 := t2 at the end of block B"
-
-	aDRControlFlowGraph instructions copy do: [ :i | 
-		i isPhiFunction ifTrue: [ i removeFromCFG ] ]
 ]
 
 { #category : #accessing }

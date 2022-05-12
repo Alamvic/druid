@@ -446,8 +446,16 @@ DRBasicBlock >> inspectionSourceCode [
 { #category : #'enumerating instructions' }
 DRBasicBlock >> instructionAfter: anInstruction [
 	
+	"Phi functions are always at the beginning of the block and they are conceptually executed all at the same time
+	Thus, their next instruction is the first instruction in the instruction list"
+	anInstruction isPhiFunction ifTrue: [ 
+		^ self first ].
+
+	"If the next instruction is the last in the list, return the block end instruction"
 	instructions last = anInstruction
 		ifTrue: [ ^ endInstruction ].
+	
+	"Otherwise, the next instruction is the next in the list"
 	^ instructions after: anInstruction
 ]
 
@@ -467,8 +475,9 @@ DRBasicBlock >> instructions [
 ]
 
 { #category : #iterating }
-DRBasicBlock >> instructionsDo: aFullBlockClosure [ 
+DRBasicBlock >> instructionsDo: aFullBlockClosure [
 
+	phiFunctions do: aFullBlockClosure.
 	instructions copy do: aFullBlockClosure.
 	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
 ]
@@ -523,15 +532,12 @@ DRBasicBlock >> jumpIf: condition to: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 ]
 
 { #category : #building }
-DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [ 
-	
-	aDRBasicBlock addPredecessor: self.
-	aDRBasicBlock2 addPredecessor: self.
-	
-	^ self endInstruction: ((DRConditionalJump operands: {true asDRValue})
-		trueBranch: aDRBasicBlock;
-		falseBranch: aDRBasicBlock2;
-		yourself)
+DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
+
+	^ self
+		  jumpIf: true asDRValue
+		  to: aDRBasicBlock
+		  ifFalseTo: aDRBasicBlock2
 ]
 
 { #category : #building }

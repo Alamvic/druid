@@ -11,7 +11,7 @@ Class {
 { #category : #adding }
 DRCPSEdge >> addConstraint: aConditionalConstraint [
 
-	constraints
+	^ constraints
 		at: aConditionalConstraint reg name
 		put: aConditionalConstraint
 ]
@@ -160,8 +160,8 @@ DRCPSEdge >> visitCopy: aDRCopy [
 	"Only constant copies are importants"
 	aDRCopy operand1 isConstant ifFalse: [ ^ nil ].
 	constantValue := aDRCopy operand1 acceptVisitor: self.
-	self addConstraint:
-		(DRRegisterDomain equals: aDRCopy result than: constantValue)
+	^ self addConstraint:
+		  (DRRegisterDomain equals: aDRCopy result than: constantValue)
 ]
 
 { #category : #visiting }

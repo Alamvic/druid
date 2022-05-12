@@ -233,7 +233,7 @@ DRControlFlowGraph >> initialBasicBlock [
 	^ initialBasicBlock
 ]
 
-{ #category : #iterating }
+{ #category : #initialization }
 DRControlFlowGraph >> initialize [
 
 	super initialize.
@@ -247,7 +247,6 @@ DRControlFlowGraph >> initialize [
 	
 	nextBasicBlockId := 0.
 	initialBasicBlock := self privateNewBasicBlock.
-	
 ]
 
 { #category : #inspecting }
@@ -461,7 +460,7 @@ DRControlFlowGraph >> showInfoIn: view [
 	         RSLabel new
 		         text: text;
 		         color: Color black;
-		         fontSize: 20;
+		         fontSize: 14;
 		         bold;
 		         yourself ].
 
