@@ -225,6 +225,9 @@ DRCleanControlFlowTest >> testShouldFoldRedundantBranchWithSameTargetAndSamePhiV
 	b1 := cfg newBasicBlock.
 	
 	r0 := b0 copy: 1.
+	
+	cfg initialBasicBlock jumpTo: b0.
+	
 	b0 endInstruction: (jump := instructionFactory jumpIf: true asDRValue).
 	b1 addPredecessor: b0.
 	b1 addPredecessor: b0.
@@ -289,9 +292,13 @@ DRCleanControlFlowTest >> testShouldNotFoldRedundantBranchWithSameTargetButDiffe
 	
 	r0 := b0 copy: 1.
 	r1 := b0 copy: 2.
+	
+	cfg initialBasicBlock jumpTo: b0.
+	
 	b0 endInstruction: (jump := instructionFactory jumpIf: true asDRValue).
 	b1 addPredecessor: b0.
 	b1 addPredecessor: b0.
+	
 	
 	jump trueBranch: b1.
 	jump falseBranch: b1.
