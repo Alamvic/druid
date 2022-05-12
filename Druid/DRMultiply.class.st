@@ -10,6 +10,17 @@ DRMultiply >> acceptVisitor: aVisitor [
 	^ aVisitor visitMultiply: self
 ]
 
+{ #category : #converting }
+DRMultiply >> asNumberedExpression [
+
+	| numberedExpression |
+	
+	numberedExpression := DRNumberedExpression new.
+	^ numberedExpression operation: self class;
+	operands: self operands asBag;
+	yourself
+]
+
 { #category : #printing }
 DRMultiply >> opcode [
 	

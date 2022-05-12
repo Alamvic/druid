@@ -137,13 +137,15 @@ DRCompilerExplorer >> methodSource [
 DRCompilerExplorer >> optimizations [
 
 	^ { 
-		  DRFailureCodeBasedTailDuplication.
 		  DRDeadBlockElimination.
-		  DRSCCP.
-		  DRCopyPropagation.
 		  DRDeadCodeElimination.
 		  DRCleanControlFlow.
+		  DRSCCP.
+		  DRGlobalValueNumbering.
+		  DRCopyPropagation.
+		  DRRedundantCopyElimination.
 		  DRPhiSimplication.
+		  DRFailureCodeBasedTailDuplication.
 		  DRDeadPathSplitting.
 		  DRDeadPathElimination }
 ]

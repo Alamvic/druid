@@ -247,7 +247,8 @@ DRBasicBlock >> endInstruction: aDRInstruction [
 	lostSuccessors do: [ :e |
 		e removePredecessor: self. ].
 
-	^ self basicEndInstruction: aDRInstruction
+	self basicEndInstruction: aDRInstruction.
+	^ aDRInstruction
 ]
 
 { #category : #building }
@@ -516,6 +517,12 @@ DRBasicBlock >> isExitBlock [
 DRBasicBlock >> isExitBlock: anObject [
 
 	isExitBlock := anObject
+]
+
+{ #category : #building }
+DRBasicBlock >> jumpIf: aCondition [
+	
+	^ self endInstruction: (self instructionFactory jumpIf: aCondition)
 ]
 
 { #category : #building }

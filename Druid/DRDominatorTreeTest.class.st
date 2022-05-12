@@ -6,23 +6,16 @@ Class {
 
 { #category : #tests }
 DRDominatorTreeTest >> testCorrectDominatorTreeWithBranchAtDifferentDepth [
-	| cfg b1jump b0jump |
-	b1jump := DRConditionalJump operands: { DRConstantValue value: true }.
+	| cfg b0jump |
 	b0jump := DRConditionalJump operands: { DRConstantValue value: true }.
-	cfg := self setUpCFGWithConditional: b1jump.
+	cfg := self setUpCFGWithConditional.
 	b0jump trueBranch: cfg b4.
 	b0jump falseBranch: cfg b1.
 	cfg b4 addPredecessor: cfg b0.
 	cfg b0 endInstruction: b0jump.
 	
 	cfg initialBasicBlock controlFlowGraph: cfg.
-	cfg b0 controlFlowGraph: cfg.
-	cfg b1 controlFlowGraph: cfg.
-	cfg b2 controlFlowGraph: cfg.
-	cfg b3 controlFlowGraph: cfg.
-	cfg b4 controlFlowGraph: cfg.
 	
-	self assert: (cfg initialBasicBlock isDominatorOf: { cfg b0 }).
 	self assert: (cfg b0 isDominatorOf: { cfg b1 . cfg b4 }).
 	self assert: (cfg b1 isDominatorOf: { cfg b2 . cfg b3 }).
 	self assert: (cfg b2 isDominatorOf: { }).
@@ -54,18 +47,11 @@ DRDominatorTreeTest >> testCorrectDominatorTreeWithLoop [
 
 { #category : #tests }
 DRDominatorTreeTest >> testCorrectDominatorTreeWithSimpleBranch [
-	| cfg jump |
-	jump := DRConditionalJump operands: { DRConstantValue value: true }.
-	cfg := self setUpCFGWithConditional: jump.
+	| cfg |
+	cfg := self setUpCFGWithConditional.
 	
 	cfg initialBasicBlock controlFlowGraph: cfg.
-	cfg b0 controlFlowGraph: cfg.
-	cfg b1 controlFlowGraph: cfg.
-	cfg b2 controlFlowGraph: cfg.
-	cfg b3 controlFlowGraph: cfg.
-	cfg b4 controlFlowGraph: cfg.
 	
-	self assert: (cfg initialBasicBlock isDominatorOf: { cfg b0 }).
 	self assert: (cfg b0 isDominatorOf: { cfg b1 }).
 	self assert: (cfg b1 isDominatorOf: { cfg b2 . cfg b3 . cfg b4 }).
 	self assert: (cfg b2 isDominatorOf: { }).
