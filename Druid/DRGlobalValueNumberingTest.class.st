@@ -141,6 +141,19 @@ DRGlobalValueNumberingTest >> testInstructionOperandsStayLive [
 ]
 
 { #category : #tests }
+DRGlobalValueNumberingTest >> testLoadInstructionOperandsAreNotDeteleted [
+
+	| cfg instructionFactory load |
+	cfg := self setUpCFG: 1.
+	instructionFactory := DRInstructionFactory new.
+	optimisation := DRGlobalValueNumbering new.
+	cfg b1 addInstruction: (load := instructionFactory load: 3).
+	optimisation applyTo: cfg.
+	
+	self assert: load operands size = 1.
+]
+
+{ #category : #tests }
 DRGlobalValueNumberingTest >> testNonEquivalentOperationIsNotReplaced [
 	"This test asserts whether or not non equivalent operations are left alone by the optimisation"
 			
