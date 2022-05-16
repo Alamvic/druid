@@ -8,7 +8,7 @@ Class {
 DRGlobalValueNumberingTest >> testCommutativeOperationIsReplacedByPreviousInstance [
 	"This test asserts whether or not equivalent operations are correctly identified and replaced by the optimisation"
 			
-	| cfg instructionFactory copy3 copy4 firstAddition secondAddition optimisation |
+	| cfg instructionFactory copy3 copy4 firstAddition secondAddition |
 	instructionFactory := DRInstructionFactory new.
 	optimisation := DRGlobalValueNumbering new.
 	cfg := self setUpCFG: 1.
@@ -26,7 +26,7 @@ DRGlobalValueNumberingTest >> testCommutativeOperationIsReplacedByPreviousInstan
 DRGlobalValueNumberingTest >> testComplexEquivalentOperationIsReplacedByPreviousInstance [
 	"This test asserts whether or not equivalent operations are correctly identified and replaced by the optimisation"
 			
-	| cfg instructionFactory copy0 copy2 constant2 firstAddition secondAddition optimisation |
+	| cfg instructionFactory copy0 copy2 constant2 firstAddition secondAddition |
 	instructionFactory := DRInstructionFactory new.
 	optimisation := DRGlobalValueNumbering new.
 	cfg := self setUpCFG: 1.
@@ -67,7 +67,7 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesMe
 DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesSplit [
 	"This test asserts whether operations in different branches are scoped differently"
 			
-	| cfg instructionFactory jump copy3 copy4 firstAddition secondAddition optimisation |
+	| cfg instructionFactory jump copy3 copy4 firstAddition secondAddition |
 	instructionFactory := DRInstructionFactory new.
 	optimisation := DRGlobalValueNumbering new.
 	jump := DRConditionalJump operands: { DRConstantValue value: true }.
@@ -87,7 +87,7 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesSp
 DRGlobalValueNumberingTest >> testEquivalentOperationIsReplacedByPreviousInstance [
 	"This test asserts whether or not equivalent operations are correctly identified and replaced by the optimisation"
 			
-	| cfg instructionFactory copy3 copy4 firstAddition secondAddition optimisation |
+	| cfg instructionFactory copy3 copy4 firstAddition secondAddition |
 	instructionFactory := DRInstructionFactory new.
 	optimisation := DRGlobalValueNumbering new.
 	cfg := self setUpCFG: 1.
@@ -126,7 +126,7 @@ DRGlobalValueNumberingTest >> testEquivalentPhiFunctionsAreRemoved [
 { #category : #tests }
 DRGlobalValueNumberingTest >> testInstructionOperandsStayLive [
 
-	| cfg optimisation copy1 copy2 instructionFactory addition |
+	| cfg copy1 copy2 instructionFactory addition |
 
 	instructionFactory := DRInstructionFactory new.
 	optimisation := DRGlobalValueNumbering new.
@@ -157,7 +157,7 @@ DRGlobalValueNumberingTest >> testLoadInstructionOperandsAreNotDeteleted [
 DRGlobalValueNumberingTest >> testNonEquivalentOperationIsNotReplaced [
 	"This test asserts whether or not non equivalent operations are left alone by the optimisation"
 			
-	| cfg instructionFactory copy3 copy4 copy5 firstAddition secondAddition optimisation |
+	| cfg instructionFactory copy3 copy4 copy5 firstAddition secondAddition |
 	instructionFactory := DRInstructionFactory new.
 	optimisation := DRGlobalValueNumbering new.
 	cfg := self setUpCFG: 1.
@@ -177,7 +177,7 @@ DRGlobalValueNumberingTest >> testNonEquivalentOperationIsNotReplaced [
 DRGlobalValueNumberingTest >> testPhiFunctionOperandsStayLive [
 	"This test asserts whether operands of phi functions remain live after applying global value numbering"
 			
-	| cfg instructionFactory optimisation copy1 copy2 phi1 |
+	| cfg instructionFactory copy1 copy2 phi1 |
 	
 	instructionFactory := DRInstructionFactory new.
 	optimisation := DRGlobalValueNumbering new.
@@ -197,7 +197,7 @@ DRGlobalValueNumberingTest >> testPhiFunctionOperandsStayLive [
 DRGlobalValueNumberingTest >> testPhiOperandReplacement [
 	"This test asserts whether or not equivalent operations are correctly identified and replaced by the optimisation"
 			
-	| cfg optimisation jump copy b0 phi b1 b2 b3 b4 |
+	| cfg jump copy b0 phi b1 b2 b3 b4 |
 	optimisation := DRGlobalValueNumbering new.
 	
 	cfg := DRControlFlowGraph new.
