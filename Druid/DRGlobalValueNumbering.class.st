@@ -170,12 +170,12 @@ DRGlobalValueNumbering >> simplifyOperands: instruction [
 
 	| valueNumber |
 
-	instruction operands:
-	(instruction operands collect: [ :operand |
+	(instruction operands do: [ :operand |
 		valueNumber := self valueNumberOf: operand.
-		valueNumber isCopy
-		ifTrue: [ valueNumber operand1 ]
-		ifFalse: [ valueNumber ]
+		instruction replaceOperand: operand by:
+			(valueNumber isCopy
+				ifTrue: [ valueNumber operand1 ]
+				ifFalse: [ valueNumber ])
 	]).
 ]
 
