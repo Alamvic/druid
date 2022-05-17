@@ -196,7 +196,7 @@ DRGlobalValueNumberingTest >> testPhiFunctionOperandsStayLive [
 { #category : #tests }
 DRGlobalValueNumberingTest >> testPhiOperandReplacement [
 	"This test asserts whether or not equivalent operations are correctly identified and replaced by the optimisation"
-
+			
 	| cfg jump copy b0 phi b1 b2 b3 b4 |
 	optimisation := DRGlobalValueNumbering new.
 	
@@ -206,11 +206,11 @@ DRGlobalValueNumberingTest >> testPhiOperandReplacement [
 	b2 := cfg newBasicBlock.
 	
 	b0 jumpTo: b1.
-	b1 jumpTo: b2.
+	b1 jumpTo: b2.	
+	"Add the phi function later, this needs the dominator tree and it cannot be computed until all blocks are plugged"
 	phi := b2 phiWith: copy.
-	
 	jump := b2 jumpIf: phi.
-
+	
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
 	
