@@ -314,6 +314,12 @@ DRIRGenerator >> interpretBitAndWith: aRBMessageNode [
 ]
 
 { #category : #'special-cases' }
+DRIRGenerator >> interpretBitOrWith: aRBMessageNode [
+	
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitOr
+]
+
+{ #category : #'special-cases' }
 DRIRGenerator >> interpretBitShiftWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitShift
@@ -670,10 +676,7 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretMultiplyWith: aRBMessageNode [ 
 
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (DRMultiply operands: { operand1 . operand2 })
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRMultiply
 ]
 
 { #category : #'special-cases' }
