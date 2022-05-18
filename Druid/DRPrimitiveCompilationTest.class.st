@@ -224,6 +224,33 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsTo
 	self assert: machineSimulator receiverRegisterValue equals: receiver
 ]
 
+{ #category : #'tests-basic' }
+DRPrimitiveCompilationTest >> testCompileNonCompiledCaseExitsWithFailure [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveWithNonCompilableBranch.
+	
+	receiver := memory integerObjectOf: -1.
+	
+	self executeUntilStopPrimitiveWithReceiver: receiver.
+	
+	"Should stop at the stop and not timeout"
+	self assert: machineSimulator instructionPointerValue equals: stopAddress
+]
+
+{ #category : #'tests-basic' }
+DRPrimitiveCompilationTest >> testCompileNonCompiledCaseExitsWithSuccess [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveWithNonCompilableBranch.
+	
+	receiver := memory integerObjectOf: 1.
+	
+	self executePrimitiveWithReceiver: receiver.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
 { #category : #'tests-array' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 

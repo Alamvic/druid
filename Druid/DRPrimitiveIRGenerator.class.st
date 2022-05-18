@@ -50,12 +50,12 @@ DRPrimitiveIRGenerator >> interpretCCoerceWith: aRBMessageNode [
 { #category : #'special cases' }
 DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode [ 
 	
-	| copy |
+	| newFailureCode |
 	aRBAssignmentNode value acceptVisitor: self.
-	
-	"copy := instructionFactory copy: self popOperand."
-	self currentBasicBlock primitiveFailureCode: self operandStackTop.
-	"self pushOperand: copy"
+	newFailureCode := self popOperand.
+	self currentBasicBlock primitiveFailureCode: newFailureCode.
+	self pushOperand: newFailureCode.
+	^ newFailureCode
 ]
 
 { #category : #accessing }

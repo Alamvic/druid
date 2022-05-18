@@ -1334,3 +1334,16 @@ DruidTestRTLCompiler >> gen_primitiveWithIfReturningValue [
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveWithNonCompilableBranch [
+
+	| currentBlock jump0 |
+	self CmpCq: 0 R: ReceiverResultReg.
+	jump0 := self JumpLessOrEqual: 0.
+	self MoveCq: 11 R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	^ CompletePrimitive
+]

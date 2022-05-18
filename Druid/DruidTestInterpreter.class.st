@@ -71,6 +71,13 @@ DruidTestInterpreter >> multipleReturnsWithDeadPath [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> nonCompilableMethod [
+
+	<druidExitPoint>
+	^ 42
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> passingSuccess [
 	<numberOfArguments: 0>
 	self success: true.
@@ -589,4 +596,16 @@ DruidTestInterpreter >> primitiveWithIfReturningValue [
 		ifTrue: [ 42 ]
 		ifFalse: [ 57 ].
 	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithNonCompilableBranch [
+
+	<numberOfArguments: 0>
+	
+	| r |
+	r := self stackTop > 0
+		ifTrue: [ 11 ]
+		ifFalse: [ self nonCompilableMethod ].
+	self pop: 1 thenPush: r.
 ]

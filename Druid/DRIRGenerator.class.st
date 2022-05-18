@@ -956,7 +956,7 @@ DRIRGenerator >> pop: anInteger [
 { #category : #'frame-access' }
 DRIRGenerator >> popFrame [
 	
-	| poppedFrame "returnValue" |
+	| poppedFrame |
 	currentBasicBlock := self currentFrame exitBasicBlock.
 	currentOperandStack := currentBasicBlock mergeOperandStacksIn: self.
 	currentPrimitiveFailureCode := currentBasicBlock primitiveFailureCode.
@@ -1096,6 +1096,13 @@ DRIRGenerator >> temporaryAt: aString put: aValue [
 	^ self currentBasicBlock temporaryAt: aString put: aValue
 ]
 
+{ #category : #accessing }
+DRIRGenerator >> topFrame [
+
+	"The first one is an artificial top frame. The real top frame is the second one"	
+	^ interpretationStack second
+]
+
 { #category : #'special-cases' }
 DRIRGenerator >> unshiftSmallInteger: operand from: aRBMessageNode [
 
@@ -1216,15 +1223,31 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 ]
 
 { #category : #visiting }
-DRIRGenerator >> visitMethodNode: aRBMethodNode [ 
-	
-	aRBMethodNode statements do: [ :each |
+DRIRGenerator >> visitMethodNode: aRBMethodNode [
+
+	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [ 
+		| failure |
+		failure := self currentBasicBlock copy: 1.
+
+		self currentBasicBlock primitiveFailureCode: failure.
+		self topFrame returnValue: DRNullValue new from: self currentBasicBlock.
+		self currentBasicBlock jumpTo: self topFrame exitBasicBlock.
+
+		self newBasicBlock.
+		self currentFrame
+			returnValue: DRNullValue new
+			from: self currentBasicBlock.
+		^ self ].
+
+	aRBMethodNode statements do: [ :each | 
 		each acceptVisitor: self.
 		each isReturn ifTrue: [ ^ self ].
-		self popOperand. ].
+		self popOperand ].
 
 	"If the method has no return statement, it should still return something"
-	self currentFrame returnValue: DRNullValue new from: self currentBasicBlock
+	self currentFrame
+		returnValue: DRNullValue new
+		from: self currentBasicBlock
 ]
 
 { #category : #'special-cases' }
