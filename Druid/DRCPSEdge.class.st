@@ -314,6 +314,11 @@ DRCPSEdge >> visitRightShift: aDRRightShift [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitStore: aDRLoad [ 
+	"Do nothing"
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitSubstract: aDRSubtract [ 
 	"Do nothing"
 ]

@@ -93,7 +93,6 @@ DRLinearScanRegisterAllocator >> allocatedRegisterFor: aValue [
 DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 
 	| allocatedLocation allocatedRegister |
-	
 	"Rewrite the result of the instruction given as argument, using the location in its pre-computed live interval.
 	If the instruction result goes to memory, we need to store it after operating.
 	E.g., from
@@ -107,21 +106,23 @@ DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 
 	This means that we should reserve at least 1 registers for spilled results.
 	"
-	
 	i result ifNil: [ ^ self ].
 	i result isVirtualRegister ifFalse: [ ^ self ].
 
 	allocatedLocation := self allocatedRegisterFor: i.
 	allocatedRegister := allocatedLocation isMemoryAddress
-		ifTrue: [ spillRegisters first ]
-		ifFalse: [ allocatedLocation ].
-	
+		                     ifTrue: [ spillRegisters first ]
+		                     ifFalse: [ allocatedLocation ].
+
 	i result: allocatedRegister.
 
 	allocatedLocation isMemoryAddress ifTrue: [ 
 		i addNext: (DRStore
-			 operands: { allocatedRegister }
-			 result: allocatedLocation)]
+				 operands: { 
+						 8 asDRValue.
+						 allocatedRegister.
+						 allocatedLocation }
+				 result: DRNoRegister new) ]
 ]
 
 { #category : #steps }

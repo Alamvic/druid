@@ -535,6 +535,17 @@ DruidTestInterpreter >> primitiveUint64At [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveUint64AtPut [
+
+	<numberOfArguments: 1>
+	
+	| addressToRead valueToStore |
+	valueToStore := self stackTop.
+	addressToRead := self stackValue: 1.
+	objectMemory uint64At: addressToRead put: valueToStore
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveUint8At [
 
 	<numberOfArguments: 0>

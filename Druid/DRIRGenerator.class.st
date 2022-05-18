@@ -204,6 +204,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #uint16At: put: #interpretLoadUint16AtWith:.
 	specialCases at: #uint32At: put: #interpretLoadUint32AtWith:.
 	specialCases at: #uint64At: put: #interpretLoadUint64AtWith:.
+	specialCases at: #uint64At:put: put: #interpretStoreUint64AtWith:.
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
 	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
@@ -217,6 +218,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #>> put: #interpretRightShiftWith:.
 	specialCases at: #bitShift: put: #interpretBitShiftWith:.
 	specialCases at: #bitAnd: put: #interpretBitAndWith:.
+	specialCases at: #bitOr: put: #interpretBitOrWith:.
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
 
 	"Stack access"
@@ -262,6 +264,7 @@ DRIRGenerator >> instantiateNoResultInstruction: anInstructionClass operands: aC
 	| instruction |
 	instruction := anInstructionClass operands: aCollection.
 	instruction origin: thisContext sender stack.
+	instruction result: DRNoRegister new.
 	^ instruction
 ]
 
@@ -744,6 +747,29 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 	value operand1 value isInteger ifFalse: [ self error: 'expected an integer value' ].
 	
 	^ self addInstructionFrom: aRBMessageNode instructionKind: DRCopy operands: { self argRegisterNumber: value operand1 value }
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretStore: aRBMessageNode ofByteSize: byteSize [
+
+	| result address value |
+	address := self visitOperand: aRBMessageNode arguments first.
+	value := self visitOperand: aRBMessageNode arguments second.
+
+	result := self
+		          addInstructionWithNoResultFrom: aRBMessageNode
+		          instructionKind: DRStore
+		          operands: { 
+				          byteSize asDRValue.
+				          value.
+				          address }.
+	self pushOperand: result
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretStoreUint64AtWith: aRBMessageNode [ 
+	
+	^ self interpretStore: aRBMessageNode ofByteSize: 8
 ]
 
 { #category : #'special-cases' }

@@ -1265,6 +1265,15 @@ DruidTestRTLCompiler >> gen_primitiveUint64At [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveUint64AtPut [
+
+	| currentBlock |
+	self MoveR: Arg0Reg M64: 0 r: ReceiverResultReg.
+	self RetN: 2 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveUint8At [
 
 	| currentBlock |

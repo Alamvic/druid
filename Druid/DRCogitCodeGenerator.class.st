@@ -523,12 +523,12 @@ DRCogitCodeGenerator >> visitRightShift: aDRCogitRightShift [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitStore: aDRCogitStore [
 
-	self
-		twoOperandCogitRTL: #Move
-		operands: { 
-				aDRCogitStore operand1.
-				aDRCogitStore result }
-		instruction: aDRCogitStore
+	^ self
+		  twoOperandCogitRTL: #Move
+		  operands: { 
+				  aDRCogitStore operand1.
+				  aDRCogitStore operand2 asMemoryAddress }
+		  instruction: aDRCogitStore
 ]
 
 { #category : #visiting }

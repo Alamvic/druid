@@ -1136,6 +1136,25 @@ DRPrimitiveCompilationTest >> testUint64At [
 ]
 
 { #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint64AtPut [
+
+	| object pointerToFirstSlot result |
+	
+	"Only for 64 bit platforms"
+	self wordSize = 4 ifTrue: [ self skip ].
+	
+	self compileDruidPrimitive: #primitiveUint64AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot withArguments: { 16r0102030405060708 }.
+	
+	result := memory fetchPointer: 0 ofObject: object.
+	self assert: result equals: 16r0102030405060708
+]
+
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint8At [
 
 	| object pointerToFirstSlot |
