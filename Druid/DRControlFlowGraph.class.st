@@ -28,10 +28,10 @@ DRControlFlowGraph >> addEdge: anEdge [
 ]
 
 { #category : #edges }
-DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock [
-	
+DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex: branchIndex [
+
 	| edge |
-	edge := DRCPSEdge withSource: sourceBlock andDestination: destinationBlock.
+	edge := DRCPSEdge withSource: sourceBlock andDestination: destinationBlock branchIndex: branchIndex.
 	self addEdge: edge.
 	^ edge
 ]
