@@ -52,6 +52,22 @@ DRCleanControlFlowTest >> testCombineBlocks [
 ]
 
 { #category : #'tests - redundant branches' }
+DRCleanControlFlowTest >> testDoNotRemoveEmptyBlockIfItCreatesPredecessorSuccessorAmbiguities [
+
+	| cfg c1 c2 |
+	cfg := self setUpCFGWithConditional.
+	
+	c1 := cfg b1 copy: 1.
+	c2 := cfg b1 copy: 2.
+	"The phi does not let b4 to be merged with the predecessors"
+	cfg b4 phiWith: c1 with: c2.
+
+	cfg applyOptimisation: DRCleanControlFlow new.
+
+	self assert: cfg b1 successors asSet size > 1
+]
+
+{ #category : #'tests - redundant branches' }
 DRCleanControlFlowTest >> testFoldRedundantBranch [
 
 	| b0 b1 jump cfg |
