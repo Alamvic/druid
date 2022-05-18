@@ -200,12 +200,12 @@ DRIRGenerator >> initializeSpecialCases [
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
 	self flag: #TODO. "Add types to Druid"
-	specialCases at: #long32At: put: #interpretMachineWordAtWith:.
-	specialCases at: #long64At: put: #interpretMachineWordAtWith:.
+	specialCases at: #uint8At: put: #interpretLoadUint8AtWith:.
+	specialCases at: #uint16At: put: #interpretLoadUint16AtWith:.
+	specialCases at: #uint32At: put: #interpretLoadUint32AtWith:.
+	specialCases at: #uint64At: put: #interpretLoadUint64AtWith:.
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
-	specialCases at: #byteAt: put: #interpretMachineWordAtWith:.
-	specialCases at: #shortAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
 	
 	
@@ -225,9 +225,9 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
 	
 	"special variables"
-	specialCases at: #trueObj put: #interpretTrueObjectWith:.
-	specialCases at: #falseObj put: #interpretFalseObjectWith:.
 	specialCases at: #nilObj put: #interpretNilObjectWith:.
+	specialCases at: #falseObj put: #interpretFalseObjectWith:.
+	specialCases at: #trueObj put: #interpretTrueObjectWith:.
 	
 	"Border case, this should not be defined here, it should be extensible"
 	specialCases at: #hiddenRootsObj put: #interpretNilObjectWith:.
@@ -251,10 +251,16 @@ DRIRGenerator >> instantiate: anInstructionClass operands: aCollection [
 ]
 
 { #category : #factory }
+DRIRGenerator >> instantiateNoResultInstruction: anInstructionClass [
+	
+	^ self instantiateNoResultInstruction: anInstructionClass operands: #()
+]
+
+{ #category : #factory }
 DRIRGenerator >> instantiateNoResultInstruction: anInstructionClass operands: aCollection [ 
 	
 	| instruction |
-	instruction := anInstructionClass operands: aCollection result: DRNoRegister new.
+	instruction := anInstructionClass operands: aCollection.
 	instruction origin: thisContext sender stack.
 	^ instruction
 ]
@@ -326,17 +332,16 @@ DRIRGenerator >> interpretCondition: aRBMessageNode instructionKind: anInstructi
 DRIRGenerator >> interpretDivisionWith: aRBMessageNode [ 
 
 	"Interpret the two numbers and divide them up"
-	| leftOperand rightOperand divResult remOperand |
+	| leftOperand rightOperand divResult |
 
 	leftOperand := self visitOperand: aRBMessageNode receiver.
 	rightOperand := self visitOperand: aRBMessageNode arguments first.
 	
 	"Backend needs a third operand for rem result"
-	remOperand := self noop: aRBMessageNode.
 	divResult := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRDivision 
-		operands: { leftOperand . rightOperand . remOperand }.
+		operands: { leftOperand . rightOperand }.
 
 	self pushOperand: divResult 
 ]
@@ -370,7 +375,9 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 
 	| falseBranchBasicBlockOut startingBasicBlock conditionalJump |
 	aRBMessageNode receiver acceptVisitor: self.
-	conditionalJump := self instantiate: DRConditionalJump operands: { self popOperand }.
+	conditionalJump := self
+		instantiateNoResultInstruction: DRConditionalJump
+		operands: { self popOperand }.
 	
 	self currentBasicBlock endInstruction: conditionalJump.
 	
@@ -406,7 +413,9 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 
 	| trueBranchBasicBlockOut conditionalJump startingBasicBlock |
 	aRBMessageNode receiver acceptVisitor: self.
-	conditionalJump := self instantiate: DRConditionalJump operands: { self popOperand }.
+	conditionalJump := self
+		instantiateNoResultInstruction: DRConditionalJump
+		operands: { self popOperand }.
 	
 	self currentBasicBlock endInstruction: conditionalJump.
 
@@ -443,7 +452,7 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 	| trueBranchBasicBlockOut falseBranchBasicBlockOut joinInstruction conditionalJump  |
 	aRBMessageNode receiver acceptVisitor: self.
 	conditionalJump := self
-		                   instantiate: DRConditionalJump
+		                   instantiateNoResultInstruction: DRConditionalJump
 		                   operands: { self popOperand }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
@@ -508,6 +517,46 @@ DRIRGenerator >> interpretLessThanComparisonWith: aRBMessageNode [
 	^ self interpretCondition: aRBMessageNode instructionKind: DRLessThanComparison
 ]
 
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretLoad: aRBMessageNode ofByteSize: byteSize [
+
+	| result address |
+	address := self visitOperand: aRBMessageNode arguments first.
+
+	result := self
+		          addInstructionFrom: aRBMessageNode
+		          instructionKind: DRLoad
+		          operands: { 
+				          byteSize asDRValue.
+				          address }.
+
+	self pushOperand: result
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretLoadUint16AtWith: aRBMessageNode [ 
+	
+	^ self interpretLoad: aRBMessageNode ofByteSize: 2
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretLoadUint32AtWith: aRBMessageNode [ 
+	
+	^ self interpretLoad: aRBMessageNode ofByteSize: 4
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretLoadUint64AtWith: aRBMessageNode [ 
+	
+	^ self interpretLoad: aRBMessageNode ofByteSize: 8
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretLoadUint8AtWith: aRBMessageNode [ 
+	
+	^ self interpretLoad: aRBMessageNode ofByteSize: 1
+]
+
 { #category : #'special-cases' }
 DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [ 
 	
@@ -528,7 +577,9 @@ DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [
 	result := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRLoad
-		operands: { address }.
+		operands: { 
+			8 asDRValue. "Assume 64 bits for now"
+			address }.
 
 	self pushOperand: result
 ]
@@ -560,17 +611,16 @@ DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: argu
 DRIRGenerator >> interpretModWith: aRBMessageNode [ 
 
 	"Interpret the two numbers and push the module operation result"
-	| leftOperand rightOperand modResult divOperand |
+	| leftOperand rightOperand modResult |
 
 	leftOperand := self visitOperand: aRBMessageNode receiver.
 	rightOperand := self visitOperand: aRBMessageNode arguments first.
 	
 	"Backend needs a third operand for div result"
-	divOperand := self noop: aRBMessageNode.
 	modResult := self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRMod 
-		operands: { leftOperand . rightOperand . divOperand }.
+		operands: { leftOperand . rightOperand }.
 
 	self pushOperand: modResult
 ]
@@ -593,7 +643,9 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 		operands: { unshiftedLeftOperand . withoutTagRightOperand }.
 
 	startingBasicBlock := self currentBasicBlock.	
-	conditionalJump := self instantiate: DRMultiplyOverflowJump operands: { mulResult }.
+	conditionalJump := self
+		instantiateNoResultInstruction: DRMultiplyOverflowJump
+		operands: { mulResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	"No overflow"
@@ -674,13 +726,13 @@ DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases - stack' }
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
 	self pushOperand: self currentOperandStack top
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases - stack' }
 DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 
 	"Interpret messages of the form 
@@ -711,7 +763,7 @@ DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
 		operands: { leftOperand . untaggedRightOperand }.
 
 	startingBasicBlock := self currentBasicBlock.	
-	conditionalJump := self instantiate: DROverflowJump operands: { subResult }.
+	conditionalJump := self instantiateNoResultInstruction: DROverflowJump operands: { subResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 	
 	joinInstruction := self 
@@ -747,7 +799,7 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 		operands: { untaggedLeftOperand . rightOperand }.
 
 	startingBasicBlock := self currentBasicBlock.	
-	conditionalJump := self instantiate: DROverflowJump operands: { addResult }.
+	conditionalJump := self instantiateNoResultInstruction: DROverflowJump operands: { addResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	joinInstruction := self 
@@ -850,11 +902,10 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 { #category : #'special-cases' }
 DRIRGenerator >> noop: aRBMessageNode [
 
-	^ self 
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRNoop 
-		operands: { }
-
+	^ self
+		  addInstructionWithNoResultFrom: aRBMessageNode
+		  instructionKind: DRNoop
+		  operands: #(  )
 ]
 
 { #category : #'frame-access' }
@@ -1098,8 +1149,7 @@ DRIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
 { #category : #visiting }
 DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [ 
-	
-	| receiver arguments method |
+
 	specialCases
 		at: aRBVariableNode name
 		ifPresent: [ :mapping |

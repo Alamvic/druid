@@ -5,84 +5,95 @@ Class {
 }
 
 { #category : #tests }
-DRPhiSimplicationTest >> testNotSimplificateDualPhi [
+DRPhiSimplicationTest >> setUp [ 
 
-	| cfg t1 t2 t3 b2 |
-	cfg := DRControlFlowGraph new.
-	cfg newBasicBlockWith: [ :block | 
-		      t1 := block copy: 1 asDRValue.
-		      t2 := block copy: 2 asDRValue ].
+	optimisation := DRPhiSimplication new
+]
+
+{ #category : #tests }
+DRPhiSimplicationTest >> testNotSimplifyDualPhi [
+
+	| cfg t1 t2 phi |
+	cfg := self setUpCFGWithConditional.
 	
-	b2 := cfg newBasicBlockWith: [ :block | 
-		      t3 := block phiWith: t1 with: t2 ].
+	t1 := cfg b2 copy: 1.
+	t2 := cfg b3 copy: 2.
+	phi := cfg b4 phiWith: t1 with: t2.
 
 	DRPhiSimplication new applyTo: cfg.
 
-	self assert: b2 firstInstruction equals: t3
+	self assert: cfg b4 firstInstruction equals: phi
 ]
 
 { #category : #tests }
-DRPhiSimplicationTest >> testSimplificateEmptyPhi [
+DRPhiSimplicationTest >> testNotSimplifyPhiWithNull [
 
-	| cfg b |
-	cfg := DRControlFlowGraph new.
+	| cfg  t1 block phi |
+	cfg := self setUpCFGWithConditional.
+	block := cfg b4.
+		
+	t1 := cfg b2 copy: 1.
+	phi := block phiWith: t1.
 
-	b := cfg newBasicBlockWith: [ :block | 
-		     block addInstruction:
-			     (block instructionFactory phiWithVariables: {  }) ].
+	cfg applyOptimisation: optimisation.
 
-	DRPhiSimplication new applyTo: cfg.
+	self assert: phi operands size equals: 2.
+	self assert: phi operands last isNullValue.
 
-	self assert: b firstInstruction isNoop
 ]
 
 { #category : #tests }
-DRPhiSimplicationTest >> testSimplificatePhiWithNull [
+DRPhiSimplicationTest >> testSimplifyPhiOnlyWithNulls [
 
-	| cfg b t1 |
-	cfg := DRControlFlowGraph new.
-	cfg newBasicBlockWith: [ :block | t1 := block copy: 1 asDRValue ].
+	| cfg |
+	cfg := self setUpCFG: 1.
 
-	b := cfg newBasicBlockWith: [ :block | block phiWith: t1 with: DRNullValue new].
+	cfg b1 phiWithVariables: { DRNullValue new }.
 
 	DRPhiSimplication new applyTo: cfg.
 
-	self assert: b firstInstruction isCopy.
-	self assert: b firstInstruction operand1 equals: t1.
+	self assert: cfg b1 firstInstruction isCopy.
+	self assert: cfg b1 firstInstruction operand1 isNullValue
+]
+
+{ #category : #tests }
+DRPhiSimplicationTest >> testSimplifyRedundantPhi [
+
+	| cfg t1 block phi |
+	cfg := self setUpCFGWithConditional.
+	block := cfg b4.
+
+	t1 := cfg b1 copy: 1.
+	phi := block phiWith: t1 with: t1.
+
+	self assert: phi operands size equals: 2.
+	self assertCollection: phi operands hasSameElements: { 
+			t1.
+			t1 }.
+
+	cfg applyOptimisation: optimisation.
+
+	self assert: block firstInstruction isCopy.
+	self assert: block firstInstruction operand1 equals: t1
+]
+
+{ #category : #tests }
+DRPhiSimplicationTest >> testSimplifySimplePhi [
+
+	| cfg t1 phi block |
+	cfg := self setUpCFG: 2.
+	block := cfg b2.
+
+	t1 := cfg b1 copy: 1.
+	phi := cfg b2 phiWith: t1.
+
+	self assert: phi operands size equals: 1.
+	self assertCollection: phi operands hasSameElements: { t1 }.
+
+	DRPhiSimplication new applyTo: cfg.
+
+	self assert: block firstInstruction isCopy.
+	self assert: block firstInstruction operand1 equals: t1.
 	self assert: t1 users size equals: 1.
-	self assert: t1 users anyOne equals: b firstInstruction
-]
-
-{ #category : #tests }
-DRPhiSimplicationTest >> testSimplificateRedundantPhi [
-
-	| cfg b t1 |
-	cfg := DRControlFlowGraph new.
-	cfg newBasicBlockWith: [ :block | 
-		      t1 := block copy: 1 asDRValue ].
-
-	b := cfg newBasicBlockWith: [ :block | block phiWith: t1 with: t1 ].
-
-	DRPhiSimplication new applyTo: cfg.
-
-	self assert: b firstInstruction isCopy.
-	self assert: b firstInstruction operand1 equals: t1
-]
-
-{ #category : #tests }
-DRPhiSimplicationTest >> testSimplificateSimplePhi [
-
-	| cfg b t1 |
-	cfg := DRControlFlowGraph new.
-	cfg newBasicBlockWith: [ :block | t1 := block copy: 1 asDRValue ].
-
-	b := cfg newBasicBlockWith: [ :block | block phiWith: t1 ].
-
-
-	DRPhiSimplication new applyTo: cfg.
-
-	self assert: b firstInstruction isCopy.
-	self assert: b firstInstruction operand1 equals: t1.
-	self assert: t1 users size equals: 1.
-	self assert: t1 users anyOne equals: b firstInstruction
+	self assert: t1 users anyOne equals: block firstInstruction
 ]

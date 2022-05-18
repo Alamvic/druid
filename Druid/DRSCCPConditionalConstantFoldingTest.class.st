@@ -251,7 +251,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationWithFarAwayPhiFunctio
 	b4 addInstruction: (mainPhiInstruction := instructionFactory phiWith: innerPhiInstruction with: copy1).
 	b4 endInstruction: DRNoop new.
 
-	cfg applyOptimization: optimisation.
+	cfg applyOptimisation: optimisation.
 	
 	self assertCollection: cfg blocks hasSameElements: { b0 . b4 }
 ]

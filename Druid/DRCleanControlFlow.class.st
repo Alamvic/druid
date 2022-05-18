@@ -24,7 +24,6 @@ DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: 
 	 - the second block has as single predecessor the first block"
 	
 	| combinedBlock |
-
 	combinedBlock := aCFG newBasicBlock.
 	aDRBasicBlock predecessors copy do: [ :predecessor |
 		combinedBlock addPredecessor: predecessor.
@@ -110,8 +109,16 @@ DRCleanControlFlow >> shouldCombineBlock: aDRBasicBlock [
 
 { #category : #folding }
 DRCleanControlFlow >> shouldFoldRedundantBranch: aDRConditionalJump [ 
+
+	"If they are not the same branch, we cannot fold"	
+	| target |
+	aDRConditionalJump trueBranch = aDRConditionalJump falseBranch ifFalse: [ ^ false ].
 	
-	^ aDRConditionalJump trueBranch = aDRConditionalJump falseBranch
+	"Otherwise, we fold only if the target has phi functions with values that can be folded"
+	target := aDRConditionalJump trueBranch.
+	^ target phiFunctions allSatisfy: [ :phi |
+		(phi valuesForPredecessor: aDRConditionalJump basicBlock)
+			asSet size = 1 ].
 ]
 
 { #category : #folding }
@@ -141,6 +148,11 @@ DRCleanControlFlow >> shouldRemoveEmptyBlock: aDRBasicBlock [
 		ifTrue: [ ^ false ].
 	aDRBasicBlock endInstruction isNonConditionalJump
 		ifFalse: [ ^ false ].
+		
+	"If removing this block would make my predecessor point twice to the same successor, do not do it"
+	(aDRBasicBlock predecessors anySatisfy: [ :e |
+		e successors includes: aDRBasicBlock successor ])
+			ifTrue: [ ^ false ].
 	
 	"Avoid complex phi function rewriting"
 	(aDRBasicBlock predecessors size > 1 and: [ aDRBasicBlock successor hasPhiFunctions ])

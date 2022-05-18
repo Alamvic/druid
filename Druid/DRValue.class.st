@@ -34,6 +34,12 @@ DRValue >> asDRValue [
 	^ self
 ]
 
+{ #category : #memory }
+DRValue >> asMemoryAddress [
+	
+	self subclassResponsibility
+]
+
 { #category : #copying }
 DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 	
@@ -98,6 +104,18 @@ DRValue >> isMandatoryInstruction [
 	^ false
 ]
 
+{ #category : #testing }
+DRValue >> isMemoryAddress [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isNoResult [
+	
+	^ false
+]
+
 { #category : #accessing }
 DRValue >> isNoop [ 
 	
@@ -106,6 +124,12 @@ DRValue >> isNoop [
 
 { #category : #visiting }
 DRValue >> isNullValue [
+
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isObjectReferenceValue [
 
 	^ false
 ]
@@ -184,6 +208,18 @@ DRValue >> removeUser: anInstruction [
 DRValue >> result [
 
 	^ self
+]
+
+{ #category : #'cogit-generation' }
+DRValue >> rtlOperandQualifier [
+
+	self subclassResponsibility
+]
+
+{ #category : #'cogit-generation' }
+DRValue >> rtlOperandQualifierForInstruction: instruction [
+
+	^ self rtlOperandQualifier
 ]
 
 { #category : #accessing }

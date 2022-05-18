@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #testing }
+DRObjectReferenceValue >> isObjectReferenceValue [
+
+	^ true
+]
+
 { #category : #'cogit-generation' }
 DRObjectReferenceValue >> rtlOperandQualifier [
 

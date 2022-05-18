@@ -97,3 +97,20 @@ DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 	
 	self assert: cfg instructions size equals: 4.
 ]
+
+{ #category : #test }
+DRDeadCodeEliminationTest >> testRemoveUnusedNoop [
+
+	| b1 b2 cfg |
+	
+	optimisation := DRDeadCodeElimination new. 
+	
+	cfg := self setUpCFG: 2. 
+	
+	b1 := cfg b1.
+	b2 := cfg b2.
+	b2 addInstruction: (DRNoop new result: DRNoRegister new). 
+	optimisation applyTo: cfg.
+	
+	self assert: cfg instructions size equals: 2.
+]

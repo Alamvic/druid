@@ -11,6 +11,17 @@ DRBitAnd >> acceptVisitor: aVisitor [
 ]
 
 { #category : #printing }
+DRBitAnd >> asNumberedExpression [
+
+	| numberedExpression |
+	
+	numberedExpression := DRNumberedExpression new.
+	^ numberedExpression operation: self class;
+	operands: self operands asBag;
+	yourself
+]
+
+{ #category : #printing }
 DRBitAnd >> opcode [
 	
 	^ 'AND'

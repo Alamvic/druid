@@ -52,7 +52,7 @@ DRCompilerExplorerInspection >> initializePresenters [
 		toolbarButtom := self newToolbarButton.
 		toolbarButtom label: opt name.
 		toolbarButtom action: [ 
-			model apply: opt.
+			model apply: opt new.
 			self refresh ].
 		toolbar addItem: toolbarButtom ]
 ]

@@ -45,6 +45,13 @@ DRPhiFunction >> initialize [
 	operands := OrderedCollection new.
 ]
 
+{ #category : #operands }
+DRPhiFunction >> isDominatedBy: anotherOperand [
+
+	^ (super isDominatedBy: anotherOperand) or: [ 
+		  anotherOperand basicBlock hasFrontier: self basicBlock ]
+]
+
 { #category : #testing }
 DRPhiFunction >> isEmpty [
 	
@@ -69,7 +76,7 @@ DRPhiFunction >> joinedVariables: aCollection [
 	self operands: aCollection
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #operands }
 DRPhiFunction >> mergeOperands: anotherOperands [
 
 	operands with: anotherOperands do: [ :op1 :op2 | 
@@ -102,6 +109,23 @@ DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
 		ifFalse: [ super replaceOperand: anOperand by: anotherOperand ]
 ]
 
+{ #category : #'users-definitions' }
+DRPhiFunction >> replaceOperandAtPredecessor: predecessor by: anotherOperand [
+
+	| index |
+	index := self basicBlock indexOfPredecessor: predecessor.
+	self replaceOperandAtIndex: index by: anotherOperand
+]
+
+{ #category : #replace }
+DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
+
+	| fullNewOperands |
+	"Replace phis operands is hard, we build a new one and replace"
+	fullNewOperands := (operands copyWithout: myOperand) , newOperands.
+	^ self replaceBy: (self basicBlock phiWithVariables: fullNewOperands)
+]
+
 { #category : #accessing }
 DRPhiFunction >> result [
 	
@@ -120,13 +144,13 @@ DRPhiFunction >> sccpLatticeValueFor: sccp [
 	^ sccp latticeValueOfPhiFunction: self
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #operands }
 DRPhiFunction >> selectOperand: anOperand with: anotherOperand [
 
 	anOperand = anotherOperand ifTrue: [ ^ anOperand ].
 	anOperand isNullValue ifTrue: [ ^ anotherOperand ].
 	anotherOperand isNullValue ifTrue: [ ^ anOperand ].
-	self error: 'Incompatible operands'
+	^ anotherOperand
 ]
 
 { #category : #simplification }
@@ -143,4 +167,17 @@ DRPhiFunction >> singleChild [
 	operands size > 1
 		ifTrue: [ self error: 'Cannot simplify a phi function with more than one operand for now' ].
 	^ operands first
+]
+
+{ #category : #accessing }
+DRPhiFunction >> valuesForPredecessor: aDRBasicBlock [ 
+	
+	"Return a collection of all values in this Phi that correspond to the given basic block"
+	"Automatic transformations could produce conditional branches that point to a single block in both branches"
+	| values |
+	values := OrderedCollection new.
+	self basicBlock predecessors withIndexDo: [ :pred :index |
+		pred = aDRBasicBlock ifTrue: [ values add: (operands at: index) ].
+	].
+	^ values
 ]

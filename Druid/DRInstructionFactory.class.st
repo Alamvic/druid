@@ -25,6 +25,30 @@ DRInstructionFactory >> allocateTemporaryRegister [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> and: operand1 with: operand2 [
+
+	^ DRAnd
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> anyMask: operand1 with: operand2 [
+
+	^ DRTest
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> bitAnd: operand1 with: operand2 [
+
+	^ DRBitAnd
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> copy: aValue [
 
 	^ DRCopy
@@ -33,9 +57,27 @@ DRInstructionFactory >> copy: aValue [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> divide: aValue by: anotherValue [
+
+	^ DRDivision
+		  operands: { aValue asDRValue. anotherValue asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> equals: operand1 to: operand2 [
 	
 	^ DREqualsThanComparison
+		  operands: { 
+				  operand1 asDRValue.
+				  operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> greater: operand1 than: operand2 [
+
+	^ DRGreaterThanComparison
 		  operands: { 
 				  operand1 asDRValue.
 				  operand2 asDRValue }
@@ -69,7 +111,25 @@ DRInstructionFactory >> lessOrEquals: operand1 than: operand2 [
 DRInstructionFactory >> load: anAdress [
 
 	^ DRLoad
-		  operands: { anAdress asDRValue }
+		  operands: { 
+				  8 asDRValue. "Assume 64 bits for now"
+				  anAdress asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> modulo: aValue by: anotherValue [
+
+	^ DRMod
+		  operands: { aValue asDRValue. anotherValue asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> or: operand1 with: operand2 [
+
+	^ DROr
+		  operands: { operand1 asDRValue. operand2 asDRValue }
 		  result: self allocateTemporaryRegister
 ]
 

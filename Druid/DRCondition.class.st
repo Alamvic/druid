@@ -9,6 +9,12 @@ Class {
 }
 
 { #category : #testing }
+DRCondition >> isComparison [
+
+	^ true
+]
+
+{ #category : #testing }
 DRCondition >> isComplexCondition [
 
 	^ false

@@ -10,6 +10,31 @@ DRAnd >> acceptVisitor: aVisitor [
 	^ aVisitor visitAnd: self
 ]
 
+{ #category : #SCCP }
+DRAnd >> asNumberedExpression [
+
+	| numberedExpression |
+	
+	numberedExpression := DRNumberedExpression new.
+	^ numberedExpression operation: self class;
+	operands: self operands asBag;
+	yourself
+]
+
+{ #category : #visiting }
+DRAnd >> cogitFalseConditionCode [
+	
+	"Jump false if the constant is a zero"
+	^ #JumpZero:
+]
+
+{ #category : #visiting }
+DRAnd >> cogitTrueConditionCode [
+	
+	"Jump false if the constant is a zero"
+	^ #JumpNonZero:
+]
+
 { #category : #printing }
 DRAnd >> opcode [
 	

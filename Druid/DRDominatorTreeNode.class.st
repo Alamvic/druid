@@ -13,7 +13,7 @@ Class {
 DRDominatorTreeNode class >> new [
 	| node |
 	node := super new.
-	node children: Dictionary new.
+	node children: OrderedCollection new.
 	^ node.
 	
 ]
@@ -49,6 +49,14 @@ DRDominatorTreeNode >> findImmediateDominator: tree [
 	^ nearestCommonAncestor
 ]
 
+{ #category : #testing }
+DRDominatorTreeNode >> isDominatedByBlock: dominatorBlock [
+
+	block = dominatorBlock ifTrue: [ ^ true ].
+	parent ifNil: [ ^ false ].
+	^ parent isDominatedByBlock: dominatorBlock
+]
+
 { #category : #accessing }
 DRDominatorTreeNode >> parent [
 	^ parent
@@ -61,7 +69,7 @@ DRDominatorTreeNode >> parent: node [
 
 { #category : #accessing }
 DRDominatorTreeNode >> replaceParent: node [
-	self parent children removeKey: block.
+	self parent children remove: self.
 	self parent: node.
-	node children add: block->self.
+	node children addLast: self.
 ]

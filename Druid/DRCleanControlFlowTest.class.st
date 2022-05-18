@@ -1,9 +1,8 @@
 Class {
 	#name : #DRCleanControlFlowTest,
-	#superclass : #TestCase,
+	#superclass : #DROptimisationTest,
 	#instVars : [
-		'instructionFactory',
-		'optimisation'
+		'instructionFactory'
 	],
 	#category : #'Druid-Tests'
 }
@@ -20,15 +19,12 @@ DRCleanControlFlowTest >> setUp [
 DRCleanControlFlowTest >> testCannotCombineBlocksWhenSecondBlockContainsPhiFunctions [
 
 	| b0 b1 b2 copy cfg |
-	cfg := DRControlFlowGraph new.
-	b0 := cfg newBasicBlock.
-	b1 := cfg newBasicBlock.
-	b2 := cfg newBasicBlock.
+	cfg := self setUpCFG: 3.
+	b0 := cfg b1.
+	b1 := cfg b2.
+	b2 := cfg b3.
 
-	b0 jumpTo: b1.
-	b1 addInstruction: (copy := instructionFactory copy: 2).	
-	
-	b1 jumpTo: b2.
+	copy := b1 copy: 2.	
 	b2 phiWith: copy.
 
 	self deny: (optimisation shouldCombineBlock: b1)
@@ -53,6 +49,22 @@ DRCleanControlFlowTest >> testCombineBlocks [
 	combinedBlock := b0 endInstruction target.
 	self assert: combinedBlock instructions first equals: copy.
 	self assert: combinedBlock instructions second equals: add
+]
+
+{ #category : #'tests - redundant branches' }
+DRCleanControlFlowTest >> testDoNotRemoveEmptyBlockIfItCreatesPredecessorSuccessorAmbiguities [
+
+	| cfg c1 c2 |
+	cfg := self setUpCFGWithConditional.
+	
+	c1 := cfg b1 copy: 1.
+	c2 := cfg b1 copy: 2.
+	"The phi does not let b4 to be merged with the predecessors"
+	cfg b4 phiWith: c1 with: c2.
+
+	cfg applyOptimisation: DRCleanControlFlow new.
+
+	self assert: cfg b1 successors asSet size > 1
 ]
 
 { #category : #'tests - redundant branches' }
@@ -145,22 +157,18 @@ DRCleanControlFlowTest >> testRemoveEmptyBlock [
 DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionFirstPredecessor [
 
 	| b0 b1 b2 cfg r0 r1 b3 |
-	cfg := DRControlFlowGraph new.
-	b0 := cfg newBasicBlock.
+	cfg := self setUpCFGWithConditional.
+	b0 := cfg b1.
 	r0 := b0 copy: 0.
 	
-	b1 := cfg newBasicBlock.
+	b1 := cfg b2.
 	r1 := b1 copy: 1.
 	
 	"Empty, to remove"
-	b2 := cfg newBasicBlock.
-	
-	b0 jumpIfTrueTo: b1 ifFalseTo: b2.
+	b2 := cfg b3.
 	
 	"Joint point"
-	b3 := cfg newBasicBlock.
-	b1 jumpTo: b3.
-	b2 jumpTo: b3.
+	b3 := cfg b4.
 	b3 phiWith: r1 with: r0.
 
 	optimisation removeEmptyBlock: b2 fromCfg: cfg.
@@ -171,28 +179,18 @@ DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionFirstPred
 { #category : #'tests - redundant branches' }
 DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionSecondPredecessor [
 
-	| b0 b1 b2 cfg r0 r1 b3 |
-	cfg := DRControlFlowGraph new.
-	b0 := cfg newBasicBlock.
-	r0 := b0 copy: 0.
+	| cfg r0 r1 phi |
+	cfg := self setUpCFGWithConditional.
+	r0 := cfg b1 copy: 0.
+	r1 := cfg b2 copy: 1.
+	"b3 empty"
+	phi := cfg b4 phiWith: r0 with: r1.
 	
-	b1 := cfg newBasicBlock.
-	r1 := b1 copy: 1.
-	
-	"Empty, to remove"
-	b2 := cfg newBasicBlock.
-	
-	b0 jumpIfTrueTo: b1 ifFalseTo: b2.
-	
-	"Joint point"
-	b3 := cfg newBasicBlock.
-	b2 jumpTo: b3.
-	b1 jumpTo: b3.
-	b3 phiWith: r0 with: r1.
+	self assertCollection: phi operands hasSameElements: {r0 . r1}.
 
-	optimisation removeEmptyBlock: b2 fromCfg: cfg.
+	optimisation removeEmptyBlock: cfg b3 fromCfg: cfg.
 	
-	b3 validatePhiFunctions.
+	cfg b4 validatePhiFunctions.
 ]
 
 { #category : #'tests - redundant branches' }
@@ -235,6 +233,30 @@ DRCleanControlFlowTest >> testShouldFoldRedundantBranch [
 ]
 
 { #category : #'tests - redundant branches' }
+DRCleanControlFlowTest >> testShouldFoldRedundantBranchWithSameTargetAndSamePhiValues [
+
+	| b0 b1 jump cfg r0 |
+	cfg := DRControlFlowGraph new.
+	b0 := cfg newBasicBlock.
+	b1 := cfg newBasicBlock.
+	
+	r0 := b0 copy: 1.
+	
+	cfg initialBasicBlock jumpTo: b0.
+	
+	b0 endInstruction: (jump := instructionFactory jumpIf: true asDRValue).
+	b1 addPredecessor: b0.
+	b1 addPredecessor: b0.
+
+	jump trueBranch: b1.
+	jump falseBranch: b1.
+	
+	b1 phiWith: r0 with: r0.
+
+	self assert: (optimisation shouldFoldRedundantBranch: b0 endInstruction)
+]
+
+{ #category : #'tests - redundant branches' }
 DRCleanControlFlowTest >> testShouldHoistBranch [
 
 	| b0 b1 b2 b3 b4 branch cfg |
@@ -272,6 +294,32 @@ DRCleanControlFlowTest >> testShouldNotFoldRedundantBranch [
 	b0 endInstruction: (jump := instructionFactory jumpIf: true asDRValue).
 	jump trueBranch: b1.
 	jump falseBranch: b2.
+
+	self deny: (optimisation shouldFoldRedundantBranch: b0 endInstruction)
+]
+
+{ #category : #'tests - redundant branches' }
+DRCleanControlFlowTest >> testShouldNotFoldRedundantBranchWithSameTargetButDifferentPhiValues [
+
+	| b0 b1 jump cfg r0 r1 |
+	cfg := DRControlFlowGraph new.
+	b0 := cfg newBasicBlock.
+	b1 := cfg newBasicBlock.
+	
+	r0 := b0 copy: 1.
+	r1 := b0 copy: 2.
+	
+	cfg initialBasicBlock jumpTo: b0.
+	
+	b0 endInstruction: (jump := instructionFactory jumpIf: true asDRValue).
+	b1 addPredecessor: b0.
+	b1 addPredecessor: b0.
+	
+	
+	jump trueBranch: b1.
+	jump falseBranch: b1.
+	
+	b1 phiWith: r0 with: r1.
 
 	self deny: (optimisation shouldFoldRedundantBranch: b0 endInstruction)
 ]
