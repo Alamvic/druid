@@ -128,6 +128,11 @@ DRCPSEdge >> visitBitAnd: aDRBitAnd [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitBitOr: aDRBitOr [
+	"Do nothing"
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitBitShift: aDRBitShift [ 
 	"Do nothing"
 ]

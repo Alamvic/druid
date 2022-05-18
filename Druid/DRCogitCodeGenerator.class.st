@@ -272,6 +272,13 @@ DRCogitCodeGenerator >> visitBitAnd: aDRCogitBitAnd [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitBitOr: aDRCogitBitAnd [ 
+
+	^ self threeOperandCogitRTL: #Or instruction: aDRCogitBitAnd
+
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitBitShift: aDRCogitBitShift [ 
 
 	^ self threeOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitBitShift
