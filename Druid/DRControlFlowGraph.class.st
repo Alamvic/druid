@@ -34,6 +34,14 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock [
 	^ edge
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> allConditionalJumps [
+
+	^ basicBlocks
+		  collect: [ :b | b endInstruction ]
+		  thenSelect: [ :i | i isConditionalJump ]
+]
+
 { #category : #building }
 DRControlFlowGraph >> allocateBasicBlockID [
 	

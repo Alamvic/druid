@@ -8,6 +8,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #testing }
+DRCondition >> isComplexCondition [
+
+	^ false
+]
+
 { #category : #converting }
 DRCondition >> reversed [
 	

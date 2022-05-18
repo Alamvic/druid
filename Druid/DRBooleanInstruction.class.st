@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #testing }
+DRBooleanInstruction >> isComplexCondition [
+
+	^ true
+]
+
 { #category : #SCCP }
 DRBooleanInstruction >> sccpLatticeValueOperand: index for: sccp [
 
