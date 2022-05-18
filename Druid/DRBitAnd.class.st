@@ -24,7 +24,7 @@ DRBitAnd >> asNumberedExpression [
 { #category : #printing }
 DRBitAnd >> opcode [
 	
-	^ 'AND'
+	^ 'BitAnd'
 ]
 
 { #category : #printing }
