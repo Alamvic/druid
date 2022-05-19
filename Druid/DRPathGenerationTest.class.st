@@ -191,23 +191,43 @@ DRPathGenerationTest >> testLinearContigousBlocksShareEdge [
 ]
 
 { #category : #building }
+DRPathGenerationTest >> testinferDomainsFromComplexConditionalOnDifferentRegs [
+
+	| cfg edges trueNDomain trueMDomain firstFalseNDomain secondFalseNDomain secondFalseMDomain |
+	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnDifferentVariables. "n ~= 2 AND m < 5"
+
+	edges := cfg lastBasicBlock predecessors flatCollect: [ :b | cfg incomingEdgesFor: b ].
+	trueNDomain := edges first constraintFor: 'ReceiverResultReg'.  "n ~= 2"
+	trueMDomain := edges first constraintFor: 'Arg0Reg'.  "m < 5"
+	firstFalseNDomain := edges second constraintFor: 'ReceiverResultReg'.  "n = 2"
+	secondFalseNDomain := edges third constraintFor: 'ReceiverResultReg'.  "n ~= 2"
+	secondFalseMDomain := edges third constraintFor: 'Arg0Reg'.  "m >= 5"
+
+	self assert: (trueNDomain constraint includes: (DRNotEqualsConstraint withValue: 2)).
+	self assert: (trueMDomain constraint includes: (DRLessConstraint withValue: 5)).
+	self assert: (firstFalseNDomain constraint includes: (DREqualsConstraint withValue: 2)).
+	self assert: (secondFalseNDomain constraint includes: (DRNotEqualsConstraint withValue: 2)).
+	self assert: (secondFalseMDomain constraint includes: (DRGreaterOrEqualsConstraint withValue: 5)).
+
+]
+
+{ #category : #building }
 DRPathGenerationTest >> testinferDomainsFromComplexConditionalOnSameReg [
 
-	| cfg edges trueRegDomain falseRegDomain |
-	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnSameVariable.
-	1halt.
-	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
-	trueRegDomain := edges first constraintFor: 'ReceiverResultReg'.  "(~= 2 AND < 5)"
-	falseRegDomain := edges second constraintFor: 'ReceiverResultReg'.  "(= 2 OR >= 5)"
+	| cfg edges trueRegDomain firstFalseRegDomain secondFalseRegDomain |
+	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnSameVariable. "n ~= 2 AND n < 5"
+
+	edges := cfg lastBasicBlock predecessors flatCollect: [ :b | cfg incomingEdgesFor: b ].
+	trueRegDomain := edges first constraintFor: 'ReceiverResultReg'.  "n ~= 2 AND n < 5"
+	firstFalseRegDomain := edges second constraintFor: 'ReceiverResultReg'.  "n = 2"
+	secondFalseRegDomain := edges third constraintFor: 'ReceiverResultReg'.  "n >= 5"
 
 	self assert: (trueRegDomain constraint includes: (DRIntersectionConstraint constraints: {
 		DRNotEqualsConstraint withValue: 2.
 		DRLessConstraint withValue: 5
 	})).
 	
-	self assert: (falseRegDomain constraint includes: (DRUnionConstraint constraints: {
-		DREqualsConstraint withValue: 2.
-		DRGreaterOrEqualsConstraint withValue: 5
-	})).
+	self assert: (firstFalseRegDomain constraint includes: (DREqualsConstraint withValue: 2)).
+	self assert: (secondFalseRegDomain constraint includes: (DRGreaterOrEqualsConstraint withValue: 5)).
 
 ]
