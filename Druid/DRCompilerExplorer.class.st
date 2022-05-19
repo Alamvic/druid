@@ -7,7 +7,13 @@ Class {
 		'interpreterClass',
 		'selector',
 		'cfg',
-		'previousCfgs'
+		'previousCfgs',
+		'isRecording',
+		'shouldGeneratePaths',
+		'lastOpt'
+	],
+	#classInstVars : [
+		'experiments'
 	],
 	#category : #'Druid-UI'
 }
@@ -32,8 +38,10 @@ DRCompilerExplorer class >> onSelector: aSelector inClass: aClass [
 { #category : #optimising }
 DRCompilerExplorer >> apply: opt [
 
-	"previousCfgs add: self cfg veryDeepCopy."
-	self cfg applyOptimisation: opt
+	isRecording ifTrue: [ previousCfgs add: lastOpt -> self cfg veryDeepCopy ].
+	self cfg applyOptimisation: opt.
+	lastOpt := opt.
+	shouldGeneratePaths ifTrue: [ self cfg generatePaths ]
 ]
 
 { #category : #accessing }
@@ -55,14 +63,16 @@ DRCompilerExplorer >> cfg [
 { #category : #optimising }
 DRCompilerExplorer >> goBack [
 
-	cfg := previousCfgs removeLast
+	cfg := previousCfgs removeLast value
 ]
 
 { #category : #initialization }
 DRCompilerExplorer >> initialize [
 
 	super initialize.
-	previousCfgs := OrderedCollection new
+	previousCfgs := OrderedCollection new.
+	isRecording := true.
+	shouldGeneratePaths := true
 ]
 
 { #category : #inspecting }
@@ -116,6 +126,18 @@ DRCompilerExplorer >> interpreterClass: anObject [
 ]
 
 { #category : #accessing }
+DRCompilerExplorer >> isRecording [
+
+	^ isRecording
+]
+
+{ #category : #accessing }
+DRCompilerExplorer >> isRecording: anObject [
+
+	isRecording := anObject
+]
+
+{ #category : #accessing }
 DRCompilerExplorer >> method [
 
 	^ self interpreterClass lookupSelector: selector
@@ -152,6 +174,21 @@ DRCompilerExplorer >> optimizations [
 ]
 
 { #category : #accessing }
+DRCompilerExplorer >> previousCfgs [
+
+	^ previousCfgs
+]
+
+{ #category : #optimising }
+DRCompilerExplorer >> saveExperiment [
+
+	self class saveNewExperiment: (DROptimisationExperiment new
+			 timestamp: DateAndTime now;
+			 movie: previousCfgs;
+			 yourself)
+]
+
+{ #category : #accessing }
 DRCompilerExplorer >> selector [
 
 	^ selector
@@ -161,4 +198,16 @@ DRCompilerExplorer >> selector [
 DRCompilerExplorer >> selector: aSelector [
 
 	selector := aSelector
+]
+
+{ #category : #accessing }
+DRCompilerExplorer >> shouldGeneratePaths [
+
+	^ shouldGeneratePaths
+]
+
+{ #category : #accessing }
+DRCompilerExplorer >> shouldGeneratePaths: anObject [
+
+	shouldGeneratePaths := anObject
 ]
