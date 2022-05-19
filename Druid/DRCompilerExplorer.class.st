@@ -137,7 +137,7 @@ DRCompilerExplorer >> methodSource [
 DRCompilerExplorer >> optimizations [
 
 	^ { 
-		  DRComplexConditionalSplitting.
+		  DRComposedConditionalSplitting.
 		  DRDeadBlockElimination.
 		  DRDeadCodeElimination.
 		  DRCleanControlFlow.

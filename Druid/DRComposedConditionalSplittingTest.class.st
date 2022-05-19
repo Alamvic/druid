@@ -1,11 +1,11 @@
 Class {
-	#name : #DRComplexConditionalSplittingTest,
+	#name : #DRComposedConditionalSplittingTest,
 	#superclass : #DROptimisationTest,
 	#category : #'Druid-Tests'
 }
 
 { #category : #initialization }
-DRComplexConditionalSplittingTest >> previousOptimizations [
+DRComposedConditionalSplittingTest >> previousOptimizations [
 
 	^ { 
 		  DRCopyPropagation new.
@@ -14,15 +14,15 @@ DRComplexConditionalSplittingTest >> previousOptimizations [
 ]
 
 { #category : #running }
-DRComplexConditionalSplittingTest >> setUp [
+DRComposedConditionalSplittingTest >> setUp [
 
 	super setUp.
 
-	optimisation := DRComplexConditionalSplitting new
+	optimisation := DRComposedConditionalSplitting new
 ]
 
 { #category : #tests }
-DRComplexConditionalSplittingTest >> testSplitAnd [
+DRComposedConditionalSplittingTest >> testSplitAnd [
 
 	| cfg jump composedCondition newBlock newJump trueBlock falseBlock |
 	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnSameVariable.
@@ -48,7 +48,7 @@ DRComplexConditionalSplittingTest >> testSplitAnd [
 ]
 
 { #category : #tests }
-DRComplexConditionalSplittingTest >> testSplitMultipleComposedCondition [
+DRComposedConditionalSplittingTest >> testSplitMultipleComposedCondition [
 
 	| cfg jump composedCondition trueBlock falseBlock newBlock1 newBlock2 newJump1 newJump2 |
 	cfg := self generateDruidIRFor: #primitiveBranchingWithTripleAnd.
@@ -79,7 +79,7 @@ DRComplexConditionalSplittingTest >> testSplitMultipleComposedCondition [
 ]
 
 { #category : #tests }
-DRComplexConditionalSplittingTest >> testSplitMultipleComposedConditionLeftAssociated [
+DRComposedConditionalSplittingTest >> testSplitMultipleComposedConditionLeftAssociated [
 
 	| cfg jump composedCondition trueBlock falseBlock newBlock1 newBlock2 newJump1 newJump2 |
 	cfg := self generateDruidIRFor: #primitiveBranchingWithTripleAndLeftAssociated.
@@ -110,7 +110,7 @@ DRComplexConditionalSplittingTest >> testSplitMultipleComposedConditionLeftAssoc
 ]
 
 { #category : #tests }
-DRComplexConditionalSplittingTest >> testSplitOr [
+DRComposedConditionalSplittingTest >> testSplitOr [
 
 	| cfg jump composedCondition trueBlock falseBlock newBlock newJump |
 	cfg := self generateDruidIRFor: #primitiveBranchingWithOrConditionOnSameVariable.
@@ -136,7 +136,7 @@ DRComplexConditionalSplittingTest >> testSplitOr [
 ]
 
 { #category : #tests }
-DRComplexConditionalSplittingTest >> testSplitSimpleCondition [
+DRComposedConditionalSplittingTest >> testSplitSimpleCondition [
 
 	| cfg previousBlocks |
 	cfg := self generateDruidIRFor: #primitiveBranchingWithAssigments.
