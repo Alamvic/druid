@@ -16,7 +16,7 @@ DRComplexConditionalSplitting >> applyTo: cfg [
 ]
 
 { #category : #visiting }
-DRComplexConditionalSplitting >> splitComplexConditionOf: aJump between: targetSuccessor escape: otherSuccessor [
+DRComplexConditionalSplitting >> splitComplexConditionOf: aJump between: targetSuccessor [
 
 	| aComplexCondition newJump |
 	aComplexCondition := aJump condition.
@@ -27,8 +27,8 @@ DRComplexConditionalSplitting >> splitComplexConditionOf: aJump between: targetS
 
 		newJump := b
 			           jumpIf: aComplexCondition operands second
-			           to: targetSuccessor
-			           ifFalseTo: otherSuccessor.
+			           to: aJump trueBranch 
+			           ifFalseTo: aJump falseBranch.
 
 		targetSuccessor removePredecessor: aJump basicBlock.
 		b addPredecessor: aJump basicBlock.
@@ -46,7 +46,6 @@ DRComplexConditionalSplitting >> visitAnd: aDRAnd [
 	self
 		splitComplexConditionOf: currentJump
 		between: currentJump trueBranch
-		escape: currentJump falseBranch
 ]
 
 { #category : #visiting }
@@ -62,5 +61,4 @@ DRComplexConditionalSplitting >> visitOr: aDROr [
 	self
 		splitComplexConditionOf: currentJump
 		between: currentJump falseBranch
-		escape: currentJump trueBranch
 ]

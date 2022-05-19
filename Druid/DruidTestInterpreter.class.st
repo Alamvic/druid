@@ -88,11 +88,12 @@ DruidTestInterpreter >> primitiveAssertIsIgnored [
 DruidTestInterpreter >> primitiveBranchingWithAndConditionOnSameVariable [
 
 	<numberOfArguments: 0>
-	| n |
-	n := (self stackTop ~= 2 and: [ self stackTop < 5 ])
+	| n res |
+	n := self stackTop.
+	res := (n ~= 2 and: [ n < 5 ])
 		     ifTrue: [ 1 ]
 		     ifFalse: [ 7 ].
-	^ self pop: 1 thenPush: n
+	^ self pop: 1 thenPush: res
 ]
 
 { #category : #'as yet unclassified' }
@@ -128,6 +129,18 @@ DruidTestInterpreter >> primitiveBranchingWithTripleAnd [
 		     ifTrue: [ 1 ]
 		     ifFalse: [ 7 ].
 	^ self pop: 1 thenPush: n
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveBranchingWithTripleAndLeftAssociated [
+
+	<numberOfArguments: 0>
+	| n res |
+	n := self stackTop.
+	res := ((n ~= 2 and: [ n < 5 ]) and: [ n anyMask: 1 ])
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 7 ].
+	^ self pop: 1 thenPush: res
 ]
 
 { #category : #'as yet unclassified' }

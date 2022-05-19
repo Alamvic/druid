@@ -26,6 +26,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 
 	optimisations := OrderedCollection new.
 	optimisations add: (DRDeadBlockElimination then: DRCleanControlFlow).
+	optimisations add: (DRCopyPropagation then: DRComplexConditionalSplitting).
 	optimisations add: DRBranchCollapse new.
 
 	"Basic set of optimizations twice for primitives"
