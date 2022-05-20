@@ -420,13 +420,13 @@ DRInstruction >> removeUser: anInstruction [
 { #category : #replacing }
 DRInstruction >> replaceBy: anotherInstruction [
 	
+	basicBlock replace: self by: anotherInstruction.
+	
 	users copy do: [ :instruction |
 		instruction replaceOperand: self by: anotherInstruction ].
 
 	operands asSet do: [ :instruction |
 		instruction removeUser: self ].
-
-	basicBlock replace: self by: anotherInstruction
 ]
 
 { #category : #'users-definitions' }

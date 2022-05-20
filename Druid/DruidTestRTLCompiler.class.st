@@ -646,6 +646,33 @@ DruidTestRTLCompiler >> gen_primitiveByteAt [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveCallingBlockReturningArgument [
+
+	| currentBlock |
+	self MoveCq: 17 R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveCallingBlockReturningConstant [
+
+	| currentBlock |
+	self MoveCq: 17 R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveCallingBlockWithNonLocalReturn [
+
+	| currentBlock |
+	self MoveCq: 17 R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveCallingMethodReturningConstant [
 
 	| currentBlock |
@@ -891,8 +918,7 @@ DruidTestRTLCompiler >> gen_primitiveIsIntegerObject [
 
 	| currentBlock jump0 jump1 |
 	self MoveR: ReceiverResultReg R: TempReg.
-	self AndCq: 1 R: TempReg.
-	self CmpCq: 0 R: TempReg.
+	self TstCq: 1 R: TempReg.
 	jump0 := self JumpZero: 0.
 	self MoveCw: objectMemory trueObject R: ReceiverResultReg.
 	jump1 := self Jump: 0.

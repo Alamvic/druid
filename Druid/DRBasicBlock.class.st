@@ -596,27 +596,42 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 
 	"We can only merge two operand stacks with the same number of elements"
-
-	| mergedPrimitiveFailure newState |
+	| stackSize newStack predecessorStacks phi predecessorFailures mergedPrimitiveFailure |
+	
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
 	self predecessors ifEmpty: [ ^ Stack new ].
-
+	
 	"If I have a single predecessor, just copy the operand stack"
-	self predecessors size = 1 ifTrue: [ 
+	self predecessors size = 1 ifTrue: [
 		primitiveFailureCode := self predecessors first primitiveFailureCode.
 		^ vmOperandStack := self predecessors first vmOperandStack copy ].
 
-	newState := self predecessors reduce: [ :a :b | 
-		            (a executionStateOn: aBuilder) mergeWith:
-			            (b executionStateOn: aBuilder) ].
-	mergedPrimitiveFailure := newState primitiveFailureCode.
+	predecessorFailures := self predecessors collect: [ :e | e primitiveFailureCode ].
+	mergedPrimitiveFailure := (DRPhiFunction joinedVariables: predecessorFailures)
+		result: aBuilder allocateTemporaryRegister;
+		origin: thisContext stack.
 	primitiveFailureCode := mergedPrimitiveFailure.
-	mergedPrimitiveFailure isPhiFunction ifTrue: [ 
-		self addInstruction: mergedPrimitiveFailure ].
+	mergedPrimitiveFailure isPhiFunction ifTrue: [ self addInstruction: mergedPrimitiveFailure ].
 
-	newState operandStack do: [ :operand | self addInstruction: operand ].
-	^ vmOperandStack := newState operandStack
+	predecessorStacks := self predecessors collect: [ :e | e vmOperandStack ].	
+	stackSize := predecessorStacks max: [ :e | e size ].
+	newStack := Stack new.
+	1 to: stackSize do: [ :e | | values |
+		values := predecessorStacks collect: [ :stack | 
+			stack size >= e
+				ifTrue: [ stack at: e ]
+				ifFalse: [ DRNullValue new ] ].
+		phi := (DRPhiFunction joinedVariables: values)
+			result: aBuilder allocateTemporaryRegister;
+			origin: thisContext stack;
+			yourself.
+		self haltIf: [ phi operands isEmpty ].
+		newStack push: phi.
+		self addInstruction: phi.
+	].
+self haltIf: [ newStack isKindOf: DRBasicBlock  ].
+	^ vmOperandStack := newStack
 ]
 
 { #category : #temporaries }
@@ -1021,7 +1036,8 @@ DRBasicBlock >> validatePhiFunctions [
 			this by checking that the variables are reachable from the correct predecessors"
 			e operands withIndexDo: [ :dependency :index | 
 				self assert: (dependency isInstruction not
-						or: [(self predecessors at: index) checkLivenessOf: dependency])
+					or: [ (dependency isPhiFunction and: [ dependency basicBlock = e basicBlock ])
+						or: [ (self predecessors at: index) checkLivenessOf: dependency]])
 			].
 		].
 	]

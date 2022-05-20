@@ -10,7 +10,8 @@ Class {
 		'nextRegister',
 		'pharoOperandStack',
 		'controlFlowGraph',
-		'currentExecutionState'
+		'currentOperandStack',
+		'currentPrimitiveFailureCode'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -693,23 +694,30 @@ DRIRGenerator >> interpretModWith: aRBMessageNode [
 DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and multiply them up"
+
 	| leftOperand rightOperand mulResult startingBasicBlock conditionalJump joinInstruction unshiftedLeftOperand withoutTagRightOperand taggedResult |
-	
 	leftOperand := self visitOperand: aRBMessageNode arguments first.
 	rightOperand := self visitOperand: aRBMessageNode arguments second.
-	
-	unshiftedLeftOperand := self unshiftSmallInteger: leftOperand from: aRBMessageNode.
-	withoutTagRightOperand := self untagSmallInteger: rightOperand from: aRBMessageNode.
-	
-	mulResult := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRMultiply 
-		operands: { unshiftedLeftOperand . withoutTagRightOperand }.
 
-	startingBasicBlock := self currentBasicBlock.	
+	unshiftedLeftOperand := self
+		                        unshiftSmallInteger: leftOperand
+		                        from: aRBMessageNode.
+	withoutTagRightOperand := self
+		                          untagSmallInteger: rightOperand
+		                          from: aRBMessageNode.
+
+	mulResult := self
+		             addInstructionFrom: aRBMessageNode
+		             instructionKind: DRMultiply
+		             operands: { 
+				             unshiftedLeftOperand.
+				             withoutTagRightOperand }.
+
+	startingBasicBlock := self currentBasicBlock.
 	conditionalJump := self
-		instantiateNoResultInstruction: DRMultiplyOverflowJump
-		operands: { mulResult }.
+		                   instantiateNoResultInstruction:
+		                   DRMultiplyOverflowJump
+		                   operands: { mulResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	"No overflow"
@@ -718,13 +726,13 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 	self currentBasicBlock addPredecessor: startingBasicBlock.
 	conditionalJump falseBranch: self currentBasicBlock.
 
-	joinInstruction := self 
-		newOverflowBlockDuring:  [ 
-			 aRBMessageNode arguments third acceptVisitor: self 
-			]
-		fromJump: conditionalJump
-		joinValue: taggedResult.
-	
+	joinInstruction := self
+		                   newOverflowBlockDuring: [ 
+		                   self interpretBlockBody:
+			                   aRBMessageNode arguments third ]
+		                   fromJump: conditionalJump
+		                   joinValue: taggedResult.
+
 	self pushOperand: joinInstruction
 ]
 
@@ -834,29 +842,35 @@ DRIRGenerator >> interpretStoreUint64AtWith: aRBMessageNode [
 DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and subtract them up"
+
 	| leftOperand rightOperand subResult startingBasicBlock conditionalJump joinInstruction untaggedRightOperand |
-	
 	leftOperand := self visitOperand: aRBMessageNode arguments first.
 	rightOperand := self visitOperand: aRBMessageNode arguments second.
-	
-	untaggedRightOperand := self untagSmallInteger: rightOperand from: aRBMessageNode.
-	
-	subResult := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRSubtract
-		operands: { leftOperand . untaggedRightOperand }.
 
-	startingBasicBlock := self currentBasicBlock.	
-	conditionalJump := self instantiateNoResultInstruction: DROverflowJump operands: { subResult }.
+	untaggedRightOperand := self
+		                        untagSmallInteger: rightOperand
+		                        from: aRBMessageNode.
+
+	subResult := self
+		             addInstructionFrom: aRBMessageNode
+		             instructionKind: DRSubtract
+		             operands: { 
+				             leftOperand.
+				             untaggedRightOperand }.
+
+	startingBasicBlock := self currentBasicBlock.
+	conditionalJump := self
+		                   instantiateNoResultInstruction: DROverflowJump
+		                   operands: { subResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
-	
-	joinInstruction := self 
-		newOverflowBlockDuring:  [ 
-			 aRBMessageNode arguments third acceptVisitor: self 
-			]
-		fromJump: conditionalJump
-		joinValue: subResult.
-	
+
+	joinInstruction := self
+		                   newOverflowBlockDuring: [ 
+		                   self interpretBlockBody:
+			                   aRBMessageNode arguments third ]
+		                   fromJump: conditionalJump
+		                   joinValue: subResult.
+
 	self pushOperand: joinInstruction
 ]
 
@@ -870,29 +884,35 @@ DRIRGenerator >> interpretSubstractWith: aRBMessageNode [
 DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and add them up"
+
 	| leftOperand rightOperand addResult startingBasicBlock conditionalJump joinInstruction untaggedLeftOperand |
-	
 	leftOperand := self visitOperand: aRBMessageNode arguments first.
 	rightOperand := self visitOperand: aRBMessageNode arguments second.
-	
-	untaggedLeftOperand := self untagSmallInteger: leftOperand from: aRBMessageNode.
-	
-	addResult := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRAdd
-		operands: { untaggedLeftOperand . rightOperand }.
 
-	startingBasicBlock := self currentBasicBlock.	
-	conditionalJump := self instantiateNoResultInstruction: DROverflowJump operands: { addResult }.
+	untaggedLeftOperand := self
+		                       untagSmallInteger: leftOperand
+		                       from: aRBMessageNode.
+
+	addResult := self
+		             addInstructionFrom: aRBMessageNode
+		             instructionKind: DRAdd
+		             operands: { 
+				             untaggedLeftOperand.
+				             rightOperand }.
+
+	startingBasicBlock := self currentBasicBlock.
+	conditionalJump := self
+		                   instantiateNoResultInstruction: DROverflowJump
+		                   operands: { addResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
-	joinInstruction := self 
-		newOverflowBlockDuring:  [ 
-			 aRBMessageNode arguments third acceptVisitor: self 
-			]
-		fromJump: conditionalJump
-		joinValue: addResult.
-	
+	joinInstruction := self
+		                   newOverflowBlockDuring: [ 
+		                   self interpretBlockBody:
+			                   aRBMessageNode arguments third ]
+		                   fromJump: conditionalJump
+		                   joinValue: addResult.
+
 	self pushOperand: joinInstruction
 ]
 
@@ -1111,6 +1131,12 @@ DRIRGenerator >> push: aValue [
 	
 	copyInstruction result: destinationRegister.
 	^ self currentBasicBlock addInstruction: copyInstruction"
+]
+
+{ #category : #'stack management' }
+DRIRGenerator >> pushFrame: aDruidStackFrame [ 
+	
+	interpretationStack addLast: aDruidStackFrame
 ]
 
 { #category : #'frame-access' }

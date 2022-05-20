@@ -8,7 +8,8 @@ Class {
 		'entryBasicBlock',
 		'exitBasicBlock',
 		'returnValue',
-		'executionState'
+		'operandStack',
+		'currentTemporaryFrame'
 	],
 	#category : #'Druid-CompilerCompiler'
 }

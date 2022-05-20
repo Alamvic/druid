@@ -42,7 +42,8 @@ DRMethod >> methodNode: anObject [
 { #category : #activation }
 DRMethod >> pushFrameIn: interpreter receiver: aReceiver [ 
 	| frame newMethodEntry incomingBasicBlock |	
-
+	"interpreter pushFrameWithReceiver: aReceiver method: self methodNode.
+"
 	incomingBasicBlock := interpreter currentBasicBlock.
 	newMethodEntry := interpreter newBasicBlock.
 	incomingBasicBlock jumpTo: newMethodEntry.
@@ -50,15 +51,17 @@ DRMethod >> pushFrameIn: interpreter receiver: aReceiver [
 	frame := DruidStackFrame new
 		receiver: aReceiver;
 		method: self methodNode;
-		irGenerator: interpreter;
+		irGenerator: self;
 		entryBasicBlock: newMethodEntry;
 		exitBasicBlock: interpreter basicNewBasicBlock;
-		returnValue: (DRPhiFunction new
+		yourself.
+	newMethodEntry temporaryFrame: frame temporaryFrame.
+	
+	interpreter pushFrame: frame.
+	interpreter currentBasicBlock
+		temporaryAt: '__return'
+		put: (DRPhiFunction new
 			result: interpreter allocateTemporaryRegister;
 			origin: thisContext stack;
-			yourself);
-		yourself.
-
-	newMethodEntry executionState temporaryFrame: Dictionary new.
-	interpreter pushFrame: frame.
+			yourself).
 ]
