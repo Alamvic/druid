@@ -486,7 +486,7 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 
 	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
 	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+	self currentTemporaryFrame: self currentBasicBlock temporaryFrame.
 ]
 
 { #category : #'special-cases' }
@@ -520,7 +520,7 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 
 	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
 	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+	self currentTemporaryFrame: self currentBasicBlock temporaryFrame.
 	
 	"ifTrue: does not return anything useful"
 	self pushOperand: DRNullValue new.
@@ -571,7 +571,7 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 
 	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
 	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+	self currentTemporaryFrame: self currentBasicBlock temporaryFrame.
 	self pushOperand: joinInstruction
 ]
 
@@ -1059,7 +1059,7 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 
 	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
 	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+	self currentTemporaryFrame: self currentBasicBlock temporaryFrame.
 	
 	^ joinInstruction
 ]
@@ -1102,10 +1102,8 @@ DRIRGenerator >> popFrame [
 	poppedFrame := interpretationStack removeLast.
 
 	currentBasicBlock addInstruction: poppedFrame returnValue.
-	"returnValue := poppedFrame returnValue simplify."
 	self pushOperand: poppedFrame returnValue.
 	
-	self currentTemporaryFrame: currentBasicBlock temporaryFrame.
 	currentBasicBlock jumpTo: self newBasicBlock.
 ]
 
@@ -1382,10 +1380,12 @@ DRIRGenerator >> visitOperand: aDRValue [
 { #category : #visiting }
 DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
-	| result |
+	| result copy |
+	
 	aRBReturnNode value acceptVisitor: self.
-	result := self popOperand copyToVariableIn: self inNode: aRBReturnNode.
-	self homeFrame returnValue: result from: self currentBasicBlock.
+	result := self popOperand.
+	copy := result copyToVariableIn: self inNode: aRBReturnNode.
+	self homeFrame returnValue: copy from: self currentBasicBlock.
 	self currentBasicBlock jumpTo: self homeFrame exitBasicBlock
 ]
 

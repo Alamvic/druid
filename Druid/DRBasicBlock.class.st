@@ -257,17 +257,6 @@ DRBasicBlock >> equals: operand1 to: operand2 [
 	^ self addInstruction: (self instructionFactory equals: operand1 to: operand2)
 ]
 
-{ #category : #'operand stack' }
-DRBasicBlock >> executionStateOn: interpreter [
-
-	^ DRExecutionState new
-		  interpreter: interpreter;
-		  primitiveFailureCode: self primitiveFailureCode;
-		  operandStack: vmOperandStack;
-		  temporaryFrame: temporaryFrame;
-		  yourself
-]
-
 { #category : #accessing }
 DRBasicBlock >> first [
 	
@@ -630,7 +619,8 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 		newStack push: phi.
 		self addInstruction: phi.
 	].
-self haltIf: [ newStack isKindOf: DRBasicBlock  ].
+
+	self mergeTemporaryFramesIn: aBuilder.
 	^ vmOperandStack := newStack
 ]
 
@@ -643,14 +633,14 @@ DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 	self predecessors ifEmpty: [ ^ temporaryFrame ].
 	
 	predecessorTemporaries := self predecessors collect: [ :e | e temporaryFrame ].
-	self assert: (predecessorTemporaries collect: [ :e | e size ] as: Set) size = 1.
 	
 	"Do not include the return temporary variable as it is a special variable that will be resolved at the end of the method"
 	temporaryNames := predecessorTemporaries flatCollect: [ :e | e keys ] as: Set.
 	newTemporaryFrame := Dictionary new.
 	temporaryNames collect: [ :name | | values phi |
 		name ~= #'__return' ifTrue: [
-			values := self predecessors collect: [ :p | p temporaryAt: name ].
+			values := self predecessors collect: [ :p | 
+				p temporaryAt: name ifAbsent: [ DRNullValue new ] ].
 			phi := (DRPhiFunction joinedVariables: values)
 				result: aBuilder allocateTemporaryRegister;
 				origin: thisContext stack.
@@ -985,6 +975,12 @@ DRBasicBlock >> tailDuplicate [
 DRBasicBlock >> temporaryAt: aString [ 
 	
 	^ temporaryFrame at: aString
+]
+
+{ #category : #'execution state' }
+DRBasicBlock >> temporaryAt: aString ifAbsent: aFullBlockClosure [ 
+	
+	^ temporaryFrame at: aString ifAbsent: aFullBlockClosure
 ]
 
 { #category : #temporaries }
