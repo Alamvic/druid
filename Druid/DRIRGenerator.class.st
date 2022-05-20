@@ -484,9 +484,7 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 		falseBranchBasicBlockOut jumpTo: self currentBasicBlock.
 	].
 
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: self currentBasicBlock temporaryFrame.
+	self mergeExecutionState
 ]
 
 { #category : #'special-cases' }
@@ -518,9 +516,7 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 		trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
 	].
 
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: self currentBasicBlock temporaryFrame.
+	self mergeExecutionState.
 	
 	"ifTrue: does not return anything useful"
 	self pushOperand: DRNullValue new.
@@ -569,9 +565,8 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 				                   trueBranchBasicBlockOut.
 				                   falseBranchBasicBlockOut }.
 
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: self currentBasicBlock temporaryFrame.
+	self mergeExecutionState.
+
 	self pushOperand: joinInstruction
 ]
 
@@ -997,6 +992,14 @@ DRIRGenerator >> ir [
 	^ self subclassResponsibility
 ]
 
+{ #category : #'special-cases' }
+DRIRGenerator >> mergeExecutionState [
+
+	currentOperandStack := self currentBasicBlock mergeExecutionStateIn: self.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
+	self currentTemporaryFrame: self currentBasicBlock temporaryFrame.
+]
+
 { #category : #'basic-blocks' }
 DRIRGenerator >> newBasicBlock [
 
@@ -1057,9 +1060,7 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 		onIRGenerator: self
 		from: { overflowBlock . resultBlock }.
 
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: self currentBasicBlock temporaryFrame.
+	self mergeExecutionState.
 	
 	^ joinInstruction
 ]
@@ -1097,10 +1098,10 @@ DRIRGenerator >> popFrame [
 	
 	| poppedFrame |
 	currentBasicBlock := self currentFrame exitBasicBlock.
-	currentOperandStack := currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := currentBasicBlock primitiveFailureCode.
-	poppedFrame := interpretationStack removeLast.
+	
+	self mergeExecutionState.
 
+	poppedFrame := interpretationStack removeLast.
 	currentBasicBlock addInstruction: poppedFrame returnValue.
 	self pushOperand: poppedFrame returnValue.
 	

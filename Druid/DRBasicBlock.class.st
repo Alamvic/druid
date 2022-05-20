@@ -568,6 +568,14 @@ DRBasicBlock >> load: anAddress [
 	^ self addInstruction: (self instructionFactory load: anAddress)
 ]
 
+{ #category : #'operand stack' }
+DRBasicBlock >> mergeExecutionStateIn: aBuilder [
+
+	self mergeOperandStacksIn: aBuilder.
+	self mergeTemporaryFramesIn: aBuilder.
+	^ vmOperandStack
+]
+
 { #category : #splitting }
 DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: successors [
 
@@ -583,10 +591,9 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 
 { #category : #'operand stack' }
 DRBasicBlock >> mergeOperandStacksIn: aBuilder [
-
+	
 	"We can only merge two operand stacks with the same number of elements"
 	| stackSize newStack predecessorStacks phi predecessorFailures mergedPrimitiveFailure |
-	
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
 	self predecessors ifEmpty: [ ^ Stack new ].
@@ -615,12 +622,9 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 			result: aBuilder allocateTemporaryRegister;
 			origin: thisContext stack;
 			yourself.
-		self haltIf: [ phi operands isEmpty ].
 		newStack push: phi.
 		self addInstruction: phi.
 	].
-
-	self mergeTemporaryFramesIn: aBuilder.
 	^ vmOperandStack := newStack
 ]
 
