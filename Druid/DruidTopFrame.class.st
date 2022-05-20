@@ -15,6 +15,12 @@ DruidTopFrame >> push: aDRPhiFunction [
 ]
 
 { #category : #accessing }
+DruidTopFrame >> returnValue [
+	
+	^ DRNullValue new
+]
+
+{ #category : #accessing }
 DruidTopFrame >> temporaryFrame [
 	
 	^ temporaryFrame ifNil: [ temporaryFrame := Dictionary new ]

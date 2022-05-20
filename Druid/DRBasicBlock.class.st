@@ -635,25 +635,30 @@ DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
 	self predecessors ifEmpty: [ ^ temporaryFrame ].
-	
-	predecessorTemporaries := self predecessors collect: [ :e | e temporaryFrame ].
-	
+
+	predecessorTemporaries := self predecessors collect: [ :e | 
+		                          e temporaryFrame ].
+
 	"Do not include the return temporary variable as it is a special variable that will be resolved at the end of the method"
-	temporaryNames := predecessorTemporaries flatCollect: [ :e | e keys ] as: Set.
+	temporaryNames := predecessorTemporaries
+		                  flatCollect: [ :e | e keys ]
+		                  as: Set.
 	newTemporaryFrame := Dictionary new.
-	temporaryNames collect: [ :name | | values phi |
-		name ~= #'__return' ifTrue: [
-			values := self predecessors collect: [ :p | 
-				p temporaryAt: name ifAbsent: [ DRNullValue new ] ].
-			phi := (DRPhiFunction joinedVariables: values)
-				result: aBuilder allocateTemporaryRegister;
-				origin: thisContext stack.
-			newTemporaryFrame at: name put: phi.
-			self addInstruction: phi ]
-		ifFalse: [ 
-			newTemporaryFrame at: name put: (self predecessors anyOne temporaryAt: #'__return').
-			 ] ].
-	
+	temporaryNames collect: [ :name | 
+		| values phi |
+		name ~= #__return
+			ifTrue: [ 
+				values := self predecessors collect: [ :p | 
+					          p temporaryAt: name ifAbsent: [ DRNullValue new ] ].
+				phi := (DRPhiFunction joinedVariables: values)
+					       result: aBuilder allocateTemporaryRegister;
+					       origin: thisContext stack.
+
+				newTemporaryFrame at: name put: phi.
+				self addInstruction: phi ]
+			ifFalse: [ "Do not touch the return value!" 
+				newTemporaryFrame at: name put: aBuilder currentFrame returnValue ] ].
+
 	^ temporaryFrame := newTemporaryFrame
 ]
 

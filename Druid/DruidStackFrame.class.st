@@ -7,7 +7,6 @@ Class {
 		'irGenerator',
 		'entryBasicBlock',
 		'exitBasicBlock',
-		'returnValue',
 		'operandStack',
 		'currentTemporaryFrame'
 	],
@@ -123,18 +122,6 @@ DruidStackFrame >> receiver: aCogVMSimulatorLSB [
 DruidStackFrame >> returnValue [
 
 	^ currentTemporaryFrame at: '__return'
-]
-
-{ #category : #accessing }
-DruidStackFrame >> returnValue: aValue [
-
-	"this is always a Phi function"
-	| phiFunction |
-	phiFunction := self returnValue.
-	
-	"If the value is a phi function, we have to merge it...
-	Implement it later"
-	phiFunction addValue: aValue.
 ]
 
 { #category : #accessing }

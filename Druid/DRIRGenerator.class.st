@@ -86,12 +86,7 @@ DRIRGenerator >> basicNewBasicBlock [
 DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBlockToEvaluate [
 
 	| branchEntryBlock branchExitBlock |
-	
-	"Evaluate a block using a copy of the operand stack and temporary frame.
-	Copies are needed since branches make divergence points."
-	currentOperandStack := startingBasicBlock vmOperandStack copy.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: startingBasicBlock temporaryFrame copy.
+	self copyExecutionStateOf: startingBasicBlock.	
 	branchEntryBlock := self newBasicBlockDuring: aBlockToEvaluate.
 	
 	"Then update the successor and predecessor edges"
@@ -101,11 +96,20 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 	"Get the exit basic block, restore the starting basic block to simplify the caller's interaction"
 	branchExitBlock := self currentBasicBlock.
 	currentBasicBlock := startingBasicBlock.
-	currentOperandStack := startingBasicBlock vmOperandStack.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: startingBasicBlock temporaryFrame.
+	self setExecutionStateTo: startingBasicBlock.
 	
 	^ branchExitBlock
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> copyExecutionStateOf: startingBasicBlock [
+	
+	"Evaluate a block using a copy of the operand stack and temporary frame.
+	Copies are needed since branches make divergence points."
+	currentOperandStack := startingBasicBlock vmOperandStack copy.
+	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
+	self currentTemporaryFrame: startingBasicBlock temporaryFrame copy.
+
 ]
 
 { #category : #'basic-blocks' }
@@ -981,7 +985,7 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 	].
 
 	"Now we should re-merge the outgoing phi values in the state of the entry block"
-	self currentExecutionState: (self currentBasicBlock mergeOperandStacksIn: self).	
+	self currentExecutionState: (self currentBasicBlock mergeExecutionStateIn: self).	
 
 	"whileTrue: does not return anything useful"
 	self pushOperand: DRNullValue new.
@@ -995,9 +999,8 @@ DRIRGenerator >> ir [
 { #category : #'special-cases' }
 DRIRGenerator >> mergeExecutionState [
 
-	currentOperandStack := self currentBasicBlock mergeExecutionStateIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: self currentBasicBlock temporaryFrame.
+	self currentBasicBlock mergeExecutionStateIn: self.
+	self setExecutionStateTo: self currentBasicBlock
 ]
 
 { #category : #'basic-blocks' }
@@ -1098,10 +1101,9 @@ DRIRGenerator >> popFrame [
 	
 	| poppedFrame |
 	currentBasicBlock := self currentFrame exitBasicBlock.
-	
+	poppedFrame := interpretationStack removeLast.
 	self mergeExecutionState.
 
-	poppedFrame := interpretationStack removeLast.
 	currentBasicBlock addInstruction: poppedFrame returnValue.
 	self pushOperand: poppedFrame returnValue.
 	
@@ -1154,6 +1156,14 @@ DRIRGenerator >> receiver [
 DRIRGenerator >> receiverRegister [
 	
 	^ DRPhysicalRegister name: 'ReceiverResultReg'
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> setExecutionStateTo: aBlock [
+
+	currentOperandStack := aBlock vmOperandStack.
+	currentPrimitiveFailureCode := aBlock primitiveFailureCode.
+	self currentTemporaryFrame: aBlock temporaryFrame.
 ]
 
 { #category : #'special-cases' }
