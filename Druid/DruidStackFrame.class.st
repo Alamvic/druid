@@ -7,8 +7,8 @@ Class {
 		'irGenerator',
 		'entryBasicBlock',
 		'exitBasicBlock',
-		'operandStack',
-		'currentTemporaryFrame'
+		'returnValue',
+		'executionState'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -34,6 +34,12 @@ DruidStackFrame >> exitBasicBlock [
 DruidStackFrame >> exitBasicBlock: aDRBasicBlock [
 	
 	exitBasicBlock := aDRBasicBlock 
+]
+
+{ #category : #accessing }
+DruidStackFrame >> homeFrame [
+	
+	^ self
 ]
 
 { #category : #accessing }

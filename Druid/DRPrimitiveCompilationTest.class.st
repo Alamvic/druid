@@ -269,6 +269,54 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 	
 ]
 
+{ #category : #'tests-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlock [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockReturningConstant.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockReadingExternalTemp [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockReadingExternalTemp.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockWithArgument [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockReturningArgument.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockWithNonLocalReturn [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockWithNonLocalReturn.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
 { #category : #'tests-methodactivations' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethod [
 

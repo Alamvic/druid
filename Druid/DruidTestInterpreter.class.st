@@ -50,6 +50,13 @@ DruidTestInterpreter >> methodWithEarlyReturn [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithNonLocalReturn [
+
+	[ :arg | ^ arg ] value: 17.
+	^ 1
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	self stackTop = 0
@@ -102,6 +109,39 @@ DruidTestInterpreter >> primitiveBranchingWithAssigments [
 		ifTrue: [ a ]
 		ifFalse: [ b ].
 	self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingBlockReadingExternalTemp [
+
+	<numberOfArguments: 0>
+	| t |
+	t := 17.
+	self pop: 1 thenPush: [ t ] value
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingBlockReturningArgument [
+
+	<numberOfArguments: 0>
+
+	self pop: 1 thenPush: ([ :arg | arg ] value: 17)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingBlockReturningConstant [
+
+	<numberOfArguments: 0>
+
+	self pop: 1 thenPush: [ 17 ] value
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingBlockWithNonLocalReturn [
+
+	<numberOfArguments: 0>
+
+	self pop: 1 thenPush: self methodWithNonLocalReturn
 ]
 
 { #category : #'as yet unclassified' }
@@ -500,6 +540,19 @@ DruidTestInterpreter >> primitiveSumWithOverflow [
 		withSmallInteger: (self stackValue: 0)
 		ifOverflow: [ 99 ].
 	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveToDo [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 1.
+	1 to: self stackTop do: [ :i |
+		result := result + 1
+	].
+
+	self pop: 1 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }

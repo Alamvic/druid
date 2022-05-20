@@ -257,6 +257,17 @@ DRBasicBlock >> equals: operand1 to: operand2 [
 	^ self addInstruction: (self instructionFactory equals: operand1 to: operand2)
 ]
 
+{ #category : #'operand stack' }
+DRBasicBlock >> executionStateOn: interpreter [
+
+	^ DRExecutionState new
+		  interpreter: interpreter;
+		  primitiveFailureCode: self primitiveFailureCode;
+		  operandStack: vmOperandStack;
+		  temporaryFrame: temporaryFrame;
+		  yourself
+]
+
 { #category : #accessing }
 DRBasicBlock >> first [
 	
@@ -585,41 +596,27 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 
 	"We can only merge two operand stacks with the same number of elements"
-	| stackSize newStack predecessorStacks phi predecessorFailures mergedPrimitiveFailure |
-	
+
+	| mergedPrimitiveFailure newState |
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
-	self predecessors ifEmpty: [ ^ self ].
-	
+	self predecessors ifEmpty: [ ^ Stack new ].
+
 	"If I have a single predecessor, just copy the operand stack"
-	self predecessors size = 1 ifTrue: [
+	self predecessors size = 1 ifTrue: [ 
 		primitiveFailureCode := self predecessors first primitiveFailureCode.
 		^ vmOperandStack := self predecessors first vmOperandStack copy ].
 
-	predecessorFailures := self predecessors collect: [ :e | e primitiveFailureCode ].
-	mergedPrimitiveFailure := (DRPhiFunction joinedVariables: predecessorFailures)
-		result: aBuilder allocateTemporaryRegister;
-		origin: thisContext stack.
+	newState := self predecessors reduce: [ :a :b | 
+		            (a executionStateOn: aBuilder) mergeWith:
+			            (b executionStateOn: aBuilder) ].
+	mergedPrimitiveFailure := newState primitiveFailureCode.
 	primitiveFailureCode := mergedPrimitiveFailure.
-	mergedPrimitiveFailure isPhiFunction ifTrue: [ self addInstruction: mergedPrimitiveFailure ].
+	mergedPrimitiveFailure isPhiFunction ifTrue: [ 
+		self addInstruction: mergedPrimitiveFailure ].
 
-	predecessorStacks := self predecessors collect: [ :e | e vmOperandStack ].	
-	stackSize := predecessorStacks max: [ :e | e size ].
-	newStack := Stack new.
-	1 to: stackSize do: [ :e | | values |
-		values := predecessorStacks collect: [ :stack | 
-			stack size >= e
-				ifTrue: [ stack at: e ]
-				ifFalse: [ DRNullValue new ] ].
-		phi := (DRPhiFunction joinedVariables: values)
-			result: aBuilder allocateTemporaryRegister;
-			origin: thisContext stack;
-			yourself.
-		self haltIf: [ phi operands isEmpty ].
-		newStack push: phi.
-		self addInstruction: phi.
-	].
-	^ vmOperandStack := newStack
+	newState operandStack do: [ :operand | self addInstruction: operand ].
+	^ vmOperandStack := newState operandStack
 ]
 
 { #category : #temporaries }
