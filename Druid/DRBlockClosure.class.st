@@ -59,11 +59,11 @@ DRBlockClosure >> pushFrameIn: interpreter receiver: aReceiver [
 		entryBasicBlock: newMethodEntry;
 		exitBasicBlock: interpreter basicNewBasicBlock;
 		yourself.
-	newMethodEntry temporaryFrame: frame temporaryFrame.
+	newMethodEntry executionState frameState temporaries: frame temporaryFrame.
 	
 	interpreter pushFrame: frame.
-	interpreter currentBasicBlock
-		temporaryAt: '__return'
+	frame temporaryFrame
+		at: '__return'
 		put: (DRPhiFunction new
 			result: interpreter allocateTemporaryRegister;
 			origin: thisContext stack;

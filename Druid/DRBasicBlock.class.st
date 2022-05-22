@@ -9,7 +9,6 @@ Class {
 		'endInstruction',
 		'predecessors',
 		'origin',
-		'temporaryFrame',
 		'controlFlowGraph',
 		'isExitBlock',
 		'executionState'
@@ -580,10 +579,10 @@ DRBasicBlock >> load: anAddress [
 { #category : #'operand stack' }
 DRBasicBlock >> mergeExecutionStateIn: aBuilder [
 
-	| newState mergedVMState |
+	| newState mergedVMState mergedFrameState |
 
 	mergedVMState := self mergeVMOperandStacksIn: aBuilder.
-	self mergeTemporaryFramesIn: aBuilder.
+	mergedFrameState := self mergeTemporaryFramesIn: aBuilder.
 	
 	newState := DRExecutionState new
 		vmState: (DRVMState new
@@ -591,7 +590,7 @@ DRBasicBlock >> mergeExecutionStateIn: aBuilder [
 			primitiveFailureCode: mergedVMState first;
 			yourself);
 		frameState: (DRFrameState new
-			temporaries: temporaryFrame;
+			temporaries: mergedFrameState;
 			yourself);
 		yourself.
 	executionState := newState.
@@ -615,12 +614,14 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 
 	| temporaryNames newTemporaryFrame predecessorTemporaries |
+
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
-	self predecessors ifEmpty: [ ^ temporaryFrame ].
+	self predecessors ifEmpty: [ 
+		^ aBuilder currentBasicBlock executionState frameState temporaries ].
 
 	predecessorTemporaries := self predecessors collect: [ :e | 
-		                          e temporaryFrame ].
+		                          e executionState frameState temporaries ].
 
 	"Do not include the return temporary variable as it is a special variable that will be resolved at the end of the method"
 	temporaryNames := predecessorTemporaries
@@ -632,7 +633,7 @@ DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 		name ~= #__return
 			ifTrue: [ 
 				values := self predecessors collect: [ :p | 
-					          p temporaryAt: name ifAbsent: [ DRNullValue new ] ].
+					          p executionState frameState temporaries at: name ifAbsent: [ DRNullValue new ] ].
 				phi := (DRPhiFunction joinedVariables: values)
 					       result: aBuilder allocateTemporaryRegister;
 					       origin: thisContext stack.
@@ -642,7 +643,7 @@ DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 			ifFalse: [ "Do not touch the return value!" 
 				newTemporaryFrame at: name put: aBuilder currentFrame returnValue ] ].
 
-	^ temporaryFrame := newTemporaryFrame
+	^ newTemporaryFrame
 ]
 
 { #category : #'operand stack' }
@@ -1004,35 +1005,6 @@ DRBasicBlock >> tailDuplicate [
 	controlFlowGraph validate.
 
 	^ { self } , duplicatedBlocks
-]
-
-{ #category : #temporaries }
-DRBasicBlock >> temporaryAt: aString [ 
-	
-	^ temporaryFrame at: aString
-]
-
-{ #category : #'execution state' }
-DRBasicBlock >> temporaryAt: aString ifAbsent: aFullBlockClosure [ 
-	
-	^ temporaryFrame at: aString ifAbsent: aFullBlockClosure
-]
-
-{ #category : #temporaries }
-DRBasicBlock >> temporaryAt: aString put: aValue [ 
-	
-	self haltIf: [ (aValue isKindOf: DRValue) not ].
-	temporaryFrame at: aString put: aValue
-]
-
-{ #category : #accessing }
-DRBasicBlock >> temporaryFrame [
-	^ temporaryFrame
-]
-
-{ #category : #accessing }
-DRBasicBlock >> temporaryFrame: aTemporaryFrame [ 
-	temporaryFrame := aTemporaryFrame
 ]
 
 { #category : #validating }

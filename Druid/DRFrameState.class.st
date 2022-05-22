@@ -20,6 +20,13 @@ DRFrameState >> operandStack: anObject [
 	operandStack := anObject
 ]
 
+{ #category : #copying }
+DRFrameState >> postCopy [
+
+	super postCopy.
+	temporaries := temporaries copy.
+]
+
 { #category : #accessing }
 DRFrameState >> temporaries [
 

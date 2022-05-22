@@ -77,11 +77,8 @@ DRIRGenerator >> basicNewBasicBlockWithState: executionState [
 
 	| block |
 	block := controlFlowGraph newBasicBlock.
-	
 	block executionState: executionState.
-	block temporaryFrame: self currentTemporaryFrame.
 	block origin: thisContext stack.
-	
 	^ block
 ]
 
@@ -113,9 +110,7 @@ DRIRGenerator >> copyExecutionStateOf: startingBasicBlock [
 	Copies are needed since branches make divergence points."
 	| copy |
 	copy := startingBasicBlock executionState copy.
-
-	self currentTemporaryFrame: startingBasicBlock temporaryFrame copy.
-
+	self currentFrame executionState: copy.
 	^ copy	
 ]
 
@@ -1185,7 +1180,6 @@ DRIRGenerator >> setExecutionStateTo: aBlock [
 
 	self currentBasicBlock executionState: aBlock executionState.
 	self currentFrame executionState: aBlock executionState.
-	self currentTemporaryFrame: aBlock temporaryFrame.
 ]
 
 { #category : #'special-cases' }
@@ -1237,13 +1231,13 @@ DRIRGenerator >> tagSmallInteger: operand from: aRBMessageNode [
 { #category : #'frame-access' }
 DRIRGenerator >> temporaryAt: aString [ 
 	
-	^ self currentBasicBlock temporaryAt: aString
+	^ self currentBasicBlock executionState frameState temporaries at: aString
 ]
 
 { #category : #'frame-access' }
 DRIRGenerator >> temporaryAt: aString put: aValue [ 
 
-	^ self currentBasicBlock temporaryAt: aString put: aValue
+	^ self currentBasicBlock executionState frameState temporaries at: aString put: aValue
 ]
 
 { #category : #accessing }
