@@ -10,8 +10,6 @@ Class {
 		'predecessors',
 		'origin',
 		'temporaryFrame',
-		'vmOperandStack',
-		'primitiveFailureCode',
 		'controlFlowGraph',
 		'isExitBlock',
 		'executionState'
@@ -582,15 +580,15 @@ DRBasicBlock >> load: anAddress [
 { #category : #'operand stack' }
 DRBasicBlock >> mergeExecutionStateIn: aBuilder [
 
-	| newState |
+	| newState mergedVMState |
 
-	self mergeVMOperandStacksIn: aBuilder.
+	mergedVMState := self mergeVMOperandStacksIn: aBuilder.
 	self mergeTemporaryFramesIn: aBuilder.
 	
 	newState := DRExecutionState new
 		vmState: (DRVMState new
-			operandStack: vmOperandStack;
-			primitiveFailureCode: primitiveFailureCode;
+			operandStack: mergedVMState second;
+			primitiveFailureCode: mergedVMState first;
 			yourself);
 		frameState: (DRFrameState new
 			temporaries: temporaryFrame;
@@ -651,28 +649,29 @@ DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 DRBasicBlock >> mergeVMOperandStacksIn: aBuilder [
 	
 	"We can only merge two operand stacks with the same number of elements"
-	| stackSize newStack predecessorStacks phi predecessorFailures mergedPrimitiveFailure |
+	| stackSize mergedVmOperandStack predecessorStacks phi predecessorFailures mergedPrimitiveFailureCode |
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
 	self predecessors ifEmpty: [ 
-		primitiveFailureCode := aBuilder currentBasicBlock primitiveFailureCode.
-		^ vmOperandStack := aBuilder currentBasicBlock vmOperandStack ].
+		mergedPrimitiveFailureCode := aBuilder currentBasicBlock primitiveFailureCode.
+		mergedVmOperandStack := aBuilder currentBasicBlock vmOperandStack.
+		^ { mergedPrimitiveFailureCode . mergedVmOperandStack } ].
 	
 	"If I have a single predecessor, just copy the operand stack"
 	self predecessors size = 1 ifTrue: [
-		primitiveFailureCode := self predecessors first primitiveFailureCode.
-		^ vmOperandStack := self predecessors first vmOperandStack copy ].
+		mergedPrimitiveFailureCode := self predecessors first primitiveFailureCode.
+		mergedVmOperandStack := self predecessors first vmOperandStack copy.
+		^ { mergedPrimitiveFailureCode . mergedVmOperandStack } ].
 
 	predecessorFailures := self predecessors collect: [ :e | e primitiveFailureCode ].
-	mergedPrimitiveFailure := (DRPhiFunction joinedVariables: predecessorFailures)
+	mergedPrimitiveFailureCode := (DRPhiFunction joinedVariables: predecessorFailures)
 		result: aBuilder allocateTemporaryRegister;
 		origin: thisContext stack.
-	primitiveFailureCode := mergedPrimitiveFailure.
-	mergedPrimitiveFailure isPhiFunction ifTrue: [ self addInstruction: mergedPrimitiveFailure ].
+	mergedPrimitiveFailureCode isPhiFunction ifTrue: [ self addInstruction: mergedPrimitiveFailureCode ].
 
 	predecessorStacks := self predecessors collect: [ :e | e vmOperandStack ].	
 	stackSize := predecessorStacks max: [ :e | e size ].
-	newStack := Stack new.
+	mergedVmOperandStack := Stack new.
 	1 to: stackSize do: [ :e | | values |
 		values := predecessorStacks collect: [ :stack | 
 			stack size >= e
@@ -682,10 +681,10 @@ DRBasicBlock >> mergeVMOperandStacksIn: aBuilder [
 			result: aBuilder allocateTemporaryRegister;
 			origin: thisContext stack;
 			yourself.
-		newStack push: phi.
+		mergedVmOperandStack push: phi.
 		self addInstruction: phi.
 	].
-	^ vmOperandStack := newStack
+	^ { mergedPrimitiveFailureCode . mergedVmOperandStack }
 ]
 
 { #category : #accessing }
