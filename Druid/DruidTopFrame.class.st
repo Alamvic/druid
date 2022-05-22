@@ -3,10 +3,17 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'result',
-		'temporaryFrame'
+		'temporaryFrame',
+		'executionState'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
+
+{ #category : #accessing }
+DruidTopFrame >> executionState: aDRExecutionState [
+	
+	executionState := aDRExecutionState 
+]
 
 { #category : #accessing }
 DruidTopFrame >> push: aDRPhiFunction [ 

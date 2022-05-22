@@ -1161,6 +1161,7 @@ DRIRGenerator >> receiverRegister [
 { #category : #'special-cases' }
 DRIRGenerator >> setExecutionStateTo: aBlock [
 
+	self currentFrame executionState: aBlock executionState.
 	currentOperandStack := aBlock vmOperandStack.
 	currentPrimitiveFailureCode := aBlock primitiveFailureCode.
 	self currentTemporaryFrame: aBlock temporaryFrame.

@@ -13,7 +13,8 @@ Class {
 		'vmOperandStack',
 		'primitiveFailureCode',
 		'controlFlowGraph',
-		'isExitBlock'
+		'isExitBlock',
+		'executionState'
 	],
 	#category : #'Druid-IR'
 }
@@ -255,6 +256,11 @@ DRBasicBlock >> endInstruction: aDRInstruction [
 DRBasicBlock >> equals: operand1 to: operand2 [ 
 	
 	^ self addInstruction: (self instructionFactory equals: operand1 to: operand2)
+]
+
+{ #category : #accessing }
+DRBasicBlock >> executionState [
+	^ executionState
 ]
 
 { #category : #accessing }
@@ -571,9 +577,21 @@ DRBasicBlock >> load: anAddress [
 { #category : #'operand stack' }
 DRBasicBlock >> mergeExecutionStateIn: aBuilder [
 
-	self mergeOperandStacksIn: aBuilder.
+	| newState |
+	self mergeVMOperandStacksIn: aBuilder.
 	self mergeTemporaryFramesIn: aBuilder.
-	^ vmOperandStack
+	
+	newState := DRExecutionState new
+		vmState: (DRVMState new
+			operandStack: vmOperandStack;
+			primitiveFailureCode: self primitiveFailureCode;
+			yourself);
+		frameState: (DRFrameState new
+			temporaries: temporaryFrame;
+			yourself);
+		yourself.
+	executionState := newState.
+	aBuilder currentFrame executionState: newState.
 ]
 
 { #category : #splitting }
@@ -589,8 +607,42 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 				withUsers: myInstruction nonLocalUsers ]
 ]
 
+{ #category : #temporaries }
+DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
+
+	| temporaryNames newTemporaryFrame predecessorTemporaries |
+	"If I have no predecessors, I'm very probably dead code.
+	No need to merge anything"
+	self predecessors ifEmpty: [ ^ temporaryFrame ].
+
+	predecessorTemporaries := self predecessors collect: [ :e | 
+		                          e temporaryFrame ].
+
+	"Do not include the return temporary variable as it is a special variable that will be resolved at the end of the method"
+	temporaryNames := predecessorTemporaries
+		                  flatCollect: [ :e | e keys ]
+		                  as: Set.
+	newTemporaryFrame := Dictionary new.
+	temporaryNames collect: [ :name | 
+		| values phi |
+		name ~= #__return
+			ifTrue: [ 
+				values := self predecessors collect: [ :p | 
+					          p temporaryAt: name ifAbsent: [ DRNullValue new ] ].
+				phi := (DRPhiFunction joinedVariables: values)
+					       result: aBuilder allocateTemporaryRegister;
+					       origin: thisContext stack.
+
+				newTemporaryFrame at: name put: phi.
+				self addInstruction: phi ]
+			ifFalse: [ "Do not touch the return value!" 
+				newTemporaryFrame at: name put: aBuilder currentFrame returnValue ] ].
+
+	^ temporaryFrame := newTemporaryFrame
+]
+
 { #category : #'operand stack' }
-DRBasicBlock >> mergeOperandStacksIn: aBuilder [
+DRBasicBlock >> mergeVMOperandStacksIn: aBuilder [
 	
 	"We can only merge two operand stacks with the same number of elements"
 	| stackSize newStack predecessorStacks phi predecessorFailures mergedPrimitiveFailure |
@@ -626,40 +678,6 @@ DRBasicBlock >> mergeOperandStacksIn: aBuilder [
 		self addInstruction: phi.
 	].
 	^ vmOperandStack := newStack
-]
-
-{ #category : #temporaries }
-DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
-
-	| temporaryNames newTemporaryFrame predecessorTemporaries |
-	"If I have no predecessors, I'm very probably dead code.
-	No need to merge anything"
-	self predecessors ifEmpty: [ ^ temporaryFrame ].
-
-	predecessorTemporaries := self predecessors collect: [ :e | 
-		                          e temporaryFrame ].
-
-	"Do not include the return temporary variable as it is a special variable that will be resolved at the end of the method"
-	temporaryNames := predecessorTemporaries
-		                  flatCollect: [ :e | e keys ]
-		                  as: Set.
-	newTemporaryFrame := Dictionary new.
-	temporaryNames collect: [ :name | 
-		| values phi |
-		name ~= #__return
-			ifTrue: [ 
-				values := self predecessors collect: [ :p | 
-					          p temporaryAt: name ifAbsent: [ DRNullValue new ] ].
-				phi := (DRPhiFunction joinedVariables: values)
-					       result: aBuilder allocateTemporaryRegister;
-					       origin: thisContext stack.
-
-				newTemporaryFrame at: name put: phi.
-				self addInstruction: phi ]
-			ifFalse: [ "Do not touch the return value!" 
-				newTemporaryFrame at: name put: aBuilder currentFrame returnValue ] ].
-
-	^ temporaryFrame := newTemporaryFrame
 ]
 
 { #category : #accessing }

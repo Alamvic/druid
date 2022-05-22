@@ -8,7 +8,8 @@ Class {
 		'entryBasicBlock',
 		'exitBasicBlock',
 		'operandStack',
-		'currentTemporaryFrame'
+		'currentTemporaryFrame',
+		'executionState'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -23,6 +24,12 @@ DruidStackFrame >> entryBasicBlock [
 DruidStackFrame >> entryBasicBlock: anObject [
 
 	entryBasicBlock := anObject
+]
+
+{ #category : #accessing }
+DruidStackFrame >> executionState: anExecutionState [
+	
+	executionState := anExecutionState
 ]
 
 { #category : #accessing }
