@@ -73,8 +73,15 @@ DRPrimitiveIRGenerator >> ir [
 { #category : #accessing }
 DRPrimitiveIRGenerator >> newBasicBlock [
 
+	^ self newBasicBlockWithState: self currentBasicBlock executionState.
+
+]
+
+{ #category : #accessing }
+DRPrimitiveIRGenerator >> newBasicBlockWithState: executionState [
+
 	| newBasicBlock |
-	newBasicBlock := super newBasicBlock.
+	newBasicBlock := super newBasicBlockWithState: executionState.
 	firstBasicBlock ifNil: [ firstBasicBlock := newBasicBlock ].
 	^ newBasicBlock
 ]

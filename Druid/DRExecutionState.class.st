@@ -20,6 +20,13 @@ DRExecutionState >> frameState: anObject [
 	frameState := anObject
 ]
 
+{ #category : #copying }
+DRExecutionState >> postCopy [
+	super postCopy.
+	vmState := vmState copy.
+	frameState := frameState copy.
+]
+
 { #category : #accessing }
 DRExecutionState >> vmState [
 

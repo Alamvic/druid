@@ -264,6 +264,11 @@ DRBasicBlock >> executionState [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> executionState: aDRExecutionState [ 
+	executionState := aDRExecutionState
+]
+
+{ #category : #accessing }
 DRBasicBlock >> first [
 	
 	instructions ifEmpty: [ ^ endInstruction ].
@@ -578,6 +583,7 @@ DRBasicBlock >> load: anAddress [
 DRBasicBlock >> mergeExecutionStateIn: aBuilder [
 
 	| newState |
+
 	self mergeVMOperandStacksIn: aBuilder.
 	self mergeTemporaryFramesIn: aBuilder.
 	
@@ -648,7 +654,7 @@ DRBasicBlock >> mergeVMOperandStacksIn: aBuilder [
 	| stackSize newStack predecessorStacks phi predecessorFailures mergedPrimitiveFailure |
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
-	self predecessors ifEmpty: [ ^ Stack new ].
+	self predecessors ifEmpty: [ ^ vmOperandStack := aBuilder currentBasicBlock vmOperandStack ].
 	
 	"If I have a single predecessor, just copy the operand stack"
 	self predecessors size = 1 ifTrue: [
@@ -1091,11 +1097,12 @@ DRBasicBlock >> veryDeepCopyWith: deepCopier [
 { #category : #accessing }
 DRBasicBlock >> vmOperandStack [
 
-	^ vmOperandStack
+	^ executionState vmState operandStack
 ]
 
 { #category : #accessing }
 DRBasicBlock >> vmOperandStack: anObject [
 
+1halt.
 	vmOperandStack := anObject
 ]

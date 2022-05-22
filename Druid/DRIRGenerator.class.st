@@ -10,7 +10,6 @@ Class {
 		'nextRegister',
 		'pharoOperandStack',
 		'controlFlowGraph',
-		'currentOperandStack',
 		'currentPrimitiveFailureCode'
 	],
 	#category : #'Druid-CompilerCompiler'
@@ -70,12 +69,18 @@ DRIRGenerator >> argRegisterNumber: anInteger [
 
 { #category : #'basic-blocks' }
 DRIRGenerator >> basicNewBasicBlock [
+	
+	^ self basicNewBasicBlockWithState: self currentBasicBlock executionState
+]
+
+{ #category : #'basic-blocks' }
+DRIRGenerator >> basicNewBasicBlockWithState: executionState [
 
 	| block |
 	block := controlFlowGraph newBasicBlock.
 	
+	block executionState: executionState.
 	block primitiveFailureCode: currentPrimitiveFailureCode.
-	block vmOperandStack: currentOperandStack.
 	block temporaryFrame: self currentTemporaryFrame.
 	block origin: thisContext stack.
 	
@@ -85,9 +90,10 @@ DRIRGenerator >> basicNewBasicBlock [
 { #category : #'special-cases' }
 DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBlockToEvaluate [
 
-	| branchEntryBlock branchExitBlock |
-	self copyExecutionStateOf: startingBasicBlock.	
-	branchEntryBlock := self newBasicBlockDuring: aBlockToEvaluate.
+	| branchEntryBlock branchExitBlock copy |
+	copy := self copyExecutionStateOf: startingBasicBlock.	
+	
+	branchEntryBlock := self newBasicBlockWithState: copy during: aBlockToEvaluate.
 	
 	"Then update the successor and predecessor edges"
 	anEdgeBlock value: branchEntryBlock.
@@ -96,6 +102,7 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 	"Get the exit basic block, restore the starting basic block to simplify the caller's interaction"
 	branchExitBlock := self currentBasicBlock.
 	currentBasicBlock := startingBasicBlock.
+	
 	self setExecutionStateTo: startingBasicBlock.
 	
 	^ branchExitBlock
@@ -106,10 +113,13 @@ DRIRGenerator >> copyExecutionStateOf: startingBasicBlock [
 	
 	"Evaluate a block using a copy of the operand stack and temporary frame.
 	Copies are needed since branches make divergence points."
-	currentOperandStack := startingBasicBlock vmOperandStack copy.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
+	| copy |
+	copy := startingBasicBlock executionState copy.
+	
+	currentPrimitiveFailureCode := startingBasicBlock primitiveFailureCode.
 	self currentTemporaryFrame: startingBasicBlock temporaryFrame copy.
 
+	^ copy	
 ]
 
 { #category : #'basic-blocks' }
@@ -131,6 +141,7 @@ DRIRGenerator >> currentMethod [
 
 { #category : #'frame-access' }
 DRIRGenerator >> currentOperandStack [
+
 	^ self currentBasicBlock vmOperandStack
 ]
 
@@ -167,7 +178,15 @@ DRIRGenerator >> initialize [
 	specialCases := Dictionary new.
 	self initializeSpecialCases.
 	
-	currentOperandStack := Stack new.
+	currentBasicBlock := self initialBasicBlock.
+	currentBasicBlock executionState: (DRExecutionState new
+		vmState: (DRVMState new
+			operandStack: Stack new;
+			yourself);
+		frameState: (DRFrameState new
+			temporaries: Dictionary new;
+			yourself);
+		yourself).
 	
 	"Push a top frame"
 	interpretationStack := OrderedCollection new.
@@ -1020,6 +1039,23 @@ DRIRGenerator >> newBasicBlockDuring: aFullBlockClosure [
 	^ inBasicBlock
 ]
 
+{ #category : #'basic-blocks' }
+DRIRGenerator >> newBasicBlockWithState: executionState [
+
+	| newBasicBlock |
+	newBasicBlock := self basicNewBasicBlockWithState: executionState.
+	^ currentBasicBlock := newBasicBlock
+]
+
+{ #category : #'basic-blocks' }
+DRIRGenerator >> newBasicBlockWithState: executionState during: aFullBlockClosure [ 
+	
+	| inBasicBlock |
+	inBasicBlock := self newBasicBlockWithState: executionState.
+	aFullBlockClosure value.
+	^ inBasicBlock
+]
+
 { #category : #initialization }
 DRIRGenerator >> newCFG [
 	
@@ -1120,18 +1156,7 @@ DRIRGenerator >> popOperand [
 DRIRGenerator >> push: aValue [
 	
 	"Update the operand stack to keep track of the new position"
-	self currentOperandStack push: aValue.
-	"Each position of the operand stack is related to a special register.
-	Translate the push to a copy with a concrete result register.
-	The concrete result register will be the one associated with the current position of the operand stack"
-	"self haltIf: [ aValue isKindOf: DRNullValue ].
-	copyInstruction := self instantiate: DRCopy operands: { aValue }.
-	destinationRegister := operandStackPosition = 1
-		ifTrue: [ self receiverRegister ]
-		ifFalse: [ DRPhysicalRegister name: 'Arg', (operandStackPosition - 2) asString, 'Reg' ].
-	
-	copyInstruction result: destinationRegister.
-	^ self currentBasicBlock addInstruction: copyInstruction"
+	self currentOperandStack push: aValue
 ]
 
 { #category : #'stack management' }
@@ -1161,8 +1186,8 @@ DRIRGenerator >> receiverRegister [
 { #category : #'special-cases' }
 DRIRGenerator >> setExecutionStateTo: aBlock [
 
+	self currentBasicBlock executionState: aBlock executionState.
 	self currentFrame executionState: aBlock executionState.
-	currentOperandStack := aBlock vmOperandStack.
 	currentPrimitiveFailureCode := aBlock primitiveFailureCode.
 	self currentTemporaryFrame: aBlock temporaryFrame.
 ]

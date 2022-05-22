@@ -20,6 +20,12 @@ DRVMState >> operandStack: anObject [
 	operandStack := anObject
 ]
 
+{ #category : #copying }
+DRVMState >> postCopy [
+	super postCopy.
+	operandStack := operandStack copy
+]
+
 { #category : #accessing }
 DRVMState >> primitiveFailureCode [
 
