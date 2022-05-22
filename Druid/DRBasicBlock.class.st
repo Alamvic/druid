@@ -590,7 +590,7 @@ DRBasicBlock >> mergeExecutionStateIn: aBuilder [
 	newState := DRExecutionState new
 		vmState: (DRVMState new
 			operandStack: vmOperandStack;
-			primitiveFailureCode: self primitiveFailureCode;
+			primitiveFailureCode: primitiveFailureCode;
 			yourself);
 		frameState: (DRFrameState new
 			temporaries: temporaryFrame;
@@ -654,7 +654,9 @@ DRBasicBlock >> mergeVMOperandStacksIn: aBuilder [
 	| stackSize newStack predecessorStacks phi predecessorFailures mergedPrimitiveFailure |
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
-	self predecessors ifEmpty: [ ^ vmOperandStack := aBuilder currentBasicBlock vmOperandStack ].
+	self predecessors ifEmpty: [ 
+		primitiveFailureCode := aBuilder currentBasicBlock primitiveFailureCode.
+		^ vmOperandStack := aBuilder currentBasicBlock vmOperandStack ].
 	
 	"If I have a single predecessor, just copy the operand stack"
 	self predecessors size = 1 ifTrue: [
@@ -800,12 +802,13 @@ DRBasicBlock >> predecessors [
 
 { #category : #accessing }
 DRBasicBlock >> primitiveFailureCode [
-	^ primitiveFailureCode
+	^ executionState vmState primitiveFailureCode
 ]
 
 { #category : #accessing }
-DRBasicBlock >> primitiveFailureCode: anInstruction [ 
-	primitiveFailureCode := anInstruction
+DRBasicBlock >> primitiveFailureCode: anInstruction [
+
+	self executionState vmState primitiveFailureCode: anInstruction
 ]
 
 { #category : #printing }
@@ -1098,11 +1101,4 @@ DRBasicBlock >> veryDeepCopyWith: deepCopier [
 DRBasicBlock >> vmOperandStack [
 
 	^ executionState vmState operandStack
-]
-
-{ #category : #accessing }
-DRBasicBlock >> vmOperandStack: anObject [
-
-1halt.
-	vmOperandStack := anObject
 ]

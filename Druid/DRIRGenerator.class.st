@@ -9,8 +9,7 @@ Class {
 		'numberOfArguments',
 		'nextRegister',
 		'pharoOperandStack',
-		'controlFlowGraph',
-		'currentPrimitiveFailureCode'
+		'controlFlowGraph'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -80,7 +79,6 @@ DRIRGenerator >> basicNewBasicBlockWithState: executionState [
 	block := controlFlowGraph newBasicBlock.
 	
 	block executionState: executionState.
-	block primitiveFailureCode: currentPrimitiveFailureCode.
 	block temporaryFrame: self currentTemporaryFrame.
 	block origin: thisContext stack.
 	
@@ -115,8 +113,7 @@ DRIRGenerator >> copyExecutionStateOf: startingBasicBlock [
 	Copies are needed since branches make divergence points."
 	| copy |
 	copy := startingBasicBlock executionState copy.
-	
-	currentPrimitiveFailureCode := startingBasicBlock primitiveFailureCode.
+
 	self currentTemporaryFrame: startingBasicBlock temporaryFrame copy.
 
 	^ copy	
@@ -1188,7 +1185,6 @@ DRIRGenerator >> setExecutionStateTo: aBlock [
 
 	self currentBasicBlock executionState: aBlock executionState.
 	self currentFrame executionState: aBlock executionState.
-	currentPrimitiveFailureCode := aBlock primitiveFailureCode.
 	self currentTemporaryFrame: aBlock temporaryFrame.
 ]
 

@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 DRPrimitiveIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 	
-	currentPrimitiveFailureCode := anInstruction
+	self currentBasicBlock executionState vmState primitiveFailureCode: anInstruction
 ]
 
 { #category : #accessing }
