@@ -192,6 +192,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #value put: #interpretBlockValueWith:.
 	specialCases at: #value: put: #interpretBlockValueWith:.
 	specialCases at: #ifTrue:ifFalse: put: #interpretIfTrueifFalseWith:.
+	specialCases at: #ifNotNil: put: #interpretIfNotNilWith:.
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
 	specialCases at: #ifFalse: put: #interpretIfFalseWith:.
 	specialCases at: #whileTrue: put: #interpretWhileTrueWith:.
@@ -500,6 +501,46 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 	].
 
 	self mergeExecutionState
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretIfNotNilWith: aRBMessageNode [
+
+	| falseBranchBasicBlockOut conditionalJump startingBasicBlock |
+	aRBMessageNode receiver acceptVisitor: self.
+	self
+		addInstructionWithNoResultFrom: aRBMessageNode
+		instructionKind: DREqualsThanComparison
+		operands: { self popOperand. nil asDRValue }.
+	conditionalJump := self
+		instantiateNoResultInstruction: DRConditionalJump
+		operands: { self popOperand }.
+	
+	self currentBasicBlock endInstruction: conditionalJump.
+
+	falseBranchBasicBlockOut := self
+		branchFrom: self currentBasicBlock
+		onEdge: [ :branchEntryBlock | conditionalJump falseBranch: branchEntryBlock ]
+		doing: [ self interpretBlockBody: aRBMessageNode arguments first ].
+
+	"Merge point"
+	startingBasicBlock := self currentBasicBlock.
+	self newBasicBlock.
+	self currentBasicBlock addPredecessor: startingBasicBlock.
+	conditionalJump trueBranch: self currentBasicBlock.
+		
+	"Could happen that the evaluated block had a non local return.
+	In that case, this block should not arrive to this merge point
+		=> do not add the jump"
+	falseBranchBasicBlockOut hasFinalInstruction ifFalse: [
+		falseBranchBasicBlockOut jumpTo: self currentBasicBlock.
+	].
+
+	self mergeExecutionState.
+	
+	"ifTrue: does not return anything useful"
+	self pushOperand: DRNullValue new.
+
 ]
 
 { #category : #'special-cases' }
@@ -1299,14 +1340,14 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 	
 	aRBAssignmentNode value acceptVisitor: self.
 	
-	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [ 
-		^ self
-			temporaryAt: aRBAssignmentNode variable name
-			put: self operandStackTop ].
-	
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [ 
 		^ self receiver value
 			instVarNamed: aRBAssignmentNode variable name
+			put: self operandStackTop ].
+	
+	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [ 
+		^ self
+			temporaryAt: aRBAssignmentNode variable name
 			put: self operandStackTop ].
 	
 	self halt

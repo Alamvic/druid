@@ -660,6 +660,19 @@ DruidTestInterpreter >> primitiveWithIfAssigningValue [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithIfNotNilStatement [
+
+	<numberOfArguments: 0>
+	| t result |
+	t := self stackTop > 0
+		ifTrue: [ nil ]
+		ifFalse: [ 1 ].
+	result := 17.
+	t ifNotNil: [ result := 42 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveWithIfReturningValue [
 
 	<numberOfArguments: 0>

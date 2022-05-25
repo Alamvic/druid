@@ -1372,6 +1372,34 @@ DruidTestRTLCompiler >> gen_primitiveWithIfAssigningValue [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveWithIfNotNilStatement [
+
+	| currentBlock jump0 jump1 jump2 jump3 |
+	self CmpCq: 0 R: ReceiverResultReg.
+	jump0 := self JumpLessOrEqual: 0.
+	self MoveCq: 0 R: TempReg.
+	self MoveR: TempReg R: TempReg.
+	jump1 := self Jump: 0.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveCq: 1 R: TempReg.
+	self MoveR: TempReg R: TempReg.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self CmpCq: 0 R: TempReg.
+	jump2 := self JumpNonZero: 0.
+	self MoveCq: 17 R: ReceiverResultReg.
+	jump3 := self Jump: 0.
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
+	self MoveCq: 42 R: ReceiverResultReg.
+	currentBlock := self Label.
+	jump3 jmpTarget: currentBlock.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveWithIfReturningValue [
 
 	| currentBlock jump0 jump1 |

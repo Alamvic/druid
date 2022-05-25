@@ -556,7 +556,7 @@ DRInstruction >> validate [
 	self operands do: [ :o | 
 		(o isInstruction not or: [ 
 			 self basicBlock isDominatedBy: o basicBlock ]) ifFalse: [ 
-			DRError signal: 'Tenés cualquier operando en: ' , self asString ] ]
+			DRError signal: 'Invalid operand: ' , self asString ] ]
 ]
 
 { #category : #copying }

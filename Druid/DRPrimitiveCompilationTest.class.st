@@ -171,7 +171,7 @@ DRPrimitiveCompilationTest >> testBranchingWithAssigmentsTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'tests-iftrueiffalse' }
+{ #category : #'tests-conditionals' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCaseFalse [
 
 	self compileDruidPrimitive: #primitiveWithIfAssigningValue.
@@ -181,7 +181,7 @@ DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCas
 	self assert: machineSimulator receiverRegisterValue equals: 57
 ]
 
-{ #category : #'tests-iftrueiffalse' }
+{ #category : #'tests-conditionals' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCaseTrue [
 
 	self compileDruidPrimitive: #primitiveWithIfAssigningValue.
@@ -191,7 +191,7 @@ DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCas
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-iftrueiffalse' }
+{ #category : #'tests-conditionals' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowCaseFalse [
 
 	self compileDruidPrimitive: #primitiveWithIfReturningValue.
@@ -201,7 +201,7 @@ DRPrimitiveCompilationTest >> testCompileConditionalControlFlowCaseFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 57
 ]
 
-{ #category : #'tests-iftrueiffalse' }
+{ #category : #'tests-conditionals' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowCaseTrue [
 
 	self compileDruidPrimitive: #primitiveWithIfReturningValue.
@@ -646,6 +646,28 @@ DRPrimitiveCompilationTest >> testGreaterThanInverted [
 	self executePrimitiveWithReceiver: 2.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-conditionals' }
+DRPrimitiveCompilationTest >> testIfNotNilStatementWithNil [
+
+	self compileDruidPrimitive: #primitiveWithIfNotNilStatement.
+	
+	"If bigger than 0, it will see nil and set 42"
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-conditionals' }
+DRPrimitiveCompilationTest >> testIfNotNilStatementWithNotNil [
+
+	self compileDruidPrimitive: #primitiveWithIfNotNilStatement.
+	
+	"If smaller than 0, it will not see nil and set 17"
+	self executePrimitiveWithReceiver: -1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
 { #category : #'tests-arithmetic' }

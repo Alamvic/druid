@@ -165,10 +165,14 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 
 	| constantValue |
 	aValue isConstant ifTrue: [ 
+		"Interpret the booleans as the bits 0 and 1"
 		constantValue := (#( true false ) includes: aValue value)
 			ifTrue: [ aValue value asBit ]
 			ifFalse: [ aValue value ].
-
+		
+		"Interpret nil as zero"
+		constantValue isNil ifTrue: [ constantValue := 0 ].
+		
 		(constantValue isInteger and: [ constantValue > 5000 ]) ifTrue: [ 
 			^ RBLiteralValueNode new
 				  value: constantValue

@@ -432,7 +432,7 @@ DRBasicBlock >> inspectionInstructions: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Instructions'> 
 	
 	^ aBuilder newList
-		display: [ :each | StObjectPrinter asTruncatedTextFrom: each prettyPrint ];
+		display: [ :each | [StObjectPrinter asTruncatedTextFrom: each prettyPrint] on: Error do: [ 'asd' ] ];
 		items: self instructions;
 		yourself
 ]

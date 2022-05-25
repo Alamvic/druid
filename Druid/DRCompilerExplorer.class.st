@@ -32,7 +32,7 @@ DRCompilerExplorer class >> onSelector: aSelector inClass: aClass [
 { #category : #optimising }
 DRCompilerExplorer >> apply: opt [
 
-	previousCfgs add: self cfg veryDeepCopy.
+	"previousCfgs add: self cfg veryDeepCopy."
 	self cfg applyOptimisation: opt
 ]
 
