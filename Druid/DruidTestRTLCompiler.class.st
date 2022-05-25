@@ -945,8 +945,7 @@ DruidTestRTLCompiler >> gen_primitiveIsIntegerObject [
 
 	| currentBlock jump0 jump1 |
 	self MoveR: ReceiverResultReg R: TempReg.
-	self AndCq: 1 R: TempReg.
-	self CmpCq: 0 R: TempReg.
+	self TstCq: 1 R: TempReg.
 	jump0 := self JumpZero: 0.
 	self MoveCw: objectMemory trueObject R: ReceiverResultReg.
 	jump1 := self Jump: 0.
