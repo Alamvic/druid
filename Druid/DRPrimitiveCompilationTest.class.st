@@ -330,6 +330,18 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockWithNonLocalReturn
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
+{ #category : #'tests-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockWritingExternalTemp [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockWritingExternalTemp.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
 { #category : #'tests-methodactivations' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethod [
 

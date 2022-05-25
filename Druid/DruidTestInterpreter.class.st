@@ -155,6 +155,15 @@ DruidTestInterpreter >> primitiveCallingBlockWithNonLocalReturn [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingBlockWritingExternalTemp [
+
+	<numberOfArguments: 0>
+	| t |
+	[ t := 17 ] value.
+	self pop: 1 thenPush: t
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveCallingMethodReturningConstant [
 
 	<numberOfArguments: 0>

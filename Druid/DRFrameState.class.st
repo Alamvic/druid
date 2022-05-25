@@ -9,6 +9,20 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #temporaries }
+DRFrameState >> defineVariableNamed: aString [ 
+	
+	temporaries at: aString put: DRNullValue new
+]
+
+{ #category : #lookup }
+DRFrameState >> frameDefining: aString [ 
+	
+	(temporaries includesKey: aString)
+		ifTrue: [ ^ self ].
+	^ outerFrameState frameDefining: aString
+]
+
 { #category : #accessing }
 DRFrameState >> operandStack [
 
@@ -62,5 +76,11 @@ DRFrameState >> temporaryAt: aName [
 { #category : #accessing }
 DRFrameState >> temporaryAt: aName put: aValue [
 
-	temporaries at: aName put: aValue
+	(self frameDefining: aName) writeTemporary: aName value: aValue
+]
+
+{ #category : #temporaries }
+DRFrameState >> writeTemporary: aString value: aValue [
+	
+	temporaries at: aString put: aValue
 ]

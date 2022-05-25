@@ -42,6 +42,8 @@ DRCode >> pushFrameIn: interpreter receiver: aReceiver [
 	newExecutionState frameState: frame frameState.
 	newMethodEntry executionState: newExecutionState.
 	
+	self codeNode temporaryNames do: [ :e | frame frameState defineVariableNamed: e ].
+	
 	interpreter pushFrame: frame.
 	frame temporaryFrame
 		at: '__return'
