@@ -9,7 +9,8 @@ Class {
 		'exitBasicBlock',
 		'operandStack',
 		'currentTemporaryFrame',
-		'executionState'
+		'executionState',
+		'frameState'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -48,6 +49,13 @@ DRStackFrame >> exitBasicBlock: aDRBasicBlock [
 	exitBasicBlock := aDRBasicBlock 
 ]
 
+{ #category : #'execution state' }
+DRStackFrame >> frameState [
+	
+	frameState ifNotNil: [ ^ frameState ].
+	^ frameState := self newFrameState
+]
+
 { #category : #accessing }
 DRStackFrame >> homeFrame [
 	
@@ -84,6 +92,14 @@ DRStackFrame >> method [
 DRStackFrame >> method: anObject [
 
 	method := anObject
+]
+
+{ #category : #'execution state' }
+DRStackFrame >> newFrameState [
+
+	^ DRFrameState new
+		temporaries: Dictionary new;
+		yourself
 ]
 
 { #category : #accessing }

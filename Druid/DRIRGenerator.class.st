@@ -1246,13 +1246,13 @@ DRIRGenerator >> tagSmallInteger: operand from: aRBMessageNode [
 { #category : #'frame-access' }
 DRIRGenerator >> temporaryAt: aString [ 
 	
-	^ self currentBasicBlock executionState frameState temporaries at: aString
+	^ self currentBasicBlock executionState frameState temporaryAt: aString
 ]
 
 { #category : #'frame-access' }
 DRIRGenerator >> temporaryAt: aString put: aValue [ 
 
-	^ self currentBasicBlock executionState frameState temporaries at: aString put: aValue
+	^ self currentBasicBlock executionState frameState temporaryAt: aString put: aValue
 ]
 
 { #category : #accessing }
