@@ -1,5 +1,5 @@
 Class {
-	#name : #DruidTopFrame,
+	#name : #DRTopFrame,
 	#superclass : #Object,
 	#instVars : [
 		'result',
@@ -10,31 +10,36 @@ Class {
 }
 
 { #category : #accessing }
-DruidTopFrame >> executionState: aDRExecutionState [
+DRTopFrame >> executionState [
+	^ executionState
+]
+
+{ #category : #accessing }
+DRTopFrame >> executionState: aDRExecutionState [
 	
 	executionState := aDRExecutionState 
 ]
 
 { #category : #accessing }
-DruidTopFrame >> push: aDRPhiFunction [ 
+DRTopFrame >> push: aDRPhiFunction [ 
 
 	result := aDRPhiFunction
 ]
 
 { #category : #accessing }
-DruidTopFrame >> returnValue [
+DRTopFrame >> returnValue [
 	
 	^ DRNullValue new
 ]
 
 { #category : #accessing }
-DruidTopFrame >> temporaryFrame [
+DRTopFrame >> temporaryFrame [
 	
 	^ temporaryFrame ifNil: [ temporaryFrame := Dictionary new ]
 ]
 
 { #category : #accessing }
-DruidTopFrame >> temporaryFrame: aDictionary [
+DRTopFrame >> temporaryFrame: aDictionary [
 	
 	temporaryFrame := aDictionary
 ]

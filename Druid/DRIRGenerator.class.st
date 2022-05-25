@@ -182,7 +182,7 @@ DRIRGenerator >> initialize [
 	
 	"Push a top frame"
 	interpretationStack := OrderedCollection new.
-	interpretationStack addLast: DruidTopFrame new
+	interpretationStack addLast: DRTopFrame new
 ]
 
 { #category : #'special-cases' }
@@ -1014,6 +1014,12 @@ DRIRGenerator >> mergeExecutionState [
 	self setExecutionStateTo: self currentBasicBlock
 ]
 
+{ #category : #'vm state' }
+DRIRGenerator >> mergeVMState [
+	
+	^ self currentBasicBlock mergeVMOperandStacksIn: self
+]
+
 { #category : #'basic-blocks' }
 DRIRGenerator >> newBasicBlock [
 
@@ -1127,15 +1133,24 @@ DRIRGenerator >> pop: anInteger [
 { #category : #'frame-access' }
 DRIRGenerator >> popFrame [
 	
-	| poppedFrame |
+	| poppedFrame newVMState |
+	"Here we are in callee"
 	currentBasicBlock := self currentFrame exitBasicBlock.
+	newVMState := self mergeVMState.
 	poppedFrame := interpretationStack removeLast.
-	self mergeExecutionState.
-
 	currentBasicBlock addInstruction: poppedFrame returnValue.
-	self pushOperand: poppedFrame returnValue.
 	
+	"Here we are in caller"
+	"Continue executing with the new merged VM state and the restored frame state for the current frame"
+	self currentFrame executionState: (DRExecutionState new
+		vmState: newVMState;
+		frameState: self currentFrame executionState frameState;
+		yourself).
+
+	self pushOperand: poppedFrame returnValue.	
 	currentBasicBlock jumpTo: self newBasicBlock.
+	currentBasicBlock executionState: self currentFrame executionState.
+	
 ]
 
 { #category : #'frame-access' }

@@ -92,6 +92,16 @@ DruidTestInterpreter >> passingSuccess [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAccessTempAfterCall [
+
+	| temp |
+	<numberOfArguments: 0>
+	temp := 17.
+	self constant.
+	self pop: 1 thenPush: temp
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveAssertIsIgnored [
 	<numberOfArguments: 0>
 	self assert: false.

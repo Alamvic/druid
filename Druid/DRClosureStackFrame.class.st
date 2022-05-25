@@ -1,11 +1,11 @@
 Class {
-	#name : #DruidClosureStackFrame,
-	#superclass : #DruidStackFrame,
+	#name : #DRClosureStackFrame,
+	#superclass : #DRStackFrame,
 	#category : #'Druid-CompilerCompiler'
 }
 
 { #category : #accessing }
-DruidClosureStackFrame >> homeFrame [
+DRClosureStackFrame >> homeFrame [
 	
 	^ receiver outerContext homeFrame
 ]

@@ -91,6 +91,15 @@ DruidTestRTLCompiler >> gen_passingSuccess [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveAccessTempAfterCall [
+
+	| currentBlock |
+	self MoveCq: 17 R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveAssertIsIgnored [
 
 	| currentBlock |
@@ -793,9 +802,9 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	self
 		DivR: Arg0Reg
 		R: ReceiverResultReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
@@ -1034,9 +1043,9 @@ DruidTestRTLCompiler >> gen_primitiveMod [
 	self
 		DivR: Arg0Reg
 		R: ReceiverResultReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	^ CompletePrimitive
 ]

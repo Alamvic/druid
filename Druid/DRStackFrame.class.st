@@ -1,5 +1,5 @@
 Class {
-	#name : #DruidStackFrame,
+	#name : #DRStackFrame,
 	#superclass : #Object,
 	#instVars : [
 		'receiver',
@@ -15,42 +15,47 @@ Class {
 }
 
 { #category : #accessing }
-DruidStackFrame >> entryBasicBlock [
+DRStackFrame >> entryBasicBlock [
 
 	^ entryBasicBlock
 ]
 
 { #category : #accessing }
-DruidStackFrame >> entryBasicBlock: anObject [
+DRStackFrame >> entryBasicBlock: anObject [
 
 	entryBasicBlock := anObject
 ]
 
 { #category : #accessing }
-DruidStackFrame >> executionState: anExecutionState [
+DRStackFrame >> executionState [
+	^ executionState
+]
+
+{ #category : #accessing }
+DRStackFrame >> executionState: anExecutionState [
 	
 	executionState := anExecutionState
 ]
 
 { #category : #accessing }
-DruidStackFrame >> exitBasicBlock [
+DRStackFrame >> exitBasicBlock [
 	^ exitBasicBlock
 ]
 
 { #category : #accessing }
-DruidStackFrame >> exitBasicBlock: aDRBasicBlock [
+DRStackFrame >> exitBasicBlock: aDRBasicBlock [
 	
 	exitBasicBlock := aDRBasicBlock 
 ]
 
 { #category : #accessing }
-DruidStackFrame >> homeFrame [
+DRStackFrame >> homeFrame [
 	
 	^ self
 ]
 
 { #category : #accessing }
-DruidStackFrame >> initialize [
+DRStackFrame >> initialize [
 
 	super initialize.
 	operandStack := Stack new.
@@ -58,49 +63,49 @@ DruidStackFrame >> initialize [
 ]
 
 { #category : #accessing }
-DruidStackFrame >> irGenerator [
+DRStackFrame >> irGenerator [
 
 	^ irGenerator
 ]
 
 { #category : #accessing }
-DruidStackFrame >> irGenerator: anObject [
+DRStackFrame >> irGenerator: anObject [
 
 	irGenerator := anObject
 ]
 
 { #category : #accessing }
-DruidStackFrame >> method [
+DRStackFrame >> method [
 
 	^ method
 ]
 
 { #category : #accessing }
-DruidStackFrame >> method: anObject [
+DRStackFrame >> method: anObject [
 
 	method := anObject
 ]
 
 { #category : #accessing }
-DruidStackFrame >> operandStack [
+DRStackFrame >> operandStack [
 
 	^ operandStack
 ]
 
 { #category : #accessing }
-DruidStackFrame >> operandStack: anObject [
+DRStackFrame >> operandStack: anObject [
 
 	operandStack := anObject
 ]
 
 { #category : #accessing }
-DruidStackFrame >> pop [
+DRStackFrame >> pop [
 
 	^ operandStack pop
 ]
 
 { #category : #printing }
-DruidStackFrame >> printOn: stream [
+DRStackFrame >> printOn: stream [
 
 	super printOn: stream.
 	stream
@@ -110,29 +115,29 @@ DruidStackFrame >> printOn: stream [
 ]
 
 { #category : #accessing }
-DruidStackFrame >> push: aValue [
+DRStackFrame >> push: aValue [
 
 	operandStack push: aValue
 ]
 
 { #category : #accessing }
-DruidStackFrame >> receiver [
+DRStackFrame >> receiver [
 	^ receiver
 ]
 
 { #category : #accessing }
-DruidStackFrame >> receiver: aCogVMSimulatorLSB [ 
+DRStackFrame >> receiver: aCogVMSimulatorLSB [ 
 	receiver := aCogVMSimulatorLSB
 ]
 
 { #category : #accessing }
-DruidStackFrame >> returnValue [
+DRStackFrame >> returnValue [
 
 	^ currentTemporaryFrame at: '__return'
 ]
 
 { #category : #accessing }
-DruidStackFrame >> returnValue: aValue from: aBasicBlock [
+DRStackFrame >> returnValue: aValue from: aBasicBlock [
 
 	"this is always a Phi function"
 	| phiFunction |
@@ -144,19 +149,19 @@ DruidStackFrame >> returnValue: aValue from: aBasicBlock [
 ]
 
 { #category : #accessing }
-DruidStackFrame >> stackTop [
+DRStackFrame >> stackTop [
 	
 	^ operandStack top
 ]
 
 { #category : #accessing }
-DruidStackFrame >> temporaryFrame [
+DRStackFrame >> temporaryFrame [
 	
 	^ currentTemporaryFrame
 ]
 
 { #category : #accessing }
-DruidStackFrame >> temporaryFrame: anObject [
+DRStackFrame >> temporaryFrame: anObject [
 
 	currentTemporaryFrame := anObject
 ]

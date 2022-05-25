@@ -65,6 +65,19 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 	self runFrom: initialAddress until: stopAddress.
 ]
 
+{ #category : #'tests-methodactivations' }
+DRPrimitiveCompilationTest >> testAccessTemporaryAfterCall [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveAccessTempAfterCall.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+	
+	"An empty primitive does nothing and just returns, the return value is the receiver"
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
 { #category : #'tests-arithmetic-smallIntegers' }
 DRPrimitiveCompilationTest >> testAdditionIntrinsecWithNoOverflow [
 
@@ -235,7 +248,7 @@ DRPrimitiveCompilationTest >> testCompileNonCompiledCaseExitsWithFailure [
 	self executeUntilStopPrimitiveWithReceiver: receiver.
 	
 	"Should stop at the stop and not timeout"
-	self assert: machineSimulator instructionPointerValue equals: stopAddress
+	self assert: machineSimulator instructionPointerRegisterValue equals: stopAddress
 ]
 
 { #category : #'tests-basic' }
