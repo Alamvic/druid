@@ -1344,3 +1344,13 @@ DRPrimitiveCompilationTest >> testWhileTrue [
 	
 	self assert: machineSimulator receiverRegisterValue equals: 15
 ]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testWhileTrueWithGlobalState [
+
+	self compileDruidPrimitive: #primitiveLoopIncrementingGlobalState.
+	
+	self executePrimitiveWithReceiver: 5.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 15
+]

@@ -453,6 +453,15 @@ DruidTestInterpreter >> primitiveLoopIncrementing [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopIncrementingGlobalState [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: 10.
+	[self stackTop < 15] whileTrue: [
+		self pop: 1 thenPush: self stackTop + 1 ]
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveMod [
 
 	<numberOfArguments: 1>
