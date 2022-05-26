@@ -5,6 +5,14 @@ Class {
 }
 
 { #category : #accessing }
+DRClosureStackFrame >> freshFrameState [
+
+	^ super freshFrameState
+		outerFrameState: self outerFrame executionState frameState copy;
+		yourself
+]
+
+{ #category : #accessing }
 DRClosureStackFrame >> homeFrame [
 	
 	^ receiver outerContext homeFrame
@@ -14,7 +22,7 @@ DRClosureStackFrame >> homeFrame [
 DRClosureStackFrame >> newFrameState [
 
 	^ super newFrameState
-		outerFrameState: self outerFrame frameState;
+		outerFrameState: self outerFrame newFrameState;
 		yourself
 ]
 

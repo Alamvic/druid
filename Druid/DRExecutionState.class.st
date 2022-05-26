@@ -41,6 +41,13 @@ DRExecutionState >> postCopy [
 	frameState := frameState copy.
 ]
 
+{ #category : #simplification }
+DRExecutionState >> simplify [
+	
+	vmState simplify.
+	frameState simplify.
+]
+
 { #category : #accessing }
 DRExecutionState >> vmState [
 
@@ -50,5 +57,6 @@ DRExecutionState >> vmState [
 { #category : #accessing }
 DRExecutionState >> vmState: anObject [
 
+self haltIf: [ (anObject isKindOf: DRVMState) not ].
 	vmState := anObject
 ]

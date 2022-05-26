@@ -16,6 +16,12 @@ Class {
 }
 
 { #category : #accessing }
+DRStackFrame >> definedTemporaryNames [
+	
+	^ method argumentNames, method temporaryNames
+]
+
+{ #category : #accessing }
 DRStackFrame >> entryBasicBlock [
 
 	^ entryBasicBlock
@@ -53,7 +59,22 @@ DRStackFrame >> exitBasicBlock: aDRBasicBlock [
 DRStackFrame >> frameState [
 	
 	frameState ifNotNil: [ ^ frameState ].
-	^ frameState := self newFrameState
+	^ self freshFrameState
+]
+
+{ #category : #accessing }
+DRStackFrame >> frameState: aDRFrameState [ 
+
+	frameState := aDRFrameState
+]
+
+{ #category : #'execution state' }
+DRStackFrame >> freshFrameState [
+
+	| freshState |
+	freshState := self newFrameState.
+	freshState definePhisWith: [ DRNullValue new ].
+	^ freshState
 ]
 
 { #category : #accessing }
@@ -98,8 +119,9 @@ DRStackFrame >> method: anObject [
 DRStackFrame >> newFrameState [
 
 	^ DRFrameState new
-		temporaries: Dictionary new;
-		yourself
+		  frame: self;
+		  builder: irGenerator;
+		  yourself
 ]
 
 { #category : #accessing }

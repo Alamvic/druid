@@ -34,6 +34,7 @@ DRPhiFunction >> addValue: anInstruction [
 { #category : #accessing }
 DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [ 
 	
+	self haltIf: [ anInstruction isDRBlockClosure ].
 	self assert: self basicBlock predecessors last = aDRBasicBlock.
 	operands addLast: anInstruction
 ]
@@ -72,7 +73,7 @@ DRPhiFunction >> joinedVariables [
 
 { #category : #accessing }
 DRPhiFunction >> joinedVariables: aCollection [
-	
+	self haltIf: [ aCollection anySatisfy:  #isDRBlockClosure ].
 	self operands: aCollection
 ]
 
@@ -98,7 +99,7 @@ DRPhiFunction >> opcode [
 
 { #category : #'users-definitions' }
 DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
-
+self haltIf:[anotherOperand isDRBlockClosure ].
 	(anotherOperand isInstruction and: [anotherOperand basicBlock = self basicBlock])
 		ifTrue: [ "Have no sense a phi with an block's instruction"
 			anotherOperand isPhiFunction

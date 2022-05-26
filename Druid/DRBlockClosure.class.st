@@ -38,6 +38,12 @@ DRBlockClosure >> executeOn: interpreter [
 	interpreter interpretBlockActivation: blockNode
 ]
 
+{ #category : #testing }
+DRBlockClosure >> isDRBlockClosure [
+	
+	^ true
+]
+
 { #category : #accessing }
 DRBlockClosure >> outerContext [
 

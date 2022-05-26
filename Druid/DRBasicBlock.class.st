@@ -592,7 +592,7 @@ DRBasicBlock >> load: anAddress [
 ]
 
 { #category : #'operand stack' }
-DRBasicBlock >> mergeExecutionStateIn: aBuilder simplifying: aBoolean [
+DRBasicBlock >> mergeExecutionStateIn: aBuilder simplifying: simplify [
 
 	| newState mergedVMState mergedFrameState |
 
@@ -601,12 +601,14 @@ DRBasicBlock >> mergeExecutionStateIn: aBuilder simplifying: aBoolean [
 	
 	newState := DRExecutionState new
 		vmState: mergedVMState;
-		frameState: (DRFrameState new
-			temporaries: mergedFrameState;
-			yourself);
+		frameState: mergedFrameState;
 		yourself.
 	executionState := newState.
+	
+	simplify ifTrue: [ executionState simplify ].
+	
 	aBuilder currentFrame executionState: newState.
+	^ newState
 ]
 
 { #category : #splitting }
@@ -625,37 +627,24 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 { #category : #temporaries }
 DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 
-	| temporaryNames newTemporaryFrame predecessorTemporaries |
+	| mergedFrameState |
 
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
+	mergedFrameState := aBuilder newFrameState.
+	mergedFrameState defineRecursivePhiPlaceholders.
+	
 	self predecessors ifEmpty: [ 
-		^ aBuilder currentBasicBlock executionState frameState temporaries ].
+		aBuilder currentBasicBlock executionState frameState addTo: mergedFrameState.
+		^ mergedFrameState ].
 
-	predecessorTemporaries := self predecessors collect: [ :e | 
-		                          e executionState frameState temporaries ].
+	self predecessors do: [ :e | 
+		e executionState frameState addTo: mergedFrameState ].
 
-	"Do not include the return temporary variable as it is a special variable that will be resolved at the end of the method"
-	temporaryNames := predecessorTemporaries
-		                  flatCollect: [ :e | e keys ]
-		                  as: Set.
-	newTemporaryFrame := Dictionary new.
-	temporaryNames collect: [ :name | 
-		| values phi |
-		name ~= #__return
-			ifTrue: [ 
-				values := self predecessors collect: [ :p | 
-					          p executionState frameState temporaries at: name ifAbsent: [ DRNullValue new ] ].
-				phi := (DRPhiFunction joinedVariables: values)
-					       result: aBuilder allocateTemporaryRegister;
-					       origin: thisContext stack.
-
-				newTemporaryFrame at: name put: phi.
-				self addInstruction: phi ]
-			ifFalse: [ "Do not touch the return value!" 
-				newTemporaryFrame at: name put: aBuilder currentFrame returnValue ] ].
-
-	^ newTemporaryFrame
+	mergedFrameState temporaries do: [ :value |
+		value isDRBlockClosure ifFalse: [ self addInstruction: value ]
+	].
+	^ mergedFrameState
 ]
 
 { #category : #'operand stack' }

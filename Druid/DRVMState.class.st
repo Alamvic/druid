@@ -31,6 +31,16 @@ DRVMState >> addStackOperand: operand at: stackPosition [
 	stackOperandPhi := operandStack at: stackPosition.
 	"If the operand did not change, do nothing"
 	stackOperandPhi == operand ifTrue: [ ^ self ].
+	
+	"Block closures are special and we do not handle polymorphic blocks.
+	If the temporary is a block closure, override the phi function.
+	Avoid overriding block closures too"
+	stackOperandPhi isDRBlockClosure ifTrue: [ 
+		self error: 'cannot override block closures in the stack' ].
+	
+	operand isDRBlockClosure ifTrue: [
+		^ operandStack at: stackPosition put: operand ].
+	
 	"Otherwise, accumulate it"
 	stackOperandPhi addValue: operand
 ]
@@ -76,8 +86,9 @@ DRVMState >> initializeOnBuilder: aBuilder [
 DRVMState >> isNotSimplified [
 	
 	"All should be phi functions"
-	^ (operandStack allSatisfy: [ :e | e isPhiFunction ])
-		and: [ primitiveFailureCode isPhiFunction ]
+	^ (operandStack allSatisfy: [ :e | 
+			e isPhiFunction or: [ e isDRBlockClosure ] ])
+				and: [ primitiveFailureCode isPhiFunction  or: [ primitiveFailureCode isDRBlockClosure ] ]
 ]
 
 { #category : #accessing }
@@ -125,4 +136,20 @@ DRVMState >> primitiveFailureCode [
 DRVMState >> primitiveFailureCode: anObject [
 
 	primitiveFailureCode := anObject
+]
+
+{ #category : #simplification }
+DRVMState >> simplify [
+	
+	| newOperand newPrimitiveFailureCode |
+	operandStack withIndexDo: [ :operand :index |
+		newOperand := operand simplify.
+		newOperand ~~ operand ifTrue: [
+			operandStack at: index put: newOperand.
+			operand replaceUsesBy: newOperand ] ].
+
+	newPrimitiveFailureCode := primitiveFailureCode simplify.
+	newPrimitiveFailureCode ~~ primitiveFailureCode ifTrue: [
+		primitiveFailureCode := newPrimitiveFailureCode.
+		primitiveFailureCode replaceUsesBy: newPrimitiveFailureCode ].
 ]

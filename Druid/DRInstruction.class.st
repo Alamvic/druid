@@ -422,8 +422,7 @@ DRInstruction >> replaceBy: anotherInstruction [
 	
 	basicBlock replace: self by: anotherInstruction.
 	
-	users copy do: [ :instruction |
-		instruction replaceOperand: self by: anotherInstruction ].
+	self replaceUsesBy: anotherInstruction.
 
 	operands asSet do: [ :instruction |
 		instruction removeUser: self ].
@@ -470,6 +469,13 @@ DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 		(self replaceOperandIfDominated: myOperand by: newOperand) 
 			ifNotNil: [ replaced := self ] ].
 	^ replaced
+]
+
+{ #category : #replacing }
+DRInstruction >> replaceUsesBy: anotherInstruction [
+	
+	users copy do: [ :instruction |
+		instruction replaceOperand: self by: anotherInstruction ]
 ]
 
 { #category : #accessing }
