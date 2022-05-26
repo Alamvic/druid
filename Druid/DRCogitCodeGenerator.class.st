@@ -232,41 +232,6 @@ DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic instruction: instruction [
-
-	| destination replacement |
-	replacement := instruction operand1 isMemoryAddress
-		               ifTrue: [ 
-			               self
-				               twoOperandCogitRTL: 'Move'
-				               operands: { 
-						               instruction operand1.
-						               (DRPhysicalRegister name: 'TempReg') }
-				               instruction: instruction.
-			               DRPhysicalRegister name: 'TempReg' ]
-		               ifFalse: [ instruction operand1 ].
-
-	destination := instruction result isMemoryAddress
-		               ifTrue: [ DRPhysicalRegister name: 'TempReg' ]
-		               ifFalse: [ instruction result ].
-
-	self
-		twoOperandCogitRTL: aMnemonic
-		operands: { 
-				replacement.
-				destination }
-		instruction: instruction.
-
-	instruction result isMemoryAddress ifTrue: [ 
-		self
-			twoOperandCogitRTL: 'Move'
-			operands: { 
-					destination.
-					(DRPhysicalRegister name: 'MEMORY0') }
-			instruction: instruction ]
-]
-
-{ #category : #visiting }
 DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruction: anInstruction [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -357,9 +322,17 @@ DRCogitCodeGenerator >> visitConstantCondition: aDRConstantCondition [
 DRCogitCodeGenerator >> visitCopy: aDRMove [
 
 	"Do not generate moves of null values"
+	| moveOperands |
 	aDRMove operands first isNullValue
 		ifTrue: [ ^ self ].
-	self twoOperandCogitRTL: #Move instruction: aDRMove
+	
+	moveOperands := { aDRMove operand1. aDRMove result }.
+	
+	"Do not generate redundant moves (e.g., r0 := r0)"
+	(moveOperands collect: [ :e | e result ] as: Set) size = 1
+		ifTrue: [ ^ self ].
+	
+	self twoOperandCogitRTL: #Move operands: moveOperands instruction: aDRMove
 ]
 
 { #category : #visiting }
@@ -477,7 +450,9 @@ DRCogitCodeGenerator >> visitMultiplyOverflowJump: aDROverflowJump [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [ 
 	
-	self twoOperandCogitRTL: #Move instruction: aDRCogitNegate.
+	self twoOperandCogitRTL: #Move
+		operands: { aDRCogitNegate operand1. aDRCogitNegate result }
+		instruction: aDRCogitNegate.
 	self flag: #todo. "oneOperandCogitRTL:"
 	generatorMethodBuilder addStatement: (
 		RBMessageNode

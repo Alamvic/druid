@@ -766,23 +766,19 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 	self CmpCq: 10 R: ReceiverResultReg.
 	jump0 := self JumpLessOrEqual: 0.
 	self MoveCq: 1 R: TempReg.
-	self MoveR: TempReg R: TempReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
 	self MoveCq: 99 R: TempReg.
-	self MoveR: TempReg R: TempReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self CmpCq: 0 R: ReceiverResultReg.
 	jump2 := self JumpLessOrEqual: 0.
 	self MoveCq: 5 R: ClassReg.
-	self MoveR: ClassReg R: ClassReg.
 	jump3 := self Jump: 0.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	self MoveCq: 17 R: ClassReg.
-	self MoveR: ClassReg R: ClassReg.
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
 	self CmpCq: 7 R: ReceiverResultReg.
@@ -1069,14 +1065,11 @@ DruidTestRTLCompiler >> gen_primitiveLoopIncrementing [
 	| currentBlock b6 jump0 jump1 jump2 |
 	self MoveCq: 0 R: TempReg.
 	self MoveCq: 10 R: ClassReg.
-	self MoveR: TempReg R: TempReg.
-	self MoveR: ClassReg R: ClassReg.
 	b6 := self Label.
 	self MoveR: ClassReg R: SendNumArgsReg.
 	self CmpCq: 15 R: SendNumArgsReg.
 	jump0 := self JumpGreaterOrEqual: 0.
 	self AddCq: 1 R: ClassReg.
-	self MoveR: ClassReg R: ClassReg.
 	jump1 := self Jump: b6.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
@@ -1204,12 +1197,10 @@ DruidTestRTLCompiler >> gen_primitiveSandclock [
 	self CmpCq: 10 R: ReceiverResultReg.
 	jump0 := self JumpLessOrEqual: 0.
 	self MoveCq: 1 R: TempReg.
-	self MoveR: TempReg R: TempReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
 	self MoveCq: 99 R: TempReg.
-	self MoveR: TempReg R: TempReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self CmpCq: 0 R: ReceiverResultReg.
@@ -1414,12 +1405,10 @@ DruidTestRTLCompiler >> gen_primitiveWithIfNotNilStatement [
 	self CmpCq: 0 R: ReceiverResultReg.
 	jump0 := self JumpLessOrEqual: 0.
 	self MoveCq: 0 R: TempReg.
-	self MoveR: TempReg R: TempReg.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
 	self MoveCq: 1 R: TempReg.
-	self MoveR: TempReg R: TempReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self CmpCq: 0 R: TempReg.
