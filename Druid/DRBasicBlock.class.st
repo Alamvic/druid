@@ -84,6 +84,14 @@ DRBasicBlock >> anyMask: aValue with: anotherValue [
 	^ self addInstruction: (self instructionFactory anyMask: aValue with: anotherValue)
 ]
 
+{ #category : #building }
+DRBasicBlock >> backJumpTo: aDRBasicBlock [ 
+
+	^ (self jumpTo: aDRBasicBlock)
+		beBackJump;
+		yourself
+]
+
 { #category : #transformations }
 DRBasicBlock >> basicDuplicate [
 	
@@ -300,6 +308,13 @@ DRBasicBlock >> hasFrontier: aBlock [
 ]
 
 { #category : #testing }
+DRBasicBlock >> hasIncomingBackjumps [
+	
+	^ self predecessors anySatisfy: [ :p |
+		p lastInstruction isBackJump ]
+]
+
+{ #category : #testing }
 DRBasicBlock >> hasPhiFunctions [
 
 	^ phiFunctions isNotEmpty
@@ -329,7 +344,7 @@ DRBasicBlock >> hyperblock [
 	This is to guarantee I will be processed regardless my predecessors"
 	visited
 		at: self
-		put: self numberOfPredecessors -1.
+		put: self numberOfForwardPredecessors -1.
 
 	[ workingQueue isEmpty ] whileFalse: [ 
 		| currentBlock |
@@ -342,7 +357,7 @@ DRBasicBlock >> hyperblock [
 			                          ifAbsent: [ 0 ].
 
 		visited at: currentBlock put: visitsToThisBlockSoFar + 1.
-		visitsToThisBlockSoFar + 1 = currentBlock numberOfPredecessors
+		visitsToThisBlockSoFar + 1 = currentBlock numberOfForwardPredecessors
 			ifTrue: [
 				
 				blocks add: currentBlock.
@@ -577,7 +592,7 @@ DRBasicBlock >> load: anAddress [
 ]
 
 { #category : #'operand stack' }
-DRBasicBlock >> mergeExecutionStateIn: aBuilder [
+DRBasicBlock >> mergeExecutionStateIn: aBuilder simplifying: aBoolean [
 
 	| newState mergedVMState mergedFrameState |
 
@@ -648,7 +663,7 @@ DRBasicBlock >> mergeVMOperandStacksIn: aBuilder [
 
 	"We can only merge two operand stacks with the same number of elements"
 
-	| stackSize mergedVmOperandStack predecessorStacks phi predecessorFailures mergedPrimitiveFailureCode |
+	| mergedVmOperandStack mergedPrimitiveFailureCode mergedVMState |
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
 	self predecessors ifEmpty: [ 
@@ -660,46 +675,16 @@ DRBasicBlock >> mergeVMOperandStacksIn: aBuilder [
 			  operandStack: mergedVmOperandStack;
 			  yourself ].
 
-	"If I have a single predecessor, just copy the operand stack"
-	self predecessors size = 1 ifTrue: [ 
-		mergedPrimitiveFailureCode := self predecessors first
-			                              primitiveFailureCode.
-		mergedVmOperandStack := self predecessors first vmOperandStack copy.
-		^ DRVMState new
-			  primitiveFailureCode: mergedPrimitiveFailureCode;
-			  operandStack: mergedVmOperandStack;
-			  yourself ].
+	mergedVMState := aBuilder newVMState.
+	self predecessors do: [ :e | 
+		e executionState vmState addTo: mergedVMState ].
 
-	predecessorFailures := self predecessors collect: [ :e | 
-		                       e primitiveFailureCode ].
-	mergedPrimitiveFailureCode := (DRPhiFunction joinedVariables:
-			                               predecessorFailures)
-		                              result:
-			                              aBuilder allocateTemporaryRegister;
-		                              origin: thisContext stack.
-	mergedPrimitiveFailureCode isPhiFunction ifTrue: [ 
-		self addInstruction: mergedPrimitiveFailureCode ].
+	self addInstruction: mergedVMState primitiveFailureCode.
+	mergedVMState operandStackWithIndexDo: [ :operand :stackPosition |
+		self addInstruction: operand
+	].
 
-	predecessorStacks := self predecessors collect: [ :e | 
-		                     e vmOperandStack ].
-	stackSize := predecessorStacks max: [ :e | e size ].
-	mergedVmOperandStack := Stack new.
-	1 to: stackSize do: [ :e | 
-		| values |
-		values := predecessorStacks collect: [ :stack | 
-			          stack size >= e
-				          ifTrue: [ stack at: e ]
-				          ifFalse: [ DRNullValue new ] ].
-		phi := (DRPhiFunction joinedVariables: values)
-			       result: aBuilder allocateTemporaryRegister;
-			       origin: thisContext stack;
-			       yourself.
-		mergedVmOperandStack push: phi.
-		self addInstruction: phi ].
-	^ DRVMState new
-		  primitiveFailureCode: mergedPrimitiveFailureCode;
-		  operandStack: mergedVmOperandStack;
-		  yourself
+	^ mergedVMState
 ]
 
 { #category : #accessing }
@@ -746,9 +731,10 @@ DRBasicBlock >> newEmptySuccessors [
 ]
 
 { #category : #accessing }
-DRBasicBlock >> numberOfPredecessors [
+DRBasicBlock >> numberOfForwardPredecessors [
 	
-	^ predecessors size
+	"Ignore predecessors coming from backjumps"
+	^ predecessors count: [ :e | e endInstruction isBackJump not ]
 ]
 
 { #category : #building }

@@ -55,8 +55,8 @@ DRControlFlowGraph >> allocateTemporaryRegister [
 DRControlFlowGraph >> applyOptimisation: optimisation [
 
 	optimisation applyTo: self.
-	"self generatePaths.
-	self validate"
+	"self generatePaths."
+	self validate
 ]
 
 { #category : #optimization }
@@ -106,7 +106,7 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 					ifAbsent: [ 1 ].
 				visited at: target put: visitsToThisBlockSoFar.
 				
-				visitsToThisBlockSoFar = target numberOfPredecessors ifTrue: [ 
+				visitsToThisBlockSoFar = target numberOfForwardPredecessors ifTrue: [ 
 					workingQueue addLast: target  ] ] ] ]
 ]
 
@@ -435,7 +435,7 @@ DRControlFlowGraph >> showIn: view [
 	self showInfoIn: view.
 	
 	"All the characters are displayed using a grid layout"
-	RSSugiyamaLayout new
+	RSTreeLayout new
 		horizontalGap: 50;
 		applyOn: blockViews.
 	controller := RSCanvasController new.

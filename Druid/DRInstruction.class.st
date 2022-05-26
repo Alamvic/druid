@@ -139,7 +139,7 @@ DRInstruction >> hasUser: anInstruction [
 { #category : #testing }
 DRInstruction >> hash [
 
-	^ self result hash bitXor: self operands hash
+	^ self result hash
 ]
 
 { #category : #testing }

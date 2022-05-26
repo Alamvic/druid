@@ -803,6 +803,15 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveDeadBranchWithError [
+
+	| currentBlock |
+	self MoveCq: 17 R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveDecrement [
 
 	| currentBlock |
@@ -820,9 +829,9 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	self
 		DivR: Arg0Reg
 		R: ReceiverResultReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
@@ -945,7 +954,8 @@ DruidTestRTLCompiler >> gen_primitiveIsIntegerObject [
 
 	| currentBlock jump0 jump1 |
 	self MoveR: ReceiverResultReg R: TempReg.
-	self TstCq: 1 R: TempReg.
+	self AndCq: 1 R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump0 := self JumpZero: 0.
 	self MoveCw: objectMemory trueObject R: ReceiverResultReg.
 	jump1 := self Jump: 0.
@@ -1050,6 +1060,32 @@ DruidTestRTLCompiler >> gen_primitiveLessThanThanInverted [
 	self MoveCq: 1 R: Extra0Reg.
 	self MoveR: ClassReg R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveLoopIncrementing [
+
+	| currentBlock b6 jump0 jump1 jump2 |
+	self MoveCq: 0 R: TempReg.
+	self MoveCq: 10 R: ClassReg.
+	self MoveR: TempReg R: TempReg.
+	self MoveR: ClassReg R: ClassReg.
+	b6 := self Label.
+	self MoveR: ClassReg R: SendNumArgsReg.
+	self CmpCq: 15 R: SendNumArgsReg.
+	jump0 := self JumpGreaterOrEqual: 0.
+	self AddCq: 1 R: ClassReg.
+	self MoveR: ClassReg R: ClassReg.
+	jump1 := self Jump: b6.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveR: ClassReg R: ReceiverResultReg.
+	self CmpCq: 0 R: TempReg.
+	jump2 := self JumpNonZero: 0.
+	self RetN: 1 * objectMemory wordSize.
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
 	^ CompletePrimitive
 ]
 

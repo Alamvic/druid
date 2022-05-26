@@ -8,6 +8,14 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #accumulating }
+DRExecutionState >> addTo: aDRExecutionState [ 
+	
+	"Add my own state to the execution state in parameter"
+	vmState addTo: aDRExecutionState vmState.
+	frameState addTo: aDRExecutionState frameState
+]
+
 { #category : #accessing }
 DRExecutionState >> frameState [
 
@@ -18,6 +26,12 @@ DRExecutionState >> frameState [
 DRExecutionState >> frameState: anObject [
 
 	frameState := anObject
+]
+
+{ #category : #testing }
+DRExecutionState >> isNotSimplified [
+	
+	^ vmState isNotSimplified and: [ frameState isNotSimplified ]
 ]
 
 { #category : #copying }

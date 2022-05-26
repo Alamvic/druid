@@ -2,7 +2,8 @@ Class {
 	#name : #DRJump,
 	#superclass : #DRInstruction,
 	#instVars : [
-		'target'
+		'target',
+		'isBackJump'
 	],
 	#category : #'Druid-IR'
 }
@@ -20,6 +21,12 @@ DRJump >> acceptVisitor: aVisitor [
 	^ aVisitor visitJump: self
 ]
 
+{ #category : #accessing }
+DRJump >> beBackJump [
+	
+	isBackJump := true
+]
+
 { #category : #visiting }
 DRJump >> hash [
 
@@ -31,6 +38,11 @@ DRJump >> initialize [
 
 	super initialize.
 	result := DRNoRegister new
+]
+
+{ #category : #testing }
+DRJump >> isBackJump [
+	^ isBackJump ifNil: [ false ]
 ]
 
 { #category : #accessing }

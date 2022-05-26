@@ -9,6 +9,29 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #accumulating }
+DRFrameState >> addTemporaryNamed: aString withValue: aValue [
+
+	| temporary |
+	temporary := temporaries at: aString.
+	
+	"If the temporary did not change, do nothing"
+	temporary == aValue ifTrue: [ ^ self ].
+	"Otherwise, accumulate it"
+	temporary addValue: aValue
+]
+
+{ #category : #accumulating }
+DRFrameState >> addTo: aDRFrameState [ 
+	
+	"Add my own state to the execution state in parameter"
+	temporaries keysAndValuesDo: [ :k :v |
+		aDRFrameState addTemporaryNamed: k withValue: v
+	].
+	"Halt in these cases because we need to implement them :)"
+	self haltIf: [ operandStack notNil or: [ outerFrameState notNil ] ]
+]
+
 { #category : #temporaries }
 DRFrameState >> defineVariableNamed: aString [ 
 	
@@ -21,6 +44,12 @@ DRFrameState >> frameDefining: aString [
 	(temporaries includesKey: aString)
 		ifTrue: [ ^ self ].
 	^ outerFrameState frameDefining: aString
+]
+
+{ #category : #testing }
+DRFrameState >> isNotSimplified [
+	
+	^ temporaries allSatisfy: [ :e | e isPhiFunction ]
 ]
 
 { #category : #accessing }

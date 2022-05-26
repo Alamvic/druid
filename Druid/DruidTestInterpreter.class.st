@@ -262,6 +262,15 @@ DruidTestInterpreter >> primitiveDNA2 [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDeadBranchWithError [
+
+	<numberOfArguments: 0>
+	1 > 0 ifFalse: [ self error: 'should not happen' ].
+	
+	self pop: 1 thenPush: 17
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDecrement [
 
 	<numberOfArguments: 0>
@@ -431,6 +440,16 @@ DruidTestInterpreter >> primitiveLessThanInverted [
 	| r |
 	r := 10 < self stackTop ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopIncrementing [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 10.
+	[result < 15] whileTrue: [ result := result + 1 ].
+	self pop: 1 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }

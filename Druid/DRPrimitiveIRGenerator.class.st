@@ -31,14 +31,7 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 	specialCases at: #primFailCode put: #interpretPrimFailCodeWith:.
-	specialCases at: #assert: put: #ignoreMessageWith:.
-	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.
-
-	self flag: #TODO. "To support"
-	specialCases at: #stContext:at:format:fixedFields: put: #interpretPrimFailCodeWith:.
-	specialCases at: #firstByteIndexOfMethod: put: #interpretPrimFailCodeWith:.
-	specialCases at: #positive64BitIntegerFor: put: #interpretPrimFailCodeWith:.
-	
+	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
 ]
 
 { #category : #accessing }

@@ -26,7 +26,7 @@ DRPhiFunction >> addOperand [
 
 { #category : #accessing }
 DRPhiFunction >> addValue: anInstruction [
-	
+
 	operands add: anInstruction.
 	anInstruction addUser: self.
 ]

@@ -262,6 +262,10 @@ DRIRGenerator >> initializeSpecialCases [
 	
 	"special simulation cases"
 	specialCases at: #cCode:inSmalltalk: put: #interpretCCodeInSmalltalkWith:.
+	
+	"Special pharo things such as exceptions"
+	specialCases at: #error: put: #ignoreMessageWith:.
+	specialCases at: #assert: put: #ignoreMessageWith:.
 ]
 
 { #category : #factory }
@@ -985,7 +989,7 @@ DRIRGenerator >> interpretUnaryInstruction: aRBMessageNode instructionKind: anIn
 { #category : #'special-cases' }
 DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [ 
 	
-	| trueBranchBasicBlockOut conditionalJump conditionBlock entryExecutionState |
+	| trueBranchBasicBlockOut conditionalJump conditionEntryBlock executionStateAtEntry |
 	"Compile
 	
 	[ condition ] whileTrue: [ something ]
@@ -1004,40 +1008,43 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 	exit:
 		...
 	"
-	
-	conditionBlock := self newBasicBlockDuring: [ | state |
-		state := self currentBasicBlock executionStateOn: self.
-		self currentExecutionState: (state
-			mergeWith: (DRExecutionState new interpreter: self)).
-		
-		self interpretBlockBody: aRBMessageNode receiver ].
 
-	
+	"Condition block(s)"	
+	self currentBasicBlock jumpTo: (conditionEntryBlock := self newBasicBlock).
+	self mergeExecutionStateSimplifying: false.
+	executionStateAtEntry := self currentBasicBlock executionState copy.
+	self assert: executionStateAtEntry isNotSimplified.
+	self interpretBlockBody: aRBMessageNode receiver.
+
+	"Could happen that the loop header block had a non local return.
+	Otherwise, this block should back jump to the entry block of the loop"
+	self currentBasicBlock hasFinalInstruction ifTrue: [
+		self notYetImplemented ].
+
+	"The conditional jump"
 	conditionalJump := self
 		instantiateNoResultInstruction: DRConditionalJump
 		operands: { self popOperand }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
+	"Loop body. whileTrue: => jump if true to body"
 	trueBranchBasicBlockOut := self
 		branchFrom: self currentBasicBlock
 		onEdge: [ :branchEntryBlock | conditionalJump trueBranch: branchEntryBlock ]
-		doing: [ 
-			self interpretBlockBody: aRBMessageNode arguments first ].
+		doing: [ self interpretBlockBody: aRBMessageNode arguments first ].
 
-	"Exit point"
-	self newBasicBlock.
-	self currentBasicBlock addPredecessor: conditionBlock.
-	conditionalJump falseBranch: conditionBlock.
-		
-	"Could happen that the evaluated block had a non local return.
-	In that case, this block should not arrive to this merge point
-		=> do not add the jump"
+	"Could happen that any evaluated block had a non local return.
+	Otherwise, this block should back jump to the entry block of the loop"
 	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
-		trueBranchBasicBlockOut jumpTo: conditionBlock.
+		"Now we should re-merge the outgoing phi values in the state of the entry block"
+		trueBranchBasicBlockOut executionState addTo: executionStateAtEntry.
+		trueBranchBasicBlockOut backJumpTo: conditionEntryBlock.
 	].
 
-	"Now we should re-merge the outgoing phi values in the state of the entry block"
-	self currentExecutionState: (self currentBasicBlock mergeExecutionStateIn: self).	
+	"Else exit"
+	self newBasicBlock.
+	conditionalJump falseBranch: self currentBasicBlock.
+	self currentBasicBlock addPredecessor: conditionalJump basicBlock.	
 
 	"whileTrue: does not return anything useful"
 	self pushOperand: DRNullValue new.
@@ -1051,7 +1058,16 @@ DRIRGenerator >> ir [
 { #category : #'special-cases' }
 DRIRGenerator >> mergeExecutionState [
 
-	self currentBasicBlock mergeExecutionStateIn: self.
+	"Merge the execution state and simplify phi functions into copies if possible by default"
+	self mergeExecutionStateSimplifying: true
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> mergeExecutionStateSimplifying: aBoolean [
+
+	self currentBasicBlock
+		mergeExecutionStateIn: self
+		simplifying: aBoolean.
 	self setExecutionStateTo: self currentBasicBlock
 ]
 
@@ -1141,6 +1157,14 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 	self mergeExecutionState.
 	
 	^ joinInstruction
+]
+
+{ #category : #'execution state' }
+DRIRGenerator >> newVMState [
+	
+	^ DRVMState new
+		initializeOnBuilder: self;
+		yourself
 ]
 
 { #category : #'special-cases' }

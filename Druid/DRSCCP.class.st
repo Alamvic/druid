@@ -86,9 +86,10 @@ DRSCCP >> bottom [
 { #category : #initialization }
 DRSCCP >> buildEdges: cfg [
 
-	| list workList currentBlock edge|
+	| list workList currentBlock edge done |
 	
-	list := OrderedCollection new. 
+	list := OrderedCollection new.
+	done := Set new.
 	workList := OrderedCollection new. 
 	workList add: cfg initialBasicBlock. 
 	
@@ -105,7 +106,8 @@ DRSCCP >> buildEdges: cfg [
 					add: edge.
 			 
 			list add: edge.
-			workList add: s]].
+			(done includes: s)
+				ifFalse: [ done add: s. workList add: s ] ] ].
 	
 	^ list
 ]

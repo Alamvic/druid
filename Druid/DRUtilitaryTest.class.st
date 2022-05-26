@@ -22,3 +22,21 @@ DRUtilitaryTest >> testReplaceInstructionBy [
 	
 	self assert: block instructions allButLast last isAdd.
 ]
+
+{ #category : #'as yet unclassified' }
+DRUtilitaryTest >> testReversePostOrderOfLoop [
+
+	| cfg b0 loopHeader loopBody exit |
+	
+	cfg := DRControlFlowGraph new.
+	b0 := cfg initialBasicBlock.
+	loopHeader := cfg newBasicBlock.
+	loopBody := cfg newBasicBlock.
+	exit := cfg newBasicBlock.
+	
+	b0 jumpTo: loopHeader.
+	loopHeader jumpIfTrueTo: loopBody ifFalseTo: exit.
+	loopBody backJumpTo: loopHeader.
+	
+	self assert: cfg reversePostOrderBlocks asArray equals: { b0 . loopHeader . loopBody . exit}
+]
