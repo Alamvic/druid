@@ -41,6 +41,24 @@ DRPrimitiveIRGenerator >> interpretCCoerceWith: aRBMessageNode [
 ]
 
 { #category : #'special cases' }
+DRPrimitiveIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
+
+	| byteSize valueToStore |
+	aRBAssignmentNode value acceptVisitor: self.
+	valueToStore := self popOperand.
+
+	byteSize := 8.
+	^ self
+		  addInstructionFrom: aRBAssignmentNode
+		  instructionKind: DRStore
+		  operands: { 
+				  byteSize asDRValue.
+				  valueToStore.
+				  (DRInterpreterReference reference:
+					   'objectMemory freeStartAddress') }
+]
+
+{ #category : #'special cases' }
 DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode [ 
 	
 	| newFailureCode |

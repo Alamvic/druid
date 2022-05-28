@@ -259,6 +259,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #nilObj put: #interpretNilObjectWith:.
 	specialCases at: #falseObj put: #interpretFalseObjectWith:.
 	specialCases at: #trueObj put: #interpretTrueObjectWith:.
+	specialCases at: #freeStart put: #interpretFreeStartWith:.
 	specialCases at: #argumentCount put: #interpretArgumentCountWith:.
 	
 	"Border case, this should not be defined here, it should be extensible"
@@ -473,6 +474,19 @@ DRIRGenerator >> interpretEqualityComparisonWith: aRBMessageNode [
 DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [ 
 	
 	self pushOperand: DRFalseObject new
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
+
+	| byteSize |
+	byteSize := 8.
+	^ self
+		addInstructionFrom: aRBVariableNode
+		instructionKind: DRLoad
+		operands: { 
+				byteSize asDRValue.
+				(DRInterpreterReference reference: 'objectMemory freeStartAddress') }
 ]
 
 { #category : #'special-cases' }
