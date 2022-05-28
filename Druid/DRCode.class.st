@@ -39,8 +39,9 @@ DRCode >> pushFrameIn: interpreter receiver: aReceiver [
 
 	"Copy the execution state but reset the temporary frame for this new frame"
 	newExecutionState := newMethodEntry executionState copy.
-	newExecutionState frameState: frame frameState.
+	newExecutionState frameState: frame freshFrameState.
 	newMethodEntry executionState: newExecutionState.
+	frame executionState: newExecutionState.
 	
 	self codeNode temporaryNames, self codeNode argumentNames
 		do: [ :e | frame frameState defineVariableNamed: e ].

@@ -8,7 +8,8 @@ Class {
 		'instructionFactory',
 		'edges',
 		'deadPaths',
-		'numberOfSpillSlots'
+		'numberOfSpillSlots',
+		'tree'
 	],
 	#category : #'Druid-IR'
 }
@@ -435,7 +436,7 @@ DRControlFlowGraph >> showIn: view [
 	self showInfoIn: view.
 	
 	"All the characters are displayed using a grid layout"
-	RSTreeLayout new
+	RSSugiyamaLayout new
 		horizontalGap: 50;
 		applyOn: blockViews.
 	controller := RSCanvasController new.

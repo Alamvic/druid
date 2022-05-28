@@ -94,6 +94,7 @@ DruidTestRTLCompiler >> gen_passingSuccess [
 DruidTestRTLCompiler >> gen_primitiveAccessTempAfterCall [
 
 	| currentBlock |
+	self MoveCq: 17 R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]

@@ -376,10 +376,10 @@ DRInstruction >> postCopy [
 DRInstruction >> prettyPrint [
 	
 	| print |
-	print := result
+	[print := result
 		ifNil: [ '' ]
 		ifNotNil: [ result name, ' := ' ].
-	^ print, self opcode ,' ', (' ' join: (operands collect: [ :e | e result name ]))
+	^ print, self opcode ,' ', (' ' join: (operands collect: [ :e | e result name ]))] on: Error do: [ ^ 'wat' ]
 ]
 
 { #category : #printing }

@@ -259,6 +259,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #nilObj put: #interpretNilObjectWith:.
 	specialCases at: #falseObj put: #interpretFalseObjectWith:.
 	specialCases at: #trueObj put: #interpretTrueObjectWith:.
+	specialCases at: #argumentCount put: #interpretArgumentCountWith:.
 	
 	"Border case, this should not be defined here, it should be extensible"
 	specialCases at: #hiddenRootsObj put: #interpretNilObjectWith:.
@@ -322,6 +323,15 @@ DRIRGenerator >> interpretAndWith: aRBMessageNode [
 DRIRGenerator >> interpretAnyMaskWith: aRBMessageNode [ 
 
 	^ self interpretCondition: aRBMessageNode instructionKind: DRTest
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretArgumentCountWith: aRBVariableNode [
+
+	^ self
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRCopy
+		  operands: { numberOfArguments asDRValue }
 ]
 
 { #category : #'special-cases' }

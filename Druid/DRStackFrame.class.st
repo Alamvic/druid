@@ -58,14 +58,13 @@ DRStackFrame >> exitBasicBlock: aDRBasicBlock [
 { #category : #'execution state' }
 DRStackFrame >> frameState [
 	
-	frameState ifNotNil: [ ^ frameState ].
-	^ self freshFrameState
+	^ executionState frameState
 ]
 
 { #category : #accessing }
-DRStackFrame >> frameState: aDRFrameState [ 
+DRStackFrame >> frameState: aDRFrameState [
 
-	frameState := aDRFrameState
+	executionState frameState: aDRFrameState
 ]
 
 { #category : #'execution state' }
