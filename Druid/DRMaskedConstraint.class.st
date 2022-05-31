@@ -1,7 +1,7 @@
 Class {
 	#name : #DRMaskedConstraint,
 	#superclass : #DRSimpleConstraint,
-	#category : #'Druid-Optimizations'
+	#category : #'Druid-IR-Paths'
 }
 
 { #category : #arithmetic }

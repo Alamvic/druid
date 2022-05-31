@@ -307,6 +307,14 @@ DruidTestInterpreter >> primitiveEqualsThanInverted [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFalseAsInteger [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: false asInteger
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveGreaterOrEqualsThan [
 
 	<numberOfArguments: 0>

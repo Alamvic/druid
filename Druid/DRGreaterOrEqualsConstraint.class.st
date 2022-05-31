@@ -1,7 +1,7 @@
 Class {
 	#name : #DRGreaterOrEqualsConstraint,
 	#superclass : #DRRangedConstraint,
-	#category : #'Druid-Optimizations'
+	#category : #'Druid-IR-Paths'
 }
 
 { #category : #arithmetic }

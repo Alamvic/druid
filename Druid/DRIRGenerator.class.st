@@ -259,7 +259,10 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #nilObj put: #interpretNilObjectWith:.
 	specialCases at: #falseObj put: #interpretFalseObjectWith:.
 	specialCases at: #trueObj put: #interpretTrueObjectWith:.
+	
+	
 	specialCases at: #freeStart put: #interpretFreeStartWith:.
+	specialCases at: #scavengeThreshold put: #interpretScavengeThresholdWith:.
 	specialCases at: #argumentCount put: #interpretArgumentCountWith:.
 	
 	"Border case, this should not be defined here, it should be extensible"
@@ -416,7 +419,7 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [ 
 	
-	^ aRBMessageNode arguments first acceptVisitor: self
+	self interpretBlockBody: aRBMessageNode arguments first
 ]
 
 { #category : #API }
@@ -983,6 +986,19 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretScavengeThresholdWith: aRBVariableNode [
+
+	| byteSize |
+	byteSize := 8.
+	^ self
+		addInstructionFrom: aRBVariableNode
+		instructionKind: DRLoad
+		operands: { 
+				byteSize asDRValue.
+				(DRInterpreterReference reference: 'objectMemory getScavengeThreshold') }
 ]
 
 { #category : #'special cases - stack' }
@@ -1600,12 +1616,12 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [ 
 		| failure |
 		failure := self currentBasicBlock copy: 1.
-
 		self currentBasicBlock primitiveFailureCode: failure.
-"		self topFrame returnValue: DRNullValue new from: self currentBasicBlock.
-		self currentBasicBlock jumpTo: self topFrame exitBasicBlock.
-
-		self newBasicBlock."
+		self currentBasicBlock endInstruction: (self instantiateNoResultInstruction: DRPrimitiveFail).
+		
+		"Start a new dead block from here"
+		self newBasicBlock.
+		"If the method has no return statement, it should still return something"
 		self currentFrame
 			returnValue: DRNullValue new
 			from: self currentBasicBlock.

@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'cfg'
 	],
-	#category : #'Druid-IR'
+	#category : #'Druid-IR-Paths'
 }
 
 { #category : #'as yet unclassified' }

@@ -548,6 +548,16 @@ DRPrimitiveCompilationTest >> testFailingSuccessExecutesUntilStop [
 	self executeUntilStopPrimitiveWithReceiver: 1
 ]
 
+{ #category : #'tests-types' }
+DRPrimitiveCompilationTest >> testFalseAsInteger [
+
+	self compileDruidPrimitive: #primitiveFalseAsInteger.
+	
+	self executePrimitiveWithReceiver: 17.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
 { #category : #'tests-deadcode' }
 DRPrimitiveCompilationTest >> testFourDeadBranchesFourBranches1 [
 
