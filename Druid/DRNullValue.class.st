@@ -77,3 +77,9 @@ DRNullValue >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]
+
+{ #category : #asd }
+DRNullValue >> type [
+	
+	^ DRIntegerType new
+]

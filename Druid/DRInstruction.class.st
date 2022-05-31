@@ -8,7 +8,8 @@ Class {
 		'origin',
 		'originAST',
 		'basicBlock',
-		'users'
+		'users',
+		'type'
 	],
 	#category : #'Druid-IR'
 }
@@ -101,6 +102,12 @@ DRInstruction >> basicBlock: anObject [
 DRInstruction >> clearUsers [
 
 	users removeAll
+]
+
+{ #category : #types }
+DRInstruction >> computeType [
+	
+	^ operands first type
 ]
 
 { #category : #accessing }
@@ -249,7 +256,7 @@ DRInstruction >> label [
 { #category : #interpretation }
 DRInstruction >> lookupClass [
 	
-	^ result lookupClass 
+	^ self type lookupClass 
 ]
 
 { #category : #accessing }
@@ -365,11 +372,15 @@ DRInstruction >> originAST: aNode [
 { #category : #copying }
 DRInstruction >> postCopy [
 
+	super postCopy.
+	
 	operands := operands copy.
+	operands do: [ :e | e addUser: self ].
 	users := users copy.
+	
 	((result isKindOf: DRNoRegister) not and: [ result isPhysicalRegister not ]) ifTrue: [ 
 		result := basicBlock controlFlowGraph allocateTemporaryRegister ].
-	super postCopy.
+
 ]
 
 { #category : #printing }
@@ -541,6 +552,12 @@ DRInstruction >> singleChild [
 	^ self
 ]
 
+{ #category : #types }
+DRInstruction >> type [
+
+	^ type ifNil: [ type := self computeType ]
+]
+
 { #category : #replacing }
 DRInstruction >> users [
 
@@ -558,11 +575,10 @@ DRInstruction >> validate [
 			'User-operand mismatch in instruction: ' , self asString ].
 
 	self isPhiFunction ifTrue: [ ^ self ].
-
 	self operands do: [ :o | 
 		(o isInstruction not or: [ 
 			 self basicBlock isDominatedBy: o basicBlock ]) ifFalse: [ 
-			DRError signal: 'Invalid operand: ' , self asString ] ]
+			DRError signal: 'Invalid operand: ', o asString, ' in: ' , self asString ] ]
 ]
 
 { #category : #copying }

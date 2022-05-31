@@ -211,9 +211,11 @@ DRBasicBlock >> distanceToPredecessor: predecessorBlock [
 
 	"Number of blocks between self and the argument"
 	
+	| forwardPredecessors |
 	predecessorBlock = self ifTrue: [ ^ 0 ].
-	self hasPredecessors ifFalse: [ ^ Float infinity ].
-	^1 + (predecessors min: [ :b | b distanceToPredecessor: predecessorBlock ])
+	forwardPredecessors := self forwardPredecessors.
+	forwardPredecessors ifEmpty: [ ^ Float infinity ].
+	^1 + (forwardPredecessors min: [ :b | b distanceToPredecessor: predecessorBlock ])
 
 ]
 
@@ -641,7 +643,8 @@ DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 	self predecessors do: [ :e | 
 		e executionState frameState addTo: mergedFrameState ].
 
-	mergedFrameState temporaries do: [ :value |
+	
+	mergedFrameState allTemporariesDo: [ :value |
 		value isDRBlockClosure ifFalse: [ self addInstruction: value ]
 	].
 	^ mergedFrameState

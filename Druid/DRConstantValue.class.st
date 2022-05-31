@@ -107,6 +107,14 @@ DRConstantValue >> simpleConstantFold [
 	^ value
 ]
 
+{ #category : #types }
+DRConstantValue >> type [
+	
+	(#(true false) includes: value)
+		ifTrue: [ ^ DRBooleanType new ].
+	^ DRIntegerType new
+]
+
 { #category : #accessing }
 DRConstantValue >> value [
 	^ value
