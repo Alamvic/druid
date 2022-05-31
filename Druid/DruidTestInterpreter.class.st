@@ -109,6 +109,31 @@ DruidTestInterpreter >> primitiveAssertIsIgnored [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveBranchingWithAndConditionOnDifferentVariables [
+
+	<numberOfArguments: 1>
+	| n m res |
+	n := self stackValue: 1.
+	m := self stackValue: 0.
+	res := (n ~= 2 and: [ m < 5 ])
+		     ifTrue: [ 1 ]
+		     ifFalse: [ 7 ].
+	^ self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveBranchingWithAndConditionOnSameVariable [
+
+	<numberOfArguments: 0>
+	| n res |
+	n := self stackTop.
+	res := (n ~= 2 and: [ n < 5 ])
+		     ifTrue: [ 1 ]
+		     ifFalse: [ 7 ].
+	^ self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveBranchingWithAssigments [
 
 	<numberOfArguments: 0>
@@ -161,6 +186,39 @@ DruidTestInterpreter >> primitiveCallingBlockWritingExternalTemp [
 	| t |
 	[ t := 17 ] value.
 	self pop: 1 thenPush: t
+]
+
+DruidTestInterpreter >> primitiveBranchingWithOrConditionOnSameVariable [
+
+	<numberOfArguments: 0>
+	| n |
+	n := (self stackTop ~= 2 or: [ self stackTop < 5 ])
+		     ifTrue: [ 1 ]
+		     ifFalse: [ 7 ].
+	^ self pop: 1 thenPush: n
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveBranchingWithTripleAnd [
+
+	<numberOfArguments: 0>
+	| n |
+	n := (self stackTop ~= 2 and: [ self stackTop < 5 and: [ self stackTop anyMask: 1 ] ])
+		     ifTrue: [ 1 ]
+		     ifFalse: [ 7 ].
+	^ self pop: 1 thenPush: n
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveBranchingWithTripleAndLeftAssociated [
+
+	<numberOfArguments: 0>
+	| n res |
+	n := self stackTop.
+	res := ((n ~= 2 and: [ n < 5 ]) and: [ n anyMask: 1 ])
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 7 ].
+	^ self pop: 1 thenPush: res
 ]
 
 { #category : #'as yet unclassified' }

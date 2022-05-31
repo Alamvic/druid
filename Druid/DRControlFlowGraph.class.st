@@ -37,6 +37,14 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 	^ edge
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> allConditionalJumps [
+
+	^ basicBlocks
+		  collect: [ :b | b endInstruction ]
+		  thenSelect: [ :i | i isConditionalJump ]
+]
+
 { #category : #building }
 DRControlFlowGraph >> allocateBasicBlockID [
 	
@@ -56,7 +64,6 @@ DRControlFlowGraph >> allocateTemporaryRegister [
 DRControlFlowGraph >> applyOptimisation: optimisation [
 
 	optimisation applyTo: self.
-	"self generatePaths."
 	self validate
 ]
 

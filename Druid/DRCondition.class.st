@@ -14,6 +14,12 @@ DRCondition >> isComparison [
 	^ true
 ]
 
+{ #category : #testing }
+DRCondition >> isComplexCondition [
+
+	^ false
+]
+
 { #category : #converting }
 DRCondition >> reversed [
 	
