@@ -89,11 +89,9 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 
 	| workingQueue visited visitsToThisBlockSoFar |
 	visited := Dictionary new.
-	
-	
+
 	workingQueue := OrderedCollection new.
 	workingQueue add: self initialBasicBlock.
-	
 	[ workingQueue isEmpty ] whileFalse: [ | currentBlock |
 		currentBlock := workingQueue removeFirst.
 		aFullBlockClosure value: currentBlock.
@@ -108,7 +106,7 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 				visited at: target put: visitsToThisBlockSoFar.
 				
 				visitsToThisBlockSoFar = target numberOfForwardPredecessors ifTrue: [ 
-					workingQueue addLast: target  ] ] ] ]
+					workingQueue addFirst: target  ] ] ] ]
 ]
 
 { #category : #dominance }

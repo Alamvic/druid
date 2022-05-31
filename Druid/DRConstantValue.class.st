@@ -98,7 +98,7 @@ DRConstantValue >> rtlOperandQualifier [
 { #category : #accessing }
 DRConstantValue >> sccpLatticeValueFor: sccp [
 
-	^ self value
+	^ self
 ]
 
 { #category : #'constant folding' }
