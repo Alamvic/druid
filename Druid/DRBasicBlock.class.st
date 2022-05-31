@@ -289,6 +289,13 @@ DRBasicBlock >> firstInstruction [
 	^ self instructions first
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> forwardPredecessors [
+	
+	"Ignore predecessors coming from backjumps"
+	^ predecessors select: [ :e | e endInstruction isBackJump not ]
+]
+
 { #category : #building }
 DRBasicBlock >> greater: operand1 than: operand2 [
 	
