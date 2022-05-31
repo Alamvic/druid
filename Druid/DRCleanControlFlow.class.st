@@ -12,7 +12,7 @@ DRCleanControlFlow >> applyTo: aCFG [
 	counter := 0.
 	[ didChange ] whileTrue: [
 		counter := counter + 1.
-		didChange := self step: aCFG
+		didChange := self step: aCFG.
 	]
 ]
 
@@ -61,7 +61,7 @@ DRCleanControlFlow >> hoistBranchInto: aDRBasicBlock [
 	
 	| skippedBlock |
 	skippedBlock := aDRBasicBlock successor.
-	aDRBasicBlock endInstruction: skippedBlock endInstruction.
+	aDRBasicBlock endInstruction: skippedBlock endInstruction copy.
 
 	aDRBasicBlock successors do: [ :e |
 		e addPredecessor: aDRBasicBlock ]
