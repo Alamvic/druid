@@ -58,6 +58,14 @@ DRFrameState >> addTo: aDRFrameState [
 ]
 
 { #category : #accessing }
+DRFrameState >> allTemporariesDo: aFullBlockClosure [ 
+	
+	temporaries do: aFullBlockClosure.
+	outerFrameState ifNil: [ ^ self ].
+	outerFrameState allTemporariesDo: aFullBlockClosure
+]
+
+{ #category : #accessing }
 DRFrameState >> builder [
 
 	^ builder
