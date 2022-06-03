@@ -74,7 +74,7 @@ DRPrimitiveCompilationTest >> testAccessTemporaryAfterCall [
 	receiver := memory integerObjectOf: 43.
 	self executePrimitiveWithReceiver: receiver.
 	
-	"An empty primitive does nothing and just returns, the return value is the receiver"
+	"An empty primitive just returns 17"
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
