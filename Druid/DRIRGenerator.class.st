@@ -17,7 +17,7 @@ DRIRGenerator >> addDeferredReturnState: anExecutionState [
 
 	"Record that this execution stack did a method return
 	We will merge this one with other returned states when this method finishes"
-	^ (self topFrame homeFrameWithState: anExecutionState) addDeferredReturnState: anExecutionState
+	^ (self topFrame homeFrameWithState: anExecutionState first) addDeferredReturnState: anExecutionState
 ]
 
 { #category : #visiting }
@@ -1099,12 +1099,13 @@ DRIRGenerator >> popFrame [
 	currentBasicBlock := self topFrame exitBasicBlock.
 
 	topReturns := self topFrame deferredMethodReturns.
-	topReturns size > 1 ifTrue: [
+	topReturns size > 1 ifTrue: [ | mergedState |
 		topReturns := currentBasicBlock predecessors collect: [ :e | topReturns at: e ].
-		executionState := DRStackMerger new
+		mergedState := DRStackMerger new
 			builder: self;
 			mergeBlock: currentBasicBlock;
-			mergeAll: topReturns ].
+			mergeAll: topReturns upTo: self topFrame.
+		executionState := mergedState ].
 	
 	poppedFrame := executionState popFrame.
 	currentBasicBlock addInstruction: poppedFrame returnValue.
@@ -1369,7 +1370,7 @@ DRIRGenerator >> visitOperand: aDRValue [
 { #category : #visiting }
 DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
-	| result copy homeFrame |
+	| result copy homeFrame returnExecutionState |
 	
 	aRBReturnNode value acceptVisitor: self.
 	result := self popOperand.
@@ -1378,7 +1379,8 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	homeFrame returnValue: copy from: self currentBasicBlock.
 	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
 
-	self addDeferredReturnState: {executionState . self currentBasicBlock}.
+	returnExecutionState := executionState copy.
+	self addDeferredReturnState: {returnExecutionState . self currentBasicBlock}.
 ]
 
 { #category : #visiting }

@@ -33,6 +33,18 @@ DRExecutionStack >> frameAt: anInteger [
 ]
 
 { #category : #accessing }
+DRExecutionStack >> frameAt: index ifAbsent: aBlock [
+
+	^ stateStack at: index ifAbsent: aBlock
+]
+
+{ #category : #accessing }
+DRExecutionStack >> framesDo: aBlock [
+	
+	^ stateStack do: aBlock
+]
+
+{ #category : #accessing }
 DRExecutionStack >> indexOfFrame: aDRStackFrame [ 
 	
 	^ stateStack indexOf: aDRStackFrame
@@ -57,7 +69,10 @@ DRExecutionStack >> popFrame [
 DRExecutionStack >> postCopy [
 
 	super postCopy.
+	mirrorStack := mirrorStack copy.
 	
+	stateStack withIndexDo: [ :e :i |
+		self haltIf: [(mirrorStack at: i) ~~ e mirrorFrame] ].
 	stateStack := stateStack collect: [ :frame | frame copy ].
 	stateStack withIndexDo: [ :e :i |
 		self haltIf: [(mirrorStack at: i) ~~ e mirrorFrame] ]

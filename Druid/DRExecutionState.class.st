@@ -41,6 +41,13 @@ DRExecutionState >> popFrame [
 	^ executionStack popFrame
 ]
 
+{ #category : #'stack management' }
+DRExecutionState >> popUpTo: aDRStackFrame [ 
+	
+	[self topFrame mirrorFrame = aDRStackFrame mirrorFrame]
+		whileFalse: [ self popFrame ]
+]
+
 { #category : #copying }
 DRExecutionState >> popVM [
 

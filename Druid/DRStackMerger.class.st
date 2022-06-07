@@ -28,6 +28,16 @@ DRStackMerger >> freshPhiFunction [
 ]
 
 { #category : #merging }
+DRStackMerger >> installInstructions [
+
+	mergedState executionStack framesDo: [ :mergeFrame | 
+		mergeFrame temporariesDo: [ :e | mergeBlock addInstruction: e ] ].
+
+	mergedState vmOperandStack do: [ :e | mergeBlock addInstruction: e ].
+	mergeBlock addInstruction: mergedState primitiveFailureCode
+]
+
+{ #category : #merging }
 DRStackMerger >> instructionFactory [
 
 	^ mergeBlock controlFlowGraph instructionFactory
@@ -46,6 +56,25 @@ DRStackMerger >> mergeAll: aCollectionOfExecutionStates [
 		                 vmState: mergedVMState;
 		                 executionStack: mergedStack;
 		                 yourself
+]
+
+{ #category : #merging }
+DRStackMerger >> mergeAll: aCollectionOfExecutionStates upTo: aFrame [
+
+	| stacks mergedStack mergedVMState vmStates |
+	vmStates := aCollectionOfExecutionStates collect: [ :e | e vmState ].
+	stacks := aCollectionOfExecutionStates collect: [ :e | 
+		          e executionStack ].
+	mergedVMState := self mergeVMStates: vmStates.
+	mergedStack := self mergeStacks: stacks simplifying: true.
+	
+	mergedState := DRExecutionState new
+		  vmState: mergedVMState;
+		  executionStack: mergedStack;
+		  yourself.
+	mergedState popUpTo: aFrame.
+	self installInstructions.
+	^ mergedState
 ]
 
 { #category : #accessing }
@@ -76,12 +105,17 @@ DRStackMerger >> mergeFramesIn: stacksToMerge at: anInteger [
 			withValue: self freshPhiFunction ].
 	
 	stacksToMerge do: [ :s | | frameToMerge |
-		frameToMerge := s at: anInteger.
+		frameToMerge := s "a DRExecutionStack"
+			frameAt: anInteger
+			ifAbsent: [ | nullFrame |
+				nullFrame := DRStackFrame new.
+				mergeFrame temporaryNames do: [ :n |
+					nullFrame
+						writeTemporaryNamed: n
+						withValue: DRNullValue new
+				].
+				nullFrame ].
 		frameToMerge addTo: mergeFrame.
-	].
-
-	mergeFrame temporariesDo: [ :e |
-		mergeBlock addInstruction: e.
 	].
 	
 	^ mergeFrame
@@ -90,14 +124,12 @@ DRStackMerger >> mergeFramesIn: stacksToMerge at: anInteger [
 { #category : #merging }
 DRStackMerger >> mergeStacks: stacksToMerge simplifying: aBoolean [ 
 		
-	| mergedExecutionStack |
-	self
-		assert: (stacksToMerge collect: [ :e | e size ]) asSet size = 1
-		description: 'All merged stacks should have the same depth'.
+	| mergedExecutionStack maxStackDepth |
+	maxStackDepth := stacksToMerge max: [ :e | e size ].
 
 	mergedExecutionStack := DRExecutionStack new.
 	"Iterate backwards so we push them back the the proper order"
-	(stacksToMerge anyOne size to: 1 by: -1) do: [ :index | 
+	(maxStackDepth to: 1 by: -1) do: [ :index | 
 		mergedExecutionStack pushMergeFrame: (self mergeFramesIn: stacksToMerge at: index) ].
 	^ mergedExecutionStack
 ]
@@ -114,19 +146,6 @@ DRStackMerger >> mergeVMStates: vmStates [
 	mergedVMState primitiveFailureCode: self freshPhiFunction.
 	vmStates do: [ :e | 
 		e addTo: mergedVMState ].
-	mergeBlock addInstruction: mergedVMState primitiveFailureCode.
 	
 	^ mergedVMState
-]
-
-{ #category : #accessing }
-DRStackMerger >> mergedState [
-
-	^ mergedState
-]
-
-{ #category : #accessing }
-DRStackMerger >> mergedState: anObject [
-
-	^ mergedState := anObject
 ]
