@@ -44,6 +44,12 @@ DRBlockClosure >> isDRBlockClosure [
 	^ true
 ]
 
+{ #category : #asd }
+DRBlockClosure >> name [
+
+	^ 'a block'
+]
+
 { #category : #accessing }
 DRBlockClosure >> outerContext [
 

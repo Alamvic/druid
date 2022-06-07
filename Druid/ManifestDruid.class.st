@@ -6,3 +6,9 @@ Class {
 	#superclass : #PackageManifest,
 	#category : #'Druid-Manifest'
 }
+
+{ #category : #accessing }
+ManifestDruid class >> formatter [
+
+	^ DRCogitFormatter new
+]

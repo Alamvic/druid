@@ -18,12 +18,6 @@ Class {
 	#category : #'Druid-UI'
 }
 
-{ #category : #accessing }
-DRCompilerExplorer class >> experiments [
-
-	^ experiments
-]
-
 { #category : #'instance creation' }
 DRCompilerExplorer class >> on: aSelector [
 

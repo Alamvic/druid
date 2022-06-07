@@ -71,7 +71,7 @@ DRInstruction >> addOperand: anOperand [
 
 { #category : #'users-definitions' }
 DRInstruction >> addUser: anInstruction [
-	
+
 	users add: anInstruction
 ]
 
@@ -102,12 +102,6 @@ DRInstruction >> basicBlock: anObject [
 DRInstruction >> clearUsers [
 
 	users removeAll
-]
-
-{ #category : #types }
-DRInstruction >> computeType [
-	
-	^ operands first type
 ]
 
 { #category : #accessing }
@@ -483,6 +477,13 @@ DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 ]
 
 { #category : #replacing }
+DRInstruction >> replaceUsersBy: anotherInstruction [
+	
+	users copy do: [ :instruction |
+		instruction replaceOperand: self by: anotherInstruction ]
+]
+
+{ #category : #replacing }
 DRInstruction >> replaceUsesBy: anotherInstruction [
 	
 	users copy do: [ :instruction |
@@ -550,12 +551,6 @@ DRInstruction >> simpleConstantFold [
 DRInstruction >> singleChild [
 
 	^ self
-]
-
-{ #category : #types }
-DRInstruction >> type [
-
-	^ type ifNil: [ type := self computeType ]
 ]
 
 { #category : #replacing }

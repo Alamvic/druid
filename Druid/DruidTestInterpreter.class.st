@@ -411,6 +411,50 @@ DruidTestInterpreter >> primitiveGreaterThanInverted [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIfFalseIfTrueReturningValue [
+
+	<numberOfArguments: 0>
+	| result |
+	result := self stackTop = 0
+		ifFalse: [ 57 ]
+		ifTrue: [ 42 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIfTrueIfFalseAssigningValue [
+
+	<numberOfArguments: 0>
+	| result |
+	self stackTop = 0
+		ifTrue: [ result := 42 ]
+		ifFalse: [ result := 57 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIfTrueIfFalseReturningValue [
+
+	<numberOfArguments: 0>
+	| result |
+	result := self stackTop = 0
+		ifTrue: [ 42 ]
+		ifFalse: [ 57 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIfTrueStatement [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 10.
+	self stackTop = 0
+		ifTrue: [ result := 42 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveIncrement [
 
 	<numberOfArguments: 0>
@@ -744,17 +788,6 @@ DruidTestInterpreter >> primitiveWithDeadCode [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveWithIfAssigningValue [
-
-	<numberOfArguments: 0>
-	| result |
-	self stackTop = 0
-		ifTrue: [ result := 42 ]
-		ifFalse: [ result := 57 ].
-	self pop: 1 thenPush: result
-]
-
-{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveWithIfNilIfNotNilStatement [
 
 	<numberOfArguments: 0>
@@ -810,17 +843,6 @@ DruidTestInterpreter >> primitiveWithIfNotNilStatement [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveWithIfReturningValue [
-
-	<numberOfArguments: 0>
-	| result |
-	result := self stackTop = 0
-		ifTrue: [ 42 ]
-		ifFalse: [ 57 ].
-	self pop: 1 thenPush: result
-]
-
-{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveWithNonCompilableBranch [
 
 	<numberOfArguments: 0>
@@ -830,4 +852,15 @@ DruidTestInterpreter >> primitiveWithNonCompilableBranch [
 		ifTrue: [ 11 ]
 		ifFalse: [ self nonCompilableMethod ].
 	self pop: 1 thenPush: r.
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithOrBlock [
+
+	<numberOfArguments: 0>
+	| t |
+	t := (self stackTop = 1 or: [ self stackTop = 2 ])
+		ifTrue: [ 17 ]
+		ifFalse: [ 42 ].
+	self pop: 1 thenPush: t
 ]

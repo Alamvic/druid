@@ -25,3 +25,9 @@ DRCondition >> reversed [
 	
 	self subclassResponsibility
 ]
+
+{ #category : #accessing }
+DRCondition >> type [
+	
+	^ DRBooleanType new
+]

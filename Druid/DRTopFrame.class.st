@@ -21,12 +21,6 @@ DRTopFrame >> executionState: aDRExecutionState [
 ]
 
 { #category : #accessing }
-DRTopFrame >> frameState [
-	
-	^ DRFrameState new
-]
-
-{ #category : #accessing }
 DRTopFrame >> push: aDRPhiFunction [ 
 
 	result := aDRPhiFunction

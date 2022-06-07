@@ -50,8 +50,10 @@ DRVMState >> addTo: aDRVMState [
 	
 	"Add my own state to the execution state in parameter"
 	aDRVMState completeOperandStackUpTo: operandStack size.
-	self operandStackWithIndexDo: [ :operand :stackPosition |
-		aDRVMState addStackOperand: operand at: stackPosition ].
+	aDRVMState operandStackWithIndexDo: [ :operand :stackPosition |
+		aDRVMState
+			addStackOperand: (self stackOperandAt: stackPosition ifAbsent: [ DRNullValue new ])
+			at: stackPosition ].
 	aDRVMState addPrimitiveFailureCode: primitiveFailureCode.
 ]
 
@@ -120,6 +122,13 @@ DRVMState >> operandStackWithIndexDo: aFullBlockClosure [
 	operandStack withIndexDo: aFullBlockClosure
 ]
 
+{ #category : #adding }
+DRVMState >> pop [
+
+	operandStack ifEmpty: [ self error: 'Operand stack underflow!' ].
+	^ operandStack pop
+]
+
 { #category : #copying }
 DRVMState >> postCopy [
 	super postCopy.
@@ -138,6 +147,12 @@ DRVMState >> primitiveFailureCode: anObject [
 	primitiveFailureCode := anObject
 ]
 
+{ #category : #adding }
+DRVMState >> push: aValue [
+
+	operandStack push: aValue
+]
+
 { #category : #simplification }
 DRVMState >> simplify [
 	
@@ -152,4 +167,17 @@ DRVMState >> simplify [
 	newPrimitiveFailureCode ~~ primitiveFailureCode ifTrue: [
 		primitiveFailureCode := newPrimitiveFailureCode.
 		primitiveFailureCode replaceUsesBy: newPrimitiveFailureCode ].
+]
+
+{ #category : #accumulating }
+DRVMState >> stackOperandAt: stackPosition ifAbsent: aBlock [
+
+	^ operandStack at: stackPosition ifAbsent: aBlock
+]
+
+{ #category : #adding }
+DRVMState >> top [
+
+	operandStack ifEmpty: [ self error: 'Operand stack underflow!' ].
+	^ operandStack top
 ]

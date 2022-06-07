@@ -3,7 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'vmState',
-		'frameState'
+		'executionStack'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -13,32 +13,69 @@ DRExecutionState >> addTo: aDRExecutionState [
 	
 	"Add my own state to the execution state in parameter"
 	vmState addTo: aDRExecutionState vmState.
-	frameState addTo: aDRExecutionState frameState
+	1halt.
+	executionStack addTo: aDRExecutionState frameState
 ]
 
 { #category : #accessing }
-DRExecutionState >> frameState [
+DRExecutionState >> executionStack [
 
-	^ frameState
+	^ executionStack
 ]
 
 { #category : #accessing }
-DRExecutionState >> frameState: anObject [
+DRExecutionState >> executionStack: anObject [
 
-	frameState := anObject
+	executionStack := anObject
 ]
 
 { #category : #testing }
 DRExecutionState >> isNotSimplified [
 	
-	^ vmState isNotSimplified and: [ frameState isNotSimplified ]
+	^ vmState isNotSimplified and: [ executionStack isNotSimplified ]
+]
+
+{ #category : #frames }
+DRExecutionState >> popFrame [
+	
+	^ executionStack popFrame
+]
+
+{ #category : #copying }
+DRExecutionState >> popVM [
+
+	^ self vmState pop
 ]
 
 { #category : #copying }
 DRExecutionState >> postCopy [
 	super postCopy.
 	vmState := vmState copy.
-	frameState := frameState copy.
+	executionStack := executionStack copy.
+]
+
+{ #category : #'vm state' }
+DRExecutionState >> primitiveFailureCode [
+	
+	^ vmState primitiveFailureCode
+]
+
+{ #category : #'accessing - vm state' }
+DRExecutionState >> primitiveFailureCode: anObject [
+
+	vmState primitiveFailureCode: anObject
+]
+
+{ #category : #frames }
+DRExecutionState >> pushFrame: aDRStackFrame [ 
+	
+	executionStack pushFrame: aDRStackFrame
+]
+
+{ #category : #copying }
+DRExecutionState >> pushVM: aValue [
+
+	self vmState push: aValue
 ]
 
 { #category : #simplification }
@@ -46,6 +83,24 @@ DRExecutionState >> simplify [
 	
 	vmState simplify.
 	frameState simplify.
+]
+
+{ #category : #frames }
+DRExecutionState >> topFrame [
+	
+	^ executionStack topFrame
+]
+
+{ #category : #copying }
+DRExecutionState >> topVM [
+
+	^ self vmState top
+]
+
+{ #category : #'vm stack' }
+DRExecutionState >> vmOperandStack [
+	
+	^ vmState operandStack
 ]
 
 { #category : #accessing }

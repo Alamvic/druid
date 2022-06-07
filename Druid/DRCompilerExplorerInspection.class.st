@@ -15,52 +15,6 @@ DRCompilerExplorerInspection >> activateOnDoubleClick [
 	cfgPresenter activateOnDoubleClick
 ]
 
-{ #category : #adding }
-DRCompilerExplorerInspection >> addConfigButtons [
-
-	configToolbar addItem: (self newToolbarToggleButton
-			 label: 'Recording';
-			 state: model isRecording;
-			 whenChangedDo: [ :state | model isRecording: state ];
-			 yourself).
-
-	configToolbar addItem: (self newToolbarToggleButton
-			 label: 'Paths';
-			 state: model shouldGeneratePaths;
-			 whenChangedDo: [ :state | model shouldGeneratePaths: state ];
-			 yourself).
-
-	configToolbar addItem: (self newToolbarButton
-			 label: 'Optimisation: ' , model previousCfgs size asString;
-			 action: [ model previousCfgs inspect ];
-			 yourself).
-
-	configToolbar addItem: (self newToolbarButton
-			 label: 'Save!';
-			 action: [ model saveExperiment ];
-			 yourself)
-]
-
-{ #category : #adding }
-DRCompilerExplorerInspection >> addOptimisationButtons [
-
-	optimisationToolbar addItem: (self newToolbarButton
-			 label: '< Back';
-			 action: [ 
-				 model goBack.
-				 self refresh ];
-			 yourself).
-
-	model optimizations do: [ :opt | 
-		| toolbarButtom |
-		toolbarButtom := self newToolbarButton.
-		toolbarButtom label: opt name.
-		toolbarButtom action: [ 
-			model apply: opt new.
-			self refresh ].
-		optimisationToolbar addItem: toolbarButtom ]
-]
-
 { #category : #accessing }
 DRCompilerExplorerInspection >> blocks [
 	

@@ -1,0 +1,94 @@
+Class {
+	#name : #DRExecutionStack,
+	#superclass : #Object,
+	#instVars : [
+		'stateStack',
+		'mirrorStack'
+	],
+	#category : #'Druid-Tests'
+}
+
+{ #category : #accessing }
+DRExecutionStack >> at: index [
+
+	^ stateStack at: index
+]
+
+{ #category : #accessing }
+DRExecutionStack >> baseFrame [
+	
+	^ stateStack last
+]
+
+{ #category : #enumerating }
+DRExecutionStack >> detectFrame: aFullBlockClosure [ 
+	
+	^ stateStack detect: aFullBlockClosure
+]
+
+{ #category : #accessing }
+DRExecutionStack >> frameAt: anInteger [ 
+	
+	^ stateStack at: anInteger
+]
+
+{ #category : #accessing }
+DRExecutionStack >> indexOfFrame: aDRStackFrame [ 
+	
+	^ stateStack indexOf: aDRStackFrame
+]
+
+{ #category : #initialization }
+DRExecutionStack >> initialize [
+
+	super initialize.
+	mirrorStack := Stack new.
+	stateStack := Stack new
+]
+
+{ #category : #accessing }
+DRExecutionStack >> popFrame [
+	
+	mirrorStack pop.
+	^ stateStack pop
+]
+
+{ #category : #copying }
+DRExecutionStack >> postCopy [
+
+	super postCopy.
+	
+	stateStack := stateStack collect: [ :frame | frame copy ].
+	stateStack withIndexDo: [ :e :i |
+		self haltIf: [(mirrorStack at: i) ~~ e mirrorFrame] ]
+	
+]
+
+{ #category : #frames }
+DRExecutionStack >> pushFrame: aDRStackStack [
+
+	| mirrorFrame |
+	mirrorFrame := DRMirrorFrame new.
+	aDRStackStack mirrorFrame: mirrorFrame.
+	mirrorStack push: mirrorFrame.
+	stateStack push: aDRStackStack
+]
+
+{ #category : #frames }
+DRExecutionStack >> pushMergeFrame: aDRStackStack [
+
+	mirrorStack push: aDRStackStack mirrorFrame.
+	stateStack push: aDRStackStack
+]
+
+{ #category : #accessing }
+DRExecutionStack >> size [
+
+	^ stateStack size
+]
+
+{ #category : #accessing }
+DRExecutionStack >> topFrame [
+	
+	^ stateStack top
+]

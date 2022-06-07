@@ -4,12 +4,6 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #testing }
-DRBooleanInstruction >> isComplexCondition [
-
-	^ true
-]
-
 { #category : #SCCP }
 DRBooleanInstruction >> sccpLatticeValueOperand: index for: sccp [
 
@@ -18,4 +12,10 @@ DRBooleanInstruction >> sccpLatticeValueOperand: index for: sccp [
 	value := operand sccpLatticeValueFor: sccp.
 	value = sccp top ifTrue: [ ^ operand ].
 	^ value
+]
+
+{ #category : #types }
+DRBooleanInstruction >> type [
+	
+	^ DRBooleanType new
 ]

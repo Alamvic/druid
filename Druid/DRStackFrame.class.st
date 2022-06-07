@@ -9,11 +9,40 @@ Class {
 		'exitBasicBlock',
 		'operandStack',
 		'currentTemporaryFrame',
-		'executionState',
-		'frameState'
+		'temporaries',
+		'mirrorFrame'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
+
+{ #category : #'non local returns' }
+DRStackFrame >> addDeferredReturnState: aDRExecutionState [ 
+	
+	^ mirrorFrame addDeferredReturnState: aDRExecutionState 
+]
+
+{ #category : #merging }
+DRStackFrame >> addTo: aDRStackFrame [ 
+	
+	"Add my values to the argument.
+	The argument should have all variables defined as phi functions"
+	
+	temporaries keysAndValuesDo: [ :k :v |
+		(aDRStackFrame readTemporaryNamed: k) addValue: v
+	]
+]
+
+{ #category : #'non lo' }
+DRStackFrame >> deferredMethodReturns [
+	
+	^ mirrorFrame deferredMethodReturns
+]
+
+{ #category : #temporaries }
+DRStackFrame >> defineVariableNamed: aName [ 
+	
+	temporaries at: aName put: DRNullValue new
+]
 
 { #category : #accessing }
 DRStackFrame >> definedTemporaryNames [
@@ -34,17 +63,6 @@ DRStackFrame >> entryBasicBlock: anObject [
 ]
 
 { #category : #accessing }
-DRStackFrame >> executionState [
-	^ executionState
-]
-
-{ #category : #accessing }
-DRStackFrame >> executionState: anExecutionState [
-	
-	executionState := anExecutionState
-]
-
-{ #category : #accessing }
 DRStackFrame >> exitBasicBlock [
 	^ exitBasicBlock
 ]
@@ -55,29 +73,31 @@ DRStackFrame >> exitBasicBlock: aDRBasicBlock [
 	exitBasicBlock := aDRBasicBlock 
 ]
 
-{ #category : #'execution state' }
-DRStackFrame >> frameState [
+{ #category : #temporaries }
+DRStackFrame >> frameDefining: aName withState: aState [
 	
-	^ executionState frameState
+	(temporaries includesKey: aName)
+		ifTrue: [ ^ self ].
+
+	^ (self outerFrameWithState: aState)
+		frameDefining: aName
+		withState: aState
 ]
 
-{ #category : #accessing }
-DRStackFrame >> frameState: aDRFrameState [
+{ #category : #testing }
+DRStackFrame >> hasTemporaryNamed: aName [
 
-	executionState frameState: aDRFrameState
-]
-
-{ #category : #'execution state' }
-DRStackFrame >> freshFrameState [
-
-	| freshState |
-	freshState := self newFrameState.
-	freshState definePhisWith: [ DRNullValue new ].
-	^ freshState
+	^ temporaries includesKey: aName
 ]
 
 { #category : #accessing }
 DRStackFrame >> homeFrame [
+	1halt.
+	^ self
+]
+
+{ #category : #accessing }
+DRStackFrame >> homeFrameWithState: aState [
 	
 	^ self
 ]
@@ -87,6 +107,7 @@ DRStackFrame >> initialize [
 
 	super initialize.
 	operandStack := Stack new.
+	temporaries := Dictionary new.
 	currentTemporaryFrame := Dictionary new
 ]
 
@@ -114,13 +135,14 @@ DRStackFrame >> method: anObject [
 	method := anObject
 ]
 
-{ #category : #'execution state' }
-DRStackFrame >> newFrameState [
+{ #category : #accessing }
+DRStackFrame >> mirrorFrame [
+	^ mirrorFrame
+]
 
-	^ DRFrameState new
-		  frame: self;
-		  builder: irGenerator;
-		  yourself
+{ #category : #accessing }
+DRStackFrame >> mirrorFrame: aDRMirrorFrame [ 
+	mirrorFrame := aDRMirrorFrame
 ]
 
 { #category : #accessing }
@@ -141,6 +163,13 @@ DRStackFrame >> pop [
 	^ operandStack pop
 ]
 
+{ #category : #accessing }
+DRStackFrame >> postCopy [
+
+	super postCopy.
+	temporaries := temporaries copy.
+]
+
 { #category : #printing }
 DRStackFrame >> printOn: stream [
 
@@ -157,14 +186,26 @@ DRStackFrame >> push: aValue [
 	operandStack push: aValue
 ]
 
+{ #category : #temporaries }
+DRStackFrame >> readTemporaryNamed: aString [ 
+	
+	^ temporaries at: aString
+]
+
 { #category : #accessing }
 DRStackFrame >> receiver [
+
 	^ receiver
 ]
 
 { #category : #accessing }
 DRStackFrame >> receiver: aCogVMSimulatorLSB [ 
 	receiver := aCogVMSimulatorLSB
+]
+
+{ #category : #accessing }
+DRStackFrame >> receiverWithState: aState [
+	^ receiver
 ]
 
 { #category : #accessing }
@@ -192,6 +233,24 @@ DRStackFrame >> stackTop [
 ]
 
 { #category : #accessing }
+DRStackFrame >> temporariesDo: aFullBlockClosure [ 
+	
+	temporaries valuesDo: aFullBlockClosure
+]
+
+{ #category : #temporaries }
+DRStackFrame >> temporaryAt: aName put: aValue withState: aState [
+
+	(self frameDefining: aName withState: aState) writeTemporaryNamed: aName withValue: aValue
+]
+
+{ #category : #temporaries }
+DRStackFrame >> temporaryAt: aName withState: aState [
+
+	^ (self frameDefining: aName withState: aState) readTemporaryNamed: aName
+]
+
+{ #category : #accessing }
 DRStackFrame >> temporaryFrame [
 	
 	^ currentTemporaryFrame
@@ -201,4 +260,16 @@ DRStackFrame >> temporaryFrame [
 DRStackFrame >> temporaryFrame: anObject [
 
 	currentTemporaryFrame := anObject
+]
+
+{ #category : #accessing }
+DRStackFrame >> temporaryNames [
+	
+	^ temporaries keys
+]
+
+{ #category : #temporaries }
+DRStackFrame >> writeTemporaryNamed: aString withValue: aValue [
+	
+	^ temporaries at: aString put: aValue
 ]

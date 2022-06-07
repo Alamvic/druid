@@ -11,12 +11,13 @@ DRLinearizationTest >> testBranchingControlFlow [
 	
 	| b1 b2 b3 cfg b4 |
 	cfg := DRControlFlowGraph new.
-	cfg newBasicBlock.
-	b1 := cfg initialBasicBlock.
+	
+	b1 := cfg newBasicBlock.
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
 	
+	cfg initialBasicBlock jumpTo: b1.
 	b1
 		jumpIfTrueTo: b2
 		ifFalseTo: b3.
@@ -24,7 +25,7 @@ DRLinearizationTest >> testBranchingControlFlow [
 	b3 jumpTo: b4.
 	b4 endInstruction: DRReturn new.
 		
-	self assert: cfg reversePostOrderBlocks asArray equals: { b1 . b2 . b3 . b4 }
+	self assert: cfg reversePostOrderBlocks asArray equals: { cfg initialBasicBlock . b1 . b3 .b2 . b4 }
 ]
 
 { #category : #'tests-basic' }
@@ -104,7 +105,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocks [
 
 	| cfg |
 	cfg := DRPrimitiveCompilerCompiler new
-		primitiveName: #primitiveWithIfAssigningValue;
+		primitiveName: #primitiveIfTrueIfFalseAssigningValue;
 		interpreter: interpreter;
 		generateDruidIR.
 	
@@ -142,7 +143,7 @@ DRLinearizationTest >> testBuildCFGHasCorrectStructure [
 
 	| cfg |
 	cfg := DRPrimitiveCompilerCompiler new
-		primitiveName: #primitiveWithIfAssigningValue;
+		primitiveName: #primitiveIfTrueIfFalseAssigningValue;
 		interpreter: interpreter;
 		generateDruidIR.
 

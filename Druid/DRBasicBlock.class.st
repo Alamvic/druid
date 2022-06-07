@@ -10,8 +10,7 @@ Class {
 		'predecessors',
 		'origin',
 		'controlFlowGraph',
-		'isExitBlock',
-		'executionState'
+		'isExitBlock'
 	],
 	#category : #'Druid-IR'
 }
@@ -263,16 +262,6 @@ DRBasicBlock >> endInstruction: aDRInstruction [
 DRBasicBlock >> equals: operand1 to: operand2 [ 
 	
 	^ self addInstruction: (self instructionFactory equals: operand1 to: operand2)
-]
-
-{ #category : #accessing }
-DRBasicBlock >> executionState [
-	^ executionState
-]
-
-{ #category : #accessing }
-DRBasicBlock >> executionState: aDRExecutionState [ 
-	executionState := aDRExecutionState
 ]
 
 { #category : #accessing }
@@ -600,26 +589,6 @@ DRBasicBlock >> load: anAddress [
 	^ self addInstruction: (self instructionFactory load: anAddress)
 ]
 
-{ #category : #'operand stack' }
-DRBasicBlock >> mergeExecutionStateIn: aBuilder simplifying: simplify [
-
-	| newState mergedVMState mergedFrameState |
-
-	mergedVMState := self mergeVMOperandStacksIn: aBuilder.
-	mergedFrameState := self mergeTemporaryFramesIn: aBuilder.
-	
-	newState := DRExecutionState new
-		vmState: mergedVMState;
-		frameState: mergedFrameState;
-		yourself.
-	executionState := newState.
-	
-	simplify ifTrue: [ executionState simplify ].
-	
-	aBuilder currentFrame executionState: newState.
-	^ newState
-]
-
 { #category : #splitting }
 DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: successors [
 
@@ -631,59 +600,6 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 				andAll: { duplicatedInstruction }
 				withFrontier: successors
 				withUsers: myInstruction nonLocalUsers ]
-]
-
-{ #category : #temporaries }
-DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
-
-	| mergedFrameState |
-
-	"If I have no predecessors, I'm very probably dead code.
-	No need to merge anything"
-	mergedFrameState := aBuilder newFrameState.
-	mergedFrameState defineRecursivePhiPlaceholders.
-	
-	self predecessors ifEmpty: [ 
-		aBuilder currentBasicBlock executionState frameState addTo: mergedFrameState.
-		^ mergedFrameState ].
-
-	self predecessors do: [ :e | 
-		e executionState frameState addTo: mergedFrameState ].
-
-	
-	mergedFrameState allTemporariesDo: [ :value |
-		value isDRBlockClosure ifFalse: [ self addInstruction: value ]
-	].
-	^ mergedFrameState
-]
-
-{ #category : #'operand stack' }
-DRBasicBlock >> mergeVMOperandStacksIn: aBuilder [
-
-	"We can only merge two operand stacks with the same number of elements"
-
-	| mergedVmOperandStack mergedPrimitiveFailureCode mergedVMState |
-	"If I have no predecessors, I'm very probably dead code.
-	No need to merge anything"
-	self predecessors ifEmpty: [ 
-		mergedPrimitiveFailureCode := aBuilder currentBasicBlock
-			                              primitiveFailureCode.
-		mergedVmOperandStack := aBuilder currentBasicBlock vmOperandStack.
-		^ DRVMState new
-			  primitiveFailureCode: mergedPrimitiveFailureCode;
-			  operandStack: mergedVmOperandStack;
-			  yourself ].
-
-	mergedVMState := aBuilder newVMState.
-	self predecessors do: [ :e | 
-		e executionState vmState addTo: mergedVMState ].
-
-	self addInstruction: mergedVMState primitiveFailureCode.
-	mergedVMState operandStackWithIndexDo: [ :operand :stackPosition |
-		self addInstruction: operand
-	].
-
-	^ mergedVMState
 ]
 
 { #category : #accessing }
@@ -797,17 +713,6 @@ DRBasicBlock >> phiWithVariables: variables [
 { #category : #accessing }
 DRBasicBlock >> predecessors [
 	^ predecessors
-]
-
-{ #category : #accessing }
-DRBasicBlock >> primitiveFailureCode [
-	^ executionState vmState primitiveFailureCode
-]
-
-{ #category : #accessing }
-DRBasicBlock >> primitiveFailureCode: anInstruction [
-
-	self executionState vmState primitiveFailureCode: anInstruction
 ]
 
 { #category : #printing }
@@ -993,7 +898,6 @@ DRBasicBlock >> tailDuplicate [
 	"Duplicate the receiver so there is a different copy of it for each predecessor"
 
 	| duplicatedBlocks |
-	
 	duplicatedBlocks := self predecessors allButFirst collect: [ 
 		                    :predecessorToRewire | 
 		                    self splitTo: predecessorToRewire ].
@@ -1065,10 +969,4 @@ DRBasicBlock >> validateSuccessors [
 DRBasicBlock >> veryDeepCopyWith: deepCopier [
 	deepCopier references at: origin ifAbsentPut: [nil].
 	^ super veryDeepCopyWith: deepCopier
-]
-
-{ #category : #accessing }
-DRBasicBlock >> vmOperandStack [
-
-	^ executionState vmState operandStack
 ]
