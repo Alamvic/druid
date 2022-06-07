@@ -4,6 +4,30 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #deployment }
+DruidTestRTLCompiler class >> replaceMethodOnJIT: selector [
+
+| druidMethod cogMethod |
+druidMethod := DruidTestRTLCompiler lookupSelector: (#gen_, selector).
+cogMethod := druidMethod ast copy.
+
+"Change selector"
+cogMethod selector: (#gen, selector capitalized).
+
+"Replace self by cogit variable"
+cogMethod nodesDo: [ :n | n isSelfVariable ifTrue: [ n replaceWith: (RBVariableNode named: 'cogit') ] ].
+
+"Add type anotations"
+cogMethod pragmas: { }.
+cogMethod temporaries do: [ :temp | |args|	
+	args := {temp name. #'AbstractInstruction *'} collect: [ :arg | RBLiteralNode value: arg ].
+	cogMethod addPragma: (RBPragmaNode selector: #var:type: arguments: args).	
+].
+
+
+CogObjectRepresentation compile: cogMethod formattedCode classified: 'primitive generators'
+]
+
 { #category : #generated }
 DruidTestRTLCompiler >> gen_assertIsIgnored [
 
@@ -1324,4 +1348,10 @@ DruidTestRTLCompiler >> gen_primitiveWithIfReturningValue [
 	jump1 jmpTarget: currentBlock.
 	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> numRegArgs [
+
+	^ 2 "Hardcoded?"
 ]
