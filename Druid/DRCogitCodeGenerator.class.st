@@ -480,13 +480,7 @@ DRCogitCodeGenerator >> visitReturn: aDRReturn [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #RetN:
-			 arguments: { (RBMessageNode
-					  receiver: (self rtlExpressionForValue: aDRReturn operand1)
-					  selector: #*
-					  arguments: { (RBMessageNode
-							   receiver: (RBVariableNode named: 'objectMemory')
-							   selector: #wordSize) }) })
+			 selector: #genPrimReturn)
 ]
 
 { #category : #visiting }
