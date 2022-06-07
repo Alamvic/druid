@@ -187,13 +187,6 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 	usedSpillRegisters do: [ :each | spillRegisters addFirst: each ]
 ]
 
-{ #category : #accessing }
-DRLinearScanRegisterAllocator >> basicLiveSetOf: anInstruction [
-	
-	"Low level accessor, use only if you want to escape from the high level accessor"
-	^ liveSets at: anInstruction ifAbsentPut: [ DRLiveSet new ]
-]
-
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> buildLiveSets [
 	

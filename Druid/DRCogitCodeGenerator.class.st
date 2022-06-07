@@ -108,14 +108,6 @@ DRCogitCodeGenerator >> initialize [
 	nextJumpIndex := 0.
 ]
 
-{ #category : #visiting }
-DRCogitCodeGenerator >> jumpForwardCogRTL: jumpKind instruction: aConditionalInstruction [
-
-	self
-		generateJump: jumpKind
-		target: aConditionalInstruction falseBranch
-]
-
 { #category : #'jump-management' }
 DRCogitCodeGenerator >> nextJumpIndex [
 	
@@ -306,15 +298,6 @@ DRCogitCodeGenerator >> visitConditionalJump: aDRConditionalJump [
 	"Generate both jumps, the fallthorugh will get ignored"
 	self generateJump: aDRConditionalJump condition singleChild cogitTrueConditionCode target: aDRConditionalJump trueBranch.
 	self generateJump: aDRConditionalJump condition singleChild cogitFalseConditionCode target: aDRConditionalJump falseBranch
-]
-
-{ #category : #visiting }
-DRCogitCodeGenerator >> visitConstantCondition: aDRConstantCondition [
-	
-	"If true, jump to the true branch.
-	If false, jump to the false branch."
-	
-	"Code generated in the conditional jump"
 ]
 
 { #category : #visiting }

@@ -2,7 +2,6 @@ Class {
 	#name : #DRCompilerExplorer,
 	#superclass : #Object,
 	#instVars : [
-		'method',
 		'interpreter',
 		'interpreterClass',
 		'selector',
