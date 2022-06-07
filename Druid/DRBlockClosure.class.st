@@ -51,6 +51,12 @@ DRBlockClosure >> name [
 ]
 
 { #category : #accessing }
+DRBlockClosure >> numberOfArguments [
+	
+	^ blockNode arguments size
+]
+
+{ #category : #accessing }
 DRBlockClosure >> outerContext [
 
 	^ outerContext

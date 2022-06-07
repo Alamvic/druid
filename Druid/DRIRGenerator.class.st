@@ -190,6 +190,7 @@ DRIRGenerator >> initializeSpecialCases [
 	"Control flow and comparisons"
 	specialCases at: #value put: #interpretBlockValueWith:.
 	specialCases at: #value: put: #interpretBlockValueWith:.
+	specialCases at: #cull: put: #interpretBlockCullWith:.
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
 	specialCases at: #whileTrue: put: #interpretWhileTrueWith:.
 	
@@ -387,6 +388,23 @@ DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 	"The add instruction pushes the instruction to the operand stack.
 	Pop it: at the end of the block execution, nothing should be in the stack"
 	self currentBasicBlock blockValue: blockValue
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
+
+	| block arguments |
+	aRBMessageNode receiver acceptVisitor: self.
+	block := self popOperand.
+	arguments := aRBMessageNode arguments collect: [ :e |
+		e acceptVisitor: self.
+		self popOperand ].
+	
+	"cull: only pass the required number of arguments and ignore the rest"
+	self
+		interpretCode: block
+		receiver: block
+		arguments: (arguments first: block numberOfArguments)
 ]
 
 { #category : #'special cases' }

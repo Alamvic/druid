@@ -14,13 +14,13 @@ DRTopType >> ifNil: aBlock [
 DRTopType >> ifNil: nilBlock ifNotNil: notNilBlock [
 
 	self = nil ifTrue: [ ^ nilBlock value ].
-	^ notNilBlock value
+	^ notNilBlock  cull: self
 ]
 
 { #category : #testing }
 DRTopType >> ifNotNil: aBlock [
 
-	self = nil ifFalse: [ aBlock value ].
+	self = nil ifFalse: [ aBlock cull: self ].
 	^ nil
 ]
 
@@ -28,7 +28,7 @@ DRTopType >> ifNotNil: aBlock [
 DRTopType >> ifNotNil: notNilBlock ifNil: nilBlock [
 
 	self = nil ifTrue: [ ^ nilBlock value ].
-	^ notNilBlock value
+	^ notNilBlock cull: self
 ]
 
 { #category : #lookup }

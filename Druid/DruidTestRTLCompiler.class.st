@@ -1626,21 +1626,25 @@ DruidTestRTLCompiler >> gen_primitiveWithIfNotNilIfNilStatementWithArgument [
 
 	| currentBlock jump0 jump1 jump2 jump3 |
 	self CmpCq: 0 R: ReceiverResultReg.
-	jump0 := self JumpLessOrEqual: 0.
-	self MoveCq: 0 R: TempReg.
+	jump0 := self JumpGreater: 0.
+	self MoveCq: 42 R: TempReg.
 	jump1 := self Jump: 0.
+	
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
-	self MoveCq: 42 R: TempReg.
+	self MoveCq: 0 R: TempReg.
+	
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self CmpCq: 0 R: TempReg.
-	jump2 := self JumpNonZero: 0.
-	self MoveCq: 17 R: ReceiverResultReg.
+	jump2 := self JumpZero: 0.
+	self MoveR: TempReg R: ReceiverResultReg.
 	jump3 := self Jump: 0.
+	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self MoveR: TempReg R: ReceiverResultReg.
+	self MoveCq: 17 R: ReceiverResultReg.
+	
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
 	self RetN: 1 * objectMemory wordSize.
