@@ -5,7 +5,6 @@ Class {
 		'interpreter',
 		'compilerClass',
 		'sourceName',
-		'deferredBranches',
 		'registerAllocator',
 		'druidIR',
 		'targetAST',

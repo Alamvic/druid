@@ -65,12 +65,6 @@ DRPhiFunction >> isPhiFunction [
 ]
 
 { #category : #accessing }
-DRPhiFunction >> joinedVariables [
-	
-	^ self operands
-]
-
-{ #category : #accessing }
 DRPhiFunction >> joinedVariables: aCollection [
 	
 	self operands: aCollection

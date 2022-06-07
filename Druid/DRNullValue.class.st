@@ -37,12 +37,6 @@ DRNullValue >> joinNonNull: anotherValue onIRGenerator: anIRGenerator from: orig
 ]
 
 { #category : #'control-flow' }
-DRNullValue >> joinValue: aValue onIRGenerator: anObject [
-	
-	^ aValue
-]
-
-{ #category : #'control-flow' }
 DRNullValue >> joinValue: anotherValue onIRGenerator: anIRGenerator from: originBlocks [
 
 	^ anotherValue

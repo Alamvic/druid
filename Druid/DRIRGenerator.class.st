@@ -7,8 +7,6 @@ Class {
 		'currentBasicBlock',
 		'firstBasicBlock',
 		'numberOfArguments',
-		'nextRegister',
-		'pharoOperandStack',
 		'currentOperandStack',
 		'currentPrimitiveFailureCode',
 		'controlFlowGraph'

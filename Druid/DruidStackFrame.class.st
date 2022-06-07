@@ -119,18 +119,6 @@ DruidStackFrame >> returnValue [
 ]
 
 { #category : #accessing }
-DruidStackFrame >> returnValue: aValue [
-
-	"this is always a Phi function"
-	| phiFunction |
-	phiFunction := self returnValue.
-	
-	"If the value is a phi function, we have to merge it...
-	Implement it later"
-	phiFunction addValue: aValue.
-]
-
-{ #category : #accessing }
 DruidStackFrame >> returnValue: aValue from: aBasicBlock [
 
 	"this is always a Phi function"
