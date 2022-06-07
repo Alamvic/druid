@@ -173,7 +173,6 @@ DRIRGenerator >> initialize [
 	
 	"Push a top frame"
 	initialExecutionState := DRExecutionStack new.
-	initialExecutionState pushFrame: DRStackFrame new.
 	
 	currentBasicBlock := self initialBasicBlock.
 	executionState := DRExecutionState new
@@ -1124,9 +1123,12 @@ DRIRGenerator >> popFrame [
 			mergeBlock: currentBasicBlock;
 			mergeAll: topReturns upTo: self topFrame.
 		executionState := mergedState ].
-	
+
 	poppedFrame := executionState popFrame.
 	currentBasicBlock addInstruction: poppedFrame returnValue.
+	
+	"Last frame!"
+	executionState executionStack ifEmpty: [ ^ self ].
 	
 	"Here we are in caller"
 	self pushOperand: poppedFrame returnValue.	
@@ -1353,10 +1355,16 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 DRIRGenerator >> visitMethodNode: aRBMethodNode [
 
 	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [ 
-		| failure |
+		| failure primitiveReturn |
 		failure := self currentBasicBlock copy: 1.
 		self currentPrimitiveFailureCode: failure.
-		self currentBasicBlock endInstruction: (self instantiateNoResultInstruction: DRPrimitiveFail).
+		
+		primitiveReturn := executionState baseFrame.
+		self currentBasicBlock jumpTo: primitiveReturn exitBasicBlock.
+		primitiveReturn returnValue: DRNullValue new from: self currentBasicBlock.
+		"Record that this execution stack did a method return
+		We will merge this one with other returned states when this method finishes"
+		primitiveReturn addDeferredReturnState: {executionState copy. self currentBasicBlock}.
 		
 		"Start a new dead block from here"
 		self newBasicBlock.

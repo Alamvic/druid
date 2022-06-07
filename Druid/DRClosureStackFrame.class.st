@@ -28,6 +28,16 @@ DRClosureStackFrame >> outerFrameWithState: aState [
 	^ aState executionStack detectFrame: [ :f | f mirrorFrame == self outerFrame ]
 ]
 
+{ #category : #printing }
+DRClosureStackFrame >> printOn: stream [
+
+	stream
+		nextPutAll: self class name;
+		nextPutAll: '(';
+		print: method formattedCode;
+		nextPutAll: ')'
+]
+
 { #category : #accessing }
 DRClosureStackFrame >> receiver [
 1halt.

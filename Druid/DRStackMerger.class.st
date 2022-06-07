@@ -52,10 +52,12 @@ DRStackMerger >> mergeAll: aCollectionOfExecutionStates [
 		          e executionStack ].
 	mergedVMState := self mergeVMStates: vmStates.
 	mergedStack := self mergeStacks: stacks simplifying: true.
-	^ mergedState := DRExecutionState new
+	mergedState := DRExecutionState new
 		                 vmState: mergedVMState;
 		                 executionStack: mergedStack;
-		                 yourself
+		                 yourself.
+	self installInstructions.
+	^ mergedState
 ]
 
 { #category : #merging }
@@ -64,7 +66,7 @@ DRStackMerger >> mergeAll: aCollectionOfExecutionStates upTo: aFrame [
 	| stacks mergedStack mergedVMState vmStates |
 	vmStates := aCollectionOfExecutionStates collect: [ :e | e vmState ].
 	stacks := aCollectionOfExecutionStates collect: [ :e | 
-		          e executionStack ].
+		e popUpTo: aFrame; executionStack ].
 	mergedVMState := self mergeVMStates: vmStates.
 	mergedStack := self mergeStacks: stacks simplifying: true.
 	
@@ -72,7 +74,6 @@ DRStackMerger >> mergeAll: aCollectionOfExecutionStates upTo: aFrame [
 		  vmState: mergedVMState;
 		  executionStack: mergedStack;
 		  yourself.
-	mergedState popUpTo: aFrame.
 	self installInstructions.
 	^ mergedState
 ]
@@ -129,8 +130,10 @@ DRStackMerger >> mergeStacks: stacksToMerge simplifying: aBoolean [
 
 	mergedExecutionStack := DRExecutionStack new.
 	"Iterate backwards so we push them back the the proper order"
-	(maxStackDepth to: 1 by: -1) do: [ :index | 
-		mergedExecutionStack pushMergeFrame: (self mergeFramesIn: stacksToMerge at: index) ].
+	1 to: maxStackDepth do: [ :index | 
+		mergedExecutionStack pushMergeFrame: (self
+			mergeFramesIn: stacksToMerge
+			at: maxStackDepth - index + 1) ].
 	^ mergedExecutionStack
 ]
 

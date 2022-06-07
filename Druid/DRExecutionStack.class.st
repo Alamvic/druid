@@ -44,6 +44,12 @@ DRExecutionStack >> framesDo: aBlock [
 	^ stateStack do: aBlock
 ]
 
+{ #category : #testing }
+DRExecutionStack >> ifEmpty: aFullBlockClosure [
+
+	stateStack ifEmpty: aFullBlockClosure
+]
+
 { #category : #accessing }
 DRExecutionStack >> indexOfFrame: aDRStackFrame [ 
 	

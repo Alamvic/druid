@@ -1234,9 +1234,9 @@ DruidTestRTLCompiler >> gen_primitiveMod [
 	self
 		DivR: Arg0Reg
 		R: ReceiverResultReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
@@ -1705,12 +1705,12 @@ DruidTestRTLCompiler >> gen_primitiveWithNonCompilableBranch [
 
 	| currentBlock jump0 |
 	self CmpCq: 0 R: ReceiverResultReg.
-	jump0 := self JumpGreater: 0.
+	jump0 := self JumpLessOrEqual: 0.
+	self MoveCq: 11 R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
 	
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
-	self MoveCq: 11 R: ReceiverResultReg.
-	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
 

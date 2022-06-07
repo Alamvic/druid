@@ -17,6 +17,12 @@ DRExecutionState >> addTo: aDRExecutionState [
 	executionStack addTo: aDRExecutionState frameState
 ]
 
+{ #category : #'stack access' }
+DRExecutionState >> baseFrame [
+	
+	^ executionStack baseFrame
+]
+
 { #category : #accessing }
 DRExecutionState >> executionStack [
 

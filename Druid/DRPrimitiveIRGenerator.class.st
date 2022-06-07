@@ -128,7 +128,7 @@ DRPrimitiveIRGenerator >> popFrame [
 	super popFrame.
 	
 	"Plug the IR with the two exit blocks"
-	executionState executionStack size = 1 ifTrue: [
+	executionState executionStack size = 0 ifTrue: [
 		| conditionalJump |
 		self spillStack.
 

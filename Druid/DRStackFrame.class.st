@@ -173,8 +173,8 @@ DRStackFrame >> postCopy [
 { #category : #printing }
 DRStackFrame >> printOn: stream [
 
-	super printOn: stream.
 	stream
+		nextPutAll: self class name;
 		nextPutAll: '(';
 		print: method selector;
 		nextPutAll: ')'
