@@ -269,6 +269,6 @@ DRCogitGeneratorTest >> testGenerateSpillLoadInstruction [
 	spillStoreInstruction := cogitAST generatorMethodBuilder statements first.
 	self assert: spillStoreInstruction selector equals: #MoveR:Mw:r:.
 	self assert: spillStoreInstruction arguments first name equals: spillRegister1 name.
-	self assert: spillStoreInstruction arguments second value equals: storeInstruction result stackOffset * 8 "bytes".
+	self assert: spillStoreInstruction arguments second value equals: storeInstruction operand2 stackOffset * 8 "bytes".
 	self assert: spillStoreInstruction arguments third name equals: 'SPReg'.
 ]
