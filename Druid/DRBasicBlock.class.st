@@ -48,7 +48,7 @@ DRBasicBlock >> add: aValue to: anotherValue [
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
 
-	(self instructions includes: anInstruction) ifTrue: [ 1halt. ^ self ].
+	(self instructions includes: anInstruction) ifTrue: [ ^ self ].
 
 	anInstruction basicBlock: self.
 		
@@ -168,7 +168,6 @@ DRBasicBlock >> blockValue [
 { #category : #accessing }
 DRBasicBlock >> blockValue: aValue [
 	
-	self haltIf: [ (aValue isKindOf: DRValue) not ].
 	blockValue := aValue
 ]
 
@@ -445,7 +444,7 @@ DRBasicBlock >> inspectionInstructions: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Instructions'> 
 	
 	^ aBuilder newList
-		display: [ :each | [StObjectPrinter asTruncatedTextFrom: each prettyPrint] on: Error do: [ 'asd' ] ];
+		display: [ :each | StObjectPrinter asTruncatedTextFrom: each prettyPrint ];
 		items: self instructions;
 		yourself
 ]
