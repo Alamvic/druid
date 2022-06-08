@@ -131,18 +131,6 @@ DRIRGenerator >> currentOperandStack [
 	^ executionState vmOperandStack
 ]
 
-{ #category : #'frame-access' }
-DRIRGenerator >> currentTemporaryFrame [
-	
-	^ self topFrame temporaryFrame
-]
-
-{ #category : #accessing }
-DRIRGenerator >> currentTemporaryFrame: aCollection [
-
-	^ self topFrame temporaryFrame: aCollection
-]
-
 { #category : #accessing }
 DRIRGenerator >> executionState [
 	
@@ -372,9 +360,7 @@ DRIRGenerator >> interpretBlockActivation: aRBBlockNode [
 	self interpretBlockBody: aRBBlockNode.
 
 	"If this is a block activation, it should have a return value"
-	self topFrame
-		returnValue: self currentBasicBlock blockValue
-		from: self currentBasicBlock
+	self topFrame returnValue: self currentBasicBlock blockValue
 ]
 
 { #category : #interpreting }
@@ -1143,7 +1129,6 @@ DRIRGenerator >> popFrame [
 		executionState := mergedState ].
 
 	poppedFrame := executionState popFrame.
-	currentBasicBlock addInstruction: poppedFrame returnValue.
 	
 	"Last frame!"
 	executionState executionStack ifEmpty: [ ^ self ].
@@ -1379,7 +1364,6 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 		
 		primitiveReturn := executionState baseFrame.
 		self currentBasicBlock jumpTo: primitiveReturn exitBasicBlock.
-		primitiveReturn returnValue: DRNullValue new from: self currentBasicBlock.
 		"Record that this execution stack did a method return
 		We will merge this one with other returned states when this method finishes"
 		primitiveReturn addDeferredReturnState: {executionState copy. self currentBasicBlock}.
@@ -1387,9 +1371,6 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 		"Start a new dead block from here"
 		self newBasicBlock.
 		"If the method has no return statement, it should still return something"
-		self topFrame
-			returnValue: DRNullValue new
-			from: self currentBasicBlock.
 		^ self ].
 
 	aRBMethodNode statements do: [ :each | 
@@ -1398,10 +1379,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 		self popOperand ].
 
 	"If the method has no return statement, it should still return something"
-	self addDeferredReturnState: {executionState . self currentBasicBlock}.
-	self topFrame
-		returnValue: DRNullValue new
-		from: self currentBasicBlock
+	self addDeferredReturnState: {executionState . self currentBasicBlock}
 ]
 
 { #category : #'special-cases' }
@@ -1420,7 +1398,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	result := self popOperand.
 	copy := result copyToVariableIn: self inNode: aRBReturnNode.
 	homeFrame := self topFrame homeFrameWithState: executionState.
-	homeFrame returnValue: copy from: self currentBasicBlock.
+	homeFrame returnValue: copy.
 	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
 
 	returnExecutionState := executionState copy.

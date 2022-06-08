@@ -36,10 +36,6 @@ DRCode >> pushFrameIn: interpreter receiver: aReceiver [
 
 	self codeNode temporaryNames , self codeNode argumentNames do: [ :e | 
 		frame defineVariableNamed: e ].
-
-	interpreter pushFrame: frame.
-	frame temporaryFrame at: '__return' put: (DRPhiFunction new
-			 result: interpreter allocateTemporaryRegister;
-			 origin: thisContext stack;
-			 yourself)
+	frame returnValue: DRNullValue new.
+	interpreter pushFrame: frame
 ]

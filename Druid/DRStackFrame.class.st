@@ -10,7 +10,8 @@ Class {
 		'operandStack',
 		'currentTemporaryFrame',
 		'temporaries',
-		'mirrorFrame'
+		'mirrorFrame',
+		'returnValue'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -29,7 +30,8 @@ DRStackFrame >> addTo: aDRStackFrame [
 	
 	temporaries keysAndValuesDo: [ :k :v |
 		(aDRStackFrame readTemporaryNamed: k) addValue: v
-	]
+	].
+	aDRStackFrame returnValue addValue: returnValue
 ]
 
 { #category : #'non lo' }
@@ -108,7 +110,6 @@ DRStackFrame >> initialize [
 	super initialize.
 	operandStack := Stack new.
 	temporaries := Dictionary new.
-	currentTemporaryFrame := Dictionary new
 ]
 
 { #category : #accessing }
@@ -211,19 +212,13 @@ DRStackFrame >> receiverWithState: aState [
 { #category : #accessing }
 DRStackFrame >> returnValue [
 
-	^ currentTemporaryFrame at: '__return'
+	^ returnValue
 ]
 
 { #category : #accessing }
-DRStackFrame >> returnValue: aValue from: aBasicBlock [
-
-	"this is always a Phi function"
-	| phiFunction |
-	phiFunction := self returnValue.
+DRStackFrame >> returnValue: aValue [
 	
-	"If the value is a phi function, we have to merge it...
-	Implement it later"
-	phiFunction addValue: aValue
+	returnValue := aValue
 ]
 
 { #category : #accessing }
@@ -248,18 +243,6 @@ DRStackFrame >> temporaryAt: aName put: aValue withState: aState [
 DRStackFrame >> temporaryAt: aName withState: aState [
 
 	^ (self frameDefining: aName withState: aState) readTemporaryNamed: aName
-]
-
-{ #category : #accessing }
-DRStackFrame >> temporaryFrame [
-	
-	^ currentTemporaryFrame
-]
-
-{ #category : #accessing }
-DRStackFrame >> temporaryFrame: anObject [
-
-	currentTemporaryFrame := anObject
 ]
 
 { #category : #accessing }

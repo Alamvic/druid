@@ -31,10 +31,11 @@ DRStackMerger >> freshPhiFunction [
 DRStackMerger >> installInstructions [
 
 	mergedState executionStack framesDo: [ :mergeFrame | 
-		mergeFrame temporariesDo: [ :e | mergeBlock addInstruction: e ] ].
-
+		mergeFrame temporariesDo: [ :e | mergeBlock addInstruction: e ].
+		mergeBlock addInstruction: mergeFrame returnValue ].
 	mergedState vmOperandStack do: [ :e | mergeBlock addInstruction: e ].
-	mergeBlock addInstruction: mergedState primitiveFailureCode
+	mergeBlock addInstruction: mergedState primitiveFailureCode.
+
 ]
 
 { #category : #merging }
@@ -104,6 +105,7 @@ DRStackMerger >> mergeFramesIn: stacksToMerge at: anInteger [
 		mergeFrame
 			writeTemporaryNamed: name
 			withValue: self freshPhiFunction ].
+	mergeFrame returnValue: self freshPhiFunction.
 	
 	stacksToMerge do: [ :s | | frameToMerge |
 		frameToMerge := s "a DRExecutionStack"

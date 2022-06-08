@@ -93,7 +93,7 @@ DRPhiFunction >> opcode [
 
 { #category : #'users-definitions' }
 DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
-self haltIf:[anotherOperand isDRBlockClosure ].
+
 	(anotherOperand isInstruction and: [anotherOperand basicBlock = self basicBlock])
 		ifTrue: [ "Have no sense a phi with an block's instruction"
 			anotherOperand isPhiFunction

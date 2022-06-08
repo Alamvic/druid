@@ -840,9 +840,9 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	self
 		DivR: Arg0Reg
 		R: ReceiverResultReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
@@ -1062,8 +1062,7 @@ DruidTestRTLCompiler >> gen_primitiveIsIntegerObject [
 
 	| currentBlock jump0 jump1 |
 	self MoveR: ReceiverResultReg R: TempReg.
-	self AndCq: 1 R: TempReg.
-	self CmpCq: 0 R: TempReg.
+	self TstCq: 1 R: TempReg.
 	jump0 := self JumpNonZero: 0.
 	self MoveCw: objectMemory falseObject R: ReceiverResultReg.
 	jump1 := self Jump: 0.
