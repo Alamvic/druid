@@ -7,8 +7,8 @@ Class {
 		'currentBasicBlock',
 		'firstBasicBlock',
 		'numberOfArguments',
-		'nextRegister',
-		'pharoOperandStack',
+		'currentOperandStack',
+		'currentPrimitiveFailureCode',
 		'controlFlowGraph'
 	],
 	#category : #'Druid-CompilerCompiler'
@@ -207,7 +207,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #> put: #interpretGreaterThanComparisonWith:.
 	specialCases at: #>= put: #interpretGreaterOrEqualsThanComparisonWith:.
 	specialCases at: #or: put: #interpretOrWith:.
-	specialCases at: #and: put: #interpretAndWith:.
+	specialCases at: #& put: #interpretAndWith:.
 
 	"Arithmetics for Numbers"
 	specialCases at: #+ put: #interpretAddWith:.

@@ -83,3 +83,9 @@ DRPhysicalRegister >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]
+
+{ #category : #types }
+DRPhysicalRegister >> type [
+	
+	^ DRIntegerType new
+]

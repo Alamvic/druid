@@ -115,9 +115,9 @@ DruidTestInterpreter >> primitiveBranchingWithAndConditionOnDifferentVariables [
 	| n m res |
 	n := self stackValue: 1.
 	m := self stackValue: 0.
-	res := (n ~= 2 and: [ m < 5 ])
-		     ifTrue: [ 1 ]
-		     ifFalse: [ 7 ].
+	res := n ~= 2 & (m < 5)
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 7 ].
 	^ self pop: 1 thenPush: res
 ]
 
@@ -127,9 +127,9 @@ DruidTestInterpreter >> primitiveBranchingWithAndConditionOnSameVariable [
 	<numberOfArguments: 0>
 	| n res |
 	n := self stackTop.
-	res := (n ~= 2 and: [ n < 5 ])
-		     ifTrue: [ 1 ]
-		     ifFalse: [ 7 ].
+	res := n ~= 2 & (n < 5)
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 7 ].
 	^ self pop: 1 thenPush: res
 ]
 
@@ -162,7 +162,8 @@ DruidTestInterpreter >> primitiveBranchingWithTripleAnd [
 
 	<numberOfArguments: 0>
 	| n |
-	n := (self stackTop ~= 2 and: [ self stackTop < 5 and: [ self stackTop anyMask: 1 ] ])
+	n := self stackTop ~= 2 & (self stackTop < 5)
+	     & (self stackTop anyMask: 1)
 		     ifTrue: [ 1 ]
 		     ifFalse: [ 7 ].
 	^ self pop: 1 thenPush: n
