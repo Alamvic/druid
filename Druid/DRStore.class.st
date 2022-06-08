@@ -1,6 +1,9 @@
 Class {
 	#name : #DRStore,
 	#superclass : #DRInstruction,
+	#instVars : [
+		'size'
+	],
 	#category : #'Druid-IR'
 }
 
@@ -26,4 +29,17 @@ DRStore >> isStore [
 DRStore >> opcode [
 	
 	^ 'Store'
+]
+
+{ #category : #accessing }
+DRStore >> operands: operandList [
+
+	size := operandList first value.
+	super operands: operandList allButFirst
+]
+
+{ #category : #accessing }
+DRStore >> size [
+
+	^ size
 ]

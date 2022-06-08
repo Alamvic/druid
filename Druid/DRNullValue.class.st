@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #accessing }
+DRNullValue >> = anotherValue [
+
+	^ self species = anotherValue species
+]
+
 { #category : #visiting }
 DRNullValue >> acceptVisitor: aVisitor [
 
@@ -22,6 +28,12 @@ DRNullValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 	"I'm not a value, so I cannot be copied.
 	I propagate myself as a null  value"
 	^ self
+]
+
+{ #category : #accessing }
+DRNullValue >> hash [
+
+	^ self class hash
 ]
 
 { #category : #visiting }
@@ -58,4 +70,10 @@ DRNullValue >> rtlOperandQualifier [
 DRNullValue >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
+]
+
+{ #category : #asd }
+DRNullValue >> type [
+	
+	^ DRIntegerType new
 ]

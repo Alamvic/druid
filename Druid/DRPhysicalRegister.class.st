@@ -15,10 +15,24 @@ DRPhysicalRegister class >> name: aString [
 		yourself
 ]
 
+{ #category : #comparing }
+DRPhysicalRegister >> = anotherRegister [
+
+	self species = anotherRegister species
+		ifFalse: [ ^ false ].
+	^ name = anotherRegister name
+]
+
 { #category : #memory }
 DRPhysicalRegister >> asMemoryAddress [
 	
 	^ DRRegisterMemoryAddress register: self
+]
+
+{ #category : #comparing }
+DRPhysicalRegister >> hash [
+
+	^ name hash
 ]
 
 { #category : #accessing }
@@ -68,4 +82,10 @@ DRPhysicalRegister >> rtlOperandQualifier [
 DRPhysicalRegister >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
+]
+
+{ #category : #types }
+DRPhysicalRegister >> type [
+	
+	^ DRIntegerType new
 ]

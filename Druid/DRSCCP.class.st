@@ -86,9 +86,10 @@ DRSCCP >> bottom [
 { #category : #initialization }
 DRSCCP >> buildEdges: cfg [
 
-	| list workList currentBlock edge|
+	| list workList currentBlock edge done |
 	
-	list := OrderedCollection new. 
+	list := OrderedCollection new.
+	done := Set new.
 	workList := OrderedCollection new. 
 	workList add: cfg initialBasicBlock. 
 	
@@ -105,7 +106,8 @@ DRSCCP >> buildEdges: cfg [
 					add: edge.
 			 
 			list add: edge.
-			workList add: s]].
+			(done includes: s)
+				ifFalse: [ done add: s. workList add: s ] ] ].
 	
 	^ list
 ]
@@ -177,6 +179,7 @@ DRSCCP >> latticeValue: aValue [
 	(aValue isRegister and: [ aValue isVirtualRegister not ])
 		ifTrue: [ ^ self bottom ].
 	aValue isLoad ifTrue: [ ^ self bottom ].
+	aValue isStore ifTrue: [ ^ self bottom ].
 	aValue isInstruction ifFalse: [ ^ aValue ].
 
 	^ latticeValues at: aValue ifAbsent: [ self top ]

@@ -137,6 +137,41 @@ DRCleanControlFlowTest >> testHoistBranch [
 ]
 
 { #category : #'tests - redundant branches' }
+DRCleanControlFlowTest >> testHoistBranchWithMultiplePredecessors [
+
+	| b0 b1 b2 b3 b4 branch cfg b11 |
+	
+	
+	cfg := DRControlFlowGraph new.
+	b0 := cfg newBasicBlock.
+	b1 := cfg newBasicBlock.
+	b11 := cfg newBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
+	b4 := cfg newBasicBlock.
+
+	b0 endInstruction: (branch := instructionFactory jumpIf: true asDRValue).
+	branch trueBranch: b1.
+	branch falseBranch: b11.
+	
+	"B2 has two predecessors. We can hoist its branch, but we should not break its predecessors"
+	b1 jumpTo: b2.
+	b11	 jumpTo: b2.
+	b2 endInstruction: (branch := instructionFactory jumpIf: true asDRValue).
+	
+	branch trueBranch: b3.
+	b3 addPredecessor: b2.
+	
+	branch falseBranch: b4.
+	b4 addPredecessor: b2.
+
+	optimisation hoistBranchInto: b1.
+	
+	"We have hoisted B2's branch into B1, but B2 should still be valid"
+	b2 validate.
+]
+
+{ #category : #'tests - redundant branches' }
 DRCleanControlFlowTest >> testRemoveEmptyBlock [
 
 	| b0 b1 b2 cfg |

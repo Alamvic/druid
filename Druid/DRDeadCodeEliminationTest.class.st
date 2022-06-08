@@ -8,7 +8,7 @@ Class {
 DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 
 
-	| cfg optimisation copy1 copy2 copy3 copy4 copy5 copy6 jump add1 add2 phi|
+	| cfg copy1 copy2 copy3 copy4 copy5 copy6 jump add1 add2 phi|
 	optimisation := DRDeadCodeElimination new. 
 
 	copy1 := DRCopy
@@ -43,7 +43,7 @@ DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 		(add2 := DRAdd operands: { copy5. copy6 } result: (DRTemporaryRegister id: 8)).
  
 	cfg b4 addInstruction: (phi := ((DRPhiFunction joinedVariables: { add1. add2 }) result: (DRTemporaryRegister id: 9); yourself)).
-	cfg b4 addInstruction: (DRStore new operands: {phi}). 
+	cfg b4 addInstruction: (DRStore new operands: {8 asDRValue. phi}). 
 	
 	optimisation applyTo: cfg.
 
@@ -55,7 +55,7 @@ DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 { #category : #test }
 DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 
-	| optimisation cfg copy1 copy2 phi1|
+	| cfg copy1 copy2 phi1|
 	
 	optimisation := DRDeadCodeElimination new. 
 	
@@ -69,7 +69,7 @@ DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 		result: (DRTemporaryRegister id: 4);
 		yourself).
 	cfg b2 addInstruction: phi1. 
-	cfg b2 addInstruction: (DRStore new operands: {phi1} ). 
+	cfg b2 addInstruction: (DRStore new operands: {8 asDRValue. phi1} ). 
 
 	optimisation applyTo: cfg.
 	
@@ -80,7 +80,7 @@ DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 { #category : #test }
 DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 
-	| optimisation b1 b2 cfg copy1 |
+	| b1 b2 cfg copy1 |
 	
 	optimisation := DRDeadCodeElimination new. 
 	
@@ -91,7 +91,7 @@ DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 
 	b1 addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)). 
 	
-	b2 addInstruction: (DRStore new operands: {copy1} ). 
+	b2 addInstruction: (DRStore new operands: {8 asDRValue. copy1} ). 
 
 	optimisation applyTo: cfg.
 	
@@ -101,16 +101,17 @@ DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 { #category : #test }
 DRDeadCodeEliminationTest >> testRemoveUnusedNoop [
 
-	| b1 b2 cfg |
+	| cfg |
 	
 	optimisation := DRDeadCodeElimination new. 
 	
 	cfg := self setUpCFG: 2. 
 	
-	b1 := cfg b1.
-	b2 := cfg b2.
-	b2 addInstruction: (DRNoop new result: DRNoRegister new). 
-	optimisation applyTo: cfg.
+	cfg b2 addInstruction: (DRNoop new result: DRNoRegister new). 
 	
+	optimisation applyTo: cfg.
+
 	self assert: cfg instructions size equals: 2.
+	self assert: cfg instructions first isJump. "1 -> 2"
+	self assert: cfg instructions second isNoop. "End instruction"
 ]

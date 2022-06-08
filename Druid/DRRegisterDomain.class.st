@@ -5,7 +5,7 @@ Class {
 		'reg',
 		'constraint'
 	],
-	#category : #'Druid-Optimizations'
+	#category : #'Druid-IR-Paths'
 }
 
 { #category : #'as yet unclassified' }

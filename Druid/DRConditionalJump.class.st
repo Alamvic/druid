@@ -45,6 +45,12 @@ DRConditionalJump >> initialize [
 ]
 
 { #category : #testing }
+DRConditionalJump >> isBackJump [
+	"For now do not allow conditional back jumps. Although they could happen... so we should be careful"
+	^ false
+]
+
+{ #category : #testing }
 DRConditionalJump >> isConditionalBranch [
 
 	^ true

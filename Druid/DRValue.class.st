@@ -75,6 +75,12 @@ DRValue >> isCopy [
 ]
 
 { #category : #testing }
+DRValue >> isDRBlockClosure [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isInstruction [
 
 	^ false
@@ -198,6 +204,12 @@ DRValue >> removeUser: anInstruction [
 	"Nothing"
 ]
 
+{ #category : #'users-definitions' }
+DRValue >> replaceUsesBy: anotherInstruction [
+	
+	"Nothing"
+]
+
 { #category : #accessing }
 DRValue >> result [
 
@@ -214,6 +226,12 @@ DRValue >> rtlOperandQualifier [
 DRValue >> rtlOperandQualifierForInstruction: instruction [
 
 	^ self rtlOperandQualifier
+]
+
+{ #category : #transforming }
+DRValue >> simplify [
+	
+	^ self
 ]
 
 { #category : #accessing }

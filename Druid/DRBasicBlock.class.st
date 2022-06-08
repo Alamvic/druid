@@ -9,11 +9,9 @@ Class {
 		'endInstruction',
 		'predecessors',
 		'origin',
-		'temporaryFrame',
-		'vmOperandStack',
-		'primitiveFailureCode',
 		'controlFlowGraph',
-		'isExitBlock'
+		'isExitBlock',
+		'executionState'
 	],
 	#category : #'Druid-IR'
 }
@@ -84,6 +82,14 @@ DRBasicBlock >> and: aValue with: anotherValue [
 DRBasicBlock >> anyMask: aValue with: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory anyMask: aValue with: anotherValue)
+]
+
+{ #category : #building }
+DRBasicBlock >> backJumpTo: aDRBasicBlock [ 
+
+	^ (self jumpTo: aDRBasicBlock)
+		beBackJump;
+		yourself
 ]
 
 { #category : #transformations }
@@ -205,9 +211,11 @@ DRBasicBlock >> distanceToPredecessor: predecessorBlock [
 
 	"Number of blocks between self and the argument"
 	
+	| forwardPredecessors |
 	predecessorBlock = self ifTrue: [ ^ 0 ].
-	self hasPredecessors ifFalse: [ ^ Float infinity ].
-	^1 + (predecessors min: [ :b | b distanceToPredecessor: predecessorBlock ])
+	forwardPredecessors := self forwardPredecessors.
+	forwardPredecessors ifEmpty: [ ^ Float infinity ].
+	^1 + (forwardPredecessors min: [ :b | b distanceToPredecessor: predecessorBlock ])
 
 ]
 
@@ -258,6 +266,16 @@ DRBasicBlock >> equals: operand1 to: operand2 [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> executionState [
+	^ executionState
+]
+
+{ #category : #accessing }
+DRBasicBlock >> executionState: aDRExecutionState [ 
+	executionState := aDRExecutionState
+]
+
+{ #category : #accessing }
 DRBasicBlock >> first [
 	
 	instructions ifEmpty: [ ^ endInstruction ].
@@ -269,6 +287,13 @@ DRBasicBlock >> first [
 DRBasicBlock >> firstInstruction [
 	
 	^ self instructions first
+]
+
+{ #category : #accessing }
+DRBasicBlock >> forwardPredecessors [
+	
+	"Ignore predecessors coming from backjumps"
+	^ predecessors select: [ :e | e endInstruction isBackJump not ]
 ]
 
 { #category : #building }
@@ -289,6 +314,13 @@ DRBasicBlock >> hasFrontier: aBlock [
 	| frontier |
 	frontier := controlFlowGraph tree dominanceFrontierOf: self.
 	^ frontier includes: aBlock
+]
+
+{ #category : #testing }
+DRBasicBlock >> hasIncomingBackjumps [
+	
+	^ self predecessors anySatisfy: [ :p |
+		p lastInstruction isBackJump ]
 ]
 
 { #category : #testing }
@@ -321,7 +353,7 @@ DRBasicBlock >> hyperblock [
 	This is to guarantee I will be processed regardless my predecessors"
 	visited
 		at: self
-		put: self numberOfPredecessors -1.
+		put: self numberOfForwardPredecessors -1.
 
 	[ workingQueue isEmpty ] whileFalse: [ 
 		| currentBlock |
@@ -334,7 +366,7 @@ DRBasicBlock >> hyperblock [
 			                          ifAbsent: [ 0 ].
 
 		visited at: currentBlock put: visitsToThisBlockSoFar + 1.
-		visitsToThisBlockSoFar + 1 = currentBlock numberOfPredecessors
+		visitsToThisBlockSoFar + 1 = currentBlock numberOfForwardPredecessors
 			ifTrue: [
 				
 				blocks add: currentBlock.
@@ -424,7 +456,7 @@ DRBasicBlock >> inspectionInstructions: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Instructions'> 
 	
 	^ aBuilder newList
-		display: [ :each | StObjectPrinter asTruncatedTextFrom: each prettyPrint ];
+		display: [ :each | [StObjectPrinter asTruncatedTextFrom: each prettyPrint] on: Error do: [ 'asd' ] ];
 		items: self instructions;
 		yourself
 ]
@@ -568,6 +600,26 @@ DRBasicBlock >> load: anAddress [
 	^ self addInstruction: (self instructionFactory load: anAddress)
 ]
 
+{ #category : #'operand stack' }
+DRBasicBlock >> mergeExecutionStateIn: aBuilder simplifying: simplify [
+
+	| newState mergedVMState mergedFrameState |
+
+	mergedVMState := self mergeVMOperandStacksIn: aBuilder.
+	mergedFrameState := self mergeTemporaryFramesIn: aBuilder.
+	
+	newState := DRExecutionState new
+		vmState: mergedVMState;
+		frameState: mergedFrameState;
+		yourself.
+	executionState := newState.
+	
+	simplify ifTrue: [ executionState simplify ].
+	
+	aBuilder currentFrame executionState: newState.
+	^ newState
+]
+
 { #category : #splitting }
 DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: successors [
 
@@ -581,74 +633,57 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 				withUsers: myInstruction nonLocalUsers ]
 ]
 
-{ #category : #'operand stack' }
-DRBasicBlock >> mergeOperandStacksIn: aBuilder [
-
-	"We can only merge two operand stacks with the same number of elements"
-	| stackSize newStack predecessorStacks phi predecessorFailures mergedPrimitiveFailure |
-	
-	"If I have no predecessors, I'm very probably dead code.
-	No need to merge anything"
-	self predecessors ifEmpty: [ ^ self ].
-	
-	"If I have a single predecessor, just copy the operand stack"
-	self predecessors size = 1 ifTrue: [
-		primitiveFailureCode := self predecessors first primitiveFailureCode.
-		^ vmOperandStack := self predecessors first vmOperandStack copy ].
-
-	predecessorFailures := self predecessors collect: [ :e | e primitiveFailureCode ].
-	mergedPrimitiveFailure := (DRPhiFunction joinedVariables: predecessorFailures)
-		result: aBuilder allocateTemporaryRegister;
-		origin: thisContext stack.
-	primitiveFailureCode := mergedPrimitiveFailure.
-	mergedPrimitiveFailure isPhiFunction ifTrue: [ self addInstruction: mergedPrimitiveFailure ].
-
-	predecessorStacks := self predecessors collect: [ :e | e vmOperandStack ].	
-	stackSize := predecessorStacks max: [ :e | e size ].
-	newStack := Stack new.
-	1 to: stackSize do: [ :e | | values |
-		values := predecessorStacks collect: [ :stack | 
-			stack size >= e
-				ifTrue: [ stack at: e ]
-				ifFalse: [ DRNullValue new ] ].
-		phi := (DRPhiFunction joinedVariables: values)
-			result: aBuilder allocateTemporaryRegister;
-			origin: thisContext stack;
-			yourself.
-		self haltIf: [ phi operands isEmpty ].
-		newStack push: phi.
-		self addInstruction: phi.
-	].
-	^ vmOperandStack := newStack
-]
-
 { #category : #temporaries }
 DRBasicBlock >> mergeTemporaryFramesIn: aBuilder [
 
-	| temporaryNames newTemporaryFrame predecessorTemporaries |
+	| mergedFrameState |
+
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
-	self predecessors ifEmpty: [ ^ temporaryFrame ].
+	mergedFrameState := aBuilder newFrameState.
+	mergedFrameState defineRecursivePhiPlaceholders.
 	
-	predecessorTemporaries := self predecessors collect: [ :e | e temporaryFrame ].
-	self assert: (predecessorTemporaries collect: [ :e | e size ] as: Set) size = 1.
+	self predecessors ifEmpty: [ 
+		aBuilder currentBasicBlock executionState frameState addTo: mergedFrameState.
+		^ mergedFrameState ].
+
+	self predecessors do: [ :e | 
+		e executionState frameState addTo: mergedFrameState ].
+
 	
-	"Do not include the return temporary variable as it is a special variable that will be resolved at the end of the method"
-	temporaryNames := predecessorTemporaries flatCollect: [ :e | e keys ] as: Set.
-	newTemporaryFrame := Dictionary new.
-	temporaryNames collect: [ :name | | values phi |
-		name ~= #'__return' ifTrue: [
-			values := self predecessors collect: [ :p | p temporaryAt: name ].
-			phi := (DRPhiFunction joinedVariables: values)
-				result: aBuilder allocateTemporaryRegister;
-				origin: thisContext stack.
-			newTemporaryFrame at: name put: phi.
-			self addInstruction: phi ]
-		ifFalse: [ 
-			newTemporaryFrame at: name put: (self predecessors anyOne temporaryAt: #'__return').
-			 ] ].
-	
-	^ temporaryFrame := newTemporaryFrame
+	mergedFrameState allTemporariesDo: [ :value |
+		value isDRBlockClosure ifFalse: [ self addInstruction: value ]
+	].
+	^ mergedFrameState
+]
+
+{ #category : #'operand stack' }
+DRBasicBlock >> mergeVMOperandStacksIn: aBuilder [
+
+	"We can only merge two operand stacks with the same number of elements"
+
+	| mergedVmOperandStack mergedPrimitiveFailureCode mergedVMState |
+	"If I have no predecessors, I'm very probably dead code.
+	No need to merge anything"
+	self predecessors ifEmpty: [ 
+		mergedPrimitiveFailureCode := aBuilder currentBasicBlock
+			                              primitiveFailureCode.
+		mergedVmOperandStack := aBuilder currentBasicBlock vmOperandStack.
+		^ DRVMState new
+			  primitiveFailureCode: mergedPrimitiveFailureCode;
+			  operandStack: mergedVmOperandStack;
+			  yourself ].
+
+	mergedVMState := aBuilder newVMState.
+	self predecessors do: [ :e | 
+		e executionState vmState addTo: mergedVMState ].
+
+	self addInstruction: mergedVMState primitiveFailureCode.
+	mergedVMState operandStackWithIndexDo: [ :operand :stackPosition |
+		self addInstruction: operand
+	].
+
+	^ mergedVMState
 ]
 
 { #category : #accessing }
@@ -695,9 +730,10 @@ DRBasicBlock >> newEmptySuccessors [
 ]
 
 { #category : #accessing }
-DRBasicBlock >> numberOfPredecessors [
+DRBasicBlock >> numberOfForwardPredecessors [
 	
-	^ predecessors size
+	"Ignore predecessors coming from backjumps"
+	^ predecessors count: [ :e | e endInstruction isBackJump not ]
 ]
 
 { #category : #building }
@@ -765,12 +801,13 @@ DRBasicBlock >> predecessors [
 
 { #category : #accessing }
 DRBasicBlock >> primitiveFailureCode [
-	^ primitiveFailureCode
+	^ executionState vmState primitiveFailureCode
 ]
 
 { #category : #accessing }
-DRBasicBlock >> primitiveFailureCode: anInstruction [ 
-	primitiveFailureCode := anInstruction
+DRBasicBlock >> primitiveFailureCode: anInstruction [
+
+	self executionState vmState primitiveFailureCode: anInstruction
 ]
 
 { #category : #printing }
@@ -964,29 +1001,6 @@ DRBasicBlock >> tailDuplicate [
 	^ { self } , duplicatedBlocks
 ]
 
-{ #category : #temporaries }
-DRBasicBlock >> temporaryAt: aString [ 
-	
-	^ temporaryFrame at: aString
-]
-
-{ #category : #temporaries }
-DRBasicBlock >> temporaryAt: aString put: aValue [ 
-	
-	self haltIf: [ (aValue isKindOf: DRValue) not ].
-	temporaryFrame at: aString put: aValue
-]
-
-{ #category : #accessing }
-DRBasicBlock >> temporaryFrame [
-	^ temporaryFrame
-]
-
-{ #category : #accessing }
-DRBasicBlock >> temporaryFrame: aTemporaryFrame [ 
-	temporaryFrame := aTemporaryFrame
-]
-
 { #category : #validating }
 DRBasicBlock >> validate [
 
@@ -1019,7 +1033,8 @@ DRBasicBlock >> validatePhiFunctions [
 			this by checking that the variables are reachable from the correct predecessors"
 			e operands withIndexDo: [ :dependency :index | 
 				self assert: (dependency isInstruction not
-						or: [(self predecessors at: index) checkLivenessOf: dependency])
+					or: [ (dependency isPhiFunction and: [ dependency basicBlock = e basicBlock ])
+						or: [ (self predecessors at: index) checkLivenessOf: dependency]])
 			].
 		].
 	]
@@ -1050,11 +1065,5 @@ DRBasicBlock >> veryDeepCopyWith: deepCopier [
 { #category : #accessing }
 DRBasicBlock >> vmOperandStack [
 
-	^ vmOperandStack
-]
-
-{ #category : #accessing }
-DRBasicBlock >> vmOperandStack: anObject [
-
-	vmOperandStack := anObject
+	^ executionState vmState operandStack
 ]

@@ -1,9 +1,8 @@
 Class {
 	#name : #DRDeadBlockEliminationTest,
-	#superclass : #TestCase,
+	#superclass : #DROptimisationTest,
 	#instVars : [
 		'instructionFactory',
-		'optimisation',
 		'cfg',
 		'deadBlock',
 		'deadBlock2',

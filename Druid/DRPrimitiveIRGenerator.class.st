@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 DRPrimitiveIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 	
-	currentPrimitiveFailureCode := anInstruction
+	self currentBasicBlock executionState vmState primitiveFailureCode: anInstruction
 ]
 
 { #category : #accessing }
@@ -31,14 +31,7 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 	specialCases at: #primFailCode put: #interpretPrimFailCodeWith:.
-	specialCases at: #assert: put: #ignoreMessageWith:.
-	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.
-
-	self flag: #TODO. "To support"
-	specialCases at: #stContext:at:format:fixedFields: put: #interpretPrimFailCodeWith:.
-	specialCases at: #firstByteIndexOfMethod: put: #interpretPrimFailCodeWith:.
-	specialCases at: #positive64BitIntegerFor: put: #interpretPrimFailCodeWith:.
-	
+	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
 ]
 
 { #category : #accessing }
@@ -48,14 +41,32 @@ DRPrimitiveIRGenerator >> interpretCCoerceWith: aRBMessageNode [
 ]
 
 { #category : #'special cases' }
+DRPrimitiveIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
+
+	| byteSize valueToStore |
+	aRBAssignmentNode value acceptVisitor: self.
+	valueToStore := self popOperand.
+
+	byteSize := 8.
+	^ self
+		  addInstructionFrom: aRBAssignmentNode
+		  instructionKind: DRStore
+		  operands: { 
+				  byteSize asDRValue.
+				  valueToStore.
+				  (DRInterpreterReference reference:
+					   'objectMemory freeStartAddress') }
+]
+
+{ #category : #'special cases' }
 DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode [ 
 	
-	| copy |
+	| newFailureCode |
 	aRBAssignmentNode value acceptVisitor: self.
-	
-	"copy := instructionFactory copy: self popOperand."
-	self currentBasicBlock primitiveFailureCode: self operandStackTop.
-	"self pushOperand: copy"
+	newFailureCode := self popOperand.
+	self currentBasicBlock primitiveFailureCode: newFailureCode.
+	self pushOperand: newFailureCode.
+	^ newFailureCode
 ]
 
 { #category : #accessing }
@@ -73,8 +84,15 @@ DRPrimitiveIRGenerator >> ir [
 { #category : #accessing }
 DRPrimitiveIRGenerator >> newBasicBlock [
 
+	^ self newBasicBlockWithState: self currentBasicBlock executionState.
+
+]
+
+{ #category : #accessing }
+DRPrimitiveIRGenerator >> newBasicBlockWithState: executionState [
+
 	| newBasicBlock |
-	newBasicBlock := super newBasicBlock.
+	newBasicBlock := super newBasicBlockWithState: executionState.
 	firstBasicBlock ifNil: [ firstBasicBlock := newBasicBlock ].
 	^ newBasicBlock
 ]

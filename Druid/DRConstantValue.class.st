@@ -10,7 +10,6 @@ Class {
 { #category : #accessing }
 DRConstantValue class >> value: anInteger [
 	
-	self haltIf: [ anInteger isNil ].
 	^ self new
 		value: anInteger;
 		yourself
@@ -99,13 +98,21 @@ DRConstantValue >> rtlOperandQualifier [
 { #category : #accessing }
 DRConstantValue >> sccpLatticeValueFor: sccp [
 
-	^ self value
+	^ self
 ]
 
 { #category : #'constant folding' }
 DRConstantValue >> simpleConstantFold [
 	
 	^ value
+]
+
+{ #category : #types }
+DRConstantValue >> type [
+	
+	(#(true false) includes: value)
+		ifTrue: [ ^ DRBooleanType new ].
+	^ DRIntegerType new
 ]
 
 { #category : #accessing }

@@ -7,25 +7,37 @@ Class {
 { #category : #executing }
 DRDeadBlockElimination >> applyTo: aDRControlFlowGraph [ 
 	
-	| changed |
-	changed := true.
-	[ changed ] whileTrue: [ 
-		changed := self step: aDRControlFlowGraph.
-	]
-]
-
-{ #category : #testing }
-DRDeadBlockElimination >> isDead: aDRBasicBlock in: aCFG [
+	| reachableBlocks deadBlocks worklist marked |
 	
-	^ aCFG initialBasicBlock ~= aDRBasicBlock and: [ aDRBasicBlock predecessors isEmpty ]
+	worklist := OrderedCollection new.
+	worklist add: aDRControlFlowGraph initialBasicBlock.
+	marked := Set new.
+	
+	[ worklist isEmpty ] whileFalse: [ | visitedBlock |
+		visitedBlock := worklist removeFirst.
+		(marked includes: visitedBlock)
+			ifFalse: [ 
+				marked add: visitedBlock.
+				worklist addAll: visitedBlock successors ] ].
+	
+	"Now remove all not available in a post order traversal"
+	reachableBlocks := marked.
+	deadBlocks := aDRControlFlowGraph blocks reject: [ :e | 
+		reachableBlocks includes: e ].
+	deadBlocks do: [ :e | 
+		aDRControlFlowGraph removeBasicBlock: e.
+		e successors do: [ :s | s removePredecessor: e ] ].
 ]
 
 { #category : #executing }
 DRDeadBlockElimination >> step: aDRControlFlowGraph [ 
 	
-	| deadBlocks |
+	| deadBlocks reachableBlocks |
+	"First remove dead blocks connected as predecessors.
+	Otherwise they prevent correct post order traversal"
 	deadBlocks := aDRControlFlowGraph blocks select: [ :e | 
-		self isDead: e in: aDRControlFlowGraph ].
+		e ~= aDRControlFlowGraph initialBasicBlock
+			and: [ e predecessors isEmpty] ].
 	deadBlocks do: [ :e | 
 		aDRControlFlowGraph removeBasicBlock: e.
 		e successors do: [ :s | s removePredecessor: e ] ].
