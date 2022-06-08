@@ -983,36 +983,6 @@ DRPrimitiveCompilationTest >> testOneDeadBranchThreeBranches3 [
 	self assert: machineSimulator receiverRegisterValue equals: 116
 ]
 
-{ #category : #'tests-control flow' }
-DRPrimitiveCompilationTest >> testOrArgumentIfTrue [
-
-	self compileDruidPrimitive: #primitiveWithOrBlock.
-	
-	self executePrimitiveWithReceiver: 2.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 17
-]
-
-{ #category : #'tests-control flow' }
-DRPrimitiveCompilationTest >> testOrIfFalse [
-
-	self compileDruidPrimitive: #primitiveWithOrBlock.
-	
-	self executePrimitiveWithReceiver: 3.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 42
-]
-
-{ #category : #'tests-control flow' }
-DRPrimitiveCompilationTest >> testOrReceiverIfTrue [
-
-	self compileDruidPrimitive: #primitiveWithOrBlock.
-	
-	self executePrimitiveWithReceiver: 1.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 17
-]
-
 { #category : #'tests-failing-primitive' }
 DRPrimitiveCompilationTest >> testPassingSuccess [
 
