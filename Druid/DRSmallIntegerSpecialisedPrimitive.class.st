@@ -1,8 +1,14 @@
 Class {
 	#name : #DRSmallIntegerSpecialisedPrimitive,
-	#superclass : #Object,
+	#superclass : #DRSpecialisedPrimitive,
 	#category : #'Druid-CompilerCompiler'
 }
+
+{ #category : #'as yet unclassified' }
+DRSmallIntegerSpecialisedPrimitive class >> pragmaName [
+
+	^ #smallInteger
+]
 
 { #category : #api }
 DRSmallIntegerSpecialisedPrimitive >> generateSpecialisedPreamble: aGeneratorMethodBuilder [

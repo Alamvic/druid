@@ -7,23 +7,40 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #'as yet unclassified' }
+DRSpecialisedPrimitiveCompilerCompiler >> generateDruidIRFor: method [
+
+	method ast
+		pragmaNamed: #specialiseReciverFor:
+		ifPresent: [ :pragma | specialisation := self newSpecialisation: pragma arguments first value ].
+
+	^ super generateDruidIRFor: method
+]
+
 { #category : #'generation-IR' }
 DRSpecialisedPrimitiveCompilerCompiler >> generateTargetASTFromIR: anIR [
 
-	specialisation generateSpecialisedPreamble: codeGenerator generatorMethodBuilder .
+	self specialisation generateSpecialisedPreamble: codeGenerator generatorMethodBuilder .
 	^ super generateTargetASTFromIR: anIR
 ]
 
-{ #category : #initialization }
-DRSpecialisedPrimitiveCompilerCompiler >> initialize [
+{ #category : #specialisation }
+DRSpecialisedPrimitiveCompilerCompiler >> newSpecialisation: specialisedSelector [
 
-	super initialize.
-	specialisation := DRSmallIntegerSpecialisedPrimitive new
+	| specialisedClass |
+	specialisedClass := DRSpecialisedPrimitive subclasses detect: [ 
+		                    :class | class pragmaName = specialisedSelector ].
+	^ specialisedClass new
 ]
 
 { #category : #'generation-IR' }
 DRSpecialisedPrimitiveCompilerCompiler >> optimize: anIR [
 
-	specialisation optimize: anIR.
+	self specialisation optimize: anIR.
 	super optimize: anIR
+]
+
+{ #category : #accessing }
+DRSpecialisedPrimitiveCompilerCompiler >> specialisation [
+	^ specialisation
 ]
