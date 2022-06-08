@@ -28,18 +28,3 @@ DRDeadBlockElimination >> applyTo: aDRControlFlowGraph [
 		aDRControlFlowGraph removeBasicBlock: e.
 		e successors do: [ :s | s removePredecessor: e ] ].
 ]
-
-{ #category : #executing }
-DRDeadBlockElimination >> step: aDRControlFlowGraph [ 
-	
-	| deadBlocks reachableBlocks |
-	"First remove dead blocks connected as predecessors.
-	Otherwise they prevent correct post order traversal"
-	deadBlocks := aDRControlFlowGraph blocks select: [ :e | 
-		e ~= aDRControlFlowGraph initialBasicBlock
-			and: [ e predecessors isEmpty] ].
-	deadBlocks do: [ :e | 
-		aDRControlFlowGraph removeBasicBlock: e.
-		e successors do: [ :s | s removePredecessor: e ] ].
-	^ deadBlocks notEmpty
-]

@@ -124,6 +124,5 @@ DRExecutionState >> vmState [
 { #category : #accessing }
 DRExecutionState >> vmState: anObject [
 
-self haltIf: [ (anObject isKindOf: DRVMState) not ].
 	vmState := anObject
 ]
