@@ -115,6 +115,26 @@ DruidTestRTLCompiler >> gen_passingSuccess [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveAdd [
+
+	| currentBlock jump0 jump1 |
+	self mclassIsSmallInteger ifFalse: [ ^ UnimplementedPrimitive ].
+	self TstCq: 1 R: Arg0Reg.
+	jump0 := self JumpZero: 0.
+	self MoveR: Arg0Reg R: TempReg.
+	self SubCq: 1 R: TempReg.
+	self MoveR: ReceiverResultReg R: ClassReg.
+	self AddR: ClassReg R: TempReg.
+	jump1 := self JumpOverflow: 0.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	jump1 jmpTarget: currentBlock.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveAssertIsIgnored [
 
 	| currentBlock |
@@ -790,9 +810,9 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	self
 		DivR: Arg0Reg
 		R: ReceiverResultReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self RetN: 2 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
@@ -1354,4 +1374,11 @@ DruidTestRTLCompiler >> gen_primitiveWithIfReturningValue [
 DruidTestRTLCompiler >> numRegArgs [
 
 	^ 2 "Hardcoded?"
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> preambleForSmallInteger [ 
+
+	self mclassIsSmallInteger ifFalse:
+		[^UnimplementedPrimitive].
 ]

@@ -3,12 +3,14 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'initialBasicBlock',
+		'initialConstraint',
 		'basicBlocks',
 		'nextBasicBlockId',
 		'instructionFactory',
 		'edges',
 		'deadPaths',
-		'numberOfSpillSlots'
+		'numberOfSpillSlots',
+		'tree'
 	],
 	#category : #'Druid-IR'
 }
@@ -39,7 +41,7 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 { #category : #accessing }
 DRControlFlowGraph >> allConditionalJumps [
 
-	^ basicBlocks
+	^ self reversePostOrderBlocks
 		  collect: [ :b | b endInstruction ]
 		  thenSelect: [ :i | i isConditionalJump ]
 ]
@@ -232,6 +234,17 @@ DRControlFlowGraph >> incrementSpillSlots [
 { #category : #accessing }
 DRControlFlowGraph >> initialBasicBlock [ 
 	^ initialBasicBlock
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> initialConstraint: constraint [
+	initialConstraint := constraint
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> initialContrainst [
+
+	^ initialConstraint
 ]
 
 { #category : #initialization }

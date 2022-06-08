@@ -40,9 +40,11 @@ DRPathFactory >> createAllEdgesFrom: source to: destination branchIndex: branchI
 { #category : #building }
 DRPathFactory >> createInitialEdge [
 
-	| initialBlock |
+	| initialBlock initialEdge |
 	initialBlock := cfg initialBasicBlock.
-	cfg addEdgeFrom: initialBlock to: initialBlock successor branchIndex: 1
+	initialEdge := cfg addEdgeFrom: initialBlock to: initialBlock successor branchIndex: 1.
+	cfg initialContrainst ifNotNil: [ :constraint | initialEdge addConstraint: constraint ]
+	
 ]
 
 { #category : #building }
