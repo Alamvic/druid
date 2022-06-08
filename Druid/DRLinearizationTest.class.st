@@ -108,7 +108,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocks [
 		interpreter: interpreter;
 		generateDruidIR.
 	
-	self assert: cfg reversePostOrderBlocks size equals: 10
+	self assert: cfg reversePostOrderBlocks size equals: 17
 ]
 
 { #category : #'tests-building' }
@@ -121,7 +121,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWhenEarlyMethodReturns [
 		interpreter: interpreter;
 		generateDruidIR.
 	
-	self assert: cfg reversePostOrderBlocks size equals: 12
+	self assert: cfg reversePostOrderBlocks size equals: 11
 ]
 
 { #category : #'tests-building' }
@@ -136,7 +136,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWithTwoNonLocalReturns [
 	
 	DRDeadBlockElimination new applyTo: cfg.
 	
-	self assert: cfg reversePostOrderBlocks size equals: 12
+	self assert: cfg reversePostOrderBlocks size equals: 14
 ]
 
 { #category : #'tests-building' }

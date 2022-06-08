@@ -151,7 +151,7 @@ DruidTestInterpreter >> primitiveBranchingWithOrConditionOnSameVariable [
 
 	<numberOfArguments: 0>
 	| n |
-	n := (self stackTop ~= 2 or: [ self stackTop < 5 ])
+	n := self stackTop ~= 2 | (self stackTop < 5)
 		     ifTrue: [ 1 ]
 		     ifFalse: [ 7 ].
 	^ self pop: 1 thenPush: n

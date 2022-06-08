@@ -69,7 +69,7 @@ DRPathGenerationTest >> testConditionalConstraintsInferenceFromInnerBranches [
 	| cfg edges trueConstraint falseConstraint trueExpectedConstraint falseExpectedConstraint |
 	cfg := self generateDruidIRFor: #primitiveInnerBranching.
 
-	edges := cfg outgoingEdgesFor: (cfg blockById: 6).
+	edges := cfg outgoingEdgesFor: (cfg blockById: 30).
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "10 < Reg < 20"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. ">= 20"
 	trueExpectedConstraint := DRRegisterDomain

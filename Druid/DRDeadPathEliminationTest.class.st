@@ -29,7 +29,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 
 	| cfg lastBlocks lastPaths newMergePoint oldMergePoint newBlock |
 	cfg := self generateDruidIRFor: #primitiveSandclock.
-	oldMergePoint := cfg blockById: 8.
+	oldMergePoint := cfg blockById: 30.
 	newMergePoint := oldMergePoint newEmptyPredecessor.
 	newBlock := cfg newBasicBlockWith: [ :b | b copy: 1 ].
 	oldMergePoint removePredecessorAt: 1.
@@ -165,10 +165,10 @@ DRDeadPathEliminationTest >> testInferenceDeadPaths [
 	cfg generatePaths.
 	deadPath := cfg deadPaths associations first.
 	pathBlockIds := deadPath value collect: [ :e | e destination id ].
-	expectedTarget := self anyIncomingEdge: cfg for: (cfg blockById: 6).
+	expectedTarget := self anyIncomingEdge: cfg for: (cfg blockById: 30).
 
 	self assert: deadPath key equals: expectedTarget.
-	self assertCollection: pathBlockIds hasSameElements: { 7. 18. 1 }
+	self assertCollection: pathBlockIds hasSameElements: { 15. 37. 1 }
 ]
 
 { #category : #queries }
@@ -182,7 +182,7 @@ DRDeadPathEliminationTest >> testInferenceManyDeadPaths [
 	deadTargetIds := deadPaths keys collect: [ :e | e destination id ].
 
 	self assert: deadPaths size equals: 2.
-	self assertCollection: deadTargetIds hasSameElements: { 10. 6 }
+	self assertCollection: deadTargetIds hasSameElements: { 43. 41 }
 ]
 
 { #category : #optimization }

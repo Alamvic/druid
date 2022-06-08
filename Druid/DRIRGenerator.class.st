@@ -199,6 +199,9 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #<= put: #interpretLessOrEqualsThanComparisonWith:.
 	specialCases at: #> put: #interpretGreaterThanComparisonWith:.
 	specialCases at: #>= put: #interpretGreaterOrEqualsThanComparisonWith:.
+	specialCases at: #| put: #interpretOrWith:.
+	specialCases at: #& put: #interpretAndWith:.
+
 
 	"Arithmetics for Numbers"
 	specialCases at: #+ put: #interpretAddWith:.
@@ -306,6 +309,12 @@ DRIRGenerator >> instructionFactory [
 DRIRGenerator >> interpretAddWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRAdd
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretAndWith: aRBMessageNode [ 
+	
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRAnd
 ]
 
 { #category : #'special-cases' }
@@ -735,6 +744,12 @@ DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [
 { #category : #visiting }
 DRIRGenerator >> interpretNotWith: aRBMessageNode [ 
 	self shouldBeImplemented.
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretOrWith: aRBMessageNode [ 
+	
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DROr
 ]
 
 { #category : #'special-cases' }

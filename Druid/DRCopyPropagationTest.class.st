@@ -19,8 +19,8 @@ DRCopyPropagationTest >> testCopyIsNotPropagatedBetweenBranches [
 	DRCopyPropagation new applyTo: cfg.
 
 	instruction := cfg instructionByResultId: 2.
-	self assert: instruction users size equals: 1.
-	self assert: instruction users anyOne isCopy
+	self assert: instruction users size equals: 2.
+	self assert: (instruction users allSatisfy: [ :e | e isCopy ])
 ]
 
 { #category : #tests }
