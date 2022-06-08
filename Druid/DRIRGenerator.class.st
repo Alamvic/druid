@@ -892,12 +892,10 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 		                   operands: { addResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
-	joinInstruction := self
-		                   newOverflowBlockDuring: [ 
-		                   self interpretBlockBody:
-			                   aRBMessageNode arguments third ]
-		                   fromJump: conditionalJump
-		                   joinValue: addResult.
+	joinInstruction := self newOverflowBlockDuring: [
+			self interpretBlockBody: aRBMessageNode arguments third ]
+		fromJump: conditionalJump
+		joinValue: addResult.
 
 	self pushOperand: joinInstruction
 ]
@@ -942,9 +940,13 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 
 	"Condition block(s)"	
 	self currentBasicBlock jumpTo: (conditionEntryBlock := self newBasicBlock).
-	self mergeExecutionStateSimplifying: false.
-	executionStateAtEntry := self currentBasicBlock executionState copy.
-	self assert: executionStateAtEntry isNotSimplified.
+	
+	executionStateAtEntry := DRStackMerger new
+		builder: self;
+		mergeBlock: currentBasicBlock;
+		mergeAll: { executionState }.
+	
+	executionState := executionStateAtEntry copy.
 	self interpretBlockBody: aRBMessageNode receiver.
 
 	"Could happen that the loop header block had a non local return.
@@ -968,13 +970,13 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 	Otherwise, this block should back jump to the entry block of the loop"
 	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
 		"Now we should re-merge the outgoing phi values in the state of the entry block"
-		trueBranchBasicBlockOut executionState addTo: executionStateAtEntry.
-		trueBranchBasicBlockOut executionState simplify.
+		executionState addTo: executionStateAtEntry.
 		trueBranchBasicBlockOut backJumpTo: conditionEntryBlock.
 	].
 
 	"Else exit"
 	self newBasicBlock.
+	executionState := executionStateAtEntry.
 	conditionalJump falseBranch: self currentBasicBlock.
 	self currentBasicBlock addPredecessor: conditionalJump basicBlock.	
 
@@ -1031,7 +1033,7 @@ DRIRGenerator >> newCFG [
 DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump joinValue: result [
 
 	| overflowBlock branchBlock resultBlock joinInstruction executionStateBeforeBranch |
-	branchBlock := conditionalJump basicBlock. 
+	branchBlock := conditionalJump basicBlock.
 	resultBlock := result basicBlock.
 
 	executionStateBeforeBranch := executionState copy.
@@ -1041,34 +1043,35 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 
 	"Merge point"
 	self newBasicBlock.
-	
+
 	"Could happen that the evaluated block had a non local return.
 	In that case, this block should not arrive to this merge point
 		=> do not add the jump"
-	overflowBlock hasFinalInstruction ifFalse: [
-		executionState := DRStackMerger new
-			builder: self;
-			mergeBlock: currentBasicBlock;
-			mergeAll: { executionStateBeforeBranch . executionState }.
-		overflowBlock jumpTo: self currentBasicBlock.
-	].
+	overflowBlock hasFinalInstruction
+		ifTrue: [ executionState := executionStateBeforeBranch ]
+		ifFalse: [ 
+			executionState := DRStackMerger new
+				                  builder: self;
+				                  mergeBlock: currentBasicBlock;
+				                  mergeAll: { 
+						                  executionStateBeforeBranch.
+						                  executionState }.
+			overflowBlock jumpTo: self currentBasicBlock ].
 
-	conditionalJump falseBranch 
-		ifNil: [ 
-			"If false branch doesnt exist then resultBlock = branchBlock"
+	conditionalJump falseBranch
+		ifNil: [ "If false branch doesnt exist then resultBlock = branchBlock"
 			self currentBasicBlock addPredecessor: resultBlock.
-			conditionalJump falseBranch: self currentBasicBlock.
-		] 
-		ifNotNil: [
-			"If false branch exists then there is block in the middle"
-			resultBlock jumpTo: self currentBasicBlock.
-		].
+			conditionalJump falseBranch: self currentBasicBlock ]
+		ifNotNil: [ "If false branch exists then there is block in the middle" 
+			resultBlock jumpTo: self currentBasicBlock ].
 
 	joinInstruction := overflowBlock blockValue
-		joinValue: result
-		onIRGenerator: self
-		from: { overflowBlock . resultBlock }.
-	
+		                   joinValue: result
+		                   onIRGenerator: self
+		                   from: { 
+				                   overflowBlock.
+				                   resultBlock }.
+
 	^ joinInstruction
 ]
 

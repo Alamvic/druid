@@ -140,15 +140,11 @@ DRStackMerger >> mergeStacks: stacksToMerge simplifying: aBoolean [
 { #category : #merging }
 DRStackMerger >> mergeVMStates: vmStates [ 
 	
-	| mergedVMState |
-	self
-		assert: (vmStates collect: [ :e | e operandStack size ]) asSet size = 1
-		description: 'All vm states should have the same depth'.
-	
+	| mergedVMState maxVMStackDepth |
+	maxVMStackDepth := vmStates max: [ :e | e operandStack size ].
 	mergedVMState := builder newVMState.
 	mergedVMState primitiveFailureCode: self freshPhiFunction.
-	vmStates do: [ :e | 
-		e addTo: mergedVMState ].
-	
+	vmStates do: [ :e |
+		e addTo: mergedVMState depth: maxVMStackDepth ].
 	^ mergedVMState
 ]

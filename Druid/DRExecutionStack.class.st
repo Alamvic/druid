@@ -8,6 +8,16 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #merging }
+DRExecutionStack >> addTo: aDRExecutionStack [ 
+	
+	self assert: mirrorStack = aDRExecutionStack mirrorStack.
+	
+	stateStack withIndexDo: [ :e :i |
+		e addTo: (aDRExecutionStack frameAt: i)
+	]
+]
+
 { #category : #accessing }
 DRExecutionStack >> at: index [
 
@@ -62,6 +72,11 @@ DRExecutionStack >> initialize [
 	super initialize.
 	mirrorStack := Stack new.
 	stateStack := Stack new
+]
+
+{ #category : #accessing }
+DRExecutionStack >> mirrorStack [
+	^ mirrorStack
 ]
 
 { #category : #accessing }

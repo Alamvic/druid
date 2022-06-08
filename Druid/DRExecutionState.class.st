@@ -13,8 +13,7 @@ DRExecutionState >> addTo: aDRExecutionState [
 	
 	"Add my own state to the execution state in parameter"
 	vmState addTo: aDRExecutionState vmState.
-	1halt.
-	executionStack addTo: aDRExecutionState frameState
+	executionStack addTo: aDRExecutionState executionStack
 ]
 
 { #category : #'stack access' }
