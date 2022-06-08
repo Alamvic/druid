@@ -35,12 +35,12 @@ DRLinearizationTest >> testBranchingControlFlowHasCorrectStructure [
 	
 	| b1 b2 b3 cfg b4 |
 	cfg := DRControlFlowGraph new.
-	cfg newBasicBlock.
 	b1 := cfg newBasicBlock.
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
-	
+
+	cfg initialBasicBlock jumpTo: b1.	
 	b1
 		jumpIfTrueTo: b2
 		ifFalseTo: b3.
@@ -48,8 +48,6 @@ DRLinearizationTest >> testBranchingControlFlowHasCorrectStructure [
 	b3 jumpTo: b4.
 	b4 endInstruction: DRReturn new.
 	
-	cfg := DRControlFlowGraph new.
-	cfg initialBasicBlock jumpTo: b1.
 	
 	"Smoke test. Should fail with an exception if the basic block structure is wrong (successors do not match predecessors)"
 	cfg validate
@@ -89,6 +87,7 @@ DRLinearizationTest >> testBranchingControlFlowWithUnevenBranchesHasCorrectStruc
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
 	
+	cfg initialBasicBlock jumpTo: b1.
 	b1
 		jumpIfTrueTo: b2
 		ifFalseTo: b4.
@@ -135,7 +134,9 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWithTwoNonLocalReturns [
 		interpreter: interpreter;
 		generateDruidIR.
 	
-	self assert: cfg reversePostOrderBlocks size equals: 10
+	DRDeadBlockElimination new applyTo: cfg.
+	
+	self assert: cfg reversePostOrderBlocks size equals: 12
 ]
 
 { #category : #'tests-building' }

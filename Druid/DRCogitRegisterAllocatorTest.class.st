@@ -75,15 +75,18 @@ DRCogitRegisterAllocatorTest >> testCmpSpecialRegisterDoesNotModifyInstruction [
 
 	| cfg basicBlock firstRegister specialRegister |
 
-	"From
-	
+	"
 	R0 := Receiver > 1.
+	
+	----------
+	
+	PR1 := Receiver
+	PR1 := greater PR1 1
 	"
 
 	specialRegister := DRPhysicalRegister name: 'Receiver'.
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
-		"R0 := Receiver > 1"
 		r0 := block greater: specialRegister than: 1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
@@ -92,8 +95,12 @@ DRCogitRegisterAllocatorTest >> testCmpSpecialRegisterDoesNotModifyInstruction [
 		registers: { firstRegister };
 		allocateRegistersIn: cfg.
 
-	self assert: basicBlock instructions first isComparison.
-	self assert: basicBlock instructions first operands first equals: specialRegister
+	self assert: basicBlock instructions first isCopy. 
+	self assert: basicBlock instructions first operand1 equals: specialRegister. 
+	self assert: basicBlock instructions second isComparison.
+	self assert: basicBlock instructions second operand1 equals: basicBlock instructions first.
+	self assert: basicBlock instructions second result equals: basicBlock instructions first result
+
 ]
 
 { #category : #tests }
@@ -101,15 +108,19 @@ DRCogitRegisterAllocatorTest >> testCmpSpecialRegisterDoesNotModifyInstructionIn
 
 	| cfg basicBlock firstRegister specialRegister |
 
-	"From
+	"
+	R0 := 1 > Receiver
 	
-	R0 := 1 > Receiver.
+	----------------------
+	
+	PR1 := Receiver
+	PR1 := greater 1 PR1
+
 	"
 
 	specialRegister := DRPhysicalRegister name: 'Receiver'.
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
-		"R0 := Receiver > 1"
 		r0 := block greater: 1 than: specialRegister ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
@@ -118,8 +129,12 @@ DRCogitRegisterAllocatorTest >> testCmpSpecialRegisterDoesNotModifyInstructionIn
 		registers: { firstRegister };
 		allocateRegistersIn: cfg.
 
-	self assert: basicBlock instructions first isComparison.
-	self assert: basicBlock instructions first operands second equals: specialRegister
+	self assert: basicBlock instructions first isCopy. 
+	self assert: basicBlock instructions first operand1 equals: specialRegister. 
+	self assert: basicBlock instructions second isComparison.
+	self assert: basicBlock instructions second operand2 equals: basicBlock instructions first.
+	self assert: basicBlock instructions second result equals: basicBlock instructions first result
+
 ]
 
 { #category : #tests }
@@ -596,15 +611,18 @@ DRCogitRegisterAllocatorTest >> testTestSpecialRegisterDoesNotModifyInstruction 
 
 	| cfg basicBlock firstRegister specialRegister |
 
-	"From
-	
+	"	
 	R0 := Receiver Test 1.
-	"
 
+	----------
+	
+	PR1 := Receiver
+	PR1 := PR1 Test 1
+	"
+	
 	specialRegister := DRPhysicalRegister name: 'Receiver'.
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
-		"R0 := Receiver Test 1"
 		r0 := block anyMask: specialRegister with: 1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
@@ -613,8 +631,12 @@ DRCogitRegisterAllocatorTest >> testTestSpecialRegisterDoesNotModifyInstruction 
 		registers: { firstRegister };
 		allocateRegistersIn: cfg.
 
-	self assert: basicBlock instructions first isComparison.
-	self assert: basicBlock instructions first operands first equals: specialRegister
+	self assert: basicBlock instructions first isCopy. 
+	self assert: basicBlock instructions first operand1 equals: specialRegister. 
+	self assert: basicBlock instructions second isComparison.
+	self assert: basicBlock instructions second operand1 equals: basicBlock instructions first.
+	self assert: basicBlock instructions second result equals: basicBlock instructions first result
+
 ]
 
 { #category : #tests }
@@ -622,15 +644,19 @@ DRCogitRegisterAllocatorTest >> testTestSpecialRegisterDoesNotModifyInstructionI
 
 	| cfg basicBlock firstRegister specialRegister |
 
-	"From
+	"	
+	R0 := 1 Test Receiver
+
+	----------
 	
-	R0 := 1 TEST Receiver.
+	PR1 := Receiver
+	PR1 := 1 Test PR1
 	"
+	
 
 	specialRegister := DRPhysicalRegister name: 'Receiver'.
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
-		"R0 := Receiver TEST 1"
 		r0 := block anyMask: 1 with: specialRegister ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
@@ -639,6 +665,10 @@ DRCogitRegisterAllocatorTest >> testTestSpecialRegisterDoesNotModifyInstructionI
 		registers: { firstRegister };
 		allocateRegistersIn: cfg.
 
-	self assert: basicBlock instructions first isComparison.
-	self assert: basicBlock instructions first operands second equals: specialRegister
+	self assert: basicBlock instructions first isCopy. 
+	self assert: basicBlock instructions first operand1 equals: specialRegister. 
+	self assert: basicBlock instructions second isComparison.
+	self assert: basicBlock instructions second operand2 equals: basicBlock instructions first.
+	self assert: basicBlock instructions second result equals: basicBlock instructions first result
+
 ]

@@ -562,10 +562,10 @@ DRLinearScanRegisterAllocatorTest >> testSpillStoresAndLoadsToSameAddress [
 	SPR1 := SPR1 + SPR2"
 	
 	self
-		assert: basicBlock instructions second result
+		assert: basicBlock instructions second operand2
 		equals: basicBlock instructions fifth operand1.
 	self
-		assert: basicBlock instructions fourth result
+		assert: basicBlock instructions fourth operand2
 		equals: basicBlock instructions sixth operand1
 ]
 
@@ -662,9 +662,9 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwiceUsesDifferentAddresses [
 	SPR2 := Load M1
 	SPR1 := SPR1 + SPR2"
 	
-	self assert: basicBlock instructions second result stackOffset equals: 1.
-	self assert: basicBlock instructions fourth result stackOffset equals: 2.
+	self assert: basicBlock instructions second operand2 stackOffset equals: 1.
+	self assert: basicBlock instructions fourth operand2 stackOffset equals: 2.
 	self
-		deny: basicBlock instructions second result
-		equals: basicBlock instructions fourth result
+		deny: basicBlock instructions second operand2
+		equals: basicBlock instructions fourth operand2
 ]

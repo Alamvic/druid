@@ -38,15 +38,6 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 	stopAddress := stopInstruction address
 ]
 
-{ #category : #'helpers-compiling' }
-DRPrimitiveCompilationTest >> druidIROfPrimitive: aSelector [
-	
-	^ DRPrimitiveCompilerCompiler new
-		primitiveName: aSelector;
-		interpreter: self interpreter;
-		generateDruidIR
-]
-
 { #category : #helpers }
 DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop [
 	

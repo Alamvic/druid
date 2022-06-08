@@ -22,12 +22,6 @@ DRValue >> addUser: anInstruction [
 	"Nothing"
 ]
 
-{ #category : #converting }
-DRValue >> asDRInterpreterValue [
-
-	^ self
-]
-
 { #category : #convering }
 DRValue >> asDRValue [
 	
@@ -84,12 +78,6 @@ DRValue >> isCopy [
 DRValue >> isDRBlockClosure [
 	
 	^ false
-]
-
-{ #category : #testing }
-DRValue >> isDRValue [
-	
-	^ true
 ]
 
 { #category : #testing }

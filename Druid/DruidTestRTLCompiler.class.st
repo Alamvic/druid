@@ -1190,17 +1190,17 @@ DruidTestRTLCompiler >> gen_primitiveLoopIncrementing [
 	b6 := self Label.
 	self MoveR: ClassReg R: SendNumArgsReg.
 	self CmpCq: 15 R: SendNumArgsReg.
-	jump0 := self JumpGreaterOrEqual: 0.
-	self AddCq: 1 R: ClassReg.
-	jump1 := self Jump: b6.
-	currentBlock := self Label.
-	jump0 jmpTarget: currentBlock.
+	jump0 := self JumpLess: 0.
 	self MoveR: ClassReg R: ReceiverResultReg.
 	self CmpCq: 0 R: TempReg.
-	jump2 := self JumpNonZero: 0.
+	jump1 := self JumpNonZero: 0.
 	self RetN: 1 * objectMemory wordSize.
 	currentBlock := self Label.
-	jump2 jmpTarget: currentBlock.
+	jump0 jmpTarget: currentBlock.
+	self AddCq: 1 R: ClassReg.
+	jump2 := self Jump: b6.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
 	^ CompletePrimitive
 ]
 
@@ -1213,17 +1213,17 @@ DruidTestRTLCompiler >> gen_primitiveLoopIncrementingGlobalState [
 	b6 := self Label.
 	self MoveR: ClassReg R: SendNumArgsReg.
 	self CmpCq: 15 R: SendNumArgsReg.
-	jump0 := self JumpGreaterOrEqual: 0.
-	self AddCq: 1 R: ClassReg.
-	jump1 := self Jump: b6.
-	currentBlock := self Label.
-	jump0 jmpTarget: currentBlock.
+	jump0 := self JumpLess: 0.
 	self MoveR: ClassReg R: ReceiverResultReg.
 	self CmpCq: 0 R: TempReg.
-	jump2 := self JumpNonZero: 0.
+	jump1 := self JumpNonZero: 0.
 	self RetN: 1 * objectMemory wordSize.
 	currentBlock := self Label.
-	jump2 jmpTarget: currentBlock.
+	jump0 jmpTarget: currentBlock.
+	self AddCq: 1 R: ClassReg.
+	jump2 := self Jump: b6.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
 	^ CompletePrimitive
 ]
 

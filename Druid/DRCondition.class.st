@@ -1,10 +1,6 @@
 Class {
 	#name : #DRCondition,
 	#superclass : #DRInstruction,
-	#instVars : [
-		'trueBranch',
-		'falseBranch'
-	],
 	#category : #'Druid-IR'
 }
 

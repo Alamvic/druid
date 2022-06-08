@@ -828,11 +828,6 @@ DRBasicBlock >> setReturnValue: anInteger [
 	^ self addInstruction: (self instructionFactory setReturnValue: anInteger)
 ]
 
-{ #category : #initialization }
-DRBasicBlock >> setUpInitialFailureCode [
-	self shouldBeImplemented.
-]
-
 { #category : #accessing }
 DRBasicBlock >> source [
 	

@@ -67,12 +67,6 @@ DRControlFlowGraph >> applyOptimisation: optimisation [
 	self validate
 ]
 
-{ #category : #optimization }
-DRControlFlowGraph >> basicApplyOptimization: optimization [
-
-	optimization applyTo: self
-]
-
 { #category : #accessing }
 DRControlFlowGraph >> blockById: anInteger [ 
 	
@@ -535,16 +529,4 @@ DRControlFlowGraph >> validate [
 
 	self buildDominatorTree.
 	self blocks do: [ :e | e validate ]
-]
-
-{ #category : #validating }
-DRControlFlowGraph >> validateBlock: aDRBasicBlock [ 
-	
-	aDRBasicBlock predecessors do: [ :e |
-		(e successors includes: aDRBasicBlock)
-			ifFalse: [ self error: 'Predecessor-successor mismatch' ] ].
-		
-	aDRBasicBlock successors do: [ :e |
-		(e predecessors includes: aDRBasicBlock)
-			ifFalse: [ self error: 'Predecessor-successor mismatch' ] ].
 ]

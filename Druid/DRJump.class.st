@@ -52,6 +52,12 @@ DRJump >> isJump [
 ]
 
 { #category : #accessing }
+DRJump >> isMandatoryInstruction [
+	
+	^ true
+]
+
+{ #category : #accessing }
 DRJump >> isNonConditionalJump [
 	
 	^ true

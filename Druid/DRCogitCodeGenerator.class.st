@@ -315,15 +315,6 @@ DRCogitCodeGenerator >> visitConditionalJump: aDRConditionalJump [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitConstantCondition: aDRConstantCondition [
-	
-	"If true, jump to the true branch.
-	If false, jump to the false branch."
-	
-	"Code generated in the conditional jump"
-]
-
-{ #category : #visiting }
 DRCogitCodeGenerator >> visitCopy: aDRMove [
 
 	"Do not generate moves of null values"
