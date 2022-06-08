@@ -1272,7 +1272,7 @@ DruidTestRTLCompiler >> gen_primitiveSumWithOverflow [
 	self MoveR: TempReg R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self RetN: 2 * objectMemory wordSize.
+	self genPrimReturn.
 	^ CompletePrimitive
 ]
 
@@ -1377,7 +1377,7 @@ DruidTestRTLCompiler >> numRegArgs [
 ]
 
 { #category : #generated }
-DruidTestRTLCompiler >> preambleForSmallInteger [ 
+DruidTestRTLCompiler >> smallIntegerSpecialisedPreamble [ 
 
 	self mclassIsSmallInteger ifFalse:
 		[^UnimplementedPrimitive].

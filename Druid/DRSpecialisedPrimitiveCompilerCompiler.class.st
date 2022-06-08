@@ -1,29 +1,29 @@
 Class {
 	#name : #DRSpecialisedPrimitiveCompilerCompiler,
 	#superclass : #DRPrimitiveCompilerCompiler,
+	#instVars : [
+		'specialisation'
+	],
 	#category : #'Druid-CompilerCompiler'
 }
 
 { #category : #'generation-IR' }
-DRSpecialisedPrimitiveCompilerCompiler >> generateDruidIRFor: method [
+DRSpecialisedPrimitiveCompilerCompiler >> generateTargetASTFromIR: anIR [
 
-	| ir |
-	ir := super generateDruidIRFor: method.
-	ir initialConstraint: self initialConstraint.
-	^ ir
+	specialisation generateSpecialisedPreamble: codeGenerator generatorMethodBuilder .
+	^ super generateTargetASTFromIR: anIR
 ]
 
-{ #category : #'generation-IR' }
-DRSpecialisedPrimitiveCompilerCompiler >> initialConstraint [
-
-	^ DRRegisterDomain
-		  equals: (DRPhysicalRegister name: 'ReceiverResultReg')
-		  than: 1
-]
-
-{ #category : #'generation-IR' }
+{ #category : #initialization }
 DRSpecialisedPrimitiveCompilerCompiler >> initialize [
 
 	super initialize.
-	codeGenerator := DRCogitSpecialisedCodeGenerator new
+	specialisation := DRSmallIntegerSpecialisedPrimitive new
+]
+
+{ #category : #'generation-IR' }
+DRSpecialisedPrimitiveCompilerCompiler >> optimize: anIR [
+
+	specialisation optimize: anIR.
+	super optimize: anIR
 ]

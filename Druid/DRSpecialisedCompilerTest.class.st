@@ -1,26 +1,36 @@
 Class {
 	#name : #DRSpecialisedCompilerTest,
-	#superclass : #DRIRTest,
+	#superclass : #DRDruidTests,
 	#category : #'Druid-Tests'
 }
 
 { #category : #tests }
 DRSpecialisedCompilerTest >> compile: selector [
 
-	compilerCompiler
+	(self newCompiler: selector) compile
+]
+
+{ #category : #tests }
+DRSpecialisedCompilerTest >> generateDruidIRFor: selector [
+
+	| method compiler cfg |
+	method := DruidTestInterpreter lookupSelector: selector.
+	compiler := self newCompiler: selector.
+	cfg := compiler generateDruidIRFor: method.
+	compiler optimize: cfg.
+
+	^ cfg
+]
+
+{ #category : #tests }
+DRSpecialisedCompilerTest >> newCompiler: selector [
+
+	^ DRSpecialisedPrimitiveCompilerCompiler new
+		interpreter: self interpreter;
 		primitiveName: selector;
 		primitiveCompilerName: #gen_ , selector;
 		compilerClass: DruidTestRTLCompiler;
-		compile
-]
-
-{ #category : #initialization }
-DRSpecialisedCompilerTest >> setUp [
-
-	super setUp.
-	compilerCompiler := DRSpecialisedPrimitiveCompilerCompiler new
-		                    interpreter: DruidTestInterpreter new;
-		                    yourself
+		yourself
 ]
 
 { #category : #tests }
