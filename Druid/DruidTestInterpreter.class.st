@@ -175,7 +175,7 @@ DruidTestInterpreter >> primitiveBranchingWithTripleAndLeftAssociated [
 	<numberOfArguments: 0>
 	| n res |
 	n := self stackTop.
-	res := ((n ~= 2 and: [ n < 5 ]) and: [ n anyMask: 1 ])
+	res := n ~= 2 & (n < 5) & (n anyMask: 1)
 		       ifTrue: [ 1 ]
 		       ifFalse: [ 7 ].
 	^ self pop: 1 thenPush: res
