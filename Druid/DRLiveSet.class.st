@@ -44,12 +44,6 @@ DRLiveSet >> isActiveAt: position [
 	^ liveRanges anySatisfy: [ :e | e isActiveAt: position ]
 ]
 
-{ #category : #testing }
-DRLiveSet >> isSpilled [
-	
-	^ location isMemoryAddress
-]
-
 { #category : #accessing }
 DRLiveSet >> liveRanges [
 	^ liveRanges
