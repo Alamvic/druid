@@ -947,7 +947,9 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 	trueBranchBasicBlockOut := self
 		branchFrom: self currentBasicBlock
 		onEdge: [ :branchEntryBlock | conditionalJump trueBranch: branchEntryBlock ]
-		doing: [ self interpretBlockBody: aRBMessageNode arguments first ].
+		doing: [ 
+			self interpretBlockBody: aRBMessageNode arguments first.
+			self popOperand ].
 
 	"Could happen that any evaluated block had a non local return.
 	Otherwise, this block should back jump to the entry block of the loop"
