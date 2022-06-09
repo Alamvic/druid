@@ -1062,7 +1062,8 @@ DruidTestRTLCompiler >> gen_primitiveIsIntegerObject [
 
 	| currentBlock jump0 jump1 |
 	self MoveR: ReceiverResultReg R: TempReg.
-	self TstCq: 1 R: TempReg.
+	self AndCq: 1 R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump0 := self JumpNonZero: 0.
 	self MoveCw: objectMemory falseObject R: ReceiverResultReg.
 	jump1 := self Jump: 0.
@@ -1183,52 +1184,38 @@ DruidTestRTLCompiler >> gen_primitiveLessThanThanInverted [
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveLoopIncrementing [
 
-	| currentBlock b6 jump0 jump1 jump2 |
-	self MoveCq: 0 R: TempReg.
-	self MoveCq: 10 R: ClassReg.
+	| currentBlock b6 jump0 jump1 |
+	self MoveCq: 10 R: TempReg.
 	
 	b6 := self Label.
-	self MoveR: ClassReg R: SendNumArgsReg.
-	self CmpCq: 15 R: SendNumArgsReg.
+	self CmpCq: 15 R: TempReg.
 	jump0 := self JumpLess: 0.
-	self MoveR: ClassReg R: ReceiverResultReg.
-	self CmpCq: 0 R: TempReg.
-	jump1 := self JumpNonZero: 0.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
 	
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
-	self AddCq: 1 R: ClassReg.
-	jump2 := self Jump: b6.
-	
-	currentBlock := self Label.
-	jump1 jmpTarget: currentBlock.
+	self AddCq: 1 R: TempReg.
+	jump1 := self Jump: b6.
 	^ CompletePrimitive
 ]
 
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveLoopIncrementingGlobalState [
 
-	| currentBlock b6 jump0 jump1 jump2 |
-	self MoveCq: 0 R: TempReg.
-	self MoveCq: 10 R: ClassReg.
+	| currentBlock b6 jump0 jump1 |
+	self MoveCq: 10 R: TempReg.
 	
 	b6 := self Label.
-	self MoveR: ClassReg R: SendNumArgsReg.
-	self CmpCq: 15 R: SendNumArgsReg.
+	self CmpCq: 15 R: TempReg.
 	jump0 := self JumpLess: 0.
-	self MoveR: ClassReg R: ReceiverResultReg.
-	self CmpCq: 0 R: TempReg.
-	jump1 := self JumpNonZero: 0.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self RetN: 1 * objectMemory wordSize.
 	
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
-	self AddCq: 1 R: ClassReg.
-	jump2 := self Jump: b6.
-	
-	currentBlock := self Label.
-	jump1 jmpTarget: currentBlock.
+	self AddCq: 1 R: TempReg.
+	jump1 := self Jump: b6.
 	^ CompletePrimitive
 ]
 
@@ -1254,10 +1241,10 @@ DruidTestRTLCompiler >> gen_primitiveMultiplyWithOverflow [
 	self LogicalShiftRightCq: 3 R: TempReg.
 	self MoveR: Arg0Reg R: ClassReg.
 	self SubCq: 1 R: ClassReg.
-	self MulR: ClassReg R: TempReg.
+	self MulR: TempReg R: ClassReg.
 	jump0 := self JumpMultiplyOverflow: 0.
-	self AddCq: 1 R: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+	self AddCq: 1 R: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	jump1 := self Jump: 0.
 	
 	currentBlock := self Label.

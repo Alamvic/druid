@@ -32,6 +32,7 @@ DRStackMerger >> installInstructions [
 
 	mergedState executionStack framesDo: [ :mergeFrame | 
 		mergeFrame temporariesDo: [ :e | mergeBlock addInstruction: e ].
+		mergeFrame operandStack do: [ :e | mergeBlock addInstruction: e ].
 		mergeBlock addInstruction: mergeFrame returnValue ].
 	mergedState vmOperandStack do: [ :e | mergeBlock addInstruction: e ].
 	mergeBlock addInstruction: mergedState primitiveFailureCode.
@@ -97,6 +98,10 @@ DRStackMerger >> mergeFramesIn: stacksToMerge at: anInteger [
 	"If I have no predecessors, I'm very probably dead code.
 	No need to merge anything"
 	| mergeFrame prototype |
+	
+	((stacksToMerge collect: [ :s | (s frameAt: anInteger) operandStack size ] as: Set) size > 1)
+		ifTrue: [ self error ].
+	
 	prototype := stacksToMerge anyOne at: anInteger.
 	mergeFrame := prototype copy.
 	
@@ -105,6 +110,9 @@ DRStackMerger >> mergeFramesIn: stacksToMerge at: anInteger [
 		mergeFrame
 			writeTemporaryNamed: name
 			withValue: self freshPhiFunction ].
+	mergeFrame operandStack removeAll.
+	1 to: prototype operandStack size do: [ :i |
+		mergeFrame push: self freshPhiFunction ].
 	mergeFrame returnValue: self freshPhiFunction.
 	
 	stacksToMerge do: [ :s | | frameToMerge |

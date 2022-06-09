@@ -12,9 +12,6 @@ Class {
 { #category : #accumulating }
 DRVMState >> addPrimitiveFailureCode: aValue [
 	
-	"If the operand did not change, do nothing"
-	primitiveFailureCode == aValue ifTrue: [ ^ self ].
-	"Otherwise, accumulate it"
 	primitiveFailureCode addValue: aValue
 ]
 

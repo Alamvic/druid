@@ -17,7 +17,9 @@ DRIRGenerator >> addDeferredReturnState: anExecutionState [
 
 	"Record that this execution stack did a method return
 	We will merge this one with other returned states when this method finishes"
-	^ (self topFrame homeFrameWithState: anExecutionState first) addDeferredReturnState: anExecutionState
+
+	^ (self topFrame homeFrameWithState: anExecutionState first) 
+		  addDeferredReturnState: anExecutionState
 ]
 
 { #category : #visiting }
@@ -360,28 +362,26 @@ DRIRGenerator >> interpretBlockActivation: aRBBlockNode [
 	self interpretBlockBody: aRBBlockNode.
 
 	"If this is a block activation, it should have a return value"
-	self topFrame returnValue: self currentBasicBlock blockValue
+	self topFrame returnValue: self operandStackTop
 ]
 
 { #category : #interpreting }
 DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 
-	| blockValue |
-	aRBBlockNode statements do: [ :e |
+	aRBBlockNode statements allButLastDo: [ :e |
 		e acceptVisitor: self.
+		"If this is a return, exit.
+		=> This block returns nothing"
+		self popOperand.
+		self assert: self topFrame operandStack isEmpty.
 		e isReturn ifTrue: [ 
-			^ self ].
-		blockValue := self popOperand.
-	].
-	"At the end, transform the block value into a copy instruction"
-	blockValue := self
-		addInstructionFrom: aRBBlockNode
-		instructionKind: DRCopy
-		operands: {blockValue}.
+			self pushOperand: DRNullValue new.
+			self assert: self topFrame operandStack size = 1.
+			^ self ] ].
 	
-	"The add instruction pushes the instruction to the operand stack.
-	Pop it: at the end of the block execution, nothing should be in the stack"
-	self currentBasicBlock blockValue: blockValue
+	"Evaluate the last statement but do not pop the operand, as it will be the block's value"
+	aRBBlockNode statements last acceptVisitor: self.
+	self assert: self topFrame operandStack size = 1.
 ]
 
 { #category : #'special cases' }
@@ -451,18 +451,16 @@ DRIRGenerator >> interpretCondition: aRBMessageNode instructionKind: anInstructi
 DRIRGenerator >> interpretDivisionWith: aRBMessageNode [ 
 
 	"Interpret the two numbers and divide them up"
-	| leftOperand rightOperand divResult |
+	| leftOperand rightOperand |
 
 	leftOperand := self visitOperand: aRBMessageNode receiver.
 	rightOperand := self visitOperand: aRBMessageNode arguments first.
 	
 	"Backend needs a third operand for rem result"
-	divResult := self
+	self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRDivision 
-		operands: { leftOperand . rightOperand }.
-
-	self pushOperand: divResult 
+		operands: { leftOperand . rightOperand }
 ]
 
 { #category : #'special-cases' }
@@ -513,7 +511,10 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 
 	self currentBasicBlock endInstruction: conditionalJump.
 
+	self pushOperand: DRNullValue new.
 	executionStateBeforeBranch := executionState copy.
+	self popOperand.
+	
 	trueBranchBasicBlockOut := self
 		                           branchFrom: self currentBasicBlock
 		                           onEdge: [ :branchEntryBlock | 
@@ -542,10 +543,7 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 				                  mergeAll: { 
 						                  executionStateBeforeBranch.
 						                  executionState }.
-			trueBranchBasicBlockOut jumpTo: self currentBasicBlock ].
-
-	"ifTrue: does not return anything useful"
-	self pushOperand: DRNullValue new
+			trueBranchBasicBlockOut jumpTo: self currentBasicBlock ]
 ]
 
 { #category : #'special-cases' }
@@ -575,17 +573,15 @@ DRIRGenerator >> interpretLessThanComparisonWith: aRBMessageNode [
 { #category : #'special cases - memory access' }
 DRIRGenerator >> interpretLoad: aRBMessageNode ofByteSize: byteSize [
 
-	| result address |
+	| address |
 	address := self visitOperand: aRBMessageNode arguments first.
 
-	result := self
-		          addInstructionFrom: aRBMessageNode
-		          instructionKind: DRLoad
-		          operands: { 
-				          byteSize asDRValue.
-				          address }.
-
-	self pushOperand: result
+	self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRLoad
+		operands: { 
+				byteSize asDRValue.
+				address }
 ]
 
 { #category : #'special cases - memory access' }
@@ -649,18 +645,16 @@ DRIRGenerator >> interpretMethod: aDRMethod receiver: aReceiver [
 DRIRGenerator >> interpretModWith: aRBMessageNode [ 
 
 	"Interpret the two numbers and push the module operation result"
-	| leftOperand rightOperand modResult |
+	| leftOperand rightOperand |
 
 	leftOperand := self visitOperand: aRBMessageNode receiver.
 	rightOperand := self visitOperand: aRBMessageNode arguments first.
 	
 	"Backend needs a third operand for div result"
-	modResult := self
+	self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRMod 
-		operands: { leftOperand . rightOperand }.
-
-	self pushOperand: modResult
+		operands: { leftOperand . rightOperand }
 ]
 
 { #category : #'special-cases' }
@@ -668,24 +662,21 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and multiply them up"
 
-	| leftOperand rightOperand mulResult startingBasicBlock conditionalJump joinInstruction unshiftedLeftOperand withoutTagRightOperand taggedResult |
+	| leftOperand rightOperand mulResult startingBasicBlock conditionalJump joinInstruction taggedResult |
 	leftOperand := self visitOperand: aRBMessageNode arguments first.
 	rightOperand := self visitOperand: aRBMessageNode arguments second.
 
-	unshiftedLeftOperand := self
-		                        unshiftSmallInteger: leftOperand
-		                        from: aRBMessageNode.
-	withoutTagRightOperand := self
-		                          untagSmallInteger: rightOperand
-		                          from: aRBMessageNode.
+	self unshiftSmallInteger: leftOperand from: aRBMessageNode.
+	self untagSmallInteger: rightOperand from: aRBMessageNode.
 
-	mulResult := self
-		             addInstructionFrom: aRBMessageNode
-		             instructionKind: DRMultiply
-		             operands: { 
-				             unshiftedLeftOperand.
-				             withoutTagRightOperand }.
+	self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRMultiply
+		operands: { 
+				self popOperand.
+				self popOperand }.
 
+	mulResult := self popOperand.
 	startingBasicBlock := self currentBasicBlock.
 	conditionalJump := self
 		                   instantiateNoResultInstruction:
@@ -695,7 +686,8 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"No overflow"
 	self newBasicBlock.
-	taggedResult := self tagSmallInteger: mulResult from: aRBMessageNode.
+	self tagSmallInteger: mulResult from: aRBMessageNode.
+	taggedResult := self popOperand.
 	self currentBasicBlock addPredecessor: startingBasicBlock.
 	conditionalJump falseBranch: self currentBasicBlock.
 
@@ -704,9 +696,7 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 		                   self interpretBlockBody:
 			                   aRBMessageNode arguments third ]
 		                   fromJump: conditionalJump
-		                   joinValue: taggedResult.
-
-	self pushOperand: joinInstruction
+		                   joinValue: taggedResult
 ]
 
 { #category : #'special-cases' }
@@ -805,18 +795,17 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 { #category : #'special cases - memory access' }
 DRIRGenerator >> interpretStore: aRBMessageNode ofByteSize: byteSize [
 
-	| result address value |
+	| address value |
 	address := self visitOperand: aRBMessageNode arguments first.
 	value := self visitOperand: aRBMessageNode arguments second.
 
-	result := self
-		          addInstructionWithNoResultFrom: aRBMessageNode
-		          instructionKind: DRStore
-		          operands: { 
-				          byteSize asDRValue.
-				          value.
-				          address }.
-	self pushOperand: result
+	self
+		addInstructionWithNoResultFrom: aRBMessageNode
+		instructionKind: DRStore
+		operands: { 
+				byteSize asDRValue.
+				value.
+				address }
 ]
 
 { #category : #'special cases - memory access' }
@@ -830,35 +819,30 @@ DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and subtract them up"
 
-	| leftOperand rightOperand subResult startingBasicBlock conditionalJump joinInstruction untaggedRightOperand |
+	| leftOperand rightOperand subResult startingBasicBlock conditionalJump |
 	leftOperand := self visitOperand: aRBMessageNode arguments first.
 	rightOperand := self visitOperand: aRBMessageNode arguments second.
 
-	untaggedRightOperand := self
-		                        untagSmallInteger: rightOperand
-		                        from: aRBMessageNode.
+	self untagSmallInteger: rightOperand from: aRBMessageNode.
 
-	subResult := self
-		             addInstructionFrom: aRBMessageNode
-		             instructionKind: DRSubtract
-		             operands: { 
-				             leftOperand.
-				             untaggedRightOperand }.
-
+	self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRSubtract
+		operands: { 
+				leftOperand.
+				self popOperand }.
+	subResult := self popOperand.
 	startingBasicBlock := self currentBasicBlock.
 	conditionalJump := self
 		                   instantiateNoResultInstruction: DROverflowJump
 		                   operands: { subResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
-	joinInstruction := self
-		                   newOverflowBlockDuring: [ 
-		                   self interpretBlockBody:
-			                   aRBMessageNode arguments third ]
-		                   fromJump: conditionalJump
-		                   joinValue: subResult.
-
-	self pushOperand: joinInstruction
+	self
+		newOverflowBlockDuring: [ 
+		self interpretBlockBody: aRBMessageNode arguments third ]
+		fromJump: conditionalJump
+		joinValue: subResult
 ]
 
 { #category : #'special-cases' }
@@ -872,33 +856,31 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and add them up"
 
-	| leftOperand rightOperand addResult startingBasicBlock conditionalJump joinInstruction untaggedLeftOperand |
+	| leftOperand rightOperand addResult startingBasicBlock conditionalJump joinInstruction |
 	leftOperand := self visitOperand: aRBMessageNode arguments first.
 	rightOperand := self visitOperand: aRBMessageNode arguments second.
 
-	untaggedLeftOperand := self
-		                       untagSmallInteger: leftOperand
-		                       from: aRBMessageNode.
+	self untagSmallInteger: leftOperand from: aRBMessageNode.
 
-	addResult := self
-		             addInstructionFrom: aRBMessageNode
-		             instructionKind: DRAdd
-		             operands: { 
-				             untaggedLeftOperand.
-				             rightOperand }.
-
+	self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRAdd
+		operands: { 
+				self popOperand.
+				rightOperand }.
+	addResult := self popOperand.
 	startingBasicBlock := self currentBasicBlock.
 	conditionalJump := self
 		                   instantiateNoResultInstruction: DROverflowJump
 		                   operands: { addResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
-	joinInstruction := self newOverflowBlockDuring: [
-			self interpretBlockBody: aRBMessageNode arguments third ]
-		fromJump: conditionalJump
-		joinValue: addResult.
-
-	self pushOperand: joinInstruction
+	joinInstruction := self
+		                   newOverflowBlockDuring: [ 
+		                   self interpretBlockBody:
+			                   aRBMessageNode arguments third ]
+		                   fromJump: conditionalJump
+		                   joinValue: addResult
 ]
 
 { #category : #'special-cases' }
@@ -1033,11 +1015,14 @@ DRIRGenerator >> newCFG [
 { #category : #'special-cases' }
 DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump joinValue: result [
 
-	| overflowBlock branchBlock resultBlock joinInstruction executionStateBeforeBranch |
+	| overflowBlock branchBlock resultBlock executionStateBeforeBranch |
 	branchBlock := conditionalJump basicBlock.
 	resultBlock := result basicBlock.
 
+	self pushOperand: result.
 	executionStateBeforeBranch := executionState copy.
+	self popOperand.
+
 	overflowBlock := self newBasicBlockDuring: continuation.
 	conditionalJump trueBranch: overflowBlock.
 	overflowBlock addPredecessor: branchBlock.
@@ -1055,8 +1040,8 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 				                  builder: self;
 				                  mergeBlock: currentBasicBlock;
 				                  mergeAll: { 
-						                  executionStateBeforeBranch.
-						                  executionState }.
+						                  executionState.
+						                  executionStateBeforeBranch }.
 			overflowBlock jumpTo: self currentBasicBlock ].
 
 	conditionalJump falseBranch
@@ -1066,14 +1051,7 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 		ifNotNil: [ "If false branch exists then there is block in the middle" 
 			resultBlock jumpTo: self currentBasicBlock ].
 
-	joinInstruction := overflowBlock blockValue
-		                   joinValue: result
-		                   onIRGenerator: self
-		                   from: { 
-				                   overflowBlock.
-				                   resultBlock }.
-
-	^ joinInstruction
+	^ self operandStackTop
 ]
 
 { #category : #'execution state' }
@@ -1214,7 +1192,7 @@ DRIRGenerator >> spillStack [
 { #category : #'pharo-stack' }
 DRIRGenerator >> stackTop [
 	
-	^ self currentBasicBlock executionState topVM
+	^ self executionState topVM
 ]
 
 { #category : #'special-cases' }
@@ -1374,10 +1352,13 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 		^ self ].
 
 	aRBMethodNode statements do: [ :each | 
+		self assert: self topFrame operandStack isEmpty.
 		each acceptVisitor: self.
-		each isReturn ifTrue: [ ^ self ].
-		self popOperand ].
+		self popOperand.
+		self assert: self topFrame operandStack isEmpty.
+		each isReturn ifTrue: [ ^ self ] ].
 
+	self assert: self topFrame operandStack isEmpty.
 	"If the method has no return statement, it should still return something"
 	self addDeferredReturnState: {executionState . self currentBasicBlock}
 ]
@@ -1392,17 +1373,21 @@ DRIRGenerator >> visitOperand: aDRValue [
 { #category : #visiting }
 DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
-	| result copy homeFrame returnExecutionState |
+	| result homeFrame returnExecutionState |
 	
 	aRBReturnNode value acceptVisitor: self.
 	result := self popOperand.
-	copy := result copyToVariableIn: self inNode: aRBReturnNode.
-	homeFrame := self topFrame homeFrameWithState: executionState.
-	homeFrame returnValue: copy.
+"	result copyToVariableIn: self inNode: aRBReturnNode.
+	copy := self popOperand.
+"	homeFrame := self topFrame homeFrameWithState: executionState.
+	homeFrame returnValue: result.
 	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
 
 	returnExecutionState := executionState copy.
 	self addDeferredReturnState: {returnExecutionState . self currentBasicBlock}.
+	
+	"The return is a statement with no value"
+	self pushOperand: DRNullValue new
 ]
 
 { #category : #visiting }

@@ -19,7 +19,7 @@ DRPrimitiveIRGenerator >> executionStack [
 { #category : #accessing }
 DRPrimitiveIRGenerator >> ignoreMessageWith: aRBMessageNode [
 
-	self pushOperand: (self noop: aRBMessageNode)
+	self noop: aRBMessageNode
 ]
 
 { #category : #accessing }

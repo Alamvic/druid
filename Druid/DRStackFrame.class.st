@@ -8,7 +8,6 @@ Class {
 		'entryBasicBlock',
 		'exitBasicBlock',
 		'operandStack',
-		'currentTemporaryFrame',
 		'temporaries',
 		'mirrorFrame',
 		'returnValue'
@@ -30,6 +29,9 @@ DRStackFrame >> addTo: aDRStackFrame [
 	
 	temporaries keysAndValuesDo: [ :k :v |
 		(aDRStackFrame readTemporaryNamed: k) addValue: v
+	].
+	operandStack withIndexDo: [ :e :i |
+		(aDRStackFrame operandStack at: i) addValue: e.
 	].
 	aDRStackFrame returnValue addValue: returnValue
 ]
@@ -169,6 +171,7 @@ DRStackFrame >> postCopy [
 
 	super postCopy.
 	temporaries := temporaries copy.
+	operandStack := operandStack copy.
 ]
 
 { #category : #printing }
