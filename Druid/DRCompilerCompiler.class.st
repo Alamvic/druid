@@ -6,10 +6,10 @@ Class {
 		'compilerClass',
 		'sourceName',
 		'registerAllocator',
-		'druidIR',
 		'targetAST',
 		'optimisations',
-		'codeGenerator'
+		'codeGenerator',
+		'customisation'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -17,6 +17,8 @@ Class {
 { #category : #api }
 DRCompilerCompiler >> compile [
 
+	| druidIR |
+	self customise.
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
@@ -39,11 +41,25 @@ DRCompilerCompiler >> compilerClass: anObject [
 ]
 
 { #category : #'generation-IR' }
+DRCompilerCompiler >> customise [
+
+	^ self customiseFor: self sourceMethod
+]
+
+{ #category : #'generation-IR' }
+DRCompilerCompiler >> customiseFor: method [
+
+	method ast
+		pragmaNamed: #customisedReceiverFor:
+		ifPresent: [ :pragma | 
+			customisation := DRPrimitiveCustomisation newCustomisation:
+				                  pragma arguments first value ]
+]
+
+{ #category : #'generation-IR' }
 DRCompilerCompiler >> generateDruidIR [
 
-	| method |
-	method := interpreter class lookupSelector: sourceName.
-	^ self generateDruidIRFor: method
+	^ self generateDruidIRFor: self sourceMethod
 ]
 
 { #category : #'generation-IR' }
@@ -70,7 +86,12 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 { #category : #'code-generation' }
 DRCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 
-	^ codeGenerator generateTargetASTFromIR: aDRControlFlowGraph primitiveName: self primitiveCompilerName
+	customisation generateCustomisedPreamble:
+		codeGenerator generatorMethodBuilder.
+
+	^ codeGenerator
+		  generateTargetASTFromIR: aDRControlFlowGraph
+		  primitiveName: self primitiveCompilerName
 ]
 
 { #category : #'generation-IR' }
@@ -80,6 +101,7 @@ DRCompilerCompiler >> initialize [
 	
 	codeGenerator := DRCogitCodeGenerator new.
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
+	customisation := DRNonePrimitiveCustomisation new.
 	
 	optimisations := OrderedCollection new.
 	optimisations add: DRBranchCollapse new.
@@ -111,8 +133,15 @@ DRCompilerCompiler >> newIRGenerator [
 { #category : #api }
 DRCompilerCompiler >> optimize: anIR [
 
+	customisation optimize: anIR.
 	optimisations do: [ :optimization | 
 		anIR applyOptimisation: optimization ]
+]
+
+{ #category : #'generation-IR' }
+DRCompilerCompiler >> sourceMethod [
+
+	^ interpreter class lookupSelector: sourceName
 ]
 
 { #category : #accessing }

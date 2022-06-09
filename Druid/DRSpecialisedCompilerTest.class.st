@@ -16,6 +16,7 @@ DRSpecialisedCompilerTest >> generateDruidIRFor: selector [
 	| method compiler cfg |
 	method := DruidTestInterpreter lookupSelector: selector.
 	compiler := self newCompiler: selector.
+	compiler customiseFor: method.
 	cfg := compiler generateDruidIRFor: method.
 	compiler optimize: cfg.
 
@@ -25,7 +26,7 @@ DRSpecialisedCompilerTest >> generateDruidIRFor: selector [
 { #category : #tests }
 DRSpecialisedCompilerTest >> newCompiler: selector [
 
-	^ DRSpecialisedPrimitiveCompilerCompiler new
+	^ DRPrimitiveCompilerCompiler new
 		interpreter: self interpreter;
 		primitiveName: selector;
 		primitiveCompilerName: #gen_ , selector;

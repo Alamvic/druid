@@ -1,23 +1,23 @@
 Class {
-	#name : #DRSmallIntegerSpecialisedPrimitive,
-	#superclass : #DRSpecialisedPrimitive,
+	#name : #DRSmallIntegerPrimitiveCustomisation,
+	#superclass : #DRPrimitiveCustomisation,
 	#category : #'Druid-CompilerCompiler'
 }
 
 { #category : #'as yet unclassified' }
-DRSmallIntegerSpecialisedPrimitive class >> pragmaName [
+DRSmallIntegerPrimitiveCustomisation class >> pragmaName [
 
 	^ #smallInteger
 ]
 
 { #category : #api }
-DRSmallIntegerSpecialisedPrimitive >> generateSpecialisedPreamble: aGeneratorMethodBuilder [
+DRSmallIntegerPrimitiveCustomisation >> generateCustomisedPreamble: aGeneratorMethodBuilder [
 
 	aGeneratorMethodBuilder addStatement: self preamble
 ]
 
 { #category : #'generation-IR' }
-DRSmallIntegerSpecialisedPrimitive >> initialConstraint [
+DRSmallIntegerPrimitiveCustomisation >> initialConstraint [
 
 	^ DRRegisterDomain
 		  equals: (DRPhysicalRegister name: 'ReceiverResultReg')
@@ -25,13 +25,13 @@ DRSmallIntegerSpecialisedPrimitive >> initialConstraint [
 ]
 
 { #category : #api }
-DRSmallIntegerSpecialisedPrimitive >> optimize: anIR [
+DRSmallIntegerPrimitiveCustomisation >> optimize: anIR [
 
 	anIR initialConstraint: self initialConstraint
 ]
 
 { #category : #'code-generation' }
-DRSmallIntegerSpecialisedPrimitive >> preamble [
+DRSmallIntegerPrimitiveCustomisation >> preamble [
 
 	| preamble |
 	preamble := DruidTestRTLCompiler lookupSelector: #smallIntegerSpecialisedPreamble.
