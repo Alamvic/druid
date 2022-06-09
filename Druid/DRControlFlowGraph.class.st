@@ -40,7 +40,7 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 { #category : #accessing }
 DRControlFlowGraph >> allConditionalJumps [
 
-	^ basicBlocks
+	^ self reversePostOrderBlocks
 		  collect: [ :b | b endInstruction ]
 		  thenSelect: [ :i | i isConditionalJump ]
 ]

@@ -43,6 +43,12 @@ DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 		operands: { self }.
 ]
 
+{ #category : #accessing }
+DRValue >> hasId: id [
+
+	^ false
+]
+
 { #category : #testing }
 DRValue >> hasUser: anInstruction [
 	
