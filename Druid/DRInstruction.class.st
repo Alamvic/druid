@@ -8,7 +8,8 @@ Class {
 		'origin',
 		'originAST',
 		'basicBlock',
-		'users'
+		'users',
+		'type'
 	],
 	#category : #'Druid-IR'
 }
@@ -103,6 +104,12 @@ DRInstruction >> clearUsers [
 	users removeAll
 ]
 
+{ #category : #types }
+DRInstruction >> computeType [
+	
+	^ operands first type
+]
+
 { #category : #accessing }
 DRInstruction >> controlFlowGraph [
 	
@@ -139,7 +146,7 @@ DRInstruction >> hasUser: anInstruction [
 { #category : #testing }
 DRInstruction >> hash [
 
-	^ self result hash bitXor: self operands hash
+	^ self result hash
 ]
 
 { #category : #testing }
@@ -249,7 +256,7 @@ DRInstruction >> label [
 { #category : #interpretation }
 DRInstruction >> lookupClass [
 	
-	^ result lookupClass 
+	^ self type lookupClass 
 ]
 
 { #category : #accessing }
@@ -365,21 +372,25 @@ DRInstruction >> originAST: aNode [
 { #category : #copying }
 DRInstruction >> postCopy [
 
+	super postCopy.
+	
 	operands := operands copy.
+	operands do: [ :e | e addUser: self ].
 	users := users copy.
+	
 	((result isKindOf: DRNoRegister) not and: [ result isPhysicalRegister not ]) ifTrue: [ 
 		result := basicBlock controlFlowGraph allocateTemporaryRegister ].
-	super postCopy.
+
 ]
 
 { #category : #printing }
 DRInstruction >> prettyPrint [
 	
 	| print |
-	print := result
+	[print := result
 		ifNil: [ '' ]
 		ifNotNil: [ result name, ' := ' ].
-	^ print, self opcode ,' ', (' ' join: (operands collect: [ :e | e result name ]))
+	^ print, self opcode ,' ', (' ' join: (operands collect: [ :e | e result name ]))] on: Error do: [ ^ 'wat' ]
 ]
 
 { #category : #printing }
@@ -420,13 +431,12 @@ DRInstruction >> removeUser: anInstruction [
 { #category : #replacing }
 DRInstruction >> replaceBy: anotherInstruction [
 	
-	users copy do: [ :instruction |
-		instruction replaceOperand: self by: anotherInstruction ].
+	basicBlock replace: self by: anotherInstruction.
+	
+	self replaceUsesBy: anotherInstruction.
 
 	operands asSet do: [ :instruction |
 		instruction removeUser: self ].
-
-	basicBlock replace: self by: anotherInstruction
 ]
 
 { #category : #'users-definitions' }
@@ -470,6 +480,13 @@ DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 		(self replaceOperandIfDominated: myOperand by: newOperand) 
 			ifNotNil: [ replaced := self ] ].
 	^ replaced
+]
+
+{ #category : #replacing }
+DRInstruction >> replaceUsesBy: anotherInstruction [
+	
+	users copy do: [ :instruction |
+		instruction replaceOperand: self by: anotherInstruction ]
 ]
 
 { #category : #accessing }
@@ -535,6 +552,12 @@ DRInstruction >> singleChild [
 	^ self
 ]
 
+{ #category : #types }
+DRInstruction >> type [
+
+	^ type ifNil: [ type := self computeType ]
+]
+
 { #category : #replacing }
 DRInstruction >> users [
 
@@ -552,11 +575,10 @@ DRInstruction >> validate [
 			'User-operand mismatch in instruction: ' , self asString ].
 
 	self isPhiFunction ifTrue: [ ^ self ].
-
 	self operands do: [ :o | 
 		(o isInstruction not or: [ 
 			 self basicBlock isDominatedBy: o basicBlock ]) ifFalse: [ 
-			DRError signal: 'Tenés cualquier operando en: ' , self asString ] ]
+			DRError signal: 'Invalid operand: ', o asString, ' in: ' , self asString ] ]
 ]
 
 { #category : #copying }

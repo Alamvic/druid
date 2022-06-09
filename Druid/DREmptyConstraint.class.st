@@ -1,7 +1,7 @@
 Class {
 	#name : #DREmptyConstraint,
 	#superclass : #DRConditionalConstraint,
-	#category : #'Druid-Optimizations'
+	#category : #'Druid-IR-Paths'
 }
 
 { #category : #arithmetic }

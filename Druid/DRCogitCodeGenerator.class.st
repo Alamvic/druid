@@ -5,7 +5,8 @@ Class {
 		'generatorMethodBuilder',
 		'fallthroughBlock',
 		'deferredBranches',
-		'nextJumpIndex'
+		'nextJumpIndex',
+		'visitedBlocks'
 	],
 	#category : #'Druid-Cogit'
 }
@@ -48,22 +49,28 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 { #category : #visiting }
 DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 
-	| jumpStatement jumpVariableName |
+	| jumpStatement jumpVariableName jumpTarget |
 	"If the jump target is the next block in the order, do not add any jump to it"
 	aTarget = fallthroughBlock ifTrue: [ ^ self ].
 
 	jumpVariableName := 'jump', self nextJumpIndex asString.
 	generatorMethodBuilder addVariableNamed: jumpVariableName.
 	
+	(self hasVisitedBlock: aTarget) ifTrue: [ 
+		jumpTarget := self labelForBlock: aTarget
+	] ifFalse: [
+		self deferBranch: jumpVariableName to: aTarget.
+		jumpTarget := 0 asLiteralNode ].
+	
 	jumpStatement := RBAssignmentNode
 		variable: (RBVariableNode named: jumpVariableName)
 		value: (RBMessageNode
 			receiver: RBVariableNode selfNode
 			selector: jumpKind
-			arguments: { 0 asLiteralNode }).
+			arguments: { jumpTarget }).
 	
 	generatorMethodBuilder addStatement: jumpStatement.
-	self deferBranch: jumpVariableName to: aTarget.
+	
 ]
 
 { #category : #'as yet unclassified' }
@@ -100,12 +107,27 @@ DRCogitCodeGenerator >> generatorMethodBuilder [
 	^ generatorMethodBuilder
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #testing }
+DRCogitCodeGenerator >> hasVisitedBlock: aDRBasicBlock [ 
+	
+	^ visitedBlocks includesKey: aDRBasicBlock
+]
+
+{ #category : #initialization }
 DRCogitCodeGenerator >> initialize [
+
 	super initialize.
 	generatorMethodBuilder := DRGeneratorMethodBuilder new.
 	deferredBranches := Dictionary new.
 	nextJumpIndex := 0.
+
+	visitedBlocks := Dictionary new
+]
+
+{ #category : #accessing }
+DRCogitCodeGenerator >> labelForBlock: aDRBasicBlock [ 
+	
+	^ RBVariableNode named: (visitedBlocks at: aDRBasicBlock)
 ]
 
 { #category : #'jump-management' }
@@ -121,8 +143,19 @@ DRCogitCodeGenerator >> nextJumpIndex [
 DRCogitCodeGenerator >> preProcessBlock: aDRBasicBlock [
 	
 	| branches |
-	branches := deferredBranches at: aDRBasicBlock ifAbsent: [ ^ self ].
-	
+	aDRBasicBlock hasIncomingBackjumps ifTrue: [ | blockIdentifier |
+		"If this block has incoming backjumps, we need to put a label for it and store it"
+		blockIdentifier := 'b', aDRBasicBlock id asString.
+		generatorMethodBuilder addVariableNamed: blockIdentifier.
+		generatorMethodBuilder addStatement: (RBAssignmentNode
+			variable: (RBVariableNode named: blockIdentifier)
+			value: (RBMessageNode
+				receiver: RBVariableNode selfNode
+				selector: #Label)).
+		visitedBlocks at: aDRBasicBlock put: blockIdentifier ].
+
+	"If someother block is forward jumping to this block, create a label and wire deferred jumps to it"
+	branches := deferredBranches at: aDRBasicBlock ifAbsent: [ ^ self ].	
 	generatorMethodBuilder addStatement: (RBAssignmentNode
 		variable: (RBVariableNode named: 'currentBlock')
 		value: (RBMessageNode
@@ -157,10 +190,14 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 
 	| constantValue |
 	aValue isConstant ifTrue: [ 
+		"Interpret the booleans as the bits 0 and 1"
 		constantValue := (#( true false ) includes: aValue value)
 			ifTrue: [ aValue value asBit ]
 			ifFalse: [ aValue value ].
-
+		
+		"Interpret nil as zero"
+		constantValue isNil ifTrue: [ constantValue := 0 ].
+		
 		(constantValue isInteger and: [ constantValue > 5000 ]) ifTrue: [ 
 			^ RBLiteralValueNode new
 				  value: constantValue
@@ -195,41 +232,6 @@ DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic instruction: instruction [
-
-	| destination replacement |
-	replacement := instruction operand1 isMemoryAddress
-		               ifTrue: [ 
-			               self
-				               twoOperandCogitRTL: 'Move'
-				               operands: { 
-						               instruction operand1.
-						               (DRPhysicalRegister name: 'TempReg') }
-				               instruction: instruction.
-			               DRPhysicalRegister name: 'TempReg' ]
-		               ifFalse: [ instruction operand1 ].
-
-	destination := instruction result isMemoryAddress
-		               ifTrue: [ DRPhysicalRegister name: 'TempReg' ]
-		               ifFalse: [ instruction result ].
-
-	self
-		twoOperandCogitRTL: aMnemonic
-		operands: { 
-				replacement.
-				destination }
-		instruction: instruction.
-
-	instruction result isMemoryAddress ifTrue: [ 
-		self
-			twoOperandCogitRTL: 'Move'
-			operands: { 
-					destination.
-					(DRPhysicalRegister name: 'MEMORY0') }
-			instruction: instruction ]
-]
-
-{ #category : #visiting }
 DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruction: anInstruction [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -260,6 +262,13 @@ DRCogitCodeGenerator >> visitAnd: aDRAnd [
 DRCogitCodeGenerator >> visitBitAnd: aDRCogitBitAnd [ 
 
 	^ self threeOperandCogitRTL: #And instruction: aDRCogitBitAnd
+
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitBitOr: aDRCogitBitAnd [ 
+
+	^ self threeOperandCogitRTL: #Or instruction: aDRCogitBitAnd
 
 ]
 
@@ -304,9 +313,17 @@ DRCogitCodeGenerator >> visitConditionalJump: aDRConditionalJump [
 DRCogitCodeGenerator >> visitCopy: aDRMove [
 
 	"Do not generate moves of null values"
+	| moveOperands |
 	aDRMove operands first isNullValue
 		ifTrue: [ ^ self ].
-	self twoOperandCogitRTL: #Move instruction: aDRMove
+	
+	moveOperands := { aDRMove operand1. aDRMove result }.
+	
+	"Do not generate redundant moves (e.g., r0 := r0)"
+	(moveOperands collect: [ :e | e result ] as: Set) size = 1
+		ifTrue: [ ^ self ].
+	
+	self twoOperandCogitRTL: #Move operands: moveOperands instruction: aDRMove
 ]
 
 { #category : #visiting }
@@ -424,7 +441,9 @@ DRCogitCodeGenerator >> visitMultiplyOverflowJump: aDROverflowJump [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [ 
 	
-	self twoOperandCogitRTL: #Move instruction: aDRCogitNegate.
+	self twoOperandCogitRTL: #Move
+		operands: { aDRCogitNegate operand1. aDRCogitNegate result }
+		instruction: aDRCogitNegate.
 	self flag: #todo. "oneOperandCogitRTL:"
 	generatorMethodBuilder addStatement: (
 		RBMessageNode
@@ -493,12 +512,12 @@ DRCogitCodeGenerator >> visitRightShift: aDRCogitRightShift [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitStore: aDRCogitStore [
 
-	self
-		twoOperandCogitRTL: #Move
-		operands: { 
-				aDRCogitStore operand1.
-				aDRCogitStore result }
-		instruction: aDRCogitStore
+	^ self
+		  twoOperandCogitRTL: #Move
+		  operands: { 
+				  aDRCogitStore operand1.
+				  aDRCogitStore operand2 asMemoryAddress }
+		  instruction: aDRCogitStore
 ]
 
 { #category : #visiting }

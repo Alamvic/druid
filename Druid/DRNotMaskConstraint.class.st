@@ -1,7 +1,7 @@
 Class {
 	#name : #DRNotMaskConstraint,
 	#superclass : #DRMaskedConstraint,
-	#category : #'Druid-Optimizations'
+	#category : #'Druid-IR-Paths'
 }
 
 { #category : #testing }

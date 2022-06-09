@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'constraints'
 	],
-	#category : #'Druid-Optimizations'
+	#category : #'Druid-IR-Paths'
 }
 
 { #category : #accessing }

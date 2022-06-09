@@ -57,6 +57,19 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 	self runFrom: initialAddress until: stopAddress.
 ]
 
+{ #category : #'tests-methodactivations' }
+DRPrimitiveCompilationTest >> testAccessTemporaryAfterCall [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveAccessTempAfterCall.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+	
+	"An empty primitive just returns 17"
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
 { #category : #'tests-arithmetic-smallIntegers' }
 DRPrimitiveCompilationTest >> testAdditionIntrinsecWithNoOverflow [
 
@@ -150,7 +163,7 @@ DRPrimitiveCompilationTest >> testBranchingWithAssigmentsTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'tests-iftrueiffalse' }
+{ #category : #'tests-control flow' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCaseFalse [
 
 	self compileDruidPrimitive: #primitiveWithIfAssigningValue.
@@ -160,7 +173,7 @@ DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCas
 	self assert: machineSimulator receiverRegisterValue equals: 57
 ]
 
-{ #category : #'tests-iftrueiffalse' }
+{ #category : #'tests-control flow' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCaseTrue [
 
 	self compileDruidPrimitive: #primitiveWithIfAssigningValue.
@@ -170,7 +183,7 @@ DRPrimitiveCompilationTest >> testCompileConditionalControlFlowAssigningValueCas
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-iftrueiffalse' }
+{ #category : #'tests-control flow' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowCaseFalse [
 
 	self compileDruidPrimitive: #primitiveWithIfReturningValue.
@@ -180,7 +193,7 @@ DRPrimitiveCompilationTest >> testCompileConditionalControlFlowCaseFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 57
 ]
 
-{ #category : #'tests-iftrueiffalse' }
+{ #category : #'tests-control flow' }
 DRPrimitiveCompilationTest >> testCompileConditionalControlFlowCaseTrue [
 
 	self compileDruidPrimitive: #primitiveWithIfReturningValue.
@@ -216,6 +229,33 @@ DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsTo
 	self assert: machineSimulator receiverRegisterValue equals: receiver
 ]
 
+{ #category : #'tests-basic' }
+DRPrimitiveCompilationTest >> testCompileNonCompiledCaseExitsWithFailure [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveWithNonCompilableBranch.
+	
+	receiver := memory integerObjectOf: -1.
+	
+	self executeUntilStopPrimitiveWithReceiver: receiver.
+	
+	"Should stop at the stop and not timeout"
+	self assert: machineSimulator instructionPointerRegisterValue equals: stopAddress
+]
+
+{ #category : #'tests-basic' }
+DRPrimitiveCompilationTest >> testCompileNonCompiledCaseExitsWithSuccess [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveWithNonCompilableBranch.
+	
+	receiver := memory integerObjectOf: 1.
+	
+	self executePrimitiveWithReceiver: receiver.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
 { #category : #'tests-array' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
@@ -232,6 +272,66 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 	
 	self assert: machineSimulator receiverRegisterValue equals: 42
 	
+]
+
+{ #category : #'tests-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlock [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockReturningConstant.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockReadingExternalTemp [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockReadingExternalTemp.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockWithArgument [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockReturningArgument.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockWithNonLocalReturn [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockWithNonLocalReturn.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockWritingExternalTemp [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockWritingExternalTemp.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
 { #category : #'tests-methodactivations' }
@@ -440,6 +540,16 @@ DRPrimitiveCompilationTest >> testFailingSuccessExecutesUntilStop [
 	self executeUntilStopPrimitiveWithReceiver: 1
 ]
 
+{ #category : #'tests-types' }
+DRPrimitiveCompilationTest >> testFalseAsInteger [
+
+	self compileDruidPrimitive: #primitiveFalseAsInteger.
+	
+	self executePrimitiveWithReceiver: 17.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
 { #category : #'tests-deadcode' }
 DRPrimitiveCompilationTest >> testFourDeadBranchesFourBranches1 [
 
@@ -538,6 +648,93 @@ DRPrimitiveCompilationTest >> testGreaterThanInverted [
 	self executePrimitiveWithReceiver: 2.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testIfNilNotNilStatementWithNil [
+
+	self compileDruidPrimitive: #primitiveWithIfNilIfNotNilStatement.
+	
+	"If bigger than 0, it will see nil and set 17"
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testIfNilNotNilStatementWithNotNil [
+
+	self compileDruidPrimitive: #primitiveWithIfNilIfNotNilStatement.
+	
+	"If smaller than 0, it will not see nil and set 42"
+	self executePrimitiveWithReceiver: -1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testIfNotNilArgumentIfNilStatementWithNil [
+
+	self compileDruidPrimitive: #primitiveWithIfNotNilIfNilStatementWithArgument.
+	
+	"If bigger than 0, it will see nil and set 17"
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testIfNotNilArgumentIfNilStatementWithNotNil [
+
+	self compileDruidPrimitive: #primitiveWithIfNotNilIfNilStatementWithArgument.
+	
+	"If smaller than 0, it will not see nil and set 42"
+	self executePrimitiveWithReceiver: -1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testIfNotNilIfNilStatementWithNil [
+
+	self compileDruidPrimitive: #primitiveWithIfNotNilIfNilStatement.
+	
+	"If smaller than 0, it will not see nil and set 17"
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testIfNotNilIfNilStatementWithNotNil [
+
+	self compileDruidPrimitive: #primitiveWithIfNotNilIfNilStatement.
+	
+	"If smaller than 0, it will not see nil and set 17"
+	self executePrimitiveWithReceiver: -1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #'tests-complex pharo things' }
+DRPrimitiveCompilationTest >> testIfNotNilStatementWithNil [
+
+	self compileDruidPrimitive: #primitiveDeadBranchWithError.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-conditionals' }
+DRPrimitiveCompilationTest >> testIfNotNilStatementWithNotNil [
+
+	self compileDruidPrimitive: #primitiveWithIfNotNilStatement.
+	
+	"If smaller than 0, it will not see nil and set 17"
+	self executePrimitiveWithReceiver: -1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
 { #category : #'tests-arithmetic' }
@@ -1128,6 +1325,25 @@ DRPrimitiveCompilationTest >> testUint64At [
 ]
 
 { #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint64AtPut [
+
+	| object pointerToFirstSlot result |
+	
+	"Only for 64 bit platforms"
+	self wordSize = 4 ifTrue: [ self skip ].
+	
+	self compileDruidPrimitive: #primitiveUint64AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot withArguments: { 16r0102030405060708 }.
+	
+	result := memory fetchPointer: 0 ofObject: object.
+	self assert: result equals: 16r0102030405060708
+]
+
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint8At [
 
 	| object pointerToFirstSlot |
@@ -1185,4 +1401,24 @@ DRPrimitiveCompilationTest >> testUint8At4 [
 	self executePrimitiveWithReceiver: pointerToFirstSlot.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 16rBA
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testWhileTrue [
+
+	self compileDruidPrimitive: #primitiveLoopIncrementing.
+	
+	self executePrimitiveWithReceiver: 5.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 15
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testWhileTrueWithGlobalState [
+
+	self compileDruidPrimitive: #primitiveLoopIncrementingGlobalState.
+	
+	self executePrimitiveWithReceiver: 5.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 15
 ]

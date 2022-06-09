@@ -68,29 +68,27 @@ DRIRGenerator >> argRegisterNumber: anInteger [
 
 { #category : #'basic-blocks' }
 DRIRGenerator >> basicNewBasicBlock [
+	
+	^ self basicNewBasicBlockWithState: self currentBasicBlock executionState
+]
+
+{ #category : #'basic-blocks' }
+DRIRGenerator >> basicNewBasicBlockWithState: executionState [
 
 	| block |
 	block := controlFlowGraph newBasicBlock.
-	
-	block primitiveFailureCode: currentPrimitiveFailureCode.
-	block vmOperandStack: currentOperandStack.
-	block temporaryFrame: self currentTemporaryFrame.
+	block executionState: executionState.
 	block origin: thisContext stack.
-	
 	^ block
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBlockToEvaluate [
 
-	| branchEntryBlock branchExitBlock |
+	| branchEntryBlock branchExitBlock copy |
+	copy := self copyExecutionStateOf: startingBasicBlock.	
 	
-	"Evaluate a block using a copy of the operand stack and temporary frame.
-	Copies are needed since branches make divergence points."
-	currentOperandStack := startingBasicBlock vmOperandStack copy.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: startingBasicBlock temporaryFrame copy.
-	branchEntryBlock := self newBasicBlockDuring: aBlockToEvaluate.
+	branchEntryBlock := self newBasicBlockWithState: copy during: aBlockToEvaluate.
 	
 	"Then update the successor and predecessor edges"
 	anEdgeBlock value: branchEntryBlock.
@@ -99,11 +97,21 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 	"Get the exit basic block, restore the starting basic block to simplify the caller's interaction"
 	branchExitBlock := self currentBasicBlock.
 	currentBasicBlock := startingBasicBlock.
-	currentOperandStack := startingBasicBlock vmOperandStack.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: startingBasicBlock temporaryFrame.
+	
+	self setExecutionStateTo: startingBasicBlock.
 	
 	^ branchExitBlock
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> copyExecutionStateOf: startingBasicBlock [
+	
+	"Evaluate a block using a copy of the operand stack and temporary frame.
+	Copies are needed since branches make divergence points."
+	| copy |
+	copy := startingBasicBlock executionState copy.
+	self currentFrame executionState: copy.
+	^ copy	
 ]
 
 { #category : #'basic-blocks' }
@@ -125,6 +133,7 @@ DRIRGenerator >> currentMethod [
 
 { #category : #'frame-access' }
 DRIRGenerator >> currentOperandStack [
+
 	^ self currentBasicBlock vmOperandStack
 ]
 
@@ -138,6 +147,12 @@ DRIRGenerator >> currentTemporaryFrame [
 DRIRGenerator >> currentTemporaryFrame: aCollection [
 
 	^ self currentFrame temporaryFrame: aCollection
+]
+
+{ #category : #'stack management' }
+DRIRGenerator >> homeFrame [
+	
+	^ self currentFrame homeFrame
 ]
 
 { #category : #accessing }
@@ -155,20 +170,36 @@ DRIRGenerator >> initialize [
 	specialCases := Dictionary new.
 	self initializeSpecialCases.
 	
-	currentOperandStack := Stack new.
-	
 	"Push a top frame"
 	interpretationStack := OrderedCollection new.
-	interpretationStack addLast: DruidTopFrame new
+	interpretationStack addLast: DRTopFrame new.
+	
+	currentBasicBlock := self initialBasicBlock.
+	currentBasicBlock executionState: (DRExecutionState new
+		vmState: (DRVMState new
+			operandStack: Stack new;
+			yourself);
+		frameState: (DRFrameState new
+			frame: interpretationStack first;
+			builder: self;
+			yourself);
+		yourself)
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> initializeSpecialCases [
 
 	"Control flow and comparisons"
+	specialCases at: #value put: #interpretBlockValueWith:.
+	specialCases at: #value: put: #interpretBlockValueWith:.
 	specialCases at: #ifTrue:ifFalse: put: #interpretIfTrueifFalseWith:.
+	specialCases at: #ifNotNil:ifNil: put: #interpretIfNotNilIfNilWith:.
+	specialCases at: #ifNil:ifNotNil: put: #interpretIfNilIfNotNilWith:.
+	specialCases at: #ifNotNil: put: #interpretIfNotNilWith:.
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
 	specialCases at: #ifFalse: put: #interpretIfFalseWith:.
+	specialCases at: #whileTrue: put: #interpretWhileTrueWith:.
+	
 	specialCases at: #= put: #interpretEqualityComparisonWith:.
 	specialCases at: #~= put: #interpretInequalityComparisonWith:.
 	specialCases at: #< put: #interpretLessThanComparisonWith:.
@@ -176,7 +207,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #> put: #interpretGreaterThanComparisonWith:.
 	specialCases at: #>= put: #interpretGreaterOrEqualsThanComparisonWith:.
 	specialCases at: #or: put: #interpretOrWith:.
-	specialCases at: #and: put: #interpretAndWith:.
+	specialCases at: #& put: #interpretAndWith:.
 
 	"Arithmetics for Numbers"
 	specialCases at: #+ put: #interpretAddWith:.
@@ -202,6 +233,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #uint16At: put: #interpretLoadUint16AtWith:.
 	specialCases at: #uint32At: put: #interpretLoadUint32AtWith:.
 	specialCases at: #uint64At: put: #interpretLoadUint64AtWith:.
+	specialCases at: #uint64At:put: put: #interpretStoreUint64AtWith:.
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
 	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
@@ -215,6 +247,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #>> put: #interpretRightShiftWith:.
 	specialCases at: #bitShift: put: #interpretBitShiftWith:.
 	specialCases at: #bitAnd: put: #interpretBitAndWith:.
+	specialCases at: #bitOr: put: #interpretBitOrWith:.
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
 
 	"Stack access"
@@ -227,11 +260,20 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #falseObj put: #interpretFalseObjectWith:.
 	specialCases at: #trueObj put: #interpretTrueObjectWith:.
 	
+	
+	specialCases at: #freeStart put: #interpretFreeStartWith:.
+	specialCases at: #scavengeThreshold put: #interpretScavengeThresholdWith:.
+	specialCases at: #argumentCount put: #interpretArgumentCountWith:.
+	
 	"Border case, this should not be defined here, it should be extensible"
 	specialCases at: #hiddenRootsObj put: #interpretNilObjectWith:.
 	
 	"special simulation cases"
 	specialCases at: #cCode:inSmalltalk: put: #interpretCCodeInSmalltalkWith:.
+	
+	"Special pharo things such as exceptions"
+	specialCases at: #error: put: #ignoreMessageWith:.
+	specialCases at: #assert: put: #ignoreMessageWith:.
 ]
 
 { #category : #factory }
@@ -260,6 +302,7 @@ DRIRGenerator >> instantiateNoResultInstruction: anInstructionClass operands: aC
 	| instruction |
 	instruction := anInstructionClass operands: aCollection.
 	instruction origin: thisContext sender stack.
+	instruction result: DRNoRegister new.
 	^ instruction
 ]
 
@@ -287,6 +330,15 @@ DRIRGenerator >> interpretAnyMaskWith: aRBMessageNode [
 ]
 
 { #category : #'special-cases' }
+DRIRGenerator >> interpretArgumentCountWith: aRBVariableNode [
+
+	^ self
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRCopy
+		  operands: { numberOfArguments asDRValue }
+]
+
+{ #category : #'special-cases' }
 DRIRGenerator >> interpretAsUnsignedIntegerWith: aRBMessageNode [ 
 	
 	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRUnsignedCoercion
@@ -309,15 +361,86 @@ DRIRGenerator >> interpretBitAndWith: aRBMessageNode [
 ]
 
 { #category : #'special-cases' }
+DRIRGenerator >> interpretBitOrWith: aRBMessageNode [
+	
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitOr
+]
+
+{ #category : #'special-cases' }
 DRIRGenerator >> interpretBitShiftWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitShift
 ]
 
+{ #category : #interpretation }
+DRIRGenerator >> interpretBlockActivation: aRBBlockNode [
+
+	self interpretBlockBody: aRBBlockNode.
+
+	"If this is a block activation, it should have a return value"
+	self currentFrame
+		returnValue: self currentBasicBlock blockValue
+		from: self currentBasicBlock
+]
+
+{ #category : #interpretation }
+DRIRGenerator >> interpretBlockBody: aRBBlockNode [
+
+	| blockValue |
+	aRBBlockNode statements do: [ :e |
+		e acceptVisitor: self.
+		e isReturn ifTrue: [ 
+			^ self ].
+		blockValue := self popOperand.
+	].
+	"At the end, transform the block value into a copy instruction"
+	blockValue := self
+		addInstructionFrom: aRBBlockNode
+		instructionKind: DRCopy
+		operands: {blockValue}.
+	
+	"The add instruction pushes the instruction to the operand stack.
+	Pop it: at the end of the block execution, nothing should be in the stack"
+	self currentBasicBlock blockValue: blockValue
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
+
+	| block arguments |
+	aRBMessageNode receiver acceptVisitor: self.
+	block := self popOperand.
+	arguments := aRBMessageNode arguments collect: [ :e |
+		e acceptVisitor: self.
+		self popOperand ].
+	self interpretCode: block receiver: block arguments: arguments
+]
+
 { #category : #'special-cases' }
 DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [ 
 	
-	^ aRBMessageNode arguments first acceptVisitor: self
+	self interpretBlockBody: aRBMessageNode arguments first
+]
+
+{ #category : #API }
+DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
+
+	aDRCode pushFrameIn: self receiver: aReceiver.
+	"Iterate based on the defined arguments.
+	In ifNotNil: arguments are optional"
+	1 to: aDRCode codeNode argumentNames size do: [ :i | | name |
+		name := aDRCode codeNode argumentNames at: i.
+		self temporaryAt: name put: (arguments at: i)
+	].
+
+	aDRCode executeOn: self.
+
+	"Fall through the exit block.
+	If the method had an explicit return, it is already done, no need to do it again."
+	currentBasicBlock hasFinalInstruction ifFalse: [ 
+		currentBasicBlock jumpTo: self currentFrame exitBasicBlock ].
+
+	self popFrame.
 ]
 
 { #category : #'special-cases' }
@@ -357,6 +480,19 @@ DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [
 ]
 
 { #category : #'special-cases' }
+DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
+
+	| byteSize |
+	byteSize := 8.
+	^ self
+		addInstructionFrom: aRBVariableNode
+		instructionKind: DRLoad
+		operands: { 
+				byteSize asDRValue.
+				(DRInterpreterReference reference: 'objectMemory freeStartAddress') }
+]
+
+{ #category : #'special-cases' }
 DRIRGenerator >> interpretGreaterOrEqualsThanComparisonWith: aRBMessageNode [ 
 	
 	^ self interpretCondition: aRBMessageNode instructionKind: DRGreaterOrEqualsThanComparison
@@ -382,7 +518,7 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 	falseBranchBasicBlockOut := self
 		branchFrom: self currentBasicBlock
 		onEdge: [ :branchEntryBlock | conditionalJump falseBranch: branchEntryBlock ]
-		doing: [ aRBMessageNode arguments first acceptVisitor: self ].
+		doing: [ self interpretBlockBody: aRBMessageNode arguments first ].
 
 	"Merge point"
 	startingBasicBlock := self currentBasicBlock.
@@ -401,9 +537,153 @@ DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
 		falseBranchBasicBlockOut jumpTo: self currentBasicBlock.
 	].
 
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+	self mergeExecutionState
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretIfNilIfNotNilWith: aRBMessageNode [
+
+	| trueBranchBasicBlockOut falseBranchBasicBlockOut joinInstruction conditionalJump  |
+	aRBMessageNode receiver acceptVisitor: self.
+	self
+		addInstructionWithNoResultFrom: aRBMessageNode
+		instructionKind: DREqualsThanComparison
+		operands: { self popOperand. nil asDRValue }.
+	conditionalJump := self
+		                   instantiateNoResultInstruction: DRConditionalJump
+		                   operands: { self popOperand }.
+	self currentBasicBlock endInstruction: conditionalJump.
+
+	trueBranchBasicBlockOut := self
+		branchFrom: self currentBasicBlock
+		onEdge: [ :branchEntryBlock | conditionalJump trueBranch: branchEntryBlock ]
+		doing: [ self interpretBlockBody: aRBMessageNode arguments first ].
+
+	falseBranchBasicBlockOut := self
+		branchFrom: self currentBasicBlock
+		onEdge: [ :branchEntryBlock | conditionalJump falseBranch: branchEntryBlock ]
+		doing: [ self interpretBlockBody: aRBMessageNode arguments second ].
+	
+	"Start a new operand stack at this point"
+	self newBasicBlock.
+	"Could happen that the evaluated block had a non local return.
+	In that case, this block should not arrive to this merge point
+		=> do not add the jump"
+
+	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
+		trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
+	].
+	falseBranchBasicBlockOut hasFinalInstruction ifFalse: [
+		falseBranchBasicBlockOut jumpTo: self currentBasicBlock.
+	].
+
+	"join the values returned by the blocks"
+
+	joinInstruction := trueBranchBasicBlockOut blockValue
+		                   joinValue: falseBranchBasicBlockOut blockValue
+		                   onIRGenerator: self
+		                   from: { 
+				                   trueBranchBasicBlockOut.
+				                   falseBranchBasicBlockOut }.
+
+	self mergeExecutionState.
+
+	self pushOperand: joinInstruction
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretIfNotNilIfNilWith: aRBMessageNode [
+
+	| trueBranchBasicBlockOut falseBranchBasicBlockOut joinInstruction conditionalJump  value block |
+	aRBMessageNode receiver acceptVisitor: self.
+	value := self popOperand.
+	self
+		addInstructionWithNoResultFrom: aRBMessageNode
+		instructionKind: DREqualsThanComparison
+		operands: { value. nil asDRValue }.
+	conditionalJump := self
+		                   instantiateNoResultInstruction: DRConditionalJump
+		                   operands: { self popOperand }.
+	self currentBasicBlock endInstruction: conditionalJump.
+
+	trueBranchBasicBlockOut := self
+		branchFrom: self currentBasicBlock
+		onEdge: [ :branchEntryBlock | conditionalJump trueBranch: branchEntryBlock ]
+		doing: [ self interpretBlockBody: aRBMessageNode arguments second ].
+
+	falseBranchBasicBlockOut := self
+		branchFrom: self currentBasicBlock
+		onEdge: [ :branchEntryBlock | conditionalJump falseBranch: branchEntryBlock ]
+		doing: [
+			aRBMessageNode arguments first acceptVisitor: self.
+			block := self popOperand.
+			self interpretCode: block receiver: block arguments: { value } ].
+	
+	"Start a new operand stack at this point"
+	self newBasicBlock.
+	"Could happen that the evaluated block had a non local return.
+	In that case, this block should not arrive to this merge point
+		=> do not add the jump"
+
+	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
+		trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
+	].
+	falseBranchBasicBlockOut hasFinalInstruction ifFalse: [
+		falseBranchBasicBlockOut jumpTo: self currentBasicBlock.
+	].
+
+	"join the values returned by the blocks"
+
+	joinInstruction := trueBranchBasicBlockOut blockValue
+		                   joinValue: falseBranchBasicBlockOut blockValue
+		                   onIRGenerator: self
+		                   from: { 
+				                   trueBranchBasicBlockOut.
+				                   falseBranchBasicBlockOut }.
+
+	self mergeExecutionState.
+
+	self pushOperand: joinInstruction
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretIfNotNilWith: aRBMessageNode [
+
+	| falseBranchBasicBlockOut conditionalJump startingBasicBlock |
+	aRBMessageNode receiver acceptVisitor: self.
+	self
+		addInstructionWithNoResultFrom: aRBMessageNode
+		instructionKind: DREqualsThanComparison
+		operands: { self popOperand. nil asDRValue }.
+	conditionalJump := self
+		instantiateNoResultInstruction: DRConditionalJump
+		operands: { self popOperand }.
+	
+	self currentBasicBlock endInstruction: conditionalJump.
+
+	falseBranchBasicBlockOut := self
+		branchFrom: self currentBasicBlock
+		onEdge: [ :branchEntryBlock | conditionalJump falseBranch: branchEntryBlock ]
+		doing: [ self interpretBlockBody: aRBMessageNode arguments first ].
+
+	"Merge point"
+	startingBasicBlock := self currentBasicBlock.
+	self newBasicBlock.
+	self currentBasicBlock addPredecessor: startingBasicBlock.
+	conditionalJump trueBranch: self currentBasicBlock.
+		
+	"Could happen that the evaluated block had a non local return.
+	In that case, this block should not arrive to this merge point
+		=> do not add the jump"
+	falseBranchBasicBlockOut hasFinalInstruction ifFalse: [
+		falseBranchBasicBlockOut jumpTo: self currentBasicBlock.
+	].
+
+	self mergeExecutionState.
+	
+	"ifTrue: does not return anything useful"
+	self pushOperand: DRNullValue new.
+
 ]
 
 { #category : #'special-cases' }
@@ -420,7 +700,7 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 	trueBranchBasicBlockOut := self
 		branchFrom: self currentBasicBlock
 		onEdge: [ :branchEntryBlock | conditionalJump trueBranch: branchEntryBlock ]
-		doing: [ aRBMessageNode arguments first acceptVisitor: self ].
+		doing: [ self interpretBlockBody: aRBMessageNode arguments first ].
 
 	"Merge point"
 	startingBasicBlock := self currentBasicBlock.
@@ -435,9 +715,7 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 		trueBranchBasicBlockOut jumpTo: self currentBasicBlock.
 	].
 
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+	self mergeExecutionState.
 	
 	"ifTrue: does not return anything useful"
 	self pushOperand: DRNullValue new.
@@ -457,12 +735,12 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 	trueBranchBasicBlockOut := self
 		branchFrom: self currentBasicBlock
 		onEdge: [ :branchEntryBlock | conditionalJump trueBranch: branchEntryBlock ]
-		doing: [ aRBMessageNode arguments first acceptVisitor: self ].
+		doing: [ self interpretBlockBody: aRBMessageNode arguments first ].
 
 	falseBranchBasicBlockOut := self
 		branchFrom: self currentBasicBlock
 		onEdge: [ :branchEntryBlock | conditionalJump falseBranch: branchEntryBlock ]
-		doing: [ aRBMessageNode arguments second acceptVisitor: self ].
+		doing: [ self interpretBlockBody: aRBMessageNode arguments second ].
 	
 	"Start a new operand stack at this point"
 	self newBasicBlock.
@@ -478,16 +756,15 @@ DRIRGenerator >> interpretIfTrueifFalseWith: aRBMessageNode [
 	].
 
 	"join the values returned by the blocks"
+
 	joinInstruction := trueBranchBasicBlockOut blockValue
 		                   joinValue: falseBranchBasicBlockOut blockValue
 		                   onIRGenerator: self
 		                   from: { 
 				                   trueBranchBasicBlockOut.
 				                   falseBranchBasicBlockOut }.
+	self mergeExecutionState.
 
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
 	self pushOperand: joinInstruction
 ]
 
@@ -583,26 +860,9 @@ DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [
 ]
 
 { #category : #API }
-DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver [
+DRIRGenerator >> interpretMethod: aDRMethod receiver: aReceiver [
 
-	^ self interpretMethod: aMethodAST receiver: aReceiver arguments: #()
-]
-
-{ #category : #API }
-DRIRGenerator >> interpretMethod: aMethodAST receiver: aReceiver arguments: arguments [
-
-	self pushFrameWithReceiver: aReceiver method: aMethodAST.
-	aMethodAST argumentNames with: arguments do: [ :name :value |
-		self temporaryAt: name put: value
-	].
-	aMethodAST acceptVisitor: self.
-
-	"Fall through the exit block.
-	If the method had an explicit return, it is already done, no need to do it again."
-	currentBasicBlock hasFinalInstruction ifFalse: [ 
-		currentBasicBlock jumpTo: self currentFrame exitBasicBlock ].
-
-	self popFrame.
+	^ self interpretCode: aDRMethod receiver: aReceiver arguments: #()
 ]
 
 { #category : #'special-cases' }
@@ -627,23 +887,30 @@ DRIRGenerator >> interpretModWith: aRBMessageNode [
 DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and multiply them up"
+
 	| leftOperand rightOperand mulResult startingBasicBlock conditionalJump joinInstruction unshiftedLeftOperand withoutTagRightOperand taggedResult |
-	
 	leftOperand := self visitOperand: aRBMessageNode arguments first.
 	rightOperand := self visitOperand: aRBMessageNode arguments second.
-	
-	unshiftedLeftOperand := self unshiftSmallInteger: leftOperand from: aRBMessageNode.
-	withoutTagRightOperand := self untagSmallInteger: rightOperand from: aRBMessageNode.
-	
-	mulResult := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRMultiply 
-		operands: { unshiftedLeftOperand . withoutTagRightOperand }.
 
-	startingBasicBlock := self currentBasicBlock.	
+	unshiftedLeftOperand := self
+		                        unshiftSmallInteger: leftOperand
+		                        from: aRBMessageNode.
+	withoutTagRightOperand := self
+		                          untagSmallInteger: rightOperand
+		                          from: aRBMessageNode.
+
+	mulResult := self
+		             addInstructionFrom: aRBMessageNode
+		             instructionKind: DRMultiply
+		             operands: { 
+				             unshiftedLeftOperand.
+				             withoutTagRightOperand }.
+
+	startingBasicBlock := self currentBasicBlock.
 	conditionalJump := self
-		instantiateNoResultInstruction: DRMultiplyOverflowJump
-		operands: { mulResult }.
+		                   instantiateNoResultInstruction:
+		                   DRMultiplyOverflowJump
+		                   operands: { mulResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	"No overflow"
@@ -652,23 +919,20 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 	self currentBasicBlock addPredecessor: startingBasicBlock.
 	conditionalJump falseBranch: self currentBasicBlock.
 
-	joinInstruction := self 
-		newOverflowBlockDuring:  [ 
-			 aRBMessageNode arguments third acceptVisitor: self 
-			]
-		fromJump: conditionalJump
-		joinValue: taggedResult.
-	
+	joinInstruction := self
+		                   newOverflowBlockDuring: [ 
+		                   self interpretBlockBody:
+			                   aRBMessageNode arguments third ]
+		                   fromJump: conditionalJump
+		                   joinValue: taggedResult.
+
 	self pushOperand: joinInstruction
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretMultiplyWith: aRBMessageNode [ 
 
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	^ self currentBasicBlock addInstruction: (DRMultiply operands: { operand1 . operand2 })
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRMultiply
 ]
 
 { #category : #'special-cases' }
@@ -724,6 +988,19 @@ DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
 ]
 
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretScavengeThresholdWith: aRBVariableNode [
+
+	| byteSize |
+	byteSize := 8.
+	^ self
+		addInstructionFrom: aRBVariableNode
+		instructionKind: DRLoad
+		operands: { 
+				byteSize asDRValue.
+				(DRInterpreterReference reference: 'objectMemory getScavengeThreshold') }
+]
+
 { #category : #'special cases - stack' }
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
@@ -744,33 +1021,62 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 	^ self addInstructionFrom: aRBMessageNode instructionKind: DRCopy operands: { self argRegisterNumber: value operand1 value }
 ]
 
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretStore: aRBMessageNode ofByteSize: byteSize [
+
+	| result address value |
+	address := self visitOperand: aRBMessageNode arguments first.
+	value := self visitOperand: aRBMessageNode arguments second.
+
+	result := self
+		          addInstructionWithNoResultFrom: aRBMessageNode
+		          instructionKind: DRStore
+		          operands: { 
+				          byteSize asDRValue.
+				          value.
+				          address }.
+	self pushOperand: result
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretStoreUint64AtWith: aRBMessageNode [ 
+	
+	^ self interpretStore: aRBMessageNode ofByteSize: 8
+]
+
 { #category : #'special-cases' }
 DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and subtract them up"
+
 	| leftOperand rightOperand subResult startingBasicBlock conditionalJump joinInstruction untaggedRightOperand |
-	
 	leftOperand := self visitOperand: aRBMessageNode arguments first.
 	rightOperand := self visitOperand: aRBMessageNode arguments second.
-	
-	untaggedRightOperand := self untagSmallInteger: rightOperand from: aRBMessageNode.
-	
-	subResult := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRSubtract
-		operands: { leftOperand . untaggedRightOperand }.
 
-	startingBasicBlock := self currentBasicBlock.	
-	conditionalJump := self instantiateNoResultInstruction: DROverflowJump operands: { subResult }.
+	untaggedRightOperand := self
+		                        untagSmallInteger: rightOperand
+		                        from: aRBMessageNode.
+
+	subResult := self
+		             addInstructionFrom: aRBMessageNode
+		             instructionKind: DRSubtract
+		             operands: { 
+				             leftOperand.
+				             untaggedRightOperand }.
+
+	startingBasicBlock := self currentBasicBlock.
+	conditionalJump := self
+		                   instantiateNoResultInstruction: DROverflowJump
+		                   operands: { subResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
-	
-	joinInstruction := self 
-		newOverflowBlockDuring:  [ 
-			 aRBMessageNode arguments third acceptVisitor: self 
-			]
-		fromJump: conditionalJump
-		joinValue: subResult.
-	
+
+	joinInstruction := self
+		                   newOverflowBlockDuring: [ 
+		                   self interpretBlockBody:
+			                   aRBMessageNode arguments third ]
+		                   fromJump: conditionalJump
+		                   joinValue: subResult.
+
 	self pushOperand: joinInstruction
 ]
 
@@ -784,29 +1090,35 @@ DRIRGenerator >> interpretSubstractWith: aRBMessageNode [
 DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and add them up"
+
 	| leftOperand rightOperand addResult startingBasicBlock conditionalJump joinInstruction untaggedLeftOperand |
-	
 	leftOperand := self visitOperand: aRBMessageNode arguments first.
 	rightOperand := self visitOperand: aRBMessageNode arguments second.
-	
-	untaggedLeftOperand := self untagSmallInteger: leftOperand from: aRBMessageNode.
-	
-	addResult := self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRAdd
-		operands: { untaggedLeftOperand . rightOperand }.
 
-	startingBasicBlock := self currentBasicBlock.	
-	conditionalJump := self instantiateNoResultInstruction: DROverflowJump operands: { addResult }.
+	untaggedLeftOperand := self
+		                       untagSmallInteger: leftOperand
+		                       from: aRBMessageNode.
+
+	addResult := self
+		             addInstructionFrom: aRBMessageNode
+		             instructionKind: DRAdd
+		             operands: { 
+				             untaggedLeftOperand.
+				             rightOperand }.
+
+	startingBasicBlock := self currentBasicBlock.
+	conditionalJump := self
+		                   instantiateNoResultInstruction: DROverflowJump
+		                   operands: { addResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
-	joinInstruction := self 
-		newOverflowBlockDuring:  [ 
-			 aRBMessageNode arguments third acceptVisitor: self 
-			]
-		fromJump: conditionalJump
-		joinValue: addResult.
-	
+	joinInstruction := self
+		                   newOverflowBlockDuring: [ 
+		                   self interpretBlockBody:
+			                   aRBMessageNode arguments third ]
+		                   fromJump: conditionalJump
+		                   joinValue: addResult.
+
 	self pushOperand: joinInstruction
 ]
 
@@ -825,9 +1137,99 @@ DRIRGenerator >> interpretUnaryInstruction: aRBMessageNode instructionKind: anIn
 	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { receiver }
 ]
 
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [ 
+	
+	| trueBranchBasicBlockOut conditionalJump conditionEntryBlock executionStateAtEntry |
+	"Compile
+	
+	[ condition ] whileTrue: [ something ]
+
+	into
+	
+	condition-block:
+		phis!
+		condition
+		jumpIfTrue body ifFalse exit
+	
+	body:
+		something
+		jump condition-block
+	
+	exit:
+		...
+	"
+
+	"Condition block(s)"	
+	self currentBasicBlock jumpTo: (conditionEntryBlock := self newBasicBlock).
+	self mergeExecutionStateSimplifying: false.
+	executionStateAtEntry := self currentBasicBlock executionState copy.
+	self assert: executionStateAtEntry isNotSimplified.
+	self interpretBlockBody: aRBMessageNode receiver.
+
+	"Could happen that the loop header block had a non local return.
+	Otherwise, this block should back jump to the entry block of the loop"
+	self currentBasicBlock hasFinalInstruction ifTrue: [
+		self notYetImplemented ].
+
+	"The conditional jump"
+	conditionalJump := self
+		instantiateNoResultInstruction: DRConditionalJump
+		operands: { self popOperand }.
+	self currentBasicBlock endInstruction: conditionalJump.
+
+	"Loop body. whileTrue: => jump if true to body"
+	trueBranchBasicBlockOut := self
+		branchFrom: self currentBasicBlock
+		onEdge: [ :branchEntryBlock | conditionalJump trueBranch: branchEntryBlock ]
+		doing: [ self interpretBlockBody: aRBMessageNode arguments first ].
+
+	"Could happen that any evaluated block had a non local return.
+	Otherwise, this block should back jump to the entry block of the loop"
+	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
+		"Now we should re-merge the outgoing phi values in the state of the entry block"
+		trueBranchBasicBlockOut executionState addTo: executionStateAtEntry.
+		trueBranchBasicBlockOut executionState simplify.
+		trueBranchBasicBlockOut backJumpTo: conditionEntryBlock.
+	].
+
+	"Else exit"
+	self newBasicBlock.
+	conditionalJump falseBranch: self currentBasicBlock.
+	self currentBasicBlock addPredecessor: conditionalJump basicBlock.	
+
+	"whileTrue: does not return anything useful"
+	self pushOperand: DRNullValue new.
+]
+
 { #category : #accessing }
 DRIRGenerator >> ir [
 	^ self subclassResponsibility
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> mergeExecutionState [
+
+	"Merge the execution state and simplify phi functions into copies if possible by default"
+	^ self mergeExecutionStateSimplifying: true
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> mergeExecutionStateSimplifying: aBoolean [
+
+	| newState |
+	newState := self currentBasicBlock
+		mergeExecutionStateIn: self
+		simplifying: aBoolean.
+	newState frameState install.
+	self setExecutionStateTo: self currentBasicBlock.
+	^ newState
+]
+
+{ #category : #'vm state' }
+DRIRGenerator >> mergeVMState [
+	
+	^ self currentBasicBlock mergeVMOperandStacksIn: self
 ]
 
 { #category : #'basic-blocks' }
@@ -847,10 +1249,33 @@ DRIRGenerator >> newBasicBlockDuring: aFullBlockClosure [
 	^ inBasicBlock
 ]
 
+{ #category : #'basic-blocks' }
+DRIRGenerator >> newBasicBlockWithState: executionState [
+
+	| newBasicBlock |
+	newBasicBlock := self basicNewBasicBlockWithState: executionState.
+	^ currentBasicBlock := newBasicBlock
+]
+
+{ #category : #'basic-blocks' }
+DRIRGenerator >> newBasicBlockWithState: executionState during: aFullBlockClosure [ 
+	
+	| inBasicBlock |
+	inBasicBlock := self newBasicBlockWithState: executionState.
+	aFullBlockClosure value.
+	^ inBasicBlock
+]
+
 { #category : #initialization }
 DRIRGenerator >> newCFG [
 	
 	^ DRControlFlowGraph new
+]
+
+{ #category : #'execution state' }
+DRIRGenerator >> newFrameState [
+
+	^ self currentFrame newFrameState
 ]
 
 { #category : #'special-cases' }
@@ -890,11 +1315,17 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 		onIRGenerator: self
 		from: { overflowBlock . resultBlock }.
 
-	currentOperandStack := self currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := self currentBasicBlock primitiveFailureCode.
-	self currentTemporaryFrame: (self currentBasicBlock mergeTemporaryFramesIn: self).
+	self mergeExecutionState.
 	
 	^ joinInstruction
+]
+
+{ #category : #'execution state' }
+DRIRGenerator >> newVMState [
+	
+	^ DRVMState new
+		initializeOnBuilder: self;
+		yourself
 ]
 
 { #category : #'special-cases' }
@@ -928,18 +1359,24 @@ DRIRGenerator >> pop: anInteger [
 { #category : #'frame-access' }
 DRIRGenerator >> popFrame [
 	
-	| poppedFrame "returnValue" |
+	| poppedFrame newVMState |
+	"Here we are in callee"
 	currentBasicBlock := self currentFrame exitBasicBlock.
-	currentOperandStack := currentBasicBlock mergeOperandStacksIn: self.
-	currentPrimitiveFailureCode := currentBasicBlock primitiveFailureCode.
+	newVMState := self mergeExecutionState.
 	poppedFrame := interpretationStack removeLast.
-
 	currentBasicBlock addInstruction: poppedFrame returnValue.
-	"returnValue := poppedFrame returnValue simplify."
-	self pushOperand: poppedFrame returnValue.
 	
-	self currentTemporaryFrame: currentBasicBlock temporaryFrame.
+	"Here we are in caller"
+	"Continue executing with the new merged VM state and the restored frame state for the current frame"
+	self currentFrame executionState: (DRExecutionState new
+		vmState: newVMState vmState;
+		frameState: self currentFrame frameState;
+		yourself).
+
+	self pushOperand: poppedFrame returnValue.	
 	currentBasicBlock jumpTo: self newBasicBlock.
+	currentBasicBlock executionState: self currentFrame executionState.
+	
 ]
 
 { #category : #'frame-access' }
@@ -952,44 +1389,13 @@ DRIRGenerator >> popOperand [
 DRIRGenerator >> push: aValue [
 	
 	"Update the operand stack to keep track of the new position"
-	self currentOperandStack push: aValue.
-	"Each position of the operand stack is related to a special register.
-	Translate the push to a copy with a concrete result register.
-	The concrete result register will be the one associated with the current position of the operand stack"
-	"self haltIf: [ aValue isKindOf: DRNullValue ].
-	copyInstruction := self instantiate: DRCopy operands: { aValue }.
-	destinationRegister := operandStackPosition = 1
-		ifTrue: [ self receiverRegister ]
-		ifFalse: [ DRPhysicalRegister name: 'Arg', (operandStackPosition - 2) asString, 'Reg' ].
-	
-	copyInstruction result: destinationRegister.
-	^ self currentBasicBlock addInstruction: copyInstruction"
+	self currentOperandStack push: aValue
 ]
 
-{ #category : #'frame-access' }
-DRIRGenerator >> pushFrameWithReceiver: aReceiver method: aMethod [
+{ #category : #'stack management' }
+DRIRGenerator >> pushFrame: aDruidStackFrame [ 
 	
-	| frame newMethodEntry |
-	newMethodEntry := self basicNewBasicBlock.
-	self currentBasicBlock jumpTo: newMethodEntry.
-	currentBasicBlock := newMethodEntry.
-	
-	frame := DruidStackFrame new
-		receiver: aReceiver;
-		method: aMethod;
-		irGenerator: self;
-		entryBasicBlock: newMethodEntry;
-		exitBasicBlock: self basicNewBasicBlock;
-		yourself.
-	newMethodEntry temporaryFrame: frame temporaryFrame.
-	
-	interpretationStack addLast: frame.
-	currentBasicBlock
-		temporaryAt: '__return'
-		put: (DRPhiFunction new
-			result: self allocateTemporaryRegister;
-			origin: thisContext stack;
-			yourself).
+	interpretationStack addLast: aDruidStackFrame
 ]
 
 { #category : #'frame-access' }
@@ -1008,6 +1414,13 @@ DRIRGenerator >> receiver [
 DRIRGenerator >> receiverRegister [
 	
 	^ DRPhysicalRegister name: 'ReceiverResultReg'
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> setExecutionStateTo: aBlock [
+
+	self currentBasicBlock executionState: aBlock executionState.
+	self currentFrame executionState: aBlock executionState.
 ]
 
 { #category : #'special-cases' }
@@ -1059,13 +1472,20 @@ DRIRGenerator >> tagSmallInteger: operand from: aRBMessageNode [
 { #category : #'frame-access' }
 DRIRGenerator >> temporaryAt: aString [ 
 	
-	^ self currentBasicBlock temporaryAt: aString
+	^ self currentBasicBlock executionState frameState temporaryAt: aString
 ]
 
 { #category : #'frame-access' }
 DRIRGenerator >> temporaryAt: aString put: aValue [ 
 
-	^ self currentBasicBlock temporaryAt: aString put: aValue
+	^ self currentBasicBlock executionState frameState temporaryAt: aString put: aValue
+]
+
+{ #category : #accessing }
+DRIRGenerator >> topFrame [
+
+	"The first one is an artificial top frame. The real top frame is the second one"	
+	^ interpretationStack second
 ]
 
 { #category : #'special-cases' }
@@ -1105,14 +1525,14 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 	
 	aRBAssignmentNode value acceptVisitor: self.
 	
-	aRBAssignmentNode variable binding isTempVariable ifTrue: [ 
-		^ self
-			temporaryAt: aRBAssignmentNode variable name
-			put: self operandStackTop ].
-	
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [ 
 		^ self receiver value
 			instVarNamed: aRBAssignmentNode variable name
+			put: self operandStackTop ].
+	
+	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [ 
+		^ self
+			temporaryAt: aRBAssignmentNode variable name
 			put: self operandStackTop ].
 	
 	self halt
@@ -1121,22 +1541,25 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 { #category : #visiting }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 	
-	| blockValue |
+	self pushOperand: (DRBlockClosure new
+		blockNode: aRBBlockNode;
+		outerContext: self currentFrame;
+		yourself)
 
-	aRBBlockNode statements do: [ :e |
+"	aRBBlockNode statements do: [ :e |
 		e acceptVisitor: self.
 		e isReturn ifTrue: [ ^ self ].
 		blockValue := self popOperand.
 	].
-	"At the end, transform the block value into a copy instruction"
+	""At the end, transform the block value into a copy instruction""
 	blockValue := self
 		addInstructionFrom: aRBBlockNode
 		instructionKind: DRCopy
 		operands: {blockValue}.
 	
-	"The add instruction pushes the instruction to the operand stack.
-	Pop it: at the end of the block execution, nothing should be in the stack"
-	self currentBasicBlock blockValue: blockValue
+	""The add instruction pushes the instruction to the operand stack.
+	Pop it: at the end of the block execution, nothing should be in the stack""
+	self currentBasicBlock blockValue: blockValue"
 ]
 
 { #category : #visiting }
@@ -1184,19 +1607,35 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 	method := aRBMessageNode isSuperSend 
 					ifTrue: [ self currentMethod methodClass superclass lookupSelector: aRBMessageNode selector ]
 					ifFalse: [ receiver lookupClass lookupSelector: aRBMessageNode selector ].
-	self interpretMethod: method ast receiver: receiver arguments: arguments
+	self interpretCode: (DRMethod methodNode: method ast) receiver: receiver arguments: arguments
 ]
 
 { #category : #visiting }
-DRIRGenerator >> visitMethodNode: aRBMethodNode [ 
-	
-	aRBMethodNode statements do: [ :each |
+DRIRGenerator >> visitMethodNode: aRBMethodNode [
+
+	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [ 
+		| failure |
+		failure := self currentBasicBlock copy: 1.
+		self currentBasicBlock primitiveFailureCode: failure.
+		self currentBasicBlock endInstruction: (self instantiateNoResultInstruction: DRPrimitiveFail).
+		
+		"Start a new dead block from here"
+		self newBasicBlock.
+		"If the method has no return statement, it should still return something"
+		self currentFrame
+			returnValue: DRNullValue new
+			from: self currentBasicBlock.
+		^ self ].
+
+	aRBMethodNode statements do: [ :each | 
 		each acceptVisitor: self.
 		each isReturn ifTrue: [ ^ self ].
-		self popOperand. ].
+		self popOperand ].
 
 	"If the method has no return statement, it should still return something"
-	self currentFrame returnValue: DRNullValue new from: self currentBasicBlock
+	self currentFrame
+		returnValue: DRNullValue new
+		from: self currentBasicBlock
 ]
 
 { #category : #'special-cases' }
@@ -1209,11 +1648,13 @@ DRIRGenerator >> visitOperand: aDRValue [
 { #category : #visiting }
 DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
-	| result |
+	| result copy |
+	
 	aRBReturnNode value acceptVisitor: self.
-	result := self popOperand copyToVariableIn: self inNode: aRBReturnNode.
-	self currentFrame returnValue: result from: self currentBasicBlock.
-	self currentBasicBlock jumpTo: self currentFrame exitBasicBlock
+	result := self popOperand.
+	copy := result copyToVariableIn: self inNode: aRBReturnNode.
+	self homeFrame returnValue: copy from: self currentBasicBlock.
+	self currentBasicBlock jumpTo: self homeFrame exitBasicBlock
 ]
 
 { #category : #visiting }

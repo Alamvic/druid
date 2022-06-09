@@ -68,7 +68,7 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 	| irGenerator initialBasicBlock initial startBlock |
 	irGenerator := self newIRGenerator.
-	
+
 	"Create the initial basic block"
 	startBlock := irGenerator initialBasicBlock.
 	initialBasicBlock := irGenerator newBasicBlock.
@@ -78,7 +78,7 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 	initialBasicBlock addInstruction: initial.
 	
 	irGenerator numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value.
-	irGenerator interpretMethod: method ast receiver: (DRInterpreterValue value: interpreter).
+	irGenerator interpretMethod: (DRMethod methodNode: method ast) receiver: (DRInterpreterValue value: interpreter).
 	
 	^ irGenerator ir
 ]

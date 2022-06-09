@@ -6,7 +6,7 @@ Class {
 		'parent',
 		'branchIndex'
 	],
-	#category : #'Druid-Optimizations'
+	#category : #'Druid-IR-Paths'
 }
 
 { #category : #'as yet unclassified' }
@@ -124,6 +124,11 @@ DRCPSEdge >> visitAnd: aDRAnd [
 
 { #category : #visiting }
 DRCPSEdge >> visitBitAnd: aDRBitAnd [
+	"Do nothing"
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitBitOr: aDRBitOr [
 	"Do nothing"
 ]
 
@@ -305,6 +310,11 @@ DRCPSEdge >> visitReturn: aDRReturn [
 
 { #category : #visiting }
 DRCPSEdge >> visitRightShift: aDRRightShift [ 
+	"Do nothing"
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitStore: aDRLoad [ 
 	"Do nothing"
 ]
 

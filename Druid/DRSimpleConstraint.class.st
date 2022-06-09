@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'constantValue'
 	],
-	#category : #'Druid-Optimizations'
+	#category : #'Druid-IR-Paths'
 }
 
 { #category : #initialization }

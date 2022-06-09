@@ -1,7 +1,7 @@
 Class {
 	#name : #DRUnionConstraint,
 	#superclass : #DRComposedConstraint,
-	#category : #'Druid-Optimizations'
+	#category : #'Druid-IR-Paths'
 }
 
 { #category : #'as yet unclassified' }

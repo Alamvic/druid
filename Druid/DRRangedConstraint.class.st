@@ -1,7 +1,7 @@
 Class {
 	#name : #DRRangedConstraint,
 	#superclass : #DRSimpleConstraint,
-	#category : #'Druid-Optimizations'
+	#category : #'Druid-IR-Paths'
 }
 
 { #category : #testing }

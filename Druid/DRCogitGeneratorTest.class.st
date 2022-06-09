@@ -186,6 +186,24 @@ DRCogitGeneratorTest >> testGenerateModulo [
 ]
 
 { #category : #tests }
+DRCogitGeneratorTest >> testGenerateNilAsZero [
+
+	| cfg basicBlock cogitAST r0 r1 compare |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"Compare nil 0"
+		r0 := block copy: 0.
+		r1 := block equals: nil to: r0 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+		
+	
+	cogitAST := self generateCogitForInstruction: r1.	
+	compare := cogitAST generatorMethodBuilder statements first.
+	self assert: compare selector equals: #CmpCq:R:.
+	self assert: compare arguments first value equals: 0
+]
+
+{ #category : #tests }
 DRCogitGeneratorTest >> testGenerateOrConstant [
 
 	| cfg basicBlock r0 r1 cogitAST orASTInstruction |
@@ -251,6 +269,6 @@ DRCogitGeneratorTest >> testGenerateSpillLoadInstruction [
 	spillStoreInstruction := cogitAST generatorMethodBuilder statements first.
 	self assert: spillStoreInstruction selector equals: #MoveR:Mw:r:.
 	self assert: spillStoreInstruction arguments first name equals: spillRegister1 name.
-	self assert: spillStoreInstruction arguments second value equals: storeInstruction result stackOffset * 8 "bytes".
+	self assert: spillStoreInstruction arguments second value equals: storeInstruction operand2 stackOffset * 8 "bytes".
 	self assert: spillStoreInstruction arguments third name equals: 'SPReg'.
 ]

@@ -1,7 +1,7 @@
 Class {
 	#name : #DRConditionalConstraint,
 	#superclass : #Object,
-	#category : #'Druid-Optimizations'
+	#category : #'Druid-IR-Paths'
 }
 
 { #category : #arithmetic }

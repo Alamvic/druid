@@ -65,16 +65,16 @@ DRComposedConditionalSplittingTest >> testSplitMultipleComposedCondition [
 	newBlock2 := cfg blocks last.
 	newJump2 := newBlock2 endInstruction.
 
-	self assert: jump condition equals: composedCondition operand1.
-	self assert: jump trueBranch equals: newBlock1.
+	self assert: jump condition equals: composedCondition operand1 operand1.
+	self assert: jump trueBranch equals: newBlock2.
 	self assert: jump falseBranch equals: falseBlock.
 
-	self assert: newJump1 condition equals: composedCondition operand2 operand1.
-	self assert: newJump1 trueBranch equals: newBlock2.
+	self assert: newJump1 condition equals: composedCondition operand2.
+	self assert: newJump1 trueBranch equals: trueBlock.
 	self assert: newJump1 falseBranch equals: falseBlock.
 	
-	self assert: newJump2 condition equals: composedCondition operand2 operand2.
-	self assert: newJump2 trueBranch equals: trueBlock.
+	self assert: newJump2 condition equals: composedCondition operand1 operand2.
+	self assert: newJump2 trueBranch equals: newBlock1.
 	self assert: newJump2 falseBranch equals: falseBlock
 ]
 

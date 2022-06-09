@@ -50,6 +50,13 @@ DruidTestInterpreter >> methodWithEarlyReturn [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithNonLocalReturn [
+
+	[ :arg | ^ arg ] value: 17.
+	^ 1
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	self stackTop = 0
@@ -71,10 +78,27 @@ DruidTestInterpreter >> multipleReturnsWithDeadPath [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> nonCompilableMethod [
+
+	<druidExitPoint>
+	^ 42
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> passingSuccess [
 	<numberOfArguments: 0>
 	self success: true.
 	self pop: 1 thenPush: 1
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAccessTempAfterCall [
+
+	| temp |
+	<numberOfArguments: 0>
+	temp := 17.
+	self constant.
+	self pop: 1 thenPush: temp
 ]
 
 { #category : #'as yet unclassified' }
@@ -91,9 +115,9 @@ DruidTestInterpreter >> primitiveBranchingWithAndConditionOnDifferentVariables [
 	| n m res |
 	n := self stackValue: 1.
 	m := self stackValue: 0.
-	res := (n ~= 2 and: [ m < 5 ])
-		     ifTrue: [ 1 ]
-		     ifFalse: [ 7 ].
+	res := n ~= 2 & (m < 5)
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 7 ].
 	^ self pop: 1 thenPush: res
 ]
 
@@ -103,9 +127,9 @@ DruidTestInterpreter >> primitiveBranchingWithAndConditionOnSameVariable [
 	<numberOfArguments: 0>
 	| n res |
 	n := self stackTop.
-	res := (n ~= 2 and: [ n < 5 ])
-		     ifTrue: [ 1 ]
-		     ifFalse: [ 7 ].
+	res := n ~= 2 & (n < 5)
+		       ifTrue: [ 1 ]
+		       ifFalse: [ 7 ].
 	^ self pop: 1 thenPush: res
 ]
 
@@ -138,7 +162,8 @@ DruidTestInterpreter >> primitiveBranchingWithTripleAnd [
 
 	<numberOfArguments: 0>
 	| n |
-	n := (self stackTop ~= 2 and: [ self stackTop < 5 and: [ self stackTop anyMask: 1 ] ])
+	n := self stackTop ~= 2 & (self stackTop < 5)
+	     & (self stackTop anyMask: 1)
 		     ifTrue: [ 1 ]
 		     ifFalse: [ 7 ].
 	^ self pop: 1 thenPush: n
@@ -150,10 +175,52 @@ DruidTestInterpreter >> primitiveBranchingWithTripleAndLeftAssociated [
 	<numberOfArguments: 0>
 	| n res |
 	n := self stackTop.
-	res := ((n ~= 2 and: [ n < 5 ]) and: [ n anyMask: 1 ])
+	res := n ~= 2 & (n < 5) & (n anyMask: 1)
 		       ifTrue: [ 1 ]
 		       ifFalse: [ 7 ].
 	^ self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingBlockReadingExternalTemp [
+
+	<numberOfArguments: 0>
+	| t |
+	t := 17.
+	self pop: 1 thenPush: [ t ] value
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingBlockReturningArgument [
+
+	<numberOfArguments: 0>
+
+	self pop: 1 thenPush: ([ :arg | arg ] value: 17)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingBlockReturningConstant [
+
+	<numberOfArguments: 0>
+
+	self pop: 1 thenPush: [ 17 ] value
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingBlockWithNonLocalReturn [
+
+	<numberOfArguments: 0>
+
+	self pop: 1 thenPush: self methodWithNonLocalReturn
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingBlockWritingExternalTemp [
+
+	<numberOfArguments: 0>
+	| t |
+	[ t := 17 ] value.
+	self pop: 1 thenPush: t
 ]
 
 { #category : #'as yet unclassified' }
@@ -255,6 +322,15 @@ DruidTestInterpreter >> primitiveDNA2 [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDeadBranchWithError [
+
+	<numberOfArguments: 0>
+	1 > 0 ifFalse: [ self error: 'should not happen' ].
+	
+	self pop: 1 thenPush: 17
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDecrement [
 
 	<numberOfArguments: 0>
@@ -288,6 +364,14 @@ DruidTestInterpreter >> primitiveEqualsThanInverted [
 	| r |
 	r := 10 = self stackTop ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFalseAsInteger [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: false asInteger
 ]
 
 { #category : #'as yet unclassified' }
@@ -427,6 +511,25 @@ DruidTestInterpreter >> primitiveLessThanInverted [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopIncrementing [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 10.
+	[result < 15] whileTrue: [ result := result + 1 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopIncrementingGlobalState [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: 10.
+	[self stackTop < 15] whileTrue: [
+		self pop: 1 thenPush: self stackTop + 1 ]
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveMod [
 
 	<numberOfArguments: 1>
@@ -555,6 +658,19 @@ DruidTestInterpreter >> primitiveSumWithOverflow [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveToDo [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 1.
+	1 to: self stackTop do: [ :i |
+		result := result + 1
+	].
+
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveUint16At [
 
 	<numberOfArguments: 0>
@@ -594,6 +710,17 @@ DruidTestInterpreter >> primitiveUint64At [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveUint64AtPut [
+
+	<numberOfArguments: 1>
+	
+	| addressToRead valueToStore |
+	valueToStore := self stackTop.
+	addressToRead := self stackValue: 1.
+	objectMemory uint64At: addressToRead put: valueToStore
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveUint8At [
 
 	<numberOfArguments: 0>
@@ -629,6 +756,61 @@ DruidTestInterpreter >> primitiveWithIfAssigningValue [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithIfNilIfNotNilStatement [
+
+	<numberOfArguments: 0>
+	| t result |
+	t := self stackTop > 0
+		ifTrue: [ nil ]
+		ifFalse: [ 1 ].
+	t
+		ifNil: [ result := 17 ]
+		ifNotNil: [ result := 42 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithIfNotNilIfNilStatement [
+
+	<numberOfArguments: 0>
+	| t result |
+	t := self stackTop > 0
+		ifTrue: [ nil ]
+		ifFalse: [ 1 ].
+	t
+		ifNotNil: [ result := 42 ]
+		ifNil: [ result := 17 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithIfNotNilIfNilStatementWithArgument [
+
+	<numberOfArguments: 0>
+	| t result |
+	t := self stackTop > 0
+		ifTrue: [ nil ]
+		ifFalse: [ 42 ].
+	t
+		ifNotNil: [ :arg | result := arg ]
+		ifNil: [ result := 17 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithIfNotNilStatement [
+
+	<numberOfArguments: 0>
+	| t result |
+	t := self stackTop > 0
+		ifTrue: [ nil ]
+		ifFalse: [ 1 ].
+	result := 17.
+	t ifNotNil: [ result := 42 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveWithIfReturningValue [
 
 	<numberOfArguments: 0>
@@ -637,4 +819,16 @@ DruidTestInterpreter >> primitiveWithIfReturningValue [
 		ifTrue: [ 42 ]
 		ifFalse: [ 57 ].
 	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithNonCompilableBranch [
+
+	<numberOfArguments: 0>
+	
+	| r |
+	r := self stackTop > 0
+		ifTrue: [ 11 ]
+		ifFalse: [ self nonCompilableMethod ].
+	self pop: 1 thenPush: r.
 ]

@@ -34,7 +34,7 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 		R2 := RP.
 		R1 := R2 + 1
 		"
-		(i isComparison not and: [i operands size = 2 and: [ i operands anySatisfy: [ :op | op isPhysicalRegister ] ]]) ifTrue: [
+		(i result isNoResult not and: [i operands size = 2 and: [ i operands anySatisfy: [ :op | op isPhysicalRegister ] ]]) ifTrue: [
 			| registerToCopy copyInstruction |
 			registerToCopy := i operands detect: [ :op | op isPhysicalRegister ].
 			
@@ -45,7 +45,7 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 			^ true
 		].
 		
-		(i isComparison not and: [i operands size = 2]) ifTrue: [ | secondOperandInterval currentInterval operandToMergeInterval |
+		(i result isNoResult not and: [i operands size = 2]) ifTrue: [ | secondOperandInterval currentInterval operandToMergeInterval |
 			"Merge the two intervals, finding the operand that is not a constant.
 			Take the firt operand if both are not constants.
 			When transforming to Cogit code, we output the second operand and the destination"
