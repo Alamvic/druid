@@ -1,17 +1,17 @@
 Class {
-	#name : #DRSpecialisedCompilerTest,
+	#name : #DRCustomisedCompilerTest,
 	#superclass : #DRDruidTests,
 	#category : #'Druid-Tests'
 }
 
 { #category : #tests }
-DRSpecialisedCompilerTest >> compile: selector [
+DRCustomisedCompilerTest >> compile: selector [
 
 	(self newCompiler: selector) compile
 ]
 
 { #category : #tests }
-DRSpecialisedCompilerTest >> generateDruidIRFor: selector [
+DRCustomisedCompilerTest >> generateDruidIRFor: selector [
 
 	| method compiler cfg |
 	method := DruidTestInterpreter lookupSelector: selector.
@@ -24,7 +24,7 @@ DRSpecialisedCompilerTest >> generateDruidIRFor: selector [
 ]
 
 { #category : #tests }
-DRSpecialisedCompilerTest >> newCompiler: selector [
+DRCustomisedCompilerTest >> newCompiler: selector [
 
 	^ DRPrimitiveCompilerCompiler new
 		interpreter: self interpreter;
@@ -35,7 +35,7 @@ DRSpecialisedCompilerTest >> newCompiler: selector [
 ]
 
 { #category : #tests }
-DRSpecialisedCompilerTest >> testSpecialisedCompilerAddsPreambleToGeneratedCode [
+DRCustomisedCompilerTest >> testAddsPreambleToGeneratedCode [
 
 	| genMethod preambleCode |
 	self compile: #primitiveAdd.
@@ -50,7 +50,7 @@ DRSpecialisedCompilerTest >> testSpecialisedCompilerAddsPreambleToGeneratedCode 
 ]
 
 { #category : #tests }
-DRSpecialisedCompilerTest >> testSpecialisedCompilerRemoveIRChecks [
+DRCustomisedCompilerTest >> testRemoveIRChecks [
 
 	| cfg |
 	cfg := self generateDruidIRFor: #primitiveAdd.
