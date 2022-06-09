@@ -28,8 +28,6 @@ DRIRTest >> conditionalJump [
 { #category : #running }
 DRIRTest >> configureInterpreter [
 
-	super setUp.
-
 	compilerCompiler interpreter: DruidTestInterpreter basicNew 
 ]
 
