@@ -5,7 +5,6 @@ Class {
 		'id',
 		'phiFunctions',
 		'instructions',
-		'blockValue',
 		'endInstruction',
 		'predecessors',
 		'origin',
@@ -157,18 +156,6 @@ DRBasicBlock >> beExitBlock [
 DRBasicBlock >> bitAnd: aValue with: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory bitAnd: aValue with: anotherValue)
-]
-
-{ #category : #accessing }
-DRBasicBlock >> blockValue [
-	
-	^ blockValue
-]
-
-{ #category : #accessing }
-DRBasicBlock >> blockValue: aValue [
-	
-	blockValue := aValue
 ]
 
 { #category : #validating }
@@ -393,7 +380,6 @@ DRBasicBlock >> initialize [
 	super initialize.	
 	phiFunctions := OrderedCollection new.
 	instructions := OrderedCollection new.
-	blockValue := DRNullValue new.
 	predecessors := OrderedCollection new.
 	isExitBlock := false.
 
