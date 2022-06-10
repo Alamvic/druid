@@ -406,7 +406,7 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 
 	| block arguments |
 	aRBMessageNode receiver acceptVisitor: self.
-	block := self popOperand.
+	block := self popOperand simplify.
 	arguments := aRBMessageNode arguments collect: [ :e |
 		e acceptVisitor: self.
 		self popOperand ].
@@ -1293,15 +1293,15 @@ DRIRGenerator >> visitClassVariableNode: aRBVariableNode [
 ]
 
 { #category : #visiting }
-DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [ 
+DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
-	specialCases
-		at: aRBVariableNode name
-		ifPresent: [ :mapping |
-			^ self perform: mapping withArguments: { aRBVariableNode } ].
-	
+	specialCases at: aRBVariableNode name ifPresent: [ :mapping | 
+		^ self perform: mapping withArguments: { aRBVariableNode } ].
+
 	"Resolve it as a variableAccess"
-	self pushOperand: (self receiver value instVarNamed: aRBVariableNode name) asDRValue
+	self pushOperand:
+		((self topFrame homeFrameWithState: executionState) receiver value 
+			 instVarNamed: aRBVariableNode name) asDRValue
 ]
 
 { #category : #visiting }
