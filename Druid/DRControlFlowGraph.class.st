@@ -3,6 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'initialBasicBlock',
+		'initialConstraint',
 		'basicBlocks',
 		'nextBasicBlockId',
 		'instructionFactory',
@@ -231,6 +232,17 @@ DRControlFlowGraph >> incrementSpillSlots [
 { #category : #accessing }
 DRControlFlowGraph >> initialBasicBlock [ 
 	^ initialBasicBlock
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> initialConstraint: constraint [
+	initialConstraint := constraint
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> initialContrainst [
+
+	^ initialConstraint
 ]
 
 { #category : #initialization }

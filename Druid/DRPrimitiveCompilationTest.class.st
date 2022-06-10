@@ -32,6 +32,7 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 
 	"Then generate the machine code for that method"
 	initialAddress := self compile: [
+		cogit methodOrBlockNumArgs: 2.
 		cogit perform: generatorSelector.
 		stopInstruction := cogit Stop
 	].
@@ -305,7 +306,7 @@ DRPrimitiveCompilationTest >> testCompiledPrimitiveInitializesCorrectlyTheSimula
 	self executePrimitiveWithReceiver: receiver withArguments: { 1. 2 }.
 	
 	"An empty primitive does nothing and just returns, the return value is the receiver"
-	self assert: self popAddress equals: 55
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-stack' }

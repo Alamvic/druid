@@ -606,7 +606,7 @@ DruidTestInterpreter >> primitiveMultiplyWithOverflow [
 	result := self
 		multiplySmallInteger: (self stackValue: 1)
 		withSmallInteger: (self stackValue: 0)
-		ifOverflow: [ 99 ].
+		ifOverflow: [ ^ 99 ].
 	self pop: 2 thenPush: result
 ]
 
