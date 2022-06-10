@@ -381,6 +381,13 @@ DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 			^ self ] ].
 	
 	"Evaluate the last statement but do not pop the operand, as it will be the block's value"
+	
+	"If the block had no statements, it has nil value"
+	aRBBlockNode statements ifEmpty: [
+		^ self pushOperand: nil asDRValue.
+	].
+
+	"Otherwise the block value is the value of its last expression"
 	aRBBlockNode statements last acceptVisitor: self.
 	self assert: self topFrame operandStack size = 1.
 ]
