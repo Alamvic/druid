@@ -480,7 +480,7 @@ DRIRGenerator >> interpretEqualityComparisonWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [ 
 	
-	self pushOperand: DRFalseObject new
+	^ self addInstructionFrom: aRBVariableNode instructionKind: DRCopy operands: { DRFalseObject new }
 ]
 
 { #category : #'special-cases' }

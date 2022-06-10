@@ -647,6 +647,14 @@ DruidTestInterpreter >> primitiveNotEqualsThanInverted [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveReturnFalse [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: objectMemory falseObject
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveReturnOne [
 
 	<numberOfArguments: 0>

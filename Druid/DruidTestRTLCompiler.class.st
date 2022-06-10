@@ -1316,6 +1316,15 @@ DruidTestRTLCompiler >> gen_primitiveNotEqualsThanInverted [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveReturnFalse [
+
+	| currentBlock |
+	self MoveCw: objectMemory falseObject R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveReturnOne [
 
 	| currentBlock |
