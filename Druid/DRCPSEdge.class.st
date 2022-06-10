@@ -18,10 +18,10 @@ DRCPSEdge class >> withSource: aSource andDestination: aDestination branchIndex:
 ]
 
 { #category : #adding }
-DRCPSEdge >> addConstraint: aConditionalConstraint [
+DRCPSEdge >> addConstraint: aConditionalConstraint to: id [
 
 	^ constraints
-		at: aConditionalConstraint reg name
+		at: id
 		put: aConditionalConstraint
 ]
 
@@ -45,7 +45,7 @@ DRCPSEdge >> composedConstraint: aConstraintClass from: aDRInstruction [
 { #category : #accessing }
 DRCPSEdge >> constraintFor: regKey [
 
-	^ constraints at: regKey
+	^ constraints at: regKey ifAbsent: [ ^ nil ]
 ]
 
 { #category : #accessing }
@@ -76,15 +76,15 @@ DRCPSEdge >> initialize [
 
 { #category : #testing }
 DRCPSEdge >> isDead [
-	^ constraints values anySatisfy: [ :c | c isDead ]
+	^ constraints values anySatisfy: [ :c | c isEmpty ]
 ]
 
 { #category : #adding }
-DRCPSEdge >> mergeConstraint: aConditionalConstraint [
+DRCPSEdge >> mergeConstraint: aConditionalConstraint to: id [
 
 	constraints
-		at: aConditionalConstraint reg name
-		update: [ :oldConstraint | oldConstraint mergedWith: aConditionalConstraint ]
+		at: id
+		update: [ :oldConstraint | oldConstraint intersectionWith: aConditionalConstraint ]
 		initial: aConditionalConstraint
 ]
 
@@ -154,34 +154,39 @@ DRCPSEdge >> visitComparison: aDRComparison andDo: aClosure [
 { #category : #visiting }
 DRCPSEdge >> visitConditionalJump: aDRConditionalJump [
 
-	| constraint |
+	| domain id |
 	"Ignore hardcoded values"
-	aDRConditionalJump operand1 isInstruction ifFalse: [ ^ self ].
+	aDRConditionalJump condition isInstruction ifFalse: [ ^ self ].
 
-	constraint := aDRConditionalJump operand1 acceptVisitor: self.
-	constraint ifNil: [ ^ self ].
-	
-	branchIndex = 1
-		ifTrue: [ self mergeConstraint: constraint ]
-		ifFalse: [ self mergeConstraint: constraint negated ]
+	domain := aDRConditionalJump condition acceptVisitor: self.
+	domain ifNil: [ ^ self ].
+
+	id := domain reg result name.
+
+	^ branchIndex = 1
+		ifTrue: [ self mergeConstraint: domain constraint to: id ]
+		ifFalse: [ self mergeConstraint: domain constraint negated to: id ]
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitConstant: aDRConstantValue [ 
 	
-	self flag: #TODO. "Remove this, we must know when something is a constant"
 	^ aDRConstantValue value 
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitCopy: aDRCopy [
 
-	| constantValue |
-	"Only constant copies are importants"
-	aDRCopy operand1 isConstant ifFalse: [ ^ nil ].
-	constantValue := aDRCopy operand1 acceptVisitor: self.
-	^ self addConstraint:
-		  (DRRegisterDomain equals: aDRCopy result than: constantValue)
+	| constraint constraintOrConstant |
+	constraintOrConstant := aDRCopy operand1 acceptVisitor: self.
+
+	constraintOrConstant ifNil: [ ^ nil ].
+
+	constraint := aDRCopy operand1 isConstant
+		              ifTrue: [ DREqualsConstraint withValue: constraintOrConstant ]
+		              ifFalse: [ constraintOrConstant ].
+
+	^ self addConstraint: constraint to: aDRCopy result name
 ]
 
 { #category : #visiting }
@@ -296,8 +301,19 @@ DRCPSEdge >> visitOverflowJump: aDROverflowJump [
 
 { #category : #visiting }
 DRCPSEdge >> visitPhiFunction: aDRPhiFunction [ 
-	"Do nothing"
-	^ nil
+
+	| operandsConstraint phiConstraint |
+	operandsConstraint := aDRPhiFunction operands collect: [ :op | op acceptVisitor: self ].
+	
+	phiConstraint := DRUnionConstraint constraints: operandsConstraint.
+	
+	^self addConstraint: phiConstraint to: aDRPhiFunction result name
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitPhysicalRegister: aDRPhysicalRegister [ 
+	
+	^ self constraintFor: aDRPhysicalRegister name
 ]
 
 { #category : #visiting }

@@ -19,6 +19,12 @@ DRIRTest >> anyOutgoingEdge: cfg for: aBlock [
 	^ (cfg outgoingEdgesFor: aBlock) first "unique?"
 ]
 
+{ #category : #assertions }
+DRIRTest >> assert: aConstraint includes: includedConstraint [
+
+	self assert: (aConstraint includes: includedConstraint)
+]
+
 { #category : #test }
 DRIRTest >> conditionalJump [
 
@@ -31,6 +37,12 @@ DRIRTest >> configureInterpreter [
 	super setUp.
 
 	compilerCompiler interpreter: DruidTestInterpreter basicNew 
+]
+
+{ #category : #assertions }
+DRIRTest >> deny: aConstraint includes: includedConstraint [
+
+	self deny: (aConstraint includes: includedConstraint)
 ]
 
 { #category : #test }

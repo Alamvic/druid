@@ -1,20 +1,8 @@
 Class {
 	#name : #DRConditionalConstraintTest,
-	#superclass : #TestCase,
+	#superclass : #DRIRTest,
 	#category : #'Druid-Tests'
 }
-
-{ #category : #assertions }
-DRConditionalConstraintTest >> assert: aConstraint includes: includedConstraint [
-
-	self assert: (aConstraint includes: includedConstraint)
-]
-
-{ #category : #assertions }
-DRConditionalConstraintTest >> deny: aConstraint includes: includedConstraint [
-
-	self deny: (aConstraint includes: includedConstraint)
-]
 
 { #category : #constraints }
 DRConditionalConstraintTest >> testEmptyConstraint [

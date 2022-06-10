@@ -503,7 +503,7 @@ DRControlFlowGraph >> showLines: blockViews in: view [
 			 String streamContents: [ :s | 
 				 edgs
 					 do: [ :e | 
-					 e constraints values asStringOn: s delimiter: String cr ]
+					 e constraints associations asStringOn: s delimiter: String cr ]
 					 separatedBy: [ 
 					 s << (String cr , '--o--o--o--o--o--o--o--' , String cr) ] ] ]).
 		(self isAlmostDeadBranch: source to: destination) ifTrue: [ 

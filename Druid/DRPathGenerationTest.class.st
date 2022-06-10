@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #constraints }
-DRPathGenerationTest >> testConditionalConstraintsArePropagated [
+DRPathGenerationTest >> testConstraintsArePropagated [
 
 	| cfg blocks edge12 edge23 |
 	cfg := self setUpCFG: 3.
@@ -20,7 +20,7 @@ DRPathGenerationTest >> testConditionalConstraintsArePropagated [
 ]
 
 { #category : #constraints }
-DRPathGenerationTest >> testConditionalConstraintsAreStacked [
+DRPathGenerationTest >> testConstraintsAreStacked [
 
 	| cfg blocks edge12 edge23 |
 	cfg := self setUpCFG: 3.
@@ -38,7 +38,49 @@ DRPathGenerationTest >> testConditionalConstraintsAreStacked [
 ]
 
 { #category : #constraints }
-DRPathGenerationTest >> testConditionalConstraintsInferenceFromBranches [
+DRPathGenerationTest >> testConstraintsFromComplexConditionalOnDifferentRegs [
+
+	| cfg edges trueNDomain trueMDomain firstFalseNDomain secondFalseNDomain secondFalseMDomain |
+	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnDifferentVariables. "n ~= 2 AND m < 5"
+
+	edges := cfg lastBasicBlock predecessors flatCollect: [ :b | cfg incomingEdgesFor: b ].
+	trueNDomain := edges first constraintFor: 'ReceiverResultReg'.  "n ~= 2"
+	trueMDomain := edges first constraintFor: 'Arg0Reg'.  "m < 5"
+	firstFalseNDomain := edges second constraintFor: 'ReceiverResultReg'.  "n = 2"
+	secondFalseNDomain := edges third constraintFor: 'ReceiverResultReg'.  "n ~= 2"
+	secondFalseMDomain := edges third constraintFor: 'Arg0Reg'.  "m >= 5"
+
+	self assert: (trueNDomain includes: (DRNotEqualsConstraint withValue: 2)).
+	self assert: (trueMDomain includes: (DRLessConstraint withValue: 5)).
+	self assert: (firstFalseNDomain includes: (DREqualsConstraint withValue: 2)).
+	self assert: (secondFalseNDomain includes: (DRNotEqualsConstraint withValue: 2)).
+	self assert: (secondFalseMDomain includes: (DRGreaterOrEqualsConstraint withValue: 5)).
+
+]
+
+{ #category : #constraints }
+DRPathGenerationTest >> testConstraintsFromComplexConditionalOnSameReg [
+
+	| cfg edges trueRegDomain firstFalseRegDomain secondFalseRegDomain |
+	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnSameVariable. "n ~= 2 AND n < 5"
+
+	edges := cfg lastBasicBlock predecessors flatCollect: [ :b | cfg incomingEdgesFor: b ].
+	trueRegDomain := edges first constraintFor: 'ReceiverResultReg'.  "n ~= 2 AND n < 5"
+	firstFalseRegDomain := edges second constraintFor: 'ReceiverResultReg'.  "n = 2"
+	secondFalseRegDomain := edges third constraintFor: 'ReceiverResultReg'.  "n >= 5"
+
+	self assert: (trueRegDomain includes: (DRIntersectionConstraint constraints: {
+		DRNotEqualsConstraint withValue: 2.
+		DRLessConstraint withValue: 5
+	})).
+	
+	self assert: (firstFalseRegDomain includes: (DREqualsConstraint withValue: 2)).
+	self assert: (secondFalseRegDomain includes: (DRGreaterOrEqualsConstraint withValue: 5)).
+
+]
+
+{ #category : #constraints }
+DRPathGenerationTest >> testConstraintsInferenceFromBranches [
 
 	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThan.
@@ -46,12 +88,13 @@ DRPathGenerationTest >> testConditionalConstraintsInferenceFromBranches [
 	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. ">= 10"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "< 10"
-	self assert: (trueConstraint includes: (DRRegisterDomain greaterOrEquals: trueConstraint reg than: 10) ).
-	self assert: (falseConstraint includes: (DRRegisterDomain less: falseConstraint reg than: 10) ).
+	
+	self assert: trueConstraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self assert: falseConstraint includes: (DRLessConstraint withValue: 10).
 ]
 
 { #category : #constraints }
-DRPathGenerationTest >> testConditionalConstraintsInferenceFromBranchesInverted [
+DRPathGenerationTest >> testConstraintsInferenceFromBranchesInverted [
 
 	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThanInverted.
@@ -59,33 +102,83 @@ DRPathGenerationTest >> testConditionalConstraintsInferenceFromBranchesInverted 
 	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "<= 10"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "> 10"
-	self assert: (trueConstraint includes: (DRRegisterDomain lessOrEquals: trueConstraint reg than: 10) ).
-	self assert: (falseConstraint includes: (DRRegisterDomain greater: falseConstraint reg than: 10) ).
+	
+	self assert: trueConstraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self assert: falseConstraint includes: (DRGreaterConstraint withValue: 10).
 ]
 
 { #category : #constraints }
-DRPathGenerationTest >> testConditionalConstraintsInferenceFromInnerBranches [
+DRPathGenerationTest >> testConstraintsInferenceFromCopy [
 
-	| cfg edges trueConstraint falseConstraint trueExpectedConstraint falseExpectedConstraint |
+	| cfg copy edge constraint |
+	cfg := self setUpCFG: 2.
+	
+	copy := cfg b1 copy: 1.	
+	cfg generatePaths.
+
+	edge := self anyOutgoingEdge: cfg for: cfg firstBasicBlock.
+	constraint := edge constraintFor: copy result name.
+
+	self assert: constraint includes: (DREqualsConstraint withValue: 1).
+
+]
+
+{ #category : #constraints }
+DRPathGenerationTest >> testConstraintsInferenceFromCopyOfCopy [
+
+	| cfg copy1 copy2 edge constraint |
+	cfg := self setUpCFG: 2.
+	
+	copy1 := cfg b1 copy: 1.
+	copy2 := cfg b1 copy: copy1.
+	cfg generatePaths.
+
+	edge := self anyOutgoingEdge: cfg for: cfg firstBasicBlock.
+	constraint := edge constraintFor: copy2 result name.
+	
+	self assert: constraint includes: (DREqualsConstraint withValue: 1).
+
+]
+
+{ #category : #constraints }
+DRPathGenerationTest >> testConstraintsInferenceFromInnerBranches [
+
+	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveInnerBranching.
 
 	edges := cfg outgoingEdgesFor: (cfg blockById: 30).
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "10 < Reg < 20"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. ">= 20"
-	trueExpectedConstraint := DRRegisterDomain
-		                          reg: trueConstraint reg
-		                          constraint:
-		                          (DRIntersectionConstraint
-			                           between: 10
-			                           and: 20).
-	falseExpectedConstraint := DRRegisterDomain
-		                           greaterOrEquals: falseConstraint reg
-		                           than: 20.
-	self assert: (trueConstraint includes: trueExpectedConstraint).
-	self assert: (falseConstraint includes: falseExpectedConstraint)
+
+	self
+		assert: trueConstraint
+		includes: (DRIntersectionConstraint between: 10 and: 20).
+	self
+		assert: falseConstraint
+		includes: (DRGreaterOrEqualsConstraint withValue: 20)
 ]
 
 { #category : #constraints }
+DRPathGenerationTest >> testConstraintsInferenceFromPhi [
+
+	| cfg edge constraint copy1 copy2 phi |
+	cfg := self setUpCFGWithConditional.
+
+	copy1 := cfg b2 copy: 1.
+	copy2 := cfg b3 copy: 2.
+	phi := cfg b4 phiWith: copy1 with: copy2.
+	cfg b4 jumpTo: cfg newBasicBlock.
+	cfg generatePaths.
+
+	edge := self anyIncomingEdge: cfg for: cfg lastBasicBlock.
+	constraint := edge constraintFor: phi result name.
+
+	self assert: constraint includes: (DRUnionConstraint constraints: { 
+				 (DREqualsConstraint withValue: 1).
+				 (DREqualsConstraint withValue: 2) })
+]
+
+{ #category : #building }
 DRPathGenerationTest >> testCopyConstantAddNewConstraint [
 
 	| cfg block |
@@ -98,18 +191,7 @@ DRPathGenerationTest >> testCopyConstantAddNewConstraint [
 	self assert: (self anyOutgoingEdge: cfg for: block) constraints size equals: 1
 ]
 
-{ #category : #constraints }
-DRPathGenerationTest >> testCopyRegisterConstraint [
-
-	| cfg edge constraint |
-	cfg := self generateDruidIRFor: #primitiveReturnOne.
-
-	edge := self anyOutgoingEdge: cfg for: cfg firstBasicBlock.
-	constraint := edge constraintFor: 'ReceiverResultReg'.
-	self assert: (constraint includes: (DRRegisterDomain equals: constraint reg than: 1) ).
-]
-
-{ #category : #constraints }
+{ #category : #building }
 DRPathGenerationTest >> testCopyRegisterNotAddNewConstraint [
 
 	| cfg block |
@@ -122,7 +204,7 @@ DRPathGenerationTest >> testCopyRegisterNotAddNewConstraint [
 	self assert: (self anyOutgoingEdge: cfg for: block) constraints isEmpty.
 ]
 
-{ #category : #constraints }
+{ #category : #building }
 DRPathGenerationTest >> testFirstIncomingInfoHasNoConstraints [
 
 	| cfg edge |
@@ -166,7 +248,7 @@ DRPathGenerationTest >> testGenerateExpectedEdgesCountMerging [
 	self assert: edges size equals: 2
 ]
 
-{ #category : #constraints }
+{ #category : #building }
 DRPathGenerationTest >> testJumpDoesNotAddConstraint [
 
 	| cfg edge |
@@ -188,46 +270,4 @@ DRPathGenerationTest >> testLinearContigousBlocksShareEdge [
 	self
 		assert: (self anyOutgoingEdge: cfg for: blocks first)
 		equals: (self anyIncomingEdge: cfg for: blocks second)
-]
-
-{ #category : #building }
-DRPathGenerationTest >> testinferDomainsFromComplexConditionalOnDifferentRegs [
-
-	| cfg edges trueNDomain trueMDomain firstFalseNDomain secondFalseNDomain secondFalseMDomain |
-	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnDifferentVariables. "n ~= 2 AND m < 5"
-
-	edges := cfg lastBasicBlock predecessors flatCollect: [ :b | cfg incomingEdgesFor: b ].
-	trueNDomain := edges first constraintFor: 'ReceiverResultReg'.  "n ~= 2"
-	trueMDomain := edges first constraintFor: 'Arg0Reg'.  "m < 5"
-	firstFalseNDomain := edges second constraintFor: 'ReceiverResultReg'.  "n = 2"
-	secondFalseNDomain := edges third constraintFor: 'ReceiverResultReg'.  "n ~= 2"
-	secondFalseMDomain := edges third constraintFor: 'Arg0Reg'.  "m >= 5"
-
-	self assert: (trueNDomain constraint includes: (DRNotEqualsConstraint withValue: 2)).
-	self assert: (trueMDomain constraint includes: (DRLessConstraint withValue: 5)).
-	self assert: (firstFalseNDomain constraint includes: (DREqualsConstraint withValue: 2)).
-	self assert: (secondFalseNDomain constraint includes: (DRNotEqualsConstraint withValue: 2)).
-	self assert: (secondFalseMDomain constraint includes: (DRGreaterOrEqualsConstraint withValue: 5)).
-
-]
-
-{ #category : #building }
-DRPathGenerationTest >> testinferDomainsFromComplexConditionalOnSameReg [
-
-	| cfg edges trueRegDomain firstFalseRegDomain secondFalseRegDomain |
-	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnSameVariable. "n ~= 2 AND n < 5"
-
-	edges := cfg lastBasicBlock predecessors flatCollect: [ :b | cfg incomingEdgesFor: b ].
-	trueRegDomain := edges first constraintFor: 'ReceiverResultReg'.  "n ~= 2 AND n < 5"
-	firstFalseRegDomain := edges second constraintFor: 'ReceiverResultReg'.  "n = 2"
-	secondFalseRegDomain := edges third constraintFor: 'ReceiverResultReg'.  "n >= 5"
-
-	self assert: (trueRegDomain constraint includes: (DRIntersectionConstraint constraints: {
-		DRNotEqualsConstraint withValue: 2.
-		DRLessConstraint withValue: 5
-	})).
-	
-	self assert: (firstFalseRegDomain constraint includes: (DREqualsConstraint withValue: 2)).
-	self assert: (secondFalseRegDomain constraint includes: (DRGreaterOrEqualsConstraint withValue: 5)).
-
 ]
