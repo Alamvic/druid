@@ -36,7 +36,7 @@ DRPrimitiveIRGenerator >> initialize [
 DRPrimitiveIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
-	specialCases at: #primFailCode put: #interpretPrimFailCodeWith:.
+	variableSpecialCases at: #primFailCode put: #interpretPrimFailCodeWith:.
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
 ]
 

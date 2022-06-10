@@ -7,7 +7,8 @@ Class {
 		'firstBasicBlock',
 		'numberOfArguments',
 		'controlFlowGraph',
-		'executionState'
+		'executionState',
+		'variableSpecialCases'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -159,6 +160,7 @@ DRIRGenerator >> initialize [
 	controlFlowGraph := self newCFG.
 	
 	specialCases := Dictionary new.
+	variableSpecialCases := Dictionary new.
 	self initializeSpecialCases.
 	
 	"Push a top frame"
@@ -238,26 +240,25 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #stackTop put: #interpretStackTopWith:.
 	specialCases at: #stackValue: put: #interpretStackValueWith:.
 	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
-	
-	"special variables"
-	specialCases at: #nilObj put: #interpretNilObjectWith:.
-	specialCases at: #falseObj put: #interpretFalseObjectWith:.
-	specialCases at: #trueObj put: #interpretTrueObjectWith:.
-	
-	
-	specialCases at: #freeStart put: #interpretFreeStartWith:.
-	specialCases at: #scavengeThreshold put: #interpretScavengeThresholdWith:.
-	specialCases at: #argumentCount put: #interpretArgumentCountWith:.
-	
-	"Border case, this should not be defined here, it should be extensible"
-	specialCases at: #hiddenRootsObj put: #interpretNilObjectWith:.
-	
+		
 	"special simulation cases"
 	specialCases at: #cCode:inSmalltalk: put: #interpretCCodeInSmalltalkWith:.
 	
 	"Special pharo things such as exceptions"
 	specialCases at: #error: put: #ignoreMessageWith:.
 	specialCases at: #assert: put: #ignoreMessageWith:.
+	
+	"special variables"
+	variableSpecialCases at: #nilObj put: #interpretNilObjectWith:.
+	variableSpecialCases at: #falseObj put: #interpretFalseObjectWith:.
+	variableSpecialCases at: #trueObj put: #interpretTrueObjectWith:.
+	
+	variableSpecialCases at: #freeStart put: #interpretFreeStartWith:.
+	variableSpecialCases at: #scavengeThreshold put: #interpretScavengeThresholdWith:.
+	variableSpecialCases at: #argumentCount put: #interpretArgumentCountWith:.
+	
+	"Border case, this should not be defined here, it should be extensible"
+	variableSpecialCases at: #hiddenRootsObj put: #interpretNilObjectWith:
 ]
 
 { #category : #factory }
@@ -1255,7 +1256,7 @@ DRIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 { #category : #visiting }
 DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [ 
 	
-	specialCases
+	variableSpecialCases
 		at: aRBAssignmentNode variable name
 		ifPresent: [ :mapping | | rawMapping |
 			rawMapping := mapping allButLast: 'With:' size.
@@ -1295,7 +1296,7 @@ DRIRGenerator >> visitClassVariableNode: aRBVariableNode [
 { #category : #visiting }
 DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
-	specialCases at: aRBVariableNode name ifPresent: [ :mapping | 
+	variableSpecialCases at: aRBVariableNode name ifPresent: [ :mapping | 
 		^ self perform: mapping withArguments: { aRBVariableNode } ].
 
 	"Resolve it as a variableAccess"
