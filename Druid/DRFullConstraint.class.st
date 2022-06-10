@@ -40,6 +40,12 @@ DRFullConstraint >> includes: otherConstraint [
 	^ true
 ]
 
+{ #category : #testing }
+DRFullConstraint >> isAny [
+
+	^ true
+]
+
 { #category : #arithmetic }
 DRFullConstraint >> negated [
 

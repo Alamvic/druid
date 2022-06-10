@@ -54,6 +54,12 @@ DRConditionalConstraint >> intersectionWith: otherConditionalConstraint [
 ]
 
 { #category : #testing }
+DRConditionalConstraint >> isAny [
+
+	^ false
+]
+
+{ #category : #testing }
 DRConditionalConstraint >> isEmpty [
 
 	^ false

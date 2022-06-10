@@ -113,7 +113,8 @@ DRCPSEdge >> printOn: aStream [
 
 { #category : #visiting }
 DRCPSEdge >> visitAddition: aDRAdd [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -124,17 +125,20 @@ DRCPSEdge >> visitAnd: aDRAnd [
 
 { #category : #visiting }
 DRCPSEdge >> visitBitAnd: aDRBitAnd [
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitBitOr: aDRBitOr [
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitBitShift: aDRBitShift [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -191,7 +195,8 @@ DRCPSEdge >> visitCopy: aDRCopy [
 
 { #category : #visiting }
 DRCPSEdge >> visitDivision: aDRDivision [ 
-		"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -201,6 +206,12 @@ DRCPSEdge >> visitEqualsComparison: aDREqualsThanComparison [
 		  visitComparison: aDREqualsThanComparison
 		  andDo: [ :reg :value | 
 		  DRRegisterDomain equals: reg than: value ]
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitFalseObject: aDRFalseObject [
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -229,7 +240,8 @@ DRCPSEdge >> visitJump: aDRJump [
 
 { #category : #visiting }
 DRCPSEdge >> visitLeftShift: aDRLeftShift [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -251,32 +263,38 @@ DRCPSEdge >> visitLessThanComparison: aDRLessThanComparison [
 
 { #category : #visiting }
 DRCPSEdge >> visitLoad: aDRLoad [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitMod: aDRMod [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitMultiply: aDRMultiply [ 
-	"Do nothing"
+DRCPSEdge >> visitMultiply: aDRMultiply [
+
+	^ nil
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitMultiplyOverflowJump: aDRMultiplyOverflowJump [ 
-	self flag: #TODO. "Do nothing?"
+DRCPSEdge >> visitMultiplyOverflowJump: aDRMultiplyOverflowJump [
+
+	^ nil
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitNegate: aDRNegate [ 
-	"Do nothing"
+DRCPSEdge >> visitNegate: aDRNegate [
+
+	^ nil
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitNoop: aDRNoop [ 
-	"Do nothing"
+DRCPSEdge >> visitNoop: aDRNoop [
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -289,25 +307,34 @@ DRCPSEdge >> visitNotEqualsComparison: aDRNotEqualsThanComparison [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitNullValue: aDRNullValue [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitOr: aDROr [
 		
 	^ self composedConstraint: DRUnionConstraint from: aDROr
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitOverflowJump: aDROverflowJump [ 
-	self flag: #TODO. "Do nothing?"
+DRCPSEdge >> visitOverflowJump: aDROverflowJump [
+
+	^ nil
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitPhiFunction: aDRPhiFunction [ 
+DRCPSEdge >> visitPhiFunction: aDRPhiFunction [
 
 	| operandsConstraint phiConstraint |
-	operandsConstraint := aDRPhiFunction operands collect: [ :op | op acceptVisitor: self ].
-	
+	operandsConstraint := aDRPhiFunction operands collect: [ :op | 
+		                      (op acceptVisitor: self) ifNil: [ 
+			                      DRFullConstraint new ] ].
+
 	phiConstraint := DRUnionConstraint constraints: operandsConstraint.
-	
-	^self addConstraint: phiConstraint to: aDRPhiFunction result name
+
+	^ self addConstraint: phiConstraint to: aDRPhiFunction result name
 ]
 
 { #category : #visiting }
@@ -326,17 +353,20 @@ DRCPSEdge >> visitReturn: aDRReturn [
 
 { #category : #visiting }
 DRCPSEdge >> visitRightShift: aDRRightShift [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitStore: aDRLoad [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitSubstract: aDRSubtract [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -348,6 +378,13 @@ DRCPSEdge >> visitTest: aDRTest [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitTrueObject: aDRTrueObject [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
-	"Do nothing"
+
+	^ nil
 ]

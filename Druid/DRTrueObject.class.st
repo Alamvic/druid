@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #visiting }
+DRTrueObject >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitTrueObject: self
+]
+
 { #category : #accessing }
 DRTrueObject >> name [
 	
