@@ -703,6 +703,15 @@ DruidTestRTLCompiler >> gen_primitiveCallingBlockWritingExternalTemp [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveCallingEmptyBlock [
+
+	| currentBlock |
+	self MoveCq: 18 R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveCallingMethodReturningConstant [
 
 	| currentBlock |

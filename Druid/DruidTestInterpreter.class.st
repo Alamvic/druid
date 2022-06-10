@@ -224,6 +224,16 @@ DruidTestInterpreter >> primitiveCallingBlockWritingExternalTemp [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingEmptyBlock [
+
+	<numberOfArguments: 0>
+	| value |
+	value := [ ] value.
+	value ifNil: [ value := 18 ].
+	self pop: 1 thenPush: value
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveCallingMethodReturningConstant [
 
 	<numberOfArguments: 0>
