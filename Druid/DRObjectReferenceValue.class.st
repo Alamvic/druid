@@ -21,3 +21,9 @@ DRObjectReferenceValue >> sccpLatticeValueFor: aDRSCCP [
 
 	^ self value
 ]
+
+{ #category : #'type based splitting' }
+DRObjectReferenceValue >> typeInTypeTable: aCollection [ 
+	
+	^ (SmallInteger minVal to: SmallInteger maxVal) asDRType
+]

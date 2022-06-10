@@ -119,7 +119,7 @@ DRComposedConditionalSplittingTest >> testSplitOr [
 	composedCondition := jump condition.
 	trueBlock := jump trueBranch.
 	falseBlock := jump falseBranch.
-	
+
 	cfg applyOptimisation: optimisation.
 
 	newBlock := cfg blocks last.
@@ -127,7 +127,7 @@ DRComposedConditionalSplittingTest >> testSplitOr [
 	
 	self assert: jump condition equals: composedCondition operand1.
 	self assert: jump trueBranch equals: trueBlock.
-	self assert: jump falseBranch equals: newBlock .
+	self assert: jump falseBranch equals: newBlock.
 	
 	self assert: newJump condition equals: composedCondition operand2.
 	self assert: newJump trueBranch equals: trueBlock.

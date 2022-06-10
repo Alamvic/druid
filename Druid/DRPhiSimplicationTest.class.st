@@ -57,6 +57,28 @@ DRPhiSimplicationTest >> testSimplifyPhiOnlyWithNulls [
 ]
 
 { #category : #tests }
+DRPhiSimplicationTest >> testSimplifyRecursivePhi [
+
+	| cfg t1 block phi |
+	cfg := self setUpCFGWithConditional.
+	block := cfg b4.
+
+	t1 := cfg b1 copy: 1.
+	phi := block phiWith: t1.
+	phi replaceOperandAtIndex: 2 by: phi.
+
+	self assert: phi operands size equals: 2.
+	self assertCollection: phi operands hasSameElements: { 
+			t1.
+			phi }.
+
+	cfg applyOptimisation: optimisation.
+
+	self assert: block firstInstruction isCopy.
+	self assert: block firstInstruction operand1 equals: t1
+]
+
+{ #category : #tests }
 DRPhiSimplicationTest >> testSimplifyRedundantPhi [
 
 	| cfg t1 block phi |

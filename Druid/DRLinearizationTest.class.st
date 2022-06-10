@@ -25,7 +25,7 @@ DRLinearizationTest >> testBranchingControlFlow [
 	b3 jumpTo: b4.
 	b4 endInstruction: DRReturn new.
 		
-	self assert: cfg reversePostOrderBlocks asArray equals: { cfg initialBasicBlock. b1 . b3 . b2 . b4 }
+	self assert: cfg reversePostOrderBlocks asArray equals: { cfg initialBasicBlock . b1 . b3 .b2 . b4 }
 ]
 
 { #category : #'tests-basic' }
@@ -104,11 +104,11 @@ DRLinearizationTest >> testBuildCFGHasAllBlocks [
 
 	| cfg |
 	cfg := DRPrimitiveCompilerCompiler new
-		primitiveName: #primitiveWithIfAssigningValue;
+		primitiveName: #primitiveIfTrueIfFalseAssigningValue;
 		interpreter: interpreter;
 		generateDruidIR.
 	
-	self assert: cfg reversePostOrderBlocks size equals: 10
+	self assert: cfg reversePostOrderBlocks size equals: 17
 ]
 
 { #category : #'tests-building' }
@@ -121,7 +121,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWhenEarlyMethodReturns [
 		interpreter: interpreter;
 		generateDruidIR.
 	
-	self assert: cfg reversePostOrderBlocks size equals: 12
+	self assert: cfg reversePostOrderBlocks size equals: 11
 ]
 
 { #category : #'tests-building' }
@@ -136,7 +136,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWithTwoNonLocalReturns [
 	
 	DRDeadBlockElimination new applyTo: cfg.
 	
-	self assert: cfg reversePostOrderBlocks size equals: 12
+	self assert: cfg reversePostOrderBlocks size equals: 14
 ]
 
 { #category : #'tests-building' }
@@ -144,7 +144,7 @@ DRLinearizationTest >> testBuildCFGHasCorrectStructure [
 
 	| cfg |
 	cfg := DRPrimitiveCompilerCompiler new
-		primitiveName: #primitiveWithIfAssigningValue;
+		primitiveName: #primitiveIfTrueIfFalseAssigningValue;
 		interpreter: interpreter;
 		generateDruidIR.
 

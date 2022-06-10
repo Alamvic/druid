@@ -52,3 +52,9 @@ DRCopy >> simpleConstantFold [
 	
 	^ self operand1 simpleConstantFold
 ]
+
+{ #category : #types }
+DRCopy >> type [
+	
+	^ self operands first type
+]

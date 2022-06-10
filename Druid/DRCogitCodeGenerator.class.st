@@ -57,8 +57,13 @@ DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 	generatorMethodBuilder addVariableNamed: jumpVariableName.
 	
 	(self hasVisitedBlock: aTarget) ifTrue: [ 
+		"Backwards branch, the jump target already exists with a label.
+		Make the jump point to the already generated target"
 		jumpTarget := self labelForBlock: aTarget
 	] ifFalse: [
+		"Forward branch, the jump target does not yet exist.
+		Put a 0 for now to generate `cogit Jump: 0`.
+		Defer the branch so it is resolved when the target is created"
 		self deferBranch: jumpVariableName to: aTarget.
 		jumpTarget := 0 asLiteralNode ].
 	

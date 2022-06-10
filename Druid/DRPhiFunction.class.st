@@ -93,7 +93,10 @@ DRPhiFunction >> opcode [
 
 { #category : #'users-definitions' }
 DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
-self haltIf:[anotherOperand isDRBlockClosure ].
+
+	"If this is a recursive phi instruction, we do not care about the operands"
+	anOperand == self ifTrue: [ ^ self ].
+
 	(anotherOperand isInstruction and: [anotherOperand basicBlock = self basicBlock])
 		ifTrue: [ "Have no sense a phi with an block's instruction"
 			anotherOperand isPhiFunction
@@ -150,18 +153,25 @@ DRPhiFunction >> selectOperand: anOperand with: anotherOperand [
 
 { #category : #simplification }
 DRPhiFunction >> simplify [
-	
+
 	operands asSet size = 0 ifTrue: [ ^ DRNullValue new ].
-	operands asSet size = 1 ifTrue: [ ^ operands first ].
+	operands asSet size = 1 ifTrue: [ ^ operands first simplify ].
 	^ self
 ]
 
 { #category : #accessing }
 DRPhiFunction >> singleChild [
 
-	operands size > 1
+	operands asSet size > 1
 		ifTrue: [ self error: 'Cannot simplify a phi function with more than one operand for now' ].
 	^ operands first
+]
+
+{ #category : #simplification }
+DRPhiFunction >> type [
+
+	"Assume all my operands have the correct type"
+	^ self operands anyOne type
 ]
 
 { #category : #accessing }

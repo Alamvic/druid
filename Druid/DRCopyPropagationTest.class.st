@@ -11,19 +11,6 @@ DRCopyPropagationTest >> previousOptimizations [
 ]
 
 { #category : #tests }
-DRCopyPropagationTest >> testCopyIsNotPropagatedBetweenBranches [
-
-	| cfg instruction |
-	cfg := self generateDruidIRFor: #primitiveBranchingWithAssigments.
-
-	DRCopyPropagation new applyTo: cfg.
-
-	instruction := cfg instructionByResultId: 2.
-	self assert: instruction users size equals: 1.
-	self assert: instruction users anyOne isCopy
-]
-
-{ #category : #tests }
 DRCopyPropagationTest >> testCopyIsNotPropagatedFromConstantToPhiFunctions [
 
 	| cfg copy phi |

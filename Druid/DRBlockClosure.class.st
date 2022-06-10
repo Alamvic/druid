@@ -44,6 +44,18 @@ DRBlockClosure >> isDRBlockClosure [
 	^ true
 ]
 
+{ #category : #asd }
+DRBlockClosure >> name [
+
+	^ 'a block'
+]
+
+{ #category : #accessing }
+DRBlockClosure >> numberOfArguments [
+	
+	^ blockNode arguments size
+]
+
 { #category : #accessing }
 DRBlockClosure >> outerContext [
 

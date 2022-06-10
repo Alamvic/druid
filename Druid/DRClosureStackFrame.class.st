@@ -5,29 +5,47 @@ Class {
 }
 
 { #category : #accessing }
-DRClosureStackFrame >> freshFrameState [
-
-	^ super freshFrameState
-		outerFrameState: self outerFrame executionState frameState copy;
-		yourself
-]
-
-{ #category : #accessing }
 DRClosureStackFrame >> homeFrame [
-	
+	1halt.
 	^ receiver outerContext homeFrame
 ]
 
-{ #category : #'instance creation' }
-DRClosureStackFrame >> newFrameState [
-
-	^ super newFrameState
-		outerFrameState: self outerFrame newFrameState;
-		yourself
+{ #category : #accessing }
+DRClosureStackFrame >> homeFrameWithState: aState [
+	
+	^ (self outerFrameWithState: aState) homeFrameWithState: aState
 ]
 
 { #category : #'instance creation' }
 DRClosureStackFrame >> outerFrame [
-	
+
 	^ receiver outerContext
+]
+
+{ #category : #'instance creation' }
+DRClosureStackFrame >> outerFrameWithState: aState [
+
+	^ aState executionStack detectFrame: [ :f | f mirrorFrame == self outerFrame ]
+]
+
+{ #category : #printing }
+DRClosureStackFrame >> printOn: stream [
+
+	stream
+		nextPutAll: self class name;
+		nextPutAll: '(';
+		print: method formattedCode;
+		nextPutAll: ')'
+]
+
+{ #category : #accessing }
+DRClosureStackFrame >> receiver [
+1halt.
+	^ self homeFrame receiver
+]
+
+{ #category : #accessing }
+DRClosureStackFrame >> receiverWithState: aState [
+
+	^ (self homeFrameWithState: aState) receiver
 ]

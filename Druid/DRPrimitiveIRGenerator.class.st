@@ -7,13 +7,19 @@ Class {
 { #category : #accessing }
 DRPrimitiveIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 	
-	self currentBasicBlock executionState vmState primitiveFailureCode: anInstruction
+	self executionState primitiveFailureCode: anInstruction
+]
+
+{ #category : #'execution state' }
+DRPrimitiveIRGenerator >> executionStack [
+	
+	^ executionState executionStack
 ]
 
 { #category : #accessing }
 DRPrimitiveIRGenerator >> ignoreMessageWith: aRBMessageNode [
 
-	self pushOperand: (self noop: aRBMessageNode)
+	self noop: aRBMessageNode
 ]
 
 { #category : #accessing }
@@ -64,7 +70,7 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode
 	| newFailureCode |
 	aRBAssignmentNode value acceptVisitor: self.
 	newFailureCode := self popOperand.
-	self currentBasicBlock primitiveFailureCode: newFailureCode.
+	self currentPrimitiveFailureCode: newFailureCode.
 	self pushOperand: newFailureCode.
 	^ newFailureCode
 ]
@@ -72,7 +78,7 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode
 { #category : #accessing }
 DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aRBNode [
 
-	self pushOperand: self currentBasicBlock primitiveFailureCode
+	self pushOperand: executionState primitiveFailureCode
 ]
 
 { #category : #accessing }
@@ -84,8 +90,7 @@ DRPrimitiveIRGenerator >> ir [
 { #category : #accessing }
 DRPrimitiveIRGenerator >> newBasicBlock [
 
-	^ self newBasicBlockWithState: self currentBasicBlock executionState.
-
+	^ self newBasicBlockWithState: nil
 ]
 
 { #category : #accessing }
@@ -119,18 +124,18 @@ DRPrimitiveIRGenerator >> popFrame [
 	- generate a return instruction popping receiver and arguments all at once
 	- amount to pop is expressed in bytes, so multiply by word size"
 	| comparison vm |
-	vm := self currentFrame receiver.
+	vm := self topFrame receiverWithState: executionState.
 	super popFrame.
 	
 	"Plug the IR with the two exit blocks"
-	interpretationStack size = 1 ifTrue: [
+	executionState executionStack size = 0 ifTrue: [
 		| conditionalJump |
 		self spillStack.
 
 		currentBasicBlock addInstruction: (comparison := self
 			instantiate: DREqualsThanComparison
 			operands: { 
-				currentBasicBlock primitiveFailureCode.
+				executionState primitiveFailureCode.
 				0 asDRValue }).
 		conditionalJump := self
 			instantiateNoResultInstruction: DRConditionalJump

@@ -43,6 +43,12 @@ DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 		operands: { self }.
 ]
 
+{ #category : #accessing }
+DRValue >> hasId: id [
+
+	^ false
+]
+
 { #category : #testing }
 DRValue >> hasUser: anInstruction [
 	
@@ -200,6 +206,12 @@ DRValue >> operands [
 
 { #category : #'users-definitions' }
 DRValue >> removeUser: anInstruction [
+	
+	"Nothing"
+]
+
+{ #category : #'users-definitions' }
+DRValue >> replaceUsersBy: anotherInstruction [
 	
 	"Nothing"
 ]

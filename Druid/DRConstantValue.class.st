@@ -110,9 +110,9 @@ DRConstantValue >> simpleConstantFold [
 { #category : #types }
 DRConstantValue >> type [
 	
-	(#(true false) includes: value)
-		ifTrue: [ ^ DRBooleanType new ].
-	^ DRIntegerType new
+	value = nil ifTrue: [ ^ DRTopType new ].
+	(#(true false) includes: value) ifTrue: [ ^ DRBooleanType new ].
+	^ self notYetImplemented.
 ]
 
 { #category : #accessing }

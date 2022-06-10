@@ -37,3 +37,9 @@ DRLoad >> size [
 
 	^ size
 ]
+
+{ #category : #accessing }
+DRLoad >> type [
+	
+	^ DRIntegerType new
+]

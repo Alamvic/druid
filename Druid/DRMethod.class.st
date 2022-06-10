@@ -8,10 +8,10 @@ Class {
 }
 
 { #category : #accessing }
-DRMethod class >> methodNode: aNode [
+DRMethod class >> methodNode: aMethodNode [
 
 	^ self new
-		methodNode: aNode;
+		methodNode: aMethodNode;
 		yourself
 ]
 

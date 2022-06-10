@@ -19,3 +19,9 @@ DRBooleanInstruction >> sccpLatticeValueOperand: index for: sccp [
 	value = sccp top ifTrue: [ ^ operand ].
 	^ value
 ]
+
+{ #category : #types }
+DRBooleanInstruction >> type [
+	
+	^ DRBooleanType new
+]

@@ -4,12 +4,6 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #accessing }
-DRNoRegister >> hasId: id [
-
-	^ false
-]
-
 { #category : #testing }
 DRNoRegister >> isNoResult [
 	
