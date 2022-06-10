@@ -170,7 +170,9 @@ DRBasicBlock >> checkLivenessOf: operand [
 { #category : #instructions }
 DRBasicBlock >> cleanInstructions [
 
-	self instructions do: [ :i | i removeFromCFG ]
+	self instructions do: [ :i | 
+		i operands asSet do: [ :op | 
+			op removeUser: i ] ]
 ]
 
 { #category : #accessing }
@@ -716,6 +718,14 @@ DRBasicBlock >> printOn: aStream [
 			aStream nextPutAll: '}'.
 		].
 	aStream nextPutAll: ')'
+]
+
+{ #category : #'control-flow' }
+DRBasicBlock >> removeFromCFG [
+	
+	self cleanInstructions.
+	controlFlowGraph removeBasicBlock: self.
+
 ]
 
 { #category : #instructions }

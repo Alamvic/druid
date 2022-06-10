@@ -82,8 +82,8 @@ DRCompilerExplorer >> initialize [
 
 	super initialize.
 	previousCfgs := OrderedCollection new.
-	isRecording := true.
-	shouldGeneratePaths := true
+	isRecording := false.
+	shouldGeneratePaths := false
 ]
 
 { #category : #inspecting }
