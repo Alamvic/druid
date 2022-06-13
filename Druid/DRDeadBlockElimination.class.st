@@ -25,6 +25,7 @@ DRDeadBlockElimination >> applyTo: aDRControlFlowGraph [
 	deadBlocks := aDRControlFlowGraph blocks reject: [ :e | 
 		reachableBlocks includes: e ].
 	deadBlocks do: [ :e | 
-		aDRControlFlowGraph removeBasicBlock: e.
 		e successors do: [ :s | s removePredecessor: e ] ].
+	deadBlocks do: [ :e | 
+		e removeFromCFG ].
 ]

@@ -416,7 +416,6 @@ DRControlFlowGraph >> privateNewBasicBlock [
 { #category : #removing }
 DRControlFlowGraph >> removeBasicBlock: aDRBasicBlock [ 
 
-	"aDRBasicBlock cleanInstructions."
 	basicBlocks remove: aDRBasicBlock
 ]
 

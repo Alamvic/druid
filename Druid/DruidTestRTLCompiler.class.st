@@ -746,6 +746,15 @@ DruidTestRTLCompiler >> gen_primitiveCallingBlockWritingExternalTemp [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveCallingEmptyBlock [
+
+	| currentBlock |
+	self MoveCq: 18 R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveCallingMethodReturningConstant [
 
 	| currentBlock |
@@ -1374,6 +1383,15 @@ DruidTestRTLCompiler >> gen_primitiveNotEqualsThanInverted [
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveReturnFalse [
+
+	| currentBlock |
+	self MoveCw: objectMemory falseObject R: ReceiverResultReg.
+	self RetN: 1 * objectMemory wordSize.
 	^ CompletePrimitive
 ]
 
