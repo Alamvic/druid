@@ -683,7 +683,7 @@ DRBasicBlock >> phiWithVariables: variables [
 		                    :i2 | 
 		                    (i1 isNullValue or: [ i2 isNullValue ]) or: [ 
 			                    (self distanceToPredecessor: i1 basicBlock)
-			                    < (self distanceToPredecessor: i2 basicBlock) ] ].
+			                    <= (self distanceToPredecessor: i2 basicBlock) ] ].
 
 	finalVariables := self predecessors collect: [ :b | 
 		                  orderedVariables

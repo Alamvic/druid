@@ -51,6 +51,24 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 ]
 
 { #category : #optimization }
+DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
+
+	| cfg lastPaths |
+	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
+	cfg generatePaths.
+
+	self assert: cfg deadPaths isNotEmpty.
+
+	optimisation applyTo: cfg.
+	self optimize: cfg.
+	cfg generatePaths.
+
+	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
+	self assert: cfg deadPaths isEmpty.
+	self assert: lastPaths size equals: 1
+]
+
+{ #category : #optimization }
 DRDeadPathEliminationTest >> testEliminateDoubleDeadPaths [
 	"TOFIX: it's trying to create phis in wrong 'frontier' blocks"
 

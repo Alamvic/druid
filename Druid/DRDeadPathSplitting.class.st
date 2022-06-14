@@ -12,7 +12,6 @@ DRDeadPathSplitting >> doApply: aCFG [
 	"Only kill dead paths if any"
 	aCFG deadPaths ifEmpty: [ ^ self ].
 	
-	self assert: aCFG deadPaths isNotEmpty.
 	edge := aCFG deadPaths keys first.
 	[ edge destination predecessors size = 1 ] whileTrue: [ 
 		edge := edge parent.
@@ -24,9 +23,5 @@ DRDeadPathSplitting >> doApply: aCFG [
 	aCFG validate.
 	aCFG generatePaths
 
-	"	(aCFG deadPaths keys 
-		collect: [ :edge | edge source -> edge destination ] as: Set)
-		do: [ :association |
-			association value splitTo: association key ]
-	"
+
 ]
