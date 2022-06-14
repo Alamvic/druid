@@ -17,7 +17,7 @@ DRCPSEdge class >> withSource: aSource andDestination: aDestination branchIndex:
 		  yourself
 ]
 
-{ #category : #adding }
+{ #category : #building }
 DRCPSEdge >> addConstraint: aConditionalConstraint to: id [
 
 	^ constraints
@@ -88,7 +88,7 @@ DRCPSEdge >> isDead [
 	^ constraints values anySatisfy: [ :c | c isEmpty ]
 ]
 
-{ #category : #adding }
+{ #category : #building }
 DRCPSEdge >> mergeConstraint: aConditionalConstraint to: id [
 
 	constraints

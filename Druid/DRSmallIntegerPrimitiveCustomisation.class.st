@@ -4,7 +4,7 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRSmallIntegerPrimitiveCustomisation class >> pragmaName [
 
 	^ #smallInteger
