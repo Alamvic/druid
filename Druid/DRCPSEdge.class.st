@@ -74,6 +74,15 @@ DRCPSEdge >> initialize [
 	constraints := Dictionary new.
 ]
 
+{ #category : #visiting }
+DRCPSEdge >> integerOperation: anOperantion [
+
+	"Could be any number"
+	^ self
+		  addConstraint: DRFullConstraint new
+		  to: anOperantion result name
+]
+
 { #category : #testing }
 DRCPSEdge >> isDead [
 	^ constraints values anySatisfy: [ :c | c isEmpty ]
@@ -112,9 +121,9 @@ DRCPSEdge >> printOn: aStream [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitAddition: aDRAdd [ 
+DRCPSEdge >> visitAddition: aDRAdd [
 
-	^ nil
+	^ self integerOperation: aDRAdd
 ]
 
 { #category : #visiting }

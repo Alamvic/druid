@@ -171,3 +171,14 @@ DRIRTest >> setUpCFGWithConditional: jump [
 
 
 ]
+
+{ #category : #test }
+DRIRTest >> setUpCFGWithConditionalWithPhi [
+
+	| cfg copy1 copy2 |
+	cfg := self setUpCFGWithConditional.
+	copy1 := cfg b2 copy: 1.
+	copy2 := cfg b3 copy: 2.
+	cfg phi: (cfg b4 phiWith: copy1 with: copy2).
+	^ cfg
+]

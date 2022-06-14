@@ -167,20 +167,36 @@ DRPathGenerationTest >> testConstraintsInferenceFromInnerBranches [
 ]
 
 { #category : #constraints }
+DRPathGenerationTest >> testConstraintsInferenceFromLoop [
+
+	| cfg edges firstPhiConstraint loopedPhiConstraint sumConstraint |
+	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
+
+	"Go out from loop"
+	edges := cfg incomingEdgesFor: (cfg blockById: 5).
+
+	"If never go inside the loop"
+	firstPhiConstraint := edges first constraintFor: 'R5'.
+	"If enter and then go out from loop"
+	loopedPhiConstraint := edges second constraintFor: 'R5'.
+	sumConstraint := edges second constraintFor: 'R10'.
+
+	self assert: firstPhiConstraint isEmpty.
+	self assert: loopedPhiConstraint includes: (DRGreaterOrEqualsConstraint withValue: 15).
+	self assert: sumConstraint isNotNil
+]
+
+{ #category : #constraints }
 DRPathGenerationTest >> testConstraintsInferenceFromPhi [
 
-	| cfg copy1 copy2 phi edges constraints |
-	cfg := self setUpCFGWithConditional.
-
-	copy1 := cfg b2 copy: 1.
-	copy2 := cfg b3 copy: 2.
-	phi := cfg b4 phiWith: copy1 with: copy2.
+	| cfg edges constraints |
+	cfg := self setUpCFGWithConditionalWithPhi.
 	cfg b4 jumpTo: cfg newBasicBlock.
 	cfg generatePaths.
 
 	edges := cfg incomingEdgesFor: cfg lastBasicBlock.
 	constraints := edges collect: [ :e | 
-		               e constraintFor: phi result name ].
+		               e constraintFor: cfg phi result name ].
 
 	self assert: edges size equals: 2.
 	self
@@ -301,6 +317,25 @@ DRPathGenerationTest >> testInferenceDeadPaths [
 
 	self assert: deadPath key equals: expectedTarget.
 	self assertCollection: pathBlockIds hasSameElements: { 14. 12 . 28 }
+]
+
+{ #category : #'dead-path' }
+DRPathGenerationTest >> testInferenceDeadPathsFromPhi [
+
+	| cfg deadPaths sourceBlockIds condition |
+	cfg := self setUpCFGWithConditionalWithPhi.
+	condition := cfg b4 equals: cfg phi to: 1 asDRValue.
+	cfg b4
+		jumpIf: condition
+		to: cfg newBasicBlock
+		ifFalseTo: cfg newBasicBlock.
+	cfg generatePaths.
+
+	deadPaths := cfg deadPaths keys.
+	sourceBlockIds := deadPaths collect: [ :e | e source id ].
+
+	"As the condition is exclusive (XOR) each dead path comes from a different branch"
+	self assertCollection: sourceBlockIds hasSameElements: { 2 . 3 }
 ]
 
 { #category : #'dead-path' }

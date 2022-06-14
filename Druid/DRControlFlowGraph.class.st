@@ -269,9 +269,10 @@ DRControlFlowGraph >> instructionColor: instruction [
 
 	instruction isJump ifTrue: [ 
 		instruction isConditionalJump ifTrue: [ ^ Color red muchLighter ].
-		^ Color gray ].
+		instruction isBackJump  ifTrue: [ ^ Color lightMagenta ].
+		^ Color purple muchLighter ].
 	instruction isMandatoryInstruction ifTrue: [ ^ Color purple ].
-	instruction users isEmpty ifTrue: [ ^ Color black ].
+	instruction users isEmpty ifTrue: [ ^ Color gray ].
 	instruction isPhiFunction ifTrue: [ ^ Color orange ].
 	(instruction operands anySatisfy: [ :op | op isPhysicalRegister ]) 
 		ifTrue: [ ^ Color red darker ].

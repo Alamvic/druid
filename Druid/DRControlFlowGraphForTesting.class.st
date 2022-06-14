@@ -7,6 +7,7 @@ Class {
 		'b2',
 		'b3',
 		'b4',
+		'phi',
 		'ConditionnalJump'
 	],
 	#category : #'Druid-IR'
@@ -70,4 +71,16 @@ DRControlFlowGraphForTesting >> b4 [
 DRControlFlowGraphForTesting >> b4: aBlock [ 
 
 	b4 := aBlock
+]
+
+{ #category : #accessing }
+DRControlFlowGraphForTesting >> phi [
+
+	^ phi
+]
+
+{ #category : #accessing }
+DRControlFlowGraphForTesting >> phi: anObject [
+
+	phi := anObject
 ]
