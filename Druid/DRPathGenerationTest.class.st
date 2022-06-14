@@ -4,6 +4,14 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #api }
+DRPathGenerationTest >> optimize: cfg [
+
+	cfg applyOptimisation: ((DRSCCP then: DRCopyPropagation then: DRComposedConditionalSplitting) then:
+			 (DRDeadCodeElimination then: DRCleanControlFlow )).
+	cfg generatePaths
+]
+
 { #category : #constraints }
 DRPathGenerationTest >> testConstraintsArePropagated [
 
@@ -44,9 +52,9 @@ DRPathGenerationTest >> testConstraintsFromComplexConditionalOnDifferentRegs [
 	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnDifferentVariables. "n ~= 2 AND m < 5"
 
 	edges := cfg lastBasicBlock predecessors flatCollect: [ :b | cfg incomingEdgesFor: b ].
-	trueNDomain := edges first constraintFor: 'ReceiverResultReg'.  "n ~= 2"
-	trueMDomain := edges first constraintFor: 'Arg0Reg'.  "m < 5"
-	firstFalseNDomain := edges second constraintFor: 'ReceiverResultReg'.  "n = 2"
+	trueNDomain := edges second constraintFor: 'ReceiverResultReg'.  "n ~= 2"
+	trueMDomain := edges second constraintFor: 'Arg0Reg'.  "m < 5"
+	firstFalseNDomain := edges first constraintFor: 'ReceiverResultReg'.  "n = 2"
 	secondFalseNDomain := edges third constraintFor: 'ReceiverResultReg'.  "n ~= 2"
 	secondFalseMDomain := edges third constraintFor: 'Arg0Reg'.  "m >= 5"
 
@@ -65,8 +73,8 @@ DRPathGenerationTest >> testConstraintsFromComplexConditionalOnSameReg [
 	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnSameVariable. "n ~= 2 AND n < 5"
 
 	edges := cfg lastBasicBlock predecessors flatCollect: [ :b | cfg incomingEdgesFor: b ].
-	trueRegDomain := edges first constraintFor: 'ReceiverResultReg'.  "n ~= 2 AND n < 5"
-	firstFalseRegDomain := edges second constraintFor: 'ReceiverResultReg'.  "n = 2"
+	trueRegDomain := edges second constraintFor: 'ReceiverResultReg'.  "n ~= 2 AND n < 5"
+	firstFalseRegDomain := edges first constraintFor: 'ReceiverResultReg'.  "n = 2"
 	secondFalseRegDomain := edges third constraintFor: 'ReceiverResultReg'.  "n >= 5"
 
 	self assert: (trueRegDomain includes: (DRIntersectionConstraint constraints: {
@@ -146,7 +154,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromInnerBranches [
 	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveInnerBranching.
 
-	edges := cfg outgoingEdgesFor: (cfg blockById: 30).
+	edges := cfg incomingEdgesFor: (cfg blockById: 12).
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "10 < Reg < 20"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. ">= 20"
 
@@ -251,9 +259,17 @@ DRPathGenerationTest >> testGenerateExpectedEdgesCountLinear [
 	| cfg |
 	cfg := self setUpCFG: 3.
 	cfg generatePaths.
-	
 	self assert: cfg edges size equals: 3.
 
+]
+
+{ #category : #building }
+DRPathGenerationTest >> testGenerateExpectedEdgesCountLoop [
+
+	| cfg edges |
+	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
+	edges := cfg incomingEdgesFor: cfg lastBasicBlock.
+	self assert: edges size equals: 2
 ]
 
 { #category : #building }
@@ -266,6 +282,32 @@ DRPathGenerationTest >> testGenerateExpectedEdgesCountMerging [
 
 	edges := cfg incomingEdgesFor: cfg lastBasicBlock.
 	self assert: edges size equals: 2
+]
+
+{ #category : #'dead-path' }
+DRPathGenerationTest >> testInferenceDeadPaths [
+
+	| cfg deadPath expectedTarget pathBlockIds |
+	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
+
+	deadPath := cfg deadPaths associations first.
+	pathBlockIds := deadPath value collect: [ :e | e destination id ].
+	expectedTarget := self anyOutgoingEdge: cfg for: (cfg blockById: 30).
+
+	self assert: deadPath key equals: expectedTarget.
+	self assertCollection: pathBlockIds hasSameElements: { 14. 12 . 28 }
+]
+
+{ #category : #'dead-path' }
+DRPathGenerationTest >> testInferenceManyDeadPaths [
+
+	| cfg deadPaths deadTargetIds |
+	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranches.
+	deadPaths := cfg deadPaths.
+	deadTargetIds := deadPaths keys collect: [ :e | e destination id ].
+
+	self assert: deadPaths size equals: 2.
+	self assertCollection: deadTargetIds hasSameElements: { 40. 41 }
 ]
 
 { #category : #building }
@@ -290,4 +332,32 @@ DRPathGenerationTest >> testLinearContigousBlocksShareEdge [
 	self
 		assert: (self anyOutgoingEdge: cfg for: blocks first)
 		equals: (self anyIncomingEdge: cfg for: blocks second)
+]
+
+{ #category : #'dead-path' }
+DRPathGenerationTest >> testUnmergeableConditionalBranchToSameTarget [
+
+	| cfg b0 copy1 copy2 b1 condition |
+	
+	"If a block has a conditional branch to a single same target, it can only be merged and transformed to an unconditional jump if there is no Phi function depending on the branching.
+	In this case, we should build two different paths."
+	
+	cfg := DRControlFlowGraphForTesting new. 
+	
+	b0 := cfg newBasicBlock.
+	cfg initialBasicBlock jumpTo: b0.
+	
+	copy1 := b0 copy: 1.
+	copy2 := b0 copy: 2.
+	condition := b0 greater: (DRPhysicalRegister name: 'NO SABES LOCO') than: 2.
+	b1 := cfg newBasicBlock.
+	b0 jumpIf: condition to: b1 ifFalseTo: b1.
+	b1 phiWith: copy1 with: copy2.
+	
+	"Kill the condition boolean value, we don't care about it"
+	"condition result: DRNoRegister new."
+	cfg generatePaths.
+
+
+	self assert: cfg deadPaths isEmpty
 ]

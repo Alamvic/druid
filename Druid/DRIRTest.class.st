@@ -46,13 +46,21 @@ DRIRTest >> deny: aConstraint includes: includedConstraint [
 ]
 
 { #category : #test }
-DRIRTest >> generateDruidIRFor: methodSelector [
+DRIRTest >> generateBasicDruidIRFor: methodSelector [
 
 	| method cfg |
 	method := DruidTestInterpreter lookupSelector: methodSelector.
 	cfg := compilerCompiler generateDruidIRFor: method.
-	self optimize: cfg.
 
+	^ cfg
+]
+
+{ #category : #test }
+DRIRTest >> generateDruidIRFor: methodSelector [
+
+	| cfg |
+	cfg := self generateBasicDruidIRFor: methodSelector.
+	self optimize: cfg.
 	^ cfg
 ]
 

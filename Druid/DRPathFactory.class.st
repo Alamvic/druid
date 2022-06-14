@@ -28,13 +28,17 @@ DRPathFactory >> cfg: anObject [
 ]
 
 { #category : #building }
-DRPathFactory >> createAllEdgesFrom: source to: destination branchIndex: branchIndex [
+DRPathFactory >> createEdgeFromParent: parentEdge to: destination branchIndex: branchIndex [
 
-	| edge |
-	(cfg incomingEdgesFor: source) do: [ :e | "We should generate one outgoing for each incoming edge"
-		edge := cfg addEdgeFrom: source to: destination branchIndex: branchIndex.
-		edge parent: e.
-		source instructions do: [ :i | i acceptVisitor: edge ] ]
+	| source edge |
+	source := parentEdge destination.
+	edge := cfg
+		        addEdgeFrom: source
+		        to: destination
+		        branchIndex: branchIndex.
+	edge parent: parentEdge.
+	source instructions do: [ :i | i acceptVisitor: edge ].
+	^ edge
 ]
 
 { #category : #building }
@@ -49,8 +53,23 @@ DRPathFactory >> createInitialEdge [
 DRPathFactory >> generatePaths [
 
 	self createInitialEdge.
-	cfg reversePostOrderBlocks allButFirst do: [ :source |
-		"Create edge(s) from source block to sucessor(s)"
-		source successors withIndexDo: [ :destination :index | 
-			self createAllEdgesFrom: source to: destination branchIndex: index ] ]
+
+	{ cfg edges first } asOrderedCollection whileNotEmpty: [ :parentEdge :worklist :backJumps | 
+		| sourceBlock |
+		sourceBlock := parentEdge destination.
+		sourceBlock successors withIndexDo: [ :successor :index | 
+			| newEdge shouldStop |
+			"Propagate edge to create the path"
+			newEdge := self
+				           createEdgeFromParent: parentEdge
+				           to: successor
+				           branchIndex: index.
+			"Check stop conditions"
+			shouldStop := (worklist includes: successor) or: [ 
+				              backJumps includes: sourceBlock -> successor ].
+			"Continue with successor"
+			shouldStop ifFalse: [ worklist add: newEdge ].
+			"Keep info about backJumps"
+			sourceBlock endInstruction isBackJump ifTrue: [ 
+				backJumps add: sourceBlock -> successor ] ] ]
 ]

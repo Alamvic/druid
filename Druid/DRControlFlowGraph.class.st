@@ -426,6 +426,18 @@ DRControlFlowGraph >> reversePostOrderBlocks [
 ]
 
 { #category : #inspecting }
+DRControlFlowGraph >> showBranchConstraints: branchEdges [
+
+	^ String streamContents: [ :s | 
+		  branchEdges
+			  do: [ :e | 
+				  e constraints associationsDo: [ :assoc | 
+					  s << (assoc key asString , ' ' , assoc value asString , String cr) ] ]
+			  separatedBy: [ 
+				  s << (String cr , '--o--o--o--o--o--o--o--' , String cr) ] ]
+]
+
+{ #category : #inspecting }
 DRControlFlowGraph >> showIn: view [
 
 	| blockViews controller |
@@ -499,13 +511,7 @@ DRControlFlowGraph >> showLines: blockViews in: view [
 		source := line model key.
 		destination := line model value.
 		line model: (self edgesFrom: source to: destination).
-		line @ (RSPopup text: [ :edgs | 
-			 String streamContents: [ :s | 
-				 edgs
-					 do: [ :e | 
-					 e constraints associations asStringOn: s delimiter: String cr ]
-					 separatedBy: [ 
-					 s << (String cr , '--o--o--o--o--o--o--o--' , String cr) ] ] ]).
+		line @ (RSPopup text: [ :edgs | self showBranchConstraints: edgs ]).
 		(self isAlmostDeadBranch: source to: destination) ifTrue: [ 
 			line color: Color green muchDarker ].
 		(self isDeadBranch: source to: destination) ifTrue: [ 
