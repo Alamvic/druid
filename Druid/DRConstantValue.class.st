@@ -112,7 +112,7 @@ DRConstantValue >> type [
 	
 	value = nil ifTrue: [ ^ DRTopType new ].
 	(#(true false) includes: value) ifTrue: [ ^ DRBooleanType new ].
-	^ 1halt
+	^ self notYetImplemented.
 ]
 
 { #category : #accessing }

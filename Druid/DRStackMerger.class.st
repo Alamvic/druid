@@ -65,19 +65,7 @@ DRStackMerger >> mergeAll: aCollectionOfExecutionStates [
 { #category : #merging }
 DRStackMerger >> mergeAll: aCollectionOfExecutionStates upTo: aFrame [
 
-	| stacks mergedStack mergedVMState vmStates |
-	vmStates := aCollectionOfExecutionStates collect: [ :e | e vmState ].
-	stacks := aCollectionOfExecutionStates collect: [ :e | 
-		e popUpTo: aFrame; executionStack ].
-	mergedVMState := self mergeVMStates: vmStates.
-	mergedStack := self mergeStacks: stacks simplifying: true.
-	
-	mergedState := DRExecutionState new
-		  vmState: mergedVMState;
-		  executionStack: mergedStack;
-		  yourself.
-	self installInstructions.
-	^ mergedState
+	^ self mergeAll: (aCollectionOfExecutionStates collect: [ :e | e popUpTo: aFrame ])
 ]
 
 { #category : #accessing }

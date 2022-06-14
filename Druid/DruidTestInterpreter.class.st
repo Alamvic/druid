@@ -224,6 +224,16 @@ DruidTestInterpreter >> primitiveCallingBlockWritingExternalTemp [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCallingEmptyBlock [
+
+	<numberOfArguments: 0>
+	| value |
+	value := [ ] value.
+	value ifNil: [ value := 18 ].
+	self pop: 1 thenPush: value
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveCallingMethodReturningConstant [
 
 	<numberOfArguments: 0>
@@ -606,7 +616,7 @@ DruidTestInterpreter >> primitiveMultiplyWithOverflow [
 	result := self
 		multiplySmallInteger: (self stackValue: 1)
 		withSmallInteger: (self stackValue: 0)
-		ifOverflow: [ 99 ].
+		ifOverflow: [ ^ 99 ].
 	self pop: 2 thenPush: result
 ]
 
@@ -634,6 +644,14 @@ DruidTestInterpreter >> primitiveNotEqualsThanInverted [
 	| r |
 	r := 10 ~= self stackTop ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveReturnFalse [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: objectMemory falseObject
 ]
 
 { #category : #'as yet unclassified' }

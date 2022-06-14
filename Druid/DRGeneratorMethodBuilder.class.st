@@ -6,7 +6,7 @@ Class {
 		'statements',
 		'variableNames'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-Cogit'
 }
 
 { #category : #accessing }

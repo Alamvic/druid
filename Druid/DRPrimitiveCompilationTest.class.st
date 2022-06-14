@@ -32,6 +32,7 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 
 	"Then generate the machine code for that method"
 	initialAddress := self compile: [
+		cogit methodOrBlockNumArgs: 2.
 		cogit perform: generatorSelector.
 		stopInstruction := cogit Stop
 	].
@@ -233,6 +234,78 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 	
 ]
 
+{ #category : #'test-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlock [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockReturningConstant.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'test-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockReadingExternalTemp [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockReadingExternalTemp.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'test-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockWithArgument [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockReturningArgument.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'test-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockWithNonLocalReturn [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockWithNonLocalReturn.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'test-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingBlockWritingExternalTemp [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingBlockWritingExternalTemp.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'test-blocks' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveCallingEmptyBlock [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveCallingEmptyBlock.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+
+	self assert: machineSimulator receiverRegisterValue equals: 18
+]
+
 { #category : #'tests-methodactivations' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethod [
 
@@ -282,6 +355,19 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveReturningConstant [
 ]
 
 { #category : #'tests-basic' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveReturningFalseObjectReference [
+
+	| receiver |
+	self compileDruidPrimitive: #primitiveReturnFalse.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+	
+	"An empty primitive does nothing and just returns, the return value is the receiver"
+	self assert: machineSimulator receiverRegisterValue equals: memory falseObject
+]
+
+{ #category : #'tests-basic' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveReturningObjectReference [
 
 	| receiver |
@@ -305,7 +391,7 @@ DRPrimitiveCompilationTest >> testCompiledPrimitiveInitializesCorrectlyTheSimula
 	self executePrimitiveWithReceiver: receiver withArguments: { 1. 2 }.
 	
 	"An empty primitive does nothing and just returns, the return value is the receiver"
-	self assert: self popAddress equals: 55
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-stack' }

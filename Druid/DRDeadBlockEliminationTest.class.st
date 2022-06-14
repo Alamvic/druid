@@ -10,7 +10,8 @@ Class {
 		'exitPhi',
 		'deadPhiOperand',
 		'alivePhiOperand',
-		'entryBlock'
+		'entryBlock',
+		'entryCopy'
 	],
 	#category : #'Druid-Tests'
 }
@@ -27,6 +28,8 @@ DRDeadBlockEliminationTest >> setUp [
 	exitBlock := cfg newBasicBlock.
 	deadBlock := cfg newBasicBlock.
 	deadBlock2 := cfg newBasicBlock.
+
+	entryCopy := entryBlock copy: 1.
 
 	deadBlock jumpTo: deadBlock2.
 
@@ -88,4 +91,17 @@ DRDeadBlockEliminationTest >> testRemoveDeadBlockPhi [
 	
 	self assert: exitPhi operands size equals: 1.
 	self assert: exitPhi operands first equals: alivePhiOperand
+]
+
+{ #category : #tests }
+DRDeadBlockEliminationTest >> testUsersAreCleanedUp [
+
+	"A dead block uses a non dead instruction.
+	This may happen after code transformations and simplifications"
+	| deadCopy |
+	deadCopy := deadBlock copy: entryCopy.
+
+	optimisation applyTo: cfg.
+	
+	self deny: (entryCopy users includes: deadCopy)
 ]

@@ -3,6 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'initialBasicBlock',
+		'initialConstraint',
 		'basicBlocks',
 		'nextBasicBlockId',
 		'instructionFactory',
@@ -233,6 +234,17 @@ DRControlFlowGraph >> initialBasicBlock [
 	^ initialBasicBlock
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> initialConstraint: constraint [
+	initialConstraint := constraint
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> initialContrainst [
+
+	^ initialConstraint
+]
+
 { #category : #initialization }
 DRControlFlowGraph >> initialize [
 
@@ -405,7 +417,6 @@ DRControlFlowGraph >> privateNewBasicBlock [
 { #category : #removing }
 DRControlFlowGraph >> removeBasicBlock: aDRBasicBlock [ 
 
-	"aDRBasicBlock cleanInstructions."
 	basicBlocks remove: aDRBasicBlock
 ]
 

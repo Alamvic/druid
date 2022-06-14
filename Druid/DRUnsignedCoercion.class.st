@@ -22,3 +22,9 @@ DRUnsignedCoercion >> sccpOperateOnLattice: operand [
 	self haltIf: [ operand < 0 ].
 	^ operand
 ]
+
+{ #category : #types }
+DRUnsignedCoercion >> type [
+	
+	^ DRIntegerType new
+]

@@ -59,14 +59,6 @@ DRVMState >> addTo: aDRVMState depth: maxVMStackDepth [
 	
 	"Add my own state to the execution state in parameter"
 
-	"First complete stack bottom with nulls if my stack is smaller.
-	We have to guarantee that what was in the top stays in the top."
-	"1 to: maxVMStackDepth - operandStack size do: [ :i |
-		1halt.
-		aDRVMState
-			addStackOperand: DRNullValue new
-			at: aDRVMState operandStack size - i + 1
-	]."
 	aDRVMState completeOperandStackUpTo: operandStack size.
 	aDRVMState operandStackWithIndexDo: [ :operand :stackPosition |
 		aDRVMState
