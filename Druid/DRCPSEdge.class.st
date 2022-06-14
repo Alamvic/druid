@@ -327,14 +327,21 @@ DRCPSEdge >> visitOverflowJump: aDROverflowJump [
 { #category : #visiting }
 DRCPSEdge >> visitPhiFunction: aDRPhiFunction [
 
-	| operandsConstraint phiConstraint |
-	operandsConstraint := aDRPhiFunction operands collect: [ :op | 
-		                      (op acceptVisitor: self) ifNil: [ 
-			                      DRFullConstraint new ] ].
+	| branchOperand sourcePredecessor index constraint |
+	sourcePredecessor := self parent source.
+	index := aDRPhiFunction basicBlock predecessors indexOf: sourcePredecessor.
 
-	phiConstraint := DRUnionConstraint constraints: operandsConstraint.
+	index = 0
+		ifTrue: [ "Already resolved in parent edge: just propagate" 
+			constraint := self parent constraintFor: aDRPhiFunction result name ]
+		ifFalse: [ "Edge inmmediatly out from phi: search the constraint for nth operand"
+			branchOperand := aDRPhiFunction operands size = 1
+				                 ifTrue: [ aDRPhiFunction operands first ]
+				                 ifFalse: [ aDRPhiFunction operands at: index ].
+			constraint := self parent constraintFor: branchOperand result name ].
 
-	^ self addConstraint: phiConstraint to: aDRPhiFunction result name
+	^ constraint ifNotNil: [ 
+		  self addConstraint: constraint to: aDRPhiFunction result name ]
 ]
 
 { #category : #visiting }

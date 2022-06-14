@@ -169,7 +169,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromInnerBranches [
 { #category : #constraints }
 DRPathGenerationTest >> testConstraintsInferenceFromPhi [
 
-	| cfg edge constraint copy1 copy2 phi |
+	| cfg copy1 copy2 phi edges constraints |
 	cfg := self setUpCFGWithConditional.
 
 	copy1 := cfg b2 copy: 1.
@@ -178,18 +178,23 @@ DRPathGenerationTest >> testConstraintsInferenceFromPhi [
 	cfg b4 jumpTo: cfg newBasicBlock.
 	cfg generatePaths.
 
-	edge := self anyIncomingEdge: cfg for: cfg lastBasicBlock.
-	constraint := edge constraintFor: phi result name.
+	edges := cfg incomingEdgesFor: cfg lastBasicBlock.
+	constraints := edges collect: [ :e | 
+		               e constraintFor: phi result name ].
 
-	self assert: constraint includes: (DRUnionConstraint constraints: { 
-				 (DREqualsConstraint withValue: 1).
-				 (DREqualsConstraint withValue: 2) })
+	self assert: edges size equals: 2.
+	self
+		assert: constraints first
+		includes: (DREqualsConstraint withValue: 1).
+	self
+		assert: constraints second
+		includes: (DREqualsConstraint withValue: 2)
 ]
 
 { #category : #constraints }
 DRPathGenerationTest >> testConstraintsInferenceFromPhiWithNull [
 
-	| cfg edge unionConstraint copy1 copy2 phi |
+	| cfg copy1 copy2 phi edges constraints |
 	cfg := self setUpCFGWithConditional.
 
 	copy1 := cfg b2 copy: 1.
@@ -198,11 +203,11 @@ DRPathGenerationTest >> testConstraintsInferenceFromPhiWithNull [
 	cfg b4 jumpTo: cfg newBasicBlock.
 	cfg generatePaths.
 
-	edge := self anyIncomingEdge: cfg for: cfg lastBasicBlock.
-	unionConstraint := edge constraintFor: phi result name.
+	edges := cfg incomingEdgesFor:  cfg lastBasicBlock.
+	constraints := edges collect: [ :e | e constraintFor: phi result name ] .
 
-	self assert: unionConstraint constraints first includes: (DREqualsConstraint withValue: 1).
-	self assert: unionConstraint constraints second isAny.
+	self assert: constraints first includes: (DREqualsConstraint withValue: 1).
+	self assert: constraints second isNil.
 
 ]
 
