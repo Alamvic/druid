@@ -60,10 +60,7 @@ DRPathFactory >> generatePaths [
 		| sourceBlock |
 		sourceBlock := parentEdge destination.
 		sourceBlock successors withIndexDo: [ :successor :index | 
-			| newEdge shouldStop |
-			
-			1haltIf: [ sourceBlock = successor ].
-			
+			| newEdge shouldStop |			
 			"Propagate edge to create the path"
 			newEdge := self
 				           createEdgeFromParent: parentEdge

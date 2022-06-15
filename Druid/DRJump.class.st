@@ -28,6 +28,13 @@ DRJump >> beBackJump [
 ]
 
 { #category : #accessing }
+DRJump >> beBackJumpTo: aDRBasicBlock [
+
+	self assert: aDRBasicBlock = target.
+	self beBackJump
+]
+
+{ #category : #accessing }
 DRJump >> beForwardJump [
 	
 	isBackJump := false

@@ -21,22 +21,16 @@ DRControlFlowOptimisation >> doApply: cfg [
 { #category : #'post-optimise' }
 DRControlFlowOptimisation >> fixBackJumps: cfg [
 
-	{ cfg initialBasicBlock } asOrderedCollection whileNotEmpty: [ 
-		:current 
-		:worklist 
-		:marked | 
-		marked add: current.
+	cfg blocks do: [ :block | 
+		block successors do: [ :succ | 
+			(block endInstruction isBackJumpTo: succ) ifTrue: [ "If back-jump to block a recursive phi should exist"
+				(succ phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
+					ifFalse: [ "If not, then is a forward-jump" 
+						block endInstruction beForwardJumpTo: succ ] ] ].
 
-		current successors do: [ :succ | 
-			(current endInstruction isBackJumpTo: succ)
-				ifTrue: [ "Target should be already visited"
-					(marked includes: succ) ifFalse: [ "If not, it is not a backjump!!" 
-						current endInstruction beForwardJumpTo: succ ] ]
-				ifFalse: [ "Successors should not be visited yet"
-					(marked includes: succ) ifTrue: [ "Else, it is a backjump!!" 
-						current endInstruction beBackJumpTo: succ ] ].
-
-			"Continue with not-visited successors"
-			(marked includes: succ) ifFalse: [ worklist add: succ ] ] ].
-
+		"Check if has a back-jump to this block"
+		(block phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
+			ifTrue: [ 
+				block backJumpPredecessors do: [ :pred | 
+					pred endInstruction beBackJumpTo: block ] ] ]
 ]

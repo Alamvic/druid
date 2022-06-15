@@ -82,6 +82,19 @@ DRBasicBlock >> anyMask: aValue with: anotherValue [
 	^ self addInstruction: (self instructionFactory anyMask: aValue with: anotherValue)
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> backJumpPredecessors [
+
+	| result |
+	result := OrderedCollection new.
+
+	self recursiveSuccessorsDo: [ :block | 
+		(self predecessors includes: block) ifTrue: [ result add: block ].
+		block = self ifTrue: [ ^ result ] ].
+
+	^ result
+]
+
 { #category : #building }
 DRBasicBlock >> backJumpTo: aDRBasicBlock [ 
 
@@ -718,6 +731,14 @@ DRBasicBlock >> printOn: aStream [
 			aStream nextPutAll: '}'.
 		].
 	aStream nextPutAll: ')'
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursiveSuccessorsDo: aBlock [
+
+	self successors do: [ :b | 
+		aBlock value: b.
+		b recursiveSuccessorsDo: aBlock ]
 ]
 
 { #category : #'control-flow' }

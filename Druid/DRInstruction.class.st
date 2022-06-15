@@ -402,6 +402,14 @@ DRInstruction >> printOn: aStream [
 	aStream nextPut: $)
 ]
 
+{ #category : #'users-definitions' }
+DRInstruction >> recursiveUsersDo: aBlock [
+
+	users do: [ :i | 
+		aBlock value: i.
+		i recursiveUsersDo: aBlock ]
+]
+
 { #category : #removing }
 DRInstruction >> removeFromCFG [
 
