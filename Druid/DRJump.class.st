@@ -27,6 +27,19 @@ DRJump >> beBackJump [
 	isBackJump := true
 ]
 
+{ #category : #accessing }
+DRJump >> beForwardJump [
+	
+	isBackJump := false
+]
+
+{ #category : #accessing }
+DRJump >> beForwardJumpTo: aDRBasicBlock [
+
+	self assert: aDRBasicBlock = target.
+	self beForwardJump
+]
+
 { #category : #visiting }
 DRJump >> hash [
 
@@ -37,12 +50,19 @@ DRJump >> hash [
 DRJump >> initialize [
 
 	super initialize.
-	result := DRNoRegister new
+	result := DRNoRegister new.
+	isBackJump := false
 ]
 
 { #category : #testing }
 DRJump >> isBackJump [
 	^ isBackJump ifNil: [ false ]
+]
+
+{ #category : #testing }
+DRJump >> isBackJumpTo: aDRBasicBlock [
+
+	^ isBackJump and: [ target = aDRBasicBlock ]
 ]
 
 { #category : #accessing }

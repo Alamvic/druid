@@ -280,8 +280,8 @@ DRControlFlowGraph >> instructionByResultId: anInteger [
 DRControlFlowGraph >> instructionColor: instruction [
 
 	instruction isJump ifTrue: [ 
+		instruction isBackJump  ifTrue: [ ^ Color magenta ].
 		instruction isConditionalJump ifTrue: [ ^ Color red muchLighter ].
-		instruction isBackJump  ifTrue: [ ^ Color lightMagenta ].
 		^ Color purple muchLighter ].
 	instruction isMandatoryInstruction ifTrue: [ ^ Color purple ].
 	instruction users isEmpty ifTrue: [ ^ Color gray ].

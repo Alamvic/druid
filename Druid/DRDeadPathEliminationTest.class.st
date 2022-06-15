@@ -53,7 +53,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 { #category : #optimization }
 DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 
-	| cfg lastPaths |
+	| cfg lastPaths conditionalConstraint |
 	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
 	cfg generatePaths.
 
@@ -65,7 +65,13 @@ DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 
 	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
 	self assert: cfg deadPaths isEmpty.
-	self assert: lastPaths size equals: 1
+	self assert: lastPaths size equals: 1.
+
+	"Should propagate conditional exit"
+	conditionalConstraint := lastPaths first constraintFor: 'R10'.
+	self
+		assert: conditionalConstraint
+		includes: (DRGreaterOrEqualsConstraint withValue: 15)
 ]
 
 { #category : #optimization }

@@ -4,6 +4,17 @@ Class {
 	#category : #'Druid-IR-Paths'
 }
 
+{ #category : #initialization }
+DRNotEqualsConstraint class >> withValue: aConstantValue [
+
+	aConstantValue ifNil: [ 
+		^ DRNotEqualsObjectConstraint new
+			  constantValue: aConstantValue;
+			  yourself ].
+
+	^ super withValue: aConstantValue
+]
+
 { #category : #arithmetic }
 DRNotEqualsConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 

@@ -270,7 +270,7 @@ DRBasicBlock >> firstInstruction [
 DRBasicBlock >> forwardPredecessors [
 	
 	"Ignore predecessors coming from backjumps"
-	^ predecessors select: [ :e | e endInstruction isBackJump not ]
+	^ predecessors reject: [ :e | e endInstruction isBackJumpTo: self ]
 ]
 
 { #category : #building }
@@ -297,7 +297,7 @@ DRBasicBlock >> hasFrontier: aBlock [
 DRBasicBlock >> hasIncomingBackjumps [
 	
 	^ self predecessors anySatisfy: [ :p |
-		p lastInstruction isBackJump ]
+		p lastInstruction isBackJumpTo: self ]
 ]
 
 { #category : #testing }
@@ -636,7 +636,7 @@ DRBasicBlock >> newEmptySuccessors [
 DRBasicBlock >> numberOfForwardPredecessors [
 	
 	"Ignore predecessors coming from backjumps"
-	^ predecessors count: [ :e | e endInstruction isBackJump not ]
+	^ predecessors count: [ :e | (e endInstruction isBackJumpTo: self) not ]
 ]
 
 { #category : #building }

@@ -3,7 +3,8 @@ Class {
 	#superclass : #DRInstruction,
 	#instVars : [
 		'trueBranch',
-		'falseBranch'
+		'falseBranch',
+		'backJumpTo'
 	],
 	#category : #'Druid-IR'
 }
@@ -12,6 +13,12 @@ Class {
 DRConditionalJump >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitConditionalJump: self
+]
+
+{ #category : #accessing }
+DRConditionalJump >> beBackJumpTo: aDRBasicBlock [
+
+	backJumpTo := aDRBasicBlock
 ]
 
 { #category : #accessing }
@@ -47,7 +54,13 @@ DRConditionalJump >> initialize [
 { #category : #testing }
 DRConditionalJump >> isBackJump [
 	"For now do not allow conditional back jumps. Although they could happen... so we should be careful"
-	^ false
+	^ backJumpTo isNotNil 
+]
+
+{ #category : #testing }
+DRConditionalJump >> isBackJumpTo: aDRBasicBlock [
+
+	^ backJumpTo = aDRBasicBlock
 ]
 
 { #category : #testing }

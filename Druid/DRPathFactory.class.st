@@ -61,6 +61,9 @@ DRPathFactory >> generatePaths [
 		sourceBlock := parentEdge destination.
 		sourceBlock successors withIndexDo: [ :successor :index | 
 			| newEdge shouldStop |
+			
+			1haltIf: [ sourceBlock = successor ].
+			
 			"Propagate edge to create the path"
 			newEdge := self
 				           createEdgeFromParent: parentEdge
@@ -71,7 +74,7 @@ DRPathFactory >> generatePaths [
 				              backJumps includes: sourceBlock -> successor ].
 			"Continue with successor"
 			shouldStop ifFalse: [ worklist add: newEdge ].
-			"Keep info about backJumps"
-			sourceBlock endInstruction isBackJump ifTrue: [ 
+			"Mark backJumps"
+			(sourceBlock endInstruction isBackJumpTo: successor) ifTrue: [ 
 				backJumps add: sourceBlock -> successor ] ] ]
 ]

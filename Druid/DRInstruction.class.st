@@ -187,6 +187,12 @@ DRInstruction >> inspectionDependencies: aBuilder [
 		yourself
 ]
 
+{ #category : #accessing }
+DRInstruction >> isBackJump [
+
+	^ false
+]
+
 { #category : #testing }
 DRInstruction >> isComparison [
 
