@@ -19,6 +19,12 @@ DRGetConditionCode >> condition [
 	^ condition
 ]
 
+{ #category : #testing }
+DRGetConditionCode >> isSetConditionCode [
+	
+	^ true
+]
+
 { #category : #printing }
 DRGetConditionCode >> opcode [
 	

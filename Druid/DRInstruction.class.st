@@ -247,6 +247,12 @@ DRInstruction >> isPhiFunction [
 	^ false
 ]
 
+{ #category : #testing }
+DRInstruction >> isSetConditionCode [
+	
+	^ false
+]
+
 { #category : #accessing }
 DRInstruction >> label [
 
