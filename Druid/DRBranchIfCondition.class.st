@@ -10,7 +10,7 @@ Class {
 { #category : #visiting }
 DRBranchIfCondition >> acceptVisitor: aVisitor [
 
-	^ aVisitor visitConditionalJump: self
+	^ aVisitor visitBranchIfCondition: self
 ]
 
 { #category : #accessing }
@@ -42,6 +42,16 @@ DRBranchIfCondition >> operands: operandList [
 DRBranchIfCondition >> prettyConditionPrint [
 
 	^ self condition prettyPrintWithBranch: self
+]
+
+{ #category : #transforming }
+DRBranchIfCondition >> reversed [
+
+	^ DRBranchIfCondition new
+		operands: { self condition reversed }, self operands reversed;
+		trueBranch: self trueBranch;
+		falseBranch: self falseBranch;
+		yourself
 ]
 
 { #category : #SCCP }

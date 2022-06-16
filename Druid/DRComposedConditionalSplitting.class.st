@@ -49,7 +49,7 @@ DRComposedConditionalSplitting >> visitAnd: aDRAnd [
 ]
 
 { #category : #visiting }
-DRComposedConditionalSplitting >> visitConditionalJump: aDRConditionalJump [
+DRComposedConditionalSplitting >> visitBranchIfCondition: aDRConditionalJump [
 
 	currentJump := aDRConditionalJump.
 	aDRConditionalJump condition acceptVisitor: self

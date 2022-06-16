@@ -311,7 +311,7 @@ DRIRGenerator >> interpretAndWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretAnyMaskWith: aRBMessageNode [ 
 
-	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRTestMask
+	^ self interpretCondition: aRBMessageNode conditionKind: DRTestMask
 ]
 
 { #category : #'special-cases' }

@@ -5,9 +5,9 @@ Class {
 }
 
 { #category : #visiting }
-DRNotEqualsThanComparison >> acceptVisitor: aVisitor [
+DRNotEqualsThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch [
 	
-	^ aVisitor visitNotEqualsComparison: self
+	^ aVisitor visitNotEqualsThan: self inBranch: parentBranch
 ]
 
 { #category : #'rtl-translation' }
@@ -38,5 +38,5 @@ DRNotEqualsThanComparison >> opcode [
 DRNotEqualsThanComparison >> reversed [
 
 	"Returns the same condition but with reversed operands: x ~= y --> y ~= x"
-	^ DRNotEqualsThanComparison operands: operands reversed result: result
+	^ DRNotEqualsThanComparison new
 ]

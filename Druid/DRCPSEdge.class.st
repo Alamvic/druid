@@ -138,21 +138,7 @@ DRCPSEdge >> visitBitShift: aDRBitShift [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitComparison: aDRComparison andDo: aClosure [ 
-
-		| operands |
-	operands := aDRComparison operands.
-	((operands anySatisfy: #isConstant) and: [ operands anySatisfy: [:o | o isRegister or: o isInstruction ] ]) 
-		ifFalse: [ ^ nil "We need a register and a constant" ].
-
-	aDRComparison operand2 isConstant ifFalse: [ "Check constant on right"
-		^ aDRComparison reversed acceptVisitor: self "if not reverse it" ]. 
-
-	^ aClosure value: aDRComparison operand1 value: (aDRComparison operand2 acceptVisitor: self)
-]
-
-{ #category : #visiting }
-DRCPSEdge >> visitConditionalJump: aDRConditionalJump [
+DRCPSEdge >> visitBranchIfCondition: aDRConditionalJump [
 
 	| constraint |
 	"Ignore hardcoded values"
@@ -164,6 +150,20 @@ DRCPSEdge >> visitConditionalJump: aDRConditionalJump [
 	branchIndex = 1
 		ifTrue: [ self mergeConstraint: constraint ]
 		ifFalse: [ self mergeConstraint: constraint negated ]
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitComparison: aDRComparison andDo: aClosure [ 
+
+		| operands |
+	operands := aDRComparison operands.
+	((operands anySatisfy: #isConstant) and: [ operands anySatisfy: [:o | o isRegister or: o isInstruction ] ]) 
+		ifFalse: [ ^ nil "We need a register and a constant" ].
+
+	aDRComparison operand2 isConstant ifFalse: [ "Check constant on right"
+		^ aDRComparison reversed acceptVisitor: self "if not reverse it" ]. 
+
+	^ aClosure value: aDRComparison operand1 value: (aDRComparison operand2 acceptVisitor: self)
 ]
 
 { #category : #visiting }

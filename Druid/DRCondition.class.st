@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #visiting }
+DRCondition >> acceptVisitor: aVisitor withBranch: parentBranch [
+	
+	self subclassResponsibility
+]
+
 { #category : #testing }
 DRCondition >> isComparison [
 
@@ -25,8 +31,8 @@ DRCondition >> isOverflow [
 { #category : #printing }
 DRCondition >> prettyPrintWithBranch: aDRBranchIfCondition [
 
-	^ aDRBranchIfCondition operand1 result asString , ' ' , self opcode
-	  , ' ' , aDRBranchIfCondition operand1 asString
+	^ aDRBranchIfCondition operand1 result name , ' ' , self opcode , ' '
+	  , aDRBranchIfCondition operand2 name
 ]
 
 { #category : #converting }

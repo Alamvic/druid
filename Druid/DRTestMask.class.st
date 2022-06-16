@@ -11,6 +11,12 @@ DRTestMask >> acceptVisitor: aVisitor [
 ]
 
 { #category : #visiting }
+DRTestMask >> acceptVisitor: aVisitor withBranch: parentBranch [
+	
+	^ aVisitor visitTestMask: self inBranch: parentBranch
+]
+
+{ #category : #visiting }
 DRTestMask >> cogitFalseConditionCode [
 	
 	"Return the condition code used to jump if this condition is false.
@@ -38,7 +44,7 @@ DRTestMask >> opcode [
 DRTestMask >> reversed [
 
 	"Returns the same condition but with reversed operands: Test x y --> Test y x"
-	^ DRTestMask operands: operands reversed result: result
+	^ DRTestMask new
 ]
 
 { #category : #SCCP }

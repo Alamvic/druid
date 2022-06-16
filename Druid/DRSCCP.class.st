@@ -254,7 +254,17 @@ DRSCCP >> tryReplaceConditionalJump: i [
 
 	| constantTarget removedTarget |
 	"If it is a branch.cond, it has been managed by the previous case"
-	i isBranchIfCondition ifTrue: [ ^ self ].
+	i isBranchIfCondition ifTrue: [ 
+		| conditionLattice |
+		conditionLattice := i sccpEvaluateConditionFor: self.
+		(self isConstantLattice: conditionLattice) ifTrue: [ | branchIfTrue |
+			branchIfTrue := DRBranchIfTrue operands: { conditionLattice asDRValue }.
+			branchIfTrue trueBranch: i trueBranch.
+			branchIfTrue falseBranch: i falseBranch.
+			i replaceBy: branchIfTrue.
+			self tryReplaceConditionalJump: branchIfTrue ].
+		^ self ].
+
 	(i isBranchIfTrue and: [ i operand1 isConstant ])
 		ifFalse: [ ^ self ].
 	
@@ -299,18 +309,6 @@ DRSCCP >> tryReplaceInstructionOperands: i [
 	
 	  branch.iftrue constant
 	"
-
-	i isBranchIfCondition ifTrue: [ 
-		| conditionLattice |
-		conditionLattice := i sccpEvaluateConditionFor: self.
-		(self isConstantLattice: conditionLattice) ifTrue: [ | branchIfTrue |
-			branchIfTrue := DRBranchIfTrue operands: { conditionLattice asDRValue }.
-			branchIfTrue trueBranch: i trueBranch.
-			branchIfTrue falseBranch: i falseBranch.
-			i replaceBy: branchIfTrue.
-			self tryReplaceConditionalJump: branchIfTrue ].
-		^ self ].
-
 	i isPhiFunction ifTrue: [ ^ self ].
 
 	"Replace the operands of instructions by their propagated values on non phi functions"

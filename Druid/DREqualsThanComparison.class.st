@@ -10,6 +10,12 @@ DREqualsThanComparison >> acceptVisitor: aVisitor [
 	^ aVisitor visitEqualsComparison: self
 ]
 
+{ #category : #visiting }
+DREqualsThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch [
+	
+	^ aVisitor visitEqualsThan: self inBranch: parentBranch
+]
+
 { #category : #'rtl-translation' }
 DREqualsThanComparison >> cogitFalseConditionCode [
 	
@@ -38,8 +44,7 @@ DREqualsThanComparison >> opcode [
 DREqualsThanComparison >> reversed [
 
 	"Returns the same condition but with reversed operands: x = y --> y = x"
-
-	^ DREqualsThanComparison operands: operands reversed result: result
+	^ DREqualsThanComparison new
 ]
 
 { #category : #SCCP }

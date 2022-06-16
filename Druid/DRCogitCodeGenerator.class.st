@@ -310,6 +310,28 @@ DRCogitCodeGenerator >> visitBitShift: aDRCogitBitShift [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
+
+	"Delegate the condition generation to the condition itself.
+	It may be a Cmp, a Test or no instruction at all."
+
+	| replacement |
+	replacement := aDRConditionalJump condition
+		               acceptVisitor: self
+		               withBranch: aDRConditionalJump.
+
+	"Generate both jumps, the fallthorugh will get ignored"
+	self
+		generateJump:
+		replacement condition singleChild cogitTrueConditionCode
+		target: replacement trueBranch.
+	self
+		generateJump:
+		replacement condition singleChild cogitFalseConditionCode
+		target: replacement falseBranch
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitBranchIfTrue: aDRBranchIfTrue [
 
 	"Generate both jumps, the fallthorugh will get ignored"
@@ -332,43 +354,25 @@ DRCogitCodeGenerator >> visitBranchIfTrue: aDRBranchIfTrue [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitComparison: aComparison [
 
-	| comparands |
+	| replacement |
+	"Cogit RTL only supports constants as the first argument.
+	Invert the comparison and the condition if necessary, mostly for greaterThan comparisons."
+	aComparison operands first isConstant
+		ifTrue: [ 
+			replacement := aComparison reversed.
+			aComparison replaceBy: replacement ]
+		ifFalse: [ replacement := aComparison ].
+
 	"Generate comparison instruction. In cogit, if you want to do A < B, you have to generate:
 	CMP B A
 	JumpLessThan xxx
 	Thus, operands are inverted always"
-	comparands := aComparison operands reversed.
-
-	"Cogit RTL only supports constants as the first argument.
-	Invert the comparison and the condition if necessary, mostly for greaterThan comparisons)."
-	comparands second isConstant ifTrue: [ 
-		aComparison replaceBy: aComparison reversed.
-		comparands := comparands reversed ].
-
 	self
 		twoOperandCogitRTL: #Cmp
-		operands: comparands
-		instruction: aComparison
-]
+		operands: replacement operands reversed
+		instruction: replacement.
 
-{ #category : #visiting }
-DRCogitCodeGenerator >> visitConditionalJump: aDRConditionalJump [
-
-	"Generate both jumps, the fallthorugh will get ignored"
-
-	aDRConditionalJump condition isOverflow ifFalse: [
-		self
-			generateCompare: aDRConditionalJump condition
-			operands: aDRConditionalJump operands
-	].
-	self
-		generateJump:
-		aDRConditionalJump condition singleChild cogitTrueConditionCode
-		target: aDRConditionalJump trueBranch.
-	self
-		generateJump:
-		aDRConditionalJump condition singleChild cogitFalseConditionCode
-		target: aDRConditionalJump falseBranch
+	^ replacement
 ]
 
 { #category : #visiting }
@@ -406,9 +410,9 @@ DRCogitCodeGenerator >> visitDivision: aDRCogitDivision [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitEqualsComparison: aDRCogitEqualsComparison [ 
+DRCogitCodeGenerator >> visitEqualsThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 	
-	self visitComparison: aDRCogitEqualsComparison
+	^ self visitComparison: aDRBranchIfCondition
 ]
 
 { #category : #visiting }
@@ -476,15 +480,15 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanComparison [ 
+DRCogitCodeGenerator >> visitGreaterOrEqualsThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 	
-	self visitComparison: aDRGreaterOrEqualsThanComparison
+	^ self visitComparison: aDRBranchIfCondition
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitGreaterThanComparison: aDRGreaterThanComparison [ 
-
-	self visitComparison: aDRGreaterThanComparison
+DRCogitCodeGenerator >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
+	
+	^ self visitComparison: aDRBranchIfCondition
 ]
 
 { #category : #visiting }
@@ -501,15 +505,15 @@ DRCogitCodeGenerator >> visitLeftShift: aDRCogitLeftShift [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitLessOrEqualsThanComparison: aDRCogitLessOrEqualsComparison [ 
+DRCogitCodeGenerator >> visitLessOrEqualsThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 	
-	self visitComparison: aDRCogitLessOrEqualsComparison
+	^ self visitComparison: aDRBranchIfCondition
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitLessThanComparison: aDRLessThanComparison [ 
+DRCogitCodeGenerator >> visitLessThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 	
-	self visitComparison: aDRLessThanComparison
+	^ self visitComparison: aDRBranchIfCondition
 ]
 
 { #category : #visiting }
@@ -558,6 +562,13 @@ DRCogitCodeGenerator >> visitMultiply: aDRCogitMultiply [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitMultiplyOverflow: aDRMultiplyOverflow inBranch: aDRBranchIfCondition [ 
+	
+	"Do nothing... Should we make sure nobody overwrote the overflow flag?"
+	^ aDRBranchIfCondition
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitMultiplyOverflowJump: aDROverflowJump [ 
 	
 	self generateJump: #JumpMultiplyOverflow: target: aDROverflowJump trueBranch.
@@ -586,9 +597,9 @@ DRCogitCodeGenerator >> visitNoop: aDRNoop [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitNotEqualsComparison: aDRCogitNotEqualsComparison [ 
+DRCogitCodeGenerator >> visitNotEqualsThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 	
-	self visitComparison: aDRCogitNotEqualsComparison
+	^ self visitComparison: aDRBranchIfCondition
 ]
 
 { #category : #visiting }
@@ -603,6 +614,13 @@ DRCogitCodeGenerator >> visitNullValue: aDRNullValue [
 DRCogitCodeGenerator >> visitOr: aDROr [ 
 
 	^ self threeOperandCogitRTL: #Or instruction: aDROr
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitOverflow: aDRMultiplyOverflow inBranch: aDRBranchIfCondition [ 
+	
+	"Do nothing... Should we make sure nobody overwrote the overflow flag?"
+	^ aDRBranchIfCondition
 ]
 
 { #category : #visiting }
@@ -657,6 +675,18 @@ DRCogitCodeGenerator >> visitTest: aTest [
 		aTest replaceBy: aTest reversed.
 		comparands := comparands reversed ].
 	self twoOperandCogitRTL: #Tst operands: comparands instruction: aTest
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfCondition [
+
+	| comparands |
+	comparands := aDRBranchIfCondition operands.
+	aDRBranchIfCondition operands second isConstant ifTrue: [ 
+		aDRBranchIfCondition replaceBy: aDRBranchIfCondition.
+		comparands := comparands reversed ].
+	self twoOperandCogitRTL: #Tst operands: comparands instruction: aDRBranchIfCondition.
+	^ aDRBranchIfCondition
 ]
 
 { #category : #visiting }

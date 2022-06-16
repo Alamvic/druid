@@ -11,6 +11,12 @@ DRMultiplyOverflow >> acceptVisitor: aVisitor [
 	^ aVisitor visitEqualsComparison: self
 ]
 
+{ #category : #visiting }
+DRMultiplyOverflow >> acceptVisitor: aVisitor withBranch: aDRBranchIfCondition [ 
+	
+	^ aVisitor visitMultiplyOverflow: self inBranch: aDRBranchIfCondition
+]
+
 { #category : #'rtl-translation' }
 DRMultiplyOverflow >> cogitFalseConditionCode [
 	
