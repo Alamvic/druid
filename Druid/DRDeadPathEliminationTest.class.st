@@ -65,13 +65,13 @@ DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 
 	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
 	self assert: cfg deadPaths isEmpty.
-	self assert: lastPaths size equals: 1.
+	self assert: lastPaths size equals: 2.
 
 	"Should propagate conditional exit"
 	conditionalConstraint := lastPaths first constraintFor: 'R10'.
 	self
-		assert: conditionalConstraint
-		includes: (DRGreaterOrEqualsConstraint withValue: 15)
+		assert: (DRGreaterOrEqualsConstraint withValue: 15)
+		includes: conditionalConstraint
 ]
 
 { #category : #optimization }

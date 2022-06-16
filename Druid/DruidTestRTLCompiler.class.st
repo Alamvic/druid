@@ -1090,8 +1090,7 @@ DruidTestRTLCompiler >> gen_primitiveIsIntegerObject [
 
 	| currentBlock jump0 jump1 |
 	self MoveR: ReceiverResultReg R: TempReg.
-	self AndCq: 1 R: TempReg.
-	self CmpCq: 0 R: TempReg.
+	self TstCq: 1 R: TempReg.
 	jump0 := self JumpNonZero: 0.
 	self MoveCw: objectMemory falseObject R: ReceiverResultReg.
 	jump1 := self Jump: 0.
@@ -1202,24 +1201,32 @@ DruidTestRTLCompiler >> gen_primitiveLessThanThanInverted [
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveLoopIncrementing [
 
-	| currentBlock b15 jump0 jump1 |
+	| currentBlock b15 jump0 |
 	self MoveCq: 10 R: TempReg.
 	b15 := self Label.
-	self AddCq: 1 R: TempReg.
 	self MoveR: TempReg R: ClassReg.
-	self CmpCq: 15 R: TempReg.
+	self AddCq: 1 R: ClassReg.
 	self MoveR: ClassReg R: TempReg.
+	self CmpCq: 15 R: ClassReg.
 	jump0 := self JumpLess: b15.
-	jump1 := self JumpGreaterOrEqual: 0.
+	self MoveR: ClassReg R: ReceiverResultReg.
+	self genPrimReturn.
 	^ CompletePrimitive
 ]
 
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveLoopIncrementingGlobalState [
 
-	| currentBlock jump0 |
+	| currentBlock b14 jump0 |
 	self MoveCq: 10 R: TempReg.
-	jump0 := self Jump: 0.
+	b14 := self Label.
+	self MoveR: TempReg R: ClassReg.
+	self AddCq: 1 R: ClassReg.
+	self MoveR: ClassReg R: TempReg.
+	self CmpCq: 15 R: ClassReg.
+	jump0 := self JumpLess: b14.
+	self MoveR: ClassReg R: ReceiverResultReg.
+	self genPrimReturn.
 	^ CompletePrimitive
 ]
 
@@ -1230,9 +1237,9 @@ DruidTestRTLCompiler >> gen_primitiveMod [
 	self
 		DivR: Arg0Reg
 		R: ReceiverResultReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]

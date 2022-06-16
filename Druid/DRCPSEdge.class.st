@@ -97,6 +97,13 @@ DRCPSEdge >> mergeConstraint: aConditionalConstraint to: id [
 		initial: aConditionalConstraint
 ]
 
+{ #category : #visiting }
+DRCPSEdge >> operandConstraint: operand [
+
+	^ (self constraintFor: operand result name) ifNil: [ 
+		  operand acceptVisitor: self ]
+]
+
 { #category : #accessing }
 DRCPSEdge >> parent [
 	^ parent
@@ -190,14 +197,15 @@ DRCPSEdge >> visitConstant: aDRConstantValue [
 { #category : #visiting }
 DRCPSEdge >> visitCopy: aDRCopy [
 
-	| constraint constraintOrConstant |
-	constraintOrConstant := aDRCopy operand1 acceptVisitor: self.
+	| constraint operand |
+	operand := aDRCopy operand1.
 
-	constraintOrConstant ifNil: [ ^ nil ].
+	constraint := operand isConstant
+		              ifTrue: [ 
+		              DREqualsConstraint withValue: aDRCopy operand1 value ]
+		              ifFalse: [ self operandConstraint: operand ].
 
-	constraint := aDRCopy operand1 isConstant
-		              ifTrue: [ DREqualsConstraint withValue: constraintOrConstant ]
-		              ifFalse: [ constraintOrConstant ].
+	constraint ifNil: [ ^ nil ].
 
 	^ self addConstraint: constraint to: aDRCopy result name
 ]
