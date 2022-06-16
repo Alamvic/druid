@@ -183,9 +183,13 @@ DRBasicBlock >> checkLivenessOf: operand [
 { #category : #instructions }
 DRBasicBlock >> cleanInstructions [
 
+	"
+	Remove blocks instructions from users collection in their operands.
+	Warning: This method breaks the invariant user-operand.
+	"
+
 	self instructions do: [ :i | 
-		i operands asSet do: [ :op | 
-			op removeUser: i ] ]
+		i operands asSet do: [ :op | op removeUser: i ] ]
 ]
 
 { #category : #accessing }

@@ -96,7 +96,14 @@ DRStackFrame >> hasTemporaryNamed: aName [
 
 { #category : #accessing }
 DRStackFrame >> homeFrame [
-	1halt.
+
+	"The home frame of a frame is the method frame where the current frame is defined.
+	The home of a method frame is itself.
+	The home of a block closure's frame is the method where it was defined.
+	To obtain it, a block closure remembers the frame where it was defined (it could be a method frame
+	or a closure frame if it is a nested closure), and then we lookup the chain of frames up to a
+	method frame."
+
 	^ self
 ]
 
