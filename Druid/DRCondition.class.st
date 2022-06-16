@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCondition,
-	#superclass : #DRInstruction,
+	#superclass : #Object,
 	#category : #'Druid-IR'
 }
 
@@ -41,15 +41,15 @@ DRCondition >> reversed [
 	self subclassResponsibility
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #SCCP }
 DRCondition >> sccpEvaluateFor: sccp branch: aBranch [
 
 	| operand1 operand2 |
 	operand1 := sccp latticeValue: aBranch operand1.
 	operand2 := sccp latticeValue: aBranch operand2.
 
-	^ self
-		  sccpLatticeValueFor: sccp
+	^ sccp
+		  sccpLatticeValueFor: self
 		  latticeOperand1: operand1
 		  latticeOperand2: operand2
 ]

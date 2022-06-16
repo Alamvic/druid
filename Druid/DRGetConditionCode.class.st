@@ -45,8 +45,8 @@ DRGetConditionCode >> sccpLatticeValueFor: sccp [
 	operand1 := sccp latticeValue: self operand1.
 	operand2 := sccp latticeValue: self operand2.
 	
-	^ self condition
-		  sccpLatticeValueFor: sccp
+	^ sccp
+		  sccpLatticeValueFor: self condition
 		  latticeOperand1: operand1
 		  latticeOperand2: operand2
 ]

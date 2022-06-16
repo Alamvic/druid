@@ -198,6 +198,22 @@ DRSCCP >> latticeValueOfPhiFunction: operation [
 ]
 
 { #category : #lattice }
+DRSCCP >> sccpLatticeValueFor: instruction latticeOperand1: operand1 latticeOperand2: operand2 [
+
+	((({ self top. self bottom } includes: operand1) not
+		and: [ ({ self top. self bottom } includes: operand2) not ])
+			and: [ operand1 isConstant and: [ operand2 isConstant ]])
+				ifTrue: [ 
+					"Compute the lattice value and wrap it as a DR value"
+					^ (instruction sccpOperateOnLattice: operand1 value and: operand2 value) asDRValue ].
+
+	(operand1 = self bottom or: [operand2 = self bottom])
+		ifTrue: [ ^ self bottom ].
+
+	^ self top
+]
+
+{ #category : #lattice }
 DRSCCP >> setValueOf: anInstruction at: aValue [
 
 	"Set the new lattice value associated with the instruction.

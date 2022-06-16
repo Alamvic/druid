@@ -323,11 +323,11 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 	"Generate both jumps, the fallthorugh will get ignored"
 	self
 		generateJump:
-		replacement condition singleChild cogitTrueConditionCode
+		replacement condition cogitTrueConditionCode
 		target: replacement trueBranch.
 	self
 		generateJump:
-		replacement condition singleChild cogitFalseConditionCode
+		replacement condition cogitFalseConditionCode
 		target: replacement falseBranch
 ]
 
@@ -439,7 +439,7 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 		variable: (RBVariableNode named: 'jumpTrue')
 		value: (RBMessageNode
 			receiver: RBVariableNode selfNode
-			selector: comparisonToGenerate singleChild cogitTrueConditionCode
+			selector: comparisonToGenerate cogitTrueConditionCode
 			arguments: { 0 asLiteralNode })).
 	"Set false to result"
 	self
@@ -661,20 +661,6 @@ DRCogitCodeGenerator >> visitSubstract: aDRCogitSubstract [
 	
 	^ self threeOperandCogitRTL: #Sub instruction: aDRCogitSubstract
 
-]
-
-{ #category : #visiting }
-DRCogitCodeGenerator >> visitTest: aTest [
-
-	"Cogit RTL only supports constants as the first argument.
-	Invert them  (and the condition if necessary, mostly for greaterThan comparisons)."
-
-	| comparands |
-	comparands := aTest operands.
-	aTest operands second isConstant ifTrue: [ 
-		aTest replaceBy: aTest reversed.
-		comparands := comparands reversed ].
-	self twoOperandCogitRTL: #Tst operands: comparands instruction: aTest
 ]
 
 { #category : #visiting }

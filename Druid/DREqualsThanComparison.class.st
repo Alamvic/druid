@@ -5,12 +5,6 @@ Class {
 }
 
 { #category : #visiting }
-DREqualsThanComparison >> acceptVisitor: aVisitor [
-	
-	^ aVisitor visitEqualsComparison: self
-]
-
-{ #category : #visiting }
 DREqualsThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch [
 	
 	^ aVisitor visitEqualsThan: self inBranch: parentBranch

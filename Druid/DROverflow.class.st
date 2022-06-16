@@ -5,13 +5,6 @@ Class {
 }
 
 { #category : #visiting }
-DROverflow >> acceptVisitor: aVisitor [
-	
-	1halt.
-	^ aVisitor visitEqualsComparison: self
-]
-
-{ #category : #visiting }
 DROverflow >> acceptVisitor: aVisitor withBranch: aDRBranchIfCondition [ 
 	 
 	^ aVisitor visitOverflow: self inBranch: aDRBranchIfCondition
@@ -58,7 +51,7 @@ DROverflow >> reversed [
 
 	"Returns the same condition but with reversed operands: x = y --> y = x"
 1halt.
-	^ DREqualsThanComparison operands: operands reversed result: result
+	^ DREqualsThanComparison new
 ]
 
 { #category : #'as yet unclassified' }
@@ -67,10 +60,4 @@ DROverflow >> sccpEvaluateFor: sccp branch: aBranch [
 	"We cannot know statically if an overflow will happen.
 	Or can we? ;)"
 	^ sccp bottom
-]
-
-{ #category : #SCCP }
-DROverflow >> sccpOperateOnLattice: operand and: operand2 [
-	1halt.
-	^ operand = operand2
 ]

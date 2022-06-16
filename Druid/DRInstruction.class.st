@@ -535,8 +535,8 @@ DRInstruction >> sccpLatticeValueFor: sccp [
 	operand1 := sccp latticeValue: self operand1.
 	operand2 := sccp latticeValue: self operand2.
 
-	^ self
-		  sccpLatticeValueFor: sccp
+	^ sccp
+		  sccpLatticeValueFor: self
 		  latticeOperand1: operand1
 		  latticeOperand2: operand2
 ]
@@ -565,12 +565,6 @@ DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 DRInstruction >> simpleConstantFold [
 	
 	self subclassResponsibility
-]
-
-{ #category : #accessing }
-DRInstruction >> singleChild [
-
-	^ self
 ]
 
 { #category : #replacing }

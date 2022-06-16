@@ -5,12 +5,6 @@ Class {
 }
 
 { #category : #visiting }
-DRTestMask >> acceptVisitor: aVisitor [
-	
-	^ aVisitor visitTest: self
-]
-
-{ #category : #visiting }
 DRTestMask >> acceptVisitor: aVisitor withBranch: parentBranch [
 	
 	^ aVisitor visitTestMask: self inBranch: parentBranch

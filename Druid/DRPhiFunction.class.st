@@ -159,14 +159,6 @@ DRPhiFunction >> simplify [
 	^ self
 ]
 
-{ #category : #accessing }
-DRPhiFunction >> singleChild [
-
-	operands asSet size > 1
-		ifTrue: [ self error: 'Cannot simplify a phi function with more than one operand for now' ].
-	^ operands first
-]
-
 { #category : #simplification }
 DRPhiFunction >> type [
 
