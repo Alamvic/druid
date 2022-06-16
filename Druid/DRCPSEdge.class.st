@@ -36,7 +36,7 @@ DRCPSEdge >> composedConstraint: aConstraintClass from: aDRInstruction [
 
 	| operands |
 	operands := aDRInstruction operands collect: [ :o | o acceptVisitor: self ].
-	(operands anySatisfy: [ :o | (o isNil or: o = false) or: o = true ]) ifTrue: [ ^ nil ].
+	(operands anySatisfy: [ :o | (o isNil or: [o = false]) or: [o = true] ]) ifTrue: [ ^ nil ].
 	^ DRRegisterDomain
 		  reg: aDRInstruction
 		  constraint: (aConstraintClass constraints: operands)
