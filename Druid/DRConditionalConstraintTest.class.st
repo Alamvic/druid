@@ -49,6 +49,22 @@ DRConditionalConstraintTest >> testEqualsConstraint [
 ]
 
 { #category : #constraints }
+DRConditionalConstraintTest >> testEqualsObjectConstraint [
+
+	| constraint |
+	constraint := DREqualsObjectConstraint withValue: nil.
+	
+	self assert: constraint includes: constraint.
+	self deny: constraint includes: (DREqualsConstraint withValue: 20).
+	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRGreaterConstraint withValue: 10).
+	self deny: constraint includes: (DRLessConstraint withValue: 10).
+	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRNotEqualsConstraint withValue: nil).
+]
+
+{ #category : #constraints }
 DRConditionalConstraintTest >> testGreaterConstraint [
 
 	| constraint |
@@ -229,6 +245,22 @@ DRConditionalConstraintTest >> testNotEqualsConstraint [
 	self assert: constraint includes: (DRAnyMaskConstraint withValue: 1).
 	self assert: constraint includes: (DRNoneMaskConstraint withValue: 2).
 
+]
+
+{ #category : #constraints }
+DRConditionalConstraintTest >> testNotEqualsObjectConstraint [
+
+	| constraint |
+	constraint := DRNotEqualsObjectConstraint withValue: nil.
+	
+	self assert: constraint includes: constraint.
+	self assert: constraint includes: (DREqualsConstraint withValue: 20).
+	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DRGreaterConstraint withValue: 10).
+	self deny: constraint includes: (DRLessConstraint withValue: 10).
+	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
+	self deny: constraint includes: (DREqualsConstraint withValue: nil).
 ]
 
 { #category : #constraints }

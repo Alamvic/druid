@@ -29,9 +29,15 @@ DRNotEqualsObjectConstraint >> hasAllValuesWithoutMask: otherConstantValue [
 ]
 
 { #category : #testing }
+DRNotEqualsObjectConstraint >> hasObjectValue: objectValue [
+
+	^ constantValue ~= objectValue
+]
+
+{ #category : #testing }
 DRNotEqualsObjectConstraint >> isIncludedIn: otherConstraint [
 
-	^ false
+	^ self = otherConstraint
 ]
 
 { #category : #arithmetic }

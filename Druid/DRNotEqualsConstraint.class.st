@@ -39,6 +39,12 @@ DRNotEqualsConstraint >> hasAllValuesWithoutMask: aMask [
 	^ constantValue anyMask: aMask
 ]
 
+{ #category : #testing }
+DRNotEqualsConstraint >> hasObjectValue: objectValue [
+
+	^ true
+]
+
 { #category : #arithmetic }
 DRNotEqualsConstraint >> hasValue: otherConstantValue [
 
