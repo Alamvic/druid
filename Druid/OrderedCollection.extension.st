@@ -9,5 +9,7 @@ OrderedCollection >> whileNotEmpty: aBlock [
 	marked := Set new.
 
 	[ self isEmpty ] whileFalse: [ 
-		aBlock cull: self removeFirst cull: self cull: marked ]
+		aBlock cull: self removeFirst cull: self cull: marked ].
+
+	^ marked
 ]
