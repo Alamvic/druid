@@ -21,8 +21,8 @@ DRIRTest >> anyOutgoingEdge: cfg for: aBlock [
 
 { #category : #test }
 DRIRTest >> conditionalJump [
-
-	^ DRConditionalJump operands: { (DRConstantValue value: true) }
+1halt.
+	^ DRBranchIfCondition operands: { (DRConstantValue value: true) }
 ]
 
 { #category : #running }

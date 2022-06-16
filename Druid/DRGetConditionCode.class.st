@@ -1,0 +1,52 @@
+Class {
+	#name : #DRGetConditionCode,
+	#superclass : #DRInstruction,
+	#instVars : [
+		'condition'
+	],
+	#category : #'Druid-IR'
+}
+
+{ #category : #visiting }
+DRGetConditionCode >> acceptVisitor: aVisitor [
+	
+	^ aVisitor visitGetConditionCode: self
+]
+
+{ #category : #accessing }
+DRGetConditionCode >> condition [
+	
+	^ condition
+]
+
+{ #category : #printing }
+DRGetConditionCode >> opcode [
+	
+	^ 'SetConditionCode'
+]
+
+{ #category : #accessing }
+DRGetConditionCode >> operands: operandList [
+
+	condition := operandList first value.
+	super operands: operandList allButFirst
+]
+
+{ #category : #SCCP }
+DRGetConditionCode >> sccpLatticeValueFor: sccp [
+
+	| operand1 operand2 |
+	operand1 := sccp latticeValue: self operand1.
+	operand2 := sccp latticeValue: self operand2.
+	
+	^ self condition
+		  sccpLatticeValueFor: sccp
+		  latticeOperand1: operand1
+		  latticeOperand2: operand2
+]
+
+{ #category : #types }
+DRGetConditionCode >> type [
+	
+	^ DRBooleanType new
+]

@@ -1,5 +1,5 @@
 Class {
-	#name : #DRConditionalJump,
+	#name : #DRAbstractBranch,
 	#superclass : #DRInstruction,
 	#instVars : [
 		'trueBranch',
@@ -8,80 +8,50 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #visiting }
-DRConditionalJump >> acceptVisitor: aVisitor [
-
-	^ aVisitor visitConditionalJump: self
-]
-
 { #category : #accessing }
-DRConditionalJump >> condition [
-	
-	^ operands first
-]
-
-{ #category : #accessing }
-DRConditionalJump >> condition: aCondition [
-
-	operands at: 1 put: aCondition
-]
-
-{ #category : #accessing }
-DRConditionalJump >> falseBranch [
+DRAbstractBranch >> falseBranch [
 	^ falseBranch
 ]
 
 { #category : #accessing }
-DRConditionalJump >> falseBranch: aDruidIRGenerator [ 
+DRAbstractBranch >> falseBranch: aDruidIRGenerator [ 
 
 	falseBranch := aDruidIRGenerator 
 ]
 
 { #category : #initialization }
-DRConditionalJump >> initialize [
+DRAbstractBranch >> initialize [
 
 	super initialize.
 	result := DRNoRegister new
 ]
 
 { #category : #testing }
-DRConditionalJump >> isBackJump [
+DRAbstractBranch >> isBackJump [
 	"For now do not allow conditional back jumps. Although they could happen... so we should be careful"
 	^ false
 ]
 
 { #category : #testing }
-DRConditionalJump >> isConditionalBranch [
+DRAbstractBranch >> isConditionalBranch [
 
 	^ true
 ]
 
 { #category : #accessing }
-DRConditionalJump >> isConditionalJump [ 
-
-	^ true
-]
-
-{ #category : #accessing }
-DRConditionalJump >> isJump [ 
+DRAbstractBranch >> isJump [ 
 
 	^ true
 ]
 
 { #category : #printing }
-DRConditionalJump >> opcode [
+DRAbstractBranch >> opcode [
 	
 	^ 'If'
 ]
 
 { #category : #printing }
-DRConditionalJump >> prettyConditionPrint [
-
-	^ self condition result name , ' true'
-]
-
-{ #category : #printing }
-DRConditionalJump >> prettyPrint [
+DRAbstractBranch >> prettyPrint [
 
 	^ 'Jump if ' , self prettyConditionPrint , ' -> '
 	  , self trueBranch id asString , ' if false -> '
@@ -89,7 +59,7 @@ DRConditionalJump >> prettyPrint [
 ]
 
 { #category : #replacing }
-DRConditionalJump >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [ 
+DRAbstractBranch >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [ 
 	
 	trueBranch = aDRBasicBlock ifTrue: [
 		trueBranch := aDRBasicBlock2 ].
@@ -98,47 +68,47 @@ DRConditionalJump >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [
 ]
 
 { #category : #SCCP }
-DRConditionalJump >> sccpEvaluateFor: sccp [
+DRAbstractBranch >> sccpEvaluateFor: sccp [
 
-	| condition jumpTarget |
-	condition := self condition sccpLatticeValueFor: sccp.
+	| conditionLattice jumpTarget |
+	conditionLattice := self sccpEvaluateConditionFor: sccp.
 
 	"If we know nothing, do nothing yet"
-	condition = sccp top ifTrue: [ ^ self ].
+	conditionLattice = sccp top ifTrue: [ ^ self ].
 
-	condition = sccp bottom ifTrue: [ 
+	"If we know that we don't know, add both branch targets"
+	conditionLattice = sccp bottom ifTrue: [ 
 		self targets do: [ :t | 
 			sccp addToEdgeCFGWorklistConditionalJump: self targetting: t ].
 		^ self ].
 
-	condition isNullValue ifTrue: [ ^ self ].
-
-	jumpTarget := condition value
+	"otherwise add the true or false one"
+	jumpTarget := conditionLattice value
 		              ifTrue: [ self trueBranch ]
 		              ifFalse: [ self falseBranch ].
 	sccp addToEdgeCFGWorklistConditionalJump: self targetting: jumpTarget
 ]
 
 { #category : #SCCP }
-DRConditionalJump >> sccpLatticeValueFor: sccp [
+DRAbstractBranch >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]
 
 { #category : #accessing }
-DRConditionalJump >> targets [
+DRAbstractBranch >> targets [
 
 	^ { trueBranch . falseBranch }
 ]
 
 { #category : #accessing }
-DRConditionalJump >> trueBranch [
+DRAbstractBranch >> trueBranch [
 
 	^ trueBranch
 ]
 
 { #category : #accessing }
-DRConditionalJump >> trueBranch: aDruidIRGenerator [ 
+DRAbstractBranch >> trueBranch: aDruidIRGenerator [ 
 	
 	trueBranch := aDruidIRGenerator 
 ]

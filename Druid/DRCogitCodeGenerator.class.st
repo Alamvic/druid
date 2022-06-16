@@ -47,6 +47,31 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> generateCompare: aComparison operands: operands [
+
+	| comparands comparisonToGenerate |
+	"Generate comparison instruction. In cogit, if you want to do A < B, you have to generate:
+	CMP B A
+	JumpLessThan xxx
+	Thus, operands are inverted always"
+	comparands := operands reversed.
+	comparisonToGenerate := aComparison.
+
+	"Cogit RTL only supports constants as the first argument.
+	Invert the comparison and the condition if necessary, mostly for greaterThan comparisons)."
+	
+	comparands second isConstant ifTrue: [ 
+		comparisonToGenerate := aComparison reversed.
+		comparands := comparands reversed ].
+
+	self
+		twoOperandCogitRTL: #Cmp
+		operands: comparands
+		instruction: aComparison.
+	^ comparisonToGenerate
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 
 	| jumpStatement jumpVariableName jumpTarget |
@@ -285,6 +310,26 @@ DRCogitCodeGenerator >> visitBitShift: aDRCogitBitShift [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitBranchIfTrue: aDRBranchIfTrue [
+
+	"Generate both jumps, the fallthorugh will get ignored"
+	self
+		twoOperandCogitRTL: #Cmp
+		operands: { 0 asDRValue . aDRBranchIfTrue operand1 }
+		instruction: aDRBranchIfTrue.
+	
+	"If non zero, it is false that it is false => it's true"
+	self
+		generateJump: #JumpNonZero:
+		target: aDRBranchIfTrue trueBranch.
+	
+	"If zero, it is true that it is false => it's false"
+	self
+		generateJump: #JumpZero:
+		target: aDRBranchIfTrue falseBranch
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitComparison: aComparison [
 
 	| comparands |
@@ -307,11 +352,23 @@ DRCogitCodeGenerator >> visitComparison: aComparison [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitConditionalJump: aDRConditionalJump [ 
+DRCogitCodeGenerator >> visitConditionalJump: aDRConditionalJump [
 
 	"Generate both jumps, the fallthorugh will get ignored"
-	self generateJump: aDRConditionalJump condition singleChild cogitTrueConditionCode target: aDRConditionalJump trueBranch.
-	self generateJump: aDRConditionalJump condition singleChild cogitFalseConditionCode target: aDRConditionalJump falseBranch
+
+	aDRConditionalJump condition isOverflow ifFalse: [
+		self
+			generateCompare: aDRConditionalJump condition
+			operands: aDRConditionalJump operands
+	].
+	self
+		generateJump:
+		aDRConditionalJump condition singleChild cogitTrueConditionCode
+		target: aDRConditionalJump trueBranch.
+	self
+		generateJump:
+		aDRConditionalJump condition singleChild cogitFalseConditionCode
+		target: aDRConditionalJump falseBranch
 ]
 
 { #category : #visiting }
@@ -352,6 +409,70 @@ DRCogitCodeGenerator >> visitDivision: aDRCogitDivision [
 DRCogitCodeGenerator >> visitEqualsComparison: aDRCogitEqualsComparison [ 
 	
 	self visitComparison: aDRCogitEqualsComparison
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
+	
+	"Generate the code of the form
+		CMP
+		JMP.COND true:
+		RESULT := 0
+		JUMP next:
+	true:
+		RESULT := 1
+	next:
+	"
+	
+	"Generate CMP; Jump.COND true; RESULT := 0; JUMP next"
+	| comparisonToGenerate |
+	comparisonToGenerate := self
+		generateCompare: aDRGetConditionCode condition
+		operands: aDRGetConditionCode operands.
+	generatorMethodBuilder addVariableNamed: 'jumpTrue'.
+	generatorMethodBuilder addVariableNamed: 'jumpNext'.
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+		variable: (RBVariableNode named: 'jumpTrue')
+		value: (RBMessageNode
+			receiver: RBVariableNode selfNode
+			selector: comparisonToGenerate singleChild cogitTrueConditionCode
+			arguments: { 0 asLiteralNode })).
+	"Set false to result"
+	self
+		  twoOperandCogitRTL: 'Move'
+		  operands: { 
+				0 asDRValue.
+				aDRGetConditionCode }
+		  instruction: aDRGetConditionCode.
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+		variable: (RBVariableNode named: 'jumpNext')
+		value: (RBMessageNode
+			receiver: RBVariableNode selfNode
+			selector: 'Jump:'
+			arguments: { 0 asLiteralNode })).
+
+	"true label"
+	generatorMethodBuilder addStatement: (RBMessageNode
+			receiver: (RBVariableNode named: 'jumpTrue')
+			selector: #jmpTarget:
+			arguments: { RBMessageNode
+				receiver: RBVariableNode selfNode
+				selector: #Label}).
+	"Set true to result"
+	self
+		  twoOperandCogitRTL: 'Move'
+		  operands: { 
+				1 asDRValue.
+				aDRGetConditionCode }
+		  instruction: aDRGetConditionCode.
+
+	"next label"
+	generatorMethodBuilder addStatement: (RBMessageNode
+			receiver: (RBVariableNode named: 'jumpNext')
+			selector: #jmpTarget:
+			arguments: { RBMessageNode
+				receiver: RBVariableNode selfNode
+				selector: #Label}).
 ]
 
 { #category : #visiting }
@@ -482,14 +603,6 @@ DRCogitCodeGenerator >> visitNullValue: aDRNullValue [
 DRCogitCodeGenerator >> visitOr: aDROr [ 
 
 	^ self threeOperandCogitRTL: #Or instruction: aDROr
-]
-
-{ #category : #visiting }
-DRCogitCodeGenerator >> visitOverflowJump: aDROverflowJump [ 
-	
-	"Generate both jumps, the fallthorugh will get ignored"
-	self generateJump: #JumpOverflow: target: aDROverflowJump trueBranch.
-	self generateJump: #JumpNoOverflow: target: aDROverflowJump falseBranch.
 ]
 
 { #category : #visiting }

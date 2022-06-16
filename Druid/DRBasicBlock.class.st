@@ -538,8 +538,8 @@ DRBasicBlock >> jumpIf: condition to: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 	
 	aDRBasicBlock addPredecessor: self.
 	aDRBasicBlock2 addPredecessor: self.
-
-	^ self endInstruction: (DRConditionalJump new
+1halt.
+	^ self endInstruction: (DRBranchIfCondition new
 		operands: { condition };
 		trueBranch: aDRBasicBlock;
 		falseBranch: aDRBasicBlock2;

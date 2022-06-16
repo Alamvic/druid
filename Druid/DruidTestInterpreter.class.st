@@ -376,12 +376,26 @@ DruidTestInterpreter >> primitiveEqualsThanInverted [
 	self pop: 1 thenPush: r
 ]
 
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveEqualsThanValue [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: (self stackTop = 0)
+]
+
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveFalseAsInteger [
 
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: false asInteger
+]
+
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveGreaterOrEqualThanValue [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: (self stackTop >= 0)
 ]
 
 { #category : #'as yet unclassified' }
@@ -419,6 +433,13 @@ DruidTestInterpreter >> primitiveGreaterThanInverted [
 	| r |
 	r := 10 > self stackTop ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveGreaterThanValue [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: (self stackTop > 0)
 ]
 
 { #category : #'as yet unclassified' }
@@ -526,6 +547,13 @@ DruidTestInterpreter >> primitiveIsIntegerObject [
 	self pop: 1 thenPush: (objectMemory booleanObjectOf: (objectMemory isIntegerObject: self stackTop))
 ]
 
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveLessOrEqualThanValue [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: (self stackTop <= 0)
+]
+
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveLessOrEqualsThan [
 
@@ -562,6 +590,13 @@ DruidTestInterpreter >> primitiveLessThanInverted [
 	| r |
 	r := 10 < self stackTop ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveLessThanValue [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: (self stackTop < 0)
 ]
 
 { #category : #'as yet unclassified' }
@@ -616,7 +651,7 @@ DruidTestInterpreter >> primitiveMultiplyWithOverflow [
 	result := self
 		multiplySmallInteger: (self stackValue: 1)
 		withSmallInteger: (self stackValue: 0)
-		ifOverflow: [ ^ 99 ].
+		ifOverflow: [ 99 ].
 	self pop: 2 thenPush: result
 ]
 

@@ -199,6 +199,12 @@ DRCPSEdge >> visitEqualsComparison: aDREqualsThanComparison [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [ 
+
+	"Do nothing"
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanComparison [
 
 	^ self

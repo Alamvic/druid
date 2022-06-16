@@ -1,6 +1,6 @@
 Class {
 	#name : #DRMultiplyOverflowJump,
-	#superclass : #DRConditionalJump,
+	#superclass : #DRAbstractBranch,
 	#category : #'Druid-IR'
 }
 

@@ -35,7 +35,7 @@ DRInstructionFactory >> and: operand1 with: operand2 [
 { #category : #factory }
 DRInstructionFactory >> anyMask: operand1 with: operand2 [
 
-	^ DRTest
+	^ DRTestMask
 		  operands: { operand1 asDRValue. operand2 asDRValue }
 		  result: self allocateTemporaryRegister
 ]
@@ -93,8 +93,8 @@ DRInstructionFactory >> initialize [
 
 { #category : #factory }
 DRInstructionFactory >> jumpIf: aCondition [
-
-	^ DRConditionalJump operands: { aCondition asDRValue }
+1halt.
+	^ DRBranchIfCondition operands: { aCondition asDRValue }
 ]
 
 { #category : #factory }

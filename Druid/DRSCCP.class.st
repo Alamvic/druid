@@ -253,9 +253,12 @@ DRSCCP >> top [
 DRSCCP >> tryReplaceConditionalJump: i [
 
 	| constantTarget removedTarget |
-	(i isConditionalJump and: [ i condition isConstant ]) ifFalse: [ ^ self ].
-
-	i condition value
+	"If it is a branch.cond, it has been managed by the previous case"
+	i isBranchIfCondition ifTrue: [ ^ self ].
+	(i isBranchIfTrue and: [ i operand1 isConstant ])
+		ifFalse: [ ^ self ].
+	
+	i operand1 value
 		ifTrue: [ 
 			constantTarget := i trueBranch.
 			removedTarget := i falseBranch ]
@@ -289,12 +292,33 @@ DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 { #category : #executing }
 DRSCCP >> tryReplaceInstructionOperands: i [
 
-	i isPhiFunction ifFalse: [ "Replace the operands of instructions by their propagated values on non phi functions"
-		i operands withIndexDo: [ :operand :index | 
-			| lattice |
-			lattice := self latticeValue: operand.
-			(self isConstantLattice: lattice) ifTrue: [
-				i replaceOperand: (i operands at: index) by: lattice asDRValue ] ] ]
+	"If it is a branch of the form
+	  branch.cond A B
+	
+	where A cond B is constant, replace it by
+	
+	  branch.iftrue constant
+	"
+
+	i isBranchIfCondition ifTrue: [ 
+		| conditionLattice |
+		conditionLattice := i sccpEvaluateConditionFor: self.
+		(self isConstantLattice: conditionLattice) ifTrue: [ | branchIfTrue |
+			branchIfTrue := DRBranchIfTrue operands: { conditionLattice asDRValue }.
+			branchIfTrue trueBranch: i trueBranch.
+			branchIfTrue falseBranch: i falseBranch.
+			i replaceBy: branchIfTrue.
+			self tryReplaceConditionalJump: branchIfTrue ].
+		^ self ].
+
+	i isPhiFunction ifTrue: [ ^ self ].
+
+	"Replace the operands of instructions by their propagated values on non phi functions"
+	i operands withIndexDo: [ :operand :index | 
+		| lattice |
+		lattice := self latticeValue: operand.
+		(self isConstantLattice: lattice) ifTrue: [ 
+			i replaceOperand: (i operands at: index) by: lattice asDRValue ] ]
 ]
 
 { #category : #querying }
@@ -302,7 +326,7 @@ DRSCCP >> usesOf: anInstruction [
 	
 	| ret |
 
-	anInstruction isConditionalJump ifTrue: [
+	anInstruction isBranchIfCondition ifTrue: [
 		self value = self top ifTrue: [ 
 			ret := OrderedCollection new. 
 			ret addAll: anInstruction trueBranch instructions.

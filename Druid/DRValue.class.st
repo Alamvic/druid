@@ -56,14 +56,14 @@ DRValue >> hasUser: anInstruction [
 	^ true
 ]
 
-{ #category : #testing }
-DRValue >> isComplexCondition [
+{ #category : #accessing }
+DRValue >> isBranchIfCondition [ 
 
 	^ false
 ]
 
-{ #category : #accessing }
-DRValue >> isConditionalJump [ 
+{ #category : #testing }
+DRValue >> isComplexCondition [
 
 	^ false
 ]

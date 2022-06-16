@@ -124,7 +124,7 @@ DRCleanControlFlow >> shouldFoldRedundantBranch: aDRConditionalJump [
 { #category : #folding }
 DRCleanControlFlow >> shouldFoldRedundantBranchIn: aBlock [ 
 	
-	^ aBlock endInstruction isConditionalJump and: [ 
+	^ aBlock endInstruction isBranchIfCondition and: [ 
 		self shouldFoldRedundantBranch: aBlock endInstruction ]
 ]
 
@@ -136,7 +136,7 @@ DRCleanControlFlow >> shouldHoistBranchInto: aDRBasicBlock [
 	- and that jump targets an empty branch with a conditional branch"
 	^ aDRBasicBlock endInstruction isNonConditionalJump and: [ | targetInstructions |
 		targetInstructions := aDRBasicBlock endInstruction target instructions.
-		targetInstructions size = 1 and: [ targetInstructions first isConditionalJump ] ]
+		targetInstructions size = 1 and: [ targetInstructions first isBranchIfCondition ] ]
 ]
 
 { #category : #'empty blocks' }
