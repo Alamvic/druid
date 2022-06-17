@@ -43,7 +43,7 @@ DRControlFlowGraph >> allConditionalJumps [
 
 	^ self reversePostOrderBlocks
 		  collect: [ :b | b endInstruction ]
-		  thenSelect: [ :i | i isBranchIfCondition ]
+		  thenSelect: [ :i | i isConditionalBranch ]
 ]
 
 { #category : #building }

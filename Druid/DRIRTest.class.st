@@ -21,8 +21,8 @@ DRIRTest >> anyOutgoingEdge: cfg for: aBlock [
 
 { #category : #test }
 DRIRTest >> conditionalJump [
-1halt.
-	^ DRBranchIfCondition operands: { (DRConstantValue value: true) }
+
+	^ DRBranchIfTrue operands: { (DRConstantValue value: true) }
 ]
 
 { #category : #running }
@@ -111,8 +111,8 @@ DRIRTest >> setUpCFGWithConditional: jump [
 	
 	b4 endInstruction: DRNoop new. 
 	b0 jumpTo: b1. 
-	jump condition isInstruction ifTrue: [
-		b1 addInstruction: jump condition. 
+	jump operand1 isInstruction ifTrue: [
+		b1 addInstruction: jump operand1. 
 	].
 	b1 endInstruction: jump. 
 	jump trueBranch: b2.

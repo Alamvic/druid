@@ -10,8 +10,8 @@ Class {
 { #category : #accessing }
 DRComposedConditionalSplitting >> applyTo: cfg [
 
-	cfg allConditionalJumps
-		select: [ :jump | jump condition isComplexCondition ]
+	cfg allConditionalJumps 
+		select: [ :jump | jump isBranchIfTrue and: [ jump operand1 isComplexCondition ] ]
 		thenDo: [ :jump | jump acceptVisitor: self ]
 ]
 
@@ -19,7 +19,7 @@ DRComposedConditionalSplitting >> applyTo: cfg [
 DRComposedConditionalSplitting >> splitComplexConditionOf: aJump between: targetSuccessor [
 
 	| aComplexCondition newJump |
-	aComplexCondition := aJump condition.
+	aComplexCondition := aJump operand1.
 	aJump basicBlock controlFlowGraph newBasicBlockWith: [ :b | 
 		aJump
 			replaceOperand: aComplexCondition
@@ -34,9 +34,9 @@ DRComposedConditionalSplitting >> splitComplexConditionOf: aJump between: target
 		b addPredecessor: aJump basicBlock.
 		aJump basicBlock replaceSuccessor: targetSuccessor by: b ].
 
-	aJump condition isComplexCondition ifTrue: [ 
+	aJump operand1 isComplexCondition ifTrue: [ 
 		aJump acceptVisitor: self ].
-	newJump condition isComplexCondition ifTrue: [ 
+	newJump operand1 isComplexCondition ifTrue: [ 
 		newJump acceptVisitor: self ]
 ]
 
@@ -49,10 +49,10 @@ DRComposedConditionalSplitting >> visitAnd: aDRAnd [
 ]
 
 { #category : #visiting }
-DRComposedConditionalSplitting >> visitBranchIfCondition: aDRConditionalJump [
-
-	currentJump := aDRConditionalJump.
-	aDRConditionalJump condition acceptVisitor: self
+DRComposedConditionalSplitting >> visitBranchIfTrue: aDRBranchIfTrue [ 
+	
+	currentJump := aDRBranchIfTrue.
+	aDRBranchIfTrue operand1 acceptVisitor: self
 ]
 
 { #category : #visiting }

@@ -38,6 +38,15 @@ DRGetConditionCode >> operands: operandList [
 	super operands: operandList allButFirst
 ]
 
+{ #category : #printing }
+DRGetConditionCode >> prettyPrint [
+
+	| print |
+	print := result ifNil: [ '' ] ifNotNil: [ result name , ' := ' ].
+	^ print , self opcode , ' '
+	  , (self condition prettyPrintWithBranch: self)
+]
+
 { #category : #SCCP }
 DRGetConditionCode >> sccpLatticeValueFor: sccp [
 

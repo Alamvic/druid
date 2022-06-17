@@ -136,7 +136,7 @@ DRCleanControlFlow >> shouldHoistBranchInto: aDRBasicBlock [
 	- and that jump targets an empty branch with a conditional branch"
 	^ aDRBasicBlock endInstruction isNonConditionalJump and: [ | targetInstructions |
 		targetInstructions := aDRBasicBlock endInstruction target instructions.
-		targetInstructions size = 1 and: [ targetInstructions first isBranchIfCondition ] ]
+		targetInstructions size = 1 and: [ targetInstructions first isConditionalBranch ] ]
 ]
 
 { #category : #'empty blocks' }

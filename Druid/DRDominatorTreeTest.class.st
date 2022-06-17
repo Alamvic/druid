@@ -7,8 +7,8 @@ Class {
 { #category : #tests }
 DRDominatorTreeTest >> testCorrectDominatorTreeWithBranchAtDifferentDepth [
 	| cfg b0jump |
-1halt.
-	b0jump := DRBranchIfCondition operands: { DRConstantValue value: true }.
+
+	b0jump := DRBranchIfTrue operands: { DRConstantValue value: true }.
 	cfg := self setUpCFGWithConditional.
 	b0jump trueBranch: cfg b4.
 	b0jump falseBranch: cfg b1.
@@ -27,8 +27,8 @@ DRDominatorTreeTest >> testCorrectDominatorTreeWithBranchAtDifferentDepth [
 { #category : #tests }
 DRDominatorTreeTest >> testCorrectDominatorTreeWithLoop [
 	| cfg jump |
-1halt.
-	jump := DRBranchIfCondition operands: { DRConstantValue value: true }.
+	
+	jump := DRBranchIfTrue operands: { DRConstantValue value: true }.
 	cfg := self setUpCFG: 3.
 	jump trueBranch: cfg b3.
 	jump falseBranch: cfg b1.

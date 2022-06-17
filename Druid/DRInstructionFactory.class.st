@@ -35,9 +35,9 @@ DRInstructionFactory >> and: operand1 with: operand2 [
 { #category : #factory }
 DRInstructionFactory >> anyMask: operand1 with: operand2 [
 
-	^ DRTestMask
-		  operands: { operand1 asDRValue. operand2 asDRValue }
-		  result: self allocateTemporaryRegister
+	^ self getConditionCodeOf: DRTestMask new operands: { 
+			operand1 asDRValue.
+			operand2 asDRValue }
 ]
 
 { #category : #factory }
@@ -66,22 +66,27 @@ DRInstructionFactory >> divide: aValue by: anotherValue [
 
 { #category : #factory }
 DRInstructionFactory >> equals: operand1 to: operand2 [
-	
-	^ DREqualsThanComparison
-		  operands: { 
-				  operand1 asDRValue.
-				  operand2 asDRValue }
-		  result: self allocateTemporaryRegister
+
+	^ self getConditionCodeOf: DREqualsThanComparison new operands: { 
+			  operand1 asDRValue.
+			  operand2 asDRValue }
+]
+
+{ #category : #building }
+DRInstructionFactory >> getConditionCodeOf: aCondition operands: aCollection [ 
+
+	^ DRGetConditionCode new
+		operands: { aCondition }, aCollection;
+		result: self allocateTemporaryRegister;
+		yourself
 ]
 
 { #category : #factory }
 DRInstructionFactory >> greater: operand1 than: operand2 [
 
-	^ DRGreaterThanComparison
-		  operands: { 
-				  operand1 asDRValue.
-				  operand2 asDRValue }
-		  result: self allocateTemporaryRegister
+	^ self getConditionCodeOf: DRGreaterThanComparison new operands: { 
+			operand1 asDRValue.
+			operand2 asDRValue }
 ]
 
 { #category : #factory }
@@ -100,11 +105,9 @@ DRInstructionFactory >> jumpIf: aCondition [
 { #category : #factory }
 DRInstructionFactory >> lessOrEquals: operand1 than: operand2 [
 
-	^ DRLessOrEqualsThanComparison
-		  operands: { 
-				  operand1 asDRValue.
-				  operand2 asDRValue }
-		  result: self allocateTemporaryRegister
+	^ self getConditionCodeOf: DRLessOrEqualsThanComparison new operands: { 
+			  operand1 asDRValue.
+			  operand2 asDRValue }
 ]
 
 { #category : #factory }

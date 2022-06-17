@@ -218,7 +218,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationWithFarAwayPhiFunctio
 	b0 addInstruction: (copy2 := instructionFactory copy: leftOperand2).
 	mainJump := instructionFactory jumpIf:
 		        	(instructionFactory lessOrEquals: copy1 than: copy2).
-	b0 addInstruction: mainJump condition.
+	b0 addInstruction: mainJump operand1.
 	b0 endInstruction: mainJump. 
 
 	b1 := cfg newBasicBlock.
@@ -227,7 +227,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationWithFarAwayPhiFunctio
 	b1 addInstruction: (rx := instructionFactory copy: (DRPhysicalRegister name: 'Rx')).
 	innerJump := instructionFactory jumpIf:
 		        (instructionFactory lessOrEquals: copy1 than: rx).
-	b1 addInstruction: innerJump condition.
+	b1 addInstruction: innerJump operand1.
 	b1 endInstruction: innerJump. 
 
 

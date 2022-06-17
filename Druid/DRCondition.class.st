@@ -54,6 +54,12 @@ DRCondition >> sccpEvaluateFor: sccp branch: aBranch [
 		  latticeOperand2: operand2
 ]
 
+{ #category : #SCCP }
+DRCondition >> sccpOperateOnLattice: operand and: operand2 [
+
+	self subclassResponsibility
+]
+
 { #category : #accessing }
 DRCondition >> type [
 	

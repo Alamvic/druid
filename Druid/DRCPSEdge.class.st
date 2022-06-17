@@ -141,10 +141,7 @@ DRCPSEdge >> visitBitShift: aDRBitShift [
 DRCPSEdge >> visitBranchIfCondition: aDRConditionalJump [
 
 	| constraint |
-	"Ignore hardcoded values"
-	aDRConditionalJump operand1 isInstruction ifFalse: [ ^ self ].
-
-	constraint := aDRConditionalJump operand1 acceptVisitor: self.
+	constraint := aDRConditionalJump condition acceptVisitor: self withBranch: aDRConditionalJump.
 	constraint ifNil: [ ^ self ].
 	
 	branchIndex = 1
@@ -153,17 +150,39 @@ DRCPSEdge >> visitBranchIfCondition: aDRConditionalJump [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitComparison: aDRComparison andDo: aClosure [ 
+DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [ 
+	
+	"Ignore hardcoded values"
+	| constraint |
+	aDRBranchIfTrue operand1 isInstruction ifFalse: [ ^ self ].
 
-		| operands |
-	operands := aDRComparison operands.
-	((operands anySatisfy: #isConstant) and: [ operands anySatisfy: [:o | o isRegister or: o isInstruction ] ]) 
+	constraint := aDRBranchIfTrue operand1 condition acceptVisitor: self withBranch: aDRBranchIfTrue.
+	constraint ifNil: [ ^ self ].
+	
+	branchIndex = 1
+		ifTrue: [ self mergeConstraint: constraint ]
+		ifFalse: [ self mergeConstraint: constraint negated ]
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitComparison: aDRComparison ofBranch: parentBranch andDo: aClosure [
+
+	| operands |
+	operands := parentBranch operands.
+	((operands anySatisfy: #isConstant) and: [ 
+		 operands anySatisfy: [ :o | o isRegister or: o isInstruction ] ]) 
 		ifFalse: [ ^ nil "We need a register and a constant" ].
 
-	aDRComparison operand2 isConstant ifFalse: [ "Check constant on right"
-		^ aDRComparison reversed acceptVisitor: self "if not reverse it" ]. 
+	"Check constant on right"
+	operands second isConstant ifFalse: [ "if not reverse it"
+		self error: 'rethink me'.
+		^ aDRComparison reversed
+			  acceptVisitor: self
+			  withBranch: parentBranch ].
 
-	^ aClosure value: aDRComparison operand1 value: (aDRComparison operand2 acceptVisitor: self)
+	^ aClosure
+		  value: operands first
+		  value: (operands second acceptVisitor: self)
 ]
 
 { #category : #visiting }
@@ -190,12 +209,12 @@ DRCPSEdge >> visitDivision: aDRDivision [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitEqualsComparison: aDREqualsThanComparison [
+DRCPSEdge >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBranch [
 
 	^ self
 		  visitComparison: aDREqualsThanComparison
-		  andDo: [ :reg :value | 
-		  DRRegisterDomain equals: reg than: value ]
+		  ofBranch: aDRBranch
+		  andDo: [ :reg :value | DRRegisterDomain equals: reg than: value ]
 ]
 
 { #category : #visiting }
@@ -205,21 +224,22 @@ DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitGreaterOrEqualsThanComparison: aDRGreaterOrEqualsThanComparison [
+DRCPSEdge >> visitGreaterOrEqualsThan: aDRGreaterOrEqualsThanComparison inBranch: aDRBranch [
 
 	^ self
 		  visitComparison: aDRGreaterOrEqualsThanComparison
+		  ofBranch: aDRBranch
 		  andDo: [ :reg :value | 
 		  DRRegisterDomain greaterOrEquals: reg than: value ]
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitGreaterThanComparison: aDRGreaterThanComparison [ 
+DRCPSEdge >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranch [
 
 	^ self
 		  visitComparison: aDRGreaterThanComparison
-		  andDo: [ :reg :value | 
-		  DRRegisterDomain greater: reg than: value ]
+		  ofBranch: aDRBranch
+		  andDo: [ :reg :value | DRRegisterDomain greater: reg than: value ]
 ]
 
 { #category : #visiting }
@@ -234,19 +254,21 @@ DRCPSEdge >> visitLeftShift: aDRLeftShift [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitLessOrEqualsThanComparison: aDRLessOrEqualsThanComparison [
+DRCPSEdge >> visitLessOrEqualsThan: aDRLessOrEqualsThanComparison inBranch: aDRBranch [
 
 	^ self
 		  visitComparison: aDRLessOrEqualsThanComparison
+		  ofBranch: aDRBranch
 		  andDo: [ :reg :value | 
 		  DRRegisterDomain lessOrEquals: reg than: value ]
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitLessThanComparison: aDRLessThanComparison [
+DRCPSEdge >> visitLessThan: aDRLessThanComparison inBranch: aDRBranch [
 
 	^ self
 		  visitComparison: aDRLessThanComparison
+		  ofBranch: aDRBranch
 		  andDo: [ :reg :value | DRRegisterDomain less: reg than: value ]
 ]
 
@@ -266,7 +288,8 @@ DRCPSEdge >> visitMultiply: aDRMultiply [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitMultiplyOverflowJump: aDRMultiplyOverflowJump [ 
+DRCPSEdge >> visitMultiplyOverflow: aDROverflow inBranch: aDRBranch [ 
+	
 	self flag: #TODO. "Do nothing?"
 ]
 
@@ -281,12 +304,12 @@ DRCPSEdge >> visitNoop: aDRNoop [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitNotEqualsComparison: aDRNotEqualsThanComparison [
-
+DRCPSEdge >> visitNotEqualsThan: aDRNotEqualsThanComparison inBranch: aDRBranch [ 
+	
 	^ self
 		  visitComparison: aDRNotEqualsThanComparison
-		  andDo: [ :reg :value | 
-		  DRRegisterDomain notEquals: reg than: value ]
+		  ofBranch: aDRBranch
+		  andDo: [ :reg :value | DRRegisterDomain notEquals: reg than: value ]
 ]
 
 { #category : #visiting }
@@ -296,7 +319,8 @@ DRCPSEdge >> visitOr: aDROr [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitOverflowJump: aDROverflowJump [ 
+DRCPSEdge >> visitOverflow: aDROverflow inBranch: aDRBranch [ 
+	
 	self flag: #TODO. "Do nothing?"
 ]
 
@@ -330,10 +354,11 @@ DRCPSEdge >> visitSubstract: aDRSubtract [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitTest: aDRTest [
+DRCPSEdge >> visitTestMask: aDRTestMask inBranch: aDRBranch [
 
 	^ self
-		  visitComparison: aDRTest
+		  visitComparison: aDRTestMask
+		  ofBranch: aDRBranch
 		  andDo: [ :reg :value | DRRegisterDomain mask: reg with: value ]
 ]
 
