@@ -231,7 +231,6 @@ DRIRGenerator >> initializeSpecialCases [
 	"Bit Manipulation"
 	specialCases at: #<< put: #interpretLeftShiftWith:.
 	specialCases at: #>> put: #interpretRightShiftWith:.
-	specialCases at: #bitShift: put: #interpretBitShiftWith:.
 	specialCases at: #bitAnd: put: #interpretBitAndWith:.
 	specialCases at: #bitOr: put: #interpretBitOrWith:.
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
@@ -242,6 +241,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
 		
 	"special simulation cases"
+	specialCases at: #cCode: put: #interpretCCodeInSmalltalkWith:.
 	specialCases at: #cCode:inSmalltalk: put: #interpretCCodeInSmalltalkWith:.
 	
 	"Special pharo things such as exceptions"
@@ -423,7 +423,7 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [ 
-	
+
 	self interpretBlockBody: aRBMessageNode arguments first
 ]
 

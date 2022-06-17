@@ -28,8 +28,26 @@ DRCogitOperandSorter >> visitAddition: aDRAdd [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitBitAnd: aDRBitAnd [ 
+	
+	^ self visitCommutativeInstruction: aDRBitAnd
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitBitOr: aDRBitOr [ 
+	
+	^ self visitCommutativeInstruction: aDRBitOr
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [ 
 
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitBranchIfTrue: aDRBranchIfTrue [ 
+	
 	"Nothing"
 ]
 
@@ -63,6 +81,14 @@ DRCogitOperandSorter >> visitGetConditionCode: aDRGetConditionCode [
 DRCogitOperandSorter >> visitJump: aDRJump [ 
 	
 	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitLeftShift: aDRLeftShift [ 
+	
+	"Shift is not commutative!
+	=> extract its first operand into a copy instruction"
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRLeftShift
 ]
 
 { #category : #visiting }
@@ -121,7 +147,8 @@ DRCogitOperandSorter >> visitRightShift: aDRRightShift [
 { #category : #visiting }
 DRCogitOperandSorter >> visitStore: aDRStore [ 
 	
-	"Nothing"
+	"Stores are only from registers..."
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRStore
 ]
 
 { #category : #visiting }
@@ -131,4 +158,10 @@ DRCogitOperandSorter >> visitSubstract: aDRSubtract [
 	=> extract its first operand into a copy instruction"
 	
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRSubtract
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
+	
+	"Nothing"
 ]

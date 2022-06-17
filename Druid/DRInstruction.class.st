@@ -50,6 +50,12 @@ DRInstruction >> RBArrayNodenSource: aBuilder [
 	^ originAST inspectionSourceCode
 ]
 
+{ #category : #visiting }
+DRInstruction >> acceptVisitor: aVisitor withBranch: aDRPhiFunction [ 
+	
+	^ self acceptVisitor: aVisitor
+]
+
 { #category : #accessing }
 DRInstruction >> addBefore: anotherInstruction [
 	

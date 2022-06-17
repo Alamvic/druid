@@ -157,7 +157,7 @@ DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [
 	| constraint |
 	aDRBranchIfTrue operand1 isInstruction ifFalse: [ ^ self ].
 
-	constraint := aDRBranchIfTrue operand1 condition
+	constraint := aDRBranchIfTrue operand1
 		              acceptVisitor: self
 		              withBranch: aDRBranchIfTrue operand1.
 	constraint ifNil: [ ^ self ].
@@ -222,7 +222,7 @@ DRCPSEdge >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBranch [
 { #category : #visiting }
 DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [ 
 
-	"Do nothing"
+	^ aDRGetConditionCode condition acceptVisitor: self withBranch: aDRGetConditionCode
 ]
 
 { #category : #visiting }
