@@ -349,6 +349,22 @@ DruidTestInterpreter >> primitiveDecrement [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDecrementConstantArgument [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: self stackTop - 1
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDecrementConstantReceiver [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: 42 - self stackTop
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDivide [
 
 	<numberOfArguments: 1>
@@ -487,11 +503,19 @@ DruidTestInterpreter >> primitiveIfTrueStatement [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveIncrement [
+DruidTestInterpreter >> primitiveIncrementConstantArgument [
 
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: self stackTop + 1
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIncrementConstantReceiver [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: 1 + self stackTop
 ]
 
 { #category : #'as yet unclassified' }
@@ -643,17 +667,17 @@ DruidTestInterpreter >> primitiveMultiplePathsOnlyOneDead [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveMultiply [
-
-	<numberOfArguments: 0>
-	self pop: 1 thenPush: 2 * (self stackValue: 0)
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveMultiplyInverted [
+DruidTestInterpreter >> primitiveMultiplyConstantArgument [
 
 	<numberOfArguments: 0>
 	self pop: 1 thenPush: (self stackValue: 0) * 2
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveMultiplyConstantReceiver [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: 2 * (self stackValue: 0)
 ]
 
 { #category : #'as yet unclassified' }

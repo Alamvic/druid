@@ -427,13 +427,23 @@ DRPrimitiveCompilationTest >> testCompiledPrimitivePreservesStack [
 ]
 
 { #category : #'tests-arithmetic' }
-DRPrimitiveCompilationTest >> testDecrement [
+DRPrimitiveCompilationTest >> testDecrementConstantArgument [
 
-	self compileDruidPrimitive: #primitiveDecrement.
+	self compileDruidPrimitive: #primitiveDecrementConstantArgument.
 	
 	self executePrimitiveWithReceiver: 42.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 41
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testDecrementConstantReceiver [
+
+	self compileDruidPrimitive: #primitiveDecrementConstantReceiver.
+
+	self executePrimitiveWithReceiver: 5.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 37
 ]
 
 { #category : #'tests-arithmetic' }
@@ -860,9 +870,19 @@ DRPrimitiveCompilationTest >> testIfTrueStatementCaseTrue [
 ]
 
 { #category : #'tests-arithmetic' }
-DRPrimitiveCompilationTest >> testIncrement [
+DRPrimitiveCompilationTest >> testIncrementConstantArgument [
 
-	self compileDruidPrimitive: #primitiveIncrement.
+	self compileDruidPrimitive: #primitiveIncrementConstantArgument.
+
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 43
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testIncrementConstantReceiver [
+
+	self compileDruidPrimitive: #primitiveIncrementConstantReceiver.
 
 	self executePrimitiveWithReceiver: 42.
 	
@@ -968,9 +988,9 @@ DRPrimitiveCompilationTest >> testMultiplicationIntrinsecWithOverflow [
 ]
 
 { #category : #'tests-arithmetic' }
-DRPrimitiveCompilationTest >> testMultiply [
+DRPrimitiveCompilationTest >> testMultiplyConstantArgument [
 
-	self compileDruidPrimitive: #primitiveMultiply.
+	self compileDruidPrimitive: #primitiveMultiplyConstantArgument.
 	
 	self executePrimitiveWithReceiver: 42.
 	
@@ -978,9 +998,9 @@ DRPrimitiveCompilationTest >> testMultiply [
 ]
 
 { #category : #'tests-arithmetic' }
-DRPrimitiveCompilationTest >> testMultiplyInverted [
+DRPrimitiveCompilationTest >> testMultiplyConstantReceiver [
 
-	self compileDruidPrimitive: #primitiveMultiplyInverted.
+	self compileDruidPrimitive: #primitiveMultiplyConstantReceiver.
 	
 	self executePrimitiveWithReceiver: 42.
 	

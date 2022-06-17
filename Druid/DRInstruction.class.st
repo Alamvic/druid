@@ -195,6 +195,12 @@ DRInstruction >> inspectionDependencies: aBuilder [
 		yourself
 ]
 
+{ #category : #accessing }
+DRInstruction >> instructionFactory [
+	
+	^ basicBlock instructionFactory
+]
+
 { #category : #testing }
 DRInstruction >> isBranchIfTrue [
 	
@@ -526,6 +532,12 @@ DRInstruction >> result [
 DRInstruction >> result: anObject [
 
 	result := anObject
+]
+
+{ #category : #operands }
+DRInstruction >> reverseOperands [
+	
+	operands := operands reversed
 ]
 
 { #category : #SCCP }
