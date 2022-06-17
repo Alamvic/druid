@@ -136,8 +136,9 @@ DruidTestRTLCompiler >> gen_primitiveAdd [
 	self MoveR: ReceiverResultReg R: ClassReg.
 	self AddR: ClassReg R: TempReg.
 	jump1 := self JumpOverflow: 0.
-	self MoveR: TempReg R: ReceiverResultReg.
+	self MoveR: TempReg R: Arg0Reg.
 	self genPrimReturn.
+	
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
 	jump1 jmpTarget: currentBlock.
@@ -824,44 +825,52 @@ DruidTestRTLCompiler >> gen_primitiveConditionWithAnyMaskInverted [
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveDNA [
 
-	| currentBlock jump0 jump1 jump2 jump3 jump4 jump5 |
+	| currentBlock jump0 jump1 jump2 jump3 jump4 |
 	self CmpCq: 10 R: ReceiverResultReg.
 	jump0 := self JumpGreater: 0.
 	self MoveCq: 99 R: TempReg.
-	jump1 := self Jump: 0.
-	
-	currentBlock := self Label.
-	jump0 jmpTarget: currentBlock.
-	self MoveCq: 1 R: TempReg.
+	self CmpCq: 0 R: ReceiverResultReg.
+	jump1 := self JumpGreater: 0.
+	self MoveCq: 99 R: TempReg.
+	self MoveCq: 17 R: ClassReg.
+	jump2 := self Jump: 0.
 	
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self CmpCq: 0 R: ReceiverResultReg.
-	jump2 := self JumpGreater: 0.
-	self MoveCq: 17 R: ClassReg.
-	jump3 := self Jump: 0.
+	self MoveR: TempReg R: ClassReg.
+	self MoveR: ClassReg R: TempReg.
+	self MoveCq: 5 R: SendNumArgsReg.
+	self MoveR: ClassReg R: Extra0Reg.
+	self MoveR: TempReg R: Extra1Reg.
+	self MoveR: SendNumArgsReg R: Extra2Reg.
+	self CmpCq: 7 R: ReceiverResultReg.
+	jump3 := self JumpGreater: 0.
+	self MoveR: SendNumArgsReg R: Extra2Reg.
+	self MoveR: Extra2Reg R: ClassReg.
 	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self MoveCq: 5 R: ClassReg.
-	
-	currentBlock := self Label.
-	jump3 jmpTarget: currentBlock.
-	self CmpCq: 7 R: ReceiverResultReg.
-	jump4 := self JumpGreater: 0.
 	self AddR: ClassReg R: TempReg.
 	self AddCq: 42 R: TempReg.
 	self MoveR: TempReg R: ReceiverResultReg.
-	jump5 := self Jump: 0.
+	jump4 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveCq: 1 R: ClassReg.
+	self MoveR: ClassReg R: TempReg.
+	self MoveCq: 5 R: Extra2Reg.
+	self MoveR: ClassReg R: Extra0Reg.
+	self MoveR: TempReg R: Extra1Reg.
+	
+	currentBlock := self Label.
+	jump3 jmpTarget: currentBlock.
+	self AddCq: 5 R: Extra0Reg.
+	self AddCq: 15 R: Extra0Reg.
+	self MoveR: Extra0Reg R: ReceiverResultReg.
 	
 	currentBlock := self Label.
 	jump4 jmpTarget: currentBlock.
-	self AddR: ClassReg R: TempReg.
-	self AddCq: 15 R: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
-	
-	currentBlock := self Label.
-	jump5 jmpTarget: currentBlock.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1345,9 +1354,9 @@ DruidTestRTLCompiler >> gen_primitiveMod [
 	self
 		DivR: Arg0Reg
 		R: ReceiverResultReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1464,11 +1473,14 @@ DruidTestRTLCompiler >> gen_primitiveReturnTrue [
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveSandclock [
 
-	| currentBlock jump0 jump1 jump2 jump3 |
+	| currentBlock jump0 jump1 jump2 |
 	self CmpCq: 10 R: ReceiverResultReg.
 	jump0 := self JumpGreater: 0.
 	self MoveCq: 99 R: TempReg.
-	jump1 := self Jump: 0.
+	self CmpCq: 0 R: ReceiverResultReg.
+	jump1 := self JumpGreater: 0.
+	self MoveCq: 116 R: ReceiverResultReg.
+	jump2 := self Jump: 0.
 	
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
@@ -1476,19 +1488,11 @@ DruidTestRTLCompiler >> gen_primitiveSandclock [
 	
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self CmpCq: 0 R: ReceiverResultReg.
-	jump2 := self JumpGreater: 0.
-	self AddCq: 17 R: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
-	jump3 := self Jump: 0.
-	
-	currentBlock := self Label.
-	jump2 jmpTarget: currentBlock.
 	self AddCq: 5 R: TempReg.
 	self MoveR: TempReg R: ReceiverResultReg.
 	
 	currentBlock := self Label.
-	jump3 jmpTarget: currentBlock.
+	jump2 jmpTarget: currentBlock.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]

@@ -150,15 +150,18 @@ DRCPSEdge >> visitBranchIfCondition: aDRConditionalJump [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [ 
-	
+DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [
+
 	"Ignore hardcoded values"
+
 	| constraint |
 	aDRBranchIfTrue operand1 isInstruction ifFalse: [ ^ self ].
 
-	constraint := aDRBranchIfTrue operand1 condition acceptVisitor: self withBranch: aDRBranchIfTrue.
+	constraint := aDRBranchIfTrue operand1 condition
+		              acceptVisitor: self
+		              withBranch: aDRBranchIfTrue operand1.
 	constraint ifNil: [ ^ self ].
-	
+
 	branchIndex = 1
 		ifTrue: [ self mergeConstraint: constraint ]
 		ifFalse: [ self mergeConstraint: constraint negated ]
@@ -174,11 +177,10 @@ DRCPSEdge >> visitComparison: aDRComparison ofBranch: parentBranch andDo: aClosu
 		ifFalse: [ ^ nil "We need a register and a constant" ].
 
 	"Check constant on right"
-	operands second isConstant ifFalse: [ "if not reverse it"
-		self error: 'rethink me'.
-		^ aDRComparison reversed
-			  acceptVisitor: self
-			  withBranch: parentBranch ].
+	operands second isConstant ifFalse: [
+		"if not reverse it and add it directly" 
+		parentBranch reversed acceptVisitor: self.
+		^ nil ].
 
 	^ aClosure
 		  value: operands first
@@ -291,6 +293,7 @@ DRCPSEdge >> visitMultiply: aDRMultiply [
 DRCPSEdge >> visitMultiplyOverflow: aDROverflow inBranch: aDRBranch [ 
 	
 	self flag: #TODO. "Do nothing?"
+	^ nil
 ]
 
 { #category : #visiting }
@@ -322,6 +325,7 @@ DRCPSEdge >> visitOr: aDROr [
 DRCPSEdge >> visitOverflow: aDROverflow inBranch: aDRBranch [ 
 	
 	self flag: #TODO. "Do nothing?"
+	^ nil
 ]
 
 { #category : #visiting }
