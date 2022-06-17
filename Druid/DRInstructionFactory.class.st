@@ -129,6 +129,14 @@ DRInstructionFactory >> modulo: aValue by: anotherValue [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> multiply: aValue by: anotherValue [
+
+	^ DRMultiply
+		  operands: { aValue asDRValue. anotherValue asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> or: operand1 with: operand2 [
 
 	^ DROr

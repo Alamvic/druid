@@ -613,6 +613,12 @@ DRBasicBlock >> modulo: aValue by: anotherValue [
 	^ self addInstruction: (self instructionFactory modulo: aValue by: anotherValue)
 ]
 
+{ #category : #building }
+DRBasicBlock >> multiply: aValue by: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory multiply: aValue by: anotherValue)
+]
+
 { #category : #splitting }
 DRBasicBlock >> newEmptyPredecessor [
 

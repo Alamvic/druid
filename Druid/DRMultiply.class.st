@@ -21,6 +21,12 @@ DRMultiply >> asNumberedExpression [
 	yourself
 ]
 
+{ #category : #testing }
+DRMultiply >> isMultiply [
+	
+	^ true
+]
+
 { #category : #printing }
 DRMultiply >> opcode [
 	

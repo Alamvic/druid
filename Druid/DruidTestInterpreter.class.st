@@ -643,6 +643,20 @@ DruidTestInterpreter >> primitiveMultiplePathsOnlyOneDead [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveMultiply [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: 2 * (self stackValue: 0)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveMultiplyInverted [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: (self stackValue: 0) * 2
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveMultiplyWithOverflow [
 
 	<numberOfArguments: 1>

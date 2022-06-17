@@ -244,6 +244,12 @@ DRInstruction >> isModulo [
 ]
 
 { #category : #testing }
+DRInstruction >> isMultiply [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isNonConditionalJump [
 	
 	^ false

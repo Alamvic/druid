@@ -968,6 +968,26 @@ DRPrimitiveCompilationTest >> testMultiplicationIntrinsecWithOverflow [
 ]
 
 { #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testMultiply [
+
+	self compileDruidPrimitive: #primitiveMultiply.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 84
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testMultiplyInverted [
+
+	self compileDruidPrimitive: #primitiveMultiplyInverted.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 84
+]
+
+{ #category : #'tests-arithmetic' }
 DRPrimitiveCompilationTest >> testNegated [
 
 	self compileDruidPrimitive: #primitiveNegated.
