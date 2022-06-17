@@ -18,6 +18,12 @@ DRPhiFunction >> acceptVisitor: aVisitor [
 	^ aVisitor visitPhiFunction: self
 ]
 
+{ #category : #accessing }
+DRPhiFunction >> addNext: anotherInstruction [
+	
+	^ basicBlock addInstructionFirst: anotherInstruction
+]
+
 { #category : #adding }
 DRPhiFunction >> addOperand [
 
