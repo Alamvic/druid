@@ -303,13 +303,6 @@ DRCogitCodeGenerator >> visitBitOr: aDRCogitBitAnd [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitBitShift: aDRCogitBitShift [ 
-
-	^ self threeOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitBitShift
-
-]
-
-{ #category : #visiting }
 DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 
 	"Delegate the condition generation to the condition itself.
@@ -501,7 +494,8 @@ DRCogitCodeGenerator >> visitJump: aDRJump [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLeftShift: aDRCogitLeftShift [
-	^ self visitBitShift: (DRBitShift operands: aDRCogitLeftShift operands reversed result:  aDRCogitLeftShift result)
+	
+	^ self threeOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitLeftShift
 ]
 
 { #category : #visiting }
