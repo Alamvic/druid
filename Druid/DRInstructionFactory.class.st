@@ -97,9 +97,9 @@ DRInstructionFactory >> initialize [
 ]
 
 { #category : #factory }
-DRInstructionFactory >> jumpIf: aCondition [
-1halt.
-	^ DRBranchIfCondition operands: { aCondition asDRValue }
+DRInstructionFactory >> jumpIf: aBoolean [
+
+	^ DRBranchIfTrue operands: { aBoolean asDRValue }
 ]
 
 { #category : #factory }
