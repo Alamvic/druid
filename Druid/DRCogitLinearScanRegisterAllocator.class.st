@@ -45,7 +45,8 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 			^ true
 		].
 		
-		[ i result isNoResult not and: [i operands size = 2] ] ifTrue: [ | secondOperandInterval currentInterval operandToMergeInterval |
+		(i result isNoResult not and: [i operands size = 2])
+			ifTrue: [ | secondOperandInterval currentInterval operandToMergeInterval |
 			"Merge the two intervals, finding the operand that is not a constant.
 			Take the first operand.
 			When transforming to Cogit code, we output the first operand as second operand and destination.
