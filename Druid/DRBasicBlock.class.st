@@ -57,6 +57,18 @@ DRBasicBlock >> addInstruction: anInstruction [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> addInstructionFirst: anInstruction [
+
+	(self instructions includes: anInstruction) ifTrue: [ ^ self ].
+
+	anInstruction basicBlock: self.
+		
+	^ anInstruction isPhiFunction
+		  ifTrue: [ phiFunctions add: anInstruction ]
+		  ifFalse: [ instructions addFirst: anInstruction ]
+]
+
+{ #category : #accessing }
 DRBasicBlock >> addPredecessor: aBasicBlock [
 
 	predecessors add: aBasicBlock.

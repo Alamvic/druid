@@ -75,6 +75,14 @@ DRInstruction >> addUser: anInstruction [
 	users add: anInstruction
 ]
 
+{ #category : #memory }
+DRInstruction >> asMemoryAddress [
+
+	^ DRAbsoluteMemoryAddress new
+		  address: self;
+		  yourself
+]
+
 { #category : #accessing }
 DRInstruction >> asNumberedExpression [
 
