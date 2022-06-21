@@ -48,7 +48,7 @@ DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiv
 DRLinearScanRegisterAllocator >> allocateRegisters [
 
 	activeIntervals := OrderedCollection new.
-	inactiveIntervals := Set new.
+	inactiveIntervals := OrderedCollection new.
 
 	unhandledIntervals := (liveSets values asSet sorted: [ :a :b | 
 		                       a start < b start ]) asOrderedCollection.
@@ -76,6 +76,7 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 { #category : #api }
 DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [ 
 
+	self initialize.
 	self controlFlowGraph: aDRControlFlowGraph.
 	self prepareSSA.
 	self buildLiveSets.
@@ -105,9 +106,12 @@ DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 	Store R17 => M0.
 
 	This means that we should reserve at least 1 registers for spilled results.
+	Do not add stores for phi functions
 	"
-	i result ifNil: [ ^ self ].
 	i result isVirtualRegister ifFalse: [ ^ self ].
+	i isPhiFunction ifTrue: [
+		i result: (self allocatedRegisterFor: i).
+		^  self ].
 
 	allocatedLocation := self allocatedRegisterFor: i.
 	allocatedRegister := allocatedLocation isMemoryAddress

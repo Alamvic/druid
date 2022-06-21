@@ -101,6 +101,18 @@ DruidTestInterpreter >> primitiveAccessTempAfterCall [
 	self pop: 1 thenPush: temp
 ]
 
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveAnd [
+
+	<numberOfArguments: 0>
+	| result |
+	(self stackTop > 0 and: [ self stackTop > 10 ])
+		ifTrue: [ result := 42 ]
+		ifFalse: [ result := 10 ].
+
+	self pop: 1 thenPush: result
+]
+
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveAssertIsIgnored [
 	<numberOfArguments: 0>
@@ -717,6 +729,18 @@ DruidTestInterpreter >> primitiveNotEqualsThanInverted [
 	| r |
 	r := 10 ~= self stackTop ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveOr [
+
+	<numberOfArguments: 0>
+	| result |
+	(self stackTop < 5 or: [ self stackTop > 10 ])
+		ifTrue: [ result := 42 ]
+		ifFalse: [ result := 10 ].
+
+	self pop: 1 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }

@@ -43,13 +43,6 @@ DRInstruction >> = anObject [
 	^ false. 
 ]
 
-{ #category : #inspecting }
-DRInstruction >> RBArrayNodenSource: aBuilder [
-	<inspectorPresentationOrder: 0 title: 'Source'>
-	
-	^ originAST inspectionSourceCode
-]
-
 { #category : #visiting }
 DRInstruction >> acceptVisitor: aVisitor withBranch: aDRPhiFunction [ 
 	
@@ -167,20 +160,25 @@ DRInstruction >> initialize [
 
 { #category : #inspecting }
 DRInstruction >> inspectionDependencies: aBuilder [
-	"<inspectorPresentationOrder: 0 title: 'Dependency Graph'>" 
+	<inspectorPresentationOrder: 10 title: 'Dependency Graph'>
+	
 	| view blockViews eb |
 	view := RSCanvas new.
-	blockViews := self withAllDependencies collect: [ :c | | g |
+	blockViews := self withAllDependencies asSet collect: [ :c | | g label |
 		g := RSGroup new.
-		g add: (RSCircle new
-			size: 50;
-			color: Color veryVeryLightGray;
+		(label := (RSLabel new text: c label asString)
+			borderColor: Color black;
 			yourself).
-		g add: (RSLabel new text: c label asString).
+		g add: (RSBox new
+			color: Color white;
+			border: (RSBorder new color: Color purple; width: 2);
+			extent: label extent + 10;
+			yourself).
+		g add: label.
 		g asShape
 			@ RSDraggable;
 			model: c;
-			yourself ].
+			yourself ] as: Array.
 	view addAll: blockViews.
 	
 	eb := RSEdgeBuilder arrowedLine.
@@ -199,6 +197,13 @@ DRInstruction >> inspectionDependencies: aBuilder [
 	^ SpRoassal3InspectorPresenter new
 		canvas: view;
 		yourself
+]
+
+{ #category : #inspecting }
+DRInstruction >> inspectionSource: aBuilder [
+	<inspectorPresentationOrder: 0 title: 'Source'>
+	
+	^ originAST inspectionSourceCode
 ]
 
 { #category : #accessing }

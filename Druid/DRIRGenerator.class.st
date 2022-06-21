@@ -782,14 +782,11 @@ DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretScavengeThresholdWith: aRBVariableNode [
 
-	| byteSize |
-	byteSize := 8.
 	^ self
-		addInstructionFrom: aRBVariableNode
-		instructionKind: DRLoad
-		operands: { 
-				byteSize asDRValue.
-				(DRInterpreterReference reference: 'objectMemory getScavengeThreshold') }
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRCopy
+		  operands: { (DRJitCompileTimeExpression new expression:
+				   'objectMemory getScavengeThreshold') }
 ]
 
 { #category : #'special cases - stack' }

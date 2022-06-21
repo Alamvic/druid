@@ -35,7 +35,7 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 		cogit methodOrBlockNumArgs: 2.
 		cogit perform: generatorSelector.
 		stopInstruction := cogit Stop
-	].
+	] bytecodes: 30.
 	stopAddress := stopInstruction address
 ]
 
@@ -88,6 +88,36 @@ DRPrimitiveCompilationTest >> testAdditionIntrinsecWithOverflow [
 	self executePrimitiveWithReceiver: (memory integerObjectOf: memory maxSmallInteger) withArguments: { memory integerObjectOf: 1 }.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 99
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testAndFirstFalseSecondFalse [
+
+	self compileDruidPrimitive: #primitiveAnd.
+	
+	self executePrimitiveWithReceiver: -1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 10
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testAndFirstTrueSecondFalse [
+
+	self compileDruidPrimitive: #primitiveAnd.
+	
+	self executePrimitiveWithReceiver: 5.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 10
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testAndFirstTrueSecondTrue [
+
+	self compileDruidPrimitive: #primitiveAnd.
+	
+	self executePrimitiveWithReceiver: 20.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
 { #category : #'tests-comparisons' }
@@ -216,7 +246,7 @@ DRPrimitiveCompilationTest >> testCompileNonCompiledCaseExitsWithSuccess [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-array' }
+{ #category : #'tests-real primitives' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
@@ -341,22 +371,44 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethodWithEarlyReturnCa
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-array' }
-DRPrimitiveCompilationTest >> testCompilePrimitiveNew [
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveNewInitializesInstance [
 
-	| class array |
+	| class |
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNew.
-	
-	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
-	array := memory instantiateClass: class indexableSize: 1.
-	memory storePointer: 0 ofObject: array withValue: 42.
 
-	self 	executePrimitiveWithReceiver: array 
-			withArguments: { 1 }.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 42
-	
+	class := self
+		         newClassInOldSpaceWithSlots: 4
+		         instSpec: memory nonIndexablePointerFormat.
+	memory ensureBehaviorHash: class.
+	self executePrimitiveWithReceiver: class.
+
+	self assert: (memory numSlotsOf: machineSimulator receiverRegisterValue) equals: 4.
+	0 to: 3 do: [ :e |
+		self
+			assert: (memory fetchPointer: e ofObject: machineSimulator receiverRegisterValue)
+			equals: memory nilObject
+	]
+]
+
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveNewInstantiatesClass [
+
+	| class |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNew.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 4
+		         instSpec: memory nonIndexablePointerFormat.
+	memory ensureBehaviorHash: class.
+	self executePrimitiveWithReceiver: class.
+
+	self
+		assert:
+		(memory fetchClassOf: machineSimulator receiverRegisterValue)
+		equals: class
 ]
 
 { #category : #'tests-basic' }
@@ -1195,6 +1247,36 @@ DRPrimitiveCompilationTest >> testOneDeadBranchThreeBranches3 [
 	self executePrimitiveWithReceiver: 0.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 116
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testOrFirstFalseSecondFalse [
+
+	self compileDruidPrimitive: #primitiveOr.
+	
+	self executePrimitiveWithReceiver: 7.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 10
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testOrFirstFalseSecondTrue [
+
+	self compileDruidPrimitive: #primitiveOr.
+	
+	self executePrimitiveWithReceiver: 12.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testOrFirstTrueSecondFalse [
+
+	self compileDruidPrimitive: #primitiveOr.
+	
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
 { #category : #'tests-failing-primitive' }

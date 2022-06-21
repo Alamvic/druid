@@ -55,7 +55,7 @@ DRCogitCodeGenerator >> generateCompare: aComparison operands: operands [
 	JumpLessThan xxx
 	Thus, operands are inverted always"
 	comparands := operands reversed.
-	comparisonToGenerate := aComparison.
+	comparisonToGenerate := aComparison reversed.
 
 	"Cogit RTL only supports constants as the first argument.
 	Invert the comparison and the condition if necessary, mostly for greaterThan comparisons)."
@@ -671,7 +671,6 @@ DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfConditio
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitUnsignedCoercion: aDRCogitUnsignedCoercion [ 
-	
-	"Nothing for now"
-	^ self visitNullValue: aDRCogitUnsignedCoercion
+
+	^ self visitCopy: aDRCogitUnsignedCoercion
 ]

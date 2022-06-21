@@ -5,6 +5,33 @@ Class {
 }
 
 { #category : #tests }
+DRCogitRegisterAllocatorTest >> testAllocatePhiFunction [
+
+	| cfg firstRegister specialRegister c1 b1 c2 b2 merge |
+
+	specialRegister := DRPhysicalRegister name: 'Receiver'.
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlockWith: [ :block |
+		c1 := block copy: 1 ].
+	b2 := cfg newBasicBlockWith: [ :block |
+		c2 := block copy: 2 ].
+	cfg initialBasicBlock jumpIfTrueTo: b1 ifFalseTo: b2.
+	merge := cfg newBasicBlock.
+	b1 jumpTo: merge.
+	b2 jumpTo: merge.
+	merge phiWith: c1 with: c2.
+	
+	firstRegister := DRPhysicalRegister name: 'PR1'.
+	DRCogitLinearScanRegisterAllocator new
+		registers: { firstRegister };
+		allocateRegistersIn: cfg.
+
+	"Check that operands and phi function are coallesced"
+	self assert: merge instructions first result equals: merge instructions first operand1 result. 
+	self assert: merge instructions first result equals: merge instructions first operand2 result. 
+]
+
+{ #category : #tests }
 DRCogitRegisterAllocatorTest >> testAllocateRegistersForDivisionIntroducesRemainder [
 
 	| cfg basicBlock firstRegister secondRegister |
@@ -68,6 +95,38 @@ DRCogitRegisterAllocatorTest >> testAllocateRegistersForModuloIntroducesQuotient
 	self assert: basicBlock instructions third operand2 result equals: secondRegister.
 	self assert: ({ firstRegister . secondRegister } includes: basicBlock instructions third operands third result).
 	self assert: ({ firstRegister . secondRegister } includes: basicBlock instructions third result).
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testAllocateTwoSpilledPhiFunctions [
+
+	| cfg specialRegister c1 b1 c2 b2 merge c12 c22 p1 p2 |
+
+	specialRegister := DRPhysicalRegister name: 'Receiver'.
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlockWith: [ :block |
+		c1 := block copy: 1.
+		c12 := block copy: 12 ].
+	b2 := cfg newBasicBlockWith: [ :block |
+		c2 := block copy: 2.
+		c22 := block copy: 22 ].
+
+	cfg initialBasicBlock jumpIfTrueTo: b1 ifFalseTo: b2.
+	merge := cfg newBasicBlock.
+	b1 jumpTo: merge.
+	b2 jumpTo: merge.
+
+	p1 := merge phiWith: c1 with: c2.
+	p2 := merge phiWith: c12 with: c22.
+	merge add: p1 to: p2.
+	
+	DRCogitLinearScanRegisterAllocator new
+		registers: { };
+		allocateRegistersIn: cfg.
+
+	"Add operands are loaded"
+	self assert: merge instructions third isLoad.
+	self assert: merge instructions fourth isLoad.
 ]
 
 { #category : #tests }

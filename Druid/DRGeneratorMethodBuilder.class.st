@@ -26,7 +26,7 @@ DRGeneratorMethodBuilder >> initialize [
 
 	super initialize.	
 	statements := OrderedCollection new.
-	variableNames := OrderedCollection new.
+	variableNames := Set new.
 ]
 
 { #category : #accessing }
@@ -35,7 +35,7 @@ DRGeneratorMethodBuilder >> methodNode [
 	^ RBMethodNode
 		selector: selector
 		body: (RBSequenceNode
-			temporaries: (variableNames collect: [ :name | RBVariableNode named: name ])
+			temporaries: (variableNames collect: [ :name | RBVariableNode named: name ] as: Array)
 			statements: statements)
 ]
 
