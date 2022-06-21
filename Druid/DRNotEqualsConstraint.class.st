@@ -7,7 +7,7 @@ Class {
 { #category : #initialization }
 DRNotEqualsConstraint class >> withValue: aConstantValue [
 
-	aConstantValue ifNil: [ 
+	({ true. false. nil } includes: aConstantValue) ifTrue: [ 
 		^ DRNotEqualsObjectConstraint new
 			  constantValue: aConstantValue;
 			  yourself ].

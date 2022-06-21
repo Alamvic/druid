@@ -639,14 +639,13 @@ DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [
 	
 	address := self visitOperand: aRBMessageNode arguments first.
 	
-	result := self
+	^ self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRLoad
 		operands: { 
 			8 asDRValue. "Assume 64 bits for now"
 			address }.
 
-	self pushOperand: result
 ]
 
 { #category : #API }

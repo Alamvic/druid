@@ -7,7 +7,7 @@ Class {
 { #category : #initialization }
 DREqualsConstraint class >> withValue: aConstantValue [
 
-	aConstantValue ifNil: [ 
+	({ true. false. nil } includes: aConstantValue) ifTrue: [ 
 		^ DREqualsObjectConstraint new
 			  constantValue: aConstantValue;
 			  yourself ].

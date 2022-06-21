@@ -57,6 +57,12 @@ DRValue >> hasUser: anInstruction [
 ]
 
 { #category : #testing }
+DRValue >> isComparison [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isComplexCondition [
 
 	^ false
@@ -84,6 +90,12 @@ DRValue >> isCopy [
 DRValue >> isDRBlockClosure [
 	
 	^ false
+]
+
+{ #category : #testing }
+DRValue >> isGlobal [
+
+	^ self isNullValue or: [ self isPhysicalRegister ]
 ]
 
 { #category : #testing }

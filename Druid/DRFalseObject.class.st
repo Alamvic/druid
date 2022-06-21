@@ -15,3 +15,9 @@ DRFalseObject >> name [
 	
 	^ 'objectMemory falseObject'
 ]
+
+{ #category : #accessing }
+DRFalseObject >> value [
+
+	^ false
+]

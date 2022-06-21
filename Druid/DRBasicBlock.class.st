@@ -24,18 +24,22 @@ DRBasicBlock class >> id: anInteger [
 
 { #category : #accessing }
 DRBasicBlock >> add: anInstruction after: anotherInstruction [
-	
+
 	anInstruction basicBlock: self.
-	instructions add: anInstruction after: anotherInstruction
+	(self collectionOf: anotherInstruction)
+		add: anInstruction
+		after: anotherInstruction
 ]
 
 { #category : #accessing }
 DRBasicBlock >> add: anInstruction before: anotherInstruction [
-	
+
 	anInstruction basicBlock: self.
-	anotherInstruction = endInstruction
-		ifTrue: [ ^ instructions addLast: anInstruction ].
-	instructions add: anInstruction before: anotherInstruction
+	anotherInstruction = endInstruction ifTrue: [ 
+		^ instructions addLast: anInstruction ].
+	(self collectionOf: anotherInstruction)
+		add: anInstruction
+		before: anotherInstruction
 ]
 
 { #category : #building }
@@ -50,10 +54,8 @@ DRBasicBlock >> addInstruction: anInstruction [
 	(self instructions includes: anInstruction) ifTrue: [ ^ self ].
 
 	anInstruction basicBlock: self.
-		
-	^ anInstruction isPhiFunction
-		  ifTrue: [ phiFunctions add: anInstruction ]
-		  ifFalse: [ instructions add: anInstruction ]
+
+	^ (self collectionOf: anInstruction) add: anInstruction
 ]
 
 { #category : #accessing }
@@ -176,7 +178,7 @@ DRBasicBlock >> checkLivenessOf: operand [
 
 	"Check if the value exists within this branch of execution"
 	"It should be defined by myself, or by a predecessor"
-	operand isNullValue ifTrue: [ ^ true ].
+	operand isGlobal ifTrue: [ ^ true ].
 	^ self isDominatedBy: operand basicBlock
 ]
 
@@ -190,6 +192,14 @@ DRBasicBlock >> cleanInstructions [
 
 	self instructions do: [ :i | 
 		i operands asSet do: [ :op | op removeUser: i ] ]
+]
+
+{ #category : #accessing }
+DRBasicBlock >> collectionOf: aDRInstruction [
+
+	^ aDRInstruction isPhiFunction
+		  ifTrue: [ phiFunctions ]
+		  ifFalse: [ instructions ]
 ]
 
 { #category : #accessing }
@@ -503,7 +513,7 @@ DRBasicBlock >> instructions [
 { #category : #iterating }
 DRBasicBlock >> instructionsDo: aFullBlockClosure [
 
-	phiFunctions do: aFullBlockClosure.
+	phiFunctions copy do: aFullBlockClosure.
 	instructions copy do: aFullBlockClosure.
 	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
 ]
@@ -689,9 +699,8 @@ DRBasicBlock >> phiWith: aValue with: aValue2 [
 DRBasicBlock >> phiWithVariables: variables [
 
 	| finalVariables orderedVariables allPosibleVariables phi |
-	
 	controlFlowGraph buildDominatorTree.
-	
+
 	allPosibleVariables := variables.
 	self predecessors size > variables size ifTrue: [ 
 		self predecessors size - variables size timesRepeat: [ 
@@ -700,7 +709,7 @@ DRBasicBlock >> phiWithVariables: variables [
 	orderedVariables := allPosibleVariables asOrderedCollection sorted: [ 
 		                    :i1 
 		                    :i2 | 
-		                    (i1 isNullValue or: [ i2 isNullValue ]) or: [ 
+		                    (i1 isGlobal or: [ i2 isGlobal ]) or: [ 
 			                    (self distanceToPredecessor: i1 basicBlock)
 			                    <= (self distanceToPredecessor: i2 basicBlock) ] ].
 
@@ -711,7 +720,7 @@ DRBasicBlock >> phiWithVariables: variables [
 			                  ifNone: [ DRNullValue new ] ].
 
 	phi := self instructionFactory phiWithVariables: finalVariables.
-	^ self addInstruction: phi.
+	^ self addInstruction: phi
 ]
 
 { #category : #accessing }

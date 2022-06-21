@@ -194,12 +194,6 @@ DRInstruction >> isBackJump [
 ]
 
 { #category : #testing }
-DRInstruction >> isComparison [
-
-	^ false
-]
-
-{ #category : #testing }
 DRInstruction >> isConditionalBranch [
 	
 	^ false

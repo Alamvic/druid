@@ -100,8 +100,39 @@ DRCPSEdge >> mergeConstraint: aConditionalConstraint to: id [
 { #category : #visiting }
 DRCPSEdge >> operandConstraint: operand [
 
-	^ (self constraintFor: operand result name) ifNil: [ 
-		  operand acceptVisitor: self ]
+	| constraintOrDomain |
+	(self constraintFor: operand result name) ifNotNil: [ :c | ^ c ].
+	constraintOrDomain := operand acceptVisitor: self.
+
+	"As comparisons add constraints to operands (not result) registers they return a register domain"
+	^ operand isComparison
+		  ifTrue: [ constraintOrDomain constraint ]
+		  ifFalse: [ constraintOrDomain ]
+]
+
+{ #category : #visiting }
+DRCPSEdge >> operandDomainFromInstruction: aDRInstruction [
+
+	aDRInstruction isCopy ifTrue: [ 
+		^ self operandDomainFromInstruction: aDRInstruction operand1 ].
+
+	aDRInstruction isPhiFunction ifTrue: [ 
+		^ self operandDomainFromPhi: aDRInstruction ].
+
+	self assert: aDRInstruction isComparison.
+
+	^ aDRInstruction acceptVisitor: self
+]
+
+{ #category : #visiting }
+DRCPSEdge >> operandDomainFromPhi: aDRPhiFunction [
+
+	| pathOperand constraint |
+	pathOperand := aDRPhiFunction operands
+		               detect: [ :op | constraints includesKey: op result name ]
+		               ifNone: [ ^ nil ].
+	constraint := self operandConstraint: pathOperand.
+	^ DRRegisterDomain reg: pathOperand constraint: constraint
 ]
 
 { #category : #accessing }
@@ -178,14 +209,14 @@ DRCPSEdge >> visitConditionalJump: aDRConditionalJump [
 	"Ignore hardcoded values"
 	aDRConditionalJump condition isInstruction ifFalse: [ ^ self ].
 
-	domain := aDRConditionalJump condition acceptVisitor: self.
+	domain := self operandDomainFromInstruction: aDRConditionalJump condition.
 	domain ifNil: [ ^ self ].
 
 	id := domain reg result name.
 
 	^ branchIndex = 1
-		ifTrue: [ self mergeConstraint: domain constraint to: id ]
-		ifFalse: [ self mergeConstraint: domain constraint negated to: id ]
+		  ifTrue: [ self mergeConstraint: domain constraint to: id ]
+		  ifFalse: [ self mergeConstraint: domain constraint negated to: id ]
 ]
 
 { #category : #visiting }
@@ -200,9 +231,9 @@ DRCPSEdge >> visitCopy: aDRCopy [
 	| constraint operand |
 	operand := aDRCopy operand1.
 
-	constraint := operand isConstant
-		              ifTrue: [ 
-		              DREqualsConstraint withValue: aDRCopy operand1 value ]
+	constraint := (operand isConstant or: [ 
+		               operand isObjectReferenceValue ])
+		              ifTrue: [ DREqualsConstraint withValue: operand value ]
 		              ifFalse: [ self operandConstraint: operand ].
 
 	constraint ifNil: [ ^ nil ].
