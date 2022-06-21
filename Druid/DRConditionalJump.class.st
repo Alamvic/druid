@@ -3,7 +3,8 @@ Class {
 	#superclass : #DRInstruction,
 	#instVars : [
 		'trueBranch',
-		'falseBranch'
+		'falseBranch',
+		'backJumpTo'
 	],
 	#category : #'Druid-IR'
 }
@@ -12,6 +13,18 @@ Class {
 DRConditionalJump >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitConditionalJump: self
+]
+
+{ #category : #accessing }
+DRConditionalJump >> beBackJumpTo: aDRBasicBlock [
+
+	backJumpTo add: aDRBasicBlock
+]
+
+{ #category : #accessing }
+DRConditionalJump >> beForwardJumpTo: aDRBasicBlock [ 
+	
+	backJumpTo remove: aDRBasicBlock
 ]
 
 { #category : #accessing }
@@ -32,22 +45,31 @@ DRConditionalJump >> falseBranch [
 ]
 
 { #category : #accessing }
-DRConditionalJump >> falseBranch: aDruidIRGenerator [ 
+DRConditionalJump >> falseBranch: aDRBasicBlock [
 
-	falseBranch := aDruidIRGenerator 
+	backJumpTo remove: falseBranch ifAbsent: [  ].
+
+	falseBranch := aDRBasicBlock
 ]
 
 { #category : #initialization }
 DRConditionalJump >> initialize [
 
 	super initialize.
-	result := DRNoRegister new
+	result := DRNoRegister new.
+	backJumpTo := Set new
 ]
 
 { #category : #testing }
 DRConditionalJump >> isBackJump [
-	"For now do not allow conditional back jumps. Although they could happen... so we should be careful"
-	^ false
+	
+	^ backJumpTo isNotEmpty 
+]
+
+{ #category : #testing }
+DRConditionalJump >> isBackJumpTo: aDRBasicBlock [
+
+	^ backJumpTo includes: aDRBasicBlock
 ]
 
 { #category : #testing }
@@ -74,6 +96,13 @@ DRConditionalJump >> opcode [
 	^ 'If'
 ]
 
+{ #category : #copying }
+DRConditionalJump >> postCopy [
+
+	super postCopy.
+	backJumpTo := backJumpTo copy.
+]
+
 { #category : #printing }
 DRConditionalJump >> prettyConditionPrint [
 
@@ -89,12 +118,10 @@ DRConditionalJump >> prettyPrint [
 ]
 
 { #category : #replacing }
-DRConditionalJump >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [ 
-	
-	trueBranch = aDRBasicBlock ifTrue: [
-		trueBranch := aDRBasicBlock2 ].
-	falseBranch = aDRBasicBlock ifTrue: [
-		falseBranch := aDRBasicBlock2 ].
+DRConditionalJump >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [
+
+	trueBranch = aDRBasicBlock ifTrue: [ self trueBranch: aDRBasicBlock2 ].
+	falseBranch = aDRBasicBlock ifTrue: [ self falseBranch: aDRBasicBlock2 ]
 ]
 
 { #category : #SCCP }
@@ -138,7 +165,9 @@ DRConditionalJump >> trueBranch [
 ]
 
 { #category : #accessing }
-DRConditionalJump >> trueBranch: aDruidIRGenerator [ 
-	
-	trueBranch := aDruidIRGenerator 
+DRConditionalJump >> trueBranch: aDRBasicBlock [
+
+	backJumpTo remove: trueBranch ifAbsent: [  ].
+
+	trueBranch := aDRBasicBlock
 ]

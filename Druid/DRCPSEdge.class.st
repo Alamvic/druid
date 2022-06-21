@@ -17,11 +17,11 @@ DRCPSEdge class >> withSource: aSource andDestination: aDestination branchIndex:
 		  yourself
 ]
 
-{ #category : #adding }
-DRCPSEdge >> addConstraint: aConditionalConstraint [
+{ #category : #building }
+DRCPSEdge >> addConstraint: aConditionalConstraint to: id [
 
 	^ constraints
-		at: aConditionalConstraint reg name
+		at: id
 		put: aConditionalConstraint
 ]
 
@@ -36,7 +36,7 @@ DRCPSEdge >> composedConstraint: aConstraintClass from: aDRInstruction [
 
 	| operands |
 	operands := aDRInstruction operands collect: [ :o | o acceptVisitor: self ].
-	(operands anySatisfy: [ :o | (o isNil or: o = false) or: o = true ]) ifTrue: [ ^ nil ].
+	(operands anySatisfy: [ :o | (o isNil or: [o = false]) or: [o = true] ]) ifTrue: [ ^ nil ].
 	^ DRRegisterDomain
 		  reg: aDRInstruction
 		  constraint: (aConstraintClass constraints: operands)
@@ -45,7 +45,7 @@ DRCPSEdge >> composedConstraint: aConstraintClass from: aDRInstruction [
 { #category : #accessing }
 DRCPSEdge >> constraintFor: regKey [
 
-	^ constraints at: regKey
+	^ constraints at: regKey ifAbsent: [ ^ nil ]
 ]
 
 { #category : #accessing }
@@ -74,18 +74,65 @@ DRCPSEdge >> initialize [
 	constraints := Dictionary new.
 ]
 
-{ #category : #testing }
-DRCPSEdge >> isDead [
-	^ constraints values anySatisfy: [ :c | c isDead ]
+{ #category : #visiting }
+DRCPSEdge >> integerOperation: anOperantion [
+
+	"Could be any number"
+	^ self
+		  addConstraint: DRFullConstraint new
+		  to: anOperantion result name
 ]
 
-{ #category : #adding }
-DRCPSEdge >> mergeConstraint: aConditionalConstraint [
+{ #category : #testing }
+DRCPSEdge >> isDead [
+	^ constraints values anySatisfy: [ :c | c isEmpty ]
+]
+
+{ #category : #building }
+DRCPSEdge >> mergeConstraint: aConditionalConstraint to: id [
 
 	constraints
-		at: aConditionalConstraint reg name
-		update: [ :oldConstraint | oldConstraint mergedWith: aConditionalConstraint ]
+		at: id
+		update: [ :oldConstraint | oldConstraint intersectionWith: aConditionalConstraint ]
 		initial: aConditionalConstraint
+]
+
+{ #category : #visiting }
+DRCPSEdge >> operandConstraint: operand [
+
+	| constraintOrDomain |
+	(self constraintFor: operand result name) ifNotNil: [ :c | ^ c ].
+	constraintOrDomain := operand acceptVisitor: self.
+
+	"As comparisons add constraints to operands (not result) registers they return a register domain"
+	^ operand isComparison
+		  ifTrue: [ constraintOrDomain constraint ]
+		  ifFalse: [ constraintOrDomain ]
+]
+
+{ #category : #visiting }
+DRCPSEdge >> operandDomainFromInstruction: aDRInstruction [
+
+	aDRInstruction isCopy ifTrue: [ 
+		^ self operandDomainFromInstruction: aDRInstruction operand1 ].
+
+	aDRInstruction isPhiFunction ifTrue: [ 
+		^ self operandDomainFromPhi: aDRInstruction ].
+
+	self assert: aDRInstruction isComparison.
+
+	^ aDRInstruction acceptVisitor: self
+]
+
+{ #category : #visiting }
+DRCPSEdge >> operandDomainFromPhi: aDRPhiFunction [
+
+	| pathOperand constraint |
+	pathOperand := aDRPhiFunction operands
+		               detect: [ :op | constraints includesKey: op result name ]
+		               ifNone: [ ^ nil ].
+	constraint := self operandConstraint: pathOperand.
+	^ DRRegisterDomain reg: pathOperand constraint: constraint
 ]
 
 { #category : #accessing }
@@ -112,8 +159,9 @@ DRCPSEdge >> printOn: aStream [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitAddition: aDRAdd [ 
-	"Do nothing"
+DRCPSEdge >> visitAddition: aDRAdd [
+
+	^ self integerOperation: aDRAdd
 ]
 
 { #category : #visiting }
@@ -124,17 +172,20 @@ DRCPSEdge >> visitAnd: aDRAnd [
 
 { #category : #visiting }
 DRCPSEdge >> visitBitAnd: aDRBitAnd [
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitBitOr: aDRBitOr [
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitBitShift: aDRBitShift [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -154,39 +205,46 @@ DRCPSEdge >> visitComparison: aDRComparison andDo: aClosure [
 { #category : #visiting }
 DRCPSEdge >> visitConditionalJump: aDRConditionalJump [
 
-	| constraint |
+	| domain id |
 	"Ignore hardcoded values"
-	aDRConditionalJump operand1 isInstruction ifFalse: [ ^ self ].
+	aDRConditionalJump condition isInstruction ifFalse: [ ^ self ].
 
-	constraint := aDRConditionalJump operand1 acceptVisitor: self.
-	constraint ifNil: [ ^ self ].
-	
-	branchIndex = 1
-		ifTrue: [ self mergeConstraint: constraint ]
-		ifFalse: [ self mergeConstraint: constraint negated ]
+	domain := self operandDomainFromInstruction: aDRConditionalJump condition.
+	domain ifNil: [ ^ self ].
+
+	id := domain reg result name.
+
+	^ branchIndex = 1
+		  ifTrue: [ self mergeConstraint: domain constraint to: id ]
+		  ifFalse: [ self mergeConstraint: domain constraint negated to: id ]
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitConstant: aDRConstantValue [ 
 	
-	self flag: #TODO. "Remove this, we must know when something is a constant"
 	^ aDRConstantValue value 
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitCopy: aDRCopy [
 
-	| constantValue |
-	"Only constant copies are importants"
-	aDRCopy operand1 isConstant ifFalse: [ ^ nil ].
-	constantValue := aDRCopy operand1 acceptVisitor: self.
-	^ self addConstraint:
-		  (DRRegisterDomain equals: aDRCopy result than: constantValue)
+	| constraint operand |
+	operand := aDRCopy operand1.
+
+	constraint := (operand isConstant or: [ 
+		               operand isObjectReferenceValue ])
+		              ifTrue: [ DREqualsConstraint withValue: operand value ]
+		              ifFalse: [ self operandConstraint: operand ].
+
+	constraint ifNil: [ ^ nil ].
+
+	^ self addConstraint: constraint to: aDRCopy result name
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitDivision: aDRDivision [ 
-		"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -196,6 +254,12 @@ DRCPSEdge >> visitEqualsComparison: aDREqualsThanComparison [
 		  visitComparison: aDREqualsThanComparison
 		  andDo: [ :reg :value | 
 		  DRRegisterDomain equals: reg than: value ]
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitFalseObject: aDRFalseObject [
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -224,7 +288,8 @@ DRCPSEdge >> visitJump: aDRJump [
 
 { #category : #visiting }
 DRCPSEdge >> visitLeftShift: aDRLeftShift [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -246,32 +311,38 @@ DRCPSEdge >> visitLessThanComparison: aDRLessThanComparison [
 
 { #category : #visiting }
 DRCPSEdge >> visitLoad: aDRLoad [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitMod: aDRMod [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitMultiply: aDRMultiply [ 
-	"Do nothing"
+DRCPSEdge >> visitMultiply: aDRMultiply [
+
+	^ nil
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitMultiplyOverflowJump: aDRMultiplyOverflowJump [ 
-	self flag: #TODO. "Do nothing?"
+DRCPSEdge >> visitMultiplyOverflowJump: aDRMultiplyOverflowJump [
+
+	^ nil
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitNegate: aDRNegate [ 
-	"Do nothing"
+DRCPSEdge >> visitNegate: aDRNegate [
+
+	^ nil
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitNoop: aDRNoop [ 
-	"Do nothing"
+DRCPSEdge >> visitNoop: aDRNoop [
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -284,20 +355,47 @@ DRCPSEdge >> visitNotEqualsComparison: aDRNotEqualsThanComparison [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitNullValue: aDRNullValue [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitOr: aDROr [
 		
 	^ self composedConstraint: DRUnionConstraint from: aDROr
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitOverflowJump: aDROverflowJump [ 
-	self flag: #TODO. "Do nothing?"
+DRCPSEdge >> visitOverflowJump: aDROverflowJump [
+
+	^ nil
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitPhiFunction: aDRPhiFunction [ 
-	"Do nothing"
-	^ nil
+DRCPSEdge >> visitPhiFunction: aDRPhiFunction [
+
+	| branchOperand sourcePredecessor index constraint |
+	sourcePredecessor := self parent source.
+	index := aDRPhiFunction basicBlock predecessors indexOf: sourcePredecessor.
+
+	index = 0
+		ifTrue: [ "Already resolved in parent edge: just propagate" 
+			constraint := self parent constraintFor: aDRPhiFunction result name ]
+		ifFalse: [ "Edge inmmediatly out from phi: search the constraint for nth operand"
+			branchOperand := aDRPhiFunction operands size = 1
+				                 ifTrue: [ aDRPhiFunction operands first ]
+				                 ifFalse: [ aDRPhiFunction operands at: index ].
+			constraint := self parent constraintFor: branchOperand result name ].
+
+	^ constraint ifNotNil: [ 
+		  self addConstraint: constraint to: aDRPhiFunction result name ]
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitPhysicalRegister: aDRPhysicalRegister [ 
+	
+	^ self constraintFor: aDRPhysicalRegister name
 ]
 
 { #category : #visiting }
@@ -310,17 +408,20 @@ DRCPSEdge >> visitReturn: aDRReturn [
 
 { #category : #visiting }
 DRCPSEdge >> visitRightShift: aDRRightShift [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitStore: aDRLoad [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitSubstract: aDRSubtract [ 
-	"Do nothing"
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -332,6 +433,13 @@ DRCPSEdge >> visitTest: aDRTest [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitTrueObject: aDRTrueObject [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
-	"Do nothing"
+
+	^ nil
 ]

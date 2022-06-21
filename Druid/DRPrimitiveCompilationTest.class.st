@@ -363,7 +363,6 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveReturningFalseObjectReference 
 	receiver := memory integerObjectOf: 43.
 	self executePrimitiveWithReceiver: receiver.
 	
-	"An empty primitive does nothing and just returns, the return value is the receiver"
 	self assert: machineSimulator receiverRegisterValue equals: memory falseObject
 ]
 

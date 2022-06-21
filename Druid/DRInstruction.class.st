@@ -187,8 +187,8 @@ DRInstruction >> inspectionDependencies: aBuilder [
 		yourself
 ]
 
-{ #category : #testing }
-DRInstruction >> isComparison [
+{ #category : #accessing }
+DRInstruction >> isBackJump [
 
 	^ false
 ]
@@ -394,6 +394,14 @@ DRInstruction >> printOn: aStream [
 	aStream nextPut: $(.
 	aStream nextPutAll: self prettyPrint.
 	aStream nextPut: $)
+]
+
+{ #category : #'users-definitions' }
+DRInstruction >> recursiveUsersDo: aBlock [
+
+	users do: [ :i | 
+		aBlock value: i.
+		i recursiveUsersDo: aBlock ]
 ]
 
 { #category : #removing }

@@ -29,6 +29,12 @@ DRConditionalConstraint >> hasAllValuesWithoutMask: aMask [
 ]
 
 { #category : #arithmetic }
+DRConditionalConstraint >> hasObjectValue: objectValue [
+
+	^ false
+]
+
+{ #category : #arithmetic }
 DRConditionalConstraint >> hasValue: otherConstantValue [
 
 	self subclassResponsibility
@@ -51,6 +57,12 @@ DRConditionalConstraint >> intersectionWith: otherConditionalConstraint [
 		^ DREmptyConstraint new ].
 	
 	^ DRIntersectionConstraint constraints: { self. otherConditionalConstraint }
+]
+
+{ #category : #testing }
+DRConditionalConstraint >> isAny [
+
+	^ false
 ]
 
 { #category : #testing }

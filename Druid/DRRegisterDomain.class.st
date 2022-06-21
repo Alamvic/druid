@@ -49,7 +49,7 @@ DRRegisterDomain class >> lessOrEquals: register than: aValue [
 { #category : #'as yet unclassified' }
 DRRegisterDomain class >> mask: register with: aValue [
 
-	^ self reg: register constraint: (DRMaskConstraint withValue: aValue)
+	^ self reg: register constraint: (DRAnyMaskConstraint withValue: aValue)
 ]
 
 { #category : #'as yet unclassified' }

@@ -127,7 +127,7 @@ DRCompilerExplorer >> interpreter [
 { #category : #accessing }
 DRCompilerExplorer >> interpreterClass [
 
-	^ interpreterClass ifNil: [ CogVMSimulatorLSB ]
+	^ interpreterClass ifNil: [ DruidTestInterpreter ]
 ]
 
 { #category : #accessing }

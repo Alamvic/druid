@@ -4,6 +4,17 @@ Class {
 	#category : #'Druid-IR-Paths'
 }
 
+{ #category : #initialization }
+DRNotEqualsConstraint class >> withValue: aConstantValue [
+
+	({ true. false. nil } includes: aConstantValue) ifTrue: [ 
+		^ DRNotEqualsObjectConstraint new
+			  constantValue: aConstantValue;
+			  yourself ].
+
+	^ super withValue: aConstantValue
+]
+
 { #category : #arithmetic }
 DRNotEqualsConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
@@ -26,6 +37,12 @@ DRNotEqualsConstraint >> hasAllValuesWithMask: aMask [
 DRNotEqualsConstraint >> hasAllValuesWithoutMask: aMask [
 	
 	^ constantValue anyMask: aMask
+]
+
+{ #category : #testing }
+DRNotEqualsConstraint >> hasObjectValue: objectValue [
+
+	^ true
 ]
 
 { #category : #arithmetic }

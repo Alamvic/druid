@@ -39,6 +39,13 @@ DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [
 	operands addLast: anInstruction
 ]
 
+{ #category : #testing }
+DRPhiFunction >> hasRecursiveUse [
+
+	self recursiveUsersDo: [ :i | i = self ifTrue: [ ^ true ] ].
+	^ false
+]
+
 { #category : #accessing }
 DRPhiFunction >> initialize [
 
