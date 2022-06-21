@@ -55,7 +55,7 @@ DRCogitJITConstantSplittingTest >> testSplitObjectReferenceAddition [
 	"
 
 	self assert: basicBlock first isCopy.
-	self assert: basicBlock first operand1 value equals: nilObject.
+	self assert: basicBlock first operand1 equals: nilObject.
 
 	self assert: basicBlock second operand1 value equals: basicBlock first.
 	self assert: basicBlock second operand2 value equals: 2

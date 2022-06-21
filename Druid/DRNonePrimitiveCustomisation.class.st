@@ -4,10 +4,10 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRNonePrimitiveCustomisation class >> pragmaName [
 
-	^ #none
+	^ #None
 ]
 
 { #category : #api }

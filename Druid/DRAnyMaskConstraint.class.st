@@ -1,41 +1,41 @@
 Class {
-	#name : #DRMaskConstraint,
+	#name : #DRAnyMaskConstraint,
 	#superclass : #DRMaskedConstraint,
 	#category : #'Druid-IR-Paths'
 }
 
 { #category : #testing }
-DRMaskConstraint >> hasAllValuesWithMask: aMask [
+DRAnyMaskConstraint >> hasAllValuesWithMask: aMask [
 
 	^ constantValue allMask: aMask
 ]
 
 { #category : #testing }
-DRMaskConstraint >> hasAllValuesWithoutMask: aMask [
+DRAnyMaskConstraint >> hasAllValuesWithoutMask: aMask [
 
 	^ false "always?"
 ]
 
 { #category : #arithmetic }
-DRMaskConstraint >> hasValue: otherConstantValue [
+DRAnyMaskConstraint >> hasValue: otherConstantValue [
 
 	^ otherConstantValue anyMask: constantValue 
 ]
 
 { #category : #arithmetic }
-DRMaskConstraint >> isIncludedIn: otherConstraint [
+DRAnyMaskConstraint >> isIncludedIn: otherConstraint [
 
 	^ otherConstraint hasAllValuesWithMask: constantValue
 ]
 
 { #category : #arithmetic }
-DRMaskConstraint >> negated [
+DRAnyMaskConstraint >> negated [
 
-	^ DRNotMaskConstraint withValue: constantValue
+	^ DRNoneMaskConstraint withValue: constantValue
 ]
 
 { #category : #printing }
-DRMaskConstraint >> opCode [
+DRAnyMaskConstraint >> opCode [
 
 	^ 'Mask'
 ]

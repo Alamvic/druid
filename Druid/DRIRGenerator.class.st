@@ -13,6 +13,12 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #visiting }
+DRIRGenerator >> addCopy: aRBVariableNode with: operand [
+
+	^ self addInstructionFrom: aRBVariableNode instructionKind: DRCopy operands: { operand }
+]
+
 { #category : #'execution state' }
 DRIRGenerator >> addDeferredReturnState: anExecutionState [
 
@@ -488,9 +494,9 @@ DRIRGenerator >> interpretEqualityComparisonWith: aRBMessageNode [
 ]
 
 { #category : #'special-cases' }
-DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [ 
-	
-	^ self addInstructionFrom: aRBVariableNode instructionKind: DRCopy operands: { DRFalseObject new }
+DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [
+
+	^ self addCopy: aRBVariableNode with: DRFalseObject new
 ]
 
 { #category : #'special-cases' }
@@ -643,14 +649,13 @@ DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [
 	
 	address := self visitOperand: aRBMessageNode arguments first.
 	
-	result := self
+	^ self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRLoad
 		operands: { 
 			8 asDRValue. "Assume 64 bits for now"
 			address }.
 
-	self pushOperand: result
 ]
 
 { #category : #API }
@@ -732,9 +737,9 @@ DRIRGenerator >> interpretNegatedWith: aRBMessageNode [
 ]
 
 { #category : #'special-cases' }
-DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [ 
-	
-	self pushOperand: DRNilObject new
+DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [
+
+	^ self addCopy: aRBVariableNode with: DRNilObject new
 ]
 
 { #category : #visiting }
@@ -904,9 +909,9 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 ]
 
 { #category : #'special-cases' }
-DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [ 
+DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [
 
-	^ self addInstructionFrom: aRBVariableNode instructionKind: DRCopy operands: { DRTrueObject new }
+	^ self addCopy: aRBVariableNode with: DRTrueObject new
 ]
 
 { #category : #'special-cases' }

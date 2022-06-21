@@ -5,6 +5,14 @@ Class {
 }
 
 { #category : #tests }
+DRTailDuplicationTest >> optimize: cfg [
+
+	cfg applyOptimisation:
+		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
+			 DRCleanControlFlow new)
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateBlockWithMultipleSuccessorsAndOnlyInsideUsersShouldKeepInstructionsDependecies [
 
 	| cfg copy duplicatedBlocks lastBlock1 lastBlock2 |
@@ -52,7 +60,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
                      \ -> |6| ---^             
 	"
 
-	| cfg b5 b6 copy b7 b8 b9 add newPhi newBlocks phiHolder1 phiHolder2 phi1 phi2 |
+	| cfg b5 b6 copy b7 b8 add newBlocks phi1 phi2 |
 	cfg := self setUpCFGWithConditional.
 	b5 := cfg newBasicBlock.
 	b6 := cfg newBasicBlock.
@@ -255,6 +263,38 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithSingleSuccessorAndOutsideAndI
 		self assert: (b instructions first users includes: b instructions second).
 		self assert: b phiFunctions first operands size equals: 1
 		 ]
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateOnLoop [
+
+	| cfg duplicatedBlocks phi1 phi2 successors backjumpPredecessor |
+	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
+
+	"Duplicate loop header"
+	duplicatedBlocks := (cfg blockById: 6) tailDuplicate.
+
+	"Build 1 duplication"
+	self assert: duplicatedBlocks size equals: 2.
+
+	"Split phi"
+	phi1 := duplicatedBlocks first phiFunctions first.
+	phi2 := duplicatedBlocks second phiFunctions first.
+	self assert: phi1 operands size equals: 1.
+	self assert: phi2 operands size equals: 1.
+	self deny: phi1 operands first equals: phi2 operands first.
+
+	"Build phi of phis"
+	successors := duplicatedBlocks first successors.
+	self assert: successors size equals: 2.
+	successors do: [ :succ | 
+		self
+			assertCollection: succ phiFunctions first operands
+			hasSameElements: { phi1. phi2 } ].
+
+	"Keep backjump on duplicated"
+	backjumpPredecessor := duplicatedBlocks second predecessors anyOne.
+	self assert: backjumpPredecessor endInstruction isBackJump
 ]
 
 { #category : #tests }
@@ -461,8 +501,6 @@ DRTailDuplicationTest >> testTailDuplicateShouldWithPhiFunctionWithRepeatedOpera
 
 	| cfg inst firstMergeBlock secondMergeBlock newOperands phi copy |
 	cfg := self generateDruidIRFor: #primitiveSandclock.
-	cfg applyOptimisation:
-		(DRSCCP then: DRDeadCodeElimination then: DRCleanControlFlow).
 
 	firstMergeBlock := cfg blockById: 31.
 	secondMergeBlock := cfg blockById: 29.
@@ -640,7 +678,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocks [
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocksTwice [
 
-	| cfg b5 b6 b7 b8 b9 b10 copy multipleFrontier b11 b12 firstFrontier secondFrontier user |
+	| cfg b5 b6 b7 b8 b9 b10 copy b11 b12 firstFrontier secondFrontier user |
 	cfg := self setUpCFGWithConditional.
 
 	"Remove predecessors because jumps add it..."

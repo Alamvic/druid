@@ -28,13 +28,17 @@ DRPathFactory >> cfg: anObject [
 ]
 
 { #category : #building }
-DRPathFactory >> createAllEdgesFrom: source to: destination branchIndex: branchIndex [
+DRPathFactory >> createEdgeFromParent: parentEdge to: destination branchIndex: branchIndex [
 
-	| edge |
-	(cfg incomingEdgesFor: source) do: [ :e | "We should generate one outgoing for each incoming edge"
-		edge := cfg addEdgeFrom: source to: destination branchIndex: branchIndex.
-		edge parent: e.
-		source instructions do: [ :i | i acceptVisitor: edge ] ]
+	| source edge |
+	source := parentEdge destination.
+	edge := cfg
+		        addEdgeFrom: source
+		        to: destination
+		        branchIndex: branchIndex.
+	edge parent: parentEdge.
+	source instructions do: [ :i | i acceptVisitor: edge ].
+	^ edge
 ]
 
 { #category : #building }
@@ -43,16 +47,35 @@ DRPathFactory >> createInitialEdge [
 	| initialBlock initialEdge |
 	initialBlock := cfg initialBasicBlock.
 	initialEdge := cfg addEdgeFrom: initialBlock to: initialBlock successor branchIndex: 1.
-	cfg initialContrainst ifNotNil: [ :constraint | initialEdge addConstraint: constraint ]
+	cfg initialContrainst ifNotNil: [ :constraint | initialEdge addConstraint: constraint constraint to: constraint reg name  ]
 	
 ]
 
 { #category : #building }
 DRPathFactory >> generatePaths [
 
+	| maxBatch |
 	self createInitialEdge.
-	cfg reversePostOrderBlocks allButFirst do: [ :source |
-		"Create edge(s) from source block to sucessor(s)"
-		source successors withIndexDo: [ :destination :index | 
-			self createAllEdgesFrom: source to: destination branchIndex: index ] ]
+	
+	maxBatch := 5600.
+	
+	{ cfg edges first } asOrderedCollection whileNotEmpty: [ :parentEdge :worklist :backJumps | 
+		| sourceBlock |
+		worklist size > maxBatch ifTrue: [ ^ self ].
+		sourceBlock := parentEdge destination.
+		sourceBlock successors withIndexDo: [ :successor :index | 
+			| newEdge shouldStop |			
+			"Propagate edge to create the path"
+			newEdge := self
+				           createEdgeFromParent: parentEdge
+				           to: successor
+				           branchIndex: index.
+			"Check stop conditions"
+			shouldStop := (worklist includes: successor) or: [ 
+				              backJumps includes: sourceBlock -> successor ].
+			"Continue with successor"
+			shouldStop ifFalse: [ worklist add: newEdge ].
+			"Mark backJumps"
+			(sourceBlock endInstruction isBackJumpTo: successor) ifTrue: [ 
+				backJumps add: sourceBlock -> successor ] ] ]
 ]

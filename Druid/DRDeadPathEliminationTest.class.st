@@ -51,6 +51,30 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 ]
 
 { #category : #optimization }
+DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
+
+	| cfg lastPaths conditionalConstraint |
+	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
+	cfg generatePaths.
+
+	self assert: cfg deadPaths isNotEmpty.
+
+	optimisation applyTo: cfg.
+	self optimize: cfg.
+	cfg generatePaths.
+
+	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
+	self assert: cfg deadPaths isEmpty.
+	self assert: lastPaths size equals: 2.
+
+	"Should propagate conditional exit"
+	conditionalConstraint := lastPaths first constraintFor: 'R10'.
+	self
+		assert: (DRGreaterOrEqualsConstraint withValue: 15)
+		includes: conditionalConstraint
+]
+
+{ #category : #optimization }
 DRDeadPathEliminationTest >> testEliminateDoubleDeadPaths [
 	"TOFIX: it's trying to create phis in wrong 'frontier' blocks"
 
@@ -156,35 +180,6 @@ DRDeadPathEliminationTest >> testEliminateSimpleDeadPaths [
 		equals: 116 "Other branch harcodes the value"
 ]
 
-{ #category : #queries }
-DRDeadPathEliminationTest >> testInferenceDeadPaths [
-
-	| cfg deadPath expectedTarget pathBlockIds |
-	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
-
-	cfg generatePaths.
-	deadPath := cfg deadPaths associations first.
-	pathBlockIds := deadPath value collect: [ :e | e destination id ].
-	expectedTarget := self anyIncomingEdge: cfg for: (cfg blockById: 30).
-
-	self assert: deadPath key equals: expectedTarget.
-	self assertCollection: pathBlockIds hasSameElements: { 14. 36. 1 }
-]
-
-{ #category : #queries }
-DRDeadPathEliminationTest >> testInferenceManyDeadPaths [
-
-	| cfg deadPaths deadTargetIds |
-	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranches.
-
-	cfg generatePaths.
-	deadPaths := cfg deadPaths.
-	deadTargetIds := deadPaths keys collect: [ :e | e destination id ].
-
-	self assert: deadPaths size equals: 2.
-	self assertCollection: deadTargetIds hasSameElements: { 42. 41 }
-]
-
 { #category : #optimization }
 DRDeadPathEliminationTest >> testNotSplitUnnecessaryBlocks [
 
@@ -198,32 +193,4 @@ DRDeadPathEliminationTest >> testNotSplitUnnecessaryBlocks [
 
 	self assert: cfg instructions size equals: 21.
 	self assert: cfg blocks size equals: 9
-]
-
-{ #category : #building }
-DRDeadPathEliminationTest >> testUnmergeableConditionalBranchToSameTarget [
-
-	| cfg b0 copy1 copy2 b1 condition |
-	
-	"If a block has a conditional branch to a single same target, it can only be merged and transformed to an unconditional jump if there is no Phi function depending on the branching.
-	In this case, we should build two different paths."
-	
-	cfg := DRControlFlowGraphForTesting new. 
-	
-	b0 := cfg newBasicBlock.
-	cfg initialBasicBlock jumpTo: b0.
-	
-	copy1 := b0 copy: 1.
-	copy2 := b0 copy: 2.
-	condition := b0 greater: (DRPhysicalRegister name: 'NO SABES LOCO') than: 2.
-	b1 := cfg newBasicBlock.
-	b0 jumpIf: condition to: b1 ifFalseTo: b1.
-	b1 phiWith: copy1 with: copy2.
-	
-	"Kill the condition boolean value, we don't care about it"
-	"condition result: DRNoRegister new."
-	cfg generatePaths.
-
-
-	self assert: cfg deadPaths isEmpty
 ]
