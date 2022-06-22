@@ -310,8 +310,8 @@ DRCogitCodeGenerator >> visitComparison: aComparison [
 DRCogitCodeGenerator >> visitConditionalJump: aDRConditionalJump [ 
 
 	"Generate both jumps, the fallthorugh will get ignored"
-	self generateJump: aDRConditionalJump condition singleChild cogitTrueConditionCode target: aDRConditionalJump trueBranch.
-	self generateJump: aDRConditionalJump condition singleChild cogitFalseConditionCode target: aDRConditionalJump falseBranch
+	self generateJump: aDRConditionalJump condition cogitTrueConditionCode target: aDRConditionalJump trueBranch.
+	self generateJump: aDRConditionalJump condition cogitFalseConditionCode target: aDRConditionalJump falseBranch
 ]
 
 { #category : #visiting }

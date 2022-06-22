@@ -45,6 +45,28 @@ DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [
 	operands addLast: anInstruction
 ]
 
+{ #category : #'cogit-generation' }
+DRPhiFunction >> cogitConditionCode: selector [
+	
+	| codeSet |
+	codeSet := operands collect: selector as: Set.
+	codeSet size > 1
+		ifTrue: [ self error: 'Cannot generate condition code for this phi function' ].
+	^ codeSet anyOne 
+]
+
+{ #category : #'cogit-generation' }
+DRPhiFunction >> cogitFalseConditionCode [
+
+	^ self cogitConditionCode: #cogitFalseConditionCode
+]
+
+{ #category : #'cogit-generation' }
+DRPhiFunction >> cogitTrueConditionCode [
+	
+	^ self cogitConditionCode: #cogitTrueConditionCode
+]
+
 { #category : #testing }
 DRPhiFunction >> hasRecursiveUse [
 
@@ -170,14 +192,6 @@ DRPhiFunction >> simplify [
 	operands asSet size = 0 ifTrue: [ ^ DRNullValue new ].
 	operands asSet size = 1 ifTrue: [ ^ operands first simplify ].
 	^ self
-]
-
-{ #category : #accessing }
-DRPhiFunction >> singleChild [
-
-	operands asSet size > 1
-		ifTrue: [ self error: 'Cannot simplify a phi function with more than one operand for now' ].
-	^ operands first
 ]
 
 { #category : #simplification }

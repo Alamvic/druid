@@ -271,12 +271,6 @@ DRValue >> simplify [
 ]
 
 { #category : #accessing }
-DRValue >> singleChild [
-	
-	^ self
-]
-
-{ #category : #accessing }
 DRValue >> targets [
 
 	^ #()

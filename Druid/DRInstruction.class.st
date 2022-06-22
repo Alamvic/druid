@@ -573,12 +573,6 @@ DRInstruction >> simpleConstantFold [
 	self subclassResponsibility
 ]
 
-{ #category : #accessing }
-DRInstruction >> singleChild [
-
-	^ self
-]
-
 { #category : #types }
 DRInstruction >> type [
 
