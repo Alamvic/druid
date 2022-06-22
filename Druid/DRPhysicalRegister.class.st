@@ -59,6 +59,12 @@ DRPhysicalRegister >> isRegister [
 	^ true
 ]
 
+{ #category : #testing }
+DRPhysicalRegister >> isValue [
+
+	^ false
+]
+
 { #category : #accessing }
 DRPhysicalRegister >> name [
 	^ name

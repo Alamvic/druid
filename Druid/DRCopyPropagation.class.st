@@ -9,7 +9,7 @@ DRCopyPropagation >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph instructions copy do: [ :i | 
 		(i isCopy and: [ 
-			 i operand1 isConstant not "constant propagation is other optimisation" ]) 
+			 i operand1 isValue not "constant propagation is other optimisation" ]) 
 			ifTrue: [ self propagateCopyFrom: i ] ]
 ]
 

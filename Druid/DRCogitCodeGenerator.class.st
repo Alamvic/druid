@@ -376,7 +376,7 @@ DRCogitCodeGenerator >> visitJump: aDRJump [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLeftShift: aDRCogitLeftShift [
-	^ self visitBitShift: (DRBitShift operands: aDRCogitLeftShift operands reversed result:  aDRCogitLeftShift result)
+	^ self visitBitShift: (DRBitShift operands: aDRCogitLeftShift operands result:  aDRCogitLeftShift result)
 ]
 
 { #category : #visiting }
@@ -397,7 +397,7 @@ DRCogitCodeGenerator >> visitLoad: aDRLoad [
 	"If it is smaller than the word size, zero the target register before"
 
 	aDRLoad size < 8 ifTrue: [ 
-		self
+		^ self
 			twoOperandCogitRTL: #Move
 			operands: { 
 					0 asDRValue.

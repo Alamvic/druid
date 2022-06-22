@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #visiting }
+DRAdd >> acceptValueOperand [
+
+	^ self operands noneSatisfy: #isConstant
+]
+
+{ #category : #visiting }
 DRAdd >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitAddition: self

@@ -57,6 +57,12 @@ DRValue >> hasUser: anInstruction [
 ]
 
 { #category : #testing }
+DRValue >> isAdd [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isComparison [
 
 	^ false
@@ -174,6 +180,12 @@ DRValue >> isRegister [
 DRValue >> isStore [
 
 	^ false 
+]
+
+{ #category : #testing }
+DRValue >> isValue [
+
+	^ true
 ]
 
 { #category : #testing }

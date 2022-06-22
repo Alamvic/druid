@@ -50,6 +50,12 @@ DRInstruction >> RBArrayNodenSource: aBuilder [
 	^ originAST inspectionSourceCode
 ]
 
+{ #category : #visiting }
+DRInstruction >> acceptValueOperand [
+
+	^ true
+]
+
 { #category : #accessing }
 DRInstruction >> addBefore: anotherInstruction [
 	
@@ -73,6 +79,12 @@ DRInstruction >> addOperand: anOperand [
 DRInstruction >> addUser: anInstruction [
 
 	users add: anInstruction
+]
+
+{ #category : #converting }
+DRInstruction >> asMemoryAddress [
+	
+	^ DRRegisterMemoryAddress register: self
 ]
 
 { #category : #accessing }
@@ -237,6 +249,12 @@ DRInstruction >> isNonConditionalJump [
 
 { #category : #testing }
 DRInstruction >> isPhiFunction [
+
+	^ false
+]
+
+{ #category : #testing }
+DRInstruction >> isValue [
 
 	^ false
 ]
@@ -559,6 +577,12 @@ DRInstruction >> simpleConstantFold [
 DRInstruction >> singleChild [
 
 	^ self
+]
+
+{ #category : #types }
+DRInstruction >> type [
+
+	self subclassResponsibility
 ]
 
 { #category : #replacing }
