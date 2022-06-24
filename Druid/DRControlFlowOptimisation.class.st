@@ -9,7 +9,7 @@ DRControlFlowOptimisation >> applyTo: cfg [
 
 	self doApply: cfg.
 	(DRDeadBlockElimination then: DRPhiSimplication) applyTo: cfg.
-	self fixBackJumps: cfg
+	"self fixBackJumps: cfg"
 ]
 
 { #category : #accessing }

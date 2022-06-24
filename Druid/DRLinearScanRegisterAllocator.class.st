@@ -76,7 +76,6 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 { #category : #api }
 DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [ 
 
-	self initialize.
 	self controlFlowGraph: aDRControlFlowGraph.
 	self prepareSSA.
 	self buildLiveSets.
@@ -259,7 +258,16 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 
 		"Finally, for each instruction we define, augment the live set"
 		b instructions reversed do: [ :i | 
-			self computeLivenessOfInstruction: i inBlock: b withLiveSet: live ] ]
+			self computeLivenessOfInstruction: i inBlock: b withLiveSet: live ].
+		
+		
+		"For each predecessor that is a backjump, we should extend the life of each variable to be live in the loop"
+		b predecessors
+			select: [ :p | p endInstruction isBackJumpTo: b ]
+			thenDo: [ :p |
+				live do: [ :i | | instructionLiveSet |
+					instructionLiveSet := self liveSetOf: i.
+					instructionLiveSet addRangeFrom: b first to: p endInstruction ] ] ].
 ]
 
 { #category : #'live-analysis' }
