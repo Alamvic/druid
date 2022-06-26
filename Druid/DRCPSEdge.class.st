@@ -224,23 +224,20 @@ DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitComparison: aDRComparison ofBranch: parentBranch andDo: aClosure [
+DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
 	| operands |
-	operands := parentBranch operands.
+	operands := aDRBranch operands.
 	((operands anySatisfy: #isConstant) and: [ 
 		 operands anySatisfy: [ :o | o isRegister or: o isInstruction ] ]) 
 		ifFalse: [ ^ nil "We need a register and a constant" ].
 
 	"Check constant on right"
 	"if not reverse it and add it directly"
-	operands second isConstant ifFalse: [
-		1 notYetImplemented.
-		self
-			visitComparison: parentBranch condition reversed
-			ofBranch: parentBranch
-			andDo: aClosure.
-		^ nil ].
+	operands second isConstant ifFalse: [ 
+		^ (aClosure
+			   value: operands second
+			   value: (operands first acceptVisitor: self)) reversed ].
 
 	^ aClosure
 		  value: operands first

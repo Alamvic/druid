@@ -15,3 +15,9 @@ DRRangedConstraint >> hasAllValuesWithoutMask: aMask [
 
 	^ false "always?"
 ]
+
+{ #category : #reversing }
+DRRangedConstraint >> reversed [
+	
+	self subclassResponsibility
+]

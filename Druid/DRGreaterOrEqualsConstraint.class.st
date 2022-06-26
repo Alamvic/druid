@@ -39,3 +39,9 @@ DRGreaterOrEqualsConstraint >> opCode [
 
 	^ '>='
 ]
+
+{ #category : #reversing }
+DRGreaterOrEqualsConstraint >> reversed [
+	
+	^ DRLessOrEqualsConstraint withValue: constantValue
+]
