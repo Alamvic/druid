@@ -664,7 +664,7 @@ DRPrimitiveCompilationTest >> testFailingSuccessExecutesUntilStop [
 	self executeUntilStopPrimitiveWithReceiver: 1
 ]
 
-{ #category : #'tests-types' }
+{ #category : #'tests-booleans' }
 DRPrimitiveCompilationTest >> testFalseAsInteger [
 
 	self compileDruidPrimitive: #primitiveFalseAsInteger.
@@ -674,7 +674,7 @@ DRPrimitiveCompilationTest >> testFalseAsInteger [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-types' }
+{ #category : #'tests-booleans' }
 DRPrimitiveCompilationTest >> testFalseNot [
 
 	self compileDruidPrimitive: #primitiveFalseNot.
@@ -1447,7 +1447,7 @@ DRPrimitiveCompilationTest >> testSubtractionIntrinsecWithOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: 99
 ]
 
-{ #category : #'tests-types' }
+{ #category : #'tests-booleans' }
 DRPrimitiveCompilationTest >> testTrueNot [
 
 	self compileDruidPrimitive: #primitiveTrueNot.
