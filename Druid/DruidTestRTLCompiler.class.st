@@ -1883,6 +1883,15 @@ DruidTestRTLCompiler >> gen_primitiveSandclock [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveSizeofusqInt [
+
+	| currentBlock |
+	self MoveCq: 8 R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveSmallOrEqualsThan [
 
 	| currentBlock jump0 jump1 |

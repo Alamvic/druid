@@ -1306,6 +1306,16 @@ DRPrimitiveCompilationTest >> testPrimitiveWithDeadCodeGoesThroughSecondCase [
 	self assert: machineSimulator receiverRegisterValue equals: 55
 ]
 
+{ #category : #'tests-types' }
+DRPrimitiveCompilationTest >> testSizeOfUsqInt [
+
+	self compileDruidPrimitive: #primitiveSizeofusqInt.
+	
+	self executePrimitiveWithReceiver: 17.
+	
+	self assert: machineSimulator receiverRegisterValue equals: memory bytesPerOop
+]
+
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testSmallerOrEqualsThan [
 

@@ -794,6 +794,15 @@ DRIRGenerator >> interpretScavengeThresholdWith: aRBVariableNode [
 				   'objectMemory getScavengeThreshold') }
 ]
 
+{ #category : #'special cases' }
+DRIRGenerator >> interpretSizeofWith: aRBMessageNode [ 
+	
+	| receiver size |
+	receiver := aRBMessageNode receiver acceptVisitor: self.
+	size := self popOperand value sizeof: aRBMessageNode arguments first value.
+	^ self addCopy: aRBMessageNode with: size asDRValue
+]
+
 { #category : #'special cases - stack' }
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 

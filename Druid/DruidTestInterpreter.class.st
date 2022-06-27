@@ -791,6 +791,14 @@ DruidTestInterpreter >> primitiveSandclock [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveSizeofusqInt [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: (self sizeof: #usqInt)
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveSubWithOverflow [
 
 	<numberOfArguments: 1>
