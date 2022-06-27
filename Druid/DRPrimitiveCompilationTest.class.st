@@ -193,6 +193,36 @@ DRPrimitiveCompilationTest >> testBranchingWithAssigmentsTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testCaseOfOtherwiseCaseOne [
+
+	self compileDruidPrimitive: #primitiveCaseOfOtherwiseValue.
+	
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 57
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testCaseOfOtherwiseCaseOtherwise [
+
+	self compileDruidPrimitive: #primitiveCaseOfOtherwiseValue.
+	
+	self executePrimitiveWithReceiver: 37.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 77
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testCaseOfOtherwiseCaseTwo [
+
+	self compileDruidPrimitive: #primitiveCaseOfOtherwiseValue.
+	
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
 { #category : #'tests-basic' }
 DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithArgumentsReturnsReceiver [
 

@@ -433,6 +433,62 @@ DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [
 	self interpretBlockBody: aRBMessageNode arguments first
 ]
 
+{ #category : #'special cases' }
+DRIRGenerator >> interpretCaseOfWith: aRBMessageNode [ 
+	
+	| conditionValue previousFalseBlock trueBlocks otherwiseblock exitOtherwiseBlock continue |
+	aRBMessageNode receiver acceptVisitor: self.
+	conditionValue := self popOperand.
+	
+	previousFalseBlock := self currentBasicBlock.
+	trueBlocks := aRBMessageNode arguments first statements collect: [ :case |
+		| caseValue caseJump executionStateBeforeBranch executionStateAfterBranch |
+		self assert: case selector = #->.
+		
+		"Case entry block"
+		self newBasicBlock.
+		previousFalseBlock jumpTo: currentBasicBlock.
+		
+		self interpretBlockBody: case receiver.
+		caseValue := self popOperand.
+		caseJump := self
+			instantiateNoResultInstruction: DRBranchIfCondition
+			operands: { DREqualsThanComparison new . conditionValue . caseValue }.
+		self currentBasicBlock endInstruction: caseJump.
+		
+		"If condition does not hold block"
+		previousFalseBlock := self newBasicBlock.
+		currentBasicBlock addPredecessor: caseJump basicBlock.
+		caseJump falseBranch: currentBasicBlock.
+		
+		"If condition holds block"
+		executionStateBeforeBranch := executionState copy.
+		self newBasicBlock.
+		currentBasicBlock addPredecessor: caseJump basicBlock.
+		caseJump trueBranch: currentBasicBlock.
+		self interpretBlockBody: case arguments first.
+		
+		executionStateAfterBranch := executionState.
+		executionState := executionStateBeforeBranch.
+		{self currentBasicBlock. executionStateAfterBranch}
+	].
+
+	"otherwise block"
+	otherwiseblock := self newBasicBlock.
+	previousFalseBlock jumpTo: otherwiseblock.
+	self interpretBlockBody: aRBMessageNode arguments second.
+	exitOtherwiseBlock := self currentBasicBlock.
+	
+	continue := self newBasicBlock.
+	exitOtherwiseBlock jumpTo: continue.
+	trueBlocks do: [ :b | b first jumpTo: continue ].
+	
+	executionState := DRStackMerger new
+		builder: self;
+		mergeBlock: currentBasicBlock;
+		mergeAll: { executionState }, (trueBlocks collect: [ :e | e second ]).
+]
+
 { #category : #API }
 DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
 

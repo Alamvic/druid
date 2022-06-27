@@ -818,6 +818,33 @@ DruidTestRTLCompiler >> gen_primitiveCallingMethodWithEarlyReturn [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveCaseOfOtherwiseValue [
+
+	| jump3 jump1 currentBlock jump2 jump0 |
+	self CmpCq: 0 R: ReceiverResultReg.
+	jump0 := self JumpZero: 0.
+	self CmpCq: 1 R: ReceiverResultReg.
+	jump1 := self JumpZero: 0.
+	self MoveCq: 77 R: ReceiverResultReg.
+	jump2 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveCq: 42 R: ReceiverResultReg.
+	jump3 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveCq: 57 R: ReceiverResultReg.
+	
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
+	jump3 jmpTarget: currentBlock.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveConditionWithAnyMask [
 
 	| currentBlock jump0 jump1 |

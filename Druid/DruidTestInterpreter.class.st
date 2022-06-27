@@ -270,6 +270,19 @@ DruidTestInterpreter >> primitiveCallingMethodWithTwoEarlyReturns [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCaseOfOtherwiseValue [
+
+	<numberOfArguments: 0>
+	| result |
+	result := self stackTop
+		          caseOf: { 
+				          ([ 0 ] -> [ 57 ]).
+				          ([ 1 ] -> [ 42 ]) }
+		          otherwise: [77].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveChangingVariableInOnePath [
 
 	<numberOfArguments: 0>
