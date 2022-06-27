@@ -121,6 +121,14 @@ DruidTestInterpreter >> primitiveAssertIsIgnored [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveBitShift [
+
+	<numberOfArguments: 1>
+	
+	self pop: 2 thenPush: (self stackTop bitShift: (self stackValue: 1))
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveBitXor [
 
 	<numberOfArguments: 1>
@@ -541,6 +549,30 @@ DruidTestInterpreter >> primitiveIfTrueStatement [
 	self stackTop = 0
 		ifTrue: [ result := 42 ].
 	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveImplicitArgumentBitShiftLeft [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: (1 bitShift: self stackTop)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveImplicitBitShiftLeft [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: (self stackTop bitShift: 1)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveImplicitBitShiftRight [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: (self stackTop bitShift: -1)
 ]
 
 { #category : #'as yet unclassified' }

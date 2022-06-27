@@ -710,6 +710,32 @@ DruidTestRTLCompiler >> gen_primitiveAt [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveBitShift [
+
+	| jump0 jump1 currentBlock |
+	self CmpCq: 0 R: ReceiverResultReg.
+	jump0 := self JumpGreater: 0.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self NegateR: TempReg.
+	self MoveR: Arg0Reg R: ClassReg.
+	self LogicalShiftRightR: TempReg R: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
+	jump1 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveR: Arg0Reg R: ClassReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self LogicalShiftLeftR: TempReg R: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
+	
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveBitXor [
 
 	| currentBlock |
@@ -1226,6 +1252,54 @@ DruidTestRTLCompiler >> gen_primitiveIfTrueStatement [
 	self MoveCq: 42 R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveImplicitArgumentBitShiftLeft [
+
+	| jump0 jump1 currentBlock |
+	self CmpCq: 0 R: ReceiverResultReg.
+	jump0 := self JumpGreater: 0.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self NegateR: TempReg.
+	self MoveCq: 1 R: ClassReg.
+	self LogicalShiftRightR: TempReg R: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
+	jump1 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self MoveCq: 1 R: ClassReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self LogicalShiftLeftR: TempReg R: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
+	
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveImplicitBitShiftLeft [
+
+	| currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self LogicalShiftLeftCq: 1 R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveImplicitBitShiftRight [
+
+	| currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self LogicalShiftRightCq: 1 R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]

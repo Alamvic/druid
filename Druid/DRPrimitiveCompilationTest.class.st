@@ -970,6 +970,56 @@ DRPrimitiveCompilationTest >> testIfTrueStatementCaseTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testImplicitBitShiftLeft [
+
+	self compileDruidPrimitive: #primitiveBitShift.
+
+	self executePrimitiveWithReceiver: 2r10 withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r100
+]
+
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testImplicitBitShiftRight [
+
+	self compileDruidPrimitive: #primitiveBitShift.
+
+	self executePrimitiveWithReceiver: 2r10 withArguments: { -1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r1
+]
+
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testImplicitConstantArgumentBitShiftLeft [
+
+	self compileDruidPrimitive: #primitiveImplicitArgumentBitShiftLeft.
+
+	self executePrimitiveWithReceiver: 2.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r100
+]
+
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testImplicitConstantBitShiftLeft [
+
+	self compileDruidPrimitive: #primitiveImplicitBitShiftLeft.
+
+	self executePrimitiveWithReceiver: 2r10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r100
+]
+
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testImplicitConstantBitShiftRight [
+
+	self compileDruidPrimitive: #primitiveImplicitBitShiftRight.
+
+	self executePrimitiveWithReceiver: 2r10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r1
+]
+
 { #category : #'tests-arithmetic' }
 DRPrimitiveCompilationTest >> testIncrementConstantArgument [
 
