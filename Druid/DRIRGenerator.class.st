@@ -190,6 +190,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #cull: put: #interpretBlockCullWith:.
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
 	specialCases at: #whileTrue: put: #interpretWhileTrueWith:.
+	specialCases at: #caseOf:otherwise: put: #interpretCaseOfWith:.
 	
 	specialCases at: #= put: #interpretEqualityComparisonWith:.
 	specialCases at: #~= put: #interpretInequalityComparisonWith:.
@@ -215,8 +216,9 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #multiplySmallInteger:withSmallInteger:ifOverflow: put: #interpretMultiplySmallIntegerWithOverflowWith:.
 
 
-	"Type coercions"
+	"Types"
 	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
+	specialCases at: #sizeof: put: #interpretSizeofWith:.
 
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
