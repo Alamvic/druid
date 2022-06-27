@@ -303,6 +303,13 @@ DRCogitCodeGenerator >> visitBitOr: aDRCogitBitAnd [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitBitXor: aDRCogitBitXor [ 
+
+	^ self threeOperandCogitRTL: #Xor instruction: aDRCogitBitXor
+
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 
 	"Delegate the condition generation to the condition itself.

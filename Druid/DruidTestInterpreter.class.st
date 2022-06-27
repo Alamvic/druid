@@ -121,6 +121,14 @@ DruidTestInterpreter >> primitiveAssertIsIgnored [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveBitXor [
+
+	<numberOfArguments: 1>
+	
+	self pop: 2 thenPush: (self stackTop bitXor: (self stackValue: 1))
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveBranchingWithAndConditionOnDifferentVariables [
 
 	<numberOfArguments: 1>

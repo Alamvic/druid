@@ -710,6 +710,18 @@ DruidTestRTLCompiler >> gen_primitiveAt [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveBitXor [
+
+	| currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveR: Arg0Reg R: ClassReg.
+	self XorR: ClassReg R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveBranchingWithAssigments [
 
 	| currentBlock jump0 jump1 |

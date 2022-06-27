@@ -241,6 +241,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #>> put: #interpretRightShiftWith:.
 	specialCases at: #bitAnd: put: #interpretBitAndWith:.
 	specialCases at: #bitOr: put: #interpretBitOrWith:.
+	specialCases at: #bitXor: put: #interpretBitXorWith:.
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
 
 	"Stack access"
@@ -363,6 +364,12 @@ DRIRGenerator >> interpretBitOrWith: aRBMessageNode [
 DRIRGenerator >> interpretBitShiftWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitShift
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretBitXorWith: aRBMessageNode [ 
+
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitXor
 ]
 
 { #category : #interpretation }

@@ -40,6 +40,12 @@ DRCogitOperandSorter >> visitBitOr: aDRBitOr [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitBitXor: aDRBitXor [ 
+	
+	^ self visitCommutativeInstruction: aDRBitXor
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [ 
 
 	"Nothing"

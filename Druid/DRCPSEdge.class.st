@@ -192,6 +192,12 @@ DRCPSEdge >> visitBitShift: aDRBitShift [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitBitXor: aDRBitOr [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitBranchIfCondition: aDRConditionalJump [
 
 	| domain id |

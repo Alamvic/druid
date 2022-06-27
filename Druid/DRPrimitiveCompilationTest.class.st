@@ -173,6 +173,16 @@ DRPrimitiveCompilationTest >> testAssertIsIgnored [
 
 ]
 
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testBitXor [
+
+	self compileDruidPrimitive: #primitiveBitXor.
+	
+	self executePrimitiveWithReceiver: 2r110 withArguments: { 2r010 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r100
+]
+
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testBranchingWithAssigmentsFalse [
 
