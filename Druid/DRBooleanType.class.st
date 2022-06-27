@@ -41,6 +41,13 @@ DRBooleanType >> ifTrue: trueBlock ifFalse: falseBlock [
 ]
 
 { #category : #converting }
+DRBooleanType >> not [
+
+	self ifTrue: [ ^ false ].
+	^ true
+]
+
+{ #category : #converting }
 DRBooleanType >> or: aBlock [
 
 	self ifTrue: [ ^ self ].

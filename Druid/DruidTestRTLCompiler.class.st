@@ -1049,6 +1049,15 @@ DruidTestRTLCompiler >> gen_primitiveFalseAsInteger [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveFalseNot [
+
+	| currentBlock |
+	self MoveCq: 1 R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualThanValue [
 
 	| currentBlock jumpTrue jumpNext |
@@ -2008,6 +2017,15 @@ DruidTestRTLCompiler >> gen_primitiveSumWithOverflow [
 	self MoveCq: 99 R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveTrueNot [
+
+	| currentBlock |
+	self MoveCq: 0 R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]

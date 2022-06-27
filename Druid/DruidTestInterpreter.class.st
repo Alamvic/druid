@@ -432,6 +432,14 @@ DruidTestInterpreter >> primitiveFalseAsInteger [
 	self pop: 1 thenPush: false asInteger
 ]
 
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFalseNot [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: false not
+]
+
 { #category : #comparisons }
 DruidTestInterpreter >> primitiveGreaterOrEqualThanValue [
 
@@ -848,6 +856,14 @@ DruidTestInterpreter >> primitiveToDo [
 	].
 
 	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveTrueNot [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: true not
 ]
 
 { #category : #'as yet unclassified' }

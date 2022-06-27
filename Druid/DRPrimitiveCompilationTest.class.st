@@ -664,6 +664,16 @@ DRPrimitiveCompilationTest >> testFalseAsInteger [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
+{ #category : #'tests-types' }
+DRPrimitiveCompilationTest >> testFalseNot [
+
+	self compileDruidPrimitive: #primitiveFalseNot.
+	
+	self executePrimitiveWithReceiver: 17.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
 { #category : #'tests-deadcode' }
 DRPrimitiveCompilationTest >> testFourDeadBranchesFourBranches1 [
 
@@ -1425,6 +1435,16 @@ DRPrimitiveCompilationTest >> testSubtractionIntrinsecWithOverflow [
 	self executePrimitiveWithReceiver: (memory integerObjectOf: memory minSmallInteger) withArguments: { memory integerObjectOf: 1 }.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 99
+]
+
+{ #category : #'tests-types' }
+DRPrimitiveCompilationTest >> testTrueNot [
+
+	self compileDruidPrimitive: #primitiveTrueNot.
+	
+	self executePrimitiveWithReceiver: 17.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
 { #category : #'test-memory access' }
