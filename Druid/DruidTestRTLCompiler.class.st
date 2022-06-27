@@ -2255,6 +2255,13 @@ DruidTestRTLCompiler >> gen_primitiveWithNonCompilableBranch [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveWithSequentialExitPoint [
+
+	| currentBlock |
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> numRegArgs [
 
 	^ 2 "Hardcoded?"

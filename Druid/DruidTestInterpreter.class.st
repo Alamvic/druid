@@ -1001,3 +1001,17 @@ DruidTestInterpreter >> primitiveWithOrBlock [
 		ifFalse: [ 42 ].
 	self pop: 1 thenPush: t
 ]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithSequentialExitPoint [
+
+	<numberOfArguments: 0>
+	
+	| r |
+	r := 17.
+	
+	"This exit point makes the whole sequence non compilable.
+	This primitive always fails and all is dead code"
+	self nonCompilableMethod.
+	self pop: 1 thenPush: r.
+]

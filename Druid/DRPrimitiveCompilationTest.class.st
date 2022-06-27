@@ -1336,6 +1336,17 @@ DRPrimitiveCompilationTest >> testPrimitiveWithDeadCodeGoesThroughSecondCase [
 	self assert: machineSimulator receiverRegisterValue equals: 55
 ]
 
+{ #category : #'tests-basic' }
+DRPrimitiveCompilationTest >> testSequentialExitPointRemovesEntireExecutionBranch [
+
+	self compileDruidPrimitive: #primitiveWithSequentialExitPoint.
+	
+	self executeUntilStopPrimitiveWithReceiver: 1.
+	
+	"Should stop at the stop and not timeout"
+	self assert: machineSimulator instructionPointerRegisterValue equals: stopAddress
+]
+
 { #category : #'tests-types' }
 DRPrimitiveCompilationTest >> testSizeOfUsqInt [
 
