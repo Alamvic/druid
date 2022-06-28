@@ -255,16 +255,17 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #assert: put: #ignoreMessageWith:.
 	
 	"special variables"
+	self flag: #TODO. "Generalize cases"
 	variableSpecialCases at: #nilObj put: #interpretNilObjectWith:.
 	variableSpecialCases at: #falseObj put: #interpretFalseObjectWith:.
 	variableSpecialCases at: #trueObj put: #interpretTrueObjectWith:.
+	variableSpecialCases at: #hiddenRootsObj put: #interpretHiddenRootsObjectWith:.
 	
 	variableSpecialCases at: #freeStart put: #interpretFreeStartWith:.
 	variableSpecialCases at: #scavengeThreshold put: #interpretScavengeThresholdWith:.
 	variableSpecialCases at: #argumentCount put: #interpretArgumentCountWith:.
 	
-	"Border case, this should not be defined here, it should be extensible"
-	variableSpecialCases at: #hiddenRootsObj put: #interpretNilObjectWith:
+	
 ]
 
 { #category : #factory }
@@ -512,6 +513,12 @@ DRIRGenerator >> interpretGreaterOrEqualsThanComparisonWith: aRBMessageNode [
 DRIRGenerator >> interpretGreaterThanComparisonWith: aRBMessageNode [ 
 	
 	^ self interpretCondition: aRBMessageNode instructionKind: DRGreaterThanComparison
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretHiddenRootsObjectWith: aRBVariableNode [
+
+	^ self addCopy: aRBVariableNode with: DRHiddenRootsObject new
 ]
 
 { #category : #'special-cases' }
