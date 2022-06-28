@@ -629,6 +629,19 @@ DruidTestInterpreter >> primitiveNegated [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNextUint16At [
+
+	<numberOfArguments: 0>
+	
+	| aByte addressToRead |
+	addressToRead := self stackTop.
+	aByte := objectMemory uint16At: (addressToRead + 1).
+
+	"pop the receiver, push the result"	
+	self pop: 1 thenPush: aByte
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveNotEqualsThan [
 
 	<numberOfArguments: 0>

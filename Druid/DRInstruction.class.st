@@ -81,7 +81,7 @@ DRInstruction >> addUser: anInstruction [
 	users add: anInstruction
 ]
 
-{ #category : #converting }
+{ #category : #memory }
 DRInstruction >> asMemoryAddress [
 	
 	^ DRRegisterMemoryAddress register: self

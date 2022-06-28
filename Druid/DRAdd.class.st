@@ -39,6 +39,12 @@ DRAdd >> opcode [
 	^ 'ADD'
 ]
 
+{ #category : #converting }
+DRAdd >> reversed [
+
+	^ self class operands: operands reversed result: result
+]
+
 { #category : #printing }
 DRAdd >> sccpOperateOnLattice: operand and: operand2 [
 	
