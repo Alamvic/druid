@@ -23,6 +23,12 @@ DRPhysicalRegister >> = anotherRegister [
 	^ name = anotherRegister name
 ]
 
+{ #category : #visiting }
+DRPhysicalRegister >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitPhysicalRegister: self
+]
+
 { #category : #memory }
 DRPhysicalRegister >> asMemoryAddress [
 	

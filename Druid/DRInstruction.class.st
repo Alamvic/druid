@@ -195,15 +195,15 @@ DRInstruction >> inspectionDependencies: aBuilder [
 		yourself
 ]
 
-{ #category : #testing }
-DRInstruction >> isBranchIfTrue [
-	
+{ #category : #accessing }
+DRInstruction >> isBackJump [
+
 	^ false
 ]
 
 { #category : #testing }
-DRInstruction >> isComparison [
-
+DRInstruction >> isBranchIfTrue [
+	
 	^ false
 ]
 
@@ -414,6 +414,14 @@ DRInstruction >> printOn: aStream [
 	aStream nextPut: $(.
 	aStream nextPutAll: self prettyPrint.
 	aStream nextPut: $)
+]
+
+{ #category : #'users-definitions' }
+DRInstruction >> recursiveUsersDo: aBlock [
+
+	users do: [ :i | 
+		aBlock value: i.
+		i recursiveUsersDo: aBlock ]
 ]
 
 { #category : #removing }

@@ -182,3 +182,23 @@ DRLinearizationTest >> testLinearControlFlow [
 	
 	self assert: cfg reversePostOrderBlocks asArray equals: { b1 . b2 . b3 }
 ]
+
+{ #category : #'tests-basic' }
+DRLinearizationTest >> testLoopControlFlow [
+
+	"A block should be visited after all its predecessors are visited"
+	
+	| b0 b1 b2 b3 cfg |
+	cfg := DRControlFlowGraph new.
+	b0 := cfg initialBasicBlock.
+	b1 := cfg newBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
+	
+	b0 jumpIfTrueTo: b1 ifFalseTo: b2.
+	b1 backJumpTo: b0. 
+	b2 jumpTo: b3.
+	b3 endInstruction: DRReturn new.
+	
+	self assert: cfg reversePostOrderBlocks asArray equals: { b0 . b2 . b3 . b1 }
+]

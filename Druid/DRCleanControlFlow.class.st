@@ -1,20 +1,8 @@
 Class {
 	#name : #DRCleanControlFlow,
-	#superclass : #DROptimisation,
+	#superclass : #DRControlFlowOptimisation,
 	#category : #'Druid-Optimizations'
 }
-
-{ #category : #executing }
-DRCleanControlFlow >> applyTo: aCFG [
-
-	| didChange counter |
-	didChange := true.
-	counter := 0.
-	[ didChange ] whileTrue: [
-		counter := counter + 1.
-		didChange := self step: aCFG.
-	]
-]
 
 { #category : #combining }
 DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: aCFG [
@@ -44,6 +32,18 @@ DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: 
 
 	aCFG removeBasicBlock: aDRBasicBlock.
 	aCFG removeBasicBlock: aDRBasicBlock2.
+]
+
+{ #category : #executing }
+DRCleanControlFlow >> doApply: aCFG [
+
+	| didChange counter |
+	didChange := true.
+	counter := 0.
+	[ didChange ] whileTrue: [
+		counter := counter + 1.
+		didChange := self step: aCFG.
+	]
 ]
 
 { #category : #folding }

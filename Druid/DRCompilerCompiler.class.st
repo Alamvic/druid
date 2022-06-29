@@ -21,6 +21,7 @@ DRCompilerCompiler >> compile [
 	self customise.
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
+	1halt.
 
 	registerAllocator allocateRegistersIn: druidIR.
 

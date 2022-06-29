@@ -24,18 +24,22 @@ DRBasicBlock class >> id: anInteger [
 
 { #category : #accessing }
 DRBasicBlock >> add: anInstruction after: anotherInstruction [
-	
+
 	anInstruction basicBlock: self.
-	instructions add: anInstruction after: anotherInstruction
+	(self collectionOf: anotherInstruction)
+		add: anInstruction
+		after: anotherInstruction
 ]
 
 { #category : #accessing }
 DRBasicBlock >> add: anInstruction before: anotherInstruction [
-	
+
 	anInstruction basicBlock: self.
-	anotherInstruction = endInstruction
-		ifTrue: [ ^ instructions addLast: anInstruction ].
-	instructions add: anInstruction before: anotherInstruction
+	anotherInstruction = endInstruction ifTrue: [ 
+		^ instructions addLast: anInstruction ].
+	(self collectionOf: anotherInstruction)
+		add: anInstruction
+		before: anotherInstruction
 ]
 
 { #category : #building }
@@ -50,10 +54,8 @@ DRBasicBlock >> addInstruction: anInstruction [
 	(self instructions includes: anInstruction) ifTrue: [ ^ self ].
 
 	anInstruction basicBlock: self.
-		
-	^ anInstruction isPhiFunction
-		  ifTrue: [ phiFunctions add: anInstruction ]
-		  ifFalse: [ instructions add: anInstruction ]
+
+	^ (self collectionOf: anInstruction) add: anInstruction
 ]
 
 { #category : #accessing }
@@ -92,6 +94,19 @@ DRBasicBlock >> and: aValue with: anotherValue [
 DRBasicBlock >> anyMask: aValue with: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory anyMask: aValue with: anotherValue)
+]
+
+{ #category : #accessing }
+DRBasicBlock >> backJumpPredecessors [
+
+	| result |
+	result := OrderedCollection new.
+
+	self recursiveSuccessorsDo: [ :block | 
+		(self predecessors includes: block) ifTrue: [ result add: block ].
+		block = self ifTrue: [ ^ result ] ].
+
+	^ result
 ]
 
 { #category : #building }
@@ -175,16 +190,28 @@ DRBasicBlock >> checkLivenessOf: operand [
 
 	"Check if the value exists within this branch of execution"
 	"It should be defined by myself, or by a predecessor"
-	operand isNullValue ifTrue: [ ^ true ].
+	operand isGlobal ifTrue: [ ^ true ].
 	^ self isDominatedBy: operand basicBlock
 ]
 
 { #category : #instructions }
 DRBasicBlock >> cleanInstructions [
 
+	"
+	Remove blocks instructions from users collection in their operands.
+	Warning: This method breaks the invariant user-operand.
+	"
+
 	self instructions do: [ :i | 
-		i operands asSet do: [ :op | 
-			op removeUser: i ] ]
+		i operands asSet do: [ :op | op removeUser: i ] ]
+]
+
+{ #category : #accessing }
+DRBasicBlock >> collectionOf: aDRInstruction [
+
+	^ aDRInstruction isPhiFunction
+		  ifTrue: [ phiFunctions ]
+		  ifFalse: [ instructions ]
 ]
 
 { #category : #accessing }
@@ -282,7 +309,7 @@ DRBasicBlock >> firstInstruction [
 DRBasicBlock >> forwardPredecessors [
 	
 	"Ignore predecessors coming from backjumps"
-	^ predecessors select: [ :e | e endInstruction isBackJump not ]
+	^ predecessors reject: [ :e | e endInstruction isBackJumpTo: self ]
 ]
 
 { #category : #building }
@@ -309,7 +336,7 @@ DRBasicBlock >> hasFrontier: aBlock [
 DRBasicBlock >> hasIncomingBackjumps [
 	
 	^ self predecessors anySatisfy: [ :p |
-		p lastInstruction isBackJump ]
+		p lastInstruction isBackJumpTo: self ]
 ]
 
 { #category : #testing }
@@ -498,7 +525,7 @@ DRBasicBlock >> instructions [
 { #category : #iterating }
 DRBasicBlock >> instructionsDo: aFullBlockClosure [
 
-	phiFunctions do: aFullBlockClosure.
+	phiFunctions copy do: aFullBlockClosure.
 	instructions copy do: aFullBlockClosure.
 	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
 ]
@@ -648,7 +675,7 @@ DRBasicBlock >> newEmptySuccessors [
 DRBasicBlock >> numberOfForwardPredecessors [
 	
 	"Ignore predecessors coming from backjumps"
-	^ predecessors count: [ :e | e endInstruction isBackJump not ]
+	^ predecessors count: [ :e | (e endInstruction isBackJumpTo: self) not ]
 ]
 
 { #category : #building }
@@ -684,9 +711,8 @@ DRBasicBlock >> phiWith: aValue with: aValue2 [
 DRBasicBlock >> phiWithVariables: variables [
 
 	| finalVariables orderedVariables allPosibleVariables phi |
-	
 	controlFlowGraph buildDominatorTree.
-	
+
 	allPosibleVariables := variables.
 	self predecessors size > variables size ifTrue: [ 
 		self predecessors size - variables size timesRepeat: [ 
@@ -695,9 +721,9 @@ DRBasicBlock >> phiWithVariables: variables [
 	orderedVariables := allPosibleVariables asOrderedCollection sorted: [ 
 		                    :i1 
 		                    :i2 | 
-		                    (i1 isNullValue or: [ i2 isNullValue ]) or: [ 
+		                    (i1 isGlobal or: [ i2 isGlobal ]) or: [ 
 			                    (self distanceToPredecessor: i1 basicBlock)
-			                    < (self distanceToPredecessor: i2 basicBlock) ] ].
+			                    <= (self distanceToPredecessor: i2 basicBlock) ] ].
 
 	finalVariables := self predecessors collect: [ :b | 
 		                  orderedVariables
@@ -706,7 +732,7 @@ DRBasicBlock >> phiWithVariables: variables [
 			                  ifNone: [ DRNullValue new ] ].
 
 	phi := self instructionFactory phiWithVariables: finalVariables.
-	^ self addInstruction: phi.
+	^ self addInstruction: phi
 ]
 
 { #category : #accessing }
@@ -730,6 +756,14 @@ DRBasicBlock >> printOn: aStream [
 			aStream nextPutAll: '}'.
 		].
 	aStream nextPutAll: ')'
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursiveSuccessorsDo: aBlock [
+
+	self successors do: [ :b | 
+		aBlock value: b.
+		b recursiveSuccessorsDo: aBlock ]
 ]
 
 { #category : #'control-flow' }

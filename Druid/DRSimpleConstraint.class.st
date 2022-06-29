@@ -15,6 +15,13 @@ DRSimpleConstraint class >> withValue: aConstantValue [
 		  yourself
 ]
 
+{ #category : #comparing }
+DRSimpleConstraint >> = otherConstraint [
+
+	^ self class = otherConstraint class and: [ 
+		  self constantValue = otherConstraint constantValue ]
+]
+
 { #category : #accessing }
 DRSimpleConstraint >> constantValue [
 

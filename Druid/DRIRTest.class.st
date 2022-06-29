@@ -19,6 +19,12 @@ DRIRTest >> anyOutgoingEdge: cfg for: aBlock [
 	^ (cfg outgoingEdgesFor: aBlock) first "unique?"
 ]
 
+{ #category : #assertions }
+DRIRTest >> assert: aConstraint includes: includedConstraint [
+
+	self assert: (aConstraint includes: includedConstraint)
+]
+
 { #category : #test }
 DRIRTest >> conditionalJump [
 
@@ -31,14 +37,28 @@ DRIRTest >> configureInterpreter [
 	compilerCompiler interpreter: DruidTestInterpreter basicNew 
 ]
 
+{ #category : #assertions }
+DRIRTest >> deny: aConstraint includes: includedConstraint [
+
+	self deny: (aConstraint includes: includedConstraint)
+]
+
 { #category : #test }
-DRIRTest >> generateDruidIRFor: methodSelector [
+DRIRTest >> generateBasicDruidIRFor: methodSelector [
 
 	| method cfg |
 	method := DruidTestInterpreter lookupSelector: methodSelector.
 	cfg := compilerCompiler generateDruidIRFor: method.
-	self optimize: cfg.
 
+	^ cfg
+]
+
+{ #category : #test }
+DRIRTest >> generateDruidIRFor: methodSelector [
+
+	| cfg |
+	cfg := self generateBasicDruidIRFor: methodSelector.
+	self optimize: cfg.
 	^ cfg
 ]
 
@@ -148,4 +168,15 @@ DRIRTest >> setUpCFGWithConditional: jump [
 
 
 
+]
+
+{ #category : #test }
+DRIRTest >> setUpCFGWithConditionalWithPhi [
+
+	| cfg copy1 copy2 |
+	cfg := self setUpCFGWithConditional.
+	copy1 := cfg b2 copy: 1.
+	copy2 := cfg b3 copy: 2.
+	cfg phi: (cfg b4 phiWith: copy1 with: copy2).
+	^ cfg
 ]

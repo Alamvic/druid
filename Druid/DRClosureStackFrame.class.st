@@ -6,7 +6,7 @@ Class {
 
 { #category : #accessing }
 DRClosureStackFrame >> homeFrame [
-	1halt.
+
 	^ receiver outerContext homeFrame
 ]
 
@@ -40,7 +40,7 @@ DRClosureStackFrame >> printOn: stream [
 
 { #category : #accessing }
 DRClosureStackFrame >> receiver [
-1halt.
+
 	^ self homeFrame receiver
 ]
 
