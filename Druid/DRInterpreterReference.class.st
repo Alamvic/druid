@@ -15,6 +15,12 @@ DRInterpreterReference class >> reference: aReference [
 		yourself
 ]
 
+{ #category : #memory }
+DRInterpreterReference >> asMemoryAddress [
+	
+	^ self
+]
+
 { #category : #'as yet unclassified' }
 DRInterpreterReference >> name [
 
@@ -29,7 +35,7 @@ DRInterpreterReference >> reference: aString [
 { #category : #cogit }
 DRInterpreterReference >> rtlArgumentExpressions [
 
-	^ RBVariableNode named: self name
+	^ {RBVariableNode named: self name}
 ]
 
 { #category : #cogit }

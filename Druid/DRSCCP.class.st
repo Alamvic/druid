@@ -198,6 +198,22 @@ DRSCCP >> latticeValueOfPhiFunction: operation [
 ]
 
 { #category : #lattice }
+DRSCCP >> sccpLatticeValueFor: instruction latticeOperand1: operand1 latticeOperand2: operand2 [
+
+	((({ self top. self bottom } includes: operand1) not
+		and: [ ({ self top. self bottom } includes: operand2) not ])
+			and: [ operand1 isConstant and: [ operand2 isConstant ]])
+				ifTrue: [ 
+					"Compute the lattice value and wrap it as a DR value"
+					^ (instruction sccpOperateOnLattice: operand1 value and: operand2 value) asDRValue ].
+
+	(operand1 = self bottom or: [operand2 = self bottom])
+		ifTrue: [ ^ self bottom ].
+
+	^ self top
+]
+
+{ #category : #lattice }
 DRSCCP >> setValueOf: anInstruction at: aValue [
 
 	"Set the new lattice value associated with the instruction.
@@ -253,16 +269,42 @@ DRSCCP >> top [
 DRSCCP >> tryReplaceConditionalJump: i [
 
 	| constantTarget removedTarget |
-	(i isConditionalJump and: [ i condition isConstant ]) ifFalse: [ ^ self ].
+	"If it is a branch.cond, it has been managed by the previous case"
+	i isBranchIfCondition ifTrue: [ 
+		| conditionLattice |
+		"If it is a branch of the form
+		  branch.cond A B
+		
+		where A cond B is constant, replace it by
+		
+		  branch.iftrue constant
+		"
+		conditionLattice := i sccpEvaluateConditionFor: self.
+		(self isConstantLattice: conditionLattice) ifTrue: [ 
+			| branchIfTrue |
+			branchIfTrue := DRBranchIfTrue operands:
+				                { conditionLattice asDRValue }.
+			branchIfTrue trueBranch: i trueBranch.
+			branchIfTrue falseBranch: i falseBranch.
+			i replaceBy: branchIfTrue.
+			self tryReplaceConditionalJump: branchIfTrue ].
+		^ self ].
 
-	i condition value
+	(i isBranchIfTrue and: [ i operand1 isConstant ]) ifFalse: [ ^ self ].
+
+	"If it is a branch of the form
+	  branch.IfTrue constant
+	
+	replace it by simple jump
+	"
+	i operand1 value
 		ifTrue: [ 
 			constantTarget := i trueBranch.
 			removedTarget := i falseBranch ]
 		ifFalse: [ 
 			constantTarget := i falseBranch.
 			removedTarget := i trueBranch ].
-	
+
 	removedTarget removePredecessor: i basicBlock.
 	i replaceBy: (DRJump new target: constantTarget)
 ]
@@ -304,7 +346,7 @@ DRSCCP >> usesOf: anInstruction [
 	
 	| ret |
 
-	anInstruction isConditionalJump ifTrue: [
+	anInstruction isBranchIfCondition ifTrue: [
 		self value = self top ifTrue: [ 
 			ret := OrderedCollection new. 
 			ret addAll: anInstruction trueBranch instructions.

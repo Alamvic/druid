@@ -123,7 +123,7 @@ DRPrimitiveIRGenerator >> popFrame [
 	"If the interpretation stack is empty, we are returning from the primitive
 	- generate a return instruction popping receiver and arguments all at once
 	- amount to pop is expressed in bytes, so multiply by word size"
-	| comparison vm |
+	| vm |
 	vm := self topFrame receiverWithState: executionState.
 	super popFrame.
 	
@@ -132,14 +132,12 @@ DRPrimitiveIRGenerator >> popFrame [
 		| conditionalJump |
 		self spillStack.
 
-		currentBasicBlock addInstruction: (comparison := self
-			instantiate: DREqualsThanComparison
-			operands: { 
-				executionState primitiveFailureCode.
-				0 asDRValue }).
 		conditionalJump := self
-			instantiateNoResultInstruction: DRConditionalJump
-			operands: { comparison }.
+			instantiateNoResultInstruction: DRBranchIfCondition
+			operands: {
+				DREqualsThanComparison new.
+				executionState primitiveFailureCode.
+				0 asDRValue  }.
 		currentBasicBlock endInstruction: conditionalJump.
 		controlFlowGraph primitiveExitBlock: currentBasicBlock.
 		

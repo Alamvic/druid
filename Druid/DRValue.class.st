@@ -62,6 +62,12 @@ DRValue >> isAdd [
 	^ false
 ]
 
+{ #category : #accessing }
+DRValue >> isBranchIfCondition [ 
+
+	^ false
+]
+
 { #category : #testing }
 DRValue >> isComparison [
 
@@ -70,12 +76,6 @@ DRValue >> isComparison [
 
 { #category : #testing }
 DRValue >> isComplexCondition [
-
-	^ false
-]
-
-{ #category : #accessing }
-DRValue >> isConditionalJump [ 
 
 	^ false
 ]

@@ -5,9 +5,9 @@ Class {
 }
 
 { #category : #visiting }
-DRGreaterThanComparison >> acceptVisitor: aVisitor [ 
-
-	^ aVisitor visitGreaterThanComparison: self
+DRGreaterThanComparison >> acceptVisitor: aVisitor withBranch: aDRBranchIfCondition [ 
+	
+	^ aVisitor visitGreaterThan: self inBranch: aDRBranchIfCondition
 ]
 
 { #category : #visiting }
@@ -38,8 +38,7 @@ DRGreaterThanComparison >> opcode [
 DRGreaterThanComparison >> reversed [
 
 	"Returns the same condition but with reversed operands: x > y --> y < x"
-
-	^ DRLessThanComparison operands: operands reversed result: result
+	^ DRLessThanComparison new
 ]
 
 { #category : #SCCP }

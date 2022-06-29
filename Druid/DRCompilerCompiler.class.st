@@ -21,7 +21,6 @@ DRCompilerCompiler >> compile [
 	self customise.
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
-	1halt.
 
 	registerAllocator allocateRegistersIn: druidIR.
 
@@ -105,7 +104,6 @@ DRCompilerCompiler >> initialize [
 	customisation := DRNonePrimitiveCustomisation new.
 	
 	optimisations := OrderedCollection new.
-	optimisations add: DRBranchCollapse new.
 	optimisations add: DRDeadBlockElimination new.
 	optimisations add: DRSCCP new.
 	optimisations add: DRCopyPropagation new.

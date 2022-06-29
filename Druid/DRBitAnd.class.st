@@ -32,3 +32,9 @@ DRBitAnd >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand bitAnd: operand2
 ]
+
+{ #category : #type }
+DRBitAnd >> type [
+	
+	^ DRIntegerType new
+]
