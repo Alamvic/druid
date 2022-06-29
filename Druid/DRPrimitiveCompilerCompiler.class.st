@@ -29,14 +29,15 @@ DRPrimitiveCompilerCompiler >> initialize [
 	optimisations add: (DRCopyPropagation then: DRComposedConditionalSplitting).
 
 	"Basic set of optimizations twice for primitives"
-	3 timesRepeat: [ 
+	5 timesRepeat: [ 
+		optimisations add: DRBranchCollapse new.
 		optimisations add: DRFailureCodeBasedTailDuplication new.
-		optimisations add: (DRSCCP then: DRCopyPropagation then: DRDeadBlockElimination).
+		optimisations add: (DRSCCP then: DRDeadBlockElimination).
+		optimisations add: DRCopyPropagation new.
 		optimisations add: DRPhiSimplication new.
 		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
-		optimisations add: (DRDeadPathSplitting then: DRSCCP then: DRDeadPathElimination).		
-		 ].
+		optimisations add: (DRDeadPathSplitting then: DRDeadPathElimination) ].
 	
 	"Last Phase, make code coggable"
 	optimisations add: DRCogitJITConstantSplitting new
