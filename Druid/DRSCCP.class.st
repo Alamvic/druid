@@ -272,18 +272,31 @@ DRSCCP >> tryReplaceConditionalJump: i [
 	"If it is a branch.cond, it has been managed by the previous case"
 	i isBranchIfCondition ifTrue: [ 
 		| conditionLattice |
+		"If it is a branch of the form
+		  branch.cond A B
+		
+		where A cond B is constant, replace it by
+		
+		  branch.iftrue constant
+		"
 		conditionLattice := i sccpEvaluateConditionFor: self.
-		(self isConstantLattice: conditionLattice) ifTrue: [ | branchIfTrue |
-			branchIfTrue := DRBranchIfTrue operands: { conditionLattice asDRValue }.
+		(self isConstantLattice: conditionLattice) ifTrue: [ 
+			| branchIfTrue |
+			branchIfTrue := DRBranchIfTrue operands:
+				                { conditionLattice asDRValue }.
 			branchIfTrue trueBranch: i trueBranch.
 			branchIfTrue falseBranch: i falseBranch.
 			i replaceBy: branchIfTrue.
 			self tryReplaceConditionalJump: branchIfTrue ].
 		^ self ].
 
-	(i isBranchIfTrue and: [ i operand1 isConstant ])
-		ifFalse: [ ^ self ].
+	(i isBranchIfTrue and: [ i operand1 isConstant ]) ifFalse: [ ^ self ].
+
+	"If it is a branch of the form
+	  branch.IfTrue constant
 	
+	replace it by simple jump
+	"
 	i operand1 value
 		ifTrue: [ 
 			constantTarget := i trueBranch.
@@ -291,7 +304,7 @@ DRSCCP >> tryReplaceConditionalJump: i [
 		ifFalse: [ 
 			constantTarget := i falseBranch.
 			removedTarget := i trueBranch ].
-	
+
 	removedTarget removePredecessor: i basicBlock.
 	i replaceBy: (DRJump new target: constantTarget)
 ]
@@ -318,13 +331,6 @@ DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 { #category : #executing }
 DRSCCP >> tryReplaceInstructionOperands: i [
 
-	"If it is a branch of the form
-	  branch.cond A B
-	
-	where A cond B is constant, replace it by
-	
-	  branch.iftrue constant
-	"
 	i isPhiFunction ifTrue: [ ^ self ].
 
 	"Replace the operands of instructions by their propagated values on non phi functions"

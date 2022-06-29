@@ -61,25 +61,3 @@ DRBranchIfCondition >> sccpEvaluateConditionFor: sccp [
 		sccpEvaluateFor: sccp
 		branch: self
 ]
-
-{ #category : #SCCP }
-DRBranchIfCondition >> sccpEvaluateFor: sccp [
-
-	| conditionLattice jumpTarget |
-	conditionLattice := self sccpEvaluateConditionFor: sccp.
-
-	"If we know nothing, do nothing yet"
-	conditionLattice = sccp top ifTrue: [ ^ self ].
-
-	conditionLattice = sccp bottom ifTrue: [ 
-		self targets do: [ :t | 
-			sccp addToEdgeCFGWorklistConditionalJump: self targetting: t ].
-		^ self ].
-
-	conditionLattice isNullValue ifTrue: [ ^ self ].
-
-	jumpTarget := conditionLattice value
-		              ifTrue: [ self trueBranch ]
-		              ifFalse: [ self falseBranch ].
-	sccp addToEdgeCFGWorklistConditionalJump: self targetting: jumpTarget
-]
