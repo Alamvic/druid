@@ -25,7 +25,7 @@ DruidTestInterpreter >> emptyPrimitiveWithArguments [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> failingPrimitive2 [
+DruidTestInterpreter >> failingPrimitive [
 	<numberOfArguments: 0>
 	self primitiveFail
 ]
@@ -40,6 +40,18 @@ DruidTestInterpreter >> failingPrimitiveWithArg [
 DruidTestInterpreter >> failingSuccess [
 	<numberOfArguments: 0>
 	self success: false
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> ifZeroFailPrimitive [
+
+	<numberOfArguments: 1>
+	| reciver arg |
+	reciver := self stackValue: 1.
+	arg := self stackValue: 0.
+
+	reciver = 0 ifTrue: [ ^ self primitiveFail ].
+	self pop: 2 thenPush: 42
 ]
 
 { #category : #'as yet unclassified' }

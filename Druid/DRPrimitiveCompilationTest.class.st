@@ -503,7 +503,7 @@ DRPrimitiveCompilationTest >> testEqualsThanInvertedFail [
 { #category : #'tests-failing-primitive' }
 DRPrimitiveCompilationTest >> testFailingPrimitive2ExecutesUntilStop [
 
-	self compileDruidPrimitive: #failingPrimitive2.
+	self compileDruidPrimitive: #failingPrimitive.
 	
 	self executeUntilStopPrimitiveWithReceiver: 1
 ]
@@ -1069,6 +1069,18 @@ DRPrimitiveCompilationTest >> testPassingSuccess [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
+{ #category : #'tests-arithmetic-smallIntegers' }
+DRPrimitiveCompilationTest >> testPrimitiveAdd [
+
+	cogit receiverTags: memory smallIntegerTag.
+
+	self compileDruidPrimitive: #primitiveAdd.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 10 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 52)
+]
+
 { #category : #'tests-deadcode' }
 DRPrimitiveCompilationTest >> testPrimitiveWithDeadCodeGoesThroughFirstCase [
 
@@ -1500,4 +1512,22 @@ DRPrimitiveCompilationTest >> testWhileTrueWithGlobalState [
 	self executePrimitiveWithReceiver: 5.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 15
+]
+
+{ #category : #'tests-failing-primitive' }
+DRPrimitiveCompilationTest >> testifZeroFailPrimitiveFail [
+
+	self compileDruidPrimitive: #ifZeroFailPrimitive.
+	
+	self executeUntilStopPrimitiveWithReceiver: 0 withArguments: { 0 }
+]
+
+{ #category : #'tests-failing-primitive' }
+DRPrimitiveCompilationTest >> testifZeroFailPrimitiveSuccess [
+
+	self compileDruidPrimitive: #ifZeroFailPrimitive.
+
+	self executePrimitiveWithReceiver: 1 withArguments: { 0 }.
+
+	self assert: machineSimulator receiverRegisterValue equals: 42
 ]

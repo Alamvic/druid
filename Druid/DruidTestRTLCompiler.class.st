@@ -106,6 +106,20 @@ DruidTestRTLCompiler >> gen_failingSuccess [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_ifZeroFailPrimitive [
+
+	| currentBlock jump0 |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
+	jump0 := self JumpZero: 0.
+	self MoveCq: 42 R: ReceiverResultReg.
+	self genPrimReturn.
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_passingSuccess [
 
 	| currentBlock |
@@ -128,14 +142,15 @@ DruidTestRTLCompiler >> gen_primitiveAdd [
 
 	| currentBlock jump0 jump1 |
 	self mclassIsSmallInteger ifFalse: [ ^ UnimplementedPrimitive ].
-	self TstCq: 1 R: Arg0Reg.
+	self MoveR: Arg0Reg R: TempReg.
+	self TstCq: 1 R: TempReg.
 	jump0 := self JumpZero: 0.
 	self MoveR: Arg0Reg R: TempReg.
 	self SubCq: 1 R: TempReg.
 	self MoveR: ReceiverResultReg R: ClassReg.
 	self AddR: ClassReg R: TempReg.
 	jump1 := self JumpOverflow: 0.
-	self MoveR: TempReg R: Arg0Reg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
@@ -1459,6 +1474,19 @@ DruidTestRTLCompiler >> gen_primitiveNegated [
 	| currentBlock |
 	self MoveR: ReceiverResultReg R: TempReg.
 	self NegateR: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveNextUint16At [
+
+	| currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self AddCq: 1 R: TempReg.
+	self MoveM16: 0 r: TempReg R: TempReg.
+	self AndCq: 16rFFFF R: TempReg.
 	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive

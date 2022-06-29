@@ -59,10 +59,11 @@ DRVMState >> addTo: aDRVMState depth: maxVMStackDepth [
 	
 	"Add my own state to the execution state in parameter"
 
-	aDRVMState completeOperandStackUpTo: operandStack size.
+	aDRVMState completeOperandStackUpTo: maxVMStackDepth.
+	self completeOperandStackUpTo: maxVMStackDepth do: [ operandStack push: DRNullValue new ].
 	aDRVMState operandStackWithIndexDo: [ :operand :stackPosition |
 		aDRVMState
-			addStackOperand: (self stackOperandAt: stackPosition ifAbsent: [ DRNullValue new ])
+			addStackOperand: (self stackOperandAt: stackPosition ifAbsent: [ 1halt. ])
 			at: stackPosition ].
 	aDRVMState addPrimitiveFailureCode: primitiveFailureCode.
 ]
@@ -72,11 +73,19 @@ DRVMState >> completeOperandStackUpTo: anInteger [
 	
 	| predecessorsUntilNow |
 	predecessorsUntilNow := self maxNumberOfPredecessors.
-	operandStack size + 1 to: anInteger do: [ :i | 
+	self completeOperandStackUpTo: anInteger do: [ 
 		operandStack push: (builder instructionFactory
 				phiWithVariables: (OrderedCollection
 					new: predecessorsUntilNow
 					withAll: DRNullValue new)) ]
+]
+
+{ #category : #merging }
+DRVMState >> completeOperandStackUpTo: anInteger do: aBlockValue [
+
+	| predecessorsUntilNow |
+	predecessorsUntilNow := self maxNumberOfPredecessors.
+	operandStack size + 1 to: anInteger do: [ :i | aBlockValue cull: i ]
 ]
 
 { #category : #initialization }
