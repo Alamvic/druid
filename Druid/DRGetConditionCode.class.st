@@ -28,7 +28,7 @@ DRGetConditionCode >> isSetConditionCode [
 { #category : #printing }
 DRGetConditionCode >> opcode [
 	
-	^ 'SetConditionCode'
+	^ 'GetConditionCode'
 ]
 
 { #category : #accessing }
@@ -45,6 +45,12 @@ DRGetConditionCode >> prettyPrint [
 	print := result ifNil: [ '' ] ifNotNil: [ result name , ' := ' ].
 	^ print , self opcode , ' '
 	  , (self condition prettyPrintWithBranch: self)
+]
+
+{ #category : #reversing }
+DRGetConditionCode >> reversed [
+	
+	^ self class operands: { condition reversed  }, operands reversed
 ]
 
 { #category : #SCCP }

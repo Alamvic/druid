@@ -7,8 +7,12 @@ Class {
 { #category : #api }
 DRPathGenerationTest >> optimize: cfg [
 
-	cfg applyOptimisation: ((DRSCCP then: DRCopyPropagation then: DRComposedConditionalSplitting) then:
-			 (DRDeadCodeElimination then: DRCleanControlFlow )).
+	cfg applyOptimisation:
+		(DRDeadBlockElimination then: DRBranchCollapse).
+	cfg applyOptimisation:
+		(DRSCCP then: DRCopyPropagation then: DRComposedConditionalSplitting).
+	cfg applyOptimisation:
+		(DRDeadCodeElimination then: DRCleanControlFlow).
 	cfg generatePaths
 ]
 
@@ -313,7 +317,7 @@ DRPathGenerationTest >> testInferenceDeadPaths [
 
 	deadPath := cfg deadPaths associations first.
 	pathBlockIds := deadPath value collect: [ :e | e destination id ].
-	expectedTarget := self anyOutgoingEdge: cfg for: (cfg blockById: 30).
+	expectedTarget := self anyOutgoingEdge: cfg for: (cfg firstBasicBlock).
 
 	self assert: deadPath key equals: expectedTarget.
 	self assertCollection: pathBlockIds hasSameElements: { 14. 12 . 28 }
@@ -344,10 +348,10 @@ DRPathGenerationTest >> testInferenceManyDeadPaths [
 	| cfg deadPaths deadTargetIds |
 	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranches.
 	deadPaths := cfg deadPaths.
-	deadTargetIds := deadPaths keys collect: [ :e | e destination id ].
+	deadTargetIds := deadPaths keys collect: [ :e | e destination ].
 
 	self assert: deadPaths size equals: 2.
-	self assertCollection: deadTargetIds hasSameElements: { 40. 41 }
+	self assertCollection: deadTargetIds hasSameElements: cfg firstBasicBlock successors
 ]
 
 { #category : #building }

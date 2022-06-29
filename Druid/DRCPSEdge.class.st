@@ -251,23 +251,6 @@ DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure 
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitConditionalJump: aDRConditionalJump [
-
-	| domain id |
-	"Ignore hardcoded values"
-	aDRConditionalJump condition isInstruction ifFalse: [ ^ self ].
-
-	domain := self operandDomainFromInstruction: aDRConditionalJump condition.
-	domain ifNil: [ ^ self ].
-
-	id := domain reg result name.
-
-	^ branchIndex = 1
-		  ifTrue: [ self mergeConstraint: domain constraint to: id ]
-		  ifFalse: [ self mergeConstraint: domain constraint negated to: id ]
-]
-
-{ #category : #visiting }
 DRCPSEdge >> visitConstant: aDRConstantValue [ 
 	
 	^ aDRConstantValue value 

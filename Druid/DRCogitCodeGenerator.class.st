@@ -55,7 +55,7 @@ DRCogitCodeGenerator >> generateCompare: aComparison operands: operands [
 	JumpLessThan xxx
 	Thus, operands are inverted always"
 	comparands := operands reversed.
-	comparisonToGenerate := aComparison reversed.
+	comparisonToGenerate := aComparison.
 
 	"Cogit RTL only supports constants as the first argument.
 	Invert the comparison and the condition if necessary, mostly for greaterThan comparisons)."

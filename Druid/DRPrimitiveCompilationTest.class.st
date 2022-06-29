@@ -411,6 +411,26 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethodWithEarlyReturnCa
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
+{ #category : #'tests-array' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveNew [
+
+	| class array |
+	true ifTrue: [ ^self skip ].
+
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNew.
+	
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	array := memory instantiateClass: class indexableSize: 1.
+	memory storePointer: 0 ofObject: array withValue: 42.
+
+	self 	executePrimitiveWithReceiver: array 
+			withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+	
+]
+
 { #category : #'tests-real primitives' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveNewInitializesInstance [
 
