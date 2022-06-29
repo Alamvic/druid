@@ -3,10 +3,17 @@ Class {
 	#superclass : #DRInstruction,
 	#instVars : [
 		'trueBranch',
-		'falseBranch'
+		'falseBranch',
+		'backJumps'
 	],
 	#category : #'Druid-IR'
 }
+
+{ #category : #accessing }
+DRAbstractBranch >> beBackJumpTo: aDRBasicBlock [ 
+	
+	backJumps add: aDRBasicBlock 
+]
 
 { #category : #accessing }
 DRAbstractBranch >> falseBranch [
@@ -23,13 +30,13 @@ DRAbstractBranch >> falseBranch: aDruidIRGenerator [
 DRAbstractBranch >> initialize [
 
 	super initialize.
-	result := DRNoRegister new
+	result := DRNoRegister new.
+	backJumps := OrderedCollection new
 ]
 
 { #category : #testing }
-DRAbstractBranch >> isBackJump [
-	"For now do not allow conditional back jumps. Although they could happen... so we should be careful"
-	^ false
+DRAbstractBranch >> isBackJumpTo: aDRBasicBlock [ 
+	^ backJumps includes: aDRBasicBlock
 ]
 
 { #category : #testing }
@@ -59,12 +66,13 @@ DRAbstractBranch >> prettyPrint [
 ]
 
 { #category : #replacing }
-DRAbstractBranch >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [ 
-	
-	trueBranch = aDRBasicBlock ifTrue: [
-		trueBranch := aDRBasicBlock2 ].
-	falseBranch = aDRBasicBlock ifTrue: [
-		falseBranch := aDRBasicBlock2 ].
+DRAbstractBranch >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [
+
+	trueBranch = aDRBasicBlock ifTrue: [ trueBranch := aDRBasicBlock2 ].
+	falseBranch = aDRBasicBlock ifTrue: [ falseBranch := aDRBasicBlock2 ].
+
+	(backJumps includes: aDRBasicBlock) ifTrue: [ 
+		backJumps remove: aDRBasicBlock ]
 ]
 
 { #category : #SCCP }

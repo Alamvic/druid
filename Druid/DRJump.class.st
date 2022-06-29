@@ -63,7 +63,8 @@ DRJump >> initialize [
 
 { #category : #testing }
 DRJump >> isBackJump [
-	^ isBackJump ifNil: [ false ]
+
+	^ isBackJump
 ]
 
 { #category : #testing }

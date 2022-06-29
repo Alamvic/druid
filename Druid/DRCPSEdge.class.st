@@ -191,13 +191,13 @@ DRCPSEdge >> visitBitShift: aDRBitShift [
 { #category : #visiting }
 DRCPSEdge >> visitBranchIfCondition: aDRConditionalJump [
 
-	| constraint |
-	constraint := aDRConditionalJump condition acceptVisitor: self withBranch: aDRConditionalJump.
-	constraint ifNil: [ ^ self ].
+	| domain |
+	domain := aDRConditionalJump condition acceptVisitor: self withBranch: aDRConditionalJump.
+	domain ifNil: [ ^ self ].
 	
 	branchIndex = 1
-		ifTrue: [ self mergeConstraint: constraint ]
-		ifFalse: [ self mergeConstraint: constraint negated ]
+		ifTrue: [ self mergeConstraint: domain constraint to: domain reg name ]
+		ifFalse: [ self mergeConstraint: domain constraint negated to: domain reg name ]
 ]
 
 { #category : #visiting }
@@ -205,17 +205,17 @@ DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [
 
 	"Ignore hardcoded values"
 
-	| constraint |
+	| domain |
 	aDRBranchIfTrue operand1 isInstruction ifFalse: [ ^ self ].
 
-	constraint := aDRBranchIfTrue operand1 condition
+	domain := aDRBranchIfTrue operand1 condition
 		              acceptVisitor: self
 		              withBranch: aDRBranchIfTrue operand1.
-	constraint ifNil: [ ^ self ].
+	domain ifNil: [ ^ self ].
 
 	branchIndex = 1
-		ifTrue: [ self mergeConstraint: constraint ]
-		ifFalse: [ self mergeConstraint: constraint negated ]
+		ifTrue: [ self mergeConstraint: domain constraint to: domain reg name ]
+		ifFalse: [ self mergeConstraint: domain constraint negated to: domain reg name ]
 ]
 
 { #category : #visiting }
@@ -282,9 +282,9 @@ DRCPSEdge >> visitFalseObject: aDRFalseObject [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [ 
+DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [
 
-	"Do nothing"
+	^ nil
 ]
 
 { #category : #visiting }

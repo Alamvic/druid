@@ -47,6 +47,12 @@ DRGetConditionCode >> prettyPrint [
 	  , (self condition prettyPrintWithBranch: self)
 ]
 
+{ #category : #reversing }
+DRGetConditionCode >> reversed [
+	
+	^ self class operands: { condition reversed  }, operands reversed
+]
+
 { #category : #SCCP }
 DRGetConditionCode >> sccpLatticeValueFor: sccp [
 

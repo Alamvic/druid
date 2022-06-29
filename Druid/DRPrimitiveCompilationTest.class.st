@@ -348,6 +348,8 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethodWithEarlyReturnCa
 DRPrimitiveCompilationTest >> testCompilePrimitiveNew [
 
 	| class array |
+	true ifTrue: [ ^self skip ].
+
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNew.
 	
