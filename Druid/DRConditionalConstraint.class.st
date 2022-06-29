@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR-Paths'
 }
 
+{ #category : #accessing }
+DRConditionalConstraint >> constraint [
+
+	^ self
+]
+
 { #category : #arithmetic }
 DRConditionalConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 

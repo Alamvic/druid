@@ -39,3 +39,9 @@ DRAnyMaskConstraint >> opCode [
 
 	^ 'Mask'
 ]
+
+{ #category : #reverting }
+DRAnyMaskConstraint >> reversed [
+	
+	^ self
+]

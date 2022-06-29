@@ -39,3 +39,9 @@ DRGreaterConstraint >> opCode [
 
 	^ '>'
 ]
+
+{ #category : #reversing }
+DRGreaterConstraint >> reversed [
+	
+	^ DRLessConstraint new
+]

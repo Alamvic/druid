@@ -39,3 +39,10 @@ DRLessOrEqualsConstraint >> opCode [
 
 	^ '<='
 ]
+
+{ #category : #reversing }
+DRLessOrEqualsConstraint >> reversed [
+
+	"Returns the same condition but with reversed operands: x <= y --> y >= x"
+	^ DRGreaterOrEqualsConstraint new
+]

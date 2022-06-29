@@ -219,22 +219,22 @@ DRCogitCodeGenerator >> rtlArgumentsForValue: aValue [
 DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 
 	| constantValue |
-	aValue isConstant ifTrue: [ 
-		"Interpret the booleans as the bits 0 and 1"
-		constantValue := (#( true false ) includes: aValue value)
-			ifTrue: [ aValue value asBit ]
-			ifFalse: [ aValue value ].
-		
-		"Interpret nil as zero"
-		constantValue isNil ifTrue: [ constantValue := 0 ].
-		
-		(constantValue isInteger and: [ constantValue > 5000 ]) ifTrue: [ 
-			^ RBLiteralValueNode new
-				  value: constantValue
-				  start: 0
-				  stop: -1
-				  source: constantValue hex ].
-		^ RBLiteralValueNode value: constantValue ].
+	"Interpret the booleans as the bits 0 and 1"
+	constantValue := (#( true false ) includes: aValue value)
+		                 ifTrue: [ aValue value asBit ]
+		                 ifFalse: [ aValue value ].
+
+	"Interpret nil as zero"
+	constantValue isNil ifTrue: [ constantValue := 0 ].
+
+	constantValue isInteger ifTrue: [ 
+		^ constantValue <= 5000
+			ifTrue: [ RBLiteralValueNode value: constantValue ]
+			ifFalse: [ RBLiteralValueNode new
+			  value: constantValue
+			  start: 0
+			  stop: -1
+			  source: constantValue hex ] ].
 
 	^ RBVariableNode named: (self registerFor: aValue)
 ]

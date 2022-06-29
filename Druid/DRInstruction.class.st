@@ -442,9 +442,20 @@ DRInstruction >> printOn: aStream [
 { #category : #'users-definitions' }
 DRInstruction >> recursiveUsersDo: aBlock [
 
+	self recursiveUsersDo: aBlock iteratedSet: Set new
+]
+
+{ #category : #'users-definitions' }
+DRInstruction >> recursiveUsersDo: aBlock iteratedSet: set [
+
+	"If I'm already done, exit"
+	(set includes: self)
+		ifTrue: [ ^ self ].
+	set add: self.
+	
 	users do: [ :i | 
 		aBlock value: i.
-		i recursiveUsersDo: aBlock ]
+		i recursiveUsersDo: aBlock iteratedSet: set ]
 ]
 
 { #category : #removing }

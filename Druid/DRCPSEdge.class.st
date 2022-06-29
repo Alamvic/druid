@@ -71,6 +71,7 @@ DRCPSEdge >> deadTarget [
 { #category : #initialization }
 DRCPSEdge >> initialize [ 
 
+	super initialize.
 	constraints := Dictionary new.
 ]
 
@@ -113,16 +114,11 @@ DRCPSEdge >> operandConstraint: operand [
 { #category : #visiting }
 DRCPSEdge >> operandDomainFromInstruction: aDRInstruction [
 
-	aDRInstruction isBranchIfTrue ifTrue: [ 
-		aDRInstruction operand1 isCopy ifTrue: [ 
-			^ self operandDomainFromInstruction: aDRInstruction operand1 ].
+	aDRInstruction isCopy ifTrue: [ 
+		^ self operandDomainFromInstruction: aDRInstruction operand1 ].
 
-		aDRInstruction operand1 isPhiFunction ifTrue: [ 
-			^ self operandDomainFromPhi: aDRInstruction ].
-		^ aDRInstruction operand1 acceptVisitor: self ].
-
-1halt.
-	self assert: aDRInstruction isComparison.
+	aDRInstruction isPhiFunction ifTrue: [ 
+		^ self operandDomainFromPhi: aDRInstruction ].
 
 	^ aDRInstruction acceptVisitor: self
 ]
@@ -220,7 +216,7 @@ DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [
 	| domain id |
 	aDRBranchIfTrue operand1 isInstruction ifFalse: [ ^ self ].
 
-	domain := self operandDomainFromInstruction: aDRBranchIfTrue.
+	domain := self operandDomainFromInstruction: aDRBranchIfTrue operand1.
 	domain ifNil: [ ^ self ].
 	
 	id := domain reg result name.
@@ -235,7 +231,7 @@ DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure 
 	| operands |
 	operands := aDRBranch operands.
 	((operands anySatisfy: #isConstant) and: [ 
-		 operands anySatisfy: [ :o | o isRegister or: o isInstruction ] ]) 
+		 operands anySatisfy: [ :o | o isRegister or: [ o isInstruction ] ] ]) 
 		ifFalse: [ ^ nil "We need a register and a constant" ].
 
 	"Check constant on right"
@@ -316,6 +312,12 @@ DRCPSEdge >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranch [
 		  visitComparison: aDRGreaterThanComparison
 		  ofBranch: aDRBranch
 		  andDo: [ :reg :value | DRRegisterDomain greater: reg than: value ]
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [
+	
+	^ aDRJitCompileTimeExpression expression
 ]
 
 { #category : #visiting }
