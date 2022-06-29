@@ -97,7 +97,7 @@ DRCogitRegisterAllocatorTest >> testCmpSpecialRegisterDoesNotModifyInstruction [
 
 	self assert: basicBlock instructions first isCopy. 
 	self assert: basicBlock instructions first operand1 equals: specialRegister. 
-	self assert: basicBlock instructions second isComparison.
+	self assert: basicBlock instructions second isSetConditionCode.
 	self assert: basicBlock instructions second operand1 equals: basicBlock instructions first.
 	self assert: basicBlock instructions second result equals: basicBlock instructions first result
 
@@ -131,7 +131,7 @@ DRCogitRegisterAllocatorTest >> testCmpSpecialRegisterDoesNotModifyInstructionIn
 
 	self assert: basicBlock instructions first isCopy. 
 	self assert: basicBlock instructions first operand1 equals: specialRegister. 
-	self assert: basicBlock instructions second isComparison.
+	self assert: basicBlock instructions second isSetConditionCode.
 	self assert: basicBlock instructions second operand2 equals: basicBlock instructions first.
 	self assert: basicBlock instructions second result equals: basicBlock instructions first result
 
@@ -633,7 +633,7 @@ DRCogitRegisterAllocatorTest >> testTestSpecialRegisterDoesNotModifyInstruction 
 
 	self assert: basicBlock instructions first isCopy. 
 	self assert: basicBlock instructions first operand1 equals: specialRegister. 
-	self assert: basicBlock instructions second isComparison.
+	self assert: basicBlock instructions second isSetConditionCode.
 	self assert: basicBlock instructions second operand1 equals: basicBlock instructions first.
 	self assert: basicBlock instructions second result equals: basicBlock instructions first result
 
@@ -667,7 +667,7 @@ DRCogitRegisterAllocatorTest >> testTestSpecialRegisterDoesNotModifyInstructionI
 
 	self assert: basicBlock instructions first isCopy. 
 	self assert: basicBlock instructions first operand1 equals: specialRegister. 
-	self assert: basicBlock instructions second isComparison.
+	self assert: basicBlock instructions second isSetConditionCode.
 	self assert: basicBlock instructions second operand2 equals: basicBlock instructions first.
 	self assert: basicBlock instructions second result equals: basicBlock instructions first result
 

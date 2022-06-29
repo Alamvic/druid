@@ -126,20 +126,27 @@ DruidTestRTLCompiler >> gen_primitiveAccessTempAfterCall [
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveAdd [
 
-	| currentBlock jump0 jump1 |
+	| currentBlock jump0 jump1 jump2 |
 	self mclassIsSmallInteger ifFalse: [ ^ UnimplementedPrimitive ].
-	self TstCq: 1 R: Arg0Reg.
+	self MoveR: Arg0Reg R: TempReg.
+	self AndCq: 1 R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump0 := self JumpZero: 0.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self AndCq: 1 R: TempReg.
+	self CmpCq: 0 R: TempReg.
+	jump1 := self JumpZero: 0.
 	self MoveR: Arg0Reg R: TempReg.
 	self SubCq: 1 R: TempReg.
 	self MoveR: ReceiverResultReg R: ClassReg.
 	self AddR: ClassReg R: TempReg.
-	jump1 := self JumpOverflow: 0.
+	jump2 := self JumpOverflow: 0.
 	self MoveR: TempReg R: Arg0Reg.
 	self genPrimReturn.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
 	jump1 jmpTarget: currentBlock.
+	jump2 jmpTarget: currentBlock.
 	^ CompletePrimitive
 ]
 
@@ -829,10 +836,10 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 	self MoveR: TempReg R: ClassReg.
 	self MoveR: ClassReg R: TempReg.
 	self MoveCq: 5 R: SendNumArgsReg.
-	self CmpCq: 7 R: ReceiverResultReg.
 	self MoveR: ClassReg R: Extra0Reg.
 	self MoveR: TempReg R: Extra1Reg.
 	self MoveR: SendNumArgsReg R: Extra2Reg.
+	self CmpCq: 7 R: ReceiverResultReg.
 	jump3 := self JumpGreater: 0.
 	self MoveR: SendNumArgsReg R: Extra2Reg.
 	self MoveR: Extra2Reg R: ClassReg.
@@ -847,7 +854,6 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 	self MoveCq: 1 R: ClassReg.
 	self MoveR: ClassReg R: TempReg.
 	self MoveCq: 5 R: Extra2Reg.
-	self CmpCq: 7 R: ReceiverResultReg.
 	self MoveR: ClassReg R: Extra0Reg.
 	self MoveR: TempReg R: Extra1Reg.
 	currentBlock := self Label.
@@ -888,9 +894,9 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	self
 		DivR: Arg0Reg
 		R: ReceiverResultReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -930,10 +936,44 @@ DruidTestRTLCompiler >> gen_primitiveEqualsThanInverted [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveEqualsThanValue [
+
+	| currentBlock jumpTrue jumpNext |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
+	jumpTrue := self JumpZero: 0.
+	self MoveCq: 0 R: TempReg.
+	jumpNext := self Jump: 0.
+	jumpTrue jmpTarget: self Label.
+	self MoveCq: 1 R: TempReg.
+	jumpNext jmpTarget: self Label.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveFalseAsInteger [
 
 	| currentBlock |
 	self MoveCq: 0 R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualThanValue [
+
+	| currentBlock jumpTrue jumpNext |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
+	jumpTrue := self JumpGreaterOrEqual: 0.
+	self MoveCq: 0 R: TempReg.
+	jumpNext := self Jump: 0.
+	jumpTrue jmpTarget: self Label.
+	self MoveCq: 1 R: TempReg.
+	jumpNext jmpTarget: self Label.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1090,7 +1130,8 @@ DruidTestRTLCompiler >> gen_primitiveIsIntegerObject [
 
 	| currentBlock jump0 jump1 |
 	self MoveR: ReceiverResultReg R: TempReg.
-	self TstCq: 1 R: TempReg.
+	self AndCq: 1 R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump0 := self JumpNonZero: 0.
 	self MoveCw: objectMemory falseObject R: ReceiverResultReg.
 	jump1 := self Jump: 0.
@@ -1099,6 +1140,23 @@ DruidTestRTLCompiler >> gen_primitiveIsIntegerObject [
 	self MoveCw: objectMemory trueObject R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveLessOrEqualThanValue [
+
+	| currentBlock jumpTrue jumpNext |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
+	jumpTrue := self JumpLessOrEqual: 0.
+	self MoveCq: 0 R: TempReg.
+	jumpNext := self Jump: 0.
+	jumpTrue jmpTarget: self Label.
+	self MoveCq: 1 R: TempReg.
+	jumpNext jmpTarget: self Label.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1199,6 +1257,23 @@ DruidTestRTLCompiler >> gen_primitiveLessThanThanInverted [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveLessThanValue [
+
+	| currentBlock jumpTrue jumpNext |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
+	jumpTrue := self JumpLess: 0.
+	self MoveCq: 0 R: TempReg.
+	jumpNext := self Jump: 0.
+	jumpTrue jmpTarget: self Label.
+	self MoveCq: 1 R: TempReg.
+	jumpNext jmpTarget: self Label.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveLoopIncrementing [
 
 	| currentBlock b15 jump0 |
@@ -1237,9 +1312,9 @@ DruidTestRTLCompiler >> gen_primitiveMod [
 	self
 		DivR: Arg0Reg
 		R: ReceiverResultReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1247,7 +1322,7 @@ DruidTestRTLCompiler >> gen_primitiveMod [
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveMultiplyWithOverflow [
 
-	| currentBlock jump0 |
+	| currentBlock jump0 jump1 |
 	self MoveR: ReceiverResultReg R: TempReg.
 	self LogicalShiftRightCq: 3 R: TempReg.
 	self MoveR: Arg0Reg R: ClassReg.
@@ -1255,9 +1330,13 @@ DruidTestRTLCompiler >> gen_primitiveMultiplyWithOverflow [
 	self MulR: TempReg R: ClassReg.
 	jump0 := self JumpMultiplyOverflow: 0.
 	self AddCq: 1 R: ClassReg.
-	self MoveR: ClassReg R: Arg0Reg.
+	self MoveR: ClassReg R: ReceiverResultReg.
+	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump0 jmpTarget: currentBlock.
+	self MoveCq: 99 R: ReceiverResultReg.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1270,6 +1349,299 @@ DruidTestRTLCompiler >> gen_primitiveNegated [
 	self NegateR: TempReg.
 	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveNew [
+
+	| currentBlock jump0 jump1 jumpTrue jumpNext jump2 jumpTrue jumpNext jump3 jump4 jump5 jump6 jump7 jump8 jump9 jump10 jump11 jumpTrue jumpNext jump12 jump13 jump14 jump15 jump16 jump17 jump18 jump19 jump20 b340 jump21 jump22 jump23 jump24 jump25 |
+	self AddCq: 40 R: SPReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self AddCq: 8 R: TempReg.
+	self AddCq: 16 R: TempReg.
+	self MoveM64: 0 r: TempReg R: TempReg.
+	self MoveR: TempReg R: ClassReg.
+	self LogicalShiftLeftCq:  -63 R: ClassReg.
+	self CmpCq: 1 R: ClassReg.
+	jump0 := self JumpZero: 0.
+	self LogicalShiftLeftCq:  -3 R: TempReg.
+	self MoveR: TempReg R: ClassReg.
+	jump1 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump0 jmpTarget: currentBlock.
+	self LogicalShiftLeftCq:  -3 R: TempReg.
+	self AndCq: 16r1FFFFFFFFFFFFFFF R: TempReg.
+	self SubCq: 16r1FFFFFFFFFFFFFFF R: TempReg.
+	self SubCq: 1 R: TempReg.
+	self MoveR: TempReg R: ClassReg.
+	
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveR: ClassReg R: TempReg.
+	self LogicalShiftRightCq: 16 R: TempReg.
+	self AndCq: 31 R: TempReg.
+	self MoveR: TempReg R: SendNumArgsReg.
+	self CmpCq: 1 R: SendNumArgsReg.
+	jumpTrue := self JumpLessOrEqual: 0.
+	self MoveCq: 0 R: SendNumArgsReg.
+	jumpNext := self Jump: 0.
+	jumpTrue jmpTarget: self Label.
+	self MoveCq: 1 R: SendNumArgsReg.
+	jumpNext jmpTarget: self Label.
+	self CmpCq: 1 R: TempReg.
+	jump2 := self JumpLessOrEqual: 0.
+	self MoveR: TempReg R: SendNumArgsReg.
+	self CmpCq: 5 R: SendNumArgsReg.
+	jumpTrue := self JumpZero: 0.
+	self MoveCq: 0 R: SendNumArgsReg.
+	jumpNext := self Jump: 0.
+	jumpTrue jmpTarget: self Label.
+	self MoveCq: 1 R: SendNumArgsReg.
+	jumpNext jmpTarget: self Label.
+	
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
+	self MoveR: ReceiverResultReg R: Extra0Reg.
+	self MoveCq: 0 R: Extra1Reg.
+	self CmpCq: 0 R: SendNumArgsReg.
+	jump3 := self JumpNonZero: 0.
+	self MoveCq: 0 R: SendNumArgsReg.
+	jump4 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump3 jmpTarget: currentBlock.
+	self MoveR: ReceiverResultReg R: Extra1Reg.
+	self AddCq: 4 R: Extra1Reg.
+	self MoveCq: 0 R: Extra1Reg.
+	self MoveM32: 0 r: Extra1Reg R: Extra1Reg.
+	self AndCq: 16r3FFFFF R: Extra1Reg.
+	self CmpCq: 0 R: Extra1Reg.
+	jump5 := self JumpZero: 0.
+	self MoveR: ReceiverResultReg R: Extra0Reg.
+	self MoveR: TempReg R: SendNumArgsReg.
+	self MoveR: Extra1Reg R: Extra2Reg.
+	self CmpCq: 0 R: Extra1Reg.
+	jump6 := self JumpLess: 0.
+	self AndCq: 16rFFFF R: ClassReg.
+	self CmpCq: 255 R: ClassReg.
+	jump7 := self JumpGreaterOrEqual: 0.
+	self CmpCq: 1 R: ClassReg.
+	jump8 := self JumpLess: 0.
+	self MoveR: ClassReg R: Extra2Reg.
+	self MulCq: 8 R: Extra2Reg.
+	jump9 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump8 jmpTarget: currentBlock.
+	self MoveCq: 8 R: Extra2Reg.
+	
+	currentBlock := self Label.
+	jump9 jmpTarget: currentBlock.
+	self MoveR: ReceiverResultReg R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 8 r: SPReg.
+	self MoveR: ClassReg R: Extra0Reg.
+	self AddR: Extra2Reg Cq: 8.
+	self MoveR: Extra2Reg R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 16 r: SPReg.
+	self MoveR: TempReg R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 32 r: SPReg.
+	self MoveR: ClassReg R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 24 r: SPReg.
+	self MoveR: Extra0Reg R: ClassReg.
+	self MoveMw: 8 r: SPReg R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 40 r: SPReg.
+	jump10 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump7 jmpTarget: currentBlock.
+	self MoveR: ClassReg R: TempReg.
+	self LogicalShiftRightCq: 56 R: TempReg.
+	self CmpCq: 0 R: TempReg.
+	jump11 := self JumpGreater: 0.
+	self MoveR: ClassReg R: TempReg.
+	self MulCq: 8 R: TempReg.
+	self AddR: TempReg Cq: 16.
+	self MoveR: Extra2Reg R: Extra1Reg.
+	self MoveR: TempReg R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 16 r: SPReg.
+	self MoveR: SendNumArgsReg R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 32 r: SPReg.
+	self MoveR: ClassReg R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 24 r: SPReg.
+	self MoveR: Extra0Reg R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 40 r: SPReg.
+	
+	currentBlock := self Label.
+	jump10 jmpTarget: currentBlock.
+	self MoveR: Extra3Reg Mw: 40 r: SPReg.
+	self MoveR: Extra3Reg Mw: 24 r: SPReg.
+	self MoveR: Extra3Reg Mw: 32 r: SPReg.
+	self MoveR: Extra3Reg Mw: 16 r: SPReg.
+	self MoveCq: 0 R: Extra2Reg.
+	self MoveAw: objectMemory freeStartAddress R: SendNumArgsReg.
+	self MoveMw: 16 r: SPReg R: Extra3Reg.
+	self AddR: Extra3Reg R: SendNumArgsReg.
+	self MoveAw: objectMemory getScavengeThreshold R: TempReg.
+	self MoveR: SendNumArgsReg R: Extra0Reg.
+	self CmpR: TempReg R: Extra0Reg.
+	jumpTrue := self JumpGreater: 0.
+	self MoveCq: 0 R: Extra0Reg.
+	jumpNext := self Jump: 0.
+	jumpTrue jmpTarget: self Label.
+	self MoveCq: 1 R: Extra0Reg.
+	jumpNext jmpTarget: self Label.
+	self CmpR: TempReg R: SendNumArgsReg.
+	jump12 := self JumpGreater: 0.
+	self MoveR: Extra2Reg R: Extra0Reg.
+	
+	currentBlock := self Label.
+	jump12 jmpTarget: currentBlock.
+	self CmpCq: 0 R: Extra0Reg.
+	jump13 := self JumpNonZero: 0.
+	self MoveAw: objectMemory freeStartAddress R: Extra0Reg.
+	self MoveR: Extra0Reg R: TempReg.
+	self MoveMw: 24 r: SPReg R: Extra3Reg.
+	self CmpCq: 255 R: Extra3Reg.
+	jump14 := self JumpGreaterOrEqual: 0.
+	self MoveMw: 24 r: SPReg R: Extra3Reg.
+	self LogicalShiftLeftR: Extra3Reg Cq: 56.
+	self MoveR: Extra3Reg Mw: 24 r: SPReg.
+	self MoveMw: 32 r: SPReg R: Extra3Reg.
+	self LogicalShiftLeftR: Extra3Reg Cq: 24.
+	self MoveR: Extra3Reg Mw: 32 r: SPReg.
+	self MoveMw: 24 r: SPReg R: Extra3Reg.
+	self MoveMw: 32 r: SPReg R: Extra4Reg.
+	self AddR: Extra4Reg R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 24 r: SPReg.
+	self MoveMw: 24 r: SPReg R: Extra3Reg.
+	self AddR: Extra1Reg R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 24 r: SPReg.
+	self MoveMw: 24 r: SPReg R: Extra3Reg.
+	self OrCq: 0 R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 24 r: SPReg.
+	self MoveMw: 24 r: SPReg R: Extra3Reg.
+	self MoveR: Extra3Reg M64: 0 r: Extra0Reg.
+	jump15 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump14 jmpTarget: currentBlock.
+	self MoveMw: 24 r: SPReg R: Extra3Reg.
+	self AddR: Extra3Reg Cq: 16rFF00000000000000.
+	self MoveR: Extra3Reg Mw: 24 r: SPReg.
+	self MoveMw: 24 r: SPReg R: Extra3Reg.
+	self MoveR: Extra3Reg M64: 0 r: Extra0Reg.
+	self MoveR: Extra0Reg R: TempReg.
+	self AddCq: 8 R: TempReg.
+	self MoveMw: 32 r: SPReg R: Extra3Reg.
+	self LogicalShiftLeftR: Extra3Reg Cq: 24.
+	self MoveR: Extra3Reg Mw: 32 r: SPReg.
+	self MoveMw: 32 r: SPReg R: Extra3Reg.
+	self AddR: Extra3Reg Cq: 16rFF00000000000000.
+	self MoveR: Extra3Reg Mw: 32 r: SPReg.
+	self MoveMw: 32 r: SPReg R: Extra3Reg.
+	self AddR: Extra1Reg R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 32 r: SPReg.
+	self MoveMw: 32 r: SPReg R: Extra3Reg.
+	self OrCq: 0 R: Extra3Reg.
+	self MoveR: Extra3Reg Mw: 32 r: SPReg.
+	self MoveMw: 32 r: SPReg R: Extra3Reg.
+	self MoveR: Extra3Reg M64: 0 r: TempReg.
+	self AddCq: 8 R: Extra0Reg.
+	self MoveR: Extra0Reg R: TempReg.
+	
+	currentBlock := self Label.
+	jump15 jmpTarget: currentBlock.
+	self MoveMw: 40 r: SPReg R: Extra3Reg.
+	self MoveR: Extra3Reg R: Extra1Reg.
+	self MoveAw: objectMemory freeStartAddress R: Extra0Reg.
+	self MoveMw: 16 r: SPReg R: Extra3Reg.
+	self AddR: Extra3Reg R: Extra0Reg.
+	self MoveR: Extra0Reg Aw: objectMemory freeStartAddress.
+	jump16 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump13 jmpTarget: currentBlock.
+	self CmpR: TempReg R: SendNumArgsReg.
+	jump17 := self JumpGreater: 0.
+	self MoveMw: 40 r: SPReg R: Extra3Reg.
+	self MoveR: Extra3Reg R: ReceiverResultReg.
+	jump18 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump17 jmpTarget: currentBlock.
+	self MoveMw: 40 r: SPReg R: Extra3Reg.
+	self MoveR: Extra3Reg R: ReceiverResultReg.
+	jump19 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump11 jmpTarget: currentBlock.
+	self MoveCq: 0 R: Extra1Reg.
+	self MoveR: Extra1Reg R: TempReg.
+	self MoveR: Extra0Reg R: Extra1Reg.
+	
+	currentBlock := self Label.
+	jump16 jmpTarget: currentBlock.
+	self MoveR: TempReg R: Extra0Reg.
+	self MoveR: Extra1Reg R: Extra2Reg.
+	self CmpCq: 0 R: TempReg.
+	jump20 := self JumpZero: 0.
+	self MoveR: TempReg R: Extra2Reg.
+	self AddCq: 8 R: Extra2Reg.
+	self MoveR: TempReg R: Extra0Reg.
+	self AddCq: 8 R: Extra0Reg.
+	self MulCq: 8 R: ClassReg.
+	self AddR: ClassReg R: Extra0Reg.
+	self SubCq: 1 R: Extra0Reg.
+	
+	b340 := self Label.
+	self CmpR: Extra2Reg R: Extra0Reg.
+	jump21 := self JumpGreaterOrEqual: 0.
+	self MoveR: TempReg R: Extra0Reg.
+	self MoveR: Extra1Reg R: Extra2Reg.
+	
+	currentBlock := self Label.
+	jump20 jmpTarget: currentBlock.
+	self MoveCq: 0 R: TempReg.
+	self MoveR: Extra0Reg R: SendNumArgsReg.
+	self MoveR: Extra2Reg R: Extra0Reg.
+	self MoveR: TempReg R: Extra1Reg.
+	jump22 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump21 jmpTarget: currentBlock.
+	self MoveCw: objectMemory nilObject M64: 0 r: Extra2Reg.
+	self AddCq: 8 R: Extra2Reg.
+	jump23 := self Jump: b340.
+	
+	currentBlock := self Label.
+	jump6 jmpTarget: currentBlock.
+	self MoveR: Extra1Reg R: TempReg.
+	self NegateR: TempReg.
+	self MoveCq: 0 R: Extra2Reg.
+	self MoveR: Extra2Reg R: SendNumArgsReg.
+	self MoveR: TempReg R: Extra1Reg.
+	
+	currentBlock := self Label.
+	jump4 jmpTarget: currentBlock.
+	jump22 jmpTarget: currentBlock.
+	self CmpCq: 0 R: SendNumArgsReg.
+	jump24 := self JumpZero: 0.
+	self MoveR: SendNumArgsReg R: ReceiverResultReg.
+	self CmpCq: 0 R: Extra1Reg.
+	jump25 := self JumpNonZero: 0.
+	self genPrimReturn.
+	
+	currentBlock := self Label.
+	jump24 jmpTarget: currentBlock.
+	self MoveR: Extra0Reg R: ReceiverResultReg.
+	
+	currentBlock := self Label.
+	jump5 jmpTarget: currentBlock.
+	jump18 jmpTarget: currentBlock.
+	jump19 jmpTarget: currentBlock.
+	jump25 jmpTarget: currentBlock.
 	^ CompletePrimitive
 ]
 

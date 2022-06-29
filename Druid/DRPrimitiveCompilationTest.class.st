@@ -220,15 +220,18 @@ DRPrimitiveCompilationTest >> testCompileNonCompiledCaseExitsWithSuccess [
 DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveAt.
 	
+	true ifTrue: [ ^self skip ].
+	
+	self timeLimit: (Duration minutes: 4).
+	self compileDruidPrimitive: #primitiveAt.
+
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
 	array := memory instantiateClass: class indexableSize: 1.
 	memory storePointer: 0 ofObject: array withValue: 42.
 
 	self 	executePrimitiveWithReceiver: array 
-			withArguments: { 1 }.
+			withArguments: { memory integerObjectOf: 1 }.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 42
 	
@@ -339,6 +342,26 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethodWithEarlyReturnCa
 	
 	"An empty primitive does nothing and just returns, the return value is the receiver"
 	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #'tests-array' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveNew [
+
+	| class array |
+	true ifTrue: [ ^self skip ].
+
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNew.
+	
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	array := memory instantiateClass: class indexableSize: 1.
+	memory storePointer: 0 ofObject: array withValue: 42.
+
+	self 	executePrimitiveWithReceiver: array 
+			withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+	
 ]
 
 { #category : #'tests-basic' }
@@ -500,6 +523,26 @@ DRPrimitiveCompilationTest >> testEqualsThanInvertedFail [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testEqualsThanValueFalse [
+
+	self compileDruidPrimitive: #primitiveEqualsThanValue.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: false asBit
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testEqualsThanValueTrue [
+
+	self compileDruidPrimitive: #primitiveEqualsThanValue.
+	
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: true asBit
+]
+
 { #category : #'tests-failing-primitive' }
 DRPrimitiveCompilationTest >> testFailingPrimitive2ExecutesUntilStop [
 
@@ -574,11 +617,30 @@ DRPrimitiveCompilationTest >> testFourDeadBranchesFourBranches4 [
 	self assert: machineSimulator receiverRegisterValue equals: 158
 ]
 
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testGreaterOrEqualThanValueFalse [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualThanValue.
+	
+	self executePrimitiveWithReceiver: -10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: false asBit
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testGreaterOrEqualThanValueTrue [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualThanValue.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: true asBit
+]
+
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testGreaterOrEqualsThan [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThan.
-	
 	self executePrimitiveWithReceiver: 20.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 5
@@ -827,6 +889,46 @@ DRPrimitiveCompilationTest >> testIsIntegerObjectWithNonIntegerObject [
 	self executePrimitiveWithReceiver: 0 "No tag".
 	
 	self assert: machineSimulator receiverRegisterValue equals: memory falseObject
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testLessOrEqualThanValueFalse [
+
+	self compileDruidPrimitive: #primitiveLessOrEqualThanValue.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: false asBit
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testLessOrEqualThanValueTrue [
+
+	self compileDruidPrimitive: #primitiveLessOrEqualThanValue.
+	
+	self executePrimitiveWithReceiver: -10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: true asBit
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testLessThanValueFalse [
+
+	self compileDruidPrimitive: #primitiveLessThanValue.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: false asBit
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testLessThanValueTrue [
+
+	self compileDruidPrimitive: #primitiveLessThanValue.
+	
+	self executePrimitiveWithReceiver: -10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
 { #category : #'tests-arithmetic' }

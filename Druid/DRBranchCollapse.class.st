@@ -8,7 +8,15 @@ Class {
 DRBranchCollapse >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph blocksDo: [ :b | 
-		(b endInstruction isConditionalBranch and: [ 
-			 b endInstruction condition users size = 1 ]) ifTrue: [ 
-			b endInstruction condition result: DRNoRegister new ] ]
+		(b endInstruction isBranchIfTrue and: [ 
+			b endInstruction operand1 isSetConditionCode ]) ifTrue: [ 
+				| replacementBranch |
+				replacementBranch := DRBranchIfCondition operands: {
+					b endInstruction operand1 condition.
+					b endInstruction operand1 operand1.
+					b endInstruction operand1 operand2.
+				}.
+				replacementBranch trueBranch: b endInstruction trueBranch.
+				replacementBranch falseBranch: b endInstruction falseBranch.
+				b endInstruction replaceBy: replacementBranch ] ]
 ]

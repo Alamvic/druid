@@ -26,8 +26,9 @@ DRSCCPConstantFoldingTest >> copyOfAnyRegister [
 { #category : #helpers }
 DRSCCPConstantFoldingTest >> nonReducibleOperation [
 
-	^ DRGreaterThanComparison
+	^ DRGetConditionCode
 		  operands: { 
+				  DRGreaterThanComparison new.
 				  (DRTemporaryRegister id: 98).
 				  (DRTemporaryRegister id: 99) }
 		  result: (DRTemporaryRegister id: 100)

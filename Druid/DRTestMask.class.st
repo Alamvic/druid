@@ -1,17 +1,17 @@
 Class {
-	#name : #DRTest,
+	#name : #DRTestMask,
 	#superclass : #DRCondition,
 	#category : #'Druid-IR'
 }
 
 { #category : #visiting }
-DRTest >> acceptVisitor: aVisitor [
+DRTestMask >> acceptVisitor: aVisitor withBranch: parentBranch [
 	
-	^ aVisitor visitTest: self
+	^ aVisitor visitTestMask: self inBranch: parentBranch
 ]
 
 { #category : #visiting }
-DRTest >> cogitFalseConditionCode [
+DRTestMask >> cogitFalseConditionCode [
 	
 	"Return the condition code used to jump if this condition is false.
 	Since we are checking equals, the we should return non-equals, represented as a NonZero in cogit rtl"
@@ -20,7 +20,7 @@ DRTest >> cogitFalseConditionCode [
 ]
 
 { #category : #visiting }
-DRTest >> cogitTrueConditionCode [
+DRTestMask >> cogitTrueConditionCode [
 	
 	"Return the condition code used to jump if this condition is false.
 	Since we are checking equals, the we should return non-equals, represented as a NonZero in cogit rtl"
@@ -29,21 +29,20 @@ DRTest >> cogitTrueConditionCode [
 ]
 
 { #category : #printing }
-DRTest >> opcode [
+DRTestMask >> opcode [
 	
 	^ 'Test'
 ]
 
 { #category : #converting }
-DRTest >> reversed [
+DRTestMask >> reversed [
 
 	"Returns the same condition but with reversed operands: Test x y --> Test y x"
-	
-	^ DRTest operands: operands reversed result: result
+	^ DRTestMask new
 ]
 
 { #category : #SCCP }
-DRTest >> sccpOperateOnLattice: operand and: operand2 [
+DRTestMask >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand anyMask: operand2
 ]

@@ -18,6 +18,12 @@ DRPhiFunction >> acceptVisitor: aVisitor [
 	^ aVisitor visitPhiFunction: self
 ]
 
+{ #category : #accessing }
+DRPhiFunction >> addNext: anotherInstruction [
+	
+	^ basicBlock addInstructionFirst: anotherInstruction
+]
+
 { #category : #adding }
 DRPhiFunction >> addOperand [
 
@@ -164,14 +170,6 @@ DRPhiFunction >> simplify [
 	operands asSet size = 0 ifTrue: [ ^ DRNullValue new ].
 	operands asSet size = 1 ifTrue: [ ^ operands first simplify ].
 	^ self
-]
-
-{ #category : #accessing }
-DRPhiFunction >> singleChild [
-
-	operands asSet size > 1
-		ifTrue: [ self error: 'Cannot simplify a phi function with more than one operand for now' ].
-	^ operands first
 ]
 
 { #category : #simplification }

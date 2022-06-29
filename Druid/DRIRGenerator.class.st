@@ -317,7 +317,7 @@ DRIRGenerator >> interpretAndWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretAnyMaskWith: aRBMessageNode [ 
 
-	^ self interpretCondition: aRBMessageNode instructionKind: DRTest
+	^ self interpretCondition: aRBMessageNode conditionKind: DRTestMask
 ]
 
 { #category : #'special-cases' }
@@ -456,9 +456,19 @@ DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments
 ]
 
 { #category : #'special-cases' }
-DRIRGenerator >> interpretCondition: aRBMessageNode instructionKind: anInstructionKind [
+DRIRGenerator >> interpretCondition: aRBMessageNode conditionKind: conditionKind [
 
-	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: anInstructionKind
+	| operand1 operand2 |
+	operand1 := self visitOperand: aRBMessageNode receiver.
+	operand2 := self visitOperand: aRBMessageNode arguments first.
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRGetConditionCode
+		  operands: { 
+				  conditionKind new.
+				  operand1.
+				  operand2 }
 ]
 
 { #category : #'special-cases' }
@@ -480,7 +490,7 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretEqualityComparisonWith: aRBMessageNode [
 
-	^ self interpretCondition: aRBMessageNode instructionKind: DREqualsThanComparison
+	^ self interpretCondition: aRBMessageNode conditionKind: DREqualsThanComparison
 ]
 
 { #category : #'special-cases' }
@@ -505,13 +515,13 @@ DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretGreaterOrEqualsThanComparisonWith: aRBMessageNode [ 
 	
-	^ self interpretCondition: aRBMessageNode instructionKind: DRGreaterOrEqualsThanComparison
+	^ self interpretCondition: aRBMessageNode conditionKind: DRGreaterOrEqualsThanComparison
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretGreaterThanComparisonWith: aRBMessageNode [ 
 	
-	^ self interpretCondition: aRBMessageNode instructionKind: DRGreaterThanComparison
+	^ self interpretCondition: aRBMessageNode conditionKind: DRGreaterThanComparison
 ]
 
 { #category : #'special-cases' }
@@ -520,7 +530,7 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 	| trueBranchBasicBlockOut conditionalJump startingBasicBlock executionStateBeforeBranch |
 	aRBMessageNode receiver acceptVisitor: self.
 	conditionalJump := self
-		                   instantiateNoResultInstruction: DRConditionalJump
+		                   instantiateNoResultInstruction: DRBranchIfTrue
 		                   operands: { self popOperand }.
 
 	self currentBasicBlock endInstruction: conditionalJump.
@@ -563,7 +573,7 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretInequalityComparisonWith: aRBMessageNode [
 	
-	^ self interpretCondition: aRBMessageNode instructionKind: DRNotEqualsThanComparison
+	^ self interpretCondition: aRBMessageNode conditionKind: DRNotEqualsThanComparison
 ]
 
 { #category : #'special-cases' }
@@ -575,13 +585,13 @@ DRIRGenerator >> interpretLeftShiftWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretLessOrEqualsThanComparisonWith: aRBMessageNode [ 
 
-	^ self interpretCondition: aRBMessageNode instructionKind: DRLessOrEqualsThanComparison
+	^ self interpretCondition: aRBMessageNode conditionKind: DRLessOrEqualsThanComparison
 ]
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretLessThanComparisonWith: aRBMessageNode [ 
 
-	^ self interpretCondition: aRBMessageNode instructionKind: DRLessThanComparison
+	^ self interpretCondition: aRBMessageNode conditionKind: DRLessThanComparison
 ]
 
 { #category : #'special cases - memory access' }
@@ -693,8 +703,10 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 	startingBasicBlock := self currentBasicBlock.
 	conditionalJump := self
 		                   instantiateNoResultInstruction:
-		                   DRMultiplyOverflowJump
-		                   operands: { mulResult }.
+		                   DRBranchIfCondition
+		                   operands: { 
+				                   DRMultiplyOverflow new.
+				                   mulResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	"No overflow"
@@ -847,8 +859,8 @@ DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
 	subResult := self popOperand.
 	startingBasicBlock := self currentBasicBlock.
 	conditionalJump := self
-		                   instantiateNoResultInstruction: DROverflowJump
-		                   operands: { subResult }.
+		                   instantiateNoResultInstruction: DRBranchIfCondition
+		                   operands: { DROverflow new . subResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	self
@@ -884,8 +896,11 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 	addResult := self popOperand.
 	startingBasicBlock := self currentBasicBlock.
 	conditionalJump := self
-		                   instantiateNoResultInstruction: DROverflowJump
-		                   operands: { addResult }.
+		                   instantiateNoResultInstruction:
+		                   DRBranchIfCondition
+		                   operands: { 
+				                   DROverflow new.
+				                   addResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	joinInstruction := self
@@ -952,7 +967,7 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 
 	"The conditional jump"
 	conditionalJump := self
-		instantiateNoResultInstruction: DRConditionalJump
+		instantiateNoResultInstruction: DRBranchIfTrue
 		operands: { self popOperand }.
 	self currentBasicBlock endInstruction: conditionalJump.
 

@@ -56,6 +56,12 @@ DRValue >> hasUser: anInstruction [
 	^ true
 ]
 
+{ #category : #accessing }
+DRValue >> isBranchIfCondition [ 
+
+	^ false
+]
+
 { #category : #testing }
 DRValue >> isComparison [
 
@@ -64,12 +70,6 @@ DRValue >> isComparison [
 
 { #category : #testing }
 DRValue >> isComplexCondition [
-
-	^ false
-]
-
-{ #category : #accessing }
-DRValue >> isConditionalJump [ 
 
 	^ false
 ]
@@ -254,12 +254,6 @@ DRValue >> rtlOperandQualifierForInstruction: instruction [
 
 { #category : #transforming }
 DRValue >> simplify [
-	
-	^ self
-]
-
-{ #category : #accessing }
-DRValue >> singleChild [
 	
 	^ self
 ]

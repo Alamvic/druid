@@ -28,7 +28,7 @@ DRComposedConditionalSplittingTest >> testSplitAnd [
 	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnSameVariable.
 	
 	jump := cfg allConditionalJumps first.
-	composedCondition := jump condition.
+	composedCondition := jump operand1.
 	trueBlock := jump trueBranch.
 	falseBlock := jump falseBranch.
 	
@@ -37,11 +37,11 @@ DRComposedConditionalSplittingTest >> testSplitAnd [
 	newBlock := cfg blocks last.
 	newJump := newBlock endInstruction.
 	
-	self assert: jump condition equals: composedCondition operand1.
+	self assert: jump operand1 equals: composedCondition operand1.
 	self assert: jump trueBranch equals: newBlock.
 	self assert: jump falseBranch equals: falseBlock.
 	
-	self assert: newJump condition equals: composedCondition operand2.
+	self assert: newJump operand1 equals: composedCondition operand2.
 	self assert: newJump trueBranch equals: trueBlock.
 	self assert: newJump falseBranch equals: falseBlock.
 
@@ -54,7 +54,7 @@ DRComposedConditionalSplittingTest >> testSplitMultipleComposedCondition [
 	cfg := self generateDruidIRFor: #primitiveBranchingWithTripleAnd.
 
 	jump := cfg allConditionalJumps first.
-	composedCondition := jump condition.
+	composedCondition := jump operand1.
 	trueBlock := jump trueBranch.
 	falseBlock := jump falseBranch.
 
@@ -65,15 +65,15 @@ DRComposedConditionalSplittingTest >> testSplitMultipleComposedCondition [
 	newBlock2 := cfg blocks last.
 	newJump2 := newBlock2 endInstruction.
 
-	self assert: jump condition equals: composedCondition operand1 operand1.
+	self assert: jump operand1 equals: composedCondition operand1 operand1.
 	self assert: jump trueBranch equals: newBlock2.
 	self assert: jump falseBranch equals: falseBlock.
 
-	self assert: newJump1 condition equals: composedCondition operand2.
+	self assert: newJump1 operand1 equals: composedCondition operand2.
 	self assert: newJump1 trueBranch equals: trueBlock.
 	self assert: newJump1 falseBranch equals: falseBlock.
 	
-	self assert: newJump2 condition equals: composedCondition operand1 operand2.
+	self assert: newJump2 operand1 equals: composedCondition operand1 operand2.
 	self assert: newJump2 trueBranch equals: newBlock1.
 	self assert: newJump2 falseBranch equals: falseBlock
 ]
@@ -85,7 +85,7 @@ DRComposedConditionalSplittingTest >> testSplitMultipleComposedConditionLeftAsso
 	cfg := self generateDruidIRFor: #primitiveBranchingWithTripleAndLeftAssociated.
 
 	jump := cfg allConditionalJumps first.
-	composedCondition := jump condition.
+	composedCondition := jump operand1.
 	trueBlock := jump trueBranch.
 	falseBlock := jump falseBranch.
 
@@ -96,15 +96,15 @@ DRComposedConditionalSplittingTest >> testSplitMultipleComposedConditionLeftAsso
 	newBlock2 := cfg blocks allButLast last.
 	newJump2 := newBlock2 endInstruction.
 
-	self assert: jump condition equals: composedCondition operand1 operand1.
+	self assert: jump operand1 equals: composedCondition operand1 operand1.
 	self assert: jump trueBranch equals: newBlock1.
 	self assert: jump falseBranch equals: falseBlock.
 
-	self assert: newJump1 condition equals: composedCondition operand1 operand2.
+	self assert: newJump1 operand1 equals: composedCondition operand1 operand2.
 	self assert: newJump1 trueBranch equals: newBlock2.
 	self assert: newJump1 falseBranch equals: falseBlock.
 	
-	self assert: newJump2 condition equals: composedCondition operand2.
+	self assert: newJump2 operand1 equals: composedCondition operand2.
 	self assert: newJump2 trueBranch equals: trueBlock.
 	self assert: newJump2 falseBranch equals: falseBlock
 ]
@@ -116,7 +116,7 @@ DRComposedConditionalSplittingTest >> testSplitOr [
 	cfg := self generateDruidIRFor: #primitiveBranchingWithOrConditionOnSameVariable.
 	
 	jump := cfg allConditionalJumps first.
-	composedCondition := jump condition.
+	composedCondition := jump operand1.
 	trueBlock := jump trueBranch.
 	falseBlock := jump falseBranch.
 
@@ -125,11 +125,11 @@ DRComposedConditionalSplittingTest >> testSplitOr [
 	newBlock := cfg blocks last.
 	newJump := newBlock endInstruction.
 	
-	self assert: jump condition equals: composedCondition operand1.
+	self assert: jump operand1 equals: composedCondition operand1.
 	self assert: jump trueBranch equals: trueBlock.
 	self assert: jump falseBranch equals: newBlock.
 	
-	self assert: newJump condition equals: composedCondition operand2.
+	self assert: newJump operand1 equals: composedCondition operand2.
 	self assert: newJump trueBranch equals: trueBlock.
 	self assert: newJump falseBranch equals: falseBlock.
 

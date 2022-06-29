@@ -75,6 +75,14 @@ DRInstruction >> addUser: anInstruction [
 	users add: anInstruction
 ]
 
+{ #category : #memory }
+DRInstruction >> asMemoryAddress [
+
+	^ DRAbsoluteMemoryAddress new
+		  address: self;
+		  yourself
+]
+
 { #category : #accessing }
 DRInstruction >> asNumberedExpression [
 
@@ -194,6 +202,12 @@ DRInstruction >> isBackJump [
 ]
 
 { #category : #testing }
+DRInstruction >> isBranchIfTrue [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isConditionalBranch [
 	
 	^ false
@@ -238,6 +252,12 @@ DRInstruction >> isNonConditionalJump [
 { #category : #testing }
 DRInstruction >> isPhiFunction [
 
+	^ false
+]
+
+{ #category : #testing }
+DRInstruction >> isSetConditionCode [
+	
 	^ false
 ]
 
@@ -384,7 +404,7 @@ DRInstruction >> prettyPrint [
 	print := result
 		ifNil: [ '' ]
 		ifNotNil: [ result name, ' := ' ].
-	^ print, self opcode ,' ', (' ' join: (operands collect: [ :e | e result name ]))
+	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result name ]))
 ]
 
 { #category : #printing }
@@ -528,10 +548,18 @@ DRInstruction >> sccpEvaluateFor: sccp [
 DRInstruction >> sccpLatticeValueFor: sccp [
 
 	| operand1 operand2 |
-	
-	operand1 := sccp latticeValue: self operand1. 
-	operand2 := sccp latticeValue: self operand2. 
-	
+	operand1 := sccp latticeValue: self operand1.
+	operand2 := sccp latticeValue: self operand2.
+
+	^ sccp
+		  sccpLatticeValueFor: self
+		  latticeOperand1: operand1
+		  latticeOperand2: operand2
+]
+
+{ #category : #SCCP }
+DRInstruction >> sccpLatticeValueFor: sccp latticeOperand1: operand1 latticeOperand2: operand2 [
+
 	((({ sccp top. sccp bottom } includes: operand1) not
 		and: [ ({ sccp top. sccp bottom } includes: operand2) not ])
 			and: [ operand1 isConstant and: [ operand2 isConstant ]])
@@ -555,12 +583,6 @@ DRInstruction >> simpleConstantFold [
 	self subclassResponsibility
 ]
 
-{ #category : #accessing }
-DRInstruction >> singleChild [
-
-	^ self
-]
-
 { #category : #replacing }
 DRInstruction >> users [
 
@@ -570,18 +592,30 @@ DRInstruction >> users [
 { #category : #validation }
 DRInstruction >> validate [
 
-	(self operands allSatisfy: [ :op | op hasUser: self ]) ifFalse: [ 
-		DRError signal:
-			'Operand-user mismatch in instruction: ' , self asString ].
-	(self users allSatisfy: [ :user | user hasOperand: self ]) ifFalse: [ 
-		DRError signal:
-			'User-operand mismatch in instruction: ' , self asString ].
+	self validateOperandsAreUsedByMyself.
+	self validateUsersUseMyself.
 
 	self isPhiFunction ifTrue: [ ^ self ].
 	self operands do: [ :o | 
 		(o isInstruction not or: [ 
 			 self basicBlock isDominatedBy: o basicBlock ]) ifFalse: [ 
 			DRError signal: 'Invalid operand: ', o asString, ' in: ' , self asString ] ]
+]
+
+{ #category : #validation }
+DRInstruction >> validateOperandsAreUsedByMyself [
+
+	(self operands allSatisfy: [ :op | op hasUser: self ]) ifFalse: [ 
+		DRError signal:
+			'Operand-user mismatch in instruction: ' , self asString ]
+]
+
+{ #category : #validation }
+DRInstruction >> validateUsersUseMyself [
+
+	(self users allSatisfy: [ :user | user hasOperand: self ]) ifFalse: [ 
+		DRError signal:
+			'User-operand mismatch in instruction: ' , self asString ]
 ]
 
 { #category : #copying }

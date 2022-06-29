@@ -43,7 +43,7 @@ DRControlFlowGraph >> allConditionalJumps [
 
 	^ self reversePostOrderBlocks
 		  collect: [ :b | b endInstruction ]
-		  thenSelect: [ :i | i isConditionalJump ]
+		  thenSelect: [ :i | i isConditionalBranch ]
 ]
 
 { #category : #building }
@@ -280,11 +280,10 @@ DRControlFlowGraph >> instructionByResultId: anInteger [
 DRControlFlowGraph >> instructionColor: instruction [
 
 	instruction isJump ifTrue: [ 
-		instruction isBackJump  ifTrue: [ ^ Color magenta ].
-		instruction isConditionalJump ifTrue: [ ^ Color red muchLighter ].
-		^ Color purple muchLighter ].
+		instruction isBranchIfCondition ifTrue: [ ^ Color red muchLighter ].
+		^ Color gray ].
 	instruction isMandatoryInstruction ifTrue: [ ^ Color purple ].
-	instruction users isEmpty ifTrue: [ ^ Color gray ].
+	instruction users isEmpty ifTrue: [ ^ Color black ].
 	instruction isPhiFunction ifTrue: [ ^ Color orange ].
 	(instruction operands anySatisfy: [ :op | op isPhysicalRegister ]) 
 		ifTrue: [ ^ Color red darker ].

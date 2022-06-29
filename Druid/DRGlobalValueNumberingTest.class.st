@@ -70,7 +70,8 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesSp
 	| cfg instructionFactory jump copy3 copy4 firstAddition secondAddition |
 	instructionFactory := DRInstructionFactory new.
 	optimisation := DRGlobalValueNumbering new.
-	jump := DRConditionalJump operands: { DRConstantValue value: true }.
+
+	jump := DRBranchIfTrue operands: { DRConstantValue value: true }.
 	cfg := self setUpCFGWithConditional: jump.
 	cfg b1 addInstruction: (copy3 := instructionFactory copy: 3).
 	cfg b1 addInstruction: (copy4 := instructionFactory copy: 4).

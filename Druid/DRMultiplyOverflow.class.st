@@ -1,48 +1,43 @@
 Class {
-	#name : #DREqualsThanComparison,
-	#superclass : #DRCondition,
+	#name : #DRMultiplyOverflow,
+	#superclass : #DROverflow,
 	#category : #'Druid-IR'
 }
 
 { #category : #visiting }
-DREqualsThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch [
+DRMultiplyOverflow >> acceptVisitor: aVisitor withBranch: aDRBranchIfCondition [ 
 	
-	^ aVisitor visitEqualsThan: self inBranch: parentBranch
+	^ aVisitor visitMultiplyOverflow: self inBranch: aDRBranchIfCondition
 ]
 
 { #category : #'rtl-translation' }
-DREqualsThanComparison >> cogitFalseConditionCode [
+DRMultiplyOverflow >> cogitFalseConditionCode [
 	
 	"Return the condition code used to jump if this condition is false.
 	Since we are checking equals, the we should return non-equals, represented as a NonZero in cogit rtl"
 	
-	^ #JumpNonZero:
+	^ #JumpMultiplyNoOverflow:
 ]
 
 { #category : #'rtl-translation' }
-DREqualsThanComparison >> cogitTrueConditionCode [
+DRMultiplyOverflow >> cogitTrueConditionCode [
 	
 	"Return the condition code used to jump if this condition is false.
 	Since we are checking equals, the we should return non-equals, represented as a NonZero in cogit rtl"
 	
-	^ #JumpZero:
+	^ #JumpMultiplyOverflow:
 ]
 
 { #category : #printing }
-DREqualsThanComparison >> opcode [
+DRMultiplyOverflow >> opcode [
 	
-	^ 'EqualsThan'
+	^ 'Multiply Overflow'
 ]
 
 { #category : #printing }
-DREqualsThanComparison >> reversed [
+DRMultiplyOverflow >> reversed [
 
 	"Returns the same condition but with reversed operands: x = y --> y = x"
+1halt.
 	^ DREqualsThanComparison new
-]
-
-{ #category : #SCCP }
-DREqualsThanComparison >> sccpOperateOnLattice: operand and: operand2 [
-	
-	^ operand = operand2
 ]
