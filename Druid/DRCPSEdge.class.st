@@ -213,15 +213,17 @@ DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [
 
 	"Ignore hardcoded values"
 
-	| domain |
+	| domain constraint |
 	aDRBranchIfTrue operand1 isInstruction ifFalse: [ ^ self ].
 
 	domain := self operandDomainFromInstruction: aDRBranchIfTrue operand1.
 	domain ifNil: [ ^ self ].
 
+	constraint := DREqualsConstraint withValue: true. 
+
 	branchIndex = 1
-		ifTrue: [ self mergeConstraint: domain constraint to: domain reg name ]
-		ifFalse: [ self mergeConstraint: domain constraint negated to: domain reg name ]
+		ifTrue: [ self mergeConstraint: constraint to: domain reg name ]
+		ifFalse: [ self mergeConstraint: constraint negated to: domain reg name ]
 ]
 
 { #category : #visiting }

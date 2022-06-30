@@ -170,15 +170,15 @@ DRCompilerExplorer >> methodSource [
 DRCompilerExplorer >> optimizations [
 
 	^ { 
-		  "DRComposedConditionalSplitting."
+		  DRBranchCollapse.
 		  DRDeadBlockElimination.
-		  DRDeadCodeElimination.
 		  DRCleanControlFlow.
 		  DRSCCP.
 		  DRGlobalValueNumbering.
 		  DRCopyPropagation.
 		  DRRedundantCopyElimination.
 		  DRPhiSimplication.
+		  DRDeadCodeElimination.
 		  DRFailureCodeBasedTailDuplication.
 		  DRDeadPathSplitting.
 		  DRDeadPathElimination }

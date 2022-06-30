@@ -35,6 +35,11 @@ DRAbstractBranch >> initialize [
 ]
 
 { #category : #testing }
+DRAbstractBranch >> isBackJump [
+	^ backJumps isNotEmpty
+]
+
+{ #category : #testing }
 DRAbstractBranch >> isBackJumpTo: aDRBasicBlock [ 
 	^ backJumps includes: aDRBasicBlock
 ]

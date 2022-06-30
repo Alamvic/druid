@@ -403,6 +403,16 @@ DruidTestInterpreter >> primitiveFalseAsInteger [
 	self pop: 1 thenPush: false asInteger
 ]
 
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFalseIfTrue [
+
+	<numberOfArguments: 0>
+	| r bool |
+	bool := false.
+	r := bool ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
 { #category : #comparisons }
 DruidTestInterpreter >> primitiveGreaterOrEqualThanValue [
 
@@ -790,6 +800,16 @@ DruidTestInterpreter >> primitiveToDo [
 	].
 
 	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveTrueIfTrue [
+
+	<numberOfArguments: 0>
+	| r bool |
+	bool := true.
+	r := bool ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
 ]
 
 { #category : #'as yet unclassified' }

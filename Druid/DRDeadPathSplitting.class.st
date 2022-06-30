@@ -12,7 +12,7 @@ DRDeadPathSplitting >> doApply: aCFG [
 	"Only kill dead paths if any"
 	aCFG deadPaths ifEmpty: [ ^ self ].
 	
-	edge := aCFG deadPaths keys first.
+	edge := (aCFG deadPaths associations detectMax: [ :v | v value size ]) key.
 	[ edge destination predecessors size = 1 ] whileTrue: [ 
 		edge := edge parent.
 		edge ifNil: [ ^ self ] ].
