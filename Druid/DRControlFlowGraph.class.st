@@ -286,10 +286,11 @@ DRControlFlowGraph >> instructionByResultId: anInteger [
 DRControlFlowGraph >> instructionColor: instruction [
 
 	instruction isJump ifTrue: [ 
-		instruction isBackJump  ifTrue: [ ^ Color magenta ].
-		instruction isConditionalBranch  ifTrue: [ ^ Color red muchLighter ].
-		^ Color purple muchLighter ].
-	instruction isMandatoryInstruction ifTrue: [ ^ Color purple ].
+		instruction isBackJump ifTrue: [ ^ Color purple muchLighter ].
+		instruction isBranchIfCondition ifTrue: [ ^ Color purple ].
+		instruction isBranchIfTrue ifTrue: [ ^ Color purple ].
+		^ Color purple muchDarker ].
+	instruction isMandatoryInstruction ifTrue: [ ^ Color red ].
 	instruction users isEmpty ifTrue: [ ^ Color gray ].
 	instruction isPhiFunction ifTrue: [ ^ Color orange ].
 	(instruction operands anySatisfy: [ :op | op isPhysicalRegister ]) 

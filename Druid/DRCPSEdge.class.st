@@ -116,12 +116,21 @@ DRCPSEdge >> operandConstraint: operand [
 DRCPSEdge >> operandDomainFromInstruction: aDRInstruction [
 
 	aDRInstruction isCopy ifTrue: [ 
-		^ self operandDomainFromInstruction: aDRInstruction operand1 ].
+		| constraint |
+		constraint := self constraintFor: aDRInstruction result name.
+		^ constraint
+			  ifNil: [ 
+			  self operandDomainFromInstruction: aDRInstruction operand1 ]
+			  ifNotNil: [ 
+			  DRRegisterDomain reg: aDRInstruction constraint: constraint ] ].
 
 	aDRInstruction isPhiFunction ifTrue: [ 
 		^ self operandDomainFromPhi: aDRInstruction ].
 
-	^ aDRInstruction acceptVisitor: self
+	aDRInstruction isSetConditionCode ifTrue: [ 
+		^ aDRInstruction acceptVisitor: self ].
+
+	^ nil
 ]
 
 { #category : #visiting }
@@ -214,16 +223,17 @@ DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [
 
 	"Ignore hardcoded values"
 
-	| domain id |
+	| domain constraint |
 	aDRBranchIfTrue operand1 isInstruction ifFalse: [ ^ self ].
 
 	domain := self operandDomainFromInstruction: aDRBranchIfTrue operand1.
 	domain ifNil: [ ^ self ].
-	
-	id := domain reg result name.
+
+	constraint := DREqualsConstraint withValue: true. 
+
 	branchIndex = 1
-		ifTrue: [ self mergeConstraint: domain constraint to: id ]
-		ifFalse: [ self mergeConstraint: domain constraint negated to: id ]
+		ifTrue: [ self mergeConstraint: constraint to: domain reg name ]
+		ifFalse: [ self mergeConstraint: constraint negated to: domain reg name ]
 ]
 
 { #category : #visiting }
@@ -291,9 +301,11 @@ DRCPSEdge >> visitFalseObject: aDRFalseObject [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [ 
+DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [
 
-	^ aDRGetConditionCode condition acceptVisitor: self withBranch: aDRGetConditionCode
+	^ aDRGetConditionCode condition
+		  acceptVisitor: self
+		  withBranch: aDRGetConditionCode
 ]
 
 { #category : #visiting }

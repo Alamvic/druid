@@ -32,10 +32,10 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 
 	"Then generate the machine code for that method"
 	initialAddress := self compile: [
-		cogit methodOrBlockNumArgs: 2.
+		cogit methodOrBlockNumArgs: 2. "Hack"
 		cogit perform: generatorSelector.
 		stopInstruction := cogit Stop
-	] bytecodes: 30.
+	] bytecodes: 100.
 	stopAddress := stopInstruction address
 ]
 
