@@ -349,6 +349,19 @@ DruidTestInterpreter >> primitiveConditionWithAnyMaskInverted [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveConditionWithObjectReference [
+
+	<numberOfArguments: 0>
+
+	| v |
+	v := (objectMemory trueObject > self stackTop)
+		ifTrue: [ 1 ]
+		ifFalse: [ 2 ].
+	
+	self pop: 1 thenPush: v
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDNA [
 
 	<numberOfArguments: 0>
@@ -520,6 +533,13 @@ DruidTestInterpreter >> primitiveGreaterThanInverted [
 	| r |
 	r := 10 > self stackTop ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveGreaterThanReferenceValue [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: (self stackTop > objectMemory trueObject)
 ]
 
 { #category : #comparisons }

@@ -233,6 +233,46 @@ DRPrimitiveCompilationTest >> testCaseOfOtherwiseCaseTwo [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testCompareObjectReferenceFalse [
+
+	self compileDruidPrimitive: #primitiveConditionWithObjectReference.
+	
+	self executePrimitiveWithReceiver: (memory trueObject + 1).
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testCompareObjectReferenceTrue [
+
+	self compileDruidPrimitive: #primitiveConditionWithObjectReference.
+	
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testCompareRefenceValueFalse [
+
+	self compileDruidPrimitive: #primitiveGreaterThanReferenceValue.
+	
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: false asBit
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testCompareRefenceValueTrue [
+
+	self compileDruidPrimitive: #primitiveGreaterThanReferenceValue.
+	
+	self executePrimitiveWithReceiver: memory trueObject + 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: true asBit
+]
+
 { #category : #'tests-basic' }
 DRPrimitiveCompilationTest >> testCompileEmptyPrimitiveWithArgumentsReturnsReceiver [
 
