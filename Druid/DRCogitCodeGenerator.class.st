@@ -43,6 +43,9 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 		self preProcessBlock: b. 
 		b instructionsDo: [ :e | 
 			self buildStatementsForInstruction: e ] ].
+
+	"Generate the postamble in the fallthrough case"
+	self generatePostambleForCFG: aDRControlFlowGraph.
 	generatorMethodBuilder addStatement: (RBReturnNode value: (RBVariableNode named: 'CompletePrimitive'))
 ]
 
@@ -101,6 +104,25 @@ DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 	
 	generatorMethodBuilder addStatement: jumpStatement.
 	
+]
+
+{ #category : #'ir-to-ast' }
+DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
+
+	| addStatement |	
+	"If we need no spill slots, do nothing"
+	aDRControlFlowGraph numberOfSpillSlots = 0 ifTrue: [ ^ self ].
+	
+	"Otherwise, increment the stack pointer by N*WordSize where N is the number of required spill slots.
+	The first spill slot will be [SP], the second will be [SP+WordSize] and so on."
+	addStatement := RBMessageNode
+		receiver: RBVariableNode selfNode
+		selector: #SubCq:R:
+		arguments: {
+			RBLiteralValueNode value: aDRControlFlowGraph numberOfSpillSlots * 8 "bytes".
+			RBVariableNode named: 'SPReg'
+		}.
+	generatorMethodBuilder addStatement: addStatement.
 ]
 
 { #category : #'ir-to-ast' }
@@ -440,16 +462,14 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 	
 	"Generate CMP; Jump.COND true; RESULT := 0; JUMP next"
 	| comparisonToGenerate |
-	comparisonToGenerate := self
-		generateCompare: aDRGetConditionCode condition
-		operands: aDRGetConditionCode operands.
+	comparisonToGenerate := self visitComparison: aDRGetConditionCode.
 	generatorMethodBuilder addVariableNamed: 'jumpTrue'.
 	generatorMethodBuilder addVariableNamed: 'jumpNext'.
 	generatorMethodBuilder addStatement: (RBAssignmentNode
 		variable: (RBVariableNode named: 'jumpTrue')
 		value: (RBMessageNode
 			receiver: RBVariableNode selfNode
-			selector: comparisonToGenerate cogitTrueConditionCode
+			selector: comparisonToGenerate condition cogitTrueConditionCode
 			arguments: { 0 asLiteralNode })).
 	"Set false to result"
 	self
@@ -643,6 +663,8 @@ DRCogitCodeGenerator >> visitPhiFunction: aDRPhiFunction [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitReturn: aDRReturn [
 
+	"Generate the postamble in the return cases"
+	self generatePostambleForCFG: aDRReturn controlFlowGraph.
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #genPrimReturn)
