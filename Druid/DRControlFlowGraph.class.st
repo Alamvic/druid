@@ -178,6 +178,12 @@ DRControlFlowGraph >> createBlockView: aBlock [
 	^ composite
 ]
 
+{ #category : #'dead-path' }
+DRControlFlowGraph >> deadBranches [
+
+	^ self deadPaths select: [ :path | self isDeadBranch: path first source to: path first destination ]
+]
+
 { #category : #edges }
 DRControlFlowGraph >> deadPaths [
 

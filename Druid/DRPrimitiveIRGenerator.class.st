@@ -67,10 +67,11 @@ DRPrimitiveIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 { #category : #'special cases' }
 DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode [ 
 	
-	| newFailureCode |
+	| newFailureCode copy |
 	aRBAssignmentNode value acceptVisitor: self.
 	newFailureCode := self popOperand.
-	self currentPrimitiveFailureCode: newFailureCode.
+	copy := self instructionFor: newFailureCode inNode: aRBAssignmentNode.
+	self currentPrimitiveFailureCode: copy.
 	self pushOperand: newFailureCode.
 	^ newFailureCode
 ]

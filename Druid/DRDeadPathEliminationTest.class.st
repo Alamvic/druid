@@ -8,6 +8,7 @@ Class {
 DRDeadPathEliminationTest >> previousOptimizations [
 
 	^ { 
+		  DRBranchCollapse new.
 		  (DRDeadBlockElimination then: DRCleanControlFlow).
 		  DRPhiSimplication new.
 		  DRFailureCodeBasedTailDuplication new.
@@ -191,6 +192,6 @@ DRDeadPathEliminationTest >> testNotSplitUnnecessaryBlocks [
 	optimisation applyTo: cfg.
 	self optimize: cfg.
 
-	self assert: cfg instructions size equals: 21.
+	self assert: cfg instructions size equals: 18.
 	self assert: cfg blocks size equals: 9
 ]

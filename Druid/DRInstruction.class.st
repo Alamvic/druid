@@ -44,6 +44,12 @@ DRInstruction >> = anObject [
 ]
 
 { #category : #visiting }
+DRInstruction >> acceptValueOperand [
+
+	^ true
+]
+
+{ #category : #visiting }
 DRInstruction >> acceptVisitor: aVisitor withBranch: aDRPhiFunction [ 
 	
 	^ self acceptVisitor: aVisitor
@@ -279,8 +285,8 @@ DRInstruction >> isPhiFunction [
 ]
 
 { #category : #testing }
-DRInstruction >> isSetConditionCode [
-	
+DRInstruction >> isValue [
+
 	^ false
 ]
 
@@ -620,6 +626,12 @@ DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 { #category : #'constant folding' }
 DRInstruction >> simpleConstantFold [
 	
+	self subclassResponsibility
+]
+
+{ #category : #types }
+DRInstruction >> type [
+
 	self subclassResponsibility
 ]
 

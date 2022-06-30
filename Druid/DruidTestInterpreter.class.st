@@ -25,7 +25,7 @@ DruidTestInterpreter >> emptyPrimitiveWithArguments [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> failingPrimitive2 [
+DruidTestInterpreter >> failingPrimitive [
 	<numberOfArguments: 0>
 	self primitiveFail
 ]
@@ -40,6 +40,18 @@ DruidTestInterpreter >> failingPrimitiveWithArg [
 DruidTestInterpreter >> failingSuccess [
 	<numberOfArguments: 0>
 	self success: false
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> ifZeroFailPrimitive [
+
+	<numberOfArguments: 1>
+	| reciver arg |
+	reciver := self stackValue: 1.
+	arg := self stackValue: 0.
+
+	reciver = 0 ifTrue: [ ^ self primitiveFail ].
+	self pop: 2 thenPush: 42
 ]
 
 { #category : #'as yet unclassified' }
@@ -449,6 +461,16 @@ DruidTestInterpreter >> primitiveFalseAsInteger [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFalseIfTrue [
+
+	<numberOfArguments: 0>
+	| r bool |
+	bool := false.
+	r := bool ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveFalseNot [
 
 	<numberOfArguments: 0>
@@ -775,6 +797,19 @@ DruidTestInterpreter >> primitiveNegated [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNextUint16At [
+
+	<numberOfArguments: 0>
+	
+	| aByte addressToRead |
+	addressToRead := self stackTop.
+	aByte := objectMemory uint16At: (addressToRead + 1).
+
+	"pop the receiver, push the result"	
+	self pop: 1 thenPush: aByte
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveNotEqualsThan [
 
 	<numberOfArguments: 0>
@@ -896,6 +931,16 @@ DruidTestInterpreter >> primitiveToDo [
 	].
 
 	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveTrueIfTrue [
+
+	<numberOfArguments: 0>
+	| r bool |
+	bool := true.
+	r := bool ifTrue: [ 5 ] ifFalse: [11].
+	self pop: 1 thenPush: r
 ]
 
 { #category : #'as yet unclassified' }

@@ -56,6 +56,12 @@ DRValue >> hasUser: anInstruction [
 	^ true
 ]
 
+{ #category : #testing }
+DRValue >> isAdd [
+	
+	^ false
+]
+
 { #category : #accessing }
 DRValue >> isBranchIfCondition [ 
 
@@ -170,10 +176,22 @@ DRValue >> isRegister [
 	^ false
 ]
 
+{ #category : #testing }
+DRValue >> isSetConditionCode [
+	
+	^ false
+]
+
 { #category : #visiting }
 DRValue >> isStore [
 
 	^ false 
+]
+
+{ #category : #testing }
+DRValue >> isValue [
+
+	^ true
 ]
 
 { #category : #testing }

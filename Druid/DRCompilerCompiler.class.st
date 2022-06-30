@@ -66,7 +66,7 @@ DRCompilerCompiler >> generateDruidIR [
 DRCompilerCompiler >> generateDruidIRFor: method [
 	
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	| irGenerator initialBasicBlock initial startBlock |
+	| irGenerator initialBasicBlock initial startBlock cfg |
 	irGenerator := self newIRGenerator.
 
 	"Create the initial basic block"
@@ -80,7 +80,14 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 	irGenerator numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value.
 	irGenerator interpretMethod: (DRMethod methodNode: method ast) receiver: (DRInterpreterValue value: interpreter).
 	
-	^ irGenerator ir
+	cfg := irGenerator ir.
+
+	"Clean garbage to generate a validate CFG"
+	DRDeadBlockElimination new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+	cfg validate.
+
+	^cfg
 ]
 
 { #category : #'code-generation' }

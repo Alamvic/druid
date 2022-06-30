@@ -25,6 +25,20 @@ DRCopyPropagationTest >> testCopyIsNotPropagatedFromConstantToPhiFunctions [
 ]
 
 { #category : #tests }
+DRCopyPropagationTest >> testCopyIsNotPropagatedFromObjectReferenceToArithmeticFunctions [
+
+	| cfg copy add |
+	cfg := self setUpCFG: 2.
+
+	copy := cfg b1 copy: DRNilObject new.
+	add := cfg b2 add: copy to: 8.
+
+	DRCopyPropagation new applyTo: cfg.
+	
+	self assert: add operands first equals: copy
+]
+
+{ #category : #tests }
 DRCopyPropagationTest >> testCopyIsNotPropagatedFromObjectReferenceToPhiFunctions [
 
 	| cfg copy phi |

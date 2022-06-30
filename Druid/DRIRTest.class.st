@@ -49,7 +49,6 @@ DRIRTest >> generateBasicDruidIRFor: methodSelector [
 	| method cfg |
 	method := DruidTestInterpreter lookupSelector: methodSelector.
 	cfg := compilerCompiler generateDruidIRFor: method.
-
 	^ cfg
 ]
 

@@ -24,7 +24,7 @@ DRCogitCodeGenerator >> deferBranch: aString to: aDRBasicBlock [
 		add: aString
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 
 	| blocks |
@@ -40,7 +40,7 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 	
 	blocks withIndexDo: [ :b :i |
 		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
-		self preProcessBlock: b.
+		self preProcessBlock: b. 
 		b instructionsDo: [ :e | 
 			self buildStatementsForInstruction: e ] ].
 	generatorMethodBuilder addStatement: (RBReturnNode value: (RBVariableNode named: 'CompletePrimitive'))
@@ -103,7 +103,7 @@ DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 	
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 
 	| addStatement |
@@ -242,16 +242,13 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 { #category : #visiting }
 DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction [
 
-	"Verify that the 3 address code instruction is actually in 2AC after register allocation"
+	(instruction operand1 isConstant and: [ 
+		 instruction operand2 isConstant not ]) ifTrue: [ 
+		^ self
+			  threeOperandCogitRTL: aMnemonic
+			  instruction: instruction reversed ].
 
-	| allocatedOperands |
-	allocatedOperands := (instruction operands collect: [ :op | 
-		                      op result ]) asSet.
-	instruction result isNoResult ifFalse: [ 
-		allocatedOperands add: instruction result ].
-	allocatedOperands size > 2 ifTrue: [ 
-		self error: 'Cannot write instruction with more than 2 operands: '
-			, instruction asString ].
+	self verifyAllocationIn2AC: instruction.
 
 	^ self
 		  twoOperandCogitRTL: aMnemonic
@@ -274,6 +271,19 @@ DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruc
 						  anInstruction)
 			 arguments: (self rtlArgumentsForValue: operands first)
 				 , (self rtlArgumentsForValue: operands second))
+]
+
+{ #category : #verification }
+DRCogitCodeGenerator >> verifyAllocationIn2AC: instruction [
+
+	| allocatedOperands |
+	allocatedOperands := (instruction operands collect: [ :op | 
+		                      op result ]) asSet.
+	instruction result isNoResult ifFalse: [ 
+		allocatedOperands add: instruction result ].
+	allocatedOperands size > 2 ifTrue: [ 
+		self error: 'Cannot write instruction with more than 2 operands: '
+			, instruction asString ]
 ]
 
 { #category : #visiting }
@@ -520,22 +530,21 @@ DRCogitCodeGenerator >> visitLessThan: aDRGreaterThanComparison inBranch: aDRBra
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLoad: aDRLoad [
 
-	"If it is smaller than the word size, zero the target register before"
+	self
+		twoOperandCogitRTL: #Move
+		operands: { 
+				aDRLoad operand1 asMemoryAddress.
+				aDRLoad result }
+		instruction: aDRLoad.
 
-	aDRLoad size < 8 ifTrue: [ 
-		self
-			twoOperandCogitRTL: #Move
-			operands: { 
-					0 asDRValue.
-					aDRLoad result }
-			instruction: aDRLoad ].
+	aDRLoad size < 8 ifFalse: [ ^ self ].
 
-	^ self
-		  twoOperandCogitRTL: #Move
-		  operands: { 
-				  aDRLoad operand1 asMemoryAddress.
-				  aDRLoad result }
-		  instruction: aDRLoad
+	"If it is smaller than the word size, clean not used digits using a mask"
+	self visitBitAnd: (DRBitAnd
+			 operands: { 
+					 aDRLoad result.
+					 aDRLoad size maskOfBytes asDRValue }
+			 result: aDRLoad result)
 ]
 
 { #category : #visiting }

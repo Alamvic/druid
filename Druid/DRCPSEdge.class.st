@@ -104,9 +104,10 @@ DRCPSEdge >> operandConstraint: operand [
 	| constraintOrDomain |
 	(self constraintFor: operand result name) ifNotNil: [ :c | ^ c ].
 	constraintOrDomain := operand acceptVisitor: self.
+	constraintOrDomain ifNil: [ ^ nil ].
 
 	"As comparisons add constraints to operands (not result) registers they return a register domain"
-	^ operand isComparison
+	^ operand isSetConditionCode
 		  ifTrue: [ constraintOrDomain constraint ]
 		  ifFalse: [ constraintOrDomain ]
 ]

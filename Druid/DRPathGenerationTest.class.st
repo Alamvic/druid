@@ -8,9 +8,9 @@ Class {
 DRPathGenerationTest >> optimize: cfg [
 
 	cfg applyOptimisation:
-		(DRDeadBlockElimination then: DRBranchCollapse).
-	cfg applyOptimisation:
 		(DRSCCP then: DRCopyPropagation then: DRComposedConditionalSplitting).
+	cfg applyOptimisation:
+		(DRComposedConditionalSplitting then: DRBranchCollapse).
 	cfg applyOptimisation:
 		(DRDeadCodeElimination then: DRCleanControlFlow).
 	cfg generatePaths
@@ -92,7 +92,7 @@ DRPathGenerationTest >> testConstraintsFromComplexConditionalOnSameReg [
 ]
 
 { #category : #constraints }
-DRPathGenerationTest >> testConstraintsInferenceFromBranches [
+DRPathGenerationTest >> testConstraintsInferenceFromBranchIfCondition [
 
 	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThan.
@@ -106,7 +106,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranches [
 ]
 
 { #category : #constraints }
-DRPathGenerationTest >> testConstraintsInferenceFromBranchesInverted [
+DRPathGenerationTest >> testConstraintsInferenceFromBranchIfConditionInverted [
 
 	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThanInverted.
@@ -117,6 +117,38 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranchesInverted [
 	
 	self assert: trueConstraint includes: (DRLessOrEqualsConstraint withValue: 10).
 	self assert: falseConstraint includes: (DRGreaterConstraint withValue: 10).
+]
+
+{ #category : #constraints }
+DRPathGenerationTest >> testConstraintsInferenceFromBranchIfTrueWithFalse [
+
+	| cfg jump trueEdge falseEdge |
+	cfg := self generateBasicDruidIRFor: #primitiveFalseIfTrue.
+	cfg applyOptimisation: DRCleanControlFlow new.
+	cfg generatePaths.
+
+	jump := cfg firstBasicBlock lastInstruction.
+	trueEdge := (cfg edgesFrom: cfg firstBasicBlock to: jump trueBranch) first.
+	falseEdge := (cfg edgesFrom: cfg firstBasicBlock to: jump falseBranch) first.
+
+	self assert: trueEdge isDead.
+	self deny: falseEdge isDead.
+]
+
+{ #category : #constraints }
+DRPathGenerationTest >> testConstraintsInferenceFromBranchIfTrueWithTrue [
+
+	| cfg jump trueEdge falseEdge |
+	cfg := self generateBasicDruidIRFor: #primitiveTrueIfTrue.
+	cfg applyOptimisation: DRCleanControlFlow new.
+	cfg generatePaths.
+
+	jump := cfg firstBasicBlock lastInstruction.
+	trueEdge := (cfg edgesFrom: cfg firstBasicBlock to: jump trueBranch) first.
+	falseEdge := (cfg edgesFrom: cfg firstBasicBlock to: jump falseBranch) first.
+
+	self deny: trueEdge isDead.
+	self assert: falseEdge isDead.
 ]
 
 { #category : #constraints }
