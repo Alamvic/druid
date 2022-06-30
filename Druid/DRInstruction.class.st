@@ -262,12 +262,6 @@ DRInstruction >> isPhiFunction [
 ]
 
 { #category : #testing }
-DRInstruction >> isSetConditionCode [
-	
-	^ false
-]
-
-{ #category : #testing }
 DRInstruction >> isValue [
 
 	^ false

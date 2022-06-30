@@ -103,9 +103,10 @@ DRCPSEdge >> operandConstraint: operand [
 	| constraintOrDomain |
 	(self constraintFor: operand result name) ifNotNil: [ :c | ^ c ].
 	constraintOrDomain := operand acceptVisitor: self.
+	constraintOrDomain ifNil: [ ^ nil ].
 
 	"As comparisons add constraints to operands (not result) registers they return a register domain"
-	^ operand isComparison
+	^ operand isSetConditionCode
 		  ifTrue: [ constraintOrDomain constraint ]
 		  ifFalse: [ constraintOrDomain ]
 ]
@@ -114,14 +115,21 @@ DRCPSEdge >> operandConstraint: operand [
 DRCPSEdge >> operandDomainFromInstruction: aDRInstruction [
 
 	aDRInstruction isCopy ifTrue: [ 
-		^ self operandDomainFromInstruction: aDRInstruction operand1 ].
+		| constraint |
+		constraint := self constraintFor: aDRInstruction result name.
+		^ constraint
+			  ifNil: [ 
+			  self operandDomainFromInstruction: aDRInstruction operand1 ]
+			  ifNotNil: [ 
+			  DRRegisterDomain reg: aDRInstruction constraint: constraint ] ].
 
 	aDRInstruction isPhiFunction ifTrue: [ 
 		^ self operandDomainFromPhi: aDRInstruction ].
 
-	self assert: aDRInstruction isComparison.
+	aDRInstruction isSetConditionCode ifTrue: [ 
+		^ aDRInstruction acceptVisitor: self ].
 
-	^ aDRInstruction acceptVisitor: self
+	^ nil
 ]
 
 { #category : #visiting }
@@ -208,9 +216,7 @@ DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [
 	| domain |
 	aDRBranchIfTrue operand1 isInstruction ifFalse: [ ^ self ].
 
-	domain := aDRBranchIfTrue operand1 condition
-		              acceptVisitor: self
-		              withBranch: aDRBranchIfTrue operand1.
+	domain := self operandDomainFromInstruction: aDRBranchIfTrue operand1.
 	domain ifNil: [ ^ self ].
 
 	branchIndex = 1
@@ -284,7 +290,9 @@ DRCPSEdge >> visitFalseObject: aDRFalseObject [
 { #category : #visiting }
 DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [
 
-	^ nil
+	^ aDRGetConditionCode condition
+		  acceptVisitor: self
+		  withBranch: aDRGetConditionCode
 ]
 
 { #category : #visiting }

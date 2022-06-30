@@ -176,6 +176,12 @@ DRValue >> isRegister [
 	^ false
 ]
 
+{ #category : #testing }
+DRValue >> isSetConditionCode [
+	
+	^ false
+]
+
 { #category : #visiting }
 DRValue >> isStore [
 

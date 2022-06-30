@@ -303,6 +303,16 @@ DRIRGenerator >> instructionFactory [
 	^ controlFlowGraph instructionFactory
 ]
 
+{ #category : #interpretation }
+DRIRGenerator >> instructionFor: aDRInstruction inNode: aRBBlockNode [ 
+	
+	"We need a real instruction (not value), maybe for phi. If it's a value, then copy is created."
+	| instruction |
+	instruction := aDRInstruction copyToVariableIn: self inNode: aRBBlockNode.
+	instruction = aDRInstruction ifFalse: [ self popOperand ]. "If it's a new copy, pop result is needed"
+	^instruction
+]
+
 { #category : #'special-cases' }
 DRIRGenerator >> interpretAddWith: aRBMessageNode [ 
 
@@ -367,10 +377,14 @@ DRIRGenerator >> interpretBitShiftWith: aRBMessageNode [
 { #category : #interpretation }
 DRIRGenerator >> interpretBlockActivation: aRBBlockNode [
 
+	| result copy |
 	self interpretBlockBody: aRBBlockNode.
 
+	result := self operandStackTop.
+	copy := self instructionFor: result inNode: aRBBlockNode.
+
 	"If this is a block activation, it should have a return value"
-	self topFrame returnValue: self operandStackTop
+	self topFrame returnValue: copy
 ]
 
 { #category : #interpreting }
@@ -1410,19 +1424,17 @@ DRIRGenerator >> visitOperand: aDRValue [
 { #category : #visiting }
 DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
-	| result homeFrame returnExecutionState |
-	
+	| result homeFrame returnExecutionState copy |
 	aRBReturnNode value acceptVisitor: self.
 	result := self popOperand.
-"	result copyToVariableIn: self inNode: aRBReturnNode.
-	copy := self popOperand.
-"	homeFrame := self topFrame homeFrameWithState: executionState.
-	homeFrame returnValue: result.
+	copy := self instructionFor: result inNode: aRBReturnNode.
+	homeFrame := self topFrame homeFrameWithState: executionState.
+	homeFrame returnValue: copy.
 	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
 
 	returnExecutionState := executionState copy.
-	self addDeferredReturnState: {returnExecutionState . self currentBasicBlock}.
-	
+	self addDeferredReturnState: { returnExecutionState. self currentBasicBlock }.
+
 	"The return is a statement with no value"
 	self pushOperand: DRNullValue new
 ]
