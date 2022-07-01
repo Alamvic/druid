@@ -68,3 +68,9 @@ DRNotEqualsConstraint >> opCode [
 
 	^ '~='
 ]
+
+{ #category : #reversing }
+DRNotEqualsConstraint >> reversed [
+	
+	^ self
+]

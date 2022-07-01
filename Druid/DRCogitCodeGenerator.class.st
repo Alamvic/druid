@@ -43,6 +43,9 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 		self preProcessBlock: b. 
 		b instructionsDo: [ :e | 
 			self buildStatementsForInstruction: e ] ].
+
+	"Generate the postamble in the fallthrough case"
+	self generatePostambleForCFG: aDRControlFlowGraph.
 	generatorMethodBuilder addStatement: (RBReturnNode value: (RBVariableNode named: 'CompletePrimitive'))
 ]
 
@@ -101,6 +104,25 @@ DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 	
 	generatorMethodBuilder addStatement: jumpStatement.
 	
+]
+
+{ #category : #'ir-to-ast' }
+DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
+
+	| addStatement |	
+	"If we need no spill slots, do nothing"
+	aDRControlFlowGraph numberOfSpillSlots = 0 ifTrue: [ ^ self ].
+	
+	"Otherwise, increment the stack pointer by N*WordSize where N is the number of required spill slots.
+	The first spill slot will be [SP], the second will be [SP+WordSize] and so on."
+	addStatement := RBMessageNode
+		receiver: RBVariableNode selfNode
+		selector: #SubCq:R:
+		arguments: {
+			RBLiteralValueNode value: aDRControlFlowGraph numberOfSpillSlots * 8 "bytes".
+			RBVariableNode named: 'SPReg'
+		}.
+	generatorMethodBuilder addStatement: addStatement.
 ]
 
 { #category : #'ir-to-ast' }
@@ -219,22 +241,22 @@ DRCogitCodeGenerator >> rtlArgumentsForValue: aValue [
 DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 
 	| constantValue |
-	aValue isConstant ifTrue: [ 
-		"Interpret the booleans as the bits 0 and 1"
-		constantValue := (#( true false ) includes: aValue value)
-			ifTrue: [ aValue value asBit ]
-			ifFalse: [ aValue value ].
-		
-		"Interpret nil as zero"
-		constantValue isNil ifTrue: [ constantValue := 0 ].
-		
-		(constantValue isInteger and: [ constantValue > 5000 ]) ifTrue: [ 
-			^ RBLiteralValueNode new
-				  value: constantValue
-				  start: 0
-				  stop: -1
-				  source: constantValue hex ].
-		^ RBLiteralValueNode value: constantValue ].
+	"Interpret the booleans as the bits 0 and 1"
+	constantValue := (#( true false ) includes: aValue value)
+		                 ifTrue: [ aValue value asBit ]
+		                 ifFalse: [ aValue value ].
+
+	"Interpret nil as zero"
+	constantValue isNil ifTrue: [ constantValue := 0 ].
+
+	constantValue isInteger ifTrue: [ 
+		^ constantValue <= 5000
+			ifTrue: [ RBLiteralValueNode value: constantValue ]
+			ifFalse: [ RBLiteralValueNode new
+			  value: constantValue
+			  start: 0
+			  stop: -1
+			  source: constantValue hex ] ].
 
 	^ RBVariableNode named: (self registerFor: aValue)
 ]
@@ -313,9 +335,9 @@ DRCogitCodeGenerator >> visitBitOr: aDRCogitBitAnd [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitBitShift: aDRCogitBitShift [ 
+DRCogitCodeGenerator >> visitBitXor: aDRCogitBitXor [ 
 
-	^ self threeOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitBitShift
+	^ self threeOperandCogitRTL: #Xor instruction: aDRCogitBitXor
 
 ]
 
@@ -440,16 +462,14 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 	
 	"Generate CMP; Jump.COND true; RESULT := 0; JUMP next"
 	| comparisonToGenerate |
-	comparisonToGenerate := self
-		generateCompare: aDRGetConditionCode condition
-		operands: aDRGetConditionCode operands.
+	comparisonToGenerate := self visitComparison: aDRGetConditionCode.
 	generatorMethodBuilder addVariableNamed: 'jumpTrue'.
 	generatorMethodBuilder addVariableNamed: 'jumpNext'.
 	generatorMethodBuilder addStatement: (RBAssignmentNode
 		variable: (RBVariableNode named: 'jumpTrue')
 		value: (RBMessageNode
 			receiver: RBVariableNode selfNode
-			selector: comparisonToGenerate cogitTrueConditionCode
+			selector: comparisonToGenerate condition cogitTrueConditionCode
 			arguments: { 0 asLiteralNode })).
 	"Set false to result"
 	self
@@ -511,7 +531,8 @@ DRCogitCodeGenerator >> visitJump: aDRJump [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLeftShift: aDRCogitLeftShift [
-	^ self visitBitShift: (DRBitShift operands: aDRCogitLeftShift operands result:  aDRCogitLeftShift result)
+	
+	^ self threeOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitLeftShift
 ]
 
 { #category : #visiting }
@@ -642,6 +663,8 @@ DRCogitCodeGenerator >> visitPhiFunction: aDRPhiFunction [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitReturn: aDRReturn [
 
+	"Generate the postamble in the return cases"
+	self generatePostambleForCFG: aDRReturn controlFlowGraph.
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #genPrimReturn)
@@ -686,7 +709,6 @@ DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfConditio
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitUnsignedCoercion: aDRCogitUnsignedCoercion [ 
-	
-	"Nothing for now"
-	^ self visitNullValue: aDRCogitUnsignedCoercion
+
+	^ self visitCopy: aDRCogitUnsignedCoercion
 ]

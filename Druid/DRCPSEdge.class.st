@@ -71,6 +71,7 @@ DRCPSEdge >> deadTarget [
 { #category : #initialization }
 DRCPSEdge >> initialize [ 
 
+	super initialize.
 	constraints := Dictionary new.
 ]
 
@@ -197,15 +198,24 @@ DRCPSEdge >> visitBitShift: aDRBitShift [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitBitXor: aDRBitOr [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitBranchIfCondition: aDRConditionalJump [
 
-	| domain |
+	| domain id |
+	"Ignore hardcoded values"
 	domain := aDRConditionalJump condition acceptVisitor: self withBranch: aDRConditionalJump.
 	domain ifNil: [ ^ self ].
-	
-	branchIndex = 1
-		ifTrue: [ self mergeConstraint: domain constraint to: domain reg name ]
-		ifFalse: [ self mergeConstraint: domain constraint negated to: domain reg name ]
+
+	id := domain reg result name.
+
+	^ branchIndex = 1
+		  ifTrue: [ self mergeConstraint: domain constraint to: id ]
+		  ifFalse: [ self mergeConstraint: domain constraint negated to: id ]
 ]
 
 { #category : #visiting }
@@ -227,19 +237,20 @@ DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitComparison: aDRComparison ofBranch: parentBranch andDo: aClosure [
+DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
 	| operands |
-	operands := parentBranch operands.
+	operands := aDRBranch operands.
 	((operands anySatisfy: #isConstant) and: [ 
-		 operands anySatisfy: [ :o | o isRegister or: o isInstruction ] ]) 
+		 operands anySatisfy: [ :o | o isRegister or: [ o isInstruction ] ] ]) 
 		ifFalse: [ ^ nil "We need a register and a constant" ].
 
 	"Check constant on right"
-	operands second isConstant ifFalse: [
-		"if not reverse it and add it directly" 
-		parentBranch reversed acceptVisitor: self.
-		^ nil ].
+	"if not reverse it and add it directly"
+	operands second isConstant ifFalse: [ 
+		^ (aClosure
+			   value: operands second
+			   value: (operands first acceptVisitor: self)) reversed ].
 
 	^ aClosure
 		  value: operands first
@@ -314,6 +325,12 @@ DRCPSEdge >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranch [
 		  visitComparison: aDRGreaterThanComparison
 		  ofBranch: aDRBranch
 		  andDo: [ :reg :value | DRRegisterDomain greater: reg than: value ]
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [
+	
+	^ aDRJitCompileTimeExpression expression
 ]
 
 { #category : #visiting }

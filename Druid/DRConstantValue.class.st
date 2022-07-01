@@ -112,6 +112,7 @@ DRConstantValue >> type [
 	
 	value = nil ifTrue: [ ^ DRTopType new ].
 	(#(true false) includes: value) ifTrue: [ ^ DRBooleanType new ].
+	value isInteger ifTrue: [ ^ DRIntegerType new ].
 	^ self notYetImplemented.
 ]
 

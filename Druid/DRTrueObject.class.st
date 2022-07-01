@@ -15,9 +15,3 @@ DRTrueObject >> name [
 	
 	^ 'objectMemory trueObject'
 ]
-
-{ #category : #accessing }
-DRTrueObject >> value [
-
-	^ true
-]

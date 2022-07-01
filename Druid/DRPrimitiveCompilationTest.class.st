@@ -90,6 +90,36 @@ DRPrimitiveCompilationTest >> testAdditionIntrinsecWithOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: 99
 ]
 
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testAndFirstFalseSecondFalse [
+
+	self compileDruidPrimitive: #primitiveAnd.
+	
+	self executePrimitiveWithReceiver: -1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 10
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testAndFirstTrueSecondFalse [
+
+	self compileDruidPrimitive: #primitiveAnd.
+	
+	self executePrimitiveWithReceiver: 5.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 10
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testAndFirstTrueSecondTrue [
+
+	self compileDruidPrimitive: #primitiveAnd.
+	
+	self executePrimitiveWithReceiver: 20.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testAnyMaskFalse [
 
@@ -143,6 +173,16 @@ DRPrimitiveCompilationTest >> testAssertIsIgnored [
 
 ]
 
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testBitXor [
+
+	self compileDruidPrimitive: #primitiveBitXor.
+	
+	self executePrimitiveWithReceiver: 2r110 withArguments: { 2r010 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r100
+]
+
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testBranchingWithAssigmentsFalse [
 
@@ -161,6 +201,100 @@ DRPrimitiveCompilationTest >> testBranchingWithAssigmentsTrue [
 	self executePrimitiveWithReceiver: 1.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-basic' }
+DRPrimitiveCompilationTest >> testCascade [
+
+	| object pointerToFirstSlot result |
+	self compileDruidPrimitive: #primitiveCascadedUint16AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+	memory storePointer: 0 ofObject: object withValue: 0.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	result := memory fetchShort16: 0 ofObject: object.
+	self assert: result equals: 1.
+	
+	result := memory fetchShort16: 1 ofObject: object.
+	self assert: result equals: 2
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testCaseOfOtherwiseCaseOne [
+
+	self compileDruidPrimitive: #primitiveCaseOfOtherwiseValue.
+	
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 57
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testCaseOfOtherwiseCaseOtherwise [
+
+	self compileDruidPrimitive: #primitiveCaseOfOtherwiseValue.
+	
+	self executePrimitiveWithReceiver: 37.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 77
+]
+
+{ #category : #'tests-control flow' }
+DRPrimitiveCompilationTest >> testCaseOfOtherwiseCaseTwo [
+
+	self compileDruidPrimitive: #primitiveCaseOfOtherwiseValue.
+	
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testCompareObjectReferenceFalse [
+
+	self compileDruidPrimitive: #primitiveConditionWithObjectReference.
+	
+	self executePrimitiveWithReceiver: (memory trueObject + 1).
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testCompareObjectReferenceTrue [
+
+	self compileDruidPrimitive: #primitiveConditionWithObjectReference.
+	
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testCompareRefenceValueFalse [
+
+	self compileDruidPrimitive: #primitiveGreaterThanReferenceValue.
+	
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: false asBit
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testCompareRefenceValueTrue [
+
+	self compileDruidPrimitive: #primitiveGreaterThanReferenceValue.
+	
+	self executePrimitiveWithReceiver: memory trueObject + 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
 { #category : #'tests-basic' }
@@ -341,24 +475,44 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveCallingMethodWithEarlyReturnCa
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-array' }
-DRPrimitiveCompilationTest >> testCompilePrimitiveNew [
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveNewInitializesInstance [
 
-	| class array |
-	true ifTrue: [ ^self skip ].
-
+	| class |
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNew.
-	
-	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
-	array := memory instantiateClass: class indexableSize: 1.
-	memory storePointer: 0 ofObject: array withValue: 42.
 
-	self 	executePrimitiveWithReceiver: array 
-			withArguments: { 1 }.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 42
-	
+	class := self
+		         newClassInOldSpaceWithSlots: 4
+		         instSpec: memory nonIndexablePointerFormat.
+	memory ensureBehaviorHash: class.
+	self executePrimitiveWithReceiver: class.
+
+	self assert: (memory numSlotsOf: machineSimulator receiverRegisterValue) equals: 4.
+	0 to: 3 do: [ :e |
+		self
+			assert: (memory fetchPointer: e ofObject: machineSimulator receiverRegisterValue)
+			equals: memory nilObject
+	]
+]
+
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveNewInstantiatesClass [
+
+	| class |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNew.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 4
+		         instSpec: memory nonIndexablePointerFormat.
+	memory ensureBehaviorHash: class.
+	self executePrimitiveWithReceiver: class.
+
+	self
+		assert:
+		(memory fetchClassOf: machineSimulator receiverRegisterValue)
+		equals: class
 ]
 
 { #category : #'tests-basic' }
@@ -428,13 +582,23 @@ DRPrimitiveCompilationTest >> testCompiledPrimitivePreservesStack [
 ]
 
 { #category : #'tests-arithmetic' }
-DRPrimitiveCompilationTest >> testDecrement [
+DRPrimitiveCompilationTest >> testDecrementConstantArgument [
 
-	self compileDruidPrimitive: #primitiveDecrement.
+	self compileDruidPrimitive: #primitiveDecrementConstantArgument.
 	
 	self executePrimitiveWithReceiver: 42.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 41
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testDecrementConstantReceiver [
+
+	self compileDruidPrimitive: #primitiveDecrementConstantReceiver.
+
+	self executePrimitiveWithReceiver: 5.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 37
 ]
 
 { #category : #'tests-arithmetic' }
@@ -564,7 +728,7 @@ DRPrimitiveCompilationTest >> testFailingSuccessExecutesUntilStop [
 	self executeUntilStopPrimitiveWithReceiver: 1
 ]
 
-{ #category : #'tests-types' }
+{ #category : #'tests-booleans' }
 DRPrimitiveCompilationTest >> testFalseAsInteger [
 
 	self compileDruidPrimitive: #primitiveFalseAsInteger.
@@ -572,6 +736,16 @@ DRPrimitiveCompilationTest >> testFalseAsInteger [
 	self executePrimitiveWithReceiver: 17.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-booleans' }
+DRPrimitiveCompilationTest >> testFalseNot [
+
+	self compileDruidPrimitive: #primitiveFalseNot.
+	
+	self executePrimitiveWithReceiver: 17.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-deadcode' }
@@ -860,10 +1034,70 @@ DRPrimitiveCompilationTest >> testIfTrueStatementCaseTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-arithmetic' }
-DRPrimitiveCompilationTest >> testIncrement [
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testImplicitBitShiftLeft [
 
-	self compileDruidPrimitive: #primitiveIncrement.
+	self compileDruidPrimitive: #primitiveBitShift.
+
+	self executePrimitiveWithReceiver: 2r10 withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r100
+]
+
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testImplicitBitShiftRight [
+
+	self compileDruidPrimitive: #primitiveBitShift.
+
+	self executePrimitiveWithReceiver: 2r10 withArguments: { -1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r1
+]
+
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testImplicitConstantArgumentBitShiftLeft [
+
+	self compileDruidPrimitive: #primitiveImplicitArgumentBitShiftLeft.
+
+	self executePrimitiveWithReceiver: 2.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r100
+]
+
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testImplicitConstantBitShiftLeft [
+
+	self compileDruidPrimitive: #primitiveImplicitBitShiftLeft.
+
+	self executePrimitiveWithReceiver: 2r10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r100
+]
+
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testImplicitConstantBitShiftRight [
+
+	self compileDruidPrimitive: #primitiveImplicitBitShiftRight.
+
+	self executePrimitiveWithReceiver: 2r10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r1
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testIncrementConstantArgument [
+
+	self compileDruidPrimitive: #primitiveIncrementConstantArgument.
+
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 43
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testIncrementConstantReceiver [
+
+	self compileDruidPrimitive: #primitiveIncrementConstantReceiver.
 
 	self executePrimitiveWithReceiver: 42.
 	
@@ -966,6 +1200,26 @@ DRPrimitiveCompilationTest >> testMultiplicationIntrinsecWithOverflow [
 	self executePrimitiveWithReceiver: (memory integerObjectOf: memory maxSmallInteger) withArguments: { memory integerObjectOf: 2 }.
 
 	self assert: machineSimulator receiverRegisterValue equals: 99
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testMultiplyConstantArgument [
+
+	self compileDruidPrimitive: #primitiveMultiplyConstantArgument.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 84
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testMultiplyConstantReceiver [
+
+	self compileDruidPrimitive: #primitiveMultiplyConstantReceiver.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 84
 ]
 
 { #category : #'tests-arithmetic' }
@@ -1158,6 +1412,36 @@ DRPrimitiveCompilationTest >> testOneDeadBranchThreeBranches3 [
 	self assert: machineSimulator receiverRegisterValue equals: 116
 ]
 
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testOrFirstFalseSecondFalse [
+
+	self compileDruidPrimitive: #primitiveOr.
+	
+	self executePrimitiveWithReceiver: 7.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 10
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testOrFirstFalseSecondTrue [
+
+	self compileDruidPrimitive: #primitiveOr.
+	
+	self executePrimitiveWithReceiver: 12.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveCompilationTest >> testOrFirstTrueSecondFalse [
+
+	self compileDruidPrimitive: #primitiveOr.
+	
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
 { #category : #'tests-failing-primitive' }
 DRPrimitiveCompilationTest >> testPassingSuccess [
 
@@ -1196,6 +1480,27 @@ DRPrimitiveCompilationTest >> testPrimitiveWithDeadCodeGoesThroughSecondCase [
 	self executePrimitiveWithReceiver: 1.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 55
+]
+
+{ #category : #'tests-basic' }
+DRPrimitiveCompilationTest >> testSequentialExitPointRemovesEntireExecutionBranch [
+
+	self compileDruidPrimitive: #primitiveWithSequentialExitPoint.
+	
+	self executeUntilStopPrimitiveWithReceiver: 1.
+	
+	"Should stop at the stop and not timeout"
+	self assert: machineSimulator instructionPointerRegisterValue equals: stopAddress
+]
+
+{ #category : #'tests-types' }
+DRPrimitiveCompilationTest >> testSizeOfUsqInt [
+
+	self compileDruidPrimitive: #primitiveSizeofusqInt.
+	
+	self executePrimitiveWithReceiver: 17.
+	
+	self assert: machineSimulator receiverRegisterValue equals: memory bytesPerOop
 ]
 
 { #category : #'tests-comparisons' }
@@ -1266,6 +1571,16 @@ DRPrimitiveCompilationTest >> testSubtractionIntrinsecWithOverflow [
 	self executePrimitiveWithReceiver: (memory integerObjectOf: memory minSmallInteger) withArguments: { memory integerObjectOf: 1 }.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 99
+]
+
+{ #category : #'tests-booleans' }
+DRPrimitiveCompilationTest >> testTrueNot [
+
+	self compileDruidPrimitive: #primitiveTrueNot.
+	
+	self executePrimitiveWithReceiver: 17.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
 { #category : #'test-memory access' }
@@ -1390,6 +1705,70 @@ DRPrimitiveCompilationTest >> testUint16At7 [
 ]
 
 { #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint16AtPut [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint16AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot withArguments: { 16r0102 }.
+	
+	result := memory fetchShort16: 0 ofObject: object.
+	self assert: result equals: 16r0102
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint16AtPut1 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint16AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 2 withArguments: { 16r0102 }.
+	
+	result := memory fetchShort16: 1 ofObject: object.
+	self assert: result equals: 16r0102
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint16AtPut2 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint16AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 4 withArguments: { 16r0102 }.
+	
+	result := memory fetchShort16: 2 ofObject: object.
+	self assert: result equals: 16r0102
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint16AtPut4 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint16AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 6 withArguments: { 16r0102 }.
+	
+	result := memory fetchShort16: 3 ofObject: object.
+	self assert: result equals: 16r0102
+]
+
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint16AtWithSameOperandRegister [
 
 	| object pointerToFirstSlot |
@@ -1496,6 +1875,38 @@ DRPrimitiveCompilationTest >> testUint32At5 [
 ]
 
 { #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint32AtPut [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint32AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot withArguments: { 16r01020304 }.
+	
+	result := memory fetchLong32: 0 ofObject: object.
+	self assert: result equals: 16r01020304
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint32AtPut2 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint32AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 4 withArguments: { 16r01020304 }.
+	
+	result := memory fetchLong32: 1 ofObject: object.
+	self assert: result equals: 16r01020304
+]
+
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint64At [
 
 	| object pointerToFirstSlot |
@@ -1591,6 +2002,134 @@ DRPrimitiveCompilationTest >> testUint8At4 [
 	self executePrimitiveWithReceiver: pointerToFirstSlot.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 16rBA
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 0 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut1 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 1 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 1 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut2 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 2 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 2 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut3 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 3 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 3 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut4 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 4 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 4 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut5 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 5 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 5 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut6 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 6 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 6 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut7 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 7 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 7 ofObject: object.
+	self assert: result equals: 16rF1
 ]
 
 { #category : #'tests-control flow' }

@@ -5,7 +5,9 @@ Class {
 }
 
 { #category : #interpreting }
-DRIntegerType >> lookupClass [
-	
-	^ Integer
+DRIntegerType >> bitShift: shiftValue [
+
+	^ shiftValue > 0
+		ifTrue: [ self << shiftValue ]
+		ifFalse: [ self >> shiftValue negated ]
 ]

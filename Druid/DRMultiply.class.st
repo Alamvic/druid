@@ -21,6 +21,12 @@ DRMultiply >> asNumberedExpression [
 	yourself
 ]
 
+{ #category : #testing }
+DRMultiply >> isMultiply [
+	
+	^ true
+]
+
 { #category : #printing }
 DRMultiply >> opcode [
 	
@@ -45,10 +51,14 @@ DRMultiply >> sccpLatticeValueFor: sccp [
 	(operand1IsConstant and: [ operand1LatticeValue value = 0 ]) ifTrue: [ ^ operand1LatticeValue ].
 	(operand2IsConstant and: [ operand2LatticeValue value = 0 ]) ifTrue: [ ^ operand2LatticeValue ].
 	
-	((operand1IsConstant and: [ operand2IsConstant ])) ifTrue: [ 
-		^ operand1LatticeValue value * operand2LatticeValue value ].
+	^ sccp
+		sccpLatticeValueFor: self
+		latticeOperand1: operand1LatticeValue
+		latticeOperand2: operand2LatticeValue
+]
+
+{ #category : #SCCP }
+DRMultiply >> sccpOperateOnLattice: operand and: operand2 [
 	
-	(operand1LatticeValue = sccp bottom or: [ operand2LatticeValue = sccp bottom ]) ifTrue: [ 
-		^ sccp bottom ].
-	^ sccp top
+	^ operand * operand2
 ]

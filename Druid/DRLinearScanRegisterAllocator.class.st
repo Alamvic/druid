@@ -48,7 +48,7 @@ DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiv
 DRLinearScanRegisterAllocator >> allocateRegisters [
 
 	activeIntervals := OrderedCollection new.
-	inactiveIntervals := Set new.
+	inactiveIntervals := OrderedCollection new.
 
 	unhandledIntervals := (liveSets values asSet sorted: [ :a :b | 
 		                       a start < b start ]) asOrderedCollection.
@@ -105,9 +105,12 @@ DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 	Store R17 => M0.
 
 	This means that we should reserve at least 1 registers for spilled results.
+	Do not add stores for phi functions
 	"
-	i result ifNil: [ ^ self ].
 	i result isVirtualRegister ifFalse: [ ^ self ].
+	i isPhiFunction ifTrue: [
+		i result: (self allocatedRegisterFor: i).
+		^  self ].
 
 	allocatedLocation := self allocatedRegisterFor: i.
 	allocatedRegister := allocatedLocation isMemoryAddress
@@ -255,7 +258,16 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 
 		"Finally, for each instruction we define, augment the live set"
 		b instructions reversed do: [ :i | 
-			self computeLivenessOfInstruction: i inBlock: b withLiveSet: live ] ]
+			self computeLivenessOfInstruction: i inBlock: b withLiveSet: live ].
+		
+		
+		"For each predecessor that is a backjump, we should extend the life of each variable to be live in the loop"
+		b predecessors
+			select: [ :p | p endInstruction isBackJumpTo: b ]
+			thenDo: [ :p |
+				live do: [ :i | | instructionLiveSet |
+					instructionLiveSet := self liveSetOf: i.
+					instructionLiveSet addRangeFrom: b first to: p endInstruction ] ] ].
 ]
 
 { #category : #'live-analysis' }

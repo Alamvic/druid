@@ -1,6 +1,6 @@
 Class {
 	#name : #DRTopType,
-	#superclass : #Object,
+	#superclass : #Integer,
 	#category : #'Druid-IR-Types'
 }
 

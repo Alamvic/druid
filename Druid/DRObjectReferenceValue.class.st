@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #testing }
+DRObjectReferenceValue >> isConstant [
+
+	^ true
+]
+
+{ #category : #testing }
 DRObjectReferenceValue >> isObjectReferenceValue [
 
 	^ true

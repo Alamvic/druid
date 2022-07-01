@@ -113,11 +113,39 @@ DruidTestInterpreter >> primitiveAccessTempAfterCall [
 	self pop: 1 thenPush: temp
 ]
 
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveAnd [
+
+	<numberOfArguments: 0>
+	| result |
+	(self stackTop > 0 and: [ self stackTop > 10 ])
+		ifTrue: [ result := 42 ]
+		ifFalse: [ result := 10 ].
+
+	self pop: 1 thenPush: result
+]
+
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveAssertIsIgnored [
 	<numberOfArguments: 0>
 	self assert: false.
 	self pop: 1 thenPush: 17
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveBitShift [
+
+	<numberOfArguments: 1>
+	
+	self pop: 2 thenPush: (self stackTop bitShift: (self stackValue: 1))
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveBitXor [
+
+	<numberOfArguments: 1>
+	
+	self pop: 2 thenPush: (self stackTop bitXor: (self stackValue: 1))
 ]
 
 { #category : #'as yet unclassified' }
@@ -270,6 +298,31 @@ DruidTestInterpreter >> primitiveCallingMethodWithTwoEarlyReturns [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCascadedUint16AtPut [
+
+	<numberOfArguments: 0>
+
+	| addressToRead |
+	addressToRead := self stackTop.
+	objectMemory
+		uint16At: addressToRead put: 1;
+		uint16At: addressToRead + 2 put: 2
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCaseOfOtherwiseValue [
+
+	<numberOfArguments: 0>
+	| result |
+	result := self stackTop
+		          caseOf: { 
+				          ([ 0 ] -> [ 57 ]).
+				          ([ 1 ] -> [ 42 ]) }
+		          otherwise: [77].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveChangingVariableInOnePath [
 
 	<numberOfArguments: 0>
@@ -301,6 +354,19 @@ DruidTestInterpreter >> primitiveConditionWithAnyMaskInverted [
 
 	| v |
 	v := (1 anyMask: self stackTop)
+		ifTrue: [ 1 ]
+		ifFalse: [ 2 ].
+	
+	self pop: 1 thenPush: v
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveConditionWithObjectReference [
+
+	<numberOfArguments: 0>
+
+	| v |
+	v := (objectMemory trueObject > self stackTop)
 		ifTrue: [ 1 ]
 		ifFalse: [ 2 ].
 	
@@ -361,6 +427,22 @@ DruidTestInterpreter >> primitiveDecrement [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDecrementConstantArgument [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: self stackTop - 1
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDecrementConstantReceiver [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: 42 - self stackTop
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDivide [
 
 	<numberOfArguments: 1>
@@ -413,6 +495,14 @@ DruidTestInterpreter >> primitiveFalseIfTrue [
 	self pop: 1 thenPush: r
 ]
 
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFalseNot [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: false not
+]
+
 { #category : #comparisons }
 DruidTestInterpreter >> primitiveGreaterOrEqualThanValue [
 
@@ -455,6 +545,13 @@ DruidTestInterpreter >> primitiveGreaterThanInverted [
 	| r |
 	r := 10 > self stackTop ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveGreaterThanReferenceValue [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: (self stackTop > objectMemory trueObject)
 ]
 
 { #category : #comparisons }
@@ -509,11 +606,43 @@ DruidTestInterpreter >> primitiveIfTrueStatement [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveIncrement [
+DruidTestInterpreter >> primitiveImplicitArgumentBitShiftLeft [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: (1 bitShift: self stackTop)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveImplicitBitShiftLeft [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: (self stackTop bitShift: 1)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveImplicitBitShiftRight [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: (self stackTop bitShift: -1)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIncrementConstantArgument [
 
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: self stackTop + 1
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIncrementConstantReceiver [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: 1 + self stackTop
 ]
 
 { #category : #'as yet unclassified' }
@@ -665,6 +794,20 @@ DruidTestInterpreter >> primitiveMultiplePathsOnlyOneDead [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveMultiplyConstantArgument [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: (self stackValue: 0) * 2
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveMultiplyConstantReceiver [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: 2 * (self stackValue: 0)
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveMultiplyWithOverflow [
 
 	<numberOfArguments: 1>
@@ -716,6 +859,18 @@ DruidTestInterpreter >> primitiveNotEqualsThanInverted [
 	self pop: 1 thenPush: r
 ]
 
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveOr [
+
+	<numberOfArguments: 0>
+	| result |
+	(self stackTop < 5 or: [ self stackTop > 10 ])
+		ifTrue: [ result := 42 ]
+		ifFalse: [ result := 10 ].
+
+	self pop: 1 thenPush: result
+]
+
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveReturnFalse [
 
@@ -761,6 +916,14 @@ DruidTestInterpreter >> primitiveSandclock [
 		        ifFalse: [ 17 ].
 		
 	self pop: 1 thenPush: res + res2
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveSizeofusqInt [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: (self sizeof: #usqInt)
 ]
 
 { #category : #'as yet unclassified' }
@@ -813,6 +976,14 @@ DruidTestInterpreter >> primitiveTrueIfTrue [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveTrueNot [
+
+	<numberOfArguments: 0>
+	
+	self pop: 1 thenPush: true not
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveUint16At [
 
 	<numberOfArguments: 0>
@@ -826,6 +997,17 @@ DruidTestInterpreter >> primitiveUint16At [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveUint16AtPut [
+
+	<numberOfArguments: 1>
+	
+	| addressToRead valueToStore |
+	valueToStore := self stackTop.
+	addressToRead := self stackValue: 1.
+	objectMemory uint16At: addressToRead put: valueToStore
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveUint32At [
 
 	<numberOfArguments: 0>
@@ -836,6 +1018,17 @@ DruidTestInterpreter >> primitiveUint32At [
 
 	"pop the receiver, push the result"	
 	self pop: 1 thenPush: aByte
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveUint32AtPut [
+
+	<numberOfArguments: 1>
+	
+	| addressToRead valueToStore |
+	valueToStore := self stackTop.
+	addressToRead := self stackValue: 1.
+	objectMemory uint32At: addressToRead put: valueToStore
 ]
 
 { #category : #'as yet unclassified' }
@@ -873,6 +1066,17 @@ DruidTestInterpreter >> primitiveUint8At [
 
 	"pop the receiver, push the result"	
 	self pop: 1 thenPush: aByte
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveUint8AtPut [
+
+	<numberOfArguments: 1>
+	
+	| addressToRead valueToStore |
+	valueToStore := self stackTop.
+	addressToRead := self stackValue: 1.
+	objectMemory uint8At: addressToRead put: valueToStore
 ]
 
 { #category : #'as yet unclassified' }
@@ -962,4 +1166,18 @@ DruidTestInterpreter >> primitiveWithOrBlock [
 		ifTrue: [ 17 ]
 		ifFalse: [ 42 ].
 	self pop: 1 thenPush: t
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithSequentialExitPoint [
+
+	<numberOfArguments: 0>
+	
+	| r |
+	r := 17.
+	
+	"This exit point makes the whole sequence non compilable.
+	This primitive always fails and all is dead code"
+	self nonCompilableMethod.
+	self pop: 1 thenPush: r.
 ]

@@ -9,9 +9,3 @@ DRNilObject >> name [
 	
 	^ 'objectMemory nilObject'
 ]
-
-{ #category : #accessing }
-DRNilObject >> value [
-
-	^ nil
-]

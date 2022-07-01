@@ -62,3 +62,9 @@ DREqualsConstraint >> opCode [
 
 	^ '='
 ]
+
+{ #category : #reversing }
+DREqualsConstraint >> reversed [
+	
+	^ self
+]
