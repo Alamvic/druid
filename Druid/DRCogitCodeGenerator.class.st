@@ -673,7 +673,7 @@ DRCogitCodeGenerator >> visitReturn: aDRReturn [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitRightShift: aDRCogitRightShift [ 
 
-	^ self threeOperandCogitRTL: #LogicalShiftRight instruction: aDRCogitRightShift
+	^ self threeOperandCogitRTL: #ArithmeticShiftRight instruction: aDRCogitRightShift
 
 ]
 

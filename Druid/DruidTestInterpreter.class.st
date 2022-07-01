@@ -136,8 +136,10 @@ DruidTestInterpreter >> primitiveAssertIsIgnored [
 DruidTestInterpreter >> primitiveBitShift [
 
 	<numberOfArguments: 1>
-	
-	self pop: 2 thenPush: (self stackTop bitShift: (self stackValue: 1))
+	| receiver argument |
+	receiver := self stackValue: 1.
+	argument := self stackTop.
+	self pop: 2 thenPush: (receiver bitShift: argument)
 ]
 
 { #category : #'as yet unclassified' }
