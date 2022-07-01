@@ -40,7 +40,7 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 	
 	blocks withIndexDo: [ :b :i |
 		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
-		self preProcessBlock: b. 
+		self preProcessBlock: b.
 		b instructionsDo: [ :e | 
 			self buildStatementsForInstruction: e ] ].
 	generatorMethodBuilder addStatement: (RBReturnNode value: (RBVariableNode named: 'CompletePrimitive'))
