@@ -203,6 +203,30 @@ DRPrimitiveCompilationTest >> testBranchingWithAssigmentsTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
+{ #category : #'tests-basic' }
+DRPrimitiveCompilationTest >> testCascade [
+
+	| object pointerToFirstSlot result |
+	self compileDruidPrimitive: #primitiveCascadedUint16AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+	memory storePointer: 0 ofObject: object withValue: 0.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	result := memory fetchShort16: 0 ofObject: object.
+	self assert: result equals: 1.
+	
+	result := memory fetchShort16: 1 ofObject: object.
+	self assert: result equals: 2
+]
+
 { #category : #'tests-control flow' }
 DRPrimitiveCompilationTest >> testCaseOfOtherwiseCaseOne [
 

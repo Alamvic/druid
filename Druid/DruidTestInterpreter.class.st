@@ -298,6 +298,18 @@ DruidTestInterpreter >> primitiveCallingMethodWithTwoEarlyReturns [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveCascadedUint16AtPut [
+
+	<numberOfArguments: 0>
+
+	| addressToRead |
+	addressToRead := self stackTop.
+	objectMemory
+		uint16At: addressToRead put: 1;
+		uint16At: addressToRead + 2 put: 2
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveCaseOfOtherwiseValue [
 
 	<numberOfArguments: 0>

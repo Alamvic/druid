@@ -224,8 +224,11 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
 	self flag: #TODO. "Add types to Druid"
 	specialCases at: #uint8At: put: #interpretLoadUint8AtWith:.
+	specialCases at: #uint8At:put: put: #interpretStoreUint8AtWith:.
 	specialCases at: #uint16At: put: #interpretLoadUint16AtWith:.
+	specialCases at: #uint16At:put: put: #interpretStoreUint16AtWith:.
 	specialCases at: #uint32At: put: #interpretLoadUint32AtWith:.
+	specialCases at: #uint32At:put: put: #interpretStoreUint32AtWith:.
 	specialCases at: #uint64At: put: #interpretLoadUint64AtWith:.
 	specialCases at: #uint64At:put: put: #interpretStoreUint64AtWith:.
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
