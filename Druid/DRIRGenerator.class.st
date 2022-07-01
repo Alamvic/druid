@@ -925,9 +925,27 @@ DRIRGenerator >> interpretStore: aRBMessageNode ofByteSize: byteSize [
 ]
 
 { #category : #'special cases - memory access' }
+DRIRGenerator >> interpretStoreUint16AtWith: aRBMessageNode [ 
+	
+	^ self interpretStore: aRBMessageNode ofByteSize: 2
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretStoreUint32AtWith: aRBMessageNode [ 
+	
+	^ self interpretStore: aRBMessageNode ofByteSize: 4
+]
+
+{ #category : #'special cases - memory access' }
 DRIRGenerator >> interpretStoreUint64AtWith: aRBMessageNode [ 
 	
 	^ self interpretStore: aRBMessageNode ofByteSize: 8
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretStoreUint8AtWith: aRBMessageNode [
+	
+	^ self interpretStore: aRBMessageNode ofByteSize: 1
 ]
 
 { #category : #'special-cases' }

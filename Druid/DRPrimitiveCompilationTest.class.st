@@ -1684,6 +1684,70 @@ DRPrimitiveCompilationTest >> testUint16At7 [
 ]
 
 { #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint16AtPut [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint16AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot withArguments: { 16r0102 }.
+	
+	result := memory fetchShort16: 0 ofObject: object.
+	self assert: result equals: 16r0102
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint16AtPut1 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint16AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 2 withArguments: { 16r0102 }.
+	
+	result := memory fetchShort16: 1 ofObject: object.
+	self assert: result equals: 16r0102
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint16AtPut2 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint16AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 4 withArguments: { 16r0102 }.
+	
+	result := memory fetchShort16: 2 ofObject: object.
+	self assert: result equals: 16r0102
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint16AtPut4 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint16AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 6 withArguments: { 16r0102 }.
+	
+	result := memory fetchShort16: 3 ofObject: object.
+	self assert: result equals: 16r0102
+]
+
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint16AtWithSameOperandRegister [
 
 	| object pointerToFirstSlot |
@@ -1790,6 +1854,38 @@ DRPrimitiveCompilationTest >> testUint32At5 [
 ]
 
 { #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint32AtPut [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint32AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot withArguments: { 16r01020304 }.
+	
+	result := memory fetchLong32: 0 ofObject: object.
+	self assert: result equals: 16r01020304
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint32AtPut2 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint32AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 4 withArguments: { 16r01020304 }.
+	
+	result := memory fetchLong32: 1 ofObject: object.
+	self assert: result equals: 16r01020304
+]
+
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testUint64At [
 
 	| object pointerToFirstSlot |
@@ -1885,6 +1981,134 @@ DRPrimitiveCompilationTest >> testUint8At4 [
 	self executePrimitiveWithReceiver: pointerToFirstSlot.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 16rBA
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 0 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut1 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 1 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 1 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut2 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 2 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 2 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut3 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 3 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 3 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut4 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 4 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 4 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut5 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 5 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 5 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut6 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 6 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 6 ofObject: object.
+	self assert: result equals: 16rF1
+]
+
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testUint8AtPut7 [
+
+	| object pointerToFirstSlot result |
+		
+	self compileDruidPrimitive: #primitiveUint8AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot + 7 withArguments: { 16rF1 }.
+	
+	result := memory fetchByte: 7 ofObject: object.
+	self assert: result equals: 16rF1
 ]
 
 { #category : #'tests-control flow' }

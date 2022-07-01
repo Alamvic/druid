@@ -985,6 +985,17 @@ DruidTestInterpreter >> primitiveUint16At [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveUint16AtPut [
+
+	<numberOfArguments: 1>
+	
+	| addressToRead valueToStore |
+	valueToStore := self stackTop.
+	addressToRead := self stackValue: 1.
+	objectMemory uint16At: addressToRead put: valueToStore
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveUint32At [
 
 	<numberOfArguments: 0>
@@ -995,6 +1006,17 @@ DruidTestInterpreter >> primitiveUint32At [
 
 	"pop the receiver, push the result"	
 	self pop: 1 thenPush: aByte
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveUint32AtPut [
+
+	<numberOfArguments: 1>
+	
+	| addressToRead valueToStore |
+	valueToStore := self stackTop.
+	addressToRead := self stackValue: 1.
+	objectMemory uint32At: addressToRead put: valueToStore
 ]
 
 { #category : #'as yet unclassified' }
@@ -1032,6 +1054,17 @@ DruidTestInterpreter >> primitiveUint8At [
 
 	"pop the receiver, push the result"	
 	self pop: 1 thenPush: aByte
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveUint8AtPut [
+
+	<numberOfArguments: 1>
+	
+	| addressToRead valueToStore |
+	valueToStore := self stackTop.
+	addressToRead := self stackValue: 1.
+	objectMemory uint8At: addressToRead put: valueToStore
 ]
 
 { #category : #'as yet unclassified' }
