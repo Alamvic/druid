@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #visiting }
+DRAdd >> acceptValueOperand [
+
+	^ self operands noneSatisfy: #isConstant
+]
+
+{ #category : #visiting }
 DRAdd >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitAddition: self
@@ -31,6 +37,12 @@ DRAdd >> isAdd [
 DRAdd >> opcode [
 	
 	^ 'ADD'
+]
+
+{ #category : #converting }
+DRAdd >> reversed [
+
+	^ self class operands: operands reversed result: result
 ]
 
 { #category : #printing }

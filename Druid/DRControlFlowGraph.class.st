@@ -178,6 +178,12 @@ DRControlFlowGraph >> createBlockView: aBlock [
 	^ composite
 ]
 
+{ #category : #'dead-path' }
+DRControlFlowGraph >> deadBranches [
+
+	^ self deadPaths select: [ :path | self isDeadBranch: path first source to: path first destination ]
+]
+
 { #category : #edges }
 DRControlFlowGraph >> deadPaths [
 
@@ -280,10 +286,12 @@ DRControlFlowGraph >> instructionByResultId: anInteger [
 DRControlFlowGraph >> instructionColor: instruction [
 
 	instruction isJump ifTrue: [ 
-		instruction isBranchIfCondition ifTrue: [ ^ Color red muchLighter ].
-		^ Color gray ].
-	instruction isMandatoryInstruction ifTrue: [ ^ Color purple ].
-	instruction users isEmpty ifTrue: [ ^ Color black ].
+		instruction isBackJump ifTrue: [ ^ Color purple muchLighter ].
+		instruction isBranchIfCondition ifTrue: [ ^ Color purple ].
+		instruction isBranchIfTrue ifTrue: [ ^ Color purple ].
+		^ Color purple muchDarker ].
+	instruction isMandatoryInstruction ifTrue: [ ^ Color red ].
+	instruction users isEmpty ifTrue: [ ^ Color gray ].
 	instruction isPhiFunction ifTrue: [ ^ Color orange ].
 	(instruction operands anySatisfy: [ :op | op isPhysicalRegister ]) 
 		ifTrue: [ ^ Color red darker ].

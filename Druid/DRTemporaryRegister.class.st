@@ -52,6 +52,12 @@ DRTemporaryRegister >> isRegister [
 	^ true
 ]
 
+{ #category : #testing }
+DRTemporaryRegister >> isValue [
+
+	^ false
+]
+
 { #category : #accessing }
 DRTemporaryRegister >> isVirtualRegister [
 	

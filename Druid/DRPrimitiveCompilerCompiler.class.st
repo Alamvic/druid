@@ -29,7 +29,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 	optimisations add: (DRCopyPropagation then: DRComposedConditionalSplitting).
 
 	"Basic set of optimizations twice for primitives"
-	3 timesRepeat: [ 
+	5 timesRepeat: [ 
 		optimisations add: DRBranchCollapse new.
 		optimisations add: DRFailureCodeBasedTailDuplication new.
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
