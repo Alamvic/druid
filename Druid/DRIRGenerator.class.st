@@ -1454,17 +1454,25 @@ DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 ]
 
 { #category : #visiting }
-DRIRGenerator >> visitMessageNode: aRBMessageNode [ 
+DRIRGenerator >> visitMessageNode: aRBMessageNode [
 
-	| receiver arguments method |
+	| receiver |
+	aRBMessageNode receiver acceptVisitor: self.
+	receiver := self popOperand.
+
+	^ self visitMessageNode: aRBMessageNode receiver: receiver
+]
+
+{ #category : #visiting }
+DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
+
+	| arguments method |	
 	specialCases
 		at: aRBMessageNode selector
 		ifPresent: [ :mapping |
 			^ self perform: mapping withArguments: { aRBMessageNode } ].
 	
 	"Resolve it as a normal send"
-	aRBMessageNode receiver acceptVisitor: self.
-	receiver := self popOperand.
 	arguments := aRBMessageNode arguments collect: [ :e |
 		e acceptVisitor: self.
 		self popOperand ].
