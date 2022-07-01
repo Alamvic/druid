@@ -220,20 +220,17 @@ DRPrimitiveCompilationTest >> testCompileNonCompiledCaseExitsWithSuccess [
 DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
-	
-	true ifTrue: [ ^self skip ].
-	
-	self timeLimit: (Duration minutes: 4).
+	self timeLimit: (Duration minutes: 10).
 	self compileDruidPrimitive: #primitiveAt.
 
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
 	array := memory instantiateClass: class indexableSize: 1.
-	memory storePointer: 0 ofObject: array withValue: 42.
+	memory storePointer: 0 ofObject: array withValue: (memory integerObjectOf: 42).
 
 	self 	executePrimitiveWithReceiver: array 
 			withArguments: { memory integerObjectOf: 1 }.
 	
-	self assert: machineSimulator receiverRegisterValue equals: 42
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 42)
 	
 ]
 
