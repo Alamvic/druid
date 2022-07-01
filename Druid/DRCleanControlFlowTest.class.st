@@ -59,12 +59,12 @@ DRCleanControlFlowTest >> testDoNotRemoveEmptyBlockIfItCreatesPredecessorSuccess
 	
 	c1 := cfg b1 copy: 1.
 	c2 := cfg b1 copy: 2.
-	"The phi does not let b4 to be merged with the predecessors"
-	cfg b4 phiWith: c1 with: c2.
+	
+	"If there is no phi in the successors, they can be merged."
 
 	cfg applyOptimisation: DRCleanControlFlow new.
 
-	self assert: cfg b1 successors asSet size > 1
+	self assert: cfg b1 successors asSet size equals: 1
 ]
 
 { #category : #'tests - redundant branches' }
