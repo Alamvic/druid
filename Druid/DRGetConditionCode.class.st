@@ -49,8 +49,10 @@ DRGetConditionCode >> prettyPrint [
 
 { #category : #reversing }
 DRGetConditionCode >> reversed [
-	
-	^ self class operands: { condition reversed  }, operands reversed
+
+	^ self class
+		  operands: { condition reversed } , operands reversed
+		  result: result
 ]
 
 { #category : #SCCP }
