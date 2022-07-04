@@ -21,14 +21,24 @@ DRPrimitiveCompilationTest class >> testParameters [
 { #category : #'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 	
-	| generatorSelector stopInstruction |
+	^ self compileDruidPrimitive: aSelector with: [ :compiler | "nothing" ]
+]
+
+{ #category : #'helpers-compiling' }
+DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector with: aBlock [
+	
+	| generatorSelector stopInstruction compiler |
 	generatorSelector := (#gen, '_' , aSelector) asSymbol.
+
 	"First generate druid code"
-	DRPrimitiveCompilerCompiler
-		compilePrimitive: aSelector
-		from: self interpreter
-		as: generatorSelector
-		in: DruidTestRTLCompiler.
+	compiler := DRPrimitiveCompilerCompiler new
+		primitiveName: aSelector;
+		interpreter: self interpreter;
+		primitiveCompilerName: generatorSelector;
+		compilerClass: DruidTestRTLCompiler.
+		
+	aBlock value: compiler.
+	compiler compile.
 
 	"Then generate the machine code for that method"
 	initialAddress := self compile: [
