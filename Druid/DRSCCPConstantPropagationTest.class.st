@@ -5,23 +5,6 @@ Class {
 }
 
 { #category : #tests }
-DRSCCPConstantPropagationTest >> testDoNotPropagateInArithmeticsFunctions [
-
-	"Phi functions should contain variables and not values"
-
-	| cfg copy add |
-	cfg := self setUpCFG: 2.
-
-	copy := cfg b1 copy: DRNilObject new.
-	add := cfg b1 add: copy to: 8.
-
-	optimisation applyTo: cfg.
-
-	self assert: cfg b1 firstInstruction equals: copy.
-	self assert: add operand1 equals: copy.
-]
-
-{ #category : #tests }
 DRSCCPConstantPropagationTest >> testDoNotPropagateInPhiFunctions [
 
 	"Phi functions should contain variables and not values"
