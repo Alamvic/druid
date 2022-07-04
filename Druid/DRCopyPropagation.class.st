@@ -9,13 +9,12 @@ DRCopyPropagation >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph instructions copy do: [ :i | 
 		(i isCopy and: [ 
-			 i operand1 isValue not "constant propagation is other optimisation" ]) 
+			 i result isPhysicalRegister not and: [ i operand1 isInstruction ] ]) 
 			ifTrue: [ self propagateCopyFrom: i ] ]
 ]
 
 { #category : #operations }
 DRCopyPropagation >> propagateCopyFrom: i [
 
-	(i users reject: [ :user | user isPhiFunction ]) do: [ :user | 
-		user replaceOperand: i by: i operands first ]
+	i users do: [ :user | user replaceOperand: i by: i operands first ]
 ]
