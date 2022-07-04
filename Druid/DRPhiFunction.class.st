@@ -132,6 +132,14 @@ DRPhiFunction >> opcode [
 	 
 ]
 
+{ #category : #accessing }
+DRPhiFunction >> predecessorAtOperand: anOperand [
+
+	| index |
+	index := operands indexOf: anOperand.
+	^ self basicBlock predecessorAt: index
+]
+
 { #category : #'users-definitions' }
 DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
 

@@ -742,6 +742,12 @@ DRBasicBlock >> phiWithVariables: variables [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> predecessorAt: index [
+	
+	^ predecessors at: index
+]
+
+{ #category : #accessing }
 DRBasicBlock >> predecessors [
 	^ predecessors
 ]

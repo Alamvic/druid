@@ -744,3 +744,23 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithTwoBlocks [
 		assertCollection: lastFrontier instructions fourth operands
 		hasSameElements: { lastFrontier phiFunctions second . lastFrontier phiFunctions third }
 ]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateWithPhiUsersInFrontier [
+
+	| cfg frontierOfFrontiers |
+	cfg := self generateDruidIRFor: #primitiveDoubleInnerBranching.
+
+	cfg applyOptimisation:
+		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
+			 DRCleanControlFlow new).
+
+	(cfg blockById: 43) tailDuplicate.
+	cfg validate.
+
+	"All non phi instructions in the frontier should depend on phis inside this block"
+	frontierOfFrontiers := cfg blockById: 40.
+
+	self assert: (frontierOfFrontiers instructions third operands allSatisfy: [ :op |
+		op isPhiFunction and: [ op basicBlock = frontierOfFrontiers ] ])
+]
