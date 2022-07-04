@@ -556,6 +556,226 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveReturningObjectReference [
 	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
 ]
 
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesArray [
+
+	| class |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNewWithArg.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory arrayFormat.
+	memory ensureBehaviorHash: class.
+	self
+		executePrimitiveWithReceiver: class
+		withArguments: { memory integerObjectOf: 3 }.
+	
+	self assert: (memory stSizeOf: machineSimulator receiverRegisterValue) equals: 3.
+	0 to: 2 do: [ :e |
+		self
+			assert: (memory fetchPointer: e ofObject: machineSimulator receiverRegisterValue)
+			equals: memory nilObject
+	]
+]
+
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesByteArray [
+
+	| class |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNewWithArg.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory firstByteFormat.
+	memory ensureBehaviorHash: class.
+	self
+		executePrimitiveWithReceiver: class
+		withArguments: { memory integerObjectOf: 3 }.
+
+	self assert: (memory stSizeOf: machineSimulator receiverRegisterValue) equals: 3.
+	0 to: 2 do: [ :e |
+		self
+			assert: (memory fetchByte: e ofObject: machineSimulator receiverRegisterValue)
+			equals: 0
+	]
+]
+
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesInteger16Array [
+
+	| class |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNewWithArg.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory firstShortFormat.
+	memory ensureBehaviorHash: class.
+	self
+		executePrimitiveWithReceiver: class
+		withArguments: { memory integerObjectOf: 3 }.
+
+	self assert: (memory stSizeOf: machineSimulator receiverRegisterValue) equals: 3.
+	0 to: 2 do: [ :e |
+		self
+			assert: (memory fetchShort16: e ofObject: machineSimulator receiverRegisterValue)
+			equals: 0
+	]
+]
+
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesInteger32Array [
+
+	| class |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNewWithArg.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory firstLongFormat.
+	memory ensureBehaviorHash: class.
+	self
+		executePrimitiveWithReceiver: class
+		withArguments: { memory integerObjectOf: 3 }.
+
+	self assert: (memory stSizeOf: machineSimulator receiverRegisterValue) equals: 3.
+	0 to: 2 do: [ :e |
+		self
+			assert: (memory fetchLong32: e ofObject: machineSimulator receiverRegisterValue)
+			equals: 0
+	]
+]
+
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesInteger64Array [
+
+	| class |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNewWithArg.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory sixtyFourBitIndexableFormat.
+	memory ensureBehaviorHash: class.
+	self
+		executePrimitiveWithReceiver: class
+		withArguments: { memory integerObjectOf: 3 }.
+
+	self assert: (memory stSizeOf: machineSimulator receiverRegisterValue) equals: 3.
+	0 to: 2 do: [ :e |
+		self
+			assert: (memory fetchLong64: e ofObject: machineSimulator receiverRegisterValue)
+			equals: 0
+	]
+]
+
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesArray [
+
+	| class |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNewWithArg.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 4
+		         instSpec: memory arrayFormat.
+	memory ensureBehaviorHash: class.
+	self
+		executePrimitiveWithReceiver: class
+		withArguments: { memory integerObjectOf: 3 }.
+
+	self
+		assert:
+		(memory fetchClassOf: machineSimulator receiverRegisterValue)
+		equals: class
+]
+
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesByteArray [
+
+	| class |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNewWithArg.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory firstByteFormat.
+	memory ensureBehaviorHash: class.
+	self
+		executePrimitiveWithReceiver: class
+		withArguments: { memory integerObjectOf: 3 }.
+
+	self
+		assert:
+		(memory fetchClassOf: machineSimulator receiverRegisterValue)
+		equals: class
+]
+
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesInteger16Array [
+
+	| class |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNewWithArg.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory firstShortFormat.
+	memory ensureBehaviorHash: class.
+	self
+		executePrimitiveWithReceiver: class
+		withArguments: { memory integerObjectOf: 3 }.
+
+	self
+		assert:
+		(memory fetchClassOf: machineSimulator receiverRegisterValue)
+		equals: class
+]
+
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesInteger32Array [
+
+	| class |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNewWithArg.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory firstLongFormat.
+	memory ensureBehaviorHash: class.
+	self
+		executePrimitiveWithReceiver: class
+		withArguments: { memory integerObjectOf: 3 }.
+
+	self
+		assert:
+		(memory fetchClassOf: machineSimulator receiverRegisterValue)
+		equals: class
+]
+
+{ #category : #'tests-real primitives' }
+DRPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesInteger64Array [
+
+	| class |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveNewWithArg.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory sixtyFourBitIndexableFormat.
+	memory ensureBehaviorHash: class.
+	self
+		executePrimitiveWithReceiver: class
+		withArguments: { memory integerObjectOf: 3 }.
+
+	self
+		assert:
+		(memory fetchClassOf: machineSimulator receiverRegisterValue)
+		equals: class
+]
+
 { #category : #'tests-stack' }
 DRPrimitiveCompilationTest >> testCompiledPrimitiveInitializesCorrectlyTheSimulatedStack [
 
@@ -610,6 +830,16 @@ DRPrimitiveCompilationTest >> testDivision [
 	self compileDruidPrimitive: #primitiveDivide.
 
 	self executePrimitiveWithReceiver: 42 withArguments: { 2 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 21
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testDivisionByConstant [
+
+	self compileDruidPrimitive: #primitiveDivideByConstant.
+
+	self executePrimitiveWithReceiver: 42.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 21
 ]
@@ -1107,6 +1337,59 @@ DRPrimitiveCompilationTest >> testIncrementConstantReceiver [
 	self assert: machineSimulator receiverRegisterValue equals: 43
 ]
 
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testIntegerDivision [
+
+	self compileDruidPrimitive: #primitiveIntegerDivide.
+
+	self executePrimitiveWithReceiver: 42 withArguments: { 2 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 21
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testIntegerDivisionByConstant [
+
+	self compileDruidPrimitive: #primitiveIntegerDivideByConstant.
+
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 21
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testIntegerDivisionByZero [
+
+	<expectedFailure>
+
+	self compileDruidPrimitive: #primitiveIntegerDivide.
+
+	self executePrimitiveWithReceiver: 42 withArguments: { 0 }.
+	
+	self flag: #todo. "Fix simulator"
+	self assert: machineSimulator overflow "Replace with expected assertion"
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testIntegerDivisionNotExact [
+
+	self compileDruidPrimitive: #primitiveIntegerDivide.
+
+	self executePrimitiveWithReceiver: 5 withArguments: { 3 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveCompilationTest >> testIntegerDivisionNotExactNegative [
+
+	self compileDruidPrimitive: #primitiveIntegerDivide.
+
+	self executePrimitiveWithReceiver: 5 withArguments: { -3 }.
+	
+	self assert: (machineSimulator receiverRegisterValue signedIntFromShort) equals: -1.   
+]
+
 { #category : #'tests-builtins' }
 DRPrimitiveCompilationTest >> testIsIntegerObjectWithIntegerObject [
 
@@ -1168,9 +1451,9 @@ DRPrimitiveCompilationTest >> testLessThanValueTrue [
 { #category : #'tests-arithmetic' }
 DRPrimitiveCompilationTest >> testMod [
 
-	self compileDruidPrimitive: #primitiveMod.
+	self compileDruidPrimitive: #primitiveModByConstant.
 
-	self executePrimitiveWithReceiver: 43 withArguments: { 2 }.
+	self executePrimitiveWithReceiver: 43.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]

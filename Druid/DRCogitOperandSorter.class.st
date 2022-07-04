@@ -74,7 +74,11 @@ DRCogitOperandSorter >> visitCopy: aDRCopy [
 { #category : #visiting }
 DRCogitOperandSorter >> visitDivision: aDRDivision [ 
 	
-	"Nothing"
+	"Division only exist between two registers in cogit. Extract the second operand too"
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRDivision.
+	aDRDivision reverseOperands.
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRDivision.
+	aDRDivision reverseOperands.
 ]
 
 { #category : #visiting }
@@ -106,7 +110,8 @@ DRCogitOperandSorter >> visitLoad: aDRLoad [
 { #category : #visiting }
 DRCogitOperandSorter >> visitMod: aDRMod [ 
 	
-	"Nothing"
+	"Mod and division are the same instruction in cogit"
+	self visitDivision: aDRMod
 ]
 
 { #category : #visiting }

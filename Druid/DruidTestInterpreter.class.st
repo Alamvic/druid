@@ -450,8 +450,37 @@ DruidTestInterpreter >> primitiveDivide [
 	<numberOfArguments: 1>
 	
 	| result |
-	result := (self stackValue: 1) // (self stackValue: 0).
+	result := (self stackValue: 1) / (self stackValue: 0).
 	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDivideByConstant [
+
+	<numberOfArguments: 0>
+	
+	| result |
+	result := (self stackValue: 0) / 2.
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDoubleInnerBranching [
+
+	<numberOfArguments: 0>
+	| res t1 |
+	t1 := 10.
+	res := self stackTop > 10
+		       ifTrue: [ | t2 |
+			      t1 := self stackTop < 20
+				       ifTrue: [ 5 ]
+				       ifFalse: [ 17 ].
+					t2 := self stackTop < 10
+				       ifTrue: [ 15 ]
+				       ifFalse: [ 27 ].
+					t1 + t2 ]
+		       ifFalse: [ 99 ].
+	self pop: 1 thenPush: res + t1
 ]
 
 { #category : #'as yet unclassified' }
@@ -693,6 +722,26 @@ DruidTestInterpreter >> primitiveInnerBranchingWithDeadBranches [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIntegerDivide [
+
+	<numberOfArguments: 1>
+	
+	| result |
+	result := (self stackValue: 1) // (self stackValue: 0).
+	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIntegerDivideByConstant [
+
+	<numberOfArguments: 0>
+	
+	| result |
+	result := (self stackValue: 0) // 2.
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveIsIntegerObject [
 
 	<numberOfArguments: 0>
@@ -779,6 +828,16 @@ DruidTestInterpreter >> primitiveMod [
 	| result |
 	result := (self stackValue: 1) \\ (self stackValue: 0).
 	self pop: 2 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveModByConstant [
+
+	<numberOfArguments: 0>
+	
+	| result |
+	result := (self stackValue: 0) \\ 2.
+	self pop: 1 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }
