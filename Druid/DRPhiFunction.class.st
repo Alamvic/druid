@@ -167,9 +167,15 @@ DRPhiFunction >> replaceOperandAtPredecessor: predecessor by: anotherOperand [
 { #category : #replace }
 DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
-	| fullNewOperands |
+	| fullNewOperands replacement predecessorForValue |
+	"Only replace values by dominated phi function in the corresponding predecessor"
+	predecessorForValue := self predecessorAtOperand: myOperand.
+	replacement := newOperands
+		detect: [ :newOperand | predecessorForValue isDominatedBy: newOperand basicBlock ]
+		ifNone: [ ^ nil ].
+
 	"Replace phis operands is hard, we build a new one and replace"
-	fullNewOperands := (operands copyWithout: myOperand) , newOperands.
+	fullNewOperands := (operands copyWithout: myOperand) , {replacement}.
 	^ self replaceBy: (self basicBlock phiWithVariables: fullNewOperands)
 ]
 
