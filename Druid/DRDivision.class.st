@@ -21,3 +21,9 @@ DRDivision >> opcode [
 	
 	^ 'DIV'
 ]
+
+{ #category : #SCCP }
+DRDivision >> sccpOperateOnLattice: operand and: operand2 [
+	
+	^ operand // operand2
+]

@@ -45,14 +45,18 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 			^ true
 		].
 		
-		(i result isNoResult not and: [i operands size = 2]) ifTrue: [ | secondOperandInterval currentInterval operandToMergeInterval |
+		(i result isNoResult not and: [i operands size = 2])
+			ifTrue: [ | secondOperandInterval currentInterval operandToMergeInterval |
 			"Merge the two intervals, finding the operand that is not a constant.
-			Take the firt operand if both are not constants.
-			When transforming to Cogit code, we output the second operand and the destination"
-			operandToMergeInterval := i operand1 isInstruction
-				ifTrue: [ i operand1 ]
-				ifFalse: [ i operand2 ].
+			Take the first operand.
+			When transforming to Cogit code, we output the first operand as second operand and destination.
 			
+			R0 := Sub R0 1
+			=>
+			Sub 1 R0
+			"
+			operandToMergeInterval := i operand1.
+
 			secondOperandInterval := self liveSetOf: operandToMergeInterval.
 			currentInterval := self liveSetOf: i.
 
@@ -80,15 +84,28 @@ DRCogitLinearScanRegisterAllocator >> computeLivenessOfInstruction: anInstructio
 	"If the instruction is a division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
 	This instruction requires 4 different registers and not three (operands + destination).
 	We model this by adding an extra operand at this point."
-		
+
 	"Then regiter the live interval for the new synthetic operand"
-	(anInstruction isDivision or: [ anInstruction isModulo ]) ifTrue: [ | newOperand |
-		newOperand := anInstruction basicBlock controlFlowGraph allocateTemporaryRegister.
+
+	(anInstruction isDivision or: [ anInstruction isModulo ]) ifTrue: [ 
+		| newOperand |
+		anInstruction operands size = 2
+			ifTrue: [ 
+				newOperand := anInstruction basicBlock controlFlowGraph
+					              allocateTemporaryRegister.
+				anInstruction addOperand: newOperand ]
+			ifFalse: [ newOperand := anInstruction operands last ].
+
+
 		"This live set starts in the next instruction, but it is not used so it will be freed"
-		(self liveSetOf: newOperand) addRangeFrom: anInstruction to: anInstruction nextInstruction.
-		anInstruction addOperand: newOperand ].
-	
-	^ super computeLivenessOfInstruction: anInstruction inBlock: b withLiveSet: live
+		(self liveSetOf: newOperand)
+			addRangeFrom: anInstruction
+			to: anInstruction nextInstruction ].
+
+	^ super
+		  computeLivenessOfInstruction: anInstruction
+		  inBlock: b
+		  withLiveSet: live
 ]
 
 { #category : #initialization }

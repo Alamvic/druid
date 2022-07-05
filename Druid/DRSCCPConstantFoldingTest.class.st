@@ -217,6 +217,23 @@ DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyInSingleBasicBlock [
 	self assertLastInstructionOf: cfg isCopyValue: 12
 ]
 
+{ #category : #arithmetic }
+DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyWithFoldedUsers [
+
+	| b1 cfg foldedInstruction operand1 operand2 |
+	cfg := self setUpCFG: 1.
+	b1 := cfg b1.
+
+	operand1 := b1 copy:3.
+	operand2 := b1 copy: 4.
+	foldedInstruction := b1 multiply: operand1 by: operand2.
+	b1 add: foldedInstruction to: 3.
+
+	optimisation applyTo: cfg.
+
+	self assertLastInstructionOf: cfg isCopyValue: 15
+]
+
 { #category : #helpers }
 DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction between: value1 and: value2 [
 
@@ -248,12 +265,17 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction betweenOp: opera
 DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction betweenOp: operand1 andOp: operand2 [
 
 	| b1 cfg foldedInstruction |
-	cfg := self setUpCFG: 1. 
+	cfg := self setUpCFG: 1.
 	b1 := cfg b1.
 
-	b1 addInstruction: (operand1).
-	b1 addInstruction: (operand2).
-	b1 addInstruction: (foldedInstruction := instruction operands: { operand1. operand2 } result: instructionFactory allocateTemporaryRegister).
+	b1 addInstruction: operand1.
+	b1 addInstruction: operand2.
+	b1 addInstruction: (foldedInstruction := instruction
+			                      operands: { 
+					                      operand1.
+					                      operand2 }
+			                      result:
+			                      instructionFactory allocateTemporaryRegister).
 	b1 addInstruction: (instructionFactory copy: foldedInstruction).
 
 	optimisation applyTo: cfg.

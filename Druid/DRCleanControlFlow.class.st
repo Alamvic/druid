@@ -150,9 +150,10 @@ DRCleanControlFlow >> shouldRemoveEmptyBlock: aDRBasicBlock [
 		ifFalse: [ ^ false ].
 		
 	"If removing this block would make my predecessor point twice to the same successor, do not do it"
-	(aDRBasicBlock predecessors anySatisfy: [ :e |
+	((aDRBasicBlock predecessors anySatisfy: [ :e |
 		e successors includes: aDRBasicBlock successor ])
-			ifTrue: [ ^ false ].
+			and: [ aDRBasicBlock successor hasPhiFunctions ])
+				ifTrue: [ ^ false ].
 	
 	"Avoid complex phi function rewriting"
 	(aDRBasicBlock predecessors size > 1 and: [ aDRBasicBlock successor hasPhiFunctions ])

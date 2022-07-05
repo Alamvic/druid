@@ -33,6 +33,15 @@ DRSpilledMemoryAddress >> name [
 	^ 'StackEntry-', stackOffset asString
 ]
 
+{ #category : #memory }
+DRSpilledMemoryAddress >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream nextPutAll: '('.
+	aStream print: self name.
+	aStream nextPutAll: ')'.
+]
+
 { #category : #cogit }
 DRSpilledMemoryAddress >> rtlArgumentExpressions [
 

@@ -190,6 +190,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #cull: put: #interpretBlockCullWith:.
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
 	specialCases at: #whileTrue: put: #interpretWhileTrueWith:.
+	specialCases at: #caseOf:otherwise: put: #interpretCaseOfWith:.
 	
 	specialCases at: #= put: #interpretEqualityComparisonWith:.
 	specialCases at: #~= put: #interpretInequalityComparisonWith:.
@@ -205,6 +206,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #+ put: #interpretAddWith:.
 	specialCases at: #- put: #interpretSubstractWith:.
 	specialCases at: #* put: #interpretMultiplyWith:.
+	specialCases at: #/ put: #interpretDivisionWith:.
 	specialCases at: #// put: #interpretDivisionWith:.
 	specialCases at: #\\ put: #interpretModWith:.
 	specialCases at: #negated put: #interpretNegatedWith:.
@@ -215,15 +217,19 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #multiplySmallInteger:withSmallInteger:ifOverflow: put: #interpretMultiplySmallIntegerWithOverflowWith:.
 
 
-	"Type coercions"
+	"Types"
 	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
+	specialCases at: #sizeof: put: #interpretSizeofWith:.
 
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
 	self flag: #TODO. "Add types to Druid"
 	specialCases at: #uint8At: put: #interpretLoadUint8AtWith:.
+	specialCases at: #uint8At:put: put: #interpretStoreUint8AtWith:.
 	specialCases at: #uint16At: put: #interpretLoadUint16AtWith:.
+	specialCases at: #uint16At:put: put: #interpretStoreUint16AtWith:.
 	specialCases at: #uint32At: put: #interpretLoadUint32AtWith:.
+	specialCases at: #uint32At:put: put: #interpretStoreUint32AtWith:.
 	specialCases at: #uint64At: put: #interpretLoadUint64AtWith:.
 	specialCases at: #uint64At:put: put: #interpretStoreUint64AtWith:.
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
@@ -237,9 +243,9 @@ DRIRGenerator >> initializeSpecialCases [
 	"Bit Manipulation"
 	specialCases at: #<< put: #interpretLeftShiftWith:.
 	specialCases at: #>> put: #interpretRightShiftWith:.
-	specialCases at: #bitShift: put: #interpretBitShiftWith:.
 	specialCases at: #bitAnd: put: #interpretBitAndWith:.
 	specialCases at: #bitOr: put: #interpretBitOrWith:.
+	specialCases at: #bitXor: put: #interpretBitXorWith:.
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
 
 	"Stack access"
@@ -248,6 +254,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
 		
 	"special simulation cases"
+	specialCases at: #cCode: put: #interpretCCodeInSmalltalkWith:.
 	specialCases at: #cCode:inSmalltalk: put: #interpretCCodeInSmalltalkWith:.
 	
 	"Special pharo things such as exceptions"
@@ -255,17 +262,16 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #assert: put: #ignoreMessageWith:.
 	
 	"special variables"
-	self flag: #TODO. "Generalize cases"
 	variableSpecialCases at: #nilObj put: #interpretNilObjectWith:.
 	variableSpecialCases at: #falseObj put: #interpretFalseObjectWith:.
 	variableSpecialCases at: #trueObj put: #interpretTrueObjectWith:.
-	variableSpecialCases at: #hiddenRootsObj put: #interpretHiddenRootsObjectWith:.
 	
 	variableSpecialCases at: #freeStart put: #interpretFreeStartWith:.
 	variableSpecialCases at: #scavengeThreshold put: #interpretScavengeThresholdWith:.
 	variableSpecialCases at: #argumentCount put: #interpretArgumentCountWith:.
 	
-	
+	"Border case, this should not be defined here, it should be extensible"
+	variableSpecialCases at: #hiddenRootsObj put: #interpretNilObjectWith:
 ]
 
 { #category : #factory }
@@ -374,6 +380,12 @@ DRIRGenerator >> interpretBitShiftWith: aRBMessageNode [
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitShift
 ]
 
+{ #category : #'special cases' }
+DRIRGenerator >> interpretBitXorWith: aRBMessageNode [ 
+
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitXor
+]
+
 { #category : #interpretation }
 DRIRGenerator >> interpretBlockActivation: aRBBlockNode [
 
@@ -444,8 +456,64 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 
 { #category : #'special-cases' }
 DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [ 
-	
+
 	self interpretBlockBody: aRBMessageNode arguments first
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretCaseOfWith: aRBMessageNode [ 
+	
+	| conditionValue previousFalseBlock trueBlocks otherwiseblock exitOtherwiseBlock continue |
+	aRBMessageNode receiver acceptVisitor: self.
+	conditionValue := self popOperand.
+	
+	previousFalseBlock := self currentBasicBlock.
+	trueBlocks := aRBMessageNode arguments first statements collect: [ :case |
+		| caseValue caseJump executionStateBeforeBranch executionStateAfterBranch |
+		self assert: case selector = #->.
+		
+		"Case entry block"
+		self newBasicBlock.
+		previousFalseBlock jumpTo: currentBasicBlock.
+		
+		self interpretBlockBody: case receiver.
+		caseValue := self popOperand.
+		caseJump := self
+			instantiateNoResultInstruction: DRBranchIfCondition
+			operands: { DREqualsThanComparison new . conditionValue . caseValue }.
+		self currentBasicBlock endInstruction: caseJump.
+		
+		"If condition does not hold block"
+		previousFalseBlock := self newBasicBlock.
+		currentBasicBlock addPredecessor: caseJump basicBlock.
+		caseJump falseBranch: currentBasicBlock.
+		
+		"If condition holds block"
+		executionStateBeforeBranch := executionState copy.
+		self newBasicBlock.
+		currentBasicBlock addPredecessor: caseJump basicBlock.
+		caseJump trueBranch: currentBasicBlock.
+		self interpretBlockBody: case arguments first.
+		
+		executionStateAfterBranch := executionState.
+		executionState := executionStateBeforeBranch.
+		{self currentBasicBlock. executionStateAfterBranch}
+	].
+
+	"otherwise block"
+	otherwiseblock := self newBasicBlock.
+	previousFalseBlock jumpTo: otherwiseblock.
+	self interpretBlockBody: aRBMessageNode arguments second.
+	exitOtherwiseBlock := self currentBasicBlock.
+	
+	continue := self newBasicBlock.
+	exitOtherwiseBlock jumpTo: continue.
+	trueBlocks do: [ :b | b first jumpTo: continue ].
+	
+	executionState := DRStackMerger new
+		builder: self;
+		mergeBlock: currentBasicBlock;
+		mergeAll: { executionState }, (trueBlocks collect: [ :e | e second ]).
 ]
 
 { #category : #API }
@@ -808,14 +876,20 @@ DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretScavengeThresholdWith: aRBVariableNode [
 
-	| byteSize |
-	byteSize := 8.
 	^ self
-		addInstructionFrom: aRBVariableNode
-		instructionKind: DRLoad
-		operands: { 
-				byteSize asDRValue.
-				(DRInterpreterReference reference: 'objectMemory getScavengeThreshold') }
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRCopy
+		  operands: { (DRJitCompileTimeExpression new expression:
+				   'objectMemory getScavengeThreshold') }
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretSizeofWith: aRBMessageNode [ 
+	
+	| receiver size |
+	receiver := aRBMessageNode receiver acceptVisitor: self.
+	size := self popOperand value sizeof: aRBMessageNode arguments first value.
+	^ self addCopy: aRBMessageNode with: size asDRValue
 ]
 
 { #category : #'special cases - stack' }
@@ -855,9 +929,27 @@ DRIRGenerator >> interpretStore: aRBMessageNode ofByteSize: byteSize [
 ]
 
 { #category : #'special cases - memory access' }
+DRIRGenerator >> interpretStoreUint16AtWith: aRBMessageNode [ 
+	
+	^ self interpretStore: aRBMessageNode ofByteSize: 2
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretStoreUint32AtWith: aRBMessageNode [ 
+	
+	^ self interpretStore: aRBMessageNode ofByteSize: 4
+]
+
+{ #category : #'special cases - memory access' }
 DRIRGenerator >> interpretStoreUint64AtWith: aRBMessageNode [ 
 	
 	^ self interpretStore: aRBMessageNode ofByteSize: 8
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretStoreUint8AtWith: aRBMessageNode [
+	
+	^ self interpretStore: aRBMessageNode ofByteSize: 1
 ]
 
 { #category : #'special-cases' }
@@ -1363,17 +1455,25 @@ DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 ]
 
 { #category : #visiting }
-DRIRGenerator >> visitMessageNode: aRBMessageNode [ 
+DRIRGenerator >> visitMessageNode: aRBMessageNode [
 
-	| receiver arguments method |
+	| receiver |
+	aRBMessageNode receiver acceptVisitor: self.
+	receiver := self popOperand.
+
+	^ self visitMessageNode: aRBMessageNode receiver: receiver
+]
+
+{ #category : #visiting }
+DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
+
+	| arguments method |	
 	specialCases
 		at: aRBMessageNode selector
 		ifPresent: [ :mapping |
 			^ self perform: mapping withArguments: { aRBMessageNode } ].
 	
 	"Resolve it as a normal send"
-	aRBMessageNode receiver acceptVisitor: self.
-	receiver := self popOperand.
 	arguments := aRBMessageNode arguments collect: [ :e |
 		e acceptVisitor: self.
 		self popOperand ].

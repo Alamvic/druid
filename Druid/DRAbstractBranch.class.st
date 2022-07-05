@@ -10,9 +10,15 @@ Class {
 }
 
 { #category : #accessing }
-DRAbstractBranch >> beBackJumpTo: aDRBasicBlock [ 
-	
-	backJumps add: aDRBasicBlock 
+DRAbstractBranch >> beBackJumpTo: aDRBasicBlock [
+
+	backJumps add: aDRBasicBlock
+]
+
+{ #category : #accessing }
+DRAbstractBranch >> beForwardJumpTo: aDRBasicBlock [
+
+	backJumps remove: aDRBasicBlock
 ]
 
 { #category : #accessing }
@@ -21,9 +27,11 @@ DRAbstractBranch >> falseBranch [
 ]
 
 { #category : #accessing }
-DRAbstractBranch >> falseBranch: aDruidIRGenerator [ 
+DRAbstractBranch >> falseBranch: aDRBasicBlock [ 
 
-	falseBranch := aDruidIRGenerator 
+	backJumps remove: falseBranch ifAbsent: [  ].
+	falseBranch := aDRBasicBlock
+	
 ]
 
 { #category : #initialization }
@@ -31,16 +39,18 @@ DRAbstractBranch >> initialize [
 
 	super initialize.
 	result := DRNoRegister new.
-	backJumps := OrderedCollection new
+	backJumps := Set new
 ]
 
 { #category : #testing }
 DRAbstractBranch >> isBackJump [
+
 	^ backJumps isNotEmpty
 ]
 
 { #category : #testing }
 DRAbstractBranch >> isBackJumpTo: aDRBasicBlock [ 
+	
 	^ backJumps includes: aDRBasicBlock
 ]
 
@@ -62,6 +72,13 @@ DRAbstractBranch >> opcode [
 	^ 'If'
 ]
 
+{ #category : #copying }
+DRAbstractBranch >> postCopy [
+
+	super postCopy.
+	backJumps := backJumps copy
+]
+
 { #category : #printing }
 DRAbstractBranch >> prettyPrint [
 
@@ -73,11 +90,10 @@ DRAbstractBranch >> prettyPrint [
 { #category : #replacing }
 DRAbstractBranch >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [
 
-	trueBranch = aDRBasicBlock ifTrue: [ trueBranch := aDRBasicBlock2 ].
-	falseBranch = aDRBasicBlock ifTrue: [ falseBranch := aDRBasicBlock2 ].
-
-	(backJumps includes: aDRBasicBlock) ifTrue: [ 
-		backJumps remove: aDRBasicBlock ]
+	trueBranch = aDRBasicBlock ifTrue: [ 
+		self trueBranch: aDRBasicBlock2 ].
+	falseBranch = aDRBasicBlock ifTrue: [ 
+		self falseBranch: aDRBasicBlock2 ]
 ]
 
 { #category : #SCCP }
@@ -121,7 +137,9 @@ DRAbstractBranch >> trueBranch [
 ]
 
 { #category : #accessing }
-DRAbstractBranch >> trueBranch: aDruidIRGenerator [ 
-	
-	trueBranch := aDruidIRGenerator 
+DRAbstractBranch >> trueBranch: aDRBasicBlock [
+
+	backJumps remove: trueBranch ifAbsent: [  ].
+
+	trueBranch := aDRBasicBlock
 ]

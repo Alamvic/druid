@@ -130,3 +130,12 @@ DRRegisterDomain >> reg: anObject [
 
 	reg := anObject
 ]
+
+{ #category : #reversing }
+DRRegisterDomain >> reversed [
+
+	^ self class new
+		  reg: reg;
+		  constraint: constraint reversed;
+		  yourself
+]
