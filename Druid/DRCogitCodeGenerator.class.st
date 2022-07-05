@@ -52,7 +52,7 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 	
 	blocks withIndexDo: [ :b :i |
 		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
-		self preProcessBlock: b. 
+		self preProcessBlock: b.
 		b instructionsDo: [ :e | 
 			self buildStatementsForInstruction: e ] ].
 
@@ -689,7 +689,7 @@ DRCogitCodeGenerator >> visitReturn: aDRReturn [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitRightShift: aDRCogitRightShift [ 
 
-	^ self threeOperandCogitRTL: #LogicalShiftRight instruction: aDRCogitRightShift
+	^ self threeOperandCogitRTL: #ArithmeticShiftRight instruction: aDRCogitRightShift
 
 ]
 

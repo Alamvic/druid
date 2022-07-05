@@ -962,8 +962,8 @@ DruidTestRTLCompiler >> gen_primitiveBitShift [
 	jump1 := self JumpGreater: 0.
 	self MoveR: ReceiverResultReg R: TempReg.
 	self NegateR: TempReg.
-	self MoveR: Arg0Reg R: ClassReg.
-	self LogicalShiftRightR: TempReg R: ClassReg.
+	self MoveR: ReceiverResultReg R: ClassReg.
+	self ArithmeticShiftRightR: TempReg R: ClassReg.
 	self MoveR: ClassReg R: ReceiverResultReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
@@ -1558,7 +1558,7 @@ DruidTestRTLCompiler >> gen_primitiveImplicitArgumentBitShiftLeft [
 	self MoveR: ReceiverResultReg R: TempReg.
 	self NegateR: TempReg.
 	self MoveCq: 1 R: ClassReg.
-	self LogicalShiftRightR: TempReg R: ClassReg.
+	self ArithmeticShiftRightR: TempReg R: ClassReg.
 	self MoveR: ClassReg R: ReceiverResultReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
@@ -1879,7 +1879,7 @@ DruidTestRTLCompiler >> gen_primitiveMultiplyWithOverflow [
 
 	| jump1 jump2 currentBlock |
 	self MoveR: ReceiverResultReg R: TempReg.
-	self LogicalShiftRightCq: 3 R: TempReg.
+	self ArithmeticShiftRightCq: 3 R: TempReg.
 	self MoveR: Arg0Reg R: ClassReg.
 	self SubCq: 1 R: ClassReg.
 	self MulR: ClassReg R: TempReg.
@@ -1933,10 +1933,10 @@ DruidTestRTLCompiler >> gen_primitiveNew [
 	self MoveR: Extra3Reg R: SendNumArgsReg.
 	self CmpCq: 1 R: SendNumArgsReg.
 	jumpTrue := self JumpLessOrEqual: 0.
-	self MoveCq: 0 R: SendNumArgsReg.
+	self MoveCq: 0 R: Extra1Reg.
 	jumpNext := self Jump: 0.
 	jumpTrue jmpTarget: self Label.
-	self MoveCq: 1 R: SendNumArgsReg.
+	self MoveCq: 1 R: Extra1Reg.
 	jumpNext jmpTarget: self Label.
 	self MoveMw: 48 r: SPReg R: Extra3Reg.
 	self CmpCq: 1 R: Extra3Reg.
@@ -1945,10 +1945,10 @@ DruidTestRTLCompiler >> gen_primitiveNew [
 	self MoveR: Extra3Reg R: SendNumArgsReg.
 	self CmpCq: 5 R: SendNumArgsReg.
 	jumpTrue := self JumpZero: 0.
-	self MoveCq: 0 R: SendNumArgsReg.
+	self MoveCq: 0 R: Extra1Reg.
 	jumpNext := self Jump: 0.
 	jumpTrue jmpTarget: self Label.
-	self MoveCq: 1 R: SendNumArgsReg.
+	self MoveCq: 1 R: Extra1Reg.
 	jumpNext jmpTarget: self Label.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.

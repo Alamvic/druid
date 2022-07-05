@@ -206,6 +206,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #+ put: #interpretAddWith:.
 	specialCases at: #- put: #interpretSubstractWith:.
 	specialCases at: #* put: #interpretMultiplyWith:.
+	specialCases at: #/ put: #interpretDivisionWith:.
 	specialCases at: #// put: #interpretDivisionWith:.
 	specialCases at: #\\ put: #interpretModWith:.
 	specialCases at: #negated put: #interpretNegatedWith:.

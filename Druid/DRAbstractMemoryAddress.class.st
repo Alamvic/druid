@@ -21,7 +21,7 @@ DRAbstractMemoryAddress >> rtlOperandQualifierForInstruction: instruction [
 
 	| bytesSuffix |
 	bytesSuffix := instruction size = 1
-		               ifTrue: [ 'w' ]
+		               ifTrue: [ 'b' ]
 		               ifFalse: [ (instruction size * 8) asString "bytes" ].
 
 	^ 'M' , bytesSuffix , ':r:'
