@@ -452,10 +452,6 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 		(u replaceOperandsIfDominated: myInstruction withAll: phis) 
 			ifNotNil: [ users remove: u ] ].
 
-	phis size = 1 ifTrue: [ "Last phi, all users should be replaced"
-		self assert: users isEmpty.
-		^ self ].
-
 	"Create the phi of phis in the frontier and update uses based on blocks dominance"
 	nextFrontier := controlFlowGraph tree minimalDominanceFrontierOfAll:
 		                frontier.
