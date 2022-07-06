@@ -378,7 +378,9 @@ DRLinearScanRegisterAllocator >> prepareSSA [
 			copy := copyTarget copy: operand.
 			e replaceOperandAtPredecessor: copyTarget by: copy
 		]
-	]
+	].
+
+	controlFlowGraph fixBackJumps.
 ]
 
 { #category : #accessing }
