@@ -20,7 +20,6 @@ DRDeadEdgeSplitting >> doApplyWithGeneratedPaths: aCFG [
 
 	('Splitting: ' , edge destination id asString , ' -> ' , edge source id asString) traceCr.
 
-	edge destination splitTo: edge source.
-
+	edge split
 
 ]

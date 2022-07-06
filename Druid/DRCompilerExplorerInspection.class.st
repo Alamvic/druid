@@ -70,13 +70,26 @@ DRCompilerExplorerInspection >> blocks [
 { #category : #'instance creation' }
 DRCompilerExplorerInspection >> configureCFGCanvas: view [
 
-	model cfg showIn: view
+	model cfg showIn: view.
+
+	view shapes select: #isLine thenDo: [ :line | 
+		(line model includesAny: model path) ifTrue: [ 
+			self highlightLine: line ] ]
 ]
 
 { #category : #api }
 DRCompilerExplorerInspection >> hasOutputActivationPort [
 
 	^ true
+]
+
+{ #category : #'instance creation' }
+DRCompilerExplorerInspection >> highlightLine: line [
+
+	line border: (RSBorder new
+			 width: 3;
+			 color: Color yellow darker;
+			 yourself)
 ]
 
 { #category : #initialization }

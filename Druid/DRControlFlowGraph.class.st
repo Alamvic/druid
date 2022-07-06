@@ -393,6 +393,14 @@ DRControlFlowGraph >> outgoingEdgesFor: aBlock [
 ]
 
 { #category : #accessing }
+DRControlFlowGraph >> pathAt: index [
+
+	| lastEdge |
+	lastEdge := (self incomingEdgesFor: self lastBasicBlock) at: index.
+	^ lastEdge ancestors
+]
+
+{ #category : #accessing }
 DRControlFlowGraph >> pathsSize [
 
 	^ self lastPaths size

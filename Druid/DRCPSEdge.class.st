@@ -26,6 +26,14 @@ DRCPSEdge >> addConstraint: aConditionalConstraint to: id [
 ]
 
 { #category : #accessing }
+DRCPSEdge >> ancestors [
+
+	parent ifNil: [ ^ {  } ].
+
+	^ parent ancestors , { parent }
+]
+
+{ #category : #accessing }
 DRCPSEdge >> branchIndex: anInteger [ 
 	
 	branchIndex := anInteger
@@ -165,6 +173,12 @@ DRCPSEdge >> printOn: aStream [
 	aStream nextPutAll: ' -> '.
 	aStream print: destination id.
 	aStream nextPutAll: ')'
+]
+
+{ #category : #optimising }
+DRCPSEdge >> split [
+
+	destination splitTo: source
 ]
 
 { #category : #visiting }
