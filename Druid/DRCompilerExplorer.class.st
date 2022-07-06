@@ -180,8 +180,8 @@ DRCompilerExplorer >> optimizations [
 		  DRPhiSimplication.
 		  DRDeadCodeElimination.
 		  DRFailureCodeBasedTailDuplication.
-		  DRDeadPathSplitting.
-		  DRDeadPathElimination }
+		  DRDeadEdgeSplitting.
+		  DRDeadBranchElimination }
 ]
 
 { #category : #accessing }

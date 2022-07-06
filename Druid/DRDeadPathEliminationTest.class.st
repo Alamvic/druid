@@ -22,7 +22,7 @@ DRDeadPathEliminationTest >> setUp [
 
 	super setUp.
 	self configureInterpreter.
-	optimisation := DRDeadPathSplitting then: DRDeadPathElimination
+	optimisation := DRDeadEdgeSplitting then: DRDeadBranchElimination
 ]
 
 { #category : #optimization }
