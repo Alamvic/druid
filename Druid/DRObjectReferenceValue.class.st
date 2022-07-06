@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #visiting }
+DRObjectReferenceValue >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitConstant: self
+]
+
 { #category : #testing }
 DRObjectReferenceValue >> isConstant [
 
@@ -19,7 +25,7 @@ DRObjectReferenceValue >> isObjectReferenceValue [
 { #category : #'cogit-generation' }
 DRObjectReferenceValue >> rtlOperandQualifier [
 
-	^ 'Cw:'
+	^ 'Cq:'
 ]
 
 { #category : #sccp }

@@ -7,12 +7,15 @@ Class {
 { #category : #initialization }
 DREqualsConstraint class >> withValue: aConstantValue [
 
-	({ true. false. nil } includes: aConstantValue) ifTrue: [ 
+	| value |
+	value := aConstantValue asDRValue.
+
+	(value isObjectReferenceValue or: [ value isNumberValue not]) ifTrue: [ 
 		^ DREqualsObjectConstraint new
-			  constantValue: aConstantValue;
+			  constantValue: value;
 			  yourself ].
 
-	^ super withValue: aConstantValue
+	^ super withValue: value
 ]
 
 { #category : #arithmetic }
@@ -54,7 +57,9 @@ DREqualsConstraint >> isIncludedIn: otherConstraint [
 { #category : #arithmetic }
 DREqualsConstraint >> negated [
 
-	^ DRNotEqualsConstraint withValue: constantValue
+	^ DRNotEqualsConstraint new
+		  constantValue: constantValue;
+		  yourself
 ]
 
 { #category : #printing }

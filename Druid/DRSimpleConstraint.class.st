@@ -11,7 +11,7 @@ Class {
 DRSimpleConstraint class >> withValue: aConstantValue [
 
 	^ self new
-		  constantValue: aConstantValue;
+		  constantValue: aConstantValue value;
 		  yourself
 ]
 

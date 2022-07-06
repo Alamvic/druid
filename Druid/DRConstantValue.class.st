@@ -67,6 +67,12 @@ DRConstantValue >> isCopy [
 	^ false
 ]
 
+{ #category : #testing }
+DRConstantValue >> isNumberValue [
+
+	^ value isNumber
+]
+
 { #category : #interpretation }
 DRConstantValue >> lookupClass [
 	

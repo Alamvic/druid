@@ -19,5 +19,7 @@ DREqualsObjectConstraint >> isIncludedIn: otherConstraint [
 { #category : #arithmetic }
 DREqualsObjectConstraint >> negated [
 
-	^ DRNotEqualsObjectConstraint withValue: constantValue
+	^ DRNotEqualsObjectConstraint new
+		  constantValue: constantValue;
+		  yourself
 ]
