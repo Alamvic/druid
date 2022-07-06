@@ -139,15 +139,7 @@ DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
 
 	"If this is a recursive phi instruction, we do not care about the operands"
 	anOperand == self ifTrue: [ ^ self ].
-
-	(anotherOperand isInstruction and: [anotherOperand basicBlock = self basicBlock])
-		ifTrue: [ "Have no sense a phi with an block's instruction"
-			anotherOperand isPhiFunction
-				ifTrue: [ "unless it is another phi, then merge both"
-					super replaceOperand: anOperand by: DRNullValue new.
-					self mergeOperands: anotherOperand operands ]
-				ifFalse: [ self error: 'Bad Phi operand' ] ]
-		ifFalse: [ super replaceOperand: anOperand by: anotherOperand ]
+	super replaceOperand: anOperand by: anotherOperand
 ]
 
 { #category : #'users-definitions' }
