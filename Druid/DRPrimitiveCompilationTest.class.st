@@ -360,10 +360,11 @@ DRPrimitiveCompilationTest >> testCompileNonCompiledCaseExitsWithSuccess [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-array' }
+{ #category : #'tests-real primitives' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
+	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
@@ -377,10 +378,11 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 	
 ]
 
-{ #category : #'tests-array' }
+{ #category : #'tests-real primitives' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithNegativeIndex [
 
 	| class array |
+	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
@@ -389,10 +391,11 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithNegativeIndex [
 	self executeUntilStopPrimitiveWithReceiver: array withArguments: { memory integerObjectOf: -2 }
 ]
 
-{ #category : #'tests-array' }
+{ #category : #'tests-real primitives' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithOverflowIndex [
 
 	| class array |
+	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
@@ -401,10 +404,11 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithOverflowIndex [
 	self executeUntilStopPrimitiveWithReceiver: array withArguments: { memory integerObjectOf: 2 }
 ]
 
-{ #category : #'tests-array' }
+{ #category : #'tests-real primitives' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithZeroIndex [
 
 	| class array |
+	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
@@ -413,10 +417,11 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithZeroIndex [
 	self executeUntilStopPrimitiveWithReceiver: array withArguments: { memory integerObjectOf: 0 }
 ]
 
-{ #category : #'tests-array' }
+{ #category : #'tests-real primitives' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAtManyElements [
 
 	| class array |
+	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
