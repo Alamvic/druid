@@ -13,12 +13,6 @@ DRPhiFunction class >> joinedVariables: aCollection [
 ]
 
 { #category : #visiting }
-DRPhiFunction >> acceptValueOperand [
-
-	^ false
-]
-
-{ #category : #visiting }
 DRPhiFunction >> acceptVisitor: aVisitor [ 
 	
 	^ aVisitor visitPhiFunction: self

@@ -5,11 +5,17 @@ Class {
 		'generatorMethodBuilder',
 		'fallthroughBlock',
 		'deferredBranches',
-		'nextJumpIndex',
-		'visitedBlocks'
+		'visitedBlocks',
+		'availableJumpIndexes'
 	],
 	#category : #'Druid-Cogit'
 }
+
+{ #category : #'jump-management' }
+DRCogitCodeGenerator >> assignAvailableJumpIndex [
+
+	^ availableJumpIndexes removeFirst
+]
 
 { #category : #'ir-generation' }
 DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [ 
@@ -18,10 +24,16 @@ DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 ]
 
 { #category : #'jump-management' }
-DRCogitCodeGenerator >> deferBranch: aString to: aDRBasicBlock [ 
+DRCogitCodeGenerator >> deferBranch: anIndex to: aDRBasicBlock [ 
 	
 	(deferredBranches at: aDRBasicBlock ifAbsentPut: [ OrderedCollection new ])
-		add: aString
+		add: anIndex
+]
+
+{ #category : #'jump-management' }
+DRCogitCodeGenerator >> freeJumpIndex: anIndex [ 
+	
+	availableJumpIndexes addFirst: anIndex
 ]
 
 { #category : #'ir-to-ast' }
@@ -40,7 +52,7 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 	
 	blocks withIndexDo: [ :b :i |
 		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
-		self preProcessBlock: b. 
+		self preProcessBlock: b.
 		b instructionsDo: [ :e | 
 			self buildStatementsForInstruction: e ] ].
 
@@ -77,13 +89,12 @@ DRCogitCodeGenerator >> generateCompare: aComparison operands: operands [
 { #category : #visiting }
 DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 
-	| jumpStatement jumpVariableName jumpTarget |
+	| jumpStatement jumpVariableName jumpTarget jumpIndex |
 	"If the jump target is the next block in the order, do not add any jump to it"
 	aTarget = fallthroughBlock ifTrue: [ ^ self ].
 
-	jumpVariableName := 'jump', self nextJumpIndex asString.
-	generatorMethodBuilder addVariableNamed: jumpVariableName.
-	
+	jumpIndex := self assignAvailableJumpIndex.
+
 	(self hasVisitedBlock: aTarget) ifTrue: [ 
 		"Backwards branch, the jump target already exists with a label.
 		Make the jump point to the already generated target"
@@ -92,16 +103,19 @@ DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 		"Forward branch, the jump target does not yet exist.
 		Put a 0 for now to generate `cogit Jump: 0`.
 		Defer the branch so it is resolved when the target is created"
-		self deferBranch: jumpVariableName to: aTarget.
+		self deferBranch: jumpIndex to: aTarget.
 		jumpTarget := 0 asLiteralNode ].
 	
+	jumpVariableName := self labelForJump: jumpIndex.
+	generatorMethodBuilder addVariableNamed: jumpVariableName.
+
 	jumpStatement := RBAssignmentNode
 		variable: (RBVariableNode named: jumpVariableName)
 		value: (RBMessageNode
 			receiver: RBVariableNode selfNode
 			selector: jumpKind
-			arguments: { jumpTarget }).
-	
+			arguments: { jumpTarget }).	
+				
 	generatorMethodBuilder addStatement: jumpStatement.
 	
 ]
@@ -171,54 +185,56 @@ DRCogitCodeGenerator >> initialize [
 	super initialize.
 	generatorMethodBuilder := DRGeneratorMethodBuilder new.
 	deferredBranches := Dictionary new.
-	nextJumpIndex := 0.
+	availableJumpIndexes := (1 to: 50) asOrderedCollection.
 
 	visitedBlocks := Dictionary new
 ]
 
-{ #category : #accessing }
+{ #category : #'jump-management' }
 DRCogitCodeGenerator >> labelForBlock: aDRBasicBlock [ 
 	
 	^ RBVariableNode named: (visitedBlocks at: aDRBasicBlock)
 ]
 
 { #category : #'jump-management' }
-DRCogitCodeGenerator >> nextJumpIndex [
+DRCogitCodeGenerator >> labelForJump: jumpIndex [
 	
-	| allocatedJumpIndex |
-	allocatedJumpIndex := nextJumpIndex.
-	nextJumpIndex := nextJumpIndex + 1.
-	^ allocatedJumpIndex
+	^ 'jump', jumpIndex asString
 ]
 
 { #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> preProcessBlock: aDRBasicBlock [
-	
-	| branches |
-	aDRBasicBlock hasIncomingBackjumps ifTrue: [ | blockIdentifier |
+
+	| jumpIndexes |
+	aDRBasicBlock hasIncomingBackjumps ifTrue: [ 
+		| blockIdentifier |
 		"If this block has incoming backjumps, we need to put a label for it and store it"
-		blockIdentifier := 'b', aDRBasicBlock id asString.
+		blockIdentifier := 'b' , aDRBasicBlock id asString.
 		generatorMethodBuilder addVariableNamed: blockIdentifier.
 		generatorMethodBuilder addStatement: (RBAssignmentNode
-			variable: (RBVariableNode named: blockIdentifier)
-			value: (RBMessageNode
-				receiver: RBVariableNode selfNode
-				selector: #Label)).
+				 variable: (RBVariableNode named: blockIdentifier)
+				 value:
+				 (RBMessageNode receiver: RBVariableNode selfNode selector: #Label)).
 		visitedBlocks at: aDRBasicBlock put: blockIdentifier ].
 
 	"If someother block is forward jumping to this block, create a label and wire deferred jumps to it"
-	branches := deferredBranches at: aDRBasicBlock ifAbsent: [ ^ self ].	
+	jumpIndexes := deferredBranches
+		               at: aDRBasicBlock
+		               ifAbsent: [ ^ self ].
 	generatorMethodBuilder addStatement: (RBAssignmentNode
-		variable: (RBVariableNode named: 'currentBlock')
-		value: (RBMessageNode
-			receiver: RBVariableNode selfNode
-			selector: #Label)).
+			 variable: (RBVariableNode named: 'currentBlock')
+			 value:
+			 (RBMessageNode receiver: RBVariableNode selfNode selector: #Label)).
 
-	branches do: [ :e |
+	jumpIndexes do: [ :i | 
+		| jumpVariableName |
+		jumpVariableName := self labelForJump: i.
 		generatorMethodBuilder addStatement: (RBMessageNode
-			receiver: (RBVariableNode named: e)
-			selector: #jmpTarget:
-			arguments: { RBVariableNode named: 'currentBlock' }). ]
+				 receiver: (RBVariableNode named: jumpVariableName)
+				 selector: #jmpTarget:
+				 arguments: { (RBVariableNode named: 'currentBlock') }).
+
+		self freeJumpIndex: i ]
 ]
 
 { #category : #registers }

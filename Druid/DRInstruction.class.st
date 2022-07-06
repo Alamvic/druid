@@ -44,12 +44,6 @@ DRInstruction >> = anObject [
 ]
 
 { #category : #visiting }
-DRInstruction >> acceptValueOperand [
-
-	^ true
-]
-
-{ #category : #visiting }
 DRInstruction >> acceptVisitor: aVisitor withBranch: aDRPhiFunction [ 
 	
 	^ self acceptVisitor: aVisitor

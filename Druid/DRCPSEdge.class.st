@@ -260,7 +260,7 @@ DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure 
 { #category : #visiting }
 DRCPSEdge >> visitConstant: aDRConstantValue [ 
 	
-	^ aDRConstantValue value 
+	^ aDRConstantValue 
 ]
 
 { #category : #visiting }
@@ -271,7 +271,7 @@ DRCPSEdge >> visitCopy: aDRCopy [
 
 	constraint := (operand isConstant or: [ 
 		               operand isObjectReferenceValue ])
-		              ifTrue: [ DREqualsConstraint withValue: operand value ]
+		              ifTrue: [ DREqualsConstraint withValue: operand ]
 		              ifFalse: [ self operandConstraint: operand ].
 
 	constraint ifNil: [ ^ nil ].

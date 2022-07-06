@@ -13,18 +13,6 @@ DRLoad >> acceptVisitor: aVisitor [
 	^ aVisitor visitLoad: self
 ]
 
-{ #category : #'rtl-translation' }
-DRLoad >> cogitFalseConditionCode [
-	
-	^ #JumpNonZero:
-]
-
-{ #category : #'rtl-translation' }
-DRLoad >> cogitTrueConditionCode [
-
-	^ #JumpZero:
-]
-
 { #category : #visiting }
 DRLoad >> isLoad [
 

@@ -1,23 +1,56 @@
 Class {
 	#name : #DRCogitOperandSorterTest,
-	#superclass : #TestCase,
+	#superclass : #DRIRTest,
 	#category : #'Druid-Tests'
 }
 
 { #category : #tests }
 DRCogitOperandSorterTest >> testSortAddition [
 
-	| cfg basicBlock r1 r2 |
-	cfg := DRControlFlowGraph new.
-	basicBlock := cfg newBasicBlockWith: [ :block |
-		r1 := block copy: 3.
-		"R2 := 1 + R1"
-		r2 := block add: 1 to: r1 ].
-	cfg initialBasicBlock jumpTo: basicBlock.
+	| cfg r1 r2 |
+	cfg := self setUpCFG: 2.
+
+	r1 := cfg b1 copy: 3.
+	"R2 := 1 + R1"
+	r2 := cfg b1 add: 1 to: r1 .
 	
 	"The sorter should turn around the addition"
 	DRCogitOperandSorter new applyTo: cfg.
 	
-	self assert: basicBlock second operands first equals: r1.
-	self assert: basicBlock second operands second equals: 1 asDRValue.
+	self assert: r2 operands first equals: r1.
+	self assert: r2 operands second equals: 1 asDRValue.
+]
+
+{ #category : #tests }
+DRCogitOperandSorterTest >> testSplitAdditionWithConstants [
+
+	| cfg r1 |
+	cfg := self setUpCFG: 2.
+
+	"R1 := 1 + R1"
+	r1 := cfg b1 add: 1 to: 2.
+
+	"The sorter should split one constant to register"
+	DRCogitOperandSorter new applyTo: cfg.
+
+	self assert: r1 operands first isCopy.
+	self assert: r1 operands first operand1 equals: 2 asDRValue.
+	self assert: r1 operands second equals: 1 asDRValue
+]
+
+{ #category : #tests }
+DRCogitOperandSorterTest >> testSplitAdditionWithObjectReferences [
+
+	| cfg r1 |
+	cfg := self setUpCFG: 2.
+
+	"R1 := 1 + R1"
+	r1 := cfg b1 add: DRNilObject new to: 2.
+
+	"The sorter should split one constant to register"
+	DRCogitOperandSorter new applyTo: cfg.
+
+	self assert: r1 operands first isCopy.
+	self assert: r1 operands first operand1 equals: 2 asDRValue.
+	self assert: r1 operands second isObjectReferenceValue
 ]

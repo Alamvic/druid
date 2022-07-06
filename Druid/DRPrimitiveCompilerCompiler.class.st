@@ -25,8 +25,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 	super initialize.
 
 	optimisations := OrderedCollection new.
-	optimisations add: (DRDeadBlockElimination then: DRCleanControlFlow).
-	optimisations add: (DRCopyPropagation then: DRComposedConditionalSplitting).
+	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
 
 	"Basic set of optimizations twice for primitives"
 	3 timesRepeat: [ 
@@ -40,8 +39,8 @@ DRPrimitiveCompilerCompiler >> initialize [
 		optimisations add: (DRDeadPathSplitting then: DRDeadPathElimination) ].
 	
 	"Last Phase, make code coggable"
-	optimisations add: DRCogitOperandSorter new.
-	"optimisations add: DRCogitJITConstantSplitting new."
+    optimisations add: DRCogitOperandSorter new.
+	"optimisations add: DRCogitJITConstantSplitting new"
 ]
 
 { #category : #accessing }
