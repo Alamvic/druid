@@ -161,7 +161,7 @@ DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 		ifNone: [ ^ nil ].
 
 	"Replace phis operands is hard, we build a new one and replace"
-	fullNewOperands := (operands copyWithout: myOperand) , {replacement}.
+	fullNewOperands := operands collect: [ :e | e = myOperand ifTrue: [ replacement ] ifFalse: [ e ] ].
 	^ self replaceBy: (self basicBlock phiWithVariables: fullNewOperands)
 ]
 
