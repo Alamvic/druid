@@ -4,14 +4,6 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #'instance-creation' }
-DRPhysicalGeneralPurposeRegister class >> name: aString [ 
-	
-	^ self new
-		name: aString;
-		yourself
-]
-
 { #category : #visiting }
 DRPhysicalGeneralPurposeRegister >> acceptVisitor: aVisitor [
 
@@ -24,10 +16,22 @@ DRPhysicalGeneralPurposeRegister >> asMemoryAddress [
 	^ DRRegisterMemoryAddress register: self
 ]
 
+{ #category : #'register allocation' }
+DRPhysicalGeneralPurposeRegister >> returnToAllocator: aRegisterAllocator [
+	
+	aRegisterAllocator returnIntegerRegister: self
+]
+
 { #category : #'cogit-generation' }
 DRPhysicalGeneralPurposeRegister >> rtlOperandQualifier [
 	
 	^ 'R:'
+]
+
+{ #category : #'register allocation' }
+DRPhysicalGeneralPurposeRegister >> takeFromAllocator: aRegisterAllocator [ 
+	
+	aRegisterAllocator takeIntegerRegister: self
 ]
 
 { #category : #types }

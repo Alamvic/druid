@@ -5,6 +5,30 @@ Class {
 }
 
 { #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegister [
+
+	| cfg basicBlock r fr |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 |
+		"R0 := 2"
+		r0 := block copy: 2.
+		"FR1 := IntToFloat R0"
+		r1 := block intToFloat: r0 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	r := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	fr := DRPhysicalFloatingPointRegister name: 'FPR1'.
+	DRLinearScanRegisterAllocator new
+		integerRegisters: { r };
+		floatRegisters: { fr };
+		allocateRegistersIn: cfg.
+	
+	self assert: basicBlock instructions first result equals: r.
+	self assert: basicBlock instructions second operand1 result equals: r.
+	self assert: basicBlock instructions second result equals: fr.
+]
+
+{ #category : #tests }
 DRLinearScanRegisterAllocatorTest >> testCoallescePhiArguments [
 
 	| cfg basicBlockTrue basicBlockFalse basicBlockJoin firstRegister secondRegister r0 r1 r2 |
