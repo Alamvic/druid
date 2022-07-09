@@ -138,9 +138,9 @@ DRCogitGeneratorTest >> testGenerateMethodWithSpillingAllocatesStackSpace [
 		block copy: 2 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	spillRegister1 := DRPhysicalRegister name: 'SPR1'.
+	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: #();
+		integerRegisters: #();
 		spillRegisters: { spillRegister1 };
 		allocateRegistersIn: cfg.
 
@@ -258,9 +258,9 @@ DRCogitGeneratorTest >> testGenerateSpillLoadInstruction [
 		block copy: 2 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	spillRegister1 := DRPhysicalRegister name: 'SPR1'.
+	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: #();
+		integerRegisters: #();
 		spillRegisters: { spillRegister1 };
 		allocateRegistersIn: cfg.
 

@@ -50,7 +50,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingAddInSingleBasicBlock [
 DRSCCPConstantFoldingTest >> testConstantFoldingAddOfLeftNonConstants [
 
 	| r cfg |
-	r := DRPhysicalRegister name: 'Parameter'.
+	r := DRPhysicalGeneralPurposeRegister name: 'Parameter'.
 	cfg := self testConstantFoldingOf: DRAdd between: r and: 3.
 
 	self assert: cfg instructions third isAdd.
@@ -66,7 +66,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingAddOfLeftNonConstants [
 DRSCCPConstantFoldingTest >> testConstantFoldingAddOfRightNonConstants [
 
 	| r cfg |
-	r := DRPhysicalRegister name: 'Parameter'.
+	r := DRPhysicalGeneralPurposeRegister name: 'Parameter'.
 	cfg := self testConstantFoldingOf: DRAdd between: 3 and: r.
 
 	self assert: cfg instructions third isAdd.
@@ -193,7 +193,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyByZeroLeft [
 	cfg := self
 		       testConstantFoldingOf: DRMultiply
 		       between: 0
-		       and: (DRPhysicalRegister name: 'Rx').
+		       and: (DRPhysicalGeneralPurposeRegister name: 'Rx').
 
 	self assertLastInstructionOf: cfg isCopyValue: 0
 ]
@@ -204,7 +204,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyByZeroRight [
 	| cfg |
 	cfg := self
 		       testConstantFoldingOf: DRMultiply
-		       between: (DRPhysicalRegister name: 'Rx')
+		       between: (DRPhysicalGeneralPurposeRegister name: 'Rx')
 		       and: 0.
 	self assertLastInstructionOf: cfg isCopyValue: 0
 ]
@@ -443,7 +443,7 @@ DRSCCPConstantFoldingTest >> testFoldBitShiftWithConstants [
 DRSCCPConstantFoldingTest >> testFoldBitShiftWithNonLeftConstant [
 
 	| cfg r lastInstruction |
-	r := DRPhysicalRegister name: 'Parameter'.
+	r := DRPhysicalGeneralPurposeRegister name: 'Parameter'.
 	cfg := self testConstantFoldingOf: DRBitShift between: r and: 1.
 
 	lastInstruction := cfg instructions third.

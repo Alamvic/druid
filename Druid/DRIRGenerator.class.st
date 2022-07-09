@@ -78,7 +78,7 @@ DRIRGenerator >> argRegisterNumber: anInteger [
 	numberOfArguments = anInteger
 		ifTrue: [ ^ self receiverRegister ].
 	argumentIndex := numberOfArguments - anInteger - 1.
-	^ DRPhysicalRegister name: 'Arg', argumentIndex asString, 'Reg'
+	^ DRPhysicalGeneralPurposeRegister name: 'Arg', argumentIndex asString, 'Reg'
 ]
 
 { #category : #'basic-blocks' }
@@ -1293,7 +1293,7 @@ DRIRGenerator >> receiver [
 { #category : #factory }
 DRIRGenerator >> receiverRegister [
 	
-	^ DRPhysicalRegister name: 'ReceiverResultReg'
+	^ DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg'
 ]
 
 { #category : #'special-cases' }
@@ -1324,7 +1324,7 @@ DRIRGenerator >> spillStack [
 	[ self currentOperandStack isEmpty ] whileFalse: [ | destinationRegister copyInstruction |
 		destinationRegister := self currentOperandStack size = 1
 			ifTrue: [ self receiverRegister ]
-			ifFalse: [ DRPhysicalRegister name: 'Arg', (self currentOperandStack size - 2) asString, 'Reg' ].
+			ifFalse: [ DRPhysicalGeneralPurposeRegister name: 'Arg', (self currentOperandStack size - 2) asString, 'Reg' ].
 		copyInstruction := DRCopy
 			operands: { self currentOperandStack pop }
 			result: destinationRegister.

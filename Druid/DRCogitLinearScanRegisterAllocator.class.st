@@ -112,16 +112,22 @@ DRCogitLinearScanRegisterAllocator >> computeLivenessOfInstruction: anInstructio
 DRCogitLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
-	self registers: { 
-		DRPhysicalRegister name: 'TempReg'.
-		DRPhysicalRegister name: 'ClassReg'.
-		DRPhysicalRegister name: 'SendNumArgsReg'.
-		DRPhysicalRegister name: 'Extra0Reg'.
-		DRPhysicalRegister name: 'Extra1Reg'.
-		DRPhysicalRegister name: 'Extra2Reg' }.
+	self integerRegisters: { 
+		DRPhysicalGeneralPurposeRegister name: 'TempReg'.
+		DRPhysicalGeneralPurposeRegister name: 'ClassReg'.
+		DRPhysicalGeneralPurposeRegister name: 'SendNumArgsReg'.
+		DRPhysicalGeneralPurposeRegister name: 'Extra0Reg'.
+		DRPhysicalGeneralPurposeRegister name: 'Extra1Reg'.
+		DRPhysicalGeneralPurposeRegister name: 'Extra2Reg' }.
+	self floatRegisters: { 
+		DRPhysicalFloatingPointRegister name: 'DPFPReg0'.
+		DRPhysicalFloatingPointRegister name: 'DPFPReg1'.
+		DRPhysicalFloatingPointRegister name: 'DPFPReg2'.
+		DRPhysicalFloatingPointRegister name: 'DPFPReg3'.
+		DRPhysicalFloatingPointRegister name: 'DPFPReg4'. }.
 	self spillRegisters: { 
-		DRPhysicalRegister name: 'Extra3Reg'.
-		DRPhysicalRegister name: 'Extra4Reg' }
+		DRPhysicalGeneralPurposeRegister name: 'Extra3Reg'.
+		DRPhysicalGeneralPurposeRegister name: 'Extra4Reg' }
 ]
 
 { #category : #'live-analysis' }

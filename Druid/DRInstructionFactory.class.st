@@ -179,5 +179,5 @@ DRInstructionFactory >> setReturnValue: aValue [
 	
 	^ DRCopy
 		  operands: { aValue asDRValue }
-		  result: (DRPhysicalRegister name: 'ReceiverResultReg')
+		  result: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg')
 ]
