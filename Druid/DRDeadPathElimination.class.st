@@ -10,9 +10,10 @@ DRDeadPathElimination >> doApply: cfg [
 	| newSucessors deadBranches path source destination |
 	cfg generatePaths.
 
-	cfg deadBranches ifEmpty: [ ^self ].
+	deadBranches := cfg deadBranches.
+	deadBranches ifEmpty: [ ^self ].
 
-	path := cfg deadBranches detectMax: [ :v | v size ].
+	path := deadBranches detectMax: [ :v | v size ].
 	source := path first source.
 	destination := path first destination.
 
