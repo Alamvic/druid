@@ -97,6 +97,14 @@ DRInstructionFactory >> initialize [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> intToFloat: operand1 [
+
+	^ DRIntToFloat
+		  operands: { operand1 asDRValue. }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> jumpIf: aBoolean [
 
 	^ DRBranchIfTrue operands: { aBoolean asDRValue }

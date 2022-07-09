@@ -309,6 +309,12 @@ DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitGetFloatBits: aDRGetFloatBits [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitGreaterOrEqualsThan: aDRGreaterOrEqualsThanComparison inBranch: aDRBranch [
 
 	^ self
@@ -325,6 +331,12 @@ DRCPSEdge >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranch [
 		  visitComparison: aDRGreaterThanComparison
 		  ofBranch: aDRBranch
 		  andDo: [ :reg :value | DRRegisterDomain greater: reg than: value ]
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitIntToFloatConversion: aDRIntToFloat [ 
+	
+	^ nil
 ]
 
 { #category : #visiting }

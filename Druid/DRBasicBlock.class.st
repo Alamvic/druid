@@ -526,6 +526,12 @@ DRBasicBlock >> instructionsDo: aFullBlockClosure [
 	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
 ]
 
+{ #category : #building }
+DRBasicBlock >> intToFloat: aValue [
+	
+	^ self addInstruction: (self instructionFactory intToFloat: aValue)
+]
+
 { #category : #'testing - dominator' }
 DRBasicBlock >> isDominatedBy: dominatorBlock [
 	
