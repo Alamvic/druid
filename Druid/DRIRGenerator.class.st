@@ -220,6 +220,8 @@ DRIRGenerator >> initializeSpecialCases [
 	"Types"
 	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
 	specialCases at: #sizeof: put: #interpretSizeofWith:.
+	specialCases at: #asFloat put: #interpretAsFloatWith:.
+	specialCases at: #rawFloatBits put: #interpretRawFloatBitsWith:.
 
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
@@ -260,6 +262,7 @@ DRIRGenerator >> initializeSpecialCases [
 	"Special pharo things such as exceptions"
 	specialCases at: #error: put: #ignoreMessageWith:.
 	specialCases at: #assert: put: #ignoreMessageWith:.
+	specialCases at: #deny: put: #ignoreMessageWith:.
 	
 	"special variables"
 	variableSpecialCases at: #nilObj put: #interpretNilObjectWith:.
@@ -344,6 +347,22 @@ DRIRGenerator >> interpretArgumentCountWith: aRBVariableNode [
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
 		  operands: { numberOfArguments asDRValue }
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretAsFloatWith: aRBMessageNode [
+
+	| receiver |
+	aRBMessageNode receiver acceptVisitor: self.
+	receiver := self popOperand.
+
+	"If it's already a float, do nothing"
+	receiver type isFloat ifTrue: [ ^ self pushOperand: receiver ].
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRIntToFloat
+		  operands: { receiver }
 ]
 
 { #category : #'special-cases' }
@@ -865,6 +884,22 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 
 	"pop:thenPush: does not return an interesting value"
 	self pushOperand: DRNullValue new.
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretRawFloatBitsWith: aRBMessageNode [ 
+
+	| receiver |
+	aRBMessageNode receiver acceptVisitor: self.
+	receiver := self popOperand.
+
+	receiver type isFloatType
+		ifFalse: [ ^ self error: 'cannot extract float bits from a non float value' ].
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRGetFloatBits
+		  operands: { receiver }
 ]
 
 { #category : #'special-cases' }

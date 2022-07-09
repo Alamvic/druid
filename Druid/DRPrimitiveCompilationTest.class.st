@@ -1046,6 +1046,20 @@ DRPrimitiveCompilationTest >> testFalseNot [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
+{ #category : #'tests-types' }
+DRPrimitiveCompilationTest >> testFloatAdd [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveFloatAdd.
+	self
+		executePrimitiveWithReceiver: 17
+		withArguments: { 21 }.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 38
+]
+
 { #category : #'tests-deadcode' }
 DRPrimitiveCompilationTest >> testFourDeadBranchesFourBranches1 [
 
@@ -1400,6 +1414,18 @@ DRPrimitiveCompilationTest >> testIncrementConstantReceiver [
 	self executePrimitiveWithReceiver: 42.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 43
+]
+
+{ #category : #'tests-types' }
+DRPrimitiveCompilationTest >> testIntegerAsFloat [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveIntegerAsFloat.
+	self executePrimitiveWithReceiver: 17.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 17.0
 ]
 
 { #category : #'tests-arithmetic' }

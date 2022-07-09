@@ -1115,6 +1115,21 @@ DruidTestRTLCompiler >> gen_primitiveFalseNot [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveFloatAdd [
+
+	| currentBlock |
+	self MoveR: Arg0Reg R: TempReg.
+	self ConvertR: TempReg Rd: DPFPReg0.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self ConvertR: TempReg Rd: DPFPReg1.
+	self AddRd: DPFPReg1 Rd: DPFPReg0.
+	self MoveRd: DPFPReg0 R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualThanValue [
 
 	| jumpNext currentBlock jumpTrue |
@@ -1377,6 +1392,18 @@ DruidTestRTLCompiler >> gen_primitiveIncrementConstantReceiver [
 	| currentBlock |
 	self MoveR: ReceiverResultReg R: TempReg.
 	self AddCq: 1 R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveIntegerAsFloat [
+
+	| currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self ConvertR: TempReg Rd: DPFPReg0.
+	self MoveRd: DPFPReg0 R: TempReg.
 	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive

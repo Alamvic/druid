@@ -534,6 +534,20 @@ DruidTestInterpreter >> primitiveFalseNot [
 	self pop: 1 thenPush: false not
 ]
 
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFloatAdd [
+
+	"Transform the integers as float.
+	Add the floats.
+	Then read the result raw representation and push that to the stack."
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush:
+		(self stackTop asFloat + (self stackValue: 1) asFloat) rawFloatBits
+]
+
 { #category : #comparisons }
 DruidTestInterpreter >> primitiveGreaterOrEqualThanValue [
 
@@ -719,6 +733,15 @@ DruidTestInterpreter >> primitiveInnerBranchingWithDeadBranches [
 				       ifTrue: [ 25 "Dead" ]
 				       ifFalse: [ 27 ] ].
 	self pop: 1 thenPush: res
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIntegerAsFloat [
+
+	<numberOfArguments: 0>
+	"Transform the integer argument as float.
+	Then read its raw representation and push that to the stack."
+	self pop: 1 thenPush: self stackTop asFloat rawFloatBits
 ]
 
 { #category : #'as yet unclassified' }
