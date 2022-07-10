@@ -1066,6 +1066,22 @@ DRPrimitiveCompilationTest >> testFalseNot [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
+{ #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testFloat64AtPut [
+
+	| object pointerToFirstSlot result |
+	
+	self compileDruidPrimitive: #primitiveFloat64AtPut.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	self executePrimitiveWithReceiver: pointerToFirstSlot withArguments: { 1234 }.
+	
+	result := memory fetchPointer: 0 ofObject: object.
+	self assert: (Float fromIEEE64BitWord: result) equals: 1234.0
+]
+
 { #category : #'tests-types' }
 DRPrimitiveCompilationTest >> testFloatAdd [
 
@@ -1499,6 +1515,18 @@ DRPrimitiveCompilationTest >> testIntegerDivisionNotExactNegative [
 	self executePrimitiveWithReceiver: 5 withArguments: { -3 }.
 	
 	self assert: (machineSimulator receiverRegisterValue signedIntFromShort) equals: -1.   
+]
+
+{ #category : #'tests-types' }
+DRPrimitiveCompilationTest >> testIntegerRawBitsAsFloat [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveIntegerRawBitsAsFloat.
+	self executePrimitiveWithReceiver: 17.0 asIEEE64BitWord.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: floatRawValue equals: 17
 ]
 
 { #category : #'tests-builtins' }

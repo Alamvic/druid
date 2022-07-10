@@ -839,6 +839,34 @@ DruidTestRTLCompiler >> gen_primitiveCaseOfOtherwiseValue [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveClassVariable [
+
+	| currentBlock |
+	self MoveCq: 34 R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveClassVariableWithBranch [
+
+	| jump1 jump2 currentBlock |
+	self CmpCq: 0 R: ReceiverResultReg.
+	jump1 := self JumpZero: 0.
+	self MoveCq: 36 R: ReceiverResultReg.
+	jump2 := self Jump: 0.
+	
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveCq: 35 R: ReceiverResultReg.
+	
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveConditionWithAnyMask [
 
 	| jump1 jump2 currentBlock |
@@ -1448,6 +1476,18 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivideByConstant [
 		Quo: ClassReg
 		Rem: TempReg.
 	self MoveR: ClassReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveIntegerRawBitsAsFloat [
+
+	| currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveR: TempReg Rd: DPFPReg0.
+	self ConvertRd: DPFPReg0 R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]

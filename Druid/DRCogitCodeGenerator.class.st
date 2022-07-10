@@ -464,6 +464,17 @@ DRCogitCodeGenerator >> visitEqualsThan: aDRGreaterThanComparison inBranch: aDRB
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitFloatToIntConversion: aDRFloatToInt [
+
+	^ self
+		  twoOperandCogitRTL: #Convert
+		  operands: { 
+				  aDRFloatToInt operand1.
+				  aDRFloatToInt result }
+		  instruction: aDRFloatToInt
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
 	
 	"Generate the code of the form
@@ -530,6 +541,13 @@ DRCogitCodeGenerator >> visitGetFloatBits: aDRGetFloatBits [
 	
 	"This should be translated as a normal move"
 	^ self visitCopy: aDRGetFloatBits
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitGetFloatFromBits: aDRGetFloatFromBits [
+
+	"This should be translated as a normal move"
+	^ self visitCopy: aDRGetFloatFromBits
 ]
 
 { #category : #visiting }

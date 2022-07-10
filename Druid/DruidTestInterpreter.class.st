@@ -550,6 +550,17 @@ DruidTestInterpreter >> primitiveFalseNot [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFloat64AtPut [
+
+	<numberOfArguments: 1>
+	
+	| addressToRead valueToStore |
+	valueToStore := self stackTop.
+	addressToRead := self stackValue: 1.
+	objectMemory float64At: addressToRead put: valueToStore asFloat
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveFloatAdd [
 
 	"Transform the integers as float.
@@ -777,6 +788,15 @@ DruidTestInterpreter >> primitiveIntegerDivideByConstant [
 	| result |
 	result := (self stackValue: 0) // 2.
 	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIntegerRawBitsAsFloat [
+
+	<numberOfArguments: 0>
+	"Transform the integer argument as float.
+	Then read its raw representation and push that to the stack."
+	self pop: 1 thenPush: self stackTop float64FromRawBits asInteger
 ]
 
 { #category : #'as yet unclassified' }

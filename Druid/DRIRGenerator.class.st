@@ -221,7 +221,10 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
 	specialCases at: #sizeof: put: #interpretSizeofWith:.
 	specialCases at: #asFloat put: #interpretAsFloatWith:.
+	specialCases at: #asInteger put: #interpretAsIntegerWith:.
 	specialCases at: #rawFloatBits put: #interpretRawFloatBitsWith:.
+	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
+	
 
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
@@ -234,6 +237,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #uint32At:put: put: #interpretStoreUint32AtWith:.
 	specialCases at: #uint64At: put: #interpretLoadUint64AtWith:.
 	specialCases at: #uint64At:put: put: #interpretStoreUint64AtWith:.
+	specialCases at: #float64At:put: put: #interpretStoreFloat64AtWith:.
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
 	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
@@ -362,6 +366,22 @@ DRIRGenerator >> interpretAsFloatWith: aRBMessageNode [
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRIntToFloat
+		  operands: { receiver }
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretAsIntegerWith: aRBMessageNode [
+
+	| receiver |
+	aRBMessageNode receiver acceptVisitor: self.
+	receiver := self popOperand.
+
+	"If it's already an integer, do nothing"
+	receiver type isFloatType ifFalse: [ ^ self pushOperand: receiver ].
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRFloatToInt
 		  operands: { receiver }
 ]
 
@@ -599,6 +619,12 @@ DRIRGenerator >> interpretEqualityComparisonWith: aRBMessageNode [
 DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [
 
 	^ self addCopy: aRBVariableNode with: DRFalseObject new
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretFloat64FromRawBitsWith: aRBMessageNode [ 
+
+	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRGetFloatFromBits
 ]
 
 { #category : #'special-cases' }
@@ -961,6 +987,12 @@ DRIRGenerator >> interpretStore: aRBMessageNode ofByteSize: byteSize [
 				byteSize asDRValue.
 				value.
 				address }
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretStoreFloat64AtWith: aRBMessageNode [ 
+
+	^ self interpretStore: aRBMessageNode ofByteSize: 8
 ]
 
 { #category : #'special cases - memory access' }

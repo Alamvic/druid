@@ -82,6 +82,13 @@ DRCogitOperandSorter >> visitDivision: aDRDivision [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitFloatToIntConversion: aDRFloatToInt [ 
+	
+	"Int to float conversion is on registers only"
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRFloatToInt
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitGetConditionCode: aDRGetConditionCode [ 
 	
 	"Nothing"
@@ -92,6 +99,13 @@ DRCogitOperandSorter >> visitGetFloatBits: aDRGetFloatBits [
 
 	"Get float bits are only from registers..."
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRGetFloatBits
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitGetFloatFromBits: aDRGetFloatFromBits [ 
+
+	"Get float bits are only from registers..."
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRGetFloatFromBits
 ]
 
 { #category : #visiting }

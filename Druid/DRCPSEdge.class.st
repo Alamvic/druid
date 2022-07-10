@@ -301,6 +301,12 @@ DRCPSEdge >> visitFalseObject: aDRFalseObject [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitFloatToIntConversion: aDRFloatToInt [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [
 
 	^ aDRGetConditionCode condition
@@ -310,6 +316,12 @@ DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [
 
 { #category : #visiting }
 DRCPSEdge >> visitGetFloatBits: aDRGetFloatBits [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitGetFloatFromBits: aDRGetFloatFromBits [ 
 	
 	^ nil
 ]
