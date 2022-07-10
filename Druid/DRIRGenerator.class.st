@@ -1463,9 +1463,14 @@ DRIRGenerator >> visitBlockNode: aRBBlockNode [
 ]
 
 { #category : #visiting }
-DRIRGenerator >> visitClassVariableNode: aRBVariableNode [ 
+DRIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
-	self pushOperand: aRBVariableNode variable value asDRValue
+	| value |
+	value := aRBVariableNode variable value asDRValue.
+	self
+		addInstructionFrom: aRBVariableNode
+		instructionKind: DRCopy
+		operands: { value }
 ]
 
 { #category : #visiting }

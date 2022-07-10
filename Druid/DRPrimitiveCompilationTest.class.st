@@ -267,6 +267,26 @@ DRPrimitiveCompilationTest >> testCaseOfOtherwiseCaseTwo [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
+{ #category : #'tests-basic' }
+DRPrimitiveCompilationTest >> testClassVariables [
+
+	self compileDruidPrimitive: #primitiveClassVariable.
+	
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: ClassFloatCompactIndex
+]
+
+{ #category : #'tests-basic' }
+DRPrimitiveCompilationTest >> testClassVariablesWithControlFlow [
+
+	self compileDruidPrimitive: #primitiveClassVariableWithBranch.
+	
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: ClassFloatCompactIndex + 2
+]
+
 { #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testCompareObjectReferenceFalse [
 

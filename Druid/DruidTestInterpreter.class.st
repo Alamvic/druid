@@ -336,6 +336,21 @@ DruidTestInterpreter >> primitiveChangingVariableInOnePath [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveClassVariable [
+
+	<numberOfArguments: 0>
+
+	self pop: 1 thenPush: ClassFloatCompactIndex
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveClassVariableWithBranch [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: (self returnArg: ClassFloatCompactIndex)
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveConditionWithAnyMask [
 
 	<numberOfArguments: 0>
@@ -1264,4 +1279,14 @@ DruidTestInterpreter >> primitiveWithSequentialExitPoint [
 	This primitive always fails and all is dead code"
 	self nonCompilableMethod.
 	self pop: 1 thenPush: r.
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> returnArg: argument [
+
+	| acc |
+	acc := self stackTop = 0
+		ifTrue: [ 1 ]
+		ifFalse: [ 2 ].
+	^ argument + acc
 ]
