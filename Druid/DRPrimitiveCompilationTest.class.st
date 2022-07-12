@@ -1232,6 +1232,26 @@ DRPrimitiveCompilationTest >> testGreaterThan [
 ]
 
 { #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testGreaterThanFloatsFalse [
+
+	self compileDruidPrimitive: #primitiveGreaterThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 3 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testGreaterThanFloatsTrue [
+
+	self compileDruidPrimitive: #primitiveGreaterThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testGreaterThanInverted [
 
 	self compileDruidPrimitive: #primitiveGreaterThanInverted.

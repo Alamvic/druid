@@ -92,7 +92,7 @@ DRLiveSet >> location: aLocation [
 DRLiveSet >> mergeWith: aDRLiveSet [
 
 	"Merge two non overlapping live sets"
-
+1halt.
 	^ DRLiveSet new
 		  addDefinitions: self definitions;
 		  addDefinitions: aDRLiveSet definitions;

@@ -630,6 +630,15 @@ DruidTestInterpreter >> primitiveGreaterThan [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveGreaterThanFloats [
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush: self stackTop asFloat > (self stackValue: 1) asFloat
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveGreaterThanInverted [
 	"Put the constant as the receiver"
 
