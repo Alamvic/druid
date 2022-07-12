@@ -1143,6 +1143,17 @@ DruidTestRTLCompiler >> gen_primitiveFalseNot [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveFloat64At [
+
+	| currentBlock |
+	self MoveM64: 0 r: ReceiverResultReg Rd: DPFPReg0.
+	self MoveRd: DPFPReg0 R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveFloat64AtPut [
 
 	| currentBlock |

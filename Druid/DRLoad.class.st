@@ -13,6 +13,19 @@ DRLoad >> acceptVisitor: aVisitor [
 	^ aVisitor visitLoad: self
 ]
 
+{ #category : #types }
+DRLoad >> beFloatingPoint64 [
+	
+	type := DRFloatType new
+]
+
+{ #category : #accessing }
+DRLoad >> initialize [
+
+	super initialize.
+	type := DRIntegerType new
+]
+
 { #category : #visiting }
 DRLoad >> isLoad [
 
@@ -41,5 +54,5 @@ DRLoad >> size [
 { #category : #accessing }
 DRLoad >> type [
 	
-	^ DRIntegerType new
+	^ type
 ]

@@ -550,6 +550,17 @@ DruidTestInterpreter >> primitiveFalseNot [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFloat64At [
+
+	<numberOfArguments: 0>
+	| addressToRead |
+	addressToRead := self stackTop.
+	self
+		pop: 1
+		thenPush: (objectMemory float64At: addressToRead) rawFloatBits
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveFloat64AtPut [
 
 	<numberOfArguments: 1>

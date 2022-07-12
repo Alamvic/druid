@@ -1067,6 +1067,22 @@ DRPrimitiveCompilationTest >> testFalseNot [
 ]
 
 { #category : #'test-memory access' }
+DRPrimitiveCompilationTest >> testFloat64At [
+
+	| object pointerToFirstSlot |
+	
+	self compileDruidPrimitive: #primitiveFloat64At.
+	
+	object := self newObjectWithSlots: 1.
+	pointerToFirstSlot := object + memory baseHeaderSize.
+
+	memory storeFloatAtPointer: pointerToFirstSlot from: 1234.0.
+	self executePrimitiveWithReceiver: pointerToFirstSlot.
+	
+	self assert: (Float fromIEEE64BitWord: machineSimulator receiverRegisterValue) equals: 1234.0
+]
+
+{ #category : #'test-memory access' }
 DRPrimitiveCompilationTest >> testFloat64AtPut [
 
 	| object pointerToFirstSlot result |

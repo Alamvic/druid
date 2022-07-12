@@ -734,12 +734,18 @@ DRIRGenerator >> interpretLoad: aRBMessageNode ofByteSize: byteSize [
 	| address |
 	address := self visitOperand: aRBMessageNode arguments first.
 
-	self
+	^ self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRLoad
 		operands: { 
 				byteSize asDRValue.
 				address }
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretLoadFloat64AtWith: aRBMessageNode [ 
+
+	^ (self interpretLoad: aRBMessageNode ofByteSize: 8) beFloatingPoint64
 ]
 
 { #category : #'special cases - memory access' }
