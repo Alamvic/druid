@@ -21,3 +21,9 @@ DRLeftShift >> sccpOperateOnLattice: anInteger and: anInteger2 [
 	
 	^ anInteger << anInteger2
 ]
+
+{ #category : #types }
+DRLeftShift >> type [
+	
+	^ DRIntegerType new
+]

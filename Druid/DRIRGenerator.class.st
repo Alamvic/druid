@@ -237,6 +237,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #uint32At:put: put: #interpretStoreUint32AtWith:.
 	specialCases at: #uint64At: put: #interpretLoadUint64AtWith:.
 	specialCases at: #uint64At:put: put: #interpretStoreUint64AtWith:.
+	specialCases at: #float64At: put: #interpretLoadFloat64AtWith:.
 	specialCases at: #float64At:put: put: #interpretStoreFloat64AtWith:.
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
@@ -249,6 +250,7 @@ DRIRGenerator >> initializeSpecialCases [
 	"Bit Manipulation"
 	specialCases at: #<< put: #interpretLeftShiftWith:.
 	specialCases at: #>> put: #interpretRightShiftWith:.
+	specialCases at: #>>> put: #interpretArithmeticRightShiftWith:.
 	specialCases at: #bitAnd: put: #interpretBitAndWith:.
 	specialCases at: #bitOr: put: #interpretBitOrWith:.
 	specialCases at: #bitXor: put: #interpretBitXorWith:.
@@ -351,6 +353,12 @@ DRIRGenerator >> interpretArgumentCountWith: aRBVariableNode [
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
 		  operands: { numberOfArguments asDRValue }
+]
+
+{ #category : #'special-cases' }
+DRIRGenerator >> interpretArithmeticRightShiftWith: aRBMessageNode [ 
+
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
 ]
 
 { #category : #'special cases' }

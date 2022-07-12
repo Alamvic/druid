@@ -126,6 +126,16 @@ DruidTestInterpreter >> primitiveAnd [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveArithmeticBitShiftRight [
+
+	<numberOfArguments: 1>
+	| receiver argument |
+	receiver := self stackValue: 1.
+	argument := self stackTop.
+	self pop: 2 thenPush: (receiver >>> argument)
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveAssertIsIgnored [
 	<numberOfArguments: 0>
 	self assert: false.

@@ -172,6 +172,16 @@ DRPrimitiveCompilationTest >> testAnyMaskTrueInverted [
 
 ]
 
+{ #category : #'tests-bitwise' }
+DRPrimitiveCompilationTest >> testArithmeticBitShiftRight [
+
+	self compileDruidPrimitive: #primitiveArithmeticBitShiftRight.
+
+	self executePrimitiveWithReceiver: 2r10 withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2r1
+]
+
 { #category : #'tests-failing-primitive' }
 DRPrimitiveCompilationTest >> testAssertIsIgnored [
 
