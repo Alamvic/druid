@@ -993,6 +993,36 @@ DRPrimitiveCompilationTest >> testEqualsThanFail [
 ]
 
 { #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testEqualsThanFloatsEquals [
+
+	self compileDruidPrimitive: #primitiveEqualsThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 2 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testEqualsThanFloatsGreater [
+
+	self compileDruidPrimitive: #primitiveEqualsThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 3 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testEqualsThanFloatsLess [
+
+	self compileDruidPrimitive: #primitiveEqualsThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testEqualsThanInverted [
 
 	self compileDruidPrimitive: #primitiveEqualsThanInverted.
@@ -1653,6 +1683,66 @@ DRPrimitiveCompilationTest >> testLessOrEqualThanValueTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testLessOrEqualsThanFloatsEquals [
+
+	self compileDruidPrimitive: #primitiveLessOrEqualsThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 2 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testLessOrEqualsThanFloatsGreater [
+
+	self compileDruidPrimitive: #primitiveLessOrEqualsThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 3 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testLessOrEqualsThanFloatsLess [
+
+	self compileDruidPrimitive: #primitiveLessOrEqualsThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testLessThanFloatsEquals [
+
+	self compileDruidPrimitive: #primitiveLessThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 2 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testLessThanFloatsGreater [
+
+	self compileDruidPrimitive: #primitiveLessThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 3 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testLessThanFloatsLess [
+
+	self compileDruidPrimitive: #primitiveLessThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
 { #category : #'tests-comparisons value' }
 DRPrimitiveCompilationTest >> testLessThanValueFalse [
 
@@ -1771,6 +1861,36 @@ DRPrimitiveCompilationTest >> testNotEqualsThanFail [
 	self executePrimitiveWithReceiver: 10.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 11
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotEqualsThanFloatsEquals [
+
+	self compileDruidPrimitive: #primitiveNotEqualsThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 2 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotEqualsThanFloatsGreater [
+
+	self compileDruidPrimitive: #primitiveNotEqualsThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 3 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testNotEqualsThanFloatsLess [
+
+	self compileDruidPrimitive: #primitiveNotEqualsThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-comparisons' }

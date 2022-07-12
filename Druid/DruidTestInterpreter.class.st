@@ -518,6 +518,15 @@ DruidTestInterpreter >> primitiveEqualsThan [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveEqualsThanFloats [
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush: self stackTop asFloat = (self stackValue: 1) asFloat
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveEqualsThanInverted [
 	"Put the constant as the receiver"
 	<numberOfArguments: 0>
@@ -863,6 +872,15 @@ DruidTestInterpreter >> primitiveLessOrEqualsThan [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLessOrEqualsThanFloats [
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush: self stackTop asFloat <= (self stackValue: 1) asFloat
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveLessOrEqualsThanInverted [
 	"Put the constant as the receiver"
 
@@ -879,6 +897,15 @@ DruidTestInterpreter >> primitiveLessThan [
 	| r |
 	r := self stackTop < 10 ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLessThanFloats [
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush: self stackTop asFloat < (self stackValue: 1) asFloat
 ]
 
 { #category : #'as yet unclassified' }
@@ -1006,6 +1033,15 @@ DruidTestInterpreter >> primitiveNotEqualsThan [
 	| r |
 	r := self stackTop ~= 10 ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNotEqualsThanFloats [
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush: self stackTop asFloat ~= (self stackValue: 1) asFloat
 ]
 
 { #category : #'as yet unclassified' }
