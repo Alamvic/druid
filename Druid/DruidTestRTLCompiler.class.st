@@ -1216,6 +1216,26 @@ DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualsThan [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualsThanFloats [
+
+	| jumpNext currentBlock jumpTrue |
+	self MoveR: Arg0Reg R: TempReg.
+	self ConvertR: TempReg Rd: DPFPReg0.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self ConvertR: TempReg Rd: DPFPReg1.
+	self CmpRd: DPFPReg1 Rd: DPFPReg0.
+	jumpTrue := self JumpGreaterOrEqual: 0.
+	self MoveCq: 0 R: TempReg.
+	jumpNext := self Jump: 0.
+	jumpTrue jmpTarget: self Label.
+	self MoveCq: 1 R: TempReg.
+	jumpNext jmpTarget: self Label.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualsThanInverted [
 
 	| jump1 jump2 currentBlock |

@@ -612,6 +612,15 @@ DruidTestInterpreter >> primitiveGreaterOrEqualsThan [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveGreaterOrEqualsThanFloats [
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush: self stackTop asFloat >= (self stackValue: 1) asFloat
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveGreaterOrEqualsThanInverted [
 	"Put the constant as the receiver"
 	<numberOfArguments: 0>

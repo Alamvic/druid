@@ -1212,6 +1212,36 @@ DRPrimitiveCompilationTest >> testGreaterOrEqualsThanEqualsInverted [
 ]
 
 { #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testGreaterOrEqualsThanFloatsEquals [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 2 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testGreaterOrEqualsThanFloatsGreater [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 3 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testGreaterOrEqualsThanFloatsLess [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-comparisons' }
 DRPrimitiveCompilationTest >> testGreaterOrEqualsThanInverted [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanInverted.
@@ -1232,7 +1262,17 @@ DRPrimitiveCompilationTest >> testGreaterThan [
 ]
 
 { #category : #'tests-comparisons' }
-DRPrimitiveCompilationTest >> testGreaterThanFloatsFalse [
+DRPrimitiveCompilationTest >> testGreaterThanFloatsEquals [
+
+	self compileDruidPrimitive: #primitiveGreaterThanFloats.
+	
+	self executePrimitiveWithReceiver: 2 withArguments: { 2 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveCompilationTest >> testGreaterThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveGreaterThanFloats.
 	
@@ -1242,7 +1282,7 @@ DRPrimitiveCompilationTest >> testGreaterThanFloatsFalse [
 ]
 
 { #category : #'tests-comparisons' }
-DRPrimitiveCompilationTest >> testGreaterThanFloatsTrue [
+DRPrimitiveCompilationTest >> testGreaterThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveGreaterThanFloats.
 	
