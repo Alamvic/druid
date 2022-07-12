@@ -1,6 +1,6 @@
 Class {
 	#name : #DRAdd,
-	#superclass : #DRInstruction,
+	#superclass : #DRArithmeticInstruction,
 	#category : #'Druid-IR'
 }
 
@@ -51,15 +51,4 @@ DRAdd >> simpleConstantFold [
 	^ self
 		sccpOperateOnLattice: self operand1 simpleConstantFold
 		and: self operand2 simpleConstantFold
-]
-
-{ #category : #types }
-DRAdd >> type [
-
-	"Add is only valid among operands of the same type"
-
-	(self operands collect: [ :e | e type ] as: Set) size = 1 ifFalse: [ 
-		self error: 'incompatible types' ].
-	
-	^ self operands anyOne type
 ]
