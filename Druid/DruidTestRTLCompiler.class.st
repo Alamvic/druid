@@ -1200,6 +1200,51 @@ DruidTestRTLCompiler >> gen_primitiveFloatAdd [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveFloatDivide [
+
+	| currentBlock |
+	self MoveR: Arg0Reg R: TempReg.
+	self ConvertR: TempReg Rd: DPFPReg0.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self ConvertR: TempReg Rd: DPFPReg1.
+	self DivRd: DPFPReg1 Rd: DPFPReg0.
+	self MoveRd: DPFPReg0 R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveFloatMultiply [
+
+	| currentBlock |
+	self MoveR: Arg0Reg R: TempReg.
+	self ConvertR: TempReg Rd: DPFPReg0.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self ConvertR: TempReg Rd: DPFPReg1.
+	self MulRd: DPFPReg0 Rd: DPFPReg1.
+	self MoveRd: DPFPReg1 R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveFloatSubtract [
+
+	| currentBlock |
+	self MoveR: Arg0Reg R: TempReg.
+	self ConvertR: TempReg Rd: DPFPReg0.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self ConvertR: TempReg Rd: DPFPReg1.
+	self SubRd: DPFPReg1 Rd: DPFPReg0.
+	self MoveRd: DPFPReg0 R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualThanValue [
 
 	| jumpNext currentBlock jumpTrue |

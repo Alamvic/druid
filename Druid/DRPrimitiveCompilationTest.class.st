@@ -1152,6 +1152,48 @@ DRPrimitiveCompilationTest >> testFloatAdd [
 	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 38
 ]
 
+{ #category : #'tests-arithmetic-floats' }
+DRPrimitiveCompilationTest >> testFloatDivide [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveFloatDivide.
+	self
+		executePrimitiveWithReceiver: 17
+		withArguments: { 21 }.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 21.0 / 17.0
+]
+
+{ #category : #'tests-arithmetic-floats' }
+DRPrimitiveCompilationTest >> testFloatMultiply [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveFloatMultiply.
+	self
+		executePrimitiveWithReceiver: 17
+		withArguments: { 21 }.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 21.0 * 17.0
+]
+
+{ #category : #'tests-arithmetic-floats' }
+DRPrimitiveCompilationTest >> testFloatSubtract [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveFloatSubtract.
+	self
+		executePrimitiveWithReceiver: 17
+		withArguments: { 21 }.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 4.0
+]
+
 { #category : #'tests-deadcode' }
 DRPrimitiveCompilationTest >> testFourDeadBranchesFourBranches1 [
 

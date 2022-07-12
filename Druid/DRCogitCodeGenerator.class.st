@@ -443,9 +443,14 @@ DRCogitCodeGenerator >> visitCopy: aDRMove [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitDivision: aDRCogitDivision [
 
-	"Cogit division is not in 2AC but in 4AC.
+	aDRCogitDivision type isFloatType ifTrue: [
+		^ self threeOperandCogitRTL: #Div instruction: aDRCogitDivision
+	].
+
+	"Cogit integer division is not in 2AC but in 4AC.
 	The (cogit specific) register allocator should inserts a register for REM destination implicitly yet unused.
 	It should also put all operands in registers as the cogit instruction does not support constants."
+
 
 	^ generatorMethodBuilder addStatement: (RBMessageNode
 			   receiver: RBVariableNode selfNode

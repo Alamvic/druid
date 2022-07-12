@@ -604,6 +604,48 @@ DruidTestInterpreter >> primitiveFloatAdd [
 		(self stackTop asFloat + (self stackValue: 1) asFloat) rawFloatBits
 ]
 
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFloatDivide [
+
+	"Transform the integers as float.
+	Add the floats.
+	Then read the result raw representation and push that to the stack."
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush:
+		(self stackTop asFloat / (self stackValue: 1) asFloat) rawFloatBits
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFloatMultiply [
+
+	"Transform the integers as float.
+	Add the floats.
+	Then read the result raw representation and push that to the stack."
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush:
+		(self stackTop asFloat * (self stackValue: 1) asFloat) rawFloatBits
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFloatSubtract [
+
+	"Transform the integers as float.
+	Add the floats.
+	Then read the result raw representation and push that to the stack."
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush:
+		(self stackTop asFloat - (self stackValue: 1) asFloat) rawFloatBits
+]
+
 { #category : #comparisons }
 DruidTestInterpreter >> primitiveGreaterOrEqualThanValue [
 

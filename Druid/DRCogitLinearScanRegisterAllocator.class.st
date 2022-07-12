@@ -81,13 +81,14 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 { #category : #'live-analysis' }
 DRCogitLinearScanRegisterAllocator >> computeLivenessOfInstruction: anInstruction inBlock: b withLiveSet: live [
 
-	"If the instruction is a division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
+	"If the instruction is an integer division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
 	This instruction requires 4 different registers and not three (operands + destination).
 	We model this by adding an extra operand at this point."
 
 	"Then regiter the live interval for the new synthetic operand"
 
-	(anInstruction isDivision or: [ anInstruction isModulo ]) ifTrue: [ 
+	((anInstruction isDivision or: [ anInstruction isModulo ]) and: [ 
+		 anInstruction type isFloatType not ]) ifTrue: [ 
 		| newOperand |
 		anInstruction operands size = 2
 			ifTrue: [ 
@@ -133,13 +134,15 @@ DRCogitLinearScanRegisterAllocator >> initialize [
 { #category : #'live-analysis' }
 DRCogitLinearScanRegisterAllocator >> updateLiveSet: liveSet ofOperand: op ofInstruction: anInstruction inBlock: b [
 
-	"If the instruction is a division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
+	"If the instruction is an integer division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
 	This instruction requires 4 different registers and not three (operands + destination).
 	We model this by adding an extra operand at this point."
 
 	"We need to ignore the last operand"
+
 	((anInstruction isDivision or: [ anInstruction isModulo ]) and: [ 
-		 op = anInstruction operands last ]) ifTrue: [ ^ self ].
+		 anInstruction type isFloatType not and: [ 
+			 op = anInstruction operands last ] ]) ifTrue: [ ^ self ].
 
 	^ super
 		  updateLiveSet: liveSet
