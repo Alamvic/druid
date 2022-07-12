@@ -1,6 +1,6 @@
 Class {
 	#name : #DRMultiply,
-	#superclass : #DRInstruction,
+	#superclass : #DRArithmeticInstruction,
 	#category : #'Druid-IR'
 }
 
