@@ -992,7 +992,7 @@ DRPrimitiveCompilationTest >> testEqualsThanFail [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testEqualsThanFloatsEquals [
 
 	self compileDruidPrimitive: #primitiveEqualsThanFloats.
@@ -1002,7 +1002,7 @@ DRPrimitiveCompilationTest >> testEqualsThanFloatsEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testEqualsThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveEqualsThanFloats.
@@ -1012,7 +1012,7 @@ DRPrimitiveCompilationTest >> testEqualsThanFloatsGreater [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testEqualsThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveEqualsThanFloats.
@@ -1138,7 +1138,7 @@ DRPrimitiveCompilationTest >> testFloat64AtPut [
 	self assert: (Float fromIEEE64BitWord: result) equals: 1234.0
 ]
 
-{ #category : #'tests-types' }
+{ #category : #'tests-arithmetic-floats' }
 DRPrimitiveCompilationTest >> testFloatAdd [
 
 	| floatRawValue |
@@ -1241,7 +1241,7 @@ DRPrimitiveCompilationTest >> testGreaterOrEqualsThanEqualsInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testGreaterOrEqualsThanFloatsEquals [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanFloats.
@@ -1251,7 +1251,7 @@ DRPrimitiveCompilationTest >> testGreaterOrEqualsThanFloatsEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testGreaterOrEqualsThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanFloats.
@@ -1261,7 +1261,7 @@ DRPrimitiveCompilationTest >> testGreaterOrEqualsThanFloatsGreater [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testGreaterOrEqualsThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanFloats.
@@ -1291,7 +1291,7 @@ DRPrimitiveCompilationTest >> testGreaterThan [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testGreaterThanFloatsEquals [
 
 	self compileDruidPrimitive: #primitiveGreaterThanFloats.
@@ -1301,7 +1301,7 @@ DRPrimitiveCompilationTest >> testGreaterThanFloatsEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testGreaterThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveGreaterThanFloats.
@@ -1311,7 +1311,7 @@ DRPrimitiveCompilationTest >> testGreaterThanFloatsGreater [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testGreaterThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveGreaterThanFloats.
@@ -1683,7 +1683,7 @@ DRPrimitiveCompilationTest >> testLessOrEqualThanValueTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testLessOrEqualsThanFloatsEquals [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualsThanFloats.
@@ -1693,7 +1693,7 @@ DRPrimitiveCompilationTest >> testLessOrEqualsThanFloatsEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testLessOrEqualsThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualsThanFloats.
@@ -1703,7 +1703,7 @@ DRPrimitiveCompilationTest >> testLessOrEqualsThanFloatsGreater [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testLessOrEqualsThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualsThanFloats.
@@ -1713,7 +1713,7 @@ DRPrimitiveCompilationTest >> testLessOrEqualsThanFloatsLess [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testLessThanFloatsEquals [
 
 	self compileDruidPrimitive: #primitiveLessThanFloats.
@@ -1723,7 +1723,7 @@ DRPrimitiveCompilationTest >> testLessThanFloatsEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testLessThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveLessThanFloats.
@@ -1733,7 +1733,7 @@ DRPrimitiveCompilationTest >> testLessThanFloatsGreater [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testLessThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveLessThanFloats.
@@ -1863,7 +1863,7 @@ DRPrimitiveCompilationTest >> testNotEqualsThanFail [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testNotEqualsThanFloatsEquals [
 
 	self compileDruidPrimitive: #primitiveNotEqualsThanFloats.
@@ -1873,7 +1873,7 @@ DRPrimitiveCompilationTest >> testNotEqualsThanFloatsEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testNotEqualsThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveNotEqualsThanFloats.
@@ -1883,7 +1883,7 @@ DRPrimitiveCompilationTest >> testNotEqualsThanFloatsGreater [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : #'tests-comparisons-floats' }
 DRPrimitiveCompilationTest >> testNotEqualsThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveNotEqualsThanFloats.
