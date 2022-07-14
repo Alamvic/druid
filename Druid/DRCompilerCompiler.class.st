@@ -41,6 +41,19 @@ DRCompilerCompiler >> compilerClass: anObject [
 ]
 
 { #category : #'generation-IR' }
+DRCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method [
+	
+	"Create the initial basic block"
+	| startBlock initialBasicBlock initial |
+	startBlock := irGenerator initialBasicBlock.
+	initialBasicBlock := irGenerator newBasicBlock.
+	startBlock jumpTo: initialBasicBlock.
+
+	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
+	initialBasicBlock addInstruction: initial
+]
+
+{ #category : #'generation-IR' }
 DRCompilerCompiler >> customise [
 
 	^ self customiseFor: self sourceMethod
@@ -66,18 +79,9 @@ DRCompilerCompiler >> generateDruidIR [
 DRCompilerCompiler >> generateDruidIRFor: method [
 	
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	| irGenerator initialBasicBlock initial startBlock cfg |
+	| irGenerator cfg |
 	irGenerator := self newIRGenerator.
-
-	"Create the initial basic block"
-	startBlock := irGenerator initialBasicBlock.
-	initialBasicBlock := irGenerator newBasicBlock.
-	startBlock jumpTo: initialBasicBlock.
-
-	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
-	initialBasicBlock addInstruction: initial.
-	
-	irGenerator numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value.
+	self configureIRBuilder: irGenerator forMethod: method.
 	irGenerator interpretMethod: (DRMethod methodNode: method ast) receiver: (DRInterpreterValue value: interpreter).
 	
 	cfg := irGenerator ir.
@@ -98,7 +102,7 @@ DRCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 
 	^ codeGenerator
 		  generateTargetASTFromIR: aDRControlFlowGraph
-		  primitiveName: self primitiveCompilerName
+		  methodName: self targetName
 ]
 
 { #category : #'generation-IR' }
@@ -171,6 +175,12 @@ DRCompilerCompiler >> sourceName [
 DRCompilerCompiler >> sourceName: anObject [
 
 	sourceName := anObject
+]
+
+{ #category : #'code-generation' }
+DRCompilerCompiler >> targetName [
+
+	self subclassResponsibility
 ]
 
 { #category : #'ast-to-source' }
