@@ -5,7 +5,7 @@ Class {
 		'start',
 		'stop'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-LinearScanRegisterAllocation'
 }
 
 { #category : #testing }

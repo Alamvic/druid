@@ -6,7 +6,7 @@ Class {
 		'liveRanges',
 		'definitions'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-LinearScanRegisterAllocation'
 }
 
 { #category : #accessing }
