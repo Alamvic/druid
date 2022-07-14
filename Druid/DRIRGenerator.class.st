@@ -96,7 +96,7 @@ DRIRGenerator >> basicNewBasicBlockWithState: anExecutionState [
 	^ block
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBlockToEvaluate [
 
 	| branchEntryBlock branchExitBlock |	
@@ -112,7 +112,7 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 	^ branchExitBlock
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> copyExecutionStateOf: startingBasicBlock [
 	
 	"Evaluate a block using a copy of the operand stack and temporary frame.
@@ -140,6 +140,12 @@ DRIRGenerator >> currentOperandStack [
 	^ executionState vmOperandStack
 ]
 
+{ #category : #'execution state' }
+DRIRGenerator >> executionStack [
+	
+	^ executionState executionStack
+]
+
 { #category : #accessing }
 DRIRGenerator >> executionState [
 	
@@ -150,6 +156,12 @@ DRIRGenerator >> executionState [
 DRIRGenerator >> homeFrame [
 	
 	^ self topFrame homeFrame
+]
+
+{ #category : #accessing }
+DRIRGenerator >> ignoreMessageWith: aRBMessageNode [
+
+	self noop: aRBMessageNode
 ]
 
 { #category : #accessing }
@@ -181,7 +193,7 @@ DRIRGenerator >> initialize [
 		yourself
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> initializeSpecialCases [
 
 	"Control flow and comparisons"
@@ -328,25 +340,25 @@ DRIRGenerator >> instructionFor: aDRInstruction inNode: aRBBlockNode [
 	^instruction
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretAddWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRAdd
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretAndWith: aRBMessageNode [ 
 	
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRAnd
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretAnyMaskWith: aRBMessageNode [ 
 
 	^ self interpretCondition: aRBMessageNode conditionKind: DRTestMask
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretArgumentCountWith: aRBVariableNode [
 
 	^ self
@@ -355,7 +367,7 @@ DRIRGenerator >> interpretArgumentCountWith: aRBVariableNode [
 		  operands: { numberOfArguments asDRValue }
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretArithmeticRightShiftWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
@@ -393,13 +405,13 @@ DRIRGenerator >> interpretAsIntegerWith: aRBMessageNode [
 		  operands: { receiver }
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretAsUnsignedIntegerWith: aRBMessageNode [ 
 	
 	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRUnsignedCoercion
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretBinaryInstruction: aRBMessageNode instructionKind: anInstructionKind [
 
 	| operand1 operand2 |
@@ -409,19 +421,19 @@ DRIRGenerator >> interpretBinaryInstruction: aRBMessageNode instructionKind: anI
 	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { operand1 . operand2 }
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretBitAndWith: aRBMessageNode [
 	
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitAnd
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretBitOrWith: aRBMessageNode [
 	
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitOr
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretBitShiftWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitShift
@@ -501,7 +513,7 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 	self interpretCode: block receiver: block arguments: arguments
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [ 
 
 	self interpretBlockBody: aRBMessageNode arguments first
@@ -585,7 +597,7 @@ DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments
 	self popFrame.
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretCondition: aRBMessageNode conditionKind: conditionKind [
 
 	| operand1 operand2 |
@@ -601,7 +613,7 @@ DRIRGenerator >> interpretCondition: aRBMessageNode conditionKind: conditionKind
 				  operand2 }
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretDivisionWith: aRBMessageNode [ 
 
 	"Interpret the two numbers and divide them up"
@@ -617,13 +629,13 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 		operands: { leftOperand . rightOperand }
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretEqualityComparisonWith: aRBMessageNode [
 
 	^ self interpretCondition: aRBMessageNode conditionKind: DREqualsThanComparison
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [
 
 	^ self addCopy: aRBVariableNode with: DRFalseObject new
@@ -635,7 +647,7 @@ DRIRGenerator >> interpretFloat64FromRawBitsWith: aRBMessageNode [
 	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRGetFloatFromBits
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 
 	| byteSize |
@@ -648,25 +660,25 @@ DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 				(DRInterpreterReference reference: 'objectMemory freeStartAddress') }
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretGreaterOrEqualsThanComparisonWith: aRBMessageNode [ 
 	
 	^ self interpretCondition: aRBMessageNode conditionKind: DRGreaterOrEqualsThanComparison
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretGreaterThanComparisonWith: aRBMessageNode [ 
 	
 	^ self interpretCondition: aRBMessageNode conditionKind: DRGreaterThanComparison
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretHiddenRootsObjectWith: aRBVariableNode [
 
 	^ self addCopy: aRBVariableNode with: DRHiddenRootsObject new
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 
 	| trueBranchBasicBlockOut conditionalJump startingBasicBlock executionStateBeforeBranch |
@@ -712,25 +724,25 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 			trueBranchBasicBlockOut jumpTo: self currentBasicBlock ]
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretInequalityComparisonWith: aRBMessageNode [
 	
 	^ self interpretCondition: aRBMessageNode conditionKind: DRNotEqualsThanComparison
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretLeftShiftWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRLeftShift
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretLessOrEqualsThanComparisonWith: aRBMessageNode [ 
 
 	^ self interpretCondition: aRBMessageNode conditionKind: DRLessOrEqualsThanComparison
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretLessThanComparisonWith: aRBMessageNode [ 
 
 	^ self interpretCondition: aRBMessageNode conditionKind: DRLessThanComparison
@@ -780,7 +792,7 @@ DRIRGenerator >> interpretLoadUint8AtWith: aRBMessageNode [
 	^ self interpretLoad: aRBMessageNode ofByteSize: 1
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [ 
 	
 	| operand1 operand2 |
@@ -790,7 +802,7 @@ DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [
 	^ self currentBasicBlock addInstruction: (DRStore operands: { operand1 . operand2 })
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [ 
 	
 	| result address |
@@ -812,7 +824,7 @@ DRIRGenerator >> interpretMethod: aDRMethod receiver: aReceiver [
 	^ self interpretCode: aDRMethod receiver: aReceiver arguments: #()
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretModWith: aRBMessageNode [ 
 
 	"Interpret the two numbers and push the module operation result"
@@ -828,7 +840,7 @@ DRIRGenerator >> interpretModWith: aRBMessageNode [
 		operands: { leftOperand . rightOperand }
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and multiply them up"
@@ -872,19 +884,19 @@ DRIRGenerator >> interpretMultiplySmallIntegerWithOverflowWith: aRBMessageNode [
 		                   joinValue: taggedResult
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretMultiplyWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRMultiply
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretNegatedWith: aRBMessageNode [ 
 
 	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRNegate
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [
 
 	^ self addCopy: aRBVariableNode with: DRNilObject new
@@ -895,13 +907,13 @@ DRIRGenerator >> interpretNotWith: aRBMessageNode [
 	self shouldBeImplemented.
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretOrWith: aRBMessageNode [ 
 	
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DROr
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [ 
 
 	"Pop N elements from the operand stack.
@@ -942,13 +954,13 @@ DRIRGenerator >> interpretRawFloatBitsWith: aRBMessageNode [
 		  operands: { receiver }
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretScavengeThresholdWith: aRBVariableNode [
 
 	^ self
@@ -1033,7 +1045,7 @@ DRIRGenerator >> interpretStoreUint8AtWith: aRBMessageNode [
 	^ self interpretStore: aRBMessageNode ofByteSize: 1
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and subtract them up"
@@ -1064,13 +1076,13 @@ DRIRGenerator >> interpretSubSmallIntegerWithOverflowWith: aRBMessageNode [
 		joinValue: subResult
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretSubstractWith: aRBMessageNode [ 
 	
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRSubtract
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 
 	"Interpret the two numbers and add them up"
@@ -1105,13 +1117,13 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 		                   joinValue: addResult
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [
 
 	^ self addCopy: aRBVariableNode with: DRTrueObject new
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretUnaryInstruction: aRBMessageNode instructionKind: anInstructionKind [
 	
 	| receiver |
@@ -1120,7 +1132,7 @@ DRIRGenerator >> interpretUnaryInstruction: aRBMessageNode instructionKind: anIn
 	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { receiver }
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [ 
 	
 	| trueBranchBasicBlockOut conditionalJump conditionEntryBlock executionStateAtEntry |
@@ -1236,7 +1248,7 @@ DRIRGenerator >> newCFG [
 	^ DRControlFlowGraph new
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump joinValue: result [
 
 	| overflowBlock branchBlock resultBlock executionStateBeforeBranch |
@@ -1286,7 +1298,7 @@ DRIRGenerator >> newVMState [
 		yourself
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> noop: aRBMessageNode [
 
 	^ self
@@ -1377,14 +1389,14 @@ DRIRGenerator >> receiverRegister [
 	^ DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg'
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> setExecutionStateTo: aBlock [
 
 	self currentBasicBlock executionState: aBlock executionState.
 	self topFrame executionState: aBlock executionState.
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> shiftSmallInteger: operand from: aRBMessageNode [
 
 	^ self 
@@ -1419,7 +1431,7 @@ DRIRGenerator >> stackTop [
 	^ self executionState topVM
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> tagSmallInteger: operand from: aRBMessageNode [
 
 	^ self
@@ -1448,7 +1460,7 @@ DRIRGenerator >> topFrame [
 	^ executionState topFrame
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> unshiftSmallInteger: operand from: aRBMessageNode [
 
 	^ self 
@@ -1457,7 +1469,7 @@ DRIRGenerator >> unshiftSmallInteger: operand from: aRBMessageNode [
 		operands: { operand . 3 asDRValue }.
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> untagSmallInteger: operand from: aRBMessageNode [
 
 	^ self
@@ -1600,7 +1612,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 	self addDeferredReturnState: {executionState . self currentBasicBlock}
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> visitOperand: aDRValue [
 
 	aDRValue acceptVisitor: self.
