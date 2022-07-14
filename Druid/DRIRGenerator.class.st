@@ -1520,6 +1520,20 @@ DRIRGenerator >> visitBlockNode: aRBBlockNode [
 ]
 
 { #category : #visiting }
+DRIRGenerator >> visitCascadeNode: aRBCascadeNode [ 
+	
+
+	| receiver result |
+	aRBCascadeNode receiver acceptVisitor: self.
+	receiver := self popOperand.
+	
+	aRBCascadeNode messages do: [ :e |
+		self visitMessageNode: e receiver: receiver.
+		result := self popOperand ].
+	self pushOperand: result.
+]
+
+{ #category : #visiting }
 DRIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
 	| value |
