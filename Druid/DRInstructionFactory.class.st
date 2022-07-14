@@ -72,7 +72,7 @@ DRInstructionFactory >> equals: operand1 to: operand2 [
 			  operand2 asDRValue }
 ]
 
-{ #category : #building }
+{ #category : #factory }
 DRInstructionFactory >> getConditionCodeOf: aCondition operands: aCollection [ 
 
 	^ DRGetConditionCode new
@@ -105,6 +105,12 @@ DRInstructionFactory >> intToFloat: operand1 [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> jitCompileTimeVariable: aString [ 
+	
+	^ DRJitCompileTimeExpression new expression: aString
+]
+
+{ #category : #factory }
 DRInstructionFactory >> jumpIf: aBoolean [
 
 	^ DRBranchIfTrue operands: { aBoolean asDRValue }
@@ -121,10 +127,22 @@ DRInstructionFactory >> lessOrEquals: operand1 than: operand2 [
 { #category : #factory }
 DRInstructionFactory >> load: anAdress [
 
+	^ self loadSInt64: anAdress
+]
+
+{ #category : #factory }
+DRInstructionFactory >> loadFramePointer [
+
+	^ DRLoadFramePointer result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> loadSInt64: operand [
+
 	^ DRLoad
 		  operands: { 
-				  8 asDRValue. "Assume 64 bits for now"
-				  anAdress asDRValue }
+				  8 asDRValue.
+				  operand asDRValue }
 		  result: self allocateTemporaryRegister
 ]
 
@@ -180,4 +198,15 @@ DRInstructionFactory >> setReturnValue: aValue [
 	^ DRCopy
 		  operands: { aValue asDRValue }
 		  result: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg')
+]
+
+{ #category : #factory }
+DRInstructionFactory >> storeSInt64: operand at: address [
+
+	^ DRStore
+		  operands: { 
+				  8 asDRValue.
+				  operand asDRValue.
+				  address asDRValue }
+		  result: self allocateTemporaryRegister
 ]

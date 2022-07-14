@@ -569,6 +569,12 @@ DRBasicBlock >> isExitBlock: anObject [
 ]
 
 { #category : #building }
+DRBasicBlock >> jitCompileTimeVariable: aName [
+
+	^ self instructionFactory jitCompileTimeVariable: aName
+]
+
+{ #category : #building }
 DRBasicBlock >> jumpIf: aCondition [
 	
 	^ self endInstruction: (self instructionFactory jumpIf: aCondition)
@@ -615,6 +621,18 @@ DRBasicBlock >> lastInstruction [
 DRBasicBlock >> load: anAddress [
 
 	^ self addInstruction: (self instructionFactory load: anAddress)
+]
+
+{ #category : #building }
+DRBasicBlock >> loadFramePointer [
+
+	^ self addInstruction: self instructionFactory loadFramePointer
+]
+
+{ #category : #building }
+DRBasicBlock >> loadSInt64: operand [
+	
+	^ self addInstruction: (self instructionFactory loadSInt64: operand)
 ]
 
 { #category : #splitting }
@@ -918,6 +936,12 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 	self mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: newSuccessors.
 
 	^ duplicatedBlock
+]
+
+{ #category : #building }
+DRBasicBlock >> storeSInt64: operand at: address [
+
+	^ self addInstruction: (self instructionFactory storeSInt64: operand at: address)
 ]
 
 { #category : #accessing }

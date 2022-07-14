@@ -33,6 +33,12 @@ DRInstruction class >> operands: aCollection result: aResultRegister [
 		yourself
 ]
 
+{ #category : #'instance creation' }
+DRInstruction class >> result: aResultRegister [
+
+	^ self operands: #() result: aResultRegister
+]
+
 { #category : #testing }
 DRInstruction >> = anObject [ 
 
@@ -252,6 +258,18 @@ DRInstruction >> isDominatedBy: anotherOperand [
 DRInstruction >> isInstruction [
 
 	^ true
+]
+
+{ #category : #testing }
+DRInstruction >> isJITCompileTimeExpression: aString [ 
+	
+	^ false
+]
+
+{ #category : #testing }
+DRInstruction >> isLoadFramePointer [
+	
+	^ false
 ]
 
 { #category : #testing }
