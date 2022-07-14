@@ -1,15 +1,15 @@
 Class {
-	#name : #DRPrimitiveCompilerCompiler,
+	#name : #DRBytecodeCompilerCompiler,
 	#superclass : #DRCompilerCompiler,
 	#instVars : [
 		'primitiveCompilerName',
 		'fallthroughBlock'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-BytecodeGeneration'
 }
 
 { #category : #API }
-DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInterpreter as: primitiveCompilerName in: aCompilerClass [ 
+DRBytecodeCompilerCompiler class >> compilePrimitive: primitiveName from: anInterpreter as: primitiveCompilerName in: aCompilerClass [ 
 	
 	^ self new
 		primitiveName: primitiveName;
@@ -20,10 +20,11 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 ]
 
 { #category : #accessing }
-DRPrimitiveCompilerCompiler >> initialize [
+DRBytecodeCompilerCompiler >> initialize [
 
 	super initialize.
 
+	codeGenerator := DRCogitStackToRegisterMappingGenerator new.
 	optimisations := OrderedCollection new.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
 
@@ -34,47 +35,23 @@ DRPrimitiveCompilerCompiler >> initialize [
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
 		optimisations add: DRCopyPropagation new.
 		optimisations add: DRPhiSimplication new.
+		optimisations add: DRCogitCanonicaliser new.
 		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
 		optimisations add: (DRDeadPathSplitting then: DRDeadPathElimination) ].
 	
 	"Last Phase, make code coggable"
     optimisations add: DRCogitOperandSorter new.
-	"optimisations add: DRCogitJITConstantSplitting new"
 ]
 
 { #category : #accessing }
-DRPrimitiveCompilerCompiler >> newIRGenerator [
+DRBytecodeCompilerCompiler >> newIRGenerator [
 
-	^ DRPrimitiveIRGenerator new
+	^ DRBytecodeIRGenerator new
 ]
 
 { #category : #accessing }
-DRPrimitiveCompilerCompiler >> primitiveCompilerName [
+DRBytecodeCompilerCompiler >> targetName [
 
-	^ primitiveCompilerName
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilerCompiler >> primitiveCompilerName: anObject [
-
-	primitiveCompilerName := anObject
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilerCompiler >> primitiveName [
-
-	^ self sourceName
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilerCompiler >> primitiveName: anObject [
-
-	self sourceName: anObject
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilerCompiler >> targetName [
-
-	^ self primitiveCompilerName
+	^ 'gen_', self sourceName
 ]

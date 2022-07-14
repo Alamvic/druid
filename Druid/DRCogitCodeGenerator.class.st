@@ -161,7 +161,7 @@ DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 ]
 
 { #category : #'ir-to-ast' }
-DRCogitCodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph primitiveName: aName [
+DRCogitCodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: aName [
 
 	generatorMethodBuilder selector: aName.
 	self generateCodeForCFG: aDRControlFlowGraph.
@@ -200,6 +200,18 @@ DRCogitCodeGenerator >> labelForBlock: aDRBasicBlock [
 DRCogitCodeGenerator >> labelForJump: jumpIndex [
 	
 	^ 'jump', jumpIndex asString
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> oneOperandCogitRTL: aMnemonic operands: operands instruction: anInstruction [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector:
+				 aMnemonic
+				 , (operands first result rtlOperandQualifierForInstruction:
+						  anInstruction)
+			 arguments: (self rtlArgumentsForValue: operands first))
 ]
 
 { #category : #'ir-to-ast' }

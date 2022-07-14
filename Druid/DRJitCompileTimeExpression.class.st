@@ -31,8 +31,21 @@ DRJitCompileTimeExpression >> isConstant [
 	^ true
 ]
 
+{ #category : #testing }
+DRJitCompileTimeExpression >> isJITCompileTimeExpression: aString [ 
+	
+	^ aString = expression
+]
+
 { #category : #accessing }
 DRJitCompileTimeExpression >> name [
 
 	^ expression
+]
+
+{ #category : #types }
+DRJitCompileTimeExpression >> type [
+	
+	"Assume integer for now"
+	^ DRIntegerType new
 ]

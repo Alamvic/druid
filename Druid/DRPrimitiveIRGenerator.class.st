@@ -10,18 +10,6 @@ DRPrimitiveIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 	self executionState primitiveFailureCode: anInstruction
 ]
 
-{ #category : #'execution state' }
-DRPrimitiveIRGenerator >> executionStack [
-	
-	^ executionState executionStack
-]
-
-{ #category : #accessing }
-DRPrimitiveIRGenerator >> ignoreMessageWith: aRBMessageNode [
-
-	self noop: aRBMessageNode
-]
-
 { #category : #accessing }
 DRPrimitiveIRGenerator >> initialize [
 
@@ -47,24 +35,6 @@ DRPrimitiveIRGenerator >> interpretCCoerceWith: aRBMessageNode [
 ]
 
 { #category : #'special cases' }
-DRPrimitiveIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
-
-	| byteSize valueToStore |
-	aRBAssignmentNode value acceptVisitor: self.
-	valueToStore := self popOperand.
-
-	byteSize := 8.
-	^ self
-		  addInstructionFrom: aRBAssignmentNode
-		  instructionKind: DRStore
-		  operands: { 
-				  byteSize asDRValue.
-				  valueToStore.
-				  (DRInterpreterReference reference:
-					   'objectMemory freeStartAddress') }
-]
-
-{ #category : #'special cases' }
 DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode [ 
 	
 	| newFailureCode copy |
@@ -80,12 +50,6 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode
 DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aRBNode [
 
 	self pushOperand: executionState primitiveFailureCode
-]
-
-{ #category : #accessing }
-DRPrimitiveIRGenerator >> ir [
-
-	^ controlFlowGraph
 ]
 
 { #category : #accessing }
@@ -158,16 +122,22 @@ DRPrimitiveIRGenerator >> popFrame [
 	
 ]
 
-{ #category : #visiting }
-DRPrimitiveIRGenerator >> visitCascadeNode: aRBCascadeNode [ 
-	
+{ #category : #'pharo-stack' }
+DRPrimitiveIRGenerator >> spillStack [
 
-	| receiver result |
-	aRBCascadeNode receiver acceptVisitor: self.
-	receiver := self popOperand.
-	
-	aRBCascadeNode messages do: [ :e |
-		self visitMessageNode: e receiver: receiver.
-		result := self popOperand ].
-	self pushOperand: result.
+	"If there is no operand stack, the current block has no predecessors and is considered as dead code.
+	Do not spill the stack here."
+	self currentOperandStack ifNil: [ ^ self ].
+	self currentOperandStack size > (numberOfArguments + 1)
+		ifTrue: [ self error: 'Non Balanced Stack!' ].
+
+	[ self currentOperandStack isEmpty ] whileFalse: [ | destinationRegister copyInstruction |
+		destinationRegister := self currentOperandStack size = 1
+			ifTrue: [ self receiverRegister ]
+			ifFalse: [ DRPhysicalGeneralPurposeRegister name: 'Arg', (self currentOperandStack size - 2) asString, 'Reg' ].
+		copyInstruction := DRCopy
+			operands: { self currentOperandStack pop }
+			result: destinationRegister.
+		self currentBasicBlock addInstruction: copyInstruction.
+	]
 ]
