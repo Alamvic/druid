@@ -176,6 +176,18 @@ DruidTestRTLCompiler >> gen_primitiveAnd [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveArithmeticBitShiftRight [
+
+	| currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveR: Arg0Reg R: ClassReg.
+	self ArithmeticShiftRightR: ClassReg R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveAssertIsIgnored [
 
 	| currentBlock |
@@ -1029,9 +1041,9 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1045,9 +1057,9 @@ DruidTestRTLCompiler >> gen_primitiveDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1148,7 +1160,7 @@ DruidTestRTLCompiler >> gen_primitiveEqualsThanValue [
 DruidTestRTLCompiler >> gen_primitiveFalseAsInteger [
 
 	| currentBlock |
-	self MoveCq: 0 R: ReceiverResultReg.
+	self MoveCq: false asInteger R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1157,7 +1169,7 @@ DruidTestRTLCompiler >> gen_primitiveFalseAsInteger [
 DruidTestRTLCompiler >> gen_primitiveFalseNot [
 
 	| currentBlock |
-	self MoveCq: 1 R: ReceiverResultReg.
+	self MoveCq: false not asInteger R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1573,9 +1585,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1589,9 +1601,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1623,6 +1635,15 @@ DruidTestRTLCompiler >> gen_primitiveIsIntegerObject [
 	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveJITCompileTimeExpression [
+
+	| currentBlock |
+	self MoveCq: objectMemory trueObject + 5 R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1855,9 +1876,9 @@ DruidTestRTLCompiler >> gen_primitiveMod [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1871,9 +1892,9 @@ DruidTestRTLCompiler >> gen_primitiveModByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -2883,7 +2904,7 @@ DruidTestRTLCompiler >> gen_primitiveSandclock [
 DruidTestRTLCompiler >> gen_primitiveSizeofusqInt [
 
 	| currentBlock |
-	self MoveCq: 4 R: ReceiverResultReg.
+	self MoveCq: 8 R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -2990,7 +3011,7 @@ DruidTestRTLCompiler >> gen_primitiveSumWithOverflow [
 DruidTestRTLCompiler >> gen_primitiveTrueNot [
 
 	| currentBlock |
-	self MoveCq: 0 R: ReceiverResultReg.
+	self MoveCq: true not asInteger R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -3241,9 +3262,10 @@ DruidTestRTLCompiler >> gen_pushReceiverVariableBytecode [
 	self ensureReceiverResultRegContainsSelf.
 	self MoveR: ReceiverResultReg R: ClassReg.
 	self AddCq: 8 R: ClassReg.
-	self LogicalShiftLeftCq: 3 R: TempReg.
+	self LogicalShiftLeftCq: 2 R: TempReg.
 	self AddR: TempReg R: ClassReg.
-	self MoveM64: 0 r: ClassReg R: ClassReg.
+	self MoveM32: 0 r: ClassReg R: ClassReg.
+	self AndCq: 16rFFFFFFFF R: ClassReg.
 	self ssPushR: ClassReg.
 	^ CompletePrimitive
 ]
