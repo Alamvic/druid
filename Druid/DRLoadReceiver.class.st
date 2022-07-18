@@ -1,7 +1,7 @@
 Class {
 	#name : #DRLoadReceiver,
 	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#category : #'Druid-Cogit'
 }
 
 { #category : #visiting }

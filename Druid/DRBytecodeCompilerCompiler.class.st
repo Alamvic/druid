@@ -5,7 +5,7 @@ Class {
 		'primitiveCompilerName',
 		'fallthroughBlock'
 	],
-	#category : #'Druid-BytecodeGeneration'
+	#category : #'Druid-CompilerCompiler'
 }
 
 { #category : #API }
