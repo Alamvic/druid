@@ -110,6 +110,12 @@ DRValue >> isInstruction [
 	^ false
 ]
 
+{ #category : #testing }
+DRValue >> isJitCompileTimeExpression [
+	
+	^ false
+]
+
 { #category : #accessing }
 DRValue >> isJump [ 
 
@@ -270,6 +276,12 @@ DRValue >> rtlOperandQualifierForInstruction: instruction [
 	^ self rtlOperandQualifier
 ]
 
+{ #category : #'constant folding' }
+DRValue >> simpleConstantFold [
+	
+	^ self
+]
+
 { #category : #transforming }
 DRValue >> simplify [
 	
@@ -280,6 +292,12 @@ DRValue >> simplify [
 DRValue >> targets [
 
 	^ #()
+]
+
+{ #category : #types }
+DRValue >> typeWithAlreadySeen: aCollection [ 
+	
+	^ self type
 ]
 
 { #category : #accessing }

@@ -68,9 +68,21 @@ DRConstantValue >> isCopy [
 ]
 
 { #category : #testing }
+DRConstantValue >> isJitCompileTimeExpression [
+	
+	^ value isJitCompileTimeExpression
+]
+
+{ #category : #testing }
 DRConstantValue >> isNumberValue [
 
 	^ value isNumber
+]
+
+{ #category : #testing }
+DRConstantValue >> jitCompileTimeExpression [
+
+	^ RBLiteralValueNode value: value
 ]
 
 { #category : #interpretation }

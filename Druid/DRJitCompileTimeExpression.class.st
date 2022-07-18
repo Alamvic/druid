@@ -7,6 +7,14 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #accessing }
+DRJitCompileTimeExpression class >> expression: anExpression [
+
+	^ self new
+		expression: anExpression;
+		yourself
+]
+
 { #category : #visiting }
 DRJitCompileTimeExpression >> acceptVisitor: aVisitor [
 
@@ -35,6 +43,18 @@ DRJitCompileTimeExpression >> isConstant [
 DRJitCompileTimeExpression >> isJITCompileTimeExpression: aString [ 
 	
 	^ aString = expression
+]
+
+{ #category : #testing }
+DRJitCompileTimeExpression >> isJitCompileTimeExpression [
+	
+	^ true
+]
+
+{ #category : #testing }
+DRJitCompileTimeExpression >> jitCompileTimeExpression [
+
+	^ expression
 ]
 
 { #category : #accessing }

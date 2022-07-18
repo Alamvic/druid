@@ -286,6 +286,8 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 			  stop: -1
 			  source: constantValue hex ] ].
 
+	aValue isJitCompileTimeExpression ifTrue: [ ^ aValue expression ].
+
 	^ RBVariableNode named: (self registerFor: aValue)
 ]
 

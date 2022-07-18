@@ -55,6 +55,14 @@ DruidTestInterpreter >> ifZeroFailPrimitive [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> jitCompileTimeIntegerExpression [
+
+	<druidJITCompileTimeExpression>
+	
+	^ objectMemory trueObject
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithEarlyReturn [
 
 	self stackTop = 0 ifTrue: [ ^ 42 ].
@@ -565,7 +573,7 @@ DruidTestInterpreter >> primitiveFalseNot [
 
 	<numberOfArguments: 0>
 	
-	self pop: 1 thenPush: false not
+	self pop: 1 thenPush: false not asInteger
 ]
 
 { #category : #'as yet unclassified' }
@@ -897,6 +905,13 @@ DruidTestInterpreter >> primitiveIsIntegerObject [
 	self pop: 1 thenPush: (objectMemory booleanObjectOf: (objectMemory isIntegerObject: self stackTop))
 ]
 
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveJITCompileTimeExpression [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: self jitCompileTimeIntegerExpression + 5
+]
+
 { #category : #comparisons }
 DruidTestInterpreter >> primitiveLessOrEqualThanValue [
 
@@ -1216,7 +1231,7 @@ DruidTestInterpreter >> primitiveTrueNot [
 
 	<numberOfArguments: 0>
 	
-	self pop: 1 thenPush: true not
+	self pop: 1 thenPush: true not asInteger
 ]
 
 { #category : #'as yet unclassified' }

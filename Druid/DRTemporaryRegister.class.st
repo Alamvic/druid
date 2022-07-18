@@ -104,3 +104,10 @@ DRTemporaryRegister >> rtlOperandQualifier [
 	
 	^ 'R:'
 ]
+
+{ #category : #type }
+DRTemporaryRegister >> type [
+	
+	"Maybe this should be parametrised"
+	^ DRIntegerType new
+]

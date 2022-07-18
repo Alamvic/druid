@@ -635,12 +635,6 @@ DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 	self subclassResponsibility
 ]
 
-{ #category : #'constant folding' }
-DRInstruction >> simpleConstantFold [
-	
-	self subclassResponsibility
-]
-
 { #category : #types }
 DRInstruction >> type [
 

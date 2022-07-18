@@ -28,6 +28,12 @@ DRCopy >> isCopy [
 	^true 
 ]
 
+{ #category : #testing }
+DRCopy >> isJitCompileTimeExpression [
+
+	^ operands first isJitCompileTimeExpression
+]
+
 { #category : #SCCP }
 DRCopy >> isMandatoryInstruction [ 
 
@@ -39,6 +45,12 @@ DRCopy >> isMandatoryInstruction [
 DRCopy >> isSetReturnValue [
 	
 	^ self result isPhysicalRegister and:  [ self result name = 'ReceiverResultReg' ]
+]
+
+{ #category : #testing }
+DRCopy >> jitCompileTimeExpression [
+
+	^ operands first jitCompileTimeExpression
 ]
 
 { #category : #printing }
@@ -69,4 +81,14 @@ DRCopy >> simpleConstantFold [
 DRCopy >> type [
 	
 	^ self operands first type
+]
+
+{ #category : #type }
+DRCopy >> typeWithAlreadySeen: aCollection [ 
+	
+	(aCollection includes: self)
+		ifTrue: [ ^ nil ].
+	
+	aCollection add: self.
+	^ operands first typeWithAlreadySeen: aCollection
 ]

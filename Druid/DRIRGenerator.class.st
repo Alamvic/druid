@@ -1578,20 +1578,41 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 { #category : #visiting }
 DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 
-	| arguments method |	
-	specialCases
-		at: aRBMessageNode selector
-		ifPresent: [ :mapping |
-			^ self perform: mapping withArguments: { aRBMessageNode } ].
-	
+	| arguments method |
 	"Resolve it as a normal send"
-	arguments := aRBMessageNode arguments collect: [ :e |
-		e acceptVisitor: self.
-		self popOperand ].
-	method := aRBMessageNode isSuperSend 
-					ifTrue: [ self currentMethod methodClass superclass lookupSelector: aRBMessageNode selector ]
-					ifFalse: [ receiver lookupClass lookupSelector: aRBMessageNode selector ].
-	self interpretCode: (DRMethod methodNode: method ast) receiver: receiver arguments: arguments
+	arguments := aRBMessageNode arguments collect: [ :e | 
+		             e acceptVisitor: self.
+		             self popOperand ].
+
+	(receiver isJitCompileTimeExpression and: [ 
+		 arguments allSatisfy: [ :arg | arg isJitCompileTimeExpression ] ]) 
+		ifTrue: [ 
+			| copy compileTimeExpression |
+			compileTimeExpression := RBMessageNode
+				receiver: receiver jitCompileTimeExpression
+				selector: aRBMessageNode selector
+				arguments: (arguments collect: [ :arg | 
+					arg jitCompileTimeExpression ]).
+			copy := self currentBasicBlock copy:
+				        (self instructionFactory jitCompileTimeExpression:
+					         compileTimeExpression).
+			self pushOperand: copy.
+			^ self ].
+
+	specialCases at: aRBMessageNode selector ifPresent: [ :mapping | 
+		^ self perform: mapping withArguments: { aRBMessageNode } ].
+
+	method := aRBMessageNode isSuperSend
+		          ifTrue: [ 
+			          self currentMethod methodClass superclass 
+				          lookupSelector: aRBMessageNode selector ]
+		          ifFalse: [ 
+		          receiver lookupClass lookupSelector:
+			          aRBMessageNode selector ].
+	self
+		interpretCode: (DRMethod methodNode: method ast)
+		receiver: receiver
+		arguments: arguments
 ]
 
 { #category : #visiting }
@@ -1601,17 +1622,33 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 		| failure primitiveReturn |
 		failure := self currentBasicBlock copy: 1.
 		self currentPrimitiveFailureCode: failure.
-		
+
 		primitiveReturn := executionState baseFrame.
 		self currentBasicBlock jumpTo: primitiveReturn exitBasicBlock.
 		"Record that this execution stack did a method return
 		We will merge this one with other returned states when this method finishes"
-		primitiveReturn addDeferredReturnState: {executionState copy. self currentBasicBlock}.
-		
+		primitiveReturn addDeferredReturnState: { 
+				executionState copy.
+				self currentBasicBlock }.
+
 		"Start a new dead block from here"
 		self newBasicBlock.
 		"If the method has no return statement, it should still return something"
 		^ self ].
+
+	(aRBMethodNode hasPragmaNamed: #druidJITCompileTimeExpression) 
+		ifTrue: [ 
+			| copy |
+			"Only support single return statements for now"
+			self assert: aRBMethodNode statements size = 1.
+			self assert: aRBMethodNode statements first isReturn.
+1halt.
+			copy := self currentBasicBlock copy:
+				        (DRJitCompileTimeExpression expression:
+					         aRBMethodNode statements first value).
+			self topFrame returnValue: copy.
+			self addDeferredReturnState: { executionState. self currentBasicBlock }.
+			^ self ].
 
 	aRBMethodNode statements do: [ :each | 
 		self assert: self topFrame operandStack isEmpty.
@@ -1622,7 +1659,9 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 
 	self assert: self topFrame operandStack isEmpty.
 	"If the method has no return statement, it should still return something"
-	self addDeferredReturnState: {executionState . self currentBasicBlock}
+	self addDeferredReturnState: { 
+			executionState.
+			self currentBasicBlock }
 ]
 
 { #category : #'special cases' }

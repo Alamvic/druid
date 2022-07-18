@@ -7,10 +7,20 @@ Class {
 { #category : #types }
 DRArithmeticInstruction >> type [
 
-	"Add is only valid among operands of the same type"
+	^ self typeWithAlreadySeen: Set new
+]
 
-	(self operands collect: [ :e | e type ] as: Set) size = 1 ifFalse: [ 
-		self error: 'incompatible types' ].
+{ #category : #type }
+DRArithmeticInstruction >> typeWithAlreadySeen: aCollection [ 
 	
-	^ self operands anyOne type
+	(aCollection includes: self)
+		ifTrue: [ ^ nil ].
+	
+	aCollection add: self.
+	self operands do: [ :e | | operandType |
+		operandType := e typeWithAlreadySeen: aCollection.
+		"If nil it means it's a recursive type, we continue with the next operand"
+		operandType ifNotNil: [ ^ operandType ] ].
+	
+	self error: 'Cannot compute instruction type'
 ]

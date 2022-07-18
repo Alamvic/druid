@@ -207,6 +207,21 @@ DRPhiFunction >> type [
 	^ self operands anyOne type
 ]
 
+{ #category : #simplification }
+DRPhiFunction >> typeWithAlreadySeen: aCollection [
+
+	(aCollection includes: self)
+		ifTrue: [ ^ nil ].
+	
+	aCollection add: self.
+	self operands do: [ :e | | operandType |
+		operandType := e typeWithAlreadySeen: aCollection.
+		"If nil it means it's a recursive type, we continue with the next operand"
+		operandType ifNotNil: [ ^ operandType ] ].
+	
+	self halt
+]
+
 { #category : #accessing }
 DRPhiFunction >> valuesForPredecessor: aDRBasicBlock [ 
 	
