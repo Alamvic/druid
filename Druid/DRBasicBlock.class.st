@@ -452,10 +452,6 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 		(u replaceOperandsIfDominated: myInstruction withAll: phis) 
 			ifNotNil: [ users remove: u ] ].
 
-	phis size = 1 ifTrue: [ "Last phi, all users should be replaced"
-		self assert: users isEmpty.
-		^ self ].
-
 	"Create the phi of phis in the frontier and update uses based on blocks dominance"
 	nextFrontier := controlFlowGraph tree minimalDominanceFrontierOfAll:
 		                frontier.
@@ -716,29 +712,28 @@ DRBasicBlock >> phiWith: aValue with: aValue2 [
 { #category : #factory }
 DRBasicBlock >> phiWithVariables: variables [
 
-	| finalVariables orderedVariables allPosibleVariables phi |
+	| finalVariables allPosibleVariables phi |
 	controlFlowGraph buildDominatorTree.
 
-	allPosibleVariables := variables.
+	allPosibleVariables := variables asOrderedCollection.
 	self predecessors size > variables size ifTrue: [ 
 		self predecessors size - variables size timesRepeat: [ 
 			allPosibleVariables := allPosibleVariables , variables ] ].
 
-	orderedVariables := allPosibleVariables asOrderedCollection sorted: [ 
-		                    :i1 
-		                    :i2 | 
-		                    (i1 isGlobal or: [ i2 isGlobal ]) or: [ 
-			                    (self distanceToPredecessor: i1 basicBlock)
-			                    <= (self distanceToPredecessor: i2 basicBlock) ] ].
-
 	finalVariables := self predecessors collect: [ :b | 
-		                  orderedVariables
+		                  allPosibleVariables
 			                  detect: [ :i | b checkLivenessOf: i ]
-			                  ifFound: [ :i | orderedVariables remove: i ]
+			                  ifFound: [ :i | allPosibleVariables remove: i ]
 			                  ifNone: [ DRNullValue new ] ].
 
 	phi := self instructionFactory phiWithVariables: finalVariables.
 	^ self addInstruction: phi
+]
+
+{ #category : #accessing }
+DRBasicBlock >> predecessorAt: index [
+	
+	^ predecessors at: index
 ]
 
 { #category : #accessing }

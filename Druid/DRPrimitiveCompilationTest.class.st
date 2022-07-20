@@ -21,14 +21,24 @@ DRPrimitiveCompilationTest class >> testParameters [
 { #category : #'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 	
-	| generatorSelector stopInstruction |
+	^ self compileDruidPrimitive: aSelector with: [ :compiler | "nothing" ]
+]
+
+{ #category : #'helpers-compiling' }
+DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector with: aBlock [
+	
+	| generatorSelector stopInstruction compiler |
 	generatorSelector := (#gen, '_' , aSelector) asSymbol.
+
 	"First generate druid code"
-	DRPrimitiveCompilerCompiler
-		compilePrimitive: aSelector
-		from: self interpreter
-		as: generatorSelector
-		in: DruidTestRTLCompiler.
+	compiler := DRPrimitiveCompilerCompiler new
+		primitiveName: aSelector;
+		interpreter: self interpreter;
+		primitiveCompilerName: generatorSelector;
+		compilerClass: DruidTestRTLCompiler.
+		
+	aBlock value: compiler.
+	compiler compile.
 
 	"Then generate the machine code for that method"
 	initialAddress := self compile: [
@@ -350,10 +360,11 @@ DRPrimitiveCompilationTest >> testCompileNonCompiledCaseExitsWithSuccess [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-array' }
+{ #category : #'tests-real primitives' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
+	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
@@ -367,10 +378,11 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveAt [
 	
 ]
 
-{ #category : #'tests-array' }
+{ #category : #'tests-real primitives' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithNegativeIndex [
 
 	| class array |
+	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
@@ -379,10 +391,11 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithNegativeIndex [
 	self executeUntilStopPrimitiveWithReceiver: array withArguments: { memory integerObjectOf: -2 }
 ]
 
-{ #category : #'tests-array' }
+{ #category : #'tests-real primitives' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithOverflowIndex [
 
 	| class array |
+	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
@@ -391,10 +404,11 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithOverflowIndex [
 	self executeUntilStopPrimitiveWithReceiver: array withArguments: { memory integerObjectOf: 2 }
 ]
 
-{ #category : #'tests-array' }
+{ #category : #'tests-real primitives' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithZeroIndex [
 
 	| class array |
+	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
@@ -403,10 +417,11 @@ DRPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithZeroIndex [
 	self executeUntilStopPrimitiveWithReceiver: array withArguments: { memory integerObjectOf: 0 }
 ]
 
-{ #category : #'tests-array' }
+{ #category : #'tests-real primitives' }
 DRPrimitiveCompilationTest >> testCompilePrimitiveAtManyElements [
 
 	| class array |
+	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.

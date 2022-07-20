@@ -191,6 +191,11 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 	usedSpillRegisters do: [ :each | spillRegisters addFirst: each ]
 ]
 
+{ #category : #accessing }
+DRLinearScanRegisterAllocator >> availableRegisters: aCollection [ 
+	availableRegisters := aCollection asOrderedCollection
+]
+
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> buildLiveSets [
 	
@@ -334,7 +339,7 @@ DRLinearScanRegisterAllocator >> liveSetOf: anInstruction [
 
 	"Main entry point to get the live set of an instruction"
 
-	^ liveSets at: anInstruction ifAbsentPut: [ DRLiveSet new ]
+	^ liveSets at: anInstruction ifAbsentPut: [ DRLiveSet definition: anInstruction ]
 ]
 
 { #category : #allocation }
@@ -355,14 +360,27 @@ DRLinearScanRegisterAllocator >> prepareSSA [
 	
 	This copy allows simpler coallescing of the life ranges of the  phi function and its operands.
 	"
-	
 	controlFlowGraph phiFunctions do: [ :e |
 		e operands with: e basicBlock predecessors do: [ :operand :predecessor |
-			| copy |
-			copy := predecessor copy: operand.
-			e replaceOperandAtPredecessor: predecessor by: copy
+			| copyTarget copy |
+			
+			"If it is a critical edge, split it and insert the copy in the split block instead"
+			copyTarget := predecessor successors size > 1
+				ifTrue: [ | splitBlock |
+					splitBlock := controlFlowGraph newBasicBlock.
+					splitBlock addPredecessor: predecessor.
+					predecessor replaceSuccessor: e basicBlock by: splitBlock.
+					e basicBlock replacePredecessor: predecessor by: splitBlock.
+					splitBlock jumpTo: e basicBlock.
+					splitBlock ]
+				ifFalse: [ predecessor ].
+	
+			copy := copyTarget copy: operand.
+			e replaceOperandAtPredecessor: copyTarget by: copy
 		]
-	]
+	].
+
+	controlFlowGraph fixBackJumps.
 ]
 
 { #category : #accessing }
@@ -423,6 +441,12 @@ DRLinearScanRegisterAllocator >> withFurthestIntervalSpilling [
 DRLinearScanRegisterAllocator >> withLastSpilling [
 
 	spillingStrategy := [ activeIntervals last ].
+]
+
+{ #category : #'spilling strategies' }
+DRLinearScanRegisterAllocator >> withLeastUsedInterval [
+
+	spillingStrategy := [ activeIntervals detectMin: [ :e | e numberOfUsers ] ]
 ]
 
 { #category : #'spilling strategies' }

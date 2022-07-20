@@ -136,12 +136,23 @@ DRCompilerCompiler >> newIRGenerator [
 	^ DRIRGenerator new
 ]
 
+{ #category : #accessing }
+DRCompilerCompiler >> optimisations: aCollection [ 
+	
+	optimisations := aCollection
+]
+
 { #category : #api }
 DRCompilerCompiler >> optimize: anIR [
 
 	customisation optimize: anIR.
 	optimisations do: [ :optimization | 
 		anIR applyOptimisation: optimization ]
+]
+
+{ #category : #accessing }
+DRCompilerCompiler >> registerAllocator [
+	^ registerAllocator
 ]
 
 { #category : #'generation-IR' }
