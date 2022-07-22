@@ -1,7 +1,7 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
 	#superclass : #DRIRGenerator,
-	#category : #'Druid-BytecodeGeneration'
+	#category : #'Druid-CompilerCompiler'
 }
 
 { #category : #accessing }

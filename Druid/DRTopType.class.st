@@ -54,3 +54,15 @@ DRTopType >> lookupClass [
 	
 	^ self class
 ]
+
+{ #category : #lookup }
+DRTopType >> lookupSelector: aString [ 
+	
+	^ (self class lookupSelector: aString)
+		ifNil: [ self systemClass lookupSelector: aString ]
+]
+
+{ #category : #accessing }
+DRTopType >> systemClass [
+	self shouldBeImplemented.
+]

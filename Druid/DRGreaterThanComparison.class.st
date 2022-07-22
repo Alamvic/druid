@@ -10,22 +10,16 @@ DRGreaterThanComparison >> acceptVisitor: aVisitor withBranch: aDRBranchIfCondit
 	^ aVisitor visitGreaterThan: self inBranch: aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
-DRGreaterThanComparison >> cogitFalseConditionCode [
-	
-	"Return the condition code used to jump if this condition is false.
-	Since we are checking greaterOrEquals, the we should return lessThan"
-	
-	^ #JumpLessOrEqual:
+{ #category : #testing }
+DRGreaterThanComparison >> isGreaterThanComparison [
+
+	^ true
 ]
 
-{ #category : #visiting }
-DRGreaterThanComparison >> cogitTrueConditionCode [
+{ #category : #transforming }
+DRGreaterThanComparison >> negated [
 	
-	"Return the condition code used to jump if this condition is false.
-	Since we are checking greaterOrEquals, the we should return lessThan"
-	
-	^ #JumpGreater:
+	^ DRLessOrEqualsThanComparison new
 ]
 
 { #category : #printing }

@@ -565,7 +565,7 @@ DruidTestInterpreter >> primitiveFalseNot [
 
 	<numberOfArguments: 0>
 	
-	self pop: 1 thenPush: false not
+	self pop: 1 thenPush: false not asInteger
 ]
 
 { #category : #'as yet unclassified' }
@@ -1216,7 +1216,7 @@ DruidTestInterpreter >> primitiveTrueNot [
 
 	<numberOfArguments: 0>
 	
-	self pop: 1 thenPush: true not
+	self pop: 1 thenPush: true not asInteger
 ]
 
 { #category : #'as yet unclassified' }

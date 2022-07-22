@@ -11,21 +11,9 @@ DRMultiplyOverflow >> acceptVisitor: aVisitor withBranch: aDRBranchIfCondition [
 ]
 
 { #category : #'rtl-translation' }
-DRMultiplyOverflow >> cogitFalseConditionCode [
-	
-	"Return the condition code used to jump if this condition is false.
-	Since we are checking equals, the we should return non-equals, represented as a NonZero in cogit rtl"
-	
-	^ #JumpMultiplyNoOverflow:
-]
+DRMultiplyOverflow >> isMultiplyOverflow [
 
-{ #category : #'rtl-translation' }
-DRMultiplyOverflow >> cogitTrueConditionCode [
-	
-	"Return the condition code used to jump if this condition is false.
-	Since we are checking equals, the we should return non-equals, represented as a NonZero in cogit rtl"
-	
-	^ #JumpMultiplyOverflow:
+	^ true
 ]
 
 { #category : #printing }

@@ -282,6 +282,12 @@ DRValue >> targets [
 	^ #()
 ]
 
+{ #category : #types }
+DRValue >> typeWithAlreadySeen: aCollection [ 
+	
+	^ self type
+]
+
 { #category : #accessing }
 DRValue >> users [
 	

@@ -1,7 +1,7 @@
 Class {
 	#name : #DRCogitStackToRegisterMappingGenerator,
 	#superclass : #DRCogitCodeGenerator,
-	#category : #'Druid-BytecodeGeneration'
+	#category : #'Druid-Cogit'
 }
 
 { #category : #visiting }
