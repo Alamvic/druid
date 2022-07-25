@@ -29,20 +29,6 @@ DRConstantValue >> acceptVisitor: aVisitor [
 	^ aVisitor visitConstant: self
 ]
 
-{ #category : #'rtl-translation' }
-DRConstantValue >> cogitFalseConditionCode [
-	
-	"Jump false if the constant is a zero"
-	^ #JumpNonZero:
-]
-
-{ #category : #'rtl-translation' }
-DRConstantValue >> cogitTrueConditionCode [
-	
-	"Jump false if the constant is a zero"
-	^ #JumpZero:
-]
-
 { #category : #testing }
 DRConstantValue >> hash [
 
@@ -131,7 +117,7 @@ DRConstantValue >> type [
 	value = nil ifTrue: [ ^ DRTopType new ].
 	(#(true false) includes: value) ifTrue: [ ^ DRBooleanType new ].
 	value isInteger ifTrue: [ ^ DRIntegerType new ].
-	^ self notYetImplemented.
+	^ value class
 ]
 
 { #category : #accessing }

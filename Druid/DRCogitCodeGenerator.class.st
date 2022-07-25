@@ -23,6 +23,63 @@ DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 	^ anInstruction acceptVisitor: self
 ]
 
+{ #category : #branching }
+DRCogitCodeGenerator >> cogitBranchFromCondition: condition type: aType [
+
+	| branchPrefix |
+	branchPrefix := aType isFloatType
+		                ifTrue: [ 'JumpFP' ]
+		                ifFalse: [ 'Jump' ].
+
+	condition isEqualsThanComparison ifTrue: [ 
+		^ aType isFloatType
+			  ifTrue: [ branchPrefix , 'Equal:' ]
+			  ifFalse: [ branchPrefix , 'Zero:' ] ].
+
+	condition isNotEqualsThanComparison ifTrue: [ 
+		^ aType isFloatType
+			  ifTrue: [ branchPrefix , 'NotEqual:' ]
+			  ifFalse: [ branchPrefix , 'NonZero:' ] ].
+
+	condition isGreaterThanComparison ifTrue: [ 
+		^ branchPrefix , 'Greater:' ].
+
+	condition isGreaterOrEqualThanComparison ifTrue: [ 
+		^ branchPrefix , 'GreaterOrEqual:' ].
+
+	condition isLessThanComparison ifTrue: [ 
+		^ branchPrefix , 'Less:' ].
+	
+	condition isLessOrEqualThanComparison ifTrue: [ 
+		^ branchPrefix , 'LessOrEqual:' ].
+
+	condition isOverflow ifTrue: [ 
+		aType isFloatType
+			ifTrue: [ self error: 'unsupported: cannot test the mask on a floating point number'  ].
+		condition isMultiplyOverflow
+			ifTrue: [ ^ branchPrefix , 'MultiplyOverflow:' ].
+		^ branchPrefix , 'Overflow:' ].
+
+	condition isNoOverflow ifTrue: [ 
+		aType isFloatType
+			ifTrue: [ self error: 'unsupported: cannot test the mask on a floating point number'  ].
+		condition isNoMultiplyOverflow
+			ifTrue: [ ^ branchPrefix , 'MultiplyNoOverflow:' ].
+		^ branchPrefix , 'NoOverflow:' ].
+	
+	condition isTestMask ifTrue: [ 
+		aType isFloatType
+			ifTrue: [ self error: 'unsupported: cannot test the mask on a floating point number'  ].
+		^ branchPrefix , 'NonZero:' ].
+	
+	condition isNoTestMask ifTrue: [ 
+		aType isFloatType
+			ifTrue: [ self error: 'unsupported: cannot test the mask on a floating point number'  ].
+		^ branchPrefix , 'Zero:' ].
+
+	1 halt
+]
+
 { #category : #'jump-management' }
 DRCogitCodeGenerator >> deferBranch: anIndex to: aDRBasicBlock [ 
 	
@@ -384,12 +441,14 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 
 	"Generate both jumps, the fallthorugh will get ignored"
 	self
-		generateJump:
-		replacement condition cogitTrueConditionCode
+		generateJump: (self
+				 cogitBranchFromCondition: replacement condition
+				 type: replacement operand1 type)
 		target: replacement trueBranch.
 	self
-		generateJump:
-		replacement condition cogitFalseConditionCode
+		generateJump: (self
+				 cogitBranchFromCondition: replacement condition negated
+				 type: replacement operand1 type)
 		target: replacement falseBranch
 ]
 
@@ -416,25 +475,16 @@ DRCogitCodeGenerator >> visitBranchIfTrue: aDRBranchIfTrue [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitComparison: aComparison [
 
-	| replacement |
-	"Cogit RTL only supports constants as the first argument.
-	Invert the comparison and the condition if necessary, mostly for greaterThan comparisons."
-	aComparison operands first isConstant
-		ifTrue: [ 
-			replacement := aComparison reversed.
-			aComparison replaceBy: replacement ]
-		ifFalse: [ replacement := aComparison ].
-
 	"Generate comparison instruction. In cogit, if you want to do A < B, you have to generate:
 	CMP B A
 	JumpLessThan xxx
 	Thus, operands are inverted always"
 	self
 		twoOperandCogitRTL: #Cmp
-		operands: replacement operands reversed
-		instruction: replacement.
+		operands: aComparison operands reversed
+		instruction: aComparison.
 
-	^ replacement
+	^ aComparison
 ]
 
 { #category : #visiting }
@@ -507,15 +557,18 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 	"
 	
 	"Generate CMP; Jump.COND true; RESULT := 0; JUMP next"
-	| comparisonToGenerate |
+	| comparisonToGenerate branch |
 	comparisonToGenerate := self visitComparison: aDRGetConditionCode.
 	generatorMethodBuilder addVariableNamed: 'jumpTrue'.
 	generatorMethodBuilder addVariableNamed: 'jumpNext'.
+	branch := self
+		cogitBranchFromCondition: comparisonToGenerate condition
+		type: comparisonToGenerate operand1 type.
 	generatorMethodBuilder addStatement: (RBAssignmentNode
 		variable: (RBVariableNode named: 'jumpTrue')
 		value: (RBMessageNode
 			receiver: RBVariableNode selfNode
-			selector: comparisonToGenerate condition cogitTrueConditionCode
+			selector: branch
 			arguments: { 0 asLiteralNode })).
 	"Set false to result"
 	self

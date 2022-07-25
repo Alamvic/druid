@@ -10,18 +10,6 @@ DRCopy >> acceptVisitor: aVisitor [
 	^ aVisitor visitCopy: self
 ]
 
-{ #category : #'cogit-generation' }
-DRCopy >> cogitFalseConditionCode [
-
-	^ self operand1 cogitFalseConditionCode
-]
-
-{ #category : #'cogit-generation' }
-DRCopy >> cogitTrueConditionCode [
-
-	^ self operand1 cogitTrueConditionCode
-]
-
 { #category : #printing }
 DRCopy >> isCopy [ 
 

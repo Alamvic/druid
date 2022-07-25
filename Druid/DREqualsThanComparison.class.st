@@ -10,22 +10,16 @@ DREqualsThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch [
 	^ aVisitor visitEqualsThan: self inBranch: parentBranch
 ]
 
-{ #category : #'rtl-translation' }
-DREqualsThanComparison >> cogitFalseConditionCode [
+{ #category : #testing }
+DREqualsThanComparison >> isEqualsThanComparison [
 	
-	"Return the condition code used to jump if this condition is false.
-	Since we are checking equals, the we should return non-equals, represented as a NonZero in cogit rtl"
-	
-	^ #JumpNonZero:
+	^ true
 ]
 
-{ #category : #'rtl-translation' }
-DREqualsThanComparison >> cogitTrueConditionCode [
+{ #category : #transforming }
+DREqualsThanComparison >> negated [
 	
-	"Return the condition code used to jump if this condition is false.
-	Since we are checking equals, the we should return non-equals, represented as a NonZero in cogit rtl"
-	
-	^ #JumpZero:
+	^ DRNotEqualsThanComparison new
 ]
 
 { #category : #printing }
