@@ -8,7 +8,8 @@ Class {
 		'numberOfArguments',
 		'controlFlowGraph',
 		'executionState',
-		'variableSpecialCases'
+		'variableSpecialCases',
+		'inlineLevel'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -168,6 +169,8 @@ DRIRGenerator >> initialize [
 	specialCases := Dictionary new.
 	variableSpecialCases := Dictionary new.
 	self initializeSpecialCases.
+	
+	inlineLevel := 3.
 	
 	"Push a top frame"
 	initialExecutionState := DRExecutionStack new.
@@ -1467,7 +1470,7 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 { #category : #visiting }
 DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 
-	| arguments method |	
+	| arguments method instruction |	
 	specialCases
 		at: aRBMessageNode selector
 		ifPresent: [ :mapping |
@@ -1477,10 +1480,24 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 	arguments := aRBMessageNode arguments collect: [ :e |
 		e acceptVisitor: self.
 		self popOperand ].
+	
 	method := aRBMessageNode isSuperSend 
 					ifTrue: [ self currentMethod methodClass superclass lookupSelector: aRBMessageNode selector ]
 					ifFalse: [ receiver lookupClass lookupSelector: aRBMessageNode selector ].
-	self interpretCode: (DRMethod methodNode: method ast) receiver: receiver arguments: arguments
+					
+	instruction := self instantiate: DRMethod operands: { receiver }, arguments.
+	instruction methodNode: method ast.
+	
+	self interpretCode: instruction receiver: receiver arguments: arguments.
+
+"	
+	inlineLevel = 0 
+		ifTrue: [ 
+			self addInstruction: instruction from: instruction methodNode. ] 
+		ifFalse: [ 
+			inlineLevel := inlineLevel - 1.
+			self interpretCode: instruction receiver: receiver arguments: arguments ]	
+"
 ]
 
 { #category : #visiting }

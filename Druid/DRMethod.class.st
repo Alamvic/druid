@@ -44,3 +44,9 @@ DRMethod >> methodNode: anObject [
 
 	methodNode := anObject
 ]
+
+{ #category : #printing }
+DRMethod >> opcode [
+	
+	^ methodNode selector 
+]

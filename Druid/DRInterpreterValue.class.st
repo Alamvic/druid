@@ -22,6 +22,12 @@ DRInterpreterValue >> lookupClass [
 ]
 
 { #category : #accessing }
+DRInterpreterValue >> name [
+
+	^ value class name
+]
+
+{ #category : #accessing }
 DRInterpreterValue >> value [
 	^ value
 ]
