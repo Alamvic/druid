@@ -281,6 +281,7 @@ DRControlFlowGraph >> initialize [
 	
 	basicBlocks := OrderedCollection new.
 	edges := OrderedCollection new.
+	edgesBySource := Dictionary new.
 	
 	"How many spill slots we need in memory to execute the compiled method"
 	numberOfSpillSlots := 0.
@@ -411,7 +412,7 @@ DRControlFlowGraph >> numberOfSpillSlots [
 { #category : #edges }
 DRControlFlowGraph >> outgoingEdgesFor: aBlock [
 
-	^ edgesBySource at: aBlock
+	^ edgesBySource at: aBlock ifAbsent: [ OrderedCollection new ]
 ]
 
 { #category : #accessing }
