@@ -148,12 +148,9 @@ DRControlFlowGraph >> createBlockView: aBlock [
 		yourself.
 
 	boxes := aBlock instructions collect: [ :inst | 
-		RSBox new
-			model: inst;
-			color: (self instructionColor: inst);
-			border: (RSBorder new color: Color black; joinMiter);
-			yourself ] as: RSGroup.
+		self createinstructionView: inst ] as: RSGroup.
 	RSGridLayout on: boxes.
+	
 	box 
 		position: boxes position;
 		extent: boxes extent + 10.
@@ -176,6 +173,23 @@ DRControlFlowGraph >> createBlockView: aBlock [
 	composite add: labelBackground.
 	composite add: label.
 	^ composite
+]
+
+{ #category : #inspecting }
+DRControlFlowGraph >> createinstructionView: instruction [
+
+	^ RSBox new
+		  model: instruction;
+		  color: (self instructionColor: instruction);
+		  border: (RSBorder new
+				   color: Color black;
+				   joinMiter);
+		  @ (RSMenuActivable new menuDo: [ :menu :element | 
+				   menu
+					   add: 'Inline'
+					   target: element model
+					   selector: #inline ]);
+		  yourself
 ]
 
 { #category : #'dead-path' }

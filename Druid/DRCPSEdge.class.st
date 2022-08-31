@@ -385,6 +385,12 @@ DRCPSEdge >> visitLoad: aDRLoad [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitMessageSend: aDRMessageSend [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitMod: aDRMod [ 
 
 	^ nil

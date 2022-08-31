@@ -312,6 +312,12 @@ DRIRGenerator >> instructionFactory [
 	^ controlFlowGraph instructionFactory
 ]
 
+{ #category : #accessing }
+DRIRGenerator >> instructionFactory: aDRInstructionFactory [
+
+	controlFlowGraph instructionFactory: aDRInstructionFactory
+]
+
 { #category : #interpretation }
 DRIRGenerator >> instructionFor: aDRInstruction inNode: aRBBlockNode [ 
 	
@@ -1470,34 +1476,35 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 { #category : #visiting }
 DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 
-	| arguments method instruction |	
-	specialCases
-		at: aRBMessageNode selector
-		ifPresent: [ :mapping |
-			^ self perform: mapping withArguments: { aRBMessageNode } ].
-	
+	| arguments method instruction |
+	specialCases at: aRBMessageNode selector ifPresent: [ :mapping | 
+		^ self perform: mapping withArguments: { aRBMessageNode } ].
+
 	"Resolve it as a normal send"
-	arguments := aRBMessageNode arguments collect: [ :e |
-		e acceptVisitor: self.
-		self popOperand ].
-	
-	method := aRBMessageNode isSuperSend 
-					ifTrue: [ self currentMethod methodClass superclass lookupSelector: aRBMessageNode selector ]
-					ifFalse: [ receiver lookupClass lookupSelector: aRBMessageNode selector ].
-					
-	instruction := self instantiate: DRMethod operands: { receiver }, arguments.
+	arguments := aRBMessageNode arguments collect: [ :e | 
+		             e acceptVisitor: self.
+		             self popOperand ].
+
+	method := aRBMessageNode isSuperSend
+		          ifTrue: [ 
+			          self currentMethod methodClass superclass 
+				          lookupSelector: aRBMessageNode selector ]
+		          ifFalse: [ 
+		          receiver lookupClass lookupSelector:
+			          aRBMessageNode selector ].
+
+
+
+	(method ast hasPragmaNamed: #druidNotInline) ifTrue: [ 
+		instruction := self instantiate: DRMessageSend operands: { receiver } , arguments.
+		instruction methodNode: method ast.
+		^ self addInstruction: instruction from: aRBMessageNode ].
+
+
+	instruction := self instantiate: DRMethod operands: { receiver } , arguments.
 	instruction methodNode: method ast.
-	
 	self interpretCode: instruction receiver: receiver arguments: arguments.
 
-"	
-	inlineLevel = 0 
-		ifTrue: [ 
-			self addInstruction: instruction from: instruction methodNode. ] 
-		ifFalse: [ 
-			inlineLevel := inlineLevel - 1.
-			self interpretCode: instruction receiver: receiver arguments: arguments ]	
-"
 ]
 
 { #category : #visiting }
