@@ -185,6 +185,32 @@ DRBasicBlock >> bitAnd: aValue with: anotherValue [
 	^ self addInstruction: (self instructionFactory bitAnd: aValue with: anotherValue)
 ]
 
+{ #category : #'control-flow' }
+DRBasicBlock >> breakBy: instruction [
+
+	"For avoid duplicate instructions on branches, this method create two predecessors chain from this basic block. Then move: 
+	- instructions listed before the instruction to first (upper) predecessor.
+	- the instruction to second (middle) predecessor.
+	- left remaining instructions (after the instruction) in this basic block (bottom)"
+
+	| upperPredecessor middlePredecessor splittedInstructions instructionsBefore |
+	instruction isPhiFunction ifTrue: [ 
+		self error: 'Phi instructions cannot break a basic block!' ].
+
+	upperPredecessor := self newEmptyPredecessor.
+	middlePredecessor := self newEmptyPredecessor.
+
+	splittedInstructions := self instructions allButLast splitOn: instruction.
+	instructionsBefore := splittedInstructions first. "self instructions allUntil: instruction"
+	instructionsBefore do: [ :i | 
+		self removeInstruction: i.
+		upperPredecessor addInstruction: i ].
+
+
+	self removeInstruction: instruction.
+	middlePredecessor addInstruction: instruction
+]
+
 { #category : #validating }
 DRBasicBlock >> checkLivenessOf: operand [
 
@@ -646,7 +672,7 @@ DRBasicBlock >> multiply: aValue by: anotherValue [
 	^ self addInstruction: (self instructionFactory multiply: aValue by: anotherValue)
 ]
 
-{ #category : #splitting }
+{ #category : #'control-flow' }
 DRBasicBlock >> newEmptyPredecessor [
 
 	| newBlock |

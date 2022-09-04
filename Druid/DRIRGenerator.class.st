@@ -8,8 +8,7 @@ Class {
 		'numberOfArguments',
 		'controlFlowGraph',
 		'executionState',
-		'variableSpecialCases',
-		'inlineLevel'
+		'variableSpecialCases'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -169,8 +168,6 @@ DRIRGenerator >> initialize [
 	specialCases := Dictionary new.
 	variableSpecialCases := Dictionary new.
 	self initializeSpecialCases.
-	
-	inlineLevel := 3.
 	
 	"Push a top frame"
 	initialExecutionState := DRExecutionStack new.

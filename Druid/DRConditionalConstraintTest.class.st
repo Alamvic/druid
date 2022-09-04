@@ -10,7 +10,7 @@ DRConditionalConstraintTest >> testEmptyConstraint [
 	| constraint |
 	constraint := DREmptyConstraint new.
 	
-	self assert: constraint includes: (DREmptyConstraint new).
+	self assertConstraint: constraint includes: (DREmptyConstraint new).
 	self deny: constraint includes: (DREqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
@@ -22,15 +22,15 @@ DRConditionalConstraintTest >> testEmptyConstraint [
 	self deny: constraint includes: (DRFullConstraint new).
 	
 
-	self assert: (DREqualsConstraint withValue: 10) includes: constraint.
-	self assert: (DRGreaterOrEqualsConstraint withValue: 10) includes: constraint.
-	self assert: (DRLessOrEqualsConstraint withValue: 10) includes: constraint.
-	self assert: (DRGreaterConstraint withValue: 10) includes: constraint.
-	self assert: (DRLessConstraint withValue: 10) includes: constraint.
-	self assert: (DRNotEqualsConstraint withValue: 10) includes: constraint.
-	self assert: (DRAnyMaskConstraint withValue: 10) includes: constraint.
-	self assert: (DRNoneMaskConstraint withValue: 10) includes: constraint.
-	self assert: (DRFullConstraint new) includes: constraint.
+	self assertConstraint: (DREqualsConstraint withValue: 10) includes: constraint.
+	self assertConstraint: (DRGreaterOrEqualsConstraint withValue: 10) includes: constraint.
+	self assertConstraint: (DRLessOrEqualsConstraint withValue: 10) includes: constraint.
+	self assertConstraint: (DRGreaterConstraint withValue: 10) includes: constraint.
+	self assertConstraint: (DRLessConstraint withValue: 10) includes: constraint.
+	self assertConstraint: (DRNotEqualsConstraint withValue: 10) includes: constraint.
+	self assertConstraint: (DRAnyMaskConstraint withValue: 10) includes: constraint.
+	self assertConstraint: (DRNoneMaskConstraint withValue: 10) includes: constraint.
+	self assertConstraint: (DRFullConstraint new) includes: constraint.
 ]
 
 { #category : #constraints }
@@ -39,7 +39,7 @@ DRConditionalConstraintTest >> testEqualsConstraint [
 	| constraint |
 	constraint := DREqualsConstraint withValue: 10.
 	
-	self assert: constraint includes: (DREqualsConstraint withValue: 10).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 10).
 	self deny: constraint includes: (DREqualsConstraint withValue: 20).
 	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
@@ -54,7 +54,7 @@ DRConditionalConstraintTest >> testEqualsObjectConstraint [
 	| constraint |
 	constraint := DREqualsObjectConstraint withValue: nil.
 	
-	self assert: constraint includes: constraint.
+	self assertConstraint: constraint includes: constraint.
 	self deny: constraint includes: (DREqualsConstraint withValue: 20).
 	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
@@ -71,21 +71,21 @@ DRConditionalConstraintTest >> testGreaterConstraint [
 	constraint := DRGreaterConstraint withValue: 10.
 	
 	self deny: constraint includes: (DREqualsConstraint withValue: 10).
-	self assert: constraint includes: (DREqualsConstraint withValue: 11).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 11).
 	self deny: constraint includes: (DREqualsConstraint withValue: 9).
 	
 	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
 	
-	self assert: constraint includes: (DRGreaterConstraint withValue: 10).
-	self assert: constraint includes: (DRGreaterConstraint withValue: 11).
+	self assertConstraint: constraint includes: (DRGreaterConstraint withValue: 10).
+	self assertConstraint: constraint includes: (DRGreaterConstraint withValue: 11).
 	self deny: constraint includes: (DRGreaterConstraint withValue: 9).
 	
 	self deny: constraint includes: (DRLessConstraint withValue: 10).
 	
 	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
 	
-	self assert: constraint includes: (DRIntersectionConstraint between: 10 and: 20).
+	self assertConstraint: constraint includes: (DRIntersectionConstraint between: 10 and: 20).
 	self deny: constraint includes: (DRIntersectionConstraint between: 5 and: 20).
 	self deny: constraint includes: (DRIntersectionConstraint between: 5 and: 9).
 	
@@ -98,13 +98,13 @@ DRConditionalConstraintTest >> testGreaterOrEqualsConstraint [
 	| constraint |
 	constraint := DRGreaterOrEqualsConstraint withValue: 10.
 	
-	self assert: constraint includes: (DREqualsConstraint withValue: 10).
-	self assert: constraint includes: (DREqualsConstraint withValue: 11).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 10).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 11).
 	self deny: constraint includes: (DREqualsConstraint withValue: 9).
-	self assert: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self assertConstraint: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
-	self assert: constraint includes: (DRGreaterConstraint withValue: 10).
-	self assert: constraint includes: (DRGreaterConstraint withValue: 11).
+	self assertConstraint: constraint includes: (DRGreaterConstraint withValue: 10).
+	self assertConstraint: constraint includes: (DRGreaterConstraint withValue: 11).
 	self deny: constraint includes: (DRGreaterConstraint withValue: 9).
 	self deny: constraint includes: (DRLessConstraint withValue: 10).
 	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
@@ -116,7 +116,7 @@ DRConditionalConstraintTest >> testIntersectionConstraint [
 	| constraint |
 	constraint := DRIntersectionConstraint between: 10 and: 20.
 	
-	self assert: constraint includes: (DREqualsConstraint withValue: 15).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 15).
 	self deny: constraint includes: (DREqualsConstraint withValue: 5).
 	self deny: constraint includes: (DREqualsConstraint withValue: 25).
 	
@@ -124,8 +124,8 @@ DRConditionalConstraintTest >> testIntersectionConstraint [
 	self deny: constraint includes: (DRLessConstraint withValue: 15).
 	self deny: constraint includes: (DRNotEqualsConstraint withValue: 15).
 	
-	self assert: constraint includes: (DRIntersectionConstraint between: 10 and: 20).
-	self assert: constraint includes: (DRIntersectionConstraint between: 11 and: 19).
+	self assertConstraint: constraint includes: (DRIntersectionConstraint between: 10 and: 20).
+	self assertConstraint: constraint includes: (DRIntersectionConstraint between: 11 and: 19).
 	self deny: constraint includes: (DRIntersectionConstraint between: 9 and: 20).
 	self deny: constraint includes: (DRIntersectionConstraint between: 10 and: 21).
 	self deny: constraint includes: (DRIntersectionConstraint between: 9 and: 21).
@@ -145,13 +145,13 @@ DRConditionalConstraintTest >> testLessConstraint [
 	
 	self deny: constraint includes: (DREqualsConstraint withValue: 10).
 	self deny: constraint includes: (DREqualsConstraint withValue: 11).
-	self assert: constraint includes: (DREqualsConstraint withValue: 9).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 9).
 	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRGreaterConstraint withValue: 10).
 	self deny: constraint includes: (DRLessConstraint withValue: 11).
-	self assert: constraint includes: (DRLessConstraint withValue: 9).
-	self assert: constraint includes: (DRLessConstraint withValue: 10).
+	self assertConstraint: constraint includes: (DRLessConstraint withValue: 9).
+	self assertConstraint: constraint includes: (DRLessConstraint withValue: 10).
 	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
 ]
 
@@ -161,15 +161,15 @@ DRConditionalConstraintTest >> testLessOrEqualsConstraint [
 	| constraint |
 	constraint := DRLessOrEqualsConstraint withValue: 10.
 	
-	self assert: constraint includes: (DREqualsConstraint withValue: 10).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 10).
 	self deny: constraint includes: (DREqualsConstraint withValue: 11).
-	self assert: constraint includes: (DREqualsConstraint withValue: 9).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 9).
 	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
-	self assert: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self assertConstraint: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRGreaterConstraint withValue: 10).
 	self deny: constraint includes: (DRLessConstraint withValue: 11).
-	self assert: constraint includes: (DRLessConstraint withValue: 9).
-	self assert: constraint includes: (DRLessConstraint withValue: 10).
+	self assertConstraint: constraint includes: (DRLessConstraint withValue: 9).
+	self assertConstraint: constraint includes: (DRLessConstraint withValue: 10).
 	self deny: constraint includes: (DRNotEqualsConstraint withValue: 10).
 ]
 
@@ -185,20 +185,20 @@ DRConditionalConstraintTest >> testMaskConstraint [
 	self deny: (constraint hasValue: 4).
 	self assert: (constraint hasValue: 5).
 
-	self assert: constraint includes: (DRAnyMaskConstraint withValue: 1).
-	self assert: constraint includes: (DRAnyMaskConstraint withValue: 2).
-	self assert: constraint includes: constraint.
+	self assertConstraint: constraint includes: (DRAnyMaskConstraint withValue: 1).
+	self assertConstraint: constraint includes: (DRAnyMaskConstraint withValue: 2).
+	self assertConstraint: constraint includes: constraint.
 	self deny: constraint includes: (DRAnyMaskConstraint withValue: 4).
 	self deny: constraint includes: (DRAnyMaskConstraint withValue: 5).
 	self deny: constraint includes: (DRAnyMaskConstraint withValue: 6).
 	self deny: constraint includes: (DRAnyMaskConstraint withValue: 7).
-	self assert: (DRAnyMaskConstraint withValue: 7) includes: constraint.
+	self assertConstraint: (DRAnyMaskConstraint withValue: 7) includes: constraint.
 	
-	self assert: constraint includes: (DREqualsConstraint withValue: 1).
-	self assert: constraint includes: (DREqualsConstraint withValue: 2).
-	self assert: constraint includes: (DREqualsConstraint withValue: 3).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 1).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 2).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 3).
 	self deny: constraint includes: (DREqualsConstraint withValue: 4).
-	self assert: constraint includes: (DREqualsConstraint withValue: 5).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 5).
 
 	self deny: constraint includes: (DRGreaterConstraint withValue: 0).
 	self deny: constraint includes: (DRLessConstraint withValue: 0).
@@ -218,32 +218,32 @@ DRConditionalConstraintTest >> testNotEqualsConstraint [
 	constraint := DRNotEqualsConstraint withValue: 10.
 	
 	self deny: constraint includes: (DREqualsConstraint withValue: 10).
-	self assert: constraint includes: (DREqualsConstraint withValue: 11).
-	self assert: constraint includes: (DREqualsConstraint withValue: 9).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 11).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 9).
 	
 	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
 	
-	self assert: constraint includes: (DRGreaterConstraint withValue: 10).
-	self assert: constraint includes: (DRGreaterConstraint withValue: 11).
+	self assertConstraint: constraint includes: (DRGreaterConstraint withValue: 10).
+	self assertConstraint: constraint includes: (DRGreaterConstraint withValue: 11).
 	self deny: constraint includes: (DRGreaterConstraint withValue: 9).
 	
-	self assert: constraint includes: (DRLessConstraint withValue: 10).
-	self assert: constraint includes: (DRLessConstraint withValue: 9).
+	self assertConstraint: constraint includes: (DRLessConstraint withValue: 10).
+	self assertConstraint: constraint includes: (DRLessConstraint withValue: 9).
 	self deny: constraint includes: (DRLessConstraint withValue: 11).
 	
-	self assert: constraint includes: (DRNotEqualsConstraint withValue: 10).
+	self assertConstraint: constraint includes: (DRNotEqualsConstraint withValue: 10).
 	
-	self assert: constraint includes: (DRIntersectionConstraint between: 5 and: 10).
+	self assertConstraint: constraint includes: (DRIntersectionConstraint between: 5 and: 10).
 	self deny: constraint includes: (DRIntersectionConstraint between: 5 and: 15).
-	self assert: constraint includes: (DRIntersectionConstraint between: 10 and: 15).
+	self assertConstraint: constraint includes: (DRIntersectionConstraint between: 10 and: 15).
 	
-	self assert: constraint includes: (DRUnionConstraint less: 10 greater: 20).
-	self assert: constraint includes: (DRUnionConstraint less: 10 greater: 10).
+	self assertConstraint: constraint includes: (DRUnionConstraint less: 10 greater: 20).
+	self assertConstraint: constraint includes: (DRUnionConstraint less: 10 greater: 10).
 	self deny: constraint includes: (DRUnionConstraint less: 15 greater: 20).
 	
-	self assert: constraint includes: (DRAnyMaskConstraint withValue: 1).
-	self assert: constraint includes: (DRNoneMaskConstraint withValue: 2).
+	self assertConstraint: constraint includes: (DRAnyMaskConstraint withValue: 1).
+	self assertConstraint: constraint includes: (DRNoneMaskConstraint withValue: 2).
 
 ]
 
@@ -253,8 +253,8 @@ DRConditionalConstraintTest >> testNotEqualsObjectConstraint [
 	| constraint |
 	constraint := DRNotEqualsObjectConstraint withValue: nil.
 	
-	self assert: constraint includes: constraint.
-	self assert: constraint includes: (DREqualsConstraint withValue: 20).
+	self assertConstraint: constraint includes: constraint.
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 20).
 	self deny: constraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRLessOrEqualsConstraint withValue: 10).
 	self deny: constraint includes: (DRGreaterConstraint withValue: 10).
@@ -277,14 +277,14 @@ DRConditionalConstraintTest >> testNotMaskConstraint [
 	
 	self deny: constraint includes: (DRNoneMaskConstraint withValue: 1).
 	self deny: constraint includes: (DRNoneMaskConstraint withValue: 2).
-	self assert: constraint includes: constraint.
+	self assertConstraint: constraint includes: constraint.
 	self deny: constraint includes: (DRNoneMaskConstraint withValue: 4).
 	self deny: constraint includes: (DRNoneMaskConstraint withValue: 5).
 	self deny: constraint includes: (DRNoneMaskConstraint withValue: 6).
-	self assert: constraint includes: (DRNoneMaskConstraint withValue: 7).
+	self assertConstraint: constraint includes: (DRNoneMaskConstraint withValue: 7).
 	
 	self deny: constraint includes: (DREqualsConstraint withValue: 3).
-	self assert: constraint includes: (DREqualsConstraint withValue: 4).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 4).
 	self deny: constraint includes: (DREqualsConstraint withValue: 5).
 
 	self deny: constraint includes: (DRGreaterConstraint withValue: 0).
@@ -302,19 +302,19 @@ DRConditionalConstraintTest >> testNotSupportedCases [
 
 	<expectedFailure>
 	self
-		assert: (DRAnyMaskConstraint withValue: 2) "..-2-3-.."
+		assertConstraint: (DRAnyMaskConstraint withValue: 2) "..-2-3-.."
 		includes: (DRIntersectionConstraint between: 1 and: 4) "|1(xxxx)4|".
 		
 	self
-		assert: (DRUnionConstraint less: 4 greater: 5) "xx)4||5(xx"
+		assertConstraint: (DRUnionConstraint less: 4 greater: 5) "xx)4||5(xx"
 		includes: (DRAnyMaskConstraint withValue: 2) "..-2-3-6-7-..".
 		
 	self
-		assert: (DRNoneMaskConstraint withValue: 2) "..-4-5-.."
+		assertConstraint: (DRNoneMaskConstraint withValue: 2) "..-4-5-.."
 		includes: (DRIntersectionConstraint between: 3 and: 6) "3-6".
 		
 	self
-		assert: (DRUnionConstraint less: 2 greater: 3) "xx)2||3(xx"
+		assertConstraint: (DRUnionConstraint less: 2 greater: 3) "xx)2||3(xx"
 		includes: (DRNoneMaskConstraint withValue: 2) "..-0-1-4-5-..".
 
 ]
@@ -326,15 +326,15 @@ DRConditionalConstraintTest >> testUnionConstraint [
 	constraint := DRUnionConstraint less: 10 greater: 20.
 	
 	self deny: constraint includes: (DREqualsConstraint withValue: 15).
-	self assert: constraint includes: (DREqualsConstraint withValue: 5).
-	self assert: constraint includes: (DREqualsConstraint withValue: 25).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 5).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 25).
 	
 	self deny: constraint includes: (DRGreaterConstraint withValue: 15).
-	self assert: constraint includes: (DRGreaterConstraint withValue: 20).
+	self assertConstraint: constraint includes: (DRGreaterConstraint withValue: 20).
 	self deny: constraint includes: (DRGreaterConstraint withValue: 5).
 	
 	self deny: constraint includes: (DRLessConstraint withValue: 15).
-	self assert: constraint includes: (DRLessConstraint withValue: 5).
+	self assertConstraint: constraint includes: (DRLessConstraint withValue: 5).
 	self deny: constraint includes: (DRLessConstraint withValue: 25).
 
 	self deny: constraint includes: (DRNotEqualsConstraint withValue: 15).
@@ -342,12 +342,12 @@ DRConditionalConstraintTest >> testUnionConstraint [
 	self deny: constraint includes: (DRIntersectionConstraint between: 10 and: 20).
 	self deny: constraint includes: (DRIntersectionConstraint between: 5 and: 15).
 	self deny: constraint includes: (DRIntersectionConstraint between: 15 and: 25).
-	self assert: constraint includes: (DRIntersectionConstraint between: 20 and: 25).
-	self assert: constraint includes: (DRIntersectionConstraint between: 5 and: 10).
+	self assertConstraint: constraint includes: (DRIntersectionConstraint between: 20 and: 25).
+	self assertConstraint: constraint includes: (DRIntersectionConstraint between: 5 and: 10).
 
-	self assert: constraint includes: (DRUnionConstraint less: 10 greater: 20).
+	self assertConstraint: constraint includes: (DRUnionConstraint less: 10 greater: 20).
 	self deny: constraint includes: (DRUnionConstraint less: 11 greater: 19).
-	self assert: constraint includes: (DRUnionConstraint less: 9 greater: 21).
+	self assertConstraint: constraint includes: (DRUnionConstraint less: 9 greater: 21).
 
 	self deny: constraint includes: (DRAnyMaskConstraint withValue: 2).
 	self deny: constraint includes: (DRNoneMaskConstraint withValue: 2)

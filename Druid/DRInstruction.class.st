@@ -105,6 +105,12 @@ DRInstruction >> basicBlock: anObject [
 	basicBlock := anObject
 ]
 
+{ #category : #'cfg manipulation' }
+DRInstruction >> breakBasicBlock [
+
+	self basicBlock breakBy: self
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> clearUsers [
 

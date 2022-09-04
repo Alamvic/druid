@@ -20,7 +20,23 @@ DRIRTest >> anyOutgoingEdge: cfg for: aBlock [
 ]
 
 { #category : #assertions }
-DRIRTest >> assert: aConstraint includes: includedConstraint [
+DRIRTest >> assertBlock: aBlock hasSameInstructions: expectedInstructions [
+
+	self
+		assertCollection: aBlock instructions allButLast
+		hasSameElements: expectedInstructions.
+
+]
+
+{ #category : #assertions }
+DRIRTest >> assertBlock: aBlock jumpTo: nextBlock [
+
+	self assert: (aBlock successors includes: nextBlock).
+
+]
+
+{ #category : #assertions }
+DRIRTest >> assertConstraint: aConstraint includes: includedConstraint [
 
 	self assert: (aConstraint includes: includedConstraint)
 ]

@@ -71,7 +71,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 	"Should propagate conditional exit"
 	conditionalConstraint := lastPaths first constraintFor: 'R10'.
 	self
-		assert: (DRGreaterOrEqualsConstraint withValue: 15)
+		assertConstraint: (DRGreaterOrEqualsConstraint withValue: 15)
 		includes: conditionalConstraint
 ]
 

@@ -101,8 +101,8 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranchIfCondition [
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. ">= 10"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "< 10"
 	
-	self assert: trueConstraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
-	self assert: falseConstraint includes: (DRLessConstraint withValue: 10).
+	self assertConstraint: trueConstraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
+	self assertConstraint: falseConstraint includes: (DRLessConstraint withValue: 10).
 ]
 
 { #category : #constraints }
@@ -115,8 +115,8 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranchIfConditionInverted [
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "<= 10"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. "> 10"
 	
-	self assert: trueConstraint includes: (DRLessOrEqualsConstraint withValue: 10).
-	self assert: falseConstraint includes: (DRGreaterConstraint withValue: 10).
+	self assertConstraint: trueConstraint includes: (DRLessOrEqualsConstraint withValue: 10).
+	self assertConstraint: falseConstraint includes: (DRGreaterConstraint withValue: 10).
 ]
 
 { #category : #constraints }
@@ -163,7 +163,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromCopy [
 	edge := self anyOutgoingEdge: cfg for: cfg firstBasicBlock.
 	constraint := edge constraintFor: copy result name.
 
-	self assert: constraint includes: (DREqualsConstraint withValue: 1).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 1).
 
 ]
 
@@ -180,7 +180,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromCopyOfCopy [
 	edge := self anyOutgoingEdge: cfg for: cfg firstBasicBlock.
 	constraint := edge constraintFor: copy2 result name.
 	
-	self assert: constraint includes: (DREqualsConstraint withValue: 1).
+	self assertConstraint: constraint includes: (DREqualsConstraint withValue: 1).
 
 ]
 
@@ -195,10 +195,10 @@ DRPathGenerationTest >> testConstraintsInferenceFromInnerBranches [
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. ">= 20"
 
 	self
-		assert: trueConstraint
+		assertConstraint: trueConstraint
 		includes: (DRIntersectionConstraint between: 10 and: 20).
 	self
-		assert: falseConstraint
+		assertConstraint: falseConstraint
 		includes: (DRGreaterOrEqualsConstraint withValue: 20)
 ]
 
@@ -218,7 +218,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromLoop [
 	sumConstraint := edges second constraintFor: 'R10'.
 
 	self assert: firstPhiConstraint isEmpty.
-	self assert: loopedPhiConstraint includes: (DRGreaterOrEqualsConstraint withValue: 15).
+	self assertConstraint: loopedPhiConstraint includes: (DRGreaterOrEqualsConstraint withValue: 15).
 	self assert: sumConstraint isNotNil
 ]
 
@@ -236,10 +236,10 @@ DRPathGenerationTest >> testConstraintsInferenceFromPhi [
 
 	self assert: edges size equals: 2.
 	self
-		assert: constraints first
+		assertConstraint: constraints first
 		includes: (DREqualsConstraint withValue: 1).
 	self
-		assert: constraints second
+		assertConstraint: constraints second
 		includes: (DREqualsConstraint withValue: 2)
 ]
 
@@ -258,7 +258,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromPhiWithNull [
 	edges := cfg incomingEdgesFor:  cfg lastBasicBlock.
 	constraints := edges collect: [ :e | e constraintFor: phi result name ] .
 
-	self assert: constraints first includes: (DREqualsConstraint withValue: 1).
+	self assertConstraint: constraints first includes: (DREqualsConstraint withValue: 1).
 	self assert: constraints second isNil.
 
 ]
