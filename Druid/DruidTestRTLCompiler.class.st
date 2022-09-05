@@ -1296,6 +1296,18 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveDoubleDeferredInline [
+
+	| currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveCq: 2 R: ClassReg.
+	self MulR: TempReg R: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveEqualsThan [
 
 	| jump1 jump2 currentBlock |

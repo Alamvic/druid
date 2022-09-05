@@ -874,6 +874,16 @@ DRPrimitiveCompilationTest >> testDecrementConstantReceiver [
 	self assert: machineSimulator receiverRegisterValue equals: 37
 ]
 
+{ #category : #'tests-methodactivations' }
+DRPrimitiveCompilationTest >> testDeferredInline [
+
+	self compileDruidPrimitive: #primitiveDoubleDeferredInline.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 84
+]
+
 { #category : #'tests-arithmetic' }
 DRPrimitiveCompilationTest >> testDivision [
 

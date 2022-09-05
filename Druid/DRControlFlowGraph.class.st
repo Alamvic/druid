@@ -379,6 +379,12 @@ DRControlFlowGraph >> leafBlocks [
 	^ self blocks select: [ :b | b endInstruction isNoop ]
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> messageSends [
+
+	^ self instructions select: [ :i | i isMessageSend ]
+]
+
 { #category : #building }
 DRControlFlowGraph >> newBasicBlock [
 	

@@ -1258,11 +1258,13 @@ DRIRGenerator >> popFrame [
 	poppedFrame := executionState popFrame.
 	
 	"Last frame!"
-	executionState executionStack ifEmpty: [ ^ self ].
+	executionState executionStack ifEmpty: [ ^ poppedFrame ].
 	
 	"Here we are in caller"
 	self pushOperand: poppedFrame returnValue.	
 	currentBasicBlock jumpTo: self newBasicBlock.	
+	
+	^ poppedFrame
 ]
 
 { #category : #'frame-access' }

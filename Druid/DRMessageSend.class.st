@@ -10,29 +10,40 @@ Class {
 { #category : #inlining }
 DRMessageSend >> inline [
 
-	| irGenerator startBlock initialBasicBlock initial |
-	irGenerator := DRPrimitiveIRGenerator new.
-	irGenerator instructionFactory: self controlFlowGraph instructionFactory.
-	
-	"Create the initial basic block"
-	startBlock := irGenerator initialBasicBlock.
-	initialBasicBlock := irGenerator newBasicBlock.
-	startBlock jumpTo: initialBasicBlock.
+	| irGenerator pieces |
 
-	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
-	initialBasicBlock addInstruction: initial.
+
+	pieces := self basicBlock breakBy: self.
+
+
+	"-.-.-.-.-.-.-.-.-.-.-.-.-."
+	irGenerator := DRPrimitiveIRGeneratorInline new.
+	irGenerator controlFlowGraph: self controlFlowGraph.
+
+	irGenerator previousBasicBlock: pieces first.
+	irGenerator messageSend: self.
+	irGenerator nextBasicBlock: pieces last.
+
+	"Create new first block?"
+	pieces first jumpTo: irGenerator newBasicBlock.
 
 	irGenerator numberOfArguments: operands size - 1.
 	irGenerator
 		interpretCode: (DRMethod methodNode: methodNode)
 		receiver: operands first
 		arguments: operands allButFirst.
-	irGenerator ir.
+
 	1 halt
 ]
 
 { #category : #accessing }
 DRMessageSend >> isMandatoryInstruction [
+
+	^ true
+]
+
+{ #category : #accessing }
+DRMessageSend >> isMessageSend [
 
 	^ true
 ]

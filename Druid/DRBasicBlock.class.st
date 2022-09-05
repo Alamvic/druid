@@ -208,7 +208,12 @@ DRBasicBlock >> breakBy: instruction [
 
 
 	self removeInstruction: instruction.
-	middlePredecessor addInstruction: instruction
+	middlePredecessor addInstruction: instruction.
+
+	^ { 
+		  upperPredecessor.
+		  middlePredecessor.
+		  self }
 ]
 
 { #category : #validating }

@@ -55,6 +55,13 @@ DruidTestInterpreter >> ifZeroFailPrimitive [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> lazyDouble: n [
+
+	<druidNotInline>
+	^ n * 2
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithEarlyReturn [
 
 	self stackTop = 0 ifTrue: [ ^ 42 ].
@@ -461,6 +468,15 @@ DruidTestInterpreter >> primitiveDivideByConstant [
 	
 	| result |
 	result := (self stackValue: 0) / 2.
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDoubleDeferredInline [
+
+	<numberOfArguments: 0>
+	| result |
+	result := self lazyDouble: self stackTop.
 	self pop: 1 thenPush: result
 ]
 
