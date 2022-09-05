@@ -10,7 +10,8 @@ Class {
 		'edges',
 		'deadPaths',
 		'numberOfSpillSlots',
-		'tree'
+		'tree',
+		'edgesBySource'
 	],
 	#category : #'Druid-IR'
 }
@@ -26,7 +27,10 @@ DRControlFlowGraph >> addBasicBlock: aBlock [
 { #category : #edges }
 DRControlFlowGraph >> addEdge: anEdge [
 
-	edges add: anEdge
+	edges add: anEdge.
+	(edgesBySource
+		 at: anEdge source
+		 ifAbsentPut: [ OrderedCollection new ]) add: anEdge
 ]
 
 { #category : #edges }
@@ -122,6 +126,7 @@ DRControlFlowGraph >> buildDominatorTree [
 DRControlFlowGraph >> clearEdges [
 
 	edges := OrderedCollection new.
+	edgesBySource := Dictionary new.
 	deadPaths := nil
 ]
 
@@ -208,7 +213,7 @@ DRControlFlowGraph >> deadPaths [
 		paths
 			at: e deadTarget
 			ifPresent: [ :collection | collection add: e ]
-			ifAbsentPut: { e } asOrderedCollection ].
+			ifAbsentPut: [{ e } asOrderedCollection] ].
 	^ deadPaths := paths
 ]
 
@@ -221,13 +226,30 @@ DRControlFlowGraph >> edges [
 { #category : #edges }
 DRControlFlowGraph >> edgesFrom: sourceBlock to: destinationBlock [
 
-	^ edges select: [ :e | e source = sourceBlock and: [e destination = destinationBlock] ]
+	^ (self outgoingEdgesFor: sourceBlock) select: [ :e | e destination = destinationBlock ]
 ]
 
 { #category : #accessing }
 DRControlFlowGraph >> firstBasicBlock [
 
 	^ initialBasicBlock successor
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> fixBackJumps [
+
+	self blocks do: [ :block | 
+		block successors do: [ :succ | 
+			(block endInstruction isBackJumpTo: succ) ifTrue: [ "If back-jump to block a recursive phi should exist"
+				(succ phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
+					ifFalse: [ "If not, then is a forward-jump" 
+						block endInstruction beForwardJumpTo: succ ] ] ].
+
+		"Check if has a back-jump to this block"
+		(block phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
+			ifTrue: [ 
+				block backJumpPredecessors do: [ :pred | 
+					pred endInstruction beBackJumpTo: block ] ] ]
 ]
 
 { #category : #edges }
@@ -273,6 +295,7 @@ DRControlFlowGraph >> initialize [
 	
 	basicBlocks := OrderedCollection new.
 	edges := OrderedCollection new.
+	edgesBySource := Dictionary new.
 	
 	"How many spill slots we need in memory to execute the compiled method"
 	numberOfSpillSlots := 0.
@@ -409,7 +432,7 @@ DRControlFlowGraph >> numberOfSpillSlots [
 { #category : #edges }
 DRControlFlowGraph >> outgoingEdgesFor: aBlock [
 
-	^ edges select: [ :e | e source = aBlock ]
+	^ edgesBySource at: aBlock ifAbsent: [ OrderedCollection new ]
 ]
 
 { #category : #accessing }

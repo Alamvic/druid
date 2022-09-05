@@ -3,10 +3,31 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'location',
-		'liveRanges'
+		'liveRanges',
+		'definitions'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
+
+{ #category : #accessing }
+DRLiveSet class >> definition: aDefinition [
+
+	^ self new
+		addDefinition: aDefinition;
+		yourself
+]
+
+{ #category : #testing }
+DRLiveSet >> addDefinition: aDefinition [
+
+	definitions add: aDefinition
+]
+
+{ #category : #accessing }
+DRLiveSet >> addDefinitions: aCollection [
+
+	definitions addAll: aCollection
+]
 
 { #category : #ranges }
 DRLiveSet >> addLiveRange: aRange [
@@ -32,10 +53,17 @@ DRLiveSet >> addRangeFrom: firstInstruction to: lastInstruction [
 			 yourself).
 ]
 
+{ #category : #merging }
+DRLiveSet >> definitions [
+
+	^ definitions
+]
+
 { #category : #testing }
 DRLiveSet >> initialize [
 	super initialize.
-	liveRanges := OrderedCollection new
+	liveRanges := OrderedCollection new.
+	definitions := Set new
 ]
 
 { #category : #testing }
@@ -62,11 +90,21 @@ DRLiveSet >> location: aLocation [
 
 { #category : #merging }
 DRLiveSet >> mergeWith: aDRLiveSet [
+
 	"Merge two non overlapping live sets"
+
 	^ DRLiveSet new
+		  addDefinitions: self definitions;
+		  addDefinitions: aDRLiveSet definitions;
 		  addLiveRanges: self liveRanges;
 		  addLiveRanges: aDRLiveSet liveRanges;
 		  yourself
+]
+
+{ #category : #accessing }
+DRLiveSet >> numberOfUsers [
+	
+	^ definitions sum: [ :e | e users size ]
 ]
 
 { #category : #testing }

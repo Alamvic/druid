@@ -94,7 +94,7 @@ DRCPSEdge >> integerOperation: anOperantion [
 
 { #category : #testing }
 DRCPSEdge >> isDead [
-	^ constraints values anySatisfy: [ :c | c isEmpty ]
+	^ constraints anySatisfy: [ :c | c isEmpty ]
 ]
 
 { #category : #building }

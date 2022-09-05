@@ -126,20 +126,20 @@ DRPhiFunction >> opcode [
 	 
 ]
 
+{ #category : #accessing }
+DRPhiFunction >> predecessorAtOperand: anOperand [
+
+	| index |
+	index := operands indexOf: anOperand.
+	^ self basicBlock predecessorAt: index
+]
+
 { #category : #'users-definitions' }
 DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
 
 	"If this is a recursive phi instruction, we do not care about the operands"
 	anOperand == self ifTrue: [ ^ self ].
-
-	(anotherOperand isInstruction and: [anotherOperand basicBlock = self basicBlock])
-		ifTrue: [ "Have no sense a phi with an block's instruction"
-			anotherOperand isPhiFunction
-				ifTrue: [ "unless it is another phi, then merge both"
-					super replaceOperand: anOperand by: DRNullValue new.
-					self mergeOperands: anotherOperand operands ]
-				ifFalse: [ self error: 'Bad Phi operand' ] ]
-		ifFalse: [ super replaceOperand: anOperand by: anotherOperand ]
+	super replaceOperand: anOperand by: anotherOperand
 ]
 
 { #category : #'users-definitions' }
@@ -153,9 +153,15 @@ DRPhiFunction >> replaceOperandAtPredecessor: predecessor by: anotherOperand [
 { #category : #replace }
 DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
-	| fullNewOperands |
+	| fullNewOperands replacement predecessorForValue |
+	"Only replace values by dominated phi function in the corresponding predecessor"
+	predecessorForValue := self predecessorAtOperand: myOperand.
+	replacement := newOperands
+		detect: [ :newOperand | predecessorForValue isDominatedBy: newOperand basicBlock ]
+		ifNone: [ ^ nil ].
+
 	"Replace phis operands is hard, we build a new one and replace"
-	fullNewOperands := (operands copyWithout: myOperand) , newOperands.
+	fullNewOperands := operands collect: [ :e | e = myOperand ifTrue: [ replacement ] ifFalse: [ e ] ].
 	^ self replaceBy: (self basicBlock phiWithVariables: fullNewOperands)
 ]
 
