@@ -1,6 +1,6 @@
 Class {
 	#name : #DRBitXor,
-	#superclass : #DRInstruction,
+	#superclass : #DRArithmeticOperation,
 	#category : #'Druid-IR'
 }
 

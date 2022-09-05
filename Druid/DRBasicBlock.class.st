@@ -1002,7 +1002,7 @@ DRBasicBlock >> validatePhiFunctions [
 	self phiFunctions do: [ :e | 
 		| ops |
 		ops := e operands asIdentitySet.
-		(ops size > 1 or: [ (ops anyOne isKindOf: DRNullValue) not ]) 
+		(ops size > 1 and: [ (ops noneSatisfy: [ :o | o isKindOf: DRNullValue])  ]) 
 			ifTrue: [ 
 				e operands size = self predecessors size ifFalse: [ 
 					self error: 'Phi-predecessor mismatch' ].

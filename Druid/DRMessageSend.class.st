@@ -33,7 +33,7 @@ DRMessageSend >> inline [
 		receiver: operands first
 		arguments: operands allButFirst.
 
-	1 halt
+	self flag: #TODO. "Refactor"
 ]
 
 { #category : #accessing }
