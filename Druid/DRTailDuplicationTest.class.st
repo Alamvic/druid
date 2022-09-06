@@ -13,6 +13,20 @@ DRTailDuplicationTest >> optimize: cfg [
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testLoopInvariantCodeMotionAdjustsPhiFunctionsOfMovedInstruction [
+
+	| cfg loopBlock loopInvariantInstruction |
+	cfg := self generateDruidIRFor: #primitiveLoopWithInvariant.
+
+	loopBlock := cfg blockById: 7.
+	loopInvariantInstruction := loopBlock firstInstruction.
+
+	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
+
+	self assert: (loopInvariantInstruction operand2) equals: (DRPhysicalRegister name: 'ReceiverResultReg')
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testLoopInvariantCodeMotionMovesConstantInstructionOutsideOfLoop [
 
 	| cfg loopBlock loopInvariantInstruction preLoopBlock |
@@ -24,7 +38,8 @@ DRTailDuplicationTest >> testLoopInvariantCodeMotionMovesConstantInstructionOuts
 
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 
-	self assert: (preLoopBlock instructions includes: loopInvariantInstruction)
+	self deny: (loopBlock containsInstruction: loopInvariantInstruction).
+	self assert: (preLoopBlock containsInstruction: loopInvariantInstruction)
 ]
 
 { #category : #tests }

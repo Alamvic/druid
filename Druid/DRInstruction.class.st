@@ -303,9 +303,9 @@ DRInstruction >> moveToDominatingBlock: destinationBlock [
 	destinationBlock addInstruction: self.
 	self operands
 		select: [ :operand | operand isPhiFunction ]
-		"Note: this only works when moving to parent block of a loop"
 		thenDo: [ :operand | 
 			| newOperandValues |
+			"Note: this only works when moving to parent block of a loop"
 			newOperandValues := operand valuesForPredecessor: destinationBlock.
 			self assert: [ newOperandValues size = 1 ].
 			self replaceOperand: operand by: newOperandValues anyOne ]
