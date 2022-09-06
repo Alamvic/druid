@@ -94,6 +94,12 @@ DRPhiFunction >> isEmpty [
 	^ operands isEmpty 
 ]
 
+{ #category : #'loop-invariance' }
+DRPhiFunction >> isInvariantFrom: predecessor [ 
+
+	^ (self valuesForPredecessor: predecessor) anySatisfy: #isNullValue.
+]
+
 { #category : #testing }
 DRPhiFunction >> isPhiFunction [
 

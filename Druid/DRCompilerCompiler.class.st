@@ -176,5 +176,5 @@ DRCompilerCompiler >> sourceName: anObject [
 { #category : #'ast-to-source' }
 DRCompilerCompiler >> writeAST: aRBMethodNode [ 
 	
-	compilerClass compile: (aRBMethodNode formattedCodeIn: self class) classified: #generated
+	compilerClass compile: (aRBMethodNode formattedCode) classified: #generated
 ]

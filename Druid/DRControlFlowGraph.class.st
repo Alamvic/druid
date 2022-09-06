@@ -43,6 +43,14 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 ]
 
 { #category : #accessing }
+DRControlFlowGraph >> allBackJumps [
+
+	^ self reversePostOrderBlocks
+		  collect: [ :b | b endInstruction ]
+		  thenSelect: [ :i | i isBackJump ]
+]
+
+{ #category : #accessing }
 DRControlFlowGraph >> allConditionalJumps [
 
 	^ self reversePostOrderBlocks

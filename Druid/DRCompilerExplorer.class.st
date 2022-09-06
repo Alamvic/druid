@@ -181,7 +181,8 @@ DRCompilerExplorer >> optimizations [
 		  DRDeadCodeElimination.
 		  DRFailureCodeBasedTailDuplication.
 		  DRDeadPathSplitting.
-		  DRDeadPathElimination }
+		  DRDeadPathElimination.
+		  DRLoopInvariantCodeMotion. }
 ]
 
 { #category : #accessing }

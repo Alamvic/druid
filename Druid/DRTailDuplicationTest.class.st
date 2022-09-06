@@ -13,6 +13,21 @@ DRTailDuplicationTest >> optimize: cfg [
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testLoopInvariantCodeMotionMovesConstantInstructionOutsideOfLoop [
+
+	| cfg loopBlock loopInvariantInstruction preLoopBlock |
+	cfg := self generateDruidIRFor: #primitiveLoopWithInvariant.
+
+	preLoopBlock := cfg blockById: 4.
+	loopBlock := cfg blockById: 7.
+	loopInvariantInstruction := loopBlock firstInstruction.
+
+	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
+
+	self assert: (preLoopBlock instructions includes: loopInvariantInstruction)
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateBlockWithMultipleSuccessorsAndOnlyInsideUsersShouldKeepInstructionsDependecies [
 
 	| cfg copy duplicatedBlocks lastBlock1 lastBlock2 |

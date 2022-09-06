@@ -821,6 +821,18 @@ DruidTestInterpreter >> primitiveLoopIncrementingGlobalState [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithInvariant [
+
+	<numberOfArguments: 0>
+	| result invariant |
+	result := 0.
+	[result < 15] whileTrue: [
+	 invariant := 1 * self stackTop.
+	 result := result + invariant ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveMod [
 
 	<numberOfArguments: 1>

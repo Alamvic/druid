@@ -10,6 +10,11 @@ Class {
 }
 
 { #category : #accessing }
+DRAbstractBranch >> backJumpTarget [
+	^ backJumps.
+]
+
+{ #category : #accessing }
 DRAbstractBranch >> beBackJumpTo: aDRBasicBlock [
 
 	backJumps add: aDRBasicBlock

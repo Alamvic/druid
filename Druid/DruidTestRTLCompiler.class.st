@@ -1613,6 +1613,29 @@ DruidTestRTLCompiler >> gen_primitiveLoopIncrementingGlobalState [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveLoopWithInvariant [
+
+	| jump1 currentBlock b14 |
+	self MoveCq: 0 R: TempReg.
+	self MoveR: ReceiverResultReg R: ClassReg.
+	b14 := self Label.
+	self MoveCq: 1 R: SendNumArgsReg.
+	self MoveR: ClassReg R: Extra0Reg.
+	self MulR: SendNumArgsReg R: Extra0Reg.
+	self MoveR: TempReg R: SendNumArgsReg.
+	self AddR: Extra0Reg R: SendNumArgsReg.
+	self CmpCq: 15 R: SendNumArgsReg.
+	jump1 := self JumpLess: 0.
+	self MoveR: SendNumArgsReg R: ReceiverResultReg.
+	self genPrimReturn.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveR: SendNumArgsReg R: TempReg.
+	jump1 := self Jump: b14.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveMod [
 
 	| currentBlock |

@@ -22,6 +22,11 @@ DRJump >> acceptVisitor: aVisitor [
 ]
 
 { #category : #accessing }
+DRJump >> backJumpTarget [
+	isBackJump ifTrue: [ ^ Set with: target ] ifFalse: [ ^ Set new ]
+]
+
+{ #category : #accessing }
 DRJump >> beBackJump [
 	
 	isBackJump := true
