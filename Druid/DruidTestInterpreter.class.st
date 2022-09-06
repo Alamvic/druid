@@ -833,6 +833,16 @@ DruidTestInterpreter >> primitiveLoopWithInvariant [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithLoopVariantInstruction [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 0.
+	[ result < 15 ] whileTrue: [ result := result + self stackTop ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveLoopWithMultipleInvariants [
 
 	<numberOfArguments: 0>

@@ -27,6 +27,21 @@ DRTailDuplicationTest >> testLoopInvariantCodeMotionAdjustsPhiFunctionsOfMovedIn
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testLoopInvariantCodeMotionDoesNotMoveLoopVariantInstructionOutsideOfLoop [
+
+	| cfg loopBlock loopVariantInstruction |
+	cfg := self generateDruidIRFor: #primitiveLoopWithLoopVariantInstruction.
+
+	loopBlock := cfg blockById: 7.
+	loopVariantInstruction := loopBlock firstInstruction.
+
+	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
+
+	"Intruction was not moved"
+	self assert: (loopBlock containsInstruction: loopVariantInstruction)
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testLoopInvariantCodeMotionMovesConstantInstructionOutsideOfLoop [
 
 	| cfg loopBlock loopInvariantInstruction preLoopBlock |
@@ -43,7 +58,7 @@ DRTailDuplicationTest >> testLoopInvariantCodeMotionMovesConstantInstructionOuts
 ]
 
 { #category : #tests }
-DRTailDuplicationTest >> testLoopInvariantCodeMotionMovesMultipleInstructionsOutsideOfLoop [
+DRTailDuplicationTest >> testLoopInvariantCodeMotionMovesMultipleRelatedInstructionsOutsideOfLoop [
 
 	| cfg loopBlock preLoopBlock loopInvariantInstruction1 loopInvariantInstruction2 |
 	cfg := self generateDruidIRFor: #primitiveLoopWithMultipleInvariants.
