@@ -539,7 +539,7 @@ DRBasicBlock >> isDominatedBy: dominatorBlock [
 
 { #category : #building }
 DRBasicBlock >> isDominatorOf: basicBlocks [
-
+	"Deprecated: should be removed once it's posible. Use DRBasicBlock>#isDominatedBy: instead."
 	| dominatorTree node |
 	
 	dominatorTree := DRDominatorTree new.

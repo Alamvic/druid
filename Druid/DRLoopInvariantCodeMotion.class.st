@@ -30,7 +30,9 @@ DRLoopInvariantCodeMotion >> tryMove: potentiallyLoopInvariantInstruction outsid
 		                     #predecessors) asSet copyWithout:
 		                    backJump basicBlock.
 	self assert: [ loopPredecessors size = 1 ].
+	
 	"Should create pre-header block instead of moving instruction to previous block"
-	potentiallyLoopInvariantInstruction moveToDominatingBlock:
-		loopPredecessors anyOne
+	potentiallyLoopInvariantInstruction moveToDominatingBlock: loopPredecessors anyOne.
+	
+	potentiallyLoopInvariantInstruction users do: [ :instruction | self tryMove: instruction outsideLoopWith: backJump ]
 ]

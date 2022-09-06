@@ -43,6 +43,25 @@ DRTailDuplicationTest >> testLoopInvariantCodeMotionMovesConstantInstructionOuts
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testLoopInvariantCodeMotionMovesMultipleInstructionsOutsideOfLoop [
+
+	| cfg loopBlock preLoopBlock loopInvariantInstruction1 loopInvariantInstruction2 |
+	cfg := self generateDruidIRFor: #primitiveLoopWithMultipleInvariants.
+
+	preLoopBlock := cfg blockById: 4.
+	loopBlock := cfg blockById: 7.
+	loopInvariantInstruction1 := loopBlock firstInstruction.
+	loopInvariantInstruction2 := loopBlock instructions second.
+
+	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
+
+	self deny: (loopBlock containsInstruction: loopInvariantInstruction1 ).
+	self deny: (loopBlock containsInstruction: loopInvariantInstruction2 ).
+	self assert: (preLoopBlock containsInstruction: loopInvariantInstruction1).
+	self assert: (preLoopBlock containsInstruction: loopInvariantInstruction2)
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateBlockWithMultipleSuccessorsAndOnlyInsideUsersShouldKeepInstructionsDependecies [
 
 	| cfg copy duplicatedBlocks lastBlock1 lastBlock2 |

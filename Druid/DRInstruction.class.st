@@ -254,6 +254,11 @@ DRInstruction >> isInstruction [
 	^ true
 ]
 
+{ #category : #'loop-invariance' }
+DRInstruction >> isInvariantFrom: aDRBasicBlock [ 
+	^ aDRBasicBlock isDominatedBy: self basicBlock
+]
+
 { #category : #testing }
 DRInstruction >> isModulo [
 	
