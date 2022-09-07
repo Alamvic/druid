@@ -677,7 +677,7 @@ DRCogitCodeGenerator >> visitLoad: aDRLoad [
 	self
 		twoOperandCogitRTL: #Move
 		operands: { 
-				aDRLoad operand1 asMemoryAddress.
+				aDRLoad address.
 				aDRLoad result }
 		instruction: aDRLoad.
 

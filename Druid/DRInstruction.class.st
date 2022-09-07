@@ -84,7 +84,7 @@ DRInstruction >> addUser: anInstruction [
 DRInstruction >> asMemoryAddress [
 
 	^ DRAbsoluteMemoryAddress new
-		  address: self;
+		  expression: self;
 		  yourself
 ]
 
@@ -128,6 +128,12 @@ DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode
 	
 	"I'm an already an instruction with a value. No need to do anything"
 	^ self
+]
+
+{ #category : #testing }
+DRInstruction >> hasDependency: anInstruction [
+	
+	^ self hasOperand: anInstruction
 ]
 
 { #category : #testing }
@@ -191,7 +197,7 @@ DRInstruction >> inspectionDependencies: aBuilder [
 	eb canvas: view.
 	eb withBorderAttachPoint.
 	eb 	shapes: blockViews.
-	eb connectToAll: #operands.
+	eb connectToAll: #dependencies.
 	
 	"All the characters are displayed using a grid layout"
 	RSDominanceTreeLayout new
@@ -342,6 +348,11 @@ DRInstruction >> opcode [
 DRInstruction >> operand1 [
 	
 	^ operands at: 1
+]
+
+{ #category : #accessing }
+DRInstruction >> operand1: aDRAbsoluteMemoryAddress [ 
+	self shouldBeImplemented.
 ]
 
 { #category : #accessing }
@@ -514,6 +525,12 @@ DRInstruction >> replaceBy: anotherInstruction [
 ]
 
 { #category : #'users-definitions' }
+DRInstruction >> replaceDependency: anOperand by: anotherOperand [
+
+	self replaceOperand: anOperand by: anotherOperand
+]
+
+{ #category : #'users-definitions' }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
 	self flag: #careful.
@@ -567,7 +584,7 @@ DRInstruction >> replaceUsersBy: anotherInstruction [
 DRInstruction >> replaceUsesBy: anotherInstruction [
 	
 	users copy do: [ :instruction |
-		instruction replaceOperand: self by: anotherInstruction ]
+		instruction replaceDependency: self by: anotherInstruction ]
 ]
 
 { #category : #accessing }
@@ -671,7 +688,7 @@ DRInstruction >> validateOperandsAreUsedByMyself [
 { #category : #validation }
 DRInstruction >> validateUsersUseMyself [
 
-	(self users allSatisfy: [ :user | user hasOperand: self ]) ifFalse: [ 
+	(self users allSatisfy: [ :user | user hasDependency: self ]) ifFalse: [ 
 		DRError signal:
 			'User-operand mismatch in instruction: ' , self asString ]
 ]
@@ -688,7 +705,7 @@ DRInstruction >> withAllDependencies [
 	| dependencies |
 	dependencies := OrderedCollection new.
 	dependencies add: self.
-	self operands do: [ :e |
+	self dependencies do: [ :e |
 		dependencies addAll: e withAllDependencies ].
 	^ dependencies
 ]

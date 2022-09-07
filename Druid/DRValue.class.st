@@ -44,6 +44,12 @@ DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 ]
 
 { #category : #accessing }
+DRValue >> dependencies [
+	
+	^ self operands
+]
+
+{ #category : #accessing }
 DRValue >> hasId: id [
 
 	^ false
@@ -107,6 +113,12 @@ DRValue >> isGlobal [
 { #category : #testing }
 DRValue >> isInstruction [
 
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isJITCompileTimeExpression: aString [ 
+	
 	^ false
 ]
 

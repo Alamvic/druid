@@ -2,7 +2,7 @@ Class {
 	#name : #DRAbsoluteMemoryAddress,
 	#superclass : #DRAbstractMemoryAddress,
 	#instVars : [
-		'address'
+		'expression'
 	],
 	#category : #'Druid-IR'
 }
@@ -15,16 +15,43 @@ DRAbsoluteMemoryAddress class >> register: aRegister [
 		yourself
 ]
 
-{ #category : #accessing }
-DRAbsoluteMemoryAddress >> address [
+{ #category : #'meta-data' }
+DRAbsoluteMemoryAddress >> dependencies [
 
-	^ address
+	^ { expression }
 ]
 
 { #category : #accessing }
-DRAbsoluteMemoryAddress >> address: anObject [
+DRAbsoluteMemoryAddress >> expression [
+	
+	^ expression
+]
 
-	address := anObject
+{ #category : #accessing }
+DRAbsoluteMemoryAddress >> expression: anObject [
+
+	expression := anObject
+]
+
+{ #category : #testing }
+DRAbsoluteMemoryAddress >> isAbsolute [
+	
+	^ true
+]
+
+{ #category : #testing }
+DRAbsoluteMemoryAddress >> name [
+	
+	^ '[', expression result name, ']'
+]
+
+{ #category : #'users-definitions' }
+DRAbsoluteMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
+
+	expression = anOperand
+		ifTrue: [ ^ expression := anotherOperand ].
+	
+	self error: 'Invalid dependency'
 ]
 
 { #category : #cogit }
@@ -32,7 +59,7 @@ DRAbsoluteMemoryAddress >> rtlArgumentExpressions [
 
 	| offsetNode baseNode |
 	offsetNode := RBLiteralValueNode value: 0.
-	baseNode := RBVariableNode named: address result name.
+	baseNode := RBVariableNode named: expression result name.
 
 	^ { offsetNode . baseNode }
 ]

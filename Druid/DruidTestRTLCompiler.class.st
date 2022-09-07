@@ -3299,16 +3299,10 @@ DruidTestRTLCompiler >> gen_primitiveWithSequentialExitPoint [
 DruidTestRTLCompiler >> gen_pushReceiverVariableBytecode [
 
 	| currentBlock |
-	self MoveCq: 15 R: TempReg.
-	self AndCq: byte0 R: TempReg.
 	self ensureReceiverResultRegContainsSelf.
-	self MoveR: ReceiverResultReg R: ClassReg.
-	self AddCq: 8 R: ClassReg.
-	self LogicalShiftLeftCq: 2 R: TempReg.
-	self AddR: TempReg R: ClassReg.
-	self MoveM32: 0 r: ClassReg R: ClassReg.
-	self AndCq: 16rFFFFFFFF R: ClassReg.
-	self ssPushR: ClassReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self MoveM64: 16 r: TempReg R: TempReg.
+	self ssPushR: TempReg.
 	^ CompletePrimitive
 ]
 

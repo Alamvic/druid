@@ -4,10 +4,29 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #'meta-data' }
+DRAbstractMemoryAddress >> addUser: anInstruction [
+	
+	self dependencies do: [ :e | e addUser: anInstruction ]
+]
+
+{ #category : #testing }
+DRAbstractMemoryAddress >> isAbsolute [
+	
+	^ false
+]
+
 { #category : #testing }
 DRAbstractMemoryAddress >> isMemoryAddress [
 	
 	^ true
+]
+
+{ #category : #'users-definitions' }
+DRAbstractMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
+
+	self dependencies do: [ :e | 
+		e replaceDependency: anOperand by: anotherOperand ]
 ]
 
 { #category : #cogit }

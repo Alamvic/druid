@@ -25,7 +25,7 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 	variableSpecialCases at: #framePointer put: #interpretFramePointerWith:.
-	variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:.
+	"variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:."
 	
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
