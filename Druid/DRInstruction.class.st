@@ -667,7 +667,7 @@ DRInstruction >> users [
 { #category : #validation }
 DRInstruction >> validate [
 
-	self validateOperandsAreUsedByMyself.
+	self validateDependenciesAreUsedByMyself.
 	self validateUsersUseMyself.
 
 	self isPhiFunction ifTrue: [ ^ self ].
@@ -678,11 +678,13 @@ DRInstruction >> validate [
 ]
 
 { #category : #validation }
-DRInstruction >> validateOperandsAreUsedByMyself [
+DRInstruction >> validateDependenciesAreUsedByMyself [
 
-	(self operands allSatisfy: [ :op | op hasUser: self ]) ifFalse: [ 
-		DRError signal:
-			'Operand-user mismatch in instruction: ' , self asString ]
+	self dependencies do: [ :op | 
+		(op hasUser: self) ifFalse: [ 
+			DRError signal:
+				'Dependency-user mismatch between: ' , self asString , ' and: '
+				, op asString ] ]
 ]
 
 { #category : #validation }
