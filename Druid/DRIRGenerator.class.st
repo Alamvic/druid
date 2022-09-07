@@ -1579,12 +1579,16 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 
 	| arguments method |
+	
+	specialCases at: aRBMessageNode selector ifPresent: [ :mapping | 
+		^ self perform: mapping withArguments: { aRBMessageNode } ].
+	
 	"Resolve it as a normal send"
 	arguments := aRBMessageNode arguments collect: [ :e | 
 		             e acceptVisitor: self.
 		             self popOperand ].
 
-	(receiver isJitCompileTimeExpression and: [ 
+	"(receiver isJitCompileTimeExpression and: [ 
 		 arguments allSatisfy: [ :arg | arg isJitCompileTimeExpression ] ]) 
 		ifTrue: [ 
 			| copy compileTimeExpression |
@@ -1597,10 +1601,7 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 				        (self instructionFactory jitCompileTimeExpression:
 					         compileTimeExpression).
 			self pushOperand: copy.
-			^ self ].
-
-	specialCases at: aRBMessageNode selector ifPresent: [ :mapping | 
-		^ self perform: mapping withArguments: { aRBMessageNode } ].
+			^ self ]."
 
 	method := aRBMessageNode isSuperSend
 		          ifTrue: [ 
@@ -1642,7 +1643,6 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 			"Only support single return statements for now"
 			self assert: aRBMethodNode statements size = 1.
 			self assert: aRBMethodNode statements first isReturn.
-1halt.
 			copy := self currentBasicBlock copy:
 				        (DRJitCompileTimeExpression expression:
 					         aRBMethodNode statements first value).

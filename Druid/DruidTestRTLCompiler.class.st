@@ -962,13 +962,14 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self MoveCq: 5 R: ClassReg.
-	self MoveR: ReceiverResultReg R: SendNumArgsReg.
-	self CmpCq: 7 R: SendNumArgsReg.
-	jump2 := self JumpGreater: 0.
-	self MoveR: ClassReg R: SendNumArgsReg.
 	self MoveR: TempReg R: ClassReg.
-	self MoveR: SendNumArgsReg R: TempReg.
+	self MoveCq: 5 R: SendNumArgsReg.
+	self MoveR: ReceiverResultReg R: Extra0Reg.
+	self CmpCq: 7 R: Extra0Reg.
+	jump2 := self JumpGreater: 0.
+	self MoveR: SendNumArgsReg R: Extra0Reg.
+	self MoveR: TempReg R: ClassReg.
+	self MoveR: Extra0Reg R: TempReg.
 	
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
@@ -979,20 +980,22 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
+	self MoveR: TempReg R: Extra0Reg.
 	jump2 := self Jump: 0.
 	
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveCq: 1 R: ClassReg.
-	self MoveCq: 5 R: SendNumArgsReg.
-	self MoveR: ClassReg R: TempReg.
+	self MoveCq: 1 R: SendNumArgsReg.
 	self MoveR: SendNumArgsReg R: ClassReg.
+	self MoveCq: 5 R: TempReg.
+	self MoveR: SendNumArgsReg R: Extra0Reg.
+	self MoveR: TempReg R: SendNumArgsReg.
 	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self AddCq: 5 R: TempReg.
-	self AddCq: 15 R: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+	self AddCq: 5 R: ClassReg.
+	self AddCq: 15 R: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
@@ -1068,9 +1071,9 @@ DruidTestRTLCompiler >> gen_primitiveDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1607,9 +1610,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -2937,7 +2940,7 @@ DruidTestRTLCompiler >> gen_primitiveSandclock [
 DruidTestRTLCompiler >> gen_primitiveSizeofusqInt [
 
 	| currentBlock |
-	self MoveCq: 8 R: ReceiverResultReg.
+	self MoveCq: 4 R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
