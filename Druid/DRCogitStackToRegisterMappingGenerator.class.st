@@ -22,8 +22,9 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 
-	self
-		oneOperandCogitRTL: #ssPush
-		operands: { aDRPush operand1 }
-		instruction: aDRPush
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: 'ssPush',
+				 (aDRPush operand1 rtlPushOperandQualifierForInstruction: aDRPush)
+			 arguments: aDRPush operand1 rtlPushArgumentExpressions)
 ]

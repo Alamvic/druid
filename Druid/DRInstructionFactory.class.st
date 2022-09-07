@@ -198,6 +198,25 @@ DRInstructionFactory >> phiWithVariables: variables [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> push: operand [
+
+	^ DRPush
+		  operands: { operand asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> pushBase: base offset: offset [
+
+	^ DRPush
+		  operands: { (DRBaseOffsetMemoryAddress new
+				   base: base;
+				   offset: offset;
+				   yourself) }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> setReturnValue: aValue [ 
 	
 	^ DRCopy

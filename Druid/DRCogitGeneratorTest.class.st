@@ -5,6 +5,15 @@ Class {
 }
 
 { #category : #helpers }
+DRCogitGeneratorTest >> generateBytecodeCogitForInstruction: aDRInstruction [
+	
+	| generator |
+	generator := DRCogitStackToRegisterMappingGenerator new.
+	aDRInstruction acceptVisitor: generator.
+	^ generator
+]
+
+{ #category : #helpers }
 DRCogitGeneratorTest >> generateCogitForInstruction: aDRInstruction [
 	
 	| generator |
@@ -247,6 +256,25 @@ DRCogitGeneratorTest >> testGenerateOrConstantWithNoResult [
 	self assert: orASTInstruction selector equals: #OrCq:R:.
 	self assert: orASTInstruction arguments first value equals: 0.
 	self assert: orASTInstruction arguments second name equals: 'R0'
+]
+
+{ #category : #tests }
+DRCogitGeneratorTest >> testGeneratePushBaseOffset [
+
+	| cfg basicBlock r1 cogitAST orASTInstruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | 
+		              r1 := block
+			                    pushBase: block loadFramePointer
+			                    offset: 17 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	cogitAST := self generateBytecodeCogitForInstruction: r1.
+	orASTInstruction := cogitAST generatorMethodBuilder statements first.
+
+	self assert: orASTInstruction selector equals: #ssPushBase:offset:.
+	self assert: orASTInstruction arguments first name equals: 'R0'.
+	self assert: orASTInstruction arguments second value equals: 17
 ]
 
 { #category : #tests }

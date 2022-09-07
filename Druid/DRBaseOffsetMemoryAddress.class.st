@@ -8,6 +8,14 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #'meta-data' }
+DRBaseOffsetMemoryAddress >> asDependencyList [
+
+	"Return myself as a list of dependencies, independently of MY dependencies.
+	I reprensent a dependency to my base and offset"	
+	^ { base. offset }
+]
+
 { #category : #accessing }
 DRBaseOffsetMemoryAddress >> base [
 
@@ -18,12 +26,6 @@ DRBaseOffsetMemoryAddress >> base [
 DRBaseOffsetMemoryAddress >> base: anObject [
 
 	base := anObject
-]
-
-{ #category : #'meta-data' }
-DRBaseOffsetMemoryAddress >> dependencies [
-
-	^ { base. offset }
 ]
 
 { #category : #printing }

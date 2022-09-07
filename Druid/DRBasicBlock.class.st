@@ -783,6 +783,18 @@ DRBasicBlock >> printOn: aStream [
 	aStream nextPutAll: ')'
 ]
 
+{ #category : #building }
+DRBasicBlock >> push: operand [
+	
+	^ self addInstruction: (self instructionFactory push: operand)
+]
+
+{ #category : #building }
+DRBasicBlock >> pushBase: base offset: offset [
+	
+	^ self addInstruction: (self instructionFactory pushBase: base offset: offset)
+]
+
 { #category : #iterating }
 DRBasicBlock >> recursiveSuccessorsDo: aBlock [
 

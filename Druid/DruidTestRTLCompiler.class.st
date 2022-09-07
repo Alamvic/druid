@@ -3301,8 +3301,7 @@ DruidTestRTLCompiler >> gen_pushReceiverVariableBytecode [
 	| currentBlock |
 	self ensureReceiverResultRegContainsSelf.
 	self MoveR: ReceiverResultReg R: TempReg.
-	self MoveM64: 16 r: TempReg R: TempReg.
-	self ssPushR: TempReg.
+	self ssPushBase: TempReg offset: 16.
 	^ CompletePrimitive
 ]
 

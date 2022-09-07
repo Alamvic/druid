@@ -31,12 +31,6 @@ DRLoad >> beFloatingPoint64 [
 	type := DRFloatType new
 ]
 
-{ #category : #'meta-data' }
-DRLoad >> dependencies [
-
-	^ self address dependencies
-]
-
 { #category : #'users-definitions' }
 DRLoad >> hasDependency: anInstruction [
 	

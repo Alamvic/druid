@@ -28,6 +28,13 @@ DRValue >> asDRValue [
 	^ self
 ]
 
+{ #category : #accessing }
+DRValue >> asDependencyList [
+
+	"Return myself as a list of dependencies, independently of MY dependencies"	
+	^ { self }
+]
+
 { #category : #memory }
 DRValue >> asMemoryAddress [
 	
@@ -46,7 +53,7 @@ DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 { #category : #accessing }
 DRValue >> dependencies [
 	
-	^ self operands
+	^ self operands flatCollect: [ :op | op asDependencyList ]
 ]
 
 { #category : #accessing }

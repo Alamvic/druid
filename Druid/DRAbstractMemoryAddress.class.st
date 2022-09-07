@@ -39,9 +39,24 @@ DRAbstractMemoryAddress >> rtlArgumentExpressions [
 DRAbstractMemoryAddress >> rtlOperandQualifierForInstruction: instruction [
 
 	| bytesSuffix |
+	1halt.
 	bytesSuffix := instruction size = 1
 		               ifTrue: [ 'b' ]
 		               ifFalse: [ (instruction size * 8) asString "bytes" ].
 
 	^ 'M' , bytesSuffix , ':r:'
+]
+
+{ #category : #cogit }
+DRAbstractMemoryAddress >> rtlPushArgumentExpressions [
+	
+	"Normal load and store instructions have offset, then base.
+	Push instructions have base, then offset"
+	^ self rtlArgumentExpressions reversed
+]
+
+{ #category : #cogit }
+DRAbstractMemoryAddress >> rtlPushOperandQualifierForInstruction: aPush [
+
+	^ 'Base:offset:'
 ]

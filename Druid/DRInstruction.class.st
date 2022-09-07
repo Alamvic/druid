@@ -389,7 +389,7 @@ DRInstruction >> operands: aCollection [
 
 	operands asSet do: [ :each | each removeUser: self ].
 	operands := aCollection asOrderedCollection.
-	operands asSet do: [ :each | each addUser: self ]
+	self dependencies asSet do: [ :each | each addUser: self ]
 ]
 
 { #category : #operands }

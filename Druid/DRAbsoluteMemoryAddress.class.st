@@ -16,8 +16,10 @@ DRAbsoluteMemoryAddress class >> register: aRegister [
 ]
 
 { #category : #'meta-data' }
-DRAbsoluteMemoryAddress >> dependencies [
+DRAbsoluteMemoryAddress >> asDependencyList [
 
+	"Return myself as a list of dependencies, independently of MY dependencies.
+	I reprensent a dependency to my expression"	
 	^ { expression }
 ]
 

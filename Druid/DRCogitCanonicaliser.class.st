@@ -107,9 +107,12 @@ DRCogitCanonicaliser >> visitNoop: aDRNoop [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitPush: aDRPush [ 
+DRCogitCanonicaliser >> visitPush: aDRPush [
 	
-	"Nothing"
+	| pushedValue |
+	pushedValue := aDRPush operand1.
+	pushedValue isLoad ifFalse: [ ^ self ].
+	aDRPush replaceOperand: pushedValue by: pushedValue address
 ]
 
 { #category : #visiting }
