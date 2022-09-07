@@ -63,13 +63,18 @@ DRCogitCanonicaliser >> visitLoad: aDRLoad [
 	(address isAbsolute and: [ address expression isAdd ]) ifFalse: [ ^ self ].
 	addressExpression := address expression.
 
+	"Cogit Specific optimisation: collapse
+		r0 := load framePointerRegister + receiver offset
+	into
+		r0 := load receiverRegister"
 	addressOperands := addressExpression operands.
 	(addressOperands first isLoadFramePointer and: [ 
 		 addressOperands second isJITCompileTimeExpression:
 			 'FrameReceiverOffset' ]) ifTrue: [ 
 		^ aDRLoad replaceBy: (DRLoadReceiver result: aDRLoad result) ].
 
-	"Simplify for now only patterns like
+	"General optimisation:
+	Simplify for now only patterns like
 	r1 := r0 + c1.
 	r2 := load r1
 	=>
