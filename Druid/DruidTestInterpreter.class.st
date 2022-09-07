@@ -938,6 +938,17 @@ DruidTestInterpreter >> primitiveNextUint16At [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNoopLoopWithInvariant [
+
+	<numberOfArguments: 0>
+	| result n |
+	result := 3.
+	n := self stackTop.
+	[ n < 10 ] whileTrue: [ result := 5 . n := n + 1 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveNotEqualsThan [
 
 	<numberOfArguments: 0>

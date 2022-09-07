@@ -52,6 +52,11 @@ DRJump >> beForwardJumpTo: aDRBasicBlock [
 	self beForwardJump
 ]
 
+{ #category : #testing }
+DRJump >> canMoveOutsideLoopWith: backJump [
+	^ false
+]
+
 { #category : #visiting }
 DRJump >> hash [
 

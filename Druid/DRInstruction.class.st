@@ -105,6 +105,13 @@ DRInstruction >> basicBlock: anObject [
 	basicBlock := anObject
 ]
 
+{ #category : #'loop-invariance' }
+DRInstruction >> canMoveOutsideLoopWith: backJump [
+
+	^ self operands allSatisfy: [ :operand | 
+		operand isInvariantFrom: backJump basicBlock ]
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> clearUsers [
 
@@ -301,19 +308,18 @@ DRInstruction >> lookupClass [
 	^ self type lookupClass 
 ]
 
+{ #category : #accessing }
+DRInstruction >> loopBlocks [
+	"TODO check that this works with loop that contains multiple blocks"
+	^ self backJumpTarget flatCollect: #backJumpPredecessors
+]
+
 { #category : #moving }
 DRInstruction >> moveToDominatingBlock: destinationBlock [
 
 	self basicBlock removeInstruction: self.
 	destinationBlock addInstruction: self.
-	self operands
-		select: [ :operand | operand isPhiFunction ]
-		thenDo: [ :operand | 
-			| newOperandValues |
-			"Note: this only works when moving to parent block of a loop"
-			newOperandValues := operand valuesForPredecessor: destinationBlock.
-			self assert: [ newOperandValues size = 1 ].
-			self replaceOperand: operand by: newOperandValues anyOne ]
+	self rewirePhiOperandsTo: destinationBlock
 ]
 
 { #category : #accessing }
@@ -588,6 +594,19 @@ DRInstruction >> result: anObject [
 DRInstruction >> reverseOperands [
 	
 	operands := operands reversed
+]
+
+{ #category : #moving }
+DRInstruction >> rewirePhiOperandsTo: destinationBlock [
+
+	self operands
+		select: [ :operand | operand isPhiFunction ]
+		thenDo: [ :operand | 
+			| newOperandValues |
+			"Note: this only works when moving to parent block"
+			newOperandValues := operand valuesForPredecessor: destinationBlock.
+			self assert: [ newOperandValues size = 1 ].
+			self replaceOperand: operand by: newOperandValues anyOne ]
 ]
 
 { #category : #SCCP }

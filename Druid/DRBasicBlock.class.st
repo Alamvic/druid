@@ -444,7 +444,7 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 		self assert: users isEmpty.
 		^ self ].
 	frontier isEmpty ifTrue: [ "Last usefull block"
-		self assert: users isEmpty.
+		"self assert: users isEmpty."
 		^ self ].
 
 	valuesToMerge := { myInstruction } , duplicatedInstructions.

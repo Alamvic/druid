@@ -2500,6 +2500,38 @@ DruidTestRTLCompiler >> gen_primitiveNextUint16At [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveNoopLoopWithInvariant [
+
+	| jump1 jump2 currentBlock b19 |
+	self MoveCq: 3 R: TempReg.
+	self CmpCq: 10 R: ReceiverResultReg.
+	jump1 := self JumpLess: 0.
+	self MoveCq: 3 R: ReceiverResultReg.
+	jump2 := self Jump: 0.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveCq: 5 R: ClassReg.
+	self MoveR: ReceiverResultReg R: SendNumArgsReg.
+	b19 := self Label.
+	self MoveR: SendNumArgsReg R: Extra0Reg.
+	self AddCq: 1 R: Extra0Reg.
+	self MoveR: ClassReg R: Extra1Reg.
+	self CmpCq: 10 R: Extra0Reg.
+	jump1 := self JumpLess: 0.
+	self MoveR: Extra1Reg R: Extra0Reg.
+	self MoveR: Extra0Reg R: ReceiverResultReg.
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
+	self genPrimReturn.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveR: Extra1Reg R: TempReg.
+	self MoveR: Extra0Reg R: SendNumArgsReg.
+	jump1 := self Jump: b19.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveNotEqualsThan [
 
 	| jump1 jump2 currentBlock |
