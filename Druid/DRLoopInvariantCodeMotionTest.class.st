@@ -27,6 +27,34 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionAdjustsPhiFunctionsO
 ]
 
 { #category : #tests }
+DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoadsNorStores [
+
+	| cfg initialBlock loopConditionBlock loopBodyBlock loopExitBlock loopCondition loadInstruction storeInstruction |
+	cfg := DRControlFlowGraphForTesting new.
+
+	initialBlock := cfg initialBasicBlock.
+	loopCondition := DRConstantValue value: true.
+
+	loopConditionBlock := cfg newBasicBlock.
+	loopBodyBlock := cfg newBasicBlock.
+	loopExitBlock := cfg newBasicBlock.
+
+	initialBlock jumpTo: loopConditionBlock.
+	loopConditionBlock jumpIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock.
+
+	loopBodyBlock backJumpTo: loopConditionBlock.
+
+	loadInstruction := loopBodyBlock load: 0.
+	storeInstruction := loopBodyBlock store: 0 into: 0.
+
+	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
+
+	"Intructions were not moved"
+	self assert: (loopBodyBlock containsInstruction: loadInstruction).
+	self assert: (loopBodyBlock containsInstruction: storeInstruction).
+]
+
+{ #category : #tests }
 DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoopVariantInstructionOutsideOfLoop [
 
 	| cfg loopBlock loopVariantInstruction |

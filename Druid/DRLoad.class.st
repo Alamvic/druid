@@ -13,6 +13,12 @@ DRLoad >> acceptVisitor: aVisitor [
 	^ aVisitor visitLoad: self
 ]
 
+{ #category : #testing }
+DRLoad >> canMoveOutsideLoopWith: backJump [
+
+	^ false
+]
+
 { #category : #visiting }
 DRLoad >> isLoad [
 

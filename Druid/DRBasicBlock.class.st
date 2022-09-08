@@ -919,6 +919,12 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 	^ duplicatedBlock
 ]
 
+{ #category : #building }
+DRBasicBlock >> store: aValue into: anAddress [
+
+	^ self addInstruction: (self instructionFactory store: aValue into: anAddress)
+]
+
 { #category : #accessing }
 DRBasicBlock >> successor [
 	

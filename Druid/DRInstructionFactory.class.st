@@ -173,3 +173,14 @@ DRInstructionFactory >> setReturnValue: aValue [
 		  operands: { aValue asDRValue }
 		  result: (DRPhysicalRegister name: 'ReceiverResultReg')
 ]
+
+{ #category : #factory }
+DRInstructionFactory >> store: aValue into: anAddress [
+
+	^ DRStore
+		  operands: { 
+				  8 asDRValue. "Assume 64 bits for now"
+				  anAddress asDRValue.
+				  aValue asDRValue }
+		  result: self allocateTemporaryRegister
+]
