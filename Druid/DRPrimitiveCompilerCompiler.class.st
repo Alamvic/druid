@@ -28,7 +28,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
 
 	"Basic set of optimizations twice for primitives"
-	3 timesRepeat: [ 
+	4 timesRepeat: [ 
 		optimisations add: DRBranchCollapse new.
 		optimisations add: DRFailureCodeBasedTailDuplication new.
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
@@ -36,7 +36,8 @@ DRPrimitiveCompilerCompiler >> initialize [
 		optimisations add: DRPhiSimplication new.
 		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
-		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination).
+		optimisations add: (DRDeadEdgeSplitting repeat: 3).
+		optimisations add: DRDeadBranchElimination new.
 		optimisations add: DRInline new. ].
 	
 	"Last Phase, make code coggable"

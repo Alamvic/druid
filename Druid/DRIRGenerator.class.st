@@ -1475,55 +1475,11 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 { #category : #visiting }
 DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 
-	| arguments method instruction |
 	specialCases at: aRBMessageNode selector ifPresent: [ :mapping | 
 		^ self perform: mapping withArguments: { aRBMessageNode } ].
 
 	"Resolve it as a normal send"
-	arguments := aRBMessageNode arguments collect: [ :e | 
-		             e acceptVisitor: self.
-		             self popOperand ].
-
-	method := aRBMessageNode isSuperSend
-		          ifTrue: [ 
-			          self currentMethod methodClass superclass 
-				          lookupSelector: aRBMessageNode selector ]
-		          ifFalse: [ 
-		          receiver lookupClass lookupSelector:
-			          aRBMessageNode selector ].
-
-
-
-	(method ast hasPragmaNamed: #druidNotInline) ifTrue: [ |newPrimitiveFailureCode|
-		self
-			addInstructionWithNoResultFrom: aRBMessageNode
-			instructionKind: DRStore
-			operands: { 
-					8 asDRValue.
-					executionState primitiveFailureCode.
-					DRInterpreterReference primitiveFailureCodeAddress }.
-		self popOperand.
-					
-		instruction := self instantiate: DRMessageSend operands: { receiver } , arguments.
-		instruction methodNode: method ast.
-		self addInstruction: instruction from: aRBMessageNode.
-		
-		newPrimitiveFailureCode := self
-			addInstructionFrom: aRBMessageNode
-			instructionKind: DRLoad
-			operands: { 
-					8 asDRValue.
-					DRInterpreterReference primitiveFailureCodeAddress }.
-		self popOperand.
-
-		executionState primitiveFailureCode: newPrimitiveFailureCode.
-		^ self ].
-
-
-	instruction := self instantiate: DRMethod operands: { receiver } , arguments.
-	instruction methodNode: method ast.
-	self interpretCode: instruction receiver: receiver arguments: arguments.
-
+	self resolveMessageSend: aRBMessageNode receiver: receiver
 ]
 
 { #category : #visiting }

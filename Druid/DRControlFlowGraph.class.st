@@ -200,7 +200,10 @@ DRControlFlowGraph >> createinstructionView: instruction [
 { #category : #'dead-path' }
 DRControlFlowGraph >> deadBranches [
 
-	^ self deadPaths select: [ :path | self isDeadBranch: path first source to: path first destination ]
+	^ self deadPaths
+		  collect: [ :path | path first ]
+		  thenSelect: [ :edge | 
+		  self isDeadBranch: edge source to: edge destination ]
 ]
 
 { #category : #edges }

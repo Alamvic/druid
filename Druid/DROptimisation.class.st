@@ -5,6 +5,15 @@ Class {
 }
 
 { #category : #accessing }
+DROptimisation class >> repeat: times [
+
+	| sequencer |
+	sequencer := DROptimisationSequence new.
+	times timesRepeat: [ sequencer addOptimisation: self new ].
+	^ sequencer
+]
+
+{ #category : #accessing }
 DROptimisation class >> then: anotherOptimisationClass [
 
 	^ self new then: anotherOptimisationClass new

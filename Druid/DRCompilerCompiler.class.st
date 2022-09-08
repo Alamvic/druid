@@ -9,7 +9,8 @@ Class {
 		'targetAST',
 		'optimisations',
 		'codeGenerator',
-		'customisation'
+		'customisation',
+		'irGenerator'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -66,9 +67,8 @@ DRCompilerCompiler >> generateDruidIR [
 DRCompilerCompiler >> generateDruidIRFor: method [
 	
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	| irGenerator initialBasicBlock initial startBlock cfg |
-	irGenerator := self newIRGenerator.
-
+	| initialBasicBlock initial startBlock cfg |
+	
 	"Create the initial basic block"
 	startBlock := irGenerator initialBasicBlock.
 	initialBasicBlock := irGenerator newBasicBlock.
@@ -109,6 +109,7 @@ DRCompilerCompiler >> initialize [
 	codeGenerator := DRCogitCodeGenerator new.
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 	customisation := DRNonePrimitiveCustomisation new.
+	irGenerator := self newIRGenerator.
 	
 	optimisations := OrderedCollection new.
 	optimisations add: DRDeadBlockElimination new.
@@ -128,6 +129,12 @@ DRCompilerCompiler >> interpreter [
 DRCompilerCompiler >> interpreter: anObject [
 
 	interpreter := anObject
+]
+
+{ #category : #accessing }
+DRCompilerCompiler >> irGenerator: aDRIRGenerator [
+
+	irGenerator := aDRIRGenerator
 ]
 
 { #category : #'generation-IR' }

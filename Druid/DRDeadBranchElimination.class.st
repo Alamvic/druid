@@ -7,14 +7,10 @@ Class {
 { #category : #operations }
 DRDeadBranchElimination >> doApplyWithGeneratedPaths: cfg [
 
-	"Remove first (upper) dead branch in CFG"
+	"Remove all dead branches in CFG"
 
-	| path |
-	cfg deadBranches ifEmpty: [ ^ self ].
-
-	path := cfg deadBranches detectMax: [ :v | v size ].
-
-	self removeBranchFrom: path first source to: path first destination
+	cfg deadBranches do: [ :edge | 
+		self removeBranchFrom: edge source to: edge destination ]
 ]
 
 { #category : #optimising }
