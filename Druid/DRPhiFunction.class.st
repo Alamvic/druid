@@ -102,7 +102,6 @@ DRPhiFunction >> isEmpty [
 { #category : #'loop-invariance' }
 DRPhiFunction >> isInvariantFrom: predecessor [ 
 
-	"TODO remove?"
 	^ (self valuesForPredecessor: predecessor) anySatisfy: #isNullValue.
 ]
 

@@ -35,7 +35,6 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveInstructi
 	ifBlock := cfg blockById: 8.
 	loopVariantInstruction := ifBlock firstInstruction.
 
-	1halt.
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 
 	"Intruction was not moved"
