@@ -121,6 +121,14 @@ DRInstructionFactory >> load: anAdress [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> messageSend: selector withOperands: operands [
+
+	^ DRMessageSend
+		  operands: operands
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> modulo: aValue by: anotherValue [
 
 	^ DRMod
@@ -172,4 +180,15 @@ DRInstructionFactory >> setReturnValue: aValue [
 	^ DRCopy
 		  operands: { aValue asDRValue }
 		  result: (DRPhysicalRegister name: 'ReceiverResultReg')
+]
+
+{ #category : #factory }
+DRInstructionFactory >> store: instruction in: memoryAddress [
+
+	^ DRStore
+		  operands: { 
+				  8 asDRValue.
+				  instruction.
+				  memoryAddress }
+		  result: DRNoRegister new
 ]

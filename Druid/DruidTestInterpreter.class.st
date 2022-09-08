@@ -55,10 +55,24 @@ DruidTestInterpreter >> ifZeroFailPrimitive [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> lazyAssert [
+
+	<druidNotInline>
+	self stackTop = 0 ifTrue: [ self lazyFail ]
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> lazyDouble: n [
 
 	<druidNotInline>
 	^ n * 2
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> lazyFail [
+
+	<druidNotInline>
+	self primitiveFail
 ]
 
 { #category : #'as yet unclassified' }
@@ -129,6 +143,16 @@ DruidTestInterpreter >> primitiveAnd [
 		ifTrue: [ result := 42 ]
 		ifFalse: [ result := 10 ].
 
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAssertDeferredInline [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 42.
+	self lazyAssert.
 	self pop: 1 thenPush: result
 ]
 
@@ -522,6 +546,16 @@ DruidTestInterpreter >> primitiveEqualsThanValue [
 
 	<numberOfArguments: 0>
 	self pop: 1 thenPush: (self stackTop = 0)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFailDeferredInline [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 42.
+	self stackTop = 0 ifTrue: [ self lazyFail ].
+	self pop: 1 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }

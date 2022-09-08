@@ -13,7 +13,42 @@ DRInlineTest >> setUp [
 ]
 
 { #category : #tests }
-DRInlineTest >> testInlineSend [
+DRInlineTest >> testInlinePreservePrimitiveFailCode [
+
+	| cfg send failureCodeUser loadFailureCode |
+	cfg := self generateDruidIRFor: #primitiveFailDeferredInline.
+
+	send := cfg messageSends first.
+	loadFailureCode := send nextInstruction.
+	failureCodeUser := loadFailureCode users anyOne.
+	
+	"primitive failure code access"
+	self assert: loadFailureCode isLoad.
+	self assert: failureCodeUser isPhiFunction.
+
+	cfg applyOptimisation: optimisation.
+
+	self flag: #TODO
+
+]
+
+{ #category : #tests }
+DRInlineTest >> testInlinePreservePrimitiveFailCodeManyLevels [
+
+	| cfg |
+	cfg := self generateDruidIRFor: #primitiveAssertDeferredInline.
+
+	cfg applyOptimisation: optimisation.
+	cfg applyOptimisation: optimisation.
+
+	"variable access resolved"
+	self assert: cfg messageSends isEmpty.
+	self assert: (cfg instructions noneSatisfy: [ :i | i isVarAccess ])
+
+]
+
+{ #category : #tests }
+DRInlineTest >> testInlinedSend [
 
 	| cfg |
 	cfg := self generateDruidIRFor: #primitiveDoubleDeferredInline.

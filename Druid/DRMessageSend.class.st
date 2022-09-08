@@ -10,23 +10,21 @@ Class {
 { #category : #inlining }
 DRMessageSend >> inline [
 
-	| irGenerator pieces |
+	| irGenerator pieces firstBasicBlock primitiveFailureCode |
 
 
 	pieces := self basicBlock breakBy: self.
 
 
 	"-.-.-.-.-.-.-.-.-.-.-.-.-."
-	irGenerator := DRPrimitiveIRGeneratorInline new.
-	irGenerator controlFlowGraph: self controlFlowGraph.
-
-	irGenerator previousBasicBlock: pieces first.
-	irGenerator messageSend: self.
-	irGenerator nextBasicBlock: pieces last.
-
-	"Create new first block?"
-	pieces first jumpTo: irGenerator newBasicBlock.
-
+	irGenerator := self newIRGenerator.
+	firstBasicBlock := irGenerator newBasicBlock.
+	
+	irGenerator endBasicBlock: pieces last.
+	pieces first jumpTo: firstBasicBlock.
+	
+	primitiveFailureCode := firstBasicBlock load: DRInterpreterReference primitiveFailureCodeAddress.
+	irGenerator currentPrimitiveFailureCode: primitiveFailureCode.
 	irGenerator numberOfArguments: operands size - 1.
 	irGenerator
 		interpretCode: (DRMethod methodNode: methodNode)
@@ -60,6 +58,16 @@ DRMessageSend >> methodNode: anObject [
 	methodNode := anObject
 ]
 
+{ #category : #generator }
+DRMessageSend >> newIRGenerator [
+
+	| irGenerator |
+	irGenerator := DRPrimitiveIRGeneratorInline new.
+	irGenerator controlFlowGraph: self controlFlowGraph.
+	irGenerator messageSend: self.
+	^ irGenerator
+]
+
 { #category : #printing }
 DRMessageSend >> opcode [
 	
@@ -69,6 +77,6 @@ DRMessageSend >> opcode [
 { #category : #types }
 DRMessageSend >> type [
 
-	1 halt. "TODO"
+	self flag: #TODO. "Unknow type?"
 	^ DRIntegerType new
 ]

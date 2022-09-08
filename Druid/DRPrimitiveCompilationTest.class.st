@@ -899,6 +899,24 @@ DRPrimitiveCompilationTest >> testDeferredInline [
 	self assert: machineSimulator receiverRegisterValue equals: 84
 ]
 
+{ #category : #'tests-methodactivations' }
+DRPrimitiveCompilationTest >> testDeferredInlineFailedCode [
+
+	self compileDruidPrimitive: #primitiveAssertDeferredInline.
+	
+	self executeUntilStopPrimitiveWithReceiver: 0
+]
+
+{ #category : #'tests-methodactivations' }
+DRPrimitiveCompilationTest >> testDeferredInlineTwice [
+
+	self compileDruidPrimitive: #primitiveAssertDeferredInline.
+	
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
 { #category : #'tests-arithmetic' }
 DRPrimitiveCompilationTest >> testDivision [
 

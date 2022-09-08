@@ -655,6 +655,12 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 				withUsers: myInstruction nonLocalUsers ]
 ]
 
+{ #category : #building }
+DRBasicBlock >> messageSend: selector withOperands: operands [
+
+	^ self addInstruction: (self instructionFactory messageSend: selector withOperands: operands)
+]
+
 { #category : #accessing }
 DRBasicBlock >> methodNode [
 	
@@ -945,6 +951,13 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 	^ duplicatedBlock
 ]
 
+{ #category : #building }
+DRBasicBlock >> store: instruction in: memoryAddress [
+
+	^ self addInstruction:
+		  (self instructionFactory store: instruction in: memoryAddress)
+]
+
 { #category : #accessing }
 DRBasicBlock >> successor [
 	
@@ -1011,7 +1024,8 @@ DRBasicBlock >> validatePhiFunctions [
 				this by checking that the variables are reachable from the correct predecessors"
 				e operands withIndexDo: [ :dependency :index | 
 					self assert: (dependency isInstruction or: [ 
-							 dependency isNullValue or: [ dependency isPhysicalRegister ] ]).
+							 dependency isNullValue or: [ dependency isPhysicalRegister or: [ 
+									dependency isCode  ] ] ]).
 					self assert: (dependency isInstruction not or: [ 
 							 (self predecessors at: index) checkLivenessOf: dependency ]) ] ] ]
 ]

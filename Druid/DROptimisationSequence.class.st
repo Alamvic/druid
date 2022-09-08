@@ -16,7 +16,7 @@ DROptimisationSequence >> addOptimisation: anOptimisation [
 { #category : #accessing }
 DROptimisationSequence >> applyTo: anIR [
 
-	sequence do: [ :each | anIR applyOptimisation: each ]
+	sequence do: [ :each | each applyTo: anIR ]
 ]
 
 { #category : #initialization }

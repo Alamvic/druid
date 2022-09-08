@@ -7,6 +7,18 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #factory }
+DRInterpreterReference class >> freeStartAddress [
+
+	^ self reference: 'objectMemory freeStartAddress'
+]
+
+{ #category : #factory }
+DRInterpreterReference class >> primitiveFailureCodeAddress [
+
+	^ self reference: 'coInterpreter primitiveFailureCodeAddress'
+]
+
 { #category : #accessing }
 DRInterpreterReference class >> reference: aReference [
 

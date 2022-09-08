@@ -22,7 +22,7 @@ DRLoad >> isLoad [
 { #category : #printing }
 DRLoad >> opcode [
 	
-	^ 'LOAD'
+	^ 'LOAD ', size asString
 ]
 
 { #category : #accessing }

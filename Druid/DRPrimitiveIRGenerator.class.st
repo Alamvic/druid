@@ -16,7 +16,7 @@ DRPrimitiveIRGenerator >> executionStack [
 	^ executionState executionStack
 ]
 
-{ #category : #asd }
+{ #category : #visiting }
 DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
 
 	"Plug the IR with the two exit blocks"
@@ -92,8 +92,7 @@ DRPrimitiveIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 		  operands: { 
 				  byteSize asDRValue.
 				  valueToStore.
-				  (DRInterpreterReference reference:
-					   'objectMemory freeStartAddress') }
+				  DRInterpreterReference freeStartAddress }
 ]
 
 { #category : #'special cases' }

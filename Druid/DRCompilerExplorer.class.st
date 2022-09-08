@@ -89,7 +89,7 @@ DRCompilerExplorer >> initialize [
 
 	super initialize.
 	previousCfgs := OrderedCollection new.
-	isRecording := false.
+	isRecording := true.
 	shouldGeneratePaths := false.
 	path := OrderedCollection new.
 ]

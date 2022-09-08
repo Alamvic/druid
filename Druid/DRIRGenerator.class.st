@@ -598,7 +598,7 @@ DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 		instructionKind: DRLoad
 		operands: { 
 				byteSize asDRValue.
-				(DRInterpreterReference reference: 'objectMemory freeStartAddress') }
+				DRInterpreterReference freeStartAddress }
 ]
 
 { #category : #'special-cases' }
@@ -1494,10 +1494,30 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 
 
 
-	(method ast hasPragmaNamed: #druidNotInline) ifTrue: [ 
+	(method ast hasPragmaNamed: #druidNotInline) ifTrue: [ |newPrimitiveFailureCode|
+		self
+			addInstructionWithNoResultFrom: aRBMessageNode
+			instructionKind: DRStore
+			operands: { 
+					8 asDRValue.
+					executionState primitiveFailureCode.
+					DRInterpreterReference primitiveFailureCodeAddress }.
+		self popOperand.
+					
 		instruction := self instantiate: DRMessageSend operands: { receiver } , arguments.
 		instruction methodNode: method ast.
-		^ self addInstruction: instruction from: aRBMessageNode ].
+		self addInstruction: instruction from: aRBMessageNode.
+		
+		newPrimitiveFailureCode := self
+			addInstructionFrom: aRBMessageNode
+			instructionKind: DRLoad
+			operands: { 
+					8 asDRValue.
+					DRInterpreterReference primitiveFailureCodeAddress }.
+		self popOperand.
+
+		executionState primitiveFailureCode: newPrimitiveFailureCode.
+		^ self ].
 
 
 	instruction := self instantiate: DRMethod operands: { receiver } , arguments.
