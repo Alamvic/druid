@@ -25,6 +25,7 @@ DRAbstractMemoryAddress >> isMemoryAddress [
 { #category : #'users-definitions' }
 DRAbstractMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 
+	1halt.
 	self dependencies do: [ :e | 
 		e replaceDependency: anOperand by: anotherOperand ]
 ]
@@ -39,7 +40,6 @@ DRAbstractMemoryAddress >> rtlArgumentExpressions [
 DRAbstractMemoryAddress >> rtlOperandQualifierForInstruction: instruction [
 
 	| bytesSuffix |
-	1halt.
 	bytesSuffix := instruction size = 1
 		               ifTrue: [ 'b' ]
 		               ifFalse: [ (instruction size * 8) asString "bytes" ].

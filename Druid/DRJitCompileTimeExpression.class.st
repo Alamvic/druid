@@ -60,7 +60,7 @@ DRJitCompileTimeExpression >> jitCompileTimeExpression [
 { #category : #accessing }
 DRJitCompileTimeExpression >> name [
 
-	^ expression
+	^ expression isString ifTrue: [ expression ] ifFalse: [ expression formattedCode ]
 ]
 
 { #category : #types }

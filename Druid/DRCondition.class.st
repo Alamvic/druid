@@ -17,6 +17,12 @@ DRCondition >> acceptVisitor: aVisitor withBranch: parentBranch [
 ]
 
 { #category : #testing }
+DRCondition >> isCommutative [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRCondition >> isComparison [
 
 	^ true

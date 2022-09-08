@@ -232,5 +232,5 @@ DRInstructionFactory >> storeSInt64: operand at: address [
 				  8 asDRValue.
 				  operand asDRValue.
 				  address asDRValue }
-		  result: self allocateTemporaryRegister
+		  result: DRNoRegister new
 ]

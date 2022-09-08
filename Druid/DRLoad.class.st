@@ -66,6 +66,8 @@ DRLoad >> operands: operandList [
 { #category : #'users-definitions' }
 DRLoad >> replaceDependency: anOperand by: anotherOperand [
 
+	anOperand removeUser: self.
+	anotherOperand addUser: self.
 	self address replaceDependency: anOperand by: anotherOperand
 ]
 

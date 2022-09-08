@@ -37,8 +37,10 @@ DRValue >> asDependencyList [
 
 { #category : #memory }
 DRValue >> asMemoryAddress [
-	
-	self subclassResponsibility
+
+	^ DRAbsoluteMemoryAddress new
+		  expression: self;
+		  yourself
 ]
 
 { #category : #copying }

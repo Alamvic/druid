@@ -698,6 +698,16 @@ DRPrimitiveScenarioCompilationTest >> testFalseAsInteger [
 ]
 
 { #category : #'tests-booleans' }
+DRPrimitiveScenarioCompilationTest >> testFalseAssigmentAsInteger [
+
+	self compileDruidPrimitive: #primitiveFalseAssignmentAsInteger.
+	
+	self executePrimitiveWithReceiver: 17.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-booleans' }
 DRPrimitiveScenarioCompilationTest >> testFalseNot [
 
 	self compileDruidPrimitive: #primitiveFalseNot.
@@ -1856,6 +1866,26 @@ DRPrimitiveScenarioCompilationTest >> testSubtractionIntrinsecWithOverflow [
 	self executePrimitiveWithReceiver: (memory integerObjectOf: memory minSmallInteger) withArguments: { memory integerObjectOf: 1 }.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 99
+]
+
+{ #category : #'tests-booleans' }
+DRPrimitiveScenarioCompilationTest >> testTrueAssigmentAsInteger [
+
+	self compileDruidPrimitive: #primitiveTrueAssignmentAsInteger.
+	
+	self executePrimitiveWithReceiver: 17.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-booleans' }
+DRPrimitiveScenarioCompilationTest >> testTrueAssigmentAsIntegerShifted [
+
+	self compileDruidPrimitive: #primitiveTrueAssignmentAsIntegerShifted.
+	
+	self executePrimitiveWithReceiver: 17.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
 { #category : #'tests-booleans' }

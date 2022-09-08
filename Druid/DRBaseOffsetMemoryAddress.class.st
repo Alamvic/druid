@@ -13,7 +13,7 @@ DRBaseOffsetMemoryAddress >> asDependencyList [
 
 	"Return myself as a list of dependencies, independently of MY dependencies.
 	I reprensent a dependency to my base and offset"	
-	^ { base. offset }
+	^ { base . offset asDRValue }
 ]
 
 { #category : #accessing }

@@ -559,6 +559,15 @@ DruidTestInterpreter >> primitiveFalseAsInteger [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFalseAssignmentAsInteger [
+
+	<numberOfArguments: 0>
+	| bool |
+	bool := false.
+	self pop: 1 thenPush: bool asInteger
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveFalseIfTrue [
 
 	<numberOfArguments: 0>
@@ -1214,6 +1223,24 @@ DruidTestInterpreter >> primitiveToDo [
 	].
 
 	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveTrueAssignmentAsInteger [
+
+	<numberOfArguments: 0>
+	| bool |
+	bool := true.
+	self pop: 1 thenPush: bool asInteger
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveTrueAssignmentAsIntegerShifted [
+
+	<numberOfArguments: 0>
+	| bool |
+	bool := true.
+	self pop: 1 thenPush: bool asInteger << 1
 ]
 
 { #category : #'as yet unclassified' }

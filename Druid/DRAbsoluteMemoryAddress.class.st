@@ -51,7 +51,7 @@ DRAbsoluteMemoryAddress >> name [
 DRAbsoluteMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 
 	expression = anOperand
-		ifTrue: [ ^ expression := anotherOperand ].
+		ifTrue: [ ^ self expression: anotherOperand ].
 	
 	self error: 'Invalid dependency'
 ]

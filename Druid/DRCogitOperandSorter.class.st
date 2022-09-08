@@ -94,8 +94,11 @@ DRCogitOperandSorter >> visitFloatToIntConversion: aDRFloatToInt [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitGetConditionCode: aDRGetConditionCode [ 
-	
+DRCogitOperandSorter >> visitGetConditionCode: aDRGetConditionCode [
+
+	(aDRGetConditionCode condition isCommutative and: [ 
+		 aDRGetConditionCode operand1 isInstruction not ]) ifTrue: [ 
+		aDRGetConditionCode reverseOperands ].
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRGetConditionCode
 ]
 

@@ -204,7 +204,7 @@ DRCogitGeneratorTest >> testGenerateNilAsZero [
 		r0 := block copy: 0.
 		r1 := block equals: nil to: r0 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
-		
+	DRCogitOperandSorter new applyTo: cfg.	
 	
 	cogitAST := self generateCogitForInstruction: r1.	
 	compare := cogitAST generatorMethodBuilder statements first.

@@ -11,6 +11,12 @@ DREqualsThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch [
 ]
 
 { #category : #testing }
+DREqualsThanComparison >> isCommutative [
+	
+	^ true
+]
+
+{ #category : #testing }
 DREqualsThanComparison >> isEqualsThanComparison [
 	
 	^ true

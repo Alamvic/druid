@@ -80,14 +80,6 @@ DRInstruction >> addUser: anInstruction [
 	users add: anInstruction
 ]
 
-{ #category : #memory }
-DRInstruction >> asMemoryAddress [
-
-	^ DRAbsoluteMemoryAddress new
-		  expression: self;
-		  yourself
-]
-
 { #category : #accessing }
 DRInstruction >> asNumberedExpression [
 
@@ -510,6 +502,7 @@ DRInstruction >> removeOperandAt: anInteger [
 
 { #category : #'users-definitions' }
 DRInstruction >> removeUser: anInstruction [
+
 	users remove: anInstruction
 ]
 
@@ -537,8 +530,9 @@ DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 	"If we have the same operand twice, this will BREAK"
 	
 	anOperand removeUser: self.
-	operands replaceAll: anOperand with: anotherOperand.
 	anotherOperand addUser: self.
+
+	operands replaceAll: anOperand with: anotherOperand
 ]
 
 { #category : #'users-definitions' }
@@ -571,13 +565,6 @@ DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 		(self replaceOperandIfDominated: myOperand by: newOperand) 
 			ifNotNil: [ replaced := self ] ].
 	^ replaced
-]
-
-{ #category : #replacing }
-DRInstruction >> replaceUsersBy: anotherInstruction [
-	
-	users copy do: [ :instruction |
-		instruction replaceOperand: self by: anotherInstruction ]
 ]
 
 { #category : #replacing }
@@ -690,9 +677,11 @@ DRInstruction >> validateDependenciesAreUsedByMyself [
 { #category : #validation }
 DRInstruction >> validateUsersUseMyself [
 
-	(self users allSatisfy: [ :user | user hasDependency: self ]) ifFalse: [ 
-		DRError signal:
-			'User-operand mismatch in instruction: ' , self asString ]
+	self users do: [ :user | 
+		(user hasDependency: self) ifFalse: [ 
+			DRError signal:
+				'User-operand mismatch between: ' , user asString , ' and: '
+				, self asString ] ]
 ]
 
 { #category : #copying }

@@ -233,7 +233,6 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
 	specialCases at: #sizeof: put: #interpretSizeofWith:.
 	specialCases at: #asFloat put: #interpretAsFloatWith:.
-	specialCases at: #asInteger put: #interpretAsIntegerWith:.
 	specialCases at: #rawFloatBits put: #interpretRawFloatBitsWith:.
 	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
 	
@@ -397,12 +396,16 @@ DRIRGenerator >> interpretAsIntegerWith: aRBMessageNode [
 	receiver := self popOperand.
 
 	"If it's already an integer, do nothing"
-	receiver type isFloatType ifFalse: [ ^ self pushOperand: receiver ].
+	receiver type isFloatType ifTrue: [ 
+		^ self
+			  addInstructionFrom: aRBMessageNode
+			  instructionKind: DRFloatToInt
+			  operands: { receiver } ].
+	receiver type isBooleanType ifTrue: [ 
+		^ self pushOperand: receiver].
 
-	^ self
-		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRFloatToInt
-		  operands: { receiver }
+	"Otherwise"
+	^ self pushOperand: receiver
 ]
 
 { #category : #'special cases' }
@@ -656,7 +659,7 @@ DRIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 
 	byteSize := 8.
 	^ self
-		  addInstructionFrom: aRBAssignmentNode
+		  addInstructionWithNoResultFrom: aRBAssignmentNode
 		  instructionKind: DRStore
 		  operands: { 
 				  byteSize asDRValue.
@@ -1415,15 +1418,6 @@ DRIRGenerator >> setExecutionStateTo: aBlock [
 	self topFrame executionState: aBlock executionState.
 ]
 
-{ #category : #'special cases' }
-DRIRGenerator >> shiftSmallInteger: operand from: aRBMessageNode [
-
-	^ self 
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRLeftShift  
-		operands: { 3 asDRValue . operand }.
-]
-
 { #category : #'pharo-stack' }
 DRIRGenerator >> stackTop [
 	
@@ -1571,7 +1565,6 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 	| receiver |
 	aRBMessageNode receiver acceptVisitor: self.
 	receiver := self popOperand.
-
 	^ self visitMessageNode: aRBMessageNode receiver: receiver
 ]
 
@@ -1579,10 +1572,9 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 
 	| arguments method |
-	
 	specialCases at: aRBMessageNode selector ifPresent: [ :mapping | 
 		^ self perform: mapping withArguments: { aRBMessageNode } ].
-	
+
 	"Resolve it as a normal send"
 	arguments := aRBMessageNode arguments collect: [ :e | 
 		             e acceptVisitor: self.
@@ -1608,8 +1600,13 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 			          self currentMethod methodClass superclass 
 				          lookupSelector: aRBMessageNode selector ]
 		          ifFalse: [ 
-		          receiver lookupClass lookupSelector:
-			          aRBMessageNode selector ].
+		          receiver type lookupSelector: aRBMessageNode selector ].
+
+	(method hasPragmaNamed: #druidIRBuilder:) ifTrue: [ 
+		^ self
+			  perform: (method pragmaAt: #druidIRBuilder:) arguments first
+			  withArguments: { aRBMessageNode } ].
+
 	self
 		interpretCode: (DRMethod methodNode: method ast)
 		receiver: receiver
