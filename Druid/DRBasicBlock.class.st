@@ -616,6 +616,13 @@ DRBasicBlock >> load: anAddress [
 	^ self addInstruction: (self instructionFactory load: anAddress)
 ]
 
+{ #category : #building }
+DRBasicBlock >> loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock [
+
+	self jumpIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock.
+	loopBodyBlock backJumpTo: self
+]
+
 { #category : #splitting }
 DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: successors [
 
@@ -767,9 +774,15 @@ DRBasicBlock >> printOn: aStream [
 { #category : #iterating }
 DRBasicBlock >> recursiveSuccessorsDo: aBlock [
 
-	self successors do: [ :b | 
-		aBlock value: b.
-		b recursiveSuccessorsDo: aBlock ]
+	self recursiveSuccessorsDo: aBlock visited: {  }
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursiveSuccessorsDo: aBlock visited: alreadyVisited [
+
+	(alreadyVisited includes: aBlock) ifTrue: [ ^ self ].
+	self successors do: [ :b | aBlock value: b ].
+	self successors do: [ :b | b recursiveSuccessorsDo: aBlock visited: { aBlock } , alreadyVisited ]
 ]
 
 { #category : #'control-flow' }

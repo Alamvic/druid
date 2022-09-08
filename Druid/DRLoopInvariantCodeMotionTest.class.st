@@ -40,9 +40,8 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoadsNorS
 	loopExitBlock := cfg newBasicBlock.
 
 	initialBlock jumpTo: loopConditionBlock.
-	loopConditionBlock jumpIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock.
-
-	loopBodyBlock backJumpTo: loopConditionBlock.
+	
+	loopConditionBlock loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock.
 
 	loadInstruction := loopBodyBlock load: 0.
 	storeInstruction := loopBodyBlock store: 0 into: 0.
@@ -67,6 +66,23 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoopVaria
 
 	"Intruction was not moved"
 	self assert: (loopBlock containsInstruction: loopVariantInstruction)
+]
+
+{ #category : #tests }
+DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesConstantInstructionOutsideNestedLoops [
+
+	| cfg loopBlock loopInvariantInstruction preheaderBlock |
+	cfg := self generateDruidIRFor: #primitiveNestedLoopWithInvariant.
+
+	loopBlock := cfg blockById: 10.
+	loopInvariantInstruction := loopBlock firstInstruction.
+
+	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
+	
+	preheaderBlock := cfg blockById: 14.
+
+	self deny: (loopBlock containsInstruction: loopInvariantInstruction).
+	self assert: (preheaderBlock containsInstruction: loopInvariantInstruction)
 ]
 
 { #category : #tests }

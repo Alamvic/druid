@@ -600,7 +600,7 @@ DRInstruction >> reverseOperands [
 DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 
 	self operands
-		select: [ :operand | operand isPhiFunction ]
+		select: [ :operand | operand isPhiFunction and: [(self basicBlock isDominatedBy: operand basicBlock) not]  ]
 		thenDo: [ :operand | 
 			| newOperandValues |
 			"Note: this only works when moving to parent block"
