@@ -491,7 +491,7 @@ DRControlFlowGraph >> showBranchConstraints: branchEdges [
 DRControlFlowGraph >> showIn: view [
 
 	| blockViews controller |
-	blockViews := self postOrderBlocks collect: [ :b | self createBlockView: b. ].
+	blockViews := self blocks collect: [ :b | self createBlockView: b. ].
 	view addAll: blockViews.
 	self showLines: blockViews in: view.
 	self showInfoIn: view.

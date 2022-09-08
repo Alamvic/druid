@@ -27,6 +27,22 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionAdjustsPhiFunctionsO
 ]
 
 { #category : #tests }
+DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveInstructionsInsideIf [
+
+	| cfg ifBlock loopVariantInstruction |
+	cfg := self generateDruidIRFor: #primitiveLoopWithLoopInvariantInstructionInsideIf.
+
+	ifBlock := cfg blockById: 8.
+	loopVariantInstruction := ifBlock firstInstruction.
+
+	1halt.
+	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
+
+	"Intruction was not moved"
+	self assert: (ifBlock containsInstruction: loopVariantInstruction)
+]
+
+{ #category : #tests }
 DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoadsNorStores [
 
 	| cfg initialBlock loopConditionBlock loopBodyBlock loopExitBlock loopCondition loadInstruction storeInstruction |
@@ -74,12 +90,12 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesConstantInstruc
 	| cfg loopBlock loopInvariantInstruction preheaderBlock |
 	cfg := self generateDruidIRFor: #primitiveNestedLoopWithInvariant.
 
-	loopBlock := cfg blockById: 10.
+	loopBlock := cfg blockById: 9.
 	loopInvariantInstruction := loopBlock firstInstruction.
 
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 	
-	preheaderBlock := cfg blockById: 14.
+	preheaderBlock := cfg blockById: 12.
 
 	self deny: (loopBlock containsInstruction: loopInvariantInstruction).
 	self assert: (preheaderBlock containsInstruction: loopInvariantInstruction)
@@ -97,6 +113,9 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesConstantInstruc
 
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 	
+	self flag: #TODO.
+	"Loop Invariant code should be hoisted outside both loops, if possible.
+	To achieve that, we should optimize inner loops before the outer ones."
 	preheaderBlock := cfg blockById: 9.
 
 	self deny: (loopBlock containsInstruction: loopInvariantInstruction).

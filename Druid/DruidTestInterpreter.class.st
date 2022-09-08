@@ -833,6 +833,20 @@ DruidTestInterpreter >> primitiveLoopWithInvariant [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithLoopInvariantInstructionInsideIf [
+
+	<numberOfArguments: 0>
+	| result invariant n |
+	result := 0.
+	n := 0.
+	[ result < 15 ] whileTrue: [
+	   (n < 20) ifTrue: [ invariant := 2 * self stackTop ].
+	   n := n + 1.
+		result := result + invariant ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveLoopWithLoopVariantInstruction [
 
 	<numberOfArguments: 0>
@@ -931,12 +945,10 @@ DruidTestInterpreter >> primitiveNestedLoopWithInvariant [
 	| result invariant n |
 	result := 0.
 	n := 0.
-	[ result < 15 ] whileTrue: [
-	   (n < 10) ifTrue: [
-			[ n < 10 ] whileTrue: [ 
-				invariant := 2 * self stackTop.
-				n := n + 1 ].
-		].
+	[ result < 15 ] whileTrue: [ 
+		[ n < 10 ] whileTrue: [ 
+			invariant := 2 * self stackTop.
+			n := n + 1 ].
 		result := result + invariant ].
 	self pop: 1 thenPush: result
 ]
