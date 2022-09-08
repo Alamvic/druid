@@ -41,10 +41,11 @@ DRInlineTest >> testInlinePreservePrimitiveFailCodeManyLevels [
 	cfg applyOptimisation: optimisation.
 	cfg applyOptimisation: optimisation.
 
-	"variable access resolved"
 	self assert: cfg messageSends isEmpty.
-	self assert: (cfg instructions noneSatisfy: [ :i | i isVarAccess ])
-
+	"TODO: better assert"
+	self
+		assert: (cfg instructions count: [ :i | i isLoad ])
+		equals: (cfg instructions count: [ :i | i isStore ])
 ]
 
 { #category : #tests }

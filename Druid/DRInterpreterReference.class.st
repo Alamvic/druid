@@ -33,13 +33,13 @@ DRInterpreterReference >> asMemoryAddress [
 	^ self
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRInterpreterReference >> name [
 
 	^ reference
 ]
 
-{ #category : #accssing }
+{ #category : #accessing }
 DRInterpreterReference >> reference: aString [ 
 	reference := aString
 ]

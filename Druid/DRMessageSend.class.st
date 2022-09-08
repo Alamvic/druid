@@ -10,28 +10,22 @@ Class {
 { #category : #inlining }
 DRMessageSend >> inline [
 
-	| irGenerator pieces firstBasicBlock primitiveFailureCode |
-
-
+	| irGenerator pieces firstBasicBlock |
+	irGenerator := self newIRGenerator.
 	pieces := self basicBlock breakBy: self.
 
-
-	"-.-.-.-.-.-.-.-.-.-.-.-.-."
-	irGenerator := self newIRGenerator.
 	firstBasicBlock := irGenerator newBasicBlock.
-	
-	irGenerator endBasicBlock: pieces last.
 	pieces first jumpTo: firstBasicBlock.
-	
-	primitiveFailureCode := firstBasicBlock load: DRInterpreterReference primitiveFailureCodeAddress.
-	irGenerator currentPrimitiveFailureCode: primitiveFailureCode.
+	irGenerator endBasicBlock: pieces last.
+
+	irGenerator currentPrimitiveFailureCode: (firstBasicBlock load:
+			 DRInterpreterReference primitiveFailureCodeAddress).
 	irGenerator numberOfArguments: operands size - 1.
 	irGenerator
 		interpretCode: (DRMethod methodNode: methodNode)
 		receiver: operands first
 		arguments: operands allButFirst.
 
-	self flag: #TODO. "Refactor"
 ]
 
 { #category : #accessing }
@@ -74,9 +68,23 @@ DRMessageSend >> opcode [
 	^ 'SEND'
 ]
 
+{ #category : #SCCP }
+DRMessageSend >> sccpEvaluateFor: sccp [
+
+	"Nothing to do"
+
+	
+]
+
 { #category : #types }
 DRMessageSend >> type [
 
 	self flag: #TODO. "Unknow type?"
 	^ DRIntegerType new
+]
+
+{ #category : #copying }
+DRMessageSend >> veryDeepCopyWith: deepCopier [
+	deepCopier references at: operands put: operands.
+	^ super veryDeepCopyWith: deepCopier
 ]
