@@ -1,6 +1,6 @@
 Class {
 	#name : #DRAdd,
-	#superclass : #DRArithmeticOperation,
+	#superclass : #DRCommutativeOperation,
 	#category : #'Druid-IR'
 }
 
