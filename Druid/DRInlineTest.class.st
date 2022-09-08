@@ -9,6 +9,7 @@ DRInlineTest >> setUp [
 
 	super setUp.
 	self configureInterpreter.
+	compilerCompiler irGenerator: DRPrimitiveIRGeneratorDeferredInline new.
 	optimisation := DRInline new
 ]
 
