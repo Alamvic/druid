@@ -79,7 +79,10 @@ DRMessageSend >> sccpEvaluateFor: sccp [
 { #category : #types }
 DRMessageSend >> type [
 
-	self flag: #TODO. "Unknow type?"
+	(methodNode hasPragmaNamed: #returnTypeC:) ifTrue: [ "TODO: Match Slang types" 
+		1 halt ].
+
+	"Default type"
 	^ DRIntegerType new
 ]
 
