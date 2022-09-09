@@ -173,12 +173,34 @@ DruidTestRTLCompiler >> gen_primitiveAnd [
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveAssertDeferredInline [
 
-	| jump1 currentBlock |
+	| jump1 jump2 jump3 currentBlock |
+	self MoveCq: 0 R: TempReg.
+	self MoveR: TempReg Aw: coInterpreter primitiveFailureCodeAddress.
+	self MoveAw: coInterpreter primitiveFailureCodeAddress R: TempReg.
 	self CmpCq: 0 R: ReceiverResultReg.
 	jump1 := self JumpZero: 0.
+	self MoveR: TempReg Aw: coInterpreter primitiveFailureCodeAddress.
+	self MoveAw: coInterpreter primitiveFailureCodeAddress R: TempReg.
 	self MoveCq: 42 R: ReceiverResultReg.
+	self CmpCq: 0 R: TempReg.
+	jump2 := self JumpZero: 0.
+	jump3 := self JumpNonZero: 0.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveR: TempReg Aw: coInterpreter primitiveFailureCodeAddress.
+	self MoveCq: 1 R: TempReg.
+	self MoveR: TempReg Aw: coInterpreter primitiveFailureCodeAddress.
+	self MoveAw: coInterpreter primitiveFailureCodeAddress R: TempReg.
+	self MoveR: TempReg Aw: coInterpreter primitiveFailureCodeAddress.
+	self MoveAw: coInterpreter primitiveFailureCodeAddress R: TempReg.
+	self MoveCq: 42 R: ReceiverResultReg.
+	self CmpCq: 0 R: TempReg.
+	jump1 := self JumpNonZero: 0.
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
 	self genPrimReturn.
 	currentBlock := self Label.
+	jump3 jmpTarget: currentBlock.
 	jump1 jmpTarget: currentBlock.
 	^ CompletePrimitive
 ]
