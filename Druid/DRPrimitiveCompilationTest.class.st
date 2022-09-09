@@ -19,6 +19,13 @@ DRPrimitiveCompilationTest class >> testParameters [
 ]
 
 { #category : #'helpers-compiling' }
+DRPrimitiveCompilationTest >> compileDruidDeferredInlinePrimitive: selector [
+
+	self compileDruidPrimitive: selector with: [ :compiler | 
+		compiler irGenerator: DRPrimitiveIRGeneratorDeferredInline new ]
+]
+
+{ #category : #'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 	
 	^ self compileDruidPrimitive: aSelector with: [ :compiler | "nothing" ]
@@ -49,13 +56,13 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector with: aBlock [
 	stopAddress := stopInstruction address
 ]
 
-{ #category : #helpers }
+{ #category : #'helpers - execution' }
 DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop [
 	
 	^ self executeUntilStopPrimitiveWithReceiver: receiverOop withArguments: { }
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : #'helpers - execution' }
 DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop withArguments: aCollection [
 	
 	"Simulate a primitive execution having an object as receiver and a single argument
@@ -892,7 +899,7 @@ DRPrimitiveCompilationTest >> testDecrementConstantReceiver [
 { #category : #'tests-methodactivations' }
 DRPrimitiveCompilationTest >> testDeferredInline [
 
-	self compileDruidPrimitive: #primitiveDoubleDeferredInline.
+	self compileDruidDeferredInlinePrimitive: #primitiveDoubleDeferredInline.
 	
 	self executePrimitiveWithReceiver: 42.
 	
@@ -902,7 +909,7 @@ DRPrimitiveCompilationTest >> testDeferredInline [
 { #category : #'tests-methodactivations' }
 DRPrimitiveCompilationTest >> testDeferredInlineFailedCode [
 
-	self compileDruidPrimitive: #primitiveAssertDeferredInline.
+	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
 	
 	self executeUntilStopPrimitiveWithReceiver: 0
 ]
@@ -910,7 +917,7 @@ DRPrimitiveCompilationTest >> testDeferredInlineFailedCode [
 { #category : #'tests-methodactivations' }
 DRPrimitiveCompilationTest >> testDeferredInlineTwice [
 
-	self compileDruidPrimitive: #primitiveAssertDeferredInline.
+	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
 	
 	self executePrimitiveWithReceiver: 1.
 	
