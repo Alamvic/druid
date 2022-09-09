@@ -1,11 +1,11 @@
 Class {
-	#name : #DRInlineTest,
+	#name : #DRInlinePrimitiveTest,
 	#superclass : #DROptimisationTest,
 	#category : #'Druid-Tests'
 }
 
 { #category : #initialization }
-DRInlineTest >> setUp [
+DRInlinePrimitiveTest >> setUp [
 
 	super setUp.
 	self configureInterpreter.
@@ -14,7 +14,7 @@ DRInlineTest >> setUp [
 ]
 
 { #category : #tests }
-DRInlineTest >> testInlinePreservePrimitiveFailCode [
+DRInlinePrimitiveTest >> testInlinePreservePrimitiveFailCode [
 
 	| cfg send failureCodeUser loadFailureCode |
 	cfg := self generateDruidIRFor: #primitiveFailDeferredInline.
@@ -34,7 +34,7 @@ DRInlineTest >> testInlinePreservePrimitiveFailCode [
 ]
 
 { #category : #tests }
-DRInlineTest >> testInlinePreservePrimitiveFailCodeManyLevels [
+DRInlinePrimitiveTest >> testInlinePreservePrimitiveFailCodeManyLevels [
 
 	| cfg |
 	cfg := self generateDruidIRFor: #primitiveAssertDeferredInline.
@@ -50,7 +50,7 @@ DRInlineTest >> testInlinePreservePrimitiveFailCodeManyLevels [
 ]
 
 { #category : #tests }
-DRInlineTest >> testInlinedSend [
+DRInlinePrimitiveTest >> testInlinedSend [
 
 	| cfg |
 	cfg := self generateDruidIRFor: #primitiveDoubleDeferredInline.
@@ -62,7 +62,7 @@ DRInlineTest >> testInlinedSend [
 ]
 
 { #category : #tests }
-DRInlineTest >> testNotInlinedSend [
+DRInlinePrimitiveTest >> testNotInlinedSend [
 
 	| cfg |
 	cfg := self generateDruidIRFor: #primitiveDoubleDeferredInline.

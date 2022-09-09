@@ -114,12 +114,6 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aRBNode [
 ]
 
 { #category : #accessing }
-DRPrimitiveIRGenerator >> ir [
-
-	^ controlFlowGraph
-]
-
-{ #category : #accessing }
 DRPrimitiveIRGenerator >> newBasicBlock [
 
 	^ self newBasicBlockWithState: nil
@@ -143,7 +137,7 @@ DRPrimitiveIRGenerator >> newCFG [
 { #category : #accessing }
 DRPrimitiveIRGenerator >> numberOfArguments: aValue [ 
 	
-	numberOfArguments := aValue.
+	super numberOfArguments: aValue.
 	self push: self receiverRegister.
 	0 to: numberOfArguments - 1 do: [ :i |
 		self push: (self argRegisterNumber: i) ]
@@ -164,29 +158,6 @@ DRPrimitiveIRGenerator >> popFrame [
 		self finishCodeInterpretation: poppedFrame ].
 
 	^ poppedFrame
-]
-
-{ #category : #visiting }
-DRPrimitiveIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
-
-	| arguments method |
-	arguments := aRBMessageNode arguments collect: [ :e | 
-		             e acceptVisitor: self.
-		             self popOperand ].
-
-	method := aRBMessageNode isSuperSend
-		          ifTrue: [ 
-			          self currentMethod methodClass superclass 
-				          lookupSelector: aRBMessageNode selector ]
-		          ifFalse: [ 
-		          receiver lookupClass lookupSelector:
-			          aRBMessageNode selector ].
-
-	self
-		resolveMessageSend: aRBMessageNode
-		receiver: receiver
-		arguments: arguments
-		method: method
 ]
 
 { #category : #visiting }

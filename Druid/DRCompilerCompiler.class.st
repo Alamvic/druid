@@ -42,6 +42,11 @@ DRCompilerCompiler >> compilerClass: anObject [
 ]
 
 { #category : #'generation-IR' }
+DRCompilerCompiler >> createInitialBasicBlock [
+	^ irGenerator newBasicBlock
+]
+
+{ #category : #'generation-IR' }
 DRCompilerCompiler >> customise [
 
 	^ self customiseFor: self sourceMethod
@@ -67,22 +72,26 @@ DRCompilerCompiler >> generateDruidIR [
 DRCompilerCompiler >> generateDruidIRFor: method [
 	
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	| initialBasicBlock initial startBlock cfg |
+	| initialBasicBlock startBlock cfg numArgs arguments loadArgumentInst |
 	
 	"Create the initial basic block"
 	startBlock := irGenerator initialBasicBlock.
-	initialBasicBlock := irGenerator newBasicBlock.
+	initialBasicBlock := self createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
-
-	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
-	initialBasicBlock addInstruction: initial.
 	
-	irGenerator numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value.
-	irGenerator interpretMethod: (DRMethod methodNode: method ast) receiver: (DRInterpreterValue value: interpreter).
+	numArgs := (self numberOfArguments: method).
+	irGenerator numberOfArguments: numArgs.
+	arguments := OrderedCollection new.
+	(numArgs > 0) ifTrue: [1 to: numArgs do: [ :i |
+		 loadArgumentInst := DRLoadArgument new operands: { i }; yourself.
+		 initialBasicBlock addInstruction: loadArgumentInst.
+		 arguments add: loadArgumentInst ]].
+	
+	irGenerator interpretCode: (DRMethod methodNode: method ast) receiver: (DRInterpreterValue value: interpreter) arguments: arguments.
 	
 	cfg := irGenerator ir.
 
-	"Clean garbage to generate a validate CFG"
+	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: cfg.
 	DRDeadCodeElimination new applyTo: cfg.
 	cfg validate.

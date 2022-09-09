@@ -76,6 +76,12 @@ DruidTestInterpreter >> lazyFail [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithArg: aCollection [
+
+	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithEarlyReturn [
 
 	self stackTop = 0 ifTrue: [ ^ 42 ].
@@ -98,6 +104,15 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	"Dead code"
 	^ 16rFFFF
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithoutArgs [
+
+	| i |
+	i := 0.
+	5 timesRepeat: [ i := i + 1 ].
+	^ i
 ]
 
 { #category : #'as yet unclassified' }

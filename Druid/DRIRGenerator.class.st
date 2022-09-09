@@ -1118,7 +1118,18 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 
 { #category : #accessing }
 DRIRGenerator >> ir [
-	^ self subclassResponsibility
+	^ controlFlowGraph
+]
+
+{ #category : #visiting }
+DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver arguments: arguments method: method [
+
+	| instruction |
+	instruction := self
+		               instantiate: DRMessageSend
+		               operands: { receiver } , arguments.
+	instruction methodNode: (method ifNotNil: [ method ast ]).
+	self addInstruction: instruction from: aRBMessageNode
 ]
 
 { #category : #'basic-blocks' }
@@ -1220,6 +1231,11 @@ DRIRGenerator >> noop: aRBMessageNode [
 		  operands: #(  )
 ]
 
+{ #category : #accessing }
+DRIRGenerator >> numberOfArguments: aValue [ 
+	numberOfArguments := aValue.
+]
+
 { #category : #'frame-access' }
 DRIRGenerator >> operandStackTop [
 	
@@ -1302,6 +1318,29 @@ DRIRGenerator >> receiver [
 DRIRGenerator >> receiverRegister [
 	
 	^ DRPhysicalRegister name: 'ReceiverResultReg'
+]
+
+{ #category : #visiting }
+DRIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
+
+	| arguments method |
+	arguments := aRBMessageNode arguments collect: [ :e | 
+		             e acceptVisitor: self.
+		             self popOperand ].
+
+	method := aRBMessageNode isSuperSend
+		          ifTrue: [ 
+			          self currentMethod methodClass superclass 
+				          lookupSelector: aRBMessageNode selector ]
+		          ifFalse: [ 
+		          receiver lookupClass lookupSelector:
+			          aRBMessageNode selector ].
+
+	self
+		resolveMessageSend: aRBMessageNode
+		receiver: receiver
+		arguments: arguments
+		method: method
 ]
 
 { #category : #'special-cases' }
@@ -1428,7 +1467,7 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 
 { #category : #visiting }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
-	
+
 	self pushOperand: (DRBlockClosure new
 		blockNode: aRBBlockNode;
 		outerContext: self topFrame mirrorFrame;
