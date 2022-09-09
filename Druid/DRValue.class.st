@@ -234,6 +234,12 @@ DRValue >> operands [
 	^ #()
 ]
 
+{ #category : #printing }
+DRValue >> prettyPrint [
+
+	^ self value asString
+]
+
 { #category : #'users-definitions' }
 DRValue >> removeUser: anInstruction [
 	

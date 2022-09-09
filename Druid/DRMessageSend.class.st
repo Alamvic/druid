@@ -2,7 +2,8 @@ Class {
 	#name : #DRMessageSend,
 	#superclass : #DRInstruction,
 	#instVars : [
-		'methodNode'
+		'methodNode',
+		'irGenerator'
 	],
 	#category : #'Druid-IR'
 }
@@ -10,22 +11,29 @@ Class {
 { #category : #inlining }
 DRMessageSend >> inline [
 
-	| irGenerator pieces firstBasicBlock |
-	irGenerator := self newIRGenerator.
+	| pieces firstBasicBlock lastFrame |
 	pieces := self basicBlock breakBy: self.
-
-	firstBasicBlock := irGenerator newBasicBlock.
+1halt.
+	firstBasicBlock := irGenerator firstBasicBlock.
 	pieces first jumpTo: firstBasicBlock.
-	irGenerator endBasicBlock: pieces last.
 
-	irGenerator currentPrimitiveFailureCode: (firstBasicBlock load:
-			 DRInterpreterReference primitiveFailureCodeAddress).
 	irGenerator numberOfArguments: operands size - 1.
-	irGenerator
+	lastFrame := irGenerator
 		interpretCode: (DRMethod methodNode: methodNode)
 		receiver: operands first
 		arguments: operands allButFirst.
+		
+	irGenerator currentBasicBlock jumpTo: pieces last.
+	"Remove message send block"
+	self replaceUsersBy: lastFrame returnValue.
+	pieces last removePredecessor: self basicBlock.
+	self basicBlock removeFromCFG.
 
+]
+
+{ #category : #accessing }
+DRMessageSend >> irGenerator: anIrGenerator [ 
+	irGenerator := anIrGenerator
 ]
 
 { #category : #accessing }

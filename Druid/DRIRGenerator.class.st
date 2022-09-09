@@ -112,6 +112,12 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 	^ branchExitBlock
 ]
 
+{ #category : #accessing }
+DRIRGenerator >> controlFlowGraph: aDRControlFlowGraph [
+
+	controlFlowGraph := aDRControlFlowGraph
+]
+
 { #category : #'special-cases' }
 DRIRGenerator >> copyExecutionStateOf: startingBasicBlock [
 	
@@ -144,6 +150,12 @@ DRIRGenerator >> currentOperandStack [
 DRIRGenerator >> executionState [
 	
 	^ executionState
+]
+
+{ #category : #accessing }
+DRIRGenerator >> firstBasicBlock [
+
+	^ firstBasicBlock
 ]
 
 { #category : #'stack management' }
@@ -541,7 +553,7 @@ DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments
 	currentBasicBlock hasFinalInstruction ifFalse: [ 
 		currentBasicBlock jumpTo: self topFrame exitBasicBlock ].
 
-	self popFrame.
+	^ self popFrame.
 ]
 
 { #category : #'special-cases' }
@@ -1128,6 +1140,8 @@ DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver ar
 	instruction := self
 		               instantiate: DRMessageSend
 		               operands: { receiver } , arguments.
+
+	instruction irGenerator: self inlineGenerator.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
 	self addInstruction: instruction from: aRBMessageNode
 ]
@@ -1481,18 +1495,6 @@ DRIRGenerator >> visitClassVariableNode: aRBVariableNode [
 ]
 
 { #category : #visiting }
-DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
-
-	variableSpecialCases at: aRBVariableNode name ifPresent: [ :mapping | 
-		^ self perform: mapping withArguments: { aRBVariableNode } ].
-
-	"Resolve it as a variableAccess"
-	self pushOperand:
-		((self topFrame homeFrameWithState: executionState) receiver value 
-			 instVarNamed: aRBVariableNode name) asDRValue
-]
-
-{ #category : #visiting }
 DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 
 	self
@@ -1567,8 +1569,10 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	result := self popOperand.
 	copy := self instructionFor: result inNode: aRBReturnNode.
 	homeFrame := self topFrame homeFrameWithState: executionState.
+	homeFrame returnValue isNullValue ifFalse: [ 1halt "Unexplorer site" ].
 	homeFrame returnValue: copy.
 	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
+	homeFrame exitBasicBlock return: copy.
 
 	returnExecutionState := executionState copy.
 	self addDeferredReturnState: { returnExecutionState. self currentBasicBlock }.

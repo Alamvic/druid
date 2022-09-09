@@ -14,6 +14,12 @@ DRLoadArgument >> acceptVisitor: aVisitor [
 	^ aVisitor visitLoadArgument: self
 ]
 
+{ #category : #accessing }
+DRLoadArgument >> classType: aType [
+	
+	classType := aType
+]
+
 { #category : #visiting }
 DRLoadArgument >> isLoadArgument [
 
@@ -36,5 +42,5 @@ DRLoadArgument >> operands: operandList [
 { #category : #accessing }
 DRLoadArgument >> type [
 	
-	^ DRUndefinedType new
+	^ classType ifNil: [DRUndefinedType new]
 ]

@@ -72,6 +72,14 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
 ]
 
+{ #category : #inline }
+DRPrimitiveIRGenerator >> inlineGenerator [
+
+	^ DRPrimitiveIRGeneratorInline new
+		  controlFlowGraph: controlFlowGraph;
+		  yourself
+]
+
 { #category : #accessing }
 DRPrimitiveIRGenerator >> interpretCCoerceWith: aRBMessageNode [
 
@@ -184,4 +192,17 @@ DRPrimitiveIRGenerator >> visitCascadeNode: aRBCascadeNode [
 		self visitMessageNode: e receiver: receiver.
 		result := self popOperand ].
 	self pushOperand: result.
+]
+
+{ #category : #visiting }
+DRPrimitiveIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
+
+	variableSpecialCases at: aRBVariableNode name ifPresent: [ :mapping | 
+		^ self perform: mapping withArguments: { aRBVariableNode } ].
+
+	"Resolve it as a variableAccess"
+	1halt.
+	self pushOperand:
+		((self topFrame homeFrameWithState: executionState) receiver value 
+			 instVarNamed: aRBVariableNode name) asDRValue
 ]

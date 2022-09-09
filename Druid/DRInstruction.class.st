@@ -9,7 +9,7 @@ Class {
 		'originAST',
 		'basicBlock',
 		'users',
-		'type'
+		'classType'
 	],
 	#category : #'Druid-IR'
 }
@@ -434,12 +434,11 @@ DRInstruction >> postCopy [
 
 { #category : #printing }
 DRInstruction >> prettyPrint [
-	
+
 	| print |
-	print := result
-		ifNil: [ '' ]
-		ifNotNil: [ result name, ' := ' ].
-	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result ifNotNil: [ e result name ] ]))
+	print := result ifNil: [ '' ] ifNotNil: [ result name , ' := ' ].
+	^ print , self opcode , ' '
+	  , (' ' join: (self operands collect: [ :e | e prettyPrint ]))
 ]
 
 { #category : #printing }

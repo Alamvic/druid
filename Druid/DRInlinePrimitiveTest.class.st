@@ -40,6 +40,7 @@ DRInlinePrimitiveTest >> testInlinePreservePrimitiveFailCodeManyLevels [
 	cfg := self generateDruidIRFor: #primitiveAssertDeferredInline.
 
 	cfg applyOptimisation: optimisation.
+	1halt.
 	cfg applyOptimisation: optimisation.
 
 	self assert: cfg messageSends isEmpty.
@@ -54,7 +55,7 @@ DRInlinePrimitiveTest >> testInlinedSend [
 
 	| cfg |
 	cfg := self generateDruidIRFor: #primitiveDoubleDeferredInline.
-
+1halt.
 	cfg applyOptimisation: optimisation.
 
 	self assert: cfg messageSends isEmpty.
