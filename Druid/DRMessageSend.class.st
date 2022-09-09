@@ -60,16 +60,6 @@ DRMessageSend >> methodNode: anObject [
 	methodNode := anObject
 ]
 
-{ #category : #generator }
-DRMessageSend >> newIRGenerator [
-
-	| irGenerator |
-	irGenerator := DRPrimitiveIRGeneratorInline new.
-	irGenerator controlFlowGraph: self controlFlowGraph.
-	irGenerator messageSend: self.
-	^ irGenerator
-]
-
 { #category : #printing }
 DRMessageSend >> opcode [
 	
