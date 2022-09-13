@@ -32,24 +32,23 @@ DRLoopInvariantCodeMotion >> applyToLoop: backJump [
 { #category : #operations }
 DRLoopInvariantCodeMotion >> moveAllLoopInstructions: instructionsToMove outsideBackjump: backJump [
 
-	| loopHeaderBlocks loopHeaderBlock loopPredecessors loopPredecessor preheaderBlock preheaderConditionBlock conditionJump loopConditionJump loopExitBlock |
-	loopHeaderBlocks := backJump backJumpTargets.
-	self assert: [ loopHeaderBlocks size = 1 ].
-	loopHeaderBlock := loopHeaderBlocks anyOne.
+	| loopHeaderBlock loopPredecessor preheaderBlock preheaderConditionBlock conditionJump loopConditionJump loopExitBlock |
+	loopHeaderBlock := backJump backJumpTargets unique.
+	loopPredecessor := (loopHeaderBlock predecessors asSet copyWithout:
+		                    backJump basicBlock) unique.
 
-	loopPredecessors := loopHeaderBlock predecessors asSet copyWithout:
-		                    backJump basicBlock.
-	self assert: [ loopPredecessors size = 1 ].
-	loopPredecessor := loopPredecessors anyOne.
-
+	"1. Create preheader and preheader condition blocks"
 	preheaderBlock := loopPredecessor newEmptySuccessors anyOne.
 	preheaderConditionBlock := loopHeaderBlock basicDuplicate.
+
+	"2. Rewire preheader condition block phis"
 	"We need to replace the phis from last to first, since phis should otherwise be declares above other instructions"
 	preheaderConditionBlock phiFunctions reverse do: [ :phi | 
 		phi rewirePhiTo: preheaderBlock ].
 	preheaderConditionBlock predecessors copy do: [ :p | 
 		preheaderConditionBlock removePredecessor: p ].
 
+	"3. Link new blocks"
 	conditionJump := preheaderConditionBlock lastInstruction.
 	loopConditionJump := loopHeaderBlock lastInstruction.
 	loopExitBlock := loopConditionJump falseBranch.
@@ -72,7 +71,7 @@ DRLoopInvariantCodeMotion >> moveAllLoopInstructions: instructionsToMove outside
 			i nonLocalUsers select: [ :u | 
 				u isDominatedBy: loopExitBlock firstInstruction ] ].
 
+	"4. Code motion"
 	instructionsToMove do: [ :i | 
-		i moveToDominatingBlock: preheaderBlock ].
-
+		i moveToDominatingBlock: preheaderBlock ]
 ]

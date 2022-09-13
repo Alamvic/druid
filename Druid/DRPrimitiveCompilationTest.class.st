@@ -1513,7 +1513,7 @@ DRPrimitiveCompilationTest >> testLessThanValueTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
-{ #category : #'tests-arithmetic-smallIntegers' }
+{ #category : #'tests-loop' }
 DRPrimitiveCompilationTest >> testLoopInvariantCodeMotionPreservesSemanticsIfLoopIsNeverRun [
 
 	cogit receiverTags: memory smallIntegerTag.

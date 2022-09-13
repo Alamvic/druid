@@ -232,19 +232,19 @@ DRControlFlowGraph >> firstBasicBlock [
 { #category : #edges }
 DRControlFlowGraph >> fixBackJumps [
 
-	self postOrderBlocks do: [ :block | 
+	self blocks do: [ :block | 
 		block successors do: [ :succ | 
 			(block endInstruction isBackJumpTo: succ) ifTrue: [ "If back-jump to block a recursive phi should exist"
-				(succ endInstruction isBackJump not and: [ 
-					 succ phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ] ]) 
-					ifFalse: [ "If not, then is a forward-jump" 
-						block endInstruction beForwardJumpTo: succ ] ] ].
+				(succ endInstruction isBackJump or: [ 
+					 (succ phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) not ]) 
+						ifTrue: [ "If not, then is a forward-jump" 
+					block endInstruction beForwardJumpTo: succ ] ] ].
 
-		"Check if has a back-jump to this block"
-		(block phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
-			ifTrue: [ 
-				block backJumpPredecessors do: [ :pred | 
-					pred endInstruction beBackJumpTo: block ] ] ]
+		block endInstruction isBackJump not ifTrue: [ "Check if has a back-jump to this block"
+			(block phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
+				ifTrue: [ 
+					block backJumpPredecessors do: [ :pred | 
+						pred endInstruction beBackJumpTo: block ] ] ] ]
 ]
 
 { #category : #edges }
