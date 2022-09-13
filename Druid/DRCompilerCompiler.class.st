@@ -186,4 +186,5 @@ DRCompilerCompiler >> targetName [
 DRCompilerCompiler >> writeAST: aRBMethodNode [ 
 	
 	compilerClass compile: (aRBMethodNode formattedCodeIn: self class) classified: #generated
+
 ]

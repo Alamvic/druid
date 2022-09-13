@@ -1427,6 +1427,18 @@ DRPrimitiveScenarioCompilationTest >> testLessThanValueTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
+{ #category : #'tests-loop' }
+DRPrimitiveScenarioCompilationTest >> testLoopInvariantCodeMotionPreservesSemanticsIfLoopIsNeverRun [
+
+	cogit receiverTags: memory smallIntegerTag.
+
+	self compileDruidPrimitive: #primitiveNoopLoopWithInvariant.
+
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 3
+]
+
 { #category : #'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testMod [
 

@@ -31,6 +31,12 @@ DRLoad >> beFloatingPoint64 [
 	type := DRFloatType new
 ]
 
+{ #category : #testing }
+DRLoad >> canMoveOutsideLoopWith: backJump [
+
+	^ false
+]
+
 { #category : #'users-definitions' }
 DRLoad >> hasDependency: anInstruction [
 	

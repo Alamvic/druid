@@ -30,7 +30,7 @@ DRSCCPConstantPropagationTest >> testDoNotPropagateLoadOperand [
 	cfg := self setUpCFG: 1.
 
 	"T1 := LOAD 1"
-	cfg b1 addInstruction: (copy1 := instructionFactory load: 1).
+	copy1 := cfg b1 load: 1.
 	"T2 := T1"
 	cfg b1 addInstruction: (instructionFactory copy: copy1).
 	

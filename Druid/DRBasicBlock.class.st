@@ -411,6 +411,11 @@ DRBasicBlock >> id: anObject [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> includesInstruction: anInstruction [ 
+	^ instructions includes: anInstruction
+]
+
+{ #category : #accessing }
 DRBasicBlock >> indexOfPredecessor: aDRBasicBlock [ 
 	
 	^ predecessors indexOf: aDRBasicBlock
@@ -540,7 +545,7 @@ DRBasicBlock >> isDominatedBy: dominatorBlock [
 
 { #category : #building }
 DRBasicBlock >> isDominatorOf: basicBlocks [
-
+	"Deprecated: should be removed once it's posible. Use DRBasicBlock>#isDominatedBy: instead."
 	| dominatorTree node |
 	
 	dominatorTree := DRDominatorTree new.
@@ -635,8 +640,15 @@ DRBasicBlock >> loadSInt64: operand [
 	^ self addInstruction: (self instructionFactory loadSInt64: operand)
 ]
 
+{ #category : #building }
+DRBasicBlock >> loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock [
+
+	self jumpIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock.
+	loopBodyBlock backJumpTo: self
+]
+
 { #category : #splitting }
-DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: successors [
+DRBasicBlock >> mergeInstructionsWithDuplicatedBlock: duplicatedBlock withSuccessors: successors usingUsers: getUsersBlock [
 
 	self instructions copy
 		with: duplicatedBlock instructions copy
@@ -645,7 +657,7 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 				insertPhisAndReplaceUsersBetween: myInstruction
 				andAll: { duplicatedInstruction }
 				withFrontier: successors
-				withUsers: myInstruction nonLocalUsers ]
+				withUsers: (getUsersBlock value: myInstruction) ]
 ]
 
 { #category : #accessing }
@@ -798,9 +810,16 @@ DRBasicBlock >> pushBase: base offset: offset [
 { #category : #iterating }
 DRBasicBlock >> recursiveSuccessorsDo: aBlock [
 
+	self recursiveSuccessorsDo: aBlock visited: {  }
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursiveSuccessorsDo: aBlock visited: alreadyVisited [
+
+	(alreadyVisited includes: self) ifTrue: [ ^ self ].
+	self successors do: [ :b | aBlock value: b ].
 	self successors do: [ :b | 
-		aBlock value: b.
-		b recursiveSuccessorsDo: aBlock ]
+		b recursiveSuccessorsDo: aBlock visited: { self } , alreadyVisited ]
 ]
 
 { #category : #'control-flow' }
@@ -925,10 +944,9 @@ DRBasicBlock >> sourceInterval [
 DRBasicBlock >> splitTo: predecessorToRewire [
 
 	| duplicatedBlock newSuccessors |
-	
 	self assert: self predecessors size > 1.
 
-	newSuccessors := self newEmptySuccessors. 
+	newSuccessors := self newEmptySuccessors.
 
 	duplicatedBlock := self basicDuplicate.
 	duplicatedBlock successors do: [ :successor | 
@@ -945,9 +963,18 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
 	controlFlowGraph tree computeDominanceFrontier.
 
-	self mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: newSuccessors.
+	self
+		mergeInstructionsWithDuplicatedBlock: duplicatedBlock
+		withSuccessors: newSuccessors
+		usingUsers: [:i | i nonLocalUsers].
 
 	^ duplicatedBlock
+]
+
+{ #category : #building }
+DRBasicBlock >> store: aValue into: anAddress [
+
+	^ self addInstruction: (self instructionFactory store: aValue into: anAddress)
 ]
 
 { #category : #building }

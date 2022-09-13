@@ -103,6 +103,13 @@ DRInstruction >> basicBlock: anObject [
 	basicBlock := anObject
 ]
 
+{ #category : #'loop-invariance' }
+DRInstruction >> canMoveOutsideLoopWith: backJump [
+
+	^ self operands allSatisfy: [ :operand | 
+		operand isInvariantFrom: backJump basicBlock ]
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> clearUsers [
 
@@ -258,6 +265,11 @@ DRInstruction >> isInstruction [
 	^ true
 ]
 
+{ #category : #'loop-invariance' }
+DRInstruction >> isInvariantFrom: aDRBasicBlock [ 
+	^ aDRBasicBlock isDominatedBy: self basicBlock
+]
+
 { #category : #testing }
 DRInstruction >> isJITCompileTimeExpression: aString [ 
 	
@@ -310,6 +322,20 @@ DRInstruction >> label [
 DRInstruction >> lookupClass [
 	
 	^ self type lookupClass 
+]
+
+{ #category : #accessing }
+DRInstruction >> loopBlocks [
+	self flag: #TODO. "This always returns an empty set for loops that contain multiple blocks"
+	^ self backJumpTargets flatCollect: #backJumpPredecessors
+]
+
+{ #category : #moving }
+DRInstruction >> moveToDominatingBlock: destinationBlock [
+
+	self basicBlock removeInstruction: self.
+	destinationBlock addInstruction: self.
+	self rewirePhiOperandsTo: destinationBlock
 ]
 
 { #category : #accessing }
@@ -590,6 +616,19 @@ DRInstruction >> result: anObject [
 DRInstruction >> reverseOperands [
 	
 	operands := operands reversed
+]
+
+{ #category : #moving }
+DRInstruction >> rewirePhiOperandsTo: destinationBlock [
+
+	self operands
+		select: [ :operand | operand isPhiFunction and: [(self basicBlock isDominatedBy: operand basicBlock) not]  ]
+		thenDo: [ :operand | 
+			| newOperandValues |
+			"Note: this only works when moving to parent block"
+			newOperandValues := operand valuesForPredecessor: destinationBlock.
+			self assert: [ newOperandValues size = 1 ].
+			self replaceOperand: operand by: newOperandValues anyOne ]
 ]
 
 { #category : #SCCP }

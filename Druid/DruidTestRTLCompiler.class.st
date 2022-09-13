@@ -145,7 +145,6 @@ DruidTestRTLCompiler >> gen_primitiveAdd [
 	jump2 := self JumpOverflow: 0.
 	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
-	
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	jump2 jmpTarget: currentBlock.
@@ -1846,6 +1845,29 @@ DruidTestRTLCompiler >> gen_primitiveLoopIncrementingGlobalState [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveLoopWithInvariant [
+
+	| jump1 currentBlock b14 |
+	self MoveCq: 0 R: TempReg.
+	self MoveR: ReceiverResultReg R: ClassReg.
+	b14 := self Label.
+	self MoveCq: 1 R: SendNumArgsReg.
+	self MoveR: ClassReg R: Extra0Reg.
+	self MulR: SendNumArgsReg R: Extra0Reg.
+	self MoveR: TempReg R: SendNumArgsReg.
+	self AddR: Extra0Reg R: SendNumArgsReg.
+	self CmpCq: 15 R: SendNumArgsReg.
+	jump1 := self JumpLess: 0.
+	self MoveR: SendNumArgsReg R: ReceiverResultReg.
+	self genPrimReturn.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveR: SendNumArgsReg R: TempReg.
+	jump1 := self Jump: b14.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveMod [
 
 	| currentBlock |
@@ -2677,6 +2699,38 @@ DruidTestRTLCompiler >> gen_primitiveNextUint16At [
 	self AndCq: 16rFFFF R: ClassReg.
 	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveNoopLoopWithInvariant [
+
+	| jump1 jump2 currentBlock b19 |
+	self MoveCq: 3 R: TempReg.
+	self CmpCq: 10 R: ReceiverResultReg.
+	jump1 := self JumpLess: 0.
+	self MoveCq: 3 R: ReceiverResultReg.
+	jump2 := self Jump: 0.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveCq: 5 R: ClassReg.
+	self MoveR: ReceiverResultReg R: SendNumArgsReg.
+	b19 := self Label.
+	self MoveR: SendNumArgsReg R: Extra0Reg.
+	self AddCq: 1 R: Extra0Reg.
+	self MoveR: ClassReg R: Extra1Reg.
+	self CmpCq: 10 R: Extra0Reg.
+	jump1 := self JumpLess: 0.
+	self MoveR: Extra1Reg R: Extra0Reg.
+	self MoveR: Extra0Reg R: ReceiverResultReg.
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
+	self genPrimReturn.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveR: Extra1Reg R: TempReg.
+	self MoveR: Extra0Reg R: SendNumArgsReg.
+	jump1 := self Jump: b19.
 	^ CompletePrimitive
 ]
 

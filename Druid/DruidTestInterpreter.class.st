@@ -1011,6 +1011,55 @@ DruidTestInterpreter >> primitiveLoopIncrementingGlobalState [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithInvariant [
+
+	<numberOfArguments: 0>
+	| result invariant |
+	result := 0.
+	[result < 15] whileTrue: [
+	 invariant := 1 * self stackTop.
+	 result := result + invariant ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithLoopInvariantInstructionInsideIf [
+
+	<numberOfArguments: 0>
+	| result invariant n |
+	result := 0.
+	n := 0.
+	[ result < 15 ] whileTrue: [
+	   (n < 20) ifTrue: [ invariant := 2 * self stackTop ].
+	   n := n + 1.
+		result := result + invariant ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithLoopVariantInstruction [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 0.
+	[ result < 15 ] whileTrue: [ result := result + self stackTop ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithMultipleInvariants [
+
+	<numberOfArguments: 0>
+	| result invariant invariant2 |
+	result := 0.
+	[result < 15] whileTrue: [
+	 invariant := 1 * self stackTop.
+	 invariant2 := invariant + 4.
+	 result := result + invariant2 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveMod [
 
 	<numberOfArguments: 1>
@@ -1080,6 +1129,21 @@ DruidTestInterpreter >> primitiveNegated [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNestedLoopWithInvariant [
+
+	<numberOfArguments: 0>
+	| result invariant n |
+	result := 0.
+	n := 0.
+	[ result < 15 ] whileTrue: [ 
+		[ n < 10 ] whileTrue: [ 
+			invariant := 2 * self stackTop.
+			n := n + 1 ].
+		result := result + invariant ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveNextUint16At [
 
 	<numberOfArguments: 0>
@@ -1090,6 +1154,17 @@ DruidTestInterpreter >> primitiveNextUint16At [
 
 	"pop the receiver, push the result"	
 	self pop: 1 thenPush: aByte
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNoopLoopWithInvariant [
+
+	<numberOfArguments: 0>
+	| result n |
+	result := 3.
+	n := self stackTop.
+	[ n < 10 ] whileTrue: [ result := 5 . n := n + 1 ].
+	self pop: 1 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }
