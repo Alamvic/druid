@@ -49,8 +49,7 @@ DRCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method [
 	initialBasicBlock := irGenerator newBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
 
-	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
-	initialBasicBlock addInstruction: initial
+	irGenerator currentPrimitiveFailureCode: (initial := initialBasicBlock copy: 0)
 ]
 
 { #category : #'generation-IR' }
