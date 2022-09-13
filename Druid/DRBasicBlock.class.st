@@ -780,9 +780,10 @@ DRBasicBlock >> recursiveSuccessorsDo: aBlock [
 { #category : #iterating }
 DRBasicBlock >> recursiveSuccessorsDo: aBlock visited: alreadyVisited [
 
-	(alreadyVisited includes: aBlock) ifTrue: [ ^ self ].
+	(alreadyVisited includes: self) ifTrue: [ ^ self ].
 	self successors do: [ :b | aBlock value: b ].
-	self successors do: [ :b | b recursiveSuccessorsDo: aBlock visited: { aBlock } , alreadyVisited ]
+	self successors do: [ :b | 
+		b recursiveSuccessorsDo: aBlock visited: { self } , alreadyVisited ]
 ]
 
 { #category : #'control-flow' }
