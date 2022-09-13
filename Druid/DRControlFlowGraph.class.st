@@ -412,7 +412,7 @@ DRControlFlowGraph >> numberOfSpillSlots [
 { #category : #edges }
 DRControlFlowGraph >> outgoingEdgesFor: aBlock [
 
-	^ edgesBySource at: aBlock ifAbsent: [ OrderedCollection new ]
+	^ edgesBySource at: aBlock ifAbsent: [ #() ]
 ]
 
 { #category : #accessing }

@@ -1,6 +1,6 @@
 Class {
 	#name : #DRSubtract,
-	#superclass : #DRInstruction,
+	#superclass : #DRArithmeticInstruction,
 	#category : #'Druid-IR'
 }
 

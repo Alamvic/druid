@@ -4,13 +4,14 @@ Class {
 	#instVars : [
 		'blocks',
 		'liveSets',
-		'availableRegisters',
 		'spillRegisters',
 		'controlFlowGraph',
 		'activeIntervals',
 		'inactiveIntervals',
 		'unhandledIntervals',
-		'spillingStrategy'
+		'spillingStrategy',
+		'availableIntegerRegisters',
+		'availableFloatingPointRegisters'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -18,23 +19,30 @@ Class {
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiveRegisterInterval [
 	
-	| intervalToSpill currentRegisters |
+	| intervalToSpill currentIntegerRegisters currentFloatRegisters currentRegisters |
 	
 	"For now it is active, unless we decide to spill it later"
 	activeIntervals add: aDRLiveRegisterInterval.
 	
-	currentRegisters := availableRegisters copy.
+	currentIntegerRegisters := availableIntegerRegisters copy.
+	currentFloatRegisters := availableFloatingPointRegisters copy.
 	inactiveIntervals
 		select: [ :e | e overlaps: aDRLiveRegisterInterval ]
-		thenDo: [ :e | currentRegisters remove: e location ifAbsent: [ "ignore if it is in use" ] ].
+		thenDo: [ :e |
+			currentIntegerRegisters remove: e location ifAbsent: [ "ignore if it is in use" ].
+			currentFloatRegisters remove: e location ifAbsent: [ "ignore if it is in use" ]. ].
 	unhandledIntervals
 		select: [ :e | e location notNil and: [ e overlaps: aDRLiveRegisterInterval ] ]
 		thenDo: [ :e | e halt ].
+
+	currentRegisters := aDRLiveRegisterInterval definitions anyOne type isFloatType
+		ifTrue: [ currentFloatRegisters ]
+		ifFalse: [ currentIntegerRegisters ].
 	
 	currentRegisters ifNotEmpty: [ | selectedRegister |
 		selectedRegister := currentRegisters first.
 		self takeRegister: selectedRegister.
-		^ aDRLiveRegisterInterval location: currentRegisters first ].
+		^ aDRLiveRegisterInterval location: selectedRegister ].
 
 
 	"If empty, spill an interval"
@@ -191,11 +199,6 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 	usedSpillRegisters do: [ :each | spillRegisters addFirst: each ]
 ]
 
-{ #category : #accessing }
-DRLinearScanRegisterAllocator >> availableRegisters: aCollection [ 
-	availableRegisters := aCollection asOrderedCollection
-]
-
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> buildLiveSets [
 	
@@ -296,12 +299,19 @@ DRLinearScanRegisterAllocator >> controlFlowGraph: aDRControlFlowGraph [
 	controlFlowGraph := aDRControlFlowGraph
 ]
 
+{ #category : #accessing }
+DRLinearScanRegisterAllocator >> floatRegisters: aCollection [ 
+
+	availableFloatingPointRegisters := aCollection asOrderedCollection
+]
+
 { #category : #initialization }
 DRLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
 	self withFirstSpilling.
-	availableRegisters := #()
+	availableIntegerRegisters := #().
+	availableFloatingPointRegisters := #()
 ]
 
 { #category : #'live-analysis' }
@@ -320,6 +330,12 @@ DRLinearScanRegisterAllocator >> instructionsDo: aFullBlockClosure [
 	
 	blocks do: [ :b |
 		b instructionsDo: aFullBlockClosure ]
+]
+
+{ #category : #accessing }
+DRLinearScanRegisterAllocator >> integerRegisters: aCollection [
+
+	availableIntegerRegisters := aCollection asOrderedCollection
 ]
 
 { #category : #'block-linearization' }
@@ -383,16 +399,22 @@ DRLinearScanRegisterAllocator >> prepareSSA [
 	controlFlowGraph fixBackJumps.
 ]
 
-{ #category : #accessing }
-DRLinearScanRegisterAllocator >> registers: aCollection [
+{ #category : #allocation }
+DRLinearScanRegisterAllocator >> returnFloatRegister: aPhisicalRegister [
 
-	availableRegisters := aCollection asOrderedCollection
+	availableFloatingPointRegisters addFirst: aPhisicalRegister
 ]
 
 { #category : #allocation }
-DRLinearScanRegisterAllocator >> returnRegister: aPhisicalRegister [
+DRLinearScanRegisterAllocator >> returnIntegerRegister: aPhisicalRegister [
 
-	availableRegisters addFirst: aPhisicalRegister
+	availableIntegerRegisters addFirst: aPhisicalRegister
+]
+
+{ #category : #allocation }
+DRLinearScanRegisterAllocator >> returnRegister: aPhysicalRegister [
+
+	aPhysicalRegister returnToAllocator: self
 ]
 
 { #category : #allocation }
@@ -408,9 +430,21 @@ DRLinearScanRegisterAllocator >> spillRegisters: aCollection [
 ]
 
 { #category : #allocation }
+DRLinearScanRegisterAllocator >> takeFloatRegister: aDRPhysicalRegister [ 
+	
+	availableFloatingPointRegisters remove: aDRPhysicalRegister
+]
+
+{ #category : #allocation }
+DRLinearScanRegisterAllocator >> takeIntegerRegister: aDRPhysicalRegister [ 
+	
+	availableIntegerRegisters remove: aDRPhysicalRegister
+]
+
+{ #category : #allocation }
 DRLinearScanRegisterAllocator >> takeRegister: aDRPhysicalRegister [ 
 	
-	availableRegisters remove: aDRPhysicalRegister
+	aDRPhysicalRegister takeFromAllocator: self
 ]
 
 { #category : #'live-analysis' }

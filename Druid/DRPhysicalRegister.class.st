@@ -23,18 +23,6 @@ DRPhysicalRegister >> = anotherRegister [
 	^ name = anotherRegister name
 ]
 
-{ #category : #visiting }
-DRPhysicalRegister >> acceptVisitor: aVisitor [
-
-	^ aVisitor visitPhysicalRegister: self
-]
-
-{ #category : #memory }
-DRPhysicalRegister >> asMemoryAddress [
-	
-	^ DRRegisterMemoryAddress register: self
-]
-
 { #category : #comparing }
 DRPhysicalRegister >> hash [
 
@@ -84,10 +72,10 @@ DRPhysicalRegister >> printOn: aStream [
 		nextPut: $)
 ]
 
-{ #category : #'cogit-generation' }
-DRPhysicalRegister >> rtlOperandQualifier [
+{ #category : #'register allocation' }
+DRPhysicalRegister >> returnToAllocator: aRegisterAllocator [
 	
-	^ 'R:'
+	self subclassResponsibility
 ]
 
 { #category : #'cogit-generation' }
@@ -96,8 +84,8 @@ DRPhysicalRegister >> sccpLatticeValueFor: sccp [
 	^ sccp bottom
 ]
 
-{ #category : #types }
-DRPhysicalRegister >> type [
+{ #category : #'register allocation' }
+DRPhysicalRegister >> takeFromAllocator: aRegisterAllocator [ 
 	
-	^ DRIntegerType new
+	self subclassResponsibility
 ]

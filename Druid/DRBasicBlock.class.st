@@ -526,6 +526,12 @@ DRBasicBlock >> instructionsDo: aFullBlockClosure [
 	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
 ]
 
+{ #category : #building }
+DRBasicBlock >> intToFloat: aValue [
+	
+	^ self addInstruction: (self instructionFactory intToFloat: aValue)
+]
+
 { #category : #'testing - dominator' }
 DRBasicBlock >> isDominatedBy: dominatorBlock [
 	
@@ -560,6 +566,12 @@ DRBasicBlock >> isExitBlock [
 DRBasicBlock >> isExitBlock: anObject [
 
 	isExitBlock := anObject
+]
+
+{ #category : #building }
+DRBasicBlock >> jitCompileTimeVariable: aName [
+
+	^ self instructionFactory jitCompileTimeVariable: aName
 ]
 
 { #category : #building }
@@ -609,6 +621,18 @@ DRBasicBlock >> lastInstruction [
 DRBasicBlock >> load: anAddress [
 
 	^ self addInstruction: (self instructionFactory load: anAddress)
+]
+
+{ #category : #building }
+DRBasicBlock >> loadFramePointer [
+
+	^ self addInstruction: self instructionFactory loadFramePointer
+]
+
+{ #category : #building }
+DRBasicBlock >> loadSInt64: operand [
+	
+	^ self addInstruction: (self instructionFactory loadSInt64: operand)
 ]
 
 { #category : #splitting }
@@ -757,6 +781,18 @@ DRBasicBlock >> printOn: aStream [
 			aStream nextPutAll: '}'.
 		].
 	aStream nextPutAll: ')'
+]
+
+{ #category : #building }
+DRBasicBlock >> push: operand [
+	
+	^ self addInstruction: (self instructionFactory push: operand)
+]
+
+{ #category : #building }
+DRBasicBlock >> pushBase: base offset: offset [
+	
+	^ self addInstruction: (self instructionFactory pushBase: base offset: offset)
 ]
 
 { #category : #iterating }
@@ -912,6 +948,12 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 	self mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: newSuccessors.
 
 	^ duplicatedBlock
+]
+
+{ #category : #building }
+DRBasicBlock >> storeSInt64: operand at: address [
+
+	^ self addInstruction: (self instructionFactory storeSInt64: operand at: address)
 ]
 
 { #category : #accessing }

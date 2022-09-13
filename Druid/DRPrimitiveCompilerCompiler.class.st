@@ -20,6 +20,13 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 ]
 
 { #category : #accessing }
+DRPrimitiveCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method [
+	
+	super configureIRBuilder: irGenerator forMethod: method.
+	irGenerator numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value
+]
+
+{ #category : #accessing }
 DRPrimitiveCompilerCompiler >> initialize [
 
 	super initialize.
@@ -71,4 +78,10 @@ DRPrimitiveCompilerCompiler >> primitiveName [
 DRPrimitiveCompilerCompiler >> primitiveName: anObject [
 
 	self sourceName: anObject
+]
+
+{ #category : #accessing }
+DRPrimitiveCompilerCompiler >> targetName [
+
+	^ self primitiveCompilerName
 ]

@@ -35,7 +35,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 	newBlock := cfg newBasicBlockWith: [ :b | b copy: 1 ].
 	oldMergePoint removePredecessorAt: 1.
 	newMergePoint
-		jumpIf: (DRPhysicalRegister name: 'Parameter')
+		jumpIf: (DRPhysicalGeneralPurposeRegister name: 'Parameter')
 		to: oldMergePoint
 		ifFalseTo: newBlock.
 	newBlock jumpTo: (cfg blockById: 1).

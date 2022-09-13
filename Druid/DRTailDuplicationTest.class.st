@@ -577,7 +577,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierDominatedByItself [
 	phi2 := b5 phiWith: phi1 with: copy2.
 	b5 copy: phi2.
 	b5 copy: copy2.
-	
+
 	cfg b3 tailDuplicate.
 
 	self assert: cfg b4 phiFunctions size equals: 1.	"NOT create master phi here (frontier)"

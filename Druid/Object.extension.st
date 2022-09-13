@@ -11,3 +11,9 @@ Object >> asDRValue [
 	
 	^ DRConstantValue value: self
 ]
+
+{ #category : #'*Druid' }
+Object >> isJitCompileTimeExpression [
+	
+	^ true
+]
