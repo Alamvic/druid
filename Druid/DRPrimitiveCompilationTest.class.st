@@ -66,15 +66,3 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 	self prepareStackForSendReceiver: receiverOop arguments: aCollection.
 	self runFrom: initialAddress until: stopAddress.
 ]
-
-{ #category : #'tests-loop' }
-DRPrimitiveCompilationTest >> testLoopInvariantCodeMotionPreservesSemanticsIfLoopIsNeverRun [
-
-	cogit receiverTags: memory smallIntegerTag.
-
-	self compileDruidPrimitive: #primitiveNoopLoopWithInvariant.
-
-	self executePrimitiveWithReceiver: 42.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 3
-]
