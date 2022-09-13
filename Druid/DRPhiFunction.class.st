@@ -100,9 +100,12 @@ DRPhiFunction >> isEmpty [
 ]
 
 { #category : #'loop-invariance' }
-DRPhiFunction >> isInvariantFrom: predecessor [ 
+DRPhiFunction >> isInvariantFrom: loopPredecessor [ 
 
-	^ (self valuesForPredecessor: predecessor) anySatisfy: #isNullValue.
+	"This was thinking for phi inside loop header block. 
+	The invariance from the loop body is correct if there is not changes of the variable inside the loop => value for that predecessor is null"
+
+	^ (self valuesForPredecessor: loopPredecessor) anySatisfy: #isNullValue.
 ]
 
 { #category : #testing }

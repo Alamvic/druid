@@ -444,7 +444,7 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 		self assert: users isEmpty.
 		^ self ].
 	frontier isEmpty ifTrue: [ "Last usefull block"
-		"self assert: users isEmpty."
+		self assert: users isEmpty.
 		^ self ].
 
 	valuesToMerge := { myInstruction } , duplicatedInstructions.
@@ -624,7 +624,7 @@ DRBasicBlock >> loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock
 ]
 
 { #category : #splitting }
-DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: successors [
+DRBasicBlock >> mergeInstructionsWithDuplicatedBlock: duplicatedBlock withSuccessors: successors usingUsers: getUsersBlock [
 
 	self instructions copy
 		with: duplicatedBlock instructions copy
@@ -633,7 +633,7 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 				insertPhisAndReplaceUsersBetween: myInstruction
 				andAll: { duplicatedInstruction }
 				withFrontier: successors
-				withUsers: myInstruction nonLocalUsers ]
+				withUsers: (getUsersBlock value: myInstruction) ]
 ]
 
 { #category : #accessing }
@@ -908,10 +908,9 @@ DRBasicBlock >> sourceInterval [
 DRBasicBlock >> splitTo: predecessorToRewire [
 
 	| duplicatedBlock newSuccessors |
-	
 	self assert: self predecessors size > 1.
 
-	newSuccessors := self newEmptySuccessors. 
+	newSuccessors := self newEmptySuccessors.
 
 	duplicatedBlock := self basicDuplicate.
 	duplicatedBlock successors do: [ :successor | 
@@ -928,7 +927,10 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
 	controlFlowGraph tree computeDominanceFrontier.
 
-	self mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: newSuccessors.
+	self
+		mergeInstructionsWithDuplicatedBlock: duplicatedBlock
+		withSuccessors: newSuccessors
+		usingUsers: [:i | i nonLocalUsers].
 
 	^ duplicatedBlock
 ]
