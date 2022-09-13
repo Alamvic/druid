@@ -13,8 +13,8 @@ DRMessageSend >> inline [
 
 	| pieces firstBasicBlock lastFrame |
 	pieces := self basicBlock breakBy: self.
-1halt.
-	firstBasicBlock := irGenerator firstBasicBlock.
+
+	firstBasicBlock := irGenerator newFirstBasicBlock.
 	pieces first jumpTo: firstBasicBlock.
 
 	irGenerator numberOfArguments: operands size - 1.
@@ -33,6 +33,7 @@ DRMessageSend >> inline [
 
 { #category : #accessing }
 DRMessageSend >> irGenerator: anIrGenerator [ 
+
 	irGenerator := anIrGenerator
 ]
 

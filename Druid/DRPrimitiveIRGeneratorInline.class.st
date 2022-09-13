@@ -30,6 +30,16 @@ DRPrimitiveIRGeneratorInline >> messageSend: aDRMessageSend [
 	messageSend := aDRMessageSend
 ]
 
+{ #category : #building }
+DRPrimitiveIRGeneratorInline >> newFirstBasicBlock [
+
+	| block |
+	block := self newBasicBlock.
+	self currentPrimitiveFailureCode:
+		(block load: DRInterpreterReference primitiveFailureCodeAddress).
+	^ block
+]
+
 { #category : #accessing }
 DRPrimitiveIRGeneratorInline >> previousBasicBlock: aDRBasicBlock [
 
