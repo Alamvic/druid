@@ -10,7 +10,7 @@ Class {
 }
 
 { #category : #accessing }
-DRAbstractBranch >> backJumpTarget [
+DRAbstractBranch >> backJumpTargets [
 	^ backJumps.
 ]
 

@@ -24,7 +24,7 @@ DRLoopInvariantCodeMotion >> tryMove: potentiallyLoopInvariantInstruction outsid
 
 	isInvariant ifFalse: [ ^ self ].
 
-	loopHeaderBlocks := backJump backJumpTarget.
+	loopHeaderBlocks := backJump backJumpTargets.
 	self assert: [ loopHeaderBlocks size = 1 ].
 	loopHeaderBlock := loopHeaderBlocks anyOne.
 	

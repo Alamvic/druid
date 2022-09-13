@@ -311,7 +311,7 @@ DRInstruction >> lookupClass [
 { #category : #accessing }
 DRInstruction >> loopBlocks [
 	self flag: #TODO. "This always returns an empty set for loops that contain multiple blocks"
-	^ self backJumpTarget flatCollect: #backJumpPredecessors
+	^ self backJumpTargets flatCollect: #backJumpPredecessors
 ]
 
 { #category : #moving }

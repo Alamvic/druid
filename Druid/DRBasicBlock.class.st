@@ -215,11 +215,6 @@ DRBasicBlock >> collectionOf: aDRInstruction [
 ]
 
 { #category : #accessing }
-DRBasicBlock >> containsInstruction: anInstruction [ 
-	^ instructions includes: anInstruction
-]
-
-{ #category : #accessing }
 DRBasicBlock >> controlFlowGraph [
 
 	^ controlFlowGraph
@@ -413,6 +408,11 @@ DRBasicBlock >> id [
 DRBasicBlock >> id: anObject [
 
 	id := anObject
+]
+
+{ #category : #accessing }
+DRBasicBlock >> includesInstruction: anInstruction [ 
+	^ instructions includes: anInstruction
 ]
 
 { #category : #accessing }

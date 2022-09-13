@@ -38,7 +38,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveInstructi
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 
 	"Intruction was not moved"
-	self assert: (ifBlock containsInstruction: loopVariantInstruction)
+	self assert: (ifBlock includesInstruction: loopVariantInstruction)
 ]
 
 { #category : #tests }
@@ -64,8 +64,8 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoadsNorS
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 
 	"Intructions were not moved"
-	self assert: (loopBodyBlock containsInstruction: loadInstruction).
-	self assert: (loopBodyBlock containsInstruction: storeInstruction).
+	self assert: (loopBodyBlock includesInstruction: loadInstruction).
+	self assert: (loopBodyBlock includesInstruction: storeInstruction).
 ]
 
 { #category : #tests }
@@ -80,7 +80,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoopVaria
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 
 	"Intruction was not moved"
-	self assert: (loopBlock containsInstruction: loopVariantInstruction)
+	self assert: (loopBlock includesInstruction: loopVariantInstruction)
 ]
 
 { #category : #tests }
@@ -96,8 +96,8 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesConstantInstruc
 	
 	preheaderBlock := cfg blockById: 12.
 
-	self deny: (loopBlock containsInstruction: loopInvariantInstruction).
-	self assert: (preheaderBlock containsInstruction: loopInvariantInstruction)
+	self deny: (loopBlock includesInstruction: loopInvariantInstruction).
+	self assert: (preheaderBlock includesInstruction: loopInvariantInstruction)
 ]
 
 { #category : #tests }
@@ -117,8 +117,8 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesConstantInstruc
 	To achieve that, we should optimize inner loops before the outer ones."
 	preheaderBlock := cfg blockById: 9.
 
-	self deny: (loopBlock containsInstruction: loopInvariantInstruction).
-	self assert: (preheaderBlock containsInstruction: loopInvariantInstruction)
+	self deny: (loopBlock includesInstruction: loopInvariantInstruction).
+	self assert: (preheaderBlock includesInstruction: loopInvariantInstruction)
 ]
 
 { #category : #tests }
@@ -137,10 +137,10 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesMultipleRelated
 	preheaderBlock1 := cfg blockById: 11.
 	preheaderBlock2 := cfg blockById: 13.
 
-	self deny: (loopBlock containsInstruction: loopInvariantInstruction1 ).
-	self deny: (loopBlock containsInstruction: loopInvariantInstruction2 ).
-	self assert: (preheaderBlock1 containsInstruction: loopInvariantInstruction1).
-	self assert: (preheaderBlock2 containsInstruction: loopInvariantInstruction2)
+	self deny: (loopBlock includesInstruction: loopInvariantInstruction1 ).
+	self deny: (loopBlock includesInstruction: loopInvariantInstruction2 ).
+	self assert: (preheaderBlock1 includesInstruction: loopInvariantInstruction1).
+	self assert: (preheaderBlock2 includesInstruction: loopInvariantInstruction2)
 ]
 
 { #category : #tests }
@@ -157,5 +157,5 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionWrapsMovedInstructio
 	
 	preheaderBlock := cfg blockById: 9.
 
-	self assert: (preheaderBlock containsInstruction: loopInvariantInstruction)
+	self assert: (preheaderBlock includesInstruction: loopInvariantInstruction)
 ]
