@@ -16,7 +16,7 @@ DRInlineMethodTest >> setUp [
 ]
 
 { #category : #tests }
-DRInlineMethodTest >> testInlineMethod [
+DRInlineMethodTest >> testInlineMethodCopiesCalleeIntoCallerMethod [
 
 	| cfg messageSend |	
 	cfg := self generateDruidIRFor: #methodWithArg:.
@@ -27,7 +27,7 @@ DRInlineMethodTest >> testInlineMethod [
 ]
 
 { #category : #tests }
-DRInlineMethodTest >> testInlineMethodWithMultiplePossibleTypes [
+DRInlineMethodTest >> testInlineMethodWithMultiplePossibleTypesInlinesAllPossibleMethods [
 
 	| cfg messageSend |	
 	cfg := self generateDruidIRFor: #methodWithMultipleTypeAnnotations:.
@@ -49,18 +49,7 @@ DRInlineMethodTest >> testInlineMethodWithNPossibleTypesMakesNMinus1TypeChecks [
 ]
 
 { #category : #tests }
-DRInlineMethodTest >> testNotInlineMethodWithNoTypeAnnotation [
-
-	| cfg messageSend |	
-	cfg := self generateDruidIRFor: #methodWithNoTypeAnnotation:.
-	messageSend := cfg messageSends first.
-	messageSend inline.
-
-	self assert: cfg messageSends size equals: 1
-]
-
-{ #category : #tests }
-DRInlineMethodTest >> testNotInlinedMethodWithArgs [
+DRInlineMethodTest >> testMessageSendsAreNotInlinedWhenCreatingCFGForMethod [
 
 	| cfg |	
 	cfg := self generateDruidIRFor: #methodWithArg:.
@@ -68,10 +57,12 @@ DRInlineMethodTest >> testNotInlinedMethodWithArgs [
 ]
 
 { #category : #tests }
-DRInlineMethodTest >> testNotInlinedMethodWithoutArgs [
+DRInlineMethodTest >> testNotInlineMethodWithNoTypeAnnotation [
 
-	| cfg |
-	cfg := self generateDruidIRFor: #methodWithoutArgs.
+	| cfg messageSend |	
+	cfg := self generateDruidIRFor: #methodWithNoTypeAnnotation:.
+	messageSend := cfg messageSends first.
+	messageSend inline.
 
 	self assert: cfg messageSends size equals: 1
 ]

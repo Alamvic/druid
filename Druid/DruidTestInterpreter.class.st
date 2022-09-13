@@ -121,12 +121,11 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> methodWithoutArgs [
+DruidTestInterpreter >> methodWithUnknownTypeAnnotation: aCollection [
 
-	| i |
-	i := 0.
-	5 timesRepeat: [ i := i + 1 ].
-	^ i
+	<var: #aCollection type: #OrderedCollection>
+	<var: #aCollection type: #Unknown>
+	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : #'as yet unclassified' }
