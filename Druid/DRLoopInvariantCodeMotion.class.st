@@ -10,21 +10,29 @@ DRLoopInvariantCodeMotion >> applyTo: aDRControlFlowGraph [
 	"The current implementation of loop-invariant code motion has the following limitations:
 	- it won't optimize loops that contain multiple basic blocks (e.g. loops that contain ifs)
 	- when optimizing nested loops, it will only hoist loop-invariant instructions out of a single loop"
+
 	aDRControlFlowGraph allBackJumps do: [ :backJump | 
-		(backJump loopBlocks flatCollect: [ :block | block instructions ]) 
-			do: [ :instruction | 
-			self tryMove: instruction outsideLoopWith: backJump ] ]
+		self applyToLoop: backJump ]
 ]
 
 { #category : #operations }
-DRLoopInvariantCodeMotion >> tryMove: potentiallyLoopInvariantInstruction outsideLoopWith: backJump [
+DRLoopInvariantCodeMotion >> applyToLoop: backJump [
 
-	| isInvariant loopPredecessors loopPredecessor preheaderBlock loopHeaderBlock loopHeaderBlocks loopExitBlock loopConditionJump preheaderConditionBlock conditionJump |
-	isInvariant := potentiallyLoopInvariantInstruction 
-		               canMoveOutsideLoopWith: backJump.
+	| instructionsToMove |
+	instructionsToMove := (backJump loopBlocks flatCollect: [ :block | 
+		                       block instructions ]) select: [ :instruction | 
+		                      instruction canMoveOutsideLoopWith: backJump ].
+	instructionsToMove ifEmpty: [ ^ self ].
 
-	isInvariant ifFalse: [ ^ self ].
+	self
+		moveAllLoopInstructions: instructionsToMove
+		outsideBackjump: backJump
+]
 
+{ #category : #operations }
+DRLoopInvariantCodeMotion >> moveAllLoopInstructions: instructionsToMove outsideBackjump: backJump [
+
+	| loopHeaderBlocks loopHeaderBlock loopPredecessors loopPredecessor preheaderBlock preheaderConditionBlock conditionJump loopConditionJump loopExitBlock |
 	loopHeaderBlocks := backJump backJumpTargets.
 	self assert: [ loopHeaderBlocks size = 1 ].
 	loopHeaderBlock := loopHeaderBlocks anyOne.
@@ -60,11 +68,11 @@ DRLoopInvariantCodeMotion >> tryMove: potentiallyLoopInvariantInstruction outsid
 	loopHeaderBlock
 		mergeInstructionsWithDuplicatedBlock: preheaderConditionBlock
 		withSuccessors: { loopExitBlock }
-		usingUsers: [ :i | i nonLocalUsers select: [ :u | u isDominatedBy: loopExitBlock firstInstruction ] ].
+		usingUsers: [ :i | 
+			i nonLocalUsers select: [ :u | 
+				u isDominatedBy: loopExitBlock firstInstruction ] ].
 
-	potentiallyLoopInvariantInstruction moveToDominatingBlock:
-		preheaderBlock.
+	instructionsToMove do: [ :i | 
+		i moveToDominatingBlock: preheaderBlock ].
 
-	potentiallyLoopInvariantInstruction users do: [ :instruction | 
-		self tryMove: instruction outsideLoopWith: backJump ]
 ]

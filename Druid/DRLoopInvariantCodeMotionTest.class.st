@@ -124,7 +124,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesConstantInstruc
 { #category : #tests }
 DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesMultipleRelatedInstructionsOutsideOfLoop [
 
-	| cfg loopBlock preLoopBlock loopInvariantInstruction1 loopInvariantInstruction2 preheaderBlock1 preheaderBlock2 |
+	| cfg loopBlock preLoopBlock loopInvariantInstruction1 loopInvariantInstruction2 preheaderBlock |
 	cfg := self generateDruidIRFor: #primitiveLoopWithMultipleInvariants.
 
 	preLoopBlock := cfg blockById: 4.
@@ -134,13 +134,12 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesMultipleRelated
 
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 
-	preheaderBlock1 := cfg blockById: 11.
-	preheaderBlock2 := cfg blockById: 13.
+	preheaderBlock := cfg blockById: 9.
 
 	self deny: (loopBlock includesInstruction: loopInvariantInstruction1 ).
 	self deny: (loopBlock includesInstruction: loopInvariantInstruction2 ).
-	self assert: (preheaderBlock1 includesInstruction: loopInvariantInstruction1).
-	self assert: (preheaderBlock2 includesInstruction: loopInvariantInstruction2)
+	self assert: (preheaderBlock includesInstruction: loopInvariantInstruction1).
+	self assert: (preheaderBlock includesInstruction: loopInvariantInstruction2)
 ]
 
 { #category : #tests }
