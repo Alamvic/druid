@@ -10,7 +10,7 @@ DRSCCPConstantPropagationTest >> testDoNotPropagateInPhiFunctions [
 	"Phi functions should contain variables and not values"
 
 	| cfg copy1 copy2 phi |
-	cfg := self setUpCFGWithConditional: (instructionFactory jumpIf: (DRPhysicalRegister name: 'Parameter')).
+	cfg := self setUpCFGWithConditional: (instructionFactory jumpIf: (DRPhysicalGeneralPurposeRegister name: 'Parameter')).
 
 	copy1 := cfg b2 copy: 1.
 	copy2 := cfg b3 copy: 2.
@@ -90,7 +90,7 @@ DRSCCPConstantPropagationTest >> testPropagateToAddOperand [
 	cfg b1 addInstruction: (copy1 := instructionFactory copy: 1).
 	
 	"T2 := Param + T1"
-	cfg b1 addInstruction: (instructionFactory add: (DRPhysicalRegister name: 'Rx') to: copy1).
+	cfg b1 addInstruction: (instructionFactory add: (DRPhysicalGeneralPurposeRegister name: 'Rx') to: copy1).
 	
 	optimisation applyTo: cfg.
 	
@@ -143,10 +143,10 @@ DRSCCPConstantPropagationTest >> testPropagateWhenResultIsPhisicalRegister [
 
 	| cfg copy1 b1 b2 b3 copy2 joinBlock phi pr prcopy1 prcopy2 |
 	cfg := DRControlFlowGraph new.
-	pr := DRPhysicalRegister name: 'PR'.
+	pr := DRPhysicalGeneralPurposeRegister name: 'PR'.
 	
 	cfg initialBasicBlock jumpTo: (b1 := cfg newBasicBlock).
-	b1 jumpIf: (DRPhysicalRegister name: 'Parameter') to: (b2 := cfg newBasicBlock) ifFalseTo: (b3 := cfg newBasicBlock).
+	b1 jumpIf: (DRPhysicalGeneralPurposeRegister name: 'Parameter') to: (b2 := cfg newBasicBlock) ifFalseTo: (b3 := cfg newBasicBlock).
 
 	"T1 := 1.
 	PR := T1"

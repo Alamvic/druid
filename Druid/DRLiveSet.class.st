@@ -6,7 +6,7 @@ Class {
 		'liveRanges',
 		'definitions'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-LinearScanRegisterAllocation'
 }
 
 { #category : #accessing }
@@ -92,7 +92,6 @@ DRLiveSet >> location: aLocation [
 DRLiveSet >> mergeWith: aDRLiveSet [
 
 	"Merge two non overlapping live sets"
-
 	^ DRLiveSet new
 		  addDefinitions: self definitions;
 		  addDefinitions: aDRLiveSet definitions;

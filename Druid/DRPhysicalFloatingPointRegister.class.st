@@ -1,0 +1,35 @@
+Class {
+	#name : #DRPhysicalFloatingPointRegister,
+	#superclass : #DRPhysicalRegister,
+	#category : #'Druid-IR'
+}
+
+{ #category : #visiting }
+DRPhysicalFloatingPointRegister >> acceptVisitor: aVisitor [
+1halt.
+	^ aVisitor visitPhysicalRegister: self
+]
+
+{ #category : #'register allocation' }
+DRPhysicalFloatingPointRegister >> returnToAllocator: anAllocator [ 
+
+	anAllocator returnFloatRegister: self
+]
+
+{ #category : #'cogit-generation' }
+DRPhysicalFloatingPointRegister >> rtlOperandQualifier [
+	
+	^ 'Rd:'
+]
+
+{ #category : #'register allocation' }
+DRPhysicalFloatingPointRegister >> takeFromAllocator: aRegisterAllocator [
+	
+	aRegisterAllocator takeFloatRegister: self
+]
+
+{ #category : #types }
+DRPhysicalFloatingPointRegister >> type [
+	
+	^ DRFloatType new
+]

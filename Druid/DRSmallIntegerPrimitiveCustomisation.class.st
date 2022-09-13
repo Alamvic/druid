@@ -20,7 +20,7 @@ DRSmallIntegerPrimitiveCustomisation >> generateCustomisedPreamble: aGeneratorMe
 DRSmallIntegerPrimitiveCustomisation >> initialConstraint [
 
 	^ DRRegisterDomain
-		  equals: (DRPhysicalRegister name: 'ReceiverResultReg')
+		  equals: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg')
 		  than: 1
 ]
 

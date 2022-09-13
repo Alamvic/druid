@@ -144,7 +144,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationBothWithPhiFunction [
 	rightOperand1 := leftOperand1.
 	rightOperand2 := leftOperand2.
 	
-	cfg := self setUpControlFlowGraphWithConditionalJump: (instructionFactory jumpIf: (DRPhysicalRegister name: 'Parameter')).
+	cfg := self setUpControlFlowGraphWithConditionalJump: (instructionFactory jumpIf: (DRPhysicalGeneralPurposeRegister name: 'Parameter')).
 	cfg b4 addInstruction: (phiInstruction := instructionFactory phiWith: leftAddInstruction with: rightAddInstruction).
 
 	"Since both paths are valid, the Phi function should not be replaced"
@@ -224,7 +224,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationWithFarAwayPhiFunctio
 	b1 := cfg newBasicBlock.
 	mainJump falseBranch: b1.
 	b1 addPredecessor: b0. 
-	b1 addInstruction: (rx := instructionFactory copy: (DRPhysicalRegister name: 'Rx')).
+	b1 addInstruction: (rx := instructionFactory copy: (DRPhysicalGeneralPurposeRegister name: 'Rx')).
 	innerJump := instructionFactory jumpIf:
 		        (instructionFactory lessOrEquals: copy1 than: rx).
 	b1 addInstruction: innerJump operand1.

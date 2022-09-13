@@ -49,3 +49,8 @@ DRStore >> size [
 
 	^ size
 ]
+
+{ #category : #types }
+DRStore >> type [
+	self shouldBeImplemented.
+]

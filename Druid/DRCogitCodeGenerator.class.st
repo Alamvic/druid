@@ -23,6 +23,63 @@ DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 	^ anInstruction acceptVisitor: self
 ]
 
+{ #category : #branching }
+DRCogitCodeGenerator >> cogitBranchFromCondition: condition type: aType [
+
+	| branchPrefix |
+	branchPrefix := aType isFloatType
+		                ifTrue: [ 'JumpFP' ]
+		                ifFalse: [ 'Jump' ].
+
+	condition isEqualsThanComparison ifTrue: [ 
+		^ aType isFloatType
+			  ifTrue: [ branchPrefix , 'Equal:' ]
+			  ifFalse: [ branchPrefix , 'Zero:' ] ].
+
+	condition isNotEqualsThanComparison ifTrue: [ 
+		^ aType isFloatType
+			  ifTrue: [ branchPrefix , 'NotEqual:' ]
+			  ifFalse: [ branchPrefix , 'NonZero:' ] ].
+
+	condition isGreaterThanComparison ifTrue: [ 
+		^ branchPrefix , 'Greater:' ].
+
+	condition isGreaterOrEqualThanComparison ifTrue: [ 
+		^ branchPrefix , 'GreaterOrEqual:' ].
+
+	condition isLessThanComparison ifTrue: [ 
+		^ branchPrefix , 'Less:' ].
+	
+	condition isLessOrEqualThanComparison ifTrue: [ 
+		^ branchPrefix , 'LessOrEqual:' ].
+
+	condition isOverflow ifTrue: [ 
+		aType isFloatType
+			ifTrue: [ self error: 'unsupported: cannot test the mask on a floating point number'  ].
+		condition isMultiplyOverflow
+			ifTrue: [ ^ branchPrefix , 'MultiplyOverflow:' ].
+		^ branchPrefix , 'Overflow:' ].
+
+	condition isNoOverflow ifTrue: [ 
+		aType isFloatType
+			ifTrue: [ self error: 'unsupported: cannot test the mask on a floating point number'  ].
+		condition isNoMultiplyOverflow
+			ifTrue: [ ^ branchPrefix , 'MultiplyNoOverflow:' ].
+		^ branchPrefix , 'NoOverflow:' ].
+	
+	condition isTestMask ifTrue: [ 
+		aType isFloatType
+			ifTrue: [ self error: 'unsupported: cannot test the mask on a floating point number'  ].
+		^ branchPrefix , 'NonZero:' ].
+	
+	condition isNoTestMask ifTrue: [ 
+		aType isFloatType
+			ifTrue: [ self error: 'unsupported: cannot test the mask on a floating point number'  ].
+		^ branchPrefix , 'Zero:' ].
+
+	1 halt
+]
+
 { #category : #'jump-management' }
 DRCogitCodeGenerator >> deferBranch: anIndex to: aDRBasicBlock [ 
 	
@@ -161,7 +218,7 @@ DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 ]
 
 { #category : #'ir-to-ast' }
-DRCogitCodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph primitiveName: aName [
+DRCogitCodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: aName [
 
 	generatorMethodBuilder selector: aName.
 	self generateCodeForCFG: aDRControlFlowGraph.
@@ -200,6 +257,18 @@ DRCogitCodeGenerator >> labelForBlock: aDRBasicBlock [
 DRCogitCodeGenerator >> labelForJump: jumpIndex [
 	
 	^ 'jump', jumpIndex asString
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> oneOperandCogitRTL: aMnemonic operands: operands instruction: anInstruction [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector:
+				 aMnemonic
+				 , (operands first result rtlOperandQualifierForInstruction:
+						  anInstruction)
+			 arguments: (self rtlArgumentsForValue: operands first))
 ]
 
 { #category : #'ir-to-ast' }
@@ -273,6 +342,8 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 			  start: 0
 			  stop: -1
 			  source: constantValue hex ] ].
+
+	"aValue isJitCompileTimeExpression ifTrue: [ ^ aValue expression ]."
 
 	^ RBVariableNode named: (self registerFor: aValue)
 ]
@@ -370,12 +441,14 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 
 	"Generate both jumps, the fallthorugh will get ignored"
 	self
-		generateJump:
-		replacement condition cogitTrueConditionCode
+		generateJump: (self
+				 cogitBranchFromCondition: replacement condition
+				 type: replacement operand1 type)
 		target: replacement trueBranch.
 	self
-		generateJump:
-		replacement condition cogitFalseConditionCode
+		generateJump: (self
+				 cogitBranchFromCondition: replacement condition negated
+				 type: replacement operand1 type)
 		target: replacement falseBranch
 ]
 
@@ -402,25 +475,16 @@ DRCogitCodeGenerator >> visitBranchIfTrue: aDRBranchIfTrue [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitComparison: aComparison [
 
-	| replacement |
-	"Cogit RTL only supports constants as the first argument.
-	Invert the comparison and the condition if necessary, mostly for greaterThan comparisons."
-	aComparison operands first isConstant
-		ifTrue: [ 
-			replacement := aComparison reversed.
-			aComparison replaceBy: replacement ]
-		ifFalse: [ replacement := aComparison ].
-
 	"Generate comparison instruction. In cogit, if you want to do A < B, you have to generate:
 	CMP B A
 	JumpLessThan xxx
 	Thus, operands are inverted always"
 	self
 		twoOperandCogitRTL: #Cmp
-		operands: replacement operands reversed
-		instruction: replacement.
+		operands: aComparison operands reversed
+		instruction: aComparison.
 
-	^ replacement
+	^ aComparison
 ]
 
 { #category : #visiting }
@@ -443,9 +507,14 @@ DRCogitCodeGenerator >> visitCopy: aDRMove [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitDivision: aDRCogitDivision [
 
-	"Cogit division is not in 2AC but in 4AC.
+	aDRCogitDivision type isFloatType ifTrue: [
+		^ self threeOperandCogitRTL: #Div instruction: aDRCogitDivision
+	].
+
+	"Cogit integer division is not in 2AC but in 4AC.
 	The (cogit specific) register allocator should inserts a register for REM destination implicitly yet unused.
 	It should also put all operands in registers as the cogit instruction does not support constants."
+
 
 	^ generatorMethodBuilder addStatement: (RBMessageNode
 			   receiver: RBVariableNode selfNode
@@ -464,6 +533,17 @@ DRCogitCodeGenerator >> visitEqualsThan: aDRGreaterThanComparison inBranch: aDRB
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitFloatToIntConversion: aDRFloatToInt [
+
+	^ self
+		  twoOperandCogitRTL: #Convert
+		  operands: { 
+				  aDRFloatToInt operand1.
+				  aDRFloatToInt result }
+		  instruction: aDRFloatToInt
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
 	
 	"Generate the code of the form
@@ -477,15 +557,18 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 	"
 	
 	"Generate CMP; Jump.COND true; RESULT := 0; JUMP next"
-	| comparisonToGenerate |
+	| comparisonToGenerate branch |
 	comparisonToGenerate := self visitComparison: aDRGetConditionCode.
 	generatorMethodBuilder addVariableNamed: 'jumpTrue'.
 	generatorMethodBuilder addVariableNamed: 'jumpNext'.
+	branch := self
+		cogitBranchFromCondition: comparisonToGenerate condition
+		type: comparisonToGenerate operand1 type.
 	generatorMethodBuilder addStatement: (RBAssignmentNode
 		variable: (RBVariableNode named: 'jumpTrue')
 		value: (RBMessageNode
 			receiver: RBVariableNode selfNode
-			selector: comparisonToGenerate condition cogitTrueConditionCode
+			selector: branch
 			arguments: { 0 asLiteralNode })).
 	"Set false to result"
 	self
@@ -526,6 +609,20 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitGetFloatBits: aDRGetFloatBits [ 
+	
+	"This should be translated as a normal move"
+	^ self visitCopy: aDRGetFloatBits
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitGetFloatFromBits: aDRGetFloatFromBits [
+
+	"This should be translated as a normal move"
+	^ self visitCopy: aDRGetFloatFromBits
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitGreaterOrEqualsThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 	
 	^ self visitComparison: aDRBranchIfCondition
@@ -535,6 +632,17 @@ DRCogitCodeGenerator >> visitGreaterOrEqualsThan: aDRGreaterThanComparison inBra
 DRCogitCodeGenerator >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 	
 	^ self visitComparison: aDRBranchIfCondition
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitIntToFloatConversion: aDRIntToFloat [
+
+	^ self
+		twoOperandCogitRTL: #Convert
+		operands: { 
+				aDRIntToFloat operand1.
+				aDRIntToFloat result }
+		instruction: aDRIntToFloat
 ]
 
 { #category : #visiting }
@@ -569,7 +677,7 @@ DRCogitCodeGenerator >> visitLoad: aDRLoad [
 	self
 		twoOperandCogitRTL: #Move
 		operands: { 
-				aDRLoad operand1 asMemoryAddress.
+				aDRLoad address.
 				aDRLoad result }
 		instruction: aDRLoad.
 

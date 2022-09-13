@@ -1,6 +1,6 @@
 Class {
 	#name : #DRDivision,
-	#superclass : #DRInstruction,
+	#superclass : #DRArithmeticInstruction,
 	#category : #'Druid-IR'
 }
 

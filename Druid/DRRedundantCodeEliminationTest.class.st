@@ -11,8 +11,8 @@ DRRedundantCodeEliminationTest >> testRedundantCopyIsEliminated [
 	cfg := DRControlFlowGraph new.
 	b1 := cfg newBasicBlockWith: [ :block | 
 		      block addInstruction: (DRCopy
-				       operands: { (DRPhysicalRegister name: 'argument') }
-				       result: (DRPhysicalRegister name: 'argument')) 
+				       operands: { (DRPhysicalGeneralPurposeRegister name: 'argument') }
+				       result: (DRPhysicalGeneralPurposeRegister name: 'argument')) 
 	].
 
 	DRRedundantCopyElimination new applyTo: cfg.

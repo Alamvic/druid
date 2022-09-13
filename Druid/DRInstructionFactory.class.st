@@ -72,7 +72,7 @@ DRInstructionFactory >> equals: operand1 to: operand2 [
 			  operand2 asDRValue }
 ]
 
-{ #category : #building }
+{ #category : #factory }
 DRInstructionFactory >> getConditionCodeOf: aCondition operands: aCollection [ 
 
 	^ DRGetConditionCode new
@@ -97,6 +97,25 @@ DRInstructionFactory >> initialize [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> intToFloat: operand1 [
+
+	^ DRIntToFloat
+		  operands: { operand1 asDRValue. }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> jitCompileTimeExpression: aString [
+	^ DRJitCompileTimeExpression new expression: aString
+]
+
+{ #category : #factory }
+DRInstructionFactory >> jitCompileTimeVariable: aString [ 
+	
+	^ DRJitCompileTimeExpression new expression: aString
+]
+
+{ #category : #factory }
 DRInstructionFactory >> jumpIf: aBoolean [
 
 	^ DRBranchIfTrue operands: { aBoolean asDRValue }
@@ -113,10 +132,22 @@ DRInstructionFactory >> lessOrEquals: operand1 than: operand2 [
 { #category : #factory }
 DRInstructionFactory >> load: anAdress [
 
+	^ self loadSInt64: anAdress
+]
+
+{ #category : #factory }
+DRInstructionFactory >> loadFramePointer [
+
+	^ DRLoadFramePointer result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> loadSInt64: operand [
+
 	^ DRLoad
 		  operands: { 
-				  8 asDRValue. "Assume 64 bits for now"
-				  anAdress asDRValue }
+				  8 asDRValue.
+				  operand asDRValue }
 		  result: self allocateTemporaryRegister
 ]
 
@@ -167,11 +198,30 @@ DRInstructionFactory >> phiWithVariables: variables [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> push: operand [
+
+	^ DRPush
+		  operands: { operand asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> pushBase: base offset: offset [
+
+	^ DRPush
+		  operands: { (DRBaseOffsetMemoryAddress new
+				   base: base;
+				   offset: offset;
+				   yourself) }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> setReturnValue: aValue [ 
 	
 	^ DRCopy
 		  operands: { aValue asDRValue }
-		  result: (DRPhysicalRegister name: 'ReceiverResultReg')
+		  result: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg')
 ]
 
 { #category : #factory }
@@ -183,4 +233,15 @@ DRInstructionFactory >> store: aValue into: anAddress [
 				  anAddress asDRValue.
 				  aValue asDRValue }
 		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> storeSInt64: operand at: address [
+
+	^ DRStore
+		  operands: { 
+				  8 asDRValue.
+				  operand asDRValue.
+				  address asDRValue }
+		  result: DRNoRegister new
 ]

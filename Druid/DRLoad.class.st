@@ -13,10 +13,41 @@ DRLoad >> acceptVisitor: aVisitor [
 	^ aVisitor visitLoad: self
 ]
 
+{ #category : #'meta-data' }
+DRLoad >> address [
+
+	^ self operand1
+]
+
+{ #category : #'meta-data' }
+DRLoad >> address: anAddress [
+
+	^ self operand1: anAddress
+]
+
+{ #category : #types }
+DRLoad >> beFloatingPoint64 [
+	
+	type := DRFloatType new
+]
+
 { #category : #testing }
 DRLoad >> canMoveOutsideLoopWith: backJump [
 
 	^ false
+]
+
+{ #category : #'users-definitions' }
+DRLoad >> hasDependency: anInstruction [
+	
+	^ self dependencies includes: anInstruction
+]
+
+{ #category : #accessing }
+DRLoad >> initialize [
+
+	super initialize.
+	type := DRIntegerType new
 ]
 
 { #category : #visiting }
@@ -35,7 +66,15 @@ DRLoad >> opcode [
 DRLoad >> operands: operandList [
 
 	size := operandList first value.
-	super operands: operandList allButFirst
+	super operands: { operandList second asMemoryAddress }
+]
+
+{ #category : #'users-definitions' }
+DRLoad >> replaceDependency: anOperand by: anotherOperand [
+
+	anOperand removeUser: self.
+	anotherOperand addUser: self.
+	self address replaceDependency: anOperand by: anotherOperand
 ]
 
 { #category : #accessing }
@@ -47,5 +86,5 @@ DRLoad >> size [
 { #category : #accessing }
 DRLoad >> type [
 	
-	^ DRIntegerType new
+	^ type
 ]
