@@ -16,15 +16,33 @@ DRInlineMethodTest >> setUp [
 ]
 
 { #category : #tests }
-DRInlineMethodTest >> testNotInlinedMethodWithArgs [
+DRInlineMethodTest >> testInlineMethod [
 
 	| cfg messageSend |	
 	cfg := self generateDruidIRFor: #methodWithArg:.
-1halt.
 	messageSend := cfg messageSends first.
-	messageSend methodNode: ((OrderedCollection lookupSelector: messageSend originAST selector) ast) .
 	messageSend inline.
+
 	self assert: cfg messageSends size equals: 2
+]
+
+{ #category : #tests }
+DRInlineMethodTest >> testNotInlineMethodWithNoTypeAnnotation [
+
+	| cfg messageSend |	
+	cfg := self generateDruidIRFor: #methodWithNoTypeAnnotation:.
+	messageSend := cfg messageSends first.
+	messageSend inline.
+
+	self assert: cfg messageSends size equals: 1
+]
+
+{ #category : #tests }
+DRInlineMethodTest >> testNotInlinedMethodWithArgs [
+
+	| cfg |	
+	cfg := self generateDruidIRFor: #methodWithArg:.
+	self assert: cfg messageSends size equals: 1
 ]
 
 { #category : #tests }
@@ -32,6 +50,6 @@ DRInlineMethodTest >> testNotInlinedMethodWithoutArgs [
 
 	| cfg |
 	cfg := self generateDruidIRFor: #methodWithoutArgs.
-1halt.
+
 	self assert: cfg messageSends size equals: 1
 ]

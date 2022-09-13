@@ -77,7 +77,7 @@ DruidTestInterpreter >> lazyFail [
 
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithArg: aCollection [
-
+	<var: #aCollection type: #OrderedCollection>
 	^ aCollection select: [ :element | element even ]
 ]
 
@@ -86,6 +86,12 @@ DruidTestInterpreter >> methodWithEarlyReturn [
 
 	self stackTop = 0 ifTrue: [ ^ 42 ].
 	^ 57
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithNoTypeAnnotation: aCollection [
+	
+	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : #'as yet unclassified' }

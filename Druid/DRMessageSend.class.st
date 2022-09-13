@@ -11,7 +11,13 @@ Class {
 { #category : #inlining }
 DRMessageSend >> inline [
 
-	| pieces firstBasicBlock lastFrame |
+	| pieces firstBasicBlock lastFrame inlinedMethodClass |
+	methodNode ifNil: [ 
+		inlinedMethodClass := self receiverType.
+		inlinedMethodClass ifNil: [ ^ self ].
+		self methodNode:
+			(inlinedMethodClass lookupSelector: self originAST selector) ast ].
+
 	pieces := self basicBlock breakBy: self.
 
 	firstBasicBlock := irGenerator newFirstBasicBlock.
@@ -19,16 +25,15 @@ DRMessageSend >> inline [
 
 	irGenerator numberOfArguments: operands size - 1.
 	lastFrame := irGenerator
-		interpretCode: (DRMethod methodNode: methodNode)
-		receiver: operands first
-		arguments: operands allButFirst.
-		
+		             interpretCode: (DRMethod methodNode: methodNode)
+		             receiver: operands first
+		             arguments: operands allButFirst.
+
 	irGenerator currentBasicBlock jumpTo: pieces last.
 	"Remove message send block"
 	self replaceUsersBy: lastFrame returnValue.
 	pieces last removePredecessor: self basicBlock.
-	self basicBlock removeFromCFG.
-
+	self basicBlock removeFromCFG
 ]
 
 { #category : #accessing }
@@ -65,6 +70,19 @@ DRMessageSend >> methodNode: anObject [
 DRMessageSend >> opcode [
 	
 	^ 'SEND'
+]
+
+{ #category : #inlining }
+DRMessageSend >> receiverType [
+
+	| receiverClass typePragmas receiverName receiverTypePragma |
+	typePragmas := self originAST methodNode allPragmasNamed: #var:type:.
+	receiverName := self originAST receiver name.
+	receiverTypePragma := typePragmas detect: [ :pragma | 
+		                      pragma arguments first value = receiverName ]
+		                      ifNone: [ ^ nil ].
+	receiverClass := self class environment at: (receiverTypePragma arguments last value).
+	^ receiverClass
 ]
 
 { #category : #SCCP }
