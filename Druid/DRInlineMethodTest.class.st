@@ -27,6 +27,17 @@ DRInlineMethodTest >> testInlineMethod [
 ]
 
 { #category : #tests }
+DRInlineMethodTest >> testInlineMethodWithMultiplePossibleTypes [
+
+	| cfg messageSend |	
+	cfg := self generateDruidIRFor: #methodWithMultipleTypeAnnotations:.
+	messageSend := cfg messageSends first.
+	messageSend inline.
+
+	self assert: cfg messageSends size equals: 4
+]
+
+{ #category : #tests }
 DRInlineMethodTest >> testNotInlineMethodWithNoTypeAnnotation [
 
 	| cfg messageSend |	

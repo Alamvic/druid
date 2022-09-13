@@ -9,29 +9,59 @@ Class {
 }
 
 { #category : #inlining }
+DRMessageSend >> generateInlineIRForMethod: methodToInline [
+
+	| lastFrame |
+	lastFrame := irGenerator
+		             interpretCode:
+		             (DRMethod methodNode: methodToInline)
+		             receiver: operands first
+		             arguments: operands allButFirst.
+	^ lastFrame returnValue
+]
+
+{ #category : #inlining }
+DRMessageSend >> generateInlineIRForMethods: methodsToInline [
+
+	| returnValues lastBlock |
+	returnValues := OrderedCollection new.
+	methodsToInline associationsDo: [ :classAndMethod | 
+		| jump |
+		jump := irGenerator currentBasicBlock jumpIf: "This create a DRValue with the condition, should collapse the condition inside the conditional jump"
+			        (DRTypeOf typeClass: classAndMethod key).
+		jump newTrueBranch: irGenerator newBasicBlock.
+		returnValues add:
+			(self generateInlineIRForMethod: classAndMethod value).
+		jump newFalseBranch: irGenerator newBasicBlock.].
+	lastBlock := irGenerator newBasicBlock.
+	returnValues do: [ :returnValue | returnValue basicBlock jumpTo: lastBlock ].
+	^ lastBlock addInstruction: (self instructionFactory phiWithVariables: returnValues). 
+]
+
+{ #category : #inlining }
 DRMessageSend >> inline [
 
-	| pieces firstBasicBlock lastFrame inlinedMethodClass |
-	methodNode ifNil: [ 
-		inlinedMethodClass := self receiverType.
-		inlinedMethodClass ifNil: [ ^ self ].
-		self methodNode:
-			(inlinedMethodClass lookupSelector: self originAST selector) ast ].
+	| pieces methodsToInline inlinedMethodReturnValue |
+	methodsToInline := self methodsToInline.
+
+	methodsToInline ifEmpty: [ ^ self ].
 
 	pieces := self basicBlock breakBy: self.
 
-	firstBasicBlock := irGenerator newFirstBasicBlock.
-	pieces first jumpTo: firstBasicBlock.
+	pieces first jumpTo: irGenerator newFirstBasicBlock.
 
 	irGenerator numberOfArguments: operands size - 1.
-	lastFrame := irGenerator
-		             interpretCode: (DRMethod methodNode: methodNode)
-		             receiver: operands first
-		             arguments: operands allButFirst.
+	methodsToInline size = 1
+		ifTrue: [ 
+			inlinedMethodReturnValue := self generateInlineIRForMethod:
+				                            methodsToInline anyOne ]
+		ifFalse: [ 
+			inlinedMethodReturnValue := self generateInlineIRForMethods:
+				                            methodsToInline ].
 
 	irGenerator currentBasicBlock jumpTo: pieces last.
 	"Remove message send block"
-	self replaceUsersBy: lastFrame returnValue.
+	self replaceUsersBy: inlinedMethodReturnValue.
 	pieces last removePredecessor: self basicBlock.
 	self basicBlock removeFromCFG
 ]
@@ -66,6 +96,18 @@ DRMessageSend >> methodNode: anObject [
 	methodNode := anObject
 ]
 
+{ #category : #inlining }
+DRMessageSend >> methodsToInline [
+
+	| inlinedMethodClasses |
+	^ methodNode
+		ifNotNil: [ {(#default -> methodNode)} asDictionary ]
+		ifNil: [ 
+		  inlinedMethodClasses := self receiverType.
+		  (inlinedMethodClasses collect: [ :class | 
+			   class -> (class lookupSelector: self originAST selector) ast ]) asDictionary ]
+]
+
 { #category : #printing }
 DRMessageSend >> opcode [
 	
@@ -75,14 +117,11 @@ DRMessageSend >> opcode [
 { #category : #inlining }
 DRMessageSend >> receiverType [
 
-	| receiverClass typePragmas receiverName receiverTypePragma |
+	| typePragmas receiverName receiverTypePragmas |
 	typePragmas := self originAST methodNode allPragmasNamed: #var:type:.
 	receiverName := self originAST receiver name.
-	receiverTypePragma := typePragmas detect: [ :pragma | 
-		                      pragma arguments first value = receiverName ]
-		                      ifNone: [ ^ nil ].
-	receiverClass := self class environment at: (receiverTypePragma arguments last value).
-	^ receiverClass
+	receiverTypePragmas := typePragmas select: [ :pragma | pragma arguments first value = receiverName ].
+	^ receiverTypePragmas collect: [ :pragma | self class environment at: (pragma arguments last value) ]
 ]
 
 { #category : #SCCP }

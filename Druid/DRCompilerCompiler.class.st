@@ -83,7 +83,8 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 	irGenerator numberOfArguments: numArgs.
 	arguments := OrderedCollection new.
 	(numArgs > 0) ifTrue: [1 to: numArgs do: [ :i |
-		 loadArgumentInst := DRLoadArgument new operands: { i }; yourself.
+		 loadArgumentInst := "TODO: Use instructionFactory to create Result register"
+					DRLoadArgument new operands: { i }; yourself.
 		 initialBasicBlock addInstruction: loadArgumentInst.
 		 arguments add: loadArgumentInst ]].
 	

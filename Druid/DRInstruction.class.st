@@ -434,11 +434,12 @@ DRInstruction >> postCopy [
 
 { #category : #printing }
 DRInstruction >> prettyPrint [
-
+	
 	| print |
-	print := result ifNil: [ '' ] ifNotNil: [ result name , ' := ' ].
-	^ print , self opcode , ' '
-	  , (' ' join: (self operands collect: [ :e | e prettyPrint ]))
+	print := result
+		ifNil: [ '' ]
+		ifNotNil: [ result name, ' := ' ].
+	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result ifNotNil: [ e result name ] ]))
 ]
 
 { #category : #printing }

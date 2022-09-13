@@ -89,6 +89,14 @@ DruidTestInterpreter >> methodWithEarlyReturn [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithMultipleTypeAnnotations: aCollection [
+
+	<var: #aCollection type: #OrderedCollection>
+	<var: #aCollection type: #Dictionary>
+	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithNoTypeAnnotation: aCollection [
 	
 	^ aCollection select: [ :element | element even ]
