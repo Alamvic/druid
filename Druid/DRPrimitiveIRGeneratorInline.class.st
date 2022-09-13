@@ -17,13 +17,6 @@ DRPrimitiveIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 
 ]
 
-{ #category : #initialization }
-DRPrimitiveIRGeneratorInline >> initialize [
-	super initialize.
-	self currentPrimitiveFailureCode: (self newBasicBlock load:
-			 DRInterpreterReference primitiveFailureCodeAddress)
-]
-
 { #category : #accessing }
 DRPrimitiveIRGeneratorInline >> messageSend: aDRMessageSend [
 
