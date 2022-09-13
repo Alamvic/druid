@@ -56,13 +56,8 @@ DRMessageSend >> inline [
 	pieces first jumpTo: irGenerator newFirstBasicBlock.
 
 	irGenerator numberOfArguments: operands size - 1.
-	methodsToInline size = 1
-		ifTrue: [ 
-			inlinedMethodReturnValue := self generateInlineIRForMethod:
-				                            methodsToInline anyOne ]
-		ifFalse: [ 
-			inlinedMethodReturnValue := self generateInlineIRForMethods:
-				                            methodsToInline ].
+	
+	inlinedMethodReturnValue := self generateInlineIRForMethods: methodsToInline.
 
 	irGenerator currentBasicBlock jumpTo: pieces last.
 	"Remove message send block"
