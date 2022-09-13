@@ -38,6 +38,17 @@ DRInlineMethodTest >> testInlineMethodWithMultiplePossibleTypes [
 ]
 
 { #category : #tests }
+DRInlineMethodTest >> testInlineMethodWithNPossibleTypesMakesNMinus1TypeChecks [
+
+	| cfg messageSend |	
+	cfg := self generateDruidIRFor: #methodWithMultipleTypeAnnotations:.
+	messageSend := cfg messageSends first.
+	messageSend inline.
+
+	self assert: (cfg allConditionalJumps count: [:jump | jump condition isTypeOf]) equals: 1
+]
+
+{ #category : #tests }
 DRInlineMethodTest >> testNotInlineMethodWithNoTypeAnnotation [
 
 	| cfg messageSend |	

@@ -25,17 +25,22 @@ DRMessageSend >> generateInlineIRForMethods: methodsToInline [
 
 	| returnValues lastBlock |
 	returnValues := OrderedCollection new.
-	methodsToInline associationsDo: [ :classAndMethod | 
+	methodsToInline associations allButLastDo: [ :classAndMethod | 
 		| jump |
-		jump := irGenerator currentBasicBlock jumpIf: "This create a DRValue with the condition, should collapse the condition inside the conditional jump"
-			        (DRTypeOf typeClass: classAndMethod key).
+		jump := irGenerator currentBasicBlock endInstruction:
+			        (DRBranchIfCondition operands: { 
+					         (DRTypeOf typeClass: classAndMethod key).
+					         self receiver }).
 		jump newTrueBranch: irGenerator newBasicBlock.
 		returnValues add:
 			(self generateInlineIRForMethod: classAndMethod value).
-		jump newFalseBranch: irGenerator newBasicBlock.].
+		jump newFalseBranch: irGenerator newBasicBlock ].
+	returnValues add: (self generateInlineIRForMethod: methodsToInline values last).
 	lastBlock := irGenerator newBasicBlock.
-	returnValues do: [ :returnValue | returnValue basicBlock jumpTo: lastBlock ].
-	^ lastBlock addInstruction: (self instructionFactory phiWithVariables: returnValues). 
+	returnValues do: [ :returnValue | 
+		returnValue basicBlock jumpTo: lastBlock ].
+	^ lastBlock addInstruction:
+		  (self instructionFactory phiWithVariables: returnValues)
 ]
 
 { #category : #inlining }
@@ -112,6 +117,12 @@ DRMessageSend >> methodsToInline [
 DRMessageSend >> opcode [
 	
 	^ 'SEND'
+]
+
+{ #category : #accessing }
+DRMessageSend >> receiver [
+
+	^ self operand1
 ]
 
 { #category : #inlining }

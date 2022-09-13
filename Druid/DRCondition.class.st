@@ -28,6 +28,11 @@ DRCondition >> isOverflow [
 	^ false
 ]
 
+{ #category : #testing }
+DRCondition >> isTypeOf [
+	^ false
+]
+
 { #category : #printing }
 DRCondition >> prettyPrintWithBranch: aDRBranchIfCondition [
 

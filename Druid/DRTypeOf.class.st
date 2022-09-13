@@ -16,6 +16,11 @@ DRTypeOf class >> typeClass: aClass [
 	^ instance
 ]
 
+{ #category : #testing }
+DRTypeOf >> isTypeOf [
+	^ true
+]
+
 { #category : #accessing }
 DRTypeOf >> opcode [
 	
