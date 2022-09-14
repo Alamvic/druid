@@ -17,8 +17,8 @@ DRBasicBlockTest >> testBreakBlockCreateNewBlocks [
 	blocks := cfg reversePostOrderBlocks allButFirst. "Ignore initial block"
 
 	self assert: blocks size equals: 3.
-	self assertBlock: blocks first jumpTo: blocks second.
-	self assertBlock: blocks second jumpTo: blocks third.
+	self assertBlock: blocks first jumpsTo: blocks second.
+	self assertBlock: blocks second jumpsTo: blocks third.
 
 ]
 

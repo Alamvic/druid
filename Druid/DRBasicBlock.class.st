@@ -193,15 +193,14 @@ DRBasicBlock >> breakBy: instruction [
 	- the instruction to second (middle) predecessor.
 	- left remaining instructions (after the instruction) in this basic block (bottom)"
 
-	| upperPredecessor middlePredecessor splittedInstructions instructionsBefore |
+	| upperPredecessor middlePredecessor instructionsBefore |
 	instruction isPhiFunction ifTrue: [ 
 		self error: 'Phi instructions cannot break a basic block!' ].
 
 	upperPredecessor := self newEmptyPredecessor.
 	middlePredecessor := self newEmptyPredecessor.
 
-	splittedInstructions := self instructions allButLast splitOn: instruction.
-	instructionsBefore := splittedInstructions first. "self instructions allUntil: instruction"
+	instructionsBefore := self instructions allUntil: instruction.
 	instructionsBefore do: [ :i | 
 		self removeInstruction: i.
 		upperPredecessor addInstruction: i ].

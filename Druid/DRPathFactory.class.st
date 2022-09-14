@@ -57,12 +57,12 @@ DRPathFactory >> generatePaths [
 	| maxBatch done |
 	self createInitialEdge.
 	
-	maxBatch := 15600.
+	maxBatch := 6000.
 	done := Set new.
 	
 	{ cfg edges first } asOrderedCollection whileNotEmpty: [ :parentEdge :worklist :backJumps | 
 		| sourceBlock |
-		worklist size > maxBatch ifTrue: [ 1halt.^ self ].
+		worklist size > maxBatch ifTrue: [ 1halt "Too much work: should stop path-based optimisations" ].
 		sourceBlock := parentEdge destination.
 		sourceBlock successors withIndexDo: [ :successor :index | 
 			| newEdge shouldStop |			

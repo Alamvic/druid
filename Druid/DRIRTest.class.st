@@ -29,7 +29,7 @@ DRIRTest >> assertBlock: aBlock hasSameInstructions: expectedInstructions [
 ]
 
 { #category : #assertions }
-DRIRTest >> assertBlock: aBlock jumpTo: nextBlock [
+DRIRTest >> assertBlock: aBlock jumpsTo: nextBlock [
 
 	self assert: (aBlock successors includes: nextBlock).
 
@@ -54,7 +54,7 @@ DRIRTest >> configureInterpreter [
 ]
 
 { #category : #assertions }
-DRIRTest >> deny: aConstraint includes: includedConstraint [
+DRIRTest >> denyConstraint: aConstraint includes: includedConstraint [
 
 	self deny: (aConstraint includes: includedConstraint)
 ]

@@ -7,6 +7,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #visiting }
+DRMessageSend >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitMessageSend: self
+]
+
 { #category : #inlining }
 DRMessageSend >> inline [
 
