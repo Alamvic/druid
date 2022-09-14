@@ -443,7 +443,7 @@ DRControlFlowGraph >> pathAt: index [
 
 	| lastEdge |
 	lastEdge := (self incomingEdgesFor: self lastBasicBlock) at: index.
-	^ { lastEdge } , lastEdge ancestors
+	^ lastEdge ancestors , { lastEdge }
 ]
 
 { #category : #accessing }
