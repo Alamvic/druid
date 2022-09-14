@@ -231,12 +231,6 @@ DRInstruction >> isBranchIfTrue [
 ]
 
 { #category : #testing }
-DRInstruction >> isCode [
-
-	^ false
-]
-
-{ #category : #testing }
 DRInstruction >> isConditionalBranch [
 	
 	^ false

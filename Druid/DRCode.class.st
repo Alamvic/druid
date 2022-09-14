@@ -17,12 +17,6 @@ DRCode >> codeNode [
 ]
 
 { #category : #testing }
-DRCode >> isCode [
-
-	^ true
-]
-
-{ #category : #testing }
 DRCode >> isMandatoryInstruction [
 
 	^ true
