@@ -21,20 +21,6 @@ DRAnd >> asNumberedExpression [
 	yourself
 ]
 
-{ #category : #visiting }
-DRAnd >> cogitFalseConditionCode [
-	
-	"Jump false if the constant is a zero"
-	^ #JumpZero:
-]
-
-{ #category : #visiting }
-DRAnd >> cogitTrueConditionCode [
-	
-	"Jump false if the constant is a zero"
-	^ #JumpNonZero:
-]
-
 { #category : #printing }
 DRAnd >> opcode [
 	

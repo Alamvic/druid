@@ -42,6 +42,18 @@ DRCompilerCompiler >> compilerClass: anObject [
 ]
 
 { #category : #'generation-IR' }
+DRCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method [
+	
+	"Create the initial basic block"
+	| startBlock initialBasicBlock initial |
+	startBlock := irGenerator initialBasicBlock.
+	initialBasicBlock := irGenerator newBasicBlock.
+	startBlock jumpTo: initialBasicBlock.
+
+	irGenerator currentPrimitiveFailureCode: (initial := initialBasicBlock copy: 0)
+]
+
+{ #category : #'generation-IR' }
 DRCompilerCompiler >> customise [
 
 	^ self customiseFor: self sourceMethod
@@ -98,7 +110,7 @@ DRCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 
 	^ codeGenerator
 		  generateTargetASTFromIR: aDRControlFlowGraph
-		  primitiveName: self primitiveCompilerName
+		  methodName: self targetName
 ]
 
 { #category : #'generation-IR' }
@@ -180,8 +192,15 @@ DRCompilerCompiler >> sourceName: anObject [
 	sourceName := anObject
 ]
 
+{ #category : #'code-generation' }
+DRCompilerCompiler >> targetName [
+
+	self subclassResponsibility
+]
+
 { #category : #'ast-to-source' }
 DRCompilerCompiler >> writeAST: aRBMethodNode [ 
 	
 	compilerClass compile: (aRBMethodNode formattedCodeIn: self class) classified: #generated
+
 ]

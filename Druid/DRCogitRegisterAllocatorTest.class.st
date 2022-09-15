@@ -9,7 +9,7 @@ DRCogitRegisterAllocatorTest >> testAllocatePhiFunction [
 
 	| cfg firstRegister specialRegister c1 b1 c2 b2 merge |
 
-	specialRegister := DRPhysicalRegister name: 'Receiver'.
+	specialRegister := DRPhysicalGeneralPurposeRegister name: 'Receiver'.
 	cfg := DRControlFlowGraph new.
 	b1 := cfg newBasicBlockWith: [ :block |
 		c1 := block copy: 1 ].
@@ -21,9 +21,9 @@ DRCogitRegisterAllocatorTest >> testAllocatePhiFunction [
 	b2 jumpTo: merge.
 	merge phiWith: c1 with: c2.
 	
-	firstRegister := DRPhysicalRegister name: 'PR1'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister };
+		integerRegisters: { firstRegister };
 		allocateRegistersIn: cfg.
 
 	"Check that operands and phi function are coallesced"
@@ -45,10 +45,10 @@ DRCogitRegisterAllocatorTest >> testAllocateRegistersForDivisionIntroducesRemain
 		r2 := block divide: r0 by: r1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	firstRegister := DRPhysicalRegister name: 'PR1'.
-	secondRegister := DRPhysicalRegister name: 'PR2'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister. secondRegister };
+		integerRegisters: { firstRegister. secondRegister };
 		allocateRegistersIn: cfg.
 	
 	self assert: basicBlock instructions first result equals: firstRegister.
@@ -78,10 +78,10 @@ DRCogitRegisterAllocatorTest >> testAllocateRegistersForModuloIntroducesQuotient
 		r2 := block modulo: r0 by: r1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	firstRegister := DRPhysicalRegister name: 'PR1'.
-	secondRegister := DRPhysicalRegister name: 'PR2'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister. secondRegister };
+		integerRegisters: { firstRegister. secondRegister };
 		allocateRegistersIn: cfg.
 	
 	self assert: basicBlock instructions first result equals: firstRegister.
@@ -102,7 +102,7 @@ DRCogitRegisterAllocatorTest >> testAllocateTwoSpilledPhiFunctions [
 
 	| cfg specialRegister c1 b1 c2 b2 merge c12 c22 p1 p2 |
 
-	specialRegister := DRPhysicalRegister name: 'Receiver'.
+	specialRegister := DRPhysicalGeneralPurposeRegister name: 'Receiver'.
 	cfg := DRControlFlowGraph new.
 	b1 := cfg newBasicBlockWith: [ :block |
 		c1 := block copy: 1.
@@ -121,7 +121,7 @@ DRCogitRegisterAllocatorTest >> testAllocateTwoSpilledPhiFunctions [
 	merge add: p1 to: p2.
 	
 	DRCogitLinearScanRegisterAllocator new
-		registers: { };
+		integerRegisters: { };
 		allocateRegistersIn: cfg.
 
 	"Add operands are loaded"
@@ -143,15 +143,15 @@ DRCogitRegisterAllocatorTest >> testCmpSpecialRegisterDoesNotModifyInstruction [
 	PR1 := greater PR1 1
 	"
 
-	specialRegister := DRPhysicalRegister name: 'Receiver'.
+	specialRegister := DRPhysicalGeneralPurposeRegister name: 'Receiver'.
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
 		r0 := block greater: specialRegister than: 1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	firstRegister := DRPhysicalRegister name: 'PR1'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister };
+		integerRegisters: { firstRegister };
 		allocateRegistersIn: cfg.
 
 	self assert: basicBlock instructions first isCopy. 
@@ -177,15 +177,15 @@ DRCogitRegisterAllocatorTest >> testCmpSpecialRegisterDoesNotModifyInstructionIn
 
 	"
 
-	specialRegister := DRPhysicalRegister name: 'Receiver'.
+	specialRegister := DRPhysicalGeneralPurposeRegister name: 'Receiver'.
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
 		r0 := block greater: 1 than: specialRegister ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	firstRegister := DRPhysicalRegister name: 'PR1'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister };
+		integerRegisters: { firstRegister };
 		allocateRegistersIn: cfg.
 
 	self assert: basicBlock instructions first isCopy. 
@@ -230,11 +230,11 @@ DRCogitRegisterAllocatorTest >> testCoallesceTwoConsecutiveRanges [
 		r3 := block add: r2 to: r1. ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	firstRegister := DRPhysicalRegister name: 'PR1'.
-	secondRegister := DRPhysicalRegister name: 'PR2'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
 
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister. secondRegister };
+		integerRegisters: { firstRegister. secondRegister };
 		allocateRegistersIn: cfg.
 	
 	self assert: basicBlock instructions first result equals: firstRegister.
@@ -290,12 +290,12 @@ DRCogitRegisterAllocatorTest >> testCoallesceTwoOverlappingRanges [
 		t4 := block copy: t2. ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	firstRegister := DRPhysicalRegister name: 'PR1'.
-	secondRegister := DRPhysicalRegister name: 'PR2'.
-	thirdRegister := DRPhysicalRegister name: 'PR3'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
+	thirdRegister := DRPhysicalGeneralPurposeRegister name: 'PR3'.
 
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister. secondRegister. thirdRegister };
+		integerRegisters: { firstRegister. secondRegister. thirdRegister };
 		allocateRegistersIn: cfg.
 	
 	self assert: basicBlock instructions first result equals: firstRegister.
@@ -356,12 +356,12 @@ DRCogitRegisterAllocatorTest >> testCoallesceTwoOverlappingRanges2 [
 	
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	firstRegister := DRPhysicalRegister name: 'PR0'.
-	secondRegister := DRPhysicalRegister name: 'PR1'.
-	thirdRegister := DRPhysicalRegister name: 'PR2'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR0'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	thirdRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
 
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister. secondRegister. thirdRegister };
+		integerRegisters: { firstRegister. secondRegister. thirdRegister };
 		allocateRegistersIn: cfg.
 
 	self assert: basicBlock instructions first result equals: firstRegister.
@@ -403,10 +403,10 @@ DRCogitRegisterAllocatorTest >> testFirstArgumentFarDefinitionNotUsed [
 		r2 := block add: r0 to: r1. ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	firstRegister := DRPhysicalRegister name: 'PR1'.
-	secondRegister := DRPhysicalRegister name: 'PR2'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister. secondRegister };
+		integerRegisters: { firstRegister. secondRegister };
 		allocateRegistersIn: cfg.
 	
 	self assert: basicBlock instructions first result equals: firstRegister.
@@ -438,9 +438,9 @@ DRCogitRegisterAllocatorTest >> testFirstArgumentIsConstant [
 		r1 := block add: 1 to: r0.].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	firstRegister := DRPhysicalRegister name: 'PR1'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister };
+		integerRegisters: { firstRegister };
 		allocateRegistersIn: cfg.
 	
 	self assert: basicBlock instructions first result equals: firstRegister.
@@ -475,10 +475,10 @@ DRCogitRegisterAllocatorTest >> testFirstArgumentNotUsed [
 		r2 := block add: r1 to: r0. ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	firstRegister := DRPhysicalRegister name: 'PR1'.
-	secondRegister := DRPhysicalRegister name: 'PR2'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister. secondRegister };
+		integerRegisters: { firstRegister. secondRegister };
 		allocateRegistersIn: cfg.
 	
 	self assert: basicBlock instructions first result equals: firstRegister.
@@ -500,16 +500,16 @@ DRCogitRegisterAllocatorTest >> testFirstArgumentSpecialRegisterShouldAddMove [
 	R1 := Receiver.
 	R1 := 1 + R1.
 	"
-	physicalRegister := DRPhysicalRegister name: 'Receiver'.
+	physicalRegister := DRPhysicalGeneralPurposeRegister name: 'Receiver'.
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r1 |
 		"R1 := 1 + Receiver"
 		r1 := block add: 1 to: physicalRegister.].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	firstRegister := DRPhysicalRegister name: 'PR1'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister };
+		integerRegisters: { firstRegister };
 		allocateRegistersIn: cfg.
 	
 	"Copt was inserted R1 := Receiver."
@@ -564,11 +564,11 @@ DRCogitRegisterAllocatorTest >> testFirstArgumentUsedCreatesCopy [
 	cfg initialBasicBlock jumpTo: basicBlock.
 
 
-	firstRegister := DRPhysicalRegister name: 'PR0'.
-	secondRegister := DRPhysicalRegister name: 'PR1'.
-	thirdRegister := DRPhysicalRegister name: 'PR2'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR0'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	thirdRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister. secondRegister. thirdRegister };
+		integerRegisters: { firstRegister. secondRegister. thirdRegister };
 		allocateRegistersIn: cfg.
 	
 	self assert: basicBlock instructions first result equals: firstRegister.
@@ -608,10 +608,10 @@ DRCogitRegisterAllocatorTest >> testSecondArgumentIsConstant [
 		r1 := block add: r0 to: 1.].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	firstRegister := DRPhysicalRegister name: 'PR1'.
-	secondRegister := DRPhysicalRegister name: 'PR2'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister. secondRegister };
+		integerRegisters: { firstRegister. secondRegister };
 		allocateRegistersIn: cfg.
 	
 	self assert: basicBlock instructions first result equals: firstRegister.
@@ -653,10 +653,10 @@ DRCogitRegisterAllocatorTest >> testSecondArgumentUsedButNotFirst [
 		r3 := block copy: r0. ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	firstRegister := DRPhysicalRegister name: 'PR1'.
-	secondRegister := DRPhysicalRegister name: 'PR2'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister. secondRegister };
+		integerRegisters: { firstRegister. secondRegister };
 		allocateRegistersIn: cfg.
 	
 	self assert: basicBlock instructions first result equals: firstRegister.
@@ -679,15 +679,15 @@ DRCogitRegisterAllocatorTest >> testTestSpecialRegisterDoesNotModifyInstruction 
 	PR1 := PR1 Test 1
 	"
 	
-	specialRegister := DRPhysicalRegister name: 'Receiver'.
+	specialRegister := DRPhysicalGeneralPurposeRegister name: 'Receiver'.
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
 		r0 := block anyMask: specialRegister with: 1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	firstRegister := DRPhysicalRegister name: 'PR1'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister };
+		integerRegisters: { firstRegister };
 		allocateRegistersIn: cfg.
 
 	self assert: basicBlock instructions first isCopy. 
@@ -713,15 +713,15 @@ DRCogitRegisterAllocatorTest >> testTestSpecialRegisterDoesNotModifyInstructionI
 	"
 	
 
-	specialRegister := DRPhysicalRegister name: 'Receiver'.
+	specialRegister := DRPhysicalGeneralPurposeRegister name: 'Receiver'.
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
 		r0 := block anyMask: 1 with: specialRegister ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	firstRegister := DRPhysicalRegister name: 'PR1'.
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
 	DRCogitLinearScanRegisterAllocator new
-		registers: { firstRegister };
+		integerRegisters: { firstRegister };
 		allocateRegistersIn: cfg.
 
 	self assert: basicBlock instructions first isCopy. 

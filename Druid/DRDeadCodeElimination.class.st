@@ -54,6 +54,12 @@ DRDeadCodeElimination >> applyTo: cfg [
 ]
 
 { #category : #operations }
+DRDeadCodeElimination >> dependenciesOf: anInstruction [
+	
+	^ anInstruction dependencies select: [ :op | op isInstruction ]
+]
+
+{ #category : #operations }
 DRDeadCodeElimination >> initialize [ 
 
 	markedInstructions := IdentitySet new. 
@@ -82,7 +88,7 @@ DRDeadCodeElimination >> markInstructions [
 					 b endInstruction ]).
 			
 			"Consider for marking all dependencies of the current instruction"
-			workList addAll: (self usesOf: instruction) ] ]
+			workList addAll: (self dependenciesOf: instruction) ] ]
 ]
 
 { #category : #operations }
@@ -98,10 +104,4 @@ DRDeadCodeElimination >> sweepInstructions: cfg [
 		(markedInstructions includes: i) ifFalse: [ toRemove add: i ] ].
 	
 	toRemove do: [ :i | i removeFromCFG ]
-]
-
-{ #category : #operations }
-DRDeadCodeElimination >> usesOf: anInstruction [
-	
-	^ anInstruction operands select: [ :op | op isInstruction ]
 ]

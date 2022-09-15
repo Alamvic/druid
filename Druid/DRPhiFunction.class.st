@@ -45,26 +45,9 @@ DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [
 	operands addLast: anInstruction
 ]
 
-{ #category : #'cogit-generation' }
-DRPhiFunction >> cogitConditionCode: selector [
-	
-	| codeSet |
-	codeSet := operands collect: selector as: Set.
-	codeSet size > 1
-		ifTrue: [ self error: 'Cannot generate condition code for this phi function' ].
-	^ codeSet anyOne 
-]
-
-{ #category : #'cogit-generation' }
-DRPhiFunction >> cogitFalseConditionCode [
-
-	^ self cogitConditionCode: #cogitFalseConditionCode
-]
-
-{ #category : #'cogit-generation' }
-DRPhiFunction >> cogitTrueConditionCode [
-	
-	^ self cogitConditionCode: #cogitTrueConditionCode
+{ #category : #accessing }
+DRPhiFunction >> canMoveOutsideLoopWith: backJump [
+	^ false
 ]
 
 { #category : #testing }
@@ -92,6 +75,15 @@ DRPhiFunction >> isDominatedBy: anotherOperand [
 DRPhiFunction >> isEmpty [
 	
 	^ operands isEmpty 
+]
+
+{ #category : #'loop-invariance' }
+DRPhiFunction >> isInvariantFrom: loopPredecessor [ 
+
+	"This was thinking for phi inside loop header block. 
+	The invariance from the loop body is correct if there is not changes of the variable inside the loop => value for that predecessor is null"
+
+	^ (self valuesForPredecessor: loopPredecessor) anySatisfy: #isNullValue.
 ]
 
 { #category : #testing }
@@ -171,6 +163,16 @@ DRPhiFunction >> result [
 	^ result ifNil: [ self ]
 ]
 
+{ #category : #'loop-invariance' }
+DRPhiFunction >> rewirePhiTo: destinationBlock [
+
+	| newOperandValues phiReplacement |
+	newOperandValues := self valuesForPredecessor: destinationBlock.
+	self assert: [ newOperandValues size = 1 ].
+	phiReplacement := self instructionFactory copy: newOperandValues anyOne.
+	self replaceBy: phiReplacement
+]
+
 { #category : #'cogit-generation' }
 DRPhiFunction >> rtlOperandQualifier [
 	
@@ -205,6 +207,21 @@ DRPhiFunction >> type [
 
 	"Assume all my operands have the correct type"
 	^ self operands anyOne type
+]
+
+{ #category : #simplification }
+DRPhiFunction >> typeWithAlreadySeen: aCollection [
+
+	(aCollection includes: self)
+		ifTrue: [ ^ nil ].
+	
+	aCollection add: self.
+	self operands do: [ :e | | operandType |
+		operandType := e typeWithAlreadySeen: aCollection.
+		"If nil it means it's a recursive type, we continue with the next operand"
+		operandType ifNotNil: [ ^ operandType ] ].
+	
+	self halt
 ]
 
 { #category : #accessing }

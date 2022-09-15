@@ -58,7 +58,7 @@ DRCopyPropagationTest >> testCopyIsPropagatedInBlockSequence [
 	| cfg t1 t2 b1 b2 |
 	cfg := DRControlFlowGraph new.
 	b1 := cfg newBasicBlockWith: [ :block |
-		t1 := block copy: (DRPhysicalRegister name: 'argument').
+		t1 := block copy: (DRPhysicalGeneralPurposeRegister name: 'argument').
 	].
 
 	b1 jumpTo: (b2 := cfg newBasicBlockWith: [ :block |
@@ -76,7 +76,7 @@ DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlock [
 	| cfg t1 t2 t3 |
 	cfg := DRControlFlowGraph new.
 	cfg newBasicBlockWith: [ :block |
-		t1 := block copy: (DRPhysicalRegister name: 'argument').
+		t1 := block copy: (DRPhysicalGeneralPurposeRegister name: 'argument').
 		t2 := block copy: t1.
 		t3 := block copy: t2.
 	].
@@ -92,7 +92,7 @@ DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlockToManyInstructions [
 	| cfg t1 t2 t3 |
 	cfg := DRControlFlowGraph new.
 	cfg newBasicBlockWith: [ :block |
-		t1 := block copy: (DRPhysicalRegister name: 'argument').
+		t1 := block copy: (DRPhysicalGeneralPurposeRegister name: 'argument').
 		t2 := block copy: t1.
 		t3 := block copy: t1.
 	].
@@ -108,7 +108,7 @@ DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlockWithSequencesOfUsages 
 	| cfg t1 t2 t3 t4 t5 |
 	cfg := DRControlFlowGraph new.
 	cfg newBasicBlockWith: [ :block |
-		t1 := block copy: (DRPhysicalRegister name: 'argument').
+		t1 := block copy: (DRPhysicalGeneralPurposeRegister name: 'argument').
 		t2 := block copy: t1.
 		t3 := block copy: t2.
 		t4 := block copy: t3.

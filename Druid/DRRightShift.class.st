@@ -15,3 +15,9 @@ DRRightShift >> opcode [
 	
 	^ 'RightShift'
 ]
+
+{ #category : #types }
+DRRightShift >> type [
+	
+	^ DRIntegerType new
+]

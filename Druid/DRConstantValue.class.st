@@ -29,20 +29,6 @@ DRConstantValue >> acceptVisitor: aVisitor [
 	^ aVisitor visitConstant: self
 ]
 
-{ #category : #'rtl-translation' }
-DRConstantValue >> cogitFalseConditionCode [
-	
-	"Jump false if the constant is a zero"
-	^ #JumpNonZero:
-]
-
-{ #category : #'rtl-translation' }
-DRConstantValue >> cogitTrueConditionCode [
-	
-	"Jump false if the constant is a zero"
-	^ #JumpZero:
-]
-
 { #category : #testing }
 DRConstantValue >> hash [
 
@@ -67,10 +53,27 @@ DRConstantValue >> isCopy [
 	^ false
 ]
 
+{ #category : #'loop-invariance' }
+DRConstantValue >> isInvariantFrom: aDRBasicBlock [ 
+	^ true
+]
+
+{ #category : #testing }
+DRConstantValue >> isJitCompileTimeExpression [
+	
+	^ value isJitCompileTimeExpression
+]
+
 { #category : #testing }
 DRConstantValue >> isNumberValue [
 
 	^ value isNumber
+]
+
+{ #category : #testing }
+DRConstantValue >> jitCompileTimeExpression [
+
+	^ RBLiteralValueNode value: value
 ]
 
 { #category : #interpretation }
@@ -119,7 +122,7 @@ DRConstantValue >> type [
 	value = nil ifTrue: [ ^ DRTopType new ].
 	(#(true false) includes: value) ifTrue: [ ^ DRBooleanType new ].
 	value isInteger ifTrue: [ ^ DRIntegerType new ].
-	^ self notYetImplemented.
+	^ value class
 ]
 
 { #category : #accessing }

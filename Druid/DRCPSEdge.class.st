@@ -315,11 +315,29 @@ DRCPSEdge >> visitFalseObject: aDRFalseObject [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitFloatToIntConversion: aDRFloatToInt [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [
 
 	^ aDRGetConditionCode condition
 		  acceptVisitor: self
 		  withBranch: aDRGetConditionCode
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitGetFloatBits: aDRGetFloatBits [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitGetFloatFromBits: aDRGetFloatFromBits [ 
+	
+	^ nil
 ]
 
 { #category : #visiting }
@@ -339,6 +357,12 @@ DRCPSEdge >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranch [
 		  visitComparison: aDRGreaterThanComparison
 		  ofBranch: aDRBranch
 		  andDo: [ :reg :value | DRRegisterDomain greater: reg than: value ]
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitIntToFloatConversion: aDRIntToFloat [ 
+	
+	^ nil
 ]
 
 { #category : #visiting }

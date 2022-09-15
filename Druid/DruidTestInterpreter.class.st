@@ -55,6 +55,14 @@ DruidTestInterpreter >> ifZeroFailPrimitive [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> jitCompileTimeIntegerExpression [
+
+	<druidJITCompileTimeExpression>
+	
+	^ objectMemory trueObject
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> lazyAssert [
 
 	<druidNotInline>
@@ -144,6 +152,16 @@ DruidTestInterpreter >> primitiveAnd [
 		ifFalse: [ result := 10 ].
 
 	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveArithmeticBitShiftRight [
+
+	<numberOfArguments: 1>
+	| receiver argument |
+	receiver := self stackValue: 1.
+	argument := self stackTop.
+	self pop: 2 thenPush: (receiver >>> argument)
 ]
 
 { #category : #'as yet unclassified' }
@@ -367,6 +385,21 @@ DruidTestInterpreter >> primitiveChangingVariableInOnePath [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveClassVariable [
+
+	<numberOfArguments: 0>
+
+	self pop: 1 thenPush: ClassFloatCompactIndex
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveClassVariableWithBranch [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: (self returnArg: ClassFloatCompactIndex)
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveConditionWithAnyMask [
 
 	<numberOfArguments: 0>
@@ -533,6 +566,15 @@ DruidTestInterpreter >> primitiveEqualsThan [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveEqualsThanFloats [
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush: self stackTop asFloat = (self stackValue: 1) asFloat
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveEqualsThanInverted [
 	"Put the constant as the receiver"
 	<numberOfArguments: 0>
@@ -567,6 +609,15 @@ DruidTestInterpreter >> primitiveFalseAsInteger [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFalseAssignmentAsInteger [
+
+	<numberOfArguments: 0>
+	| bool |
+	bool := false.
+	self pop: 1 thenPush: bool asInteger
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveFalseIfTrue [
 
 	<numberOfArguments: 0>
@@ -581,7 +632,85 @@ DruidTestInterpreter >> primitiveFalseNot [
 
 	<numberOfArguments: 0>
 	
-	self pop: 1 thenPush: false not
+	self pop: 1 thenPush: false not asInteger
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFloat64At [
+
+	<numberOfArguments: 0>
+	| addressToRead |
+	addressToRead := self stackTop.
+	self
+		pop: 1
+		thenPush: (objectMemory float64At: addressToRead) rawFloatBits
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFloat64AtPut [
+
+	<numberOfArguments: 1>
+	
+	| addressToRead valueToStore |
+	valueToStore := self stackTop.
+	addressToRead := self stackValue: 1.
+	objectMemory float64At: addressToRead put: valueToStore asFloat
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFloatAdd [
+
+	"Transform the integers as float.
+	Add the floats.
+	Then read the result raw representation and push that to the stack."
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush:
+		(self stackTop asFloat + (self stackValue: 1) asFloat) rawFloatBits
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFloatDivide [
+
+	"Transform the integers as float.
+	Add the floats.
+	Then read the result raw representation and push that to the stack."
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush:
+		(self stackTop asFloat / (self stackValue: 1) asFloat) rawFloatBits
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFloatMultiply [
+
+	"Transform the integers as float.
+	Add the floats.
+	Then read the result raw representation and push that to the stack."
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush:
+		(self stackTop asFloat * (self stackValue: 1) asFloat) rawFloatBits
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFloatSubtract [
+
+	"Transform the integers as float.
+	Add the floats.
+	Then read the result raw representation and push that to the stack."
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush:
+		(self stackTop asFloat - (self stackValue: 1) asFloat) rawFloatBits
 ]
 
 { #category : #comparisons }
@@ -601,6 +730,15 @@ DruidTestInterpreter >> primitiveGreaterOrEqualsThan [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveGreaterOrEqualsThanFloats [
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush: self stackTop asFloat >= (self stackValue: 1) asFloat
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveGreaterOrEqualsThanInverted [
 	"Put the constant as the receiver"
 	<numberOfArguments: 0>
@@ -616,6 +754,15 @@ DruidTestInterpreter >> primitiveGreaterThan [
 	| r |
 	r := self stackTop > 10 ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveGreaterThanFloats [
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush: self stackTop asFloat > (self stackValue: 1) asFloat
 ]
 
 { #category : #'as yet unclassified' }
@@ -772,6 +919,15 @@ DruidTestInterpreter >> primitiveInnerBranchingWithDeadBranches [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIntegerAsFloat [
+
+	<numberOfArguments: 0>
+	"Transform the integer argument as float.
+	Then read its raw representation and push that to the stack."
+	self pop: 1 thenPush: self stackTop asFloat rawFloatBits
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveIntegerDivide [
 
 	<numberOfArguments: 1>
@@ -792,11 +948,27 @@ DruidTestInterpreter >> primitiveIntegerDivideByConstant [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveIntegerRawBitsAsFloat [
+
+	<numberOfArguments: 0>
+	"Transform the integer argument as float.
+	Then read its raw representation and push that to the stack."
+	self pop: 1 thenPush: self stackTop float64FromRawBits asInteger
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveIsIntegerObject [
 
 	<numberOfArguments: 0>
 
 	self pop: 1 thenPush: (objectMemory booleanObjectOf: (objectMemory isIntegerObject: self stackTop))
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveJITCompileTimeExpression [
+
+	<numberOfArguments: 0>
+	self pop: 1 thenPush: self jitCompileTimeIntegerExpression + 5
 ]
 
 { #category : #comparisons }
@@ -816,6 +988,15 @@ DruidTestInterpreter >> primitiveLessOrEqualsThan [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLessOrEqualsThanFloats [
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush: self stackTop asFloat <= (self stackValue: 1) asFloat
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveLessOrEqualsThanInverted [
 	"Put the constant as the receiver"
 
@@ -832,6 +1013,15 @@ DruidTestInterpreter >> primitiveLessThan [
 	| r |
 	r := self stackTop < 10 ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLessThanFloats [
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush: self stackTop asFloat < (self stackValue: 1) asFloat
 ]
 
 { #category : #'as yet unclassified' }
@@ -868,6 +1058,55 @@ DruidTestInterpreter >> primitiveLoopIncrementingGlobalState [
 	self pop: 1 thenPush: 10.
 	[self stackTop < 15] whileTrue: [
 		self pop: 1 thenPush: self stackTop + 1 ]
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithInvariant [
+
+	<numberOfArguments: 0>
+	| result invariant |
+	result := 0.
+	[result < 15] whileTrue: [
+	 invariant := 1 * self stackTop.
+	 result := result + invariant ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithLoopInvariantInstructionInsideIf [
+
+	<numberOfArguments: 0>
+	| result invariant n |
+	result := 0.
+	n := 0.
+	[ result < 15 ] whileTrue: [
+	   (n < 20) ifTrue: [ invariant := 2 * self stackTop ].
+	   n := n + 1.
+		result := result + invariant ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithLoopVariantInstruction [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 0.
+	[ result < 15 ] whileTrue: [ result := result + self stackTop ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithMultipleInvariants [
+
+	<numberOfArguments: 0>
+	| result invariant invariant2 |
+	result := 0.
+	[result < 15] whileTrue: [
+	 invariant := 1 * self stackTop.
+	 invariant2 := invariant + 4.
+	 result := result + invariant2 ].
+	self pop: 1 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }
@@ -940,6 +1179,21 @@ DruidTestInterpreter >> primitiveNegated [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNestedLoopWithInvariant [
+
+	<numberOfArguments: 0>
+	| result invariant n |
+	result := 0.
+	n := 0.
+	[ result < 15 ] whileTrue: [ 
+		[ n < 10 ] whileTrue: [ 
+			invariant := 2 * self stackTop.
+			n := n + 1 ].
+		result := result + invariant ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveNextUint16At [
 
 	<numberOfArguments: 0>
@@ -953,12 +1207,32 @@ DruidTestInterpreter >> primitiveNextUint16At [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNoopLoopWithInvariant [
+
+	<numberOfArguments: 0>
+	| result n |
+	result := 3.
+	n := self stackTop.
+	[ n < 10 ] whileTrue: [ result := 5 . n := n + 1 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveNotEqualsThan [
 
 	<numberOfArguments: 0>
 	| r |
 	r := self stackTop ~= 10 ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNotEqualsThanFloats [
+
+	<numberOfArguments: 1>
+	self
+		pop: 2
+		thenPush: self stackTop asFloat ~= (self stackValue: 1) asFloat
 ]
 
 { #category : #'as yet unclassified' }
@@ -1077,6 +1351,24 @@ DruidTestInterpreter >> primitiveToDo [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveTrueAssignmentAsInteger [
+
+	<numberOfArguments: 0>
+	| bool |
+	bool := true.
+	self pop: 1 thenPush: bool asInteger
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveTrueAssignmentAsIntegerShifted [
+
+	<numberOfArguments: 0>
+	| bool |
+	bool := true.
+	self pop: 1 thenPush: bool asInteger << 1
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveTrueIfTrue [
 
 	<numberOfArguments: 0>
@@ -1091,7 +1383,7 @@ DruidTestInterpreter >> primitiveTrueNot [
 
 	<numberOfArguments: 0>
 	
-	self pop: 1 thenPush: true not
+	self pop: 1 thenPush: true not asInteger
 ]
 
 { #category : #'as yet unclassified' }
@@ -1291,4 +1583,14 @@ DruidTestInterpreter >> primitiveWithSequentialExitPoint [
 	This primitive always fails and all is dead code"
 	self nonCompilableMethod.
 	self pop: 1 thenPush: r.
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> returnArg: argument [
+
+	| acc |
+	acc := self stackTop = 0
+		ifTrue: [ 1 ]
+		ifFalse: [ 2 ].
+	^ argument + acc
 ]

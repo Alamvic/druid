@@ -13,6 +13,12 @@ DRStore >> acceptVisitor: aVisitor [
 	^ aVisitor visitStore: self
 ]
 
+{ #category : #testing }
+DRStore >> canMoveOutsideLoopWith: backJump [
+
+	^ false
+]
+
 { #category : #visiting }
 DRStore >> isMandatoryInstruction [ 
 
@@ -42,4 +48,9 @@ DRStore >> operands: operandList [
 DRStore >> size [
 
 	^ size
+]
+
+{ #category : #types }
+DRStore >> type [
+	self shouldBeImplemented.
 ]

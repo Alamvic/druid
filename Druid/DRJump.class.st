@@ -22,6 +22,14 @@ DRJump >> acceptVisitor: aVisitor [
 ]
 
 { #category : #accessing }
+DRJump >> backJumpTargets [
+
+	^ isBackJump
+		  ifTrue: [ Set with: target ]
+		  ifFalse: [ Set new ]
+]
+
+{ #category : #accessing }
 DRJump >> beBackJump [
 	
 	isBackJump := true
@@ -45,6 +53,11 @@ DRJump >> beForwardJumpTo: aDRBasicBlock [
 
 	self assert: aDRBasicBlock = target.
 	self beForwardJump
+]
+
+{ #category : #testing }
+DRJump >> canMoveOutsideLoopWith: backJump [
+	^ false
 ]
 
 { #category : #visiting }

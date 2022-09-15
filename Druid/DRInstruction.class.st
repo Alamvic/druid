@@ -33,6 +33,12 @@ DRInstruction class >> operands: aCollection result: aResultRegister [
 		yourself
 ]
 
+{ #category : #'instance creation' }
+DRInstruction class >> result: aResultRegister [
+
+	^ self operands: #() result: aResultRegister
+]
+
 { #category : #testing }
 DRInstruction >> = anObject [ 
 
@@ -74,14 +80,6 @@ DRInstruction >> addUser: anInstruction [
 	users add: anInstruction
 ]
 
-{ #category : #memory }
-DRInstruction >> asMemoryAddress [
-
-	^ DRAbsoluteMemoryAddress new
-		  address: self;
-		  yourself
-]
-
 { #category : #accessing }
 DRInstruction >> asNumberedExpression [
 
@@ -111,6 +109,13 @@ DRInstruction >> breakBasicBlock [
 	self basicBlock breakBy: self
 ]
 
+{ #category : #'loop-invariance' }
+DRInstruction >> canMoveOutsideLoopWith: backJump [
+
+	^ self operands allSatisfy: [ :operand | 
+		operand isInvariantFrom: backJump basicBlock ]
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> clearUsers [
 
@@ -128,6 +133,12 @@ DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode
 	
 	"I'm an already an instruction with a value. No need to do anything"
 	^ self
+]
+
+{ #category : #testing }
+DRInstruction >> hasDependency: anInstruction [
+	
+	^ self hasOperand: anInstruction
 ]
 
 { #category : #testing }
@@ -191,7 +202,7 @@ DRInstruction >> inspectionDependencies: aBuilder [
 	eb canvas: view.
 	eb withBorderAttachPoint.
 	eb 	shapes: blockViews.
-	eb connectToAll: #operands.
+	eb connectToAll: #dependencies.
 	
 	"All the characters are displayed using a grid layout"
 	RSDominanceTreeLayout new
@@ -260,6 +271,23 @@ DRInstruction >> isInstruction [
 	^ true
 ]
 
+{ #category : #'loop-invariance' }
+DRInstruction >> isInvariantFrom: aDRBasicBlock [ 
+	^ aDRBasicBlock isDominatedBy: self basicBlock
+]
+
+{ #category : #testing }
+DRInstruction >> isJITCompileTimeExpression: aString [ 
+	
+	^ false
+]
+
+{ #category : #testing }
+DRInstruction >> isLoadFramePointer [
+	
+	^ false
+]
+
 { #category : #testing }
 DRInstruction >> isModulo [
 	
@@ -303,6 +331,20 @@ DRInstruction >> lookupClass [
 ]
 
 { #category : #accessing }
+DRInstruction >> loopBlocks [
+	self flag: #TODO. "This always returns an empty set for loops that contain multiple blocks"
+	^ self backJumpTargets flatCollect: #backJumpPredecessors
+]
+
+{ #category : #moving }
+DRInstruction >> moveToDominatingBlock: destinationBlock [
+
+	self basicBlock removeInstruction: self.
+	destinationBlock addInstruction: self.
+	self rewirePhiOperandsTo: destinationBlock
+]
+
+{ #category : #accessing }
 DRInstruction >> name [
 	
 	^ result name
@@ -330,6 +372,11 @@ DRInstruction >> opcode [
 DRInstruction >> operand1 [
 	
 	^ operands at: 1
+]
+
+{ #category : #accessing }
+DRInstruction >> operand1: aDRAbsoluteMemoryAddress [ 
+	self shouldBeImplemented.
 ]
 
 { #category : #accessing }
@@ -366,7 +413,7 @@ DRInstruction >> operands: aCollection [
 
 	operands asSet do: [ :each | each removeUser: self ].
 	operands := aCollection asOrderedCollection.
-	operands asSet do: [ :each | each addUser: self ]
+	self dependencies asSet do: [ :each | each addUser: self ]
 ]
 
 { #category : #operands }
@@ -487,6 +534,7 @@ DRInstruction >> removeOperandAt: anInteger [
 
 { #category : #'users-definitions' }
 DRInstruction >> removeUser: anInstruction [
+
 	users remove: anInstruction
 ]
 
@@ -502,14 +550,21 @@ DRInstruction >> replaceBy: anotherInstruction [
 ]
 
 { #category : #'users-definitions' }
+DRInstruction >> replaceDependency: anOperand by: anotherOperand [
+
+	self replaceOperand: anOperand by: anotherOperand
+]
+
+{ #category : #'users-definitions' }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
 	self flag: #careful.
 	"If we have the same operand twice, this will BREAK"
 	
 	anOperand removeUser: self.
-	operands replaceAll: anOperand with: anotherOperand.
 	anotherOperand addUser: self.
+
+	operands replaceAll: anOperand with: anotherOperand
 ]
 
 { #category : #'users-definitions' }
@@ -545,17 +600,10 @@ DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 ]
 
 { #category : #replacing }
-DRInstruction >> replaceUsersBy: anotherInstruction [
-	
-	users copy do: [ :instruction |
-		instruction replaceOperand: self by: anotherInstruction ]
-]
-
-{ #category : #replacing }
 DRInstruction >> replaceUsesBy: anotherInstruction [
 	
 	users copy do: [ :instruction |
-		instruction replaceOperand: self by: anotherInstruction ]
+		instruction replaceDependency: self by: anotherInstruction ]
 ]
 
 { #category : #accessing }
@@ -574,6 +622,19 @@ DRInstruction >> result: anObject [
 DRInstruction >> reverseOperands [
 	
 	operands := operands reversed
+]
+
+{ #category : #moving }
+DRInstruction >> rewirePhiOperandsTo: destinationBlock [
+
+	self operands
+		select: [ :operand | operand isPhiFunction and: [(self basicBlock isDominatedBy: operand basicBlock) not]  ]
+		thenDo: [ :operand | 
+			| newOperandValues |
+			"Note: this only works when moving to parent block"
+			newOperandValues := operand valuesForPredecessor: destinationBlock.
+			self assert: [ newOperandValues size = 1 ].
+			self replaceOperand: operand by: newOperandValues anyOne ]
 ]
 
 { #category : #SCCP }
@@ -623,12 +684,6 @@ DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 	self subclassResponsibility
 ]
 
-{ #category : #'constant folding' }
-DRInstruction >> simpleConstantFold [
-	
-	self subclassResponsibility
-]
-
 { #category : #types }
 DRInstruction >> type [
 
@@ -644,7 +699,7 @@ DRInstruction >> users [
 { #category : #validation }
 DRInstruction >> validate [
 
-	self validateOperandsAreUsedByMyself.
+	self validateDependenciesAreUsedByMyself.
 	self validateUsersUseMyself.
 
 	self isPhiFunction ifTrue: [ ^ self ].
@@ -655,19 +710,23 @@ DRInstruction >> validate [
 ]
 
 { #category : #validation }
-DRInstruction >> validateOperandsAreUsedByMyself [
+DRInstruction >> validateDependenciesAreUsedByMyself [
 
-	(self operands allSatisfy: [ :op | op hasUser: self ]) ifFalse: [ 
-		DRError signal:
-			'Operand-user mismatch in instruction: ' , self asString ]
+	self dependencies do: [ :op | 
+		(op hasUser: self) ifFalse: [ 
+			DRError signal:
+				'Dependency-user mismatch between: ' , self asString , ' and: '
+				, op asString ] ]
 ]
 
 { #category : #validation }
 DRInstruction >> validateUsersUseMyself [
 
-	(self users allSatisfy: [ :user | user hasOperand: self ]) ifFalse: [ 
-		DRError signal:
-			'User-operand mismatch in instruction: ' , self asString ]
+	self users do: [ :user | 
+		(user hasDependency: self) ifFalse: [ 
+			DRError signal:
+				'User-operand mismatch between: ' , user asString , ' and: '
+				, self asString ] ]
 ]
 
 { #category : #copying }
@@ -682,7 +741,7 @@ DRInstruction >> withAllDependencies [
 	| dependencies |
 	dependencies := OrderedCollection new.
 	dependencies add: self.
-	self operands do: [ :e |
+	self dependencies do: [ :e |
 		dependencies addAll: e withAllDependencies ].
 	^ dependencies
 ]
