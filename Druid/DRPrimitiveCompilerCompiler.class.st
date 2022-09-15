@@ -36,8 +36,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 		optimisations add: DRPhiSimplication new.
 		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
-		optimisations add: (DRDeadEdgeSplitting repeat: 3).
-		optimisations add: DRDeadBranchElimination new.
+		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination).
 		optimisations add: DRInline new. ].
 	
 	"Last Phase, make code coggable"
