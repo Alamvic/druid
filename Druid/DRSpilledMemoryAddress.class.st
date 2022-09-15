@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'stackOffset'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-IR'
 }
 
 { #category : #'as yet unclassified' }

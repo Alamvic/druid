@@ -7,7 +7,7 @@ Class {
 { #category : #visiting }
 DRValue >> acceptVisitor: aVisitor [
 
-	^ aVisitor visitMessageSend: self
+	self subclassResponsibility
 ]
 
 { #category : #building }
@@ -28,10 +28,19 @@ DRValue >> asDRValue [
 	^ self
 ]
 
+{ #category : #accessing }
+DRValue >> asDependencyList [
+
+	"Return myself as a list of dependencies, independently of MY dependencies"	
+	^ { self }
+]
+
 { #category : #memory }
 DRValue >> asMemoryAddress [
-	
-	self subclassResponsibility
+
+	^ DRAbsoluteMemoryAddress new
+		  expression: self;
+		  yourself
 ]
 
 { #category : #copying }
@@ -41,6 +50,12 @@ DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 		addInstructionFrom: aNode
 		instructionKind: DRCopy
 		operands: { self }.
+]
+
+{ #category : #accessing }
+DRValue >> dependencies [
+	
+	^ self operands flatCollect: [ :op | op asDependencyList ]
 ]
 
 { #category : #accessing }
@@ -107,6 +122,18 @@ DRValue >> isGlobal [
 { #category : #testing }
 DRValue >> isInstruction [
 
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isJITCompileTimeExpression: aString [ 
+	
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isJitCompileTimeExpression [
+	
 	^ false
 ]
 
@@ -247,12 +274,6 @@ DRValue >> removeUser: anInstruction [
 ]
 
 { #category : #'users-definitions' }
-DRValue >> replaceUsersBy: anotherInstruction [
-	
-	"Nothing"
-]
-
-{ #category : #'users-definitions' }
 DRValue >> replaceUsesBy: anotherInstruction [
 	
 	"Nothing"
@@ -276,6 +297,12 @@ DRValue >> rtlOperandQualifierForInstruction: instruction [
 	^ self rtlOperandQualifier
 ]
 
+{ #category : #'constant folding' }
+DRValue >> simpleConstantFold [
+	
+	^ self
+]
+
 { #category : #transforming }
 DRValue >> simplify [
 	
@@ -286,6 +313,12 @@ DRValue >> simplify [
 DRValue >> targets [
 
 	^ #()
+]
+
+{ #category : #types }
+DRValue >> typeWithAlreadySeen: aCollection [ 
+	
+	^ self type
 ]
 
 { #category : #accessing }

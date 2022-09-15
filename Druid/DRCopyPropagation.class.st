@@ -15,5 +15,5 @@ DRCopyPropagation >> applyTo: aDRControlFlowGraph [
 { #category : #operations }
 DRCopyPropagation >> propagateCopyFrom: i [
 
-	i users copy do: [ :user | user replaceOperand: i by: i operands first ]
+	i users copy do: [ :user | user replaceDependency: i by: i operands first ]
 ]

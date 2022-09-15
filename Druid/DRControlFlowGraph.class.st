@@ -43,6 +43,14 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 ]
 
 { #category : #accessing }
+DRControlFlowGraph >> allBackJumps [
+
+	^ self reversePostOrderBlocks
+		  collect: [ :b | b endInstruction ]
+		  thenSelect: [ :i | i isBackJump ]
+]
+
+{ #category : #accessing }
 DRControlFlowGraph >> allConditionalJumps [
 
 	^ self reversePostOrderBlocks
@@ -244,15 +252,16 @@ DRControlFlowGraph >> fixBackJumps [
 	self blocks do: [ :block | 
 		block successors do: [ :succ | 
 			(block endInstruction isBackJumpTo: succ) ifTrue: [ "If back-jump to block a recursive phi should exist"
-				(succ phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
-					ifFalse: [ "If not, then is a forward-jump" 
-						block endInstruction beForwardJumpTo: succ ] ] ].
+				(succ endInstruction isBackJump or: [ 
+					 (succ phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) not ]) 
+						ifTrue: [ "If not, then is a forward-jump" 
+					block endInstruction beForwardJumpTo: succ ] ] ].
 
-		"Check if has a back-jump to this block"
-		(block phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
-			ifTrue: [ 
-				block backJumpPredecessors do: [ :pred | 
-					pred endInstruction beBackJumpTo: block ] ] ]
+		block endInstruction isBackJump not ifTrue: [ "Check if has a back-jump to this block"
+			(block phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
+				ifTrue: [ 
+					block backJumpPredecessors do: [ :pred | 
+						pred endInstruction beBackJumpTo: block ] ] ] ]
 ]
 
 { #category : #edges }
@@ -435,7 +444,7 @@ DRControlFlowGraph >> numberOfSpillSlots [
 { #category : #edges }
 DRControlFlowGraph >> outgoingEdgesFor: aBlock [
 
-	^ edgesBySource at: aBlock ifAbsent: [ OrderedCollection new ]
+	^ edgesBySource at: aBlock ifAbsent: [ #() ]
 ]
 
 { #category : #accessing }
@@ -443,7 +452,7 @@ DRControlFlowGraph >> pathAt: index [
 
 	| lastEdge |
 	lastEdge := (self incomingEdgesFor: self lastBasicBlock) at: index.
-	^ lastEdge ancestors
+	^ lastEdge ancestors , { lastEdge }
 ]
 
 { #category : #accessing }

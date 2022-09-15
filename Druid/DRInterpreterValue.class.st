@@ -21,10 +21,22 @@ DRInterpreterValue >> lookupClass [
 	^ value class
 ]
 
+{ #category : #lookup }
+DRInterpreterValue >> lookupSelector: aString [ 
+	
+	^ value class lookupSelector: aString
+]
+
 { #category : #accessing }
 DRInterpreterValue >> name [
 
 	^ value class name
+]
+
+{ #category : #interpretation }
+DRInterpreterValue >> type [
+	
+	^ self
 ]
 
 { #category : #accessing }

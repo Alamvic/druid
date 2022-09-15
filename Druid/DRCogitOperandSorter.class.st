@@ -46,9 +46,14 @@ DRCogitOperandSorter >> visitBitXor: aDRBitXor [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [ 
+DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [
 
-	"Nothing"
+	"Mask test conditions accept constants in cogit"
+	(aDRBranchIfCondition condition isTestMask
+		or: [ aDRBranchIfCondition condition isNoTestMask ])
+			ifTrue: [ ^ self ].
+
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRBranchIfCondition
 ]
 
 { #category : #visiting }
@@ -82,9 +87,40 @@ DRCogitOperandSorter >> visitDivision: aDRDivision [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitGetConditionCode: aDRGetConditionCode [ 
+DRCogitOperandSorter >> visitFloatToIntConversion: aDRFloatToInt [ 
 	
-	"Nothing"
+	"Int to float conversion is on registers only"
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRFloatToInt
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitGetConditionCode: aDRGetConditionCode [
+
+	(aDRGetConditionCode condition isCommutative and: [ 
+		 aDRGetConditionCode operand1 isInstruction not ]) ifTrue: [ 
+		aDRGetConditionCode reverseOperands ].
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRGetConditionCode
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitGetFloatBits: aDRGetFloatBits [ 
+
+	"Get float bits are only from registers..."
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRGetFloatBits
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitGetFloatFromBits: aDRGetFloatFromBits [ 
+
+	"Get float bits are only from registers..."
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRGetFloatFromBits
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitIntToFloatConversion: aDRIntToFloat [ 
+	
+	"Int to float conversion is on registers only"
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRIntToFloat
 ]
 
 { #category : #visiting }
@@ -103,6 +139,12 @@ DRCogitOperandSorter >> visitLeftShift: aDRLeftShift [
 
 { #category : #visiting }
 DRCogitOperandSorter >> visitLoad: aDRLoad [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitLoadReceiver: aDRLoadReceiver [ 
 	
 	"Nothing"
 ]
@@ -137,6 +179,12 @@ DRCogitOperandSorter >> visitNoop: aDRNoop [
 
 { #category : #visiting }
 DRCogitOperandSorter >> visitPhiFunction: aDRPhiFunction [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitPush: aDRPush [ 
 	
 	"Nothing"
 ]

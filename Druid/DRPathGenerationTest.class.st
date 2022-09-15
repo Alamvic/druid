@@ -281,7 +281,7 @@ DRPathGenerationTest >> testCopyRegisterNotAddNewConstraint [
 
 	| cfg block |
 	cfg := self setUpCFG: 2.
-	cfg b1 copy: (DRPhysicalRegister name: 'Rx').
+	cfg b1 copy: (DRPhysicalGeneralPurposeRegister name: 'Rx').
 	cfg generatePaths.
 
 	block := cfg firstBasicBlock.
@@ -425,7 +425,7 @@ DRPathGenerationTest >> testUnmergeableConditionalBranchToSameTarget [
 	
 	copy1 := b0 copy: 1.
 	copy2 := b0 copy: 2.
-	condition := b0 greater: (DRPhysicalRegister name: 'NO SABES LOCO') than: 2.
+	condition := b0 greater: (DRPhysicalGeneralPurposeRegister name: 'NO SABES LOCO') than: 2.
 	b1 := cfg newBasicBlock.
 	b0 jumpIf: condition to: b1 ifFalseTo: b1.
 	b1 phiWith: copy1 with: copy2.

@@ -193,15 +193,14 @@ DRBasicBlock >> breakBy: instruction [
 	- the instruction to second (middle) predecessor.
 	- left remaining instructions (after the instruction) in this basic block (bottom)"
 
-	| upperPredecessor middlePredecessor splittedInstructions instructionsBefore |
+	| upperPredecessor middlePredecessor instructionsBefore |
 	instruction isPhiFunction ifTrue: [ 
 		self error: 'Phi instructions cannot break a basic block!' ].
 
 	upperPredecessor := self newEmptyPredecessor.
 	middlePredecessor := self newEmptyPredecessor.
 
-	splittedInstructions := self instructions allButLast splitOn: instruction.
-	instructionsBefore := splittedInstructions first. "self instructions allUntil: instruction"
+	instructionsBefore := self instructions allUntil: instruction.
 	instructionsBefore do: [ :i | 
 		self removeInstruction: i.
 		upperPredecessor addInstruction: i ].
@@ -442,6 +441,11 @@ DRBasicBlock >> id: anObject [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> includesInstruction: anInstruction [ 
+	^ instructions includes: anInstruction
+]
+
+{ #category : #accessing }
 DRBasicBlock >> indexOfPredecessor: aDRBasicBlock [ 
 	
 	^ predecessors indexOf: aDRBasicBlock
@@ -557,6 +561,12 @@ DRBasicBlock >> instructionsDo: aFullBlockClosure [
 	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
 ]
 
+{ #category : #building }
+DRBasicBlock >> intToFloat: aValue [
+	
+	^ self addInstruction: (self instructionFactory intToFloat: aValue)
+]
+
 { #category : #'testing - dominator' }
 DRBasicBlock >> isDominatedBy: dominatorBlock [
 	
@@ -565,7 +575,7 @@ DRBasicBlock >> isDominatedBy: dominatorBlock [
 
 { #category : #building }
 DRBasicBlock >> isDominatorOf: basicBlocks [
-
+	"Deprecated: should be removed once it's posible. Use DRBasicBlock>#isDominatedBy: instead."
 	| dominatorTree node |
 	
 	dominatorTree := DRDominatorTree new.
@@ -591,6 +601,12 @@ DRBasicBlock >> isExitBlock [
 DRBasicBlock >> isExitBlock: anObject [
 
 	isExitBlock := anObject
+]
+
+{ #category : #building }
+DRBasicBlock >> jitCompileTimeVariable: aName [
+
+	^ self instructionFactory jitCompileTimeVariable: aName
 ]
 
 { #category : #building }
@@ -642,8 +658,27 @@ DRBasicBlock >> load: anAddress [
 	^ self addInstruction: (self instructionFactory load: anAddress)
 ]
 
+{ #category : #building }
+DRBasicBlock >> loadFramePointer [
+
+	^ self addInstruction: self instructionFactory loadFramePointer
+]
+
+{ #category : #building }
+DRBasicBlock >> loadSInt64: operand [
+	
+	^ self addInstruction: (self instructionFactory loadSInt64: operand)
+]
+
+{ #category : #building }
+DRBasicBlock >> loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock [
+
+	self jumpIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock.
+	loopBodyBlock backJumpTo: self
+]
+
 { #category : #splitting }
-DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: successors [
+DRBasicBlock >> mergeInstructionsWithDuplicatedBlock: duplicatedBlock withSuccessors: successors usingUsers: getUsersBlock [
 
 	self instructions copy
 		with: duplicatedBlock instructions copy
@@ -652,7 +687,7 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 				insertPhisAndReplaceUsersBetween: myInstruction
 				andAll: { duplicatedInstruction }
 				withFrontier: successors
-				withUsers: myInstruction nonLocalUsers ]
+				withUsers: (getUsersBlock value: myInstruction) ]
 ]
 
 { #category : #building }
@@ -796,12 +831,31 @@ DRBasicBlock >> printOn: aStream [
 	aStream nextPutAll: ')'
 ]
 
+{ #category : #building }
+DRBasicBlock >> push: operand [
+	
+	^ self addInstruction: (self instructionFactory push: operand)
+]
+
+{ #category : #building }
+DRBasicBlock >> pushBase: base offset: offset [
+	
+	^ self addInstruction: (self instructionFactory pushBase: base offset: offset)
+]
+
 { #category : #iterating }
 DRBasicBlock >> recursiveSuccessorsDo: aBlock [
 
+	self recursiveSuccessorsDo: aBlock visited: {  }
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursiveSuccessorsDo: aBlock visited: alreadyVisited [
+
+	(alreadyVisited includes: self) ifTrue: [ ^ self ].
+	self successors do: [ :b | aBlock value: b ].
 	self successors do: [ :b | 
-		aBlock value: b.
-		b recursiveSuccessorsDo: aBlock ]
+		b recursiveSuccessorsDo: aBlock visited: { self } , alreadyVisited ]
 ]
 
 { #category : #'control-flow' }
@@ -931,10 +985,9 @@ DRBasicBlock >> sourceInterval [
 DRBasicBlock >> splitTo: predecessorToRewire [
 
 	| duplicatedBlock newSuccessors |
-	
 	self assert: self predecessors size > 1.
 
-	newSuccessors := self newEmptySuccessors. 
+	newSuccessors := self newEmptySuccessors.
 
 	duplicatedBlock := self basicDuplicate.
 	duplicatedBlock successors do: [ :successor | 
@@ -951,7 +1004,10 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
 	controlFlowGraph tree computeDominanceFrontier.
 
-	self mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: newSuccessors.
+	self
+		mergeInstructionsWithDuplicatedBlock: duplicatedBlock
+		withSuccessors: newSuccessors
+		usingUsers: [:i | i nonLocalUsers].
 
 	^ duplicatedBlock
 ]
@@ -961,6 +1017,18 @@ DRBasicBlock >> store: instruction in: memoryAddress [
 
 	^ self addInstruction:
 		  (self instructionFactory store: instruction in: memoryAddress)
+]
+
+{ #category : #building }
+DRBasicBlock >> store: aValue into: anAddress [
+
+	^ self addInstruction: (self instructionFactory store: aValue into: anAddress)
+]
+
+{ #category : #building }
+DRBasicBlock >> storeSInt64: operand at: address [
+
+	^ self addInstruction: (self instructionFactory storeSInt64: operand at: address)
 ]
 
 { #category : #accessing }
@@ -1029,8 +1097,7 @@ DRBasicBlock >> validatePhiFunctions [
 				this by checking that the variables are reachable from the correct predecessors"
 				e operands withIndexDo: [ :dependency :index | 
 					self assert: (dependency isInstruction or: [ 
-							 dependency isNullValue or: [ dependency isPhysicalRegister or: [ 
-									dependency isCode  ] ] ]).
+							 dependency isNullValue or: [ dependency isPhysicalRegister ] ]).
 					self assert: (dependency isInstruction not or: [ 
 							 (self predecessors at: index) checkLivenessOf: dependency ]) ] ] ]
 ]

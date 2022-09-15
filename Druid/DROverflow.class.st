@@ -10,28 +10,22 @@ DROverflow >> acceptVisitor: aVisitor withBranch: aDRBranchIfCondition [
 	^ aVisitor visitOverflow: self inBranch: aDRBranchIfCondition
 ]
 
-{ #category : #'rtl-translation' }
-DROverflow >> cogitFalseConditionCode [
-	
-	"Return the condition code used to jump if this condition is false.
-	Since we are checking equals, the we should return non-equals, represented as a NonZero in cogit rtl"
-	
-	^ #JumpNoOverflow:
-]
+{ #category : #testing }
+DROverflow >> isMultiplyOverflow [
 
-{ #category : #'rtl-translation' }
-DROverflow >> cogitTrueConditionCode [
-	
-	"Return the condition code used to jump if this condition is false.
-	Since we are checking equals, the we should return non-equals, represented as a NonZero in cogit rtl"
-	
-	^ #JumpOverflow:
+	^ false
 ]
 
 { #category : #testing }
 DROverflow >> isOverflow [
 	
 	^ true
+]
+
+{ #category : #transforming }
+DROverflow >> negated [
+
+	^ DRNoOverflow new
 ]
 
 { #category : #printing }

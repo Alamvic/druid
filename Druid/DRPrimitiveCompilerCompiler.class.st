@@ -20,6 +20,13 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 ]
 
 { #category : #accessing }
+DRPrimitiveCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method [
+	
+	super configureIRBuilder: irGenerator forMethod: method.
+	irGenerator numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value
+]
+
+{ #category : #accessing }
 DRPrimitiveCompilerCompiler >> createInitialBasicBlock [
 	| initial initialBasicBlock |
 	initialBasicBlock := super createInitialBasicBlock.
@@ -35,9 +42,10 @@ DRPrimitiveCompilerCompiler >> initialize [
 
 	optimisations := OrderedCollection new.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
+	optimisations add: DRLoopInvariantCodeMotion new.
 
 	"Basic set of optimizations twice for primitives"
-	4 timesRepeat: [ 
+	3 timesRepeat: [ 
 		optimisations add: DRBranchCollapse new.
 		optimisations add: DRFailureCodeBasedTailDuplication new.
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
@@ -45,8 +53,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 		optimisations add: DRPhiSimplication new.
 		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
-		optimisations add: (DRDeadEdgeSplitting repeat: 3).
-		optimisations add: DRDeadBranchElimination new.
+		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination).
 		optimisations add: DRInline new. ].
 	
 	"Last Phase, make code coggable"
@@ -87,4 +94,10 @@ DRPrimitiveCompilerCompiler >> primitiveName [
 DRPrimitiveCompilerCompiler >> primitiveName: anObject [
 
 	self sourceName: anObject
+]
+
+{ #category : #accessing }
+DRPrimitiveCompilerCompiler >> targetName [
+
+	^ self primitiveCompilerName
 ]

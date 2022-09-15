@@ -4,7 +4,15 @@ Class {
 	#category : #'Druid-Tests'
 }
 
-{ #category : #tests }
+{ #category : #assertion }
+DRBasicBlockTest >> assertPath: path equalsIds: associationIds [
+
+	| actualIds |
+	actualIds := path collect: [ :edge | edge source id -> edge destination id ].
+	self assert: actualIds equals: associationIds
+]
+
+{ #category : #break }
 DRBasicBlockTest >> testBreakBlockCreateNewBlocks [
 
 	| cfg copy blocks|
@@ -17,12 +25,12 @@ DRBasicBlockTest >> testBreakBlockCreateNewBlocks [
 	blocks := cfg reversePostOrderBlocks allButFirst. "Ignore initial block"
 
 	self assert: blocks size equals: 3.
-	self assertBlock: blocks first jumpTo: blocks second.
-	self assertBlock: blocks second jumpTo: blocks third.
+	self assertBlock: blocks first jumpsTo: blocks second.
+	self assertBlock: blocks second jumpsTo: blocks third.
 
 ]
 
-{ #category : #tests }
+{ #category : #break }
 DRBasicBlockTest >> testBreakBlockDivideInstructions [
 
 	| cfg copy1 copy2 copy3 copy4 copy5 blocks |
@@ -43,7 +51,7 @@ DRBasicBlockTest >> testBreakBlockDivideInstructions [
 	self assertBlock: blocks third hasSameInstructions: { copy4. copy5 }.
 ]
 
-{ #category : #tests }
+{ #category : #break }
 DRBasicBlockTest >> testBreakBlockWithPhis [
 
 	| cfg copy blocks |
@@ -58,4 +66,16 @@ DRBasicBlockTest >> testBreakBlockWithPhis [
 	self assert: blocks fourth instructions first isPhiFunction.
 	self assert: blocks fifth instructions first equals: copy.
 	self assert: blocks sixth instructions first isNoop.
+]
+
+{ #category : #pathAt }
+DRBasicBlockTest >> testPathAt [
+
+	| cfg |
+	cfg := self setUpCFGWithConditional.
+	cfg generatePaths.
+		
+	self assertPath: (cfg pathAt: 1) equalsIds: {0 -> 1 . 1 -> 2 . 2 -> 4}.
+	self assertPath: (cfg pathAt: 2) equalsIds: {0 -> 1 . 1 -> 3 . 3 -> 4}.
+
 ]

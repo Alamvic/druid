@@ -11,3 +11,9 @@ DRIntegerType >> bitShift: shiftValue [
 		ifTrue: [ self << shiftValue ]
 		ifFalse: [ self >> shiftValue negated ]
 ]
+
+{ #category : #accessing }
+DRIntegerType >> systemClass [
+	
+	^ Integer
+]

@@ -33,3 +33,9 @@ DRObjectReferenceValue >> sccpLatticeValueFor: aDRSCCP [
 
 	^ self value
 ]
+
+{ #category : #types }
+DRObjectReferenceValue >> type [
+	
+	^ DRIntegerType new
+]

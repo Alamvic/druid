@@ -21,3 +21,9 @@ DRMod >> opcode [
 	
 	^ 'MOD'
 ]
+
+{ #category : #types }
+DRMod >> type [
+
+	^ DRIntegerType new
+]

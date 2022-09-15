@@ -40,6 +40,12 @@ DRBooleanType >> ifTrue: trueBlock ifFalse: falseBlock [
 	^ falseBlock value
 ]
 
+{ #category : #testing }
+DRBooleanType >> isBooleanType [
+
+	^ true
+]
+
 { #category : #converting }
 DRBooleanType >> not [
 

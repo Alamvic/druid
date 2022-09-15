@@ -10,22 +10,16 @@ DRCopy >> acceptVisitor: aVisitor [
 	^ aVisitor visitCopy: self
 ]
 
-{ #category : #'cogit-generation' }
-DRCopy >> cogitFalseConditionCode [
-
-	^ self operand1 cogitFalseConditionCode
-]
-
-{ #category : #'cogit-generation' }
-DRCopy >> cogitTrueConditionCode [
-
-	^ self operand1 cogitTrueConditionCode
-]
-
 { #category : #printing }
 DRCopy >> isCopy [ 
 
 	^true 
+]
+
+{ #category : #testing }
+DRCopy >> isJitCompileTimeExpression [
+
+	^ operands first isJitCompileTimeExpression
 ]
 
 { #category : #SCCP }
@@ -39,6 +33,12 @@ DRCopy >> isMandatoryInstruction [
 DRCopy >> isSetReturnValue [
 	
 	^ self result isPhysicalRegister and:  [ self result name = 'ReceiverResultReg' ]
+]
+
+{ #category : #testing }
+DRCopy >> jitCompileTimeExpression [
+
+	^ operands first jitCompileTimeExpression
 ]
 
 { #category : #printing }
@@ -69,4 +69,14 @@ DRCopy >> simpleConstantFold [
 DRCopy >> type [
 	
 	^ self operands first type
+]
+
+{ #category : #type }
+DRCopy >> typeWithAlreadySeen: aCollection [ 
+	
+	(aCollection includes: self)
+		ifTrue: [ ^ nil ].
+	
+	aCollection add: self.
+	^ operands first typeWithAlreadySeen: aCollection
 ]

@@ -1,8 +1,20 @@
 Class {
 	#name : #DRTopType,
-	#superclass : #Integer,
+	#superclass : #Object,
 	#category : #'Druid-IR-Types'
 }
+
+{ #category : #comparing }
+DRTopType >> = aType [
+
+	^ self species = aType species
+]
+
+{ #category : #comparing }
+DRTopType >> hash [
+
+	^ self species hash
+]
 
 { #category : #testing }
 DRTopType >> ifNil: aBlock [
@@ -31,8 +43,26 @@ DRTopType >> ifNotNil: notNilBlock ifNil: nilBlock [
 	^ notNilBlock cull: self
 ]
 
+{ #category : #testing }
+DRTopType >> isFloatType [
+	
+	^ false
+]
+
 { #category : #lookup }
 DRTopType >> lookupClass [
 	
 	^ self class
+]
+
+{ #category : #lookup }
+DRTopType >> lookupSelector: aString [ 
+	
+	^ (self class lookupSelector: aString)
+		ifNil: [ self systemClass lookupSelector: aString ]
+]
+
+{ #category : #accessing }
+DRTopType >> systemClass [
+	self shouldBeImplemented.
 ]

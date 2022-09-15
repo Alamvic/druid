@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCommutativeOperation,
-	#superclass : #DRArithmeticOperation,
+	#superclass : #DRArithmeticInstruction,
 	#category : #'Druid-IR'
 }
 

@@ -10,7 +10,6 @@ DRDeadEdgeSplitting >> doApplyWithGeneratedPaths: aCFG [
 	"Find first (longest) dead path in CFG and split guilty edge"
 
 	| edge |
-	aCFG generatePaths.
 	aCFG deadPaths ifEmpty: [ ^ self ].
 	
 	edge := (aCFG deadPaths associations detectMax: [ :v | v value size ]) key.

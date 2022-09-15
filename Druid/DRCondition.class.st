@@ -4,10 +4,22 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #testing }
+DRCondition class >> isEqualsThanComparison [
+
+	^ false
+]
+
 { #category : #visiting }
 DRCondition >> acceptVisitor: aVisitor withBranch: parentBranch [
 	
 	self subclassResponsibility
+]
+
+{ #category : #testing }
+DRCondition >> isCommutative [
+	
+	^ false
 ]
 
 { #category : #testing }
@@ -23,14 +35,74 @@ DRCondition >> isComplexCondition [
 ]
 
 { #category : #testing }
+DRCondition >> isEqualsThanComparison [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRCondition >> isGreaterOrEqualThanComparison [
+
+	^ false
+]
+
+{ #category : #testing }
+DRCondition >> isGreaterThanComparison [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRCondition >> isLessOrEqualThanComparison [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRCondition >> isLessThanComparison [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRCondition >> isNoOverflow [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRCondition >> isNoTestMask [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRCondition >> isNotEqualsThanComparison [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRCondition >> isOverflow [
 
 	^ false
 ]
 
 { #category : #testing }
+DRCondition >> isTestMask [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRCondition >> isTypeOf [
 	^ false
+]
+
+{ #category : #transforming }
+DRCondition >> negated [
+	
+	^ self subclassResponsibility
 ]
 
 { #category : #printing }
