@@ -73,31 +73,3 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 	self prepareStackForSendReceiver: receiverOop arguments: aCollection.
 	self runFrom: initialAddress until: stopAddress.
 ]
-
-{ #category : #'tests-methodactivations' }
-DRPrimitiveCompilationTest >> testDeferredInline [
-
-	self compileDruidDeferredInlinePrimitive: #primitiveDoubleDeferredInline.
-	
-	self executePrimitiveWithReceiver: 42.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 84
-]
-
-{ #category : #'tests-methodactivations' }
-DRPrimitiveCompilationTest >> testDeferredInlineFailedCode [
-
-	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
-	
-	self executeUntilStopPrimitiveWithReceiver: 0
-]
-
-{ #category : #'tests-methodactivations' }
-DRPrimitiveCompilationTest >> testDeferredInlineTwice [
-
-	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
-	
-	self executePrimitiveWithReceiver: 1.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 42
-]

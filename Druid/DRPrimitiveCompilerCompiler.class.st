@@ -33,9 +33,10 @@ DRPrimitiveCompilerCompiler >> initialize [
 
 	optimisations := OrderedCollection new.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
+	optimisations add: DRLoopInvariantCodeMotion new.
 
 	"Basic set of optimizations twice for primitives"
-	4 timesRepeat: [ 
+	3 timesRepeat: [ 
 		optimisations add: DRBranchCollapse new.
 		optimisations add: DRFailureCodeBasedTailDuplication new.
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).

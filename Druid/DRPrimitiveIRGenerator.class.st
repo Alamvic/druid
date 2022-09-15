@@ -161,8 +161,13 @@ DRPrimitiveIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver 
 			          self currentMethod methodClass superclass 
 				          lookupSelector: aRBMessageNode selector ]
 		          ifFalse: [ 
-		          receiver lookupClass lookupSelector:
-			          aRBMessageNode selector ].
+		          receiver type lookupSelector: aRBMessageNode selector ].
+
+	method ifNotNil: [ 
+		(method hasPragmaNamed: #druidIRBuilder:) ifTrue: [ 
+			^ self
+				  perform: (method pragmaAt: #druidIRBuilder:) arguments first
+				  withArguments: { aRBMessageNode } ] ].
 
 	self
 		resolveMessageSend: aRBMessageNode

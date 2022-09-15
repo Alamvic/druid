@@ -102,7 +102,8 @@ DruidTestRTLCompiler >> gen_failingSuccess [
 DruidTestRTLCompiler >> gen_ifZeroFailPrimitive [
 
 	| jump1 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpZero: 0.
 	self MoveCq: 42 R: ReceiverResultReg.
 	self genPrimReturn.
@@ -153,9 +154,11 @@ DruidTestRTLCompiler >> gen_primitiveAdd [
 DruidTestRTLCompiler >> gen_primitiveAnd [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpLessOrEqual: 0.
-	self CmpCq: 10 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 10 R: TempReg.
 	jump2 := self JumpGreater: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
@@ -189,24 +192,25 @@ DruidTestRTLCompiler >> gen_primitiveAssertDeferredInline [
 	self MoveCq: 0 R: TempReg.
 	self MoveR: TempReg Aw: coInterpreter primitiveFailureCodeAddress.
 	self MoveAw: coInterpreter primitiveFailureCodeAddress R: TempReg.
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: ClassReg.
+	self CmpCq: 0 R: ClassReg.
 	jump1 := self JumpZero: 0.
 	self MoveR: TempReg Aw: coInterpreter primitiveFailureCodeAddress.
-	self MoveAw: coInterpreter primitiveFailureCodeAddress R: TempReg.
+	self MoveAw: coInterpreter primitiveFailureCodeAddress R: ClassReg.
 	self MoveCq: 42 R: ReceiverResultReg.
-	self CmpCq: 0 R: TempReg.
+	self CmpCq: 0 R: ClassReg.
 	jump2 := self JumpZero: 0.
 	jump3 := self JumpNonZero: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self MoveR: TempReg Aw: coInterpreter primitiveFailureCodeAddress.
-	self MoveCq: 1 R: TempReg.
-	self MoveR: TempReg Aw: coInterpreter primitiveFailureCodeAddress.
-	self MoveAw: coInterpreter primitiveFailureCodeAddress R: TempReg.
-	self MoveR: TempReg Aw: coInterpreter primitiveFailureCodeAddress.
-	self MoveAw: coInterpreter primitiveFailureCodeAddress R: TempReg.
+	self MoveCq: 1 R: ClassReg.
+	self MoveR: ClassReg Aw: coInterpreter primitiveFailureCodeAddress.
+	self MoveAw: coInterpreter primitiveFailureCodeAddress R: ClassReg.
+	self MoveR: ClassReg Aw: coInterpreter primitiveFailureCodeAddress.
+	self MoveAw: coInterpreter primitiveFailureCodeAddress R: ClassReg.
 	self MoveCq: 42 R: ReceiverResultReg.
-	self CmpCq: 0 R: TempReg.
+	self CmpCq: 0 R: ClassReg.
 	jump1 := self JumpNonZero: 0.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
@@ -571,7 +575,8 @@ DruidTestRTLCompiler >> gen_primitiveAt [
 DruidTestRTLCompiler >> gen_primitiveBitShift [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: Arg0Reg.
+	self MoveR: Arg0Reg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpGreater: 0.
 	self MoveR: Arg0Reg R: TempReg.
 	self NegateR: TempReg.
@@ -607,7 +612,8 @@ DruidTestRTLCompiler >> gen_primitiveBitXor [
 DruidTestRTLCompiler >> gen_primitiveBranchingWithAssigments [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpGreater: 0.
 	self MoveCq: 42 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -698,7 +704,8 @@ DruidTestRTLCompiler >> gen_primitiveCallingMethodReturningConstant [
 DruidTestRTLCompiler >> gen_primitiveCallingMethodWithEarlyReturn [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpZero: 0.
 	self MoveCq: 57 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -730,9 +737,11 @@ DruidTestRTLCompiler >> gen_primitiveCascadedUint16AtPut [
 DruidTestRTLCompiler >> gen_primitiveCaseOfOtherwiseValue [
 
 	| jump1 jump2 jump3 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpZero: 0.
-	self CmpCq: 1 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 1 R: TempReg.
 	jump2 := self JumpZero: 0.
 	self MoveCq: 77 R: ReceiverResultReg.
 	jump3 := self Jump: 0.
@@ -768,11 +777,9 @@ DruidTestRTLCompiler >> gen_primitiveClassVariableWithBranch [
 	jump1 := self JumpZero: 0.
 	self MoveCq: 36 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
-	
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self MoveCq: 35 R: ReceiverResultReg.
-	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	self genPrimReturn.
@@ -817,8 +824,9 @@ DruidTestRTLCompiler >> gen_primitiveConditionWithAnyMaskInverted [
 DruidTestRTLCompiler >> gen_primitiveConditionWithObjectReference [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: objectMemory trueObject R: ReceiverResultReg.
-	jump1 := self JumpLess: 0.
+	self MoveCq: objectMemory trueObject R: TempReg.
+	self CmpR: ReceiverResultReg R: TempReg.
+	jump1 := self JumpGreater: 0.
 	self MoveCq: 2 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
@@ -834,43 +842,45 @@ DruidTestRTLCompiler >> gen_primitiveConditionWithObjectReference [
 DruidTestRTLCompiler >> gen_primitiveDNA [
 
 	| jump1 jump2 jump3 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 10 R: TempReg.
 	jump1 := self JumpGreater: 0.
 	self MoveCq: 99 R: TempReg.
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: ClassReg.
+	self CmpCq: 0 R: ClassReg.
 	jump2 := self JumpGreater: 0.
-	self MoveCq: 99 R: TempReg.
-	self MoveCq: 17 R: ClassReg.
+	self MoveCq: 99 R: ClassReg.
+	self MoveCq: 17 R: TempReg.
 	jump3 := self Jump: 0.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self MoveR: TempReg R: ClassReg.
-	self MoveCq: 5 R: TempReg.
-	self CmpCq: 7 R: ReceiverResultReg.
+	self MoveCq: 5 R: ClassReg.
+	self MoveR: ReceiverResultReg R: SendNumArgsReg.
+	self CmpCq: 7 R: SendNumArgsReg.
 	jump2 := self JumpGreater: 0.
-	self MoveR: TempReg R: SendNumArgsReg.
-	self MoveR: ClassReg R: TempReg.
-	self MoveR: SendNumArgsReg R: ClassReg.
+	self MoveR: ClassReg R: SendNumArgsReg.
+	self MoveR: TempReg R: ClassReg.
+	self MoveR: SendNumArgsReg R: TempReg.
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
-	self AddR: ClassReg R: TempReg.
-	self AddCq: 42 R: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+	self AddR: TempReg R: ClassReg.
+	self AddCq: 42 R: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	jump3 := self Jump: 0.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveCq: 1 R: TempReg.
+	self MoveCq: 1 R: ClassReg.
 	self MoveCq: 5 R: SendNumArgsReg.
-	self MoveR: TempReg R: ClassReg.
-	self MoveR: SendNumArgsReg R: TempReg.
+	self MoveR: ClassReg R: TempReg.
+	self MoveR: SendNumArgsReg R: ClassReg.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self AddCq: 5 R: ClassReg.
-	self AddCq: 15 R: ClassReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+	self AddCq: 5 R: TempReg.
+	self AddCq: 15 R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
 	self genPrimReturn.
@@ -929,9 +939,9 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -945,9 +955,9 @@ DruidTestRTLCompiler >> gen_primitiveDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -977,7 +987,8 @@ DruidTestRTLCompiler >> gen_primitiveDoubleDeferredInline [
 DruidTestRTLCompiler >> gen_primitiveEqualsThan [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 10 R: TempReg.
 	jump1 := self JumpZero: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -1014,7 +1025,8 @@ DruidTestRTLCompiler >> gen_primitiveEqualsThanFloats [
 DruidTestRTLCompiler >> gen_primitiveEqualsThanInverted [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
+	self MoveCq: 10 R: TempReg.
+	self CmpR: ReceiverResultReg R: TempReg.
 	jump1 := self JumpZero: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -1048,15 +1060,16 @@ DruidTestRTLCompiler >> gen_primitiveEqualsThanReferenceValue [
 DruidTestRTLCompiler >> gen_primitiveEqualsThanValue [
 
 	| jumpNext currentBlock jumpTrue |
-	self MoveR: ReceiverResultReg R: TempReg.
-	self CmpCq: 0 R: TempReg.
-	jumpTrue := self JumpZero: 0.
 	self MoveCq: 0 R: TempReg.
+	self MoveR: ReceiverResultReg R: ClassReg.
+	self CmpR: ClassReg R: TempReg.
+	jumpTrue := self JumpZero: 0.
+	self MoveCq: 0 R: ClassReg.
 	jumpNext := self Jump: 0.
 	jumpTrue jmpTarget: self Label.
-	self MoveCq: 1 R: TempReg.
+	self MoveCq: 1 R: ClassReg.
 	jumpNext jmpTarget: self Label.
-	self MoveR: TempReg R: ReceiverResultReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1191,7 +1204,8 @@ DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualThanValue [
 DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualsThan [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 10 R: TempReg.
 	jump1 := self JumpGreaterOrEqual: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -1228,8 +1242,9 @@ DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualsThanFloats [
 DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualsThanInverted [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
-	jump1 := self JumpLessOrEqual: 0.
+	self MoveCq: 10 R: TempReg.
+	self CmpR: ReceiverResultReg R: TempReg.
+	jump1 := self JumpGreaterOrEqual: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
@@ -1245,7 +1260,8 @@ DruidTestRTLCompiler >> gen_primitiveGreaterOrEqualsThanInverted [
 DruidTestRTLCompiler >> gen_primitiveGreaterThan [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 10 R: TempReg.
 	jump1 := self JumpGreater: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -1282,8 +1298,9 @@ DruidTestRTLCompiler >> gen_primitiveGreaterThanFloats [
 DruidTestRTLCompiler >> gen_primitiveGreaterThanInverted [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
-	jump1 := self JumpLess: 0.
+	self MoveCq: 10 R: TempReg.
+	self CmpR: ReceiverResultReg R: TempReg.
+	jump1 := self JumpGreater: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
@@ -1316,7 +1333,8 @@ DruidTestRTLCompiler >> gen_primitiveGreaterThanReferenceValue [
 DruidTestRTLCompiler >> gen_primitiveIfFalseIfTrueReturningValue [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpZero: 0.
 	self MoveCq: 57 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -1333,7 +1351,8 @@ DruidTestRTLCompiler >> gen_primitiveIfFalseIfTrueReturningValue [
 DruidTestRTLCompiler >> gen_primitiveIfTrueIfFalseAssigningValue [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpZero: 0.
 	self MoveCq: 57 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -1350,7 +1369,8 @@ DruidTestRTLCompiler >> gen_primitiveIfTrueIfFalseAssigningValue [
 DruidTestRTLCompiler >> gen_primitiveIfTrueIfFalseReturningValue [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpZero: 0.
 	self MoveCq: 57 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -1367,7 +1387,8 @@ DruidTestRTLCompiler >> gen_primitiveIfTrueIfFalseReturningValue [
 DruidTestRTLCompiler >> gen_primitiveIfTrueStatement [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpZero: 0.
 	self MoveCq: 10 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -1384,7 +1405,8 @@ DruidTestRTLCompiler >> gen_primitiveIfTrueStatement [
 DruidTestRTLCompiler >> gen_primitiveImplicitArgumentBitShiftLeft [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpGreater: 0.
 	self MoveR: ReceiverResultReg R: TempReg.
 	self NegateR: TempReg.
@@ -1481,9 +1503,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1497,9 +1519,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1565,7 +1587,8 @@ DruidTestRTLCompiler >> gen_primitiveLessOrEqualThanValue [
 DruidTestRTLCompiler >> gen_primitiveLessOrEqualsThan [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 10 R: TempReg.
 	jump1 := self JumpLessOrEqual: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -1602,8 +1625,9 @@ DruidTestRTLCompiler >> gen_primitiveLessOrEqualsThanFloats [
 DruidTestRTLCompiler >> gen_primitiveLessOrEqualsThanInverted [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
-	jump1 := self JumpGreaterOrEqual: 0.
+	self MoveCq: 10 R: TempReg.
+	self CmpR: ReceiverResultReg R: TempReg.
+	jump1 := self JumpLessOrEqual: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
@@ -1619,7 +1643,8 @@ DruidTestRTLCompiler >> gen_primitiveLessOrEqualsThanInverted [
 DruidTestRTLCompiler >> gen_primitiveLessThan [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 10 R: TempReg.
 	jump1 := self JumpLess: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -1656,8 +1681,9 @@ DruidTestRTLCompiler >> gen_primitiveLessThanFloats [
 DruidTestRTLCompiler >> gen_primitiveLessThanInverted [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
-	jump1 := self JumpGreater: 0.
+	self MoveCq: 10 R: TempReg.
+	self CmpR: ReceiverResultReg R: TempReg.
+	jump1 := self JumpLess: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
@@ -1716,9 +1742,9 @@ DruidTestRTLCompiler >> gen_primitiveLessThanValue [
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveLoopIncrementing [
 
-	| jump1 currentBlock b14 |
+	| jump1 currentBlock b19 |
 	self MoveCq: 10 R: TempReg.
-	b14 := self Label.
+	b19 := self Label.
 	self MoveR: TempReg R: ClassReg.
 	self AddCq: 1 R: ClassReg.
 	self CmpCq: 15 R: ClassReg.
@@ -1728,16 +1754,16 @@ DruidTestRTLCompiler >> gen_primitiveLoopIncrementing [
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self MoveR: ClassReg R: TempReg.
-	jump1 := self Jump: b14.
+	jump1 := self Jump: b19.
 	^ CompletePrimitive
 ]
 
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveLoopIncrementingGlobalState [
 
-	| jump1 currentBlock b14 |
+	| jump1 currentBlock b19 |
 	self MoveCq: 10 R: TempReg.
-	b14 := self Label.
+	b19 := self Label.
 	self MoveR: TempReg R: ClassReg.
 	self AddCq: 1 R: ClassReg.
 	self CmpCq: 15 R: ClassReg.
@@ -1747,7 +1773,7 @@ DruidTestRTLCompiler >> gen_primitiveLoopIncrementingGlobalState [
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self MoveR: ClassReg R: TempReg.
-	jump1 := self Jump: b14.
+	jump1 := self Jump: b19.
 	^ CompletePrimitive
 ]
 
@@ -2533,32 +2559,28 @@ DruidTestRTLCompiler >> gen_primitiveNextUint16At [
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveNoopLoopWithInvariant [
 
-	| jump1 jump2 currentBlock b19 |
-	self MoveCq: 3 R: TempReg.
-	self CmpCq: 10 R: ReceiverResultReg.
+	| jump1 jump2 b20 currentBlock |
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 10 R: TempReg.
 	jump1 := self JumpLess: 0.
 	self MoveCq: 3 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveCq: 5 R: ClassReg.
-	self MoveR: ReceiverResultReg R: SendNumArgsReg.
-	b19 := self Label.
-	self MoveR: SendNumArgsReg R: Extra0Reg.
-	self AddCq: 1 R: Extra0Reg.
-	self MoveR: ClassReg R: Extra1Reg.
-	self CmpCq: 10 R: Extra0Reg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	b20 := self Label.
+	self MoveR: TempReg R: ClassReg.
+	self AddCq: 1 R: ClassReg.
+	self CmpCq: 10 R: ClassReg.
 	jump1 := self JumpLess: 0.
-	self MoveR: Extra1Reg R: Extra0Reg.
-	self MoveR: Extra0Reg R: ReceiverResultReg.
+	self MoveCq: 5 R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	self genPrimReturn.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveR: Extra1Reg R: TempReg.
-	self MoveR: Extra0Reg R: SendNumArgsReg.
-	jump1 := self Jump: b19.
+	self MoveR: ClassReg R: TempReg.
+	jump1 := self Jump: b20.
 	^ CompletePrimitive
 ]
 
@@ -2566,7 +2588,8 @@ DruidTestRTLCompiler >> gen_primitiveNoopLoopWithInvariant [
 DruidTestRTLCompiler >> gen_primitiveNotEqualsThan [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 10 R: TempReg.
 	jump1 := self JumpNonZero: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -2603,7 +2626,8 @@ DruidTestRTLCompiler >> gen_primitiveNotEqualsThanFloats [
 DruidTestRTLCompiler >> gen_primitiveNotEqualsThanInverted [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
+	self MoveCq: 10 R: TempReg.
+	self CmpR: ReceiverResultReg R: TempReg.
 	jump1 := self JumpNonZero: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -2628,22 +2652,24 @@ DruidTestRTLCompiler >> gen_primitiveOr [
 	jumpTrue jmpTarget: self Label.
 	self MoveCq: 1 R: TempReg.
 	jumpNext jmpTarget: self Label.
-	self CmpCq: 5 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: ClassReg.
+	self CmpCq: 5 R: ClassReg.
 	jump1 := self JumpLess: 0.
-	self MoveR: ReceiverResultReg R: TempReg.
-	self CmpCq: 10 R: TempReg.
+	self MoveR: ReceiverResultReg R: ClassReg.
+	self CmpCq: 10 R: ClassReg.
 	jumpTrue := self JumpGreater: 0.
-	self MoveCq: 0 R: TempReg.
+	self MoveCq: 0 R: ClassReg.
 	jumpNext := self Jump: 0.
 	jumpTrue jmpTarget: self Label.
-	self MoveCq: 1 R: TempReg.
+	self MoveCq: 1 R: ClassReg.
 	jumpNext jmpTarget: self Label.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
+	self MoveR: TempReg R: ClassReg.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self CmpCq: 0 R: TempReg.
+	self CmpCq: 0 R: ClassReg.
 	jump2 := self JumpNonZero: 0.
 	self MoveCq: 10 R: ReceiverResultReg.
 	jump1 := self Jump: 0.
@@ -2696,23 +2722,26 @@ DruidTestRTLCompiler >> gen_primitiveReturnTrue [
 DruidTestRTLCompiler >> gen_primitiveSandclock [
 
 	| jump1 jump2 jump3 currentBlock |
-	self CmpCq: 10 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 10 R: TempReg.
 	jump1 := self JumpGreater: 0.
 	self MoveCq: 99 R: TempReg.
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: ClassReg.
+	self CmpCq: 0 R: ClassReg.
 	jump2 := self JumpGreater: 0.
 	self MoveCq: 116 R: ReceiverResultReg.
 	jump3 := self Jump: 0.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
+	self MoveR: TempReg R: ClassReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveCq: 1 R: TempReg.
+	self MoveCq: 1 R: ClassReg.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self AddCq: 5 R: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+	self AddCq: 5 R: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
 	self genPrimReturn.
@@ -2723,7 +2752,7 @@ DruidTestRTLCompiler >> gen_primitiveSandclock [
 DruidTestRTLCompiler >> gen_primitiveSizeofusqInt [
 
 	| currentBlock |
-	self MoveCq: 8 R: ReceiverResultReg.
+	self MoveCq: 4 R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -2936,7 +2965,8 @@ DruidTestRTLCompiler >> gen_primitiveUint8AtPut [
 DruidTestRTLCompiler >> gen_primitiveWithDeadCode [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpZero: 0.
 	self MoveCq: 55 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -2972,7 +3002,8 @@ DruidTestRTLCompiler >> gen_primitiveWithIfAssigningValue [
 DruidTestRTLCompiler >> gen_primitiveWithIfNilIfNotNilStatement [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpGreater: 0.
 	self MoveCq: 42 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -2989,7 +3020,8 @@ DruidTestRTLCompiler >> gen_primitiveWithIfNilIfNotNilStatement [
 DruidTestRTLCompiler >> gen_primitiveWithIfNotNilIfNilStatement [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpGreater: 0.
 	self MoveCq: 42 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -3006,7 +3038,8 @@ DruidTestRTLCompiler >> gen_primitiveWithIfNotNilIfNilStatement [
 DruidTestRTLCompiler >> gen_primitiveWithIfNotNilIfNilStatementWithArgument [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpGreater: 0.
 	self MoveCq: 42 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -3023,7 +3056,8 @@ DruidTestRTLCompiler >> gen_primitiveWithIfNotNilIfNilStatementWithArgument [
 DruidTestRTLCompiler >> gen_primitiveWithIfNotNilStatement [
 
 	| jump1 jump2 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpGreater: 0.
 	self MoveCq: 42 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
@@ -3059,7 +3093,8 @@ DruidTestRTLCompiler >> gen_primitiveWithIfReturningValue [
 DruidTestRTLCompiler >> gen_primitiveWithNonCompilableBranch [
 
 	| jump1 currentBlock |
-	self CmpCq: 0 R: ReceiverResultReg.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpLessOrEqual: 0.
 	self MoveCq: 11 R: ReceiverResultReg.
 	self genPrimReturn.

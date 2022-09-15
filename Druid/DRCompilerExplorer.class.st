@@ -189,7 +189,8 @@ DRCompilerExplorer >> optimizations [
 		  DRDeadCodeElimination.
 		  DRFailureCodeBasedTailDuplication.
 		  DRDeadEdgeSplitting.
-		  DRDeadBranchElimination }
+		  DRDeadBranchElimination.
+		  DRLoopInvariantCodeMotion }
 ]
 
 { #category : #accessing }

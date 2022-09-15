@@ -29,7 +29,7 @@ DRPrimitiveIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 	currentBasicBlock jumpTo: endBasicBlock.
 
 	"Remove message send block"
-	messageSend replaceUsersBy: lastFrame returnValue.
+	messageSend replaceUsesBy: lastFrame returnValue.
 	endBasicBlock removePredecessor: messageSend basicBlock.
 	messageSend basicBlock removeFromCFG
 ]

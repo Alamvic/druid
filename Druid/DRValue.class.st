@@ -268,12 +268,6 @@ DRValue >> removeUser: anInstruction [
 ]
 
 { #category : #'users-definitions' }
-DRValue >> replaceUsersBy: anotherInstruction [
-	
-	"Nothing"
-]
-
-{ #category : #'users-definitions' }
 DRValue >> replaceUsesBy: anotherInstruction [
 	
 	"Nothing"
