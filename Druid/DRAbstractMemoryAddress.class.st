@@ -25,7 +25,6 @@ DRAbstractMemoryAddress >> isMemoryAddress [
 { #category : #'users-definitions' }
 DRAbstractMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 
-	1halt.
 	self dependencies do: [ :e | 
 		e replaceDependency: anOperand by: anotherOperand ]
 ]

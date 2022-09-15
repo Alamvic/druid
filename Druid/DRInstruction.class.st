@@ -516,7 +516,7 @@ DRInstruction >> removeFromCFG [
 
 	basicBlock removeInstruction: self.
 	self operands asSet do: [ :e | e removeUser: self ].
-	self users asSet do: [ :e | e replaceOperand: self by: DRNullValue new  ]
+	self users asSet do: [ :e | e replaceDependency: self by: DRNullValue new  ]
 ]
 
 { #category : #operands }
