@@ -10,6 +10,38 @@ DRPrimitiveIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 	self executionState primitiveFailureCode: anInstruction
 ]
 
+{ #category : #visiting }
+DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
+
+	"Plug the IR with the two exit blocks"
+
+	| conditionalJump |
+	self spillStack.
+
+	conditionalJump := self
+		                   instantiateNoResultInstruction: DRBranchIfCondition
+		                   operands: { 
+				                   DREqualsThanComparison new.
+				                   executionState primitiveFailureCode.
+				                   0 asDRValue }.
+	currentBasicBlock endInstruction: conditionalJump.
+	controlFlowGraph primitiveExitBlock: currentBasicBlock.
+
+	conditionalJump trueBranch: controlFlowGraph successExitBlock.
+	controlFlowGraph successExitBlock addPredecessor: currentBasicBlock.
+
+	conditionalJump falseBranch: controlFlowGraph failureExitBlock.
+	controlFlowGraph failureExitBlock addPredecessor: currentBasicBlock.
+
+	controlFlowGraph successExitBlock endInstruction: (self
+			 instantiateNoResultInstruction: DRReturn
+			 operands: { (DRConstantValue value: numberOfArguments + 1) }).
+
+	"Make the end instruction of the failure exit finish with a Noop"
+	controlFlowGraph failureExitBlock endInstruction:
+		(self instantiateNoResultInstruction: DRPrimitiveFail)
+]
+
 { #category : #accessing }
 DRPrimitiveIRGenerator >> initialize [
 
@@ -32,6 +64,23 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 DRPrimitiveIRGenerator >> interpretCCoerceWith: aRBMessageNode [
 
 	^ aRBMessageNode arguments first acceptVisitor: self
+]
+
+{ #category : #'special cases' }
+DRPrimitiveIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
+
+	| byteSize valueToStore |
+	aRBAssignmentNode value acceptVisitor: self.
+	valueToStore := self popOperand.
+
+	byteSize := 8.
+	^ self
+		  addInstructionFrom: aRBAssignmentNode
+		  instructionKind: DRStore
+		  operands: { 
+				  byteSize asDRValue.
+				  valueToStore.
+				  DRInterpreterReference freeStartAddress }
 ]
 
 { #category : #'special cases' }
@@ -88,38 +137,55 @@ DRPrimitiveIRGenerator >> popFrame [
 	"If the interpretation stack is empty, we are returning from the primitive
 	- generate a return instruction popping receiver and arguments all at once
 	- amount to pop is expressed in bytes, so multiply by word size"
-	| vm |
-	vm := self topFrame receiverWithState: executionState.
-	super popFrame.
-	
-	"Plug the IR with the two exit blocks"
-	executionState executionStack size = 0 ifTrue: [
-		| conditionalJump |
-		self spillStack.
 
-		conditionalJump := self
-			instantiateNoResultInstruction: DRBranchIfCondition
-			operands: {
-				DREqualsThanComparison new.
-				executionState primitiveFailureCode.
-				0 asDRValue  }.
-		currentBasicBlock endInstruction: conditionalJump.
-		controlFlowGraph primitiveExitBlock: currentBasicBlock.
-		
-		conditionalJump trueBranch: controlFlowGraph successExitBlock.
-		controlFlowGraph successExitBlock addPredecessor: currentBasicBlock.
-		
-		conditionalJump falseBranch: controlFlowGraph failureExitBlock.
-		controlFlowGraph failureExitBlock addPredecessor: currentBasicBlock.
-		
-		controlFlowGraph successExitBlock endInstruction: (self
-			instantiateNoResultInstruction: DRReturn
-			operands: { DRConstantValue value: numberOfArguments + 1 "Number of things to pop" }).
+	| poppedFrame |
+	self topFrame receiverWithState: executionState.
+	poppedFrame := super popFrame.
 
-		"Make the end instruction of the failure exit finish with a Noop"
-		controlFlowGraph failureExitBlock endInstruction: (self instantiateNoResultInstruction: DRPrimitiveFail)
-	]
-	
+	executionState executionStack size = 0 ifTrue: [ 
+		self finishCodeInterpretation: poppedFrame ].
+
+	^ poppedFrame
+]
+
+{ #category : #visiting }
+DRPrimitiveIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
+
+	| arguments method |
+	arguments := aRBMessageNode arguments collect: [ :e | 
+		             e acceptVisitor: self.
+		             self popOperand ].
+
+	method := aRBMessageNode isSuperSend
+		          ifTrue: [ 
+			          self currentMethod methodClass superclass 
+				          lookupSelector: aRBMessageNode selector ]
+		          ifFalse: [ 
+		          receiver type lookupSelector: aRBMessageNode selector ].
+
+	method ifNotNil: [ 
+		(method hasPragmaNamed: #druidIRBuilder:) ifTrue: [ 
+			^ self
+				  perform: (method pragmaAt: #druidIRBuilder:) arguments first
+				  withArguments: { aRBMessageNode } ] ].
+
+	self
+		resolveMessageSend: aRBMessageNode
+		receiver: receiver
+		arguments: arguments
+		method: method
+]
+
+{ #category : #visiting }
+DRPrimitiveIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments method: method [
+
+	| instruction |
+	instruction := self instantiate: DRMethod operands: { receiver } , arguments.
+	instruction methodNode: method ast.
+	self
+		interpretCode: instruction
+		receiver: receiver
+		arguments: arguments
 ]
 
 { #category : #'pharo-stack' }

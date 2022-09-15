@@ -44,3 +44,16 @@ DRMethod >> methodNode: anObject [
 
 	methodNode := anObject
 ]
+
+{ #category : #printing }
+DRMethod >> opcode [
+	
+	^ methodNode selector 
+]
+
+{ #category : #accessing }
+DRMethod >> operands: aCollection [
+
+	"Do not track users from methods"
+	operands := aCollection asOrderedCollection
+]

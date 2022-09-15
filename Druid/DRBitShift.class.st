@@ -1,6 +1,6 @@
 Class {
 	#name : #DRBitShift,
-	#superclass : #DRInstruction,
+	#superclass : #DRArithmeticInstruction,
 	#category : #'Druid-IR'
 }
 

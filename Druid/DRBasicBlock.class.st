@@ -185,6 +185,36 @@ DRBasicBlock >> bitAnd: aValue with: anotherValue [
 	^ self addInstruction: (self instructionFactory bitAnd: aValue with: anotherValue)
 ]
 
+{ #category : #'control-flow' }
+DRBasicBlock >> breakBy: instruction [
+
+	"For avoid duplicate instructions on branches, this method create two predecessors chain from this basic block. Then move: 
+	- instructions listed before the instruction to first (upper) predecessor.
+	- the instruction to second (middle) predecessor.
+	- left remaining instructions (after the instruction) in this basic block (bottom)"
+
+	| upperPredecessor middlePredecessor instructionsBefore |
+	instruction isPhiFunction ifTrue: [ 
+		self error: 'Phi instructions cannot break a basic block!' ].
+
+	upperPredecessor := self newEmptyPredecessor.
+	middlePredecessor := self newEmptyPredecessor.
+
+	instructionsBefore := self instructions allUntil: instruction.
+	instructionsBefore do: [ :i | 
+		self removeInstruction: i.
+		upperPredecessor addInstruction: i ].
+
+
+	self removeInstruction: instruction.
+	middlePredecessor addInstruction: instruction.
+
+	^ { 
+		  upperPredecessor.
+		  middlePredecessor.
+		  self }
+]
+
 { #category : #validating }
 DRBasicBlock >> checkLivenessOf: operand [
 
@@ -660,6 +690,12 @@ DRBasicBlock >> mergeInstructionsWithDuplicatedBlock: duplicatedBlock withSucces
 				withUsers: (getUsersBlock value: myInstruction) ]
 ]
 
+{ #category : #building }
+DRBasicBlock >> messageSend: selector withOperands: operands [
+
+	^ self addInstruction: (self instructionFactory messageSend: selector withOperands: operands)
+]
+
 { #category : #accessing }
 DRBasicBlock >> methodNode [
 	
@@ -678,7 +714,7 @@ DRBasicBlock >> multiply: aValue by: anotherValue [
 	^ self addInstruction: (self instructionFactory multiply: aValue by: anotherValue)
 ]
 
-{ #category : #splitting }
+{ #category : #'control-flow' }
 DRBasicBlock >> newEmptyPredecessor [
 
 	| newBlock |
@@ -972,6 +1008,13 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 ]
 
 { #category : #building }
+DRBasicBlock >> store: instruction in: memoryAddress [
+
+	^ self addInstruction:
+		  (self instructionFactory store: instruction in: memoryAddress)
+]
+
+{ #category : #building }
 DRBasicBlock >> store: aValue into: anAddress [
 
 	^ self addInstruction: (self instructionFactory store: aValue into: anAddress)
@@ -1040,7 +1083,7 @@ DRBasicBlock >> validatePhiFunctions [
 	self phiFunctions do: [ :e | 
 		| ops |
 		ops := e operands asIdentitySet.
-		(ops size > 1 or: [ (ops anyOne isKindOf: DRNullValue) not ]) 
+		(ops size > 1 and: [ (ops noneSatisfy: [ :o | o isKindOf: DRNullValue])  ]) 
 			ifTrue: [ 
 				e operands size = self predecessors size ifFalse: [ 
 					self error: 'Phi-predecessor mismatch' ].

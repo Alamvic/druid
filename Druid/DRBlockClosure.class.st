@@ -44,6 +44,12 @@ DRBlockClosure >> isDRBlockClosure [
 	^ true
 ]
 
+{ #category : #testing }
+DRBlockClosure >> isInstruction [
+
+	^ false
+]
+
 { #category : #asd }
 DRBlockClosure >> name [
 
@@ -54,6 +60,12 @@ DRBlockClosure >> name [
 DRBlockClosure >> numberOfArguments [
 	
 	^ blockNode arguments size
+]
+
+{ #category : #printing }
+DRBlockClosure >> opcode [
+	
+	^ blockNode asString 
 ]
 
 { #category : #accessing }

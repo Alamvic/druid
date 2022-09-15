@@ -329,6 +329,12 @@ DRIRGenerator >> instructionFactory [
 	^ controlFlowGraph instructionFactory
 ]
 
+{ #category : #accessing }
+DRIRGenerator >> instructionFactory: aDRInstructionFactory [
+
+	controlFlowGraph instructionFactory: aDRInstructionFactory
+]
+
 { #category : #interpretation }
 DRIRGenerator >> instructionFor: aDRInstruction inNode: aRBBlockNode [ 
 	
@@ -668,7 +674,7 @@ DRIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 					   'objectMemory freeStartAddress') }
 ]
 
-{ #category : #'special cases' }
+{ #category : #'special-cases' }
 DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 
 	| byteSize |
@@ -678,7 +684,7 @@ DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 		instructionKind: DRLoad
 		operands: { 
 				byteSize asDRValue.
-				(DRInterpreterReference reference: 'objectMemory freeStartAddress') }
+				DRInterpreterReference freeStartAddress }
 ]
 
 { #category : #'special cases' }
@@ -1367,11 +1373,13 @@ DRIRGenerator >> popFrame [
 	poppedFrame := executionState popFrame.
 	
 	"Last frame!"
-	executionState executionStack ifEmpty: [ ^ self ].
+	executionState executionStack ifEmpty: [ ^ poppedFrame ].
 	
 	"Here we are in caller"
 	self pushOperand: poppedFrame returnValue.	
 	currentBasicBlock jumpTo: self newBasicBlock.	
+	
+	^ poppedFrame
 ]
 
 { #category : #'frame-access' }
@@ -1571,46 +1579,11 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 { #category : #visiting }
 DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 
-	| arguments method |
 	specialCases at: aRBMessageNode selector ifPresent: [ :mapping | 
 		^ self perform: mapping withArguments: { aRBMessageNode } ].
 
 	"Resolve it as a normal send"
-	arguments := aRBMessageNode arguments collect: [ :e | 
-		             e acceptVisitor: self.
-		             self popOperand ].
-
-	"(receiver isJitCompileTimeExpression and: [ 
-		 arguments allSatisfy: [ :arg | arg isJitCompileTimeExpression ] ]) 
-		ifTrue: [ 
-			| copy compileTimeExpression |
-			compileTimeExpression := RBMessageNode
-				receiver: receiver jitCompileTimeExpression
-				selector: aRBMessageNode selector
-				arguments: (arguments collect: [ :arg | 
-					arg jitCompileTimeExpression ]).
-			copy := self currentBasicBlock copy:
-				        (self instructionFactory jitCompileTimeExpression:
-					         compileTimeExpression).
-			self pushOperand: copy.
-			^ self ]."
-
-	method := aRBMessageNode isSuperSend
-		          ifTrue: [ 
-			          self currentMethod methodClass superclass 
-				          lookupSelector: aRBMessageNode selector ]
-		          ifFalse: [ 
-		          receiver type lookupSelector: aRBMessageNode selector ].
-
-	(method hasPragmaNamed: #druidIRBuilder:) ifTrue: [ 
-		^ self
-			  perform: (method pragmaAt: #druidIRBuilder:) arguments first
-			  withArguments: { aRBMessageNode } ].
-
-	self
-		interpretCode: (DRMethod methodNode: method ast)
-		receiver: receiver
-		arguments: arguments
+	self resolveMessageSend: aRBMessageNode receiver: receiver
 ]
 
 { #category : #visiting }

@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCode,
-	#superclass : #DRValue,
+	#superclass : #DRInstruction,
 	#category : #'Druid-CompilerCompiler'
 }
 
@@ -14,6 +14,12 @@ DRCode >> basicNewFrame [
 DRCode >> codeNode [
 
 	self subclassResponsibility
+]
+
+{ #category : #testing }
+DRCode >> isMandatoryInstruction [
+
+	^ true
 ]
 
 { #category : #activation }

@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #accessing }
+DROptimisation class >> repeat: times [
+
+	^ self new repeat: times
+]
+
+{ #category : #accessing }
 DROptimisation class >> then: anotherOptimisationClass [
 
 	^ self new then: anotherOptimisationClass new
@@ -20,6 +26,15 @@ DROptimisation class >> then: firstOptimisationClass then: secondOptimisationCla
 DROptimisation >> applyTo: cfg [
 
 	self subclassResponsibility
+]
+
+{ #category : #'accessing - structure variables' }
+DROptimisation >> repeat: times [
+
+	| sequencer |
+	sequencer := DROptimisationSequence new.
+	times timesRepeat: [ sequencer addOptimisation: self ].
+	^ sequencer
 ]
 
 { #category : #accessing }

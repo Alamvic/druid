@@ -9,7 +9,8 @@ Class {
 		'previousCfgs',
 		'isRecording',
 		'shouldGeneratePaths',
-		'lastOpt'
+		'lastOpt',
+		'path'
 	],
 	#classInstVars : [
 		'experiments'
@@ -77,13 +78,20 @@ DRCompilerExplorer >> goBack [
 	cfg := previousCfgs removeLast value
 ]
 
+{ #category : #accessing }
+DRCompilerExplorer >> highlightePathAt: index [
+
+	path := cfg pathAt: index
+]
+
 { #category : #initialization }
 DRCompilerExplorer >> initialize [
 
 	super initialize.
 	previousCfgs := OrderedCollection new.
-	isRecording := false.
-	shouldGeneratePaths := false
+	isRecording := true.
+	shouldGeneratePaths := false.
+	path := OrderedCollection new.
 ]
 
 { #category : #inspecting }
@@ -180,9 +188,21 @@ DRCompilerExplorer >> optimizations [
 		  DRPhiSimplication.
 		  DRDeadCodeElimination.
 		  DRFailureCodeBasedTailDuplication.
-		  DRDeadPathSplitting.
-		  DRDeadPathElimination.
-		  DRLoopInvariantCodeMotion. }
+		  DRDeadEdgeSplitting.
+		  DRDeadBranchElimination.
+		  DRLoopInvariantCodeMotion }
+]
+
+{ #category : #accessing }
+DRCompilerExplorer >> path [
+
+	^ path
+]
+
+{ #category : #accessing }
+DRCompilerExplorer >> path: anObject [
+
+	path := anObject
 ]
 
 { #category : #accessing }

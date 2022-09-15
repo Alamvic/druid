@@ -103,6 +103,12 @@ DRInstruction >> basicBlock: anObject [
 	basicBlock := anObject
 ]
 
+{ #category : #'cfg manipulation' }
+DRInstruction >> breakBasicBlock [
+
+	self basicBlock breakBy: self
+]
+
 { #category : #'loop-invariance' }
 DRInstruction >> canMoveOutsideLoopWith: backJump [
 
@@ -474,7 +480,7 @@ DRInstruction >> prettyPrint [
 	print := result
 		ifNil: [ '' ]
 		ifNotNil: [ result name, ' := ' ].
-	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result name ]))
+	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result ifNotNil: [ e result name ] ]))
 ]
 
 { #category : #printing }
@@ -510,7 +516,7 @@ DRInstruction >> removeFromCFG [
 
 	basicBlock removeInstruction: self.
 	self operands asSet do: [ :e | e removeUser: self ].
-	self users asSet do: [ :e | e replaceOperand: self by: DRNullValue new  ]
+	self users asSet do: [ :e | e replaceDependency: self by: DRNullValue new  ]
 ]
 
 { #category : #operands }

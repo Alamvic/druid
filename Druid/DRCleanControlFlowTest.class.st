@@ -211,7 +211,7 @@ DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionSecondPre
 	r0 := cfg b1 copy: 0.
 	r1 := cfg b2 copy: 1.
 	"b3 empty"
-	phi := cfg b4 phiWith: r0 with: r1.
+	phi := cfg b4 phiWith: r1 with: r0.
 	
 	self assertCollection: phi operands hasSameElements: {r0 . r1}.
 

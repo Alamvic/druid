@@ -63,6 +63,27 @@ DruidTestInterpreter >> jitCompileTimeIntegerExpression [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> lazyAssert [
+
+	<druidNotInline>
+	self stackTop = 0 ifTrue: [ self lazyFail ]
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> lazyDouble: n [
+
+	<druidNotInline>
+	^ n * 2
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> lazyFail [
+
+	<druidNotInline>
+	self primitiveFail
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithEarlyReturn [
 
 	self stackTop = 0 ifTrue: [ ^ 42 ].
@@ -141,6 +162,16 @@ DruidTestInterpreter >> primitiveArithmeticBitShiftRight [
 	receiver := self stackValue: 1.
 	argument := self stackTop.
 	self pop: 2 thenPush: (receiver >>> argument)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAssertDeferredInline [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 42.
+	self lazyAssert.
+	self pop: 1 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }
@@ -498,6 +529,15 @@ DruidTestInterpreter >> primitiveDivideByConstant [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDoubleDeferredInline [
+
+	<numberOfArguments: 0>
+	| result |
+	result := self lazyDouble: self stackTop.
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDoubleInnerBranching [
 
 	<numberOfArguments: 0>
@@ -548,6 +588,16 @@ DruidTestInterpreter >> primitiveEqualsThanValue [
 
 	<numberOfArguments: 0>
 	self pop: 1 thenPush: (self stackTop = 0)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFailDeferredInline [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 42.
+	self stackTop = 0 ifTrue: [ self lazyFail ].
+	self pop: 1 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }

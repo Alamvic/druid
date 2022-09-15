@@ -161,12 +161,9 @@ DRControlFlowGraph >> createBlockView: aBlock [
 		yourself.
 
 	boxes := aBlock instructions collect: [ :inst | 
-		RSBox new
-			model: inst;
-			color: (self instructionColor: inst);
-			border: (RSBorder new color: Color black; joinMiter);
-			yourself ] as: RSGroup.
+		self createinstructionView: inst ] as: RSGroup.
 	RSGridLayout on: boxes.
+	
 	box 
 		position: boxes position;
 		extent: boxes extent + 10.
@@ -191,10 +188,30 @@ DRControlFlowGraph >> createBlockView: aBlock [
 	^ composite
 ]
 
+{ #category : #inspecting }
+DRControlFlowGraph >> createinstructionView: instruction [
+
+	^ RSBox new
+		  model: instruction;
+		  color: (self instructionColor: instruction);
+		  border: (RSBorder new
+				   color: Color black;
+				   joinMiter);
+		  @ (RSMenuActivable new menuDo: [ :menu :element | 
+				   menu
+					   add: 'Inline'
+					   target: element model
+					   selector: #inline ]);
+		  yourself
+]
+
 { #category : #'dead-path' }
 DRControlFlowGraph >> deadBranches [
 
-	^ self deadPaths select: [ :path | self isDeadBranch: path first source to: path first destination ]
+	^ self deadPaths
+		  collect: [ :path | path first ]
+		  thenSelect: [ :edge | 
+		  self isDeadBranch: edge source to: edge destination ]
 ]
 
 { #category : #edges }
@@ -397,6 +414,12 @@ DRControlFlowGraph >> leafBlocks [
 	^ self blocks select: [ :b | b endInstruction isNoop ]
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> messageSends [
+
+	^ self instructions select: [ :i | i isMessageSend ]
+]
+
 { #category : #building }
 DRControlFlowGraph >> newBasicBlock [
 	
@@ -422,6 +445,14 @@ DRControlFlowGraph >> numberOfSpillSlots [
 DRControlFlowGraph >> outgoingEdgesFor: aBlock [
 
 	^ edgesBySource at: aBlock ifAbsent: [ #() ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> pathAt: index [
+
+	| lastEdge |
+	lastEdge := (self incomingEdgesFor: self lastBasicBlock) at: index.
+	^ lastEdge ancestors , { lastEdge }
 ]
 
 { #category : #accessing }

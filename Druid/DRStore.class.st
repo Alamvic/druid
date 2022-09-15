@@ -52,5 +52,6 @@ DRStore >> size [
 
 { #category : #types }
 DRStore >> type [
-	self shouldBeImplemented.
+
+	^ DRVoidType new
 ]
