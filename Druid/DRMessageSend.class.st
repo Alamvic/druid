@@ -14,10 +14,23 @@ DRMessageSend >> acceptVisitor: aVisitor [
 	^ aVisitor visitMessageSend: self
 ]
 
-{ #category : #inlining }
-DRMessageSend >> generateInlineIRForMethod: methodToInline [
+{ #category : #accessing }
+DRMessageSend >> arguments [
 
-	| lastFrame |
+	^ operands allButFirst
+]
+
+{ #category : #inlining }
+DRMessageSend >> generateInlineIRForMethod: classAndMethodToInline [
+
+	| lastFrame methodClass methodToInline |
+	"TODO: delegate generation to type?"
+	methodClass := classAndMethodToInline key.
+	(methodClass isKindOf: DRUndefinedType) ifTrue: [ 
+		(DRMethod methodNode: self originAST methodNode) asDRValue pushFrameIn: irGenerator receiver: self receiver. 
+		^ irGenerator resolveMessageSend: self originAST receiver: self receiver arguments: self arguments method: nil.
+		 ].
+	methodToInline := classAndMethodToInline value.
 	lastFrame := irGenerator
 		             interpretCode:
 		             (DRMethod methodNode: methodToInline)
@@ -39,11 +52,11 @@ DRMessageSend >> generateInlineIRForMethods: methodsToInline [
 					         self receiver }).
 		jump newTrueBranch: irGenerator newBasicBlock.
 		returnValues add:
-			(self generateInlineIRForMethod: classAndMethod value).
+			(self generateInlineIRForMethod: classAndMethod).
 		jump newFalseBranch: irGenerator newBasicBlock ].
 
 	returnValues add:
-		(self generateInlineIRForMethod: methodsToInline values last).
+		(self generateInlineIRForMethod: methodsToInline associations last).
 	
 	returnValues size = 1 ifTrue: [ ^ returnValues first ].
 	
@@ -116,7 +129,7 @@ DRMessageSend >> methodsToInline [
 		ifNil: [ 
 		  inlinedMethodClasses := self receiverType.
 		  (inlinedMethodClasses collect: [ :class | 
-			   class -> (class lookupSelector: self originAST selector) ast ]) asDictionary ]
+				class -> (class astForSelector: self originAST selector) ]) asDictionary ]
 ]
 
 { #category : #printing }
@@ -137,8 +150,13 @@ DRMessageSend >> receiverType [
 	| typePragmas receiverName receiverTypePragmas |
 	typePragmas := self originAST methodNode allPragmasNamed: #var:type:.
 	receiverName := self originAST receiver name.
-	receiverTypePragmas := typePragmas select: [ :pragma | pragma arguments first value = receiverName ].
-	^ receiverTypePragmas collect: [ :pragma | self class environment at: (pragma arguments last value) ]
+	receiverTypePragmas := typePragmas select: [ :pragma | 
+		                       pragma arguments first value = receiverName ].
+	^ receiverTypePragmas collect: [ :pragma | | receiverType |
+		  receiverType := pragma arguments last value.
+		  receiverType = #Unknown
+			  ifTrue: [ DRUndefinedType new ]
+			  ifFalse: [ DRClassType for: (self class environment at: receiverType) ] ]
 ]
 
 { #category : #SCCP }

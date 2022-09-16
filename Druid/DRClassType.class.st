@@ -16,10 +16,33 @@ DRClassType class >> for: aClass [
 	^ type
 ]
 
-{ #category : #'instance creation' }
+{ #category : #comparing }
+DRClassType >> = aType [
+
+	^ (self species = aType species) and: [ classType = aType classType ]
+]
+
+{ #category : #lookup }
+DRClassType >> astForSelector: aSelector [ 
+	^ (classType lookupSelector: aSelector) ast
+]
+
+{ #category : #accessing }
+DRClassType >> classType [
+
+	^ classType
+]
+
+{ #category : #accessing }
 DRClassType >> classType: aClass [
 
 	classType := aClass
+]
+
+{ #category : #comparing }
+DRClassType >> hash [
+
+	^ self species hash bitXor: classType hash
 ]
 
 { #category : #'instance creation' }

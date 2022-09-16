@@ -1258,7 +1258,7 @@ DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver ar
 
 	instruction irGenerator: self inlineGenerator.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
-	self addInstruction: instruction from: aRBMessageNode
+	^ self addInstruction: instruction from: aRBMessageNode
 ]
 
 { #category : #'basic-blocks' }

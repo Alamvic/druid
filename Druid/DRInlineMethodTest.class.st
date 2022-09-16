@@ -27,6 +27,17 @@ DRInlineMethodTest >> testInlineMethodCopiesCalleeIntoCallerMethod [
 ]
 
 { #category : #tests }
+DRInlineMethodTest >> testInlineMethodKeepsMessageSendIfTypeIsUnknown [
+
+	| cfg messageSend |	
+	cfg := self generateDruidIRFor: #methodWithUnknownTypeAnnotation:.
+	messageSend := cfg messageSends first.
+	messageSend inline.
+
+	self assert: (cfg messageSends anySatisfy: [ :ms | ms originAST = messageSend originAST ])
+]
+
+{ #category : #tests }
 DRInlineMethodTest >> testInlineMethodWithMultiplePossibleTypesInlinesAllPossibleMethods [
 
 	| cfg messageSend |	

@@ -3,3 +3,9 @@ Class {
 	#superclass : #DRTopType,
 	#category : #'Druid-IR-Types'
 }
+
+{ #category : #lookup }
+DRUndefinedType >> astForSelector: aSelector [
+
+	^ nil
+]
