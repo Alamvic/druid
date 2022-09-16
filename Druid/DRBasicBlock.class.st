@@ -538,6 +538,26 @@ DRBasicBlock >> instructionAfter: anInstruction [
 	^ instructions after: anInstruction
 ]
 
+{ #category : #'enumerating instructions' }
+DRBasicBlock >> instructionBefore: anInstruction [
+
+	anInstruction isPhiFunction ifTrue: [ 
+		"Phi functions are always at the beginning of the block and they are conceptually executed all at the same time
+		However, we may want to consider ordering when navigating across phis
+		For now, this is intentionally left unimplemented"
+		^ self notYetImplemented ].
+
+	endInstruction = anInstruction
+		ifTrue: [ ^ self instructions last ].
+
+	instructions first = anInstruction
+		"Not defined yet. Could return either a phi, or nothing"
+		ifTrue: [ ^ self notYetImplemented ].
+	
+	"Otherwise, the previous instruction is the previous in the list"
+	^ instructions before: anInstruction
+]
+
 { #category : #building }
 DRBasicBlock >> instructionFactory [
 	

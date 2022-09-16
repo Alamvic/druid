@@ -41,7 +41,12 @@ DRMessageSend >> generateInlineIRForMethods: methodsToInline [
 		returnValues add:
 			(self generateInlineIRForMethod: classAndMethod value).
 		jump newFalseBranch: irGenerator newBasicBlock ].
-	returnValues add: (self generateInlineIRForMethod: methodsToInline values last).
+
+	returnValues add:
+		(self generateInlineIRForMethod: methodsToInline values last).
+	
+	returnValues size = 1 ifTrue: [ ^ returnValues first ].
+	
 	lastBlock := irGenerator newBasicBlock.
 	returnValues do: [ :returnValue | 
 		returnValue basicBlock jumpTo: lastBlock ].

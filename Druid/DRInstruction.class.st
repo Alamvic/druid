@@ -483,6 +483,12 @@ DRInstruction >> prettyPrint [
 	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result ifNotNil: [ e result name ] ]))
 ]
 
+{ #category : #accessing }
+DRInstruction >> previousInstruction [
+	
+	^ self basicBlock instructionBefore: self
+]
+
 { #category : #printing }
 DRInstruction >> printOn: aStream [
 
