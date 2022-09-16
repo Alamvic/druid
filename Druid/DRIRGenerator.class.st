@@ -1244,6 +1244,7 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 
 { #category : #accessing }
 DRIRGenerator >> ir [
+
 	^ controlFlowGraph
 ]
 

@@ -67,7 +67,7 @@ DRMessageSend >> inline [
 
 	irGenerator currentBasicBlock jumpTo: pieces last.
 	"Remove message send block"
-	self replaceUsersBy: inlinedMethodReturnValue.
+	self replaceUsesBy: inlinedMethodReturnValue.
 	pieces last removePredecessor: self basicBlock.
 	self basicBlock removeFromCFG
 ]
