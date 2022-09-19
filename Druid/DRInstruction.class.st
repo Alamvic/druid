@@ -382,7 +382,7 @@ DRInstruction >> operand1: aDRAbsoluteMemoryAddress [
 { #category : #accessing }
 DRInstruction >> operand2 [
 
-	^ operands at: 2
+	^ operands at: 2 ifAbsent: [nil]
 ]
 
 { #category : #operands }
