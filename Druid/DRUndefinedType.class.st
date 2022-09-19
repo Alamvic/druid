@@ -9,3 +9,9 @@ DRUndefinedType >> astForSelector: aSelector [
 
 	^ nil
 ]
+
+{ #category : #accessing }
+DRUndefinedType >> typeName [
+
+	^ 'Undefined'
+]

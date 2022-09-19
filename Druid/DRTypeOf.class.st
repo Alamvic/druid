@@ -23,8 +23,8 @@ DRTypeOf >> isTypeOf [
 
 { #category : #accessing }
 DRTypeOf >> opcode [
-	
-	^ 'type of ', typeClass classType name
+
+	^ 'type of ', typeClass typeName
 ]
 
 { #category : #accessing }

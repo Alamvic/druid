@@ -137,6 +137,14 @@ DruidTestInterpreter >> methodWithUnknownTypeAnnotation: aCollection [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotation: aCollection [
+
+	<var: #aCollection type: #Unknown>
+	<var: #aCollection type: #Dictionary>
+	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> multipleReturnsWithDeadPath [
 
 	(self stackTop anyMask: 2) ifTrue: [ ^ 1 ].

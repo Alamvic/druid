@@ -44,7 +44,7 @@ DRMessageSend >> generateInlineIRForMethods: methodsToInline [
 
 	| returnValues lastBlock |
 	returnValues := OrderedCollection new.
-	methodsToInline associations allButLastDo: [ :classAndMethod | 
+	methodsToInline allButLastDo: [ :classAndMethod | 
 		| jump |
 		jump := irGenerator currentBasicBlock endInstruction:
 			        (DRBranchIfCondition operands: { 
@@ -56,7 +56,7 @@ DRMessageSend >> generateInlineIRForMethods: methodsToInline [
 		jump newFalseBranch: irGenerator newBasicBlock ].
 
 	returnValues add:
-		(self generateInlineIRForMethod: methodsToInline associations last).
+		(self generateInlineIRForMethod: methodsToInline last).
 	
 	returnValues size = 1 ifTrue: [ ^ returnValues first ].
 	
@@ -125,11 +125,11 @@ DRMessageSend >> methodsToInline [
 
 	| inlinedMethodClasses |
 	^ methodNode
-		ifNotNil: [ {(#default -> methodNode)} asDictionary ]
+		ifNotNil: [ {(#default -> methodNode)} ]
 		ifNil: [ 
 		  inlinedMethodClasses := self receiverType.
 		  (inlinedMethodClasses collect: [ :class | 
-				class -> (class astForSelector: self originAST selector) ]) asDictionary ]
+				class -> (class astForSelector: self originAST selector) ]) ]
 ]
 
 { #category : #printing }
@@ -147,16 +147,21 @@ DRMessageSend >> receiver [
 { #category : #inlining }
 DRMessageSend >> receiverType [
 
-	| typePragmas receiverName receiverTypePragmas |
+	| typePragmas receiverName receiverTypePragmas receiverTypes |
 	typePragmas := self originAST methodNode allPragmasNamed: #var:type:.
 	receiverName := self originAST receiver name.
 	receiverTypePragmas := typePragmas select: [ :pragma | 
 		                       pragma arguments first value = receiverName ].
-	^ receiverTypePragmas collect: [ :pragma | | receiverType |
-		  receiverType := pragma arguments last value.
-		  receiverType = #Unknown
+	receiverTypes := receiverTypePragmas collect: [ :pragma | pragma arguments last value.].
+	"Unknown should always be the last type, as it's used as a fallback when inlining"
+	receiverTypes detect: [:type | type = #Unknown] ifFound: [
+		receiverTypes remove: #Unknown.
+		receiverTypes add: #Unknown.
+		].
+	^ receiverTypes collect: [ :type |
+		  type = #Unknown
 			  ifTrue: [ DRUndefinedType new ]
-			  ifFalse: [ DRClassType for: (self class environment at: receiverType) ] ]
+			  ifFalse: [ DRClassType for: (self class environment at: type) ] ]
 ]
 
 { #category : #SCCP }

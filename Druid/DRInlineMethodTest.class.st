@@ -27,6 +27,19 @@ DRInlineMethodTest >> testInlineMethodCopiesCalleeIntoCallerMethod [
 ]
 
 { #category : #tests }
+DRInlineMethodTest >> testInlineMethodKeepsMessageSendFallbackAsLastBranch [
+
+	| cfg messageSend inlinedCondition inlinedMessageSend |	
+	cfg := self generateDruidIRFor: #methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotation:.
+	messageSend := cfg messageSends first.
+	messageSend inline.
+
+	inlinedCondition := cfg allConditionalJumps first.
+	inlinedMessageSend := cfg messageSends detect: [ :ms | ms originAST = messageSend originAST ].
+	self assert: (inlinedCondition falseBranch successors anySatisfy: [:block | block includesInstruction: inlinedMessageSend]).
+]
+
+{ #category : #tests }
 DRInlineMethodTest >> testInlineMethodKeepsMessageSendIfTypeIsUnknown [
 
 	| cfg messageSend |	

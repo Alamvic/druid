@@ -50,3 +50,9 @@ DRClassType >> lookupClass [
 	
 	^ classType
 ]
+
+{ #category : #accessing }
+DRClassType >> typeName [
+
+	^ classType name
+]
