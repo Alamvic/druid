@@ -48,14 +48,13 @@ DRLoop >> bodyInstructions [
 { #category : #'cfg manipulation' }
 DRLoop >> createLoopPreheaderBlocks [
 
-	| preheaderBlock loopPredecessor conditionJump loopHeaderBlock loopExitBlock preheaderConditionBlock loopConditionJump |
-	loopHeaderBlock := backJump backJumpTargets unique.
-	loopPredecessor := (loopHeaderBlock predecessors asSet copyWithout:
-		                    backJump basicBlock) unique.
+	| preheaderBlock loopPredecessor conditionJump headerBlock loopExitBlock preheaderConditionBlock loopConditionJump |
+	headerBlock := self headerBlock.
+	loopPredecessor := self preheaderBlock.
 
 	"1. Create preheader and preheader condition blocks"
 	preheaderBlock := loopPredecessor newEmptySuccessors anyOne.
-	preheaderConditionBlock := loopHeaderBlock basicDuplicate.
+	preheaderConditionBlock := headerBlock basicDuplicate.
 
 	"2. Rewire preheader condition block phis"
 	"We need to replace the phis from last to first, since phis should otherwise be declares above other instructions"
@@ -66,7 +65,7 @@ DRLoop >> createLoopPreheaderBlocks [
 
 	"3. Link new blocks"
 	conditionJump := preheaderConditionBlock lastInstruction.
-	loopConditionJump := loopHeaderBlock lastInstruction.
+	loopConditionJump := headerBlock lastInstruction.
 	loopExitBlock := loopConditionJump falseBranch.
 
 	loopExitBlock addPredecessor: preheaderConditionBlock.
@@ -80,7 +79,7 @@ DRLoop >> createLoopPreheaderBlocks [
 		by: preheaderConditionBlock.
 	preheaderConditionBlock addPredecessor: loopPredecessor.
 
-	loopHeaderBlock
+	headerBlock
 		mergeInstructionsWithDuplicatedBlock: preheaderConditionBlock
 		withSuccessors: { loopExitBlock }
 		usingUsers: [ :i | 
