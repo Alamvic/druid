@@ -126,6 +126,15 @@ DRValue >> isInstruction [
 ]
 
 { #category : #testing }
+DRValue >> isInvariantFrom: loopLatchBasicBlock [
+
+	"A value is loop invariant with respect to a given loop if it can be moved outside the body of the loop without affecting the semantics of the program.
+	A loop latch node is a basic block that contains a back jump to the header of the loop."
+
+	self subclassResponsibility
+]
+
+{ #category : #testing }
 DRValue >> isJITCompileTimeExpression: aString [ 
 	
 	^ false

@@ -272,8 +272,11 @@ DRInstruction >> isInstruction [
 ]
 
 { #category : #'loop-invariance' }
-DRInstruction >> isInvariantFrom: aDRBasicBlock [ 
-	^ aDRBasicBlock isDominatedBy: self basicBlock
+DRInstruction >> isInvariantFrom: loopLatchBasicBlock [
+
+	| loopHeader |
+	loopHeader := loopLatchBasicBlock successor.
+	^ loopHeader isDominatedBy: self basicBlock
 ]
 
 { #category : #testing }

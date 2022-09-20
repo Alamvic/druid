@@ -19,20 +19,14 @@ DRLoopInvariantCodeMotion >> applyTo: aDRControlFlowGraph [
 DRLoopInvariantCodeMotion >> applyToLoop: backJump [
 
 	| instructionsToMove |
-	instructionsToMove := (backJump loopBlocks flatCollect: [ :block | 
-		                       block instructions ]) select: [ :instruction | 
-		                      instruction canMoveOutsideLoopWith: backJump ].
-	instructionsToMove ifEmpty: [ ^ self ].
-
-	self
-		moveAllLoopInstructions: instructionsToMove
-		outsideBackjump: backJump
+	instructionsToMove := (backJump loopBlocks flatCollect: [ :block | block instructions ]).
+	self tryMoveAllLoopInstructions: instructionsToMove outsideBackjump: backJump
 ]
 
 { #category : #operations }
-DRLoopInvariantCodeMotion >> moveAllLoopInstructions: instructionsToMove outsideBackjump: backJump [
+DRLoopInvariantCodeMotion >> createLoopPreheaderBlocks: backJump [
 
-	| loopHeaderBlock loopPredecessor preheaderBlock preheaderConditionBlock conditionJump loopConditionJump loopExitBlock |
+	| preheaderBlock loopPredecessor conditionJump loopHeaderBlock loopExitBlock preheaderConditionBlock loopConditionJump |
 	loopHeaderBlock := backJump backJumpTargets unique.
 	loopPredecessor := (loopHeaderBlock predecessors asSet copyWithout:
 		                    backJump basicBlock) unique.
@@ -70,8 +64,47 @@ DRLoopInvariantCodeMotion >> moveAllLoopInstructions: instructionsToMove outside
 		usingUsers: [ :i | 
 			i nonLocalUsers select: [ :u | 
 				u isDominatedBy: loopExitBlock firstInstruction ] ].
+	^ preheaderBlock
+]
 
-	"4. Code motion"
+{ #category : #operations }
+DRLoopInvariantCodeMotion >> moveAllLoopInstructions: instructionsToMove outsideBackjump: backJump intoPreheader: preheader [
+
+	| preheaderBlock |
+	preheaderBlock := preheader ifNil: [ self createLoopPreheaderBlocks: backJump ].
 	instructionsToMove do: [ :i | 
 		i moveToDominatingBlock: preheaderBlock ]
+]
+
+{ #category : #operations }
+DRLoopInvariantCodeMotion >> tryMoveAllLoopInstructions: candidateInstructions outsideBackjump: backJump [
+
+	self
+		tryMoveAllLoopInstructions: candidateInstructions
+		outsideBackjump: backJump
+		intoPreheader: nil
+]
+
+{ #category : #operations }
+DRLoopInvariantCodeMotion >> tryMoveAllLoopInstructions: candidateInstructions outsideBackjump: backJump intoPreheader: preheader [
+
+	| instructionsToMove preheaderBlock headerBlock |
+	instructionsToMove := candidateInstructions select: [ :instruction | 
+		                      instruction canMoveOutsideLoopWith: backJump ].
+	instructionsToMove ifEmpty: [ ^ self ].
+
+	self
+		moveAllLoopInstructions: instructionsToMove
+		outsideBackjump: backJump
+		intoPreheader: preheader.
+
+	headerBlock := backJump basicBlock successor.
+	preheaderBlock := preheader ifNil: [(headerBlock predecessors asSet copyWithout:
+		                    backJump basicBlock) unique].
+
+	self
+		tryMoveAllLoopInstructions:
+		(instructionsToMove flatCollect: [ :i | i users ])
+		outsideBackjump: backJump
+		intoPreheader: preheaderBlock
 ]

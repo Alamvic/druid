@@ -54,7 +54,7 @@ DRConstantValue >> isCopy [
 ]
 
 { #category : #'loop-invariance' }
-DRConstantValue >> isInvariantFrom: aDRBasicBlock [ 
+DRConstantValue >> isInvariantFrom: loopLatchBasicBlock [ 
 	^ true
 ]
 

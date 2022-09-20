@@ -473,7 +473,7 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 	myInstruction hasNonLocalUsers ifFalse: [ "Nothing to do"
 		self assert: users isEmpty.
 		^ self ].
-	frontier isEmpty ifTrue: [ "Last usefull block"
+	frontier isEmpty ifTrue: [ "Last useful block"
 		self assert: users isEmpty.
 		^ self ].
 
