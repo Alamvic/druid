@@ -46,7 +46,8 @@ DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [
 ]
 
 { #category : #accessing }
-DRPhiFunction >> canMoveOutsideLoopWith: backJump [
+DRPhiFunction >> canMoveOutsideLoop: backJump [
+
 	^ false
 ]
 
@@ -78,12 +79,12 @@ DRPhiFunction >> isEmpty [
 ]
 
 { #category : #'loop-invariance' }
-DRPhiFunction >> isInvariantFrom: loopLatchBasicBlock [ 
+DRPhiFunction >> isInvariantFrom: loop [
 
 	"This is thought for phis inside loop header blocks. 
 	The invariance from the loop body is correct if there are no changes for the variable inside the loop => the value for that predecessor is null"
 
-	^ (self valuesForPredecessor: loopLatchBasicBlock) anySatisfy: #isNullValue.
+	^ (self valuesForPredecessor: loop latchBlock) anySatisfy: #isNullValue.
 ]
 
 { #category : #testing }

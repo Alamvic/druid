@@ -17,7 +17,7 @@ DRObjectReferenceValue >> isConstant [
 ]
 
 { #category : #testing }
-DRObjectReferenceValue >> isInvariantFrom: loopLatchBasicBlock [ 
+DRObjectReferenceValue >> isInvariantFrom: loop [
 	^ true
 ]
 

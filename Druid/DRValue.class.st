@@ -126,10 +126,9 @@ DRValue >> isInstruction [
 ]
 
 { #category : #testing }
-DRValue >> isInvariantFrom: loopLatchBasicBlock [
+DRValue >> isInvariantFrom: loop [
 
-	"A value is loop invariant with respect to a given loop if it can be moved outside the body of the loop without affecting the semantics of the program.
-	A loop latch node is a basic block that contains a back jump to the header of the loop."
+	"A value is loop invariant with respect to a given loop if it can be moved outside the body of the loop without affecting the semantics of the program."
 
 	self subclassResponsibility
 ]

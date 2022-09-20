@@ -11,100 +11,44 @@ DRLoopInvariantCodeMotion >> applyTo: aDRControlFlowGraph [
 	- it won't optimize loops that contain multiple basic blocks (e.g. loops that contain ifs)
 	- when optimizing nested loops, it will only hoist loop-invariant instructions out of a single loop"
 
-	aDRControlFlowGraph allBackJumps do: [ :backJump | 
-		self applyToLoop: backJump ]
+	aDRControlFlowGraph allLoops do: [ :loop |
+		self moveAllInvariantLoopInstructionsUp: loop ]
 ]
 
 { #category : #operations }
-DRLoopInvariantCodeMotion >> applyToLoop: backJump [
+DRLoopInvariantCodeMotion >> moveAllInvariantLoopInstructionsUp: loop [
 
-	| instructionsToMove |
-	instructionsToMove := (backJump loopBlocks flatCollect: [ :block | block instructions ]).
-	self tryMoveAllLoopInstructions: instructionsToMove outsideBackjump: backJump
+	self
+		tryMoveAllInstructions: loop bodyInstructions
+		outsideLoop: loop
+		intoPreheader: nil
 ]
 
 { #category : #operations }
-DRLoopInvariantCodeMotion >> createLoopPreheaderBlocks: backJump [
-
-	| preheaderBlock loopPredecessor conditionJump loopHeaderBlock loopExitBlock preheaderConditionBlock loopConditionJump |
-	loopHeaderBlock := backJump backJumpTargets unique.
-	loopPredecessor := (loopHeaderBlock predecessors asSet copyWithout:
-		                    backJump basicBlock) unique.
-
-	"1. Create preheader and preheader condition blocks"
-	preheaderBlock := loopPredecessor newEmptySuccessors anyOne.
-	preheaderConditionBlock := loopHeaderBlock basicDuplicate.
-
-	"2. Rewire preheader condition block phis"
-	"We need to replace the phis from last to first, since phis should otherwise be declares above other instructions"
-	preheaderConditionBlock phiFunctions reverse do: [ :phi | 
-		phi rewirePhiTo: preheaderBlock ].
-	preheaderConditionBlock predecessors copy do: [ :p | 
-		preheaderConditionBlock removePredecessor: p ].
-
-	"3. Link new blocks"
-	conditionJump := preheaderConditionBlock lastInstruction.
-	loopConditionJump := loopHeaderBlock lastInstruction.
-	loopExitBlock := loopConditionJump falseBranch.
-
-	loopExitBlock addPredecessor: preheaderConditionBlock.
-	conditionJump trueBranch: preheaderBlock.
-
-	loopPredecessor
-		replaceSuccessor: preheaderBlock
-		by: preheaderConditionBlock.
-	preheaderBlock
-		replacePredecessor: loopPredecessor
-		by: preheaderConditionBlock.
-	preheaderConditionBlock addPredecessor: loopPredecessor.
-
-	loopHeaderBlock
-		mergeInstructionsWithDuplicatedBlock: preheaderConditionBlock
-		withSuccessors: { loopExitBlock }
-		usingUsers: [ :i | 
-			i nonLocalUsers select: [ :u | 
-				u isDominatedBy: loopExitBlock firstInstruction ] ].
-	^ preheaderBlock
-]
-
-{ #category : #operations }
-DRLoopInvariantCodeMotion >> moveAllLoopInstructions: instructionsToMove outsideBackjump: backJump intoPreheader: preheader [
+DRLoopInvariantCodeMotion >> moveAllLoopInstructions: instructionsToMove outsideLoop: loop intoPreheader: preheader [
 
 	| preheaderBlock |
-	preheaderBlock := preheader ifNil: [ self createLoopPreheaderBlocks: backJump ].
+	preheaderBlock := preheader ifNil: [ loop createLoopPreheaderBlocks ].
 	instructionsToMove do: [ :i | 
 		i moveToDominatingBlock: preheaderBlock ]
 ]
 
 { #category : #operations }
-DRLoopInvariantCodeMotion >> tryMoveAllLoopInstructions: candidateInstructions outsideBackjump: backJump [
+DRLoopInvariantCodeMotion >> tryMoveAllInstructions: candidateInstructions outsideLoop: loop intoPreheader: preheader [
 
-	self
-		tryMoveAllLoopInstructions: candidateInstructions
-		outsideBackjump: backJump
-		intoPreheader: nil
-]
-
-{ #category : #operations }
-DRLoopInvariantCodeMotion >> tryMoveAllLoopInstructions: candidateInstructions outsideBackjump: backJump intoPreheader: preheader [
-
-	| instructionsToMove preheaderBlock headerBlock |
+	| instructionsToMove |
 	instructionsToMove := candidateInstructions select: [ :instruction | 
-		                      instruction canMoveOutsideLoopWith: backJump ].
+		                      instruction canMoveOutsideLoop: loop ].
 	instructionsToMove ifEmpty: [ ^ self ].
 
 	self
 		moveAllLoopInstructions: instructionsToMove
-		outsideBackjump: backJump
+		outsideLoop: loop
 		intoPreheader: preheader.
 
-	headerBlock := backJump basicBlock successor.
-	preheaderBlock := preheader ifNil: [(headerBlock predecessors asSet copyWithout:
-		                    backJump basicBlock) unique].
-
 	self
-		tryMoveAllLoopInstructions:
+		tryMoveAllInstructions:
 		(instructionsToMove flatCollect: [ :i | i users ])
-		outsideBackjump: backJump
-		intoPreheader: preheaderBlock
+		outsideLoop: loop
+		intoPreheader: (preheader ifNil: [ loop preheaderBlock ])
 ]

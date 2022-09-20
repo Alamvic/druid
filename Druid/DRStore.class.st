@@ -14,7 +14,7 @@ DRStore >> acceptVisitor: aVisitor [
 ]
 
 { #category : #testing }
-DRStore >> canMoveOutsideLoopWith: backJump [
+DRStore >> canMoveOutsideLoop: backJump [
 
 	^ false
 ]

@@ -36,7 +36,7 @@ DRPhysicalRegister >> id [
 ]
 
 { #category : #testing }
-DRPhysicalRegister >> isInvariantFrom: loopLatchBasicBlock [
+DRPhysicalRegister >> isInvariantFrom: loop [
 
 	"Since this is a physical register, it doestn't follows SSA form "
 
