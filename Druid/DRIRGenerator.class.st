@@ -1452,24 +1452,15 @@ DRIRGenerator >> receiverRegister [
 { #category : #visiting }
 DRIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
 
-	| arguments method |
+	| arguments |
 	arguments := aRBMessageNode arguments collect: [ :e | 
 		             e acceptVisitor: self.
 		             self popOperand ].
-
-	method := aRBMessageNode isSuperSend
-		          ifTrue: [ 
-			          self currentMethod methodClass superclass 
-				          lookupSelector: aRBMessageNode selector ]
-		          ifFalse: [ 
-		          receiver lookupClass lookupSelector:
-			          aRBMessageNode selector ].
 
 	self
 		resolveMessageSend: aRBMessageNode
 		receiver: receiver
 		arguments: arguments
-		method: method
 ]
 
 { #category : #'special cases' }

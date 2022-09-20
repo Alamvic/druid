@@ -27,13 +27,16 @@ DRMessageSend >> generateInlineIRForMethod: classAndMethodToInline [
 	"TODO: delegate generation to type?"
 	methodClass := classAndMethodToInline key.
 	(methodClass isKindOf: DRUndefinedType) ifTrue: [ 
-		(DRMethod methodNode: self originAST methodNode) asDRValue pushFrameIn: irGenerator receiver: self receiver. 
-		^ irGenerator resolveMessageSend: self originAST receiver: self receiver arguments: self arguments method: nil.
-		 ].
+		(DRMethod methodNode: self originAST methodNode) asDRValue
+			pushFrameIn: irGenerator
+			receiver: self receiver.
+		^ irGenerator
+			  resolveMessageSend: self originAST
+			  receiver: self receiver
+			  arguments: self arguments ].
 	methodToInline := classAndMethodToInline value.
 	lastFrame := irGenerator
-		             interpretCode:
-		             (DRMethod methodNode: methodToInline)
+		             interpretCode: (DRMethod methodNode: methodToInline)
 		             receiver: operands first
 		             arguments: operands allButFirst.
 	^ lastFrame returnValue

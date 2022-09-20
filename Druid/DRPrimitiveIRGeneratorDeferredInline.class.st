@@ -5,16 +5,17 @@ Class {
 }
 
 { #category : #visiting }
-DRPrimitiveIRGeneratorDeferredInline >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments method: method [
+DRPrimitiveIRGeneratorDeferredInline >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
 
-	| newPrimitiveFailureCode |
+	| newPrimitiveFailureCode method |
+	method := self methodFor: aRBMessageNode withReceiver: receiver.
+
 	"If method has deferred pragma, then resolve as message send (will be inlined during optimisation)"
 	(method ast hasPragmaNamed: #druidNotInline) ifFalse: [ 
 		^ super
 			  resolveMessageSend: aRBMessageNode
 			  receiver: receiver
-			  arguments: arguments
-			  method: method ].
+			  arguments: arguments ].
 	self
 		addInstructionWithNoResultFrom: aRBMessageNode
 		instructionKind: DRStore

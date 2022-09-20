@@ -109,6 +109,16 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aRBNode [
 	self pushOperand: executionState primitiveFailureCode
 ]
 
+{ #category : #visiting }
+DRPrimitiveIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
+
+	^ aRBMessageNode isSuperSend
+		  ifTrue: [ 
+			  self currentMethod methodClass superclass lookupSelector:
+				  aRBMessageNode selector ]
+		  ifFalse: [ receiver type lookupSelector: aRBMessageNode selector ]
+]
+
 { #category : #accessing }
 DRPrimitiveIRGenerator >> newBasicBlock [
 
@@ -157,10 +167,13 @@ DRPrimitiveIRGenerator >> popFrame [
 ]
 
 { #category : #visiting }
-DRPrimitiveIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments method: method [
+DRPrimitiveIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
 
-	| instruction |
-	instruction := self instantiate: DRMethod operands: { receiver } , arguments.
+	| instruction method |
+	method := self methodFor: aRBMessageNode withReceiver: receiver.
+	instruction := self
+		               instantiate: DRMethod
+		               operands: { receiver } , arguments.
 	instruction methodNode: method ast.
 	self
 		interpretCode: instruction
