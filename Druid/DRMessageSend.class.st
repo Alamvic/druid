@@ -26,7 +26,8 @@ DRMessageSend >> generateInlineIRForMethod: classAndMethodToInline [
 	| lastFrame methodClass methodToInline |
 	"TODO: delegate generation to type?"
 	methodClass := classAndMethodToInline key.
-	(methodClass isKindOf: DRUndefinedType) ifTrue: [ 
+	(methodClass isKindOf: DRUndefinedType) ifTrue: [
+		"If we don't know the receiver's type, copy the message send" 
 		(DRMethod methodNode: self originAST methodNode) asDRValue
 			pushFrameIn: irGenerator
 			receiver: self receiver.
