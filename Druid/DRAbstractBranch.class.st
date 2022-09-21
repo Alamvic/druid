@@ -71,6 +71,20 @@ DRAbstractBranch >> isJump [
 	^ true
 ]
 
+{ #category : #building }
+DRAbstractBranch >> newFalseBranch: aDRBasicBlock [
+
+	aDRBasicBlock addPredecessor: self basicBlock.
+	^ self falseBranch: aDRBasicBlock
+]
+
+{ #category : #building }
+DRAbstractBranch >> newTrueBranch: aDRBasicBlock [
+
+	aDRBasicBlock addPredecessor: self basicBlock.
+	^ self trueBranch: aDRBasicBlock
+]
+
 { #category : #printing }
 DRAbstractBranch >> opcode [
 	

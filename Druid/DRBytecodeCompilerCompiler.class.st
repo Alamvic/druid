@@ -38,7 +38,7 @@ DRBytecodeCompilerCompiler >> initialize [
 		optimisations add: DRCogitCanonicaliser new.
 		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
-		optimisations add: (DRDeadPathSplitting then: DRDeadPathElimination) ].
+		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination) ].
 	
 	"Last Phase, make code coggable"
     optimisations add: DRCogitOperandSorter new.

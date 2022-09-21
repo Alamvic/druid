@@ -54,6 +54,11 @@ DRCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method [
 ]
 
 { #category : #'generation-IR' }
+DRCompilerCompiler >> createInitialBasicBlock [
+	^ irGenerator newBasicBlock
+]
+
+{ #category : #'generation-IR' }
 DRCompilerCompiler >> customise [
 
 	^ self customiseFor: self sourceMethod
@@ -79,14 +84,27 @@ DRCompilerCompiler >> generateDruidIR [
 DRCompilerCompiler >> generateDruidIRFor: method [
 	
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	| cfg |
+	| initialBasicBlock startBlock cfg numArgs arguments loadArgumentInst |
 	
-	self configureIRBuilder: irGenerator forMethod: method. 
-	irGenerator interpretMethod: (DRMethod methodNode: method ast) receiver: (DRInterpreterValue value: interpreter).
+	"Create the initial basic block"
+	startBlock := irGenerator initialBasicBlock.
+	initialBasicBlock := self createInitialBasicBlock.
+	startBlock jumpTo: initialBasicBlock.
+	
+	numArgs := (self numberOfArguments: method).
+	irGenerator numberOfArguments: numArgs.
+	arguments := OrderedCollection new.
+	(numArgs > 0) ifTrue: [1 to: numArgs do: [ :i |
+		 loadArgumentInst := "TODO: Use instructionFactory to create Result register"
+					DRLoadArgument new operands: { i }; yourself.
+		 initialBasicBlock addInstruction: loadArgumentInst.
+		 arguments add: loadArgumentInst ]].
+	
+	irGenerator interpretCode: (DRMethod methodNode: method ast) receiver: (DRInterpreterValue value: interpreter) arguments: arguments.
 	
 	cfg := irGenerator ir.
 
-	"Clean garbage to generate a validate CFG"
+	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: cfg.
 	DRDeadCodeElimination new applyTo: cfg.
 	cfg validate.
@@ -193,6 +211,5 @@ DRCompilerCompiler >> targetName [
 { #category : #'ast-to-source' }
 DRCompilerCompiler >> writeAST: aRBMethodNode [ 
 	
-	compilerClass compile: (aRBMethodNode formattedCodeIn: self class) classified: #generated
-
+	compilerClass compile: (aRBMethodNode formattedCode) classified: #generated
 ]

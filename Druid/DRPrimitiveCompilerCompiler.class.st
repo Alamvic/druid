@@ -27,6 +27,15 @@ DRPrimitiveCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method
 ]
 
 { #category : #accessing }
+DRPrimitiveCompilerCompiler >> createInitialBasicBlock [
+	| initial initialBasicBlock |
+	initialBasicBlock := super createInitialBasicBlock.
+	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
+	initialBasicBlock addInstruction: initial.
+	^ initialBasicBlock
+]
+
+{ #category : #accessing }
 DRPrimitiveCompilerCompiler >> initialize [
 
 	super initialize.
@@ -56,6 +65,11 @@ DRPrimitiveCompilerCompiler >> initialize [
 DRPrimitiveCompilerCompiler >> newIRGenerator [
 
 	^ DRPrimitiveIRGenerator new
+]
+
+{ #category : #accessing }
+DRPrimitiveCompilerCompiler >> numberOfArguments: aMethod [ 
+	^ (aMethod ast pragmaNamed: #numberOfArguments:) arguments first value
 ]
 
 { #category : #accessing }

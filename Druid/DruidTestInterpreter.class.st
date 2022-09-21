@@ -84,10 +84,30 @@ DruidTestInterpreter >> lazyFail [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithArg: aCollection [
+	<var: #aCollection type: #OrderedCollection>
+	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithEarlyReturn [
 
 	self stackTop = 0 ifTrue: [ ^ 42 ].
 	^ 57
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithMultipleTypeAnnotations: aCollection [
+
+	<var: #aCollection type: #OrderedCollection>
+	<var: #aCollection type: #Dictionary>
+	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithNoTypeAnnotation: aCollection [
+	
+	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -106,6 +126,22 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	"Dead code"
 	^ 16rFFFF
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithUnknownTypeAnnotation: aCollection [
+
+	<var: #aCollection type: #OrderedCollection>
+	<var: #aCollection type: #Unknown>
+	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotation: aCollection [
+
+	<var: #aCollection type: #Unknown>
+	<var: #aCollection type: #Dictionary>
+	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : #'as yet unclassified' }

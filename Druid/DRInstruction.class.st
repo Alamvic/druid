@@ -9,7 +9,7 @@ Class {
 		'originAST',
 		'basicBlock',
 		'users',
-		'type'
+		'classType'
 	],
 	#category : #'Druid-IR'
 }
@@ -382,7 +382,7 @@ DRInstruction >> operand1: aDRAbsoluteMemoryAddress [
 { #category : #accessing }
 DRInstruction >> operand2 [
 
-	^ operands at: 2
+	^ operands at: 2 ifAbsent: [nil]
 ]
 
 { #category : #operands }
@@ -481,6 +481,12 @@ DRInstruction >> prettyPrint [
 		ifNil: [ '' ]
 		ifNotNil: [ result name, ' := ' ].
 	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result ifNotNil: [ e result name ] ]))
+]
+
+{ #category : #accessing }
+DRInstruction >> previousInstruction [
+	
+	^ self basicBlock instructionBefore: self
 ]
 
 { #category : #printing }

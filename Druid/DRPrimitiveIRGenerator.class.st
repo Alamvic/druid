@@ -60,6 +60,14 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
 ]
 
+{ #category : #inline }
+DRPrimitiveIRGenerator >> inlineGenerator [
+
+	^ DRPrimitiveIRGeneratorInline new
+		  controlFlowGraph: controlFlowGraph;
+		  yourself
+]
+
 { #category : #accessing }
 DRPrimitiveIRGenerator >> interpretCCoerceWith: aRBMessageNode [
 
@@ -101,6 +109,16 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aRBNode [
 	self pushOperand: executionState primitiveFailureCode
 ]
 
+{ #category : #visiting }
+DRPrimitiveIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
+
+	^ aRBMessageNode isSuperSend
+		  ifTrue: [ 
+			  self currentMethod methodClass superclass lookupSelector:
+				  aRBMessageNode selector ]
+		  ifFalse: [ receiver type lookupSelector: aRBMessageNode selector ]
+]
+
 { #category : #accessing }
 DRPrimitiveIRGenerator >> newBasicBlock [
 
@@ -125,7 +143,7 @@ DRPrimitiveIRGenerator >> newCFG [
 { #category : #accessing }
 DRPrimitiveIRGenerator >> numberOfArguments: aValue [ 
 	
-	numberOfArguments := aValue.
+	super numberOfArguments: aValue.
 	self push: self receiverRegister.
 	0 to: numberOfArguments - 1 do: [ :i |
 		self push: (self argRegisterNumber: i) ]
@@ -149,38 +167,13 @@ DRPrimitiveIRGenerator >> popFrame [
 ]
 
 { #category : #visiting }
-DRPrimitiveIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
+DRPrimitiveIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
 
-	| arguments method |
-	arguments := aRBMessageNode arguments collect: [ :e | 
-		             e acceptVisitor: self.
-		             self popOperand ].
-
-	method := aRBMessageNode isSuperSend
-		          ifTrue: [ 
-			          self currentMethod methodClass superclass 
-				          lookupSelector: aRBMessageNode selector ]
-		          ifFalse: [ 
-		          receiver type lookupSelector: aRBMessageNode selector ].
-
-	method ifNotNil: [ 
-		(method hasPragmaNamed: #druidIRBuilder:) ifTrue: [ 
-			^ self
-				  perform: (method pragmaAt: #druidIRBuilder:) arguments first
-				  withArguments: { aRBMessageNode } ] ].
-
-	self
-		resolveMessageSend: aRBMessageNode
-		receiver: receiver
-		arguments: arguments
-		method: method
-]
-
-{ #category : #visiting }
-DRPrimitiveIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments method: method [
-
-	| instruction |
-	instruction := self instantiate: DRMethod operands: { receiver } , arguments.
+	| instruction method |
+	method := self methodFor: aRBMessageNode withReceiver: receiver.
+	instruction := self
+		               instantiate: DRMethod
+		               operands: { receiver } , arguments.
 	instruction methodNode: method ast.
 	self
 		interpretCode: instruction
@@ -206,4 +199,17 @@ DRPrimitiveIRGenerator >> spillStack [
 			result: destinationRegister.
 		self currentBasicBlock addInstruction: copyInstruction.
 	]
+]
+
+{ #category : #visiting }
+DRPrimitiveIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
+
+	variableSpecialCases at: aRBVariableNode name ifPresent: [ :mapping | 
+		^ self perform: mapping withArguments: { aRBVariableNode } ].
+
+	"Resolve it as a variableAccess"
+	1halt.
+	self pushOperand:
+		((self topFrame homeFrameWithState: executionState) receiver value 
+			 instVarNamed: aRBVariableNode name) asDRValue
 ]

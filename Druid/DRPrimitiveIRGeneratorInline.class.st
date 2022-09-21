@@ -9,35 +9,28 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
-{ #category : #accessing }
-DRPrimitiveIRGeneratorInline >> controlFlowGraph: aDRControlFlowGraph [
-
-	controlFlowGraph := aDRControlFlowGraph
-]
-
-{ #category : #accessing }
-DRPrimitiveIRGeneratorInline >> endBasicBlock: aDRBasicBlock [
-
-	endBasicBlock := aDRBasicBlock
-]
-
 { #category : #visiting }
 DRPrimitiveIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 
 	"Connect to next basic block and failure code"
 	currentBasicBlock store: executionState primitiveFailureCode in: DRInterpreterReference primitiveFailureCodeAddress.
-	currentBasicBlock jumpTo: endBasicBlock.
 
-	"Remove message send block"
-	messageSend replaceUsesBy: lastFrame returnValue.
-	endBasicBlock removePredecessor: messageSend basicBlock.
-	messageSend basicBlock removeFromCFG
 ]
 
 { #category : #accessing }
 DRPrimitiveIRGeneratorInline >> messageSend: aDRMessageSend [
 
 	messageSend := aDRMessageSend
+]
+
+{ #category : #building }
+DRPrimitiveIRGeneratorInline >> newFirstBasicBlock [
+
+	| block |
+	block := self newBasicBlock.
+	self currentPrimitiveFailureCode:
+		(block load: DRInterpreterReference primitiveFailureCodeAddress).
+	^ block
 ]
 
 { #category : #accessing }

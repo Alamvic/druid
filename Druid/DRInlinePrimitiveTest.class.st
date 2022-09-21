@@ -1,11 +1,11 @@
 Class {
-	#name : #DRInlineTest,
+	#name : #DRInlinePrimitiveTest,
 	#superclass : #DROptimisationTest,
 	#category : #'Druid-Tests'
 }
 
 { #category : #initialization }
-DRInlineTest >> setUp [
+DRInlinePrimitiveTest >> setUp [
 
 	super setUp.
 	self configureInterpreter.
@@ -14,27 +14,30 @@ DRInlineTest >> setUp [
 ]
 
 { #category : #tests }
-DRInlineTest >> testInlinePreservePrimitiveFailCode [
+DRInlinePrimitiveTest >> testInlinePreservePrimitiveFailCode [
 
-	| cfg send failureCodeUser loadFailureCode |
+	| cfg send failureCodeUser loadFailureCode storeFailureCode |
 	cfg := self generateDruidIRFor: #primitiveFailDeferredInline.
 
 	send := cfg messageSends first.
+	storeFailureCode := send previousInstruction.
 	loadFailureCode := send nextInstruction.
+	
 	failureCodeUser := loadFailureCode users anyOne.
 	
 	"primitive failure code access"
+	self assert: storeFailureCode isStore.
 	self assert: loadFailureCode isLoad.
 	self assert: failureCodeUser isPhiFunction.
 
 	cfg applyOptimisation: optimisation.
 
-	self flag: #TODO
-
+	self assert: (cfg instructions count: [ :i | i isLoad]) equals: 2.
+	self assert: (cfg instructions count: [ :i | i isStore]) equals: 2.
 ]
 
 { #category : #tests }
-DRInlineTest >> testInlinePreservePrimitiveFailCodeManyLevels [
+DRInlinePrimitiveTest >> testInlinePreservePrimitiveFailCodeManyLevels [
 
 	| cfg |
 	cfg := self generateDruidIRFor: #primitiveAssertDeferredInline.
@@ -43,14 +46,14 @@ DRInlineTest >> testInlinePreservePrimitiveFailCodeManyLevels [
 	cfg applyOptimisation: optimisation.
 
 	self assert: cfg messageSends isEmpty.
-	"TODO: better assert"
+	
 	self
 		assert: (cfg instructions count: [ :i | i isLoad ])
 		equals: (cfg instructions count: [ :i | i isStore ])
 ]
 
 { #category : #tests }
-DRInlineTest >> testInlinedSend [
+DRInlinePrimitiveTest >> testInlinedSend [
 
 	| cfg |
 	cfg := self generateDruidIRFor: #primitiveDoubleDeferredInline.
@@ -62,7 +65,7 @@ DRInlineTest >> testInlinedSend [
 ]
 
 { #category : #tests }
-DRInlineTest >> testNotInlinedSend [
+DRInlinePrimitiveTest >> testNotInlinedSend [
 
 	| cfg |
 	cfg := self generateDruidIRFor: #primitiveDoubleDeferredInline.
