@@ -36,7 +36,7 @@ DRLoop >> backJump: aBackJump [
 DRLoop >> bodyBlocks [
 
 	self flag: #TODO. "This always returns an empty set for loops that contain multiple blocks"
-	^ self backJump backJumpTargets flatCollect: #backJumpPredecessors
+	^ (self backJump backJumpTargets flatCollect: #backJumpPredecessors) asOrderedCollection
 ]
 
 { #category : #accessing }
@@ -46,14 +46,26 @@ DRLoop >> bodyInstructions [
 ]
 
 { #category : #'cfg manipulation' }
-DRLoop >> createLoopPreheaderBlocks [
+DRLoop >> createLoopPreheaderBlock [
+
+	| loopPredecessor preheaderBlock |
+	loopPredecessor := self preheaderBlock.
+	preheaderBlock := loopPredecessor newEmptySuccessors anyOne.
+	^ preheaderBlock
+]
+
+{ #category : #'cfg manipulation' }
+DRLoop >> createLoopPreheaderBlockAndWrapWithIf [
+
+	"The loop pre-header will contain the loop-invariant instructions that are moved out of the loop.
+	The if is necessary to preserve semantics in case the loop body is never executed"
 
 	| preheaderBlock loopPredecessor conditionJump headerBlock loopExitBlock preheaderConditionBlock loopConditionJump |
+	preheaderBlock := self createLoopPreheaderBlock.
 	headerBlock := self headerBlock.
-	loopPredecessor := self preheaderBlock.
+	loopPredecessor := preheaderBlock predecessor.
 
-	"1. Create preheader and preheader condition blocks"
-	preheaderBlock := loopPredecessor newEmptySuccessors anyOne.
+	"1. Create preheader condition block"
 	preheaderConditionBlock := headerBlock basicDuplicate.
 
 	"2. Rewire preheader condition block phis"
@@ -107,7 +119,9 @@ DRLoop >> latchBlock [
 { #category : #accessing }
 DRLoop >> preheaderBlock [
 
-	"A loop's pre-header block is the basic block from which the loop is entered"
+	"A loop's pre-header block is the basic block from which the loop is entered.
+	There's always a single one if a pre-header block was created using #createLoopPreheaderBlocks,
+	but if it was not, this method may fail."
 
 	^ (self headerBlock predecessors asSet copyWithout: self latchBlock) unique
 ]

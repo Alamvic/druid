@@ -803,6 +803,15 @@ DRBasicBlock >> phiWithVariables: variables [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> predecessor [
+	
+	| predecessors |
+	predecessors := self predecessors.
+	predecessors size ~= 1 ifTrue: [ self error: 'This block does not contain a single predecessor' ].
+	^ predecessors first
+]
+
+{ #category : #accessing }
 DRBasicBlock >> predecessorAt: index [
 	
 	^ predecessors at: index

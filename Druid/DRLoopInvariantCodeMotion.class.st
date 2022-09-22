@@ -28,7 +28,7 @@ DRLoopInvariantCodeMotion >> moveAllInvariantLoopInstructionsUp: loop [
 DRLoopInvariantCodeMotion >> moveAllLoopInstructions: instructionsToMove outsideLoop: loop intoPreheader: preheader [
 
 	| preheaderBlock |
-	preheaderBlock := preheader ifNil: [ loop createLoopPreheaderBlocks ].
+	preheaderBlock := preheader ifNil: [ loop createLoopPreheaderBlockAndWrapWithIf ].
 	instructionsToMove do: [ :i | 
 		i moveToDominatingBlock: preheaderBlock ]
 ]
