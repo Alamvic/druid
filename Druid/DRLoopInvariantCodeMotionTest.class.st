@@ -160,3 +160,27 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionWrapsMovedInstructio
 
 	self assert: (preheaderBlock includesInstruction: loopInvariantInstruction)
 ]
+
+{ #category : #tests }
+DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionworksWithLoopsWithMultipleBodyBlocks [
+
+	| cfg loopBlock loopInvariantInstruction1 loopInvariantInstruction2 preheaderBlock loopBlock1 loopBlock2 |
+	cfg := self generateDruidIRFor: #primitiveLoopWithMultipleInvariants.
+
+	loopBlock := cfg blockById: 7.
+	loopBlock second breakBasicBlock.
+	
+	loopBlock1 := cfg blockById: 9.
+	loopBlock2 := cfg blockById: 10.
+	loopInvariantInstruction1 := loopBlock1 first.
+	loopInvariantInstruction2 := loopBlock2 first.
+
+	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
+
+	preheaderBlock := cfg blockById: 11.
+
+	self deny: (loopBlock1 includesInstruction: loopInvariantInstruction1 ).
+	self deny: (loopBlock2 includesInstruction: loopInvariantInstruction2 ).
+	self assert: (preheaderBlock includesInstruction: loopInvariantInstruction1).
+	self assert: (preheaderBlock includesInstruction: loopInvariantInstruction2)
+]

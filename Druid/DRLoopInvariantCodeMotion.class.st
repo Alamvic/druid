@@ -7,13 +7,10 @@ Class {
 { #category : #operations }
 DRLoopInvariantCodeMotion >> applyTo: aDRControlFlowGraph [
 
-	"The current implementation of loop-invariant code motion has the following limitations:
-	- it won't optimize loops that contain multiple basic blocks (e.g. loops that contain ifs)
-	- when optimizing nested loops, it will only hoist loop-invariant instructions out of a single loop"
+	"Note: when optimizing nested loops, the current implementation of loop-invariant code motion will only hoist loop-invariant instructions out of a single loop"
 
-	aDRControlFlowGraph allLoops
-		select: [ :loop | loop containsStraightLineCode ]
-		thenDo: [ :loop | self moveAllInvariantLoopInstructionsUp: loop ]
+	aDRControlFlowGraph allLoops do: [ :loop | 
+		self moveAllInvariantLoopInstructionsUp: loop ]
 ]
 
 { #category : #operations }
