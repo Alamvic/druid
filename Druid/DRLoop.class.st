@@ -35,14 +35,24 @@ DRLoop >> backJump: aBackJump [
 { #category : #accessing }
 DRLoop >> bodyBlocks [
 
-	self flag: #TODO. "This always returns an empty set for loops that contain multiple blocks"
-	^ (self backJump backJumpTargets flatCollect: #backJumpPredecessors) asOrderedCollection
+	| loopGraphBlocks |
+	loopGraphBlocks := self loopGraph blocks.
+	"The loop graph contains copies of the complete graph's blocks. Return the original blocks"
+	^ self controlFlowGraph blocks select: [ :b | 
+		  b id ~= self headerBlock id and: [ 
+			  loopGraphBlocks anySatisfy: [ :loopBlock | b id = loopBlock id ] ] ]
 ]
 
 { #category : #accessing }
 DRLoop >> bodyInstructions [
 
 	^ self bodyBlocks flatCollect: [ :block | block instructions ]
+]
+
+{ #category : #accessing }
+DRLoop >> controlFlowGraph [
+
+	^ self backJump basicBlock controlFlowGraph
 ]
 
 { #category : #'cfg manipulation' }
@@ -114,6 +124,13 @@ DRLoop >> latchBlock [
 	"A loop's latch block is a basic block that contains a back jump to the header of the loop"
 
 	^ self backJump basicBlock
+]
+
+{ #category : #accessing }
+DRLoop >> loopGraph [
+
+	^ self controlFlowGraph
+		  subgraphBetween: self headerBlock and: self latchBlock
 ]
 
 { #category : #accessing }

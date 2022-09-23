@@ -60,7 +60,10 @@ DRControlFlowGraph >> allConditionalJumps [
 
 { #category : #accessing }
 DRControlFlowGraph >> allLoops [
-	^ self allBackJumps collect: [ :backJump | backJump loop ]
+
+	^ (self allBackJumps select: [ :backJump | 
+		   backJump isConditionalBranch not ]) collect: [ :backJump | 
+		  backJump loop ]
 ]
 
 { #category : #building }
@@ -267,6 +270,14 @@ DRControlFlowGraph >> fixBackJumps [
 				ifTrue: [ 
 					block backJumpPredecessors do: [ :pred | 
 						pred endInstruction beBackJumpTo: block ] ] ] ]
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> fixBlocksSuccessorsAndPredecessors [
+		
+	self blocks do: [ :block | 
+		block predecessors copy select: [ :pred | (self blocks includes: pred) not]
+			thenDo: [ :b | block removePredecessor: b ] ].
 ]
 
 { #category : #edges }
@@ -603,6 +614,53 @@ DRControlFlowGraph >> showLines: blockViews in: view [
 			line color: Color green muchDarker ].
 		(self isDeadBranch: source to: destination) ifTrue: [ 
 			line color: Color red muchDarker ] ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> simplePathsBetween: sourceNode and: destinationNode [ 
+	| visited currentPath simplePaths depthFirstSearch |
+	visited := Set new.
+	currentPath := OrderedCollection new.
+	simplePaths := OrderedCollection new.
+	
+	depthFirstSearch := [ :aSourceNode :aDestinationNode |
+		(visited includes: aSourceNode) ifFalse: [
+			visited add: aSourceNode.
+			currentPath add: aSourceNode.
+			(aSourceNode = aDestinationNode)
+				ifTrue: [
+					simplePaths add: currentPath copy.
+					visited remove: aSourceNode.
+					currentPath removeLast]
+				ifFalse: [
+					aSourceNode successors do: [ :nextNode | depthFirstSearch value: nextNode value: aDestinationNode ].
+					visited remove: aSourceNode ]]].
+
+	depthFirstSearch value: sourceNode value: destinationNode.
+	^ simplePaths 
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> subgraphBetween: sourceBlock and: destinationBlock [
+
+	| subgraphBlocks paths |
+	paths := self simplePathsBetween: sourceBlock and: destinationBlock.
+	subgraphBlocks := paths flattened asSet collect: [ :b | b veryDeepCopy ].
+	^ self subgraphWith: subgraphBlocks
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> subgraphWith: subgraphBlocks [
+
+	| sourceBlockCopy subgraph |
+	subgraph := DRControlFlowGraph new.
+	subgraphBlocks do: [ :b | subgraph addBasicBlock: b ].
+	subgraph fixBlocksSuccessorsAndPredecessors.
+	sourceBlockCopy := subgraphBlocks detect: [ :b | b predecessors isEmpty ].
+	sourceBlockCopy addPredecessor: subgraph initialBasicBlock.
+	subgraph initialBasicBlock jumpTo: sourceBlockCopy.
+	subgraph generatePaths.
+	^ subgraph
 ]
 
 { #category : #accessing }

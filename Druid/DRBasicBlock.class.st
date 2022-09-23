@@ -873,6 +873,39 @@ DRBasicBlock >> pushBase: base offset: offset [
 ]
 
 { #category : #iterating }
+DRBasicBlock >> recursivePredecessors [
+
+	| recursivePredecessors |
+	recursivePredecessors := OrderedCollection new.
+	self recursivePredecessorsDo: [ :b | recursivePredecessors add: b ].
+	^ recursivePredecessors
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursivePredecessorsDo: aBlock [
+
+	self recursivePredecessorsDo: aBlock visited: {  }
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursivePredecessorsDo: aBlock visited: alreadyVisited [
+
+	(alreadyVisited includes: self) ifTrue: [ ^ self ].
+	self predecessors do: [ :b | aBlock value: b ].
+	self predecessors do: [ :b | 
+		b recursivePredecessorsDo: aBlock visited: { self } , alreadyVisited ]
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursiveSuccessors [
+
+	| recursiveSuccessors |
+	recursiveSuccessors := OrderedCollection new.
+	self recursiveSuccessorsDo: [ :b | recursiveSuccessors add: b ].
+	^ recursiveSuccessors
+]
+
+{ #category : #iterating }
 DRBasicBlock >> recursiveSuccessorsDo: aBlock [
 
 	self recursiveSuccessorsDo: aBlock visited: {  }
