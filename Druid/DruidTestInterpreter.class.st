@@ -1109,6 +1109,14 @@ DruidTestInterpreter >> primitiveLoopWithInvariant [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithKnownIterations [
+
+	<numberOfArguments: 0>
+	1 to: 8 do: [ :i | self stackTop // i  ].
+	self pop: 1 thenPush: 0
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveLoopWithLoopInvariantInstructionInsideIf [
 
 	<numberOfArguments: 0>

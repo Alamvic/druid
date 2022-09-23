@@ -49,6 +49,12 @@ DRLoop >> bodyInstructions [
 	^ self bodyBlocks flatCollect: [ :block | block instructions ]
 ]
 
+{ #category : #querying }
+DRLoop >> containsStraightLineCode [
+
+	^ self bodyBlocks size = 1
+]
+
 { #category : #accessing }
 DRLoop >> controlFlowGraph [
 
@@ -141,4 +147,15 @@ DRLoop >> preheaderBlock [
 	but if it was not, this method may fail."
 
 	^ (self headerBlock predecessors asSet copyWithout: self latchBlock) unique
+]
+
+{ #category : #operations }
+DRLoop >> unroll: unrollingFactor [
+
+	| bodyBlock instructionsToCopy |
+	self containsStraightLineCode ifFalse: [ ^ self ].
+
+	bodyBlock := self bodyBlocks anyOne.
+	instructionsToCopy := bodyBlock instructions allButLast.
+	instructionsToCopy copy do: [ :i | 1 to: unrollingFactor - 1 do: [ :_ | bodyBlock addInstruction: i copy] ].
 ]
