@@ -110,10 +110,10 @@ DRInstruction >> breakBasicBlock [
 ]
 
 { #category : #'loop-invariance' }
-DRInstruction >> canMoveOutsideLoopWith: backJump [
+DRInstruction >> canMoveOutsideLoop: loop [
 
-	^ self operands allSatisfy: [ :operand | 
-		operand isInvariantFrom: backJump basicBlock ]
+	^ self operands allSatisfy: [ :operand |
+		operand isInvariantFrom: loop ]
 ]
 
 { #category : #'users-definitions' }
@@ -272,8 +272,9 @@ DRInstruction >> isInstruction [
 ]
 
 { #category : #'loop-invariance' }
-DRInstruction >> isInvariantFrom: aDRBasicBlock [ 
-	^ aDRBasicBlock isDominatedBy: self basicBlock
+DRInstruction >> isInvariantFrom: loop [
+
+	^ loop headerBlock isDominatedBy: self basicBlock
 ]
 
 { #category : #testing }
@@ -328,12 +329,6 @@ DRInstruction >> label [
 DRInstruction >> lookupClass [
 	
 	^ self type lookupClass 
-]
-
-{ #category : #accessing }
-DRInstruction >> loopBlocks [
-	self flag: #TODO. "This always returns an empty set for loops that contain multiple blocks"
-	^ self backJumpTargets flatCollect: #backJumpPredecessors
 ]
 
 { #category : #moving }

@@ -473,7 +473,7 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 	myInstruction hasNonLocalUsers ifFalse: [ "Nothing to do"
 		self assert: users isEmpty.
 		^ self ].
-	frontier isEmpty ifTrue: [ "Last usefull block"
+	frontier isEmpty ifTrue: [ "Last useful block"
 		self assert: users isEmpty.
 		^ self ].
 
@@ -820,6 +820,15 @@ DRBasicBlock >> phiWithVariables: variables [
 
 	phi := self instructionFactory phiWithVariables: finalVariables.
 	^ self addInstruction: phi
+]
+
+{ #category : #accessing }
+DRBasicBlock >> predecessor [
+	
+	| predecessors |
+	predecessors := self predecessors.
+	predecessors size ~= 1 ifTrue: [ self error: 'This block does not contain a single predecessor' ].
+	^ predecessors first
 ]
 
 { #category : #accessing }

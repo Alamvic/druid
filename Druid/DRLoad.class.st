@@ -32,7 +32,7 @@ DRLoad >> beFloatingPoint64 [
 ]
 
 { #category : #testing }
-DRLoad >> canMoveOutsideLoopWith: backJump [
+DRLoad >> canMoveOutsideLoop: backJump [
 
 	^ false
 ]

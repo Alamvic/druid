@@ -126,6 +126,14 @@ DRValue >> isInstruction [
 ]
 
 { #category : #testing }
+DRValue >> isInvariantFrom: loop [
+
+	"A value is loop invariant with respect to a given loop if it can be moved outside the body of the loop without affecting the semantics of the program."
+
+	self subclassResponsibility
+]
+
+{ #category : #testing }
 DRValue >> isJITCompileTimeExpression: aString [ 
 	
 	^ false

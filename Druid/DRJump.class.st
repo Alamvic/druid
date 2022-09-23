@@ -56,7 +56,8 @@ DRJump >> beForwardJumpTo: aDRBasicBlock [
 ]
 
 { #category : #testing }
-DRJump >> canMoveOutsideLoopWith: backJump [
+DRJump >> canMoveOutsideLoop: backJump [
+
 	^ false
 ]
 
@@ -102,6 +103,11 @@ DRJump >> isMandatoryInstruction [
 DRJump >> isNonConditionalJump [
 	
 	^ true
+]
+
+{ #category : #accessing }
+DRJump >> loop [
+	^ self isBackJump ifTrue: [ DRLoop fromBackJump: self ] ifFalse: [ self error: 'Cannot obtain loop from forward jump'].
 ]
 
 { #category : #printing }

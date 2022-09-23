@@ -1123,12 +1123,15 @@ DruidTestInterpreter >> primitiveLoopWithLoopInvariantInstructionInsideIf [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveLoopWithLoopVariantInstruction [
+DruidTestInterpreter >> primitiveLoopWithLoopVariantInstructions [
 
 	<numberOfArguments: 0>
-	| result |
-	result := 0.
-	[ result < 15 ] whileTrue: [ result := result + self stackTop ].
+	| result variant variant2 |
+	result := 1.
+	[result < 15] whileTrue: [
+	 variant := result * self stackTop.
+	 variant2 := variant + 4.
+	 result := result + variant2 ].
 	self pop: 1 thenPush: result
 ]
 

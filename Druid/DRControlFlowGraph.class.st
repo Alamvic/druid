@@ -58,6 +58,11 @@ DRControlFlowGraph >> allConditionalJumps [
 		  thenSelect: [ :i | i isConditionalBranch ]
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> allLoops [
+	^ self allBackJumps collect: [ :backJump | backJump loop ]
+]
+
 { #category : #building }
 DRControlFlowGraph >> allocateBasicBlockID [
 	

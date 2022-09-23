@@ -71,18 +71,18 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoadsNorS
 ]
 
 { #category : #tests }
-DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoopVariantInstructionOutsideOfLoop [
+DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoopVariantInstructionsOutsideOfLoop [
 
-	| cfg loopBlock loopVariantInstruction |
-	cfg := self generateDruidIRFor: #primitiveLoopWithLoopVariantInstruction.
+	| cfg loopBlock loopVariantInstructions |
+	cfg := self generateDruidIRFor: #primitiveLoopWithLoopVariantInstructions.
 
 	loopBlock := cfg blockById: 7.
-	loopVariantInstruction := loopBlock firstInstruction.
+	loopVariantInstructions := loopBlock instructions allButLast.
 
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 
 	"Intruction was not moved"
-	self assert: (loopBlock includesInstruction: loopVariantInstruction)
+	self assert: (loopVariantInstructions allSatisfy: [:i | loopBlock includesInstruction: i])
 ]
 
 { #category : #tests }
