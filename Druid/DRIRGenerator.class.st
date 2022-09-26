@@ -835,10 +835,10 @@ DRIRGenerator >> interpretLoadUint8AtWith: aRBMessageNode [
 DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [ 
 	
 	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
+	operand1 := self visitOperand: aRBMessageNode receiver.
+	operand2 := self visitOperand: aRBMessageNode arguments first.
 	
-	^ self currentBasicBlock addInstruction: (DRStore operands: { operand1 . operand2 })
+	^ self addInstruction: (DRStore operands: { operand1 . operand2 }) from: aRBMessageNode
 ]
 
 { #category : #'special cases' }
@@ -1681,13 +1681,15 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	result := self popOperand.
 	copy := self instructionFor: result inNode: aRBReturnNode.
 	homeFrame := self topFrame homeFrameWithState: executionState.
-	homeFrame returnValue isNullValue ifFalse: [ 1halt "Unexplorer site" ].
 	homeFrame returnValue: copy.
-	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
 	homeFrame exitBasicBlock return: copy.
+	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
+
 
 	returnExecutionState := executionState copy.
-	self addDeferredReturnState: { returnExecutionState. self currentBasicBlock }.
+	self addDeferredReturnState: { 
+			returnExecutionState.
+			self currentBasicBlock }.
 
 	"The return is a statement with no value"
 	self pushOperand: DRNullValue new

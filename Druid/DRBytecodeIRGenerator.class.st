@@ -1,6 +1,6 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
-	#superclass : #DRIRGenerator,
+	#superclass : #DRPrimitiveIRGenerator,
 	#category : #'Druid-CompilerCompiler'
 }
 
@@ -8,6 +8,12 @@ Class {
 DRBytecodeIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 	
 	self executionState primitiveFailureCode: anInstruction
+]
+
+{ #category : #visiting }
+DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
+
+	self spillStack
 ]
 
 { #category : #accessing }

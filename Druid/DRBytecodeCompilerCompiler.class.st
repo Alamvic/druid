@@ -51,6 +51,11 @@ DRBytecodeCompilerCompiler >> newIRGenerator [
 ]
 
 { #category : #accessing }
+DRBytecodeCompilerCompiler >> numberOfArguments: method [ 
+	^ 0 "??"
+]
+
+{ #category : #accessing }
 DRBytecodeCompilerCompiler >> targetName [
 
 	^ 'gen_', self sourceName
