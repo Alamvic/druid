@@ -446,6 +446,11 @@ DRBasicBlock >> includesInstruction: anInstruction [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> indexOfInstruction: anInstruction [ 
+	^ self instructions indexOf: anInstruction
+]
+
+{ #category : #accessing }
 DRBasicBlock >> indexOfPredecessor: aDRBasicBlock [ 
 	
 	^ predecessors indexOf: aDRBasicBlock

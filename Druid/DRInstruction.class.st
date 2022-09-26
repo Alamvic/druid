@@ -167,6 +167,11 @@ DRInstruction >> hash [
 	^ self result hash
 ]
 
+{ #category : #accessing }
+DRInstruction >> indexInBasicBlock [
+	^ self basicBlock indexOfInstruction: self
+]
+
 { #category : #testing }
 DRInstruction >> initialize [
 

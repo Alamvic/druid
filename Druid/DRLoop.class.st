@@ -152,25 +152,32 @@ DRLoop >> preheaderBlock [
 { #category : #operations }
 DRLoop >> unroll: unrollingFactor [
 
-	| bodyBlock blockCopy loopPhiFunctions oldLastBlock newLastBlock |
+	| bodyBlock loopPhiFunctions |
 	self containsStraightLineCode ifFalse: [ ^ self ].
-	bodyBlock := self bodyBlocks anyOne.
-	1 to: unrollingFactor - 1 do: [ :_ | 
-		loopPhiFunctions := self headerBlock phiFunctions select: [ :phi | bodyBlock instructions anySatisfy: [ :result | phi operands includes: result] ].
+	bodyBlock := self bodyBlocks anyOne. "TODO support loops with multiple block in their body"
+	loopPhiFunctions := self headerBlock phiFunctions select: [ :phi | 
+		                    bodyBlock instructions anySatisfy: [ :result | 
+			                    phi operands includes: result ] ].
+	1 to: unrollingFactor - 1 do: [ :_ | | blockCopy oldLastBlock newLastBlock headerBlock |
 		blockCopy := bodyBlock basicDuplicate.
-		1halt.
+		1 halt.
 		oldLastBlock := self bodyBlocks last.
 		newLastBlock := blockCopy.
-		oldLastBlock replaceSuccessor: self headerBlock by: newLastBlock.
-		self backJump: self headerBlock endInstruction.
-		self headerBlock replacePredecessor: oldLastBlock by: newLastBlock.
-		newLastBlock replacePredecessor: self headerBlock by: oldLastBlock.
+		headerBlock := self headerBlock.
+		oldLastBlock replaceSuccessor: headerBlock by: newLastBlock.
+		self backJump: newLastBlock endInstruction.
+		headerBlock replacePredecessor: oldLastBlock by: newLastBlock.
+		newLastBlock replacePredecessor: headerBlock by: oldLastBlock.
+		newLastBlock endInstruction target: headerBlock.
 		self controlFlowGraph fixBackJumps.
-		loopPhiFunctions do: [ :phi | | loopInput loopOutput newBlockInput newBlockOutput |
-			loopInput := bodyBlock instructions detect: [:i | i hasDependency: phi ].
-			loopOutput := bodyBlock instructions detect: [ :i | phi hasDependency: i ].
-			newBlockInput := blockCopy instructions at: (bodyBlock instructions indexOf: loopInput).
-			newBlockOutput := blockCopy instructions at: (bodyBlock instructions indexOf: loopInput).
+		loopPhiFunctions do: [ :phi | 
+			| loopInput loopOutput newBlockInput newBlockOutput |
+			loopInput := self bodyInstructions detect: [ :i | 
+				             i hasDependency: phi ].
+			loopOutput := self bodyInstructions detect: [ :i | 
+				              phi hasDependency: i ].
+			newBlockInput := blockCopy instructions at: loopInput indexInBasicBlock.
+			newBlockOutput := blockCopy instructions at: loopOutput indexInBasicBlock.
 			newBlockInput replaceDependency: phi by: loopOutput.
 			phi replaceDependency: loopOutput by: newBlockOutput ] ]
 ]
