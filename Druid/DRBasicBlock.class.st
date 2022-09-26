@@ -801,7 +801,7 @@ DRBasicBlock >> phiWith: aValue with: aValue2 [
 	^ self phiWithVariables: { aValue. aValue2 }
 ]
 
-{ #category : #factory }
+{ #category : #building }
 DRBasicBlock >> phiWithVariables: variables [
 
 	| finalVariables allPosibleVariables phi |
