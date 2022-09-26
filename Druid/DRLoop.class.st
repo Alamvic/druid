@@ -152,10 +152,25 @@ DRLoop >> preheaderBlock [
 { #category : #operations }
 DRLoop >> unroll: unrollingFactor [
 
-	| bodyBlock instructionsToCopy |
+	| bodyBlock blockCopy loopPhiFunctions oldLastBlock newLastBlock |
 	self containsStraightLineCode ifFalse: [ ^ self ].
-
 	bodyBlock := self bodyBlocks anyOne.
-	instructionsToCopy := bodyBlock instructions allButLast.
-	instructionsToCopy copy do: [ :i | 1 to: unrollingFactor - 1 do: [ :_ | bodyBlock addInstruction: i copy] ].
+	1 to: unrollingFactor - 1 do: [ :_ | 
+		loopPhiFunctions := self headerBlock phiFunctions select: [ :phi | bodyBlock instructions anySatisfy: [ :result | phi operands includes: result] ].
+		blockCopy := bodyBlock basicDuplicate.
+		1halt.
+		oldLastBlock := self bodyBlocks last.
+		newLastBlock := blockCopy.
+		oldLastBlock replaceSuccessor: self headerBlock by: newLastBlock.
+		self backJump: self headerBlock endInstruction.
+		self headerBlock replacePredecessor: oldLastBlock by: newLastBlock.
+		newLastBlock replacePredecessor: self headerBlock by: oldLastBlock.
+		self controlFlowGraph fixBackJumps.
+		loopPhiFunctions do: [ :phi | | loopInput loopOutput newBlockInput newBlockOutput |
+			loopInput := bodyBlock instructions detect: [:i | i hasDependency: phi ].
+			loopOutput := bodyBlock instructions detect: [ :i | phi hasDependency: i ].
+			newBlockInput := blockCopy instructions at: (bodyBlock instructions indexOf: loopInput).
+			newBlockOutput := blockCopy instructions at: (bodyBlock instructions indexOf: loopInput).
+			newBlockInput replaceDependency: phi by: loopOutput.
+			phi replaceDependency: loopOutput by: newBlockOutput ] ]
 ]
