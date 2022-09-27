@@ -43,7 +43,6 @@ DRBytecodeGeneratorTest >> setUp [
 	
 	compilerCompiler := DRMethodCompilerCompiler new.
 	compilerCompiler interpreter: DruidTestInterpreter basicNew.
-	compilerCompiler irGenerator: DRMethodIRGenerator new.
 	
 	bytecodeGenerator := DRBytecodeGenerator new.
 
@@ -76,5 +75,13 @@ DRBytecodeGeneratorTest >> testMethodWithArg [
 
 	| method |
 	method := self generateMethodFor: #lazyDouble:.
+	1 halt
+]
+
+{ #category : #tests }
+DRBytecodeGeneratorTest >> testMethodWithLazyReturn [
+
+	| method |
+	method := self generateMethodFor: #methodWithEarlyReturn:.
 	1 halt
 ]

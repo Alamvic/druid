@@ -1413,7 +1413,9 @@ DRIRGenerator >> popFrame [
 	poppedFrame := executionState popFrame.
 	
 	"Last frame!"
-	executionState executionStack ifEmpty: [ ^ poppedFrame ].
+	executionState executionStack ifEmpty: [ 
+		currentBasicBlock return: poppedFrame returnValue.
+		^ poppedFrame ].
 	
 	"Here we are in caller"
 	self pushOperand: poppedFrame returnValue.	
@@ -1692,7 +1694,6 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	copy := self instructionFor: result inNode: aRBReturnNode.
 	homeFrame := self topFrame homeFrameWithState: executionState.
 	homeFrame returnValue: copy.
-	homeFrame exitBasicBlock return: copy.
 	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
 
 

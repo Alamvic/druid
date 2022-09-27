@@ -96,9 +96,9 @@ DruidTestInterpreter >> methodWithArg: aCollection [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> methodWithEarlyReturn [
+DruidTestInterpreter >> methodWithEarlyReturn: n [
 
-	self stackTop = 0 ifTrue: [ ^ 42 ].
+	n = 0 ifTrue: [ ^ 42 ].
 	^ 57
 ]
 
@@ -379,7 +379,7 @@ DruidTestInterpreter >> primitiveCallingMethodWithEarlyReturn [
 
 	<numberOfArguments: 0>
 
-	self pop: 1 thenPush: self methodWithEarlyReturn
+	self pop: 1 thenPush: (self methodWithEarlyReturn: self stackTop)
 ]
 
 { #category : #'as yet unclassified' }

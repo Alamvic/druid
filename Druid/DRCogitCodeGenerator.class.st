@@ -221,7 +221,6 @@ DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 DRCogitCodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: aName [
 
 	generatorMethodBuilder selector: aName.
-	1halt.
 	self generateCodeForCFG: aDRControlFlowGraph.
 	^ generatorMethodBuilder methodNode
 ]

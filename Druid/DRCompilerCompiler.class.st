@@ -98,7 +98,7 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 		1 to: numArgs do: [ :i | 
 			| loadInstruction |
 			loadInstruction := initialBasicBlock loadArgument: i.
-			loadInstruction argName: (method argumentNames at: i).
+			loadInstruction argName: (self argName: i forMethod: method).
 			arguments add: loadInstruction ] ].
 
 	irGenerator
