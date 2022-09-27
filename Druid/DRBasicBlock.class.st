@@ -48,6 +48,16 @@ DRBasicBlock >> add: aValue to: anotherValue [
 	^ self addInstruction: (self instructionFactory add: aValue to: anotherValue)
 ]
 
+{ #category : #'control-flow' }
+DRBasicBlock >> addBetween: sourceBlock and: targetBlock [
+
+	sourceBlock replaceSuccessor: targetBlock by: self.
+	targetBlock replacePredecessor: sourceBlock by: self.
+	self addPredecessor: sourceBlock.
+	self endInstruction target: targetBlock.
+	self controlFlowGraph fixBackJumps
+]
+
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
 

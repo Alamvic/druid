@@ -15,9 +15,28 @@ DRHyperBlock class >> blocks: aCollection [
 		yourself
 ]
 
+{ #category : #'control-flow' }
+DRHyperBlock >> addBetween: sourceBlock and: targetBlock [
+
+	| newFirstBlock newLastBlock |
+	newFirstBlock := self entryBlock.
+	newLastBlock := self exitBlock.
+	sourceBlock replaceSuccessor: targetBlock by: newFirstBlock.
+	targetBlock replacePredecessor: sourceBlock by: newLastBlock.
+	newFirstBlock addPredecessor: sourceBlock.
+	newLastBlock endInstruction target: targetBlock.
+	self controlFlowGraph fixBackJumps
+]
+
 { #category : #accessing }
 DRHyperBlock >> blocks: aCollection [ 
 	blocks := aCollection
+]
+
+{ #category : #accessing }
+DRHyperBlock >> controlFlowGraph [
+
+	^ self entryBlock controlFlowGraph
 ]
 
 { #category : #transformations }
@@ -28,6 +47,12 @@ DRHyperBlock >> duplicate [
 	^ DRBlockDuplicator new
 		controlFlowGraph: blocks anyOne controlFlowGraph;
 		duplicate: blocks
+]
+
+{ #category : #accessing }
+DRHyperBlock >> endInstruction [
+
+	^ self exitBlock endInstruction
 ]
 
 { #category : #accessing }
@@ -67,6 +92,14 @@ DRHyperBlock >> instructions [
 DRHyperBlock >> predecessors [
 	
 	^ self entryBlock predecessors
+]
+
+{ #category : #accessing }
+DRHyperBlock >> removePredecessor: aDRBasicBlock [ 
+	
+	| index |
+	index := self entryBlock predecessors indexOf: aDRBasicBlock.
+	self entryBlock removePredecessorAt: index
 ]
 
 { #category : #transformation }

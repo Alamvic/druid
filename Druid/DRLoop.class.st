@@ -125,6 +125,30 @@ DRLoop >> createLoopPreheaderBlockAndWrapWithIf [
 	^ preheaderBlock
 ]
 
+{ #category : #'as yet unclassified' }
+DRLoop >> fixLoopPhiFunctions [
+
+	| loopBody loopPhiFunctions |
+	loopBody := self bodyHyperblock.
+	loopPhiFunctions := self headerBlock phiFunctions select: [ :phi | 
+		                    loopBody instructions anySatisfy: [ :result | 
+			                    phi operands includes: result ] ].
+	loopPhiFunctions do: [ :phi | 
+		| phiUsers loopOutput newBlockInput newBlockOutput |
+		phiUsers := self bodyInstructions select: [ :i | 
+			            i hasDependency: phi ].
+		"The first phi user is the actual loop input"
+		newBlockInput := phiUsers second.
+		loopOutput := self bodyInstructions detect: [ :i | 
+			              phi hasDependency: i ].
+		newBlockOutput := self bodyInstructions detect: [ :i | 
+			                  i result isNoResult not and: [ 
+				                  i users noneSatisfy: [ :u | u hasDependency: i ] ] ].
+		newBlockInput clearUsers.
+		newBlockInput replaceDependency: phi by: loopOutput.
+		phi replaceDependency: loopOutput by: newBlockOutput ]
+]
+
 { #category : #accessing }
 DRLoop >> headerBlock [
 
@@ -161,34 +185,17 @@ DRLoop >> preheaderBlock [
 { #category : #operations }
 DRLoop >> unroll: unrollingFactor [
 
-	| loopPhiFunctions loopBody |
+	| loopBody |
 	loopBody := self bodyHyperblock.
-	loopPhiFunctions := self headerBlock phiFunctions select: [ :phi | 
-		                    loopBody instructions anySatisfy: [ :result | 
-			                    phi operands includes: result ] ].
 	1 to: unrollingFactor - 1 do: [ :_ | 
-		| bodyCopy oldLastBlock newFirstBlock newLastBlock headerBlock |
+		| bodyCopy oldLastBlock headerBlock |
 		bodyCopy := DRHyperBlock blocks: loopBody duplicate values.
 		oldLastBlock := self bodyHyperblock exitBlock.
-		newFirstBlock := bodyCopy entryBlock.
-		newLastBlock := bodyCopy exitBlock.
 		headerBlock := self headerBlock.
-		oldLastBlock replaceSuccessor: headerBlock by: newFirstBlock.
-		self backJump: newLastBlock endInstruction.
-		headerBlock replacePredecessor: oldLastBlock by: newLastBlock.
-		newFirstBlock replacePredecessor: headerBlock by: oldLastBlock.
-		newLastBlock endInstruction target: headerBlock.
-		self controlFlowGraph fixBackJumps.
-		loopPhiFunctions do: [ :phi | 
-			| phiUsers loopOutput newBlockInput newBlockOutput |
-			phiUsers := self bodyInstructions select: [ :i | 
-				             i hasDependency: phi ].
-			"The first phi user is the actual loop input"
-			newBlockInput := phiUsers second.
-			loopOutput := self bodyInstructions detect: [ :i | 
-				              phi hasDependency: i ].
-			newBlockOutput := self bodyInstructions detect: [ :i | i result isNoResult not and: [i users noneSatisfy: [ :u | u hasDependency: i ]] ].
-			newBlockInput clearUsers.
-			newBlockInput replaceDependency: phi by: loopOutput.
-			phi replaceDependency: loopOutput by: newBlockOutput ] ]
+
+		bodyCopy removePredecessor: headerBlock.
+		bodyCopy addBetween: oldLastBlock and: headerBlock.
+		self backJump: bodyCopy exitBlock endInstruction.
+
+		self fixLoopPhiFunctions ]
 ]
