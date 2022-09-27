@@ -18,13 +18,14 @@ DRHyperBlock class >> blocks: aCollection [
 { #category : #'control-flow' }
 DRHyperBlock >> addBetween: sourceBlock and: targetBlock [
 
-	| newFirstBlock newLastBlock |
+	| newFirstBlock newLastBlock currentTarget |
 	newFirstBlock := self entryBlock.
 	newLastBlock := self exitBlock.
 	sourceBlock replaceSuccessor: targetBlock by: newFirstBlock.
 	targetBlock replacePredecessor: sourceBlock by: newLastBlock.
 	newFirstBlock addPredecessor: sourceBlock.
-	newLastBlock endInstruction target: targetBlock.
+	currentTarget := newLastBlock endInstruction targets detect: [ :b | (blocks includes: b) not ].
+	newLastBlock endInstruction replaceTarget: currentTarget by: targetBlock.
 	self controlFlowGraph fixBackJumps
 ]
 
@@ -60,7 +61,7 @@ DRHyperBlock >> entryBlock [
 
 	^ self hasSingleEntry
 		  ifTrue: [ ^ self entryBlocks first ]
-		  ifFalse: [ 1halt.blocks first ]
+		  ifFalse: [ blocks first ]
 ]
 
 { #category : #testing }
@@ -76,7 +77,7 @@ DRHyperBlock >> exitBlock [
 
 	^ self hasSingleExit
 		  ifTrue: [ ^ self exitBlocks first ]
-		  ifFalse: [ 1halt.blocks last ]
+		  ifFalse: [ blocks last ]
 ]
 
 { #category : #testing }
