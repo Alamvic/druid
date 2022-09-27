@@ -58,29 +58,44 @@ DRHyperBlock >> endInstruction [
 { #category : #accessing }
 DRHyperBlock >> entryBlock [
 
-	^ blocks
-		  detect: [ :block | 
-		  (block predecessors intersection: blocks) isEmpty ]
-		  ifNone: [ blocks first ]
+	^ self hasSingleEntry
+		  ifTrue: [ ^ self entryBlocks first ]
+		  ifFalse: [ 1halt.blocks first ]
+]
+
+{ #category : #testing }
+DRHyperBlock >> entryBlocks [
+
+	^ blocks select: [ :block | 
+		  block predecessors isEmpty or: [ 
+			  block predecessors anySatisfy: [ :p | (blocks includes: p) not ] ] ]
 ]
 
 { #category : #accessing }
 DRHyperBlock >> exitBlock [
 
-	^ blocks
-		  detect: [ :block | 
-		  (block successors intersection: blocks) isEmpty ]
-		  ifNone: [ blocks last ]
+	^ self hasSingleExit
+		  ifTrue: [ ^ self exitBlocks first ]
+		  ifFalse: [ 1halt.blocks last ]
+]
+
+{ #category : #testing }
+DRHyperBlock >> exitBlocks [
+
+	^ blocks select: [ :e | 
+		  e successors anySatisfy: [ :s | (blocks includes: s) not ] ]
+]
+
+{ #category : #testing }
+DRHyperBlock >> hasSingleEntry [
+
+	^ self entryBlocks size = 1
 ]
 
 { #category : #testing }
 DRHyperBlock >> hasSingleExit [
-	
-	| exitBlocks |
-	exitBlocks := blocks count: [ :e | 
-		e successors anySatisfy: [ :s | 
-			(blocks includes: s) not ] ].
-	^ exitBlocks = 1
+
+	^ self exitBlocks size = 1
 ]
 
 { #category : #accessing }
