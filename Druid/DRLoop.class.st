@@ -33,23 +33,25 @@ DRLoop >> backJump: aBackJump [
 ]
 
 { #category : #accessing }
-DRLoop >> bodyBlocks [
+DRLoop >> blocks [
 
 	| loopGraphBlocks |
 	loopGraphBlocks := self loopGraph blocks.
 	"The loop graph contains copies of the complete graph's blocks. Return the original blocks"
 	^ self controlFlowGraph blocks select: [ :b | 
-		  b id ~= self headerBlock id and: [ 
-			  loopGraphBlocks anySatisfy: [ :loopBlock | b id = loopBlock id ] ] ]
+		  loopGraphBlocks anySatisfy: [ :loopBlock | b id = loopBlock id ] ]
 ]
 
-{ #category : #operations }
+{ #category : #accessing }
+DRLoop >> bodyBlocks [
+
+	^ self blocks select: [ :b | b ~= self headerBlock ]
+]
+
+{ #category : #accessing }
 DRLoop >> bodyHyperblock [
 
-	^ DRHyperBlock blocks: self bodyBlocks"((self controlFlowGraph
-			    blocksBetween: self headerBlock
-			    and: self latchBlock) copyWithout: self headerBlock)
-			  asOrderedCollection"
+	^ DRHyperBlock blocks: self bodyBlocks.
 ]
 
 { #category : #accessing }
@@ -125,7 +127,7 @@ DRLoop >> createLoopPreheaderBlockAndWrapWithIf [
 	^ preheaderBlock
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'cfg manipulation' }
 DRLoop >> fixLoopPhiFunctions [
 
 	| loopBody loopPhiFunctions |
