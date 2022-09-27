@@ -3,7 +3,8 @@ Class {
 	#superclass : #DRInstruction,
 	#instVars : [
 		'size',
-		'argNum'
+		'argNum',
+		'argName'
 	],
 	#category : #'Druid-IR'
 }
@@ -12,6 +13,18 @@ Class {
 DRLoadArgument >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitLoadArgument: self
+]
+
+{ #category : #accessing }
+DRLoadArgument >> argName [
+
+	^ argName
+]
+
+{ #category : #accessing }
+DRLoadArgument >> argName: selector [
+
+	argName := selector
 ]
 
 { #category : #accessing }
@@ -37,6 +50,12 @@ DRLoadArgument >> operands: operandList [
 
 	argNum := operandList first value.
 	super operands: operandList allButFirst
+]
+
+{ #category : #SCCP }
+DRLoadArgument >> sccpLatticeValueFor: sccp [
+
+	^ sccp bottom
 ]
 
 { #category : #accessing }

@@ -1261,6 +1261,16 @@ DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver ar
 	^ self addInstruction: instruction from: aRBMessageNode
 ]
 
+{ #category : #visiting }
+DRIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
+
+	^ aRBMessageNode isSuperSend
+		  ifTrue: [ 
+			  self currentMethod methodClass superclass lookupSelector:
+				  aRBMessageNode selector ]
+		  ifFalse: [ receiver type lookupSelector: aRBMessageNode selector ]
+]
+
 { #category : #'basic-blocks' }
 DRIRGenerator >> newBasicBlock [
 

@@ -109,16 +109,6 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aRBNode [
 	self pushOperand: executionState primitiveFailureCode
 ]
 
-{ #category : #visiting }
-DRPrimitiveIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
-
-	^ aRBMessageNode isSuperSend
-		  ifTrue: [ 
-			  self currentMethod methodClass superclass lookupSelector:
-				  aRBMessageNode selector ]
-		  ifFalse: [ receiver type lookupSelector: aRBMessageNode selector ]
-]
-
 { #category : #accessing }
 DRPrimitiveIRGenerator >> newBasicBlock [
 

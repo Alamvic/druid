@@ -82,26 +82,30 @@ DRCompilerCompiler >> generateDruidIR [
 
 { #category : #'generation-IR' }
 DRCompilerCompiler >> generateDruidIRFor: method [
-	
+
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	| initialBasicBlock startBlock cfg numArgs arguments loadArgumentInst |
-	
+
+	| initialBasicBlock startBlock cfg numArgs arguments |
 	"Create the initial basic block"
 	startBlock := irGenerator initialBasicBlock.
 	initialBasicBlock := self createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
-	
-	numArgs := (self numberOfArguments: method).
+
+	numArgs := self numberOfArguments: method.
 	irGenerator numberOfArguments: numArgs.
 	arguments := OrderedCollection new.
-	(numArgs > 0) ifTrue: [1 to: numArgs do: [ :i |
-		 loadArgumentInst := "TODO: Use instructionFactory to create Result register"
-					DRLoadArgument new operands: { i }; yourself.
-		 initialBasicBlock addInstruction: loadArgumentInst.
-		 arguments add: loadArgumentInst ]].
-	
-	irGenerator interpretCode: (DRMethod methodNode: method ast) receiver: (DRInterpreterValue value: interpreter) arguments: arguments.
-	
+	numArgs > 0 ifTrue: [ 
+		1 to: numArgs do: [ :i | 
+			| loadInstruction |
+			loadInstruction := initialBasicBlock loadArgument: i.
+			loadInstruction argName: (method argumentNames at: i).
+			arguments add: loadInstruction ] ].
+
+	irGenerator
+		interpretCode: (DRMethod methodNode: method ast)
+		receiver: (DRInterpreterValue value: interpreter)
+		arguments: arguments.
+
 	cfg := irGenerator ir.
 
 	"Clean garbage to generate a valid CFG"
@@ -109,7 +113,7 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 	DRDeadCodeElimination new applyTo: cfg.
 	cfg validate.
 
-	^cfg
+	^ cfg
 ]
 
 { #category : #'code-generation' }
@@ -127,18 +131,21 @@ DRCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 DRCompilerCompiler >> initialize [
 
 	super initialize.
-	
+
 	codeGenerator := DRCogitCodeGenerator new.
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 	customisation := DRNonePrimitiveCustomisation new.
 	irGenerator := self newIRGenerator.
-	
+
 	optimisations := OrderedCollection new.
-	optimisations add: DRDeadBlockElimination new.
-	optimisations add: DRSCCP new.
-	optimisations add: DRCopyPropagation new.
-	optimisations add: DRDeadCodeElimination new.
-	optimisations add: DRCleanControlFlow new.
+
+	2 timesRepeat: [ 
+		optimisations add: DRDeadBlockElimination new.
+		optimisations add: DRSCCP new.
+		optimisations add: DRCopyPropagation new.
+		optimisations add: DRDeadCodeElimination new.
+		optimisations add: DRCleanControlFlow new.
+		optimisations add: DRInline new ]
 ]
 
 { #category : #accessing }

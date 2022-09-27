@@ -14,7 +14,12 @@ DRMethodIRGenerator >> inlineGenerator [
 
 { #category : #visiting }
 DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
-	^ self messageSendInstructionFor: aRBMessageNode receiver: receiver arguments: arguments method: nil
+
+	^ self
+		  messageSendInstructionFor: aRBMessageNode
+		  receiver: receiver
+		  arguments: arguments
+		  method: (self methodFor: aRBMessageNode withReceiver: receiver)
 ]
 
 { #category : #visiting }

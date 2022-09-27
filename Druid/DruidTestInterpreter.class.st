@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> basicInlineMethod [
+
+	^ self lazyDouble: 42
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> constant [
 
 	^ 73

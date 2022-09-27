@@ -679,6 +679,12 @@ DRBasicBlock >> load: anAddress [
 ]
 
 { #category : #building }
+DRBasicBlock >> loadArgument: index [
+
+	^ self addInstruction: (self instructionFactory loadArgument: index)
+]
+
+{ #category : #building }
 DRBasicBlock >> loadFramePointer [
 
 	^ self addInstruction: self instructionFactory loadFramePointer

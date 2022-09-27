@@ -8,7 +8,6 @@ Class {
 DRRegisterCollapse >> applyTo: cfg [
 
 	cfg instructionsDo: [ :i | 
-		i result isNoResult ifFalse: [ 
-			i users size > 1 ifTrue: [ self error: 'Same result used in many instructions' ].
+		i isMandatoryInstruction ifFalse: [ 
 			i basicBlock removeInstruction: i ] ]
 ]

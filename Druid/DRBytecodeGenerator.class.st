@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'builder',
-		'methodName'
+		'methodName',
+		'numArgs'
 	],
 	#category : #'Druid-BytecodeGeneration'
 }
@@ -18,7 +19,8 @@ DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: 
 { #category : #'ir-to-ast' }
 DRBytecodeGenerator >> initialize [
 
-	builder := IRBuilder new
+	builder := IRBuilder new.
+	numArgs := 0
 ]
 
 { #category : #accessing }
@@ -27,11 +29,26 @@ DRBytecodeGenerator >> methodName: aString [
 	methodName := aString
 ]
 
+{ #category : #accessing }
+DRBytecodeGenerator >> numArgs: anInteger [
+
+	numArgs := anInteger
+]
+
+{ #category : #'ir-to-target' }
+DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
+
+	aDRInstruction operands do: [ :o | o acceptVisitor: self ].
+	builder send: selector
+]
+
 { #category : #building }
 DRBytecodeGenerator >> targetAST [
 
-	| method |
-	method := builder ir compiledMethod.
+	| method ir |
+	ir := builder ir.
+	ir numArgs: numArgs.
+	method := ir compiledMethod.
 	method selector: methodName.
 	^ method
 ]
@@ -39,8 +56,7 @@ DRBytecodeGenerator >> targetAST [
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitAddition: aDRAdd [
 
-	aDRAdd operands do: [ :o | o acceptVisitor: self ].
-	builder send: #+
+	self sendMessage:  #+ fromInstruction: aDRAdd
 ]
 
 { #category : #'ir-to-target' }
@@ -50,10 +66,29 @@ DRBytecodeGenerator >> visitConstant: aDRConstantValue [
 ]
 
 { #category : #'ir-to-target' }
+DRBytecodeGenerator >> visitCopy: aDRCopy [
+
+	aDRCopy operand1 acceptVisitor: self
+]
+
+{ #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitJump: aDRJump [
 
 	"Simple jumps do nothing for now, continue next instructions"
 	
+]
+
+{ #category : #'ir-to-target' }
+DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [ 
+
+	builder addTemp: aDRLoadArgument argName.
+	builder pushTemp: aDRLoadArgument argName
+]
+
+{ #category : #'ir-to-target' }
+DRBytecodeGenerator >> visitMultiply: aDRMultiply [
+
+	self sendMessage: #* fromInstruction: aDRMultiply
 ]
 
 { #category : #'ir-to-target' }
