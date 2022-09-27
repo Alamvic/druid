@@ -74,7 +74,7 @@ DRLoopUnrollingTest >> testLoopUnrollingDuplicatesMultipleBodyBlocksMultipleTime
 
 	loopBlock := cfg blockById: 7.
 	loopBlock second breakBasicBlock.
-1halt.
+
 	cfg applyOptimisation: (DRLoopUnrolling withUnrollingFactor: unrollingFactor).
 
 	loop := cfg allLoops anyOne.
