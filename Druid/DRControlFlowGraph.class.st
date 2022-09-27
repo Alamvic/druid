@@ -100,6 +100,14 @@ DRControlFlowGraph >> blocks [
 	^ basicBlocks
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> blocksBetween: sourceBlock and: destinationBlock [
+
+	| paths |
+	paths := self simplePathsBetween: sourceBlock and: destinationBlock.
+	^ paths flattened asSet
+]
+
 { #category : #iterating }
 DRControlFlowGraph >> blocksDo: aFullBlockClosure [ 
 
@@ -643,10 +651,12 @@ DRControlFlowGraph >> simplePathsBetween: sourceNode and: destinationNode [
 { #category : #accessing }
 DRControlFlowGraph >> subgraphBetween: sourceBlock and: destinationBlock [
 
-	| subgraphBlocks paths |
-	paths := self simplePathsBetween: sourceBlock and: destinationBlock.
-	subgraphBlocks := paths flattened asSet collect: [ :b | b veryDeepCopy ].
-	^ self subgraphWith: subgraphBlocks
+	| subgraphBlocks |
+	subgraphBlocks := self
+		                  blocksBetween: sourceBlock
+		                  and: destinationBlock.
+	^ self subgraphWith:
+		  (subgraphBlocks collect: [ :b | b veryDeepCopy ])
 ]
 
 { #category : #accessing }

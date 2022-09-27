@@ -43,6 +43,15 @@ DRLoop >> bodyBlocks [
 			  loopGraphBlocks anySatisfy: [ :loopBlock | b id = loopBlock id ] ] ]
 ]
 
+{ #category : #operations }
+DRLoop >> bodyHyperblock [
+
+	^ DRHyperBlock blocks: self bodyBlocks"((self controlFlowGraph
+			    blocksBetween: self headerBlock
+			    and: self latchBlock) copyWithout: self headerBlock)
+			  asOrderedCollection"
+]
+
 { #category : #accessing }
 DRLoop >> bodyInstructions [
 
@@ -152,32 +161,34 @@ DRLoop >> preheaderBlock [
 { #category : #operations }
 DRLoop >> unroll: unrollingFactor [
 
-	| bodyBlock loopPhiFunctions |
-	self containsStraightLineCode ifFalse: [ ^ self ].
-	bodyBlock := self bodyBlocks anyOne. "TODO support loops with multiple block in their body"
+	| loopPhiFunctions loopBody |
+	loopBody := self bodyHyperblock.
 	loopPhiFunctions := self headerBlock phiFunctions select: [ :phi | 
-		                    bodyBlock instructions anySatisfy: [ :result | 
+		                    loopBody instructions anySatisfy: [ :result | 
 			                    phi operands includes: result ] ].
-	1 to: unrollingFactor - 1 do: [ :_ | | blockCopy oldLastBlock newLastBlock headerBlock |
-		blockCopy := bodyBlock basicDuplicate.
-		1 halt.
-		oldLastBlock := self bodyBlocks last.
-		newLastBlock := blockCopy.
+	1 to: unrollingFactor - 1 do: [ :_ | 
+		| bodyCopy oldLastBlock newFirstBlock newLastBlock headerBlock |
+		bodyCopy := DRHyperBlock blocks: loopBody duplicate values.
+		oldLastBlock := self bodyHyperblock exitBlock.
+		newFirstBlock := bodyCopy entryBlock.
+		newLastBlock := bodyCopy exitBlock.
 		headerBlock := self headerBlock.
-		oldLastBlock replaceSuccessor: headerBlock by: newLastBlock.
+		oldLastBlock replaceSuccessor: headerBlock by: newFirstBlock.
 		self backJump: newLastBlock endInstruction.
 		headerBlock replacePredecessor: oldLastBlock by: newLastBlock.
-		newLastBlock replacePredecessor: headerBlock by: oldLastBlock.
+		newFirstBlock replacePredecessor: headerBlock by: oldLastBlock.
 		newLastBlock endInstruction target: headerBlock.
 		self controlFlowGraph fixBackJumps.
 		loopPhiFunctions do: [ :phi | 
-			| loopInput loopOutput newBlockInput newBlockOutput |
-			loopInput := self bodyInstructions detect: [ :i | 
+			| phiUsers loopOutput newBlockInput newBlockOutput |
+			phiUsers := self bodyInstructions select: [ :i | 
 				             i hasDependency: phi ].
+			"The first phi user is the actual loop input"
+			newBlockInput := phiUsers second.
 			loopOutput := self bodyInstructions detect: [ :i | 
 				              phi hasDependency: i ].
-			newBlockInput := blockCopy instructions at: loopInput indexInBasicBlock.
-			newBlockOutput := blockCopy instructions at: loopOutput indexInBasicBlock.
+			newBlockOutput := self bodyInstructions detect: [ :i | i result isNoResult not and: [i users noneSatisfy: [ :u | u hasDependency: i ]] ].
+			newBlockInput clearUsers.
 			newBlockInput replaceDependency: phi by: loopOutput.
 			phi replaceDependency: loopOutput by: newBlockOutput ] ]
 ]

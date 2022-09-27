@@ -21,9 +21,8 @@ DRLoopUnrolling >> applyTo: aDRControlFlowGraph [
 
 	"The current implementation of loop unrolling only optimizes loops that contain a single basic block (i.e. loops with straight-line code)"
 
-	aDRControlFlowGraph allLoops
-		select: [ :loop | loop containsStraightLineCode ]
-		thenDo: [ :loop | loop unroll: unrollingFactor ]
+	aDRControlFlowGraph allLoops do: [ :loop | 
+		loop unroll: unrollingFactor ]
 ]
 
 { #category : #initialization }

@@ -32,14 +32,20 @@ DRHyperBlock >> duplicate [
 
 { #category : #accessing }
 DRHyperBlock >> entryBlock [
-	
-	^ blocks first
+
+	^ blocks
+		  detect: [ :block | 
+		  (block predecessors intersection: blocks) isEmpty ]
+		  ifNone: [ blocks first ]
 ]
 
 { #category : #accessing }
 DRHyperBlock >> exitBlock [
-	
-	^ blocks last
+
+	^ blocks
+		  detect: [ :block | 
+		  (block successors intersection: blocks) isEmpty ]
+		  ifNone: [ blocks last ]
 ]
 
 { #category : #testing }
@@ -50,6 +56,11 @@ DRHyperBlock >> hasSingleExit [
 		e successors anySatisfy: [ :s | 
 			(blocks includes: s) not ] ].
 	^ exitBlocks = 1
+]
+
+{ #category : #accessing }
+DRHyperBlock >> instructions [
+	^ blocks flatCollect: [ :block | block instructions ]
 ]
 
 { #category : #accessing }

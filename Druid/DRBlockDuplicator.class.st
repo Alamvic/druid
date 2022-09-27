@@ -78,12 +78,12 @@ DRBlockDuplicator >> patchInstructionsIn: aBasicBlock [
 
 	"Rewrite all operands"
 	aBasicBlock instructions do: [ :newInstruction |
-		"newInstruction users copy do: [ :user | | replacement |
-			""If an user comes from another block, keep using it""
+		newInstruction users copy do: [ :user | | replacement |
+			"If an user comes from another block, keep using it"
 			replacement := instructionMap at: user ifAbsent: [ user ].
 			newInstruction removeUser: user.
 			newInstruction addUser: replacement.
-		]."
+		].
 		newInstruction operands copy do: [ :operand | | replacement |
 			"If an operand comes from another block, keep using it"
 			replacement := instructionMap at: operand ifAbsent: [ operand ].
