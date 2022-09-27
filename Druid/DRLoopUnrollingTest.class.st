@@ -64,3 +64,20 @@ DRLoopUnrollingTest >> testLoopUnrollingDuplicatesMultipleBodyBlocks [
 
 	self assert: (loop bodyInstructions count: [ :i | i isAdd ]) equals: 2 * unrollingFactor
 ]
+
+{ #category : #tests }
+DRLoopUnrollingTest >> testLoopUnrollingDuplicatesMultipleBodyBlocksMultipleTimes [
+
+	| unrollingFactor cfg loop loopBlock |
+	unrollingFactor := 4.
+	cfg := self generateDruidIRFor: #primitiveLoopWithMultipleInvariants.
+
+	loopBlock := cfg blockById: 7.
+	loopBlock second breakBasicBlock.
+1halt.
+	cfg applyOptimisation: (DRLoopUnrolling withUnrollingFactor: unrollingFactor).
+
+	loop := cfg allLoops anyOne.
+
+	self assert: (loop bodyInstructions count: [ :i | i isAdd ]) equals: 2 * unrollingFactor
+]
