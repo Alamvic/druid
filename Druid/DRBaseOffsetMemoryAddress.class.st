@@ -46,6 +46,14 @@ DRBaseOffsetMemoryAddress >> offset: anObject [
 	offset := anObject
 ]
 
+{ #category : #accessing }
+DRBaseOffsetMemoryAddress >> operands [
+
+	^ { 
+		  base.
+		  offset }
+]
+
 { #category : #cogit }
 DRBaseOffsetMemoryAddress >> rtlArgumentExpressions [
 	

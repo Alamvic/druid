@@ -31,12 +31,6 @@ DRLoad >> beFloatingPoint64 [
 	type := DRFloatType new
 ]
 
-{ #category : #'users-definitions' }
-DRLoad >> hasDependency: anInstruction [
-	
-	^ self dependencies includes: anInstruction
-]
-
 { #category : #accessing }
 DRLoad >> initialize [
 

@@ -22,6 +22,18 @@ DRAbstractMemoryAddress >> isMemoryAddress [
 	^ true
 ]
 
+{ #category : #accessing }
+DRAbstractMemoryAddress >> operands [
+
+	self subclassResponsibility
+]
+
+{ #category : #'meta-data' }
+DRAbstractMemoryAddress >> removeUser: anInstruction [
+	
+	self dependencies do: [ :e | e removeUser: anInstruction ]
+]
+
 { #category : #'users-definitions' }
 DRAbstractMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 

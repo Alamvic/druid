@@ -125,7 +125,7 @@ DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode
 { #category : #testing }
 DRInstruction >> hasDependency: anInstruction [
 	
-	^ self hasOperand: anInstruction
+	^ self dependencies includes: anInstruction
 ]
 
 { #category : #testing }

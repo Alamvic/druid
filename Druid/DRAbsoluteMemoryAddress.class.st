@@ -47,6 +47,12 @@ DRAbsoluteMemoryAddress >> name [
 	^ '[', expression result name, ']'
 ]
 
+{ #category : #accessing }
+DRAbsoluteMemoryAddress >> operands [
+
+	^ { expression }
+]
+
 { #category : #'users-definitions' }
 DRAbsoluteMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 
