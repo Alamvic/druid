@@ -217,7 +217,10 @@ DRControlFlowGraph >> createinstructionView: instruction [
 				   menu
 					   add: 'Inline'
 					   target: element model
-					   selector: #inline ]);
+					   selector: #inline;
+						add: 'Unroll'
+					   target: element model
+					   selector: #uiUnroll ]);
 		  yourself
 ]
 

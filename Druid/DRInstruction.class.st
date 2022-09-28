@@ -706,6 +706,19 @@ DRInstruction >> type [
 	self subclassResponsibility
 ]
 
+{ #category : #inspecting }
+DRInstruction >> uiUnroll [
+
+	| unrollingFactor |
+	self isBackJump ifFalse: [ 
+		^ self inform: 'Can only perform loop unrolling from back jumps' ].
+	unrollingFactor := UIManager default
+		                   request: 'Unrolling factor:'
+		                   initialAnswer: '2'.
+	(unrollingFactor ifNil: [ '' ]) ifEmpty: [ unrollingFactor := 2 ].
+	self loop unroll: unrollingFactor asNumber
+]
+
 { #category : #replacing }
 DRInstruction >> users [
 
