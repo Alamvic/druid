@@ -21,6 +21,24 @@ DRLoopUnrollingTest >> setUp [
 ]
 
 { #category : #tests }
+DRLoopUnrollingTest >> testLoopUnrollingAddsRolledLoopAfterUnrolledLoopToHandleRemainingElements [
+
+	| unrollingFactor cfg loop rolledLoop rolledLoopInstructions |
+	unrollingFactor := 2.
+	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
+
+	loop := cfg allLoops anyOne.
+	rolledLoopInstructions := loop bodyInstructions.
+
+	loop unroll: unrollingFactor.
+	
+	self assert: cfg allLoops size equals: 2.
+	rolledLoop := cfg allLoops first.
+	rolledLoop bodyInstructions with: rolledLoopInstructions do: [ :copy :original |
+		self assert: copy opcode equals: original opcode ]
+]
+
+{ #category : #tests }
 DRLoopUnrollingTest >> testLoopUnrollingDuplicatesBodyBlock [
 
 	| unrollingFactor cfg loop |
