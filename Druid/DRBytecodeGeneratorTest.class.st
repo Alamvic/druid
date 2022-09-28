@@ -23,6 +23,7 @@ DRBytecodeGeneratorTest >> generateDruidIRFor: methodSelector [
 DRBytecodeGeneratorTest >> generateMethodFor: aSelector [
 
 	| cfg method |
+	1halt.
 	cfg := self generateDruidIRFor: aSelector.
 	method := self generateMethodFromCFG: cfg withSelector: aSelector.
 	^ method
@@ -83,5 +84,13 @@ DRBytecodeGeneratorTest >> testMethodWithLazyReturn [
 
 	| method |
 	method := self generateMethodFor: #methodWithEarlyReturn:.
+	1 halt
+]
+
+{ #category : #tests }
+DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
+
+	| method |
+	method := self generateMethodFor: #methodWithArg:.
 	1 halt
 ]

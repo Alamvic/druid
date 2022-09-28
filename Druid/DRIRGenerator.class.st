@@ -96,6 +96,12 @@ DRIRGenerator >> basicNewBasicBlockWithState: anExecutionState [
 	^ block
 ]
 
+{ #category : #'ir-genera' }
+DRIRGenerator >> blockClosureGenerator [
+
+	^ self class new
+]
+
 { #category : #'special cases' }
 DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBlockToEvaluate [
 
@@ -347,7 +353,7 @@ DRIRGenerator >> instructionFactory: aDRInstructionFactory [
 	controlFlowGraph instructionFactory: aDRInstructionFactory
 ]
 
-{ #category : #interpretation }
+{ #category : #interpreting }
 DRIRGenerator >> instructionFor: aDRInstruction inNode: aRBBlockNode [ 
 	
 	"We need a real instruction (not value), maybe for phi. If it's a value, then copy is created."
@@ -466,7 +472,7 @@ DRIRGenerator >> interpretBitXorWith: aRBMessageNode [
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRBitXor
 ]
 
-{ #category : #interpretation }
+{ #category : #interpreting }
 DRIRGenerator >> interpretBlockActivation: aRBBlockNode [
 
 	| result copy |
@@ -502,7 +508,36 @@ DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 
 	"Otherwise the block value is the value of its last expression"
 	aRBBlockNode statements last acceptVisitor: self.
-	self assert: self topFrame operandStack size = 1.
+	"self assert: self topFrame operandStack size = 1."
+]
+
+{ #category : #API }
+DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
+
+	"Create the initial basic block"
+
+	| initialBasicBlock startBlock numArgs arguments |
+	initialBasicBlock := self initialBasicBlock.
+	startBlock := self newBasicBlock.
+	startBlock jumpTo: initialBasicBlock.
+
+
+	numArgs := aDRBlockClosure numberOfArguments.
+	self numberOfArguments: numArgs.
+	arguments := OrderedCollection new.
+	numArgs > 0 ifTrue: [ 
+		1 to: numArgs do: [ :i | 
+			| loadInstruction |
+			loadInstruction := startBlock loadArgument: i.
+			loadInstruction argName: (aDRBlockClosure argName: i ).
+			arguments add: loadInstruction ] ].
+
+	self
+		interpretCode: aDRBlockClosure
+		receiver: aDRBlockClosure
+		arguments: arguments.
+
+	^ self ir
 ]
 
 { #category : #'special cases' }
@@ -855,12 +890,6 @@ DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [
 			8 asDRValue. "Assume 64 bits for now"
 			address }.
 
-]
-
-{ #category : #API }
-DRIRGenerator >> interpretMethod: aDRMethod receiver: aReceiver [
-
-	^ self interpretCode: aDRMethod receiver: aReceiver arguments: #()
 ]
 
 { #category : #'special cases' }
@@ -1572,9 +1601,10 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 
 	self pushOperand: (DRBlockClosure new
-		blockNode: aRBBlockNode;
-		outerContext: self topFrame mirrorFrame;
-		yourself)
+			 blockNode: aRBBlockNode;
+			 irGenerator: self blockClosureGenerator;
+			 outerContext: self topFrame mirrorFrame;
+			 yourself)
 ]
 
 { #category : #visiting }

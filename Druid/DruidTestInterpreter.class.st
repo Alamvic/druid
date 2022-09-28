@@ -207,6 +207,15 @@ DruidTestInterpreter >> primitiveArithmeticBitShiftRight [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAsInteger [
+
+	<numberOfArguments: 0>
+	"Transform the integer argument as float.
+	Then read its raw representation and push that to the stack."
+	self pop: 1 thenPush: self stackTop asInteger
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveAssertDeferredInline [
 
 	<numberOfArguments: 0>

@@ -66,7 +66,9 @@ DRVMState >> addTo: aDRVMState depth: maxVMStackDepth [
 			addStackOperand: (self stackOperandAt: stackPosition ifAbsent: [ 1halt. ])
 			at: stackPosition ].
 
-	aDRVMState addPrimitiveFailureCode: primitiveFailureCode.
+	primitiveFailureCode ifNotNil: [ 
+		"Only valid for primitives"
+		aDRVMState addPrimitiveFailureCode: primitiveFailureCode ].
 ]
 
 { #category : #merging }

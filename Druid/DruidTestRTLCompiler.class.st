@@ -186,6 +186,14 @@ DruidTestRTLCompiler >> gen_primitiveArithmeticBitShiftRight [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_primitiveAsInteger [
+
+	| currentBlock |
+	self genPrimReturn.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveAssertDeferredInline [
 
 	| jump1 jump2 jump3 currentBlock |

@@ -133,7 +133,7 @@ DRMessageSend >> methodsToInline [
 		ifNil: [ 
 		  inlinedMethodClasses := self receiverType.
 		  (inlinedMethodClasses collect: [ :class | 
-				class -> (class astForSelector: self originAST selector) ]) ]
+				class -> (class astForSelector: self selector) ]) ]
 ]
 
 { #category : #printing }
@@ -176,14 +176,20 @@ DRMessageSend >> sccpEvaluateFor: sccp [
 	
 ]
 
+{ #category : #accessing }
+DRMessageSend >> selector [
+
+	^ self originAST selector
+]
+
 { #category : #types }
 DRMessageSend >> type [
 
-	(methodNode hasPragmaNamed: #returnTypeC:) ifTrue: [ "TODO: Match Slang types" 
-		1 halt ].
+	methodNode ifNotNil: [ "TODO: Connext with type system"
+		(methodNode hasPragmaNamed: #returnTypeC:) ifTrue: [ "TODO: Match Slang types" 
+			1 halt ] ].
 
-	"Default type"
-	^ DRIntegerType new
+	^ DRUndefinedType new
 ]
 
 { #category : #copying }

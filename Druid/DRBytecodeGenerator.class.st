@@ -48,6 +48,7 @@ DRBytecodeGenerator >> targetAST [
 
 	| method ir |
 	ir := builder ir.
+	1halt.
 	ir numArgs: numArgs.
 	method := ir compiledMethod.
 	method selector: methodName.
@@ -66,6 +67,13 @@ DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 	predecessor := currentBasicBlock.
 	currentBasicBlock := aDRBasicBlock.
 	aDRBasicBlock instructionsDo: [ :i | i acceptVisitor: self ]
+]
+
+{ #category : #'it-to-target' }
+DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [ 
+
+	| blockCFG |
+	blockCFG := aDRBlockClosure generateCFG. 1halt.
 ]
 
 { #category : #'ir-to-target' }
@@ -130,6 +138,19 @@ DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 
 	builder addTemp: aDRLoadArgument argName.
 	builder pushTemp: aDRLoadArgument argName
+]
+
+{ #category : #'ir-to-target' }
+DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [ 
+	
+	aDRLoadInstVar operand1 acceptVisitor: self.
+	builder pushInstVar: aDRLoadInstVar index
+]
+
+{ #category : #'ir-to-target' }
+DRBytecodeGenerator >> visitMessageSend: aDRMessageSend [ 
+
+	self sendMessage: aDRMessageSend selector fromInstruction: aDRMessageSend
 ]
 
 { #category : #'ir-to-target' }

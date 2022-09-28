@@ -28,5 +28,7 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 	self
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRLoadInstVar
-		operands: { aRBVariableNode name asDRValue }
+		operands: { 
+				self topFrame receiver.
+				aRBVariableNode name asDRValue }
 ]
