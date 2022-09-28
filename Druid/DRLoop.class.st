@@ -60,6 +60,13 @@ DRLoop >> bodyInstructions [
 	^ self bodyBlocks flatCollect: [ :block | block instructions ]
 ]
 
+{ #category : #accessing }
+DRLoop >> condition [
+
+	self flag: #TODO. "See proper way to get condition for all cases"
+	^ self headerBlock endInstruction condition
+]
+
 { #category : #querying }
 DRLoop >> containsStraightLineCode [
 
