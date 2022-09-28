@@ -900,14 +900,13 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self MoveR: TempReg R: ClassReg.
-	self MoveCq: 5 R: SendNumArgsReg.
-	self MoveR: ReceiverResultReg R: Extra0Reg.
-	self CmpCq: 7 R: Extra0Reg.
+	self MoveCq: 5 R: ClassReg.
+	self MoveR: ReceiverResultReg R: SendNumArgsReg.
+	self CmpCq: 7 R: SendNumArgsReg.
 	jump2 := self JumpGreater: 0.
-	self MoveR: SendNumArgsReg R: Extra0Reg.
+	self MoveR: ClassReg R: SendNumArgsReg.
 	self MoveR: TempReg R: ClassReg.
-	self MoveR: Extra0Reg R: TempReg.
+	self MoveR: SendNumArgsReg R: TempReg.
 	
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
@@ -918,22 +917,20 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self MoveR: TempReg R: Extra0Reg.
 	jump2 := self Jump: 0.
 	
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveCq: 1 R: SendNumArgsReg.
+	self MoveCq: 1 R: ClassReg.
+	self MoveCq: 5 R: SendNumArgsReg.
+	self MoveR: ClassReg R: TempReg.
 	self MoveR: SendNumArgsReg R: ClassReg.
-	self MoveCq: 5 R: TempReg.
-	self MoveR: SendNumArgsReg R: Extra0Reg.
-	self MoveR: TempReg R: SendNumArgsReg.
 	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self AddCq: 5 R: ClassReg.
-	self AddCq: 15 R: ClassReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+	self AddCq: 5 R: TempReg.
+	self AddCq: 15 R: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
@@ -993,9 +990,9 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1097,15 +1094,16 @@ DruidTestRTLCompiler >> gen_primitiveEqualsThanReferenceValue [
 DruidTestRTLCompiler >> gen_primitiveEqualsThanValue [
 
 	| jumpNext currentBlock jumpTrue |
-	self MoveR: ReceiverResultReg R: TempReg.
-	self CmpCq: 0 R: TempReg.
-	jumpTrue := self JumpZero: 0.
 	self MoveCq: 0 R: TempReg.
+	self MoveR: ReceiverResultReg R: ClassReg.
+	self CmpR: ClassReg R: TempReg.
+	jumpTrue := self JumpZero: 0.
+	self MoveCq: 0 R: ClassReg.
 	jumpNext := self Jump: 0.
 	jumpTrue jmpTarget: self Label.
-	self MoveCq: 1 R: TempReg.
+	self MoveCq: 1 R: ClassReg.
 	jumpNext jmpTarget: self Label.
-	self MoveR: TempReg R: ReceiverResultReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1573,9 +1571,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1854,9 +1852,9 @@ DruidTestRTLCompiler >> gen_primitiveMod [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -3234,6 +3232,24 @@ DruidTestRTLCompiler >> gen_primitiveWithSequentialExitPoint [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_pushConstantTrueBytecode [
+
+	| currentBlock |
+	self ssPushConstant: objectMemory trueObject.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_pushReceiverBytecode [
+
+	| currentBlock |
+	self ensureReceiverResultRegContainsSelf.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self ssPushRegister: TempReg.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_pushReceiverVariableBytecode [
 
 	| currentBlock |
@@ -3247,6 +3263,14 @@ DruidTestRTLCompiler >> gen_pushReceiverVariableBytecode [
 DruidTestRTLCompiler >> numRegArgs [
 
 	^ 2 "Hardcoded?"
+]
+
+{ #category : #compatibility }
+DruidTestRTLCompiler >> shouldAnnotateObjectReference: anOop [
+	"Objects in newSpace or oldSpace except nil, true, false & classTableRootObj need to be annotated."
+	^(objectMemory isNonImmediate: anOop)
+	  and: [(self oop: anOop isGreaterThan: objectMemory classTableRootObj)
+		or: [self oop: anOop isLessThan: objectMemory nilObject]]
 ]
 
 { #category : #generated }
