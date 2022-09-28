@@ -523,6 +523,12 @@ DRInstruction >> replaceDependency: anOperand by: anotherOperand [
 	self replaceOperand: anOperand by: anotherOperand
 ]
 
+{ #category : #dependencies }
+DRInstruction >> replaceDependency: anOperand by: anotherOperand in: anInstruction [
+	
+	anInstruction replaceOperand: anOperand by: anotherOperand
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 

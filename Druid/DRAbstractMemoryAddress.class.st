@@ -42,6 +42,14 @@ DRAbstractMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 		e replaceDependency: anOperand by: anotherOperand ]
 ]
 
+{ #category : #dependencies }
+DRAbstractMemoryAddress >> replaceDependency: anOperand by: anotherOperand in: anInstruction [
+	
+	anOperand removeUser: anInstruction.
+	anotherOperand addUser: anInstruction.
+	self replaceDependency: anOperand by: anotherOperand.
+]
+
 { #category : #cogit }
 DRAbstractMemoryAddress >> rtlArgumentExpressions [
 	
