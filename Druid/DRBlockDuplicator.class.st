@@ -12,6 +12,7 @@ Class {
 { #category : #'editing keys' }
 DRBlockDuplicator >> basicDuplicateBlock: aBasicBlock [
 
+	| endInstruction endInstructionCopy |
 	^ controlFlowGraph newBasicBlockWith: [ :newBlock |
 		aBasicBlock predecessors do: [ :p | 
 			newBlock addPredecessor: p ].
@@ -24,7 +25,9 @@ DRBlockDuplicator >> basicDuplicateBlock: aBasicBlock [
 			].
 			newBlock addInstruction: instructionCopy.
 		 ].
-		newBlock endInstruction: aBasicBlock endInstruction copy.
+		endInstruction := aBasicBlock endInstruction.
+		instructionMap at: endInstruction put: (endInstructionCopy := endInstruction copy).
+		newBlock endInstruction: endInstructionCopy.
 		newBlock endInstruction operands do: [ :e |
 				e addUser: newBlock endInstruction.
 		].
