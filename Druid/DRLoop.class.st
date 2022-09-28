@@ -127,15 +127,15 @@ DRLoop >> createLoopPreheaderBlockAndWrapWithIf [
 	^ preheaderBlock
 ]
 
+{ #category : #accessing }
+DRLoop >> exitBlock [
+	^ self headerBlock successors detect: [ :s | (self bodyBlocks includes: s) not ]
+]
+
 { #category : #'cfg manipulation' }
 DRLoop >> fixLoopPhiFunctions [
 
-	| loopBody loopPhiFunctions |
-	loopBody := self bodyHyperblock.
-	loopPhiFunctions := self headerBlock phiFunctions select: [ :phi | 
-		                    loopBody instructions anySatisfy: [ :result | 
-			                    phi operands includes: result ] ].
-	loopPhiFunctions do: [ :phi | 
+	self loopPhiFunctions do: [ :phi | 
 		| phiUsers loopOutput newBlockInput newBlockOutput |
 		phiUsers := self bodyInstructions select: [ :i | 
 			            i hasDependency: phi ].
@@ -174,6 +174,16 @@ DRLoop >> loopGraph [
 		  subgraphBetween: self headerBlock and: self latchBlock
 ]
 
+{ #category : #'cfg manipulation' }
+DRLoop >> loopPhiFunctions [
+
+	| loopBody |
+	loopBody := self bodyHyperblock.
+	^ self headerBlock phiFunctions select: [ :phi | 
+		  loopBody instructions anySatisfy: [ :result | 
+			  phi operands includes: result ] ]
+]
+
 { #category : #accessing }
 DRLoop >> preheaderBlock [
 
@@ -187,7 +197,23 @@ DRLoop >> preheaderBlock [
 { #category : #operations }
 DRLoop >> unroll: unrollingFactor [
 
-	| loopBody |
+	| rolledLoop loopBody rolledLoopCopy copiedLoop |
+	
+	"Add loop copy for 'scalar' remainder"
+	rolledLoop := DRHyperBlock blocks: self blocks.
+	rolledLoopCopy := DRHyperBlock blocks: rolledLoop duplicate values.
+	rolledLoopCopy addBetween: self headerBlock and: self exitBlock.
+	rolledLoopCopy removePredecessor: self preheaderBlock.
+	
+	copiedLoop := (rolledLoopCopy instructions detect: [:i | i isBackJump]) loop.
+	self controlFlowGraph buildDominatorTree.
+	self loopPhiFunctions with: (copiedLoop loopPhiFunctions) do: [ :unrolledLoopPhi :rolledLoopPhi |
+		unrolledLoopPhi replaceDominatedUsesBy: rolledLoopPhi.
+		rolledLoopPhi replaceOperandAtPredecessor: unrolledLoopPhi basicBlock by: unrolledLoopPhi ].
+	
+	"TODO modify original loop's condition (hi - unrollingFactor + 1)"
+	
+	"Unroll loop body"
 	loopBody := self bodyHyperblock.
 	1 to: unrollingFactor - 1 do: [ :_ | 
 		| bodyCopy oldLastBlock headerBlock |
@@ -199,5 +225,5 @@ DRLoop >> unroll: unrollingFactor [
 		bodyCopy addBetween: oldLastBlock and: headerBlock.
 		self backJump: bodyCopy exitBlock endInstruction.
 
-		self fixLoopPhiFunctions ]
+		self fixLoopPhiFunctions ].
 ]

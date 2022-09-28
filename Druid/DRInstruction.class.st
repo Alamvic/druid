@@ -561,6 +561,16 @@ DRInstruction >> replaceDependency: anOperand by: anotherOperand [
 	self replaceOperand: anOperand by: anotherOperand
 ]
 
+{ #category : #replacing }
+DRInstruction >> replaceDominatedUsesBy: anotherInstruction [
+
+	users
+		select: [ :instruction | 
+			instruction isDominatedBy: anotherInstruction ]
+		thenDo: [ :instruction | 
+			instruction replaceDependency: self by: anotherInstruction ]
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
