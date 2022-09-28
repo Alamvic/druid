@@ -598,6 +598,18 @@ DRInstruction >> reverseOperands [
 	operands := operands reversed
 ]
 
+{ #category : #cogit }
+DRInstruction >> rtlPushArgumentExpressions [
+	
+	^ { RBVariableNode named: result name }
+]
+
+{ #category : #cogit }
+DRInstruction >> rtlPushOperandQualifierForInstruction: anInstruction [
+	
+	^ 'Register:'
+]
+
 { #category : #SCCP }
 DRInstruction >> sccpEvaluateFor: sccp [
 

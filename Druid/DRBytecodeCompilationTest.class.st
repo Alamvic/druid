@@ -33,6 +33,26 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 ]
 
 { #category : #tests }
+DRBytecodeCompilationTest >> testPushReceiver [
+
+	| object |
+	self compileBytecode: 76 selector: #pushReceiverBytecode thenDo: [ :generator |
+		"Execute the druid's compiled code"
+		generator value.
+	
+		"Then return without druid's compiled code"
+		cogit ssTop popToReg: ReceiverResultReg.
+		cogit ssPop: 1.
+		cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: 1.
+	memory storePointer: 0 ofObject: object withValue: 17.
+
+	self executePrimitiveWithReceiver: object.
+	self assert: machineSimulator receiverRegisterValue equals: object
+]
+
+{ #category : #tests }
 DRBytecodeCompilationTest >> testPushReceiverVariableBytecode [
 
 	| object |
@@ -70,4 +90,24 @@ DRBytecodeCompilationTest >> testPushReceiverVariableBytecode2 [
 	
 	self executePrimitiveWithReceiver: object.
 	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #tests }
+DRBytecodeCompilationTest >> testPushTrueObject [
+
+	| object |
+	self compileBytecode: 77 selector: #pushConstantTrueBytecode thenDo: [ :generator |
+		"Execute the druid's compiled code"
+		generator value.
+	
+		"Then return without druid's compiled code"
+		cogit ssTop popToReg: ReceiverResultReg.
+		cogit ssPop: 1.
+		cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: 1.
+	memory storePointer: 0 ofObject: object withValue: 17.
+
+	self executePrimitiveWithReceiver: object.
+	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
 ]
