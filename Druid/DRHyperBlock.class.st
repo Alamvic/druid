@@ -105,6 +105,12 @@ DRHyperBlock >> instructions [
 ]
 
 { #category : #accessing }
+DRHyperBlock >> predecessor [
+
+	^ self entryBlock predecessor
+]
+
+{ #category : #accessing }
 DRHyperBlock >> predecessors [
 	
 	^ self entryBlock predecessors
@@ -116,6 +122,11 @@ DRHyperBlock >> removePredecessor: aDRBasicBlock [
 	| index |
 	index := self entryBlock predecessors indexOf: aDRBasicBlock.
 	self entryBlock removePredecessorAt: index
+]
+
+{ #category : #accessing }
+DRHyperBlock >> removePredecessors [
+	self predecessors copy do: [ :p | self removePredecessor: p ]
 ]
 
 { #category : #transformation }

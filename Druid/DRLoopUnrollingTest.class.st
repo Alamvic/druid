@@ -71,7 +71,7 @@ DRLoopUnrollingTest >> testLoopUnrollingDuplicatesMultipleBodyBlocks [
 
 	| unrollingFactor cfg loop loopBlock |
 	unrollingFactor := 2.
-	cfg := self generateDruidIRFor: #primitiveLoopWithMultipleInvariants.
+	cfg := self generateDruidIRFor: #primitiveLoopWithMultipleInstructions.
 
 	loopBlock := cfg blockById: 7.
 	loopBlock second breakBasicBlock.
@@ -88,7 +88,7 @@ DRLoopUnrollingTest >> testLoopUnrollingDuplicatesMultipleBodyBlocksMultipleTime
 
 	| unrollingFactor cfg loop loopBlock |
 	unrollingFactor := 4.
-	cfg := self generateDruidIRFor: #primitiveLoopWithMultipleInvariants.
+	cfg := self generateDruidIRFor: #primitiveLoopWithMultipleInstructions.
 
 	loopBlock := cfg blockById: 7.
 	loopBlock second breakBasicBlock.
@@ -104,15 +104,13 @@ DRLoopUnrollingTest >> testLoopUnrollingDuplicatesMultipleBodyBlocksMultipleTime
 DRLoopUnrollingTest >> testLoopUnrollingModifiesLoopConditionToPreventAdditionalIterations [
 
 	| unrollingFactor cfg loop |
-	unrollingFactor := 4.
+	unrollingFactor := 2.
 	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
 
 	loop := cfg allLoops anyOne.
-1halt.
+
 	loop unroll: unrollingFactor.
 	
-	1halt.
-	loop condition.
-
-	self assert: (loop bodyInstructions count: [ :i | i isAdd ]) equals: unrollingFactor
+	cfg applyOptimisation: DRSCCP new.
+	self assert: (loop condition operand2 value) equals: 14
 ]

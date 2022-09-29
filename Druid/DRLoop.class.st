@@ -140,21 +140,23 @@ DRLoop >> exitBlock [
 ]
 
 { #category : #'cfg manipulation' }
-DRLoop >> fixLoopPhiFunctions [
+DRLoop >> fixLoopPhiFunctions: blockCopy [
 
 	self loopPhiFunctions do: [ :phi | 
-		| phiUsers loopOutput newBlockInput newBlockOutput |
-		phiUsers := self bodyInstructions select: [ :i | 
-			            i hasDependency: phi ].
-		"The first phi user is the actual loop input"
-		newBlockInput := phiUsers second.
-		loopOutput := self bodyInstructions detect: [ :i | 
-			              phi hasDependency: i ].
-		newBlockOutput := self bodyInstructions detect: [ :i | 
-			                  i result isNoResult not and: [ 
-				                  i users noneSatisfy: [ :u | u hasDependency: i ] ] ].
+		| phiDependencies loopOutput newBlockInputs newBlockInput newBlockOutput operandToReplace |
+		newBlockInputs := blockCopy instructions select: [ :i | 
+			                 i hasDependencyRecursively: phi ].
+		(newBlockInputs size = 1) ifFalse: [
+			"There may be more than one new block input (if there are several usages of the same phi functions)"
+			1halt. ].
+		newBlockInput := newBlockInputs first.
+		phiDependencies := self bodyInstructions select: [ :i | 
+			                   i hasUser: phi ].
+		loopOutput := phiDependencies first.
+		newBlockOutput := phiDependencies second.
 		newBlockInput clearUsers.
-		newBlockInput replaceDependency: phi by: loopOutput.
+		operandToReplace := newBlockInput operands detect: [ :o | o hasDependencyRecursively: phi ].
+		newBlockInput replaceDependency: operandToReplace by: loopOutput.
 		phi replaceDependency: loopOutput by: newBlockOutput ]
 ]
 
@@ -164,6 +166,21 @@ DRLoop >> headerBlock [
 	"A loop's header block is a basic block that contains the loop's condition"
 
 	^ self latchBlock successor.
+]
+
+{ #category : #accessing }
+DRLoop >> inductionVariable [
+
+	self flag: #TODO. "Handle transitive dependencies"
+	^ self loopPhiFunctions
+		  detect: [ :phi | self condition hasDependency: phi ]
+		  ifNone: [ nil ]
+]
+
+{ #category : #accessing }
+DRLoop >> isCountingLoop [
+
+	^ self stride ~= 0
 ]
 
 { #category : #accessing }
@@ -201,12 +218,41 @@ DRLoop >> preheaderBlock [
 	^ (self headerBlock predecessors asSet copyWithout: self latchBlock) unique
 ]
 
+{ #category : #accessing }
+DRLoop >> stride [
+
+	"Returns the value with which the loop's induction variable is incremented on each loop iteration, or 0 if the value is unknown or not constant"
+
+	| inductionVariableModifierInstructions inductionVariableModifierInstruction |
+	self flag: #TODO.
+	"- Support induction variable being modified through more than one instruction
+	 - Support non-incrementing modifications"
+	inductionVariableModifierInstructions := self inductionVariable users 
+		intersection: self inductionVariable dependencies.
+	inductionVariableModifierInstructions size = 1 ifFalse: [ ^ 0 ].
+	inductionVariableModifierInstruction := inductionVariableModifierInstructions anyOne.
+	^ inductionVariableModifierInstruction isAdd
+		  ifTrue: [ 
+			  | stride |
+			  stride := (inductionVariableModifierInstruction operands 
+				             copyWithout: self inductionVariable) first.
+			  stride isConstant
+				  ifTrue: [ stride value ]
+				  ifFalse: [ 0 ] ]
+		  ifFalse: [ 0 ]
+]
+
 { #category : #operations }
 DRLoop >> unroll: unrollingFactor [
 
-	| rolledLoop loopBody rolledLoopCopy copiedLoop |
+	| isIncrementingLoop rolledLoop rolledLoopCopy loopBody bodyCopy copiedLoop loopCondition nonInductionOperand decrementInstruction |
 	
-	"Add loop copy for 'scalar' remainder"
+	loopCondition := self condition.
+	isIncrementingLoop := loopCondition condition isLessThanComparison
+		or: [ loopCondition condition isLessOrEqualThanComparison ].
+	(self isCountingLoop & isIncrementingLoop) ifFalse: [ ^ self ].
+	
+	"Add loop copy for remaining iterations at the end (that cannot be processed by the unrolled loop)"
 	rolledLoop := DRHyperBlock blocks: self blocks.
 	rolledLoopCopy := DRHyperBlock blocks: rolledLoop duplicate values.
 	rolledLoopCopy addBetween: self headerBlock and: self exitBlock.
@@ -218,19 +264,23 @@ DRLoop >> unroll: unrollingFactor [
 		unrolledLoopPhi replaceDominatedUsesBy: rolledLoopPhi.
 		rolledLoopPhi replaceOperandAtPredecessor: unrolledLoopPhi basicBlock by: unrolledLoopPhi ].
 	
-	"TODO modify original loop's condition (hi - unrollingFactor + 1)"
+	"Modify unrolled loop's condition to prevent additional iterations"
+	nonInductionOperand := loopCondition operands detect: [ :o | o ~= self inductionVariable ].
+	decrementInstruction := self headerBlock instructionFactory subtract: (unrollingFactor * self stride - 1) from: nonInductionOperand.
+	self headerBlock add: decrementInstruction before: loopCondition.
+	loopCondition replaceOperand: nonInductionOperand by: decrementInstruction.
 	
 	"Unroll loop body"
 	loopBody := self bodyHyperblock.
+	bodyCopy := loopBody.
 	1 to: unrollingFactor - 1 do: [ :_ | 
-		| bodyCopy oldLastBlock headerBlock |
-		bodyCopy := DRHyperBlock blocks: loopBody duplicate values.
+		| oldLastBlock |
+		bodyCopy := DRHyperBlock blocks: bodyCopy duplicate values.
 		oldLastBlock := self bodyHyperblock exitBlock.
-		headerBlock := self headerBlock.
 
-		bodyCopy removePredecessor: headerBlock.
-		bodyCopy addBetween: oldLastBlock and: headerBlock.
+		bodyCopy removePredecessors.
+		bodyCopy addBetween: oldLastBlock and: self headerBlock.
 		self backJump: bodyCopy exitBlock endInstruction.
 
-		self fixLoopPhiFunctions ].
+		self fixLoopPhiFunctions: bodyCopy ].
 ]
