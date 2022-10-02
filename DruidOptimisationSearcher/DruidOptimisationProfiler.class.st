@@ -40,6 +40,30 @@ DruidOptimisationProfiler >> bestOptimisationForSelector: aSelector optimisation
 	self subclassResponsibility
 ]
 
+{ #category : #'building report' }
+DruidOptimisationProfiler >> buildReportFor: selector [
+
+	| result |
+	result := self runForSelector: selector.
+
+	^ String streamContents: [ :stream |
+		  stream
+			  nextPutAll: result first;
+			  nextPutAll: '(';
+			  nextPutAll: result second value asString;
+			  nextPutAll: ')';
+			  nextPutAll: ' by ';
+			  nextPutAll: self className asString;
+			  cr.
+
+		  (result allButLast allButFirst: 2) do: [ :optimisationRunned | 
+			  stream
+				  nextPutAll: optimisationRunned key prettyPrint;
+				  nextPutAll: ',';
+				  nextPutAll: optimisationRunned value asString;
+				  cr ] ]
+]
+
 { #category : #'ir-building' }
 DruidOptimisationProfiler >> newIRFor: aSelector [
 
