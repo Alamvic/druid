@@ -1,0 +1,135 @@
+Class {
+	#name : #DruidOptimisationProfiler,
+	#superclass : #Object,
+	#instVars : [
+		'compilerCompiler'
+	],
+	#category : #DruidOptimisationSearcher
+}
+
+{ #category : #searching }
+DruidOptimisationProfiler >> bestOptimisationForSelector: aSelector optimisationSequence: optimisations instructionCount: instructionCount [
+
+	(self
+		 bestOptimisationForSelector: aSelector
+		 optimisationSequence: optimisations
+		 postOptimisationSequence: #(  )
+		 instructionCount: instructionCount) ifNotNil: [ :optimisation | 
+		^ optimisation ].
+	(self
+		 bestOptimisationForSelector: aSelector
+		 optimisationSequence: optimisations
+		 postOptimisationSequence: { DRDeadCodeElimination new }
+		 instructionCount: instructionCount) ifNotNil: [ :optimisation | 
+		^ optimisation ].
+	(self
+		 bestOptimisationForSelector: aSelector
+		 optimisationSequence: optimisations
+		 postOptimisationSequence: { 
+				 (DRSCCP then: DRCopyPropagation).
+				 (DRDeadCodeElimination then: DRCleanControlFlow) }
+		 instructionCount: instructionCount) ifNotNil: [ :optimisation | 
+		^ optimisation ].
+
+	^ DRNoOptimisation new
+]
+
+{ #category : #searching }
+DruidOptimisationProfiler >> bestOptimisationForSelector: aSelector optimisationSequence: optimisations postOptimisationSequence: postSequence instructionCount: instructionCount [
+
+	self subclassResponsibility
+]
+
+{ #category : #'ir-building' }
+DruidOptimisationProfiler >> newIRFor: aSelector [
+
+	| theMemory interpreter |
+	compilerCompiler ifNotNil: [ 
+		^ compilerCompiler
+			  primitiveName: aSelector;
+			  generateDruidIR ].
+
+	theMemory := Spur64BitCoMemoryManager simulatorClass new.
+	DruidTestInterpreter
+		initializeWithOptions: { 
+				#BytesPerWord.
+				8.
+				#ObjectMemory.
+				theMemory class name.
+				#bytecodeTableInitializer.
+				#initializeBytecodeTableForSistaV1 }
+		objectMemoryClass: theMemory class.
+	interpreter := DruidTestInterpreter basicNew
+		               objectMemory: theMemory;
+		               basicInitialize.
+
+	compilerCompiler := DRPrimitiveCompilerCompiler new
+		                    primitiveName: aSelector;
+		                    interpreter: interpreter;
+		                    yourself.
+
+	^ compilerCompiler generateDruidIR
+]
+
+{ #category : #'ir-building' }
+DruidOptimisationProfiler >> newIRManualSelectedOptimizeFor: aSelector [
+
+	| cfg |
+	cfg := self newIRFor: aSelector.
+	compilerCompiler optimize: cfg.
+	^ cfg
+]
+
+{ #category : #optimisations }
+DruidOptimisationProfiler >> optimisationList [
+
+	^ { 
+		  DRBranchCollapse.
+		  DRFailureCodeBasedTailDuplication.
+		  DRSCCP.
+		  DRDeadBlockElimination.
+		  DRCopyPropagation.
+		  DRPhiSimplication.
+		  DRDeadCodeElimination.
+		  DRRedundantCopyElimination.
+		  DRCleanControlFlow.
+		  DRDeadEdgeSplitting.
+		  DRDeadBranchElimination } collect: [ :opt | opt new ]
+]
+
+{ #category : #primitives }
+DruidOptimisationProfiler >> primitiveList [
+
+	^ { #primitiveAdd. #primitiveSubtract. #primitiveLessThan.
+	  #primitiveGreaterThan. #primitiveLessOrEqual. #primitiveGreaterOrEqual.
+	  #primitiveEqual. #primitiveNotEqual. #primitiveMultiply.
+	  #primitiveDivide. #primitiveMod. #primitiveDiv. #primitiveQuo.
+	  "#primitiveBitAnd. #primitiveBitOr." #primitiveBitXor.
+	  #primitiveBitShift. "#primitiveMakePoint." #primitiveFail. 
+	
+	  "#primitiveAt."
+	  "#primitiveAtPut."
+	  "#primitiveSize."}
+]
+
+{ #category : #searching }
+DruidOptimisationProfiler >> runForSelector: aSelector [
+
+	| optimisations ir numberOfInstructions betterOptimisation results |
+	ir := self newIRFor: aSelector.
+	results := OrderedCollection new.
+	optimisations := OrderedCollection new.
+	numberOfInstructions := ir instructions size.
+	results add: aSelector.
+	1 to: 40 do: [ :i | 
+		results add: betterOptimisation -> numberOfInstructions.
+		betterOptimisation := self
+			                      bestOptimisationForSelector: aSelector
+			                      optimisationSequence: optimisations
+			                      instructionCount: numberOfInstructions.
+		ir applyOptimisation: betterOptimisation.
+		optimisations add: betterOptimisation.
+		numberOfInstructions := ir instructions size ].
+	results add: ir.
+	^ results
+]

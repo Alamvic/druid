@@ -208,7 +208,6 @@ DRPrimitiveIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 		^ self perform: mapping withArguments: { aRBVariableNode } ].
 
 	"Resolve it as a variableAccess"
-	1halt.
 	self pushOperand:
 		((self topFrame homeFrameWithState: executionState) receiver value 
 			 instVarNamed: aRBVariableNode name) asDRValue
