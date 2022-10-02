@@ -273,7 +273,7 @@ DRControlFlowGraph >> fixBackJumps [
 DRControlFlowGraph >> generatePaths [
 
 	self clearEdges.
-	(DRPathFactory withCFG: self) generatePaths
+	^ (DRPathFactory withCFG: self) generatePaths
 ]
 
 { #category : #edges }

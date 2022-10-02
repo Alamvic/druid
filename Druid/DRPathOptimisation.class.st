@@ -7,7 +7,7 @@ Class {
 { #category : #accessing }
 DRPathOptimisation >> doApply: cfg [
 
-	cfg generatePaths.
+	cfg generatePaths ifFalse: [^ self].
 	self doApplyWithGeneratedPaths: cfg.
 	cfg generatePaths
 ]
