@@ -2,7 +2,8 @@ Class {
 	#name : #DruidOptimisationProfiler,
 	#superclass : #Object,
 	#instVars : [
-		'compilerCompiler'
+		'compilerCompiler',
+		'interpreter'
 	],
 	#category : #DruidOptimisationSearcher
 }
@@ -41,6 +42,18 @@ DruidOptimisationProfiler >> bestOptimisationForSelector: aSelector optimisation
 ]
 
 { #category : #'building report' }
+DruidOptimisationProfiler >> buildFullReport [
+
+	^ String streamContents: [ :stream | 
+		  self primitiveList do: [ :primitive | 
+			  stream
+				  nextPutAll: (self buildReportFor: primitive);
+				  cr;
+				  cr;
+				  cr ] ]
+]
+
+{ #category : #'building report' }
 DruidOptimisationProfiler >> buildReportFor: selector [
 
 	| result |
@@ -65,14 +78,9 @@ DruidOptimisationProfiler >> buildReportFor: selector [
 ]
 
 { #category : #'ir-building' }
-DruidOptimisationProfiler >> newIRFor: aSelector [
+DruidOptimisationProfiler >> instanceInterpreter [
 
-	| theMemory interpreter |
-	compilerCompiler ifNotNil: [ 
-		^ compilerCompiler
-			  primitiveName: aSelector;
-			  generateDruidIR ].
-
+	| theMemory |
 	theMemory := Spur64BitCoMemoryManager simulatorClass new.
 	DruidTestInterpreter
 		initializeWithOptions: { 
@@ -83,16 +91,21 @@ DruidOptimisationProfiler >> newIRFor: aSelector [
 				#bytecodeTableInitializer.
 				#initializeBytecodeTableForSistaV1 }
 		objectMemoryClass: theMemory class.
+		
 	interpreter := DruidTestInterpreter basicNew
 		               objectMemory: theMemory;
-		               basicInitialize.
+		               basicInitialize
+]
 
-	compilerCompiler := DRPrimitiveCompilerCompiler new
-		                    primitiveName: aSelector;
-		                    interpreter: interpreter;
-		                    yourself.
+{ #category : #'ir-building' }
+DruidOptimisationProfiler >> newIRFor: aSelector [
 
-	^ compilerCompiler generateDruidIR
+	interpreter ifNil: [ self instanceInterpreter ].
+
+	^ DRPrimitiveCompilerCompiler new
+		  primitiveName: aSelector;
+		  interpreter: interpreter;
+		  generateDruidIR
 ]
 
 { #category : #'ir-building' }
