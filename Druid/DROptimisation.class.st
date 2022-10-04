@@ -28,6 +28,12 @@ DROptimisation >> applyTo: cfg [
 	self subclassResponsibility
 ]
 
+{ #category : #testing }
+DROptimisation >> isNoOptimisation [
+
+	^ false
+]
+
 { #category : #printing }
 DROptimisation >> prettyPrint [
 

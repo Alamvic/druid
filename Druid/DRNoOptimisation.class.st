@@ -9,3 +9,9 @@ DRNoOptimisation >> applyTo: cfg [
 
 	"Do nothing"
 ]
+
+{ #category : #testing }
+DRNoOptimisation >> isNoOptimisation [
+
+	^ true
+]
