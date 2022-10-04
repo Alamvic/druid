@@ -146,7 +146,7 @@ DruidOptimisationProfiler >> runForSelector: aSelector [
 	numberOfInstructions := ir instructions size.
 	results add: aSelector.
 	1 to: 40 do: [ :i | 
-		results add: betterOptimisation -> numberOfInstructions.
+		results add: betterOptimisation -> numberOfInstructions "ir veryDeepCopy".
 		betterOptimisation := self
 			                      bestOptimisationForSelector: aSelector
 			                      optimisationSequence: optimisations
