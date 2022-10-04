@@ -137,12 +137,13 @@ DruidOptimisationProfiler >> optimisationList [
 { #category : #primitives }
 DruidOptimisationProfiler >> primitiveList [
 
-	^ { #primitiveAdd. #primitiveSubtract. #primitiveLessThan.
-	  #primitiveGreaterThan. #primitiveLessOrEqual. #primitiveGreaterOrEqual.
-	  #primitiveEqual. #primitiveNotEqual. #primitiveMultiply.
-	  #primitiveDivide. #primitiveMod. #primitiveDiv. #primitiveQuo.
+	^ { #primitiveAdd. #primitiveSubtract. #primitiveMultiply. 
+	#primitiveLessThan. #primitiveGreaterThan. 
+	#primitiveLessOrEqual. #primitiveGreaterOrEqual. #primitiveEqual. #primitiveNotEqual. 
+	  #primitiveDivide. #primitiveMod. 
 	  "#primitiveBitAnd. #primitiveBitOr." #primitiveBitXor.
 	  #primitiveBitShift. "#primitiveMakePoint." #primitiveFail. 
+	#primitiveDiv. #primitiveQuo.
 	
 	  "#primitiveAt."
 	  "#primitiveAtPut."
