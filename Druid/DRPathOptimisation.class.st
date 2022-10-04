@@ -7,9 +7,9 @@ Class {
 { #category : #accessing }
 DRPathOptimisation >> doApply: cfg [
 
-	cfg generatePaths ifFalse: [^ self].
+	cfg applyOptimisation: DRBranchCollapse new.
+	cfg generatePaths ifFalse: [ ^ self ].
 	self doApplyWithGeneratedPaths: cfg.
-	cfg generatePaths
 ]
 
 { #category : #accessing }
