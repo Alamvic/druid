@@ -35,6 +35,14 @@ DRPhysicalRegister >> id [
 	^ name
 ]
 
+{ #category : #testing }
+DRPhysicalRegister >> isInvariantFrom: loop [
+
+	"Since this is a physical register, it doestn't follows SSA form "
+
+	^ false
+]
+
 { #category : #'cogit-generation' }
 DRPhysicalRegister >> isPhysicalRegister [ 
 

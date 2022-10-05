@@ -9,7 +9,8 @@ Class {
 		'targetAST',
 		'optimisations',
 		'codeGenerator',
-		'customisation'
+		'customisation',
+		'irGenerator'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -48,8 +49,12 @@ DRCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method [
 	initialBasicBlock := irGenerator newBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
 
-	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
-	initialBasicBlock addInstruction: initial
+	irGenerator currentPrimitiveFailureCode: (initial := initialBasicBlock copy: 0)
+]
+
+{ #category : #'generation-IR' }
+DRCompilerCompiler >> createInitialBasicBlock [
+	^ irGenerator newBasicBlock
 ]
 
 { #category : #'generation-IR' }
@@ -76,21 +81,39 @@ DRCompilerCompiler >> generateDruidIR [
 
 { #category : #'generation-IR' }
 DRCompilerCompiler >> generateDruidIRFor: method [
-	
+
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
-	| irGenerator cfg |
-	irGenerator := self newIRGenerator.
-	self configureIRBuilder: irGenerator forMethod: method.
-	irGenerator interpretMethod: (DRMethod methodNode: method ast) receiver: (DRInterpreterValue value: interpreter).
-	
+
+	| initialBasicBlock startBlock cfg numArgs arguments loadArgumentInst |
+	"Create the initial basic block"
+	startBlock := irGenerator initialBasicBlock.
+	initialBasicBlock := self createInitialBasicBlock.
+	startBlock jumpTo: initialBasicBlock.
+
+	numArgs := self numberOfArguments: method.
+	irGenerator numberOfArguments: numArgs.
+	arguments := OrderedCollection new.
+	numArgs > 0 ifTrue: [ 
+		1 to: numArgs do: [ :i | 
+			loadArgumentInst := DRLoadArgument new
+				                    operands: { i };
+				                    yourself. "TODO: Use instructionFactory to create Result register"
+			initialBasicBlock addInstruction: loadArgumentInst.
+			arguments add: loadArgumentInst ] ].
+
+	irGenerator
+		interpretCode: (DRMethod methodNode: method ast)
+		receiver: (DRInterpreterValue value: interpreter)
+		arguments: arguments.
+
 	cfg := irGenerator ir.
 
-	"Clean garbage to generate a validate CFG"
+	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: cfg.
 	DRDeadCodeElimination new applyTo: cfg.
 	cfg validate.
 
-	^cfg
+	^ cfg
 ]
 
 { #category : #'code-generation' }
@@ -112,6 +135,7 @@ DRCompilerCompiler >> initialize [
 	codeGenerator := DRCogitCodeGenerator new.
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 	customisation := DRNonePrimitiveCustomisation new.
+	irGenerator := self newIRGenerator.
 	
 	optimisations := OrderedCollection new.
 	optimisations add: DRDeadBlockElimination new.
@@ -131,6 +155,12 @@ DRCompilerCompiler >> interpreter [
 DRCompilerCompiler >> interpreter: anObject [
 
 	interpreter := anObject
+]
+
+{ #category : #accessing }
+DRCompilerCompiler >> irGenerator: aDRIRGenerator [
+
+	irGenerator := aDRIRGenerator
 ]
 
 { #category : #'generation-IR' }
@@ -185,5 +215,5 @@ DRCompilerCompiler >> targetName [
 { #category : #'ast-to-source' }
 DRCompilerCompiler >> writeAST: aRBMethodNode [ 
 	
-	compilerClass compile: (aRBMethodNode formattedCodeIn: self class) classified: #generated
+	compilerClass compile: (aRBMethodNode formattedCode) classified: #generated
 ]

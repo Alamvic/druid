@@ -577,11 +577,14 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierDominatedByItself [
 	phi2 := b5 phiWith: phi1 with: copy2.
 	b5 copy: phi2.
 	b5 copy: copy2.
-
+	
 	cfg b3 tailDuplicate.
 
-	self assert: cfg b4 phiFunctions size equals: 1.	"NOT create master phi here (frontier)"
-	self assert: b5 phiFunctions size equals: 2. "Create master phi here (frontier of frontier)"
+	self assert: cfg b4 phiFunctions first users size equals: 1.	"First phi used"
+	self assert: cfg b4 phiFunctions second users isEmpty.	"Second phi does not used"
+		
+	self assert: b5 phiFunctions first users size equals: 1. "First master phi used (frontier of frontier)"
+	self assert: b5 phiFunctions second users size equals: 1. "Second phi used too"
 ]
 
 { #category : #tests }

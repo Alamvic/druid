@@ -1,6 +1,6 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
-	#superclass : #DRIRGenerator,
+	#superclass : #DRMetaCompilerIRGenerator,
 	#category : #'Druid-CompilerCompiler'
 }
 

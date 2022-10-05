@@ -1,15 +1,15 @@
 Class {
-	#name : #DRDeadPathSplitting,
-	#superclass : #DRControlFlowOptimisation,
+	#name : #DRDeadEdgeSplitting,
+	#superclass : #DRPathOptimisation,
 	#category : #'Druid-Optimizations'
 }
 
 { #category : #operations }
-DRDeadPathSplitting >> doApply: aCFG [
+DRDeadEdgeSplitting >> doApplyWithGeneratedPaths: aCFG [
+
+	"Find first (longest) dead path in CFG and split guilty edge"
 
 	| edge |
-	aCFG generatePaths.
-	"Only kill dead paths if any"
 	aCFG deadPaths ifEmpty: [ ^ self ].
 	
 	edge := (aCFG deadPaths associations detectMax: [ :v | v value size ]) key.
@@ -19,9 +19,6 @@ DRDeadPathSplitting >> doApply: aCFG [
 
 	('Splitting: ' , edge destination id asString , ' -> ' , edge source id asString) traceCr.
 
-	edge destination splitTo: edge source.
-	aCFG validate.
-	aCFG generatePaths
-
+	edge split
 
 ]

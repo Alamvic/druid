@@ -1,6 +1,6 @@
 Class {
 	#name : #DRAdd,
-	#superclass : #DRArithmeticInstruction,
+	#superclass : #DRCommutativeOperation,
 	#category : #'Druid-IR'
 }
 
@@ -31,12 +31,6 @@ DRAdd >> isAdd [
 DRAdd >> opcode [
 	
 	^ 'ADD'
-]
-
-{ #category : #converting }
-DRAdd >> reversed [
-
-	^ self class operands: operands reversed result: result
 ]
 
 { #category : #printing }

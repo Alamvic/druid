@@ -31,6 +31,12 @@ DRLoad >> beFloatingPoint64 [
 	type := DRFloatType new
 ]
 
+{ #category : #testing }
+DRLoad >> canMoveOutsideLoop: backJump [
+
+	^ false
+]
+
 { #category : #accessing }
 DRLoad >> initialize [
 
@@ -47,7 +53,7 @@ DRLoad >> isLoad [
 { #category : #printing }
 DRLoad >> opcode [
 	
-	^ 'LOAD'
+	^ 'LOAD ', size asString
 ]
 
 { #category : #accessing }

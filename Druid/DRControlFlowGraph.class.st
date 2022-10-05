@@ -43,11 +43,24 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 ]
 
 { #category : #accessing }
+DRControlFlowGraph >> allBackJumps [
+
+	^ self reversePostOrderBlocks
+		  collect: [ :b | b endInstruction ]
+		  thenSelect: [ :i | i isBackJump ]
+]
+
+{ #category : #accessing }
 DRControlFlowGraph >> allConditionalJumps [
 
 	^ self reversePostOrderBlocks
 		  collect: [ :b | b endInstruction ]
 		  thenSelect: [ :i | i isConditionalBranch ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> allLoops [
+	^ self allBackJumps collect: [ :backJump | backJump loop ]
 ]
 
 { #category : #building }
@@ -153,12 +166,9 @@ DRControlFlowGraph >> createBlockView: aBlock [
 		yourself.
 
 	boxes := aBlock instructions collect: [ :inst | 
-		RSBox new
-			model: inst;
-			color: (self instructionColor: inst);
-			border: (RSBorder new color: Color black; joinMiter);
-			yourself ] as: RSGroup.
+		self createinstructionView: inst ] as: RSGroup.
 	RSGridLayout on: boxes.
+	
 	box 
 		position: boxes position;
 		extent: boxes extent + 10.
@@ -183,10 +193,30 @@ DRControlFlowGraph >> createBlockView: aBlock [
 	^ composite
 ]
 
+{ #category : #inspecting }
+DRControlFlowGraph >> createinstructionView: instruction [
+
+	^ RSBox new
+		  model: instruction;
+		  color: (self instructionColor: instruction);
+		  border: (RSBorder new
+				   color: Color black;
+				   joinMiter);
+		  @ (RSMenuActivable new menuDo: [ :menu :element | 
+				   menu
+					   add: 'Inline'
+					   target: element model
+					   selector: #inline ]);
+		  yourself
+]
+
 { #category : #'dead-path' }
 DRControlFlowGraph >> deadBranches [
 
-	^ self deadPaths select: [ :path | self isDeadBranch: path first source to: path first destination ]
+	^ self deadPaths
+		  collect: [ :path | path first ]
+		  thenSelect: [ :edge | 
+		  self isDeadBranch: edge source to: edge destination ]
 ]
 
 { #category : #edges }
@@ -227,15 +257,16 @@ DRControlFlowGraph >> fixBackJumps [
 	self blocks do: [ :block | 
 		block successors do: [ :succ | 
 			(block endInstruction isBackJumpTo: succ) ifTrue: [ "If back-jump to block a recursive phi should exist"
-				(succ phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
-					ifFalse: [ "If not, then is a forward-jump" 
-						block endInstruction beForwardJumpTo: succ ] ] ].
+				(succ endInstruction isBackJump or: [ 
+					 (succ phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) not ]) 
+						ifTrue: [ "If not, then is a forward-jump" 
+					block endInstruction beForwardJumpTo: succ ] ] ].
 
-		"Check if has a back-jump to this block"
-		(block phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
-			ifTrue: [ 
-				block backJumpPredecessors do: [ :pred | 
-					pred endInstruction beBackJumpTo: block ] ] ]
+		block endInstruction isBackJump not ifTrue: [ "Check if has a back-jump to this block"
+			(block phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
+				ifTrue: [ 
+					block backJumpPredecessors do: [ :pred | 
+						pred endInstruction beBackJumpTo: block ] ] ] ]
 ]
 
 { #category : #edges }
@@ -388,6 +419,12 @@ DRControlFlowGraph >> leafBlocks [
 	^ self blocks select: [ :b | b endInstruction isNoop ]
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> messageSends [
+
+	^ self instructions select: [ :i | i isMessageSend ]
+]
+
 { #category : #building }
 DRControlFlowGraph >> newBasicBlock [
 	
@@ -413,6 +450,14 @@ DRControlFlowGraph >> numberOfSpillSlots [
 DRControlFlowGraph >> outgoingEdgesFor: aBlock [
 
 	^ edgesBySource at: aBlock ifAbsent: [ #() ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> pathAt: index [
+
+	| lastEdge |
+	lastEdge := (self incomingEdgesFor: self lastBasicBlock) at: index.
+	^ lastEdge ancestors , { lastEdge }
 ]
 
 { #category : #accessing }

@@ -9,7 +9,7 @@ Class {
 		'originAST',
 		'basicBlock',
 		'users',
-		'type'
+		'classType'
 	],
 	#category : #'Druid-IR'
 }
@@ -101,6 +101,19 @@ DRInstruction >> basicBlock [
 DRInstruction >> basicBlock: anObject [
 
 	basicBlock := anObject
+]
+
+{ #category : #'cfg manipulation' }
+DRInstruction >> breakBasicBlock [
+
+	self basicBlock breakBy: self
+]
+
+{ #category : #'loop-invariance' }
+DRInstruction >> canMoveOutsideLoop: loop [
+
+	^ self operands allSatisfy: [ :operand |
+		operand isInvariantFrom: loop ]
 ]
 
 { #category : #'users-definitions' }
@@ -258,14 +271,14 @@ DRInstruction >> isInstruction [
 	^ true
 ]
 
-{ #category : #testing }
-DRInstruction >> isJITCompileTimeExpression: aString [ 
-	
-	^ false
+{ #category : #'loop-invariance' }
+DRInstruction >> isInvariantFrom: loop [
+
+	^ loop headerBlock isDominatedBy: self basicBlock
 ]
 
 { #category : #testing }
-DRInstruction >> isLoadFramePointer [
+DRInstruction >> isJITCompileTimeExpression: aString [ 
 	
 	^ false
 ]
@@ -312,6 +325,14 @@ DRInstruction >> lookupClass [
 	^ self type lookupClass 
 ]
 
+{ #category : #moving }
+DRInstruction >> moveToDominatingBlock: destinationBlock [
+
+	self basicBlock removeInstruction: self.
+	destinationBlock addInstruction: self.
+	self rewirePhiOperandsTo: destinationBlock
+]
+
 { #category : #accessing }
 DRInstruction >> name [
 	
@@ -350,7 +371,7 @@ DRInstruction >> operand1: aDRAbsoluteMemoryAddress [
 { #category : #accessing }
 DRInstruction >> operand2 [
 
-	^ operands at: 2
+	^ operands at: 2 ifAbsent: [nil]
 ]
 
 { #category : #operands }
@@ -448,7 +469,13 @@ DRInstruction >> prettyPrint [
 	print := result
 		ifNil: [ '' ]
 		ifNotNil: [ result name, ' := ' ].
-	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result name ]))
+	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result ifNotNil: [ e result name ] ]))
+]
+
+{ #category : #accessing }
+DRInstruction >> previousInstruction [
+	
+	^ self basicBlock instructionBefore: self
 ]
 
 { #category : #printing }
@@ -484,7 +511,7 @@ DRInstruction >> removeFromCFG [
 
 	basicBlock removeInstruction: self.
 	self operands asSet do: [ :e | e removeUser: self ].
-	self users asSet do: [ :e | e replaceOperand: self by: DRNullValue new  ]
+	self users asSet do: [ :e | e replaceDependency: self by: DRNullValue new  ]
 ]
 
 { #category : #operands }
@@ -596,6 +623,19 @@ DRInstruction >> result: anObject [
 DRInstruction >> reverseOperands [
 	
 	operands := operands reversed
+]
+
+{ #category : #moving }
+DRInstruction >> rewirePhiOperandsTo: destinationBlock [
+
+	self operands
+		select: [ :operand | operand isPhiFunction and: [(self basicBlock isDominatedBy: operand basicBlock) not]  ]
+		thenDo: [ :operand | 
+			| newOperandValues |
+			"Note: this only works when moving to parent block"
+			newOperandValues := operand valuesForPredecessor: destinationBlock.
+			self assert: [ newOperandValues size = 1 ].
+			self replaceOperand: operand by: newOperandValues anyOne ]
 ]
 
 { #category : #cogit }

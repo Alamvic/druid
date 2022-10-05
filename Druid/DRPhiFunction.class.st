@@ -45,6 +45,12 @@ DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [
 	operands addLast: anInstruction
 ]
 
+{ #category : #accessing }
+DRPhiFunction >> canMoveOutsideLoop: backJump [
+
+	^ false
+]
+
 { #category : #testing }
 DRPhiFunction >> hasRecursiveUse [
 
@@ -70,6 +76,15 @@ DRPhiFunction >> isDominatedBy: anotherOperand [
 DRPhiFunction >> isEmpty [
 	
 	^ operands isEmpty 
+]
+
+{ #category : #'loop-invariance' }
+DRPhiFunction >> isInvariantFrom: loop [
+
+	"This is thought for phis inside loop header blocks. 
+	The invariance from the loop body is correct if there are no changes for the variable inside the loop => the value for that predecessor is null"
+
+	^ (self valuesForPredecessor: loop latchBlock) anySatisfy: #isNullValue.
 ]
 
 { #category : #testing }
@@ -147,6 +162,16 @@ DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 DRPhiFunction >> result [
 	
 	^ result ifNil: [ self ]
+]
+
+{ #category : #'loop-invariance' }
+DRPhiFunction >> rewirePhiTo: destinationBlock [
+
+	| newOperandValues phiReplacement |
+	newOperandValues := self valuesForPredecessor: destinationBlock.
+	self assert: [ newOperandValues size = 1 ].
+	phiReplacement := self instructionFactory copy: newOperandValues anyOne.
+	self replaceBy: phiReplacement
 ]
 
 { #category : #'cogit-generation' }

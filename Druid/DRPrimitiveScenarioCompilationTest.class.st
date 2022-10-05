@@ -520,6 +520,34 @@ DRPrimitiveScenarioCompilationTest >> testDecrementConstantReceiver [
 	self assert: machineSimulator receiverRegisterValue equals: 37
 ]
 
+{ #category : #'tests-methodactivations' }
+DRPrimitiveScenarioCompilationTest >> testDeferredInline [
+
+	self compileDruidDeferredInlinePrimitive: #primitiveDoubleDeferredInline.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 84
+]
+
+{ #category : #'tests-methodactivations' }
+DRPrimitiveScenarioCompilationTest >> testDeferredInlineFailedCode [
+
+	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
+	
+	self executeUntilStopPrimitiveWithReceiver: 0
+]
+
+{ #category : #'tests-methodactivations' }
+DRPrimitiveScenarioCompilationTest >> testDeferredInlineTwice [
+
+	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
+	
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
 { #category : #'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testDivision [
 
@@ -1425,6 +1453,18 @@ DRPrimitiveScenarioCompilationTest >> testLessThanValueTrue [
 	self executePrimitiveWithReceiver: -10.
 	
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
+]
+
+{ #category : #'tests-loop' }
+DRPrimitiveScenarioCompilationTest >> testLoopInvariantCodeMotionPreservesSemanticsIfLoopIsNeverRun [
+
+	cogit receiverTags: memory smallIntegerTag.
+
+	self compileDruidPrimitive: #primitiveNoopLoopWithInvariant.
+
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 3
 ]
 
 { #category : #'tests-arithmetic' }

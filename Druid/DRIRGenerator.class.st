@@ -112,6 +112,12 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 	^ branchExitBlock
 ]
 
+{ #category : #accessing }
+DRIRGenerator >> controlFlowGraph: aDRControlFlowGraph [
+
+	controlFlowGraph := aDRControlFlowGraph
+]
+
 { #category : #'special cases' }
 DRIRGenerator >> copyExecutionStateOf: startingBasicBlock [
 	
@@ -150,6 +156,12 @@ DRIRGenerator >> executionStack [
 DRIRGenerator >> executionState [
 	
 	^ executionState
+]
+
+{ #category : #accessing }
+DRIRGenerator >> firstBasicBlock [
+
+	^ firstBasicBlock
 ]
 
 { #category : #'stack management' }
@@ -327,6 +339,12 @@ DRIRGenerator >> instantiateNoResultInstruction: anInstructionClass operands: aC
 { #category : #accessing }
 DRIRGenerator >> instructionFactory [
 	^ controlFlowGraph instructionFactory
+]
+
+{ #category : #accessing }
+DRIRGenerator >> instructionFactory: aDRInstructionFactory [
+
+	controlFlowGraph instructionFactory: aDRInstructionFactory
 ]
 
 { #category : #interpretation }
@@ -597,7 +615,7 @@ DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments
 	currentBasicBlock hasFinalInstruction ifFalse: [ 
 		currentBasicBlock jumpTo: self topFrame exitBasicBlock ].
 
-	self popFrame.
+	^ self popFrame.
 ]
 
 { #category : #'special cases' }
@@ -668,7 +686,7 @@ DRIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 					   'objectMemory freeStartAddress') }
 ]
 
-{ #category : #'special cases' }
+{ #category : #'special-cases' }
 DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 
 	| byteSize |
@@ -678,7 +696,7 @@ DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 		instructionKind: DRLoad
 		operands: { 
 				byteSize asDRValue.
-				(DRInterpreterReference reference: 'objectMemory freeStartAddress') }
+				DRInterpreterReference freeStartAddress }
 ]
 
 { #category : #'special cases' }
@@ -1230,6 +1248,19 @@ DRIRGenerator >> ir [
 	^ controlFlowGraph
 ]
 
+{ #category : #visiting }
+DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver arguments: arguments method: method [
+
+	| instruction |
+	instruction := self
+		               instantiate: DRMessageSend
+		               operands: { receiver } , arguments.
+
+	instruction irGenerator: self inlineGenerator.
+	instruction methodNode: (method ifNotNil: [ method ast ]).
+	^ self addInstruction: instruction from: aRBMessageNode
+]
+
 { #category : #'basic-blocks' }
 DRIRGenerator >> newBasicBlock [
 
@@ -1329,6 +1360,11 @@ DRIRGenerator >> noop: aRBMessageNode [
 		  operands: #(  )
 ]
 
+{ #category : #accessing }
+DRIRGenerator >> numberOfArguments: aValue [ 
+	numberOfArguments := aValue.
+]
+
 { #category : #'frame-access' }
 DRIRGenerator >> operandStackTop [
 	
@@ -1367,11 +1403,13 @@ DRIRGenerator >> popFrame [
 	poppedFrame := executionState popFrame.
 	
 	"Last frame!"
-	executionState executionStack ifEmpty: [ ^ self ].
+	executionState executionStack ifEmpty: [ ^ poppedFrame ].
 	
 	"Here we are in caller"
 	self pushOperand: poppedFrame returnValue.	
 	currentBasicBlock jumpTo: self newBasicBlock.	
+	
+	^ poppedFrame
 ]
 
 { #category : #'frame-access' }
@@ -1409,6 +1447,20 @@ DRIRGenerator >> receiver [
 DRIRGenerator >> receiverRegister [
 	
 	^ DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg'
+]
+
+{ #category : #visiting }
+DRIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
+
+	| arguments |
+	arguments := aRBMessageNode arguments collect: [ :e | 
+		             e acceptVisitor: self.
+		             self popOperand ].
+
+	self
+		resolveMessageSend: aRBMessageNode
+		receiver: receiver
+		arguments: arguments
 ]
 
 { #category : #'special cases' }
@@ -1506,7 +1558,7 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 
 { #category : #visiting }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
-	
+
 	self pushOperand: (DRBlockClosure new
 		blockNode: aRBBlockNode;
 		outerContext: self topFrame mirrorFrame;
@@ -1539,18 +1591,6 @@ DRIRGenerator >> visitClassVariableNode: aRBVariableNode [
 ]
 
 { #category : #visiting }
-DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
-
-	variableSpecialCases at: aRBVariableNode name ifPresent: [ :mapping | 
-		^ self perform: mapping withArguments: { aRBVariableNode } ].
-
-	"Resolve it as a variableAccess"
-	self pushOperand:
-		((self topFrame homeFrameWithState: executionState) receiver value 
-			 instVarNamed: aRBVariableNode name) asDRValue
-]
-
-{ #category : #visiting }
 DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 
 	self
@@ -1571,46 +1611,11 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 { #category : #visiting }
 DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 
-	| arguments method |
 	specialCases at: aRBMessageNode selector ifPresent: [ :mapping | 
 		^ self perform: mapping withArguments: { aRBMessageNode } ].
 
 	"Resolve it as a normal send"
-	arguments := aRBMessageNode arguments collect: [ :e | 
-		             e acceptVisitor: self.
-		             self popOperand ].
-
-	"(receiver isJitCompileTimeExpression and: [ 
-		 arguments allSatisfy: [ :arg | arg isJitCompileTimeExpression ] ]) 
-		ifTrue: [ 
-			| copy compileTimeExpression |
-			compileTimeExpression := RBMessageNode
-				receiver: receiver jitCompileTimeExpression
-				selector: aRBMessageNode selector
-				arguments: (arguments collect: [ :arg | 
-					arg jitCompileTimeExpression ]).
-			copy := self currentBasicBlock copy:
-				        (self instructionFactory jitCompileTimeExpression:
-					         compileTimeExpression).
-			self pushOperand: copy.
-			^ self ]."
-
-	method := aRBMessageNode isSuperSend
-		          ifTrue: [ 
-			          self currentMethod methodClass superclass 
-				          lookupSelector: aRBMessageNode selector ]
-		          ifFalse: [ 
-		          receiver type lookupSelector: aRBMessageNode selector ].
-
-	(method hasPragmaNamed: #druidIRBuilder:) ifTrue: [ 
-		^ self
-			  perform: (method pragmaAt: #druidIRBuilder:) arguments first
-			  withArguments: { aRBMessageNode } ].
-
-	self
-		interpretCode: (DRMethod methodNode: method ast)
-		receiver: receiver
-		arguments: arguments
+	self resolveMessageSend: aRBMessageNode receiver: receiver
 ]
 
 { #category : #visiting }
@@ -1678,6 +1683,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	homeFrame := self topFrame homeFrameWithState: executionState.
 	homeFrame returnValue: copy.
 	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
+	homeFrame exitBasicBlock return: copy.
 
 	returnExecutionState := executionState copy.
 	self addDeferredReturnState: { returnExecutionState. self currentBasicBlock }.

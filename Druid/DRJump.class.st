@@ -22,6 +22,14 @@ DRJump >> acceptVisitor: aVisitor [
 ]
 
 { #category : #accessing }
+DRJump >> backJumpTargets [
+
+	^ isBackJump
+		  ifTrue: [ Set with: target ]
+		  ifFalse: [ Set new ]
+]
+
+{ #category : #accessing }
 DRJump >> beBackJump [
 	
 	isBackJump := true
@@ -45,6 +53,12 @@ DRJump >> beForwardJumpTo: aDRBasicBlock [
 
 	self assert: aDRBasicBlock = target.
 	self beForwardJump
+]
+
+{ #category : #testing }
+DRJump >> canMoveOutsideLoop: backJump [
+
+	^ false
 ]
 
 { #category : #visiting }
@@ -89,6 +103,11 @@ DRJump >> isMandatoryInstruction [
 DRJump >> isNonConditionalJump [
 	
 	^ true
+]
+
+{ #category : #accessing }
+DRJump >> loop [
+	^ self isBackJump ifTrue: [ DRLoop fromBackJump: self ] ifFalse: [ self error: 'Cannot obtain loop from forward jump'].
 ]
 
 { #category : #printing }

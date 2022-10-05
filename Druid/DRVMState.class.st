@@ -65,6 +65,7 @@ DRVMState >> addTo: aDRVMState depth: maxVMStackDepth [
 		aDRVMState
 			addStackOperand: (self stackOperandAt: stackPosition ifAbsent: [ 1halt. ])
 			at: stackPosition ].
+
 	aDRVMState addPrimitiveFailureCode: primitiveFailureCode.
 ]
 
@@ -83,8 +84,6 @@ DRVMState >> completeOperandStackUpTo: anInteger [
 { #category : #merging }
 DRVMState >> completeOperandStackUpTo: anInteger do: aBlockValue [
 
-	| predecessorsUntilNow |
-	predecessorsUntilNow := self maxNumberOfPredecessors.
 	operandStack size + 1 to: anInteger do: [ :i | aBlockValue cull: i ]
 ]
 

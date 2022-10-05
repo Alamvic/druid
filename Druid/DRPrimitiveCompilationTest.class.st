@@ -19,6 +19,13 @@ DRPrimitiveCompilationTest class >> testParameters [
 ]
 
 { #category : #'helpers-compiling' }
+DRPrimitiveCompilationTest >> compileDruidDeferredInlinePrimitive: selector [
+
+	self compileDruidPrimitive: selector with: [ :compiler | 
+		compiler irGenerator: DRPrimitiveIRGeneratorDeferredInline new ]
+]
+
+{ #category : #'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 	
 	^ self compileDruidPrimitive: aSelector with: [ :compiler | "nothing" ]
@@ -49,13 +56,13 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector with: aBlock [
 	stopAddress := stopInstruction address
 ]
 
-{ #category : #helpers }
+{ #category : #'helpers - execution' }
 DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop [
 	
 	^ self executeUntilStopPrimitiveWithReceiver: receiverOop withArguments: { }
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : #'helpers - execution' }
 DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop withArguments: aCollection [
 	
 	"Simulate a primitive execution having an object as receiver and a single argument

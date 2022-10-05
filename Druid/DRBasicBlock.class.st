@@ -185,6 +185,36 @@ DRBasicBlock >> bitAnd: aValue with: anotherValue [
 	^ self addInstruction: (self instructionFactory bitAnd: aValue with: anotherValue)
 ]
 
+{ #category : #'control-flow' }
+DRBasicBlock >> breakBy: instruction [
+
+	"For avoid duplicate instructions on branches, this method create two predecessors chain from this basic block. Then move: 
+	- instructions listed before the instruction to first (upper) predecessor.
+	- the instruction to second (middle) predecessor.
+	- left remaining instructions (after the instruction) in this basic block (bottom)"
+
+	| upperPredecessor middlePredecessor instructionsBefore |
+	instruction isPhiFunction ifTrue: [ 
+		self error: 'Phi instructions cannot break a basic block!' ].
+
+	upperPredecessor := self newEmptyPredecessor.
+	middlePredecessor := self newEmptyPredecessor.
+
+	instructionsBefore := self instructions allUntil: instruction.
+	instructionsBefore do: [ :i | 
+		self removeInstruction: i.
+		upperPredecessor addInstruction: i ].
+
+
+	self removeInstruction: instruction.
+	middlePredecessor addInstruction: instruction.
+
+	^ { 
+		  upperPredecessor.
+		  middlePredecessor.
+		  self }
+]
+
 { #category : #validating }
 DRBasicBlock >> checkLivenessOf: operand [
 
@@ -411,6 +441,11 @@ DRBasicBlock >> id: anObject [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> includesInstruction: anInstruction [ 
+	^ instructions includes: anInstruction
+]
+
+{ #category : #accessing }
 DRBasicBlock >> indexOfPredecessor: aDRBasicBlock [ 
 	
 	^ predecessors indexOf: aDRBasicBlock
@@ -438,7 +473,7 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 	myInstruction hasNonLocalUsers ifFalse: [ "Nothing to do"
 		self assert: users isEmpty.
 		^ self ].
-	frontier isEmpty ifTrue: [ "Last usefull block"
+	frontier isEmpty ifTrue: [ "Last useful block"
 		self assert: users isEmpty.
 		^ self ].
 
@@ -503,6 +538,26 @@ DRBasicBlock >> instructionAfter: anInstruction [
 	^ instructions after: anInstruction
 ]
 
+{ #category : #'enumerating instructions' }
+DRBasicBlock >> instructionBefore: anInstruction [
+
+	anInstruction isPhiFunction ifTrue: [ 
+		"Phi functions are always at the beginning of the block and they are conceptually executed all at the same time
+		However, we may want to consider ordering when navigating across phis
+		For now, this is intentionally left unimplemented"
+		^ self notYetImplemented ].
+
+	endInstruction = anInstruction
+		ifTrue: [ ^ self instructions last ].
+
+	instructions first = anInstruction
+		"Not defined yet. Could return either a phi, or nothing"
+		ifTrue: [ ^ self notYetImplemented ].
+	
+	"Otherwise, the previous instruction is the previous in the list"
+	^ instructions before: anInstruction
+]
+
 { #category : #building }
 DRBasicBlock >> instructionFactory [
 	
@@ -540,7 +595,7 @@ DRBasicBlock >> isDominatedBy: dominatorBlock [
 
 { #category : #building }
 DRBasicBlock >> isDominatorOf: basicBlocks [
-
+	"Deprecated: should be removed once it's posible. Use DRBasicBlock>#isDominatedBy: instead."
 	| dominatorTree node |
 	
 	dominatorTree := DRDominatorTree new.
@@ -635,8 +690,15 @@ DRBasicBlock >> loadSInt64: operand [
 	^ self addInstruction: (self instructionFactory loadSInt64: operand)
 ]
 
+{ #category : #building }
+DRBasicBlock >> loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock [
+
+	self jumpIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock.
+	loopBodyBlock backJumpTo: self
+]
+
 { #category : #splitting }
-DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: successors [
+DRBasicBlock >> mergeInstructionsWithDuplicatedBlock: duplicatedBlock withSuccessors: successors usingUsers: getUsersBlock [
 
 	self instructions copy
 		with: duplicatedBlock instructions copy
@@ -645,7 +707,13 @@ DRBasicBlock >> mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: s
 				insertPhisAndReplaceUsersBetween: myInstruction
 				andAll: { duplicatedInstruction }
 				withFrontier: successors
-				withUsers: myInstruction nonLocalUsers ]
+				withUsers: (getUsersBlock value: myInstruction) ]
+]
+
+{ #category : #building }
+DRBasicBlock >> messageSend: selector withOperands: operands [
+
+	^ self addInstruction: (self instructionFactory messageSend: selector withOperands: operands)
 ]
 
 { #category : #accessing }
@@ -666,7 +734,7 @@ DRBasicBlock >> multiply: aValue by: anotherValue [
 	^ self addInstruction: (self instructionFactory multiply: aValue by: anotherValue)
 ]
 
-{ #category : #splitting }
+{ #category : #'control-flow' }
 DRBasicBlock >> newEmptyPredecessor [
 
 	| newBlock |
@@ -755,6 +823,15 @@ DRBasicBlock >> phiWithVariables: variables [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> predecessor [
+	
+	| predecessors |
+	predecessors := self predecessors.
+	predecessors size ~= 1 ifTrue: [ self error: 'This block does not contain a single predecessor' ].
+	^ predecessors first
+]
+
+{ #category : #accessing }
 DRBasicBlock >> predecessorAt: index [
 	
 	^ predecessors at: index
@@ -798,9 +875,16 @@ DRBasicBlock >> pushBase: base offset: offset [
 { #category : #iterating }
 DRBasicBlock >> recursiveSuccessorsDo: aBlock [
 
+	self recursiveSuccessorsDo: aBlock visited: {  }
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursiveSuccessorsDo: aBlock visited: alreadyVisited [
+
+	(alreadyVisited includes: self) ifTrue: [ ^ self ].
+	self successors do: [ :b | aBlock value: b ].
 	self successors do: [ :b | 
-		aBlock value: b.
-		b recursiveSuccessorsDo: aBlock ]
+		b recursiveSuccessorsDo: aBlock visited: { self } , alreadyVisited ]
 ]
 
 { #category : #'control-flow' }
@@ -895,6 +979,11 @@ DRBasicBlock >> return [
 	^ self endInstruction: DRReturn new
 ]
 
+{ #category : #building }
+DRBasicBlock >> return: anInstruction [ 
+	self endInstruction: (DRReturn operands: { anInstruction } )
+]
+
 { #category : #accessing }
 DRBasicBlock >> second [
 	
@@ -925,10 +1014,9 @@ DRBasicBlock >> sourceInterval [
 DRBasicBlock >> splitTo: predecessorToRewire [
 
 	| duplicatedBlock newSuccessors |
-	
 	self assert: self predecessors size > 1.
 
-	newSuccessors := self newEmptySuccessors. 
+	newSuccessors := self newEmptySuccessors.
 
 	duplicatedBlock := self basicDuplicate.
 	duplicatedBlock successors do: [ :successor | 
@@ -945,9 +1033,25 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
 	controlFlowGraph tree computeDominanceFrontier.
 
-	self mergeInstructionsWithNewBlock: duplicatedBlock withSuccessors: newSuccessors.
+	self
+		mergeInstructionsWithDuplicatedBlock: duplicatedBlock
+		withSuccessors: newSuccessors
+		usingUsers: [:i | i nonLocalUsers].
 
 	^ duplicatedBlock
+]
+
+{ #category : #building }
+DRBasicBlock >> store: instruction in: memoryAddress [
+
+	^ self addInstruction:
+		  (self instructionFactory store: instruction in: memoryAddress)
+]
+
+{ #category : #building }
+DRBasicBlock >> store: aValue into: anAddress [
+
+	^ self addInstruction: (self instructionFactory store: aValue into: anAddress)
 ]
 
 { #category : #building }
@@ -1013,7 +1117,7 @@ DRBasicBlock >> validatePhiFunctions [
 	self phiFunctions do: [ :e | 
 		| ops |
 		ops := e operands asIdentitySet.
-		(ops size > 1 or: [ (ops anyOne isKindOf: DRNullValue) not ]) 
+		(ops size > 1 and: [ (ops noneSatisfy: [ :o | o isKindOf: DRNullValue])  ]) 
 			ifTrue: [ 
 				e operands size = self predecessors size ifFalse: [ 
 					self error: 'Phi-predecessor mismatch' ].

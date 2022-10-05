@@ -63,10 +63,51 @@ DruidTestInterpreter >> jitCompileTimeIntegerExpression [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> lazyAssert [
+
+	<druidNotInline>
+	self stackTop = 0 ifTrue: [ self lazyFail ]
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> lazyDouble: n [
+
+	<druidNotInline>
+	^ n * 2
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> lazyFail [
+
+	<druidNotInline>
+	self primitiveFail
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithArg: aCollection [
+	<var: #aCollection type: #OrderedCollection>
+	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithEarlyReturn [
 
 	self stackTop = 0 ifTrue: [ ^ 42 ].
 	^ 57
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithMultipleTypeAnnotations: aCollection [
+
+	<var: #aCollection type: #OrderedCollection>
+	<var: #aCollection type: #Dictionary>
+	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithNoTypeAnnotation: aCollection [
+	
+	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -85,6 +126,22 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	"Dead code"
 	^ 16rFFFF
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithUnknownTypeAnnotation: aCollection [
+
+	<var: #aCollection type: #OrderedCollection>
+	<var: #aCollection type: #Unknown>
+	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotation: aCollection [
+
+	<var: #aCollection type: #Unknown>
+	<var: #aCollection type: #Dictionary>
+	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -141,6 +198,16 @@ DruidTestInterpreter >> primitiveArithmeticBitShiftRight [
 	receiver := self stackValue: 1.
 	argument := self stackTop.
 	self pop: 2 thenPush: (receiver >>> argument)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAssertDeferredInline [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 42.
+	self lazyAssert.
+	self pop: 1 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }
@@ -498,6 +565,15 @@ DruidTestInterpreter >> primitiveDivideByConstant [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDoubleDeferredInline [
+
+	<numberOfArguments: 0>
+	| result |
+	result := self lazyDouble: self stackTop.
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDoubleInnerBranching [
 
 	<numberOfArguments: 0>
@@ -548,6 +624,16 @@ DruidTestInterpreter >> primitiveEqualsThanValue [
 
 	<numberOfArguments: 0>
 	self pop: 1 thenPush: (self stackTop = 0)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveFailDeferredInline [
+
+	<numberOfArguments: 0>
+	| result |
+	result := 42.
+	self stackTop = 0 ifTrue: [ self lazyFail ].
+	self pop: 1 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }
@@ -1011,6 +1097,58 @@ DruidTestInterpreter >> primitiveLoopIncrementingGlobalState [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithInvariant [
+
+	<numberOfArguments: 0>
+	| result invariant |
+	result := 0.
+	[result < 15] whileTrue: [
+	 invariant := 1 * self stackTop.
+	 result := result + invariant ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithLoopInvariantInstructionInsideIf [
+
+	<numberOfArguments: 0>
+	| result invariant n |
+	result := 0.
+	n := 0.
+	[ result < 15 ] whileTrue: [
+	   (n < 20) ifTrue: [ invariant := 2 * self stackTop ].
+	   n := n + 1.
+		result := result + invariant ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithLoopVariantInstructions [
+
+	<numberOfArguments: 0>
+	| result variant variant2 |
+	result := 1.
+	[result < 15] whileTrue: [
+	 variant := result * self stackTop.
+	 variant2 := variant + 4.
+	 result := result + variant2 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLoopWithMultipleInvariants [
+
+	<numberOfArguments: 0>
+	| result invariant invariant2 |
+	result := 0.
+	[result < 15] whileTrue: [
+	 invariant := 1 * self stackTop.
+	 invariant2 := invariant + 4.
+	 result := result + invariant2 ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveMod [
 
 	<numberOfArguments: 1>
@@ -1080,6 +1218,21 @@ DruidTestInterpreter >> primitiveNegated [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNestedLoopWithInvariant [
+
+	<numberOfArguments: 0>
+	| result invariant n |
+	result := 0.
+	n := 0.
+	[ result < 15 ] whileTrue: [ 
+		[ n < 10 ] whileTrue: [ 
+			invariant := 2 * self stackTop.
+			n := n + 1 ].
+		result := result + invariant ].
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveNextUint16At [
 
 	<numberOfArguments: 0>
@@ -1090,6 +1243,17 @@ DruidTestInterpreter >> primitiveNextUint16At [
 
 	"pop the receiver, push the result"	
 	self pop: 1 thenPush: aByte
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveNoopLoopWithInvariant [
+
+	<numberOfArguments: 0>
+	| result n |
+	result := 3.
+	n := self stackTop.
+	[ n < 10 ] whileTrue: [ result := 5 . n := n + 1 ].
+	self pop: 1 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }

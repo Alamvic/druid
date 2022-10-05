@@ -17,6 +17,11 @@ DRObjectReferenceValue >> isConstant [
 ]
 
 { #category : #testing }
+DRObjectReferenceValue >> isInvariantFrom: loop [
+	^ true
+]
+
+{ #category : #testing }
 DRObjectReferenceValue >> isObjectReferenceValue [
 
 	^ true

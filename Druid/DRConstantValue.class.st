@@ -53,6 +53,11 @@ DRConstantValue >> isCopy [
 	^ false
 ]
 
+{ #category : #'loop-invariance' }
+DRConstantValue >> isInvariantFrom: loop [
+	^ true
+]
+
 { #category : #testing }
 DRConstantValue >> isJitCompileTimeExpression [
 	

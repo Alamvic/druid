@@ -126,6 +126,14 @@ DRValue >> isInstruction [
 ]
 
 { #category : #testing }
+DRValue >> isInvariantFrom: loop [
+
+	"A value is loop invariant with respect to a given loop if it can be moved outside the body of the loop without affecting the semantics of the program."
+
+	self subclassResponsibility
+]
+
+{ #category : #testing }
 DRValue >> isJITCompileTimeExpression: aString [ 
 	
 	^ false
@@ -145,6 +153,12 @@ DRValue >> isJump [
 
 { #category : #testing }
 DRValue >> isLoad [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isLoadFramePointer [
 	
 	^ false
 ]
@@ -261,14 +275,14 @@ DRValue >> operands [
 	^ #()
 ]
 
-{ #category : #'users-definitions' }
-DRValue >> removeUser: anInstruction [
-	
-	"Nothing"
+{ #category : #printing }
+DRValue >> prettyPrint [
+
+	^ self value asString
 ]
 
 { #category : #'users-definitions' }
-DRValue >> replaceUsersBy: anotherInstruction [
+DRValue >> removeUser: anInstruction [
 	
 	"Nothing"
 ]

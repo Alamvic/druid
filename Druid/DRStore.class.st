@@ -13,6 +13,12 @@ DRStore >> acceptVisitor: aVisitor [
 	^ aVisitor visitStore: self
 ]
 
+{ #category : #testing }
+DRStore >> canMoveOutsideLoop: backJump [
+
+	^ false
+]
+
 { #category : #visiting }
 DRStore >> isMandatoryInstruction [ 
 
@@ -46,5 +52,6 @@ DRStore >> size [
 
 { #category : #types }
 DRStore >> type [
-	self shouldBeImplemented.
+
+	^ DRVoidType new
 ]

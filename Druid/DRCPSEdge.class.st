@@ -26,6 +26,14 @@ DRCPSEdge >> addConstraint: aConditionalConstraint to: id [
 ]
 
 { #category : #accessing }
+DRCPSEdge >> ancestors [
+
+	parent ifNil: [ ^ {  } ].
+
+	^ parent ancestors , { parent }
+]
+
+{ #category : #accessing }
 DRCPSEdge >> branchIndex: anInteger [ 
 	
 	branchIndex := anInteger
@@ -165,6 +173,12 @@ DRCPSEdge >> printOn: aStream [
 	aStream nextPutAll: ' -> '.
 	aStream print: destination id.
 	aStream nextPutAll: ')'
+]
+
+{ #category : #optimising }
+DRCPSEdge >> split [
+
+	destination splitTo: source
 ]
 
 { #category : #visiting }
@@ -390,6 +404,18 @@ DRCPSEdge >> visitLessThan: aDRLessThanComparison inBranch: aDRBranch [
 
 { #category : #visiting }
 DRCPSEdge >> visitLoad: aDRLoad [ 
+
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitLoadArgument: aDRLoadArgument [
+
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitMessageSend: aDRMessageSend [
 
 	^ nil
 ]

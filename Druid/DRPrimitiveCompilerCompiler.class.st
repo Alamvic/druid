@@ -27,12 +27,22 @@ DRPrimitiveCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method
 ]
 
 { #category : #accessing }
+DRPrimitiveCompilerCompiler >> createInitialBasicBlock [
+	| initial initialBasicBlock |
+	initialBasicBlock := super createInitialBasicBlock.
+	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
+	initialBasicBlock addInstruction: initial.
+	^ initialBasicBlock
+]
+
+{ #category : #accessing }
 DRPrimitiveCompilerCompiler >> initialize [
 
 	super initialize.
 
 	optimisations := OrderedCollection new.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
+	optimisations add: DRLoopInvariantCodeMotion new.
 
 	"Basic set of optimizations twice for primitives"
 	3 timesRepeat: [ 
@@ -43,7 +53,8 @@ DRPrimitiveCompilerCompiler >> initialize [
 		optimisations add: DRPhiSimplication new.
 		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
-		optimisations add: (DRDeadPathSplitting then: DRDeadPathElimination) ].
+		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination).
+		optimisations add: DRInline new. ].
 	
 	"Last Phase, make code coggable"
     optimisations add: DRCogitOperandSorter new.
@@ -54,6 +65,11 @@ DRPrimitiveCompilerCompiler >> initialize [
 DRPrimitiveCompilerCompiler >> newIRGenerator [
 
 	^ DRPrimitiveIRGenerator new
+]
+
+{ #category : #accessing }
+DRPrimitiveCompilerCompiler >> numberOfArguments: aMethod [ 
+	^ (aMethod ast pragmaNamed: #numberOfArguments:) arguments first value
 ]
 
 { #category : #accessing }

@@ -94,6 +94,11 @@ DRCondition >> isTestMask [
 	^ false
 ]
 
+{ #category : #testing }
+DRCondition >> isTypeOf [
+	^ false
+]
+
 { #category : #transforming }
 DRCondition >> negated [
 	
@@ -103,8 +108,15 @@ DRCondition >> negated [
 { #category : #printing }
 DRCondition >> prettyPrintWithBranch: aDRBranchIfCondition [
 
-	^ aDRBranchIfCondition operand1 result name , ' ' , self opcode , ' '
-	  , aDRBranchIfCondition operand2 name
+	| conditionResult conditionResultName conditionComparisonValueName |
+	conditionResult := aDRBranchIfCondition operand1 result.
+	conditionResultName := conditionResult
+		                       ifNotNil: [ conditionResult name , ' ' ]
+		                       ifNil: [ '' ].
+	conditionComparisonValueName := aDRBranchIfCondition operand2
+		                                ifNotNil: [ ' ' , aDRBranchIfCondition operand2 name ]
+		                                ifNil: [ '' ].
+	^ conditionResultName , self opcode , conditionComparisonValueName
 ]
 
 { #category : #converting }
