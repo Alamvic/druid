@@ -32,6 +32,9 @@ DRMetaCompilerIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiv
 { #category : #visiting }
 DRMetaCompilerIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
+	variableSpecialCases at: aRBVariableNode name ifPresent: [ :mapping | 
+		^ self perform: mapping withArguments: { aRBVariableNode } ].
+
 	"Resolve it as a variableAccess"
 	self pushOperand:
 		((self topFrame homeFrameWithState: executionState) receiver value 

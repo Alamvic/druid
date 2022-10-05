@@ -839,7 +839,6 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 	self MoveCq: 99 R: ClassReg.
 	self MoveCq: 17 R: TempReg.
 	jump3 := self Jump: 0.
-	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	self MoveCq: 5 R: ClassReg.
@@ -849,31 +848,26 @@ DruidTestRTLCompiler >> gen_primitiveDNA [
 	self MoveR: ClassReg R: SendNumArgsReg.
 	self MoveR: TempReg R: ClassReg.
 	self MoveR: SendNumArgsReg R: TempReg.
-	
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
 	self AddR: TempReg R: ClassReg.
 	self AddCq: 42 R: ClassReg.
 	self MoveR: ClassReg R: ReceiverResultReg.
 	jump3 := self Jump: 0.
-	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	jump2 := self Jump: 0.
-	
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self MoveCq: 1 R: ClassReg.
 	self MoveCq: 5 R: SendNumArgsReg.
 	self MoveR: ClassReg R: TempReg.
 	self MoveR: SendNumArgsReg R: ClassReg.
-	
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	self AddCq: 5 R: TempReg.
 	self AddCq: 15 R: TempReg.
 	self MoveR: TempReg R: ReceiverResultReg.
-	
 	currentBlock := self Label.
 	jump3 jmpTarget: currentBlock.
 	self genPrimReturn.
@@ -3034,7 +3028,7 @@ DruidTestRTLCompiler >> gen_primitiveWithSequentialExitPoint [
 DruidTestRTLCompiler >> gen_pushConstantTrueBytecode [
 
 	| currentBlock |
-	self ssPushConstant: objectMemory trueObject.
+	self ssPushConstant: 19116064.
 	^ CompletePrimitive
 ]
 
