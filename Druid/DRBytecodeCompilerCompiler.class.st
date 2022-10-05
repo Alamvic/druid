@@ -51,6 +51,13 @@ DRBytecodeCompilerCompiler >> newIRGenerator [
 ]
 
 { #category : #accessing }
+DRBytecodeCompilerCompiler >> numberOfArguments: aCollection [ 
+	
+	"A bytecode instruction has no explicit arguments"
+	^ 0
+]
+
+{ #category : #accessing }
 DRBytecodeCompilerCompiler >> targetName [
 
 	^ 'gen_', self sourceName

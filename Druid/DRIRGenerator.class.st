@@ -1681,7 +1681,6 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	result := self popOperand.
 	copy := self instructionFor: result inNode: aRBReturnNode.
 	homeFrame := self topFrame homeFrameWithState: executionState.
-	homeFrame returnValue isNullValue ifFalse: [ 1halt "Unexplorer site" ].
 	homeFrame returnValue: copy.
 	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
 	homeFrame exitBasicBlock return: copy.

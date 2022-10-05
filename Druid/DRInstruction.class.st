@@ -284,12 +284,6 @@ DRInstruction >> isJITCompileTimeExpression: aString [
 ]
 
 { #category : #testing }
-DRInstruction >> isLoadFramePointer [
-	
-	^ false
-]
-
-{ #category : #testing }
 DRInstruction >> isModulo [
 	
 	^ false

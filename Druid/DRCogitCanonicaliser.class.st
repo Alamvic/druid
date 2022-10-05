@@ -115,6 +115,7 @@ DRCogitCanonicaliser >> visitNoop: aDRNoop [
 DRCogitCanonicaliser >> visitPush: aDRPush [
 	
 	| pushedValue |
+	1halt.
 	pushedValue := aDRPush operand1.
 	pushedValue isLoad ifFalse: [ ^ self ].
 	aDRPush replaceOperand: pushedValue by: pushedValue address
