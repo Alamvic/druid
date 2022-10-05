@@ -5,6 +5,46 @@ Class {
 }
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodeAdd [
+
+	self compileBytecode: 96 selector: #bytecodePrimAdd thenDo: [ :generator |
+		cogit ssPushRegister: ReceiverResultReg.
+		cogit ssPushRegister: TempReg.
+		
+		"Execute the druid's compiled code"
+		generator value.
+	
+		"Then return without druid's compiled code"
+		cogit ssTop popToReg: ReceiverResultReg.
+		cogit ssPop: 1.
+		cogit genUpArrowReturn ].
+
+	machineSimulator receiverRegisterValue: 0.
+	machineSimulator receiverRegisterValue: 1.
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 17).
+	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeDuplicateTop [
+
+	self compileBytecode: 83 selector: #duplicateTopBytecode thenDo: [ :generator |
+		cogit ssPushRegister: TempReg.
+		
+		"Execute the druid's compiled code"
+		generator value.
+	
+		"Then return without druid's compiled code"
+		cogit ssTop moveToReg: ReceiverResultReg.
+		cogit ssPop: 2.
+		cogit genUpArrowReturn ].
+
+	machineSimulator temporaryRegisterValue: 17.
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42).
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testPushReceiver [
 
 	| object |

@@ -150,6 +150,12 @@ DRCogitOperandSorter >> visitLoadReceiver: aDRLoadReceiver [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitLoadStackValue: aDRLoadStackValue [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitMod: aDRMod [ 
 	
 	"Mod and division are the same instruction in cogit"

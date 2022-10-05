@@ -91,6 +91,15 @@ DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [
 	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
 ]
 
+{ #category : #'special cases - stack' }
+DRBytecodeIRGenerator >> interpretStackTopWith: aRBMessageNode [
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRLoadStackValue
+		  operands: { 0 asDRValue }
+]
+
 { #category : #accessing }
 DRBytecodeIRGenerator >> newBasicBlock [
 

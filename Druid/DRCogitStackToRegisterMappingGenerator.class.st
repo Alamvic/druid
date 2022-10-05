@@ -20,6 +20,25 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue [
+
+	"(self ssDescriptorAt: 0) moveToReg: TempReg."
+
+	| sourceDescriptorAST |
+	sourceDescriptorAST := RBMessageNode
+		                       receiver: RBVariableNode selfNode
+		                       selector: #ssDescriptorAt:
+		                       arguments:
+		                       aDRLoadStackValue operand1
+			                       rtlPushArgumentExpressions.
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: sourceDescriptorAST
+			 selector: #moveToReg:
+			 arguments: (self rtlArgumentsForValue: aDRLoadStackValue result))
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 
 	generatorMethodBuilder addStatement: (RBMessageNode

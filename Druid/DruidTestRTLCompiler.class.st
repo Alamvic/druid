@@ -55,6 +55,15 @@ DruidTestRTLCompiler >> gen_branchingWithAssigments [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_duplicateTopBytecode [
+
+	| currentBlock |
+	(self ssDescriptorAt: 0) moveToReg: TempReg.
+	self ssPushRegister: TempReg.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_emptyPrimitive [
 
 	| currentBlock |
