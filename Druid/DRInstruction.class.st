@@ -700,7 +700,7 @@ DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 { #category : #types }
 DRInstruction >> type [
 
-	self subclassResponsibility
+	^ DRIntegerType new
 ]
 
 { #category : #replacing }

@@ -4,6 +4,18 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #initialization }
+DRMetaCompilerIRGenerator >> initializeSpecialCases [
+
+	super initializeSpecialCases.
+	
+	"Stack access"
+	specialCases at: #stackTop put: #interpretStackTopWith:.
+	specialCases at: #stackValue: put: #interpretStackValueWith:.
+	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
+
+]
+
 { #category : #visiting }
 DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 
