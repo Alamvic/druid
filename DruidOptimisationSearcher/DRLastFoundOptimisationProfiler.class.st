@@ -1,6 +1,6 @@
 Class {
 	#name : #DRLastFoundOptimisationProfiler,
-	#superclass : #DRSearchOptimisationProfiler,
+	#superclass : #DRSearchByHeuristicOptimisationProfiler,
 	#category : #DruidOptimisationSearcher
 }
 

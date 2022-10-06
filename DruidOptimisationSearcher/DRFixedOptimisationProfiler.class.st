@@ -2,7 +2,7 @@ Class {
 	#name : #DRFixedOptimisationProfiler,
 	#superclass : #DruidOptimisationProfiler,
 	#instVars : [
-		'manualOptimisations'
+		'fixedOptimisations'
 	],
 	#category : #DruidOptimisationSearcher
 }
@@ -10,7 +10,7 @@ Class {
 { #category : #searching }
 DRFixedOptimisationProfiler >> bestOptimisationForSelector: aSelector optimisationSequence: optimisations postOptimisationSequence: postSequence instructionCount: instructionCount [
 
-	^ manualOptimisations
+	^ fixedOptimisations
 		  at: optimisations size + 1
 		  ifAbsentPut: [ DRNoOptimisation new ]
 ]
@@ -19,7 +19,7 @@ DRFixedOptimisationProfiler >> bestOptimisationForSelector: aSelector optimisati
 DRFixedOptimisationProfiler >> initialize [
  
 
-	manualOptimisations := self optimisationsToApply asOrderedCollection 
+	fixedOptimisations := self optimisationsToApply asOrderedCollection 
 ]
 
 { #category : #initialization }

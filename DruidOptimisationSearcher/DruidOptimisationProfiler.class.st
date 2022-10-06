@@ -15,22 +15,7 @@ DruidOptimisationProfiler >> bestOptimisationForSelector: aSelector optimisation
 		 bestOptimisationForSelector: aSelector
 		 optimisationSequence: optimisations
 		 postOptimisationSequence: #(  )
-		 instructionCount: instructionCount) ifNotNil: [ :optimisation | 
-		^ optimisation ].
-	(self
-		 bestOptimisationForSelector: aSelector
-		 optimisationSequence: optimisations
-		 postOptimisationSequence: { DRDeadCodeElimination new }
-		 instructionCount: instructionCount) ifNotNil: [ :optimisation | 
-		^ optimisation ].
-	(self
-		 bestOptimisationForSelector: aSelector
-		 optimisationSequence: optimisations
-		 postOptimisationSequence: { 
-				 (DRSCCP then: DRCopyPropagation).
-				 (DRDeadCodeElimination then: DRCleanControlFlow) }
-		 instructionCount: instructionCount) ifNotNil: [ :optimisation | 
-		^ optimisation ].
+		 instructionCount: instructionCount) ifNotNil: [ :optimisation | ^ optimisation ].
 
 	^ DRNoOptimisation new
 ]
@@ -66,7 +51,7 @@ DruidOptimisationProfiler >> buildReportFor: selector [
 			  nextPutAll: result second value asString;
 			  nextPutAll: ')';
 			  nextPutAll: ' by ';
-			  nextPutAll: self className asString;
+			  nextPutAll: self prettyPrint;
 			  cr.
 
 		  (result allButLast allButFirst: 2) do: [ :optimisationRunned | 
@@ -132,6 +117,12 @@ DruidOptimisationProfiler >> optimisationList [
 		  DRCleanControlFlow.
 		  DRDeadEdgeSplitting.
 		  DRDeadBranchElimination } collect: [ :opt | opt new ]
+]
+
+{ #category : #printing }
+DruidOptimisationProfiler >> prettyPrint [
+
+	^ self class name
 ]
 
 { #category : #primitives }
