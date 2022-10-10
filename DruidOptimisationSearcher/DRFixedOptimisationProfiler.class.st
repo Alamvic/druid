@@ -10,9 +10,7 @@ Class {
 { #category : #searching }
 DRFixedOptimisationProfiler >> bestOptimisationForSelector: aSelector optimisationSequence: optimisations postOptimisationSequence: postSequence instructionCount: instructionCount [
 
-	^ fixedOptimisations
-		  at: optimisations size + 1
-		  ifAbsentPut: [ DRNoOptimisation new ]
+	^ fixedOptimisations at: optimisations size + 1 ifAbsent: [ ^ nil ]
 ]
 
 { #category : #initialization }

@@ -12,14 +12,10 @@ DRBestFoundOptimisationProfiler >> bestOptimisationForSelector: aSelector optimi
 	bestInstructionCount := instructionCount.
 	self optimisationList do: [ :potentialMin | 
 		| ir |
-		"Get a fresh IR and prepare it with a list of previously applied optimisations"
-		ir := self newIRFor: aSelector.
-		optimisations do: [ :e | ir applyOptimisation: e ].
-		ir applyOptimisation: potentialMin.
-		postSequence do: [ :e | ir applyOptimisation: e ].
+		ir := self newIRFor: aSelector withOptimisations: optimisations , { potentialMin } , postSequence.
 		ir instructions size < bestInstructionCount ifTrue: [ 
 			bestOptimisation := potentialMin.
-			bestInstructionCount := ir instructions size] ].
+			bestInstructionCount := ir instructions size ] ].
 
 	^ bestOptimisation
 ]

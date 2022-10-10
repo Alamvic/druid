@@ -59,6 +59,14 @@ DRControlFlowGraph >> allConditionalJumps [
 ]
 
 { #category : #accessing }
+DRControlFlowGraph >> allJumps [
+
+	^ self reversePostOrderBlocks
+		  collect: [ :b | b endInstruction ]
+		  thenSelect: [ :i | i isNoop not ]
+]
+
+{ #category : #accessing }
 DRControlFlowGraph >> allLoops [
 	^ self allBackJumps collect: [ :backJump | backJump loop ]
 ]

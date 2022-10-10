@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #testing }
+DRDeadEdgeSplitting >> canBeAppliedWithGeneratedPathsIn: aDRControlFlowGraph [ 
+
+	^ aDRControlFlowGraph deadPaths isNotEmpty 
+]
+
 { #category : #operations }
 DRDeadEdgeSplitting >> doApplyWithGeneratedPaths: aCFG [
 

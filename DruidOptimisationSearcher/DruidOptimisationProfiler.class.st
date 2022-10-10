@@ -93,6 +93,17 @@ DruidOptimisationProfiler >> newIRFor: aSelector [
 		  generateDruidIR
 ]
 
+{ #category : #'IR-generation' }
+DruidOptimisationProfiler >> newIRFor: aSelector withOptimisations: optimisations [
+
+	"Get a fresh IR and prepare it with a list of optimisations"
+
+	| ir |
+	ir := self newIRFor: aSelector.
+	optimisations do: [ :e | ir applyOptimisation: e ].
+	^ ir
+]
+
 { #category : #'ir-building' }
 DruidOptimisationProfiler >> newIRManualSelectedOptimizeFor: aSelector [
 

@@ -133,20 +133,22 @@ DruidTestRTLCompiler >> gen_primitiveAccessTempAfterCall [
 { #category : #generated }
 DruidTestRTLCompiler >> gen_primitiveAdd [
 
-	| jump1 jump2 currentBlock |
-	self mclassIsSmallInteger ifFalse: [ ^ UnimplementedPrimitive ].
+	| jump1 jump2 jump3 currentBlock |
 	self TstCq: 1 R: Arg0Reg.
 	jump1 := self JumpZero: 0.
+	self TstCq: 1 R: ReceiverResultReg.
+	jump2 := self JumpZero: 0.
 	self MoveR: Arg0Reg R: TempReg.
 	self SubCq: 1 R: TempReg.
 	self MoveR: ReceiverResultReg R: ClassReg.
 	self AddR: ClassReg R: TempReg.
-	jump2 := self JumpOverflow: 0.
+	jump3 := self JumpOverflow: 0.
 	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	jump2 jmpTarget: currentBlock.
+	jump3 jmpTarget: currentBlock.
 	^ CompletePrimitive
 ]
 

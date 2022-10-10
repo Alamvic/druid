@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #testing }
+DRPathOptimisation >> canBeAppliedIn: aDRontrolFlowGraph [ 
+
+	^ aDRontrolFlowGraph generatePaths and: [ self canBeAppliedWithGeneratedPathsIn: aDRontrolFlowGraph  ]
+]
+
 { #category : #accessing }
 DRPathOptimisation >> doApply: cfg [
 

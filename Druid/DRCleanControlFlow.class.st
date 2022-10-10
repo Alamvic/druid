@@ -4,6 +4,13 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #testing }
+DRCleanControlFlow >> canBeAppliedIn: aDRControlFlowGraph [
+
+	^ aDRControlFlowGraph allJumps anySatisfy: [ :j | 
+		  j isConditionalBranch or: [ j target predecessors size = 1 ] ]
+]
+
 { #category : #combining }
 DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: aCFG [
 	
