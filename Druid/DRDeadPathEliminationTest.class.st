@@ -44,6 +44,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 	2 timesRepeat: [ 
 		cfg applyOptimisation: optimisation.
 		cfg applyOptimisation: DRCleanControlFlow new ].
+	cfg generatePaths.
 
 	lastBlocks := cfg lastBasicBlock predecessors.
 	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
@@ -130,6 +131,7 @@ DRDeadPathEliminationTest >> testEliminateInnerDeadPaths [
 
 	optimisation applyTo: cfg.
 	self optimize: cfg.
+	cfg generatePaths.
 
 	lastBlocks := cfg lastBasicBlock predecessors.
 
@@ -147,6 +149,7 @@ DRDeadPathEliminationTest >> testEliminateOnlyDeadPaths [
 	cfg := self generateDruidIRFor: #primitiveMultiplePathsOnlyOneDead.
 
 	optimisation applyTo: cfg.
+	cfg generatePaths.
 
 	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
 	lastBlocks := cfg lastBasicBlock predecessors.
@@ -166,7 +169,8 @@ DRDeadPathEliminationTest >> testEliminateSimpleDeadPaths [
 	cfg := self generateDruidIRFor: #primitiveSandclock.
 
 	optimisation applyTo: cfg.
-	self optimize: cfg .
+	self optimize: cfg.
+	cfg generatePaths.
 
 	lastBlocks := cfg lastBasicBlock predecessors.
 	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
