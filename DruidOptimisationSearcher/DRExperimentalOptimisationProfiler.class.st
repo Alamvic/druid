@@ -9,18 +9,25 @@ DRExperimentalOptimisationProfiler >> optimisationsToApply [
 
 	^ { 
 		  DRCleanControlFlow.
+		  DRCleanControlFlow.
 		  DRCopyPropagation.
-		  DRDeadCodeElimination.
-		  DRSCCP.
 		  DRDeadCodeElimination.
 		  DRBranchCollapse.
 		  DRDeadCodeElimination.
+		  DRSCCP.
+		  DRDeadCodeElimination.
 		  DRFailureCodeBasedTailDuplication.
 		  DRCleanControlFlow.
-		  DRDeadBranchElimination.
 		  DRCleanControlFlow.
 		  DRCopyPropagation.
 		  DRDeadCodeElimination.
 		  DRRedundantCopyElimination.
-		  DRCleanControlFlow } collect: [ :opt | opt new ]
+		  DRSCCP.
+		  DRDeadCodeElimination.
+		  DRCleanControlFlow.
+		  DRFailureCodeBasedTailDuplication.
+		  DRCleanControlFlow.
+		  DRCleanControlFlow.
+		  DRSCCP.
+		  DRDeadCodeElimination } collect: [ :opt | opt new ]
 ]
