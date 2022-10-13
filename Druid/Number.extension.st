@@ -3,7 +3,7 @@ Extension { #name : #Number }
 { #category : #'*Druid' }
 Number >> expression [
 	
-	^ RBLiteralValueNode value: self
+	^ self asString
 ]
 
 { #category : #'*Druid' }

@@ -55,6 +55,15 @@ DruidTestRTLCompiler >> gen_branchingWithAssigments [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_duplicateTopBytecode [
+
+	| currentBlock |
+	(self ssDescriptorAt: 0) moveToReg: TempReg.
+	self ssPushRegister: TempReg.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_emptyPrimitive [
 
 	| currentBlock |
@@ -942,9 +951,9 @@ DruidTestRTLCompiler >> gen_primitiveDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1490,9 +1499,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1517,10 +1526,6 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivideByConstant [
 DruidTestRTLCompiler >> gen_primitiveIntegerRawBitsAsFloat [
 
 	| currentBlock |
-	self MoveR: ReceiverResultReg R: TempReg.
-	self MoveR: TempReg Rd: DPFPReg0.
-	self ConvertRd: DPFPReg0 R: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -3029,6 +3034,38 @@ DruidTestRTLCompiler >> gen_primitiveWithSequentialExitPoint [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_pushConstantTrueBytecode [
+
+	| currentBlock |
+	self ssPushConstant: objectMemory trueObject.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_pushLiteralConstantBytecode [
+
+	| currentBlock |
+	self MoveR: FPReg R: TempReg.
+	self MoveM64: FoxMethod r: TempReg R: TempReg.
+	self AddCq: 8 R: TempReg.
+	self MoveCq: LiteralStart R: ClassReg.
+	self LogicalShiftLeftCq: 2 R: ClassReg.
+	self AddR: ClassReg R: TempReg.
+	self ssPushBase: TempReg offset: 0.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_pushReceiverBytecode [
+
+	| currentBlock |
+	self ensureReceiverResultRegContainsSelf.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self ssPushRegister: TempReg.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_pushReceiverVariableBytecode [
 
 	| currentBlock |
@@ -3042,6 +3079,14 @@ DruidTestRTLCompiler >> gen_pushReceiverVariableBytecode [
 DruidTestRTLCompiler >> numRegArgs [
 
 	^ 2 "Hardcoded?"
+]
+
+{ #category : #compatibility }
+DruidTestRTLCompiler >> shouldAnnotateObjectReference: anOop [
+	"Objects in newSpace or oldSpace except nil, true, false & classTableRootObj need to be annotated."
+	^(objectMemory isNonImmediate: anOop)
+	  and: [(self oop: anOop isGreaterThan: objectMemory classTableRootObj)
+		or: [self oop: anOop isLessThan: objectMemory nilObject]]
 ]
 
 { #category : #generated }

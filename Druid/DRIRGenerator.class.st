@@ -278,11 +278,6 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #bitOr: put: #interpretBitOrWith:.
 	specialCases at: #bitXor: put: #interpretBitXorWith:.
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
-
-	"Stack access"
-	specialCases at: #stackTop put: #interpretStackTopWith:.
-	specialCases at: #stackValue: put: #interpretStackValueWith:.
-	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
 		
 	"special simulation cases"
 	specialCases at: #cCode: put: #interpretCCodeInSmalltalkWith:.
@@ -1681,7 +1676,6 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	result := self popOperand.
 	copy := self instructionFor: result inNode: aRBReturnNode.
 	homeFrame := self topFrame homeFrameWithState: executionState.
-	homeFrame returnValue isNullValue ifFalse: [ 1halt "Unexplorer site" ].
 	homeFrame returnValue: copy.
 	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
 	homeFrame exitBasicBlock return: copy.

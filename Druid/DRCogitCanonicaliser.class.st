@@ -106,6 +106,12 @@ DRCogitCanonicaliser >> visitLoadReceiver: aDRLoadReceiver [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitLoadStackValue: aDRLoadStackValue [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitNoop: aDRNoop [ 
 	
 	"Nothing"

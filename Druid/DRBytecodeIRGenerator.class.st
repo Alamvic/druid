@@ -1,6 +1,6 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
-	#superclass : #DRIRGenerator,
+	#superclass : #DRMetaCompilerIRGenerator,
 	#category : #'Druid-CompilerCompiler'
 }
 
@@ -89,6 +89,15 @@ DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [
 	| receiver |
 	receiver := self visitOperand: aRBMessageNode arguments first.
 	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
+]
+
+{ #category : #'special cases - stack' }
+DRBytecodeIRGenerator >> interpretStackTopWith: aRBMessageNode [
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRLoadStackValue
+		  operands: { 0 asDRValue }
 ]
 
 { #category : #accessing }

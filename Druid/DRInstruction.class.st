@@ -138,7 +138,7 @@ DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode
 { #category : #testing }
 DRInstruction >> hasDependency: anInstruction [
 	
-	^ self hasOperand: anInstruction
+	^ self dependencies includes: anInstruction
 ]
 
 { #category : #testing }
@@ -279,12 +279,6 @@ DRInstruction >> isInvariantFrom: loop [
 
 { #category : #testing }
 DRInstruction >> isJITCompileTimeExpression: aString [ 
-	
-	^ false
-]
-
-{ #category : #testing }
-DRInstruction >> isLoadFramePointer [
 	
 	^ false
 ]
@@ -556,6 +550,12 @@ DRInstruction >> replaceDependency: anOperand by: anotherOperand [
 	self replaceOperand: anOperand by: anotherOperand
 ]
 
+{ #category : #dependencies }
+DRInstruction >> replaceDependency: anOperand by: anotherOperand in: anInstruction [
+	
+	anInstruction replaceOperand: anOperand by: anotherOperand
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
@@ -638,6 +638,18 @@ DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 			self replaceOperand: operand by: newOperandValues anyOne ]
 ]
 
+{ #category : #cogit }
+DRInstruction >> rtlPushArgumentExpressions [
+	
+	^ { RBVariableNode named: result name }
+]
+
+{ #category : #cogit }
+DRInstruction >> rtlPushOperandQualifierForInstruction: anInstruction [
+	
+	^ 'Register:'
+]
+
 { #category : #SCCP }
 DRInstruction >> sccpEvaluateFor: sccp [
 
@@ -688,7 +700,7 @@ DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 { #category : #types }
 DRInstruction >> type [
 
-	self subclassResponsibility
+	^ DRIntegerType new
 ]
 
 { #category : #replacing }

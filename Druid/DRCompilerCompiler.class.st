@@ -22,7 +22,7 @@ DRCompilerCompiler >> compile [
 	self customise.
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
-1halt.
+
 	registerAllocator allocateRegistersIn: druidIR.
 
 	targetAST := self generateTargetASTFromIR: druidIR.
@@ -82,26 +82,31 @@ DRCompilerCompiler >> generateDruidIR [
 
 { #category : #'generation-IR' }
 DRCompilerCompiler >> generateDruidIRFor: method [
-	
+
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
+
 	| initialBasicBlock startBlock cfg numArgs arguments loadArgumentInst |
-	
 	"Create the initial basic block"
 	startBlock := irGenerator initialBasicBlock.
 	initialBasicBlock := self createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
-	
-	numArgs := (self numberOfArguments: method).
+
+	numArgs := self numberOfArguments: method.
 	irGenerator numberOfArguments: numArgs.
 	arguments := OrderedCollection new.
-	(numArgs > 0) ifTrue: [1 to: numArgs do: [ :i |
-		 loadArgumentInst := "TODO: Use instructionFactory to create Result register"
-					DRLoadArgument new operands: { i }; yourself.
-		 initialBasicBlock addInstruction: loadArgumentInst.
-		 arguments add: loadArgumentInst ]].
-	
-	irGenerator interpretCode: (DRMethod methodNode: method ast) receiver: (DRInterpreterValue value: interpreter) arguments: arguments.
-	
+	numArgs > 0 ifTrue: [ 
+		1 to: numArgs do: [ :i | 
+			loadArgumentInst := DRLoadArgument new
+				                    operands: { i };
+				                    yourself. "TODO: Use instructionFactory to create Result register"
+			initialBasicBlock addInstruction: loadArgumentInst.
+			arguments add: loadArgumentInst ] ].
+
+	irGenerator
+		interpretCode: (DRMethod methodNode: method ast)
+		receiver: (DRInterpreterValue value: interpreter)
+		arguments: arguments.
+
 	cfg := irGenerator ir.
 
 	"Clean garbage to generate a valid CFG"
@@ -109,7 +114,7 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 	DRDeadCodeElimination new applyTo: cfg.
 	cfg validate.
 
-	^cfg
+	^ cfg
 ]
 
 { #category : #'code-generation' }
