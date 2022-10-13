@@ -5,6 +5,17 @@ Class {
 }
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitLoadFramePointer: aDRLoadFramePointer [ 
+	
+	self
+		twoOperandCogitRTL: #Move
+		operands: { 
+				(DRPhysicalGeneralPurposeRegister name: 'FPReg').
+				aDRLoadFramePointer result }
+		instruction: aDRLoadFramePointer
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 
 	generatorMethodBuilder addStatement: (RBMessageNode

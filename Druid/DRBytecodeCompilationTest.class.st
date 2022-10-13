@@ -16,8 +16,8 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 		sourceName: aSelector;
 		interpreter: self interpreter;
 		compilerClass: DruidTestRTLCompiler.
-	compiler compile.
 
+	compiler compile.
 	"Then generate the machine code for that method"
 	initialAddress := self compile: [
 		cogit needsFrame: true.
@@ -33,9 +33,9 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 ]
 
 { #category : #helpers }
-DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: arguments [
+DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: arguments method: aMethod [
 
-	super prepareStackForSendReceiver: aReceiver arguments: arguments.
+	super prepareStackForSendReceiver: aReceiver arguments: arguments method: aMethod.
 
 	"Callee side - make up the frame"
 	"Now push the link register, it will be popped by the return"
@@ -43,7 +43,7 @@ DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: a
 		self pushAddress: machineSimulator linkRegisterValue ].
 	self pushAddress: machineSimulator fp.
 	machineSimulator fp: machineSimulator smalltalkStackPointerRegisterValue.
-	self pushAddress: 0 "Method".
+	self pushAddress: aMethod.
 	self pushAddress: 0 "context".
 	self pushAddress: aReceiver
 ]

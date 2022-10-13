@@ -3042,6 +3042,21 @@ DruidTestRTLCompiler >> gen_pushConstantTrueBytecode [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_pushLiteralConstantBytecode [
+
+	| currentBlock |
+	self MoveR: FPReg R: TempReg.
+	self MoveM64: FoxMethod r: TempReg R: TempReg.
+	self MoveCq: LiteralStart R: ClassReg.
+	self AddCq: 1 R: ClassReg.
+	self AddCq: 8 R: TempReg.
+	self LogicalShiftLeftCq: 3 R: ClassReg.
+	self AddR: ClassReg R: TempReg.
+	self ssPushBase: TempReg offset: 0.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_pushReceiverBytecode [
 
 	| currentBlock |

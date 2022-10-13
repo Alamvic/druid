@@ -58,7 +58,7 @@ DRBaseOffsetMemoryAddress >> operands [
 DRBaseOffsetMemoryAddress >> rtlArgumentExpressions [
 	
 	| offsetNode baseNode |
-	offsetNode := RBLiteralValueNode value: offset value.
+	offsetNode := RBParser parseExpression: offset expression.
 	baseNode := RBVariableNode named: base result name.
 
 	^ { offsetNode . baseNode }
