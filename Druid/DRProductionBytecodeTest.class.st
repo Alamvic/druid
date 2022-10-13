@@ -61,7 +61,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant [
 		newMethod;
 		literals: { (memory integerObjectOf: 42) };
 		buildMethod.
-	1halt.
+
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 17)
 		withArguments: #()
 		method: method.
@@ -102,7 +102,6 @@ DRProductionBytecodeTest >> testPushReceiver [
 
 		"Then return without druid's compiled code"
 		cogit ssTop popToReg: ReceiverResultReg.
-		cogit ssPop: 1.
 		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
@@ -122,7 +121,6 @@ DRProductionBytecodeTest >> testPushReceiverVariableBytecode [
 	
 		"Then return without druid's compiled code"
 		cogit ssTop popToReg: ReceiverResultReg.
-		cogit ssPop: 1.
 		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
@@ -142,7 +140,6 @@ DRProductionBytecodeTest >> testPushReceiverVariableBytecode2 [
 	
 		"Then return without druid's compiled code"
 		cogit ssTop popToReg: ReceiverResultReg.
-		cogit ssPop: 1.
 		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
@@ -162,7 +159,6 @@ DRProductionBytecodeTest >> testPushTrueObject [
 	
 		"Then return without druid's compiled code"
 		cogit ssTop popToReg: ReceiverResultReg.
-		cogit ssPop: 1.
 		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
