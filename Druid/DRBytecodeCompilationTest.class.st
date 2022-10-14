@@ -16,8 +16,8 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 		sourceName: aSelector;
 		interpreter: self interpreter;
 		compilerClass: DruidTestRTLCompiler.
-	compiler compile.
 
+	compiler compile.
 	"Then generate the machine code for that method"
 	initialAddress := self compile: [
 		cogit needsFrame: true.
@@ -32,42 +32,18 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 	] bytecodes: 100
 ]
 
-{ #category : #tests }
-DRBytecodeCompilationTest >> testPushReceiverVariableBytecode [
+{ #category : #helpers }
+DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: arguments method: aMethod [
 
-	| object |
-	self compileBytecode: 0 selector: #pushReceiverVariableBytecode thenDo: [ :generator |
-		"Execute the druid's compiled code"
-		generator value.
-	
-		"Then return without druid's compiled code"
-		cogit ssTop popToReg: ReceiverResultReg.
-		cogit ssPop: 1.
-		cogit genUpArrowReturn ].
+	super prepareStackForSendReceiver: aReceiver arguments: arguments method: aMethod.
 
-	object := self newObjectWithSlots: 1.
-	memory storePointer: 0 ofObject: object withValue: 17.
-
-	self executePrimitiveWithReceiver: object.
-	self assert: machineSimulator receiverRegisterValue equals: 17
-]
-
-{ #category : #tests }
-DRBytecodeCompilationTest >> testPushReceiverVariableBytecode2 [
-
-	| object |
-	self compileBytecode: 1 selector: #pushReceiverVariableBytecode thenDo: [ :generator |
-		"Execute the druid's compiled code"
-		generator value.
-	
-		"Then return without druid's compiled code"
-		cogit ssTop popToReg: ReceiverResultReg.
-		cogit ssPop: 1.
-		cogit genUpArrowReturn ].
-
-	object := self newObjectWithSlots: 1.
-	memory storePointer: 1 ofObject: object withValue: 17.
-	
-	self executePrimitiveWithReceiver: object.
-	self assert: machineSimulator receiverRegisterValue equals: 17
+	"Callee side - make up the frame"
+	"Now push the link register, it will be popped by the return"
+	machineSimulator hasLinkRegister ifTrue: [
+		self pushAddress: machineSimulator linkRegisterValue ].
+	self pushAddress: machineSimulator fp.
+	machineSimulator fp: machineSimulator smalltalkStackPointerRegisterValue.
+	self pushAddress: aMethod.
+	self pushAddress: 0 "context".
+	self pushAddress: aReceiver
 ]

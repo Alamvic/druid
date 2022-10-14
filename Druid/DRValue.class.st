@@ -157,6 +157,12 @@ DRValue >> isLoad [
 	^ false
 ]
 
+{ #category : #testing }
+DRValue >> isLoadFramePointer [
+	
+	^ false
+]
+
 { #category : #visiting }
 DRValue >> isMandatoryInstruction [
 
@@ -303,6 +309,18 @@ DRValue >> rtlOperandQualifier [
 DRValue >> rtlOperandQualifierForInstruction: instruction [
 
 	^ self rtlOperandQualifier
+]
+
+{ #category : #cogit }
+DRValue >> rtlPushArgumentExpressions [
+	
+	^ { RBVariableNode named: self name }
+]
+
+{ #category : #cogit }
+DRValue >> rtlPushOperandQualifierForInstruction: anInstruction [
+	
+	^ 'Constant:'
 ]
 
 { #category : #'constant folding' }

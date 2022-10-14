@@ -40,6 +40,12 @@ DRInterpreterReference >> name [
 ]
 
 { #category : #accessing }
+DRInterpreterReference >> operands [
+	
+	^ #()
+]
+
+{ #category : #accessing }
 DRInterpreterReference >> reference: aString [ 
 	reference := aString
 ]

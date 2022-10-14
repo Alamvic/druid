@@ -278,11 +278,6 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #bitOr: put: #interpretBitOrWith:.
 	specialCases at: #bitXor: put: #interpretBitXorWith:.
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
-
-	"Stack access"
-	specialCases at: #stackTop put: #interpretStackTopWith:.
-	specialCases at: #stackValue: put: #interpretStackValueWith:.
-	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
 		
 	"special simulation cases"
 	specialCases at: #cCode: put: #interpretCCodeInSmalltalkWith:.
