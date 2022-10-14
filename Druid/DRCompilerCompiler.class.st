@@ -10,7 +10,8 @@ Class {
 		'optimisations',
 		'codeGenerator',
 		'customisation',
-		'irGenerator'
+		'irGenerator',
+		'initialArguments'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -96,10 +97,7 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 	arguments := OrderedCollection new.
 	numArgs > 0 ifTrue: [ 
 		1 to: numArgs do: [ :i | 
-			loadArgumentInst := DRLoadArgument new
-				                    operands: { i };
-				                    yourself. "TODO: Use instructionFactory to create Result register"
-			initialBasicBlock addInstruction: loadArgumentInst.
+			loadArgumentInst := initialBasicBlock loadArgument: i.
 			arguments add: loadArgumentInst ] ].
 
 	irGenerator

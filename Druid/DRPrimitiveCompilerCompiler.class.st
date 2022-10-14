@@ -19,7 +19,7 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 		compile
 ]
 
-{ #category : #accessing }
+{ #category : #'generation-IR' }
 DRPrimitiveCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method [
 	
 	super configureIRBuilder: irGenerator forMethod: method.
