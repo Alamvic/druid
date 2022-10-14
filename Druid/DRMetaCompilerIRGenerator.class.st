@@ -4,6 +4,20 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #factory }
+DRMetaCompilerIRGenerator >> createInitialBasicBlock [
+	| initialBasicBlock |
+	initialBasicBlock := super createInitialBasicBlock.
+	self currentPrimitiveFailureCode: (initialBasicBlock copy: 0).
+	^ initialBasicBlock
+]
+
+{ #category : #accessing }
+DRMetaCompilerIRGenerator >> currentPrimitiveFailureCode: anInstruction [
+	
+	self executionState primitiveFailureCode: anInstruction
+]
+
 { #category : #initialization }
 DRMetaCompilerIRGenerator >> initializeSpecialCases [
 
@@ -24,6 +38,15 @@ DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 			  self currentMethod methodClass superclass lookupSelector:
 				  aRBMessageNode selector ]
 		  ifFalse: [ receiver type lookupSelector: aRBMessageNode selector ]
+]
+
+{ #category : #accessing }
+DRMetaCompilerIRGenerator >> numberOfArguments: aValue [ 
+	
+	super numberOfArguments: aValue.
+	self push: self receiverRegister.
+	0 to: numberOfArguments - 1 do: [ :i |
+		self push: (self argRegisterNumber: i) ]
 ]
 
 { #category : #visiting }

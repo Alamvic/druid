@@ -4,12 +4,6 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
-{ #category : #accessing }
-DRPrimitiveIRGenerator >> currentPrimitiveFailureCode: anInstruction [
-	
-	self executionState primitiveFailureCode: anInstruction
-]
-
 { #category : #visiting }
 DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
 
@@ -128,15 +122,6 @@ DRPrimitiveIRGenerator >> newBasicBlockWithState: executionState [
 DRPrimitiveIRGenerator >> newCFG [
 	
 	^ DRPrimitiveControlFlowGraph new
-]
-
-{ #category : #accessing }
-DRPrimitiveIRGenerator >> numberOfArguments: aValue [ 
-	
-	super numberOfArguments: aValue.
-	self push: self receiverRegister.
-	0 to: numberOfArguments - 1 do: [ :i |
-		self push: (self argRegisterNumber: i) ]
 ]
 
 { #category : #'frame-access' }

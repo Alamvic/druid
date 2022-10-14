@@ -10,8 +10,7 @@ Class {
 		'optimisations',
 		'codeGenerator',
 		'customisation',
-		'irGenerator',
-		'initialArguments'
+		'irGenerator'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -43,20 +42,15 @@ DRCompilerCompiler >> compilerClass: anObject [
 ]
 
 { #category : #'generation-IR' }
-DRCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method [
-	
+DRCompilerCompiler >> configureIRBuilder: generator forMethod: method [
+
+	| startBlock initialBasicBlock |
 	"Create the initial basic block"
-	| startBlock initialBasicBlock initial |
-	startBlock := irGenerator initialBasicBlock.
-	initialBasicBlock := irGenerator newBasicBlock.
+	startBlock := generator initialBasicBlock.
+	initialBasicBlock := generator createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
 
-	irGenerator currentPrimitiveFailureCode: (initial := initialBasicBlock copy: 0)
-]
-
-{ #category : #'generation-IR' }
-DRCompilerCompiler >> createInitialBasicBlock [
-	^ irGenerator newBasicBlock
+	generator numberOfArguments: (self numberOfArgumentsFor: method)
 ]
 
 { #category : #'generation-IR' }
@@ -86,20 +80,10 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 
-	| initialBasicBlock startBlock cfg numArgs arguments loadArgumentInst |
-	"Create the initial basic block"
-	startBlock := irGenerator initialBasicBlock.
-	initialBasicBlock := self createInitialBasicBlock.
-	startBlock jumpTo: initialBasicBlock.
+	| cfg arguments |
+	self configureIRBuilder: irGenerator forMethod: method.
 
-	numArgs := self numberOfArguments: method.
-	irGenerator numberOfArguments: numArgs.
-	arguments := OrderedCollection new.
-	numArgs > 0 ifTrue: [ 
-		1 to: numArgs do: [ :i | 
-			loadArgumentInst := initialBasicBlock loadArgument: i.
-			arguments add: loadArgumentInst ] ].
-
+	arguments := method argumentNames collect: [ :_ | irGenerator pop ].
 	irGenerator
 		interpretCode: (DRMethod methodNode: method ast)
 		receiver: (DRInterpreterValue value: interpreter)
@@ -166,6 +150,12 @@ DRCompilerCompiler >> irGenerator: aDRIRGenerator [
 DRCompilerCompiler >> newIRGenerator [
 
 	^ DRIRGenerator new
+]
+
+{ #category : #'generation-IR' }
+DRCompilerCompiler >> numberOfArgumentsFor: method [
+
+	^ self subclassResponsibility
 ]
 
 { #category : #accessing }

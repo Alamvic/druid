@@ -5,12 +5,6 @@ Class {
 }
 
 { #category : #accessing }
-DRBytecodeIRGenerator >> currentPrimitiveFailureCode: anInstruction [
-	
-	self executionState primitiveFailureCode: anInstruction
-]
-
-{ #category : #accessing }
 DRBytecodeIRGenerator >> initialize [
 
 	super initialize.
@@ -119,15 +113,6 @@ DRBytecodeIRGenerator >> newBasicBlockWithState: executionState [
 DRBytecodeIRGenerator >> newCFG [
 	
 	^ DRPrimitiveControlFlowGraph new
-]
-
-{ #category : #accessing }
-DRBytecodeIRGenerator >> numberOfArguments: aValue [ 
-	
-	numberOfArguments := aValue.
-	self push: self receiverRegister.
-	0 to: numberOfArguments - 1 do: [ :i |
-		self push: (self argRegisterNumber: i) ]
 ]
 
 { #category : #visiting }
