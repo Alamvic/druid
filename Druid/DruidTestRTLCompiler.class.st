@@ -771,11 +771,9 @@ DruidTestRTLCompiler >> gen_primitiveClassVariableWithBranch [
 	self MoveR: ReceiverResultReg R: TempReg.
 	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpZero: 0.
-	self MoveCq: 36 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveCq: 35 R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	self genPrimReturn.
@@ -3047,9 +3045,10 @@ DruidTestRTLCompiler >> gen_pushLiteralConstantBytecode [
 	| currentBlock |
 	self MoveR: FPReg R: TempReg.
 	self MoveM64: FoxMethod r: TempReg R: TempReg.
-	self AddCq: 8 R: TempReg.
 	self MoveCq: LiteralStart R: ClassReg.
-	self LogicalShiftLeftCq: 2 R: ClassReg.
+	self AddCq: 1 R: ClassReg.
+	self AddCq: 8 R: TempReg.
+	self LogicalShiftLeftCq: 3 R: ClassReg.
 	self AddR: ClassReg R: TempReg.
 	self ssPushBase: TempReg offset: 0.
 	^ CompletePrimitive
@@ -3071,7 +3070,7 @@ DruidTestRTLCompiler >> gen_pushReceiverVariableBytecode [
 	| currentBlock |
 	self ensureReceiverResultRegContainsSelf.
 	self MoveR: ReceiverResultReg R: TempReg.
-	self ssPushBase: TempReg offset: 16.
+	self ssPushBase: TempReg offset: 12.
 	^ CompletePrimitive
 ]
 

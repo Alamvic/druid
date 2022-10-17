@@ -496,7 +496,7 @@ DRPrimitiveScenarioCompilationTest >> testCompiledPrimitivePreservesStack [
 	self pushAddress: 55.
 	self executePrimitiveWithReceiver: receiver.
 	
-	"An empty primitive does nothing and just returns, the return value is the receiver"
+	self flag: #TOFIX. "Receiver is pushed after mark" 
 	self assert: self popAddress equals: 55
 ]
 
