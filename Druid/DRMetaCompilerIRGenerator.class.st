@@ -59,6 +59,7 @@ DRMetaCompilerIRGenerator >> initializeSpecialCases [
 	specialCases at: #stackTop put: #interpretStackTopWith:.
 	specialCases at: #stackValue: put: #interpretStackValueWith:.
 	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
+	specialCases at: #pop:thenPushFloat: put: #interpretPopThenPushWith:.
 
 ]
 
