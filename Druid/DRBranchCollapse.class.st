@@ -20,3 +20,12 @@ DRBranchCollapse >> applyTo: aDRControlFlowGraph [
 				replacementBranch falseBranch: b endInstruction falseBranch.
 				b endInstruction replaceBy: replacementBranch ] ]
 ]
+
+{ #category : #testing }
+DRBranchCollapse >> canBeAppliedIn: aDRControlFlowGraph [
+
+	aDRControlFlowGraph blocksDo: [ :b | 
+		(b endInstruction isBranchIfTrue and: [ b endInstruction operand1 isSetConditionCode ]) ifTrue: [ 
+			^ true ] ].
+	^ false
+]

@@ -20,22 +20,6 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 ]
 
 { #category : #accessing }
-DRPrimitiveCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method [
-	
-	super configureIRBuilder: irGenerator forMethod: method.
-	irGenerator numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilerCompiler >> createInitialBasicBlock [
-	| initial initialBasicBlock |
-	initialBasicBlock := super createInitialBasicBlock.
-	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
-	initialBasicBlock addInstruction: initial.
-	^ initialBasicBlock
-]
-
-{ #category : #accessing }
 DRPrimitiveCompilerCompiler >> initialize [
 
 	super initialize.
@@ -68,7 +52,7 @@ DRPrimitiveCompilerCompiler >> newIRGenerator [
 ]
 
 { #category : #accessing }
-DRPrimitiveCompilerCompiler >> numberOfArguments: aMethod [ 
+DRPrimitiveCompilerCompiler >> numberOfArgumentsFor: aMethod [ 
 	^ (aMethod ast pragmaNamed: #numberOfArguments:) arguments first value
 ]
 

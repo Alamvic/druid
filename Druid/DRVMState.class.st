@@ -56,17 +56,19 @@ DRVMState >> addTo: aDRVMState [
 
 { #category : #accumulating }
 DRVMState >> addTo: aDRVMState depth: maxVMStackDepth [
-	
+
 	"Add my own state to the execution state in parameter"
 
 	aDRVMState completeOperandStackUpTo: maxVMStackDepth.
 	self completeOperandStackUpTo: maxVMStackDepth do: [ operandStack push: DRNullValue new ].
-	aDRVMState operandStackWithIndexDo: [ :operand :stackPosition |
+	aDRVMState operandStackWithIndexDo: [ :operand :stackPosition | 
 		aDRVMState
-			addStackOperand: (self stackOperandAt: stackPosition ifAbsent: [ 1halt. ])
+			addStackOperand: (self stackOperandAt: stackPosition ifAbsent: [ 1 halt ])
 			at: stackPosition ].
 
-	aDRVMState addPrimitiveFailureCode: primitiveFailureCode.
+
+	self flag: #TODO. "This is only valid for primitives"
+	aDRVMState addPrimitiveFailureCode: primitiveFailureCode
 ]
 
 { #category : #merging }

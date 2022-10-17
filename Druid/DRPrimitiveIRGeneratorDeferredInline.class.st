@@ -11,7 +11,7 @@ DRPrimitiveIRGeneratorDeferredInline >> resolveMessageSend: aRBMessageNode recei
 	method := self methodFor: aRBMessageNode withReceiver: receiver.
 
 	"If method has deferred pragma, then resolve as message send (will be inlined during optimisation)"
-	(method ast hasPragmaNamed: #druidNotInline) ifFalse: [ 
+	(method ast hasPragmaNamed: #druidDeferredInline) ifFalse: [ 
 		^ super
 			  resolveMessageSend: aRBMessageNode
 			  receiver: receiver

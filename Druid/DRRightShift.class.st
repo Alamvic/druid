@@ -16,6 +16,12 @@ DRRightShift >> opcode [
 	^ 'RightShift'
 ]
 
+{ #category : #SCCP }
+DRRightShift >> sccpOperateOnLattice: anInteger and: anInteger2 [ 
+	
+	^ anInteger >> anInteger2
+]
+
 { #category : #types }
 DRRightShift >> type [
 	

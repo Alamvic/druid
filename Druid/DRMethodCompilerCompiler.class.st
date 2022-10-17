@@ -9,7 +9,7 @@ Class {
 }
 
 { #category : #accessing }
-DRMethodCompilerCompiler >> numberOfArguments: aMethod [ 
+DRMethodCompilerCompiler >> numberOfArgumentsFor: aMethod [ 
 
 	^ aMethod numArgs
 ]

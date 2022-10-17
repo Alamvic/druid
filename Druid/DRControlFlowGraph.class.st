@@ -59,6 +59,14 @@ DRControlFlowGraph >> allConditionalJumps [
 ]
 
 { #category : #accessing }
+DRControlFlowGraph >> allJumps [
+
+	^ self reversePostOrderBlocks
+		  collect: [ :b | b endInstruction ]
+		  thenSelect: [ :i | i isNoop not ]
+]
+
+{ #category : #accessing }
 DRControlFlowGraph >> allLoops [
 	^ self allBackJumps collect: [ :backJump | backJump loop ]
 ]
@@ -273,7 +281,7 @@ DRControlFlowGraph >> fixBackJumps [
 DRControlFlowGraph >> generatePaths [
 
 	self clearEdges.
-	(DRPathFactory withCFG: self) generatePaths
+	^ (DRPathFactory withCFG: self) generatePaths
 ]
 
 { #category : #edges }

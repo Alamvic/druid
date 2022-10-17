@@ -12,6 +12,13 @@ DRRedundantCopyElimination >> applyTo: aDRControlFlowGraph [
 ]
 
 { #category : #testing }
+DRRedundantCopyElimination >> canBeAppliedIn: aDRControlFlowGraph [
+
+	^ aDRControlFlowGraph instructions anySatisfy: [ :i | 
+		  i result isPhysicalRegister and: [ i operand1 isPhysicalRegister ] ]
+]
+
+{ #category : #testing }
 DRRedundantCopyElimination >> isRedundant: aDRCopy [
 
 	^ (aDRCopy operand1 isPhysicalRegister and:
