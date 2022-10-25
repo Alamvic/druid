@@ -9,6 +9,13 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #comparing }
+DRBlockClosure >> = otherCode [
+
+	self class = otherCode class ifTrue: [ ^ self blockNode = otherCode blockNode ].
+	^ false
+]
+
 { #category : #visiting }
 DRBlockClosure >> acceptVisitor: aVisitor [
 
@@ -57,6 +64,12 @@ DRBlockClosure >> generateCFG [
 	1halt.
 	irGenerator interpretBlockClosure: self.
 	^ irGenerator ir
+]
+
+{ #category : #comparing }
+DRBlockClosure >> hash [
+
+	^ blockNode hash
 ]
 
 { #category : #accessing }
@@ -111,12 +124,4 @@ DRBlockClosure >> outerContext [
 DRBlockClosure >> outerContext: anObject [
 
 	outerContext := anObject
-]
-
-{ #category : #activation }
-DRBlockClosure >> pushFrameIn: interpreter receiver: aReceiver [
-
-	self pushFrame: self methodTopFrame In: interpreter receiver: aReceiver
-
-
 ]
