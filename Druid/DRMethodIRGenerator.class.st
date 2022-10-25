@@ -4,12 +4,21 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #accessing }
+DRMethodIRGenerator >> executionState: aDRExecutionState [
+
+	executionState := aDRExecutionState
+]
+
 { #category : #inline }
 DRMethodIRGenerator >> inlineGenerator [
 
-	^ DRMethodIRGeneratorInline new
-		  controlFlowGraph: controlFlowGraph;
-		  yourself
+	| newIR |
+	newIR := DRMethodIRGeneratorInline new
+		         controlFlowGraph: controlFlowGraph;
+		         yourself.
+	newIR executionState: executionState copy.
+	^ newIR
 ]
 
 { #category : #visiting }

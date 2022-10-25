@@ -138,8 +138,8 @@ DRMessageSend >> methodsToInline [
 
 { #category : #printing }
 DRMessageSend >> opcode [
-	
-	^ 'SEND'
+
+	^ '#' , self selector , ' '
 ]
 
 { #category : #accessing }

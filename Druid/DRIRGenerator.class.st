@@ -1603,7 +1603,7 @@ DRIRGenerator >> visitBlockNode: aRBBlockNode [
 	self pushOperand: (DRBlockClosure new
 			 blockNode: aRBBlockNode;
 			 irGenerator: self blockClosureGenerator;
-			 outerContext: self topFrame mirrorFrame;
+			 outerContext: self topFrame;
 			 yourself)
 ]
 

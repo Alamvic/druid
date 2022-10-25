@@ -43,15 +43,19 @@ DRVMState >> addStackOperand: operand at: stackPosition [
 ]
 
 { #category : #accumulating }
-DRVMState >> addTo: aDRVMState [ 
-	
+DRVMState >> addTo: aDRVMState [
+
 	"Add my own state to the execution state in parameter"
+
 	aDRVMState completeOperandStackUpTo: operandStack size.
-	aDRVMState operandStackWithIndexDo: [ :operand :stackPosition |
+	aDRVMState operandStackWithIndexDo: [ :operand :stackPosition | 
 		aDRVMState
 			addStackOperand: (self stackOperandAt: stackPosition ifAbsent: [ DRNullValue new ])
 			at: stackPosition ].
-	aDRVMState addPrimitiveFailureCode: primitiveFailureCode.
+
+	primitiveFailureCode ifNotNil: [ 
+		self flag: #onlyPrimitives.
+		aDRVMState addPrimitiveFailureCode: primitiveFailureCode ]
 ]
 
 { #category : #accumulating }
@@ -115,12 +119,16 @@ DRVMState >> isNotSimplified [
 
 { #category : #accessing }
 DRVMState >> maxNumberOfPredecessors [
-	
+
 	"Select the max number of operands in the phis"
+
 	| max |
+	primitiveFailureCode ifNil: [ 
+		self flag: #onlyPrimitives.
+		^ 0 ].
 	max := primitiveFailureCode operands size.
 	operandStack ifEmpty: [ ^ max ].
-	
+
 	^ (operandStack max: [ :e | e operands size ]) max: max
 ]
 

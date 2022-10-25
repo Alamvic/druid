@@ -48,8 +48,5 @@ DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
 { #category : #activation }
 DRCode >> pushFrameIn: interpreter receiver: aReceiver [
 
-	self
-		pushFrame: self basicNewFrame
-		In: interpreter
-		receiver: aReceiver
+	self pushFrame: self basicNewFrame In: interpreter receiver: aReceiver
 ]
