@@ -37,7 +37,9 @@ DRBytecodeGeneratorTest >> generateMethodForSelector: aSelector [
 { #category : #'as yet unclassified' }
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector [
 	
+	"TODO: Sacar esto, iterar solamente las MandatoryInstructions"
 	DRRegisterCollapse new applyTo: aDRControlFlowGraph.
+	bytecodeGenerator := DRBytecodeGenerator new.
 	bytecodeGenerator methodName: selector.
 	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.
 	^ bytecodeGenerator targetAST
@@ -48,7 +50,7 @@ DRBytecodeGeneratorTest >> setUp [
 	super setUp.
 	
 	compilerCompiler := DRMethodCompilerCompiler new.
-	compilerCompiler interpreter: OCOpalExamples new "DruidTestInterpreter basicNew".
+	compilerCompiler interpreter: DruidTestInterpreter basicNew.
 	
 	bytecodeGenerator := DRBytecodeGenerator new.
 
@@ -120,6 +122,8 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 { #category : #tests }
 DRBytecodeGeneratorTest >> testOpal [
 
+	compilerCompiler interpreter: OCOpalExamples new.
+
 	OCOpalExamples methods
 		reject: [ :opalMethod | opalMethod selector includesSubstring: 'Block' ]
 		thenDo: [ :opalMethod | 
@@ -127,7 +131,8 @@ DRBytecodeGeneratorTest >> testOpal [
 			1 halt.
 			cfg := self generateDruidIRFor: opalMethod.
 			method := self generateMethodFromCFG: cfg withSelector: opalMethod selector.
-			result := method valueWithReceiver: nil arguments: {  }.
+			method methodClass: OCOpalExamples.
+			result := method valueWithReceiver: OCOpalExamples new arguments: {  }.
 			1 halt.
 			self assert: result equals: (opalMethod valueWithReceiver: OCOpalExamples new arguments: {  }) ]
 ]

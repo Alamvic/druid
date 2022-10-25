@@ -35,6 +35,7 @@ DRMessageSend >> generateInlineIRForMethod: classAndMethodToInline [
 			  resolveMessageSend: self originAST
 			  receiver: self receiver
 			  arguments: self arguments ].
+		
 	methodToInline := classAndMethodToInline value.
 	lastFrame := irGenerator
 		             interpretCode: (DRMethod methodNode: methodToInline)

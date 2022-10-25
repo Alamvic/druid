@@ -438,6 +438,12 @@ DRIRGenerator >> interpretAsUnsignedIntegerWith: aRBMessageNode [
 	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRUnsignedCoercion
 ]
 
+{ #category : #interpreting }
+DRIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
+
+	self subclassResponsibility
+]
+
 { #category : #'special cases' }
 DRIRGenerator >> interpretBinaryInstruction: aRBMessageNode instructionKind: anInstructionKind [
 
@@ -1573,28 +1579,15 @@ DRIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 ]
 
 { #category : #visiting }
-DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [ 
+DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
+
+	variableSpecialCases at: aRBAssignmentNode variable name ifPresent: [ :mapping | 
+		| rawMapping |
+		rawMapping := mapping allButLast: 'With:' size.
+		^ self perform: (rawMapping , 'AssignmentWith:') asSymbol withArguments: { aRBAssignmentNode } ].
+
+	self interpretAssignmentNode: aRBAssignmentNode
 	
-	variableSpecialCases
-		at: aRBAssignmentNode variable name
-		ifPresent: [ :mapping | | rawMapping |
-			rawMapping := mapping allButLast: 'With:' size.
-			^ self perform: (rawMapping , 'AssignmentWith:') asSymbol withArguments: { aRBAssignmentNode } ].
-	
-	aRBAssignmentNode value acceptVisitor: self.
-	
-	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [ 
-		^ self receiver value
-			instVarNamed: aRBAssignmentNode variable name
-			put: self operandStackTop ].
-	
-	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [ 
-		^ self topFrame
-			temporaryAt: aRBAssignmentNode variable name
-			put: self operandStackTop
-			withState: executionState ].
-	
-	self halt
 ]
 
 { #category : #visiting }

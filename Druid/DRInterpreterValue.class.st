@@ -15,6 +15,12 @@ DRInterpreterValue class >> value: anInterpreterObject [
 		yourself
 ]
 
+{ #category : #visiting }
+DRInterpreterValue >> acceptVisitor: aVisitor [
+
+	aVisitor visitInterpreterValue: self
+]
+
 { #category : #interpretation }
 DRInterpreterValue >> lookupClass [
 	

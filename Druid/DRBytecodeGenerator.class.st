@@ -127,6 +127,13 @@ DRBytecodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 ]
 
 { #category : #'ir-to-target' }
+DRBytecodeGenerator >> visitInterpreterValue: aDRInterpreterValue [ 
+
+	self flag: #TODO. "It is always self ?"
+	builder pushReceiver
+]
+
+{ #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitJump: aDRJump [
 
 	self visitBlock: aDRJump target
@@ -189,4 +196,23 @@ DRBytecodeGenerator >> visitReturn: aDRReturn [
 
 	aDRReturn operand1 acceptVisitor: self.
 	builder returnTop.
+]
+
+{ #category : #'ir-to-target' }
+DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [ 
+
+1halt.
+	aDRStoreInstanceVariable operand1 acceptVisitor: self.
+	aDRStoreInstanceVariable operand3 acceptVisitor: self.
+	builder storeInstVar: aDRStoreInstanceVariable operand2 value "Check if necessary to pre-calculate this value"
+]
+
+{ #category : #visiting }
+DRBytecodeGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
+
+	| tempName |
+	tempName := aDRLoadTemporaryVariable operand1 value.
+
+	builder addTemp: tempName.
+	builder pushTemp: tempName
 ]

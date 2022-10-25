@@ -68,6 +68,25 @@ DRPrimitiveIRGenerator >> inlineGenerator [
 		  yourself
 ]
 
+{ #category : #interpreting }
+DRPrimitiveIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
+
+	aRBAssignmentNode value acceptVisitor: self.
+	
+	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
+		^ self receiver value
+			instVarNamed: aRBAssignmentNode variable name
+			put: self operandStackTop ].
+	
+	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [ 
+		^ self topFrame
+			temporaryAt: aRBAssignmentNode variable name
+			put: self operandStackTop
+			withState: executionState ].
+	
+	self halt
+]
+
 { #category : #accessing }
 DRPrimitiveIRGenerator >> interpretCCoerceWith: aRBMessageNode [
 

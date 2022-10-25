@@ -380,6 +380,12 @@ DRInstruction >> operand2 [
 	^ operands at: 2 ifAbsent: [nil]
 ]
 
+{ #category : #accessing }
+DRInstruction >> operand3 [
+
+	^ operands at: 3 ifAbsent: [nil]
+]
+
 { #category : #operands }
 DRInstruction >> operandAt: anInteger [
 	
@@ -475,7 +481,7 @@ DRInstruction >> prettyPrint [
 	print := result
 		ifNil: [ '' ]
 		ifNotNil: [ result name, ' := ' ].
-	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result ifNotNil: [ e result name ] ]))
+	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e printResult ]))
 ]
 
 { #category : #accessing }
@@ -491,6 +497,13 @@ DRInstruction >> printOn: aStream [
 	aStream nextPut: $(.
 	aStream nextPutAll: self prettyPrint.
 	aStream nextPut: $)
+]
+
+{ #category : #printing }
+DRInstruction >> printResult [
+
+	result ifNotNil: [ ^ result name ].
+	^ self opcode
 ]
 
 { #category : #'users-definitions' }
