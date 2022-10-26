@@ -169,8 +169,7 @@ DRPrimitiveIRGenerator >> popFrame [
 	self topFrame receiverWithState: executionState.
 	poppedFrame := super popFrame.
 
-	executionState executionStack size = 0 ifTrue: [ 
-		self finishCodeInterpretation: poppedFrame ].
+	executionState executionStack size = 0 ifTrue: [ self finishCodeInterpretation: poppedFrame ].
 
 	^ poppedFrame
 ]

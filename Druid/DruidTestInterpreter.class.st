@@ -124,6 +124,15 @@ DruidTestInterpreter >> methodWithNonLocalReturn [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithThreeNonLocalReturn [
+
+	true
+		ifTrue: [ ^ 2 ]
+		ifFalse: [ ^ 3 ].
+	^ 1
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	self stackTop = 0

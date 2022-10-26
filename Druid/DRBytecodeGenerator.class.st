@@ -48,7 +48,6 @@ DRBytecodeGenerator >> targetAST [
 
 	| method ir |
 	ir := builder ir.
-	1halt.
 	ir numArgs: numArgs.
 	method := ir compiledMethod.
 	method selector: methodName.

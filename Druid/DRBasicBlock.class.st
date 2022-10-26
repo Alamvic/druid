@@ -987,7 +987,7 @@ DRBasicBlock >> return [
 
 { #category : #building }
 DRBasicBlock >> return: anInstruction [ 
-	self endInstruction: (DRReturn operands: { anInstruction } )
+	^ self endInstruction: (DRReturn operands: { anInstruction } )
 ]
 
 { #category : #accessing }

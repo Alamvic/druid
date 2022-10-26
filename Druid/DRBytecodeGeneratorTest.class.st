@@ -8,13 +8,43 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #assertion }
+DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method [
+
+	| result expectedResult |
+	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: {  }.
+	expectedResult := method valueWithReceiver: compilerCompiler interpreter arguments: {  }.
+	self assert: result equals: expectedResult
+]
+
+{ #category : #assertion }
+DRBytecodeGeneratorTest >> assertCompilationFor: aSelector fromClass: aClass [
+
+	| compiledMethod expectedMethod |
+	expectedMethod := aClass >> aSelector.
+	compiledMethod := self compileSelector: aSelector fromClass: aClass.
+	self assert: compiledMethod equalsResult: expectedMethod
+]
+
+{ #category : #tests }
+DRBytecodeGeneratorTest >> compileSelector: selector fromClass: interpreterClass [
+
+	| method interpreter cfg |
+	method := interpreterClass >> selector.
+	interpreter := interpreterClass basicNew.
+	compilerCompiler interpreter: interpreter.
+	cfg := self generateDruidIRFor: method.
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+	method methodClass: interpreterClass.
+	^ method
+]
+
 { #category : #tests }
 DRBytecodeGeneratorTest >> generateDruidIRFor: method [
 
 	| cfg |
 	bytecodeGenerator numArgs: method numArgs.
 	cfg := compilerCompiler generateDruidIRFor: method.
-	1halt.
 	compilerCompiler optimize: cfg.
 	^ cfg
 ]
@@ -72,6 +102,12 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 ]
 
 { #category : #tests }
+DRBytecodeGeneratorTest >> testMethodEmpty [
+
+	self assertCompilationFor: #exampleEmptyMethod fromClass: OCOpalExamples
+]
+
+{ #category : #tests }
 DRBytecodeGeneratorTest >> testMethodInline [
 
 	| method result |
@@ -82,10 +118,16 @@ DRBytecodeGeneratorTest >> testMethodInline [
 ]
 
 { #category : #tests }
+DRBytecodeGeneratorTest >> testMethodManyReturns [
+
+	self assertCompilationFor: #methodWithThreeNonLocalReturn fromClass: DruidTestInterpreter
+]
+
+{ #category : #tests }
 DRBytecodeGeneratorTest >> testMethodWithArg [
 
 	| method result |
-	method := self generateMethodForSelector: #lazyDouble:.
+	method := self generateMethodForSelector: #lazyDouble:.1halt.
 	result := method valueWithReceiver: nil arguments: { 12 }.
 
 	self assert: result equals: 24
@@ -120,19 +162,17 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 ]
 
 { #category : #tests }
-DRBytecodeGeneratorTest >> testOpal [
-
-	compilerCompiler interpreter: OCOpalExamples new.
+DRBytecodeGeneratorTest >> testOpalBooleanMethods [
 
 	OCOpalExamples methods
-		reject: [ :opalMethod | opalMethod selector includesSubstring: 'Block' ]
-		thenDo: [ :opalMethod | 
-			| cfg method result |
-			1 halt.
-			cfg := self generateDruidIRFor: opalMethod.
-			method := self generateMethodFromCFG: cfg withSelector: opalMethod selector.
-			method methodClass: OCOpalExamples.
-			result := method valueWithReceiver: OCOpalExamples new arguments: {  }.
-			1 halt.
-			self assert: result equals: (opalMethod valueWithReceiver: OCOpalExamples new arguments: {  }) ]
+		select: [ :opalMethod | opalMethod protocol = #'examples - andor' ]
+		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+]
+
+{ #category : #tests }
+DRBytecodeGeneratorTest >> testOpalSimpleMethods [
+
+	OCOpalExamples methods
+		select: [ :opalMethod | opalMethod protocol = #'examples - simple' ]
+		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]

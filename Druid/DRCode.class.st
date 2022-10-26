@@ -16,6 +16,12 @@ DRCode >> codeNode [
 	self subclassResponsibility
 ]
 
+{ #category : #activation }
+DRCode >> defaultReturnValue [
+
+	^ self subclassResponsibility
+]
+
 { #category : #testing }
 DRCode >> isMandatoryInstruction [
 
@@ -41,7 +47,7 @@ DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
 
 	self codeNode temporaryNames , self codeNode argumentNames do: [ :e | 
 		frame defineVariableNamed: e ].
-	frame returnValue: DRNullValue new.
+	frame returnValue: self defaultReturnValue.
 	interpreter pushFrame: frame
 ]
 

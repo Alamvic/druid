@@ -212,6 +212,12 @@ DRValue >> isRegister [
 ]
 
 { #category : #testing }
+DRValue >> isReturn [
+
+	^ true
+]
+
+{ #category : #testing }
 DRValue >> isSetConditionCode [
 	
 	^ false

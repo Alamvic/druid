@@ -23,6 +23,12 @@ DRReturn >> isMandatoryInstruction [
 	^ true
 ]
 
+{ #category : #testing }
+DRReturn >> isReturn [
+
+	^ true
+]
+
 { #category : #printing }
 DRReturn >> opcode [
 	

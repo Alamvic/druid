@@ -653,7 +653,7 @@ DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments
 
 	"Fall through the exit block.
 	If the method had an explicit return, it is already done, no need to do it again."
-	currentBasicBlock hasFinalInstruction ifFalse: [ 
+	currentBasicBlock hasFinalInstruction ifFalse: [
 		currentBasicBlock jumpTo: self topFrame exitBasicBlock ].
 
 	^ self popFrame.
@@ -1448,7 +1448,7 @@ DRIRGenerator >> popFrame [
 	poppedFrame := executionState popFrame.
 	
 	"Last frame!"
-	executionState executionStack ifEmpty: [ 
+	executionState executionStack ifEmpty: [
 		currentBasicBlock return: poppedFrame returnValue.
 		^ poppedFrame ].
 	
@@ -1716,9 +1716,9 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	result := self popOperand.
 	copy := self instructionFor: result inNode: aRBReturnNode.
 	homeFrame := self topFrame homeFrameWithState: executionState.
+	
 	homeFrame returnValue: copy.
 	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
-
 
 	returnExecutionState := executionState copy.
 	self addDeferredReturnState: { 

@@ -27,6 +27,12 @@ DRMethod >> codeNode [
 	^ self methodNode
 ]
 
+{ #category : #activation }
+DRMethod >> defaultReturnValue [
+
+	^ DRInterpreterValue value: nil "TODO: interpreter"
+]
+
 { #category : #executing }
 DRMethod >> executeOn: interpreter [ 
 

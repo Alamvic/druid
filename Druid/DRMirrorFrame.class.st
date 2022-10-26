@@ -15,6 +15,7 @@ DRMirrorFrame >> addDeferredReturnState: aDRExecutionState [
 
 { #category : #accessing }
 DRMirrorFrame >> deferredMethodReturns [
+
 	^ deferredMethodReturns
 ]
 

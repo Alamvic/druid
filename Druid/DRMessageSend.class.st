@@ -26,21 +26,20 @@ DRMessageSend >> generateInlineIRForMethod: classAndMethodToInline [
 	| lastFrame methodClass methodToInline |
 	"TODO: delegate generation to type?"
 	methodClass := classAndMethodToInline key.
-	(methodClass isKindOf: DRUndefinedType) ifTrue: [
-		"If we don't know the receiver's type, copy the message send" 
+	(methodClass isKindOf: DRUndefinedType) ifTrue: [ "If we don't know the receiver's type, copy the message send"
 		(DRMethod methodNode: self originAST methodNode) asDRValue
 			pushFrameIn: irGenerator
 			receiver: self receiver.
-		^ irGenerator
-			  resolveMessageSend: self originAST
-			  receiver: self receiver
-			  arguments: self arguments ].
-		
+		^ irGenerator resolveMessageSend: self originAST receiver: self receiver arguments: self arguments ].
+
 	methodToInline := classAndMethodToInline value.
 	lastFrame := irGenerator
 		             interpretCode: (DRMethod methodNode: methodToInline)
 		             receiver: operands first
 		             arguments: operands allButFirst.
+
+	irGenerator finishCodeInterpretation: lastFrame.
+
 	^ lastFrame returnValue
 ]
 
@@ -66,6 +65,7 @@ DRMessageSend >> generateInlineIRForMethods: methodsToInline [
 	returnValues size = 1 ifTrue: [ ^ returnValues first ].
 	
 	lastBlock := irGenerator newBasicBlock.
+
 	returnValues do: [ :returnValue | 
 		returnValue basicBlock jumpTo: lastBlock ].
 	^ lastBlock addInstruction:
@@ -79,13 +79,11 @@ DRMessageSend >> inline [
 	methodsToInline := self methodsToInline.
 
 	methodsToInline ifEmpty: [ ^ self ].
-
 	pieces := self basicBlock breakBy: self.
 
 	pieces first jumpTo: irGenerator newFirstBasicBlock.
 
 	irGenerator numberOfArguments: operands size - 1.
-	
 	inlinedMethodReturnValue := self generateInlineIRForMethods: methodsToInline.
 
 	irGenerator currentBasicBlock jumpTo: pieces last.

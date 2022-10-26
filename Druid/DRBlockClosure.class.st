@@ -52,6 +52,12 @@ DRBlockClosure >> codeNode [
 	^ blockNode
 ]
 
+{ #category : #activation }
+DRBlockClosure >> defaultReturnValue [
+
+	^ DRNullValue new
+]
+
 { #category : #executing }
 DRBlockClosure >> executeOn: interpreter [
 	

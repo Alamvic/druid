@@ -73,8 +73,9 @@ DRStackFrame >> exitBasicBlock [
 
 { #category : #accessing }
 DRStackFrame >> exitBasicBlock: aDRBasicBlock [
-	
-	exitBasicBlock := aDRBasicBlock 
+
+	exitBasicBlock := aDRBasicBlock.
+	aDRBasicBlock beExitBlock
 ]
 
 { #category : #temporaries }
@@ -227,7 +228,7 @@ DRStackFrame >> returnValue [
 
 { #category : #accessing }
 DRStackFrame >> returnValue: aValue [
-	
+
 	returnValue := aValue
 ]
 

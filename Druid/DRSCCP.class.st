@@ -338,6 +338,7 @@ DRSCCP >> tryReplaceInstructionOperands: i [
 
 	i isPhiFunction ifTrue: [ ^ self ].
 	i isMessageSend ifTrue: [ ^ self ].
+	i isReturn ifTrue: [ ^ self ].
 
 	"Replace the operands of instructions by their propagated values on non phi functions"
 	i operands withIndexDo: [ :operand :index | 
