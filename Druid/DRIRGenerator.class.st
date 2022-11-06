@@ -209,6 +209,7 @@ DRIRGenerator >> initialize [
 DRIRGenerator >> initializeSpecialCases [
 
 	"Control flow and comparisons"
+	specialCases at: #druidIgnore: put: #ignoreMessageWith:.
 	specialCases at: #value put: #interpretBlockValueWith:.
 	specialCases at: #value: put: #interpretBlockValueWith:.
 	specialCases at: #cull: put: #interpretBlockCullWith:.
