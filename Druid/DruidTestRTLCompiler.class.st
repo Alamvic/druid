@@ -3117,6 +3117,17 @@ DruidTestRTLCompiler >> gen_sendLiteralSelector0ArgsBytecode [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_shortUnconditionalJump [
+
+	| currentBlock |
+	self MoveCq: 1 R: TempReg.
+	self AddCq: bytecodePC R: TempReg.
+	self AddCq: 1 R: TempReg.
+	self genJumpTo: 1 + bytecodePC + 1.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> numRegArgs [
 
 	^ 2 "Hardcoded?"

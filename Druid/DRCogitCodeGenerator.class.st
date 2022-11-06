@@ -247,6 +247,13 @@ DRCogitCodeGenerator >> initialize [
 	visitedBlocks := Dictionary new
 ]
 
+{ #category : #compiling }
+DRCogitCodeGenerator >> jitCompileTimeExpression: aDRAdd [ 
+	
+	^ DRJITCompileTimeExpressionGenerator new visit: aDRAdd
+	
+]
+
 { #category : #'jump-management' }
 DRCogitCodeGenerator >> labelForBlock: aDRBasicBlock [ 
 	

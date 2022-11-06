@@ -56,6 +56,12 @@ DRCogitCanonicaliser >> visitBranchIfTrue: aDRBranchIfTrue [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitBytecodeJump: aDRBytecodeJump [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitCopy: aDRCopy [ 
 	
 	"Nothing"

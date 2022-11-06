@@ -5,6 +5,16 @@ Class {
 }
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #genJumpTo:
+			 arguments:
+			 { (self jitCompileTimeExpression: aDRBytecodeJump operand1) })
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMarshall [
 
 	"self marshallSendArguments: numArgs."

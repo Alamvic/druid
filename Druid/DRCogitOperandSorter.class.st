@@ -63,6 +63,12 @@ DRCogitOperandSorter >> visitBranchIfTrue: aDRBranchIfTrue [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitBytecodeJump: aDRBytecodeJump [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 
 	anInstruction operand1 isInstruction not

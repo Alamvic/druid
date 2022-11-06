@@ -9,6 +9,8 @@ DRMetaCompilerIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 	
+	variableSpecialCases at: #instructionPointer put: #interpretInstructionPointerWith:.
+	
 	"Stack access"
 	specialCases at: #stackTop put: #interpretStackTopWith:.
 	specialCases at: #stackValue: put: #interpretStackValueWith:.

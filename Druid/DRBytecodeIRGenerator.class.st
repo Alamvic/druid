@@ -70,6 +70,30 @@ DRBytecodeIRGenerator >> interpretFramePointerWith: aRBVariableNode [
 		operands: #()
 ]
 
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretInstructionPointerAssignmentWith: aRBAssignmentNode [ 
+
+	"Changing the bytecode instruction pointer, we must generate a jump to the new target"
+	
+	| newBytecodePC |
+	aRBAssignmentNode value acceptVisitor: self.
+	newBytecodePC := self popOperand.
+	
+	^ self
+		  addInstructionWithNoResultFrom: aRBAssignmentNode
+		  instructionKind: DRBytecodeJump
+		  operands: { newBytecodePC asDRValue }
+]
+
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
+	
+	^ self
+		addInstructionFrom: aRBVariableNode
+		instructionKind: DRCopy
+		operands: { DRJitCompileTimeExpression new expression: 'bytecodePC' }
+]
+
 { #category : #accessing }
 DRBytecodeIRGenerator >> interpretNormalLiteralSendWith: aMessage [
 

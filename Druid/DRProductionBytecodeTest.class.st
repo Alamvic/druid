@@ -188,6 +188,42 @@ DRProductionBytecodeTest >> testBytecodeSendLiteral1ToSelf [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodeShortUnconditionalJump [
+
+	| method |
+	method := methodBuilder
+		newMethod;
+		literals: { (memory integerObjectOf: 42) };
+		bytecodes: #[ 176 90 "return false" 91 "return true"];
+		numberOfTemporaries: 2;
+		buildMethod.
+
+	self
+		compileBytecode: 176
+		selector: #shortUnconditionalJump
+		thenDo: [ :generator | 
+			cogit bytecodePC: 16.
+			cogit methodObj: method.
+
+			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+			
+			"Execute the druid's compiled code"
+			generator value.
+			
+			"We will jump over the stop!"
+			cogit genReturnFalse.
+			cogit Stop.
+
+			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 18) nextOpcodeIndex: cogit opcodeIndex.
+			cogit genReturnTrue.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 17).
+	"Did it jump over?"
+	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testPushReceiver [
 
 	| object |
