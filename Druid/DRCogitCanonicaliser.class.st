@@ -44,9 +44,51 @@ DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitBranchIfCondition: aDRBranchIfCondition [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitBranchIfTrue: aDRBranchIfTrue [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitCopy: aDRCopy [ 
 	
 	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitGetConditionCode: aDRGetConditionCode [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitGetFloatBits: aDRGetFloatBits [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitGetFloatFromBits: aDRGetFloatFromBits [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitIntToFloatConversion: aDRIntToFloat [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitJump: aDRJump [ 
+	
+	"Nothing for jumps"
 ]
 
 { #category : #visiting }
@@ -112,7 +154,25 @@ DRCogitCanonicaliser >> visitLoadStackValue: aDRLoadStackValue [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitMessageSend: aDRMessageSend [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitNoop: aDRNoop [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitPop: aDRPop [ 
 	
 	"Nothing"
 ]
@@ -127,7 +187,25 @@ DRCogitCanonicaliser >> visitPush: aDRPush [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitRightShift: aDRRightShift [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitStore: aDRStore [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitSubstract: aDRSubtract [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
 	
 	"Nothing"
 ]
