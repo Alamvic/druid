@@ -50,6 +50,24 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitMessageSend: aDRMessageSend [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #flag:
+			 arguments: { (RBLiteralValueNode value: #todoSendAMessage) })
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitPop: aDRPop [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #ssPop:
+			 arguments: { (RBLiteralValueNode value: 1) })
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 
 	generatorMethodBuilder addStatement: (RBMessageNode

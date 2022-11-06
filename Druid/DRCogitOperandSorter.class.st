@@ -162,6 +162,12 @@ DRCogitOperandSorter >> visitLoadStackValue: aDRLoadStackValue [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitMessageSend: aDRMessageSend [ 
+
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitMod: aDRMod [ 
 	
 	"Mod and division are the same instruction in cogit"
@@ -191,6 +197,12 @@ DRCogitOperandSorter >> visitNoop: aDRNoop [
 
 { #category : #visiting }
 DRCogitOperandSorter >> visitPhiFunction: aDRPhiFunction [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitPop: aDRPop [ 
 	
 	"Nothing"
 ]
