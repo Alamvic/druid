@@ -825,9 +825,11 @@ DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfConditio
 	| comparands |
 	comparands := aDRBranchIfCondition operands.
 	aDRBranchIfCondition operands second isConstant ifTrue: [ 
-		aDRBranchIfCondition replaceBy: aDRBranchIfCondition.
 		comparands := comparands reversed ].
-	self twoOperandCogitRTL: #Tst operands: comparands instruction: aDRBranchIfCondition.
+	self
+		twoOperandCogitRTL: #Tst
+		operands: comparands
+		instruction: aDRBranchIfCondition.
 	^ aDRBranchIfCondition
 ]
 
