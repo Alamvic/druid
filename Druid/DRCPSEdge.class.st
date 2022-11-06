@@ -415,6 +415,12 @@ DRCPSEdge >> visitLoadArgument: aDRLoadArgument [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitLoadStackValue: aDRLoadStackValue [ 
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitMessageSend: aDRMessageSend [
 
 	^ nil
@@ -503,6 +509,18 @@ DRCPSEdge >> visitPhiFunction: aDRPhiFunction [
 DRCPSEdge >> visitPhysicalRegister: aDRPhysicalRegister [ 
 	
 	^ self constraintFor: aDRPhysicalRegister name
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitPop: aDRPop [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitPush: aDRPush [ 
+	
+	^ nil
 ]
 
 { #category : #visiting }
