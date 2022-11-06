@@ -1,7 +1,7 @@
 Class {
 	#name : #DRPush,
 	#superclass : #DRInstruction,
-	#category : #'Druid-BytecodeGeneration'
+	#category : #'Druid-BytecodeToJITCompilation'
 }
 
 { #category : #visiting }
