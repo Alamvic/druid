@@ -7,6 +7,9 @@ Class {
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAdd [
 
+	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
+	
 	self
 		compileBytecode: 96
 		selector: #bytecodePrimAdd

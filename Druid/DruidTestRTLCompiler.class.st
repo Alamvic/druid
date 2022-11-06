@@ -57,11 +57,12 @@ DruidTestRTLCompiler >> gen_branchingWithAssigments [
 { #category : #generated }
 DruidTestRTLCompiler >> gen_bytecodePrimAdd [
 
-	| jump1 jump2 jump3 currentBlock |
+	| jump1 jump2 currentBlock |
 	(self ssDescriptorAt: 1) moveToReg: TempReg.
 	(self ssDescriptorAt: 0) moveToReg: ClassReg.
 	self MoveR: TempReg R: SendNumArgsReg.
 	self AndR: ClassReg R: SendNumArgsReg.
+	self marshallSendArguments: 1.
 	self TstCq: 1 R: SendNumArgsReg.
 	jump1 := self JumpZero: 0.
 	self ArithmeticShiftRightCq: 3 R: TempReg.
@@ -73,19 +74,21 @@ DruidTestRTLCompiler >> gen_bytecodePrimAdd [
 	self AndCq: 15 R: SendNumArgsReg.
 	self CmpCq: 1 R: SendNumArgsReg.
 	jump2 := self JumpLessOrEqual: 0.
-	self flag: #todoSendAMessage.
-	jump3 := self Jump: 0.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self
+		genMarshalledSend:  -1
+		numArgs: 1
+		sendTable: ordinarySendTrampolines.
+	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	self MoveR: TempReg R: SendNumArgsReg.
 	self LogicalShiftLeftCq: 3 R: SendNumArgsReg.
 	self AddCq: 1 R: SendNumArgsReg.
-	self ssPop: 1.
-	self ssPop: 1.
 	self ssPushRegister: SendNumArgsReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	jump3 jmpTarget: currentBlock.
 	^ CompletePrimitive
 ]
 
