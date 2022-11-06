@@ -89,20 +89,6 @@ DRBytecodeIRGenerator >> interpretNormalLiteralSendWith: aMessage [
 		  operands: { selectorIndex asDRValue. argumentCount asDRValue }
 ]
 
-{ #category : #accessing }
-DRBytecodeIRGenerator >> interpretNormalSendWith: aMessage [
-
-	"Interpret a send. In the interpreter, this is a send where we don't know yet the receiver or its class.
-	We know the numberOfArguments that we should use to extract the receiver, then its class.
-	
-	Translate this as a send instruction"
-
-	^ self
-		  addInstructionWithNoResultFrom: aMessage
-		  instructionKind: DRMessageSend
-		  operands: #(  )
-]
-
 { #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode [ 
 	

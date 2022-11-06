@@ -160,12 +160,6 @@ DRCogitCanonicaliser >> visitLoadStackValue: aDRLoadStackValue [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitMessageSend: aDRMessageSend [ 
-	
-	"Nothing"
-]
-
-{ #category : #visiting }
 DRCogitCanonicaliser >> visitNoop: aDRNoop [ 
 	
 	"Nothing"
