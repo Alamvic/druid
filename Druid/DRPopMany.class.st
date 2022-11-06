@@ -1,49 +1,42 @@
 Class {
-	#name : #DRPop,
+	#name : #DRPopMany,
 	#superclass : #DRInstruction,
 	#category : #'Druid-BytecodeToJITCompilation'
 }
 
 { #category : #visiting }
-DRPop >> acceptVisitor: aVisitor [
-
-	^ aVisitor visitPop: self
+DRPopMany >> acceptVisitor: aVisitor [ 
+	
+	aVisitor visitPopMany: self
 ]
 
 { #category : #testing }
-DRPop >> isMandatoryInstruction [
+DRPopMany >> isMandatoryInstruction [
 
 	^ true
 ]
 
 { #category : #testing }
-DRPop >> isPop [
-	
+DRPopMany >> isPop [
+
 	^ true
 ]
 
 { #category : #accessing }
-DRPop >> numberOfPoppedElements [
+DRPopMany >> numberOfPoppedElements [
 	
-	^ 1
+	^ self operand1 value
 ]
 
 { #category : #printing }
-DRPop >> opcode [
+DRPopMany >> opcode [
 	
-	^ 'Pop'
+	^ 'PopN'
 ]
 
 { #category : #SCCP }
-DRPop >> sccpLatticeValueFor: sccp [ 
+DRPopMany >> sccpLatticeValueFor: sccp [ 
 	
 	"We know that we know nothing about what is in the stack"
 	^ sccp bottom
-]
-
-{ #category : #SCCP }
-DRPop >> size [
-	"Popped memory size"
-	
-	^ 8 "bytes"
 ]

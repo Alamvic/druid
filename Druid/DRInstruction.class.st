@@ -308,6 +308,12 @@ DRInstruction >> isPhiFunction [
 ]
 
 { #category : #testing }
+DRInstruction >> isPop [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isValue [
 
 	^ false

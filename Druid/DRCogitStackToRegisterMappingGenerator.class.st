@@ -75,7 +75,13 @@ DRCogitStackToRegisterMappingGenerator >> visitPop: aDRPop [
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #ssPop:
-			 arguments: { (RBLiteralValueNode value: 1) })
+			 arguments: { (RBLiteralValueNode value: aDRPop numberOfPoppedElements) })
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitPopMany: aDRPopMany [ 
+
+	^ self visitPop: aDRPopMany
 ]
 
 { #category : #visiting }
