@@ -745,6 +745,13 @@ DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitNoOverflow: aDRNoOverflow inBranch: aDRBranchIfCondition [ 
+
+	"Do nothing... Should we make sure nobody overwrote the overflow flag?"
+	^ aDRBranchIfCondition 
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitNoop: aDRNoop [ 
 	
 	"Do nothing"

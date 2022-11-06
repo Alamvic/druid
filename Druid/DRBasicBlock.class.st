@@ -552,7 +552,7 @@ DRBasicBlock >> instructionBefore: anInstruction [
 
 	instructions first = anInstruction
 		"Not defined yet. Could return either a phi, or nothing"
-		ifTrue: [ ^ self notYetImplemented ].
+		ifTrue: [ ^ nil ].
 	
 	"Otherwise, the previous instruction is the previous in the list"
 	^ instructions before: anInstruction

@@ -65,15 +65,9 @@ DruidTestRTLCompiler >> gen_bytecodePrimAdd [
 	self marshallSendArguments: 1.
 	self TstCq: 1 R: SendNumArgsReg.
 	jump1 := self JumpZero: 0.
-	self ArithmeticShiftRightCq: 3 R: TempReg.
-	self ArithmeticShiftRightCq: 3 R: ClassReg.
+	self SubCq: 1 R: TempReg.
 	self AddR: ClassReg R: TempReg.
-	self MoveR: TempReg R: SendNumArgsReg.
-	self ArithmeticShiftRightCq: 60 R: SendNumArgsReg.
-	self AddCq: 1 R: SendNumArgsReg.
-	self AndCq: 15 R: SendNumArgsReg.
-	self CmpCq: 1 R: SendNumArgsReg.
-	jump2 := self JumpLessOrEqual: 0.
+	jump2 := self JumpNoOverflow: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self
@@ -83,10 +77,7 @@ DruidTestRTLCompiler >> gen_bytecodePrimAdd [
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
-	self MoveR: TempReg R: SendNumArgsReg.
-	self LogicalShiftLeftCq: 3 R: SendNumArgsReg.
-	self AddCq: 1 R: SendNumArgsReg.
-	self ssPushRegister: SendNumArgsReg.
+	self ssPushRegister: TempReg.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	^ CompletePrimitive

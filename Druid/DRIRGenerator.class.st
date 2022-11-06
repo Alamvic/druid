@@ -238,6 +238,7 @@ DRIRGenerator >> initializeSpecialCases [
 	
 	"Arithmetics for SmallIntegers"
 	specialCases at: #sumSmallInteger:withSmallInteger:ifOverflow: put: #interpretSumSmallIntegerWithOverflowWith:.
+	specialCases at: #sumSmallInteger:withSmallInteger:ifNotOverflow: put: #interpretSumSmallIntegerWithNoOverflowWith:.
 	specialCases at: #subSmallInteger:withSmallInteger:ifOverflow: put: #interpretSubSmallIntegerWithOverflowWith:.
 	specialCases at: #multiplySmallInteger:withSmallInteger:ifOverflow: put: #interpretMultiplySmallIntegerWithOverflowWith:.
 
@@ -1125,7 +1126,7 @@ DRIRGenerator >> interpretSubstractWith: aRBMessageNode [
 ]
 
 { #category : #'special cases' }
-DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
+DRIRGenerator >> interpretSumSmallInteger: aRBMessageNode withOverflowCondition: condition [
 
 	"Interpret the two numbers and add them up"
 
@@ -1147,16 +1148,38 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 		                   instantiateNoResultInstruction:
 		                   DRBranchIfCondition
 		                   operands: { 
-				                   DROverflow new.
+				                   condition.
 				                   addResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	joinInstruction := self
 		                   newOverflowBlockDuring: [ 
-		                   self interpretBlockBody:
-			                   aRBMessageNode arguments third ]
+			                   | block |
+			                   aRBMessageNode arguments third acceptVisitor:
+				                   self.
+			                   block := self popOperand.
+			                   self
+				                   interpretCode: block
+				                   receiver: block
+				                   arguments: { addResult } ]
 		                   fromJump: conditionalJump
 		                   joinValue: addResult
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretSumSmallIntegerWithNoOverflowWith: aRBMessageNode [
+
+	^ self
+		  interpretSumSmallInteger: aRBMessageNode
+		  withOverflowCondition: DRNoOverflow new
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
+
+	^ self
+		  interpretSumSmallInteger: aRBMessageNode
+		  withOverflowCondition: DROverflow new
 ]
 
 { #category : #'special cases' }

@@ -458,6 +458,13 @@ DRCPSEdge >> visitNegate: aDRNegate [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitNoOverflow: aDROverflow inBranch: aDRBranch [ 
+	
+	self flag: #TODO. "Do nothing?"
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitNoop: aDRNoop [
 
 	^ nil
