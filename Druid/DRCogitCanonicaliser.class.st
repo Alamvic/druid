@@ -62,6 +62,12 @@ DRCogitCanonicaliser >> visitBytecodeJump: aDRBytecodeJump [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitCall: aDRCall [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitCopy: aDRCopy [ 
 	
 	"Nothing"

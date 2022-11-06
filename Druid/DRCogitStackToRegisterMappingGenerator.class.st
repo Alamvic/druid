@@ -15,6 +15,17 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
+
+	"self CallRT: ceSendMustBeBooleanTrampoline"
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #CallRT:
+			 arguments: { (RBVariableNode named: aDRCall operand1) })
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMarshall [
 
 	"self marshallSendArguments: numArgs."

@@ -3076,9 +3076,10 @@ DruidTestRTLCompiler >> gen_pushLiteralConstantBytecode [
 	| currentBlock |
 	self MoveR: FPReg R: TempReg.
 	self MoveM64: FoxMethod r: TempReg R: TempReg.
-	self AddCq: 8 R: TempReg.
 	self MoveCq: LiteralStart R: ClassReg.
-	self LogicalShiftLeftCq: 2 R: ClassReg.
+	self AddCq: 1 R: ClassReg.
+	self AddCq: 8 R: TempReg.
+	self LogicalShiftLeftCq: 3 R: ClassReg.
 	self AddR: ClassReg R: TempReg.
 	self ssPushBase: TempReg offset: 0.
 	^ CompletePrimitive
@@ -3100,7 +3101,7 @@ DruidTestRTLCompiler >> gen_pushReceiverVariableBytecode [
 	| currentBlock |
 	self ensureReceiverResultRegContainsSelf.
 	self MoveR: ReceiverResultReg R: TempReg.
-	self ssPushBase: TempReg offset: 16.
+	self ssPushBase: TempReg offset: 12.
 	^ CompletePrimitive
 ]
 
@@ -3113,6 +3114,33 @@ DruidTestRTLCompiler >> gen_sendLiteralSelector0ArgsBytecode [
 		genMarshalledSend: 1
 		numArgs: 0
 		sendTable: ordinarySendTrampolines.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_shortConditionalJumpTrue [
+
+	| jump1 jump2 jump3 currentBlock |
+	(self ssDescriptorAt: 0) moveToReg: TempReg.
+	self ssPop: 1.
+	self CmpCq: objectMemory trueObject R: TempReg.
+	jump1 := self JumpZero: 0.
+	self CmpCq: objectMemory falseObject R: TempReg.
+	jump2 := self JumpZero: 0.
+	self CallRT: ceSendMustBeBooleanTrampoline.
+	jump3 := self Jump: 0.
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
+	jump2 := self Jump: 0.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveCq: 1 R: ClassReg.
+	self AddCq: bytecodePC R: ClassReg.
+	self AddCq: 1 R: ClassReg.
+	self genJumpTo: 1 + bytecodePC + 1.
+	currentBlock := self Label.
+	jump3 jmpTarget: currentBlock.
+	jump2 jmpTarget: currentBlock.
 	^ CompletePrimitive
 ]
 

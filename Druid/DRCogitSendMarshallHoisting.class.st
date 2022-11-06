@@ -29,8 +29,8 @@ DRCogitSendMarshallHoisting >> applyTo: cfg [
 	cfg buildDominatorTree.
 	dominator := cfg tree dominatorOfAll: toMerge.
 	
-	marshall := toMerge detect: [ :e | e isCogitSendMarshall ].
-	toMerge do: [ :e | e isCogitSendMarshall ifFalse: [ e removeFromCFG ]].
+	marshall := toMerge detect: [ :e | e isCogitSendMarshall ] ifNone: [ toMerge anyOne ].
+	toMerge do: [ :e | e = marshall ifFalse: [ e removeFromCFG ]].
 
 	marshall basicBlock removeInstruction: marshall.
 	dominator block addInstruction: marshall

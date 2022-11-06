@@ -251,6 +251,18 @@ DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitBytecodeJump: aDRBytecodeJump [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitCall: aDRCall [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
 	| operands |

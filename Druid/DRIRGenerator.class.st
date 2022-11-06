@@ -972,12 +972,15 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 	elementsToPop isInteger
 		ifFalse: [ self error: 'expected an integer value' ].
 
-	"This will be pushed automatically"
-	aRBMessageNode arguments second acceptVisitor: self.
 	self pop: elementsToPop.
-	self push: self popOperand.
 
-	"pop:thenPush: does not return an interesting value"
+	"If it's a pop with push..."
+	aRBMessageNode arguments size > 1 ifTrue: [
+		"This will be pushed automatically"
+		aRBMessageNode arguments second acceptVisitor: self.
+		self push: self popOperand ].
+
+	"pop:[thenPush:] does not return an interesting value"
 	self pushOperand: DRNullValue new.
 ]
 

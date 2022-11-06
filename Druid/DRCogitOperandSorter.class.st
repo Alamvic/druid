@@ -69,6 +69,12 @@ DRCogitOperandSorter >> visitBytecodeJump: aDRBytecodeJump [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitCall: aDRCall [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 
 	anInstruction operand1 isInstruction not

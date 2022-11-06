@@ -27,6 +27,7 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	variableSpecialCases at: #framePointer put: #interpretFramePointerWith:.
 	"variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:."
 	
+	specialCases at: #internalMustBeBoolean put: #interpretMustBeBooleanWith:.
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
@@ -92,6 +93,16 @@ DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRCopy
 		operands: { DRJitCompileTimeExpression new expression: 'bytecodePC' }
+]
+
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [ 
+	
+	"self CallRT: ceSendMustBeBooleanTrampoline"
+	^ self
+		  addInstructionWithNoResultFrom: aRBMessageNode
+		  instructionKind: DRCall
+		  operands: { 'ceSendMustBeBooleanTrampoline' }
 ]
 
 { #category : #accessing }
