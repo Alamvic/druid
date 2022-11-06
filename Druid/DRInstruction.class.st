@@ -162,6 +162,12 @@ DRInstruction >> hasUser: anInstruction [
 ]
 
 { #category : #testing }
+DRInstruction >> hasUsers [
+	
+	^ users notEmpty
+]
+
+{ #category : #testing }
 DRInstruction >> hash [
 
 	^ self result hash
@@ -242,6 +248,12 @@ DRInstruction >> isBranchIfTrue [
 ]
 
 { #category : #testing }
+DRInstruction >> isCogitSendMarshall [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isConditionalBranch [
 	
 	^ false
@@ -279,6 +291,12 @@ DRInstruction >> isInvariantFrom: loop [
 
 { #category : #testing }
 DRInstruction >> isJITCompileTimeExpression: aString [ 
+	
+	^ false
+]
+
+{ #category : #testing }
+DRInstruction >> isJITMessageSend [
 	
 	^ false
 ]

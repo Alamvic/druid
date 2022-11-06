@@ -5,7 +5,7 @@ Class {
 		'primitiveCompilerName',
 		'fallthroughBlock'
 	],
-	#category : #'Druid-BytecodeGeneration'
+	#category : #'Druid-BytecodeToJITCompilation'
 }
 
 { #category : #API }
@@ -49,12 +49,15 @@ DRBytecodeCompilerCompiler >> initialize [
 		optimisations add: DRCopyPropagation new.
 		optimisations add: DRPhiSimplication new.
 		optimisations add: DRCogitCanonicaliser new.
-		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
+		optimisations add:
+			(DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
-		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination) ].
-	
+		optimisations add:
+			(DRDeadEdgeSplitting then: DRDeadBranchElimination) ].
+
 	"Last Phase, make code coggable"
-    optimisations add: DRCogitOperandSorter new.
+	optimisations add: DRCogitOperandSorter new.
+	optimisations add: DRCogitSendMarshallHoisting new
 ]
 
 { #category : #accessing }

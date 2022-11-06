@@ -5,21 +5,28 @@ Class {
 }
 
 { #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
+DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMarshall [
 
-	"self marshallSendArguments: numArgs.
-	^self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: ordinarySendTrampolines"
+	"self marshallSendArguments: numArgs."
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #marshallSendArguments:
-			 arguments: { RBLiteralValueNode value: aDRMessageSend numberOfArguments }).
+			 arguments:
+			 { (RBLiteralValueNode value:
+				  aDRCogitSendMarshall numberOfArguments) })
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
+
+	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: ordinarySendTrampolines"
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #genMarshalledSend:numArgs:sendTable:
 			 arguments: { 
-				RBLiteralValueNode value: aDRMessageSend selectorIndex.
+				RBLiteralValueNode value: aDRMessageSend cogitSelectorIndex.
 				RBLiteralValueNode value: aDRMessageSend numberOfArguments.
 				RBVariableNode named: 'ordinarySendTrampolines' }).
 ]
