@@ -86,6 +86,12 @@ DRCogitCanonicaliser >> visitIntToFloatConversion: aDRIntToFloat [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitJITMessageSend: aDRMessageSend [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitJump: aDRJump [ 
 	
 	"Nothing for jumps"

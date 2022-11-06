@@ -372,6 +372,12 @@ DRCPSEdge >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitJITMessageSend: aDRMessageSend [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitJump: aDRJump [ 
 
 	"Simple jumps do not have type constraints"

@@ -124,6 +124,12 @@ DRCogitOperandSorter >> visitIntToFloatConversion: aDRIntToFloat [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitJITMessageSend: aDRMessageSend [ 
+
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitJump: aDRJump [ 
 	
 	"Nothing"
@@ -158,12 +164,6 @@ DRCogitOperandSorter >> visitLoadReceiver: aDRLoadReceiver [
 { #category : #visiting }
 DRCogitOperandSorter >> visitLoadStackValue: aDRLoadStackValue [ 
 	
-	"Nothing"
-]
-
-{ #category : #visiting }
-DRCogitOperandSorter >> visitMessageSend: aDRMessageSend [ 
-
 	"Nothing"
 ]
 

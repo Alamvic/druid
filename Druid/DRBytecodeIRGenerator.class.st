@@ -29,7 +29,7 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
-	specialCases at: #normalSend put: #interpretNormalSendWith:.
+	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
 ]
 
 { #category : #'special cases' }
@@ -67,6 +67,26 @@ DRBytecodeIRGenerator >> interpretFramePointerWith: aRBVariableNode [
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRLoadFramePointer
 		operands: #()
+]
+
+{ #category : #accessing }
+DRBytecodeIRGenerator >> interpretNormalLiteralSendWith: aMessage [
+
+	"Interpret a send. In the interpreter, this is a send where we don't know yet the receiver or its class.
+	We know the numberOfArguments that we should use to extract the receiver, then its class.
+	
+	Translate this as a send instruction"
+	| interpreter selectorIndex argumentCount |
+	aMessage arguments first acceptVisitor: self.
+	selectorIndex := self popOperand.
+	
+	aMessage arguments second acceptVisitor: self.
+	argumentCount := self popOperand.
+	
+	^ self
+		  addInstructionWithNoResultFrom: aMessage
+		  instructionKind: DRJITMessageSend
+		  operands: { selectorIndex asDRValue. argumentCount asDRValue }
 ]
 
 { #category : #accessing }

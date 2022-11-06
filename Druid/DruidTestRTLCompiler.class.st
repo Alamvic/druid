@@ -3111,6 +3111,18 @@ DruidTestRTLCompiler >> gen_pushReceiverVariableBytecode [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_sendLiteralSelector0ArgsBytecode [
+
+	| currentBlock |
+	self marshallSendArguments: 0.
+	self
+		genMarshalledSend: 1
+		numArgs: 0
+		sendTable: ordinarySendTrampolines.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> numRegArgs [
 
 	^ 2 "Hardcoded?"
