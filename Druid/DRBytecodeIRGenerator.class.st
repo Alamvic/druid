@@ -1,7 +1,7 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
 	#superclass : #DRMetaCompilerIRGenerator,
-	#category : #'Druid-BytecodeGeneration'
+	#category : #'Druid-BytecodeToJITCompilation'
 }
 
 { #category : #accessing }
@@ -30,6 +30,7 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
+	specialCases at: #normalSendSpecialSelector:argumentCount: put: #interpretNormalSpecialSelectorSendWith:.
 ]
 
 { #category : #'special cases' }
@@ -76,7 +77,7 @@ DRBytecodeIRGenerator >> interpretNormalLiteralSendWith: aMessage [
 	We know the numberOfArguments that we should use to extract the receiver, then its class.
 	
 	Translate this as a send instruction"
-	| interpreter selectorIndex argumentCount |
+	| selectorIndex argumentCount |
 	aMessage arguments first acceptVisitor: self.
 	selectorIndex := self popOperand.
 	
@@ -86,7 +87,27 @@ DRBytecodeIRGenerator >> interpretNormalLiteralSendWith: aMessage [
 	^ self
 		  addInstructionWithNoResultFrom: aMessage
 		  instructionKind: DRJITMessageSend
-		  operands: { selectorIndex asDRValue. argumentCount asDRValue }
+		  operands: { selectorIndex asDRValue. argumentCount asDRValue . false asDRValue }
+]
+
+{ #category : #accessing }
+DRBytecodeIRGenerator >> interpretNormalSpecialSelectorSendWith: aMessage [
+
+	"Interpret a send. In the interpreter, this is a send where we don't know yet the receiver or its class.
+	We know the numberOfArguments that we should use to extract the receiver, then its class.
+	
+	Translate this as a send instruction"
+	| selectorIndex argumentCount |
+	aMessage arguments first acceptVisitor: self.
+	selectorIndex := self popOperand.
+	
+	aMessage arguments second acceptVisitor: self.
+	argumentCount := self popOperand.
+	
+	^ self
+		  addInstructionWithNoResultFrom: aMessage
+		  instructionKind: DRJITMessageSend
+		  operands: { selectorIndex asDRValue. argumentCount asDRValue . true asDRValue }
 ]
 
 { #category : #'special cases' }
