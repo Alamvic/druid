@@ -247,6 +247,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #asFloat put: #interpretAsFloatWith:.
 	specialCases at: #rawFloatBits put: #interpretRawFloatBitsWith:.
 	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
+	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
 	
 
 	"Memory accesses"
@@ -533,6 +534,12 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [ 
 
 	self interpretBlockBody: aRBMessageNode arguments first
+]
+
+{ #category : #accessing }
+DRIRGenerator >> interpretCCoerceWith: aRBMessageNode [
+
+	^ aRBMessageNode arguments first acceptVisitor: self
 ]
 
 { #category : #'special cases' }

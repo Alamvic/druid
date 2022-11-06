@@ -57,7 +57,6 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 	variableSpecialCases at: #primFailCode put: #interpretPrimFailCodeWith:.
-	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
 ]
 
 { #category : #inline }
@@ -66,12 +65,6 @@ DRPrimitiveIRGenerator >> inlineGenerator [
 	^ DRPrimitiveIRGeneratorInline new
 		  controlFlowGraph: controlFlowGraph;
 		  yourself
-]
-
-{ #category : #accessing }
-DRPrimitiveIRGenerator >> interpretCCoerceWith: aRBMessageNode [
-
-	^ aRBMessageNode arguments first acceptVisitor: self
 ]
 
 { #category : #'special cases' }

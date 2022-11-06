@@ -1,7 +1,7 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
 	#superclass : #DRMetaCompilerIRGenerator,
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-BytecodeGeneration'
 }
 
 { #category : #accessing }
@@ -29,12 +29,6 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
-]
-
-{ #category : #accessing }
-DRBytecodeIRGenerator >> interpretCCoerceWith: aRBMessageNode [
-
-	^ aRBMessageNode arguments first acceptVisitor: self
 ]
 
 { #category : #visiting }
