@@ -181,6 +181,12 @@ DRMessageSend >> selector [
 	^ self originAST selector
 ]
 
+{ #category : #testing }
+DRMessageSend >> supportConstantOperand [
+
+	^ false
+]
+
 { #category : #types }
 DRMessageSend >> type [
 

@@ -698,6 +698,12 @@ DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 	self subclassResponsibility
 ]
 
+{ #category : #testing }
+DRInstruction >> supportConstantOperand [
+
+	^ true
+]
+
 { #category : #types }
 DRInstruction >> type [
 

@@ -214,7 +214,7 @@ DRValue >> isRegister [
 { #category : #testing }
 DRValue >> isReturn [
 
-	^ true
+	^ false
 ]
 
 { #category : #testing }

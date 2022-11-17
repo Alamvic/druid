@@ -41,3 +41,9 @@ DRReturn >> sccpLatticeValueFor: sccp [
 	"This instruction has no value"
 	^ sccp bottom
 ]
+
+{ #category : #testing }
+DRReturn >> supportConstantOperand [
+
+	^ false
+]

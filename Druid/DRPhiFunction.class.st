@@ -203,6 +203,12 @@ DRPhiFunction >> simplify [
 	^ self
 ]
 
+{ #category : #testing }
+DRPhiFunction >> supportConstantOperand [
+
+	^ false
+]
+
 { #category : #simplification }
 DRPhiFunction >> type [
 

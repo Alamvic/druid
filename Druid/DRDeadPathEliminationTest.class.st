@@ -30,7 +30,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 
 	| cfg lastBlocks lastPaths newMergePoint oldMergePoint newBlock |
 	cfg := self generateDruidIRFor: #primitiveSandclock.
-	oldMergePoint := cfg blockById: 31.
+	oldMergePoint := cfg blockById: 30.
 	newMergePoint := oldMergePoint newEmptyPredecessor.
 	newBlock := cfg newBasicBlockWith: [ :b | b copy: 1 ].
 	oldMergePoint removePredecessorAt: 1.
