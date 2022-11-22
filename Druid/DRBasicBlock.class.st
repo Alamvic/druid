@@ -159,12 +159,17 @@ DRBasicBlock >> basicDuplicate [
 ]
 
 { #category : #accessing }
-DRBasicBlock >> basicEndInstruction: aDRInstruction [ 
+DRBasicBlock >> basicEndInstruction: aDRInstruction [
 
 	aDRInstruction basicBlock: self.
-	endInstruction ifNotNil: [ endInstruction operands do: [ :o |
-			o removeUser: endInstruction ] ].
 	^ endInstruction := aDRInstruction
+]
+
+{ #category : #accessing }
+DRBasicBlock >> basicEndInstructionRemovingUsers: aDRInstruction [
+
+	endInstruction ifNotNil: [ endInstruction operands do: [ :o | o removeUser: endInstruction ] ].
+	^ self basicEndInstruction: aDRInstruction
 ]
 
 { #category : #accessing }
@@ -311,7 +316,7 @@ DRBasicBlock >> endInstruction: aDRInstruction [
 	lostSuccessors do: [ :e |
 		e removePredecessor: self. ].
 
-	self basicEndInstruction: aDRInstruction.
+	self basicEndInstructionRemovingUsers: aDRInstruction.
 	^ aDRInstruction
 ]
 

@@ -43,7 +43,6 @@ DRBytecodeGeneratorTest >> compileSelector: selector fromClass: interpreterClass
 DRBytecodeGeneratorTest >> generateDruidIRFor: method [
 
 	| cfg |
-	bytecodeGenerator numArgs: method numArgs.
 	cfg := compilerCompiler generateDruidIRFor: method.
 	compilerCompiler optimize: cfg.
 	^ cfg
@@ -66,10 +65,21 @@ DRBytecodeGeneratorTest >> generateMethodForSelector: aSelector [
 
 { #category : #'as yet unclassified' }
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector [
-	
+
+	^ self
+		  generateMethodFromCFG: aDRControlFlowGraph
+		  withSelector: selector
+		  numArgs: compilerCompiler irGenerator numberOfArguments
+]
+
+{ #category : #'as yet unclassified' }
+DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
+
 	"TODO: Sacar esto, iterar solamente las MandatoryInstructions"
 	DRRegisterCollapse new applyTo: aDRControlFlowGraph.
+	
 	bytecodeGenerator := DRBytecodeGenerator new.
+	bytecodeGenerator numArgs: numArgs.
 	bytecodeGenerator methodName: selector.
 	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.
 	^ bytecodeGenerator targetAST
@@ -95,7 +105,7 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 		cfg initialBasicBlock jumpTo: b.
 		b return: (b add: 3 to: 4) ].
 
-	method := self generateMethodFromCFG: cfg withSelector: #m.
+	method := self generateMethodFromCFG: cfg withSelector: #m numArgs: 0.
 	result := method valueWithReceiver: nil arguments: {  }.
 
 	self assert: result equals: 7
@@ -112,7 +122,7 @@ DRBytecodeGeneratorTest >> testMethodInline [
 
 	| method result |
 	method := self generateMethodForSelector: #basicInlineMethod.
-	result := method valueWithReceiver: nil arguments: {  }.
+	result := method valueWithReceiver: compilerCompiler interpreter arguments: {  }.
 
 	self assert: result equals: 84
 ]
@@ -127,7 +137,7 @@ DRBytecodeGeneratorTest >> testMethodManyReturns [
 DRBytecodeGeneratorTest >> testMethodWithArg [
 
 	| method result |
-	method := self generateMethodForSelector: #lazyDouble:.1halt.
+	method := self generateMethodForSelector: #lazyDouble:.
 	result := method valueWithReceiver: nil arguments: { 12 }.
 
 	self assert: result equals: 24
@@ -166,6 +176,14 @@ DRBytecodeGeneratorTest >> testOpalBooleanMethods [
 
 	OCOpalExamples methods
 		select: [ :opalMethod | opalMethod protocol = #'examples - andor' ]
+		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+]
+
+{ #category : #tests }
+DRBytecodeGeneratorTest >> testOpalConditionalMethods [
+
+	OCOpalExamples methods
+		select: [ :opalMethod | opalMethod protocol = #'examples - conditionals' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]
 

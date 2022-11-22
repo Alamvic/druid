@@ -74,8 +74,7 @@ DRStackFrame >> exitBasicBlock [
 { #category : #accessing }
 DRStackFrame >> exitBasicBlock: aDRBasicBlock [
 
-	exitBasicBlock := aDRBasicBlock.
-	aDRBasicBlock beExitBlock
+	exitBasicBlock := aDRBasicBlock
 ]
 
 { #category : #temporaries }
@@ -174,7 +173,7 @@ DRStackFrame >> pop [
 	^ operandStack pop
 ]
 
-{ #category : #accessing }
+{ #category : #copying }
 DRStackFrame >> postCopy [
 
 	super postCopy.

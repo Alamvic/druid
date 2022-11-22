@@ -1406,6 +1406,12 @@ DRIRGenerator >> noop: aRBMessageNode [
 ]
 
 { #category : #accessing }
+DRIRGenerator >> numberOfArguments [
+
+	^ numberOfArguments
+]
+
+{ #category : #accessing }
 DRIRGenerator >> numberOfArguments: aValue [ 
 	numberOfArguments := aValue.
 ]
@@ -1432,20 +1438,9 @@ DRIRGenerator >> pop: anInteger [
 { #category : #'frame-access' }
 DRIRGenerator >> popFrame [
 	
-	| poppedFrame topReturns |
+	| poppedFrame |
 	"Here we are in callee"
-	currentBasicBlock := self topFrame exitBasicBlock.
-
-	topReturns := self topFrame deferredMethodReturns.
-	topReturns size > 1 ifTrue: [ | mergedState |
-		topReturns := currentBasicBlock predecessors collect: [ :e | topReturns at: e ].
-		mergedState := DRStackMerger new
-			builder: self;
-			mergeBlock: currentBasicBlock;
-			mergeAll: topReturns upTo: self topFrame.
-		executionState := mergedState ].
-
-	poppedFrame := executionState popFrame.
+	poppedFrame := self popFrameMergingDeferredReturns.
 	
 	"Last frame!"
 	executionState executionStack ifEmpty: [
@@ -1457,6 +1452,25 @@ DRIRGenerator >> popFrame [
 	currentBasicBlock jumpTo: self newBasicBlock.	
 	
 	^ poppedFrame
+]
+
+{ #category : #'frame-access' }
+DRIRGenerator >> popFrameMergingDeferredReturns [
+
+	| topReturns |
+	currentBasicBlock := self topFrame exitBasicBlock.
+
+	topReturns := self topFrame deferredMethodReturns.
+	topReturns ifNotEmpty: [ "If there were returns attached to popped frame, merge all of them in a single state. If there was only one return this is important also to override implicit returns"
+		| mergedState |
+		topReturns := currentBasicBlock predecessors collect: [ :e | topReturns removeKey: e ].
+		mergedState := DRStackMerger new
+			               builder: self;
+			               mergeBlock: currentBasicBlock;
+			               mergeAll: topReturns upTo: self topFrame.
+		executionState := mergedState ].
+
+	^ executionState popFrame
 ]
 
 { #category : #'frame-access' }

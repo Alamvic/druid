@@ -161,6 +161,12 @@ DRCompilerCompiler >> interpreter: anObject [
 ]
 
 { #category : #accessing }
+DRCompilerCompiler >> irGenerator [
+
+	^ irGenerator
+]
+
+{ #category : #accessing }
 DRCompilerCompiler >> irGenerator: aDRIRGenerator [
 
 	irGenerator := aDRIRGenerator
