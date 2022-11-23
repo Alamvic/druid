@@ -1463,7 +1463,8 @@ DRIRGenerator >> popFrameMergingDeferredReturns [
 	topReturns := self topFrame deferredMethodReturns.
 	topReturns ifNotEmpty: [ "If there were returns attached to popped frame, merge all of them in a single state. If there was only one return this is important also to override implicit returns"
 		| mergedState |
-		topReturns := currentBasicBlock predecessors collect: [ :e | topReturns removeKey: e ].
+		self assert: currentBasicBlock predecessors size = topReturns size.
+		topReturns := currentBasicBlock predecessors collect: [ :e | topReturns at: e ].
 		mergedState := DRStackMerger new
 			               builder: self;
 			               mergeBlock: currentBasicBlock;

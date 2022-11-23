@@ -77,8 +77,8 @@ DRMessageSend >> inline [
 
 	| pieces methodsToInline inlinedMethodReturnValue |
 	methodsToInline := self methodsToInline.
-
 	methodsToInline ifEmpty: [ ^ self ].
+
 	pieces := self basicBlock breakBy: self.
 
 	pieces first jumpTo: irGenerator newFirstBasicBlock.
@@ -87,8 +87,11 @@ DRMessageSend >> inline [
 	inlinedMethodReturnValue := self generateInlineIRForMethods: methodsToInline.
 
 	irGenerator currentBasicBlock jumpTo: pieces last.
-	"Remove message send block"
+
+	self flag: #TODO. "Always? What happend with effect methods?"
 	self replaceUsesBy: inlinedMethodReturnValue.
+	
+	"Remove message send block"
 	pieces last removePredecessor: self basicBlock.
 	self basicBlock removeFromCFG
 ]
