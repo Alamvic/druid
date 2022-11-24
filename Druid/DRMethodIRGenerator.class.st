@@ -10,6 +10,12 @@ DRMethodIRGenerator >> executionState: aDRExecutionState [
 	executionState := aDRExecutionState
 ]
 
+{ #category : #visiting }
+DRMethodIRGenerator >> finishCodeInterpretation: lastFrame [
+
+1halt.
+]
+
 { #category : #inline }
 DRMethodIRGenerator >> inlineGenerator [
 

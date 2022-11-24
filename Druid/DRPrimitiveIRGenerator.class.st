@@ -166,11 +166,9 @@ DRPrimitiveIRGenerator >> popFrame [
 	- amount to pop is expressed in bytes, so multiply by word size"
 
 	| poppedFrame |
+	self flag: #Remove.
 	self topFrame receiverWithState: executionState.
 	poppedFrame := super popFrame.
-
-	executionState executionStack size = 0 ifTrue: [ self finishCodeInterpretation: poppedFrame ].
-
 	^ poppedFrame
 ]
 

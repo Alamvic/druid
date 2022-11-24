@@ -164,6 +164,12 @@ DRIRGenerator >> executionState [
 	^ executionState
 ]
 
+{ #category : #visiting }
+DRIRGenerator >> finishCodeInterpretation: lastFrame [
+
+	self subclassResponsibility
+]
+
 { #category : #accessing }
 DRIRGenerator >> firstBasicBlock [
 
@@ -1445,6 +1451,7 @@ DRIRGenerator >> popFrame [
 	"Last frame!"
 	executionState executionStack ifEmpty: [
 		currentBasicBlock return: poppedFrame returnValue.
+		self finishCodeInterpretation: poppedFrame.
 		^ poppedFrame ].
 	
 	"Here we are in caller"
