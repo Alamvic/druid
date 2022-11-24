@@ -173,6 +173,12 @@ DRBytecodeGenerator >> visitNoop: aDRNoop [
 	
 ]
 
+{ #category : #visiting }
+DRBytecodeGenerator >> visitNullValue: aDRNullValue [
+
+	builder pushLiteral: nil
+]
+
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitPhiFunction: aDRPhiFunction [
 
@@ -185,8 +191,7 @@ DRBytecodeGenerator >> visitPhiFunction: aDRPhiFunction [
 DRBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 
 	self flag: #TODO. "Remove physical registers, use LoadReceiver / LoadArgument instructions"
-	aDRPhysicalRegister name = 'ReceiverResultReg' ifTrue: [ 
-		^ builder pushThisContext ].
+	aDRPhysicalRegister name = 'ReceiverResultReg' ifTrue: [ ^ builder pushReceiver ].
 	1 halt
 ]
 
@@ -200,7 +205,6 @@ DRBytecodeGenerator >> visitReturn: aDRReturn [
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [ 
 
-1halt.
 	aDRStoreInstanceVariable operand1 acceptVisitor: self.
 	aDRStoreInstanceVariable operand3 acceptVisitor: self.
 	builder storeInstVar: aDRStoreInstanceVariable operand2 value "Check if necessary to pre-calculate this value"

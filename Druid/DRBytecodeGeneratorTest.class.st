@@ -120,11 +120,7 @@ DRBytecodeGeneratorTest >> testMethodEmpty [
 { #category : #tests }
 DRBytecodeGeneratorTest >> testMethodInline [
 
-	| method result |
-	method := self generateMethodForSelector: #basicInlineMethod.
-	result := method valueWithReceiver: compilerCompiler interpreter arguments: {  }.
-
-	self assert: result equals: 84
+	self assertCompilationFor: #basicInlineMethod fromClass: DruidTestInterpreter
 ]
 
 { #category : #tests }
