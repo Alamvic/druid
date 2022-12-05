@@ -39,6 +39,12 @@ DRInterpreterReference >> name [
 	^ reference
 ]
 
+{ #category : #printing }
+DRInterpreterReference >> printResult [
+
+	^ reference
+]
+
 { #category : #accessing }
 DRInterpreterReference >> reference: aString [ 
 	reference := aString

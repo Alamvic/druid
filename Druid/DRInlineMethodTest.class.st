@@ -20,7 +20,6 @@ DRInlineMethodTest >> testInlineMethodCopiesCalleeIntoCallerMethod [
 
 	| cfg messageSend |	
 	cfg := self generateDruidIRFor: #methodWithArg:.
-	1halt.
 	messageSend := cfg messageSends first.
 	messageSend inline.
 
