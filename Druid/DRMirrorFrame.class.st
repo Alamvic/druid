@@ -2,7 +2,9 @@ Class {
 	#name : #DRMirrorFrame,
 	#superclass : #Object,
 	#instVars : [
-		'deferredMethodReturns'
+		'deferredMethodReturns',
+		'returnValue',
+		'token'
 	],
 	#category : #'Druid-Tests'
 }
@@ -17,6 +19,12 @@ DRMirrorFrame >> addDeferredReturnState: aDRExecutionState [
 DRMirrorFrame >> deferredMethodReturns [
 
 	^ deferredMethodReturns
+]
+
+{ #category : #accessing }
+DRMirrorFrame >> deferredMethodReturns: anObject [
+
+	deferredMethodReturns := anObject
 ]
 
 { #category : #initialization }

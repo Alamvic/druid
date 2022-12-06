@@ -13,7 +13,7 @@ DRMethodIRGenerator >> executionState: aDRExecutionState [
 { #category : #visiting }
 DRMethodIRGenerator >> finishCodeInterpretation: lastFrame [
 
-1halt.
+	currentBasicBlock return: lastFrame returnValue
 ]
 
 { #category : #inline }

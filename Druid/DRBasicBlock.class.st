@@ -616,6 +616,12 @@ DRBasicBlock >> isDominatorOf: basicBlocks [
 	^ false
 ]
 
+{ #category : #testing }
+DRBasicBlock >> isEmptyBasicBlock [
+
+	^ endInstruction isNoop and: [ self instructions allButLast isEmpty ]
+]
+
 { #category : #accessing }
 DRBasicBlock >> isExitBlock [
 

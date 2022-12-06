@@ -32,7 +32,7 @@ DRTopType >> ifNil: nilBlock ifNotNil: notNilBlock [
 { #category : #testing }
 DRTopType >> ifNotNil: aBlock [
 
-	self = nil ifFalse: [ aBlock cull: self ].
+	self = nil ifFalse: [ ^ aBlock cull: self ].
 	^ nil
 ]
 

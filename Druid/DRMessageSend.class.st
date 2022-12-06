@@ -79,12 +79,16 @@ DRMessageSend >> inline [
 	methodsToInline := self methodsToInline.
 	methodsToInline ifEmpty: [ ^ self ].
 
+	self flag: #TOFIX.
+	self assert: (irGenerator ir blocks includes: irGenerator topFrame exitBasicBlock).
+
 	pieces := self basicBlock breakBy: self.
 
 	pieces first jumpTo: irGenerator newFirstBasicBlock.
 
 	irGenerator numberOfArguments: operands size - 1.
 	inlinedMethodReturnValue := self generateInlineIRForMethods: methodsToInline.
+
 
 	irGenerator currentBasicBlock jumpTo: pieces last.
 
@@ -93,7 +97,13 @@ DRMessageSend >> inline [
 	
 	"Remove message send block"
 	pieces last removePredecessor: self basicBlock.
-	self basicBlock removeFromCFG
+	self basicBlock removeFromCFG.
+	
+	"Clean garbage to generate a valid CFG"
+	DRDeadBlockElimination new applyTo: irGenerator ir.
+	DRDeadCodeElimination new applyTo: irGenerator ir.
+	irGenerator ir validate.
+
 ]
 
 { #category : #accessing }

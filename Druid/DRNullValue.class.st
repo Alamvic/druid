@@ -36,6 +36,12 @@ DRNullValue >> hash [
 	^ self class hash
 ]
 
+{ #category : #accessing }
+DRNullValue >> id [
+
+	^ self
+]
+
 { #category : #visiting }
 DRNullValue >> isNullValue [
 

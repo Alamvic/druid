@@ -33,7 +33,13 @@ DRStackFrame >> addTo: aDRStackFrame [
 	operandStack withIndexDo: [ :e :i |
 		(aDRStackFrame operandStack at: i) addValue: e.
 	].
-	aDRStackFrame returnValue addValue: returnValue
+	aDRStackFrame returnValue addValue: self returnValue
+]
+
+{ #category : #'deferred returns' }
+DRStackFrame >> clearDeferredMethodReturns [
+
+	mirrorFrame deferredMethodReturns: Dictionary new
 ]
 
 { #category : #'non lo' }
@@ -117,6 +123,7 @@ DRStackFrame >> homeFrameWithState: aState [
 DRStackFrame >> initialize [
 
 	super initialize.
+	mirrorFrame := DRMirrorFrame new.
 	operandStack := Stack new.
 	temporaries := Dictionary new.
 ]
@@ -217,6 +224,75 @@ DRStackFrame >> receiver: aCogVMSimulatorLSB [
 { #category : #accessing }
 DRStackFrame >> receiverWithState: aState [
 	^ receiver
+]
+
+{ #category : #'deferred returns' }
+DRStackFrame >> resolveDeferredMethodReturns: aDRIRGenerator [
+
+	| returnStates mergedState deferredReturnsBlock newExitBasicBlock |
+	self deferredMethodReturns ifEmpty: [ ^ aDRIRGenerator executionState ].
+
+	"If there were returns attached to popped frame, merge all of them in a single state. If there was only one return this is important also to override implicit returns"
+
+	exitBasicBlock isEmptyBasicBlock ifTrue: [ 
+		returnStates := self deferredMethodReturns associations collect: [ :assoc | 
+			                (exitBasicBlock hasPredecessor: assoc key) ifTrue: [ "Remove to keep the order" 
+				                exitBasicBlock removePredecessor: assoc key ].
+			                assoc key jumpTo: exitBasicBlock.
+			                assoc value popUpTo: self "popAllButTop" ].
+		mergedState := DRStackMerger new
+			               builder: aDRIRGenerator;
+			               mergeBlock: exitBasicBlock;
+			               mergeAll: returnStates.
+		self clearDeferredMethodReturns.
+		self returnValue: mergedState topFrame returnValue.
+		^ aDRIRGenerator executionState ].
+
+
+
+
+
+
+	deferredReturnsBlock := aDRIRGenerator newBasicBlock.
+	self deferredMethodReturns keysDo: [ :pred | pred jumpTo: deferredReturnsBlock ].
+	returnStates := self deferredMethodReturns values.
+	mergedState := DRStackMerger new
+		               builder: aDRIRGenerator;
+		               mergeBlock: deferredReturnsBlock;
+		               mergeAll: returnStates upTo: self.
+
+
+	newExitBasicBlock := aDRIRGenerator newBasicBlock.
+
+	exitBasicBlock endInstruction isJump ifTrue: [ 
+		| newReturn |
+		newExitBasicBlock basicEndInstruction: exitBasicBlock endInstruction.
+		exitBasicBlock basicEndInstruction: DRNoop new.
+		deferredReturnsBlock jumpTo: newExitBasicBlock.
+		exitBasicBlock jumpTo: newExitBasicBlock.
+		newReturn := newExitBasicBlock addInstruction:
+			             (irGenerator instructionFactory
+				              phiWith: mergedState topFrame returnValue
+				              with: self returnValue).
+		self returnValue: newReturn ].
+
+	exitBasicBlock endInstruction isReturn ifTrue: [ 
+		| lastReturn newReturn |
+		lastReturn := exitBasicBlock endInstruction operand1. "TODO: Remove, should already be that"
+		deferredReturnsBlock jumpTo: newExitBasicBlock.
+		exitBasicBlock jumpTo: newExitBasicBlock.
+		newReturn := newExitBasicBlock addInstruction:
+			             (irGenerator instructionFactory
+				              phiWith: mergedState topFrame returnValue
+				              with: lastReturn).
+				1halt.
+		newExitBasicBlock return: newReturn.
+		self returnValue: newReturn ].
+
+	self clearDeferredMethodReturns.
+	exitBasicBlock := newExitBasicBlock.
+"1halt."
+	^ aDRIRGenerator executionState
 ]
 
 { #category : #accessing }
