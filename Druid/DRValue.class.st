@@ -114,6 +114,12 @@ DRValue >> isDRBlockClosure [
 ]
 
 { #category : #testing }
+DRValue >> isFrameReturn [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isGlobal [
 
 	^ self isNullValue or: [ self isPhysicalRegister ]

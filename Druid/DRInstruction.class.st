@@ -106,7 +106,7 @@ DRInstruction >> basicBlock: anObject [
 { #category : #'cfg manipulation' }
 DRInstruction >> breakBasicBlock [
 
-	self basicBlock breakBy: self
+	^ self basicBlock breakBy: self
 ]
 
 { #category : #'loop-invariance' }

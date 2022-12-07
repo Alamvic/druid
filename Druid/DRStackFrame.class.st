@@ -39,7 +39,7 @@ DRStackFrame >> addTo: aDRStackFrame [
 { #category : #'deferred returns' }
 DRStackFrame >> clearDeferredMethodReturns [
 
-	mirrorFrame deferredMethodReturns: Dictionary new
+	mirrorFrame clearDeferredMethodReturns
 ]
 
 { #category : #'non lo' }
@@ -229,70 +229,44 @@ DRStackFrame >> receiverWithState: aState [
 { #category : #'deferred returns' }
 DRStackFrame >> resolveDeferredMethodReturns: aDRIRGenerator [
 
-	| returnStates mergedState deferredReturnsBlock newExitBasicBlock |
-	self deferredMethodReturns ifEmpty: [ ^ aDRIRGenerator executionState ].
+	| newFrameReturn deferredReturnsBlock pieces deferredFrameReturn newReturn |
+	self deferredMethodReturns ifEmpty: [ ^ self ].
+
 
 	"If there were returns attached to popped frame, merge all of them in a single state. If there was only one return this is important also to override implicit returns"
 
-	exitBasicBlock isEmptyBasicBlock ifTrue: [ 
-		returnStates := self deferredMethodReturns associations collect: [ :assoc | 
-			                (exitBasicBlock hasPredecessor: assoc key) ifTrue: [ "Remove to keep the order" 
-				                exitBasicBlock removePredecessor: assoc key ].
-			                assoc key jumpTo: exitBasicBlock.
-			                assoc value popUpTo: self "popAllButTop" ].
-		mergedState := DRStackMerger new
-			               builder: aDRIRGenerator;
-			               mergeBlock: exitBasicBlock;
-			               mergeAll: returnStates.
+	exitBasicBlock isEmptyBasicBlock ifTrue: [ "There are no provious returns"
+		self assert: self returnValue isFrameReturn not.
+		self assert: mirrorFrame returnValue isNil.
+		newFrameReturn := aDRIRGenerator mergeDeferredReturns: self deferredMethodReturns in: exitBasicBlock.
+		mirrorFrame returnValue: newFrameReturn. "Save it in a secure and common place"
 		self clearDeferredMethodReturns.
-		self returnValue: mergedState topFrame returnValue.
-		^ aDRIRGenerator executionState ].
+		^ self ].
 
+	"There is a previous return, we have to integrate new ones"
 
-
-
-
+	self assert: self returnValue isFrameReturn not.
+	self assert: mirrorFrame returnValue isNotNil.
+	self assert: (exitBasicBlock includesInstruction: mirrorFrame returnValue).
 
 	deferredReturnsBlock := aDRIRGenerator newBasicBlock.
-	self deferredMethodReturns keysDo: [ :pred | pred jumpTo: deferredReturnsBlock ].
-	returnStates := self deferredMethodReturns values.
-	mergedState := DRStackMerger new
-		               builder: aDRIRGenerator;
-		               mergeBlock: deferredReturnsBlock;
-		               mergeAll: returnStates upTo: self.
+	deferredFrameReturn := aDRIRGenerator mergeDeferredReturns: self deferredMethodReturns in: deferredReturnsBlock.
+	pieces := mirrorFrame returnValue breakBasicBlock.
 
+	self assert: pieces last = exitBasicBlock.
 
-	newExitBasicBlock := aDRIRGenerator newBasicBlock.
-
-	exitBasicBlock endInstruction isJump ifTrue: [ 
-		| newReturn |
-		newExitBasicBlock basicEndInstruction: exitBasicBlock endInstruction.
-		exitBasicBlock basicEndInstruction: DRNoop new.
-		deferredReturnsBlock jumpTo: newExitBasicBlock.
-		exitBasicBlock jumpTo: newExitBasicBlock.
-		newReturn := newExitBasicBlock addInstruction:
-			             (irGenerator instructionFactory
-				              phiWith: mergedState topFrame returnValue
-				              with: self returnValue).
-		self returnValue: newReturn ].
-
-	exitBasicBlock endInstruction isReturn ifTrue: [ 
-		| lastReturn newReturn |
-		lastReturn := exitBasicBlock endInstruction operand1. "TODO: Remove, should already be that"
-		deferredReturnsBlock jumpTo: newExitBasicBlock.
-		exitBasicBlock jumpTo: newExitBasicBlock.
-		newReturn := newExitBasicBlock addInstruction:
-			             (irGenerator instructionFactory
-				              phiWith: mergedState topFrame returnValue
-				              with: lastReturn).
-				1halt.
-		newExitBasicBlock return: newReturn.
-		self returnValue: newReturn ].
-
-	self clearDeferredMethodReturns.
-	exitBasicBlock := newExitBasicBlock.
-"1halt."
-	^ aDRIRGenerator executionState
+	deferredReturnsBlock jumpTo: exitBasicBlock.
+	aDRIRGenerator currentBasicBlock: exitBasicBlock.
+	newReturn := exitBasicBlock addInstruction: (aDRIRGenerator instructionFactory phiWithVariables: {  }).
+	self returnValue: newReturn.
+	newFrameReturn := aDRIRGenerator addFrameReturn: self.
+	mirrorFrame returnValue replaceUsesBy: newFrameReturn.
+	newReturn operands: { 
+			mirrorFrame returnValue.
+			deferredFrameReturn }.
+	1halt.
+	mirrorFrame returnValue: (newFrameReturn).
+	self clearDeferredMethodReturns
 ]
 
 { #category : #accessing }

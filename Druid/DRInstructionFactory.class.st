@@ -73,6 +73,12 @@ DRInstructionFactory >> equals: operand1 to: operand2 [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> frameReturn: aValue [
+
+	^ DRFrameReturn operands: { aValue asDRValue } result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> getConditionCodeOf: aCondition operands: aCollection [ 
 
 	^ DRGetConditionCode new
@@ -135,7 +141,7 @@ DRInstructionFactory >> load: anAdress [
 	^ self loadSInt64: anAdress
 ]
 
-{ #category : #asd }
+{ #category : #factory }
 DRInstructionFactory >> loadArgument: index [
 
 	^ DRLoadArgument

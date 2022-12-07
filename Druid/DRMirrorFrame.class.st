@@ -15,6 +15,12 @@ DRMirrorFrame >> addDeferredReturnState: aDRExecutionState [
 	deferredMethodReturns at: aDRExecutionState second put: aDRExecutionState first
 ]
 
+{ #category : #'deferred returns' }
+DRMirrorFrame >> clearDeferredMethodReturns [
+
+	deferredMethodReturns copy keysDo: [ :key | deferredMethodReturns removeKey: key ]
+]
+
 { #category : #accessing }
 DRMirrorFrame >> deferredMethodReturns [
 

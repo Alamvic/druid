@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #accessing }
+DRMethodIRGeneratorInline >> currentBasicBlock: aDRBasicBlock [
+
+	currentBasicBlock := aDRBasicBlock
+]
+
 { #category : #visiting }
 DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 

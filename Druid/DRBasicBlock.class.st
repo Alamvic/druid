@@ -348,6 +348,12 @@ DRBasicBlock >> forwardPredecessors [
 ]
 
 { #category : #building }
+DRBasicBlock >> frameReturn: aDRValue [
+
+	^ self addInstruction: (self instructionFactory frameReturn: aDRValue)
+]
+
+{ #category : #building }
 DRBasicBlock >> greater: operand1 than: operand2 [
 	
 	^ self addInstruction: (self instructionFactory greater: operand1 than: operand2)
@@ -355,8 +361,9 @@ DRBasicBlock >> greater: operand1 than: operand2 [
 
 { #category : #testing }
 DRBasicBlock >> hasFinalInstruction [
-	
-	^ endInstruction notNil and: [endInstruction isNoop not]
+
+	^ (endInstruction notNil and: [ endInstruction isNoop not ]) or: [ 
+		  instructions anySatisfy: [ :i | i isFrameReturn ] ]
 ]
 
 { #category : #dominance }
@@ -764,7 +771,6 @@ DRBasicBlock >> newEmptyPredecessor [
 		self removePredecessor: b ].
 	self addPredecessor: newBlock.
 	newBlock jumpTo: self.
-	controlFlowGraph validate.
 	^ newBlock
 ]
 
@@ -1143,7 +1149,7 @@ DRBasicBlock >> validatePhiFunctions [
 				this by checking that the variables are reachable from the correct predecessors"
 				e operands withIndexDo: [ :dependency :index | 
 					self assert: (dependency isInstruction or: [ 
-							 dependency isNullValue or: [ dependency isPhysicalRegister ] ]).
+							 dependency isNullValue or: [ dependency isPhysicalRegister or: [ dependency isDRBlockClosure ] ] ]).
 					self assert: (dependency isInstruction not or: [ 
 							 (self predecessors at: index) checkLivenessOf: dependency ]) ] ] ]
 ]

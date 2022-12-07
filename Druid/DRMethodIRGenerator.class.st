@@ -13,7 +13,10 @@ DRMethodIRGenerator >> executionState: aDRExecutionState [
 { #category : #visiting }
 DRMethodIRGenerator >> finishCodeInterpretation: lastFrame [
 
-	currentBasicBlock return: lastFrame returnValue
+	| returnValue |
+	returnValue := lastFrame mirrorFrame returnValue ifNil: [ lastFrame returnValue ].
+
+	currentBasicBlock return: returnValue
 ]
 
 { #category : #inline }
@@ -51,6 +54,22 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 					  value } ].
 
 	self unexplored
+]
+
+{ #category : #'deferred returns' }
+DRMethodIRGenerator >> mergeDeferredReturns: deferredMethodReturns in: aDRBasicBlock [
+
+	| frameReturns stackFrame |
+	stackFrame := deferredMethodReturns values first topFrame.
+	currentBasicBlock := aDRBasicBlock.
+	frameReturns := deferredMethodReturns keys.
+	frameReturns do: [ :frameReturn | 
+		(aDRBasicBlock hasPredecessor: frameReturn basicBlock) ifTrue: [ "Remove to keep the order" 
+			aDRBasicBlock removePredecessor: frameReturn basicBlock ].
+		frameReturn basicBlock jumpTo: aDRBasicBlock ].
+	self addInstructionFrom: stackFrame method instructionKind: DRPhiFunction operands: frameReturns.
+	stackFrame returnValue: self popOperand.
+	^ self addFrameReturn: stackFrame
 ]
 
 { #category : #visiting }

@@ -29,6 +29,18 @@ DRIRGenerator >> addDeferredReturnState: anExecutionState [
 		  addDeferredReturnState: anExecutionState
 ]
 
+{ #category : #'execution state' }
+DRIRGenerator >> addFrameReturn: aDRStackFrame [
+
+	self assert: aDRStackFrame returnValue isFrameReturn not.
+
+	self
+		addInstructionFrom: aDRStackFrame method
+		instructionKind: DRFrameReturn
+		operands: { aDRStackFrame returnValue }.
+	^ aDRStackFrame returnValue: self popOperand
+]
+
 { #category : #visiting }
 DRIRGenerator >> addInstruction: instruction from: aNode [
 	 
@@ -557,7 +569,7 @@ DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 
 	| block arguments |
 	aRBMessageNode receiver acceptVisitor: self.
-	block := self popOperand.
+	block := self popOperand simplify.
 	arguments := aRBMessageNode arguments collect: [ :e |
 		e acceptVisitor: self.
 		self popOperand ].
@@ -777,16 +789,14 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 
 	self pushOperand: DRNullValue new.
 	executionStateBeforeBranch := executionState copy.
+
 	self popOperand.
-	
+
 	trueBranchBasicBlockOut := self
 		                           branchFrom: self currentBasicBlock
 		                           onEdge: [ :branchEntryBlock | 
-		                           conditionalJump trueBranch:
-			                           branchEntryBlock ]
-		                           doing: [ 
-		                           self interpretBlockBody:
-			                           aRBMessageNode arguments first ].
+		                           conditionalJump trueBranch: branchEntryBlock ]
+		                           doing: [ self interpretBlockBody: aRBMessageNode arguments first ].
 
 	"Merge point"
 	startingBasicBlock := self currentBasicBlock.
@@ -797,16 +807,14 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 	"Could happen that the evaluated block had a non local return.
 	In that case, this block should not arrive to this merge point
 		=> do not add the jump"
-
 	trueBranchBasicBlockOut hasFinalInstruction
 		ifTrue: [ executionState := executionStateBeforeBranch ]
-		ifFalse: [ 
+		ifFalse: [
 			executionState := DRStackMerger new
 				                  builder: self;
 				                  mergeBlock: currentBasicBlock;
-				                  mergeAll: { 
-						                  executionStateBeforeBranch.
-						                  executionState }.
+				                  mergeAll: { executionStateBeforeBranch. executionState copy }.
+			self flag: #TODO. "Add frame return?"
 			trueBranchBasicBlockOut jumpTo: self currentBasicBlock ]
 ]
 
@@ -1464,20 +1472,7 @@ DRIRGenerator >> popFrame [
 { #category : #'frame-access' }
 DRIRGenerator >> popFrameMergingDeferredReturns [
 
-	| topReturns |
-	currentBasicBlock := self topFrame exitBasicBlock.
-
-	topReturns := self topFrame deferredMethodReturns.
-	topReturns ifNotEmpty: [ "If there were returns attached to popped frame, merge all of them in a single state. If there was only one return this is important also to override implicit returns"
-		| mergedState |
-		self assert: currentBasicBlock predecessors size = topReturns size.
-		topReturns := currentBasicBlock predecessors collect: [ :e | topReturns at: e ].
-		mergedState := DRStackMerger new
-			               builder: self;
-			               mergeBlock: currentBasicBlock;
-			               mergeAll: topReturns upTo: self topFrame.
-		executionState := mergedState ].
-
+	self topFrame resolveDeferredMethodReturns: self.
 	^ executionState popFrame
 ]
 
@@ -1684,7 +1679,8 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 		self currentPrimitiveFailureCode: failure.
 
 		primitiveReturn := executionState baseFrame.
-		self currentBasicBlock jumpTo: primitiveReturn exitBasicBlock.
+		"self currentBasicBlock jumpTo: primitiveReturn exitBasicBlock".
+		
 		"Record that this execution stack did a method return
 		We will merge this one with other returned states when this method finishes"
 		primitiveReturn addDeferredReturnState: { 
@@ -1717,10 +1713,9 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 		each isReturn ifTrue: [ ^ self ] ].
 
 	self assert: self topFrame operandStack isEmpty.
-	"If the method has no return statement, it should still return something"
-	self addDeferredReturnState: { 
-			executionState.
-			self currentBasicBlock }
+	"If the method has no return statement, it should return default value"
+	self addFrameReturn: self topFrame.
+
 ]
 
 { #category : #'special cases' }

@@ -40,7 +40,7 @@ DRMessageSend >> generateInlineIRForMethod: classAndMethodToInline [
 
 	irGenerator finishCodeInterpretation: lastFrame.
 
-	^ lastFrame returnValue
+	^ lastFrame mirrorFrame returnValue
 ]
 
 { #category : #inlining }

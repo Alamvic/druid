@@ -188,8 +188,7 @@ DRCompilerCompiler >> optimisations: aCollection [
 DRCompilerCompiler >> optimize: anIR [
 
 	customisation optimize: anIR.
-	optimisations do: [ :optimization | 
-		anIR applyOptimisation: optimization ]
+	optimisations do: [ :optimization | anIR applyOptimisation: optimization ]
 ]
 
 { #category : #accessing }
