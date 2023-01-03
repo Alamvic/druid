@@ -2,7 +2,8 @@ Class {
 	#name : #DRLoad,
 	#superclass : #DRInstruction,
 	#instVars : [
-		'size'
+		'size',
+		'type'
 	],
 	#category : #'Druid-IR'
 }

@@ -266,11 +266,11 @@ DRControlFlowGraph >> fixBackJumps [
 		block successors do: [ :succ | 
 			(block endInstruction isBackJumpTo: succ) ifTrue: [ "If back-jump to block a recursive phi should exist"
 				(succ endInstruction isBackJump or: [ 
-					 (succ phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) not ]) 
-						ifTrue: [ "If not, then is a forward-jump" 
+					 (succ phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ])
+						 not ]) ifTrue: [ "If not, then is a forward-jump" 
 					block endInstruction beForwardJumpTo: succ ] ] ].
 
-		block endInstruction isBackJump not ifTrue: [ "Check if has a back-jump to this block"
+		block endInstruction isBackJump ifFalse: [ "Check if has a back-jump to this block"
 			(block phiFunctions anySatisfy: [ :phi | phi hasRecursiveUse ]) 
 				ifTrue: [ 
 					block backJumpPredecessors do: [ :pred | 

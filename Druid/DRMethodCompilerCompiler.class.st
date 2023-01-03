@@ -2,8 +2,7 @@ Class {
 	#name : #DRMethodCompilerCompiler,
 	#superclass : #DRCompilerCompiler,
 	#instVars : [
-		'primitiveCompilerName',
-		'fallthroughBlock'
+		'primitiveCompilerName'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
