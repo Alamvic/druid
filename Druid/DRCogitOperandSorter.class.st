@@ -63,6 +63,18 @@ DRCogitOperandSorter >> visitBranchIfTrue: aDRBranchIfTrue [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitBytecodeJump: aDRBytecodeJump [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitCall: aDRCall [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 
 	anInstruction operand1 isInstruction ifFalse: [ 
@@ -121,6 +133,12 @@ DRCogitOperandSorter >> visitIntToFloatConversion: aDRIntToFloat [
 	
 	"Int to float conversion is on registers only"
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRIntToFloat
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitJITMessageSend: aDRMessageSend [ 
+
+	"Nothing"
 ]
 
 { #category : #visiting }
@@ -191,6 +209,18 @@ DRCogitOperandSorter >> visitNoop: aDRNoop [
 
 { #category : #visiting }
 DRCogitOperandSorter >> visitPhiFunction: aDRPhiFunction [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitPop: aDRPop [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitPopMany: aDRPopMany [ 
 	
 	"Nothing"
 ]

@@ -5,6 +5,54 @@ Class {
 }
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #genJumpTo:
+			 arguments:
+			 { (self jitCompileTimeExpression: aDRBytecodeJump operand1) })
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
+
+	"self CallRT: ceSendMustBeBooleanTrampoline"
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #CallRT:
+			 arguments: { (RBVariableNode named: aDRCall operand1) })
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMarshall [
+
+	"self marshallSendArguments: numArgs."
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #marshallSendArguments:
+			 arguments:
+			 { (RBLiteralValueNode value:
+				  aDRCogitSendMarshall numberOfArguments) })
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
+
+	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: ordinarySendTrampolines"
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #genMarshalledSend:numArgs:sendTable:
+			 arguments: { 
+				RBLiteralValueNode value: aDRMessageSend cogitSelectorIndex.
+				RBLiteralValueNode value: aDRMessageSend numberOfArguments.
+				RBVariableNode named: 'ordinarySendTrampolines' }).
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitLoadFramePointer: aDRLoadFramePointer [ 
 	
 	self
@@ -47,6 +95,21 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue
 			 receiver: sourceDescriptorAST
 			 selector: #moveToReg:
 			 arguments: (self rtlArgumentsForValue: aDRLoadStackValue result))
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitPop: aDRPop [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #ssPop:
+			 arguments: { (RBLiteralValueNode value: aDRPop numberOfPoppedElements) })
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitPopMany: aDRPopMany [ 
+
+	^ self visitPop: aDRPopMany
 ]
 
 { #category : #visiting }

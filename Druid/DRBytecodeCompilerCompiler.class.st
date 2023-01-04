@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'primitiveCompilerName'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-BytecodeToJITCompilation'
 }
 
 { #category : #API }
@@ -16,6 +16,19 @@ DRBytecodeCompilerCompiler class >> compilePrimitive: primitiveName from: anInte
 		primitiveCompilerName: primitiveCompilerName;
 		compilerClass: aCompilerClass;
 		compile
+]
+
+{ #category : #'generation-IR' }
+DRBytecodeCompilerCompiler >> createInitialBasicBlock [
+	| initial initialBasicBlock |
+	
+	"Probably to be removed? the bytecode does not have a failure code.
+	Although some bytecode use primitive code and use the failure code!!"
+	
+	initialBasicBlock := super createInitialBasicBlock.
+	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
+	initialBasicBlock addInstruction: initial.
+	^ initialBasicBlock
 ]
 
 { #category : #accessing }
@@ -35,12 +48,15 @@ DRBytecodeCompilerCompiler >> initialize [
 		optimisations add: DRCopyPropagation new.
 		optimisations add: DRPhiSimplication new.
 		optimisations add: DRCogitCanonicaliser new.
-		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
+		optimisations add:
+			(DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
-		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination) ].
-	
+		"optimisations add:
+			(DRDeadEdgeSplitting then: DRDeadBranchElimination)" ].
+
 	"Last Phase, make code coggable"
-    optimisations add: DRCogitOperandSorter new.
+	optimisations add: DRCogitOperandSorter new.
+	optimisations add: DRCogitSendMarshallHoisting new
 ]
 
 { #category : #accessing }

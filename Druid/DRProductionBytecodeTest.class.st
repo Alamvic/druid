@@ -7,22 +7,30 @@ Class {
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAdd [
 
-	self compileBytecode: 96 selector: #bytecodePrimAdd thenDo: [ :generator |
-		cogit ssPushRegister: ReceiverResultReg.
-		cogit ssPushRegister: TempReg.
-		
-		"Execute the druid's compiled code"
-		generator value.
+	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
 	
-		"Then return without druid's compiled code"
-		cogit ssTop popToReg: ReceiverResultReg.
-		cogit ssPop: 1.
-		cogit genUpArrowReturn ].
+	self
+		compileBytecode: 96
+		selector: #bytecodePrimAdd
+		thenDo: [ :generator | 
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
 
-	machineSimulator receiverRegisterValue: 0.
-	machineSimulator receiverRegisterValue: 1.
-	self executePrimitiveWithReceiver: (memory integerObjectOf: 17).
-	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: { (memory integerObjectOf: 42) }.
+	self
+		assert:
+		(memory integerValueOf: machineSimulator receiverRegisterValue)
+		equals: 42 + 17
 ]
 
 { #category : #tests }
@@ -90,6 +98,245 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 		withArguments: #()
 		method: method.
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 43)
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeSendLiteral0ToSelf [
+
+	"128 - sendLiteralSelector0ArgsBytecode selector=literal0, numargs=0.
+	Test we do a send and we end up in a trampoline"
+	
+	"Setup the send trampoline"
+	| method selector |
+	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit ordinarySendTrampolineAt: 0 put: sendTrampolineAddress.
+	
+	method := methodBuilder
+		newMethod;
+		literals: { 
+			selector := (memory integerObjectOf: 42) };
+		buildMethod.
+
+	self
+		compileBytecode: 128 + 0 "selector index"
+		selector: #sendLiteralSelector0ArgsBytecode
+		thenDo: [ :generator | 
+			cogit methodObj: method.
+			"The receiver of the send!"
+			cogit ssPushRegister: ReceiverResultReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			cogit Stop ].
+
+	self
+		prepareStackForSendReceiver: (memory integerObjectOf: 17)
+		arguments: #()
+		method: method.
+
+	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
+	self runFrom: initialAddress until: sendTrampolineAddress.
+	"First argument: the selector"
+	self assert: machineSimulator classRegisterValue equals: 0 "selector index".
+	"Third argument: the receiver"
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17)
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeSendLiteral1ToSelf [
+
+	"129 - sendLiteralSelector0ArgsBytecode selector=literal0, numargs=0.
+	Test we do a send and we end up in a trampoline"
+	
+	"Setup the send trampoline"
+	| method selector |
+	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit ordinarySendTrampolineAt: 0 put: sendTrampolineAddress.
+	
+	method := methodBuilder
+		newMethod;
+		literals: { 
+			memory nilObject.
+			selector := (memory integerObjectOf: 42) };
+		buildMethod.
+
+	self
+		compileBytecode: 128 + 1 "selector index"
+		selector: #sendLiteralSelector0ArgsBytecode
+		thenDo: [ :generator | 
+			cogit methodObj: method.
+			"The receiver of the send!"
+			cogit ssPushRegister: ReceiverResultReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			cogit Stop ].
+
+	self
+		prepareStackForSendReceiver: (memory integerObjectOf: 17)
+		arguments: #()
+		method: method.
+
+	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
+	self runFrom: initialAddress until: sendTrampolineAddress.
+	"First argument: the selector"
+	self assert: machineSimulator classRegisterValue equals: 1 "selector index".
+	"Third argument: the receiver"
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17)
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithFalse [
+
+	| method mustBeBooleanTrampolineAddress |
+	
+	mustBeBooleanTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit ceSendMustBeBooleanTrampoline: mustBeBooleanTrampolineAddress.
+	
+	method := methodBuilder
+		newMethod;
+		literals: { (memory integerObjectOf: 42) };
+		bytecodes: #[ 
+			77 "push true"
+			184 "jump if true over next"
+			90 "return false"
+			91 "return true"];
+		numberOfTemporaries: 2;
+		buildMethod.
+
+	self
+		compileBytecode: 184
+		selector: #shortConditionalJumpTrue
+		thenDo: [ :generator | 
+			cogit methodObj: method.
+
+			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+
+			cogit bytecodePC: 16.
+			cogit ssPushRegister: ReceiverResultReg.
+			
+			"Execute the druid's compiled code"
+			cogit bytecodePC: 17.
+			generator value.
+			
+			"We will jump over the stop!"
+			cogit bytecodePC: 18.
+			cogit ssPushConstant: 0.
+			cogit genReturnTopFromMethod.
+			cogit Stop.
+
+			
+			cogit bytecodePC: 19.
+			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
+			cogit ssPushConstant: 1.
+			cogit genReturnTopFromMethod. ].
+
+	"self
+		prepareStackForSendReceiver: memory trueObject
+		arguments: #()
+		method: method.
+	self runFrom: initialAddress until: mustBeBooleanTrampolineAddress."
+	self executePrimitiveWithReceiver: memory falseObject.
+
+	"Did it jump over?"
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithTrue [
+
+	| method mustBeBooleanTrampolineAddress |
+	
+	mustBeBooleanTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit ceSendMustBeBooleanTrampoline: mustBeBooleanTrampolineAddress.
+	
+	method := methodBuilder
+		newMethod;
+		literals: { (memory integerObjectOf: 42) };
+		bytecodes: #[ 
+			77 "push true"
+			184 "jump if true over next"
+			90 "return false"
+			91 "return true"];
+		numberOfTemporaries: 2;
+		buildMethod.
+
+	self
+		compileBytecode: 184
+		selector: #shortConditionalJumpTrue
+		thenDo: [ :generator | 
+			cogit methodObj: method.
+
+			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+
+			cogit bytecodePC: 16.
+			cogit ssPushRegister: ReceiverResultReg.
+			
+			"Execute the druid's compiled code"
+			cogit bytecodePC: 17.
+			generator value.
+			
+			"We will jump over the stop!"
+			cogit bytecodePC: 18.
+			cogit ssPushConstant: 0.
+			cogit genReturnTopFromMethod.
+			cogit Stop.
+
+			
+			cogit bytecodePC: 19.
+			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
+			cogit ssPushConstant: 1.
+			cogit genReturnTopFromMethod. ].
+
+	"self
+		prepareStackForSendReceiver: memory trueObject
+		arguments: #()
+		method: method.
+	self runFrom: initialAddress until: mustBeBooleanTrampolineAddress."
+	self executePrimitiveWithReceiver: memory trueObject.
+
+	"Did it jump over?"
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeShortUnconditionalJump [
+
+	| method |
+	method := methodBuilder
+		newMethod;
+		literals: { (memory integerObjectOf: 42) };
+		bytecodes: #[ 176 90 "return false" 91 "return true"];
+		numberOfTemporaries: 2;
+		buildMethod.
+
+	self
+		compileBytecode: 176
+		selector: #shortUnconditionalJump
+		thenDo: [ :generator | 
+			cogit methodObj: method.
+
+			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+			
+			"Execute the druid's compiled code"
+			cogit bytecodePC: 16.
+			generator value.
+			
+			"We will jump over the stop!"
+			cogit bytecodePC: 17.
+			cogit genReturnFalse.
+			cogit Stop.
+
+			cogit bytecodePC: 18.
+			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 18) nextOpcodeIndex: cogit opcodeIndex.
+			cogit genReturnTrue.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 17).
+	"Did it jump over?"
+	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
 ]
 
 { #category : #tests }

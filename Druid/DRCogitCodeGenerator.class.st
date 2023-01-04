@@ -247,6 +247,13 @@ DRCogitCodeGenerator >> initialize [
 	visitedBlocks := Dictionary new
 ]
 
+{ #category : #compiling }
+DRCogitCodeGenerator >> jitCompileTimeExpression: aDRAdd [ 
+	
+	^ DRJITCompileTimeExpressionGenerator new visit: aDRAdd
+	
+]
+
 { #category : #'jump-management' }
 DRCogitCodeGenerator >> labelForBlock: aDRBasicBlock [ 
 	
@@ -743,6 +750,13 @@ DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitNoOverflow: aDRNoOverflow inBranch: aDRBranchIfCondition [ 
+
+	"Do nothing... Should we make sure nobody overwrote the overflow flag?"
+	^ aDRBranchIfCondition 
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitNoop: aDRNoop [ 
 	
 	"Do nothing"
@@ -823,9 +837,11 @@ DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfConditio
 	| comparands |
 	comparands := aDRBranchIfCondition operands.
 	aDRBranchIfCondition operands second isConstant ifTrue: [ 
-		aDRBranchIfCondition replaceBy: aDRBranchIfCondition.
 		comparands := comparands reversed ].
-	self twoOperandCogitRTL: #Tst operands: comparands instruction: aDRBranchIfCondition.
+	self
+		twoOperandCogitRTL: #Tst
+		operands: comparands
+		instruction: aDRBranchIfCondition.
 	^ aDRBranchIfCondition
 ]
 

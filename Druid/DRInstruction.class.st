@@ -162,6 +162,12 @@ DRInstruction >> hasUser: anInstruction [
 ]
 
 { #category : #testing }
+DRInstruction >> hasUsers [
+	
+	^ users notEmpty
+]
+
+{ #category : #testing }
 DRInstruction >> hash [
 
 	^ self result hash
@@ -242,6 +248,12 @@ DRInstruction >> isBranchIfTrue [
 ]
 
 { #category : #testing }
+DRInstruction >> isCogitSendMarshall [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isConditionalBranch [
 	
 	^ false
@@ -284,6 +296,12 @@ DRInstruction >> isJITCompileTimeExpression: aString [
 ]
 
 { #category : #testing }
+DRInstruction >> isJITMessageSend [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isModulo [
 	
 	^ false
@@ -304,6 +322,12 @@ DRInstruction >> isNonConditionalJump [
 { #category : #testing }
 DRInstruction >> isPhiFunction [
 
+	^ false
+]
+
+{ #category : #testing }
+DRInstruction >> isPop [
+	
 	^ false
 ]
 

@@ -215,6 +215,7 @@ DRIRGenerator >> initialize [
 DRIRGenerator >> initializeSpecialCases [
 
 	"Control flow and comparisons"
+	specialCases at: #druidIgnore: put: #ignoreMessageWith:.
 	specialCases at: #value put: #interpretBlockValueWith:.
 	specialCases at: #value: put: #interpretBlockValueWith:.
 	specialCases at: #cull: put: #interpretBlockCullWith:.
@@ -243,6 +244,7 @@ DRIRGenerator >> initializeSpecialCases [
 	
 	"Arithmetics for SmallIntegers"
 	specialCases at: #sumSmallInteger:withSmallInteger:ifOverflow: put: #interpretSumSmallIntegerWithOverflowWith:.
+	specialCases at: #sumSmallInteger:withSmallInteger:ifNotOverflow: put: #interpretSumSmallIntegerWithNoOverflowWith:.
 	specialCases at: #subSmallInteger:withSmallInteger:ifOverflow: put: #interpretSubSmallIntegerWithOverflowWith:.
 	specialCases at: #multiplySmallInteger:withSmallInteger:ifOverflow: put: #interpretMultiplySmallIntegerWithOverflowWith:.
 
@@ -253,6 +255,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #asFloat put: #interpretAsFloatWith:.
 	specialCases at: #rawFloatBits put: #interpretRawFloatBitsWith:.
 	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
+	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
 	
 
 	"Memory accesses"
@@ -539,6 +542,12 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [ 
 
 	self interpretBlockBody: aRBMessageNode arguments first
+]
+
+{ #category : #accessing }
+DRIRGenerator >> interpretCCoerceWith: aRBMessageNode [
+
+	^ aRBMessageNode arguments first acceptVisitor: self
 ]
 
 { #category : #'special cases' }
@@ -973,12 +982,15 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 	elementsToPop isInteger
 		ifFalse: [ self error: 'expected an integer value' ].
 
-	"This will be pushed automatically"
-	aRBMessageNode arguments second acceptVisitor: self.
 	self pop: elementsToPop.
-	self push: self popOperand.
 
-	"pop:thenPush: does not return an interesting value"
+	"If it's a pop with push..."
+	aRBMessageNode arguments size > 1 ifTrue: [
+		"This will be pushed automatically"
+		aRBMessageNode arguments second acceptVisitor: self.
+		self push: self popOperand ].
+
+	"pop:[thenPush:] does not return an interesting value"
 	self pushOperand: DRNullValue new.
 ]
 
@@ -1127,7 +1139,7 @@ DRIRGenerator >> interpretSubstractWith: aRBMessageNode [
 ]
 
 { #category : #'special cases' }
-DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
+DRIRGenerator >> interpretSumSmallInteger: aRBMessageNode withOverflowCondition: condition [
 
 	"Interpret the two numbers and add them up"
 
@@ -1149,16 +1161,38 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 		                   instantiateNoResultInstruction:
 		                   DRBranchIfCondition
 		                   operands: { 
-				                   DROverflow new.
+				                   condition.
 				                   addResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	joinInstruction := self
 		                   newOverflowBlockDuring: [ 
-		                   self interpretBlockBody:
-			                   aRBMessageNode arguments third ]
+			                   | block |
+			                   aRBMessageNode arguments third acceptVisitor:
+				                   self.
+			                   block := self popOperand.
+			                   self
+				                   interpretCode: block
+				                   receiver: block
+				                   arguments: { addResult } ]
 		                   fromJump: conditionalJump
 		                   joinValue: addResult
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretSumSmallIntegerWithNoOverflowWith: aRBMessageNode [
+
+	^ self
+		  interpretSumSmallInteger: aRBMessageNode
+		  withOverflowCondition: DRNoOverflow new
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
+
+	^ self
+		  interpretSumSmallInteger: aRBMessageNode
+		  withOverflowCondition: DROverflow new
 ]
 
 { #category : #'special cases' }
