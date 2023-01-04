@@ -129,6 +129,12 @@ DRIRGenerator >> copyExecutionStateOf: startingBasicBlock [
 	^ copy	
 ]
 
+{ #category : #factory }
+DRIRGenerator >> createInitialBasicBlock [
+
+	^ self newBasicBlock
+]
+
 { #category : #'basic-blocks' }
 DRIRGenerator >> currentBasicBlock [
 	^ currentBasicBlock
@@ -836,19 +842,23 @@ DRIRGenerator >> interpretLoadUint8AtWith: aRBMessageNode [
 ]
 
 { #category : #'special cases' }
-DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [ 
-	
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	
-	^ self currentBasicBlock addInstruction: (DRStore operands: { operand1 . operand2 })
+DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [
+
+	| address value |
+	address := self visitOperand: aRBMessageNode arguments first.
+	value := self visitOperand: aRBMessageNode arguments second.
+
+
+	^ self addInstructionFrom: aRBMessageNode instructionKind: DRLoad operands: { 
+			  8 asDRValue. "Assume 64 bits for now"
+			  address.
+			  value }
 ]
 
 { #category : #'special cases' }
 DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [ 
 	
-	| result address |
+	| address |
 	
 	address := self visitOperand: aRBMessageNode arguments first.
 	

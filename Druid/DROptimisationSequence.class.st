@@ -26,6 +26,18 @@ DROptimisationSequence >> initialize [
 	sequence := OrderedCollection new
 ]
 
+{ #category : #printing }
+DROptimisationSequence >> prettyPrint [
+
+	^ String streamContents: [ :stream | 
+		  sequence allButLastDo: [ :opt | 
+			  stream
+				  nextPutAll: opt prettyPrint;
+				  nextPutAll: '->' ].
+
+		  stream nextPutAll: sequence last prettyPrint ]
+]
+
 { #category : #accessing }
 DROptimisationSequence >> then: anotherOptimisation [
 

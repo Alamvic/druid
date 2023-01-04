@@ -5,12 +5,6 @@ Class {
 }
 
 { #category : #accessing }
-DRBytecodeIRGenerator >> currentPrimitiveFailureCode: anInstruction [
-	
-	self executionState primitiveFailureCode: anInstruction
-]
-
-{ #category : #accessing }
 DRBytecodeIRGenerator >> initialize [
 
 	super initialize.

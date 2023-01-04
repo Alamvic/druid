@@ -2,8 +2,7 @@ Class {
 	#name : #DRBytecodeCompilerCompiler,
 	#superclass : #DRCompilerCompiler,
 	#instVars : [
-		'primitiveCompilerName',
-		'fallthroughBlock'
+		'primitiveCompilerName'
 	],
 	#category : #'Druid-BytecodeToJITCompilation'
 }
@@ -67,10 +66,11 @@ DRBytecodeCompilerCompiler >> newIRGenerator [
 ]
 
 { #category : #accessing }
-DRBytecodeCompilerCompiler >> numberOfArguments: aCollection [ 
-	
-	"A bytecode instruction has no explicit arguments"
-	^ 0
+DRBytecodeCompilerCompiler >> numberOfArgumentsFor: aMethod [
+
+	(aMethod ast hasPragmaNamed: #numberOfArguments:) ifFalse: [ ^ 0 ].
+
+	^ (aMethod ast pragmaNamed: #numberOfArguments:) arguments first value
 ]
 
 { #category : #accessing }

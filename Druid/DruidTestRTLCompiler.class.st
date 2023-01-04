@@ -800,11 +800,9 @@ DruidTestRTLCompiler >> gen_primitiveClassVariableWithBranch [
 	self MoveR: ReceiverResultReg R: TempReg.
 	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpZero: 0.
-	self MoveCq: 36 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveCq: 35 R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	self genPrimReturn.
@@ -1528,9 +1526,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1544,9 +1542,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]

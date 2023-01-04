@@ -77,8 +77,8 @@ DRCogitOperandSorter >> visitCall: aDRCall [
 { #category : #visiting }
 DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 
-	anInstruction operand1 isInstruction not
-		ifTrue: [ anInstruction reverseOperands ].
+	anInstruction operand1 isInstruction ifFalse: [ 
+		anInstruction reverseOperands ].
 	self extractFirstOperandInCopyIfNecessaryFrom: anInstruction
 ]
 

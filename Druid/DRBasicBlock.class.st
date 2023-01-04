@@ -679,6 +679,12 @@ DRBasicBlock >> load: anAddress [
 ]
 
 { #category : #building }
+DRBasicBlock >> loadArgument: index [
+
+	^ self addInstruction: (self instructionFactory loadArgument: index)
+]
+
+{ #category : #building }
 DRBasicBlock >> loadFramePointer [
 
 	^ self addInstruction: self instructionFactory loadFramePointer
@@ -801,7 +807,7 @@ DRBasicBlock >> phiWith: aValue with: aValue2 [
 	^ self phiWithVariables: { aValue. aValue2 }
 ]
 
-{ #category : #factory }
+{ #category : #building }
 DRBasicBlock >> phiWithVariables: variables [
 
 	| finalVariables allPosibleVariables phi |

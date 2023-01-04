@@ -57,12 +57,12 @@ DRPathFactory >> generatePaths [
 	| maxBatch done |
 	self createInitialEdge.
 	
-	maxBatch := 6000.
+	maxBatch := 10000.
 	done := Set new.
 	
 	{ cfg edges first } asOrderedCollection whileNotEmpty: [ :parentEdge :worklist :backJumps | 
 		| sourceBlock |
-		worklist size > maxBatch ifTrue: [ 1halt "Too much work: should stop path-based optimisations" ].
+		worklist size > maxBatch ifTrue: [ ^ false.  "Too much work: should stop path-based optimisations" ].
 		sourceBlock := parentEdge destination.
 		sourceBlock successors withIndexDo: [ :successor :index | 
 			| newEdge shouldStop |			
@@ -80,5 +80,7 @@ DRPathFactory >> generatePaths [
 				worklist add: newEdge ].
 			"Mark backJumps"
 			(sourceBlock endInstruction isBackJumpTo: successor) ifTrue: [ 
-				backJumps add: sourceBlock -> successor ] ] ]
+				backJumps add: sourceBlock -> successor ] ] ].
+	
+	^ true
 ]

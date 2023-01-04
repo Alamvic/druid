@@ -4,6 +4,52 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #factory }
+DRMetaCompilerIRGenerator >> createInitialBasicBlock [
+	| initialBasicBlock |
+	initialBasicBlock := super createInitialBasicBlock.
+	self currentPrimitiveFailureCode: (initialBasicBlock copy: 0).
+	^ initialBasicBlock
+]
+
+{ #category : #accessing }
+DRMetaCompilerIRGenerator >> currentPrimitiveFailureCode: anInstruction [
+	
+	self executionState primitiveFailureCode: anInstruction
+]
+
+{ #category : #visiting }
+DRMetaCompilerIRGenerator >> finishCodeInterpretation: lastFrame [
+
+	"Plug the IR with the two exit blocks"
+
+	| conditionalJump |
+	self spillStack.
+
+	conditionalJump := self
+		                   instantiateNoResultInstruction: DRBranchIfCondition
+		                   operands: { 
+				                   DREqualsThanComparison new.
+				                   executionState primitiveFailureCode.
+				                   0 asDRValue }.
+	currentBasicBlock endInstruction: conditionalJump.
+	controlFlowGraph primitiveExitBlock: currentBasicBlock.
+
+	conditionalJump trueBranch: controlFlowGraph successExitBlock.
+	controlFlowGraph successExitBlock addPredecessor: currentBasicBlock.
+
+	conditionalJump falseBranch: controlFlowGraph failureExitBlock.
+	controlFlowGraph failureExitBlock addPredecessor: currentBasicBlock.
+
+	controlFlowGraph successExitBlock endInstruction: (self
+			 instantiateNoResultInstruction: DRReturn
+			 operands: { (DRConstantValue value: numberOfArguments + 1) }).
+
+	"Make the end instruction of the failure exit finish with a Noop"
+	controlFlowGraph failureExitBlock endInstruction:
+		(self instantiateNoResultInstruction: DRPrimitiveFail)
+]
+
 { #category : #initialization }
 DRMetaCompilerIRGenerator >> initializeSpecialCases [
 
@@ -26,6 +72,15 @@ DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 			  self currentMethod methodClass superclass lookupSelector:
 				  aRBMessageNode selector ]
 		  ifFalse: [ receiver type lookupSelector: aRBMessageNode selector ]
+]
+
+{ #category : #accessing }
+DRMetaCompilerIRGenerator >> numberOfArguments: aValue [ 
+	
+	super numberOfArguments: aValue.
+	self push: self receiverRegister.
+	0 to: numberOfArguments - 1 do: [ :i |
+		self push: (self argRegisterNumber: i) ]
 ]
 
 { #category : #visiting }
