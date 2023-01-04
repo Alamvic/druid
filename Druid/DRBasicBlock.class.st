@@ -119,43 +119,12 @@ DRBasicBlock >> backJumpTo: aDRBasicBlock [
 
 { #category : #transformations }
 DRBasicBlock >> basicDuplicate [
-	
-	| instructionCopy |
-	^ controlFlowGraph newBasicBlockWith: [ :newBlock | | oldToNew |
-		oldToNew := Dictionary new.
-		self predecessors do: [ :p | 
-			newBlock addPredecessor: p ].
 
-		"Duplicate instructions"
-		self instructions allButLast do: [ :instruction |
-			oldToNew at: instruction put: (instructionCopy := instruction copy).
-			instructionCopy clearUsers.
-			instructionCopy operands do: [ :e |
-				e addUser: instructionCopy.
-			].
-			newBlock addInstruction: instructionCopy.
-		 ].
-		oldToNew at: self endInstruction put: (instructionCopy := self endInstruction copy).
-		newBlock endInstruction: instructionCopy.
-		newBlock endInstruction operands do: [ :e |
-				e addUser: newBlock endInstruction.
-		].
-
-		"Rewrite all operands"
-		newBlock instructions do: [ :newInstruction |
-			newInstruction users copy do: [ :user | | replacement |
-				"If an user comes from another block, keep using it"
-				replacement := oldToNew at: user ifAbsent: [ user ].
-				newInstruction removeUser: user.
-				newInstruction addUser: replacement.
-			].
-			newInstruction operands copy do: [ :operand | | replacement |
-				"If an operand comes from another block, keep using it"
-				replacement := oldToNew at: operand ifAbsent: [ operand ].
-				newInstruction replaceOperand: operand by: replacement.
-			]
-		].
-	]	
+	^ 	DRBlockDuplicator new
+		controlFlowGraph: controlFlowGraph;
+		basicDuplicateBlock: self;
+		patchInstructionsIn: self;
+		yourself
 ]
 
 { #category : #accessing }
