@@ -1343,7 +1343,7 @@ DRIRGenerator >> newCFG [
 { #category : #'special cases' }
 DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump joinValue: result [
 
-	| overflowBlock branchBlock resultBlock executionStateBeforeBranch |
+	| overflowBlock branchBlock resultBlock executionStateBeforeBranch overflowBlockOut |
 	branchBlock := conditionalJump basicBlock.
 	resultBlock := result basicBlock.
 
@@ -1352,6 +1352,7 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 	self popOperand.
 
 	overflowBlock := self newBasicBlockDuring: continuation.
+	overflowBlockOut := currentBasicBlock.
 	conditionalJump trueBranch: overflowBlock.
 	overflowBlock addPredecessor: branchBlock.
 
@@ -1361,7 +1362,7 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 	"Could happen that the evaluated block had a non local return.
 	In that case, this block should not arrive to this merge point
 		=> do not add the jump"
-	overflowBlock hasFinalInstruction
+	overflowBlockOut hasFinalInstruction
 		ifTrue: [ executionState := executionStateBeforeBranch ]
 		ifFalse: [ 
 			executionState := DRStackMerger new
@@ -1370,7 +1371,7 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 				                  mergeAll: { 
 						                  executionState.
 						                  executionStateBeforeBranch }.
-			overflowBlock jumpTo: self currentBasicBlock ].
+			overflowBlockOut jumpTo: self currentBasicBlock ].
 
 	conditionalJump falseBranch
 		ifNil: [ "If false branch doesnt exist then resultBlock = branchBlock"
