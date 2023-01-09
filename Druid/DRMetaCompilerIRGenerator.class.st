@@ -88,6 +88,12 @@ DRMetaCompilerIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiv
 
 	| instruction method |
 	method := self methodFor: aRBMessageNode withReceiver: receiver.
+	
+	"If the method has a special ir builder case, use that"
+	method ast pragmaNamed: #druidIRBuilder: ifPresent: [ :pragma |
+		^ self perform: pragma arguments first value withArguments: { aRBMessageNode } ].
+	
+	"Otherwise, interpret the method recursively"
 	instruction := self
 		               instantiate: DRMethod
 		               operands: { receiver } , arguments.

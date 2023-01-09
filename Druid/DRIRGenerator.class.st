@@ -975,20 +975,20 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 	Pop: keep track of the operand stack and remove one element
 	Push: move the value to the physical register assigned to the current stack position"
 	
-	| elementsToPop elementsToPopNode |
+	| elementsToPop elementsToPopNode toPush |
 	aRBMessageNode arguments first acceptVisitor: self.
 	elementsToPopNode := self popOperand.
 	elementsToPop := elementsToPopNode simpleConstantFold.
 	elementsToPop isInteger
 		ifFalse: [ self error: 'expected an integer value' ].
 
-	self pop: elementsToPop.
-
-	"If it's a pop with push..."
+	"If it's a pop with push we should evaluate the pushed argument before popping in case it uses the stack elements"
 	aRBMessageNode arguments size > 1 ifTrue: [
-		"This will be pushed automatically"
 		aRBMessageNode arguments second acceptVisitor: self.
-		self push: self popOperand ].
+		toPush := self popOperand ].
+	self pop: elementsToPop.
+	aRBMessageNode arguments size > 1 ifTrue: [
+		self push: toPush ].
 
 	"pop:[thenPush:] does not return an interesting value"
 	self pushOperand: DRNullValue new.
@@ -1038,7 +1038,7 @@ DRIRGenerator >> interpretSizeofWith: aRBMessageNode [
 { #category : #'special cases - stack' }
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
-	self pushOperand: self executionState topVM
+	self pushOperand: self stackTop
 ]
 
 { #category : #'special cases - stack' }
@@ -1343,7 +1343,7 @@ DRIRGenerator >> newCFG [
 { #category : #'special cases' }
 DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump joinValue: result [
 
-	| overflowBlock branchBlock resultBlock executionStateBeforeBranch |
+	| overflowBlock branchBlock resultBlock executionStateBeforeBranch overflowBlockOut |
 	branchBlock := conditionalJump basicBlock.
 	resultBlock := result basicBlock.
 
@@ -1352,6 +1352,7 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 	self popOperand.
 
 	overflowBlock := self newBasicBlockDuring: continuation.
+	overflowBlockOut := currentBasicBlock.
 	conditionalJump trueBranch: overflowBlock.
 	overflowBlock addPredecessor: branchBlock.
 
@@ -1361,7 +1362,7 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 	"Could happen that the evaluated block had a non local return.
 	In that case, this block should not arrive to this merge point
 		=> do not add the jump"
-	overflowBlock hasFinalInstruction
+	overflowBlockOut hasFinalInstruction
 		ifTrue: [ executionState := executionStateBeforeBranch ]
 		ifFalse: [ 
 			executionState := DRStackMerger new
@@ -1370,7 +1371,7 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 				                  mergeAll: { 
 						                  executionState.
 						                  executionStateBeforeBranch }.
-			overflowBlock jumpTo: self currentBasicBlock ].
+			overflowBlockOut jumpTo: self currentBasicBlock ].
 
 	conditionalJump falseBranch
 		ifNil: [ "If false branch doesnt exist then resultBlock = branchBlock"
