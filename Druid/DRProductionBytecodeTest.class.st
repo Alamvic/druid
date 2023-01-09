@@ -34,6 +34,39 @@ DRProductionBytecodeTest >> testBytecodeAdd [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodeAddOverflow [
+
+	sendTrampolineAddress := self compile: [ "In case of overflow, this routine is called and returns the receiver unchanged"
+		cogit RetN: 0 ].
+	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
+
+	self
+		compileBytecode: 96
+		selector: #bytecodePrimAdd
+		thenDo: [ :generator | 
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPop: 1.
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	"Should run, overflow, jump to the trampoline, and 17"
+	self
+		executePrimitiveWithReceiver:
+		(memory integerObjectOf: memory maxSmallInteger)
+		withArguments: { (memory integerObjectOf: 1) }.
+	
+	self
+		assert: (memory integerValueOf: machineSimulator receiverRegisterValue)
+		equals: memory maxSmallInteger
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 
 	self compileBytecode: 83 selector: #duplicateTopBytecode thenDo: [ :generator |
