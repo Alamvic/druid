@@ -156,6 +156,14 @@ DRInstruction >> hasOperand: anInstruction [
 ]
 
 { #category : #testing }
+DRInstruction >> hasSameExpressionAs: instruction [
+
+	self class = instruction class ifTrue: [ 
+		self operands = instruction operands ifTrue: [ ^ true ] ].
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> hasUser: anInstruction [
 	
 	^ users includes: anInstruction
