@@ -5,6 +5,19 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+DRSSAPRE >> checkForRedundancyCrossBlocks: aDRControlFlowGraphForTesting [
+
+	| instructionList instruction1 instruction2 |
+	instructionList := OrderedCollection new.
+	aDRControlFlowGraphForTesting blocks do: [ :aBlock | 
+		aBlock instructions do: [ :i | (i value isJump ) ifFalse:[ instructionList add: i ]]].
+	instruction1 := instructionList at: 1.
+	instruction2 := instructionList at: 2.
+	(instruction1 hasSameExpressionAs: instruction2) ifTrue: [ instruction2 replaceOperandAtIndex: 1 by: instruction1 ]
+	
+]
+
+{ #category : #'as yet unclassified' }
 DRSSAPRE >> checkForRedundancyWithinBlock: aDRBasicBlock [
 
 	| instruction1 instruction2 |
@@ -27,7 +40,11 @@ DRSSAPRE >> compareConstantExpression: e1 and: e2 [
 { #category : #accessing }
 DRSSAPRE >> doApply: cfg [
 
-	cfg blocks do: [ :aBlock | self checkForRedundancyWithinBlock: aBlock ]
+	cfg blocks size < 2
+		ifTrue: [ 
+			cfg blocks do: [ :aBlock | 
+				self checkForRedundancyWithinBlock: aBlock ] ]
+		ifFalse: [ self checkForRedundancyCrossBlocks: cfg ]
 ]
 
 { #category : #initialization }
