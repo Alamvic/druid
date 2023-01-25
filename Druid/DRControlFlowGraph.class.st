@@ -284,6 +284,12 @@ DRControlFlowGraph >> generatePaths [
 	^ (DRPathFactory withCFG: self) generatePaths
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> hasConditionJump [
+
+	^ self allConditionalJumps isNotEmpty
+]
+
 { #category : #edges }
 DRControlFlowGraph >> incomingEdgesFor: aBlock [
 
