@@ -17,7 +17,7 @@ DRCode >> codeNode [
 ]
 
 { #category : #activation }
-DRCode >> defaultReturnValue [
+DRCode >> defaultReturnValue: receiver [
 
 	^ self subclassResponsibility
 ]
@@ -45,9 +45,8 @@ DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
 		entryBasicBlock: newMethodEntry;
 		exitBasicBlock: interpreter basicNewBasicBlock.
 
-	self codeNode temporaryNames , self codeNode argumentNames do: [ :e | 
-		frame defineVariableNamed: e ].
-	frame returnValue: self defaultReturnValue.
+	self codeNode temporaryNames , self codeNode argumentNames do: [ :e | frame defineVariableNamed: e ].
+	frame returnValue: (self defaultReturnValue: aReceiver).
 	interpreter pushFrame: frame
 ]
 

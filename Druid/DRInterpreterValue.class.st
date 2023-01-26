@@ -11,7 +11,7 @@ Class {
 DRInterpreterValue class >> value: anInterpreterObject [
 
 	^ self new
-		value: anInterpreterObject;
+		value: anInterpreterObject value;
 		yourself
 ]
 

@@ -53,7 +53,7 @@ DRBlockClosure >> codeNode [
 ]
 
 { #category : #activation }
-DRBlockClosure >> defaultReturnValue [
+DRBlockClosure >> defaultReturnValue: receiver [
 
 	^ DRNullValue new
 ]

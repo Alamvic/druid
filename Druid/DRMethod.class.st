@@ -28,9 +28,9 @@ DRMethod >> codeNode [
 ]
 
 { #category : #activation }
-DRMethod >> defaultReturnValue [
+DRMethod >> defaultReturnValue: receiver [
 
-	^ DRInterpreterValue value: nil "TODO: interpreter"
+	^ DRInterpreterValue value: receiver
 ]
 
 { #category : #executing }
