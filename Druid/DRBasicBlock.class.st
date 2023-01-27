@@ -1099,6 +1099,12 @@ DRBasicBlock >> tailDuplicate [
 	^ { self } , duplicatedBlocks
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> third [
+	
+	^ self allInstructions third
+]
+
 { #category : #validating }
 DRBasicBlock >> validate [
 

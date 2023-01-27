@@ -67,12 +67,7 @@ DRSSAPRE >> compareConstantExpression: e1 and: e2 [
 { #category : #accessing }
 DRSSAPRE >> doApply: cfg [
 
-	cfg blocks size < 2
-		ifTrue: [ 
-			cfg blocks do: [ :aBlock | 
-				self checkForRedundancyWithinBlock: aBlock ] ]
-		ifFalse: [ cfg hasConditionJump ifFalse:[ self checkForRedundancyCrossBlocks: cfg ]
-			ifTrue:[self checkForRedundancyCrossBranch: cfg] ]
+	self lookForRedundancy: cfg.
 ]
 
 { #category : #initialization }
@@ -83,22 +78,21 @@ DRSSAPRE >> initialize [
 ]
 
 { #category : #'as yet unclassified' }
-DRSSAPRE >> nameLater: cfg [
-"
-a blocklist for collecting blocks
-an expression list for expression in each block
-left operand list for each expression of a block
-right operand list for each expression of a block
-compare first the left operand list if same var 
-then compare right operands if not same
-return ".
-"	blocklist := OrderedCollection new.
-	expressionlist := OrderedCollection new.
-	[ :e | e in cfg  ]
-	for each in cfg: add block to blocklist
-	for each in blocklist: 
-		for expression in each:
-			add right operand to rightlist
+DRSSAPRE >> lookForRedundancy: cfg [
+
+	| instruction |
+	instruction := cfg blocks removeFirst instructions at: 1.
 	
-	compare"
+	cfg blocksInReversePostOrderDo: 
+	[ :b | (b = cfg firstBasicBlock) ifTrue: 
+		[b instructions allButFirstDo:
+			[ :i | ((i isJump not and: [ i isNoop not ]) and: [ i hasSameExpressionAs: instruction ]) 
+				ifTrue: [ i replaceOperandAtIndex: 1 by: instruction ]	
+			]
+		]
+		    ifFalse:[ b instructions do:
+			[ :i | ((i isJump not and: [ i isNoop not ]) and: [ i hasSameExpressionAs: instruction ]) 
+				ifTrue: [ i replaceOperandAtIndex: 1 by: instruction ]	
+			]]
+	] 
 ]
