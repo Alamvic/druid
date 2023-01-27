@@ -88,6 +88,27 @@ DRSSAPRETest >> testFullRedundancyCaseWithConstantInSingleBlock [
 ]
 
 { #category : #tests }
+DRSSAPRETest >> testFullRedundancyCaseWithSingleConstExpressInLinearCF [
+	"case C: full redundancy linear CF with single instruction
+	T1 = e → T2 = e
+	⇒ 
+	T1 = e → T2 = T1 "
+
+	| cfg instruction1 instruction2 |
+	
+	cfg := self setUpCFG: 2.
+	
+	instruction1 := cfg b1 copy: 3.
+	instruction2 := cfg b2 copy: 3.
+	
+	optimisation applyTo: cfg.
+	
+	self assert: cfg b1 first isCopy.
+	self assert: cfg b2 first operand1 equals: instruction1.
+	
+]
+
+{ #category : #tests }
 DRSSAPRETest >> testNoRedundancyCaseWithConstantInDiffBlock [
 	"case A: no redundancy
 	T1 = 3
