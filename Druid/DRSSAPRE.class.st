@@ -67,7 +67,8 @@ DRSSAPRE >> compareConstantExpression: e1 and: e2 [
 { #category : #accessing }
 DRSSAPRE >> doApply: cfg [
 
-	self lookForRedundancy: cfg.
+
+	self lookForRedundancy: cfg
 ]
 
 { #category : #initialization }
@@ -80,19 +81,14 @@ DRSSAPRE >> initialize [
 { #category : #'as yet unclassified' }
 DRSSAPRE >> lookForRedundancy: cfg [
 
-	| instruction |
-	instruction := cfg blocks removeFirst instructions at: 1.
-	
-	cfg blocksInReversePostOrderDo: 
-	[ :b | (b = cfg firstBasicBlock) ifTrue: 
-		[b instructions allButFirstDo:
-			[ :i | ((i isJump not and: [ i isNoop not ]) and: [ i hasSameExpressionAs: instruction ]) 
-				ifTrue: [ i replaceOperandAtIndex: 1 by: instruction ]	
-			]
-		]
-		    ifFalse:[ b instructions do:
-			[ :i | ((i isJump not and: [ i isNoop not ]) and: [ i hasSameExpressionAs: instruction ]) 
-				ifTrue: [ i replaceOperandAtIndex: 1 by: instruction ]	
-			]]
-	] 
+	| visitedInstructions |
+	visitedInstructions := OrderedCollection new.
+
+	cfg blocksInReversePostOrderDo: [ :block | 
+		block instructions do: [ :instruction | 
+			visitedInstructions do: [ :visitedInstruction | 
+				(instruction isCopy and: [ 
+					 instruction hasSameExpressionAs: visitedInstruction ]) ifTrue: [ 
+					instruction replaceOperandAtIndex: 1 by: visitedInstruction ] ].
+			visitedInstructions add: instruction ] ].
 ]
