@@ -40,7 +40,7 @@ DRSSAPRETest >> testFullRedundancyCaseWith3ConstExpressInSingleBlock [
 
 	self assert: cfg b1 third isCopy.
 	self assert: cfg b1 third operand1 equals: instruction1.
-	
+	cfg inspect.
 ]
 
 { #category : #tests }
