@@ -44,6 +44,27 @@ DRSSAPRETest >> testFullRedundancyCaseWith3ConstExpressInSingleBlock [
 ]
 
 { #category : #tests }
+DRSSAPRETest >> testFullRedundancyCaseWithAlternateConstExpressInLinearCF [
+	"case C: full redundancy linear CF with alternate instructions
+		T1 = e → T2 = e2 → T3 = e → T4= e2"
+
+	| cfg instruction1 instruction2 instruction3 |
+	
+	cfg := self setUpCFG: 3.
+	instruction1 := cfg b1 copy: 1.
+	instruction2 := cfg b2 copy: 3.
+	instruction3 := cfg b3 copy: 1.
+
+	cfg inspect.
+	optimisation applyTo: cfg.
+	
+	self assert: cfg b1 first isCopy.
+	self assert: cfg b2 first isCopy.
+	self assert: cfg b3 first operand1 equals: instruction1.
+
+]
+
+{ #category : #tests }
 DRSSAPRETest >> testFullRedundancyCaseWithConstantInBranchCF [
 	"case E: full redundancy condition
 T1 = e → T2 = e    → T4
