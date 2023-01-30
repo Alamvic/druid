@@ -1,6 +1,6 @@
 Class {
 	#name : #DRPrimitiveCompilerCompiler,
-	#superclass : #DRCompilerCompiler,
+	#superclass : #DRAbstractMethodCompilerCompiler,
 	#instVars : [
 		'primitiveCompilerName'
 	],
