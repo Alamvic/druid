@@ -186,6 +186,31 @@ DRSSAPRETest >> testNoRedundancyCaseWithConstantInDiffBlock [
 ]
 
 { #category : #tests }
+DRSSAPRETest >> testPartialRedundancyWithSameConstIn234BlockInConditionCF [ 
+"
+T1  → T2 = e  → T4 = e
+      \→  T3 = e /
+⇒ 
+T1  → T2 = e  → T4 = e
+      \→  T3 = e /
+"
+	
+| cfg instruction1 instruction2 instruction3 |
+
+	cfg := self setUpCFGWithConditional: (instructionFactory jumpIf:
+			        (DRPhysicalGeneralPurposeRegister name: 'Parameter')).
+	instruction1 := cfg b2 copy: 3.
+	instruction2 := cfg b3 copy: 3.
+	instruction3 := cfg b4 copy: 3.
+    
+	optimisation insertPhi: cfg.
+	
+	self assert: cfg b4 hasPhiFunctions equals: true.
+	self assert: (cfg b4 instructions at: 1) isPhiFunction. 
+	
+]
+
+{ #category : #tests }
 DRSSAPRETest >> testRedundancyWithSameConstIn124BlockInConditionCF [
 " 
 T1 = e → T2  = e → T4 = e

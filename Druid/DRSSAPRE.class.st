@@ -18,7 +18,27 @@ DRSSAPRE >> doApply: cfg [
 DRSSAPRE >> initialize [
 
 	super initialize.
-	
+	dominatorTree := DRDominatorTree new.
+]
+
+{ #category : #'as yet unclassified' }
+DRSSAPRE >> insertPhi: cfg [
+
+	| tempList |
+	tempList:= OrderedCollection new.
+	 
+	cfg blocksInReversePostOrderDo: [ :b | 
+		b predecessors size > 1 ifTrue: [ 
+			b instructions do: [ :i | 
+				i isCopy ifTrue: [ 
+					( tempList add: (b instructionFactory 
+						 phiWith: (b predecessorAt: 1) firstInstruction
+						 with: (b predecessorAt: 2) firstInstruction))
+				]
+			].
+		   tempList do: [ :p | b addInstruction: p ] 
+		] 
+	]
 ]
 
 { #category : #'as yet unclassified' }
