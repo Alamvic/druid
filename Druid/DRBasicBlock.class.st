@@ -122,9 +122,7 @@ DRBasicBlock >> basicDuplicate [
 
 	^ 	DRBlockDuplicator new
 		controlFlowGraph: controlFlowGraph;
-		basicDuplicateBlock: self;
-		patchInstructionsIn: self;
-		yourself
+		basicDuplicateBlock: self
 ]
 
 { #category : #accessing }

@@ -27,7 +27,9 @@ DRBlockDuplicator >> basicDuplicateBlock: aBasicBlock [
 
 		instructionMap at: aBasicBlock endInstruction put: (instructionCopy := aBasicBlock endInstruction copy).
 		newBlock endInstruction: aBasicBlock endInstruction copy.
-		newBlock endInstruction operands do: [ :e | e addUser: newBlock endInstruction ] ]
+		newBlock endInstruction operands do: [ :e | e addUser: newBlock endInstruction ].
+		
+		self patchInstructionsIn: newBlock ]
 ]
 
 { #category : #accessing }
