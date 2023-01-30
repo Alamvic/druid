@@ -7,7 +7,7 @@ Class {
 { #category : #visiting }
 DRStoreInstanceVariable >> acceptVisitor: aVisitor [
 
-	aVisitor visitStoreInstVar: self
+	^ aVisitor visitStoreInstVar: self
 ]
 
 { #category : #printing }

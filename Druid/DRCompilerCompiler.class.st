@@ -85,7 +85,7 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 
-	| initialBasicBlock startBlock cfg numArgs arguments |
+	| initialBasicBlock startBlock cfg numArgs receiver arguments |
 	"Create the initial basic block"
 	startBlock := irGenerator initialBasicBlock.
 	initialBasicBlock := self createInitialBasicBlock.
@@ -101,9 +101,11 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 			loadInstruction argName: (self argName: i forMethod: method).
 			arguments add: loadInstruction ] ].
 
+	receiver := initialBasicBlock copy: (DRInterpreterValue value: interpreter).
+
 	irGenerator
 		interpretCode: (DRMethod methodNode: method ast)
-		receiver: (DRInterpreterValue value: interpreter)
+		receiver: receiver
 		arguments: arguments.
 
 	cfg := irGenerator ir.

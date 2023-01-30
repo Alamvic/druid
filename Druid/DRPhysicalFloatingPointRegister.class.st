@@ -6,7 +6,7 @@ Class {
 
 { #category : #visiting }
 DRPhysicalFloatingPointRegister >> acceptVisitor: aVisitor [
-1halt.
+
 	^ aVisitor visitPhysicalRegister: self
 ]
 

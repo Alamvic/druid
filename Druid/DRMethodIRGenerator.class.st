@@ -72,6 +72,13 @@ DRMethodIRGenerator >> mergeDeferredReturns: deferredMethodReturns in: aDRBasicB
 	^ self addFrameReturn: stackFrame
 ]
 
+{ #category : #'frame-access' }
+DRMethodIRGenerator >> popFrameMergingDeferredReturns [
+
+	self topFrame resolveDeferredMethodReturns: self.
+	^ executionState popFrame
+]
+
 { #category : #visiting }
 DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
 

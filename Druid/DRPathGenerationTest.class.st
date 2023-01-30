@@ -190,7 +190,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromInnerBranches [
 	| cfg edges trueConstraint falseConstraint |
 	cfg := self generateDruidIRFor: #primitiveInnerBranching.
 
-	edges := cfg incomingEdgesFor: (cfg blockById: 12).
+	edges := cfg incomingEdgesFor: (cfg blockById: 23).
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "10 < Reg < 20"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. ">= 20"
 
@@ -212,10 +212,10 @@ DRPathGenerationTest >> testConstraintsInferenceFromLoop [
 	edges := cfg incomingEdgesFor: (cfg blockById: 5).
 
 	"If never go inside the loop"
-	firstPhiConstraint := edges first constraintFor: 'R5'.
+	firstPhiConstraint := edges first constraintFor: 'R6'.
 	"If enter and then go out from loop"
-	loopedPhiConstraint := edges second constraintFor: 'R5'.
-	sumConstraint := edges second constraintFor: 'R10'.
+	loopedPhiConstraint := edges second constraintFor: 'R6'.
+	sumConstraint := edges second constraintFor: 'R11'.
 
 	self assert: firstPhiConstraint isEmpty.
 	self assertConstraint: loopedPhiConstraint includes: (DRGreaterOrEqualsConstraint withValue: 15).
@@ -352,7 +352,7 @@ DRPathGenerationTest >> testInferenceDeadPaths [
 	expectedTarget := self anyOutgoingEdge: cfg for: (cfg firstBasicBlock).
 
 	self assert: deadPath key equals: expectedTarget.
-	self assertCollection: pathBlockIds hasSameElements: { 14. 12 . 28 }
+	self assertCollection: pathBlockIds hasSameElements: { 15. 23 . 22 }
 ]
 
 { #category : #'dead-path' }

@@ -19,7 +19,7 @@ DRBlockClosure >> = otherCode [
 { #category : #visiting }
 DRBlockClosure >> acceptVisitor: aVisitor [
 
-	aVisitor visitBlockClosure: self
+	^ aVisitor visitBlockClosure: self
 ]
 
 { #category : #accessing }

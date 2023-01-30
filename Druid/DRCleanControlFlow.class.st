@@ -28,12 +28,12 @@ DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: 
 		combinedBlock addInstruction: e.
 	].
 	
+	aDRBasicBlock2 successors do: [ :e |
+		e replacePredecessor: aDRBasicBlock2 by: combinedBlock ].
+
 	endInstruction := aDRBasicBlock2 endInstruction.
 	aDRBasicBlock2 basicEndInstruction: DRNoop new.
 	combinedBlock endInstruction: endInstruction.
-
-	aDRBasicBlock2 successors do: [ :e |
-		e replacePredecessor: aDRBasicBlock2 by: combinedBlock ].
 
 	aCFG removeBasicBlock: aDRBasicBlock.
 	aCFG removeBasicBlock: aDRBasicBlock2.

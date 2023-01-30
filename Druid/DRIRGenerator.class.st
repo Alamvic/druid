@@ -1472,8 +1472,7 @@ DRIRGenerator >> popFrame [
 { #category : #'frame-access' }
 DRIRGenerator >> popFrameMergingDeferredReturns [
 
-	self topFrame resolveDeferredMethodReturns: self.
-	^ executionState popFrame
+	^ self subclassResponsibility
 ]
 
 { #category : #'frame-access' }
@@ -1679,7 +1678,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 		self currentPrimitiveFailureCode: failure.
 
 		primitiveReturn := executionState baseFrame.
-		"self currentBasicBlock jumpTo: primitiveReturn exitBasicBlock".
+		self currentBasicBlock jumpTo: primitiveReturn exitBasicBlock.
 		
 		"Record that this execution stack did a method return
 		We will merge this one with other returned states when this method finishes"

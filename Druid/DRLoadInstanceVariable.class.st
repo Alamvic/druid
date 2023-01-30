@@ -7,7 +7,7 @@ Class {
 { #category : #visiting }
 DRLoadInstanceVariable >> acceptVisitor: aVisitor [
 
-	aVisitor visitLoadInstVar: self
+	^ aVisitor visitLoadInstVar: self
 ]
 
 { #category : #accessing }

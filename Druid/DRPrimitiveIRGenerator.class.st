@@ -172,6 +172,28 @@ DRPrimitiveIRGenerator >> popFrame [
 	^ poppedFrame
 ]
 
+{ #category : #'frame-access' }
+DRPrimitiveIRGenerator >> popFrameMergingDeferredReturns [
+
+	| exitBasicBlock topReturns |
+	exitBasicBlock := self topFrame exitBasicBlock.
+	topReturns := self topFrame deferredMethodReturns.
+	topReturns size > 1
+		ifTrue: [ 
+			| mergedState |
+			self assert: exitBasicBlock predecessors isEmpty. "If not, check if new predecessors will be added"
+			topReturns keysDo: [ :frameReturn | frameReturn basicBlock jumpTo: exitBasicBlock ].
+			mergedState := DRStackMerger new
+				               builder: self;
+				               mergeBlock: exitBasicBlock;
+				               mergeAll: topReturns values upTo: self topFrame.
+			executionState := mergedState ]
+		ifFalse: [ currentBasicBlock jumpTo: exitBasicBlock ].
+
+	currentBasicBlock := exitBasicBlock.
+	^ executionState popFrame
+]
+
 { #category : #visiting }
 DRPrimitiveIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
 

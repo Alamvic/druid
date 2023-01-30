@@ -149,7 +149,7 @@ DRBasicBlock >> basicDuplicate [
 				newInstruction removeUser: user.
 				newInstruction addUser: replacement.
 			].
-			newInstruction operands copy do: [ :operand | | replacement |
+			newInstruction operands asSet do: [ :operand | | replacement |
 				"If an operand comes from another block, keep using it"
 				replacement := oldToNew at: operand ifAbsent: [ operand ].
 				newInstruction replaceOperand: operand by: replacement.

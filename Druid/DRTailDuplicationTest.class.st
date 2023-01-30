@@ -502,8 +502,8 @@ DRTailDuplicationTest >> testTailDuplicateShouldWithPhiFunctionWithRepeatedOpera
 	| cfg inst firstMergeBlock secondMergeBlock newOperands phi copy |
 	cfg := self generateDruidIRFor: #primitiveSandclock.
 
-	firstMergeBlock := cfg blockById: 31.
-	secondMergeBlock := cfg blockById: 29.
+	firstMergeBlock := cfg blockById: 23.
+	secondMergeBlock := cfg blockById: 22.
 
 	inst := firstMergeBlock firstInstruction.
 	phi := secondMergeBlock phiWith: inst with: inst.
@@ -597,11 +597,11 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierFirstBlock [
 		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
 			 DRCleanControlFlow new).
 
-	duplicatedBlocks := (cfg blockById: 44) tailDuplicate.
+	duplicatedBlocks := (cfg blockById: 32) tailDuplicate.
 	cfg validate.
 
 	successors := duplicatedBlocks first successors.
-	frontierOfFrontiers := cfg blockById: 42.
+	frontierOfFrontiers := cfg blockById: 31.
 
 	self assert: successors size equals: 2.
 
@@ -623,12 +623,12 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierSecondBlock [
 		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
 			 DRCleanControlFlow new).
 
-	(cfg blockById: 44) tailDuplicate.
-	duplicatedBlocks := (cfg blockById: 42) tailDuplicate.
+	(cfg blockById: 32) tailDuplicate.
+	duplicatedBlocks := (cfg blockById: 31) tailDuplicate.
 	cfg validate.
 
 	successors := duplicatedBlocks first successors.
-	frontier := cfg blockById: 40.
+	frontier := cfg blockById: 30.
 
 	self assert: successors size equals: 2.
 
@@ -730,11 +730,11 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithTwoBlocks [
 		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then: DRCleanControlFlow new).
 
 	"Duplicate both merge points"
-	(cfg blockById: 42) tailDuplicate.
-	(cfg blockById: 44) tailDuplicate.
+	(cfg blockById: 32) tailDuplicate.
+	(cfg blockById: 31) tailDuplicate.
 
-	firstFrontier := {cfg blockById: 46 . cfg blockById: 47}.
-	lastFrontier := cfg blockById: 40.
+	firstFrontier := {cfg blockById: 37 . cfg blockById: 38}.
+	lastFrontier := cfg blockById: 30.
 
 	self assert: lastFrontier phiFunctions size equals: 3. "Own + 2 splits"
 	self assert: (firstFrontier allSatisfy: [ :b | b phiFunctions size = 2 ]). "2 splits"
@@ -758,11 +758,11 @@ DRTailDuplicationTest >> testTailDuplicateWithPhiUsersInFrontier [
 		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
 			 DRCleanControlFlow new).
 
-	(cfg blockById: 43) tailDuplicate.
+	(cfg blockById: 32) tailDuplicate.
 	cfg validate.
 
 	"All non phi instructions in the frontier should depend on phis inside this block"
-	frontierOfFrontiers := cfg blockById: 40.
+	frontierOfFrontiers := cfg blockById: 30.
 
 	self assert: (frontierOfFrontiers instructions third operands allSatisfy: [ :op |
 		op isPhiFunction and: [ op basicBlock = frontierOfFrontiers ] ])
