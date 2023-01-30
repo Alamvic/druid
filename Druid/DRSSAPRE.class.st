@@ -1,6 +1,9 @@
 Class {
 	#name : #DRSSAPRE,
 	#superclass : #DRControlFlowOptimisation,
+	#instVars : [
+		'dominatorTree'
+	],
 	#category : #'Druid-Optimizations'
 }
 
