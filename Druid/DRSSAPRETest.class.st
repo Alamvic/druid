@@ -39,8 +39,7 @@ DRSSAPRETest >> testFullRedundancyCaseWith3ConstExpressInSingleBlock [
 	optimisation applyTo: cfg.
 
 	self assert: cfg b1 third isCopy.
-	self assert: cfg b1 third operand1 equals: instruction1.
-	cfg inspect.
+	self assert: cfg b1 third operand1 equals: instruction1
 ]
 
 { #category : #tests }
@@ -55,7 +54,6 @@ DRSSAPRETest >> testFullRedundancyCaseWithAlternateConstExpressInLinearCF [
 	instruction2 := cfg b2 copy: 3.
 	instruction3 := cfg b3 copy: 1.
 
-	cfg inspect.
 	optimisation applyTo: cfg.
 	
 	self assert: cfg b1 first isCopy.
@@ -133,8 +131,8 @@ DRSSAPRETest >> testFullRedundancyCaseWithMultipleConstExpressInLinearCF [
 	
 	optimisation applyTo: cfg.
 	
-	self assert: cfg b1 first isCopy.
-	self assert: cfg b1 second isCopy.
+	self assert: cfg b2 first isCopy.
+	self assert: cfg b2 second isCopy.
 	self assert: cfg b2 first operand1 equals: instruction1.
 	self assert: cfg b2 second operand1 equals: instruction2.
 ]
@@ -155,7 +153,7 @@ DRSSAPRETest >> testFullRedundancyCaseWithSingleConstExpressInLinearCF [
 	
 	optimisation applyTo: cfg.
 	
-	self assert: cfg b1 first isCopy.
+	self assert: cfg b2 first isCopy.
 	self assert: cfg b2 first operand1 equals: instruction1.
 	
 ]

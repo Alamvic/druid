@@ -21,17 +21,14 @@ DRSSAPRE >> initialize [
 { #category : #'as yet unclassified' }
 DRSSAPRE >> lookForRedundancy: cfg [
 
-	| visitedInstructions stream hasBeenReplaced |
+	| visitedInstructions |
 	visitedInstructions := OrderedCollection new.
 	cfg blocksInReversePostOrderDo: [ :b | 
-		b instructionsDo: [ :i | 
-			stream := visitedInstructions readStream.
-			hasBeenReplaced := false.
-			[ hasBeenReplaced not and: [ stream atEnd not ] ] whileTrue: [ 
-				| vi |
-				vi := stream next.
-				(i isCopy and: [ i hasSameExpressionAs: vi ]) ifTrue: [ 
-					i replaceOperandAtIndex: 1 by: vi.
-					hasBeenReplaced := true ] ].
+		b instructionsDo: [ :i | | replacement |
+			replacement := visitedInstructions
+				detect: [ :each | (i isCopy and: [ i hasSameExpressionAs: each ]) ]
+				ifNone: [ nil ]. 
+
+			replacement ifNotNil: [ i replaceOperandAtIndex: 1 by: replacement ].
 			visitedInstructions add: i ] ]
 ]
