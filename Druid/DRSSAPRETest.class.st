@@ -63,25 +63,29 @@ DRSSAPRETest >> testFullRedundancyCaseWithAlternateConstExpressInLinearCF [
 ]
 
 { #category : #tests }
-DRSSAPRETest >> testFullRedundancyCaseWithConstantInBranchCF [
+DRSSAPRETest >> testFullRedundancyCaseWithConstantInConditionCF [
 	"case E: full redundancy condition
-T1 = e → T2 = e    → T4
-        \→ T3 = e /
-⇒
+T1 = e → T2 = e → T4
+         \→  T3 = e /
+⇒ 
 
-T1 = e → T4 = T1 "
+T1 = e → T2 = T1    → T4
+           \→  T3 = T1/
+"
 
-	| cfg instruction1 instruction2 instruction3 instruction4 |
+	| cfg instruction1 instruction2 instruction3 |
 	cfg := self setUpCFGWithConditional: (instructionFactory jumpIf:
 			        (DRPhysicalGeneralPurposeRegister name: 'Parameter')).
-	instruction1 := cfg b1 copy: 3.
-	instruction2 := cfg b2 copy: 3.
-	instruction3 := cfg b3 copy: 3.
-	instruction4 := cfg b4 phiWith: instruction2 with: instruction3.
-
+	instruction1 := cfg b1 copy: 6.
+	instruction2 := cfg b2 copy: 6.
+	instruction3 := cfg b3 copy: 6.
+	
 	optimisation applyTo: cfg.
 	
-	self assert: cfg b4 first operand1 equals: instruction1
+	self assert: cfg b2 first isCopy.
+	self assert: cfg b3 first isCopy.
+	self assert: cfg b2 first operand1 equals: instruction1.
+	self assert: cfg b3 first operand1 equals: instruction1.
 ]
 
 { #category : #tests }
