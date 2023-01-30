@@ -576,34 +576,6 @@ DRControlFlowGraph >> showBranchConstraints: branchEdges [
 ]
 
 { #category : #inspecting }
-DRControlFlowGraph >> showIn: view [
-
-	| blockViews controller |
-	blockViews := self blocks collect: [ :b | self createBlockView: b. ].
-
-	view addAll: blockViews.
-	self showLines: blockViews in: view.
-
-	"All the characters are displayed using a grid layout"
-	RSSugiyamaLayout new
-		horizontalGap: 50;
-		applyOn: blockViews.
-
-	self showInfoIn: view.
-
-	controller := RSCanvasController new
-		noLegend;
-		yourself.
-
-	view newAnimation
-		duration: 500 milliSeconds;
-		onStepDo: [ :t | view signalUpdate ];
-		when: RSAnimationEndEvent do: [:evt |
-			controller configuration noZoomToFitOnExtendChanged ].
-	view @ controller
-]
-
-{ #category : #inspecting }
 DRControlFlowGraph >> showInfoIn: view [
 
 	| label instructions blocks paths info |
