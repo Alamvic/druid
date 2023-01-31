@@ -13,29 +13,70 @@ Class {
 	#name : #DRInterpreterCompiler,
 	#superclass : #Object,
 	#instVars : [
-		'interpreterClass',
 		'memory',
 		'compilerCompilerClass',
 		'interpreter',
-		'compilerCompiler'
+		'compilerCompiler',
+		'interpreterBuilder'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #examples }
+DRInterpreterCompiler class >> examplePrimitivesCollector [
+	<example>
+
+	| primCollector |
+	
+	primCollector := (DRInterpreterCompiler
+			fromInterpreter: (DRDummyInterpreter new primitives: StackInterpreter primitiveTable)
+			compilerClass: DRPrimitiveCompilerCompilerCollector)
+				collectPrimitives.
+	primCollector failedPrimitives inspect
+]
+
+{ #category : #examples }
+DRInterpreterCompiler class >> examplePrimitivesFromCollection [
+	<example>
+	
+	^ (DRInterpreterCompiler 
+			fromInterpreter: (DRDummyInterpreter new primitives: #(#primitiveAdd)))
+				primitives inspect
+]
+
+{ #category : #examples }
+DRInterpreterCompiler class >> examplePrimitivesFromInterpreterBuilderClass [
+	<example>
+	
+	^ (DRInterpreterCompiler 
+			fromInterpreter: DRInterpreterBuilder new)
+				primitives inspect
+]
+
 { #category : #'instance creation' }
-DRInterpreterCompiler class >> fromInterpreter: aClass [ 
+DRInterpreterCompiler class >> fromInterpreter: anInterpreterBuilder [ 
 
 	^  self basicNew
-		interpreterClass: aClass;
+		interpreterBuilder: anInterpreterBuilder;
+		initialize;
+		yourself
+]
+
+{ #category : #'instance creation' }
+DRInterpreterCompiler class >> fromInterpreter: anInterpreterBuilder compilerClass: aCompilerClass [
+
+	^ self basicNew
+		compilerCompilerClass: aCompilerClass;
+		interpreterBuilder: anInterpreterBuilder;
 		initialize;
 		yourself
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> addPrimitive: anInteger to: aDRCompilationUnit [ 
+DRInterpreterCompiler >> addPrimitive: aString to: aDRCompilationUnit [ 
 
-	anInteger = 0 ifFalse: [
-		aDRCompilationUnit addPrimitive: (self newPrimitive: anInteger) ]
+	aString = 0 ifFalse: [
+		aDRCompilationUnit addPrimitive: (self newPrimitive: aString) ]
 ]
 
 { #category : #accessing }
@@ -48,14 +89,22 @@ DRInterpreterCompiler >> addPrimitivesTo: compilationUnit [
 ]
 
 { #category : #accessing }
+DRInterpreterCompiler >> collectPrimitives [
+	"Trace receiver's interpreter primitives and collect compilation results. 
+	See implementors of #handlePrimitiveCompilationFor: "
+
+	self generateIR primitives.
+	^ self compilerCompiler.
+
+]
+
+{ #category : #accessing }
 DRInterpreterCompiler >> compilerCompiler [
 	"Answer a Druid compiler configured for the receiver's interpreter builder"
 
 	^ compilerCompiler
 		ifNil: [
-			compilerCompiler := self compilerCompilerClass new
-				interpreter: self interpreterBuilder;
-				yourself ]
+			compilerCompiler := self compilerCompilerClass 	forInterpreter: interpreter ]
 ]
 
 { #category : #accessing }
@@ -68,7 +117,7 @@ DRInterpreterCompiler >> compilerCompilerClass [
 { #category : #accessing }
 DRInterpreterCompiler >> compilerCompilerClass: aClass [
 
-	compilerCompilerClass := aClass forInterpreter: self
+	compilerCompilerClass := aClass
 ]
 
 { #category : #accessing }
@@ -105,10 +154,14 @@ DRInterpreterCompiler >> initialize [
 
 { #category : #accessing }
 DRInterpreterCompiler >> interpreterBuilder [
-	" Answer an <AnstractInterpreter> "
 
-	^ interpreter
-		ifNil: [ interpreter := self newInterpreter ]
+	^ interpreterBuilder
+]
+
+{ #category : #accessing }
+DRInterpreterCompiler >> interpreterBuilder: aClass [ 
+
+	interpreterBuilder := aClass
 ]
 
 { #category : #accessing }
@@ -118,21 +171,11 @@ DRInterpreterCompiler >> interpreterBuilderClass [
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> interpreterClass [
-	^ interpreterClass
-]
-
-{ #category : #accessing }
-DRInterpreterCompiler >> interpreterClass: aClass [ 
-
-	interpreterClass := aClass
-]
-
-{ #category : #accessing }
 DRInterpreterCompiler >> interpreterPrimitiveTable [
 	"Answer a <Collection> of <Symbol> each one representing a selector (e.g. #primitiveEqual) of the receiver's primitive table"
 
-	^ self interpreterClass primitiveTable
+	^ interpreterBuilder primitiveTable.
+
 ]
 
 { #category : #accessing }
@@ -140,11 +183,11 @@ DRInterpreterCompiler >> newInterpreter [
 
 	memory := self newMemory.
 
-	self interpreterClass
+	interpreterBuilder 
 		initializeWithOptions: self initializationOptions
 		objectMemoryClass: memory class.
 
-	^ self interpreterClass basicNew
+	^ interpreterBuilder basicNew
 		  objectMemory: memory;
 		  basicInitialize
 ]
@@ -180,14 +223,17 @@ DRInterpreterCompiler >> primitiveArgumentCountOf: aSelector [
 DRInterpreterCompiler >> primitiveNumberOf: aSelector [
 	" Answer a <Number> representing the primitive number of aSelector "
 	
-	^ (self primitiveTable indexOf: aSelector) - 1.
+	| primNumber |
+	^ (primNumber := self interpreterPrimitiveTable indexOf: aSelector) > 0
+		ifTrue: [ primNumber ]
+		ifFalse: [ primNumber - 1 ].
 ]
 
 { #category : #accessing }
 DRInterpreterCompiler >> primitiveTable [
 	"Answer a <Collection> of primitive selectors"
 
-	^ self interpreterBuilderClass primitiveTable
+	^ interpreter class basicPrimitiveTable
 ]
 
 { #category : #accessing }

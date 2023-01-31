@@ -1,5 +1,9 @@
+"
+This is a helper class to collect primitive method which couldn't be compiled by Druid.
+
+"
 Class {
-	#name : #DRPrimitiveCCCollector,
+	#name : #DRPrimitiveCompilerCompilerCollector,
 	#superclass : #DRPrimitiveCompilerCompiler,
 	#instVars : [
 		'failedPrimitives'
@@ -7,25 +11,21 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
-{ #category : #'instance creation' }
-DRPrimitiveCCCollector class >> forInterpreter: aDRInterpreterCompiler [ 
-
-	^ self new
-		interpreter: aDRInterpreterCompiler;
-		yourself
-]
-
 { #category : #accessing }
-DRPrimitiveCCCollector >> failedPrimitives [
+DRPrimitiveCompilerCompilerCollector >> failedPrimitives [
 
 	^ failedPrimitives
-		ifNil: [ failedPrimitives := Dictionary new ]
+		ifNil: [
+			failedPrimitives :=
+				PluggableDictionary new
+					equalBlock: [ :a :b | a class == b class ];
+					hashBlock: [ :a | a class identityHash ];
+					yourself 	]
 ]
 
 { #category : #accessing }
-DRPrimitiveCCCollector >> failedPrimitivesAt: anException add: aString [
+DRPrimitiveCompilerCompilerCollector >> failedPrimitivesAt: anException add: aString [
 
-	self halt.
 	self failedPrimitives
 		at: anException
 		ifPresent: [ : fps | fps add: aString ]
@@ -33,7 +33,7 @@ DRPrimitiveCCCollector >> failedPrimitivesAt: anException add: aString [
 ]
 
 { #category : #'generation-IR' }
-DRPrimitiveCCCollector >> generateDruidIR [
+DRPrimitiveCompilerCompilerCollector >> generateDruidIR [
 
 	^ [ super generateDruidIR ]
 	on: Exception

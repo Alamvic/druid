@@ -18,6 +18,14 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 		compile
 ]
 
+{ #category : #'instance creation' }
+DRPrimitiveCompilerCompiler class >> forInterpreter: aDRInterpreterCompiler [ 
+
+	^ self new
+		interpreter: aDRInterpreterCompiler;
+		yourself
+]
+
 { #category : #accessing }
 DRPrimitiveCompilerCompiler >> buildIR: primitiveSelector [ 
 	" Answer a DRPrimitiveControlFlowGraph generated for primitiveSelector in the receiver's interpreter "
