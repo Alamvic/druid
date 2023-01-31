@@ -9,8 +9,7 @@ Class {
 
 { #category : #accessing }
 DRSSAPRE >> doApply: cfg [
-
-
+	
 	self lookForRedundancy: cfg
 ]
 
@@ -54,4 +53,13 @@ DRSSAPRE >> lookForRedundancy: cfg [
 
 			replacement ifNotNil: [ i replaceOperandAtIndex: 1 by: replacement ].
 			visitedInstructions add: i ] ]
+]
+
+{ #category : #'as yet unclassified' }
+DRSSAPRE >> renamePhi: cfg [
+
+		cfg blocksInReversePostOrderDo: [ :b | 
+		b instructionsDo: [ :i | 
+			i isPhiFunction ifTrue: [
+				i nextInstruction replaceOperandAtIndex: 1 by: i ] ] ]
 ]
