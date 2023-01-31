@@ -26,6 +26,11 @@ DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arg
 	^ self messageSendInstructionFor: aRBMessageNode receiver: receiver arguments: arguments method: nil
 ]
 
+{ #category : #acc }
+DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [ 
+
+]
+
 { #category : #visiting }
 DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
