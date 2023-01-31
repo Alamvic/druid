@@ -1,3 +1,8 @@
+"
+Expects a primitive method, this is, a method of an interpreter implementing a primitive (e.g. #primitiveAdd) and answer an IR, useful to generate code.
+
+
+"
 Class {
 	#name : #DRPrimitiveIRGenerator,
 	#superclass : #DRMetaCompilerIRGenerator,

@@ -1,3 +1,7 @@
+"
+It represents a Unit of compilation (a class).
+
+"
 Class {
 	#name : #DRCompilationUnit,
 	#superclass : #Object,
@@ -15,7 +19,8 @@ DRCompilationUnit >> addPrimitive: aDRPrimitiveControlFlowGraph [
 
 { #category : #accessing }
 DRCompilationUnit >> primitives [
+	"Answer a <Collection> of IR of primitive methods, instances of <DRPrimitiveControlFlowGraph>"
 
-	^ primitives 
-		ifNil: [ primitives := OrderedCollection new ]	         
+	^ primitives
+		ifNil: [ primitives := OrderedCollection new ]
 ]
