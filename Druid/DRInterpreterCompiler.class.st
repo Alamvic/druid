@@ -127,12 +127,32 @@ DRInterpreterCompiler >> defaultCompilerCompilerClass [
 ]
 
 { #category : #accessing }
+DRInterpreterCompiler >> environmentAt: aClass [ 
+
+	^ self class environment 
+		at: aClass
+		ifAbsent: [ self newJitCompilerClassNamed: aClass ]
+]
+
+{ #category : #accessing }
 DRInterpreterCompiler >> generateIR [
 
 	| compilationUnit |
-	compilationUnit := DRCompilationUnit new.
+
+	compilationUnit := DRCompilationUnit new
+		interpreter: interpreter;
+		yourself.
 	self addPrimitivesTo: compilationUnit.
 	^ compilationUnit
+]
+
+{ #category : #accessing }
+DRInterpreterCompiler >> generateIRAndCompileIn: aClass [
+	"Generate and install the receiver's primitives into JIT compiler aClass"
+
+	self generateIR
+		jitCompilerClass: (self environmentAt: aClass);
+		compileAll
 ]
 
 { #category : #accessing }
@@ -190,6 +210,13 @@ DRInterpreterCompiler >> newInterpreter [
 	^ interpreterBuilder basicNew
 		  objectMemory: memory;
 		  basicInitialize
+]
+
+{ #category : #accessing }
+DRInterpreterCompiler >> newJitCompilerClassNamed: aString [ 
+	"Answer a new <StackToRegisterMappingCogit> subclass named aString"
+
+	^ StackToRegisterMappingCogit subclass: aString asSymbol
 ]
 
 { #category : #accessing }
