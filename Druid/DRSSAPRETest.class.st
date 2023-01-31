@@ -163,7 +163,7 @@ DRSSAPRETest >> testFullRedundancyCaseWithSingleConstExpressInLinearCF [
 ]
 
 { #category : #tests }
-DRSSAPRETest >> testInsertionPhiInConditionCF [ 
+DRSSAPRETest >> testFullRedundancyInsertionPhiInConditionCF [ 
 "
 T1  → T2 = e  → T4 = e
       \→  T3 = e /
@@ -186,6 +186,30 @@ T1  → T2 = e  → T4 = e
 	self assert: cfg b4 hasPhiFunctions equals: true.
 	self assert: (cfg b4 instructions at: 1) isPhiFunction. 
 	self assert: (cfg b4 instructions at: 2) operand1 value equals: 3.
+]
+
+{ #category : #tests }
+DRSSAPRETest >> testFulllRedundancyRenameInConditionCF [
+	"
+T1  → T2 = e  → T4 = e
+      \→  T3 = e /
+⇒ 
+T1  → T2 = e  → T4 = e
+      \→  T3 = e /
+"
+
+	| cfg instruction1 instruction2 instruction3 |
+	cfg := self setUpCFGWithConditional: (instructionFactory jumpIf:
+			        (DRPhysicalGeneralPurposeRegister name: 'Parameter')).
+	instruction1 := cfg b2 copy: 3.
+	instruction2 := cfg b3 copy: 3.
+	instruction3 := cfg b4 copy: 3.
+
+	optimisation insertPhi: cfg.
+	optimisation renamePhi: cfg.
+
+
+	self assert: (cfg b4 instructions at: 2) operand1 equals: (cfg b4 instructions at: 1)
 ]
 
 { #category : #tests }
