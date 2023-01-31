@@ -83,9 +83,9 @@ DRInterpreterCompiler >> addPrimitive: aString to: aDRCompilationUnit [
 DRInterpreterCompiler >> addPrimitivesTo: compilationUnit [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
-	self interpreterPrimitiveTable do: [ : prim |
-		self addPrimitive: prim to: compilationUnit ]
-
+	self interpreterPrimitiveTable
+		do: [ : prim | self addPrimitive: prim to: compilationUnit ]
+		displayingProgress: 'Adding primitives'
 ]
 
 { #category : #accessing }
