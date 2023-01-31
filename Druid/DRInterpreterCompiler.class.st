@@ -16,7 +16,8 @@ Class {
 		'interpreterClass',
 		'memory',
 		'compilerCompilerClass',
-		'interpreter'
+		'interpreter',
+		'compilerCompiler'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -24,20 +25,17 @@ Class {
 { #category : #'instance creation' }
 DRInterpreterCompiler class >> fromInterpreter: aClass [ 
 
-	^  self new
+	^  self basicNew
 		interpreterClass: aClass;
+		initialize;
 		yourself
 ]
 
 { #category : #accessing }
 DRInterpreterCompiler >> addPrimitive: anInteger to: aDRCompilationUnit [ 
 
-	anInteger = 0 
-		ifFalse: [
-			aDRCompilationUnit addPrimitive: (self compilerCompilerClass new
-				primitiveName: anInteger ;
-				interpreter: self interpreter;
-				generateDruidIR) ]
+	anInteger = 0 ifFalse: [
+		aDRCompilationUnit addPrimitive: (self newPrimitive: anInteger) ]
 ]
 
 { #category : #accessing }
@@ -47,6 +45,17 @@ DRInterpreterCompiler >> addPrimitivesTo: compilationUnit [
 	self interpreterPrimitiveTable do: [ : prim |
 		self addPrimitive: prim to: compilationUnit ]
 
+]
+
+{ #category : #accessing }
+DRInterpreterCompiler >> compilerCompiler [
+	"Answer a Druid compiler configured for the receiver's interpreter builder"
+
+	^ compilerCompiler
+		ifNil: [
+			compilerCompiler := self compilerCompilerClass new
+				interpreter: self interpreterBuilder;
+				yourself ]
 ]
 
 { #category : #accessing }
@@ -87,12 +96,25 @@ DRInterpreterCompiler >> initializationOptions [
 		  memory class name}
 ]
 
+{ #category : #initialization }
+DRInterpreterCompiler >> initialize [
+
+	super initialize.
+	interpreter := self newInterpreter
+]
+
 { #category : #accessing }
-DRInterpreterCompiler >> interpreter [
+DRInterpreterCompiler >> interpreterBuilder [
 	" Answer an <AnstractInterpreter> "
 
 	^ interpreter
 		ifNil: [ interpreter := self newInterpreter ]
+]
+
+{ #category : #accessing }
+DRInterpreterCompiler >> interpreterBuilderClass [
+
+	^ self interpreterBuilder class
 ]
 
 { #category : #accessing }
@@ -132,6 +154,40 @@ DRInterpreterCompiler >> newMemory [
 	" Answer a memory manager instance. Currently a subclass of <SpurMemoryManager> "
 
 	^ Spur64BitCoMemoryManager simulatorClass new
+]
+
+{ #category : #accessimg }
+DRInterpreterCompiler >> newPrimitive: aString [ 
+	" Answer a new primitive object with its metadata and CFG generated"
+
+	^ DRPrimitiveObject new
+		primitiveNumber: (self primitiveNumberOf: aString);
+		sourceSelector: aString;
+		cfg: (self compilerCompiler buildIR: aString);
+		yourself
+
+]
+
+{ #category : #accessing }
+DRInterpreterCompiler >> primitiveArgumentCountOf: aSelector [ 
+	"Answer a <Number> of arguments exepcted by aSelector in the receiver's primitive table"
+	
+	^ 0
+	" ^ (self primitiveTable indexOf: aSelector) - 1. "
+]
+
+{ #category : #accessing }
+DRInterpreterCompiler >> primitiveNumberOf: aSelector [
+	" Answer a <Number> representing the primitive number of aSelector "
+	
+	^ (self primitiveTable indexOf: aSelector) - 1.
+]
+
+{ #category : #accessing }
+DRInterpreterCompiler >> primitiveTable [
+	"Answer a <Collection> of primitive selectors"
+
+	^ self interpreterBuilderClass primitiveTable
 ]
 
 { #category : #accessing }

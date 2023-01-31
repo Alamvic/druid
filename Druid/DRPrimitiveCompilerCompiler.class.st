@@ -19,6 +19,15 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 ]
 
 { #category : #accessing }
+DRPrimitiveCompilerCompiler >> buildIR: primitiveSelector [ 
+	" Answer a DRPrimitiveControlFlowGraph generated for primitiveSelector in the receiver's interpreter "
+
+	^ self 
+		sourceName: primitiveSelector;
+		generateDruidIR
+]
+
+{ #category : #accessing }
 DRPrimitiveCompilerCompiler >> initialize [
 
 	super initialize.
