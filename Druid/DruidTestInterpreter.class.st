@@ -955,7 +955,7 @@ DruidTestInterpreter >> primitiveInnerBranchingWithDeadBranch [
 	res := self stackTop > 10
 		       ifTrue: [ 
 			       self stackTop < 5
-				       ifTrue: [ 5 "Dead" ]
+				       ifTrue: [ 123 "Dead" ]
 				       ifFalse: [ 17 ] ]
 		       ifFalse: [ 99 ].
 	self pop: 1 thenPush: res

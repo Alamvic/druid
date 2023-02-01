@@ -176,6 +176,12 @@ DRIRGenerator >> executionState [
 	^ executionState
 ]
 
+{ #category : #accessing }
+DRIRGenerator >> executionState: aDRExecutionState [
+
+	executionState := aDRExecutionState
+]
+
 { #category : #visiting }
 DRIRGenerator >> finishCodeInterpretation: lastFrame [
 
@@ -532,7 +538,7 @@ DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 
 	"Otherwise the block value is the value of its last expression"
 	aRBBlockNode statements last acceptVisitor: self.
-	"self assert: self topFrame operandStack size = 1."
+	self assert: self topFrame operandStack size = 1.
 ]
 
 { #category : #API }
@@ -672,7 +678,8 @@ DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments
 	"Fall through the exit block.
 	If the method had an explicit return, it is already done, no need to do it again."
 	currentBasicBlock hasFinalInstruction ifFalse: [
-		currentBasicBlock jumpTo: self topFrame exitBasicBlock ].
+		currentBasicBlock jumpTo: self topFrame exitBasicBlock.
+		currentBasicBlock := self topFrame exitBasicBlock ].
 
 	^ self popFrame.
 ]
@@ -1297,6 +1304,22 @@ DRIRGenerator >> ir [
 	^ controlFlowGraph
 ]
 
+{ #category : #'deferred returns' }
+DRIRGenerator >> mergeDeferredReturns: deferredMethodReturns in: aDRBasicBlock [
+
+	| frameReturns stackFrame |
+	stackFrame := deferredMethodReturns values first topFrame.
+	currentBasicBlock := aDRBasicBlock.
+	frameReturns := deferredMethodReturns keys.
+	frameReturns do: [ :frameReturn | 
+		(aDRBasicBlock hasPredecessor: frameReturn basicBlock) ifTrue: [ "Remove to keep the order" 
+			aDRBasicBlock removePredecessor: frameReturn basicBlock ].
+		frameReturn basicBlock jumpTo: aDRBasicBlock ].
+	self addInstructionFrom: stackFrame method instructionKind: DRPhiFunction operands: frameReturns.
+	stackFrame returnValue: self popOperand.
+	^ self addFrameReturn: stackFrame
+]
+
 { #category : #visiting }
 DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver arguments: arguments method: method [
 
@@ -1458,13 +1481,11 @@ DRIRGenerator >> popFrame [
 	
 	"Last frame!"
 	executionState executionStack ifEmpty: [
-		currentBasicBlock return: poppedFrame returnValue.
 		self finishCodeInterpretation: poppedFrame.
 		^ poppedFrame ].
 	
 	"Here we are in caller"
 	self pushOperand: poppedFrame returnValue.	
-	currentBasicBlock jumpTo: self newBasicBlock.	
 	
 	^ poppedFrame
 ]
@@ -1678,13 +1699,12 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 		self currentPrimitiveFailureCode: failure.
 
 		primitiveReturn := executionState baseFrame.
-		self currentBasicBlock jumpTo: primitiveReturn exitBasicBlock.
 		
 		"Record that this execution stack did a method return
 		We will merge this one with other returned states when this method finishes"
 		primitiveReturn addDeferredReturnState: { 
 				executionState copy.
-				self currentBasicBlock }.
+				self addFrameReturn: primitiveReturn }.
 
 		"Start a new dead block from here"
 		self newBasicBlock.
@@ -1701,7 +1721,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 				        (DRJitCompileTimeExpression expression:
 					         aRBMethodNode statements first value).
 			self topFrame returnValue: copy.
-			self addDeferredReturnState: { executionState. self currentBasicBlock }.
+			self addDeferredReturnState: { executionState copy. self addFrameReturn: self topFrame }.
 			^ self ].
 
 	aRBMethodNode statements do: [ :each | 
@@ -1727,19 +1747,19 @@ DRIRGenerator >> visitOperand: aDRValue [
 { #category : #visiting }
 DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
-	| result homeFrame returnExecutionState copy |
-	aRBReturnNode value acceptVisitor: self.
-	result := self popOperand.
-	copy := self instructionFor: result inNode: aRBReturnNode.
-	homeFrame := self topFrame homeFrameWithState: executionState.
-	
-	homeFrame returnValue: copy.
-	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
+	| value homeFrame fork |
 
-	returnExecutionState := executionState copy.
+	value := self visitOperand: aRBReturnNode value.
+	
+	"Create a fork, push value operand and create a FrameReturn to keep DeferredReturnState ready to merge"
+	fork := executionState copy.
+	homeFrame := fork topFrame homeFrameWithState: fork.
+	homeFrame push: value.
+	homeFrame returnValue: value.
+
 	self addDeferredReturnState: { 
-			returnExecutionState.
-			self currentBasicBlock }.
+			fork.
+			self addFrameReturn: homeFrame }.
 
 	"The return is a statement with no value"
 	self pushOperand: DRNullValue new

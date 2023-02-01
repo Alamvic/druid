@@ -499,18 +499,18 @@ DRTailDuplicationTest >> testTailDuplicateShouldSplitPhiFunctions [
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateShouldWithPhiFunctionWithRepeatedOperands [
 
-	| cfg inst firstMergeBlock secondMergeBlock newOperands phi copy |
+	| cfg inst firstMergeBlock secondMergeBlock newOperands phi copy mergeBlocks |
 	cfg := self generateDruidIRFor: #primitiveSandclock.
 
-	firstMergeBlock := cfg blockById: 23.
-	secondMergeBlock := cfg blockById: 22.
+	mergeBlocks := cfg mergeBlocks.
+	firstMergeBlock := mergeBlocks first.
+	secondMergeBlock := mergeBlocks second.
 
 	inst := firstMergeBlock firstInstruction.
 	phi := secondMergeBlock phiWith: inst with: inst.
 	copy := secondMergeBlock copy: phi.
 
-	newOperands := firstMergeBlock tailDuplicate collect: [ :b | 
-		               b firstInstruction ].
+	newOperands := firstMergeBlock tailDuplicate collect: [ :b | b firstInstruction ].
 
 	secondMergeBlock phiFunctions do: [ :i | 
 		self assert: i operands size equals: 2.
@@ -590,18 +590,19 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierDominatedByItself [
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierFirstBlock [
 
-	| cfg duplicatedBlocks successors frontierOfFrontiers |
+	| cfg duplicatedBlocks successors frontierOfFrontiers mergeBlocks |
 	cfg := self generateDruidIRFor: #primitiveDNA.
 
 	cfg applyOptimisation:
 		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
 			 DRCleanControlFlow new).
 
-	duplicatedBlocks := (cfg blockById: 32) tailDuplicate.
+	mergeBlocks := cfg mergeBlocks.
+	duplicatedBlocks := mergeBlocks first tailDuplicate.
 	cfg validate.
 
 	successors := duplicatedBlocks first successors.
-	frontierOfFrontiers := cfg blockById: 31.
+	frontierOfFrontiers := mergeBlocks second.
 
 	self assert: successors size equals: 2.
 
@@ -616,19 +617,20 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierFirstBlock [
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierSecondBlock [
 
-	| cfg duplicatedBlocks successors frontier |
+	| cfg duplicatedBlocks successors frontier mergeBlocks |
 	cfg := self generateDruidIRFor: #primitiveDNA.
 
 	cfg applyOptimisation:
 		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
 			 DRCleanControlFlow new).
 
-	(cfg blockById: 32) tailDuplicate.
-	duplicatedBlocks := (cfg blockById: 31) tailDuplicate.
+	mergeBlocks := cfg mergeBlocks.
+	mergeBlocks first tailDuplicate.
+	duplicatedBlocks := (mergeBlocks second) tailDuplicate.
 	cfg validate.
 
 	successors := duplicatedBlocks first successors.
-	frontier := cfg blockById: 30.
+	frontier := mergeBlocks third.
 
 	self assert: successors size equals: 2.
 
@@ -723,18 +725,20 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocksTwice [
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierWithTwoBlocks [
 
-	| cfg lastFrontier firstFrontier |
+	| cfg lastFrontier firstFrontier mergeBlocks |
 	cfg := self generateDruidIRFor: #primitiveDNA.
 
 	cfg applyOptimisation:
 		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then: DRCleanControlFlow new).
 
-	"Duplicate both merge points"
-	(cfg blockById: 32) tailDuplicate.
-	(cfg blockById: 31) tailDuplicate.
+	mergeBlocks := cfg mergeBlocks.
 
-	firstFrontier := {cfg blockById: 37 . cfg blockById: 38}.
-	lastFrontier := cfg blockById: 30.
+	"Duplicate both merge points"
+	mergeBlocks first tailDuplicate.
+	mergeBlocks second tailDuplicate.
+
+	firstFrontier := mergeBlocks second successors..
+	lastFrontier := mergeBlocks third.
 
 	self assert: lastFrontier phiFunctions size equals: 3. "Own + 2 splits"
 	self assert: (firstFrontier allSatisfy: [ :b | b phiFunctions size = 2 ]). "2 splits"
@@ -751,18 +755,19 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithTwoBlocks [
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateWithPhiUsersInFrontier [
 
-	| cfg frontierOfFrontiers |
+	| cfg frontierOfFrontiers mergeBlocks |
 	cfg := self generateDruidIRFor: #primitiveDoubleInnerBranching.
 
 	cfg applyOptimisation:
 		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
 			 DRCleanControlFlow new).
 
-	(cfg blockById: 32) tailDuplicate.
+	mergeBlocks := cfg mergeBlocks .
+	mergeBlocks first tailDuplicate.
 	cfg validate.
 
 	"All non phi instructions in the frontier should depend on phis inside this block"
-	frontierOfFrontiers := cfg blockById: 30.
+	frontierOfFrontiers := mergeBlocks third.
 
 	self assert: (frontierOfFrontiers instructions third operands allSatisfy: [ :op |
 		op isPhiFunction and: [ op basicBlock = frontierOfFrontiers ] ])

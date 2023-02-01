@@ -419,6 +419,12 @@ DRControlFlowGraph >> leafBlocks [
 	^ self blocks select: [ :b | b endInstruction isNoop ]
 ]
 
+{ #category : #acccessing }
+DRControlFlowGraph >> mergeBlocks [
+
+	^ self reversePostOrderBlocks select: [ :b | b hasPhiFunctions ]
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> messageSends [
 

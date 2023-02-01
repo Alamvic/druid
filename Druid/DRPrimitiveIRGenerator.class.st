@@ -65,6 +65,7 @@ DRPrimitiveIRGenerator >> inlineGenerator [
 
 	^ DRPrimitiveIRGeneratorInline new
 		  controlFlowGraph: controlFlowGraph;
+		  executionState: executionState copy;
 		  yourself
 ]
 
@@ -178,19 +179,26 @@ DRPrimitiveIRGenerator >> popFrameMergingDeferredReturns [
 	| exitBasicBlock topReturns |
 	exitBasicBlock := self topFrame exitBasicBlock.
 	topReturns := self topFrame deferredMethodReturns.
-	topReturns size > 1
+	topReturns size > 0
 		ifTrue: [ 
 			| mergedState |
 			self assert: exitBasicBlock predecessors isEmpty. "If not, check if new predecessors will be added"
-			topReturns keysDo: [ :frameReturn | frameReturn basicBlock jumpTo: exitBasicBlock ].
+			topReturns keysDo: [ :frameReturn | 
+				"self assert: frameReturn basicBlock successors isEmpty."
+				frameReturn basicBlock jumpTo: exitBasicBlock ].
 			mergedState := DRStackMerger new
 				               builder: self;
 				               mergeBlock: exitBasicBlock;
 				               mergeAll: topReturns values upTo: self topFrame.
-			executionState := mergedState ]
-		ifFalse: [ currentBasicBlock jumpTo: exitBasicBlock ].
+			executionState := mergedState.
+			currentBasicBlock := exitBasicBlock ]
+		ifFalse: [ 
+			currentBasicBlock = exitBasicBlock ifFalse: [ 
+				self assert: currentBasicBlock hasFinalInstruction.
+				self assert: exitBasicBlock isEmptyBasicBlock ] ].
 
-	currentBasicBlock := exitBasicBlock.
+	self topFrame clearDeferredMethodReturns.
+
 	^ executionState popFrame
 ]
 
@@ -236,6 +244,6 @@ DRPrimitiveIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 		^ self perform: mapping withArguments: { aRBVariableNode } ].
 
 	self pushOperand:
-		((self topFrame homeFrameWithState: executionState) receiver value 
+		((self topFrame homeFrameWithState: executionState) receiver simpleConstantFold value 
 			 instVarNamed: aRBVariableNode name) asDRValue
 ]

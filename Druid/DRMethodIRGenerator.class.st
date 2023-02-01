@@ -4,12 +4,6 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
-{ #category : #accessing }
-DRMethodIRGenerator >> executionState: aDRExecutionState [
-
-	executionState := aDRExecutionState
-]
-
 { #category : #visiting }
 DRMethodIRGenerator >> finishCodeInterpretation: lastFrame [
 
@@ -54,22 +48,6 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 					  value } ].
 
 	self unexplored
-]
-
-{ #category : #'deferred returns' }
-DRMethodIRGenerator >> mergeDeferredReturns: deferredMethodReturns in: aDRBasicBlock [
-
-	| frameReturns stackFrame |
-	stackFrame := deferredMethodReturns values first topFrame.
-	currentBasicBlock := aDRBasicBlock.
-	frameReturns := deferredMethodReturns keys.
-	frameReturns do: [ :frameReturn | 
-		(aDRBasicBlock hasPredecessor: frameReturn basicBlock) ifTrue: [ "Remove to keep the order" 
-			aDRBasicBlock removePredecessor: frameReturn basicBlock ].
-		frameReturn basicBlock jumpTo: aDRBasicBlock ].
-	self addInstructionFrom: stackFrame method instructionKind: DRPhiFunction operands: frameReturns.
-	stackFrame returnValue: self popOperand.
-	^ self addFrameReturn: stackFrame
 ]
 
 { #category : #'frame-access' }
