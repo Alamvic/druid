@@ -55,6 +55,44 @@ DruidTestRTLCompiler >> gen_branchingWithAssigments [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_bytecodePrimAdd [
+
+	| jump1 jump2 currentBlock |
+	(self ssDescriptorAt: 1) moveToReg: TempReg.
+	(self ssDescriptorAt: 0) moveToReg: ClassReg.
+	self MoveR: TempReg R: SendNumArgsReg.
+	self AndR: ClassReg R: SendNumArgsReg.
+	self marshallSendArguments: 1.
+	self TstCq: 1 R: SendNumArgsReg.
+	jump1 := self JumpZero: 0.
+	self SubCq: 1 R: TempReg.
+	self AddR: ClassReg R: TempReg.
+	jump2 := self JumpNoOverflow: 0.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self
+		genMarshalledSend:  -1
+		numArgs: 1
+		sendTable: ordinarySendTrampolines.
+	jump1 := self Jump: 0.
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
+	self ssPushRegister: TempReg.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_duplicateTopBytecode [
+
+	| currentBlock |
+	(self ssDescriptorAt: 0) moveToReg: TempReg.
+	self ssPushRegister: TempReg.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_emptyPrimitive [
 
 	| currentBlock |
@@ -762,11 +800,9 @@ DruidTestRTLCompiler >> gen_primitiveClassVariableWithBranch [
 	self MoveR: ReceiverResultReg R: TempReg.
 	self CmpCq: 0 R: TempReg.
 	jump1 := self JumpZero: 0.
-	self MoveCq: 36 R: ReceiverResultReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self MoveCq: 35 R: ReceiverResultReg.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	self genPrimReturn.
@@ -942,9 +978,9 @@ DruidTestRTLCompiler >> gen_primitiveDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1506,9 +1542,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1517,10 +1553,6 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivideByConstant [
 DruidTestRTLCompiler >> gen_primitiveIntegerRawBitsAsFloat [
 
 	| currentBlock |
-	self MoveR: ReceiverResultReg R: TempReg.
-	self MoveR: TempReg Rd: DPFPReg0.
-	self ConvertRd: DPFPReg0 R: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -3029,12 +3061,95 @@ DruidTestRTLCompiler >> gen_primitiveWithSequentialExitPoint [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> gen_pushConstantTrueBytecode [
+
+	| currentBlock |
+	self ssPushConstant: objectMemory trueObject.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_pushLiteralConstantBytecode [
+
+	| currentBlock |
+	self MoveR: FPReg R: TempReg.
+	self MoveM64: FoxMethod r: TempReg R: TempReg.
+	self MoveCq: LiteralStart R: ClassReg.
+	self AddCq: 1 R: ClassReg.
+	self AddCq: 8 R: TempReg.
+	self LogicalShiftLeftCq: 3 R: ClassReg.
+	self AddR: ClassReg R: TempReg.
+	self ssPushBase: TempReg offset: 0.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_pushReceiverBytecode [
+
+	| currentBlock |
+	self ensureReceiverResultRegContainsSelf.
+	self MoveR: ReceiverResultReg R: TempReg.
+	self ssPushRegister: TempReg.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> gen_pushReceiverVariableBytecode [
 
 	| currentBlock |
 	self ensureReceiverResultRegContainsSelf.
 	self MoveR: ReceiverResultReg R: TempReg.
-	self ssPushBase: TempReg offset: 16.
+	self ssPushBase: TempReg offset: 12.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_sendLiteralSelector0ArgsBytecode [
+
+	| currentBlock |
+	self marshallSendArguments: 0.
+	self
+		genMarshalledSend: 1
+		numArgs: 0
+		sendTable: ordinarySendTrampolines.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_shortConditionalJumpTrue [
+
+	| jump1 jump2 jump3 currentBlock |
+	(self ssDescriptorAt: 0) moveToReg: TempReg.
+	self ssPop: 1.
+	self CmpCq: objectMemory trueObject R: TempReg.
+	jump1 := self JumpZero: 0.
+	self CmpCq: objectMemory falseObject R: TempReg.
+	jump2 := self JumpZero: 0.
+	self CallRT: ceSendMustBeBooleanTrampoline.
+	jump3 := self Jump: 0.
+	currentBlock := self Label.
+	jump2 jmpTarget: currentBlock.
+	jump2 := self Jump: 0.
+	currentBlock := self Label.
+	jump1 jmpTarget: currentBlock.
+	self MoveCq: 1 R: ClassReg.
+	self AddCq: bytecodePC R: ClassReg.
+	self AddCq: 1 R: ClassReg.
+	self genJumpTo: 1 + bytecodePC + 1.
+	currentBlock := self Label.
+	jump3 jmpTarget: currentBlock.
+	jump2 jmpTarget: currentBlock.
+	^ CompletePrimitive
+]
+
+{ #category : #generated }
+DruidTestRTLCompiler >> gen_shortUnconditionalJump [
+
+	| currentBlock |
+	self MoveCq: 1 R: TempReg.
+	self AddCq: bytecodePC R: TempReg.
+	self AddCq: 1 R: TempReg.
+	self genJumpTo: 1 + bytecodePC + 1.
 	^ CompletePrimitive
 ]
 
@@ -3042,6 +3157,14 @@ DruidTestRTLCompiler >> gen_pushReceiverVariableBytecode [
 DruidTestRTLCompiler >> numRegArgs [
 
 	^ 2 "Hardcoded?"
+]
+
+{ #category : #compatibility }
+DruidTestRTLCompiler >> shouldAnnotateObjectReference: anOop [
+	"Objects in newSpace or oldSpace except nil, true, false & classTableRootObj need to be annotated."
+	^(objectMemory isNonImmediate: anOop)
+	  and: [(self oop: anOop isGreaterThan: objectMemory classTableRootObj)
+		or: [self oop: anOop isLessThan: objectMemory nilObject]]
 ]
 
 { #category : #generated }

@@ -65,21 +65,21 @@ DruidTestInterpreter >> jitCompileTimeIntegerExpression [
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> lazyAssert [
 
-	<druidNotInline>
+	<druidDeferredInline>
 	self stackTop = 0 ifTrue: [ self lazyFail ]
 ]
 
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> lazyDouble: n [
 
-	<druidNotInline>
+	<druidDeferredInline>
 	^ n * 2
 ]
 
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> lazyFail [
 
-	<druidNotInline>
+	<druidDeferredInline>
 	self primitiveFail
 ]
 

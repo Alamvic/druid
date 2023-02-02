@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'vmState',
-		'executionStack'
+		'executionStack',
+		'frameState'
 	],
 	#category : #'Druid-CompilerCompiler'
 }

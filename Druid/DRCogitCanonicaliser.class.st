@@ -44,9 +44,69 @@ DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitBranchIfCondition: aDRBranchIfCondition [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitBranchIfTrue: aDRBranchIfTrue [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitBytecodeJump: aDRBytecodeJump [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitCall: aDRCall [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitCopy: aDRCopy [ 
 	
 	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitGetConditionCode: aDRGetConditionCode [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitGetFloatBits: aDRGetFloatBits [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitGetFloatFromBits: aDRGetFloatFromBits [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitIntToFloatConversion: aDRIntToFloat [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitJITMessageSend: aDRMessageSend [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitJump: aDRJump [ 
+	
+	"Nothing for jumps"
 ]
 
 { #category : #visiting }
@@ -106,9 +166,45 @@ DRCogitCanonicaliser >> visitLoadReceiver: aDRLoadReceiver [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitLoadStackValue: aDRLoadStackValue [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitNoop: aDRNoop [ 
 	
 	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitPop: aDRPop [
+
+	"If I have no users, and my previous instruction is also a pop without users, merge us in a single PopMany instruction"
+
+	| canBeMerged previous |
+	previous := aDRPop previousInstruction ifNil: [ ^ self ].
+	canBeMerged := aDRPop hasUsers not and: [ 
+		               previous isPop and: [ previous hasUsers not ] ].
+	canBeMerged ifTrue: [ 
+		aDRPop previousInstruction removeFromCFG.
+		aDRPop replaceBy: (DRPopMany
+				 operands:
+					 { (previous numberOfPoppedElements
+					  + aDRPop numberOfPoppedElements) asDRValue }
+				 result: DRNoRegister new) ]
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitPopMany: aDRPopMany [ 
+	
+	^ self visitPop: aDRPopMany
 ]
 
 { #category : #visiting }
@@ -121,7 +217,25 @@ DRCogitCanonicaliser >> visitPush: aDRPush [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitRightShift: aDRRightShift [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitStore: aDRStore [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitSubstract: aDRSubtract [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
 	
 	"Nothing"
 ]

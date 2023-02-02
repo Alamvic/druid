@@ -70,10 +70,10 @@ DRCompilerExplorerInspection >> blocks [
 { #category : #'instance creation' }
 DRCompilerExplorerInspection >> configureCFGCanvas: view [
 
-	model cfg showIn: view.
+	model cfg configureVisualization: view.
 
-	view shapes select: #isLine thenDo: [ :line | 
-		(line model includesAny: model path) ifTrue: [ 
+	view shapes select: #isLine thenDo: [ :line |
+		(line model includesAny: model path) ifTrue: [
 			self highlightLine: line ] ]
 ]
 

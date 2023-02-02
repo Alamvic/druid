@@ -138,7 +138,7 @@ DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode
 { #category : #testing }
 DRInstruction >> hasDependency: anInstruction [
 	
-	^ self hasOperand: anInstruction
+	^ self dependencies includes: anInstruction
 ]
 
 { #category : #testing }
@@ -159,6 +159,12 @@ DRInstruction >> hasOperand: anInstruction [
 DRInstruction >> hasUser: anInstruction [
 	
 	^ users includes: anInstruction
+]
+
+{ #category : #testing }
+DRInstruction >> hasUsers [
+	
+	^ users notEmpty
 ]
 
 { #category : #testing }
@@ -247,6 +253,12 @@ DRInstruction >> isBranchIfTrue [
 ]
 
 { #category : #testing }
+DRInstruction >> isCogitSendMarshall [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isConditionalBranch [
 	
 	^ false
@@ -289,7 +301,7 @@ DRInstruction >> isJITCompileTimeExpression: aString [
 ]
 
 { #category : #testing }
-DRInstruction >> isLoadFramePointer [
+DRInstruction >> isJITMessageSend [
 	
 	^ false
 ]
@@ -315,6 +327,12 @@ DRInstruction >> isNonConditionalJump [
 { #category : #testing }
 DRInstruction >> isPhiFunction [
 
+	^ false
+]
+
+{ #category : #testing }
+DRInstruction >> isPop [
+	
 	^ false
 ]
 
@@ -571,6 +589,12 @@ DRInstruction >> replaceDominatedUsesBy: anotherInstruction [
 			instruction replaceDependency: self by: anotherInstruction ]
 ]
 
+{ #category : #dependencies }
+DRInstruction >> replaceDependency: anOperand by: anotherOperand in: anInstruction [
+	
+	anInstruction replaceOperand: anOperand by: anotherOperand
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
@@ -653,6 +677,18 @@ DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 			self replaceOperand: operand by: newOperandValues anyOne ]
 ]
 
+{ #category : #cogit }
+DRInstruction >> rtlPushArgumentExpressions [
+	
+	^ { RBVariableNode named: result name }
+]
+
+{ #category : #cogit }
+DRInstruction >> rtlPushOperandQualifierForInstruction: anInstruction [
+	
+	^ 'Register:'
+]
+
 { #category : #SCCP }
 DRInstruction >> sccpEvaluateFor: sccp [
 
@@ -703,7 +739,7 @@ DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 { #category : #types }
 DRInstruction >> type [
 
-	self subclassResponsibility
+	^ DRIntegerType new
 ]
 
 { #category : #inspecting }

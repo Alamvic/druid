@@ -22,3 +22,10 @@ DRDeadBlockElimination >> applyTo: aDRControlFlowGraph [
 		e successors do: [ :s | s removePredecessor: e ] ].
 	deadBlocks do: [ :e | e removeFromCFG ]
 ]
+
+{ #category : #testing }
+DRDeadBlockElimination >> canBeAppliedIn: aDRControlFlowGraph [
+
+	aDRControlFlowGraph blocksDo: [ :b | b predecessors ifEmpty: [ ^ true ] ].
+	^ false
+]

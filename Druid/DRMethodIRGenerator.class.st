@@ -12,9 +12,23 @@ DRMethodIRGenerator >> inlineGenerator [
 		  yourself
 ]
 
+{ #category : #accessing }
+DRMethodIRGenerator >> numberOfArguments: aValue [ 
+	
+	super numberOfArguments: aValue.
+	self flag: #TOTHINK. "Push receiver?"
+	0 to: numberOfArguments - 1 do: [ :i |
+		self push: (self currentBasicBlock loadArgument: i) ]
+]
+
 { #category : #visiting }
 DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
 	^ self messageSendInstructionFor: aRBMessageNode receiver: receiver arguments: arguments method: nil
+]
+
+{ #category : #acc }
+DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [ 
+
 ]
 
 { #category : #visiting }

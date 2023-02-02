@@ -34,6 +34,13 @@ DRSimpleConstraint >> constantValue: anObject [
 	constantValue := anObject
 ]
 
+{ #category : #comparing }
+DRSimpleConstraint >> hash [
+	"Hash implemented because #= was implemented"
+
+	^ self class hash bitXor: self constantValue hash
+]
+
 { #category : #arithmetic }
 DRSimpleConstraint >> includes: otherConstraint [
 

@@ -2,7 +2,8 @@ Class {
 	#name : #DRLoad,
 	#superclass : #DRInstruction,
 	#instVars : [
-		'size'
+		'size',
+		'type'
 	],
 	#category : #'Druid-IR'
 }
@@ -35,12 +36,6 @@ DRLoad >> beFloatingPoint64 [
 DRLoad >> canMoveOutsideLoop: backJump [
 
 	^ false
-]
-
-{ #category : #'users-definitions' }
-DRLoad >> hasDependency: anInstruction [
-	
-	^ self dependencies includes: anInstruction
 ]
 
 { #category : #accessing }

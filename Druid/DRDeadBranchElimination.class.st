@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #testing }
+DRDeadBranchElimination >> canBeAppliedWithGeneratedPathsIn: aDRControlFlowGraph [
+
+	^ aDRControlFlowGraph deadBranches isNotEmpty
+]
+
 { #category : #operations }
 DRDeadBranchElimination >> doApplyWithGeneratedPaths: cfg [
 

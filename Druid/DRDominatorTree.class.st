@@ -59,6 +59,17 @@ DRDominatorTree >> dominanceFrontierOf: aBlock [
 	^ self computeDominanceFrontier at: aBlock ifAbsent: [ Set new ]
 ]
 
+{ #category : #query }
+DRDominatorTree >> dominatorOfAll: aCollection [ 
+	
+	| node1 node2 |
+	self assert: aCollection size <= 2.
+	
+	node1 := self blockDictionary at: aCollection first basicBlock.
+	node2 := self blockDictionary at: aCollection second basicBlock.
+	^ self nearestCommonAncestorOf: node1 and: node2
+]
+
 { #category : #asd }
 DRDominatorTree >> immediateDominatorOf: aBlock [
 

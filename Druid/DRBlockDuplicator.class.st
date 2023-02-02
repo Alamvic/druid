@@ -14,12 +14,14 @@ DRBlockDuplicator >> basicDuplicateBlock: aBasicBlock [
 
 	| endInstruction endInstructionCopy |
 	^ controlFlowGraph newBasicBlockWith: [ :newBlock |
-		aBasicBlock predecessors do: [ :p | 
-			newBlock addPredecessor: p ].
+		| instructionCopy |
+
+		aBasicBlock predecessors do: [ :p | newBlock addPredecessor: p ].
 
 		"Duplicate instructions"
-		aBasicBlock instructions allButLast do: [ :instruction | | instructionCopy |
+		aBasicBlock instructions allButLast do: [ :instruction |
 			instructionMap at: instruction put: (instructionCopy := instruction copy).
+			instructionCopy clearUsers.
 			instructionCopy operands do: [ :e |
 				e addUser: instructionCopy.
 			].
@@ -31,7 +33,8 @@ DRBlockDuplicator >> basicDuplicateBlock: aBasicBlock [
 		newBlock endInstruction operands do: [ :e |
 				e addUser: newBlock endInstruction.
 		].
-	]	
+		self patchInstructionsIn: newBlock
+	]
 ]
 
 { #category : #accessing }
@@ -78,8 +81,8 @@ DRBlockDuplicator >> patchControlFlowIn: aBasicBlock [
 
 { #category : #'editing keys' }
 DRBlockDuplicator >> patchInstructionsIn: aBasicBlock [
-
 	"Rewrite all operands"
+
 	aBasicBlock instructions do: [ :newInstruction |
 		newInstruction users copy do: [ :user | | replacement |
 			"If an user comes from another block, keep using it"
@@ -92,5 +95,5 @@ DRBlockDuplicator >> patchInstructionsIn: aBasicBlock [
 			replacement := instructionMap at: operand ifAbsent: [ operand ].
 			newInstruction replaceOperand: operand by: replacement.
 		]
-	].
+	]
 ]

@@ -17,3 +17,9 @@ DRPhiSimplication >> applyTo: aDRControlFlowGraph [
 				operands: { operandsWithoutMyself anyOne }
 				result: i result) ] ]
 ]
+
+{ #category : #testing }
+DRPhiSimplication >> canBeAppliedIn: aDRControlFlowGraph [
+
+	^ aDRControlFlowGraph phiFunctions notEmpty
+]

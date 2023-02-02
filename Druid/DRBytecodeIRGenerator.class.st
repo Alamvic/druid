@@ -1,14 +1,8 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
-	#superclass : #DRIRGenerator,
-	#category : #'Druid-CompilerCompiler'
+	#superclass : #DRMetaCompilerIRGenerator,
+	#category : #'Druid-BytecodeToJITCompilation'
 }
-
-{ #category : #accessing }
-DRBytecodeIRGenerator >> currentPrimitiveFailureCode: anInstruction [
-	
-	self executionState primitiveFailureCode: anInstruction
-]
 
 { #category : #accessing }
 DRBytecodeIRGenerator >> initialize [
@@ -27,14 +21,20 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	variableSpecialCases at: #framePointer put: #interpretFramePointerWith:.
 	"variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:."
 	
+	specialCases at: #internalMustBeBoolean put: #interpretMustBeBooleanWith:.
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
+	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
+	specialCases at: #normalSendSpecialSelector:argumentCount: put: #interpretNormalSpecialSelectorSendWith:.
 ]
 
-{ #category : #accessing }
-DRBytecodeIRGenerator >> interpretCCoerceWith: aRBMessageNode [
-
-	^ aRBMessageNode arguments first acceptVisitor: self
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretArgumentCountAssignmentWith: aRBAssignmentNode [ 
+	
+	"Ok, we are probably doing a message send!
+	Visit the value of the assignment and get the number of arguments.
+	For now do not use it"
+	aRBAssignmentNode value acceptVisitor: self.
 ]
 
 { #category : #visiting }
@@ -66,6 +66,80 @@ DRBytecodeIRGenerator >> interpretFramePointerWith: aRBVariableNode [
 ]
 
 { #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretInstructionPointerAssignmentWith: aRBAssignmentNode [ 
+
+	"Changing the bytecode instruction pointer, we must generate a jump to the new target"
+	
+	| newBytecodePC |
+	aRBAssignmentNode value acceptVisitor: self.
+	newBytecodePC := self popOperand.
+	
+	^ self
+		  addInstructionWithNoResultFrom: aRBAssignmentNode
+		  instructionKind: DRBytecodeJump
+		  operands: { newBytecodePC asDRValue }
+]
+
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
+	
+	^ self
+		addInstructionFrom: aRBVariableNode
+		instructionKind: DRCopy
+		operands: { DRJitCompileTimeExpression new expression: 'bytecodePC' }
+]
+
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [ 
+	
+	"self CallRT: ceSendMustBeBooleanTrampoline"
+	^ self
+		  addInstructionWithNoResultFrom: aRBMessageNode
+		  instructionKind: DRCall
+		  operands: { 'ceSendMustBeBooleanTrampoline' }
+]
+
+{ #category : #accessing }
+DRBytecodeIRGenerator >> interpretNormalLiteralSendWith: aMessage [
+
+	"Interpret a send. In the interpreter, this is a send where we don't know yet the receiver or its class.
+	We know the numberOfArguments that we should use to extract the receiver, then its class.
+	
+	Translate this as a send instruction"
+	| selectorIndex argumentCount |
+	aMessage arguments first acceptVisitor: self.
+	selectorIndex := self popOperand.
+	
+	aMessage arguments second acceptVisitor: self.
+	argumentCount := self popOperand.
+	
+	^ self
+		  addInstructionWithNoResultFrom: aMessage
+		  instructionKind: DRJITMessageSend
+		  operands: { selectorIndex asDRValue. argumentCount asDRValue . false asDRValue }
+]
+
+{ #category : #accessing }
+DRBytecodeIRGenerator >> interpretNormalSpecialSelectorSendWith: aMessage [
+
+	"Interpret a send. In the interpreter, this is a send where we don't know yet the receiver or its class.
+	We know the numberOfArguments that we should use to extract the receiver, then its class.
+	
+	Translate this as a send instruction"
+	| selectorIndex argumentCount |
+	aMessage arguments first acceptVisitor: self.
+	selectorIndex := self popOperand.
+	
+	aMessage arguments second acceptVisitor: self.
+	argumentCount := self popOperand.
+	
+	^ self
+		  addInstructionWithNoResultFrom: aMessage
+		  instructionKind: DRJITMessageSend
+		  operands: { selectorIndex asDRValue. argumentCount asDRValue . true asDRValue }
+]
+
+{ #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode [ 
 	
 	| newFailureCode copy |
@@ -89,6 +163,34 @@ DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [
 	| receiver |
 	receiver := self visitOperand: aRBMessageNode arguments first.
 	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
+]
+
+{ #category : #'special cases - stack' }
+DRBytecodeIRGenerator >> interpretStackTopWith: aRBMessageNode [
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRLoadStackValue
+		  operands: { 0 asDRValue }
+]
+
+{ #category : #'special cases - stack' }
+DRBytecodeIRGenerator >> interpretStackValueWith: aRBMessageNode [
+
+	"Interpret messages of the form 
+	interpreter stackValue: xxx.
+	"
+
+	| value |
+	aRBMessageNode arguments first acceptVisitor: self.
+	value := self popOperand.
+	value operand1 value isInteger ifFalse: [ 
+		self error: 'expected an integer value' ].
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRLoadStackValue
+		  operands: { value }
 ]
 
 { #category : #accessing }
@@ -116,9 +218,29 @@ DRBytecodeIRGenerator >> newCFG [
 DRBytecodeIRGenerator >> numberOfArguments: aValue [ 
 	
 	numberOfArguments := aValue.
-	self push: self receiverRegister.
+	"self push: self receiverRegister.
 	0 to: numberOfArguments - 1 do: [ :i |
-		self push: (self argRegisterNumber: i) ]
+		self push: (self argRegisterNumber: i) ]"
+]
+
+{ #category : #accessing }
+DRBytecodeIRGenerator >> pop [
+
+	self
+		addInstructionFrom: nil
+		instructionKind: DRPop
+		operands: #().
+	^ self popOperand
+]
+
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> push: aValue [
+
+	self
+		addInstructionWithNoResultFrom: nil
+		instructionKind: DRPush
+		operands: { aValue }.
+	^ self popOperand
 ]
 
 { #category : #visiting }
@@ -132,4 +254,23 @@ DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
 		  operands: { (DRJitCompileTimeExpression new expression: value) }
+]
+
+{ #category : #visiting }
+DRBytecodeIRGenerator >> visitReturnNode: aRBReturnNode [
+
+	| result homeFrame returnExecutionState copy |
+	aRBReturnNode value acceptVisitor: self.
+	result := self popOperand.
+	copy := self instructionFor: result inNode: aRBReturnNode.
+	homeFrame := self topFrame homeFrameWithState: executionState.
+	homeFrame returnValue: copy.
+	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
+	"homeFrame exitBasicBlock return: copy."
+
+	returnExecutionState := executionState copy.
+	self addDeferredReturnState: { returnExecutionState. self currentBasicBlock }.
+
+	"The return is a statement with no value"
+	self pushOperand: DRNullValue new
 ]

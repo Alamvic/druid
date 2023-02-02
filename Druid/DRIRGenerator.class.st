@@ -129,6 +129,12 @@ DRIRGenerator >> copyExecutionStateOf: startingBasicBlock [
 	^ copy	
 ]
 
+{ #category : #factory }
+DRIRGenerator >> createInitialBasicBlock [
+
+	^ self newBasicBlock
+]
+
 { #category : #'basic-blocks' }
 DRIRGenerator >> currentBasicBlock [
 	^ currentBasicBlock
@@ -209,6 +215,7 @@ DRIRGenerator >> initialize [
 DRIRGenerator >> initializeSpecialCases [
 
 	"Control flow and comparisons"
+	specialCases at: #druidIgnore: put: #ignoreMessageWith:.
 	specialCases at: #value put: #interpretBlockValueWith:.
 	specialCases at: #value: put: #interpretBlockValueWith:.
 	specialCases at: #cull: put: #interpretBlockCullWith:.
@@ -237,6 +244,7 @@ DRIRGenerator >> initializeSpecialCases [
 	
 	"Arithmetics for SmallIntegers"
 	specialCases at: #sumSmallInteger:withSmallInteger:ifOverflow: put: #interpretSumSmallIntegerWithOverflowWith:.
+	specialCases at: #sumSmallInteger:withSmallInteger:ifNotOverflow: put: #interpretSumSmallIntegerWithNoOverflowWith:.
 	specialCases at: #subSmallInteger:withSmallInteger:ifOverflow: put: #interpretSubSmallIntegerWithOverflowWith:.
 	specialCases at: #multiplySmallInteger:withSmallInteger:ifOverflow: put: #interpretMultiplySmallIntegerWithOverflowWith:.
 
@@ -247,6 +255,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #asFloat put: #interpretAsFloatWith:.
 	specialCases at: #rawFloatBits put: #interpretRawFloatBitsWith:.
 	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
+	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
 	
 
 	"Memory accesses"
@@ -278,11 +287,6 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #bitOr: put: #interpretBitOrWith:.
 	specialCases at: #bitXor: put: #interpretBitXorWith:.
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
-
-	"Stack access"
-	specialCases at: #stackTop put: #interpretStackTopWith:.
-	specialCases at: #stackValue: put: #interpretStackValueWith:.
-	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
 		
 	"special simulation cases"
 	specialCases at: #cCode: put: #interpretCCodeInSmalltalkWith:.
@@ -538,6 +542,12 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [ 
 
 	self interpretBlockBody: aRBMessageNode arguments first
+]
+
+{ #category : #accessing }
+DRIRGenerator >> interpretCCoerceWith: aRBMessageNode [
+
+	^ aRBMessageNode arguments first acceptVisitor: self
 ]
 
 { #category : #'special cases' }
@@ -832,19 +842,23 @@ DRIRGenerator >> interpretLoadUint8AtWith: aRBMessageNode [
 ]
 
 { #category : #'special cases' }
-DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [ 
-	
-	| operand1 operand2 |
-	operand1 := aRBMessageNode receiver acceptVisitor: self.
-	operand2 := aRBMessageNode arguments first acceptVisitor: self.
-	
-	^ self currentBasicBlock addInstruction: (DRStore operands: { operand1 . operand2 })
+DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [
+
+	| address value |
+	address := self visitOperand: aRBMessageNode arguments first.
+	value := self visitOperand: aRBMessageNode arguments second.
+
+
+	^ self addInstructionFrom: aRBMessageNode instructionKind: DRLoad operands: { 
+			  8 asDRValue. "Assume 64 bits for now"
+			  address.
+			  value }
 ]
 
 { #category : #'special cases' }
 DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [ 
 	
-	| result address |
+	| address |
 	
 	address := self visitOperand: aRBMessageNode arguments first.
 	
@@ -961,19 +975,22 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 	Pop: keep track of the operand stack and remove one element
 	Push: move the value to the physical register assigned to the current stack position"
 	
-	| elementsToPop elementsToPopNode |
+	| elementsToPop elementsToPopNode toPush |
 	aRBMessageNode arguments first acceptVisitor: self.
 	elementsToPopNode := self popOperand.
 	elementsToPop := elementsToPopNode simpleConstantFold.
 	elementsToPop isInteger
 		ifFalse: [ self error: 'expected an integer value' ].
 
-	"This will be pushed automatically"
-	aRBMessageNode arguments second acceptVisitor: self.
+	"If it's a pop with push we should evaluate the pushed argument before popping in case it uses the stack elements"
+	aRBMessageNode arguments size > 1 ifTrue: [
+		aRBMessageNode arguments second acceptVisitor: self.
+		toPush := self popOperand ].
 	self pop: elementsToPop.
-	self push: self popOperand.
+	aRBMessageNode arguments size > 1 ifTrue: [
+		self push: toPush ].
 
-	"pop:thenPush: does not return an interesting value"
+	"pop:[thenPush:] does not return an interesting value"
 	self pushOperand: DRNullValue new.
 ]
 
@@ -1021,7 +1038,7 @@ DRIRGenerator >> interpretSizeofWith: aRBMessageNode [
 { #category : #'special cases - stack' }
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
-	self pushOperand: self executionState topVM
+	self pushOperand: self stackTop
 ]
 
 { #category : #'special cases - stack' }
@@ -1122,7 +1139,7 @@ DRIRGenerator >> interpretSubstractWith: aRBMessageNode [
 ]
 
 { #category : #'special cases' }
-DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
+DRIRGenerator >> interpretSumSmallInteger: aRBMessageNode withOverflowCondition: condition [
 
 	"Interpret the two numbers and add them up"
 
@@ -1144,16 +1161,38 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 		                   instantiateNoResultInstruction:
 		                   DRBranchIfCondition
 		                   operands: { 
-				                   DROverflow new.
+				                   condition.
 				                   addResult }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	joinInstruction := self
 		                   newOverflowBlockDuring: [ 
-		                   self interpretBlockBody:
-			                   aRBMessageNode arguments third ]
+			                   | block |
+			                   aRBMessageNode arguments third acceptVisitor:
+				                   self.
+			                   block := self popOperand.
+			                   self
+				                   interpretCode: block
+				                   receiver: block
+				                   arguments: { addResult } ]
 		                   fromJump: conditionalJump
 		                   joinValue: addResult
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretSumSmallIntegerWithNoOverflowWith: aRBMessageNode [
+
+	^ self
+		  interpretSumSmallInteger: aRBMessageNode
+		  withOverflowCondition: DRNoOverflow new
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
+
+	^ self
+		  interpretSumSmallInteger: aRBMessageNode
+		  withOverflowCondition: DROverflow new
 ]
 
 { #category : #'special cases' }
@@ -1304,7 +1343,7 @@ DRIRGenerator >> newCFG [
 { #category : #'special cases' }
 DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump joinValue: result [
 
-	| overflowBlock branchBlock resultBlock executionStateBeforeBranch |
+	| overflowBlock branchBlock resultBlock executionStateBeforeBranch overflowBlockOut |
 	branchBlock := conditionalJump basicBlock.
 	resultBlock := result basicBlock.
 
@@ -1313,6 +1352,7 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 	self popOperand.
 
 	overflowBlock := self newBasicBlockDuring: continuation.
+	overflowBlockOut := currentBasicBlock.
 	conditionalJump trueBranch: overflowBlock.
 	overflowBlock addPredecessor: branchBlock.
 
@@ -1322,7 +1362,7 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 	"Could happen that the evaluated block had a non local return.
 	In that case, this block should not arrive to this merge point
 		=> do not add the jump"
-	overflowBlock hasFinalInstruction
+	overflowBlockOut hasFinalInstruction
 		ifTrue: [ executionState := executionStateBeforeBranch ]
 		ifFalse: [ 
 			executionState := DRStackMerger new
@@ -1331,7 +1371,7 @@ DRIRGenerator >> newOverflowBlockDuring: continuation fromJump: conditionalJump 
 				                  mergeAll: { 
 						                  executionState.
 						                  executionStateBeforeBranch }.
-			overflowBlock jumpTo: self currentBasicBlock ].
+			overflowBlockOut jumpTo: self currentBasicBlock ].
 
 	conditionalJump falseBranch
 		ifNil: [ "If false branch doesnt exist then resultBlock = branchBlock"
@@ -1681,7 +1721,6 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	result := self popOperand.
 	copy := self instructionFor: result inNode: aRBReturnNode.
 	homeFrame := self topFrame homeFrameWithState: executionState.
-	homeFrame returnValue isNullValue ifFalse: [ 1halt "Unexplorer site" ].
 	homeFrame returnValue: copy.
 	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
 	homeFrame exitBasicBlock return: copy.

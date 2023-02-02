@@ -53,6 +53,13 @@ DRDeadCodeElimination >> applyTo: cfg [
 	self sweepInstructions: cfg
 ]
 
+{ #category : #testing }
+DRDeadCodeElimination >> canBeAppliedIn: aDRControlFlowGraph [
+
+	^ aDRControlFlowGraph instructions anySatisfy: [ :i | 
+		  i isMandatoryInstruction not and: [ i users isEmpty ] ]
+]
+
 { #category : #operations }
 DRDeadCodeElimination >> dependenciesOf: anInstruction [
 	
