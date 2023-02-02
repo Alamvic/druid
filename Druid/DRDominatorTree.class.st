@@ -116,11 +116,13 @@ DRDominatorTree >> isDominator: dominatorBlock of: dominatedBlock [
 ]
 
 { #category : #'as yet unclassified' }
-DRDominatorTree >> iterateDominanceFrontierOf: aDRBasicBlock [ 
-
-" DF+(n) = DF(n) U DF+(DF(n)) "
-" stop condition: "
-	^ (self dominanceFrontierOf: aDRBasicBlock) union: { self iterateDominanceFrontierOf:(self dominanceFrontierOf: aDRBasicBlock)}.
+DRDominatorTree >> iterateDominanceFrontierOf: aDRBasicBlock [
+	| frontiers |
+		" DF+(n) = DF(n) U DF+(DF(n)) "
+	
+	^ (self dominanceFrontierOf: aDRBasicBlock) union:
+		  ((self dominanceFrontierOf: aDRBasicBlock) flatCollect: [ :each | 
+			   self iterateDominanceFrontierOf: each ])
 ]
 
 { #category : #'as yet unclassified' }
