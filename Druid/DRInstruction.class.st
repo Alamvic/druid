@@ -173,6 +173,11 @@ DRInstruction >> hash [
 	^ self result hash
 ]
 
+{ #category : #accessing }
+DRInstruction >> indexInBasicBlock [
+	^ self basicBlock indexOfInstruction: self
+]
+
 { #category : #testing }
 DRInstruction >> initialize [
 
@@ -574,6 +579,16 @@ DRInstruction >> replaceDependency: anOperand by: anotherOperand [
 	self replaceOperand: anOperand by: anotherOperand
 ]
 
+{ #category : #replacing }
+DRInstruction >> replaceDominatedUsesBy: anotherInstruction [
+
+	users
+		select: [ :instruction | 
+			instruction isDominatedBy: anotherInstruction ]
+		thenDo: [ :instruction | 
+			instruction replaceDependency: self by: anotherInstruction ]
+]
+
 { #category : #dependencies }
 DRInstruction >> replaceDependency: anOperand by: anotherOperand in: anInstruction [
 	
@@ -725,6 +740,19 @@ DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 DRInstruction >> type [
 
 	^ DRIntegerType new
+]
+
+{ #category : #inspecting }
+DRInstruction >> uiUnroll [
+
+	| unrollingFactor |
+	self isBackJump ifFalse: [ 
+		^ self inform: 'Can only perform loop unrolling from back jumps' ].
+	unrollingFactor := UIManager default
+		                   request: 'Unrolling factor:'
+		                   initialAnswer: '2'.
+	(unrollingFactor ifNil: [ '' ]) ifEmpty: [ unrollingFactor := 2 ].
+	self loop unroll: unrollingFactor asNumber
 ]
 
 { #category : #replacing }

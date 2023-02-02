@@ -58,6 +58,27 @@ DRValue >> dependencies [
 	^ self operands flatCollect: [ :op | op asDependencyList ]
 ]
 
+{ #category : #testing }
+DRValue >> hasDependency: anInstruction [
+
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> hasDependencyRecursively: anInstruction [
+
+	^ self hasDependencyRecursively: anInstruction visited: {  }
+]
+
+{ #category : #testing }
+DRValue >> hasDependencyRecursively: anInstruction visited: alreadyVisited [
+
+	(alreadyVisited includes: self) ifTrue: [ ^ false ].
+	^ (self hasDependency: anInstruction) or: [ 
+		  self operands anySatisfy: [ :o | 
+			  o hasDependencyRecursively: anInstruction visited: { self } , alreadyVisited ] ]
+]
+
 { #category : #accessing }
 DRValue >> hasId: id [
 
