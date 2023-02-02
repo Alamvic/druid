@@ -120,6 +120,12 @@ DRJump >> loop [
 ]
 
 { #category : #printing }
+DRJump >> opcode [
+	
+	^ 'Jump'
+]
+
+{ #category : #printing }
 DRJump >> prettyPrint [
 
 	^ 'Jump -> ', target id asString
