@@ -29,15 +29,14 @@ DRDominatorTree >> buildDominatorTreeOf: cfg [
 				currentNode replaceParent: newImmediateDominator.
 				hasChanged := true.
 			]
-		]
-	]
+		]]
 ]
 
 { #category : #'as yet unclassified' }
 DRDominatorTree >> computeDominanceFrontier [
 
 	dominanceFrontiers ifNotNil: [ ^ dominanceFrontiers ].
-	
+
 	dominanceFrontiers := Dictionary new.
 	blockDictionary keys do: [ :b | 
 		b predecessors size > 1 ifTrue: [ 
@@ -114,6 +113,14 @@ DRDominatorTree >> isDominator: dominatorBlock of: dominatedBlock [
 	| node |
 	node := blockDictionary at: dominatedBlock.
 	^ node isDominatedByBlock: dominatorBlock.
+]
+
+{ #category : #'as yet unclassified' }
+DRDominatorTree >> iterateDominanceFrontierOf: aDRBasicBlock [ 
+
+" DF+(n) = DF(n) U DF+(DF(n)) "
+" stop condition: "
+	^ (self dominanceFrontierOf: aDRBasicBlock) union: { self iterateDominanceFrontierOf:(self dominanceFrontierOf: aDRBasicBlock)}.
 ]
 
 { #category : #'as yet unclassified' }
