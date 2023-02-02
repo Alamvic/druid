@@ -27,7 +27,8 @@ DRInterpreterCompiler class >> examplePrimitivesCollector [
 	<example>
 
 	| primCollector |
-	
+
+	StackInterpreter initializePrimitiveTable.
 	primCollector := (DRInterpreterCompiler
 			fromInterpreter: (DRDummyInterpreter new primitives: StackInterpreter primitiveTable)
 			compilerClass: DRPrimitiveCompilerCompilerCollector)
@@ -226,7 +227,7 @@ DRInterpreterCompiler >> newMemory [
 	^ Spur64BitCoMemoryManager simulatorClass new
 ]
 
-{ #category : #accessimg }
+{ #category : #accessing }
 DRInterpreterCompiler >> newPrimitive: aString [ 
 	" Answer a new primitive object with its metadata and CFG generated"
 
