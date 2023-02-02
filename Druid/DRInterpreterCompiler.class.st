@@ -39,8 +39,8 @@ DRInterpreterCompiler class >> examplePrimitivesCollector [
 { #category : #examples }
 DRInterpreterCompiler class >> examplePrimitivesFromCollection [
 	<example>
-	
-	^ (DRInterpreterCompiler 
+
+	^ (DRInterpreterCompiler
 			fromInterpreter: (DRDummyInterpreter new primitives: #(#primitiveAdd)))
 				primitives inspect
 ]
@@ -74,7 +74,7 @@ DRInterpreterCompiler class >> fromInterpreter: anInterpreterBuilder compilerCla
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> addPrimitive: aString to: aDRCompilationUnit [ 
+DRInterpreterCompiler >> addPrimitive: aString to: aDRCompilationUnit [
 
 	aString = 0 ifFalse: [
 		aDRCompilationUnit addPrimitive: (self newPrimitive: aString) ]
@@ -104,8 +104,7 @@ DRInterpreterCompiler >> compilerCompiler [
 	"Answer a Druid compiler configured for the receiver's interpreter builder"
 
 	^ compilerCompiler
-		ifNil: [
-			compilerCompiler := self compilerCompilerClass 	forInterpreter: interpreter ]
+		ifNil: [ compilerCompiler := self compilerCompilerClass forInterpreter: interpreter ]
 ]
 
 { #category : #accessing }
@@ -228,15 +227,15 @@ DRInterpreterCompiler >> newMemory [
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> newPrimitive: aString [ 
+DRInterpreterCompiler >> newPrimitive: aString [
 	" Answer a new primitive object with its metadata and CFG generated"
 
 	^ DRPrimitiveObject new
 		primitiveNumber: (self primitiveNumberOf: aString);
 		sourceSelector: aString;
 		cfg: (self compilerCompiler buildIR: aString);
+		argumentCount: (self compilerCompiler numberOfArgumentsFor: aString);
 		yourself
-
 ]
 
 { #category : #accessing }
@@ -250,11 +249,13 @@ DRInterpreterCompiler >> primitiveArgumentCountOf: aSelector [
 { #category : #accessing }
 DRInterpreterCompiler >> primitiveNumberOf: aSelector [
 	" Answer a <Number> representing the primitive number of aSelector "
-	
+
 	| primNumber |
-	^ (primNumber := self interpreterPrimitiveTable indexOf: aSelector) > 0
-		ifTrue: [ primNumber ]
-		ifFalse: [ primNumber - 1 ].
+
+	primNumber := self interpreterPrimitiveTable indexOf: aSelector.
+	^ self interpreterPrimitiveTable first = 0
+		ifTrue: [ primNumber - 1 ]
+		ifFalse: [ primNumber ]
 ]
 
 { #category : #accessing }

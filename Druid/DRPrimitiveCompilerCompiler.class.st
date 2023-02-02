@@ -67,9 +67,11 @@ DRPrimitiveCompilerCompiler >> newIRGenerator [
 	^ DRPrimitiveIRGenerator new
 ]
 
-{ #category : #accessing }
-DRPrimitiveCompilerCompiler >> numberOfArgumentsFor: aMethod [ 
-	^ (aMethod ast pragmaNamed: #numberOfArguments:) arguments first value
+{ #category : #'generation-IR' }
+DRPrimitiveCompilerCompiler >> numberOfArgumentsFor: anObject [
+	"Answer a <Number> representing the number of arguments found in anObject (method or selector in the receiver's primitive's source)"
+
+	^ anObject numberOfArgumentsIn: self
 ]
 
 { #category : #accessing }
