@@ -38,6 +38,8 @@ DRSSAPRE >> insertPhi: cfg [
 		   tempList do: [ :p | b addInstruction: p ] 
 		] 
 	]
+
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -62,4 +64,7 @@ DRSSAPRE >> renamePhi: cfg [
 		b instructionsDo: [ :i | 
 			i isPhiFunction ifTrue: [
 				i nextInstruction replaceOperandAtIndex: 1 by: i ] ] ]
+	
+
+
 ]
