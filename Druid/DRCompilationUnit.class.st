@@ -8,6 +8,7 @@ Class {
 	#instVars : [
 		'primitives',
 		'jitCompilerClass',
+		'initPrimitiveTable',
 		'interpreter'
 	],
 	#category : #'Druid-CompilerCompiler'
@@ -19,29 +20,52 @@ DRCompilationUnit >> addPrimitive: aDRPrimitiveObject [
 	self primitives add: aDRPrimitiveObject 
 ]
 
-{ #category : #accessing }
-DRCompilationUnit >> compileAll [
+{ #category : #'accessing - compiler' }
+DRCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [ 
+	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
 
-	self primitives 
-		do: [ : primitive | self compilePrimitive: primitive ]
+	self initPrimitiveTable add: { 
+		aDRPrimitiveObject primitiveNumber .
+		aDRPrimitiveObject genSelector .
+		aDRPrimitiveObject argumentCount > 0
+			ifTrue: [ aDRPrimitiveObject argumentCount ] }.
+]
+
+{ #category : #'accessing - compiler' }
+DRCompilationUnit >> compileAll [
+	"Write primitive methods in the receiver's JIT compiler class"
+
+	self primitives	
+			do: [ : primitive | self compilePrimitive: primitive ]
+			displayingProgress: 'Compiling primitives'.
+	self compileInitializePrimitiveTable.
 		
 ]
 
-{ #category : #accessing }
-DRCompilationUnit >> compilePrimitive: aDRPrimitiveObject [ 
+{ #category : #'accessing - compiler' }
+DRCompilationUnit >> compileInitializePrimitiveTable [
+	"Install the initialize primitive table method in the receiver's JIT compiler class"
 
-	| selector |
-	selector := aDRPrimitiveObject sourceSelector.
-	(self compiler 
-		interpreter: self interpreter;
-		primitiveName: selector;
-		primitiveCompilerName: #gen_ , selector)
-			compile.
-		"	self objectRepresentation perform: ('genPrimitive', selector, endPart) asSymbol."
-		"	generateTargetASTFromIR: aDRPrimitiveObject cfg"
+	self compiler interpreter: self interpreter.
+	self primitives do: [ : primitiveObject | self addPrimitiveEntry: primitiveObject  ].
+	self jitCompilerClass class compile: self dumpInitializePrimitiveTable
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing - compiler' }
+DRCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
+	"Compile a method in the receiver's JIT compiler class. aDRPrimitiveObject contains the specification needed to compile the JITed version of the method"
+
+	| intrpSelector jitSelector |
+	intrpSelector := aDRPrimitiveObject sourceSelector.
+	jitSelector := aDRPrimitiveObject genSelector.
+	(self compiler
+		interpreter: self interpreter;
+		primitiveName: intrpSelector;
+		primitiveCompilerName: jitSelector)
+			compile
+]
+
+{ #category : #'accessing - compiler' }
 DRCompilationUnit >> compiler [
 
 	^ DRPrimitiveCompilerCompiler new
@@ -49,11 +73,26 @@ DRCompilationUnit >> compiler [
 		yourself
 ]
 
+{ #category : #private }
+DRCompilationUnit >> dumpInitializePrimitiveTable [
+	"Answer a <String> representing the source code of the #initializePrimitiveTable compatible with Cogit"
+
+	^ DRCogitPrimitiveDumper dumpFrom: self
+]
+
 { #category : #testing }
 DRCompilationUnit >> hasPrimitives [
 	"Answer <true> if the receiver already contains primitives"
 
 	^ self primitives notEmpty
+]
+
+{ #category : #'accessing - compiler' }
+DRCompilationUnit >> initPrimitiveTable [
+	"Answer a <Colllection> of <Array>. Each Array specifies an entry in the primitive table as expected by Cogit>>initializePrimitiveTable implementation"
+
+	^ initPrimitiveTable
+		ifNil: [ initPrimitiveTable := OrderedCollection new ]
 ]
 
 { #category : #accessing }
@@ -76,9 +115,9 @@ DRCompilationUnit >> jitCompilerClass [
 ]
 
 { #category : #accessing }
-DRCompilationUnit >> jitCompilerClass: aClass [
+DRCompilationUnit >> jitCompilerClass: anObject [
 
-	jitCompilerClass := aClass
+	jitCompilerClass := anObject
 ]
 
 { #category : #accessing }

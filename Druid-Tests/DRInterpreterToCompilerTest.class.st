@@ -1,6 +1,9 @@
 Class {
 	#name : #DRInterpreterToCompilerTest,
 	#superclass : #DRDruidTests,
+	#instVars : [
+		'testingEnvironment'
+	],
 	#category : #'Druid-Tests'
 }
 
@@ -14,6 +17,31 @@ DRInterpreterToCompilerTest >> interpreterWith: aCollection [
 DRInterpreterToCompilerTest >> newEmptyInterpreter [
 
 	^ DRDummyInterpreter new
+]
+
+{ #category : #running }
+DRInterpreterToCompilerTest >> setUp [
+
+	super setUp.
+	testingEnvironment := Smalltalk globals
+]
+
+{ #category : #running }
+DRInterpreterToCompilerTest >> tearDown [
+
+	testingEnvironment removeClassNamed: self testingJITCompilerClass.
+	super tearDown
+]
+
+{ #category : #initialization }
+DRInterpreterToCompilerTest >> testCompilationUnitPopulateInitializePrimitiveTable [
+
+	| interpreterCompiler interpreterBuilder |
+	interpreterBuilder := DRInterpreterBuilder new.
+	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
+	interpreterCompiler generateIRAndCompileIn: self testingJITCompilerClass.
+
+	self assert: interpreterCompiler initPrimitiveTable notEmpty
 ]
 
 { #category : #initialization }
@@ -52,4 +80,10 @@ DRInterpreterToCompilerTest >> testGenerateSinglePrimitiveCompilationUnit [
 
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: (self interpreterWith: #(#primitiveAdd)).
 	self assert: interpreterCompiler primitives notEmpty
+]
+
+{ #category : #initialization }
+DRInterpreterToCompilerTest >> testingJITCompilerClass [
+
+	^ #MyJITCompilerClass
 ]

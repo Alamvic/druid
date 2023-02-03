@@ -17,7 +17,8 @@ Class {
 		'compilerCompilerClass',
 		'interpreter',
 		'compilerCompiler',
-		'interpreterBuilder'
+		'interpreterBuilder',
+		'compilationUnit'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -39,8 +40,8 @@ DRInterpreterCompiler class >> examplePrimitivesCollector [
 { #category : #examples }
 DRInterpreterCompiler class >> examplePrimitivesFromCollection [
 	<example>
-
-	^ (DRInterpreterCompiler
+	
+	^ (DRInterpreterCompiler 
 			fromInterpreter: (DRDummyInterpreter new primitives: #(#primitiveAdd)))
 				primitives inspect
 ]
@@ -74,7 +75,7 @@ DRInterpreterCompiler class >> fromInterpreter: anInterpreterBuilder compilerCla
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> addPrimitive: aString to: aDRCompilationUnit [
+DRInterpreterCompiler >> addPrimitive: aString to: aDRCompilationUnit [ 
 
 	aString = 0 ifFalse: [
 		aDRCompilationUnit addPrimitive: (self newPrimitive: aString) ]
@@ -91,12 +92,23 @@ DRInterpreterCompiler >> addPrimitivesTo: compilationUnit [
 
 { #category : #accessing }
 DRInterpreterCompiler >> collectPrimitives [
-	"Trace receiver's interpreter primitives and collect compilation results. 
+	"Trace receiver's interpreter primitives and collect compilation results.
 	See implementors of #handlePrimitiveCompilationFor: "
 
 	self generateIR primitives.
-	^ self compilerCompiler.
+	^ self compilerCompiler
+]
 
+{ #category : #accessing }
+DRInterpreterCompiler >> compilationUnit [
+
+	^ compilationUnit
+]
+
+{ #category : #accessing }
+DRInterpreterCompiler >> compilationUnit: anObject [
+
+	compilationUnit := anObject
 ]
 
 { #category : #accessing }
@@ -104,7 +116,8 @@ DRInterpreterCompiler >> compilerCompiler [
 	"Answer a Druid compiler configured for the receiver's interpreter builder"
 
 	^ compilerCompiler
-		ifNil: [ compilerCompiler := self compilerCompilerClass forInterpreter: interpreter ]
+		ifNil: [
+			compilerCompiler := self compilerCompilerClass 	forInterpreter: interpreter ]
 ]
 
 { #category : #accessing }
@@ -137,11 +150,7 @@ DRInterpreterCompiler >> environmentAt: aClass [
 { #category : #accessing }
 DRInterpreterCompiler >> generateIR [
 
-	| compilationUnit |
-
-	compilationUnit := DRCompilationUnit new
-		interpreter: interpreter;
-		yourself.
+	compilationUnit := DRCompilationUnit new.
 	self addPrimitivesTo: compilationUnit.
 	^ compilationUnit
 ]
@@ -151,8 +160,16 @@ DRInterpreterCompiler >> generateIRAndCompileIn: aClass [
 	"Generate and install the receiver's primitives into JIT compiler aClass"
 
 	self generateIR
+		interpreter: interpreter;
 		jitCompilerClass: (self environmentAt: aClass);
 		compileAll
+]
+
+{ #category : #initialization }
+DRInterpreterCompiler >> initPrimitiveTable [
+	"Answer a <Collection> with the JITed primitives"
+
+	^ compilationUnit initPrimitiveTable
 ]
 
 { #category : #accessing }
@@ -226,7 +243,7 @@ DRInterpreterCompiler >> newMemory [
 	^ Spur64BitCoMemoryManager simulatorClass new
 ]
 
-{ #category : #accessing }
+{ #category : #accessimg }
 DRInterpreterCompiler >> newPrimitive: aString [
 	" Answer a new primitive object with its metadata and CFG generated"
 
@@ -236,6 +253,7 @@ DRInterpreterCompiler >> newPrimitive: aString [
 		cfg: (self compilerCompiler buildIR: aString);
 		argumentCount: (self compilerCompiler numberOfArgumentsFor: aString);
 		yourself
+
 ]
 
 { #category : #accessing }
@@ -249,13 +267,11 @@ DRInterpreterCompiler >> primitiveArgumentCountOf: aSelector [
 { #category : #accessing }
 DRInterpreterCompiler >> primitiveNumberOf: aSelector [
 	" Answer a <Number> representing the primitive number of aSelector "
-
+	
 	| primNumber |
-
-	primNumber := self interpreterPrimitiveTable indexOf: aSelector.
-	^ self interpreterPrimitiveTable first = 0
-		ifTrue: [ primNumber - 1 ]
-		ifFalse: [ primNumber ]
+	^ (primNumber := self interpreterPrimitiveTable indexOf: aSelector) > 0
+		ifTrue: [ primNumber ]
+		ifFalse: [ primNumber - 1 ].
 ]
 
 { #category : #accessing }
