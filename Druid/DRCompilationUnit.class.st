@@ -21,25 +21,24 @@ DRCompilationUnit >> addPrimitive: aDRPrimitiveObject [
 ]
 
 { #category : #'accessing - compiler' }
-DRCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [ 
+DRCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
 
-	self initPrimitiveTable add: { 
+	self initPrimitiveTable add: {
 		aDRPrimitiveObject primitiveNumber .
 		aDRPrimitiveObject genSelector .
 		aDRPrimitiveObject argumentCount > 0
-			ifTrue: [ aDRPrimitiveObject argumentCount ] }.
+			ifTrue: [ aDRPrimitiveObject argumentCount ] }
 ]
 
 { #category : #'accessing - compiler' }
 DRCompilationUnit >> compileAll [
 	"Write primitive methods in the receiver's JIT compiler class"
 
-	self primitives	
+	self primitives
 			do: [ : primitive | self compilePrimitive: primitive ]
 			displayingProgress: 'Compiling primitives'.
-	self compileInitializePrimitiveTable.
-		
+	self compileInitializePrimitiveTable
 ]
 
 { #category : #'accessing - compiler' }
@@ -48,7 +47,7 @@ DRCompilationUnit >> compileInitializePrimitiveTable [
 
 	self compiler interpreter: self interpreter.
 	self primitives do: [ : primitiveObject | self addPrimitiveEntry: primitiveObject  ].
-	self jitCompilerClass class compile: self dumpInitializePrimitiveTable
+	self primitiveTableInitializer installAllMethodsOn: self jitCompilerClass class
 ]
 
 { #category : #'accessing - compiler' }
@@ -71,13 +70,6 @@ DRCompilationUnit >> compiler [
 	^ DRPrimitiveCompilerCompiler new
 		compilerClass: self jitCompilerClass;
 		yourself
-]
-
-{ #category : #private }
-DRCompilationUnit >> dumpInitializePrimitiveTable [
-	"Answer a <String> representing the source code of the #initializePrimitiveTable compatible with Cogit"
-
-	^ DRCogitPrimitiveDumper dumpFrom: self
 ]
 
 { #category : #testing }
@@ -118,6 +110,13 @@ DRCompilationUnit >> jitCompilerClass [
 DRCompilationUnit >> jitCompilerClass: anObject [
 
 	jitCompilerClass := anObject
+]
+
+{ #category : #private }
+DRCompilationUnit >> primitiveTableInitializer [
+	"Answer a <PCGMethodNode> representing the source code of the #initializePrimitiveTable compatible with Cogit"
+
+	^ DRCogitPrimitiveInstaller primitiveTableMethodFrom: self
 ]
 
 { #category : #accessing }

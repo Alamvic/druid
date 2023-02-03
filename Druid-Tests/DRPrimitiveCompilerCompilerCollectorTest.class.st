@@ -52,7 +52,7 @@ DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitGeneratesJIT [
 	interpreterCompiler generateIRAndCompileIn: self testingJITCompilerClass.
 
 	self shouldnt: [ self class environment at: self testingJITCompilerClass ] raise: KeyNotFound.
-	self assert: ((self class environment at: self testingJITCompilerClass) canUnderstand: #initializePrimitiveTable)
+	self assert: ((self class environment at: self testingJITCompilerClass) respondsTo: #initializePrimitiveTable)
 ]
 
 { #category : #initialization }
