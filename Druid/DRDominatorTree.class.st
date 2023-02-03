@@ -116,13 +116,14 @@ DRDominatorTree >> isDominator: dominatorBlock of: dominatedBlock [
 ]
 
 { #category : #'as yet unclassified' }
-DRDominatorTree >> iterateDominanceFrontierOf: aDRBasicBlock [
-	| frontiers |
-		" DF+(n) = DF(n) U DF+(DF(n)) "
-	
-	^ (self dominanceFrontierOf: aDRBasicBlock) union:
-		  ((self dominanceFrontierOf: aDRBasicBlock) flatCollect: [ :each | 
-			   self iterateDominanceFrontierOf: each ])
+DRDominatorTree >> iteratedDominanceFrontierOf: aDRBasicBlock [
+	" DF+(n) = DF(n) U DF+(DF(n)) 
+		  returns a set of Dominance Frontier of the block "
+
+	| frontier |
+	frontier := self dominanceFrontierOf: aDRBasicBlock.
+	^ frontier union: (frontier flatCollect: [ :each | 
+			   self iteratedDominanceFrontierOf: each ])
 ]
 
 { #category : #'as yet unclassified' }
