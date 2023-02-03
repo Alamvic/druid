@@ -23,11 +23,10 @@ DRDominatorTreeTest >> testCorrectDominatorFrontierIterationWithBranch1 [
 
 	dominatorTree := DRDominatorTree new.
 	dominatorTree buildDominatorTreeOf: cfg.
-	
-   
-   self assert: (dominatorTree iterateDominanceFrontierOf: b1) equals: { } asSet.
-   self assert: (dominatorTree iterateDominanceFrontierOf: b2) equals: { b3 } asSet.
-   self assert: (dominatorTree iterateDominanceFrontierOf: b3) equals: { } asSet.
+	   
+   self assert: (dominatorTree iteratedDominanceFrontierOf: b1) equals: { } asSet.
+   self assert: (dominatorTree iteratedDominanceFrontierOf: b2) equals: { b3 } asSet.
+   self assert: (dominatorTree iteratedDominanceFrontierOf: b3) equals: { } asSet.
 	
 ]
 
@@ -40,10 +39,10 @@ DRDominatorTreeTest >> testCorrectDominatorFrontierIterationWithBranch2 [
    dominatorTree := DRDominatorTree new.
 	dominatorTree buildDominatorTreeOf: cfg.
 	
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b1) equals: {  } asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b2) equals: {cfg b4} asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b3) equals: {cfg b4} asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b4) equals: {  } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b1) equals: {  } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b2) equals: {cfg b4} asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b3) equals: {cfg b4} asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b4) equals: {  } asSet.
 	
 ]
 
@@ -65,11 +64,11 @@ DRDominatorTreeTest >> testCorrectDominatorFrontierIterationWithBranch3 [
 	dominatorTree := DRDominatorTree new.
 	dominatorTree buildDominatorTreeOf: cfg.
    
-   self assert: (dominatorTree iterateDominanceFrontierOf: b5) equals: {  } asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b1) equals: { cfg b4 } asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b2) equals: { cfg b4 } asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b3) equals: { cfg b4 } asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b4) equals: { } asSet.
+   self assert: (dominatorTree iteratedDominanceFrontierOf: b5) equals: {  } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b1) equals: { cfg b4 } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b2) equals: { cfg b4 } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b3) equals: { cfg b4 } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b4) equals: { } asSet.
 	
 ]
 
@@ -96,12 +95,12 @@ DRDominatorTreeTest >> testCorrectDominatorFrontierIterationWithBranch4 [
 	dominatorTree := DRDominatorTree new.
 	dominatorTree buildDominatorTreeOf: cfg.
    
-   self assert: (dominatorTree iterateDominanceFrontierOf: b6) equals: { } asSet.
-   self assert: (dominatorTree iterateDominanceFrontierOf: b5) equals: { cfg b2 . cfg b4 } asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b1) equals: { cfg b2 . cfg b3 . cfg b4} asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b2) equals: { cfg b4 } asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b3) equals: { cfg b4 } asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b4) equals: { } asSet.
+   self assert: (dominatorTree iteratedDominanceFrontierOf: b6) equals: { } asSet.
+   self assert: (dominatorTree iteratedDominanceFrontierOf: b5) equals: { cfg b2 . cfg b4 } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b1) equals: { cfg b2 . cfg b3 . cfg b4} asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b2) equals: { cfg b4 } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b3) equals: { cfg b4 } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b4) equals: { } asSet.
 	
 ]
 
@@ -216,12 +215,12 @@ DRDominatorTreeTest >> testCorrectDominatorTreeIterationWithBranch4 [
 	dominatorTree := DRDominatorTree new.
 	dominatorTree buildDominatorTreeOf: cfg.
 	
-	self assert: (dominatorTree iterateDominanceFrontierOf: b6) equals:  { } asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: b5) equals:  { cfg b2 . cfg b4} asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b1) equals:  { cfg b2 . cfg b3 . cfg b4 } asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b2) equals:  { cfg b4 } asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b3) equals:  { cfg b4 } asSet.
-	self assert: (dominatorTree iterateDominanceFrontierOf: cfg b4) equals:  { } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: b6) equals:  { } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: b5) equals:  { cfg b2 . cfg b4} asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b1) equals:  { cfg b2 . cfg b3 . cfg b4 } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b2) equals:  { cfg b4 } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b3) equals:  { cfg b4 } asSet.
+	self assert: (dominatorTree iteratedDominanceFrontierOf: cfg b4) equals:  { } asSet.
 ]
 
 { #category : #tests }
