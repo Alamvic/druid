@@ -91,21 +91,27 @@ T1  → T2 = e  → T4 = e
 ]
 
 { #category : #tests }
-DRSSAPRETest >> testPhiInsertionOnDFcase1 [
+DRSSAPRETest >> testPhiInsertionInConditionalCase1 [
 	" 
 	  T1  →   T2 = e   →   T3   
           \_________/ 
    "
 
 	| cfg b3 b1 b2 instruction |
-	cfg := DRControlFlowGraph new.
-	b1 := cfg newBasicBlock.
-	b2 := cfg newBasicBlock.
-	b3 := cfg newBasicBlock.
+	
+	cfg := self setUpCFG: 3.
+	b1 := cfg b1.
+	b2 := cfg b2.
+	b3 := cfg b3.
+	
+   instruction := b2 copy: 3.
 	b1 jumpIfTrueTo: b2 ifFalseTo: b3.
-	b2 jumpTo: b3.
-	instruction := cfg b2 copy: 3.
 	
 	optimisation insertPhi: cfg.
+	
+	self assert: b3 hasPhiFunctions equals: true.
+	
+	
+	
 	
 ]

@@ -22,24 +22,17 @@ DRSSAPRE >> initialize [
 
 { #category : #'as yet unclassified' }
 DRSSAPRE >> insertPhi: cfg [
+	" when an expression appears, inserting a PHi at its iterated dominance frointer "
 
-	| tempList |
-	tempList:= OrderedCollection new.
-	 
+	| dt |
+	dt := DRDominatorTree new.
+	dt buildDominatorTreeOf: cfg.
+
 	cfg blocksInReversePostOrderDo: [ :b | 
-		b predecessors size > 1 ifTrue: [ 
-			b instructions do: [ :i | 
-				i isCopy ifTrue: [ 
-					( tempList add: (b instructionFactory 
-						 phiWith: (b predecessorAt: 1) firstInstruction
-						 with: (b predecessorAt: 2) firstInstruction))
-				]
-			].
-		   tempList do: [ :p | b addInstruction: p ] 
-		] 
-	]
-
-
+		b instructionsDo: [ :i | 
+			i isCopy ifTrue: [ 
+				(dt iteratedDominanceFrontierOf: b) do: [ :bl | 
+					bl addInstructionFirst: bl newPhi ] ] ] ]
 ]
 
 { #category : #'as yet unclassified' }
