@@ -148,6 +148,24 @@ DRInterpreterCompiler >> environmentAt: aClass [
 		ifAbsent: [ self newJitCompilerClassNamed: aClass ]
 ]
 
+{ #category : #'accessing - model' }
+DRInterpreterCompiler >> generateBuildModel [
+
+	compilationUnit := DRCompilationBuildUnit new.
+	self addPrimitivesTo: compilationUnit.
+	^ compilationUnit
+]
+
+{ #category : #'accessing - model' }
+DRInterpreterCompiler >> generateBuildModelAndCompileIn: aClass [
+	"Generate and install the receiver's primitives into JIT compiler aClass"
+
+	self generateBuildModel
+		interpreter: interpreter;
+		jitCompilerClass: (self environmentAt: aClass);
+		compileAll
+]
+
 { #category : #accessing }
 DRInterpreterCompiler >> generateIR [
 

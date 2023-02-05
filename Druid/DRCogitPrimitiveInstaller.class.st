@@ -8,7 +8,8 @@ Class {
 	#name : #DRCogitPrimitiveInstaller,
 	#superclass : #Object,
 	#instVars : [
-		'primitiveSpec'
+		'primitiveSpec',
+		'primTableNode'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -26,9 +27,10 @@ DRCogitPrimitiveInstaller class >> primitiveTableMethodFrom: aDRCompilationUnit 
 DRCogitPrimitiveInstaller >> buildInitializePrimitiveTableArrayMethodNode [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
-	^ (PCGMethodNode selector: #primitiveTableArray)
+	primTableNode := (PCGMethodNode selector: #primitiveTableArray)
 			bodyBlock: [ :body |
-				body << self primitiveTableArray ]
+				body << self buildPrimitiveTableArrayNode ].
+	^ primTableNode
 ]
 
 { #category : #'accessing - building' }
@@ -49,14 +51,30 @@ DRCogitPrimitiveInstaller >> buildInitializePrimitiveTableIVarAssignmentNode [
 		  value: self buildPrimitiveTableInitialValueNode
 ]
 
+{ #category : #accessing }
+DRCogitPrimitiveInstaller >> buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode [
+
+	^ PCGAssignmentNode new
+		  variable: #MaxCompiledPrimitiveIndex asPCGGlobal;
+		  value: self maxCompiledPrimitives asPCG
+]
+
 { #category : #'accessing - building' }
 DRCogitPrimitiveInstaller >> buildInitializePrimitiveTableMethodNode [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
 	^ (PCGMethodNode selector: #initializePrimitiveTable) bodyBlock: [ : body |
 		  body
-			  << self buildInitializePrimitiveTableIVarAssignmentNode;
-			  << self buildInitializePrimitiveTableAssignmentNode ]
+			<< self buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode
+			<< self buildInitializePrimitiveTableIVarAssignmentNode;
+			<< self buildInitializePrimitiveTableAssignmentNode ]
+]
+
+{ #category : #'accessing - building' }
+DRCogitPrimitiveInstaller >> buildPrimitiveTableArrayNode [
+	"Answer a <PCGReturnNode> with the primitive table initialization setter message send"
+
+	^ self initPrimitiveTable asPCG returnIt
 ]
 
 { #category : #'accessing - building' }
@@ -72,6 +90,19 @@ DRCogitPrimitiveInstaller >> buildPrimitiveTableInitialValueNode [
 				arguments: { 1 asPCG }) } asPCG
 ]
 
+{ #category : #accessing }
+DRCogitPrimitiveInstaller >> collectAllMethodsOn: aJITCompilerClass [
+	"Answer a <Collection> of <PCGMethodNode> to be installated in a JIT compiler class"
+
+	^ {
+		self buildInitializePrimitiveTableArrayMethodNode .
+		self buildInitializePrimitiveTableMethodNode
+		} collect: [ : pcgNode |
+			pcgNode
+				protocol: #'class initialization';
+				installOn: aJITCompilerClass ]
+]
+
 { #category : #initialization }
 DRCogitPrimitiveInstaller >> initPrimitiveTable [
 	"Answer a <Collection> with primitive table entries"
@@ -79,7 +110,7 @@ DRCogitPrimitiveInstaller >> initPrimitiveTable [
 	^ self primitiveSpec initPrimitiveTable
 ]
 
-{ #category : #generation }
+{ #category : #'accessing - installation' }
 DRCogitPrimitiveInstaller >> installAllMethodsOn: aJITCompilerClass [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
@@ -94,6 +125,19 @@ DRCogitPrimitiveInstaller >> installAllMethodsOn: aJITCompilerClass [
 ]
 
 { #category : #accessing }
+DRCogitPrimitiveInstaller >> maxCompiledPrimitives [
+	"Answer the <Number> of compiled primitives in the receiver"
+	
+	^ self primTableNode maxCompiledPrimitives
+]
+
+{ #category : #accessing }
+DRCogitPrimitiveInstaller >> primTableNode [
+
+	^ primTableNode
+]
+
+{ #category : #accessing }
 DRCogitPrimitiveInstaller >> primitiveSpec [
 
 	^ primitiveSpec
@@ -103,11 +147,4 @@ DRCogitPrimitiveInstaller >> primitiveSpec [
 DRCogitPrimitiveInstaller >> primitiveSpec: anObject [
 
 	primitiveSpec := anObject
-]
-
-{ #category : #generation }
-DRCogitPrimitiveInstaller >> primitiveTableArray [
-	"Answer a <PCGReturnNode> with the primitive table initialization setter message send"
-
-	^ self initPrimitiveTable asPCG returnIt
 ]

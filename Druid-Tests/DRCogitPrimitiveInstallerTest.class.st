@@ -11,6 +11,12 @@ Class {
 }
 
 { #category : #running }
+DRCogitPrimitiveInstallerTest >> buildUnitForTesting [
+
+	^ DRCompilationBuildUnit new
+]
+
+{ #category : #running }
 DRCogitPrimitiveInstallerTest >> compilationUnitForTesting [
 
 	^ DRCompilationUnit new

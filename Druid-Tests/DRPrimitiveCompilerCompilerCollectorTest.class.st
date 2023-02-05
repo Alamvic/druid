@@ -56,6 +56,18 @@ DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitGeneratesJIT [
 ]
 
 { #category : #initialization }
+DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitModelGeneratesJIT [
+
+	| interpreterCompiler interpreterBuilder |
+	interpreterBuilder := DRInterpreterBuilder new.
+	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
+	interpreterCompiler generateBuildModelAndCompileIn: self testingJITCompilerClass.
+
+	self shouldnt: [ self class environment at: self testingJITCompilerClass ] raise: KeyNotFound.
+	self assert: ((self class environment at: self testingJITCompilerClass) respondsTo: #initializePrimitiveTable)
+]
+
+{ #category : #initialization }
 DRPrimitiveCompilerCompilerCollectorTest >> testGenerateEmptyCompilationUnit [
 
 	| interpreterCompiler |

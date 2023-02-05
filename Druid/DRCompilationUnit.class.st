@@ -21,6 +21,14 @@ DRCompilationUnit >> addPrimitive: aDRPrimitiveObject [
 ]
 
 { #category : #'accessing - compiler' }
+DRCompilationUnit >> addPrimitiveEntries [
+
+	self compiler interpreter: self interpreter.
+	self primitives do: [ :primitiveObject |
+		self addPrimitiveEntry: primitiveObject ]
+]
+
+{ #category : #'accessing - compiler' }
 DRCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
 
@@ -31,7 +39,7 @@ DRCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 			ifTrue: [ aDRPrimitiveObject argumentCount ] }
 ]
 
-{ #category : #'accessing - compiler' }
+{ #category : #REVIEW }
 DRCompilationUnit >> compileAll [
 	"Write primitive methods in the receiver's JIT compiler class"
 
@@ -45,9 +53,9 @@ DRCompilationUnit >> compileAll [
 DRCompilationUnit >> compileInitializePrimitiveTable [
 	"Install the initialize primitive table method in the receiver's JIT compiler class"
 
-	self compiler interpreter: self interpreter.
-	self primitives do: [ : primitiveObject | self addPrimitiveEntry: primitiveObject  ].
-	self primitiveTableInitializer installAllMethodsOn: self jitCompilerClass class
+	self addPrimitiveEntries.
+	self primitiveTableInitializer installAllMethodsOn:
+		self jitCompilerClass class
 ]
 
 { #category : #'accessing - compiler' }
