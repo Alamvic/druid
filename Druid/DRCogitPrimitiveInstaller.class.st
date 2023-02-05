@@ -33,13 +33,12 @@ DRCogitPrimitiveInstaller >> buildInitializePrimitiveTableArrayMethodNode [
 
 { #category : #'accessing - building' }
 DRCogitPrimitiveInstaller >> buildInitializePrimitiveTableAssignmentNode [
-	"Answer a <PCGReturnNode> with the primitive table initialization setter message send"
+	"Answer a <PCGMessageNode> with the primitive table initialization setter message send"
 
-	^ (PCGMessageNode
+	^ PCGMessageNode
 			receiver: #self asPCGNode
 			selector: #table:from:
-			arguments: { #primitiveTable asPCGArgument . #'self primitiveTableArray' asPCGArgument } )
-				returnIt
+			arguments: { #primitiveTable asPCGArgument . #'self primitiveTableArray' asPCGArgument }
 ]
 
 { #category : #'accessing - building' }
@@ -108,6 +107,7 @@ DRCogitPrimitiveInstaller >> primitiveSpec: anObject [
 
 { #category : #generation }
 DRCogitPrimitiveInstaller >> primitiveTableArray [
+	"Answer a <PCGReturnNode> with the primitive table initialization setter message send"
 
-	^ self initPrimitiveTable asPCG
+	^ self initPrimitiveTable asPCG returnIt
 ]
