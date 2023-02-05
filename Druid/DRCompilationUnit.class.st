@@ -39,7 +39,7 @@ DRCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 			ifTrue: [ aDRPrimitiveObject argumentCount ] }
 ]
 
-{ #category : #REVIEW }
+{ #category : #'accessing - compiler' }
 DRCompilationUnit >> compileAll [
 	"Write primitive methods in the receiver's JIT compiler class"
 
