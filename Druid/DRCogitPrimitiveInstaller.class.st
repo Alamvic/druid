@@ -83,11 +83,14 @@ DRCogitPrimitiveInstaller >> buildPrimitiveTableInitialValueNode [
 	^ PCGMessageNode
 		receiver: #CArrayAccessor asPCGGlobal
 		selector: #on:
-		arguments: {
+		arguments:
 			(PCGMessageNode
-				receiver: #MaxCompiledPrimitiveIndex asPCGGlobal
-				selector: #+
-				arguments: { 1 asPCG }) } asPCG
+				receiver: #Array asPCGGlobal
+				selector: #new:
+				arguments: (PCGMessageNode
+					receiver: #MaxCompiledPrimitiveIndex asPCGGlobal
+					selector: #+
+					arguments: { 1 asPCG }) )
 ]
 
 { #category : #accessing }
