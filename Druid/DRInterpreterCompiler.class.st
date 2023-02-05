@@ -253,15 +253,6 @@ DRInterpreterCompiler >> newPrimitive: aString [
 		cfg: (self compilerCompiler buildIR: aString);
 		argumentCount: (self compilerCompiler numberOfArgumentsFor: aString);
 		yourself
-
-]
-
-{ #category : #'accessing - primitives' }
-DRInterpreterCompiler >> primitiveArgumentCountOf: aSelector [ 
-	"Answer a <Number> of arguments exepcted by aSelector in the receiver's primitive table"
-	
-	^ 0
-	" ^ (self primitiveTable indexOf: aSelector) - 1. "
 ]
 
 { #category : #'accessing - primitives' }
