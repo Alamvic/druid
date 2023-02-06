@@ -25,5 +25,7 @@ DRFrameReturn >> isMandatoryInstruction [
 { #category : #SCCP }
 DRFrameReturn >> sccpLatticeValueFor: sccp [
 
+	self controlFlowGraph messageSends ifEmpty: [ "If there is no remaining messages then can be folded" 
+		^ super sccpLatticeValueFor: sccp ].
 	^ sccp bottom
 ]

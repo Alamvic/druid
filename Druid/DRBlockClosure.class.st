@@ -67,7 +67,7 @@ DRBlockClosure >> executeOn: interpreter [
 { #category : #interpreting }
 DRBlockClosure >> generateCFG [
 
-	self flag: #ToImplement.
+	self error: #ToImplement.
 	irGenerator interpretBlockClosure: self.
 	^ irGenerator ir
 ]

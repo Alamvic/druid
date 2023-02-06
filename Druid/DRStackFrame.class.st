@@ -247,14 +247,14 @@ DRStackFrame >> resolveDeferredMethodReturns: aDRIRGenerator [
 
 	self assert: self returnValue isFrameReturn not.
 	self assert: mirrorFrame returnValue isNotNil.
-	self assert: (exitBasicBlock includesInstruction: mirrorFrame returnValue).
 
 	deferredReturnsBlock := aDRIRGenerator newBasicBlock.
 	deferredFrameReturn := aDRIRGenerator mergeDeferredReturns: self deferredMethodReturns in: deferredReturnsBlock.
 	pieces := mirrorFrame returnValue breakBasicBlock.
 
-	self assert: exitBasicBlock = pieces last.
-	
+	"Update exitBasicBlock and continue from there"
+	aDRIRGenerator currentBasicBlock: (exitBasicBlock := pieces last).
+
 	deferredReturnsBlock jumpTo: exitBasicBlock.
 	newReturn := exitBasicBlock addInstruction: (aDRIRGenerator instructionFactory phiWithVariables: {  }).
 	self returnValue: newReturn.

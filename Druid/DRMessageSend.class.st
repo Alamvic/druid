@@ -93,12 +93,11 @@ DRMessageSend >> inline [
 	self replaceUsesBy: inlinedMethodReturnValue.
 	
 	"Remove message send block"
-	pieces last removePredecessor: self basicBlock.
+	self basicBlock successors copy do: [ :succ | succ removePredecessor: self basicBlock ].
 	self basicBlock removeFromCFG.
 	
 	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: irGenerator ir.
-	DRDeadCodeElimination new applyTo: irGenerator ir.
 	irGenerator ir validate.
 
 ]
