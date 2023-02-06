@@ -14,9 +14,10 @@ DRDominatorTreeTest >> testCorrectDominatorFrontierIterationWithBranch1 [
 	| cfg dominatorTree b1 b2 b3 |
 	
 	cfg := DRControlFlowGraph new.
-	b1 := cfg initialBasicBlock.
+	b1 := cfg newBasicBlock.
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
+	
 	cfg initialBasicBlock jumpTo: b1.
 	b1 jumpIfTrueTo: b2 ifFalseTo: b3.
 	b2 jumpTo: b3.
@@ -57,7 +58,7 @@ DRDominatorTreeTest >> testCorrectDominatorFrontierIterationWithBranch3 [
 	| cfg dominatorTree b5 |
 	cfg := self setUpCFGWithConditional.
 	
-	b5 := cfg initialBasicBlock.
+	b5 := cfg newBasicBlock.
 	cfg initialBasicBlock jumpTo: b5.
 	b5 jumpIfTrueTo: cfg b4 ifFalseTo: cfg b1.
 	
@@ -86,7 +87,7 @@ DRDominatorTreeTest >> testCorrectDominatorFrontierIterationWithBranch4 [
 	
 	cfg := self setUpCFGWithConditional.
 	
-	b6 := cfg initialBasicBlock.
+	b6 := cfg newBasicBlock.
 	b5 := cfg newBasicBlock.
 	cfg initialBasicBlock jumpTo: b6.
 	b6  jumpIfTrueTo: cfg b2 ifFalseTo: b5.
@@ -114,7 +115,7 @@ DRDominatorTreeTest >> testCorrectDominatorFrontierWithBranch1 [
 	| cfg dominatorTree b1 b2 b3 |
 	
 	cfg := DRControlFlowGraph new.
-	b1 := cfg initialBasicBlock.
+	b1 := cfg newBasicBlock.
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	cfg initialBasicBlock jumpTo: b1.
@@ -154,7 +155,7 @@ DRDominatorTreeTest >> testCorrectDominatorFrontierWithBranch3 [
 	| cfg dominatorTree b5 |
 	cfg := self setUpCFGWithConditional.
 	
-	b5 := cfg initialBasicBlock.
+	b5 := cfg newBasicBlock.
 	cfg initialBasicBlock jumpTo: b5.
 	b5 jumpIfTrueTo: cfg b4 ifFalseTo: cfg b1.
 	
@@ -183,7 +184,7 @@ DRDominatorTreeTest >> testCorrectDominatorFrontierWithBranch4 [
 	
 	cfg := self setUpCFGWithConditional.
 	
-	b6 := cfg initialBasicBlock.
+	b6 := cfg newBasicBlock.
 	b5 := cfg newBasicBlock.
 	cfg initialBasicBlock jumpTo: b6.
 	b6  jumpIfTrueTo: cfg b2 ifFalseTo: b5.
