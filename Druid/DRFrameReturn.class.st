@@ -21,3 +21,9 @@ DRFrameReturn >> isMandatoryInstruction [
 
 	^ true
 ]
+
+{ #category : #SCCP }
+DRFrameReturn >> sccpLatticeValueFor: sccp [
+
+	^ sccp bottom
+]

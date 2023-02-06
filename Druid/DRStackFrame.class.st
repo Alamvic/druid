@@ -235,9 +235,9 @@ DRStackFrame >> resolveDeferredMethodReturns: aDRIRGenerator [
 
 	"If there were returns attached to popped frame, merge all of them in a single state. If there was only one return this is important also to override implicit returns"
 
-	exitBasicBlock isEmptyBasicBlock ifTrue: [ "There are no provious returns"
+	mirrorFrame returnValue isNil ifTrue: [ "There are no provious returns"
 		self assert: self returnValue isFrameReturn not.
-		self assert: mirrorFrame returnValue isNil.
+		self assert: exitBasicBlock isEmptyBasicBlock.
 		newFrameReturn := aDRIRGenerator mergeDeferredReturns: self deferredMethodReturns in: exitBasicBlock.
 		mirrorFrame returnValue: newFrameReturn. "Save it in a secure and common place"
 		self clearDeferredMethodReturns.
@@ -253,10 +253,9 @@ DRStackFrame >> resolveDeferredMethodReturns: aDRIRGenerator [
 	deferredFrameReturn := aDRIRGenerator mergeDeferredReturns: self deferredMethodReturns in: deferredReturnsBlock.
 	pieces := mirrorFrame returnValue breakBasicBlock.
 
-	self assert: pieces last = exitBasicBlock.
-
+	self assert: exitBasicBlock = pieces last.
+	
 	deferredReturnsBlock jumpTo: exitBasicBlock.
-	aDRIRGenerator currentBasicBlock: exitBasicBlock.
 	newReturn := exitBasicBlock addInstruction: (aDRIRGenerator instructionFactory phiWithVariables: {  }).
 	self returnValue: newReturn.
 	newFrameReturn := aDRIRGenerator addFrameReturn: self.
@@ -264,7 +263,6 @@ DRStackFrame >> resolveDeferredMethodReturns: aDRIRGenerator [
 	newReturn operands: { 
 			mirrorFrame returnValue.
 			deferredFrameReturn }.
-	1halt.
 	mirrorFrame returnValue: (newFrameReturn).
 	self clearDeferredMethodReturns
 ]
@@ -272,13 +270,17 @@ DRStackFrame >> resolveDeferredMethodReturns: aDRIRGenerator [
 { #category : #accessing }
 DRStackFrame >> returnValue [
 
+	"	^ mirrorFrame returnValue"
+
 	^ returnValue
 ]
 
 { #category : #accessing }
 DRStackFrame >> returnValue: aValue [
 
-	returnValue := aValue
+	"aValue isFrameReturn ifTrue: [ 1halt ]."
+
+	^ returnValue := aValue
 ]
 
 { #category : #accessing }

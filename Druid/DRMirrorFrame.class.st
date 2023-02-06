@@ -3,8 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'deferredMethodReturns',
-		'returnValue',
-		'token'
+		'returnValue'
 	],
 	#category : #'Druid-Tests'
 }
@@ -37,4 +36,18 @@ DRMirrorFrame >> deferredMethodReturns: anObject [
 DRMirrorFrame >> initialize [
 	super initialize.
 	deferredMethodReturns := Dictionary new
+]
+
+{ #category : #accessing }
+DRMirrorFrame >> returnValue [
+
+	^ returnValue
+]
+
+{ #category : #accessing }
+DRMirrorFrame >> returnValue: aDRValue [
+
+	self flag: #TODO. "Rename"
+
+	^ returnValue := aDRValue
 ]

@@ -40,7 +40,8 @@ DRMessageSend >> generateInlineIRForMethod: classAndMethodToInline [
 
 	irGenerator finishCodeInterpretation: lastFrame.
 
-	^ lastFrame mirrorFrame returnValue
+	self flag: #TOFIX.
+	^ lastFrame mirrorFrame returnValue ifNil: [ lastFrame returnValue ]
 ]
 
 { #category : #inlining }
@@ -79,20 +80,16 @@ DRMessageSend >> inline [
 	methodsToInline := self methodsToInline.
 	methodsToInline ifEmpty: [ ^ self ].
 
-	self flag: #TOFIX.
-	self assert: (irGenerator ir blocks includes: irGenerator topFrame exitBasicBlock).
-
+	"Break message send basic block"
 	pieces := self basicBlock breakBy: self.
-
 	pieces first jumpTo: irGenerator newFirstBasicBlock.
 
+	"Generate inlining methods IR"
 	irGenerator numberOfArguments: operands size - 1.
 	inlinedMethodReturnValue := self generateInlineIRForMethods: methodsToInline.
 
-
+	"Replace usages by inlines result"
 	irGenerator currentBasicBlock jumpTo: pieces last.
-
-	self flag: #TODO. "Always? What happend with effect methods?"
 	self replaceUsesBy: inlinedMethodReturnValue.
 	
 	"Remove message send block"

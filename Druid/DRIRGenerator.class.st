@@ -32,8 +32,8 @@ DRIRGenerator >> addDeferredReturnState: anExecutionState [
 { #category : #'execution state' }
 DRIRGenerator >> addFrameReturn: aDRStackFrame [
 
-	self assert: aDRStackFrame returnValue isFrameReturn not.
-
+	"self assert: aDRStackFrame mirrorFrame returnValue isNil."
+	
 	self
 		addInstructionFrom: aDRStackFrame method
 		instructionKind: DRFrameReturn
@@ -1308,6 +1308,7 @@ DRIRGenerator >> ir [
 DRIRGenerator >> mergeDeferredReturns: deferredMethodReturns in: aDRBasicBlock [
 
 	| frameReturns stackFrame |
+	self flag: #TODO. "Is it ok to take the first one?"
 	stackFrame := deferredMethodReturns values first topFrame.
 	currentBasicBlock := aDRBasicBlock.
 	frameReturns := deferredMethodReturns keys.
@@ -1361,10 +1362,10 @@ DRIRGenerator >> newBasicBlockDuring: aFullBlockClosure [
 ]
 
 { #category : #'basic-blocks' }
-DRIRGenerator >> newBasicBlockWithState: executionState [
+DRIRGenerator >> newBasicBlockWithState: anExecutionState [
 
 	| newBasicBlock |
-	newBasicBlock := self basicNewBasicBlockWithState: executionState.
+	newBasicBlock := self basicNewBasicBlockWithState: anExecutionState.
 	^ currentBasicBlock := newBasicBlock
 ]
 
@@ -1706,8 +1707,6 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 				executionState copy.
 				self addFrameReturn: primitiveReturn }.
 
-		"Start a new dead block from here"
-		self newBasicBlock.
 		"If the method has no return statement, it should still return something"
 		^ self ].
 
