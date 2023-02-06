@@ -20,7 +20,7 @@ Class {
 		'interpreterBuilder',
 		'compilationUnit'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-InterpreterBuilder'
 }
 
 { #category : #examples }
@@ -150,6 +150,7 @@ DRInterpreterCompiler >> environmentAt: aClass [
 
 { #category : #'accessing - model' }
 DRInterpreterCompiler >> generateBuildModel [
+	"Answer a <DRCompilationBuildUnit>, useful for model manipulation before code dumping"
 
 	compilationUnit := DRCompilationBuildUnit new.
 	self addPrimitivesTo: compilationUnit.
@@ -263,14 +264,24 @@ DRInterpreterCompiler >> newMemory [
 
 { #category : #'accessing - primitives' }
 DRInterpreterCompiler >> newPrimitive: aString [
-	" Answer a new primitive object with its metadata and CFG generated"
+	" Answer a new primitive object with its metadata and CFG generated "
 
 	^ DRPrimitiveObject new
 		primitiveNumber: (self primitiveNumberOf: aString);
 		sourceSelector: aString;
 		cfg: (self compilerCompiler buildIR: aString);
 		argumentCount: (self compilerCompiler numberOfArgumentsFor: aString);
+		mayCallback: (self primitiveMayCallback: aString);
 		yourself
+]
+
+{ #category : #accessing }
+DRInterpreterCompiler >> primitiveMayCallback: aString [ 
+	"Answer <true> if primitive aString is marked as maycallback"
+	" #maycallback "
+	
+	^ aString = #genNonImplementedPrimitive
+
 ]
 
 { #category : #'accessing - primitives' }

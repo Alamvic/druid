@@ -14,9 +14,10 @@ Class {
 		'genSelector',
 		'argumentCount',
 		'cfg',
-		'primitiveNumber'
+		'primitiveNumber',
+		'mayCallback'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-InterpreterBuilder'
 }
 
 { #category : #accessing }
@@ -48,13 +49,25 @@ DRPrimitiveObject >> genSelector [
 	" Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (interpreter) method"
 
 	^ genSelector
-		ifNil: [ genSelector := #gen , self sourceSelector capitalized ]
+		ifNil: [ genSelector := #gen_ , self sourceSelector capitalized ]
 ]
 
 { #category : #accessing }
 DRPrimitiveObject >> genSelector: anObject [
 
 	genSelector := anObject
+]
+
+{ #category : #accessing }
+DRPrimitiveObject >> mayCallback [
+
+	^ mayCallback
+]
+
+{ #category : #accessing }
+DRPrimitiveObject >> mayCallback: anObject [
+
+	mayCallback := anObject
 ]
 
 { #category : #accessing }

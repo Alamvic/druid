@@ -11,7 +11,7 @@ Class {
 		'primitiveSpec',
 		'primTableNode'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-InterpreterBuilder'
 }
 
 { #category : #'as yet unclassified' }

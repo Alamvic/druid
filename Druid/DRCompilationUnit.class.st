@@ -11,7 +11,7 @@ Class {
 		'initPrimitiveTable',
 		'interpreter'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-InterpreterBuilder'
 }
 
 { #category : #accessing }

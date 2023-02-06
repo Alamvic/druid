@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'primitiveMethods'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-InterpreterBuilder'
 }
 
 { #category : #'accessing - compiler' }

@@ -2,13 +2,13 @@
 Implements an Interpreter with very few arithmetic primitives. None of the primitives specify parameters.
 "
 Class {
-	#name : #DRBasicInterpreter,
+	#name : #DRBasicCogInterpreterArithmeticPrimitives,
 	#superclass : #CogVMSimulatorLSB,
-	#category : #'Druid-Tests'
+	#category : #'Druid-InterpreterBuilder'
 }
 
 { #category : #constants }
-DRBasicInterpreter class >> basicPrimitiveTable [
+DRBasicCogInterpreterArithmeticPrimitives class >> basicPrimitiveTable [
 
 	MaxPrimitiveIndex := 10.
 	PrimitiveTable := Array new: MaxPrimitiveIndex + 1.

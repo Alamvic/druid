@@ -81,8 +81,7 @@ DRPrimitiveCompilerCompilerCollectorTest >> testGenerateMultiplePrimitiveCompila
 
 	| interpreterCompiler |
 
-	interpreterCompiler := DRInterpreterCompiler fromInterpreter:
-		(self interpreterWith: #(#primitiveAdd #primitiveEqual)).
+	interpreterCompiler := DRInterpreterCompiler fromInterpreter: (self interpreterWith: #(#primitiveAdd #primitiveEqual)).
 	self assert: interpreterCompiler primitives size equals: 2
 ]
 

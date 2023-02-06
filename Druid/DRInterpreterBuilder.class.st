@@ -3,15 +3,23 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'primitiveTable',
-		'targetInterpreter'
+		'targetInterpreter',
+		'interpreterClass'
 	],
-	#category : #'Druid-Tests'
+	#category : #'Druid-InterpreterBuilder'
 }
 
 { #category : #'instance creation' }
 DRInterpreterBuilder >> basicNew [
 
 	^ self interpreterClass basicNew
+]
+
+{ #category : #'instance creation' }
+DRInterpreterBuilder >> defaultInterpreterClass [
+	"Answer a default <StackInterpreter> class containing a method with the interpreter primitives "
+
+	^ self interpreterClassArithmeticPrimitives
 ]
 
 { #category : #initialization }
@@ -22,8 +30,28 @@ DRInterpreterBuilder >> initializeWithOptions: aCollection objectMemoryClass: aC
 
 { #category : #'instance creation' }
 DRInterpreterBuilder >> interpreterClass [
+	" Answer the receiver's <StackInterpreter> class containing a #basicPrimitiveTable method with the interpreter primitives "
 
-	^ DRBasicInterpreter
+	^ interpreterClass
+		ifNil: [ interpreterClass := self defaultInterpreterClass ]
+]
+
+{ #category : #'accessing - interpreters' }
+DRInterpreterBuilder >> interpreterClassArithmeticPrimitives [
+
+	^ DRBasicCogInterpreterArithmeticPrimitives
+]
+
+{ #category : #'accessing - interpreters' }
+DRInterpreterBuilder >> interpreterClassObjectMemoryPrimitives [
+
+	^ DRBasicCogInterpreterPrimitivesWithoutParameters
+]
+
+{ #category : #'accessing - interpreters' }
+DRInterpreterBuilder >> interpreterClassUnaryPrimitives [
+
+	^ DRBasicCogInterpreterPrimitivesWithoutParameters
 ]
 
 { #category : #accessing }
