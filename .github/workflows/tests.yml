@@ -25,6 +25,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.smalltalk }} on ${{ matrix.os }}
     steps:
+      - name: Checkout Pharo VM
+        uses: actions/checkout@v3
+        with:
+          repository: 'pharo-project/pharo-vm'
+          path: 'pharo-vm'
+          ref: 'druid'
       - uses: actions/checkout@v2
       - name: Setup smalltalkCI
         uses: hpi-swa/setup-smalltalkCI@v1
