@@ -16,9 +16,7 @@ DRGlobalValueNumberingTest >> testCommutativeOperationIsReplacedByPreviousInstan
 	cfg b1 addInstruction: (copy4 := instructionFactory copy: 4).
 	cfg b1 addInstruction: (firstAddition := instructionFactory add: copy3 to: copy4).
 	cfg b1 addInstruction: (secondAddition := instructionFactory add: copy4 to: copy3).
-	1halt.
 	optimisation applyTo: cfg.
-
 	self assert: (cfg b1 instructions includes: secondAddition) not.
 	
 	
