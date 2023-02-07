@@ -61,7 +61,7 @@ jobs:
           cmake --build unicorn_build --target install
       - name: Download LLVM
         run: |
-          wget https://files.pharo.org/vm/pharo-spur64/${uname}-x86_64/third-party/libllvm-full.zip
+          wget https://files.pharo.org/vm/pharo-spur64/$(uname)-x86_64/third-party/libllvm-full.zip
           unzip libllvm-full.zip
       - name: Install libraries (LLVM, Unicorn)
         run: |
