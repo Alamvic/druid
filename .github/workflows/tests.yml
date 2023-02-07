@@ -45,12 +45,15 @@ jobs:
         with:
           repository: 'pharo-project/unicorn'
           ref: 'pharo-vm-unicorn2'
+      - name: Get Unicorn Commit ID
+        id: unicorn_commit
+        run: echo "::set-output name=id::$(cd unicorn && git rev-parse HEAD)"
       - name: Cache Unicorn build
         uses: actions/cache@v3
         id: cache-unicorn
         with:
           path: ~/unicorn_result/lib/
-          key: ${{ runner.os }}-unicorn_lib-${{ cd unicorn && git rev-parse HEAD }}
+          key: ${{ runner.os }}-unicorn_lib-${{ steps.unicorn_commit.id }}
       - name: Install Unicorn
         if: ${{ steps.cache-unicorn.outputs.cache-hit != 'true' }}
         run: |
