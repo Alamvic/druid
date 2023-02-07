@@ -56,8 +56,8 @@ jobs:
         run: |
           cmake -S unicorn -B unicorn_build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=unicorn_result
           cmake --build unicorn_build --target install
-          mkdir -p ${SMALLTALK_CI_VM}
-          cp unicorn_result/lib/libunicorn.* ${SMALLTALK_CI_VM}
+          mkdir -p ${SMALLTALK_CI_BUILD}
+          cp unicorn_result/lib/libunicorn.* ${SMALLTALK_CI_BUILD}
       - name: Load Image and Run Tests
         run: smalltalkci -s ${{ matrix.smalltalk }} ${{ matrix.ston }}
         shell: bash
