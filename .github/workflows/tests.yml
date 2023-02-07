@@ -53,7 +53,7 @@ jobs:
         id: cache-unicorn
         with:
           path: ~/unicorn_result/lib/
-          key: ${{ runner.os }}-unicorn_lib-${{ steps.unicorn_commit.commit_sha }}
+          key: ${{ runner.os }}-unicorn_lib-${{ steps.unicorn_commit.outputs.commit_sha }}
       - name: Build Unicorn
         if: ${{ steps.cache-unicorn.outputs.cache-hit != 'true' }}
         run: |
