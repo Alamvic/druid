@@ -41,7 +41,7 @@ jobs:
         run: |
           git clone https://github.com/pharo-project/unicorn.git
           cd unicorn
-          sudo make install
+          make DESTDIR=`pwd`/.. install
       - name: Setup smalltalkCI
         uses: hpi-swa/setup-smalltalkCI@v1
         with:
