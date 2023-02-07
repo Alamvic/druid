@@ -41,9 +41,11 @@ jobs:
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: "10.0"
-      - uses: actions/checkout@v3
+      - name: Checkout Unicorn
+        uses: actions/checkout@v3
         with:
           repository: 'pharo-project/unicorn'
+          path: 'unicorn'
           ref: 'pharo-vm-unicorn2'
       - name: Get Unicorn Commit ID
         id: unicorn_commit
