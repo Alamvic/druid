@@ -142,20 +142,23 @@ DRLoop >> exitBlock [
 { #category : #'cfg manipulation' }
 DRLoop >> fixLoopPhiFunctions: blockCopy [
 
-	self loopPhiFunctions do: [ :phi | 
+	self loopPhiFunctions do: [ :phi |
 		| phiDependencies loopOutput newBlockInputs newBlockInput newBlockOutput operandToReplace |
-		newBlockInputs := blockCopy instructions select: [ :i | 
-			                 i hasDependencyRecursively: phi ].
-		(newBlockInputs size = 1) ifFalse: [
-			"There may be more than one new block input (if there are several usages of the same phi functions)"
-			1halt. ].
+		newBlockInputs := blockCopy instructions select: [ :i |
+			                  i hasDependencyRecursively: phi ].
+		newBlockInputs size = 1 ifFalse: [
+			"There may be more than one new block input
+			(if there are several usages of the same phi functions)"
+			1 halt ].
+
 		newBlockInput := newBlockInputs first.
-		phiDependencies := self bodyInstructions select: [ :i | 
-			                   i hasDependency: phi ].
+		phiDependencies := self bodyInstructions select: [ :i |
+			                   phi hasDependency: i ].
 		loopOutput := phiDependencies first.
 		newBlockOutput := phiDependencies second.
 		newBlockInput clearUsers.
-		operandToReplace := newBlockInput operands detect: [ :o | o hasDependencyRecursively: phi ].
+		operandToReplace := newBlockInput operands detect: [ :o |
+			                    o hasDependencyRecursively: phi ].
 		newBlockInput replaceDependency: operandToReplace by: loopOutput.
 		phi replaceDependency: loopOutput by: newBlockOutput ]
 ]
