@@ -146,19 +146,19 @@ DRLoop >> fixLoopPhiFunctions: blockCopy [
 		| phiDependencies loopOutput newBlockInputs newBlockInput newBlockOutput operandToReplace |
 		newBlockInputs := blockCopy instructions select: [ :i |
 			                  i hasDependencyRecursively: phi ].
-		newBlockInputs size = 1 ifFalse: [
-			"There may be more than one new block input
+		newBlockInputs size = 1 ifFalse: [ "There may be more than one new block input
 			(if there are several usages of the same phi functions)"
 			1 halt ].
 
 		newBlockInput := newBlockInputs first.
 		phiDependencies := self bodyInstructions select: [ :i |
-			                   phi hasDependency: i ].
+			                   i hasDependency: phi ].
 		loopOutput := phiDependencies first.
-		newBlockOutput := phiDependencies second.
+		newBlockOutput := phiDependencies at: 2 ifAbsent: [ loopOutput ].
 		newBlockInput clearUsers.
 		operandToReplace := newBlockInput operands detect: [ :o |
 			                    o hasDependencyRecursively: phi ].
+
 		newBlockInput replaceDependency: operandToReplace by: loopOutput.
 		phi replaceDependency: loopOutput by: newBlockOutput ]
 ]
@@ -249,41 +249,51 @@ DRLoop >> stride [
 DRLoop >> unroll: unrollingFactor [
 
 	| isIncrementingLoop rolledLoop rolledLoopCopy loopBody bodyCopy copiedLoop loopCondition nonInductionOperand decrementInstruction |
-	
 	loopCondition := self condition.
 	isIncrementingLoop := loopCondition condition isLessThanComparison
-		or: [ loopCondition condition isLessOrEqualThanComparison ].
-	(self isCountingLoop & isIncrementingLoop) ifFalse: [ ^ self ].
-	
+		                      or: [
+		                      loopCondition condition
+			                      isLessOrEqualThanComparison ].
+	self isCountingLoop & isIncrementingLoop ifFalse: [ ^ self ].
+
 	"Add loop copy for remaining iterations at the end (that cannot be processed by the unrolled loop)"
 	rolledLoop := DRHyperBlock blocks: self blocks.
 	rolledLoopCopy := DRHyperBlock blocks: rolledLoop duplicate values.
 	rolledLoopCopy addBetween: self headerBlock and: self exitBlock.
 	rolledLoopCopy removePredecessor: self preheaderBlock.
-	
-	copiedLoop := (rolledLoopCopy instructions detect: [:i | i isBackJump]) loop.
+
+	copiedLoop := (rolledLoopCopy instructions detect: [ :i |
+		               i isBackJump ]) loop.
 	self controlFlowGraph buildDominatorTree.
-	self loopPhiFunctions with: (copiedLoop loopPhiFunctions) do: [ :unrolledLoopPhi :rolledLoopPhi |
-		unrolledLoopPhi replaceDominatedUsesBy: rolledLoopPhi.
-		rolledLoopPhi replaceOperandAtPredecessor: unrolledLoopPhi basicBlock by: unrolledLoopPhi ].
-	
+	self loopPhiFunctions
+		with: copiedLoop loopPhiFunctions
+		do: [ :unrolledLoopPhi :rolledLoopPhi |
+			unrolledLoopPhi replaceDominatedUsesBy: rolledLoopPhi.
+			rolledLoopPhi
+				replaceOperandAtPredecessor: unrolledLoopPhi basicBlock
+				by: unrolledLoopPhi ].
+
 	"Modify unrolled loop's condition to prevent additional iterations"
-	nonInductionOperand := loopCondition operands detect: [ :o | o ~= self inductionVariable ].
-	decrementInstruction := self headerBlock instructionFactory subtract: (unrollingFactor * self stride - 1) from: nonInductionOperand.
+	nonInductionOperand := loopCondition operands detect: [ :o |
+		                       o ~= self inductionVariable ].
+	decrementInstruction := self headerBlock instructionFactory
+		                        subtract: unrollingFactor * self stride - 1
+		                        from: nonInductionOperand.
 	self headerBlock add: decrementInstruction before: loopCondition.
-	loopCondition replaceOperand: nonInductionOperand by: decrementInstruction.
-	
+	loopCondition
+		replaceOperand: nonInductionOperand
+		by: decrementInstruction.
+
 	"Unroll loop body"
 	loopBody := self bodyHyperblock.
 	bodyCopy := loopBody.
-	1 to: unrollingFactor - 1 do: [ :_ | 
+	1 to: unrollingFactor - 1 do: [ :_ |
 		| oldLastBlock |
 		bodyCopy := DRHyperBlock blocks: bodyCopy duplicate values.
 		oldLastBlock := self bodyHyperblock exitBlock.
 
 		bodyCopy removePredecessors.
 		bodyCopy addBetween: oldLastBlock and: self headerBlock.
-		self backJump: bodyCopy exitBlock endInstruction.
-
-		self fixLoopPhiFunctions: bodyCopy ].
+		self backJump: bodyCopy exitBlock endInstruction ].
+	self fixLoopPhiFunctions: bodyCopy
 ]
