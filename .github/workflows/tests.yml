@@ -33,6 +33,10 @@ jobs:
     name: ${{ matrix.smalltalk }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
+      - name: Setup smalltalkCI
+        uses: hpi-swa/setup-smalltalkCI@v1
+        with:
+          smalltalk-image: ${{ matrix.smalltalk }}
       - name: Install LLVM
         uses: KyleMayes/install-llvm-action@v1
         with:
@@ -42,11 +46,7 @@ jobs:
           git clone https://github.com/pharo-project/unicorn.git -b pharo-vm-unicorn2
           cmake -S unicorn -B unicorn_build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=unicorn_result
           cmake --build unicorn_build --target install
-          cp unicorn_result/lib/libunicorn.* .
-      - name: Setup smalltalkCI
-        uses: hpi-swa/setup-smalltalkCI@v1
-        with:
-          smalltalk-image: ${{ matrix.smalltalk }}
+          cp unicorn_result/lib/libunicorn.* ${SMALLTALK_CI_VM}
       - name: Load Image and Run Tests
         run: smalltalkci -s ${{ matrix.smalltalk }} ${{ matrix.ston }}
         shell: bash
