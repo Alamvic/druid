@@ -151,7 +151,7 @@ DRLoop >> fixLoopPhiFunctions: blockCopy [
 			1halt. ].
 		newBlockInput := newBlockInputs first.
 		phiDependencies := self bodyInstructions select: [ :i | 
-			                   i hasUser: phi ].
+			                   i hasDependency: phi ].
 		loopOutput := phiDependencies first.
 		newBlockOutput := phiDependencies second.
 		newBlockInput clearUsers.
