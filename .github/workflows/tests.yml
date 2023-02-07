@@ -30,6 +30,7 @@ jobs:
         with:
           repository: 'pharo-project/pharo-vm'
           path: 'pharo-vm'
+          fetch-depth: 0
           ref: 'druid'
       - uses: actions/checkout@v2
       - name: Setup smalltalkCI
