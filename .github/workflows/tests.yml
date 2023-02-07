@@ -39,9 +39,10 @@ jobs:
           version: "10.0"
       - name: Install Unicorn
         run: |
-          git clone https://github.com/pharo-project/unicorn.git
-          cd unicorn
-          make DESTDIR=`pwd`/.. install
+          git clone https://github.com/pharo-project/unicorn.git -b pharo-vm-unicorn2
+          cmake -S unicorn -B unicorn_build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=unicorn_result
+          cmake --build unicorn_build --target install
+          cp unicorn_result/lib/* .
       - name: Setup smalltalkCI
         uses: hpi-swa/setup-smalltalkCI@v1
         with:
