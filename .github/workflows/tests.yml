@@ -41,9 +41,19 @@ jobs:
         uses: KyleMayes/install-llvm-action@v1
         with:
           version: "10.0"
+      - uses: actions/checkout@v3
+        with:
+          repository: 'pharo-project/unicorn'
+          ref: 'pharo-vm-unicorn2'
+      - name: Cache Unicorn build
+        uses: actions/cache@v3
+        id: cache-unicorn
+        with:
+          path: ~/unicorn_result/lib/
+          key: ${{ runner.os }}-unicorn_lib-${{ `cd unicorn && git rev-parse HEAD` }}
       - name: Install Unicorn
+        if: ${{ steps.cache-unicorn.outputs.cache-hit != 'true' }}
         run: |
-          git clone https://github.com/pharo-project/unicorn.git -b pharo-vm-unicorn2
           cmake -S unicorn -B unicorn_build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=unicorn_result
           cmake --build unicorn_build --target install
           mkdir -p ${SMALLTALK_CI_VM}
