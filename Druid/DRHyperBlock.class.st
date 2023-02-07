@@ -15,9 +15,29 @@ DRHyperBlock class >> blocks: aCollection [
 		yourself
 ]
 
+{ #category : #'control-flow' }
+DRHyperBlock >> addBetween: sourceBlock and: targetBlock [
+
+	| newFirstBlock newLastBlock currentTarget |
+	newFirstBlock := self entryBlock.
+	newLastBlock := self exitBlock.
+	sourceBlock replaceSuccessor: targetBlock by: newFirstBlock.
+	targetBlock replacePredecessor: sourceBlock by: newLastBlock.
+	newFirstBlock addPredecessor: sourceBlock.
+	currentTarget := newLastBlock endInstruction targets detect: [ :b | (blocks includes: b) not ].
+	newLastBlock endInstruction replaceTarget: currentTarget by: targetBlock.
+	self controlFlowGraph fixBackJumps
+]
+
 { #category : #accessing }
 DRHyperBlock >> blocks: aCollection [ 
 	blocks := aCollection
+]
+
+{ #category : #accessing }
+DRHyperBlock >> controlFlowGraph [
+
+	^ self entryBlock controlFlowGraph
 ]
 
 { #category : #transformations }
@@ -31,31 +51,82 @@ DRHyperBlock >> duplicate [
 ]
 
 { #category : #accessing }
+DRHyperBlock >> endInstruction [
+
+	^ self exitBlock endInstruction
+]
+
+{ #category : #accessing }
 DRHyperBlock >> entryBlock [
-	
-	^ blocks first
+
+	^ self hasSingleEntry
+		  ifTrue: [ ^ self entryBlocks first ]
+		  ifFalse: [ blocks first ]
+]
+
+{ #category : #testing }
+DRHyperBlock >> entryBlocks [
+
+	^ blocks select: [ :block | 
+		  block predecessors isEmpty or: [ 
+			  block predecessors anySatisfy: [ :p | (blocks includes: p) not ] ] ]
 ]
 
 { #category : #accessing }
 DRHyperBlock >> exitBlock [
-	
-	^ blocks last
+
+	^ self hasSingleExit
+		  ifTrue: [ ^ self exitBlocks first ]
+		  ifFalse: [ blocks last ]
+]
+
+{ #category : #testing }
+DRHyperBlock >> exitBlocks [
+
+	^ blocks select: [ :e | 
+		  e successors anySatisfy: [ :s | (blocks includes: s) not ] ]
+]
+
+{ #category : #testing }
+DRHyperBlock >> hasSingleEntry [
+
+	^ self entryBlocks size = 1
 ]
 
 { #category : #testing }
 DRHyperBlock >> hasSingleExit [
-	
-	| exitBlocks |
-	exitBlocks := blocks count: [ :e | 
-		e successors anySatisfy: [ :s | 
-			(blocks includes: s) not ] ].
-	^ exitBlocks = 1
+
+	^ self exitBlocks size = 1
+]
+
+{ #category : #accessing }
+DRHyperBlock >> instructions [
+	^ blocks flatCollect: [ :block | block instructions ]
+]
+
+{ #category : #accessing }
+DRHyperBlock >> predecessor [
+
+	^ self entryBlock predecessor
 ]
 
 { #category : #accessing }
 DRHyperBlock >> predecessors [
 	
 	^ self entryBlock predecessors
+]
+
+{ #category : #accessing }
+DRHyperBlock >> removePredecessor: aDRBasicBlock [ 
+	
+	| index |
+	index := self entryBlock predecessors indexOf: aDRBasicBlock.
+	self entryBlock removePredecessorAt: index
+]
+
+{ #category : #accessing }
+DRHyperBlock >> removePredecessors [
+	self predecessors copy do: [ :p | self removePredecessor: p ]
 ]
 
 { #category : #transformation }

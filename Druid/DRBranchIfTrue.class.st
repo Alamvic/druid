@@ -10,6 +10,12 @@ DRBranchIfTrue >> acceptVisitor: aVisitor [
 	^ aVisitor visitBranchIfTrue: self
 ]
 
+{ #category : #accessing }
+DRBranchIfTrue >> condition [
+	
+	^ self operand1
+]
+
 { #category : #testing }
 DRBranchIfTrue >> isBranchIfTrue [
 
@@ -19,11 +25,11 @@ DRBranchIfTrue >> isBranchIfTrue [
 { #category : #printing }
 DRBranchIfTrue >> prettyConditionPrint [
 
-	^ self operand1 result name , '= true'
+	^ self condition result name , '= true'
 ]
 
 { #category : #SCCP }
 DRBranchIfTrue >> sccpEvaluateConditionFor: sccp [
 
-	^ self operand1 sccpLatticeValueFor: sccp
+	^ self condition sccpLatticeValueFor: sccp
 ]
