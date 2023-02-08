@@ -90,8 +90,7 @@ DRMetaCompilerIRGenerator >> numberOfArguments: aValue [
 { #category : #configure }
 DRMetaCompilerIRGenerator >> receiver: aDRValue [
 
-	self push: self receiverRegister.
-	self push: (self currentBasicBlock copy: aDRValue)
+	self push: self receiverRegister
 ]
 
 { #category : #visiting }

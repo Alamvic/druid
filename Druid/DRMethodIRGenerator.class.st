@@ -54,7 +54,6 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 DRMethodIRGenerator >> numberOfArguments: aValue [ 
 	
 	super numberOfArguments: aValue.
-	self flag: #TOTHINK. "Push receiver?"
 	0 to: numberOfArguments - 1 do: [ :i |
 		self push: (self currentBasicBlock loadArgument: i) ]
 ]
@@ -69,7 +68,7 @@ DRMethodIRGenerator >> popFrameMergingDeferredReturns [
 { #category : #configure }
 DRMethodIRGenerator >> receiver: aDRValue [
 
-	self push: (self currentBasicBlock copy: aDRValue)
+	self push: aDRValue
 ]
 
 { #category : #visiting }

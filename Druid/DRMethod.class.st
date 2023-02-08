@@ -30,9 +30,8 @@ DRMethod >> codeNode [
 { #category : #activation }
 DRMethod >> defaultReturnValue: receiver [
 
-	^ receiver isInstruction
-		  ifTrue: [ receiver ]
-		  ifFalse: [ DRInterpreterValue value: receiver ]
+	receiver isInstruction ifTrue: [ ^ receiver ].
+	^ DRInterpreterValue value: receiver
 ]
 
 { #category : #executing }

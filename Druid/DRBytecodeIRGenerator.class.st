@@ -249,6 +249,10 @@ DRBytecodeIRGenerator >> push: aValue [
 	^ self popOperand
 ]
 
+{ #category : #accessing }
+DRBytecodeIRGenerator >> receiver: aDRValue [
+]
+
 { #category : #visiting }
 DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
