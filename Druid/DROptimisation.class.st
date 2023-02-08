@@ -28,6 +28,18 @@ DROptimisation >> applyTo: cfg [
 	self subclassResponsibility
 ]
 
+{ #category : #testing }
+DROptimisation >> isNoOptimisation [
+
+	^ false
+]
+
+{ #category : #printing }
+DROptimisation >> prettyPrint [
+
+	^ self className
+]
+
 { #category : #'accessing - structure variables' }
 DROptimisation >> repeat: times [
 

@@ -29,6 +29,12 @@ DRConstantValue >> acceptVisitor: aVisitor [
 	^ aVisitor visitConstant: self
 ]
 
+{ #category : #accessing }
+DRConstantValue >> expression [
+	
+	^ value asString
+]
+
 { #category : #testing }
 DRConstantValue >> hash [
 

@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #testing }
+DRDeadEdgeSplitting >> canBeAppliedWithGeneratedPathsIn: aDRControlFlowGraph [ 
+
+	^ aDRControlFlowGraph deadPaths isNotEmpty 
+]
+
 { #category : #operations }
 DRDeadEdgeSplitting >> doApplyWithGeneratedPaths: aCFG [
 
@@ -16,8 +22,6 @@ DRDeadEdgeSplitting >> doApplyWithGeneratedPaths: aCFG [
 	[ edge destination predecessors size = 1 ] whileTrue: [ 
 		edge := edge parent.
 		edge ifNil: [ ^ self ] ].
-
-	('Splitting: ' , edge destination id asString , ' -> ' , edge source id asString) traceCr.
 
 	edge split
 

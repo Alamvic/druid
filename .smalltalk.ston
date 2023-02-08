@@ -3,9 +3,6 @@ SmalltalkCISpec {
   #loading : [
     SCIMetacelloLoadSpec {
       #baseline : 'Druid',
-      #onConflict : #useIncoming,
-      #onUpgrade : #useIncoming,
-      #ignoreImage : true,
       #platforms : [ #pharo ]
     }
   ]

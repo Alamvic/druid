@@ -112,6 +112,13 @@ DRSCCP >> buildEdges: cfg [
 	^ list
 ]
 
+{ #category : #testing }
+DRSCCP >> canBeAppliedIn: aDRControlFlowGraph [
+
+	^ aDRControlFlowGraph instructions anySatisfy: [ :i | 
+		  i isBranchIfCondition or: [ self isConstantLattice: (self latticeValue: i) ] ]
+]
+
 { #category : #executing }
 DRSCCP >> doApply: cfg [
 

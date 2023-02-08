@@ -108,8 +108,9 @@ DRAbstractBranch >> postCopy [
 DRAbstractBranch >> prettyPrint [
 
 	^ 'Jump if ' , self prettyConditionPrint , ' -> '
-	  , self trueBranch id asString , ' if false -> '
-	  , self falseBranch id asString
+	  , (self trueBranch ifNotNil: [ :br | br id ]) asString
+	  , ' if false -> '
+	  , (self falseBranch ifNotNil: [ :br | br id ]) asString
 ]
 
 { #category : #replacing }

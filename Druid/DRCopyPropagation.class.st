@@ -12,6 +12,12 @@ DRCopyPropagation >> applyTo: aDRControlFlowGraph [
 			ifTrue: [ self propagateCopyFrom: i ] ]
 ]
 
+{ #category : #testing }
+DRCopyPropagation >> canBeAppliedIn: aDRControlFlowGraph [
+
+	^ aDRControlFlowGraph instructions anySatisfy: [ :i | i isCopy ]
+]
+
 { #category : #operations }
 DRCopyPropagation >> propagateCopyFrom: i [
 

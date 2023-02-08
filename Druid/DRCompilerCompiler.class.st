@@ -42,20 +42,15 @@ DRCompilerCompiler >> compilerClass: anObject [
 ]
 
 { #category : #'generation-IR' }
-DRCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method [
-	
+DRCompilerCompiler >> configureIRBuilder: generator forMethod: method [
+
+	| startBlock initialBasicBlock |
 	"Create the initial basic block"
-	| startBlock initialBasicBlock initial |
-	startBlock := irGenerator initialBasicBlock.
-	initialBasicBlock := irGenerator newBasicBlock.
+	startBlock := generator initialBasicBlock.
+	initialBasicBlock := generator createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
 
-	irGenerator currentPrimitiveFailureCode: (initial := initialBasicBlock copy: 0)
-]
-
-{ #category : #'generation-IR' }
-DRCompilerCompiler >> createInitialBasicBlock [
-	^ irGenerator newBasicBlock
+	generator numberOfArguments: (self numberOfArgumentsFor: method)
 ]
 
 { #category : #'generation-IR' }
@@ -178,6 +173,12 @@ DRCompilerCompiler >> irGenerator: aDRIRGenerator [
 DRCompilerCompiler >> newIRGenerator [
 
 	^ DRIRGenerator new
+]
+
+{ #category : #'generation-IR' }
+DRCompilerCompiler >> numberOfArgumentsFor: method [
+
+	^ self subclassResponsibility
 ]
 
 { #category : #accessing }

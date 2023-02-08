@@ -63,10 +63,22 @@ DRCogitOperandSorter >> visitBranchIfTrue: aDRBranchIfTrue [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitBytecodeJump: aDRBytecodeJump [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitCall: aDRCall [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 
-	anInstruction operand1 isInstruction not
-		ifTrue: [ anInstruction reverseOperands ].
+	anInstruction operand1 isInstruction ifFalse: [ 
+		anInstruction reverseOperands ].
 	self extractFirstOperandInCopyIfNecessaryFrom: anInstruction
 ]
 
@@ -124,6 +136,12 @@ DRCogitOperandSorter >> visitIntToFloatConversion: aDRIntToFloat [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitJITMessageSend: aDRMessageSend [ 
+
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitJump: aDRJump [ 
 	
 	"Nothing"
@@ -144,7 +162,19 @@ DRCogitOperandSorter >> visitLoad: aDRLoad [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitLoadFramePointer: aDRLoadFramePointer [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitLoadReceiver: aDRLoadReceiver [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitLoadStackValue: aDRLoadStackValue [ 
 	
 	"Nothing"
 ]
@@ -179,6 +209,18 @@ DRCogitOperandSorter >> visitNoop: aDRNoop [
 
 { #category : #visiting }
 DRCogitOperandSorter >> visitPhiFunction: aDRPhiFunction [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitPop: aDRPop [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitPopMany: aDRPopMany [ 
 	
 	"Nothing"
 ]

@@ -48,6 +48,16 @@ DRBasicBlock >> add: aValue to: anotherValue [
 	^ self addInstruction: (self instructionFactory add: aValue to: anotherValue)
 ]
 
+{ #category : #'control-flow' }
+DRBasicBlock >> addBetween: sourceBlock and: targetBlock [
+
+	sourceBlock replaceSuccessor: targetBlock by: self.
+	targetBlock replacePredecessor: sourceBlock by: self.
+	self addPredecessor: sourceBlock.
+	self endInstruction target: targetBlock.
+	self controlFlowGraph fixBackJumps
+]
+
 { #category : #accessing }
 DRBasicBlock >> addInstruction: anInstruction [
 
@@ -458,6 +468,11 @@ DRBasicBlock >> includesInstruction: anInstruction [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> indexOfInstruction: anInstruction [ 
+	^ self instructions indexOf: anInstruction
+]
+
+{ #category : #accessing }
 DRBasicBlock >> indexOfPredecessor: aDRBasicBlock [ 
 	
 	^ predecessors indexOf: aDRBasicBlock
@@ -564,7 +579,7 @@ DRBasicBlock >> instructionBefore: anInstruction [
 
 	instructions first = anInstruction
 		"Not defined yet. Could return either a phi, or nothing"
-		ifTrue: [ ^ self notYetImplemented ].
+		ifTrue: [ ^ nil ].
 	
 	"Otherwise, the previous instruction is the previous in the list"
 	^ instructions before: anInstruction
@@ -893,6 +908,39 @@ DRBasicBlock >> push: operand [
 DRBasicBlock >> pushBase: base offset: offset [
 	
 	^ self addInstruction: (self instructionFactory pushBase: base offset: offset)
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursivePredecessors [
+
+	| recursivePredecessors |
+	recursivePredecessors := OrderedCollection new.
+	self recursivePredecessorsDo: [ :b | recursivePredecessors add: b ].
+	^ recursivePredecessors
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursivePredecessorsDo: aBlock [
+
+	self recursivePredecessorsDo: aBlock visited: {  }
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursivePredecessorsDo: aBlock visited: alreadyVisited [
+
+	(alreadyVisited includes: self) ifTrue: [ ^ self ].
+	self predecessors do: [ :b | aBlock value: b ].
+	self predecessors do: [ :b | 
+		b recursivePredecessorsDo: aBlock visited: { self } , alreadyVisited ]
+]
+
+{ #category : #iterating }
+DRBasicBlock >> recursiveSuccessors [
+
+	| recursiveSuccessors |
+	recursiveSuccessors := OrderedCollection new.
+	self recursiveSuccessorsDo: [ :b | recursiveSuccessors add: b ].
+	^ recursiveSuccessors
 ]
 
 { #category : #iterating }

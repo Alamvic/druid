@@ -39,6 +39,12 @@ DRInterpreterReference >> name [
 	^ reference
 ]
 
+{ #category : #accessing }
+DRInterpreterReference >> operands [
+	
+	^ #()
+]
+
 { #category : #printing }
 DRInterpreterReference >> printResult [
 

@@ -2,8 +2,7 @@ Class {
 	#name : #DRPrimitiveCompilerCompiler,
 	#superclass : #DRCompilerCompiler,
 	#instVars : [
-		'primitiveCompilerName',
-		'fallthroughBlock'
+		'primitiveCompilerName'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -23,22 +22,6 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 DRPrimitiveCompilerCompiler >> argName: index forMethod: method [
 
 	^ 'Arg' , index asString
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilerCompiler >> configureIRBuilder: irGenerator forMethod: method [
-	
-	super configureIRBuilder: irGenerator forMethod: method.
-	irGenerator numberOfArguments: (method ast pragmaNamed: #numberOfArguments:) arguments first value
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilerCompiler >> createInitialBasicBlock [
-	| initial initialBasicBlock |
-	initialBasicBlock := super createInitialBasicBlock.
-	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
-	initialBasicBlock addInstruction: initial.
-	^ initialBasicBlock
 ]
 
 { #category : #accessing }
@@ -74,7 +57,7 @@ DRPrimitiveCompilerCompiler >> newIRGenerator [
 ]
 
 { #category : #accessing }
-DRPrimitiveCompilerCompiler >> numberOfArguments: aMethod [ 
+DRPrimitiveCompilerCompiler >> numberOfArgumentsFor: aMethod [ 
 	^ (aMethod ast pragmaNamed: #numberOfArguments:) arguments first value
 ]
 

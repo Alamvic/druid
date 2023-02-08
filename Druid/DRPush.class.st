@@ -1,7 +1,7 @@
 Class {
 	#name : #DRPush,
 	#superclass : #DRInstruction,
-	#category : #'Druid-BytecodeGeneration'
+	#category : #'Druid-BytecodeToJITCompilation'
 }
 
 { #category : #visiting }
@@ -26,6 +26,18 @@ DRPush >> isPush [
 DRPush >> opcode [
 	
 	^ 'Push'
+]
+
+{ #category : #'users-definitions' }
+DRPush >> replaceDependency: anOperand by: anotherOperand [
+
+	"A push instruction can have two kind of operands.
+	It is either a value, in which case we should replace the operand.
+	Or it is a composite value (e.g., an address) and we should replace the operand inside the address"
+	self operand1
+		replaceDependency: anOperand
+		by: anotherOperand
+		in: self
 ]
 
 { #category : #SCCP }

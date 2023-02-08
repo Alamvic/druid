@@ -38,12 +38,6 @@ DRLoad >> canMoveOutsideLoop: backJump [
 	^ false
 ]
 
-{ #category : #'users-definitions' }
-DRLoad >> hasDependency: anInstruction [
-	
-	^ self dependencies includes: anInstruction
-]
-
 { #category : #accessing }
 DRLoad >> initialize [
 

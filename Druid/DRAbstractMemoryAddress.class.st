@@ -22,11 +22,31 @@ DRAbstractMemoryAddress >> isMemoryAddress [
 	^ true
 ]
 
+{ #category : #accessing }
+DRAbstractMemoryAddress >> operands [
+
+	self subclassResponsibility
+]
+
+{ #category : #'meta-data' }
+DRAbstractMemoryAddress >> removeUser: anInstruction [
+	
+	self dependencies do: [ :e | e removeUser: anInstruction ]
+]
+
 { #category : #'users-definitions' }
 DRAbstractMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 
 	self dependencies do: [ :e | 
 		e replaceDependency: anOperand by: anotherOperand ]
+]
+
+{ #category : #dependencies }
+DRAbstractMemoryAddress >> replaceDependency: anOperand by: anotherOperand in: anInstruction [
+	
+	anOperand removeUser: anInstruction.
+	anotherOperand addUser: anInstruction.
+	self replaceDependency: anOperand by: anotherOperand.
 ]
 
 { #category : #cogit }

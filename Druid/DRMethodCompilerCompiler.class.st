@@ -2,8 +2,7 @@ Class {
 	#name : #DRMethodCompilerCompiler,
 	#superclass : #DRCompilerCompiler,
 	#instVars : [
-		'primitiveCompilerName',
-		'fallthroughBlock'
+		'primitiveCompilerName'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -21,7 +20,7 @@ DRMethodCompilerCompiler >> newIRGenerator [
 ]
 
 { #category : #accessing }
-DRMethodCompilerCompiler >> numberOfArguments: aMethod [ 
+DRMethodCompilerCompiler >> numberOfArgumentsFor: aMethod [ 
 
 	^ aMethod numArgs
 ]

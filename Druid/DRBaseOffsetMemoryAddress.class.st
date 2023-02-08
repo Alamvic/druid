@@ -46,11 +46,19 @@ DRBaseOffsetMemoryAddress >> offset: anObject [
 	offset := anObject
 ]
 
+{ #category : #accessing }
+DRBaseOffsetMemoryAddress >> operands [
+
+	^ { 
+		  base.
+		  offset }
+]
+
 { #category : #cogit }
 DRBaseOffsetMemoryAddress >> rtlArgumentExpressions [
 	
 	| offsetNode baseNode |
-	offsetNode := RBLiteralValueNode value: offset value.
+	offsetNode := RBParser parseExpression: offset expression.
 	baseNode := RBVariableNode named: base result name.
 
 	^ { offsetNode . baseNode }

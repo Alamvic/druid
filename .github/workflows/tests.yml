@@ -1,0 +1,77 @@
+name: Complete Test
+
+on:
+  # Run on push and pull requests on any branch, but ignore if change doesn't affect code.
+  push:
+    paths-ignore:
+    - 'README.md'
+    - 'docs/**'
+  pull_request:
+    paths-ignore:
+    - 'README.md'
+    - 'docs/**'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      # Default value means that a failure in one OS cancels all 
+      fail-fast: false
+      matrix:
+        smalltalk: [ Pharo64-11 ]
+        os: [ ubuntu-20.04, macos-latest ]
+        ston: [ .smalltalk.ston ]
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.smalltalk }} on ${{ matrix.os }}
+    steps:
+      - name: Checkout Druid
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Checkout Pharo VM
+        uses: actions/checkout@v3
+        with:
+          repository: 'pharo-project/pharo-vm'
+          path: 'pharo-vm'
+          fetch-depth: 0
+          ref: 'druid'
+      - name: Setup smalltalkCI
+        uses: hpi-swa/setup-smalltalkCI@v1
+        with:
+          smalltalk-image: ${{ matrix.smalltalk }}
+      - name: Checkout Unicorn
+        uses: actions/checkout@v3
+        with:
+          repository: 'pharo-project/unicorn'
+          path: 'unicorn'
+          ref: 'pharo-vm-unicorn2'
+      - name: Get Unicorn Commit ID
+        id: unicorn_commit
+        run: |
+          echo "Unicorn SHA: $(cd unicorn && git rev-parse HEAD)"
+          echo "commit_sha=$(cd unicorn && git rev-parse HEAD)" >> $GITHUB_OUTPUT
+      - name: Cache Unicorn build
+        uses: actions/cache@v3
+        id: cache-unicorn
+        with:
+          path: unicorn_result/lib/
+          key: ${{ runner.os }}-unicorn_lib-${{ steps.unicorn_commit.outputs.commit_sha }}
+      - name: Build Unicorn
+        if: ${{ steps.cache-unicorn.outputs.cache-hit != 'true' }}
+        run: |
+          cmake -S unicorn -B unicorn_build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=unicorn_result
+          cmake --build unicorn_build --target install
+      - name: Download LLVM
+        run: |
+          wget https://files.pharo.org/vm/pharo-spur64/$(uname)-x86_64/third-party/libllvm-full.zip
+          unzip libllvm-full.zip
+      - name: Install libraries (LLVM, Unicorn)
+        run: |
+          mkdir -p ${SMALLTALK_CI_BUILD}
+          cp unicorn_result/lib/libunicorn.* ${SMALLTALK_CI_BUILD}
+          cp libLLVM* ${SMALLTALK_CI_BUILD}
+      - name: Load Image and Run Tests
+        run: smalltalkci -s ${{ matrix.smalltalk }} ${{ matrix.ston }}
+        shell: bash
+        timeout-minutes: 30

@@ -8,12 +8,6 @@ Class {
 	#category : #'Druid-Tests'
 }
 
-{ #category : #adding }
-DRMirrorFrame >> addDeferredReturnState: aDRExecutionState [ 
-	
-	deferredMethodReturns at: aDRExecutionState second put: aDRExecutionState first
-]
-
 { #category : #'deferred returns' }
 DRMirrorFrame >> clearDeferredMethodReturns [
 
@@ -30,12 +24,6 @@ DRMirrorFrame >> deferredMethodReturns [
 DRMirrorFrame >> deferredMethodReturns: anObject [
 
 	deferredMethodReturns := anObject
-]
-
-{ #category : #initialization }
-DRMirrorFrame >> initialize [
-	super initialize.
-	deferredMethodReturns := Dictionary new
 ]
 
 { #category : #accessing }

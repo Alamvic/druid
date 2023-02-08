@@ -251,6 +251,18 @@ DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitBytecodeJump: aDRBytecodeJump [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitCall: aDRCall [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
 	| operands |
@@ -378,6 +390,12 @@ DRCPSEdge >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitJITMessageSend: aDRMessageSend [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitJump: aDRJump [ 
 
 	"Simple jumps do not have type constraints"
@@ -421,6 +439,12 @@ DRCPSEdge >> visitLoadArgument: aDRLoadArgument [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitLoadStackValue: aDRLoadStackValue [ 
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitMessageSend: aDRMessageSend [
 
 	^ nil
@@ -448,6 +472,13 @@ DRCPSEdge >> visitMultiplyOverflow: aDROverflow inBranch: aDRBranch [
 { #category : #visiting }
 DRCPSEdge >> visitNegate: aDRNegate [
 
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitNoOverflow: aDROverflow inBranch: aDRBranch [ 
+	
+	self flag: #TODO. "Do nothing?"
 	^ nil
 ]
 
@@ -509,6 +540,24 @@ DRCPSEdge >> visitPhiFunction: aDRPhiFunction [
 DRCPSEdge >> visitPhysicalRegister: aDRPhysicalRegister [ 
 	
 	^ self constraintFor: aDRPhysicalRegister name
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitPop: aDRPop [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitPopMany: aDRPopMany [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitPush: aDRPush [ 
+	
+	^ nil
 ]
 
 { #category : #visiting }

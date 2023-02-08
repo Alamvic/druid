@@ -138,7 +138,7 @@ DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode
 { #category : #testing }
 DRInstruction >> hasDependency: anInstruction [
 	
-	^ self hasOperand: anInstruction
+	^ self dependencies includes: anInstruction
 ]
 
 { #category : #testing }
@@ -162,9 +162,20 @@ DRInstruction >> hasUser: anInstruction [
 ]
 
 { #category : #testing }
+DRInstruction >> hasUsers [
+	
+	^ users notEmpty
+]
+
+{ #category : #testing }
 DRInstruction >> hash [
 
 	^ self result hash
+]
+
+{ #category : #accessing }
+DRInstruction >> indexInBasicBlock [
+	^ self basicBlock indexOfInstruction: self
 ]
 
 { #category : #testing }
@@ -242,6 +253,12 @@ DRInstruction >> isBranchIfTrue [
 ]
 
 { #category : #testing }
+DRInstruction >> isCogitSendMarshall [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isConditionalBranch [
 	
 	^ false
@@ -284,7 +301,7 @@ DRInstruction >> isJITCompileTimeExpression: aString [
 ]
 
 { #category : #testing }
-DRInstruction >> isLoadFramePointer [
+DRInstruction >> isJITMessageSend [
 	
 	^ false
 ]
@@ -310,6 +327,12 @@ DRInstruction >> isNonConditionalJump [
 { #category : #testing }
 DRInstruction >> isPhiFunction [
 
+	^ false
+]
+
+{ #category : #testing }
+DRInstruction >> isPop [
+	
 	^ false
 ]
 
@@ -569,6 +592,22 @@ DRInstruction >> replaceDependency: anOperand by: anotherOperand [
 	self replaceOperand: anOperand by: anotherOperand
 ]
 
+{ #category : #dependencies }
+DRInstruction >> replaceDependency: anOperand by: anotherOperand in: anInstruction [
+	
+	anInstruction replaceOperand: anOperand by: anotherOperand
+]
+
+{ #category : #replacing }
+DRInstruction >> replaceDominatedUsesBy: anotherInstruction [
+
+	users
+		select: [ :instruction | 
+			instruction isDominatedBy: anotherInstruction ]
+		thenDo: [ :instruction | 
+			instruction replaceDependency: self by: anotherInstruction ]
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
@@ -651,6 +690,18 @@ DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 			self replaceOperand: operand by: newOperandValues anyOne ]
 ]
 
+{ #category : #cogit }
+DRInstruction >> rtlPushArgumentExpressions [
+	
+	^ { RBVariableNode named: result name }
+]
+
+{ #category : #cogit }
+DRInstruction >> rtlPushOperandQualifierForInstruction: anInstruction [
+	
+	^ 'Register:'
+]
+
 { #category : #SCCP }
 DRInstruction >> sccpEvaluateFor: sccp [
 
@@ -707,7 +758,20 @@ DRInstruction >> supportConstantOperand [
 { #category : #types }
 DRInstruction >> type [
 
-	self subclassResponsibility
+	^ DRIntegerType new
+]
+
+{ #category : #inspecting }
+DRInstruction >> uiUnroll [
+
+	| unrollingFactor |
+	self isBackJump ifFalse: [ 
+		^ self inform: 'Can only perform loop unrolling from back jumps' ].
+	unrollingFactor := UIManager default
+		                   request: 'Unrolling factor:'
+		                   initialAnswer: '2'.
+	(unrollingFactor ifNil: [ '' ]) ifEmpty: [ unrollingFactor := 2 ].
+	self loop unroll: unrollingFactor asNumber
 ]
 
 { #category : #replacing }

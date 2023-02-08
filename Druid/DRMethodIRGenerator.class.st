@@ -50,6 +50,15 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	self unexplored
 ]
 
+{ #category : #accessing }
+DRMethodIRGenerator >> numberOfArguments: aValue [ 
+	
+	super numberOfArguments: aValue.
+	self flag: #TOTHINK. "Push receiver?"
+	0 to: numberOfArguments - 1 do: [ :i |
+		self push: (self currentBasicBlock loadArgument: i) ]
+]
+
 { #category : #'frame-access' }
 DRMethodIRGenerator >> popFrameMergingDeferredReturns [
 
@@ -65,6 +74,11 @@ DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arg
 		  receiver: receiver
 		  arguments: arguments
 		  method: (self methodFor: aRBMessageNode withReceiver: receiver)
+]
+
+{ #category : #acc }
+DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [ 
+
 ]
 
 { #category : #visiting }
