@@ -50,6 +50,7 @@ DRCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 	initialBasicBlock := generator createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
 
+	generator receiver: (DRInterpreterValue value: interpreter).
 	generator numberOfArguments: (self numberOfArgumentsFor: method)
 ]
 
@@ -80,23 +81,11 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 
-	| initialBasicBlock startBlock cfg numArgs receiver arguments |
-	"Create the initial basic block"
-	startBlock := irGenerator initialBasicBlock.
-	initialBasicBlock := self createInitialBasicBlock.
-	startBlock jumpTo: initialBasicBlock.
+	| cfg receiver arguments |
+	self configureIRBuilder: irGenerator forMethod: method.
 
-	numArgs := self numberOfArguments: method.
-	irGenerator numberOfArguments: numArgs.
-	arguments := OrderedCollection new.
-	numArgs > 0 ifTrue: [ 
-		1 to: numArgs do: [ :i | 
-			| loadInstruction |
-			loadInstruction := initialBasicBlock loadArgument: i.
-			loadInstruction argName: (self argName: i forMethod: method).
-			arguments add: loadInstruction ] ].
-
-	receiver := initialBasicBlock copy: (DRInterpreterValue value: interpreter).
+	arguments := (1 to: irGenerator numberOfArguments) collect: [ :_ | irGenerator pop ].
+	receiver := irGenerator pop.
 
 	irGenerator
 		interpretCode: (DRMethod methodNode: method ast)

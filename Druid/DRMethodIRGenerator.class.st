@@ -66,6 +66,12 @@ DRMethodIRGenerator >> popFrameMergingDeferredReturns [
 	^ executionState popFrame
 ]
 
+{ #category : #configure }
+DRMethodIRGenerator >> receiver: aDRValue [
+
+	self push: (self currentBasicBlock copy: aDRValue)
+]
+
 { #category : #visiting }
 DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
 

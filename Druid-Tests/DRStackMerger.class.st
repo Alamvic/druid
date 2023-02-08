@@ -35,8 +35,9 @@ DRStackMerger >> installInstructions [
 		mergeFrame operandStack do: [ :e | mergeBlock addInstruction: e ].
 		mergeBlock addInstruction: mergeFrame returnValue ].
 	mergedState vmOperandStack do: [ :e | mergeBlock addInstruction: e ].
-	mergeBlock addInstruction: mergedState primitiveFailureCode.
-
+	self flag: #OnlyPrimitives.
+	mergedState primitiveFailureCode operands ifNotEmpty: [ 
+		mergeBlock addInstruction: mergedState primitiveFailureCode ]
 ]
 
 { #category : #merging }

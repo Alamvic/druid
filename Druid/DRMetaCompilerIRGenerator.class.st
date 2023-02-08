@@ -83,9 +83,15 @@ DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 DRMetaCompilerIRGenerator >> numberOfArguments: aValue [ 
 	
 	super numberOfArguments: aValue.
-	self push: self receiverRegister.
 	0 to: numberOfArguments - 1 do: [ :i |
 		self push: (self argRegisterNumber: i) ]
+]
+
+{ #category : #configure }
+DRMetaCompilerIRGenerator >> receiver: aDRValue [
+
+	self push: self receiverRegister.
+	self push: (self currentBasicBlock copy: aDRValue)
 ]
 
 { #category : #visiting }

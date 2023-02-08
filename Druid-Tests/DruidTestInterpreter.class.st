@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> basicInlineMethod [
+
+	^ self lazyDouble: 42
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> constant [
 
 	^ 73
@@ -97,6 +103,13 @@ DruidTestInterpreter >> methodWithEarlyReturn [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithEarlyReturn: n [
+
+	n = 0 ifTrue: [ ^ 42 ].
+	^ 57
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithMultipleTypeAnnotations: aCollection [
 
 	<var: #aCollection type: #OrderedCollection>
@@ -114,6 +127,15 @@ DruidTestInterpreter >> methodWithNoTypeAnnotation: aCollection [
 DruidTestInterpreter >> methodWithNonLocalReturn [
 
 	[ :arg | ^ arg ] value: 17.
+	^ 1
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodWithThreeNonLocalReturn [
+
+	true
+		ifTrue: [ ^ 2 ]
+		ifFalse: [ ^ 3 ].
 	^ 1
 ]
 
@@ -198,6 +220,15 @@ DruidTestInterpreter >> primitiveArithmeticBitShiftRight [
 	receiver := self stackValue: 1.
 	argument := self stackTop.
 	self pop: 2 thenPush: (receiver >>> argument)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAsInteger [
+
+	<numberOfArguments: 0>
+	"Transform the integer argument as float.
+	Then read its raw representation and push that to the stack."
+	self pop: 1 thenPush: self stackTop asInteger
 ]
 
 { #category : #'as yet unclassified' }
@@ -373,7 +404,7 @@ DruidTestInterpreter >> primitiveCallingMethodWithEarlyReturn [
 
 	<numberOfArguments: 0>
 
-	self pop: 1 thenPush: self methodWithEarlyReturn
+	self pop: 1 thenPush: (self methodWithEarlyReturn: self stackTop)
 ]
 
 { #category : #'as yet unclassified' }
@@ -931,7 +962,7 @@ DruidTestInterpreter >> primitiveInnerBranchingWithDeadBranch [
 	res := self stackTop > 10
 		       ifTrue: [ 
 			       self stackTop < 5
-				       ifTrue: [ 5 "Dead" ]
+				       ifTrue: [ 123 "Dead" ]
 				       ifFalse: [ 17 ] ]
 		       ifFalse: [ 99 ].
 	self pop: 1 thenPush: res
