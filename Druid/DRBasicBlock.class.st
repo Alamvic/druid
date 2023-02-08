@@ -1197,7 +1197,7 @@ DRBasicBlock >> validatePhiFunctions [
 				this by checking that the variables are reachable from the correct predecessors"
 				e operands withIndexDo: [ :dependency :index | 
 					self assert: (dependency isInstruction or: [ 
-							 dependency isNullValue or: [ dependency isPhysicalRegister or: [ dependency isDRBlockClosure ] ] ]).
+							 dependency isNullValue or: [ dependency isPhysicalRegister or: [ dependency isDRBlockClosure or: [ dependency value class = DruidTestInterpreter  ] ] ] ]).
 					self assert: (dependency isInstruction not or: [ 
 							 (self predecessors at: index) checkLivenessOf: dependency ]) ] ] ]
 ]

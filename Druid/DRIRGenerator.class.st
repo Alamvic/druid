@@ -1737,10 +1737,10 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 		self currentPrimitiveFailureCode: failure.
 
 		primitiveReturn := executionState baseFrame.
-		
+
 		"Record that this execution stack did a method return
 		We will merge this one with other returned states when this method finishes"
-		primitiveReturn addDeferredReturnState: { 
+		self addDeferredReturnState: { 
 				executionState copy.
 				self addFrameReturn: primitiveReturn }.
 

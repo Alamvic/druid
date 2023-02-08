@@ -148,6 +148,13 @@ DRPrimitiveIRGenerator >> popFrameMergingDeferredReturns [
 	^ executionState popFrame
 ]
 
+{ #category : #frames }
+DRPrimitiveIRGenerator >> pushFrame: aDruidStackFrame [
+
+	aDruidStackFrame returnValue: DRNullValue new.
+	super pushFrame: aDruidStackFrame
+]
+
 { #category : #'pharo-stack' }
 DRPrimitiveIRGenerator >> spillStack [
 

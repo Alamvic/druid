@@ -78,14 +78,13 @@ DRCompilerCompiler >> generateDruidIR [
 
 { #category : #'generation-IR' }
 DRCompilerCompiler >> generateDruidIRFor: method [
-
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 
 	| cfg receiver arguments |
 	self configureIRBuilder: irGenerator forMethod: method.
 
-	arguments := (1 to: irGenerator numberOfArguments) collect: [ :_ | irGenerator pop ].
-	receiver := irGenerator pop.
+	arguments := method argumentNames collect: [ :_ | irGenerator pop ].
+	receiver := DRInterpreterValue value: interpreter.
 
 	irGenerator
 		interpretCode: (DRMethod methodNode: method ast)
@@ -93,7 +92,7 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 		arguments: arguments.
 
 	cfg := irGenerator ir.
-
+1halt.
 	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: cfg.
 	DRDeadCodeElimination new applyTo: cfg.
