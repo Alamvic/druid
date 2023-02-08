@@ -124,11 +124,11 @@ DRPrimitiveScenarioCompilationTest >> testAsInteger [
 
 	| floatRawValue |
 	self compileDruidPrimitive: #primitiveAsInteger.
-	self executePrimitiveWithReceiver: 17.0.
-	
+	self executePrimitiveWithReceiver: 17.0 asIEEE64BitWord.
+
 	floatRawValue := machineSimulator receiverRegisterValue.
-	
-	self assert: floatRawValue equals: 17
+
+	self assert: (Float fromIEEE64BitWord: floatRawValue) equals: 17
 ]
 
 { #category : #'tests-failing-primitive' }

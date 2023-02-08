@@ -336,7 +336,7 @@ DruidTestInterpreter >> primitiveBranchingWithTripleAndLeftAssociated [
 	res := n ~= 2 & (n < 5) & (n anyMask: 1)
 		       ifTrue: [ 1 ]
 		       ifFalse: [ 7 ].
-	^ self pop: 1 thenPush: res
+	self pop: 1 thenPush: res
 ]
 
 { #category : #'as yet unclassified' }
