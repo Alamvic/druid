@@ -77,7 +77,7 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftDoesNotAp
 
 	| cfg |
 	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: false.
-	1halt.
+
 	optimisation applyTo: cfg.
 	
 	"Check that the block in the right was not visited to apply constant propagation"
@@ -111,7 +111,7 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnRightAppliesF
 
 	| cfg |
 	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: false.
-	1halt.
+
 	optimisation applyTo: cfg.
 	
 	"Check that the block on the left was visited to apply constant folding"
