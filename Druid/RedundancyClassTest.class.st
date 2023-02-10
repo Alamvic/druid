@@ -121,7 +121,7 @@ RedundancyClassTest >> test3SameConstexpressHasCorrectClassNumber [
 { #category : #tests }
 RedundancyClassTest >> testConstantFoldingExpressionHasSameClassNumber [
 	"C1 = 1
-	 1 + C1 is in the same class of 1 + 1
+	 1 + C1 is in the same class as 1 + 1
 	"
 	
 | cfg instruction1 instruction2 instruction3 |
@@ -131,4 +131,22 @@ instruction2 := cfg b1 add: 1 to: instruction1.
 instruction3 := cfg b2 add: 1 to: 1.
 valueNumberer applyTo: cfg.
 self assert: (valueNumberer valueNumberOf: instruction2) equals:(valueNumberer valueNumberOf: instruction3)
+]
+
+{ #category : #tests }
+RedundancyClassTest >> testConstantFoldingExpressionHasSameClassNumber2 [
+	"T1 = 2
+    T2 = T1
+    T1 + T2  is in the same class as 2 + 2  =
+	"
+	
+| cfg instruction1 instruction2 instruction3 instruction4 |
+cfg := self setUpCFG:2.
+
+instruction1 := cfg b1 copy: 2.
+instruction2 := cfg b1 copy: instruction1.
+instruction3 := cfg b1 add: instruction1 to: instruction2.
+instruction4 := cfg b2 add: 2 to: 2.
+valueNumberer applyTo: cfg.
+self assert: (valueNumberer valueNumberOf: instruction3) equals:(valueNumberer valueNumberOf: instruction4)
 ]
