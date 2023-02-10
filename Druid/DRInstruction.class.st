@@ -262,6 +262,12 @@ DRInstruction >> isCogitSendMarshall [
 ]
 
 { #category : #testing }
+DRInstruction >> isCommutative [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isConditionalBranch [
 	
 	^ false

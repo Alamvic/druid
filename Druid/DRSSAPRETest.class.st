@@ -68,3 +68,27 @@ T1 = e  → T2 = T1  →  T4
 	self assert: cfg b2 first operand1 equals: instruction1.
 	self assert: cfg b3 first operand1 value equals: 1.
 ]
+
+{ #category : #tests }
+DRSSAPRETest >> testRename [
+	" 
+	  T1  →   T2 = e   →   T3   
+          \_________/ 
+   "
+
+	| cfg b3 b1 b2 instruction |
+	
+	cfg := self setUpCFG: 3.
+	b1 := cfg b1.
+	b2 := cfg b2.
+	b3 := cfg b3.
+	
+   instruction := b2 copy: 3.
+	b1 jumpIfTrueTo: b2 ifFalseTo: b3.
+	
+	optimisation insertPhi: cfg.
+	valueNumberer applyTo: cfg.
+	
+	self deny: (valueNumberer valueNumberOf: instruction) equals: (valueNumberer valueNumberOf: b3 instructions first).
+	
+]

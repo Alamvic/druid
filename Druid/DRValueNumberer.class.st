@@ -1,51 +1,41 @@
 Class {
 	#name : #DRValueNumberer,
-	#superclass : #DRSCCP,
+	#superclass : #Object,
 	#instVars : [
-		'valueNumberList'
+		'valueNumberList',
+		'valueNumberDictionary'
 	],
-	#category : #'Druid-Tests'
+	#category : #'Druid-Optimizations'
 }
 
-{ #category : #executing }
-DRValueNumberer >> applyPropagationToInstruction: i [
-"improve this inheritance"
-]
-
-{ #category : #operations }
-DRValueNumberer >> classOf: instruction [
-
-	^ valueNumberList add: (OrderedCollection new
-			   add: instruction;
-			   yourself)
-]
-
-{ #category : #testing }
-DRValueNumberer >> hasSameExpression: anIntruction as: otherIntruction [
-
-	^ (self latticeValue: anIntruction) = (self latticeValue: otherIntruction) 
-]
-
 { #category : #initialization }
-DRValueNumberer >> initialize [ 
-super initialize.
+DRValueNumberer >> initialize [
 
-valueNumberList := OrderedCollection new.
-	
+	super initialize.
+
+	valueNumberDictionary := Dictionary new
 ]
 
 { #category : #operations }
 DRValueNumberer >> valueNumberOf: instruction [
-	" group expressions into different sub lists in the value number list.
-	 If an expression do not find a belonged sublist then creat a new sublist. "
 
-	valueNumberList size < 1 ifTrue: [
-		^ valueNumberList indexOf: (self classOf: instruction) ].
-	valueNumberList do: [ :vn |
-		vn
-			detect: [ :v | self hasSameExpression: instruction as: v ]
-			ifFound: [
-				vn add: instruction.
-				^ valueNumberList indexOf: vn ]
-			ifNone: [ ^ valueNumberList indexOf: (self classOf: instruction) ] ]
+	" returns the class number of an instruction by recursively checking on the instruction if it fits in any class. "
+
+	| key |
+	instruction isCopy ifTrue: [
+		^ self valueNumberOf: instruction operand1 ].
+	key := instruction isConstant
+		       ifTrue: [ instruction ]
+		       ifFalse: [
+			       | operandValueNumbers |
+			       operandValueNumbers := instruction operands collect: [
+				                              :operand |
+				                              self valueNumberOf: operand ].
+			       instruction isCommutative ifTrue: [
+				       operandValueNumbers := operandValueNumbers sorted ].
+			       { instruction class } , operandValueNumbers ].
+
+	^ valueNumberDictionary
+		  at: key
+		  ifAbsentPut: valueNumberDictionary size + 1
 ]
