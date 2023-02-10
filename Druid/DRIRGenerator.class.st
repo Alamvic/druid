@@ -905,13 +905,9 @@ DRIRGenerator >> interpretLoadUint8AtWith: aRBMessageNode [
 ]
 
 { #category : #'special cases' }
-DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [ 
-	
-	| operand1 operand2 |
-	operand1 := self visitOperand: aRBMessageNode receiver.
-	operand2 := self visitOperand: aRBMessageNode arguments first.
-	
-	^ self addInstruction: (DRStore operands: { operand1 . operand2 }) from: aRBMessageNode
+DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [
+
+	self interpretStore: aRBMessageNode ofByteSize: 8
 ]
 
 { #category : #'special cases' }

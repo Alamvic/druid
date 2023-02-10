@@ -130,11 +130,11 @@ DRPrimitiveIRGenerator >> popFrameMergingDeferredReturns [
 	exitBasicBlock := self topFrame exitBasicBlock.
 	topReturns := self topFrame deferredMethodReturns.
 	topReturns size > 0
-		ifTrue: [ 
+		ifTrue: [
 			| mergedState |
 			self assert: exitBasicBlock predecessors isEmpty. "If not, check if new predecessors will be added"
 			topReturns keysDo: [ :frameReturn | 
-				"self assert: frameReturn basicBlock successors isEmpty."
+				frameReturn breakBasicBlock. "Breaking the block in case of be shared by many returns"
 				frameReturn basicBlock jumpTo: exitBasicBlock ].
 			mergedState := DRStackMerger new
 				               builder: self;
@@ -142,11 +142,12 @@ DRPrimitiveIRGenerator >> popFrameMergingDeferredReturns [
 				               mergeAll: topReturns values upTo: self topFrame.
 			executionState := mergedState.
 			currentBasicBlock := exitBasicBlock ]
-		ifFalse: [ 
-			currentBasicBlock = exitBasicBlock ifFalse: [ 
+		ifFalse: [
+			currentBasicBlock = exitBasicBlock ifFalse: [
 				self assert: currentBasicBlock hasFinalInstruction.
 				self assert: exitBasicBlock isEmptyBasicBlock ] ].
 
+	"Returns installed in the CFG -> stop tracking"
 	self topFrame clearDeferredMethodReturns.
 
 	^ executionState popFrame
