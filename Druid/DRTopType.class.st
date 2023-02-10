@@ -49,6 +49,12 @@ DRTopType >> isFloatType [
 	^ false
 ]
 
+{ #category : #testing }
+DRTopType >> isUndefined [
+
+	^ false
+]
+
 { #category : #lookup }
 DRTopType >> lookupClass [
 	

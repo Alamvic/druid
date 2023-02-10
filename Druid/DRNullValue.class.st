@@ -81,5 +81,5 @@ DRNullValue >> sccpLatticeValueFor: sccp [
 { #category : #asd }
 DRNullValue >> type [
 	
-	^ DRIntegerType new
+	^ DRUndefinedType new
 ]

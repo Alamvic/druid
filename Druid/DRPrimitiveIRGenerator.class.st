@@ -35,8 +35,8 @@ DRPrimitiveIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
 	| value |
 	aRBAssignmentNode value acceptVisitor: self.
-	self flag: #TODO. "Using a FrameReturn to keep the value for inlinings"
-	value := currentBasicBlock frameReturn: self operandStackTop. 
+	"Keep instruction in CFG for inlinings"
+	value := currentBasicBlock strongCopy: self operandStackTop. 
 
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
 		^ self receiver value

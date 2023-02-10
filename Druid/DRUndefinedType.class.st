@@ -10,10 +10,16 @@ DRUndefinedType >> astForSelector: aSelector [
 	^ nil
 ]
 
-{ #category : #lookup }
-DRUndefinedType >> lookupSelector: aString [
+{ #category : #accessing }
+DRUndefinedType >> isUndefined [
 
-	^ nil
+	^ true
+]
+
+{ #category : #accessing }
+DRUndefinedType >> systemClass [
+
+	^ nil class
 ]
 
 { #category : #accessing }

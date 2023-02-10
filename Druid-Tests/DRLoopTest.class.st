@@ -47,7 +47,7 @@ DRLoopTest >> testCanRetrieveLoopGraphWithMultipleBodyBlocks [
 	
 	loopSubgraph := loop loopGraph.
 
-	loopBlocksIds := { 6. 9. 10. 7 }.
+	loopBlocksIds := { 6. 11. 12. 7 }.
 	self assertCollection: (loopSubgraph blocks collect: #id) hasSameElements: loopBlocksIds.
 ]
 

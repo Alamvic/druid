@@ -202,18 +202,20 @@ DRPathGenerationTest >> testConstraintsInferenceFromInnerBranches [
 { #category : #constraints }
 DRPathGenerationTest >> testConstraintsInferenceFromLoop [
 
-	| cfg edges firstPhiConstraint loopedPhiConstraint sumConstraint returnInstruction |
+	| cfg edges firstPhiConstraint loopedPhiConstraint sumConstraint returnInstruction phi add |
 	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
 
 	"Go out from loop"
 	returnInstruction := cfg instructions detect: [ :i | i isReturn ].
+	phi := cfg instructions detect: [ :i | i isPhiFunction ].
+	add := cfg instructions detect: [ :i | i isAdd ].
 	edges := cfg incomingEdgesFor: returnInstruction basicBlock.
 
 	"If never go inside the loop"
-	firstPhiConstraint := edges first constraintFor: 'R5'.
+	firstPhiConstraint := edges first constraintFor: phi result name.
 	"If enter and then go out from loop"
-	loopedPhiConstraint := edges second constraintFor: 'R5'.
-	sumConstraint := edges second constraintFor: 'R10'.
+	loopedPhiConstraint := edges second constraintFor: phi result name.
+	sumConstraint := edges second constraintFor: add result name.
 
 	self assert: firstPhiConstraint isEmpty.
 	self assertConstraint: loopedPhiConstraint includes: (DRGreaterOrEqualsConstraint withValue: 15).

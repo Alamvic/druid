@@ -181,6 +181,12 @@ DRLoop >> inductionVariable [
 ]
 
 { #category : #accessing }
+DRLoop >> instructions [
+
+	^ self blocks flatCollect: [ :b | b instructions ]
+]
+
+{ #category : #accessing }
 DRLoop >> isCountingLoop [
 
 	^ self stride ~= 0

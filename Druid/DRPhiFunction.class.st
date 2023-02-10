@@ -219,8 +219,12 @@ DRPhiFunction >> supportConstantOperand [
 { #category : #simplification }
 DRPhiFunction >> type [
 
-	"Assume all my operands have the correct type"
-	^ self operands anyOne type
+	| operandTypes |
+	self operands do: [ :o |
+		| operandType |
+		operandType := o type.
+		operandType isUndefined ifFalse: [ ^ operandType ] ].
+	^ DRUndefinedType new
 ]
 
 { #category : #simplification }

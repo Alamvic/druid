@@ -8,13 +8,13 @@ Class {
 DRDeadPathEliminationTest >> previousOptimizations [
 
 	^ { 
-		  DRBranchCollapse new.
-		  (DRDeadBlockElimination then: DRCleanControlFlow).
-		  DRPhiSimplication new.
 		  DRFailureCodeBasedTailDuplication new.
 		  DRSCCP new.
 		  DRCopyPropagation new.
-		  DRDeadCodeElimination new }
+		  DRDeadCodeElimination new.
+		  DRBranchCollapse new.
+		  (DRDeadBlockElimination then: DRCleanControlFlow).
+		  DRPhiSimplication new. }
 ]
 
 { #category : #initialization }
@@ -54,9 +54,11 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 { #category : #optimization }
 DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 
-	| cfg lastPaths conditionalConstraint |
+	| cfg lastPaths conditionalConstraint add |
 	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
 	cfg generatePaths.
+
+	add := cfg instructions detect: [ :i | i isAdd ].
 
 	self assert: cfg deadPaths isNotEmpty.
 
@@ -69,7 +71,8 @@ DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 	self assert: lastPaths size equals: 2.
 
 	"Should propagate conditional exit"
-	conditionalConstraint := lastPaths first constraintFor: 'R10'.
+	conditionalConstraint := lastPaths first constraintFor:
+		                         add result name.
 	self
 		assertConstraint: (DRGreaterOrEqualsConstraint withValue: 15)
 		includes: conditionalConstraint
@@ -136,9 +139,10 @@ DRDeadPathEliminationTest >> testEliminateInnerDeadPaths [
 
 	self assert: cfg deadPaths isEmpty.
 	self assert: lastBlocks first firstInstruction isCopy.
-	self assert: lastBlocks first firstInstruction operand1 value equals: 17.
+	self assert: lastBlocks first firstInstruction operand1 value equals: 99.
 	self assert: lastBlocks second firstInstruction isCopy.
-	self assert: lastBlocks second firstInstruction operand1 value equals: 99.
+	self assert: lastBlocks second firstInstruction operand1 value equals: 17.
+
 ]
 
 { #category : #optimization }
@@ -189,12 +193,17 @@ DRDeadPathEliminationTest >> testNotSplitUnnecessaryBlocks [
 
 	"TO CHECK if we want this behavior, this simple case finish with same instructions count but 1 block more"
 
-	| cfg |
+	| cfg mergeBlock |
 	cfg := self generateDruidIRFor: #primitiveMultiplePathsOnlyOneDead.
+
+	mergeBlock := cfg mergeBlocks first.
+	
+	self assert: mergeBlock predecessors size equals: 3.
 
 	optimisation applyTo: cfg.
 	self optimize: cfg.
 
-	self assert: cfg instructions size equals: 18.
-	self assert: cfg blocks size equals: 9
+	"It doesn't duplicate to all predecessors, just dead paths"
+	self assert: mergeBlock predecessors size equals: 2.
+
 ]

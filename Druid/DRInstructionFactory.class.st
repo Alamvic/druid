@@ -280,6 +280,14 @@ DRInstructionFactory >> storeSInt64: operand at: address [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> strongCopy: aValue [
+
+	^ DRStrongCopy
+		  operands: { aValue asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> subtract: subtrahend from: minuend [
 
 	^ DRSubtract

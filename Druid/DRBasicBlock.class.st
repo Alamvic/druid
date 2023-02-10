@@ -363,6 +363,12 @@ DRBasicBlock >> frameReturn: aDRValue [
 	^ self addInstruction: (self instructionFactory frameReturn: aDRValue)
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> frameReturns [
+
+	^ self instructions select: [ :i | i isFrameReturn ]
+]
+
 { #category : #building }
 DRBasicBlock >> greater: operand1 than: operand2 [
 	
@@ -1129,6 +1135,12 @@ DRBasicBlock >> store: aValue into: anAddress [
 DRBasicBlock >> storeSInt64: operand at: address [
 
 	^ self addInstruction: (self instructionFactory storeSInt64: operand at: address)
+]
+
+{ #category : #building }
+DRBasicBlock >> strongCopy: aValue [
+	
+	^ self addInstruction: (self instructionFactory strongCopy: aValue)
 ]
 
 { #category : #accessing }

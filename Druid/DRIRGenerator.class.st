@@ -32,8 +32,6 @@ DRIRGenerator >> addDeferredReturnState: anExecutionState [
 { #category : #'execution state' }
 DRIRGenerator >> addFrameReturn: aDRStackFrame [
 
-	"self assert: aDRStackFrame mirrorFrame returnValue isNil."
-	
 	self
 		addInstructionFrom: aDRStackFrame method
 		instructionKind: DRFrameReturn
@@ -686,6 +684,7 @@ DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments
 
 	aDRCode executeOn: self.
 
+	self flag: #TODO. "CHECK if still working"
 	"Fall through the exit block.
 	If the method had an explicit return, it is already done, no need to do it again."
 	currentBasicBlock hasFinalInstruction ifFalse: [
@@ -1730,24 +1729,26 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 { #category : #visiting }
 DRIRGenerator >> visitMethodNode: aRBMethodNode [
 
-	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [ 
-		| failure primitiveReturn |
+	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [
+		| failure primitiveReturn returnState |
 		failure := self currentBasicBlock copy: 1.
 		self currentPrimitiveFailureCode: failure.
 
-		primitiveReturn := executionState baseFrame.
+		returnState := executionState copy.
+		primitiveReturn := returnState baseFrame.
+		primitiveReturn push: DRNullValue new. "Return something"
 
 		"Record that this execution stack did a method return
 		We will merge this one with other returned states when this method finishes"
-		self addDeferredReturnState: { 
-				executionState copy.
-				self addFrameReturn: primitiveReturn }.
+		primitiveReturn addDeferredReturnState: {
+				returnState.
+				(self addFrameReturn: primitiveReturn) }.
 
 		"If the method has no return statement, it should still return something"
 		^ self ].
 
-	(aRBMethodNode hasPragmaNamed: #druidJITCompileTimeExpression) 
-		ifTrue: [ 
+	(aRBMethodNode hasPragmaNamed: #druidJITCompileTimeExpression)
+		ifTrue: [
 			| copy |
 			"Only support single return statements for now"
 			self assert: aRBMethodNode statements size = 1.
@@ -1756,10 +1757,12 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 				        (DRJitCompileTimeExpression expression:
 					         aRBMethodNode statements first value).
 			self topFrame returnValue: copy.
-			self addDeferredReturnState: { executionState copy. self addFrameReturn: self topFrame }.
+			self addDeferredReturnState: {
+					executionState copy.
+					(self addFrameReturn: self topFrame) }.
 			^ self ].
 
-	aRBMethodNode statements do: [ :each | 
+	aRBMethodNode statements do: [ :each |
 		self assert: self topFrame operandStack isEmpty.
 		each acceptVisitor: self.
 		self popOperand.
@@ -1768,8 +1771,10 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 
 	self assert: self topFrame operandStack isEmpty.
 	"If the method has no return statement, it should return default value"
-	self addFrameReturn: self topFrame.
-
+	self pushOperand: DRNullValue new.
+	self addDeferredReturnState: {
+			executionState copy.
+			(self addFrameReturn: self topFrame) }
 ]
 
 { #category : #'special cases' }
