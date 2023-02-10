@@ -25,8 +25,24 @@ RedundancyClassTest >> test2DiffConstexpressHasDiffClassNumber [
 	instruction1 := cfg b1 copy: 1.
 	instruction2 := cfg b2 copy: 3.
 
-	self assert: (valueNumberer valueNumberOf: instruction1) equals: 1.
-	self assert: (valueNumberer valueNumberOf: instruction2) equals: 2.
+
+	self
+		deny: (valueNumberer valueNumberOf: instruction1)
+		equals: (valueNumberer valueNumberOf: instruction2)
+]
+
+{ #category : #tests }
+RedundancyClassTest >> test2DiffExpressionHasDiffClassNumberCommutative [
+	"1 - 2  vs  2 - 1  != "
+	| cfg instruction1 instruction2 |
+	
+	cfg := self setUpCFG: 2.
+	instruction1 := cfg b1 sub: 1 from: 5.
+	instruction2 := cfg b2 sub: 5 from: 1.
+	
+	self
+		deny: (valueNumberer valueNumberOf: instruction1)
+		equals: (valueNumberer valueNumberOf: instruction2)
 ]
 
 { #category : #tests }
@@ -108,6 +124,11 @@ RedundancyClassTest >> testConstantFoldingExpressionHasSameClassNumber [
 	 1 + C1 is in the same class of 1 + 1
 	"
 	
-| cfg |
-cfg := self setUpCFG:1.
+| cfg instruction1 instruction2 instruction3 |
+cfg := self setUpCFG:2.
+instruction1 := cfg b1 copy: 1.
+instruction2 := cfg b1 add: 1 to: instruction1.
+instruction3 := cfg b2 add: 1 to: 1.
+valueNumberer applyTo: cfg.
+self assert: (valueNumberer valueNumberOf: instruction2) equals:(valueNumberer valueNumberOf: instruction3)
 ]

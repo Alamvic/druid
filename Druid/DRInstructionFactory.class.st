@@ -270,3 +270,11 @@ DRInstructionFactory >> storeSInt64: operand at: address [
 				  address asDRValue }
 		  result: DRNoRegister new
 ]
+
+{ #category : #factory }
+DRInstructionFactory >> sub: operand1 from: operand2 [
+
+	^ DRSubtract 
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]

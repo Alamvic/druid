@@ -159,7 +159,7 @@ DRInstruction >> hasOperand: anInstruction [
 DRInstruction >> hasSameExpressionAs: instruction [
 
 	self class = instruction class ifTrue: [ 
-		(self operands includesAll: instruction operands) ifTrue: [ ^ true ] ].
+		self operands = instruction operands ifTrue: [ ^ true ] ].
 	^ false
 ]
 

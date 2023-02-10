@@ -1,11 +1,22 @@
 Class {
 	#name : #DRValueNumberer,
-	#superclass : #DROptimisation,
+	#superclass : #DRSCCP,
 	#instVars : [
 		'valueNumberList'
 	],
 	#category : #'Druid-Tests'
 }
+
+{ #category : #executing }
+DRValueNumberer >> applyPropagationToInstruction: i [
+"improve this inheritance"
+]
+
+{ #category : #testing }
+DRValueNumberer >> hasSameExpression: anIntruction as: otherIntruction [
+
+	^ (self latticeValue: anIntruction) = (self latticeValue: otherIntruction) 
+]
 
 { #category : #initialization }
 DRValueNumberer >> initialize [ 
@@ -17,17 +28,6 @@ valueNumberList := OrderedCollection new.
 
 { #category : #operations }
 DRValueNumberer >> valueNumberOf: instruction [
-	"valueNumberList do: [ :vn |
-		vn
-			detect: instruction
-			ifFound: [
-				vn add: instruction.
-				^ valueNumberList indexOf: vn ]
-			ifNone: [
-				| newVn |
-				valueNumberList add:
-					(newVn := OrderedCollection new add: instruction).
-				^ valueNumberList indexOf: newVn ] ]"
 
 	valueNumberList size < 1 ifTrue: [
 		^ valueNumberList indexOf:
@@ -36,7 +36,7 @@ DRValueNumberer >> valueNumberOf: instruction [
 					    yourself)) ].
 	valueNumberList do: [ :vn |
 		vn
-			detect: [ :v | instruction hasSameExpressionAs: v ]
+			detect: [ :v | self hasSameExpression: instruction as: v ]
 			ifFound: [
 				vn add: instruction.
 				^ valueNumberList indexOf: vn ]

@@ -1079,6 +1079,12 @@ DRBasicBlock >> storeSInt64: operand at: address [
 	^ self addInstruction: (self instructionFactory storeSInt64: operand at: address)
 ]
 
+{ #category : #building }
+DRBasicBlock >> sub: aValue from: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory sub: aValue from: anotherValue)
+]
+
 { #category : #accessing }
 DRBasicBlock >> successor [
 	
