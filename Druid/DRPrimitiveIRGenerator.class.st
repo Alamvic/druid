@@ -33,18 +33,21 @@ DRPrimitiveIRGenerator >> inlineGenerator [
 { #category : #interpreting }
 DRPrimitiveIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
+	| value |
 	aRBAssignmentNode value acceptVisitor: self.
+	self flag: #TODO. "Using a FrameReturn to keep the value for inlinings"
+	value := currentBasicBlock frameReturn: self operandStackTop. 
 
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
 		^ self receiver value
 			  instVarNamed: aRBAssignmentNode variable name
-			  put: self operandStackTop simpleConstantFold asDRValue ].
+			  put: value ].
 
 	aRBAssignmentNode variable binding originalVar isTempVariable
 		ifTrue: [
 			^ self topFrame
 				  temporaryAt: aRBAssignmentNode variable name
-				  put: self operandStackTop simpleConstantFold asDRValue 
+				  put: value
 				  withState: executionState ].
 
 	self halt

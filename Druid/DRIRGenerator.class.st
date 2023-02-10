@@ -1096,16 +1096,19 @@ DRIRGenerator >> interpretStackTopWith: aRBMessageNode [
 
 { #category : #'special cases - stack' }
 DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
-
 	"Interpret messages of the form 
 	interpreter stackValue: xxx.
-	"	
+	"
+
 	| value |
 	aRBMessageNode arguments first acceptVisitor: self.
-	value := self popOperand.
-	value operand1 value isInteger ifFalse: [ self error: 'expected an integer value' ].
-	
-	^ self addInstructionFrom: aRBMessageNode instructionKind: DRCopy operands: { self argRegisterNumber: value operand1 value }
+	value := self popOperand operand1 simpleConstantFold.
+	value isInteger ifFalse: [ self error: 'expected an integer value' ].
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRCopy
+		  operands: { (self argRegisterNumber: value) }
 ]
 
 { #category : #'special cases - memory access' }

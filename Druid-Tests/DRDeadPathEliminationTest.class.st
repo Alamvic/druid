@@ -30,7 +30,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 
 	| cfg lastBlocks lastPaths newMergePoint oldMergePoint newBlock |
 	cfg := self generateDruidIRFor: #primitiveSandclock.
-	oldMergePoint := cfg blockById: 25.
+	oldMergePoint := cfg mergeBlocks first.
 	newMergePoint := oldMergePoint newEmptyPredecessor.
 	newBlock := cfg newBasicBlockWith: [ :b | b copy: 1 ].
 	oldMergePoint removePredecessorAt: 1.
@@ -39,12 +39,12 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 		to: oldMergePoint
 		ifFalseTo: newBlock.
 	newBlock jumpTo: (cfg blockById: 1).
-	cfg generatePaths.
 
 	2 timesRepeat: [ 
 		cfg applyOptimisation: optimisation.
 		cfg applyOptimisation: DRCleanControlFlow new ].
 
+	cfg generatePaths.
 	lastBlocks := cfg lastBasicBlock predecessors.
 	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
 
@@ -69,7 +69,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 	self assert: lastPaths size equals: 2.
 
 	"Should propagate conditional exit"
-	conditionalConstraint := lastPaths first constraintFor: 'R11'.
+	conditionalConstraint := lastPaths first constraintFor: 'R10'.
 	self
 		assertConstraint: (DRGreaterOrEqualsConstraint withValue: 15)
 		includes: conditionalConstraint

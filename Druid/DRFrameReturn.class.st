@@ -19,13 +19,19 @@ DRFrameReturn >> isFrameReturn [
 { #category : #testing }
 DRFrameReturn >> isMandatoryInstruction [
 
-	^ true
+	^ self controlFlowGraph messageSends isNotEmpty
 ]
 
 { #category : #SCCP }
 DRFrameReturn >> sccpLatticeValueFor: sccp [
 
-	self controlFlowGraph messageSends ifEmpty: [ "If there is no remaining messages then can be folded" 
-		^ super sccpLatticeValueFor: sccp ].
-	^ sccp bottom
+	self isMandatoryInstruction ifTrue: [ ^ sccp bottom ].
+
+	^ super sccpLatticeValueFor: sccp
+]
+
+{ #category : #SCCP }
+DRFrameReturn >> supportConstantOperand [
+
+	^ self isMandatoryInstruction not
 ]

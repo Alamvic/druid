@@ -143,7 +143,7 @@ DRValue >> isFrameReturn [
 { #category : #testing }
 DRValue >> isGlobal [
 
-	^ self isNullValue or: [ self isPhysicalRegister ]
+	^ self isNullValue or: [ self isPhysicalRegister or: [ self isConstant ] ]
 ]
 
 { #category : #testing }

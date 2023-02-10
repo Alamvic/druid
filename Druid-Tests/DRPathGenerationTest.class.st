@@ -210,10 +210,10 @@ DRPathGenerationTest >> testConstraintsInferenceFromLoop [
 	edges := cfg incomingEdgesFor: returnInstruction basicBlock.
 
 	"If never go inside the loop"
-	firstPhiConstraint := edges first constraintFor: 'R6'.
+	firstPhiConstraint := edges first constraintFor: 'R5'.
 	"If enter and then go out from loop"
-	loopedPhiConstraint := edges second constraintFor: 'R6'.
-	sumConstraint := edges second constraintFor: 'R11'.
+	loopedPhiConstraint := edges second constraintFor: 'R5'.
+	sumConstraint := edges second constraintFor: 'R10'.
 
 	self assert: firstPhiConstraint isEmpty.
 	self assertConstraint: loopedPhiConstraint includes: (DRGreaterOrEqualsConstraint withValue: 15).
