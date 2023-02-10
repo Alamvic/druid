@@ -110,20 +110,6 @@ DRPrimitiveIRGenerator >> newCFG [
 ]
 
 { #category : #'frame-access' }
-DRPrimitiveIRGenerator >> popFrame [
-
-	"If the interpretation stack is empty, we are returning from the primitive
-	- generate a return instruction popping receiver and arguments all at once
-	- amount to pop is expressed in bytes, so multiply by word size"
-
-	| poppedFrame |
-	self flag: #Remove.
-	self topFrame receiverWithState: executionState.
-	poppedFrame := super popFrame.
-	^ poppedFrame
-]
-
-{ #category : #'frame-access' }
 DRPrimitiveIRGenerator >> popFrameMergingDeferredReturns [
 
 	| exitBasicBlock topReturns |

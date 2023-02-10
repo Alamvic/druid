@@ -236,7 +236,6 @@ DRStackFrame >> resolveDeferredMethodReturns: aDRIRGenerator [
 	"If there were returns attached to popped frame, merge all of them in a single state. If there was only one return this is important also to override implicit returns"
 
 	mirrorFrame returnValue isNil ifTrue: [ "There are no provious returns"
-		self assert: self returnValue isFrameReturn not.
 		self assert: exitBasicBlock isEmptyBasicBlock.
 		newFrameReturn := aDRIRGenerator mergeDeferredReturns: self deferredMethodReturns in: exitBasicBlock.
 		mirrorFrame returnValue: newFrameReturn. "Save it in a secure and common place"
