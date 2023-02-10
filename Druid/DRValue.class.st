@@ -239,6 +239,12 @@ DRValue >> isPhysicalRegister [
 ]
 
 { #category : #testing }
+DRValue >> isPush [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isRegister [
 
 	^ false
