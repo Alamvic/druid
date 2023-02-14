@@ -44,6 +44,7 @@ DRBytecodeGeneratorTest >> generateDruidIRFor: method [
 
 	| cfg |
 	cfg := compilerCompiler generateDruidIRFor: method.
+	1halt.
 	compilerCompiler optimize: cfg.
 	^ cfg
 ]
