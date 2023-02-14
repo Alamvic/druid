@@ -1,7 +1,7 @@
 Class {
 	#name : #DRGeneralPrimitiveTest,
 	#superclass : #VMJittedGeneralPrimitiveTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Quarantine'
 }
 
 { #category : #running }
