@@ -7,10 +7,7 @@ Class {
 { #category : #visiting }
 DRMethodIRGenerator >> finishCodeInterpretation: lastFrame [
 
-	| returnValue |
-	returnValue := lastFrame mirrorFrame returnValue ifNil: [ lastFrame returnValue ].
-
-	currentBasicBlock return: returnValue
+	currentBasicBlock return: lastFrame returnedValue
 ]
 
 { #category : #inline }
@@ -61,7 +58,7 @@ DRMethodIRGenerator >> numberOfArguments: aValue [
 { #category : #'frame-access' }
 DRMethodIRGenerator >> popFrameMergingDeferredReturns [
 
-	self topFrame resolveDeferredMethodReturns: self.
+	self resolveDeferredMethodReturns: self topFrame.
 	^ executionState popFrame
 ]
 
@@ -69,6 +66,47 @@ DRMethodIRGenerator >> popFrameMergingDeferredReturns [
 DRMethodIRGenerator >> receiver: aDRValue [
 
 	self push: aDRValue
+]
+
+{ #category : #'deferred returns' }
+DRMethodIRGenerator >> resolveDeferredMethodReturns: aDRFrame [
+
+	| mirrorFrame newFrameReturn deferredReturnsBlock pieces deferredFrameReturn newReturn |
+	aDRFrame deferredMethodReturns ifEmpty: [ ^ self ].
+	mirrorFrame := aDRFrame mirrorFrame.
+
+	"If there were returns attached to popped frame, merge all of them in a single state. If there was only one return this is important also to override implicit returns"
+
+	mirrorFrame poppedValue ifNil: [ "There are no provious returns"
+		self assert: aDRFrame exitBasicBlock isEmptyBasicBlock.
+		newFrameReturn := self mergeDeferredReturns: aDRFrame deferredMethodReturns in: aDRFrame exitBasicBlock.
+		mirrorFrame poppedValue: newFrameReturn. "Save it in a secure and common place"
+		aDRFrame clearDeferredMethodReturns.
+		^ self ].
+
+	"There is a previous return, we have to integrate new ones"
+
+	self assert: aDRFrame returnValue isFrameReturn not.
+	self assert: mirrorFrame poppedValue isNotNil.
+
+	deferredReturnsBlock := self newBasicBlock.
+	deferredFrameReturn := self mergeDeferredReturns: aDRFrame deferredMethodReturns in: deferredReturnsBlock.
+	pieces := mirrorFrame poppedValue breakBasicBlock.
+
+	"Update exitBasicBlock and continue from there"
+	aDRFrame exitBasicBlock: pieces last.
+	self currentBasicBlock: aDRFrame exitBasicBlock.
+
+	deferredReturnsBlock jumpTo: aDRFrame exitBasicBlock.
+	newReturn := aDRFrame exitBasicBlock addInstruction: (self instructionFactory phiWithVariables: {  }).
+	aDRFrame returnValue: newReturn.
+	newFrameReturn := self addFrameReturn: aDRFrame.
+	mirrorFrame poppedValue replaceUsesBy: newFrameReturn.
+	newReturn operands: { 
+			mirrorFrame poppedValue.
+			deferredFrameReturn }.
+	mirrorFrame poppedValue: (newFrameReturn).
+	aDRFrame clearDeferredMethodReturns
 ]
 
 { #category : #visiting }
@@ -81,7 +119,7 @@ DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arg
 		  method: (self methodFor: aRBMessageNode withReceiver: receiver)
 ]
 
-{ #category : #acc }
+{ #category : #visiting }
 DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [ 
 
 ]

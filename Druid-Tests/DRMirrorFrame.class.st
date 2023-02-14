@@ -3,7 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'deferredMethodReturns',
-		'returnValue'
+		'poppedValue'
 	],
 	#category : #'Druid-Tests'
 }
@@ -17,19 +17,13 @@ DRMirrorFrame >> addDeferredReturnState: aDRExecutionState [
 { #category : #'deferred returns' }
 DRMirrorFrame >> clearDeferredMethodReturns [
 
-	deferredMethodReturns copy keysDo: [ :key | deferredMethodReturns removeKey: key ]
+	deferredMethodReturns removeAll
 ]
 
 { #category : #accessing }
 DRMirrorFrame >> deferredMethodReturns [
 
 	^ deferredMethodReturns
-]
-
-{ #category : #accessing }
-DRMirrorFrame >> deferredMethodReturns: anObject [
-
-	deferredMethodReturns := anObject
 ]
 
 { #category : #initialization }
@@ -39,15 +33,13 @@ DRMirrorFrame >> initialize [
 ]
 
 { #category : #accessing }
-DRMirrorFrame >> returnValue [
+DRMirrorFrame >> poppedValue [
 
-	^ returnValue
+	^ poppedValue
 ]
 
 { #category : #accessing }
-DRMirrorFrame >> returnValue: aDRValue [
+DRMirrorFrame >> poppedValue: aDRValue [
 
-	self flag: #TODO. "Rename"
-
-	^ returnValue := aDRValue
+	^ poppedValue := aDRValue
 ]

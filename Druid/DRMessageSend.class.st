@@ -40,8 +40,7 @@ DRMessageSend >> generateInlineIRForMethod: classAndMethodToInline [
 
 	irGenerator finishCodeInterpretation: lastFrame.
 
-	self flag: #TOFIX.
-	^ lastFrame mirrorFrame returnValue ifNil: [ lastFrame returnValue ]
+	^ lastFrame returnedValue
 ]
 
 { #category : #inlining }
@@ -93,8 +92,7 @@ DRMessageSend >> inline [
 	self replaceUsesBy: inlinedMethodReturnValue.
 	
 	"Remove message send block"
-	self basicBlock successors copy do: [ :succ | succ removePredecessor: self basicBlock ].
-	self basicBlock removeFromCFG.
+	self basicBlock removeFromCFGAndDisconnectSuccessors.
 	
 	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: irGenerator ir.
@@ -200,10 +198,10 @@ DRMessageSend >> supportConstantOperand [
 DRMessageSend >> type [
 
 	methodNode ifNotNil: [ "TODO: Connext with type system"
-		(methodNode hasPragmaNamed: #returnTypeC:) ifTrue: [ "TODO: Match Slang types" 
+		(methodNode hasPragmaNamed: #returnTypeC:) ifTrue: [ "TODO: Match Slang types"
 			1 halt ] ].
 
-	^ DRUndefinedType new
+	^ DRTopType new
 ]
 
 { #category : #copying }

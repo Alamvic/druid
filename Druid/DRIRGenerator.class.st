@@ -831,7 +831,6 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 				                  builder: self;
 				                  mergeBlock: currentBasicBlock;
 				                  mergeAll: { executionStateBeforeBranch. executionState copy }.
-			self flag: #TODO. "Add frame return?"
 			trueBranchBasicBlockOut jumpTo: self currentBasicBlock ]
 ]
 
@@ -1771,7 +1770,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 
 	self assert: self topFrame operandStack isEmpty.
 	"If the method has no return statement, it should return default value"
-	self pushOperand: DRNullValue new.
+	self pushOperand: self topFrame returnValue.
 	self addDeferredReturnState: {
 			executionState copy.
 			(self addFrameReturn: self topFrame) }

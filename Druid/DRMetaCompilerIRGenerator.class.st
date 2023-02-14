@@ -67,15 +67,12 @@ DRMetaCompilerIRGenerator >> initializeSpecialCases [
 { #category : #visiting }
 DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 
-	| receiverType methodFound |
-	receiverType := aRBMessageNode isSuperSend
-		               ifTrue: [ self currentMethod methodClass superclass ]
-		               ifFalse: [ receiver type ].
-	methodFound := receiverType lookupSelector: aRBMessageNode selector.
+	| methodFound |
+	methodFound := super methodFor: aRBMessageNode withReceiver: receiver.
 	methodFound ifNil: [
 		self error:
 			'lookup failed for: ' , aRBMessageNode selector , ' in class '
-			, receiverType name ].
+			, receiver name ].
 	^ methodFound
 ]
 

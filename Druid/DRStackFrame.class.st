@@ -226,50 +226,8 @@ DRStackFrame >> receiverWithState: aState [
 	^ receiver
 ]
 
-{ #category : #'deferred returns' }
-DRStackFrame >> resolveDeferredMethodReturns: aDRIRGenerator [
-
-	| newFrameReturn deferredReturnsBlock pieces deferredFrameReturn newReturn |
-	self deferredMethodReturns ifEmpty: [ ^ self ].
-
-
-	"If there were returns attached to popped frame, merge all of them in a single state. If there was only one return this is important also to override implicit returns"
-
-	mirrorFrame returnValue isNil ifTrue: [ "There are no provious returns"
-		self assert: exitBasicBlock isEmptyBasicBlock.
-		newFrameReturn := aDRIRGenerator mergeDeferredReturns: self deferredMethodReturns in: exitBasicBlock.
-		mirrorFrame returnValue: newFrameReturn. "Save it in a secure and common place"
-		self clearDeferredMethodReturns.
-		^ self ].
-
-	"There is a previous return, we have to integrate new ones"
-
-	self assert: self returnValue isFrameReturn not.
-	self assert: mirrorFrame returnValue isNotNil.
-
-	deferredReturnsBlock := aDRIRGenerator newBasicBlock.
-	deferredFrameReturn := aDRIRGenerator mergeDeferredReturns: self deferredMethodReturns in: deferredReturnsBlock.
-	pieces := mirrorFrame returnValue breakBasicBlock.
-
-	"Update exitBasicBlock and continue from there"
-	aDRIRGenerator currentBasicBlock: (exitBasicBlock := pieces last).
-
-	deferredReturnsBlock jumpTo: exitBasicBlock.
-	newReturn := exitBasicBlock addInstruction: (aDRIRGenerator instructionFactory phiWithVariables: {  }).
-	self returnValue: newReturn.
-	newFrameReturn := aDRIRGenerator addFrameReturn: self.
-	mirrorFrame returnValue replaceUsesBy: newFrameReturn.
-	newReturn operands: { 
-			mirrorFrame returnValue.
-			deferredFrameReturn }.
-	mirrorFrame returnValue: (newFrameReturn).
-	self clearDeferredMethodReturns
-]
-
 { #category : #accessing }
 DRStackFrame >> returnValue [
-
-	"	^ mirrorFrame returnValue"
 
 	^ returnValue
 ]
@@ -277,9 +235,13 @@ DRStackFrame >> returnValue [
 { #category : #accessing }
 DRStackFrame >> returnValue: aValue [
 
-	"aValue isFrameReturn ifTrue: [ 1halt ]."
-
 	^ returnValue := aValue
+]
+
+{ #category : #accessing }
+DRStackFrame >> returnedValue [
+
+	^ mirrorFrame poppedValue ifNil: [ self returnValue ]
 ]
 
 { #category : #accessing }
