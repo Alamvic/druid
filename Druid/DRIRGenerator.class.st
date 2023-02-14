@@ -905,7 +905,7 @@ DRIRGenerator >> interpretLoadUint8AtWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretMachineWordAtPutWith: aRBMessageNode [
 
-	self interpretStore: aRBMessageNode ofByteSize: 8
+	self interpretStore: aRBMessageNode ofByteSize: 8  "Assume 64 bits for now"
 ]
 
 { #category : #'special cases' }
