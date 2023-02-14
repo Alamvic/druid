@@ -91,8 +91,8 @@ DruidTestInterpreter >> lazyFail [
 
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithArg: aCollection [
-	<var: #aCollection type: #Dictionary>
-	^ aCollection at: 1
+	<var: #aCollection type: #OrderedCollection>
+	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : #'as yet unclassified' }
