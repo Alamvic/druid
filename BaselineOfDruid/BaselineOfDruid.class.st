@@ -16,7 +16,7 @@ BaselineOfDruid >> baseline: spec [
 				className: 'BaselineOfVMMaker';
 				repository: 'github://pharo-project/opensmalltalk-vm:druid' ].
 		spec
-			baseline: 'PharoCodeGenerator';
+			baseline: 'PharoCodeGenerator'
 			with: [ spec repository: 'github://juliendelplanque/PharoCodeGenerator/src' ].
 
       spec
