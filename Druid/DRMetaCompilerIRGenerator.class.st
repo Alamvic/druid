@@ -122,6 +122,6 @@ DRMetaCompilerIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
 	"Resolve it as a variableAccess"
 	self pushOperand:
-		((self topFrame homeFrameWithState: executionState) receiver value 
+		((self topFrame homeFrameWithState: executionState) receiver simpleConstantFold value 
 			 instVarNamed: aRBVariableNode name) asDRValue
 ]

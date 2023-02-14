@@ -165,14 +165,3 @@ DRPrimitiveIRGenerator >> spillStack [
 		self currentBasicBlock addInstruction: copyInstruction.
 	]
 ]
-
-{ #category : #visiting }
-DRPrimitiveIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
-
-	variableSpecialCases at: aRBVariableNode name ifPresent: [ :mapping | 
-		^ self perform: mapping withArguments: { aRBVariableNode } ].
-
-	self pushOperand:
-		((self topFrame homeFrameWithState: executionState) receiver simpleConstantFold value 
-			 instVarNamed: aRBVariableNode name) asDRValue
-]
