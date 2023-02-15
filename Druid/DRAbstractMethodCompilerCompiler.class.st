@@ -51,7 +51,7 @@ DRAbstractMethodCompilerCompiler >> configureIRBuilder: generator forMethod: met
 	initialBasicBlock := generator createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
 
-	generator numberOfArguments: method numberOfArguments
+	generator numberOfArguments: (self numberOfArgumentsFor: method)
 ]
 
 { #category : #'generation-IR' }

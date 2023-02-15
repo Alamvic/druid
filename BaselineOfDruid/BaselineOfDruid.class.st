@@ -20,7 +20,7 @@ BaselineOfDruid >> baseline: spec [
 			with: [ spec repository: 'github://juliendelplanque/PharoCodeGenerator/src' ].
 
       spec
-			package: 'Druid' with: [ spec requires: 'PharoVM' ];
+			package: 'Druid' with: [ spec requires: #('PharoVM' 'PharoCodeGenerator') ];
 			package: 'Druid-Tests' with: [ spec requires: 'Druid' ];
 			package: 'Druid-UI' with: [ spec requires: #('Druid' 'Druid-Tests') ].
 

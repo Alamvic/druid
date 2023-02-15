@@ -103,7 +103,8 @@ DRCogitPrimitiveInstaller >> collectAllMethodsOn: aJITCompilerClass [
 		} collect: [ : pcgNode |
 			pcgNode
 				protocol: #'class initialization';
-				installOn: aJITCompilerClass ]
+				installOn: aJITCompilerClass.
+			pcgNode ]
 ]
 
 { #category : #initialization }

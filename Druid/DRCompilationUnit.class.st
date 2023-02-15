@@ -54,8 +54,7 @@ DRCompilationUnit >> compileInitializePrimitiveTable [
 	"Install the initialize primitive table method in the receiver's JIT compiler class"
 
 	self addPrimitiveEntries.
-	self primitiveTableInitializer installAllMethodsOn:
-		self jitCompilerClass class
+	self primitiveTableInitializer installAllMethodsOn: self jitCompilerClass class
 ]
 
 { #category : #'accessing - compiler' }

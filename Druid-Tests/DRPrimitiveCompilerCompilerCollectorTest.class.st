@@ -1,44 +1,14 @@
 Class {
 	#name : #DRPrimitiveCompilerCompilerCollectorTest,
-	#superclass : #DRDruidTests,
-	#instVars : [
-		'testingEnvironment'
-	],
-	#category : #'Druid-Tests'
+	#superclass : #DRAbstractMockTest,
+	#category : #'Druid-Tests-CompilerCompiler'
 }
-
-{ #category : #accessing }
-DRPrimitiveCompilerCompilerCollectorTest >> interpreterWith: aCollection [
-
-	^ self newEmptyInterpreter primitives: aCollection
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilerCompilerCollectorTest >> newEmptyInterpreter [
-
-	^ DRDummyInterpreter new
-]
-
-{ #category : #running }
-DRPrimitiveCompilerCompilerCollectorTest >> setUp [
-
-	super setUp.
-	testingEnvironment := Smalltalk globals
-]
-
-{ #category : #running }
-DRPrimitiveCompilerCompilerCollectorTest >> tearDown [
-
-	testingEnvironment removeClassNamed: self testingJITCompilerClass.
-	super tearDown.
-]
 
 { #category : #initialization }
 DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitCollectsPrimitives [
 
-	| interpreterCompiler interpreterBuilder |
+	| interpreterCompiler |
 
-	interpreterBuilder := DRInterpreterBuilder new.
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
 	self assert: interpreterCompiler generateIR hasPrimitives
 ]
@@ -46,8 +16,8 @@ DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitCollectsPrimitive
 { #category : #initialization }
 DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitGeneratesJIT [
 
-	| interpreterCompiler interpreterBuilder |
-	interpreterBuilder := DRInterpreterBuilder new.
+	| interpreterCompiler |
+
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
 	interpreterCompiler generateIRAndCompileIn: self testingJITCompilerClass.
 
@@ -58,8 +28,8 @@ DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitGeneratesJIT [
 { #category : #initialization }
 DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitModelGeneratesJIT [
 
-	| interpreterCompiler interpreterBuilder |
-	interpreterBuilder := DRInterpreterBuilder new.
+	| interpreterCompiler |
+
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
 	interpreterCompiler generateBuildModelAndCompileIn: self testingJITCompilerClass.
 
@@ -88,9 +58,8 @@ DRPrimitiveCompilerCompilerCollectorTest >> testGenerateMultiplePrimitiveCompila
 { #category : #initialization }
 DRPrimitiveCompilerCompilerCollectorTest >> testGenerateMultiplePrimitiveObjectCompilationUnit [
 
-	| interpreterCompiler interpreterBuilder |
+	| interpreterCompiler |
 
-	interpreterBuilder := DRInterpreterBuilder new.
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
 	self assert: interpreterCompiler primitives size equals: interpreterBuilder primitivesCount
 ]
@@ -107,15 +76,8 @@ DRPrimitiveCompilerCompilerCollectorTest >> testGenerateSinglePrimitiveCompilati
 { #category : #initialization }
 DRPrimitiveCompilerCompilerCollectorTest >> testObtainCompilationUnit [
 
-	| interpreterCompiler interpreterBuilder |
+	| interpreterCompiler |
 
-	interpreterBuilder := DRInterpreterBuilder new.
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
 	self assert: interpreterCompiler generateIR notNil
-]
-
-{ #category : #running }
-DRPrimitiveCompilerCompilerCollectorTest >> testingJITCompilerClass [
-
-	^ #MyJITCompilerClass
 ]

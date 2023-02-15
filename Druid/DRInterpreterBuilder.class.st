@@ -45,7 +45,7 @@ DRInterpreterBuilder >> interpreterClassArithmeticPrimitives [
 { #category : #'accessing - interpreters' }
 DRInterpreterBuilder >> interpreterClassObjectMemoryPrimitives [
 
-	^ DRBasicCogInterpreterPrimitivesWithoutParameters
+	^ DRBasicCogInterpreterObjectMemoryPrimitives
 ]
 
 { #category : #'accessing - interpreters' }
