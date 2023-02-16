@@ -11,12 +11,6 @@ Class {
 }
 
 { #category : #running }
-DRCogitPrimitiveInstallerTest >> buildUnitForTesting [
-
-	^ DRCompilationBuildUnit new
-]
-
-{ #category : #running }
 DRCogitPrimitiveInstallerTest >> compilationUnitForTesting [
 
 	^ DRCompilationUnit new
@@ -45,8 +39,8 @@ DRCogitPrimitiveInstallerTest >> testCollectAllMethodsOn [
 	| pcgMethodNodes |
 	self assert: primitiveMethodInstaller initPrimitiveTable isEmpty.
 	pcgMethodNodes := primitiveMethodInstaller collectAllMethodsOn: self testingJITCompilerClass class.
-	self 
-		assertCollection: (pcgMethodNodes collect: #selector) 
+	self
+		assertCollection: (pcgMethodNodes collect: #selector)
 		hasSameElements: #(primitiveTableArray initializePrimitiveTable)
 ]
 

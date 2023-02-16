@@ -7,7 +7,8 @@ Class {
 	#superclass : #DRDruidTests,
 	#instVars : [
 		'testingEnvironment',
-		'interpreterBuilder'
+		'interpreterBuilder',
+		'interpreterCompiler'
 	],
 	#category : #'Druid-Tests-CompilerCompiler'
 }

@@ -34,8 +34,16 @@ DRPrimitiveCompilerCompilerCollector >> failedPrimitivesAt: anException add: aSt
 
 { #category : #'generation-IR' }
 DRPrimitiveCompilerCompilerCollector >> generateDruidIR [
+	"Try to generate the Druid IR for the receiver's source method, if fails, record the failure"
 
 	^ [ super generateDruidIR ]
 	on: Exception
 	do: [ : ex | ex handlePrimitiveCompilationFor: self ]
+]
+
+{ #category : #testing }
+DRPrimitiveCompilerCompilerCollector >> hasFailedPrimitives [
+	"Answer <true> if the receiver recorded failure during compilation"
+
+	^ self failedPrimitives isNotEmpty
 ]

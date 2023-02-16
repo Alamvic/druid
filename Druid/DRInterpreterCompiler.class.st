@@ -87,7 +87,7 @@ DRInterpreterCompiler >> addPrimitivesTo: aCompilationUnit [
 
 	self interpreterPrimitiveTable
 		do: [ : prim | self addPrimitive: prim to: aCompilationUnit ]
-		displayingProgress: 'Adding primitives'
+		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
 ]
 
 { #category : #'accessing - primitives' }

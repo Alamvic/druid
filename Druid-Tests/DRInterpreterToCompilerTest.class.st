@@ -7,8 +7,6 @@ Class {
 { #category : #initialization }
 DRInterpreterToCompilerTest >> testCompilationUnitPopulateInitializePrimitiveTable [
 
-	| interpreterCompiler |
-
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
 	interpreterCompiler generateIRAndCompileIn: self testingJITCompilerClass.
 
@@ -18,8 +16,6 @@ DRInterpreterToCompilerTest >> testCompilationUnitPopulateInitializePrimitiveTab
 { #category : #initialization }
 DRInterpreterToCompilerTest >> testGenerateEmptyCompilationUnit [
 
-	| interpreterCompiler |
-
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: (self interpreterWith: Array empty).
 	self assert: interpreterCompiler primitives isEmpty
 ]
@@ -27,16 +23,17 @@ DRInterpreterToCompilerTest >> testGenerateEmptyCompilationUnit [
 { #category : #initialization }
 DRInterpreterToCompilerTest >> testGenerateMultiplePrimitiveCompilationUnit [
 
-	| interpreterCompiler |
-
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: (self interpreterWith: #(#primitiveAdd #primitiveEqual)).
-	self assert: interpreterCompiler primitives size equals: 2
+	self
+		assertCollection: (interpreterCompiler primitives collect: #sourceSelector)
+		hasSameElements: #(#primitiveAdd #primitiveEqual).
+
+	self
+		assert: (interpreterCompiler primitives allSatisfy: [ : p | p isKindOf: DRPrimitiveObject ])
 ]
 
 { #category : #initialization }
 DRInterpreterToCompilerTest >> testGenerateMultiplePrimitiveObjectCompilationUnit [
-
-	| interpreterCompiler |
 
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
 	self assert: interpreterCompiler primitives size equals: interpreterBuilder primitivesCount
@@ -44,8 +41,6 @@ DRInterpreterToCompilerTest >> testGenerateMultiplePrimitiveObjectCompilationUni
 
 { #category : #initialization }
 DRInterpreterToCompilerTest >> testGenerateSinglePrimitiveCompilationUnit [
-
-	| interpreterCompiler |
 
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: (self interpreterWith: #(#primitiveAdd)).
 	self assert: interpreterCompiler primitives notEmpty

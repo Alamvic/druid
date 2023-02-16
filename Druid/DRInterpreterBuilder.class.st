@@ -3,7 +3,6 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'primitiveTable',
-		'targetInterpreter',
 		'interpreterClass'
 	],
 	#category : #'Druid-InterpreterBuilder'

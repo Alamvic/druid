@@ -45,7 +45,7 @@ DRCompilationUnit >> compileAll [
 
 	self primitives
 			do: [ : primitive | self compilePrimitive: primitive ]
-			displayingProgress: 'Compiling primitives'.
+			displayingProgress: [ : primitive | 'Compiling primitive: ' , primitive asString ].
 	self compileInitializePrimitiveTable
 ]
 
