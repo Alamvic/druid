@@ -1,5 +1,5 @@
 Class {
-	#name : #DRAbstractMethodCompilerCompiler,
+	#name : #DRAbstractCompilerCompiler,
 	#superclass : #Object,
 	#instVars : [
 		'interpreter',
@@ -16,7 +16,7 @@ Class {
 }
 
 { #category : #api }
-DRAbstractMethodCompilerCompiler >> compile [
+DRAbstractCompilerCompiler >> compile [
 
 	| druidIR |
 	self customise.
@@ -30,19 +30,19 @@ DRAbstractMethodCompilerCompiler >> compile [
 ]
 
 { #category : #accessing }
-DRAbstractMethodCompilerCompiler >> compilerClass [
+DRAbstractCompilerCompiler >> compilerClass [
 
 	^ compilerClass
 ]
 
 { #category : #accessing }
-DRAbstractMethodCompilerCompiler >> compilerClass: anObject [
+DRAbstractCompilerCompiler >> compilerClass: anObject [
 
 	compilerClass := anObject
 ]
 
 { #category : #'generation-IR' }
-DRAbstractMethodCompilerCompiler >> configureIRBuilder: generator forMethod: method [
+DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 
 	| startBlock initialBasicBlock |
 
@@ -55,13 +55,13 @@ DRAbstractMethodCompilerCompiler >> configureIRBuilder: generator forMethod: met
 ]
 
 { #category : #'generation-IR' }
-DRAbstractMethodCompilerCompiler >> customise [
+DRAbstractCompilerCompiler >> customise [
 
 	^ self customiseFor: self sourceMethod
 ]
 
 { #category : #'generation-IR' }
-DRAbstractMethodCompilerCompiler >> customiseFor: method [
+DRAbstractCompilerCompiler >> customiseFor: method [
 
 	method ast
 		pragmaNamed: #customisedReceiverFor:
@@ -71,13 +71,13 @@ DRAbstractMethodCompilerCompiler >> customiseFor: method [
 ]
 
 { #category : #'generation-IR' }
-DRAbstractMethodCompilerCompiler >> generateDruidIR [
+DRAbstractCompilerCompiler >> generateDruidIR [
 
 	^ self generateDruidIRFor: self sourceMethod
 ]
 
 { #category : #'generation-IR' }
-DRAbstractMethodCompilerCompiler >> generateDruidIRFor: method [
+DRAbstractCompilerCompiler >> generateDruidIRFor: method [
 
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 
@@ -101,7 +101,7 @@ DRAbstractMethodCompilerCompiler >> generateDruidIRFor: method [
 ]
 
 { #category : #'code-generation' }
-DRAbstractMethodCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
+DRAbstractCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 
 	customisation generateCustomisedPreamble:
 		codeGenerator generatorMethodBuilder.
@@ -112,7 +112,7 @@ DRAbstractMethodCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph
 ]
 
 { #category : #'generation-IR' }
-DRAbstractMethodCompilerCompiler >> initialize [
+DRAbstractCompilerCompiler >> initialize [
 
 	super initialize.
 	
@@ -130,43 +130,43 @@ DRAbstractMethodCompilerCompiler >> initialize [
 ]
 
 { #category : #accessing }
-DRAbstractMethodCompilerCompiler >> interpreter [
+DRAbstractCompilerCompiler >> interpreter [
 
 	^ interpreter
 ]
 
 { #category : #accessing }
-DRAbstractMethodCompilerCompiler >> interpreter: anObject [
+DRAbstractCompilerCompiler >> interpreter: anObject [
 
 	interpreter := anObject
 ]
 
 { #category : #accessing }
-DRAbstractMethodCompilerCompiler >> irGenerator: aDRIRGenerator [
+DRAbstractCompilerCompiler >> irGenerator: aDRIRGenerator [
 
 	irGenerator := aDRIRGenerator
 ]
 
 { #category : #'generation-IR' }
-DRAbstractMethodCompilerCompiler >> newIRGenerator [
+DRAbstractCompilerCompiler >> newIRGenerator [
 
 	^ DRIRGenerator new
 ]
 
 { #category : #'generation-IR' }
-DRAbstractMethodCompilerCompiler >> numberOfArgumentsFor: method [
+DRAbstractCompilerCompiler >> numberOfArgumentsFor: method [
 
 	^ self subclassResponsibility
 ]
 
 { #category : #accessing }
-DRAbstractMethodCompilerCompiler >> optimisations: aCollection [ 
+DRAbstractCompilerCompiler >> optimisations: aCollection [ 
 	
 	optimisations := aCollection
 ]
 
 { #category : #api }
-DRAbstractMethodCompilerCompiler >> optimize: anIR [
+DRAbstractCompilerCompiler >> optimize: anIR [
 
 	customisation optimize: anIR.
 	optimisations do: [ :optimization | 
@@ -174,36 +174,36 @@ DRAbstractMethodCompilerCompiler >> optimize: anIR [
 ]
 
 { #category : #accessing }
-DRAbstractMethodCompilerCompiler >> registerAllocator [
+DRAbstractCompilerCompiler >> registerAllocator [
 	^ registerAllocator
 ]
 
 { #category : #'generation-IR' }
-DRAbstractMethodCompilerCompiler >> sourceMethod [
+DRAbstractCompilerCompiler >> sourceMethod [
 
 	^ interpreter class lookupSelector: sourceName
 ]
 
 { #category : #accessing }
-DRAbstractMethodCompilerCompiler >> sourceName [
+DRAbstractCompilerCompiler >> sourceName [
 
 	^ sourceName
 ]
 
 { #category : #accessing }
-DRAbstractMethodCompilerCompiler >> sourceName: anObject [
+DRAbstractCompilerCompiler >> sourceName: anObject [
 
 	sourceName := anObject
 ]
 
 { #category : #'code-generation' }
-DRAbstractMethodCompilerCompiler >> targetName [
+DRAbstractCompilerCompiler >> targetName [
 
 	self subclassResponsibility
 ]
 
 { #category : #'ast-to-source' }
-DRAbstractMethodCompilerCompiler >> writeAST: aRBMethodNode [ 
+DRAbstractCompilerCompiler >> writeAST: aRBMethodNode [ 
 	
 	compilerClass compile: (aRBMethodNode formattedCode) classified: #generated
 ]

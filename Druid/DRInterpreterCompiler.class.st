@@ -152,7 +152,7 @@ DRInterpreterCompiler >> environmentAt: aClass [
 DRInterpreterCompiler >> generateBuildModel [
 	"Answer a <DRCompilationBuildUnit>, useful for model manipulation before code dumping"
 
-	compilationUnit := DRCompilationBuildUnit new.
+	compilationUnit := DRCompilationUnitBuilder new.
 	self addPrimitivesTo: compilationUnit.
 	^ compilationUnit
 ]

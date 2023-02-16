@@ -1,5 +1,5 @@
 Class {
-	#name : #DRCompilationBuildUnit,
+	#name : #DRCompilationUnitBuilder,
 	#superclass : #DRCompilationUnit,
 	#instVars : [
 		'primitiveMethods'
@@ -8,7 +8,7 @@ Class {
 }
 
 { #category : #'accessing - compiler' }
-DRCompilationBuildUnit >> buildInitializePrimitiveTable [
+DRCompilationUnitBuilder >> buildInitializePrimitiveTable [
 	"Install the initialize primitive table method in the receiver's JIT compiler class"
 
 	self addPrimitiveEntries.
@@ -16,7 +16,7 @@ DRCompilationBuildUnit >> buildInitializePrimitiveTable [
 ]
 
 { #category : #'accessing - compiler' }
-DRCompilationBuildUnit >> compileAll [
+DRCompilationUnitBuilder >> compileAll [
 	"Write primitive methods in the receiver's JIT compiler class"
 
 	self primitives
@@ -26,14 +26,14 @@ DRCompilationBuildUnit >> compileAll [
 ]
 
 { #category : #accessing }
-DRCompilationBuildUnit >> primitiveMethods [
+DRCompilationUnitBuilder >> primitiveMethods [
 
 	^ primitiveMethods
 		ifNil: [ primitiveMethods := OrderedCollection new ]
 ]
 
 { #category : #accessing }
-DRCompilationBuildUnit >> primitiveMethods: anObject [
+DRCompilationUnitBuilder >> primitiveMethods: anObject [
 
 	primitiveMethods := anObject
 ]
