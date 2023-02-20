@@ -596,9 +596,12 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 	| block arguments |
 	aRBMessageNode receiver acceptVisitor: self.
 	block := self popOperand simplify.
+	block isDRBlockClosure ifFalse: [
+		^ self resolveMessageSend: aRBMessageNode receiver: block ].
+
 	arguments := aRBMessageNode arguments collect: [ :e |
-		e acceptVisitor: self.
-		self popOperand ].
+		             e acceptVisitor: self.
+		             self popOperand ].
 	self interpretCode: block receiver: block arguments: arguments
 ]
 

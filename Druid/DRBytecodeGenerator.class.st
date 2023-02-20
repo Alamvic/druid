@@ -150,7 +150,8 @@ DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [ 
 	
 	aDRLoadInstVar operand1 acceptVisitor: self.
-	builder pushInstVar: aDRLoadInstVar index
+	builder pushLiteral: aDRLoadInstVar index.
+	builder send: #instVarAt:
 ]
 
 { #category : #'ir-to-target' }
@@ -206,8 +207,25 @@ DRBytecodeGenerator >> visitReturn: aDRReturn [
 DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [ 
 
 	aDRStoreInstanceVariable operand1 acceptVisitor: self.
+	builder pushLiteral: aDRStoreInstanceVariable operand2 value.
 	aDRStoreInstanceVariable operand3 acceptVisitor: self.
-	builder storeInstVar: aDRStoreInstanceVariable operand2 value "Check if necessary to pre-calculate this value"
+	builder send: #instVarAt:put:
+]
+
+{ #category : #visiting }
+DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
+
+	aDRStoreTemporaryVariable operand2 acceptVisitor: self.
+
+	builder addTemp: aDRStoreTemporaryVariable operand1 value.
+	builder storeTemp: aDRStoreTemporaryVariable operand1 value.
+	builder popTop
+]
+
+{ #category : #'ir-to-target' }
+DRBytecodeGenerator >> visitSubstract: aDRSubstract [
+
+	self sendMessage: #- fromInstruction: aDRSubstract
 ]
 
 { #category : #visiting }
@@ -218,4 +236,13 @@ DRBytecodeGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 
 	builder addTemp: tempName.
 	builder pushTemp: tempName
+]
+
+{ #category : #visiting }
+DRBytecodeGenerator >> visitTypeOf: aDRTypeOf inBranch: aDRBranchIfCondition [ 
+
+	aDRBranchIfCondition operand1 acceptVisitor: self.
+	builder send: #class.
+	builder pushLiteralVariable: aDRBranchIfCondition operand2 value classType binding.
+	builder send: #=.
 ]

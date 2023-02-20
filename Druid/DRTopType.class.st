@@ -10,6 +10,12 @@ DRTopType >> = aType [
 	^ self species = aType species
 ]
 
+{ #category : #lookup }
+DRTopType >> astForSelector: aSelector [
+
+	^ (self lookupSelector: aSelector) ast
+]
+
 { #category : #comparing }
 DRTopType >> hash [
 
@@ -63,12 +69,13 @@ DRTopType >> lookupClass [
 
 { #category : #lookup }
 DRTopType >> lookupSelector: aString [ 
-	
+
 	^ (self class lookupSelector: aString)
 		ifNil: [ self systemClass lookupSelector: aString ]
 ]
 
 { #category : #accessing }
 DRTopType >> systemClass [
-	self shouldBeImplemented.
+
+	^ nil class
 ]

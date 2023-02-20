@@ -17,12 +17,6 @@ DRUndefinedType >> isUndefined [
 ]
 
 { #category : #accessing }
-DRUndefinedType >> systemClass [
-
-	^ nil class
-]
-
-{ #category : #accessing }
 DRUndefinedType >> typeName [
 
 	^ 'Undefined'

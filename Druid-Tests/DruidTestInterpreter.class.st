@@ -90,6 +90,14 @@ DruidTestInterpreter >> lazyFail [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodCollectionSize: aCollection [
+	<var: #aCollection type: #OrderedCollection>
+	<var: #aCollection type: #Array2D>
+	
+	^ aCollection size
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithArg: aCollection [
 	<var: #aCollection type: #OrderedCollection>
 	^ aCollection select: [ :element | element even ]

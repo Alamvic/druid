@@ -21,6 +21,12 @@ DRInterpreterValue >> acceptVisitor: aVisitor [
 	^ aVisitor visitInterpreterValue: self
 ]
 
+{ #category : #lookup }
+DRInterpreterValue >> astForSelector: aString [
+
+	^ (self lookupSelector: aString) ast
+]
+
 { #category : #interpretation }
 DRInterpreterValue >> lookupClass [
 	

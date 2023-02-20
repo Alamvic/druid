@@ -29,7 +29,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [ 
 		^ self
-			  addInstructionFrom: aRBAssignmentNode
+			  addInstructionWithNoResultFrom: aRBAssignmentNode
 			  instructionKind: DRStoreInstanceVariable
 			  operands: { 
 					  self receiver.
@@ -38,7 +38,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
 	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [ 
 		^ self
-			  addInstructionFrom: aRBAssignmentNode
+			  addInstructionWithNoResultFrom: aRBAssignmentNode
 			  instructionKind: DRStoreTemporaryVariable
 			  operands: { 
 					  aRBAssignmentNode variable name asDRValue. "Fix temporary names collisions"
@@ -116,7 +116,7 @@ DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arg
 		  messageSendInstructionFor: aRBMessageNode
 		  receiver: receiver
 		  arguments: arguments
-		  method: (self methodFor: aRBMessageNode withReceiver: receiver)
+		  method: nil "Infer methods with a Type System"
 ]
 
 { #category : #visiting }

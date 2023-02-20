@@ -126,11 +126,11 @@ DRCompilerCompiler >> initialize [
 
 	2 timesRepeat: [ 
 		optimisations add: DRDeadBlockElimination new.
+		optimisations add: DRInline new.
 		optimisations add: DRSCCP new.
 		optimisations add: DRCopyPropagation new.
 		optimisations add: DRDeadCodeElimination new.
-		optimisations add: DRCleanControlFlow new.
-		optimisations add: DRInline new ]
+		optimisations add: DRCleanControlFlow new. ]
 ]
 
 { #category : #accessing }

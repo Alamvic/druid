@@ -48,25 +48,25 @@ DRMessageSend >> generateInlineIRForMethods: methodsToInline [
 
 	| returnValues lastBlock |
 	returnValues := OrderedCollection new.
-	methodsToInline allButLastDo: [ :classAndMethod | 
+	methodsToInline allButLastDo: [ :classAndMethod |
 		| jump |
 		jump := irGenerator currentBasicBlock endInstruction:
-			        (DRBranchIfCondition operands: { 
+			        (DRBranchIfCondition operands: {
 					         (DRTypeOf typeClass: classAndMethod key).
-					         self receiver }).
+					         self receiver.
+					         classAndMethod key asDRValue }).
 		jump newTrueBranch: irGenerator newBasicBlock.
-		returnValues add:
-			(self generateInlineIRForMethod: classAndMethod).
+		returnValues add: (self generateInlineIRForMethod: classAndMethod).
 		jump newFalseBranch: irGenerator newBasicBlock ].
 
 	returnValues add:
 		(self generateInlineIRForMethod: methodsToInline last).
-	
+
 	returnValues size = 1 ifTrue: [ ^ returnValues first ].
-	
+
 	lastBlock := irGenerator newBasicBlock.
 
-	returnValues do: [ :returnValue | 
+	returnValues do: [ :returnValue |
 		returnValue basicBlock jumpTo: lastBlock ].
 	^ lastBlock addInstruction:
 		  (self instructionFactory phiWithVariables: returnValues)
@@ -134,12 +134,10 @@ DRMessageSend >> methodNode: anObject [
 DRMessageSend >> methodsToInline [
 
 	| inlinedMethodClasses |
-	^ methodNode
-		ifNotNil: [ {(#default -> methodNode)} ]
-		ifNil: [ 
+	^ methodNode ifNotNil: [ { (#default -> methodNode) } ] ifNil: [
 		  inlinedMethodClasses := self receiverType.
-		  (inlinedMethodClasses collect: [ :class | 
-				class -> (class astForSelector: self selector) ]) ]
+		  inlinedMethodClasses collect: [ :class |
+			  class -> (class astForSelector: self selector) ] ]
 ]
 
 { #category : #printing }
@@ -159,15 +157,19 @@ DRMessageSend >> receiverType [
 
 	| typePragmas receiverName receiverTypePragmas receiverTypes |
 	typePragmas := self originAST methodNode allPragmasNamed: #var:type:.
+	typePragmas ifEmpty: [
+		^ (self receiver type lookupSelector: self selector)
+			ifNil: [ {  } ]
+			ifNotNil: [ { self receiver type } ] ].
 	receiverName := self originAST receiver name.
-	receiverTypePragmas := typePragmas select: [ :pragma | 
+	receiverTypePragmas := typePragmas select: [ :pragma |
 		                       pragma arguments first value = receiverName ].
-	receiverTypes := receiverTypePragmas collect: [ :pragma | pragma arguments last value.].
+	receiverTypes := receiverTypePragmas collect: [ :pragma |
+		                 pragma arguments last value ].
 	"Unknown should always be the last type, as it's used as a fallback when inlining"
-	receiverTypes detect: [:type | type = #Unknown] ifFound: [
+	receiverTypes detect: [ :type | type = #Unknown ] ifFound: [
 		receiverTypes remove: #Unknown.
-		receiverTypes add: #Unknown.
-		].
+		receiverTypes add: #Unknown ].
 	^ receiverTypes collect: [ :type |
 		  type = #Unknown
 			  ifTrue: [ DRUndefinedType new ]
@@ -180,6 +182,12 @@ DRMessageSend >> sccpEvaluateFor: sccp [
 	"Nothing to do"
 
 	
+]
+
+{ #category : #SCCP }
+DRMessageSend >> sccpLatticeValueFor: sccp [ 
+	
+	^ sccp bottom
 ]
 
 { #category : #accessing }
