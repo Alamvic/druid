@@ -61,7 +61,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 	"optimisations add: DRCogitJITConstantSplitting new"
 ]
 
-{ #category : #accessing }
+{ #category : #'generation-IR' }
 DRPrimitiveCompilerCompiler >> newIRGenerator [
 
 	^ DRPrimitiveIRGenerator new

@@ -91,8 +91,6 @@ DRPrimitiveObject >> printOn: aStream [
 		<< $);
 		space;
 		<< self sourceSelector
-
-		
 ]
 
 { #category : #accessing }

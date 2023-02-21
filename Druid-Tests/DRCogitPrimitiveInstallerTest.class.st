@@ -23,7 +23,7 @@ DRCogitPrimitiveInstallerTest >> setUp [
 
 	super setUp.
 	interpreter :=	DRInterpreterCompiler fromInterpreter: (self interpreterWith: #(#primitiveAdd #primitiveEqual)).
-	primitiveMethodInstaller := DRCogitPrimitiveInstaller primitiveTableMethodFrom: self compilationUnitForTesting.
+	primitiveMethodInstaller := DRCogitDispatchTableBuilder primitiveTableMethodFrom: self compilationUnitForTesting.
 
 ]
 

@@ -123,7 +123,7 @@ DRCompilationUnit >> jitCompilerClass: anObject [
 DRCompilationUnit >> primitiveTableInitializer [
 	"Answer a <PCGMethodNode> representing the source code of the #initializePrimitiveTable compatible with Cogit"
 
-	^ DRCogitPrimitiveInstaller primitiveTableMethodFrom: self
+	^ DRCogitDispatchTableBuilder primitiveTableMethodFrom: self
 ]
 
 { #category : #accessing }
