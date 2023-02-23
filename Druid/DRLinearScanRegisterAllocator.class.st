@@ -13,7 +13,7 @@ Class {
 		'availableIntegerRegisters',
 		'availableFloatingPointRegisters'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : #'Druid-LinearScanRegisterAllocation'
 }
 
 { #category : #allocation }
