@@ -15,32 +15,6 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
-{ #category : #api }
-DRCompilerCompiler >> compile [
-
-	| druidIR |
-	self customise.
-	druidIR := self generateDruidIR.
-	self optimize: druidIR.
-
-	registerAllocator allocateRegistersIn: druidIR.
-
-	targetAST := self generateTargetASTFromIR: druidIR.
-	self writeAST: targetAST
-]
-
-{ #category : #accessing }
-DRCompilerCompiler >> compilerClass [
-
-	^ compilerClass
-]
-
-{ #category : #accessing }
-DRCompilerCompiler >> compilerClass: anObject [
-
-	compilerClass := anObject
-]
-
 { #category : #'generation-IR' }
 DRCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 
@@ -52,28 +26,6 @@ DRCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 
 	generator receiver: (DRInterpreterValue value: interpreter).
 	generator numberOfArguments: (self numberOfArgumentsFor: method)
-]
-
-{ #category : #'generation-IR' }
-DRCompilerCompiler >> customise [
-
-	^ self customiseFor: self sourceMethod
-]
-
-{ #category : #'generation-IR' }
-DRCompilerCompiler >> customiseFor: method [
-
-	method ast
-		pragmaNamed: #customisedReceiverFor:
-		ifPresent: [ :pragma | 
-			customisation := DRPrimitiveCustomisation newCustomisation:
-				                  pragma arguments first value ]
-]
-
-{ #category : #'generation-IR' }
-DRCompilerCompiler >> generateDruidIR [
-
-	^ self generateDruidIRFor: self sourceMethod
 ]
 
 { #category : #'generation-IR' }
@@ -101,17 +53,6 @@ DRCompilerCompiler >> generateDruidIRFor: method [
 	^ cfg
 ]
 
-{ #category : #'code-generation' }
-DRCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
-
-	customisation generateCustomisedPreamble:
-		codeGenerator generatorMethodBuilder.
-
-	^ codeGenerator
-		  generateTargetASTFromIR: aDRControlFlowGraph
-		  methodName: self targetName
-]
-
 { #category : #'generation-IR' }
 DRCompilerCompiler >> initialize [
 
@@ -134,45 +75,9 @@ DRCompilerCompiler >> initialize [
 ]
 
 { #category : #accessing }
-DRCompilerCompiler >> interpreter [
-
-	^ interpreter
-]
-
-{ #category : #accessing }
-DRCompilerCompiler >> interpreter: anObject [
-
-	interpreter := anObject
-]
-
-{ #category : #accessing }
 DRCompilerCompiler >> irGenerator [
 
 	^ irGenerator
-]
-
-{ #category : #accessing }
-DRCompilerCompiler >> irGenerator: aDRIRGenerator [
-
-	irGenerator := aDRIRGenerator
-]
-
-{ #category : #'generation-IR' }
-DRCompilerCompiler >> newIRGenerator [
-
-	^ DRIRGenerator new
-]
-
-{ #category : #'generation-IR' }
-DRCompilerCompiler >> numberOfArgumentsFor: method [
-
-	^ self subclassResponsibility
-]
-
-{ #category : #accessing }
-DRCompilerCompiler >> optimisations: aCollection [ 
-	
-	optimisations := aCollection
 ]
 
 { #category : #api }
@@ -180,39 +85,4 @@ DRCompilerCompiler >> optimize: anIR [
 
 	customisation optimize: anIR.
 	optimisations do: [ :optimization | anIR applyOptimisation: optimization ]
-]
-
-{ #category : #accessing }
-DRCompilerCompiler >> registerAllocator [
-	^ registerAllocator
-]
-
-{ #category : #'generation-IR' }
-DRCompilerCompiler >> sourceMethod [
-
-	^ interpreter class lookupSelector: sourceName
-]
-
-{ #category : #accessing }
-DRCompilerCompiler >> sourceName [
-
-	^ sourceName
-]
-
-{ #category : #accessing }
-DRCompilerCompiler >> sourceName: anObject [
-
-	sourceName := anObject
-]
-
-{ #category : #'code-generation' }
-DRCompilerCompiler >> targetName [
-
-	self subclassResponsibility
-]
-
-{ #category : #'ast-to-source' }
-DRCompilerCompiler >> writeAST: aRBMethodNode [ 
-	
-	compilerClass compile: (aRBMethodNode formattedCode) classified: #generated
 ]
