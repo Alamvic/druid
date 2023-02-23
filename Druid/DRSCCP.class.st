@@ -343,10 +343,9 @@ DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 { #category : #executing }
 DRSCCP >> tryReplaceInstructionOperands: i [
 
-	i isPhiFunction ifTrue: [ ^ self ].
-	i isMessageSend ifTrue: [ ^ self ].
+	i supportConstantOperand ifFalse: [ ^ self ].
 
-	"Replace the operands of instructions by their propagated values on non phi functions"
+	"Replace the operands of instructions by their propagated values"
 	i operands withIndexDo: [ :operand :index | 
 		| lattice |
 		lattice := self latticeValue: operand.

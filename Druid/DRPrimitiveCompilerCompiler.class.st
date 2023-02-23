@@ -26,6 +26,12 @@ DRPrimitiveCompilerCompiler class >> forInterpreter: aDRInterpreterCompiler [
 		yourself
 ]
 
+{ #category : #'ir-generation' }
+DRPrimitiveCompilerCompiler >> argName: index forMethod: method [
+
+	^ 'Arg' , index asString
+]
+
 { #category : #accessing }
 DRPrimitiveCompilerCompiler >> buildIR: primitiveSelector [ 
 	" Answer a DRPrimitiveControlFlowGraph generated for primitiveSelector in the receiver's interpreter "

@@ -16,6 +16,12 @@ DRTypeOf class >> typeClass: aClass [
 	^ instance
 ]
 
+{ #category : #visiting }
+DRTypeOf >> acceptVisitor: aVisitor withBranch: parentBranch [ 
+
+	^ aVisitor visitTypeOf: self inBranch: parentBranch
+]
+
 { #category : #testing }
 DRTypeOf >> isTypeOf [
 	^ true

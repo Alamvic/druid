@@ -378,6 +378,12 @@ DRCPSEdge >> visitIntToFloatConversion: aDRIntToFloat [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitInterpreterValue: aDRInterpreterValue [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [
 	
 	^ aDRJitCompileTimeExpression expression

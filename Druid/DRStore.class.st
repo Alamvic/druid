@@ -44,6 +44,13 @@ DRStore >> operands: operandList [
 	super operands: operandList allButFirst
 ]
 
+{ #category : #SCCP }
+DRStore >> sccpLatticeValueFor: sccp [ 
+	
+	"This instruction has no value"
+	^ sccp bottom
+]
+
 { #category : #accessing }
 DRStore >> size [
 

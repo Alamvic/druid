@@ -130,18 +130,23 @@ DRBasicBlock >> backJumpTo: aDRBasicBlock [
 { #category : #transformations }
 DRBasicBlock >> basicDuplicate [
 
-	^ 	DRBlockDuplicator new
-		controlFlowGraph: controlFlowGraph;
-		basicDuplicateBlock: self
+	^ DRBlockDuplicator new
+		  controlFlowGraph: controlFlowGraph;
+		  basicDuplicateBlock: self
 ]
 
 { #category : #accessing }
-DRBasicBlock >> basicEndInstruction: aDRInstruction [ 
+DRBasicBlock >> basicEndInstruction: aDRInstruction [
 
 	aDRInstruction basicBlock: self.
-	endInstruction ifNotNil: [ endInstruction operands do: [ :o |
-			o removeUser: endInstruction ] ].
 	^ endInstruction := aDRInstruction
+]
+
+{ #category : #accessing }
+DRBasicBlock >> basicEndInstructionRemovingUsers: aDRInstruction [
+
+	endInstruction ifNotNil: [ endInstruction operands do: [ :o | o removeUser: endInstruction ] ].
+	^ self basicEndInstruction: aDRInstruction
 ]
 
 { #category : #accessing }
@@ -288,7 +293,7 @@ DRBasicBlock >> endInstruction: aDRInstruction [
 	lostSuccessors do: [ :e |
 		e removePredecessor: self. ].
 
-	self basicEndInstruction: aDRInstruction.
+	self basicEndInstructionRemovingUsers: aDRInstruction.
 	^ aDRInstruction
 ]
 
@@ -320,6 +325,18 @@ DRBasicBlock >> forwardPredecessors [
 ]
 
 { #category : #building }
+DRBasicBlock >> frameReturn: aDRValue [
+
+	^ self addInstruction: (self instructionFactory frameReturn: aDRValue)
+]
+
+{ #category : #accessing }
+DRBasicBlock >> frameReturns [
+
+	^ self instructions select: [ :i | i isFrameReturn ]
+]
+
+{ #category : #building }
 DRBasicBlock >> greater: operand1 than: operand2 [
 	
 	^ self addInstruction: (self instructionFactory greater: operand1 than: operand2)
@@ -327,8 +344,9 @@ DRBasicBlock >> greater: operand1 than: operand2 [
 
 { #category : #testing }
 DRBasicBlock >> hasFinalInstruction [
-	
-	^ endInstruction notNil and: [endInstruction isNoop not]
+
+	^ (endInstruction notNil and: [ endInstruction isNoop not ]) or: [ 
+		  instructions anySatisfy: [ :i | i isFrameReturn ] ]
 ]
 
 { #category : #dominance }
@@ -593,6 +611,12 @@ DRBasicBlock >> isDominatorOf: basicBlocks [
 	^ false
 ]
 
+{ #category : #testing }
+DRBasicBlock >> isEmptyBasicBlock [
+
+	^ endInstruction isNoop and: [ self instructions allButLast isEmpty ]
+]
+
 { #category : #accessing }
 DRBasicBlock >> isExitBlock [
 
@@ -735,7 +759,6 @@ DRBasicBlock >> newEmptyPredecessor [
 		self removePredecessor: b ].
 	self addPredecessor: newBlock.
 	newBlock jumpTo: self.
-	controlFlowGraph validate.
 	^ newBlock
 ]
 
@@ -910,10 +933,16 @@ DRBasicBlock >> recursiveSuccessorsDo: aBlock visited: alreadyVisited [
 
 { #category : #'control-flow' }
 DRBasicBlock >> removeFromCFG [
-	
-	self cleanInstructions.
-	controlFlowGraph removeBasicBlock: self.
 
+	self cleanInstructions.
+	controlFlowGraph removeBasicBlock: self
+]
+
+{ #category : #'control-flow' }
+DRBasicBlock >> removeFromCFGAndDisconnectSuccessors [
+
+	self successors copy do: [ :succ | succ removePredecessor: self ].
+	self removeFromCFG
 ]
 
 { #category : #instructions }
@@ -1002,7 +1031,7 @@ DRBasicBlock >> return [
 
 { #category : #building }
 DRBasicBlock >> return: anInstruction [ 
-	self endInstruction: (DRReturn operands: { anInstruction } )
+	^ self endInstruction: (DRReturn operands: { anInstruction } )
 ]
 
 { #category : #accessing }
@@ -1081,6 +1110,12 @@ DRBasicBlock >> storeSInt64: operand at: address [
 	^ self addInstruction: (self instructionFactory storeSInt64: operand at: address)
 ]
 
+{ #category : #building }
+DRBasicBlock >> strongCopy: aValue [
+	
+	^ self addInstruction: (self instructionFactory strongCopy: aValue)
+]
+
 { #category : #accessing }
 DRBasicBlock >> successor [
 	
@@ -1147,7 +1182,7 @@ DRBasicBlock >> validatePhiFunctions [
 				this by checking that the variables are reachable from the correct predecessors"
 				e operands withIndexDo: [ :dependency :index | 
 					self assert: (dependency isInstruction or: [ 
-							 dependency isNullValue or: [ dependency isPhysicalRegister ] ]).
+							 dependency isNullValue or: [ dependency isPhysicalRegister or: [ dependency isDRBlockClosure or: [ dependency value class = DruidTestInterpreter  ] ] ] ]).
 					self assert: (dependency isInstruction not or: [ 
 							 (self predecessors at: index) checkLivenessOf: dependency ]) ] ] ]
 ]

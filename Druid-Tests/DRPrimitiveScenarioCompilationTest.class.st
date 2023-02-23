@@ -119,6 +119,18 @@ DRPrimitiveScenarioCompilationTest >> testArithmeticBitShiftRight [
 	self assert: machineSimulator receiverRegisterValue equals: 2r1
 ]
 
+{ #category : #'tests-types' }
+DRPrimitiveScenarioCompilationTest >> testAsInteger [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveAsInteger.
+	self executePrimitiveWithReceiver: 17.0 asIEEE64BitWord.
+
+	floatRawValue := machineSimulator receiverRegisterValue.
+
+	self assert: (Float fromIEEE64BitWord: floatRawValue) equals: 17
+]
+
 { #category : #'tests-failing-primitive' }
 DRPrimitiveScenarioCompilationTest >> testAssertIsIgnored [
 

@@ -45,12 +45,12 @@ DRAbstractCompilerCompiler >> compilerClass: anObject [
 DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 
 	| startBlock initialBasicBlock |
-
 	"Create the initial basic block"
 	startBlock := generator initialBasicBlock.
 	initialBasicBlock := generator createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
 
+	generator receiver: (DRInterpreterValue value: interpreter).
 	generator numberOfArguments: (self numberOfArgumentsFor: method)
 ]
 
@@ -78,16 +78,17 @@ DRAbstractCompilerCompiler >> generateDruidIR [
 
 { #category : #'generation-IR' }
 DRAbstractCompilerCompiler >> generateDruidIRFor: method [
-
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 
-	| cfg arguments |
+	| cfg receiver arguments |
 	self configureIRBuilder: irGenerator forMethod: method.
 
 	arguments := method argumentNames collect: [ :_ | irGenerator pop ].
+	receiver := DRInterpreterValue value: interpreter.
+
 	irGenerator
 		interpretCode: (DRMethod methodNode: method ast)
-		receiver: (DRInterpreterValue value: interpreter)
+		receiver: receiver
 		arguments: arguments.
 
 	cfg := irGenerator ir.
@@ -115,18 +116,21 @@ DRAbstractCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 DRAbstractCompilerCompiler >> initialize [
 
 	super initialize.
-	
+
 	codeGenerator := DRCogitCodeGenerator new.
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 	customisation := DRNonePrimitiveCustomisation new.
 	irGenerator := self newIRGenerator.
-	
+
 	optimisations := OrderedCollection new.
-	optimisations add: DRDeadBlockElimination new.
-	optimisations add: DRSCCP new.
-	optimisations add: DRCopyPropagation new.
-	optimisations add: DRDeadCodeElimination new.
-	optimisations add: DRCleanControlFlow new.
+
+	2 timesRepeat: [ 
+		optimisations add: DRDeadBlockElimination new.
+		optimisations add: DRInline new.
+		optimisations add: DRSCCP new.
+		optimisations add: DRCopyPropagation new.
+		optimisations add: DRDeadCodeElimination new.
+		optimisations add: DRCleanControlFlow new. ]
 ]
 
 { #category : #accessing }
@@ -139,6 +143,12 @@ DRAbstractCompilerCompiler >> interpreter [
 DRAbstractCompilerCompiler >> interpreter: anObject [
 
 	interpreter := anObject
+]
+
+{ #category : #accessing }
+DRAbstractCompilerCompiler >> irGenerator [
+
+	^ irGenerator
 ]
 
 { #category : #accessing }
@@ -169,8 +179,7 @@ DRAbstractCompilerCompiler >> optimisations: aCollection [
 DRAbstractCompilerCompiler >> optimize: anIR [
 
 	customisation optimize: anIR.
-	optimisations do: [ :optimization | 
-		anIR applyOptimisation: optimization ]
+	optimisations do: [ :optimization | anIR applyOptimisation: optimization ]
 ]
 
 { #category : #accessing }

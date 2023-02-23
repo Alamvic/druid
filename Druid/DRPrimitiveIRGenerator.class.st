@@ -31,7 +31,31 @@ DRPrimitiveIRGenerator >> inlineGenerator [
 
 	^ DRPrimitiveIRGeneratorInline new
 		  controlFlowGraph: controlFlowGraph;
+		  executionState: executionState copy;
 		  yourself
+]
+
+{ #category : #interpreting }
+DRPrimitiveIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
+
+	| value |
+	aRBAssignmentNode value acceptVisitor: self.
+	"Keep instruction in CFG for inlinings"
+	value := currentBasicBlock strongCopy: self operandStackTop. 
+
+	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
+		^ self receiver value
+			  instVarNamed: aRBAssignmentNode variable name
+			  put: value ].
+
+	aRBAssignmentNode variable binding originalVar isTempVariable
+		ifTrue: [
+			^ self topFrame
+				  temporaryAt: aRBAssignmentNode variable name
+				  put: value
+				  withState: executionState ].
+
+	self halt
 ]
 
 { #category : #'special cases' }
@@ -91,20 +115,40 @@ DRPrimitiveIRGenerator >> newCFG [
 ]
 
 { #category : #'frame-access' }
-DRPrimitiveIRGenerator >> popFrame [
+DRPrimitiveIRGenerator >> popFrameMergingDeferredReturns [
 
-	"If the interpretation stack is empty, we are returning from the primitive
-	- generate a return instruction popping receiver and arguments all at once
-	- amount to pop is expressed in bytes, so multiply by word size"
+	| exitBasicBlock topReturns |
+	exitBasicBlock := self topFrame exitBasicBlock.
+	topReturns := self topFrame deferredMethodReturns.
+	topReturns size > 0
+		ifTrue: [
+			| mergedState |
+			self assert: exitBasicBlock predecessors isEmpty. "If not, check if new predecessors will be added"
+			topReturns keysDo: [ :frameReturn | 
+				frameReturn breakBasicBlock. "Breaking the block in case of be shared by many returns"
+				frameReturn basicBlock jumpTo: exitBasicBlock ].
+			mergedState := DRStackMerger new
+				               builder: self;
+				               mergeBlock: exitBasicBlock;
+				               mergeAll: topReturns values upTo: self topFrame.
+			executionState := mergedState.
+			currentBasicBlock := exitBasicBlock ]
+		ifFalse: [
+			currentBasicBlock = exitBasicBlock ifFalse: [
+				self assert: currentBasicBlock hasFinalInstruction.
+				self assert: exitBasicBlock isEmptyBasicBlock ] ].
 
-	| poppedFrame |
-	self topFrame receiverWithState: executionState.
-	poppedFrame := super popFrame.
+	"Returns installed in the CFG -> stop tracking"
+	self topFrame clearDeferredMethodReturns.
 
-	executionState executionStack size = 0 ifTrue: [ 
-		self finishCodeInterpretation: poppedFrame ].
+	^ executionState popFrame
+]
 
-	^ poppedFrame
+{ #category : #frames }
+DRPrimitiveIRGenerator >> pushFrame: aDruidStackFrame [
+
+	aDruidStackFrame returnValue: DRNullValue new.
+	super pushFrame: aDruidStackFrame
 ]
 
 { #category : #'pharo-stack' }

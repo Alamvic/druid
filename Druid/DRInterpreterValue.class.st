@@ -11,8 +11,20 @@ Class {
 DRInterpreterValue class >> value: anInterpreterObject [
 
 	^ self new
-		value: anInterpreterObject;
-		yourself
+		  value: anInterpreterObject value;
+		  yourself
+]
+
+{ #category : #visiting }
+DRInterpreterValue >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitInterpreterValue: self
+]
+
+{ #category : #lookup }
+DRInterpreterValue >> astForSelector: aString [
+
+	^ (self lookupSelector: aString) ast
 ]
 
 { #category : #interpretation }
@@ -23,7 +35,7 @@ DRInterpreterValue >> lookupClass [
 
 { #category : #lookup }
 DRInterpreterValue >> lookupSelector: aString [ 
-	
+
 	^ value class lookupSelector: aString
 ]
 

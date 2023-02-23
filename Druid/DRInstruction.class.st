@@ -106,7 +106,7 @@ DRInstruction >> basicBlock: anObject [
 { #category : #'cfg manipulation' }
 DRInstruction >> breakBasicBlock [
 
-	self basicBlock breakBy: self
+	^ self basicBlock breakBy: self
 ]
 
 { #category : #'loop-invariance' }
@@ -403,6 +403,12 @@ DRInstruction >> operand2 [
 	^ operands at: 2 ifAbsent: [nil]
 ]
 
+{ #category : #accessing }
+DRInstruction >> operand3 [
+
+	^ operands at: 3 ifAbsent: [nil]
+]
+
 { #category : #operands }
 DRInstruction >> operandAt: anInteger [
 	
@@ -493,12 +499,12 @@ DRInstruction >> postCopy [
 
 { #category : #printing }
 DRInstruction >> prettyPrint [
-	
+
 	| print |
-	print := result
-		ifNil: [ '' ]
-		ifNotNil: [ result name, ' := ' ].
-	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result ifNotNil: [ e result name ] ]))
+	print := result ifNil: [ '' ] ifNotNil: [ result name , ' := ' ].
+	
+	^ print , self opcode , ' '
+	  , (' ' join: (self operands collect: [ :e | e ifNotNil: [ e printResult ] ]))
 ]
 
 { #category : #accessing }
@@ -514,6 +520,13 @@ DRInstruction >> printOn: aStream [
 	aStream nextPut: $(.
 	aStream nextPutAll: self prettyPrint.
 	aStream nextPut: $)
+]
+
+{ #category : #printing }
+DRInstruction >> printResult [
+
+	result ifNotNil: [ ^ result name ].
+	^ self opcode
 ]
 
 { #category : #'users-definitions' }
@@ -734,6 +747,12 @@ DRInstruction >> sccpLatticeValueFor: sccp latticeOperand1: operand1 latticeOper
 DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 	
 	self subclassResponsibility
+]
+
+{ #category : #testing }
+DRInstruction >> supportConstantOperand [
+
+	^ true
 ]
 
 { #category : #types }
