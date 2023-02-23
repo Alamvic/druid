@@ -21,21 +21,52 @@ The Druid project explores the automatic generation of machine code templates fr
 
 ## Getting started
 
+### Installing Dependencies
+
+- You should also install the libraries unicorn and llvm.
+- If you are on linux, use your preferred package manager.
+- If you're on OSX, we recommend using homebrew.
+- In windows, we should check.
+
+#### Install Unicorn library for Pharo
+
+```bash
+# Unicorn 2 Setup for PharoVM
+# Instructions at: https://github.com/pharo-project/unicorn/blob/pharo-vm-unicorn2/docs/COMPILE.md
+
+git clone https://github.com/pharo-project/unicorn.git
+cd unicorn
+git checkout pharo-vm-unicorn2
+mkdir build; cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make
+```
+
+Now replace possible already installed unicorn with the new compiled one, for example:
+```bash
+locate libunicorn.2.dylib
+mv /opt/homebrew/Cellar/unicorn/2.0.1/lib/libunicorn.2.dylib /opt/homebrew/Cellar/unicorn/2.0.1/lib/libunicorn.2.old
+cp libunicorn.2.dylib /opt/homebrew/Cellar/unicorn/2.0.1/lib
+```
+
+Open the Pharo image with the [Unicorn project loaded](https://github.com/pharo-project/pharo-unicorn) and check:
+```smalltalk
+UnicornLibrary uniqueInstance macModuleName 
+```
+
 ### Installing Druid
 
-Druid works for now on Pharo9.0 (and very probably 8.0 too)
+Druid works for now on Pharo 11:
 
-- Open a fresh Pharo9.0 image (recommended, use the launcher)
-- Clone this repository using Iceberg
-- Open the packages view of the repository
-- Right click on BaselineOfDruid => install default
+```smalltalk
+EpMonitor disableDuring: [ 
+	Metacello new
+		repository: 'github://Alamvic/druid:main';
+		baseline: 'Druid';
+		load ]
+```
 
 This will start the installation process, clone the dependencies, and load all necessary Pharo code.
-
-You should also install the libraries unicorn and llvm.
-If you are on linux, use your preferred package manager.
-If you're on OSX, we recommend using homebrew.
-In windows, we should check.
 
 ### (Prelude) An overview of the Pharo VM
 
