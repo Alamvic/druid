@@ -51,7 +51,7 @@ DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 	startBlock jumpTo: initialBasicBlock.
 
 	generator receiver: (DRInterpreterValue value: interpreter).
-	generator numberOfArguments: (self numberOfArgumentsFor: method)
+	generator numberOfArguments: (self numberOfArgumentsForMethod: method)
 ]
 
 { #category : #'generation-IR' }
@@ -163,15 +163,21 @@ DRAbstractCompilerCompiler >> newIRGenerator [
 	^ DRIRGenerator new
 ]
 
-{ #category : #'generation-IR' }
-DRAbstractCompilerCompiler >> numberOfArgumentsFor: method [
+{ #category : #'as yet unclassified' }
+DRAbstractCompilerCompiler >> numberOfArgumentsForMethod: method [
 
 	^ self subclassResponsibility
 ]
 
+{ #category : #'as yet unclassified' }
+DRAbstractCompilerCompiler >> numberOfArgumentsForSelector: aSelector [
+
+	^ self numberOfArgumentsForMethod: (interpreter class lookupSelector: aSelector)
+]
+
 { #category : #accessing }
-DRAbstractCompilerCompiler >> optimisations: aCollection [ 
-	
+DRAbstractCompilerCompiler >> optimisations: aCollection [
+
 	optimisations := aCollection
 ]
 

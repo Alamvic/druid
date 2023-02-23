@@ -270,7 +270,7 @@ DRInterpreterCompiler >> newPrimitive: aString [
 		primitiveNumber: (self primitiveNumberOf: aString);
 		sourceSelector: aString;
 		cfg: (self compilerCompiler buildIR: aString);
-		argumentCount: (self compilerCompiler numberOfArgumentsFor: aString);
+		argumentCount: (self compilerCompiler numberOfArgumentsForSelector: aString);
 		mayCallback: (self primitiveMayCallback: aString);
 		yourself
 ]
