@@ -19,8 +19,8 @@ DRMethodCompilerCompiler >> newIRGenerator [
 	^ DRMethodIRGenerator new
 ]
 
-{ #category : #accessing }
-DRMethodCompilerCompiler >> numberOfArgumentsFor: aMethod [ 
+{ #category : #'generation-IR' }
+DRMethodCompilerCompiler >> numberOfArgumentsForMethod: aMethod [ 
 
 	^ aMethod numArgs
 ]
