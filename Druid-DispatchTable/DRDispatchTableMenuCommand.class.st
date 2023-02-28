@@ -23,7 +23,26 @@ DRDispatchTableMenuCommand >> entriesTableItems [
 ]
 
 { #category : #accessing }
+DRDispatchTableMenuCommand >> selectedEntries [
+
+	^ self application selectedEntries
+]
+
+{ #category : #executing }
+DRDispatchTableMenuCommand >> selectedEntry [
+
+	^ self entriesTable selectedItem.
+]
+
+{ #category : #accessing }
 DRDispatchTableMenuCommand >> stBrowser [
 
 	^ Smalltalk tools browser
+]
+
+{ #category : #executing }
+DRDispatchTableMenuCommand >> updateEntries [
+
+	self entriesTable refresh.
+	self context updateStatusBar
 ]

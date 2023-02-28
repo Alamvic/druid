@@ -20,6 +20,10 @@ DRDispatchTableBuilderUI class >> buildBrowsingOperationsGroupWith: aDRDispatchT
 			forSpecWithIconNamed: #class
 			shortcutKey: 'B' asShortcut)
 				context: aDRDispatchTableBuilderUI);
+		register: ((DRBTranspileCommand
+			forSpecWithIconNamed: #smallCogInitialState
+			shortcutKey: 'C' asShortcut)
+				context: aDRDispatchTableBuilderUI);
 		beDisplayedAsGroup;
 		yourself
 ]
@@ -37,6 +41,7 @@ DRDispatchTableBuilderUI class >> buildDTContextualGroupWith: presenterInstance 
 	^ (CmCommandGroup named: 'DTSelContextualMenu') asSpecGroup
 		register: (self buildBrowsingOperationsGroupWith: presenterInstance);
 		register: (self buildSelectionOperationsGroupWith: presenterInstance);
+		register: (self buildTableGroupWith: presenterInstance);
 		yourself
 ]
 
@@ -51,6 +56,18 @@ DRDispatchTableBuilderUI class >> buildSelectionOperationsGroupWith: presenterIn
 		register: ((DRSelectNoneCommand
 			forSpecWithIconNamed: #checkboxUnselected
 			shortcutKey: 'N' asShortcut)
+				context: presenterInstance);
+		beDisplayedAsGroup;
+		yourself
+]
+
+{ #category : #accessing }
+DRDispatchTableBuilderUI class >> buildTableGroupWith: presenterInstance [
+
+	^ (CmCommandGroup named: 'DTBuildMenu') asSpecGroup
+		register: ((DRBuildTableCommand
+			forSpecWithIconNamed: #add
+			shortcutKey: 'B' asShortcut)
 				context: presenterInstance);
 		beDisplayedAsGroup;
 		yourself
@@ -176,9 +193,11 @@ DRDispatchTableBuilderUI >> initializeClassPrototypeSelector [
 DRDispatchTableBuilderUI >> initializeEntriesPresenter [
 
 	entriesListPresenter := self newTable
-			addColumn: ((SpCheckBoxTableColumn title: '' evaluated: [ : entry | self selectedEntries includes: entry ])
-			onActivation: [ : cv | ];
-			onDeactivation: [ : cv |  ];
+			addColumn: (SpCheckBoxTableColumn new
+				title: '';
+				evaluated: [ : entry | self selectedEntries includes: entry ];
+				onActivation: [ : entry | self selectedEntries add: entry ];
+				onDeactivation: [ : entry | self selectedEntries remove: entry ];
 			beNotExpandable;
 			width: 20;
 			yourself);

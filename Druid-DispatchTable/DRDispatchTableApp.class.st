@@ -26,8 +26,8 @@ DRDispatchTableApp class >> menuDispatchTableOn: aBuilder [
 { #category : #accessing }
 DRDispatchTableApp >> selectedEntries [
 	"Answer a <Collection> with the entries marked for installation"
-	
-	^ self 
+
+	^ self
 		propertyAt: #selectedEntries
 		ifAbsentPut: [ Set new ]
 ]

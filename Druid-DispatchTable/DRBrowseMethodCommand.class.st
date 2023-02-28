@@ -26,12 +26,9 @@ DRBrowseMethodCommand class >> defaultName [
 DRBrowseMethodCommand >> execute [
 	"Private - Open a Browser on the selected method"
 
-	| selectedEntry |
-	
-	selectedEntry := self entriesTable selectedItem.
 	self stBrowser
-		openOnClass: selectedEntry methodClass
-		selector: selectedEntry selector
+		openOnClass: self selectedEntry methodClass
+		selector: self selectedEntry selector
 
 
 ]

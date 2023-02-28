@@ -1,9 +1,9 @@
 Class {
 	#name : #DRInterpreterBuilder,
-	#superclass : #Object,
+	#superclass : #DRAbstractCompilerBuilder,
 	#instVars : [
 		'primitiveTable',
-		'interpreterClass'
+		'primitiveIndex'
 	],
 	#category : #'Druid-InterpreterBuilder'
 }
@@ -11,46 +11,72 @@ Class {
 { #category : #'instance creation' }
 DRInterpreterBuilder >> basicNew [
 
-	^ self interpreterClass basicNew
+	self targetClass: self newRandomTargetClass.
+	^ self targetClass new
 ]
 
-{ #category : #'instance creation' }
-DRInterpreterBuilder >> defaultInterpreterClass [
-	"Answer a default <StackInterpreter> class containing a method with the interpreter primitives "
+{ #category : #accessing }
+DRInterpreterBuilder >> compilationUnitClass [
 
-	^ self interpreterClassArithmeticPrimitives
+	^ DRStackCompilationUnit 
+]
+
+{ #category : #accessing }
+DRInterpreterBuilder >> defaultTargetSuperclass [
+
+	^ StackInterpreter 
+]
+
+{ #category : #'accessing - model' }
+DRInterpreterBuilder >> generateBuildModelAndCompileIn: aClass [
+	"Generate and install the receiver's primitives into JIT compiler aClass"
+
+	self generateBuildModel
+		jitCompilerClass: (self environmentAt: aClass);
+		compileAll
+]
+
+{ #category : #initialization }
+DRInterpreterBuilder >> initialize [
+
+	super initialize.
+	primitiveIndex := 0.
+	compilationUnit := DRStackCompilationUnit new
+		dispatchTableBuilder: DRStackInterpreterDispatchTableBuilder new;
+		yourself
 ]
 
 { #category : #initialization }
 DRInterpreterBuilder >> initializeWithOptions: aCollection objectMemoryClass: aClass [ 
 
-
 ]
 
-{ #category : #'instance creation' }
-DRInterpreterBuilder >> interpreterClass [
-	" Answer the receiver's <StackInterpreter> class containing a #basicPrimitiveTable method with the interpreter primitives "
+{ #category : #accessing }
+DRInterpreterBuilder >> interpreterPrimitiveTable [
 
-	^ interpreterClass
-		ifNil: [ interpreterClass := self defaultInterpreterClass ]
+	^ self primitiveTable
 ]
 
-{ #category : #'accessing - interpreters' }
-DRInterpreterBuilder >> interpreterClassArithmeticPrimitives [
+{ #category : #accessing }
+DRInterpreterBuilder >> newPrimitive: aString [
+	" Answer a new primitive object with its metadata and CFG generated "
 
-	^ DRBasicCogInterpreterArithmeticPrimitives
+	^ DRPrimitiveObject new
+		primitiveNumber: self primitiveIndex;
+		sourceSelector: aString;
+		yourself
 ]
 
-{ #category : #'accessing - interpreters' }
-DRInterpreterBuilder >> interpreterClassObjectMemoryPrimitives [
+{ #category : #accessing }
+DRInterpreterBuilder >> newclassPrefix [
 
-	^ DRBasicCogInterpreterObjectMemoryPrimitives
+	^ #DRInterpreter
 ]
 
-{ #category : #'accessing - interpreters' }
-DRInterpreterBuilder >> interpreterClassUnaryPrimitives [
+{ #category : #accessing }
+DRInterpreterBuilder >> primitiveIndex [
 
-	^ DRBasicCogInterpreterPrimitivesWithoutParameters
+	^ primitiveIndex :=  primitiveIndex + 1
 ]
 
 { #category : #accessing }
@@ -58,7 +84,7 @@ DRInterpreterBuilder >> primitiveTable [
 	" Answer a <Collection> of tuples representing primitive methods metadata "
 
 	^ primitiveTable
-		ifNil: [ primitiveTable := self interpreterClass basicPrimitiveTable ]
+		ifNil: [ primitiveTable := self targetClass basicPrimitiveTable ]
 ]
 
 { #category : #private }
@@ -77,4 +103,16 @@ DRInterpreterBuilder >> primitivesCount [
 	(self primitiveTable includes: 0)
 		ifTrue: [ ^ primTableSize - 1 ].
 	^ primTableSize
+]
+
+{ #category : #accessing }
+DRInterpreterBuilder >> targetClass [
+
+	^ self compilationUnit targetClass
+]
+
+{ #category : #accessing }
+DRInterpreterBuilder >> targetClass: anObject [
+
+	self compilationUnit targetClass: anObject
 ]

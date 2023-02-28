@@ -10,23 +10,10 @@ Class {
 	#category : #'Druid-DispatchTable-Model'
 }
 
-{ #category : #'as yet unclassified' }
-DRCogitDispatchTableBuilder class >> primitiveTableMethodFrom: aDRCompilationUnit [
-	"Answer a <DRCogitPrimitiveInstaller> method representation of aDRCompilationUnit"
-
-	^ self new
-		primitiveSpec: aDRCompilationUnit;
-		yourself
-]
-
 { #category : #'accessing - building' }
-DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableArrayMethodNode [
-	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
+DRCogitDispatchTableBuilder >> arrayAccessorGlobalName [
 
-	primTableNode := (PCGMethodNode selector: #primitiveTableArray)
-			bodyBlock: [ :body |
-				body << self buildPrimitiveTableArrayNode ].
-	^ primTableNode
+	^ #CArrayAccessor
 ]
 
 { #category : #'accessing - building' }
@@ -40,111 +27,35 @@ DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableAssignmentNode [
 ]
 
 { #category : #'accessing - building' }
-DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableIVarAssignmentNode [
-
-	^ PCGAssignmentNode new
-		  variable: #primitiveTable asPCGInstanceVariable;
-		  value: self buildPrimitiveTableInitialValueNode
-]
-
-{ #category : #accessing }
-DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode [
-
-	^ PCGAssignmentNode new
-		  variable: #MaxCompiledPrimitiveIndex asPCGGlobal;
-		  value: self maxCompiledPrimitives asPCG
-]
-
-{ #category : #'accessing - building' }
-DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableMethodNode [
-	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
-
-	^ (PCGMethodNode selector: #initializePrimitiveTable) bodyBlock: [ : body |
-		  body
-			<< self buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode
-			<< self buildInitializePrimitiveTableIVarAssignmentNode;
-			<< self buildInitializePrimitiveTableAssignmentNode ]
-]
-
-{ #category : #'accessing - building' }
-DRCogitDispatchTableBuilder >> buildPrimitiveTableArrayNode [
-	"Answer a <PCGReturnNode> with the primitive table initialization setter message send"
-
-	^ self initPrimitiveTable asPCG returnIt
-]
-
-{ #category : #'accessing - building' }
 DRCogitDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
 
 	^ PCGMessageNode
-		receiver: #CArrayAccessor asPCGGlobal
+		receiver: self arrayAccessorGlobalName asPCGGlobal
 		selector: #on:
 		arguments:
 			(PCGMessageNode
 				receiver: #Array asPCGGlobal
 				selector: #new:
 				arguments: (PCGMessageNode
-					receiver: #MaxCompiledPrimitiveIndex asPCGGlobal
+					receiver: self maxPrimitiveIndexGlobalName asPCGGlobal
 					selector: #+
 					arguments: { 1 asPCG }) )
 ]
 
-{ #category : #accessing }
-DRCogitDispatchTableBuilder >> collectAllMethodsOn: aJITCompilerClass [
-	"Answer a <Collection> of <PCGMethodNode> to be installated in a JIT compiler class"
+{ #category : #'accessing - building' }
+DRCogitDispatchTableBuilder >> buildPrimitiveTableVariableNode [
 
-	^ {
-		self buildInitializePrimitiveTableArrayMethodNode .
-		self buildInitializePrimitiveTableMethodNode
-		} collect: [ : pcgNode |
-			pcgNode
-				protocol: #'class initialization';
-				installOn: aJITCompilerClass.
-			pcgNode ]
+	^ #primitiveTable asPCGInstanceVariable
 ]
 
-{ #category : #initialization }
-DRCogitDispatchTableBuilder >> initPrimitiveTable [
-	"Answer a <Collection> with primitive table entries"
+{ #category : #'accessing - building' }
+DRCogitDispatchTableBuilder >> initPrimitiveTableSelector [ 
 
-	^ self primitiveSpec initPrimitiveTable
-]
-
-{ #category : #'accessing - installation' }
-DRCogitDispatchTableBuilder >> installAllMethodsOn: aJITCompilerClass [
-	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
-
-	^ {
-		self buildInitializePrimitiveTableArrayMethodNode .
-		self buildInitializePrimitiveTableMethodNode
-		} do: [ : pcgNode |
-			pcgNode
-				protocol: #'class initialization';
-				installOn: aJITCompilerClass ]
-		displayingProgress: 'Installing methods'
+	^ #initializePrimitiveTable
 ]
 
 { #category : #accessing }
-DRCogitDispatchTableBuilder >> maxCompiledPrimitives [
-	"Answer the <Number> of compiled primitives in the receiver"
+DRCogitDispatchTableBuilder >> maxPrimitiveIndexGlobalName [
 
-	^ self primTableNode maxCompiledPrimitives
-]
-
-{ #category : #accessing }
-DRCogitDispatchTableBuilder >> primTableNode [
-
-	^ primTableNode
-]
-
-{ #category : #accessing }
-DRCogitDispatchTableBuilder >> primitiveSpec [
-
-	^ primitiveSpec
-]
-
-{ #category : #accessing }
-DRCogitDispatchTableBuilder >> primitiveSpec: anObject [
-
-	primitiveSpec := anObject
+	^ #MaxCompiledPrimitiveIndex
 ]

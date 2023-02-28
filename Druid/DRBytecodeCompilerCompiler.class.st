@@ -66,7 +66,7 @@ DRBytecodeCompilerCompiler >> newIRGenerator [
 ]
 
 { #category : #accessing }
-DRBytecodeCompilerCompiler >> numberOfArgumentsFor: aMethod [
+DRBytecodeCompilerCompiler >> numberOfArgumentsForMethod: aMethod [
 
 	(aMethod ast hasPragmaNamed: #numberOfArguments:) ifFalse: [ ^ 0 ].
 

@@ -11,14 +11,13 @@ This enables to build a VM which includes the JIT, but does not know how to JIT 
 "
 Class {
 	#name : #DRInterpreterCompiler,
-	#superclass : #Object,
+	#superclass : #DRAbstractCompilerBuilder,
 	#instVars : [
 		'memory',
 		'compilerCompilerClass',
 		'interpreter',
 		'compilerCompiler',
-		'interpreterBuilder',
-		'compilationUnit'
+		'interpreterBuilder'
 	],
 	#category : #'Druid-InterpreterBuilder'
 }
@@ -75,40 +74,18 @@ DRInterpreterCompiler class >> fromInterpreter: anInterpreterBuilder compilerCla
 ]
 
 { #category : #'accessing - primitives' }
-DRInterpreterCompiler >> addPrimitive: aString to: aDRCompilationUnit [
-
-	aString = 0 ifFalse: [
-		aDRCompilationUnit addPrimitive: (self newPrimitive: aString) ]
-]
-
-{ #category : #'accessing - primitives' }
-DRInterpreterCompiler >> addPrimitivesTo: aCompilationUnit [
-	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
-
-	self interpreterPrimitiveTable
-		do: [ : prim | self addPrimitive: prim to: aCompilationUnit ]
-		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
-]
-
-{ #category : #'accessing - primitives' }
 DRInterpreterCompiler >> collectPrimitives [
 	"Trace receiver's interpreter primitives and collect compilation results.
 	See implementors of #handlePrimitiveCompilationFor: "
 
-	self generateIR primitives.
+	self generateBuildModel primitives.
 	^ self compilerCompiler
 ]
 
-{ #category : #'accessing - compiler' }
-DRInterpreterCompiler >> compilationUnit [
+{ #category : #accessing }
+DRInterpreterCompiler >> compilationUnitClass [
 
-	^ compilationUnit
-]
-
-{ #category : #'accessing - compiler' }
-DRInterpreterCompiler >> compilationUnit: anObject [
-
-	compilationUnit := anObject
+	^ DRJITCompilationUnit 
 ]
 
 { #category : #'accessing - compiler' }
@@ -116,8 +93,7 @@ DRInterpreterCompiler >> compilerCompiler [
 	"Answer a Druid compiler configured for the receiver's interpreter builder"
 
 	^ compilerCompiler
-		ifNil: [
-			compilerCompiler := self compilerCompilerClass 	forInterpreter: interpreter ]
+		ifNil: [ compilerCompiler := self compilerCompilerClass forInterpreter: interpreter ]
 ]
 
 { #category : #'accessing - compiler' }
@@ -140,21 +116,9 @@ DRInterpreterCompiler >> defaultCompilerCompilerClass [
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> environmentAt: aClass [
-	"Answer the class named aClass. Create if it doesn't exist"
+DRInterpreterCompiler >> defaultTargetSuperclass [
 
-	^ self class environment
-		at: aClass
-		ifAbsent: [ self newJitCompilerClassNamed: aClass ]
-]
-
-{ #category : #'accessing - model' }
-DRInterpreterCompiler >> generateBuildModel [
-	"Answer a <DRCompilationBuildUnit>, useful for model manipulation before code dumping"
-
-	compilationUnit := DRCompilationUnitBuilder new.
-	self addPrimitivesTo: compilationUnit.
-	^ compilationUnit
+	^ StackToRegisterMappingCogit
 ]
 
 { #category : #'accessing - model' }
@@ -163,25 +127,17 @@ DRInterpreterCompiler >> generateBuildModelAndCompileIn: aClass [
 
 	self generateBuildModel
 		interpreter: interpreter;
-		jitCompilerClass: (self environmentAt: aClass);
+		targetClass: (self environmentAt: aClass);
 		compileAll
-]
-
-{ #category : #accessing }
-DRInterpreterCompiler >> generateIR [
-
-	compilationUnit := DRCompilationUnit new.
-	self addPrimitivesTo: compilationUnit.
-	^ compilationUnit
 ]
 
 { #category : #accessing }
 DRInterpreterCompiler >> generateIRAndCompileIn: aClass [
 	"Generate and install the receiver's primitives into JIT compiler aClass"
 
-	self generateIR
+	self generateBuildModel
 		interpreter: interpreter;
-		jitCompilerClass: (self environmentAt: aClass);
+		targetClass: (self environmentAt: aClass);
 		compileAll
 ]
 
@@ -222,12 +178,6 @@ DRInterpreterCompiler >> interpreterBuilder: aClass [
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> interpreterBuilderClass [
-
-	^ self interpreterBuilder class
-]
-
-{ #category : #accessing }
 DRInterpreterCompiler >> interpreterPrimitiveTable [
 	"Answer a <Collection> of <Symbol> each one representing a selector (e.g. #primitiveEqual) of the receiver's primitive table"
 
@@ -244,15 +194,9 @@ DRInterpreterCompiler >> newInterpreter [
 		objectMemoryClass: memory class.
 
 	^ interpreterBuilder basicNew
-		  objectMemory: memory;
-		  basicInitialize
-]
-
-{ #category : #accessing }
-DRInterpreterCompiler >> newJitCompilerClassNamed: aString [
-	"Answer a new <StackToRegisterMappingCogit> subclass named aString"
-
-	^ StackToRegisterMappingCogit subclass: aString asSymbol
+			objectMemory: memory;
+			yourself
+		  " basicInitialize"
 ]
 
 { #category : #'accessing - object memory' }
@@ -262,7 +206,7 @@ DRInterpreterCompiler >> newMemory [
 	^ Spur64BitCoMemoryManager simulatorClass new
 ]
 
-{ #category : #'accessing - primitives' }
+{ #category : #accessing }
 DRInterpreterCompiler >> newPrimitive: aString [
 	" Answer a new primitive object with its metadata and CFG generated "
 
@@ -270,24 +214,23 @@ DRInterpreterCompiler >> newPrimitive: aString [
 		primitiveNumber: (self primitiveNumberOf: aString);
 		sourceSelector: aString;
 		cfg: (self compilerCompiler buildIR: aString);
-		argumentCount: (self compilerCompiler numberOfArgumentsFor: aString);
+		argumentCount: (self compilerCompiler numberOfArgumentsForSelector: aString);
 		mayCallback: (self primitiveMayCallback: aString);
 		yourself
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> primitiveMayCallback: aString [ 
+DRInterpreterCompiler >> primitiveMayCallback: aString [
 	"Answer <true> if primitive aString is marked as maycallback"
 	" #maycallback "
-	
-	^ aString = #genNonImplementedPrimitive
 
+	^ aString = #genNonImplementedPrimitive
 ]
 
 { #category : #'accessing - primitives' }
 DRInterpreterCompiler >> primitiveNumberOf: aSelector [
 	" Answer a <Number> representing the primitive number of aSelector "
-	
+
 	| primNumber |
 
 	primNumber := self interpreterPrimitiveTable indexOf: aSelector.
@@ -303,8 +246,35 @@ DRInterpreterCompiler >> primitiveTable [
 	^ interpreter class basicPrimitiveTable
 ]
 
+{ #category : #'class initialization' }
+DRInterpreterCompiler >> primitiveTableArray [
+
+	<generated>
+	^ {
+		  { 1. #gen_PrimitiveAdd. 1 }.
+		  { 2. #gen_PrimitiveSubtract. 1 }.
+		  { 3. #gen_PrimitiveLessThan. 1 }.
+		  { 4. #gen_PrimitiveGreaterThan. 1 }.
+		  { 5. #gen_PrimitiveLessOrEqual. 1 }.
+		  { 6. #gen_PrimitiveGreaterOrEqual. 1 }.
+		  { 7. #gen_PrimitiveEqual. 1 }.
+		  { 8. #gen_PrimitiveNotEqual. 1 }.
+		  { 9. #gen_PrimitiveMultiply. 1 }.
+		  { 10. #gen_PrimitiveDivide. 1 }.
+		  { 1. #gen_PrimitiveAdd. 1 }.
+		  { 2. #gen_PrimitiveSubtract. 1 }.
+		  { 3. #gen_PrimitiveLessThan. 1 }.
+		  { 4. #gen_PrimitiveGreaterThan. 1 }.
+		  { 5. #gen_PrimitiveLessOrEqual. 1 }.
+		  { 6. #gen_PrimitiveGreaterOrEqual. 1 }.
+		  { 7. #gen_PrimitiveEqual. 1 }.
+		  { 8. #gen_PrimitiveNotEqual. 1 }.
+		  { 9. #gen_PrimitiveMultiply. 1 }.
+		  { 10. #gen_PrimitiveDivide. 1 } }
+]
+
 { #category : #'accessing - primitives' }
 DRInterpreterCompiler >> primitives [
 
-	^ self generateIR primitives
+	^ self generateBuildModel primitives
 ]

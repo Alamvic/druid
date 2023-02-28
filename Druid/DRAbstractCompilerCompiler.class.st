@@ -51,7 +51,7 @@ DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 	initialBasicBlock := generator createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
 
-	generator numberOfArguments: (self numberOfArgumentsFor: method)
+	generator numberOfArguments: (self numberOfArgumentsForMethod: method)
 ]
 
 { #category : #'generation-IR' }
@@ -154,9 +154,15 @@ DRAbstractCompilerCompiler >> newIRGenerator [
 ]
 
 { #category : #'generation-IR' }
-DRAbstractCompilerCompiler >> numberOfArgumentsFor: method [
+DRAbstractCompilerCompiler >> numberOfArgumentsForMethod: method [
 
 	^ self subclassResponsibility
+]
+
+{ #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> numberOfArgumentsForSelector: aSelector [
+
+	^ self numberOfArgumentsForMethod: (interpreter class lookupSelector: aSelector)
 ]
 
 { #category : #accessing }

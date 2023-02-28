@@ -27,6 +27,5 @@ DRSelectNoneCommand >> execute [
 	" Select all entries items"
 
 	self application selectedEntries: Array empty.
-	self entriesTable refresh.
-	self context updateStatusBar
+	self updateEntries
 ]

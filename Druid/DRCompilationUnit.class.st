@@ -7,9 +7,11 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'primitives',
-		'jitCompilerClass',
 		'initPrimitiveTable',
-		'interpreter'
+		'interpreter',
+		'dispatchTableBuilder',
+		'primitiveMethods',
+		'targetClass'
 	],
 	#category : #'Druid-InterpreterBuilder'
 }
@@ -29,14 +31,33 @@ DRCompilationUnit >> addPrimitiveEntries [
 ]
 
 { #category : #'accessing - compiler' }
-DRCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
-	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
+DRCompilationUnit >> addPrimitiveEntry: primitiveObject [
 
-	self initPrimitiveTable add: {
-		aDRPrimitiveObject primitiveNumber .
-		aDRPrimitiveObject genSelector .
-		aDRPrimitiveObject argumentCount > 0
-			ifTrue: [ aDRPrimitiveObject argumentCount ] }
+	self subclassResponsibility
+]
+
+{ #category : #accessing }
+DRCompilationUnit >> addPrimitives: aCollection [ 
+
+	self primitives addAll: aCollection
+]
+
+{ #category : #'accessing - builder' }
+DRCompilationUnit >> buildAll [
+	"Write primitive methods in the receiver's JIT compiler class"
+
+	self primitives
+			do: [ : primitive | self compilePrimitive: primitive ]
+			displayingProgress: 'Compiling primitives'.
+	self buildInitializePrimitiveTable
+]
+
+{ #category : #'accessing - builder' }
+DRCompilationUnit >> buildInitializePrimitiveTable [
+	"Install the initialize primitive table method in the receiver's JIT compiler class"
+
+	self addPrimitiveEntries.
+	self primitiveMethods addAll: (self dispatchTableBuilder collectAllMethodsOn: self targetClass class)
 ]
 
 { #category : #'accessing - compiler' }
@@ -54,7 +75,7 @@ DRCompilationUnit >> compileInitializePrimitiveTable [
 	"Install the initialize primitive table method in the receiver's JIT compiler class"
 
 	self addPrimitiveEntries.
-	self primitiveTableInitializer installAllMethodsOn: self jitCompilerClass class
+	self dispatchTableBuilder installAllMethodsOn: self targetClass class
 ]
 
 { #category : #'accessing - compiler' }
@@ -75,8 +96,23 @@ DRCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
 DRCompilationUnit >> compiler [
 
 	^ DRPrimitiveCompilerCompiler new
-		compilerClass: self jitCompilerClass;
+		compilerClass: self targetClass;
 		yourself
+]
+
+{ #category : #private }
+DRCompilationUnit >> dispatchTableBuilder [
+	"Answer a <PCGMethodNode> representing the source code of the #initializePrimitiveTable compatible with Cogit"
+
+	^ dispatchTableBuilder
+		ifNil: [ dispatchTableBuilder := DRCogitDispatchTableBuilder primitiveTableMethodFrom: self ]
+]
+
+{ #category : #private }
+DRCompilationUnit >> dispatchTableBuilder: aDRDispatchTableBuilder [
+	"Set aDRDispatchTableBuilder to the receiver's dispatch table builder"
+
+	dispatchTableBuilder := aDRDispatchTableBuilder
 ]
 
 { #category : #testing }
@@ -107,23 +143,16 @@ DRCompilationUnit >> interpreter: aDRBasicInterpreter [
 ]
 
 { #category : #accessing }
-DRCompilationUnit >> jitCompilerClass [
-	"Answer a <Class> which is the where the JITed methods will be stored"
+DRCompilationUnit >> primitiveMethods [
 
-	^ jitCompilerClass
+	^ primitiveMethods
+		ifNil: [ primitiveMethods := OrderedCollection new ]
 ]
 
 { #category : #accessing }
-DRCompilationUnit >> jitCompilerClass: anObject [
+DRCompilationUnit >> primitiveMethods: anObject [
 
-	jitCompilerClass := anObject
-]
-
-{ #category : #private }
-DRCompilationUnit >> primitiveTableInitializer [
-	"Answer a <PCGMethodNode> representing the source code of the #initializePrimitiveTable compatible with Cogit"
-
-	^ DRCogitDispatchTableBuilder primitiveTableMethodFrom: self
+	primitiveMethods := anObject
 ]
 
 { #category : #accessing }
@@ -132,4 +161,18 @@ DRCompilationUnit >> primitives [
 
 	^ primitives
 		ifNil: [ primitives := OrderedCollection new ]
+]
+
+{ #category : #accessing }
+DRCompilationUnit >> targetClass [
+	"Answer a <Class> which is the where the methods will be stored"
+
+	^ targetClass
+		ifNil: [ targetClass := self newRandomTargetClass ]
+]
+
+{ #category : #accessing }
+DRCompilationUnit >> targetClass: anObject [
+
+	targetClass := anObject
 ]

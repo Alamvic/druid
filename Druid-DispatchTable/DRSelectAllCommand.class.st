@@ -22,11 +22,16 @@ DRSelectAllCommand class >> defaultName [
 	^ 'Select All'
 ]
 
+{ #category : #testing }
+DRSelectAllCommand >> canBeExecuted [
+
+	^ self selectedEntries size ~= self entriesTableItems size
+]
+
 { #category : #executing }
 DRSelectAllCommand >> execute [
 	" Select all entries items"
 
 	self application selectedEntries: self entriesTable items.
-	self entriesTable refresh.
-	self context updateStatusBar
+	self updateEntries
 ]

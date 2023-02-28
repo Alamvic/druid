@@ -15,7 +15,7 @@ DRPrimitiveCompilerCompilerCollectorTest >> setUp [
 	interpreterCompiler := (DRInterpreterCompiler
 			fromInterpreter: (DRDummyInterpreter new primitives: DRBasicCogInterpreterArithmeticPrimitives primitiveTable)
 			compilerClass: DRPrimitiveCompilerCompilerCollector).
-	compilationUnit := interpreterCompiler generateIR
+	compilationUnit := interpreterCompiler generateBuildModel
 ]
 
 { #category : #initialization }
@@ -55,5 +55,5 @@ DRPrimitiveCompilerCompilerCollectorTest >> testFailedPrimitivesCollection [
 DRPrimitiveCompilerCompilerCollectorTest >> testObtainCompilationUnit [
 
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
-	self assert: interpreterCompiler generateIR notNil
+	self assert: interpreterCompiler generateBuildModel notNil
 ]

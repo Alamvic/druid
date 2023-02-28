@@ -14,7 +14,7 @@ Class {
 DRCogitPrimitiveInstallerTest >> compilationUnitForTesting [
 
 	^ DRCompilationUnit new
-		jitCompilerClass: self testingJITCompilerClass;
+		targetClass: self testingJITCompilerClass;
 		yourself.
 ]
 
