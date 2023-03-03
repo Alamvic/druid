@@ -11,6 +11,12 @@ DRUndefinedType >> astForSelector: aSelector [
 ]
 
 { #category : #accessing }
+DRUndefinedType >> isUndefined [
+
+	^ true
+]
+
+{ #category : #accessing }
 DRUndefinedType >> typeName [
 
 	^ 'Undefined'

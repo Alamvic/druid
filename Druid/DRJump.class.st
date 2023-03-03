@@ -75,6 +75,15 @@ DRJump >> initialize [
 	isBackJump := false
 ]
 
+{ #category : #inspecting }
+DRJump >> inspectionSource: aBuilder [
+	<inspectorPresentationOrder: 0 title: 'Source'>
+
+	^ SpCodePresenter new
+		text: target asString;
+		yourself
+]
+
 { #category : #testing }
 DRJump >> isBackJump [
 
@@ -108,6 +117,12 @@ DRJump >> isNonConditionalJump [
 { #category : #accessing }
 DRJump >> loop [
 	^ self isBackJump ifTrue: [ DRLoop fromBackJump: self ] ifFalse: [ self error: 'Cannot obtain loop from forward jump'].
+]
+
+{ #category : #printing }
+DRJump >> opcode [
+	
+	^ 'Jump'
 ]
 
 { #category : #printing }

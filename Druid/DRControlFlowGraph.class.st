@@ -68,7 +68,10 @@ DRControlFlowGraph >> allJumps [
 
 { #category : #accessing }
 DRControlFlowGraph >> allLoops [
-	^ self allBackJumps collect: [ :backJump | backJump loop ]
+
+	^ (self allBackJumps select: [ :backJump | 
+		   backJump isConditionalBranch not ]) collect: [ :backJump | 
+		  backJump loop ]
 ]
 
 { #category : #building }
@@ -93,6 +96,15 @@ DRControlFlowGraph >> applyOptimisation: optimisation [
 	self validate
 ]
 
+{ #category : #inspecting }
+DRControlFlowGraph >> asInspectorIn: view [
+
+	self configureVisualization: view.
+	^ SpRoassal3InspectorPresenter new
+		canvas: view;
+		yourself
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> blockById: anInteger [ 
 	
@@ -103,6 +115,14 @@ DRControlFlowGraph >> blockById: anInteger [
 DRControlFlowGraph >> blocks [
 
 	^ basicBlocks
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> blocksBetween: sourceBlock and: destinationBlock [
+
+	| paths |
+	paths := self simplePathsBetween: sourceBlock and: destinationBlock.
+	^ paths flattened asSet
 ]
 
 { #category : #iterating }
@@ -152,9 +172,37 @@ DRControlFlowGraph >> clearEdges [
 ]
 
 { #category : #inspecting }
+DRControlFlowGraph >> configureVisualization: view [
+
+	| blockViews controller |
+	blockViews := self blocks collect: [ :b | self createBlockView: b. ].
+
+	view addAll: blockViews.
+	self showLines: blockViews in: view.
+
+	"All the characters are displayed using a grid layout"
+	RSSugiyamaLayout new
+		horizontalGap: 50;
+		applyOn: blockViews.
+
+	self showInfoIn: view.
+
+	controller := RSCanvasController new
+		noLegend;
+		yourself.
+
+	view newAnimation
+		duration: 500 milliSeconds;
+		onStepDo: [ :t | view signalUpdate ];
+		when: RSAnimationEndEvent do: [:evt |
+			controller configuration noZoomToFitOnExtendChanged ].
+	view @ controller
+]
+
+{ #category : #inspecting }
 DRControlFlowGraph >> createBlockView: aBlock [
 	| box label boxes composite labelBackground |
-	label := RSLabel new 
+	label := RSLabel new
 		text: aBlock id asString;
 		color: Color black;
 		fontSize: 4;
@@ -166,35 +214,41 @@ DRControlFlowGraph >> createBlockView: aBlock [
 		yourself.
 	box := RSBox new
 		noPaint;
-		border: (RSBorder new 
-			width: 2; 
+		border: (RSBorder new
+			width: 2;
 			color: Color black;
 			yourself);
 		cornerRadius: 2;
 		yourself.
 
-	boxes := aBlock instructions collect: [ :inst | 
+	boxes := aBlock instructions collect: [ :inst |
 		self createinstructionView: inst ] as: RSGroup.
 	RSGridLayout on: boxes.
-	
-	box 
+
+	box
 		position: boxes position;
 		extent: boxes extent + 10.
 	composite := ({box},boxes) asShape
 		draggable;
-		@ (RSPopup text: [:model | 
+		@ (RSPopup text: [:model |
 			String streamContents: [:s | (model instructions collect: #prettyPrint)
-				asStringOn: s delimiter: String cr] 
+				asStringOn: s delimiter: String cr]
 			]);
-		@ (RSMenuActivable new menuDo: [ :menu :element | 
+		@ (RSMenuActivable new menuDo: [ :menu :element |
 			menu
 				add: 'Tail-duplicate'
 				target: element model
 				selector: #tailDuplicate ]);
 		model: aBlock;
 		yourself.
-	
-	RSLocation new outer; right; top; offset: 3@(-3); move: label on: boxes.
+
+	RSLocation new
+		outer;
+		right;
+		top;
+		offset: 3@(-3);
+		move: label on: boxes.
+
 	labelBackground position: label position.
 	composite add: labelBackground.
 	composite add: label.
@@ -214,7 +268,10 @@ DRControlFlowGraph >> createinstructionView: instruction [
 				   menu
 					   add: 'Inline'
 					   target: element model
-					   selector: #inline ]);
+					   selector: #inline;
+						add: 'Unroll'
+					   target: element model
+					   selector: #uiUnroll ]);
 		  yourself
 ]
 
@@ -275,6 +332,14 @@ DRControlFlowGraph >> fixBackJumps [
 				ifTrue: [ 
 					block backJumpPredecessors do: [ :pred | 
 						pred endInstruction beBackJumpTo: block ] ] ] ]
+]
+
+{ #category : #edges }
+DRControlFlowGraph >> fixBlocksSuccessorsAndPredecessors [
+		
+	self blocks do: [ :block | 
+		block predecessors copy select: [ :pred | (self blocks includes: pred) not]
+			thenDo: [ :b | block removePredecessor: b ] ].
 ]
 
 { #category : #edges }
@@ -341,7 +406,7 @@ DRControlFlowGraph >> inspectionCFG [
 	<inspectorPresentationOrder: 0 title: 'CFG'>
 	| view |
 	view := RSCanvas new.
-	^ self showIn: view
+	^ self asInspectorIn: view
 ]
 
 { #category : #accessing }
@@ -353,7 +418,7 @@ DRControlFlowGraph >> instructionByResultId: anInteger [
 { #category : #inspecting }
 DRControlFlowGraph >> instructionColor: instruction [
 
-	instruction isJump ifTrue: [ 
+	instruction isJump ifTrue: [
 		instruction isBackJump ifTrue: [ ^ Color purple muchLighter ].
 		instruction isBranchIfCondition ifTrue: [ ^ Color purple ].
 		instruction isBranchIfTrue ifTrue: [ ^ Color purple ].
@@ -361,9 +426,9 @@ DRControlFlowGraph >> instructionColor: instruction [
 	instruction isMandatoryInstruction ifTrue: [ ^ Color red ].
 	instruction users isEmpty ifTrue: [ ^ Color gray ].
 	instruction isPhiFunction ifTrue: [ ^ Color orange ].
-	(instruction operands anySatisfy: [ :op | op isPhysicalRegister ]) 
+	(instruction operands anySatisfy: [ :op | op isPhysicalRegister ])
 		ifTrue: [ ^ Color red darker ].
-	(instruction operands anySatisfy: [ :op | op isConstant ]) ifTrue: [ 
+	(instruction operands anySatisfy: [ :op | op isConstant ]) ifTrue: [
 		^ Color yellow darker ].
 	instruction isCopy ifTrue: [ ^ Color blue muchLighter ].
 
@@ -431,6 +496,12 @@ DRControlFlowGraph >> lastPaths [
 DRControlFlowGraph >> leafBlocks [
 
 	^ self blocks select: [ :b | b endInstruction isNoop ]
+]
+
+{ #category : #acccessing }
+DRControlFlowGraph >> mergeBlocks [
+
+	^ self reversePostOrderBlocks select: [ :b | b hasPhiFunctions ]
 ]
 
 { #category : #accessing }
@@ -539,36 +610,10 @@ DRControlFlowGraph >> showBranchConstraints: branchEdges [
 ]
 
 { #category : #inspecting }
-DRControlFlowGraph >> showIn: view [
-
-	| blockViews controller |
-	blockViews := self blocks collect: [ :b | self createBlockView: b. ].
-	view addAll: blockViews.
-	self showLines: blockViews in: view.
-	self showInfoIn: view.
-	
-	"All the characters are displayed using a grid layout"
-	RSSugiyamaLayout new
-		horizontalGap: 50;
-		applyOn: blockViews.
-	controller := RSCanvasController new.
-	controller noLegend.
-	view newAnimation
-		duration: 500 milliSeconds;
-		onStepDo: [ :t | view signalUpdate ];
-		when: RSAnimationEndEvent do: [:evt | 
-			controller configuration noZoomToFitOnExtendChanged ].
-	
-	view @ controller.
-	^ SpRoassal3InspectorPresenter new
-		canvas: view;
-		yourself
-]
-
-{ #category : #inspecting }
 DRControlFlowGraph >> showInfoIn: view [
 
-	| label instructions blocks paths |
+	| label instructions blocks paths info |
+		
 	label := [ :text | 
 	         RSLabel new
 		         text: text;
@@ -582,17 +627,19 @@ DRControlFlowGraph >> showInfoIn: view [
 	instructions := label value:
 		                self instructions size asString , ' instructions'.
 	paths := label value: self pathsSize asString , ' paths'.
+	info := { blocks . instructions .  paths }.
 
+	RSVerticalLineLayout new
+		alignLeft;
+		on: info.
+	info := info asShape.
+	 
 	RSLocation new
 		below;
-		move: blocks on: view;
-		move: instructions on: blocks;
-		move: paths on: instructions.
+		offset:( 0 @ 20);
+		move: info on: view.
 
-	view addAll: { 
-			blocks.
-			instructions.
-			paths }
+	view add: info
 ]
 
 { #category : #inspecting }
@@ -606,17 +653,67 @@ DRControlFlowGraph >> showLines: blockViews in: view [
 	eb withBorderAttachPoint.
 	eb shapes: blockViews.
 	eb connectToAll: #successors.
+
 	view lines pushBack.
-	view lines do: [ :line | 
+	view lines do: [ :line |
 		| source destination |
 		source := line model key.
 		destination := line model value.
 		line model: (self edgesFrom: source to: destination).
 		line @ (RSPopup text: [ :edgs | self showBranchConstraints: edgs ]).
-		(self isAlmostDeadBranch: source to: destination) ifTrue: [ 
+		(self isAlmostDeadBranch: source to: destination) ifTrue: [
 			line color: Color green muchDarker ].
-		(self isDeadBranch: source to: destination) ifTrue: [ 
+		(self isDeadBranch: source to: destination) ifTrue: [
 			line color: Color red muchDarker ] ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> simplePathsBetween: sourceNode and: destinationNode [ 
+	| visited currentPath simplePaths depthFirstSearch |
+	visited := Set new.
+	currentPath := OrderedCollection new.
+	simplePaths := OrderedCollection new.
+	
+	depthFirstSearch := [ :aSourceNode :aDestinationNode |
+		(visited includes: aSourceNode) ifFalse: [
+			visited add: aSourceNode.
+			currentPath add: aSourceNode.
+			(aSourceNode = aDestinationNode)
+				ifTrue: [
+					simplePaths add: currentPath copy.
+					visited remove: aSourceNode.
+					currentPath removeLast]
+				ifFalse: [
+					aSourceNode successors do: [ :nextNode | depthFirstSearch value: nextNode value: aDestinationNode ].
+					visited remove: aSourceNode ]]].
+
+	depthFirstSearch value: sourceNode value: destinationNode.
+	^ simplePaths 
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> subgraphBetween: sourceBlock and: destinationBlock [
+
+	| subgraphBlocks |
+	subgraphBlocks := self
+		                  blocksBetween: sourceBlock
+		                  and: destinationBlock.
+	^ self subgraphWith:
+		  (subgraphBlocks collect: [ :b | b veryDeepCopy ])
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> subgraphWith: subgraphBlocks [
+
+	| sourceBlockCopy subgraph |
+	subgraph := DRControlFlowGraph new.
+	subgraphBlocks do: [ :b | subgraph addBasicBlock: b ].
+	subgraph fixBlocksSuccessorsAndPredecessors.
+	sourceBlockCopy := subgraphBlocks detect: [ :b | b predecessors isEmpty ].
+	sourceBlockCopy addPredecessor: subgraph initialBasicBlock.
+	subgraph initialBasicBlock jumpTo: sourceBlockCopy.
+	subgraph generatePaths.
+	^ subgraph
 ]
 
 { #category : #accessing }

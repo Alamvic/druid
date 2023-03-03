@@ -36,6 +36,12 @@ DRNullValue >> hash [
 	^ self class hash
 ]
 
+{ #category : #accessing }
+DRNullValue >> id [
+
+	^ self
+]
+
 { #category : #visiting }
 DRNullValue >> isNullValue [
 
@@ -75,5 +81,5 @@ DRNullValue >> sccpLatticeValueFor: sccp [
 { #category : #asd }
 DRNullValue >> type [
 	
-	^ DRIntegerType new
+	^ DRUndefinedType new
 ]

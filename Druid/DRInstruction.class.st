@@ -106,7 +106,7 @@ DRInstruction >> basicBlock: anObject [
 { #category : #'cfg manipulation' }
 DRInstruction >> breakBasicBlock [
 
-	self basicBlock breakBy: self
+	^ self basicBlock breakBy: self
 ]
 
 { #category : #'loop-invariance' }
@@ -179,6 +179,11 @@ DRInstruction >> hasUsers [
 DRInstruction >> hash [
 
 	^ self result hash
+]
+
+{ #category : #accessing }
+DRInstruction >> indexInBasicBlock [
+	^ self basicBlock indexOfInstruction: self
 ]
 
 { #category : #testing }
@@ -406,6 +411,12 @@ DRInstruction >> operand2 [
 	^ operands at: 2 ifAbsent: [nil]
 ]
 
+{ #category : #accessing }
+DRInstruction >> operand3 [
+
+	^ operands at: 3 ifAbsent: [nil]
+]
+
 { #category : #operands }
 DRInstruction >> operandAt: anInteger [
 	
@@ -496,12 +507,12 @@ DRInstruction >> postCopy [
 
 { #category : #printing }
 DRInstruction >> prettyPrint [
-	
+
 	| print |
-	print := result
-		ifNil: [ '' ]
-		ifNotNil: [ result name, ' := ' ].
-	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result ifNotNil: [ e result name ] ]))
+	print := result ifNil: [ '' ] ifNotNil: [ result name , ' := ' ].
+	
+	^ print , self opcode , ' '
+	  , (' ' join: (self operands collect: [ :e | e ifNotNil: [ e printResult ] ]))
 ]
 
 { #category : #accessing }
@@ -517,6 +528,13 @@ DRInstruction >> printOn: aStream [
 	aStream nextPut: $(.
 	aStream nextPutAll: self prettyPrint.
 	aStream nextPut: $)
+]
+
+{ #category : #printing }
+DRInstruction >> printResult [
+
+	result ifNotNil: [ ^ result name ].
+	^ self opcode
 ]
 
 { #category : #'users-definitions' }
@@ -586,6 +604,16 @@ DRInstruction >> replaceDependency: anOperand by: anotherOperand [
 DRInstruction >> replaceDependency: anOperand by: anotherOperand in: anInstruction [
 	
 	anInstruction replaceOperand: anOperand by: anotherOperand
+]
+
+{ #category : #replacing }
+DRInstruction >> replaceDominatedUsesBy: anotherInstruction [
+
+	users
+		select: [ :instruction | 
+			instruction isDominatedBy: anotherInstruction ]
+		thenDo: [ :instruction | 
+			instruction replaceDependency: self by: anotherInstruction ]
 ]
 
 { #category : #'users-definitions' }
@@ -729,10 +757,29 @@ DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 	self subclassResponsibility
 ]
 
+{ #category : #testing }
+DRInstruction >> supportConstantOperand [
+
+	^ true
+]
+
 { #category : #types }
 DRInstruction >> type [
 
 	^ DRIntegerType new
+]
+
+{ #category : #inspecting }
+DRInstruction >> uiUnroll [
+
+	| unrollingFactor |
+	self isBackJump ifFalse: [ 
+		^ self inform: 'Can only perform loop unrolling from back jumps' ].
+	unrollingFactor := UIManager default
+		                   request: 'Unrolling factor:'
+		                   initialAnswer: '2'.
+	(unrollingFactor ifNil: [ '' ]) ifEmpty: [ unrollingFactor := 2 ].
+	self loop unroll: unrollingFactor asNumber
 ]
 
 { #category : #replacing }

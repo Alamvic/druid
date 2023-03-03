@@ -71,6 +71,12 @@ DRAbstractBranch >> isJump [
 	^ true
 ]
 
+{ #category : #testing }
+DRAbstractBranch >> isMandatoryInstruction [
+
+	^ true
+]
+
 { #category : #building }
 DRAbstractBranch >> newFalseBranch: aDRBasicBlock [
 

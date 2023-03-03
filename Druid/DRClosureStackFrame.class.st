@@ -25,7 +25,7 @@ DRClosureStackFrame >> outerFrame [
 { #category : #'instance creation' }
 DRClosureStackFrame >> outerFrameWithState: aState [
 
-	^ aState executionStack detectFrame: [ :f | f mirrorFrame == self outerFrame ]
+	^ aState executionStack detectFrame: [ :f | f mirrorFrame == self outerFrame mirrorFrame ]
 ]
 
 { #category : #printing }

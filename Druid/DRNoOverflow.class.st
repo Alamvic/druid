@@ -28,6 +28,12 @@ DRNoOverflow >> negated [
 	^ DROverflow new
 ]
 
+{ #category : #printing }
+DRNoOverflow >> opcode [
+	
+	^ 'No Overflow'
+]
+
 { #category : #SCCP }
 DRNoOverflow >> sccpEvaluateFor: sccp branch: aBranch [
 

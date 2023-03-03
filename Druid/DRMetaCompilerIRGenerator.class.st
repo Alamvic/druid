@@ -67,20 +67,27 @@ DRMetaCompilerIRGenerator >> initializeSpecialCases [
 { #category : #visiting }
 DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 
-	^ aRBMessageNode isSuperSend
-		  ifTrue: [ 
-			  self currentMethod methodClass superclass lookupSelector:
-				  aRBMessageNode selector ]
-		  ifFalse: [ receiver type lookupSelector: aRBMessageNode selector ]
+	| methodFound |
+	methodFound := super methodFor: aRBMessageNode withReceiver: receiver.
+	methodFound ifNil: [
+		self error:
+			'lookup failed for: ' , aRBMessageNode selector , ' in class '
+			, receiver name ].
+	^ methodFound
 ]
 
 { #category : #accessing }
 DRMetaCompilerIRGenerator >> numberOfArguments: aValue [ 
 	
 	super numberOfArguments: aValue.
-	self push: self receiverRegister.
 	0 to: numberOfArguments - 1 do: [ :i |
 		self push: (self argRegisterNumber: i) ]
+]
+
+{ #category : #configure }
+DRMetaCompilerIRGenerator >> receiver: aDRValue [
+
+	self push: self receiverRegister
 ]
 
 { #category : #visiting }
@@ -88,6 +95,12 @@ DRMetaCompilerIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiv
 
 	| instruction method |
 	method := self methodFor: aRBMessageNode withReceiver: receiver.
+	
+	"If the method has a special ir builder case, use that"
+	method ast pragmaNamed: #druidIRBuilder: ifPresent: [ :pragma |
+		^ self perform: pragma arguments first value withArguments: { aRBMessageNode } ].
+	
+	"Otherwise, interpret the method recursively"
 	instruction := self
 		               instantiate: DRMethod
 		               operands: { receiver } , arguments.
@@ -106,6 +119,6 @@ DRMetaCompilerIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
 	"Resolve it as a variableAccess"
 	self pushOperand:
-		((self topFrame homeFrameWithState: executionState) receiver value 
+		((self topFrame homeFrameWithState: executionState) receiver simpleConstantFold value 
 			 instVarNamed: aRBVariableNode name) asDRValue
 ]

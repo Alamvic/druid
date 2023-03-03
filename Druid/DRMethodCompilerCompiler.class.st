@@ -1,14 +1,26 @@
 Class {
 	#name : #DRMethodCompilerCompiler,
-	#superclass : #DRCompilerCompiler,
+	#superclass : #DRAbstractCompilerCompiler,
 	#instVars : [
 		'primitiveCompilerName'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
 
-{ #category : #accessing }
-DRMethodCompilerCompiler >> numberOfArgumentsFor: aMethod [ 
+{ #category : #'ir-generation' }
+DRMethodCompilerCompiler >> argName: index forMethod: method [
+
+	^ method argumentNames at: index
+]
+
+{ #category : #'instance creation' }
+DRMethodCompilerCompiler >> newIRGenerator [
+
+	^ DRMethodIRGenerator new
+]
+
+{ #category : #'generation-IR' }
+DRMethodCompilerCompiler >> numberOfArgumentsForMethod: aMethod [ 
 
 	^ aMethod numArgs
 ]

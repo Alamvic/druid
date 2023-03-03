@@ -7,5 +7,5 @@ Class {
 { #category : #accessing }
 DRInline >> doApply: cfg [
 
-	cfg messageSends do: [ :i | i inline ]
+	cfg messageSends copy do: [ :i | i inline ]
 ]

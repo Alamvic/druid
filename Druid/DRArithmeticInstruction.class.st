@@ -14,13 +14,13 @@ DRArithmeticInstruction >> type [
 DRArithmeticInstruction >> typeWithAlreadySeen: aCollection [ 
 	
 	(aCollection includes: self)
-		ifTrue: [ ^ nil ].
+		ifTrue: [ ^ DRUndefinedType new ].
 	
 	aCollection add: self.
 	self operands do: [ :e | | operandType |
 		operandType := e typeWithAlreadySeen: aCollection.
 		"If nil it means it's a recursive type, we continue with the next operand"
-		operandType ifNotNil: [ ^ operandType ] ].
+		operandType isUndefined ifFalse: [ ^ operandType ] ].
 	
 	self error: 'Cannot compute instruction type'
 ]

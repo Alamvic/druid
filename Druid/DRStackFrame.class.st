@@ -33,7 +33,13 @@ DRStackFrame >> addTo: aDRStackFrame [
 	operandStack withIndexDo: [ :e :i |
 		(aDRStackFrame operandStack at: i) addValue: e.
 	].
-	aDRStackFrame returnValue addValue: returnValue
+	aDRStackFrame returnValue addValue: self returnValue
+]
+
+{ #category : #'deferred returns' }
+DRStackFrame >> clearDeferredMethodReturns [
+
+	mirrorFrame clearDeferredMethodReturns
 ]
 
 { #category : #'non lo' }
@@ -73,8 +79,8 @@ DRStackFrame >> exitBasicBlock [
 
 { #category : #accessing }
 DRStackFrame >> exitBasicBlock: aDRBasicBlock [
-	
-	exitBasicBlock := aDRBasicBlock 
+
+	exitBasicBlock := aDRBasicBlock
 ]
 
 { #category : #temporaries }
@@ -117,6 +123,7 @@ DRStackFrame >> homeFrameWithState: aState [
 DRStackFrame >> initialize [
 
 	super initialize.
+	mirrorFrame := DRMirrorFrame new.
 	operandStack := Stack new.
 	temporaries := Dictionary new.
 ]
@@ -173,7 +180,7 @@ DRStackFrame >> pop [
 	^ operandStack pop
 ]
 
-{ #category : #accessing }
+{ #category : #copying }
 DRStackFrame >> postCopy [
 
 	super postCopy.
@@ -227,8 +234,14 @@ DRStackFrame >> returnValue [
 
 { #category : #accessing }
 DRStackFrame >> returnValue: aValue [
-	
-	returnValue := aValue
+
+	^ returnValue := aValue
+]
+
+{ #category : #accessing }
+DRStackFrame >> returnedValue [
+
+	^ mirrorFrame poppedValue ifNil: [ self returnValue ]
 ]
 
 { #category : #accessing }

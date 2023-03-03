@@ -51,6 +51,18 @@ DRClassType >> lookupClass [
 	^ classType
 ]
 
+{ #category : #lookup }
+DRClassType >> lookupSelector: aString [ 
+
+	^ classType lookupSelector: aString 
+]
+
+{ #category : #accessing }
+DRClassType >> systemClass [
+
+	^ classType 
+]
+
 { #category : #accessing }
 DRClassType >> typeName [
 
