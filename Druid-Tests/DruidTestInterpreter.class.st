@@ -718,7 +718,7 @@ DruidTestInterpreter >> primitiveFloat64At [
 	addressToRead := self stackTop.
 	self
 		pop: 1
-		thenPush: (objectMemory float64At: addressToRead) rawFloatBits
+		thenPush: (objectMemory rawFloatBitsOf: (objectMemory float64At: addressToRead) in: nil) 
 ]
 
 { #category : #'as yet unclassified' }
@@ -734,58 +734,54 @@ DruidTestInterpreter >> primitiveFloat64AtPut [
 
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveFloatAdd [
-
 	"Transform the integers as float.
 	Add the floats.
 	Then read the result raw representation and push that to the stack."
 
 	<numberOfArguments: 1>
-	self
-		pop: 2
-		thenPush:
-		(self stackTop asFloat + (self stackValue: 1) asFloat) rawFloatBits
+	self pop: 2 thenPush: (objectMemory
+			 rawFloatBitsOf:
+			 self stackTop asFloat + (self stackValue: 1) asFloat
+			 in: nil)
 ]
 
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveFloatDivide [
-
 	"Transform the integers as float.
 	Add the floats.
 	Then read the result raw representation and push that to the stack."
 
 	<numberOfArguments: 1>
-	self
-		pop: 2
-		thenPush:
-		(self stackTop asFloat / (self stackValue: 1) asFloat) rawFloatBits
+	self pop: 2 thenPush: (objectMemory
+			 rawFloatBitsOf:
+			 self stackTop asFloat / (self stackValue: 1) asFloat
+			 in: nil)
 ]
 
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveFloatMultiply [
-
 	"Transform the integers as float.
 	Add the floats.
 	Then read the result raw representation and push that to the stack."
 
 	<numberOfArguments: 1>
-	self
-		pop: 2
-		thenPush:
-		(self stackTop asFloat * (self stackValue: 1) asFloat) rawFloatBits
+	self pop: 2 thenPush: (objectMemory
+			 rawFloatBitsOf:
+			 self stackTop asFloat * (self stackValue: 1) asFloat
+			 in: nil)
 ]
 
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveFloatSubtract [
-
 	"Transform the integers as float.
 	Add the floats.
 	Then read the result raw representation and push that to the stack."
 
 	<numberOfArguments: 1>
-	self
-		pop: 2
-		thenPush:
-		(self stackTop asFloat - (self stackValue: 1) asFloat) rawFloatBits
+	self pop: 2 thenPush: (objectMemory
+			 rawFloatBitsOf:
+			 self stackTop asFloat - (self stackValue: 1) asFloat
+			 in: nil)
 ]
 
 { #category : #comparisons }
@@ -995,11 +991,14 @@ DruidTestInterpreter >> primitiveInnerBranchingWithDeadBranches [
 
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveIntegerAsFloat [
-
-	<numberOfArguments: 0>
 	"Transform the integer argument as float.
 	Then read its raw representation and push that to the stack."
-	self pop: 1 thenPush: self stackTop asFloat rawFloatBits
+
+	<numberOfArguments: 0>
+	self
+		pop: 1
+		thenPush:
+		(objectMemory rawFloatBitsOf: self stackTop asFloat in: nil)
 ]
 
 { #category : #'as yet unclassified' }

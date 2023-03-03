@@ -281,7 +281,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
 	specialCases at: #sizeof: put: #interpretSizeofWith:.
 	specialCases at: #asFloat put: #interpretAsFloatWith:.
-	specialCases at: #rawFloatBits put: #interpretRawFloatBitsWith:.
+	specialCases at: #rawFloatBitsOf:in: put: #interpretRawFloatBitsWith:.
 	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
 	
@@ -1048,7 +1048,7 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 DRIRGenerator >> interpretRawFloatBitsWith: aRBMessageNode [ 
 
 	| receiver |
-	aRBMessageNode receiver acceptVisitor: self.
+	aRBMessageNode arguments first acceptVisitor: self.
 	receiver := self popOperand.
 
 	receiver type isFloatType
