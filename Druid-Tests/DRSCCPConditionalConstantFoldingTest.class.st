@@ -55,14 +55,14 @@ DRSCCPConditionalConstantFoldingTest >> setUpControlFlowGraphWithDecidableCondit
 DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftAppliesFolding [
 
 	"This test asserts that SCCP optimises only the blocks that are used.
-	Here the constants in the conditional jump are propagated, the algorithm knows that the block2 b2 will not be called because the condition is always false. 
+	Here the constants in the conditional jump are propagated, the algorithm knows that the block2 b2 will not be called because the condition is always false.
 	Only the b3 block is optimized."
 
 	| cfg |
 	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: true.
-	
+
 	optimisation applyTo: cfg.
-	
+
 	"Check that the block on the left was visited to apply constant folding"
 	self assert: (cfg b2 instructions at: 3) isCopy.
 	self assert: (cfg b2 instructions at: 3) operand1 value equals: 7
@@ -70,50 +70,50 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftAppliesFo
 
 { #category : #'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftDoesNotApplyFolding [
-
 	"This test asserts that SCCP optimises only the blocks that are used.
-	Here the constants in the conditional jump are propagated, the algorithm knows that the block2 b2 will not be called because the condition is always false. 
+	Here the constants in the conditional jump are propagated, the algorithm knows that the block2 b2 will not be called because the condition is always false.
 	Only the b3 block is optimized."
 
 	| cfg |
-	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: false.
-	
+	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft:
+		       false.
 	optimisation applyTo: cfg.
-	
+
 	"Check that the block in the right was not visited to apply constant propagation"
-	self assert: (cfg b2 instructions at: 3) == leftAddInstruction
+	self
+		assert: (cfg b2 instructions at: 3)
+		identicalTo: leftAddInstruction
 ]
 
 { #category : #'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftReplacesConditionalJump [
 
 	"This test asserts that SCCP optimises only the blocks that are used.
-	Here the constants in the conditional jump are propagated, the algorithm knows that the block2 b2 will not be called because the condition is always false. 
+	Here the constants in the conditional jump are propagated, the algorithm knows that the block2 b2 will not be called because the condition is always false.
 	Only the b3 block is optimized."
 
 	| cfg originalConditionalJump |
 	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: true.
-	
+
 	originalConditionalJump := cfg b1 endInstruction.
 	optimisation applyTo: cfg.
-	
+
 	"Check that the block on the left was visited to apply constant folding"
 	self assert: cfg b1 endInstruction isNonConditionalJump.
-	self assert: cfg b1 endInstruction target equals: originalConditionalJump trueBranch.
+	self assert: cfg b1 endInstruction target equals: originalConditionalJump trueBranch
 ]
 
 { #category : #'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnRightAppliesFolding [
 
 	"This test asserts that SCCP optimises only the blocks that are used.
-	Here the constants in the conditional jump are propagated, the algorithm knows that the block2 b2 will not be called because the condition is always false. 
+	Here the constants in the conditional jump are propagated, the algorithm knows that the block2 b2 will not be called because the condition is always false.
 	Only the b3 block is optimized."
 
 	| cfg |
 	cfg := self setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: false.
-	
 	optimisation applyTo: cfg.
-	
+
 	"Check that the block on the left was visited to apply constant folding"
 	self assert: (cfg b3 instructions at: 3) isCopy.
 	self assert: (cfg b3 instructions at: 3) operand1 value equals: 11

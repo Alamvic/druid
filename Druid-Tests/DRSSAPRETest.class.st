@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'instructionFactory'
 	],
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-CompilerCompiler'
 }
 
 { #category : #running }
@@ -12,8 +12,7 @@ DRSSAPRETest >> setUp [
 
 	super setUp.
 	instructionFactory := DRInstructionFactory new.
-	optimisation := DRSSAPRE new.
-	
+	optimisation := DRSSAPRE new
 ]
 
 { #category : #tests }
@@ -21,7 +20,7 @@ DRSSAPRETest >> testPartialRedundancyWithSameConstIn124BlockInConditionCF [
 	"
 T1 = e  → T2 = e  →   T4 = e
       \→  T3 = p /
-⇒ 
+⇒
 T1 = e  → T2 = T1  →  T4 = T1
        \→  T3 = p /
 "
@@ -37,17 +36,17 @@ T1 = e  → T2 = T1  →  T4 = T1
 	optimisation applyTo: cfg.
 
 	self assert: cfg b1 first isCopy.
-	self assert: cfg b2 first operand1 equals: instruction1. 
+	self assert: cfg b2 first operand1 equals: instruction1.
 	self assert: cfg b3 first operand1 value equals: 1.
-	self assert: cfg b4 first operand1 value equals: instruction1.
+	self assert: cfg b4 first operand1 value equals: instruction1
 ]
 
 { #category : #tests }
 DRSSAPRETest >> testPartialRedundancyWithSameConstIn12BlockInConditionCF [
 	"
-T1 = e → T2 = e  →   T4 
+T1 = e → T2 = e  →   T4
       \→  T3 = p /
-⇒ 
+⇒
 T1 = e  → T2 = T1  →  T4
        \→  T3 = p /
 "
@@ -64,39 +63,35 @@ T1 = e  → T2 = T1  →  T4
 
 	self assert: cfg b1 first isCopy.
 	self assert: cfg b2 first operand1 equals: instruction1.
-	self assert: cfg b3 first operand1 value equals: 1.
+	self assert: cfg b3 first operand1 value equals: 1
 ]
 
 { #category : #tests }
 DRSSAPRETest >> testPhiInsertionInConditionalCase1 [
-	" 
-	  T1  →   T2 = e   →   T3   
-          \_________/ 
+	"
+	  T1  →   T2 = e   →   T3
+          \_________/
    "
 
 	| cfg b3 b1 b2 instruction |
-	
+
 	cfg := self setUpCFG: 3.
 	b1 := cfg b1.
 	b2 := cfg b2.
 	b3 := cfg b3.
-	
+
    instruction := b2 copy: 3.
 	b1 jumpIfTrueTo: b2 ifFalseTo: b3.
-	
+
 	optimisation insertPhi: cfg.
-	
-	self assert: b3 hasPhiFunctions equals: true.
-	
-	
-	
-	
+
+	self assert: b3 hasPhiFunctions equals: true
 ]
 
 { #category : #tests }
 DRSSAPRETest >> testPhiInsertionInConditionalCase2 [
-	" 
-       /------------------\  
+	"
+       /------------------\
 	 B5 →  B1 = e  →  B2  → B4
                  \→  B3  /
 
@@ -120,8 +115,8 @@ DRSSAPRETest >> testPhiInsertionInConditionalCase2 [
 
 { #category : #tests }
 DRSSAPRETest >> testPhiInsertionInConditionalCase3 [
-	" 
-       /------------------\  
+	"
+       /------------------\
 	 B5 →  B1 = e  →  B2 = e  → B4
                   \→  B3    /
 
@@ -142,13 +137,13 @@ DRSSAPRETest >> testPhiInsertionInConditionalCase3 [
 	optimisation insertPhi: cfg.
 
 	self assert: b4 hasPhiFunctions equals: true.
-	self assert: b4 instructions size equals: 3.
+	self assert: b4 instructions size equals: 3
 ]
 
 { #category : #tests }
 DRSSAPRETest >> testPhiInsertionInConditionalCase4 [
-	" 
-       /------------------\  
+	"
+       /------------------\
 	 B5 →  B1 = e  →  B2 = e  → B4 = p
                   \→  B3    /
 
@@ -170,7 +165,7 @@ DRSSAPRETest >> testPhiInsertionInConditionalCase4 [
 	optimisation insertPhi: cfg.
 
 	self assert: b4 hasPhiFunctions equals: true.
-	self assert: b4 instructions size equals: 4.
+	self assert: b4 instructions size equals: 4
 ]
 
 { #category : #tests }
@@ -178,22 +173,22 @@ DRSSAPRETest >> testPhiInsertionInConditionalCase5 [
 "
 T1  →  T2 = e  →   T4 = e
     \→  T3 = e /
-⇒ 
+⇒
 T1  → T2 = e  →  T5 = Φ, T4 = e
     \→  T3 = e /
 "
 
-	| cfg instruction1 instruction2 instruction3 instruction4 |
+	| cfg instruction1 instruction2 instruction3 |
 	cfg := self setUpCFGWithConditional: (instructionFactory jumpIf:
 			        (DRPhysicalGeneralPurposeRegister name: 'Parameter')).
 	instruction1 := cfg b2 copy: 3.
 	instruction2 := cfg b3 copy: 3.
 	instruction3 := cfg b4 copy: 3.
-	
+
 
 	optimisation insertPhi: cfg.
 
 	self assert: cfg b2 first isCopy.
 	self assert: cfg b3 first isCopy.
-	self assert: cfg b4 hasPhiFunctions. 
+	self assert: cfg b4 hasPhiFunctions
 ]
