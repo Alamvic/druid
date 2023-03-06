@@ -77,8 +77,10 @@ DRInterpreterCompiler class >> fromInterpreter: anInterpreterBuilder compilerCla
 { #category : #'accessing - primitives' }
 DRInterpreterCompiler >> addPrimitive: aString to: aDRCompilationUnit [
 
-	aString = 0 ifFalse: [
-		aDRCompilationUnit addPrimitive: (self newPrimitive: aString) ]
+	aString isInteger ifFalse: [
+		((interpreter class lookupSelector: aString) hasPragmaNamed:
+			 #numberOfArguments:) ifTrue: [
+			aDRCompilationUnit addPrimitive: (self newPrimitive: aString) ] ]
 ]
 
 { #category : #'accessing - primitives' }
