@@ -146,7 +146,8 @@ DRInterpreterCompiler >> generateBuildModelAndCompileIn: aClass superclass: aSup
 DRInterpreterCompiler >> generateIRAndCompileIn: aClass [
 	"Generate and install the receiver's primitives into JIT compiler aClass"
 
-	self generateBuildModel
+	self addPrimitives.
+	self compilationUnit
 		interpreter: interpreter;
 		targetClass: (self environmentAt: aClass);
 		compileAll

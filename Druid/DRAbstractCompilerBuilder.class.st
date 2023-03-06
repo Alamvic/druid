@@ -7,14 +7,30 @@ Class {
 	#category : #'Druid-InterpreterBuilder'
 }
 
-{ #category : #accessing }
+{ #category : #NEW }
+DRAbstractCompilerBuilder >> addPrimitive: aString [
+
+	(self isValidPrimitiveName: aString)
+		ifTrue: [ self compilationUnit addPrimitive: (self newPrimitive: aString) ]
+]
+
+{ #category : #DELETE }
 DRAbstractCompilerBuilder >> addPrimitive: aString to: aDRCompilationUnit [
 
 	(self isValidPrimitiveName: aString)
 		ifTrue: [ aDRCompilationUnit addPrimitive: (self newPrimitive: aString) ]
 ]
 
-{ #category : #'accessing - primitives' }
+{ #category : #NEW }
+DRAbstractCompilerBuilder >> addPrimitives [
+	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
+
+	self interpreterPrimitiveTableSelectors
+		do: [ : prim | self addPrimitive: prim ]
+		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
+]
+
+{ #category : #DELETE }
 DRAbstractCompilerBuilder >> addPrimitivesTo: aCompilationUnit [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
@@ -58,12 +74,12 @@ DRAbstractCompilerBuilder >> environmentAt: aClass [
 		ifAbsent: [ self newClassNamed: aClass superclass: self targetSuperclass ]
 ]
 
-{ #category : #'accessing - model' }
+{ #category : #DELETE }
 DRAbstractCompilerBuilder >> generateBuildModel [
 	"Answer a <DRCompilationUnit>, useful for model manipulation before code dumping"
 
-	self addPrimitivesTo: self compilationUnit.
-	^ compilationUnit
+	self addPrimitives.
+	^ self compilationUnit
 ]
 
 { #category : #accessing }
@@ -76,7 +92,7 @@ DRAbstractCompilerBuilder >> interpreterPrimitiveTable [
 DRAbstractCompilerBuilder >> interpreterPrimitiveTableSelectors [
 	"Answer a <Collection> of <Symbol> each one representing a selector (e.g. #primitiveEqual) of the receiver's primitive table"
 
-	^ self interpreterPrimitiveTable collect: #selector.
+	^ self interpreterPrimitiveTable reject: #isNumber
 ]
 
 { #category : #testing }

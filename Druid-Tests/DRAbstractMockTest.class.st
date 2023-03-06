@@ -16,13 +16,7 @@ Class {
 { #category : #accessing }
 DRAbstractMockTest >> interpreterWith: aCollection [
 
-	^ self newEmptyInterpreter primitives: aCollection
-]
-
-{ #category : #accessing }
-DRAbstractMockTest >> newEmptyInterpreter [
-
-	^ DRDummyInterpreter new
+	^ interpreterBuilder primitives: aCollection
 ]
 
 { #category : #running }
@@ -30,7 +24,9 @@ DRAbstractMockTest >> setUp [
 
 	super setUp.
 	testingEnvironment := Smalltalk globals.
-	interpreterBuilder := DRInterpreterBuilder new.
+	interpreterBuilder := DRInterpreterBuilder new
+		targetSuperclass: DRBasicCogInterpreterArithmeticPrimitives;
+		yourself
 ]
 
 { #category : #running }
