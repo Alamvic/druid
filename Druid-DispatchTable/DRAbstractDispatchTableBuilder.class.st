@@ -61,9 +61,10 @@ DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableMethodNode [
 
 	^ (PCGMethodNode selector: self initPrimitiveTableSelector) bodyBlock: [ : body |
 		  body
-			<< self buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode
+			<< self buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode;
 			<< self buildInitializePrimitiveTableIVarAssignmentNode;
-			<< self buildInitializePrimitiveTableAssignmentNode ]
+			<< self buildInitializePrimitiveTableAssignmentNode;
+			<< self buildPrimitiveTableVariableNode returnIt ]
 ]
 
 { #category : #'accessing - building' }

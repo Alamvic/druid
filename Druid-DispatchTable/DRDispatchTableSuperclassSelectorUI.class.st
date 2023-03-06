@@ -2,7 +2,8 @@ Class {
 	#name : #DRDispatchTableSuperclassSelectorUI,
 	#superclass : #SpSelectDialog,
 	#instVars : [
-		'classHierarchyPresenter'
+		'classHierarchyPresenter',
+		'rootClass'
 	],
 	#category : #'Druid-DispatchTable-UI'
 }
@@ -53,9 +54,15 @@ DRDispatchTableSuperclassSelectorUI >> initializePresenters [
 				yourself);
 			addColumn: (SpStringTableColumn evaluated: #name);
 			yourself);
-		roots: { AbstractInterpreter };
+		roots: { rootClass };
 		children: [ :aClass | aClass subclasses ];
 		activateOnDoubleClick;
 		whenActivatedDo: [ :selection | selection selectedItem browse ];
 		expandAll
+]
+
+{ #category : #'accessing - model' }
+DRDispatchTableSuperclassSelectorUI >> setModelBeforeInitialization: aRootClass [
+
+	rootClass := aRootClass
 ]

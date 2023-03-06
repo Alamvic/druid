@@ -9,6 +9,24 @@ Class {
 }
 
 { #category : #'instance creation' }
+DRInterpreterBuilder class >> forInterpreter: aClassName superclass: aSuperclass [
+
+	^ self new
+		targetSuperclass: aSuperclass;
+		newInterpreterNamed: aClassName;
+		yourself.
+]
+
+{ #category : #'instance creation' }
+DRInterpreterBuilder class >> forRandomInterpreterWithSuperclass: aSuperclass [
+
+	^ self new
+		targetSuperclass: aSuperclass;
+		newInterpreter;
+		yourself
+]
+
+{ #category : #'instance creation' }
 DRInterpreterBuilder >> basicNew [
 
 	self targetClass: self newRandomTargetClass.
@@ -31,6 +49,7 @@ DRInterpreterBuilder >> defaultTargetSuperclass [
 DRInterpreterBuilder >> generateBuildModelAndCompileIn: aClass [
 	"Generate and install the receiver's primitives into JIT compiler aClass"
 
+	self flag: #toreview.
 	self generateBuildModel
 		jitCompilerClass: (self environmentAt: aClass);
 		compileAll
@@ -55,6 +74,23 @@ DRInterpreterBuilder >> initializeWithOptions: aCollection objectMemoryClass: aC
 DRInterpreterBuilder >> interpreterPrimitiveTable [
 
 	^ self primitiveTable
+]
+
+{ #category : #'instance creation' }
+DRInterpreterBuilder >> newInterpreter [
+	"Answer a new instance of the receiver's target class, representing a basic interpreter"
+
+	self targetClass 
+		ifNil: [ self targetClass: self newRandomTargetClass ].
+	^ self targetClass new
+]
+
+{ #category : #'instance creation' }
+DRInterpreterBuilder >> newInterpreterNamed: aClassName [
+	"Answer a new instance of the receiver's target class, representing a basic interpreter"
+
+	self targetClass: (self environmentAt: aClassName).
+	^ self targetClass new
 ]
 
 { #category : #accessing }

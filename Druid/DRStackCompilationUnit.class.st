@@ -13,7 +13,15 @@ DRStackCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 		aDRPrimitiveObject sourceSelector }
 ]
 
-{ #category : #compiling }
+{ #category : #'accessing - compiler' }
+DRStackCompilationUnit >> addSpecialPrimitives [
+	"Private - This is needed so to conform the primitive array 'specification'. Read AbstractInterpreter class>>tabble:from: side for details"
+
+	self initPrimitiveTable add: {
+		0 . 0 }
+]
+
+{ #category : #'accessing - compiler' }
 DRStackCompilationUnit >> compileInitializePrimitiveTable [
 	"Install the initialize primitive table method in the receiver's JIT compiler class"
 

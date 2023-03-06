@@ -19,7 +19,7 @@ DRStackInterpreterDispatchTableBuilder >> buildInitializePrimitiveTableAssignmen
 				receiver: #self asPCGNode
 				selector: #primitivesClass)
 			selector: #table:from:
-			arguments: { #PrimitiveTable asPCGGlobal . #'self primitiveTableArray' asPCGArgument }
+			arguments: { self buildPrimitiveTableVariableNode . #'self primitiveTableArray' asPCGArgument }
 ]
 
 { #category : #'accessing - building' }

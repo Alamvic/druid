@@ -14,3 +14,8 @@ DRJITCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 		aDRPrimitiveObject argumentCount > 0
 			ifTrue: [ aDRPrimitiveObject argumentCount ] }
 ]
+
+{ #category : #'accessing - compiler' }
+DRJITCompilationUnit >> addSpecialPrimitives [
+	"Private - Do nothing for now"
+]

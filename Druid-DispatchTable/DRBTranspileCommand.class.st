@@ -1,3 +1,7 @@
+"
+When executed this command open a Workspace with the contents of the selected entry translated to C, using the `CCodeGenerator`.
+
+"
 Class {
 	#name : #DRBTranspileCommand,
 	#superclass : #DRDispatchTableMenuCommand,
@@ -22,9 +26,15 @@ DRBTranspileCommand class >> defaultName [
 	^ 'Translate'
 ]
 
+{ #category : #testing }
+DRBTranspileCommand >> canBeExecuted [ 
+
+	^ self entriesTableItems notEmpty
+]
+
 { #category : #executing }
 DRBTranspileCommand >> execute [
-	"Private - Open a Browser on the selected method"
+	"Private - Open a workspace with C code translated from the selected method"
 
 	Smalltalk tools workspace openContents: self translatedEntry surroundedBySingleQuotes
 ]

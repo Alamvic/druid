@@ -1,5 +1,10 @@
 "
-It represents a Unit of compilation (a class).
+Abstract class to provide compilation behavior. Subclasses represents a Unit of compilation (a class), which can be asked for:
+
+- Set a target class and its superclass (`DRCompilationUnit>>#targetClass:`, `DRCompilationUnit>>#targetSuperclass:`)..
+- Adding primitives (`DRCompilationUnit>>#addPrimitiveEntries`, `DRCompilationUnit>>#addPrimitiveEntry:`).
+- Compile added primitives (`DRCompilationUnit>>#compilePrimitive:`, `DRCompilationUnit>>#compileAll`).
+- Configure the primitive table (`DRCompilationUnit>>#initPrimitiveTable`).
 
 "
 Class {
@@ -11,7 +16,8 @@ Class {
 		'interpreter',
 		'dispatchTableBuilder',
 		'primitiveMethods',
-		'targetClass'
+		'targetClass',
+		'targetSuperclass'
 	],
 	#category : #'Druid-InterpreterBuilder'
 }
@@ -19,13 +25,15 @@ Class {
 { #category : #accessing }
 DRCompilationUnit >> addPrimitive: aDRPrimitiveObject [
 
-	self primitives add: aDRPrimitiveObject 
+	self primitives add: aDRPrimitiveObject
 ]
 
 { #category : #'accessing - compiler' }
 DRCompilationUnit >> addPrimitiveEntries [
+	"As part of the build unit, add the receiver's primitives from its <Collection> of <DRPrimitiveObject>"
 
 	self compiler interpreter: self interpreter.
+	self addSpecialPrimitives.
 	self primitives do: [ :primitiveObject |
 		self addPrimitiveEntry: primitiveObject ]
 ]
@@ -37,9 +45,15 @@ DRCompilationUnit >> addPrimitiveEntry: primitiveObject [
 ]
 
 { #category : #accessing }
-DRCompilationUnit >> addPrimitives: aCollection [ 
+DRCompilationUnit >> addPrimitives: aCollection [
 
 	self primitives addAll: aCollection
+]
+
+{ #category : #'accessing - compiler' }
+DRCompilationUnit >> addSpecialPrimitives [
+
+	self subclassResponsibility
 ]
 
 { #category : #'accessing - builder' }
@@ -168,11 +182,22 @@ DRCompilationUnit >> targetClass [
 	"Answer a <Class> which is the where the methods will be stored"
 
 	^ targetClass
-		ifNil: [ targetClass := self newRandomTargetClass ]
 ]
 
 { #category : #accessing }
 DRCompilationUnit >> targetClass: anObject [
 
 	targetClass := anObject
+]
+
+{ #category : #accessing }
+DRCompilationUnit >> targetSuperclass [
+
+	^ targetSuperclass
+]
+
+{ #category : #accessing }
+DRCompilationUnit >> targetSuperclass: anObject [
+
+	targetSuperclass := anObject
 ]

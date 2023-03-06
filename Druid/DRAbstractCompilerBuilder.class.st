@@ -2,16 +2,15 @@ Class {
 	#name : #DRAbstractCompilerBuilder,
 	#superclass : #Object,
 	#instVars : [
-		'compilationUnit',
-		'targetSuperclass'
+		'compilationUnit'
 	],
 	#category : #'Druid-InterpreterBuilder'
 }
 
 { #category : #accessing }
-DRAbstractCompilerBuilder >> addPrimitive: aString to: aDRCompilationUnit [ 
+DRAbstractCompilerBuilder >> addPrimitive: aString to: aDRCompilationUnit [
 
-	(self isValidPrimitiveName: aString) 
+	(self isValidPrimitiveName: aString)
 		ifTrue: [ aDRCompilationUnit addPrimitive: (self newPrimitive: aString) ]
 ]
 
@@ -132,12 +131,11 @@ DRAbstractCompilerBuilder >> newclassPrefix [
 { #category : #accessing }
 DRAbstractCompilerBuilder >> targetSuperclass [
 
-	^ targetSuperclass
-		ifNil: [ targetSuperclass := self defaultTargetSuperclass ]
+	^ self compilationUnit targetSuperclass
 ]
 
 { #category : #accessing }
 DRAbstractCompilerBuilder >> targetSuperclass: anObject [
 
-	targetSuperclass := anObject
+	self compilationUnit targetSuperclass: anObject
 ]

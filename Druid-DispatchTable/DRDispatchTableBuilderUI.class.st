@@ -1,3 +1,13 @@
+"
+Main window for a Dispatch Table builder UI. It allows to filter and select primitive entries from a ""prototype class"" (acting as source of primitive methods), then after specifying the target compilation Interpreter and JIT compiler class to be generated, it will enable a ""Build Dispatch Table"" command `DRBuildTableCommand` to be executed.
+
+To launch the UI evaluate: 
+
+```language=Pharo
+DRDispatchTableApp new start.
+```
+
+"
 Class {
 	#name : #DRDispatchTableBuilderUI,
 	#superclass : #SpPresenter,
@@ -7,7 +17,15 @@ Class {
 		'patternEntryTextPresenter',
 		'dispatchTable',
 		'scanSuperclassesCheckBoxPresenter',
-		'statusBar'
+		'statusBar',
+		'interpreterNameTextEntryPresenter',
+		'jitNameTextEntryPresenter',
+		'selectInterpreterSuperclassButtonPresenter',
+		'selectJITSuperclassButtonPresenter',
+		'interpreterSuperclassNameTextPresenter',
+		'jitSuperclassTextPresenter',
+		'browseButtonPresenter',
+		'patternMatchMethod'
 	],
 	#category : #'Druid-DispatchTable-UI'
 }
@@ -108,13 +126,21 @@ DRDispatchTableBuilderUI >> classPrototypeDropListPresenter: anObject [
 DRDispatchTableBuilderUI >> defaultLayout [
 
 	^ self layout: (SpBoxLayout newTopToBottom
-		add: 'Class Prototype' expand: false;
+
+		add: (SpGridLayout new
+			build: [ :builder | builder
+			add: 'New Interpreter Superclass'; add: interpreterSuperclassNameTextPresenter; add: selectInterpreterSuperclassButtonPresenter; nextRow;
+			add: 'New Interpreter Class Name'; add: interpreterNameTextEntryPresenter span: 2@1; nextRow;
+			add: 'New JIT Superclass'; add: jitSuperclassTextPresenter; add: selectJITSuperclassButtonPresenter; nextRow;
+			add: 'New JIT Class Name'; add: jitNameTextEntryPresenter span: 2@1; nextRow;
+			add: 'Class Prototype'; 	add: classPrototypeDropListPresenter; add: browseButtonPresenter; nextRow ]);
+			yourself;
+		add: scanSuperclassesCheckBoxPresenter expand: false;
 		add: (SpBoxLayout newLeftToRight 
-			add: classPrototypeDropListPresenter;
-			add: scanSuperclassesCheckBoxPresenter;			
+			add: 'Methods Pattern' expand: false;
+			add: patternEntryTextPresenter;
+			add: patternMatchMethod expand: false;
 			yourself) expand: false;
-		add: 'Methods Pattern' expand: false;
-		add: patternEntryTextPresenter expand: false;
 		add: 'Entries' expand: false;
 		add: entriesListPresenter;
 		add: statusBar expand: false;
@@ -149,12 +175,12 @@ DRDispatchTableBuilderUI >> entriesListPresenter: anObject [
 { #category : #initialization }
 DRDispatchTableBuilderUI >> exportMethodDisplay: method [
 
-	^ (method hasPragmaNamed: #export:) 
+	^ (method hasPragmaNamed: #export:)
 		ifTrue: [ (method pragmaAt: #export:) arguments first ]
 		ifFalse: [ 'NA' ]
 ]
 
-{ #category : #updating }
+{ #category : #callbacks }
 DRDispatchTableBuilderUI >> filterEntriesList [
 	" Callback to be executed when the user types in the methods pattern text input "
 
@@ -163,7 +189,7 @@ DRDispatchTableBuilderUI >> filterEntriesList [
 	self updateStatusBar
 ]
 
-{ #category : #updating }
+{ #category : #callbacks }
 DRDispatchTableBuilderUI >> handleEntryChange: selectedMethod [
 	" Do nothing for now "
 
@@ -173,7 +199,7 @@ DRDispatchTableBuilderUI >> handleEntryChange: selectedMethod [
 DRDispatchTableBuilderUI >> initialize [
 
 	super initialize.
-	statusBar pushMessage: self statusBarMessage.
+	statusBar pushMessage: self statusBarMessage
 ]
 
 { #category : #initialization }
@@ -183,10 +209,40 @@ DRDispatchTableBuilderUI >> initializeClassPrototypeSelector [
 		help: 'Select the desired prototype';
 		items: self availableDispatchTablePrototypess;
 		selectItem: self dispatchTable interpreterClass;
-		whenSelectedItemChangedDo: [ : selectedClass | 
+		whenSelectedItemChangedDo: [ : selectedClass |
 			self dispatchTable interpreterClass: selectedClass.
 			self filterEntriesList ];
 		yourself.
+	browseButtonPresenter := self newButton
+		label: 'Browse';
+		action: [ Smalltalk tools browser openOnClass: classPrototypeDropListPresenter selectedItem  ]
+]
+
+{ #category : #initialization }
+DRDispatchTableBuilderUI >> initializeConfigPresenters [
+
+	interpreterNameTextEntryPresenter := self newTextInput
+		placeholder: 'DRMyInterpreterClass';
+		autoAccept: true;
+		yourself.
+	jitNameTextEntryPresenter := self newTextInput
+		placeholder: 'DRMyJITClass';
+		autoAccept: true;
+		yourself.
+	jitSuperclassTextPresenter := self newTextInput
+		placeholder: 'StackToRegisterMapping';
+		autoAccept: true;
+		yourself.
+	interpreterSuperclassNameTextPresenter := self newTextInput
+		placeholder: 'StackInterpreter';
+		autoAccept: true;
+		yourself.
+	selectInterpreterSuperclassButtonPresenter := self newButton label: 'Select';
+		action: [ self openInterpreterSuperclassSelector ];
+		yourself.
+	selectJITSuperclassButtonPresenter := self newButton label: 'Select';
+		action: [ self openJITSuperclassSelector ];
+		yourself
 ]
 
 { #category : #initialization }
@@ -196,8 +252,8 @@ DRDispatchTableBuilderUI >> initializeEntriesPresenter [
 			addColumn: (SpCheckBoxTableColumn new
 				title: '';
 				evaluated: [ : entry | self selectedEntries includes: entry ];
-				onActivation: [ : entry | self selectedEntries add: entry ];
-				onDeactivation: [ : entry | self selectedEntries remove: entry ];
+				onActivation: [ : entry | self selectedEntries add: entry. self updateStatusBar];
+				onDeactivation: [ : entry | self selectedEntries remove: entry. self updateStatusBar ];
 			beNotExpandable;
 			width: 20;
 			yourself);
@@ -253,15 +309,32 @@ DRDispatchTableBuilderUI >> initializePatternEntryInput [
 ]
 
 { #category : #initialization }
+DRDispatchTableBuilderUI >> initializePatternEntryOptions [
+
+	patternEntryTextPresenter := self newTextInput
+		placeholder: 'primitiveAdd | .*Add';
+		whenTextChangedDo: [ self filterEntriesList ];
+		yourself.
+	patternMatchMethod := self newCheckBox
+		label: 'Use RegEx';
+		state: false;
+		whenChangedDo: [ : r |
+			r
+				ifTrue: [ 	self dispatchTable matchMethod: #matchesRegex: ]
+				ifFalse: [ self dispatchTable matchMethod: nil ] ]
+]
+
+{ #category : #initialization }
 DRDispatchTableBuilderUI >> initializePresenters [
 
 	super initializePresenters.
 	self
 		initializeScanSuperclassPresenter;
 		initializeEntriesPresenter;
+		initializeConfigPresenters;
 		initializeStatusbar;
 		initializeClassPrototypeSelector;
-		initializePatternEntryInput
+		initializePatternEntryOptions
 ]
 
 { #category : #initialization }
@@ -271,7 +344,7 @@ DRDispatchTableBuilderUI >> initializeScanSuperclassPresenter [
 		label: 'Scan superclasses';
 		state: self dispatchTable scanSuperclasses;
 		whenChangedDo: [ : v | self updateEntries ]
-		yourself.
+		yourself
 ]
 
 { #category : #initialization }
@@ -283,9 +356,75 @@ DRDispatchTableBuilderUI >> initializeStatusbar [
 { #category : #initialization }
 DRDispatchTableBuilderUI >> inlineMethodDisplay: method [
 
-	^ (method hasPragmaNamed: #inline:) 
+	^ (method hasPragmaNamed: #inline:)
 		ifTrue: [ (method pragmaAt: #inline:) arguments first ]
 		ifFalse: [ 'NA' ]
+]
+
+{ #category : #accessing }
+DRDispatchTableBuilderUI >> interpreterNameTextEntryPresenter [
+
+	^ interpreterNameTextEntryPresenter
+]
+
+{ #category : #accessing }
+DRDispatchTableBuilderUI >> interpreterNameTextEntryPresenter: anObject [
+
+	interpreterNameTextEntryPresenter := anObject
+]
+
+{ #category : #accessing }
+DRDispatchTableBuilderUI >> interpreterSuperclassNameTextPresenter [
+
+	^ interpreterSuperclassNameTextPresenter
+]
+
+{ #category : #accessing }
+DRDispatchTableBuilderUI >> jitNameTextEntryPresenter [
+
+	^ jitNameTextEntryPresenter
+]
+
+{ #category : #accessing }
+DRDispatchTableBuilderUI >> jitNameTextEntryPresenter: anObject [
+
+	jitNameTextEntryPresenter := anObject
+]
+
+{ #category : #accessing }
+DRDispatchTableBuilderUI >> jitSuperclassTextPresenter [
+
+	^ jitSuperclassTextPresenter
+]
+
+{ #category : #callbacks }
+DRDispatchTableBuilderUI >> openInterpreterSuperclassSelector [
+
+	| selection |
+
+	(DRDispatchTableSuperclassSelectorUI on: AbstractInterpreter)
+		title: 'Select Interpreter Superclass';
+		label: 'Select a class';
+		onAccept: [ :dialog | selection := dialog presenter classHierarchyPresenter selectedItem ];
+		openModal.
+	selection
+		ifNotNil: [ interpreterSuperclassNameTextPresenter text: selection name ]
+		ifNil: [ interpreterSuperclassNameTextPresenter text: String empty ]
+]
+
+{ #category : #callbacks }
+DRDispatchTableBuilderUI >> openJITSuperclassSelector [
+
+	| selection |
+
+	(DRDispatchTableSuperclassSelectorUI on: StackToRegisterMappingCogit)
+		title: 'Select JIT Superclass';
+		label: 'Select a class';
+		onAccept: [ :dialog | selection := dialog presenter classHierarchyPresenter selectedItem ];
+		openModal.
+	selection
+		ifNotNil: [ jitSuperclassTextPresenter text: selection name ]
+		ifNil: [ jitSuperclassTextPresenter text: String empty ]
 ]
 
 { #category : #accessing }
@@ -337,14 +476,14 @@ DRDispatchTableBuilderUI >> statusBarMessage [
 			selectedEntriesCount asString }
 ]
 
-{ #category : #updating }
+{ #category : #callbacks }
 DRDispatchTableBuilderUI >> updateEntries [
 
 	self dispatchTable scanSuperclasses: scanSuperclassesCheckBoxPresenter state.
 	self filterEntriesList
 ]
 
-{ #category : #updating }
+{ #category : #callbacks }
 DRDispatchTableBuilderUI >> updateStatusBar [
 
 	statusBar pushMessage: self statusBarMessage.

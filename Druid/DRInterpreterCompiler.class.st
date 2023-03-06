@@ -131,6 +131,17 @@ DRInterpreterCompiler >> generateBuildModelAndCompileIn: aClass [
 		compileAll
 ]
 
+{ #category : #'accessing - model' }
+DRInterpreterCompiler >> generateBuildModelAndCompileIn: aClass superclass: aSuperclass [
+	"Generate and install the receiver's primitives into JIT compiler aClass"
+
+	self generateBuildModel
+		interpreter: interpreter;
+		targetSuperclass: (self environmentAt: aSuperclass);
+		targetClass: (self environmentAt: aClass);
+		compileAll
+]
+
 { #category : #accessing }
 DRInterpreterCompiler >> generateIRAndCompileIn: aClass [
 	"Generate and install the receiver's primitives into JIT compiler aClass"
@@ -193,7 +204,7 @@ DRInterpreterCompiler >> newInterpreter [
 		initializeWithOptions: self initializationOptions
 		objectMemoryClass: memory class.
 
-	^ interpreterBuilder basicNew
+	^ interpreterBuilder newInterpreter
 			objectMemory: memory;
 			yourself
 		  " basicInitialize"

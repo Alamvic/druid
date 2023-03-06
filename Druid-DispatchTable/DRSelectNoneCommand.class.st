@@ -1,3 +1,6 @@
+"
+When executed, this command will unselect previously selected entries in the UI.
+"
 Class {
 	#name : #DRSelectNoneCommand,
 	#superclass : #DRDispatchTableMenuCommand,
@@ -20,6 +23,12 @@ DRSelectNoneCommand class >> defaultIconName [
 DRSelectNoneCommand class >> defaultName [
 
 	^ 'Select None'
+]
+
+{ #category : #testing }
+DRSelectNoneCommand >> canBeExecuted [ 
+
+	^ self entriesTableItems notEmpty
 ]
 
 { #category : #executing }

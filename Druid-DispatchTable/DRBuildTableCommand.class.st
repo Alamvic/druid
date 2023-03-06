@@ -1,3 +1,7 @@
+"
+When executed, this command builds an Interpreter subclass and a JIT Compiler Class, for the selected entries (primitives), using the values (class names and superclasses) supplied by the user in the UI.
+
+"
 Class {
 	#name : #DRBuildTableCommand,
 	#superclass : #DRDispatchTableMenuCommand,
@@ -26,22 +30,45 @@ DRBuildTableCommand class >> defaultName [
 DRBuildTableCommand >> canBeExecuted [
 	" Receiver can be executed if there are selections "
 
-	^ self application selectedEntries notEmpty
+	^ self application selectedEntries notEmpty and: [ self requiredEntriesNotEmpty ]
+]
+
+{ #category : #executing }
+DRBuildTableCommand >> createInterpreterBuilder [
+
+	| superClass interpreterBuilder compilationUnit |
+
+	superClass := self interpreterSuperclassName
+		ifEmpty: [ StackInterpreter ]
+		ifNotEmpty: [ : superClassName | (self class environment at: superClassName) ].
+	interpreterBuilder := self interpreterClassName
+		  ifEmpty: [  DRInterpreterBuilder forRandomInterpreterWithSuperclass: superClass ]
+		  ifNotEmpty: [ :interpreterName |
+			  DRInterpreterBuilder
+				  forInterpreter: interpreterName
+				  superclass: superClass ].
+
+	interpreterBuilder primitives: self selectedEntries asArray.
+	compilationUnit := interpreterBuilder generateBuildModel.
+	compilationUnit compileInitializePrimitiveTable.
+	^ interpreterBuilder
 ]
 
 { #category : #executing }
 DRBuildTableCommand >> execute [
-	"Private - Open a builder UI on the selected entries"
+	"Private - Generate the interpreter and JIT classes using the selected entries"
 
-	| selection |
+	| interpreterBuilder |
+	
+	interpreterBuilder := self createInterpreterBuilder.
 
-	DRDispatchTableSuperclassSelectorUI 	new
-		title: 'Select Interpreter Superclass';
-		label: 'Select a class';
-		onAccept: [ :dialog | selection := dialog presenter classHierarchyPresenter selectedItem ];
-		openModal.
-	selection ifNil: [ ^ self ].
-	self executeForInterpreterSuperclass: selection
+	(DRInterpreterCompiler fromInterpreter: interpreterBuilder)
+		generateBuildModelAndCompileIn: self jitClassName
+		superclass: self jitSuperclassName.
+
+	Smalltalk tools browser openOnClass: (self class environment at: self jitClassName asSymbol).
+	Smalltalk tools browser openOnClass: (self class environment at: self interpreterClassName asSymbol).
+
 ]
 
 { #category : #accessing }
@@ -70,4 +97,14 @@ DRBuildTableCommand >> newRandomInterpreterClassName [
 		stream 
 			<< #DRInterpreter;
 			<< (UUIDGenerator next asString copyUpTo: $-) ]
+]
+
+{ #category : #testing }
+DRBuildTableCommand >> requiredEntriesNotEmpty [
+	"Answer <true> if the required class names presenters has values"
+
+	^ { self interpreterClassName .
+		self interpreterSuperclassName .
+		self jitClassName .
+		self jitSuperclassName } allSatisfy: #notEmpty
 ]

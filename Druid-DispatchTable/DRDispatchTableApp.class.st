@@ -41,9 +41,9 @@ DRDispatchTableApp >> selectedEntries: aCollection [
 		put: aCollection asSet
 ]
 
-{ #category : #accessing }
+{ #category : #running }
 DRDispatchTableApp >> start [
 	" Private - See superimplementor's comment "
 
-	(DRDispatchTableBuilderUI newApplication: self) open.
+	(DRDispatchTableBuilderUI newApplication: self) open
 ]

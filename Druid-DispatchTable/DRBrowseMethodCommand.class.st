@@ -1,3 +1,6 @@
+"
+When executed, this command open a class hierarchy browser on the selected entry.
+"
 Class {
 	#name : #DRBrowseMethodCommand,
 	#superclass : #DRDispatchTableMenuCommand,
@@ -20,6 +23,12 @@ DRBrowseMethodCommand class >> defaultIconName [
 DRBrowseMethodCommand class >> defaultName [
 
 	^ 'Browse'
+]
+
+{ #category : #testing }
+DRBrowseMethodCommand >> canBeExecuted [
+
+	^ self entriesTableItems notEmpty
 ]
 
 { #category : #executing }

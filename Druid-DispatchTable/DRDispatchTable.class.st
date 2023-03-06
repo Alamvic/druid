@@ -6,7 +6,8 @@ Class {
 		'primitives',
 		'scanSuperclasses',
 		'allowDuplicates',
-		'excludeObjectClass'
+		'excludeObjectClass',
+		'matchMethod'
 	],
 	#category : #'Druid-DispatchTable-Model'
 }
@@ -65,7 +66,7 @@ DRDispatchTable >> allMethodsMatching: aString [
 	lookupClass := self interpreterClass.
 	allSelectors := self collectorClass new.
 	[ self finishScanIn: lookupClass ] whileFalse: [
-		allSelectors addAll: (lookupClass methods select: [ : method | method selector beginsWith: aString ]).
+		allSelectors addAll: (lookupClass methods select: [ : method |  method selector perform: self matchMethod with: aString ]).
 		lookupClass := lookupClass superclass ].
 	^ allSelectors
 ]
@@ -101,6 +102,12 @@ DRDispatchTable >> collectorClass [
 	^ self allowDuplicates
 		ifTrue: [ Bag ]
 		ifFalse: [ OrderedCollection ]
+]
+
+{ #category : #accessing }
+DRDispatchTable >> defaultMatchMethod [
+
+	^ #beginsWith:
 ]
 
 { #category : #private }
@@ -148,6 +155,20 @@ DRDispatchTable >> interpreterProtocol [
 	^ self interpreterClass organization protocolOrganizer
 ]
 
+{ #category : #accessing }
+DRDispatchTable >> matchMethod [
+	"Answer a <Symbol> representing the selector used to compare against the primitive selectors"
+
+	^ matchMethod
+		ifNil: [ matchMethod := self defaultMatchMethod ]
+]
+
+{ #category : #accessing }
+DRDispatchTable >> matchMethod: anObject [
+
+	matchMethod := anObject
+]
+
 { #category : #querying }
 DRDispatchTable >> methodsFromPattern: aString [
 	"Answer a <Collection> of selectors begining with aString"
@@ -163,7 +184,7 @@ DRDispatchTable >> methodsMatching: aString [
 	"Answer a <Collection> of selectors begining with aString"
 
 	^ self interpreterClass methods
-		select: [ : method | method selector beginsWith: aString ]
+		select: [ : method | method selector perform: self matchMethod with: aString ]
 ]
 
 { #category : #accessing }

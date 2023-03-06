@@ -23,7 +23,7 @@ DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableAssignmentNode [
 	^ PCGMessageNode
 			receiver: #self asPCGNode
 			selector: #table:from:
-			arguments: { #primitiveTable asPCGArgument . #'self primitiveTableArray' asPCGArgument }
+			arguments: { self buildPrimitiveTableVariableNode . #'self primitiveTableArray' asPCGArgument }
 ]
 
 { #category : #'accessing - building' }

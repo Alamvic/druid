@@ -1,3 +1,6 @@
+"
+When executed, this command will select all the entries in the UI.
+"
 Class {
 	#name : #DRSelectAllCommand,
 	#superclass : #DRDispatchTableMenuCommand,
