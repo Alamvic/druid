@@ -131,8 +131,8 @@ DRCogitPrimitiveInstaller >> installAllMethodsOn: aJITCompilerClass [
 { #category : #accessing }
 DRCogitPrimitiveInstaller >> maxCompiledPrimitives [
 	"Answer the <Number> of compiled primitives in the receiver"
-	
-	^ self primTableNode maxCompiledPrimitives
+
+	^ (self primTableNode statements detect: #isReturn) value statements size
 ]
 
 { #category : #accessing }
