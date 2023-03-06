@@ -81,6 +81,7 @@ DRSSAPRETest >> testPhiInsertionInConditionalCase1 [
 	b3 := cfg b3.
 
    instruction := b2 copy: 3.
+	b2 removePredecessor: b1.
 	b1 jumpIfTrueTo: b2 ifFalseTo: b3.
 
 	optimisation insertPhi: cfg.
