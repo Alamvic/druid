@@ -13,7 +13,7 @@ DRPrimitiveCompilerCompilerCollectorTest >> setUp [
 	super setUp.
 	StackInterpreter initializePrimitiveTable.
 	interpreterCompiler := (DRInterpreterCompiler
-			fromInterpreter: (DRDummyInterpreter new primitives: DRBasicCogInterpreterArithmeticPrimitives primitiveTable)
+			fromInterpreter: interpreterBuilder
 			compilerClass: DRPrimitiveCompilerCompilerCollector).
 	compilationUnit := interpreterCompiler generateBuildModel
 ]
@@ -54,6 +54,5 @@ DRPrimitiveCompilerCompilerCollectorTest >> testFailedPrimitivesCollection [
 { #category : #initialization }
 DRPrimitiveCompilerCompilerCollectorTest >> testObtainCompilationUnit [
 
-	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
 	self assert: interpreterCompiler generateBuildModel notNil
 ]

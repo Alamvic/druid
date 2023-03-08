@@ -1,3 +1,55 @@
+"
+Implements a model for a dispatch table which provides:
+
+- Specifying a `Collection` of primitives to work with: 
+  - `DRDispatchTable>>#primitives:`
+  - Primitives from a ""source"" class `interpreterClass:` and `DRDispatchTable>>addFromProtocol:` 
+- A protocol to search and filter primitives:
+  - `allSelectorsMatching:` , `allMethodsMatching:`.
+- Generation of the table in a class passed as parameter. `DRDispatchTable>>#generateInterpreterTableIn:` 
+
+## Filtering
+
+To filter primitives by name, one could specify the method of matching, currently supported:
+
+- #beginsWith: _(default)_
+- #matchesRegex:
+
+## Examples
+
+```smalltalk
+
+| dTable |
+""Instantiate a dispatch table for primitives in the Stack Interpreter""
+dTable := DRDispatchTable for: StackInterpreterPrimitives.
+
+""Query and get a Collection with all the primitives starting with 'prim'""
+dTable selectorsMatching: 'prim'.
+
+""Query primitives ending with 'Add'""
+dTable useRegEx.
+dTable selectorsMatching: '.*Add'.
+
+""Add primitives to the receiver from a protocol""
+dTable addFromProtocol: 'arithmetic float primitives'.
+dTable primitives.
+
+```
+
+
+Internal Representation and Key Implementation Points.
+
+    Instance Variables
+	allowDuplicates:		<Object>
+	excludeObjectClass:		<Object>
+	interpreterClass:		<Object>
+	matchMethod:		<Object>
+	primitives:		<Object>
+	scanSuperclasses:		<Object>
+
+
+    Implementation Points
+"
 Class {
 	#name : #DRDispatchTable,
 	#superclass : #Object,
@@ -21,7 +73,7 @@ DRDispatchTable class >> example [
 	dispatchTable := DRDispatchTable for: StackInterpreterPrimitives.
 	dispatchTable := DRDispatchTable for: StackInterpreter.
 	"dispatchTable := DRDispatchTable for: CoInterpreter." 
-	dispatchTable selectorsFromPattern: 'prim'.
+	dispatchTable addFromSelectorPattern: 'prim'.
 	dispatchTable addFromProtocol: ''.
 	dispatchTable addFromProtocol: 'arithmetic float primitives'.
 	dispatchTable addFromProtocols: #(
@@ -58,7 +110,17 @@ DRDispatchTable >> addFromProtocols: aCollectionOfProtocolNames [
 		displayingProgress: [ : name | 'Adding primitives in ' , name ]
 ]
 
-{ #category : #private }
+{ #category : #querying }
+DRDispatchTable >> addFromSelectorPattern: aString [
+	"Answer a <Collection> of selectors begining with aString"
+
+	aString ifEmpty: [ ^ Array empty ].
+	^ self primitives addAll: (self scanSuperclasses
+		ifTrue: [ self allSelectorsMatching: aString ]
+		ifFalse: [ self selectorsMatching: aString ])
+]
+
+{ #category : #'accessing - query' }
 DRDispatchTable >> allMethodsMatching: aString [
 	"Answer a <Collection> of <CompilerMethod> beginning with aString, looking up the pattern in the receiver's interpreter class methodDictionary, chase the superclass chain and try again until no method is found."
 
@@ -71,7 +133,7 @@ DRDispatchTable >> allMethodsMatching: aString [
 	^ allSelectors
 ]
 
-{ #category : #private }
+{ #category : #'accessing - query' }
 DRDispatchTable >> allSelectorsMatching: aString [
 	"Answer a <Collection> of selectors begining with aString, looking up the pattern in the receiver's interpreter class methodDictionary, chase the superclass chain and try again until no method is found."
 
@@ -104,7 +166,7 @@ DRDispatchTable >> collectorClass [
 		ifFalse: [ OrderedCollection ]
 ]
 
-{ #category : #accessing }
+{ #category : #defaults }
 DRDispatchTable >> defaultMatchMethod [
 
 	^ #beginsWith:
@@ -148,14 +210,14 @@ DRDispatchTable >> interpreterClass: anObject [
 	interpreterClass := anObject
 ]
 
-{ #category : #accessing }
+{ #category : #private }
 DRDispatchTable >> interpreterProtocol [
 	" Answer the <ProtocolOrganizer> for the receiver's interpreter "
 
 	^ self interpreterClass organization protocolOrganizer
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing - query' }
 DRDispatchTable >> matchMethod [
 	"Answer a <Symbol> representing the selector used to compare against the primitive selectors"
 
@@ -163,7 +225,7 @@ DRDispatchTable >> matchMethod [
 		ifNil: [ matchMethod := self defaultMatchMethod ]
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing - query' }
 DRDispatchTable >> matchMethod: anObject [
 
 	matchMethod := anObject
@@ -179,7 +241,7 @@ DRDispatchTable >> methodsFromPattern: aString [
 		ifFalse: [ self methodsMatching: aString ])
 ]
 
-{ #category : #private }
+{ #category : #'accessing - query' }
 DRDispatchTable >> methodsMatching: aString [
 	"Answer a <Collection> of selectors begining with aString"
 
@@ -213,20 +275,24 @@ DRDispatchTable >> scanSuperclasses: anObject [
 	scanSuperclasses := anObject
 ]
 
-{ #category : #querying }
-DRDispatchTable >> selectorsFromPattern: aString [
-	"Answer a <Collection> of selectors begining with aString"
-
-	aString ifEmpty: [ ^ Array empty ].
-	^ self primitives addAll: (self scanSuperclasses
-		ifTrue: [ self allSelectorsMatching: aString ]
-		ifFalse: [ self selectorsMatching: aString ])
-]
-
-{ #category : #private }
+{ #category : #'accessing - query' }
 DRDispatchTable >> selectorsMatching: aString [
 	"Answer a <Collection> of selectors begining with aString"
 
 	^ self interpreterClass selectors
 		select: [ : selector | selector beginsWith: aString ]
+]
+
+{ #category : #'accessing - query' }
+DRDispatchTable >> useBeginsWith [
+	"Set the receiver to use regular expressions to match queries"
+	
+	self matchMethod: #beginsWith:
+]
+
+{ #category : #'accessing - query' }
+DRDispatchTable >> useRegEx [
+	"Set the receiver to use regular expressions to match queries"
+	
+	self matchMethod: #matchesRegex:
 ]

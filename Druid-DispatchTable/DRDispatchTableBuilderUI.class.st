@@ -320,8 +320,8 @@ DRDispatchTableBuilderUI >> initializePatternEntryOptions [
 		state: false;
 		whenChangedDo: [ : r |
 			r
-				ifTrue: [ 	self dispatchTable matchMethod: #matchesRegex: ]
-				ifFalse: [ self dispatchTable matchMethod: nil ] ]
+				ifTrue: [ 	self dispatchTable useRegEx ]
+				ifFalse: [ self dispatchTable useBeginsWith ] ]
 ]
 
 { #category : #initialization }
