@@ -2,7 +2,7 @@
 A DRCogitPrimitiveDumperTest is a test class for testing the behavior of DRCogitPrimitiveDumper
 "
 Class {
-	#name : #DRCogitPrimitiveInstallerTest,
+	#name : #DRDispatchTableBuilderTest,
 	#superclass : #DRAbstractMockTest,
 	#instVars : [
 		'primitiveMethodInstaller'
@@ -11,7 +11,7 @@ Class {
 }
 
 { #category : #running }
-DRCogitPrimitiveInstallerTest >> compilationUnitForTesting [
+DRDispatchTableBuilderTest >> compilationUnitForTesting [
 
 	^ DRCompilationUnit new
 		targetClass: self testingJITCompilerClass;
@@ -19,22 +19,15 @@ DRCogitPrimitiveInstallerTest >> compilationUnitForTesting [
 ]
 
 { #category : #running }
-DRCogitPrimitiveInstallerTest >> setUp [
+DRDispatchTableBuilderTest >> setUp [
 
 	super setUp.
 	interpreter :=	DRInterpreterCompiler fromInterpreter: (self interpreterWith: #(#primitiveAdd #primitiveEqual)).
-	primitiveMethodInstaller := DRCogitDispatchTableBuilder primitiveTableMethodFrom: self compilationUnitForTesting.
-
-]
-
-{ #category : #running }
-DRCogitPrimitiveInstallerTest >> tearDown [
-
-	testingEnvironment removeClassNamed: self testingJITCompilerClass name
+	primitiveMethodInstaller := DRCogitDispatchTableBuilder primitiveTableMethodFrom: self compilationUnitForTesting
 ]
 
 { #category : #tests }
-DRCogitPrimitiveInstallerTest >> testCollectAllMethodsOn [
+DRDispatchTableBuilderTest >> testCollectAllMethodsOn [
 
 	| pcgMethodNodes |
 	self assert: primitiveMethodInstaller initPrimitiveTable isEmpty.
@@ -45,7 +38,7 @@ DRCogitPrimitiveInstallerTest >> testCollectAllMethodsOn [
 ]
 
 { #category : #initialization }
-DRCogitPrimitiveInstallerTest >> testingJITCompilerClass [
+DRDispatchTableBuilderTest >> testingJITCompilerClass [
 
 	^ interpreter environmentAt: super testingJITCompilerClass
 ]

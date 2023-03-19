@@ -32,7 +32,7 @@ DRAbstractMockTest >> setUp [
 { #category : #running }
 DRAbstractMockTest >> tearDown [
 
-	testingEnvironment removeClassNamed: self testingJITCompilerClass.
+	testingEnvironment removeClassNamed: self testingJITCompilerClass name.
 	super tearDown
 ]
 

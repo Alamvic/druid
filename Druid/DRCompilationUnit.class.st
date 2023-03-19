@@ -116,7 +116,7 @@ DRCompilationUnit >> compiler [
 
 { #category : #private }
 DRCompilationUnit >> dispatchTableBuilder [
-	"Answer a <PCGMethodNode> representing the source code of the #initializePrimitiveTable compatible with Cogit"
+	" Answer a <PCGMethodNode> representing the source code of the #initializePrimitiveTable compatible with Cogit "
 
 	^ dispatchTableBuilder
 		ifNil: [ dispatchTableBuilder := DRCogitDispatchTableBuilder primitiveTableMethodFrom: self ]
@@ -124,7 +124,7 @@ DRCompilationUnit >> dispatchTableBuilder [
 
 { #category : #private }
 DRCompilationUnit >> dispatchTableBuilder: aDRDispatchTableBuilder [
-	"Set aDRDispatchTableBuilder to the receiver's dispatch table builder"
+	" Set aDRDispatchTableBuilder to the receiver's dispatch table builder "
 
 	dispatchTableBuilder := aDRDispatchTableBuilder
 ]
@@ -158,15 +158,16 @@ DRCompilationUnit >> interpreter: aDRBasicInterpreter [
 
 { #category : #accessing }
 DRCompilationUnit >> primitiveMethods [
+	" Answer a <Collection> of <CompiledMethod> including primitives "
 
 	^ primitiveMethods
 		ifNil: [ primitiveMethods := OrderedCollection new ]
 ]
 
 { #category : #accessing }
-DRCompilationUnit >> primitiveMethods: anObject [
+DRCompilationUnit >> primitiveMethods: aCollection [
 
-	primitiveMethods := anObject
+	primitiveMethods := aCollection
 ]
 
 { #category : #accessing }
@@ -179,25 +180,26 @@ DRCompilationUnit >> primitives [
 
 { #category : #accessing }
 DRCompilationUnit >> targetClass [
-	"Answer a <Class> which is the where the methods will be stored"
+	" Answer a <Class> which is the where the methods will be stored "
 
 	^ targetClass
 ]
 
 { #category : #accessing }
-DRCompilationUnit >> targetClass: anObject [
+DRCompilationUnit >> targetClass: aClass [
 
-	targetClass := anObject
+	targetClass := aClass
 ]
 
 { #category : #accessing }
 DRCompilationUnit >> targetSuperclass [
+	" Answer a <Class> acting as the receiver's superclass for compilation "
 
 	^ targetSuperclass
 ]
 
 { #category : #accessing }
-DRCompilationUnit >> targetSuperclass: anObject [
+DRCompilationUnit >> targetSuperclass: aClass [
 
-	targetSuperclass := anObject
+	targetSuperclass := aClass
 ]

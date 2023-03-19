@@ -26,7 +26,7 @@ DRStackCompilationUnit >> compileInitializePrimitiveTable [
 	"Install the initialize primitive table method in the receiver's JIT compiler class"
 
 	self addPrimitiveEntries.
-	self dispatchTableBuilder 
+	self dispatchTableBuilder
 		primitiveSpec: initPrimitiveTable;
 		installAllMethodsOn: self targetClass class
 ]

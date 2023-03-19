@@ -277,10 +277,10 @@ DRDispatchTable >> scanSuperclasses: anObject [
 
 { #category : #'accessing - query' }
 DRDispatchTable >> selectorsMatching: aString [
-	"Answer a <Collection> of selectors begining with aString"
+	"Answer a <Collection> of selectors matching aString according to the receiver's match method"
 
 	^ self interpreterClass selectors
-		select: [ : selector | selector beginsWith: aString ]
+		select: [ : selector | selector perform: self matchMethod with: aString ]
 ]
 
 { #category : #'accessing - query' }

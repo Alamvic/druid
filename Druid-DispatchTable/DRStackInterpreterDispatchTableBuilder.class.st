@@ -15,14 +15,14 @@ DRStackInterpreterDispatchTableBuilder >> buildInitializePrimitiveTableAssignmen
 	"Answer a <PCGMessageNode> with the primitive table initialization setter message send"
 
 	^ PCGMessageNode
-			receiver: (PCGMessageNode 
+			receiver: (PCGMessageNode
 				receiver: #self asPCGNode
 				selector: #primitivesClass)
 			selector: #table:from:
 			arguments: { self buildPrimitiveTableVariableNode . #'self primitiveTableArray' asPCGArgument }
 ]
 
-{ #category : #'accessing - building' }
+{ #category : #accessing }
 DRStackInterpreterDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
 
 	^ PCGMessageNode
@@ -54,7 +54,7 @@ DRStackInterpreterDispatchTableBuilder >> initPrimitiveTableSelector [
 ]
 
 { #category : #accessing }
-DRStackInterpreterDispatchTableBuilder >> maxPrimitiveIndexGlobalName [ 
+DRStackInterpreterDispatchTableBuilder >> maxPrimitiveIndexGlobalName [
 
 	^ #MaxPrimitiveIndex
 ]

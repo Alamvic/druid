@@ -42,7 +42,7 @@ DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableArrayMethodNode [
 { #category : #'accessing - building' }
 DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableAssignmentNode [
 
-	self subclassResponsibility 
+	self subclassResponsibility
 ]
 
 { #category : #'accessing - building' }
@@ -116,7 +116,7 @@ DRAbstractDispatchTableBuilder >> initPrimitiveTable [
 { #category : #'accessing - building' }
 DRAbstractDispatchTableBuilder >> initPrimitiveTableSelector [
 
-	self subclassResponsibility 
+	self subclassResponsibility
 ]
 
 { #category : #'accessing - installation' }

@@ -74,6 +74,15 @@ DRInterpreterCompiler class >> fromInterpreter: anInterpreterBuilder compilerCla
 ]
 
 { #category : #'accessing - primitives' }
+DRInterpreterCompiler >> addPrimitive: aString to: aDRCompilationUnit [
+
+	aString isInteger ifFalse: [
+		((interpreter class lookupSelector: aString) hasPragmaNamed:
+			 #numberOfArguments:) ifTrue: [
+			aDRCompilationUnit addPrimitive: (self newPrimitive: aString) ] ]
+]
+
+{ #category : #'accessing - primitives' }
 DRInterpreterCompiler >> collectPrimitives [
 	"Trace receiver's interpreter primitives and collect compilation results.
 	See implementors of #handlePrimitiveCompilationFor: "
@@ -218,7 +227,7 @@ DRInterpreterCompiler >> newMemory [
 	^ Spur64BitCoMemoryManager simulatorClass new
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing - primitives' }
 DRInterpreterCompiler >> newPrimitive: aString [
 	" Answer a new primitive object with its metadata and CFG generated "
 
