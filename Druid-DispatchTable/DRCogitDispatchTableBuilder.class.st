@@ -26,14 +26,14 @@ DRCogitDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
 	^ PCGMessageNode
 		receiver: self arrayAccessorGlobalName asPCGGlobal
 		selector: #on:
-		arguments:
+		argument:
 			(PCGMessageNode
 				receiver: #Array asPCGGlobal
 				selector: #new:
-				arguments: (PCGMessageNode
+				argument: (PCGMessageNode
 					receiver: self maxPrimitiveIndexGlobalName asPCGGlobal
 					selector: #+
-					arguments: { 1 asPCG }) )
+					arguments: { 1 asPCG }))
 ]
 
 { #category : #'accessing - building' }

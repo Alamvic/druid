@@ -5,7 +5,7 @@ Class {
 	#name : #DRDispatchTableBuilderTest,
 	#superclass : #DRAbstractMockTest,
 	#instVars : [
-		'primitiveMethodInstaller'
+		'dispatchTableBuilder'
 	],
 	#category : #'Druid-Tests-CompilerCompiler'
 }
@@ -23,15 +23,15 @@ DRDispatchTableBuilderTest >> setUp [
 
 	super setUp.
 	interpreter :=	DRInterpreterCompiler fromInterpreter: (self interpreterWith: #(#primitiveAdd #primitiveEqual)).
-	primitiveMethodInstaller := DRCogitDispatchTableBuilder primitiveTableMethodFrom: self compilationUnitForTesting
+	dispatchTableBuilder := DRCogitDispatchTableBuilder primitiveTableMethodFrom: self compilationUnitForTesting
 ]
 
 { #category : #tests }
 DRDispatchTableBuilderTest >> testCollectAllMethodsOn [
 
 	| pcgMethodNodes |
-	self assert: primitiveMethodInstaller initPrimitiveTable isEmpty.
-	pcgMethodNodes := primitiveMethodInstaller collectAllMethodsOn: self testingJITCompilerClass class.
+	self assert: dispatchTableBuilder initPrimitiveTable isEmpty.
+	pcgMethodNodes := dispatchTableBuilder collectAllMethodsOn: self testingJITCompilerClass class.
 	self
 		assertCollection: (pcgMethodNodes collect: #selector)
 		hasSameElements: #(primitiveTableArray initializePrimitiveTable)

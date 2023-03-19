@@ -28,7 +28,7 @@ DRStackInterpreterDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
 	^ PCGMessageNode
 			receiver: #Array asPCGGlobal
 			selector: #new:
-			arguments: (PCGMessageNode
+			argument: (PCGMessageNode
 				receiver: self maxPrimitiveIndexGlobalName asPCGGlobal
 				selector: #+
 				arguments: { 1 asPCG })
