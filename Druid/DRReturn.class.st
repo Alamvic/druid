@@ -32,6 +32,12 @@ DRReturn >> isMandatoryInstruction [
 	^ true
 ]
 
+{ #category : #testing }
+DRReturn >> isReturn [
+
+	^ true
+]
+
 { #category : #printing }
 DRReturn >> opcode [
 	
@@ -43,4 +49,10 @@ DRReturn >> sccpLatticeValueFor: sccp [
 	
 	"This instruction has no value"
 	^ sccp bottom
+]
+
+{ #category : #testing }
+DRReturn >> supportConstantOperand [
+
+	^ false
 ]

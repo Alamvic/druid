@@ -1,8 +1,14 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
-	#superclass : #DRMetaCompilerIRGenerator,
-	#category : #'Druid-BytecodeToJITCompilation'
+	#superclass : #DRPrimitiveIRGenerator,
+	#category : #'Druid-CompilerCompiler'
 }
+
+{ #category : #visiting }
+DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
+
+	self spillStack
+]
 
 { #category : #accessing }
 DRBytecodeIRGenerator >> initialize [
@@ -243,6 +249,10 @@ DRBytecodeIRGenerator >> push: aValue [
 	^ self popOperand
 ]
 
+{ #category : #accessing }
+DRBytecodeIRGenerator >> receiver: aDRValue [
+]
+
 { #category : #visiting }
 DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
@@ -254,23 +264,4 @@ DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
 		  operands: { (DRJitCompileTimeExpression new expression: value) }
-]
-
-{ #category : #visiting }
-DRBytecodeIRGenerator >> visitReturnNode: aRBReturnNode [
-
-	| result homeFrame returnExecutionState copy |
-	aRBReturnNode value acceptVisitor: self.
-	result := self popOperand.
-	copy := self instructionFor: result inNode: aRBReturnNode.
-	homeFrame := self topFrame homeFrameWithState: executionState.
-	homeFrame returnValue: copy.
-	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
-	"homeFrame exitBasicBlock return: copy."
-
-	returnExecutionState := executionState copy.
-	self addDeferredReturnState: { returnExecutionState. self currentBasicBlock }.
-
-	"The return is a statement with no value"
-	self pushOperand: DRNullValue new
 ]

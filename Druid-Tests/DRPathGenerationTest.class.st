@@ -187,35 +187,35 @@ DRPathGenerationTest >> testConstraintsInferenceFromCopyOfCopy [
 { #category : #constraints }
 DRPathGenerationTest >> testConstraintsInferenceFromInnerBranches [
 
-	| cfg edges trueConstraint falseConstraint |
+	| cfg edges trueConstraint falseConstraint innerMergeBlock |
 	cfg := self generateDruidIRFor: #primitiveInnerBranching.
 
-	edges := cfg incomingEdgesFor: (cfg blockById: 12).
+	innerMergeBlock := cfg mergeBlocks first.
+	edges := cfg incomingEdgesFor: innerMergeBlock.
 	trueConstraint := edges first constraintFor: 'ReceiverResultReg'. "10 < Reg < 20"
 	falseConstraint := edges second constraintFor: 'ReceiverResultReg'. ">= 20"
 
-	self
-		assertConstraint: trueConstraint
-		includes: (DRIntersectionConstraint between: 10 and: 20).
-	self
-		assertConstraint: falseConstraint
-		includes: (DRGreaterOrEqualsConstraint withValue: 20)
+	self assertConstraint: trueConstraint includes: (DRIntersectionConstraint between: 10 and: 20).
+	self assertConstraint: falseConstraint includes: (DRGreaterOrEqualsConstraint withValue: 20)
 ]
 
 { #category : #constraints }
 DRPathGenerationTest >> testConstraintsInferenceFromLoop [
 
-	| cfg edges firstPhiConstraint loopedPhiConstraint sumConstraint |
+	| cfg edges firstPhiConstraint loopedPhiConstraint sumConstraint returnInstruction phi add |
 	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
 
 	"Go out from loop"
-	edges := cfg incomingEdgesFor: (cfg blockById: 5).
+	returnInstruction := cfg instructions detect: [ :i | i isReturn ].
+	phi := cfg instructions detect: [ :i | i isPhiFunction ].
+	add := cfg instructions detect: [ :i | i isAdd ].
+	edges := cfg incomingEdgesFor: returnInstruction basicBlock.
 
 	"If never go inside the loop"
-	firstPhiConstraint := edges first constraintFor: 'R5'.
+	firstPhiConstraint := edges first constraintFor: phi result name.
 	"If enter and then go out from loop"
-	loopedPhiConstraint := edges second constraintFor: 'R5'.
-	sumConstraint := edges second constraintFor: 'R10'.
+	loopedPhiConstraint := edges second constraintFor: phi result name.
+	sumConstraint := edges second constraintFor: add result name.
 
 	self assert: firstPhiConstraint isEmpty.
 	self assertConstraint: loopedPhiConstraint includes: (DRGreaterOrEqualsConstraint withValue: 15).
@@ -344,15 +344,18 @@ DRPathGenerationTest >> testGenerateExpectedEdgesCountMerging [
 { #category : #'dead-path' }
 DRPathGenerationTest >> testInferenceDeadPaths [
 
-	| cfg deadPath expectedTarget pathBlockIds |
+	| cfg deadPath expectedTarget deadPathBlocks deadCopy expectedPath |
 	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
 
 	deadPath := cfg deadPaths associations first.
-	pathBlockIds := deadPath value collect: [ :e | e destination id ].
+	deadPathBlocks := deadPath value collect: [ :e | e destination ].
+	
 	expectedTarget := self anyOutgoingEdge: cfg for: (cfg firstBasicBlock).
+	deadCopy := cfg instructions detect: [:i | i isCopy and: [ i operand1  value = 123 ] ].
+	expectedPath := {deadCopy basicBlock . deadCopy basicBlock successor . deadCopy basicBlock successor successor }.
 
 	self assert: deadPath key equals: expectedTarget.
-	self assertCollection: pathBlockIds hasSameElements: { 14. 12 . 28 }
+	self assertCollection: deadPathBlocks hasSameElements: expectedPath
 ]
 
 { #category : #'dead-path' }

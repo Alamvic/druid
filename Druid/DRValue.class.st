@@ -7,7 +7,7 @@ Class {
 { #category : #visiting }
 DRValue >> acceptVisitor: aVisitor [
 
-	self subclassResponsibility
+	^ self subclassResponsibility
 ]
 
 { #category : #building }
@@ -135,9 +135,15 @@ DRValue >> isDRBlockClosure [
 ]
 
 { #category : #testing }
+DRValue >> isFrameReturn [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isGlobal [
 
-	^ self isNullValue or: [ self isPhysicalRegister ]
+	^ self isNullValue or: [ self isPhysicalRegister or: [ self isConstant ] ]
 ]
 
 { #category : #testing }
@@ -233,7 +239,19 @@ DRValue >> isPhysicalRegister [
 ]
 
 { #category : #testing }
+DRValue >> isPush [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isRegister [
+
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isReturn [
 
 	^ false
 ]
@@ -298,6 +316,12 @@ DRValue >> operands [
 
 { #category : #printing }
 DRValue >> prettyPrint [
+
+	^ self value asString
+]
+
+{ #category : #printing }
+DRValue >> printResult [
 
 	^ self value asString
 ]

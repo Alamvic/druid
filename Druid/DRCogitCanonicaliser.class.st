@@ -13,6 +13,7 @@ DRCogitCanonicaliser >> applyTo: cfg [
 { #category : #visiting }
 DRCogitCanonicaliser >> visitAddition: aDRAdd [
 
+	"Simplify res := a + 0 => res := a"
 	(aDRAdd operands anySatisfy: [ :op | op = 0 asDRValue ]) ifTrue: [ 
 		^ aDRAdd replaceBy: (DRCopy
 				   operands: (aDRAdd operands select: [ :e | e ~= 0 asDRValue ])
@@ -209,11 +210,14 @@ DRCogitCanonicaliser >> visitPopMany: aDRPopMany [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitPush: aDRPush [
-	
+
 	| pushedValue |
-	pushedValue := aDRPush operand1.
+	pushedValue := aDRPush operand1 simpleConstantFold.
 	pushedValue isLoad ifFalse: [ ^ self ].
-	aDRPush replaceOperand: pushedValue by: pushedValue address
+	pushedValue address isAbsolute ifTrue: [
+		self flag: #FIXME.
+		^ self ].
+	aDRPush replaceDependency: pushedValue by: pushedValue address
 ]
 
 { #category : #visiting }

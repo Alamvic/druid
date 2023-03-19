@@ -349,6 +349,12 @@ DRControlFlowGraph >> generatePaths [
 	^ (DRPathFactory withCFG: self) generatePaths
 ]
 
+{ #category : #accessing }
+DRControlFlowGraph >> hasConditionJump [
+
+	^ self allConditionalJumps isNotEmpty
+]
+
 { #category : #edges }
 DRControlFlowGraph >> incomingEdgesFor: aBlock [
 
@@ -490,6 +496,12 @@ DRControlFlowGraph >> lastPaths [
 DRControlFlowGraph >> leafBlocks [
 
 	^ self blocks select: [ :b | b endInstruction isNoop ]
+]
+
+{ #category : #acccessing }
+DRControlFlowGraph >> mergeBlocks [
+
+	^ self reversePostOrderBlocks select: [ :b | b hasPhiFunctions ]
 ]
 
 { #category : #accessing }

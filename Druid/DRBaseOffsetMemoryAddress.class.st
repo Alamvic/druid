@@ -54,6 +54,13 @@ DRBaseOffsetMemoryAddress >> operands [
 		  offset }
 ]
 
+{ #category : #'users-definitions' }
+DRBaseOffsetMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
+
+	base = anOperand ifTrue: [ ^ base := anotherOperand ].
+	super replaceDependency: anOperand by: anotherOperand
+]
+
 { #category : #cogit }
 DRBaseOffsetMemoryAddress >> rtlArgumentExpressions [
 	

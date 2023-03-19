@@ -103,10 +103,7 @@ DRExecutionStack >> postCopy [
 { #category : #frames }
 DRExecutionStack >> pushFrame: aDRStackStack [
 
-	| mirrorFrame |
-	mirrorFrame := DRMirrorFrame new.
-	aDRStackStack mirrorFrame: mirrorFrame.
-	mirrorStack push: mirrorFrame.
+	mirrorStack push: aDRStackStack mirrorFrame.
 	stateStack push: aDRStackStack
 ]
 

@@ -67,15 +67,12 @@ DRMetaCompilerIRGenerator >> initializeSpecialCases [
 { #category : #visiting }
 DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 
-	| lookupClass methodFound |
-	lookupClass := aRBMessageNode isSuperSend
-		               ifTrue: [ self currentMethod methodClass superclass ]
-		               ifFalse: [ receiver type ].
-	methodFound := lookupClass lookupSelector: aRBMessageNode selector.
+	| methodFound |
+	methodFound := super methodFor: aRBMessageNode withReceiver: receiver.
 	methodFound ifNil: [
 		self error:
 			'lookup failed for: ' , aRBMessageNode selector , ' in class '
-			, lookupClass name ].
+			, receiver name ].
 	^ methodFound
 ]
 
@@ -83,9 +80,14 @@ DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 DRMetaCompilerIRGenerator >> numberOfArguments: aValue [ 
 	
 	super numberOfArguments: aValue.
-	self push: self receiverRegister.
 	0 to: numberOfArguments - 1 do: [ :i |
 		self push: (self argRegisterNumber: i) ]
+]
+
+{ #category : #configure }
+DRMetaCompilerIRGenerator >> receiver: aDRValue [
+
+	self push: self receiverRegister
 ]
 
 { #category : #visiting }
@@ -117,6 +119,6 @@ DRMetaCompilerIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
 	"Resolve it as a variableAccess"
 	self pushOperand:
-		((self topFrame homeFrameWithState: executionState) receiver value 
+		((self topFrame homeFrameWithState: executionState) receiver simpleConstantFold value 
 			 instVarNamed: aRBVariableNode name) asDRValue
 ]

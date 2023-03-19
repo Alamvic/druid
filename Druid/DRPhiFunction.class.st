@@ -195,6 +195,13 @@ DRPhiFunction >> selectOperand: anOperand with: anotherOperand [
 	^ anotherOperand
 ]
 
+{ #category : #'constant folding' }
+DRPhiFunction >> simpleConstantFold [
+
+	self operands size = 1 ifTrue: [ ^ self operand1 simpleConstantFold ].
+	^ super simpleConstantFold
+]
+
 { #category : #simplification }
 DRPhiFunction >> simplify [
 
@@ -203,11 +210,21 @@ DRPhiFunction >> simplify [
 	^ self
 ]
 
+{ #category : #testing }
+DRPhiFunction >> supportConstantOperand [
+
+	^ false
+]
+
 { #category : #simplification }
 DRPhiFunction >> type [
 
-	"Assume all my operands have the correct type"
-	^ self operands anyOne type
+	| operandTypes |
+	self operands do: [ :o |
+		| operandType |
+		operandType := o type.
+		operandType isUndefined ifFalse: [ ^ operandType ] ].
+	^ DRUndefinedType new
 ]
 
 { #category : #simplification }
