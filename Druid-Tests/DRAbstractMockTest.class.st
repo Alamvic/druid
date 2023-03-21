@@ -19,6 +19,12 @@ DRAbstractMockTest >> interpreterWith: aCollection [
 	^ interpreterBuilder primitives: aCollection
 ]
 
+{ #category : #initialization }
+DRAbstractMockTest >> jitCompilerClassForTest [
+
+	^ #MyJITCompilerClass
+]
+
 { #category : #running }
 DRAbstractMockTest >> setUp [
 
@@ -32,12 +38,11 @@ DRAbstractMockTest >> setUp [
 { #category : #running }
 DRAbstractMockTest >> tearDown [
 
-	testingEnvironment removeClassNamed: self testingJITCompilerClass.
+	| className |
+
+	className := self jitCompilerClassForTest.
+	className isSymbol
+		ifFalse: [ className := self jitCompilerClassForTest name ].
+	testingEnvironment removeClassNamed: className.
 	super tearDown
-]
-
-{ #category : #initialization }
-DRAbstractMockTest >> testingJITCompilerClass [
-
-	^ #MyJITCompilerClass
 ]

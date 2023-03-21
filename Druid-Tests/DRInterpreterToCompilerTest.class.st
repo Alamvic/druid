@@ -8,7 +8,7 @@ Class {
 DRInterpreterToCompilerTest >> testCompilationUnitPopulateInitializePrimitiveTable [
 
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
-	interpreterCompiler generateIRAndCompileIn: self testingJITCompilerClass.
+	interpreterCompiler generateIRAndCompileIn: self jitCompilerClassForTest.
 
 	self assert: interpreterCompiler initPrimitiveTable notEmpty
 ]
@@ -23,10 +23,12 @@ DRInterpreterToCompilerTest >> testGenerateEmptyCompilationUnit [
 { #category : #initialization }
 DRInterpreterToCompilerTest >> testGenerateMultiplePrimitiveCompilationUnit [
 
-	interpreterCompiler := DRInterpreterCompiler fromInterpreter: (self interpreterWith: #(#primitiveAdd #primitiveEqual)).
+	| primitiveSet |
+	primitiveSet := #(#primitiveAdd #primitiveEqual).
+	interpreterCompiler := DRInterpreterCompiler fromInterpreter: (self interpreterWith: primitiveSet).
 	self
 		assertCollection: (interpreterCompiler primitives collect: #sourceSelector)
-		hasSameElements: #(#primitiveAdd #primitiveEqual).
+		hasSameElements: primitiveSet.
 
 	self
 		assert: (interpreterCompiler primitives allSatisfy: [ : p | p isKindOf: DRPrimitiveObject ])

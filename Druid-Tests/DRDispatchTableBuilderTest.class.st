@@ -14,8 +14,14 @@ Class {
 DRDispatchTableBuilderTest >> compilationUnitForTesting [
 
 	^ DRCompilationUnit new
-		targetClass: self testingJITCompilerClass;
-		yourself.
+		targetClass: self jitCompilerClassForTest;
+		yourself
+]
+
+{ #category : #initialization }
+DRDispatchTableBuilderTest >> jitCompilerClassForTest [
+
+	^ interpreter environmentAt: super jitCompilerClassForTest
 ]
 
 { #category : #running }
@@ -31,14 +37,8 @@ DRDispatchTableBuilderTest >> testCollectAllMethodsOn [
 
 	| pcgMethodNodes |
 	self assert: dispatchTableBuilder initPrimitiveTable isEmpty.
-	pcgMethodNodes := dispatchTableBuilder collectAllMethodsOn: self testingJITCompilerClass class.
+	pcgMethodNodes := dispatchTableBuilder collectAllMethodsOn: self jitCompilerClassForTest class.
 	self
 		assertCollection: (pcgMethodNodes collect: #selector)
 		hasSameElements: #(primitiveTableArray initializePrimitiveTable)
-]
-
-{ #category : #initialization }
-DRDispatchTableBuilderTest >> testingJITCompilerClass [
-
-	^ interpreter environmentAt: super testingJITCompilerClass
 ]

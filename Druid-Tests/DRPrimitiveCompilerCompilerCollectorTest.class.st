@@ -27,19 +27,19 @@ DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitCollectsPrimitive
 { #category : #initialization }
 DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitGeneratesJIT [
 
-	interpreterCompiler generateIRAndCompileIn: self testingJITCompilerClass.
+	interpreterCompiler generateIRAndCompileIn: self jitCompilerClassForTest.
 
-	self shouldnt: [ self class environment at: self testingJITCompilerClass ] raise: KeyNotFound.
-	self assert: ((self class environment at: self testingJITCompilerClass) respondsTo: #initializePrimitiveTable)
+	self shouldnt: [ self class environment at: self jitCompilerClassForTest ] raise: KeyNotFound.
+	self assert: ((self class environment at: self jitCompilerClassForTest) respondsTo: #initializePrimitiveTable)
 ]
 
 { #category : #initialization }
 DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitModelGeneratesJIT [
 
-	interpreterCompiler generateBuildModelAndCompileIn: self testingJITCompilerClass.
+	interpreterCompiler generateBuildModelAndCompileIn: self jitCompilerClassForTest.
 
-	self shouldnt: [ self class environment at: self testingJITCompilerClass ] raise: KeyNotFound.
-	self assert: ((self class environment at: self testingJITCompilerClass) respondsTo: #initializePrimitiveTable)
+	self shouldnt: [ self class environment at: self jitCompilerClassForTest ] raise: KeyNotFound.
+	self assert: ((self class environment at: self jitCompilerClassForTest) respondsTo: #initializePrimitiveTable)
 ]
 
 { #category : #initialization }
