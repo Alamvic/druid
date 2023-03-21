@@ -41,7 +41,7 @@ DRInterpreterCompiler class >> examplePrimitivesFromCollection [
 	<example>
 	
 	^ (DRInterpreterCompiler 
-			fromInterpreter: (DRDummyInterpreter new primitives: #(#primitiveAdd)))
+			fromInterpreter: (DRInterpreterBuilder new primitives: #(#primitiveAdd)))
 				primitives inspect
 ]
 
@@ -227,7 +227,7 @@ DRInterpreterCompiler >> newMemory [
 	^ Spur64BitCoMemoryManager simulatorClass new
 ]
 
-{ #category : #'accessing - primitives' }
+{ #category : #accessing }
 DRInterpreterCompiler >> newPrimitive: aString [
 	" Answer a new primitive object with its metadata and CFG generated "
 
@@ -267,35 +267,10 @@ DRInterpreterCompiler >> primitiveTable [
 	^ interpreter class basicPrimitiveTable
 ]
 
-{ #category : #'class initialization' }
-DRInterpreterCompiler >> primitiveTableArray [
-
-	<generated>
-	^ {
-		  { 1. #gen_PrimitiveAdd. 1 }.
-		  { 2. #gen_PrimitiveSubtract. 1 }.
-		  { 3. #gen_PrimitiveLessThan. 1 }.
-		  { 4. #gen_PrimitiveGreaterThan. 1 }.
-		  { 5. #gen_PrimitiveLessOrEqual. 1 }.
-		  { 6. #gen_PrimitiveGreaterOrEqual. 1 }.
-		  { 7. #gen_PrimitiveEqual. 1 }.
-		  { 8. #gen_PrimitiveNotEqual. 1 }.
-		  { 9. #gen_PrimitiveMultiply. 1 }.
-		  { 10. #gen_PrimitiveDivide. 1 }.
-		  { 1. #gen_PrimitiveAdd. 1 }.
-		  { 2. #gen_PrimitiveSubtract. 1 }.
-		  { 3. #gen_PrimitiveLessThan. 1 }.
-		  { 4. #gen_PrimitiveGreaterThan. 1 }.
-		  { 5. #gen_PrimitiveLessOrEqual. 1 }.
-		  { 6. #gen_PrimitiveGreaterOrEqual. 1 }.
-		  { 7. #gen_PrimitiveEqual. 1 }.
-		  { 8. #gen_PrimitiveNotEqual. 1 }.
-		  { 9. #gen_PrimitiveMultiply. 1 }.
-		  { 10. #gen_PrimitiveDivide. 1 } }
-]
-
 { #category : #'accessing - primitives' }
 DRInterpreterCompiler >> primitives [
 
-	^ self generateBuildModel primitives
+	^ self compilationUnit primitives
+		ifEmpty: [ self generateBuildModel primitives ]
+		ifNotEmpty: [ : p | p ]
 ]

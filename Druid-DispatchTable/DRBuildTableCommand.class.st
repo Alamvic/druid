@@ -59,7 +59,7 @@ DRBuildTableCommand >> execute [
 	"Private - Generate the interpreter and JIT classes using the selected entries"
 
 	| interpreterBuilder |
-	
+
 	interpreterBuilder := self createInterpreterBuilder.
 
 	(DRInterpreterCompiler fromInterpreter: interpreterBuilder)
@@ -67,26 +67,7 @@ DRBuildTableCommand >> execute [
 		superclass: self jitSuperclassName.
 
 	Smalltalk tools browser openOnClass: (self class environment at: self jitClassName asSymbol).
-	Smalltalk tools browser openOnClass: (self class environment at: self interpreterClassName asSymbol).
-
-]
-
-{ #category : #accessing }
-DRBuildTableCommand >> executeForInterpreterSuperclass: aClass [ 
-
-	| interpreterBuilder compilationUnit |
-
-	self halt.
-	interpreterBuilder := DRInterpreterBuilder new 
-		targetSuperclass: aClass;
-		basicNew;
-		primitives: 	self selectedEntries asArray;
-		yourself.
-	compilationUnit := interpreterBuilder generateBuildModel.
-	compilationUnit compileInitializePrimitiveTable.
-	(DRInterpreterCompiler fromInterpreter: interpreterBuilder) generateBuildModelAndCompileIn: #MyJITCompilerClass.
-	Smalltalk tools browser openOnClass: #MyJITCompilerClass asClass. 
-
+	Smalltalk tools browser openOnClass: (self class environment at: self interpreterClassName asSymbol)
 ]
 
 { #category : #accessing }
@@ -94,7 +75,7 @@ DRBuildTableCommand >> newRandomInterpreterClassName [
 	"Answer a new class name to be used as interpreter containing a #basicPrimitiveTable"
 
 	^ String streamContents: [ : stream |
-		stream 
+		stream
 			<< #DRInterpreter;
 			<< (UUIDGenerator next asString copyUpTo: $-) ]
 ]

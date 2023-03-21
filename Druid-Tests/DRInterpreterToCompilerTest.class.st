@@ -42,6 +42,13 @@ DRInterpreterToCompilerTest >> testGenerateMultiplePrimitiveObjectCompilationUni
 { #category : #initialization }
 DRInterpreterToCompilerTest >> testGenerateSinglePrimitiveCompilationUnit [
 
+	| primitives |
 	interpreterCompiler := DRInterpreterCompiler fromInterpreter: (self interpreterWith: #(#primitiveAdd)).
-	self assert: interpreterCompiler primitives notEmpty
+	primitives := interpreterCompiler primitives.
+	self
+		assert: primitives notEmpty;
+		assert: (primitives anyOne isKindOf: DRPrimitiveObject).
+	self
+		assertCollection: (primitives collect: #sourceSelector)
+		hasSameElements: #(primitiveAdd)
 ]

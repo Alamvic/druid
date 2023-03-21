@@ -30,19 +30,20 @@ DRInterpreterBuilder class >> forRandomInterpreterWithSuperclass: aSuperclass [
 DRInterpreterBuilder >> basicNew [
 
 	self targetClass: self newRandomTargetClass.
+	self targetSuperclass: CogVMSimulatorLSB.
 	^ self targetClass new
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing - compiler' }
 DRInterpreterBuilder >> compilationUnitClass [
 
-	^ DRStackCompilationUnit 
+	^ DRStackCompilationUnit
 ]
 
 { #category : #accessing }
 DRInterpreterBuilder >> defaultTargetSuperclass [
 
-	^ StackInterpreter 
+	^ StackInterpreter
 ]
 
 { #category : #'accessing - model' }
@@ -66,8 +67,7 @@ DRInterpreterBuilder >> initialize [
 ]
 
 { #category : #initialization }
-DRInterpreterBuilder >> initializeWithOptions: aCollection objectMemoryClass: aClass [ 
-
+DRInterpreterBuilder >> initializeWithOptions: aCollection objectMemoryClass: aClass [
 ]
 
 { #category : #accessing }
@@ -80,7 +80,9 @@ DRInterpreterBuilder >> interpreterPrimitiveTable [
 DRInterpreterBuilder >> newInterpreter [
 	"Answer a new instance of the receiver's target class, representing a basic interpreter"
 
-	self targetClass 
+	self targetSuperclass 
+		ifNil: [ 	self targetSuperclass: CogVMSimulatorLSB ].
+	self targetClass
 		ifNil: [ self targetClass: self newRandomTargetClass ].
 	^ self targetClass new
 ]

@@ -83,6 +83,11 @@ DRAbstractCompilerBuilder >> generateBuildModel [
 ]
 
 { #category : #accessing }
+DRAbstractCompilerBuilder >> generateBuildModelAndCompileIn: aClass [ 
+	^ self subclassResponsibility
+]
+
+{ #category : #accessing }
 DRAbstractCompilerBuilder >> interpreterPrimitiveTable [
 
 	self subclassResponsibility 
@@ -142,6 +147,11 @@ DRAbstractCompilerBuilder >> newRandomTargetClass [
 DRAbstractCompilerBuilder >> newclassPrefix [
 
 	self subclassResponsibility
+]
+
+{ #category : #accessing }
+DRAbstractCompilerBuilder >> primitiveTable [
+	^ self subclassResponsibility
 ]
 
 { #category : #accessing }
