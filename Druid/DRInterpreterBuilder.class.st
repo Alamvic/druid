@@ -80,7 +80,7 @@ DRInterpreterBuilder >> interpreterPrimitiveTable [
 DRInterpreterBuilder >> newInterpreter [
 	"Answer a new instance of the receiver's target class, representing a basic interpreter"
 
-	self targetSuperclass 
+	self targetSuperclass
 		ifNil: [ 	self targetSuperclass: CogVMSimulatorLSB ].
 	self targetClass
 		ifNil: [ self targetClass: self newRandomTargetClass ].
