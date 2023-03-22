@@ -53,13 +53,10 @@ Internal Representation and Key Implementation Points.
 Class {
 	#name : #DRDispatchTable,
 	#superclass : #Object,
+	#traits : 'TDRMethodSelector',
+	#classTraits : 'TDRMethodSelector classTrait',
 	#instVars : [
-		'interpreterClass',
-		'primitives',
-		'scanSuperclasses',
-		'allowDuplicates',
-		'excludeObjectClass',
-		'matchMethod'
+		'interpreterClass'
 	],
 	#category : #'Druid-DispatchTable'
 }
@@ -80,7 +77,7 @@ DRDispatchTable class >> example [
 		'arithmetic float primitives' 
 		'control primitives').
 	" Obtain the Dictionary of primitives "
-	dispatchTable primitives.
+	dispatchTable methods.
 	dispatchTable generateInterpreterTableIn: #TargetClass.
 ]
 
@@ -98,7 +95,7 @@ DRDispatchTable >> addFromProtocol: aString [
 
 	aString ifEmpty: [ ^ self ].
 	(self interpreterProtocol hasProtocolNamed: aString)
-		ifTrue: [ self primitives addAll: (self interpreterProtocol methodsInProtocolNamed: aString) ]
+		ifTrue: [ self methods addAll: (self interpreterProtocol methodsInProtocolNamed: aString) ]
 ]
 
 { #category : #accessing }
@@ -110,81 +107,6 @@ DRDispatchTable >> addFromProtocols: aCollectionOfProtocolNames [
 		displayingProgress: [ : name | 'Adding primitives in ' , name ]
 ]
 
-{ #category : #querying }
-DRDispatchTable >> addFromSelectorPattern: aString [
-	"Answer a <Collection> of selectors begining with aString"
-
-	aString ifEmpty: [ ^ Array empty ].
-	^ self primitives addAll: (self scanSuperclasses
-		ifTrue: [ self allSelectorsMatching: aString ]
-		ifFalse: [ self selectorsMatching: aString ])
-]
-
-{ #category : #'accessing - query' }
-DRDispatchTable >> allMethodsMatching: aString [
-	"Answer a <Collection> of <CompilerMethod> beginning with aString, looking up the pattern in the receiver's interpreter class methodDictionary, chase the superclass chain and try again until no method is found."
-
-	| lookupClass allSelectors |
-	lookupClass := self interpreterClass.
-	allSelectors := self collectorClass new.
-	[ self finishScanIn: lookupClass ] whileFalse: [
-		allSelectors addAll: (lookupClass methods select: [ : method |  method selector perform: self matchMethod with: aString ]).
-		lookupClass := lookupClass superclass ].
-	^ allSelectors
-]
-
-{ #category : #'accessing - query' }
-DRDispatchTable >> allSelectorsMatching: aString [
-	"Answer a <Collection> of selectors begining with aString, looking up the pattern in the receiver's interpreter class methodDictionary, chase the superclass chain and try again until no method is found."
-
-	| lookupClass allSelectors |
-	lookupClass := self interpreterClass.
-	allSelectors := self collectorClass new.
-	[ lookupClass isNil ] whileFalse: [
-		allSelectors addAll: (lookupClass selectors select: [ :selector | selector beginsWith: aString ]).
-		lookupClass := lookupClass superclass ].
-	^ allSelectors
-]
-
-{ #category : #accessing }
-DRDispatchTable >> allowDuplicates [
-
-	^ allowDuplicates
-]
-
-{ #category : #accessing }
-DRDispatchTable >> allowDuplicates: anObject [
-
-	allowDuplicates := anObject
-]
-
-{ #category : #accessing }
-DRDispatchTable >> collectorClass [
-
-	^ self allowDuplicates
-		ifTrue: [ Bag ]
-		ifFalse: [ OrderedCollection ]
-]
-
-{ #category : #defaults }
-DRDispatchTable >> defaultMatchMethod [
-
-	^ #beginsWith:
-]
-
-{ #category : #private }
-DRDispatchTable >> excludeObjectClass [
-
-	^ excludeObjectClass
-		ifNil: [ excludeObjectClass := true ]
-]
-
-{ #category : #private }
-DRDispatchTable >> finishScanIn: lookupClass [
-
-	^ lookupClass isNil or: [ self excludeObjectClass and: [ lookupClass = Object ] ]
-]
-
 { #category : #accessing }
 DRDispatchTable >> generateInterpreterTableIn: aClassName [
 
@@ -194,105 +116,23 @@ DRDispatchTable >> generateInterpreterTableIn: aClassName [
 { #category : #initialization }
 DRDispatchTable >> initializeFor: anInterpreterClass [
 
-	interpreterClass := anInterpreterClass.
-	scanSuperclasses := true.
-	allowDuplicates := true.
-]
-
-{ #category : #accessing }
-DRDispatchTable >> interpreterClass [
-	^ interpreterClass
-]
-
-{ #category : #accessing }
-DRDispatchTable >> interpreterClass: anObject [
-
-	interpreterClass := anObject
+	interpreterClass := anInterpreterClass
 ]
 
 { #category : #private }
 DRDispatchTable >> interpreterProtocol [
 	" Answer the <ProtocolOrganizer> for the receiver's interpreter "
 
-	^ self interpreterClass organization protocolOrganizer
-]
-
-{ #category : #'accessing - query' }
-DRDispatchTable >> matchMethod [
-	"Answer a <Symbol> representing the selector used to compare against the primitive selectors"
-
-	^ matchMethod
-		ifNil: [ matchMethod := self defaultMatchMethod ]
-]
-
-{ #category : #'accessing - query' }
-DRDispatchTable >> matchMethod: anObject [
-
-	matchMethod := anObject
-]
-
-{ #category : #querying }
-DRDispatchTable >> methodsFromPattern: aString [
-	"Answer a <Collection> of selectors begining with aString"
-
-	aString ifEmpty: [ ^ Array empty ].
-	^ self primitives addAll: (self scanSuperclasses
-		ifTrue: [ self allMethodsMatching: aString ]
-		ifFalse: [ self methodsMatching: aString ])
-]
-
-{ #category : #'accessing - query' }
-DRDispatchTable >> methodsMatching: aString [
-	"Answer a <Collection> of selectors begining with aString"
-
-	^ self interpreterClass methods
-		select: [ : method | method selector perform: self matchMethod with: aString ]
+	^ self targetClass organization protocolOrganizer
 ]
 
 { #category : #accessing }
-DRDispatchTable >> primitives [
-	"Answer a <Collection> of the primitives to be translated"
-	
-	^ primitives
-		ifNil: [ primitives := OrderedCollection new ]
+DRDispatchTable >> targetClass [
+	^ interpreterClass
 ]
 
 { #category : #accessing }
-DRDispatchTable >> primitives: anObject [
+DRDispatchTable >> targetClass: anObject [
 
-	primitives := anObject
-]
-
-{ #category : #accessing }
-DRDispatchTable >> scanSuperclasses [
-
-	^ scanSuperclasses
-]
-
-{ #category : #accessing }
-DRDispatchTable >> scanSuperclasses: anObject [
-
-	scanSuperclasses := anObject
-]
-
-{ #category : #'accessing - query' }
-DRDispatchTable >> selectorsMatching: aString [
-	"Answer a <Collection> of selectors matching aString according to the receiver's match method"
-
-	^ self interpreterClass selectors
-		select: [ : selector | selector perform: self matchMethod with: aString ]
-]
-
-{ #category : #'accessing - query' }
-DRDispatchTable >> useBeginsWith [
-	"Set the receiver to use regular expressions to match queries"
-	
-	self matchMethod: #beginsWith:
-]
-
-{ #category : #'accessing - query' }
-DRDispatchTable >> useRegEx [
-	"Set the receiver to use regular expressions to match queries"
-	
-	self matchMethod: #matchesRegex:
+	interpreterClass := anObject
 ]

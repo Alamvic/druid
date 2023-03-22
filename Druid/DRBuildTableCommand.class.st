@@ -42,13 +42,13 @@ DRBuildTableCommand >> createInterpreterBuilder [
 		ifEmpty: [ StackInterpreter ]
 		ifNotEmpty: [ : superClassName | (self class environment at: superClassName) ].
 	interpreterBuilder := self interpreterClassName
-		  ifEmpty: [  DRInterpreterBuilder forRandomInterpreterWithSuperclass: superClass ]
+		  ifEmpty: [  DRInterpreterBuilder newRandomlyNamedInterpreterWithSuperclass: superClass ]
 		  ifNotEmpty: [ :interpreterName |
 			  DRInterpreterBuilder
-				  forInterpreter: interpreterName
+				  newInterpreterNamed: interpreterName
 				  superclass: superClass ].
 
-	interpreterBuilder primitives: self selectedEntries asArray.
+	interpreterBuilder methods: self selectedEntries asArray.
 	compilationUnit := interpreterBuilder generateBuildModel.
 	compilationUnit compileInitializePrimitiveTable.
 	^ interpreterBuilder
@@ -62,7 +62,7 @@ DRBuildTableCommand >> execute [
 
 	interpreterBuilder := self createInterpreterBuilder.
 
-	(DRInterpreterCompiler fromInterpreter: interpreterBuilder)
+	(DRInterpreterToCompiler fromInterpreter: interpreterBuilder)
 		generateBuildModelAndCompileIn: self jitClassName
 		superclass: self jitSuperclassName.
 

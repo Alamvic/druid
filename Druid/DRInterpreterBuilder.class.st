@@ -1,6 +1,8 @@
 Class {
 	#name : #DRInterpreterBuilder,
 	#superclass : #DRAbstractCompilerBuilder,
+	#traits : 'TDRMethodSelector',
+	#classTraits : 'TDRMethodSelector classTrait',
 	#instVars : [
 		'primitiveTable',
 		'primitiveIndex'
@@ -9,7 +11,7 @@ Class {
 }
 
 { #category : #'instance creation' }
-DRInterpreterBuilder class >> forInterpreter: aClassName superclass: aSuperclass [
+DRInterpreterBuilder class >> newInterpreterNamed: aClassName superclass: aSuperclass [
 
 	^ self new
 		targetSuperclass: aSuperclass;
@@ -18,7 +20,7 @@ DRInterpreterBuilder class >> forInterpreter: aClassName superclass: aSuperclass
 ]
 
 { #category : #'instance creation' }
-DRInterpreterBuilder class >> forRandomInterpreterWithSuperclass: aSuperclass [
+DRInterpreterBuilder class >> newRandomlyNamedInterpreterWithSuperclass: aSuperclass [
 
 	^ self new
 		targetSuperclass: aSuperclass;
@@ -30,7 +32,7 @@ DRInterpreterBuilder class >> forRandomInterpreterWithSuperclass: aSuperclass [
 DRInterpreterBuilder >> basicNew [
 
 	self targetClass: self newRandomTargetClass.
-	self targetSuperclass: CogVMSimulatorLSB.
+	self targetSuperclass: self defaultTargetSuperclass.
 	^ self targetClass new
 ]
 
@@ -126,6 +128,13 @@ DRInterpreterBuilder >> primitiveTable [
 ]
 
 { #category : #private }
+DRInterpreterBuilder >> primitives [
+	" Answer the <Collection> of receiver's primitives "
+
+	^ primitiveTable
+]
+
+{ #category : #private }
 DRInterpreterBuilder >> primitives: aCollection [
 
 	primitiveTable := aCollection
@@ -141,6 +150,19 @@ DRInterpreterBuilder >> primitivesCount [
 	(self primitiveTable includes: 0)
 		ifTrue: [ ^ primTableSize - 1 ].
 	^ primTableSize
+]
+
+{ #category : #accessing }
+DRInterpreterBuilder >> selectPrimitives: selectBlock [
+	" Answer a <Collection> of <CompiledMethod> representing primitive methods and matching conditions in selectBlock "
+	| primitiveCandidates |
+
+	primitiveCandidates := self
+		matchMethod: #beginsWith:;
+		scanSuperclasses: true;
+		allowDuplicates: false;
+		methodsFromPattern: 'prim'.
+	^ primitiveCandidates select: selectBlock
 ]
 
 { #category : #accessing }

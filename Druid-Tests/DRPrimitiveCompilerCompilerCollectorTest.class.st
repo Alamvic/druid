@@ -12,7 +12,7 @@ DRPrimitiveCompilerCompilerCollectorTest >> setUp [
 
 	super setUp.
 	StackInterpreter initializePrimitiveTable.
-	interpreterCompiler := (DRInterpreterCompiler
+	interpreterCompiler := (DRInterpreterToCompiler
 			fromInterpreter: interpreterBuilder
 			compilerClass: DRPrimitiveCompilerCompilerCollector).
 	compilationUnit := interpreterCompiler generateBuildModel

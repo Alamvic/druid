@@ -10,7 +10,7 @@ This enables to build a VM which includes the JIT, but does not know how to JIT 
 
 "
 Class {
-	#name : #DRInterpreterCompiler,
+	#name : #DRInterpreterToCompiler,
 	#superclass : #DRAbstractCompilerBuilder,
 	#instVars : [
 		'memory',
@@ -23,13 +23,13 @@ Class {
 }
 
 { #category : #examples }
-DRInterpreterCompiler class >> examplePrimitivesCollector [
+DRInterpreterToCompiler class >> examplePrimitivesCollector [
 	<example>
 
 	| primCollector |
 
 	StackInterpreter initializePrimitiveTable.
-	primCollector := (DRInterpreterCompiler
+	primCollector := (DRInterpreterToCompiler
 			fromInterpreter: (DRDummyInterpreter new primitives: StackInterpreter primitiveTable)
 			compilerClass: DRPrimitiveCompilerCompilerCollector)
 				collectPrimitives.
@@ -37,25 +37,25 @@ DRInterpreterCompiler class >> examplePrimitivesCollector [
 ]
 
 { #category : #examples }
-DRInterpreterCompiler class >> examplePrimitivesFromCollection [
+DRInterpreterToCompiler class >> examplePrimitivesFromCollection [
 	<example>
 	
-	^ (DRInterpreterCompiler 
+	^ (DRInterpreterToCompiler 
 			fromInterpreter: (DRInterpreterBuilder new primitives: #(#primitiveAdd)))
 				primitives inspect
 ]
 
 { #category : #examples }
-DRInterpreterCompiler class >> examplePrimitivesFromInterpreterBuilderClass [
+DRInterpreterToCompiler class >> examplePrimitivesFromInterpreterBuilderClass [
 	<example>
 	
-	^ (DRInterpreterCompiler 
+	^ (DRInterpreterToCompiler 
 			fromInterpreter: DRInterpreterBuilder new)
 				primitives inspect
 ]
 
 { #category : #'instance creation' }
-DRInterpreterCompiler class >> fromInterpreter: anInterpreterBuilder [ 
+DRInterpreterToCompiler class >> fromInterpreter: anInterpreterBuilder [
 
 	^  self basicNew
 		interpreterBuilder: anInterpreterBuilder;
@@ -64,7 +64,7 @@ DRInterpreterCompiler class >> fromInterpreter: anInterpreterBuilder [
 ]
 
 { #category : #'instance creation' }
-DRInterpreterCompiler class >> fromInterpreter: anInterpreterBuilder compilerClass: aCompilerClass [
+DRInterpreterToCompiler class >> fromInterpreter: anInterpreterBuilder compilerClass: aCompilerClass [
 
 	^ self basicNew
 		compilerCompilerClass: aCompilerClass;
@@ -74,7 +74,7 @@ DRInterpreterCompiler class >> fromInterpreter: anInterpreterBuilder compilerCla
 ]
 
 { #category : #'accessing - primitives' }
-DRInterpreterCompiler >> addPrimitive: aString to: aDRCompilationUnit [
+DRInterpreterToCompiler >> addPrimitive: aString to: aDRCompilationUnit [
 
 	aString isInteger ifFalse: [
 		((interpreter class lookupSelector: aString) hasPragmaNamed:
@@ -83,7 +83,7 @@ DRInterpreterCompiler >> addPrimitive: aString to: aDRCompilationUnit [
 ]
 
 { #category : #'accessing - primitives' }
-DRInterpreterCompiler >> collectPrimitives [
+DRInterpreterToCompiler >> collectPrimitives [
 	"Trace receiver's interpreter primitives and collect compilation results.
 	See implementors of #handlePrimitiveCompilationFor: "
 
@@ -92,13 +92,13 @@ DRInterpreterCompiler >> collectPrimitives [
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> compilationUnitClass [
+DRInterpreterToCompiler >> compilationUnitClass [
 
 	^ DRJITCompilationUnit 
 ]
 
 { #category : #'accessing - compiler' }
-DRInterpreterCompiler >> compilerCompiler [
+DRInterpreterToCompiler >> compilerCompiler [
 	"Answer a Druid compiler configured for the receiver's interpreter builder"
 
 	^ compilerCompiler
@@ -106,32 +106,32 @@ DRInterpreterCompiler >> compilerCompiler [
 ]
 
 { #category : #'accessing - compiler' }
-DRInterpreterCompiler >> compilerCompilerClass [
+DRInterpreterToCompiler >> compilerCompilerClass [
 
 	^ compilerCompilerClass
 		ifNil: [ compilerCompilerClass := self defaultCompilerCompilerClass ]
 ]
 
 { #category : #'accessing - compiler' }
-DRInterpreterCompiler >> compilerCompilerClass: aClass [
+DRInterpreterToCompiler >> compilerCompilerClass: aClass [
 
 	compilerCompilerClass := aClass
 ]
 
 { #category : #'accessing - compiler' }
-DRInterpreterCompiler >> defaultCompilerCompilerClass [
+DRInterpreterToCompiler >> defaultCompilerCompilerClass [
 
 	^ DRPrimitiveCompilerCompiler
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> defaultTargetSuperclass [
+DRInterpreterToCompiler >> defaultTargetSuperclass [
 
 	^ StackToRegisterMappingCogit
 ]
 
 { #category : #'accessing - model' }
-DRInterpreterCompiler >> generateBuildModelAndCompileIn: aClass [
+DRInterpreterToCompiler >> generateBuildModelAndCompileIn: aClass [
 	"Generate and install the receiver's primitives into JIT compiler aClass"
 
 	self generateBuildModel
@@ -141,7 +141,7 @@ DRInterpreterCompiler >> generateBuildModelAndCompileIn: aClass [
 ]
 
 { #category : #'accessing - model' }
-DRInterpreterCompiler >> generateBuildModelAndCompileIn: aClass superclass: aSuperclass [
+DRInterpreterToCompiler >> generateBuildModelAndCompileIn: aClass superclass: aSuperclass [
 	"Generate and install the receiver's primitives into JIT compiler aClass"
 
 	self generateBuildModel
@@ -152,7 +152,7 @@ DRInterpreterCompiler >> generateBuildModelAndCompileIn: aClass superclass: aSup
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> generateIRAndCompileIn: aClass [
+DRInterpreterToCompiler >> generateIRAndCompileIn: aClass [
 	"Generate and install the receiver's primitives into JIT compiler aClass"
 
 	self addPrimitives.
@@ -163,14 +163,14 @@ DRInterpreterCompiler >> generateIRAndCompileIn: aClass [
 ]
 
 { #category : #helpers }
-DRInterpreterCompiler >> initPrimitiveTable [
+DRInterpreterToCompiler >> initPrimitiveTable [
 	"Answer a <Collection> with the JITed primitives"
 
 	^ compilationUnit initPrimitiveTable
 ]
 
 { #category : #'accessing - object memory' }
-DRInterpreterCompiler >> initializationOptions [
+DRInterpreterToCompiler >> initializationOptions [
 
 	^ {
 		  #BytesPerWord.
@@ -180,33 +180,33 @@ DRInterpreterCompiler >> initializationOptions [
 ]
 
 { #category : #initialization }
-DRInterpreterCompiler >> initialize [
+DRInterpreterToCompiler >> initialize [
 
 	super initialize.
 	interpreter := self newInterpreter
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> interpreterBuilder [
+DRInterpreterToCompiler >> interpreterBuilder [
 
 	^ interpreterBuilder
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> interpreterBuilder: aClass [ 
+DRInterpreterToCompiler >> interpreterBuilder: aClass [ 
 
 	interpreterBuilder := aClass
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> interpreterPrimitiveTable [
+DRInterpreterToCompiler >> interpreterPrimitiveTable [
 	"Answer a <Collection> of <Symbol> each one representing a selector (e.g. #primitiveEqual) of the receiver's primitive table"
 
 	^ interpreterBuilder primitiveTable
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> newInterpreter [
+DRInterpreterToCompiler >> newInterpreter [
 
 	memory := self newMemory.
 
@@ -221,14 +221,14 @@ DRInterpreterCompiler >> newInterpreter [
 ]
 
 { #category : #'accessing - object memory' }
-DRInterpreterCompiler >> newMemory [
+DRInterpreterToCompiler >> newMemory [
 	" Answer a memory manager instance. Currently a subclass of <SpurMemoryManager> "
 
 	^ Spur64BitCoMemoryManager simulatorClass new
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> newPrimitive: aString [
+DRInterpreterToCompiler >> newPrimitive: aString [
 	" Answer a new primitive object with its metadata and CFG generated "
 
 	^ DRPrimitiveObject new
@@ -241,7 +241,7 @@ DRInterpreterCompiler >> newPrimitive: aString [
 ]
 
 { #category : #accessing }
-DRInterpreterCompiler >> primitiveMayCallback: aString [
+DRInterpreterToCompiler >> primitiveMayCallback: aString [
 	"Answer <true> if primitive aString is marked as maycallback"
 	" #maycallback "
 
@@ -249,7 +249,7 @@ DRInterpreterCompiler >> primitiveMayCallback: aString [
 ]
 
 { #category : #'accessing - primitives' }
-DRInterpreterCompiler >> primitiveNumberOf: aSelector [
+DRInterpreterToCompiler >> primitiveNumberOf: aSelector [
 	" Answer a <Number> representing the primitive number of aSelector "
 
 	| primNumber |
@@ -261,14 +261,14 @@ DRInterpreterCompiler >> primitiveNumberOf: aSelector [
 ]
 
 { #category : #'accessing - primitives' }
-DRInterpreterCompiler >> primitiveTable [
+DRInterpreterToCompiler >> primitiveTable [
 	"Answer a <Collection> of primitive selectors"
 
 	^ interpreter class basicPrimitiveTable
 ]
 
 { #category : #'accessing - primitives' }
-DRInterpreterCompiler >> primitives [
+DRInterpreterToCompiler >> primitives [
 
 	^ self compilationUnit primitives
 		ifEmpty: [ self generateBuildModel primitives ]

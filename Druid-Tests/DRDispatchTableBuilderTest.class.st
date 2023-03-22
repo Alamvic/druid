@@ -28,7 +28,7 @@ DRDispatchTableBuilderTest >> jitCompilerClassForTest [
 DRDispatchTableBuilderTest >> setUp [
 
 	super setUp.
-	interpreter :=	DRInterpreterCompiler fromInterpreter: (self interpreterWith: #(#primitiveAdd #primitiveEqual)).
+	interpreter :=	DRInterpreterToCompiler fromInterpreter: (self interpreterWith: #(#primitiveAdd #primitiveEqual)).
 	dispatchTableBuilder := DRCogitDispatchTableBuilder primitiveTableMethodFrom: self compilationUnitForTesting
 ]
 
