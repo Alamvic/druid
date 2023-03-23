@@ -1,15 +1,23 @@
 Class {
 	#name : #DRProductionPrimitiveCompilationTest,
 	#superclass : #DRPrimitiveCompilationTest,
+	#instVars : [
+		'finishCodeAddress',
+		'finishEndInstruction'
+	],
 	#category : #'Druid-Tests'
 }
 
-{ #category : #'tests-arithmetic-smallIntegers' }
+{ #category : #running }
 DRProductionPrimitiveCompilationTest >> setUp [
 
 	super setUp.
 	self setUpTrampolines.
-	cogit computeFullBlockEntryOffsets
+	cogit computeFullBlockEntryOffsets.
+	methodBuilder buildMethod.
+	finishCodeAddress := self
+		                   generateCogClosure: [ finishEndInstruction := cogit RetN: 0 ]
+		                   selector: memory nilObject. 
 ]
 
 { #category : #'tests-real primitives' }
@@ -351,6 +359,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 { #category : #'tests-arithmetic-smallIntegers' }
 DRProductionPrimitiveCompilationTest >> testPrimitiveAdd [
 
+	cogit receiverTags: memory smallIntegerTag.
+
 	self compileDruidPrimitive: #primitiveAdd.
 
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 10 }.
@@ -362,25 +372,17 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveAdd [
 DRProductionPrimitiveCompilationTest >> testPrimitiveValue [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
-	| closure closureCode stop |
-	methodBuilder buildMethod.
-
-	closureCode := self
-		               generateCogClosure: [ stop := cogit RetN: 0 ]
-		               selector: memory nilObject.
-
+	| closure |
 	self compileDruidPrimitive: #primitiveFullClosureValue.
 
 	closure := [ 42 ] forMemory: memory inMethod: methodBuilder.
 
 	interpreter
 		rawHeaderOf: (memory fetchPointer: 1 ofObject: closure) "The compiled block is the second inst var"
-		put: closureCode asInteger.
+		put: finishCodeAddress asInteger.
 
-	self
-		prepareStackForSendReceiver: (self twoComplementFor: closure)
-		arguments: {  }.
-	self runUntil: stop address
+	self prepareStackForSendReceiver: closure arguments: {  }.
+	self runUntil: finishEndInstruction address
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }
@@ -388,8 +390,6 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueOnNonClosureMethod [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
 	| closure |
-	methodBuilder buildMethod.
-
 	self compileDruidPrimitive: #primitiveFullClosureValue.
 
 	closure := [ 42 ] forMemory: memory inMethod: methodBuilder.
@@ -397,7 +397,7 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueOnNonClosureMethod [
 	memory
 		storePointer: 1 "The compiled block is the second inst var"
 		ofObject: closure
-		withValue: (memory nilObject).
+		withValue: memory nilObject.
 
 	self executeUntilStopPrimitiveWithReceiver: closure
 ]
@@ -407,8 +407,6 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueOnNonCompiledBlock [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
 	| closure |
-	methodBuilder buildMethod.
-
 	self compileDruidPrimitive: #primitiveFullClosureValue.
 
 	closure := [ 42 ] forMemory: memory inMethod: methodBuilder.
@@ -421,8 +419,6 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueOnWrongArguments [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
 	| closure |
-	methodBuilder buildMethod.
-
 	self compileDruidPrimitive: #primitiveFullClosureValue.
 
 	closure := [ :x | 42 ] forMemory: memory inMethod: methodBuilder.
