@@ -4,6 +4,14 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #'tests-arithmetic-smallIntegers' }
+DRProductionPrimitiveCompilationTest >> setUp [
+
+	super setUp.
+	self setUpTrampolines.
+	cogit computeFullBlockEntryOffsets
+]
+
 { #category : #'tests-real primitives' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
@@ -358,23 +366,21 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValue [
 	methodBuilder buildMethod.
 
 	closureCode := self
-		             generateCogMethod: [ stop := cogit RetN: 0 ]
-		             selector: memory nilObject.
+		               generateCogClosure: [ stop := cogit RetN: 0 ]
+		               selector: memory nilObject.
 
 	self compileDruidPrimitive: #primitiveFullClosureValue.
 
 	closure := [ 42 ] forMemory: memory inMethod: methodBuilder.
-	
-	memory
-		storePointer: 1 "The compiled block is the second inst var"
-		ofObject: closure
-		withValue: (memory nilObject).
+
+	interpreter
+		rawHeaderOf: (memory fetchPointer: 1 ofObject: closure) "The compiled block is the second inst var"
+		put: closureCode asInteger.
 
 	self
 		prepareStackForSendReceiver: (self twoComplementFor: closure)
 		arguments: {  }.
 	self runUntil: stop address
-
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }
