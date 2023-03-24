@@ -339,6 +339,12 @@ DRIRGenerator >> initializeSpecialCases [
 	variableSpecialCases at: #hiddenRootsObj put: #interpretNilObjectWith:
 ]
 
+{ #category : #visiting }
+DRIRGenerator >> inlineGenerator [
+
+	^ self subclassResponsibility
+]
+
 { #category : #factory }
 DRIRGenerator >> instantiate: anInstructionClass [ 
 	
@@ -1366,6 +1372,7 @@ DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver ar
 		               operands: { receiver } , arguments.
 
 	instruction irGenerator: self inlineGenerator.
+	instruction typeSystem: self typeSystem.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
 	^ self addInstruction: instruction from: aRBMessageNode
 ]
@@ -1625,6 +1632,12 @@ DRIRGenerator >> temporaryAt: aString put: aValue [
 DRIRGenerator >> topFrame [
 
 	^ executionState topFrame
+]
+
+{ #category : #visiting }
+DRIRGenerator >> typeSystem [
+
+	^ self subclassResponsibility
 ]
 
 { #category : #'special cases' }
