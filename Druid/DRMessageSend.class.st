@@ -137,9 +137,8 @@ DRMessageSend >> methodsToInline [
 	    DRType (or #default) -> method AST
 	"
 
-	"If a method node was set during interpretation then the message send is statically binding to them"
-
-	methodNode ifNotNil: [ ^ { (#default -> methodNode) } ].
+	methodNode ifNotNil: [ "If a method node was set during interpretation then the message send is statically binding to them"
+		^ { (#default -> methodNode) } ].
 
 	^ typeSystem methodsForMessage: self
 ]

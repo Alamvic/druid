@@ -4,15 +4,6 @@ Class {
 	#category : #'Druid-IR-Types'
 }
 
-{ #category : #API }
-DRPragmaBasedTypeSystem >> methodsForMessage: aDRMessageSend [ 
-
-	| receiverTypes |
-	receiverTypes := self receiverTypes: aDRMessageSend.
-	^ receiverTypes collect: [ :type |
-		  type -> (type astForSelector: aDRMessageSend selector) ]
-]
-
 { #category : #inference }
 DRPragmaBasedTypeSystem >> receiverTypes: aDRMessageSend [
 
