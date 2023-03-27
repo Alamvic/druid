@@ -58,7 +58,7 @@ Class {
 	#instVars : [
 		'interpreterClass'
 	],
-	#category : #'Druid-DispatchTable'
+	#category : #'Druid-DispatchTable2'
 }
 
 { #category : #examples }

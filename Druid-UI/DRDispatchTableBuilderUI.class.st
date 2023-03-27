@@ -208,7 +208,7 @@ DRDispatchTableBuilderUI >> initializeClassPrototypeSelector [
 	classPrototypeDropListPresenter := self newDropList
 		help: 'Select the desired prototype';
 		items: self availableDispatchTablePrototypess;
-		selectItem: self dispatchTable interpreterClass;
+		selectItem: self dispatchTable targetClass;
 		whenSelectedItemChangedDo: [ : selectedClass |
 			self dispatchTable targetClass: selectedClass.
 			self filterEntriesList ];

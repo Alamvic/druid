@@ -1,7 +1,7 @@
 Class {
 	#name : #DRStackInterpreterDispatchTableBuilder,
 	#superclass : #DRAbstractDispatchTableBuilder,
-	#category : #'Druid-DispatchTable'
+	#category : #'Druid-DispatchTable2'
 }
 
 { #category : #'accessing - building' }

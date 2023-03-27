@@ -11,7 +11,7 @@ Class {
 		'primTableNode',
 		'primitiveSpec'
 	],
-	#category : #'Druid-DispatchTable'
+	#category : #'Druid-DispatchTable2'
 }
 
 { #category : #'as yet unclassified' }

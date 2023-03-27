@@ -7,7 +7,7 @@ Trait {
 		'matchMethod',
 		'methods'
 	],
-	#category : #'Druid-DispatchTable'
+	#category : #'Druid-DispatchTable2'
 }
 
 { #category : #querying }
@@ -116,6 +116,13 @@ TDRMethodSelector >> methods [
 ]
 
 { #category : #querying }
+TDRMethodSelector >> methods: aCollection [
+
+	methods := aCollection
+
+]
+
+{ #category : #querying }
 TDRMethodSelector >> methodsFromPattern: aString [
 	"Answer a <Collection> of selectors begining with aString"
 
@@ -140,9 +147,10 @@ TDRMethodSelector >> scanSuperclasses [
 ]
 
 { #category : #accessing }
-TDRMethodSelector >> scanSuperclasses: anObject [
+TDRMethodSelector >> scanSuperclasses: aBoolean [
+	" Set <true> if receiver should scan superclasses for matching methods "
 
-	scanSuperclasses := anObject
+	scanSuperclasses := aBoolean
 ]
 
 { #category : #'accessing - query' }

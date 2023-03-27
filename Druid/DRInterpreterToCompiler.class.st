@@ -173,10 +173,9 @@ DRInterpreterToCompiler >> initPrimitiveTable [
 DRInterpreterToCompiler >> initializationOptions [
 
 	^ {
-		  #BytesPerWord.
-		  8 .
-		  #ObjectMemory.
-		  memory class name}
+		#BytesPerWord . 8 .
+		#ObjectMemory .  memory class name
+		}
 ]
 
 { #category : #initialization }

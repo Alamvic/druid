@@ -7,35 +7,19 @@ Class {
 	#category : #'Druid-InterpreterBuilder'
 }
 
-{ #category : #NEW }
+{ #category : #accessing }
 DRAbstractCompilerBuilder >> addPrimitive: aString [
 
 	(self isValidPrimitiveName: aString)
 		ifTrue: [ self compilationUnit addPrimitive: (self newPrimitive: aString) ]
 ]
 
-{ #category : #DELETE }
-DRAbstractCompilerBuilder >> addPrimitive: aString to: aDRCompilationUnit [
-
-	(self isValidPrimitiveName: aString)
-		ifTrue: [ aDRCompilationUnit addPrimitive: (self newPrimitive: aString) ]
-]
-
-{ #category : #NEW }
+{ #category : #accessing }
 DRAbstractCompilerBuilder >> addPrimitives [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
 	self interpreterPrimitiveTableSelectors
 		do: [ : prim | self addPrimitive: prim ]
-		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
-]
-
-{ #category : #DELETE }
-DRAbstractCompilerBuilder >> addPrimitivesTo: aCompilationUnit [
-	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
-
-	self interpreterPrimitiveTableSelectors
-		do: [ : prim | self addPrimitive: prim to: aCompilationUnit ]
 		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
 ]
 

@@ -44,34 +44,10 @@ DRCompilationUnit >> addPrimitiveEntry: primitiveObject [
 	self subclassResponsibility
 ]
 
-{ #category : #accessing }
-DRCompilationUnit >> addPrimitives: aCollection [
-
-	self primitives addAll: aCollection
-]
-
 { #category : #'accessing - compiler' }
 DRCompilationUnit >> addSpecialPrimitives [
 
 	self subclassResponsibility
-]
-
-{ #category : #'accessing - builder' }
-DRCompilationUnit >> buildAll [
-	"Write primitive methods in the receiver's JIT compiler class"
-
-	self primitives
-			do: [ : primitive | self compilePrimitive: primitive ]
-			displayingProgress: 'Compiling primitives'.
-	self buildInitializePrimitiveTable
-]
-
-{ #category : #'accessing - builder' }
-DRCompilationUnit >> buildInitializePrimitiveTable [
-	"Install the initialize primitive table method in the receiver's JIT compiler class"
-
-	self addPrimitiveEntries.
-	self primitiveMethods addAll: (self dispatchTableBuilder collectAllMethodsOn: self targetClass class)
 ]
 
 { #category : #'accessing - compiler' }
