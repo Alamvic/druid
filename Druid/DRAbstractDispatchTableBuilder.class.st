@@ -83,13 +83,17 @@ DRAbstractDispatchTableBuilder >> buildPrimitiveTableArrayNode [
 { #category : #accessing }
 DRAbstractDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
 
-	self subclassResponsibility
-]
-
-{ #category : #'accessing - building' }
-DRAbstractDispatchTableBuilder >> buildPrimitiveTableVariableNode [
-
-	self subclassResponsibility
+	^ PCGMessageNode
+		receiver: #CArrayAccessor asPCGGlobal
+		selector: #on:
+		arguments:
+			{ PCGMessageNode
+				receiver: #Array asPCGGlobal
+				selector: #new:
+				arguments: { PCGMessageNode
+					receiver: #MaxCompiledPrimitiveIndex asPCGGlobal
+					selector: #+
+					arguments: { 1 asPCG } .} }
 ]
 
 { #category : #accessing }
