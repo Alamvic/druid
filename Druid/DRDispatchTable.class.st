@@ -119,20 +119,14 @@ DRDispatchTable >> initializeFor: anInterpreterClass [
 	interpreterClass := anInterpreterClass
 ]
 
+{ #category : #accessing }
+DRDispatchTable >> interpreterClass [
+	^ interpreterClass
+]
+
 { #category : #private }
 DRDispatchTable >> interpreterProtocol [
 	" Answer the <ProtocolOrganizer> for the receiver's interpreter "
 
 	^ self targetClass organization protocolOrganizer
-]
-
-{ #category : #accessing }
-DRDispatchTable >> targetClass [
-	^ interpreterClass
-]
-
-{ #category : #accessing }
-DRDispatchTable >> targetClass: anObject [
-
-	interpreterClass := anObject
 ]

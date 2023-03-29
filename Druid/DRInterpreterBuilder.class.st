@@ -1,8 +1,6 @@
 Class {
 	#name : #DRInterpreterBuilder,
 	#superclass : #DRAbstractCompilerBuilder,
-	#traits : 'TDRMethodSelector',
-	#classTraits : 'TDRMethodSelector classTrait',
 	#instVars : [
 		'primitiveTable',
 		'primitiveIndex'
@@ -151,19 +149,6 @@ DRInterpreterBuilder >> primitivesCount [
 	(self primitiveTable includes: 0)
 		ifTrue: [ ^ primTableSize - 1 ].
 	^ primTableSize
-]
-
-{ #category : #accessing }
-DRInterpreterBuilder >> selectPrimitives: selectBlock [
-	" Answer a <Collection> of <CompiledMethod> representing primitive methods and matching conditions in selectBlock "
-	| primitiveCandidates |
-
-	primitiveCandidates := self
-		matchMethod: #beginsWith:;
-		scanSuperclasses: true;
-		allowDuplicates: false;
-		methodsFromPattern: 'prim'.
-	^ primitiveCandidates select: selectBlock
 ]
 
 { #category : #accessing }

@@ -7,7 +7,7 @@ Class {
 { #category : #initialization }
 DRInterpreterToCompilerTest >> testCompilationUnitPopulateInitializePrimitiveTable [
 
-	interpreterCompiler := DRInterpreterToCompiler fromInterpreter: interpreterBuilder.
+	interpreterCompiler := DRInterpreterToCompiler fromInterpreterBuilder: interpreterBuilder.
 	interpreterCompiler generateIRAndCompileIn: self jitCompilerClassForTest.
 
 	self assert: interpreterCompiler initPrimitiveTable notEmpty
@@ -16,7 +16,7 @@ DRInterpreterToCompilerTest >> testCompilationUnitPopulateInitializePrimitiveTab
 { #category : #initialization }
 DRInterpreterToCompilerTest >> testGenerateEmptyCompilationUnit [
 
-	interpreterCompiler := DRInterpreterToCompiler fromInterpreter: (self interpreterWith: Array empty).
+	interpreterCompiler := DRInterpreterToCompiler fromInterpreterBuilder: (self interpreterWith: Array empty).
 	self assert: interpreterCompiler primitives isEmpty
 ]
 
@@ -25,7 +25,7 @@ DRInterpreterToCompilerTest >> testGenerateMultiplePrimitiveCompilationUnit [
 
 	| primitiveSet |
 	primitiveSet := #(#primitiveAdd #primitiveEqual).
-	interpreterCompiler := DRInterpreterToCompiler fromInterpreter: (self interpreterWith: primitiveSet).
+	interpreterCompiler := DRInterpreterToCompiler fromInterpreterBuilder: (self interpreterWith: primitiveSet).
 	self
 		assertCollection: (interpreterCompiler primitives collect: #sourceSelector)
 		hasSameElements: primitiveSet.
@@ -37,7 +37,7 @@ DRInterpreterToCompilerTest >> testGenerateMultiplePrimitiveCompilationUnit [
 { #category : #initialization }
 DRInterpreterToCompilerTest >> testGenerateMultiplePrimitiveObjectCompilationUnit [
 
-	interpreterCompiler := DRInterpreterToCompiler fromInterpreter: interpreterBuilder.
+	interpreterCompiler := DRInterpreterToCompiler fromInterpreterBuilder: interpreterBuilder.
 	self assert: interpreterCompiler primitives size equals: interpreterBuilder primitivesCount
 ]
 
@@ -45,7 +45,7 @@ DRInterpreterToCompilerTest >> testGenerateMultiplePrimitiveObjectCompilationUni
 DRInterpreterToCompilerTest >> testGenerateSinglePrimitiveCompilationUnit [
 
 	| primitives |
-	interpreterCompiler := DRInterpreterToCompiler fromInterpreter: (self interpreterWith: #(#primitiveAdd)).
+	interpreterCompiler := DRInterpreterToCompiler fromInterpreterBuilder: (self interpreterWith: #(#primitiveAdd)).
 	primitives := interpreterCompiler primitives.
 	self
 		assert: primitives notEmpty;

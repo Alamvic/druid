@@ -82,7 +82,7 @@ DRBuildTableCommand >> execute [
 
 	interpreterBuilder := self createInterpreterBuilder.
 
-	(DRInterpreterToCompiler fromInterpreter: interpreterBuilder)
+	(DRInterpreterToCompiler fromInterpreterBuilder: interpreterBuilder)
 		generateBuildModelAndCompileIn: self jitClassName
 		superclass: self jitSuperclassName.
 

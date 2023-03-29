@@ -1,6 +1,8 @@
 Class {
 	#name : #DRAbstractCompilerBuilder,
 	#superclass : #Object,
+	#traits : 'TDRMethodSelector',
+	#classTraits : 'TDRMethodSelector classTrait',
 	#instVars : [
 		'compilationUnit'
 	],
@@ -60,7 +62,7 @@ DRAbstractCompilerBuilder >> environmentAt: aClass [
 
 	^ self class environment
 		at: aClass
-		ifAbsent: [ self newClassNamed: aClass superclass: self targetSuperclass ]
+		ifAbsent: [ self newClassNamed: aClass superclass: (Smalltalk at: self targetSuperclass) ]
 ]
 
 { #category : #DELETE }
@@ -134,6 +136,26 @@ DRAbstractCompilerBuilder >> newclassPrefix [
 { #category : #accessing }
 DRAbstractCompilerBuilder >> primitiveTable [
 	^ self subclassResponsibility
+]
+
+{ #category : #accessing }
+DRAbstractCompilerBuilder >> selectBytecodes: selectBlock [
+	" Answer a <Collection> of <CompiledMethod> with bytecodes matching conditions in selectBlock "
+
+	self shouldBeImplemented
+]
+
+{ #category : #accessing }
+DRAbstractCompilerBuilder >> selectPrimitives: selectBlock [
+	" Answer a <Collection> of <CompiledMethod> representing primitive methods and matching conditions in selectBlock "
+	| primitiveCandidates |
+
+	primitiveCandidates := self
+		matchMethod: #beginsWith:;
+		scanSuperclasses: true;
+		allowDuplicates: false;
+		methodsFromPattern: 'prim'.
+	^ primitiveCandidates select: selectBlock
 ]
 
 { #category : #accessing }

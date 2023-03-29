@@ -212,7 +212,7 @@ DRDispatchTableBuilderUI >> initializeClassPrototypeSelector [
 		items: self availableDispatchTablePrototypess;
 		selectItem: self dispatchTable targetClass;
 		whenSelectedItemChangedDo: [ : selectedClass |
-			self dispatchTable targetClass: selectedClass.
+			self dispatchTable interpreterClass: selectedClass.
 			self filterEntriesList ];
 		yourself.
 	browseButtonPresenter := self newButton

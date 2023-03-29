@@ -26,7 +26,7 @@ TDRMethodSelector >> allMethodsMatching: aString [
 	"Answer a <Collection> of <CompilerMethod> beginning with aString, looking up the pattern in the receiver's interpreter class methodDictionary, chase the superclass chain and try again until no method is found."
 
 	| lookupClass allSelectors |
-	lookupClass := self targetClass.
+	lookupClass := self interpreterClass.
 	allSelectors := self collectorClass new.
 	[ self finishScanIn: lookupClass ] whileFalse: [
 		allSelectors addAll: (lookupClass methods select: [ : method |  method selector perform: self matchMethod with: aString ]).
