@@ -74,6 +74,7 @@ DRInterpreterBuilder >> initializeWithOptions: aCollection objectMemoryClass: aC
 
 { #category : #accessing }
 DRInterpreterBuilder >> interpreterPrimitiveTable [
+	"Answer a <Collection> of <Symbol> each one representing a selector (e.g. #primitiveEqual) of the receiver's primitive table"
 
 	^ self primitiveTable
 ]

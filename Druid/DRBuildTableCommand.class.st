@@ -26,6 +26,25 @@ DRBuildTableCommand class >> defaultName [
 	^ 'Build Dispatch Table'
 ]
 
+{ #category : #private }
+DRBuildTableCommand >> applyInitializationOptions [
+
+	VMClass initializationOptions 
+		at: #ObjectMemory 
+		put: #Spur64BitMMLECoSimulator.
+	StackInterpreter 
+		bytesPerWord: 8;
+		initializeWithOptions: { 
+		#BytesPerWord -> 8 . 
+		#ObjectMemory -> #Spur64BitMMLECoSimulator } asDictionary.
+	StackToRegisterMappingCogit initializeWithOptions: (Dictionary newFromPairs: { 
+		#ISA. #aarch64 .
+		#IMMUTABILITY . false.
+		#bytecodeTableInitializer . #initializeBytecodeTableForSistaV1 .
+		#ObjectMemory. #Spur64BitCoMemoryManager }).
+	CogVMSimulatorLSB initializeMiscConstants.
+]
+
 { #category : #testing }
 DRBuildTableCommand >> canBeExecuted [
 	" Receiver can be executed if there are selections "
@@ -38,6 +57,7 @@ DRBuildTableCommand >> createInterpreterBuilder [
 
 	| superClass interpreterBuilder compilationUnit |
 
+	self applyInitializationOptions.
 	superClass := self interpreterSuperclassName
 		ifEmpty: [ StackInterpreter ]
 		ifNotEmpty: [ : superClassName | (self class environment at: superClassName) ].
@@ -48,7 +68,7 @@ DRBuildTableCommand >> createInterpreterBuilder [
 				  newInterpreterNamed: interpreterName
 				  superclass: superClass ].
 
-	interpreterBuilder methods: self selectedEntries asArray.
+	interpreterBuilder primitives: self selectedEntries asArray.
 	compilationUnit := interpreterBuilder generateBuildModel.
 	compilationUnit compileInitializePrimitiveTable.
 	^ interpreterBuilder

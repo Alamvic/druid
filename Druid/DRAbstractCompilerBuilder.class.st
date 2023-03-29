@@ -18,7 +18,7 @@ DRAbstractCompilerBuilder >> addPrimitive: aString [
 DRAbstractCompilerBuilder >> addPrimitives [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
-	self interpreterPrimitiveTableSelectors
+	(self interpreterPrimitiveTable collect: #selector)
 		do: [ : prim | self addPrimitive: prim ]
 		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
 ]
@@ -77,17 +77,10 @@ DRAbstractCompilerBuilder >> interpreterPrimitiveTable [
 	self subclassResponsibility 
 ]
 
-{ #category : #accessing }
-DRAbstractCompilerBuilder >> interpreterPrimitiveTableSelectors [
-	"Answer a <Collection> of <Symbol> each one representing a selector (e.g. #primitiveEqual) of the receiver's primitive table"
-
-	^ self interpreterPrimitiveTable reject: #isNumber
-]
-
 { #category : #testing }
 DRAbstractCompilerBuilder >> isValidPrimitiveName: aString [
 
-	^ aString ~= 0
+	^ aString isNumber not
 ]
 
 { #category : #accessing }
