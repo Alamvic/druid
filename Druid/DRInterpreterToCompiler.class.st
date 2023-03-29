@@ -146,7 +146,7 @@ DRInterpreterToCompiler >> generateBuildModelAndCompileIn: aClass superclass: aS
 
 	self generateBuildModel
 		interpreter: interpreter;
-		targetSuperclass: (self environmentAt: aSuperclass);
+		targetSuperclass: aSuperclass;
 		targetClass: (self environmentAt: aClass);
 		compileAll
 ]

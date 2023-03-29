@@ -18,7 +18,12 @@ DRAbstractCompilerBuilder >> addPrimitive: aString [
 DRAbstractCompilerBuilder >> addPrimitives [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
-	(self interpreterPrimitiveTable collect: #selector)
+	| primitiveSelectors |
+	primitiveSelectors := (self interpreterPrimitiveTable collect: [ : symOrCompiledMethod | 
+		symOrCompiledMethod isCompiledMethod 
+			ifTrue: [ symOrCompiledMethod selector ]
+			ifFalse: [ symOrCompiledMethod ] ]).
+	primitiveSelectors
 		do: [ : prim | self addPrimitive: prim ]
 		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
 ]
