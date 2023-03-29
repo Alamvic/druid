@@ -4,7 +4,8 @@ Class {
 	#traits : 'TDRMethodSelector',
 	#classTraits : 'TDRMethodSelector classTrait',
 	#instVars : [
-		'compilationUnit'
+		'compilationUnit',
+		'interpreterClass'
 	],
 	#category : #'Druid-InterpreterBuilder'
 }
@@ -60,9 +61,13 @@ DRAbstractCompilerBuilder >> defaultTargetSuperclass [
 DRAbstractCompilerBuilder >> environmentAt: aClass [
 	"Answer the class named aClass. Create if it doesn't exist"
 
+	| realSuperclass |
+	realSuperclass := self targetSuperclass isSymbol
+		ifTrue: [ Smalltalk at: self targetSuperclass ]
+		ifFalse: [ self targetSuperclass ].
 	^ self class environment
 		at: aClass
-		ifAbsent: [ self newClassNamed: aClass superclass: (Smalltalk at: self targetSuperclass) ]
+		ifAbsent: [ self newClassNamed: aClass superclass: realSuperclass ]
 ]
 
 { #category : #DELETE }

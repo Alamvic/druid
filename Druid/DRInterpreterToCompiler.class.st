@@ -17,8 +17,7 @@ Class {
 		'compilerCompilerClass',
 		'interpreter',
 		'compilerCompiler',
-		'interpreterBuilder',
-		'interpreterClass'
+		'interpreterBuilder'
 	],
 	#category : #'Druid-InterpreterBuilder'
 }
