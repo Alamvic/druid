@@ -73,25 +73,6 @@ DRInterpreterToCompiler class >> fromInterpreter: anInterpreterBuilder compilerC
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
-DRInterpreterCompiler class >> generateDruidJITModel [
-
-	<script>
-	| compilerClassName interpreterCompiler compilationUnit |
-	compilerClassName := #DruidJIT.
-	StackInterpreter initializePrimitiveTable.
-	interpreterCompiler := DRInterpreterCompiler
-		                       fromInterpreter:
-			                       (DRDummyInterpreter new primitives:
-				                        DRBasicCogInterpreterArithmeticPrimitives
-					                        primitiveTable)
-		                       compilerClass:
-		                       DRPrimitiveCompilerCompilerCollector.
-	compilationUnit := interpreterCompiler generateIR.
-	1halt.
-	interpreterCompiler generateBuildModelAndCompileIn: compilerClassName
-]
-
 { #category : #'accessing - primitives' }
 DRInterpreterToCompiler >> addPrimitive: aString to: aDRCompilationUnit [
 
@@ -235,16 +216,6 @@ DRInterpreterToCompiler >> newInterpreter [
 	^ interpreterBuilder basicNew
 		  objectMemory: memory;
 		  basicInitialize
-]
-
-{ #category : #accessing }
-DRInterpreterCompiler >> newJitCompilerClassNamed: aString [
-	"Answer a new <StackToRegisterMappingCogit> subclass named aString"
-
-	^ (StackToRegisterMappingCogit << aString asSymbol)
-		  tag: 'JIT';
-		  package: 'VMMaker';
-		  install
 ]
 
 { #category : #'accessing - object memory' }
