@@ -192,6 +192,12 @@ DRDispatchTableBuilderUI >> handleEntryChange: selectedMethod [
 ]
 
 { #category : #initialization }
+DRDispatchTableBuilderUI >> initialExtentForWindow [
+
+	^ 700 @ 500
+]
+
+{ #category : #initialization }
 DRDispatchTableBuilderUI >> initialize [
 
 	super initialize.
@@ -350,6 +356,17 @@ DRDispatchTableBuilderUI >> initializeStatusbar [
 ]
 
 { #category : #initialization }
+DRDispatchTableBuilderUI >> initializeWindow: aSpWindowPresenter [
+
+	super initializeWindow: aSpWindowPresenter.
+
+	aSpWindowPresenter
+		title: self titleForWindow;
+		initialExtent: self initialExtentForWindow
+
+]
+
+{ #category : #initialization }
 DRDispatchTableBuilderUI >> inlineMethodDisplay: method [
 
 	^ (method hasPragmaNamed: #inline:)
@@ -470,6 +487,12 @@ DRDispatchTableBuilderUI >> statusBarMessage [
 		format: { 
 			listedEntriesCount asString .
 			selectedEntriesCount asString }
+]
+
+{ #category : #initialization }
+DRDispatchTableBuilderUI >> titleForWindow [
+
+	^ 'Primitive Dispatch Table Builder'
 ]
 
 { #category : #callbacks }
