@@ -3,7 +3,8 @@ Class {
 	#superclass : #DRInstruction,
 	#instVars : [
 		'methodNode',
-		'irGenerator'
+		'irGenerator',
+		'typeSystem'
 	],
 	#category : #'Druid-IR'
 }
@@ -132,12 +133,14 @@ DRMessageSend >> methodNode: anObject [
 
 { #category : #inlining }
 DRMessageSend >> methodsToInline [
+	"Returns a collection of associations: 
+	    DRType (or #default) -> method AST
+	"
 
-	| inlinedMethodClasses |
-	^ methodNode ifNotNil: [ { (#default -> methodNode) } ] ifNil: [
-		  inlinedMethodClasses := self receiverType.
-		  inlinedMethodClasses collect: [ :class |
-			  class -> (class astForSelector: self selector) ] ]
+	methodNode ifNotNil: [ "If a method node was set during interpretation then the message send is statically binding to them"
+		^ { (#default -> methodNode) } ].
+
+	^ typeSystem methodsForMessage: self
 ]
 
 { #category : #printing }
@@ -152,28 +155,13 @@ DRMessageSend >> receiver [
 	^ self operand1
 ]
 
-{ #category : #inlining }
+{ #category : #types }
 DRMessageSend >> receiverType [
 
-	| typePragmas receiverName receiverTypePragmas receiverTypes |
-	typePragmas := self originAST methodNode allPragmasNamed: #var:type:.
-	typePragmas ifEmpty: [
-		^ (self receiver type lookupSelector: self selector)
-			ifNil: [ {  } ]
-			ifNotNil: [ { self receiver type } ] ].
-	receiverName := self originAST receiver name.
-	receiverTypePragmas := typePragmas select: [ :pragma |
-		                       pragma arguments first value = receiverName ].
-	receiverTypes := receiverTypePragmas collect: [ :pragma |
-		                 pragma arguments last value ].
-	"Unknown should always be the last type, as it's used as a fallback when inlining"
-	receiverTypes detect: [ :type | type = #Unknown ] ifFound: [
-		receiverTypes remove: #Unknown.
-		receiverTypes add: #Unknown ].
-	^ receiverTypes collect: [ :type |
-		  type = #Unknown
-			  ifTrue: [ DRUndefinedType new ]
-			  ifFalse: [ DRClassType for: (self class environment at: type) ] ]
+	(self receiver type lookupSelector: self selector) ifNil: [ "Check if the receiver type understands me, if not then fallback to Undefined type"
+		^ DRUndefinedType new ].
+
+	^ self receiver type
 ]
 
 { #category : #SCCP }
@@ -210,6 +198,18 @@ DRMessageSend >> type [
 			1 halt ] ].
 
 	^ DRTopType new
+]
+
+{ #category : #accessing }
+DRMessageSend >> typeSystem [
+
+	^ typeSystem
+]
+
+{ #category : #accessing }
+DRMessageSend >> typeSystem: anObject [
+
+	typeSystem := anObject
 ]
 
 { #category : #copying }

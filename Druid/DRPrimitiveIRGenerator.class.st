@@ -170,3 +170,9 @@ DRPrimitiveIRGenerator >> spillStack [
 		self currentBasicBlock addInstruction: copyInstruction.
 	]
 ]
+
+{ #category : #accessing }
+DRPrimitiveIRGenerator >> typeSystem [
+
+	^ DRPragmaBasedTypeSystem new
+]
