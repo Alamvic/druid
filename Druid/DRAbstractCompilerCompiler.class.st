@@ -172,7 +172,7 @@ DRAbstractCompilerCompiler >> numberOfArgumentsForMethod: method [
 { #category : #'as yet unclassified' }
 DRAbstractCompilerCompiler >> numberOfArgumentsForSelector: aSelector [
 
-	^ self numberOfArgumentsForMethod: (interpreter class lookupSelector: aSelector)
+	^ self numberOfArgumentsForMethod: self sourceMethod
 ]
 
 { #category : #accessing }
@@ -195,6 +195,7 @@ DRAbstractCompilerCompiler >> registerAllocator [
 
 { #category : #'generation-IR' }
 DRAbstractCompilerCompiler >> sourceMethod [
+	" Answer a <CompiledMethod> matching the current receiver's sourceName in the interpreter class "
 
 	^ interpreter class lookupSelector: sourceName
 ]
@@ -220,5 +221,7 @@ DRAbstractCompilerCompiler >> targetName [
 { #category : #'ast-to-source' }
 DRAbstractCompilerCompiler >> writeAST: aRBMethodNode [ 
 	
-	compilerClass compile: (aRBMethodNode formattedCode) classified: #generated
+	compilerClass
+		compile: aRBMethodNode formattedCode
+		classified: #generated
 ]

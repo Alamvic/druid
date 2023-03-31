@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'compilationUnit'
 	],
-	#category : #'Druid-Tests-CompilerCompiler'
+	#category : #'Druid-Tests-InterpreterBuilder'
 }
 
 { #category : #running }
@@ -12,10 +12,10 @@ DRPrimitiveCompilerCompilerCollectorTest >> setUp [
 
 	super setUp.
 	StackInterpreter initializePrimitiveTable.
-	interpreterCompiler := (DRInterpreterCompiler
-			fromInterpreter: (DRDummyInterpreter new primitives: DRBasicCogInterpreterArithmeticPrimitives primitiveTable)
+	interpreterCompiler := (DRInterpreterToCompiler
+			fromInterpreter: interpreterBuilder
 			compilerClass: DRPrimitiveCompilerCompilerCollector).
-	compilationUnit := interpreterCompiler generateIR
+	compilationUnit := interpreterCompiler generateBuildModel
 ]
 
 { #category : #initialization }
@@ -27,19 +27,19 @@ DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitCollectsPrimitive
 { #category : #initialization }
 DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitGeneratesJIT [
 
-	interpreterCompiler generateIRAndCompileIn: self testingJITCompilerClass.
+	interpreterCompiler generateIRAndCompileIn: self jitCompilerClassForTest.
 
-	self shouldnt: [ self class environment at: self testingJITCompilerClass ] raise: KeyNotFound.
-	self assert: ((self class environment at: self testingJITCompilerClass) respondsTo: #initializePrimitiveTable)
+	self shouldnt: [ self class environment at: self jitCompilerClassForTest ] raise: KeyNotFound.
+	self assert: ((self class environment at: self jitCompilerClassForTest) respondsTo: #initializePrimitiveTable)
 ]
 
 { #category : #initialization }
 DRPrimitiveCompilerCompilerCollectorTest >> testCompilationUnitModelGeneratesJIT [
 
-	interpreterCompiler generateBuildModelAndCompileIn: self testingJITCompilerClass.
+	interpreterCompiler generateBuildModelAndCompileIn: self jitCompilerClassForTest.
 
-	self shouldnt: [ self class environment at: self testingJITCompilerClass ] raise: KeyNotFound.
-	self assert: ((self class environment at: self testingJITCompilerClass) respondsTo: #initializePrimitiveTable)
+	self shouldnt: [ self class environment at: self jitCompilerClassForTest ] raise: KeyNotFound.
+	self assert: ((self class environment at: self jitCompilerClassForTest) respondsTo: #initializePrimitiveTable)
 ]
 
 { #category : #initialization }
@@ -54,6 +54,5 @@ DRPrimitiveCompilerCompilerCollectorTest >> testFailedPrimitivesCollection [
 { #category : #initialization }
 DRPrimitiveCompilerCompilerCollectorTest >> testObtainCompilationUnit [
 
-	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
-	self assert: interpreterCompiler generateIR notNil
+	self assert: interpreterCompiler generateBuildModel notNil
 ]

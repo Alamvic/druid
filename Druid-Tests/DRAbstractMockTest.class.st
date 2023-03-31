@@ -6,23 +6,15 @@ Class {
 	#name : #DRAbstractMockTest,
 	#superclass : #DRDruidTests,
 	#instVars : [
-		'testingEnvironment',
-		'interpreterBuilder',
-		'interpreterCompiler'
+		'testingEnvironment'
 	],
-	#category : #'Druid-Tests-CompilerCompiler'
+	#category : #'Druid-Tests-CompilerBuilder'
 }
 
-{ #category : #accessing }
-DRAbstractMockTest >> interpreterWith: aCollection [
+{ #category : #initialization }
+DRAbstractMockTest >> jitCompilerClassForTest [
 
-	^ self newEmptyInterpreter primitives: aCollection
-]
-
-{ #category : #accessing }
-DRAbstractMockTest >> newEmptyInterpreter [
-
-	^ DRDummyInterpreter new
+	^ #MyJITCompilerClass
 ]
 
 { #category : #running }
@@ -30,18 +22,16 @@ DRAbstractMockTest >> setUp [
 
 	super setUp.
 	testingEnvironment := Smalltalk globals.
-	interpreterBuilder := DRInterpreterBuilder new.
 ]
 
 { #category : #running }
 DRAbstractMockTest >> tearDown [
 
-	testingEnvironment removeClassNamed: self testingJITCompilerClass.
+	| className |
+
+	className := self jitCompilerClassForTest.
+	className isSymbol
+		ifFalse: [ className := self jitCompilerClassForTest name ].
+	testingEnvironment removeClassNamed: className.
 	super tearDown
-]
-
-{ #category : #initialization }
-DRAbstractMockTest >> testingJITCompilerClass [
-
-	^ #MyJITCompilerClass
 ]

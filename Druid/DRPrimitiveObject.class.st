@@ -17,7 +17,7 @@ Class {
 		'primitiveNumber',
 		'mayCallback'
 	],
-	#category : #'Druid-InterpreterBuilder'
+	#category : #'Druid-CompilerBuilder'
 }
 
 { #category : #accessing }
@@ -91,8 +91,6 @@ DRPrimitiveObject >> printOn: aStream [
 		<< $);
 		space;
 		<< self sourceSelector
-
-		
 ]
 
 { #category : #accessing }

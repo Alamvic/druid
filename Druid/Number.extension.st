@@ -11,3 +11,9 @@ Number >> isJitCompileTimeExpression [
 	
 	^ true
 ]
+
+{ #category : #'*Druid' }
+Number >> matchArgumentsAgainst: aPragma [
+
+	^ aPragma arguments anyOne = self
+]

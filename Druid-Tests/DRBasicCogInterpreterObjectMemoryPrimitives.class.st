@@ -1,7 +1,7 @@
 Class {
 	#name : #DRBasicCogInterpreterObjectMemoryPrimitives,
 	#superclass : #CogVMSimulatorLSB,
-	#category : #'Druid-InterpreterBuilder'
+	#category : #'Druid-Tests-CompilerBuilder'
 }
 
 { #category : #constants }

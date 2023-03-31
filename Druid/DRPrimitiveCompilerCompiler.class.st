@@ -19,10 +19,10 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 ]
 
 { #category : #'instance creation' }
-DRPrimitiveCompilerCompiler class >> forInterpreter: aDRInterpreterCompiler [ 
+DRPrimitiveCompilerCompiler class >> forInterpreter: anAbstractInterpreter [ 
 
 	^ self new
-		interpreter: aDRInterpreterCompiler;
+		interpreter: anAbstractInterpreter;
 		yourself
 ]
 
