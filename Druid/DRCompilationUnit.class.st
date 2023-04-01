@@ -2,9 +2,7 @@
 Abstract class to provide compilation behavior. Subclasses represents a Unit of compilation (a class), which can be asked for:
 
 - Set a target class and its superclass (`DRCompilationUnit>>#targetClass:`, `DRCompilationUnit>>#targetSuperclass:`)..
-- Adding primitives (`DRCompilationUnit>>#addPrimitiveEntries`, `DRCompilationUnit>>#addPrimitiveEntry:`).
-- Compile added primitives (`DRCompilationUnit>>#compilePrimitive:`, `DRCompilationUnit>>#compileAll`).
-- Configure the primitive table (`DRCompilationUnit>>#initPrimitiveTable`).
+- A specific compilation builder to help in the compilation process.
 
 "
 Class {

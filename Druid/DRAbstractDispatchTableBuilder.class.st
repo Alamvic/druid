@@ -11,7 +11,7 @@ Class {
 		'primTableNode',
 		'primitiveSpec'
 	],
-	#category : #'Druid-DispatchTable2'
+	#category : #'Druid-CompilerBuilder'
 }
 
 { #category : #'as yet unclassified' }
@@ -45,32 +45,12 @@ DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableAssignmentNode [
 	self subclassResponsibility
 ]
 
-{ #category : #'accessing - building' }
-DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableIVarAssignmentNode [
-
-	^ PCGAssignmentNode new
-		  variable: self buildPrimitiveTableVariableNode;
-		  value: self buildPrimitiveTableInitialValueNode
-]
-
 { #category : #accessing }
 DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode [
 
 	^ PCGAssignmentNode new
 		  variable: self maxPrimitiveIndexGlobalName asPCGGlobal;
 		  value: self maxCompiledPrimitives asPCG
-]
-
-{ #category : #'accessing - building' }
-DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableMethodNode [
-	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
-
-	^ (PCGMethodNode selector: self initPrimitiveTableSelector) bodyBlock: [ : body |
-		  body
-			<< self buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode;
-			<< self buildInitializePrimitiveTableIVarAssignmentNode;
-			<< self buildInitializePrimitiveTableAssignmentNode;
-			<< self buildPrimitiveTableVariableNode returnIt ]
 ]
 
 { #category : #'accessing - building' }

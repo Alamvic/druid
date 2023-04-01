@@ -1,3 +1,11 @@
+"
+Abstract class providing: 
+
+- A primitives selection protocol through `DRAbstractCompilerBuilder>>#selectPrimitives:`
+- A compilation unit `DRCompilationUnit`.
+- Convenience methods to create classes on demand: `DRAbstractCompilerBuilder>>#environmentAt:`
+
+"
 Class {
 	#name : #DRAbstractCompilerBuilder,
 	#superclass : #Object,
@@ -24,7 +32,7 @@ DRAbstractCompilerBuilder >> compilationUnit: anObject [
 { #category : #'accessing - compiler' }
 DRAbstractCompilerBuilder >> compilationUnitClass [
 
-	self subclassResponsibility
+	^ DRPrimitiveCompilationUnit 
 ]
 
 { #category : #accessing }
@@ -41,23 +49,6 @@ DRAbstractCompilerBuilder >> environmentAt: aClass [
 ]
 
 { #category : #accessing }
-DRAbstractCompilerBuilder >> generateBuildModelAndCompileIn: aClass [ 
-	^ self subclassResponsibility
-]
-
-{ #category : #accessing }
-DRAbstractCompilerBuilder >> interpreterClass [
-
-	self subclassResponsibility
-]
-
-{ #category : #accessing }
-DRAbstractCompilerBuilder >> interpreterPrimitiveTable [
-
-	self subclassResponsibility 
-]
-
-{ #category : #accessing }
 DRAbstractCompilerBuilder >> newClassNamed: aString superclass: aSuperclass [
 	"Answer a new <StackToRegisterMappingCogit> subclass named aString"
 
@@ -66,20 +57,6 @@ DRAbstractCompilerBuilder >> newClassNamed: aString superclass: aSuperclass [
 				name: aString;
 				superclass: aSuperclass;
 				category: aString ]
-]
-
-{ #category : #accessing }
-DRAbstractCompilerBuilder >> primitiveTable [
-	^ self subclassResponsibility
-]
-
-{ #category : #accessing }
-DRAbstractCompilerBuilder >> selectPrimitives: selectBlock [
-	" Answer a <Collection> of <CompiledMethod> representing primitive methods and matching conditions in selectBlock "
-
-	^ (self primitiveTable reject: #isNumber) 
-		select: [ : primSelector | selectBlock value: (self interpreterClass lookupSelector: primSelector) ]
-		thenCollect: [ : primSelector | self interpreterClass lookupSelector: primSelector ]
 ]
 
 { #category : #accessing }

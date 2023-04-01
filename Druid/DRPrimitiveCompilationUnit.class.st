@@ -1,3 +1,10 @@
+"
+Concrete subclass implementing primitive compilation behavior. It provides behavior for:
+
+- Adding primitives (`DRCompilationUnit>>#addPrimitiveEntries`, `DRCompilationUnit>>#addPrimitiveEntry:`).
+- Compile added primitives (`DRCompilationUnit>>#compilePrimitive:`, `DRCompilationUnit>>#compileAll`).
+- Configure the primitive table (`DRCompilationUnit>>#initPrimitiveTable`).
+"
 Class {
 	#name : #DRPrimitiveCompilationUnit,
 	#superclass : #DRCompilationUnit,

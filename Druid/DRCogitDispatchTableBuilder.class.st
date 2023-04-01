@@ -1,7 +1,14 @@
+"
+Uses a Pharo Code Generator to build methods conforming to the Cogit JIT dispatch table specification. Currently these can be found browsing :
+
+- #primitiveTable
+- #initializePrimitiveTable
+
+"
 Class {
 	#name : #DRCogitDispatchTableBuilder,
 	#superclass : #DRAbstractDispatchTableBuilder,
-	#category : #'Druid-DispatchTable2'
+	#category : #'Druid-CompilerBuilder'
 }
 
 { #category : #'accessing - building' }
@@ -18,6 +25,26 @@ DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableAssignmentNode [
 			receiver: #self asPCGNode
 			selector: #table:from:
 			arguments: { self buildPrimitiveTableVariableNode . #'self primitiveTableArray' asPCGArgument }
+]
+
+{ #category : #'accessing - building' }
+DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableIVarAssignmentNode [
+
+	^ PCGAssignmentNode new
+		  variable: self buildPrimitiveTableVariableNode;
+		  value: self buildPrimitiveTableInitialValueNode
+]
+
+{ #category : #'accessing - building' }
+DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableMethodNode [
+	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
+
+	^ (PCGMethodNode selector: self initPrimitiveTableSelector) bodyBlock: [ : body |
+		  body
+			<< self buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode;
+			<< self buildInitializePrimitiveTableIVarAssignmentNode;
+			<< self buildInitializePrimitiveTableAssignmentNode;
+			<< self buildPrimitiveTableVariableNode returnIt ]
 ]
 
 { #category : #accessing }
