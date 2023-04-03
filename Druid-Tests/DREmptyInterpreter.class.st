@@ -13,3 +13,10 @@ DREmptyInterpreter class >> basicPrimitiveTable [
 
 	^ Array empty
 ]
+
+{ #category : #'class initialization' }
+DREmptyInterpreter class >> primitiveTableArray [
+
+	<generated>
+	^ { { 0. 0 } }
+]

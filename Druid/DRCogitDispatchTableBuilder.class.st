@@ -27,26 +27,6 @@ DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableAssignmentNode [
 			arguments: { self buildPrimitiveTableVariableNode . #'self primitiveTableArray' asPCGArgument }
 ]
 
-{ #category : #'accessing - building' }
-DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableIVarAssignmentNode [
-
-	^ PCGAssignmentNode new
-		  variable: self buildPrimitiveTableVariableNode;
-		  value: self buildPrimitiveTableInitialValueNode
-]
-
-{ #category : #'accessing - building' }
-DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableMethodNode [
-	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
-
-	^ (PCGMethodNode selector: self initPrimitiveTableSelector) bodyBlock: [ : body |
-		  body
-			<< self buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode;
-			<< self buildInitializePrimitiveTableIVarAssignmentNode;
-			<< self buildInitializePrimitiveTableAssignmentNode;
-			<< self buildPrimitiveTableVariableNode returnIt ]
-]
-
 { #category : #accessing }
 DRCogitDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
 

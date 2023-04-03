@@ -39,6 +39,12 @@ DRInterpreterToCompiler class >> fromInterpreterClass: anInterpreterClass [
 ]
 
 { #category : #'accessing - compiler' }
+DRInterpreterToCompiler >> compileAll [
+
+	self generateBuildModel compileAll
+]
+
+{ #category : #'accessing - compiler' }
 DRInterpreterToCompiler >> compilerCompiler [
 	"Answer a Druid compiler configured for the receiver's interpreter builder"
 
@@ -176,6 +182,13 @@ DRInterpreterToCompiler >> primitives [
 	^ self compilationUnit primitives
 		ifEmpty: [ self generateBuildModel primitives ]
 		ifNotEmpty: [ : p | p ]
+]
+
+{ #category : #'accessing - primitives' }
+DRInterpreterToCompiler >> primitives: aCollection [
+
+	self compilationUnit primitives: aCollection.
+
 ]
 
 { #category : #accessing }
