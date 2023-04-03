@@ -1,6 +1,9 @@
 Class {
 	#name : #DRStackInterpreterDispatchTableBuilder,
 	#superclass : #DRAbstractDispatchTableBuilder,
+	#instVars : [
+		'primitiveSpec'
+	],
 	#category : #'Druid-CompilerBuilder'
 }
 
@@ -57,4 +60,16 @@ DRStackInterpreterDispatchTableBuilder >> initPrimitiveTableSelector [
 DRStackInterpreterDispatchTableBuilder >> maxPrimitiveIndexGlobalName [
 
 	^ #MaxPrimitiveIndex
+]
+
+{ #category : #accessing }
+DRStackInterpreterDispatchTableBuilder >> primitiveSpec [
+
+	^ primitiveSpec
+]
+
+{ #category : #accessing }
+DRStackInterpreterDispatchTableBuilder >> primitiveSpec: anObject [
+
+	primitiveSpec := anObject
 ]

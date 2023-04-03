@@ -1,6 +1,6 @@
 Class {
 	#name : #DRStackCompilationUnit,
-	#superclass : #DRPrimitiveCompilationUnit,
+	#superclass : #DRCogitCompilationUnit,
 	#instVars : [
 		'primitiveIndex'
 	],

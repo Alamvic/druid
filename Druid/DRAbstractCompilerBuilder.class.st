@@ -32,7 +32,7 @@ DRAbstractCompilerBuilder >> compilationUnit: anObject [
 { #category : #'accessing - compiler' }
 DRAbstractCompilerBuilder >> compilationUnitClass [
 
-	^ DRPrimitiveCompilationUnit 
+	^ DRCogitCompilationUnit 
 ]
 
 { #category : #accessing }

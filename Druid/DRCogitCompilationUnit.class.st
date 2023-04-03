@@ -6,18 +6,20 @@ Concrete subclass implementing primitive compilation behavior. It provides behav
 - Configure the primitive table (`DRCompilationUnit>>#initPrimitiveTable`).
 "
 Class {
-	#name : #DRPrimitiveCompilationUnit,
+	#name : #DRCogitCompilationUnit,
 	#superclass : #DRCompilationUnit,
 	#instVars : [
 		'primitives',
 		'initPrimitiveTable',
+		'bytecodes',
+		'initBytecodeTable',
 		'dispatchTableBuilder'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
 
 { #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> addPrimitiveEntries [
+DRCogitCompilationUnit >> addPrimitiveEntries [
 	"As part of the build unit, add the receiver's primitives from its <Collection> of <DRPrimitiveObject>"
 
 	self compiler interpreter: self interpreter.
@@ -27,7 +29,7 @@ DRPrimitiveCompilationUnit >> addPrimitiveEntries [
 ]
 
 { #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
+DRCogitCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
 
 	self initPrimitiveTable add: {
@@ -38,7 +40,7 @@ DRPrimitiveCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 ]
 
 { #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> addPrimitives [
+DRCogitCompilationUnit >> addPrimitives [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
 	(self collectPrimitives: self interpreterPrimitiveTable)
@@ -50,12 +52,24 @@ DRPrimitiveCompilationUnit >> addPrimitives [
 ]
 
 { #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> addSpecialPrimitives [
+DRCogitCompilationUnit >> addSpecialPrimitives [
 	"Private - Do nothing for now"
 ]
 
+{ #category : #accessing }
+DRCogitCompilationUnit >> bytecodes [
+
+	^ bytecodes
+]
+
+{ #category : #accessing }
+DRCogitCompilationUnit >> bytecodes: anObject [
+
+	bytecodes := anObject
+]
+
 { #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> collectPrimitives: aCollection [ 
+DRCogitCompilationUnit >> collectPrimitives: aCollection [ 
 	" Answer a <Collection> of selectors from aCollection containing CompiledMethod or primitive names "
 
 	^ aCollection 
@@ -67,14 +81,14 @@ DRPrimitiveCompilationUnit >> collectPrimitives: aCollection [
 ]
 
 { #category : #'accessing - compiler' }
-DRPrimitiveCompilationUnit >> compileAll [
+DRCogitCompilationUnit >> compileAll [
 	"Write primitive methods in the receiver's JIT compiler class"
 
 	self compileInitializePrimitiveTable
 ]
 
 { #category : #'accessing - compiler' }
-DRPrimitiveCompilationUnit >> compileInitializePrimitiveTable [
+DRCogitCompilationUnit >> compileInitializePrimitiveTable [
 	"Install the initialize primitive table method in the receiver's JIT compiler class"
 
 	self addPrimitiveEntries.
@@ -82,7 +96,7 @@ DRPrimitiveCompilationUnit >> compileInitializePrimitiveTable [
 ]
 
 { #category : #'accessing - compiler' }
-DRPrimitiveCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
+DRCogitCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
 	"Compile a method in the receiver's JIT compiler class. aDRPrimitiveObject contains the specification needed to compile the JITed version of the method"
 
 	(self compiler
@@ -93,35 +107,47 @@ DRPrimitiveCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
 ]
 
 { #category : #private }
-DRPrimitiveCompilationUnit >> dispatchTableBuilder [
+DRCogitCompilationUnit >> dispatchTableBuilder [
 	" Answer a <PCGMethodNode> representing the source code of the #initializePrimitiveTable compatible with Cogit "
 
 	^ dispatchTableBuilder
-		ifNil: [ dispatchTableBuilder := self dispatchTableBuilderClass primitiveTableMethodFrom: self ]
+		ifNil: [ dispatchTableBuilder := self dispatchTableBuilderClass fromCompilationUnit: self ]
 ]
 
 { #category : #private }
-DRPrimitiveCompilationUnit >> dispatchTableBuilder: aDRDispatchTableBuilder [
+DRCogitCompilationUnit >> dispatchTableBuilder: aDRDispatchTableBuilder [
 	" Set aDRDispatchTableBuilder to the receiver's dispatch table builder "
 
 	dispatchTableBuilder := aDRDispatchTableBuilder
 ]
 
 { #category : #private }
-DRPrimitiveCompilationUnit >> dispatchTableBuilderClass [ 
+DRCogitCompilationUnit >> dispatchTableBuilderClass [ 
 
 	^ DRCogitDispatchTableBuilder
 ]
 
 { #category : #testing }
-DRPrimitiveCompilationUnit >> hasPrimitives [
+DRCogitCompilationUnit >> hasPrimitives [
 	"Answer <true> if the receiver already contains primitives"
 
 	^ self primitives notEmpty
 ]
 
+{ #category : #accessing }
+DRCogitCompilationUnit >> initBytecodeTable [
+
+	^ initBytecodeTable
+]
+
+{ #category : #accessing }
+DRCogitCompilationUnit >> initBytecodeTable: anObject [
+
+	initBytecodeTable := anObject
+]
+
 { #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> initPrimitiveTable [
+DRCogitCompilationUnit >> initPrimitiveTable [
 	"Answer a <Colllection> of <Array>. Each Array specifies an entry in the primitive table as expected by Cogit>>initializePrimitiveTable implementation"
 
 	^ initPrimitiveTable
@@ -129,32 +155,38 @@ DRPrimitiveCompilationUnit >> initPrimitiveTable [
 ]
 
 { #category : #accessing }
-DRPrimitiveCompilationUnit >> interpreter [
+DRCogitCompilationUnit >> initPrimitiveTable: anObject [
+
+	initPrimitiveTable := anObject
+]
+
+{ #category : #accessing }
+DRCogitCompilationUnit >> interpreter [
 
 	^ self compiler interpreter
 ]
 
 { #category : #accessing }
-DRPrimitiveCompilationUnit >> interpreterClass [
+DRCogitCompilationUnit >> interpreterClass [
 
 	^ self interpreter class
 ]
 
 { #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> interpreterPrimitiveTable [
+DRCogitCompilationUnit >> interpreterPrimitiveTable [
 
 	self interpreterClass initializePrimitiveTable.
 	^ self interpreterClass basicPrimitiveTable 
 ]
 
 { #category : #testing }
-DRPrimitiveCompilationUnit >> isValidPrimitiveName: aString [
+DRCogitCompilationUnit >> isValidPrimitiveName: aString [
 
 	^ aString isNumber not
 ]
 
 { #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> primitiveMayCallback: aString [
+DRCogitCompilationUnit >> primitiveMayCallback: aString [
 	"Answer <true> if primitive aString is marked as maycallback"
 	" #maycallback "
 
@@ -162,7 +194,7 @@ DRPrimitiveCompilationUnit >> primitiveMayCallback: aString [
 ]
 
 { #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> primitiveNumberOf: aSelector [
+DRCogitCompilationUnit >> primitiveNumberOf: aSelector [
 	" Answer a <Number> representing the primitive number of aSelector "
 
 	| primNumber |
@@ -174,7 +206,7 @@ DRPrimitiveCompilationUnit >> primitiveNumberOf: aSelector [
 ]
 
 { #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> primitives [
+DRCogitCompilationUnit >> primitives [
 	"Answer a <Collection> of IR of primitive methods, instances of <DRPrimitiveControlFlowGraph>"
 
 	^ primitives
@@ -182,7 +214,7 @@ DRPrimitiveCompilationUnit >> primitives [
 ]
 
 { #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> primitives: aCollection [
+DRCogitCompilationUnit >> primitives: aCollection [
 	"Set a <Collection> of primitive methods "
 
 	primitives := aCollection

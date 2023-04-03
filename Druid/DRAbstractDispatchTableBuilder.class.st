@@ -9,17 +9,17 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'primTableNode',
-		'primitiveSpec'
+		'compilationUnit'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
 
-{ #category : #'as yet unclassified' }
-DRAbstractDispatchTableBuilder class >> primitiveTableMethodFrom: aDRCompilationUnit [
+{ #category : #'instance creation' }
+DRAbstractDispatchTableBuilder class >> fromCompilationUnit: aDRCompilationUnit [
 	"Answer a <DRCogitPrimitiveInstaller> method representation of aDRCompilationUnit"
 
 	^ self new
-		primitiveSpec: aDRCompilationUnit;
+		compilationUnit: aDRCompilationUnit;
 		yourself
 ]
 
@@ -84,7 +84,7 @@ DRAbstractDispatchTableBuilder >> buildPrimitiveTableArrayNode [
 DRAbstractDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
 
 	^ PCGMessageNode
-		receiver: #CArrayAccessor asPCGGlobal
+		receiver: self arrayAccessorGlobalName asPCGGlobal
 		selector: #on:
 		arguments:
 			{ PCGMessageNode
@@ -110,11 +110,23 @@ DRAbstractDispatchTableBuilder >> collectAllMethodsOn: aJITCompilerClass [
 			pcgNode ]
 ]
 
+{ #category : #accessing }
+DRAbstractDispatchTableBuilder >> compilationUnit [
+
+	^ compilationUnit
+]
+
+{ #category : #accessing }
+DRAbstractDispatchTableBuilder >> compilationUnit: anObject [
+
+	compilationUnit := anObject
+]
+
 { #category : #initialization }
 DRAbstractDispatchTableBuilder >> initPrimitiveTable [
 	"Answer a <Collection> with primitive table entries"
 
-	^ self primitiveSpec initPrimitiveTable
+	^ self compilationUnit initPrimitiveTable
 ]
 
 { #category : #'accessing - building' }
@@ -154,16 +166,4 @@ DRAbstractDispatchTableBuilder >> maxPrimitiveIndexGlobalName [
 DRAbstractDispatchTableBuilder >> primTableNode [
 
 	^ primTableNode
-]
-
-{ #category : #accessing }
-DRAbstractDispatchTableBuilder >> primitiveSpec [
-
-	^ primitiveSpec
-]
-
-{ #category : #accessing }
-DRAbstractDispatchTableBuilder >> primitiveSpec: anObject [
-
-	primitiveSpec := anObject
 ]
