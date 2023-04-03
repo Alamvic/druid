@@ -1,21 +1,21 @@
 "
-This class can take a `DRCompilationUnit` as input (using `primitiveTableMethodFrom:`) and install methods in a JIT compiler class (using `installAllMethodsOn:`).
+Sibclasses accept a `DRCompilationUnit` as input (using `primitiveTableMethodFrom:`) and install methods in a JIT compiler class (using `installAllMethodsOn:`).
 
 Methods starting with `build` answer Pharo Code Generator node instances, used to build the methods in the JIT compiler class.
 
 "
 Class {
-	#name : #DRCogitPrimitiveInstaller,
+	#name : #DRAbstractDispatchTableBuilder,
 	#superclass : #Object,
 	#instVars : [
-		'primitiveSpec',
-		'primTableNode'
+		'primTableNode',
+		'primitiveSpec'
 	],
-	#category : #'Druid-InterpreterBuilder'
+	#category : #'Druid-CompilerBuilder'
 }
 
 { #category : #'as yet unclassified' }
-DRCogitPrimitiveInstaller class >> primitiveTableMethodFrom: aDRCompilationUnit [
+DRAbstractDispatchTableBuilder class >> primitiveTableMethodFrom: aDRCompilationUnit [
 	"Answer a <DRCogitPrimitiveInstaller> method representation of aDRCompilationUnit"
 
 	^ self new
@@ -24,7 +24,13 @@ DRCogitPrimitiveInstaller class >> primitiveTableMethodFrom: aDRCompilationUnit 
 ]
 
 { #category : #'accessing - building' }
-DRCogitPrimitiveInstaller >> buildInitializePrimitiveTableArrayMethodNode [
+DRAbstractDispatchTableBuilder >> arrayAccessorGlobalName [
+
+	self subclassResponsibility
+]
+
+{ #category : #'accessing - building' }
+DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableArrayMethodNode [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
 	primTableNode := (PCGMethodNode selector: #primitiveTableArray)
@@ -34,51 +40,28 @@ DRCogitPrimitiveInstaller >> buildInitializePrimitiveTableArrayMethodNode [
 ]
 
 { #category : #'accessing - building' }
-DRCogitPrimitiveInstaller >> buildInitializePrimitiveTableAssignmentNode [
-	"Answer a <PCGMessageNode> with the primitive table initialization setter message send"
+DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableAssignmentNode [
 
-	^ PCGMessageNode
-			receiver: #self asPCGNode
-			selector: #table:from:
-			arguments: { #primitiveTable asPCGArgument . #'self primitiveTableArray' asPCGArgument }
-]
-
-{ #category : #'accessing - building' }
-DRCogitPrimitiveInstaller >> buildInitializePrimitiveTableIVarAssignmentNode [
-
-	^ PCGAssignmentNode new
-		  variable: #primitiveTable asPCGInstanceVariable;
-		  value: self buildPrimitiveTableInitialValueNode
+	self subclassResponsibility
 ]
 
 { #category : #accessing }
-DRCogitPrimitiveInstaller >> buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode [
+DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode [
 
 	^ PCGAssignmentNode new
-		  variable: #MaxCompiledPrimitiveIndex asPCGGlobal;
+		  variable: self maxPrimitiveIndexGlobalName asPCGGlobal;
 		  value: self maxCompiledPrimitives asPCG
 ]
 
 { #category : #'accessing - building' }
-DRCogitPrimitiveInstaller >> buildInitializePrimitiveTableMethodNode [
-	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
-
-	^ (PCGMethodNode selector: #initializePrimitiveTable) bodyBlock: [ : body |
-		  body
-			<< self buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode
-			<< self buildInitializePrimitiveTableIVarAssignmentNode;
-			<< self buildInitializePrimitiveTableAssignmentNode ]
-]
-
-{ #category : #'accessing - building' }
-DRCogitPrimitiveInstaller >> buildPrimitiveTableArrayNode [
+DRAbstractDispatchTableBuilder >> buildPrimitiveTableArrayNode [
 	"Answer a <PCGReturnNode> with the primitive table initialization setter message send"
 
 	^ self initPrimitiveTable asPCG returnIt
 ]
 
-{ #category : #'accessing - building' }
-DRCogitPrimitiveInstaller >> buildPrimitiveTableInitialValueNode [
+{ #category : #accessing }
+DRAbstractDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
 
 	^ PCGMessageNode
 		receiver: #CArrayAccessor asPCGGlobal
@@ -94,7 +77,7 @@ DRCogitPrimitiveInstaller >> buildPrimitiveTableInitialValueNode [
 ]
 
 { #category : #accessing }
-DRCogitPrimitiveInstaller >> collectAllMethodsOn: aJITCompilerClass [
+DRAbstractDispatchTableBuilder >> collectAllMethodsOn: aJITCompilerClass [
 	"Answer a <Collection> of <PCGMethodNode> to be installated in a JIT compiler class"
 
 	^ {
@@ -108,14 +91,20 @@ DRCogitPrimitiveInstaller >> collectAllMethodsOn: aJITCompilerClass [
 ]
 
 { #category : #initialization }
-DRCogitPrimitiveInstaller >> initPrimitiveTable [
+DRAbstractDispatchTableBuilder >> initPrimitiveTable [
 	"Answer a <Collection> with primitive table entries"
 
 	^ self primitiveSpec initPrimitiveTable
 ]
 
+{ #category : #'accessing - building' }
+DRAbstractDispatchTableBuilder >> initPrimitiveTableSelector [
+
+	self subclassResponsibility
+]
+
 { #category : #'accessing - installation' }
-DRCogitPrimitiveInstaller >> installAllMethodsOn: aJITCompilerClass [
+DRAbstractDispatchTableBuilder >> installAllMethodsOn: aJITCompilerClass [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
 	^ {
@@ -129,26 +118,32 @@ DRCogitPrimitiveInstaller >> installAllMethodsOn: aJITCompilerClass [
 ]
 
 { #category : #accessing }
-DRCogitPrimitiveInstaller >> maxCompiledPrimitives [
+DRAbstractDispatchTableBuilder >> maxCompiledPrimitives [
 	"Answer the <Number> of compiled primitives in the receiver"
 
-	^ (self primTableNode statements detect: #isReturn) value statements size
+	^ self primTableNode maxCompiledPrimitives
 ]
 
 { #category : #accessing }
-DRCogitPrimitiveInstaller >> primTableNode [
+DRAbstractDispatchTableBuilder >> maxPrimitiveIndexGlobalName [
+
+	self subclassResponsibility
+]
+
+{ #category : #accessing }
+DRAbstractDispatchTableBuilder >> primTableNode [
 
 	^ primTableNode
 ]
 
 { #category : #accessing }
-DRCogitPrimitiveInstaller >> primitiveSpec [
+DRAbstractDispatchTableBuilder >> primitiveSpec [
 
 	^ primitiveSpec
 ]
 
 { #category : #accessing }
-DRCogitPrimitiveInstaller >> primitiveSpec: anObject [
+DRAbstractDispatchTableBuilder >> primitiveSpec: anObject [
 
 	primitiveSpec := anObject
 ]

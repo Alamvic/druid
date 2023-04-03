@@ -4,7 +4,7 @@ Implements an Interpreter with very few arithmetic primitives. None of the primi
 Class {
 	#name : #DRBasicCogInterpreterArithmeticPrimitives,
 	#superclass : #CogVMSimulatorLSB,
-	#category : #'Druid-InterpreterBuilder'
+	#category : #'Druid-Tests-CompilerBuilder'
 }
 
 { #category : #constants }
