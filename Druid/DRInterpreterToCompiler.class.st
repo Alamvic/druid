@@ -25,7 +25,9 @@ Class {
 	#instVars : [
 		'memory',
 		'compilerCompilerClass',
-		'compilerCompiler'
+		'compilerCompiler',
+		'primitiveSelector',
+		'failFirst'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
@@ -33,19 +35,45 @@ Class {
 { #category : #'instance creation' }
 DRInterpreterToCompiler class >> fromInterpreterClass: anInterpreterClass [
 
-	^  self basicNew
-		interpreterClass: anInterpreterClass;
-		yourself
+	^ self new
+		  interpreterClass: anInterpreterClass;
+		  yourself
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> addPrimitive: aString [
+
+	(self isValidPrimitiveName: aString)
+		ifTrue: [ 
+			[ self primitives add: (self newPrimitive: aString) ]
+			on: Error
+			do: [ : ex | 
+				failFirst ifTrue: [ ex pass  ].
+				self compilerCompiler 
+					failedPrimitivesAt: ex
+					add: self compilerCompiler sourceName ] ].
+
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> addPrimitives [
+	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
+
+	^ (self collectPrimitives: self interpreterPrimitiveTable)
+		do: [ : prim | self addPrimitive: prim ]
+		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
+
+		
+
 ]
 
 { #category : #'accessing - model' }
 DRInterpreterToCompiler >> build [
 	"Answer a <DRCompilationUnit>, useful for model manipulation before code dumping"
 
-	self compilationUnit 
-		compiler: self compilerCompiler;
-		addPrimitives.
-	^ self compilationUnit
+	self compilationUnit compiler: self compilerCompiler.
+	self addPrimitives.
+	^ self compilationUnit compileAll
 ]
 
 { #category : #'accessing - model' }
@@ -74,11 +102,22 @@ DRInterpreterToCompiler >> buildAndCompileIn: aClass superclass: aSuperclass [
 DRInterpreterToCompiler >> buildIRAndCompileIn: aClass [
 	"Generate and install the receiver's primitives into JIT compiler aClass"
 
-	self compilationUnit
-		targetClass: (self environmentAt: aClass);
-		compiler: self compilerCompiler;
-		addPrimitives;
-		compileAll
+	self compilationUnit targetClass: (self environmentAt: aClass).
+	self build
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> collectPrimitives: aCollection [
+	" Answer a <Collection> of selectors from aCollection containing CompiledMethod or primitive names "
+
+	^ aCollection
+		  reject: [ :obj |
+			  obj isNumber or: [
+				  obj isNil or: [ (self isSelectedPrimitive: (interpreterClass lookupSelector: obj)) not ] ] ]
+		  thenCollect: [ :symOrCompiledMethod |
+			  symOrCompiledMethod isCompiledMethod
+				  ifTrue: [ symOrCompiledMethod selector ]
+				  ifFalse: [ symOrCompiledMethod ] ]
 ]
 
 { #category : #'accessing - compiler' }
@@ -117,6 +156,18 @@ DRInterpreterToCompiler >> defaultCompilerCompilerClass [
 	^ DRPrimitiveCompilerCompiler
 ]
 
+{ #category : #initialization }
+DRInterpreterToCompiler >> doFailOnFirst [
+
+	failFirst := true
+]
+
+{ #category : #accessing }
+DRInterpreterToCompiler >> failedPrimitives [
+
+	^ self compilerCompiler failedPrimitives
+]
+
 { #category : #helpers }
 DRInterpreterToCompiler >> initPrimitiveTable [
 	"Answer a <Collection> with the JITed primitives"
@@ -133,6 +184,14 @@ DRInterpreterToCompiler >> initializationOptions [
 		}
 ]
 
+{ #category : #initialization }
+DRInterpreterToCompiler >> initialize [ 
+
+	super initialize.
+	primitiveSelector := [ : arg | true ].
+	failFirst := false.
+]
+
 { #category : #accessing }
 DRInterpreterToCompiler >> interpreterClass [
 
@@ -142,7 +201,11 @@ DRInterpreterToCompiler >> interpreterClass [
 { #category : #accessing }
 DRInterpreterToCompiler >> interpreterClass: anObject [
 
-	interpreterClass := anObject
+	interpreterClass := anObject.
+	anObject initializePrimitiveTable.
+	compilerCompiler := nil.
+	compilationUnit := nil.
+
 ]
 
 { #category : #accessing }
@@ -150,6 +213,18 @@ DRInterpreterToCompiler >> interpreterPrimitiveTable [
 	"Answer a <Collection> of <Symbol> each one representing a selector (e.g. #primitiveEqual) of the receiver's primitive table"
 
 	^ interpreterClass primitiveTable
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> isSelectedPrimitive: obj [
+
+	^ primitiveSelector value: obj
+]
+
+{ #category : #testing }
+DRInterpreterToCompiler >> isValidPrimitiveName: aString [
+
+	^ aString isNumber not
 ]
 
 { #category : #'instance creation' }
@@ -170,6 +245,39 @@ DRInterpreterToCompiler >> newMemory [
 	^ Spur64BitCoMemoryManager simulatorClass new
 ]
 
+{ #category : #adding }
+DRInterpreterToCompiler >> newPrimitive: aString [
+	" Answer a new primitive object with its metadata and CFG generated "
+
+	^ DRJITPrimitiveObject new
+		primitiveNumber: (self primitiveNumberOf: aString);
+		sourceMethod: (self interpreterClass lookupSelector: aString);
+		cfg: (self compilerCompiler buildIR: aString);
+		argumentCount: (self compilerCompiler numberOfArgumentsForSelector: aString);
+		mayCallback: (self primitiveMayCallback: aString);
+		yourself
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> primitiveMayCallback: aString [
+	"Answer <true> if primitive aString is marked as maycallback"
+	" #maycallback "
+
+	^ aString = #genNonImplementedPrimitive
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> primitiveNumberOf: aSelector [
+	" Answer a <Number> representing the primitive number of aSelector "
+
+	| primNumber |
+
+	primNumber := self interpreterPrimitiveTable indexOf: aSelector.
+	^ self interpreterPrimitiveTable first = 0
+		ifTrue: [ primNumber - 1 ]
+		ifFalse: [ primNumber ]
+]
+
 { #category : #'accessing - primitives' }
 DRInterpreterToCompiler >> primitiveTable [
 	"Answer a <Collection> of primitive selectors"
@@ -181,8 +289,6 @@ DRInterpreterToCompiler >> primitiveTable [
 DRInterpreterToCompiler >> primitives [
 
 	^ self compilationUnit primitives
-		ifEmpty: [ self build primitives ]
-		ifNotEmpty: [ : p | p ]
 ]
 
 { #category : #'accessing - primitives' }
@@ -190,14 +296,13 @@ DRInterpreterToCompiler >> primitives: aCollection [
 	" Add a <Collection> of primitive selectors to the receiver's compilation unit "
 
 	self compilationUnit primitives: aCollection asOrderedCollection.
-
+	^ self compilationUnit primitives
 ]
 
 { #category : #accessing }
 DRInterpreterToCompiler >> selectPrimitives: selectBlock [
 	" Answer a <Collection> of <CompiledMethod> representing primitive methods and matching conditions in selectBlock "
 
-	^ (self primitiveTable reject: #isNumber) 
-		select: [ : primSelector | selectBlock value: (self interpreterClass lookupSelector: primSelector) ]
-		thenCollect: [ : primSelector | self interpreterClass lookupSelector: primSelector ]
+	primitiveSelector := selectBlock
+
 ]

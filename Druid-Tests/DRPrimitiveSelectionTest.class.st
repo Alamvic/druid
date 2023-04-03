@@ -21,34 +21,42 @@ DRPrimitiveSelectionTest >> setUp [
 { #category : #tests }
 DRPrimitiveSelectionTest >> testSelectionMultipleParams [
 
-	primitiveMethods := interpreterToCompiler selectPrimitives: [ : p | p hasPragmaNamed: #var:type: setting: #('value' #sqLong) ].
-	self assert: (primitiveMethods allSatisfy: [ : cm | cm hasPragmaNamed: #var:type: ]).
-	self assert: (primitiveMethods allSatisfy: [ : cm | ((cm pragmaAt: #var:type:) argumentNamed: #var:) = 'value' ]).
-	self assert: (primitiveMethods allSatisfy: [ : cm | ((cm pragmaAt: #var:type:) argumentNamed: #type:) = 'sqLong' ])
+	interpreterToCompiler selectPrimitives: [ : p | p hasPragmaNamed: #var:type: setting: #('value' #sqLong) ].
+	interpreterToCompiler build.
+	self assert: (interpreterToCompiler primitives allSatisfy: [ : cm | cm hasPragmaNamed: #var:type: ]).
+	self assert: (interpreterToCompiler primitives allSatisfy: [ : cm | ((cm pragmaAt: #var:type:) argumentNamed: #var:) = 'value' ]).
+	self assert: (interpreterToCompiler primitives allSatisfy: [ : cm | ((cm pragmaAt: #var:type:) argumentNamed: #type:) = 'sqLong' ])
 ]
 
 { #category : #tests }
 DRPrimitiveSelectionTest >> testSelectionNoParam [
 
-	primitiveMethods := interpreterToCompiler selectPrimitives: [ : p | p hasPragmaNamed: #api ].
-	self assert: (primitiveMethods allSatisfy: [ : cm |
-		(cm hasPragmaNamed: #api) ])
+	interpreterToCompiler selectPrimitives: [ :p |
+		p hasPragmaNamed: #api ].
+	interpreterToCompiler build.
+	self assert: (interpreterToCompiler primitives allSatisfy: [ :cm |
+			 cm hasPragmaNamed: #api ])
 ]
 
 { #category : #tests }
 DRPrimitiveSelectionTest >> testSelectionNumberOfArguments [
 
-	primitiveMethods := interpreterToCompiler selectPrimitives: [ : p | p hasPragmaNamed: #numberOfArguments: setting: 1 ].
-	self assert: (primitiveMethods allSatisfy: #isCompiledMethod).
-	self assert: (primitiveMethods allSatisfy: [ : cm |
-		(cm hasPragmaNamed: #numberOfArguments:) and: [ ((cm pragmaAt: #numberOfArguments:) argumentNamed: #numberOfArguments:) = 1 ] ])
+	interpreterToCompiler selectPrimitives: [ :p | p hasPragmaNamed: #numberOfArguments: setting: 1 ].
+	interpreterToCompiler build.
+
+	primitiveMethods := interpreterToCompiler primitives.
+	self deny: primitiveMethods isEmpty.
+	self assert: (primitiveMethods allSatisfy: [ :cm |
+			 (cm hasPragmaNamed: #numberOfArguments:) and: [
+				 ((cm sourceMethod pragmaAt: #numberOfArguments:) argumentNamed:  #numberOfArguments:) = 1 ] ])
 ]
 
 { #category : #tests }
 DRPrimitiveSelectionTest >> testSelectionSingleParam [
 
-	primitiveMethods := interpreterToCompiler selectPrimitives: [ : p | p hasPragmaNamed: #inline: setting: true ].
-	self assert: (primitiveMethods allSatisfy: #isCompiledMethod).
+	interpreterToCompiler selectPrimitives: [ : p | p hasPragmaNamed: #inline: setting: true ].
+	interpreterToCompiler build.
+	primitiveMethods := interpreterToCompiler primitives.
 	self assert: (primitiveMethods allSatisfy: [ : cm |
 		(cm hasPragmaNamed: #inline:) and: [ ((cm pragmaAt: #inline:) argumentNamed: #inline:) ] ])
 ]

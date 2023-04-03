@@ -4,6 +4,19 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #initialization }
+DruidTestInterpreter class >> initializePrimitiveTable [
+
+	super initializePrimitiveTable.
+	PrimitiveTable at: 3 put: #primitiveDruidFail
+]
+
+{ #category : #'accessing class hierarchy' }
+DruidTestInterpreter class >> primitivesClass [
+
+	^ self
+]
+
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> basicInlineMethod [
 
@@ -629,6 +642,13 @@ DruidTestInterpreter >> primitiveDoubleInnerBranching [
 					t1 + t2 ]
 		       ifFalse: [ 99 ].
 	self pop: 1 thenPush: res + t1
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDruidFail [
+
+	<numberOfArguments: 0>
+	self druidFail
 ]
 
 { #category : #'as yet unclassified' }
