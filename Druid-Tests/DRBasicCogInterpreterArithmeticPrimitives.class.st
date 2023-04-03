@@ -29,3 +29,9 @@ DRBasicCogInterpreterArithmeticPrimitives class >> basicPrimitiveTable [
 		).
 	^ PrimitiveTable
 ]
+
+{ #category : #constants }
+DRBasicCogInterpreterArithmeticPrimitives class >> primitivesClass [
+
+	^ self
+]

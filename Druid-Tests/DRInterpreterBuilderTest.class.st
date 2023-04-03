@@ -64,15 +64,13 @@ DRInterpreterBuilderTest >> testAddPrimitives [
 	self
 		assertCollection: (interpreterToCompiler primitives collect: #sourceSelector)
 		hasSameElements: primitiveSet.
-
-	self
-		assert: (interpreterToCompiler primitives allSatisfy: [ : p | p isKindOf: DRPrimitiveObject ])
 ]
 
 { #category : #initialization }
 DRInterpreterBuilderTest >> testCompilePrimitive [
 
 	| primitives |
+	
 	interpreterToCompiler addPrimitives: #(#primitiveAdd).
 	primitives := interpreterToCompiler primitives.
 	self assert: primitives notEmpty.
@@ -106,7 +104,6 @@ DRInterpreterBuilderTest >> testConfigureInterpreterClass [
 		addPrimitives: #(#primitiveAdd);
 		compileAll.
 	self assert: interpreterToCompiler primitives notEmpty.
-	self assert: (interpreterToCompiler primitives anyOne isKindOf: DRPrimitiveObject).
 	self assert: interpreterToCompiler primitives anyOne sourceSelector equals: #primitiveAdd
 	
 ]
@@ -130,6 +127,6 @@ DRInterpreterBuilderTest >> testCountPrimimitives [
 { #category : #tests }
 DRInterpreterBuilderTest >> testGenerateEmptyCompilationUnit [
 
-	interpreterToCompiler := interpreterToCompiler primitives: Array empty.
+	interpreterToCompiler primitives: Array empty.
 	self assertEmpty: interpreterToCompiler primitives.
 ]

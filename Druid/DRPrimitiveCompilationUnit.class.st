@@ -17,14 +17,6 @@ Class {
 }
 
 { #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> addPrimitive: aString [
-
-	(self isValidPrimitiveName: aString)
-		ifTrue: [ self primitives add: (self newPrimitive: aString) ].
-
-]
-
-{ #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> addPrimitiveEntries [
 	"As part of the build unit, add the receiver's primitives from its <Collection> of <DRPrimitiveObject>"
 
@@ -52,6 +44,9 @@ DRPrimitiveCompilationUnit >> addPrimitives [
 	(self collectPrimitives: self interpreterPrimitiveTable)
 		do: [ : prim | self addPrimitive: prim ]
 		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
+
+		
+
 ]
 
 { #category : #'accessing - primitives' }
@@ -148,6 +143,7 @@ DRPrimitiveCompilationUnit >> interpreterClass [
 { #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> interpreterPrimitiveTable [
 
+	self interpreterClass initializePrimitiveTable.
 	^ self interpreterClass basicPrimitiveTable 
 ]
 
@@ -155,19 +151,6 @@ DRPrimitiveCompilationUnit >> interpreterPrimitiveTable [
 DRPrimitiveCompilationUnit >> isValidPrimitiveName: aString [
 
 	^ aString isNumber not
-]
-
-{ #category : #'accessing - primitives' }
-DRPrimitiveCompilationUnit >> newPrimitive: aString [
-	" Answer a new primitive object with its metadata and CFG generated "
-
-	^ DRPrimitiveObject new
-		primitiveNumber: (self primitiveNumberOf: aString);
-		sourceSelector: aString;
-		cfg: (self compiler buildIR: aString);
-		argumentCount: (self compiler numberOfArgumentsForSelector: aString);
-		mayCallback: (self primitiveMayCallback: aString);
-		yourself
 ]
 
 { #category : #'accessing - primitives' }

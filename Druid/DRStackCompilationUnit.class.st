@@ -25,14 +25,6 @@ DRStackCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 		aDRPrimitiveObject sourceSelector }
 ]
 
-{ #category : #adding }
-DRStackCompilationUnit >> addPrimitives: aCollection [ 
-
-	(self collectPrimitives: aCollection)
-		do: [ : prim | self addPrimitive: prim ]
-		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
-]
-
 { #category : #'accessing - primitives' }
 DRStackCompilationUnit >> addSpecialPrimitives [
 	"Private - This is needed so to conform the primitive array 'specification'. Read AbstractInterpreter class>>tabble:from: side for details"
@@ -55,27 +47,4 @@ DRStackCompilationUnit >> compileInitializePrimitiveTable [
 DRStackCompilationUnit >> dispatchTableBuilderClass [
 
 	^ DRStackInterpreterDispatchTableBuilder
-]
-
-{ #category : #initialization }
-DRStackCompilationUnit >> initialize [
-
-	super initialize.
-	primitiveIndex := 0
-]
-
-{ #category : #'accessing - primitives' }
-DRStackCompilationUnit >> newPrimitive: aString [
-	" Answer a new primitive object with its metadata and CFG generated "
-
-	^ DRPrimitiveObject new
-		primitiveNumber: self primitiveIndex;
-		sourceSelector: aString;
-		yourself
-]
-
-{ #category : #'accessing - primitives' }
-DRStackCompilationUnit >> primitiveIndex [
-
-	^ primitiveIndex :=  primitiveIndex + 1
 ]

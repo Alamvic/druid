@@ -15,6 +15,22 @@ DRInterpreterToCompilerTest >> setUp [
 ]
 
 { #category : #tests }
+DRInterpreterToCompilerTest >> testAddPrimitive [
+
+	interpreterToCompiler := DRInterpreterToCompiler
+		                         fromInterpreterClass: DruidTestInterpreter.
+	interpreterToCompiler
+		doFailOnFirst;
+		targetClass: self jitCompilerClassForTest;
+		selectPrimitives: [ :p | p selector = #primitiveAdd ];
+		buildIRAndCompileIn: self jitCompilerClassNameForTest.
+
+	self
+		assert: interpreterToCompiler primitives first sourceSelector
+		equals: #primitiveAdd
+]
+
+{ #category : #tests }
 DRInterpreterToCompilerTest >> testAddPrimitives [
 
 	| primitiveSet |
@@ -26,7 +42,7 @@ DRInterpreterToCompilerTest >> testAddPrimitives [
 		hasSameElements: primitiveSet.
 
 	self
-		assert: (interpreterToCompiler primitives allSatisfy: [ : p | p isKindOf: DRPrimitiveObject ])
+		assert: (interpreterToCompiler primitives allSatisfy: [ : p | p isKindOf: DRJITPrimitiveObject ])
 ]
 
 { #category : #tests }
@@ -35,6 +51,18 @@ DRInterpreterToCompilerTest >> testCompilePrimitiveTable [
 	interpreterToCompiler buildIRAndCompileIn: self jitCompilerClassNameForTest.
 
 	self assert: interpreterToCompiler initPrimitiveTable notEmpty
+]
+
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testErrorHandling [
+
+	interpreterToCompiler := DRInterpreterToCompiler fromInterpreterClass: DruidTestInterpreter.
+	interpreterToCompiler 
+		targetClass: self jitCompilerClassForTest;
+		selectPrimitives: [ : p | p selector = #primitiveDruidFail ];
+		buildIRAndCompileIn: self jitCompilerClassNameForTest.
+
+	self assert: interpreterToCompiler failedPrimitives notEmpty.
 ]
 
 { #category : #tests }

@@ -2,17 +2,32 @@ Class {
 	#name : #DRInterpreterBuilderToCompiler,
 	#superclass : #DRInterpreterToCompiler,
 	#instVars : [
-		'interpreter'
+		'interpreter',
+		'primitiveIndex'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
 
 { #category : #'accessing - primitives' }
-DRInterpreterBuilderToCompiler >> addPrimitives: aCollection [
-	" Add primitives from aCollection of <Symbol> representing primitive selectors "
+DRInterpreterBuilderToCompiler >> addPrimitives: aCollection [ 
 
-	self compilationUnit addPrimitives: aCollection
+	(self collectPrimitives: aCollection)
+		do: [ : prim | self addPrimitive: prim ]
+		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
+]
 
+{ #category : #adding }
+DRInterpreterBuilderToCompiler >> collectPrimitives: aCollection [
+	" Answer a <Collection> of selectors from aCollection containing CompiledMethod or primitive names "
+
+	^ aCollection
+		  reject: [ :obj |
+			  obj isNumber or: [
+				  obj isNil or: [ (self isSelectedPrimitive: (self targetSuperclass lookupSelector: obj)) not ] ] ]
+		  thenCollect: [ :symOrCompiledMethod |
+			  symOrCompiledMethod isCompiledMethod
+				  ifTrue: [ symOrCompiledMethod selector ]
+				  ifFalse: [ symOrCompiledMethod ] ]
 ]
 
 { #category : #'accessing - compiler' }
@@ -21,7 +36,7 @@ DRInterpreterBuilderToCompiler >> compilationUnitClass [
 	^ DRStackCompilationUnit
 ]
 
-{ #category : #compiling }
+{ #category : #'accessing - compiler' }
 DRInterpreterBuilderToCompiler >> compileAll [
 
 	self newInterpreter.
@@ -34,6 +49,7 @@ DRInterpreterBuilderToCompiler >> compileAll [
 DRInterpreterBuilderToCompiler >> initialize [
 
 	super initialize.
+	primitiveIndex := 0.
 	compilationUnit := DRStackCompilationUnit new
 		dispatchTableBuilder: DRStackInterpreterDispatchTableBuilder new;
 		yourself
@@ -81,6 +97,16 @@ DRInterpreterBuilderToCompiler >> newInterpreter [
 	^ interpreter
 ]
 
+{ #category : #adding }
+DRInterpreterBuilderToCompiler >> newPrimitive: aString [
+	" Answer a new primitive object with its metadata and CFG generated "
+
+	^ DRInterpreterPrimitiveObject new
+		primitiveNumber: self primitiveIndex;
+		sourceMethod: (self targetSuperclass lookupSelector: aString);
+		yourself
+]
+
 { #category : #'instance creation' }
 DRInterpreterBuilderToCompiler >> newRandomInterpreterClassName [
 	" Answer a <String> representing a new class name to be used as interpreter containing a #basicPrimitiveTable"
@@ -106,6 +132,12 @@ DRInterpreterBuilderToCompiler >> newRandomTargetInterpreterClass [
 DRInterpreterBuilderToCompiler >> newclassPrefix [
 
 	^ #DRInterpreter
+]
+
+{ #category : #initialization }
+DRInterpreterBuilderToCompiler >> primitiveIndex [
+
+	^ primitiveIndex :=  primitiveIndex + 1
 ]
 
 { #category : #'accessing - primitives' }

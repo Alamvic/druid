@@ -244,6 +244,7 @@ DRIRGenerator >> initializeSpecialCases [
 
 	"Control flow and comparisons"
 	specialCases at: #druidIgnore: put: #ignoreMessageWith:.
+	specialCases at: #druidFail put: #interpretDruidFailWith:.
 	specialCases at: #value put: #interpretBlockValueWith:.
 	specialCases at: #value: put: #interpretBlockValueWith:.
 	specialCases at: #cull: put: #interpretBlockCullWith:.
@@ -733,6 +734,12 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRDivision 
 		operands: { leftOperand . rightOperand }
+]
+
+{ #category : #accessing }
+DRIRGenerator >> interpretDruidFailWith: aMessageNode [
+
+	self error
 ]
 
 { #category : #'special cases' }
