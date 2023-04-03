@@ -11,14 +11,12 @@ Class {
 	#instVars : [
 		'primitives',
 		'initPrimitiveTable',
-		'interpreter',
-		'dispatchTableBuilder',
-		'primitiveMethods'
+		'dispatchTableBuilder'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
 
-{ #category : #accessing }
+{ #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> addPrimitive: aString [
 
 	(self isValidPrimitiveName: aString)
@@ -26,7 +24,7 @@ DRPrimitiveCompilationUnit >> addPrimitive: aString [
 
 ]
 
-{ #category : #'accessing - compiler' }
+{ #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> addPrimitiveEntries [
 	"As part of the build unit, add the receiver's primitives from its <Collection> of <DRPrimitiveObject>"
 
@@ -36,7 +34,7 @@ DRPrimitiveCompilationUnit >> addPrimitiveEntries [
 		self addPrimitiveEntry: primitiveObject ]
 ]
 
-{ #category : #'accessing - compiler' }
+{ #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
 
@@ -47,7 +45,7 @@ DRPrimitiveCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 			ifTrue: [ aDRPrimitiveObject argumentCount ] }
 ]
 
-{ #category : #adding }
+{ #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> addPrimitives [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
@@ -56,17 +54,17 @@ DRPrimitiveCompilationUnit >> addPrimitives [
 		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
 ]
 
-{ #category : #'accessing - compiler' }
+{ #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> addSpecialPrimitives [
 	"Private - Do nothing for now"
 ]
 
-{ #category : #adding }
+{ #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> collectPrimitives: aCollection [ 
 	" Answer a <Collection> of selectors from aCollection containing CompiledMethod or primitive names "
 
 	^ aCollection 
-		reject: #isNumber
+		reject: [ : obj | obj isNumber or: [ obj isNil ] ]
 		thenCollect: [ : symOrCompiledMethod | 
 			symOrCompiledMethod isCompiledMethod 
 				ifTrue: [ symOrCompiledMethod selector ]
@@ -77,9 +75,6 @@ DRPrimitiveCompilationUnit >> collectPrimitives: aCollection [
 DRPrimitiveCompilationUnit >> compileAll [
 	"Write primitive methods in the receiver's JIT compiler class"
 
-	self primitives
-			do: [ : primitive | self compilePrimitive: primitive ]
-			displayingProgress: [ : primitive | 'Compiling primitive: ' , primitive asString ].
 	self compileInitializePrimitiveTable
 ]
 
@@ -107,7 +102,7 @@ DRPrimitiveCompilationUnit >> dispatchTableBuilder [
 	" Answer a <PCGMethodNode> representing the source code of the #initializePrimitiveTable compatible with Cogit "
 
 	^ dispatchTableBuilder
-		ifNil: [ dispatchTableBuilder := DRCogitDispatchTableBuilder primitiveTableMethodFrom: self ]
+		ifNil: [ dispatchTableBuilder := self dispatchTableBuilderClass primitiveTableMethodFrom: self ]
 ]
 
 { #category : #private }
@@ -117,6 +112,12 @@ DRPrimitiveCompilationUnit >> dispatchTableBuilder: aDRDispatchTableBuilder [
 	dispatchTableBuilder := aDRDispatchTableBuilder
 ]
 
+{ #category : #private }
+DRPrimitiveCompilationUnit >> dispatchTableBuilderClass [ 
+
+	^ DRCogitDispatchTableBuilder
+]
+
 { #category : #testing }
 DRPrimitiveCompilationUnit >> hasPrimitives [
 	"Answer <true> if the receiver already contains primitives"
@@ -124,7 +125,7 @@ DRPrimitiveCompilationUnit >> hasPrimitives [
 	^ self primitives notEmpty
 ]
 
-{ #category : #'accessing - compiler' }
+{ #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> initPrimitiveTable [
 	"Answer a <Colllection> of <Array>. Each Array specifies an entry in the primitive table as expected by Cogit>>initializePrimitiveTable implementation"
 
@@ -135,19 +136,19 @@ DRPrimitiveCompilationUnit >> initPrimitiveTable [
 { #category : #accessing }
 DRPrimitiveCompilationUnit >> interpreter [
 
-	^ interpreter
+	^ self compiler interpreter
 ]
 
 { #category : #accessing }
-DRPrimitiveCompilationUnit >> interpreter: aDRBasicInterpreter [ 
+DRPrimitiveCompilationUnit >> interpreterClass [
 
-	interpreter := aDRBasicInterpreter
+	^ self interpreter class
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> interpreterPrimitiveTable [
 
-	^ self compilerBuilder interpreterPrimitiveTable 
+	^ self interpreterClass basicPrimitiveTable 
 ]
 
 { #category : #testing }
@@ -156,7 +157,7 @@ DRPrimitiveCompilationUnit >> isValidPrimitiveName: aString [
 	^ aString isNumber not
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> newPrimitive: aString [
 	" Answer a new primitive object with its metadata and CFG generated "
 
@@ -169,26 +170,12 @@ DRPrimitiveCompilationUnit >> newPrimitive: aString [
 		yourself
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> primitiveMayCallback: aString [
 	"Answer <true> if primitive aString is marked as maycallback"
 	" #maycallback "
 
 	^ aString = #genNonImplementedPrimitive
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilationUnit >> primitiveMethods [
-	" Answer a <Collection> of <CompiledMethod> including primitives "
-
-	^ primitiveMethods
-		ifNil: [ primitiveMethods := OrderedCollection new ]
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilationUnit >> primitiveMethods: aCollection [
-
-	primitiveMethods := aCollection
 ]
 
 { #category : #'accessing - primitives' }
@@ -203,10 +190,17 @@ DRPrimitiveCompilationUnit >> primitiveNumberOf: aSelector [
 		ifFalse: [ primNumber ]
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> primitives [
 	"Answer a <Collection> of IR of primitive methods, instances of <DRPrimitiveControlFlowGraph>"
 
 	^ primitives
 		ifNil: [ primitives := OrderedCollection new ]
+]
+
+{ #category : #'accessing - primitives' }
+DRPrimitiveCompilationUnit >> primitives: aCollection [
+	"Set a <Collection> of primitive methods "
+
+	primitives := aCollection
 ]

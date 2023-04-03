@@ -14,7 +14,7 @@ DRPrimitiveSelectionTest >> setUp [
 	super setUp.
 	interpreterToCompiler := DRInterpreterToCompiler fromInterpreterClass: DRBasicCogInterpreterArithmeticPrimitives.
 	interpreterToCompiler
-		compilerCompilerClass: #MyJITCompilerClass;
+		targetClass: self jitCompilerClassForTest;
 		targetSuperclass: CogVMSimulatorLSB
 ]
 

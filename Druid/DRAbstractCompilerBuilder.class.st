@@ -67,6 +67,13 @@ DRAbstractCompilerBuilder >> targetClass [
 ]
 
 { #category : #accessing }
+DRAbstractCompilerBuilder >> targetClass: aClass [
+	" Set the <Class> which we are building "
+
+	^ self compilationUnit targetClass: aClass
+]
+
+{ #category : #accessing }
 DRAbstractCompilerBuilder >> targetSuperclass [
 
 	^ self compilationUnit targetSuperclass
