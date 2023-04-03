@@ -13,22 +13,16 @@ Class {
 { #category : #running }
 DRDispatchTableBuilderTest >> compilationUnitForTesting [
 
-	^ DRCompilationUnit new
+	^ DRPrimitiveCompilationUnit new
 		targetClass: self jitCompilerClassForTest;
 		yourself
-]
-
-{ #category : #initialization }
-DRDispatchTableBuilderTest >> jitCompilerClassForTest [
-
-	^ interpreter environmentAt: super jitCompilerClassForTest
 ]
 
 { #category : #running }
 DRDispatchTableBuilderTest >> setUp [
 
 	super setUp.
-	interpreter :=	DRInterpreterToCompiler fromInterpreterBuilder: (self interpreterWith: #(#primitiveAdd #primitiveEqual)).
+	interpreter :=	DRInterpreterToCompiler fromInterpreterClass: DRBasicCogInterpreterArithmeticPrimitives.
 	dispatchTableBuilder := DRCogitDispatchTableBuilder primitiveTableMethodFrom: self compilationUnitForTesting
 ]
 

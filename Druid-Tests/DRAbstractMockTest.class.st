@@ -14,7 +14,28 @@ Class {
 { #category : #initialization }
 DRAbstractMockTest >> jitCompilerClassForTest [
 
+	^ testingEnvironment 
+		at: self jitCompilerClassNameForTest 
+		ifAbsent: [ 
+			Smalltalk image classInstaller make: [ : builder |
+				builder
+					name: self jitCompilerClassNameForTest;
+					superclass: self jitSuperclassForTest;
+					category: self jitCompilerClassNameForTest ]. ]
+
+
+]
+
+{ #category : #running }
+DRAbstractMockTest >> jitCompilerClassNameForTest [ 
+
 	^ #MyJITCompilerClass
+]
+
+{ #category : #running }
+DRAbstractMockTest >> jitSuperclassForTest [
+
+	^ CogVMSimulatorLSB
 ]
 
 { #category : #running }

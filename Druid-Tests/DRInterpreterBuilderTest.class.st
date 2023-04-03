@@ -10,7 +10,14 @@ Class {
 { #category : #tests }
 DRInterpreterBuilderTest >> interpreterClassForTest [
 
-	^ testingEnvironment at: self interpreterClassNameForTest 
+	^ testingEnvironment 
+		at: self interpreterClassNameForTest 
+		ifAbsent: [ 
+			Smalltalk image classInstaller make: [ : builder |
+				builder
+					name: self interpreterClassNameForTest;
+					superclass: self interpreterSuperclassForTest;
+					category: self interpreterClassNameForTest ]. ]
 ]
 
 { #category : #tests }
@@ -20,11 +27,17 @@ DRInterpreterBuilderTest >> interpreterClassNameForTest [
 ]
 
 { #category : #running }
+DRInterpreterBuilderTest >> interpreterSuperclassForTest [
+
+	^ DRBasicCogInterpreterArithmeticPrimitives
+]
+
+{ #category : #running }
 DRInterpreterBuilderTest >> setUp [
 
 	super setUp.
 	interpreterToCompiler := DRInterpreterBuilderToCompiler new
-		targetSuperclass: DRBasicCogInterpreterArithmeticPrimitives;
+		targetSuperclass: self interpreterSuperclassForTest;
 		yourself.
 
 ]
@@ -32,8 +45,11 @@ DRInterpreterBuilderTest >> setUp [
 { #category : #running }
 DRInterpreterBuilderTest >> tearDown [
 
-	druidInterpreter
-		ifNotNil: [ testingEnvironment removeClassNamed: druidInterpreter class name ].
+	interpreterToCompiler targetClass ifNotNil: [ : tc | 
+		(RGContainer packageOfClass: tc) realPackage removeFromSystem ].
+
+	SystemOrganizer default removeSystemCategory: druidInterpreter class name.
+	testingEnvironment removeClassNamed: druidInterpreter class name.
 	super tearDown
 ]
 
@@ -53,10 +69,26 @@ DRInterpreterBuilderTest >> testAddPrimitives [
 		assert: (interpreterToCompiler primitives allSatisfy: [ : p | p isKindOf: DRPrimitiveObject ])
 ]
 
-{ #category : #tests }
-DRInterpreterBuilderTest >> testCompilationUnitPopulateInitializePrimitiveTable [
+{ #category : #initialization }
+DRInterpreterBuilderTest >> testCompilePrimitive [
 
-	interpreterToCompiler generateIRAndCompileIn: self interpreterClassNameForTest.
+	| primitives |
+	interpreterToCompiler addPrimitives: #(#primitiveAdd).
+	primitives := interpreterToCompiler primitives.
+	self assert: primitives notEmpty.
+	self
+		assert: primitives anyOne sourceSelector
+		equals: #primitiveAdd.
+	interpreterToCompiler compileAll.
+	self
+		assertCollection: interpreterToCompiler interpreterClass primitiveTable
+		hasSameElements: #(0 #primitiveAdd #primitiveFail)
+]
+
+{ #category : #tests }
+DRInterpreterBuilderTest >> testCompilePrimitiveTable [
+
+	interpreterToCompiler buildIRAndCompileIn: self interpreterClassNameForTest.
 
 	self assert: interpreterToCompiler initPrimitiveTable notEmpty
 ]
@@ -64,25 +96,23 @@ DRInterpreterBuilderTest >> testCompilationUnitPopulateInitializePrimitiveTable 
 { #category : #tests }
 DRInterpreterBuilderTest >> testConfigureInterpreterClass [
 
-	interpreterToCompiler targetClass: self interpreterClassNameForTest.
-	self deny: (interpreterToCompiler targetClass respondsTo: #basicPrimitiveTable).
+	interpreterToCompiler targetClass: self interpreterClassForTest.
+
+	self 
+		assertCollection: interpreterToCompiler targetClass basicPrimitiveTable 
+		hasSameElements: #(0 #primitiveAdd #primitiveSubtract #primitiveLessThan #primitiveGreaterThan #primitiveLessOrEqual #primitiveGreaterOrEqual #primitiveEqual #primitiveNotEqual #primitiveMultiply #primitiveDivide).
 	
 	interpreterToCompiler 
 		addPrimitives: #(#primitiveAdd);
 		compileAll.
-	self assert: (interpreterToCompiler targetClass respondsTo: #basicPrimitiveTable).
+	self assert: interpreterToCompiler primitives notEmpty.
+	self assert: (interpreterToCompiler primitives anyOne isKindOf: DRPrimitiveObject).
+	self assert: interpreterToCompiler primitives anyOne sourceSelector equals: #primitiveAdd
 	
 ]
 
-{ #category : #tests }
-DRInterpreterBuilderTest >> testGenerateEmptyCompilationUnit [
-
-	interpreterToCompiler := interpreterToCompiler primitives: Array empty.
-	self assertEmpty: interpreterToCompiler primitives.
-]
-
 { #category : #initialization }
-DRInterpreterBuilderTest >> testGenerateMultiplePrimitiveObjectCompilationUnit [
+DRInterpreterBuilderTest >> testCountPrimimitives [
 
 	interpreterToCompiler targetClass: self interpreterClassForTest.
 	self 
@@ -91,19 +121,15 @@ DRInterpreterBuilderTest >> testGenerateMultiplePrimitiveObjectCompilationUnit [
 	interpreterToCompiler addPrimitives: #(#primitiveAdd) .
 	self
 		assert: interpreterToCompiler primitives size 
-		equals: interpreterToCompiler primitivesCount
+		equals: 1.
+	self
+		assert:  interpreterToCompiler primitivesCount
+		equals: 10.
 ]
 
-{ #category : #initialization }
-DRInterpreterBuilderTest >> testGenerateSinglePrimitiveCompilationUnit [
+{ #category : #tests }
+DRInterpreterBuilderTest >> testGenerateEmptyCompilationUnit [
 
-	| primitives |
-	interpreterToCompiler primitives: #(#primitiveAdd).
-	primitives := interpreterToCompiler primitives.
-	self
-		assert: primitives notEmpty;
-		assert: (primitives anyOne isKindOf: DRPrimitiveObject).
-	self
-		assertCollection: (primitives collect: #sourceSelector)
-		hasSameElements: #(primitiveAdd)
+	interpreterToCompiler := interpreterToCompiler primitives: Array empty.
+	self assertEmpty: interpreterToCompiler primitives.
 ]

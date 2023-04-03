@@ -40,6 +40,26 @@ DRInterpreterBuilderToCompiler >> initialize [
 ]
 
 { #category : #accessing }
+DRInterpreterBuilderToCompiler >> interpreter [
+
+	^ interpreter
+]
+
+{ #category : #accessing }
+DRInterpreterBuilderToCompiler >> interpreter: anObject [
+
+	interpreter := anObject
+]
+
+{ #category : #accessing }
+DRInterpreterBuilderToCompiler >> interpreterClass [
+
+	^ self interpreter
+		ifNil: [ super interpreterClass ]
+		ifNotNil: [ : intrp | intrp class ]
+]
+
+{ #category : #accessing }
 DRInterpreterBuilderToCompiler >> interpreterPrimitiveTable [
 	"Answer a <Collection> of <Symbol> each one representing a selector (e.g. #primitiveEqual) of the receiver's primitive table"
 

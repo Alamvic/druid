@@ -11,7 +11,6 @@ Class {
 	#instVars : [
 		'primitives',
 		'initPrimitiveTable',
-		'interpreter',
 		'dispatchTableBuilder'
 	],
 	#category : #'Druid-CompilerBuilder'
@@ -137,19 +136,19 @@ DRPrimitiveCompilationUnit >> initPrimitiveTable [
 { #category : #accessing }
 DRPrimitiveCompilationUnit >> interpreter [
 
-	^ interpreter
+	^ self compiler interpreter
 ]
 
 { #category : #accessing }
-DRPrimitiveCompilationUnit >> interpreter: aDRBasicInterpreter [ 
+DRPrimitiveCompilationUnit >> interpreterClass [
 
-	interpreter := aDRBasicInterpreter
+	^ self interpreter class
 ]
 
 { #category : #'accessing - primitives' }
 DRPrimitiveCompilationUnit >> interpreterPrimitiveTable [
 
-	^ self targetClass basicPrimitiveTable 
+	^ self interpreterClass basicPrimitiveTable 
 ]
 
 { #category : #testing }

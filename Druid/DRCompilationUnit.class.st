@@ -51,6 +51,12 @@ DRCompilationUnit >> compilerBuilder: anObject [
 ]
 
 { #category : #accessing }
+DRCompilationUnit >> defaultTargetSuperclass [
+
+	^ StackToRegisterMappingCogit
+]
+
+{ #category : #accessing }
 DRCompilationUnit >> targetClass [
 	" Answer a <Class> which is the where the methods will be stored "
 
@@ -68,6 +74,7 @@ DRCompilationUnit >> targetSuperclass [
 	" Answer a <Class> acting as the receiver's superclass for compilation "
 
 	^ targetSuperclass
+		ifNil: [ targetSuperclass := self defaultTargetSuperclass ]
 ]
 
 { #category : #accessing }

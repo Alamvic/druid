@@ -38,10 +38,53 @@ DRInterpreterToCompiler class >> fromInterpreterClass: anInterpreterClass [
 		yourself
 ]
 
+{ #category : #'accessing - model' }
+DRInterpreterToCompiler >> build [
+	"Answer a <DRCompilationUnit>, useful for model manipulation before code dumping"
+
+	self compilationUnit 
+		compiler: self compilerCompiler;
+		addPrimitives.
+	^ self compilationUnit
+]
+
+{ #category : #'accessing - model' }
+DRInterpreterToCompiler >> buildAndCompileIn: aClass [
+	"Generate and install the receiver's primitives into JIT compiler aClass"
+
+	self build
+		interpreter: interpreterClass;
+		targetSuperclass: self targetSuperclass;
+		targetClass: (self environmentAt: aClass);
+		compileAll
+]
+
+{ #category : #'accessing - model' }
+DRInterpreterToCompiler >> buildAndCompileIn: aClass superclass: aSuperclass [
+	"Generate and install the receiver's primitives into JIT compiler aClass"
+
+	self build
+		interpreter: interpreterClass;
+		targetSuperclass: aSuperclass;
+		targetClass: (self environmentAt: aClass);
+		compileAll
+]
+
+{ #category : #'accessing - model' }
+DRInterpreterToCompiler >> buildIRAndCompileIn: aClass [
+	"Generate and install the receiver's primitives into JIT compiler aClass"
+
+	self compilationUnit
+		targetClass: (self environmentAt: aClass);
+		compiler: self compilerCompiler;
+		addPrimitives;
+		compileAll
+]
+
 { #category : #'accessing - compiler' }
 DRInterpreterToCompiler >> compileAll [
 
-	self generateBuildModel compileAll
+	self build compileAll
 ]
 
 { #category : #'accessing - compiler' }
@@ -72,48 +115,6 @@ DRInterpreterToCompiler >> compilerCompilerClass: aClass [
 DRInterpreterToCompiler >> defaultCompilerCompilerClass [
 
 	^ DRPrimitiveCompilerCompiler
-]
-
-{ #category : #'accessing - model' }
-DRInterpreterToCompiler >> generateBuildModel [
-	"Answer a <DRCompilationUnit>, useful for model manipulation before code dumping"
-
-	self compilationUnit 
-		compiler: self compilerCompiler;
-		addPrimitives.
-	^ self compilationUnit
-]
-
-{ #category : #'accessing - model' }
-DRInterpreterToCompiler >> generateBuildModelAndCompileIn: aClass [
-	"Generate and install the receiver's primitives into JIT compiler aClass"
-
-	self generateBuildModel
-		interpreter: interpreterClass;
-		targetClass: (self environmentAt: aClass);
-		compileAll
-]
-
-{ #category : #'accessing - model' }
-DRInterpreterToCompiler >> generateBuildModelAndCompileIn: aClass superclass: aSuperclass [
-	"Generate and install the receiver's primitives into JIT compiler aClass"
-
-	self generateBuildModel
-		interpreter: interpreterClass;
-		targetSuperclass: aSuperclass;
-		targetClass: (self environmentAt: aClass);
-		compileAll
-]
-
-{ #category : #'accessing - model' }
-DRInterpreterToCompiler >> generateIRAndCompileIn: aClass [
-	"Generate and install the receiver's primitives into JIT compiler aClass"
-
-	self compilationUnit
-		targetClass: (self environmentAt: aClass);
-		compiler: self compilerCompiler;
-		addPrimitives;
-		compileAll
 ]
 
 { #category : #helpers }
@@ -173,21 +174,22 @@ DRInterpreterToCompiler >> newMemory [
 DRInterpreterToCompiler >> primitiveTable [
 	"Answer a <Collection> of primitive selectors"
 
-	^ interpreterClass basicPrimitiveTable
+	^ self targetClass basicPrimitiveTable
 ]
 
 { #category : #'accessing - primitives' }
 DRInterpreterToCompiler >> primitives [
 
 	^ self compilationUnit primitives
-		ifEmpty: [ self generateBuildModel primitives ]
+		ifEmpty: [ self build primitives ]
 		ifNotEmpty: [ : p | p ]
 ]
 
 { #category : #'accessing - primitives' }
 DRInterpreterToCompiler >> primitives: aCollection [
+	" Add a <Collection> of primitive selectors to the receiver's compilation unit "
 
-	self compilationUnit primitives: aCollection.
+	self compilationUnit primitives: aCollection asOrderedCollection.
 
 ]
 

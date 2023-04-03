@@ -20,7 +20,7 @@ DRInterpreterToCompilerTest >> testAddPrimitives [
 	| primitiveSet |
 	primitiveSet := #(#primitiveAdd #primitiveSubtract #primitiveLessThan #primitiveGreaterThan #primitiveLessOrEqual #primitiveGreaterOrEqual #primitiveEqual #primitiveNotEqual #primitiveMultiply #primitiveDivide).
 	
-	interpreterToCompiler generateIRAndCompileIn: self jitCompilerClassForTest.
+	interpreterToCompiler buildIRAndCompileIn: self jitCompilerClassNameForTest.
 	self
 		assertCollection: (interpreterToCompiler primitives collect: #sourceSelector)
 		hasSameElements: primitiveSet.
@@ -30,9 +30,9 @@ DRInterpreterToCompilerTest >> testAddPrimitives [
 ]
 
 { #category : #tests }
-DRInterpreterToCompilerTest >> testCompilationUnitPopulateInitializePrimitiveTable [
+DRInterpreterToCompilerTest >> testCompilePrimitiveTable [
 
-	interpreterToCompiler generateIRAndCompileIn: self jitCompilerClassForTest.
+	interpreterToCompiler buildIRAndCompileIn: self jitCompilerClassNameForTest.
 
 	self assert: interpreterToCompiler initPrimitiveTable notEmpty
 ]
