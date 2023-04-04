@@ -40,18 +40,6 @@ DRCogitCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 ]
 
 { #category : #'accessing - primitives' }
-DRCogitCompilationUnit >> addPrimitives [
-	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
-
-	(self collectPrimitives: self interpreterPrimitiveTable)
-		do: [ : prim | self addPrimitive: prim ]
-		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
-
-		
-
-]
-
-{ #category : #'accessing - primitives' }
 DRCogitCompilationUnit >> addSpecialPrimitives [
 	"Private - Do nothing for now"
 ]
@@ -60,6 +48,7 @@ DRCogitCompilationUnit >> addSpecialPrimitives [
 DRCogitCompilationUnit >> bytecodes [
 
 	^ bytecodes
+		ifNil: [ bytecodes := OrderedCollection new ]
 ]
 
 { #category : #accessing }
@@ -138,6 +127,7 @@ DRCogitCompilationUnit >> hasPrimitives [
 DRCogitCompilationUnit >> initBytecodeTable [
 
 	^ initBytecodeTable
+		ifNil: [ initBytecodeTable := OrderedCollection new ]
 ]
 
 { #category : #accessing }

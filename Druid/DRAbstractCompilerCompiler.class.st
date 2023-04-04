@@ -15,6 +15,14 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #'instance creation' }
+DRAbstractCompilerCompiler class >> forInterpreter: anAbstractInterpreter [ 
+
+	^ self new
+		interpreter: anAbstractInterpreter;
+		yourself
+]
+
 { #category : #api }
 DRAbstractCompilerCompiler >> compile [
 
@@ -163,13 +171,13 @@ DRAbstractCompilerCompiler >> newIRGenerator [
 	^ DRIRGenerator new
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRAbstractCompilerCompiler >> numberOfArgumentsForMethod: method [
 
 	^ self subclassResponsibility
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRAbstractCompilerCompiler >> numberOfArgumentsForSelector: aSelector [
 
 	^ self numberOfArgumentsForMethod: self sourceMethod

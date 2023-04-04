@@ -30,9 +30,12 @@ DRDispatchTableBuilderTest >> setUp [
 DRDispatchTableBuilderTest >> testCollectAllMethodsOn [
 
 	| pcgMethodNodes |
-	self assert: dispatchTableBuilder initPrimitiveTable isEmpty.
+	
+	self assertEmpty: dispatchTableBuilder initPrimitiveTable.
+	self assertEmpty: dispatchTableBuilder initBytecodeTable.
+	
 	pcgMethodNodes := dispatchTableBuilder collectAllMethodsOn: self jitCompilerClassForTest class.
 	self
 		assertCollection: (pcgMethodNodes collect: #selector)
-		hasSameElements: #(primitiveTableArray initializePrimitiveTable)
+		hasSameElements: #(primitiveTableArray initializePrimitiveTable initializeBytecodeTableForSistaV1)
 ]

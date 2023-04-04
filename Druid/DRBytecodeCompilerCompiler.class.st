@@ -2,7 +2,8 @@ Class {
 	#name : #DRBytecodeCompilerCompiler,
 	#superclass : #DRAbstractCompilerCompiler,
 	#instVars : [
-		'primitiveCompilerName'
+		'primitiveCompilerName',
+		'failedBytecodes'
 	],
 	#category : #'Druid-BytecodeToJITCompilation'
 }
@@ -29,6 +30,29 @@ DRBytecodeCompilerCompiler >> createInitialBasicBlock [
 	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
 	initialBasicBlock addInstruction: initial.
 	^ initialBasicBlock
+]
+
+{ #category : #accessing }
+DRBytecodeCompilerCompiler >> failedBytecodes [
+
+	^ failedBytecodes
+		ifNil: [
+			failedBytecodes :=
+				PluggableDictionary new
+					equalBlock: [ :a :b | a class == b class ];
+					hashBlock: [ :a | a class identityHash ];
+					yourself 	]
+]
+
+{ #category : #accessing }
+DRBytecodeCompilerCompiler >> failedBytecodesAt: anException add: aString [
+
+	self failedBytecodes
+		at: anException
+		ifPresent: [ : fbs | fbs add: aString ]
+		ifAbsent: [ self failedBytecodes 
+			at: anException 
+			put: (OrderedCollection with: aString)  ]
 ]
 
 { #category : #accessing }

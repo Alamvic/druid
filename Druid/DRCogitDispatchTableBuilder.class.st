@@ -21,7 +21,7 @@ DRCogitDispatchTableBuilder >> arrayAccessorGlobalName [
 DRCogitDispatchTableBuilder >> buildBytecodeTableVariableNode [
 	"Answer a <PCGReturnNode> with the primitive table initialization setter message send"
 
-	^ self initBytecodeTable asPCG returnIt
+	^ self initBytecodeTable asPCG
 ]
 
 { #category : #'accessing - bytecodes' }
@@ -31,7 +31,7 @@ DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableAssignmentNode [
 	^ PCGMessageNode
 			receiver: #self asPCGNode
 			selector: #generatorTableFrom:
-			arguments: { self buildBytecodeTableVariableNode asPCGArgument }
+			arguments: { self buildBytecodeTableVariableNode }
 ]
 
 { #category : #'accessing - bytecodes' }
@@ -70,7 +70,7 @@ DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableMethodNode [
 			<< self buildInitializeBytecodeTableBytecodeSetHasExtensionsNode;
 			<< self buildInitializeBytecodeTableFirstSpecialSelectorNode;
 			<< self buildInitializeBytecodeTableNumSpecialSelectorsNode;
-			<< self buildInitializeBytecodeTableAssignmentNode returnIt ]
+			<< self buildInitializeBytecodeTableAssignmentNode ]
 ]
 
 { #category : #'accessing - bytecodes' }
@@ -85,7 +85,7 @@ DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableNumSpecialSelectorsNo
 DRCogitDispatchTableBuilder >> buildInitializeBytecodeTablenumPushNilsFunctionNode [
 
 	^ PCGAssignmentNode new
-		  variable: #numPushNilsFunction asPCG;
+		  variable: #numPushNilsFunction asPCGInstanceVariable;
 		  value: #sistaV1:Num:Push:Nils: asPCG
 ]
 
@@ -93,7 +93,7 @@ DRCogitDispatchTableBuilder >> buildInitializeBytecodeTablenumPushNilsFunctionNo
 DRCogitDispatchTableBuilder >> buildInitializeBytecodeTablepushNilSizeFunctionNode [
 
 	^ PCGAssignmentNode new
-		  variable: #pushNilSizeFunction asPCG;
+		  variable: #pushNilSizeFunction asPCGInstanceVariable;
 		  value: #sistaV1PushNilSize:numInitialNils: asPCG
 ]
 

@@ -41,7 +41,7 @@ DRInterpreterBuilderToCompiler >> compileAll [
 
 	self newInterpreter.
 	self compilationUnit 
-			compiler: self compilerCompiler;
+			compiler: self primitiveCompiler;
 			compileAll
 ]
 
