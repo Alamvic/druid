@@ -19,6 +19,15 @@ DRBytecodeCompilerCompiler class >> compilePrimitive: primitiveName from: anInte
 		compile
 ]
 
+{ #category : #'builder api' }
+DRBytecodeCompilerCompiler >> buildIR: bytecodeSelector [ 
+	" Answer a DRPrimitiveControlFlowGraph generated for bytecodeSelector in the receiver's interpreter "
+
+	^ self 
+		sourceName: bytecodeSelector;
+		generateDruidIR
+]
+
 { #category : #'generation-IR' }
 DRBytecodeCompilerCompiler >> createInitialBasicBlock [
 	| initial initialBasicBlock |
