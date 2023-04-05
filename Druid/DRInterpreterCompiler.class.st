@@ -74,32 +74,38 @@ DRInterpreterCompiler class >> fromInterpreter: anInterpreterBuilder compilerCla
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'code generation' }
 DRInterpreterCompiler class >> generateDruidJITModel [
 
 	<script>
-	| compilerClassName interpreterCompiler compilationUnit |
+	| compilerClassName interpreterCompiler compilationUnit primitives |
 	compilerClassName := #DruidJIT.
-	StackInterpreter initializePrimitiveTable.
+	primitives := #( #primitiveAdd #primitiveSubtract #primitiveLessThan
+	                 #primitiveGreaterThan #primitiveLessOrEqual
+	                 #primitiveGreaterOrEqual #primitiveEqual #primitiveNotEqual
+	                 #primitiveMultiply #primitiveDivide ).
+
 	interpreterCompiler := DRInterpreterCompiler
 		                       fromInterpreter:
-			                       (DRDummyInterpreter new primitives:
-				                        DRBasicCogInterpreterArithmeticPrimitives
-					                        primitiveTable)
-		                       compilerClass:
-		                       DRPrimitiveCompilerCompilerCollector.
+		                       (DRDummyInterpreter new primitives: primitives)
+		                       compilerClass: DRPrimitiveCompilerCompilerCollector.
+
 	compilationUnit := interpreterCompiler generateIR.
-	1halt.
 	interpreterCompiler generateBuildModelAndCompileIn: compilerClassName
 ]
 
 { #category : #'accessing - primitives' }
-DRInterpreterCompiler >> addPrimitive: aString to: aDRCompilationUnit [
+DRInterpreterCompiler >> addPrimitive: primitiveSelector to: aDRCompilationUnit [
 
-	aString isInteger ifFalse: [
-		((interpreter class lookupSelector: aString) hasPragmaNamed:
-			 #numberOfArguments:) ifTrue: [
-			aDRCompilationUnit addPrimitive: (self newPrimitive: aString) ] ]
+	| primitiveMethod |
+	primitiveSelector isInteger ifTrue: [ ^ self assert: primitiveSelector = 0 ].
+
+	primitiveMethod := interpreter class lookupSelector: primitiveSelector.
+
+	(primitiveMethod hasPragmaNamed: #numberOfArguments:) ifFalse: [
+		self error: 'Primitive number of arguments is missing in ' , primitiveSelector ].
+
+	aDRCompilationUnit addPrimitive: (self newPrimitive: primitiveMethod)
 ]
 
 { #category : #'accessing - primitives' }
@@ -107,8 +113,19 @@ DRInterpreterCompiler >> addPrimitivesTo: aCompilationUnit [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
 	self interpreterPrimitiveTable
-		do: [ : prim | self addPrimitive: prim to: aCompilationUnit ]
-		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
+		do: [ :selector | self addPrimitive: selector to: aCompilationUnit ]
+		displayingProgress: [ :selector | 'Adding primitive: ' , selector asString ].
+
+	self flag: #TOFIX.
+	interpreter class primitiveTable
+		do: [ :selector |
+			(selector isNumber or: [ self interpreterPrimitiveTable includes: selector ])
+				ifFalse: [
+					| method |
+					method := interpreter class lookupSelector: selector.
+					(self isMaycallbackPrimitive: method) ifTrue: [
+						aCompilationUnit addPrimitive: (self newNonImplementedPrimitive: method) ] ] ]
+		displayingProgress: [ :selector | 'Adding mandatory non implemented primitive: ' , selector asString ]
 ]
 
 { #category : #'accessing - primitives' }
@@ -256,6 +273,15 @@ DRInterpreterCompiler >> interpreterPrimitiveTable [
 ]
 
 { #category : #accessing }
+DRInterpreterCompiler >> isMaycallbackPrimitive: primitiveMethod [ 
+	"Answer <true> if primitive aString is marked as maycallback"
+	" #maycallback "
+	
+	^ primitiveMethod hasPragmaNamed: #maycallback
+
+]
+
+{ #category : #accessing }
 DRInterpreterCompiler >> newInterpreter [
 
 	memory := self newMemory.
@@ -286,36 +312,47 @@ DRInterpreterCompiler >> newMemory [
 	^ Spur64BitCoMemoryManager simulatorClass new
 ]
 
-{ #category : #'accessing - primitives' }
-DRInterpreterCompiler >> newPrimitive: aString [
-	" Answer a new primitive object with its metadata and CFG generated "
+{ #category : #'instance creation' }
+DRInterpreterCompiler >> newNonImplementedPrimitive: interpreterPrimitiveMethod [
+
+
+	| selector |
+	selector := interpreterPrimitiveMethod selector.
+
+	self flag: #TODO. "Duplicated code with newPrimitive:"
 
 	^ DRPrimitiveObject new
-		primitiveNumber: (self primitiveNumberOf: aString);
-		sourceSelector: aString;
-		cfg: (self compilerCompiler buildIR: aString);
-		argumentCount: (self compilerCompiler numberOfArgumentsForSelector: aString);
-		mayCallback: (self primitiveMayCallback: aString);
-		yourself
+		  primitiveNumber: (self primitiveNumberOf: selector);
+		  sourceSelector: selector;
+		  genSelector: #genNonImplementedPrimitive;
+		  argumentCount: -1;
+		  mayCallback: (self isMaycallbackPrimitive: interpreterPrimitiveMethod);
+		  yourself
 ]
 
-{ #category : #accessing }
-DRInterpreterCompiler >> primitiveMayCallback: aString [ 
-	"Answer <true> if primitive aString is marked as maycallback"
-	" #maycallback "
-	
-	^ aString = #genNonImplementedPrimitive
+{ #category : #'accessing - primitives' }
+DRInterpreterCompiler >> newPrimitive: primitiveMethod [
+	" Answer a new primitive object with its metadata and CFG generated "
+	| selector |
+	selector := primitiveMethod selector.
 
+	^ DRPrimitiveObject new
+		primitiveNumber: (self primitiveNumberOf: selector);
+		sourceSelector: selector;
+		cfg: (self compilerCompiler buildIR: selector);
+		argumentCount: (self compilerCompiler numberOfArgumentsForMethod: primitiveMethod);
+		mayCallback: (self isMaycallbackPrimitive: primitiveMethod);
+		yourself
 ]
 
 { #category : #'accessing - primitives' }
 DRInterpreterCompiler >> primitiveNumberOf: aSelector [
 	" Answer a <Number> representing the primitive number of aSelector "
 	
-	| primNumber |
-
-	primNumber := self interpreterPrimitiveTable indexOf: aSelector.
-	^ self interpreterPrimitiveTable first = 0
+	| primNumber interpreterTable |
+	interpreterTable := interpreter class primitiveTable.
+	primNumber := interpreterTable indexOf: aSelector.
+	^ interpreterTable first = 0
 		ifTrue: [ primNumber - 1 ]
 		ifFalse: [ primNumber ]
 ]

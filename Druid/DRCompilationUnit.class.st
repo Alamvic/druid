@@ -32,11 +32,17 @@ DRCompilationUnit >> addPrimitiveEntries [
 DRCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
 
-	self initPrimitiveTable add: {
-		aDRPrimitiveObject primitiveNumber .
-		aDRPrimitiveObject genSelector .
-		aDRPrimitiveObject argumentCount > 0
-			ifTrue: [ aDRPrimitiveObject argumentCount ] }
+	| tableEntry |
+	tableEntry := {
+		              aDRPrimitiveObject primitiveNumber.
+		              aDRPrimitiveObject genSelector.
+		              aDRPrimitiveObject argumentCount }.
+
+	tableEntry := tableEntry , (aDRPrimitiveObject mayCallback
+		               ifTrue: [ { #maycallback } ]
+		               ifFalse: [ {  } ]).
+
+	self initPrimitiveTable add: tableEntry
 ]
 
 { #category : #'accessing - compiler' }

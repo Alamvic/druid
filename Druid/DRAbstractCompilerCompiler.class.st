@@ -169,12 +169,6 @@ DRAbstractCompilerCompiler >> numberOfArgumentsForMethod: method [
 	^ self subclassResponsibility
 ]
 
-{ #category : #'as yet unclassified' }
-DRAbstractCompilerCompiler >> numberOfArgumentsForSelector: aSelector [
-
-	^ self numberOfArgumentsForMethod: (interpreter class lookupSelector: aSelector)
-]
-
 { #category : #accessing }
 DRAbstractCompilerCompiler >> optimisations: aCollection [
 
