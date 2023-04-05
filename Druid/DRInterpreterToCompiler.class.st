@@ -131,6 +131,18 @@ DRInterpreterToCompiler >> bytecodeNumberOf: aSelector [
 
 ]
 
+{ #category : #adding }
+DRInterpreterToCompiler >> bytecodeSizeOf: aSelector [
+	" Answer a <Number> representing the bytecode size matching method aSelector in the receiver's bytecode table "
+
+	self interpreterClass bytecodeTableArray 
+		detect: [ : bytecodeSizeGroup |
+			bytecodeSizeGroup second 
+				detect: [ : bytecodeSpec | (bytecodeSpec includes: aSelector) ]
+				ifFound: [ ^ bytecodeSizeGroup first ]
+				ifNone: [ false ] ]
+]
+
 { #category : #'accessing - bytecodes' }
 DRInterpreterToCompiler >> bytecodes [
 
@@ -302,6 +314,7 @@ DRInterpreterToCompiler >> newBytecode: aString [
 	
 	bytecodeObject := DRBytecodeObject new
 		bytecodeNumber: (self bytecodeNumberOf: aString);
+		bytecodeSize: (self bytecodeSizeOf: aString);
 		sourceMethod: (self interpreterClass lookupSelector: aString);
 		cfg: (self newBytecodeCompiler buildIR: aString);
 		yourself.

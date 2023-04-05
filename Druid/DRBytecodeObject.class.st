@@ -3,17 +3,10 @@ Class {
 	#superclass : #DRInterpreterInstruction,
 	#instVars : [
 		'bytecodeNumber',
-		'isExtended'
+		'bytecodeSize'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
-
-{ #category : #accessing }
-DRBytecodeObject >> beExtended [
-	" Set the receiver to be an extended bytecode "
-
-	isExtended := true
-]
 
 { #category : #accessing }
 DRBytecodeObject >> bytecodeNumber [
@@ -27,21 +20,14 @@ DRBytecodeObject >> bytecodeNumber: anObject [
 	bytecodeNumber := anObject
 ]
 
-{ #category : #initialization }
-DRBytecodeObject >> initialize [ 
+{ #category : #accessing }
+DRBytecodeObject >> bytecodeSize [
 
-	super initialize.
-	isExtended := false.
+	^ bytecodeSize
 ]
 
 { #category : #accessing }
-DRBytecodeObject >> isExtended [
+DRBytecodeObject >> bytecodeSize: anObject [
 
-	^ isExtended
-]
-
-{ #category : #accessing }
-DRBytecodeObject >> isExtended: anObject [
-
-	isExtended := anObject
+	bytecodeSize := anObject
 ]
