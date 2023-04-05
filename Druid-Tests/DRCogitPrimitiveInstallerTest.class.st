@@ -7,7 +7,7 @@ Class {
 	#instVars : [
 		'primitiveMethodInstaller'
 	],
-	#category : #'Druid-Tests-CompilerCompiler'
+	#category : #'Druid-Tests-InterpreterCompiler'
 }
 
 { #category : #running }

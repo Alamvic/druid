@@ -11,11 +11,11 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'sourceSelector',
-		'genSelector',
 		'argumentCount',
 		'cfg',
 		'primitiveNumber',
-		'mayCallback'
+		'mayCallback',
+		'supported'
 	],
 	#category : #'Druid-InterpreterBuilder'
 }
@@ -48,14 +48,17 @@ DRPrimitiveObject >> cfg: aDRPrimitiveControlFlowGraph [
 DRPrimitiveObject >> genSelector [
 	" Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (interpreter) method"
 
-	^ genSelector
-		ifNil: [ genSelector := #gen_ , self sourceSelector capitalized ]
+	supported ifFalse: [ ^ #genNonImplementedPrimitive ].
+
+	^ #gen_ , self sourceSelector
 ]
 
-{ #category : #accessing }
-DRPrimitiveObject >> genSelector: anObject [
+{ #category : #initialization }
+DRPrimitiveObject >> initialize [
 
-	genSelector := anObject
+	super initialize.
+	supported := true.
+	mayCallback := false
 ]
 
 { #category : #accessing }
@@ -105,4 +108,16 @@ DRPrimitiveObject >> sourceSelector [
 DRPrimitiveObject >> sourceSelector: anObject [
 
 	sourceSelector := anObject
+]
+
+{ #category : #accessing }
+DRPrimitiveObject >> supported [
+
+	^ supported
+]
+
+{ #category : #accessing }
+DRPrimitiveObject >> supported: anObject [
+
+	supported := anObject
 ]

@@ -68,13 +68,14 @@ DRCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
 	"Compile a method in the receiver's JIT compiler class. aDRPrimitiveObject contains the specification needed to compile the JITed version of the method"
 
 	| intrpSelector jitSelector |
+	aDRPrimitiveObject supported ifFalse: [ ^ self ].
+
 	intrpSelector := aDRPrimitiveObject sourceSelector.
 	jitSelector := aDRPrimitiveObject genSelector.
 	(self compiler
-		interpreter: self interpreter;
-		primitiveName: intrpSelector;
-		primitiveCompilerName: jitSelector)
-			compile
+		 interpreter: self interpreter;
+		 primitiveName: intrpSelector;
+		 primitiveCompilerName: jitSelector) compile
 ]
 
 { #category : #'accessing - compiler' }

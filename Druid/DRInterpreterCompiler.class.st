@@ -315,7 +315,6 @@ DRInterpreterCompiler >> newMemory [
 { #category : #'instance creation' }
 DRInterpreterCompiler >> newNonImplementedPrimitive: interpreterPrimitiveMethod [
 
-
 	| selector |
 	selector := interpreterPrimitiveMethod selector.
 
@@ -324,9 +323,9 @@ DRInterpreterCompiler >> newNonImplementedPrimitive: interpreterPrimitiveMethod 
 	^ DRPrimitiveObject new
 		  primitiveNumber: (self primitiveNumberOf: selector);
 		  sourceSelector: selector;
-		  genSelector: #genNonImplementedPrimitive;
 		  argumentCount: -1;
 		  mayCallback: (self isMaycallbackPrimitive: interpreterPrimitiveMethod);
+		  supported: false;
 		  yourself
 ]
 

@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'compilationUnit'
 	],
-	#category : #'Druid-Tests-CompilerCompiler'
+	#category : #'Druid-Tests-InterpreterCompiler'
 }
 
 { #category : #running }
@@ -12,9 +12,10 @@ DRPrimitiveCompilerCompilerCollectorTest >> setUp [
 
 	super setUp.
 	StackInterpreter initializePrimitiveTable.
-	interpreterCompiler := (DRInterpreterCompiler
-			fromInterpreter: (DRDummyInterpreter new primitives: DRBasicCogInterpreterArithmeticPrimitives primitiveTable)
-			compilerClass: DRPrimitiveCompilerCompilerCollector).
+	interpreterCompiler := DRInterpreterCompiler
+		                       fromInterpreter:
+		                       (DRDummyInterpreter new primitives: { #primitiveAdd })
+		                       compilerClass: DRPrimitiveCompilerCompilerCollector.
 	compilationUnit := interpreterCompiler generateIR
 ]
 

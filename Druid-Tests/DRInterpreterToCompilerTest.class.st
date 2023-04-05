@@ -1,7 +1,7 @@
 Class {
 	#name : #DRInterpreterToCompilerTest,
 	#superclass : #DRAbstractCompilerCollectorTest,
-	#category : #'Druid-Tests-CompilerCompiler'
+	#category : #'Druid-Tests-InterpreterCompiler'
 }
 
 { #category : #initialization }

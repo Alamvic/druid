@@ -10,7 +10,7 @@ Class {
 		'interpreterBuilder',
 		'interpreterCompiler'
 	],
-	#category : #'Druid-Tests-CompilerCompiler'
+	#category : #'Druid-Tests-InterpreterCompiler'
 }
 
 { #category : #accessing }
