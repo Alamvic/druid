@@ -58,13 +58,13 @@ DRJITPrimitiveObject >> mayCallback: aBoolean [
 ]
 
 { #category : #accessing }
-DRPrimitiveObject >> supported [
+DRJITPrimitiveObject >> supported [
 
 	^ supported
 ]
 
 { #category : #accessing }
-DRPrimitiveObject >> supported: aBoolean [
+DRJITPrimitiveObject >> supported: aBoolean [
 
 	supported := aBoolean
 ]

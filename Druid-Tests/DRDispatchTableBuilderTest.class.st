@@ -22,8 +22,8 @@ DRDispatchTableBuilderTest >> compilationUnitForTesting [
 DRDispatchTableBuilderTest >> setUp [
 
 	super setUp.
-	interpreter :=	DRInterpreterToCompiler fromInterpreterClass: DRBasicCogInterpreterArithmeticPrimitives.
-	dispatchTableBuilder := DRCogitDispatchTableGenerator fromCompilationUnit: self compilationUnitForTesting
+	dispatchTableBuilder := DRCogitDispatchTableGenerator fromCompilationUnit:
+		                        self compilationUnitForTesting
 ]
 
 { #category : #tests }

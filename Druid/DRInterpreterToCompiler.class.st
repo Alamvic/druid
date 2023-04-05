@@ -87,18 +87,17 @@ DRInterpreterToCompiler >> addBytecodes [
 ]
 
 { #category : #adding }
-DRInterpreterToCompiler >> addPrimitive: aString [
+DRInterpreterToCompiler >> addPrimitive: primitiveMethod [
 
-	(self isValidPrimitiveName: aString)
-		ifTrue: [ 
-			[ self primitives add: (self newPrimitive: aString) ]
-			on: Error
-			do: [ : ex | 
-				failFirst ifTrue: [ ex pass  ].
-				self primitiveCompiler 
-					failedPrimitivesAt: ex
-					add: self primitiveCompiler sourceName ] ].
+	(self isValidPrimitiveName: primitiveMethod) ifFalse: [ 1 halt ].
 
+	[ self primitives add: (self newPrimitive: primitiveMethod) ]
+		on: Error
+		do: [ :ex |
+			failFirst ifTrue: [ ex pass ].
+			self primitiveCompiler
+				failedPrimitivesAt: ex
+				add: self primitiveCompiler sourceName ]
 ]
 
 { #category : #adding }
@@ -106,8 +105,8 @@ DRInterpreterToCompiler >> addPrimitives [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
 	(self collectPrimitives: self interpreterPrimitiveTable)
-		do: [ : prim | self addPrimitive: prim ]
-		displayingProgress: [ :prim | 'Adding primitive: ' , prim asString ]
+		do: [ :prim | self addPrimitive: prim ]
+		displayingProgress: [ :prim | 'Adding primitive: ' , prim asString ].
 
 	self flag: #TOFIX.
 	self interpreterPrimitiveTable
@@ -115,9 +114,9 @@ DRInterpreterToCompiler >> addPrimitives [
 			(selector isNumber or: [ self interpreterPrimitiveTable includes: selector ])
 				ifFalse: [
 					| method |
-					method := interpreter class lookupSelector: selector.
+					method := self interpreterClass lookupSelector: selector.
 					(self isMaycallbackPrimitive: method) ifTrue: [
-						aCompilationUnit addPrimitive: (self newNonImplementedPrimitive: method) ] ] ]
+						self addPrimitive: (self newNonImplementedPrimitive: method) ] ] ]
 		displayingProgress: [ :selector | 'Adding mandatory non implemented primitive: ' , selector asString ]
 ]
 
@@ -192,14 +191,12 @@ DRInterpreterToCompiler >> collectBytecodes: aCollection [
 DRInterpreterToCompiler >> collectPrimitives: aCollection [
 	" Answer a <Collection> of selectors from aCollection containing CompiledMethod or primitive names "
 
-	^ aCollection
-		  reject: [ :obj |
-			  obj isNumber or: [
-				  obj isNil or: [ (self isSelectedPrimitive: (interpreterClass lookupSelector: obj)) not ] ] ]
-		  thenCollect: [ :symOrCompiledMethod |
-			  symOrCompiledMethod isCompiledMethod
-				  ifTrue: [ symOrCompiledMethod selector ]
-				  ifFalse: [ symOrCompiledMethod ] ]
+	| validSelectors |
+	validSelectors := aCollection reject: [ :obj | obj isNumber or: [ obj isNil ] ].
+
+	^ validSelectors
+		  collect: [ :selector | interpreterClass lookupSelector: selector ]
+		  thenSelect: [ :method | self isSelectedPrimitive: method ]
 ]
 
 { #category : #'accessing - compiler' }
@@ -277,12 +274,9 @@ DRInterpreterToCompiler >> isExtendedBytecode: aSelector [
 ]
 
 { #category : #testing }
-DRInterpreterCompiler >> isMaycallbackPrimitive: primitiveMethod [ 
-	"Answer <true> if primitive aString is marked as maycallback"
-	" #maycallback "
-	
-	^ primitiveMethod hasPragmaNamed: #maycallback
+DRInterpreterToCompiler >> isMaycallbackPrimitive: primitiveMethod [
 
+	^ primitiveMethod hasPragmaNamed: #maycallback
 ]
 
 { #category : #adding }
@@ -338,24 +332,7 @@ DRInterpreterToCompiler >> newMemory [
 ]
 
 { #category : #'instance creation' }
-DRInterpreterCompiler >> newNonImplementedPrimitive: interpreterPrimitiveMethod [
-
-	| selector |
-	selector := interpreterPrimitiveMethod selector.
-
-	self flag: #TODO. "Duplicated code with newPrimitive:"
-
-	^ DRPrimitiveObject new
-		  primitiveNumber: (self primitiveNumberOf: selector);
-		  sourceSelector: selector;
-		  argumentCount: -1;
-		  mayCallback: (self isMaycallbackPrimitive: interpreterPrimitiveMethod);
-		  supported: false;
-		  yourself
-]
-
-{ #category : #'instance creation' }
-DRInterpreterToCompiler >> newPrimitive: aString [
+DRInterpreterToCompiler >> newPrimitive: primitiveMethod [
 	" Answer a new primitive object with its metadata and CFG generated "
 
 	"
@@ -369,11 +346,11 @@ DRInterpreterToCompiler >> newPrimitive: aString [
 	| selector |
 	selector := primitiveMethod selector.
 
-	^ DRPrimitiveObject new
+	^ DRJITPrimitiveObject new
 		primitiveNumber: (self primitiveNumberOf: selector);
-		sourceSelector: selector;
-		cfg: (self compilerCompiler buildIR: selector);
-		argumentCount: (self compilerCompiler numberOfArgumentsForMethod: primitiveMethod);
+		sourceMethod: primitiveMethod;
+		cfg: (self primitiveCompiler buildIR: selector);
+		argumentCount: (self primitiveCompiler numberOfArgumentsForMethod: primitiveMethod);
 		mayCallback: (self isMaycallbackPrimitive: primitiveMethod);
 		yourself
 ]

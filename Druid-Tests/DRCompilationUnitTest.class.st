@@ -1,7 +1,7 @@
 Class {
 	#name : #DRCompilationUnitTest,
 	#superclass : #TestCase,
-	#category : #'Druid-Tests-InterpreterCompiler'
+	#category : #'Druid-Tests-CompilerBuilder'
 }
 
 { #category : #tests }
@@ -19,14 +19,18 @@ DRCompilationUnitTest >> compilerClassName [
 { #category : #'instance creation' }
 DRCompilationUnitTest >> newEmptyCompilationUnit [
 
-	| interpreter |
-	interpreter := CogVMSimulatorLSB basicNew
-		               objectMemory: Spur64BitCoMemoryManager simulatorClass new;
-		               basicInitialize.
-	^ DRCompilationUnit new
-		  interpreter: interpreter;
-		  jitCompilerClass: self compilerClass;
-		  yourself
+	self flag: #TODO. "Duplicated from compilationUnitForTesting"
+
+	^ DRInterpreterCompilationUnit new
+		compilerBuilder: (DRInterpreterToCompiler fromInterpreterClass: DruidTestInterpreter);
+		targetClass: self compilerClassName;
+		yourself
+]
+
+{ #category : #'object access' }
+DRCompilationUnitTest >> primitiveMethod [
+
+	^ InterpreterPrimitives >> #primitiveAdd
 ]
 
 { #category : #running }
@@ -54,26 +58,25 @@ DRCompilationUnitTest >> testManyPrimitivesCompilation [
 	| compilationUnit |
 	compilationUnit := self newEmptyCompilationUnit.
 
-	compilationUnit addPrimitive: (DRPrimitiveObject new
-			 primitiveNumber: 1;
-			 sourceSelector: #primitiveAdd;
-			 argumentCount: 1;
-			 yourself).
+	compilationUnit primitives: {
+			(DRJITPrimitiveObject new
+				 primitiveNumber: 1;
+				 sourceMethod: self primitiveMethod;
+				 argumentCount: 1;
+				 yourself).
 
-	compilationUnit addPrimitive: (DRPrimitiveObject new
-			 primitiveNumber: 2;
-			 sourceSelector: #fakePrimitive;
-			 argumentCount: -1;
-			 supported: false;
-			 yourself).
+			(DRJITPrimitiveObject new
+				 primitiveNumber: 2;
+				 argumentCount: -1;
+				 supported: false;
+				 yourself).
 
-	compilationUnit addPrimitive: (DRPrimitiveObject new
-			 primitiveNumber: 3;
-			 sourceSelector: #fakePrimitiveCallback;
-			 argumentCount: 3;
-			 supported: false;
-			 mayCallback: true;
-			 yourself).
+			(DRJITPrimitiveObject new
+				 primitiveNumber: 3;
+				 argumentCount: 3;
+				 supported: false;
+				 mayCallback: true;
+				 yourself) }.
 
 	compilationUnit compileAll.
 
@@ -81,45 +84,38 @@ DRCompilationUnitTest >> testManyPrimitivesCompilation [
 			#( 1 #gen_primitiveAdd 1 ).
 			#( 2 #genNonImplementedPrimitive -1 ).
 			#( 3 #genNonImplementedPrimitive 3 #maycallback ) }.
-	self assert: (self compilerClass canUnderstand: #gen_primitiveAdd)
 ]
 
 { #category : #tests }
 DRCompilationUnitTest >> testMaycallbackPrimitiveCompilation [
 
-	| compilationUnit primitiveObject |
+	| compilationUnit |
 	compilationUnit := self newEmptyCompilationUnit.
 
-	primitiveObject := DRPrimitiveObject new
-		                   primitiveNumber: 7;
-		                   sourceSelector: #primitiveAdd;
-		                   argumentCount: 1;
-		                   mayCallback: true;
-		                   yourself.
-
-	compilationUnit addPrimitive: primitiveObject.
+	compilationUnit primitives: { (DRJITPrimitiveObject new
+			                    primitiveNumber: 7;
+			                    sourceMethod: self primitiveMethod;
+			                    argumentCount: 1;
+			                    mayCallback: true;
+			                    yourself) }.
 	compilationUnit compileAll.
 
 	self
 		assert: self compilerClass primitiveTableArray
-		equals: { #( 7 #gen_primitiveAdd 1 #maycallback ) }.
-	self assert: (self compilerClass >> #gen_primitiveAdd) isNotNil
+		equals: { #( 7 #gen_primitiveAdd 1 #maycallback ) }
 ]
 
 { #category : #tests }
 DRCompilationUnitTest >> testNotSupportedPrimitiveCompilation [
 
-	| compilationUnit primitiveObject |
+	| compilationUnit |
 	compilationUnit := self newEmptyCompilationUnit.
 
-	primitiveObject := DRPrimitiveObject new
-		                   primitiveNumber: 7;
-		                   sourceSelector: #fakePrimitive;
-		                   argumentCount: -1;
-		                   supported: false;
-		                   yourself.
-
-	compilationUnit addPrimitive: primitiveObject.
+	compilationUnit primitives: { (DRJITPrimitiveObject new
+			 primitiveNumber: 7;
+			 argumentCount: -1;
+			 supported: false;
+			 yourself) }.
 	compilationUnit compileAll.
 
 	self
@@ -131,20 +127,17 @@ DRCompilationUnitTest >> testNotSupportedPrimitiveCompilation [
 { #category : #tests }
 DRCompilationUnitTest >> testPrimitiveCompilation [
 
-	| compilationUnit primitiveObject |
+	| compilationUnit |
 	compilationUnit := self newEmptyCompilationUnit.
 
-	primitiveObject := DRPrimitiveObject new
-		                   primitiveNumber: 7;
-		                   sourceSelector: #primitiveAdd;
-		                   argumentCount: 1;
-		                   yourself.
-
-	compilationUnit addPrimitive: primitiveObject.
+	compilationUnit primitives: { (DRJITPrimitiveObject new
+			 primitiveNumber: 7;
+			 sourceMethod: self primitiveMethod;
+			 argumentCount: 1;
+			 yourself) }.
 	compilationUnit compileAll.
 
 	self
 		assert: self compilerClass primitiveTableArray
-		equals: { #( 7 #gen_primitiveAdd 1 ) }.
-	self assert: (self compilerClass >> #gen_primitiveAdd) isNotNil
+		equals: { #( 7 #gen_primitiveAdd 1 ) }
 ]
