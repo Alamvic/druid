@@ -6,26 +6,26 @@ Uses a Pharo Code Generator to build methods conforming to the Cogit JIT dispatc
 
 "
 Class {
-	#name : #DRCogitDispatchTableBuilder,
-	#superclass : #DRAbstractDispatchTableBuilder,
+	#name : #DRCogitDispatchTableGenerator,
+	#superclass : #DRAbstractDispatchTableGenerator,
 	#category : #'Druid-CompilerBuilder'
 }
 
 { #category : #'accessing - building' }
-DRCogitDispatchTableBuilder >> arrayAccessorGlobalName [
+DRCogitDispatchTableGenerator >> arrayAccessorGlobalName [
 
 	^ #CArrayAccessor
 ]
 
 { #category : #'accessing - bytecodes' }
-DRCogitDispatchTableBuilder >> buildBytecodeTableVariableNode [
+DRCogitDispatchTableGenerator >> buildBytecodeTableVariableNode [
 	"Answer a <PCGReturnNode> with the primitive table initialization setter message send"
 
-	^ self initBytecodeTable asPCG
+	^ self bytecodeTable asPCG
 ]
 
 { #category : #'accessing - bytecodes' }
-DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableAssignmentNode [
+DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableAssignmentNode [
 	"Answer a <PCGMessageNode> with the bytecode table initialization setter message send"
 
 	^ PCGMessageNode
@@ -35,7 +35,7 @@ DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableAssignmentNode [
 ]
 
 { #category : #'accessing - bytecodes' }
-DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableBytecodeSetHasDirectedSuperSendNode [
+DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableBytecodeSetHasDirectedSuperSendNode [
 
 	^ PCGAssignmentNode new
 		  variable: #BytecodeSetHasDirectedSuperSend asPCGGlobal;
@@ -43,7 +43,7 @@ DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableBytecodeSetHasDirecte
 ]
 
 { #category : #'accessing - bytecodes' }
-DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableBytecodeSetHasExtensionsNode [
+DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableBytecodeSetHasExtensionsNode [
 
 	^ PCGAssignmentNode new
 		  variable: #BytecodeSetHasExtensions asPCGGlobal;
@@ -51,7 +51,7 @@ DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableBytecodeSetHasExtensi
 ]
 
 { #category : #'accessing - bytecodes' }
-DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableFirstSpecialSelectorNode [
+DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableFirstSpecialSelectorNode [
 
 	^ PCGAssignmentNode new
 		  variable: #FirstSpecialSelector asPCGGlobal;
@@ -59,7 +59,7 @@ DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableFirstSpecialSelectorN
 ]
 
 { #category : #'accessing - bytecodes' }
-DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableMethodNode [
+DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableMethodNode [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
 	^ (PCGMethodNode selector: self initBytecodeTableSelector) bodyBlock: [ : body |
@@ -74,7 +74,7 @@ DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableMethodNode [
 ]
 
 { #category : #'accessing - bytecodes' }
-DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableNumSpecialSelectorsNode [
+DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableNumSpecialSelectorsNode [
 
 	^ PCGAssignmentNode new
 		  variable: #NumSpecialSelectors asPCGGlobal;
@@ -82,7 +82,7 @@ DRCogitDispatchTableBuilder >> buildInitializeBytecodeTableNumSpecialSelectorsNo
 ]
 
 { #category : #'accessing - bytecodes' }
-DRCogitDispatchTableBuilder >> buildInitializeBytecodeTablenumPushNilsFunctionNode [
+DRCogitDispatchTableGenerator >> buildInitializeBytecodeTablenumPushNilsFunctionNode [
 
 	^ PCGAssignmentNode new
 		  variable: #numPushNilsFunction asPCGInstanceVariable;
@@ -90,7 +90,7 @@ DRCogitDispatchTableBuilder >> buildInitializeBytecodeTablenumPushNilsFunctionNo
 ]
 
 { #category : #'accessing - bytecodes' }
-DRCogitDispatchTableBuilder >> buildInitializeBytecodeTablepushNilSizeFunctionNode [
+DRCogitDispatchTableGenerator >> buildInitializeBytecodeTablepushNilSizeFunctionNode [
 
 	^ PCGAssignmentNode new
 		  variable: #pushNilSizeFunction asPCGInstanceVariable;
@@ -98,7 +98,7 @@ DRCogitDispatchTableBuilder >> buildInitializeBytecodeTablepushNilSizeFunctionNo
 ]
 
 { #category : #'accessing - primitives' }
-DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableAssignmentNode [
+DRCogitDispatchTableGenerator >> buildInitializePrimitiveTableAssignmentNode [
 	"Answer a <PCGMessageNode> with the primitive table initialization setter message send"
 
 	^ PCGMessageNode
@@ -108,7 +108,7 @@ DRCogitDispatchTableBuilder >> buildInitializePrimitiveTableAssignmentNode [
 ]
 
 { #category : #'accessing - primitives' }
-DRCogitDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
+DRCogitDispatchTableGenerator >> buildPrimitiveTableInitialValueNode [
 
 	^ PCGMessageNode
 		receiver: self arrayAccessorGlobalName asPCGGlobal
@@ -124,32 +124,32 @@ DRCogitDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
 ]
 
 { #category : #'accessing - primitives' }
-DRCogitDispatchTableBuilder >> buildPrimitiveTableVariableNode [
+DRCogitDispatchTableGenerator >> buildPrimitiveTableVariableNode [
 
 	^ #primitiveTable asPCGInstanceVariable
 ]
 
 { #category : #'accessing - bytecodes' }
-DRCogitDispatchTableBuilder >> initBytecodeTable [
+DRCogitDispatchTableGenerator >> bytecodeTable [
 	"Answer a <Collection> of bytecode table entries"
 	
-	^ self compilationUnit initBytecodeTable 
+	^ self compilationUnit bytecodeTable 
 ]
 
 { #category : #'accessing - bytecodes' }
-DRCogitDispatchTableBuilder >> initBytecodeTableSelector [ 
+DRCogitDispatchTableGenerator >> initBytecodeTableSelector [ 
 
 	^ #initializeBytecodeTableForSistaV1
 ]
 
 { #category : #'accessing - primitives' }
-DRCogitDispatchTableBuilder >> initPrimitiveTableSelector [ 
+DRCogitDispatchTableGenerator >> initPrimitiveTableSelector [ 
 
 	^ #initializePrimitiveTable
 ]
 
 { #category : #'accessing - installation' }
-DRCogitDispatchTableBuilder >> installAllMethodsOn: aJITCompilerClass [
+DRCogitDispatchTableGenerator >> installAllMethodsOn: aJITCompilerClass [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
 	^ {
@@ -164,7 +164,7 @@ DRCogitDispatchTableBuilder >> installAllMethodsOn: aJITCompilerClass [
 ]
 
 { #category : #'accessing - primitives' }
-DRCogitDispatchTableBuilder >> maxPrimitiveIndexGlobalName [
+DRCogitDispatchTableGenerator >> maxPrimitiveIndexGlobalName [
 
 	^ #MaxCompiledPrimitiveIndex
 ]

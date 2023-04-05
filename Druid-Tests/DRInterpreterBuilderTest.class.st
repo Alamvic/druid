@@ -88,7 +88,7 @@ DRInterpreterBuilderTest >> testCompilePrimitiveTable [
 
 	interpreterToCompiler buildAndCompileIn: self interpreterClassNameForTest.
 
-	self assert: interpreterToCompiler initPrimitiveTable notEmpty
+	self assert: interpreterToCompiler primitiveTable notEmpty
 ]
 
 { #category : #tests }
@@ -106,22 +106,6 @@ DRInterpreterBuilderTest >> testConfigureInterpreterClass [
 	self assert: interpreterToCompiler primitives notEmpty.
 	self assert: interpreterToCompiler primitives anyOne sourceSelector equals: #primitiveAdd
 	
-]
-
-{ #category : #initialization }
-DRInterpreterBuilderTest >> testCountPrimimitives [
-
-	interpreterToCompiler targetClass: self interpreterClassForTest.
-	self 
-		assert: interpreterToCompiler primitives size 
-		equals: 0.
-	interpreterToCompiler addPrimitives: #(#primitiveAdd) .
-	self
-		assert: interpreterToCompiler primitives size 
-		equals: 1.
-	self
-		assert:  interpreterToCompiler primitivesCount
-		equals: 10.
 ]
 
 { #category : #tests }

@@ -79,7 +79,7 @@ DRInterpreterToCompilerTest >> testCompilePrimitiveTable [
 
 	interpreterToCompiler buildAndCompileIn: self jitCompilerClassNameForTest.
 
-	self assert: interpreterToCompiler initPrimitiveTable notEmpty
+	self assert: interpreterToCompiler primitiveTable notEmpty
 ]
 
 { #category : #tests }

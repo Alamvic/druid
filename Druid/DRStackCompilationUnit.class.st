@@ -1,6 +1,6 @@
 Class {
 	#name : #DRStackCompilationUnit,
-	#superclass : #DRCogitCompilationUnit,
+	#superclass : #DRInterpreterCompilationUnit,
 	#instVars : [
 		'primitiveIndex'
 	],
@@ -20,7 +20,7 @@ DRStackCompilationUnit >> addPrimitiveEntries [
 DRStackCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
 
-	self initPrimitiveTable add: {
+	self primitiveTable add: {
 		aDRPrimitiveObject primitiveNumber .
 		aDRPrimitiveObject sourceSelector }
 ]
@@ -29,7 +29,7 @@ DRStackCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 DRStackCompilationUnit >> addSpecialPrimitives [
 	"Private - This is needed so to conform the primitive array 'specification'. Read AbstractInterpreter class>>tabble:from: side for details"
 
-	self initPrimitiveTable add: {
+	self primitiveTable add: {
 		0 . 0 }
 ]
 
@@ -37,13 +37,13 @@ DRStackCompilationUnit >> addSpecialPrimitives [
 DRStackCompilationUnit >> compileAll [
 
 	self addPrimitiveEntries.
-	self dispatchTableBuilder
-		primitiveSpec: initPrimitiveTable;
+	self dispatchTableGenerator
+		primitiveSpec: primitiveTable;
 		installAllMethodsOn: self targetClass class
 ]
 
 { #category : #private }
-DRStackCompilationUnit >> dispatchTableBuilderClass [
+DRStackCompilationUnit >> dispatchTableGeneratorClass [
 
-	^ DRStackInterpreterDispatchTableBuilder
+	^ DRStackInterpreterDispatchTableGenerator
 ]

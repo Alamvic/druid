@@ -3,7 +3,7 @@ Abstract class to provide a source method, i.e., for example, in the interpreter
 
 "
 Class {
-	#name : #DRDispatchTableObject,
+	#name : #DRInterpreterInstruction,
 	#superclass : #Object,
 	#instVars : [
 		'sourceMethod',
@@ -13,37 +13,37 @@ Class {
 }
 
 { #category : #accessing }
-DRDispatchTableObject >> cfg [
+DRInterpreterInstruction >> cfg [
 
 	^ cfg
 ]
 
 { #category : #accessing }
-DRDispatchTableObject >> cfg: aDRPrimitiveControlFlowGraph [ 
+DRInterpreterInstruction >> cfg: aDRPrimitiveControlFlowGraph [ 
 
 	cfg := aDRPrimitiveControlFlowGraph
 ]
 
 { #category : #testing }
-DRDispatchTableObject >> hasPragmaNamed: aString [
+DRInterpreterInstruction >> hasPragmaNamed: aString [
 
 	^ self sourceMethod hasPragmaNamed: aString
 ]
 
 { #category : #accessing }
-DRDispatchTableObject >> sourceMethod [
+DRInterpreterInstruction >> sourceMethod [
 
 	^ sourceMethod
 ]
 
 { #category : #accessing }
-DRDispatchTableObject >> sourceMethod: anObject [
+DRInterpreterInstruction >> sourceMethod: anObject [
 
 	sourceMethod := anObject
 ]
 
 { #category : #accessing }
-DRDispatchTableObject >> sourceSelector [
+DRInterpreterInstruction >> sourceSelector [
 
 	^ self sourceMethod selector
 ]

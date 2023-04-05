@@ -5,7 +5,7 @@ Methods starting with `build` answer Pharo Code Generator node instances, used t
 
 "
 Class {
-	#name : #DRAbstractDispatchTableBuilder,
+	#name : #DRAbstractDispatchTableGenerator,
 	#superclass : #Object,
 	#instVars : [
 		'primTableNode',
@@ -15,7 +15,7 @@ Class {
 }
 
 { #category : #'instance creation' }
-DRAbstractDispatchTableBuilder class >> fromCompilationUnit: aDRCompilationUnit [
+DRAbstractDispatchTableGenerator class >> fromCompilationUnit: aDRCompilationUnit [
 	"Answer a <DRCogitPrimitiveInstaller> method representation of aDRCompilationUnit"
 
 	^ self new
@@ -24,13 +24,13 @@ DRAbstractDispatchTableBuilder class >> fromCompilationUnit: aDRCompilationUnit 
 ]
 
 { #category : #'accessing - building' }
-DRAbstractDispatchTableBuilder >> arrayAccessorGlobalName [
+DRAbstractDispatchTableGenerator >> arrayAccessorGlobalName [
 
 	self subclassResponsibility
 ]
 
 { #category : #'accessing - building' }
-DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableArrayMethodNode [
+DRAbstractDispatchTableGenerator >> buildInitializePrimitiveTableArrayMethodNode [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
 	primTableNode := (PCGMethodNode selector: #primitiveTableArray)
@@ -40,13 +40,13 @@ DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableArrayMethodNode [
 ]
 
 { #category : #'accessing - building' }
-DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableAssignmentNode [
+DRAbstractDispatchTableGenerator >> buildInitializePrimitiveTableAssignmentNode [
 
 	self subclassResponsibility
 ]
 
 { #category : #'accessing - building' }
-DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableIVarAssignmentNode [
+DRAbstractDispatchTableGenerator >> buildInitializePrimitiveTableIVarAssignmentNode [
 
 	^ PCGAssignmentNode new
 		  variable: self buildPrimitiveTableVariableNode;
@@ -54,7 +54,7 @@ DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableIVarAssignmentNod
 ]
 
 { #category : #accessing }
-DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode [
+DRAbstractDispatchTableGenerator >> buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode [
 
 	^ PCGAssignmentNode new
 		  variable: self maxPrimitiveIndexGlobalName asPCGGlobal;
@@ -62,7 +62,7 @@ DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableMaxCompiledPrimit
 ]
 
 { #category : #'accessing - building' }
-DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableMethodNode [
+DRAbstractDispatchTableGenerator >> buildInitializePrimitiveTableMethodNode [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
 	^ (PCGMethodNode selector: self initPrimitiveTableSelector) bodyBlock: [ : body |
@@ -74,14 +74,14 @@ DRAbstractDispatchTableBuilder >> buildInitializePrimitiveTableMethodNode [
 ]
 
 { #category : #'accessing - building' }
-DRAbstractDispatchTableBuilder >> buildPrimitiveTableArrayNode [
+DRAbstractDispatchTableGenerator >> buildPrimitiveTableArrayNode [
 	"Answer a <PCGReturnNode> with the primitive table initialization setter message send"
 
-	^ self initPrimitiveTable asPCG returnIt
+	^ self primitiveTable asPCG returnIt
 ]
 
 { #category : #accessing }
-DRAbstractDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
+DRAbstractDispatchTableGenerator >> buildPrimitiveTableInitialValueNode [
 
 	^ PCGMessageNode
 		receiver: self arrayAccessorGlobalName asPCGGlobal
@@ -97,7 +97,7 @@ DRAbstractDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
 ]
 
 { #category : #accessing }
-DRAbstractDispatchTableBuilder >> collectAllMethodsOn: aJITCompilerClass [
+DRAbstractDispatchTableGenerator >> collectAllMethodsOn: aJITCompilerClass [
 	"Answer a <Collection> of <PCGMethodNode> to be installated in a JIT compiler class"
 
 	^ {
@@ -112,32 +112,25 @@ DRAbstractDispatchTableBuilder >> collectAllMethodsOn: aJITCompilerClass [
 ]
 
 { #category : #accessing }
-DRAbstractDispatchTableBuilder >> compilationUnit [
+DRAbstractDispatchTableGenerator >> compilationUnit [
 
 	^ compilationUnit
 ]
 
 { #category : #accessing }
-DRAbstractDispatchTableBuilder >> compilationUnit: anObject [
+DRAbstractDispatchTableGenerator >> compilationUnit: anObject [
 
 	compilationUnit := anObject
 ]
 
-{ #category : #initialization }
-DRAbstractDispatchTableBuilder >> initPrimitiveTable [
-	"Answer a <Collection> with primitive table entries"
-
-	^ self compilationUnit initPrimitiveTable
-]
-
 { #category : #'accessing - building' }
-DRAbstractDispatchTableBuilder >> initPrimitiveTableSelector [
+DRAbstractDispatchTableGenerator >> initPrimitiveTableSelector [
 
 	self subclassResponsibility
 ]
 
 { #category : #'accessing - installation' }
-DRAbstractDispatchTableBuilder >> installAllMethodsOn: aJITCompilerClass [
+DRAbstractDispatchTableGenerator >> installAllMethodsOn: aJITCompilerClass [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
 	^ {
@@ -151,20 +144,27 @@ DRAbstractDispatchTableBuilder >> installAllMethodsOn: aJITCompilerClass [
 ]
 
 { #category : #accessing }
-DRAbstractDispatchTableBuilder >> maxCompiledPrimitives [
+DRAbstractDispatchTableGenerator >> maxCompiledPrimitives [
 	"Answer the <Number> of compiled primitives in the receiver"
 
 	^ self primTableNode maxCompiledPrimitives
 ]
 
 { #category : #accessing }
-DRAbstractDispatchTableBuilder >> maxPrimitiveIndexGlobalName [
+DRAbstractDispatchTableGenerator >> maxPrimitiveIndexGlobalName [
 
 	self subclassResponsibility
 ]
 
 { #category : #accessing }
-DRAbstractDispatchTableBuilder >> primTableNode [
+DRAbstractDispatchTableGenerator >> primTableNode [
 
 	^ primTableNode
+]
+
+{ #category : #initialization }
+DRAbstractDispatchTableGenerator >> primitiveTable [
+	"Answer a <Collection> with primitive table entries"
+
+	^ self compilationUnit primitiveTable
 ]

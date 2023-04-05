@@ -1,6 +1,6 @@
 Class {
 	#name : #DRBytecodeObject,
-	#superclass : #DRDispatchTableObject,
+	#superclass : #DRInterpreterInstruction,
 	#instVars : [
 		'bytecodeNumber',
 		'isExtended'

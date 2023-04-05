@@ -1,6 +1,6 @@
 Class {
-	#name : #DRStackInterpreterDispatchTableBuilder,
-	#superclass : #DRAbstractDispatchTableBuilder,
+	#name : #DRStackInterpreterDispatchTableGenerator,
+	#superclass : #DRAbstractDispatchTableGenerator,
 	#instVars : [
 		'primitiveSpec'
 	],
@@ -8,13 +8,13 @@ Class {
 }
 
 { #category : #'accessing - building' }
-DRStackInterpreterDispatchTableBuilder >> arrayAccessorGlobalName [
+DRStackInterpreterDispatchTableGenerator >> arrayAccessorGlobalName [
 
 	^ #Array
 ]
 
 { #category : #'accessing - building' }
-DRStackInterpreterDispatchTableBuilder >> buildInitializePrimitiveTableAssignmentNode [
+DRStackInterpreterDispatchTableGenerator >> buildInitializePrimitiveTableAssignmentNode [
 	"Answer a <PCGMessageNode> with the primitive table initialization setter message send"
 
 	^ PCGMessageNode
@@ -26,7 +26,7 @@ DRStackInterpreterDispatchTableBuilder >> buildInitializePrimitiveTableAssignmen
 ]
 
 { #category : #accessing }
-DRStackInterpreterDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
+DRStackInterpreterDispatchTableGenerator >> buildPrimitiveTableInitialValueNode [
 
 	^ PCGMessageNode
 			receiver: #Array asPCGGlobal
@@ -38,38 +38,38 @@ DRStackInterpreterDispatchTableBuilder >> buildPrimitiveTableInitialValueNode [
 ]
 
 { #category : #'accessing - building' }
-DRStackInterpreterDispatchTableBuilder >> buildPrimitiveTableVariableNode [
+DRStackInterpreterDispatchTableGenerator >> buildPrimitiveTableVariableNode [
 
 	^ #PrimitiveTable asPCGGlobal
 ]
 
-{ #category : #initialization }
-DRStackInterpreterDispatchTableBuilder >> initPrimitiveTable [
-	"Answer a <Collection> with primitive table entries"
-
-	^ self primitiveSpec
-]
-
 { #category : #'accessing - building' }
-DRStackInterpreterDispatchTableBuilder >> initPrimitiveTableSelector [ 
+DRStackInterpreterDispatchTableGenerator >> initPrimitiveTableSelector [ 
 
 	^ #basicPrimitiveTable
 ]
 
 { #category : #accessing }
-DRStackInterpreterDispatchTableBuilder >> maxPrimitiveIndexGlobalName [
+DRStackInterpreterDispatchTableGenerator >> maxPrimitiveIndexGlobalName [
 
 	^ #MaxPrimitiveIndex
 ]
 
 { #category : #accessing }
-DRStackInterpreterDispatchTableBuilder >> primitiveSpec [
+DRStackInterpreterDispatchTableGenerator >> primitiveSpec [
 
 	^ primitiveSpec
 ]
 
 { #category : #accessing }
-DRStackInterpreterDispatchTableBuilder >> primitiveSpec: anObject [
+DRStackInterpreterDispatchTableGenerator >> primitiveSpec: anObject [
 
 	primitiveSpec := anObject
+]
+
+{ #category : #initialization }
+DRStackInterpreterDispatchTableGenerator >> primitiveTable [
+	"Answer a <Collection> with primitive table entries"
+
+	^ self primitiveSpec
 ]

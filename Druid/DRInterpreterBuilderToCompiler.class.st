@@ -60,7 +60,7 @@ DRInterpreterBuilderToCompiler >> initialize [
 	super initialize.
 	primitiveIndex := 0.
 	compilationUnit := DRStackCompilationUnit new
-		dispatchTableBuilder: DRStackInterpreterDispatchTableBuilder new;
+		dispatchTableGenerator: DRStackInterpreterDispatchTableGenerator new;
 		yourself
 ]
 
@@ -153,16 +153,4 @@ DRInterpreterBuilderToCompiler >> primitiveIndex [
 DRInterpreterBuilderToCompiler >> primitives [
 
 	^ self compilationUnit primitives
-]
-
-{ #category : #'accessing - primitives' }
-DRInterpreterBuilderToCompiler >> primitivesCount [
-	"Answer a <Number> specifying how many primitive methods implements the receiver. Note that primitive table entry with 0 is ignored"
-
-	| primTableSize |
-
-	primTableSize := self primitiveTable size.
-	(self primitiveTable includes: 0)
-		ifTrue: [ ^ primTableSize - 1 ].
-	^ primTableSize
 ]

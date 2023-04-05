@@ -1,6 +1,6 @@
 Class {
 	#name : #DRInterpreterPrimitiveObject,
-	#superclass : #DRDispatchTableObject,
+	#superclass : #DRInterpreterInstruction,
 	#instVars : [
 		'primitiveNumber'
 	],

@@ -13,7 +13,7 @@ Class {
 { #category : #running }
 DRDispatchTableBuilderTest >> compilationUnitForTesting [
 
-	^ DRCogitCompilationUnit new
+	^ DRInterpreterCompilationUnit new
 		targetClass: self jitCompilerClassForTest;
 		yourself
 ]
@@ -23,7 +23,7 @@ DRDispatchTableBuilderTest >> setUp [
 
 	super setUp.
 	interpreter :=	DRInterpreterToCompiler fromInterpreterClass: DRBasicCogInterpreterArithmeticPrimitives.
-	dispatchTableBuilder := DRCogitDispatchTableBuilder fromCompilationUnit: self compilationUnitForTesting
+	dispatchTableBuilder := DRCogitDispatchTableGenerator fromCompilationUnit: self compilationUnitForTesting
 ]
 
 { #category : #tests }
@@ -31,8 +31,8 @@ DRDispatchTableBuilderTest >> testCollectAllMethodsOn [
 
 	| pcgMethodNodes |
 	
-	self assertEmpty: dispatchTableBuilder initPrimitiveTable.
-	self assertEmpty: dispatchTableBuilder initBytecodeTable.
+	self assertEmpty: dispatchTableBuilder primitiveTable.
+	self assertEmpty: dispatchTableBuilder bytecodeTable.
 	
 	pcgMethodNodes := dispatchTableBuilder collectAllMethodsOn: self jitCompilerClassForTest class.
 	self

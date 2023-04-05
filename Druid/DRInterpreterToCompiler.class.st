@@ -192,13 +192,6 @@ DRInterpreterToCompiler >> failedPrimitives [
 	^ self primitiveCompiler failedPrimitives
 ]
 
-{ #category : #helpers }
-DRInterpreterToCompiler >> initPrimitiveTable [
-	"Answer a <Collection> with the JITed primitives"
-
-	^ compilationUnit initPrimitiveTable
-]
-
 { #category : #'accessing - object memory' }
 DRInterpreterToCompiler >> initializationOptions [
 
@@ -351,11 +344,11 @@ DRInterpreterToCompiler >> primitiveNumberOf: aSelector [
 		ifFalse: [ primNumber ]
 ]
 
-{ #category : #'accessing - primitives' }
+{ #category : #helpers }
 DRInterpreterToCompiler >> primitiveTable [
-	"Answer a <Collection> of primitive selectors"
+	"Answer a <Collection> with the JITed primitives"
 
-	^ self targetClass basicPrimitiveTable
+	^ compilationUnit primitiveTable
 ]
 
 { #category : #'accessing - primitives' }
