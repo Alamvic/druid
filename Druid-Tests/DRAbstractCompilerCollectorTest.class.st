@@ -6,23 +6,34 @@ Class {
 	#name : #DRAbstractCompilerCollectorTest,
 	#superclass : #DRDruidTests,
 	#instVars : [
-		'testingEnvironment',
-		'interpreterBuilder',
-		'interpreterCompiler'
+		'testingEnvironment'
 	],
-	#category : #'Druid-Tests-InterpreterCompiler'
+	#category : #'Druid-Tests-CompilerBuilder'
 }
 
-{ #category : #accessing }
-DRAbstractCompilerCollectorTest >> interpreterWith: aCollection [
+{ #category : #initialization }
+DRAbstractCompilerCollectorTest >> jitCompilerClassForTest [
 
-	^ self newEmptyInterpreter primitives: aCollection
+	^ testingEnvironment 
+		at: self jitCompilerClassNameForTest 
+		ifAbsent: [ 
+			Smalltalk image classInstaller make: [ : builder |
+				builder
+					name: self jitCompilerClassNameForTest;
+					superclass: self jitSuperclassForTest;
+					category: self jitCompilerClassNameForTest ]. ]
 ]
 
-{ #category : #accessing }
-DRAbstractCompilerCollectorTest >> newEmptyInterpreter [
+{ #category : #running }
+DRAbstractCompilerCollectorTest >> jitCompilerClassNameForTest [ 
 
-	^ DRDummyInterpreter new
+	^ #MyJITCompilerClass
+]
+
+{ #category : #running }
+DRAbstractCompilerCollectorTest >> jitSuperclassForTest [
+
+	^ CogVMSimulatorLSB
 ]
 
 { #category : #running }
@@ -30,18 +41,16 @@ DRAbstractCompilerCollectorTest >> setUp [
 
 	super setUp.
 	testingEnvironment := Smalltalk globals.
-	interpreterBuilder := DRInterpreterBuilder new.
 ]
 
 { #category : #running }
 DRAbstractCompilerCollectorTest >> tearDown [
 
-	testingEnvironment removeClassNamed: self testingJITCompilerClass.
+	| className |
+
+	className := self jitCompilerClassForTest.
+	className isSymbol
+		ifFalse: [ className := self jitCompilerClassForTest name ].
+	testingEnvironment removeClassNamed: className.
 	super tearDown
-]
-
-{ #category : #initialization }
-DRAbstractCompilerCollectorTest >> testingJITCompilerClass [
-
-	^ #MyJITCompilerClass
 ]

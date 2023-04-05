@@ -244,6 +244,7 @@ DRIRGenerator >> initializeSpecialCases [
 
 	"Control flow and comparisons"
 	specialCases at: #druidIgnore: put: #ignoreMessageWith:.
+	specialCases at: #druidFail put: #interpretDruidFailWith:.
 	specialCases at: #value put: #interpretBlockValueWith:.
 	specialCases at: #value: put: #interpretBlockValueWith:.
 	specialCases at: #cull: put: #interpretBlockCullWith:.
@@ -337,6 +338,12 @@ DRIRGenerator >> initializeSpecialCases [
 	
 	"Border case, this should not be defined here, it should be extensible"
 	variableSpecialCases at: #hiddenRootsObj put: #interpretNilObjectWith:
+]
+
+{ #category : #visiting }
+DRIRGenerator >> inlineGenerator [
+
+	^ self subclassResponsibility
 ]
 
 { #category : #factory }
@@ -727,6 +734,12 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRDivision 
 		operands: { leftOperand . rightOperand }
+]
+
+{ #category : #accessing }
+DRIRGenerator >> interpretDruidFailWith: aMessageNode [
+
+	self error
 ]
 
 { #category : #'special cases' }
@@ -1366,6 +1379,7 @@ DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver ar
 		               operands: { receiver } , arguments.
 
 	instruction irGenerator: self inlineGenerator.
+	instruction typeSystem: self typeSystem.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
 	^ self addInstruction: instruction from: aRBMessageNode
 ]
@@ -1625,6 +1639,12 @@ DRIRGenerator >> temporaryAt: aString put: aValue [
 DRIRGenerator >> topFrame [
 
 	^ executionState topFrame
+]
+
+{ #category : #visiting }
+DRIRGenerator >> typeSystem [
+
+	^ self subclassResponsibility
 ]
 
 { #category : #'special cases' }

@@ -2,7 +2,8 @@ Class {
 	#name : #DRBytecodeCompilerCompiler,
 	#superclass : #DRAbstractCompilerCompiler,
 	#instVars : [
-		'primitiveCompilerName'
+		'primitiveCompilerName',
+		'failedBytecodes'
 	],
 	#category : #'Druid-BytecodeToJITCompilation'
 }
@@ -18,6 +19,15 @@ DRBytecodeCompilerCompiler class >> compilePrimitive: primitiveName from: anInte
 		compile
 ]
 
+{ #category : #'builder api' }
+DRBytecodeCompilerCompiler >> buildIR: bytecodeSelector [ 
+	" Answer a DRPrimitiveControlFlowGraph generated for bytecodeSelector in the receiver's interpreter "
+
+	^ self 
+		sourceName: bytecodeSelector;
+		generateDruidIR
+]
+
 { #category : #'generation-IR' }
 DRBytecodeCompilerCompiler >> createInitialBasicBlock [
 	| initial initialBasicBlock |
@@ -29,6 +39,29 @@ DRBytecodeCompilerCompiler >> createInitialBasicBlock [
 	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
 	initialBasicBlock addInstruction: initial.
 	^ initialBasicBlock
+]
+
+{ #category : #accessing }
+DRBytecodeCompilerCompiler >> failedBytecodes [
+
+	^ failedBytecodes
+		ifNil: [
+			failedBytecodes :=
+				PluggableDictionary new
+					equalBlock: [ :a :b | a class == b class ];
+					hashBlock: [ :a | a class identityHash ];
+					yourself 	]
+]
+
+{ #category : #accessing }
+DRBytecodeCompilerCompiler >> failedBytecodesAt: anException add: aString [
+
+	self failedBytecodes
+		at: anException
+		ifPresent: [ : fbs | fbs add: aString ]
+		ifAbsent: [ self failedBytecodes 
+			at: anException 
+			put: (OrderedCollection with: aString)  ]
 ]
 
 { #category : #accessing }

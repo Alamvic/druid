@@ -263,6 +263,12 @@ DRCPSEdge >> visitCall: aDRCall [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitClosureActivation: aDRClosureActivation [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
 	| operands |

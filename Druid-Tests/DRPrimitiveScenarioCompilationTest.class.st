@@ -1799,18 +1799,6 @@ DRPrimitiveScenarioCompilationTest >> testPassingSuccess [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-arithmetic-smallIntegers' }
-DRPrimitiveScenarioCompilationTest >> testPrimitiveAdd [
-
-	cogit receiverTags: memory smallIntegerTag.
-
-	self compileDruidPrimitive: #primitiveAdd.
-
-	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 10 }.
-	
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 52)
-]
-
 { #category : #'tests-deadcode' }
 DRPrimitiveScenarioCompilationTest >> testPrimitiveWithDeadCodeGoesThroughFirstCase [
 

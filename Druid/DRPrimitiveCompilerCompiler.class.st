@@ -2,7 +2,8 @@ Class {
 	#name : #DRPrimitiveCompilerCompiler,
 	#superclass : #DRAbstractCompilerCompiler,
 	#instVars : [
-		'primitiveCompilerName'
+		'primitiveCompilerName',
+		'failedPrimitives'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -18,14 +19,6 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 		compile
 ]
 
-{ #category : #'instance creation' }
-DRPrimitiveCompilerCompiler class >> forInterpreter: aDRInterpreterCompiler [ 
-
-	^ self new
-		interpreter: aDRInterpreterCompiler;
-		yourself
-]
-
 { #category : #'ir-generation' }
 DRPrimitiveCompilerCompiler >> argName: index forMethod: method [
 
@@ -39,6 +32,27 @@ DRPrimitiveCompilerCompiler >> buildIR: primitiveSelector [
 	^ self 
 		sourceName: primitiveSelector;
 		generateDruidIR
+]
+
+{ #category : #accessing }
+DRPrimitiveCompilerCompiler >> failedPrimitives [
+
+	^ failedPrimitives
+		ifNil: [
+			failedPrimitives :=
+				PluggableDictionary new
+					equalBlock: [ :a :b | a class == b class ];
+					hashBlock: [ :a | a class identityHash ];
+					yourself 	]
+]
+
+{ #category : #accessing }
+DRPrimitiveCompilerCompiler >> failedPrimitivesAt: anException add: aString [
+
+	self failedPrimitives
+		at: anException
+		ifPresent: [ : fps | fps add: aString ]
+		ifAbsent: [ self failedPrimitives at: anException put: (OrderedCollection with: aString)  ]
 ]
 
 { #category : #accessing }

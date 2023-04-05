@@ -15,6 +15,22 @@ DRInlineMethodTest >> setUp [
 	optimisation := DRInline new
 ]
 
+{ #category : #'tests - type systems' }
+DRInlineMethodTest >> testImplementorsTypeSystem [
+
+	| cfg messageSend selector |
+	cfg := self generateDruidIRFor: #basicInlineMethod.
+	selector := #lazyDouble:.
+	messageSend := cfg messageSends unique.
+	messageSend typeSystem: DRImplementorsTypeSystem new.
+
+	self assert: messageSend selector equals: selector.
+
+	messageSend inline. "Inline only one implementor"
+
+	self assert: cfg messageSends isEmpty.
+]
+
 { #category : #tests }
 DRInlineMethodTest >> testInlineMethodCopiesCalleeIntoCallerMethod [
 
@@ -89,4 +105,40 @@ DRInlineMethodTest >> testNotInlineMethodWithNoTypeAnnotation [
 	messageSend inline.
 
 	self assert: cfg messageSends size equals: 1
+]
+
+{ #category : #'tests - type systems' }
+DRInlineMethodTest >> testPragmaBasedTypeSystem [
+
+	| cfg messageSend selector |
+	cfg := self generateDruidIRFor: #methodWithArg:.
+	selector := #select:.
+	messageSend := cfg messageSends unique.
+	messageSend typeSystem: DRPragmaBasedTypeSystem new.
+
+	self assert: messageSend selector equals: selector.
+
+	messageSend inline. "Inline only pragma"
+
+	self assert: cfg messageSends size equals: 2.
+	self
+		denyCollection: (cfg messageSends collect: [ :m | m selector ])
+		hasSameElements: selector
+]
+
+{ #category : #'tests - type systems' }
+DRInlineMethodTest >> testUnknownTypeSystem [
+
+	| cfg messageSend selector |
+	cfg := self generateDruidIRFor: #methodWithArg:.
+	selector := #select:.
+	messageSend := cfg messageSends unique.
+	messageSend typeSystem: DRUnknownTypeSystem new.
+
+	self assert: messageSend selector equals: selector.
+
+	messageSend inline. "Not inlining"
+
+	self assert: cfg messageSends unique selector equals: selector.
+
 ]

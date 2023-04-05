@@ -1,70 +1,102 @@
 Class {
 	#name : #DRInterpreterToCompilerTest,
 	#superclass : #DRAbstractCompilerCollectorTest,
-	#category : #'Druid-Tests-InterpreterCompiler'
+	#instVars : [
+		'interpreterToCompiler'
+	],
+	#category : #'Druid-Tests-CompilerBuilder'
 }
 
-{ #category : #asserting }
-DRInterpreterToCompilerTest >> assertCompiledPrimitives: selectedPrimitives [
+{ #category : #running }
+DRInterpreterToCompilerTest >> setUp [
 
-	selectedPrimitives doWithIndex: [ :selector :index |
-		self
-			assert: (interpreterCompiler primitives at: index) sourceSelector
-			equals: selector ].
-
-	"Assert mandatory primitives compilation (maycallback)"
-	self assert:
-		((interpreterCompiler primitives allButFirst: selectedPrimitives size)
-			 allSatisfy: [ :primUnit |
-			 primUnit mayCallback and: [ primUnit supported not ] ])
+	super setUp.
+	interpreterToCompiler := DRInterpreterToCompiler fromInterpreterClass: DRBasicCogInterpreterArithmeticPrimitives
 ]
 
-{ #category : #asd }
-DRInterpreterToCompilerTest >> initInterpreterCompilerWith: selectedPrimitives [
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testAddBytecode [
 
-	interpreterCompiler := DRInterpreterCompiler fromInterpreter:
-		                       (self interpreterWith: selectedPrimitives)
+	interpreterToCompiler := DRInterpreterToCompiler
+		                         fromInterpreterClass: DRBasicCogInterpreterArithmeticPrimitives.
+	interpreterToCompiler
+		doFailOnFirst;
+		targetClass: self jitCompilerClassForTest;
+		selectBytecodes: [ : cm |  cm selector = #pushReceiverVariableBytecode ];
+		buildAndCompileIn: self jitCompilerClassNameForTest.
+
+	self
+		assert: interpreterToCompiler bytecodes first sourceSelector
+		equals: #pushReceiverVariableBytecode
 ]
 
-{ #category : #initialization }
-DRInterpreterToCompilerTest >> testCompilationUnitPopulateInitializePrimitiveTable [
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testAddEmptyInterpreterBytecode [
 
-	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
-	interpreterCompiler generateIRAndCompileIn: self testingJITCompilerClass.
+	interpreterToCompiler := DRInterpreterToCompiler
+		                         fromInterpreterClass: DREmptyInterpreter.
+	interpreterToCompiler
+		doFailOnFirst;
+		targetClass: self jitCompilerClassForTest;
+		buildAndCompileIn: self jitCompilerClassNameForTest.
 
-	self assert: interpreterCompiler initPrimitiveTable notEmpty
+	self assertEmpty: interpreterToCompiler bytecodes
 ]
 
-{ #category : #initialization }
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testAddPrimitive [
+
+	interpreterToCompiler := DRInterpreterToCompiler
+		                         fromInterpreterClass: DruidTestInterpreter.
+	interpreterToCompiler
+		doFailOnFirst;
+		targetClass: self jitCompilerClassForTest;
+		selectPrimitives: [ :p | p selector = #primitiveAdd ];
+		buildAndCompileIn: self jitCompilerClassNameForTest.
+
+	self
+		assert: interpreterToCompiler primitives first sourceSelector
+		equals: #primitiveAdd
+]
+
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testAddPrimitives [
+
+	| primitiveSet |
+	primitiveSet := #(#primitiveAdd #primitiveSubtract #primitiveLessThan #primitiveGreaterThan #primitiveLessOrEqual #primitiveGreaterOrEqual #primitiveEqual #primitiveNotEqual #primitiveMultiply #primitiveDivide).
+	
+	interpreterToCompiler buildAndCompileIn: self jitCompilerClassNameForTest.
+	self
+		assertCollection: (interpreterToCompiler primitives collect: #sourceSelector)
+		hasSameElements: primitiveSet.
+
+	self
+		assert: (interpreterToCompiler primitives allSatisfy: [ : p | p isKindOf: DRJITPrimitiveObject ])
+]
+
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testCompilePrimitiveTable [
+
+	interpreterToCompiler buildAndCompileIn: self jitCompilerClassNameForTest.
+
+	self assert: interpreterToCompiler primitiveTable notEmpty
+]
+
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testErrorHandling [
+
+	interpreterToCompiler := DRInterpreterToCompiler fromInterpreterClass: DruidTestInterpreter.
+	interpreterToCompiler 
+		targetClass: self jitCompilerClassForTest;
+		selectPrimitives: [ : p | p selector = #primitiveDruidFail ];
+		buildAndCompileIn: self jitCompilerClassNameForTest.
+
+	self assert: interpreterToCompiler failedPrimitives notEmpty.
+]
+
+{ #category : #tests }
 DRInterpreterToCompilerTest >> testGenerateEmptyCompilationUnit [
 
-	| selectedPrimitives |
-	selectedPrimitives := { }.
-	self initInterpreterCompilerWith: selectedPrimitives.
-	self assertCompiledPrimitives: selectedPrimitives
-]
-
-{ #category : #initialization }
-DRInterpreterToCompilerTest >> testGenerateMultiplePrimitiveCompilationUnit [
-
-	| selectedPrimitives |
-	selectedPrimitives := { #primitiveAdd . #primitiveEqual }.
-	self initInterpreterCompilerWith: selectedPrimitives.
-	self assertCompiledPrimitives: selectedPrimitives
-]
-
-{ #category : #initialization }
-DRInterpreterToCompilerTest >> testGenerateMultiplePrimitiveObjectCompilationUnit [
-
-	interpreterCompiler := DRInterpreterCompiler fromInterpreter: interpreterBuilder.
-	self assert: interpreterCompiler primitives size equals: interpreterBuilder primitivesCount
-]
-
-{ #category : #initialization }
-DRInterpreterToCompilerTest >> testGenerateSinglePrimitiveCompilationUnit [
-
-	| selectedPrimitives |
-	selectedPrimitives := { #primitiveAdd }.
-	self initInterpreterCompilerWith: selectedPrimitives.
-	self assertCompiledPrimitives: selectedPrimitives
+	interpreterToCompiler := DRInterpreterToCompiler fromInterpreterClass: DREmptyInterpreter.
+	self assert: interpreterToCompiler primitives isEmpty
 ]

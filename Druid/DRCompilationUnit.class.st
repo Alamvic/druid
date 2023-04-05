@@ -1,142 +1,84 @@
 "
-It represents a Unit of compilation (a class).
+Abstract class to provide compilation behavior. Subclasses represents a Unit of compilation (a class), which can be asked for:
+
+- Set a target class and its superclass (`DRCompilationUnit>>#targetClass:`, `DRCompilationUnit>>#targetSuperclass:`)..
+- A specific compilation builder to help in the compilation process.
 
 "
 Class {
 	#name : #DRCompilationUnit,
 	#superclass : #Object,
 	#instVars : [
-		'primitives',
-		'jitCompilerClass',
-		'initPrimitiveTable',
-		'interpreter'
+		'targetClass',
+		'targetSuperclass',
+		'compiler',
+		'compilerBuilder'
 	],
-	#category : #'Druid-InterpreterBuilder'
+	#category : #'Druid-CompilerBuilder'
 }
 
-{ #category : #accessing }
-DRCompilationUnit >> addPrimitive: aDRPrimitiveObject [
+{ #category : #'instance creation' }
+DRCompilationUnit class >> fromCompilerBuilder: aDRCompilerBuilder [
 
-	self primitives add: aDRPrimitiveObject 
-]
-
-{ #category : #'accessing - compiler' }
-DRCompilationUnit >> addPrimitiveEntries [
-
-	self compiler interpreter: self interpreter.
-	self primitives do: [ :primitiveObject |
-		self addPrimitiveEntry: primitiveObject ]
-]
-
-{ #category : #'accessing - compiler' }
-DRCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
-	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
-
-	| tableEntry |
-	tableEntry := {
-		              aDRPrimitiveObject primitiveNumber.
-		              aDRPrimitiveObject genSelector.
-		              aDRPrimitiveObject argumentCount }.
-
-	tableEntry := tableEntry , (aDRPrimitiveObject mayCallback
-		               ifTrue: [ { #maycallback } ]
-		               ifFalse: [ {  } ]).
-
-	self initPrimitiveTable add: tableEntry
-]
-
-{ #category : #'accessing - compiler' }
-DRCompilationUnit >> compileAll [
-	"Write primitive methods in the receiver's JIT compiler class"
-
-	self primitives
-			do: [ : primitive | self compilePrimitive: primitive ]
-			displayingProgress: [ : primitive | 'Compiling primitive: ' , primitive asString ].
-	self compileInitializePrimitiveTable
-]
-
-{ #category : #'accessing - compiler' }
-DRCompilationUnit >> compileInitializePrimitiveTable [
-	"Install the initialize primitive table method in the receiver's JIT compiler class"
-
-	self addPrimitiveEntries.
-	self primitiveTableInitializer installAllMethodsOn: self jitCompilerClass class
-]
-
-{ #category : #'accessing - compiler' }
-DRCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
-	"Compile a method in the receiver's JIT compiler class. aDRPrimitiveObject contains the specification needed to compile the JITed version of the method"
-
-	| intrpSelector jitSelector |
-	aDRPrimitiveObject supported ifFalse: [ ^ self ].
-
-	intrpSelector := aDRPrimitiveObject sourceSelector.
-	jitSelector := aDRPrimitiveObject genSelector.
-	(self compiler
-		 interpreter: self interpreter;
-		 primitiveName: intrpSelector;
-		 primitiveCompilerName: jitSelector) compile
+	^  self new
+			compilerBuilder: aDRCompilerBuilder;
+			yourself
 ]
 
 { #category : #'accessing - compiler' }
 DRCompilationUnit >> compiler [
 
-	^ DRPrimitiveCompilerCompiler new
-		compilerClass: self jitCompilerClass;
-		yourself
-]
+	^ compiler
 
-{ #category : #testing }
-DRCompilationUnit >> hasPrimitives [
-	"Answer <true> if the receiver already contains primitives"
-
-	^ self primitives notEmpty
-]
-
-{ #category : #'accessing - compiler' }
-DRCompilationUnit >> initPrimitiveTable [
-	"Answer a <Colllection> of <Array>. Each Array specifies an entry in the primitive table as expected by Cogit>>initializePrimitiveTable implementation"
-
-	^ initPrimitiveTable
-		ifNil: [ initPrimitiveTable := OrderedCollection new ]
 ]
 
 { #category : #accessing }
-DRCompilationUnit >> interpreter [
+DRCompilationUnit >> compiler: aDRCompiler [ 
 
-	^ interpreter
+	compiler := aDRCompiler
 ]
 
 { #category : #accessing }
-DRCompilationUnit >> interpreter: aDRBasicInterpreter [ 
+DRCompilationUnit >> compilerBuilder [
 
-	interpreter := aDRBasicInterpreter
+	^ compilerBuilder
 ]
 
 { #category : #accessing }
-DRCompilationUnit >> jitCompilerClass [
-	"Answer a <Class> which is the where the JITed methods will be stored"
+DRCompilationUnit >> compilerBuilder: anObject [
 
-	^ jitCompilerClass
+	compilerBuilder := anObject
 ]
 
 { #category : #accessing }
-DRCompilationUnit >> jitCompilerClass: anObject [
+DRCompilationUnit >> defaultTargetSuperclass [
 
-	jitCompilerClass := anObject
-]
-
-{ #category : #private }
-DRCompilationUnit >> primitiveTableInitializer [
-	"Answer a <PCGMethodNode> representing the source code of the #initializePrimitiveTable compatible with Cogit"
-
-	^ DRCogitPrimitiveInstaller primitiveTableMethodFrom: self
+	^ StackToRegisterMappingCogit
 ]
 
 { #category : #accessing }
-DRCompilationUnit >> primitives [
-	"Answer a <Collection> of IR of primitive methods, instances of <DRPrimitiveControlFlowGraph>"
+DRCompilationUnit >> targetClass [
+	" Answer a <Class> which is the where the methods will be stored "
 
-	^ primitives
-		ifNil: [ primitives := OrderedCollection new ]
+	^ targetClass
+]
+
+{ #category : #accessing }
+DRCompilationUnit >> targetClass: aClass [
+
+	targetClass := aClass
+]
+
+{ #category : #accessing }
+DRCompilationUnit >> targetSuperclass [
+	" Answer a <Class> acting as the receiver's superclass for compilation "
+
+	^ targetSuperclass
+		ifNil: [ targetSuperclass := self defaultTargetSuperclass ]
+]
+
+{ #category : #accessing }
+DRCompilationUnit >> targetSuperclass: aClass [
+
+	targetSuperclass := aClass
 ]

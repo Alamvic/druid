@@ -15,6 +15,14 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #'instance creation' }
+DRAbstractCompilerCompiler class >> forInterpreter: anAbstractInterpreter [ 
+
+	^ self new
+		interpreter: anAbstractInterpreter;
+		yourself
+]
+
 { #category : #api }
 DRAbstractCompilerCompiler >> compile [
 
@@ -163,7 +171,7 @@ DRAbstractCompilerCompiler >> newIRGenerator [
 	^ DRIRGenerator new
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #accessing }
 DRAbstractCompilerCompiler >> numberOfArgumentsForMethod: method [
 
 	^ self subclassResponsibility
@@ -189,6 +197,7 @@ DRAbstractCompilerCompiler >> registerAllocator [
 
 { #category : #'generation-IR' }
 DRAbstractCompilerCompiler >> sourceMethod [
+	" Answer a <CompiledMethod> matching the current receiver's sourceName in the interpreter class "
 
 	^ interpreter class lookupSelector: sourceName
 ]
@@ -214,5 +223,7 @@ DRAbstractCompilerCompiler >> targetName [
 { #category : #'ast-to-source' }
 DRAbstractCompilerCompiler >> writeAST: aRBMethodNode [ 
 	
-	compilerClass compile: (aRBMethodNode formattedCode) classified: #generated
+	compilerClass
+		compile: aRBMethodNode formattedCode
+		classified: #generated
 ]

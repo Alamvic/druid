@@ -136,7 +136,7 @@ DRCleanControlFlow >> shouldFoldRedundantBranch: aDRConditionalJump [
 { #category : #folding }
 DRCleanControlFlow >> shouldFoldRedundantBranchIn: aBlock [ 
 	
-	^ aBlock endInstruction isBranchIfCondition and: [ 
+	^ aBlock endInstruction isConditionalBranch and: [ 
 		self shouldFoldRedundantBranch: aBlock endInstruction ]
 ]
 
