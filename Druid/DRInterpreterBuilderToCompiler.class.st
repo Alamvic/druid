@@ -16,6 +16,15 @@ DRInterpreterBuilderToCompiler >> addPrimitives: aCollection [
 		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
 ]
 
+{ #category : #'accessing - model' }
+DRInterpreterBuilderToCompiler >> build [
+	"Answer a <DRCompilationUnit>, useful for model manipulation before code dumping"
+
+	self compilationUnit compiler: self primitiveCompiler.
+	self addPrimitives.
+	^ self compilationUnit compileAll
+]
+
 { #category : #adding }
 DRInterpreterBuilderToCompiler >> collectPrimitives: aCollection [
 	" Answer a <Collection> of selectors from aCollection containing CompiledMethod or primitive names "
@@ -41,7 +50,7 @@ DRInterpreterBuilderToCompiler >> compileAll [
 
 	self newInterpreter.
 	self compilationUnit 
-			compiler: self compilerCompiler;
+			compiler: self primitiveCompiler;
 			compileAll
 ]
 
@@ -51,7 +60,7 @@ DRInterpreterBuilderToCompiler >> initialize [
 	super initialize.
 	primitiveIndex := 0.
 	compilationUnit := DRStackCompilationUnit new
-		dispatchTableBuilder: DRStackInterpreterDispatchTableBuilder new;
+		dispatchTableGenerator: DRStackInterpreterDispatchTableGenerator new;
 		yourself
 ]
 
@@ -144,16 +153,4 @@ DRInterpreterBuilderToCompiler >> primitiveIndex [
 DRInterpreterBuilderToCompiler >> primitives [
 
 	^ self compilationUnit primitives
-]
-
-{ #category : #'accessing - primitives' }
-DRInterpreterBuilderToCompiler >> primitivesCount [
-	"Answer a <Number> specifying how many primitive methods implements the receiver. Note that primitive table entry with 0 is ignored"
-
-	| primTableSize |
-
-	primTableSize := self primitiveTable size.
-	(self primitiveTable includes: 0)
-		ifTrue: [ ^ primTableSize - 1 ].
-	^ primTableSize
 ]

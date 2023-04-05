@@ -19,14 +19,6 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 		compile
 ]
 
-{ #category : #'instance creation' }
-DRPrimitiveCompilerCompiler class >> forInterpreter: anAbstractInterpreter [ 
-
-	^ self new
-		interpreter: anAbstractInterpreter;
-		yourself
-]
-
 { #category : #'ir-generation' }
 DRPrimitiveCompilerCompiler >> argName: index forMethod: method [
 

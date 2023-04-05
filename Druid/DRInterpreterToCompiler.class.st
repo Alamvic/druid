@@ -24,10 +24,11 @@ Class {
 	#superclass : #DRAbstractCompilerBuilder,
 	#instVars : [
 		'memory',
-		'compilerCompilerClass',
-		'compilerCompiler',
 		'primitiveSelector',
-		'failFirst'
+		'failFirst',
+		'primitiveCompiler',
+		'bytecodeCompiler',
+		'bytecodeSelector'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
@@ -40,6 +41,31 @@ DRInterpreterToCompiler class >> fromInterpreterClass: anInterpreterClass [
 		  yourself
 ]
 
+{ #category : #'accessing - bytecodes' }
+DRInterpreterToCompiler >> addBytecode: aString [
+
+	[ self bytecodes add: (self newBytecode: aString) ]
+	on: Error
+	do: [ : ex | 
+		failFirst ifTrue: [ ex pass  ].
+		self bytecodeCompiler 
+			failedBytecodesAt: ex
+			add: self bytecodeCompiler sourceName ].
+
+]
+
+{ #category : #'accessing - bytecodes' }
+DRInterpreterToCompiler >> addBytecodes [
+	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
+
+	^ (self collectBytecodes: self interpreterBytecodeTable)
+		do: [ : prim | self addBytecode: prim ]
+		displayingProgress: [ : prim | 'Adding bytecode: ' , prim asString ]
+
+		
+
+]
+
 { #category : #adding }
 DRInterpreterToCompiler >> addPrimitive: aString [
 
@@ -49,9 +75,9 @@ DRInterpreterToCompiler >> addPrimitive: aString [
 			on: Error
 			do: [ : ex | 
 				failFirst ifTrue: [ ex pass  ].
-				self compilerCompiler 
+				self primitiveCompiler 
 					failedPrimitivesAt: ex
-					add: self compilerCompiler sourceName ] ].
+					add: self primitiveCompiler sourceName ] ].
 
 ]
 
@@ -71,39 +97,67 @@ DRInterpreterToCompiler >> addPrimitives [
 DRInterpreterToCompiler >> build [
 	"Answer a <DRCompilationUnit>, useful for model manipulation before code dumping"
 
-	self compilationUnit compiler: self compilerCompiler.
+	self compilationUnit compiler: self primitiveCompiler.
 	self addPrimitives.
+	self compilationUnit compiler: self bytecodeCompiler.
+	self addBytecodes.
 	^ self compilationUnit compileAll
 ]
 
 { #category : #'accessing - model' }
 DRInterpreterToCompiler >> buildAndCompileIn: aClass [
-	"Generate and install the receiver's primitives into JIT compiler aClass"
+	"Generate and install the receiver's primitives and bytecodes into JIT compiler aClass"
 
+	self compilationUnit targetClass: (self environmentAt: aClass).
 	self build
-		interpreter: interpreterClass;
-		targetSuperclass: self targetSuperclass;
-		targetClass: (self environmentAt: aClass);
-		compileAll
 ]
 
 { #category : #'accessing - model' }
 DRInterpreterToCompiler >> buildAndCompileIn: aClass superclass: aSuperclass [
-	"Generate and install the receiver's primitives into JIT compiler aClass"
+	"Generate and install the receiver's primitives and bytecodes into JIT compiler aClass"
 
-	self build
-		interpreter: interpreterClass;
+	self compilationUnit 
 		targetSuperclass: aSuperclass;
-		targetClass: (self environmentAt: aClass);
-		compileAll
+		targetClass: (self environmentAt: aClass).
+	self build
+
 ]
 
-{ #category : #'accessing - model' }
-DRInterpreterToCompiler >> buildIRAndCompileIn: aClass [
-	"Generate and install the receiver's primitives into JIT compiler aClass"
+{ #category : #'accessing - compiler' }
+DRInterpreterToCompiler >> bytecodeCompiler [
 
-	self compilationUnit targetClass: (self environmentAt: aClass).
-	self build
+	^ bytecodeCompiler
+		ifNil: [ 
+			bytecodeCompiler := (DRBytecodeCompilerCompiler forInterpreter: self newInterpreter)
+				compilerClass: self targetClass;
+				yourself ]
+]
+
+{ #category : #'accessing - bytecodes' }
+DRInterpreterToCompiler >> bytecodeNumberOf: aSelector [
+	" Answer a <Number> representing the bytecode number of aSelector "
+
+	^  self interpreterBytecodeTable indexOf: aSelector.
+
+]
+
+{ #category : #'accessing - bytecodes' }
+DRInterpreterToCompiler >> bytecodes [
+
+	^ self compilationUnit bytecodes
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> collectBytecodes: aCollection [
+	" Answer a <Collection> of selectors from aCollection containing CompiledMethod or primitive names "
+
+	^ aCollection
+		  reject: [ :obj |
+				  obj isNil or: [ (self isSelectedBytecode: (interpreterClass lookupSelector: obj)) not ] ]
+		  thenCollect: [ :symOrCompiledMethod |
+			  symOrCompiledMethod isCompiledMethod
+				  ifTrue: [ symOrCompiledMethod selector ]
+				  ifFalse: [ symOrCompiledMethod ] ]
 ]
 
 { #category : #adding }
@@ -126,53 +180,16 @@ DRInterpreterToCompiler >> compileAll [
 	self build compileAll
 ]
 
-{ #category : #'accessing - compiler' }
-DRInterpreterToCompiler >> compilerCompiler [
-	"Answer a Druid compiler configured for the receiver's interpreter builder"
-
-	^ compilerCompiler
-		ifNil: [ compilerCompiler := 
-			(self compilerCompilerClass forInterpreter: self newInterpreter)
-					compilerClass: self targetClass;
-					yourself ]
-]
-
-{ #category : #'accessing - compiler' }
-DRInterpreterToCompiler >> compilerCompilerClass [
-
-	^ compilerCompilerClass
-		ifNil: [ compilerCompilerClass := self defaultCompilerCompilerClass ]
-]
-
-{ #category : #'accessing - compiler' }
-DRInterpreterToCompiler >> compilerCompilerClass: aClass [
-
-	compilerCompilerClass := aClass
-]
-
-{ #category : #'accessing - compiler' }
-DRInterpreterToCompiler >> defaultCompilerCompilerClass [
-
-	^ DRPrimitiveCompilerCompiler
-]
-
 { #category : #initialization }
 DRInterpreterToCompiler >> doFailOnFirst [
 
 	failFirst := true
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing - primitives' }
 DRInterpreterToCompiler >> failedPrimitives [
 
-	^ self compilerCompiler failedPrimitives
-]
-
-{ #category : #helpers }
-DRInterpreterToCompiler >> initPrimitiveTable [
-	"Answer a <Collection> with the JITed primitives"
-
-	^ compilationUnit initPrimitiveTable
+	^ self primitiveCompiler failedPrimitives
 ]
 
 { #category : #'accessing - object memory' }
@@ -189,7 +206,15 @@ DRInterpreterToCompiler >> initialize [
 
 	super initialize.
 	primitiveSelector := [ : arg | true ].
+	bytecodeSelector := [ : arg | false ].
 	failFirst := false.
+]
+
+{ #category : #'accessing - primitives' }
+DRInterpreterToCompiler >> interpreterBytecodeTable [
+	"Answer a <Collection> of <Symbol> each one representing a selector of the receiver's bytecode table"
+
+	^ interpreterClass bytecodeTable
 ]
 
 { #category : #accessing }
@@ -203,16 +228,30 @@ DRInterpreterToCompiler >> interpreterClass: anObject [
 
 	interpreterClass := anObject.
 	anObject initializePrimitiveTable.
-	compilerCompiler := nil.
+	anObject initializeBytecodeTable.
+	primitiveCompiler := nil.
 	compilationUnit := nil.
 
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing - primitives' }
 DRInterpreterToCompiler >> interpreterPrimitiveTable [
 	"Answer a <Collection> of <Symbol> each one representing a selector (e.g. #primitiveEqual) of the receiver's primitive table"
 
 	^ interpreterClass primitiveTable
+]
+
+{ #category : #testing }
+DRInterpreterToCompiler >> isExtendedBytecode: aSelector [
+	" Answer true if bytecode described by aSelector is extended "
+	
+	^ self interpreterBytecodeTable 
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> isSelectedBytecode: obj [
+
+	^ bytecodeSelector value: obj
 ]
 
 { #category : #adding }
@@ -225,6 +264,22 @@ DRInterpreterToCompiler >> isSelectedPrimitive: obj [
 DRInterpreterToCompiler >> isValidPrimitiveName: aString [
 
 	^ aString isNumber not
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> newBytecode: aString [
+	" Answer a new bytecode object with its metadata and CFG generated "
+
+	| bytecodeObject |
+	
+	bytecodeObject := DRBytecodeObject new
+		bytecodeNumber: (self bytecodeNumberOf: aString);
+		sourceMethod: (self interpreterClass lookupSelector: aString);
+		cfg: (self bytecodeCompiler buildIR: aString);
+		yourself.
+	^ bytecodeObject
+	" (self isExtendedBytecode: aString) 
+		ifTrue: [ bytecodeObject beExtended ]." 
 ]
 
 { #category : #'instance creation' }
@@ -252,10 +307,21 @@ DRInterpreterToCompiler >> newPrimitive: aString [
 	^ DRJITPrimitiveObject new
 		primitiveNumber: (self primitiveNumberOf: aString);
 		sourceMethod: (self interpreterClass lookupSelector: aString);
-		cfg: (self compilerCompiler buildIR: aString);
-		argumentCount: (self compilerCompiler numberOfArgumentsForSelector: aString);
+		cfg: (self primitiveCompiler buildIR: aString);
+		argumentCount: (self primitiveCompiler numberOfArgumentsForSelector: aString);
 		mayCallback: (self primitiveMayCallback: aString);
 		yourself
+]
+
+{ #category : #'accessing - compiler' }
+DRInterpreterToCompiler >> primitiveCompiler [
+	"Answer a Druid compiler configured for the receiver's interpreter builder"
+
+	^ primitiveCompiler
+		ifNil: [ 
+			primitiveCompiler := (DRPrimitiveCompilerCompiler forInterpreter: self newInterpreter)
+				compilerClass: self targetClass;
+				yourself ]
 ]
 
 { #category : #adding }
@@ -278,11 +344,11 @@ DRInterpreterToCompiler >> primitiveNumberOf: aSelector [
 		ifFalse: [ primNumber ]
 ]
 
-{ #category : #'accessing - primitives' }
+{ #category : #helpers }
 DRInterpreterToCompiler >> primitiveTable [
-	"Answer a <Collection> of primitive selectors"
+	"Answer a <Collection> with the JITed primitives"
 
-	^ self targetClass basicPrimitiveTable
+	^ compilationUnit primitiveTable
 ]
 
 { #category : #'accessing - primitives' }
@@ -299,7 +365,15 @@ DRInterpreterToCompiler >> primitives: aCollection [
 	^ self compilationUnit primitives
 ]
 
-{ #category : #accessing }
+{ #category : #'accessing - primitives' }
+DRInterpreterToCompiler >> selectBytecodes: selectBlock [
+	" Answer a <Collection> of <CompiledMethod> representing bytecode methods and matching conditions in selectBlock "
+
+	bytecodeSelector := selectBlock
+
+]
+
+{ #category : #'accessing - primitives' }
 DRInterpreterToCompiler >> selectPrimitives: selectBlock [
 	" Answer a <Collection> of <CompiledMethod> representing primitive methods and matching conditions in selectBlock "
 

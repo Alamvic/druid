@@ -13,7 +13,7 @@ Class {
 { #category : #running }
 DRDispatchTableBuilderTest >> compilationUnitForTesting [
 
-	^ DRPrimitiveCompilationUnit new
+	^ DRInterpreterCompilationUnit new
 		targetClass: self jitCompilerClassForTest;
 		yourself
 ]
@@ -23,16 +23,19 @@ DRDispatchTableBuilderTest >> setUp [
 
 	super setUp.
 	interpreter :=	DRInterpreterToCompiler fromInterpreterClass: DRBasicCogInterpreterArithmeticPrimitives.
-	dispatchTableBuilder := DRCogitDispatchTableBuilder primitiveTableMethodFrom: self compilationUnitForTesting
+	dispatchTableBuilder := DRCogitDispatchTableGenerator fromCompilationUnit: self compilationUnitForTesting
 ]
 
 { #category : #tests }
 DRDispatchTableBuilderTest >> testCollectAllMethodsOn [
 
 	| pcgMethodNodes |
-	self assert: dispatchTableBuilder initPrimitiveTable isEmpty.
+	
+	self assertEmpty: dispatchTableBuilder primitiveTable.
+	self assertEmpty: dispatchTableBuilder bytecodeTable.
+	
 	pcgMethodNodes := dispatchTableBuilder collectAllMethodsOn: self jitCompilerClassForTest class.
 	self
 		assertCollection: (pcgMethodNodes collect: #selector)
-		hasSameElements: #(primitiveTableArray initializePrimitiveTable)
+		hasSameElements: #(primitiveTableArray initializePrimitiveTable initializeBytecodeTableForSistaV1)
 ]

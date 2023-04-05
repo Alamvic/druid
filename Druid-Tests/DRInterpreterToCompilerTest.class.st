@@ -15,6 +15,35 @@ DRInterpreterToCompilerTest >> setUp [
 ]
 
 { #category : #tests }
+DRInterpreterToCompilerTest >> testAddBytecode [
+
+	interpreterToCompiler := DRInterpreterToCompiler
+		                         fromInterpreterClass: DRBasicCogInterpreterArithmeticPrimitives.
+	interpreterToCompiler
+		doFailOnFirst;
+		targetClass: self jitCompilerClassForTest;
+		selectBytecodes: [ : cm |  cm selector = #pushReceiverVariableBytecode ];
+		buildAndCompileIn: self jitCompilerClassNameForTest.
+
+	self
+		assert: interpreterToCompiler bytecodes first sourceSelector
+		equals: #pushReceiverVariableBytecode
+]
+
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testAddEmptyInterpreterBytecode [
+
+	interpreterToCompiler := DRInterpreterToCompiler
+		                         fromInterpreterClass: DREmptyInterpreter.
+	interpreterToCompiler
+		doFailOnFirst;
+		targetClass: self jitCompilerClassForTest;
+		buildAndCompileIn: self jitCompilerClassNameForTest.
+
+	self assertEmpty: interpreterToCompiler bytecodes
+]
+
+{ #category : #tests }
 DRInterpreterToCompilerTest >> testAddPrimitive [
 
 	interpreterToCompiler := DRInterpreterToCompiler
@@ -23,7 +52,7 @@ DRInterpreterToCompilerTest >> testAddPrimitive [
 		doFailOnFirst;
 		targetClass: self jitCompilerClassForTest;
 		selectPrimitives: [ :p | p selector = #primitiveAdd ];
-		buildIRAndCompileIn: self jitCompilerClassNameForTest.
+		buildAndCompileIn: self jitCompilerClassNameForTest.
 
 	self
 		assert: interpreterToCompiler primitives first sourceSelector
@@ -36,7 +65,7 @@ DRInterpreterToCompilerTest >> testAddPrimitives [
 	| primitiveSet |
 	primitiveSet := #(#primitiveAdd #primitiveSubtract #primitiveLessThan #primitiveGreaterThan #primitiveLessOrEqual #primitiveGreaterOrEqual #primitiveEqual #primitiveNotEqual #primitiveMultiply #primitiveDivide).
 	
-	interpreterToCompiler buildIRAndCompileIn: self jitCompilerClassNameForTest.
+	interpreterToCompiler buildAndCompileIn: self jitCompilerClassNameForTest.
 	self
 		assertCollection: (interpreterToCompiler primitives collect: #sourceSelector)
 		hasSameElements: primitiveSet.
@@ -48,9 +77,9 @@ DRInterpreterToCompilerTest >> testAddPrimitives [
 { #category : #tests }
 DRInterpreterToCompilerTest >> testCompilePrimitiveTable [
 
-	interpreterToCompiler buildIRAndCompileIn: self jitCompilerClassNameForTest.
+	interpreterToCompiler buildAndCompileIn: self jitCompilerClassNameForTest.
 
-	self assert: interpreterToCompiler initPrimitiveTable notEmpty
+	self assert: interpreterToCompiler primitiveTable notEmpty
 ]
 
 { #category : #tests }
@@ -60,7 +89,7 @@ DRInterpreterToCompilerTest >> testErrorHandling [
 	interpreterToCompiler 
 		targetClass: self jitCompilerClassForTest;
 		selectPrimitives: [ : p | p selector = #primitiveDruidFail ];
-		buildIRAndCompileIn: self jitCompilerClassNameForTest.
+		buildAndCompileIn: self jitCompilerClassNameForTest.
 
 	self assert: interpreterToCompiler failedPrimitives notEmpty.
 ]

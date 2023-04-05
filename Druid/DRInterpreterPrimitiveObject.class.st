@@ -1,18 +1,11 @@
 Class {
 	#name : #DRInterpreterPrimitiveObject,
-	#superclass : #Object,
+	#superclass : #DRInterpreterInstruction,
 	#instVars : [
-		'sourceMethod',
 		'primitiveNumber'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
-
-{ #category : #testing }
-DRInterpreterPrimitiveObject >> hasPragmaNamed: aString [
-
-	^ self sourceMethod hasPragmaNamed: aString
-]
 
 { #category : #accessing }
 DRInterpreterPrimitiveObject >> primitiveNumber [
@@ -35,22 +28,4 @@ DRInterpreterPrimitiveObject >> printOn: aStream [
 		<< $);
 		space;
 		<< self sourceSelector
-]
-
-{ #category : #accessing }
-DRInterpreterPrimitiveObject >> sourceMethod [
-
-	^ sourceMethod
-]
-
-{ #category : #accessing }
-DRInterpreterPrimitiveObject >> sourceMethod: anObject [
-
-	sourceMethod := anObject
-]
-
-{ #category : #accessing }
-DRInterpreterPrimitiveObject >> sourceSelector [
-
-	^ self sourceMethod selector
 ]

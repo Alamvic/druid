@@ -32,19 +32,23 @@ DRAbstractCompilerBuilder >> compilationUnit: anObject [
 { #category : #'accessing - compiler' }
 DRAbstractCompilerBuilder >> compilationUnitClass [
 
-	^ DRPrimitiveCompilationUnit 
+	^ DRInterpreterCompilationUnit 
 ]
 
 { #category : #accessing }
 DRAbstractCompilerBuilder >> environmentAt: aClass [
 	"Answer the class named aClass. Create if it doesn't exist"
 
-	| realSuperclass |
+	| realSuperclass className |
+
 	realSuperclass := self targetSuperclass isSymbol
 		ifTrue: [ self class environment at: self targetSuperclass ]
 		ifFalse: [ self targetSuperclass ].
+	className := aClass isSymbol
+		ifTrue: [ aClass ]
+		ifFalse: [ aClass name ].
 	^ self class environment
-		at: aClass
+		at: className
 		ifAbsent: [ self newClassNamed: aClass superclass: realSuperclass ]
 ]
 
