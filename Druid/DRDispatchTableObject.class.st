@@ -6,10 +6,23 @@ Class {
 	#name : #DRDispatchTableObject,
 	#superclass : #Object,
 	#instVars : [
-		'sourceMethod'
+		'sourceMethod',
+		'cfg'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
+
+{ #category : #accessing }
+DRDispatchTableObject >> cfg [
+
+	^ cfg
+]
+
+{ #category : #accessing }
+DRDispatchTableObject >> cfg: aDRPrimitiveControlFlowGraph [ 
+
+	cfg := aDRPrimitiveControlFlowGraph
+]
 
 { #category : #testing }
 DRDispatchTableObject >> hasPragmaNamed: aString [

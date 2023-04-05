@@ -15,6 +15,35 @@ DRInterpreterToCompilerTest >> setUp [
 ]
 
 { #category : #tests }
+DRInterpreterToCompilerTest >> testAddBytecode [
+
+	interpreterToCompiler := DRInterpreterToCompiler
+		                         fromInterpreterClass: DRBasicCogInterpreterArithmeticPrimitives.
+	interpreterToCompiler
+		doFailOnFirst;
+		targetClass: self jitCompilerClassForTest;
+		selectBytecodes: [ : cm |  cm selector = #pushReceiverVariableBytecode ];
+		buildAndCompileIn: self jitCompilerClassNameForTest.
+
+	self
+		assert: interpreterToCompiler bytecodes first sourceSelector
+		equals: #pushReceiverVariableBytecode
+]
+
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testAddEmptyInterpreterBytecode [
+
+	interpreterToCompiler := DRInterpreterToCompiler
+		                         fromInterpreterClass: DREmptyInterpreter.
+	interpreterToCompiler
+		doFailOnFirst;
+		targetClass: self jitCompilerClassForTest;
+		buildAndCompileIn: self jitCompilerClassNameForTest.
+
+	self assertEmpty: interpreterToCompiler bytecodes
+]
+
+{ #category : #tests }
 DRInterpreterToCompilerTest >> testAddPrimitive [
 
 	interpreterToCompiler := DRInterpreterToCompiler

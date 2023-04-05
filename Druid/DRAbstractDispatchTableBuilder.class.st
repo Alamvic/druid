@@ -143,7 +143,6 @@ DRAbstractDispatchTableBuilder >> installAllMethodsOn: aJITCompilerClass [
 	^ {
 		self buildInitializePrimitiveTableArrayMethodNode .
 		self buildInitializePrimitiveTableMethodNode .
-		self buildInitializeBytecodeTableMethodNode
 		} do: [ : pcgNode |
 			pcgNode
 				protocol: #'class initialization';

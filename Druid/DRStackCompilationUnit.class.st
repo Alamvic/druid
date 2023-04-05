@@ -34,8 +34,7 @@ DRStackCompilationUnit >> addSpecialPrimitives [
 ]
 
 { #category : #'accessing - compiler' }
-DRStackCompilationUnit >> compileInitializePrimitiveTable [
-	"Install the initialize primitive table method in the receiver's JIT compiler class"
+DRStackCompilationUnit >> compileAll [
 
 	self addPrimitiveEntries.
 	self dispatchTableBuilder

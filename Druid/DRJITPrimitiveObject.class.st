@@ -10,7 +10,6 @@ Class {
 	#superclass : #DRInterpreterPrimitiveObject,
 	#instVars : [
 		'genSelector',
-		'cfg',
 		'argumentCount',
 		'mayCallback'
 	],
@@ -27,18 +26,6 @@ DRJITPrimitiveObject >> argumentCount [
 DRJITPrimitiveObject >> argumentCount: anObject [
 
 	argumentCount := anObject
-]
-
-{ #category : #accessing }
-DRJITPrimitiveObject >> cfg [
-
-	^ cfg
-]
-
-{ #category : #accessing }
-DRJITPrimitiveObject >> cfg: aDRPrimitiveControlFlowGraph [ 
-
-	cfg := aDRPrimitiveControlFlowGraph
 ]
 
 { #category : #accessing }

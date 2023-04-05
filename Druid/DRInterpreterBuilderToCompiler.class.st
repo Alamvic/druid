@@ -16,6 +16,15 @@ DRInterpreterBuilderToCompiler >> addPrimitives: aCollection [
 		displayingProgress: [ : prim | 'Adding primitive: ' , prim asString ]
 ]
 
+{ #category : #'accessing - model' }
+DRInterpreterBuilderToCompiler >> build [
+	"Answer a <DRCompilationUnit>, useful for model manipulation before code dumping"
+
+	self compilationUnit compiler: self primitiveCompiler.
+	self addPrimitives.
+	^ self compilationUnit compileAll
+]
+
 { #category : #adding }
 DRInterpreterBuilderToCompiler >> collectPrimitives: aCollection [
 	" Answer a <Collection> of selectors from aCollection containing CompiledMethod or primitive names "

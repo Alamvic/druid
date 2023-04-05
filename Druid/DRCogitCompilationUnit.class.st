@@ -71,17 +71,13 @@ DRCogitCompilationUnit >> collectPrimitives: aCollection [
 
 { #category : #'accessing - compiler' }
 DRCogitCompilationUnit >> compileAll [
-	"Write primitive methods in the receiver's JIT compiler class"
+	"Install methods in the receiver's JIT compiler class"
 
-	self compileInitializePrimitiveTable
-]
+	| realTargetClass |
 
-{ #category : #'accessing - compiler' }
-DRCogitCompilationUnit >> compileInitializePrimitiveTable [
-	"Install the initialize primitive table method in the receiver's JIT compiler class"
-
+	realTargetClass := self compilerBuilder environmentAt: self targetClass.
 	self addPrimitiveEntries.
-	self dispatchTableBuilder installAllMethodsOn: self targetClass class
+	self dispatchTableBuilder installAllMethodsOn:realTargetClass class
 ]
 
 { #category : #'accessing - compiler' }

@@ -137,13 +137,8 @@ DRInterpreterToCompiler >> bytecodeCompiler [
 DRInterpreterToCompiler >> bytecodeNumberOf: aSelector [
 	" Answer a <Number> representing the bytecode number of aSelector "
 
-	| bytecodeNumber |
+	^  self interpreterBytecodeTable indexOf: aSelector.
 
-	self halt.
-	bytecodeNumber := self interpreterBytecodeTable indexOf: aSelector.
-	^ self interpreterBytecodeTable first = 0
-		ifTrue: [ bytecodeNumber - 1 ]
-		ifFalse: [ bytecodeNumber ]
 ]
 
 { #category : #'accessing - bytecodes' }
@@ -218,7 +213,7 @@ DRInterpreterToCompiler >> initialize [
 
 	super initialize.
 	primitiveSelector := [ : arg | true ].
-	bytecodeSelector := [ : arg | true ].
+	bytecodeSelector := [ : arg | false ].
 	failFirst := false.
 ]
 
@@ -253,6 +248,13 @@ DRInterpreterToCompiler >> interpreterPrimitiveTable [
 	^ interpreterClass primitiveTable
 ]
 
+{ #category : #testing }
+DRInterpreterToCompiler >> isExtendedBytecode: aSelector [
+	" Answer true if bytecode described by aSelector is extended "
+	
+	^ self interpreterBytecodeTable 
+]
+
 { #category : #adding }
 DRInterpreterToCompiler >> isSelectedBytecode: obj [
 
@@ -275,13 +277,16 @@ DRInterpreterToCompiler >> isValidPrimitiveName: aString [
 DRInterpreterToCompiler >> newBytecode: aString [
 	" Answer a new bytecode object with its metadata and CFG generated "
 
-	^ DRBytecodeObject new
+	| bytecodeObject |
+	
+	bytecodeObject := DRBytecodeObject new
 		bytecodeNumber: (self bytecodeNumberOf: aString);
 		sourceMethod: (self interpreterClass lookupSelector: aString);
 		cfg: (self bytecodeCompiler buildIR: aString);
-		argumentCount: (self bytecodeCompiler numberOfArgumentsForSelector: aString);
-		mayCallback: (self primitiveMayCallback: aString);
-		yourself
+		yourself.
+	^ bytecodeObject
+	" (self isExtendedBytecode: aString) 
+		ifTrue: [ bytecodeObject beExtended ]." 
 ]
 
 { #category : #'instance creation' }

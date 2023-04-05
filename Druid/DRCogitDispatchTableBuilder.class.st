@@ -148,6 +148,21 @@ DRCogitDispatchTableBuilder >> initPrimitiveTableSelector [
 	^ #initializePrimitiveTable
 ]
 
+{ #category : #'accessing - installation' }
+DRCogitDispatchTableBuilder >> installAllMethodsOn: aJITCompilerClass [
+	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
+
+	^ {
+		self buildInitializePrimitiveTableArrayMethodNode .
+		self buildInitializePrimitiveTableMethodNode .
+		self buildInitializeBytecodeTableMethodNode
+		} do: [ : pcgNode |
+			pcgNode
+				protocol: #'class initialization';
+				installOn: aJITCompilerClass ]
+		displayingProgress: 'Installing methods'
+]
+
 { #category : #'accessing - primitives' }
 DRCogitDispatchTableBuilder >> maxPrimitiveIndexGlobalName [
 
