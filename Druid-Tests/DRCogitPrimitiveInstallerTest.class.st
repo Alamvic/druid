@@ -3,7 +3,7 @@ A DRCogitPrimitiveDumperTest is a test class for testing the behavior of DRCogit
 "
 Class {
 	#name : #DRCogitPrimitiveInstallerTest,
-	#superclass : #DRAbstractMockTest,
+	#superclass : #DRAbstractCompilerCollectorTest,
 	#instVars : [
 		'primitiveMethodInstaller'
 	],

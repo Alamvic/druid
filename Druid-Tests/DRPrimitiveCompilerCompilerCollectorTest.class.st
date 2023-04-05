@@ -1,6 +1,6 @@
 Class {
 	#name : #DRPrimitiveCompilerCompilerCollectorTest,
-	#superclass : #DRAbstractMockTest,
+	#superclass : #DRAbstractCompilerCollectorTest,
 	#instVars : [
 		'compilationUnit'
 	],
