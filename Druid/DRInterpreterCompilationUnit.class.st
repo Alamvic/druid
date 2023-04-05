@@ -22,7 +22,6 @@ Class {
 DRInterpreterCompilationUnit >> addPrimitiveEntries [
 	"As part of the build unit, add the receiver's primitives from its <Collection> of <DRPrimitiveObject>"
 
-	self compiler interpreter: self interpreter.
 	self addSpecialPrimitives.
 	self primitives do: [ :primitiveObject |
 		self addPrimitiveEntry: primitiveObject ]
