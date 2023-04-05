@@ -9,6 +9,27 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #'special cases' }
+DRPrimitiveIRGenerator >> executeFullCogBlockClosureMayContextSwitchWith: aRBMessageNode [
+
+	| closureCode mayContextSwitch offsetSelector |
+	closureCode := self visitOperand: aRBMessageNode arguments first.
+	mayContextSwitch := self visitOperand: aRBMessageNode arguments third.
+
+	offsetSelector := DRInterpreterExpression reference:
+		                  (mayContextSwitch simpleConstantFold
+			                   ifTrue: [ 'self fullBlockEntryOffset' ]
+			                   ifFalse: [
+			                   'self fullBlockNoContextSwitchEntryOffset' ]).
+
+	^ self
+		  addInstructionWithNoResultFrom: aRBMessageNode
+		  instructionKind: DRClosureActivation
+		  operands: {
+				  closureCode.
+				  offsetSelector }
+]
+
 { #category : #accessing }
 DRPrimitiveIRGenerator >> initialize [
 
@@ -24,6 +45,7 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 	variableSpecialCases at: #primFailCode put: #interpretPrimFailCodeWith:.
+	specialCases at: #executeFullCogBlock:closure:mayContextSwitch: put: #executeFullCogBlockClosureMayContextSwitchWith:
 ]
 
 { #category : #inline }

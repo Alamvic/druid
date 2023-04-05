@@ -478,6 +478,17 @@ DRCogitCodeGenerator >> visitBranchIfTrue: aDRBranchIfTrue [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitClosureActivation: aDRClosureActivation [
+
+	self threeOperandCogitRTL: #Add instruction: aDRClosureActivation.
+
+	self
+		oneOperandCogitRTL: #Jump
+		operands: aDRClosureActivation operands
+		instruction: aDRClosureActivation
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitComparison: aComparison [
 
 	"Generate comparison instruction. In cogit, if you want to do A < B, you have to generate:
