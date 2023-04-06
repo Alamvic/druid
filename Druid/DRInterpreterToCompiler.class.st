@@ -80,11 +80,8 @@ DRInterpreterToCompiler >> addBytecodes [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
 	^ (self collectBytecodes: self interpreterBytecodeTable)
-		do: [ : prim | self addBytecode: prim ]
-		displayingProgress: [ : prim | 'Adding bytecode: ' , prim asString ]
-
-		
-
+		  do: [ :prim | self addBytecode: prim ]
+		  displayingProgress: [ :prim | 'Adding bytecode: ' , prim asString ]
 ]
 
 { #category : #adding }
@@ -112,12 +109,12 @@ DRInterpreterToCompiler >> addPrimitives [
 	self flag: #TOFIX.
 	self interpreterPrimitiveTable
 		do: [ :selector |
-			(selector isNumber or: [ self interpreterPrimitiveTable includes: selector ])
+			(selector isNumber or: [ self primitives anySatisfy: [ :e | e sourceSelector = selector ] ])
 				ifFalse: [
 					| method |
 					method := self interpreterClass lookupSelector: selector.
 					(self isMaycallbackPrimitive: method) ifTrue: [
-						self addPrimitive: (self newNonImplementedPrimitive: method) ] ] ]
+						self primitives add: (self newNonImplementedPrimitive: method) ] ] ]
 		displayingProgress: [ :selector | 'Adding mandatory non implemented primitive: ' , selector asString ]
 ]
 
@@ -181,7 +178,9 @@ DRInterpreterToCompiler >> collectBytecodes: aCollection [
 
 	^ aCollection
 		  reject: [ :obj |
-				  obj isNil or: [ (self isSelectedBytecode: (interpreterClass lookupSelector: obj)) not ] ]
+			  obj isNil or: [
+				  (self isSelectedBytecode: (interpreterClass lookupSelector: obj))
+					  not ] ]
 		  thenCollect: [ :symOrCompiledMethod |
 			  symOrCompiledMethod isCompiledMethod
 				  ifTrue: [ symOrCompiledMethod selector ]
@@ -376,6 +375,24 @@ DRInterpreterToCompiler >> newMemory [
 	" Answer a memory manager instance. Currently a subclass of <SpurMemoryManager> "
 
 	^ Spur64BitCoMemoryManager simulatorClass new
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> newNonImplementedPrimitive: interpreterPrimitiveMethod [
+
+	| selector |
+	selector := interpreterPrimitiveMethod selector.
+
+	self flag: #TODO. "Duplicated code with newPrimitive:"
+
+	^ DRJITPrimitiveObject new
+		  primitiveNumber: (self primitiveNumberOf: selector);
+		  sourceMethod: interpreterPrimitiveMethod;
+		  argumentCount: -1;
+		  mayCallback:
+			  (self isMaycallbackPrimitive: interpreterPrimitiveMethod);
+		  supported: false;
+		  yourself
 ]
 
 { #category : #'instance creation' }

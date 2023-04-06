@@ -115,7 +115,10 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 
 	"Generate the postamble in the fallthrough case"
 	self generatePostambleForCFG: aDRControlFlowGraph.
-	generatorMethodBuilder addStatement: (RBReturnNode value: (RBVariableNode named: 'CompletePrimitive'))
+	
+	"Return compiled method status for the compiler"
+	generatorMethodBuilder addStatement:
+		(RBReturnNode value: (RBVariableNode named: 'CompletePrimitive')) "TODO"
 ]
 
 { #category : #visiting }
@@ -180,20 +183,20 @@ DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 { #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 
-	| addStatement |	
+	| addStatement |
 	"If we need no spill slots, do nothing"
 	aDRControlFlowGraph numberOfSpillSlots = 0 ifTrue: [ ^ self ].
-	
+
 	"Otherwise, increment the stack pointer by N*WordSize where N is the number of required spill slots.
 	The first spill slot will be [SP], the second will be [SP+WordSize] and so on."
 	addStatement := RBMessageNode
-		receiver: RBVariableNode selfNode
-		selector: #SubCq:R:
-		arguments: {
-			RBLiteralValueNode value: aDRControlFlowGraph numberOfSpillSlots * 8 "bytes".
-			RBVariableNode named: 'SPReg'
-		}.
-	generatorMethodBuilder addStatement: addStatement.
+		                receiver: RBVariableNode selfNode
+		                selector: #SubCq:R:
+		                arguments: {
+				                (RBLiteralValueNode value:
+					                 aDRControlFlowGraph numberOfSpillSlots * 8). "bytes"
+				                (RBVariableNode named: 'SPReg') }.
+	generatorMethodBuilder addStatement: addStatement
 ]
 
 { #category : #'ir-to-ast' }

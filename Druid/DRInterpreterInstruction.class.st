@@ -24,6 +24,13 @@ DRInterpreterInstruction >> cfg: aDRPrimitiveControlFlowGraph [
 	cfg := aDRPrimitiveControlFlowGraph
 ]
 
+{ #category : #accessing }
+DRInterpreterInstruction >> genSelector [
+	" Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (compiler) method"
+
+	^ #gen_ , self sourceSelector
+]
+
 { #category : #testing }
 DRInterpreterInstruction >> hasPragmaNamed: aString [
 

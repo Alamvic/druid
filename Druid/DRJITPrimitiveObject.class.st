@@ -34,7 +34,7 @@ DRJITPrimitiveObject >> genSelector [
 
 	supported ifFalse: [ ^ #genNonImplementedPrimitive ].
 
-	^ #gen_ , self sourceSelector
+	^ super genSelector
 ]
 
 { #category : #initialization }
