@@ -19,8 +19,8 @@ Class {
 { #category : #'accessing - compiler' }
 DRAbstractCompilerBuilder >> compilationUnit [
 
-	^ compilationUnit
-		ifNil: [ 	compilationUnit := self compilationUnitClass fromCompilerBuilder: self ]
+	^ compilationUnit ifNil: [
+		  compilationUnit := self compilationUnitClass new ]
 ]
 
 { #category : #'accessing - compiler' }
@@ -50,6 +50,11 @@ DRAbstractCompilerBuilder >> environmentAt: aClass [
 	^ self class environment
 		at: className
 		ifAbsent: [ self newClassNamed: aClass superclass: realSuperclass ]
+]
+
+{ #category : #private }
+DRAbstractCompilerBuilder >> handleErrorDuring: aFullBlockClosure [ 
+	self shouldBeImplemented.
 ]
 
 { #category : #accessing }

@@ -6,22 +6,15 @@ Class {
 	#name : #DRInterpreterInstruction,
 	#superclass : #Object,
 	#instVars : [
-		'sourceMethod',
-		'cfg'
+		'sourceMethod'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
 
-{ #category : #accessing }
-DRInterpreterInstruction >> cfg [
-
-	^ cfg
-]
-
-{ #category : #accessing }
-DRInterpreterInstruction >> cfg: aDRPrimitiveControlFlowGraph [ 
-
-	cfg := aDRPrimitiveControlFlowGraph
+{ #category : #compiling }
+DRInterpreterInstruction >> compileUsing: aCompiler [
+	
+	self subclassResponsibility
 ]
 
 { #category : #accessing }

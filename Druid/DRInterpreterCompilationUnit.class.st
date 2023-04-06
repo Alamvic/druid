@@ -98,19 +98,6 @@ DRInterpreterCompilationUnit >> collectPrimitives: aCollection [
 ]
 
 { #category : #'accessing - compiler' }
-DRInterpreterCompilationUnit >> compileAll [
-	"Install methods in the receiver's JIT compiler class"
-
-	| realTargetClass |
-	realTargetClass := self compilerBuilder environmentAt:
-		                   self targetClass.
-	self addPrimitiveEntries.
-	self addBytecodeEntries.
-	self dispatchTableGenerator installAllMethodsOn:
-		realTargetClass class
-]
-
-{ #category : #'accessing - compiler' }
 DRInterpreterCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
 	"Compile a method in the receiver's JIT compiler class. aDRPrimitiveObject contains the specification needed to compile the JITed version of the method"
 
@@ -121,6 +108,24 @@ DRInterpreterCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
 		sourceName: aDRPrimitiveObject sourceSelector;
 		primitiveCompilerName: aDRPrimitiveObject genSelector)
 			compile
+]
+
+{ #category : #'accessing - compiler' }
+DRInterpreterCompilationUnit >> compileUsing: aCompiler [
+	"Install methods in the receiver's JIT compiler class"
+
+	| realTargetClass |
+	realTargetClass := aCompiler environmentAt: self targetClass.
+	self addPrimitiveEntries.
+	self addBytecodeEntries.
+
+	self primitives do: [ :e |
+		aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ].
+	self bytecodes do: [ :e |
+		aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ].
+
+	self dispatchTableGenerator installAllMethodsOn:
+		realTargetClass class
 ]
 
 { #category : #private }
