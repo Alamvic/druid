@@ -4,12 +4,6 @@ Class {
 	#category : #'Druid-Cogit'
 }
 
-{ #category : #'ir-to-ast' }
-DRCogitStackToRegisterMappingGenerator >> generatePostambleForCFG: cfg [
-
-	"Nothing"
-]
-
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 

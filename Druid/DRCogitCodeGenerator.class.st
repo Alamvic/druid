@@ -115,6 +115,10 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 
 	"Generate the postamble in the fallthrough case"
 	self generatePostambleForCFG: aDRControlFlowGraph.
+	
+	"Return compiled method status for the compiler"
+	generatorMethodBuilder addStatement:
+		(RBReturnNode value: (RBVariableNode named: 'CompletePrimitive')) "TODO"
 ]
 
 { #category : #visiting }
@@ -192,9 +196,7 @@ DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 				                (RBLiteralValueNode value:
 					                 aDRControlFlowGraph numberOfSpillSlots * 8). "bytes"
 				                (RBVariableNode named: 'SPReg') }.
-	generatorMethodBuilder addStatement: addStatement.
-	generatorMethodBuilder addStatement:
-		(RBReturnNode value: (RBVariableNode named: 'CompletePrimitive'))
+	generatorMethodBuilder addStatement: addStatement
 ]
 
 { #category : #'ir-to-ast' }
