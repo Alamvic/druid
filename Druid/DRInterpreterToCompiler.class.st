@@ -391,7 +391,7 @@ DRInterpreterToCompiler >> newPrimitive: primitiveMethod [
 		primitiveNumber: (self primitiveNumberOf: selector);
 		sourceMethod: primitiveMethod;
 		cfg: (primCompiler buildIR: selector);
-		argumentCount: (self primitiveCompiler numberOfArgumentsForMethod: primitiveMethod);
+		argumentCount: (primCompiler numberOfArgumentsForMethod: primitiveMethod);
 		mayCallback: (self isMaycallbackPrimitive: primitiveMethod);
 		yourself
 ]
