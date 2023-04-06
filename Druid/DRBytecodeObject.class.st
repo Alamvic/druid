@@ -35,9 +35,12 @@ DRBytecodeObject >> bytecodeSize: anObject [
 { #category : #compiling }
 DRBytecodeObject >> compileUsing: aCompiler [
 
+	| interpreter |
+	interpreter := aCompiler newInterpreter.
+	interpreter currentBytecode: bytecodeNumber.
 	DRBytecodeCompilerCompiler new
 		sourceName: self sourceSelector;
-		interpreter: aCompiler newInterpreter;
+		interpreter: interpreter;
 		compilerClass: aCompiler targetClass;
 		compile
 ]

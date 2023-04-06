@@ -28,8 +28,7 @@ Class {
 		'failFirst',
 		'bytecodeCompiler',
 		'bytecodeSelector',
-		'failedPrimitives',
-		'failedBytecodes'
+		'errors'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
@@ -104,7 +103,7 @@ DRInterpreterToCompiler >> addPrimitives [
 
 	(self collectPrimitives: self interpreterPrimitiveTable)
 		do: [ :prim | self addPrimitive: prim ]
-		displayingProgress: [ :prim | 'Adding primitive: ' , prim asString ].
+		displayingProgress: [ :prim | 'Adding primitive: ' , prim selector ].
 
 	self flag: #TOFIX.
 	self interpreterPrimitiveTable
@@ -206,11 +205,11 @@ DRInterpreterToCompiler >> doFailOnFirst [
 ]
 
 { #category : #adding }
-DRInterpreterToCompiler >> failedBytecodes [
+DRInterpreterToCompiler >> errors [
 
-	^ failedBytecodes
+	^ errors
 		ifNil: [
-			failedBytecodes :=
+			errors :=
 				PluggableDictionary new
 					equalBlock: [ :a :b | a class == b class ];
 					hashBlock: [ :a | a class identityHash ];
@@ -220,33 +219,29 @@ DRInterpreterToCompiler >> failedBytecodes [
 { #category : #adding }
 DRInterpreterToCompiler >> failedBytecodesAt: anException add: aString [
 
-	self failedBytecodes
+	self errors
 		at: anException
 		ifPresent: [ : fbs | fbs add: aString ]
-		ifAbsent: [ self failedBytecodes 
+		ifAbsent: [ self errors 
 			at: anException 
 			put: (OrderedCollection with: aString) ]
 ]
 
 { #category : #adding }
-DRInterpreterToCompiler >> failedPrimitives [
-
-	^ failedPrimitives
-		ifNil: [
-			failedPrimitives :=
-				PluggableDictionary new
-					equalBlock: [ :a :b | a class == b class ];
-					hashBlock: [ :a | a class identityHash ];
-					yourself 	]
-]
-
-{ #category : #adding }
 DRInterpreterToCompiler >> failedPrimitivesAt: anException add: aString [
 
-	self failedPrimitives
-		at: anException
-		ifPresent: [ : fps | fps add: aString ]
-		ifAbsent: [ self failedPrimitives at: anException put: (OrderedCollection with: aString)  ]
+	"Put all errors in a single place"
+	self failedBytecodesAt:  anException add: aString
+]
+
+{ #category : #private }
+DRInterpreterToCompiler >> handleErrorDuring: aFullBlockClosure [
+
+	aFullBlockClosure
+		on: Error
+		do: [ :ex |
+			failFirst ifTrue: [ ex pass ].
+			self failedBytecodesAt: ex add: ex asString ]
 ]
 
 { #category : #'accessing - object memory' }

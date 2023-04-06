@@ -115,13 +115,14 @@ DRInterpreterCompilationUnit >> compileUsing: aCompiler [
 	"Install methods in the receiver's JIT compiler class"
 
 	| realTargetClass |
-	realTargetClass := self compilerBuilder environmentAt:
-		                   self targetClass.
+	realTargetClass := aCompiler environmentAt: self targetClass.
 	self addPrimitiveEntries.
 	self addBytecodeEntries.
-	
-	self primitives do: [ :e | e compileUsing: aCompiler ].
-	self bytecodes do: [ :e | e compileUsing: aCompiler ].
+
+	self primitives do: [ :e |
+		aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ].
+	self bytecodes do: [ :e |
+		aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ].
 
 	self dispatchTableGenerator installAllMethodsOn:
 		realTargetClass class

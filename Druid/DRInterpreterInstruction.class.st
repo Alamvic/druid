@@ -6,8 +6,7 @@ Class {
 	#name : #DRInterpreterInstruction,
 	#superclass : #Object,
 	#instVars : [
-		'sourceMethod',
-		'cfg'
+		'sourceMethod'
 	],
 	#category : #'Druid-CompilerBuilder'
 }

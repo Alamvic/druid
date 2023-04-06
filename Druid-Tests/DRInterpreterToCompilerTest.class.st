@@ -91,7 +91,7 @@ DRInterpreterToCompilerTest >> testErrorHandling [
 		selectPrimitives: [ : p | p selector = #primitiveDruidFail ];
 		buildAndCompileIn: self jitCompilerClassNameForTest.
 
-	self assert: interpreterToCompiler failedPrimitives notEmpty.
+	self assert: interpreterToCompiler errors notEmpty.
 ]
 
 { #category : #tests }

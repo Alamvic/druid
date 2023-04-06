@@ -10,45 +10,10 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'targetClass',
-		'targetSuperclass',
-		'compiler',
-		'compilerBuilder'
+		'targetSuperclass'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
-
-{ #category : #'instance creation' }
-DRCompilationUnit class >> fromCompilerBuilder: aDRCompilerBuilder [
-
-	^  self new
-			compilerBuilder: aDRCompilerBuilder;
-			yourself
-]
-
-{ #category : #'accessing - compiler' }
-DRCompilationUnit >> compiler [
-
-	^ compiler
-
-]
-
-{ #category : #accessing }
-DRCompilationUnit >> compiler: aDRCompiler [ 
-
-	compiler := aDRCompiler
-]
-
-{ #category : #accessing }
-DRCompilationUnit >> compilerBuilder [
-
-	^ compilerBuilder
-]
-
-{ #category : #accessing }
-DRCompilationUnit >> compilerBuilder: anObject [
-
-	compilerBuilder := anObject
-]
 
 { #category : #accessing }
 DRCompilationUnit >> defaultTargetSuperclass [
