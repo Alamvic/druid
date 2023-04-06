@@ -1,6 +1,6 @@
 Class {
 	#name : #DRInterpreterToCompilerTest,
-	#superclass : #DRAbstractMockTest,
+	#superclass : #DRAbstractCompilerCollectorTest,
 	#instVars : [
 		'interpreterToCompiler'
 	],

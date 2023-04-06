@@ -20,7 +20,7 @@ DRInterpreterBuilderToCompiler >> addPrimitives: aCollection [
 DRInterpreterBuilderToCompiler >> build [
 	"Answer a <DRCompilationUnit>, useful for model manipulation before code dumping"
 
-	self compilationUnit compiler: self primitiveCompiler.
+	self compilationUnit compiler: self newPrimitiveCompiler.
 	self addPrimitives.
 	^ self compilationUnit compileAll
 ]
@@ -50,7 +50,7 @@ DRInterpreterBuilderToCompiler >> compileAll [
 
 	self newInterpreter.
 	self compilationUnit 
-			compiler: self primitiveCompiler;
+			compiler: self newPrimitiveCompiler;
 			compileAll
 ]
 

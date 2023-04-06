@@ -27,10 +27,12 @@ DRJITPrimitiveObject >> argumentCount: anObject [
 	argumentCount := anObject
 ]
 
-{ #category : #accessing }
-DRJITPrimitiveObject >> genSelector: anObject [
+{ #category : #initialization }
+DRJITPrimitiveObject >> initialize [
 
-	genSelector := anObject
+	super initialize.
+	supported := true.
+	mayCallback := false
 ]
 
 { #category : #accessing }
@@ -40,7 +42,19 @@ DRJITPrimitiveObject >> mayCallback [
 ]
 
 { #category : #accessing }
-DRJITPrimitiveObject >> mayCallback: anObject [
+DRJITPrimitiveObject >> mayCallback: aBoolean [
 
-	mayCallback := anObject
+	mayCallback := aBoolean
+]
+
+{ #category : #accessing }
+DRJITPrimitiveObject >> supported [
+
+	^ supported
+]
+
+{ #category : #accessing }
+DRJITPrimitiveObject >> supported: aBoolean [
+
+	supported := aBoolean
 ]

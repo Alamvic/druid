@@ -3,7 +3,7 @@ This class provides behavior for subclasses to use a Mock JIT class.
 
 "
 Class {
-	#name : #DRAbstractMockTest,
+	#name : #DRAbstractCompilerCollectorTest,
 	#superclass : #DRDruidTests,
 	#instVars : [
 		'testingEnvironment'
@@ -12,7 +12,7 @@ Class {
 }
 
 { #category : #initialization }
-DRAbstractMockTest >> jitCompilerClassForTest [
+DRAbstractCompilerCollectorTest >> jitCompilerClassForTest [
 
 	^ testingEnvironment 
 		at: self jitCompilerClassNameForTest 
@@ -22,31 +22,29 @@ DRAbstractMockTest >> jitCompilerClassForTest [
 					name: self jitCompilerClassNameForTest;
 					superclass: self jitSuperclassForTest;
 					category: self jitCompilerClassNameForTest ]. ]
-
-
 ]
 
 { #category : #running }
-DRAbstractMockTest >> jitCompilerClassNameForTest [ 
+DRAbstractCompilerCollectorTest >> jitCompilerClassNameForTest [ 
 
 	^ #MyJITCompilerClass
 ]
 
 { #category : #running }
-DRAbstractMockTest >> jitSuperclassForTest [
+DRAbstractCompilerCollectorTest >> jitSuperclassForTest [
 
 	^ CogVMSimulatorLSB
 ]
 
 { #category : #running }
-DRAbstractMockTest >> setUp [
+DRAbstractCompilerCollectorTest >> setUp [
 
 	super setUp.
 	testingEnvironment := Smalltalk globals.
 ]
 
 { #category : #running }
-DRAbstractMockTest >> tearDown [
+DRAbstractCompilerCollectorTest >> tearDown [
 
 	| className |
 

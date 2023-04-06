@@ -85,10 +85,7 @@ DruidTestRTLCompiler >> gen_bytecodePrimAdd [
 	jump2 := self JumpNoOverflow: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	self
-		genMarshalledSend:  -1
-		numArgs: 1
-		sendTable: ordinarySendTrampolines.
+	self genMarshalledSend:  -1 numArgs: 1 sendTable: ordinarySendTrampolines.
 	jump1 := self Jump: 0.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
@@ -2264,9 +2261,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -2585,9 +2582,9 @@ DruidTestRTLCompiler >> gen_primitiveMod [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -3876,10 +3873,7 @@ DruidTestRTLCompiler >> gen_sendLiteralSelector0ArgsBytecode [
 
 	| currentBlock |
 	self marshallSendArguments: 0.
-	self
-		genMarshalledSend: 1
-		numArgs: 0
-		sendTable: ordinarySendTrampolines.
+	self genMarshalledSend: 1 numArgs: 0 sendTable: ordinarySendTrampolines.
 	^ CompletePrimitive
 ]
 

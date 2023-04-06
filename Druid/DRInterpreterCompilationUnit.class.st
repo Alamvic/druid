@@ -39,7 +39,6 @@ DRInterpreterCompilationUnit >> addBytecodeEntry: aDRBytecodeObject [
 DRInterpreterCompilationUnit >> addPrimitiveEntries [
 	"As part of the build unit, add the receiver's primitives from its <Collection> of <DRPrimitiveObject>"
 
-	self compiler interpreter: self interpreter.
 	self addSpecialPrimitives.
 	self primitives do: [ :primitiveObject |
 		self addPrimitiveEntry: primitiveObject ]
@@ -49,11 +48,17 @@ DRInterpreterCompilationUnit >> addPrimitiveEntries [
 DRInterpreterCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
 
-	self primitiveTable add: {
-		aDRPrimitiveObject primitiveNumber .
-		aDRPrimitiveObject genSelector .
-		aDRPrimitiveObject argumentCount > 0
-			ifTrue: [ aDRPrimitiveObject argumentCount ] }
+	| tableEntry |
+	tableEntry := {
+		              aDRPrimitiveObject primitiveNumber.
+		              aDRPrimitiveObject genSelector.
+		              aDRPrimitiveObject argumentCount }.
+
+	tableEntry := tableEntry , (aDRPrimitiveObject mayCallback
+		               ifTrue: [ { #maycallback } ]
+		               ifFalse: [ {  } ]).
+
+	self primitiveTable add: tableEntry
 ]
 
 { #category : #'accessing - primitives' }
@@ -110,6 +115,8 @@ DRInterpreterCompilationUnit >> compileAll [
 { #category : #'accessing - compiler' }
 DRInterpreterCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
 	"Compile a method in the receiver's JIT compiler class. aDRPrimitiveObject contains the specification needed to compile the JITed version of the method"
+
+	aDRPrimitiveObject supported ifFalse: [ ^ self ].
 
 	(self compiler
 		initialize;
