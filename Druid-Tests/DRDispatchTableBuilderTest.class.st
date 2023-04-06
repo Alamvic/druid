@@ -3,7 +3,7 @@ A DRCogitPrimitiveDumperTest is a test class for testing the behavior of DRCogit
 "
 Class {
 	#name : #DRDispatchTableBuilderTest,
-	#superclass : #DRAbstractMockTest,
+	#superclass : #DRAbstractCompilerCollectorTest,
 	#instVars : [
 		'dispatchTableBuilder'
 	],
@@ -22,8 +22,8 @@ DRDispatchTableBuilderTest >> compilationUnitForTesting [
 DRDispatchTableBuilderTest >> setUp [
 
 	super setUp.
-	interpreter :=	DRInterpreterToCompiler fromInterpreterClass: DRBasicCogInterpreterArithmeticPrimitives.
-	dispatchTableBuilder := DRCogitDispatchTableGenerator fromCompilationUnit: self compilationUnitForTesting
+	dispatchTableBuilder := DRCogitDispatchTableGenerator fromCompilationUnit:
+		                        self compilationUnitForTesting
 ]
 
 { #category : #tests }

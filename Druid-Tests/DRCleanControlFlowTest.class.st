@@ -256,7 +256,7 @@ DRCleanControlFlowTest >> testShouldFoldRedundantBranch [
 	jump trueBranch: b1.
 	jump falseBranch: b1.
 
-	self assert: (optimisation shouldFoldRedundantBranch: b0 endInstruction)
+	self assert: (optimisation shouldFoldRedundantBranchIn: b0)
 ]
 
 { #category : #'tests - redundant branches' }

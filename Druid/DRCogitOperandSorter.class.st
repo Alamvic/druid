@@ -75,6 +75,13 @@ DRCogitOperandSorter >> visitCall: aDRCall [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitClosureActivation: aDRClosureActivation [
+	"Nothing"
+
+	
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 
 	anInstruction operand1 isInstruction ifFalse: [ 

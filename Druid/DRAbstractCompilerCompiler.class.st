@@ -178,12 +178,6 @@ DRAbstractCompilerCompiler >> numberOfArgumentsForMethod: method [
 ]
 
 { #category : #accessing }
-DRAbstractCompilerCompiler >> numberOfArgumentsForSelector: aSelector [
-
-	^ self numberOfArgumentsForMethod: self sourceMethod
-]
-
-{ #category : #accessing }
 DRAbstractCompilerCompiler >> optimisations: aCollection [
 
 	optimisations := aCollection

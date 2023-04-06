@@ -9,9 +9,9 @@ Class {
 	#name : #DRJITPrimitiveObject,
 	#superclass : #DRInterpreterPrimitiveObject,
 	#instVars : [
-		'genSelector',
 		'argumentCount',
-		'mayCallback'
+		'mayCallback',
+		'supported'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
@@ -32,14 +32,17 @@ DRJITPrimitiveObject >> argumentCount: anObject [
 DRJITPrimitiveObject >> genSelector [
 	" Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (interpreter) method"
 
-	^ genSelector
-		ifNil: [ genSelector := #gen_ , self sourceSelector capitalized ]
+	supported ifFalse: [ ^ #genNonImplementedPrimitive ].
+
+	^ #gen_ , self sourceSelector
 ]
 
-{ #category : #accessing }
-DRJITPrimitiveObject >> genSelector: anObject [
+{ #category : #initialization }
+DRJITPrimitiveObject >> initialize [
 
-	genSelector := anObject
+	super initialize.
+	supported := true.
+	mayCallback := false
 ]
 
 { #category : #accessing }
@@ -49,7 +52,19 @@ DRJITPrimitiveObject >> mayCallback [
 ]
 
 { #category : #accessing }
-DRJITPrimitiveObject >> mayCallback: anObject [
+DRJITPrimitiveObject >> mayCallback: aBoolean [
 
-	mayCallback := anObject
+	mayCallback := aBoolean
+]
+
+{ #category : #accessing }
+DRJITPrimitiveObject >> supported [
+
+	^ supported
+]
+
+{ #category : #accessing }
+DRJITPrimitiveObject >> supported: aBoolean [
+
+	supported := aBoolean
 ]
