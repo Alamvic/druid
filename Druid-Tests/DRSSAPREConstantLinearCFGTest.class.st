@@ -1,7 +1,7 @@
 Class {
 	#name : #DRSSAPREConstantLinearCFGTest,
 	#superclass : #DRSSAPRETest,
-	#category : #'Druid-Tests-CompilerCompiler'
+	#category : #'Druid-Tests'
 }
 
 { #category : #tests }

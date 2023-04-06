@@ -1,6 +1,6 @@
 Class {
 	#name : #DRPrimitiveSelectionTest,
-	#superclass : #DRAbstractMockTest,
+	#superclass : #DRAbstractCompilerCollectorTest,
 	#instVars : [
 		'primitiveMethods',
 		'interpreterToCompiler'

@@ -11,7 +11,7 @@ Class {
 DRDummyInterpreter >> basicNew [
 	"Answer a new <AbstractInterpreter>"
 
-	^ DREmptyInterpreter basicNew
+	^ CogVMSimulatorLSB basicNew
 ]
 
 { #category : #initialization }
