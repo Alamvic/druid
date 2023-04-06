@@ -124,7 +124,7 @@ DRInterpreterToCompiler >> build [
 
 	self addPrimitives.
 	self addBytecodes.
-	^ self compilationUnit compileAll
+	^ self compilationUnit compileUsing: self
 ]
 
 { #category : #'accessing - model' }
@@ -197,12 +197,6 @@ DRInterpreterToCompiler >> collectPrimitives: aCollection [
 	^ validSelectors
 		  collect: [ :selector | interpreterClass lookupSelector: selector ]
 		  thenSelect: [ :method | self isSelectedPrimitive: method ]
-]
-
-{ #category : #'accessing - compiler' }
-DRInterpreterToCompiler >> compileAll [
-
-	self build compileAll
 ]
 
 { #category : #initialization }
@@ -344,7 +338,6 @@ DRInterpreterToCompiler >> newBytecode: aString [
 		bytecodeNumber: (self bytecodeNumberOf: aString);
 		bytecodeSize: (self bytecodeSizeOf: aString);
 		sourceMethod: (self interpreterClass lookupSelector: aString);
-		cfg: (self newBytecodeCompiler buildIR: aString);
 		yourself.
 	^ bytecodeObject
 	" (self isExtendedBytecode: aString) 
@@ -398,17 +391,17 @@ DRInterpreterToCompiler >> newNonImplementedPrimitive: interpreterPrimitiveMetho
 { #category : #'instance creation' }
 DRInterpreterToCompiler >> newPrimitive: primitiveMethod [
 	" Answer a new primitive object with its metadata and CFG generated "
+
 	| selector primCompiler |
-	
 	primCompiler := self newPrimitiveCompiler.
-  selector := primitiveMethod selector.
+	selector := primitiveMethod selector.
 	^ DRJITPrimitiveObject new
-		primitiveNumber: (self primitiveNumberOf: selector);
-		sourceMethod: primitiveMethod;
-		cfg: (primCompiler buildIR: selector);
-		argumentCount: (primCompiler numberOfArgumentsForMethod: primitiveMethod);
-		mayCallback: (self isMaycallbackPrimitive: primitiveMethod);
-		yourself
+		  primitiveNumber: (self primitiveNumberOf: selector);
+		  sourceMethod: primitiveMethod;
+		  argumentCount:
+			  (primCompiler numberOfArgumentsForMethod: primitiveMethod);
+		  mayCallback: (self isMaycallbackPrimitive: primitiveMethod);
+		  yourself
 ]
 
 { #category : #'accessing - compiler' }

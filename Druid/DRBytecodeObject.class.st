@@ -31,3 +31,13 @@ DRBytecodeObject >> bytecodeSize: anObject [
 
 	bytecodeSize := anObject
 ]
+
+{ #category : #compiling }
+DRBytecodeObject >> compileUsing: aCompiler [
+
+	DRBytecodeCompilerCompiler new
+		sourceName: self sourceSelector;
+		interpreter: aCompiler newInterpreter;
+		compilerClass: aCompiler targetClass;
+		compile
+]
