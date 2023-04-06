@@ -95,7 +95,7 @@ DRInterpreterToCompiler >> addPrimitive: primitiveMethod [
 			failFirst ifTrue: [ ex pass ].
 			self
 				failedPrimitivesAt: ex
-				add: primitiveMethod sourceSelector ]
+				add: primitiveMethod selector ]
 ]
 
 { #category : #adding }
