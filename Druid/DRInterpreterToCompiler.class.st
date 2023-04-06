@@ -26,9 +26,10 @@ Class {
 		'memory',
 		'primitiveSelector',
 		'failFirst',
-		'primitiveCompiler',
 		'bytecodeCompiler',
-		'bytecodeSelector'
+		'bytecodeSelector',
+		'failedPrimitives',
+		'failedBytecodes'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
@@ -68,9 +69,9 @@ DRInterpreterToCompiler >> addBytecode: aString [
 	on: Error
 	do: [ : ex | 
 		failFirst ifTrue: [ ex pass  ].
-		self bytecodeCompiler 
+		self 
 			failedBytecodesAt: ex
-			add: self bytecodeCompiler sourceName ].
+			add: aString ].
 
 ]
 
@@ -95,9 +96,9 @@ DRInterpreterToCompiler >> addPrimitive: primitiveMethod [
 		on: Error
 		do: [ :ex |
 			failFirst ifTrue: [ ex pass ].
-			self primitiveCompiler
+			self
 				failedPrimitivesAt: ex
-				add: self primitiveCompiler sourceName ]
+				add: primitiveMethod selector ]
 ]
 
 { #category : #adding }
@@ -124,9 +125,7 @@ DRInterpreterToCompiler >> addPrimitives [
 DRInterpreterToCompiler >> build [
 	"Answer a <DRCompilationUnit>, useful for model manipulation before code dumping"
 
-	self compilationUnit compiler: self primitiveCompiler.
 	self addPrimitives.
-	self compilationUnit compiler: self bytecodeCompiler.
 	self addBytecodes.
 	^ self compilationUnit compileAll
 ]
@@ -150,22 +149,24 @@ DRInterpreterToCompiler >> buildAndCompileIn: aClass superclass: aSuperclass [
 
 ]
 
-{ #category : #'accessing - compiler' }
-DRInterpreterToCompiler >> bytecodeCompiler [
-
-	^ bytecodeCompiler
-		ifNil: [ 
-			bytecodeCompiler := (DRBytecodeCompilerCompiler forInterpreter: self newInterpreter)
-				compilerClass: self targetClass;
-				yourself ]
-]
-
 { #category : #'accessing - bytecodes' }
 DRInterpreterToCompiler >> bytecodeNumberOf: aSelector [
 	" Answer a <Number> representing the bytecode number of aSelector "
 
 	^  self interpreterBytecodeTable indexOf: aSelector.
 
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> bytecodeSizeOf: aSelector [
+	" Answer a <Number> representing the bytecode size matching method aSelector in the receiver's bytecode table "
+
+	self interpreterClass bytecodeTableArray 
+		detect: [ : bytecodeSizeGroup |
+			bytecodeSizeGroup second 
+				detect: [ : bytecodeSpec | (bytecodeSpec includes: aSelector) ]
+				ifFound: [ ^ bytecodeSizeGroup first ]
+				ifNone: [ false ] ]
 ]
 
 { #category : #'accessing - bytecodes' }
@@ -211,10 +212,48 @@ DRInterpreterToCompiler >> doFailOnFirst [
 	failFirst := true
 ]
 
-{ #category : #'accessing - primitives' }
+{ #category : #adding }
+DRInterpreterToCompiler >> failedBytecodes [
+
+	^ failedBytecodes
+		ifNil: [
+			failedBytecodes :=
+				PluggableDictionary new
+					equalBlock: [ :a :b | a class == b class ];
+					hashBlock: [ :a | a class identityHash ];
+					yourself 	]
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> failedBytecodesAt: anException add: aString [
+
+	self failedBytecodes
+		at: anException
+		ifPresent: [ : fbs | fbs add: aString ]
+		ifAbsent: [ self failedBytecodes 
+			at: anException 
+			put: (OrderedCollection with: aString) ]
+]
+
+{ #category : #adding }
 DRInterpreterToCompiler >> failedPrimitives [
 
-	^ self primitiveCompiler failedPrimitives
+	^ failedPrimitives
+		ifNil: [
+			failedPrimitives :=
+				PluggableDictionary new
+					equalBlock: [ :a :b | a class == b class ];
+					hashBlock: [ :a | a class identityHash ];
+					yourself 	]
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> failedPrimitivesAt: anException add: aString [
+
+	self failedPrimitives
+		at: anException
+		ifPresent: [ : fps | fps add: aString ]
+		ifAbsent: [ self failedPrimitives at: anException put: (OrderedCollection with: aString)  ]
 ]
 
 { #category : #'accessing - object memory' }
@@ -254,7 +293,6 @@ DRInterpreterToCompiler >> interpreterClass: anObject [
 	interpreterClass := anObject.
 	anObject initializePrimitiveTable.
 	anObject initializeBytecodeTable.
-	primitiveCompiler := nil.
 	compilationUnit := nil.
 
 ]
@@ -305,12 +343,21 @@ DRInterpreterToCompiler >> newBytecode: aString [
 	
 	bytecodeObject := DRBytecodeObject new
 		bytecodeNumber: (self bytecodeNumberOf: aString);
+		bytecodeSize: (self bytecodeSizeOf: aString);
 		sourceMethod: (self interpreterClass lookupSelector: aString);
-		cfg: (self bytecodeCompiler buildIR: aString);
+		cfg: (self newBytecodeCompiler buildIR: aString);
 		yourself.
 	^ bytecodeObject
 	" (self isExtendedBytecode: aString) 
 		ifTrue: [ bytecodeObject beExtended ]." 
+]
+
+{ #category : #'accessing - compiler' }
+DRInterpreterToCompiler >> newBytecodeCompiler [
+
+	^ (DRBytecodeCompilerCompiler forInterpreter: self newInterpreter)
+		compilerClass: self targetClass;
+		yourself
 ]
 
 { #category : #'instance creation' }
@@ -334,29 +381,26 @@ DRInterpreterToCompiler >> newMemory [
 { #category : #'instance creation' }
 DRInterpreterToCompiler >> newPrimitive: primitiveMethod [
 	" Answer a new primitive object with its metadata and CFG generated "
-
-
-	| selector |
-	selector := primitiveMethod selector.
-
+	| selector primCompiler |
+	
+	primCompiler := self newPrimitiveCompiler.
+  selector := primitiveMethod selector.
 	^ DRJITPrimitiveObject new
 		primitiveNumber: (self primitiveNumberOf: selector);
 		sourceMethod: primitiveMethod;
-		cfg: (self primitiveCompiler buildIR: selector);
-		argumentCount: (self primitiveCompiler numberOfArgumentsForMethod: primitiveMethod);
+		cfg: (primCompiler buildIR: selector);
+		argumentCount: (primCompiler numberOfArgumentsForMethod: primitiveMethod);
 		mayCallback: (self isMaycallbackPrimitive: primitiveMethod);
 		yourself
 ]
 
 { #category : #'accessing - compiler' }
-DRInterpreterToCompiler >> primitiveCompiler [
+DRInterpreterToCompiler >> newPrimitiveCompiler [
 	"Answer a Druid compiler configured for the receiver's interpreter builder"
 
-	^ primitiveCompiler
-		ifNil: [ 
-			primitiveCompiler := (DRPrimitiveCompilerCompiler forInterpreter: self newInterpreter)
-				compilerClass: self targetClass;
-				yourself ]
+	^ (DRPrimitiveCompilerCompiler forInterpreter: self newInterpreter)
+			compilerClass: self targetClass;
+			yourself
 ]
 
 { #category : #adding }
