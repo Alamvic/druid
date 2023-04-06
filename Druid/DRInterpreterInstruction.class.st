@@ -7,6 +7,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'sourceMethod',
+		'genSelector',
 		'cfg'
 	],
 	#category : #'Druid-CompilerBuilder'
@@ -22,6 +23,14 @@ DRInterpreterInstruction >> cfg [
 DRInterpreterInstruction >> cfg: aDRPrimitiveControlFlowGraph [ 
 
 	cfg := aDRPrimitiveControlFlowGraph
+]
+
+{ #category : #accessing }
+DRInterpreterInstruction >> genSelector [
+	" Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (interpreter) method"
+
+	^ genSelector
+		ifNil: [ genSelector := #gen_ , self sourceSelector capitalized ]
 ]
 
 { #category : #testing }

@@ -59,11 +59,8 @@ DRInterpreterToCompiler >> addBytecodes [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
 	^ (self collectBytecodes: self interpreterBytecodeTable)
-		do: [ : prim | self addBytecode: prim ]
-		displayingProgress: [ : prim | 'Adding bytecode: ' , prim asString ]
-
-		
-
+		  do: [ :prim | self addBytecode: prim ]
+		  displayingProgress: [ :prim | 'Adding bytecode: ' , prim asString ]
 ]
 
 { #category : #adding }
@@ -126,11 +123,9 @@ DRInterpreterToCompiler >> buildAndCompileIn: aClass superclass: aSuperclass [
 { #category : #'accessing - compiler' }
 DRInterpreterToCompiler >> bytecodeCompiler [
 
-	^ bytecodeCompiler
-		ifNil: [ 
-			bytecodeCompiler := (DRBytecodeCompilerCompiler forInterpreter: self newInterpreter)
-				compilerClass: self targetClass;
-				yourself ]
+	^ (DRBytecodeCompilerCompiler forInterpreter: self newInterpreter)
+		  compilerClass: self targetClass;
+		  yourself
 ]
 
 { #category : #'accessing - bytecodes' }
@@ -153,7 +148,9 @@ DRInterpreterToCompiler >> collectBytecodes: aCollection [
 
 	^ aCollection
 		  reject: [ :obj |
-				  obj isNil or: [ (self isSelectedBytecode: (interpreterClass lookupSelector: obj)) not ] ]
+			  obj isNil or: [
+				  (self isSelectedBytecode: (interpreterClass lookupSelector: obj))
+					  not ] ]
 		  thenCollect: [ :symOrCompiledMethod |
 			  symOrCompiledMethod isCompiledMethod
 				  ifTrue: [ symOrCompiledMethod selector ]
@@ -271,15 +268,17 @@ DRInterpreterToCompiler >> newBytecode: aString [
 	" Answer a new bytecode object with its metadata and CFG generated "
 
 	| bytecodeObject |
-	
 	bytecodeObject := DRBytecodeObject new
-		bytecodeNumber: (self bytecodeNumberOf: aString);
-		sourceMethod: (self interpreterClass lookupSelector: aString);
-		cfg: (self bytecodeCompiler buildIR: aString);
-		yourself.
+		                  bytecodeNumber: (self bytecodeNumberOf: aString);
+		                  sourceMethod:
+			                  (self interpreterClass lookupSelector: aString);
+		                  cfg: (self bytecodeCompiler
+				                   sourceName: aString;
+				                   compile);
+		                  yourself.
 	^ bytecodeObject
 	" (self isExtendedBytecode: aString) 
-		ifTrue: [ bytecodeObject beExtended ]." 
+		ifTrue: [ bytecodeObject beExtended ]."
 ]
 
 { #category : #'instance creation' }
@@ -317,11 +316,9 @@ DRInterpreterToCompiler >> newPrimitive: aString [
 DRInterpreterToCompiler >> primitiveCompiler [
 	"Answer a Druid compiler configured for the receiver's interpreter builder"
 
-	^ primitiveCompiler
-		ifNil: [ 
-			primitiveCompiler := (DRPrimitiveCompilerCompiler forInterpreter: self newInterpreter)
+	^ (DRPrimitiveCompilerCompiler forInterpreter: self newInterpreter)
 				compilerClass: self targetClass;
-				yourself ]
+				yourself
 ]
 
 { #category : #adding }

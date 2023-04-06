@@ -18,6 +18,23 @@ Class {
 	#category : #'Druid-CompilerBuilder'
 }
 
+{ #category : #adding }
+DRInterpreterCompilationUnit >> addBytecodeEntries [
+
+	self compiler interpreter: self interpreter.
+	self bytecodes do: [ :bytecodeObject |
+		self addBytecodeEntry: bytecodeObject ].
+]
+
+{ #category : #adding }
+DRInterpreterCompilationUnit >> addBytecodeEntry: aDRBytecodeObject [
+	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
+
+	self bytecodeTable add: {
+			aDRBytecodeObject bytecodeNumber.
+			aDRBytecodeObject genSelector }
+]
+
 { #category : #'accessing - primitives' }
 DRInterpreterCompilationUnit >> addPrimitiveEntries [
 	"As part of the build unit, add the receiver's primitives from its <Collection> of <DRPrimitiveObject>"
@@ -81,10 +98,13 @@ DRInterpreterCompilationUnit >> compileAll [
 	"Install methods in the receiver's JIT compiler class"
 
 	| realTargetClass |
-
-	realTargetClass := self compilerBuilder environmentAt: self targetClass.
+	1halt.
+	realTargetClass := self compilerBuilder environmentAt:
+		                   self targetClass.
 	self addPrimitiveEntries.
-	self dispatchTableGenerator installAllMethodsOn:realTargetClass class
+	self addBytecodeEntries.
+	self dispatchTableGenerator installAllMethodsOn:
+		realTargetClass class
 ]
 
 { #category : #'accessing - compiler' }

@@ -9,7 +9,6 @@ Class {
 	#name : #DRJITPrimitiveObject,
 	#superclass : #DRInterpreterPrimitiveObject,
 	#instVars : [
-		'genSelector',
 		'argumentCount',
 		'mayCallback'
 	],
@@ -26,14 +25,6 @@ DRJITPrimitiveObject >> argumentCount [
 DRJITPrimitiveObject >> argumentCount: anObject [
 
 	argumentCount := anObject
-]
-
-{ #category : #accessing }
-DRJITPrimitiveObject >> genSelector [
-	" Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (interpreter) method"
-
-	^ genSelector
-		ifNil: [ genSelector := #gen_ , self sourceSelector capitalized ]
 ]
 
 { #category : #accessing }
