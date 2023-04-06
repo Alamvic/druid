@@ -21,7 +21,6 @@ Class {
 { #category : #adding }
 DRInterpreterCompilationUnit >> addBytecodeEntries [
 
-	self compiler interpreter: self interpreter.
 	self bytecodes do: [ :bytecodeObject |
 		self addBytecodeEntry: bytecodeObject ].
 ]
@@ -103,7 +102,6 @@ DRInterpreterCompilationUnit >> compileAll [
 	"Install methods in the receiver's JIT compiler class"
 
 	| realTargetClass |
-	1halt.
 	realTargetClass := self compilerBuilder environmentAt:
 		                   self targetClass.
 	self addPrimitiveEntries.

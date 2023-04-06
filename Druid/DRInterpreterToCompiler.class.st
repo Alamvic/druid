@@ -95,7 +95,7 @@ DRInterpreterToCompiler >> addPrimitive: primitiveMethod [
 			failFirst ifTrue: [ ex pass ].
 			self
 				failedPrimitivesAt: ex
-				add: primitiveMethod selector ]
+				add: primitiveMethod sourceSelector ]
 ]
 
 { #category : #adding }
@@ -109,12 +109,12 @@ DRInterpreterToCompiler >> addPrimitives [
 	self flag: #TOFIX.
 	self interpreterPrimitiveTable
 		do: [ :selector |
-			(selector isNumber or: [ self interpreterPrimitiveTable includes: selector ])
+			(selector isNumber or: [ self primitives anySatisfy: [ :e | e sourceSelector = selector ] ])
 				ifFalse: [
 					| method |
 					method := self interpreterClass lookupSelector: selector.
 					(self isMaycallbackPrimitive: method) ifTrue: [
-						self addPrimitive: (self newNonImplementedPrimitive: method) ] ] ]
+						self primitives add: (self newNonImplementedPrimitive: method) ] ] ]
 		displayingProgress: [ :selector | 'Adding mandatory non implemented primitive: ' , selector asString ]
 ]
 
@@ -339,17 +339,16 @@ DRInterpreterToCompiler >> newBytecode: aString [
 	" Answer a new bytecode object with its metadata and CFG generated "
 
 	| bytecodeObject |
+	
 	bytecodeObject := DRBytecodeObject new
-		                  bytecodeNumber: (self bytecodeNumberOf: aString);
-		                  sourceMethod:
-			                  (self interpreterClass lookupSelector: aString);
-		                  cfg: (self bytecodeCompiler
-				                   sourceName: aString;
-				                   compile);
-		                  yourself.
+		bytecodeNumber: (self bytecodeNumberOf: aString);
+		bytecodeSize: (self bytecodeSizeOf: aString);
+		sourceMethod: (self interpreterClass lookupSelector: aString);
+		cfg: (self newBytecodeCompiler buildIR: aString);
+		yourself.
 	^ bytecodeObject
 	" (self isExtendedBytecode: aString) 
-		ifTrue: [ bytecodeObject beExtended ]."
+		ifTrue: [ bytecodeObject beExtended ]." 
 ]
 
 { #category : #'accessing - compiler' }
@@ -376,6 +375,24 @@ DRInterpreterToCompiler >> newMemory [
 	" Answer a memory manager instance. Currently a subclass of <SpurMemoryManager> "
 
 	^ Spur64BitCoMemoryManager simulatorClass new
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> newNonImplementedPrimitive: interpreterPrimitiveMethod [
+
+	| selector |
+	selector := interpreterPrimitiveMethod selector.
+
+	self flag: #TODO. "Duplicated code with newPrimitive:"
+
+	^ DRJITPrimitiveObject new
+		  primitiveNumber: (self primitiveNumberOf: selector);
+		  sourceMethod: interpreterPrimitiveMethod;
+		  argumentCount: -1;
+		  mayCallback:
+			  (self isMaycallbackPrimitive: interpreterPrimitiveMethod);
+		  supported: false;
+		  yourself
 ]
 
 { #category : #'instance creation' }

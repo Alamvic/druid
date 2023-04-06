@@ -10,7 +10,8 @@ Class {
 	#superclass : #DRInterpreterPrimitiveObject,
 	#instVars : [
 		'argumentCount',
-		'mayCallback'
+		'mayCallback',
+		'supported'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
@@ -25,6 +26,15 @@ DRJITPrimitiveObject >> argumentCount [
 DRJITPrimitiveObject >> argumentCount: anObject [
 
 	argumentCount := anObject
+]
+
+{ #category : #accessing }
+DRJITPrimitiveObject >> genSelector [
+	" Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (interpreter) method"
+
+	supported ifFalse: [ ^ #genNonImplementedPrimitive ].
+
+	^ #gen_ , self sourceSelector
 ]
 
 { #category : #initialization }
