@@ -23,9 +23,9 @@ DRInterpreterPrimitiveObject >> primitiveNumber: anInteger [
 DRInterpreterPrimitiveObject >> printOn: aStream [
 
 	aStream
-		<< $(
+		<< 'Primitivee: ';
+		<< $#;
 		<< self primitiveNumber asString;
-		<< $);
 		space;
 		<< self sourceSelector
 ]

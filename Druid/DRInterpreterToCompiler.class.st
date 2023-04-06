@@ -63,27 +63,16 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 ]
 
 { #category : #'accessing - bytecodes' }
-DRInterpreterToCompiler >> addBytecode: aString [
-
-	[ self bytecodes add: (self newBytecode: aString) ]
-	on: Error
-	do: [ : ex | 
-		failFirst ifTrue: [ ex pass  ].
-		self 
-			failedBytecodesAt: ex
-			add: aString ].
-
-]
-
-{ #category : #'accessing - bytecodes' }
-DRInterpreterToCompiler >> addBytecodes [
+DRInterpreterToCompiler >> addBytecodes: aSpecArray [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
-	^ (self collectBytecodes: self interpreterBytecodeTable)
-		do: [ : prim | self addBytecode: prim ]
-		displayingProgress: [ : prim | 'Adding bytecode: ' , prim asString ]
-
-		
+	| bytecodeSize |
+	^ aSpecArray
+		do: [ : bytecodePerSize | 
+			bytecodeSize := bytecodePerSize first.
+			self bytecodes addAll: (bytecodePerSize second collect:  [ : bytecodeSpec |
+				self bytecodesFromSpec: bytecodeSpec size: bytecodeSize ]) ]
+		displayingProgress: 'Adding bytecodes'
 
 ]
 
@@ -125,8 +114,9 @@ DRInterpreterToCompiler >> addPrimitives [
 DRInterpreterToCompiler >> build [
 	"Answer a <DRCompilationUnit>, useful for model manipulation before code dumping"
 
+
 	self addPrimitives.
-	self addBytecodes.
+	self addBytecodes: self interpreterClass bytecodeTableArray.
 	^ self compilationUnit compileAll
 ]
 
@@ -157,22 +147,23 @@ DRInterpreterToCompiler >> bytecodeNumberOf: aSelector [
 
 ]
 
-{ #category : #adding }
-DRInterpreterToCompiler >> bytecodeSizeOf: aSelector [
-	" Answer a <Number> representing the bytecode size matching method aSelector in the receiver's bytecode table "
-
-	self interpreterClass bytecodeTableArray 
-		detect: [ : bytecodeSizeGroup |
-			bytecodeSizeGroup second 
-				detect: [ : bytecodeSpec | (bytecodeSpec includes: aSelector) ]
-				ifFound: [ ^ bytecodeSizeGroup first ]
-				ifNone: [ false ] ]
-]
-
 { #category : #'accessing - bytecodes' }
 DRInterpreterToCompiler >> bytecodes [
 
 	^ self compilationUnit bytecodes
+]
+
+{ #category : #'accessing - bytecodes' }
+DRInterpreterToCompiler >> bytecodesFromSpec: aCollection size: size [ 
+
+	| start end  |
+	
+	start := aCollection first.
+	end := aCollection second isNumber
+		ifTrue: [ aCollection second ]
+		ifFalse: [ aCollection first ].
+	^ (start to: end) collect: [ : index | 
+		self newBytecode: aCollection third index: index size: size  ]
 ]
 
 { #category : #adding }
@@ -335,15 +326,16 @@ DRInterpreterToCompiler >> isValidPrimitiveName: aString [
 	^ aString isNumber not
 ]
 
-{ #category : #adding }
-DRInterpreterToCompiler >> newBytecode: aString [
+{ #category : #'instance creation' }
+DRInterpreterToCompiler >> newBytecode: aString index: anInteger size: size [
 	" Answer a new bytecode object with its metadata and CFG generated "
 
 	| bytecodeObject |
-	
+
+	self flag: #TO_REVIEW. " Remove the CFG call from here"	
 	bytecodeObject := DRBytecodeObject new
-		bytecodeNumber: (self bytecodeNumberOf: aString);
-		bytecodeSize: (self bytecodeSizeOf: aString);
+		bytecodeNumber: anInteger;
+		bytecodeSize: size;
 		sourceMethod: (self interpreterClass lookupSelector: aString);
 		cfg: (self newBytecodeCompiler buildIR: aString);
 		yourself.

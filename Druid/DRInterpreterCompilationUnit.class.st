@@ -19,6 +19,44 @@ Class {
 }
 
 { #category : #'accessing - primitives' }
+DRInterpreterCompilationUnit >> addBytecodeEntries [
+	"As part of the build process, add the receiver's bytecodes from its <Collection> of <DRBytecodeObject>"
+
+	self bytecodes 
+		ifEmpty: [ self addUnknownBytecodeEntries ]
+		ifNotEmpty: [ : bcs | 
+			bcs doWithIndex: [ : bytecodeObject : index |
+				self addBytecodeEntry: bytecodeObject index: index ] ]
+]
+
+{ #category : #'accessing - primitives' }
+DRInterpreterCompilationUnit >> addBytecodeEntry: aDRBytecodeObject index: aNumber [
+	" Add a bytecode entry compatible with the expected format from #initializeBytecodeTable implementation "
+
+	| tableEntry |
+	tableEntry := {
+		aDRBytecodeObject bytecodeSize .
+		aDRBytecodeObject startOffset .
+		aDRBytecodeObject endOffset .
+		aDRBytecodeObject genSelector: aNumber }.
+
+	tableEntry := Array streamContents: [ : stream  |
+		stream 
+			<<  tableEntry;
+			<< (aDRBytecodeObject matchEntrySpec: #hasInstVarRef write: #isInstVarRef);
+			<< (aDRBytecodeObject matchEntrySpec: #hasReturn write: #return );
+			<< (aDRBytecodeObject matchEntrySpec: #isMapped write: #isInstVarRef );
+			<< (aDRBytecodeObject matchEntrySpec: #hasBranches write: #branch );
+			<< (aDRBytecodeObject matchEntrySpec: #hasInstVarRef write: #isInstVarRef );			
+			<< (aDRBytecodeObject matchEntrySpec: #hasExtension write: #extension );
+			<< (aDRBytecodeObject matchEntrySpec: #hasMapping write: #isMapped );
+			<< (aDRBytecodeObject matchEntrySpec: #hasMappingImmutability write: #isMappedIfImmutability );
+			<< (aDRBytecodeObject matchEntrySpec: #hasFrameNever write: #needsFrameNever: ) ].
+
+	self bytecodeTable add: tableEntry.
+]
+
+{ #category : #'accessing - primitives' }
 DRInterpreterCompilationUnit >> addPrimitiveEntries [
 	"As part of the build unit, add the receiver's primitives from its <Collection> of <DRPrimitiveObject>"
 
@@ -49,8 +87,29 @@ DRInterpreterCompilationUnit >> addSpecialPrimitives [
 	"Private - Do nothing for now"
 ]
 
+{ #category : #adding }
+DRInterpreterCompilationUnit >> addUnknownBytecodeEntries [
+
+	self addUnknownBytecodeEntryFrom: 0 to: 223 size: 1.
+	self addUnknownBytecodeEntryFrom: 224 to: 247 size: 2.
+	self addUnknownBytecodeEntryFrom: 248 to: 255 size: 3.
+
+]
+
+{ #category : #adding }
+DRInterpreterCompilationUnit >> addUnknownBytecodeEntryFrom: startOffset to: endOffset size: size [ 
+
+	self bytecodeTable add: (DRBytecodeObject new
+		bytecodeSize: size;
+		startOffset: startOffset;
+		endOffset: endOffset;
+		sourceMethod: (self compilerBuilder interpreterClass lookupSelector: #unknownBytecode);
+		yourself)
+]
+
 { #category : #accessing }
 DRInterpreterCompilationUnit >> bytecodeTable [
+	" Answer a <Collection> with the specification of the bytecodes in the receiver's interpreter "
 
 	^ bytecodeTable
 
@@ -89,6 +148,7 @@ DRInterpreterCompilationUnit >> compileAll [
 
 	realTargetClass := self compilerBuilder environmentAt: self targetClass.
 	self addPrimitiveEntries.
+	self addBytecodeEntries.
 	self dispatchTableGenerator installAllMethodsOn:realTargetClass class
 ]
 
