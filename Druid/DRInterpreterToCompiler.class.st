@@ -26,7 +26,6 @@ Class {
 		'memory',
 		'primitiveSelector',
 		'failFirst',
-		'primitiveCompiler',
 		'bytecodeCompiler',
 		'bytecodeSelector',
 		'failedPrimitives',
@@ -97,9 +96,9 @@ DRInterpreterToCompiler >> addPrimitive: primitiveMethod [
 		on: Error
 		do: [ :ex |
 			failFirst ifTrue: [ ex pass ].
-			self primitiveCompiler
+			self
 				failedPrimitivesAt: ex
-				add: self primitiveCompiler sourceName ]
+				add: primitiveMethod selector ]
 ]
 
 { #category : #adding }
@@ -294,7 +293,6 @@ DRInterpreterToCompiler >> interpreterClass: anObject [
 	interpreterClass := anObject.
 	anObject initializePrimitiveTable.
 	anObject initializeBytecodeTable.
-	primitiveCompiler := nil.
 	compilationUnit := nil.
 
 ]
