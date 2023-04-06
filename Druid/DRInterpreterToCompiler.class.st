@@ -335,13 +335,6 @@ DRInterpreterToCompiler >> newMemory [
 DRInterpreterToCompiler >> newPrimitive: primitiveMethod [
 	" Answer a new primitive object with its metadata and CFG generated "
 
-	"
-	primitiveMethod := interpreter class lookupSelector: primitiveSelector.
-
-	(primitiveMethod hasPragmaNamed: #numberOfArguments:) ifFalse: [
-		self error: 'Primitive number of arguments is missing in ' , primitiveSelector ].
-
-	"
 
 	| selector |
 	selector := primitiveMethod selector.
