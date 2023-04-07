@@ -108,6 +108,7 @@ DRBytecodeObject >> startOffset [
 DRBytecodeObject >> startOffset: anObject [
 
 	startOffset := anObject
+]
 
 { #category : #compiling }
 DRBytecodeObject >> compileUsing: aCompiler [
