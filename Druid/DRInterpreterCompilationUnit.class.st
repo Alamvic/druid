@@ -25,37 +25,16 @@ DRInterpreterCompilationUnit >> addBytecodeEntries [
 		self addBytecodeEntry: bytecodeObject ].
 ]
 
-{ #category : #adding }
+{ #category : #'accessing - primitives' }
 DRInterpreterCompilationUnit >> addBytecodeEntry: aDRBytecodeObject [
-	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
-
-	self bytecodeTable add: {
-			aDRBytecodeObject bytecodeNumber.
-			aDRBytecodeObject genSelector }
-]
-
-{ #category : #'accessing - primitives' }
-DRInterpreterCompilationUnit >> addBytecodeEntries [
-	"As part of the build process, add the receiver's bytecodes from its <Collection> of <DRBytecodeObject>"
-
-	self bytecodes 
-		ifEmpty: [ self addUnknownBytecodeEntries ]
-		ifNotEmpty: [ : bcs | 
-			bcs do: [ : bytecodeSubset |
-				bytecodeSubset doWithIndex: [ : bytecodeObject : index | 
-					self addBytecodeEntry: bytecodeObject index: index ] ] ]
-]
-
-{ #category : #'accessing - primitives' }
-DRInterpreterCompilationUnit >> addBytecodeEntry: aDRBytecodeObject index: aNumber [
 	" Add a bytecode entry compatible with the expected format from #initializeBytecodeTable implementation "
 
 	| tableEntryArray  |
 	tableEntryArray := { 
 		 aDRBytecodeObject bytecodeSize .
-		aDRBytecodeObject startOffset .
-		aDRBytecodeObject endOffset .
-		(aDRBytecodeObject genSelector: aNumber) }.
+		aDRBytecodeObject bytecodeNumber .
+		aDRBytecodeObject bytecodeNumber .
+		aDRBytecodeObject genSelector }.
 
 	self bytecodeTable add: (tableEntryArray reject: #isNil).
 ]

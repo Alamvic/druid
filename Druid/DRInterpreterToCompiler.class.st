@@ -61,25 +61,24 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 ]
 
 { #category : #'accessing - bytecodes' }
-DRInterpreterToCompiler >> addBytecodes: aSpecArray [
-	"Iterate over the receiver's interpreter (assumed to contain bytecodes methods) and add them to compilationUnit"
-
-	^ (self collectBytecodes: aSpecArray)
-		do: [ : bytecodePerSize | 
-			| bytecodeSize |
-			bytecodeSize := bytecodePerSize first.
-			self bytecodes addAll: (bytecodePerSize second collect:  [ : bytecodeSpec |
-				self bytecodesFromSpec: bytecodeSpec size: bytecodeSize ]) ]
-		displayingProgress: 'Adding bytecodes'
-]
-
-{ #category : #'accessing - bytecodes' }
 DRInterpreterToCompiler >> addBytecodes [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
 	^ (self collectBytecodes: self interpreterBytecodeTable)
 		  do: [ :prim | self addBytecode: prim ]
 		  displayingProgress: [ :prim | 'Adding bytecode: ' , prim asString ]
+]
+
+{ #category : #'accessing - bytecodes' }
+DRInterpreterToCompiler >> addBytecodes: aSpecArray [
+	"Iterate over the receiver's interpreter (assumed to contain bytecodes methods) and add them to compilationUnit"
+
+	self bytecodes:
+		((self collectBytecodes: aSpecArray) flatCollect: [ :bytecodePerSize |
+			 | bytecodeSize |
+			 bytecodeSize := bytecodePerSize first.
+			 bytecodePerSize second flatCollect: [ :bytecodeSpec |
+				 self bytecodesFromSpec: bytecodeSpec size: bytecodeSize ] ])
 ]
 
 { #category : #adding }
@@ -162,6 +161,12 @@ DRInterpreterToCompiler >> bytecodeTable [
 DRInterpreterToCompiler >> bytecodes [
 
 	^ self compilationUnit bytecodes
+]
+
+{ #category : #accessing }
+DRInterpreterToCompiler >> bytecodes: aCollection [ 
+
+	self compilationUnit bytecodes: aCollection 
 ]
 
 { #category : #'accessing - bytecodes' }
