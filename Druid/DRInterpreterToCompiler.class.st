@@ -71,6 +71,7 @@ DRInterpreterToCompiler >> addBytecodes: aSpecArray [
 			self bytecodes addAll: (bytecodePerSize second collect:  [ : bytecodeSpec |
 				self bytecodesFromSpec: bytecodeSpec size: bytecodeSize ]) ]
 		displayingProgress: 'Adding bytecodes'
+]
 
 { #category : #'accessing - bytecodes' }
 DRInterpreterToCompiler >> addBytecodes [
@@ -140,7 +141,6 @@ DRInterpreterToCompiler >> buildAndCompileIn: aClass superclass: aSuperclass [
 		targetSuperclass: aSuperclass;
 		targetClass: (self environmentAt: aClass).
 	self build
-
 ]
 
 { #category : #'accessing - bytecodes' }
