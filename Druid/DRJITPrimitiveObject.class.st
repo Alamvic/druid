@@ -28,13 +28,26 @@ DRJITPrimitiveObject >> argumentCount: anObject [
 	argumentCount := anObject
 ]
 
+{ #category : #compiling }
+DRJITPrimitiveObject >> compileUsing: aCompiler [
+	
+	self supported ifFalse: [ ^ self ].
+	
+	DRPrimitiveCompilerCompiler new
+		primitiveName: self sourceSelector;
+		interpreter: aCompiler newInterpreter;
+		primitiveCompilerName: self genSelector;
+		compilerClass: aCompiler targetClass;
+		compile
+]
+
 { #category : #accessing }
 DRJITPrimitiveObject >> genSelector [
 	" Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (interpreter) method"
 
 	supported ifFalse: [ ^ #genNonImplementedPrimitive ].
 
-	^ #gen_ , self sourceSelector
+	^ super genSelector
 ]
 
 { #category : #initialization }

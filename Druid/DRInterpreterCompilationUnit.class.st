@@ -18,6 +18,22 @@ Class {
 	#category : #'Druid-CompilerBuilder'
 }
 
+{ #category : #adding }
+DRInterpreterCompilationUnit >> addBytecodeEntries [
+
+	self bytecodes do: [ :bytecodeObject |
+		self addBytecodeEntry: bytecodeObject ].
+]
+
+{ #category : #adding }
+DRInterpreterCompilationUnit >> addBytecodeEntry: aDRBytecodeObject [
+	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
+
+	self bytecodeTable add: {
+			aDRBytecodeObject bytecodeNumber.
+			aDRBytecodeObject genSelector }
+]
+
 { #category : #'accessing - primitives' }
 DRInterpreterCompilationUnit >> addBytecodeEntries [
 	"As part of the build process, add the receiver's bytecodes from its <Collection> of <DRBytecodeObject>"
@@ -151,6 +167,24 @@ DRInterpreterCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
 		sourceName: aDRPrimitiveObject sourceSelector;
 		primitiveCompilerName: aDRPrimitiveObject genSelector)
 			compile
+]
+
+{ #category : #'accessing - compiler' }
+DRInterpreterCompilationUnit >> compileUsing: aCompiler [
+	"Install methods in the receiver's JIT compiler class"
+
+	| realTargetClass |
+	realTargetClass := aCompiler environmentAt: self targetClass.
+	self addPrimitiveEntries.
+	self addBytecodeEntries.
+
+	self primitives do: [ :e |
+		aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ].
+	self bytecodes do: [ :e |
+		aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ].
+
+	self dispatchTableGenerator installAllMethodsOn:
+		realTargetClass class
 ]
 
 { #category : #private }

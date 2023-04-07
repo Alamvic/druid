@@ -6,22 +6,22 @@ Class {
 	#name : #DRInterpreterInstruction,
 	#superclass : #Object,
 	#instVars : [
-		'sourceMethod',
-		'cfg'
+		'sourceMethod'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
 
-{ #category : #accessing }
-DRInterpreterInstruction >> cfg [
-
-	^ cfg
+{ #category : #compiling }
+DRInterpreterInstruction >> compileUsing: aCompiler [
+	
+	self subclassResponsibility
 ]
 
 { #category : #accessing }
-DRInterpreterInstruction >> cfg: aDRPrimitiveControlFlowGraph [ 
+DRInterpreterInstruction >> genSelector [
+	" Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (compiler) method"
 
-	cfg := aDRPrimitiveControlFlowGraph
+	^ #gen_ , self sourceSelector
 ]
 
 { #category : #testing }

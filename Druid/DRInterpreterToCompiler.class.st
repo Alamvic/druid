@@ -17,7 +17,6 @@ Smalltalk tools browser openOn: #MyCoolJITCompilerClass.
 ```
 
 
-
 "
 Class {
 	#name : #DRInterpreterToCompiler,
@@ -28,8 +27,7 @@ Class {
 		'failFirst',
 		'bytecodeCompiler',
 		'bytecodeSelector',
-		'failedPrimitives',
-		'failedBytecodes'
+		'errors'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
@@ -74,6 +72,13 @@ DRInterpreterToCompiler >> addBytecodes: aSpecArray [
 				self bytecodesFromSpec: bytecodeSpec size: bytecodeSize ]) ]
 		displayingProgress: 'Adding bytecodes'
 
+{ #category : #'accessing - bytecodes' }
+DRInterpreterToCompiler >> addBytecodes [
+	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
+
+	^ (self collectBytecodes: self interpreterBytecodeTable)
+		  do: [ :prim | self addBytecode: prim ]
+		  displayingProgress: [ :prim | 'Adding bytecode: ' , prim asString ]
 ]
 
 { #category : #adding }
@@ -96,17 +101,17 @@ DRInterpreterToCompiler >> addPrimitives [
 
 	(self collectPrimitives: self interpreterPrimitiveTable)
 		do: [ :prim | self addPrimitive: prim ]
-		displayingProgress: [ :prim | 'Adding primitive: ' , prim asString ].
+		displayingProgress: [ :prim | 'Adding primitive: ' , prim selector ].
 
 	self flag: #TOFIX.
 	self interpreterPrimitiveTable
 		do: [ :selector |
-			(selector isNumber or: [ self interpreterPrimitiveTable includes: selector ])
+			(selector isNumber or: [ self primitives anySatisfy: [ :e | e sourceSelector = selector ] ])
 				ifFalse: [
 					| method |
 					method := self interpreterClass lookupSelector: selector.
 					(self isMaycallbackPrimitive: method) ifTrue: [
-						self addPrimitive: (self newNonImplementedPrimitive: method) ] ] ]
+						self primitives add: (self newNonImplementedPrimitive: method) ] ] ]
 		displayingProgress: [ :selector | 'Adding mandatory non implemented primitive: ' , selector asString ]
 ]
 
@@ -114,10 +119,9 @@ DRInterpreterToCompiler >> addPrimitives [
 DRInterpreterToCompiler >> build [
 	"Answer a <DRCompilationUnit>, useful for model manipulation before code dumping"
 
-
 	self addPrimitives.
 	self addBytecodes: self interpreterClass bytecodeTableArray.
-	^ self compilationUnit compileAll
+	^ self compilationUnit compileUsing: self
 ]
 
 { #category : #'accessing - model' }
@@ -190,7 +194,6 @@ DRInterpreterToCompiler >> collectBytecodes: aCollection [
 						| bytecodeSpecArraySelector |
 						bytecodeSpecArraySelector := specArray detect: [ : obj | obj isNumber not ].
 						(self isSelectedBytecode: (interpreterClass lookupSelector: bytecodeSpecArraySelector)) ]) ]
-
 ]
 
 { #category : #adding }
@@ -205,12 +208,6 @@ DRInterpreterToCompiler >> collectPrimitives: aCollection [
 		  thenSelect: [ :method | self isSelectedPrimitive: method ]
 ]
 
-{ #category : #'accessing - compiler' }
-DRInterpreterToCompiler >> compileAll [
-
-	self build compileAll
-]
-
 { #category : #initialization }
 DRInterpreterToCompiler >> doFailOnFirst [
 
@@ -218,11 +215,11 @@ DRInterpreterToCompiler >> doFailOnFirst [
 ]
 
 { #category : #adding }
-DRInterpreterToCompiler >> failedBytecodes [
+DRInterpreterToCompiler >> errors [
 
-	^ failedBytecodes
+	^ errors
 		ifNil: [
-			failedBytecodes :=
+			errors :=
 				PluggableDictionary new
 					equalBlock: [ :a :b | a class == b class ];
 					hashBlock: [ :a | a class identityHash ];
@@ -232,33 +229,29 @@ DRInterpreterToCompiler >> failedBytecodes [
 { #category : #adding }
 DRInterpreterToCompiler >> failedBytecodesAt: anException add: aString [
 
-	self failedBytecodes
+	self errors
 		at: anException
 		ifPresent: [ : fbs | fbs add: aString ]
-		ifAbsent: [ self failedBytecodes 
+		ifAbsent: [ self errors 
 			at: anException 
 			put: (OrderedCollection with: aString) ]
 ]
 
 { #category : #adding }
-DRInterpreterToCompiler >> failedPrimitives [
-
-	^ failedPrimitives
-		ifNil: [
-			failedPrimitives :=
-				PluggableDictionary new
-					equalBlock: [ :a :b | a class == b class ];
-					hashBlock: [ :a | a class identityHash ];
-					yourself 	]
-]
-
-{ #category : #adding }
 DRInterpreterToCompiler >> failedPrimitivesAt: anException add: aString [
 
-	self failedPrimitives
-		at: anException
-		ifPresent: [ : fps | fps add: aString ]
-		ifAbsent: [ self failedPrimitives at: anException put: (OrderedCollection with: aString)  ]
+	"Put all errors in a single place"
+	self failedBytecodesAt:  anException add: aString
+]
+
+{ #category : #private }
+DRInterpreterToCompiler >> handleErrorDuring: aFullBlockClosure [
+
+	aFullBlockClosure
+		on: Error
+		do: [ :ex |
+			failFirst ifTrue: [ ex pass ].
+			self failedBytecodesAt: ex add: ex asString ]
 ]
 
 { #category : #'accessing - object memory' }
@@ -378,20 +371,38 @@ DRInterpreterToCompiler >> newMemory [
 	^ Spur64BitCoMemoryManager simulatorClass new
 ]
 
+{ #category : #adding }
+DRInterpreterToCompiler >> newNonImplementedPrimitive: interpreterPrimitiveMethod [
+
+	| selector |
+	selector := interpreterPrimitiveMethod selector.
+
+	self flag: #TODO. "Duplicated code with newPrimitive:"
+
+	^ DRJITPrimitiveObject new
+		  primitiveNumber: (self primitiveNumberOf: selector);
+		  sourceMethod: interpreterPrimitiveMethod;
+		  argumentCount: -1;
+		  mayCallback:
+			  (self isMaycallbackPrimitive: interpreterPrimitiveMethod);
+		  supported: false;
+		  yourself
+]
+
 { #category : #'instance creation' }
 DRInterpreterToCompiler >> newPrimitive: primitiveMethod [
 	" Answer a new primitive object with its metadata and CFG generated "
+
 	| selector primCompiler |
-	
 	primCompiler := self newPrimitiveCompiler.
-  selector := primitiveMethod selector.
+	selector := primitiveMethod selector.
 	^ DRJITPrimitiveObject new
-		primitiveNumber: (self primitiveNumberOf: selector);
-		sourceMethod: primitiveMethod;
-		cfg: (primCompiler buildIR: selector);
-		argumentCount: (primCompiler numberOfArgumentsForMethod: primitiveMethod);
-		mayCallback: (self isMaycallbackPrimitive: primitiveMethod);
-		yourself
+		  primitiveNumber: (self primitiveNumberOf: selector);
+		  sourceMethod: primitiveMethod;
+		  argumentCount:
+			  (primCompiler numberOfArgumentsForMethod: primitiveMethod);
+		  mayCallback: (self isMaycallbackPrimitive: primitiveMethod);
+		  yourself
 ]
 
 { #category : #'accessing - compiler' }
