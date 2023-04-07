@@ -23,7 +23,7 @@ DRInterpreterPrimitiveObject >> primitiveNumber: anInteger [
 DRInterpreterPrimitiveObject >> printOn: aStream [
 
 	aStream
-		<< 'Primitivee: ';
+		<< 'Primitive: ';
 		<< $#;
 		<< self primitiveNumber asString;
 		space;

@@ -64,11 +64,11 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 
 { #category : #'accessing - bytecodes' }
 DRInterpreterToCompiler >> addBytecodes: aSpecArray [
-	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
+	"Iterate over the receiver's interpreter (assumed to contain bytecodes methods) and add them to compilationUnit"
 
-	| bytecodeSize |
-	^ aSpecArray
+	^ (self collectBytecodes: aSpecArray)
 		do: [ : bytecodePerSize | 
+			| bytecodeSize |
 			bytecodeSize := bytecodePerSize first.
 			self bytecodes addAll: (bytecodePerSize second collect:  [ : bytecodeSpec |
 				self bytecodesFromSpec: bytecodeSpec size: bytecodeSize ]) ]
@@ -147,6 +147,13 @@ DRInterpreterToCompiler >> bytecodeNumberOf: aSelector [
 
 ]
 
+{ #category : #constants }
+DRInterpreterToCompiler >> bytecodeTable [
+	"Answer a <Collection> containing <Array> with each receiver bytecode's specification" 
+	
+	^ self compilationUnit bytecodeTable
+]
+
 { #category : #'accessing - bytecodes' }
 DRInterpreterToCompiler >> bytecodes [
 
@@ -155,7 +162,7 @@ DRInterpreterToCompiler >> bytecodes [
 
 { #category : #'accessing - bytecodes' }
 DRInterpreterToCompiler >> bytecodesFromSpec: aCollection size: size [ 
-
+	" Answer a <Collection> of <DRBytecodeObject> using aCollection as specification "
 	| start end  |
 	
 	start := aCollection first.
@@ -163,7 +170,12 @@ DRInterpreterToCompiler >> bytecodesFromSpec: aCollection size: size [
 		ifTrue: [ aCollection second ]
 		ifFalse: [ aCollection first ].
 	^ (start to: end) collect: [ : index | 
-		self newBytecode: aCollection third index: index size: size  ]
+		| bytecodeSpecSelector |
+		bytecodeSpecSelector := aCollection detect: [ : elem | elem isNumber not ].
+		self 
+			newBytecode: bytecodeSpecSelector
+			index: index 
+			size: size  ]
 ]
 
 { #category : #adding }
@@ -171,12 +183,14 @@ DRInterpreterToCompiler >> collectBytecodes: aCollection [
 	" Answer a <Collection> of selectors from aCollection containing CompiledMethod or primitive names "
 
 	^ aCollection
-		  reject: [ :obj |
-				  obj isNil or: [ (self isSelectedBytecode: (interpreterClass lookupSelector: obj)) not ] ]
-		  thenCollect: [ :symOrCompiledMethod |
-			  symOrCompiledMethod isCompiledMethod
-				  ifTrue: [ symOrCompiledMethod selector ]
-				  ifFalse: [ symOrCompiledMethod ] ]
+		  collect: [ : specsArray |
+				Array
+					with: specsArray first
+					with: (specsArray second select: [ : specArray | 
+						| bytecodeSpecArraySelector |
+						bytecodeSpecArraySelector := specArray detect: [ : obj | obj isNumber not ].
+						(self isSelectedBytecode: (interpreterClass lookupSelector: bytecodeSpecArraySelector)) ]) ]
+
 ]
 
 { #category : #adding }
@@ -328,20 +342,14 @@ DRInterpreterToCompiler >> isValidPrimitiveName: aString [
 
 { #category : #'instance creation' }
 DRInterpreterToCompiler >> newBytecode: aString index: anInteger size: size [
-	" Answer a new bytecode object with its metadata and CFG generated "
+	" Answer a new bytecode object setting its metadata "
 
-	| bytecodeObject |
-
-	self flag: #TO_REVIEW. " Remove the CFG call from here"	
-	bytecodeObject := DRBytecodeObject new
+	^ DRBytecodeObject new
 		bytecodeNumber: anInteger;
 		bytecodeSize: size;
 		sourceMethod: (self interpreterClass lookupSelector: aString);
-		cfg: (self newBytecodeCompiler buildIR: aString);
 		yourself.
-	^ bytecodeObject
-	" (self isExtendedBytecode: aString) 
-		ifTrue: [ bytecodeObject beExtended ]." 
+
 ]
 
 { #category : #'accessing - compiler' }

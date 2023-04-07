@@ -25,35 +25,23 @@ DRInterpreterCompilationUnit >> addBytecodeEntries [
 	self bytecodes 
 		ifEmpty: [ self addUnknownBytecodeEntries ]
 		ifNotEmpty: [ : bcs | 
-			bcs doWithIndex: [ : bytecodeObject : index |
-				self addBytecodeEntry: bytecodeObject index: index ] ]
+			bcs do: [ : bytecodeSubset |
+				bytecodeSubset doWithIndex: [ : bytecodeObject : index | 
+					self addBytecodeEntry: bytecodeObject index: index ] ] ]
 ]
 
 { #category : #'accessing - primitives' }
 DRInterpreterCompilationUnit >> addBytecodeEntry: aDRBytecodeObject index: aNumber [
 	" Add a bytecode entry compatible with the expected format from #initializeBytecodeTable implementation "
 
-	| tableEntry |
-	tableEntry := {
-		aDRBytecodeObject bytecodeSize .
+	| tableEntryArray  |
+	tableEntryArray := { 
+		 aDRBytecodeObject bytecodeSize .
 		aDRBytecodeObject startOffset .
 		aDRBytecodeObject endOffset .
-		aDRBytecodeObject genSelector: aNumber }.
+		(aDRBytecodeObject genSelector: aNumber) }.
 
-	tableEntry := Array streamContents: [ : stream  |
-		stream 
-			<<  tableEntry;
-			<< (aDRBytecodeObject matchEntrySpec: #hasInstVarRef write: #isInstVarRef);
-			<< (aDRBytecodeObject matchEntrySpec: #hasReturn write: #return );
-			<< (aDRBytecodeObject matchEntrySpec: #isMapped write: #isInstVarRef );
-			<< (aDRBytecodeObject matchEntrySpec: #hasBranches write: #branch );
-			<< (aDRBytecodeObject matchEntrySpec: #hasInstVarRef write: #isInstVarRef );			
-			<< (aDRBytecodeObject matchEntrySpec: #hasExtension write: #extension );
-			<< (aDRBytecodeObject matchEntrySpec: #hasMapping write: #isMapped );
-			<< (aDRBytecodeObject matchEntrySpec: #hasMappingImmutability write: #isMappedIfImmutability );
-			<< (aDRBytecodeObject matchEntrySpec: #hasFrameNever write: #needsFrameNever: ) ].
-
-	self bytecodeTable add: tableEntry.
+	self bytecodeTable add: (tableEntryArray reject: #isNil).
 ]
 
 { #category : #'accessing - primitives' }
