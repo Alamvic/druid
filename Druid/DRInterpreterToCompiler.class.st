@@ -60,15 +60,15 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 ]
 
 { #category : #'accessing - bytecodes' }
-DRInterpreterToCompiler >> addBytecode: aString [
+DRInterpreterToCompiler >> addBytecode: bytecodeMethod [
 
-	[ self bytecodes add: (self newBytecode: aString) ]
+	[ self bytecodes add: (self newBytecode: bytecodeMethod) ]
 	on: Error
 	do: [ : ex | 
 		failFirst ifTrue: [ ex pass  ].
 		self 
 			failedBytecodesAt: ex
-			add: aString ].
+			add: bytecodeMethod ].
 
 ]
 
@@ -159,24 +159,15 @@ DRInterpreterToCompiler >> buildAndCompileIn: aClass superclass: aSuperclass [
 
 ]
 
-{ #category : #'accessing - bytecodes' }
-DRInterpreterToCompiler >> bytecodeNumberOf: aSelector [
-	" Answer a <Number> representing the bytecode number of aSelector "
-
-	^  self interpreterBytecodeTable indexOf: aSelector.
-
-]
-
 { #category : #adding }
-DRInterpreterToCompiler >> bytecodeSizeOf: aSelector [
-	" Answer a <Number> representing the bytecode size matching method aSelector in the receiver's bytecode table "
+DRInterpreterToCompiler >> bytecodeGroupOf: aSelector [
 
-	self interpreterClass bytecodeTableArray 
-		detect: [ : bytecodeSizeGroup |
-			bytecodeSizeGroup second 
-				detect: [ : bytecodeSpec | (bytecodeSpec includes: aSelector) ]
-				ifFound: [ ^ bytecodeSizeGroup first ]
-				ifNone: [ false ] ]
+	self interpreterBytecodeTableArray do: [ :bytecodeSizeGroup |
+		bytecodeSizeGroup second do: [ :bytecodeSpec |
+			(bytecodeSpec includes: aSelector) ifTrue: [
+				^ { bytecodeSizeGroup first } , bytecodeSpec ] ] ].
+
+	self error: 'Bytecode selector not found'
 ]
 
 { #category : #'accessing - bytecodes' }
@@ -189,15 +180,12 @@ DRInterpreterToCompiler >> bytecodes [
 DRInterpreterToCompiler >> collectBytecodes: aCollection [
 	" Answer a <Collection> of selectors from aCollection containing CompiledMethod or primitive names "
 
-	^ aCollection
-		  reject: [ :obj |
-			  obj isNil or: [
-				  (self isSelectedBytecode: (interpreterClass lookupSelector: obj))
-					  not ] ]
-		  thenCollect: [ :symOrCompiledMethod |
-			  symOrCompiledMethod isCompiledMethod
-				  ifTrue: [ symOrCompiledMethod selector ]
-				  ifFalse: [ symOrCompiledMethod ] ]
+	| validSelectors |
+	validSelectors := aCollection reject: [ :obj |  obj isNil ].
+
+	^ validSelectors
+		  collect: [ :selector | interpreterClass lookupSelector: selector ]
+		  thenSelect: [ :method | self isSelectedBytecode: method ]
 ]
 
 { #category : #adding }
@@ -251,19 +239,56 @@ DRInterpreterToCompiler >> failedPrimitivesAt: anException add: aString [
 { #category : #bytecodes }
 DRInterpreterToCompiler >> fillBytecodesTableHoles [
 
-	self flag: #TODO. "Filter already selected bytecodes"
 	self interpreterBytecodeTableArray do: [ :entry |
 		| bytesSize bytecodeNumberStart bytecodeNumberEnd |
 		bytesSize := entry first.
 		bytecodeNumberStart := entry second first first.
 		bytecodeNumberEnd := entry second last second.
 
-		self bytecodes add: (DRBytecodeObject new
-				 bytecodeSize: bytesSize;
-				 bytecodeNumberStart: bytecodeNumberStart;
-				 bytecodeNumberEnd: bytecodeNumberEnd;
-				 supported: false;
-				 yourself) ]
+		self
+			fillBytecodesTableHolesWithSize: bytesSize
+			from: bytecodeNumberStart
+			to: bytecodeNumberEnd ]
+]
+
+{ #category : #bytecodes }
+DRInterpreterToCompiler >> fillBytecodesTableHolesWithSize: bytesSize from: bytecodeNumberStart to: bytecodeNumberEnd [
+
+	self bytecodes
+		detect: [ :bytecodeObject |
+			bytecodeObject bytecodeNumberStart
+				between: bytecodeNumberStart
+				and: bytecodeNumberEnd ]
+		ifFound: [ :bytecodeObject | "We need to cut the hole""Check if the cut is at the beginning"
+			bytecodeObject bytecodeNumberStart <= bytecodeNumberStart ifTrue: [
+				^ self
+					  fillBytecodesTableHolesWithSize: bytesSize
+					  from: bytecodeObject bytecodeNumberEnd + 1
+					  to: bytecodeNumberEnd ].
+
+			"Check if the cut is at the end"
+			bytecodeObject bytecodeNumberEnd >= bytecodeNumberEnd ifTrue: [
+				^ self
+					  fillBytecodesTableHolesWithSize: bytesSize
+					  from: bytecodeNumberStart
+					  to: bytecodeObject bytecodeNumberStart - 1 ].
+
+			"Cut in the middle"
+			self
+				fillBytecodesTableHolesWithSize: bytesSize
+				from: bytecodeNumberStart
+				to: bytecodeObject bytecodeNumberStart - 1.
+			self
+				fillBytecodesTableHolesWithSize: bytesSize
+				from: bytecodeObject bytecodeNumberEnd + 1
+				to: bytecodeNumberEnd ]
+		ifNone: [
+			self bytecodes add: (DRBytecodeObject new
+					 bytecodeSize: bytesSize;
+					 bytecodeNumberStart: bytecodeNumberStart;
+					 bytecodeNumberEnd: bytecodeNumberEnd;
+					 supported: false;
+					 yourself) ]
 ]
 
 { #category : #private }
@@ -298,7 +323,7 @@ DRInterpreterToCompiler >> initialize [
 DRInterpreterToCompiler >> interpreterBytecodeTable [
 	"Answer a <Collection> of <Symbol> each one representing a selector of the receiver's bytecode table"
 
-	^ interpreterClass bytecodeTable
+	^ interpreterClass bytecodeTable copyWithoutDuplicates
 ]
 
 { #category : #'accessing - primitives' }
@@ -361,12 +386,16 @@ DRInterpreterToCompiler >> isValidPrimitiveName: aString [
 ]
 
 { #category : #adding }
-DRInterpreterToCompiler >> newBytecode: aString [
+DRInterpreterToCompiler >> newBytecode: bytecodeMethod [
+
+	| bytecodeGroup |
+	bytecodeGroup := self bytecodeGroupOf: bytecodeMethod selector.
 
 	^ DRBytecodeObject new
-		  bytecodeNumber: (self bytecodeNumberOf: aString);
-		  bytecodeSize: (self bytecodeSizeOf: aString);
-		  sourceMethod: (self interpreterClass lookupSelector: aString);
+		  bytecodeSize: bytecodeGroup first;
+		  bytecodeNumberStart: bytecodeGroup second;
+		  bytecodeNumberEnd: bytecodeGroup third;
+		  sourceMethod: bytecodeMethod;
 		  yourself
 ]
 
