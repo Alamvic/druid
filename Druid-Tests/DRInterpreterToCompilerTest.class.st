@@ -11,7 +11,11 @@ Class {
 DRInterpreterToCompilerTest >> setUp [
 
 	super setUp.
-	interpreterToCompiler := DRInterpreterToCompiler fromInterpreterClass: DRBasicCogInterpreterArithmeticPrimitives
+	interpreterToCompiler := (DRInterpreterToCompiler fromInterpreterClass:
+			                          DRBasicCogInterpreterArithmeticPrimitives)
+		                         doFailOnFirst;
+		                         targetClass: self jitCompilerClassForTest;
+		                         yourself
 ]
 
 { #category : #tests }
@@ -39,55 +43,13 @@ DRInterpreterToCompilerTest >> testAddBytecode [
 ]
 
 { #category : #tests }
-DRInterpreterToCompilerTest >> testAddEmptyInterpreterBytecode [
+DRInterpreterToCompilerTest >> testEmptyInterpreterGeneratesEmptyCompilationUnits [
 
-	interpreterToCompiler := DRInterpreterToCompiler
-		                         fromInterpreterClass: DREmptyInterpreter.
 	interpreterToCompiler
-		doFailOnFirst;
-		targetClass: self jitCompilerClassForTest;
-		buildAndCompileIn: self jitCompilerClassNameForTest.
-
-	self assertEmpty: interpreterToCompiler bytecodes
-]
-
-{ #category : #tests }
-DRInterpreterToCompilerTest >> testAddPrimitive [
-
-	interpreterToCompiler := DRInterpreterToCompiler
-		                         fromInterpreterClass: DruidTestInterpreter.
-	interpreterToCompiler
-		doFailOnFirst;
-		targetClass: self jitCompilerClassForTest;
-		selectPrimitives: [ :p | p selector = #primitiveAdd ];
-		buildAndCompileIn: self jitCompilerClassNameForTest.
-
-	self
-		assert: interpreterToCompiler primitives first sourceSelector
-		equals: #primitiveAdd
-]
-
-{ #category : #tests }
-DRInterpreterToCompilerTest >> testAddPrimitives [
-
-	| primitiveSet |
-	primitiveSet := #(#primitiveAdd #primitiveSubtract #primitiveLessThan #primitiveGreaterThan #primitiveLessOrEqual #primitiveGreaterOrEqual #primitiveEqual #primitiveNotEqual #primitiveMultiply #primitiveDivide).
-	
-	interpreterToCompiler buildAndCompileIn: self jitCompilerClassNameForTest.
-	self
-		assertCollection: (interpreterToCompiler primitives collect: #sourceSelector)
-		hasSameElements: primitiveSet.
-
-	self
-		assert: (interpreterToCompiler primitives allSatisfy: [ : p | p isKindOf: DRJITPrimitiveObject ])
-]
-
-{ #category : #tests }
-DRInterpreterToCompilerTest >> testCompilePrimitiveTable [
-
-	interpreterToCompiler buildAndCompileIn: self jitCompilerClassNameForTest.
-
-	self assert: interpreterToCompiler primitiveTable notEmpty
+		interpreterClass: DREmptyInterpreter;
+		build.
+	self assert: interpreterToCompiler primitives isEmpty.
+	self assert: interpreterToCompiler bytecodes isEmpty
 ]
 
 { #category : #tests }
@@ -103,8 +65,119 @@ DRInterpreterToCompilerTest >> testErrorHandling [
 ]
 
 { #category : #tests }
-DRInterpreterToCompilerTest >> testGenerateEmptyCompilationUnit [
+DRInterpreterToCompilerTest >> testGeneratesBytecodeCompilationUnits [
 
-	interpreterToCompiler := DRInterpreterToCompiler fromInterpreterClass: DREmptyInterpreter.
-	self assert: interpreterToCompiler primitives isEmpty
+	| currentBytecodeNumber |
+	interpreterToCompiler build.
+
+	self assert: interpreterToCompiler bytecodes isNotEmpty.
+
+	"Start on bytecode 0"
+	currentBytecodeNumber := 0.
+	interpreterToCompiler bytecodes doWithIndex: [ :bytecodeUnit :index |
+		self assert: bytecodeUnit bytecodeSize equals: index.
+		self assert: bytecodeUnit bytecodeNumberStart >= currentBytecodeNumber.
+		currentBytecodeNumber := bytecodeUnit bytecodeNumberStart.
+		self assert: bytecodeUnit bytecodeNumberEnd >= currentBytecodeNumber.
+		currentBytecodeNumber := bytecodeUnit bytecodeNumberEnd.
+		self assert: bytecodeUnit genSelector equals: #unknownBytecode ].
+
+	"Finish on bytecode 255"
+	self assert: currentBytecodeNumber equals: 255
+]
+
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testGeneratesPrimitiveCompilationUnits [
+
+	| primitiveSet |
+	primitiveSet := interpreterToCompiler interpreterClass primitiveTable reject: [
+		                :prim | prim isNumber ].
+
+	interpreterToCompiler build.
+
+	self
+		assertCollection: (interpreterToCompiler primitives collect: #sourceSelector)
+		hasSameElements: primitiveSet
+]
+
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testMandatoryPrimitiveCompilationUnits [
+
+	| supportedPrimitive mandatoryPrimitives |
+	interpreterToCompiler
+		interpreterClass: DruidTestInterpreter;
+		selectPrimitives: [ :p | p selector = #primitiveAdd ];
+		build.
+
+	supportedPrimitive := interpreterToCompiler primitives first.
+	self assert: supportedPrimitive sourceSelector equals: #primitiveAdd.
+	self assert: supportedPrimitive genSelector equals: #gen_primitiveAdd.
+	self assert: supportedPrimitive supported.
+	self deny: supportedPrimitive mayCallback.
+
+	mandatoryPrimitives := interpreterToCompiler primitives allButFirst.
+	self assert: mandatoryPrimitives isNotEmpty.
+	mandatoryPrimitives do: [ :mandatoryPrimitive |
+		self
+			assert: mandatoryPrimitive genSelector
+			equals: #genNonImplementedPrimitive.
+		self deny: mandatoryPrimitive supported.
+		self assert: mandatoryPrimitive mayCallback ]
+]
+
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testSelectBytecodeCompilationUnits [
+
+	| supportedBytecode unknownBytecodes currentBytecodeNumber |
+	interpreterToCompiler
+		selectBytecodes: [ :cm | cm selector = #pushReceiverVariableBytecode ];
+		build.
+
+
+	supportedBytecode := interpreterToCompiler bytecodes first.
+	self
+		assert: supportedBytecode bytecodeSize
+		equals: 1.
+	self
+		assert: supportedBytecode bytecodeNumberStart
+		equals: 0.
+	self
+		assert: supportedBytecode bytecodeNumberEnd
+		equals: 15.
+	self
+		assert: supportedBytecode sourceSelector
+		equals: #pushReceiverVariableBytecode.
+	self
+		assert: supportedBytecode genSelector
+		equals: #gen_pushReceiverVariableBytecode.
+	self assert: supportedBytecode supported.
+
+	unknownBytecodes := interpreterToCompiler bytecodes allButFirst.
+	self assert: unknownBytecodes isNotEmpty.
+	
+	"Continue from previous bytecode"
+	currentBytecodeNumber := supportedBytecode bytecodeNumberEnd.
+	unknownBytecodes doWithIndex: [ :bytecodeUnit :index |
+		self assert: bytecodeUnit bytecodeSize equals: index.
+		self assert: bytecodeUnit bytecodeNumberStart > currentBytecodeNumber.
+		currentBytecodeNumber := bytecodeUnit bytecodeNumberStart.
+		self assert: bytecodeUnit bytecodeNumberEnd > currentBytecodeNumber.
+		currentBytecodeNumber := bytecodeUnit bytecodeNumberEnd.
+		self assert: bytecodeUnit genSelector equals: #unknownBytecode ].
+
+	"Finish on bytecode 255"
+	self assert: currentBytecodeNumber equals: 255
+]
+
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testSelectPrimitiveCompilationUnits [
+
+	interpreterToCompiler
+		selectPrimitives: [ :p | p selector = #primitiveAdd ];
+		build.
+
+	self
+		assertCollection:
+		(interpreterToCompiler primitives collect: [ :p | p sourceSelector ])
+		hasSameElements: { #primitiveAdd }
 ]

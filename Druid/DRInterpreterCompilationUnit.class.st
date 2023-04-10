@@ -111,18 +111,6 @@ DRInterpreterCompilationUnit >> bytecodes: anObject [
 	bytecodes := anObject
 ]
 
-{ #category : #'accessing - primitives' }
-DRInterpreterCompilationUnit >> collectPrimitives: aCollection [ 
-	" Answer a <Collection> of selectors from aCollection containing CompiledMethod or primitive names "
-
-	^ aCollection 
-		reject: [ : obj | obj isNumber or: [ obj isNil ] ]
-		thenCollect: [ : symOrCompiledMethod | 
-			symOrCompiledMethod isCompiledMethod 
-				ifTrue: [ symOrCompiledMethod selector ]
-				ifFalse: [ symOrCompiledMethod ] ].
-]
-
 { #category : #'accessing - compiler' }
 DRInterpreterCompilationUnit >> compileAll [
 	"Install methods in the receiver's JIT compiler class"
@@ -133,19 +121,6 @@ DRInterpreterCompilationUnit >> compileAll [
 	self addPrimitiveEntries.
 	self addBytecodeEntries.
 	self dispatchTableGenerator installAllMethodsOn:realTargetClass class
-]
-
-{ #category : #'accessing - compiler' }
-DRInterpreterCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
-	"Compile a method in the receiver's JIT compiler class. aDRPrimitiveObject contains the specification needed to compile the JITed version of the method"
-
-	aDRPrimitiveObject supported ifFalse: [ ^ self ].
-
-	(self compiler
-		initialize;
-		sourceName: aDRPrimitiveObject sourceSelector;
-		primitiveCompilerName: aDRPrimitiveObject genSelector)
-			compile
 ]
 
 { #category : #'accessing - compiler' }

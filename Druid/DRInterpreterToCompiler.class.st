@@ -17,6 +17,7 @@ Smalltalk tools browser openOn: #MyCoolJITCompilerClass.
 ```
 
 
+
 "
 Class {
 	#name : #DRInterpreterToCompiler,
@@ -44,29 +45,31 @@ DRInterpreterToCompiler class >> fromInterpreterClass: anInterpreterClass [
 DRInterpreterToCompiler class >> generateDruidJITModel [
 
 	<script>
-	| compilerClassName interpreterCompiler compilationUnit primitives |
-	compilerClassName := #DruidJIT.
+	| primitives |
 	primitives := #( #primitiveAdd #primitiveSubtract #primitiveLessThan
 	                 #primitiveGreaterThan #primitiveLessOrEqual
 	                 #primitiveGreaterOrEqual #primitiveEqual #primitiveNotEqual
 	                 #primitiveMultiply #primitiveDivide ).
 
-	interpreterCompiler := self
-		                       fromInterpreter:
-		                       (DRDummyInterpreter new primitives: primitives)
-		                       compilerClass: DRPrimitiveCompilerCompilerCollector.
-
-	compilationUnit := interpreterCompiler generateIR.
-	interpreterCompiler generateBuildModelAndCompileIn: compilerClassName
+	(self fromInterpreterClass: CogVMSimulatorLSB)
+		selectPrimitives: [ :e | primitives includes: e selector ];
+		selectBytecodes: [ :e | false ];
+		targetClass: DruidJIT;
+		targetSuperclass: StackToRegisterMappingCogit;
+		build
 ]
 
 { #category : #'accessing - bytecodes' }
 DRInterpreterToCompiler >> addBytecodes [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
-	^ (self collectBytecodes: self interpreterBytecodeTable)
-		  do: [ :prim | self addBytecode: prim ]
-		  displayingProgress: [ :prim | 'Adding bytecode: ' , prim asString ]
+	(self collectBytecodes: self interpreterBytecodeTable)
+		do: [ :prim | self addBytecode: prim ]
+		displayingProgress: [ :prim | 'Adding bytecode: ' , prim asString ].
+
+
+	self fillBytecodesTableHoles.
+
 ]
 
 { #category : #'accessing - bytecodes' }
@@ -79,6 +82,22 @@ DRInterpreterToCompiler >> addBytecodes: aSpecArray [
 			 bytecodeSize := bytecodePerSize first.
 			 bytecodePerSize second flatCollect: [ :bytecodeSpec |
 				 self bytecodesFromSpec: bytecodeSpec size: bytecodeSize ] ])
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> addMandatoryPrimitives [
+
+	self interpreterPrimitiveTable
+		do: [ :selector |
+			(selector isNumber or: [
+				 self primitives anySatisfy: [ :e | e sourceSelector = selector ] ])
+				ifFalse: [
+					| method |
+					method := self interpreterClass lookupSelector: selector.
+					(self isMaycallbackPrimitive: method) ifTrue: [
+						self primitives add: (self newNonImplementedPrimitive: method) ] ] ]
+		displayingProgress: [ :selector |
+			'Adding mandatory non implemented primitive: ' , selector asString ]
 ]
 
 { #category : #adding }
@@ -99,20 +118,16 @@ DRInterpreterToCompiler >> addPrimitive: primitiveMethod [
 DRInterpreterToCompiler >> addPrimitives [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
+	self addSelectedPrimitives.
+	self addMandatoryPrimitives
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> addSelectedPrimitives [
+
 	(self collectPrimitives: self interpreterPrimitiveTable)
 		do: [ :prim | self addPrimitive: prim ]
-		displayingProgress: [ :prim | 'Adding primitive: ' , prim selector ].
-
-	self flag: #TOFIX.
-	self interpreterPrimitiveTable
-		do: [ :selector |
-			(selector isNumber or: [ self primitives anySatisfy: [ :e | e sourceSelector = selector ] ])
-				ifFalse: [
-					| method |
-					method := self interpreterClass lookupSelector: selector.
-					(self isMaycallbackPrimitive: method) ifTrue: [
-						self primitives add: (self newNonImplementedPrimitive: method) ] ] ]
-		displayingProgress: [ :selector | 'Adding mandatory non implemented primitive: ' , selector asString ]
+		displayingProgress: [ :prim | 'Adding primitive: ' , prim selector ]
 ]
 
 { #category : #'accessing - model' }
@@ -142,12 +157,15 @@ DRInterpreterToCompiler >> buildAndCompileIn: aClass superclass: aSuperclass [
 	self build
 ]
 
-{ #category : #'accessing - bytecodes' }
-DRInterpreterToCompiler >> bytecodeNumberOf: aSelector [
-	" Answer a <Number> representing the bytecode number of aSelector "
+{ #category : #adding }
+DRInterpreterToCompiler >> bytecodeGroupOf: aSelector [
 
-	^  self interpreterBytecodeTable indexOf: aSelector.
+	self interpreterBytecodeTableArray do: [ :bytecodeSizeGroup |
+		bytecodeSizeGroup second do: [ :bytecodeSpec |
+			(bytecodeSpec includes: aSelector) ifTrue: [
+				^ { bytecodeSizeGroup first } , bytecodeSpec ] ] ].
 
+	self error: 'Bytecode selector not found'
 ]
 
 { #category : #constants }
@@ -249,6 +267,61 @@ DRInterpreterToCompiler >> failedPrimitivesAt: anException add: aString [
 	self failedBytecodesAt:  anException add: aString
 ]
 
+{ #category : #bytecodes }
+DRInterpreterToCompiler >> fillBytecodesTableHoles [
+
+	self interpreterBytecodeTableArray do: [ :entry |
+		| bytesSize bytecodeNumberStart bytecodeNumberEnd |
+		bytesSize := entry first.
+		bytecodeNumberStart := entry second first first.
+		bytecodeNumberEnd := entry second last second.
+
+		self
+			fillBytecodesTableHolesWithSize: bytesSize
+			from: bytecodeNumberStart
+			to: bytecodeNumberEnd ]
+]
+
+{ #category : #bytecodes }
+DRInterpreterToCompiler >> fillBytecodesTableHolesWithSize: bytesSize from: bytecodeNumberStart to: bytecodeNumberEnd [
+
+	self bytecodes
+		detect: [ :bytecodeObject |
+			bytecodeObject bytecodeNumberStart
+				between: bytecodeNumberStart
+				and: bytecodeNumberEnd ]
+		ifFound: [ :bytecodeObject | "We need to cut the hole""Check if the cut is at the beginning"
+			bytecodeObject bytecodeNumberStart <= bytecodeNumberStart ifTrue: [
+				^ self
+					  fillBytecodesTableHolesWithSize: bytesSize
+					  from: bytecodeObject bytecodeNumberEnd + 1
+					  to: bytecodeNumberEnd ].
+
+			"Check if the cut is at the end"
+			bytecodeObject bytecodeNumberEnd >= bytecodeNumberEnd ifTrue: [
+				^ self
+					  fillBytecodesTableHolesWithSize: bytesSize
+					  from: bytecodeNumberStart
+					  to: bytecodeObject bytecodeNumberStart - 1 ].
+
+			"Cut in the middle"
+			self
+				fillBytecodesTableHolesWithSize: bytesSize
+				from: bytecodeNumberStart
+				to: bytecodeObject bytecodeNumberStart - 1.
+			self
+				fillBytecodesTableHolesWithSize: bytesSize
+				from: bytecodeObject bytecodeNumberEnd + 1
+				to: bytecodeNumberEnd ]
+		ifNone: [
+			self bytecodes add: (DRBytecodeObject new
+					 bytecodeSize: bytesSize;
+					 bytecodeNumberStart: bytecodeNumberStart;
+					 bytecodeNumberEnd: bytecodeNumberEnd;
+					 supported: false;
+					 yourself) ]
+]
+
 { #category : #private }
 DRInterpreterToCompiler >> handleErrorDuring: aFullBlockClosure [
 
@@ -281,7 +354,13 @@ DRInterpreterToCompiler >> initialize [
 DRInterpreterToCompiler >> interpreterBytecodeTable [
 	"Answer a <Collection> of <Symbol> each one representing a selector of the receiver's bytecode table"
 
-	^ interpreterClass bytecodeTable
+	^ interpreterClass bytecodeTable copyWithoutDuplicates
+]
+
+{ #category : #'accessing - primitives' }
+DRInterpreterToCompiler >> interpreterBytecodeTableArray [
+
+	^ interpreterClass bytecodeTableArray
 ]
 
 { #category : #accessing }
@@ -296,7 +375,6 @@ DRInterpreterToCompiler >> interpreterClass: anObject [
 	interpreterClass := anObject.
 	anObject initializePrimitiveTable.
 	anObject initializeBytecodeTable.
-	compilationUnit := nil.
 
 ]
 

@@ -11,15 +11,34 @@ Class {
 }
 
 { #category : #accessing }
-DRBytecodeObject >> bytecodeNumber [
+DRBytecodeObject >> bytecodeNumber: anInteger [
 
-	^ bytecodeNumber
+	bytecodeNumberStart := anInteger.
+	bytecodeNumberEnd := anInteger
 ]
 
 { #category : #accessing }
-DRBytecodeObject >> bytecodeNumber: anObject [
+DRBytecodeObject >> bytecodeNumberEnd [
 
-	bytecodeNumber := anObject
+	^ bytecodeNumberEnd
+]
+
+{ #category : #accessing }
+DRBytecodeObject >> bytecodeNumberEnd: anObject [
+
+	bytecodeNumberEnd := anObject
+]
+
+{ #category : #accessing }
+DRBytecodeObject >> bytecodeNumberStart [
+
+	^ bytecodeNumberStart
+]
+
+{ #category : #accessing }
+DRBytecodeObject >> bytecodeNumberStart: anObject [
+
+	bytecodeNumberStart := anObject
 ]
 
 { #category : #accessing }
@@ -32,6 +51,19 @@ DRBytecodeObject >> bytecodeSize [
 DRBytecodeObject >> bytecodeSize: anObject [
 
 	bytecodeSize := anObject
+]
+
+{ #category : #compiling }
+DRBytecodeObject >> compileUnitUsing: aCompiler [
+
+	| interpreter |
+	interpreter := aCompiler newInterpreter.
+	interpreter currentBytecode: self bytecodeNumberStart.
+	DRBytecodeCompilerCompiler new
+		sourceName: self sourceSelector;
+		interpreter: interpreter;
+		compilerClass: aCompiler targetClass;
+		compile
 ]
 
 { #category : #compiling }
@@ -68,15 +100,25 @@ DRBytecodeObject >> genSelector [
 	^ #gen_ , self sourceSelector , self bytecodeNumber asString
 ]
 
+{ #category : #accessing }
+DRBytecodeObject >> notSupportedSelector [
+
+	^ #unknownBytecode
+]
+
 { #category : #printing }
 DRBytecodeObject >> printOn: aStream [
 
 	aStream
-		<< 'Bytecode: ';
-		<< $#;
-		<< self bytecodeNumber asString;
+		<< $(
+		<< self bytecodeSize asString;
+		<< $);
 		space;
-		<< self sourceSelector
+		<< self bytecodeNumberStart asString;
+		<< ' - ';
+		<< self bytecodeNumberEnd asString;
+		space;
+		<< self genSelector
 ]
 
 { #category : #accessing }

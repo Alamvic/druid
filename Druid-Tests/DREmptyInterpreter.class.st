@@ -14,8 +14,8 @@ DREmptyInterpreter class >> basicPrimitiveTable [
 	^ Array empty
 ]
 
-{ #category : #'class initialization' }
-DREmptyInterpreter class >> bytecodeTableArray [
+{ #category : #constants }
+DREmptyInterpreter class >> bytecodeTableArray [ 
 
 	^ Array empty
 ]
