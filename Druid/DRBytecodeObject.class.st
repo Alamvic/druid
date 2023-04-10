@@ -2,10 +2,9 @@ Class {
 	#name : #DRBytecodeObject,
 	#superclass : #DRInterpreterInstruction,
 	#instVars : [
-		'bytecodeNumber',
 		'bytecodeSize',
-		'startOffset',
-		'endOffset'
+		'bytecodeNumberStart',
+		'bytecodeNumberEnd'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
@@ -60,44 +59,11 @@ DRBytecodeObject >> compileUnitUsing: aCompiler [
 	interpreter := aCompiler newInterpreter.
 	interpreter currentBytecode: self bytecodeNumberStart.
 	DRBytecodeCompilerCompiler new
-		sourceName: self sourceSelector;
-		interpreter: interpreter;
-		compilerClass: aCompiler targetClass;
-		compile
-]
-
-{ #category : #compiling }
-DRBytecodeObject >> compileUsing: aCompiler [
-
-	| interpreter |
-	interpreter := aCompiler newInterpreter.
-	interpreter currentBytecode: bytecodeNumber.
-	DRBytecodeCompilerCompiler new
 		targetName: self genSelector;
 		sourceName: self sourceSelector;
 		interpreter: interpreter;
 		compilerClass: aCompiler targetClass;
 		compile
-]
-
-{ #category : #accessing }
-DRBytecodeObject >> endOffset [
-	" Answer a <Number> representing the end offset when the receiver want to access additional information in the literal frame "
-	
-	^ endOffset
-]
-
-{ #category : #accessing }
-DRBytecodeObject >> endOffset: anObject [
-
-	endOffset := anObject
-]
-
-{ #category : #accessing }
-DRBytecodeObject >> genSelector [
-	" Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (interpreter) method"
-
-	^ #gen_ , self sourceSelector , self bytecodeNumber asString
 ]
 
 { #category : #accessing }
@@ -119,17 +85,4 @@ DRBytecodeObject >> printOn: aStream [
 		<< self bytecodeNumberEnd asString;
 		space;
 		<< self genSelector
-]
-
-{ #category : #accessing }
-DRBytecodeObject >> startOffset [
-	" Answer a <Number> representing the offset to start when the receiver want to access additional information in the literal frame "
-	
-	^ startOffset
-]
-
-{ #category : #accessing }
-DRBytecodeObject >> startOffset: anObject [
-
-	startOffset := anObject
 ]
