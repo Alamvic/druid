@@ -6,20 +6,31 @@ Class {
 	#name : #DRInterpreterInstruction,
 	#superclass : #Object,
 	#instVars : [
-		'sourceMethod'
+		'sourceMethod',
+		'supported'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
 
 { #category : #compiling }
-DRInterpreterInstruction >> compileUsing: aCompiler [
-	
+DRInterpreterInstruction >> compileUnitUsing: aCompiler [
+
 	self subclassResponsibility
+]
+
+{ #category : #compiling }
+DRInterpreterInstruction >> compileUsing: aCompiler [
+
+	self supported ifFalse: [ ^ self ].
+
+	self compileUnitUsing: aCompiler
 ]
 
 { #category : #accessing }
 DRInterpreterInstruction >> genSelector [
 	" Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (compiler) method"
+
+	supported ifFalse: [ ^ self notSupportedSelector ].
 
 	^ #gen_ , self sourceSelector
 ]
@@ -28,6 +39,12 @@ DRInterpreterInstruction >> genSelector [
 DRInterpreterInstruction >> hasPragmaNamed: aString [
 
 	^ self sourceMethod hasPragmaNamed: aString
+]
+
+{ #category : #initialization }
+DRInterpreterInstruction >> initialize [
+
+	supported := true
 ]
 
 { #category : #accessing }
@@ -46,4 +63,16 @@ DRInterpreterInstruction >> sourceMethod: anObject [
 DRInterpreterInstruction >> sourceSelector [
 
 	^ self sourceMethod selector
+]
+
+{ #category : #accessing }
+DRInterpreterInstruction >> supported [
+
+	^ supported
+]
+
+{ #category : #accessing }
+DRInterpreterInstruction >> supported: aBoolean [
+
+	supported := aBoolean
 ]

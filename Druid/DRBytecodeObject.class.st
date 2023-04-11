@@ -2,22 +2,42 @@ Class {
 	#name : #DRBytecodeObject,
 	#superclass : #DRInterpreterInstruction,
 	#instVars : [
-		'bytecodeNumber',
-		'bytecodeSize'
+		'bytecodeSize',
+		'bytecodeNumberStart',
+		'bytecodeNumberEnd'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
 
 { #category : #accessing }
-DRBytecodeObject >> bytecodeNumber [
+DRBytecodeObject >> bytecodeNumber: anInteger [
 
-	^ bytecodeNumber
+	bytecodeNumberStart := anInteger.
+	bytecodeNumberEnd := anInteger
 ]
 
 { #category : #accessing }
-DRBytecodeObject >> bytecodeNumber: anObject [
+DRBytecodeObject >> bytecodeNumberEnd [
 
-	bytecodeNumber := anObject
+	^ bytecodeNumberEnd
+]
+
+{ #category : #accessing }
+DRBytecodeObject >> bytecodeNumberEnd: anObject [
+
+	bytecodeNumberEnd := anObject
+]
+
+{ #category : #accessing }
+DRBytecodeObject >> bytecodeNumberStart [
+
+	^ bytecodeNumberStart
+]
+
+{ #category : #accessing }
+DRBytecodeObject >> bytecodeNumberStart: anObject [
+
+	bytecodeNumberStart := anObject
 ]
 
 { #category : #accessing }
@@ -33,14 +53,36 @@ DRBytecodeObject >> bytecodeSize: anObject [
 ]
 
 { #category : #compiling }
-DRBytecodeObject >> compileUsing: aCompiler [
+DRBytecodeObject >> compileUnitUsing: aCompiler [
 
 	| interpreter |
 	interpreter := aCompiler newInterpreter.
-	interpreter currentBytecode: bytecodeNumber.
+	interpreter currentBytecode: self bytecodeNumberStart.
 	DRBytecodeCompilerCompiler new
+		targetName: self genSelector;
 		sourceName: self sourceSelector;
 		interpreter: interpreter;
 		compilerClass: aCompiler targetClass;
 		compile
+]
+
+{ #category : #accessing }
+DRBytecodeObject >> notSupportedSelector [
+
+	^ #unknownBytecode
+]
+
+{ #category : #printing }
+DRBytecodeObject >> printOn: aStream [
+
+	aStream
+		<< $(
+		<< self bytecodeSize asString;
+		<< $);
+		space;
+		<< self bytecodeNumberStart asString;
+		<< ' - ';
+		<< self bytecodeNumberEnd asString;
+		space;
+		<< self genSelector
 ]

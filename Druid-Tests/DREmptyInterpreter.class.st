@@ -14,6 +14,12 @@ DREmptyInterpreter class >> basicPrimitiveTable [
 	^ Array empty
 ]
 
+{ #category : #constants }
+DREmptyInterpreter class >> bytecodeTableArray [ 
+
+	^ Array empty
+]
+
 { #category : #initialization }
 DREmptyInterpreter class >> initializeBytecodeTableForSistaV1 [
 	"See e.g. the cass comment for EncoderForSistaV1"

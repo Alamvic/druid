@@ -1,6 +1,9 @@
 Class {
 	#name : #DRBytecodeCompilerCompiler,
 	#superclass : #DRAbstractCompilerCompiler,
+	#instVars : [
+		'targetName'
+	],
 	#category : #'Druid-BytecodeToJITCompilation'
 }
 
@@ -82,5 +85,12 @@ DRBytecodeCompilerCompiler >> numberOfArgumentsForMethod: aMethod [
 { #category : #accessing }
 DRBytecodeCompilerCompiler >> targetName [
 
-	^ 'gen_', self sourceName
+	^ targetName 
+		ifNil: [ targetName := 'gen_', self sourceName ]
+]
+
+{ #category : #accessing }
+DRBytecodeCompilerCompiler >> targetName: anObject [
+
+	targetName := anObject
 ]

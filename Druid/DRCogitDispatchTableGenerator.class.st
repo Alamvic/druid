@@ -21,7 +21,8 @@ DRCogitDispatchTableGenerator >> arrayAccessorGlobalName [
 DRCogitDispatchTableGenerator >> buildBytecodeTableVariableNode [
 	"Answer a <PCGReturnNode> with the primitive table initialization setter message send"
 
-	^ self bytecodeTable asPCG
+	^ PCGArrayNode statements: (self bytecodeTable collect: #asPCG)
+
 ]
 
 { #category : #'accessing - bytecodes' }

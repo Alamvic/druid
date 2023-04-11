@@ -30,7 +30,9 @@ DRInterpreterCompilationUnit >> addBytecodeEntry: aDRBytecodeObject [
 	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
 
 	self bytecodeTable add: {
-			aDRBytecodeObject bytecodeNumber.
+			aDRBytecodeObject bytecodeSize.
+			aDRBytecodeObject bytecodeNumberStart.
+			aDRBytecodeObject bytecodeNumberEnd.
 			aDRBytecodeObject genSelector }
 ]
 
@@ -67,6 +69,7 @@ DRInterpreterCompilationUnit >> addSpecialPrimitives [
 
 { #category : #accessing }
 DRInterpreterCompilationUnit >> bytecodeTable [
+	" Answer a <Collection> with the specification of the bytecodes in the receiver's interpreter "
 
 	^ bytecodeTable
 
@@ -85,29 +88,16 @@ DRInterpreterCompilationUnit >> bytecodes: anObject [
 	bytecodes := anObject
 ]
 
-{ #category : #'accessing - primitives' }
-DRInterpreterCompilationUnit >> collectPrimitives: aCollection [ 
-	" Answer a <Collection> of selectors from aCollection containing CompiledMethod or primitive names "
-
-	^ aCollection 
-		reject: [ : obj | obj isNumber or: [ obj isNil ] ]
-		thenCollect: [ : symOrCompiledMethod | 
-			symOrCompiledMethod isCompiledMethod 
-				ifTrue: [ symOrCompiledMethod selector ]
-				ifFalse: [ symOrCompiledMethod ] ].
-]
-
 { #category : #'accessing - compiler' }
-DRInterpreterCompilationUnit >> compilePrimitive: aDRPrimitiveObject [
-	"Compile a method in the receiver's JIT compiler class. aDRPrimitiveObject contains the specification needed to compile the JITed version of the method"
+DRInterpreterCompilationUnit >> compileAll [
+	"Install methods in the receiver's JIT compiler class"
 
-	aDRPrimitiveObject supported ifFalse: [ ^ self ].
+	| realTargetClass |
 
-	(self compiler
-		initialize;
-		sourceName: aDRPrimitiveObject sourceSelector;
-		primitiveCompilerName: aDRPrimitiveObject genSelector)
-			compile
+	realTargetClass := self compilerBuilder environmentAt: self targetClass.
+	self addPrimitiveEntries.
+	self addBytecodeEntries.
+	self dispatchTableGenerator installAllMethodsOn:realTargetClass class
 ]
 
 { #category : #'accessing - compiler' }
