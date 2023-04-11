@@ -315,6 +315,12 @@ DRInstruction >> isJITMessageSend [
 ]
 
 { #category : #testing }
+DRInstruction >> isLoadInstanceVariable [
+
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isModulo [
 	
 	^ false

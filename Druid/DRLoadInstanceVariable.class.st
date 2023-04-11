@@ -16,6 +16,12 @@ DRLoadInstanceVariable >> index [
 	^ self originAST variable index
 ]
 
+{ #category : #testing }
+DRLoadInstanceVariable >> isLoadInstanceVariable [
+
+	^ true
+]
+
 { #category : #printing }
 DRLoadInstanceVariable >> opcode [
 	

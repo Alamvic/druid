@@ -127,6 +127,99 @@ DRInlineMethodTest >> testPragmaBasedTypeSystem [
 ]
 
 { #category : #'tests - type systems' }
+DRInlineMethodTest >> testProfileBasedTypeSystem_empty [
+
+	| cfg messageSend selector |
+	cfg := self generateDruidIRFor: #methodCollectionSize:.
+	selector := #size.
+	messageSend := cfg messageSends unique.
+	messageSend typeSystem: DRProfileBasedTypeSystem new.
+
+	self assert: messageSend selector equals: selector.
+
+	messageSend inline. "Empty profile - not inline"
+
+	self assert: cfg messageSends unique selector equals: selector.
+
+]
+
+{ #category : #'tests - type systems' }
+DRInlineMethodTest >> testProfileBasedTypeSystem_monomorphic [
+
+	| cfg messageSend selector typeSystem |
+	cfg := self generateDruidIRFor: #methodCollectionSize:.
+	selector := #size.
+
+	typeSystem := DRProfileBasedTypeSystem new.
+	messageSend := cfg messageSends unique.
+	messageSend typeSystem: typeSystem.
+	typeSystem
+		addReceiver: OrderedCollection new
+		for: messageSend originAST.
+
+	self assert: messageSend selector equals: selector.
+
+	messageSend inline. "Inline profile + generic gueard"
+
+	"Guard"
+	self assert: cfg allConditionalJumps size equals: 1.
+
+	"Inlined case"
+	cfg instructions
+		select: [ :i | i isLoadInstanceVariable ]
+		thenDo: [ :i |
+			self assert:
+				({ #firstIndex. #lastIndex } includes: i operand2 value) ].
+
+	"Generic case"
+	self assert: cfg messageSends unique selector equals: selector
+]
+
+{ #category : #'tests - type systems' }
+DRInlineMethodTest >> testProfileBasedTypeSystem_polimorphic [
+
+	| cfg messageSend selector typeSystem inlinedSend |
+	cfg := self generateDruidIRFor: #methodCollectionSize:.
+	selector := #size.
+
+	typeSystem := DRProfileBasedTypeSystem new.
+	messageSend := cfg messageSends unique.
+	messageSend typeSystem: typeSystem.
+
+	typeSystem
+		addReceiver: OrderedCollection new
+		for: messageSend originAST.
+	typeSystem addReceiver: Array2D new for: messageSend originAST.
+
+	self assert: messageSend selector equals: selector.
+
+	messageSend inline. "Inline profile + generic gueard"
+
+	"Guard"
+	self assert: cfg allConditionalJumps size equals: 2.
+
+	"Inlined case"
+	cfg instructions
+		select: [ :i | i isLoadInstanceVariable ]
+		thenDo: [ :i |
+			i operand2 value = #contents
+				ifTrue: [ "Array2D inline" inlinedSend := i users unique ]
+				ifFalse: [ "OrderedCollection inline"
+					self assert:
+						({ #firstIndex. #lastIndex } includes: i operand2 value) ] ].
+
+	self
+		assert: inlinedSend originAST methodNode methodClass
+		equals: Array2D.
+
+	"Generic case"
+	self assert: cfg messageSends second selector equals: selector.
+	self
+		assert: cfg messageSends second originAST methodNode selector
+		equals: #methodCollectionSize:
+]
+
+{ #category : #'tests - type systems' }
 DRInlineMethodTest >> testUnknownTypeSystem [
 
 	| cfg messageSend selector |
