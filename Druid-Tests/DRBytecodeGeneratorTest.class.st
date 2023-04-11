@@ -3,7 +3,8 @@ Class {
 	#superclass : #TestCase,
 	#instVars : [
 		'compilerCompiler',
-		'bytecodeGenerator'
+		'bytecodeGenerator',
+		'typeSystem'
 	],
 	#category : #'Druid-Tests'
 }
@@ -44,6 +45,7 @@ DRBytecodeGeneratorTest >> generateDruidIRFor: method [
 
 	| cfg |
 	cfg := compilerCompiler generateDruidIRFor: method.
+	cfg messageSends do: [ :send | send typeSystem: typeSystem ].
 	compilerCompiler optimize: cfg.
 	^ cfg
 ]
@@ -75,10 +77,9 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 { #category : #'as yet unclassified' }
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
 
-	"TODO: Sacar esto, iterar solamente las MandatoryInstructions"
+	"TODO: Improve transformation Register to Stack"
 	DRRegisterCollapse new applyTo: aDRControlFlowGraph.
 	
-	bytecodeGenerator := DRBytecodeGenerator new.
 	bytecodeGenerator numArgs: numArgs.
 	bytecodeGenerator methodName: selector.
 	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.
@@ -93,7 +94,7 @@ DRBytecodeGeneratorTest >> setUp [
 	compilerCompiler interpreter: DruidTestInterpreter basicNew.
 	
 	bytecodeGenerator := DRBytecodeGenerator new.
-
+	typeSystem := DRPragmaBasedTypeSystem new
 ]
 
 { #category : #tests }
@@ -127,6 +128,49 @@ DRBytecodeGeneratorTest >> testMethodInline [
 DRBytecodeGeneratorTest >> testMethodManyReturns [
 
 	self assertCompilationFor: #methodWithThreeNonLocalReturn fromClass: DruidTestInterpreter
+]
+
+{ #category : #tests }
+DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
+
+	| method result typeEntries cfg selector |
+	bytecodeGenerator := DRProfileBytecodeGenerator new.
+	typeSystem := DRProfileBasedTypeSystem reset.
+	selector := #methodCollectionSize:.
+	method := self generateMethodForSelector: selector.
+
+	self assert: method size equals: 53. "Small"
+
+	"First execution"
+	result := method
+		          valueWithReceiver: nil
+		          arguments: { { 1. 2. 3 } asOrderedCollection }.
+	self assert: result equals: 3.
+
+	"Profiled type"
+	typeEntries := typeSystem profileTable associations.
+	self assert: typeEntries size equals: 1.
+	self
+		assert: typeEntries first key
+		equals: (RBVariableNode named: 'arg1').
+	self
+		assertCollection: typeEntries first value
+		hasSameElements: { (DRClassType for: OrderedCollection) }.
+
+	"Recompile"
+	compilerCompiler := DRMethodCompilerCompiler new.
+	bytecodeGenerator := DRProfileBytecodeGenerator new.
+	cfg := self generateDruidIRFor: method. 1halt.
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+
+	1 halt.
+	self assert: method size equals: 55. "bigger"
+
+	1 halt.
+	result := method
+		          valueWithReceiver: nil
+		          arguments: { (Array2D rows: 2 columns: 2) }.
+	self assert: result equals: 4
 ]
 
 { #category : #tests }
@@ -164,7 +208,7 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 
 	| method result |
 	method := self generateMethodForSelector: #methodCollectionSize:.
-
+1halt.
 	result := method
 		          valueWithReceiver: nil
 		          arguments: { { 1. 2. 3 } asOrderedCollection }.

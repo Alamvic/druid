@@ -185,6 +185,7 @@ DRBytecodeGenerator >> visitPhiFunction: aDRPhiFunction [
 
 	| resolved |
 	resolved := aDRPhiFunction valuesForPredecessor: predecessor.
+	resolved ifEmpty: [ 1halt ].
 	resolved unique acceptVisitor: self
 ]
 

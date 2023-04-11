@@ -154,8 +154,8 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_monomorphic [
 	messageSend := cfg messageSends unique.
 	messageSend typeSystem: typeSystem.
 	typeSystem
-		addReceiver: OrderedCollection new
-		for: messageSend originAST.
+		addReceiverInfo: OrderedCollection new
+		inMessage: messageSend originAST.
 
 	self assert: messageSend selector equals: selector.
 
@@ -187,9 +187,9 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_polimorphic [
 	messageSend typeSystem: typeSystem.
 
 	typeSystem
-		addReceiver: OrderedCollection new
-		for: messageSend originAST.
-	typeSystem addReceiver: Array2D new for: messageSend originAST.
+		addReceiverInfo: OrderedCollection new
+		inMessage: messageSend originAST.
+	typeSystem addReceiverInfo: Array2D new inMessage: messageSend originAST.
 
 	self assert: messageSend selector equals: selector.
 

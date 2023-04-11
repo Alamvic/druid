@@ -209,7 +209,8 @@ DRMessageSend >> typeSystem [
 { #category : #accessing }
 DRMessageSend >> typeSystem: anObject [
 
-	typeSystem := anObject
+	typeSystem := anObject.
+	irGenerator typeSystem: anObject
 ]
 
 { #category : #copying }

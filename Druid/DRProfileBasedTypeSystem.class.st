@@ -4,25 +4,58 @@ Class {
 	#instVars : [
 		'profileTable'
 	],
+	#classInstVars : [
+		'default'
+	],
 	#category : #'Druid-IR-Types'
 }
 
+{ #category : #accessing }
+DRProfileBasedTypeSystem class >> default [
+
+	^ default ifNil: [ self reset ]
+]
+
+{ #category : #accessing }
+DRProfileBasedTypeSystem class >> reset [
+
+	^ default := self new
+]
+
+{ #category : #listener }
+DRProfileBasedTypeSystem class >> sendingMessageTo: anObject [
+
+	self default sendingMessageTo: anObject
+]
+
 { #category : #adding }
-DRProfileBasedTypeSystem >> addReceiver: anObject for: aRBMessageNode [
+DRProfileBasedTypeSystem >> addReceiverInfo: anObject forNode: aRBNode [
 
 	| type |
 	type := DRClassType for: anObject class.
 
 	profileTable
-		at: aRBMessageNode receiver
+		at: aRBNode
 		ifPresent: [ :col | col add: type ]
 		ifAbsentPut: [ { type } asOrderedCollection ]
+]
+
+{ #category : #adding }
+DRProfileBasedTypeSystem >> addReceiverInfo: anObject inMessage: aRBMessageNode [
+
+	self addReceiverInfo: anObject forNode: aRBMessageNode receiver
 ]
 
 { #category : #initialization }
 DRProfileBasedTypeSystem >> initialize [
 
 	profileTable := Dictionary new
+]
+
+{ #category : #accessing }
+DRProfileBasedTypeSystem >> profileTable [
+
+	^ profileTable
 ]
 
 { #category : #API }
@@ -34,4 +67,18 @@ DRProfileBasedTypeSystem >> receiverTypes: aDRMessageSend [
 		                 ifAbsent: [ {  } ].
 
 	^ profiledTypes , { DRUndefinedType new } "Always ready for new types"
+]
+
+{ #category : #listener }
+DRProfileBasedTypeSystem >> sendingMessageTo: anObject [
+
+	| callerContext receiverNode |
+	callerContext := thisContext sender findContextSuchThat: [ :context | 
+		"Find the last method executed before the Type System ones"
+		                 context receiver ~= self class and: [
+			                 context receiver class ~= self class ] ].
+	receiverNode := callerContext method sourceNodeForPC:
+		                callerContext pc + 1.
+
+	self addReceiverInfo: anObject forNode: receiverNode
 ]
