@@ -483,14 +483,6 @@ DRInterpreterToCompiler >> newPrimitiveCompiler [
 ]
 
 { #category : #adding }
-DRInterpreterToCompiler >> primitiveMayCallback: aString [
-	"Answer <true> if primitive aString is marked as maycallback"
-	" #maycallback "
-
-	^ aString = #genNonImplementedPrimitive
-]
-
-{ #category : #adding }
 DRInterpreterToCompiler >> primitiveNumberOf: aSelector [
 	" Answer a <Number> representing the primitive number of aSelector "
 

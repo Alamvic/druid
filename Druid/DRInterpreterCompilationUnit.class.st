@@ -169,14 +169,6 @@ DRInterpreterCompilationUnit >> isValidPrimitiveName: aString [
 ]
 
 { #category : #'accessing - primitives' }
-DRInterpreterCompilationUnit >> primitiveMayCallback: aString [
-	"Answer <true> if primitive aString is marked as maycallback"
-	" #maycallback "
-
-	^ aString = #genNonImplementedPrimitive
-]
-
-{ #category : #'accessing - primitives' }
 DRInterpreterCompilationUnit >> primitiveNumberOf: aSelector [
 	" Answer a <Number> representing the primitive number of aSelector "
 
