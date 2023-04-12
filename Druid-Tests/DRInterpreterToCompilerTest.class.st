@@ -87,7 +87,7 @@ DRInterpreterToCompilerTest >> testMandatoryPrimitiveCompilationUnits [
 
 	supportedPrimitive := interpreterToCompiler primitives first.
 	self assert: supportedPrimitive sourceSelector equals: #primitiveAdd.
-	self assert: supportedPrimitive genSelector equals: #gen_primitiveAdd.
+	self assert: supportedPrimitive genSelector equals: #gen_PrimitiveAdd.
 	self assert: supportedPrimitive supported.
 	self deny: supportedPrimitive mayCallback.
 
@@ -124,7 +124,7 @@ DRInterpreterToCompilerTest >> testSelectBytecodeCompilationUnits [
 		equals: #pushReceiverVariableBytecode.
 	self
 		assert: supportedBytecode genSelector
-		equals: #gen_pushReceiverVariableBytecode.
+		equals: #gen_PushReceiverVariableBytecode.
 	self assert: supportedBytecode supported.
 
 	unknownBytecodes := interpreterToCompiler bytecodes allButFirst.
@@ -180,7 +180,7 @@ DRInterpreterToCompilerTest >> testSelectSingleBytecodeNumberCompilationUnits [
 		equals: #pushConstantTrueBytecode.
 	self
 		assert: supportedBytecode genSelector
-		equals: #gen_pushConstantTrueBytecode.
+		equals: #gen_PushConstantTrueBytecode.
 	self assert: supportedBytecode supported.
 
 ]

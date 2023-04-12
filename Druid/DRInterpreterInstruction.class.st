@@ -32,7 +32,7 @@ DRInterpreterInstruction >> genSelector [
 
 	supported ifFalse: [ ^ self notSupportedSelector ].
 
-	^ #gen_ , self sourceSelector
+	^ #gen_ , self sourceSelector capitalized
 ]
 
 { #category : #testing }

@@ -83,10 +83,10 @@ DRInterpreterCompilationUnitTest >> testBytecodeCompilation [
 
 	self
 		assert: self targetClass bytecodeTable
-		equals: { #( 1 0 15 #gen_pushReceiverVariableBytecode ) }.
+		equals: { #( 1 0 15 #gen_PushReceiverVariableBytecode ) }.
 
 	self assert:
-		(self targetClass canUnderstand: #gen_pushReceiverVariableBytecode)
+		(self targetClass canUnderstand: #gen_PushReceiverVariableBytecode)
 ]
 
 { #category : #'tests - bytecodes' }
@@ -112,11 +112,11 @@ DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 	self compile: compilationUnit.
 
 	self assert: self targetClass bytecodeTable equals: {
-			#( 1 0 15 #gen_pushReceiverVariableBytecode ).
+			#( 1 0 15 #gen_PushReceiverVariableBytecode ).
 			#( 2 16 30 #unknownBytecode ) }.
 
 	self assert:
-		(self targetClass canUnderstand: #gen_pushReceiverVariableBytecode)
+		(self targetClass canUnderstand: #gen_PushReceiverVariableBytecode)
 ]
 
 { #category : #'tests - primitives' }
@@ -151,11 +151,11 @@ DRInterpreterCompilationUnitTest >> testManyPrimitivesCompilation [
 
 
 	self assert: self targetClass primitiveTableArray equals: {
-			#( 1 #gen_primitiveAdd 1 ).
+			#( 1 #gen_PrimitiveAdd 1 ).
 			#( 2 #genNonImplementedPrimitive -1 ).
 			#( 3 #genNonImplementedPrimitive 3 #maycallback ) }.
 
-	self assert: (self targetClass canUnderstand: #gen_primitiveAdd)
+	self assert: (self targetClass canUnderstand: #gen_PrimitiveAdd)
 ]
 
 { #category : #'tests - primitives' }
@@ -175,9 +175,9 @@ DRInterpreterCompilationUnitTest >> testMaycallbackPrimitiveCompilation [
 
 	self
 		assert: self targetClass primitiveTableArray
-		equals: { #( 7 #gen_primitiveAdd 1 #maycallback ) }.
+		equals: { #( 7 #gen_PrimitiveAdd 1 #maycallback ) }.
 		
-	self assert: (self targetClass canUnderstand: #gen_primitiveAdd)
+	self assert: (self targetClass canUnderstand: #gen_PrimitiveAdd)
 ]
 
 { #category : #'tests - bytecodes' }
@@ -235,7 +235,7 @@ DRInterpreterCompilationUnitTest >> testPrimitiveCompilation [
 
 	self
 		assert: self targetClass primitiveTableArray
-		equals: { #( 7 #gen_primitiveAdd 1 ) }.
+		equals: { #( 7 #gen_PrimitiveAdd 1 ) }.
 
-	self assert: (self targetClass canUnderstand: #gen_primitiveAdd)
+	self assert: (self targetClass canUnderstand: #gen_PrimitiveAdd)
 ]
