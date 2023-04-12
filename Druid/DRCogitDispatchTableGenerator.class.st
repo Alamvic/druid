@@ -18,11 +18,16 @@ DRCogitDispatchTableGenerator >> arrayAccessorGlobalName [
 ]
 
 { #category : #'accessing - bytecodes' }
-DRCogitDispatchTableGenerator >> buildBytecodeTableVariableNode [
-	"Answer a <PCGReturnNode> with the primitive table initialization setter message send"
+DRCogitDispatchTableGenerator >> buildBytecodeTableArrayNode [
 
-	^ PCGArrayNode statements: (self bytecodeTable collect: #asPCG)
+	^ self bytecodeTable asPCG returnIt
+]
 
+{ #category : #'as yet unclassified' }
+DRCogitDispatchTableGenerator >> buildBytecodeTableMethodNode [
+
+	^ (PCGMethodNode selector: #bytecodeTable) bodyBlock: [ :body |
+		  body << self bytecodeTable asPCG returnIt ]
 ]
 
 { #category : #'accessing - bytecodes' }
@@ -32,7 +37,7 @@ DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableAssignmentNode [
 	^ PCGMessageNode
 			receiver: #self asPCGNode
 			selector: #generatorTableFrom:
-			arguments: { self buildBytecodeTableVariableNode }
+			arguments: { #'self bytecodeTable' asPCGArgument  }
 ]
 
 { #category : #'accessing - bytecodes' }
@@ -156,6 +161,7 @@ DRCogitDispatchTableGenerator >> installAllMethodsOn: aJITCompilerClass [
 	^ {
 		self buildInitializePrimitiveTableArrayMethodNode .
 		self buildInitializePrimitiveTableMethodNode .
+		self buildBytecodeTableMethodNode .
 		self buildInitializeBytecodeTableMethodNode
 		} do: [ : pcgNode |
 			pcgNode

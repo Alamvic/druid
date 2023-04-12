@@ -89,18 +89,6 @@ DRInterpreterCompilationUnit >> bytecodes: anObject [
 ]
 
 { #category : #'accessing - compiler' }
-DRInterpreterCompilationUnit >> compileAll [
-	"Install methods in the receiver's JIT compiler class"
-
-	| realTargetClass |
-
-	realTargetClass := self compilerBuilder environmentAt: self targetClass.
-	self addPrimitiveEntries.
-	self addBytecodeEntries.
-	self dispatchTableGenerator installAllMethodsOn:realTargetClass class
-]
-
-{ #category : #'accessing - compiler' }
 DRInterpreterCompilationUnit >> compileUsing: aCompiler [
 	"Install methods in the receiver's JIT compiler class"
 
