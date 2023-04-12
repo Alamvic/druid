@@ -80,35 +80,10 @@ DRAbstractDispatchTableGenerator >> buildPrimitiveTableArrayNode [
 	^ self primitiveTable asPCG returnIt
 ]
 
-{ #category : #accessing }
-DRAbstractDispatchTableGenerator >> buildPrimitiveTableInitialValueNode [
+{ #category : #'accessing - primitives' }
+DRAbstractDispatchTableGenerator >> buildPrimitiveTableVariableNode [
 
-	^ PCGMessageNode
-		receiver: self arrayAccessorGlobalName asPCGGlobal
-		selector: #on:
-		arguments:
-			{ PCGMessageNode
-				receiver: #Array asPCGGlobal
-				selector: #new:
-				arguments: { PCGMessageNode
-					receiver: #MaxCompiledPrimitiveIndex asPCGGlobal
-					selector: #+
-					arguments: { 1 asPCG } .} }
-]
-
-{ #category : #accessing }
-DRAbstractDispatchTableGenerator >> collectAllMethodsOn: aJITCompilerClass [
-	"Answer a <Collection> of <PCGMethodNode> to be installated in a JIT compiler class"
-
-	^ {
-		self buildInitializePrimitiveTableArrayMethodNode .
-		self buildInitializePrimitiveTableMethodNode .
-		self buildInitializeBytecodeTableMethodNode
-		} collect: [ : pcgNode |
-			pcgNode
-				protocol: #'class initialization';
-				installOn: aJITCompilerClass.
-			pcgNode ]
+	^ #primitiveTable asPCGInstanceVariable
 ]
 
 { #category : #accessing }
@@ -127,20 +102,6 @@ DRAbstractDispatchTableGenerator >> compilationUnit: anObject [
 DRAbstractDispatchTableGenerator >> initPrimitiveTableSelector [
 
 	self subclassResponsibility
-]
-
-{ #category : #'accessing - installation' }
-DRAbstractDispatchTableGenerator >> installAllMethodsOn: aJITCompilerClass [
-	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
-
-	^ {
-		self buildInitializePrimitiveTableArrayMethodNode .
-		self buildInitializePrimitiveTableMethodNode .
-		} do: [ : pcgNode |
-			pcgNode
-				protocol: #'class initialization';
-				installOn: aJITCompilerClass ]
-		displayingProgress: 'Installing methods'
 ]
 
 { #category : #accessing }

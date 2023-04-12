@@ -17,12 +17,6 @@ DRCogitDispatchTableGenerator >> arrayAccessorGlobalName [
 	^ #CArrayAccessor
 ]
 
-{ #category : #'accessing - bytecodes' }
-DRCogitDispatchTableGenerator >> buildBytecodeTableArrayNode [
-
-	^ self bytecodeTable asPCG returnIt
-]
-
 { #category : #'as yet unclassified' }
 DRCogitDispatchTableGenerator >> buildBytecodeTableMethodNode [
 
@@ -127,12 +121,6 @@ DRCogitDispatchTableGenerator >> buildPrimitiveTableInitialValueNode [
 					receiver: self maxPrimitiveIndexGlobalName asPCGGlobal
 					selector: #+
 					arguments: { 1 asPCG }))
-]
-
-{ #category : #'accessing - primitives' }
-DRCogitDispatchTableGenerator >> buildPrimitiveTableVariableNode [
-
-	^ #primitiveTable asPCGInstanceVariable
 ]
 
 { #category : #'accessing - bytecodes' }
