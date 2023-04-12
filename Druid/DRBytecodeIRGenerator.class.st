@@ -32,6 +32,9 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #push: put: #interpretPushWith:.
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
 	specialCases at: #normalSendSpecialSelector:argumentCount: put: #interpretNormalSpecialSelectorSendWith:.
+	specialCases at: #commonReturn: put: #interpretCommonReturnWith:.
+	
+
 ]
 
 { #category : #'special cases' }
@@ -41,6 +44,18 @@ DRBytecodeIRGenerator >> interpretArgumentCountAssignmentWith: aRBAssignmentNode
 	Visit the value of the assignment and get the number of arguments.
 	For now do not use it"
 	aRBAssignmentNode value acceptVisitor: self.
+]
+
+{ #category : #'special - cases' }
+DRBytecodeIRGenerator >> interpretCommonReturnWith: aRBMessageNode [
+
+	| returnedValue |
+	returnedValue := self visitOperand: aRBMessageNode arguments first.
+
+	^ self
+		  addInstructionWithNoResultFrom: aRBMessageNode
+		  instructionKind: DRReturn
+		  operands: { returnedValue }
 ]
 
 { #category : #visiting }

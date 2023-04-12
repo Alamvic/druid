@@ -447,3 +447,19 @@ DRProductionBytecodeTest >> testPushTrueObject [
 	self executePrimitiveWithReceiver: object.
 	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
 ]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testReturnTopFromMethod [
+
+	| object |
+	self compileBytecode: 92 selector: #returnTopFromMethod thenDo: [ :generator |
+		cogit ssPushConstant: 17.
+
+		"Execute the druid's compiled code"
+		generator value ].
+
+	object := self newObjectWithSlots: 0.
+
+	self executePrimitiveWithReceiver: object.
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]

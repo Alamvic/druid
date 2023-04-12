@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-Cogit'
 }
 
+{ #category : #'ir-to-ast' }
+DRCogitStackToRegisterMappingGenerator >> returnNodeForCompiledMethod [
+
+	^ RBLiteralNode value: 0
+]
+
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 
@@ -120,4 +126,19 @@ DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 			 selector: 'ssPush',
 				 (aDRPush operand1 rtlPushOperandQualifierForInstruction: aDRPush)
 			 arguments: aDRPush operand1 rtlPushArgumentExpressions)
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitReturn: aDRReturn [
+	"Generate the postamble in the return cases"
+
+	self generatePostambleForCFG: aDRReturn controlFlowGraph.
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: (RBVariableNode named: 'self ssTop')
+			 selector: #popToReg:
+			 arguments: { (RBVariableNode named: 'ReceiverResultReg') }).
+
+	generatorMethodBuilder addStatement:
+		(RBMessageNode receiver: RBVariableNode selfNode selector: #genUpArrowReturn)
 ]

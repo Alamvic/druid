@@ -52,13 +52,13 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 	                 #primitiveMultiply #primitiveDivide primitiveAt primitiveNew
 	                 primitiveNewWithArg ).
 
-	bytecodes := #( "bytecodePrimAdd duplicateTopBytecode pushLiteralConstantBytecode
-	                sendLiteralSelector0ArgsBytecode
-	                shortConditionalJumpTrue shortUnconditionalJump
-	                pushReceiverBytecode pushReceiverVariableBytecode
-	                pushConstantTrueBytecode" ).
+	"bytecodePrimAdd duplicateTopBytecode 
+	sendLiteralSelector0ArgsBytecode shortConditionalJumpTrue 
+	shortUnconditionalJump pushReceiverVariableBytecode pushConstantTrueBytecode"
+	bytecodes := #( pushReceiverBytecode returnTopFromMethod pushLiteralConstantBytecode ).
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
+		doFailOnFirst;
 		selectPrimitives: [ :e | primitives includes: e selector ];
 		selectBytecodes: [ :e | bytecodes includes: e selector ];
 		targetClass: DruidJIT;

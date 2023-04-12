@@ -221,6 +221,12 @@ DRCogitCanonicaliser >> visitPush: aDRPush [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitReturn: aDRReturn [ 
+
+	"Do nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitRightShift: aDRRightShift [ 
 	
 	"Nothing"
