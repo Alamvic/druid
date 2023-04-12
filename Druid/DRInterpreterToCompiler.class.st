@@ -45,15 +45,22 @@ DRInterpreterToCompiler class >> fromInterpreterClass: anInterpreterClass [
 DRInterpreterToCompiler class >> generateDruidJITModel [
 
 	<script>
-	| primitives |
+	| primitives bytecodes |
 	primitives := #( #primitiveAdd #primitiveSubtract #primitiveLessThan
 	                 #primitiveGreaterThan #primitiveLessOrEqual
 	                 #primitiveGreaterOrEqual #primitiveEqual #primitiveNotEqual
-	                 #primitiveMultiply #primitiveDivide ).
+	                 #primitiveMultiply #primitiveDivide primitiveAt primitiveNew
+	                 primitiveNewWithArg ).
+
+	bytecodes := #( bytecodePrimAdd duplicateTopBytecode pushLiteralConstantBytecode
+	                sendLiteralSelector0ArgsBytecode
+	                shortConditionalJumpTrue shortUnconditionalJump
+	                pushReceiverBytecode pushReceiverVariableBytecode
+	                pushConstantTrueBytecode ).
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		selectPrimitives: [ :e | primitives includes: e selector ];
-		selectBytecodes: [ :e | false ];
+		selectBytecodes: [ :e | bytecodes includes: e selector ];
 		targetClass: DruidJIT;
 		targetSuperclass: StackToRegisterMappingCogit;
 		build
