@@ -147,15 +147,15 @@ DRCogitDispatchTableGenerator >> installAllMethodsOn: aJITCompilerClass [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
 	^ {
-		self buildInitializePrimitiveTableArrayMethodNode .
-		self buildInitializePrimitiveTableMethodNode .
-		self buildBytecodeTableMethodNode .
-		self buildInitializeBytecodeTableMethodNode
-		} do: [ : pcgNode |
-			pcgNode
-				protocol: #'class initialization';
-				installOn: aJITCompilerClass ]
-		displayingProgress: 'Installing methods'
+		  self buildInitializePrimitiveTableArrayMethodNode.
+		  self buildInitializePrimitiveTableMethodNode.
+		  self buildBytecodeTableMethodNode.
+		  self buildInitializeBytecodeTableMethodNode }
+		  do: [ :pcgNode |
+			  pcgNode
+				  protocol: #'class initialization';
+				  installOn: aJITCompilerClass ]
+		  displayingProgress: 'Installing methods on ' , aJITCompilerClass name
 ]
 
 { #category : #'accessing - primitives' }

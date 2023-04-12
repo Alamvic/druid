@@ -97,13 +97,14 @@ DRInterpreterCompilationUnit >> compileUsing: aCompiler [
 	self addPrimitiveEntries.
 	self addBytecodeEntries.
 
-	self primitives do: [ :e |
-		aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ].
-	self bytecodes do: [ :e |
-		aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ].
+	self primitives
+		do: [ :e | aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ]
+		displayingProgress: [ :e | 'Compiling primitive ' , e genSelector ].
+	self bytecodes
+		do: [ :e | aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ]
+		displayingProgress: [ :e | 'Compiling bytecode ' , e genSelector ].
 
-	self dispatchTableGenerator installAllMethodsOn:
-		realTargetClass class
+	self dispatchTableGenerator installAllMethodsOn: realTargetClass class
 ]
 
 { #category : #private }

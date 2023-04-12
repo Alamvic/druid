@@ -76,28 +76,23 @@ DRInterpreterToCompiler >> addBytecode: bytecodeMethod [
 DRInterpreterToCompiler >> addBytecodes [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
-	(self collectBytecodes: self interpreterBytecodeTable)
-		do: [ :prim | self addBytecode: prim ]
-		displayingProgress: [ :prim | 'Adding bytecode: ' , prim asString ].
+	(self collectBytecodes: self interpreterBytecodeTable) do: [ :prim |
+		self addBytecode: prim ].
 
-	self fillBytecodesTableHoles.
-
+	self fillBytecodesTableHoles
 ]
 
 { #category : #adding }
 DRInterpreterToCompiler >> addMandatoryPrimitives [
 
-	self interpreterPrimitiveTable
-		do: [ :selector |
-			(selector isNumber or: [
-				 self primitives anySatisfy: [ :e | e sourceSelector = selector ] ])
-				ifFalse: [
-					| method |
-					method := self interpreterClass lookupSelector: selector.
-					(self isMaycallbackPrimitive: method) ifTrue: [
-						self primitives add: (self newNonImplementedPrimitive: method) ] ] ]
-		displayingProgress: [ :selector |
-			'Adding mandatory non implemented primitive: ' , selector asString ]
+	self interpreterPrimitiveTable do: [ :selector |
+		(selector isNumber or: [
+			 self primitives anySatisfy: [ :e | e sourceSelector = selector ] ])
+			ifFalse: [
+				| method |
+				method := self interpreterClass lookupSelector: selector.
+				(self isMaycallbackPrimitive: method) ifTrue: [
+					self primitives add: (self newNonImplementedPrimitive: method) ] ] ]
 ]
 
 { #category : #adding }
@@ -125,9 +120,8 @@ DRInterpreterToCompiler >> addPrimitives [
 { #category : #adding }
 DRInterpreterToCompiler >> addSelectedPrimitives [
 
-	(self collectPrimitives: self interpreterPrimitiveTable)
-		do: [ :prim | self addPrimitive: prim ]
-		displayingProgress: [ :prim | 'Adding primitive: ' , prim selector ]
+	(self collectPrimitives: self interpreterPrimitiveTable) do: [ :prim |
+		self addPrimitive: prim ]
 ]
 
 { #category : #'accessing - model' }
