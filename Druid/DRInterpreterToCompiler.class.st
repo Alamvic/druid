@@ -405,7 +405,9 @@ DRInterpreterToCompiler >> newBytecode: bytecodeMethod [
 	^ DRBytecodeObject new
 		  bytecodeSize: bytecodeGroup first;
 		  bytecodeNumberStart: bytecodeGroup second;
-		  bytecodeNumberEnd: bytecodeGroup third;
+		  bytecodeNumberEnd: (bytecodeGroup third isNumber
+				   ifTrue: [ bytecodeGroup third ]
+				   ifFalse: [ bytecodeGroup second ]);
 		  sourceMethod: bytecodeMethod;
 		  yourself
 ]
