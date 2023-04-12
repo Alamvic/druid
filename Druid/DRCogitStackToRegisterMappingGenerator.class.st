@@ -92,7 +92,7 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue
 	| sourceDescriptorAST |
 	sourceDescriptorAST := RBMessageNode
 		                       receiver: RBVariableNode selfNode
-		                       selector: #ssDescriptorAt:
+		                       selector: #ssValue:
 		                       arguments:
 		                       aDRLoadStackValue operand1
 			                       rtlPushArgumentExpressions.
