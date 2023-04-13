@@ -137,8 +137,7 @@ DRMethodIRGenerator >> typeSystem [
 { #category : #visiting }
 DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [
 
-	self flag: #notImplemented.
-	self pushOperand: nil
+	self pushOperand: aRBVariableNode binding asDRValue
 ]
 
 { #category : #visiting }

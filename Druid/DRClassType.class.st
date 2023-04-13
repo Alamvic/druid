@@ -57,6 +57,13 @@ DRClassType >> lookupSelector: aString [
 	^ classType lookupSelector: aString 
 ]
 
+{ #category : #printing }
+DRClassType >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream << '(' << classType name << ')'
+]
+
 { #category : #accessing }
 DRClassType >> systemClass [
 

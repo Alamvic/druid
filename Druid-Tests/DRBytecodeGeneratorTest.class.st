@@ -160,13 +160,39 @@ DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 	"Recompile"
 	compilerCompiler := DRMethodCompilerCompiler new.
 	bytecodeGenerator := DRProfileBytecodeGenerator new.
-	cfg := self generateDruidIRFor: method. 1halt.
+	cfg := self generateDruidIRFor: method.
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
-	1 halt.
-	self assert: method size equals: 55. "bigger"
+	self assert: method size equals: 121. "bigger"
 
-	1 halt.
+	result := method
+		          valueWithReceiver: nil
+		          arguments: { (Array2D rows: 2 columns: 2) }.
+	self assert: result equals: 4.
+
+	"New profiled type"
+	typeEntries := typeSystem profileTable associations.
+	self assert: typeEntries size equals: 1.
+	self
+		assert: typeEntries first key
+		equals: (RBVariableNode named: 'arg1').
+	self assertCollection: typeEntries first value hasSameElements: {
+			(DRClassType for: OrderedCollection).
+			(DRClassType for: Array2D) }.
+
+	"Recompile again"
+	compilerCompiler := DRMethodCompilerCompiler new.
+	bytecodeGenerator := DRProfileBytecodeGenerator new.
+	cfg := self generateDruidIRFor: method.
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+
+	self assert: method size equals: 290. "bigger then before"
+	
+	result := method
+		          valueWithReceiver: nil
+		          arguments: { { 1. 2. 3 } asOrderedCollection }.
+	self assert: result equals: 3.
+
 	result := method
 		          valueWithReceiver: nil
 		          arguments: { (Array2D rows: 2 columns: 2) }.
@@ -208,7 +234,7 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 
 	| method result |
 	method := self generateMethodForSelector: #methodCollectionSize:.
-1halt.
+
 	result := method
 		          valueWithReceiver: nil
 		          arguments: { { 1. 2. 3 } asOrderedCollection }.

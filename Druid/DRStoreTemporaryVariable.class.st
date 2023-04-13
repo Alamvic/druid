@@ -10,6 +10,13 @@ DRStoreTemporaryVariable >> acceptVisitor: aVisitor [
 	^ aVisitor visitStoreTempVar: self
 ]
 
+{ #category : #initialization }
+DRStoreTemporaryVariable >> initialize [
+
+	super initialize.
+	result := DRNoRegister new
+]
+
 { #category : #testing }
 DRStoreTemporaryVariable >> isMandatoryInstruction [ 
 
