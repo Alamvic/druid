@@ -7,7 +7,7 @@ Class {
 { #category : #adding }
 DRProfileBytecodeGenerator >> addProfileFor: aDRMessageSend [
 
-	builder pushLiteralVariable: DRProfileBasedTypeSystem binding.
+	builder pushLiteralVariable: DRProfileInstrumentation binding.
 	aDRMessageSend receiver acceptVisitor: self.
 	builder send: #sendingMessageTo:.
 	builder popTop
@@ -15,7 +15,9 @@ DRProfileBytecodeGenerator >> addProfileFor: aDRMessageSend [
 
 { #category : #visiting }
 DRProfileBytecodeGenerator >> visitMessageSend: aDRMessageSend [
-	
-	self addProfileFor: aDRMessageSend.
+
+	(DRProfileInstrumentation class selectors includes:
+		 aDRMessageSend selector) ifFalse: [
+		self addProfileFor: aDRMessageSend ].
 	super visitMessageSend: aDRMessageSend
 ]

@@ -186,7 +186,7 @@ DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 	cfg := self generateDruidIRFor: method.
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
-	self assert: method size equals: 290. "bigger then before"
+	self assert: method size equals: 250. "bigger then before"
 	
 	result := method
 		          valueWithReceiver: nil
