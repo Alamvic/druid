@@ -445,6 +445,12 @@ DRCPSEdge >> visitLoadArgument: aDRLoadArgument [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitLoadInstVar: aDRLoadInstanceVariable [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitLoadStackValue: aDRLoadStackValue [ 
 
 	^ nil
@@ -587,7 +593,19 @@ DRCPSEdge >> visitStore: aDRLoad [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitStoreTempVar: aDRStoreTemporaryVariable [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitSubstract: aDRSubtract [ 
+
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 
 	^ nil
 ]
@@ -605,6 +623,15 @@ DRCPSEdge >> visitTestMask: aDRTestMask inBranch: aDRBranch [
 DRCPSEdge >> visitTrueObject: aDRTrueObject [
 
 	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitTypeOf: aDRTypeOf inBranch: aDRBranch [ 
+
+		^ self
+		  visitComparison: aDRTypeOf
+		  ofBranch: aDRBranch
+		  andDo: [ :reg :type | DRRegisterDomain type: reg with: type value ]
 ]
 
 { #category : #visiting }
