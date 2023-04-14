@@ -5,13 +5,19 @@ Class {
 }
 
 { #category : #testing }
+DRExcludeTypeConstraint >> hasNotType: aDRType [
+
+	^ type = aDRType
+]
+
+{ #category : #testing }
 DRExcludeTypeConstraint >> hasType: aDRType [
 
 	^ type ~= aDRType
 ]
 
 { #category : #testing }
-DRExcludeTypeConstraint >> includes: otherConstraint [
+DRExcludeTypeConstraint >> isIncludedIn: otherConstraint [
 
 	^ otherConstraint hasNotType: type
 ]

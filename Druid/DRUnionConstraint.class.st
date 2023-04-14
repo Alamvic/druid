@@ -40,6 +40,18 @@ DRUnionConstraint >> hasAllValuesWithoutMask: aMask [
 	^ constraints anySatisfy: [ :c | c hasAllValuesWithoutMask: aMask ]
 ]
 
+{ #category : #testing }
+DRUnionConstraint >> hasNotType: aDRClassType [
+
+	^ constraints anySatisfy: [ :c | c hasNotType: aDRClassType ]
+]
+
+{ #category : #testing }
+DRUnionConstraint >> hasType: aDRClassType [
+
+	^ constraints anySatisfy: [ :c | c hasType: aDRClassType ]
+]
+
 { #category : #arithmetic }
 DRUnionConstraint >> hasValue: otherConstantValue [
 

@@ -46,6 +46,18 @@ DRTypeConstraint >> hasValue: otherConstantValue [
 	^ false
 ]
 
+{ #category : #testing }
+DRTypeConstraint >> includes: otherConstraint [
+
+	^ self negated isIncludedIn: otherConstraint negated.
+]
+
+{ #category : #testing }
+DRTypeConstraint >> isIncludedIn: otherConstraint [
+
+	self subclassResponsibility 
+]
+
 { #category : #printing }
 DRTypeConstraint >> printOn: aStream [
 

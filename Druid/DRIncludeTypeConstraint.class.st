@@ -17,7 +17,7 @@ DRIncludeTypeConstraint >> hasType: aDRType [
 ]
 
 { #category : #testing }
-DRIncludeTypeConstraint >> includes: otherConstraint [
+DRIncludeTypeConstraint >> isIncludedIn: otherConstraint [
 
 	^ otherConstraint hasType: type
 ]

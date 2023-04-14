@@ -34,6 +34,12 @@ DRSimpleConstraint >> constantValue: anObject [
 	constantValue := anObject
 ]
 
+{ #category : #testing }
+DRSimpleConstraint >> hasType: aDRClassType [
+
+	^ false
+]
+
 { #category : #comparing }
 DRSimpleConstraint >> hash [
 	"Hash implemented because #= was implemented"
