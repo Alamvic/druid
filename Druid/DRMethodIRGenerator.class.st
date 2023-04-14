@@ -148,7 +148,7 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 		instructionKind: DRLoadInstanceVariable
 		operands: { 
 				self topFrame receiver.
-				aRBVariableNode name asDRValue }
+				aRBVariableNode variable index asDRValue }
 ]
 
 { #category : #visiting }

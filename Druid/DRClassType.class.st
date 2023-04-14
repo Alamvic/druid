@@ -28,6 +28,12 @@ DRClassType >> astForSelector: aSelector [
 ]
 
 { #category : #accessing }
+DRClassType >> binding [
+
+	^ classType binding
+]
+
+{ #category : #accessing }
 DRClassType >> classType [
 
 	^ classType
@@ -43,6 +49,18 @@ DRClassType >> classType: aClass [
 DRClassType >> hash [
 
 	^ self species hash bitXor: classType hash
+]
+
+{ #category : #testing }
+DRClassType >> isClassType [
+	
+	^ true
+]
+
+{ #category : #testing }
+DRClassType >> isGlobalVariable [
+
+	^ false
 ]
 
 { #category : #'instance creation' }

@@ -25,7 +25,7 @@ DRBytecodeGenerator >> generateJump: aDRBranch [
 	builder jumpAheadTarget: #end
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : #API }
 DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
 
 	self visitBlock: aDRControlFlowGraph initialBasicBlock.

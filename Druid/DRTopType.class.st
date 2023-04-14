@@ -50,6 +50,12 @@ DRTopType >> ifNotNil: notNilBlock ifNil: nilBlock [
 ]
 
 { #category : #testing }
+DRTopType >> isClassType [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRTopType >> isFloatType [
 	
 	^ false
