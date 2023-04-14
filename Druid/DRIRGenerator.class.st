@@ -1733,9 +1733,13 @@ DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 DRIRGenerator >> visitMessageNode: aRBMessageNode [
 
 	| receiver |
+	specialCases at: aRBMessageNode selector ifPresent: [ :mapping | 
+		^ self perform: mapping withArguments: { aRBMessageNode } ].
+
+	"Resolve it as a normal send"
 	aRBMessageNode receiver acceptVisitor: self.
 	receiver := self popOperand.
-	^ self visitMessageNode: aRBMessageNode receiver: receiver
+	self resolveMessageSend: aRBMessageNode receiver: receiver
 ]
 
 { #category : #visiting }

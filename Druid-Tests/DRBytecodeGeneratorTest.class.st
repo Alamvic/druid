@@ -77,9 +77,8 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 { #category : #'as yet unclassified' }
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
 
-	"TODO: Improve transformation Register to Stack"
-	DRRegisterCollapse new applyTo: aDRControlFlowGraph.
-	
+	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
+
 	bytecodeGenerator numArgs: numArgs.
 	bytecodeGenerator methodName: selector.
 	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.
@@ -139,7 +138,7 @@ DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 	selector := #methodCollectionSize:.
 	method := self generateMethodForSelector: selector.
 
-	self assert: method size equals: 53. "Small"
+	self assert: method size equals: 51. "Small"
 
 	"First execution"
 	result := method
@@ -163,7 +162,7 @@ DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 	cfg := self generateDruidIRFor: method.
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
-	self assert: method size equals: 121. "bigger"
+	self assert: method size equals: 117. "bigger"
 
 	result := method
 		          valueWithReceiver: nil

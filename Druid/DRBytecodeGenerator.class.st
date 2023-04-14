@@ -39,6 +39,12 @@ DRBytecodeGenerator >> initialize [
 	visitedBlocks := Stack new
 ]
 
+{ #category : #testing }
+DRBytecodeGenerator >> isResultInstruction: aDRInstruction [
+
+	^ aDRInstruction users isEmpty
+]
+
 { #category : #accessing }
 DRBytecodeGenerator >> methodName: aString [
 
@@ -92,7 +98,8 @@ DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 
 	currentBasicBlock := aDRBasicBlock.
 	self pushBlock: aDRBasicBlock.
-	aDRBasicBlock instructionsDo: [ :i | i acceptVisitor: self ].
+	aDRBasicBlock instructionsDo: [ :i |
+		(self isResultInstruction: i) ifTrue: [ i acceptVisitor: self ] ].
 	self assert: self popBlock = aDRBasicBlock
 ]
 
@@ -124,7 +131,7 @@ DRBytecodeGenerator >> visitBranchIfTrue: aDRBranchIfTrue [
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitConstant: aDRConstantValue [
 
-	aDRConstantValue value isNumber ifFalse: [
+	aDRConstantValue value isLiteral ifFalse: [
 		aDRConstantValue value isGlobalVariable ifTrue: [
 			^ builder pushLiteralVariable: aDRConstantValue value ] ].
 
