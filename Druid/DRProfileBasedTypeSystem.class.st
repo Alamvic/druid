@@ -25,13 +25,15 @@ DRProfileBasedTypeSystem class >> reset [
 { #category : #adding }
 DRProfileBasedTypeSystem >> addReceiverInfo: anObject forNode: aRBNode [
 
-	| type |
+	| methodNode type profiler |
+	methodNode := aRBNode methodNode.
 	type := DRClassType for: anObject class.
 
-	profileTable
-		at: aRBNode
-		ifPresent: [ :col | col add: type ]
-		ifAbsentPut: [ { type } asOrderedCollection ]
+	profiler := profileTable
+		            at: methodNode
+		            ifAbsentPut: [ DRMethodProfiler forMethod: methodNode ].
+
+	profiler addType: type forNode: aRBNode
 ]
 
 { #category : #adding }
@@ -57,8 +59,9 @@ DRProfileBasedTypeSystem >> receiverTypes: aDRMessageSend [
 
 	| profiledTypes |
 	profiledTypes := profileTable
-		                 at: aDRMessageSend originAST receiver
+		                 at: aDRMessageSend originAST methodNode
+		                 ifPresent: [ :profiler | profiler typesFor: aDRMessageSend originAST receiver ]
 		                 ifAbsent: [ {  } ].
 
-	^ profiledTypes , { DRUndefinedType new } "Always ready for new types"
+	^ profiledTypes asOrderedCollection , { DRUndefinedType new } "Always ready for new types"
 ]

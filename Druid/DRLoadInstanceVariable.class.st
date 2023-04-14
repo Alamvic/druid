@@ -39,3 +39,9 @@ DRLoadInstanceVariable >> type [
 
 	^ DRUndefinedType new
 ]
+
+{ #category : #accessing }
+DRLoadInstanceVariable >> variableName [
+
+	^ self originAST name
+]

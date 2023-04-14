@@ -169,7 +169,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_monomorphic [
 		select: [ :i | i isLoadInstanceVariable ]
 		thenDo: [ :i |
 			self assert:
-				({ #firstIndex. #lastIndex } includes: i operand2 value) ].
+				({ #firstIndex. #lastIndex } includes: i variableName) ].
 
 	"Generic case"
 	self assert: cfg messageSends unique selector equals: selector
@@ -202,11 +202,11 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_polimorphic [
 	cfg instructions
 		select: [ :i | i isLoadInstanceVariable ]
 		thenDo: [ :i |
-			i operand2 value = #contents
+			i variableName = #contents
 				ifTrue: [ "Array2D inline" inlinedSend := i users unique ]
 				ifFalse: [ "OrderedCollection inline"
 					self assert:
-						({ #firstIndex. #lastIndex } includes: i operand2 value) ] ].
+						({ #firstIndex. #lastIndex } includes: i variableName) ] ].
 
 	self
 		assert: inlinedSend originAST methodNode methodClass
