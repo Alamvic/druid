@@ -17,7 +17,7 @@ DRProfileInstrumentation class >> class [
 { #category : #accessing }
 DRProfileInstrumentation class >> default [
 
-	^ default
+	^ default ifNil: [ default := self new ]
 ]
 
 { #category : #accessing }
