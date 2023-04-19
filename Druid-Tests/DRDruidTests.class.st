@@ -45,10 +45,9 @@ DRDruidTests >> setUp [
 
 	super setUp.
 
-	cogit objectRepresentation: cogit.
 	cogit methodZone
 		setInterpreter: interpreter
-		objectRepresentation: cogit
+		objectRepresentation: cogit objectRepresentation
 		cogit: cogit.
 		
 	initialAddress := #invalid "will be set by test"

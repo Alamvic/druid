@@ -88,31 +88,55 @@ DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralConstant [
 
-	| literalIndex method |
-	literalIndex := 0 "0 based...".
-	self compileBytecode: 32 + literalIndex selector: #pushLiteralConstantBytecode thenDo: [ :generator |
-		"Execute the druid's compiled code"
-		generator value.
-	
-		"Then return without druid's compiled code"
-		cogit ssTop popToReg: ReceiverResultReg.
-		cogit genUpArrowReturn ].
-
+	| literalIndex method compiledMethod |
 	method := methodBuilder
-		newMethod;
-		literals: { (memory integerObjectOf: 42) };
-		buildMethod.
+		          newMethod
+		          literals: { (memory integerObjectOf: 42) };
+		          buildMethod.
+	cogit methodObj: method.
 
-	self executePrimitiveWithReceiver: (memory integerObjectOf: 17)
-		withArguments: #()
-		method: method.
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 42)
+	self flag: #TODO. "Make it work!"
+	"compiledMethod := cogit cog: method selector: memory nilObject."
+
+
+	literalIndex := 0. "0 based..."
+	self
+		compileBytecode: 32 + literalIndex
+		selector: #pushLiteralConstantBytecode
+		thenDo: [ :generator | 
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  )
+		"method: compiledMethod".
+		
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 42)
 ]
 
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 
 	| literalIndex method |
+
+	method := methodBuilder
+		          newMethod
+		          literals: { (memory integerObjectOf: 42). (memory integerObjectOf: 43) };
+		          buildMethod.
+	cogit methodObj: method.
+
+	self flag: #TODO. "Make it work!"
+	"compiledMethod := cogit cog: method selector: memory nilObject."
+
+
 	literalIndex := 1 "0 based...".
 	self compileBytecode: 32 + literalIndex selector: #pushLiteralConstantBytecode thenDo: [ :generator |
 		"Execute the druid's compiled code"
@@ -122,14 +146,11 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 		cogit ssTop popToReg: ReceiverResultReg.
 		cogit genUpArrowReturn ].
 
-	method := methodBuilder
-		newMethod;
-		literals: { (memory integerObjectOf: 42). (memory integerObjectOf: 43) };
-		buildMethod.
 
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 17)
 		withArguments: #()
-		method: method.
+	"	method: method".
+		
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 43)
 ]
 
