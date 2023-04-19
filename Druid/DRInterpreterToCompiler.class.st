@@ -55,8 +55,8 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 	"bytecodePrimAdd duplicateTopBytecode 
 	sendLiteralSelector0ArgsBytecode shortConditionalJumpTrue 
 	shortUnconditionalJump pushReceiverVariableBytecode pushConstantTrueBytecode
-	returnTopFromMethod "
-	bytecodes := #( pushReceiverBytecode pushLiteralConstantBytecode ).
+	 "
+	bytecodes := #( pushReceiverBytecode pushLiteralConstantBytecode returnTopFromMethod ).
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;

@@ -27,6 +27,7 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	variableSpecialCases at: #framePointer put: #interpretFramePointerWith:.
 	"variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:."
 	
+	specialCases at: #iframeMethod: put: #interpretIframeMethodWith:.
 	specialCases at: #internalMustBeBoolean put: #interpretMustBeBooleanWith:.
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
@@ -84,6 +85,15 @@ DRBytecodeIRGenerator >> interpretFramePointerWith: aRBVariableNode [
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRLoadFramePointer
 		operands: #()
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretIframeMethodWith: aRBMessageNode [ 
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRCopy
+		  operands: { (DRJitCompileTimeExpression expression: 'methodObj') } 
 ]
 
 { #category : #'special cases' }
