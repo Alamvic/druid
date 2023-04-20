@@ -1015,7 +1015,7 @@ DRIRGenerator >> interpretNegatedWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: DRNilObject new
+	^ self addCopy: aRBVariableNode with: (DRJitCompileTimeExpression expression: 'objectMemory nilObject')
 ]
 
 { #category : #visiting }
@@ -1777,7 +1777,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 			self assert: aRBMethodNode statements first isReturn.
 			copy := self currentBasicBlock copy:
 				        (DRJitCompileTimeExpression expression:
-					         aRBMethodNode statements first value).
+					         aRBMethodNode statements first value formattedCode).
 			self topFrame returnValue: copy.
 			self addDeferredReturnState: {
 					executionState copy.

@@ -15,6 +15,34 @@ DRJitCompileTimeExpression class >> expression: anExpression [
 		yourself
 ]
 
+{ #category : #sccp }
+DRJitCompileTimeExpression class >> tryParseOperandForSCCP: aDRValue [
+
+	| result |
+	result := aDRValue asJitCompileTimeExpression.
+	result ifNil: [ ^ DRSCCP bottom ].
+	^ result
+]
+
+{ #category : #arithmetic }
+DRJitCompileTimeExpression >> + aDRJitCompileTimeExpression [
+
+	^ self class expression: (self
+			   mergeExpressions: self expression
+			   op: '+'
+			   other: aDRJitCompileTimeExpression expression)
+]
+
+{ #category : #streaming }
+DRJitCompileTimeExpression >> << aDRJitCompileTimeExpression [ 
+
+	
+	^ self class expression: (self
+			   mergeExpressions: self expression
+			   op: '<<'
+			   other: aDRJitCompileTimeExpression expression)
+]
+
 { #category : #visiting }
 DRJitCompileTimeExpression >> acceptVisitor: aVisitor [
 
@@ -57,10 +85,22 @@ DRJitCompileTimeExpression >> jitCompileTimeExpression [
 	^ expression
 ]
 
+{ #category : #operations }
+DRJitCompileTimeExpression >> mergeExpressions: expression1 op: op other: expression2 [
+
+	^ '(' , expression1 , ' ' , op , ' ' , expression2 , ')'
+]
+
 { #category : #accessing }
 DRJitCompileTimeExpression >> name [
 
 	^ expression isString ifTrue: [ expression ] ifFalse: [ expression formattedCode ]
+]
+
+{ #category : #sccp }
+DRJitCompileTimeExpression >> sccpLatticeValueFor: aDRSCCP [ 
+1halt.
+	^ self
 ]
 
 { #category : #types }

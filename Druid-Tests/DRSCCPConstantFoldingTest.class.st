@@ -47,6 +47,39 @@ DRSCCPConstantFoldingTest >> testConstantFoldingAddInSingleBasicBlock [
 ]
 
 { #category : #arithmetic }
+DRSCCPConstantFoldingTest >> testConstantFoldingAddJitCompileExpressionWithConstantIsJitCompileExpression [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DRAdd between: self varJITExpression and: 7 asDRValue.
+
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1 expression
+		equals: '(var + 7)'
+]
+
+{ #category : #arithmetic }
+DRSCCPConstantFoldingTest >> testConstantFoldingAddJitCompileExpressionWithJitCompileExpressionIsJitCompileExpression [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DRAdd between: self varJITExpression and: self varJITExpression.
+
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1 expression
+		equals: '(var + var)'
+]
+
+{ #category : #arithmetic }
+DRSCCPConstantFoldingTest >> testConstantFoldingAddJitCompileExpressionWithNonJitCompileExpression [
+
+	self
+		testNonConstantFoldingOf: DRAdd
+		between: self varJITExpression
+		and: self nonReducibleOperation
+]
+
+{ #category : #arithmetic }
 DRSCCPConstantFoldingTest >> testConstantFoldingAddOfLeftNonConstants [
 
 	| r cfg |
@@ -450,4 +483,24 @@ DRSCCPConstantFoldingTest >> testFoldBitShiftWithNonLeftConstant [
 	self assert: lastInstruction isLogicalRightShift.
 	self assert: lastInstruction operand1 operand1 equals: r.
 	self assert: lastInstruction operand2 value equals: 1.
+]
+
+{ #category : #tests }
+DRSCCPConstantFoldingTest >> testNonConstantFoldingOf: aClass between: aDROperand1 and: aDROperand2 [ 
+	| cfg |
+	cfg := self testConstantFoldingOf: aClass between: aDROperand1 and: aDROperand2.
+	
+	self assert: cfg instructions third isAdd.
+	self
+		assert: cfg instructions third operand1 simpleConstantFold 
+		equals: aDROperand1.
+	self
+		assert: cfg instructions third operand2 simpleConstantFold 
+		equals: aDROperand2
+]
+
+{ #category : #operation }
+DRSCCPConstantFoldingTest >> varJITExpression [
+
+	^ DRJitCompileTimeExpression expression: 'var'
 ]

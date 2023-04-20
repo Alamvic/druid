@@ -739,7 +739,7 @@ DRInstruction >> sccpLatticeValueFor: sccp [
 
 { #category : #SCCP }
 DRInstruction >> sccpLatticeValueFor: sccp latticeOperand1: operand1 latticeOperand2: operand2 [
-
+1halt.
 	((({ sccp top. sccp bottom } includes: operand1) not
 		and: [ ({ sccp top. sccp bottom } includes: operand2) not ])
 			and: [ operand1 isConstant and: [ operand2 isConstant ]])

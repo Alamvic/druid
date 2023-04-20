@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #sccp }
+DRValue class >> tryParseOperandForSCCP: aDRValue [
+
+	^ aDRValue
+]
+
 { #category : #visiting }
 DRValue >> acceptVisitor: aVisitor [
 
