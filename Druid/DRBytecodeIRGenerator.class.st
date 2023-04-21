@@ -28,6 +28,7 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	"variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:."
 	
 	specialCases at: #iframeMethod: put: #interpretIframeMethodWith:.
+	specialCases at: #itemporary:in: put: #interpretITemporaryInWith:.
 	specialCases at: #internalMustBeBoolean put: #interpretMustBeBooleanWith:.
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
@@ -85,6 +86,20 @@ DRBytecodeIRGenerator >> interpretFramePointerWith: aRBVariableNode [
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRLoadFramePointer
 		operands: #()
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
+
+	| index |
+	index := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.
+	index isNumber ifFalse: [
+		self error:	'We can only compile access to frame with constant index' ].
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRLoadTemporaryVariable
+		  operands: { index asDRValue }
 ]
 
 { #category : #'special-cases' }

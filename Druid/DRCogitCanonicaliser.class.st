@@ -173,6 +173,18 @@ DRCogitCanonicaliser >> visitLoadStackValue: aDRLoadStackValue [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitMultiply: aDRMultiply [ 
+
+	"Nothing?"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitNegate: aDRNegate [ 
+
+	"Nothing?"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitNoop: aDRNoop [ 
 	
 	"Nothing"
@@ -242,6 +254,12 @@ DRCogitCanonicaliser >> visitStore: aDRStore [
 DRCogitCanonicaliser >> visitSubstract: aDRSubtract [ 
 	
 	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitTemporaryVariable: aDRLoadTemporaryVariable [ 
+
+	"Nothing?"
 ]
 
 { #category : #visiting }

@@ -191,11 +191,6 @@ DRControlFlowGraph >> configureVisualization: view [
 		noLegend;
 		yourself.
 
-	view newAnimation
-		duration: 500 milliSeconds;
-		onStepDo: [ :t | view signalUpdate ];
-		when: RSAnimationEndEvent do: [:evt |
-			controller configuration noZoomToFitOnExtendChanged ].
 	view @ controller
 ]
 

@@ -4,6 +4,15 @@ Class {
 	#category : #'Druid-Cogit'
 }
 
+{ #category : #'as yet unclassified' }
+DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRInstruction [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: aRBMessageNode
+			 selector: #moveToReg:
+			 arguments: (self rtlArgumentsForValue: aDRInstruction result))
+]
+
 { #category : #'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> returnNodeForCompiledMethod [
 
@@ -86,7 +95,6 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue [
-
 	"(self ssDescriptorAt: 0) moveToReg: TempReg."
 
 	| sourceDescriptorAST |
@@ -97,10 +105,7 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue
 		                       aDRLoadStackValue operand1
 			                       rtlPushArgumentExpressions.
 
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: sourceDescriptorAST
-			 selector: #moveToReg:
-			 arguments: (self rtlArgumentsForValue: aDRLoadStackValue result))
+	self moveToReg: sourceDescriptorAST from: aDRLoadStackValue
 ]
 
 { #category : #visiting }
@@ -141,4 +146,17 @@ DRCogitStackToRegisterMappingGenerator >> visitReturn: aDRReturn [
 
 	generatorMethodBuilder addStatement:
 		(RBMessageNode receiver: RBVariableNode selfNode selector: #genUpArrowReturn)
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
+	"self simStackAt: index."
+
+	| sourceDescriptorAST |
+	sourceDescriptorAST := RBMessageNode
+		                       receiver: RBVariableNode selfNode
+		                       selector: #simStackTempAt:
+		                       arguments: aDRLoadTemporaryVariable operand1 rtlPushArgumentExpressions.
+
+	self moveToReg: sourceDescriptorAST from: aDRLoadTemporaryVariable
 ]

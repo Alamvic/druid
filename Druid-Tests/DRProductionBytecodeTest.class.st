@@ -86,18 +86,81 @@ DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushArg0NoTemps [
+
+	| tempIndex method |
+	method := methodBuilder newMethod
+		          numberOfArguments: 1;
+		          numberOfTemporaries: 0;
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	tempIndex := 0. "0 based..."
+	self
+		compileBytecode: 64 + tempIndex
+		selector: #pushTemporaryVariableBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			cogit methodOrBlockNumArgs: 1.
+			cogit methodOrBlockNumTemps: 0.
+			cogit initSimStackForFramefulMethod: 2.
+
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #( 42 ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushArg1NoTemps [
+
+	| tempIndex method |
+	method := methodBuilder newMethod
+		          numberOfArguments: 2;
+		          numberOfTemporaries: 0;
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	tempIndex := 1. "0 based..."
+	self
+		compileBytecode: 64 + tempIndex
+		selector: #pushTemporaryVariableBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			cogit methodOrBlockNumArgs: 2.
+			cogit methodOrBlockNumTemps: 0.
+			cogit initSimStackForFramefulMethod: 2.
+
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #( 42 43 ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 43
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralConstant [
 
-	| literalIndex method compiledMethod |
+	| literalIndex method |
 	method := methodBuilder
 		          newMethod
 		          literals: { (memory integerObjectOf: 42) };
 		          buildMethod.
+
 	cogit methodObj: method.
-
-	self flag: #TODO. "Make it work!"
-	"compiledMethod := cogit cog: method selector: memory nilObject."
-
 
 	literalIndex := 0. "0 based..."
 	self
@@ -111,11 +174,9 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant [
 			cogit ssTop popToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
-
 	self
 		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
-		withArguments: #(  )
-		"method: compiledMethod".
+		withArguments: #(  ).
 		
 	self
 		assert: machineSimulator receiverRegisterValue
@@ -131,11 +192,8 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 		          newMethod
 		          literals: { (memory integerObjectOf: 42). (memory integerObjectOf: 43) };
 		          buildMethod.
+		
 	cogit methodObj: method.
-
-	self flag: #TODO. "Make it work!"
-	"compiledMethod := cogit cog: method selector: memory nilObject."
-
 
 	literalIndex := 1 "0 based...".
 	self compileBytecode: 32 + literalIndex selector: #pushLiteralConstantBytecode thenDo: [ :generator |
@@ -148,10 +206,126 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 
 
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 17)
-		withArguments: #()
-	"	method: method".
+		withArguments: #().
 		
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 43)
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushNoArgsTemp0 [
+
+	| tempIndex method |
+	method := methodBuilder newMethod
+		          numberOfArguments: 0;
+		          numberOfTemporaries: 1;
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	tempIndex := 0. "0 based..."
+	self
+		compileBytecode: 64 + tempIndex
+		selector: #pushTemporaryVariableBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			cogit methodOrBlockNumArgs: 0.
+			cogit methodOrBlockNumTemps: 1.
+			cogit initSimStackForFramefulMethod: 2.
+
+			cogit MoveCq: 42 R: TempReg.
+			cogit
+				MoveR: TempReg
+				Mw: (cogit frameOffsetOfTemporary: tempIndex)
+				r: FPReg.
+				
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushNoArgsTemp1 [
+
+	| tempIndex method |
+	method := methodBuilder newMethod
+		          numberOfArguments: 0;
+		          numberOfTemporaries: 2;
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	tempIndex := 1. "0 based..."
+	self
+		compileBytecode: 64 + tempIndex
+		selector: #pushTemporaryVariableBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			cogit methodOrBlockNumArgs: 0.
+			cogit methodOrBlockNumTemps: 2.
+			cogit initSimStackForFramefulMethod: 2.
+
+			cogit MoveCq: 42 R: TempReg.
+			cogit
+				MoveR: TempReg
+				Mw: (cogit frameOffsetOfTemporary: tempIndex)
+				r: FPReg.
+				
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushWithArgsTemp0 [
+
+	| tempIndex method |
+	method := methodBuilder newMethod
+		          numberOfArguments: 1;
+		          numberOfTemporaries: 1;
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	tempIndex := 1. "0 based..."
+	self
+		compileBytecode: 64 + tempIndex
+		selector: #pushTemporaryVariableBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			cogit methodOrBlockNumArgs: 1.
+			cogit methodOrBlockNumTemps: 2.
+			cogit initSimStackForFramefulMethod: 2.
+
+			cogit MoveCq: 5 R: TempReg.
+			cogit
+				MoveR: TempReg
+				Mw: (cogit frameOffsetOfTemporary: tempIndex)
+				r: FPReg.
+				
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #( 42 ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
 { #category : #tests }
@@ -185,7 +359,7 @@ DRProductionBytecodeTest >> testBytecodeSendLiteral0ToSelf [
 			cogit Stop ].
 
 	self
-		prepareStackForSendReceiver: (memory integerObjectOf: 17)
+		prepareStackForPrimitiveReceiver: (memory integerObjectOf: 17)
 		arguments: #()
 		method: method.
 
@@ -229,7 +403,7 @@ DRProductionBytecodeTest >> testBytecodeSendLiteral1ToSelf [
 			cogit Stop ].
 
 	self
-		prepareStackForSendReceiver: (memory integerObjectOf: 17)
+		prepareStackForPrimitiveReceiver: (memory integerObjectOf: 17)
 		arguments: #()
 		method: method.
 
