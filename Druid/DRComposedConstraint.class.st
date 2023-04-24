@@ -16,6 +16,20 @@ DRComposedConstraint class >> constraints: constraints [
 ]
 
 { #category : #accessing }
+DRComposedConstraint class >> withTypes: types [
+
+	^ self constraints:
+		  (types collect: [ :t | DRIncludeTypeConstraint withType: t ])
+]
+
+{ #category : #accessing }
+DRComposedConstraint class >> withoutTypes: types [
+
+	^ self constraints:
+		  (types collect: [ :t | DRExcludeTypeConstraint withType: t ])
+]
+
+{ #category : #accessing }
 DRComposedConstraint >> constraints [
 
 	^ constraints

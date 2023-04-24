@@ -10,6 +10,15 @@ DRMethodIRGenerator >> finishCodeInterpretation: lastFrame [
 	currentBasicBlock return: lastFrame returnedValue
 ]
 
+{ #category : #initialization }
+DRMethodIRGenerator >> initializeSpecialCases [
+
+	super initializeSpecialCases.
+
+	specialCases at: #sendingMessageTo: put: #ignoreMessageWith:.
+
+]
+
 { #category : #inline }
 DRMethodIRGenerator >> inlineGenerator [
 
@@ -126,8 +135,9 @@ DRMethodIRGenerator >> typeSystem [
 ]
 
 { #category : #visiting }
-DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [ 
+DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [
 
+	self pushOperand: aRBVariableNode binding asDRValue
 ]
 
 { #category : #visiting }
@@ -138,7 +148,7 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 		instructionKind: DRLoadInstanceVariable
 		operands: { 
 				self topFrame receiver.
-				aRBVariableNode name asDRValue }
+				aRBVariableNode variable index asDRValue }
 ]
 
 { #category : #visiting }

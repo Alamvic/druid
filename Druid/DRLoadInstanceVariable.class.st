@@ -16,6 +16,12 @@ DRLoadInstanceVariable >> index [
 	^ self originAST variable index
 ]
 
+{ #category : #testing }
+DRLoadInstanceVariable >> isLoadInstanceVariable [
+
+	^ true
+]
+
 { #category : #printing }
 DRLoadInstanceVariable >> opcode [
 	
@@ -32,4 +38,10 @@ DRLoadInstanceVariable >> sccpLatticeValueFor: sccp [
 DRLoadInstanceVariable >> type [
 
 	^ DRUndefinedType new
+]
+
+{ #category : #accessing }
+DRLoadInstanceVariable >> variableName [
+
+	^ self originAST name
 ]

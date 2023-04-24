@@ -132,9 +132,9 @@ DRAbstractCompilerCompiler >> initialize [
 
 	optimisations := OrderedCollection new.
 
+	optimisations add: DRInline new.
 	2 timesRepeat: [ 
 		optimisations add: DRDeadBlockElimination new.
-		optimisations add: DRInline new.
 		optimisations add: DRSCCP new.
 		optimisations add: DRCopyPropagation new.
 		optimisations add: DRDeadCodeElimination new.

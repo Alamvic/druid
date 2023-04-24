@@ -77,6 +77,8 @@ DRMessageSend >> generateInlineIRForMethods: methodsToInline [
 DRMessageSend >> inline [
 
 	| pieces methodsToInline inlinedMethodReturnValue |
+	({ #class. #instVarAt: } includes: self selector) ifTrue: [ ^ self ].
+
 	methodsToInline := self methodsToInline.
 	methodsToInline ifEmpty: [ ^ self ].
 
@@ -86,19 +88,19 @@ DRMessageSend >> inline [
 
 	"Generate inlining methods IR"
 	irGenerator numberOfArguments: operands size - 1.
-	inlinedMethodReturnValue := self generateInlineIRForMethods: methodsToInline.
+	inlinedMethodReturnValue := self generateInlineIRForMethods:
+		                            methodsToInline.
 
 	"Replace usages by inlines result"
 	irGenerator currentBasicBlock jumpTo: pieces last.
 	self replaceUsesBy: inlinedMethodReturnValue.
-	
+
 	"Remove message send block"
 	self basicBlock removeFromCFGAndDisconnectSuccessors.
-	
+
 	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: irGenerator ir.
-	irGenerator ir validate.
-
+	irGenerator ir validate
 ]
 
 { #category : #accessing }

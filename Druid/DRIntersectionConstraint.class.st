@@ -40,6 +40,18 @@ DRIntersectionConstraint >> hasAllValuesWithoutMask: aMask [
 	^ constraints allSatisfy: [ :c | c hasAllValuesWithoutMask: aMask ]
 ]
 
+{ #category : #testing }
+DRIntersectionConstraint >> hasNotType: aDRClassType [
+
+	^ constraints allSatisfy: [ :c | c hasNotType: aDRClassType ]
+]
+
+{ #category : #testing }
+DRIntersectionConstraint >> hasType: aDRClassType [
+
+	^ constraints allSatisfy: [ :c | c hasType: aDRClassType ]
+]
+
 { #category : #arithmetic }
 DRIntersectionConstraint >> hasValue: otherConstantValue [
 

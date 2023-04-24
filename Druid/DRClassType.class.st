@@ -28,6 +28,12 @@ DRClassType >> astForSelector: aSelector [
 ]
 
 { #category : #accessing }
+DRClassType >> binding [
+
+	^ classType binding
+]
+
+{ #category : #accessing }
 DRClassType >> classType [
 
 	^ classType
@@ -45,6 +51,18 @@ DRClassType >> hash [
 	^ self species hash bitXor: classType hash
 ]
 
+{ #category : #testing }
+DRClassType >> isClassType [
+	
+	^ true
+]
+
+{ #category : #testing }
+DRClassType >> isGlobalVariable [
+
+	^ false
+]
+
 { #category : #'instance creation' }
 DRClassType >> lookupClass [
 	
@@ -55,6 +73,19 @@ DRClassType >> lookupClass [
 DRClassType >> lookupSelector: aString [ 
 
 	^ classType lookupSelector: aString 
+]
+
+{ #category : #accessing }
+DRClassType >> name [
+
+	^ classType name
+]
+
+{ #category : #printing }
+DRClassType >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream << '(' << classType name << ')'
 ]
 
 { #category : #accessing }

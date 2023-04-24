@@ -65,6 +65,35 @@ DRConditionalConstraintTest >> testEqualsObjectConstraint [
 ]
 
 { #category : #constraints }
+DRConditionalConstraintTest >> testExcludeTypeConstraint [
+
+	| constraint types |
+	constraint := DRExcludeTypeConstraint withType: OrderedCollection asDRType.
+	
+	self deny: (constraint hasType: OrderedCollection asDRType).
+	self assert: (constraint hasType: Array asDRType).
+
+	self assertConstraint: constraint includes: (DRExcludeTypeConstraint withType: OrderedCollection asDRType).
+	self assertConstraint: (DRExcludeTypeConstraint withType: OrderedCollection asDRType) includes: constraint.
+	self assertConstraint: constraint includes: constraint.
+	self denyConstraint: constraint includes: (DRExcludeTypeConstraint withType: Array asDRType).
+	self denyConstraint: (DRExcludeTypeConstraint withType: Array asDRType) includes: constraint.
+	
+	self denyConstraint: constraint includes: (DRIncludeTypeConstraint withType: OrderedCollection asDRType).
+	self denyConstraint: (DRIncludeTypeConstraint withType: OrderedCollection asDRType) includes: constraint.
+	self assertConstraint: constraint includes: (DRIncludeTypeConstraint withType: Array asDRType).
+	self denyConstraint: (DRIncludeTypeConstraint withType: Array asDRType) includes: constraint.
+	
+	
+	types := { Array asDRType . OrderedCollection asDRType }.
+	self assertConstraint: constraint includes: (DRIntersectionConstraint withoutTypes: types).
+	self denyConstraint: constraint includes: (DRUnionConstraint withoutTypes: types).
+	self denyConstraint: (DRIntersectionConstraint withoutTypes: types) includes: constraint.
+	self assertConstraint: (DRUnionConstraint withoutTypes: types) includes: constraint.
+
+]
+
+{ #category : #constraints }
 DRConditionalConstraintTest >> testGreaterConstraint [
 
 	| constraint |
@@ -108,6 +137,35 @@ DRConditionalConstraintTest >> testGreaterOrEqualsConstraint [
 	self denyConstraint: constraint includes: (DRGreaterConstraint withValue: 9).
 	self denyConstraint: constraint includes: (DRLessConstraint withValue: 10).
 	self denyConstraint: constraint includes: (DRNotEqualsConstraint withValue: 10).
+]
+
+{ #category : #constraints }
+DRConditionalConstraintTest >> testIncludeTypeConstraint [
+
+	| constraint types |
+	constraint := DRIncludeTypeConstraint withType: OrderedCollection asDRType.
+	
+	self assert: (constraint hasType: OrderedCollection asDRType).
+	self deny: (constraint hasType: Array asDRType).
+
+	self assertConstraint: constraint includes: (DRIncludeTypeConstraint withType: OrderedCollection asDRType).
+	self assertConstraint: (DRIncludeTypeConstraint withType: OrderedCollection asDRType) includes: constraint.
+	self assertConstraint: constraint includes: constraint.
+	self denyConstraint: constraint includes: (DRIncludeTypeConstraint withType: Array asDRType).
+	self denyConstraint: (DRIncludeTypeConstraint withType: Array asDRType) includes: constraint.
+	
+	self denyConstraint: constraint includes: (DRExcludeTypeConstraint withType: OrderedCollection asDRType).
+	self denyConstraint: (DRExcludeTypeConstraint withType: OrderedCollection asDRType) includes: constraint.
+	self denyConstraint: constraint includes: (DRExcludeTypeConstraint withType: Array asDRType).
+	self assertConstraint: (DRExcludeTypeConstraint withType: Array asDRType) includes: constraint.
+	
+	
+	types := { Array asDRType . OrderedCollection asDRType }.
+	self assertConstraint: constraint includes: (DRIntersectionConstraint withTypes: types). "Always empty?"
+	self denyConstraint: constraint includes: (DRUnionConstraint withTypes: types).
+	self denyConstraint: (DRIntersectionConstraint withTypes: types) includes: constraint.
+	self assertConstraint: (DRUnionConstraint withTypes: types) includes: constraint.
+
 ]
 
 { #category : #constraints }

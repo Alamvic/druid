@@ -10,6 +10,13 @@ DRLoadTemporaryVariable >> acceptVisitor: aVisitor [
 	^ aVisitor visitTemporaryVariable: self
 ]
 
+{ #category : #initialization }
+DRLoadTemporaryVariable >> initialize [
+
+	super initialize.
+	result := DRNoRegister new
+]
+
 { #category : #printing }
 DRLoadTemporaryVariable >> opcode [
 	
