@@ -97,12 +97,6 @@ DRJitCompileTimeExpression >> name [
 	^ expression isString ifTrue: [ expression ] ifFalse: [ expression formattedCode ]
 ]
 
-{ #category : #sccp }
-DRJitCompileTimeExpression >> sccpLatticeValueFor: aDRSCCP [ 
-1halt.
-	^ self
-]
-
 { #category : #types }
 DRJitCompileTimeExpression >> type [
 	
