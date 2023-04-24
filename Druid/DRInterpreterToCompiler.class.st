@@ -45,15 +45,23 @@ DRInterpreterToCompiler class >> fromInterpreterClass: anInterpreterClass [
 DRInterpreterToCompiler class >> generateDruidJITModel [
 
 	<script>
-	| primitives |
+	| primitives bytecodes |
 	primitives := #( #primitiveAdd #primitiveSubtract #primitiveLessThan
 	                 #primitiveGreaterThan #primitiveLessOrEqual
 	                 #primitiveGreaterOrEqual #primitiveEqual #primitiveNotEqual
-	                 #primitiveMultiply #primitiveDivide ).
+	                 #primitiveMultiply #primitiveDivide primitiveAt primitiveNew
+	                 primitiveNewWithArg ).
+
+	"bytecodePrimAdd duplicateTopBytecode 
+	sendLiteralSelector0ArgsBytecode shortConditionalJumpTrue 
+	shortUnconditionalJump pushReceiverVariableBytecode pushConstantTrueBytecode
+	 "
+	bytecodes := #( pushReceiverBytecode pushLiteralConstantBytecode returnTopFromMethod ).
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
+		doFailOnFirst;
 		selectPrimitives: [ :e | primitives includes: e selector ];
-		selectBytecodes: [ :e | false ];
+		selectBytecodes: [ :e | bytecodes includes: e selector ];
 		targetClass: DruidJIT;
 		targetSuperclass: StackToRegisterMappingCogit;
 		build
@@ -76,28 +84,23 @@ DRInterpreterToCompiler >> addBytecode: bytecodeMethod [
 DRInterpreterToCompiler >> addBytecodes [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
-	(self collectBytecodes: self interpreterBytecodeTable)
-		do: [ :prim | self addBytecode: prim ]
-		displayingProgress: [ :prim | 'Adding bytecode: ' , prim asString ].
+	(self collectBytecodes: self interpreterBytecodeTable) do: [ :prim |
+		self addBytecode: prim ].
 
-	self fillBytecodesTableHoles.
-
+	self fillBytecodesTableHoles
 ]
 
 { #category : #adding }
 DRInterpreterToCompiler >> addMandatoryPrimitives [
 
-	self interpreterPrimitiveTable
-		do: [ :selector |
-			(selector isNumber or: [
-				 self primitives anySatisfy: [ :e | e sourceSelector = selector ] ])
-				ifFalse: [
-					| method |
-					method := self interpreterClass lookupSelector: selector.
-					(self isMaycallbackPrimitive: method) ifTrue: [
-						self primitives add: (self newNonImplementedPrimitive: method) ] ] ]
-		displayingProgress: [ :selector |
-			'Adding mandatory non implemented primitive: ' , selector asString ]
+	self interpreterPrimitiveTable do: [ :selector |
+		(selector isNumber or: [
+			 self primitives anySatisfy: [ :e | e sourceSelector = selector ] ])
+			ifFalse: [
+				| method |
+				method := self interpreterClass lookupSelector: selector.
+				(self isMaycallbackPrimitive: method) ifTrue: [
+					self primitives add: (self newNonImplementedPrimitive: method) ] ] ]
 ]
 
 { #category : #adding }
@@ -125,9 +128,8 @@ DRInterpreterToCompiler >> addPrimitives [
 { #category : #adding }
 DRInterpreterToCompiler >> addSelectedPrimitives [
 
-	(self collectPrimitives: self interpreterPrimitiveTable)
-		do: [ :prim | self addPrimitive: prim ]
-		displayingProgress: [ :prim | 'Adding primitive: ' , prim selector ]
+	(self collectPrimitives: self interpreterPrimitiveTable) do: [ :prim |
+		self addPrimitive: prim ]
 ]
 
 { #category : #'accessing - model' }
@@ -405,7 +407,9 @@ DRInterpreterToCompiler >> newBytecode: bytecodeMethod [
 	^ DRBytecodeObject new
 		  bytecodeSize: bytecodeGroup first;
 		  bytecodeNumberStart: bytecodeGroup second;
-		  bytecodeNumberEnd: bytecodeGroup third;
+		  bytecodeNumberEnd: (bytecodeGroup third isNumber
+				   ifTrue: [ bytecodeGroup third ]
+				   ifFalse: [ bytecodeGroup second ]);
 		  sourceMethod: bytecodeMethod;
 		  yourself
 ]
@@ -477,14 +481,6 @@ DRInterpreterToCompiler >> newPrimitiveCompiler [
 	^ (DRPrimitiveCompilerCompiler forInterpreter: self newInterpreter)
 			compilerClass: self targetClass;
 			yourself
-]
-
-{ #category : #adding }
-DRInterpreterToCompiler >> primitiveMayCallback: aString [
-	"Answer <true> if primitive aString is marked as maycallback"
-	" #maycallback "
-
-	^ aString = #genNonImplementedPrimitive
 ]
 
 { #category : #adding }

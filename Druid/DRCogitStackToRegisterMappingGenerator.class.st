@@ -4,6 +4,21 @@ Class {
 	#category : #'Druid-Cogit'
 }
 
+{ #category : #'as yet unclassified' }
+DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRInstruction [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: aRBMessageNode
+			 selector: #moveToReg:
+			 arguments: (self rtlArgumentsForValue: aDRInstruction result))
+]
+
+{ #category : #'ir-to-ast' }
+DRCogitStackToRegisterMappingGenerator >> returnNodeForCompiledMethod [
+
+	^ RBLiteralNode value: 0
+]
+
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 
@@ -80,21 +95,17 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue [
-
 	"(self ssDescriptorAt: 0) moveToReg: TempReg."
 
 	| sourceDescriptorAST |
 	sourceDescriptorAST := RBMessageNode
 		                       receiver: RBVariableNode selfNode
-		                       selector: #ssDescriptorAt:
+		                       selector: #ssValue:
 		                       arguments:
 		                       aDRLoadStackValue operand1
 			                       rtlPushArgumentExpressions.
 
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: sourceDescriptorAST
-			 selector: #moveToReg:
-			 arguments: (self rtlArgumentsForValue: aDRLoadStackValue result))
+	self moveToReg: sourceDescriptorAST from: aDRLoadStackValue
 ]
 
 { #category : #visiting }
@@ -120,4 +131,32 @@ DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 			 selector: 'ssPush',
 				 (aDRPush operand1 rtlPushOperandQualifierForInstruction: aDRPush)
 			 arguments: aDRPush operand1 rtlPushArgumentExpressions)
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitReturn: aDRReturn [
+	"Generate the postamble in the return cases"
+
+	self generatePostambleForCFG: aDRReturn controlFlowGraph.
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: (RBVariableNode named: 'self ssTop')
+			 selector: #popToReg:
+			 arguments: { (RBVariableNode named: 'ReceiverResultReg') }).
+
+	generatorMethodBuilder addStatement:
+		(RBMessageNode receiver: RBVariableNode selfNode selector: #genUpArrowReturn)
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
+	"self simStackAt: index."
+
+	| sourceDescriptorAST |
+	sourceDescriptorAST := RBMessageNode
+		                       receiver: RBVariableNode selfNode
+		                       selector: #simStackTempAt:
+		                       arguments: aDRLoadTemporaryVariable operand1 rtlPushArgumentExpressions.
+
+	self moveToReg: sourceDescriptorAST from: aDRLoadTemporaryVariable
 ]

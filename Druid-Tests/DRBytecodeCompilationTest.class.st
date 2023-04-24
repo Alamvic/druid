@@ -33,9 +33,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 ]
 
 { #category : #helpers }
-DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: arguments method: aMethod [
-
-	super prepareStackForSendReceiver: aReceiver arguments: arguments method: aMethod.
+DRBytecodeCompilationTest >> makeFrame: aReceiver arguments: arguments method: aMethod [
 
 	"Callee side - make up the frame"
 	"Now push the link register, it will be popped by the return"
@@ -45,5 +43,26 @@ DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: a
 	machineSimulator fp: machineSimulator smalltalkStackPointerRegisterValue.
 	self pushAddress: aMethod.
 	self pushAddress: 0 "context".
-	self pushAddress: aReceiver
+	self pushAddress: aReceiver. 
+
+]
+
+{ #category : #helpers }
+DRBytecodeCompilationTest >> prepareStackForPrimitiveReceiver: aReceiver arguments: arguments method: aMethod [
+
+	super prepareStackForPrimitiveReceiver: aReceiver arguments: arguments method: aMethod.
+	
+	self makeFrame: aReceiver arguments: arguments method: aMethod
+]
+
+{ #category : #helpers }
+DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: arguments method: aMethod [
+
+	super prepareStackForSendReceiver: aReceiver arguments: arguments method: aMethod.
+	
+	self makeFrame: aReceiver arguments: arguments method: aMethod.
+	
+	cogit methodOrBlockNumTemps timesRepeat: [
+		self pushAddress: memory nilObject  ]
+
 ]

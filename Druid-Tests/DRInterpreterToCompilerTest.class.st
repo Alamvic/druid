@@ -87,7 +87,7 @@ DRInterpreterToCompilerTest >> testMandatoryPrimitiveCompilationUnits [
 
 	supportedPrimitive := interpreterToCompiler primitives first.
 	self assert: supportedPrimitive sourceSelector equals: #primitiveAdd.
-	self assert: supportedPrimitive genSelector equals: #gen_primitiveAdd.
+	self assert: supportedPrimitive genSelector equals: #gen_PrimitiveAdd.
 	self assert: supportedPrimitive supported.
 	self deny: supportedPrimitive mayCallback.
 
@@ -109,7 +109,6 @@ DRInterpreterToCompilerTest >> testSelectBytecodeCompilationUnits [
 		selectBytecodes: [ :cm | cm selector = #pushReceiverVariableBytecode ];
 		build.
 
-
 	supportedBytecode := interpreterToCompiler bytecodes first.
 	self
 		assert: supportedBytecode bytecodeSize
@@ -125,7 +124,7 @@ DRInterpreterToCompilerTest >> testSelectBytecodeCompilationUnits [
 		equals: #pushReceiverVariableBytecode.
 	self
 		assert: supportedBytecode genSelector
-		equals: #gen_pushReceiverVariableBytecode.
+		equals: #gen_PushReceiverVariableBytecode.
 	self assert: supportedBytecode supported.
 
 	unknownBytecodes := interpreterToCompiler bytecodes allButFirst.
@@ -156,4 +155,32 @@ DRInterpreterToCompilerTest >> testSelectPrimitiveCompilationUnits [
 		assertCollection:
 		(interpreterToCompiler primitives collect: [ :p | p sourceSelector ])
 		hasSameElements: { #primitiveAdd }
+]
+
+{ #category : #tests }
+DRInterpreterToCompilerTest >> testSelectSingleBytecodeNumberCompilationUnits [
+
+	| supportedBytecode |
+	interpreterToCompiler
+		selectBytecodes: [ :cm | cm selector = #pushConstantTrueBytecode ];
+		build.
+
+	supportedBytecode := interpreterToCompiler bytecodes first.
+	self
+		assert: supportedBytecode bytecodeSize
+		equals: 1.
+	self
+		assert: supportedBytecode bytecodeNumberStart
+		equals: 77.
+	self
+		assert: supportedBytecode bytecodeNumberEnd
+		equals: 77.
+	self
+		assert: supportedBytecode sourceSelector
+		equals: #pushConstantTrueBytecode.
+	self
+		assert: supportedBytecode genSelector
+		equals: #gen_PushConstantTrueBytecode.
+	self assert: supportedBytecode supported.
+
 ]

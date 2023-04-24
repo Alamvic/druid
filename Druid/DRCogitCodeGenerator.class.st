@@ -98,7 +98,7 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 
 	| blocks |
 	self generatePreambleForCFG: aDRControlFlowGraph.
-	
+
 	"Sort the blocks"
 	blocks := aDRControlFlowGraph reversePostOrderBlocks.
 
@@ -106,19 +106,19 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 	(blocks includes: aDRControlFlowGraph failureExitBlock) ifTrue: [
 		blocks remove: aDRControlFlowGraph failureExitBlock.
 		blocks addLast: aDRControlFlowGraph failureExitBlock ].
-	
+
 	blocks withIndexDo: [ :b :i |
 		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
 		self preProcessBlock: b.
-		b instructionsDo: [ :e | 
-			self buildStatementsForInstruction: e ] ].
+		b instructionsDo: [ :e | self buildStatementsForInstruction: e ] ].
 
 	"Generate the postamble in the fallthrough case"
 	self generatePostambleForCFG: aDRControlFlowGraph.
-	
+
 	"Return compiled method status for the compiler"
+
 	generatorMethodBuilder addStatement:
-		(RBReturnNode value: (RBVariableNode named: 'CompletePrimitive')) "TODO"
+		(RBReturnNode value: self returnNodeForCompiledMethod)
 ]
 
 { #category : #visiting }
@@ -320,6 +320,12 @@ DRCogitCodeGenerator >> preProcessBlock: aDRBasicBlock [
 DRCogitCodeGenerator >> registerFor: aValue [
 
 	^ aValue result name
+]
+
+{ #category : #'ir-to-ast' }
+DRCogitCodeGenerator >> returnNodeForCompiledMethod [
+
+	^ RBVariableNode named: 'CompletePrimitive'
 ]
 
 { #category : #visiting }

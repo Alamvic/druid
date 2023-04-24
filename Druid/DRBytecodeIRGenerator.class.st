@@ -27,11 +27,16 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	variableSpecialCases at: #framePointer put: #interpretFramePointerWith:.
 	"variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:."
 	
+	specialCases at: #iframeMethod: put: #interpretIframeMethodWith:.
+	specialCases at: #itemporary:in: put: #interpretITemporaryInWith:.
 	specialCases at: #internalMustBeBoolean put: #interpretMustBeBooleanWith:.
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
 	specialCases at: #normalSendSpecialSelector:argumentCount: put: #interpretNormalSpecialSelectorSendWith:.
+	specialCases at: #commonReturn: put: #interpretCommonReturnWith:.
+	
+
 ]
 
 { #category : #'special cases' }
@@ -41,6 +46,18 @@ DRBytecodeIRGenerator >> interpretArgumentCountAssignmentWith: aRBAssignmentNode
 	Visit the value of the assignment and get the number of arguments.
 	For now do not use it"
 	aRBAssignmentNode value acceptVisitor: self.
+]
+
+{ #category : #'special - cases' }
+DRBytecodeIRGenerator >> interpretCommonReturnWith: aRBMessageNode [
+
+	| returnedValue |
+	returnedValue := self visitOperand: aRBMessageNode arguments first.
+
+	^ self
+		  addInstructionWithNoResultFrom: aRBMessageNode
+		  instructionKind: DRReturn
+		  operands: { returnedValue }
 ]
 
 { #category : #visiting }
@@ -69,6 +86,29 @@ DRBytecodeIRGenerator >> interpretFramePointerWith: aRBVariableNode [
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRLoadFramePointer
 		operands: #()
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
+
+	| index |
+	index := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.
+	index isNumber ifFalse: [
+		self error:	'We can only compile access to frame with constant index' ].
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRLoadTemporaryVariable
+		  operands: { index asDRValue }
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretIframeMethodWith: aRBMessageNode [ 
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRCopy
+		  operands: { (DRJitCompileTimeExpression expression: 'methodObj') } 
 ]
 
 { #category : #'special cases' }

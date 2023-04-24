@@ -269,6 +269,12 @@ DRCogitOperandSorter >> visitSubstract: aDRSubtract [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitTemporaryVariable: aDRLoadTemporaryVariable [ 
+
+	"Nothing?"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
 	
 	"Nothing"

@@ -89,18 +89,6 @@ DRInterpreterCompilationUnit >> bytecodes: anObject [
 ]
 
 { #category : #'accessing - compiler' }
-DRInterpreterCompilationUnit >> compileAll [
-	"Install methods in the receiver's JIT compiler class"
-
-	| realTargetClass |
-
-	realTargetClass := self compilerBuilder environmentAt: self targetClass.
-	self addPrimitiveEntries.
-	self addBytecodeEntries.
-	self dispatchTableGenerator installAllMethodsOn:realTargetClass class
-]
-
-{ #category : #'accessing - compiler' }
 DRInterpreterCompilationUnit >> compileUsing: aCompiler [
 	"Install methods in the receiver's JIT compiler class"
 
@@ -109,13 +97,14 @@ DRInterpreterCompilationUnit >> compileUsing: aCompiler [
 	self addPrimitiveEntries.
 	self addBytecodeEntries.
 
-	self primitives do: [ :e |
-		aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ].
-	self bytecodes do: [ :e |
-		aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ].
+	self primitives
+		do: [ :e | aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ]
+		displayingProgress: [ :e | 'Compiling primitive ' , e genSelector ].
+	self bytecodes
+		do: [ :e | aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ]
+		displayingProgress: [ :e | 'Compiling bytecode ' , e genSelector ].
 
-	self dispatchTableGenerator installAllMethodsOn:
-		realTargetClass class
+	self dispatchTableGenerator installAllMethodsOn: realTargetClass class
 ]
 
 { #category : #private }
@@ -177,14 +166,6 @@ DRInterpreterCompilationUnit >> interpreterPrimitiveTable [
 DRInterpreterCompilationUnit >> isValidPrimitiveName: aString [
 
 	^ aString isNumber not
-]
-
-{ #category : #'accessing - primitives' }
-DRInterpreterCompilationUnit >> primitiveMayCallback: aString [
-	"Answer <true> if primitive aString is marked as maycallback"
-	" #maycallback "
-
-	^ aString = #genNonImplementedPrimitive
 ]
 
 { #category : #'accessing - primitives' }

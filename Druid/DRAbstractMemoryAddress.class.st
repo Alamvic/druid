@@ -28,6 +28,12 @@ DRAbstractMemoryAddress >> operands [
 	self subclassResponsibility
 ]
 
+{ #category : #testing }
+DRAbstractMemoryAddress >> printResult [
+
+	^ self name
+]
+
 { #category : #'meta-data' }
 DRAbstractMemoryAddress >> removeUser: anInstruction [
 	

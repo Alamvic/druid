@@ -31,7 +31,7 @@ DruidCogit >> entryOffset: anInteger [
 { #category : #garbage }
 DruidCogit >> forCogit: aDruidCogit methodZone: aCogMethodZone [ 
 	
-	"nothing?"
+	^ objectMemory 
 ]
 
 { #category : #generated }

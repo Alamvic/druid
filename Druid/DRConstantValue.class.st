@@ -29,6 +29,12 @@ DRConstantValue >> acceptVisitor: aVisitor [
 	^ aVisitor visitConstant: self
 ]
 
+{ #category : #converting }
+DRConstantValue >> asJitCompileTimeExpression [
+
+	^ DRJitCompileTimeExpression expression: self value asString
+]
+
 { #category : #accessing }
 DRConstantValue >> expression [
 	
