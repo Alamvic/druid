@@ -19,9 +19,13 @@ DRCogitDispatchTableGenerator >> arrayAccessorGlobalName [
 
 { #category : #'as yet unclassified' }
 DRCogitDispatchTableGenerator >> buildBytecodeTableMethodNode [
+	"Sort by bytecode number"
 
+	| sortedBytecodeTable |
+	sortedBytecodeTable := self bytecodeTable sorted: [ :e1 :e2 |
+		                       e1 second < e2 second ].
 	^ (PCGMethodNode selector: #bytecodeTable) bodyBlock: [ :body |
-		  body << self bytecodeTable asPCG returnIt ]
+		  body << sortedBytecodeTable asPCG returnIt ]
 ]
 
 { #category : #'accessing - bytecodes' }

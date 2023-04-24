@@ -9,6 +9,29 @@ Class {
 	#category : #'Druid-CompilerBuilder'
 }
 
+{ #category : #compiling }
+DRBytecodeObject >> byteCodeEntries [
+
+	"We need to generate as many entries as there are bytecodes.
+	Each entry has a suffix.
+	If there is only one entry, do not add a suffix"	
+	(supported not or: [bytecodeNumberStart = bytecodeNumberEnd]) ifTrue: [ 
+		^ {{
+			self bytecodeSize.
+			self bytecodeNumberStart.
+			self bytecodeNumberEnd.
+			self genSelector }} ].
+	
+	^ (bytecodeNumberStart to: bytecodeNumberEnd) collect: [ :e |
+		| suffix |
+		suffix := e - bytecodeNumberStart.
+		{
+			self bytecodeSize.
+			e.
+			e.
+			self genSelector, suffix asString } ]
+]
+
 { #category : #accessing }
 DRBytecodeObject >> bytecodeNumber: anInteger [
 

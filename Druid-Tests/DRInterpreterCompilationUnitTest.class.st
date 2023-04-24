@@ -83,7 +83,23 @@ DRInterpreterCompilationUnitTest >> testBytecodeCompilation [
 
 	self
 		assert: self targetClass bytecodeTable
-		equals: { #( 1 0 15 #gen_PushReceiverVariableBytecode ) }.
+		equals: { 
+			#( 1 0 0 #gen_PushReceiverVariableBytecode0 ).
+			#( 1 1 1 #gen_PushReceiverVariableBytecode1 ).
+			#( 1 2 2 #gen_PushReceiverVariableBytecode2 ).
+			#( 1 3 3 #gen_PushReceiverVariableBytecode3 ).
+			#( 1 4 4 #gen_PushReceiverVariableBytecode4 ).
+			#( 1 5 5 #gen_PushReceiverVariableBytecode5 ).
+			#( 1 6 6 #gen_PushReceiverVariableBytecode6 ).
+			#( 1 7 7 #gen_PushReceiverVariableBytecode7 ).
+			#( 1 8 8 #gen_PushReceiverVariableBytecode8 ).
+			#( 1 9 9 #gen_PushReceiverVariableBytecode9 ).
+			#( 1 10 10 #gen_PushReceiverVariableBytecode10 ).
+			#( 1 11 11 #gen_PushReceiverVariableBytecode11 ).
+			#( 1 12 12 #gen_PushReceiverVariableBytecode12 ).
+			#( 1 13 13 #gen_PushReceiverVariableBytecode13 ).
+			#( 1 14 14 #gen_PushReceiverVariableBytecode14 ).
+			#( 1 15 15 #gen_PushReceiverVariableBytecode15 ). }.
 
 	self assert:
 		(self targetClass canUnderstand: #gen_PushReceiverVariableBytecode)
@@ -105,15 +121,30 @@ DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 			(DRBytecodeObject new
 				 bytecodeSize: 2;
 				 bytecodeNumberStart: 16;
-				 bytecodeNumberEnd: 30;
+				 bytecodeNumberEnd: 17;
 				 supported: false;
 				 yourself) } asOrderedCollection.
 
 	self compile: compilationUnit.
 
 	self assert: self targetClass bytecodeTable equals: {
-			#( 1 0 15 #gen_PushReceiverVariableBytecode ).
-			#( 2 16 30 #unknownBytecode ) }.
+			#( 1 0 0 #gen_PushReceiverVariableBytecode0 ).
+			#( 1 1 1 #gen_PushReceiverVariableBytecode1 ).
+			#( 1 2 2 #gen_PushReceiverVariableBytecode2 ).
+			#( 1 3 3 #gen_PushReceiverVariableBytecode3 ).
+			#( 1 4 4 #gen_PushReceiverVariableBytecode4 ).
+			#( 1 5 5 #gen_PushReceiverVariableBytecode5 ).
+			#( 1 6 6 #gen_PushReceiverVariableBytecode6 ).
+			#( 1 7 7 #gen_PushReceiverVariableBytecode7 ).
+			#( 1 8 8 #gen_PushReceiverVariableBytecode8 ).
+			#( 1 9 9 #gen_PushReceiverVariableBytecode9 ).
+			#( 1 10 10 #gen_PushReceiverVariableBytecode10 ).
+			#( 1 11 11 #gen_PushReceiverVariableBytecode11 ).
+			#( 1 12 12 #gen_PushReceiverVariableBytecode12 ).
+			#( 1 13 13 #gen_PushReceiverVariableBytecode13 ).
+			#( 1 14 14 #gen_PushReceiverVariableBytecode14 ).
+			#( 1 15 15 #gen_PushReceiverVariableBytecode15 ).
+			#( 2 16 17 #unknownBytecode ) }.
 
 	self assert:
 		(self targetClass canUnderstand: #gen_PushReceiverVariableBytecode)
@@ -189,7 +220,7 @@ DRInterpreterCompilationUnitTest >> testNotSupportedBytecodeCompilation [
 	compilationUnit bytecodes: { (DRBytecodeObject new
 			 bytecodeSize: 1;
 			 bytecodeNumberStart: 0;
-			 bytecodeNumberEnd: 15;
+			 bytecodeNumberEnd: 0;
 			 supported: false;
 			 yourself) } asOrderedCollection.
 
@@ -197,7 +228,7 @@ DRInterpreterCompilationUnitTest >> testNotSupportedBytecodeCompilation [
 
 	self
 		assert: self targetClass bytecodeTable
-		equals: { #( 1 0 15 #unknownBytecode ) }
+		equals: { #( 1 0 0 #unknownBytecode ) }
 ]
 
 { #category : #'tests - primitives' }
