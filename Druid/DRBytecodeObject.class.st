@@ -80,13 +80,14 @@ DRBytecodeObject >> compileUnitUsing: aCompiler [
 
 	| interpreter |
 	interpreter := aCompiler newInterpreter.
-	interpreter currentBytecode: self bytecodeNumberStart.
-	DRBytecodeCompilerCompiler new
-		targetName: self genSelector;
-		sourceName: self sourceSelector;
-		interpreter: interpreter;
-		compilerClass: aCompiler targetClass;
-		compile
+	self bytecodeNumberStart to: self bytecodeNumberEnd do: [ :e |
+		interpreter currentBytecode: e.
+		DRBytecodeCompilerCompiler new
+			targetName: self genSelector , (e - self bytecodeNumberStart) asString;
+			sourceName: self sourceSelector;
+			interpreter: interpreter;
+			compilerClass: aCompiler targetClass;
+			compile ]
 ]
 
 { #category : #accessing }
