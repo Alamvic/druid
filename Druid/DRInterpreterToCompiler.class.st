@@ -60,11 +60,12 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 		32 "pushLiteralConstantBytecode"
 		76 "pushReceiverBytecode"
 		92 "returnTopFromMethod"
-		64 "pushTemporaryVariableBytecode"
+		64 65 "pushTemporaryVariableBytecode"
 		16 "pushLiteralVariable16CasesBytecode"
 		88 "returnReceiver"
-		80 "pushConstantZeroBytecode"
-		89 "returnTrue" ).
+		80 81 "pushConstantZeroBytecode"
+		89 "returnTrue"
+		0 "pushReceiverVariableBytecode" ).
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;

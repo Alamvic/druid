@@ -86,6 +86,36 @@ DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushConstantOneBytecode [
+
+	| method |
+	method := methodBuilder
+		          newMethod
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	self
+		compileBytecode: 81
+		selector: #pushConstantOneBytecode
+		thenDo: [ :generator | 
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+		
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 1)
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushConstantZeroBytecode [
 
 	| method |
