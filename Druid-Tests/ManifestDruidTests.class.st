@@ -11,7 +11,7 @@ Class {
 ManifestDruidTests class >> ruleLongMethodsRuleV1FalsePositive [
 
 	<ignoreForCoverage>
-	^ #(#(#(#RGClassDefinition #(#DruidTestRTLCompiler)) #'2023-04-25T22:23:49.469008+02:00') )
+	^ #(#(#(#RGClassDefinition #(#DruidTestRTLCompiler)) #'2023-04-25T23:30:21.589887+02:00') )
 ]
 
 { #category : #'code-critics' }

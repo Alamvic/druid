@@ -211,18 +211,13 @@ DRPhiFunction >> simplify [
 	"Use a worklist algorithm to iterate over the phi graph.
 	Ignore Phis and cut if we see a duplicated phi, this may happen in loops"
 	simplifiedOperands := Set new.
-	seen := Set new.
-	worklist := OrderedCollection withAll: operands.
-
-	[ worklist isEmpty ] whileFalse: [
-		| next |
-		next := worklist removeFirst.
-		(seen includes: next) ifFalse: [
+	(OrderedCollection withAll: operands) whileNotEmpty: [:next :col :marked | 
+		(marked includes: next) ifFalse: [
 			next isPhiFunction
 				ifTrue: [ 
-					seen add: next.
-					worklist addAll: next operands ]
-				ifFalse: [ simplifiedOperands add: next ] ] ].
+					marked add: next.
+					col addAll: next operands ]
+				ifFalse: [ simplifiedOperands add: next ] ]  ].
 	simplifiedOperands size = 1 ifTrue: [ ^ simplifiedOperands anyOne ].
 	^ self
 ]

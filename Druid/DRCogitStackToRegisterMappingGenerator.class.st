@@ -4,7 +4,16 @@ Class {
 	#category : #'Druid-Cogit'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #'ir-to-ast' }
+DRCogitStackToRegisterMappingGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
+
+	"Generate the continuation jumps to the following code"
+	self generateBlockIncomingJumps: #nextBytecode.
+
+	super generatePostambleForCFG: aDRControlFlowGraph
+]
+
+{ #category : #helpers }
 DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRInstruction [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -64,7 +73,7 @@ DRCogitStackToRegisterMappingGenerator >> visitContinueNextBytecode: aDRContinue
 	"Jump to the end!"
 	self
 		generateJump: #Jump:
-		target: nil
+		target: #nextBytecode
 ]
 
 { #category : #visiting }
