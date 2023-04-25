@@ -33,6 +33,11 @@ DRCogitCanonicaliser >> visitAddition: aDRAdd [
 			variableOperand := subtree operands detect: [ :op | op isConstant not ].
 			subConstantOperand := subtree operands detect: [ :op | op isConstant ].
 			constantOperand := aDRAdd operands detect: [ :op | op isConstant ].
+			(subConstantOperand respondsTo: #+)
+				ifFalse: [ | swap |
+					swap := subConstantOperand.
+					subConstantOperand := constantOperand.
+					constantOperand := swap ].
 			^ aDRAdd replaceBy: (DRAdd
 					   operands: { variableOperand . (subConstantOperand value + constantOperand value) asDRValue }
 					   result: aDRAdd result) ]
@@ -66,6 +71,12 @@ DRCogitCanonicaliser >> visitBytecodeJump: aDRBytecodeJump [
 DRCogitCanonicaliser >> visitCall: aDRCall [ 
 	
 	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
+	
+	"Do nothing"
 ]
 
 { #category : #visiting }

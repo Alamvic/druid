@@ -46,6 +46,10 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 					  value } ].
 
 	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [ 
+		self topFrame
+				  temporaryAt: aRBAssignmentNode variable name
+				  put: value
+				  withState: executionState.
 		^ self
 			  addInstructionWithNoResultFrom: aRBAssignmentNode
 			  instructionKind: DRStoreTemporaryVariable
