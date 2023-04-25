@@ -10,17 +10,36 @@ Class {
 }
 
 { #category : #compiling }
+DRBytecodeObject >> annotatedDescriptors [
+
+	| complementaryThings |
+	supported ifFalse: [ ^ {  } ].
+
+	complementaryThings := OrderedCollection new.
+	sourceMethod pragmasDo: [ :pragma |
+		pragma selector = #compilationInfo: ifTrue: [
+			complementaryThings add: pragma arguments unique ] ].
+	"Last"
+	sourceMethod pragmas
+		detect: [ :pragma | pragma selector beginsWith: #needsFrame ]
+		ifFound: [ :pragma |
+			complementaryThings add: pragma selector.
+			complementaryThings add: pragma arguments unique ].
+	^ complementaryThings
+]
+
+{ #category : #compiling }
 DRBytecodeObject >> byteCodeEntries [
 
 	"We need to generate as many entries as there are bytecodes.
 	Each entry has a suffix.
-	If there is only one entry, do not add a suffix"	
+	If there is only one entry, or bytecode is not supported, do not add a suffix"	
 	(supported not or: [bytecodeNumberStart = bytecodeNumberEnd]) ifTrue: [ 
 		^ {{
 			self bytecodeSize.
 			self bytecodeNumberStart.
 			self bytecodeNumberEnd.
-			self genSelector }} ].
+			self genSelector }, self annotatedDescriptors} ].
 	
 	^ (bytecodeNumberStart to: bytecodeNumberEnd) collect: [ :e |
 		| suffix |
@@ -29,7 +48,7 @@ DRBytecodeObject >> byteCodeEntries [
 			self bytecodeSize.
 			e.
 			e.
-			self genSelector, suffix asString } ]
+			self genSelector, suffix asString }, self annotatedDescriptors ]
 ]
 
 { #category : #accessing }
