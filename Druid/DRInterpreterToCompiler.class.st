@@ -57,10 +57,10 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 	shortUnconditionalJump pushReceiverVariableBytecode pushConstantTrueBytecode
 	 "
 	bytecodes := #( 
-		0 "pushReceiverVariableBytecode"
-		16 "pushLiteralVariable16CasesBytecode"
-		32 "pushLiteralConstantBytecode"
-		64 65 "pushTemporaryVariableBytecode"
+		0 1 2 3 4 5 6 7 8 9 "pushReceiverVariableBytecode"
+		16 17 "pushLiteralVariable16CasesBytecode"
+		32 33 "pushLiteralConstantBytecode"
+		64 65 66 "pushTemporaryVariableBytecode"
 		76 "pushReceiverBytecode"
 		92 "returnTopFromMethod"
 		80 81 "pushConstantZeroBytecode"
