@@ -105,7 +105,7 @@ DRBytecodeObject >> printOn: aStream [
 { #category : #accessing }
 DRBytecodeObject >> targetSelector [
 
-	^ targetSelector
+	^ targetSelector ifNil: [ super targetSelector ]
 ]
 
 { #category : #accessing }
