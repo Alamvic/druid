@@ -27,12 +27,12 @@ DRCogitCanonicaliser >> visitAddition: aDRAdd [
 	aDRAdd operands
 		detect: [ :op | 
 			op isAdd and: [ 
-				(op operands anySatisfy: [ :opop | opop isConstant ])
+				(op operands anySatisfy: [ :opop | opop isConstant and: [ opop isJitCompileTimeExpression not ] ])
 					and: [ op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ]
 		ifFound: [ :subtree | | variableOperand subConstantOperand constantOperand |
 			variableOperand := subtree operands detect: [ :op | op isConstant not ].
 			subConstantOperand := subtree operands detect: [ :op | op isConstant ].
-			constantOperand := aDRAdd operands detect: [ :op | op isConstant ].
+			constantOperand := aDRAdd operands detect: [ :op | op isConstant and: [ op isJitCompileTimeExpression not ] ].
 			^ aDRAdd replaceBy: (DRAdd
 					   operands: { variableOperand . (subConstantOperand value + constantOperand value) asDRValue }
 					   result: aDRAdd result) ]
