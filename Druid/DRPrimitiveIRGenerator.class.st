@@ -154,11 +154,7 @@ DRPrimitiveIRGenerator >> popFrameMergingDeferredReturns [
 				               mergeBlock: exitBasicBlock;
 				               mergeAll: topReturns values upTo: self topFrame.
 			executionState := mergedState.
-			currentBasicBlock := exitBasicBlock ]
-		ifFalse: [
-			currentBasicBlock = exitBasicBlock ifFalse: [
-				self assert: currentBasicBlock hasFinalInstruction.
-				self assert: exitBasicBlock isEmptyBasicBlock ] ].
+			currentBasicBlock := exitBasicBlock ].
 
 	"Returns installed in the CFG -> stop tracking"
 	self topFrame clearDeferredMethodReturns.

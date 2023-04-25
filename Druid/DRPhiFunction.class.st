@@ -205,9 +205,19 @@ DRPhiFunction >> simpleConstantFold [
 { #category : #simplification }
 DRPhiFunction >> simplify [
 
-	| simplifiedOperands |
+	| simplifiedOperands worklist seen |
 	operands asSet size = 0 ifTrue: [ ^ DRNullValue new ].
-	simplifiedOperands := operands collect: [ :e | e simplify ] as: Set.
+
+	"Use a worklist algorithm to iterate over the phi graph.
+	Ignore Phis and cut if we see a duplicated phi, this may happen in loops"
+	simplifiedOperands := Set new.
+	(OrderedCollection withAll: operands) whileNotEmpty: [:next :col :marked | 
+		(marked includes: next) ifFalse: [
+			next isPhiFunction
+				ifTrue: [ 
+					marked add: next.
+					col addAll: next operands ]
+				ifFalse: [ simplifiedOperands add: next ] ]  ].
 	simplifiedOperands size = 1 ifTrue: [ ^ simplifiedOperands anyOne ].
 	^ self
 ]

@@ -289,6 +289,20 @@ DRBytecodeIRGenerator >> push: aValue [
 	^ self popOperand
 ]
 
+{ #category : #'stack management' }
+DRBytecodeIRGenerator >> pushFrameForCode: aDRCode receiver: aReceiver [
+
+	| frame |
+	frame := super pushFrameForCode: aDRCode receiver: aReceiver.
+
+	"If this is the base frame, it should continue with the next bytecode at the end"
+	executionState baseFrame = frame ifTrue: [
+		frame exitBasicBlock endInstruction:
+			(self instantiateNoResultInstruction: DRContinueNextBytecode) ].
+
+	^ frame
+]
+
 { #category : #accessing }
 DRBytecodeIRGenerator >> receiver: aDRValue [
 ]

@@ -683,7 +683,7 @@ DRIRGenerator >> interpretCaseOfWith: aRBMessageNode [
 { #category : #API }
 DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
 
-	aDRCode pushFrameIn: self receiver: aReceiver.
+	self pushFrameForCode: aDRCode receiver: aReceiver.
 
 	"Iterate based on the defined arguments.
 	In ifNotNil: arguments are optional"
@@ -693,14 +693,6 @@ DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments
 	].
 
 	aDRCode executeOn: self.
-
-	self flag: #TODO. "CHECK if still working"
-	"Fall through the exit block.
-	If the method had an explicit return, it is already done, no need to do it again."
-	currentBasicBlock hasFinalInstruction ifFalse: [
-		currentBasicBlock jumpTo: self topFrame exitBasicBlock.
-		currentBasicBlock := self topFrame exitBasicBlock ].
-
 	^ self popFrame.
 ]
 
@@ -1566,6 +1558,12 @@ DRIRGenerator >> push: aValue [
 DRIRGenerator >> pushFrame: aDruidStackFrame [ 
 	
 	executionState pushFrame: aDruidStackFrame
+]
+
+{ #category : #'stack management' }
+DRIRGenerator >> pushFrameForCode: aDRCode receiver: aReceiver [
+
+	^ aDRCode pushFrameIn: self receiver: aReceiver
 ]
 
 { #category : #'frame-access' }

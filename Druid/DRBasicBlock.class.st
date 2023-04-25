@@ -345,8 +345,7 @@ DRBasicBlock >> greater: operand1 than: operand2 [
 { #category : #testing }
 DRBasicBlock >> hasFinalInstruction [
 
-	^ (endInstruction notNil and: [ endInstruction isNoop not ]) or: [ 
-		  instructions anySatisfy: [ :i | i isFrameReturn ] ]
+	^ endInstruction notNil and: [ endInstruction isNoop not ]
 ]
 
 { #category : #dominance }
