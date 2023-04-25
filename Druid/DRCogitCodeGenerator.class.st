@@ -135,9 +135,7 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
 		self preProcessBlock: b.
 		b instructionsDo: [ :e | self buildStatementsForInstruction: e ] ].
-	"Generate the continuation jumps to the following code"
-	self generateBlockIncomingJumps: nil.
-
+	
 	"Generate the postamble in the fallthrough case"
 	self generatePostambleForCFG: aDRControlFlowGraph.
 
