@@ -61,31 +61,25 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
 		selectPrimitives: [ :e | primitives includes: e selector ];
-		selectBytecodes: [ :e | bytecodes includes: e selector ];
+		selectBytecodes: [ :e | bytecodes includes: e sourceSelector ];
 		targetClass: DruidJIT;
 		targetSuperclass: StackToRegisterMappingCogit;
 		build
 ]
 
 { #category : #'accessing - bytecodes' }
-DRInterpreterToCompiler >> addBytecode: bytecodeMethod [
-
-	[ self bytecodes add: (self newBytecode: bytecodeMethod) ]
-	on: Error
-	do: [ : ex | 
-		failFirst ifTrue: [ ex pass  ].
-		self 
-			failedBytecodesAt: ex
-			add: bytecodeMethod ].
-
-]
-
-{ #category : #'accessing - bytecodes' }
 DRInterpreterToCompiler >> addBytecodes [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
-	(self collectBytecodes: self interpreterBytecodeTable) do: [ :prim |
-		self addBytecode: prim ].
+	| bytecodes |
+	bytecodes := (self interpreterBytecodeTable
+		             reject: [ :e | e isNil ])
+		flatCollect: [ :e |
+		             self newBytecodes: (interpreterClass lookupSelector: e) ].
+
+	bytecodes
+		select: [ :e | self isSelectedBytecode: e ]
+		thenDo: [ :e | self bytecodes add: e ].
 
 	self fillBytecodesTableHoles
 ]
@@ -398,28 +392,37 @@ DRInterpreterToCompiler >> isValidPrimitiveName: aString [
 	^ aString isNumber not
 ]
 
-{ #category : #adding }
-DRInterpreterToCompiler >> newBytecode: bytecodeMethod [
-
-	| bytecodeGroup |
-	bytecodeGroup := self bytecodeGroupOf: bytecodeMethod selector.
-
-	^ DRBytecodeObject new
-		  bytecodeSize: bytecodeGroup first;
-		  bytecodeNumberStart: bytecodeGroup second;
-		  bytecodeNumberEnd: (bytecodeGroup third isNumber
-				   ifTrue: [ bytecodeGroup third ]
-				   ifFalse: [ bytecodeGroup second ]);
-		  sourceMethod: bytecodeMethod;
-		  yourself
-]
-
 { #category : #'accessing - compiler' }
 DRInterpreterToCompiler >> newBytecodeCompiler [
 
 	^ (DRBytecodeCompilerCompiler forInterpreter: self newInterpreter)
 		compilerClass: self targetClass;
 		yourself
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> newBytecodes: bytecodeMethod [
+
+	| bytecodeGroup start end needsSuffix |
+	bytecodeGroup := self bytecodeGroupOf: bytecodeMethod selector.
+
+	start := bytecodeGroup second.
+	end := bytecodeGroup third isNumber
+		       ifTrue: [ bytecodeGroup third ]
+		       ifFalse: [ bytecodeGroup second ].
+
+	needsSuffix := start ~= end.
+	^ (start to: end) collect: [ :e | | suffix |
+		  suffix := needsSuffix
+			            ifTrue: [ e - start ]
+			            ifFalse: [ '' ].
+		  DRBytecodeObject new
+			  bytecodeSize: bytecodeGroup first;
+			  bytecodeNumberStart: e;
+			  bytecodeNumberEnd: e;
+			  targetSelector: ('gen_' , bytecodeMethod selector capitalized , suffix asString) asSymbol;
+			  sourceMethod: bytecodeMethod;
+			  yourself ]
 ]
 
 { #category : #'instance creation' }
