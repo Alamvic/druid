@@ -86,6 +86,52 @@ DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodePrimSendAdd [
+
+	"Setup the send trampoline"
+	| method selector |
+	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit ordinarySendTrampolineAt: 1 "arg" put: sendTrampolineAddress.
+	
+	method := methodBuilder
+		newMethod;
+		literals: { 
+			selector := (memory integerObjectOf: 42) };
+		buildMethod.
+
+	self
+		compileBytecode: 96
+		selector: #bytecodePrimAdd
+		thenDo: [ :generator | 
+			cogit methodObj: method.
+			"The receiver of the send!"
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushConstant: (memory integerObjectOf: 42).
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			cogit Stop ].
+
+	self
+		prepareStackForPrimitiveReceiver: (memory integerObjectOf: 17)
+		arguments: #()
+		method: method.
+
+	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
+	self runFrom: initialAddress until: sendTrampolineAddress.
+	"First argument: the selector"
+	self assert: machineSimulator classRegisterValue equals: (-1 twoComplementOfBitSize: 64) "+ selector index".
+	"Third argument: the receiver, then the argument is on the stack"
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17).
+	self assert: machineSimulator arg0RegisterValue equals: (memory integerObjectOf: 42)
+	
+
+
+
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushConstantOneBytecode [
 
 	| method |

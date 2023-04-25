@@ -57,15 +57,16 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 	shortUnconditionalJump pushReceiverVariableBytecode pushConstantTrueBytecode
 	 "
 	bytecodes := #( 
+		0 "pushReceiverVariableBytecode"
+		16 "pushLiteralVariable16CasesBytecode"
 		32 "pushLiteralConstantBytecode"
+		64 65 "pushTemporaryVariableBytecode"
 		76 "pushReceiverBytecode"
 		92 "returnTopFromMethod"
-		64 65 "pushTemporaryVariableBytecode"
-		16 "pushLiteralVariable16CasesBytecode"
-		88 "returnReceiver"
 		80 81 "pushConstantZeroBytecode"
-		89 90 91 "returnTrue/False/Nil"
-		0 "pushReceiverVariableBytecode" ).
+		88 89 90 91 "returnReceiver/True/False/Nil"
+		96 "Special sends (+)"
+	).
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
