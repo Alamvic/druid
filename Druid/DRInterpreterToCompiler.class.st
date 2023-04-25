@@ -56,12 +56,15 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 	sendLiteralSelector0ArgsBytecode shortConditionalJumpTrue 
 	shortUnconditionalJump pushReceiverVariableBytecode pushConstantTrueBytecode
 	 "
-	bytecodes := #( pushReceiverBytecode pushLiteralConstantBytecode returnTopFromMethod ).
+	bytecodes := #( 
+		32 "pushLiteralConstantBytecode"
+		76 "pushReceiverBytecode"
+		92 "returnTopFromMethod" ).
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
 		selectPrimitives: [ :e | primitives includes: e selector ];
-		selectBytecodes: [ :e | bytecodes includes: e sourceSelector ];
+		selectBytecodes: [ :e | bytecodes includes: e bytecodeNumberStart ];
 		targetClass: DruidJIT;
 		targetSuperclass: StackToRegisterMappingCogit;
 		build

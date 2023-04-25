@@ -146,6 +146,37 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariable16CasesBytecode [
+
+	| tempIndex method |
+	method := methodBuilder newMethod
+		          literals: ((1 to: 16) collect: [ :e |
+					           nil -> (e + 16rFF - 1) forMemory: memory inMethod: nil ]);
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	tempIndex := 0. "0 based..."
+	self
+		compileBytecode: 16 + tempIndex
+		selector: #pushLiteralVariable16CasesBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: 16rFF - 1 + tempIndex
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushTemporaryArg0NoTemps [
 
 	| tempIndex method |
