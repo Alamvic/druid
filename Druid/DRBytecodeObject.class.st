@@ -11,6 +11,25 @@ Class {
 }
 
 { #category : #compiling }
+DRBytecodeObject >> annotatedDescriptors [
+
+	| complementaryThings |
+	supported ifFalse: [ ^ {  } ].
+
+	complementaryThings := OrderedCollection new.
+	sourceMethod pragmasDo: [ :pragma |
+		pragma selector = #compilationInfo: ifTrue: [
+			complementaryThings add: pragma arguments unique ] ].
+	"Last"
+	sourceMethod pragmas
+		detect: [ :pragma | pragma selector beginsWith: #needsFrame ]
+		ifFound: [ :pragma |
+			complementaryThings add: pragma selector.
+			complementaryThings add: pragma arguments unique ].
+	^ complementaryThings
+]
+
+{ #category : #compiling }
 DRBytecodeObject >> byteCodeEntries [
 
 	^ (bytecodeNumber to: bytecodeNumberEnd) collect: [ :e |
@@ -20,7 +39,7 @@ DRBytecodeObject >> byteCodeEntries [
 			  self bytecodeSize.
 			  e.
 			  e.
-			  self genSelector } ]
+			  self genSelector }, self annotatedDescriptors ]
 ]
 
 { #category : #accessing }
