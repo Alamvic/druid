@@ -205,8 +205,10 @@ DRPhiFunction >> simpleConstantFold [
 { #category : #simplification }
 DRPhiFunction >> simplify [
 
+	| simplifiedOperands |
 	operands asSet size = 0 ifTrue: [ ^ DRNullValue new ].
-	operands asSet size = 1 ifTrue: [ ^ operands first simplify ].
+	simplifiedOperands := operands collect: [ :e | e simplify ] as: Set.
+	simplifiedOperands size = 1 ifTrue: [ ^ simplifiedOperands anyOne ].
 	^ self
 ]
 

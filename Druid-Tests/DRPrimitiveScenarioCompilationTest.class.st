@@ -37,6 +37,28 @@ DRPrimitiveScenarioCompilationTest >> testAdditionIntrinsecWithOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: 99
 ]
 
+{ #category : #'tests-booleans' }
+DRPrimitiveScenarioCompilationTest >> testAndFalseReceiverFalseArgument [
+
+	self compileDruidPrimitive: #primitiveAndIfTrue.
+	
+	"Odd AND <= 1 => 2"
+	self executePrimitiveWithReceiver: 0.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : #'tests-booleans' }
+DRPrimitiveScenarioCompilationTest >> testAndFalseReceiverTrueArgument [
+
+	self compileDruidPrimitive: #primitiveAndIfTrue.
+	
+	"Odd BUT <= 1 => 2"
+	self executePrimitiveWithReceiver: 1.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
 { #category : #'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testAndFirstFalseSecondFalse [
 
@@ -65,6 +87,28 @@ DRPrimitiveScenarioCompilationTest >> testAndFirstTrueSecondTrue [
 	self executePrimitiveWithReceiver: 20.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #'tests-booleans' }
+DRPrimitiveScenarioCompilationTest >> testAndTrueReceiverFalseArgument [
+
+	self compileDruidPrimitive: #primitiveAndIfTrue.
+	
+	"Even and bigger than 1 => 1"
+	self executePrimitiveWithReceiver: 18.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : #'tests-booleans' }
+DRPrimitiveScenarioCompilationTest >> testAndTrueReceiverTrueArgument [
+
+	self compileDruidPrimitive: #primitiveAndIfTrue.
+	
+	"Odd and bigger than 1 => 1"
+	self executePrimitiveWithReceiver: 17.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-comparisons' }

@@ -234,6 +234,20 @@ DruidTestInterpreter >> primitiveAnd [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAndIfTrue [
+
+	<numberOfArguments: 0>
+
+	"If it is odd and bigger than 1"
+	| result |
+	result := (self stackTop > 1 and: [ (self stackTop bitAnd: 1) = 1 ])
+		ifTrue: [ 1 ]
+		ifFalse: [ 2 ].
+	
+	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveArithmeticBitShiftRight [
 
 	<numberOfArguments: 1>
