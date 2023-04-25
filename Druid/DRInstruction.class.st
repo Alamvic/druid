@@ -359,7 +359,7 @@ DRInstruction >> isValue [
 { #category : #accessing }
 DRInstruction >> label [
 
-	^ self opcode, '(', self result name asString, ')'
+	^ self opcode, '(', (self result ifNotNil: [ :e | e name ] ifNil: [self]) asString, ')'
 ]
 
 { #category : #interpretation }

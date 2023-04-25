@@ -817,6 +817,7 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 	conditionalJump := self
 		                   instantiateNoResultInstruction: DRBranchIfTrue
 		                   operands: { self popOperand }.
+	conditionalJump originAST: aRBMessageNode.
 
 	self currentBasicBlock endInstruction: conditionalJump.
 

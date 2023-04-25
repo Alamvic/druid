@@ -214,6 +214,8 @@ DRInstructionFactory >> phiWith: value1 with: value2 [
 { #category : #factory }
 DRInstructionFactory >> phiWithVariables: variables [
 
+1haltIf: [variables notEmpty] .
+	1 haltIf: [ variables anySatisfy:  #isBlock ].
 	^ (DRPhiFunction joinedVariables: variables)
 		  result: self allocateTemporaryRegister;
 		  yourself
