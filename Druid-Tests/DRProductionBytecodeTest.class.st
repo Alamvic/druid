@@ -146,17 +146,35 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 ]
 
 { #category : #tests }
-DRProductionBytecodeTest >> testBytecodePushLiteralVariable16CasesBytecode [
+DRProductionBytecodeTest >> testBytecodePushLiteralVariable0 [
 
-	| tempIndex method |
+	self testBytecodePushLiteralVariable: 0
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariable1 [
+
+	self testBytecodePushLiteralVariable: 1
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariable15 [
+
+	self testBytecodePushLiteralVariable: 15
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariable: tempIndex [
+
+	| method |
 	method := methodBuilder newMethod
-		          literals: ((1 to: 16) collect: [ :e |
-					           nil -> (e + 16rFF - 1) forMemory: memory inMethod: nil ]);
+		          literals:
+			          (((1 to: 16) collect: [ :e | nil -> (e + 16rFF - 1) ])
+				           collect: [ :e | e forMemory: memory inMethod: nil ]);
 		          buildMethod.
 
 	cogit methodObj: method.
 
-	tempIndex := 0. "0 based..."
 	self
 		compileBytecode: 16 + tempIndex
 		selector: #pushLiteralVariable16CasesBytecode
@@ -173,7 +191,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariable16CasesBytecode [
 
 	self
 		assert: machineSimulator receiverRegisterValue
-		equals: 16rFF - 1 + tempIndex
+		equals: (memory integerObjectOf: tempIndex + 16rFF)
 ]
 
 { #category : #tests }
