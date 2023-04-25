@@ -517,6 +517,29 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryTemp1WithArgs [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodeReturnTrue [
+
+	| method |
+	method := methodBuilder newMethod buildMethod.
+
+	cogit methodObj: method.
+
+	self
+		compileBytecode: 89
+		selector: #returnTrue
+		thenDo: [ :generator | "Execute the druid's compiled code"
+		generator value ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory trueObject
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodeSendLiteral0ToSelf [
 
 	"128 - sendLiteralSelector0ArgsBytecode selector=literal0, numargs=0.
