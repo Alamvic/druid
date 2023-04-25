@@ -420,7 +420,7 @@ DRInterpreterToCompiler >> newBytecodes: bytecodeMethod [
 			  bytecodeSize: bytecodeGroup first;
 			  bytecodeNumberStart: e;
 			  bytecodeNumberEnd: e;
-			  targetSelector: ('gen_' , bytecodeMethod selector , suffix asString) asSymbol;
+			  targetSelector: ('gen_' , bytecodeMethod selector capitalized , suffix asString) asSymbol;
 			  sourceMethod: bytecodeMethod;
 			  yourself ]
 ]
