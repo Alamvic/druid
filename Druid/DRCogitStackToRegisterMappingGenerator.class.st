@@ -54,6 +54,20 @@ DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMa
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
+	
+	"This is a continuation to the next bytecode.
+	If this is the last basic block, do nothing.
+	Otherwise, make a jump to the end"
+	self isLastBasicBlock ifTrue: [ ^ self ].
+	
+	"Jump to the end!"
+	self
+		generateJump: #Jump:
+		target: nil
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
 
 	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: ordinarySendTrampolines"

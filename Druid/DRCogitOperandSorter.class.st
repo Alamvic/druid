@@ -90,6 +90,12 @@ DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitCopy: aDRCopy [ 
 	
 	"Nothing"

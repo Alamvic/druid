@@ -94,6 +94,30 @@ DRCogitCodeGenerator >> freeJumpIndex: anIndex [
 ]
 
 { #category : #'ir-to-ast' }
+DRCogitCodeGenerator >> generateBlockIncomingJumps: aDRBasicBlock [
+
+	| jumpIndexes |
+	"If someother block is forward jumping to this block, create a label and wire deferred jumps to it"
+	jumpIndexes := deferredBranches
+		               at: aDRBasicBlock
+		               ifAbsent: [ ^ self ].
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: (RBVariableNode named: 'currentBlock')
+			 value:
+			 (RBMessageNode receiver: RBVariableNode selfNode selector: #Label)).
+
+	jumpIndexes do: [ :i | 
+		| jumpVariableName |
+		jumpVariableName := self labelForJump: i.
+		generatorMethodBuilder addStatement: (RBMessageNode
+				 receiver: (RBVariableNode named: jumpVariableName)
+				 selector: #jmpTarget:
+				 arguments: { (RBVariableNode named: 'currentBlock') }).
+
+		self freeJumpIndex: i ]
+]
+
+{ #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 
 	| blocks |
@@ -111,6 +135,8 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
 		self preProcessBlock: b.
 		b instructionsDo: [ :e | self buildStatementsForInstruction: e ] ].
+	"Generate the continuation jumps to the following code"
+	self generateBlockIncomingJumps: nil.
 
 	"Generate the postamble in the fallthrough case"
 	self generatePostambleForCFG: aDRControlFlowGraph.
@@ -250,6 +276,13 @@ DRCogitCodeGenerator >> initialize [
 	visitedBlocks := Dictionary new
 ]
 
+{ #category : #testing }
+DRCogitCodeGenerator >> isLastBasicBlock [
+	
+	"It's the last if we have no fallthrough basic block"
+	^ fallthroughBlock isNil
+]
+
 { #category : #compiling }
 DRCogitCodeGenerator >> jitCompileTimeExpression: aDRAdd [ 
 	
@@ -284,7 +317,6 @@ DRCogitCodeGenerator >> oneOperandCogitRTL: aMnemonic operands: operands instruc
 { #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> preProcessBlock: aDRBasicBlock [
 
-	| jumpIndexes |
 	aDRBasicBlock hasIncomingBackjumps ifTrue: [ 
 		| blockIdentifier |
 		"If this block has incoming backjumps, we need to put a label for it and store it"
@@ -296,24 +328,7 @@ DRCogitCodeGenerator >> preProcessBlock: aDRBasicBlock [
 				 (RBMessageNode receiver: RBVariableNode selfNode selector: #Label)).
 		visitedBlocks at: aDRBasicBlock put: blockIdentifier ].
 
-	"If someother block is forward jumping to this block, create a label and wire deferred jumps to it"
-	jumpIndexes := deferredBranches
-		               at: aDRBasicBlock
-		               ifAbsent: [ ^ self ].
-	generatorMethodBuilder addStatement: (RBAssignmentNode
-			 variable: (RBVariableNode named: 'currentBlock')
-			 value:
-			 (RBMessageNode receiver: RBVariableNode selfNode selector: #Label)).
-
-	jumpIndexes do: [ :i | 
-		| jumpVariableName |
-		jumpVariableName := self labelForJump: i.
-		generatorMethodBuilder addStatement: (RBMessageNode
-				 receiver: (RBVariableNode named: jumpVariableName)
-				 selector: #jmpTarget:
-				 arguments: { (RBVariableNode named: 'currentBlock') }).
-
-		self freeJumpIndex: i ]
+	self generateBlockIncomingJumps: aDRBasicBlock
 ]
 
 { #category : #registers }
