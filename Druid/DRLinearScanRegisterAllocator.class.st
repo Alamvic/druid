@@ -58,8 +58,8 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 	activeIntervals := OrderedCollection new.
 	inactiveIntervals := OrderedCollection new.
 
-	unhandledIntervals := (liveSets values asSet sorted: [ :a :b | 
-		                       a start < b start ]) asOrderedCollection.
+	unhandledIntervals := (liveSets values asSet sorted: [ :a :b |
+		a start < b start and: [ a asString < b definitions asString ] ]) asOrderedCollection.
 
 	[ unhandledIntervals isEmpty ] whileFalse: [ 
 		| currentInterval |
