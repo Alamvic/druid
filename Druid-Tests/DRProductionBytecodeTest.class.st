@@ -802,6 +802,21 @@ DRProductionBytecodeTest >> testPushTrueObject [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testReturnReceiver [
+
+	| object |
+	self compileBytecode: 88 selector: #returnReceiver thenDo: [ :generator |
+		"Execute the druid's compiled code"
+		generator value ].
+
+	object := self newObjectWithSlots: 1.
+	memory storePointer: 0 ofObject: object withValue: 17.
+
+	self executePrimitiveWithReceiver: object.
+	self assert: machineSimulator receiverRegisterValue equals: object
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testReturnTopFromMethod [
 
 	| object |
