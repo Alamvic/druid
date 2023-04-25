@@ -106,35 +106,30 @@ DRInterpreterToCompilerTest >> testSelectBytecodeCompilationUnits [
 
 	| supportedBytecode unknownBytecodes currentBytecodeNumber |
 	interpreterToCompiler
-		selectBytecodes: [ :cm | cm selector = #pushReceiverVariableBytecode ];
+		selectBytecodes: [ :e |
+			e sourceSelector = #pushReceiverVariableBytecode ];
 		build.
 
-	supportedBytecode := interpreterToCompiler bytecodes first.
-	self
-		assert: supportedBytecode bytecodeSize
-		equals: 1.
-	self
-		assert: supportedBytecode bytecodeNumberStart
-		equals: 0.
-	self
-		assert: supportedBytecode bytecodeNumberEnd
-		equals: 15.
-	self
-		assert: supportedBytecode sourceSelector
-		equals: #pushReceiverVariableBytecode.
-	self
-		assert: supportedBytecode genSelector
-		equals: #gen_PushReceiverVariableBytecode.
-	self assert: supportedBytecode supported.
+	supportedBytecode := interpreterToCompiler bytecodes first: 16.
+	supportedBytecode withIndexDo: [ :e :i |
+		self assert: e bytecodeSize equals: 1.
+		self assert: e bytecodeNumberStart equals: i - 1.
+		self assert: e bytecodeNumberEnd equals: i - 1.
+		self assert: e sourceSelector equals: #pushReceiverVariableBytecode.
+		self
+			assert: e genSelector
+			equals: #gen_PushReceiverVariableBytecode , (i - 1) asString.
+		self assert: e supported ].
 
-	unknownBytecodes := interpreterToCompiler bytecodes allButFirst.
+	unknownBytecodes := interpreterToCompiler bytecodes allButFirst: 16.
 	self assert: unknownBytecodes isNotEmpty.
-	
+
 	"Continue from previous bytecode"
-	currentBytecodeNumber := supportedBytecode bytecodeNumberEnd.
+	currentBytecodeNumber := 15.
 	unknownBytecodes doWithIndex: [ :bytecodeUnit :index |
 		self assert: bytecodeUnit bytecodeSize equals: index.
-		self assert: bytecodeUnit bytecodeNumberStart > currentBytecodeNumber.
+		self assert:
+			bytecodeUnit bytecodeNumberStart > currentBytecodeNumber.
 		currentBytecodeNumber := bytecodeUnit bytecodeNumberStart.
 		self assert: bytecodeUnit bytecodeNumberEnd > currentBytecodeNumber.
 		currentBytecodeNumber := bytecodeUnit bytecodeNumberEnd.
@@ -162,7 +157,7 @@ DRInterpreterToCompilerTest >> testSelectSingleBytecodeNumberCompilationUnits [
 
 	| supportedBytecode |
 	interpreterToCompiler
-		selectBytecodes: [ :cm | cm selector = #pushConstantTrueBytecode ];
+		selectBytecodes: [ :e | e sourceSelector = #pushConstantTrueBytecode ];
 		build.
 
 	supportedBytecode := interpreterToCompiler bytecodes first.

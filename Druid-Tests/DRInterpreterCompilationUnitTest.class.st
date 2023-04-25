@@ -20,11 +20,18 @@ DRInterpreterCompilationUnitTest >> bytecodeMethodWithDescriptors [
 DRInterpreterCompilationUnitTest >> compile: compilationUnit [
 
 	| compiler |
-	compiler := (DRInterpreterToCompiler fromInterpreterClass: DruidTestInterpreter)
-		            doFailOnFirst;
+	compiler := self compiler
 		            compilationUnit: compilationUnit;
 		            yourself.
 	compilationUnit compileUsing: compiler
+]
+
+{ #category : #compiling }
+DRInterpreterCompilationUnitTest >> compiler [
+
+	^ (DRInterpreterToCompiler fromInterpreterClass: DruidTestInterpreter)
+		  doFailOnFirst;
+		  yourself
 ]
 
 { #category : #'instance creation' }
@@ -75,7 +82,7 @@ DRInterpreterCompilationUnitTest >> tearDown [
 { #category : #'tests - bytecodes' }
 DRInterpreterCompilationUnitTest >> testBytecodeCompilation [
 
-	| compilationUnit |
+	| compilationUnit bytecodes |
 	compilationUnit := self newEmptyCompilationUnit.
 
 	compilationUnit bytecodes: { (DRBytecodeObject new
@@ -125,26 +132,20 @@ DRInterpreterCompilationUnitTest >> testBytecodesCompilationWithAnnotatedDescrip
 { #category : #'tests - bytecodes' }
 DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 
-	| compilationUnit |
+	| compilationUnit bytecodes |
 	compilationUnit := self newEmptyCompilationUnit.
-
-	compilationUnit bytecodes: {
-			(DRBytecodeObject new
-				 bytecodeSize: 1;
-				 bytecodeNumberStart: 0;
-				 bytecodeNumberEnd: 2;
-				 sourceMethod: self bytecodeMethod;
-				 yourself).
-			(DRBytecodeObject new
-				 bytecodeSize: 2;
-				 bytecodeNumberStart: 3;
-				 bytecodeNumberEnd: 5;
-				 supported: false;
-				 yourself) } asOrderedCollection.
-
+	"Here the bytecode range is a single range sharing the same selector.
+	That selector will be used for compilation"
+	bytecodes := self compiler newBytecodes: self bytecodeMethod.
+	compilationUnit bytecodes: bytecodes , { (DRBytecodeObject new
+			 bytecodeSize: 2;
+			 bytecodeNumberStart: 16;
+			 bytecodeNumberEnd: 17;
+			 supported: false;
+			 yourself) }.
 	self compile: compilationUnit.
 
-	self assert: self targetClass bytecodeTable equals: {
+self assert: self targetClass bytecodeTable equals: {
 			#( 1 0 0 #gen_PushReceiverVariableBytecode0 #needsFrameNever: 1  ).
 			#( 1 1 1 #gen_PushReceiverVariableBytecode1 #needsFrameNever: 1  ).
 			#( 1 2 2 #gen_PushReceiverVariableBytecode2 #needsFrameNever: 1  ).
