@@ -29,11 +29,7 @@ DRInterpreterCompilationUnit >> addBytecodeEntries [
 DRInterpreterCompilationUnit >> addBytecodeEntry: aDRBytecodeObject [
 	"Add a primitive entry compatible with the expected format from #initializePrimitiveTable implementation"
 
-	self bytecodeTable add: {
-			aDRBytecodeObject bytecodeSize.
-			aDRBytecodeObject bytecodeNumberStart.
-			aDRBytecodeObject bytecodeNumberEnd.
-			aDRBytecodeObject genSelector }
+	self bytecodeTable addAll: aDRBytecodeObject byteCodeEntries
 ]
 
 { #category : #'accessing - primitives' }
