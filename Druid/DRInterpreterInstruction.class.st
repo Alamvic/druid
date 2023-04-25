@@ -32,7 +32,7 @@ DRInterpreterInstruction >> genSelector [
 
 	supported ifFalse: [ ^ self notSupportedSelector ].
 
-	^ #gen_ , self sourceSelector capitalized
+	^ self targetSelector
 ]
 
 { #category : #testing }
@@ -45,6 +45,13 @@ DRInterpreterInstruction >> hasPragmaNamed: aString [
 DRInterpreterInstruction >> initialize [
 
 	supported := true
+]
+
+{ #category : #accessing }
+DRInterpreterInstruction >> notSupportedSelector [
+	"Should return the selector used when this instruction is not supported in the compiler"
+
+	self subclassResponsibility
 ]
 
 { #category : #accessing }
@@ -75,4 +82,11 @@ DRInterpreterInstruction >> supported [
 DRInterpreterInstruction >> supported: aBoolean [
 
 	supported := aBoolean
+]
+
+{ #category : #accessing }
+DRInterpreterInstruction >> targetSelector [
+	"Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (compiler) method"
+
+	^ #gen_ , self sourceSelector capitalized
 ]

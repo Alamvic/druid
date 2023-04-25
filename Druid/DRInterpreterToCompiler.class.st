@@ -392,22 +392,6 @@ DRInterpreterToCompiler >> isValidPrimitiveName: aString [
 	^ aString isNumber not
 ]
 
-{ #category : #adding }
-DRInterpreterToCompiler >> newBytecode: bytecodeMethod [
-
-	| bytecodeGroup |
-	bytecodeGroup := self bytecodeGroupOf: bytecodeMethod selector.
-
-	^ DRBytecodeObject new
-		  bytecodeSize: bytecodeGroup first;
-		  bytecodeNumberStart: bytecodeGroup second;
-		  bytecodeNumberEnd: (bytecodeGroup third isNumber
-				   ifTrue: [ bytecodeGroup third ]
-				   ifFalse: [ bytecodeGroup second ]);
-		  sourceMethod: bytecodeMethod;
-		  yourself
-]
-
 { #category : #'accessing - compiler' }
 DRInterpreterToCompiler >> newBytecodeCompiler [
 
@@ -419,7 +403,7 @@ DRInterpreterToCompiler >> newBytecodeCompiler [
 { #category : #adding }
 DRInterpreterToCompiler >> newBytecodes: bytecodeMethod [
 
-	| bytecodeGroup start end |
+	| bytecodeGroup start end needsSuffix |
 	bytecodeGroup := self bytecodeGroupOf: bytecodeMethod selector.
 
 	start := bytecodeGroup second.
@@ -427,19 +411,16 @@ DRInterpreterToCompiler >> newBytecodes: bytecodeMethod [
 		       ifTrue: [ bytecodeGroup third ]
 		       ifFalse: [ bytecodeGroup second ].
 
-	start = end ifTrue: [
-		^ { (DRBytecodeObject new
-			   bytecodeSize: bytecodeGroup first;
-			   bytecodeNumberStart: start;
-			   bytecodeNumberEnd: end;
-			   sourceMethod: bytecodeMethod;
-			   yourself) } ].
-
-	^ (start to: end) collect: [ :e |
+	needsSuffix := start ~= end.
+	^ (start to: end) collect: [ :e | | suffix |
+		  suffix := needsSuffix
+			            ifTrue: [ e - start ]
+			            ifFalse: [ '' ].
 		  DRBytecodeObject new
 			  bytecodeSize: bytecodeGroup first;
 			  bytecodeNumberStart: e;
 			  bytecodeNumberEnd: e;
+			  targetSelector: 'gen_' , bytecodeMethod selector , suffix asString;
 			  sourceMethod: bytecodeMethod;
 			  yourself ]
 ]

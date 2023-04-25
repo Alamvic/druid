@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'bytecodeSize',
 		'bytecodeNumberEnd',
-		'bytecodeNumber'
+		'bytecodeNumber',
+		'targetSelector'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
@@ -12,24 +13,14 @@ Class {
 { #category : #compiling }
 DRBytecodeObject >> byteCodeEntries [
 
-	"We need to generate as many entries as there are bytecodes.
-	Each entry has a suffix.
-	If there is only one entry, do not add a suffix"	
-	(supported not or: [bytecodeNumber = bytecodeNumberEnd]) ifTrue: [ 
-		^ {{
-			self bytecodeSize.
-			self bytecodeNumberStart.
-			self bytecodeNumberEnd.
-			self genSelector }} ].
-	
 	^ (bytecodeNumber to: bytecodeNumberEnd) collect: [ :e |
-		| suffix |
-		suffix := e - bytecodeNumber.
-		{
-			self bytecodeSize.
-			e.
-			e.
-			self genSelector, suffix asString } ]
+		  | suffix |
+		  suffix := e - bytecodeNumber.
+		  {
+			  self bytecodeSize.
+			  e.
+			  e.
+			  self genSelector } ]
 ]
 
 { #category : #accessing }
@@ -80,23 +71,10 @@ DRBytecodeObject >> compileUnitUsing: aCompiler [
 
 	| interpreter |
 	interpreter := aCompiler newInterpreter.
-	"If this is a single bytecode range, compile the method without suffix"
-	self bytecodeNumberStart = self bytecodeNumberEnd ifTrue: [
-		interpreter currentBytecode: self bytecodeNumberStart.
-		^ DRBytecodeCompilerCompiler new
-			targetName: self genSelector;
-			sourceName: self sourceSelector;
-			interpreter: interpreter;
-			compilerClass: aCompiler targetClass;
-			compile ].
-	
-	"Otherwise iterate the bytecode and compile a variant per suffix"
 	self bytecodeNumberStart to: self bytecodeNumberEnd do: [ :e |
-		| suffix |
-		suffix := e - bytecodeNumber.
 		interpreter currentBytecode: e.
 		DRBytecodeCompilerCompiler new
-			targetName: self genSelector , suffix asString;
+			targetName: self genSelector;
 			sourceName: self sourceSelector;
 			interpreter: interpreter;
 			compilerClass: aCompiler targetClass;
@@ -122,4 +100,16 @@ DRBytecodeObject >> printOn: aStream [
 		<< self bytecodeNumberEnd asString;
 		space;
 		<< self genSelector
+]
+
+{ #category : #accessing }
+DRBytecodeObject >> targetSelector [
+
+	^ targetSelector
+]
+
+{ #category : #accessing }
+DRBytecodeObject >> targetSelector: anObject [
+
+	targetSelector := anObject
 ]
