@@ -118,7 +118,7 @@ DRInterpreterToCompilerTest >> testSelectBytecodeCompilationUnits [
 		self assert: e sourceSelector equals: #pushReceiverVariableBytecode.
 		self
 			assert: e genSelector
-			equals: #gen_pushReceiverVariableBytecode , (i - 1) asString.
+			equals: #gen_PushReceiverVariableBytecode , (i - 1) asString.
 		self assert: e supported ].
 
 	unknownBytecodes := interpreterToCompiler bytecodes allButFirst: 16.
@@ -175,7 +175,7 @@ DRInterpreterToCompilerTest >> testSelectSingleBytecodeNumberCompilationUnits [
 		equals: #pushConstantTrueBytecode.
 	self
 		assert: supportedBytecode genSelector
-		equals: #gen_pushConstantTrueBytecode.
+		equals: #gen_PushConstantTrueBytecode.
 	self assert: supportedBytecode supported.
 
 ]
