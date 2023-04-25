@@ -61,31 +61,25 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
 		selectPrimitives: [ :e | primitives includes: e selector ];
-		selectBytecodes: [ :e | bytecodes includes: e selector ];
+		selectBytecodes: [ :e | bytecodes includes: e sourceSelector ];
 		targetClass: DruidJIT;
 		targetSuperclass: StackToRegisterMappingCogit;
 		build
 ]
 
 { #category : #'accessing - bytecodes' }
-DRInterpreterToCompiler >> addBytecode: bytecodeMethod [
-
-	[ self bytecodes add: (self newBytecode: bytecodeMethod) ]
-	on: Error
-	do: [ : ex | 
-		failFirst ifTrue: [ ex pass  ].
-		self 
-			failedBytecodesAt: ex
-			add: bytecodeMethod ].
-
-]
-
-{ #category : #'accessing - bytecodes' }
 DRInterpreterToCompiler >> addBytecodes [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
-	(self collectBytecodes: self interpreterBytecodeTable) do: [ :prim |
-		self addBytecode: prim ].
+	| bytecodes |
+	bytecodes := (self interpreterBytecodeTable
+		             reject: [ :e | e isNil ])
+		flatCollect: [ :e |
+		             self newBytecodes: (interpreterClass lookupSelector: e) ].
+
+	bytecodes
+		select: [ :e | self isSelectedBytecode: e ]
+		thenDo: [ :e | self bytecodes add: e ].
 
 	self fillBytecodesTableHoles
 ]
@@ -420,6 +414,34 @@ DRInterpreterToCompiler >> newBytecodeCompiler [
 	^ (DRBytecodeCompilerCompiler forInterpreter: self newInterpreter)
 		compilerClass: self targetClass;
 		yourself
+]
+
+{ #category : #adding }
+DRInterpreterToCompiler >> newBytecodes: bytecodeMethod [
+
+	| bytecodeGroup start end |
+	bytecodeGroup := self bytecodeGroupOf: bytecodeMethod selector.
+
+	start := bytecodeGroup second.
+	end := bytecodeGroup third isNumber
+		       ifTrue: [ bytecodeGroup third ]
+		       ifFalse: [ bytecodeGroup second ].
+
+	start = end ifTrue: [
+		^ { (DRBytecodeObject new
+			   bytecodeSize: bytecodeGroup first;
+			   bytecodeNumberStart: start;
+			   bytecodeNumberEnd: end;
+			   sourceMethod: bytecodeMethod;
+			   yourself) } ].
+
+	^ (start to: end) collect: [ :e |
+		  DRBytecodeObject new
+			  bytecodeSize: bytecodeGroup first;
+			  bytecodeNumberStart: e;
+			  bytecodeNumberEnd: e;
+			  sourceMethod: bytecodeMethod;
+			  yourself ]
 ]
 
 { #category : #'instance creation' }

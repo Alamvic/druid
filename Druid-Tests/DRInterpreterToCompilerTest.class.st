@@ -106,7 +106,7 @@ DRInterpreterToCompilerTest >> testSelectBytecodeCompilationUnits [
 
 	| supportedBytecode unknownBytecodes currentBytecodeNumber |
 	interpreterToCompiler
-		selectBytecodes: [ :cm | cm selector = #pushReceiverVariableBytecode ];
+		selectBytecodes: [ :e | e sourceSelector = #pushReceiverVariableBytecode ];
 		build.
 
 	supportedBytecode := interpreterToCompiler bytecodes first.
@@ -118,7 +118,7 @@ DRInterpreterToCompilerTest >> testSelectBytecodeCompilationUnits [
 		equals: 0.
 	self
 		assert: supportedBytecode bytecodeNumberEnd
-		equals: 15.
+		equals: 0.
 	self
 		assert: supportedBytecode sourceSelector
 		equals: #pushReceiverVariableBytecode.
@@ -127,7 +127,7 @@ DRInterpreterToCompilerTest >> testSelectBytecodeCompilationUnits [
 		equals: #gen_PushReceiverVariableBytecode.
 	self assert: supportedBytecode supported.
 
-	unknownBytecodes := interpreterToCompiler bytecodes allButFirst.
+	unknownBytecodes := interpreterToCompiler bytecodes allButFirst: 16.
 	self assert: unknownBytecodes isNotEmpty.
 	
 	"Continue from previous bytecode"
@@ -162,7 +162,7 @@ DRInterpreterToCompilerTest >> testSelectSingleBytecodeNumberCompilationUnits [
 
 	| supportedBytecode |
 	interpreterToCompiler
-		selectBytecodes: [ :cm | cm selector = #pushConstantTrueBytecode ];
+		selectBytecodes: [ :e | e sourceSelector = #pushConstantTrueBytecode ];
 		build.
 
 	supportedBytecode := interpreterToCompiler bytecodes first.

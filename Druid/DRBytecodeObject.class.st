@@ -3,8 +3,8 @@ Class {
 	#superclass : #DRInterpreterInstruction,
 	#instVars : [
 		'bytecodeSize',
-		'bytecodeNumberStart',
-		'bytecodeNumberEnd'
+		'bytecodeNumberEnd',
+		'bytecodeNumber'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
@@ -15,16 +15,16 @@ DRBytecodeObject >> byteCodeEntries [
 	"We need to generate as many entries as there are bytecodes.
 	Each entry has a suffix.
 	If there is only one entry, do not add a suffix"	
-	(supported not or: [bytecodeNumberStart = bytecodeNumberEnd]) ifTrue: [ 
+	(supported not or: [bytecodeNumber = bytecodeNumberEnd]) ifTrue: [ 
 		^ {{
 			self bytecodeSize.
 			self bytecodeNumberStart.
 			self bytecodeNumberEnd.
 			self genSelector }} ].
 	
-	^ (bytecodeNumberStart to: bytecodeNumberEnd) collect: [ :e |
+	^ (bytecodeNumber to: bytecodeNumberEnd) collect: [ :e |
 		| suffix |
-		suffix := e - bytecodeNumberStart.
+		suffix := e - bytecodeNumber.
 		{
 			self bytecodeSize.
 			e.
@@ -35,7 +35,7 @@ DRBytecodeObject >> byteCodeEntries [
 { #category : #accessing }
 DRBytecodeObject >> bytecodeNumber: anInteger [
 
-	bytecodeNumberStart := anInteger.
+	bytecodeNumber := anInteger.
 	bytecodeNumberEnd := anInteger
 ]
 
@@ -54,13 +54,13 @@ DRBytecodeObject >> bytecodeNumberEnd: anObject [
 { #category : #accessing }
 DRBytecodeObject >> bytecodeNumberStart [
 
-	^ bytecodeNumberStart
+	^ bytecodeNumber
 ]
 
 { #category : #accessing }
 DRBytecodeObject >> bytecodeNumberStart: anObject [
 
-	bytecodeNumberStart := anObject
+	bytecodeNumber := anObject
 ]
 
 { #category : #accessing }
@@ -93,7 +93,7 @@ DRBytecodeObject >> compileUnitUsing: aCompiler [
 	"Otherwise iterate the bytecode and compile a variant per suffix"
 	self bytecodeNumberStart to: self bytecodeNumberEnd do: [ :e |
 		| suffix |
-		suffix := e - bytecodeNumberStart.
+		suffix := e - bytecodeNumber.
 		interpreter currentBytecode: e.
 		DRBytecodeCompilerCompiler new
 			targetName: self genSelector , suffix asString;
