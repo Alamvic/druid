@@ -14,11 +14,18 @@ DRInterpreterCompilationUnitTest >> bytecodeMethod [
 DRInterpreterCompilationUnitTest >> compile: compilationUnit [
 
 	| compiler |
-	compiler := (DRInterpreterToCompiler fromInterpreterClass: DruidTestInterpreter)
-		            doFailOnFirst;
+	compiler := self compiler
 		            compilationUnit: compilationUnit;
 		            yourself.
 	compilationUnit compileUsing: compiler
+]
+
+{ #category : #compiling }
+DRInterpreterCompilationUnitTest >> compiler [
+
+	^ (DRInterpreterToCompiler fromInterpreterClass: DruidTestInterpreter)
+		  doFailOnFirst;
+		  yourself
 ]
 
 { #category : #'instance creation' }
@@ -69,37 +76,33 @@ DRInterpreterCompilationUnitTest >> tearDown [
 { #category : #'tests - bytecodes' }
 DRInterpreterCompilationUnitTest >> testBytecodeCompilation [
 
-	| compilationUnit |
+	| compilationUnit bytecodes |
 	compilationUnit := self newEmptyCompilationUnit.
 
-	compilationUnit bytecodes: { (DRBytecodeObject new
-			 bytecodeSize: 1;
-			 bytecodeNumberStart: 0;
-			 bytecodeNumberEnd: 15;
-			 sourceMethod: self bytecodeMethod;
-			 yourself) } asOrderedCollection.
-
+	"Here the bytecode range is a single range sharing the same selector.
+	That selector will be used for compilation"
+	bytecodes := self compiler newBytecodes:
+		             StackInterpreter >> #pushReceiverVariableBytecode.
+	compilationUnit bytecodes: bytecodes.
 	self compile: compilationUnit.
 
-	self
-		assert: self targetClass bytecodeTable
-		equals: { 
-			#( 1 0 0 #gen_PushReceiverVariableBytecode0 ).
-			#( 1 1 1 #gen_PushReceiverVariableBytecode1 ).
-			#( 1 2 2 #gen_PushReceiverVariableBytecode2 ).
-			#( 1 3 3 #gen_PushReceiverVariableBytecode3 ).
-			#( 1 4 4 #gen_PushReceiverVariableBytecode4 ).
-			#( 1 5 5 #gen_PushReceiverVariableBytecode5 ).
-			#( 1 6 6 #gen_PushReceiverVariableBytecode6 ).
-			#( 1 7 7 #gen_PushReceiverVariableBytecode7 ).
-			#( 1 8 8 #gen_PushReceiverVariableBytecode8 ).
-			#( 1 9 9 #gen_PushReceiverVariableBytecode9 ).
-			#( 1 10 10 #gen_PushReceiverVariableBytecode10 ).
-			#( 1 11 11 #gen_PushReceiverVariableBytecode11 ).
-			#( 1 12 12 #gen_PushReceiverVariableBytecode12 ).
-			#( 1 13 13 #gen_PushReceiverVariableBytecode13 ).
-			#( 1 14 14 #gen_PushReceiverVariableBytecode14 ).
-			#( 1 15 15 #gen_PushReceiverVariableBytecode15 ). }.
+	self assert: self targetClass bytecodeTable equals: {
+			#( 1 0 0 #gen_pushReceiverVariableBytecode0 ).
+			#( 1 1 1 #gen_pushReceiverVariableBytecode1 ).
+			#( 1 2 2 #gen_pushReceiverVariableBytecode2 ).
+			#( 1 3 3 #gen_pushReceiverVariableBytecode3 ).
+			#( 1 4 4 #gen_pushReceiverVariableBytecode4 ).
+			#( 1 5 5 #gen_pushReceiverVariableBytecode5 ).
+			#( 1 6 6 #gen_pushReceiverVariableBytecode6 ).
+			#( 1 7 7 #gen_pushReceiverVariableBytecode7 ).
+			#( 1 8 8 #gen_pushReceiverVariableBytecode8 ).
+			#( 1 9 9 #gen_pushReceiverVariableBytecode9 ).
+			#( 1 10 10 #gen_pushReceiverVariableBytecode10 ).
+			#( 1 11 11 #gen_pushReceiverVariableBytecode11 ).
+			#( 1 12 12 #gen_pushReceiverVariableBytecode12 ).
+			#( 1 13 13 #gen_pushReceiverVariableBytecode13 ).
+			#( 1 14 14 #gen_pushReceiverVariableBytecode14 ).
+			#( 1 15 15 #gen_pushReceiverVariableBytecode15 ) }.
 
 	self targetClass bytecodeTable do: [ :e |
 		self assert: (self targetClass canUnderstand: e fourth) ]
@@ -108,43 +111,39 @@ DRInterpreterCompilationUnitTest >> testBytecodeCompilation [
 { #category : #'tests - bytecodes' }
 DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 
-	| compilationUnit |
+	| compilationUnit bytecodes |
 	compilationUnit := self newEmptyCompilationUnit.
 
-	compilationUnit bytecodes: {
-			(DRBytecodeObject new
-				 bytecodeSize: 1;
-				 bytecodeNumberStart: 0;
-				 bytecodeNumberEnd: 15;
-				 sourceMethod: self bytecodeMethod;
-				 yourself).
-			(DRBytecodeObject new
-				 bytecodeSize: 2;
-				 bytecodeNumberStart: 16;
-				 bytecodeNumberEnd: 17;
-				 supported: false;
-				 yourself) } asOrderedCollection.
-
+	"Here the bytecode range is a single range sharing the same selector.
+	That selector will be used for compilation"
+	bytecodes := self compiler newBytecodes: self bytecodeMethod.
+	compilationUnit bytecodes: bytecodes , { (DRBytecodeObject new
+			 bytecodeSize: 2;
+			 bytecodeNumberStart: 16;
+			 bytecodeNumberEnd: 17;
+			 supported: false;
+			 yourself) }.
 	self compile: compilationUnit.
 
 	self assert: self targetClass bytecodeTable equals: {
-			#( 1 0 0 #gen_PushReceiverVariableBytecode0 ).
-			#( 1 1 1 #gen_PushReceiverVariableBytecode1 ).
-			#( 1 2 2 #gen_PushReceiverVariableBytecode2 ).
-			#( 1 3 3 #gen_PushReceiverVariableBytecode3 ).
-			#( 1 4 4 #gen_PushReceiverVariableBytecode4 ).
-			#( 1 5 5 #gen_PushReceiverVariableBytecode5 ).
-			#( 1 6 6 #gen_PushReceiverVariableBytecode6 ).
-			#( 1 7 7 #gen_PushReceiverVariableBytecode7 ).
-			#( 1 8 8 #gen_PushReceiverVariableBytecode8 ).
-			#( 1 9 9 #gen_PushReceiverVariableBytecode9 ).
-			#( 1 10 10 #gen_PushReceiverVariableBytecode10 ).
-			#( 1 11 11 #gen_PushReceiverVariableBytecode11 ).
-			#( 1 12 12 #gen_PushReceiverVariableBytecode12 ).
-			#( 1 13 13 #gen_PushReceiverVariableBytecode13 ).
-			#( 1 14 14 #gen_PushReceiverVariableBytecode14 ).
-			#( 1 15 15 #gen_PushReceiverVariableBytecode15 ).
-			#( 2 16 17 #unknownBytecode ) }.
+			#( 1 0 0 #gen_pushReceiverVariableBytecode0 ).
+			#( 1 1 1 #gen_pushReceiverVariableBytecode1 ).
+			#( 1 2 2 #gen_pushReceiverVariableBytecode2 ).
+			#( 1 3 3 #gen_pushReceiverVariableBytecode3 ).
+			#( 1 4 4 #gen_pushReceiverVariableBytecode4 ).
+			#( 1 5 5 #gen_pushReceiverVariableBytecode5 ).
+			#( 1 6 6 #gen_pushReceiverVariableBytecode6 ).
+			#( 1 7 7 #gen_pushReceiverVariableBytecode7 ).
+			#( 1 8 8 #gen_pushReceiverVariableBytecode8 ).
+			#( 1 9 9 #gen_pushReceiverVariableBytecode9 ).
+			#( 1 10 10 #gen_pushReceiverVariableBytecode10 ).
+			#( 1 11 11 #gen_pushReceiverVariableBytecode11 ).
+			#( 1 12 12 #gen_pushReceiverVariableBytecode12 ).
+			#( 1 13 13 #gen_pushReceiverVariableBytecode13 ).
+			#( 1 14 14 #gen_pushReceiverVariableBytecode14 ).
+			#( 1 15 15 #gen_pushReceiverVariableBytecode15 ).
+			#( 2 16 16 #unknownBytecode ).
+			#( 2 17 17 #unknownBytecode ) }.
 
 	self targetClass bytecodeTable do: [ :e |
 		self assert: (self targetClass canUnderstand: e fourth) ]
