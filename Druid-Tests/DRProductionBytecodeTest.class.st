@@ -547,6 +547,52 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryTemp1WithArgs [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodeReturnFalse [
+
+	| method |
+	method := methodBuilder newMethod buildMethod.
+
+	cogit methodObj: method.
+
+	self
+		compileBytecode: 90
+		selector: #returnFalse
+		thenDo: [ :generator | "Execute the druid's compiled code"
+		generator value ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory falseObject
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeReturnNil [
+
+	| method |
+	method := methodBuilder newMethod buildMethod.
+
+	cogit methodObj: method.
+
+	self
+		compileBytecode: 91
+		selector: #returnNil
+		thenDo: [ :generator | "Execute the druid's compiled code"
+		generator value ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory nilObject
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodeReturnTrue [
 
 	| method |

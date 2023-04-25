@@ -64,7 +64,7 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 		16 "pushLiteralVariable16CasesBytecode"
 		88 "returnReceiver"
 		80 81 "pushConstantZeroBytecode"
-		89 "returnTrue"
+		89 90 91 "returnTrue/False/Nil"
 		0 "pushReceiverVariableBytecode" ).
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
