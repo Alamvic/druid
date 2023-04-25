@@ -69,6 +69,12 @@ DRCogitCanonicaliser >> visitCall: aDRCall [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
+	
+	"Do nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitCopy: aDRCopy [ 
 	
 	"Nothing"
