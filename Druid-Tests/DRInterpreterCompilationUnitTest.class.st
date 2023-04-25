@@ -101,8 +101,8 @@ DRInterpreterCompilationUnitTest >> testBytecodeCompilation [
 			#( 1 14 14 #gen_PushReceiverVariableBytecode14 ).
 			#( 1 15 15 #gen_PushReceiverVariableBytecode15 ). }.
 
-	self assert:
-		(self targetClass canUnderstand: #gen_PushReceiverVariableBytecode)
+	self targetClass bytecodeTable do: [ :e |
+		self assert: (self targetClass canUnderstand: e fourth) ]
 ]
 
 { #category : #'tests - bytecodes' }
@@ -146,8 +146,8 @@ DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 			#( 1 15 15 #gen_PushReceiverVariableBytecode15 ).
 			#( 2 16 17 #unknownBytecode ) }.
 
-	self assert:
-		(self targetClass canUnderstand: #gen_PushReceiverVariableBytecode)
+	self targetClass bytecodeTable do: [ :e |
+		self assert: (self targetClass canUnderstand: e fourth) ]
 ]
 
 { #category : #'tests - primitives' }
@@ -269,4 +269,27 @@ DRInterpreterCompilationUnitTest >> testPrimitiveCompilation [
 		equals: { #( 7 #gen_PrimitiveAdd 1 ) }.
 
 	self assert: (self targetClass canUnderstand: #gen_PrimitiveAdd)
+]
+
+{ #category : #'tests - bytecodes' }
+DRInterpreterCompilationUnitTest >> testSingleBytecodesCompilation [
+
+	| compilationUnit |
+	compilationUnit := self newEmptyCompilationUnit.
+
+	compilationUnit bytecodes: { (DRBytecodeObject new
+			 bytecodeSize: 1;
+			 bytecodeNumberStart: 0;
+			 bytecodeNumberEnd: 0;
+			 sourceMethod: self bytecodeMethod;
+			 yourself) } asOrderedCollection.
+
+	self compile: compilationUnit.
+
+	self
+		assert: self targetClass bytecodeTable
+		equals: { #( 1 0 0 #gen_PushReceiverVariableBytecode ) }.
+
+	self targetClass bytecodeTable do: [ :e |
+		self assert: (self targetClass canUnderstand: e fourth) ]
 ]
