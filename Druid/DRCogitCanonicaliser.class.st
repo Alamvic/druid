@@ -77,6 +77,12 @@ DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitBitOr: aDRBitOr [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitBranchIfCondition: aDRBranchIfCondition [ 
 	
 	"Nothing"
@@ -108,6 +114,12 @@ DRCogitCanonicaliser >> visitContinueNextBytecode: aDRContinueNextBytecode [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitCopy: aDRCopy [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitDivision: aDRDivision [ 
 	
 	"Nothing"
 ]
@@ -217,6 +229,12 @@ DRCogitCanonicaliser >> visitLoadStackValue: aDRLoadStackValue [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitMod: aDRMod [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitMultiply: aDRMultiply [ 
 
 	"Nothing?"
@@ -291,7 +309,31 @@ DRCogitCanonicaliser >> visitRightShift: aDRRightShift [
 { #category : #visiting }
 DRCogitCanonicaliser >> visitStore: aDRStore [ 
 	
-	"Nothing"
+	"General optimisation:
+	Simplify for now only patterns like
+	r1 := r0 + c1.
+	r2 := store value r1
+	=>
+	r2 := store value r0 + c1
+	"
+	| address addressExpression addressOperands offsetOperand baseOperand |
+
+	address := aDRStore address.
+	(address isAbsolute and: [ address expression isAdd ]) ifFalse: [ ^ self ].
+
+	addressExpression := address expression.
+	addressOperands := addressExpression operands.
+	offsetOperand := addressOperands
+		                 detect: [ :op | op isConstant ]
+		                 ifNone: [ ^ self ].
+	baseOperand := addressOperands
+		               detect: [ :op | op isConstant not ]
+		               ifNone: [ ^ self ].
+	
+	^ aDRStore replaceOperand: address by: (DRBaseOffsetMemoryAddress new
+		base: baseOperand;
+		offset: offsetOperand;
+		yourself)
 ]
 
 { #category : #visiting }

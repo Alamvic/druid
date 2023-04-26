@@ -186,3 +186,25 @@ DRCogitCanonicaliserTest >> testSimplifyReceiverAccess [
 	self assert: basicBlock instructions size equals: 3.
 	self assert: basicBlock instructions first isLoadReceiver.
 ]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyStoreBaseOffset [
+
+	| cfg basicBlock |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 |
+		r0 := block loadFramePointer.
+		r1 := block add: r0 to: 17.
+		"load the value so it is not treated as dead code"
+		block storeSInt64: 888 at: r1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+
+	"The two additions should be simplified to a single one"
+	self assert: basicBlock instructions size equals: 3.
+	self assert: basicBlock instructions second isStore.
+	self assert: basicBlock instructions second address offset value equals: 17.
+	self assert: basicBlock instructions second address base value equals: basicBlock instructions first.
+]
