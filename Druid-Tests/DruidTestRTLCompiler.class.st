@@ -1027,9 +1027,9 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1693,9 +1693,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -2351,6 +2351,22 @@ DruidTestRTLCompiler >> gen_primitiveNewWithArg [
 	self MoveR: TempReg R: SendNumArgsReg.
 	self AddCq: 7 R: SendNumArgsReg.
 	self MoveCq: 8 R: Extra2Reg.
+	self
+		DivR: Extra2Reg
+		R: SendNumArgsReg
+		Quo: Extra2Reg
+		Rem: SendNumArgsReg.
+	self MoveCq: 8 R: SendNumArgsReg.
+	self SubR: TempReg R: SendNumArgsReg.
+	self AndCq: 7 R: SendNumArgsReg.
+	self AddR: SendNumArgsReg R: ClassReg.
+	self MoveR: Extra2Reg R: SendNumArgsReg.
+	jump9 := self Jump: 0.
+	currentBlock := self Label.
+	jump8 jmpTarget: currentBlock.
+	self MoveR: TempReg R: SendNumArgsReg.
+	self AddCq: 3 R: SendNumArgsReg.
+	self MoveCq: 4 R: Extra2Reg.
 	self
 		DivR: Extra2Reg
 		R: SendNumArgsReg

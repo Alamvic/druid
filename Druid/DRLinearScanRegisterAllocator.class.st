@@ -58,8 +58,8 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 	activeIntervals := OrderedCollection new.
 	inactiveIntervals := OrderedCollection new.
 
-	unhandledIntervals := (liveSets values asSet sorted: [ :a :b | 
-		                       a start < b start ]) asOrderedCollection.
+	unhandledIntervals := (liveSets values asSet sorted: [ :a :b |
+		a start < b start and: [ a asString < b definitions asString ] ]) asOrderedCollection.
 
 	[ unhandledIntervals isEmpty ] whileFalse: [ 
 		| currentInterval |
@@ -253,7 +253,7 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 						live remove: notIncomingInstruction ] ] ] ].
 
 		"Check which live values are defined in this block, or defined in predecessors"
-		live do: [ :i | 
+		(live sorted: [ :l1 :l2 | l1 name < l2 name ]) do: [ :i | 
 			| instructionLiveSet |
 			instructionLiveSet := self liveSetOf: i.
 			(b instructions includes: i)
