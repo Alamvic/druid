@@ -7,6 +7,9 @@ Class {
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAdd [
 
+	"We do not support the static type prediction yet"
+	self skip.
+
 	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
 	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
 	
@@ -51,7 +54,6 @@ DRProductionBytecodeTest >> testBytecodeAddOverflow [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssPop: 1.
 			cogit ssTop popToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
@@ -83,6 +85,112 @@ DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 	machineSimulator temporaryRegisterValue: 17.
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 42).
 	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePrimSendAdd [
+
+	"Setup the send trampoline"
+	| method selector |
+	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit ordinarySendTrampolineAt: 1 "arg" put: sendTrampolineAddress.
+	
+	method := methodBuilder
+		newMethod;
+		literals: { 
+			selector := (memory integerObjectOf: 42) };
+		buildMethod.
+
+	self
+		compileBytecode: 96
+		selector: #bytecodePrimAdd
+		thenDo: [ :generator | 
+			cogit methodObj: method.
+			"The receiver of the send!"
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushConstant: (memory integerObjectOf: 42).
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			cogit Stop ].
+
+	self
+		prepareStackForPrimitiveReceiver: (memory integerObjectOf: 17)
+		arguments: #()
+		method: method.
+
+	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
+	self runFrom: initialAddress until: sendTrampolineAddress.
+	"First argument: the selector"
+	self assert: machineSimulator classRegisterValue equals: (-1 twoComplementOfBitSize: 64) "+ selector index".
+	"Third argument: the receiver, then the argument is on the stack"
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17).
+	self assert: machineSimulator arg0RegisterValue equals: (memory integerObjectOf: 42)
+	
+
+
+
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushConstantOneBytecode [
+
+	| method |
+	method := methodBuilder
+		          newMethod
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	self
+		compileBytecode: 81
+		selector: #pushConstantOneBytecode
+		thenDo: [ :generator | 
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+		
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 1)
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushConstantZeroBytecode [
+
+	| method |
+	method := methodBuilder
+		          newMethod
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	self
+		compileBytecode: 80
+		selector: #pushConstantZeroBytecode
+		thenDo: [ :generator | 
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+		
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 0)
 ]
 
 { #category : #tests }
@@ -487,6 +595,75 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryTemp1WithArgs [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodeReturnFalse [
+
+	| method |
+	method := methodBuilder newMethod buildMethod.
+
+	cogit methodObj: method.
+
+	self
+		compileBytecode: 90
+		selector: #returnFalse
+		thenDo: [ :generator | "Execute the druid's compiled code"
+		generator value ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory falseObject
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeReturnNil [
+
+	| method |
+	method := methodBuilder newMethod buildMethod.
+
+	cogit methodObj: method.
+
+	self
+		compileBytecode: 91
+		selector: #returnNil
+		thenDo: [ :generator | "Execute the druid's compiled code"
+		generator value ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory nilObject
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeReturnTrue [
+
+	| method |
+	method := methodBuilder newMethod buildMethod.
+
+	cogit methodObj: method.
+
+	self
+		compileBytecode: 89
+		selector: #returnTrue
+		thenDo: [ :generator | "Execute the druid's compiled code"
+		generator value ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory trueObject
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodeSendLiteral0ToSelf [
 
 	"128 - sendLiteralSelector0ArgsBytecode selector=literal0, numargs=0.
@@ -799,6 +976,21 @@ DRProductionBytecodeTest >> testPushTrueObject [
 
 	self executePrimitiveWithReceiver: object.
 	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testReturnReceiver [
+
+	| object |
+	self compileBytecode: 88 selector: #returnReceiver thenDo: [ :generator |
+		"Execute the druid's compiled code"
+		generator value ].
+
+	object := self newObjectWithSlots: 1.
+	memory storePointer: 0 ofObject: object withValue: 17.
+
+	self executePrimitiveWithReceiver: object.
+	self assert: machineSimulator receiverRegisterValue equals: object
 ]
 
 { #category : #tests }

@@ -162,13 +162,18 @@ DRCogitStackToRegisterMappingGenerator >> visitReturn: aDRReturn [
 
 	self generatePostambleForCFG: aDRReturn controlFlowGraph.
 
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: (RBVariableNode named: 'self ssTop')
-			 selector: #popToReg:
-			 arguments: { (RBVariableNode named: 'ReceiverResultReg') }).
+	"Move the return value to the receiver register result"
+	self
+		twoOperandCogitRTL: #Move
+		operands: {
+				aDRReturn operands first.
+				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg') }
+		instruction: aDRReturn.
 
-	generatorMethodBuilder addStatement:
-		(RBMessageNode receiver: RBVariableNode selfNode selector: #genUpArrowReturn)
+	"Then return"
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #genUpArrowReturn)
 ]
 
 { #category : #visiting }

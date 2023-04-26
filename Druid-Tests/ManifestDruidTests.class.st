@@ -13,3 +13,10 @@ ManifestDruidTests class >> ruleLongMethodsRuleV1FalsePositive [
 	<ignoreForCoverage>
 	^ #(#(#(#RGClassDefinition #(#DruidTestRTLCompiler)) #'2023-04-25T23:30:21.589887+02:00') )
 ]
+
+{ #category : #'code-critics' }
+ManifestDruidTests class >> ruleUncommonMessageSendRuleV1FalsePositive [
+
+	<ignoreForCoverage>
+	^ #(#(#(#RGPackageDefinition #(#'Druid-Tests')) #'2023-04-25T22:23:42.6483+02:00') )
+]
