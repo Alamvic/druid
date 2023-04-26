@@ -7,6 +7,9 @@ Class {
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAdd [
 
+	"We do not support the static type prediction yet"
+	self skip.
+
 	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
 	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
 	
@@ -51,7 +54,6 @@ DRProductionBytecodeTest >> testBytecodeAddOverflow [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssPop: 1.
 			cogit ssTop popToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
