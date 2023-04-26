@@ -93,13 +93,13 @@ DRInterpreterCompilationUnitTest >> testBytecodeCompilation [
 	self compile: compilationUnit.
 
 	self assert: self targetClass bytecodeTable equals: {
-			#( 1 0 0 #gen_PushReceiverVariableBytecode0
+			#( 1 0 0 #gen_PushReceiverVariableBytecode0 #isInstVarRef
 			   #needsFrameNever: 1 ).
-			#( 1 1 1 #gen_PushReceiverVariableBytecode1
+			#( 1 1 1 #gen_PushReceiverVariableBytecode1 #isInstVarRef
 			   #needsFrameNever: 1 ).
-			#( 1 2 2 #gen_PushReceiverVariableBytecode2
+			#( 1 2 2 #gen_PushReceiverVariableBytecode2 #isInstVarRef
 			   #needsFrameNever: 1 ).
-			#( 1 3 3 #gen_PushReceiverVariableBytecode3
+			#( 1 3 3 #gen_PushReceiverVariableBytecode3 #isInstVarRef
 			   #needsFrameNever: 1 ) }.
 
 	self targetClass bytecodeTable do: [ :e |
@@ -149,11 +149,11 @@ DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 	self compile: compilationUnit.
 
 	self assert: self targetClass bytecodeTable equals: {
-			#( 1 0 0 #gen_PushReceiverVariableBytecode0
+			#( 1 0 0 #gen_PushReceiverVariableBytecode0 #isInstVarRef
 			   #needsFrameNever: 1 ).
-			#( 1 1 1 #gen_PushReceiverVariableBytecode1
+			#( 1 1 1 #gen_PushReceiverVariableBytecode1 #isInstVarRef
 			   #needsFrameNever: 1 ).
-			#( 1 2 2 #gen_PushReceiverVariableBytecode2
+			#( 1 2 2 #gen_PushReceiverVariableBytecode2 #isInstVarRef
 			   #needsFrameNever: 1 ).
 			#( 2 3 3 #unknownBytecode ).
 			#( 2 4 4 #unknownBytecode ).
@@ -301,7 +301,7 @@ DRInterpreterCompilationUnitTest >> testSingleBytecodesCompilation [
 
 	self
 		assert: self targetClass bytecodeTable
-		equals: { #( 1 0 0 #gen_PushReceiverVariableBytecode #needsFrameNever: 1 ) }.
+		equals: { #( 1 0 0 #gen_PushReceiverVariableBytecode #isInstVarRef #needsFrameNever: 1 ) }.
 
 	self targetClass bytecodeTable do: [ :e |
 		self assert: (self targetClass canUnderstand: e fourth) ]
