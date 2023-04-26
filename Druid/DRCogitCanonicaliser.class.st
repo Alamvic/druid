@@ -12,35 +12,62 @@ DRCogitCanonicaliser >> applyTo: cfg [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitAddition: aDRAdd [
-
 	"Simplify res := a + 0 => res := a"
-	(aDRAdd operands anySatisfy: [ :op | op = 0 asDRValue ]) ifTrue: [ 
+
+	(aDRAdd operands anySatisfy: [ :op | op = 0 asDRValue ]) ifTrue: [
 		^ aDRAdd replaceBy: (DRCopy
 				   operands: (aDRAdd operands select: [ :e | e ~= 0 asDRValue ])
 				   result: aDRAdd result) ].
 
-	"Simplify only if we have a constant as operand"
-	(aDRAdd operands noneSatisfy: [ :opop | opop isConstant ])
-		ifTrue: [ ^ self ].
-
-	"If it is a pattern such as res := ((a + c1) + c2) => res := (a + (c1+c2))"
+	"If it is a pattern such as res := ((a + b) + c"
 	aDRAdd operands
-		detect: [ :op | 
-			op isAdd and: [ 
-				(op operands anySatisfy: [ :opop | opop isConstant ])
-					and: [ op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ]
-		ifFound: [ :subtree | | variableOperand subConstantOperand constantOperand |
-			variableOperand := subtree operands detect: [ :op | op isConstant not ].
-			subConstantOperand := subtree operands detect: [ :op | op isConstant ].
-			constantOperand := aDRAdd operands detect: [ :op | op isConstant ].
-			(subConstantOperand respondsTo: #+)
-				ifFalse: [ | swap |
-					swap := subConstantOperand.
-					subConstantOperand := constantOperand.
-					constantOperand := swap ].
-			^ aDRAdd replaceBy: (DRAdd
-					   operands: { variableOperand . (subConstantOperand value + constantOperand value) asDRValue }
-					   result: aDRAdd result) ]
+		detect: [ :op |
+			op isAdd and: [
+				(op operands anySatisfy: [ :opop | opop isConstant ]) and: [
+					op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ]
+		ifFound: [ :subtree |
+			| variableOperand subConstantOperand secondSubtreeOperand |
+			"We know one of the suboperands is a constant"
+			subConstantOperand := subtree operands detect: [ :op |
+				                      op isConstant ].
+			variableOperand := subtree operands detect: [ :op |
+				                   op isConstant not ].
+
+			"Now get the other operand"
+			secondSubtreeOperand := aDRAdd operands detect: [ :op |
+				                        op ~~ subtree ].
+
+			secondSubtreeOperand isConstant
+				ifTrue: [ "Case 1) if b and c are constants, put constants together
+					=> res := (a + (b + c))"
+					(subConstantOperand respondsTo: #+) ifFalse: [
+						| swap |
+						swap := subConstantOperand.
+						subConstantOperand := secondSubtreeOperand.
+						secondSubtreeOperand := swap ].
+					^ aDRAdd replaceBy: (DRAdd
+							   operands: {
+									   variableOperand.
+									   (subConstantOperand value + secondSubtreeOperand value)
+										   asDRValue }
+							   result: aDRAdd result) ]
+				ifFalse: [
+					| newSubtree |
+					"Case 2) if b is constant but c is not, take the constant out
+					=> res := ((a + c) + b)""Check if we can reuse the subtree result"
+					subtree users size > 1 ifTrue: [ "Do nothing" ^ self ].
+					newSubtree := DRAdd
+						              operands: {
+								              variableOperand.
+								              secondSubtreeOperand }
+						              result: subtree result.
+					subtree removeFromCFG.
+					aDRAdd addBefore: newSubtree.
+					^ aDRAdd replaceBy: (DRAdd
+							   operands: {
+									   newSubtree.
+									   subConstantOperand }
+							   result: aDRAdd result) ] ]
 ]
 
 { #category : #visiting }
@@ -163,6 +190,12 @@ DRCogitCanonicaliser >> visitLoad: aDRLoad [
 		base: baseOperand;
 		offset: offsetOperand;
 		yourself)
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitLoadArgument: aDRLoadArgument [ 
+	
+	"Nothing"
 ]
 
 { #category : #visiting }

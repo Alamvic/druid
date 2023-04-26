@@ -5,6 +5,30 @@ Class {
 }
 
 { #category : #tests }
+DRCogitCanonicaliserTest >> testDoNotSimplifyAdditionOfAdditionIfMultipleUsers [
+
+	| cfg basicBlock |
+	cfg := DRControlFlowGraph new.
+	"(A + Constant ) + B => (A + B) + Constant"
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 r3 |
+		r0 := block loadFramePointer.
+		r1 := block loadArgument: 1.
+		"Two additions of constants over a variable value"
+		r2 := block add: r0 to: 17.
+		r3 := block add: r2 to: r1.
+		"Store the value so it is not treated as dead code"
+		block storeSInt64: r3 at: 888.
+		block storeSInt64: r2 at: 888 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+
+	"Nothing should have changed because r2 has two users, so no transformation is available"
+	self assert: basicBlock instructions third operand2 value equals: 17.
+]
+
+{ #category : #tests }
 DRCogitCanonicaliserTest >> testSimplifyAdditionOfAddition [
 
 	| cfg basicBlock |
@@ -24,6 +48,30 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfAddition [
 	"The two additions should be simplified to a single one"
 	self assert: basicBlock instructions size equals: 4.
 	self assert: basicBlock instructions second operand2 value equals: 42 "17 + 25".
+]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyAdditionOfAdditionNoConstant [
+
+	| cfg basicBlock |
+	cfg := DRControlFlowGraph new.
+	"(A + Constant ) + B => (A + B) + Constant"
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 r3 |
+		r0 := block loadFramePointer.
+		r1 := block loadArgument: 1.
+		"Two additions of constants over a variable value"
+		r2 := block add: r0 to: 17.
+		r3 := block add: r2 to: r1.
+		"Store the value so it is not treated as dead code"
+		block storeSInt64: r3 at: 888 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+
+	"We should still keep all instructions, but operands moved around"
+	self assert: basicBlock instructions size equals: 6.
+	self assert: basicBlock instructions fourth operand2 value equals: 17.
 ]
 
 { #category : #tests }
