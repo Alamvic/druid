@@ -83,6 +83,12 @@ DRCogitCanonicaliser >> visitBitOr: aDRBitOr [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitBitXor: aDRBitXor [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitBranchIfCondition: aDRBranchIfCondition [ 
 	
 	"Nothing"
@@ -107,6 +113,12 @@ DRCogitCanonicaliser >> visitCall: aDRCall [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitClosureActivation: aDRClosureActivation [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
 	
 	"Do nothing"
@@ -120,6 +132,12 @@ DRCogitCanonicaliser >> visitCopy: aDRCopy [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitDivision: aDRDivision [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitFloatToIntConversion: aDRFloatToInt [ 
 	
 	"Nothing"
 ]
@@ -224,6 +242,12 @@ DRCogitCanonicaliser >> visitLoadReceiver: aDRLoadReceiver [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitLoadStackValue: aDRLoadStackValue [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitMessageSend: aDRMessageSend [ 
 	
 	"Nothing"
 ]
