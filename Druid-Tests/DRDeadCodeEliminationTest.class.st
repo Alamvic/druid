@@ -44,7 +44,10 @@ DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 		(add2 := DRAdd operands: { copy5. copy6 } result: (DRTemporaryRegister id: 8)).
  
 	cfg b4 addInstruction: (phi := ((DRPhiFunction joinedVariables: { add1. add2 }) result: (DRTemporaryRegister id: 9); yourself)).
-	cfg b4 addInstruction: (DRStore new operands: {8 asDRValue. phi}). 
+	cfg b4 addInstruction: (DRStore new operands: {
+		"size"    8 asDRValue. 
+		"value"   phi.
+		"address" 17 asDRValue }). 
 	
 	optimisation applyTo: cfg.
 
@@ -70,7 +73,10 @@ DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 		result: (DRTemporaryRegister id: 4);
 		yourself).
 	cfg b2 addInstruction: phi1. 
-	cfg b2 addInstruction: (DRStore new operands: {8 asDRValue. phi1} ). 
+	cfg b2 addInstruction: (DRStore new operands: {
+		"size"    8 asDRValue. 
+		"value"   phi1.
+		"address" 17 asDRValue }).
 
 	optimisation applyTo: cfg.
 	
@@ -92,7 +98,10 @@ DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 
 	b1 addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)). 
 	
-	b2 addInstruction: (DRStore new operands: {8 asDRValue. copy1} ). 
+	b2 addInstruction: (DRStore new operands: {
+		"size"    8 asDRValue. 
+		"value"   copy1.
+		"address" 17 asDRValue }). 
 
 	optimisation applyTo: cfg.
 	
