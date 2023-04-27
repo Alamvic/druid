@@ -33,6 +33,15 @@ DRJitCompileTimeExpression >> + aDRJitCompileTimeExpression [
 			   other: aDRJitCompileTimeExpression expression)
 ]
 
+{ #category : #copying }
+DRJitCompileTimeExpression >> , aDRJitCompileTimeExpression [ 
+
+	^ self class expression: (self
+			   mergeExpressions: self expression
+			   op: ''
+			   other: aDRJitCompileTimeExpression expression)
+]
+
 { #category : #streaming }
 DRJitCompileTimeExpression >> << aDRJitCompileTimeExpression [ 
 
@@ -47,6 +56,12 @@ DRJitCompileTimeExpression >> << aDRJitCompileTimeExpression [
 DRJitCompileTimeExpression >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitJITCompileTimeExpression: self
+]
+
+{ #category : #converting }
+DRJitCompileTimeExpression >> asJitCompileTimeExpression [
+
+	^ self
 ]
 
 { #category : #accessing }

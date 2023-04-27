@@ -49,7 +49,7 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 	primitives := #( #primitiveAdd #primitiveSubtract #primitiveLessThan
 	                 #primitiveGreaterThan #primitiveLessOrEqual
 	                 #primitiveGreaterOrEqual #primitiveEqual #primitiveNotEqual
-	                 #primitiveMultiply #primitiveDivide primitiveAt primitiveNew
+	                 #primitiveMultiply #primitiveDivide "primitiveAt" primitiveNew
 	                 primitiveNewWithArg ).
 
 	"bytecodePrimAdd duplicateTopBytecode 

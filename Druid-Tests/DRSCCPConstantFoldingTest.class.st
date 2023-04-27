@@ -220,6 +220,41 @@ DRSCCPConstantFoldingTest >> testConstantFoldingFalseOrRegisterIsRegister [
 ]
 
 { #category : #arithmetic }
+DRSCCPConstantFoldingTest >> testConstantFoldingLoadConstant [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DRLoad between: 8 asDRValue and: 9999 asDRValue.
+
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1 expression
+		equals: '(coInterpreter int64AtPointer:  9999)'
+]
+
+{ #category : #arithmetic }
+DRSCCPConstantFoldingTest >> testConstantFoldingLoadJitCompileExpression [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DRLoad between: 8 asDRValue and: self varJITExpression.
+
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1 expression
+		equals: '(coInterpreter int64AtPointer:  var)'
+]
+
+{ #category : #arithmetic }
+DRSCCPConstantFoldingTest >> testConstantFoldingLoadNonConstant [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DRLoad between: 8 asDRValue and: self nonReducibleOperation.
+
+	self assert: cfg instructions third isLoad.
+	self assert: cfg instructions third size equals: 8.
+	self assert: cfg instructions third operand1 isMemoryAddress
+]
+
+{ #category : #arithmetic }
 DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyByZeroLeft [
 
 	| cfg |
@@ -490,7 +525,7 @@ DRSCCPConstantFoldingTest >> testNonConstantFoldingOf: aClass between: aDROperan
 	| cfg |
 	cfg := self testConstantFoldingOf: aClass between: aDROperand1 and: aDROperand2.
 	
-	self assert: cfg instructions third isAdd.
+	self assert: cfg instructions third class equals: aClass.
 	self
 		assert: cfg instructions third operand1 simpleConstantFold 
 		equals: aDROperand1.
