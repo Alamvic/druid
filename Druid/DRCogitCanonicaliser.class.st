@@ -54,8 +54,16 @@ DRCogitCanonicaliser >> visitAddition: aDRAdd [
 				ifFalse: [
 					| newSubtree |
 					"Case 2) if b is constant but c is not, take the constant out
-					=> res := ((a + c) + b)""Check if we can reuse the subtree result"
+					=> res := ((a + c) + b)"
+					
+					"Check if we can rewrite this instruction. If it may generate an overflow, do not"
+					(aDRAdd users anySatisfy: [ :dependent |
+						 dependent isConditionalBranch and: [
+							 dependent hasOverflowCheck ] ]) ifTrue: [ "Do nothing" ^ self ].
+
+					"Check if we can reuse the subtree result"
 					subtree users size > 1 ifTrue: [ "Do nothing" ^ self ].
+
 					newSubtree := DRAdd
 						              operands: {
 								              variableOperand.
