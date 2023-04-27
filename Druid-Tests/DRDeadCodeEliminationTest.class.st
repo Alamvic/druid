@@ -4,7 +4,7 @@ Class {
 	#category : #'Druid-Tests'
 }
 
-{ #category : #test }
+{ #category : #tests }
 DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 
 
@@ -56,7 +56,7 @@ DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 	self assert: cfg instructions size equals: 12.
 ]
 
-{ #category : #test }
+{ #category : #tests }
 DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 
 	| cfg copy1 copy2 phi1|
@@ -84,7 +84,7 @@ DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 	self assert: cfg instructions first equals: copy1. 
 ]
 
-{ #category : #test }
+{ #category : #tests }
 DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 
 	| b1 b2 cfg copy1 |
