@@ -625,12 +625,10 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 			selector: branch
 			arguments: { 0 asLiteralNode })).
 	"Set false to result"
-	self
-		  twoOperandCogitRTL: 'Move'
+	self twoOperandMoveCogitRTL: aDRGetConditionCode 
 		  operands: { 
 				0 asDRValue.
-				aDRGetConditionCode }
-		  instruction: aDRGetConditionCode.
+				aDRGetConditionCode }.
 	generatorMethodBuilder addStatement: (RBAssignmentNode
 		variable: (RBVariableNode named: 'jumpNext')
 		value: (RBMessageNode
@@ -646,12 +644,10 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 				receiver: RBVariableNode selfNode
 				selector: #Label}).
 	"Set true to result"
-	self
-		  twoOperandCogitRTL: 'Move'
+	self twoOperandMoveCogitRTL: aDRGetConditionCode
 		  operands: { 
 				1 asDRValue.
-				aDRGetConditionCode }
-		  instruction: aDRGetConditionCode.
+				aDRGetConditionCode }.
 
 	"next label"
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -728,12 +724,10 @@ DRCogitCodeGenerator >> visitLessThan: aDRGreaterThanComparison inBranch: aDRBra
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLoad: aDRLoad [
 
-	self
-		twoOperandCogitRTL: #Move
+	self twoOperandMoveCogitRTL: aDRLoad
 		operands: { 
 				aDRLoad address.
-				aDRLoad result }
-		instruction: aDRLoad.
+				aDRLoad result }.
 
 	aDRLoad size < 8 ifFalse: [ ^ self ].
 
@@ -786,9 +780,9 @@ DRCogitCodeGenerator >> visitMultiplyOverflowJump: aDROverflowJump [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [ 
 	
-	self twoOperandCogitRTL: #Move
-		operands: { aDRCogitNegate operand1. aDRCogitNegate result }
-		instruction: aDRCogitNegate.
+	self twoOperandMoveCogitRTL: aDRCogitNegate 
+		operands: { aDRCogitNegate operand1. aDRCogitNegate result }.
+		
 	self flag: #todo. "oneOperandCogitRTL:"
 	generatorMethodBuilder addStatement: (
 		RBMessageNode
@@ -865,12 +859,9 @@ DRCogitCodeGenerator >> visitRightShift: aDRCogitRightShift [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitStore: aDRCogitStore [
 
-	^ self
-		  twoOperandCogitRTL: #Move
-		  operands: { 
-				  aDRCogitStore operand1.
-				  aDRCogitStore operand2 asMemoryAddress }
-		  instruction: aDRCogitStore
+	^ self twoOperandMoveCogitRTL: aDRCogitStore operands: {
+			  aDRCogitStore operand1.
+			  aDRCogitStore operand2 asMemoryAddress }
 ]
 
 { #category : #visiting }
