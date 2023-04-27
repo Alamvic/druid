@@ -204,6 +204,15 @@ DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 	
 ]
 
+{ #category : #visiting }
+DRCogitCodeGenerator >> generateMessage: selector operands: operands [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: selector
+			 arguments: (operands flatCollect: [ :op | self rtlArgumentsForValue: op ]))
+]
+
 { #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 
@@ -375,6 +384,14 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 	^ RBVariableNode named: (self registerFor: aValue)
 ]
 
+{ #category : #'as yet unclassified' }
+DRCogitCodeGenerator >> selectorCogitRTL: aMnemonic operands: operands instruction: anInstruction [
+
+	^ aMnemonic ,
+	  ('' join:
+		   (operands collect: [ :op | op result rtlOperandQualifierForInstruction: anInstruction ]))
+]
+
 { #category : #visiting }
 DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction [
 
@@ -397,16 +414,15 @@ DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction
 { #category : #visiting }
 DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruction: anInstruction [
 
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector:
-				 aMnemonic
-				 , (operands first result rtlOperandQualifierForInstruction:
-						  anInstruction)
-				 , (operands second result rtlOperandQualifierForInstruction:
-						  anInstruction)
-			 arguments: (self rtlArgumentsForValue: operands first)
-				 , (self rtlArgumentsForValue: operands second))
+	self
+		generateMessage: (self selectorCogitRTL: aMnemonic operands: operands instruction: anInstruction)
+		operands: operands
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
+
+	self twoOperandCogitRTL: #Move operands: operands instruction: anInstruction
 ]
 
 { #category : #verification }
@@ -539,7 +555,7 @@ DRCogitCodeGenerator >> visitCopy: aDRMove [
 	(moveOperands collect: [ :e | e result ] as: Set) size = 1
 		ifTrue: [ ^ self ].
 	
-	self twoOperandCogitRTL: #Move operands: moveOperands instruction: aDRMove
+	self twoOperandMoveCogitRTL: aDRMove operands: moveOperands
 ]
 
 { #category : #visiting }

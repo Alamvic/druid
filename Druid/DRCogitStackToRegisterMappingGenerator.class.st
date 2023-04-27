@@ -29,6 +29,16 @@ DRCogitStackToRegisterMappingGenerator >> returnNodeForCompiledMethod [
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
+
+	(self selectorCogitRTL: '' operands: operands instruction: anInstruction) = #Cq:R: ifTrue: [ 
+		"It's moving a constant to a register. This constant could be an oop, so we need to annotate it."
+		^ self generateMessage: #genMoveConstant:R: operands: operands ].
+
+	^ super twoOperandMoveCogitRTL: anInstruction operands: operands
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 
 	generatorMethodBuilder addStatement: (RBMessageNode

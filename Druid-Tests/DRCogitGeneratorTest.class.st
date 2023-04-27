@@ -216,6 +216,21 @@ DRCogitGeneratorTest >> testGenerateModulo [
 ]
 
 { #category : #tests }
+DRCogitGeneratorTest >> testGenerateMoveConstant [
+
+	| cfg r1 cogitAST generatedASTInstruction |
+	cfg := DRControlFlowGraph new.
+	r1 := cfg instructionFactory copy: 1.
+
+	cogitAST := self generateBytecodeCogitForInstruction: r1.
+	generatedASTInstruction := cogitAST generatorMethodBuilder statements first.
+
+	self assert: generatedASTInstruction selector equals: #genMoveConstant:R:.
+	self assert: generatedASTInstruction arguments first value equals: 1.
+	self assert: generatedASTInstruction arguments second name equals: 'R0'
+]
+
+{ #category : #tests }
 DRCogitGeneratorTest >> testGenerateNilAsZero [
 
 	| cfg basicBlock cogitAST r0 r1 compare |
