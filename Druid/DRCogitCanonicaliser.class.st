@@ -361,9 +361,18 @@ DRCogitCanonicaliser >> visitStore: aDRStore [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitSubstract: aDRSubtract [ 
-	
-	"Nothing"
+DRCogitCanonicaliser >> visitSubstract: aDRSubtract [
+	"Replace a subtractions of a constant by an addition to simplify transformations"
+
+	(aDRSubtract subtrahend isConstant and: [
+		 aDRSubtract users allSatisfy: [ :e |
+			 e isAdd or: [ e isSubtract or: [ e isLoad or: [ e isStore ] ] ] ] ])
+		ifTrue: [
+			aDRSubtract replaceBy: (DRAdd
+					 operands: {
+							 aDRSubtract subtrahend value negated asDRValue.
+							 aDRSubtract minuend }
+					 result: aDRSubtract result) ]
 ]
 
 { #category : #visiting }
