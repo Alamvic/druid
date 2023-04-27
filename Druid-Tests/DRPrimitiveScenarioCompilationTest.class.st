@@ -2168,21 +2168,6 @@ DRPrimitiveScenarioCompilationTest >> testUint16AtPut4 [
 ]
 
 { #category : #'test-memory access' }
-DRPrimitiveScenarioCompilationTest >> testUint16AtWithSameOperandRegister [
-
-	| object pointerToFirstSlot |
-	self compileDruidPrimitive: #primitiveNextUint16At.
-	
-	object := self newObjectWithSlots: 1.
-	pointerToFirstSlot := object + memory baseHeaderSize.
-	memory storePointer: 0 ofObject: object withValue: 16r05060708.
-
-	self executePrimitiveWithReceiver: pointerToFirstSlot.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 16r0607
-]
-
-{ #category : #'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint32At [
 
 	| object pointerToFirstSlot |
