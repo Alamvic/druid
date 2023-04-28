@@ -26,6 +26,12 @@ DRBranchIfCondition >> condition: aCondition [
 ]
 
 { #category : #accessing }
+DRBranchIfCondition >> hasOverflowCheck [
+
+	^ condition isOverflow
+]
+
+{ #category : #accessing }
 DRBranchIfCondition >> isBranchIfCondition [ 
 
 	^ true

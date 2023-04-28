@@ -283,7 +283,7 @@ DRLinearScanRegisterAllocator >> computeLivenessOfInstruction: i inBlock: b with
 
 	i result isVirtualRegister ifTrue: [ 
 		live remove: i ifAbsent: [ self initializeLiveSetOfInstruction: i ] ].
-	^ i operands do: [ :op | 
+	^ i dependencies do: [ :op | 
 		  (op result isVirtualRegister and: [ (live includes: op) not ]) 
 			  ifTrue: [ 
 				  self

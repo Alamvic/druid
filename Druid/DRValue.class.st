@@ -275,6 +275,12 @@ DRValue >> isStore [
 ]
 
 { #category : #testing }
+DRValue >> isSubtract [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isValue [
 
 	^ true

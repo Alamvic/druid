@@ -652,7 +652,7 @@ DRInstruction >> replaceOperandAtIndex: index by: anotherOperand [
 DRInstruction >> replaceOperandIfDominated: myOperand by: anotherOperand [
 
 	(self isDominatedBy: anotherOperand) ifFalse: [ ^ nil ].
-	self replaceOperand: myOperand by: anotherOperand
+	self replaceDependency: myOperand by: anotherOperand
 ]
 
 { #category : #replace }
