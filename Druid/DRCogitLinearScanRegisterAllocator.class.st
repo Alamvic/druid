@@ -71,7 +71,7 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 				ifFalse: [ | mergedInterval |
 					"Create a merged interval and set it as interval for the current definition and its second operand."
 					mergedInterval := secondOperandInterval mergeWith: currentInterval.
-					liveSets keys do: [ :k |
+					(liveSets keys sorted: [ :a :b | a name < b name ]) do: [ :k |
 						({ secondOperandInterval . currentInterval } includes: (liveSets at: k))
 							ifTrue: [ liveSets at: k put: mergedInterval ]
 					] ] ] ] ].

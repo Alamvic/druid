@@ -10,6 +10,12 @@ DRAbstractMemoryAddress >> addUser: anInstruction [
 	self dependencies do: [ :e | e addUser: anInstruction ]
 ]
 
+{ #category : #memory }
+DRAbstractMemoryAddress >> asMemoryAddress [
+
+	^ self
+]
+
 { #category : #testing }
 DRAbstractMemoryAddress >> isAbsolute [
 	

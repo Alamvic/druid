@@ -12,39 +12,86 @@ DRCogitCanonicaliser >> applyTo: cfg [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitAddition: aDRAdd [
-
 	"Simplify res := a + 0 => res := a"
-	(aDRAdd operands anySatisfy: [ :op | op = 0 asDRValue ]) ifTrue: [ 
+
+	(aDRAdd operands anySatisfy: [ :op | op = 0 asDRValue ]) ifTrue: [
 		^ aDRAdd replaceBy: (DRCopy
 				   operands: (aDRAdd operands select: [ :e | e ~= 0 asDRValue ])
 				   result: aDRAdd result) ].
 
-	"Simplify only if we have a constant as operand"
-	(aDRAdd operands noneSatisfy: [ :opop | opop isConstant ])
-		ifTrue: [ ^ self ].
-
-	"If it is a pattern such as res := ((a + c1) + c2) => res := (a + (c1+c2))"
+	"If it is a pattern such as res := ((a + b) + c"
 	aDRAdd operands
-		detect: [ :op | 
-			op isAdd and: [ 
-				(op operands anySatisfy: [ :opop | opop isConstant ])
-					and: [ op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ]
-		ifFound: [ :subtree | | variableOperand subConstantOperand constantOperand |
-			variableOperand := subtree operands detect: [ :op | op isConstant not ].
-			subConstantOperand := subtree operands detect: [ :op | op isConstant ].
-			constantOperand := aDRAdd operands detect: [ :op | op isConstant ].
-			(subConstantOperand respondsTo: #+)
-				ifFalse: [ | swap |
-					swap := subConstantOperand.
-					subConstantOperand := constantOperand.
-					constantOperand := swap ].
-			^ aDRAdd replaceBy: (DRAdd
-					   operands: { variableOperand . (subConstantOperand value + constantOperand value) asDRValue }
-					   result: aDRAdd result) ]
+		detect: [ :op |
+			op isAdd and: [
+				(op operands anySatisfy: [ :opop | opop isConstant ]) and: [
+					op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ]
+		ifFound: [ :subtree |
+			| variableOperand subConstantOperand secondSubtreeOperand |
+			"We know one of the suboperands is a constant"
+			subConstantOperand := subtree operands detect: [ :op |
+				                      op isConstant ].
+			variableOperand := subtree operands detect: [ :op |
+				                   op isConstant not ].
+
+			"Now get the other operand"
+			secondSubtreeOperand := aDRAdd operands detect: [ :op |
+				                        op ~~ subtree ].
+
+			secondSubtreeOperand isConstant
+				ifTrue: [ "Case 1) if b and c are constants, put constants together
+					=> res := (a + (b + c))"
+					(subConstantOperand respondsTo: #+) ifFalse: [
+						| swap |
+						swap := subConstantOperand.
+						subConstantOperand := secondSubtreeOperand.
+						secondSubtreeOperand := swap ].
+					^ aDRAdd replaceBy: (DRAdd
+							   operands: {
+									   variableOperand.
+									   (subConstantOperand value + secondSubtreeOperand value)
+										   asDRValue }
+							   result: aDRAdd result) ]
+				ifFalse: [
+					| newSubtree |
+					"Case 2) if b is constant but c is not, take the constant out
+					=> res := ((a + c) + b)"
+					
+					"Check if we can rewrite this instruction. If it may generate an overflow, do not"
+					(aDRAdd users anySatisfy: [ :dependent |
+						 dependent isConditionalBranch and: [
+							 dependent hasOverflowCheck ] ]) ifTrue: [ "Do nothing" ^ self ].
+
+					"Check if we can reuse the subtree result"
+					subtree users size > 1 ifTrue: [ "Do nothing" ^ self ].
+
+					newSubtree := DRAdd
+						              operands: {
+								              variableOperand.
+								              secondSubtreeOperand }
+						              result: subtree result.
+					subtree removeFromCFG.
+					aDRAdd addBefore: newSubtree.
+					^ aDRAdd replaceBy: (DRAdd
+							   operands: {
+									   newSubtree.
+									   subConstantOperand }
+							   result: aDRAdd result) ] ]
 ]
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitBitOr: aDRBitOr [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitBitXor: aDRBitXor [ 
 	
 	"Nothing"
 ]
@@ -74,6 +121,12 @@ DRCogitCanonicaliser >> visitCall: aDRCall [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitClosureActivation: aDRClosureActivation [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
 	
 	"Do nothing"
@@ -81,6 +134,18 @@ DRCogitCanonicaliser >> visitContinueNextBytecode: aDRContinueNextBytecode [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitCopy: aDRCopy [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitDivision: aDRDivision [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitFloatToIntConversion: aDRFloatToInt [ 
 	
 	"Nothing"
 ]
@@ -166,6 +231,12 @@ DRCogitCanonicaliser >> visitLoad: aDRLoad [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitLoadArgument: aDRLoadArgument [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitLoadFramePointer: aDRLoadFramePointer [ 
 	
 	"Nothing"
@@ -179,6 +250,18 @@ DRCogitCanonicaliser >> visitLoadReceiver: aDRLoadReceiver [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitLoadStackValue: aDRLoadStackValue [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitMessageSend: aDRMessageSend [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitMod: aDRMod [ 
 	
 	"Nothing"
 ]
@@ -258,13 +341,46 @@ DRCogitCanonicaliser >> visitRightShift: aDRRightShift [
 { #category : #visiting }
 DRCogitCanonicaliser >> visitStore: aDRStore [ 
 	
-	"Nothing"
+	"General optimisation:
+	Simplify for now only patterns like
+	r1 := r0 + c1.
+	r2 := store value r1
+	=>
+	r2 := store value r0 + c1
+	"
+	| address addressExpression addressOperands offsetOperand baseOperand |
+
+	address := aDRStore address.
+	(address isAbsolute and: [ address expression isAdd ]) ifFalse: [ ^ self ].
+
+	addressExpression := address expression.
+	addressOperands := addressExpression operands.
+	offsetOperand := addressOperands
+		                 detect: [ :op | op isConstant ]
+		                 ifNone: [ ^ self ].
+	baseOperand := addressOperands
+		               detect: [ :op | op isConstant not ]
+		               ifNone: [ ^ self ].
+	
+	^ aDRStore replaceOperand: address by: (DRBaseOffsetMemoryAddress new
+		base: baseOperand;
+		offset: offsetOperand;
+		yourself)
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitSubstract: aDRSubtract [ 
-	
-	"Nothing"
+DRCogitCanonicaliser >> visitSubstract: aDRSubtract [
+	"Replace a subtractions of a constant by an addition to simplify transformations"
+
+	(aDRSubtract subtrahend isConstant and: [
+		 aDRSubtract users allSatisfy: [ :e |
+			 e isAdd or: [ e isSubtract or: [ e isLoad or: [ e isStore ] ] ] ] ])
+		ifTrue: [
+			aDRSubtract replaceBy: (DRAdd
+					 operands: {
+							 aDRSubtract subtrahend value negated asDRValue.
+							 aDRSubtract minuend }
+					 result: aDRSubtract result) ]
 ]
 
 { #category : #visiting }

@@ -159,6 +159,40 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetCoversCompletelyThenOverlapsComm
 ]
 
 { #category : #'tests - live set overlap' }
+DRLinearScanRegisterAllocatorTest >> testLiveSetCoversUntilLoad [
+
+	| cfg basicBlock r0 r1 r0Interval r1Interval r3 allocator |
+
+	"
+	R0 := 1.
+	R1 := 2.
+	R2 := LOAD R0.
+	
+	R0 is used after R1
+	=> They cannot occupy the same register
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"R0 := 1"
+		r0 := block copy: 1.
+		"R1 := 2"
+		r1 := block copy: 2.
+		"R2 := LOAD R0"
+		r3 := block load: r0 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	allocator := DRLinearScanRegisterAllocator new
+		controlFlowGraph: cfg;
+		buildLiveSets;
+		yourself.
+	
+	r0Interval := allocator liveSetOf: r0.
+	r1Interval := allocator liveSetOf: r1.
+	self assert: (r0Interval overlaps: r1Interval)
+]
+
+{ #category : #'tests - live set overlap' }
 DRLinearScanRegisterAllocatorTest >> testLiveSetDoesNotOverlapsIfLastUsageIsDefinition [
 
 	| cfg basicBlock r0 r1 r0Interval r1Interval |
