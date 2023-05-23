@@ -24,6 +24,12 @@ DRAbstractCompilerCompiler class >> forInterpreter: anAbstractInterpreter [
 ]
 
 { #category : #api }
+DRAbstractCompilerCompiler >> allocateRegistersIn: druidIR [
+
+	registerAllocator allocateRegistersIn: druidIR.
+]
+
+{ #category : #api }
 DRAbstractCompilerCompiler >> compile [
 
 	| druidIR |
@@ -31,7 +37,7 @@ DRAbstractCompilerCompiler >> compile [
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
-	registerAllocator allocateRegistersIn: druidIR.
+	self allocateRegistersIn: druidIR.
 
 	targetAST := self generateTargetASTFromIR: druidIR.
 	self writeAST: targetAST

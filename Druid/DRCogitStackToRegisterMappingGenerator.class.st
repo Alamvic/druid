@@ -1,8 +1,38 @@
 Class {
 	#name : #DRCogitStackToRegisterMappingGenerator,
 	#superclass : #DRCogitCodeGenerator,
+	#instVars : [
+		'nextVariableIndex',
+		'variables'
+	],
 	#category : #'Druid-Cogit'
 }
+
+{ #category : #helpers }
+DRCogitStackToRegisterMappingGenerator >> allocateVariable: aVariableName [
+
+	| temporaryVariableNode variableIndex |
+	
+	aVariableName isNoResult ifTrue: [ ^ self ].
+	variables at: aVariableName ifPresent: [ :var | ^ var ].
+	
+	variableIndex := nextVariableIndex.
+	nextVariableIndex := nextVariableIndex + 1.
+	
+	temporaryVariableNode := RBVariableNode named: 't', variableIndex asString.
+	variables at: aVariableName put: temporaryVariableNode name.
+	
+	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
+	"freeReg := self allocateRegNotConflictingWith: 0."
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: temporaryVariableNode copy
+			 value: (RBMessageNode
+					  receiver: RBVariableNode selfNode
+					  selector: #allocateRegNotConflictingWith:
+					  arguments: { (RBLiteralValueNode value: 0) })).
+
+	^ temporaryVariableNode name
+]
 
 { #category : #'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
@@ -14,18 +44,45 @@ DRCogitStackToRegisterMappingGenerator >> generatePostambleForCFG: aDRControlFlo
 ]
 
 { #category : #helpers }
+DRCogitStackToRegisterMappingGenerator >> initialize [
+
+	super initialize.
+	nextVariableIndex := 0.
+	variables := Dictionary new
+]
+
+{ #category : #helpers }
 DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRInstruction [
 
+	| temporaryVariableNode |
+	temporaryVariableNode := self allocateVariable: aDRInstruction result.
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: aRBMessageNode
 			 selector: #moveToReg:
-			 arguments: (self rtlArgumentsForValue: aDRInstruction result))
+			 arguments: { (RBVariableNode named: temporaryVariableNode) })
 ]
 
 { #category : #'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> returnNodeForCompiledMethod [
 
 	^ RBLiteralNode value: 0
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> rtlExpressionForValue: aValue [
+
+	variables at: aValue result ifPresent: [ :var | ^ RBVariableNode named: var ].
+	^ super rtlExpressionForValue: aValue
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruction: anInstruction [
+
+	self allocateVariable: anInstruction result.
+	super
+		twoOperandCogitRTL: aMnemonic
+		operands: operands
+		instruction: anInstruction
 ]
 
 { #category : #visiting }
@@ -108,9 +165,10 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 			 receiver: RBVariableNode selfNode
 			 selector: #ensureReceiverResultRegContainsSelf).
 
+	self allocateVariable: aDRLoadReceiver result.
 	self
 		twoOperandCogitRTL: #Move
-		operands: { 
+		operands: {
 				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg').
 				aDRLoadReceiver result }
 		instruction: aDRLoadReceiver
@@ -125,8 +183,8 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue
 		                       receiver: RBVariableNode selfNode
 		                       selector: #ssValue:
 		                       arguments:
-		                       aDRLoadStackValue operand1
-			                       rtlPushArgumentExpressions.
+		                       (aDRLoadStackValue operand1
+			                        rtlPushArgumentExpressions: self).
 
 	self moveToReg: sourceDescriptorAST from: aDRLoadStackValue
 ]
@@ -151,9 +209,10 @@ DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: 'ssPush',
+			 selector: 'ssPush'
+				 ,
 				 (aDRPush operand1 rtlPushOperandQualifierForInstruction: aDRPush)
-			 arguments: aDRPush operand1 rtlPushArgumentExpressions)
+			 arguments: (aDRPush operand1 rtlPushArgumentExpressions: self))
 ]
 
 { #category : #visiting }
@@ -184,7 +243,9 @@ DRCogitStackToRegisterMappingGenerator >> visitTemporaryVariable: aDRLoadTempora
 	sourceDescriptorAST := RBMessageNode
 		                       receiver: RBVariableNode selfNode
 		                       selector: #simStackTempAt:
-		                       arguments: aDRLoadTemporaryVariable operand1 rtlPushArgumentExpressions.
+		                       arguments:
+		                       (aDRLoadTemporaryVariable operand1
+			                        rtlPushArgumentExpressions: self).
 
 	self moveToReg: sourceDescriptorAST from: aDRLoadTemporaryVariable
 ]

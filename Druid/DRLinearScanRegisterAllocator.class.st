@@ -11,21 +11,22 @@ Class {
 		'unhandledIntervals',
 		'spillingStrategy',
 		'availableIntegerRegisters',
-		'availableFloatingPointRegisters'
+		'availableFloatingPointRegisters',
+		'registerPool'
 	],
 	#category : #'Druid-LinearScanRegisterAllocation'
 }
 
 { #category : #allocation }
-DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiveRegisterInterval [
+DRLinearScanRegisterAllocator >> allocateRegisterForInterval: aDRLiveRegisterInterval ifPresent: presentBlock [
 	
-	| intervalToSpill currentIntegerRegisters currentFloatRegisters currentRegisters |
+	| currentIntegerRegisters currentFloatRegisters currentRegisters |
 	
-	"For now it is active, unless we decide to spill it later"
-	activeIntervals add: aDRLiveRegisterInterval.
-	
+	"Start considering all available registers"
 	currentIntegerRegisters := availableIntegerRegisters copy.
 	currentFloatRegisters := availableFloatingPointRegisters copy.
+
+	"Remove those that are in inactive intervals so we don't scratch them"
 	inactiveIntervals
 		select: [ :e | e overlaps: aDRLiveRegisterInterval ]
 		thenDo: [ :e |
@@ -38,14 +39,28 @@ DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiv
 	currentRegisters := aDRLiveRegisterInterval definitions anyOne type isFloatType
 		ifTrue: [ currentFloatRegisters ]
 		ifFalse: [ currentIntegerRegisters ].
-	
+
+	"If we have registers, take one"	
 	currentRegisters ifNotEmpty: [ | selectedRegister |
 		selectedRegister := currentRegisters first.
 		self takeRegister: selectedRegister.
-		^ aDRLiveRegisterInterval location: selectedRegister ].
+		^ presentBlock value: selectedRegister ]
+]
+
+{ #category : #allocation }
+DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiveRegisterInterval [
+
+	| intervalToSpill |
+	"For now it is active, unless we decide to spill it later"
+	activeIntervals add: aDRLiveRegisterInterval.
+
+	self
+		allocateRegisterForInterval: aDRLiveRegisterInterval
+		ifPresent: [ :selectedRegister |
+			^ aDRLiveRegisterInterval location: selectedRegister ].
 
 
-	"If empty, spill an interval"
+	"Otherwise, spill an interval and use that register"
 	intervalToSpill := self selectIntervalToSpill.
 	activeIntervals remove: intervalToSpill.
 	aDRLiveRegisterInterval location: intervalToSpill location.
@@ -397,6 +412,12 @@ DRLinearScanRegisterAllocator >> prepareSSA [
 	].
 
 	controlFlowGraph fixBackJumps.
+]
+
+{ #category : #accessing }
+DRLinearScanRegisterAllocator >> registerPool: aRegisterPool [
+	
+	registerPool := aRegisterPool
 ]
 
 { #category : #allocation }

@@ -11,6 +11,12 @@ Class {
 	#category : #'Druid-Cogit'
 }
 
+{ #category : #helpers }
+DRCogitCodeGenerator >> allocateVariable: aVariable [
+	
+	^ aVariable name
+]
+
 { #category : #'jump-management' }
 DRCogitCodeGenerator >> assignAvailableJumpIndex [
 
@@ -343,9 +349,10 @@ DRCogitCodeGenerator >> returnNodeForCompiledMethod [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> rtlArgumentsForValue: aValue [
-
 	"If it is a spilling stack location, we need to return a pair (offset, baseRegister)"
-	aValue isMemoryAddress ifTrue: [ ^ aValue rtlArgumentExpressions ].
+
+	aValue isMemoryAddress ifTrue: [
+		^ aValue rtlArgumentExpressions: self ].
 
 	"Otherwise just return the expression for the value"
 	^ { (self rtlExpressionForValue: aValue) }

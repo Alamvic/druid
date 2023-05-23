@@ -51,7 +51,7 @@ DRInterpreterReference >> reference: aString [
 ]
 
 { #category : #cogit }
-DRInterpreterReference >> rtlArgumentExpressions [
+DRInterpreterReference >> rtlArgumentExpressions: generator [
 
 	^ {RBVariableNode named: self name}
 ]

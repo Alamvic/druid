@@ -303,6 +303,84 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariable: tempIndex [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushReceiverDoesNotOverridePreviousPush [
+
+	| method |
+	method := methodBuilder newMethod
+		          numberOfArguments: 1;
+		          numberOfTemporaries: 0;
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	"Push temporary 0 -- aka first argument if there are arguments"
+	self doCompileBytecode: 64 selector: #pushTemporaryVariableBytecode.
+
+	self compileBytecode: 76 selector: #pushReceiverBytecode thenDo: [ :generator |
+			cogit methodOrBlockNumArgs: 1.
+			cogit methodOrBlockNumTemps: 1.
+			cogit initSimStackForFramefulMethod: 2.
+
+			"Push argument 0"
+			cogit gen_pushTemporaryVariableBytecode.
+
+			"Push the temp, then pop it"
+			generator value.
+			cogit ssTop popToReg: (cogit allocateRegNotConflictingWith: 0).
+	
+			"Pop the value pushed by the first bytecode"
+			cogit ssTop popToReg: ReceiverResultReg.
+		
+			"Return the top of the stack which is the receiver"
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #( 42 ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushTemporaryArg0DoesNotOverridePreviousPush [
+
+	| tempIndex method |
+	method := methodBuilder newMethod
+		          numberOfArguments: 1;
+		          numberOfTemporaries: 0;
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	tempIndex := 0. "0 based..."
+	self
+		compileBytecode: 64 + tempIndex
+		selector: #pushTemporaryVariableBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			cogit methodOrBlockNumArgs: 1.
+			cogit methodOrBlockNumTemps: 1.
+			cogit initSimStackForFramefulMethod: 2.
+
+			cogit gen_pushReceiverBytecode.
+
+			"Push the temp, then pop it"
+			generator value.
+			cogit ssTop popToReg: (cogit allocateRegNotConflictingWith: 0).
+	
+			"Pop the value pushed by the first bytecode"
+			cogit ssTop popToReg: ReceiverResultReg.
+		
+			"Return the top of the stack which is the receiver"
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #( 42 ).
+
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17)
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushTemporaryArg0NoTemps [
 
 	| tempIndex method |

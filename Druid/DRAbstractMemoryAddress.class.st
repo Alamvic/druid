@@ -62,7 +62,7 @@ DRAbstractMemoryAddress >> replaceDependency: anOperand by: anotherOperand in: a
 ]
 
 { #category : #cogit }
-DRAbstractMemoryAddress >> rtlArgumentExpressions [
+DRAbstractMemoryAddress >> rtlArgumentExpressions: generator [
 	
 	self subclassResponsibility
 ]
@@ -79,11 +79,11 @@ DRAbstractMemoryAddress >> rtlOperandQualifierForInstruction: instruction [
 ]
 
 { #category : #cogit }
-DRAbstractMemoryAddress >> rtlPushArgumentExpressions [
-	
+DRAbstractMemoryAddress >> rtlPushArgumentExpressions: generator [
 	"Normal load and store instructions have offset, then base.
 	Push instructions have base, then offset"
-	^ self rtlArgumentExpressions reversed
+
+	^ (self rtlArgumentExpressions: generator) reversed
 ]
 
 { #category : #cogit }

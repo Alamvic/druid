@@ -705,9 +705,9 @@ DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 ]
 
 { #category : #cogit }
-DRInstruction >> rtlPushArgumentExpressions [
+DRInstruction >> rtlPushArgumentExpressions: generator [
 	
-	^ { RBVariableNode named: result name }
+	^ { RBVariableNode named: (generator allocateVariable: result) }
 ]
 
 { #category : #cogit }

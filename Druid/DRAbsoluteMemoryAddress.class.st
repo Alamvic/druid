@@ -63,11 +63,11 @@ DRAbsoluteMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 ]
 
 { #category : #cogit }
-DRAbsoluteMemoryAddress >> rtlArgumentExpressions [
+DRAbsoluteMemoryAddress >> rtlArgumentExpressions: generator [
 
 	| offsetNode baseNode |
 	offsetNode := RBLiteralValueNode value: 0.
-	baseNode := RBVariableNode named: expression result name.
+	baseNode := RBVariableNode named: (generator allocateVariable: expression result).
 
 	^ { offsetNode . baseNode }
 ]
