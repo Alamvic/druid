@@ -1,7 +1,7 @@
 Class {
 	#name : #DRSCCPConstantFoldingTest,
 	#superclass : #DRSCCPTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #assertions }

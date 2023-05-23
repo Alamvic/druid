@@ -8,7 +8,7 @@ Class {
 		'rightOperand1',
 		'rightOperand2'
 	],
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #running }

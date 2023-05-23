@@ -1,7 +1,7 @@
 Class {
 	#name : #DRCopyPropagationTest,
 	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #'as yet unclassified' }

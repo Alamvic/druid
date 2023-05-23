@@ -1,7 +1,7 @@
 Class {
 	#name : #DRSCCPConstantPropagationTest,
 	#superclass : #DRSCCPTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #tests }

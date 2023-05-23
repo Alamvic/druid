@@ -1,7 +1,7 @@
 Class {
 	#name : #DRLoopUnrollingTest,
 	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #running }

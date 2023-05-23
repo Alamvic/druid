@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'instructionFactory'
 	],
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #running }

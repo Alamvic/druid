@@ -13,7 +13,7 @@ Class {
 		'entryBlock',
 		'entryCopy'
 	],
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #initialization }

@@ -1,7 +1,7 @@
 Class {
 	#name : #DRGlobalValueNumberingTest,
 	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #tests }
