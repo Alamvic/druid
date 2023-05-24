@@ -197,8 +197,7 @@ DRProductionBytecodeTest >> testBytecodePushConstantZeroBytecode [
 DRProductionBytecodeTest >> testBytecodePushLiteralConstant [
 
 	| literalIndex method |
-	method := methodBuilder
-		          newMethod
+	method := methodBuilder newMethod
 		          literals: { (memory integerObjectOf: 42) };
 		          buildMethod.
 
@@ -208,8 +207,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant [
 	self
 		compileBytecode: 32 + literalIndex
 		selector: #pushLiteralConstantBytecode
-		thenDo: [ :generator | 
-			"Execute the druid's compiled code"
+		thenDo: [ :generator | "Execute the druid's compiled code"
 			generator value.
 
 			"Then return without druid's compiled code"
@@ -219,10 +217,13 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant [
 	self
 		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
 		withArguments: #(  ).
-		
+
 	self
 		assert: machineSimulator receiverRegisterValue
-		equals: (memory integerObjectOf: 42)
+		equals: (memory integerObjectOf: 42).
+
+	self assert:
+		(cogit hasAnnotatedAbstractInstructions: cogit getIsObjectReference)
 ]
 
 { #category : #tests }
@@ -250,7 +251,10 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 17)
 		withArguments: #().
 		
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 43)
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 43).
+	
+	self assert:
+		(cogit hasAnnotatedAbstractInstructions: cogit getIsObjectReference)
 ]
 
 { #category : #tests }
@@ -299,7 +303,10 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariable: tempIndex [
 
 	self
 		assert: machineSimulator receiverRegisterValue
-		equals: (memory integerObjectOf: tempIndex + 16rFF)
+		equals: (memory integerObjectOf: tempIndex + 16rFF).
+
+	self assert:
+		(cogit hasAnnotatedAbstractInstructions: cogit getIsObjectReference)
 ]
 
 { #category : #tests }
