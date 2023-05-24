@@ -70,3 +70,9 @@ DRBaseOffsetMemoryAddress >> rtlArgumentExpressions [
 
 	^ { offsetNode . baseNode }
 ]
+
+{ #category : #SCCP }
+DRBaseOffsetMemoryAddress >> sccpLatticeValueFor: aDRSCCP [ 
+
+	^ aDRSCCP bottom "?"
+]
