@@ -3456,6 +3456,16 @@ DruidTestRTLCompiler >> gen_shortUnconditionalJump [
 	^ 0
 ]
 
+{ #category : #query }
+DruidTestRTLCompiler >> hasAnnotatedAbstractInstructions: annotation [
+
+	0 to: opcodeIndex - 1 do: [ :i |
+		| instruction |
+		instruction := self abstractInstructionAt: i.
+		instruction annotation = annotation ifTrue: [ ^ true ] ].
+	^ false
+]
+
 { #category : #generated }
 DruidTestRTLCompiler >> numRegArgs [
 
