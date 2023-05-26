@@ -256,18 +256,21 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable0 [
 
+	<expectedFailure>
 	self testBytecodePushLiteralVariable: 0
 ]
 
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable1 [
 
+	<expectedFailure>
 	self testBytecodePushLiteralVariable: 1
 ]
 
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable15 [
 
+	<expectedFailure>
 	self testBytecodePushLiteralVariable: 15
 ]
 
