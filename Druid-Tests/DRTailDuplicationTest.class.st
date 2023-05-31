@@ -1,7 +1,7 @@
 Class {
 	#name : #DRTailDuplicationTest,
 	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #tests }

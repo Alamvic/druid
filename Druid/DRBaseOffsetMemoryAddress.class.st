@@ -62,11 +62,11 @@ DRBaseOffsetMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 ]
 
 { #category : #cogit }
-DRBaseOffsetMemoryAddress >> rtlArgumentExpressions [
+DRBaseOffsetMemoryAddress >> rtlArgumentExpressions: generator [
 	
 	| offsetNode baseNode |
 	offsetNode := RBParser parseExpression: offset expression.
-	baseNode := RBVariableNode named: base result name.
+	baseNode := RBVariableNode named: (generator allocateVariable: base result).
 
 	^ { offsetNode . baseNode }
 ]

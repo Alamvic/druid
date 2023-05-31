@@ -5,7 +5,7 @@ Class {
 		'rightAddInstruction',
 		'leftAddInstruction'
 	],
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #helpers }

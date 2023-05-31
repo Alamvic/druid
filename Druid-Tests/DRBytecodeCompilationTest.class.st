@@ -32,6 +32,21 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 	] bytecodes: 100
 ]
 
+{ #category : #tests }
+DRBytecodeCompilationTest >> doCompileBytecode: bytecode selector: aSelector [
+
+	| compiler |
+
+	"First generate druid code"
+	self interpreter currentBytecode: bytecode.
+	compiler := DRBytecodeCompilerCompiler new
+		sourceName: aSelector;
+		interpreter: self interpreter;
+		compilerClass: DruidTestRTLCompiler.
+
+	compiler compile.
+]
+
 { #category : #helpers }
 DRBytecodeCompilationTest >> makeFrame: aReceiver arguments: arguments method: aMethod [
 

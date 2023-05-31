@@ -1,7 +1,7 @@
 Class {
 	#name : #DRComposedConditionalSplittingTest,
 	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #initialization }

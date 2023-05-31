@@ -1,5 +1,5 @@
 Class {
 	#name : #DRBranchCollapseTest,
 	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }

@@ -1,7 +1,7 @@
 Class {
 	#name : #DRControlFlowManipulationTest,
 	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #tests }

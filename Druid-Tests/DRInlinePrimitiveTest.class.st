@@ -1,7 +1,7 @@
 Class {
 	#name : #DRInlinePrimitiveTest,
 	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #initialization }

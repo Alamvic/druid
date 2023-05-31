@@ -34,7 +34,7 @@ DRRegisterMemoryAddress >> register: anObject [
 ]
 
 { #category : #cogit }
-DRRegisterMemoryAddress >> rtlArgumentExpressions [
+DRRegisterMemoryAddress >> rtlArgumentExpressions: generator [
 
 	| offsetNode baseNode |
 	offsetNode := RBLiteralValueNode value: 0.

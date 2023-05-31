@@ -275,6 +275,12 @@ DRValue >> isStore [
 ]
 
 { #category : #testing }
+DRValue >> isSubtract [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isValue [
 
 	^ true
@@ -363,7 +369,7 @@ DRValue >> rtlOperandQualifierForInstruction: instruction [
 ]
 
 { #category : #cogit }
-DRValue >> rtlPushArgumentExpressions [
+DRValue >> rtlPushArgumentExpressions: generator [
 	
 	^ { RBVariableNode named: self name }
 ]

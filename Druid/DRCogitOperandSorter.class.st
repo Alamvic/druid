@@ -14,6 +14,8 @@ DRCogitOperandSorter >> applyTo: aDRControlFlowGraph [
 DRCogitOperandSorter >> extractFirstOperandInCopyIfNecessaryFrom: anInstruction [ 
 	
 	| copy |
+	"If the first operand is a constant, extract it in a copy.
+	This is useful for instructions that do nto accept constants as second operand."
 	anInstruction operand1 isInstruction ifFalse: [
 		copy := anInstruction instructionFactory copy: anInstruction operand1.
 		anInstruction addBefore: copy.
@@ -47,11 +49,16 @@ DRCogitOperandSorter >> visitBitXor: aDRBitXor [
 
 { #category : #visiting }
 DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [
-
 	"Mask test conditions accept constants in cogit"
-	(aDRBranchIfCondition condition isTestMask
-		or: [ aDRBranchIfCondition condition isNoTestMask ])
-			ifTrue: [ ^ self ].
+
+	(aDRBranchIfCondition condition isTestMask or: [
+		 aDRBranchIfCondition condition isNoTestMask ]) ifTrue: [ ^ self ].
+
+	"Cogit only accept constants as first operands (second in DruidIR).
+	Equals comparison being commutative, we can reverse the operands to avoid an extra copy"
+	(aDRBranchIfCondition operand1 isConstant and: [ aDRBranchIfCondition condition isEqualsThanComparison ]) ifTrue: [
+		aDRBranchIfCondition reverseOperands.
+	].
 
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRBranchIfCondition
 ]

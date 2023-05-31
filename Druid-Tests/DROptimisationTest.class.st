@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'optimisation'
 	],
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #testing }

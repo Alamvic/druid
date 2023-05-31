@@ -1,7 +1,7 @@
 Class {
 	#name : #DRLoopInvariantCodeMotionTest,
 	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #assertion }

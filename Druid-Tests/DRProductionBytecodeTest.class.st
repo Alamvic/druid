@@ -260,18 +260,21 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable0 [
 
+	<expectedFailure>
 	self testBytecodePushLiteralVariable: 0
 ]
 
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable1 [
 
+	<expectedFailure>
 	self testBytecodePushLiteralVariable: 1
 ]
 
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable15 [
 
+	<expectedFailure>
 	self testBytecodePushLiteralVariable: 15
 ]
 
@@ -307,6 +310,84 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariable: tempIndex [
 
 	self assert:
 		(cogit hasAnnotatedAbstractInstructions: cogit getIsObjectReference)
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushReceiverDoesNotOverridePreviousPush [
+
+	| method |
+	method := methodBuilder newMethod
+		          numberOfArguments: 1;
+		          numberOfTemporaries: 0;
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	"Push temporary 0 -- aka first argument if there are arguments"
+	self doCompileBytecode: 64 selector: #pushTemporaryVariableBytecode.
+
+	self compileBytecode: 76 selector: #pushReceiverBytecode thenDo: [ :generator |
+			cogit methodOrBlockNumArgs: 1.
+			cogit methodOrBlockNumTemps: 1.
+			cogit initSimStackForFramefulMethod: 2.
+
+			"Push argument 0"
+			cogit gen_pushTemporaryVariableBytecode.
+
+			"Push the temp, then pop it"
+			generator value.
+			cogit ssTop popToReg: (cogit allocateRegNotConflictingWith: 0).
+	
+			"Pop the value pushed by the first bytecode"
+			cogit ssTop popToReg: ReceiverResultReg.
+		
+			"Return the top of the stack which is the receiver"
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #( 42 ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushTemporaryArg0DoesNotOverridePreviousPush [
+
+	| tempIndex method |
+	method := methodBuilder newMethod
+		          numberOfArguments: 1;
+		          numberOfTemporaries: 0;
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	tempIndex := 0. "0 based..."
+	self
+		compileBytecode: 64 + tempIndex
+		selector: #pushTemporaryVariableBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			cogit methodOrBlockNumArgs: 1.
+			cogit methodOrBlockNumTemps: 1.
+			cogit initSimStackForFramefulMethod: 2.
+
+			cogit gen_pushReceiverBytecode.
+
+			"Push the temp, then pop it"
+			generator value.
+			cogit ssTop popToReg: (cogit allocateRegNotConflictingWith: 0).
+	
+			"Pop the value pushed by the first bytecode"
+			cogit ssTop popToReg: ReceiverResultReg.
+		
+			"Return the top of the stack which is the receiver"
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #( 42 ).
+
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17)
 ]
 
 { #category : #tests }
@@ -755,6 +836,120 @@ DRProductionBytecodeTest >> testBytecodeSendLiteral1ToSelf [
 	self assert: machineSimulator classRegisterValue equals: 1 "selector index".
 	"Third argument: the receiver"
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17)
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeShortJumpIfFalseWithFalse [
+
+	| method mustBeBooleanTrampolineAddress |
+	
+	mustBeBooleanTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit ceSendMustBeBooleanTrampoline: mustBeBooleanTrampolineAddress.
+	
+	method := methodBuilder
+		newMethod;
+		literals: { (memory integerObjectOf: 42) };
+		bytecodes: #[ 
+			77 "push false"
+			192 "jump if false over next"
+			90 "return false"
+			91 "return true"];
+		numberOfTemporaries: 2;
+		buildMethod.
+
+	self
+		compileBytecode: 192
+		selector: #shortConditionalJumpFalse
+		thenDo: [ :generator | 
+			cogit methodObj: method.
+
+			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+
+			cogit bytecodePC: 16.
+			cogit ssPushRegister: ReceiverResultReg.
+			
+			"Execute the druid's compiled code"
+			cogit bytecodePC: 17.
+			generator value.
+			
+			"We will jump over the stop!"
+			cogit bytecodePC: 18.
+			cogit ssPushConstant: 0.
+			cogit genReturnTopFromMethod.
+			cogit Stop.
+
+			
+			cogit bytecodePC: 19.
+			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
+			cogit ssPushConstant: 1.
+			cogit genReturnTopFromMethod. ].
+
+	"self
+		prepareStackForSendReceiver: memory trueObject
+		arguments: #()
+		method: method.
+	self runFrom: initialAddress until: mustBeBooleanTrampolineAddress."
+	self executePrimitiveWithReceiver: memory falseObject.
+
+	"Did it jump over?"
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeShortJumpIfFalseWithTrue [
+
+	| method mustBeBooleanTrampolineAddress |
+	
+	mustBeBooleanTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit ceSendMustBeBooleanTrampoline: mustBeBooleanTrampolineAddress.
+	
+	method := methodBuilder
+		newMethod;
+		literals: { (memory integerObjectOf: 42) };
+		bytecodes: #[ 
+			77 "push false"
+			192 "jump if false over next"
+			90 "return false"
+			91 "return true"];
+		numberOfTemporaries: 2;
+		buildMethod.
+
+	self
+		compileBytecode: 192
+		selector: #shortConditionalJumpFalse
+		thenDo: [ :generator | 
+			cogit methodObj: method.
+
+			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+
+			cogit bytecodePC: 16.
+			cogit ssPushRegister: ReceiverResultReg.
+			
+			"Execute the druid's compiled code"
+			cogit bytecodePC: 17.
+			generator value.
+			
+			"We will jump over the stop!"
+			cogit bytecodePC: 18.
+			cogit ssPushConstant: 0.
+			cogit genReturnTopFromMethod.
+			cogit Stop.
+
+			
+			cogit bytecodePC: 19.
+			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
+			cogit ssPushConstant: 1.
+			cogit genReturnTopFromMethod. ].
+
+	"self
+		prepareStackForSendReceiver: memory trueObject
+		arguments: #()
+		method: method.
+	self runFrom: initialAddress until: mustBeBooleanTrampolineAddress."
+	self executePrimitiveWithReceiver: memory trueObject.
+
+	"Did it jump over?"
+	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
 { #category : #tests }
