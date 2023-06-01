@@ -220,6 +220,41 @@ DRSCCPConstantFoldingTest >> testConstantFoldingFalseOrRegisterIsRegister [
 ]
 
 { #category : #arithmetic }
+DRSCCPConstantFoldingTest >> testConstantFoldingLoadConstant [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DRLoad between: 8 asDRValue and: 9999 asDRValue.
+
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1 expression
+		equals: '(coInterpreter int64AtPointer:  9999)'
+]
+
+{ #category : #arithmetic }
+DRSCCPConstantFoldingTest >> testConstantFoldingLoadJitCompileExpression [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DRLoad between: 8 asDRValue and: self varJITExpression.
+
+	self assert: cfg instructions allButLast last isCopy.
+	self
+		assert: cfg instructions allButLast last operand1 expression
+		equals: '(coInterpreter int64AtPointer:  var)'
+]
+
+{ #category : #arithmetic }
+DRSCCPConstantFoldingTest >> testConstantFoldingLoadNonConstant [
+
+	| cfg |
+	cfg := self testConstantFoldingOf: DRLoad between: 8 asDRValue and: self nonReducibleOperation.
+
+	self assert: cfg instructions third isLoad.
+	self assert: cfg instructions third size equals: 8.
+	self assert: cfg instructions third operand1 isMemoryAddress
+]
+
+{ #category : #arithmetic }
 DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyByZeroLeft [
 
 	| cfg |
@@ -486,11 +521,51 @@ DRSCCPConstantFoldingTest >> testFoldBitShiftWithNonLeftConstant [
 ]
 
 { #category : #tests }
+DRSCCPConstantFoldingTest >> testFoldingLoadWithConstant [
+
+	| cfg load |
+	cfg := self setUpCFG: 1.
+
+	"T1 := LOAD 1"
+	load := cfg b1 load: 1.
+	"T2 := T1"
+	cfg b1 copy: load.
+
+	optimisation applyTo: cfg.
+
+	"T2 := LOAD_JIT_COMPILE_EXPRESSION 1"
+	self assert:
+		cfg instructions nextToLast operand1 isJitCompileTimeExpression.
+	self
+		assert: cfg instructions nextToLast operand1 expression
+		equals: '(coInterpreter int64AtPointer:  1)'
+]
+
+{ #category : #tests }
+DRSCCPConstantFoldingTest >> testFoldingLoadWithOperation [
+
+	| cfg load op |
+	cfg := self setUpCFG: 1.
+
+	"T1 := op"
+	cfg b1 addInstruction: (op := self nonReducibleOperation).
+	"T2 := LOAD T1"
+	load := cfg b1 load: op.
+	"T3 := T2"
+	cfg b1 copy: load.
+
+	optimisation applyTo: cfg.
+
+	"T3 := T2"
+	self assert: cfg instructions nextToLast operand1 equals: load
+]
+
+{ #category : #tests }
 DRSCCPConstantFoldingTest >> testNonConstantFoldingOf: aClass between: aDROperand1 and: aDROperand2 [ 
 	| cfg |
 	cfg := self testConstantFoldingOf: aClass between: aDROperand1 and: aDROperand2.
 	
-	self assert: cfg instructions third isAdd.
+	self assert: cfg instructions third class equals: aClass.
 	self
 		assert: cfg instructions third operand1 simpleConstantFold 
 		equals: aDROperand1.

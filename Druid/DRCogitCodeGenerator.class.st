@@ -210,6 +210,15 @@ DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 	
 ]
 
+{ #category : #visiting }
+DRCogitCodeGenerator >> generateMessage: selector operands: operands [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: selector
+			 arguments: (operands flatCollect: [ :op | self rtlArgumentsForValue: op ]))
+]
+
 { #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 
@@ -382,6 +391,14 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 	^ RBVariableNode named: (self registerFor: aValue)
 ]
 
+{ #category : #'as yet unclassified' }
+DRCogitCodeGenerator >> selectorCogitRTL: aMnemonic operands: operands instruction: anInstruction [
+
+	^ aMnemonic ,
+	  ('' join:
+		   (operands collect: [ :op | op result rtlOperandQualifierForInstruction: anInstruction ]))
+]
+
 { #category : #visiting }
 DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction [
 
@@ -404,16 +421,15 @@ DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction
 { #category : #visiting }
 DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruction: anInstruction [
 
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector:
-				 aMnemonic
-				 , (operands first result rtlOperandQualifierForInstruction:
-						  anInstruction)
-				 , (operands second result rtlOperandQualifierForInstruction:
-						  anInstruction)
-			 arguments: (self rtlArgumentsForValue: operands first)
-				 , (self rtlArgumentsForValue: operands second))
+	self
+		generateMessage: (self selectorCogitRTL: aMnemonic operands: operands instruction: anInstruction)
+		operands: operands
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
+
+	self twoOperandCogitRTL: #Move operands: operands instruction: anInstruction
 ]
 
 { #category : #verification }
@@ -546,7 +562,7 @@ DRCogitCodeGenerator >> visitCopy: aDRMove [
 	(moveOperands collect: [ :e | e result ] as: Set) size = 1
 		ifTrue: [ ^ self ].
 	
-	self twoOperandCogitRTL: #Move operands: moveOperands instruction: aDRMove
+	self twoOperandMoveCogitRTL: aDRMove operands: moveOperands
 ]
 
 { #category : #visiting }
@@ -616,12 +632,10 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 			selector: branch
 			arguments: { 0 asLiteralNode })).
 	"Set false to result"
-	self
-		  twoOperandCogitRTL: 'Move'
+	self twoOperandMoveCogitRTL: aDRGetConditionCode 
 		  operands: { 
 				0 asDRValue.
-				aDRGetConditionCode }
-		  instruction: aDRGetConditionCode.
+				aDRGetConditionCode }.
 	generatorMethodBuilder addStatement: (RBAssignmentNode
 		variable: (RBVariableNode named: 'jumpNext')
 		value: (RBMessageNode
@@ -637,12 +651,10 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 				receiver: RBVariableNode selfNode
 				selector: #Label}).
 	"Set true to result"
-	self
-		  twoOperandCogitRTL: 'Move'
+	self twoOperandMoveCogitRTL: aDRGetConditionCode
 		  operands: { 
 				1 asDRValue.
-				aDRGetConditionCode }
-		  instruction: aDRGetConditionCode.
+				aDRGetConditionCode }.
 
 	"next label"
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -719,12 +731,10 @@ DRCogitCodeGenerator >> visitLessThan: aDRGreaterThanComparison inBranch: aDRBra
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLoad: aDRLoad [
 
-	self
-		twoOperandCogitRTL: #Move
+	self twoOperandMoveCogitRTL: aDRLoad
 		operands: { 
 				aDRLoad address.
-				aDRLoad result }
-		instruction: aDRLoad.
+				aDRLoad result }.
 
 	aDRLoad size < 8 ifFalse: [ ^ self ].
 
@@ -777,9 +787,9 @@ DRCogitCodeGenerator >> visitMultiplyOverflowJump: aDROverflowJump [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [ 
 	
-	self twoOperandCogitRTL: #Move
-		operands: { aDRCogitNegate operand1. aDRCogitNegate result }
-		instruction: aDRCogitNegate.
+	self twoOperandMoveCogitRTL: aDRCogitNegate 
+		operands: { aDRCogitNegate operand1. aDRCogitNegate result }.
+		
 	self flag: #todo. "oneOperandCogitRTL:"
 	generatorMethodBuilder addStatement: (
 		RBMessageNode
@@ -856,12 +866,9 @@ DRCogitCodeGenerator >> visitRightShift: aDRCogitRightShift [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitStore: aDRCogitStore [
 
-	^ self
-		  twoOperandCogitRTL: #Move
-		  operands: { 
-				  aDRCogitStore operand1.
-				  aDRCogitStore operand2 asMemoryAddress }
-		  instruction: aDRCogitStore
+	^ self twoOperandMoveCogitRTL: aDRCogitStore operands: {
+			  aDRCogitStore operand1.
+			  aDRCogitStore operand2 asMemoryAddress }
 ]
 
 { #category : #visiting }

@@ -216,6 +216,20 @@ DRCogitGeneratorTest >> testGenerateModulo [
 ]
 
 { #category : #tests }
+DRCogitGeneratorTest >> testGenerateMoveConstant [
+
+	| cfg r1 cogitGenerator generatedASTInstruction |
+	cfg := DRControlFlowGraph new.
+	r1 := cfg instructionFactory copy: 1.
+
+	cogitGenerator := self generateBytecodeCogitForInstruction: r1.
+	generatedASTInstruction := cogitGenerator generatorMethodBuilder statements last.
+
+	self assert: generatedASTInstruction selector equals: #genMoveConstant:R:.
+	self assert: generatedASTInstruction arguments first value equals: 1
+]
+
+{ #category : #tests }
 DRCogitGeneratorTest >> testGenerateNilAsZero [
 
 	| cfg basicBlock cogitAST r0 r1 compare |
@@ -282,7 +296,7 @@ DRCogitGeneratorTest >> testGenerateOrConstantWithNoResult [
 { #category : #tests }
 DRCogitGeneratorTest >> testGeneratePushBaseOffset [
 
-	| cfg basicBlock r1 cogitAST orASTInstruction |
+	| cfg basicBlock r1 cogitCodeGenerator orASTInstruction |
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | 
 		              r1 := block
@@ -290,11 +304,10 @@ DRCogitGeneratorTest >> testGeneratePushBaseOffset [
 			                    offset: 17 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	cogitAST := self generateBytecodeCogitForInstruction: r1.
-	orASTInstruction := cogitAST generatorMethodBuilder statements first.
+	cogitCodeGenerator := self generateBytecodeCogitForInstruction: r1.
+	orASTInstruction := cogitCodeGenerator generatorMethodBuilder statements last.
 
 	self assert: orASTInstruction selector equals: #ssPushBase:offset:.
-	self assert: orASTInstruction arguments first name equals: 'R0'.
 	self assert: orASTInstruction arguments second value equals: 17
 ]
 
