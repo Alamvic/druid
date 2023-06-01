@@ -10,8 +10,6 @@ Class {
 		'inactiveIntervals',
 		'unhandledIntervals',
 		'spillingStrategy',
-		'availableIntegerRegisters',
-		'availableFloatingPointRegisters',
 		'registerPool'
 	],
 	#category : #'Druid-LinearScanRegisterAllocation'
@@ -23,8 +21,8 @@ DRLinearScanRegisterAllocator >> allocateRegisterForInterval: aDRLiveRegisterInt
 	| currentIntegerRegisters currentFloatRegisters currentRegisters |
 	
 	"Start considering all available registers"
-	currentIntegerRegisters := availableIntegerRegisters copy.
-	currentFloatRegisters := availableFloatingPointRegisters copy.
+	currentIntegerRegisters := registerPool integerRegisters copy.
+	currentFloatRegisters := registerPool floatingPointRegisters copy.
 
 	"Remove those that are in inactive intervals so we don't scratch them"
 	inactiveIntervals
@@ -317,7 +315,7 @@ DRLinearScanRegisterAllocator >> controlFlowGraph: aDRControlFlowGraph [
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> floatRegisters: aCollection [ 
 
-	availableFloatingPointRegisters := aCollection asOrderedCollection
+	registerPool floatingPointRegisters: aCollection
 ]
 
 { #category : #initialization }
@@ -325,8 +323,7 @@ DRLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
 	self withFirstSpilling.
-	availableIntegerRegisters := #().
-	availableFloatingPointRegisters := #()
+	registerPool := DRFixedRegisterPool new
 ]
 
 { #category : #'live-analysis' }
@@ -350,7 +347,7 @@ DRLinearScanRegisterAllocator >> instructionsDo: aFullBlockClosure [
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> integerRegisters: aCollection [
 
-	availableIntegerRegisters := aCollection asOrderedCollection
+	registerPool integerRegisters: aCollection
 ]
 
 { #category : #'block-linearization' }
@@ -423,13 +420,13 @@ DRLinearScanRegisterAllocator >> registerPool: aRegisterPool [
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> returnFloatRegister: aPhisicalRegister [
 
-	availableFloatingPointRegisters addFirst: aPhisicalRegister
+	registerPool returnFloatRegister: aPhisicalRegister
 ]
 
 { #category : #allocation }
-DRLinearScanRegisterAllocator >> returnIntegerRegister: aPhisicalRegister [
+DRLinearScanRegisterAllocator >> returnIntegerRegister: aRegister [
 
-	availableIntegerRegisters addFirst: aPhisicalRegister
+	registerPool returnIntegerRegister: aRegister
 ]
 
 { #category : #allocation }
@@ -451,15 +448,15 @@ DRLinearScanRegisterAllocator >> spillRegisters: aCollection [
 ]
 
 { #category : #allocation }
-DRLinearScanRegisterAllocator >> takeFloatRegister: aDRPhysicalRegister [ 
+DRLinearScanRegisterAllocator >> takeFloatRegister: aDRPhysicalRegister [
 	
-	availableFloatingPointRegisters remove: aDRPhysicalRegister
+	registerPool takeFloatRegister: aDRPhysicalRegister
 ]
 
 { #category : #allocation }
-DRLinearScanRegisterAllocator >> takeIntegerRegister: aDRPhysicalRegister [ 
-	
-	availableIntegerRegisters remove: aDRPhysicalRegister
+DRLinearScanRegisterAllocator >> takeIntegerRegister: aRegister [
+
+	registerPool takeIntegerRegister: aRegister
 ]
 
 { #category : #allocation }
