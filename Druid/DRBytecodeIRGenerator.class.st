@@ -107,7 +107,7 @@ DRBytecodeIRGenerator >> interpretIframeMethodWith: aRBMessageNode [
 
 	^ self
 		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRCopy
+		  instructionKind: DRObjectReferenceCopy
 		  operands: { (DRJitCompileTimeExpression expression: 'methodObj') } 
 ]
 
