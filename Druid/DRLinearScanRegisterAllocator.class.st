@@ -18,25 +18,22 @@ Class {
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> allocateRegisterForInterval: aDRLiveRegisterInterval ifPresent: presentBlock [
 	
-	| currentIntegerRegisters currentFloatRegisters currentRegisters |
+	| currentRegisters isFloat inactiveOverlappingRegisters |
 	
-	"Start considering all available registers"
-	currentIntegerRegisters := registerPool integerRegisters copy.
-	currentFloatRegisters := registerPool floatingPointRegisters copy.
-
-	"Remove those that are in inactive intervals so we don't scratch them"
-	inactiveIntervals
+	isFloat := aDRLiveRegisterInterval definitions anyOne type isFloatType.
+	
+	"Do not consider those that are in inactive intervals so we don't scratch them"
+	inactiveOverlappingRegisters := inactiveIntervals
 		select: [ :e | e overlaps: aDRLiveRegisterInterval ]
-		thenDo: [ :e |
-			currentIntegerRegisters remove: e location ifAbsent: [ "ignore if it is in use" ].
-			currentFloatRegisters remove: e location ifAbsent: [ "ignore if it is in use" ]. ].
-	unhandledIntervals
-		select: [ :e | e location notNil and: [ e overlaps: aDRLiveRegisterInterval ] ]
-		thenDo: [ :e | e halt ].
+		thenCollect: [ :e | e location ].
 
-	currentRegisters := aDRLiveRegisterInterval definitions anyOne type isFloatType
-		ifTrue: [ currentFloatRegisters ]
-		ifFalse: [ currentIntegerRegisters ].
+	currentRegisters := isFloat
+		ifTrue: [ registerPool floatingPointRegisters copy ]
+		ifFalse: [ registerPool integerRegisters copy ].
+
+	inactiveOverlappingRegisters do: [ :e |
+		currentRegisters remove: e ifAbsent: [ "not care, we just want to ignore that register..." ].
+	].
 
 	"If we have registers, take one"	
 	currentRegisters ifNotEmpty: [ | selectedRegister |
