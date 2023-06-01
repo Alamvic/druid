@@ -17,29 +17,28 @@ Class {
 
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> allocateRegisterForInterval: aDRLiveRegisterInterval ifPresent: presentBlock [
-	
-	| currentRegisters isFloat inactiveOverlappingRegisters |
-	
-	isFloat := aDRLiveRegisterInterval definitions anyOne type isFloatType.
-	
+
+	| isFloat inactiveOverlappingRegisters |
+	isFloat := aDRLiveRegisterInterval definitions anyOne type
+		           isFloatType.
+
 	"Do not consider those that are in inactive intervals so we don't scratch them"
 	inactiveOverlappingRegisters := inactiveIntervals
-		select: [ :e | e overlaps: aDRLiveRegisterInterval ]
-		thenCollect: [ :e | e location ].
+		                                select: [ :e |
+		                                e overlaps: aDRLiveRegisterInterval ]
+		                                thenCollect: [ :e | e location ].
 
-	currentRegisters := isFloat
-		ifTrue: [ registerPool floatingPointRegisters copy ]
-		ifFalse: [ registerPool integerRegisters copy ].
-
-	inactiveOverlappingRegisters do: [ :e |
-		currentRegisters remove: e ifAbsent: [ "not care, we just want to ignore that register..." ].
-	].
-
-	"If we have registers, take one"	
-	currentRegisters ifNotEmpty: [ | selectedRegister |
-		selectedRegister := currentRegisters first.
-		self takeRegister: selectedRegister.
-		^ presentBlock value: selectedRegister ]
+	isFloat
+		ifTrue: [
+			registerPool
+				takeFloatingPointRegisterNotIn: inactiveOverlappingRegisters
+				ifPresent: [ :selectedRegister |
+				^ presentBlock value: selectedRegister ] ]
+		ifFalse: [
+			registerPool
+				takeIntegerRegisterNotIn: inactiveOverlappingRegisters
+				ifPresent: [ :selectedRegister |
+				^ presentBlock value: selectedRegister ] ]
 ]
 
 { #category : #allocation }

@@ -73,7 +73,44 @@ DRFixedRegisterPool >> takeFloatRegister: aRegister [
 ]
 
 { #category : #allocation }
+DRFixedRegisterPool >> takeFloatingPointRegisterNotIn: inactiveOverlappingRegisters ifPresent: presentBlock [
+
+	self
+		takeRegisterFrom: floatingPointRegisters
+		notIn: inactiveOverlappingRegisters
+		ifPresent: [ :selectedRegister |
+			self takeFloatRegister: selectedRegister.
+			^ presentBlock value: selectedRegister ]
+]
+
+{ #category : #allocation }
 DRFixedRegisterPool >> takeIntegerRegister: aDRPhysicalRegister [ 
 	
 	integerRegisters remove: aDRPhysicalRegister
+]
+
+{ #category : #allocation }
+DRFixedRegisterPool >> takeIntegerRegisterNotIn: inactiveOverlappingRegisters ifPresent: presentBlock [
+
+	self
+		takeRegisterFrom: integerRegisters
+		notIn: inactiveOverlappingRegisters
+		ifPresent: [ :selectedRegister |
+			self takeIntegerRegister: selectedRegister.
+			^ presentBlock value: selectedRegister ]
+]
+
+{ #category : #'private - allocation' }
+DRFixedRegisterPool >> takeRegisterFrom: aCollection notIn: inactiveOverlappingRegisters ifPresent: presentBlock [
+
+	| currentRegisters |
+	currentRegisters := aCollection copy.
+	inactiveOverlappingRegisters do: [ :e |
+		currentRegisters
+			remove: e
+			ifAbsent: [ "not care, we just want to ignore that register..." ] ].
+
+	"If we have registers, take one"
+	currentRegisters ifNotEmpty: [
+		presentBlock value: currentRegisters first ]
 ]
