@@ -42,6 +42,12 @@ DRFixedRegisterPool >> integerRegisters: anObject [
 	integerRegisters := anObject asOrderedCollection
 ]
 
+{ #category : #'as yet unclassified' }
+DRFixedRegisterPool >> peekSpillRegister [
+
+	^ spillRegisters first
+]
+
 { #category : #allocation }
 DRFixedRegisterPool >> returnFloatRegister: aRegister [
 
@@ -54,6 +60,12 @@ DRFixedRegisterPool >> returnIntegerRegister: aPhisicalRegister [
 	integerRegisters addFirst: aPhisicalRegister
 ]
 
+{ #category : #'as yet unclassified' }
+DRFixedRegisterPool >> returnSpillRegister: aRegister [
+
+	 spillRegisters addFirst: aRegister
+]
+
 { #category : #accessing }
 DRFixedRegisterPool >> spillRegisters [
 
@@ -61,9 +73,9 @@ DRFixedRegisterPool >> spillRegisters [
 ]
 
 { #category : #accessing }
-DRFixedRegisterPool >> spillRegisters: anObject [
+DRFixedRegisterPool >> spillRegisters: aCollection [
 
-	spillRegisters := anObject
+	spillRegisters := aCollection asOrderedCollection
 ]
 
 { #category : #allocation }
@@ -113,4 +125,10 @@ DRFixedRegisterPool >> takeRegisterFrom: aCollection notIn: inactiveOverlappingR
 	"If we have registers, take one"
 	currentRegisters ifNotEmpty: [
 		presentBlock value: currentRegisters first ]
+]
+
+{ #category : #'as yet unclassified' }
+DRFixedRegisterPool >> takeSpillRegister [
+
+	^ spillRegisters removeFirst
 ]

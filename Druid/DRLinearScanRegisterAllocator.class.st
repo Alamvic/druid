@@ -4,7 +4,6 @@ Class {
 	#instVars : [
 		'blocks',
 		'liveSets',
-		'spillRegisters',
 		'controlFlowGraph',
 		'activeIntervals',
 		'inactiveIntervals',
@@ -131,7 +130,7 @@ DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 
 	allocatedLocation := self allocatedRegisterFor: i.
 	allocatedRegister := allocatedLocation isMemoryAddress
-		                     ifTrue: [ spillRegisters first ]
+		                     ifTrue: [ registerPool peekSpillRegister ]
 		                     ifFalse: [ allocatedLocation ].
 
 	i result: allocatedRegister.
@@ -187,9 +186,7 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 		(liveSets includesKey: op) ifTrue: [ 
 			allocatedLocation := self allocatedRegisterFor: op.
 			allocatedRegister := allocatedLocation isMemoryAddress
-				                     ifTrue: [ 
-				                     usedSpillRegisters addFirst:
-					                     spillRegisters removeFirst ]
+				                     ifTrue: [ usedSpillRegisters addFirst: registerPool takeSpillRegister ]
 				                     ifFalse: [ allocatedLocation ].
 
 			allocatedLocation isMemoryAddress ifTrue: [ | load |
@@ -205,7 +202,7 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 		op isVirtualRegister ifTrue: [ 
 			op physicalRegister: allocatedRegister ] ] ].
 
-	usedSpillRegisters do: [ :each | spillRegisters addFirst: each ]
+	usedSpillRegisters do: [ :each | registerPool returnSpillRegister: each ]
 ]
 
 { #category : #'live-analysis' }
@@ -440,7 +437,7 @@ DRLinearScanRegisterAllocator >> selectIntervalToSpill [
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> spillRegisters: aCollection [
 	
-	spillRegisters := aCollection asOrderedCollection
+	registerPool spillRegisters: aCollection
 ]
 
 { #category : #allocation }
