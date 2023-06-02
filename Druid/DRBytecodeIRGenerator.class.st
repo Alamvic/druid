@@ -27,6 +27,8 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	variableSpecialCases at: #framePointer put: #interpretFramePointerWith:.
 	variableSpecialCases at: #extA put: #interpretAsCompileTimeExpressionWith:.
 	variableSpecialCases at: #extB put: #interpretAsCompileTimeExpressionWith:.
+	variableSpecialCases at: #numExtA put: #interpretAsCompileTimeExpressionWith:.
+	variableSpecialCases at: #numExtB put: #interpretAsCompileTimeExpressionWith:.
 	"variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:."
 	
 	specialCases at: #iframeMethod: put: #interpretIframeMethodWith:.

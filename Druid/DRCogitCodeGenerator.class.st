@@ -458,6 +458,14 @@ DRCogitCodeGenerator >> visitAnd: aDRAnd [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitAssignation: aDRAssignation [
+
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: (RBVariableNode named: aDRAssignation operand1 expression)
+			 value: (self jitCompileTimeExpression: aDRAssignation operand2))
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitBitAnd: aDRCogitBitAnd [ 
 
 	^ self threeOperandCogitRTL: #And instruction: aDRCogitBitAnd
