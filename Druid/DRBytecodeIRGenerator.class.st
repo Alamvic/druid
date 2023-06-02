@@ -25,6 +25,8 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 	variableSpecialCases at: #framePointer put: #interpretFramePointerWith:.
+	variableSpecialCases at: #extA put: #interpretAsCompileTimeExpressionWith:.
+	variableSpecialCases at: #extB put: #interpretAsCompileTimeExpressionWith:.
 	"variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:."
 	
 	specialCases at: #iframeMethod: put: #interpretIframeMethodWith:.
@@ -35,7 +37,7 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
 	specialCases at: #normalSendSpecialSelector:argumentCount: put: #interpretNormalSpecialSelectorSendWith:.
 	specialCases at: #commonReturn: put: #interpretCommonReturnWith:.
-	
+	specialCases at: #fetchByte put: #interpretFetchByteWith:.
 
 ]
 
@@ -46,6 +48,31 @@ DRBytecodeIRGenerator >> interpretArgumentCountAssignmentWith: aRBAssignmentNode
 	Visit the value of the assignment and get the number of arguments.
 	For now do not use it"
 	aRBAssignmentNode value acceptVisitor: self.
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretAsCompileTimeExpressionAssignmentWith: aRBAssignmentNode [
+
+1halt. "TODO: WIP"
+
+	^ self
+		  addInstructionFrom: aRBAssignmentNode
+		  instructionKind: DRAssignation
+		  operands: {
+				  (DRJitCompileTimeExpression expression:
+					   aRBAssignmentNode variable name).
+				  (DRJitCompileTimeExpression expression:
+					   aRBAssignmentNode value formattedCode) }
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretAsCompileTimeExpressionWith: aRBVariableNode [
+
+	^ self
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRCopy
+		  operands:
+		  { (DRJitCompileTimeExpression new expression: aRBVariableNode name) }
 ]
 
 { #category : #'special - cases' }
@@ -67,6 +94,17 @@ DRBytecodeIRGenerator >> interpretCurrentBytecodeWith: aRBVariableNode [
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRCopy
 		operands: { DRJitCompileTimeExpression new expression: 'byte0' }
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretFetchByteWith: aRBMessageNode [
+
+	1 halt. "TODO: Use accumulator to compile byteN"
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRCopy
+		  operands: { (DRJitCompileTimeExpression new expression: 'byte1') }
 ]
 
 { #category : #'special cases' }

@@ -88,6 +88,29 @@ DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodeExtPushInteger [
+
+	cogit byte1: 13.
+
+	self
+		compileBytecode: 232
+		selector: #extPushIntegerBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			generator value.
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 13)
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodePrimSendAdd [
 
 	"Setup the send trampoline"

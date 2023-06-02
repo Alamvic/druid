@@ -18,8 +18,8 @@ DRUnsignedCoercion >> opcode [
 
 { #category : #printing }
 DRUnsignedCoercion >> sccpOperateOnLattice: operand [
-	
-	self haltIf: [ operand < 0 ].
+
+	self haltIf: [ operand isNumber and: [ operand < 0 ] ].
 	^ operand
 ]
 
