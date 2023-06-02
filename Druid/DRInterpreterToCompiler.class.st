@@ -60,9 +60,9 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 		"pushReceiverVariableBytecode"
 			0 1 2 3 4 5 6 7 8 9
 		"pushLiteralVariable16CasesBytecode"
-			"16 17"
+			16 17
 		"pushLiteralConstantBytecode"
-			"32 33"
+			32 33
 		"pushTemporaryVariableBytecode"
 			64 65 66
 		"pushReceiverBytecode"
