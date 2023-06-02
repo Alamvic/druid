@@ -4,14 +4,11 @@ Class {
 	#instVars : [
 		'blocks',
 		'liveSets',
-		'spillRegisters',
 		'controlFlowGraph',
 		'activeIntervals',
 		'inactiveIntervals',
 		'unhandledIntervals',
 		'spillingStrategy',
-		'availableIntegerRegisters',
-		'availableFloatingPointRegisters',
 		'registerPool'
 	],
 	#category : #'Druid-LinearScanRegisterAllocation'
@@ -19,32 +16,28 @@ Class {
 
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> allocateRegisterForInterval: aDRLiveRegisterInterval ifPresent: presentBlock [
-	
-	| currentIntegerRegisters currentFloatRegisters currentRegisters |
-	
-	"Start considering all available registers"
-	currentIntegerRegisters := availableIntegerRegisters copy.
-	currentFloatRegisters := availableFloatingPointRegisters copy.
 
-	"Remove those that are in inactive intervals so we don't scratch them"
-	inactiveIntervals
-		select: [ :e | e overlaps: aDRLiveRegisterInterval ]
-		thenDo: [ :e |
-			currentIntegerRegisters remove: e location ifAbsent: [ "ignore if it is in use" ].
-			currentFloatRegisters remove: e location ifAbsent: [ "ignore if it is in use" ]. ].
-	unhandledIntervals
-		select: [ :e | e location notNil and: [ e overlaps: aDRLiveRegisterInterval ] ]
-		thenDo: [ :e | e halt ].
+	| isFloat inactiveOverlappingRegisters |
+	isFloat := aDRLiveRegisterInterval definitions anyOne type
+		           isFloatType.
 
-	currentRegisters := aDRLiveRegisterInterval definitions anyOne type isFloatType
-		ifTrue: [ currentFloatRegisters ]
-		ifFalse: [ currentIntegerRegisters ].
+	"Do not consider those that are in inactive intervals so we don't scratch them"
+	inactiveOverlappingRegisters := inactiveIntervals
+		                                select: [ :e |
+		                                e overlaps: aDRLiveRegisterInterval ]
+		                                thenCollect: [ :e | e location ].
 
-	"If we have registers, take one"	
-	currentRegisters ifNotEmpty: [ | selectedRegister |
-		selectedRegister := currentRegisters first.
-		self takeRegister: selectedRegister.
-		^ presentBlock value: selectedRegister ]
+	isFloat
+		ifTrue: [
+			registerPool
+				takeFloatingPointRegisterNotIn: inactiveOverlappingRegisters
+				ifPresent: [ :selectedRegister |
+				^ presentBlock value: selectedRegister ] ]
+		ifFalse: [
+			registerPool
+				takeIntegerRegisterNotIn: inactiveOverlappingRegisters
+				ifPresent: [ :selectedRegister |
+				^ presentBlock value: selectedRegister ] ]
 ]
 
 { #category : #allocation }
@@ -137,7 +130,7 @@ DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 
 	allocatedLocation := self allocatedRegisterFor: i.
 	allocatedRegister := allocatedLocation isMemoryAddress
-		                     ifTrue: [ spillRegisters first ]
+		                     ifTrue: [ registerPool peekSpillRegister ]
 		                     ifFalse: [ allocatedLocation ].
 
 	i result: allocatedRegister.
@@ -193,9 +186,7 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 		(liveSets includesKey: op) ifTrue: [ 
 			allocatedLocation := self allocatedRegisterFor: op.
 			allocatedRegister := allocatedLocation isMemoryAddress
-				                     ifTrue: [ 
-				                     usedSpillRegisters addFirst:
-					                     spillRegisters removeFirst ]
+				                     ifTrue: [ usedSpillRegisters addFirst: registerPool takeSpillRegister ]
 				                     ifFalse: [ allocatedLocation ].
 
 			allocatedLocation isMemoryAddress ifTrue: [ | load |
@@ -211,7 +202,7 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 		op isVirtualRegister ifTrue: [ 
 			op physicalRegister: allocatedRegister ] ] ].
 
-	usedSpillRegisters do: [ :each | spillRegisters addFirst: each ]
+	usedSpillRegisters do: [ :each | registerPool returnSpillRegister: each ]
 ]
 
 { #category : #'live-analysis' }
@@ -317,7 +308,7 @@ DRLinearScanRegisterAllocator >> controlFlowGraph: aDRControlFlowGraph [
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> floatRegisters: aCollection [ 
 
-	availableFloatingPointRegisters := aCollection asOrderedCollection
+	registerPool floatingPointRegisters: aCollection
 ]
 
 { #category : #initialization }
@@ -325,8 +316,7 @@ DRLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
 	self withFirstSpilling.
-	availableIntegerRegisters := #().
-	availableFloatingPointRegisters := #()
+	registerPool := DRFixedRegisterPool new
 ]
 
 { #category : #'live-analysis' }
@@ -350,7 +340,7 @@ DRLinearScanRegisterAllocator >> instructionsDo: aFullBlockClosure [
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> integerRegisters: aCollection [
 
-	availableIntegerRegisters := aCollection asOrderedCollection
+	registerPool integerRegisters: aCollection
 ]
 
 { #category : #'block-linearization' }
@@ -423,13 +413,13 @@ DRLinearScanRegisterAllocator >> registerPool: aRegisterPool [
 { #category : #allocation }
 DRLinearScanRegisterAllocator >> returnFloatRegister: aPhisicalRegister [
 
-	availableFloatingPointRegisters addFirst: aPhisicalRegister
+	registerPool returnFloatRegister: aPhisicalRegister
 ]
 
 { #category : #allocation }
-DRLinearScanRegisterAllocator >> returnIntegerRegister: aPhisicalRegister [
+DRLinearScanRegisterAllocator >> returnIntegerRegister: aRegister [
 
-	availableIntegerRegisters addFirst: aPhisicalRegister
+	registerPool returnIntegerRegister: aRegister
 ]
 
 { #category : #allocation }
@@ -447,19 +437,19 @@ DRLinearScanRegisterAllocator >> selectIntervalToSpill [
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> spillRegisters: aCollection [
 	
-	spillRegisters := aCollection asOrderedCollection
+	registerPool spillRegisters: aCollection
 ]
 
 { #category : #allocation }
-DRLinearScanRegisterAllocator >> takeFloatRegister: aDRPhysicalRegister [ 
+DRLinearScanRegisterAllocator >> takeFloatRegister: aDRPhysicalRegister [
 	
-	availableFloatingPointRegisters remove: aDRPhysicalRegister
+	registerPool takeFloatRegister: aDRPhysicalRegister
 ]
 
 { #category : #allocation }
-DRLinearScanRegisterAllocator >> takeIntegerRegister: aDRPhysicalRegister [ 
-	
-	availableIntegerRegisters remove: aDRPhysicalRegister
+DRLinearScanRegisterAllocator >> takeIntegerRegister: aRegister [
+
+	registerPool takeIntegerRegister: aRegister
 ]
 
 { #category : #allocation }

@@ -69,6 +69,13 @@ DRCogitStackToRegisterMappingGenerator >> returnNodeForCompiledMethod [
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> rtlExpressionForValue: aValue [
+
+	variables at: aValue result ifPresent: [ :var | ^ RBVariableNode named: var ].
+	^ super rtlExpressionForValue: aValue
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
 
   self allocateVariable: anInstruction result.
@@ -78,13 +85,6 @@ DRCogitStackToRegisterMappingGenerator >> twoOperandMoveCogitRTL: anInstruction 
 		^ self generateMessage: #genMoveConstant:R: operands: operands ].
 
 	^ super twoOperandMoveCogitRTL: anInstruction operands: operands
-]
-
-{ #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> rtlExpressionForValue: aValue [
-
-	variables at: aValue result ifPresent: [ :var | ^ RBVariableNode named: var ].
-	^ super rtlExpressionForValue: aValue
 ]
 
 { #category : #visiting }
