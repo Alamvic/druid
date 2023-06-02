@@ -46,7 +46,10 @@ DRCogitStackToRegisterMappingGenerator >> allocateVariable: aVariableName [
 			 value: (RBMessageNode
 					  receiver: (RBVariableNode named: 'live')
 					  selector: #bitOr:
-					  arguments: { temporaryVariableNode copy })).
+					  arguments: { (RBMessageNode
+							   receiver: RBVariableNode selfNode
+							   selector: #registerMaskFor:
+							   arguments: { temporaryVariableNode copy }) })).
 
 	^ temporaryVariableNode name
 ]
