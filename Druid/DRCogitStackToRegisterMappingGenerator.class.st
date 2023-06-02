@@ -12,24 +12,41 @@ Class {
 DRCogitStackToRegisterMappingGenerator >> allocateVariable: aVariableName [
 
 	| temporaryVariableNode variableIndex |
-	
 	aVariableName isNoResult ifTrue: [ ^ self ].
 	variables at: aVariableName ifPresent: [ :var | ^ var ].
+
+	"Should generate a variable allocation in the lines of:
 	
+	live := 0.
+
+	t0 := self allocateRegNotConflictingWith: live ifNone: [ ^ ABANDON COMPILATION ].
+	live := live | t0.
+	
+	t1 := self allocateRegNotConflictingWith: live ifNone: [ ^ ABANDON COMPILATION ].
+	live := live | t1."
+
 	variableIndex := nextVariableIndex.
 	nextVariableIndex := nextVariableIndex + 1.
-	
-	temporaryVariableNode := RBVariableNode named: 't', variableIndex asString.
+
+	temporaryVariableNode := RBVariableNode named:
+		                         't' , variableIndex asString.
 	variables at: aVariableName put: temporaryVariableNode name.
-	
+
 	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
-	"freeReg := self allocateRegNotConflictingWith: 0."
 	generatorMethodBuilder addStatement: (RBAssignmentNode
 			 variable: temporaryVariableNode copy
 			 value: (RBMessageNode
 					  receiver: RBVariableNode selfNode
-					  selector: #allocateRegNotConflictingWith:
-					  arguments: { (RBLiteralValueNode value: 0) })).
+					  selector: #allocateRegNotConflictingWith:ifNone:
+					  arguments: {
+							  (RBVariableNode named: 'live').
+							  (RBVariableNode named: '[ ^ self unknownBytecode ]') })).
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: (RBVariableNode named: 'live')
+			 value: (RBMessageNode
+					  receiver: (RBVariableNode named: 'live')
+					  selector: #bitOr:
+					  arguments: { temporaryVariableNode copy })).
 
 	^ temporaryVariableNode name
 ]
@@ -41,6 +58,16 @@ DRCogitStackToRegisterMappingGenerator >> generatePostambleForCFG: aDRControlFlo
 	self generateBlockIncomingJumps: #nextBytecode.
 
 	super generatePostambleForCFG: aDRControlFlowGraph
+]
+
+{ #category : #'ir-to-ast' }
+DRCogitStackToRegisterMappingGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
+
+	super generatePreambleForCFG: aDRControlFlowGraph.
+	generatorMethodBuilder addVariableNamed: 'live'.
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: (RBVariableNode named: 'live')
+			 value: (RBLiteralValueNode value: 0))
 ]
 
 { #category : #helpers }
