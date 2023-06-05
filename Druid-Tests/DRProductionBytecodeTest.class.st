@@ -313,7 +313,28 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariable: tempIndex [
 ]
 
 { #category : #tests }
-DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesNotBreakStack [
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTop2AllocatedRegister [
+
+	self
+		testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: 2
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTop3AllocatedRegister [
+
+	self
+		testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: 3
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister [
+
+	
+	self testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: 1
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: n [
 
 	| method |
 	method := methodBuilder newMethod
@@ -333,7 +354,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesNotBreakStack [
 			cogit methodOrBlockNumTemps: 0.
 			cogit initSimStackForFramefulMethod: 2.
 
-			1 to: 3 do: [ :i | | r |
+			1 to: n do: [ :i | | r |
 				r := cogit allocateRegNotConflictingWith: 0.
 				cogit MoveCq: i R: r.
 				cogit ssPushRegister: r.
@@ -345,10 +366,8 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesNotBreakStack [
 			cogit ssFlushTo: cogit simStackPointer.
 
 			"Pop the top 4 elements, the fourth should be the first pushed constant"
-			cogit ssTop popToReg: ReceiverResultReg.
-			cogit ssTop popToReg: ReceiverResultReg.
-			cogit ssTop popToReg: ReceiverResultReg.
-			cogit ssTop popToReg: ReceiverResultReg.
+			1 to: n + 1 do: [ :i |
+				cogit ssTop popToReg: ReceiverResultReg ].
 			cogit genUpArrowReturn ].
 
 	self
