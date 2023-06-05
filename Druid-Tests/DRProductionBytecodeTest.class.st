@@ -313,6 +313,54 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariable: tempIndex [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesNotBreakStack [
+
+	| method |
+	method := methodBuilder newMethod
+		          literals:
+			          (((1 to: 16) collect: [ :e | nil -> (e + 16rFF - 1) ])
+				           collect: [ :e | e forMemory: memory inMethod: nil ]);
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	"Push temp literal variable 0"
+	self
+		compileBytecode: 16
+		selector: #pushLiteralVariable16CasesBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			cogit methodOrBlockNumArgs: 0.
+			cogit methodOrBlockNumTemps: 0.
+			cogit initSimStackForFramefulMethod: 2.
+
+			1 to: 3 do: [ :i | | r |
+				r := cogit allocateRegNotConflictingWith: 0.
+				cogit MoveCq: i R: r.
+				cogit ssPushRegister: r.
+			].
+
+			generator value.
+			
+			"Flush the stack"
+			cogit ssFlushTo: cogit simStackPointer.
+
+			"Pop the top 4 elements, the fourth should be the first pushed constant"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+		
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: 1
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushReceiverDoesNotOverridePreviousPush [
 
 	| method |
