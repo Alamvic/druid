@@ -83,6 +83,14 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 			144 145 146 147 148 149 150 150
 		"sendLiteralSelector2ArgsBytecode"
 			160 161 162 163 164 165 166 167 168
+		"shortUnconditionalJump"
+			176 177 178 179 180 181 182 183
+		"shortConditionalJumpTrue"
+			"184 185 186 187 188 189 190 191"
+		"shortConditionalJumpFalse"
+			192 193 194 195 196 197 198 199
+		"popStackBytecode"
+			216
 	).
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
