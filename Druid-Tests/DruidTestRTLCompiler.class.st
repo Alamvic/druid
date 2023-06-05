@@ -42,6 +42,34 @@ DruidTestRTLCompiler >> compileEntry [
 	
 ]
 
+{ #category : #accessing }
+DruidTestRTLCompiler >> extA [
+
+	<doNotGenerate>
+	^ extA
+]
+
+{ #category : #accessing }
+DruidTestRTLCompiler >> extA: anObject [
+
+	<doNotGenerate>
+	^ extA := anObject
+]
+
+{ #category : #accessing }
+DruidTestRTLCompiler >> extB [
+
+	<doNotGenerate>
+	^ extB
+]
+
+{ #category : #accessing }
+DruidTestRTLCompiler >> extB: anObject [
+
+	<doNotGenerate>
+	^ extB := anObject
+]
+
 { #category : #generated }
 DruidTestRTLCompiler >> gen_assertIsIgnored [
 
