@@ -13,7 +13,7 @@ Object >> asDRValue [
 ]
 
 { #category : #'*Druid' }
-Object >> isJitCompileTimeExpression [
+Object >> isJITCompileTimeExpression [
 	
 	^ true
 ]

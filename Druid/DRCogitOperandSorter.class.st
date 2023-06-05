@@ -30,12 +30,6 @@ DRCogitOperandSorter >> visitAddition: aDRAdd [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitAssignation: aDRAssignation [ 
-
-	"Nothing"
-]
-
-{ #category : #visiting }
 DRCogitOperandSorter >> visitBitAnd: aDRBitAnd [ 
 	
 	^ self visitCommutativeInstruction: aDRBitAnd
@@ -272,9 +266,11 @@ DRCogitOperandSorter >> visitRightShift: aDRRightShift [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitStore: aDRStore [ 
+DRCogitOperandSorter >> visitStore: aDRStore [
+
+	aDRStore isJITCompileTimeExpression ifTrue: [ ^ self ].
 	
-	"Stores are only from registers..."
+	"Stores at runtime are only from registers..."
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRStore
 ]
 

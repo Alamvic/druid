@@ -55,16 +55,16 @@ DRBytecodeIRGenerator >> interpretArgumentCountAssignmentWith: aRBAssignmentNode
 { #category : #'special-cases' }
 DRBytecodeIRGenerator >> interpretAsCompilerVariableAssignmentWith: aRBAssignmentNode [
 
-1halt. "TODO: WIP"
+	| operand |
+	operand := self visitOperand: aRBAssignmentNode value.
 
 	^ self
 		  addInstructionFrom: aRBAssignmentNode
-		  instructionKind: DRAssignation
+		  instructionKind: DRStore
 		  operands: {
-				  (DRJitCompileTimeExpression expression:
-					   aRBAssignmentNode variable name).
-				  (DRJitCompileTimeExpression expression:
-					   aRBAssignmentNode value formattedCode) }
+				  8 asDRValue.
+				  operand.
+				  (DRInterpreterExpression reference: aRBAssignmentNode variable name) }
 ]
 
 { #category : #'special-cases' }

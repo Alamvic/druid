@@ -83,15 +83,15 @@ DRJitCompileTimeExpression >> isConstant [
 ]
 
 { #category : #testing }
-DRJitCompileTimeExpression >> isJITCompileTimeExpression: aString [ 
+DRJitCompileTimeExpression >> isJITCompileTimeExpression [
 	
-	^ aString = expression
+	^ true
 ]
 
 { #category : #testing }
-DRJitCompileTimeExpression >> isJitCompileTimeExpression [
+DRJitCompileTimeExpression >> isJITCompileTimeExpression: aString [ 
 	
-	^ true
+	^ aString = expression
 ]
 
 { #category : #testing }

@@ -58,9 +58,3 @@ DROptimisation >> then: anotherOptimisation [
 		yourself
 		
 ]
-
-{ #category : #visiting }
-DROptimisation >> visitAssignation: aDRAssignation [ 
-
-	"Nothing"
-]

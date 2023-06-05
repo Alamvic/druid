@@ -7,7 +7,7 @@ Number >> expression [
 ]
 
 { #category : #'*Druid' }
-Number >> isJitCompileTimeExpression [
+Number >> isJITCompileTimeExpression [
 	
 	^ true
 ]
