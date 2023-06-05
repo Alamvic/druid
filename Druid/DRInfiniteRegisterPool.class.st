@@ -1,3 +1,19 @@
+"
+An infinite register pool simplifies the allocation process as there is no concern about running out of registers.
+
+With an infinite register pool, the register allocator assumes that there is an unlimited number of registers available for allocation. This means that whenever a register allocation request is encountered, the register allocator can always assign a register to the requested variable without any restrictions. 
+
+
+Internal Representation and Key Implementation Points.
+
+    Instance Variables
+	floatingPointRegisters:		<Object>
+	integerRegisters:		<Object>
+	nextId:		<Object>
+
+
+    Implementation Points
+"
 Class {
 	#name : #DRInfiniteRegisterPool,
 	#superclass : #Object,
