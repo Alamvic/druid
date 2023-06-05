@@ -112,6 +112,12 @@ DRJitCompileTimeExpression >> name [
 	^ expression isString ifTrue: [ expression ] ifFalse: [ expression formattedCode ]
 ]
 
+{ #category : #printing }
+DRJitCompileTimeExpression >> printResult [
+
+	^ expression
+]
+
 { #category : #types }
 DRJitCompileTimeExpression >> type [
 	

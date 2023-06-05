@@ -90,6 +90,7 @@ DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeExtPushInteger [
 
+	cogit extB: 1. "256"
 	cogit byte1: 13.
 
 	self
@@ -107,7 +108,9 @@ DRProductionBytecodeTest >> testBytecodeExtPushInteger [
 
 	self
 		assert: machineSimulator receiverRegisterValue
-		equals: (memory integerObjectOf: 13)
+		equals: (memory integerObjectOf: 256 + 13).
+
+	self assert: cogit extB equals: 0
 ]
 
 { #category : #tests }
