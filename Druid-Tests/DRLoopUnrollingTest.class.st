@@ -43,8 +43,9 @@ DRLoopUnrollingTest >> testLoopUnrollingDuplicatesBodyBlock [
 
 	| unrollingFactor cfg loop |
 	unrollingFactor := 2.
+	
 	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
-
+	
 	loop := cfg allLoops anyOne.
 
 	loop unroll: unrollingFactor.
@@ -112,5 +113,5 @@ DRLoopUnrollingTest >> testLoopUnrollingModifiesLoopConditionToPreventAdditional
 	loop unroll: unrollingFactor.
 	
 	cfg applyOptimisation: DRSCCP new.
-	self assert: (loop condition operand2 value) equals: 14
+	self assert: (loop loopConditional operand2 value) equals: 14
 ]

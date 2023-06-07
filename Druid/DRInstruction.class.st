@@ -226,7 +226,7 @@ DRInstruction >> inspectionDependencies: aBuilder [
 	"All the characters are displayed using a grid layout"
 	RSDominanceTreeLayout new
 		horizontalGap: 50;
-		doNotValidateCycles;
+		shouldValidateCycles;
 		applyOn: blockViews.
 	view @ RSCanvasController.
 	
@@ -820,9 +820,12 @@ DRInstruction >> veryDeepCopyWith: deepCopier [
 ]
 
 { #category : #dependencies }
-DRInstruction >> withAllDependencies [
+DRInstruction >> withAllDependenciesExcept: alreadyComputedDependencies [
 	
 	| dependencies |
+	(alreadyComputedDependencies includes: self)
+		ifTrue: [ ^ alreadyComputedDependencies ].
+	
 	dependencies := OrderedCollection new.
 	dependencies add: self.
 	self dependencies do: [ :e |
