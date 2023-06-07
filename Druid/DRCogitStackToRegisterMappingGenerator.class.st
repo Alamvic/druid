@@ -122,6 +122,14 @@ DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMa
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitCompileTimeStore: aDRStore [
+
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: (RBVariableNode named: aDRStore address name)
+			 value: (self jitCompileTimeExpression: aDRStore operand1))
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
 	
 	"This is a continuation to the next bytecode.
