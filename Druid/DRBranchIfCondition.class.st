@@ -91,14 +91,6 @@ DRBranchIfCondition >> isBranchIfCondition [
 ]
 
 { #category : #testing }
-DRBranchIfCondition >> isBranchIfTrue [
-
-	"A branch if condition is an ifTrue if it represents an equals comparison to a true"
-	^ condition isEqualsThanComparison and: [
-		  operands anySatisfy: [ :op | op = true asDRValue ] ]
-]
-
-{ #category : #testing }
 DRBranchIfCondition >> isConditionalBranch [
 
 	^ true

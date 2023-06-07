@@ -220,13 +220,17 @@ DRCPSEdge >> visitBitXor: aDRBitOr [
 { #category : #visiting }
 DRCPSEdge >> visitBranchIfCondition: aDRConditionalBranch [
 
-	| domain id constraint |
+	| domain id constraint isBranchIfTrue |
 	"Ignore hardcoded values"
-	(aDRConditionalBranch isBranchIfTrue and: [
+	isBranchIfTrue := aDRConditionalBranch condition
+		                  isEqualsThanComparison and: [
+		                  aDRConditionalBranch operands anySatisfy: [ :op |
+			                  op = true asDRValue ] ].
+	(isBranchIfTrue and: [
 		 aDRConditionalBranch operand1 isInstruction not ]) ifTrue: [
 		^ self ].
 
-	domain := aDRConditionalBranch isBranchIfTrue
+	domain := isBranchIfTrue
 		          ifTrue: [
 		          self operandDomainFromInstruction:
 			          aDRConditionalBranch operand1 ]
@@ -237,7 +241,7 @@ DRCPSEdge >> visitBranchIfCondition: aDRConditionalBranch [
 	domain ifNil: [ ^ self ].
 
 	id := domain reg name.
-	constraint := aDRConditionalBranch isBranchIfTrue
+	constraint := isBranchIfTrue
 		              ifTrue: [ DREqualsConstraint withValue: true ]
 		              ifFalse: [ domain constraint ].
 

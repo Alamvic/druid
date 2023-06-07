@@ -255,12 +255,6 @@ DRInstruction >> isBackJump [
 ]
 
 { #category : #testing }
-DRInstruction >> isBranchIfTrue [
-	
-	^ false
-]
-
-{ #category : #testing }
 DRInstruction >> isCogitSendMarshall [
 	
 	^ false
