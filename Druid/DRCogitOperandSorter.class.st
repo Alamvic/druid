@@ -50,9 +50,6 @@ DRCogitOperandSorter >> visitBitXor: aDRBitXor [
 { #category : #visiting }
 DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [
 	"Mask test conditions accept constants in cogit"
-	
-	aDRBranchIfCondition isBranchIfTrue ifTrue: [
-		^ self visitBranchIfTrue: aDRBranchIfCondition ].
 
 	(aDRBranchIfCondition condition isTestMask or: [
 		 aDRBranchIfCondition condition isNoTestMask ]) ifTrue: [ ^ self ].
@@ -64,12 +61,6 @@ DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [
 	].
 
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRBranchIfCondition
-]
-
-{ #category : #visiting }
-DRCogitOperandSorter >> visitBranchIfTrue: aDRBranchIfTrue [ 
-	
-	"Nothing"
 ]
 
 { #category : #visiting }

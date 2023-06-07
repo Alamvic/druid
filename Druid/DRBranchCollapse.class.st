@@ -26,7 +26,9 @@ DRBranchCollapse >> applyTo: aDRControlFlowGraph [
 DRBranchCollapse >> canBeAppliedIn: aDRControlFlowGraph [
 
 	aDRControlFlowGraph blocksDo: [ :b | 
-		(b endInstruction isBranchIfTrue and: [ b endInstruction operand1 isSetConditionCode ]) ifTrue: [ 
+		(b endInstruction condition isEqualsThanComparison and: [ 
+			b endInstruction operand1 isSetConditionCode
+				and: [ b endInstruction operand2 = true asDRValue ] ]) ifTrue: [ 
 			^ true ] ].
 	^ false
 ]
