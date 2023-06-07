@@ -9,11 +9,11 @@ Class {
 }
 
 { #category : #helpers }
-DRCogitStackToRegisterMappingGenerator >> allocateVariable: aVariableName [
+DRCogitStackToRegisterMappingGenerator >> allocateVariable: aDRResult [
 
 	| temporaryVariableNode variableIndex |
-	aVariableName isNoResult ifTrue: [ ^ self ].
-	variables at: aVariableName ifPresent: [ :var | ^ var ].
+	aDRResult isNoResult ifTrue: [ ^ self ].
+	variables at: aDRResult ifPresent: [ :var | ^ var ].
 
 	"Should generate a variable allocation in the lines of:
 	
@@ -30,7 +30,7 @@ DRCogitStackToRegisterMappingGenerator >> allocateVariable: aVariableName [
 
 	temporaryVariableNode := RBVariableNode named:
 		                         't' , variableIndex asString.
-	variables at: aVariableName put: temporaryVariableNode name.
+	variables at: aDRResult put: temporaryVariableNode name.
 
 	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
 	generatorMethodBuilder addStatement: (RBAssignmentNode

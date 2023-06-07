@@ -12,9 +12,9 @@ Class {
 }
 
 { #category : #helpers }
-DRCogitCodeGenerator >> allocateVariable: aVariable [
+DRCogitCodeGenerator >> allocateVariable: aDRResult [
 	
-	^ aVariable name
+	^ aDRResult name
 ]
 
 { #category : #'jump-management' }
