@@ -131,6 +131,15 @@ DRInstructionFactory >> jumpIf: aBoolean [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> jumpIf: aCondition trueTarget: trueTarget falseTarget: falseTarget [
+
+	^ (self jumpIf: aCondition)
+		  trueBranch: trueTarget;
+		  falseBranch: falseTarget;
+		  yourself
+]
+
+{ #category : #factory }
 DRInstructionFactory >> lessOrEquals: operand1 than: operand2 [
 
 	^ self getConditionCodeOf: DRLessOrEqualsThanComparison new operands: { 

@@ -291,10 +291,10 @@ DRCogitGeneratorTest >> testGeneratePushBaseOffset [
 	cfg initialBasicBlock jumpTo: basicBlock.
 
 	cogitAST := self generateBytecodeCogitForInstruction: r1.
-	orASTInstruction := cogitAST generatorMethodBuilder statements first.
+	orASTInstruction := cogitAST generatorMethodBuilder statements second.
 
 	self assert: orASTInstruction selector equals: #ssPushBase:offset:.
-	self assert: orASTInstruction arguments first name equals: 'R0'.
+	self assert: orASTInstruction arguments first name equals: 't0'.
 	self assert: orASTInstruction arguments second value equals: 17
 ]
 

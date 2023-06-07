@@ -285,6 +285,10 @@ DRBasicBlock >> endInstruction [
 
 { #category : #accessing }
 DRBasicBlock >> endInstruction: aDRInstruction [ 
+
+	"Set the argument as my end instruction.
+	Precondition: the instruction is properly configured and has all its targets set"
+
 	| previousSuccessors newSuccessors lostSuccessors |	
 	previousSuccessors := self successors.
 	newSuccessors := aDRInstruction targets.
@@ -641,17 +645,20 @@ DRBasicBlock >> jumpIf: aCondition [
 ]
 
 { #category : #building }
-DRBasicBlock >> jumpIf: condition to: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
+DRBasicBlock >> jumpIf: condition to: trueTarget ifFalseTo: falseTarget [
 	" Used for removing an existing edge that jumps to the target block,
 	 for being able to relink to the target block with a new desired jump "
 
 	| branch |
-	aDRBasicBlock addPredecessor: self.
-	aDRBasicBlock2 addPredecessor: self.
+	trueTarget addPredecessor: self.
+	falseTarget addPredecessor: self.
 
-	branch := self jumpIf: condition.
-	branch trueBranch: aDRBasicBlock.
-	branch falseBranch: aDRBasicBlock2
+	branch := self instructionFactory
+		          jumpIf: condition
+		          trueTarget: trueTarget
+		          falseTarget: falseTarget.
+	self endInstruction: branch.
+	^ branch
 ]
 
 { #category : #building }

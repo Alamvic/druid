@@ -990,9 +990,9 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1942,9 +1942,9 @@ DruidTestRTLCompiler >> gen_primitiveMod [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -2298,23 +2298,24 @@ DruidTestRTLCompiler >> gen_primitiveNewWithArg [
 	self
 		DivR: ClassReg
 		R: Extra2Reg
-		Quo: ClassReg
-		Rem: Extra2Reg.
-	self MoveCq: 4 R: Extra2Reg.
-	self SubR: TempReg R: Extra2Reg.
-	self AndCq: 3 R: Extra2Reg.
-	self AddR: Extra2Reg R: SendNumArgsReg.
+		Quo: Extra2Reg
+		Rem: ClassReg.
+	self MoveCq: 4 R: ClassReg.
+	self SubR: TempReg R: ClassReg.
+	self AndCq: 3 R: ClassReg.
+	self AddR: ClassReg R: SendNumArgsReg.
+	self MoveR: Extra2Reg R: ClassReg.
 	jump8 := self Jump: 0.
 	currentBlock := self Label.
 	jump7 jmpTarget: currentBlock.
 	self CmpCq: 34 R: Extra0Reg.
 	jump7 := self JumpZero: 0.
-	self MoveR: TempReg R: Extra2Reg.
-	self AddCq: 1 R: Extra2Reg.
-	self MoveCq: 2 R: ClassReg.
+	self MoveR: TempReg R: ClassReg.
+	self AddCq: 1 R: ClassReg.
+	self MoveCq: 2 R: Extra2Reg.
 	self
-		DivR: ClassReg
-		R: Extra2Reg
+		DivR: Extra2Reg
+		R: ClassReg
 		Quo: Extra2Reg
 		Rem: ClassReg.
 	self AndCq: 1 R: TempReg.
@@ -3199,7 +3200,7 @@ DruidTestRTLCompiler >> gen_pushLiteralVariable16CasesBytecode [
 
 	| t5 t10 jump3 t3 jump1 t1 currentBlock t8 jumpNext t6 t11 t4 b229 jumpTrue t9 jump2 t2 t7 t0 |
 	t0 := self allocateRegNotConflictingWith: 0.
-	self MoveCq: ((methodObj + 8) + ((0 + LiteralStart) << 3)) R: t0.
+	self MoveCq: ((methodObj + 8) + ((15 + LiteralStart) << 3)) R: t0.
 	t1 := self allocateRegNotConflictingWith: 0.
 	self MoveM64: 0 r: t0 R: t1.
 	t2 := self allocateRegNotConflictingWith: 0.
