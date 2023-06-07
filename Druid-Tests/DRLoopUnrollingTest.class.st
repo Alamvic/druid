@@ -4,6 +4,16 @@ Class {
 	#category : #'Druid-Tests-Optimizations'
 }
 
+{ #category : #'generation-IR' }
+DRLoopUnrollingTest >> generateDruidIRFor: aSelector [
+
+	| cfg |
+	cfg := super generateDruidIRFor: aSelector.
+	"Loops need collapsed branches"
+	DRBranchCollapse new applyTo: cfg.
+	^ cfg
+]
+
 { #category : #running }
 DRLoopUnrollingTest >> optimize: cfg [
 
