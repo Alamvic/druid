@@ -4,9 +4,10 @@ Class {
 	#category : #'Druid-Tests-Optimizations'
 }
 
-{ #category : #tests }
+{ #category : #running }
 DRPhiSimplicationTest >> setUp [ 
 
+	super setUp.
 	optimisation := DRPhiSimplication new
 ]
 
