@@ -134,6 +134,9 @@ DRTreegraphBytecodeGenerator >> visitAddition: aDRAdd [
 { #category : #visiting }
 DRTreegraphBytecodeGenerator >> visitBranchIfCondition: aDRBranchIfCondition [
 
+	aDRBranchIfCondition isBranchIfTrue ifTrue: [
+		^ self visitBranchIfTrue: aDRBranchIfCondition ].
+
 	aDRBranchIfCondition condition
 		acceptVisitor: self
 		withBranch: aDRBranchIfCondition.

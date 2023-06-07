@@ -113,6 +113,10 @@ DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitBranchIfCondition: aDRConditionalBranch [
 
+	aDRConditionalBranch isBranchIfTrue ifTrue: [ 
+		^ self visitBranchIfTrue: aDRConditionalBranch
+	].
+
 	aDRConditionalBranch condition
 		acceptVisitor: self
 		withBranch: aDRConditionalBranch.

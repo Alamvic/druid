@@ -218,11 +218,16 @@ DRCPSEdge >> visitBitXor: aDRBitOr [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitBranchIfCondition: aDRConditionalJump [
+DRCPSEdge >> visitBranchIfCondition: aDRConditionalBranch [
 
 	| domain id |
+	
+	aDRConditionalBranch isBranchIfTrue ifTrue: [ 
+		^ self visitBranchIfTrue: aDRConditionalBranch
+	].
+	
 	"Ignore hardcoded values"
-	domain := aDRConditionalJump condition acceptVisitor: self withBranch: aDRConditionalJump.
+	domain := aDRConditionalBranch condition acceptVisitor: self withBranch: aDRConditionalBranch.
 	domain ifNil: [ ^ self ].
 
 	id := domain reg result name.

@@ -4,12 +4,6 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #visiting }
-DRBranchIfTrue >> acceptVisitor: aVisitor [
-
-	^ aVisitor visitBranchIfTrue: self
-]
-
 { #category : #accessing }
 DRBranchIfTrue >> condition [
 	

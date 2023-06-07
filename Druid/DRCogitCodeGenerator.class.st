@@ -464,11 +464,13 @@ DRCogitCodeGenerator >> visitBitXor: aDRCogitBitXor [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
-
 	"Delegate the condition generation to the condition itself.
 	It may be a Cmp, a Test or no instruction at all."
 
 	| replacement |
+	aDRConditionalJump isBranchIfTrue ifTrue: [
+		^ self visitBranchIfTrue: aDRConditionalJump ].
+
 	replacement := aDRConditionalJump condition
 		               acceptVisitor: self
 		               withBranch: aDRConditionalJump.

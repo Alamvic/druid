@@ -97,9 +97,10 @@ DRCogitCanonicaliser >> visitBitXor: aDRBitXor [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitBranchIfCondition: aDRBranchIfCondition [ 
-	
-	"Nothing"
+DRCogitCanonicaliser >> visitBranchIfCondition: aDRConditionalBranch [
+
+	aDRConditionalBranch isBranchIfTrue ifTrue: [
+		^ self visitBranchIfTrue: aDRConditionalBranch ]
 ]
 
 { #category : #visiting }
