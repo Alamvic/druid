@@ -4,11 +4,11 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
-{ #category : #operations }
+{ #category : #accessing }
 DRBranchCollapse >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph blocksDo: [ :b | 
-		(b endInstruction isBranchIfTrue and: [ 
+		(b endInstruction isConditionalBranch and: [ 
 			b endInstruction operand1 simpleConstantFold asDRValue isSetConditionCode ]) ifTrue: [ 
 				| replacementBranch setConditionCode |
 				setConditionCode := b endInstruction operand1 simpleConstantFold.
