@@ -71,3 +71,9 @@ DRAbsoluteMemoryAddress >> rtlArgumentExpressions: generator [
 
 	^ { offsetNode . baseNode }
 ]
+
+{ #category : #SCCP }
+DRAbsoluteMemoryAddress >> sccpLatticeValueFor: sccp [
+	
+	^ sccp latticeValue: expression
+]

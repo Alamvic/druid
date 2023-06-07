@@ -31,6 +31,12 @@ DRStore >> canMoveOutsideLoop: backJump [
 	^ false
 ]
 
+{ #category : #testing }
+DRStore >> isJITCompileTimeExpression [
+
+	^ self address isJITCompileTimeExpression
+]
+
 { #category : #visiting }
 DRStore >> isMandatoryInstruction [ 
 

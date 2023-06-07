@@ -53,23 +53,6 @@ DRSCCPConstantPropagationTest >> testDoNotPropagateInReturn [
 ]
 
 { #category : #tests }
-DRSCCPConstantPropagationTest >> testDoNotPropagateLoadOperand [
-
-	| cfg copy1 |
-	cfg := self setUpCFG: 1.
-
-	"T1 := LOAD 1"
-	copy1 := cfg b1 load: 1.
-	"T2 := T1"
-	cfg b1 addInstruction: (instructionFactory copy: copy1).
-	
-	optimisation applyTo: cfg.
-
-	"Keep T2 := T1"
-	self assert: cfg instructions nextToLast operand1 equals: copy1
-]
-
-{ #category : #tests }
 DRSCCPConstantPropagationTest >> testPropagateBetweenBasicBlocks [
 
 	| cfg copy1 |

@@ -17,9 +17,9 @@ DRCopy >> isCopy [
 ]
 
 { #category : #testing }
-DRCopy >> isJitCompileTimeExpression [
+DRCopy >> isJITCompileTimeExpression [
 
-	^ operands first isJitCompileTimeExpression
+	^ operands first isJITCompileTimeExpression
 ]
 
 { #category : #SCCP }

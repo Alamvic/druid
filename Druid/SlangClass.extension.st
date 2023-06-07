@@ -1,7 +1,7 @@
 Extension { #name : #SlangClass }
 
 { #category : #'*Druid' }
-SlangClass >> isJitCompileTimeExpression [
+SlangClass >> isJITCompileTimeExpression [
 	
 	^ false
 ]

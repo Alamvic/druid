@@ -76,13 +76,15 @@ DRCogitStackToRegisterMappingGenerator >> rtlExpressionForValue: aValue [
 ]
 
 { #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruction: anInstruction [
+DRCogitStackToRegisterMappingGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
 
-	self allocateVariable: anInstruction result.
-	super
-		twoOperandCogitRTL: aMnemonic
-		operands: operands
-		instruction: anInstruction
+  self allocateVariable: anInstruction result.
+	(self selectorCogitRTL: '' operands: operands instruction: anInstruction) = #Cq:R: ifTrue: [ 
+		"It's moving a constant to a register. This constant could be an oop, so we need to annotate it."
+		self flag: #TOTHINK. "Is this strategy ok?"
+		^ self generateMessage: #genMoveConstant:R: operands: operands ].
+
+	^ super twoOperandMoveCogitRTL: anInstruction operands: operands
 ]
 
 { #category : #visiting }
@@ -120,6 +122,14 @@ DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMa
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitCompileTimeStore: aDRStore [
+
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: (RBVariableNode named: aDRStore address name)
+			 value: (self jitCompileTimeExpression: aDRStore operand1))
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
 	
 	"This is a continuation to the next bytecode.
@@ -148,14 +158,11 @@ DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
 ]
 
 { #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitLoadFramePointer: aDRLoadFramePointer [ 
-	
-	self
-		twoOperandCogitRTL: #Move
-		operands: { 
-				(DRPhysicalGeneralPurposeRegister name: 'FPReg').
-				aDRLoadFramePointer result }
-		instruction: aDRLoadFramePointer
+DRCogitStackToRegisterMappingGenerator >> visitLoadFramePointer: aDRLoadFramePointer [
+
+	self twoOperandMoveCogitRTL: aDRLoadFramePointer operands: {
+			(DRPhysicalGeneralPurposeRegister name: 'FPReg').
+			aDRLoadFramePointer result }
 ]
 
 { #category : #visiting }
@@ -165,13 +172,10 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 			 receiver: RBVariableNode selfNode
 			 selector: #ensureReceiverResultRegContainsSelf).
 
-	self allocateVariable: aDRLoadReceiver result.
-	self
-		twoOperandCogitRTL: #Move
-		operands: {
+  self allocateVariable: aDRLoadReceiver result.
+	self twoOperandMoveCogitRTL: aDRLoadReceiver operands: { 
 				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg').
 				aDRLoadReceiver result }
-		instruction: aDRLoadReceiver
 ]
 
 { #category : #visiting }
@@ -222,12 +226,9 @@ DRCogitStackToRegisterMappingGenerator >> visitReturn: aDRReturn [
 	self generatePostambleForCFG: aDRReturn controlFlowGraph.
 
 	"Move the return value to the receiver register result"
-	self
-		twoOperandCogitRTL: #Move
-		operands: {
+	self twoOperandMoveCogitRTL: aDRReturn operands: {
 				aDRReturn operands first.
-				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg') }
-		instruction: aDRReturn.
+				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg') }.
 
 	"Then return"
 	generatorMethodBuilder addStatement: (RBMessageNode
