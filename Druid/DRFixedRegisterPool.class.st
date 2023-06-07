@@ -1,3 +1,16 @@
+"
+Assumes a limited and fixed number of registers available for allocation. The register allocator has a predefined set of registers to work with, and once all registers are allocated, it needs to make decisions on how to handle additional variables that require registers. This situation is where the register allocator may need to spill registers and store variables in memory to free up registers for new allocations. See `DRLinearScanRegisterAllocator` for details on spilling registers.
+
+Internal Representation and Key Implementation Points.
+
+    Instance Variables
+	floatingPointRegisters:		<Object>
+	integerRegisters:		<Object>
+	spillRegisters:		<Object>
+
+
+    Implementation Points
+"
 Class {
 	#name : #DRFixedRegisterPool,
 	#superclass : #Object,

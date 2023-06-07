@@ -866,6 +866,9 @@ DRCogitCodeGenerator >> visitRightShift: aDRCogitRightShift [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitStore: aDRCogitStore [
 
+	aDRCogitStore isJITCompileTimeExpression ifTrue: [
+		^ self visitCompileTimeStore: aDRCogitStore ].
+
 	^ self twoOperandMoveCogitRTL: aDRCogitStore operands: {
 			  aDRCogitStore operand1.
 			  aDRCogitStore operand2 asMemoryAddress }

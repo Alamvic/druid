@@ -83,15 +83,15 @@ DRJitCompileTimeExpression >> isConstant [
 ]
 
 { #category : #testing }
-DRJitCompileTimeExpression >> isJITCompileTimeExpression: aString [ 
+DRJitCompileTimeExpression >> isJITCompileTimeExpression [
 	
-	^ aString = expression
+	^ true
 ]
 
 { #category : #testing }
-DRJitCompileTimeExpression >> isJitCompileTimeExpression [
+DRJitCompileTimeExpression >> isJITCompileTimeExpression: aString [ 
 	
-	^ true
+	^ aString = expression
 ]
 
 { #category : #testing }
@@ -110,6 +110,12 @@ DRJitCompileTimeExpression >> mergeExpressions: expression1 op: op other: expres
 DRJitCompileTimeExpression >> name [
 
 	^ expression isString ifTrue: [ expression ] ifFalse: [ expression formattedCode ]
+]
+
+{ #category : #printing }
+DRJitCompileTimeExpression >> printResult [
+
+	^ expression
 ]
 
 { #category : #types }
