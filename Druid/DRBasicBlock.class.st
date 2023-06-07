@@ -644,14 +644,14 @@ DRBasicBlock >> jumpIf: aCondition [
 DRBasicBlock >> jumpIf: condition to: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 	" Used for removing an existing edge that jumps to the target block,
 	 for being able to relink to the target block with a new desired jump "
+
+	| branch |
 	aDRBasicBlock addPredecessor: self.
 	aDRBasicBlock2 addPredecessor: self.
 
-	^ self endInstruction: (DRBranchIfTrue new
-			   operands: { condition };
-			   trueBranch: aDRBasicBlock;
-			   falseBranch: aDRBasicBlock2;
-			   yourself)
+	branch := self jumpIf: condition.
+	branch trueBranch: aDRBasicBlock.
+	branch falseBranch: aDRBasicBlock2
 ]
 
 { #category : #building }
