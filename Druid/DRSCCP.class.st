@@ -335,13 +335,14 @@ DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 	lattice := self latticeValue: i.
 	(self isConstantLattice: lattice) ifFalse: [ ^ self ].
 
-	replacement := DRCopy
-		               operands: { lattice asDRValue }
-		               result: i result.
-	
+	replacement := lattice result isNoResult
+		               ifTrue: [ lattice ]
+		               ifFalse: [
+		               DRCopy operands: { lattice asDRValue } result: i result ].
+
 	"We tell the lattice values that the new instruction has the same vlue as the old one"
 	latticeValues at: replacement put: (latticeValues at: i).
-	i replaceBy: replacement.
+	i replaceBy: replacement
 ]
 
 { #category : #executing }
