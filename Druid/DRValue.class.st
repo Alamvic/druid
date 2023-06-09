@@ -173,13 +173,13 @@ DRValue >> isInvariantFrom: loop [
 ]
 
 { #category : #testing }
-DRValue >> isJITCompileTimeExpression: aString [ 
+DRValue >> isJITCompileTimeExpression [
 	
 	^ false
 ]
 
 { #category : #testing }
-DRValue >> isJitCompileTimeExpression [
+DRValue >> isJITCompileTimeExpression: aString [ 
 	
 	^ false
 ]

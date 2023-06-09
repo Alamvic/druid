@@ -61,3 +61,9 @@ DRInterpreterReference >> rtlOperandQualifierForInstruction: instruction [
 
 	^ 'Aw:'
 ]
+
+{ #category : #SCCP }
+DRInterpreterReference >> sccpLatticeValueFor: aDRSCCP [ 
+
+	^ aDRSCCP bottom 
+]

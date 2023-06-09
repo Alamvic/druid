@@ -33,6 +33,15 @@ DRJitCompileTimeExpression >> + aDRJitCompileTimeExpression [
 			   other: aDRJitCompileTimeExpression expression)
 ]
 
+{ #category : #copying }
+DRJitCompileTimeExpression >> , aDRJitCompileTimeExpression [ 
+
+	^ self class expression: (self
+			   mergeExpressions: self expression
+			   op: ''
+			   other: aDRJitCompileTimeExpression expression)
+]
+
 { #category : #streaming }
 DRJitCompileTimeExpression >> << aDRJitCompileTimeExpression [ 
 
@@ -47,6 +56,12 @@ DRJitCompileTimeExpression >> << aDRJitCompileTimeExpression [
 DRJitCompileTimeExpression >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitJITCompileTimeExpression: self
+]
+
+{ #category : #converting }
+DRJitCompileTimeExpression >> asJitCompileTimeExpression [
+
+	^ self
 ]
 
 { #category : #accessing }
@@ -68,15 +83,15 @@ DRJitCompileTimeExpression >> isConstant [
 ]
 
 { #category : #testing }
-DRJitCompileTimeExpression >> isJITCompileTimeExpression: aString [ 
+DRJitCompileTimeExpression >> isJITCompileTimeExpression [
 	
-	^ aString = expression
+	^ true
 ]
 
 { #category : #testing }
-DRJitCompileTimeExpression >> isJitCompileTimeExpression [
+DRJitCompileTimeExpression >> isJITCompileTimeExpression: aString [ 
 	
-	^ true
+	^ aString = expression
 ]
 
 { #category : #testing }
@@ -95,6 +110,12 @@ DRJitCompileTimeExpression >> mergeExpressions: expression1 op: op other: expres
 DRJitCompileTimeExpression >> name [
 
 	^ expression isString ifTrue: [ expression ] ifFalse: [ expression formattedCode ]
+]
+
+{ #category : #printing }
+DRJitCompileTimeExpression >> printResult [
+
+	^ expression
 ]
 
 { #category : #types }
