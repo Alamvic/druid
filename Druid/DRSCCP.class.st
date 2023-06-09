@@ -116,7 +116,7 @@ DRSCCP >> buildEdges: cfg [
 DRSCCP >> canBeAppliedIn: aDRControlFlowGraph [
 
 	^ aDRControlFlowGraph instructions anySatisfy: [ :i | 
-		  i isBranchIfCondition or: [ self isConstantLattice: (self latticeValue: i) ] ]
+		  i isConditionalBranch or: [ self isConstantLattice: (self latticeValue: i) ] ]
 ]
 
 { #category : #executing }
@@ -287,7 +287,7 @@ DRSCCP >> tryReplaceConditionalJump: i [
 
 	| constantTarget removedTarget conditionLattice |
 	"If this is not a conditional jump, exit"
-	i isBranchIfCondition ifFalse: [ ^ self ].
+	i isConditionalBranch ifFalse: [ ^ self ].
 
 	conditionLattice := i sccpEvaluateConditionFor: self.
 	(self isConstantLattice: conditionLattice) ifFalse: [ ^ self ].
@@ -342,25 +342,19 @@ DRSCCP >> tryReplaceInstructionOperands: i [
 
 { #category : #querying }
 DRSCCP >> usesOf: anInstruction [
-	
-	| ret |
 
-	anInstruction isBranchIfCondition ifTrue: [
-		self value = self top ifTrue: [ 
-			ret := OrderedCollection new. 
-			ret addAll: anInstruction trueBranch instructions.
-			ret addAll: anInstruction falseBranch instructions. 
-			^ ret ]
-		ifFalse: [ 
-			"We assume self value = self bottom" 
-			anInstruction condition value ifTrue: [ 
-				 ret := OrderedCollection new. 
-				 ret addAll: anInstruction trueBranch instructions.
-				^ ret. ]
-			ifFalse: [ 
-				ret := OrderedCollection new. 
-				ret addAll: anInstruction falseBranch instructions.
-				^ ret. ] ] ]. 
-	^ instancecfg instructions select: [ :instruction | 
+	| ret |
+	anInstruction isConditionalBranch ifTrue: [
+		ret := OrderedCollection new.
+		self value = self top
+			ifTrue: [
+				ret addAll: anInstruction trueBranch instructions.
+				ret addAll: anInstruction falseBranch instructions ]
+			ifFalse: [ "We assume self value = self bottom"
+				anInstruction condition value
+					ifTrue: [ ret addAll: anInstruction trueBranch instructions ]
+					ifFalse: [ ret addAll: anInstruction falseBranch instructions ] ].
+		^ ret ].
+	^ instancecfg instructions select: [ :instruction |
 		  instruction operands includes: anInstruction ]
 ]

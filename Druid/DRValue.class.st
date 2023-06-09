@@ -116,12 +116,6 @@ DRValue >> isAdd [
 	^ false
 ]
 
-{ #category : #accessing }
-DRValue >> isBranchIfCondition [ 
-
-	^ false
-]
-
 { #category : #testing }
 DRValue >> isComparison [
 

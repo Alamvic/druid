@@ -84,12 +84,6 @@ DRBranchIfCondition >> isBackJumpTo: aDRBasicBlock [
 	^ backJumps includes: aDRBasicBlock
 ]
 
-{ #category : #accessing }
-DRBranchIfCondition >> isBranchIfCondition [ 
-
-	^ true
-]
-
 { #category : #testing }
 DRBranchIfCondition >> isConditionalBranch [
 

@@ -415,7 +415,7 @@ DRControlFlowGraph >> instructionColor: instruction [
 
 	instruction isJump ifTrue: [
 		instruction isBackJump ifTrue: [ ^ Color purple muchLighter ].
-		instruction isBranchIfCondition ifTrue: [ ^ Color purple ].
+		instruction isConditionalBranch ifTrue: [ ^ Color purple ].
 		^ Color purple muchDarker ].
 	instruction isMandatoryInstruction ifTrue: [ ^ Color red ].
 	instruction users isEmpty ifTrue: [ ^ Color gray ].
