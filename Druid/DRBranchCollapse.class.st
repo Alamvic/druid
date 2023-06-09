@@ -6,7 +6,6 @@ Class {
 
 { #category : #accessing }
 DRBranchCollapse >> applyTo: aDRControlFlowGraph [
-
 	"If we have a sequence of the form: 
 	
 	R1 := SetConditionCode a > b
@@ -18,9 +17,10 @@ DRBranchCollapse >> applyTo: aDRControlFlowGraph [
 	"
 
 	aDRControlFlowGraph blocksDo: [ :b |
-		(b endInstruction condition isEqualsThanComparison and: [
-			 b endInstruction operand1 isSetConditionCode and: [
-				 b endInstruction operand2 = true asDRValue ] ]) ifTrue: [
+		(b endInstruction isConditionalBranch and: [
+			 b endInstruction condition isEqualsThanComparison and: [
+				 b endInstruction operand1 isSetConditionCode and: [
+					 b endInstruction operand2 = true asDRValue ] ] ]) ifTrue: [
 			| replacementBranch setConditionCode |
 			setConditionCode := b endInstruction operand1 simpleConstantFold.
 			replacementBranch := DRBranchIfCondition operands: {
