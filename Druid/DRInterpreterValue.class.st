@@ -27,6 +27,12 @@ DRInterpreterValue >> astForSelector: aString [
 	^ (self lookupSelector: aString) ast
 ]
 
+{ #category : #testing }
+DRInterpreterValue >> isFloatType [
+
+	^ false
+]
+
 { #category : #interpretation }
 DRInterpreterValue >> lookupClass [
 	

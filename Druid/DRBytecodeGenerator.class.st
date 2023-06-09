@@ -14,15 +14,17 @@ Class {
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> generateJump: aDRBranch [
 
+	| createJumpToEnd |
 	self flag: #TOCHECK. "Always ifTrue: ?"
 	builder addLiteral: #ifTrue:.
-	
+
 	builder jumpAheadTo: #else if: false.
 	self visitBlock: aDRBranch trueBranch.
-	builder jumpAheadTo: #end.
+	createJumpToEnd := currentBasicBlock endInstruction isBackJump not.
+	createJumpToEnd ifTrue: [ builder jumpAheadTo: #end ].
 	builder jumpAheadTarget: #else.
 	self visitBlock: aDRBranch falseBranch.
-	builder jumpAheadTarget: #end
+	createJumpToEnd ifTrue: [ builder jumpAheadTarget: #end ]
 ]
 
 { #category : #API }
@@ -54,7 +56,8 @@ DRBytecodeGenerator >> methodName: aString [
 { #category : #accessing }
 DRBytecodeGenerator >> numArgs: anInteger [
 
-	numArgs := anInteger
+	numArgs := anInteger.
+	1 to: anInteger do: [ :i | builder addTemp: 'arg' , (i - 1) asString ]
 ]
 
 { #category : #'stack - blocks' }
@@ -73,7 +76,10 @@ DRBytecodeGenerator >> pushBlock: aDRBasicBlock [
 DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 
 	aDRInstruction operands do: [ :o | o acceptVisitor: self ].
-	builder send: selector
+	builder send: selector.
+	aDRInstruction hasUsers ifFalse: [
+		1 halt.
+		builder popTop ]
 ]
 
 { #category : #building }
@@ -82,6 +88,7 @@ DRBytecodeGenerator >> targetAST [
 	| method ir |
 	ir := builder ir.
 	ir numArgs: numArgs.
+	1halt.
 	method := ir compiledMethod.
 	method selector: methodName.
 	^ method
@@ -98,6 +105,13 @@ DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 
 	currentBasicBlock := aDRBasicBlock.
 	self pushBlock: aDRBasicBlock.
+
+	"Take care of backjumps!"
+	(aDRBasicBlock predecessors anySatisfy: [ :pred |
+		 pred endInstruction isBackJump ]) ifTrue: [
+		1 halt.
+		builder jumpBackTarget: #begin ].
+
 	aDRBasicBlock instructionsDo: [ :i |
 		(self isResultInstruction: i) ifTrue: [ i acceptVisitor: self ] ].
 	self assert: self popBlock = aDRBasicBlock
@@ -166,12 +180,19 @@ DRBytecodeGenerator >> visitInterpreterValue: aDRInterpreterValue [
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitJump: aDRJump [
 
+	aDRJump isBackJump ifTrue: [ 1halt. ^ builder jumpBackTo: #begin ].
+
 	self visitBlock: aDRJump target
-	
+]
+
+{ #category : #visiting }
+DRBytecodeGenerator >> visitLessOrEqualsThan: aDRLessOrEqualsThanComparison inBranch: aDRGetConditionCode [
+
+	self sendMessage: #'<=' fromInstruction: aDRGetConditionCode
 ]
 
 { #category : #'ir-to-target' }
-DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [ 
+DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 
 	builder addTemp: aDRLoadArgument argName.
 	builder pushTemp: aDRLoadArgument argName

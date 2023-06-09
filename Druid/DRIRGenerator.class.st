@@ -1630,7 +1630,7 @@ DRIRGenerator >> temporaryAt: aString [
 
 { #category : #'frame-access' }
 DRIRGenerator >> temporaryAt: aString put: aValue [ 
-
+1halt.
 	^ self topFrame temporaryAt: aString put: aValue withState: executionState
 ]
 

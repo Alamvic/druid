@@ -161,7 +161,7 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 	| value |
 	value := self temporaryAt: aRBVariableNode name.
 
-	value isNullValue ifTrue: [ "If Null then it is a method local variable"
+	aRBVariableNode isTempVariable ifTrue: [
 		^ self
 			  addInstructionFrom: aRBVariableNode
 			  instructionKind: DRLoadTemporaryVariable

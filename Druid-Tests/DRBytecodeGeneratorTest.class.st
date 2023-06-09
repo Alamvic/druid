@@ -112,6 +112,75 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 ]
 
 { #category : #tests }
+DRBytecodeGeneratorTest >> testMethodCustomisation [
+
+	| method result cfg selector methodProfiler |
+	typeSystem := DRProfileBasedTypeSystem reset.
+	compilerCompiler := DRMethodCompilerCompiler new.
+	bytecodeGenerator := DRBytecodeGenerator new.
+	selector := #do:.
+	method := SequenceableCollection >> selector.
+	
+
+	
+	compilerCompiler interpreter: { }.
+	cfg := self generateDruidIRFor: method.
+
+
+1halt.
+
+DRCogitDynamicLinearScanRegisterAllocator new allocateRegistersIn: cfg.
+
+	bytecodeGenerator := DRBytecodeGenerator new.
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+
+
+
+
+	self assert: method size equals: 117. "bigger"
+
+	result := method
+		          valueWithReceiver: nil
+		          arguments: { (Array2D rows: 2 columns: 2) }.
+	self assert: result equals: 4.
+
+	"New profiled type"
+	self assert: typeSystem profileTable size equals: 2. "Old and new methods"
+	methodProfiler := typeSystem profileTable at: method ast.
+	self
+		assertCollection:
+		(methodProfiler typesFor: method ast temporaries first)
+		hasSameElements: { (DRClassType for: Array2D) }.
+
+
+	"Recompile again"
+	compilerCompiler := DRMethodCompilerCompiler new.
+	bytecodeGenerator := DRProfileBytecodeGenerator new.
+	cfg := self generateDruidIRFor: method.
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+
+	self assert: method size equals: 144. "bigger then before"
+
+	result := method
+		          valueWithReceiver: nil
+		          arguments: { { 1. 2. 3 } asOrderedCollection }.
+	self assert: result equals: 3.
+
+	result := method
+		          valueWithReceiver: nil
+		          arguments: { (Array2D rows: 2 columns: 2) }.
+	self assert: result equals: 4.
+
+	"Last profiled type"
+	self assert: typeSystem profileTable size equals: 3. "New type from Array2D inline"
+	methodProfiler := typeSystem profileTable at: method ast.
+	self
+		assertCollection:
+		(methodProfiler typesFor: method ast temporaries first)
+		hasSameElements: { (DRClassType for: Array) }
+]
+
+{ #category : #tests }
 DRBytecodeGeneratorTest >> testMethodEmpty [
 
 	self assertCompilationFor: #exampleEmptyMethod fromClass: OCOpalExamples
@@ -133,8 +202,6 @@ DRBytecodeGeneratorTest >> testMethodManyReturns [
 DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 
 	| method result cfg selector methodProfiler |
-	self skip. "TO FIX"
-	
 	bytecodeGenerator := DRProfileBytecodeGenerator new.
 	typeSystem := DRProfileBasedTypeSystem reset.
 	selector := #methodCollectionSize:.
@@ -201,7 +268,7 @@ DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 	methodProfiler := typeSystem profileTable at: method ast.
 	self
 		assertCollection:
-		(methodProfiler typesFor: method ast temporaries second)
+		(methodProfiler typesFor: method ast temporaries first)
 		hasSameElements: { (DRClassType for: Array) }
 ]
 
