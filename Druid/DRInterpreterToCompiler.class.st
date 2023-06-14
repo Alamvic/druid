@@ -88,7 +88,7 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 		"shortConditionalJumpTrue"
 			"184 185 186 187 188 189 190 191"
 		"shortConditionalJumpFalse"
-			192 193 194 195 196 197 198 199
+			192 "193 194 195 196 197 198 199"
 		"popStackBytecode"
 			216
 	).
