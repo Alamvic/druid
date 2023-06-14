@@ -47,7 +47,7 @@ DRSimpleConstraint >> hash [
 	^ self class hash bitXor: self constantValue hash
 ]
 
-{ #category : #arithmetic }
+{ #category : #testing }
 DRSimpleConstraint >> includes: otherConstraint [
 
 	^ self negated isIncludedIn: otherConstraint negated.
