@@ -286,21 +286,18 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable0 [
 
-	<expectedFailure>
 	self testBytecodePushLiteralVariable: 0
 ]
 
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable1 [
 
-	<expectedFailure>
 	self testBytecodePushLiteralVariable: 1
 ]
 
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable15 [
 
-	<expectedFailure>
 	self testBytecodePushLiteralVariable: 15
 ]
 
@@ -336,6 +333,73 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariable: tempIndex [
 
 	self assert:
 		(cogit hasAnnotatedAbstractInstructions: cogit getIsObjectReference)
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTop2AllocatedRegister [
+
+	self
+		testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: 2
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTop3AllocatedRegister [
+
+	self
+		testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: 3
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister [
+
+	
+	self testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: 1
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: n [
+
+	| method |
+	method := methodBuilder newMethod
+		          literals:
+			          (((1 to: 16) collect: [ :e | nil -> (e + 16rFF - 1) ])
+				           collect: [ :e | e forMemory: memory inMethod: nil ]);
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	"Push temp literal variable 0"
+	self
+		compileBytecode: 16
+		selector: #pushLiteralVariable16CasesBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			cogit methodOrBlockNumArgs: 0.
+			cogit methodOrBlockNumTemps: 0.
+			cogit initSimStackForFramefulMethod: 2.
+
+			1 to: n do: [ :i | | r |
+				r := cogit allocateRegNotConflictingWith: 0.
+				cogit MoveCq: i R: r.
+				cogit ssPushRegister: r.
+			].
+
+			generator value.
+			
+			"Flush the stack"
+			cogit ssFlushTo: cogit simStackPointer.
+
+			"Pop the top 4 elements, the fourth should be the first pushed constant"
+			1 to: n + 1 do: [ :i |
+				cogit ssTop popToReg: ReceiverResultReg ].
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+		
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: 1
 ]
 
 { #category : #tests }
