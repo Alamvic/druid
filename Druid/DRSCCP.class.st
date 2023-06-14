@@ -296,7 +296,7 @@ DRSCCP >> tryReplaceConditionalJump: i [
 		  branch.iftrue constant
 		"
 		conditionLattice := i sccpEvaluateConditionFor: self.
-		(self isConstantLattice: conditionLattice) ifTrue: [ 
+		((self isConstantLattice: conditionLattice) and: [ conditionLattice isJITCompileTimeExpression not]) ifTrue: [ 
 			| branchIfTrue |
 			branchIfTrue := DRBranchIfTrue operands:
 				                { conditionLattice asDRValue }.

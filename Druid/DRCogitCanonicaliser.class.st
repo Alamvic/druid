@@ -205,9 +205,9 @@ DRCogitCanonicaliser >> visitLoad: aDRLoad [
 	into
 		r0 := load receiverRegister"
 	addressOperands := addressExpression operands.
-	(addressOperands first isLoadFramePointer and: [ 
-		 addressOperands second isJITCompileTimeExpression:
-			 'FrameReceiverOffset' ]) ifTrue: [ 
+	(addressOperands first simpleConstantFold isLoadFramePointer and: [ 
+		 addressOperands second simpleConstantFold isJITCompileTimeExpression:
+			 'FrameReceiverOffset' ]) ifTrue: [
 		^ aDRLoad replaceBy: (DRLoadReceiver result: aDRLoad result) ].
 
 	"General optimisation:

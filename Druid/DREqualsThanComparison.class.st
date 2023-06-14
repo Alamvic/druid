@@ -44,5 +44,5 @@ DREqualsThanComparison >> reversed [
 { #category : #SCCP }
 DREqualsThanComparison >> sccpOperateOnLattice: operand and: operand2 [
 	
-	^ operand = operand2
+	^ operand sccpEquals: operand2
 ]

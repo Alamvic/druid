@@ -82,7 +82,7 @@ DRBranchIfCondition >> sccpEvaluateFor: sccp [
 			sccp addToEdgeCFGWorklistConditionalJump: self targetting: t ].
 		^ self ].
 
-	conditionLattice isNullValue ifTrue: [ ^ self ].
+	(conditionLattice isNullValue or: [ conditionLattice isJITCompileTimeExpression ]) ifTrue: [ ^ self ].
 
 	jumpTarget := conditionLattice value
 		              ifTrue: [ self trueBranch ]

@@ -114,6 +114,36 @@ DRProductionBytecodeTest >> testBytecodeExtPushInteger [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode [
+
+	| method variableType variableIndex object |
+	method := methodBuilder newMethod buildMethod.
+	cogit methodObj: method.
+
+	variableType := 0.
+	variableIndex := 0.
+
+	cogit byte1: variableType << 6 + variableIndex.
+
+	self
+		compileBytecode: 246
+		selector: #extendedPushBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code""Set temporary value on frame"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ]. "?"
+
+	object := self newObjectWithSlots: 1.
+	memory storePointer: 0 ofObject: object withValue: 17.
+
+	self executePrimitiveWithReceiver: object withArguments: #(  ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodePrimSendAdd [
 
 	"Setup the send trampoline"
