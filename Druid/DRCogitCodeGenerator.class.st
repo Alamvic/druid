@@ -480,7 +480,6 @@ DRCogitCodeGenerator >> visitBitXor: aDRCogitBitXor [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
-
 	"Delegate the condition generation to the condition itself.
 	It may be a Cmp, a Test or no instruction at all."
 
@@ -500,26 +499,6 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 				 cogitBranchFromCondition: replacement condition negated
 				 type: replacement operand1 type)
 		target: replacement falseBranch
-]
-
-{ #category : #visiting }
-DRCogitCodeGenerator >> visitBranchIfTrue: aDRBranchIfTrue [
-
-	"Generate both jumps, the fallthorugh will get ignored"
-	self
-		twoOperandCogitRTL: #Cmp
-		operands: { 0 asDRValue . aDRBranchIfTrue operand1 }
-		instruction: aDRBranchIfTrue.
-	
-	"If non zero, it is false that it is false => it's true"
-	self
-		generateJump: #JumpNonZero:
-		target: aDRBranchIfTrue trueBranch.
-	
-	"If zero, it is true that it is false => it's false"
-	self
-		generateJump: #JumpZero:
-		target: aDRBranchIfTrue falseBranch
 ]
 
 { #category : #visiting }
