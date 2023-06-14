@@ -25,6 +25,17 @@ DRBranchIfCondition >> condition: aCondition [
 	condition := aCondition
 ]
 
+{ #category : #'jit-compile-time' }
+DRBranchIfCondition >> conditionAsJitCompileTimeExpression [
+
+	| fullExpression |
+	fullExpression := self operand1 asJitCompileTimeExpression expression
+	                  , self condition asJitCompileTimeExpressionString
+	                  , self operand2 asJitCompileTimeExpression expression.
+
+	^ fullExpression asDRValue asJitCompileTimeExpression
+]
+
 { #category : #accessing }
 DRBranchIfCondition >> hasOverflowCheck [
 
@@ -35,6 +46,12 @@ DRBranchIfCondition >> hasOverflowCheck [
 DRBranchIfCondition >> isBranchIfCondition [ 
 
 	^ true
+]
+
+{ #category : #testing }
+DRBranchIfCondition >> isJITCompileTimeExpression [
+
+	^ operands allSatisfy: [ :e | e isJITCompileTimeExpression ]
 ]
 
 { #category : #accessing }

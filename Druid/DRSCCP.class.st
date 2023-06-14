@@ -122,11 +122,7 @@ DRSCCP >> canBeAppliedIn: aDRControlFlowGraph [
 { #category : #executing }
 DRSCCP >> doApply: cfg [
 
-	self initializeSCCPWithCFG: cfg.
-
-	[ cfgEdgeWorkList isEmpty and: [ssaWorkList isEmpty] ] whileFalse: [ 
-		self stepCFGEdgeWorklist.
-		self stepInstructionWorklist].
+	self setupWithCFG: cfg.
 
 	self applyPropagation.
 ]
@@ -156,6 +152,14 @@ DRSCCP >> initialize [
 	cfgEdgeWorkList := OrderedCollection new.
 	
 	edgesByDestination := Dictionary new
+]
+
+{ #category : #executing }
+DRSCCP >> initializeLattice [
+
+	[ cfgEdgeWorkList isEmpty and: [ ssaWorkList isEmpty ] ] whileFalse: [
+		self stepCFGEdgeWorklist.
+		self stepInstructionWorklist ]
 ]
 
 { #category : #initialization }
@@ -236,6 +240,14 @@ DRSCCP >> setValueOf: anInstruction at: aValue [
 	Invalidate all its usages so they are recomputed"
 	latticeValues at: anInstruction put: aValue.
 	ssaWorkList addAll: (self usesOf: anInstruction)
+]
+
+{ #category : #executing }
+DRSCCP >> setupWithCFG: cfg [
+
+	self initializeSCCPWithCFG: cfg.
+
+	self initializeLattice
 ]
 
 { #category : #executing }

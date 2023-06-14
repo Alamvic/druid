@@ -10,6 +10,12 @@ DREqualsThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch [
 	^ aVisitor visitEqualsThan: self inBranch: parentBranch
 ]
 
+{ #category : #converting }
+DREqualsThanComparison >> asJitCompileTimeExpressionString [
+
+	^ '=' 
+]
+
 { #category : #testing }
 DREqualsThanComparison >> isCommutative [
 	
