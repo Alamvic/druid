@@ -6,7 +6,8 @@ Class {
 		'fallthroughBlock',
 		'deferredBranches',
 		'visitedBlocks',
-		'availableJumpIndexes'
+		'availableJumpIndexes',
+		'blocks'
 	],
 	#category : #'Druid-Cogit'
 }
@@ -21,6 +22,15 @@ DRCogitCodeGenerator >> allocateVariable: aDRResult [
 DRCogitCodeGenerator >> assignAvailableJumpIndex [
 
 	^ availableJumpIndexes removeFirst
+]
+
+{ #category : #accessing }
+DRCogitCodeGenerator >> blocks: aPath [
+
+	"Clean deferred branches outside the path"
+	deferredBranches keysAndValuesRemove: [ :k :v | (aPath includes: k) not ].
+	
+	blocks := aPath
 ]
 
 { #category : #'ir-generation' }
@@ -131,7 +141,6 @@ DRCogitCodeGenerator >> generateBlockIncomingJumps: aDRBasicBlock [
 { #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 
-	| blocks |
 	self generatePreambleForCFG: aDRControlFlowGraph.
 
 	"Sort the blocks"
@@ -142,15 +151,24 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 		blocks remove: aDRControlFlowGraph failureExitBlock.
 		blocks addLast: aDRControlFlowGraph failureExitBlock ].
 
-	blocks withIndexDo: [ :b :i |
-		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
-		self visitBasicBlock: b ].
+	"Generate CFG code"
+	self generateCodeFromBlocks.
 
 	"Generate the postamble in the fallthrough case"
 	self generatePostambleForCFG: aDRControlFlowGraph.
 
 	"Return compiled method status for the compiler"
 	self generateReturn
+]
+
+{ #category : #'ir-to-ast' }
+DRCogitCodeGenerator >> generateCodeFromBlocks [
+
+	[ blocks isNotEmpty ] whileTrue: [
+		| current |
+		current := blocks removeAt: 1.
+		fallthroughBlock := blocks at: 2 ifAbsent: nil.
+		self visitBasicBlock: current ]
 ]
 
 { #category : #visiting }
@@ -181,32 +199,15 @@ DRCogitCodeGenerator >> generateCompare: aComparison operands: operands [
 { #category : #'generate-code' }
 DRCogitCodeGenerator >> generateCompileTimeIfCondition: aDRBranchIfCondition [
 
-	| jitCondition trueGenerator falseGenerator blocks |
+	| jitCondition trueGenerator truePath dominatorTree dominatedBlocks sharedPathToTheEnd sequenceNode |
 	jitCondition := aDRBranchIfCondition conditionAsJitCompileTimeExpression.
 
-	aDRBranchIfCondition controlFlowGraph buildDominatorTree.
-	blocks := aDRBranchIfCondition controlFlowGraph reversePostOrderBlocks select: [ :b |
-		          (b isDominatedBy: aDRBranchIfCondition trueBranch) or: [
-			          aDRBranchIfCondition trueBranch hasFrontier: b ] ].
+	sequenceNode := self innerCompilePathFrom: aDRBranchIfCondition trueBranch.
 
-	trueGenerator := self copy.
-	trueGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
-	trueGenerator deferredBranches keysAndValuesRemove: [ :k :v | (blocks includes: k) not ].
-	blocks do: [ :b | trueGenerator visitBasicBlock: b ].
-	trueGenerator generatePostambleForCFG: aDRBranchIfCondition controlFlowGraph.
-	trueGenerator generateReturn.
-	trueGenerator generatorMethodBuilder transferVariablesTo: generatorMethodBuilder.
-
-	"	falseGenerator := self copy.
-	falseGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
-	falseGenerator visitBasicBlock: aDRBranchIfCondition trueBranch.
-	falseGenerator generatorMethodBuilder transferVariablesTo: generatorMethodBuilder.
-"
-	1 halt.
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: (RBVariableNode named: jitCondition expression)
 			 selector: #ifTrue:
-			 arguments: { (RBBlockNode body: trueGenerator generatorMethodBuilder sequenceNode) })
+			 arguments: { (RBBlockNode body: sequenceNode) })
 ]
 
 { #category : #visiting }
@@ -333,6 +334,32 @@ DRCogitCodeGenerator >> initialize [
 	availableJumpIndexes := (1 to: 50) asOrderedCollection.
 
 	visitedBlocks := Dictionary new
+]
+
+{ #category : #'code-generation' }
+DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
+
+	| dominatorTree dominatedBlocks sharedPathToTheEnd truePath innerGenerator |
+	self flag: #TOCHECK. "We should create a path from the branch to the end"
+	dominatorTree := aDRBasicBlock controlFlowGraph buildDominatorTree.
+	dominatedBlocks := aDRBasicBlock controlFlowGraph reversePostOrderBlocks select: [ :b |
+		                   b isDominatedBy: aDRBasicBlock ].
+
+	"Remove blocks only visited during inner compilation from outer"
+	dominatedBlocks do: [ :b | blocks remove: b ].
+
+	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
+	truePath := dominatedBlocks , sharedPathToTheEnd.
+
+	innerGenerator := self copy.
+	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
+	innerGenerator blocks: truePath.
+	innerGenerator generateCodeFromBlocks.
+	innerGenerator generatePostambleForCFG: aDRBasicBlock controlFlowGraph.
+	innerGenerator generateReturn.
+	innerGenerator generatorMethodBuilder transferVariablesTo: generatorMethodBuilder.
+
+	^ innerGenerator generatorMethodBuilder sequenceNode
 ]
 
 { #category : #testing }
@@ -559,8 +586,6 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitBranchIfTrue: aDRBranchIfTrue [
-
-	1halt.
 	
 	"Generate both jumps, the fallthorugh will get ignored"
 	self

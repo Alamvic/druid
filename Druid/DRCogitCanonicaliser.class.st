@@ -205,8 +205,8 @@ DRCogitCanonicaliser >> visitLoad: aDRLoad [
 	into
 		r0 := load receiverRegister"
 	addressOperands := addressExpression operands.
-	(addressOperands first simpleConstantFold isLoadFramePointer and: [ 
-		 addressOperands second simpleConstantFold isJITCompileTimeExpression:
+	(addressOperands first simpleConstantFold asDRValue isLoadFramePointer and: [
+		 addressOperands second simpleConstantFold asDRValue isJITCompileTimeExpression:
 			 'FrameReceiverOffset' ]) ifTrue: [
 		^ aDRLoad replaceBy: (DRLoadReceiver result: aDRLoad result) ].
 
@@ -217,17 +217,13 @@ DRCogitCanonicaliser >> visitLoad: aDRLoad [
 	=>
 	r2 := load r0 + c1
 	"
-	offsetOperand := addressOperands
-		                 detect: [ :op | op isConstant ]
-		                 ifNone: [ ^ self ].
-	baseOperand := addressOperands
-		               detect: [ :op | op isConstant not ]
-		               ifNone: [ ^ self ].
-	
+	offsetOperand := addressOperands detect: [ :op | op isConstant ] ifNone: [ ^ self ].
+	baseOperand := addressOperands detect: [ :op | op isConstant not ] ifNone: [ ^ self ].
+
 	^ aDRLoad replaceOperand: address by: (DRBaseOffsetMemoryAddress new
-		base: baseOperand;
-		offset: offsetOperand;
-		yourself)
+			   base: baseOperand;
+			   offset: offsetOperand;
+			   yourself)
 ]
 
 { #category : #visiting }

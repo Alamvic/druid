@@ -407,7 +407,7 @@ DRPathGenerationTest >> testLinearContigousBlocksShareEdge [
 	| cfg blocks |
 	cfg := self generateDruidIRFor: #primitiveReturnOne.
 
-	blocks := cfg reversePostOrderBlocks allButFirst.
+	blocks := cfg reversePostOrderBlocks.
 	self
 		assert: (self anyOutgoingEdge: cfg for: blocks first)
 		equals: (self anyIncomingEdge: cfg for: blocks second)

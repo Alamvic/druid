@@ -128,7 +128,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode [
 	self
 		compileBytecode: 246
 		selector: #extendedPushBytecode
-		thenDo: [ :generator | "Execute the druid's compiled code""Set temporary value on frame"
+		thenDo: [ :generator | "Execute the druid's compiled code"
 			generator value.
 
 			"Then return without druid's compiled code"

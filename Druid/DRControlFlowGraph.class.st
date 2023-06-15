@@ -160,7 +160,8 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 DRControlFlowGraph >> buildDominatorTree [
 
 	self tree: (DRDominatorTree new buildDominatorTreeOf: self).
-	self tree computeDominanceFrontier
+	self tree computeDominanceFrontier.
+	^ self tree
 ]
 
 { #category : #edges }
