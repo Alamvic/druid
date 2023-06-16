@@ -166,8 +166,8 @@ DRCogitCodeGenerator >> generateCodeFromBlocks [
 
 	[ blocks isNotEmpty ] whileTrue: [
 		| current |
-		current := blocks removeAt: 1.
-		fallthroughBlock := blocks at: 2 ifAbsent: nil.
+		current := blocks removeAt: 1. "Remove current block from the list for code generation"
+		fallthroughBlock := blocks at: 1 ifAbsent: nil. "Store next block for fallthrough jumps"
 		self visitBasicBlock: current ]
 ]
 
