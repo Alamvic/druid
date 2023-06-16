@@ -148,6 +148,12 @@ DRAbstractCompilerCompiler >> initialize [
 ]
 
 { #category : #accessing }
+DRAbstractCompilerCompiler >> instructionFactory [
+	
+	^ irGenerator instructionFactory
+]
+
+{ #category : #accessing }
 DRAbstractCompilerCompiler >> interpreter [
 
 	^ interpreter

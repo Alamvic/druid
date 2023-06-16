@@ -154,8 +154,14 @@ DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMa
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitCompileTimeStore: aDRStore [
 
+	| varName |
+	varName := aDRStore address name.
+
+	(varName beginsWith: 'r') ifTrue: [ "Temporary compile time variable"
+		generatorMethodBuilder addVariableNamed: varName ].
+
 	generatorMethodBuilder addStatement: (RBAssignmentNode
-			 variable: (RBVariableNode named: aDRStore address name)
+			 variable: (RBVariableNode named: varName)
 			 value: (self jitCompileTimeExpression: aDRStore operand1))
 ]
 

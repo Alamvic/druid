@@ -59,7 +59,7 @@ DRBytecodeIRGenerator >> interpretAsCompilerVariableAssignmentWith: aRBAssignmen
 	operand := self visitOperand: aRBAssignmentNode value.
 
 	^ self
-		  addInstructionFrom: aRBAssignmentNode
+		  addInstructionWithNoResultFrom: aRBAssignmentNode
 		  instructionKind: DRStore
 		  operands: {
 				  8 asDRValue.

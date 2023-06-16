@@ -116,7 +116,7 @@ DRSCCP >> buildEdges: cfg [
 DRSCCP >> canBeAppliedIn: aDRControlFlowGraph [
 
 	^ aDRControlFlowGraph instructions anySatisfy: [ :i | 
-		  i isBranchIfCondition or: [ self isConstantLattice: (self latticeValue: i) ] ]
+		  i isConditionalBranch or: [ self isConstantLattice: (self latticeValue: i) ] ]
 ]
 
 { #category : #executing }
@@ -347,13 +347,14 @@ DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 	lattice := self latticeValue: i.
 	(self isConstantLattice: lattice) ifFalse: [ ^ self ].
 
-	replacement := DRCopy
-		               operands: { lattice asDRValue }
-		               result: i result.
-	
+	replacement := lattice result isNoResult
+		               ifTrue: [ lattice ]
+		               ifFalse: [
+		               DRCopy operands: { lattice asDRValue } result: i result ].
+
 	"We tell the lattice values that the new instruction has the same vlue as the old one"
 	latticeValues at: replacement put: (latticeValues at: i).
-	i replaceBy: replacement.
+	i replaceBy: replacement
 ]
 
 { #category : #executing }
@@ -371,25 +372,19 @@ DRSCCP >> tryReplaceInstructionOperands: i [
 
 { #category : #querying }
 DRSCCP >> usesOf: anInstruction [
-	
-	| ret |
 
-	anInstruction isBranchIfCondition ifTrue: [
-		self value = self top ifTrue: [ 
-			ret := OrderedCollection new. 
-			ret addAll: anInstruction trueBranch instructions.
-			ret addAll: anInstruction falseBranch instructions. 
-			^ ret ]
-		ifFalse: [ 
-			"We assume self value = self bottom" 
-			anInstruction condition value ifTrue: [ 
-				 ret := OrderedCollection new. 
-				 ret addAll: anInstruction trueBranch instructions.
-				^ ret. ]
-			ifFalse: [ 
-				ret := OrderedCollection new. 
-				ret addAll: anInstruction falseBranch instructions.
-				^ ret. ] ] ]. 
-	^ instancecfg instructions select: [ :instruction | 
+	| ret |
+	anInstruction isConditionalBranch ifTrue: [
+		ret := OrderedCollection new.
+		self value = self top
+			ifTrue: [
+				ret addAll: anInstruction trueBranch instructions.
+				ret addAll: anInstruction falseBranch instructions ]
+			ifFalse: [ "We assume self value = self bottom"
+				anInstruction condition value
+					ifTrue: [ ret addAll: anInstruction trueBranch instructions ]
+					ifFalse: [ ret addAll: anInstruction falseBranch instructions ] ].
+		^ ret ].
+	^ instancecfg instructions select: [ :instruction |
 		  instruction operands includes: anInstruction ]
 ]

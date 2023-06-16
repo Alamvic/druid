@@ -585,26 +585,6 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitBranchIfTrue: aDRBranchIfTrue [
-	
-	"Generate both jumps, the fallthorugh will get ignored"
-	self
-		twoOperandCogitRTL: #Cmp
-		operands: { 0 asDRValue . aDRBranchIfTrue operand1 }
-		instruction: aDRBranchIfTrue.
-	
-	"If non zero, it is false that it is false => it's true"
-	self
-		generateJump: #JumpNonZero:
-		target: aDRBranchIfTrue trueBranch.
-	
-	"If zero, it is true that it is false => it's false"
-	self
-		generateJump: #JumpZero:
-		target: aDRBranchIfTrue falseBranch
-]
-
-{ #category : #visiting }
 DRCogitCodeGenerator >> visitClosureActivation: aDRClosureActivation [
 
 	self threeOperandCogitRTL: #Add instruction: aDRClosureActivation.

@@ -121,22 +121,24 @@ DRCPSEdge >> operandConstraint: operand [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> operandDomainFromInstruction: aDRInstruction [
+DRCPSEdge >> operandDomainFromInstruction: aDRInstruction inBranch: branch [
 
-	aDRInstruction isCopy ifTrue: [ 
+	aDRInstruction isCopy ifTrue: [
 		| constraint |
 		constraint := self constraintFor: aDRInstruction result name.
 		^ constraint
-			  ifNil: [ 
-			  self operandDomainFromInstruction: aDRInstruction operand1 ]
-			  ifNotNil: [ 
+			  ifNil: [
+				  self
+					  operandDomainFromInstruction: aDRInstruction operand1
+					  inBranch: branch ]
+			  ifNotNil: [
 			  DRRegisterDomain reg: aDRInstruction constraint: constraint ] ].
 
-	aDRInstruction isPhiFunction ifTrue: [ 
+	aDRInstruction isPhiFunction ifTrue: [
 		^ self operandDomainFromPhi: aDRInstruction ].
 
-	aDRInstruction isSetConditionCode ifTrue: [ 
-		^ aDRInstruction acceptVisitor: self ].
+	aDRInstruction isSetConditionCode ifTrue: [
+		^ aDRInstruction condition acceptVisitor: self withBranch: aDRInstruction ].
 
 	^ nil
 ]
@@ -218,36 +220,39 @@ DRCPSEdge >> visitBitXor: aDRBitOr [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitBranchIfCondition: aDRConditionalJump [
+DRCPSEdge >> visitBranchIfCondition: aDRConditionalBranch [
 
-	| domain id |
+	| domain id constraint isBranchIfTrue |
 	"Ignore hardcoded values"
-	domain := aDRConditionalJump condition acceptVisitor: self withBranch: aDRConditionalJump.
+	isBranchIfTrue := aDRConditionalBranch condition
+		                  isEqualsThanComparison and: [
+		                  aDRConditionalBranch operands anySatisfy: [ :op |
+			                  op = true asDRValue ] ].
+
+	domain := isBranchIfTrue
+		          ifTrue: [
+			          | nonConstantOperand |
+			          nonConstantOperand := aDRConditionalBranch operands
+				                                detect: [ :op | op isInstruction ]
+				                                ifNone: [ ^ self ].
+
+			          self
+				          operandDomainFromInstruction: nonConstantOperand
+				          inBranch: aDRConditionalBranch ]
+		          ifFalse: [
+			          aDRConditionalBranch condition
+				          acceptVisitor: self
+				          withBranch: aDRConditionalBranch ].
 	domain ifNil: [ ^ self ].
 
-	id := domain reg result name.
+	id := domain reg name.
+	constraint := isBranchIfTrue
+		              ifTrue: [ DREqualsConstraint withValue: true ]
+		              ifFalse: [ domain constraint ].
 
 	^ branchIndex = 1
-		  ifTrue: [ self mergeConstraint: domain constraint to: id ]
-		  ifFalse: [ self mergeConstraint: domain constraint negated to: id ]
-]
-
-{ #category : #visiting }
-DRCPSEdge >> visitBranchIfTrue: aDRBranchIfTrue [
-
-	"Ignore hardcoded values"
-
-	| domain constraint |
-	aDRBranchIfTrue operand1 isInstruction ifFalse: [ ^ self ].
-
-	domain := self operandDomainFromInstruction: aDRBranchIfTrue operand1.
-	domain ifNil: [ ^ self ].
-
-	constraint := DREqualsConstraint withValue: true. 
-
-	branchIndex = 1
-		ifTrue: [ self mergeConstraint: constraint to: domain reg name ]
-		ifFalse: [ self mergeConstraint: constraint negated to: domain reg name ]
+		  ifTrue: [ self mergeConstraint: constraint to: id ]
+		  ifFalse: [ self mergeConstraint: constraint negated to: id ]
 ]
 
 { #category : #visiting }
@@ -340,10 +345,9 @@ DRCPSEdge >> visitFloatToIntConversion: aDRFloatToInt [
 
 { #category : #visiting }
 DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [
-
-	^ aDRGetConditionCode condition
-		  acceptVisitor: self
-		  withBranch: aDRGetConditionCode
+	
+	"Condition codes do not contribute constraints per se, only when they are used directly from a branch"
+	^ nil
 ]
 
 { #category : #visiting }

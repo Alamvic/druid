@@ -363,11 +363,13 @@ DRPathGenerationTest >> testInferenceDeadPathsFromPhi [
 
 	| cfg deadPaths sourceBlockIds condition |
 	cfg := self setUpCFGWithConditionalWithPhi.
+	
 	condition := cfg b4 equals: cfg phi to: 1 asDRValue.
 	cfg b4
 		jumpIf: condition
 		to: cfg newBasicBlock
 		ifFalseTo: cfg newBasicBlock.
+
 	cfg generatePaths.
 
 	deadPaths := cfg deadPaths keys.

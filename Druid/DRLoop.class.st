@@ -64,7 +64,7 @@ DRLoop >> bodyInstructions [
 DRLoop >> condition [
 
 	self flag: #TODO. "See proper way to get condition for all cases"
-	^ self headerBlock endInstruction condition
+	^ self loopConditional condition
 ]
 
 { #category : #querying }
@@ -176,7 +176,7 @@ DRLoop >> inductionVariable [
 
 	self flag: #TODO. "Handle transitive dependencies"
 	^ self loopPhiFunctions
-		  detect: [ :phi | self condition hasDependency: phi ]
+		  detect: [ :phi | self loopConditional hasDependency: phi ]
 		  ifNone: [ nil ]
 ]
 
@@ -198,6 +198,17 @@ DRLoop >> latchBlock [
 	"A loop's latch block is a basic block that contains a back jump to the header of the loop"
 
 	^ self backJump basicBlock
+]
+
+{ #category : #accessing }
+DRLoop >> loopConditional [
+
+	"Answer the conditional branch that governs this loop.
+	That is the conditional branch that says if
+	 - we enter the loop (for another iteration), or
+	 - we exit the loop and continue with the rest of the code"
+	
+	^ self headerBlock endInstruction
 ]
 
 { #category : #accessing }
@@ -256,10 +267,8 @@ DRLoop >> unroll: unrollingFactor [
 
 	| isIncrementingLoop rolledLoop rolledLoopCopy loopBody bodyCopy copiedLoop loopCondition nonInductionOperand decrementInstruction |
 	loopCondition := self condition.
-	isIncrementingLoop := loopCondition condition isLessThanComparison
-		                      or: [
-		                      loopCondition condition
-			                      isLessOrEqualThanComparison ].
+	isIncrementingLoop := loopCondition isLessThanComparison or: [
+		                      loopCondition isLessOrEqualThanComparison ].
 	self isCountingLoop & isIncrementingLoop ifFalse: [ ^ self ].
 
 	"Add loop copy for remaining iterations at the end (that cannot be processed by the unrolled loop)"
@@ -280,13 +289,13 @@ DRLoop >> unroll: unrollingFactor [
 				by: unrolledLoopPhi ].
 
 	"Modify unrolled loop's condition to prevent additional iterations"
-	nonInductionOperand := loopCondition operands detect: [ :o |
+	nonInductionOperand := self loopConditional operands detect: [ :o |
 		                       o ~= self inductionVariable ].
 	decrementInstruction := self headerBlock instructionFactory
 		                        subtract: unrollingFactor * self stride - 1
 		                        from: nonInductionOperand.
-	self headerBlock add: decrementInstruction before: loopCondition.
-	loopCondition
+	self headerBlock add: decrementInstruction before: self loopConditional.
+	self loopConditional
 		replaceOperand: nonInductionOperand
 		by: decrementInstruction.
 
