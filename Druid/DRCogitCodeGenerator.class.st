@@ -108,6 +108,12 @@ DRCogitCodeGenerator >> deferredBranches [
 	^ deferredBranches
 ]
 
+{ #category : #accessing }
+DRCogitCodeGenerator >> deferredBranches: anObject [
+
+	deferredBranches := anObject
+]
+
 { #category : #'jump-management' }
 DRCogitCodeGenerator >> freeJumpIndex: anIndex [ 
 	
@@ -334,32 +340,6 @@ DRCogitCodeGenerator >> initialize [
 	availableJumpIndexes := (1 to: 50) asOrderedCollection.
 
 	visitedBlocks := Dictionary new
-]
-
-{ #category : #'code-generation' }
-DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
-
-	| dominatorTree dominatedBlocks sharedPathToTheEnd truePath innerGenerator |
-	self flag: #TOCHECK. "We should create a path from the branch to the end"
-	dominatorTree := aDRBasicBlock controlFlowGraph buildDominatorTree.
-	dominatedBlocks := aDRBasicBlock controlFlowGraph reversePostOrderBlocks select: [ :b |
-		                   b isDominatedBy: aDRBasicBlock ].
-
-	"Remove blocks only visited during inner compilation from outer"
-	dominatedBlocks do: [ :b | blocks remove: b ].
-
-	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
-	truePath := dominatedBlocks , sharedPathToTheEnd.
-
-	innerGenerator := self copy.
-	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
-	innerGenerator blocks: truePath.
-	innerGenerator generateCodeFromBlocks.
-	innerGenerator generatePostambleForCFG: aDRBasicBlock controlFlowGraph.
-	innerGenerator generateReturn.
-	innerGenerator generatorMethodBuilder transferVariablesTo: generatorMethodBuilder.
-
-	^ innerGenerator generatorMethodBuilder sequenceNode
 ]
 
 { #category : #testing }

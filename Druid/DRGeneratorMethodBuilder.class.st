@@ -63,13 +63,6 @@ DRGeneratorMethodBuilder >> statements [
 	^ statements
 ]
 
-{ #category : #modification }
-DRGeneratorMethodBuilder >> transferVariablesTo: aDRGeneratorMethodBuilder [
-
-	variableNames do: [ :e | aDRGeneratorMethodBuilder addVariableNamed: e ].
-	variableNames := Set new.
-]
-
 { #category : #accessing }
 DRGeneratorMethodBuilder >> variableNames [
 

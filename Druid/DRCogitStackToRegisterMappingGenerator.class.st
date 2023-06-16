@@ -81,6 +81,41 @@ DRCogitStackToRegisterMappingGenerator >> initialize [
 	variables := Dictionary new
 ]
 
+{ #category : #'code-generation' }
+DRCogitStackToRegisterMappingGenerator >> innerCompilePathFrom: aDRBasicBlock [
+
+	| dominatorTree dominatedBlocks sharedPathToTheEnd truePath innerGenerator |
+	"We should create a path from the branch to the end"
+	dominatorTree := aDRBasicBlock controlFlowGraph buildDominatorTree.
+	dominatedBlocks := aDRBasicBlock controlFlowGraph reversePostOrderBlocks select: [ :b |
+		                   b isDominatedBy: aDRBasicBlock ].
+
+	"Remove blocks only visited during inner compilation from outer"
+	dominatedBlocks do: [ :b | blocks remove: b ].
+
+	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
+	truePath := dominatedBlocks , sharedPathToTheEnd.
+
+	innerGenerator := self innerGenerator.
+	innerGenerator blocks: truePath.
+	innerGenerator generateCodeFromBlocks.
+	innerGenerator generatePostambleForCFG: aDRBasicBlock controlFlowGraph.
+	innerGenerator generateReturn.
+
+	^ innerGenerator generatorMethodBuilder sequenceNode
+]
+
+{ #category : #copy }
+DRCogitStackToRegisterMappingGenerator >> innerGenerator [
+
+	| innerGenerator |
+	innerGenerator := self copy.
+	innerGenerator variables: variables copy.
+	innerGenerator deferredBranches: deferredBranches copy.
+	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
+	^ innerGenerator
+]
+
 { #category : #helpers }
 DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRInstruction [
 
@@ -115,6 +150,18 @@ DRCogitStackToRegisterMappingGenerator >> twoOperandMoveCogitRTL: anInstruction 
 		^ self generateMessage: #genMoveConstant:R: operands: operands ].
 
 	^ super twoOperandMoveCogitRTL: anInstruction operands: operands
+]
+
+{ #category : #accessing }
+DRCogitStackToRegisterMappingGenerator >> variables [
+
+	^ variables
+]
+
+{ #category : #accessing }
+DRCogitStackToRegisterMappingGenerator >> variables: anObject [
+
+	variables := anObject
 ]
 
 { #category : #visiting }
