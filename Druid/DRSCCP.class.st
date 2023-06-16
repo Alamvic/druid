@@ -302,7 +302,8 @@ DRSCCP >> tryReplaceConditionalJump: i [
 
 	conditionLattice := i sccpEvaluateConditionFor: self.
 	(self isConstantLattice: conditionLattice) ifFalse: [ ^ self ].
-	(conditionLattice isJITCompileTimeExpression) ifTrue: [ ^ self ].
+	(conditionLattice isConstant and: [ conditionLattice type isBooleanType ]) ifFalse: [
+		^ self ].
 
 	"If it is a branch of the form
 	  branch if (condition that is always constant)

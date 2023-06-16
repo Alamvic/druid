@@ -296,16 +296,17 @@ DRCogitGeneratorTest >> testGenerateOrConstantWithNoResult [
 { #category : #tests }
 DRCogitGeneratorTest >> testGeneratePushBaseOffset [
 
-	| cfg basicBlock r1 cogitCodeGenerator orASTInstruction |
+	| cfg basicBlock r1 orASTInstruction cogitAST |
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | 
 		              r1 := block
 			                    pushBase: block loadFramePointer
 			                    offset: 17 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
-
+	
 	cogitAST := self generateBytecodeCogitForInstruction: r1.
-	orASTInstruction := cogitAST generatorMethodBuilder statements second.
+	orASTInstruction := cogitAST generatorMethodBuilder 
+									statements detect: [:e | e isMessage].
 
 	self assert: orASTInstruction selector equals: #ssPushBase:offset:.
 	self assert: orASTInstruction arguments first name equals: 't0'.

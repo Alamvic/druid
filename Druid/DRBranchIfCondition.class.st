@@ -205,12 +205,12 @@ DRBranchIfCondition >> sccpEvaluateFor: sccp [
 	conditionLattice = sccp top ifTrue: [ ^ self ].
 
 	"If we know that we don't know, add both branch targets"
-	conditionLattice = sccp bottom ifTrue: [ 
-		self targets do: [ :t | 
-			sccp addToEdgeCFGWorklistConditionalJump: self targetting: t ].
+	conditionLattice = sccp bottom ifTrue: [
+		self targets do: [ :t | sccp addToEdgeCFGWorklistConditionalJump: self targetting: t ].
 		^ self ].
 
-	(conditionLattice isJITCompileTimeExpression) ifTrue: [ ^ self ].
+	(conditionLattice isConstant and: [ conditionLattice type isBooleanType ]) ifFalse: [
+		^ self ].
 
 	"otherwise add the true or false one"
 	jumpTarget := conditionLattice value

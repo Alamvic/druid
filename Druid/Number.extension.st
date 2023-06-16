@@ -17,9 +17,3 @@ Number >> matchArgumentsAgainst: aPragma [
 
 	^ aPragma arguments anyOne = self
 ]
-
-{ #category : #'*Druid' }
-Number >> sccpEquals: anInteger [
-
-	self = anInteger
-]
