@@ -205,7 +205,7 @@ DRCogitCodeGenerator >> generateCompare: aComparison operands: operands [
 { #category : #'generate-code' }
 DRCogitCodeGenerator >> generateCompileTimeIfCondition: aDRBranchIfCondition [
 
-	| jitCondition trueGenerator truePath dominatorTree dominatedBlocks sharedPathToTheEnd sequenceNode |
+	| jitCondition sequenceNode |
 	jitCondition := aDRBranchIfCondition conditionAsJitCompileTimeExpression.
 
 	sequenceNode := self innerCompilePathFrom: aDRBranchIfCondition trueBranch.

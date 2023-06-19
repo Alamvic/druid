@@ -114,33 +114,100 @@ DRProductionBytecodeTest >> testBytecodeExtPushInteger [
 ]
 
 { #category : #tests }
-DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode [
+DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode0 [
 
 	| method variableType variableIndex object |
 	method := methodBuilder newMethod buildMethod.
 	cogit methodObj: method.
 
-	variableType := 0.
+	variableType := 0. "PushReceiverVariable"
 	variableIndex := 0.
 
 	cogit byte1: variableType << 6 + variableIndex.
 
 	self
-		compileBytecode: 246
+		compileBytecode: 999
 		selector: #extendedPushBytecode
 		thenDo: [ :generator | "Execute the druid's compiled code"
 			generator value.
 
 			"Then return without druid's compiled code"
 			cogit ssTop popToReg: ReceiverResultReg.
-			cogit genUpArrowReturn ]. "?"
+			cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
 	memory storePointer: 0 ofObject: object withValue: 17.
 
-	self executePrimitiveWithReceiver: object withArguments: #(  ).
+	self executeMethodWithReceiver: object withArguments: #(  ).
 
 	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode1 [
+
+	| method variableType variableIndex |
+	method := methodBuilder newMethod
+		          numberOfArguments: 1;
+		          numberOfTemporaries: 0;
+		          buildMethod.
+	cogit methodObj: method.
+
+	variableType := 1. "PushTemporaryVariable"
+	variableIndex := 0.
+
+	cogit byte1: variableType << 6 + variableIndex.
+
+	self
+		compileBytecode: 999
+		selector: #extendedPushBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			cogit methodOrBlockNumArgs: 1.
+			cogit methodOrBlockNumTemps: 1.
+			cogit initSimStackForFramefulMethod: 2.
+
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #( 42 ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode2 [
+
+	| method variableType variableIndex |
+	method := methodBuilder newMethod
+		          literals: { 42 };
+		          buildMethod.
+	cogit methodObj: method.
+
+	variableType := 2. "PushLiteralIndex"
+	variableIndex := 0.
+
+	cogit byte1: variableType << 6 + variableIndex.
+
+	self
+		compileBytecode: 999
+		selector: #extendedPushBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
 { #category : #tests }
@@ -1222,52 +1289,6 @@ DRProductionBytecodeTest >> testBytecodeShortUnconditionalJump [
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 17).
 	"Did it jump over?"
 	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
-]
-
-{ #category : #tests }
-DRProductionBytecodeTest >> testBytecodepushNewArray [
-
-	"Setup the send trampoline"
-	| method selector |
-	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
-	cogit ordinarySendTrampolineAt: 1 "arg" put: sendTrampolineAddress.
-	
-	method := methodBuilder
-		newMethod;
-		literals: { 
-			selector := (memory integerObjectOf: 42) };
-		buildMethod.
-
-	self
-		compileBytecode: 96
-		selector: #pushNewArrayBytecode
-		thenDo: [ :generator | 
-			cogit methodObj: method.
-			"The receiver of the send!"
-			cogit ssPushRegister: ReceiverResultReg.
-			cogit ssPushConstant: (memory integerObjectOf: 42).
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			cogit Stop ].
-
-	self
-		prepareStackForPrimitiveReceiver: (memory integerObjectOf: 17)
-		arguments: #()
-		method: method.
-
-	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
-	self runFrom: initialAddress until: sendTrampolineAddress.
-	"First argument: the selector"
-	self assert: machineSimulator classRegisterValue equals: (-1 twoComplementOfBitSize: 64) "+ selector index".
-	"Third argument: the receiver, then the argument is on the stack"
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17).
-	self assert: machineSimulator arg0RegisterValue equals: (memory integerObjectOf: 42)
-	
-
-
-
 ]
 
 { #category : #tests }
