@@ -234,7 +234,7 @@ DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 	methodProfiler := typeSystem profileTable at: method ast.
 	self
 		assertCollection:
-		(methodProfiler typesFor: method ast temporaries first)
+		(methodProfiler typesFor: method ast temporaries second)
 		hasSameElements: { (DRClassType for: Array) }
 ]
 
