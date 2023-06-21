@@ -44,7 +44,7 @@ DRBytecodeGenerator >> initialize [
 { #category : #testing }
 DRBytecodeGenerator >> isResultInstruction: aDRInstruction [
 
-	^ aDRInstruction users isEmpty
+	^ aDRInstruction users isEmpty or: [ aDRInstruction isStore ]
 ]
 
 { #category : #accessing }
@@ -87,6 +87,7 @@ DRBytecodeGenerator >> targetAST [
 	| method ir |
 	ir := builder ir.
 	ir numArgs: numArgs.
+
 	method := ir compiledMethod.
 	method selector: methodName.
 	^ method
@@ -235,6 +236,7 @@ DRBytecodeGenerator >> visitPhiFunction: aDRPhiFunction [
 	| resolved |
 	resolved := aDRPhiFunction valuesForPredecessor: (self visitedPredecessorOf: aDRPhiFunction basicBlock).
 	resolved ifEmpty: [ 1halt ].
+	resolved unique isStore ifTrue: [ ^ self ].
 	resolved unique acceptVisitor: self
 ]
 

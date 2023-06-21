@@ -112,7 +112,7 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 ]
 
 { #category : #tests }
-DRBytecodeGeneratorTest >> testMethodCustomisation [
+DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 
 	| method result cfg selector |
 	typeSystem := DRCustomisationTypeSystem new.
@@ -124,11 +124,6 @@ DRBytecodeGeneratorTest >> testMethodCustomisation [
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
 
-	"HACKKKKK"
-	(cfg blockById: 16) endInstruction beBackJump.
-
-	"DRCogitDynamicLinearScanRegisterAllocator new allocateRegistersIn: cfg."
-
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
 	result := OrderedCollection new.
@@ -137,12 +132,36 @@ DRBytecodeGeneratorTest >> testMethodCustomisation [
 	self assertCollection: result includesAll: { 1. 2. 3 }.
 
 
-	"SequenceableCollection allSubclasses
-		reject: [ :e | e includesSelector: selector ]"
 	{ Array }	
 		do: [ :e |
 			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
+			e addSelectorSilently: selector withMethod: method ]
+]
 
+{ #category : #tests }
+DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
+
+	| method result cfg selector |
+	typeSystem := DRCustomisationTypeSystem new.
+	compilerCompiler := DRMethodCompilerCompiler new.
+	bytecodeGenerator := DRBytecodeGenerator new.
+	selector := #allSatisfy:.
+	method := Array lookupSelector: selector.
+
+	compilerCompiler interpreter: {  }.
+	cfg := self generateDruidIRFor: method.
+1halt.
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+
+	result := OrderedCollection new.
+	method valueWithReceiver: { 1. 2. 3 } arguments: { [ :e | result add: e ] }.
+
+	self assertCollection: result includesAll: { 1. 2. 3 }.
+
+
+	{ Array }	
+		do: [ :e |
+			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
 			e addSelectorSilently: selector withMethod: method ]
 ]
 
