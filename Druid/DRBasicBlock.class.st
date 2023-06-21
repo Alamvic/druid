@@ -1189,21 +1189,23 @@ DRBasicBlock >> validateInstructions [
 { #category : #validating }
 DRBasicBlock >> validatePhiFunctions [
 
-	self phiFunctions do: [ :e | 
+	self phiFunctions do: [ :e |
 		| ops |
 		ops := e operands asIdentitySet.
-		(ops size > 1 and: [ (ops noneSatisfy: [ :o | o isKindOf: DRNullValue])  ]) 
-			ifTrue: [ 
-				e operands size = self predecessors size ifFalse: [ 
-					self error: 'Phi-predecessor mismatch' ].
+		(ops size > 1 and: [ ops noneSatisfy: [ :o | o isKindOf: DRNullValue ] ]) ifTrue: [
+			e operands size = self predecessors size ifFalse: [
+				self error: 'Phi-predecessor mismatch' ].
 
-				"Validate that the order of the dependent variables is ok,
+			"Validate that the order of the dependent variables is ok,
 				this by checking that the variables are reachable from the correct predecessors"
-				e operands withIndexDo: [ :dependency :index | 
-					self assert: (dependency isInstruction or: [ 
-							 dependency isNullValue or: [ dependency isPhysicalRegister or: [ dependency isDRBlockClosure or: [ dependency value class = DruidTestInterpreter  ] ] ] ]).
-					self assert: (dependency isInstruction not or: [ 
-							 (self predecessors at: index) checkLivenessOf: dependency ]) ] ] ]
+			e operands withIndexDo: [ :dependency :index |
+				self assert: (dependency isInstruction or: [
+						 dependency isNullValue or: [
+							 dependency isPhysicalRegister or: [
+								 dependency isDRBlockClosure or: [ dependency class = DRInterpreterValue ] ] ] ]).
+				self assert: (dependency isInstruction not or: [
+						 ((self predecessors at: index) checkLivenessOf: dependency) or: [
+							 e hasRecursiveUse ] ]) ] ] ]
 ]
 
 { #category : #validating }

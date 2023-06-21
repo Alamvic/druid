@@ -23,6 +23,13 @@ DRCode >> defaultReturnValue: receiver [
 ]
 
 { #category : #testing }
+DRCode >> initialize [
+
+	super initialize.
+	result := DRNoRegister new
+]
+
+{ #category : #testing }
 DRCode >> isMandatoryInstruction [
 
 	^ true

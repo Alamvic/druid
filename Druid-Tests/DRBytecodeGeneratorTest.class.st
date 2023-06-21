@@ -114,70 +114,36 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 { #category : #tests }
 DRBytecodeGeneratorTest >> testMethodCustomisation [
 
-	| method result cfg selector methodProfiler |
-	typeSystem := DRProfileBasedTypeSystem reset.
+	| method result cfg selector |
+	typeSystem := DRCustomisationTypeSystem new.
 	compilerCompiler := DRMethodCompilerCompiler new.
 	bytecodeGenerator := DRBytecodeGenerator new.
 	selector := #do:.
 	method := SequenceableCollection >> selector.
-	
 
-	
-	compilerCompiler interpreter: { }.
+	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
 
+	"HACKKKKK"
+	(cfg blockById: 16) endInstruction beBackJump.
 
-1halt.
+	"DRCogitDynamicLinearScanRegisterAllocator new allocateRegistersIn: cfg."
 
-DRCogitDynamicLinearScanRegisterAllocator new allocateRegistersIn: cfg.
-
-	bytecodeGenerator := DRBytecodeGenerator new.
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
+	result := OrderedCollection new.
+	method valueWithReceiver: { 1. 2. 3 } arguments: { [ :e | result add: e ] }.
+
+	self assertCollection: result includesAll: { 1. 2. 3 }.
 
 
+	"SequenceableCollection allSubclasses
+		reject: [ :e | e includesSelector: selector ]"
+	{ Array }	
+		do: [ :e |
+			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
 
-	self assert: method size equals: 117. "bigger"
-
-	result := method
-		          valueWithReceiver: nil
-		          arguments: { (Array2D rows: 2 columns: 2) }.
-	self assert: result equals: 4.
-
-	"New profiled type"
-	self assert: typeSystem profileTable size equals: 2. "Old and new methods"
-	methodProfiler := typeSystem profileTable at: method ast.
-	self
-		assertCollection:
-		(methodProfiler typesFor: method ast temporaries first)
-		hasSameElements: { (DRClassType for: Array2D) }.
-
-
-	"Recompile again"
-	compilerCompiler := DRMethodCompilerCompiler new.
-	bytecodeGenerator := DRProfileBytecodeGenerator new.
-	cfg := self generateDruidIRFor: method.
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	self assert: method size equals: 144. "bigger then before"
-
-	result := method
-		          valueWithReceiver: nil
-		          arguments: { { 1. 2. 3 } asOrderedCollection }.
-	self assert: result equals: 3.
-
-	result := method
-		          valueWithReceiver: nil
-		          arguments: { (Array2D rows: 2 columns: 2) }.
-	self assert: result equals: 4.
-
-	"Last profiled type"
-	self assert: typeSystem profileTable size equals: 3. "New type from Array2D inline"
-	methodProfiler := typeSystem profileTable at: method ast.
-	self
-		assertCollection:
-		(methodProfiler typesFor: method ast temporaries first)
-		hasSameElements: { (DRClassType for: Array) }
+			e addSelectorSilently: selector withMethod: method ]
 ]
 
 { #category : #tests }

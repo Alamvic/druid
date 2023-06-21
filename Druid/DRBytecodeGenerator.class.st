@@ -78,7 +78,6 @@ DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 	aDRInstruction operands do: [ :o | o acceptVisitor: self ].
 	builder send: selector.
 	aDRInstruction hasUsers ifFalse: [
-		1 halt.
 		builder popTop ]
 ]
 
@@ -88,7 +87,6 @@ DRBytecodeGenerator >> targetAST [
 	| method ir |
 	ir := builder ir.
 	ir numArgs: numArgs.
-	1halt.
 	method := ir compiledMethod.
 	method selector: methodName.
 	^ method
@@ -109,7 +107,6 @@ DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 	"Take care of backjumps!"
 	(aDRBasicBlock predecessors anySatisfy: [ :pred |
 		 pred endInstruction isBackJump ]) ifTrue: [
-		1 halt.
 		builder jumpBackTarget: #begin ].
 
 	aDRBasicBlock instructionsDo: [ :i |
@@ -180,7 +177,7 @@ DRBytecodeGenerator >> visitInterpreterValue: aDRInterpreterValue [
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitJump: aDRJump [
 
-	aDRJump isBackJump ifTrue: [ 1halt. ^ builder jumpBackTo: #begin ].
+	aDRJump isBackJump ifTrue: [ ^ builder jumpBackTo: #begin ].
 
 	self visitBlock: aDRJump target
 ]
