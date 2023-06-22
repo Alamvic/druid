@@ -138,7 +138,8 @@ DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arg
 { #category : #accessing }
 DRMethodIRGenerator >> typeSystem [
 
-	^ DRPragmaBasedTypeSystem new
+	self flag: #TODO. "Parametrize: DRPragmaBasedTypeSystem new"
+	^ DRCustomisationTypeSystem new
 ]
 
 { #category : #visiting }

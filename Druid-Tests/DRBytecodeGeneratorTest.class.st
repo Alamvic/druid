@@ -77,6 +77,8 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 { #category : #'as yet unclassified' }
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
 
+	aDRControlFlowGraph applyOptimisation: DRFrameInfoCleaner new.
+	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
 
 	bytecodeGenerator numArgs: numArgs.
@@ -94,6 +96,12 @@ DRBytecodeGeneratorTest >> setUp [
 	
 	bytecodeGenerator := DRBytecodeGenerator new.
 	typeSystem := DRPragmaBasedTypeSystem new
+]
+
+{ #category : #running }
+DRBytecodeGeneratorTest >> tearDown [
+
+	'DrOpal-Extensions' asPackage methods do: [ :m | m removeFromSystem ]
 ]
 
 { #category : #tests }
@@ -123,14 +131,16 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
-1halt.
+	compilerCompiler optimize: cfg.
+	compilerCompiler optimize: cfg.
+
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
-	result := OrderedCollection new.
-	method valueWithReceiver: { 1. 2. 3 } arguments: { [ :e | result add: e ] }.
-
-	self assertCollection: result includesAll: { 1. 2. 3 }.
-
+	result := method valueWithReceiver: { 1. 2 } arguments: { [ :e | e even ] }.
+	self assert: result equals: false.
+	
+	result := method valueWithReceiver: { 2 . 4 } arguments: { [ :e | e even ] }.
+	self assert: result equals: true.
 
 	{ Array }	
 		do: [ :e |

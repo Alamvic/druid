@@ -5,7 +5,13 @@ Class {
 }
 
 { #category : #API }
-DRCustomisationTypeSystem >> receiverTypes: aDRMessageSend [ 
+DRCustomisationTypeSystem >> receiverTypes: aDRMessageSend [
 
-		^ { aDRMessageSend receiver type }
+	aDRMessageSend receiver type isUndefined ifTrue: [
+		({ #ifFalse:. #ifTrue:. #ifTrue:ifFalse: } includes: aDRMessageSend selector) ifTrue: [
+			^ { DRBooleanType new } ].
+		^ {  } ].
+
+	^ { aDRMessageSend receiver type } reject: [ :type |
+		  (type astForSelector: aDRMessageSend selector) isPrimitive ]
 ]

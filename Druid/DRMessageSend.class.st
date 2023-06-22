@@ -88,8 +88,7 @@ DRMessageSend >> inline [
 
 	"Generate inlining methods IR"
 	irGenerator numberOfArguments: operands size - 1.
-	inlinedMethodReturnValue := self generateInlineIRForMethods:
-		                            methodsToInline.
+	inlinedMethodReturnValue := self generateInlineIRForMethods: methodsToInline.
 
 	"Replace usages by inlines result"
 	irGenerator currentBasicBlock jumpTo: pieces last.
@@ -98,8 +97,9 @@ DRMessageSend >> inline [
 	"Remove message send block"
 	self basicBlock removeFromCFGAndDisconnectSuccessors.
 
-	"Clean garbage to generate a valid CFG"
+	self flag: #FIXME. "Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: irGenerator ir.
+	DRDeadCodeElimination new applyTo: irGenerator ir.
 	irGenerator ir validate
 ]
 
