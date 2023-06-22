@@ -15,8 +15,9 @@ DRLocalVariableInstructionScheluder >> applyTo: cfg [
 { #category : #operations }
 DRLocalVariableInstructionScheluder >> shouldIgnore: aDRInstruction [
 
-	^ aDRInstruction isPhiFunction and: [
-		  aDRInstruction operands allSatisfy: [ :op | op isStore ] ]
+	^ aDRInstruction isStore or: [
+		  aDRInstruction isPhiFunction and: [
+			  aDRInstruction operands allSatisfy: [ :op | op isStore ] ] ]
 ]
 
 { #category : #transformation }
@@ -25,15 +26,15 @@ DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
 	| store |
 	self assert: aDRInstruction result isRegister.
 
-	store := DRStoreTemporaryVariable
-		         operands: {
-				         aDRInstruction result name asLowercase asDRValue.
-				         aDRInstruction }
-		         result: DRNoRegister new.
-
 	aDRInstruction replaceUsesBy: (DRLoadTemporaryVariable operands: {
 				 aDRInstruction result name asLowercase asDRValue.
-				 store }).
-				
-	aDRInstruction basicBlock add: store after: aDRInstruction
+				 "store" }).
+
+	aDRInstruction basicBlock
+		add: (DRStoreTemporaryVariable
+				 operands: {
+						 aDRInstruction result name asLowercase asDRValue.
+						 aDRInstruction }
+				 result: DRNoRegister new)
+		after: aDRInstruction
 ]

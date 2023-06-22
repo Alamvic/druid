@@ -112,18 +112,18 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 ]
 
 { #category : #tests }
-DRBytecodeGeneratorTest >> testMethodCustomisationDo [
+DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 
 	| method result cfg selector |
 	typeSystem := DRCustomisationTypeSystem new.
 	compilerCompiler := DRMethodCompilerCompiler new.
 	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #do:.
-	method := SequenceableCollection >> selector.
+	selector := #allSatisfy:.
+	method := Array lookupSelector: selector.
 
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
-
+1halt.
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
 	result := OrderedCollection new.
@@ -139,18 +139,18 @@ DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 ]
 
 { #category : #tests }
-DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
+DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 
 	| method result cfg selector |
 	typeSystem := DRCustomisationTypeSystem new.
 	compilerCompiler := DRMethodCompilerCompiler new.
 	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #allSatisfy:.
-	method := Array lookupSelector: selector.
+	selector := #do:.
+	method := SequenceableCollection >> selector.
 
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
-1halt.
+
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
 	result := OrderedCollection new.
