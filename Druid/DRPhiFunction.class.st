@@ -198,7 +198,9 @@ DRPhiFunction >> selectOperand: anOperand with: anotherOperand [
 { #category : #'constant folding' }
 DRPhiFunction >> simpleConstantFold [
 
-	self operands size = 1 ifTrue: [ ^ self operand1 simpleConstantFold ].
+	| operandValues |
+	operandValues := self operands collect: [ :e | e simpleConstantFold ] as: Set.
+	operandValues size = 1 ifTrue: [ ^ operandValues anyOne ].
 	^ super simpleConstantFold
 ]
 

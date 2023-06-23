@@ -24,32 +24,28 @@ DRJitCompileTimeExpression class >> tryParseOperandForSCCP: aDRValue [
 	^ result
 ]
 
-{ #category : #arithmetic }
+{ #category : #operations }
 DRJitCompileTimeExpression >> + aDRJitCompileTimeExpression [
 
-	^ self class expression: (self
-			   mergeExpressions: self expression
-			   op: '+'
-			   other: aDRJitCompileTimeExpression expression)
+	^ self mergeExpression: '+' with: aDRJitCompileTimeExpression
 ]
 
-{ #category : #copying }
-DRJitCompileTimeExpression >> , aDRJitCompileTimeExpression [ 
+{ #category : #operations }
+DRJitCompileTimeExpression >> , aDRJitCompileTimeExpression [
 
-	^ self class expression: (self
-			   mergeExpressions: self expression
-			   op: ''
-			   other: aDRJitCompileTimeExpression expression)
+	^ self mergeExpression: '' with: aDRJitCompileTimeExpression
 ]
 
-{ #category : #streaming }
-DRJitCompileTimeExpression >> << aDRJitCompileTimeExpression [ 
+{ #category : #operations }
+DRJitCompileTimeExpression >> << aDRJitCompileTimeExpression [
 
-	
-	^ self class expression: (self
-			   mergeExpressions: self expression
-			   op: '<<'
-			   other: aDRJitCompileTimeExpression expression)
+	^ self mergeExpression: '<<' with: aDRJitCompileTimeExpression
+]
+
+{ #category : #operations }
+DRJitCompileTimeExpression >> >> aDRJitCompileTimeExpression [
+
+	^ self mergeExpression: '>>' with: aDRJitCompileTimeExpression
 ]
 
 { #category : #visiting }
@@ -62,6 +58,12 @@ DRJitCompileTimeExpression >> acceptVisitor: aVisitor [
 DRJitCompileTimeExpression >> asJitCompileTimeExpression [
 
 	^ self
+]
+
+{ #category : #'bit manipulation' }
+DRJitCompileTimeExpression >> bitAnd: aDRJitCompileTimeExpression [
+
+	^ self mergeExpression: '&' with: aDRJitCompileTimeExpression
 ]
 
 { #category : #accessing }
@@ -100,6 +102,15 @@ DRJitCompileTimeExpression >> jitCompileTimeExpression [
 	^ expression
 ]
 
+{ #category : #copying }
+DRJitCompileTimeExpression >> mergeExpression: operand with: aDRJitCompileTimeExpression [
+
+	^ self class expression: (self
+			   mergeExpressions: self expression
+			   op: operand
+			   other: aDRJitCompileTimeExpression expression)
+]
+
 { #category : #operations }
 DRJitCompileTimeExpression >> mergeExpressions: expression1 op: op other: expression2 [
 
@@ -116,6 +127,12 @@ DRJitCompileTimeExpression >> name [
 DRJitCompileTimeExpression >> printResult [
 
 	^ expression
+]
+
+{ #category : #operations }
+DRJitCompileTimeExpression >> sccpEquals: aDRJitCompileTimeExpression [
+
+	^ self mergeExpression: '=' with: aDRJitCompileTimeExpression
 ]
 
 { #category : #types }

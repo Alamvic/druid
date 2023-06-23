@@ -45,6 +45,17 @@ DRBranchIfCondition >> condition: aCondition [
 	condition := aCondition
 ]
 
+{ #category : #'jit-compile-time' }
+DRBranchIfCondition >> conditionAsJitCompileTimeExpression [
+
+	| fullExpression |
+	fullExpression := self operand1 asJitCompileTimeExpression expression
+	                  , self condition asJitCompileTimeExpressionString
+	                  , self operand2 asJitCompileTimeExpression expression.
+
+	^ fullExpression asDRValue asJitCompileTimeExpression
+]
+
 { #category : #accessing }
 DRBranchIfCondition >> falseBranch [
 	^ falseBranch
@@ -88,6 +99,12 @@ DRBranchIfCondition >> isBackJumpTo: aDRBasicBlock [
 DRBranchIfCondition >> isConditionalBranch [
 
 	^ true
+]
+
+{ #category : #testing }
+DRBranchIfCondition >> isJITCompileTimeExpression [
+
+	^ operands allSatisfy: [ :e | e isJITCompileTimeExpression ]
 ]
 
 { #category : #accessing }
@@ -188,9 +205,11 @@ DRBranchIfCondition >> sccpEvaluateFor: sccp [
 	conditionLattice = sccp top ifTrue: [ ^ self ].
 
 	"If we know that we don't know, add both branch targets"
-	conditionLattice = sccp bottom ifTrue: [ 
-		self targets do: [ :t | 
-			sccp addToEdgeCFGWorklistConditionalJump: self targetting: t ].
+	conditionLattice = sccp bottom ifTrue: [
+		self targets do: [ :t | sccp addToEdgeCFGWorklistConditionalJump: self targetting: t ].
+		^ self ].
+
+	(conditionLattice isConstant and: [ conditionLattice type isBooleanType ]) ifFalse: [
 		^ self ].
 
 	"otherwise add the true or false one"

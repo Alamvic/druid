@@ -37,13 +37,11 @@ DRGeneratorMethodBuilder >> methodComment [
 
 { #category : #accessing }
 DRGeneratorMethodBuilder >> methodNode [
-	
+
 	^ (RBMethodNode selector: selector)
-		body: (RBSequenceNode
-			temporaries: (variableNames collect: [ :name | RBVariableNode named: name ] as: Array)
-			statements: statements);
-		comments: { RBComment with: (RBCommentToken value: self methodComment in: 1). };
-		yourself
+		  body: self sequenceNode;
+		  comments: { (RBComment with: (RBCommentToken value: self methodComment in: 1)) };
+		  yourself
 ]
 
 { #category : #accessing }
@@ -53,6 +51,20 @@ DRGeneratorMethodBuilder >> selector: aSelector [
 ]
 
 { #category : #accessing }
+DRGeneratorMethodBuilder >> sequenceNode [
+
+	^ RBSequenceNode
+		  temporaries: (variableNames collect: [ :name | RBVariableNode named: name ] as: Array)
+		  statements: statements
+]
+
+{ #category : #accessing }
 DRGeneratorMethodBuilder >> statements [
 	^ statements
+]
+
+{ #category : #accessing }
+DRGeneratorMethodBuilder >> variableNames [
+
+	^ variableNames
 ]

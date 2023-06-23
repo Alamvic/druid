@@ -17,3 +17,9 @@ Object >> isJITCompileTimeExpression [
 	
 	^ true
 ]
+
+{ #category : #'*Druid' }
+Object >> sccpEquals: anInteger [
+
+	^ self = anInteger
+]

@@ -6,7 +6,8 @@ Class {
 		'fallthroughBlock',
 		'deferredBranches',
 		'visitedBlocks',
-		'availableJumpIndexes'
+		'availableJumpIndexes',
+		'blocks'
 	],
 	#category : #'Druid-Cogit'
 }
@@ -21,6 +22,15 @@ DRCogitCodeGenerator >> allocateVariable: aDRResult [
 DRCogitCodeGenerator >> assignAvailableJumpIndex [
 
 	^ availableJumpIndexes removeFirst
+]
+
+{ #category : #accessing }
+DRCogitCodeGenerator >> blocks: aPath [
+
+	"Clean deferred branches outside the path"
+	deferredBranches keysAndValuesRemove: [ :k :v | (aPath includes: k) not ].
+	
+	blocks := aPath
 ]
 
 { #category : #'ir-generation' }
@@ -93,6 +103,17 @@ DRCogitCodeGenerator >> deferBranch: anIndex to: aDRBasicBlock [
 		add: anIndex
 ]
 
+{ #category : #accessing }
+DRCogitCodeGenerator >> deferredBranches [
+	^ deferredBranches
+]
+
+{ #category : #accessing }
+DRCogitCodeGenerator >> deferredBranches: anObject [
+
+	deferredBranches := anObject
+]
+
 { #category : #'jump-management' }
 DRCogitCodeGenerator >> freeJumpIndex: anIndex [ 
 	
@@ -126,7 +147,6 @@ DRCogitCodeGenerator >> generateBlockIncomingJumps: aDRBasicBlock [
 { #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 
-	| blocks |
 	self generatePreambleForCFG: aDRControlFlowGraph.
 
 	"Sort the blocks"
@@ -137,18 +157,24 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 		blocks remove: aDRControlFlowGraph failureExitBlock.
 		blocks addLast: aDRControlFlowGraph failureExitBlock ].
 
-	blocks withIndexDo: [ :b :i |
-		fallthroughBlock := blocks at: i + 1 ifAbsent: nil.
-		self preProcessBlock: b.
-		b instructionsDo: [ :e | self buildStatementsForInstruction: e ] ].
-	
+	"Generate CFG code"
+	self generateCodeFromBlocks.
+
 	"Generate the postamble in the fallthrough case"
 	self generatePostambleForCFG: aDRControlFlowGraph.
 
 	"Return compiled method status for the compiler"
+	self generateReturn
+]
 
-	generatorMethodBuilder addStatement:
-		(RBReturnNode value: self returnNodeForCompiledMethod)
+{ #category : #'ir-to-ast' }
+DRCogitCodeGenerator >> generateCodeFromBlocks [
+
+	[ blocks isNotEmpty ] whileTrue: [
+		| current |
+		current := blocks removeAt: 1. "Remove current block from the list for code generation"
+		fallthroughBlock := blocks at: 1 ifAbsent: nil. "Store next block for fallthrough jumps"
+		self visitBasicBlock: current ]
 ]
 
 { #category : #visiting }
@@ -174,6 +200,20 @@ DRCogitCodeGenerator >> generateCompare: aComparison operands: operands [
 		operands: comparands
 		instruction: aComparison.
 	^ comparisonToGenerate
+]
+
+{ #category : #'generate-code' }
+DRCogitCodeGenerator >> generateCompileTimeIfCondition: aDRBranchIfCondition [
+
+	| jitCondition sequenceNode |
+	jitCondition := aDRBranchIfCondition conditionAsJitCompileTimeExpression.
+
+	sequenceNode := self innerCompilePathFrom: aDRBranchIfCondition trueBranch.
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: (RBVariableNode named: jitCondition expression)
+			 selector: #ifTrue:
+			 arguments: { (RBBlockNode body: sequenceNode) })
 ]
 
 { #category : #visiting }
@@ -260,6 +300,13 @@ DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 ]
 
 { #category : #'ir-to-ast' }
+DRCogitCodeGenerator >> generateReturn [
+
+	generatorMethodBuilder addStatement:
+		(RBReturnNode value: self returnNodeForCompiledMethod)
+]
+
+{ #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: aName [
 
 	generatorMethodBuilder selector: aName.
@@ -270,6 +317,12 @@ DRCogitCodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName:
 { #category : #accessing }
 DRCogitCodeGenerator >> generatorMethodBuilder [
 	^ generatorMethodBuilder
+]
+
+{ #category : #accessing }
+DRCogitCodeGenerator >> generatorMethodBuilder: aDRGeneratorMethodBuilder [
+
+	generatorMethodBuilder := aDRGeneratorMethodBuilder
 ]
 
 { #category : #testing }
@@ -458,6 +511,13 @@ DRCogitCodeGenerator >> visitAnd: aDRAnd [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitBasicBlock: b [
+
+	self preProcessBlock: b.
+	b instructionsDo: [ :e | self buildStatementsForInstruction: e ]
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitBitAnd: aDRCogitBitAnd [ 
 
 	^ self threeOperandCogitRTL: #And instruction: aDRCogitBitAnd
@@ -484,15 +544,18 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 	It may be a Cmp, a Test or no instruction at all."
 
 	| replacement |
+	aDRConditionalJump isJITCompileTimeExpression ifTrue: [
+		^ self generateCompileTimeIfCondition: aDRConditionalJump ].
+	
+	
 	replacement := aDRConditionalJump condition
 		               acceptVisitor: self
 		               withBranch: aDRConditionalJump.
 
 	"Generate both jumps, the fallthorugh will get ignored"
 	self
-		generateJump: (self
-				 cogitBranchFromCondition: replacement condition
-				 type: replacement operand1 type)
+		generateJump:
+		(self cogitBranchFromCondition: replacement condition type: replacement operand1 type)
 		target: replacement trueBranch.
 	self
 		generateJump: (self

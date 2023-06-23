@@ -122,11 +122,7 @@ DRSCCP >> canBeAppliedIn: aDRControlFlowGraph [
 { #category : #executing }
 DRSCCP >> doApply: cfg [
 
-	self initializeSCCPWithCFG: cfg.
-
-	[ cfgEdgeWorkList isEmpty and: [ssaWorkList isEmpty] ] whileFalse: [ 
-		self stepCFGEdgeWorklist.
-		self stepInstructionWorklist].
+	self setupWithCFG: cfg.
 
 	self applyPropagation.
 ]
@@ -156,6 +152,14 @@ DRSCCP >> initialize [
 	cfgEdgeWorkList := OrderedCollection new.
 	
 	edgesByDestination := Dictionary new
+]
+
+{ #category : #executing }
+DRSCCP >> initializeLattice [
+
+	[ cfgEdgeWorkList isEmpty and: [ ssaWorkList isEmpty ] ] whileFalse: [
+		self stepCFGEdgeWorklist.
+		self stepInstructionWorklist ]
 ]
 
 { #category : #initialization }
@@ -239,6 +243,14 @@ DRSCCP >> setValueOf: anInstruction at: aValue [
 ]
 
 { #category : #executing }
+DRSCCP >> setupWithCFG: cfg [
+
+	self initializeSCCPWithCFG: cfg.
+
+	self initializeLattice
+]
+
+{ #category : #executing }
 DRSCCP >> stepCFGEdgeWorklist [
 
 	"Each basic block is visited only once.
@@ -290,6 +302,8 @@ DRSCCP >> tryReplaceConditionalJump: i [
 
 	conditionLattice := i sccpEvaluateConditionFor: self.
 	(self isConstantLattice: conditionLattice) ifFalse: [ ^ self ].
+	(conditionLattice isConstant and: [ conditionLattice type isBooleanType ]) ifFalse: [
+		^ self ].
 
 	"If it is a branch of the form
 	  branch if (condition that is always constant)
