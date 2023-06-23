@@ -11,7 +11,7 @@ Class {
 DRComposedConditionalSplitting >> applyTo: cfg [
 
 	cfg allConditionalJumps 
-		select: [ :jump | jump isBranchIfTrue and: [ jump operand1 isComplexCondition ] ]
+		select: [ :jump | jump isConditionalBranch and: [ jump operand1 isComplexCondition ] ]
 		thenDo: [ :jump | jump acceptVisitor: self ]
 ]
 
@@ -49,10 +49,10 @@ DRComposedConditionalSplitting >> visitAnd: aDRAnd [
 ]
 
 { #category : #visiting }
-DRComposedConditionalSplitting >> visitBranchIfTrue: aDRBranchIfTrue [ 
+DRComposedConditionalSplitting >> visitBranchIfCondition: aDRBranchIfCondition [ 
 	
-	currentJump := aDRBranchIfTrue.
-	aDRBranchIfTrue operand1 acceptVisitor: self
+	currentJump := aDRBranchIfCondition.
+	aDRBranchIfCondition operand1 acceptVisitor: self
 ]
 
 { #category : #visiting }

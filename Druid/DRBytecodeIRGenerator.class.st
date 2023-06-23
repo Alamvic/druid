@@ -134,8 +134,6 @@ DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
 
 	| index |
 	index := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.
-	index isNumber ifFalse: [
-		self error:	'We can only compile access to frame with constant index' ].
 
 	^ self
 		  addInstructionFrom: aRBMessageNode

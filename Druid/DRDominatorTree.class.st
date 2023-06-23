@@ -46,7 +46,7 @@ DRDominatorTree >> computeDominanceFrontier [
 				[ runner ~= (self immediateDominatorOf: b) ] whileTrue: [ 
 					previousFrontier := dominanceFrontiers
 						                    at: runner
-						                    ifAbsentPut: [ Set new ].
+						                    ifAbsentPut: [ OrderedCollection new ].
 					previousFrontier add: b.
 					runner := self immediateDominatorOf: runner ] ] ] ].
 	^ dominanceFrontiers
@@ -55,7 +55,7 @@ DRDominatorTree >> computeDominanceFrontier [
 { #category : #'as yet unclassified' }
 DRDominatorTree >> dominanceFrontierOf: aBlock [
 
-	^ self computeDominanceFrontier at: aBlock ifAbsent: [ Set new ]
+	^ self computeDominanceFrontier at: aBlock ifAbsent: [ OrderedCollection new ]
 ]
 
 { #category : #query }
@@ -122,8 +122,7 @@ DRDominatorTree >> iteratedDominanceFrontierOf: aDRBasicBlock [
 
 	| frontier |
 	frontier := self dominanceFrontierOf: aDRBasicBlock.
-	^ frontier union: (frontier flatCollect: [ :each | 
-			   self iteratedDominanceFrontierOf: each ])
+	^ frontier , (frontier flatCollect: [ :each | self iteratedDominanceFrontierOf: each ])
 ]
 
 { #category : #'as yet unclassified' }

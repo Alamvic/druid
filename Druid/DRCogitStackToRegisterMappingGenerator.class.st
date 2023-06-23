@@ -9,27 +9,47 @@ Class {
 }
 
 { #category : #helpers }
-DRCogitStackToRegisterMappingGenerator >> allocateVariable: aVariableName [
+DRCogitStackToRegisterMappingGenerator >> allocateVariable: aDRResult [
 
 	| temporaryVariableNode variableIndex |
+	aDRResult isNoResult ifTrue: [ ^ self ].
+	variables at: aDRResult ifPresent: [ :var | ^ var ].
+
+	"Should generate a variable allocation in the lines of:
 	
-	aVariableName isNoResult ifTrue: [ ^ self ].
-	variables at: aVariableName ifPresent: [ :var | ^ var ].
+	live := 0.
+
+	t0 := self allocateRegNotConflictingWith: live ifNone: [ ^ ABANDON COMPILATION ].
+	live := live | t0.
 	
+	t1 := self allocateRegNotConflictingWith: live ifNone: [ ^ ABANDON COMPILATION ].
+	live := live | t1."
+
 	variableIndex := nextVariableIndex.
 	nextVariableIndex := nextVariableIndex + 1.
-	
-	temporaryVariableNode := RBVariableNode named: 't', variableIndex asString.
-	variables at: aVariableName put: temporaryVariableNode name.
-	
+
+	temporaryVariableNode := RBVariableNode named:
+		                         't' , variableIndex asString.
+	variables at: aDRResult put: temporaryVariableNode name.
+
 	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
-	"freeReg := self allocateRegNotConflictingWith: 0."
 	generatorMethodBuilder addStatement: (RBAssignmentNode
 			 variable: temporaryVariableNode copy
 			 value: (RBMessageNode
 					  receiver: RBVariableNode selfNode
-					  selector: #allocateRegNotConflictingWith:
-					  arguments: { (RBLiteralValueNode value: 0) })).
+					  selector: #allocateRegNotConflictingWith:ifNone:
+					  arguments: {
+							  (RBVariableNode named: 'live').
+							  (RBVariableNode named: '[ ^ self unknownBytecode ]') })).
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: (RBVariableNode named: 'live')
+			 value: (RBMessageNode
+					  receiver: (RBVariableNode named: 'live')
+					  selector: #bitOr:
+					  arguments: { (RBMessageNode
+							   receiver: RBVariableNode selfNode
+							   selector: #registerMaskFor:
+							   arguments: { temporaryVariableNode copy }) })).
 
 	^ temporaryVariableNode name
 ]
@@ -43,12 +63,57 @@ DRCogitStackToRegisterMappingGenerator >> generatePostambleForCFG: aDRControlFlo
 	super generatePostambleForCFG: aDRControlFlowGraph
 ]
 
+{ #category : #'ir-to-ast' }
+DRCogitStackToRegisterMappingGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
+
+	super generatePreambleForCFG: aDRControlFlowGraph.
+	generatorMethodBuilder addVariableNamed: 'live'.
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: (RBVariableNode named: 'live')
+			 value: (RBLiteralValueNode value: 0))
+]
+
 { #category : #helpers }
 DRCogitStackToRegisterMappingGenerator >> initialize [
 
 	super initialize.
 	nextVariableIndex := 0.
 	variables := Dictionary new
+]
+
+{ #category : #'code-generation' }
+DRCogitStackToRegisterMappingGenerator >> innerCompilePathFrom: aDRBasicBlock [
+
+	| dominatorTree dominatedBlocks sharedPathToTheEnd truePath innerGenerator |
+	"We should create a path from the branch to the end"
+	dominatorTree := aDRBasicBlock controlFlowGraph buildDominatorTree.
+	dominatedBlocks := aDRBasicBlock controlFlowGraph reversePostOrderBlocks select: [ :b |
+		                   b isDominatedBy: aDRBasicBlock ].
+
+	"Remove blocks only visited during inner compilation from outer"
+	dominatedBlocks do: [ :b | blocks remove: b ].
+
+	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
+	truePath := dominatedBlocks , sharedPathToTheEnd.
+
+	innerGenerator := self innerGenerator.
+	innerGenerator blocks: truePath.
+	innerGenerator generateCodeFromBlocks.
+	innerGenerator generatePostambleForCFG: aDRBasicBlock controlFlowGraph.
+	innerGenerator generateReturn.
+
+	^ innerGenerator generatorMethodBuilder sequenceNode
+]
+
+{ #category : #copy }
+DRCogitStackToRegisterMappingGenerator >> innerGenerator [
+
+	| innerGenerator |
+	innerGenerator := self copy.
+	innerGenerator variables: variables copy.
+	innerGenerator deferredBranches: deferredBranches copy.
+	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
+	^ innerGenerator
 ]
 
 { #category : #helpers }
@@ -85,6 +150,18 @@ DRCogitStackToRegisterMappingGenerator >> twoOperandMoveCogitRTL: anInstruction 
 		^ self generateMessage: #genMoveConstant:R: operands: operands ].
 
 	^ super twoOperandMoveCogitRTL: anInstruction operands: operands
+]
+
+{ #category : #accessing }
+DRCogitStackToRegisterMappingGenerator >> variables [
+
+	^ variables
+]
+
+{ #category : #accessing }
+DRCogitStackToRegisterMappingGenerator >> variables: anObject [
+
+	variables := anObject
 ]
 
 { #category : #visiting }

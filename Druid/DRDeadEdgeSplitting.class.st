@@ -10,7 +10,7 @@ DRDeadEdgeSplitting >> canBeAppliedWithGeneratedPathsIn: aDRControlFlowGraph [
 	^ aDRControlFlowGraph deadPaths isNotEmpty 
 ]
 
-{ #category : #operations }
+{ #category : #accessing }
 DRDeadEdgeSplitting >> doApplyWithGeneratedPaths: aCFG [
 
 	"Find first (longest) dead path in CFG and split guilty edge"

@@ -133,14 +133,6 @@ DRBytecodeGenerator >> visitBranchIfCondition: aDRConditionalBranch [
 ]
 
 { #category : #'ir-to-target' }
-DRBytecodeGenerator >> visitBranchIfTrue: aDRBranchIfTrue [
-
-	aDRBranchIfTrue operand1 acceptVisitor: self.
-
-	self generateJump: aDRBranchIfTrue
-]
-
-{ #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitConstant: aDRConstantValue [
 
 	aDRConstantValue value isLiteral ifFalse: [

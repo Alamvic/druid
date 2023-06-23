@@ -18,8 +18,7 @@ DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 		         operands: { (DRConstantValue value: 2) }
 		         result: (DRTemporaryRegister id: 2).
 
-	jump := DRBranchIfTrue operands: { DRConstantValue value: true  }.
-
+	jump := self newConditionalJump.
 	cfg := self setUpCFGWithConditional: jump.
 
 	cfg b1 addInstruction: copy1.

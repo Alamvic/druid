@@ -807,8 +807,12 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 	| trueBranchBasicBlockOut conditionalJump startingBasicBlock executionStateBeforeBranch |
 	aRBMessageNode receiver acceptVisitor: self.
 	conditionalJump := self
-		                   instantiateNoResultInstruction: DRBranchIfTrue
-		                   operands: { self popOperand }.
+		                   instantiateNoResultInstruction:
+		                   DRBranchIfCondition
+		                   operands: {
+				                   DREqualsThanComparison new.
+				                   self popOperand.
+				                   true asDRValue }.
 	conditionalJump originAST: aRBMessageNode.
 
 	self currentBasicBlock endInstruction: conditionalJump.
@@ -820,9 +824,12 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 
 	trueBranchBasicBlockOut := self
 		                           branchFrom: self currentBasicBlock
-		                           onEdge: [ :branchEntryBlock | 
-		                           conditionalJump trueBranch: branchEntryBlock ]
-		                           doing: [ self interpretBlockBody: aRBMessageNode arguments first ].
+		                           onEdge: [ :branchEntryBlock |
+		                           conditionalJump trueBranch:
+			                           branchEntryBlock ]
+		                           doing: [
+		                           self interpretBlockBody:
+			                           aRBMessageNode arguments first ].
 
 	"Merge point"
 	startingBasicBlock := self currentBasicBlock.
@@ -839,7 +846,9 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 			executionState := DRStackMerger new
 				                  builder: self;
 				                  mergeBlock: currentBasicBlock;
-				                  mergeAll: { executionStateBeforeBranch. executionState copy }.
+				                  mergeAll: {
+						                  executionStateBeforeBranch.
+						                  executionState copy }.
 			trueBranchBasicBlockOut jumpTo: self currentBasicBlock ]
 ]
 
@@ -1270,8 +1279,8 @@ DRIRGenerator >> interpretUnaryInstruction: aRBMessageNode instructionKind: anIn
 ]
 
 { #category : #'special cases' }
-DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [ 
-	
+DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
+
 	| trueBranchBasicBlockOut conditionalJump conditionEntryBlock executionStateAtEntry |
 	"Compile
 	
@@ -1290,16 +1299,15 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 	
 	exit:
 		...
-	"
+	""Condition block(s)"
+	self currentBasicBlock jumpTo:
+		(conditionEntryBlock := self newBasicBlock).
 
-	"Condition block(s)"	
-	self currentBasicBlock jumpTo: (conditionEntryBlock := self newBasicBlock).
-	
 	executionStateAtEntry := DRStackMerger new
-		builder: self;
-		mergeBlock: currentBasicBlock;
-		mergeAll: { executionState }.
-	
+		                         builder: self;
+		                         mergeBlock: currentBasicBlock;
+		                         mergeAll: { executionState }.
+
 	executionState := executionStateAtEntry copy.
 	self interpretBlockBody: aRBMessageNode receiver.
 
@@ -1310,34 +1318,39 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 
 	"The conditional jump"
 	conditionalJump := self
-		instantiateNoResultInstruction: DRBranchIfTrue
-		operands: { self popOperand }.
+		                   instantiateNoResultInstruction:
+		                   DRBranchIfCondition
+		                   operands: {
+				                   DREqualsThanComparison new.
+				                   self popOperand.
+				                   true asDRValue }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	"Loop body. whileTrue: => jump if true to body"
 	trueBranchBasicBlockOut := self
-		branchFrom: self currentBasicBlock
-		onEdge: [ :branchEntryBlock | conditionalJump trueBranch: branchEntryBlock ]
-		doing: [ 
-			self interpretBlockBody: aRBMessageNode arguments first.
-			self popOperand ].
+		                           branchFrom: self currentBasicBlock
+		                           onEdge: [ :branchEntryBlock |
+		                           conditionalJump trueBranch:
+			                           branchEntryBlock ]
+		                           doing: [
+			                           self interpretBlockBody:
+				                           aRBMessageNode arguments first.
+			                           self popOperand ].
 
 	"Could happen that any evaluated block had a non local return.
 	Otherwise, this block should back jump to the entry block of the loop"
-	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [
-		"Now we should re-merge the outgoing phi values in the state of the entry block"
+	trueBranchBasicBlockOut hasFinalInstruction ifFalse: [ "Now we should re-merge the outgoing phi values in the state of the entry block"
 		executionState addTo: executionStateAtEntry.
-		trueBranchBasicBlockOut backJumpTo: conditionEntryBlock.
-	].
+		trueBranchBasicBlockOut backJumpTo: conditionEntryBlock ].
 
 	"Else exit"
 	self newBasicBlock.
 	executionState := executionStateAtEntry.
 	conditionalJump falseBranch: self currentBasicBlock.
-	self currentBasicBlock addPredecessor: conditionalJump basicBlock.	
+	self currentBasicBlock addPredecessor: conditionalJump basicBlock.
 
 	"whileTrue: does not return anything useful"
-	self pushOperand: DRNullValue new.
+	self pushOperand: DRNullValue new
 ]
 
 { #category : #accessing }

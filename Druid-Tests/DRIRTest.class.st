@@ -41,12 +41,6 @@ DRIRTest >> assertConstraint: aConstraint includes: includedConstraint [
 	self assert: (aConstraint includes: includedConstraint)
 ]
 
-{ #category : #test }
-DRIRTest >> conditionalJump [
-
-	^ DRBranchIfTrue operands: { (DRConstantValue value: true) }
-]
-
 { #category : #running }
 DRIRTest >> configureInterpreter [
 
@@ -75,6 +69,12 @@ DRIRTest >> generateDruidIRFor: methodSelector [
 	cfg := self generateBasicDruidIRFor: methodSelector.
 	self optimize: cfg.
 	^ cfg
+]
+
+{ #category : #test }
+DRIRTest >> newConditionalJump [
+
+	^ compilerCompiler instructionFactory jumpIf: true
 ]
 
 { #category : #test }
@@ -124,7 +124,7 @@ DRIRTest >> setUpCFG: n [
 { #category : #test }
 DRIRTest >> setUpCFGWithConditional [
 
-	^ self setUpCFGWithConditional: self conditionalJump.
+	^ self setUpCFGWithConditional: self newConditionalJump.
 
 ]
 

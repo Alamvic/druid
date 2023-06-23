@@ -26,7 +26,7 @@ DRComposedConditionalSplittingTest >> testSplitAnd [
 
 	| cfg jump composedCondition newBlock newJump trueBlock falseBlock |
 	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnSameVariable.
-	
+
 	jump := cfg allConditionalJumps first.
 	composedCondition := jump operand1.
 	trueBlock := jump trueBranch.

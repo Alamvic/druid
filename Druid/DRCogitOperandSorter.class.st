@@ -64,12 +64,6 @@ DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitBranchIfTrue: aDRBranchIfTrue [ 
-	
-	"Nothing"
-]
-
-{ #category : #visiting }
 DRCogitOperandSorter >> visitBytecodeJump: aDRBytecodeJump [ 
 	
 	"Nothing"

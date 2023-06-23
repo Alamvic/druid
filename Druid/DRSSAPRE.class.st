@@ -31,7 +31,7 @@ DRSSAPRE >> insertPhi: cfg [
 	cfg blocksInReversePostOrderDo: [ :b | 
 		b instructionsDo: [ :i | 
 			i isCopy ifTrue: [ 
-				(dt iteratedDominanceFrontierOf: b) do: [ :bl | 
+				(dt iteratedDominanceFrontierOf: b) asSet do: [ :bl | 
 					bl addInstructionFirst: bl newPhi ] ] ] ]
 ]
 
