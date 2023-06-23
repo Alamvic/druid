@@ -101,7 +101,11 @@ DRBytecodeGeneratorTest >> setUp [
 { #category : #running }
 DRBytecodeGeneratorTest >> tearDown [
 
-	'DrOpal-Extensions' asPackage methods do: [ :m | m removeFromSystem ]
+	| aPackage |
+	aPackage := RPackageOrganizer default packageNamed: 'DrOpal-Extensions' ifAbsent: nil.
+	aPackage ifNotNil: [ aPackage removeFromSystem ].
+	
+	super tearDown.
 ]
 
 { #category : #tests }
