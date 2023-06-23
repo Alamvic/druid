@@ -149,6 +149,35 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 ]
 
 { #category : #tests }
+DRBytecodeGeneratorTest >> testMethodCustomisationAnySatisfy [
+
+	| method result cfg selector |
+	typeSystem := DRCustomisationTypeSystem new.
+	compilerCompiler := DRMethodCompilerCompiler new.
+	bytecodeGenerator := DRBytecodeGenerator new.
+	selector := #anySatisfy:.
+	method := Array lookupSelector: selector.
+
+	compilerCompiler interpreter: {  }.
+	cfg := self generateDruidIRFor: method.
+	compilerCompiler optimize: cfg.
+	compilerCompiler optimize: cfg.
+
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+
+	result := method valueWithReceiver: { 1. 2 } arguments: { [ :e | e even ] }.
+	self assert: result equals: true.
+	
+	result := method valueWithReceiver: { 1 . 3 } arguments: { [ :e | e even ] }.
+	self assert: result equals: false.
+
+	{ Array }	
+		do: [ :e |
+			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
+			e addSelectorSilently: selector withMethod: method ]
+]
+
+{ #category : #tests }
 DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 
 	| method result cfg selector |
@@ -173,6 +202,35 @@ DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 		do: [ :e |
 			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
 			e addSelectorSilently: selector withMethod: method ]
+]
+
+{ #category : #tests }
+DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
+
+	| method result cfg selector |
+	self skip. "TODO: Fix blocks linearization"
+	
+	typeSystem := DRCustomisationTypeSystem new.
+	compilerCompiler := DRMethodCompilerCompiler new.
+	bytecodeGenerator := DRBytecodeGenerator new.
+	selector := #select:.
+	method := Collection >> selector.
+
+	compilerCompiler interpreter: {  }.
+	cfg := self generateDruidIRFor: method.
+	compilerCompiler optimize: cfg.
+	compilerCompiler optimize: cfg.
+
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+
+	result := method valueWithReceiver: { 1. 2. 3 } arguments: { [ :e | e even ] }.
+
+	self assertCollection: result includesAll: { 1. 2. 3 }.
+
+
+	{ Array } do: [ :e |
+		e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
+		e addSelectorSilently: selector withMethod: method ]
 ]
 
 { #category : #tests }
