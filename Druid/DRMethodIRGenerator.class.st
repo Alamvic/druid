@@ -1,6 +1,9 @@
 Class {
 	#name : #DRMethodIRGenerator,
 	#superclass : #DRIRGenerator,
+	#instVars : [
+		'typeSystem'
+	],
 	#category : #'Druid-CompilerCompiler'
 }
 
@@ -8,6 +11,14 @@ Class {
 DRMethodIRGenerator >> finishCodeInterpretation: lastFrame [
 
 	currentBasicBlock return: lastFrame returnedValue
+]
+
+{ #category : #initialization }
+DRMethodIRGenerator >> initialize [
+
+	super initialize.
+
+	typeSystem := DRPragmaBasedTypeSystem new
 ]
 
 { #category : #initialization }
@@ -25,6 +36,7 @@ DRMethodIRGenerator >> inlineGenerator [
 	| newIR |
 	newIR := DRMethodIRGeneratorInline new
 		         controlFlowGraph: controlFlowGraph;
+					typeSystem: typeSystem;
 		         yourself.
 	newIR executionState: executionState copy.
 	^ newIR
@@ -138,8 +150,13 @@ DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arg
 { #category : #accessing }
 DRMethodIRGenerator >> typeSystem [
 
-	self flag: #TODO. "Parametrize: DRPragmaBasedTypeSystem new"
-	^ DRCustomisationTypeSystem new
+	^ typeSystem
+]
+
+{ #category : #accessing }
+DRMethodIRGenerator >> typeSystem: aDRTypeSystem [
+
+	typeSystem := aDRTypeSystem
 ]
 
 { #category : #visiting }

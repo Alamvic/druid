@@ -32,7 +32,7 @@ DRInlinePrimitiveTest >> testInlinePreservePrimitiveFailCode [
 
 	cfg applyOptimisation: optimisation.
 
-	self assert: (cfg instructions count: [ :i | i isLoad]) equals: 2.
+	self assert: (cfg instructions count: [ :i | i isLoad]) equals: 1.
 	self assert: (cfg instructions count: [ :i | i isStore]) equals: 2.
 ]
 
@@ -49,7 +49,7 @@ DRInlinePrimitiveTest >> testInlinePreservePrimitiveFailCodeManyLevels [
 	
 	self
 		assert: (cfg instructions count: [ :i | i isLoad ])
-		equals: (cfg instructions count: [ :i | i isStore ])
+		equals: (cfg instructions count: [ :i | i isStore ]) - 1
 ]
 
 { #category : #tests }

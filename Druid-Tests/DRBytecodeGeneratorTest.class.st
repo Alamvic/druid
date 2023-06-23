@@ -125,6 +125,7 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 	| method result cfg selector |
 	typeSystem := DRCustomisationTypeSystem new.
 	compilerCompiler := DRMethodCompilerCompiler new.
+	compilerCompiler irGenerator typeSystem: typeSystem.
 	bytecodeGenerator := DRBytecodeGenerator new.
 	selector := #allSatisfy:.
 	method := Array lookupSelector: selector.
@@ -138,14 +139,13 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 
 	result := method valueWithReceiver: { 1. 2 } arguments: { [ :e | e even ] }.
 	self assert: result equals: false.
-	
-	result := method valueWithReceiver: { 2 . 4 } arguments: { [ :e | e even ] }.
+
+	result := method valueWithReceiver: { 2. 4 } arguments: { [ :e | e even ] }.
 	self assert: result equals: true.
 
-	{ Array }	
-		do: [ :e |
-			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
-			e addSelectorSilently: selector withMethod: method ]
+	{ Array } do: [ :e |
+		e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
+		e addSelectorSilently: selector withMethod: method ]
 ]
 
 { #category : #tests }
@@ -154,6 +154,7 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAnySatisfy [
 	| method result cfg selector |
 	typeSystem := DRCustomisationTypeSystem new.
 	compilerCompiler := DRMethodCompilerCompiler new.
+	compilerCompiler irGenerator typeSystem: typeSystem.
 	bytecodeGenerator := DRBytecodeGenerator new.
 	selector := #anySatisfy:.
 	method := Array lookupSelector: selector.
