@@ -19,15 +19,15 @@ DRMethodIRGenerator >> initializeSpecialCases [
 
 ]
 
-{ #category : #inline }
+{ #category : #visiting }
 DRMethodIRGenerator >> inlineGenerator [
 
-	| newIR |
-	newIR := DRMethodIRGeneratorInline new
+	^ DRMethodIRGeneratorInline new
 		         controlFlowGraph: controlFlowGraph;
+					executionState: executionState copy;
+					typeSystem: self typeSystem;
 		         yourself.
-	newIR executionState: executionState copy.
-	^ newIR
+
 ]
 
 { #category : #interpreting }
@@ -130,12 +130,6 @@ DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arg
 		  receiver: receiver
 		  arguments: arguments
 		  method: nil "Infer methods with a Type System"
-]
-
-{ #category : #accessing }
-DRMethodIRGenerator >> typeSystem [
-
-	^ DRPragmaBasedTypeSystem new
 ]
 
 { #category : #visiting }

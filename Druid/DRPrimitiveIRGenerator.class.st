@@ -48,12 +48,13 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 	specialCases at: #executeFullCogBlock:closure:mayContextSwitch: put: #executeFullCogBlockClosureMayContextSwitchWith:
 ]
 
-{ #category : #inline }
+{ #category : #visiting }
 DRPrimitiveIRGenerator >> inlineGenerator [
 
 	^ DRPrimitiveIRGeneratorInline new
 		  controlFlowGraph: controlFlowGraph;
 		  executionState: executionState copy;
+		  typeSystem: self typeSystem;		
 		  yourself
 ]
 
@@ -187,10 +188,4 @@ DRPrimitiveIRGenerator >> spillStack [
 			result: destinationRegister.
 		self currentBasicBlock addInstruction: copyInstruction.
 	]
-]
-
-{ #category : #accessing }
-DRPrimitiveIRGenerator >> typeSystem [
-
-	^ DRPragmaBasedTypeSystem new
 ]

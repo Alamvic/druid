@@ -8,7 +8,8 @@ Class {
 		'numberOfArguments',
 		'controlFlowGraph',
 		'executionState',
-		'variableSpecialCases'
+		'variableSpecialCases',
+		'typeSystem'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -229,6 +230,8 @@ DRIRGenerator >> initialize [
 	
 	"Push a top frame"
 	initialExecutionState := DRExecutionStack new.
+	
+	typeSystem := DRPragmaBasedTypeSystem new.
 	
 	currentBasicBlock := self initialBasicBlock.
 	executionState := DRExecutionState new
@@ -1384,8 +1387,7 @@ DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver ar
 		               instantiate: DRMessageSend
 		               operands: { receiver } , arguments.
 
-	instruction irGenerator: self inlineGenerator.
-	instruction typeSystem: self typeSystem.
+	instruction inlineGenerator: self inlineGenerator.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
 	^ self addInstruction: instruction from: aRBMessageNode
 ]
@@ -1611,6 +1613,12 @@ DRIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
 		arguments: arguments
 ]
 
+{ #category : #visiting }
+DRIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
+
+	self subclassResponsibility 
+]
+
 { #category : #'special cases' }
 DRIRGenerator >> setExecutionStateTo: aBlock [
 
@@ -1653,10 +1661,16 @@ DRIRGenerator >> topFrame [
 	^ executionState topFrame
 ]
 
-{ #category : #visiting }
+{ #category : #accessing }
 DRIRGenerator >> typeSystem [
 
-	^ self subclassResponsibility
+	^ typeSystem
+]
+
+{ #category : #accessing }
+DRIRGenerator >> typeSystem: anObject [
+
+	typeSystem := anObject
 ]
 
 { #category : #'special cases' }
@@ -1730,6 +1744,11 @@ DRIRGenerator >> visitClassVariableNode: aRBVariableNode [
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRCopy
 		operands: { value }
+]
+
+{ #category : #'as yet unclassified' }
+DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [ 
+	^ self subclassResponsibility
 ]
 
 { #category : #visiting }
