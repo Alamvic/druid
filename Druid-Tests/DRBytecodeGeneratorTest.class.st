@@ -45,7 +45,6 @@ DRBytecodeGeneratorTest >> generateDruidIRFor: method [
 
 	| cfg |
 	cfg := compilerCompiler generateDruidIRFor: method.
-	cfg messageSends do: [ :send | send typeSystem: typeSystem ].
 	compilerCompiler optimize: cfg.
 	^ cfg
 ]
