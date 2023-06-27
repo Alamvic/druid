@@ -1,9 +1,6 @@
 Class {
 	#name : #DRMethodIRGenerator,
 	#superclass : #DRIRGenerator,
-	#instVars : [
-		'typeSystem'
-	],
 	#category : #'Druid-CompilerCompiler'
 }
 
