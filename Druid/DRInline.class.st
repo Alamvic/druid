@@ -11,7 +11,6 @@ Class {
 DRInline >> doApply: cfg [
 
 	cfg messageSends copy do: [ :messageSend | 
-		inlineGenerator := messageSend inlineGenerator.
 		self inline: messageSend ]
 ]
 
@@ -73,6 +72,8 @@ DRInline >> inline: messageSend [
 
 	(self isIgnoredSelector: messageSend) 
 		ifTrue: [ ^ self ].
+
+	inlineGenerator := messageSend inlineGenerator.
 
 	methodsToInline := self methodsToInlineOf: messageSend.
 	methodsToInline ifEmpty: [ ^ self ].

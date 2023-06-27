@@ -25,7 +25,7 @@ DRMessageSend >> inline [
 	
 	"Used by the visualization"
 	
-	self controlFlowGraph applyOptimisation: DRInline new
+	self controlFlowGraph applyOptimisation: (DRSingleInline forMessageSend: self)
 ]
 
 { #category : #accessing }
