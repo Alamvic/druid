@@ -1209,7 +1209,7 @@ DRBasicBlock >> validatePhiFunctions [
 				self assert: (dependency isInstruction or: [
 						 dependency isNullValue or: [
 							 dependency isPhysicalRegister or: [
-								 dependency isDRBlockClosure or: [ dependency class = DRInterpreterValue ] ] ] ]).
+								 dependency isDRBlockClosure or: [ dependency class = DruidTestInterpreter ] ] ] ]).
 				self assert: (dependency isInstruction not or: [
 						 ((self predecessors at: index) checkLivenessOf: dependency) or: [
 							 e hasRecursiveUse ] ]) ] ] ]
