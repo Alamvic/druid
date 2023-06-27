@@ -20,34 +20,12 @@ DRMessageSend >> arguments [
 	^ operands allButFirst
 ]
 
-{ #category : #inlining }
+{ #category : #optimizations }
 DRMessageSend >> inline [
-
-	| methodsToInline inlinedMethodReturnValue |
-	({ #class. #instVarAt: } includes: self selector) ifTrue: [ ^ self ].
-
-	methodsToInline := self methodsToInline.
-	methodsToInline ifEmpty: [ ^ self ].
-
-	"Break message send basic block"
-	self basicBlock breakBy: self.
-	self basicBlock predecessor jumpTo: irGenerator newFirstBasicBlock.
-
-	"Generate inlining methods IR"
-	irGenerator numberOfArguments: operands size - 1.
-	inlinedMethodReturnValue := self generateInlineIRForMethods: methodsToInline.
-
-	"Replace usages by inlines result"
-	irGenerator currentBasicBlock jumpTo: self basicBlock successor.
-	self replaceUsesBy: inlinedMethodReturnValue.
-
-	"Remove message send block"
-	self basicBlock removeFromCFGAndDisconnectSuccessors.
-
-	self flag: #FIXME. "Clean garbage to generate a valid CFG"
-	DRDeadBlockElimination new applyTo: irGenerator ir.
-	DRDeadCodeElimination new applyTo: irGenerator ir.
-	irGenerator ir validate
+	
+	"Used by the visualization"
+	
+	self controlFlowGraph applyOptimisation: DRInline new
 ]
 
 { #category : #accessing }
