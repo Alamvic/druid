@@ -135,6 +135,7 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
+1halt.
 	compilerCompiler optimize: cfg.
 	compilerCompiler optimize: cfg.
 
@@ -179,6 +180,36 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAnySatisfy [
 		do: [ :e |
 			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
 			e addSelectorSilently: selector withMethod: method ]
+]
+
+{ #category : #tests }
+DRBytecodeGeneratorTest >> testMethodCustomisationBadCount [
+
+	| method result cfg selector |
+	typeSystem := DRCustomisationTypeSystem new.
+	compilerCompiler := DRMethodCompilerCompiler new.
+	compilerCompiler irGenerator typeSystem: typeSystem.
+	bytecodeGenerator := DRBytecodeGenerator new.
+	selector := #badCount.
+	method := Array lookupSelector: selector.
+
+	compilerCompiler interpreter: {  }.
+	cfg := self generateDruidIRFor: method.
+
+	compilerCompiler optimize: cfg.
+	compilerCompiler optimize: cfg.
+
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+
+	result := method valueWithReceiver: { 1. 2 } arguments: { [ :e | e even ] }.
+	self assert: result equals: false.
+
+	result := method valueWithReceiver: { 2. 4 } arguments: { [ :e | e even ] }.
+	self assert: result equals: true.
+
+	{ Array } do: [ :e |
+		e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
+		e addSelectorSilently: selector withMethod: method ]
 ]
 
 { #category : #tests }
