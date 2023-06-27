@@ -3,8 +3,7 @@ Class {
 	#superclass : #DRInstruction,
 	#instVars : [
 		'methodNode',
-		'irGenerator',
-		'typeSystem'
+		'inlineGenerator'
 	],
 	#category : #'Druid-IR'
 }
@@ -19,58 +18,6 @@ DRMessageSend >> acceptVisitor: aVisitor [
 DRMessageSend >> arguments [
 
 	^ operands allButFirst
-]
-
-{ #category : #inlining }
-DRMessageSend >> generateInlineIRForMethod: classAndMethodToInline [
-
-	| lastFrame methodClass methodToInline |
-	"TODO: delegate generation to type?"
-	methodClass := classAndMethodToInline key.
-	(methodClass isKindOf: DRUndefinedType) ifTrue: [ "If we don't know the receiver's type, copy the message send"
-		(DRMethod methodNode: self originAST methodNode) asDRValue
-			pushFrameIn: irGenerator
-			receiver: self receiver.
-		^ irGenerator resolveMessageSend: self originAST receiver: self receiver arguments: self arguments ].
-
-	methodToInline := classAndMethodToInline value.
-	lastFrame := irGenerator
-		             interpretCode: (DRMethod methodNode: methodToInline)
-		             receiver: operands first
-		             arguments: operands allButFirst.
-
-	irGenerator finishCodeInterpretation: lastFrame.
-
-	^ lastFrame returnedValue
-]
-
-{ #category : #inlining }
-DRMessageSend >> generateInlineIRForMethods: methodsToInline [
-
-	| returnValues lastBlock |
-	returnValues := OrderedCollection new.
-	methodsToInline allButLastDo: [ :classAndMethod |
-		| jump |
-		jump := irGenerator currentBasicBlock endInstruction:
-			        (DRBranchIfCondition operands: {
-					         (DRTypeOf typeClass: classAndMethod key).
-					         self receiver.
-					         classAndMethod key asDRValue }).
-		jump newTrueBranch: irGenerator newBasicBlock.
-		returnValues add: (self generateInlineIRForMethod: classAndMethod).
-		jump newFalseBranch: irGenerator newBasicBlock ].
-
-	returnValues add:
-		(self generateInlineIRForMethod: methodsToInline last).
-
-	returnValues size = 1 ifTrue: [ ^ returnValues first ].
-
-	lastBlock := irGenerator newBasicBlock.
-
-	returnValues do: [ :returnValue |
-		returnValue basicBlock jumpTo: lastBlock ].
-	^ lastBlock addInstruction:
-		  (self instructionFactory phiWithVariables: returnValues)
 ]
 
 { #category : #inlining }
@@ -104,9 +51,15 @@ DRMessageSend >> inline [
 ]
 
 { #category : #accessing }
-DRMessageSend >> irGenerator: anIrGenerator [ 
+DRMessageSend >> inlineGenerator [
 
-	irGenerator := anIrGenerator
+	^ inlineGenerator
+]
+
+{ #category : #accessing }
+DRMessageSend >> inlineGenerator: anIrGenerator [ 
+
+	inlineGenerator := anIrGenerator
 ]
 
 { #category : #accessing }
@@ -131,18 +84,6 @@ DRMessageSend >> methodNode [
 DRMessageSend >> methodNode: anObject [
 
 	methodNode := anObject
-]
-
-{ #category : #inlining }
-DRMessageSend >> methodsToInline [
-	"Returns a collection of associations: 
-	    DRType (or #default) -> method AST
-	"
-
-	methodNode ifNotNil: [ "If a method node was set during interpretation then the message send is statically binding to them"
-		^ { (#default -> methodNode) } ].
-
-	^ typeSystem methodsForMessage: self
 ]
 
 { #category : #printing }
@@ -200,18 +141,6 @@ DRMessageSend >> type [
 			1 halt ] ].
 
 	^ DRUndefinedType new
-]
-
-{ #category : #accessing }
-DRMessageSend >> typeSystem [
-
-	^ typeSystem
-]
-
-{ #category : #accessing }
-DRMessageSend >> typeSystem: anObject [
-
-	typeSystem := anObject
 ]
 
 { #category : #copying }

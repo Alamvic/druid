@@ -148,12 +148,6 @@ DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arg
 ]
 
 { #category : #accessing }
-DRMethodIRGenerator >> typeSystem [
-
-	^ typeSystem
-]
-
-{ #category : #accessing }
 DRMethodIRGenerator >> typeSystem: aDRTypeSystem [
 
 	typeSystem := aDRTypeSystem
