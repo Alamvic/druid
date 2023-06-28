@@ -135,7 +135,7 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
-1halt.
+
 	compilerCompiler optimize: cfg.
 	compilerCompiler optimize: cfg.
 
@@ -193,7 +193,8 @@ DRBytecodeGeneratorTest >> testMethodCustomisationBadCount [
 	selector := #badCount.
 	method := Array lookupSelector: selector.
 
-	compilerCompiler interpreter: {  }.
+	compilerCompiler interpreter: Array new.
+
 	cfg := self generateDruidIRFor: method.
 
 	compilerCompiler optimize: cfg.

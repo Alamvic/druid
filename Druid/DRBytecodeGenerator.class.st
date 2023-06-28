@@ -76,7 +76,12 @@ DRBytecodeGenerator >> pushBlock: aDRBasicBlock [
 DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 
 	aDRInstruction operands do: [ :o | o acceptVisitor: self ].
-	builder send: selector
+	builder send: selector.
+	
+	aDRInstruction isConditionalBranch ifFalse: 
+		[ aDRInstruction users ifEmpty: [ 
+			builder popTop
+			 ]]
 ]
 
 { #category : #building }

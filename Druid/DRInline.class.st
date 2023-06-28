@@ -42,6 +42,7 @@ DRInline >> generateInlineIRForMethod: classAndMethodToInline of: aMessageSend [
 DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 
 	| returnValues lastBlock |
+
 	returnValues := OrderedCollection new.
 	methodsToInline allButLastDo: [ :classAndMethod |
 		| jump |
