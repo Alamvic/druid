@@ -20,7 +20,7 @@ DRMessageSend >> arguments [
 	^ operands allButFirst
 ]
 
-{ #category : #accessing }
+{ #category : #optimizations }
 DRMessageSend >> inline [
 	
 	"Used by the visualization"
@@ -118,7 +118,7 @@ DRMessageSend >> type [
 		(methodNode hasPragmaNamed: #returnTypeC:) ifTrue: [ "TODO: Match Slang types"
 			1 halt ] ].
 
-	^ DRTopType new
+	^ DRUndefinedType new
 ]
 
 { #category : #copying }

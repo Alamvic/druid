@@ -315,6 +315,12 @@ DRInstruction >> isLoadInstanceVariable [
 ]
 
 { #category : #testing }
+DRInstruction >> isLoadTemporaryVariable [
+
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isModulo [
 	
 	^ false

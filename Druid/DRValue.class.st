@@ -197,6 +197,12 @@ DRValue >> isLoad [
 ]
 
 { #category : #testing }
+DRValue >> isLoadArgument [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isLoadFramePointer [
 	
 	^ false
@@ -278,6 +284,12 @@ DRValue >> isSetConditionCode [
 DRValue >> isStore [
 
 	^ false 
+]
+
+{ #category : #testing }
+DRValue >> isStoreTemporaryVariable [
+
+	^ false
 ]
 
 { #category : #testing }

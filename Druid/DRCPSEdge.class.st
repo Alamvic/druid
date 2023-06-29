@@ -166,17 +166,6 @@ DRCPSEdge >> parent: aDRRegistersInfo [
 	parent := aDRRegistersInfo
 ]
 
-{ #category : #printing }
-DRCPSEdge >> printOn: aStream [
-
-	aStream nextPutAll: self class name asString.
-	aStream nextPutAll: '('.
-	aStream print: source id.
-	aStream nextPutAll: ' -> '.
-	aStream print: destination id.
-	aStream nextPutAll: ')'
-]
-
 { #category : #optimising }
 DRCPSEdge >> split [
 

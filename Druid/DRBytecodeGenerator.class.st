@@ -14,15 +14,17 @@ Class {
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> generateJump: aDRBranch [
 
+	| createJumpToEnd |
 	self flag: #TOCHECK. "Always ifTrue: ?"
 	builder addLiteral: #ifTrue:.
-	
+
 	builder jumpAheadTo: #else if: false.
 	self visitBlock: aDRBranch trueBranch.
-	builder jumpAheadTo: #end.
+	createJumpToEnd := currentBasicBlock endInstruction isBackJump not.
+	createJumpToEnd ifTrue: [ builder jumpAheadTo: #end ].
 	builder jumpAheadTarget: #else.
 	self visitBlock: aDRBranch falseBranch.
-	builder jumpAheadTarget: #end
+	createJumpToEnd ifTrue: [ builder jumpAheadTarget: #end ]
 ]
 
 { #category : #API }
@@ -42,7 +44,7 @@ DRBytecodeGenerator >> initialize [
 { #category : #testing }
 DRBytecodeGenerator >> isResultInstruction: aDRInstruction [
 
-	^ aDRInstruction users isEmpty
+	^ aDRInstruction users isEmpty or: [ aDRInstruction isStore ]
 ]
 
 { #category : #accessing }
@@ -54,7 +56,8 @@ DRBytecodeGenerator >> methodName: aString [
 { #category : #accessing }
 DRBytecodeGenerator >> numArgs: anInteger [
 
-	numArgs := anInteger
+	numArgs := anInteger.
+	1 to: anInteger do: [ :i | builder addTemp: 'arg' , (i - 1) asString ]
 ]
 
 { #category : #'stack - blocks' }
@@ -73,7 +76,12 @@ DRBytecodeGenerator >> pushBlock: aDRBasicBlock [
 DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 
 	aDRInstruction operands do: [ :o | o acceptVisitor: self ].
-	builder send: selector
+	builder send: selector.
+	
+	aDRInstruction isConditionalBranch ifFalse: 
+		[ aDRInstruction users ifEmpty: [ 
+			builder popTop
+			 ]]
 ]
 
 { #category : #building }
@@ -82,6 +90,7 @@ DRBytecodeGenerator >> targetAST [
 	| method ir |
 	ir := builder ir.
 	ir numArgs: numArgs.
+
 	method := ir compiledMethod.
 	method selector: methodName.
 	^ method
@@ -98,6 +107,12 @@ DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 
 	currentBasicBlock := aDRBasicBlock.
 	self pushBlock: aDRBasicBlock.
+
+	"Take care of backjumps!"
+	(aDRBasicBlock predecessors anySatisfy: [ :pred |
+		 pred endInstruction isBackJump ]) ifTrue: [
+		builder jumpBackTarget: #begin ].
+
 	aDRBasicBlock instructionsDo: [ :i |
 		(self isResultInstruction: i) ifTrue: [ i acceptVisitor: self ] ].
 	self assert: self popBlock = aDRBasicBlock
@@ -158,12 +173,19 @@ DRBytecodeGenerator >> visitInterpreterValue: aDRInterpreterValue [
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitJump: aDRJump [
 
+	aDRJump isBackJump ifTrue: [ ^ builder jumpBackTo: #begin ].
+
 	self visitBlock: aDRJump target
-	
+]
+
+{ #category : #visiting }
+DRBytecodeGenerator >> visitLessOrEqualsThan: aDRLessOrEqualsThanComparison inBranch: aDRGetConditionCode [
+
+	self sendMessage: #'<=' fromInstruction: aDRGetConditionCode
 ]
 
 { #category : #'ir-to-target' }
-DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [ 
+DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 
 	builder addTemp: aDRLoadArgument argName.
 	builder pushTemp: aDRLoadArgument argName
@@ -209,6 +231,7 @@ DRBytecodeGenerator >> visitPhiFunction: aDRPhiFunction [
 	| resolved |
 	resolved := aDRPhiFunction valuesForPredecessor: (self visitedPredecessorOf: aDRPhiFunction basicBlock).
 	resolved ifEmpty: [ 1halt ].
+	resolved unique isStore ifTrue: [ ^ self ].
 	resolved unique acceptVisitor: self
 ]
 
