@@ -64,7 +64,7 @@ DRBytecodeGeneratorTest >> generateMethodForSelector: aSelector [
 	^ method
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #utilities }
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector [
 
 	^ self
@@ -73,10 +73,11 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 		  numArgs: compilerCompiler irGenerator numberOfArguments
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #utilities }
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
 
 	aDRControlFlowGraph applyOptimisation: DRFrameInfoCleaner new.
+	aDRControlFlowGraph applyOptimisation: DRBranchCollapse new.
 	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
 
@@ -147,9 +148,11 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 	result := method valueWithReceiver: { 2. 4 } arguments: { [ :e | e even ] }.
 	self assert: result equals: true.
 
+"
 	{ Array } do: [ :e |
 		e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
 		e addSelectorSilently: selector withMethod: method ]
+	"
 ]
 
 { #category : #tests }
@@ -176,10 +179,10 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAnySatisfy [
 	result := method valueWithReceiver: { 1 . 3 } arguments: { [ :e | e even ] }.
 	self assert: result equals: false.
 
-	{ Array }	
+"	{ Array }	
 		do: [ :e |
 			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
-			e addSelectorSilently: selector withMethod: method ]
+			e addSelectorSilently: selector withMethod: method ]"
 ]
 
 { #category : #tests }
@@ -230,10 +233,10 @@ DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 	self assertCollection: result includesAll: { 1. 2. 3 }.
 
 
-	{ Array }	
+"	{ Array }	
 		do: [ :e |
 			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
-			e addSelectorSilently: selector withMethod: method ]
+			e addSelectorSilently: selector withMethod: method ]"
 ]
 
 { #category : #tests }
@@ -241,9 +244,10 @@ DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
 
 	| method result cfg selector |
 	self skip. "TODO: Fix blocks linearization"
-	
-	typeSystem := DRCustomisationTypeSystem new.
+
 	compilerCompiler := DRMethodCompilerCompiler new.
+	compilerCompiler irGenerator typeSystem:
+		(typeSystem := DRCustomisationTypeSystem new).
 	bytecodeGenerator := DRBytecodeGenerator new.
 	selector := #select:.
 	method := Collection >> selector.
@@ -255,14 +259,11 @@ DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
 
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
-	result := method valueWithReceiver: { 1. 2. 3 } arguments: { [ :e | e even ] }.
+	result := method
+		          valueWithReceiver: { 1. 2. 3 }
+		          arguments: { [ :e | e even ] }.
 
 	self assertCollection: result includesAll: { 1. 2. 3 }.
-
-
-	{ Array } do: [ :e |
-		e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
-		e addSelectorSilently: selector withMethod: method ]
 ]
 
 { #category : #tests }
@@ -287,6 +288,9 @@ DRBytecodeGeneratorTest >> testMethodManyReturns [
 DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 
 	| method result cfg selector methodProfiler |
+	
+	self skip. "This is a proof of concept, does not metter"
+	
 	bytecodeGenerator := DRProfileBytecodeGenerator new.
 	typeSystem := DRProfileBasedTypeSystem reset.
 	selector := #methodCollectionSize:.

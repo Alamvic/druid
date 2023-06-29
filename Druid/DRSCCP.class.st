@@ -191,6 +191,7 @@ DRSCCP >> latticeValue: aValue [
 		ifTrue: [ ^ self bottom ].
 	aValue isStore ifTrue: [ ^ self bottom ].
 	aValue isInstruction ifFalse: [ ^ aValue ].
+	aValue isMessageSend ifTrue: [ ^ self bottom ].
 
 	^ latticeValues at: aValue ifAbsent: [ self top ]
 ]

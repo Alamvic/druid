@@ -29,6 +29,17 @@ DREdge >> destination: anObject [
 	destination := anObject
 ]
 
+{ #category : #printing }
+DREdge >> printOn: aStream [
+
+	aStream nextPutAll: self class name asString.
+	aStream nextPutAll: '('.
+	aStream print: source id.
+	aStream nextPutAll: ' -> '.
+	aStream print: destination id.
+	aStream nextPutAll: ')'
+]
+
 { #category : #accessing }
 DREdge >> source [
 

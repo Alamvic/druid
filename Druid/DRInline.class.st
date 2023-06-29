@@ -70,7 +70,7 @@ DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 { #category : #inlining }
 DRInline >> inline: messageSend [
 
-	| pieces methodsToInline inlinedMethodReturnValue |
+	| methodsToInline inlinedMethodReturnValue |
 
 	(self isIgnoredSelector: messageSend) 
 		ifTrue: [ ^ self ].
@@ -79,8 +79,8 @@ DRInline >> inline: messageSend [
 	methodsToInline ifEmpty: [ ^ self ].
 
 	"Break message send basic block"
-	pieces := messageSend basicBlock breakBy: messageSend.
-	pieces first jumpTo: inlineGenerator newFirstBasicBlock.
+	messageSend basicBlock breakBy: messageSend.
+	messageSend basicBlock predecessor jumpTo: inlineGenerator newFirstBasicBlock.
 
 	"Generate inlining methods IR"
 	inlineGenerator numberOfArguments:
@@ -88,7 +88,7 @@ DRInline >> inline: messageSend [
 	inlinedMethodReturnValue := self generateInlineIRForMethods: methodsToInline of: messageSend.
 
 	"Replace usages by inlines result"
-	inlineGenerator currentBasicBlock jumpTo: pieces last.
+	inlineGenerator currentBasicBlock jumpTo: messageSend basicBlock successor.
 	messageSend replaceUsesBy: inlinedMethodReturnValue.
 
 	"Remove message send block"
