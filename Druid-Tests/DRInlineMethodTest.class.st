@@ -97,6 +97,19 @@ DRInlineMethodTest >> testMessageSendsAreNotInlinedWhenCreatingCFGForMethod [
 	self assert: cfg messageSends size equals: 1
 ]
 
+{ #category : #'tests - type systems' }
+DRInlineMethodTest >> testMethodSendingIndirectClassGetToIt [
+
+	| cfg  |
+
+	cfg := self generateDruidIRFor: #methodSendingClass:.
+
+	cfg applyOptimisation: DRInline new. "Inline only one implementor"
+
+	self assert: cfg messageSends size equals: 1.
+	self assert: cfg messageSends unique selector equals: #class.	
+]
+
 { #category : #tests }
 DRInlineMethodTest >> testNotInlineMethodWithNoTypeAnnotation [
 
