@@ -49,12 +49,12 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 	primitives := #( #primitiveAdd #primitiveSubtract #primitiveLessThan
 	                 #primitiveGreaterThan #primitiveLessOrEqual
 	                 #primitiveGreaterOrEqual #primitiveEqual #primitiveNotEqual
-	                 #primitiveMultiply #primitiveDivide "primitiveAt" primitiveNew
-	                 primitiveNewWithArg ).
+	                 #primitiveMultiply "#primitiveDivide" "primitiveAt" "primitiveNew
+	                 primitiveNewWithArg" ).
 
 	"bytecodePrimAdd duplicateTopBytecode 
 	sendLiteralSelector0ArgsBytecode shortConditionalJumpTrue 
-	shortUnconditionalJump pushReceiverVariableBytecode pushConstantTrueBytecode
+	  pushConstantTrueBytecode
 	 "
 	bytecodes := #( 
 		"pushReceiverVariableBytecode"
@@ -67,12 +67,12 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 			64 65 66
 		"pushReceiverBytecode"
 			76
-		"returnTopFromMethod" 
-			92
-		"pushConstantZeroBytecode"
-			80 81
+		"pushConstantTrue/False/Nil/Zero/OneBytecode"
+			77 78 79 80 81
 		"returnReceiver/True/False/Nil"
 			88 89 90 91
+		"returnTopFromMethod" 
+			92
 		"Special sends (+)"
 			96  97  98  99 100 101 102 103 104 105
 			106 107 108 109 110 111 112 113 114 115
@@ -86,9 +86,9 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 		"shortUnconditionalJump"
 			176 177 178 179 180 181 182 183
 		"shortConditionalJumpTrue"
-			"184 185 186 187 188 189 190 191"
+			184 185 186 187 188 189 190 191
 		"shortConditionalJumpFalse"
-			192 "193 194 195 196 197 198 199"
+			192 193 194 195 196 197 198 199
 		"popStackBytecode"
 			216
 	).
