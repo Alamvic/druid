@@ -79,7 +79,8 @@ DRCogitStackToRegisterMappingGenerator >> initialize [
 
 	super initialize.
 	nextVariableIndex := 0.
-	variables := Dictionary new
+	variables := Dictionary new.
+	markDeadCode := false
 ]
 
 { #category : #helpers }
@@ -91,6 +92,17 @@ DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRIns
 			 receiver: aRBMessageNode
 			 selector: #moveToReg:
 			 arguments: { (RBVariableNode named: temporaryVariableNode) })
+]
+
+{ #category : #'ir-to-ast' }
+DRCogitStackToRegisterMappingGenerator >> preProcessBlock: aBasicBlock [
+
+	markDeadCode ifTrue: [ "If a previous instruction marked dead code, we need to unmark it because we keep generating code"
+		markDeadCode := false.
+		generatorMethodBuilder addStatement: (RBAssignmentNode
+				 variable: (RBVariableNode named: 'deadCode')
+				 value: (RBLiteralNode value: false)) ].
+	super preProcessBlock: aBasicBlock
 ]
 
 { #category : #'ir-to-ast' }
@@ -125,7 +137,10 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 			 receiver: RBVariableNode selfNode
 			 selector: #genJumpTo:
 			 arguments:
-			 { (self jitCompileTimeExpression: aDRBytecodeJump operand1) })
+			 { (self jitCompileTimeExpression: aDRBytecodeJump operand1) }).
+	
+	"Everything that follows an unconditional jump is potentially dead code"
+	markDeadCode := true
 ]
 
 { #category : #visiting }
