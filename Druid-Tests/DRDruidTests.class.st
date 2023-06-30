@@ -11,13 +11,9 @@ DRDruidTests class >> isAbstract [
 ]
 
 { #category : #tests }
-DRDruidTests class >> testParameters [
+DRDruidTests class >> wordSizeParameters [
 
-	"Run only 64 bit tests for now..."
-	^ ParametrizedTestMatrix new
-		addCase: { #ISA -> #'aarch64'. #wordSize -> 8};
-		addCase: { #ISA -> #'X64'. #wordSize -> 8};
-		yourself
+	^ self wordSize64Parameters
 ]
 
 { #category : #'helpers-compiling' }
