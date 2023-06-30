@@ -3,7 +3,8 @@ Class {
 	#superclass : #DRCogitCodeGenerator,
 	#instVars : [
 		'nextVariableIndex',
-		'variables'
+		'variables',
+		'markDeadCode'
 	],
 	#category : #'Druid-Cogit'
 }
@@ -129,13 +130,20 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
-
 	"self CallRT: ceSendMustBeBooleanTrampoline"
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #CallRT:
-			 arguments: { (RBVariableNode named: aDRCall operand1) })
+			 arguments: { (RBVariableNode named: aDRCall operand1) }).
+	aDRCall isMapped ifTrue: [ "self annotateBytecode: self Label"
+		generatorMethodBuilder addStatement: (RBMessageNode
+				 receiver: RBVariableNode selfNode
+				 selector: #annotateBytecode:
+				 arguments: { (RBMessageNode
+						  receiver: RBVariableNode selfNode
+						  selector: #Label
+						  arguments: #(  )) }) ]
 ]
 
 { #category : #visiting }

@@ -139,10 +139,11 @@ DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
 DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [ 
 	
 	"self CallRT: ceSendMustBeBooleanTrampoline"
-	^ self
+	^ (self
 		  addInstructionWithNoResultFrom: aRBMessageNode
 		  instructionKind: DRCall
-		  operands: { 'ceSendMustBeBooleanTrampoline' }
+		  operands: { 'ceSendMustBeBooleanTrampoline' })
+			beMapped
 ]
 
 { #category : #accessing }

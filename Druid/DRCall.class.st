@@ -1,6 +1,9 @@
 Class {
 	#name : #DRCall,
 	#superclass : #DRInstruction,
+	#instVars : [
+		'mapped'
+	],
 	#category : #'Druid-BytecodeToJITCompilation'
 }
 
@@ -10,10 +13,29 @@ DRCall >> acceptVisitor: aVisitor [
 	^ aVisitor visitCall: self
 ]
 
+{ #category : #properties }
+DRCall >> beMapped [
+	
+	mapped := true
+]
+
+{ #category : #testing }
+DRCall >> initialize [
+
+	super initialize.
+	mapped := false
+]
+
 { #category : #testing }
 DRCall >> isMandatoryInstruction [
 
 	^ true
+]
+
+{ #category : #testing }
+DRCall >> isMapped [
+	
+	^ mapped
 ]
 
 { #category : #printing }
