@@ -17,6 +17,12 @@ DRLoadTemporaryVariable >> initialize [
 	result := DRNoRegister new
 ]
 
+{ #category : #testing }
+DRLoadTemporaryVariable >> isLoadTemporaryVariable [
+
+	^ true
+]
+
 { #category : #printing }
 DRLoadTemporaryVariable >> opcode [
 	

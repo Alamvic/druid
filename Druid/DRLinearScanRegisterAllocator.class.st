@@ -1,3 +1,21 @@
+"
+# Description
+
+The goal of a register allocator is to minimize the number of spilled registers and optimize the allocation strategy to minimize the impact on performance.
+
+## Details
+
+A register allocator efficiently assigns variables to physical registers. It does so minimizing the need for memory access and maximizing the use of available registers. When there are more live variables than registers, the allocator must select which variables to spill to memory and which to keep in registers. A spilling register refers to a situation where there are more live variables than available registers. See the _spilling strategies_ protocol to access methods related with spilling registers.
+
+The algorithm works by scanning code linearly, keeping track of the liveness ranges of variables. 
+
+When a register allocation request is found, it checks if there are available registers. If all registers are currently allocated then:
+
+- It selects the least recently used register
+- Spills its variable to memory
+- Allocates the requester variable to that register.
+
+"
 Class {
 	#name : #DRLinearScanRegisterAllocator,
 	#superclass : #Object,

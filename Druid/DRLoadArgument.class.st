@@ -18,7 +18,7 @@ DRLoadArgument >> acceptVisitor: aVisitor [
 { #category : #accessing }
 DRLoadArgument >> argName [
 
-	^ argName
+	^ argName ifNil: [ 'arg' , argNum asString ]
 ]
 
 { #category : #accessing }
@@ -35,6 +35,12 @@ DRLoadArgument >> classType: aType [
 
 { #category : #visiting }
 DRLoadArgument >> isLoadArgument [
+
+	^ true
+]
+
+{ #category : #visiting }
+DRLoadArgument >> isMandatoryInstruction [
 
 	^ true
 ]

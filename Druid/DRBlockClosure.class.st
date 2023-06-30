@@ -102,7 +102,7 @@ DRBlockClosure >> methodTopFrame [
 	^ outerContext deferredMethodReturns values unique topFrame
 ]
 
-{ #category : #asd }
+{ #category : #accessing }
 DRBlockClosure >> name [
 
 	^ 'a block'
@@ -130,4 +130,11 @@ DRBlockClosure >> outerContext [
 DRBlockClosure >> outerContext: anObject [
 
 	outerContext := anObject
+]
+
+{ #category : #SCCP }
+DRBlockClosure >> sccpLatticeValueFor: sccp [ 
+	
+	"This instruction has no value"
+	^ sccp bottom
 ]

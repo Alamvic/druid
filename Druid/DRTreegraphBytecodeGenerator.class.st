@@ -142,12 +142,6 @@ DRTreegraphBytecodeGenerator >> visitBranchIfCondition: aDRBranchIfCondition [
 ]
 
 { #category : #visiting }
-DRTreegraphBytecodeGenerator >> visitBranchIfTrue: aDRBranchIfTrue [
-
-	self generateBranch: aDRBranchIfTrue
-]
-
-{ #category : #visiting }
 DRTreegraphBytecodeGenerator >> visitConstant: aDRConstantValue [
 
 	aDRConstantValue value isLiteral ifFalse: [

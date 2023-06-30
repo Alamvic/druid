@@ -124,7 +124,19 @@ DRInstructionFactory >> jitCompileTimeVariable: aString [
 { #category : #factory }
 DRInstructionFactory >> jumpIf: aBoolean [
 
-	^ DRBranchIfTrue operands: { aBoolean asDRValue }
+	^ DRBranchIfCondition operands: {
+			  DREqualsThanComparison new.
+			  aBoolean asDRValue.
+			  true asDRValue }
+]
+
+{ #category : #factory }
+DRInstructionFactory >> jumpIf: aCondition trueTarget: trueTarget falseTarget: falseTarget [
+
+	^ (self jumpIf: aCondition)
+		  trueBranch: trueTarget;
+		  falseBranch: falseTarget;
+		  yourself
 ]
 
 { #category : #factory }

@@ -160,7 +160,8 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 DRControlFlowGraph >> buildDominatorTree [
 
 	self tree: (DRDominatorTree new buildDominatorTreeOf: self).
-	self tree computeDominanceFrontier
+	self tree computeDominanceFrontier.
+	^ self tree
 ]
 
 { #category : #edges }
@@ -415,8 +416,7 @@ DRControlFlowGraph >> instructionColor: instruction [
 
 	instruction isJump ifTrue: [
 		instruction isBackJump ifTrue: [ ^ Color purple muchLighter ].
-		instruction isBranchIfCondition ifTrue: [ ^ Color purple ].
-		instruction isBranchIfTrue ifTrue: [ ^ Color purple ].
+		instruction isConditionalBranch ifTrue: [ ^ Color purple ].
 		^ Color purple muchDarker ].
 	instruction isMandatoryInstruction ifTrue: [ ^ Color red ].
 	instruction users isEmpty ifTrue: [ ^ Color gray ].
@@ -493,7 +493,7 @@ DRControlFlowGraph >> leafBlocks [
 	^ self blocks select: [ :b | b endInstruction isNoop ]
 ]
 
-{ #category : #acccessing }
+{ #category : #accessing }
 DRControlFlowGraph >> mergeBlocks [
 
 	^ self reversePostOrderBlocks select: [ :b | b hasPhiFunctions ]

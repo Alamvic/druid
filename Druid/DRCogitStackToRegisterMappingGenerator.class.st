@@ -10,11 +10,11 @@ Class {
 }
 
 { #category : #helpers }
-DRCogitStackToRegisterMappingGenerator >> allocateVariable: aVariableName [
+DRCogitStackToRegisterMappingGenerator >> allocateVariable: aDRResult [
 
 	| temporaryVariableNode variableIndex |
-	aVariableName isNoResult ifTrue: [ ^ self ].
-	variables at: aVariableName ifPresent: [ :var | ^ var ].
+	aDRResult isNoResult ifTrue: [ ^ self ].
+	variables at: aDRResult ifPresent: [ :var | ^ var ].
 
 	"Should generate a variable allocation in the lines of:
 	
@@ -31,7 +31,7 @@ DRCogitStackToRegisterMappingGenerator >> allocateVariable: aVariableName [
 
 	temporaryVariableNode := RBVariableNode named:
 		                         't' , variableIndex asString.
-	variables at: aVariableName put: temporaryVariableNode name.
+	variables at: aDRResult put: temporaryVariableNode name.
 
 	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
 	generatorMethodBuilder addStatement: (RBAssignmentNode
@@ -83,6 +83,41 @@ DRCogitStackToRegisterMappingGenerator >> initialize [
 	markDeadCode := false
 ]
 
+{ #category : #'code-generation' }
+DRCogitStackToRegisterMappingGenerator >> innerCompilePathFrom: aDRBasicBlock [
+
+	| dominatorTree dominatedBlocks sharedPathToTheEnd truePath innerGenerator |
+	"We should create a path from the branch to the end"
+	dominatorTree := aDRBasicBlock controlFlowGraph buildDominatorTree.
+	dominatedBlocks := aDRBasicBlock controlFlowGraph reversePostOrderBlocks select: [ :b |
+		                   b isDominatedBy: aDRBasicBlock ].
+
+	"Remove blocks only visited during inner compilation from outer"
+	dominatedBlocks do: [ :b | blocks remove: b ].
+
+	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
+	truePath := dominatedBlocks , sharedPathToTheEnd.
+
+	innerGenerator := self innerGenerator.
+	innerGenerator blocks: truePath.
+	innerGenerator generateCodeFromBlocks.
+	innerGenerator generatePostambleForCFG: aDRBasicBlock controlFlowGraph.
+	innerGenerator generateReturn.
+
+	^ innerGenerator generatorMethodBuilder sequenceNode
+]
+
+{ #category : #copy }
+DRCogitStackToRegisterMappingGenerator >> innerGenerator [
+
+	| innerGenerator |
+	innerGenerator := self copy.
+	innerGenerator variables: variables copy.
+	innerGenerator deferredBranches: deferredBranches copy.
+	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
+	^ innerGenerator
+]
+
 { #category : #helpers }
 DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRInstruction [
 
@@ -130,6 +165,18 @@ DRCogitStackToRegisterMappingGenerator >> twoOperandMoveCogitRTL: anInstruction 
 	^ super twoOperandMoveCogitRTL: anInstruction operands: operands
 ]
 
+{ #category : #accessing }
+DRCogitStackToRegisterMappingGenerator >> variables [
+
+	^ variables
+]
+
+{ #category : #accessing }
+DRCogitStackToRegisterMappingGenerator >> variables: anObject [
+
+	variables := anObject
+]
+
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 
@@ -172,6 +219,20 @@ DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMa
 			 arguments:
 			 { (RBLiteralValueNode value:
 				  aDRCogitSendMarshall numberOfArguments) })
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitCompileTimeStore: aDRStore [
+
+	| varName |
+	varName := aDRStore address name.
+
+	(varName beginsWith: 'r') ifTrue: [ "Temporary compile time variable"
+		generatorMethodBuilder addVariableNamed: varName ].
+
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: (RBVariableNode named: varName)
+			 value: (self jitCompileTimeExpression: aDRStore operand1))
 ]
 
 { #category : #visiting }
