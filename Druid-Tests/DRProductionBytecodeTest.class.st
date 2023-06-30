@@ -78,8 +78,8 @@ DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 		generator value.
 	
 		"Then return without druid's compiled code"
-		cogit ssTop moveToReg: ReceiverResultReg.
-		cogit ssPop: 2.
+		cogit ssPopTopToReg: ReceiverResultReg.
+		cogit ssPop: 1.
 		cogit genUpArrowReturn ].
 
 	machineSimulator temporaryRegisterValue: 17.
