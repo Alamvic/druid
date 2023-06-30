@@ -90,7 +90,7 @@ DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRIns
 	temporaryVariableNode := self allocateVariable: aDRInstruction result.
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: aRBMessageNode
-			 selector: #moveToReg:
+			 selector: #copyToReg:
 			 arguments: { (RBVariableNode named: temporaryVariableNode) })
 ]
 
