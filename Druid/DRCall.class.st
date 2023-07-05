@@ -2,7 +2,8 @@ Class {
 	#name : #DRCall,
 	#superclass : #DRInstruction,
 	#instVars : [
-		'mapped'
+		'mapped',
+		'functionName'
 	],
 	#category : #'Druid-BytecodeToJITCompilation'
 }
@@ -17,6 +18,11 @@ DRCall >> acceptVisitor: aVisitor [
 DRCall >> beMapped [
 	
 	mapped := true
+]
+
+{ #category : #accessing }
+DRCall >> functionName [
+	^ functionName
 ]
 
 { #category : #testing }
@@ -44,10 +50,11 @@ DRCall >> opcode [
 	^ 'Call'
 ]
 
-{ #category : #accessing }
-DRCall >> operands [
+{ #category : #printing }
+DRCall >> operands: aCollection [
 
-	^ #()
+	functionName := aCollection first.
+	super operands: aCollection allButFirst
 ]
 
 { #category : #SCCP }

@@ -148,9 +148,15 @@ DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 	"self CallRT: ceSendMustBeBooleanTrampoline"
 
 	generatorMethodBuilder addStatement: (RBMessageNode
+		receiver: RBVariableNode selfNode
+		selector: #MoveR:R:
+		arguments: {
+			self rtlExpressionForValue: aDRCall operand1.
+			RBVariableNode named: 'TempReg' }).
+	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #CallRT:
-			 arguments: { (RBVariableNode named: aDRCall operand1) }).
+			 arguments: { (RBVariableNode named: aDRCall functionName) }).
 	aDRCall isMapped ifTrue: [ "self annotateBytecode: self Label"
 		generatorMethodBuilder addStatement: (RBMessageNode
 				 receiver: RBVariableNode selfNode
@@ -279,6 +285,30 @@ DRCogitStackToRegisterMappingGenerator >> visitReturn: aDRReturn [
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #genUpArrowReturn)
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [ 
+	
+	"self ssFlushUpThroughTemporaryVariable: index.
+	self MoveR: reg
+		Mw: (self frameOffsetOfTemporary: tempIndex)
+		r: FPReg."
+	generatorMethodBuilder addStatement: (RBMessageNode
+		 receiver: RBVariableNode selfNode
+		 selector: #ssFlushUpThroughTemporaryVariable:
+		 arguments: { RBLiteralValueNode value: aDRStoreTemporaryVariable operand1 value }).
+	generatorMethodBuilder addStatement: (RBMessageNode
+		 receiver: RBVariableNode selfNode
+		 selector: #MoveR:Mw:r:
+		 arguments: {
+			self rtlExpressionForValue: aDRStoreTemporaryVariable result.
+			RBMessageNode
+				receiver: RBVariableNode selfNode
+				selector: #frameOffsetOfTemporary:
+				arguments: { RBLiteralValueNode value: aDRStoreTemporaryVariable operand1 value }.
+			RBVariableNode named: 'FPReg'
+	}).
 ]
 
 { #category : #visiting }

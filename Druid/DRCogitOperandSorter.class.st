@@ -273,6 +273,12 @@ DRCogitOperandSorter >> visitStore: aDRStore [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitStoreTempVar: aDRStoreTemporaryVariable [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitSubstract: aDRSubtract [ 
 	
 	"Subtraction is not commutative!

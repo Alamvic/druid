@@ -369,6 +369,12 @@ DRCogitCanonicaliser >> visitStore: aDRStore [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitStoreTempVar: aDRStoreTemporaryVariable [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitSubstract: aDRSubtract [
 	"Replace a subtractions of a constant by an addition to simplify transformations"
 

@@ -27,9 +27,11 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	variableSpecialCases at: #framePointer put: #interpretFramePointerWith:.
 	"variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:."
 	
+	specialCases at: #iframeNumArgs: put: #interpretNumArgsWith:.
 	specialCases at: #iframeMethod: put: #interpretIframeMethodWith:.
 	specialCases at: #itemporary:in: put: #interpretITemporaryInWith:.
-	specialCases at: #internalMustBeBoolean put: #interpretMustBeBooleanWith:.
+	specialCases at: #itemporary:in:put: put: #interpretITemporaryInPutWith:.
+	specialCases at: #internalMustBeBoolean: put: #interpretMustBeBooleanWith:.
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
@@ -48,7 +50,7 @@ DRBytecodeIRGenerator >> interpretArgumentCountAssignmentWith: aRBAssignmentNode
 	aRBAssignmentNode value acceptVisitor: self.
 ]
 
-{ #category : #'special - cases' }
+{ #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretCommonReturnWith: aRBMessageNode [
 
 	| returnedValue |
@@ -88,7 +90,24 @@ DRBytecodeIRGenerator >> interpretFramePointerWith: aRBVariableNode [
 		operands: #()
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretITemporaryInPutWith: aRBMessageNode [ 
+
+	| index value |
+	"Skip second argument, it's the frame pointer"
+	index := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.
+	index isNumber ifFalse: [
+		self error:	'We can only compile access to frame with constant index' ].
+	
+	value := (self visitOperand: aRBMessageNode arguments third) simpleConstantFold.
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRStoreTemporaryVariable
+		  operands: { index asDRValue . value asDRValue }
+]
+
+{ #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
 
 	| index |
@@ -102,7 +121,7 @@ DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
 		  operands: { index asDRValue }
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretIframeMethodWith: aRBMessageNode [ 
 
 	^ self
@@ -138,11 +157,13 @@ DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
 { #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [ 
 	
+	| theNonBoolean |
+	theNonBoolean := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.
 	"self CallRT: ceSendMustBeBooleanTrampoline"
 	^ (self
 		  addInstructionWithNoResultFrom: aRBMessageNode
 		  instructionKind: DRCall
-		  operands: { 'ceSendMustBeBooleanTrampoline' })
+		  operands: { 'ceSendMustBeBooleanTrampoline'. theNonBoolean })
 			beMapped
 ]
 
@@ -184,6 +205,15 @@ DRBytecodeIRGenerator >> interpretNormalSpecialSelectorSendWith: aMessage [
 		  addInstructionWithNoResultFrom: aMessage
 		  instructionKind: DRJITMessageSend
 		  operands: { selectorIndex asDRValue. argumentCount asDRValue . true asDRValue }
+]
+
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretNumArgsWith: aRBMessageNode [ 
+
+	^ self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRCopy
+		operands: { DRJitCompileTimeExpression new expression: 'methodOrBlockNumArgs' }
 ]
 
 { #category : #'special cases' }

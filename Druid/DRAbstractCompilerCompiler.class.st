@@ -34,6 +34,7 @@ DRAbstractCompilerCompiler >> compile [
 
 	| druidIR |
 	self customise.
+
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
