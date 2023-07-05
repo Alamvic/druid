@@ -291,6 +291,14 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitLoadStackPointer: aDRLoadStackPointer [
+
+	self twoOperandMoveCogitRTL: aDRLoadStackPointer operands: {
+			(DRPhysicalGeneralPurposeRegister name: 'SPReg').
+			aDRLoadStackPointer result }
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue [
 	"(self ssDescriptorAt: 0) moveToReg: TempReg."
 

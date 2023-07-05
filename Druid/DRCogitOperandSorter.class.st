@@ -188,6 +188,12 @@ DRCogitOperandSorter >> visitLoadReceiver: aDRLoadReceiver [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitLoadStackPointer: aDRLoadStackPointer [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitLoadStackValue: aDRLoadStackValue [ 
 	
 	"Nothing"

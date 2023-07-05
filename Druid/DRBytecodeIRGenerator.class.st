@@ -25,8 +25,14 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 	variableSpecialCases at: #framePointer put: #interpretFramePointerWith:.
+	variableSpecialCases at: #stackPointer put: #interpretStackPointerWith:.
+	variableSpecialCases at: #stackLimit put: #interpretStackLimitWith:.
+	variableSpecialCases at: #extA put: #interpretAsCompilerVariableWith:.
+	variableSpecialCases at: #extB put: #interpretAsCompilerVariableWith:.
+	variableSpecialCases at: #numExtA put: #interpretAsCompilerVariableWith:.
+	variableSpecialCases at: #numExtB put: #interpretAsCompilerVariableWith:.
 	"variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:."
-	
+
 	specialCases at: #iframeNumArgs: put: #interpretNumArgsWith:.
 	specialCases at: #iframeMethod: put: #interpretIframeMethodWith:.
 	specialCases at: #itemporary:in: put: #interpretITemporaryInWith:.
@@ -37,7 +43,8 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
 	specialCases at: #normalSendSpecialSelector:argumentCount: put: #interpretNormalSpecialSelectorSendWith:.
 	specialCases at: #commonReturn: put: #interpretCommonReturnWith:.
-	
+	specialCases at: #checkForEventsMayContextSwitch: put: #interpretInterruptCheckWith:.
+	specialCases at: #fetchByte put: #interpretFetchByteWith:.
 
 ]
 
@@ -192,6 +199,15 @@ DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
 ]
 
 { #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretInterruptCheckWith: aRBMessageNode [
+
+	^ (self
+		   addInstructionWithNoResultFrom: aRBMessageNode
+		   instructionKind: DRCall
+		   operands: { 'ceCheckForInterruptTrampoline' }) beMapped
+]
+
+{ #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [ 
 	
 	| theNonBoolean |
@@ -277,6 +293,28 @@ DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [
 	| receiver |
 	receiver := self visitOperand: aRBMessageNode arguments first.
 	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
+]
+
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretStackLimitWith: aRBVariableNode [ 
+
+	| byteSize |
+	byteSize := 8.
+	^ self
+		addInstructionFrom: aRBVariableNode
+		instructionKind: DRLoad
+		operands: { 
+				byteSize asDRValue.
+				DRInterpreterReference reference: 'coInterpreter stackLimitAddress' }
+]
+
+{ #category : #visiting }
+DRBytecodeIRGenerator >> interpretStackPointerWith: aRBVariableNode [ 
+	
+	^ self
+		addInstructionFrom: aRBVariableNode
+		instructionKind: DRLoadStackPointer
+		operands: #()
 ]
 
 { #category : #'special cases - stack' }

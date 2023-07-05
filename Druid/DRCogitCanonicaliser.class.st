@@ -239,6 +239,12 @@ DRCogitCanonicaliser >> visitLoadReceiver: aDRLoadReceiver [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitLoadStackPointer: aDRLoadStackPointer [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitLoadStackValue: aDRLoadStackValue [ 
 	
 	"Nothing"
