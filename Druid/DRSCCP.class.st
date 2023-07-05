@@ -116,17 +116,13 @@ DRSCCP >> buildEdges: cfg [
 DRSCCP >> canBeAppliedIn: aDRControlFlowGraph [
 
 	^ aDRControlFlowGraph instructions anySatisfy: [ :i | 
-		  i isBranchIfCondition or: [ self isConstantLattice: (self latticeValue: i) ] ]
+		  i isConditionalBranch or: [ self isConstantLattice: (self latticeValue: i) ] ]
 ]
 
 { #category : #executing }
 DRSCCP >> doApply: cfg [
 
-	self initializeSCCPWithCFG: cfg.
-
-	[ cfgEdgeWorkList isEmpty and: [ssaWorkList isEmpty] ] whileFalse: [ 
-		self stepCFGEdgeWorklist.
-		self stepInstructionWorklist].
+	self setupWithCFG: cfg.
 
 	self applyPropagation.
 ]
@@ -158,6 +154,14 @@ DRSCCP >> initialize [
 	edgesByDestination := Dictionary new
 ]
 
+{ #category : #executing }
+DRSCCP >> initializeLattice [
+
+	[ cfgEdgeWorkList isEmpty and: [ ssaWorkList isEmpty ] ] whileFalse: [
+		self stepCFGEdgeWorklist.
+		self stepInstructionWorklist ]
+]
+
 { #category : #initialization }
 DRSCCP >> initializeSCCPWithCFG: cfg [
 
@@ -187,6 +191,7 @@ DRSCCP >> latticeValue: aValue [
 		ifTrue: [ ^ self bottom ].
 	aValue isStore ifTrue: [ ^ self bottom ].
 	aValue isInstruction ifFalse: [ ^ aValue ].
+	aValue isMessageSend ifTrue: [ ^ self bottom ].
 
 	^ latticeValues at: aValue ifAbsent: [ self top ]
 ]
@@ -239,6 +244,14 @@ DRSCCP >> setValueOf: anInstruction at: aValue [
 ]
 
 { #category : #executing }
+DRSCCP >> setupWithCFG: cfg [
+
+	self initializeSCCPWithCFG: cfg.
+
+	self initializeLattice
+]
+
+{ #category : #executing }
 DRSCCP >> stepCFGEdgeWorklist [
 
 	"Each basic block is visited only once.
@@ -284,40 +297,24 @@ DRSCCP >> top [
 { #category : #executing }
 DRSCCP >> tryReplaceConditionalJump: i [
 
-	| constantTarget removedTarget |
-	"If it is a branch.cond, it has been managed by the previous case"
-	i isBranchIfCondition ifTrue: [ 
-		| conditionLattice |
-		"If it is a branch of the form
-		  branch.cond A B
-		
-		where A cond B is constant, replace it by
-		
-		  branch.iftrue constant
-		"
-		conditionLattice := i sccpEvaluateConditionFor: self.
-		(self isConstantLattice: conditionLattice) ifTrue: [ 
-			| branchIfTrue |
-			branchIfTrue := DRBranchIfTrue operands:
-				                { conditionLattice asDRValue }.
-			branchIfTrue trueBranch: i trueBranch.
-			branchIfTrue falseBranch: i falseBranch.
-			i replaceBy: branchIfTrue.
-			self tryReplaceConditionalJump: branchIfTrue ].
+	| constantTarget removedTarget conditionLattice |
+	"If this is not a conditional jump, exit"
+	i isConditionalBranch ifFalse: [ ^ self ].
+
+	conditionLattice := i sccpEvaluateConditionFor: self.
+	(self isConstantLattice: conditionLattice) ifFalse: [ ^ self ].
+	(conditionLattice isConstant and: [ conditionLattice type isBooleanType ]) ifFalse: [
 		^ self ].
 
-	(i isBranchIfTrue and: [ i operand1 isConstant ]) ifFalse: [ ^ self ].
-
 	"If it is a branch of the form
-	  branch.IfTrue constant
-	
+	  branch if (condition that is always constant)
 	replace it by simple jump
 	"
-	i operand1 value
-		ifTrue: [ 
+	conditionLattice value
+		ifTrue: [
 			constantTarget := i trueBranch.
 			removedTarget := i falseBranch ]
-		ifFalse: [ 
+		ifFalse: [
 			constantTarget := i falseBranch.
 			removedTarget := i trueBranch ].
 
@@ -335,13 +332,14 @@ DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 	lattice := self latticeValue: i.
 	(self isConstantLattice: lattice) ifFalse: [ ^ self ].
 
-	replacement := DRCopy
-		               operands: { lattice asDRValue }
-		               result: i result.
-	
+	replacement := lattice result isNoResult
+		               ifTrue: [ lattice ]
+		               ifFalse: [
+		               DRCopy operands: { lattice asDRValue } result: i result ].
+
 	"We tell the lattice values that the new instruction has the same vlue as the old one"
 	latticeValues at: replacement put: (latticeValues at: i).
-	i replaceBy: replacement.
+	i replaceBy: replacement
 ]
 
 { #category : #executing }
@@ -359,25 +357,19 @@ DRSCCP >> tryReplaceInstructionOperands: i [
 
 { #category : #querying }
 DRSCCP >> usesOf: anInstruction [
-	
-	| ret |
 
-	anInstruction isBranchIfCondition ifTrue: [
-		self value = self top ifTrue: [ 
-			ret := OrderedCollection new. 
-			ret addAll: anInstruction trueBranch instructions.
-			ret addAll: anInstruction falseBranch instructions. 
-			^ ret ]
-		ifFalse: [ 
-			"We assume self value = self bottom" 
-			anInstruction condition value ifTrue: [ 
-				 ret := OrderedCollection new. 
-				 ret addAll: anInstruction trueBranch instructions.
-				^ ret. ]
-			ifFalse: [ 
-				ret := OrderedCollection new. 
-				ret addAll: anInstruction falseBranch instructions.
-				^ ret. ] ] ]. 
-	^ instancecfg instructions select: [ :instruction | 
+	| ret |
+	anInstruction isConditionalBranch ifTrue: [
+		ret := OrderedCollection new.
+		self value = self top
+			ifTrue: [
+				ret addAll: anInstruction trueBranch instructions.
+				ret addAll: anInstruction falseBranch instructions ]
+			ifFalse: [ "We assume self value = self bottom"
+				anInstruction condition value
+					ifTrue: [ ret addAll: anInstruction trueBranch instructions ]
+					ifFalse: [ ret addAll: anInstruction falseBranch instructions ] ].
+		^ ret ].
+	^ instancecfg instructions select: [ :instruction |
 		  instruction operands includes: anInstruction ]
 ]

@@ -11,6 +11,14 @@ DRMethodIRGenerator >> finishCodeInterpretation: lastFrame [
 ]
 
 { #category : #initialization }
+DRMethodIRGenerator >> initialize [
+
+	super initialize.
+
+	typeSystem := DRPragmaBasedTypeSystem new
+]
+
+{ #category : #initialization }
 DRMethodIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
@@ -25,6 +33,7 @@ DRMethodIRGenerator >> inlineGenerator [
 	| newIR |
 	newIR := DRMethodIRGeneratorInline new
 		         controlFlowGraph: controlFlowGraph;
+					typeSystem: typeSystem;
 		         yourself.
 	newIR executionState: executionState copy.
 	^ newIR
@@ -36,26 +45,29 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	| value |
 	value := self visitOperand: aRBAssignmentNode value.
 
-	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [ 
+	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
 		^ self
 			  addInstructionWithNoResultFrom: aRBAssignmentNode
 			  instructionKind: DRStoreInstanceVariable
-			  operands: { 
+			  operands: {
 					  self receiver.
 					  aRBAssignmentNode variable binding index asDRValue.
 					  value } ].
 
-	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [ 
+	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [
+		| result |
+		result := self
+			          addInstructionFrom: aRBAssignmentNode
+			          instructionKind: DRStoreTemporaryVariable
+			          operands: {
+					          aRBAssignmentNode variable name asDRValue. "Fix temporary names collisions"
+					          value }.
 		self topFrame
-				  temporaryAt: aRBAssignmentNode variable name
-				  put: value
-				  withState: executionState.
-		^ self
-			  addInstructionWithNoResultFrom: aRBAssignmentNode
-			  instructionKind: DRStoreTemporaryVariable
-			  operands: { 
-					  aRBAssignmentNode variable name asDRValue. "Fix temporary names collisions"
-					  value } ].
+			temporaryAt: aRBAssignmentNode variable name
+			put: result
+			withState: executionState.
+
+		^ result ].
 
 	self unexplored
 ]
@@ -133,9 +145,9 @@ DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arg
 ]
 
 { #category : #accessing }
-DRMethodIRGenerator >> typeSystem [
+DRMethodIRGenerator >> typeSystem: aDRTypeSystem [
 
-	^ DRPragmaBasedTypeSystem new
+	typeSystem := aDRTypeSystem
 ]
 
 { #category : #visiting }
@@ -161,11 +173,16 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 	| value |
 	value := self temporaryAt: aRBVariableNode name.
 
-	value isNullValue ifTrue: [ "If Null then it is a method local variable"
+	aRBVariableNode isTempVariable ifTrue: [
+		| store |
+		store := self topFrame temporaryAt: aRBVariableNode name withState: executionState.
+
 		^ self
 			  addInstructionFrom: aRBVariableNode
 			  instructionKind: DRLoadTemporaryVariable
-			  operands: { aRBVariableNode name asDRValue } ].
+			  operands: {
+					  aRBVariableNode name asDRValue.
+					  store } ].
 
 	"Else, it is an argument"
 	^ self pushOperand: value

@@ -1,3 +1,23 @@
+"
+A LiveSet represents the set of live variables at a particular point in the program's code. It keeps track of the variables that are still being used or modified within a specific interval or range (see also `DRLiveRange`). The LiveSet is typically associated with a specific program point, such as a basic block or an instruction.
+
+This class has methods to manipulate and query the set of live variables. 
+
+## Important methods
+
+- The `overlaps:` method takes another `DRLiveSet` as a parameter and checks whether there is any overlap between the live ranges of the two sets. If any of the live ranges in the receiver live set intersect with any of the live ranges in the second live set, it will return true. Otherwise, it will return false.
+
+
+Internal Representation and Key Implementation Points.
+
+    Instance Variables
+	definitions:		<Object>
+	liveRanges:		<Object>
+	location:		<Object>
+
+
+    Implementation Points
+"
 Class {
 	#name : #DRLiveSet,
 	#superclass : #Object,

@@ -16,6 +16,12 @@ DRStoreInstanceVariable >> isMandatoryInstruction [
 	^ true
 ]
 
+{ #category : #visiting }
+DRStoreInstanceVariable >> isStore [ 
+
+	^ true
+]
+
 { #category : #printing }
 DRStoreInstanceVariable >> opcode [
 	

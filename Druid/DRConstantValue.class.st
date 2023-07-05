@@ -71,9 +71,9 @@ DRConstantValue >> isInvariantFrom: loop [
 ]
 
 { #category : #testing }
-DRConstantValue >> isJitCompileTimeExpression [
+DRConstantValue >> isJITCompileTimeExpression [
 	
-	^ value isJitCompileTimeExpression
+	^ value isJITCompileTimeExpression
 ]
 
 { #category : #testing }

@@ -10,6 +10,12 @@ DREqualsThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch [
 	^ aVisitor visitEqualsThan: self inBranch: parentBranch
 ]
 
+{ #category : #converting }
+DREqualsThanComparison >> asJitCompileTimeExpressionString [
+
+	^ '=' 
+]
+
 { #category : #testing }
 DREqualsThanComparison >> isCommutative [
 	
@@ -44,5 +50,5 @@ DREqualsThanComparison >> reversed [
 { #category : #SCCP }
 DREqualsThanComparison >> sccpOperateOnLattice: operand and: operand2 [
 	
-	^ operand = operand2
+	^ operand sccpEquals: operand2
 ]

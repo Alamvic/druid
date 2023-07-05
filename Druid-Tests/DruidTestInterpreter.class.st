@@ -111,6 +111,13 @@ DruidTestInterpreter >> methodCollectionSize: aCollection [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> methodSendingClass: aCollection [
+
+	<var: #aCollection type: #Array>
+	^ aCollection species
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodWithArg: aCollection [
 	<var: #aCollection type: #OrderedCollection>
 	^ aCollection select: [ :element | element even ]

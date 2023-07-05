@@ -13,7 +13,13 @@ Object >> asDRValue [
 ]
 
 { #category : #'*Druid' }
-Object >> isJitCompileTimeExpression [
+Object >> isJITCompileTimeExpression [
 	
 	^ true
+]
+
+{ #category : #'*Druid' }
+Object >> sccpEquals: anInteger [
+
+	^ self = anInteger
 ]

@@ -22,6 +22,18 @@ DRValue >> addToBlock: aDRBasicBlock [
 	aDRBasicBlock addInstruction: self
 ]
 
+{ #category : #dependencies }
+DRValue >> addToDependenciesList: alreadyComputedDependencies [
+	
+	(alreadyComputedDependencies includes: self)
+		ifTrue: [ ^ alreadyComputedDependencies ].
+	
+	alreadyComputedDependencies add: self.
+	self dependencies do: [ :e |
+		e addToDependenciesList: alreadyComputedDependencies ].
+
+]
+
 { #category : #'users-definitions' }
 DRValue >> addUser: anInstruction [
 	
@@ -104,12 +116,6 @@ DRValue >> isAdd [
 	^ false
 ]
 
-{ #category : #accessing }
-DRValue >> isBranchIfCondition [ 
-
-	^ false
-]
-
 { #category : #testing }
 DRValue >> isComparison [
 
@@ -167,13 +173,13 @@ DRValue >> isInvariantFrom: loop [
 ]
 
 { #category : #testing }
-DRValue >> isJITCompileTimeExpression: aString [ 
+DRValue >> isJITCompileTimeExpression [
 	
 	^ false
 ]
 
 { #category : #testing }
-DRValue >> isJitCompileTimeExpression [
+DRValue >> isJITCompileTimeExpression: aString [ 
 	
 	^ false
 ]
@@ -187,6 +193,12 @@ DRValue >> isJump [
 { #category : #testing }
 DRValue >> isLoad [
 	
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isLoadArgument [
+
 	^ false
 ]
 
@@ -272,6 +284,12 @@ DRValue >> isSetConditionCode [
 DRValue >> isStore [
 
 	^ false 
+]
+
+{ #category : #testing }
+DRValue >> isStoreTemporaryVariable [
+
+	^ false
 ]
 
 { #category : #testing }
@@ -413,5 +431,8 @@ DRValue >> users [
 { #category : #dependencies }
 DRValue >> withAllDependencies [
 	
-	^ { self }
+	| dependencies |
+	dependencies := OrderedCollection new.
+	self addToDependenciesList: dependencies.
+	^ dependencies
 ]

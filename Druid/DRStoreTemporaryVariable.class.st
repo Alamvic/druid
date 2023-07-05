@@ -10,15 +10,20 @@ DRStoreTemporaryVariable >> acceptVisitor: aVisitor [
 	^ aVisitor visitStoreTempVar: self
 ]
 
-{ #category : #initialization }
-DRStoreTemporaryVariable >> initialize [
+{ #category : #testing }
+DRStoreTemporaryVariable >> isMandatoryInstruction [ 
 
-	super initialize.
-	result := DRNoRegister new
+	^ true
+]
+
+{ #category : #visiting }
+DRStoreTemporaryVariable >> isStore [ 
+
+	^ true
 ]
 
 { #category : #testing }
-DRStoreTemporaryVariable >> isMandatoryInstruction [ 
+DRStoreTemporaryVariable >> isStoreTemporaryVariable [
 
 	^ true
 ]
@@ -32,6 +37,11 @@ DRStoreTemporaryVariable >> opcode [
 { #category : #SCCP }
 DRStoreTemporaryVariable >> sccpLatticeValueFor: sccp [ 
 	
-	"This instruction has no value"
-	^ sccp bottom
+	^ sccp bottom  "latticeValue: operands second"
+]
+
+{ #category : #accessing }
+DRStoreTemporaryVariable >> variableName [
+
+	^ self operand1 value
 ]

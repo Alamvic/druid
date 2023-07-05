@@ -88,6 +88,129 @@ DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodeExtPushInteger [
+
+	cogit extB: 1. "256"
+	cogit byte1: 13.
+
+	self
+		compileBytecode: 232
+		selector: #extPushIntegerBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			generator value.
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 256 + 13).
+
+	self assert: cogit extB equals: 0
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode0 [
+
+	| method variableType variableIndex object |
+	method := methodBuilder newMethod buildMethod.
+	cogit methodObj: method.
+
+	variableType := 0. "PushReceiverVariable"
+	variableIndex := 0.
+
+	cogit byte1: variableType << 6 + variableIndex.
+
+	self
+		compileBytecode: 999
+		selector: #extendedPushBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: 1.
+	memory storePointer: 0 ofObject: object withValue: 17.
+
+	self executeMethodWithReceiver: object withArguments: #(  ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode1 [
+
+	| method variableType variableIndex |
+	method := methodBuilder newMethod
+		          numberOfArguments: 1;
+		          numberOfTemporaries: 0;
+		          buildMethod.
+	cogit methodObj: method.
+
+	variableType := 1. "PushTemporaryVariable"
+	variableIndex := 0.
+
+	cogit byte1: variableType << 6 + variableIndex.
+
+	self
+		compileBytecode: 999
+		selector: #extendedPushBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			cogit methodOrBlockNumArgs: 1.
+			cogit methodOrBlockNumTemps: 1.
+			cogit initSimStackForFramefulMethod: 2.
+
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #( 42 ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode2 [
+
+	| method variableType variableIndex |
+	method := methodBuilder newMethod
+		          literals: { 42 };
+		          buildMethod.
+	cogit methodObj: method.
+
+	variableType := 2. "PushLiteralIndex"
+	variableIndex := 0.
+
+	cogit byte1: variableType << 6 + variableIndex.
+
+	self
+		compileBytecode: 999
+		selector: #extendedPushBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssTop popToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+
+	self assert: machineSimulator receiverRegisterValue equals: 42
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodePrimSendAdd [
 
 	"Setup the send trampoline"
@@ -307,6 +430,73 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariable: tempIndex [
 
 	self assert:
 		(cogit hasAnnotatedAbstractInstructions: cogit getIsObjectReference)
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTop2AllocatedRegister [
+
+	self
+		testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: 2
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTop3AllocatedRegister [
+
+	self
+		testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: 3
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister [
+
+	
+	self testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: 1
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: n [
+
+	| method |
+	method := methodBuilder newMethod
+		          literals:
+			          (((1 to: 16) collect: [ :e | nil -> (e + 16rFF - 1) ])
+				           collect: [ :e | e forMemory: memory inMethod: nil ]);
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	"Push temp literal variable 0"
+	self
+		compileBytecode: 16
+		selector: #pushLiteralVariable16CasesBytecode
+		thenDo: [ :generator | "Execute the druid's compiled code"
+			cogit methodOrBlockNumArgs: 0.
+			cogit methodOrBlockNumTemps: 0.
+			cogit initSimStackForFramefulMethod: 2.
+
+			1 to: n do: [ :i | | r |
+				r := cogit allocateRegNotConflictingWith: 0.
+				cogit MoveCq: i R: r.
+				cogit ssPushRegister: r.
+			].
+
+			generator value.
+			
+			"Flush the stack"
+			cogit ssFlushTo: cogit simStackPointer.
+
+			"Pop the top 4 elements, the fourth should be the first pushed constant"
+			1 to: n + 1 do: [ :i |
+				cogit ssTop popToReg: ReceiverResultReg ].
+			cogit genUpArrowReturn ].
+
+	self
+		executeMethodWithReceiver: (memory integerObjectOf: 17)
+		withArguments: #(  ).
+		
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: 1
 ]
 
 { #category : #tests }

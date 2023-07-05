@@ -50,6 +50,32 @@ DRBytecodeIRGenerator >> interpretArgumentCountAssignmentWith: aRBAssignmentNode
 	aRBAssignmentNode value acceptVisitor: self.
 ]
 
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretAsCompilerVariableAssignmentWith: aRBAssignmentNode [
+
+	| operand |
+	operand := self visitOperand: aRBAssignmentNode value.
+
+	^ self
+		  addInstructionWithNoResultFrom: aRBAssignmentNode
+		  instructionKind: DRStore
+		  operands: {
+				  8 asDRValue.
+				  operand.
+				  (DRInterpreterExpression reference: aRBAssignmentNode variable name) }
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretAsCompilerVariableWith: aRBVariableNode [
+
+	^ self
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRLoad
+		  operands: {
+				  8 asDRValue.
+				  (DRInterpreterExpression reference: aRBVariableNode name) }
+]
+
 { #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretCommonReturnWith: aRBMessageNode [
 
@@ -69,6 +95,17 @@ DRBytecodeIRGenerator >> interpretCurrentBytecodeWith: aRBVariableNode [
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRCopy
 		operands: { DRJitCompileTimeExpression new expression: 'byte0' }
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretFetchByteWith: aRBMessageNode [
+
+	self flag: #TODO. "Use accumulator to compile byteN"
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRCopy
+		  operands: { (DRJitCompileTimeExpression new expression: 'byte1') }
 ]
 
 { #category : #'special cases' }

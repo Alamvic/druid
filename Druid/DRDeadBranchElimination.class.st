@@ -14,7 +14,6 @@ DRDeadBranchElimination >> canBeAppliedWithGeneratedPathsIn: aDRControlFlowGraph
 DRDeadBranchElimination >> doApplyWithGeneratedPaths: cfg [
 
 	"Remove all dead branches in CFG"
-
 	cfg deadBranches do: [ :edge | 
 		self removeBranchFrom: edge source to: edge destination ]
 ]

@@ -285,6 +285,10 @@ DRBasicBlock >> endInstruction [
 
 { #category : #accessing }
 DRBasicBlock >> endInstruction: aDRInstruction [ 
+
+	"Set the argument as my end instruction.
+	Precondition: the instruction is properly configured and has all its targets set"
+
 	| previousSuccessors newSuccessors lostSuccessors |	
 	previousSuccessors := self successors.
 	newSuccessors := aDRInstruction targets.
@@ -641,17 +645,20 @@ DRBasicBlock >> jumpIf: aCondition [
 ]
 
 { #category : #building }
-DRBasicBlock >> jumpIf: condition to: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
+DRBasicBlock >> jumpIf: condition to: trueTarget ifFalseTo: falseTarget [
 	" Used for removing an existing edge that jumps to the target block,
 	 for being able to relink to the target block with a new desired jump "
-	aDRBasicBlock addPredecessor: self.
-	aDRBasicBlock2 addPredecessor: self.
 
-	^ self endInstruction: (DRBranchIfTrue new
-			   operands: { condition };
-			   trueBranch: aDRBasicBlock;
-			   falseBranch: aDRBasicBlock2;
-			   yourself)
+	| branch |
+	trueTarget addPredecessor: self.
+	falseTarget addPredecessor: self.
+
+	branch := self instructionFactory
+		          jumpIf: condition
+		          trueTarget: trueTarget
+		          falseTarget: falseTarget.
+	self endInstruction: branch.
+	^ branch
 ]
 
 { #category : #building }
@@ -1189,21 +1196,23 @@ DRBasicBlock >> validateInstructions [
 { #category : #validating }
 DRBasicBlock >> validatePhiFunctions [
 
-	self phiFunctions do: [ :e | 
+	self phiFunctions do: [ :e |
 		| ops |
 		ops := e operands asIdentitySet.
-		(ops size > 1 and: [ (ops noneSatisfy: [ :o | o isKindOf: DRNullValue])  ]) 
-			ifTrue: [ 
-				e operands size = self predecessors size ifFalse: [ 
-					self error: 'Phi-predecessor mismatch' ].
+		(ops size > 1 and: [ ops noneSatisfy: [ :o | o isKindOf: DRNullValue ] ]) ifTrue: [
+			e operands size = self predecessors size ifFalse: [
+				self error: 'Phi-predecessor mismatch' ].
 
-				"Validate that the order of the dependent variables is ok,
+			"Validate that the order of the dependent variables is ok,
 				this by checking that the variables are reachable from the correct predecessors"
-				e operands withIndexDo: [ :dependency :index | 
-					self assert: (dependency isInstruction or: [ 
-							 dependency isNullValue or: [ dependency isPhysicalRegister or: [ dependency isDRBlockClosure or: [ dependency value class = DruidTestInterpreter  ] ] ] ]).
-					self assert: (dependency isInstruction not or: [ 
-							 (self predecessors at: index) checkLivenessOf: dependency ]) ] ] ]
+			e operands withIndexDo: [ :dependency :index |
+				self assert: (dependency isInstruction or: [
+						 dependency isNullValue or: [
+							 dependency isPhysicalRegister or: [
+								 dependency isDRBlockClosure or: [ dependency class = DruidTestInterpreter ] ] ] ]).
+				self assert: (dependency isInstruction not or: [
+						 ((self predecessors at: index) checkLivenessOf: dependency) or: [
+							 e hasRecursiveUse ] ]) ] ] ]
 ]
 
 { #category : #validating }

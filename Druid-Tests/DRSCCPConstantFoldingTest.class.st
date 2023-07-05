@@ -535,7 +535,7 @@ DRSCCPConstantFoldingTest >> testFoldingLoadWithConstant [
 
 	"T2 := LOAD_JIT_COMPILE_EXPRESSION 1"
 	self assert:
-		cfg instructions nextToLast operand1 isJitCompileTimeExpression.
+		cfg instructions nextToLast operand1 isJITCompileTimeExpression.
 	self
 		assert: cfg instructions nextToLast operand1 expression
 		equals: '(coInterpreter int64AtPointer:  1)'

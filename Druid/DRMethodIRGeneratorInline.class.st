@@ -1,9 +1,6 @@
 Class {
 	#name : #DRMethodIRGeneratorInline,
 	#superclass : #DRMethodIRGenerator,
-	#instVars : [
-		'typeSystem'
-	],
 	#category : #'Druid-CompilerCompiler'
 }
 
@@ -27,16 +24,4 @@ DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 DRMethodIRGeneratorInline >> newFirstBasicBlock [
 
 	^ self newBasicBlock
-]
-
-{ #category : #accessing }
-DRMethodIRGeneratorInline >> typeSystem [
-
-	^ typeSystem ifNil: [ super typeSystem ]
-]
-
-{ #category : #accessing }
-DRMethodIRGeneratorInline >> typeSystem: aDRTypeSystem [
-
-	typeSystem := aDRTypeSystem
 ]

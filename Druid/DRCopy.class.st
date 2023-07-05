@@ -10,6 +10,12 @@ DRCopy >> acceptVisitor: aVisitor [
 	^ aVisitor visitCopy: self
 ]
 
+{ #category : #converting }
+DRCopy >> asJitCompileTimeExpression [
+
+	^ self operand1 asJitCompileTimeExpression
+]
+
 { #category : #printing }
 DRCopy >> isCopy [ 
 
@@ -17,9 +23,9 @@ DRCopy >> isCopy [
 ]
 
 { #category : #testing }
-DRCopy >> isJitCompileTimeExpression [
+DRCopy >> isJITCompileTimeExpression [
 
-	^ operands first isJitCompileTimeExpression
+	^ operands first isJITCompileTimeExpression
 ]
 
 { #category : #SCCP }

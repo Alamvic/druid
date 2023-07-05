@@ -568,6 +568,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierDominatedByItself [
 	cfg b4 removePredecessorAt: 1.
 	b5 := cfg newBasicBlock.
 	cfg b2 jumpIfTrueTo: cfg b3 ifFalseTo: cfg b4.
+
 	cfg b3 jumpIfTrueTo: cfg b4 ifFalseTo: b5.
 	cfg b4 jumpTo: b5.
 
