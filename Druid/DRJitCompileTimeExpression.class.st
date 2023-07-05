@@ -37,6 +37,12 @@ DRJitCompileTimeExpression >> , aDRJitCompileTimeExpression [
 ]
 
 { #category : #operations }
+DRJitCompileTimeExpression >> < aDRJitCompileTimeExpression [
+
+	^ self mergeExpression: '<' with: aDRJitCompileTimeExpression
+]
+
+{ #category : #operations }
 DRJitCompileTimeExpression >> << aDRJitCompileTimeExpression [
 
 	^ self mergeExpression: '<<' with: aDRJitCompileTimeExpression
