@@ -149,6 +149,25 @@ DRSCCPConstantPropagationTest >> testPropagateToEqualsFixesUsers [
 ]
 
 { #category : #tests }
+DRSCCPConstantPropagationTest >> testPropagateToMulOperand [
+
+	| cfg copy1 |
+	cfg := self setUpCFG: 1.
+		
+	"T1 := 1"
+	cfg b1 addInstruction: (copy1 := instructionFactory copy: 1).
+	
+	"T2 := Param * T1"
+	cfg b1 addInstruction: (instructionFactory multiply: (DRPhysicalGeneralPurposeRegister name: 'Rx') by: copy1).
+	
+	optimisation applyTo: cfg.
+	
+	"Assert that we propagated the constant to the MUL operand"
+	self assert: cfg instructions allButLast last isMultiply.
+	self assert: cfg instructions allButLast last operand2 equals: 1 asDRValue
+]
+
+{ #category : #tests }
 DRSCCPConstantPropagationTest >> testPropagateWhenResultIsPhisicalRegister [
 
 	"Phi functions should contain variables and not values"
