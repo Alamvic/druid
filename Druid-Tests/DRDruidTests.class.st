@@ -10,7 +10,7 @@ DRDruidTests class >> isAbstract [
 	^ self == DRDruidTests
 ]
 
-{ #category : #tests }
+{ #category : #'building suites' }
 DRDruidTests class >> wordSizeParameters [
 
 	^ self wordSize64Parameters
@@ -36,7 +36,7 @@ DRDruidTests >> jitOptions [
 		  yourself
 ]
 
-{ #category : #running }
+{ #category : #helpers }
 DRDruidTests >> setUp [
 
 	super setUp.
@@ -46,5 +46,5 @@ DRDruidTests >> setUp [
 		objectRepresentation: cogit objectRepresentation
 		cogit: cogit.
 		
-	initialAddress := #invalid "will be set by test"
+	cogInitialAddress := #invalid "will be set by test"
 ]

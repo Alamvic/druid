@@ -177,11 +177,13 @@ DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
 { #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [ 
 	
+	| theNonBoolean |
+	theNonBoolean := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.
 	"self CallRT: ceSendMustBeBooleanTrampoline"
 	^ (self
 		  addInstructionWithNoResultFrom: aRBMessageNode
 		  instructionKind: DRCall
-		  operands: { 'ceSendMustBeBooleanTrampoline' })
+		  operands: { 'ceSendMustBeBooleanTrampoline'. theNonBoolean })
 			beMapped
 ]
 

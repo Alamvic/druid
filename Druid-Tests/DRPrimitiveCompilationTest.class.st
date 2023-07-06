@@ -37,7 +37,7 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector with: aBlock [
 	compiler compile.
 
 	"Then generate the machine code for that method"
-	initialAddress := self compile: [
+	cogInitialAddress := self compile: [
 		cogit methodOrBlockNumArgs: 2. "Hack"
 		cogit perform: generatorSelector.
 		stopInstruction := cogit Stop
@@ -60,5 +60,5 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 	If we are in a system without a link register, we need to push the caller IP to the stack to simulate a call"
 	
 	self prepareStackForSendReceiver: receiverOop arguments: aCollection.
-	self runFrom: initialAddress until: stopAddress.
+	self runFrom: cogInitialAddress until: stopAddress.
 ]

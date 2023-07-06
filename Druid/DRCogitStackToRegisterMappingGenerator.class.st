@@ -194,10 +194,17 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 	"self CallRT: ceSendMustBeBooleanTrampoline"
 
+	aDRCall operands size > 0 ifTrue: [
+		generatorMethodBuilder addStatement: (RBMessageNode
+				 receiver: RBVariableNode selfNode
+				 selector: #MoveR:R:
+				 arguments: {
+						 (self rtlExpressionForValue: aDRCall operand1).
+						 (RBVariableNode named: 'TempReg') }) ].
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #CallRT:
-			 arguments: { (RBVariableNode named: aDRCall operand1) }).
+			 arguments: { (RBVariableNode named: aDRCall functionName) }).
 	aDRCall isMapped ifTrue: [ "self annotateBytecode: self Label"
 		generatorMethodBuilder addStatement: (RBMessageNode
 				 receiver: RBVariableNode selfNode
