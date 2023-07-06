@@ -763,14 +763,17 @@ DRIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 	valueToStore := self popOperand.
 
 	byteSize := 8.
-	^ self
+	self
 		  addInstructionWithNoResultFrom: aRBAssignmentNode
 		  instructionKind: DRStore
 		  operands: { 
 				  byteSize asDRValue.
 				  valueToStore.
 				  (DRInterpreterReference reference:
-					   'objectMemory freeStartAddress') }
+					   'objectMemory freeStartAddress') }.
+	
+	"The result of executing a store is actually the stored value, not the store itself"
+	self popOperand; pushOperand: valueToStore
 ]
 
 { #category : #'special-cases' }
@@ -1139,7 +1142,10 @@ DRIRGenerator >> interpretStore: aRBMessageNode ofByteSize: byteSize [
 		operands: { 
 				byteSize asDRValue.
 				value.
-				address }
+				address }.
+
+	"The result of executing a store is actually the stored value, not the store itself"
+	self popOperand; pushOperand: value
 ]
 
 { #category : #'special cases' }
