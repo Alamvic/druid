@@ -24,6 +24,12 @@ DRJitCompileTimeExpression class >> tryParseOperandForSCCP: aDRValue [
 	^ result
 ]
 
+{ #category : #arithmetic }
+DRJitCompileTimeExpression >> * aDRJitCompileTimeExpression [
+
+	^ self mergeExpression: '*' with: aDRJitCompileTimeExpression
+]
+
 { #category : #operations }
 DRJitCompileTimeExpression >> + aDRJitCompileTimeExpression [
 
