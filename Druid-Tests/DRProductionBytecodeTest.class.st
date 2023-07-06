@@ -24,7 +24,7 @@ DRProductionBytecodeTest >> testBytecodeAdd [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -54,7 +54,7 @@ DRProductionBytecodeTest >> testBytecodeAddOverflow [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	"Should run, overflow, jump to the trampoline, and 17"
@@ -78,8 +78,8 @@ DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 		generator value.
 	
 		"Then return without druid's compiled code"
-		cogit ssTop moveToReg: ReceiverResultReg.
-		cogit ssPop: 2.
+		cogit ssPopTopToReg: ReceiverResultReg.
+		cogit ssPop: 1.
 		cogit genUpArrowReturn ].
 
 	machineSimulator temporaryRegisterValue: 17.
@@ -99,7 +99,7 @@ DRProductionBytecodeTest >> testBytecodeExtPushInteger [
 		thenDo: [ :generator | "Execute the druid's compiled code"
 			generator value.
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -132,7 +132,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode0 [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
@@ -169,7 +169,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode1 [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -200,7 +200,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode2 [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -244,7 +244,7 @@ DRProductionBytecodeTest >> testBytecodePrimSendAdd [
 		method: method.
 
 	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
-	self runFrom: initialAddress until: sendTrampolineAddress.
+	self runFrom: cogInitialAddress until: sendTrampolineAddress.
 	"First argument: the selector"
 	self assert: machineSimulator classRegisterValue equals: (-1 twoComplementOfBitSize: 64) "+ selector index".
 	"Third argument: the receiver, then the argument is on the stack"
@@ -274,7 +274,7 @@ DRProductionBytecodeTest >> testBytecodePushConstantOneBytecode [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -304,7 +304,7 @@ DRProductionBytecodeTest >> testBytecodePushConstantZeroBytecode [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -334,7 +334,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -367,7 +367,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 		generator value.
 	
 		"Then return without druid's compiled code"
-		cogit ssTop popToReg: ReceiverResultReg.
+		cogit ssPopTopToReg: ReceiverResultReg.
 		cogit genUpArrowReturn ].
 
 
@@ -417,7 +417,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariable: tempIndex [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -487,7 +487,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAlloca
 
 			"Pop the top 4 elements, the fourth should be the first pushed constant"
 			1 to: n + 1 do: [ :i |
-				cogit ssTop popToReg: ReceiverResultReg ].
+				cogit ssPopTopToReg: ReceiverResultReg ].
 			cogit genUpArrowReturn ].
 
 	self
@@ -523,10 +523,10 @@ DRProductionBytecodeTest >> testBytecodePushReceiverDoesNotOverridePreviousPush 
 
 			"Push the temp, then pop it"
 			generator value.
-			cogit ssTop popToReg: (cogit allocateRegNotConflictingWith: 0).
+			cogit ssPopTopToReg: (cogit allocateRegNotConflictingWith: 0).
 	
 			"Pop the value pushed by the first bytecode"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 		
 			"Return the top of the stack which is the receiver"
 			cogit genUpArrowReturn ].
@@ -562,10 +562,10 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryArg0DoesNotOverridePrevious
 
 			"Push the temp, then pop it"
 			generator value.
-			cogit ssTop popToReg: (cogit allocateRegNotConflictingWith: 0).
+			cogit ssPopTopToReg: (cogit allocateRegNotConflictingWith: 0).
 	
 			"Pop the value pushed by the first bytecode"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 		
 			"Return the top of the stack which is the receiver"
 			cogit genUpArrowReturn ].
@@ -600,7 +600,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryArg0NoTemps [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -633,7 +633,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryArg0WithTemps [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -666,7 +666,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryArg1NoTemps [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -699,7 +699,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryArg1WithTemps [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -739,7 +739,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryTemp0NoArgs [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -779,7 +779,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryTemp0WithArgs [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -819,7 +819,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryTemp1NoArgs [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -859,7 +859,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryTemp1WithArgs [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -974,7 +974,7 @@ DRProductionBytecodeTest >> testBytecodeSendLiteral0ToSelf [
 		method: method.
 
 	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
-	self runFrom: initialAddress until: sendTrampolineAddress.
+	self runFrom: cogInitialAddress until: sendTrampolineAddress.
 	"First argument: the selector"
 	self assert: machineSimulator classRegisterValue equals: 0 "selector index".
 	"Third argument: the receiver"
@@ -1018,7 +1018,7 @@ DRProductionBytecodeTest >> testBytecodeSendLiteral1ToSelf [
 		method: method.
 
 	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
-	self runFrom: initialAddress until: sendTrampolineAddress.
+	self runFrom: cogInitialAddress until: sendTrampolineAddress.
 	"First argument: the selector"
 	self assert: machineSimulator classRegisterValue equals: 1 "selector index".
 	"Third argument: the receiver"
@@ -1064,18 +1064,12 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfFalseWithFalse [
 			cogit ssPushConstant: 0.
 			cogit genReturnTopFromMethod.
 			cogit Stop.
-
 			
 			cogit bytecodePC: 19.
 			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
 			cogit ssPushConstant: 1.
 			cogit genReturnTopFromMethod. ].
 
-	"self
-		prepareStackForSendReceiver: memory trueObject
-		arguments: #()
-		method: method.
-	self runFrom: initialAddress until: mustBeBooleanTrampolineAddress."
 	self executePrimitiveWithReceiver: memory falseObject.
 
 	"Did it jump over?"
@@ -1300,7 +1294,7 @@ DRProductionBytecodeTest >> testPushReceiver [
 		generator value.
 
 		"Then return without druid's compiled code"
-		cogit ssTop popToReg: ReceiverResultReg.
+		cogit ssPopTopToReg: ReceiverResultReg.
 		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
@@ -1319,7 +1313,7 @@ DRProductionBytecodeTest >> testPushReceiverVariableBytecode [
 		generator value.
 	
 		"Then return without druid's compiled code"
-		cogit ssTop popToReg: ReceiverResultReg.
+		cogit ssPopTopToReg: ReceiverResultReg.
 		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
@@ -1338,7 +1332,7 @@ DRProductionBytecodeTest >> testPushReceiverVariableBytecode2 [
 		generator value.
 	
 		"Then return without druid's compiled code"
-		cogit ssTop popToReg: ReceiverResultReg.
+		cogit ssPopTopToReg: ReceiverResultReg.
 		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
@@ -1357,7 +1351,7 @@ DRProductionBytecodeTest >> testPushTrueObject [
 		generator value.
 	
 		"Then return without druid's compiled code"
-		cogit ssTop popToReg: ReceiverResultReg.
+		cogit ssPopTopToReg: ReceiverResultReg.
 		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.

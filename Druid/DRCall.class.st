@@ -1,6 +1,10 @@
 Class {
 	#name : #DRCall,
 	#superclass : #DRInstruction,
+	#instVars : [
+		'mapped',
+		'functionName'
+	],
 	#category : #'Druid-BytecodeToJITCompilation'
 }
 
@@ -10,10 +14,47 @@ DRCall >> acceptVisitor: aVisitor [
 	^ aVisitor visitCall: self
 ]
 
+{ #category : #properties }
+DRCall >> beMapped [
+	
+	mapped := true
+]
+
+{ #category : #accessing }
+DRCall >> functionName [
+
+	^ functionName
+]
+
+{ #category : #accessing }
+DRCall >> functionName: anObject [
+
+	functionName := anObject
+]
+
+{ #category : #testing }
+DRCall >> initialize [
+
+	super initialize.
+	mapped := false
+]
+
 { #category : #testing }
 DRCall >> isMandatoryInstruction [
 
 	^ true
+]
+
+{ #category : #testing }
+DRCall >> isMapped [
+	
+	^ mapped
+]
+
+{ #category : #accessing }
+DRCall >> mapped: anObject [
+
+	mapped := anObject
 ]
 
 { #category : #printing }
@@ -23,9 +64,10 @@ DRCall >> opcode [
 ]
 
 { #category : #accessing }
-DRCall >> operands [
+DRCall >> operands: ops [
 
-	^ #()
+	functionName := ops first.
+	super operands: ops allButFirst
 ]
 
 { #category : #SCCP }

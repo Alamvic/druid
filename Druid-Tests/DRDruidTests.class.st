@@ -10,14 +10,10 @@ DRDruidTests class >> isAbstract [
 	^ self == DRDruidTests
 ]
 
-{ #category : #tests }
-DRDruidTests class >> testParameters [
+{ #category : #'building suites' }
+DRDruidTests class >> wordSizeParameters [
 
-	"Run only 64 bit tests for now..."
-	^ ParametrizedTestMatrix new
-		addCase: { #ISA -> #'aarch64'. #wordSize -> 8};
-		addCase: { #ISA -> #'X64'. #wordSize -> 8};
-		yourself
+	^ self wordSize64Parameters
 ]
 
 { #category : #'helpers-compiling' }
@@ -40,7 +36,7 @@ DRDruidTests >> jitOptions [
 		  yourself
 ]
 
-{ #category : #running }
+{ #category : #helpers }
 DRDruidTests >> setUp [
 
 	super setUp.
@@ -50,5 +46,5 @@ DRDruidTests >> setUp [
 		objectRepresentation: cogit objectRepresentation
 		cogit: cogit.
 		
-	initialAddress := #invalid "will be set by test"
+	cogInitialAddress := #invalid "will be set by test"
 ]

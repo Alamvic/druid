@@ -19,7 +19,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 
 	compiler compile.
 	"Then generate the machine code for that method"
-	initialAddress := self compile: [
+	cogInitialAddress := self compile: [
 		cogit needsFrame: true.
 		cogit byte0: bytecode.
 		cogit methodOrBlockNumArgs: 3. "Hack"

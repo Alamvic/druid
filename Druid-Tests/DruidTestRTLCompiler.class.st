@@ -120,7 +120,7 @@ DruidTestRTLCompiler >> gen_duplicateTopBytecode [
 		      allocateRegNotConflictingWith: live
 		      ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
-	(self ssValue: 0) moveToReg: t0.
+	(self ssValue: 0) copyToReg: t0.
 	self ssPushRegister: t0.
 	^ 0
 ]
@@ -195,7 +195,7 @@ DruidTestRTLCompiler >> gen_extendedPushBytecode [
 			      allocateRegNotConflictingWith: live
 			      ifNone: [ ^ self unknownBytecode ].
 		live := live bitOr: (self registerMaskFor: t1).
-		(self simStackTempAt: (byte1 & 63)) moveToReg: t1.
+		(self simStackTempAt: (byte1 & 63)) copyToReg: t1.
 		self ssPushRegister: t1.
 		^ 0 ].
 	self genMoveConstant: 2 R: t0.
@@ -1219,9 +1219,9 @@ DruidTestRTLCompiler >> gen_primitiveDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1852,9 +1852,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -2171,9 +2171,9 @@ DruidTestRTLCompiler >> gen_primitiveModByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -3518,7 +3518,7 @@ DruidTestRTLCompiler >> gen_pushTemporaryVariableBytecode [
 		      allocateRegNotConflictingWith: live
 		      ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
-	(self simStackTempAt: 2) moveToReg: t0.
+	(self simStackTempAt: 2) copyToReg: t0.
 	self ssPushRegister: t0.
 	^ 0
 ]
@@ -3582,7 +3582,7 @@ DruidTestRTLCompiler >> gen_returnTopFromMethod [
 		      allocateRegNotConflictingWith: live
 		      ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
-	(self ssValue: 0) moveToReg: t0.
+	(self ssValue: 0) copyToReg: t0.
 	self MoveR: t0 R: ReceiverResultReg.
 	self genUpArrowReturn.
 	^ 0
@@ -3628,23 +3628,23 @@ DruidTestRTLCompiler >> gen_shortConditionalJumpFalse [
 		      allocateRegNotConflictingWith: live
 		      ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
-	(self ssValue: 0) moveToReg: t0.
+	(self ssValue: 0) copyToReg: t0.
 	self ssPop: 1.
 	self CmpCq: objectMemory falseObject R: t0.
 	jump1 := self JumpZero: 0.
 	self CmpCq: objectMemory trueObject R: t0.
 	jump2 := self JumpZero: 0.
+	self MoveR: t0 R: TempReg.
 	self CallRT: ceSendMustBeBooleanTrampoline.
+	self annotateBytecode: self Label.
 	jump3 := self Jump: 0.
-	currentBlock := self Label.
-	jump2 jmpTarget: currentBlock.
-	jump2 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self genJumpTo: bytecodePC + 1 + 1.
+	deadCode := false.
 	currentBlock := self Label.
-	jump3 jmpTarget: currentBlock.
 	jump2 jmpTarget: currentBlock.
+	jump3 jmpTarget: currentBlock.
 	^ 0
 ]
 
@@ -3658,23 +3658,23 @@ DruidTestRTLCompiler >> gen_shortConditionalJumpTrue [
 		      allocateRegNotConflictingWith: live
 		      ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
-	(self ssValue: 0) moveToReg: t0.
+	(self ssValue: 0) copyToReg: t0.
 	self ssPop: 1.
 	self CmpCq: objectMemory trueObject R: t0.
 	jump1 := self JumpZero: 0.
 	self CmpCq: objectMemory falseObject R: t0.
 	jump2 := self JumpZero: 0.
+	self MoveR: t0 R: TempReg.
 	self CallRT: ceSendMustBeBooleanTrampoline.
+	self annotateBytecode: self Label.
 	jump3 := self Jump: 0.
-	currentBlock := self Label.
-	jump2 jmpTarget: currentBlock.
-	jump2 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self genJumpTo: bytecodePC + 1 + 1.
+	deadCode := false.
 	currentBlock := self Label.
-	jump3 jmpTarget: currentBlock.
 	jump2 jmpTarget: currentBlock.
+	jump3 jmpTarget: currentBlock.
 	^ 0
 ]
 

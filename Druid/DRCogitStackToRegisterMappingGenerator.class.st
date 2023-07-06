@@ -3,7 +3,8 @@ Class {
 	#superclass : #DRCogitCodeGenerator,
 	#instVars : [
 		'nextVariableIndex',
-		'variables'
+		'variables',
+		'markDeadCode'
 	],
 	#category : #'Druid-Cogit'
 }
@@ -78,7 +79,8 @@ DRCogitStackToRegisterMappingGenerator >> initialize [
 
 	super initialize.
 	nextVariableIndex := 0.
-	variables := Dictionary new
+	variables := Dictionary new.
+	markDeadCode := false
 ]
 
 { #category : #'code-generation' }
@@ -123,8 +125,19 @@ DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRIns
 	temporaryVariableNode := self allocateVariable: aDRInstruction result.
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: aRBMessageNode
-			 selector: #moveToReg:
+			 selector: #copyToReg:
 			 arguments: { (RBVariableNode named: temporaryVariableNode) })
+]
+
+{ #category : #'ir-to-ast' }
+DRCogitStackToRegisterMappingGenerator >> preProcessBlock: aBasicBlock [
+
+	markDeadCode ifTrue: [ "If a previous instruction marked dead code, we need to unmark it because we keep generating code"
+		markDeadCode := false.
+		generatorMethodBuilder addStatement: (RBAssignmentNode
+				 variable: (RBVariableNode named: 'deadCode')
+				 value: (RBLiteralNode value: false)) ].
+	super preProcessBlock: aBasicBlock
 ]
 
 { #category : #'ir-to-ast' }
@@ -171,18 +184,35 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 			 receiver: RBVariableNode selfNode
 			 selector: #genJumpTo:
 			 arguments:
-			 { (self jitCompileTimeExpression: aDRBytecodeJump operand1) })
+			 { (self jitCompileTimeExpression: aDRBytecodeJump operand1) }).
+	
+	"Everything that follows an unconditional jump is potentially dead code"
+	markDeadCode := true
 ]
 
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
-
 	"self CallRT: ceSendMustBeBooleanTrampoline"
 
+	aDRCall operands size > 0 ifTrue: [
+		generatorMethodBuilder addStatement: (RBMessageNode
+				 receiver: RBVariableNode selfNode
+				 selector: #MoveR:R:
+				 arguments: {
+						 (self rtlExpressionForValue: aDRCall operand1).
+						 (RBVariableNode named: 'TempReg') }) ].
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #CallRT:
-			 arguments: { (RBVariableNode named: aDRCall operand1) })
+			 arguments: { (RBVariableNode named: aDRCall functionName) }).
+	aDRCall isMapped ifTrue: [ "self annotateBytecode: self Label"
+		generatorMethodBuilder addStatement: (RBMessageNode
+				 receiver: RBVariableNode selfNode
+				 selector: #annotateBytecode:
+				 arguments: { (RBMessageNode
+						  receiver: RBVariableNode selfNode
+						  selector: #Label
+						  arguments: #(  )) }) ]
 ]
 
 { #category : #visiting }
