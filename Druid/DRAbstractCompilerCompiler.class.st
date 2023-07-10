@@ -129,7 +129,7 @@ DRAbstractCompilerCompiler >> initialize [
 
 	super initialize.
 
-	codeGenerator := DRCogitStackToRegisterMappingGenerator new.
+	codeGenerator := DRCogitCodeGenerator new.
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 	specialisation := DRNonePrimitiveSpecialisation new.
 	irGenerator := self newIRGenerator.

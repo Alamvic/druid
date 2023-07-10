@@ -7,7 +7,8 @@ Class {
 		'deferredBranches',
 		'visitedBlocks',
 		'availableJumpIndexes',
-		'blocks'
+		'blocks',
+		'variables'
 	],
 	#category : #'Druid-Cogit'
 }
@@ -342,6 +343,41 @@ DRCogitCodeGenerator >> initialize [
 	visitedBlocks := Dictionary new
 ]
 
+{ #category : #'code-generation' }
+DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
+
+	| dominatorTree dominatedBlocks sharedPathToTheEnd truePath innerGenerator |
+	"We should create a path from the branch to the end"
+	dominatorTree := aDRBasicBlock controlFlowGraph buildDominatorTree.
+	dominatedBlocks := aDRBasicBlock controlFlowGraph reversePostOrderBlocks select: [ :b |
+		                   b isDominatedBy: aDRBasicBlock ].
+
+	"Remove blocks only visited during inner compilation from outer"
+	dominatedBlocks do: [ :b | blocks remove: b ].
+
+	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
+	truePath := dominatedBlocks , sharedPathToTheEnd.
+
+	innerGenerator := self innerGenerator.
+	innerGenerator blocks: truePath.
+	innerGenerator generateCodeFromBlocks.
+	innerGenerator generatePostambleForCFG: aDRBasicBlock controlFlowGraph.
+	innerGenerator generateReturn.
+
+	^ innerGenerator generatorMethodBuilder sequenceNode
+]
+
+{ #category : #copy }
+DRCogitCodeGenerator >> innerGenerator [
+
+	| innerGenerator |
+	innerGenerator := self copy.
+	innerGenerator variables: variables copy.
+	innerGenerator deferredBranches: deferredBranches copy.
+	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
+	^ innerGenerator
+]
+
 { #category : #testing }
 DRCogitCodeGenerator >> isLastBasicBlock [
 	
@@ -483,6 +519,18 @@ DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruc
 DRCogitCodeGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
 
 	self twoOperandCogitRTL: #Move operands: operands instruction: anInstruction
+]
+
+{ #category : #accessing }
+DRCogitCodeGenerator >> variables [
+
+	^ variables
+]
+
+{ #category : #accessing }
+DRCogitCodeGenerator >> variables: anObject [
+
+	variables := anObject
 ]
 
 { #category : #verification }
