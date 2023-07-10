@@ -21,3 +21,10 @@ DRNonePrimitiveCustomisation >> optimize: anIR [
 
 	"Do nothing"
 ]
+
+{ #category : #'generation-IR' }
+DRNonePrimitiveCustomisation >> specialiseIR: aDRMethodIRGenerator [
+	"Do nothing"
+
+	
+]

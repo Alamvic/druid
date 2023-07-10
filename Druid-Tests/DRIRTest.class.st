@@ -44,7 +44,11 @@ DRIRTest >> assertConstraint: aConstraint includes: includedConstraint [
 { #category : #running }
 DRIRTest >> configureInterpreter [
 
-	compilerCompiler interpreter: DruidTestInterpreter basicNew 
+	| interpreter theMemory |
+	interpreter := DruidTestInterpreter basicNew .
+	theMemory := Spur64BitCoMemoryManager simulatorClass new.
+	interpreter objectMemory: theMemory.
+	compilerCompiler interpreter: interpreter
 ]
 
 { #category : #assertions }
@@ -58,6 +62,7 @@ DRIRTest >> generateBasicDruidIRFor: methodSelector [
 
 	| method cfg |
 	method := DruidTestInterpreter lookupSelector: methodSelector.
+	compilerCompiler customiseFor: method.
 	cfg := compilerCompiler generateDruidIRFor: method.
 	^ cfg
 ]

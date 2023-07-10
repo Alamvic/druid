@@ -96,6 +96,7 @@ DRAbstractCompilerCompiler >> generateDruidIRFor: method [
 
 	| cfg receiver arguments |
 	self configureIRBuilder: irGenerator forMethod: method.
+	customisation specialiseIR: irGenerator.
 
 	arguments := method argumentNames collect: [ :_ | irGenerator pop ].
 	receiver := DRInterpreterValue value: interpreter.
@@ -131,7 +132,7 @@ DRAbstractCompilerCompiler >> initialize [
 
 	super initialize.
 
-	codeGenerator := DRCogitCodeGenerator new.
+	codeGenerator := DRCogitStackToRegisterMappingGenerator new.
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 	customisation := DRNonePrimitiveCustomisation new.
 	irGenerator := self newIRGenerator.

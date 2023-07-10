@@ -1,63 +1,34 @@
 Class {
 	#name : #DRCustomisedCompilerTest,
-	#superclass : #DRDruidTests,
+	#superclass : #DRIRTest,
 	#category : #'Druid-Tests'
 }
 
 { #category : #tests }
-DRCustomisedCompilerTest >> compile: selector [
+DRCustomisedCompilerTest >> setUp [
 
-	(self newCompiler: selector) compile
+	super setUp.
+	self configureInterpreter
 ]
 
 { #category : #tests }
-DRCustomisedCompilerTest >> generateDruidIRFor: selector [
+DRCustomisedCompilerTest >> testAddsConditionalCheck [
 
-	| method compiler cfg |
-	method := DruidTestInterpreter lookupSelector: selector.
-	compiler := self newCompiler: selector.
-	compiler customiseFor: method.
-	cfg := compiler generateDruidIRFor: method.
-	compiler optimize: cfg.
-
-	^ cfg
-]
-
-{ #category : #tests }
-DRCustomisedCompilerTest >> newCompiler: selector [
-
-	^ DRPrimitiveCompilerCompiler new
-		interpreter: self interpreter;
-		primitiveName: selector;
-		primitiveCompilerName: #gen_ , selector;
-		compilerClass: DruidTestRTLCompiler;
-		yourself
-]
-
-{ #category : #tests }
-DRCustomisedCompilerTest >> testAddsPreambleToGeneratedCode [
-
-	| genMethod preambleCode |
-	self compile: #primitiveAdd.
-
-	genMethod := DruidTestRTLCompiler lookupSelector: #gen_primitiveAdd.
-	preambleCode := genMethod ast body statements first formattedCode.
-
-	self
-		assert: preambleCode
-		equals:
-		'self mclassIsSmallInteger ifFalse: [ ^ UnimplementedPrimitive ]'
-]
-
-{ #category : #tests }
-DRCustomisedCompilerTest >> testRemoveIRChecks [
-
-	| cfg |
+	| cfg specialisationCheck |
 	cfg := self generateDruidIRFor: #primitiveAdd.
+	specialisationCheck := cfg allConditionalJumps first.
 
-	self assert: cfg allConditionalJumps size equals: 2.
-	self
-		assert: cfg allConditionalJumps first operand1 name
-		equals: 'Arg0Reg'.
-	self assert: cfg allConditionalJumps second operand1 isAdd
+	self assert: specialisationCheck condition isEqualsThanComparison.
+	self assert: specialisationCheck operand1 simpleConstantFold equals: 1.
+	self assert: specialisationCheck operand2 expression equals: 'receiverTags'
+]
+
+{ #category : #tests }
+DRCustomisedCompilerTest >> testAddsInitialConstraints [
+
+	| cfg expectedConstraint |
+	cfg := self generateDruidIRFor: #primitiveAdd.
+	expectedConstraint := DRSmallIntegerPrimitiveCustomisation new initialConstraint.
+	
+	self assertConstraint: cfg initialContrainst includes: expectedConstraint
 ]
