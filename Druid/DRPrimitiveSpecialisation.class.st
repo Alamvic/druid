@@ -1,11 +1,11 @@
 Class {
-	#name : #DRPrimitiveCustomisation,
+	#name : #DRPrimitiveSpecialisation,
 	#superclass : #Object,
 	#category : #'Druid-CompilerCompiler'
 }
 
 { #category : #'instance creation' }
-DRPrimitiveCustomisation class >> newCustomisation: specialisedSelector [
+DRPrimitiveSpecialisation class >> newCustomisation: specialisedSelector [
 
 	| specialisedClass |
 	specialisedClass := self subclasses detect: [ :class | 
@@ -14,13 +14,15 @@ DRPrimitiveCustomisation class >> newCustomisation: specialisedSelector [
 ]
 
 { #category : #api }
-DRPrimitiveCustomisation >> generateCustomisedPreamble: aGeneratorMethodBuilder [
+DRPrimitiveSpecialisation >> addInitialConstraint: anIR [
 
 	self subclassResponsibility
 ]
 
 { #category : #api }
-DRPrimitiveCustomisation >> optimize: anIR [
+DRPrimitiveSpecialisation >> specialiseIR: aDRMethodIRGenerator [
+	
+	self subclassResponsibility 
 
-	self subclassResponsibility
+	
 ]

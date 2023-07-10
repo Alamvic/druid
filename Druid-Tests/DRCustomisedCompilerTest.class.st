@@ -12,7 +12,7 @@ DRCustomisedCompilerTest >> setUp [
 ]
 
 { #category : #tests }
-DRCustomisedCompilerTest >> testAddsConditionalCheck [
+DRCustomisedCompilerTest >> testSmallIntegerConditionalCheck [
 
 	| cfg specialisationCheck |
 	cfg := self generateDruidIRFor: #primitiveAdd.
@@ -24,11 +24,11 @@ DRCustomisedCompilerTest >> testAddsConditionalCheck [
 ]
 
 { #category : #tests }
-DRCustomisedCompilerTest >> testAddsInitialConstraints [
+DRCustomisedCompilerTest >> testSmallIntegerInitialConstraints [
 
 	| cfg expectedConstraint |
 	cfg := self generateDruidIRFor: #primitiveAdd.
-	expectedConstraint := DRSmallIntegerPrimitiveCustomisation new initialConstraint.
+	expectedConstraint := DRSmallIntegerPrimitiveSpecialisation new initialConstraint.
 	
 	self assertConstraint: cfg initialContrainst includes: expectedConstraint
 ]

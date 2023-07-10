@@ -1,37 +1,31 @@
 Class {
-	#name : #DRSmallIntegerPrimitiveCustomisation,
-	#superclass : #DRPrimitiveCustomisation,
+	#name : #DRSmallIntegerPrimitiveSpecialisation,
+	#superclass : #DRPrimitiveSpecialisation,
 	#category : #'Druid-CompilerCompiler'
 }
 
 { #category : #accessing }
-DRSmallIntegerPrimitiveCustomisation class >> pragmaName [
+DRSmallIntegerPrimitiveSpecialisation class >> pragmaName [
 
 	^ #smallInteger
 ]
 
 { #category : #api }
-DRSmallIntegerPrimitiveCustomisation >> generateCustomisedPreamble: aGeneratorMethodBuilder [
-1halt.
-"	aGeneratorMethodBuilder addStatement: self preamble"
+DRSmallIntegerPrimitiveSpecialisation >> addInitialConstraint: anIR [
+
+	anIR initialConstraint: self initialConstraint
 ]
 
 { #category : #'generation-IR' }
-DRSmallIntegerPrimitiveCustomisation >> initialConstraint [
+DRSmallIntegerPrimitiveSpecialisation >> initialConstraint [
 
 	^ DRRegisterDomain
 		  mask: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg')
 		  with: 1
 ]
 
-{ #category : #api }
-DRSmallIntegerPrimitiveCustomisation >> optimize: anIR [
-
-	anIR initialConstraint: self initialConstraint
-]
-
 { #category : #'code-generation' }
-DRSmallIntegerPrimitiveCustomisation >> preamble [
+DRSmallIntegerPrimitiveSpecialisation >> preamble [
 
 	| preamble |
 	preamble := DruidTestRTLCompiler lookupSelector: #smallIntegerSpecialisedPreamble.
@@ -39,14 +33,14 @@ DRSmallIntegerPrimitiveCustomisation >> preamble [
 ]
 
 { #category : #'cog jit support' }
-DRSmallIntegerPrimitiveCustomisation >> smallIntegerTag [
+DRSmallIntegerPrimitiveSpecialisation >> smallIntegerTag [
 	"Duplicated code"
 
 	^ 1
 ]
 
-{ #category : #'generation-IR' }
-DRSmallIntegerPrimitiveCustomisation >> specialiseIR: aDRPrimitiveIRGenerator [
+{ #category : #api }
+DRSmallIntegerPrimitiveSpecialisation >> specialiseIR: aDRPrimitiveIRGenerator [
 
 	| conditionalJump conditionalBasicBlock |
 	conditionalBasicBlock := aDRPrimitiveIRGenerator currentBasicBlock.

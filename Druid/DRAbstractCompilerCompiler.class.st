@@ -9,8 +9,8 @@ Class {
 		'targetAST',
 		'optimisations',
 		'codeGenerator',
-		'customisation',
-		'irGenerator'
+		'irGenerator',
+		'specialisation'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -80,7 +80,7 @@ DRAbstractCompilerCompiler >> customiseFor: method [
 	method ast
 		pragmaNamed: #customisedReceiverFor:
 		ifPresent: [ :pragma | 
-			customisation := DRPrimitiveCustomisation newCustomisation:
+			specialisation := DRPrimitiveSpecialisation newCustomisation:
 				                  pragma arguments first value ]
 ]
 
@@ -96,7 +96,7 @@ DRAbstractCompilerCompiler >> generateDruidIRFor: method [
 
 	| cfg receiver arguments |
 	self configureIRBuilder: irGenerator forMethod: method.
-	customisation specialiseIR: irGenerator.
+	specialisation specialiseIR: irGenerator.
 
 	arguments := method argumentNames collect: [ :_ | irGenerator pop ].
 	receiver := DRInterpreterValue value: interpreter.
@@ -119,9 +119,6 @@ DRAbstractCompilerCompiler >> generateDruidIRFor: method [
 { #category : #'code-generation' }
 DRAbstractCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 
-	customisation generateCustomisedPreamble:
-		codeGenerator generatorMethodBuilder.
-
 	^ codeGenerator
 		  generateTargetASTFromIR: aDRControlFlowGraph
 		  methodName: self targetName
@@ -134,7 +131,7 @@ DRAbstractCompilerCompiler >> initialize [
 
 	codeGenerator := DRCogitStackToRegisterMappingGenerator new.
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
-	customisation := DRNonePrimitiveCustomisation new.
+	specialisation := DRNonePrimitiveSpecialisation new.
 	irGenerator := self newIRGenerator.
 
 	optimisations := OrderedCollection new.
@@ -199,7 +196,7 @@ DRAbstractCompilerCompiler >> optimisations: aCollection [
 { #category : #api }
 DRAbstractCompilerCompiler >> optimize: anIR [
 
-	customisation optimize: anIR.
+	specialisation addInitialConstraint: anIR.
 	optimisations do: [ :optimization | anIR applyOptimisation: optimization ]
 ]
 
