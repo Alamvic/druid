@@ -54,6 +54,7 @@ DRIRTest >> assertConstraintIn: aDRCPSEdge for: aKey includes: expectedConstrain
 DRIRTest >> configureInterpreter [
 
 	| interpreter theMemory |
+	Cogit initializeMiscConstants.
 	interpreter := DruidTestInterpreter basicNew.
 	theMemory := Spur64BitCoMemoryManager simulatorClass new.
 	interpreter
