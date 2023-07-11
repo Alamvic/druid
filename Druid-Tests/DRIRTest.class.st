@@ -45,9 +45,12 @@ DRIRTest >> assertConstraint: aConstraint includes: includedConstraint [
 DRIRTest >> configureInterpreter [
 
 	| interpreter theMemory |
-	interpreter := DruidTestInterpreter basicNew .
+	interpreter := DruidTestInterpreter basicNew.
 	theMemory := Spur64BitCoMemoryManager simulatorClass new.
-	interpreter objectMemory: theMemory.
+	interpreter
+		objectMemory: theMemory;
+		basicInitialize.
+
 	compilerCompiler interpreter: interpreter
 ]
 

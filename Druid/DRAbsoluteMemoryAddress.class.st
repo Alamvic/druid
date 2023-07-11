@@ -15,6 +15,12 @@ DRAbsoluteMemoryAddress class >> register: aRegister [
 		yourself
 ]
 
+{ #category : #visiting }
+DRAbsoluteMemoryAddress >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitAbsoluteAddress: self
+]
+
 { #category : #'meta-data' }
 DRAbsoluteMemoryAddress >> asDependencyList [
 

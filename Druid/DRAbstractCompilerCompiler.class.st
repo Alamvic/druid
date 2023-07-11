@@ -224,6 +224,12 @@ DRAbstractCompilerCompiler >> sourceName: anObject [
 	sourceName := anObject
 ]
 
+{ #category : #accessing }
+DRAbstractCompilerCompiler >> specialisation: aDRPrimitiveSpecialisation [
+
+	specialisation := aDRPrimitiveSpecialisation
+]
+
 { #category : #'code-generation' }
 DRAbstractCompilerCompiler >> targetName [
 

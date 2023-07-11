@@ -4,6 +4,13 @@ Class {
 	#category : #'Druid-IR-Paths'
 }
 
+{ #category : #math }
+DRRangedConstraint >> bitAndConstraint: anInteger [
+	"Nothing to do"
+
+	^ nil
+]
+
 { #category : #testing }
 DRRangedConstraint >> hasAllValuesWithMask: aMask [
 
@@ -20,4 +27,11 @@ DRRangedConstraint >> hasAllValuesWithoutMask: aMask [
 DRRangedConstraint >> reversed [
 	
 	self subclassResponsibility
+]
+
+{ #category : #math }
+DRRangedConstraint >> rightShiftConstraint: anInteger [
+	"Nothing to do"
+
+	^ nil
 ]

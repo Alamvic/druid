@@ -15,6 +15,18 @@ DRRegisterMemoryAddress class >> register: aRegister [
 		yourself
 ]
 
+{ #category : #visiting }
+DRRegisterMemoryAddress >> acceptVisitor: aVisitor [ 
+
+	^ aVisitor visitRegisterAddress: self
+]
+
+{ #category : #accessing }
+DRRegisterMemoryAddress >> name [
+
+	^ register name
+]
+
 { #category : #accessing }
 DRRegisterMemoryAddress >> operands [
 	
@@ -41,4 +53,10 @@ DRRegisterMemoryAddress >> rtlArgumentExpressions: generator [
 	baseNode := RBVariableNode named: register name.
 
 	^ { offsetNode . baseNode }
+]
+
+{ #category : #SCCP }
+DRRegisterMemoryAddress >> sccpLatticeValueFor: aDRSCCP [
+
+	^ aDRSCCP bottom
 ]

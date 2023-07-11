@@ -27,6 +27,12 @@ DRInterpreterReference class >> reference: aReference [
 		yourself
 ]
 
+{ #category : #visiting }
+DRInterpreterReference >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitInterpreterReference: self
+]
+
 { #category : #memory }
 DRInterpreterReference >> asMemoryAddress [
 	

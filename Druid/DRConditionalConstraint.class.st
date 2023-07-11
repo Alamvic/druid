@@ -61,10 +61,10 @@ DRConditionalConstraint >> includes: otherConstraint [
 { #category : #merging }
 DRConditionalConstraint >> intersectionWith: otherConditionalConstraint [
 
-	(self includes: otherConditionalConstraint) ifTrue: [ 
-		^ otherConditionalConstraint ].
 	(otherConditionalConstraint includes: self) ifTrue: [ 
 		^ self ].
+	(self includes: otherConditionalConstraint) ifTrue: [ 
+		^ otherConditionalConstraint ].
 	(otherConditionalConstraint negated includes: self) ifTrue: [ 
 		^ DREmptyConstraint new ].
 	
@@ -87,6 +87,13 @@ DRConditionalConstraint >> isEmpty [
 DRConditionalConstraint >> isUnion [
 
 	^ false
+]
+
+{ #category : #constraints }
+DRConditionalConstraint >> loadConstraint: anInteger [
+	"Nothing to do"
+
+	^ nil
 ]
 
 { #category : #arithmetic }

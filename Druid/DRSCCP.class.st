@@ -200,9 +200,9 @@ DRSCCP >> latticeValue: aValue [
 DRSCCP >> latticeValueOfPhiFunction: operation [
 
 	| values |
-
-	values := operation operands collect: [ :e | 
-		self latticeValue: e ] as: Set.
+	values := (operation operands
+		           reject: [ :e | e isNullValue ] "Avoid NULLs"
+		           thenCollect: [ :e | self latticeValue: e ]) as: Set.
 	values remove: self top ifAbsent: [ "Nothing" ].
 	values size = 1 ifTrue: [ ^ values anyOne ].
 	^ self bottom

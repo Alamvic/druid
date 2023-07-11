@@ -69,17 +69,17 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoadsNorS
 	loopExitBlock := cfg newBasicBlock.
 
 	initialBlock jumpTo: loopConditionBlock.
-	
+
 	loopConditionBlock loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock.
 
-	loadInstruction := loopBodyBlock load: 0.
+	loadInstruction := loopBodyBlock load: (DRPhysicalGeneralPurposeRegister name: 'Reg').
 	storeInstruction := loopBodyBlock store: 0 into: 0.
 
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 
 	"Intructions were not moved"
 	self assert: (loopBodyBlock includesInstruction: loadInstruction).
-	self assert: (loopBodyBlock includesInstruction: storeInstruction).
+	self assert: (loopBodyBlock includesInstruction: storeInstruction)
 ]
 
 { #category : #tests }

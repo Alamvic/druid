@@ -173,6 +173,12 @@ DRCPSEdge >> split [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitAbsoluteAddress: aDRAbsoluteMemoryAddress [
+
+	^ self operandConstraint: aDRAbsoluteMemoryAddress expression
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitAddition: aDRAdd [
 
 	^ self integerOperation: aDRAdd
@@ -185,9 +191,19 @@ DRCPSEdge >> visitAnd: aDRAnd [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitBitAnd: aDRBitAnd [
+DRCPSEdge >> visitBaseOffsetAddress: aDRBaseOffsetMemoryAddress [
+	"Not implemented"
 
 	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitBitAnd: aDRBitAnd [
+
+	^ (self operandConstraint: aDRBitAnd operand1) ifNotNil: [ :operandConstraint |
+		  aDRBitAnd operand2 isConstant ifTrue: [
+			  (operandConstraint bitAndConstraint: aDRBitAnd operand2 value) ifNotNil: [
+				  :constraint | self addConstraint: constraint to: aDRBitAnd result name ] ] ]
 ]
 
 { #category : #visiting }
@@ -377,6 +393,12 @@ DRCPSEdge >> visitIntToFloatConversion: aDRIntToFloat [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitInterpreterReference: aDRInterpreterReference [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitInterpreterValue: aDRInterpreterValue [
 
 	^ nil
@@ -426,9 +448,11 @@ DRCPSEdge >> visitLessThan: aDRLessThanComparison inBranch: aDRBranch [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitLoad: aDRLoad [ 
+DRCPSEdge >> visitLoad: aDRLoad [
 
-	^ nil
+	^ (aDRLoad address acceptVisitor: self) ifNotNil: [ :addressConstraint |
+		  (addressConstraint loadConstraint: aDRLoad size) ifNotNil: [ :constraint |
+			  self addConstraint: constraint to: aDRLoad result name ] ]
 ]
 
 { #category : #visiting }
@@ -566,6 +590,12 @@ DRCPSEdge >> visitPush: aDRPush [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitRegisterAddress: aDRRegisterMemoryAddress [
+
+	^ self operandConstraint: aDRRegisterMemoryAddress register
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitReturn: aDRReturn [
 
 	"Returns do not have type constraints"
@@ -574,9 +604,12 @@ DRCPSEdge >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitRightShift: aDRRightShift [ 
+DRCPSEdge >> visitRightShift: aDRRightShift [
 
-	^ nil
+	^ (self operandConstraint: aDRRightShift operand1) ifNotNil: [ :operandConstraint |
+		  aDRRightShift operand2 isConstant ifTrue: [
+			  (operandConstraint rightShiftConstraint: aDRRightShift operand2 value) ifNotNil: [
+				  :constraint | self addConstraint: constraint to: aDRRightShift result name ] ] ]
 ]
 
 { #category : #visiting }

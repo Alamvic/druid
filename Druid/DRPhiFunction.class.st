@@ -180,7 +180,7 @@ DRPhiFunction >> rtlOperandQualifier [
 	^ 'R:'
 ]
 
-{ #category : #enumerating }
+{ #category : #SCCP }
 DRPhiFunction >> sccpLatticeValueFor: sccp [
 
 	^ sccp latticeValueOfPhiFunction: self

@@ -22,6 +22,11 @@ DRSimpleConstraint >> = otherConstraint [
 		  self constantValue = otherConstraint constantValue ]
 ]
 
+{ #category : #math }
+DRSimpleConstraint >> bitAndConstraint: anInteger [
+	^ self class withValue: (constantValue bitAnd: anInteger)
+]
+
 { #category : #accessing }
 DRSimpleConstraint >> constantValue [
 
@@ -66,4 +71,10 @@ DRSimpleConstraint >> printOn: aStream [
 		nextPutAll: self opCode;
 		nextPutAll: ' ';
 		print: constantValue
+]
+
+{ #category : #math }
+DRSimpleConstraint >> rightShiftConstraint: anInteger [
+
+	^ self class withValue: constantValue >> anInteger
 ]

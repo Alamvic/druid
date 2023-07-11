@@ -8,6 +8,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #visiting }
+DRBaseOffsetMemoryAddress >> acceptVisitor: aVisitor [ 
+
+	^ aVisitor visitBaseOffsetAddress: self
+]
+
 { #category : #'meta-data' }
 DRBaseOffsetMemoryAddress >> asDependencyList [
 
