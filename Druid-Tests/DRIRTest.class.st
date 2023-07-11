@@ -41,6 +41,15 @@ DRIRTest >> assertConstraint: aConstraint includes: includedConstraint [
 	self assert: (aConstraint includes: includedConstraint)
 ]
 
+{ #category : #asserting }
+DRIRTest >> assertConstraintIn: aDRCPSEdge for: aKey includes: expectedConstraint [
+
+	| constaint |
+	constaint := aDRCPSEdge constraintFor: aKey.
+
+	self assertConstraint: constaint includes: expectedConstraint
+]
+
 { #category : #running }
 DRIRTest >> configureInterpreter [
 

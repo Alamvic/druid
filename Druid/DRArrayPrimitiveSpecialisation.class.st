@@ -6,8 +6,9 @@ Class {
 
 { #category : #api }
 DRArrayPrimitiveSpecialisation >> addInitialConstraint: aDRPrimitiveControlFlowGraph [
+	"Do nothing, let the inference to the added checks"
 
-	aDRPrimitiveControlFlowGraph initialConstraint: self initialConstraint
+	"aDRPrimitiveControlFlowGraph initialConstraint: self initialConstraint"
 ]
 
 { #category : #'header formats' }
