@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #'instance creation' }
+DRArrayPrimitiveSpecialisation class >> pragmaName [
+
+	^ #arrayOop
+]
+
 { #category : #api }
 DRArrayPrimitiveSpecialisation >> addInitialConstraint: aDRPrimitiveControlFlowGraph [
 	"Do nothing, let the inference to the added checks"

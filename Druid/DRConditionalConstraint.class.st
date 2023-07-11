@@ -4,6 +4,13 @@ Class {
 	#category : #'Druid-IR-Paths'
 }
 
+{ #category : #math }
+DRConditionalConstraint >> bitAndConstraint: anInteger [
+	"Not implemented"
+
+	^ nil
+]
+
 { #category : #arithmetic }
 DRConditionalConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
@@ -112,4 +119,11 @@ DRConditionalConstraint >> opCode [
 DRConditionalConstraint >> printOn: aStream [
 
 	aStream nextPutAll: self opCode
+]
+
+{ #category : #math }
+DRConditionalConstraint >> rightShiftConstraint: anInteger [
+	"Not implemented"
+
+	^ nil
 ]

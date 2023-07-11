@@ -13,6 +13,12 @@ DRPrimitiveSpecialisation class >> newCustomisation: specialisedSelector [
 	^ specialisedClass new
 ]
 
+{ #category : #'instance creation' }
+DRPrimitiveSpecialisation class >> pragmaName [
+
+	^ self subclassResponsibility
+]
+
 { #category : #api }
 DRPrimitiveSpecialisation >> addInitialConstraint: anIR [
 

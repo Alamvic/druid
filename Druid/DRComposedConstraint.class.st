@@ -29,13 +29,6 @@ DRComposedConstraint class >> withoutTypes: types [
 		  (types collect: [ :t | DRExcludeTypeConstraint withType: t ])
 ]
 
-{ #category : #math }
-DRComposedConstraint >> bitAndConstraint: anInteger [
-	"Not implemented"
-
-	^ nil
-]
-
 { #category : #accessing }
 DRComposedConstraint >> constraints [
 
@@ -60,11 +53,4 @@ DRComposedConstraint >> printOn: aStream [
 		print: constraints second;
 		nextPutAll: ')'
 
-]
-
-{ #category : #math }
-DRComposedConstraint >> rightShiftConstraint: anInteger [
-	"Not implemented"
-
-	^ nil
 ]
