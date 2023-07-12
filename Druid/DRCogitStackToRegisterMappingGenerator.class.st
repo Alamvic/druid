@@ -344,6 +344,7 @@ DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 DRCogitStackToRegisterMappingGenerator >> visitReturn: aDRReturn [
 	"Generate the postamble in the return cases"
 
+	| isBlockReturn generator |
 	self generatePostambleForCFG: aDRReturn controlFlowGraph.
 
 	"Move the return value to the receiver register result"
@@ -352,9 +353,14 @@ DRCogitStackToRegisterMappingGenerator >> visitReturn: aDRReturn [
 				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg') }.
 
 	"Then return"
+	isBlockReturn := aDRReturn operand2 value.
+	generator := isBlockReturn
+		ifTrue: [ #genBlockReturn ]
+		ifFalse: [ #genUpArrowReturn ].
+	
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #genUpArrowReturn)
+			 selector: generator)
 ]
 
 { #category : #visiting }

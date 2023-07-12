@@ -1,6 +1,9 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
 	#superclass : #DRPrimitiveIRGenerator,
+	#instVars : [
+		'jumpOffset'
+	],
 	#category : #'Druid-CompilerCompiler'
 }
 
@@ -43,6 +46,7 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
 	specialCases at: #normalSendSpecialSelector:argumentCount: put: #interpretNormalSpecialSelectorSendWith:.
 	specialCases at: #commonReturn: put: #interpretCommonReturnWith:.
+	specialCases at: #commonCallerReturn: put: #interpretCommonCallerReturnWith:.
 	specialCases at: #checkForEventsMayContextSwitch: put: #interpretInterruptCheckWith:.
 	specialCases at: #fetchByte put: #interpretFetchByteWith:.
 
@@ -86,6 +90,18 @@ DRBytecodeIRGenerator >> interpretAsCompilerVariableWith: aRBVariableNode [
 ]
 
 { #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretCommonCallerReturnWith: aRBMessageNode [
+
+	| returnedValue |
+	returnedValue := self visitOperand: aRBMessageNode arguments first.
+
+	^ self
+		  addInstructionWithNoResultFrom: aRBMessageNode
+		  instructionKind: DRReturn
+		  operands: { returnedValue . true asDRValue }
+]
+
+{ #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretCommonReturnWith: aRBMessageNode [
 
 	| returnedValue |
@@ -94,7 +110,7 @@ DRBytecodeIRGenerator >> interpretCommonReturnWith: aRBMessageNode [
 	^ self
 		  addInstructionWithNoResultFrom: aRBMessageNode
 		  instructionKind: DRReturn
-		  operands: { returnedValue }
+		  operands: { returnedValue . false asDRValue }
 ]
 
 { #category : #visiting }
