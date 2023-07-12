@@ -247,6 +247,7 @@ DRIRGenerator >> initializeSpecialCases [
 
 	"Control flow and comparisons"
 	specialCases at: #druidIgnore: put: #ignoreMessageWith:.
+	specialCases at: #interpreterIgnore: put: #interpretBlockArgumentValueWith:.
 	specialCases at: #druidFail put: #interpretDruidFailWith:.
 	specialCases at: #value put: #interpretBlockValueWith:.
 	specialCases at: #value: put: #interpretBlockValueWith:.
@@ -526,6 +527,19 @@ DRIRGenerator >> interpretBlockActivation: aRBBlockNode [
 
 	"If this is a block activation, it should have a return value"
 	self topFrame returnValue: copy
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretBlockArgumentValueWith: aRBMessageNode [
+
+	| block |
+	aRBMessageNode arguments first acceptVisitor: self.
+	block := self popOperand simplify.
+	block isDRBlockClosure ifFalse: [ self error: 'Only consider blocks' ].
+
+	block blockNode arguments size > 0 ifTrue: [
+		self error: 'Only consider blocks with no arguments' ].
+	self interpretCode: block receiver: block arguments: #(  )
 ]
 
 { #category : #interpreting }
