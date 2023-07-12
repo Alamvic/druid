@@ -300,6 +300,14 @@ DRInstructionFactory >> strongCopy: aValue [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> sub: operand1 from: operand2 [
+
+	^ DRSubtract 
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> subtract: subtrahend from: minuend [
 
 	^ DRSubtract

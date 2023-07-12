@@ -27,6 +27,12 @@ DRAdd >> isAdd [
 	^ true
 ]
 
+{ #category : #testing }
+DRAdd >> isCommutative [
+	
+	^ true
+]
+
 { #category : #printing }
 DRAdd >> opcode [
 	
