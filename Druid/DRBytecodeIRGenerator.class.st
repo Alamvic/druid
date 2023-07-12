@@ -17,6 +17,8 @@ DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
 DRBytecodeIRGenerator >> initialize [
 
 	super initialize.
+	jumpOffset := 0.
+
 	controlFlowGraph successExitBlock:controlFlowGraph newBasicBlock.
 	controlFlowGraph successExitBlock beExitBlock.
 	controlFlowGraph failureExitBlock: controlFlowGraph newBasicBlock.
@@ -125,12 +127,12 @@ DRBytecodeIRGenerator >> interpretCurrentBytecodeWith: aRBVariableNode [
 { #category : #'special-cases' }
 DRBytecodeIRGenerator >> interpretFetchByteWith: aRBMessageNode [
 
-	self flag: #TODO. "Use accumulator to compile byteN"
-
+	jumpOffset := jumpOffset + 1.
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRCopy
-		  operands: { (DRJitCompileTimeExpression new expression: 'byte1') }
+		  operands: { (DRJitCompileTimeExpression new expression:
+				   'byte' , jumpOffset asString) }
 ]
 
 { #category : #'special cases' }
@@ -209,11 +211,13 @@ DRBytecodeIRGenerator >> interpretInstructionPointerAssignmentWith: aRBAssignmen
 
 { #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
-	
+
 	^ self
-		addInstructionFrom: aRBVariableNode
-		instructionKind: DRCopy
-		operands: { DRJitCompileTimeExpression new expression: 'bytecodePC' }
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRAdd
+		  operands: {
+				  (DRJitCompileTimeExpression new expression: 'bytecodePC').
+				  jumpOffset asDRValue }
 ]
 
 { #category : #'special cases' }
