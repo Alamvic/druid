@@ -28,10 +28,22 @@ DRConditionalConstraint >> hasAllValuesWithoutMask: aMask [
 	self subclassResponsibility
 ]
 
+{ #category : #testing }
+DRConditionalConstraint >> hasNotType: aDRType [
+
+	^ self subclassResponsibility
+]
+
 { #category : #arithmetic }
 DRConditionalConstraint >> hasObjectValue: objectValue [
 
 	^ false
+]
+
+{ #category : #testing }
+DRConditionalConstraint >> hasType: aDRType [
+
+	^ self subclassResponsibility
 ]
 
 { #category : #arithmetic }

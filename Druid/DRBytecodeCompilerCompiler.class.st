@@ -1,8 +1,8 @@
 Class {
 	#name : #DRBytecodeCompilerCompiler,
-	#superclass : #DRCompilerCompiler,
+	#superclass : #DRAbstractCompilerCompiler,
 	#instVars : [
-		'primitiveCompilerName'
+		'targetName'
 	],
 	#category : #'Druid-BytecodeToJITCompilation'
 }
@@ -16,6 +16,15 @@ DRBytecodeCompilerCompiler class >> compilePrimitive: primitiveName from: anInte
 		primitiveCompilerName: primitiveCompilerName;
 		compilerClass: aCompilerClass;
 		compile
+]
+
+{ #category : #'builder api' }
+DRBytecodeCompilerCompiler >> buildIR: bytecodeSelector [ 
+	" Answer a DRPrimitiveControlFlowGraph generated for bytecodeSelector in the receiver's interpreter "
+
+	^ self 
+		sourceName: bytecodeSelector;
+		generateDruidIR
 ]
 
 { #category : #'generation-IR' }
@@ -56,7 +65,9 @@ DRBytecodeCompilerCompiler >> initialize [
 
 	"Last Phase, make code coggable"
 	optimisations add: DRCogitOperandSorter new.
-	optimisations add: DRCogitSendMarshallHoisting new
+	optimisations add: DRCogitSendMarshallHoisting new.
+	
+	registerAllocator := DRCogitDynamicLinearScanRegisterAllocator new
 ]
 
 { #category : #accessing }
@@ -65,8 +76,8 @@ DRBytecodeCompilerCompiler >> newIRGenerator [
 	^ DRBytecodeIRGenerator new
 ]
 
-{ #category : #accessing }
-DRBytecodeCompilerCompiler >> numberOfArgumentsFor: aMethod [
+{ #category : #'generation-IR' }
+DRBytecodeCompilerCompiler >> numberOfArgumentsForMethod: aMethod [
 
 	(aMethod ast hasPragmaNamed: #numberOfArguments:) ifFalse: [ ^ 0 ].
 
@@ -76,5 +87,12 @@ DRBytecodeCompilerCompiler >> numberOfArgumentsFor: aMethod [
 { #category : #accessing }
 DRBytecodeCompilerCompiler >> targetName [
 
-	^ 'gen_', self sourceName
+	^ targetName 
+		ifNil: [ targetName := 'gen_', self sourceName ]
+]
+
+{ #category : #accessing }
+DRBytecodeCompilerCompiler >> targetName: anObject [
+
+	targetName := anObject
 ]

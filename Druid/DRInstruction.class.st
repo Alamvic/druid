@@ -106,7 +106,7 @@ DRInstruction >> basicBlock: anObject [
 { #category : #'cfg manipulation' }
 DRInstruction >> breakBasicBlock [
 
-	self basicBlock breakBy: self
+	^ self basicBlock breakBy: self
 ]
 
 { #category : #'loop-invariance' }
@@ -179,6 +179,11 @@ DRInstruction >> hasUsers [
 DRInstruction >> hash [
 
 	^ self result hash
+]
+
+{ #category : #accessing }
+DRInstruction >> indexInBasicBlock [
+	^ self basicBlock indexOfInstruction: self
 ]
 
 { #category : #testing }
@@ -316,6 +321,12 @@ DRInstruction >> isJITMessageSend [
 ]
 
 { #category : #testing }
+DRInstruction >> isLoadInstanceVariable [
+
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isModulo [
 	
 	^ false
@@ -354,7 +365,7 @@ DRInstruction >> isValue [
 { #category : #accessing }
 DRInstruction >> label [
 
-	^ self opcode, '(', self result name asString, ')'
+	^ self opcode, '(', (self result ifNotNil: [ :e | e name ] ifNil: [self]) asString, ')'
 ]
 
 { #category : #interpretation }
@@ -410,6 +421,12 @@ DRInstruction >> operand1: aDRAbsoluteMemoryAddress [
 DRInstruction >> operand2 [
 
 	^ operands at: 2 ifAbsent: [nil]
+]
+
+{ #category : #accessing }
+DRInstruction >> operand3 [
+
+	^ operands at: 3 ifAbsent: [nil]
 ]
 
 { #category : #operands }
@@ -502,12 +519,12 @@ DRInstruction >> postCopy [
 
 { #category : #printing }
 DRInstruction >> prettyPrint [
-	
+
 	| print |
-	print := result
-		ifNil: [ '' ]
-		ifNotNil: [ result name, ' := ' ].
-	^ print, self opcode ,' ', (' ' join: (self operands collect: [ :e | e result ifNotNil: [ e result name ] ]))
+	print := result ifNil: [ '' ] ifNotNil: [ result name , ' := ' ].
+	
+	^ print , self opcode , ' '
+	  , (' ' join: (self operands collect: [ :e | e ifNotNil: [ e printResult ] ]))
 ]
 
 { #category : #accessing }
@@ -523,6 +540,13 @@ DRInstruction >> printOn: aStream [
 	aStream nextPut: $(.
 	aStream nextPutAll: self prettyPrint.
 	aStream nextPut: $)
+]
+
+{ #category : #printing }
+DRInstruction >> printResult [
+
+	result ifNotNil: [ ^ result name ].
+	^ self opcode
 ]
 
 { #category : #'users-definitions' }
@@ -594,6 +618,16 @@ DRInstruction >> replaceDependency: anOperand by: anotherOperand in: anInstructi
 	anInstruction replaceOperand: anOperand by: anotherOperand
 ]
 
+{ #category : #replacing }
+DRInstruction >> replaceDominatedUsesBy: anotherInstruction [
+
+	users
+		select: [ :instruction | 
+			instruction isDominatedBy: anotherInstruction ]
+		thenDo: [ :instruction | 
+			instruction replaceDependency: self by: anotherInstruction ]
+]
+
 { #category : #'users-definitions' }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
@@ -624,7 +658,7 @@ DRInstruction >> replaceOperandAtIndex: index by: anotherOperand [
 DRInstruction >> replaceOperandIfDominated: myOperand by: anotherOperand [
 
 	(self isDominatedBy: anotherOperand) ifFalse: [ ^ nil ].
-	self replaceOperand: myOperand by: anotherOperand
+	self replaceDependency: myOperand by: anotherOperand
 ]
 
 { #category : #replace }
@@ -677,9 +711,9 @@ DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 ]
 
 { #category : #cogit }
-DRInstruction >> rtlPushArgumentExpressions [
+DRInstruction >> rtlPushArgumentExpressions: generator [
 	
-	^ { RBVariableNode named: result name }
+	^ { RBVariableNode named: (generator allocateVariable: result) }
 ]
 
 { #category : #cogit }
@@ -716,29 +750,34 @@ DRInstruction >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : #SCCP }
-DRInstruction >> sccpLatticeValueFor: sccp latticeOperand1: operand1 latticeOperand2: operand2 [
-
-	((({ sccp top. sccp bottom } includes: operand1) not
-		and: [ ({ sccp top. sccp bottom } includes: operand2) not ])
-			and: [ operand1 isConstant and: [ operand2 isConstant ]])
-				ifTrue: [ 
-					"Compute the lattice value and wrap it as a DR value"
-					^ (self sccpOperateOnLattice: operand1 value and: operand2 value) asDRValue ].
-	(operand1 = sccp bottom or: [operand2 = sccp bottom])
-		ifTrue: [ ^ sccp bottom ].
-	^ sccp top
-]
-
-{ #category : #SCCP }
 DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 	
 	self subclassResponsibility
+]
+
+{ #category : #testing }
+DRInstruction >> supportConstantOperand [
+
+	^ true
 ]
 
 { #category : #types }
 DRInstruction >> type [
 
 	^ DRIntegerType new
+]
+
+{ #category : #inspecting }
+DRInstruction >> uiUnroll [
+
+	| unrollingFactor |
+	self isBackJump ifFalse: [ 
+		^ self inform: 'Can only perform loop unrolling from back jumps' ].
+	unrollingFactor := UIManager default
+		                   request: 'Unrolling factor:'
+		                   initialAnswer: '2'.
+	(unrollingFactor ifNil: [ '' ]) ifEmpty: [ unrollingFactor := 2 ].
+	self loop unroll: unrollingFactor asNumber
 ]
 
 { #category : #replacing }

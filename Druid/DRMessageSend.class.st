@@ -3,7 +3,8 @@ Class {
 	#superclass : #DRInstruction,
 	#instVars : [
 		'methodNode',
-		'irGenerator'
+		'irGenerator',
+		'typeSystem'
 	],
 	#category : #'Druid-IR'
 }
@@ -26,21 +27,21 @@ DRMessageSend >> generateInlineIRForMethod: classAndMethodToInline [
 	| lastFrame methodClass methodToInline |
 	"TODO: delegate generation to type?"
 	methodClass := classAndMethodToInline key.
-	(methodClass isKindOf: DRUndefinedType) ifTrue: [
-		"If we don't know the receiver's type, copy the message send" 
+	(methodClass isKindOf: DRUndefinedType) ifTrue: [ "If we don't know the receiver's type, copy the message send"
 		(DRMethod methodNode: self originAST methodNode) asDRValue
 			pushFrameIn: irGenerator
 			receiver: self receiver.
-		^ irGenerator
-			  resolveMessageSend: self originAST
-			  receiver: self receiver
-			  arguments: self arguments ].
+		^ irGenerator resolveMessageSend: self originAST receiver: self receiver arguments: self arguments ].
+
 	methodToInline := classAndMethodToInline value.
 	lastFrame := irGenerator
 		             interpretCode: (DRMethod methodNode: methodToInline)
 		             receiver: operands first
 		             arguments: operands allButFirst.
-	^ lastFrame returnValue
+
+	irGenerator finishCodeInterpretation: lastFrame.
+
+	^ lastFrame returnedValue
 ]
 
 { #category : #inlining }
@@ -48,24 +49,25 @@ DRMessageSend >> generateInlineIRForMethods: methodsToInline [
 
 	| returnValues lastBlock |
 	returnValues := OrderedCollection new.
-	methodsToInline allButLastDo: [ :classAndMethod | 
+	methodsToInline allButLastDo: [ :classAndMethod |
 		| jump |
 		jump := irGenerator currentBasicBlock endInstruction:
-			        (DRBranchIfCondition operands: { 
+			        (DRBranchIfCondition operands: {
 					         (DRTypeOf typeClass: classAndMethod key).
-					         self receiver }).
+					         self receiver.
+					         classAndMethod key asDRValue }).
 		jump newTrueBranch: irGenerator newBasicBlock.
-		returnValues add:
-			(self generateInlineIRForMethod: classAndMethod).
+		returnValues add: (self generateInlineIRForMethod: classAndMethod).
 		jump newFalseBranch: irGenerator newBasicBlock ].
 
 	returnValues add:
 		(self generateInlineIRForMethod: methodsToInline last).
-	
+
 	returnValues size = 1 ifTrue: [ ^ returnValues first ].
-	
+
 	lastBlock := irGenerator newBasicBlock.
-	returnValues do: [ :returnValue | 
+
+	returnValues do: [ :returnValue |
 		returnValue basicBlock jumpTo: lastBlock ].
 	^ lastBlock addInstruction:
 		  (self instructionFactory phiWithVariables: returnValues)
@@ -75,23 +77,30 @@ DRMessageSend >> generateInlineIRForMethods: methodsToInline [
 DRMessageSend >> inline [
 
 	| pieces methodsToInline inlinedMethodReturnValue |
-	methodsToInline := self methodsToInline.
+	({ #class. #instVarAt: } includes: self selector) ifTrue: [ ^ self ].
 
+	methodsToInline := self methodsToInline.
 	methodsToInline ifEmpty: [ ^ self ].
 
+	"Break message send basic block"
 	pieces := self basicBlock breakBy: self.
-
 	pieces first jumpTo: irGenerator newFirstBasicBlock.
 
+	"Generate inlining methods IR"
 	irGenerator numberOfArguments: operands size - 1.
-	
-	inlinedMethodReturnValue := self generateInlineIRForMethods: methodsToInline.
+	inlinedMethodReturnValue := self generateInlineIRForMethods:
+		                            methodsToInline.
 
+	"Replace usages by inlines result"
 	irGenerator currentBasicBlock jumpTo: pieces last.
-	"Remove message send block"
 	self replaceUsesBy: inlinedMethodReturnValue.
-	pieces last removePredecessor: self basicBlock.
-	self basicBlock removeFromCFG
+
+	"Remove message send block"
+	self basicBlock removeFromCFGAndDisconnectSuccessors.
+
+	"Clean garbage to generate a valid CFG"
+	DRDeadBlockElimination new applyTo: irGenerator ir.
+	irGenerator ir validate
 ]
 
 { #category : #accessing }
@@ -126,20 +135,20 @@ DRMessageSend >> methodNode: anObject [
 
 { #category : #inlining }
 DRMessageSend >> methodsToInline [
+	"Returns a collection of associations: 
+	    DRType (or #default) -> method AST
+	"
 
-	| inlinedMethodClasses |
-	^ methodNode
-		ifNotNil: [ {(#default -> methodNode)} ]
-		ifNil: [ 
-		  inlinedMethodClasses := self receiverType.
-		  (inlinedMethodClasses collect: [ :class | 
-				class -> (class astForSelector: self originAST selector) ]) ]
+	methodNode ifNotNil: [ "If a method node was set during interpretation then the message send is statically binding to them"
+		^ { (#default -> methodNode) } ].
+
+	^ typeSystem methodsForMessage: self
 ]
 
 { #category : #printing }
 DRMessageSend >> opcode [
-	
-	^ 'SEND'
+
+	^ '#' , self selector , ' '
 ]
 
 { #category : #accessing }
@@ -148,24 +157,13 @@ DRMessageSend >> receiver [
 	^ self operand1
 ]
 
-{ #category : #inlining }
+{ #category : #types }
 DRMessageSend >> receiverType [
 
-	| typePragmas receiverName receiverTypePragmas receiverTypes |
-	typePragmas := self originAST methodNode allPragmasNamed: #var:type:.
-	receiverName := self originAST receiver name.
-	receiverTypePragmas := typePragmas select: [ :pragma | 
-		                       pragma arguments first value = receiverName ].
-	receiverTypes := receiverTypePragmas collect: [ :pragma | pragma arguments last value.].
-	"Unknown should always be the last type, as it's used as a fallback when inlining"
-	receiverTypes detect: [:type | type = #Unknown] ifFound: [
-		receiverTypes remove: #Unknown.
-		receiverTypes add: #Unknown.
-		].
-	^ receiverTypes collect: [ :type |
-		  type = #Unknown
-			  ifTrue: [ DRUndefinedType new ]
-			  ifFalse: [ DRClassType for: (self class environment at: type) ] ]
+	(self receiver type lookupSelector: self selector) ifNil: [ "Check if the receiver type understands me, if not then fallback to Undefined type"
+		^ DRUndefinedType new ].
+
+	^ self receiver type
 ]
 
 { #category : #SCCP }
@@ -176,14 +174,44 @@ DRMessageSend >> sccpEvaluateFor: sccp [
 	
 ]
 
+{ #category : #SCCP }
+DRMessageSend >> sccpLatticeValueFor: sccp [ 
+	
+	^ sccp bottom
+]
+
+{ #category : #accessing }
+DRMessageSend >> selector [
+
+	^ self originAST selector
+]
+
+{ #category : #testing }
+DRMessageSend >> supportConstantOperand [
+
+	^ false
+]
+
 { #category : #types }
 DRMessageSend >> type [
 
-	(methodNode hasPragmaNamed: #returnTypeC:) ifTrue: [ "TODO: Match Slang types" 
-		1 halt ].
+	methodNode ifNotNil: [ "TODO: Connext with type system"
+		(methodNode hasPragmaNamed: #returnTypeC:) ifTrue: [ "TODO: Match Slang types"
+			1 halt ] ].
 
-	"Default type"
-	^ DRIntegerType new
+	^ DRTopType new
+]
+
+{ #category : #accessing }
+DRMessageSend >> typeSystem [
+
+	^ typeSystem
+]
+
+{ #category : #accessing }
+DRMessageSend >> typeSystem: anObject [
+
+	typeSystem := anObject
 ]
 
 { #category : #copying }

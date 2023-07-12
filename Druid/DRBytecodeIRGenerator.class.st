@@ -1,8 +1,14 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
-	#superclass : #DRMetaCompilerIRGenerator,
-	#category : #'Druid-BytecodeToJITCompilation'
+	#superclass : #DRPrimitiveIRGenerator,
+	#category : #'Druid-CompilerCompiler'
 }
+
+{ #category : #visiting }
+DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
+
+	self spillStack
+]
 
 { #category : #accessing }
 DRBytecodeIRGenerator >> initialize [
@@ -19,13 +25,22 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 	variableSpecialCases at: #framePointer put: #interpretFramePointerWith:.
+	variableSpecialCases at: #extA put: #interpretAsCompilerVariableWith:.
+	variableSpecialCases at: #extB put: #interpretAsCompilerVariableWith:.
+	variableSpecialCases at: #numExtA put: #interpretAsCompilerVariableWith:.
+	variableSpecialCases at: #numExtB put: #interpretAsCompilerVariableWith:.
 	"variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:."
 	
+	specialCases at: #iframeMethod: put: #interpretIframeMethodWith:.
+	specialCases at: #itemporary:in: put: #interpretITemporaryInWith:.
 	specialCases at: #internalMustBeBoolean put: #interpretMustBeBooleanWith:.
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
 	specialCases at: #normalSendSpecialSelector:argumentCount: put: #interpretNormalSpecialSelectorSendWith:.
+	specialCases at: #commonReturn: put: #interpretCommonReturnWith:.
+	specialCases at: #fetchByte put: #interpretFetchByteWith:.
+
 ]
 
 { #category : #'special cases' }
@@ -37,6 +52,44 @@ DRBytecodeIRGenerator >> interpretArgumentCountAssignmentWith: aRBAssignmentNode
 	aRBAssignmentNode value acceptVisitor: self.
 ]
 
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretAsCompilerVariableAssignmentWith: aRBAssignmentNode [
+
+	| operand |
+	operand := self visitOperand: aRBAssignmentNode value.
+
+	^ self
+		  addInstructionWithNoResultFrom: aRBAssignmentNode
+		  instructionKind: DRStore
+		  operands: {
+				  8 asDRValue.
+				  operand.
+				  (DRInterpreterExpression reference: aRBAssignmentNode variable name) }
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretAsCompilerVariableWith: aRBVariableNode [
+
+	^ self
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRLoad
+		  operands: {
+				  8 asDRValue.
+				  (DRInterpreterExpression reference: aRBVariableNode name) }
+]
+
+{ #category : #'special - cases' }
+DRBytecodeIRGenerator >> interpretCommonReturnWith: aRBMessageNode [
+
+	| returnedValue |
+	returnedValue := self visitOperand: aRBMessageNode arguments first.
+
+	^ self
+		  addInstructionWithNoResultFrom: aRBMessageNode
+		  instructionKind: DRReturn
+		  operands: { returnedValue }
+]
+
 { #category : #visiting }
 DRBytecodeIRGenerator >> interpretCurrentBytecodeWith: aRBVariableNode [ 
 	
@@ -44,6 +97,17 @@ DRBytecodeIRGenerator >> interpretCurrentBytecodeWith: aRBVariableNode [
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRCopy
 		operands: { DRJitCompileTimeExpression new expression: 'byte0' }
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretFetchByteWith: aRBMessageNode [
+
+	self flag: #TODO. "Use accumulator to compile byteN"
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRCopy
+		  operands: { (DRJitCompileTimeExpression new expression: 'byte1') }
 ]
 
 { #category : #'special cases' }
@@ -63,6 +127,29 @@ DRBytecodeIRGenerator >> interpretFramePointerWith: aRBVariableNode [
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRLoadFramePointer
 		operands: #()
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
+
+	| index |
+	index := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.
+	index isNumber ifFalse: [
+		self error:	'We can only compile access to frame with constant index' ].
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRLoadTemporaryVariable
+		  operands: { index asDRValue }
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretIframeMethodWith: aRBMessageNode [ 
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRObjectReferenceCopy
+		  operands: { (DRJitCompileTimeExpression expression: 'methodObj') } 
 ]
 
 { #category : #'special cases' }
@@ -243,6 +330,24 @@ DRBytecodeIRGenerator >> push: aValue [
 	^ self popOperand
 ]
 
+{ #category : #'stack management' }
+DRBytecodeIRGenerator >> pushFrameForCode: aDRCode receiver: aReceiver [
+
+	| frame |
+	frame := super pushFrameForCode: aDRCode receiver: aReceiver.
+
+	"If this is the base frame, it should continue with the next bytecode at the end"
+	executionState baseFrame = frame ifTrue: [
+		frame exitBasicBlock endInstruction:
+			(self instantiateNoResultInstruction: DRContinueNextBytecode) ].
+
+	^ frame
+]
+
+{ #category : #accessing }
+DRBytecodeIRGenerator >> receiver: aDRValue [
+]
+
 { #category : #visiting }
 DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
@@ -254,23 +359,4 @@ DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
 		  operands: { (DRJitCompileTimeExpression new expression: value) }
-]
-
-{ #category : #visiting }
-DRBytecodeIRGenerator >> visitReturnNode: aRBReturnNode [
-
-	| result homeFrame returnExecutionState copy |
-	aRBReturnNode value acceptVisitor: self.
-	result := self popOperand.
-	copy := self instructionFor: result inNode: aRBReturnNode.
-	homeFrame := self topFrame homeFrameWithState: executionState.
-	homeFrame returnValue: copy.
-	self currentBasicBlock jumpTo: homeFrame exitBasicBlock.
-	"homeFrame exitBasicBlock return: copy."
-
-	returnExecutionState := executionState copy.
-	self addDeferredReturnState: { returnExecutionState. self currentBasicBlock }.
-
-	"The return is a statement with no value"
-	self pushOperand: DRNullValue new
 ]

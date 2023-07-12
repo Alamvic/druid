@@ -54,12 +54,25 @@ DRBaseOffsetMemoryAddress >> operands [
 		  offset }
 ]
 
+{ #category : #'users-definitions' }
+DRBaseOffsetMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
+
+	base = anOperand ifTrue: [ ^ base := anotherOperand ].
+	super replaceDependency: anOperand by: anotherOperand
+]
+
 { #category : #cogit }
-DRBaseOffsetMemoryAddress >> rtlArgumentExpressions [
+DRBaseOffsetMemoryAddress >> rtlArgumentExpressions: generator [
 	
 	| offsetNode baseNode |
 	offsetNode := RBParser parseExpression: offset expression.
-	baseNode := RBVariableNode named: base result name.
+	baseNode := RBVariableNode named: (generator allocateVariable: base result).
 
 	^ { offsetNode . baseNode }
+]
+
+{ #category : #SCCP }
+DRBaseOffsetMemoryAddress >> sccpLatticeValueFor: aDRSCCP [ 
+
+	^ aDRSCCP bottom "?"
 ]

@@ -43,32 +43,36 @@ DRVMState >> addStackOperand: operand at: stackPosition [
 ]
 
 { #category : #accumulating }
-DRVMState >> addTo: aDRVMState [ 
-	
+DRVMState >> addTo: aDRVMState [
+
 	"Add my own state to the execution state in parameter"
+
 	aDRVMState completeOperandStackUpTo: operandStack size.
-	aDRVMState operandStackWithIndexDo: [ :operand :stackPosition |
+	aDRVMState operandStackWithIndexDo: [ :operand :stackPosition | 
 		aDRVMState
 			addStackOperand: (self stackOperandAt: stackPosition ifAbsent: [ DRNullValue new ])
 			at: stackPosition ].
-	aDRVMState addPrimitiveFailureCode: primitiveFailureCode.
+
+	primitiveFailureCode ifNotNil: [ 
+		self flag: #onlyPrimitives.
+		aDRVMState addPrimitiveFailureCode: primitiveFailureCode ]
 ]
 
 { #category : #accumulating }
 DRVMState >> addTo: aDRVMState depth: maxVMStackDepth [
-
+	
 	"Add my own state to the execution state in parameter"
 
 	aDRVMState completeOperandStackUpTo: maxVMStackDepth.
 	self completeOperandStackUpTo: maxVMStackDepth do: [ operandStack push: DRNullValue new ].
-	aDRVMState operandStackWithIndexDo: [ :operand :stackPosition | 
+	aDRVMState operandStackWithIndexDo: [ :operand :stackPosition |
 		aDRVMState
-			addStackOperand: (self stackOperandAt: stackPosition ifAbsent: [ 1 halt ])
+			addStackOperand: (self stackOperandAt: stackPosition ifAbsent: [ 1halt. ])
 			at: stackPosition ].
 
-
-	self flag: #TODO. "This is only valid for primitives"
-	aDRVMState addPrimitiveFailureCode: primitiveFailureCode
+	primitiveFailureCode ifNotNil: [ 
+		"Only valid for primitives"
+		aDRVMState addPrimitiveFailureCode: primitiveFailureCode ].
 ]
 
 { #category : #merging }
@@ -115,12 +119,16 @@ DRVMState >> isNotSimplified [
 
 { #category : #accessing }
 DRVMState >> maxNumberOfPredecessors [
-	
+
 	"Select the max number of operands in the phis"
+
 	| max |
+	primitiveFailureCode ifNil: [ 
+		self flag: #onlyPrimitives.
+		^ 0 ].
 	max := primitiveFailureCode operands size.
 	operandStack ifEmpty: [ ^ max ].
-	
+
 	^ (operandStack max: [ :e | e operands size ]) max: max
 ]
 

@@ -18,7 +18,7 @@ DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: 
 	 - the first block contains a non conditional jump to the second block
 	 - the second block has as single predecessor the first block"
 	
-	| combinedBlock |
+	| combinedBlock endInstruction |
 	combinedBlock := aCFG newBasicBlock.
 	aDRBasicBlock predecessors copy do: [ :predecessor |
 		combinedBlock addPredecessor: predecessor.
@@ -26,16 +26,21 @@ DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: 
 
 	aDRBasicBlock instructions allButLastDo: [ :e |
 		"Ignore the jump"
+		aDRBasicBlock removeInstruction: e.
 		combinedBlock addInstruction: e.
 	].
 	aDRBasicBlock2 instructions allButLastDo: [ :e |
 		"Ignore the jump"
+		aDRBasicBlock2 removeInstruction: e.
 		combinedBlock addInstruction: e.
 	].
-
-	combinedBlock endInstruction: aDRBasicBlock2 endInstruction.
+	
 	aDRBasicBlock2 successors do: [ :e |
 		e replacePredecessor: aDRBasicBlock2 by: combinedBlock ].
+
+	endInstruction := aDRBasicBlock2 endInstruction.
+	aDRBasicBlock2 basicEndInstruction: DRNoop new.
+	combinedBlock endInstruction: endInstruction.
 
 	aCFG removeBasicBlock: aDRBasicBlock.
 	aCFG removeBasicBlock: aDRBasicBlock2.
@@ -92,7 +97,7 @@ DRCleanControlFlow >> removeEmptyBlock: aDRBasicBlock fromCfg: aCFG [
 
 	"Remove the predecessor from our successor at the end"
 	aDRBasicBlock successor removePredecessor: aDRBasicBlock.
-	aDRBasicBlock basicEndInstruction: DRNoop new.
+	aDRBasicBlock basicEndInstructionRemovingUsers: DRNoop new.
 	aCFG removeBasicBlock: aDRBasicBlock
 ]
 
@@ -131,7 +136,7 @@ DRCleanControlFlow >> shouldFoldRedundantBranch: aDRConditionalJump [
 { #category : #folding }
 DRCleanControlFlow >> shouldFoldRedundantBranchIn: aBlock [ 
 	
-	^ aBlock endInstruction isBranchIfCondition and: [ 
+	^ aBlock endInstruction isConditionalBranch and: [ 
 		self shouldFoldRedundantBranch: aBlock endInstruction ]
 ]
 

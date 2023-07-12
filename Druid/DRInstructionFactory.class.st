@@ -73,6 +73,12 @@ DRInstructionFactory >> equals: operand1 to: operand2 [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> frameReturn: aValue [
+
+	^ DRFrameReturn operands: { aValue asDRValue } result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> getConditionCodeOf: aCondition operands: aCollection [ 
 
 	^ DRGetConditionCode new
@@ -138,7 +144,9 @@ DRInstructionFactory >> load: anAdress [
 { #category : #factory }
 DRInstructionFactory >> loadArgument: index [
 
-	^ DRLoadArgument operands: { index } result: self allocateTemporaryRegister
+	^ DRLoadArgument
+		  operands: { index }
+		  result: self allocateTemporaryRegister
 ]
 
 { #category : #factory }
@@ -272,9 +280,25 @@ DRInstructionFactory >> storeSInt64: operand at: address [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> strongCopy: aValue [
+
+	^ DRStrongCopy
+		  operands: { aValue asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> sub: operand1 from: operand2 [
 
 	^ DRSubtract 
 		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> subtract: subtrahend from: minuend [
+
+	^ DRSubtract
+		  operands: { minuend asDRValue. subtrahend asDRValue }
 		  result: self allocateTemporaryRegister
 ]

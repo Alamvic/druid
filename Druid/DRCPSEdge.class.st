@@ -263,6 +263,12 @@ DRCPSEdge >> visitCall: aDRCall [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitClosureActivation: aDRClosureActivation [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
 	| operands |
@@ -378,6 +384,12 @@ DRCPSEdge >> visitIntToFloatConversion: aDRIntToFloat [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitInterpreterValue: aDRInterpreterValue [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [
 	
 	^ aDRJitCompileTimeExpression expression
@@ -428,6 +440,12 @@ DRCPSEdge >> visitLoad: aDRLoad [
 
 { #category : #visiting }
 DRCPSEdge >> visitLoadArgument: aDRLoadArgument [
+
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitLoadInstVar: aDRLoadInstanceVariable [
 
 	^ nil
 ]
@@ -575,7 +593,19 @@ DRCPSEdge >> visitStore: aDRLoad [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitStoreTempVar: aDRStoreTemporaryVariable [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitSubstract: aDRSubtract [ 
+
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 
 	^ nil
 ]
@@ -593,6 +623,15 @@ DRCPSEdge >> visitTestMask: aDRTestMask inBranch: aDRBranch [
 DRCPSEdge >> visitTrueObject: aDRTrueObject [
 
 	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitTypeOf: aDRTypeOf inBranch: aDRBranch [ 
+
+		^ self
+		  visitComparison: aDRTypeOf
+		  ofBranch: aDRBranch
+		  andDo: [ :reg :type | DRRegisterDomain type: reg with: type value ]
 ]
 
 { #category : #visiting }

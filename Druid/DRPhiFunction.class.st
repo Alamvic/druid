@@ -195,19 +195,48 @@ DRPhiFunction >> selectOperand: anOperand with: anotherOperand [
 	^ anotherOperand
 ]
 
+{ #category : #'constant folding' }
+DRPhiFunction >> simpleConstantFold [
+
+	self operands size = 1 ifTrue: [ ^ self operand1 simpleConstantFold ].
+	^ super simpleConstantFold
+]
+
 { #category : #simplification }
 DRPhiFunction >> simplify [
 
+	| simplifiedOperands worklist seen |
 	operands asSet size = 0 ifTrue: [ ^ DRNullValue new ].
-	operands asSet size = 1 ifTrue: [ ^ operands first simplify ].
+
+	"Use a worklist algorithm to iterate over the phi graph.
+	Ignore Phis and cut if we see a duplicated phi, this may happen in loops"
+	simplifiedOperands := Set new.
+	(OrderedCollection withAll: operands) whileNotEmpty: [:next :col :marked | 
+		(marked includes: next) ifFalse: [
+			next isPhiFunction
+				ifTrue: [ 
+					marked add: next.
+					col addAll: next operands ]
+				ifFalse: [ simplifiedOperands add: next ] ]  ].
+	simplifiedOperands size = 1 ifTrue: [ ^ simplifiedOperands anyOne ].
 	^ self
+]
+
+{ #category : #testing }
+DRPhiFunction >> supportConstantOperand [
+
+	^ false
 ]
 
 { #category : #simplification }
 DRPhiFunction >> type [
 
-	"Assume all my operands have the correct type"
-	^ self operands anyOne type
+	| operandTypes |
+	self operands do: [ :o |
+		| operandType |
+		operandType := o type.
+		operandType isUndefined ifFalse: [ ^ operandType ] ].
+	^ DRUndefinedType new
 ]
 
 { #category : #simplification }

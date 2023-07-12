@@ -45,6 +45,12 @@ DRLoad >> initialize [
 	type := DRIntegerType new
 ]
 
+{ #category : #testing }
+DRLoad >> isJITCompileTimeExpression [
+
+	^ self address isJITCompileTimeExpression
+]
+
 { #category : #visiting }
 DRLoad >> isLoad [
 
@@ -60,7 +66,7 @@ DRLoad >> opcode [
 { #category : #accessing }
 DRLoad >> operands: operandList [
 
-	size := operandList first value.
+	size := operandList first simpleConstantFold.
 	super operands: { operandList second asMemoryAddress }
 ]
 
@@ -70,6 +76,31 @@ DRLoad >> replaceDependency: anOperand by: anotherOperand [
 	anOperand removeUser: self.
 	anotherOperand addUser: self.
 	self address replaceDependency: anOperand by: anotherOperand
+]
+
+{ #category : #SCCP }
+DRLoad >> sccpLatticeValueFor: sccp [
+
+	| address |
+	self isJITCompileTimeExpression ifTrue: [
+		| newVar |
+		newVar := self result name asLowercase.
+		self replaceUsesBy: newVar asDRValue asJitCompileTimeExpression.
+		^ DRStore
+			  operands: {
+					  self size asDRValue.
+					  self address asJitCompileTimeExpression.
+					  (DRInterpreterExpression reference: newVar) }
+			  result: DRNoRegister new ].
+
+	address := self address sccpLatticeValueFor: sccp.
+
+	(sccp isConstantLattice: address) ifTrue: [ "If the address is constant, we can move the load to JIT compile time"
+		^ 'coInterpreter int64AtPointer:' asDRValue asJitCompileTimeExpression
+		  , address asDRValue asJitCompileTimeExpression ].
+
+	"sccp value is the same that the address"
+	^ address
 ]
 
 { #category : #accessing }

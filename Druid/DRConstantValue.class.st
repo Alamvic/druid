@@ -29,6 +29,12 @@ DRConstantValue >> acceptVisitor: aVisitor [
 	^ aVisitor visitConstant: self
 ]
 
+{ #category : #converting }
+DRConstantValue >> asJitCompileTimeExpression [
+
+	^ DRJitCompileTimeExpression expression: self value asString
+]
+
 { #category : #accessing }
 DRConstantValue >> expression [
 	
@@ -65,9 +71,9 @@ DRConstantValue >> isInvariantFrom: loop [
 ]
 
 { #category : #testing }
-DRConstantValue >> isJitCompileTimeExpression [
+DRConstantValue >> isJITCompileTimeExpression [
 	
-	^ value isJitCompileTimeExpression
+	^ value isJITCompileTimeExpression
 ]
 
 { #category : #testing }
@@ -125,7 +131,7 @@ DRConstantValue >> simpleConstantFold [
 { #category : #types }
 DRConstantValue >> type [
 	
-	value = nil ifTrue: [ ^ DRTopType new ].
+	value = nil ifTrue: [ ^ DRUndefinedType new ].
 	(#(true false) includes: value) ifTrue: [ ^ DRBooleanType new ].
 	value isInteger ifTrue: [ ^ DRIntegerType new ].
 	^ value class

@@ -4,10 +4,16 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #sccp }
+DRValue class >> tryParseOperandForSCCP: aDRValue [
+
+	^ aDRValue
+]
+
 { #category : #visiting }
 DRValue >> acceptVisitor: aVisitor [
 
-	self subclassResponsibility
+	^ self subclassResponsibility
 ]
 
 { #category : #building }
@@ -56,6 +62,27 @@ DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 DRValue >> dependencies [
 	
 	^ self operands flatCollect: [ :op | op asDependencyList ]
+]
+
+{ #category : #testing }
+DRValue >> hasDependency: anInstruction [
+
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> hasDependencyRecursively: anInstruction [
+
+	^ self hasDependencyRecursively: anInstruction visited: {  }
+]
+
+{ #category : #testing }
+DRValue >> hasDependencyRecursively: anInstruction visited: alreadyVisited [
+
+	(alreadyVisited includes: self) ifTrue: [ ^ false ].
+	^ (self hasDependency: anInstruction) or: [ 
+		  self operands anySatisfy: [ :o | 
+			  o hasDependencyRecursively: anInstruction visited: { self } , alreadyVisited ] ]
 ]
 
 { #category : #accessing }
@@ -114,9 +141,15 @@ DRValue >> isDRBlockClosure [
 ]
 
 { #category : #testing }
+DRValue >> isFrameReturn [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isGlobal [
 
-	^ self isNullValue or: [ self isPhysicalRegister ]
+	^ self isNullValue or: [ self isPhysicalRegister or: [ self isConstant ] ]
 ]
 
 { #category : #testing }
@@ -134,13 +167,13 @@ DRValue >> isInvariantFrom: loop [
 ]
 
 { #category : #testing }
-DRValue >> isJITCompileTimeExpression: aString [ 
+DRValue >> isJITCompileTimeExpression [
 	
 	^ false
 ]
 
 { #category : #testing }
-DRValue >> isJitCompileTimeExpression [
+DRValue >> isJITCompileTimeExpression: aString [ 
 	
 	^ false
 ]
@@ -212,7 +245,19 @@ DRValue >> isPhysicalRegister [
 ]
 
 { #category : #testing }
+DRValue >> isPush [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isRegister [
+
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isReturn [
 
 	^ false
 ]
@@ -227,6 +272,12 @@ DRValue >> isSetConditionCode [
 DRValue >> isStore [
 
 	^ false 
+]
+
+{ #category : #testing }
+DRValue >> isSubtract [
+	
+	^ false
 ]
 
 { #category : #testing }
@@ -281,6 +332,12 @@ DRValue >> prettyPrint [
 	^ self value asString
 ]
 
+{ #category : #printing }
+DRValue >> printResult [
+
+	^ self value asString
+]
+
 { #category : #'users-definitions' }
 DRValue >> removeUser: anInstruction [
 	
@@ -312,7 +369,7 @@ DRValue >> rtlOperandQualifierForInstruction: instruction [
 ]
 
 { #category : #cogit }
-DRValue >> rtlPushArgumentExpressions [
+DRValue >> rtlPushArgumentExpressions: generator [
 	
 	^ { RBVariableNode named: self name }
 ]

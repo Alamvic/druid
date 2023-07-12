@@ -185,7 +185,6 @@ DRSCCP >> latticeValue: aValue [
 	"Return the lattice value for the register"
 	(aValue isRegister and: [ aValue isVirtualRegister not ])
 		ifTrue: [ ^ self bottom ].
-	aValue isLoad ifTrue: [ ^ self bottom ].
 	aValue isStore ifTrue: [ ^ self bottom ].
 	aValue isInstruction ifFalse: [ ^ aValue ].
 
@@ -209,15 +208,20 @@ DRSCCP >> sccpLatticeValueFor: instruction latticeOperand1: operand1 latticeOper
 
 	((({ self top. self bottom } includes: operand1) not
 		and: [ ({ self top. self bottom } includes: operand2) not ])
-			and: [ operand1 isConstant and: [ operand2 isConstant ]])
-				ifTrue: [ 
-					
-					"If they have different values, do not operate"
+		and: [ operand1 isRegister not and: [ operand2 isRegister not ] ])
+				ifTrue: [ |op1 op2|
+					op1 := operand1.
+					op2 := operand2 .
+					"If they have different values, choose one to continue the work"
 					operand1 class ~= operand2 class
-						ifTrue: [ ^ self bottom ].
-					
+						ifTrue: [ 
+							op2 := operand1 class tryParseOperandForSCCP: op2.
+							(self isConstantLattice: op2) ifFalse: [ ^ op2 ].
+							op1 := operand2 class tryParseOperandForSCCP: op1.
+							(self isConstantLattice: op1) ifFalse: [ ^ op1 ]
+						].
 					"Compute the lattice value and wrap it as a DR value"
-					^ (instruction sccpOperateOnLattice: operand1 value and: operand2 value) asDRValue ].
+					^ (instruction sccpOperateOnLattice: op1 value and: op2 value) asDRValue ].
 
 	(operand1 = self bottom or: [operand2 = self bottom])
 		ifTrue: [ ^ self bottom ].
@@ -331,22 +335,22 @@ DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 	lattice := self latticeValue: i.
 	(self isConstantLattice: lattice) ifFalse: [ ^ self ].
 
-	replacement := DRCopy
-		               operands: { lattice asDRValue }
-		               result: i result.
-	
+	replacement := lattice result isNoResult
+		               ifTrue: [ lattice ]
+		               ifFalse: [
+		               DRCopy operands: { lattice asDRValue } result: i result ].
+
 	"We tell the lattice values that the new instruction has the same vlue as the old one"
 	latticeValues at: replacement put: (latticeValues at: i).
-	i replaceBy: replacement.
+	i replaceBy: replacement
 ]
 
 { #category : #executing }
 DRSCCP >> tryReplaceInstructionOperands: i [
 
-	i isPhiFunction ifTrue: [ ^ self ].
-	i isMessageSend ifTrue: [ ^ self ].
+	i supportConstantOperand ifFalse: [ ^ self ].
 
-	"Replace the operands of instructions by their propagated values on non phi functions"
+	"Replace the operands of instructions by their propagated values"
 	i operands withIndexDo: [ :operand :index | 
 		| lattice |
 		lattice := self latticeValue: operand.

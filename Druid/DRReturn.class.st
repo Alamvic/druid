@@ -17,8 +17,23 @@ DRReturn >> initialize [
 	result := DRNoRegister new
 ]
 
+{ #category : #inspecting }
+DRReturn >> inspectionSource: aBuilder [
+	<inspectorPresentationOrder: 0 title: 'Source'>
+
+	^ SpCodePresenter new
+		text: result asString;
+		yourself
+]
+
 { #category : #visiting }
 DRReturn >> isMandatoryInstruction [
+
+	^ true
+]
+
+{ #category : #testing }
+DRReturn >> isReturn [
 
 	^ true
 ]
@@ -34,4 +49,10 @@ DRReturn >> sccpLatticeValueFor: sccp [
 	
 	"This instruction has no value"
 	^ sccp bottom
+]
+
+{ #category : #testing }
+DRReturn >> supportConstantOperand [
+
+	^ false
 ]

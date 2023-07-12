@@ -10,6 +10,12 @@ DRTopType >> = aType [
 	^ self species = aType species
 ]
 
+{ #category : #lookup }
+DRTopType >> astForSelector: aSelector [
+
+	^ (self lookupSelector: aSelector) ast
+]
+
 { #category : #comparing }
 DRTopType >> hash [
 
@@ -32,7 +38,7 @@ DRTopType >> ifNil: nilBlock ifNotNil: notNilBlock [
 { #category : #testing }
 DRTopType >> ifNotNil: aBlock [
 
-	self = nil ifFalse: [ aBlock cull: self ].
+	self = nil ifFalse: [ ^ aBlock cull: self ].
 	^ nil
 ]
 
@@ -44,8 +50,20 @@ DRTopType >> ifNotNil: notNilBlock ifNil: nilBlock [
 ]
 
 { #category : #testing }
+DRTopType >> isClassType [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRTopType >> isFloatType [
 	
+	^ false
+]
+
+{ #category : #testing }
+DRTopType >> isUndefined [
+
 	^ false
 ]
 
@@ -57,12 +75,13 @@ DRTopType >> lookupClass [
 
 { #category : #lookup }
 DRTopType >> lookupSelector: aString [ 
-	
+
 	^ (self class lookupSelector: aString)
 		ifNil: [ self systemClass lookupSelector: aString ]
 ]
 
 { #category : #accessing }
 DRTopType >> systemClass [
-	self shouldBeImplemented.
+
+	^ nil class
 ]

@@ -23,8 +23,6 @@ DRDeadEdgeSplitting >> doApplyWithGeneratedPaths: aCFG [
 		edge := edge parent.
 		edge ifNil: [ ^ self ] ].
 
-	('Splitting: ' , edge destination id asString , ' -> ' , edge source id asString) traceCr.
-
 	edge split
 
 ]

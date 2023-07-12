@@ -14,6 +14,8 @@ DRCogitOperandSorter >> applyTo: aDRControlFlowGraph [
 DRCogitOperandSorter >> extractFirstOperandInCopyIfNecessaryFrom: anInstruction [ 
 	
 	| copy |
+	"If the first operand is a constant, extract it in a copy.
+	This is useful for instructions that do nto accept constants as second operand."
 	anInstruction operand1 isInstruction ifFalse: [
 		copy := anInstruction instructionFactory copy: anInstruction operand1.
 		anInstruction addBefore: copy.
@@ -47,11 +49,16 @@ DRCogitOperandSorter >> visitBitXor: aDRBitXor [
 
 { #category : #visiting }
 DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [
-
 	"Mask test conditions accept constants in cogit"
-	(aDRBranchIfCondition condition isTestMask
-		or: [ aDRBranchIfCondition condition isNoTestMask ])
-			ifTrue: [ ^ self ].
+
+	(aDRBranchIfCondition condition isTestMask or: [
+		 aDRBranchIfCondition condition isNoTestMask ]) ifTrue: [ ^ self ].
+
+	"Cogit only accept constants as first operands (second in DruidIR).
+	Equals comparison being commutative, we can reverse the operands to avoid an extra copy"
+	(aDRBranchIfCondition operand1 isConstant and: [ aDRBranchIfCondition condition isEqualsThanComparison ]) ifTrue: [
+		aDRBranchIfCondition reverseOperands.
+	].
 
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRBranchIfCondition
 ]
@@ -75,11 +82,24 @@ DRCogitOperandSorter >> visitCall: aDRCall [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitClosureActivation: aDRClosureActivation [
+	"Nothing"
+
+	
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 
 	anInstruction operand1 isInstruction ifFalse: [ 
 		anInstruction reverseOperands ].
 	self extractFirstOperandInCopyIfNecessaryFrom: anInstruction
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
+	
+	"Nothing"
 ]
 
 { #category : #visiting }
@@ -246,9 +266,11 @@ DRCogitOperandSorter >> visitRightShift: aDRRightShift [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitStore: aDRStore [ 
+DRCogitOperandSorter >> visitStore: aDRStore [
+
+	aDRStore isJITCompileTimeExpression ifTrue: [ ^ self ].
 	
-	"Stores are only from registers..."
+	"Stores at runtime are only from registers..."
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRStore
 ]
 
@@ -259,6 +281,12 @@ DRCogitOperandSorter >> visitSubstract: aDRSubtract [
 	=> extract its first operand into a copy instruction"
 	
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRSubtract
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitTemporaryVariable: aDRLoadTemporaryVariable [ 
+
+	"Nothing?"
 ]
 
 { #category : #visiting }

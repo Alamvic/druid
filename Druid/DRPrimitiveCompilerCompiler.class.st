@@ -1,6 +1,6 @@
 Class {
 	#name : #DRPrimitiveCompilerCompiler,
-	#superclass : #DRCompilerCompiler,
+	#superclass : #DRAbstractCompilerCompiler,
 	#instVars : [
 		'primitiveCompilerName'
 	],
@@ -16,6 +16,21 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 		primitiveCompilerName: primitiveCompilerName;
 		compilerClass: aCompilerClass;
 		compile
+]
+
+{ #category : #'ir-generation' }
+DRPrimitiveCompilerCompiler >> argName: index forMethod: method [
+
+	^ 'Arg' , index asString
+]
+
+{ #category : #accessing }
+DRPrimitiveCompilerCompiler >> buildIR: primitiveSelector [ 
+	" Answer a DRPrimitiveControlFlowGraph generated for primitiveSelector in the receiver's interpreter "
+
+	^ self 
+		sourceName: primitiveSelector;
+		generateDruidIR
 ]
 
 { #category : #accessing }
@@ -34,6 +49,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
 		optimisations add: DRCopyPropagation new.
 		optimisations add: DRPhiSimplication new.
+		optimisations add: DRCogitCanonicaliser new.
 		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
 		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination).
@@ -50,9 +66,11 @@ DRPrimitiveCompilerCompiler >> newIRGenerator [
 	^ DRPrimitiveIRGenerator new
 ]
 
-{ #category : #accessing }
-DRPrimitiveCompilerCompiler >> numberOfArgumentsFor: aMethod [ 
-	^ (aMethod ast pragmaNamed: #numberOfArguments:) arguments first value
+{ #category : #'generation-IR' }
+DRPrimitiveCompilerCompiler >> numberOfArgumentsForMethod: anObject [
+	"Answer a <Number> representing the number of arguments found in anObject (method or selector in the receiver's primitive's source)"
+
+	^  (anObject ast pragmaNamed: #numberOfArguments:) arguments first value
 ]
 
 { #category : #accessing }

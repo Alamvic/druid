@@ -9,12 +9,13 @@ DRBranchCollapse >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph blocksDo: [ :b | 
 		(b endInstruction isBranchIfTrue and: [ 
-			b endInstruction operand1 isSetConditionCode ]) ifTrue: [ 
-				| replacementBranch |
+			b endInstruction operand1 simpleConstantFold asDRValue isSetConditionCode ]) ifTrue: [ 
+				| replacementBranch setConditionCode |
+				setConditionCode := b endInstruction operand1 simpleConstantFold.
 				replacementBranch := DRBranchIfCondition operands: {
-					b endInstruction operand1 condition.
-					b endInstruction operand1 operand1.
-					b endInstruction operand1 operand2.
+					setConditionCode condition.
+					setConditionCode operand1.
+					setConditionCode operand2.
 				}.
 				replacementBranch trueBranch: b endInstruction trueBranch.
 				replacementBranch falseBranch: b endInstruction falseBranch.

@@ -7,7 +7,13 @@ Number >> expression [
 ]
 
 { #category : #'*Druid' }
-Number >> isJitCompileTimeExpression [
+Number >> isJITCompileTimeExpression [
 	
 	^ true
+]
+
+{ #category : #'*Druid' }
+Number >> matchArgumentsAgainst: aPragma [
+
+	^ aPragma arguments anyOne = self
 ]
