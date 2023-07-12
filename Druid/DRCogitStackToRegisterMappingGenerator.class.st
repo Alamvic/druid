@@ -96,6 +96,9 @@ DRCogitStackToRegisterMappingGenerator >> innerCompilePathFrom: aDRBasicBlock [
 	dominatedBlocks do: [ :b | blocks remove: b ].
 
 	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
+	sharedPathToTheEnd := blocks select: [ :e | 
+		sharedPathToTheEnd anySatisfy: [ :potentialDominator |
+			e isDominatedBy: potentialDominator ] ].
 	truePath := dominatedBlocks , sharedPathToTheEnd.
 
 	innerGenerator := self innerGenerator.
