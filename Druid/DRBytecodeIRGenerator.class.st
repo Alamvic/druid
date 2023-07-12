@@ -159,10 +159,7 @@ DRBytecodeIRGenerator >> interpretITemporaryInPutWith: aRBMessageNode [
 
 	| index value |
 	"Skip second argument, it's the frame pointer"
-	index := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.
-	index isNumber ifFalse: [
-		self error:	'We can only compile access to frame with constant index' ].
-	
+	index := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.	
 	value := (self visitOperand: aRBMessageNode arguments third) simpleConstantFold.
 
 	^ self
@@ -176,8 +173,6 @@ DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
 
 	| index |
 	index := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.
-	index isNumber ifFalse: [
-		self error:	'We can only compile access to frame with constant index' ].
 
 	^ self
 		  addInstructionFrom: aRBMessageNode

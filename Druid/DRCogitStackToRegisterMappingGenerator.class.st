@@ -217,15 +217,14 @@ DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMarshall [
-
 	"self marshallSendArguments: numArgs."
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #marshallSendArguments:
 			 arguments:
-			 { (RBLiteralValueNode value:
-				  aDRCogitSendMarshall numberOfArguments) })
+				 (aDRCogitSendMarshall numberOfArguments
+					  rtlPushArgumentExpressions: self))
 ]
 
 { #category : #visiting }
@@ -260,13 +259,12 @@ DRCogitStackToRegisterMappingGenerator >> visitContinueNextBytecode: aDRContinue
 DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
 
 	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: ordinarySendTrampolines"
-
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #genMarshalledSend:numArgs:sendTable:
-			 arguments: { 
-				RBLiteralValueNode value: aDRMessageSend cogitSelectorIndex.
-				RBLiteralValueNode value: aDRMessageSend numberOfArguments.
+			 arguments: {
+				(aDRMessageSend operand1 rtlPushArgumentExpressions: self) first.
+				(aDRMessageSend operand2 rtlPushArgumentExpressions: self) first.
 				RBVariableNode named: 'ordinarySendTrampolines' }).
 ]
 
@@ -373,7 +371,7 @@ DRCogitStackToRegisterMappingGenerator >> visitStoreTempVar: aDRStoreTemporaryVa
 	generatorMethodBuilder addStatement: (RBMessageNode
 		 receiver: RBVariableNode selfNode
 		 selector: #ssFlushUpThroughTemporaryVariable:
-		 arguments: { RBLiteralValueNode value: aDRStoreTemporaryVariable operand1 value }).
+		 arguments: (aDRStoreTemporaryVariable operand1 rtlPushArgumentExpressions: self)).
 	generatorMethodBuilder addStatement: (RBMessageNode
 		 receiver: RBVariableNode selfNode
 		 selector: #MoveR:Mw:r:
@@ -382,7 +380,7 @@ DRCogitStackToRegisterMappingGenerator >> visitStoreTempVar: aDRStoreTemporaryVa
 			RBMessageNode
 				receiver: RBVariableNode selfNode
 				selector: #frameOffsetOfTemporary:
-				arguments: { RBLiteralValueNode value: aDRStoreTemporaryVariable operand1 value }.
+				arguments: (aDRStoreTemporaryVariable operand1 rtlPushArgumentExpressions: self).
 			RBVariableNode named: 'FPReg'
 	}).
 ]
