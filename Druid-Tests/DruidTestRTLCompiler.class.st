@@ -162,25 +162,19 @@ DruidTestRTLCompiler >> gen_extendedPushBytecode [
 
 	| live currentBlock t0 |
 	live := 0.
-	t0 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t0 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
 	self genMoveConstant: 0 R: t0.
 	0=((byte1 >> 6) & 3) ifTrue: [
 		| t1 t2 |
 		self ensureReceiverResultRegContainsSelf.
-		t1 := self
-			      allocateRegNotConflictingWith: live
-			      ifNone: [ ^ self unknownBytecode ].
+		t1 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 		live := live bitOr: (self registerMaskFor: t1).
 		self MoveR: ReceiverResultReg R: t1.
 		self genMoveConstant: 8 R: t0.
 		self AddR: t0 R: t1.
 		self genMoveConstant: 3 R: t0.
-		t2 := self
-			      allocateRegNotConflictingWith: live
-			      ifNone: [ ^ self unknownBytecode ].
+		t2 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 		live := live bitOr: (self registerMaskFor: t2).
 		self genMoveConstant: (byte1 & 63) R: t2.
 		self LogicalShiftLeftR: t0 R: t2.
@@ -191,9 +185,7 @@ DruidTestRTLCompiler >> gen_extendedPushBytecode [
 	self genMoveConstant: 1 R: t0.
 	1=((byte1 >> 6) & 3) ifTrue: [
 		| t1 |
-		t1 := self
-			      allocateRegNotConflictingWith: live
-			      ifNone: [ ^ self unknownBytecode ].
+		t1 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 		live := live bitOr: (self registerMaskFor: t1).
 		(self simStackTempAt: (byte1 & 63)) copyToReg: t1.
 		self ssPushRegister: t1.
@@ -201,16 +193,12 @@ DruidTestRTLCompiler >> gen_extendedPushBytecode [
 	self genMoveConstant: 2 R: t0.
 	2=((byte1 >> 6) & 3) ifTrue: [
 		| t1 t2 |
-		t1 := self
-			      allocateRegNotConflictingWith: live
-			      ifNone: [ ^ self unknownBytecode ].
+		t1 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 		live := live bitOr: (self registerMaskFor: t1).
 		self genMoveConstant: methodObj R: t1.
 		self genMoveConstant: LiteralStart R: t0.
 		self AddCq: (byte1 & 63) R: t0.
-		t2 := self
-			      allocateRegNotConflictingWith: live
-			      ifNone: [ ^ self unknownBytecode ].
+		t2 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 		live := live bitOr: (self registerMaskFor: t2).
 		self genMoveConstant: 8 R: t2.
 		self AddR: t2 R: t1.
@@ -224,15 +212,11 @@ DruidTestRTLCompiler >> gen_extendedPushBytecode [
 	3=((byte1 >> 6) & 3) ifTrue: [
 		| jumpTrue jump3 jump1 t3 t1 jumpNext jump2 b333 t2 |
 		self genMoveConstant: methodObj R: t0.
-		t1 := self
-			      allocateRegNotConflictingWith: live
-			      ifNone: [ ^ self unknownBytecode ].
+		t1 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 		live := live bitOr: (self registerMaskFor: t1).
 		self genMoveConstant: LiteralStart R: t1.
 		self AddCq: (byte1 & 63) R: t1.
-		t2 := self
-			      allocateRegNotConflictingWith: live
-			      ifNone: [ ^ self unknownBytecode ].
+		t2 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 		live := live bitOr: (self registerMaskFor: t2).
 		self genMoveConstant: 8 R: t2.
 		self AddR: t2 R: t0.
@@ -242,9 +226,7 @@ DruidTestRTLCompiler >> gen_extendedPushBytecode [
 		self MoveM64: 0 r: t0 R: t2.
 		self MoveM64: 0 r: t2 R: t1.
 		self genMoveConstant: 16r3FFFFF R: t0.
-		t3 := self
-			      allocateRegNotConflictingWith: live
-			      ifNone: [ ^ self unknownBytecode ].
+		t3 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 		live := live bitOr: (self registerMaskFor: t3).
 		self genMoveConstant: 8 R: t3.
 		self SubR: t3 R: t0.
@@ -3611,10 +3593,7 @@ DruidTestRTLCompiler >> gen_sendLiteralSelector0ArgsBytecode [
 	| live currentBlock |
 	live := 0.
 	self marshallSendArguments: 0.
-	self
-		genMarshalledSend: 1
-		numArgs: 0
-		sendTable: ordinarySendTrampolines.
+	self genMarshalledSend: 1 numArgs: 0 sendTable: ordinarySendTrampolines.
 	^ 0
 ]
 

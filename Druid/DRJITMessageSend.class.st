@@ -42,7 +42,7 @@ DRJITMessageSend >> isSpecialSelectorSend [
 { #category : #accessing }
 DRJITMessageSend >> numberOfArguments [
 	
-	^ operands second value
+	^ operands second compiledValue 
 ]
 
 { #category : #printing }
@@ -61,6 +61,12 @@ DRJITMessageSend >> sccpEvaluateFor: sccp [
 
 { #category : #accessing }
 DRJITMessageSend >> selectorIndex [
-	
-	^ operands first value
+
+	^ operands first compiledValue 
+]
+
+{ #category : #accessing }
+DRJITMessageSend >> sendTable [
+
+	^ self operand3 compiledValue
 ]

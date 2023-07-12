@@ -258,16 +258,19 @@ DRCogitStackToRegisterMappingGenerator >> visitContinueNextBytecode: aDRContinue
 
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
-
-	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: ordinarySendTrampolines"
-
+	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: aSendTable"
+1halt.
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #genMarshalledSend:numArgs:sendTable:
-			 arguments: { 
-				RBLiteralValueNode value: aDRMessageSend cogitSelectorIndex.
-				RBLiteralValueNode value: aDRMessageSend numberOfArguments.
-				RBVariableNode named: 'ordinarySendTrampolines' }).
+			 arguments: {
+					 (RBParser parseExpression: aDRMessageSend cogitSelectorIndex asString).
+					 (RBParser parseExpression: aDRMessageSend numberOfArguments asString).
+					 (RBVariableNode named: aDRMessageSend sendTable) })
+					
+				
+			
+		
 ]
 
 { #category : #visiting }

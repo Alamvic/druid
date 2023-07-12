@@ -66,6 +66,12 @@ DRJitCompileTimeExpression >> bitAnd: aDRJitCompileTimeExpression [
 	^ self mergeExpression: '&' with: aDRJitCompileTimeExpression
 ]
 
+{ #category : #types }
+DRJitCompileTimeExpression >> compiledValue [
+
+	^ expression
+]
+
 { #category : #accessing }
 DRJitCompileTimeExpression >> expression [
 
