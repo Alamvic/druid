@@ -194,14 +194,11 @@ DRBytecodeIRGenerator >> interpretInstructionPointerAssignmentWith: aRBAssignmen
 
 	"Changing the bytecode instruction pointer, we must generate a jump to the new target"
 	
-	| newBytecodePC |
-	aRBAssignmentNode value acceptVisitor: self.
-	newBytecodePC := self popOperand.
-	
+	aRBAssignmentNode value acceptVisitor: self.	
 	^ self
 		  addInstructionWithNoResultFrom: aRBAssignmentNode
 		  instructionKind: DRBytecodeJump
-		  operands: { newBytecodePC asDRValue }
+		  operands: { self popOperand }
 ]
 
 { #category : #'special cases' }
