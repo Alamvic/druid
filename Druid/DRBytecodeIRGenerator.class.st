@@ -250,11 +250,10 @@ DRBytecodeIRGenerator >> interpretNormalLiteralSendWith: aMessage [
 	
 	aMessage arguments second acceptVisitor: self.
 	argumentCount := self popOperand.
-	
 	^ self
 		  addInstructionWithNoResultFrom: aMessage
 		  instructionKind: DRJITMessageSend
-		  operands: { selectorIndex asDRValue. argumentCount asDRValue . false asDRValue }
+		  operands: { selectorIndex asDRValue. argumentCount asDRValue }
 ]
 
 { #category : #accessing }
@@ -270,11 +269,19 @@ DRBytecodeIRGenerator >> interpretNormalSpecialSelectorSendWith: aMessage [
 	
 	aMessage arguments second acceptVisitor: self.
 	argumentCount := self popOperand.
-	
+
+	self
+		addInstructionFrom: aMessage
+		instructionKind: DRAdd
+		operands: { selectorIndex . 1 asDRValue }.
+	self
+		addInstructionFrom: aMessage
+		instructionKind: DRNegate
+		operands: { self popOperand }.
 	^ self
 		  addInstructionWithNoResultFrom: aMessage
 		  instructionKind: DRJITMessageSend
-		  operands: { selectorIndex asDRValue. argumentCount asDRValue . true asDRValue }
+		  operands: { self popOperand asDRValue. argumentCount asDRValue }
 ]
 
 { #category : #'special cases' }
