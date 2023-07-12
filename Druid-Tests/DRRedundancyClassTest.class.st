@@ -1,11 +1,11 @@
 Class {
-	#name : #RedundancyClassTest,
+	#name : #DRRedundancyClassTest,
 	#superclass : #DRSSAPRETest,
 	#category : #'Druid-Tests'
 }
 
 { #category : #tests }
-RedundancyClassTest >> test2DiffAddExpressionHasDiffClassNumber [
+DRRedundancyClassTest >> test2DiffAddExpressionHasDiffClassNumber [
 
 	| cfg instruction1 instruction2 |
 	cfg := self setUpCFG: 3.
@@ -18,7 +18,7 @@ RedundancyClassTest >> test2DiffAddExpressionHasDiffClassNumber [
 ]
 
 { #category : #tests }
-RedundancyClassTest >> test2DiffConstexpressHasDiffClassNumber [
+DRRedundancyClassTest >> test2DiffConstexpressHasDiffClassNumber [
 
 	| cfg instruction1 instruction2 |
 	cfg := self setUpCFG: 2.
@@ -32,7 +32,7 @@ RedundancyClassTest >> test2DiffConstexpressHasDiffClassNumber [
 ]
 
 { #category : #tests }
-RedundancyClassTest >> test2DiffExpressionHasDiffClassNumberCommutative [
+DRRedundancyClassTest >> test2DiffExpressionHasDiffClassNumberCommutative [
 	"1 - 2  vs  2 - 1  != "
 	| cfg instruction1 instruction2 |
 	
@@ -46,7 +46,7 @@ RedundancyClassTest >> test2DiffExpressionHasDiffClassNumberCommutative [
 ]
 
 { #category : #tests }
-RedundancyClassTest >> test2SameAddExpressionHasSameClassNumber [
+DRRedundancyClassTest >> test2SameAddExpressionHasSameClassNumber [
 	
 	| cfg instruction1 instruction2 |
 	
@@ -60,7 +60,7 @@ RedundancyClassTest >> test2SameAddExpressionHasSameClassNumber [
 ]
 
 { #category : #tests }
-RedundancyClassTest >> test2SameAddExpressionHasSameClassNumberCommutative [
+DRRedundancyClassTest >> test2SameAddExpressionHasSameClassNumberCommutative [
 	
 	| cfg instruction1 instruction2 |
 	
@@ -74,7 +74,7 @@ RedundancyClassTest >> test2SameAddExpressionHasSameClassNumberCommutative [
 ]
 
 { #category : #tests }
-RedundancyClassTest >> test2SameConstexpressHasSameClassNumber [
+DRRedundancyClassTest >> test2SameConstexpressHasSameClassNumber [
 
 	| cfg instruction1 instruction2 |
 	cfg := self setUpCFG: 2.
@@ -87,7 +87,7 @@ RedundancyClassTest >> test2SameConstexpressHasSameClassNumber [
 ]
 
 { #category : #tests }
-RedundancyClassTest >> test3DiffConstexpressHasCorrectClassNumber [
+DRRedundancyClassTest >> test3DiffConstexpressHasCorrectClassNumber [
 
 	| cfg instruction1 instruction2 instruction3 |
 	cfg := self setUpCFG: 3.
@@ -103,7 +103,7 @@ RedundancyClassTest >> test3DiffConstexpressHasCorrectClassNumber [
 ]
 
 { #category : #tests }
-RedundancyClassTest >> test3SameConstexpressHasCorrectClassNumber [
+DRRedundancyClassTest >> test3SameConstexpressHasCorrectClassNumber [
 
 	| cfg instruction1 instruction2 instruction3 |
 	cfg := self setUpCFG: 3.
@@ -119,7 +119,7 @@ RedundancyClassTest >> test3SameConstexpressHasCorrectClassNumber [
 ]
 
 { #category : #tests }
-RedundancyClassTest >> testConstantFoldingExpressionHasSameClassNumber [
+DRRedundancyClassTest >> testConstantFoldingExpressionHasSameClassNumber [
 	"C1 = 1
 	 1 + C1 is in the same class as 1 + 1
 	"
@@ -136,7 +136,7 @@ RedundancyClassTest >> testConstantFoldingExpressionHasSameClassNumber [
 ]
 
 { #category : #tests }
-RedundancyClassTest >> testConstantFoldingExpressionHasSameClassNumber2 [
+DRRedundancyClassTest >> testConstantFoldingExpressionHasSameClassNumber2 [
 	"T1 = 2
     T2 = T1
     T1 + T2  is in the same class as 2 + 2  =

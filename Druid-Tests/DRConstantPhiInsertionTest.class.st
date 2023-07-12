@@ -1,11 +1,11 @@
 Class {
-	#name : #ConstantPhiInsertionTest,
+	#name : #DRConstantPhiInsertionTest,
 	#superclass : #DRSSAPRETest,
 	#category : #'Druid-Tests'
 }
 
 { #category : #tests }
-ConstantPhiInsertionTest >> testPhiInsertionInConditionalCase1 [
+DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase1 [
 	" 
 	  T1  →   T2 = e   →   T3   
           \_________/ 
@@ -17,8 +17,8 @@ ConstantPhiInsertionTest >> testPhiInsertionInConditionalCase1 [
 	b1 := cfg b1.
 	b2 := cfg b2.
 	b3 := cfg b3.
-	
    instruction := b2 copy: 3.
+	b2 removePredecessor: cfg b1.
 	b1 jumpIfTrueTo: b2 ifFalseTo: b3.
 	
 	optimisation insertPhi: cfg.
@@ -31,7 +31,7 @@ ConstantPhiInsertionTest >> testPhiInsertionInConditionalCase1 [
 ]
 
 { #category : #tests }
-ConstantPhiInsertionTest >> testPhiInsertionInConditionalCase2 [
+DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase2 [
 	" 
        /------------------\  
 	 B5 →  B1 = e  →  B2  → B4
@@ -56,7 +56,7 @@ ConstantPhiInsertionTest >> testPhiInsertionInConditionalCase2 [
 ]
 
 { #category : #tests }
-ConstantPhiInsertionTest >> testPhiInsertionInConditionalCase3 [
+DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase3 [
 	" 
        /------------------\  
 	 B5 →  B1 = e  →  B2 = e  → B4
@@ -83,7 +83,7 @@ ConstantPhiInsertionTest >> testPhiInsertionInConditionalCase3 [
 ]
 
 { #category : #tests }
-ConstantPhiInsertionTest >> testPhiInsertionInConditionalCase4 [
+DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase4 [
 	" 
        /------------------\  
 	 B5 →  B1 = e  →  B2 = e  → B4 = p
@@ -111,7 +111,7 @@ ConstantPhiInsertionTest >> testPhiInsertionInConditionalCase4 [
 ]
 
 { #category : #tests }
-ConstantPhiInsertionTest >> testPhiInsertionInConditionalCase5 [
+DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase5 [
 "
 T1  →  T2 = e  →   T4 = e
     \→  T3 = e /

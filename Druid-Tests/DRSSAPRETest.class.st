@@ -2,7 +2,8 @@ Class {
 	#name : #DRSSAPRETest,
 	#superclass : #DROptimisationTest,
 	#instVars : [
-		'instructionFactory'
+		'instructionFactory',
+		'valueNumberer'
 	],
 	#category : #'Druid-Tests-Optimizations'
 }
@@ -12,7 +13,8 @@ DRSSAPRETest >> setUp [
 
 	super setUp.
 	instructionFactory := DRInstructionFactory new.
-	optimisation := DRSSAPRE new
+	optimisation := DRSSAPRE new.
+	valueNumberer := DRValueNumberer new
 ]
 
 { #category : #tests }
