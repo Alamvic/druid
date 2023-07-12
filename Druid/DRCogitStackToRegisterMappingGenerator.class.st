@@ -217,15 +217,13 @@ DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMarshall [
-
 	"self marshallSendArguments: numArgs."
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #marshallSendArguments:
 			 arguments:
-			 { (RBLiteralValueNode value:
-				  aDRCogitSendMarshall numberOfArguments) })
+			 { (RBParser parseExpression: aDRCogitSendMarshall numberOfArguments asString) })
 ]
 
 { #category : #visiting }
@@ -259,7 +257,7 @@ DRCogitStackToRegisterMappingGenerator >> visitContinueNextBytecode: aDRContinue
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
 	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: aSendTable"
-1halt.
+
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #genMarshalledSend:numArgs:sendTable:
