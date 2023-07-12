@@ -197,9 +197,6 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 	"self CallRT: ceSendMustBeBooleanTrampoline"
 
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: #ssFlushStack).
 	aDRCall operands size > 0 ifTrue: [
 		generatorMethodBuilder addStatement: (RBMessageNode
 				 receiver: RBVariableNode selfNode
@@ -259,6 +256,14 @@ DRCogitStackToRegisterMappingGenerator >> visitContinueNextBytecode: aDRContinue
 	self
 		generateJump: #Jump:
 		target: #nextBytecode
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitFlushStack: aDRFlushStack [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #ssFlushStack)
 ]
 
 { #category : #visiting }

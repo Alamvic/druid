@@ -66,6 +66,7 @@ DRBytecodeCompilerCompiler >> initialize [
 	"Last Phase, make code coggable"
 	optimisations add: DRCogitOperandSorter new.
 	optimisations add: DRCogitSendMarshallHoisting new.
+	optimisations add: DRCogitStackToRegisterFlushHoisting new.
 	
 	registerAllocator := DRCogitDynamicLinearScanRegisterAllocator new
 ]

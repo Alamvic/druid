@@ -44,6 +44,13 @@ DRCall >> isMapped [
 	^ mapped
 ]
 
+{ #category : #testing }
+DRCall >> needsStackFlush [
+
+	"We need to guarantee that if we arrive to the runtime from this path, everything is in memory"
+	^ true
+]
+
 { #category : #printing }
 DRCall >> opcode [
 	

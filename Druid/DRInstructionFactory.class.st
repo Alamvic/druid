@@ -73,6 +73,12 @@ DRInstructionFactory >> equals: operand1 to: operand2 [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> flushStack [
+
+	^ DRFlushStack operands: #(  ) result: DRNoRegister new
+]
+
+{ #category : #factory }
 DRInstructionFactory >> frameReturn: aValue [
 
 	^ DRFrameReturn operands: { aValue asDRValue } result: self allocateTemporaryRegister
