@@ -22,7 +22,14 @@ DRCall >> beMapped [
 
 { #category : #accessing }
 DRCall >> functionName [
+
 	^ functionName
+]
+
+{ #category : #accessing }
+DRCall >> functionName: anObject [
+
+	functionName := anObject
 ]
 
 { #category : #testing }
@@ -42,6 +49,12 @@ DRCall >> isMandatoryInstruction [
 DRCall >> isMapped [
 	
 	^ mapped
+]
+
+{ #category : #accessing }
+DRCall >> mapped: anObject [
+
+	mapped := anObject
 ]
 
 { #category : #testing }

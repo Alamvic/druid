@@ -99,7 +99,7 @@ DRProductionBytecodeTest >> testBytecodeExtPushInteger [
 		thenDo: [ :generator | "Execute the druid's compiled code"
 			generator value.
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -132,7 +132,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode0 [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
@@ -169,7 +169,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode1 [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -200,7 +200,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode2 [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssTop popToReg: ReceiverResultReg.
+			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
 
 	self
@@ -487,7 +487,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAlloca
 
 			"Pop the top 4 elements, the fourth should be the first pushed constant"
 			1 to: n + 1 do: [ :i |
-				cogit ssTop popToReg: ReceiverResultReg ].
+				cogit ssPopTopToReg: ReceiverResultReg ].
 			cogit genUpArrowReturn ].
 
 	self

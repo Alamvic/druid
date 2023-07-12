@@ -10,7 +10,7 @@ DRDruidTests class >> isAbstract [
 	^ self == DRDruidTests
 ]
 
-{ #category : #tests }
+{ #category : #'building suites' }
 DRDruidTests class >> wordSizeParameters [
 
 	^ self wordSize64Parameters

@@ -190,7 +190,7 @@ DruidTestRTLCompiler >> gen_extendedPushBytecode [
 			      allocateRegNotConflictingWith: live
 			      ifNone: [ ^ self unknownBytecode ].
 		live := live bitOr: (self registerMaskFor: t1).
-		(self simStackTempAt: (byte1 & 63)) moveToReg: t1.
+		(self simStackTempAt: (byte1 & 63)) copyToReg: t1.
 		self ssPushRegister: t1.
 		^ 0 ].
 	self genMoveConstant: 2 R: t0.
