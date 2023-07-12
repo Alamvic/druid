@@ -48,7 +48,7 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 	| primitives bytecodes |
 	primitives := #( #primitiveAdd #primitiveSubtract #primitiveLessThan
 	                 #primitiveGreaterThan #primitiveLessOrEqual
-	                 #primitiveGreaterOrEqual #primitiveEqual #primitiveNotEqual
+	                 #primitiveGreaterOrEqual #primitiveEqual "#primitiveNotEqual"
 	                 #primitiveMultiply "#primitiveDivide" "primitiveAt" "primitiveNew
 	                 primitiveNewWithArg" ).
 
@@ -73,8 +73,8 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 			83
 		"returnReceiver/True/False/Nil"
 			88 89 90 91
-		"returnTopFromMethod" 
-			92
+		"return top from method/nil from block/top from block" 
+			92 93 94
 		"Nop"
 			95
 		"Special sends (+)"
@@ -93,12 +93,26 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 			184 185 186 187 188 189 190 191
 		"shortConditionalJumpFalse"
 			192 193 194 195 196 197 198 199
+		"store and pop into inst var"
+			"200 201 202 203 204 205 206 207"
 		"store and pop into temp"
 			208 209 210 211 212 213 214 215
 		"popStackBytecode"
 			216
-		"extended conditioanl jump"
-			238 239
+		"extension bytecodes"
+			224 "225 left out because it cannot be staged"
+		"extended receiver/literal/temporary/constant variable bytecode"
+			"226 left out because it reads contexts..."
+			227 228 229 232 233
+		"extended send"
+			234
+		"extended conditional jump"
+			237 238 239
+		"extended store (and pop) temporary"
+			242 245
+		"remote temp bytecodes"
+			251
+			"252 253 left out because of write barrier"
 	).
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
