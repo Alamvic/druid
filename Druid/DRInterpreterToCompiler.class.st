@@ -91,6 +91,8 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 			192 193 194 195 196 197 198 199
 		"popStackBytecode"
 			216
+		"extSendSuperBytecode"
+			235
 	).
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
