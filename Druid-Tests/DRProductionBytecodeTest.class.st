@@ -213,42 +213,44 @@ DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode2 [
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeExtendedSuperSend [
 
-	"128 - sendLiteralSelector0ArgsBytecode selector=literal0, numargs=0.
-	Test we do a send and we end up in a trampoline"
-	
-	"Setup the send trampoline"
-	| method selector |
+	| method numArgs |
+	selectorIndex := 1.
+	numArgs := 1.
 	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
-	cogit ordinarySendTrampolineAt: 0 put: sendTrampolineAddress.
-	
+	cogit superSendTrampolineAt: numArgs put: sendTrampolineAddress.
+
+	cogit byte1: selectorIndex << 3 + numArgs.
+
 	method := methodBuilder
-		newMethod;
-		literals: { 
-			selector := (memory integerObjectOf: 42) };
-		buildMethod.
+		          newMethod;
+		          numberOfArguments: numArgs;
+		          literals: {
+				          (memory integerObjectOf: 41).
+				          (memory integerObjectOf: 42).
+				          (memory integerObjectOf: 43) };
+		          buildMethod.
 
-	self
-		compileBytecode: 235
-		selector: #extSendSuperBytecode
-		thenDo: [ :generator | 
-			cogit methodObj: method.
-			"The receiver of the send!"
-			cogit ssPushRegister: ReceiverResultReg.
+	self compileBytecode: 235 selector: #extSendSuperBytecode thenDo: [ :generator |
+		cogit methodObj: method.
 
-			"Execute the druid's compiled code"
-			generator value.
+		"The receiver of the send!"
+		cogit ssPushRegister: ReceiverResultReg.
+		cogit ssPushRegister: Arg0Reg.
 
-			cogit Stop ].
+		"Execute the druid's compiled code"
+		generator value.
+
+		cogit Stop ].
 
 	self
 		prepareStackForPrimitiveReceiver: (memory integerObjectOf: 17)
-		arguments: #()
+		arguments: #(  )
 		method: method.
 
 	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
 	self runFrom: cogInitialAddress until: sendTrampolineAddress.
 	"First argument: the selector"
-	self assert: machineSimulator classRegisterValue equals: 0 "selector index".
+	self assert: machineSimulator classRegisterValue equals: selectorIndex.
 	"Third argument: the receiver"
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17)
 ]
