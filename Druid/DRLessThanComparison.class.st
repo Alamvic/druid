@@ -10,6 +10,12 @@ DRLessThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch [
 	^ aVisitor visitLessThan: self inBranch: parentBranch
 ]
 
+{ #category : #converting }
+DRLessThanComparison >> asJitCompileTimeExpressionString [
+	
+	^ '<'
+]
+
 { #category : #testing }
 DRLessThanComparison >> isLessThanComparison [
 

@@ -25,6 +25,12 @@ DRJitCompileTimeExpression class >> tryParseOperandForSCCP: aDRValue [
 ]
 
 { #category : #operations }
+DRJitCompileTimeExpression >> * aDRJitCompileTimeExpression [
+
+	^ self mergeExpression: '*' with: aDRJitCompileTimeExpression
+]
+
+{ #category : #operations }
 DRJitCompileTimeExpression >> + aDRJitCompileTimeExpression [
 
 	^ self mergeExpression: '+' with: aDRJitCompileTimeExpression
@@ -37,9 +43,27 @@ DRJitCompileTimeExpression >> , aDRJitCompileTimeExpression [
 ]
 
 { #category : #operations }
+DRJitCompileTimeExpression >> - aDRJitCompileTimeExpression [ 
+	
+	^ self mergeExpression: '-' with: aDRJitCompileTimeExpression
+]
+
+{ #category : #operations }
+DRJitCompileTimeExpression >> < aDRJitCompileTimeExpression [
+
+	^ self mergeExpression: '<' with: aDRJitCompileTimeExpression
+]
+
+{ #category : #operations }
 DRJitCompileTimeExpression >> << aDRJitCompileTimeExpression [
 
 	^ self mergeExpression: '<<' with: aDRJitCompileTimeExpression
+]
+
+{ #category : #operations }
+DRJitCompileTimeExpression >> > aDRJitCompileTimeExpression [
+
+	^ self mergeExpression: '>' with: aDRJitCompileTimeExpression
 ]
 
 { #category : #operations }
@@ -63,7 +87,7 @@ DRJitCompileTimeExpression >> asJitCompileTimeExpression [
 { #category : #'bit manipulation' }
 DRJitCompileTimeExpression >> bitAnd: aDRJitCompileTimeExpression [
 
-	^ self mergeExpression: '&' with: aDRJitCompileTimeExpression
+	^ self mergeExpression: 'bitAnd:' with: aDRJitCompileTimeExpression
 ]
 
 { #category : #accessing }

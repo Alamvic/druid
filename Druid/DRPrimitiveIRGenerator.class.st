@@ -89,13 +89,16 @@ DRPrimitiveIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 	valueToStore := self popOperand.
 
 	byteSize := 8.
-	^ self
+	self
 		  addInstructionFrom: aRBAssignmentNode
 		  instructionKind: DRStore
 		  operands: { 
 				  byteSize asDRValue.
 				  valueToStore.
-				  DRInterpreterReference freeStartAddress }
+				  DRInterpreterReference freeStartAddress }.
+	
+	"The result of executing a store is actually the stored value, not the store itself"
+	self popOperand; pushOperand: valueToStore
 ]
 
 { #category : #'special cases' }

@@ -42,7 +42,7 @@ DRJITMessageSend >> isSpecialSelectorSend [
 { #category : #accessing }
 DRJITMessageSend >> numberOfArguments [
 	
-	^ operands second value
+	^ operands second
 ]
 
 { #category : #printing }

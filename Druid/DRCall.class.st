@@ -57,17 +57,24 @@ DRCall >> mapped: anObject [
 	mapped := anObject
 ]
 
+{ #category : #testing }
+DRCall >> needsStackFlush [
+
+	"We need to guarantee that if we arrive to the runtime from this path, everything is in memory"
+	^ true
+]
+
 { #category : #printing }
 DRCall >> opcode [
 	
 	^ 'Call'
 ]
 
-{ #category : #accessing }
-DRCall >> operands: ops [
+{ #category : #printing }
+DRCall >> operands: aCollection [
 
-	functionName := ops first.
-	super operands: ops allButFirst
+	functionName := aCollection first.
+	super operands: aCollection allButFirst
 ]
 
 { #category : #SCCP }

@@ -388,6 +388,12 @@ DRInstruction >> name [
 	^ result name
 ]
 
+{ #category : #testing }
+DRInstruction >> needsStackFlush [
+	
+	^ false
+]
+
 { #category : #accessing }
 DRInstruction >> nextInstruction [
 	
