@@ -49,12 +49,6 @@ DRJitCompileTimeExpression >> - aDRJitCompileTimeExpression [
 ]
 
 { #category : #operations }
-DRJitCompileTimeExpression >> - aDRJitCompileTimeExpression [ 
-	
-	^ self mergeExpression: '-' with: aDRJitCompileTimeExpression
-]
-
-{ #category : #operations }
 DRJitCompileTimeExpression >> < aDRJitCompileTimeExpression [
 
 	^ self mergeExpression: '<' with: aDRJitCompileTimeExpression
@@ -66,16 +60,16 @@ DRJitCompileTimeExpression >> << aDRJitCompileTimeExpression [
 	^ self mergeExpression: '<<' with: aDRJitCompileTimeExpression
 ]
 
-{ #category : #comparing }
-DRJitCompileTimeExpression >> >= aDRJitCompileTimeExpression [
-
-	^ self mergeExpression: '>=' with: aDRJitCompileTimeExpression
-]
-
 { #category : #operations }
 DRJitCompileTimeExpression >> > aDRJitCompileTimeExpression [
 
 	^ self mergeExpression: '>' with: aDRJitCompileTimeExpression
+]
+
+{ #category : #comparing }
+DRJitCompileTimeExpression >> >= aDRJitCompileTimeExpression [
+
+	^ self mergeExpression: '>=' with: aDRJitCompileTimeExpression
 ]
 
 { #category : #operations }
@@ -100,12 +94,6 @@ DRJitCompileTimeExpression >> asJitCompileTimeExpression [
 DRJitCompileTimeExpression >> bitAnd: aDRJitCompileTimeExpression [
 
 	^ self mergeExpression: 'bitAnd:' with: aDRJitCompileTimeExpression
-]
-
-{ #category : #types }
-DRJitCompileTimeExpression >> compiledValue [
-
-	^ expression
 ]
 
 { #category : #accessing }

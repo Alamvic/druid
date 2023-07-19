@@ -276,7 +276,7 @@ DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
 			 arguments: {
 				(aDRMessageSend operand1 rtlPushArgumentExpressions: self) first.
 				(aDRMessageSend operand2 rtlPushArgumentExpressions: self) first.
-				(RBVariableNode named: aDRMessageSend sendTable) })
+				(RBVariableNode named: aDRMessageSend sendTable value) })
 ]
 
 { #category : #visiting }

@@ -35,12 +35,6 @@ DRConstantValue >> asJitCompileTimeExpression [
 	^ DRJitCompileTimeExpression expression: self value asString
 ]
 
-{ #category : #types }
-DRConstantValue >> compiledValue [
-
-	^ value
-]
-
 { #category : #accessing }
 DRConstantValue >> expression [
 	
