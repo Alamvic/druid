@@ -1,6 +1,9 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
 	#superclass : #DRPrimitiveIRGenerator,
+	#instVars : [
+		'jumpOffset'
+	],
 	#category : #'Druid-CompilerCompiler'
 }
 
@@ -14,6 +17,8 @@ DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
 DRBytecodeIRGenerator >> initialize [
 
 	super initialize.
+	jumpOffset := 0.
+
 	controlFlowGraph successExitBlock:controlFlowGraph newBasicBlock.
 	controlFlowGraph successExitBlock beExitBlock.
 	controlFlowGraph failureExitBlock: controlFlowGraph newBasicBlock.
@@ -25,18 +30,24 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 	variableSpecialCases at: #framePointer put: #interpretFramePointerWith:.
+	variableSpecialCases at: #stackPointer put: #interpretStackPointerWith:.
+	variableSpecialCases at: #stackLimit put: #interpretStackLimitWith:.
 	variableSpecialCases at: #extA put: #interpretAsCompilerVariableWith:.
 	variableSpecialCases at: #extB put: #interpretAsCompilerVariableWith:.
 	variableSpecialCases at: #numExtA put: #interpretAsCompilerVariableWith:.
 	variableSpecialCases at: #numExtB put: #interpretAsCompilerVariableWith:.
 	"variableSpecialCases at: #currentBytecode put: #interpretCurrentBytecodeWith:."
-	
+
+	specialCases at: #iframeNumArgs: put: #interpretNumArgsWith:.
 	specialCases at: #iframeMethod: put: #interpretIframeMethodWith:.
 	specialCases at: #itemporary:in: put: #interpretITemporaryInWith:.
+	specialCases at: #itemporary:in:put: put: #interpretITemporaryInPutWith:.
 	specialCases at: #internalMustBeBoolean: put: #interpretMustBeBooleanWith:.
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
 	specialCases at: #commonReturn: put: #interpretCommonReturnWith:.
+	specialCases at: #commonCallerReturn: put: #interpretCommonCallerReturnWith:.
+	specialCases at: #checkForEventsMayContextSwitch: put: #interpretInterruptCheckWith:.
 	specialCases at: #fetchByte put: #interpretFetchByteWith:.
 
 	"Message send"
@@ -62,14 +73,16 @@ DRBytecodeIRGenerator >> interpretAsCompilerVariableAssignmentWith: aRBAssignmen
 
 	| operand |
 	operand := self visitOperand: aRBAssignmentNode value.
-
-	^ self
+	self
 		  addInstructionWithNoResultFrom: aRBAssignmentNode
 		  instructionKind: DRStore
 		  operands: {
 				  8 asDRValue.
 				  operand.
-				  (DRInterpreterExpression reference: aRBAssignmentNode variable name) }
+				  (DRInterpreterExpression reference: aRBAssignmentNode variable name) }.
+	
+	"The result of executing a store is actually the stored value, not the store itself"
+	self popOperand; pushOperand: operand
 ]
 
 { #category : #'special-cases' }
@@ -83,7 +96,19 @@ DRBytecodeIRGenerator >> interpretAsCompilerVariableWith: aRBVariableNode [
 				  (DRInterpreterExpression reference: aRBVariableNode name) }
 ]
 
-{ #category : #'special - cases' }
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretCommonCallerReturnWith: aRBMessageNode [
+
+	| returnedValue |
+	returnedValue := self visitOperand: aRBMessageNode arguments first.
+
+	^ self
+		  addInstructionWithNoResultFrom: aRBMessageNode
+		  instructionKind: DRReturn
+		  operands: { returnedValue . true asDRValue }
+]
+
+{ #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretCommonReturnWith: aRBMessageNode [
 
 	| returnedValue |
@@ -92,7 +117,7 @@ DRBytecodeIRGenerator >> interpretCommonReturnWith: aRBMessageNode [
 	^ self
 		  addInstructionWithNoResultFrom: aRBMessageNode
 		  instructionKind: DRReturn
-		  operands: { returnedValue }
+		  operands: { returnedValue . false asDRValue }
 ]
 
 { #category : #visiting }
@@ -118,12 +143,12 @@ DRBytecodeIRGenerator >> interpretDirectSuperSendWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRBytecodeIRGenerator >> interpretFetchByteWith: aRBMessageNode [
 
-	self flag: #TODO. "Use accumulator to compile byteN"
-
+	jumpOffset := jumpOffset + 1.
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRCopy
-		  operands: { (DRJitCompileTimeExpression new expression: 'byte1') }
+		  operands: { (DRJitCompileTimeExpression new expression:
+				   'byte' , jumpOffset asString) }
 ]
 
 { #category : #'special cases' }
@@ -145,7 +170,21 @@ DRBytecodeIRGenerator >> interpretFramePointerWith: aRBVariableNode [
 		operands: #()
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretITemporaryInPutWith: aRBMessageNode [ 
+
+	| index value |
+	"Skip second argument, it's the frame pointer"
+	index := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.	
+	value := (self visitOperand: aRBMessageNode arguments third) simpleConstantFold.
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRStoreTemporaryVariable
+		  operands: { index asDRValue . value asDRValue }
+]
+
+{ #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
 
 	| index |
@@ -157,7 +196,7 @@ DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
 		  operands: { index asDRValue }
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretIframeMethodWith: aRBMessageNode [ 
 
 	^ self
@@ -171,23 +210,31 @@ DRBytecodeIRGenerator >> interpretInstructionPointerAssignmentWith: aRBAssignmen
 
 	"Changing the bytecode instruction pointer, we must generate a jump to the new target"
 	
-	| newBytecodePC |
-	aRBAssignmentNode value acceptVisitor: self.
-	newBytecodePC := self popOperand.
-	
+	aRBAssignmentNode value acceptVisitor: self.	
 	^ self
 		  addInstructionWithNoResultFrom: aRBAssignmentNode
 		  instructionKind: DRBytecodeJump
-		  operands: { newBytecodePC asDRValue }
+		  operands: { self popOperand }
 ]
 
 { #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
-	
+
 	^ self
-		addInstructionFrom: aRBVariableNode
-		instructionKind: DRCopy
-		operands: { DRJitCompileTimeExpression new expression: 'bytecodePC' }
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRAdd
+		  operands: {
+				  (DRJitCompileTimeExpression new expression: 'bytecodePC').
+				  jumpOffset asDRValue }
+]
+
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretInterruptCheckWith: aRBMessageNode [
+
+	^ (self
+		   addInstructionWithNoResultFrom: aRBMessageNode
+		   instructionKind: DRCall
+		   operands: { 'ceCheckForInterruptTrampoline' }) beMapped
 ]
 
 { #category : #'special cases' }
@@ -222,6 +269,15 @@ DRBytecodeIRGenerator >> interpretNormalSpecialSelectorSendWith: aMessage [
 ]
 
 { #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretNumArgsWith: aRBMessageNode [ 
+
+	^ self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRCopy
+		operands: { DRJitCompileTimeExpression new expression: 'methodOrBlockNumArgs' }
+]
+
+{ #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode [ 
 	
 	| newFailureCode copy |
@@ -248,7 +304,7 @@ DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [
 ]
 
 { #category : #'special-cases' }
-DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: aBoolean sendTable: sendTableName [
+DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSpecialSelector sendTable: sendTableName [
 	"Interpret a send. In the interpreter, this is a send where we don't know yet the receiver or its class.
 	We know the numberOfArguments that we should use to extract the receiver, then its class.
 	
@@ -258,14 +314,48 @@ DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: aBoo
 	selectorIndex := self visitOperand: aRBMessageNode arguments first.
 	argumentCount := self visitOperand: aRBMessageNode arguments second.
 
+  "In cogit, the special selectors at index X should be compiled as -(X+1)"
+  isSpecialSelector ifTrue: [
+		self
+			addInstructionFrom: aMessage
+			instructionKind: DRAdd
+			operands: { selectorIndex . 1 asDRValue }.
+		self
+			addInstructionFrom: aMessage
+			instructionKind: DRNegate
+			operands: { self popOperand }.
+     selectorIndex := self popOperand.
+  ].
+  
 	^ self
 		  addInstructionWithNoResultFrom: aRBMessageNode
 		  instructionKind: DRJITMessageSend
 		  operands: {
 				  selectorIndex asDRValue.
 				  argumentCount asDRValue.
-				  sendTableName asDRValue.
-				  aBoolean asDRValue }
+				  sendTableName asDRValue }
+]
+
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretStackLimitWith: aRBVariableNode [ 
+
+	| byteSize |
+	byteSize := 8.
+	^ self
+		addInstructionFrom: aRBVariableNode
+		instructionKind: DRLoad
+		operands: { 
+				byteSize asDRValue.
+				DRInterpreterReference reference: 'coInterpreter stackLimitAddress' }
+]
+
+{ #category : #visiting }
+DRBytecodeIRGenerator >> interpretStackPointerWith: aRBVariableNode [ 
+	
+	^ self
+		addInstructionFrom: aRBVariableNode
+		instructionKind: DRLoadStackPointer
+		operands: #()
 ]
 
 { #category : #'special cases - stack' }

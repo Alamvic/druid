@@ -1131,6 +1131,12 @@ DRBasicBlock >> strongCopy: aValue [
 ]
 
 { #category : #building }
+DRBasicBlock >> sub: aValue from: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory sub: aValue from: anotherValue)
+]
+
+{ #category : #building }
 DRBasicBlock >> subtract: aValue from: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory subtract: aValue from: anotherValue)

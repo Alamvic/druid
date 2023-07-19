@@ -188,6 +188,12 @@ DRCogitOperandSorter >> visitLoadReceiver: aDRLoadReceiver [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitLoadStackPointer: aDRLoadStackPointer [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitLoadStackValue: aDRLoadStackValue [ 
 	
 	"Nothing"
@@ -266,6 +272,12 @@ DRCogitOperandSorter >> visitStore: aDRStore [
 	
 	"Stores at runtime are only from registers..."
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRStore
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitStoreTempVar: aDRStoreTemporaryVariable [ 
+	
+	"Nothing"
 ]
 
 { #category : #visiting }

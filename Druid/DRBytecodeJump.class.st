@@ -16,6 +16,13 @@ DRBytecodeJump >> isMandatoryInstruction [
 	^ true
 ]
 
+{ #category : #testing }
+DRBytecodeJump >> needsStackFlush [
+
+	"We need to guarantee that if we arrive to the target from this path, everything is in memory"
+	^ true
+]
+
 { #category : #SCCP }
 DRBytecodeJump >> opcode [
 	
