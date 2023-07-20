@@ -61,6 +61,12 @@ DRJITMessageSend >> sccpEvaluateFor: sccp [
 
 { #category : #accessing }
 DRJITMessageSend >> selectorIndex [
-	
-	^ operands first value
+
+	^ operands first
+]
+
+{ #category : #accessing }
+DRJITMessageSend >> sendTable [
+
+	^ self operand3
 ]

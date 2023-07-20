@@ -106,6 +106,8 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 			227 228 229 232 233
 		"extended send"
 			234
+		"extSendSuperBytecode"
+			235
 		"extended conditional jump"
 			237 238 239
 		"extended store (and pop) temporary"

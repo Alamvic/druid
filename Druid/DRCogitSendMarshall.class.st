@@ -22,6 +22,12 @@ DRCogitSendMarshall >> isCogitSendMarshall [
 	^ true
 ]
 
+{ #category : #testing }
+DRCogitSendMarshall >> isMandatoryInstruction [
+
+	^ true
+]
+
 { #category : #accessing }
 DRCogitSendMarshall >> numberOfArguments [
 	
@@ -38,6 +44,13 @@ DRCogitSendMarshall >> opcode [
 DRCogitSendMarshall >> operands [
 
 	^ #()
+]
+
+{ #category : #SCCP }
+DRCogitSendMarshall >> sccpLatticeValueFor: sccp [ 
+	
+	"This instruction has no value"
+	^ sccp bottom
 ]
 
 { #category : #accessing }

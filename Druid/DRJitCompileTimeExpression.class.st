@@ -42,9 +42,9 @@ DRJitCompileTimeExpression >> , aDRJitCompileTimeExpression [
 	^ self mergeExpression: '' with: aDRJitCompileTimeExpression
 ]
 
-{ #category : #operations }
-DRJitCompileTimeExpression >> - aDRJitCompileTimeExpression [ 
-	
+{ #category : #arithmetic }
+DRJitCompileTimeExpression >> - aDRJitCompileTimeExpression [
+
 	^ self mergeExpression: '-' with: aDRJitCompileTimeExpression
 ]
 
@@ -64,6 +64,12 @@ DRJitCompileTimeExpression >> << aDRJitCompileTimeExpression [
 DRJitCompileTimeExpression >> > aDRJitCompileTimeExpression [
 
 	^ self mergeExpression: '>' with: aDRJitCompileTimeExpression
+]
+
+{ #category : #comparing }
+DRJitCompileTimeExpression >> >= aDRJitCompileTimeExpression [
+
+	^ self mergeExpression: '>=' with: aDRJitCompileTimeExpression
 ]
 
 { #category : #operations }

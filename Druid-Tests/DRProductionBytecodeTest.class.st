@@ -211,6 +211,51 @@ DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode2 [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodeExtendedSuperSend [
+
+	| method numArgs |
+	selectorIndex := 1.
+	numArgs := 1.
+	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit superSendTrampolineAt: numArgs put: sendTrampolineAddress.
+
+	cogit byte1: selectorIndex << 3 + numArgs.
+
+	method := methodBuilder
+		          newMethod;
+		          numberOfArguments: numArgs;
+		          literals: {
+				          (memory integerObjectOf: 41).
+				          (memory integerObjectOf: 42).
+				          (memory integerObjectOf: 43) };
+		          buildMethod.
+
+	self compileBytecode: 235 selector: #extSendSuperBytecode thenDo: [ :generator |
+		cogit methodObj: method.
+
+		"The receiver of the send!"
+		cogit ssPushRegister: ReceiverResultReg.
+		cogit ssPushRegister: Arg0Reg.
+
+		"Execute the druid's compiled code"
+		generator value.
+
+		cogit Stop ].
+
+	self
+		prepareStackForPrimitiveReceiver: (memory integerObjectOf: 17)
+		arguments: #(  )
+		method: method.
+
+	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
+	self runFrom: cogInitialAddress until: sendTrampolineAddress.
+	"First argument: the selector"
+	self assert: machineSimulator classRegisterValue equals: selectorIndex.
+	"Third argument: the receiver"
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17)
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodePrimSendAdd [
 
 	"Setup the send trampoline"

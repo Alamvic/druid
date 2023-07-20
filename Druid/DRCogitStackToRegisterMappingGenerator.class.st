@@ -268,15 +268,15 @@ DRCogitStackToRegisterMappingGenerator >> visitFlushStack: aDRFlushStack [
 
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
+	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: aSendTable"
 
-	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: ordinarySendTrampolines"
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #genMarshalledSend:numArgs:sendTable:
 			 arguments: {
 				(aDRMessageSend operand1 rtlPushArgumentExpressions: self) first.
 				(aDRMessageSend operand2 rtlPushArgumentExpressions: self) first.
-				RBVariableNode named: 'ordinarySendTrampolines' }).
+				(RBVariableNode named: aDRMessageSend sendTable value) })
 ]
 
 { #category : #visiting }

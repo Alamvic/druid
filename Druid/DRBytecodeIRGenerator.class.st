@@ -45,12 +45,17 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #internalMustBeBoolean: put: #interpretMustBeBooleanWith:.
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
 	specialCases at: #push: put: #interpretPushWith:.
-	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
-	specialCases at: #normalSendSpecialSelector:argumentCount: put: #interpretNormalSpecialSelectorSendWith:.
 	specialCases at: #commonReturn: put: #interpretCommonReturnWith:.
 	specialCases at: #commonCallerReturn: put: #interpretCommonCallerReturnWith:.
 	specialCases at: #checkForEventsMayContextSwitch: put: #interpretInterruptCheckWith:.
 	specialCases at: #fetchByte put: #interpretFetchByteWith:.
+
+	"Message send"
+	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
+	specialCases at: #normalSendSpecialSelector:argumentCount: put: #interpretNormalSpecialSelectorSendWith:.
+	specialCases at: #sendSuper:numArgs: put: #interpretSuperSendWith:.
+	specialCases at: #sendDirectSuper:numArgs: put: #interpretDirectSuperSendWith:.
+	
 
 ]
 
@@ -122,6 +127,17 @@ DRBytecodeIRGenerator >> interpretCurrentBytecodeWith: aRBVariableNode [
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRCopy
 		operands: { DRJitCompileTimeExpression new expression: 'byte0' }
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretDirectSuperSendWith: aRBMessageNode [
+
+	^ self
+		  interpretSendWith: aRBMessageNode
+		  specialSelector: false
+		  sendTable: '(directedSendUsesBinding
+								ifTrue: [directedSuperBindingSendTrampolines]
+								ifFalse: [directedSuperSendTrampolines])' "TODO: improve"
 ]
 
 { #category : #'special-cases' }
@@ -237,48 +253,19 @@ DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [
 { #category : #accessing }
 DRBytecodeIRGenerator >> interpretNormalLiteralSendWith: aMessage [
 
-	"Interpret a send. In the interpreter, this is a send where we don't know yet the receiver or its class.
-	We know the numberOfArguments that we should use to extract the receiver, then its class.
-	
-	Translate this as a send instruction"
-	| selectorIndex argumentCount |
-	aMessage arguments first acceptVisitor: self.
-	selectorIndex := self popOperand.
-	
-	aMessage arguments second acceptVisitor: self.
-	argumentCount := self popOperand.
 	^ self
-		  addInstructionWithNoResultFrom: aMessage
-		  instructionKind: DRJITMessageSend
-		  operands: { selectorIndex asDRValue. argumentCount asDRValue }
+		  interpretSendWith: aMessage
+		  specialSelector: false
+		  sendTable: 'ordinarySendTrampolines'
 ]
 
 { #category : #accessing }
 DRBytecodeIRGenerator >> interpretNormalSpecialSelectorSendWith: aMessage [
 
-	"Interpret a send. In the interpreter, this is a send where we don't know yet the receiver or its class.
-	We know the numberOfArguments that we should use to extract the receiver, then its class.
-	
-	Translate this as a send instruction"
-	| selectorIndex argumentCount |
-	aMessage arguments first acceptVisitor: self.
-	selectorIndex := self popOperand.
-	
-	aMessage arguments second acceptVisitor: self.
-	argumentCount := self popOperand.
-
-	self
-		addInstructionFrom: aMessage
-		instructionKind: DRAdd
-		operands: { selectorIndex . 1 asDRValue }.
-	self
-		addInstructionFrom: aMessage
-		instructionKind: DRNegate
-		operands: { self popOperand }.
 	^ self
-		  addInstructionWithNoResultFrom: aMessage
-		  instructionKind: DRJITMessageSend
-		  operands: { self popOperand asDRValue. argumentCount asDRValue }
+		  interpretSendWith: aMessage
+		  specialSelector: true
+		  sendTable: 'ordinarySendTrampolines'
 ]
 
 { #category : #'special cases' }
@@ -314,6 +301,39 @@ DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [
 	| receiver |
 	receiver := self visitOperand: aRBMessageNode arguments first.
 	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSpecialSelector sendTable: sendTableName [
+	"Interpret a send. In the interpreter, this is a send where we don't know yet the receiver or its class.
+	We know the numberOfArguments that we should use to extract the receiver, then its class.
+	
+	Translate this as a send instruction"
+
+	| selectorIndex argumentCount |
+	selectorIndex := self visitOperand: aRBMessageNode arguments first.
+	argumentCount := self visitOperand: aRBMessageNode arguments second.
+
+  "In cogit, the special selectors at index X should be compiled as -(X+1)"
+  isSpecialSelector ifTrue: [
+		self
+			addInstructionFrom: aMessage
+			instructionKind: DRAdd
+			operands: { selectorIndex . 1 asDRValue }.
+		self
+			addInstructionFrom: aMessage
+			instructionKind: DRNegate
+			operands: { self popOperand }.
+     selectorIndex := self popOperand.
+  ].
+  
+	^ self
+		  addInstructionWithNoResultFrom: aRBMessageNode
+		  instructionKind: DRJITMessageSend
+		  operands: {
+				  selectorIndex asDRValue.
+				  argumentCount asDRValue.
+				  sendTableName asDRValue }
 ]
 
 { #category : #'special cases' }
@@ -364,6 +384,15 @@ DRBytecodeIRGenerator >> interpretStackValueWith: aRBMessageNode [
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRLoadStackValue
 		  operands: { value }
+]
+
+{ #category : #'special cases' }
+DRBytecodeIRGenerator >> interpretSuperSendWith: aRBMessageNode [
+
+	^ self
+		  interpretSendWith: aRBMessageNode
+		  specialSelector: false
+		  sendTable: 'superSendTrampolines'
 ]
 
 { #category : #accessing }
