@@ -16,6 +16,12 @@ DRAbstractMemoryAddress >> asMemoryAddress [
 	^ self
 ]
 
+{ #category : #cogit }
+DRAbstractMemoryAddress >> base [
+
+	self subclassResponsibility
+]
+
 { #category : #testing }
 DRAbstractMemoryAddress >> isAbsolute [
 	
@@ -26,6 +32,18 @@ DRAbstractMemoryAddress >> isAbsolute [
 DRAbstractMemoryAddress >> isMemoryAddress [
 	
 	^ true
+]
+
+{ #category : #testing }
+DRAbstractMemoryAddress >> isSpilledMemoryAddress [
+	
+	^ false
+]
+
+{ #category : #cogit }
+DRAbstractMemoryAddress >> offset [
+
+	self subclassResponsibility
 ]
 
 { #category : #accessing }

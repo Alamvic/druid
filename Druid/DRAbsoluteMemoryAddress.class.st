@@ -23,6 +23,12 @@ DRAbsoluteMemoryAddress >> asDependencyList [
 	^ { expression }
 ]
 
+{ #category : #cogit }
+DRAbsoluteMemoryAddress >> base [
+
+	^ expression
+]
+
 { #category : #accessing }
 DRAbsoluteMemoryAddress >> expression [
 	
@@ -44,7 +50,13 @@ DRAbsoluteMemoryAddress >> isAbsolute [
 { #category : #testing }
 DRAbsoluteMemoryAddress >> name [
 	
-	^ '[', expression result name, ']'
+	^ '[', expression result name asString, ']'
+]
+
+{ #category : #cogit }
+DRAbsoluteMemoryAddress >> offset [
+
+	^ 0
 ]
 
 { #category : #accessing }
