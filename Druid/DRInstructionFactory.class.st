@@ -140,6 +140,30 @@ DRInstructionFactory >> jumpIf: aCondition trueTarget: trueTarget falseTarget: f
 ]
 
 { #category : #factory }
+DRInstructionFactory >> jumpIfOverflowOn: anInstruction [
+
+	^ DRBranchIfCondition operands: {
+			  DROverflow new.
+			  anInstruction asDRValue }
+]
+
+{ #category : #factory }
+DRInstructionFactory >> leftShift: operand1 by: operand2 [
+
+	^ DRLeftShift
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> less: operand1 than: operand2 [
+
+	^ self getConditionCodeOf: DRLessThanComparison new operands: { 
+			  operand1 asDRValue.
+			  operand2 asDRValue }
+]
+
+{ #category : #factory }
 DRInstructionFactory >> lessOrEquals: operand1 than: operand2 [
 
 	^ self getConditionCodeOf: DRLessOrEqualsThanComparison new operands: { 
@@ -247,6 +271,14 @@ DRInstructionFactory >> pushBase: base offset: offset [
 				   base: base;
 				   offset: offset;
 				   yourself) }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> rightShift: operand1 by: operand2 [
+
+	^ DRRightShift
+		  operands: { operand1 asDRValue. operand2 asDRValue }
 		  result: self allocateTemporaryRegister
 ]
 

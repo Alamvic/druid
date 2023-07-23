@@ -662,6 +662,12 @@ DRBasicBlock >> jumpIf: condition to: trueTarget ifFalseTo: falseTarget [
 ]
 
 { #category : #building }
+DRBasicBlock >> jumpIfOverflowOn: anInstruction [
+	
+	^ self endInstruction: (self instructionFactory jumpIfOverflowOn: anInstruction)
+]
+
+{ #category : #building }
 DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 
 	^ self
@@ -683,6 +689,19 @@ DRBasicBlock >> jumpTo: aBasicBlock [
 DRBasicBlock >> lastInstruction [
 	
 	^ endInstruction
+]
+
+{ #category : #factory }
+DRBasicBlock >> leftShift: operand1 by: operand2 [
+
+	^ self addInstruction:
+		  (self instructionFactory leftShift: operand1 by: operand2)
+]
+
+{ #category : #building }
+DRBasicBlock >> less: operand1 than: operand2 [
+	
+	^ self addInstruction: (self instructionFactory less: operand1 than: operand2)
 ]
 
 { #category : #building }
@@ -1046,6 +1065,13 @@ DRBasicBlock >> return [
 { #category : #building }
 DRBasicBlock >> return: anInstruction [ 
 	^ self endInstruction: (DRReturn operands: { anInstruction } )
+]
+
+{ #category : #factory }
+DRBasicBlock >> rightShift: operand1 by: operand2 [
+
+	^ self addInstruction:
+		  (self instructionFactory rightShift: operand1 by: operand2)
 ]
 
 { #category : #accessing }
