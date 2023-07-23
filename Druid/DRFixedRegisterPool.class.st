@@ -88,7 +88,7 @@ DRFixedRegisterPool >> spillRegisters [
 { #category : #accessing }
 DRFixedRegisterPool >> spillRegisters: aCollection [
 
-	spillRegisters := aCollection asOrderedCollection
+	spillRegisters := OrderedCollection with: aCollection
 ]
 
 { #category : #allocation }
