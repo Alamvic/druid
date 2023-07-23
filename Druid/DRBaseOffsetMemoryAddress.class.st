@@ -31,7 +31,7 @@ DRBaseOffsetMemoryAddress >> base: anObject [
 { #category : #printing }
 DRBaseOffsetMemoryAddress >> name [
 	
-	^ '[', base result name, ', offset=', offset asDRValue name, ']'
+	^ '[', base result name asString, ', offset=', offset asDRValue name, ']'
 ]
 
 { #category : #accessing }

@@ -515,7 +515,7 @@ DRInstruction >> postCopy [
 DRInstruction >> prettyPrint [
 
 	| print |
-	print := result ifNil: [ '' ] ifNotNil: [ result name , ' := ' ].
+	print := result ifNil: [ '' ] ifNotNil: [ result name asString , ' := ' ].
 	
 	^ print , self opcode , ' '
 	  , (' ' join: (self operands collect: [ :e | e ifNotNil: [ e printResult ] ]))

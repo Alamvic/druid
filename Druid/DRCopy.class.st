@@ -56,7 +56,7 @@ DRCopy >> opcode [
 { #category : #printing }
 DRCopy >> prettyPrint [
 	
-	^ result name, ' := ', operands first name asString
+	^ result name asString, ' := ', operands first name asString
 ]
 
 { #category : #SCCP }

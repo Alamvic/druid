@@ -42,7 +42,7 @@ DRGetConditionCode >> operands: operandList [
 DRGetConditionCode >> prettyPrint [
 
 	| print |
-	print := result ifNil: [ '' ] ifNotNil: [ result name , ' := ' ].
+	print := result ifNil: [ '' ] ifNotNil: [ result name asString , ' := ' ].
 	^ print , self opcode , ' '
 	  , (self condition prettyPrintWithBranch: self)
 ]
