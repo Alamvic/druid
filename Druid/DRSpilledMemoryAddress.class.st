@@ -27,10 +27,22 @@ DRSpilledMemoryAddress >> isMemoryAddress [
 	^ true
 ]
 
+{ #category : #cogit }
+DRSpilledMemoryAddress >> isSpilledMemoryAddress [
+
+	^ true
+]
+
 { #category : #printing }
 DRSpilledMemoryAddress >> name [
 	
 	^ 'StackEntry-', stackOffset asString
+]
+
+{ #category : #cogit }
+DRSpilledMemoryAddress >> offset [
+
+	^ self stackOffset * 8 "bytes"
 ]
 
 { #category : #memory }

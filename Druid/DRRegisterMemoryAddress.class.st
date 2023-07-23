@@ -16,6 +16,18 @@ DRRegisterMemoryAddress class >> register: aRegister [
 ]
 
 { #category : #accessing }
+DRRegisterMemoryAddress >> base [
+
+	^ register
+]
+
+{ #category : #accessing }
+DRRegisterMemoryAddress >> offset [
+
+	^ 0
+]
+
+{ #category : #accessing }
 DRRegisterMemoryAddress >> operands [
 	
 	^ #()

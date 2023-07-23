@@ -33,10 +33,22 @@ DRInterpreterReference >> asMemoryAddress [
 	^ self
 ]
 
+{ #category : #cogit }
+DRInterpreterReference >> base [
+
+	^ self name
+]
+
 { #category : #accessing }
 DRInterpreterReference >> name [
 
 	^ reference
+]
+
+{ #category : #cogit }
+DRInterpreterReference >> offset [
+
+	^ 0
 ]
 
 { #category : #accessing }
