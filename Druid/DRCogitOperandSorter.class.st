@@ -176,6 +176,12 @@ DRCogitOperandSorter >> visitLoad: aDRLoad [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitLoadArgument: aDRLoadArgument [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitLoadFramePointer: aDRLoadFramePointer [ 
 	
 	"Nothing"

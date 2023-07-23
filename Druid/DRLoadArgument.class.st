@@ -28,6 +28,18 @@ DRLoadArgument >> argName: selector [
 ]
 
 { #category : #accessing }
+DRLoadArgument >> argNum [
+
+	^ argNum
+]
+
+{ #category : #accessing }
+DRLoadArgument >> argNum: anObject [
+
+	argNum := anObject
+]
+
+{ #category : #accessing }
 DRLoadArgument >> classType: aType [
 	
 	classType := aType

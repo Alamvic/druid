@@ -255,6 +255,12 @@ DRInstruction >> isBackJump [
 ]
 
 { #category : #testing }
+DRInstruction >> isCall [
+
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isCogitSendMarshall [
 	
 	^ false

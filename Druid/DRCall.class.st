@@ -11,6 +11,12 @@ DRCall >> acceptVisitor: aVisitor [
 ]
 
 { #category : #testing }
+DRCall >> isCall [
+
+	^ true
+]
+
+{ #category : #testing }
 DRCall >> isMandatoryInstruction [
 
 	^ true
@@ -20,12 +26,6 @@ DRCall >> isMandatoryInstruction [
 DRCall >> opcode [
 	
 	^ 'Call'
-]
-
-{ #category : #accessing }
-DRCall >> operands [
-
-	^ #()
 ]
 
 { #category : #SCCP }
