@@ -54,9 +54,13 @@ DRIRTest >> assertConstraintIn: aDRCPSEdge for: aKey includes: expectedConstrain
 DRIRTest >> configureInterpreter [
 
 	| interpreter theMemory |
-	SimpleStackBasedCogit initializeWithOptions: {
+	"Initialize global variables"
+	StackInterpreter initializeBytecodeTableForSistaV1.
+	StackToRegisterMappingCogit initializeWithOptions: {
 			#ObjectMemory.
 			Spur64BitCoMemoryManager simulatorClass name }.
+			
+			
 	interpreter := DruidTestInterpreter basicNew.
 	theMemory := Spur64BitCoMemoryManager simulatorClass new.
 	interpreter
