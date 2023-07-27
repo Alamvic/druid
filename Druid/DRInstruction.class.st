@@ -261,6 +261,12 @@ DRInstruction >> isCogitSendMarshall [
 ]
 
 { #category : #testing }
+DRInstruction >> isCommutative [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isConditionalBranch [
 	
 	^ false
@@ -380,6 +386,12 @@ DRInstruction >> moveToDominatingBlock: destinationBlock [
 DRInstruction >> name [
 	
 	^ result name
+]
+
+{ #category : #testing }
+DRInstruction >> needsStackFlush [
+	
+	^ false
 ]
 
 { #category : #accessing }

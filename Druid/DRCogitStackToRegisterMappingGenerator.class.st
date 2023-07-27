@@ -169,15 +169,14 @@ DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMarshall [
-
 	"self marshallSendArguments: numArgs."
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #marshallSendArguments:
 			 arguments:
-			 { (RBLiteralValueNode value:
-				  aDRCogitSendMarshall numberOfArguments) })
+				 (aDRCogitSendMarshall numberOfArguments
+					  rtlPushArgumentExpressions: self))
 ]
 
 { #category : #visiting }
@@ -209,17 +208,24 @@ DRCogitStackToRegisterMappingGenerator >> visitContinueNextBytecode: aDRContinue
 ]
 
 { #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
+DRCogitStackToRegisterMappingGenerator >> visitFlushStack: aDRFlushStack [
 
-	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: ordinarySendTrampolines"
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #ssFlushStack)
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
+	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: aSendTable"
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #genMarshalledSend:numArgs:sendTable:
-			 arguments: { 
-				RBLiteralValueNode value: aDRMessageSend cogitSelectorIndex.
-				RBLiteralValueNode value: aDRMessageSend numberOfArguments.
-				RBVariableNode named: 'ordinarySendTrampolines' }).
+			 arguments: {
+				(aDRMessageSend operand1 rtlPushArgumentExpressions: self) first.
+				(aDRMessageSend operand2 rtlPushArgumentExpressions: self) first.
+				(RBVariableNode named: aDRMessageSend sendTable value) })
 ]
 
 { #category : #visiting }
@@ -241,6 +247,14 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 	self twoOperandMoveCogitRTL: aDRLoadReceiver operands: { 
 				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg').
 				aDRLoadReceiver result }
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitLoadStackPointer: aDRLoadStackPointer [
+
+	self twoOperandMoveCogitRTL: aDRLoadStackPointer operands: {
+			(DRPhysicalGeneralPurposeRegister name: 'SPReg').
+			aDRLoadStackPointer result }
 ]
 
 { #category : #visiting }
@@ -288,6 +302,7 @@ DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 DRCogitStackToRegisterMappingGenerator >> visitReturn: aDRReturn [
 	"Generate the postamble in the return cases"
 
+	| isBlockReturn generator |
 	self generatePostambleForCFG: aDRReturn controlFlowGraph.
 
 	"Move the return value to the receiver register result"
@@ -296,9 +311,38 @@ DRCogitStackToRegisterMappingGenerator >> visitReturn: aDRReturn [
 				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg') }.
 
 	"Then return"
+	isBlockReturn := aDRReturn operand2 value.
+	generator := isBlockReturn
+		ifTrue: [ #genBlockReturn ]
+		ifFalse: [ #genUpArrowReturn ].
+	
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #genUpArrowReturn)
+			 selector: generator)
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [ 
+	
+	"self ssFlushUpThroughTemporaryVariable: index.
+	self MoveR: reg
+		Mw: (self frameOffsetOfTemporary: tempIndex)
+		r: FPReg."
+	generatorMethodBuilder addStatement: (RBMessageNode
+		 receiver: RBVariableNode selfNode
+		 selector: #ssFlushUpThroughTemporaryVariable:
+		 arguments: (aDRStoreTemporaryVariable operand1 rtlPushArgumentExpressions: self)).
+	generatorMethodBuilder addStatement: (RBMessageNode
+		 receiver: RBVariableNode selfNode
+		 selector: #MoveR:Mw:r:
+		 arguments: {
+			self rtlExpressionForValue: aDRStoreTemporaryVariable result.
+			RBMessageNode
+				receiver: RBVariableNode selfNode
+				selector: #frameOffsetOfTemporary:
+				arguments: (aDRStoreTemporaryVariable operand1 rtlPushArgumentExpressions: self).
+			RBVariableNode named: 'FPReg'
+	}).
 ]
 
 { #category : #visiting }

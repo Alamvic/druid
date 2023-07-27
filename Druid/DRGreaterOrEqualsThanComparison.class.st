@@ -10,6 +10,12 @@ DRGreaterOrEqualsThanComparison >> acceptVisitor: aVisitor withBranch: parentBra
 	^ aVisitor visitGreaterOrEqualsThan: self inBranch: parentBranch
 ]
 
+{ #category : #converting }
+DRGreaterOrEqualsThanComparison >> asJitCompileTimeExpressionString [
+
+	^ '>='
+]
+
 { #category : #testing }
 DRGreaterOrEqualsThanComparison >> isGreaterOrEqualThanComparison [
 	
