@@ -33,7 +33,7 @@ DRAbstractCompilerCompiler >> allocateRegistersIn: druidIR [
 DRAbstractCompilerCompiler >> compile [
 
 	| druidIR |
-	self customise.
+	self specialise.
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
@@ -56,6 +56,16 @@ DRAbstractCompilerCompiler >> compilerClass: anObject [
 ]
 
 { #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> configSpecialisationFromPragma: method [
+
+	method ast
+		pragmaNamed: #specialisation:
+		ifPresent: [ :pragma | 
+			specialisation := DRPrimitiveSpecialisation newCustomisation:
+				                  pragma arguments first value ]
+]
+
+{ #category : #'generation-IR' }
 DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 
 	| startBlock initialBasicBlock |
@@ -66,22 +76,6 @@ DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 
 	generator receiver: (DRInterpreterValue value: interpreter).
 	generator numberOfArguments: (self numberOfArgumentsForMethod: method)
-]
-
-{ #category : #'generation-IR' }
-DRAbstractCompilerCompiler >> customise [
-
-	^ self customiseFor: self sourceMethod
-]
-
-{ #category : #'generation-IR' }
-DRAbstractCompilerCompiler >> customiseFor: method [
-
-	method ast
-		pragmaNamed: #customisedReceiverFor:
-		ifPresent: [ :pragma | 
-			specialisation := DRPrimitiveSpecialisation newCustomisation:
-				                  pragma arguments first value ]
 ]
 
 { #category : #'generation-IR' }
@@ -196,7 +190,6 @@ DRAbstractCompilerCompiler >> optimisations: aCollection [
 { #category : #api }
 DRAbstractCompilerCompiler >> optimize: anIR [
 
-	specialisation addInitialConstraint: anIR.
 	optimisations do: [ :optimization | anIR applyOptimisation: optimization ]
 ]
 
@@ -225,9 +218,20 @@ DRAbstractCompilerCompiler >> sourceName: anObject [
 ]
 
 { #category : #accessing }
+DRAbstractCompilerCompiler >> specialisation [
+	^ specialisation
+]
+
+{ #category : #accessing }
 DRAbstractCompilerCompiler >> specialisation: aDRPrimitiveSpecialisation [
 
 	specialisation := aDRPrimitiveSpecialisation
+]
+
+{ #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> specialise [
+
+	^ self configSpecialisationFromPragma: self sourceMethod
 ]
 
 { #category : #'code-generation' }

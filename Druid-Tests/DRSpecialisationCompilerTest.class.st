@@ -55,6 +55,7 @@ DRSpecialisationCompilerTest >> testArrayInitialConstraints [
 DRSpecialisationCompilerTest >> testSmallIntegerConditionalCheck [
 
 	| cfg specialisationCheck |
+	compilerCompiler specialisation: DRSmallIntegerPrimitiveSpecialisation new.
 	cfg := self generateDruidIRFor: #primitiveAdd.
 	specialisationCheck := cfg allConditionalJumps first.
 
@@ -67,6 +68,7 @@ DRSpecialisationCompilerTest >> testSmallIntegerConditionalCheck [
 DRSpecialisationCompilerTest >> testSmallIntegerInitialConstraints [
 
 	| cfg firstBlockAfterChecks edgeAfterChecks |
+	compilerCompiler specialisation: DRSmallIntegerPrimitiveSpecialisation new.
 	cfg := self generateDruidIRFor: #primitiveAdd.
 
 	firstBlockAfterChecks := cfg reversePostOrderBlocks at: 3. "initial + check integer -> primitive"
@@ -76,4 +78,18 @@ DRSpecialisationCompilerTest >> testSmallIntegerInitialConstraints [
 		assertConstraintIn: edgeAfterChecks
 		for: 'ReceiverResultReg'
 		includes: (DREqualsConstraint withValue: 2r1)
+]
+
+{ #category : #tests }
+DRSpecialisationCompilerTest >> testSpecialiseByPragma [
+
+	| method |
+	self assert: compilerCompiler specialisation class equals: DRNonePrimitiveSpecialisation.
+
+	method := compilerCompiler interpreter class lookupSelector: #primitiveAdd. "SmallInsteger specialisation"
+	compilerCompiler configSpecialisationFromPragma: method.
+
+	self
+		assert: compilerCompiler specialisation class
+		equals: DRSmallIntegerPrimitiveSpecialisation
 ]

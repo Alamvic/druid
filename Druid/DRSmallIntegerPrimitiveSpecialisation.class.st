@@ -10,14 +10,15 @@ DRSmallIntegerPrimitiveSpecialisation class >> pragmaName [
 	^ #smallInteger
 ]
 
-{ #category : #api }
-DRSmallIntegerPrimitiveSpecialisation >> addInitialConstraint: anIR [
+{ #category : #'generation-IR' }
+DRSmallIntegerPrimitiveSpecialisation >> addConstraintForReceiver: anIR [
 
 	anIR initialConstraint: self initialConstraint
 ]
 
 { #category : #'generation-IR' }
 DRSmallIntegerPrimitiveSpecialisation >> initialConstraint [
+	"Since the specialisation check uses receiverTags, we need to add the constraint over the receiver by hand."
 
 	^ DRRegisterDomain
 		  mask: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg')
@@ -44,7 +45,7 @@ DRSmallIntegerPrimitiveSpecialisation >> specialiseIR: aDRPrimitiveIRGenerator [
 
 	| conditionalJump conditionalBasicBlock |
 	conditionalBasicBlock := aDRPrimitiveIRGenerator currentBasicBlock.
-	
+
 	"receiverTags = 1"
 	conditionalJump := aDRPrimitiveIRGenerator
 		                   instantiateNoResultInstruction: DRBranchIfCondition
@@ -53,12 +54,17 @@ DRSmallIntegerPrimitiveSpecialisation >> specialiseIR: aDRPrimitiveIRGenerator [
 				                   (DRJitCompileTimeExpression expression: 'receiverTags').
 				                   self smallIntegerTag asDRValue }.
 	conditionalBasicBlock endInstruction: conditionalJump.
-	
+
 	"if false, fail"
 	conditionalJump falseBranch: aDRPrimitiveIRGenerator ir failureExitBlock.
 	aDRPrimitiveIRGenerator ir failureExitBlock addPredecessor: conditionalBasicBlock.
-	
+
 	"if true, continue"
 	conditionalJump trueBranch: aDRPrimitiveIRGenerator newBasicBlock.
 	aDRPrimitiveIRGenerator currentBasicBlock addPredecessor: conditionalBasicBlock.
+
+
+	"Add constraints for Receiver"
+	self addConstraintForReceiver: aDRPrimitiveIRGenerator ir.
+
 ]

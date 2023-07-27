@@ -10,13 +10,6 @@ DRArrayPrimitiveSpecialisation class >> pragmaName [
 	^ #arrayOop
 ]
 
-{ #category : #api }
-DRArrayPrimitiveSpecialisation >> addInitialConstraint: aDRPrimitiveControlFlowGraph [
-	"Do nothing, let the inference to the added checks"
-
-	"aDRPrimitiveControlFlowGraph initialConstraint: self initialConstraint"
-]
-
 { #category : #'header formats' }
 DRArrayPrimitiveSpecialisation >> arrayFormat [
 	"Duplicated code"

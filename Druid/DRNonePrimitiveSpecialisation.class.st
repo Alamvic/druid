@@ -11,12 +11,6 @@ DRNonePrimitiveSpecialisation class >> pragmaName [
 ]
 
 { #category : #api }
-DRNonePrimitiveSpecialisation >> addInitialConstraint: anIR [
-
-	"Do nothing"
-]
-
-{ #category : #api }
 DRNonePrimitiveSpecialisation >> specialiseIR: aDRMethodIRGenerator [
 	"Do nothing"
 

@@ -20,12 +20,6 @@ DRPrimitiveSpecialisation class >> pragmaName [
 ]
 
 { #category : #api }
-DRPrimitiveSpecialisation >> addInitialConstraint: anIR [
-
-	self subclassResponsibility
-]
-
-{ #category : #api }
 DRPrimitiveSpecialisation >> specialiseIR: aDRMethodIRGenerator [
 	
 	self subclassResponsibility 
