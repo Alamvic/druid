@@ -55,10 +55,10 @@ DRIRTest >> configureInterpreter [
 
 	| interpreter theMemory |
 	"Initialize global variables"
-	StackToRegisterMappingCogit initializeMiscConstants.
 	CoInterpreter initializeWithOptions: {
 			#ObjectMemory.
 			Spur64BitCoMemoryManager simulatorClass name }.
+	StackToRegisterMappingCogit initializeMiscConstants.
 			
 			
 	interpreter := DruidTestInterpreter basicNew.
