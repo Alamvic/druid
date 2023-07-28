@@ -55,8 +55,8 @@ DRIRTest >> configureInterpreter [
 
 	| interpreter theMemory |
 	"Initialize global variables"
-	StackInterpreter initializeBytecodeTableForSistaV1.
-	StackToRegisterMappingCogit initializeWithOptions: {
+	StackToRegisterMappingCogit initializeMiscConstants.
+	CoInterpreter initializeWithOptions: {
 			#ObjectMemory.
 			Spur64BitCoMemoryManager simulatorClass name }.
 			
