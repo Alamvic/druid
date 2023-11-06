@@ -33,6 +33,15 @@ DRJITCompileTimeExpressionGenerator >> visitAddition: aDRAdd [
 ]
 
 { #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitBitAnd: aDRBitAnd [
+
+	^ self
+		  binaryMessage: #&
+		  receiverInstruction: aDRBitAnd operand1
+		  argumentInstruction: aDRBitAnd operand2
+]
+
+{ #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitConstant: aDRConstantValue [ 
 	
 	^ RBLiteralValueNode value: aDRConstantValue value
@@ -45,7 +54,30 @@ DRJITCompileTimeExpressionGenerator >> visitCopy: aDRCopy [
 ]
 
 { #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitInterpreterExpression: aDRInterpreterExpression [
+
+	^ RBLiteralValueNode value: aDRInterpreterExpression name
+]
+
+{ #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [ 
 	
 	^ RBParser parseExpression: aDRJitCompileTimeExpression expression
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitLeftShift: aDRLeftShift [
+
+	^ self
+		  binaryMessage: #'<<'
+		  receiverInstruction: aDRLeftShift operand1
+		  argumentInstruction: aDRLeftShift operand2
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitLoad: aDRLoad [
+
+	self assert: aDRLoad isJITCompileTimeExpression.
+	"Just visit the operand, should be a variable"
+	^ aDRLoad operand1 acceptVisitor: self
 ]

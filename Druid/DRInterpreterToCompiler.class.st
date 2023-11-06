@@ -45,6 +45,12 @@ DRInterpreterToCompiler class >> fromInterpreterClass: anInterpreterClass [
 DRInterpreterToCompiler class >> generateDruidJITModel [
 
 	<script>
+	self generateDruidJITModelOn: DruidJIT
+]
+
+{ #category : #'instance creation' }
+DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
+
 	| primitives bytecodes |
 	primitives := #( #primitiveAdd #primitiveSubtract #primitiveLessThan
 	                 #primitiveGreaterThan #primitiveLessOrEqual
@@ -121,9 +127,23 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 		doFailOnFirst;
 		selectPrimitives: [ :e | primitives includes: e selector ];
 		selectBytecodes: [ :e | bytecodes includes: e bytecodeNumberStart ];
-		targetClass: DruidJIT;
+		targetClass: targetClass;
 		targetSuperclass: StackToRegisterMappingCogit;
 		build
+]
+
+{ #category : #'instance creation' }
+DRInterpreterToCompiler class >> generateDruidMixedJITModel [
+
+	<script>
+	self generateDruidJITModelOn: DruidCogObjectRepresentationFor64BitSpur "Compiles in the ObjectRepresentation hierarchy"
+]
+
+{ #category : #'instance creation' }
+DRInterpreterToCompiler class >> generateUnoptimisedDruidJITModel [
+
+	<script>
+	self generateDruidJITModelOn: UnoptimisedDruidJIT
 ]
 
 { #category : #'accessing - bytecodes' }

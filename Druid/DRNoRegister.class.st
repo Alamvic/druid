@@ -15,3 +15,9 @@ DRNoRegister >> name [
 	
 	^ '_'
 ]
+
+{ #category : #'cogit-generation' }
+DRNoRegister >> rtlOperandQualifier [
+
+	^ 'Null:' ":("
+]
