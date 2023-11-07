@@ -232,7 +232,7 @@ DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
 DRBytecodeIRGenerator >> interpretInterruptCheckWith: aRBMessageNode [
 
 	^ (self
-		   addInstructionWithNoResultFrom: aRBMessageNode
+		   addInstructionFrom: aRBMessageNode
 		   instructionKind: DRCall
 		   operands: { 'ceCheckForInterruptTrampoline' }) beMapped
 ]

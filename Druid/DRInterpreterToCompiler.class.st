@@ -143,7 +143,7 @@ DRInterpreterToCompiler class >> generateDruidMixedJITModel [
 DRInterpreterToCompiler class >> generateUnoptimisedDruidJITModel [
 
 	<script>
-	self generateDruidJITModelOn: UnoptimisedDruidJIT
+	self generateDruidJITModelOn: DruidUnoptimisedJIT
 ]
 
 { #category : #'accessing - bytecodes' }

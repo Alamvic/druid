@@ -49,7 +49,9 @@ DRPhiSimplicationTest >> testSimplifyPhiOnlyWithNulls [
 	| cfg |
 	cfg := self setUpCFG: 1.
 
-	cfg b1 phiWithVariables: { DRNullValue new }.
+	cfg b1 phiWithVariables: {
+			DRNullValue new.
+			DRNullValue new }.
 
 	DRPhiSimplication new applyTo: cfg.
 
@@ -76,7 +78,7 @@ DRPhiSimplicationTest >> testSimplifyRecursivePhi [
 	cfg applyOptimisation: optimisation.
 
 	self assert: block firstInstruction isCopy.
-	self assert: block firstInstruction operand1 equals: t1
+	self assert: block firstInstruction operand1 equals: 1 asDRValue 
 ]
 
 { #category : #tests }
@@ -97,7 +99,53 @@ DRPhiSimplicationTest >> testSimplifyRedundantPhi [
 	cfg applyOptimisation: optimisation.
 
 	self assert: block firstInstruction isCopy.
-	self assert: block firstInstruction operand1 equals: t1
+	self assert: block firstInstruction operand1 equals: 1 asDRValue
+]
+
+{ #category : #tests }
+DRPhiSimplicationTest >> testSimplifyRedundantPhiFromDifferentCopies [
+
+	| cfg t1 t2 t3 block phi |
+	cfg := self setUpCFGWithConditional.
+	block := cfg b4.
+
+	t1 := cfg b1 copy: 1.
+	t2 := cfg b2 copy: t1.
+	t3 := cfg b3 copy: t1.
+	phi := block phiWith: t2 with: t3.
+
+	self assert: phi operands size equals: 2.
+	self assertCollection: phi operands hasSameElements: {
+			t2.
+			t3 }.
+
+	cfg applyOptimisation: optimisation.
+
+	self assert: block firstInstruction isCopy.
+	self assert: block firstInstruction operand1 equals: 1 asDRValue
+]
+
+{ #category : #tests }
+DRPhiSimplicationTest >> testSimplifyRedundantPhiFromDifferentPhis [
+
+	| cfg t1 t2 t3 block phi |
+	cfg := self setUpCFGWithConditional.
+	block := cfg b4.
+
+	t1 := cfg b1 copy: 1.
+	t2 := cfg b2 phiWith: t1.
+	t3 := cfg b3 phiWith: t1.
+	phi := block phiWith: t2 with: t3.
+
+	self assert: phi operands size equals: 2.
+	self assertCollection: phi operands hasSameElements: {
+			t2.
+			t3 }.
+
+	cfg applyOptimisation: optimisation.
+
+	self assert: block firstInstruction isCopy.
+	self assert: block firstInstruction operand1 equals: 1 asDRValue
 ]
 
 { #category : #tests }
@@ -116,7 +164,6 @@ DRPhiSimplicationTest >> testSimplifySimplePhi [
 	DRPhiSimplication new applyTo: cfg.
 
 	self assert: block firstInstruction isCopy.
-	self assert: block firstInstruction operand1 equals: t1.
-	self assert: t1 users size equals: 1.
-	self assert: t1 users anyOne equals: block firstInstruction
+	self assert: block firstInstruction operand1 equals: 1 asDRValue.
+	self deny: t1 hasUsers
 ]

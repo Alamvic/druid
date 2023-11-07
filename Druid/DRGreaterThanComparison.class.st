@@ -10,6 +10,12 @@ DRGreaterThanComparison >> acceptVisitor: aVisitor withBranch: aDRBranchIfCondit
 	^ aVisitor visitGreaterThan: self inBranch: aDRBranchIfCondition
 ]
 
+{ #category : #converting }
+DRGreaterThanComparison >> asJitCompileTimeExpressionString [
+
+	^ '>'
+]
+
 { #category : #testing }
 DRGreaterThanComparison >> isGreaterThanComparison [
 

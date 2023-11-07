@@ -17,6 +17,15 @@ DRJITCompileTimeExpressionGenerator >> binaryMessage: aSymbol receiverInstructio
 		  arguments: { argument }
 ]
 
+{ #category : #building }
+DRJITCompileTimeExpressionGenerator >> simpleMessage: aSymbol receiverInstruction: aDRInstruction [
+
+	| receiver |
+	receiver := aDRInstruction acceptVisitor: self.
+
+	^ RBMessageNode receiver: receiver selector: aSymbol arguments: {  }
+]
+
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visit: anInstruction [
 	
@@ -36,9 +45,15 @@ DRJITCompileTimeExpressionGenerator >> visitAddition: aDRAdd [
 DRJITCompileTimeExpressionGenerator >> visitBitAnd: aDRBitAnd [
 
 	^ self
-		  binaryMessage: #&
+		  binaryMessage: #bitAnd:
 		  receiverInstruction: aDRBitAnd operand1
 		  argumentInstruction: aDRBitAnd operand2
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitBranchIfCondition: aDRBranchIfCondition [
+
+	^ aDRBranchIfCondition condition acceptVisitor: self withBranch: aDRBranchIfCondition
 ]
 
 { #category : #visiting }
@@ -54,9 +69,32 @@ DRJITCompileTimeExpressionGenerator >> visitCopy: aDRCopy [
 ]
 
 { #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBranchIfCondition [
+
+	aDRBranchIfCondition operands last value = true ifTrue: [
+		^ aDRBranchIfCondition operands first acceptVisitor: self ].
+
+	self halt "unexplored"
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
+	self shouldBeImplemented.
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [
+
+	^ self
+		  binaryMessage: #>
+		  receiverInstruction: aDRBranchIfCondition operand1
+		  argumentInstruction: aDRBranchIfCondition operand2
+]
+
+{ #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitInterpreterExpression: aDRInterpreterExpression [
 
-	^ RBLiteralValueNode value: aDRInterpreterExpression name
+	^ RBVariableNode named: aDRInterpreterExpression name
 ]
 
 { #category : #visiting }
@@ -80,4 +118,31 @@ DRJITCompileTimeExpressionGenerator >> visitLoad: aDRLoad [
 	self assert: aDRLoad isJITCompileTimeExpression.
 	"Just visit the operand, should be a variable"
 	^ aDRLoad operand1 acceptVisitor: self
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitNegate: aDRNegated [ 
+1halt.
+	^ self simpleMessage: #negated receiverInstruction: aDRNegated operand1
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitPhiFunction: aDRPhiFunction [
+
+	| condition branches arguments |
+	condition := aDRPhiFunction conditionalBranch acceptVisitor: self.
+	branches := aDRPhiFunction operands collect: [ :op | op acceptVisitor: self ].
+	arguments := branches collect: [ :code |
+		             RBBlockNode body: (RBSequenceNode statements: { code }) ].
+
+	^ RBMessageNode receiver: condition selector: #ifTrue:ifFalse: arguments: arguments
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitRightShift: aDRRightShift [
+
+	^ self
+		  binaryMessage: #'>>'
+		  receiverInstruction: aDRRightShift operand1
+		  argumentInstruction: aDRRightShift operand2
 ]

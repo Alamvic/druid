@@ -51,6 +51,16 @@ DRPhiFunction >> canMoveOutsideLoop: backJump [
 	^ false
 ]
 
+{ #category : #accessing }
+DRPhiFunction >> conditionalBranch [
+
+	| dominator conditionalBranch |
+	dominator := self controlFlowGraph tree dominatorOfAll: self operands.
+	conditionalBranch := dominator block lastInstruction.
+	self assert: conditionalBranch isConditionalBranch.
+	^ conditionalBranch
+]
+
 { #category : #testing }
 DRPhiFunction >> hasRecursiveUse [
 
@@ -198,8 +208,11 @@ DRPhiFunction >> selectOperand: anOperand with: anotherOperand [
 { #category : #'constant folding' }
 DRPhiFunction >> simpleConstantFold [
 
-	| operandValues |
-	operandValues := self operands collect: [ :e | e simpleConstantFold ] as: Set.
+	| operandsWithoutMe operandValues |
+	operandsWithoutMe := self operands copyWithout: self.
+	operandsWithoutMe size = 1 ifTrue: [ ^ operandsWithoutMe anyOne simpleConstantFold ].
+	(self hasRecursiveUse) ifTrue: [ ^ super simpleConstantFold ].
+	operandValues := operandsWithoutMe collect: [ :e | e simpleConstantFold ] as: Set.
 	operandValues size = 1 ifTrue: [ ^ operandValues anyOne ].
 	^ super simpleConstantFold
 ]

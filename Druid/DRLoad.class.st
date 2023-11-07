@@ -26,6 +26,13 @@ DRLoad >> address: anAddress [
 	^ self operand1: anAddress
 ]
 
+{ #category : #converting }
+DRLoad >> asJitCompileTimeExpression [
+
+	self assert: self isJITCompileTimeExpression.
+	^ self address asJitCompileTimeExpression
+]
+
 { #category : #types }
 DRLoad >> beFloatingPoint64 [
 	

@@ -827,18 +827,17 @@ DRCogitCodeGenerator >> visitMultiplyOverflowJump: aDROverflowJump [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [ 
-	
-	self twoOperandMoveCogitRTL: aDRCogitNegate 
-		operands: { aDRCogitNegate operand1. aDRCogitNegate result }.
-		
+DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [
+
+	self twoOperandMoveCogitRTL: aDRCogitNegate operands: {
+			aDRCogitNegate operand1.
+			aDRCogitNegate result }.
+
 	self flag: #todo. "oneOperandCogitRTL:"
-	generatorMethodBuilder addStatement: (
-		RBMessageNode
-			receiver: RBVariableNode selfNode
-			selector: #NegateR:
-			arguments: { 
-				RBVariableNode named: (self registerFor: aDRCogitNegate result) })
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #NegateR:
+			 arguments: (self rtlArgumentsForValue: aDRCogitNegate))
 ]
 
 { #category : #visiting }
