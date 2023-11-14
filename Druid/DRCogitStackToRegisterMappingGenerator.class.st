@@ -182,13 +182,19 @@ DRCogitStackToRegisterMappingGenerator >> variables: anObject [
 
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
+	"self Jump: (self ensureFixupAt: targetBytecode)"
 
+	| targetBytecode |
+	targetBytecode := self jitCompileTimeExpression:
+		                  aDRBytecodeJump operand1.
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #genJumpTo:
-			 arguments:
-			 { (self jitCompileTimeExpression: aDRBytecodeJump operand1) }).
-	
+			 selector: #Jump:
+			 arguments: { (RBMessageNode
+					  receiver: RBVariableNode selfNode
+					  selector: #ensureFixupAt:
+					  arguments: { targetBytecode }) }).
+
 	"Everything that follows an unconditional jump is potentially dead code"
 	markDeadCode := true
 ]

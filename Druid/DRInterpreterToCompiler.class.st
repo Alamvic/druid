@@ -100,20 +100,20 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 		"popStackBytecode"
 			216
 		"extension bytecodes"
-			224 "225 left out because it cannot be staged"
+			224 225
 		"extended receiver/literal/temporary/constant variable bytecode"
 			"226 left out because it reads contexts..."
 			227 228 229 232 233
 		"extended send"
 			234
 		"extSendSuperBytecode"
-			235
+			"235 -> broken"
 		"extended conditional jump"
 			237 238 239
 		"extended store (and pop) temporary"
-			242 245
+			"242 245 -> potentially broken"
 		"remote temp bytecodes"
-			251
+			"251 -> is breaking"
 			"252 253 left out because of write barrier"
 	).
 
