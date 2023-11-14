@@ -1477,6 +1477,42 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode: index [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallRememberTrampoline [
+
+	| object value storeCheckTrampoline |
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+
+	self
+		compileBytecode: 200
+		selector: #storeAndPopReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newOldSpaceObjectWithSlots: 1.
+	value := self newObjectWithSlots: 0.
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self
+		prepareStackForPrimitiveReceiver: object
+		arguments: #(  )
+		method: 0.
+
+	"Should arrive to trampoline to put the object in the remembered set"
+	self runFrom: cogInitialAddress until: storeCheckTrampoline.
+	
+	self assert: machineSimulator receiverRegisterValue equals: object
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeNotRemember [
 
 	| object value storeCheckTrampoline |
@@ -1532,12 +1568,8 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRemember [
 
 	machineSimulator temporaryRegisterValue: value.
 
-	self
-		prepareStackForPrimitiveReceiver: object
-		arguments: #(  )
-		method: 0.
+	self executePrimitiveWithReceiver: object.
 
-	"Should arrive to trampoline to put the object in the remembered set"
-	self runFrom: cogInitialAddress until: storeCheckTrampoline.
-	"OK"
+	self assert: machineSimulator receiverRegisterValue equals: object.
+	self assert: (memory fetchPointer: 0 ofObject: object) equals: value
 ]

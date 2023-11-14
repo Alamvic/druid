@@ -3,7 +3,8 @@ Class {
 	#superclass : #DRInstruction,
 	#instVars : [
 		'mapped',
-		'functionName'
+		'functionName',
+		'shouldSaveLinkReg'
 	],
 	#category : #'Druid-BytecodeToJITCompilation'
 }
@@ -36,7 +37,8 @@ DRCall >> functionName: anObject [
 DRCall >> initialize [
 
 	super initialize.
-	mapped := false
+	mapped := false.
+	shouldSaveLinkReg := false
 ]
 
 { #category : #testing }
@@ -77,9 +79,21 @@ DRCall >> operands: aCollection [
 	super operands: aCollection allButFirst
 ]
 
+{ #category : #accessors }
+DRCall >> saveLinkReg [
+
+	shouldSaveLinkReg := true
+]
+
 { #category : #SCCP }
 DRCall >> sccpLatticeValueFor: sccp [ 
 	
 	"This instruction has no value"
 	^ sccp bottom
+]
+
+{ #category : #accessing }
+DRCall >> shouldSaveLinkReg [
+
+	^ shouldSaveLinkReg
 ]

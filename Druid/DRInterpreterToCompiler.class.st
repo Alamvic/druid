@@ -107,13 +107,13 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 		"extended send"
 			234
 		"extSendSuperBytecode"
-			235
+			"235"
 		"extended conditional jump"
 			237 238 239
 		"extended store (and pop) temporary"
 			242 245
 		"remote temp bytecodes"
-			251
+			"251"
 			"252 253 left out because of write barrier"
 	).
 

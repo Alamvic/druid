@@ -308,10 +308,16 @@ DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [
 { #category : #'special-cases' }
 DRBytecodeIRGenerator >> interpretRememberWith: aRBMessageNode [
 
+	| obj |
+	obj := (self visitOperand: aRBMessageNode arguments first)
+		       simpleConstantFold.
+
 	^ (self
 		   addInstructionWithNoResultFrom: aRBMessageNode
 		   instructionKind: DRCall
-		   operands: { 'ceStoreCheckTrampoline' }) beMapped
+		   operands: {
+				   'ceStoreCheckTrampoline'.
+				   obj }) beMapped saveLinkReg
 
 	"	
 	cogit 
