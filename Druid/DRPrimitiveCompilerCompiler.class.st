@@ -39,10 +39,10 @@ DRPrimitiveCompilerCompiler >> initialize [
 	super initialize.
 
 	optimisations := OrderedCollection new.
-"	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
+	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
 	optimisations add: DRLoopInvariantCodeMotion new.
 
-	""Basic set of optimizations twice for primitives""
+	"Basic set of optimizations twice for primitives"
 	3 timesRepeat: [ 
 		optimisations add: DRBranchCollapse new.
 		optimisations add: DRFailureCodeBasedTailDuplication new.
@@ -54,7 +54,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 		optimisations add: DRCleanControlFlow new.
 		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination).
 		optimisations add: DRInline new. ].
-	"
+	
 	"Last Phase, make code coggable"
     optimisations add: DRCogitOperandSorter new.
 	"optimisations add: DRCogitJITConstantSplitting new"
