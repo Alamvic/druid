@@ -273,7 +273,7 @@ DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure 
 
 	"Check constant on right"
 	"if not reverse it and add it directly"
-	operands second isConstant ifFalse: [ 
+	operands second isConstraintConstant ifFalse: [ 
 		^ (aClosure
 			   value: operands second
 			   value: (operands first acceptVisitor: self)) reversed ].
@@ -295,7 +295,7 @@ DRCPSEdge >> visitCopy: aDRCopy [
 	| constraint operand |
 	operand := aDRCopy operand1.
 
-	constraint := (operand isConstant or: [ 
+	constraint := (operand isConstraintConstant or: [ 
 		               operand isObjectReferenceValue ])
 		              ifTrue: [ DREqualsConstraint withValue: operand ]
 		              ifFalse: [ self operandConstraint: operand ].
@@ -385,7 +385,7 @@ DRCPSEdge >> visitInterpreterValue: aDRInterpreterValue [
 { #category : #visiting }
 DRCPSEdge >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [
 	
-	^ aDRJitCompileTimeExpression expression
+	^ nil "Not supported"
 ]
 
 { #category : #visiting }

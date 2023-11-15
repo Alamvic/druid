@@ -135,6 +135,12 @@ DRValue >> isConstant [
 ]
 
 { #category : #testing }
+DRValue >> isConstraintConstant [
+
+	^ self isConstant 
+]
+
+{ #category : #testing }
 DRValue >> isCopy [ 
 	
 	^ false

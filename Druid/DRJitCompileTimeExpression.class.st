@@ -115,6 +115,12 @@ DRJitCompileTimeExpression >> isConstant [
 ]
 
 { #category : #testing }
+DRJitCompileTimeExpression >> isConstraintConstant [
+
+	^ false "Branch constraints doesn't support JIT expressions"
+]
+
+{ #category : #testing }
 DRJitCompileTimeExpression >> isJITCompileTimeExpression [
 	
 	^ true
@@ -124,6 +130,12 @@ DRJitCompileTimeExpression >> isJITCompileTimeExpression [
 DRJitCompileTimeExpression >> isJITCompileTimeExpression: aString [ 
 	
 	^ aString = expression
+]
+
+{ #category : #testing }
+DRJitCompileTimeExpression >> isObjectReferenceValue [
+
+	^ false
 ]
 
 { #category : #testing }
