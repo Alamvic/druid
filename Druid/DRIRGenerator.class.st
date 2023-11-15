@@ -1037,7 +1037,7 @@ DRIRGenerator >> interpretNegatedWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: (DRJitCompileTimeExpression expression: 'objectMemory nilObject')
+	^ self addCopy: aRBVariableNode with: (DRObjectReferenceValue expression: 'objectMemory nilObject')
 ]
 
 { #category : #visiting }
@@ -1107,7 +1107,7 @@ DRIRGenerator >> interpretScavengeThresholdWith: aRBVariableNode [
 	^ self
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
-		  operands: { (DRJitCompileTimeExpression new expression:
+		  operands: { (DRConstantCompileTimeExpression new expression:
 				   'objectMemory getScavengeThreshold') }
 ]
 
@@ -1831,7 +1831,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 			self assert: aRBMethodNode statements size = 1.
 			self assert: aRBMethodNode statements first isReturn.
 			copy := self currentBasicBlock copy:
-				        (DRJitCompileTimeExpression expression:
+				        (DRCompositeCompileTimeExpression expression:
 					         aRBMethodNode statements first value formattedCode).
 			self topFrame returnValue: copy.
 			self addDeferredReturnState: {

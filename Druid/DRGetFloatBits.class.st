@@ -34,5 +34,5 @@ DRGetFloatBits >> simpleConstantFold [
 { #category : #types }
 DRGetFloatBits >> type [
 	
-	^ DRIntegerType new
+	^ DRSignedIntegerType new
 ]

@@ -118,13 +118,14 @@ DRInstructionFactory >> intToFloat: operand1 [
 
 { #category : #factory }
 DRInstructionFactory >> jitCompileTimeExpression: aString [
-	^ DRJitCompileTimeExpression new expression: aString
+1halt.
+	^ DRCompositeCompileTimeExpression new expression: aString
 ]
 
 { #category : #factory }
 DRInstructionFactory >> jitCompileTimeVariable: aString [ 
-	
-	^ DRJitCompileTimeExpression new expression: aString
+	1halt.
+	^ DRCompositeCompileTimeExpression new expression: aString
 ]
 
 { #category : #factory }

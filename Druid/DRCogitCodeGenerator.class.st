@@ -723,7 +723,7 @@ DRCogitCodeGenerator >> visitGetFloatFromBits: aDRGetFloatFromBits [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitGreaterOrEqualsThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
-	
+	1halt.
 	^ self visitComparison: aDRBranchIfCondition
 ]
 
@@ -766,7 +766,7 @@ DRCogitCodeGenerator >> visitLessOrEqualsThan: aDRGreaterThanComparison inBranch
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLessThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
-	
+	1halt.
 	^ self visitComparison: aDRBranchIfCondition
 ]
 

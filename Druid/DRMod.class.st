@@ -25,5 +25,5 @@ DRMod >> opcode [
 { #category : #types }
 DRMod >> type [
 
-	^ DRIntegerType new
+	^ DRSignedIntegerType new
 ]

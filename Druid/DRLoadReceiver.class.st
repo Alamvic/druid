@@ -32,5 +32,5 @@ DRLoadReceiver >> sccpLatticeValueFor: sccp [
 { #category : #types }
 DRLoadReceiver >> type [
 	
-	^ DRIntegerType new
+	^ DRSignedIntegerType new
 ]

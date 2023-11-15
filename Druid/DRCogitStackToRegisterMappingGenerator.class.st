@@ -159,10 +159,9 @@ DRCogitStackToRegisterMappingGenerator >> rtlExpressionForValue: aValue [
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
 
-  self allocateVariable: anInstruction result.
-	(self selectorCogitRTL: '' operands: operands instruction: anInstruction) = #Cq:R: ifTrue: [ 
+	self allocateVariable: anInstruction result.
+	operands first isObjectReferenceValue ifTrue: [
 		"It's moving a constant to a register. This constant could be an oop, so we need to annotate it."
-		self flag: #TOTHINK. "Is this strategy ok?"
 		^ self generateMessage: #genMoveConstant:R: operands: operands ].
 
 	^ super twoOperandMoveCogitRTL: anInstruction operands: operands

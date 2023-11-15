@@ -409,7 +409,7 @@ DRInstruction >> nonLocalUsers [
 { #category : #printing }
 DRInstruction >> opcode [
 	
-	^ self subclassResponsibility
+	^ self class name
 ]
 
 { #category : #accessing }
@@ -770,7 +770,7 @@ DRInstruction >> supportConstantOperand [
 { #category : #types }
 DRInstruction >> type [
 
-	^ DRIntegerType new
+	^ DRSignedIntegerType new
 ]
 
 { #category : #inspecting }

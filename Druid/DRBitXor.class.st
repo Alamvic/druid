@@ -36,5 +36,5 @@ DRBitXor >> sccpOperateOnLattice: operand and: operand2 [
 { #category : #types }
 DRBitXor >> type [
 	
-	^ DRIntegerType new
+	^ DRSignedIntegerType new
 ]

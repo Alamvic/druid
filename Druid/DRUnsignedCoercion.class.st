@@ -26,5 +26,5 @@ DRUnsignedCoercion >> sccpOperateOnLattice: operand [
 { #category : #types }
 DRUnsignedCoercion >> type [
 	
-	^ DRIntegerType new
+	^ DRSignedIntegerType new
 ]

@@ -25,5 +25,5 @@ DRRightShift >> sccpOperateOnLattice: anInteger and: anInteger2 [
 { #category : #types }
 DRRightShift >> type [
 	
-	^ DRIntegerType new
+	^ DRSignedIntegerType new
 ]

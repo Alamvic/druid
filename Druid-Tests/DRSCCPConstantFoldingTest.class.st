@@ -576,6 +576,6 @@ DRSCCPConstantFoldingTest >> testNonConstantFoldingOf: aClass between: aDROperan
 
 { #category : #operation }
 DRSCCPConstantFoldingTest >> varJITExpression [
-
-	^ DRJitCompileTimeExpression expression: 'var'
+1halt.
+	^ DRCompositeCompileTimeExpression expression: 'var'
 ]

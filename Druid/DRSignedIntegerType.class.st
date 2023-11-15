@@ -1,11 +1,11 @@
 Class {
-	#name : #DRIntegerType,
+	#name : #DRSignedIntegerType,
 	#superclass : #DRTopType,
 	#category : #'Druid-IR-Types'
 }
 
 { #category : #interpreting }
-DRIntegerType >> bitShift: shiftValue [
+DRSignedIntegerType >> bitShift: shiftValue [
 
 	^ shiftValue > 0
 		ifTrue: [ self << shiftValue ]
@@ -13,7 +13,7 @@ DRIntegerType >> bitShift: shiftValue [
 ]
 
 { #category : #accessing }
-DRIntegerType >> systemClass [
+DRSignedIntegerType >> systemClass [
 	
 	^ Integer
 ]

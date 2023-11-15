@@ -37,5 +37,5 @@ DRPhysicalGeneralPurposeRegister >> takeFromAllocator: aRegisterAllocator [
 { #category : #types }
 DRPhysicalGeneralPurposeRegister >> type [
 	
-	^ DRIntegerType new
+	^ DRSignedIntegerType new
 ]

@@ -42,7 +42,7 @@ DRLoad >> canMoveOutsideLoop: backJump [
 DRLoad >> initialize [
 
 	super initialize.
-	type := DRIntegerType new
+	type := DRSignedIntegerType new
 ]
 
 { #category : #testing }

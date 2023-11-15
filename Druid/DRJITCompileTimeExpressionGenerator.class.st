@@ -49,3 +49,9 @@ DRJITCompileTimeExpressionGenerator >> visitJITCompileTimeExpression: aDRJitComp
 	
 	^ RBParser parseExpression: aDRJitCompileTimeExpression expression
 ]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitPhiFunction: aDRPhiFunction [ 
+	
+	^ aDRPhiFunction operand1 acceptVisitor: self	
+]

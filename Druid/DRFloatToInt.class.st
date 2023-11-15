@@ -35,5 +35,5 @@ DRFloatToInt >> simpleConstantFold [
 { #category : #types }
 DRFloatToInt >> type [
 	
-	^ DRIntegerType new
+	^ DRSignedIntegerType new
 ]

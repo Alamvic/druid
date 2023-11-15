@@ -1,6 +1,9 @@
 Class {
 	#name : #DRAbstractMemoryAddress,
 	#superclass : #DRValue,
+	#instVars : [
+		'type'
+	],
 	#category : #'Druid-IR'
 }
 

@@ -109,5 +109,5 @@ DRTemporaryRegister >> rtlOperandQualifier [
 DRTemporaryRegister >> type [
 	
 	"Maybe this should be parametrised"
-	^ DRIntegerType new
+	^ DRSignedIntegerType new
 ]

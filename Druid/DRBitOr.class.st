@@ -36,5 +36,5 @@ DRBitOr >> sccpOperateOnLattice: operand and: operand2 [
 { #category : #types }
 DRBitOr >> type [
 	
-	^ DRIntegerType new
+	^ DRSignedIntegerType new
 ]
