@@ -106,7 +106,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 		"popStackBytecode"
 			216
 		"extension bytecodes"
-			224 "225 left out because it cannot be staged"
+			224 225
 		"extended receiver/literal/temporary/constant variable bytecode"
 			"226 left out because it reads contexts..."
 			227 228 229 232 233

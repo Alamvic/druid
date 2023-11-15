@@ -409,7 +409,7 @@ DRInstruction >> nonLocalUsers [
 { #category : #printing }
 DRInstruction >> opcode [
 	
-	^ self subclassResponsibility
+	^ self class name
 ]
 
 { #category : #accessing }

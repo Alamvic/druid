@@ -271,22 +271,27 @@ DRCPSEdge >> visitClosureActivation: aDRClosureActivation [
 { #category : #visiting }
 DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
-	| operands |
+	| operands constantValue |
 	operands := aDRBranch operands.
-	((operands anySatisfy: #isConstraintConstant) and: [ 
-		 operands anySatisfy: [ :o | o isRegister or: [ o isInstruction ] ] ]) 
+	((operands anySatisfy: #isConstraintConstant) and: [
+		 operands anySatisfy: [ :o | o isRegister or: [ o isInstruction ] ] ])
 		ifFalse: [ ^ nil "We need a register and a constant" ].
 
 	"Check constant on right"
 	"if not reverse it and add it directly"
-	operands second isConstraintConstant ifFalse: [ 
-		^ (aClosure
-			   value: operands second
-			   value: (operands first acceptVisitor: self)) reversed ].
+	operands second isConstraintConstant ifFalse: [
+		constantValue := operands first acceptVisitor: self.
+		constantValue ifNil: [
+			1 halt.
+			^ nil ].
+		^ (aClosure value: operands second value: constantValue) reversed ].
 
-	^ aClosure
-		  value: operands first
-		  value: (operands second acceptVisitor: self)
+	constantValue := operands second acceptVisitor: self.
+	constantValue ifNil: [
+		1 halt.
+		^ nil ].
+
+	^ aClosure value: operands first value: constantValue
 ]
 
 { #category : #visiting }
@@ -329,12 +334,18 @@ DRCPSEdge >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBranch [
 { #category : #visiting }
 DRCPSEdge >> visitFalseObject: aDRFalseObject [
 
-	^ nil
+	^ aDRFalseObject
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitFloatToIntConversion: aDRFloatToInt [ 
 	
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitFlushStack: aDRFlushStack [ 
+
 	^ nil
 ]
 
@@ -457,6 +468,12 @@ DRCPSEdge >> visitLoadInstVar: aDRLoadInstanceVariable [
 
 { #category : #visiting }
 DRCPSEdge >> visitLoadReceiver: aDRLoadReceiver [
+
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitLoadStackPointer: aDRLoadStackPointer [
 
 	^ nil
 ]
@@ -633,7 +650,7 @@ DRCPSEdge >> visitTestMask: aDRTestMask inBranch: aDRBranch [
 { #category : #visiting }
 DRCPSEdge >> visitTrueObject: aDRTrueObject [
 
-	^ nil
+	^ aDRTrueObject
 ]
 
 { #category : #visiting }
