@@ -93,6 +93,12 @@ DRCPSEdge >> integerOperation: anOperantion [
 ]
 
 { #category : #testing }
+DRCPSEdge >> isBackJump [
+
+	^ source lastInstruction isBackJumpTo: destination 
+]
+
+{ #category : #testing }
 DRCPSEdge >> isDead [
 	^ constraints anySatisfy: [ :c | c isEmpty ]
 ]
@@ -438,7 +444,19 @@ DRCPSEdge >> visitLoadArgument: aDRLoadArgument [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitLoadFramePointer: aDRLoadFramePointer [ 
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitLoadInstVar: aDRLoadInstanceVariable [
+
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitLoadReceiver: aDRLoadReceiver [
 
 	^ nil
 ]
