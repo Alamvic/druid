@@ -94,3 +94,8 @@ DRAbstractMemoryAddress >> rtlPushOperandQualifierForInstruction: aPush [
 
 	^ 'Base:offset:'
 ]
+
+{ #category : #accessing }
+DRAbstractMemoryAddress >> type [
+	^ type
+]

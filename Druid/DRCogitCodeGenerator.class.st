@@ -40,9 +40,11 @@ DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 ]
 
 { #category : #branching }
-DRCogitCodeGenerator >> cogitBranchFromCondition: condition types: types [
+DRCogitCodeGenerator >> cogitBranchFromCondition: condition types: branchTypes [
 
-	| branchPrefix aType |
+	| branchPrefix aType types |
+	types := branchTypes.
+
 	((types anySatisfy: [ :e | e isFloatType ]) and: [
 		 types asSet size > 1 ]) ifTrue: [
 		self error: 'Type mismatch in comparison!' ].
@@ -93,54 +95,62 @@ DRCogitCodeGenerator >> cogitBranchFromCondition: condition types: types [
 	"Now we know we don't have a mixture between floating point and non floating point.
 	However, it is important to know if integers are signed or not when comparing them..."
 	types asSet size > 1 ifTrue: [
-		self error: 'Type mismatch in comparison!' ].
+		types := { DRUnsignedIntegerType new } ].
 
-	condition isGreaterThanComparison ifTrue: [ | suffix |
-		"Should we make a Comparison between signed and unsigned types, promote the comparison to unsigned..."
-		((types allSatisfy: [ :e | e isIntegerType ]) and: [
-			 (types anySatisfy: [ :e | e isUnsigned ]) and: [
-				 types anySatisfy: [ :e | e isSigned ] ] ]) ifTrue: [
-			self error: 'Type mismatch in comparison!' ].
-				"Now we know we don't mix FP with ints, and that we don't mix ints with different sign."
-		suffix := (types anyOne isIntegerType and: [ types anyOne isUnsigned ])
-			ifTrue: [ 1halt.'Below:' ]
-			ifFalse: [ 'Above:' ].
-		^ branchPrefix , 'Greater:' ].
-
-	condition isGreaterOrEqualThanComparison ifTrue: [ | suffix |
+	condition isGreaterThanComparison ifTrue: [
+		| suffix |
 		"Should we make a Comparison between signed and unsigned types, promote the comparison to unsigned..."
 		((types allSatisfy: [ :e | e isIntegerType ]) and: [
 			 (types anySatisfy: [ :e | e isUnsigned ]) and: [
 				 types anySatisfy: [ :e | e isSigned ] ] ]) ifTrue: [
 			self error: 'Type mismatch in comparison!' ].
 		"Now we know we don't mix FP with ints, and that we don't mix ints with different sign."
-		suffix := (types anyOne isIntegerType and: [ types anyOne isUnsigned ])
-			ifTrue: [ 'AboveOrEqual:' ]
-			ifFalse: [ 'GreaterOrEqual:' ].
+		suffix := (types anyOne isIntegerType and: [
+			           types anyOne isUnsigned ])
+			          ifTrue: [ 'Above:' ]
+			          ifFalse: [ 'Greater:' ].
 		^ branchPrefix , suffix ].
 
-	condition isLessThanComparison ifTrue: [ | suffix |
+	condition isGreaterOrEqualThanComparison ifTrue: [
+		| suffix |
 		"Should we make a Comparison between signed and unsigned types, promote the comparison to unsigned..."
 		((types allSatisfy: [ :e | e isIntegerType ]) and: [
 			 (types anySatisfy: [ :e | e isUnsigned ]) and: [
 				 types anySatisfy: [ :e | e isSigned ] ] ]) ifTrue: [
 			self error: 'Type mismatch in comparison!' ].
 		"Now we know we don't mix FP with ints, and that we don't mix ints with different sign."
-		suffix := (types anyOne isIntegerType and: [ types anyOne isUnsigned ])
-			ifTrue: [ 'Below:' ]
-			ifFalse: [ 'Less:' ].
+		suffix := (types anyOne isIntegerType and: [
+			           types anyOne isUnsigned ])
+			          ifTrue: [ 'AboveOrEqual:' ]
+			          ifFalse: [ 'GreaterOrEqual:' ].
 		^ branchPrefix , suffix ].
 
-	condition isLessOrEqualThanComparison ifTrue: [ | suffix |
+	condition isLessThanComparison ifTrue: [
+		| suffix |
 		"Should we make a Comparison between signed and unsigned types, promote the comparison to unsigned..."
 		((types allSatisfy: [ :e | e isIntegerType ]) and: [
 			 (types anySatisfy: [ :e | e isUnsigned ]) and: [
 				 types anySatisfy: [ :e | e isSigned ] ] ]) ifTrue: [
 			self error: 'Type mismatch in comparison!' ].
-				"Now we know we don't mix FP with ints, and that we don't mix ints with different sign."
-		suffix := (types anyOne isIntegerType and: [ types anyOne isUnsigned ])
-			ifTrue: [ 1halt.'Below:' ]
-			ifFalse: [ 'Above:' ].
+		"Now we know we don't mix FP with ints, and that we don't mix ints with different sign."
+		suffix := (types anyOne isIntegerType and: [
+			           types anyOne isUnsigned ])
+			          ifTrue: [ 'Below:' ]
+			          ifFalse: [ 'Less:' ].
+		^ branchPrefix , suffix ].
+
+	condition isLessOrEqualThanComparison ifTrue: [
+		| suffix |
+		"Should we make a Comparison between signed and unsigned types, promote the comparison to unsigned..."
+		((types allSatisfy: [ :e | e isIntegerType ]) and: [
+			 (types anySatisfy: [ :e | e isUnsigned ]) and: [
+				 types anySatisfy: [ :e | e isSigned ] ] ]) ifTrue: [
+			self error: 'Type mismatch in comparison!' ].
+		"Now we know we don't mix FP with ints, and that we don't mix ints with different sign."
+		suffix := (types anyOne isIntegerType and: [
+			           types anyOne isUnsigned ])
+			          ifTrue: [ 'BelowOrEqual:' ]
+			          ifFalse: [ 'LessOrEqual:' ].
 		^ branchPrefix , 'LessOrEqual:' ].
 
 	1 halt
@@ -954,9 +964,9 @@ DRCogitCodeGenerator >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitRightShift: aDRCogitRightShift [ 
+DRCogitCodeGenerator >> visitRightShift: aRightShift [ 
 
-	^ self threeOperandCogitRTL: #ArithmeticShiftRight instruction: aDRCogitRightShift
+	^ self threeOperandCogitRTL: #ArithmeticShiftRight instruction: aRightShift
 
 ]
 

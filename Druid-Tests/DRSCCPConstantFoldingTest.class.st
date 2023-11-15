@@ -222,8 +222,14 @@ DRSCCPConstantFoldingTest >> testConstantFoldingFalseOrRegisterIsRegister [
 { #category : #arithmetic }
 DRSCCPConstantFoldingTest >> testConstantFoldingLoadConstant [
 
-	| cfg |
-	cfg := self testConstantFoldingOf: DRLoad between: 8 asDRValue and: 9999 asDRValue.
+	| b1 cfg operand1 operand2 |
+	cfg := self setUpCFG: 1.
+	b1 := cfg b1.
+
+	operand1 := b1 copy: 9999.
+	operand2 := b1 loadSInt64: operand1.
+
+	optimisation applyTo: cfg.
 
 	self assert: cfg instructions allButLast last isCopy.
 	self
@@ -576,6 +582,6 @@ DRSCCPConstantFoldingTest >> testNonConstantFoldingOf: aClass between: aDROperan
 
 { #category : #operation }
 DRSCCPConstantFoldingTest >> varJITExpression [
-1halt.
+
 	^ DRCompositeCompileTimeExpression expression: 'var'
 ]

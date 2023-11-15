@@ -36,6 +36,6 @@ DRPhysicalGeneralPurposeRegister >> takeFromAllocator: aRegisterAllocator [
 
 { #category : #types }
 DRPhysicalGeneralPurposeRegister >> type [
-	
-	^ DRSignedIntegerType new
+
+	^ DRSignedIntegerType size: 8 "Word size"
 ]

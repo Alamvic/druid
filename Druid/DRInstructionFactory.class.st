@@ -118,14 +118,14 @@ DRInstructionFactory >> intToFloat: operand1 [
 
 { #category : #factory }
 DRInstructionFactory >> jitCompileTimeExpression: aString [
-1halt.
+
 	^ DRCompositeCompileTimeExpression new expression: aString
 ]
 
 { #category : #factory }
 DRInstructionFactory >> jitCompileTimeVariable: aString [ 
-	1halt.
-	^ DRCompositeCompileTimeExpression new expression: aString
+
+	^ DRConstantCompileTimeExpression new expression: aString
 ]
 
 { #category : #factory }
@@ -179,7 +179,7 @@ DRInstructionFactory >> loadSInt64: operand [
 
 	^ DRLoad
 		  operands: { 
-				  8 asDRValue.
+				  DRSignedIntegerType size: 8.
 				  operand asDRValue }
 		  result: self allocateTemporaryRegister
 ]

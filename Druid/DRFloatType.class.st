@@ -17,6 +17,13 @@ DRFloatType >> isFloatType [
 ]
 
 { #category : #accessing }
+DRFloatType >> size [
+
+	"Floats are double-precision IEEE-754 floats"
+	^ 8
+]
+
+{ #category : #accessing }
 DRFloatType >> systemClass [
 	
 	^ Float

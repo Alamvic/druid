@@ -134,7 +134,7 @@ DRConstantValue >> type [
 	
 	value = nil ifTrue: [ ^ DRUndefinedType new ].
 	(#(true false) includes: value) ifTrue: [ ^ DRBooleanType new ].
-	value isInteger ifTrue: [ ^ DRSignedIntegerType new ].
+	value isInteger ifTrue: [ ^ DRSignedIntegerType size: 8 "Word size" ].
 	^ value class
 ]
 

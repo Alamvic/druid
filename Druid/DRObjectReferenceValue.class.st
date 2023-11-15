@@ -42,5 +42,5 @@ DRObjectReferenceValue >> sccpLatticeValueFor: aDRSCCP [
 { #category : #types }
 DRObjectReferenceValue >> type [
 	
-	^ DRSignedIntegerType new
+	^ DRPointerType new
 ]

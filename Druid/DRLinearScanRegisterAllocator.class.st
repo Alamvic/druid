@@ -195,11 +195,10 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 	This means that we should reserve at least N registers for spilled operands where N is the maximum number of operands in our instruction set.
 	"
 
-	| allocatedLocation allocatedRegister usedSpillRegisters addressSize |
+	| allocatedLocation allocatedRegister usedSpillRegisters |
 	i isPhiFunction ifTrue: [ ^ self ].
 
 	usedSpillRegisters := OrderedCollection new: 3.
-	addressSize := 8 asDRValue.
 	i operands do: [ :op | 
 		(liveSets includesKey: op) ifTrue: [ 
 			allocatedLocation := self allocatedRegisterFor: op.
@@ -210,7 +209,7 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 			allocatedLocation isMemoryAddress ifTrue: [ | load |
 				load := (DRLoad
 						 operands: { 
-								 addressSize.
+								 op type.
 								 allocatedLocation }
 						 result: allocatedRegister).
 				i addBefore: load.

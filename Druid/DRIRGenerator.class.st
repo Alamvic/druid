@@ -431,7 +431,7 @@ DRIRGenerator >> interpretArgumentCountWith: aRBVariableNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretArithmeticRightShiftWith: aRBMessageNode [ 
 
-	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRSignedRightShift
 ]
 
 { #category : #'special cases' }
@@ -793,14 +793,12 @@ DRIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 
-	| byteSize |
-	byteSize := 8.
 	^ self
-		addInstructionFrom: aRBVariableNode
-		instructionKind: DRLoad
-		operands: { 
-				byteSize asDRValue.
-				DRInterpreterReference freeStartAddress }
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRLoad
+		  operands: {
+				  DRPointerType new.
+				  DRInterpreterReference freeStartAddress }
 ]
 
 { #category : #'special cases' }
@@ -881,7 +879,7 @@ DRIRGenerator >> interpretInequalityComparisonWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretLeftShiftWith: aRBMessageNode [ 
 
-	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRLeftShift
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRLogicalLeftShift
 ]
 
 { #category : #'special cases' }
@@ -917,9 +915,9 @@ DRIRGenerator >> interpretLoad: aRBMessageNode ofType: aType [
 ]
 
 { #category : #'special cases' }
-DRIRGenerator >> interpretLoadFloat64AtWith: aRBMessageNode [ 
+DRIRGenerator >> interpretLoadFloat64AtWith: aRBMessageNode [
 
-	^ (self interpretLoad: aRBMessageNode ofType: 8) beFloatingPoint64
+	^ self interpretLoad: aRBMessageNode ofType: DRFloatType new
 ]
 
 { #category : #'special cases - memory access' }
@@ -1104,7 +1102,7 @@ DRIRGenerator >> interpretRawFloatBitsWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [ 
 
-	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRUnsignedRightShift
 ]
 
 { #category : #'special cases' }
@@ -1704,7 +1702,7 @@ DRIRGenerator >> unshiftSmallInteger: operand from: aRBMessageNode [
 
 	^ self 
 		addInstructionFrom: aRBMessageNode
-		instructionKind: DRRightShift 
+		instructionKind: DRSignedRightShift 
 		operands: { operand . 3 asDRValue }.
 ]
 

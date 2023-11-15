@@ -127,6 +127,12 @@ DRJitCompileTimeExpression >> isJITCompileTimeExpression: aString [
 ]
 
 { #category : #testing }
+DRJitCompileTimeExpression >> isNumberValue [
+
+	^ false
+]
+
+{ #category : #testing }
 DRJitCompileTimeExpression >> jitCompileTimeExpression [
 
 	^ expression
@@ -171,9 +177,8 @@ DRJitCompileTimeExpression >> sccpEquals: aDRJitCompileTimeExpression [
 	^ self mergeExpression: '=' with: aDRJitCompileTimeExpression
 ]
 
-{ #category : #types }
+{ #category : #accessing }
 DRJitCompileTimeExpression >> type [
-	
-	"Assume integer for now"
-	^ DRSignedIntegerType new
+
+	^ DRSignedIntegerType size: 8 "bytes per word"
 ]

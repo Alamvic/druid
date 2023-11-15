@@ -1,19 +1,8 @@
 Class {
 	#name : #DRUnsignedIntegerType,
 	#superclass : #DRIntegerType,
-	#instVars : [
-		'size'
-	],
 	#category : #'Druid-IR-Types'
 }
-
-{ #category : #accessing }
-DRUnsignedIntegerType class >> size: aSize [
-
-	^ self new
-		  size: aSize;
-		  yourself
-]
 
 { #category : #interpreting }
 DRUnsignedIntegerType >> bitShift: shiftValue [
@@ -33,18 +22,6 @@ DRUnsignedIntegerType >> isSigned [
 DRUnsignedIntegerType >> isUnsigned [
 	
 	^ true
-]
-
-{ #category : #accessing }
-DRUnsignedIntegerType >> size [
-
-	^ size
-]
-
-{ #category : #accessing }
-DRUnsignedIntegerType >> size: anObject [
-
-	size := anObject
 ]
 
 { #category : #accessing }
