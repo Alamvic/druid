@@ -1377,7 +1377,7 @@ DRProductionBytecodeTest >> testExtBBytecode3 [
 
 	cogit gen_extBBytecode.
 
-	self assert: cogit extB equals: 0.
+	self assert: cogit extB equals: -128.
 	self assert: cogit numExtB equals: 1
 ]
 

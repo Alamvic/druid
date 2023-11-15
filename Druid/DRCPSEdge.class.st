@@ -273,7 +273,7 @@ DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure 
 
 	| operands |
 	operands := aDRBranch operands.
-	((operands anySatisfy: #isConstant) and: [ 
+	((operands anySatisfy: #isConstraintConstant) and: [ 
 		 operands anySatisfy: [ :o | o isRegister or: [ o isInstruction ] ] ]) 
 		ifFalse: [ ^ nil "We need a register and a constant" ].
 
