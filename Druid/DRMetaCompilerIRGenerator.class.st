@@ -111,6 +111,12 @@ DRMetaCompilerIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiv
 		arguments: arguments
 ]
 
+{ #category : #private }
+DRMetaCompilerIRGenerator >> typeOf: aRBVariableNode [ 
+
+	^ typeSystem typeOf: aRBVariableNode
+]
+
 { #category : #visiting }
 DRMetaCompilerIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 

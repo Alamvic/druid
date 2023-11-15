@@ -40,58 +40,108 @@ DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 ]
 
 { #category : #branching }
-DRCogitCodeGenerator >> cogitBranchFromCondition: condition type: aType [
+DRCogitCodeGenerator >> cogitBranchFromCondition: condition types: types [
 
-	| branchPrefix |
+	| branchPrefix aType |
+	((types anySatisfy: [ :e | e isFloatType ]) and: [
+		 types asSet size > 1 ]) ifTrue: [
+		self error: 'Type mismatch in comparison!' ].
+	aType := types anyOne.
+
 	branchPrefix := aType isFloatType
 		                ifTrue: [ 'JumpFP' ]
 		                ifFalse: [ 'Jump' ].
 
-	condition isEqualsThanComparison ifTrue: [ 
+	condition isOverflow ifTrue: [
+		aType isFloatType ifTrue: [
+			self error:
+				'unsupported: cannot test the mask on a floating point number' ].
+		condition isMultiplyOverflow ifTrue: [
+			^ branchPrefix , 'MultiplyOverflow:' ].
+		^ branchPrefix , 'Overflow:' ].
+
+	condition isNoOverflow ifTrue: [
+		aType isFloatType ifTrue: [
+			self error:
+				'unsupported: cannot test the mask on a floating point number' ].
+		condition isNoMultiplyOverflow ifTrue: [
+			^ branchPrefix , 'MultiplyNoOverflow:' ].
+		^ branchPrefix , 'NoOverflow:' ].
+
+	condition isTestMask ifTrue: [
+		aType isFloatType ifTrue: [
+			self error:
+				'unsupported: cannot test the mask on a floating point number' ].
+		^ branchPrefix , 'NonZero:' ].
+
+	condition isNoTestMask ifTrue: [
+		aType isFloatType ifTrue: [
+			self error:
+				'unsupported: cannot test the mask on a floating point number' ].
+		^ branchPrefix , 'Zero:' ].
+
+	condition isEqualsThanComparison ifTrue: [
 		^ aType isFloatType
 			  ifTrue: [ branchPrefix , 'Equal:' ]
 			  ifFalse: [ branchPrefix , 'Zero:' ] ].
 
-	condition isNotEqualsThanComparison ifTrue: [ 
+	condition isNotEqualsThanComparison ifTrue: [
 		^ aType isFloatType
 			  ifTrue: [ branchPrefix , 'NotEqual:' ]
 			  ifFalse: [ branchPrefix , 'NonZero:' ] ].
 
-	condition isGreaterThanComparison ifTrue: [ 
+	"Now we know we don't have a mixture between floating point and non floating point.
+	However, it is important to know if integers are signed or not when comparing them..."
+	types asSet size > 1 ifTrue: [
+		self error: 'Type mismatch in comparison!' ].
+
+	condition isGreaterThanComparison ifTrue: [ | suffix |
+		"Should we make a Comparison between signed and unsigned types, promote the comparison to unsigned..."
+		((types allSatisfy: [ :e | e isIntegerType ]) and: [
+			 (types anySatisfy: [ :e | e isUnsigned ]) and: [
+				 types anySatisfy: [ :e | e isSigned ] ] ]) ifTrue: [
+			self error: 'Type mismatch in comparison!' ].
+				"Now we know we don't mix FP with ints, and that we don't mix ints with different sign."
+		suffix := (types anyOne isIntegerType and: [ types anyOne isUnsigned ])
+			ifTrue: [ 1halt.'Below:' ]
+			ifFalse: [ 'Above:' ].
 		^ branchPrefix , 'Greater:' ].
 
-	condition isGreaterOrEqualThanComparison ifTrue: [ 
-		^ branchPrefix , 'GreaterOrEqual:' ].
+	condition isGreaterOrEqualThanComparison ifTrue: [ | suffix |
+		"Should we make a Comparison between signed and unsigned types, promote the comparison to unsigned..."
+		((types allSatisfy: [ :e | e isIntegerType ]) and: [
+			 (types anySatisfy: [ :e | e isUnsigned ]) and: [
+				 types anySatisfy: [ :e | e isSigned ] ] ]) ifTrue: [
+			self error: 'Type mismatch in comparison!' ].
+		"Now we know we don't mix FP with ints, and that we don't mix ints with different sign."
+		suffix := (types anyOne isIntegerType and: [ types anyOne isUnsigned ])
+			ifTrue: [ 'AboveOrEqual:' ]
+			ifFalse: [ 'GreaterOrEqual:' ].
+		^ branchPrefix , suffix ].
 
-	condition isLessThanComparison ifTrue: [ 
-		^ branchPrefix , 'Less:' ].
-	
-	condition isLessOrEqualThanComparison ifTrue: [ 
+	condition isLessThanComparison ifTrue: [ | suffix |
+		"Should we make a Comparison between signed and unsigned types, promote the comparison to unsigned..."
+		((types allSatisfy: [ :e | e isIntegerType ]) and: [
+			 (types anySatisfy: [ :e | e isUnsigned ]) and: [
+				 types anySatisfy: [ :e | e isSigned ] ] ]) ifTrue: [
+			self error: 'Type mismatch in comparison!' ].
+		"Now we know we don't mix FP with ints, and that we don't mix ints with different sign."
+		suffix := (types anyOne isIntegerType and: [ types anyOne isUnsigned ])
+			ifTrue: [ 'Below:' ]
+			ifFalse: [ 'Less:' ].
+		^ branchPrefix , suffix ].
+
+	condition isLessOrEqualThanComparison ifTrue: [ | suffix |
+		"Should we make a Comparison between signed and unsigned types, promote the comparison to unsigned..."
+		((types allSatisfy: [ :e | e isIntegerType ]) and: [
+			 (types anySatisfy: [ :e | e isUnsigned ]) and: [
+				 types anySatisfy: [ :e | e isSigned ] ] ]) ifTrue: [
+			self error: 'Type mismatch in comparison!' ].
+				"Now we know we don't mix FP with ints, and that we don't mix ints with different sign."
+		suffix := (types anyOne isIntegerType and: [ types anyOne isUnsigned ])
+			ifTrue: [ 1halt.'Below:' ]
+			ifFalse: [ 'Above:' ].
 		^ branchPrefix , 'LessOrEqual:' ].
-
-	condition isOverflow ifTrue: [ 
-		aType isFloatType
-			ifTrue: [ self error: 'unsupported: cannot test the mask on a floating point number'  ].
-		condition isMultiplyOverflow
-			ifTrue: [ ^ branchPrefix , 'MultiplyOverflow:' ].
-		^ branchPrefix , 'Overflow:' ].
-
-	condition isNoOverflow ifTrue: [ 
-		aType isFloatType
-			ifTrue: [ self error: 'unsupported: cannot test the mask on a floating point number'  ].
-		condition isNoMultiplyOverflow
-			ifTrue: [ ^ branchPrefix , 'MultiplyNoOverflow:' ].
-		^ branchPrefix , 'NoOverflow:' ].
-	
-	condition isTestMask ifTrue: [ 
-		aType isFloatType
-			ifTrue: [ self error: 'unsupported: cannot test the mask on a floating point number'  ].
-		^ branchPrefix , 'NonZero:' ].
-	
-	condition isNoTestMask ifTrue: [ 
-		aType isFloatType
-			ifTrue: [ self error: 'unsupported: cannot test the mask on a floating point number'  ].
-		^ branchPrefix , 'Zero:' ].
 
 	1 halt
 ]
@@ -546,21 +596,24 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 	| replacement |
 	aDRConditionalJump isJITCompileTimeExpression ifTrue: [
 		^ self generateCompileTimeIfCondition: aDRConditionalJump ].
-	
-	
+
+
 	replacement := aDRConditionalJump condition
 		               acceptVisitor: self
 		               withBranch: aDRConditionalJump.
-
-	"Generate both jumps, the fallthorugh will get ignored"
 	self
-		generateJump:
-		(self cogitBranchFromCondition: replacement condition type: replacement operand1 type)
+		generateJump: (self
+				 cogitBranchFromCondition: replacement condition
+				 types:
+					 ((replacement condition operandsForInstruction: replacement)
+						  collect: [ :e | e type ]))
 		target: replacement trueBranch.
 	self
 		generateJump: (self
 				 cogitBranchFromCondition: replacement condition negated
-				 type: replacement operand1 type)
+				 types:
+					 ((replacement condition operandsForInstruction: replacement)
+						  collect: [ :e | e type ]))
 		target: replacement falseBranch
 ]
 
@@ -647,8 +700,7 @@ DRCogitCodeGenerator >> visitFloatToIntConversion: aDRFloatToInt [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
-	
+DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 	"Generate the code of the form
 		CMP
 		JMP.COND true:
@@ -658,53 +710,56 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 		RESULT := 1
 	next:
 	"
-	
+
 	"Generate CMP; Jump.COND true; RESULT := 0; JUMP next"
+
 	| comparisonToGenerate branch |
 	comparisonToGenerate := self visitComparison: aDRGetConditionCode.
 	generatorMethodBuilder addVariableNamed: 'jumpTrue'.
 	generatorMethodBuilder addVariableNamed: 'jumpNext'.
 	branch := self
-		cogitBranchFromCondition: comparisonToGenerate condition
-		type: comparisonToGenerate operand1 type.
+		          cogitBranchFromCondition: comparisonToGenerate condition
+		          types:
+			          ((comparisonToGenerate condition operandsForInstruction:
+				            aDRGetConditionCode) collect: [ :e | e type ]).
 	generatorMethodBuilder addStatement: (RBAssignmentNode
-		variable: (RBVariableNode named: 'jumpTrue')
-		value: (RBMessageNode
-			receiver: RBVariableNode selfNode
-			selector: branch
-			arguments: { 0 asLiteralNode })).
+			 variable: (RBVariableNode named: 'jumpTrue')
+			 value: (RBMessageNode
+					  receiver: RBVariableNode selfNode
+					  selector: branch
+					  arguments: { 0 asLiteralNode })).
 	"Set false to result"
-	self twoOperandMoveCogitRTL: aDRGetConditionCode 
-		  operands: { 
-				0 asDRValue.
-				aDRGetConditionCode }.
+	self twoOperandMoveCogitRTL: aDRGetConditionCode operands: {
+			0 asDRValue.
+			aDRGetConditionCode }.
 	generatorMethodBuilder addStatement: (RBAssignmentNode
-		variable: (RBVariableNode named: 'jumpNext')
-		value: (RBMessageNode
-			receiver: RBVariableNode selfNode
-			selector: 'Jump:'
-			arguments: { 0 asLiteralNode })).
+			 variable: (RBVariableNode named: 'jumpNext')
+			 value: (RBMessageNode
+					  receiver: RBVariableNode selfNode
+					  selector: 'Jump:'
+					  arguments: { 0 asLiteralNode })).
 
 	"true label"
 	generatorMethodBuilder addStatement: (RBMessageNode
-			receiver: (RBVariableNode named: 'jumpTrue')
-			selector: #jmpTarget:
-			arguments: { RBMessageNode
-				receiver: RBVariableNode selfNode
-				selector: #Label}).
+			 receiver: (RBVariableNode named: 'jumpTrue')
+			 selector: #jmpTarget:
+			 arguments:
+			 { (RBMessageNode
+				  receiver: RBVariableNode selfNode
+				  selector: #Label) }).
 	"Set true to result"
-	self twoOperandMoveCogitRTL: aDRGetConditionCode
-		  operands: { 
-				1 asDRValue.
-				aDRGetConditionCode }.
+	self twoOperandMoveCogitRTL: aDRGetConditionCode operands: {
+			1 asDRValue.
+			aDRGetConditionCode }.
 
 	"next label"
 	generatorMethodBuilder addStatement: (RBMessageNode
-			receiver: (RBVariableNode named: 'jumpNext')
-			selector: #jmpTarget:
-			arguments: { RBMessageNode
-				receiver: RBVariableNode selfNode
-				selector: #Label}).
+			 receiver: (RBVariableNode named: 'jumpNext')
+			 selector: #jmpTarget:
+			 arguments:
+			 { (RBMessageNode
+				  receiver: RBVariableNode selfNode
+				  selector: #Label) })
 ]
 
 { #category : #visiting }
@@ -723,7 +778,7 @@ DRCogitCodeGenerator >> visitGetFloatFromBits: aDRGetFloatFromBits [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitGreaterOrEqualsThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
-	1halt.
+
 	^ self visitComparison: aDRBranchIfCondition
 ]
 
@@ -766,7 +821,7 @@ DRCogitCodeGenerator >> visitLessOrEqualsThan: aDRGreaterThanComparison inBranch
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLessThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
-	1halt.
+
 	^ self visitComparison: aDRBranchIfCondition
 ]
 

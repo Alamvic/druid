@@ -89,11 +89,10 @@ DRBytecodeIRGenerator >> interpretAsCompilerVariableAssignmentWith: aRBAssignmen
 DRBytecodeIRGenerator >> interpretAsCompilerVariableWith: aRBVariableNode [
 
 	^ self
-		  addInstructionFrom: aRBVariableNode
-		  instructionKind: DRLoad
-		  operands: {
-				  8 asDRValue.
-				  (DRInterpreterExpression reference: aRBVariableNode name) }
+		  interpretLoad: aRBVariableNode
+		  ofAddress:
+		  (DRInterpreterExpression reference: aRBVariableNode name)
+		  ofType: (DRUnsignedIntegerType size: 8)
 ]
 
 { #category : #'special cases' }
@@ -337,21 +336,18 @@ DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSp
 ]
 
 { #category : #'special cases' }
-DRBytecodeIRGenerator >> interpretStackLimitWith: aRBVariableNode [ 
+DRBytecodeIRGenerator >> interpretStackLimitWith: aRBVariableNode [
 
-	| byteSize isUnsigned reference |
-	byteSize := 8.	
-	isUnsigned := ((self receiver value class lookupSelector: #stackLimitAddress) pragmas
-		detect: [ :e | e selector = #returnTypeC: ])
-			arguments first = 'usqInt'.
-	reference := DRInterpreterReference reference: 'coInterpreter stackLimitAddress'.
-	reference type: (isUnsigned ifTrue: [ DRUnsignedIntegerType new  ] ifFalse: [ DRSignedIntegerType new ]).
-	^ self
-		addInstructionFrom: aRBVariableNode
-		instructionKind: DRLoad
-		operands: { 
-				byteSize asDRValue.
-				reference }
+	| reference load |
+	reference := DRInterpreterReference reference:
+		             'coInterpreter stackLimitAddress'.
+	load := self
+		        addInstructionFrom: aRBVariableNode
+		        instructionKind: DRLoad
+		        operands: {
+				        (self typeOf: aRBVariableNode).
+				        reference }.
+	^ load
 ]
 
 { #category : #visiting }

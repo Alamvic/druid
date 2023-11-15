@@ -1,8 +1,7 @@
 Class {
 	#name : #DRLoad,
-	#superclass : #DRInstruction,
+	#superclass : #DRAbstractLoad,
 	#instVars : [
-		'size',
 		'type'
 	],
 	#category : #'Druid-IR'
@@ -28,7 +27,7 @@ DRLoad >> address: anAddress [
 
 { #category : #types }
 DRLoad >> beFloatingPoint64 [
-	
+	1halt.
 	type := DRFloatType new
 ]
 
@@ -36,13 +35,6 @@ DRLoad >> beFloatingPoint64 [
 DRLoad >> canMoveOutsideLoop: backJump [
 
 	^ false
-]
-
-{ #category : #accessing }
-DRLoad >> initialize [
-
-	super initialize.
-	type := DRSignedIntegerType new
 ]
 
 { #category : #testing }
@@ -60,13 +52,14 @@ DRLoad >> isLoad [
 { #category : #printing }
 DRLoad >> opcode [
 	
-	^ 'LOAD ', size asString
+	^ 'LOAD ', type asString
 ]
 
 { #category : #accessing }
 DRLoad >> operands: operandList [
 
-	size := operandList first simpleConstantFold.
+	type := operandList first.
+	self haltIf: [ (type isKindOf: DRTopType) not ].
 	super operands: { operandList second asMemoryAddress }
 ]
 
@@ -106,7 +99,7 @@ DRLoad >> sccpLatticeValueFor: sccp [
 { #category : #accessing }
 DRLoad >> size [
 
-	^ size
+	^ type size
 ]
 
 { #category : #accessing }

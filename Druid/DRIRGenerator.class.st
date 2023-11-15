@@ -897,47 +897,53 @@ DRIRGenerator >> interpretLessThanComparisonWith: aRBMessageNode [
 ]
 
 { #category : #'special cases - memory access' }
-DRIRGenerator >> interpretLoad: aRBMessageNode ofByteSize: byteSize [
-
-	| address |
-	address := self visitOperand: aRBMessageNode arguments first.
+DRIRGenerator >> interpretLoad: aRBMessageNode ofAddress: address ofType: aType [
 
 	^ self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRLoad
-		operands: { 
-				byteSize asDRValue.
-				address }
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRLoad
+		  operands: {
+				  aType.
+				  address }
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretLoad: aRBMessageNode ofType: aType [
+
+	^ self
+		  interpretLoad: aRBMessageNode
+		  ofAddress: (self visitOperand: aRBMessageNode arguments first)
+		  ofType: aType
 ]
 
 { #category : #'special cases' }
 DRIRGenerator >> interpretLoadFloat64AtWith: aRBMessageNode [ 
 
-	^ (self interpretLoad: aRBMessageNode ofByteSize: 8) beFloatingPoint64
+	^ (self interpretLoad: aRBMessageNode ofType: 8) beFloatingPoint64
 ]
 
 { #category : #'special cases - memory access' }
 DRIRGenerator >> interpretLoadUint16AtWith: aRBMessageNode [ 
 	
-	^ self interpretLoad: aRBMessageNode ofByteSize: 2
+	^ self interpretLoad: aRBMessageNode ofType: (DRUnsignedIntegerType size: 2)
 ]
 
 { #category : #'special cases - memory access' }
 DRIRGenerator >> interpretLoadUint32AtWith: aRBMessageNode [ 
 	
-	^ self interpretLoad: aRBMessageNode ofByteSize: 4
+	^ self interpretLoad: aRBMessageNode ofType: (DRUnsignedIntegerType size: 4)
 ]
 
 { #category : #'special cases - memory access' }
 DRIRGenerator >> interpretLoadUint64AtWith: aRBMessageNode [ 
 	
-	^ self interpretLoad: aRBMessageNode ofByteSize: 8
+	^ self interpretLoad: aRBMessageNode ofType: (DRUnsignedIntegerType size: 8)
 ]
 
 { #category : #'special cases - memory access' }
 DRIRGenerator >> interpretLoadUint8AtWith: aRBMessageNode [ 
 	
-	^ self interpretLoad: aRBMessageNode ofByteSize: 1
+	^ self interpretLoad: aRBMessageNode ofType: (DRUnsignedIntegerType size: 1)
 ]
 
 { #category : #'special cases' }
@@ -957,7 +963,7 @@ DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRLoad
 		operands: { 
-			8 asDRValue. "Assume 64 bits for now"
+			(DRUnsignedIntegerType size: 8 "word size...").
 			address }.
 
 ]

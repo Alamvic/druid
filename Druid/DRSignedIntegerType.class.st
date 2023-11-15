@@ -1,6 +1,6 @@
 Class {
 	#name : #DRSignedIntegerType,
-	#superclass : #DRTopType,
+	#superclass : #DRIntegerType,
 	#category : #'Druid-IR-Types'
 }
 
@@ -10,6 +10,12 @@ DRSignedIntegerType >> bitShift: shiftValue [
 	^ shiftValue > 0
 		ifTrue: [ self << shiftValue ]
 		ifFalse: [ self >> shiftValue negated ]
+]
+
+{ #category : #testing }
+DRSignedIntegerType >> isUnsigned [
+	
+	^ false
 ]
 
 { #category : #accessing }

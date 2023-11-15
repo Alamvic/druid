@@ -18,3 +18,9 @@ DRTypeSystem >> receiverTypes: aDRMessageSend [
 
 	^ self subclassResponsibility
 ]
+
+{ #category : #private }
+DRTypeSystem >> typeOf: aRBVariableNode [ 
+	
+	self subclassResponsibility
+]
