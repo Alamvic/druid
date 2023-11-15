@@ -1331,6 +1331,57 @@ DRProductionBytecodeTest >> testBytecodeShortUnconditionalJump [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testExtBBytecode [
+
+	self
+		compileBytecode: 225
+		selector: #extBBytecode
+		thenDo: [ :generator | cogit genUpArrowReturn ].
+
+	cogit byte1: 1.
+	cogit extB: 7.
+
+	cogit gen_extBBytecode.
+
+	self assert: cogit extB equals: 7 << 8 + 1.
+	self assert: cogit numExtB equals: 1
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtBBytecode2 [
+
+	self
+		compileBytecode: 225
+		selector: #extBBytecode
+		thenDo: [ :generator | cogit genUpArrowReturn ].
+
+	cogit byte1: 256.
+	cogit extB: 7.
+
+	cogit gen_extBBytecode.
+
+	self assert: cogit extB equals: 0.
+	self assert: cogit numExtB equals: 1
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtBBytecode3 [
+
+	self
+		compileBytecode: 225
+		selector: #extBBytecode
+		thenDo: [ :generator | cogit genUpArrowReturn ].
+
+	cogit byte1: 128.
+	cogit extB: 7.
+
+	cogit gen_extBBytecode.
+
+	self assert: cogit extB equals: 0.
+	self assert: cogit numExtB equals: 1
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testPushReceiver [
 
 	| object |
