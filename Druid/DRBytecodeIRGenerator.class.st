@@ -91,11 +91,10 @@ DRBytecodeIRGenerator >> interpretAsCompilerVariableAssignmentWith: aRBAssignmen
 DRBytecodeIRGenerator >> interpretAsCompilerVariableWith: aRBVariableNode [
 
 	^ self
-		  addInstructionFrom: aRBVariableNode
-		  instructionKind: DRLoad
-		  operands: {
-				  8 asDRValue.
-				  (DRInterpreterExpression reference: aRBVariableNode name) }
+		  interpretLoad: aRBVariableNode
+		  ofAddress:
+		  (DRInterpreterExpression reference: aRBVariableNode name)
+		  ofType: (DRUnsignedIntegerType size: 8)
 ]
 
 { #category : #'special cases' }
@@ -128,7 +127,7 @@ DRBytecodeIRGenerator >> interpretCurrentBytecodeWith: aRBVariableNode [
 	^ self
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRCopy
-		operands: { DRJitCompileTimeExpression new expression: 'byte0' }
+		operands: { DRConstantCompileTimeExpression new expression: 'byte0' }
 ]
 
 { #category : #'special-cases' }
@@ -149,7 +148,7 @@ DRBytecodeIRGenerator >> interpretFetchByteWith: aRBMessageNode [
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRCopy
-		  operands: { (DRJitCompileTimeExpression new expression:
+		  operands: { (DRConstantCompileTimeExpression new expression:
 				   'byte' , jumpOffset asString) }
 ]
 
@@ -204,7 +203,7 @@ DRBytecodeIRGenerator >> interpretIframeMethodWith: aRBMessageNode [
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRObjectReferenceCopy
-		  operands: { (DRJitCompileTimeExpression expression: 'methodObj') } 
+		  operands: { (DRObjectReferenceValue expression: 'methodObj') } 
 ]
 
 { #category : #'special cases' }
@@ -226,7 +225,7 @@ DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRAdd
 		  operands: {
-				  (DRJitCompileTimeExpression new expression: 'bytecodePC').
+				  (DRConstantCompileTimeExpression new expression: 'bytecodePC').
 				  jumpOffset asDRValue }
 ]
 
@@ -276,7 +275,7 @@ DRBytecodeIRGenerator >> interpretNumArgsWith: aRBMessageNode [
 	^ self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRCopy
-		operands: { DRJitCompileTimeExpression new expression: 'methodOrBlockNumArgs' }
+		operands: { DRConstantCompileTimeExpression new expression: 'methodOrBlockNumArgs' }
 ]
 
 { #category : #'special cases' }
@@ -360,16 +359,18 @@ DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSp
 ]
 
 { #category : #'special cases' }
-DRBytecodeIRGenerator >> interpretStackLimitWith: aRBVariableNode [ 
+DRBytecodeIRGenerator >> interpretStackLimitWith: aRBVariableNode [
 
-	| byteSize |
-	byteSize := 8.
-	^ self
-		addInstructionFrom: aRBVariableNode
-		instructionKind: DRLoad
-		operands: { 
-				byteSize asDRValue.
-				DRInterpreterReference reference: 'coInterpreter stackLimitAddress' }
+	| reference load |
+	reference := DRInterpreterReference reference:
+		             'coInterpreter stackLimitAddress'.
+	load := self
+		        addInstructionFrom: aRBVariableNode
+		        instructionKind: DRLoad
+		        operands: {
+				        (self typeOf: aRBVariableNode).
+				        reference }.
+	^ load
 ]
 
 { #category : #visiting }
@@ -496,5 +497,5 @@ DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 	^ self
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
-		  operands: { (DRJitCompileTimeExpression new expression: value) }
+		  operands: { (DRConstantCompileTimeExpression new expression: value) }
 ]

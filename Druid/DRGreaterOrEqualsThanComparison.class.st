@@ -6,7 +6,7 @@ Class {
 
 { #category : #visiting }
 DRGreaterOrEqualsThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch [ 
-	
+
 	^ aVisitor visitGreaterOrEqualsThan: self inBranch: parentBranch
 ]
 
@@ -30,7 +30,7 @@ DRGreaterOrEqualsThanComparison >> negated [
 
 { #category : #printing }
 DRGreaterOrEqualsThanComparison >> opcode [
-	
+
 	^ 'GreaterOrEquals'
 ]
 

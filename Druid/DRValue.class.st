@@ -335,7 +335,7 @@ DRValue >> label [
 { #category : #interpretation }
 DRValue >> lookupClass [
 	
-	^ DRIntegerType
+	^ DRSignedIntegerType
 ]
 
 { #category : #accessing }

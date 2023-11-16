@@ -32,9 +32,3 @@ DRBitOr >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand bitOr: operand2
 ]
-
-{ #category : #types }
-DRBitOr >> type [
-	
-	^ DRIntegerType new
-]

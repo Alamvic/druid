@@ -11,7 +11,7 @@ DRPrimitiveIRGeneratorDeferredInline >> resolveMessageSend: aRBMessageNode recei
 	method := self methodFor: aRBMessageNode withReceiver: receiver.
 
 	"If method has deferred pragma, then resolve as message send (will be inlined during optimisation)"
-	(method ast hasPragmaNamed: #druidDeferredInline) ifFalse: [ 
+	(method ast hasPragmaNamed: #druidDeferredInline) ifFalse: [
 		^ super
 			  resolveMessageSend: aRBMessageNode
 			  receiver: receiver
@@ -19,7 +19,7 @@ DRPrimitiveIRGeneratorDeferredInline >> resolveMessageSend: aRBMessageNode recei
 	self
 		addInstructionWithNoResultFrom: aRBMessageNode
 		instructionKind: DRStore
-		operands: { 
+		operands: {
 				8 asDRValue.
 				executionState primitiveFailureCode.
 				DRInterpreterReference primitiveFailureCodeAddress }.
@@ -32,8 +32,8 @@ DRPrimitiveIRGeneratorDeferredInline >> resolveMessageSend: aRBMessageNode recei
 	newPrimitiveFailureCode := self
 		                           addInstructionFrom: aRBMessageNode
 		                           instructionKind: DRLoad
-		                           operands: { 
-				                           8 asDRValue.
+		                           operands: {
+				                           (DRSignedIntegerType size: 8).
 				                           DRInterpreterReference
 					                           primitiveFailureCodeAddress }.
 	self popOperand.

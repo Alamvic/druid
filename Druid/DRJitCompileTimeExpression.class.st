@@ -1,6 +1,6 @@
 Class {
 	#name : #DRJitCompileTimeExpression,
-	#superclass : #DRObjectReferenceValue,
+	#superclass : #DRValue,
 	#instVars : [
 		'expression'
 	],
@@ -127,6 +127,12 @@ DRJitCompileTimeExpression >> isJITCompileTimeExpression: aString [
 ]
 
 { #category : #testing }
+DRJitCompileTimeExpression >> isNumberValue [
+
+	^ false
+]
+
+{ #category : #testing }
 DRJitCompileTimeExpression >> jitCompileTimeExpression [
 
 	^ expression
@@ -159,15 +165,20 @@ DRJitCompileTimeExpression >> printResult [
 	^ expression
 ]
 
+{ #category : #'cogit-generation' }
+DRJitCompileTimeExpression >> rtlOperandQualifier [
+
+	^ 'Cq:'
+]
+
 { #category : #operations }
 DRJitCompileTimeExpression >> sccpEquals: aDRJitCompileTimeExpression [
 
 	^ self mergeExpression: '=' with: aDRJitCompileTimeExpression
 ]
 
-{ #category : #types }
+{ #category : #accessing }
 DRJitCompileTimeExpression >> type [
-	
-	"Assume integer for now"
-	^ DRIntegerType new
+
+	^ DRSignedIntegerType size: 8 "bytes per word"
 ]

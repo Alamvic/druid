@@ -1,6 +1,6 @@
 Class {
 	#name : #DRLoadStackPointer,
-	#superclass : #DRInstruction,
+	#superclass : #DRAbstractLoad,
 	#category : #'Druid-IR'
 }
 
@@ -21,4 +21,10 @@ DRLoadStackPointer >> sccpLatticeValueFor: sccp [
 
 	"We know that we know nothing about the stack pointer"
 	^ sccp bottom
+]
+
+{ #category : #types }
+DRLoadStackPointer >> type [
+
+	^ DRPointerType new
 ]

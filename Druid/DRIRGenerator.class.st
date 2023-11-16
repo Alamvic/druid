@@ -433,7 +433,7 @@ DRIRGenerator >> interpretArgumentCountWith: aRBVariableNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretArithmeticRightShiftWith: aRBMessageNode [ 
 
-	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRSignedRightShift
 ]
 
 { #category : #'special cases' }
@@ -795,14 +795,12 @@ DRIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 { #category : #'special-cases' }
 DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 
-	| byteSize |
-	byteSize := 8.
 	^ self
-		addInstructionFrom: aRBVariableNode
-		instructionKind: DRLoad
-		operands: { 
-				byteSize asDRValue.
-				DRInterpreterReference freeStartAddress }
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRLoad
+		  operands: {
+				  DRPointerType new.
+				  DRInterpreterReference freeStartAddress }
 ]
 
 { #category : #'special cases' }
@@ -883,7 +881,7 @@ DRIRGenerator >> interpretInequalityComparisonWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretLeftShiftWith: aRBMessageNode [ 
 
-	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRLeftShift
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRLogicalLeftShift
 ]
 
 { #category : #'special cases' }
@@ -899,47 +897,53 @@ DRIRGenerator >> interpretLessThanComparisonWith: aRBMessageNode [
 ]
 
 { #category : #'special cases - memory access' }
-DRIRGenerator >> interpretLoad: aRBMessageNode ofByteSize: byteSize [
-
-	| address |
-	address := self visitOperand: aRBMessageNode arguments first.
+DRIRGenerator >> interpretLoad: aRBMessageNode ofAddress: address ofType: aType [
 
 	^ self
-		addInstructionFrom: aRBMessageNode
-		instructionKind: DRLoad
-		operands: { 
-				byteSize asDRValue.
-				address }
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRLoad
+		  operands: {
+				  aType.
+				  address }
+]
+
+{ #category : #'special cases - memory access' }
+DRIRGenerator >> interpretLoad: aRBMessageNode ofType: aType [
+
+	^ self
+		  interpretLoad: aRBMessageNode
+		  ofAddress: (self visitOperand: aRBMessageNode arguments first)
+		  ofType: aType
 ]
 
 { #category : #'special cases' }
-DRIRGenerator >> interpretLoadFloat64AtWith: aRBMessageNode [ 
+DRIRGenerator >> interpretLoadFloat64AtWith: aRBMessageNode [
 
-	^ (self interpretLoad: aRBMessageNode ofByteSize: 8) beFloatingPoint64
+	^ self interpretLoad: aRBMessageNode ofType: DRFloatType new
 ]
 
 { #category : #'special cases - memory access' }
 DRIRGenerator >> interpretLoadUint16AtWith: aRBMessageNode [ 
 	
-	^ self interpretLoad: aRBMessageNode ofByteSize: 2
+	^ self interpretLoad: aRBMessageNode ofType: (DRUnsignedIntegerType size: 2)
 ]
 
 { #category : #'special cases - memory access' }
 DRIRGenerator >> interpretLoadUint32AtWith: aRBMessageNode [ 
 	
-	^ self interpretLoad: aRBMessageNode ofByteSize: 4
+	^ self interpretLoad: aRBMessageNode ofType: (DRUnsignedIntegerType size: 4)
 ]
 
 { #category : #'special cases - memory access' }
 DRIRGenerator >> interpretLoadUint64AtWith: aRBMessageNode [ 
 	
-	^ self interpretLoad: aRBMessageNode ofByteSize: 8
+	^ self interpretLoad: aRBMessageNode ofType: (DRUnsignedIntegerType size: 8)
 ]
 
 { #category : #'special cases - memory access' }
 DRIRGenerator >> interpretLoadUint8AtWith: aRBMessageNode [ 
 	
-	^ self interpretLoad: aRBMessageNode ofByteSize: 1
+	^ self interpretLoad: aRBMessageNode ofType: (DRUnsignedIntegerType size: 1)
 ]
 
 { #category : #'special cases' }
@@ -959,7 +963,7 @@ DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRLoad
 		operands: { 
-			8 asDRValue. "Assume 64 bits for now"
+			(DRUnsignedIntegerType size: 8 "word size...").
 			address }.
 
 ]
@@ -1039,7 +1043,7 @@ DRIRGenerator >> interpretNegatedWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: (DRJitCompileTimeExpression expression: 'objectMemory nilObject')
+	^ self addCopy: aRBVariableNode with: (DRObjectReferenceValue expression: 'objectMemory nilObject')
 ]
 
 { #category : #visiting }
@@ -1100,7 +1104,7 @@ DRIRGenerator >> interpretRawFloatBitsWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [ 
 
-	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRRightShift
+	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRUnsignedRightShift
 ]
 
 { #category : #'special cases' }
@@ -1109,7 +1113,7 @@ DRIRGenerator >> interpretScavengeThresholdWith: aRBVariableNode [
 	^ self
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
-		  operands: { (DRJitCompileTimeExpression new expression:
+		  operands: { (DRConstantCompileTimeExpression new expression:
 				   'objectMemory getScavengeThreshold') }
 ]
 
@@ -1700,7 +1704,7 @@ DRIRGenerator >> unshiftSmallInteger: operand from: aRBMessageNode [
 
 	^ self 
 		addInstructionFrom: aRBMessageNode
-		instructionKind: DRRightShift 
+		instructionKind: DRSignedRightShift 
 		operands: { operand . 3 asDRValue }.
 ]
 
@@ -1835,7 +1839,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 			self assert: aRBMethodNode statements size = 1.
 			self assert: aRBMethodNode statements first isReturn.
 			copy := self currentBasicBlock copy:
-				        (DRJitCompileTimeExpression expression:
+				        (DRCompositeCompileTimeExpression expression:
 					         aRBMethodNode statements first value formattedCode).
 			self topFrame returnValue: copy.
 			self addDeferredReturnState: {

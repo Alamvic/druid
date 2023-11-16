@@ -32,7 +32,8 @@ DRConstantValue >> acceptVisitor: aVisitor [
 { #category : #converting }
 DRConstantValue >> asJitCompileTimeExpression [
 
-	^ DRJitCompileTimeExpression expression: self value asString
+1haltIf: [ self value asString = 'method' ].
+	^ DRConstantCompileTimeExpression expression: self value asString
 ]
 
 { #category : #accessing }
@@ -133,7 +134,7 @@ DRConstantValue >> type [
 	
 	value = nil ifTrue: [ ^ DRUndefinedType new ].
 	(#(true false) includes: value) ifTrue: [ ^ DRBooleanType new ].
-	value isInteger ifTrue: [ ^ DRIntegerType new ].
+	value isInteger ifTrue: [ ^ DRSignedIntegerType size: 8 "Word size" ].
 	^ value class
 ]
 

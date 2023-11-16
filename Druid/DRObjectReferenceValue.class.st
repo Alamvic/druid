@@ -1,6 +1,6 @@
 Class {
 	#name : #DRObjectReferenceValue,
-	#superclass : #DRValue,
+	#superclass : #DRJitCompileTimeExpression,
 	#category : #'Druid-IR'
 }
 
@@ -42,5 +42,5 @@ DRObjectReferenceValue >> sccpLatticeValueFor: aDRSCCP [
 { #category : #types }
 DRObjectReferenceValue >> type [
 	
-	^ DRIntegerType new
+	^ DRPointerType new
 ]

@@ -21,9 +21,3 @@ DRNegate >> sccpOperateOnLattice: operand [
 	
 	^ operand negated
 ]
-
-{ #category : #types }
-DRNegate >> type [
-	
-	^ DRIntegerType new
-]

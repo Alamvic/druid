@@ -1,19 +1,34 @@
 Class {
 	#name : #DRIntegerType,
 	#superclass : #DRTopType,
+	#instVars : [
+		'size'
+	],
 	#category : #'Druid-IR-Types'
 }
 
-{ #category : #interpreting }
-DRIntegerType >> bitShift: shiftValue [
+{ #category : #accessing }
+DRIntegerType class >> size: aSize [
 
-	^ shiftValue > 0
-		ifTrue: [ self << shiftValue ]
-		ifFalse: [ self >> shiftValue negated ]
+	^ self new
+		  size: aSize;
+		  yourself
+]
+
+{ #category : #testing }
+DRIntegerType >> isIntegerType [
+	
+	^ true
 ]
 
 { #category : #accessing }
-DRIntegerType >> systemClass [
-	
-	^ Integer
+DRIntegerType >> size [
+
+	^ size
+]
+
+{ #category : #accessing }
+DRIntegerType >> size: anObject [
+
+	size := anObject
 ]
