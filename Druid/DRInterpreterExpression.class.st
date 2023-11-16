@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #visiting }
+DRInterpreterExpression >> acceptVisitor: aVisitor [
+
+	^ aVisitor visitInterpreterExpression:  self
+]
+
 { #category : #converting }
 DRInterpreterExpression >> asJitCompileTimeExpression [
 
