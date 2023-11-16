@@ -241,7 +241,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingLoadConstant [
 DRSCCPConstantFoldingTest >> testConstantFoldingLoadJitCompileExpression [
 
 	| cfg |
-	cfg := self testConstantFoldingOf: DRLoad between: 8 asDRValue and: self varJITExpression.
+	cfg := self testConstantFoldingOf: DRLoad betweenOp: DRPointerType new and: self varJITExpression.
 
 	self assert: cfg instructions allButLast last isCopy.
 	self
@@ -253,11 +253,11 @@ DRSCCPConstantFoldingTest >> testConstantFoldingLoadJitCompileExpression [
 DRSCCPConstantFoldingTest >> testConstantFoldingLoadNonConstant [
 
 	| cfg |
-	cfg := self testConstantFoldingOf: DRLoad between: 8 asDRValue and: self nonReducibleOperation.
+	cfg := self testConstantFoldingOf: DRLoad betweenOp: DRPointerType new and: self nonReducibleOperation.
 
-	self assert: cfg instructions third isLoad.
-	self assert: cfg instructions third size equals: 8.
-	self assert: cfg instructions third operand1 isMemoryAddress
+	self assert: cfg instructions second isLoad.
+	self assert: cfg instructions second size equals: 8.
+	self assert: cfg instructions second operand1 isMemoryAddress
 ]
 
 { #category : #arithmetic }
@@ -342,10 +342,10 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction betweenOp: opera
 	cfg := self setUpCFG: 1.
 	b1 := cfg b1.
 
-	b1 addInstruction: operand1.
-	b1 addInstruction: operand2.
+	operand1 isInstruction ifTrue: [ b1 addInstruction: operand1 ].
+	operand2 isInstruction ifTrue: [ b1 addInstruction: operand2 ].
 	b1 addInstruction: (foldedInstruction := instruction
-			                      operands: { 
+			                      operands: {
 					                      operand1.
 					                      operand2 }
 			                      result:

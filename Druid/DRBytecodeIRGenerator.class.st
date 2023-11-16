@@ -308,9 +308,10 @@ DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [
 DRBytecodeIRGenerator >> interpretRememberWith: aRBMessageNode [
 
 	| obj |
-	obj := (self visitOperand: aRBMessageNode arguments first)
-		       simpleConstantFold.
-
+	obj := self visitOperand: aRBMessageNode arguments first.
+	"	
+	cogit 	backEnd saveAndRestoreLinkRegAround: [cogit CallRT: ceStoreCheckTrampoline].
+	"
 	^ (self
 		   addInstructionWithNoResultFrom: aRBMessageNode
 		   instructionKind: DRCall
@@ -318,11 +319,7 @@ DRBytecodeIRGenerator >> interpretRememberWith: aRBMessageNode [
 				   'ceStoreCheckTrampoline'.
 				   obj }) beMapped saveLinkReg
 
-	"	
-	cogit 
-		evaluateTrampolineCallBlock: [cogit CallRT: ceStoreCheckTrampoline]
-		protectLinkRegIfNot: inFrame.
-	"
+
 ]
 
 { #category : #'special-cases' }
