@@ -105,6 +105,12 @@ DRCondition >> negated [
 	^ self subclassResponsibility
 ]
 
+{ #category : #accessing }
+DRCondition >> operandsForInstruction: aDRBranchIfCondition [ 
+	
+	^ aDRBranchIfCondition operands
+]
+
 { #category : #printing }
 DRCondition >> prettyPrintWithBranch: aDRBranchIfCondition [
 

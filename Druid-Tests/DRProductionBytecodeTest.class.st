@@ -1682,8 +1682,7 @@ DRProductionBytecodeTest >> testReturnReceiver [
 		"Execute the druid's compiled code"
 		generator value ].
 
-	object := self newObjectWithSlots: 1.
-	memory storePointer: 0 ofObject: object withValue: 17.
+	object := self newObjectWithSlots: 0.
 
 	self executePrimitiveWithReceiver: object.
 	self assert: machineSimulator receiverRegisterValue equals: object
@@ -1703,4 +1702,142 @@ DRProductionBytecodeTest >> testReturnTopFromMethod [
 
 	self executePrimitiveWithReceiver: object.
 	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode0 [
+
+	self testStoreAndPopReceiverVariableBytecode: 0
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode7 [
+
+	self testStoreAndPopReceiverVariableBytecode: 7
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode: index [
+
+	| object storeCheckTrampoline |
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+
+	self
+		compileBytecode: 200 + index
+		selector: #storeAndPopReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: index + 1.
+
+	machineSimulator temporaryRegisterValue: memory trueObject.
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: object.
+	self assert: (memory fetchPointer: index ofObject: object) equals: memory trueObject
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallRememberTrampoline [
+
+	| object value storeCheckTrampoline |
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+
+	self
+		compileBytecode: 200
+		selector: #storeAndPopReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newOldSpaceObjectWithSlots: 1.
+	value := self newObjectWithSlots: 0.
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self
+		prepareStackForPrimitiveReceiver: object
+		arguments: #(  )
+		method: 0.
+
+	"Should arrive to trampoline to put the object in the remembered set"
+	self runFrom: cogInitialAddress until: storeCheckTrampoline.
+	
+	self assert: machineSimulator receiverRegisterValue equals: object
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeNotRemember [
+
+	| object value storeCheckTrampoline |
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+
+	self
+		compileBytecode: 200
+		selector: #storeAndPopReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: 1.
+	value := self newObjectWithSlots: 0.
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: object.
+	self assert: (memory fetchPointer: 0 ofObject: object) equals: value
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRemember [
+
+	| object value storeCheckTrampoline |
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+
+	self
+		compileBytecode: 200
+		selector: #storeAndPopReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newOldSpaceObjectWithSlots: 1.
+	value := self newObjectWithSlots: 0.
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: object.
+	self assert: (memory fetchPointer: 0 ofObject: object) equals: value
 ]

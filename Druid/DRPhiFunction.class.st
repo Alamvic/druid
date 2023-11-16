@@ -246,11 +246,11 @@ DRPhiFunction >> supportConstantOperand [
 { #category : #simplification }
 DRPhiFunction >> type [
 
-	| operandTypes |
-	self operands do: [ :o |
+	(self operands copyWithout: self) do: [ :o |
 		| operandType |
 		operandType := o type.
 		operandType isUndefined ifFalse: [ ^ operandType ] ].
+
 	^ DRUndefinedType new
 ]
 

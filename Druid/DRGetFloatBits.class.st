@@ -30,9 +30,3 @@ DRGetFloatBits >> simpleConstantFold [
 	
 	^ self operand1 simpleConstantFold asIEEE64BitWord
 ]
-
-{ #category : #types }
-DRGetFloatBits >> type [
-	
-	^ DRIntegerType new
-]

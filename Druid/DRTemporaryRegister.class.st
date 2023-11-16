@@ -107,7 +107,7 @@ DRTemporaryRegister >> rtlOperandQualifier [
 
 { #category : #type }
 DRTemporaryRegister >> type [
-	
 	"Maybe this should be parametrised"
-	^ DRIntegerType new
+
+	^ DRSignedIntegerType size: 8 "Word size"
 ]

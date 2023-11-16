@@ -220,13 +220,13 @@ DRCogitGeneratorTest >> testGenerateMoveConstant [
 
 	| cfg r1 cogitGenerator generatedASTInstruction |
 	cfg := DRControlFlowGraph new.
-	r1 := cfg instructionFactory copy: 1.
+	r1 := cfg instructionFactory copy: (DRObjectReferenceValue expression: 'self nilObject').
 
 	cogitGenerator := self generateBytecodeCogitForInstruction: r1.
 	generatedASTInstruction := cogitGenerator generatorMethodBuilder statements last.
 
 	self assert: generatedASTInstruction selector equals: #genMoveConstant:R:.
-	self assert: generatedASTInstruction arguments first value equals: 1
+	self assert: generatedASTInstruction arguments first name equals: 'self nilObject'
 ]
 
 { #category : #tests }

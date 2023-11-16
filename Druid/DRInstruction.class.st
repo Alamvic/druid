@@ -770,7 +770,7 @@ DRInstruction >> supportConstantOperand [
 { #category : #types }
 DRInstruction >> type [
 
-	^ DRIntegerType new
+	^ DRSignedIntegerType size: 8 "Word size"
 ]
 
 { #category : #inspecting }

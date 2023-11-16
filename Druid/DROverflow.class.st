@@ -34,6 +34,13 @@ DROverflow >> opcode [
 	^ 'Overflow'
 ]
 
+{ #category : #accessing }
+DROverflow >> operandsForInstruction: aDRBranchIfCondition [
+	"Overflows have a single operand: the instruction that may cause overflow"
+
+	^ { aDRBranchIfCondition operand1 }
+]
+
 { #category : #printing }
 DROverflow >> prettyPrintWithBranch: aDRBranchIfCondition [
 

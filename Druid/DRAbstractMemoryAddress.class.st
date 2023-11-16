@@ -1,6 +1,9 @@
 Class {
 	#name : #DRAbstractMemoryAddress,
 	#superclass : #DRValue,
+	#instVars : [
+		'type'
+	],
 	#category : #'Druid-IR'
 }
 
@@ -90,4 +93,9 @@ DRAbstractMemoryAddress >> rtlPushArgumentExpressions: generator [
 DRAbstractMemoryAddress >> rtlPushOperandQualifierForInstruction: aPush [
 
 	^ 'Base:offset:'
+]
+
+{ #category : #accessing }
+DRAbstractMemoryAddress >> type [
+	^ type
 ]

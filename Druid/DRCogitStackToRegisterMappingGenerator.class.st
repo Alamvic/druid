@@ -159,10 +159,9 @@ DRCogitStackToRegisterMappingGenerator >> rtlExpressionForValue: aValue [
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
 
-  self allocateVariable: anInstruction result.
-	(self selectorCogitRTL: '' operands: operands instruction: anInstruction) = #Cq:R: ifTrue: [ 
+	self allocateVariable: anInstruction result.
+	operands first isObjectReferenceValue ifTrue: [
 		"It's moving a constant to a register. This constant could be an oop, so we need to annotate it."
-		self flag: #TOTHINK. "Is this strategy ok?"
 		^ self generateMessage: #genMoveConstant:R: operands: operands ].
 
 	^ super twoOperandMoveCogitRTL: anInstruction operands: operands
@@ -182,13 +181,19 @@ DRCogitStackToRegisterMappingGenerator >> variables: anObject [
 
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
+	"self Jump: (self ensureFixupAt: targetBytecode)"
 
+	| targetBytecode |
+	targetBytecode := self jitCompileTimeExpression:
+		                  aDRBytecodeJump operand1.
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #genJumpTo:
-			 arguments:
-			 { (self jitCompileTimeExpression: aDRBytecodeJump operand1) }).
-	
+			 selector: #Jump:
+			 arguments: { (RBMessageNode
+					  receiver: RBVariableNode selfNode
+					  selector: #ensureFixupAt:
+					  arguments: { targetBytecode }) }).
+
 	"Everything that follows an unconditional jump is potentially dead code"
 	markDeadCode := true
 ]
@@ -197,6 +202,7 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 	"self CallRT: ceSendMustBeBooleanTrampoline"
 
+	| rbCallNode |
 	aDRCall operands size > 0 ifTrue: [
 		generatorMethodBuilder addStatement: (RBMessageNode
 				 receiver: RBVariableNode selfNode
@@ -204,10 +210,19 @@ DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 				 arguments: {
 						 (self rtlExpressionForValue: aDRCall operand1).
 						 (RBVariableNode named: 'TempReg') }) ].
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: #CallRT:
-			 arguments: { (RBVariableNode named: aDRCall functionName) }).
+	rbCallNode := RBMessageNode
+		              receiver: RBVariableNode selfNode
+		              selector: #CallRT:
+		              arguments:
+		              { (RBVariableNode named: aDRCall functionName) }.
+	aDRCall shouldSaveLinkReg
+		ifTrue: [
+			generatorMethodBuilder addStatement: (RBMessageNode
+					 receiver: (RBVariableNode named: #backEnd)
+					 selector: #saveAndRestoreLinkRegAround:
+					 arguments:
+					 { (RBBlockNode body: (RBSequenceNode statements: { rbCallNode })) }) ]
+		ifFalse: [ generatorMethodBuilder addStatement: rbCallNode ].
 	aDRCall isMapped ifTrue: [ "self annotateBytecode: self Label"
 		generatorMethodBuilder addStatement: (RBMessageNode
 				 receiver: RBVariableNode selfNode

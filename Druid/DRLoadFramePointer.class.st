@@ -1,6 +1,6 @@
 Class {
 	#name : #DRLoadFramePointer,
-	#superclass : #DRInstruction,
+	#superclass : #DRAbstractLoad,
 	#category : #'Druid-IR'
 }
 
@@ -27,4 +27,10 @@ DRLoadFramePointer >> sccpLatticeValueFor: sccp [
 
 	"We know that we know nothing about the frame pointer"
 	^ sccp bottom
+]
+
+{ #category : #types }
+DRLoadFramePointer >> type [
+
+	^ DRPointerType new
 ]
