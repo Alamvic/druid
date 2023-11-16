@@ -50,6 +50,8 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #checkForEventsMayContextSwitch: put: #interpretInterruptCheckWith:.
 	specialCases at: #fetchByte put: #interpretFetchByteWith:.
 
+	specialCases at: #remember: put: #interpretRememberWith:.
+
 	"Message send"
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
 	specialCases at: #normalSendSpecialSelector:argumentCount: put: #interpretNormalSpecialSelectorSendWith:.
@@ -301,6 +303,27 @@ DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [
 	| receiver |
 	receiver := self visitOperand: aRBMessageNode arguments first.
 	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
+]
+
+{ #category : #'special-cases' }
+DRBytecodeIRGenerator >> interpretRememberWith: aRBMessageNode [
+
+	| obj |
+	obj := (self visitOperand: aRBMessageNode arguments first)
+		       simpleConstantFold.
+
+	^ (self
+		   addInstructionWithNoResultFrom: aRBMessageNode
+		   instructionKind: DRCall
+		   operands: {
+				   'ceStoreCheckTrampoline'.
+				   obj }) beMapped saveLinkReg
+
+	"	
+	cogit 
+		evaluateTrampolineCallBlock: [cogit CallRT: ceStoreCheckTrampoline]
+		protectLinkRegIfNot: inFrame.
+	"
 ]
 
 { #category : #'special-cases' }

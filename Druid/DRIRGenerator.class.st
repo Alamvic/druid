@@ -311,6 +311,8 @@ DRIRGenerator >> initializeSpecialCases [
 	
 	
 	specialCases at: #longAt:put: put: #interpretMachineWordAtPutWith:.
+	specialCases at: #unsignedLong64At:put: put: #interpretMachineWordAtPutWith:.
+	specialCases at: #unsignedLongAt:put: put: #interpretMachineWordAtPutWith:.
 
 
 	"Bit Manipulation"
@@ -1805,6 +1807,8 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 
 { #category : #visiting }
 DRIRGenerator >> visitMethodNode: aRBMethodNode [
+
+	(aRBMethodNode hasPragmaNamed: #doNotGenerate) ifTrue: [ 1 halt ].
 
 	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [
 		| failure primitiveReturn returnState |
