@@ -337,10 +337,16 @@ DRIRGenerator >> initializeSpecialCases [
 	variableSpecialCases at: #nilObj put: #interpretNilObjectWith:.
 	variableSpecialCases at: #falseObj put: #interpretFalseObjectWith:.
 	variableSpecialCases at: #trueObj put: #interpretTrueObjectWith:.
-	
-	variableSpecialCases at: #freeStart put: #interpretFreeStartWith:.
-	variableSpecialCases at: #scavengeThreshold put: #interpretScavengeThresholdWith:.
+
 	variableSpecialCases at: #argumentCount put: #interpretArgumentCountWith:.
+	variableSpecialCases at: #scavengeThreshold put: #interpretScavengeThresholdWith:.
+
+	variableSpecialCases at: #freeStart put: #interpretFreeStartWith:.
+	variableSpecialCases at: #newSpaceStart put: #interpretNewSpaceStartWith:.
+	variableSpecialCases at: #spaceMaskToUse put: #interpretSpaceMaskToUseWith:.
+	variableSpecialCases at: #newSpaceMask put: #interpretNewSpaceMaskWith:.
+	variableSpecialCases at: #oldSpaceMask put: #interpretOldSpaceMaskWith:.
+	variableSpecialCases at: #permSpaceMask put: #interpretPermSpaceMaskWith:.
 	
 	"Border case, this should not be defined here, it should be extensible"
 	variableSpecialCases at: #hiddenRootsObj put: #interpretNilObjectWith:
@@ -1040,6 +1046,22 @@ DRIRGenerator >> interpretNegatedWith: aRBMessageNode [
 	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRNegate
 ]
 
+{ #category : #interpreting }
+DRIRGenerator >> interpretNewSpaceMaskWith: aRBVariableNode [
+
+	^ self
+		  addCopy: aRBVariableNode
+		  with: DRConstantCompileTimeExpression getNewSpaceMask
+]
+
+{ #category : #interpreting }
+DRIRGenerator >> interpretNewSpaceStartWith: aRBVariableNode [
+
+	^ self
+		  addCopy: aRBVariableNode
+		  with: DRConstantCompileTimeExpression getNewSpaceStart
+]
+
 { #category : #'special cases' }
 DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [
 
@@ -1051,10 +1073,26 @@ DRIRGenerator >> interpretNotWith: aRBMessageNode [
 	self shouldBeImplemented.
 ]
 
+{ #category : #interpreting }
+DRIRGenerator >> interpretOldSpaceMaskWith: aRBVariableNode [
+
+	^ self
+		  addCopy: aRBVariableNode
+		  with: DRConstantCompileTimeExpression getOldSpaceMask
+]
+
 { #category : #'special cases' }
 DRIRGenerator >> interpretOrWith: aRBMessageNode [ 
 	
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DROr
+]
+
+{ #category : #interpreting }
+DRIRGenerator >> interpretPermSpaceMaskWith: aRBVariableNode [
+
+	^ self
+		  addCopy: aRBVariableNode
+		  with: DRConstantCompileTimeExpression getPermSpaceMask
 ]
 
 { #category : #'special cases' }
@@ -1124,6 +1162,14 @@ DRIRGenerator >> interpretSizeofWith: aRBMessageNode [
 	receiver := aRBMessageNode receiver acceptVisitor: self.
 	size := self popOperand value sizeof: aRBMessageNode arguments first value.
 	^ self addCopy: aRBMessageNode with: size asDRValue
+]
+
+{ #category : #interpreting }
+DRIRGenerator >> interpretSpaceMaskToUseWith: aRBVariableNode [
+
+	^ self
+		  addCopy: aRBVariableNode
+		  with: DRConstantCompileTimeExpression getSpaceMaskToUse
 ]
 
 { #category : #'special cases - stack' }
