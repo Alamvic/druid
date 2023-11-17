@@ -99,3 +99,9 @@ DRAbstractMemoryAddress >> rtlPushOperandQualifierForInstruction: aPush [
 DRAbstractMemoryAddress >> type [
 	^ type
 ]
+
+{ #category : #accessing }
+DRAbstractMemoryAddress >> type: aDRType [
+
+	type := aDRType
+]

@@ -682,11 +682,7 @@ DRCogitCodeGenerator >> visitCopy: aDRMove [
 	| moveOperands |
 	aDRMove operands first isNullValue
 		ifTrue: [ ^ self ].
-	
-	"Copies inserted for Cogit but used just by JIT expressions will be ignored"
-	(aDRMove users isNotEmpty and: [aDRMove users allSatisfy: #isJITCompileTimeExpression]) 
-		ifTrue: [ ^ self ].
-	
+		
 	moveOperands := { aDRMove operand1. aDRMove result }.
 	
 	"Do not generate redundant moves (e.g., r0 := r0)"
