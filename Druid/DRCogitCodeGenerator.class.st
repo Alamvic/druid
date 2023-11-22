@@ -678,10 +678,15 @@ DRCogitCodeGenerator >> visitComparison: aComparison [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitCopy: aDRMove [
 
-	"Do not generate moves of null values"
 	| moveOperands |
-	aDRMove operands first isNullValue
-		ifTrue: [ ^ self ].
+	"Do not generate moves of null values"
+	aDRMove operand1 isNullValue ifTrue: [ ^ self ].
+
+	"Avoid moving JIT expressions if they are not object references"
+	((aDRMove operand1 class inheritsFrom: DRJitCompileTimeExpression)
+		and: [aDRMove operand1 isObjectReferenceValue not]) 
+			ifTrue: [ ^ self ].
+
 		
 	moveOperands := { aDRMove operand1. aDRMove result }.
 	

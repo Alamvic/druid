@@ -49,16 +49,20 @@ DRCogitOperandSorter >> visitBitXor: aDRBitXor [
 
 { #category : #visiting }
 DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [
-	"Mask test conditions accept constants in cogit"
 
+	"JIT expressions do not need extras copies"
+	aDRBranchIfCondition isJITCompileTimeExpression ifTrue: [ ^ self ].
+
+	"Mask test conditions accept constants in cogit"
 	(aDRBranchIfCondition condition isTestMask or: [
 		 aDRBranchIfCondition condition isNoTestMask ]) ifTrue: [ ^ self ].
 
+
 	"Cogit only accept constants as first operands (second in DruidIR).
 	Equals comparison being commutative, we can reverse the operands to avoid an extra copy"
-	(aDRBranchIfCondition operand1 isConstant and: [ aDRBranchIfCondition condition isEqualsThanComparison ]) ifTrue: [
-		aDRBranchIfCondition reverseOperands.
-	].
+	(aDRBranchIfCondition operand1 isConstant and: [
+		 aDRBranchIfCondition condition isEqualsThanComparison ]) ifTrue: [
+		aDRBranchIfCondition reverseOperands ].
 
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRBranchIfCondition
 ]
