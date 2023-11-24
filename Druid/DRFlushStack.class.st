@@ -15,3 +15,10 @@ DRFlushStack >> isMandatoryInstruction [
 
 	^ true
 ]
+
+{ #category : #SCCP }
+DRFlushStack >> sccpLatticeValueFor: sccp [ 
+	
+	"This instruction has no value"
+	^ sccp bottom
+]

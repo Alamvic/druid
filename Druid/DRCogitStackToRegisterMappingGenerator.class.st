@@ -92,8 +92,13 @@ DRCogitStackToRegisterMappingGenerator >> innerCompilePathFrom: aDRBasicBlock [
 	dominatedBlocks := aDRBasicBlock controlFlowGraph reversePostOrderBlocks select: [ :b |
 		                   b isDominatedBy: aDRBasicBlock ].
 
+	self assert: dominatedBlocks first = aDRBasicBlock.
+	(blocks includesAny: aDRBasicBlock predecessors) 
+		ifTrue: [ 1halt ]
+		ifFalse: [blocks remove: aDRBasicBlock].
+
 	"Remove blocks only visited during inner compilation from outer"
-	dominatedBlocks do: [ :b | blocks remove: b ].
+	dominatedBlocks allButFirstDo: [ :b | blocks remove: b ].
 
 	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
 	sharedPathToTheEnd := blocks select: [ :e | 
@@ -119,6 +124,15 @@ DRCogitStackToRegisterMappingGenerator >> innerGenerator [
 	innerGenerator deferredBranches: deferredBranches copy.
 	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
 	^ innerGenerator
+]
+
+{ #category : #'code-generation' }
+DRCogitStackToRegisterMappingGenerator >> markAsDeadCode [
+
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: (RBVariableNode named: 'deadCode')
+			 value: (RBLiteralNode value: true)).
+	markDeadCode := true
 ]
 
 { #category : #helpers }
@@ -195,7 +209,7 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 					  arguments: { targetBytecode }) }).
 
 	"Everything that follows an unconditional jump is potentially dead code"
-	markDeadCode := true
+	self markAsDeadCode
 ]
 
 { #category : #visiting }

@@ -145,6 +145,13 @@ DRCogitCanonicaliser >> visitFloatToIntConversion: aDRFloatToInt [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitFlushStack: aDRFlushStack [
+	"Nothing"
+
+	
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitGetConditionCode: aDRGetConditionCode [ 
 	
 	"Nothing"

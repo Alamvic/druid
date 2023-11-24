@@ -60,6 +60,7 @@ DRBytecodeCompilerCompiler >> initialize [
 		optimisations add:
 			(DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
+		optimisations add: DRTailDuplicateStagedExpressions new.
 		optimisations add:
 			(DRDeadEdgeSplitting then: DRDeadBranchElimination) ].
 

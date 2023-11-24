@@ -1,7 +1,7 @@
-Extension { #name : #RBMessageNode }
+Extension { #name : #RBValueNode }
 
 { #category : #'*Druid' }
-RBMessageNode >> inspectionSourceCode [
+RBValueNode >> inspectionSourceCode [
 	<inspectorPresentationOrder: 30 title: 'Source code'>
 
 	| sourceInterval |

@@ -34,6 +34,16 @@ DRValue >> addToDependenciesList: alreadyComputedDependencies [
 
 ]
 
+{ #category : #adding }
+DRValue >> addToUsersList: alreadyComputedUsers [
+
+	(alreadyComputedUsers includes: self) ifTrue: [
+		^ alreadyComputedUsers ].
+
+	alreadyComputedUsers add: self.
+	self users do: [ :e | e addToUsersList: alreadyComputedUsers ]
+]
+
 { #category : #'users-definitions' }
 DRValue >> addUser: anInstruction [
 	
@@ -441,4 +451,13 @@ DRValue >> withAllDependencies [
 	dependencies := OrderedCollection new.
 	self addToDependenciesList: dependencies.
 	^ dependencies
+]
+
+{ #category : #accessing }
+DRValue >> withAllUsers [
+
+	| allUsers |
+	allUsers := OrderedCollection new.
+	self addToUsersList: allUsers.
+	^ allUsers
 ]

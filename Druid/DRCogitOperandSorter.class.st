@@ -124,6 +124,13 @@ DRCogitOperandSorter >> visitFloatToIntConversion: aDRFloatToInt [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitFlushStack: aDRFlushStack [
+	"Nothing"
+
+	
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitGetConditionCode: aDRGetConditionCode [
 
 	(aDRGetConditionCode condition isCommutative and: [ 
