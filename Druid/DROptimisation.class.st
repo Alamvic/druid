@@ -58,3 +58,9 @@ DROptimisation >> then: anotherOptimisation [
 		yourself
 		
 ]
+
+{ #category : #visiting }
+DROptimisation >> visitDeoptimize: aDRDeoptimize [ 
+	
+	"Do nothing by default"
+]

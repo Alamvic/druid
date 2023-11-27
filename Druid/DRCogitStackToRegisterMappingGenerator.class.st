@@ -274,6 +274,15 @@ DRCogitStackToRegisterMappingGenerator >> visitContinueNextBytecode: aDRContinue
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitDeoptimize: aDRDeoptimize [
+
+	generatorMethodBuilder addStatement:
+		(RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #deoptimize)
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitFlushStack: aDRFlushStack [
 
 	generatorMethodBuilder addStatement: (RBMessageNode

@@ -24,6 +24,12 @@ DruidTestInterpreter >> basicInlineMethod [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> bytecodeWithUnknownBytecodeSend [
+
+	self druidForceIntepretation
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> constant [
 
 	^ 73
