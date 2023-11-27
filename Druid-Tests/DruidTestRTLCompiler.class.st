@@ -1298,9 +1298,9 @@ DruidTestRTLCompiler >> gen_primitiveDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1914,9 +1914,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -1931,9 +1931,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivideByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: TempReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -2233,9 +2233,9 @@ DruidTestRTLCompiler >> gen_primitiveMod [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -2250,9 +2250,9 @@ DruidTestRTLCompiler >> gen_primitiveModByConstant [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: TempReg
-		Rem: ClassReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: TempReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -2631,23 +2631,24 @@ DruidTestRTLCompiler >> gen_primitiveNewWithArg [
 	self
 		DivR: Extra2Reg
 		R: ClassReg
-		Quo: ClassReg
-		Rem: Extra2Reg.
-	self MoveCq: 4 R: Extra2Reg.
-	self SubR: TempReg R: Extra2Reg.
-	self AndCq: 3 R: Extra2Reg.
-	self AddR: Extra2Reg R: SendNumArgsReg.
+		Quo: Extra2Reg
+		Rem: ClassReg.
+	self MoveCq: 4 R: ClassReg.
+	self SubR: TempReg R: ClassReg.
+	self AndCq: 3 R: ClassReg.
+	self AddR: ClassReg R: SendNumArgsReg.
+	self MoveR: Extra2Reg R: ClassReg.
 	jump8 := self Jump: 0.
 	currentBlock := self Label.
 	jump7 jmpTarget: currentBlock.
 	self CmpCq: 34 R: Extra0Reg.
 	jump7 := self JumpZero: 0.
-	self MoveR: TempReg R: Extra2Reg.
-	self AddCq: 1 R: Extra2Reg.
-	self MoveCq: 2 R: ClassReg.
+	self MoveR: TempReg R: ClassReg.
+	self AddCq: 1 R: ClassReg.
+	self MoveCq: 2 R: Extra2Reg.
 	self
-		DivR: ClassReg
-		R: Extra2Reg
+		DivR: Extra2Reg
+		R: ClassReg
 		Quo: ClassReg
 		Rem: Extra2Reg.
 	self AndCq: 1 R: TempReg.
