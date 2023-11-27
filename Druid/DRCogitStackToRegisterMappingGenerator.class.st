@@ -92,9 +92,9 @@ DRCogitStackToRegisterMappingGenerator >> innerCompilePathFrom: aDRBasicBlock [
 	dominatedBlocks := aDRBasicBlock controlFlowGraph reversePostOrderBlocks select: [ :b |
 		                   b isDominatedBy: aDRBasicBlock ].
 
+	"If the first block is dominated by others don't remove from the list, we still need it"
 	self assert: dominatedBlocks first = aDRBasicBlock.
 	(blocks includesAny: aDRBasicBlock predecessors) 
-		ifTrue: [ 1halt ]
 		ifFalse: [blocks remove: aDRBasicBlock].
 
 	"Remove blocks only visited during inner compilation from outer"
