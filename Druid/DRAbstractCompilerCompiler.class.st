@@ -230,6 +230,12 @@ DRAbstractCompilerCompiler >> sourceName: anObject [
 	sourceName := anObject
 ]
 
+{ #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> targetMethod [
+
+	^ compilerClass lookupSelector: self targetName
+]
+
 { #category : #'code-generation' }
 DRAbstractCompilerCompiler >> targetName [
 

@@ -11,21 +11,24 @@ Class {
 DRCustomisedCompilerTest >> compile: selector [
 
 	self configureCompiler: selector.
-	compiler compile
+	compiler compile.
+	^ compiler targetMethod 
 ]
 
 { #category : #tests }
 DRCustomisedCompilerTest >> configureCompiler: selector [
 
 	compiler
-		primitiveName: selector;
-		primitiveCompilerName: #gen_ , selector
+		sourceName: selector;
+		targetName: #gen_ , selector
 ]
 
 { #category : #tests }
 DRCustomisedCompilerTest >> generateDruidIRFor: selector [
 
 	| method cfg |
+	self configureCompiler: selector.
+	
 	method := DruidTestInterpreter lookupSelector: selector.
 	compiler customiseFor: method.
 	cfg := compiler generateDruidIRFor: method.
@@ -66,9 +69,7 @@ DRCustomisedCompilerTest >> setUp [
 DRCustomisedCompilerTest >> testAddsPreambleToGeneratedCode [
 
 	| genMethod preambleCode |
-	self compile: #primitiveAdd.
-
-	genMethod := DruidTestRTLCompiler lookupSelector: #gen_primitiveAdd.
+	genMethod := self compile: #primitiveAdd.
 	preambleCode := genMethod ast body statements first formattedCode.
 
 	self
@@ -80,24 +81,28 @@ DRCustomisedCompilerTest >> testAddsPreambleToGeneratedCode [
 { #category : #tests }
 DRCustomisedCompilerTest >> testIsMappedShouldAnnotateBytecode [
 
-	| cfg selector |
-	selector := #extUnconditionalJump.
+	| cfg |
 	compiler := self newBytecodeCompiler.
-	compiler
-		sourceName: selector;
-		targetName: #gen_ , selector.
-	cfg := self generateDruidIRFor: selector.
+	cfg := self generateDruidIRFor: #extUnconditionalJump.
 
 	self assert: cfg hasAnnotatedBytecode
 ]
 
 { #category : #tests }
+DRCustomisedCompilerTest >> testIsMappedWithSendShouldNotAnnotateBytecode [
+
+	| cfg |
+	compiler := self newBytecodeCompiler.
+	cfg := self generateDruidIRFor: #bytecodePrimAdd.
+
+	self deny: cfg hasAnnotatedBytecode
+]
+
+{ #category : #tests }
 DRCustomisedCompilerTest >> testRemoveIRChecks [
 
-	| cfg selector |
-	selector := #primitiveAdd.
-	self configureCompiler: selector.
-	cfg := self generateDruidIRFor: selector.
+	| cfg |
+	cfg := self generateDruidIRFor: #primitiveAdd.
 
 	self assert: cfg allConditionalJumps size equals: 2.
 	self
