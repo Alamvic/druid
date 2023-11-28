@@ -59,7 +59,7 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #commonCallerReturn: put: #interpretCommonCallerReturnWith:.
 	specialCases at: #checkForEventsMayContextSwitch: put: #interpretInterruptCheckWith:.
 	specialCases at: #fetchByte put: #interpretFetchByteWith:.
-
+	specialCases at: #druidForceIntepretation put: #interpretDruidForceIntepretationWith:.
 	specialCases at: #remember: put: #interpretRememberWith:.
 
 	"Message send"
@@ -149,6 +149,15 @@ DRBytecodeIRGenerator >> interpretDirectSuperSendWith: aRBMessageNode [
 		  sendTable: '(directedSendUsesBinding
 								ifTrue: [directedSuperBindingSendTrampolines]
 								ifFalse: [directedSuperSendTrampolines])' "TODO: improve"
+]
+
+{ #category : #'as yet unclassified' }
+DRBytecodeIRGenerator >> interpretDruidForceIntepretationWith: aRBMessageNode [
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRDeoptimize
+		  operands: #(  )
 ]
 
 { #category : #'special-cases' }
