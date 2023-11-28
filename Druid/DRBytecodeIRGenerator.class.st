@@ -154,10 +154,14 @@ DRBytecodeIRGenerator >> interpretDirectSuperSendWith: aRBMessageNode [
 { #category : #'as yet unclassified' }
 DRBytecodeIRGenerator >> interpretDruidForceIntepretationWith: aRBMessageNode [
 
-	^ self
-		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRDeoptimize
-		  operands: #(  )
+	self
+		addInstructionFrom: aRBMessageNode
+		instructionKind: DRDeoptimize
+		operands: #(  ).
+
+	"Cut control flow"
+	self popOperand.
+	^ (RBReturnNode value: (RBLiteralNode value: 0)) acceptVisitor: self
 ]
 
 { #category : #'special-cases' }

@@ -1861,7 +1861,7 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutable
 			"Then return without druid's compiled code"
 			cogit genUpArrowReturn ].
 
-	object := self newOldSpaceObjectWithSlots: 1.	
+	object := self newObjectWithSlots: 1.	
 	memory setIsImmutableOf: object to: true.
 	
 	value := self newObjectWithSlots: 0.
@@ -1916,6 +1916,42 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallRememberT
 	self runFrom: cogInitialAddress until: storeCheckTrampoline.
 	
 	self assert: machineSimulator receiverRegisterValue equals: object
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeImmutable [
+
+	| object value storeCheckTrampoline fakeTrampoline |
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	fakeTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+	cogit bytecodePC: 87.
+
+	self
+		compileBytecode: 200
+		selector: #storeAndPopReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: 1.
+	memory setIsImmutableOf: object to: true.
+
+	value := self newObjectWithSlots: 0.
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: 87.
+	self assert: (memory fetchPointer: 0 ofObject: object) equals: memory nilObject
 ]
 
 { #category : #tests }
