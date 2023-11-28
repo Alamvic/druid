@@ -289,20 +289,19 @@ DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJump [
 
 			cogit bytecodePC: 18.
 			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 18) nextOpcodeIndex: cogit opcodeIndex.
-			cogit genReturnTrue.
-			cogit genUpArrowReturn ].
+			cogit genReturnTrue. ].
 
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 17).
-	"Did it jump over?"
-	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
+
+	self assert: machineSimulator receiverRegisterValue equals: memory trueObject.
+	
+	self assert: (cogit hasAnnotatedAbstractInstructions: cogit getIsBytecodePCReference)
 ]
 
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJumpBackward [
 
-	| method |
-	
-	self skip. "Bad setup.... WIP"
+	| method bytecodeAddress |
 	
 	method := methodBuilder
 		newMethod;
@@ -313,7 +312,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJumpBackward [
 		
 	cogit ceCheckForInterruptTrampoline: (self compile: [ cogit RetN: 0 ]).
 		
-	cogit byte1: -1.
+	cogit byte1: -3.
 
 	self
 		compileBytecode: 237
@@ -322,11 +321,13 @@ DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJumpBackward [
 			cogit methodObj: method.
 			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
 			
+			cogit initializeFixupAt: 16.
 			cogit bytecodePC: 16.
-			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 18) nextOpcodeIndex: cogit opcodeIndex.
+			cogit mergeWithFixupIfRequired: (cogit fixupAt: 16).
 			cogit genReturnTrue.
 
 			"Execute the druid's compiled code"
+			bytecodeAddress := cogit Label.
 			cogit bytecodePC: 17.
 			generator value.
 			self assert: cogit deadCode.
@@ -335,13 +336,14 @@ DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJumpBackward [
 			cogit bytecodePC: 18.
 			cogit genReturnFalse.
 			cogit Stop.
-
-			cogit genUpArrowReturn.
-			 ].
-
+	 	].
+	
+	cogInitialAddress := bytecodeAddress address.
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 17).
-	"Did it jump over?"
-	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
+
+	self assert: machineSimulator receiverRegisterValue equals: memory trueObject.
+	
+	self assert: (cogit hasAnnotatedAbstractInstructions: cogit getIsBytecodePCReference)
 ]
 
 { #category : #tests }

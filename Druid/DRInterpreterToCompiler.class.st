@@ -100,7 +100,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 		"shortConditionalJumpFalse"
 			192 193 194 195 196 197 198 199
 		"store and pop into inst var"
-			"200 201 202 203 204 205 206 207"
+			200 201 202 203 204 205 206 207
 		"store and pop into temp"
 			208 209 210 211 212 213 214 215
 		"popStackBytecode"
@@ -115,7 +115,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 		"extSendSuperBytecode"
 			"235"
 		"extended conditional jump"
-			"237" 238 239
+			237 238 239
 		"extended store (and pop) temporary"
 			242 245
 		"remote temp bytecodes"

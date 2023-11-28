@@ -345,6 +345,13 @@ DRControlFlowGraph >> generatePaths [
 	^ (DRPathFactory withCFG: self) generatePaths
 ]
 
+{ #category : #testing }
+DRControlFlowGraph >> hasAnnotatedBytecode [
+
+	self instructionsDo: [ :i | i isAnnotateBytecode ifTrue: [ ^ true ] ].
+	^ false
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> hasConditionJump [
 

@@ -127,6 +127,12 @@ DRValue >> isAdd [
 ]
 
 { #category : #testing }
+DRValue >> isAnnotateBytecode [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isComparison [
 
 	^ false

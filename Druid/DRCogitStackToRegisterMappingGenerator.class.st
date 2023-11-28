@@ -194,6 +194,19 @@ DRCogitStackToRegisterMappingGenerator >> variables: anObject [
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitAnnnotateBytecode: aDRAnnotateBytecode [
+	"self annotateBytecode: self Label"
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #annotateBytecode:
+			 arguments: { (RBMessageNode
+					  receiver: RBVariableNode selfNode
+					  selector: #Label
+					  arguments: #(  )) })
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 	"self Jump: (self ensureFixupAt: targetBytecode)"
 
@@ -237,14 +250,8 @@ DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 					 arguments:
 					 { (RBBlockNode body: (RBSequenceNode statements: { rbCallNode })) }) ]
 		ifFalse: [ generatorMethodBuilder addStatement: rbCallNode ].
-	aDRCall isMapped ifTrue: [ "self annotateBytecode: self Label"
-		generatorMethodBuilder addStatement: (RBMessageNode
-				 receiver: RBVariableNode selfNode
-				 selector: #annotateBytecode:
-				 arguments: { (RBMessageNode
-						  receiver: RBVariableNode selfNode
-						  selector: #Label
-						  arguments: #(  )) }) ]
+	aDRCall isMapped ifTrue: [ 
+		self assert: aDRCall controlFlowGraph hasAnnotatedBytecode  ]
 ]
 
 { #category : #visiting }
