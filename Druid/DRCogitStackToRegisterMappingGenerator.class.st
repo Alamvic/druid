@@ -195,7 +195,10 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 					  arguments: { targetBytecode }) }).
 
 	"Everything that follows an unconditional jump is potentially dead code"
-	markDeadCode := true
+	markDeadCode := true.
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+				 variable: (RBVariableNode named: 'deadCode')
+				 value: (RBLiteralNode value: true))
 ]
 
 { #category : #visiting }
@@ -231,6 +234,24 @@ DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 						  receiver: RBVariableNode selfNode
 						  selector: #Label
 						  arguments: #(  )) }) ]
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreation [
+
+	| allocatedTemporary |
+	allocatedTemporary := self allocateVariable:
+		                      aDRClosureCreation result.
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector:
+			 #genCreateFullClosure:numCopied:ignoreContext:contextNumArgs:large:inBlock:intoRegister:
+			 arguments: (aDRClosureCreation operands collect: [ :e |
+					  (e rtlPushArgumentExpressions: self) first ]) , {
+					 (RBVariableNode named:
+						  '(coInterpreter methodNeedsLargeContext: methodObj)').
+					 (RBVariableNode named: 'inBlock') }
+				 , { (RBVariableNode named: allocatedTemporary) })
 ]
 
 { #category : #visiting }
@@ -279,7 +300,8 @@ DRCogitStackToRegisterMappingGenerator >> visitDeoptimize: aDRDeoptimize [
 	generatorMethodBuilder addStatement:
 		(RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #deoptimize)
+			 selector: #deoptimize).
+	markDeadCode := true.
 ]
 
 { #category : #visiting }

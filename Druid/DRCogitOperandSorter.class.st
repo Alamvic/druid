@@ -83,6 +83,12 @@ DRCogitOperandSorter >> visitClosureActivation: aDRClosureActivation [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitClosureCreation: aDRClosureCreation [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 
 	anInstruction operand1 isInstruction ifFalse: [ 

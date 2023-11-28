@@ -74,7 +74,10 @@ DRJITCompileTimeExpressionGenerator >> visitEqualsThan: aDREqualsThanComparison 
 	aDRBranchIfCondition operands last value = true ifTrue: [
 		^ aDRBranchIfCondition operands first acceptVisitor: self ].
 
-	self halt "unexplored"
+	^ self
+		  binaryMessage: #=
+		  receiverInstruction: aDRBranchIfCondition operand1
+		  argumentInstruction: aDRBranchIfCondition operand2
 ]
 
 { #category : #visiting }

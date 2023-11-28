@@ -84,6 +84,12 @@ DRJitCompileTimeExpression >> acceptVisitor: aVisitor [
 	^ aVisitor visitJITCompileTimeExpression: self
 ]
 
+{ #category : #'bit manipulation' }
+DRJitCompileTimeExpression >> anyMask: aDRJitCompileTimeExpression [
+
+	^ self mergeExpression: 'anyMask:' with: aDRJitCompileTimeExpression
+]
+
 { #category : #converting }
 DRJitCompileTimeExpression >> asJitCompileTimeExpression [
 
@@ -175,6 +181,12 @@ DRJitCompileTimeExpression >> rtlOperandQualifier [
 DRJitCompileTimeExpression >> sccpEquals: aDRJitCompileTimeExpression [
 
 	^ self mergeExpression: '=' with: aDRJitCompileTimeExpression
+]
+
+{ #category : #operations }
+DRJitCompileTimeExpression >> sccpLessThanOrEquals: aDRJitCompileTimeExpression [
+
+	^ self mergeExpression: '<=' with: aDRJitCompileTimeExpression
 ]
 
 { #category : #accessing }
