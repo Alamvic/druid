@@ -323,6 +323,12 @@ DRCPSEdge >> visitCopy: aDRCopy [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitDeoptimize: aDRDeoptimize [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitDivision: aDRDivision [ 
 
 	^ nil

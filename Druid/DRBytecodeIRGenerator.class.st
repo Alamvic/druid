@@ -512,10 +512,13 @@ DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
 	| value mappings |
 	value := aRBVariableNode variable name.
-	mappings := { 'FoxIFReceiver' -> 'FrameReceiverOffset' } asDictionary.
+	mappings := {
+		            ('FoxIFReceiver' -> 'FrameReceiverOffset').
+		            ('IMMUTABILITY' -> 'true') } asDictionary.
 	value := mappings at: value ifAbsent: [ value ].
 	^ self
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
-		  operands: { (DRConstantCompileTimeExpression new expression: value) }
+		  operands:
+		  { (DRConstantCompileTimeExpression new expression: value) }
 ]

@@ -1810,9 +1810,11 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode7 [
 { #category : #tests }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode: index [
 
-	| object storeCheckTrampoline |
-	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
-	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	| object fakeTrampoline |
+	fakeTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+	cogit bytecodePC: 87.
 
 	self
 		compileBytecode: 200 + index
@@ -1836,12 +1838,57 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode: index [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutableTrampoline [
+
+	| object value immutableTrampoline fakeTrampoline bytecodePC |
+
+	fakeTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+	immutableTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceDeoptimiseFrameTrampoline: immutableTrampoline.
+	bytecodePC := 87.
+	cogit bytecodePC: bytecodePC.
+
+	self
+		compileBytecode: 200
+		selector: #storeAndPopReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newOldSpaceObjectWithSlots: 1.	
+	memory setIsImmutableOf: object to: true.
+	
+	value := self newObjectWithSlots: 0.
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self
+		prepareStackForPrimitiveReceiver: object
+		arguments: #(  )
+		method: 0.
+
+	"Should arrive to trampoline to put the object in the remembered set"
+	self runFrom: cogInitialAddress until: immutableTrampoline.
+	
+	self assert: machineSimulator receiverRegisterValue equals: bytecodePC
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallRememberTrampoline [
 
-	| object value storeCheckTrampoline |
+	| object value storeCheckTrampoline fakeTrampoline |
 
 	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	fakeTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+	cogit bytecodePC: 87.
 
 	self
 		compileBytecode: 200
@@ -1874,10 +1921,13 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallRememberT
 { #category : #tests }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeNotRemember [
 
-	| object value storeCheckTrampoline |
+	| object value storeCheckTrampoline fakeTrampoline |
 
 	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	fakeTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+	cogit bytecodePC: 87.
 
 	self
 		compileBytecode: 200
@@ -1905,10 +1955,13 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeNotRemember [
 { #category : #tests }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRemember [
 
-	| object value storeCheckTrampoline |
+	| object value storeCheckTrampoline fakeTrampoline |
 
 	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	fakeTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+	cogit bytecodePC: 87.
 
 	self
 		compileBytecode: 200

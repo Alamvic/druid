@@ -255,7 +255,8 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
 	specialCases at: #whileTrue: put: #interpretWhileTrueWith:.
 	specialCases at: #caseOf:otherwise: put: #interpretCaseOfWith:.
-	
+	specialCases at: #cppIf:ifTrue: put: #interpretCppIfWith:.
+
 	specialCases at: #= put: #interpretEqualityComparisonWith:.
 	specialCases at: #~= put: #interpretInequalityComparisonWith:.
 	specialCases at: #< put: #interpretLessThanComparisonWith:.
@@ -735,6 +736,16 @@ DRIRGenerator >> interpretCondition: aRBMessageNode conditionKind: conditionKind
 				  conditionKind new.
 				  operand1.
 				  operand2 }
+]
+
+{ #category : #interpreting }
+DRIRGenerator >> interpretCppIfWith: aRBMessageNode [
+
+	| jitExpressionCopy |
+	jitExpressionCopy := self visitOperand: aRBMessageNode arguments first.
+	jitExpressionCopy simpleConstantFold expression = 'true' ifTrue: [
+		(RBMessageNode receiver: aRBMessageNode arguments second selector: #value)
+			acceptVisitor: self ]
 ]
 
 { #category : #'special cases' }
