@@ -30,6 +30,12 @@ DRCogitOperandSorter >> visitAddition: aDRAdd [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitAnnnotateBytecode: aDRAnnotateBytecode [ 
+
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitBitAnd: aDRBitAnd [ 
 	
 	^ self visitCommutativeInstruction: aDRBitAnd

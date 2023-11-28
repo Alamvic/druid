@@ -293,8 +293,10 @@ DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJump [
 			cogit genUpArrowReturn ].
 
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 17).
-	"Did it jump over?"
-	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
+
+	self assert: machineSimulator receiverRegisterValue equals: memory trueObject.
+	
+	self assert: (cogit hasAnnotatedAbstractInstructions: cogit getIsBytecodePCReference)
 ]
 
 { #category : #tests }
@@ -340,8 +342,10 @@ DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJumpBackward [
 			 ].
 
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 17).
-	"Did it jump over?"
-	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
+
+	self assert: machineSimulator receiverRegisterValue equals: memory trueObject.
+	
+	self assert: (cogit hasAnnotatedAbstractInstructions: cogit getIsBytecodePCReference)
 ]
 
 { #category : #tests }

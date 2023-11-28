@@ -7,6 +7,16 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #adding }
+DRBytecodeIRGenerator >> addAnnotateBytecode: aRBMethodNode [
+
+	self
+		  addInstructionWithNoResultFrom: aRBMethodNode
+		  instructionKind: DRAnnotateBytecode
+		  operands: #(  ).
+	^ self popOperand "Let the stack empty"
+]
+
 { #category : #visiting }
 DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
 
@@ -333,19 +343,23 @@ DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSp
 	selectorIndex := self visitOperand: aRBMessageNode arguments first.
 	argumentCount := self visitOperand: aRBMessageNode arguments second.
 
-  "In cogit, the special selectors at index X should be compiled as -(X+1)"
-  isSpecialSelector ifTrue: [
+	"In cogit, the special selectors at index X should be compiled as -(X+1)"
+	isSpecialSelector ifTrue: [
 		self
-			addInstructionFrom: aMessage
+			addInstructionFrom: aRBMessageNode
 			instructionKind: DRAdd
-			operands: { selectorIndex . 1 asDRValue }.
+			operands: {
+					selectorIndex.
+					1 asDRValue }.
 		self
-			addInstructionFrom: aMessage
+			addInstructionFrom: aRBMessageNode
 			instructionKind: DRNegate
 			operands: { self popOperand }.
-     selectorIndex := self popOperand.
-  ].
-  
+		selectorIndex := self popOperand ].
+
+	"DRJITMessageSend will be translated using a instrinsic that already annotate the bytecode"
+	self assert: controlFlowGraph hasAnnotatedBytecode not.
+
 	^ self
 		  addInstructionWithNoResultFrom: aRBMessageNode
 		  instructionKind: DRJITMessageSend

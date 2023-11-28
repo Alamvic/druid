@@ -191,6 +191,12 @@ DRCPSEdge >> visitAnd: aDRAnd [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitAnnnotateBytecode: aDRAnnotateBytecode [ 
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitBitAnd: aDRBitAnd [
 
 	^ nil

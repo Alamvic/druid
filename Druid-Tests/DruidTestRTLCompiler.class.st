@@ -108,6 +108,7 @@ DruidTestRTLCompiler >> gen_bytecodePrimAdd [
 
 	| live currentBlock |
 	live := 0.
+	self annotateBytecode: self Label.
 	self marshallSendArguments: 1.
 	self
 		genMarshalledSend: -1
@@ -195,6 +196,7 @@ DruidTestRTLCompiler >> gen_extSendSuperBytecode [
 
 	| live r5 r43 currentBlock |
 	live := 0.
+	self annotateBytecode: self Label.
 	r5 := extA.
 	extA := 0.
 	BytecodeSetHasDirectedSuperSend=true ifTrue: [
@@ -239,6 +241,7 @@ DruidTestRTLCompiler >> gen_extUnconditionalJump [
 
 	| t0 jump1 t1 currentBlock r3 live |
 	live := 0.
+	self annotateBytecode: self Label.
 	r3 := extB.
 	self ssFlushStack.
 	(byte1 + (r3 << 8))<0 ifTrue: [
@@ -264,7 +267,6 @@ DruidTestRTLCompiler >> gen_extUnconditionalJump [
 		self CmpR: t1 R: t0.
 		jump1 := self JumpAboveOrEqual: 0.
 		self CallRT: ceCheckForInterruptTrampoline.
-		self annotateBytecode: self Label.
 		currentBlock := self Label.
 		jump1 jmpTarget: currentBlock.
 		self Jump:
@@ -291,7 +293,6 @@ DruidTestRTLCompiler >> gen_extUnconditionalJump [
 	self CmpR: t1 R: t0.
 	jump1 := self JumpAboveOrEqual: 0.
 	self CallRT: ceCheckForInterruptTrampoline.
-	self annotateBytecode: self Label.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self Jump:
@@ -3740,6 +3741,7 @@ DruidTestRTLCompiler >> gen_sendLiteralSelector0ArgsBytecode [
 
 	| live currentBlock |
 	live := 0.
+	self annotateBytecode: self Label.
 	self marshallSendArguments: 0.
 	self
 		genMarshalledSend: 1
@@ -3754,6 +3756,7 @@ DruidTestRTLCompiler >> gen_shortConditionalJumpFalse [
 
 	| t0 jump3 jump1 currentBlock jump2 live |
 	live := 0.
+	self annotateBytecode: self Label.
 	t0 := self
 		      allocateRegNotConflictingWith: live
 		      ifNone: [ ^ self unknownBytecode ].
@@ -3767,7 +3770,6 @@ DruidTestRTLCompiler >> gen_shortConditionalJumpFalse [
 	jump2 := self JumpZero: 0.
 	self MoveR: t0 R: TempReg.
 	self CallRT: ceSendMustBeBooleanTrampoline.
-	self annotateBytecode: self Label.
 	jump3 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
@@ -3786,6 +3788,7 @@ DruidTestRTLCompiler >> gen_shortConditionalJumpTrue [
 
 	| t0 jump3 jump1 currentBlock jump2 live |
 	live := 0.
+	self annotateBytecode: self Label.
 	t0 := self
 		      allocateRegNotConflictingWith: live
 		      ifNone: [ ^ self unknownBytecode ].
@@ -3799,7 +3802,6 @@ DruidTestRTLCompiler >> gen_shortConditionalJumpTrue [
 	jump2 := self JumpZero: 0.
 	self MoveR: t0 R: TempReg.
 	self CallRT: ceSendMustBeBooleanTrampoline.
-	self annotateBytecode: self Label.
 	jump3 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
@@ -3830,6 +3832,7 @@ DruidTestRTLCompiler >> gen_storeAndPopReceiverVariableBytecode [
 
 	| jump1 jump7 jumpNext t1 jump6 jump3 currentBlock t0 jump5 jump2 jumpTrue live t2 jump4 |
 	live := 0.
+	self annotateBytecode: self Label.
 	self ensureReceiverResultRegContainsSelf.
 	t0 := self
 		      allocateRegNotConflictingWith: live
@@ -3890,7 +3893,6 @@ DruidTestRTLCompiler >> gen_storeAndPopReceiverVariableBytecode [
 	self MoveR: t0 R: TempReg.
 	backEnd saveAndRestoreLinkRegAround: [
 		self CallRT: ceStoreCheckTrampoline ].
-	self annotateBytecode: self Label.
 	self TstCq: 7 R: t1.
 	jump6 := self JumpNonZero: 0.
 	jump7 := self JumpZero: 0.
@@ -3957,7 +3959,6 @@ DruidTestRTLCompiler >> gen_storeAndPopReceiverVariableBytecode [
 	self MoveR: t0 R: TempReg.
 	backEnd saveAndRestoreLinkRegAround: [
 		self CallRT: ceStoreCheckTrampoline ].
-	self annotateBytecode: self Label.
 	currentBlock := self Label.
 	jump6 jmpTarget: currentBlock.
 	jump4 jmpTarget: currentBlock.

@@ -35,7 +35,16 @@ DRMethod >> defaultReturnValue: receiver [
 ]
 
 { #category : #executing }
-DRMethod >> executeOn: interpreter [ 
+DRMethod >> executeOn: interpreter [
+	"Initialize based on pragmas"
+
+	| mappedPragmas |
+	(self methodNode compiledMethod pragmaRefersToLiteral: #hasSend)
+		ifFalse: [
+			mappedPragmas := #( isMapped isMappedIfImmutability ).
+			(mappedPragmas anySatisfy: [ :literal |
+				 self methodNode compiledMethod pragmaRefersToLiteral: literal ])
+				ifTrue: [ interpreter addAnnotateBytecode: self methodNode ] ].
 
 	self codeNode acceptVisitor: interpreter
 ]
