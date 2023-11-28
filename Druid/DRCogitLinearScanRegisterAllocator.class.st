@@ -47,37 +47,37 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 
 		(i result isNoResult not and: [i operands size = 2])
 			ifTrue: [ | secondOperandInterval currentInterval operandToMergeInterval |
-		(i result type isFloatType not and: [ (i operands collect: #type) allSatisfy: [ :e | e isFloatType ] ])
-			ifTrue: [^ false].
+				(i type isFloatType not and: [ (i operands collect: #type) allSatisfy: [ :e | e isFloatType ] ])
+					ifTrue: [^ false].
 
-			"Merge the two intervals, finding the operand that is not a constant.
-			Take the first operand.
-			When transforming to Cogit code, we output the first operand as second operand and destination.
-			
-			R0 := Sub R0 1
-			=>
-			Sub 1 R0
-			"
-			operandToMergeInterval := i operand1.
+					"Merge the two intervals, finding the operand that is not a constant.
+					Take the first operand.
+					When transforming to Cogit code, we output the first operand as second operand and destination.
+					
+					R0 := Sub R0 1
+					=>
+					Sub 1 R0
+					"
+					operandToMergeInterval := i operand1.
 
-			secondOperandInterval := self liveSetOf: operandToMergeInterval.
-			currentInterval := self liveSetOf: i.
+					secondOperandInterval := self liveSetOf: operandToMergeInterval.
+					currentInterval := self liveSetOf: i.
 
-			(secondOperandInterval overlaps: currentInterval)
-				ifTrue: [ | copyInstruction |
-					"Create a copy instruction before, branch it, and return true to indicate we need to recompute intervals"
-					copyInstruction := i controlFlowGraph instructionFactory copy: operandToMergeInterval.
-					i addBefore: copyInstruction.
-					i replaceOperand: operandToMergeInterval by: copyInstruction.
-					^ true
-				]
-				ifFalse: [ | mergedInterval |
-					"Create a merged interval and set it as interval for the current definition and its second operand."
-					mergedInterval := secondOperandInterval mergeWith: currentInterval.
-					(liveSets keys sorted: [ :a :b | a name < b name ]) do: [ :k |
-						({ secondOperandInterval . currentInterval } includes: (liveSets at: k))
-							ifTrue: [ liveSets at: k put: mergedInterval ]
-					] ] ] ] ].
+					(secondOperandInterval overlaps: currentInterval)
+						ifTrue: [ | copyInstruction |
+							"Create a copy instruction before, branch it, and return true to indicate we need to recompute intervals"
+							copyInstruction := i controlFlowGraph instructionFactory copy: operandToMergeInterval.
+							i addBefore: copyInstruction.
+							i replaceOperand: operandToMergeInterval by: copyInstruction.
+							^ true
+						]
+						ifFalse: [ | mergedInterval |
+							"Create a merged interval and set it as interval for the current definition and its second operand."
+							mergedInterval := secondOperandInterval mergeWith: currentInterval.
+							(liveSets keys sorted: [ :a :b | a name < b name ]) do: [ :k |
+								({ secondOperandInterval . currentInterval } includes: (liveSets at: k))
+									ifTrue: [ liveSets at: k put: mergedInterval ]
+							] ] ] ] ].
 		^ false
 ]
 

@@ -12,17 +12,19 @@ DRDeadEdgeSplitting >> canBeAppliedWithGeneratedPathsIn: aDRControlFlowGraph [
 
 { #category : #accessing }
 DRDeadEdgeSplitting >> doApplyWithGeneratedPaths: aCFG [
+	"Find the longest (not backjump) dead path in CFG and split guilty edge"
 
-	"Find first (longest) dead path in CFG and split guilty edge"
+	| longestDeadPathEdge forwardEdges |
+	"Avoid backjumps edges, they are difficult to fix"
+	forwardEdges := aCFG deadPaths associations reject: [ :assoc | assoc key isBackJump ].
+	forwardEdges ifEmpty: [ ^ self ].
 
-	| edge |
-	aCFG deadPaths ifEmpty: [ ^ self ].
-	
-	edge := (aCFG deadPaths associations detectMax: [ :v | v value size ]) key.
-	[ edge destination predecessors size = 1 ] whileTrue: [ 
-		edge := edge parent.
-		edge ifNil: [ ^ self ] ].
+	longestDeadPathEdge := (forwardEdges detectMax: [ :assoc | assoc value size ]) key.
+	[ longestDeadPathEdge destination predecessors size = 1 ] whileTrue: [ 
+		"If it is not splitteable, look the ancestors until splitting"
+		longestDeadPathEdge := longestDeadPathEdge parent.
+		longestDeadPathEdge ifNil: [ ^ self ].
+		longestDeadPathEdge isBackJump ifTrue: [ ^ self ] ].
 
-	edge split
-
+	longestDeadPathEdge split
 ]

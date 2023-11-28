@@ -242,6 +242,47 @@ DRInstruction >> inspectionSource: aBuilder [
 	^ originAST inspectionSourceCode
 ]
 
+{ #category : #inspecting }
+DRInstruction >> inspectionUsers: aBuilder [
+	<inspectorPresentationOrder: 10 title: 'Users Graph'>
+	
+	| view blockViews eb |
+	view := RSCanvas new.
+	blockViews := self withAllUsers asSet collect: [ :c | | g label |
+		g := RSGroup new.
+		(label := (RSLabel new text: c label asString)
+			borderColor: Color black;
+			yourself).
+		g add: (RSBox new
+			color: Color white;
+			border: (RSBorder new color: Color purple; width: 2);
+			extent: label extent + 10;
+			yourself).
+		g add: label.
+		g asShape
+			@ RSDraggable;
+			model: c;
+			yourself ] as: Array.
+	view addAll: blockViews.
+	
+	eb := RSEdgeBuilder arrowedLine.
+	eb canvas: view.
+	eb withBorderAttachPoint.
+	eb 	shapes: blockViews.
+	eb connectToAll: #users.
+	
+	"All the characters are displayed using a grid layout"
+	RSDominanceTreeLayout new
+		horizontalGap: 50;
+		shouldValidateCycles;
+		applyOn: blockViews.
+	view @ RSCanvasController.
+	
+	^ SpRoassal3InspectorPresenter new
+		canvas: view;
+		yourself
+]
+
 { #category : #accessing }
 DRInstruction >> instructionFactory [
 	

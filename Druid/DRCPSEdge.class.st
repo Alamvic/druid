@@ -93,6 +93,12 @@ DRCPSEdge >> integerOperation: anOperantion [
 ]
 
 { #category : #testing }
+DRCPSEdge >> isBackJump [
+
+	^ source lastInstruction isBackJumpTo: destination 
+]
+
+{ #category : #testing }
 DRCPSEdge >> isDead [
 	^ constraints anySatisfy: [ :c | c isEmpty ]
 ]
@@ -265,22 +271,27 @@ DRCPSEdge >> visitClosureActivation: aDRClosureActivation [
 { #category : #visiting }
 DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
-	| operands |
+	| operands constantValue |
 	operands := aDRBranch operands.
-	((operands anySatisfy: #isConstant) and: [ 
-		 operands anySatisfy: [ :o | o isRegister or: [ o isInstruction ] ] ]) 
+	((operands anySatisfy: #isConstraintConstant) and: [
+		 operands anySatisfy: [ :o | o isRegister or: [ o isInstruction ] ] ])
 		ifFalse: [ ^ nil "We need a register and a constant" ].
 
 	"Check constant on right"
 	"if not reverse it and add it directly"
-	operands second isConstant ifFalse: [ 
-		^ (aClosure
-			   value: operands second
-			   value: (operands first acceptVisitor: self)) reversed ].
+	operands second isConstraintConstant ifFalse: [
+		constantValue := operands first acceptVisitor: self.
+		constantValue ifNil: [
+			1 halt.
+			^ nil ].
+		^ (aClosure value: operands second value: constantValue) reversed ].
 
-	^ aClosure
-		  value: operands first
-		  value: (operands second acceptVisitor: self)
+	constantValue := operands second acceptVisitor: self.
+	constantValue ifNil: [
+		1 halt.
+		^ nil ].
+
+	^ aClosure value: operands first value: constantValue
 ]
 
 { #category : #visiting }
@@ -295,7 +306,7 @@ DRCPSEdge >> visitCopy: aDRCopy [
 	| constraint operand |
 	operand := aDRCopy operand1.
 
-	constraint := (operand isConstant or: [ 
+	constraint := (operand isConstraintConstant or: [ 
 		               operand isObjectReferenceValue ])
 		              ifTrue: [ DREqualsConstraint withValue: operand ]
 		              ifFalse: [ self operandConstraint: operand ].
@@ -323,12 +334,18 @@ DRCPSEdge >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBranch [
 { #category : #visiting }
 DRCPSEdge >> visitFalseObject: aDRFalseObject [
 
-	^ nil
+	^ aDRFalseObject
 ]
 
 { #category : #visiting }
 DRCPSEdge >> visitFloatToIntConversion: aDRFloatToInt [ 
 	
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitFlushStack: aDRFlushStack [ 
+
 	^ nil
 ]
 
@@ -385,7 +402,7 @@ DRCPSEdge >> visitInterpreterValue: aDRInterpreterValue [
 { #category : #visiting }
 DRCPSEdge >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [
 	
-	^ aDRJitCompileTimeExpression expression
+	^ nil "Not supported"
 ]
 
 { #category : #visiting }
@@ -438,7 +455,25 @@ DRCPSEdge >> visitLoadArgument: aDRLoadArgument [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitLoadFramePointer: aDRLoadFramePointer [ 
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitLoadInstVar: aDRLoadInstanceVariable [
+
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitLoadReceiver: aDRLoadReceiver [
+
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitLoadStackPointer: aDRLoadStackPointer [
 
 	^ nil
 ]
@@ -615,7 +650,7 @@ DRCPSEdge >> visitTestMask: aDRTestMask inBranch: aDRBranch [
 { #category : #visiting }
 DRCPSEdge >> visitTrueObject: aDRTrueObject [
 
-	^ nil
+	^ aDRTrueObject
 ]
 
 { #category : #visiting }

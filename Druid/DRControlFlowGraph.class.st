@@ -560,6 +560,12 @@ DRControlFlowGraph >> postOrderBlocks [
 	^ self reversePostOrderBlocks reversed
 ]
 
+{ #category : #enumeration }
+DRControlFlowGraph >> postOrderInstructions [
+
+	^ self postOrderBlocks flatCollect: [ :b | b instructions reversed ]
+]
+
 { #category : #building }
 DRControlFlowGraph >> privateNewBasicBlock [
 	
