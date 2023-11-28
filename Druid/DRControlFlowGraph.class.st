@@ -345,6 +345,13 @@ DRControlFlowGraph >> generatePaths [
 	^ (DRPathFactory withCFG: self) generatePaths
 ]
 
+{ #category : #testing }
+DRControlFlowGraph >> hasAnnotatedBytecode [
+
+	self instructionsDo: [ :i | i isAnnotateBytecode ifTrue: [ ^ true ] ].
+	^ false
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> hasConditionJump [
 
@@ -558,6 +565,12 @@ DRControlFlowGraph >> postOrderBlocks [
 	"Return the list of blocks based on a simple linearization algorithm"
 
 	^ self reversePostOrderBlocks reversed
+]
+
+{ #category : #enumeration }
+DRControlFlowGraph >> postOrderInstructions [
+
+	^ self postOrderBlocks flatCollect: [ :b | b instructions reversed ]
 ]
 
 { #category : #building }

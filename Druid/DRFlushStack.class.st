@@ -9,3 +9,16 @@ DRFlushStack >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitFlushStack: self
 ]
+
+{ #category : #visiting }
+DRFlushStack >> isMandatoryInstruction [
+
+	^ true
+]
+
+{ #category : #SCCP }
+DRFlushStack >> sccpLatticeValueFor: sccp [ 
+	
+	"This instruction has no value"
+	^ sccp bottom
+]

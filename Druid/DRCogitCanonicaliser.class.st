@@ -79,6 +79,12 @@ DRCogitCanonicaliser >> visitAddition: aDRAdd [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitAnnnotateBytecode: aDRAnnotateBytecode [ 
+
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [ 
 	
 	"Nothing"
@@ -148,6 +154,13 @@ DRCogitCanonicaliser >> visitDivision: aDRDivision [
 DRCogitCanonicaliser >> visitFloatToIntConversion: aDRFloatToInt [ 
 	
 	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitFlushStack: aDRFlushStack [
+	"Nothing"
+
+	
 ]
 
 { #category : #visiting }

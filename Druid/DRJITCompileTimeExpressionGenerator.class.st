@@ -125,20 +125,8 @@ DRJITCompileTimeExpressionGenerator >> visitLoad: aDRLoad [
 
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitNegate: aDRNegated [ 
-1halt.
+
 	^ self simpleMessage: #negated receiverInstruction: aDRNegated operand1
-]
-
-{ #category : #visiting }
-DRJITCompileTimeExpressionGenerator >> visitPhiFunction: aDRPhiFunction [
-
-	| condition branches arguments |
-	condition := aDRPhiFunction conditionalBranch acceptVisitor: self.
-	branches := aDRPhiFunction operands collect: [ :op | op acceptVisitor: self ].
-	arguments := branches collect: [ :code |
-		             RBBlockNode body: (RBSequenceNode statements: { code }) ].
-
-	^ RBMessageNode receiver: condition selector: #ifTrue:ifFalse: arguments: arguments
 ]
 
 { #category : #visiting }

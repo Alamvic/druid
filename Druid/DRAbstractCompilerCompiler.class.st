@@ -60,13 +60,16 @@ DRAbstractCompilerCompiler >> compilerClass: anObject [
 DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 
 	| startBlock initialBasicBlock |
+	"Config generator"
+	generator receiver: (DRInterpreterValue value: interpreter).
+	generator numberOfArguments:
+		(self numberOfArgumentsForMethod: method).
+
 	"Create the initial basic block"
 	startBlock := generator initialBasicBlock.
 	initialBasicBlock := generator createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
 
-	generator receiver: (DRInterpreterValue value: interpreter).
-	generator numberOfArguments: (self numberOfArgumentsForMethod: method)
 ]
 
 { #category : #'generation-IR' }
@@ -225,6 +228,12 @@ DRAbstractCompilerCompiler >> sourceName [
 DRAbstractCompilerCompiler >> sourceName: anObject [
 
 	sourceName := anObject
+]
+
+{ #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> targetMethod [
+
+	^ compilerClass lookupSelector: self targetName
 ]
 
 { #category : #'code-generation' }

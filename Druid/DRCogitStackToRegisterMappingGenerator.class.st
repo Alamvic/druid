@@ -92,8 +92,13 @@ DRCogitStackToRegisterMappingGenerator >> innerCompilePathFrom: aDRBasicBlock [
 	dominatedBlocks := aDRBasicBlock controlFlowGraph reversePostOrderBlocks select: [ :b |
 		                   b isDominatedBy: aDRBasicBlock ].
 
+	"If the first block is dominated by others don't remove from the list, we still need it"
+	self assert: dominatedBlocks first = aDRBasicBlock.
+	(blocks includesAny: aDRBasicBlock predecessors) 
+		ifFalse: [blocks remove: aDRBasicBlock].
+
 	"Remove blocks only visited during inner compilation from outer"
-	dominatedBlocks do: [ :b | blocks remove: b ].
+	dominatedBlocks allButFirstDo: [ :b | blocks remove: b ].
 
 	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
 	sharedPathToTheEnd := blocks select: [ :e | 
@@ -119,6 +124,15 @@ DRCogitStackToRegisterMappingGenerator >> innerGenerator [
 	innerGenerator deferredBranches: deferredBranches copy.
 	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
 	^ innerGenerator
+]
+
+{ #category : #'code-generation' }
+DRCogitStackToRegisterMappingGenerator >> markAsDeadCode [
+
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: (RBVariableNode named: 'deadCode')
+			 value: (RBLiteralNode value: true)).
+	markDeadCode := true
 ]
 
 { #category : #helpers }
@@ -180,6 +194,19 @@ DRCogitStackToRegisterMappingGenerator >> variables: anObject [
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitAnnnotateBytecode: aDRAnnotateBytecode [
+	"self annotateBytecode: self Label"
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #annotateBytecode:
+			 arguments: { (RBMessageNode
+					  receiver: RBVariableNode selfNode
+					  selector: #Label
+					  arguments: #(  )) })
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 	"self Jump: (self ensureFixupAt: targetBytecode)"
 
@@ -226,14 +253,8 @@ DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 					 arguments:
 					 { (RBBlockNode body: (RBSequenceNode statements: { rbCallNode })) }) ]
 		ifFalse: [ generatorMethodBuilder addStatement: rbCallNode ].
-	aDRCall isMapped ifTrue: [ "self annotateBytecode: self Label"
-		generatorMethodBuilder addStatement: (RBMessageNode
-				 receiver: RBVariableNode selfNode
-				 selector: #annotateBytecode:
-				 arguments: { (RBMessageNode
-						  receiver: RBVariableNode selfNode
-						  selector: #Label
-						  arguments: #(  )) }) ]
+	aDRCall isMapped ifTrue: [ 
+		self assert: aDRCall controlFlowGraph hasAnnotatedBytecode  ]
 ]
 
 { #category : #visiting }

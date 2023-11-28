@@ -1,8 +1,17 @@
 Class {
 	#name : #DRLinearScanRegisterAllocatorTest,
 	#superclass : #TestCase,
+	#instVars : [
+		'registerAllocator'
+	],
 	#category : #'Druid-Tests'
 }
+
+{ #category : #tests }
+DRLinearScanRegisterAllocatorTest >> setUp [
+
+	registerAllocator := DRCogitLinearScanRegisterAllocator new
+]
 
 { #category : #tests }
 DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegister [
@@ -18,7 +27,7 @@ DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegister [
 	
 	r := DRPhysicalGeneralPurposeRegister name: 'PR1'.
 	fr := DRPhysicalFloatingPointRegister name: 'FPR1'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator 
 		integerRegisters: { r };
 		floatRegisters: { fr };
 		allocateRegistersIn: cfg.
@@ -26,6 +35,102 @@ DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegister [
 	self assert: basicBlock instructions first result equals: r.
 	self assert: basicBlock instructions second operand1 result equals: r.
 	self assert: basicBlock instructions second result equals: fr.
+]
+
+{ #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegistersAfterOperate [
+
+	| cfg basicBlock r fr fr2 r0 r1 r3 r4 r5 r6 |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | 
+		r0 := block copy: 2.
+		r1 := block intToFloat: r0.
+		r3 := block copy: 3.
+		r4 := block intToFloat: r3.
+		r5 := block add: r1 to: r4. "FPR1 + FPR2"
+		r6 := block copy: r5 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	r := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	fr := DRPhysicalFloatingPointRegister name: 'FPR1'.
+	fr2 := DRPhysicalFloatingPointRegister name: 'FPR2'.
+	registerAllocator 
+		integerRegisters: { r };
+		floatRegisters: { fr . fr2 };
+		allocateRegistersIn: cfg.
+			
+	self assert: r5 result name equals: r5 operand1 result name
+
+]
+
+{ #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegistersAfterOperateReversed [
+
+	| cfg basicBlock r fr fr2 r0 r1 r3 r4 r5 r6 |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | 
+		r0 := block copy: 2.
+		r1 := block intToFloat: r0.
+		r3 := block copy: 3.
+		r4 := block intToFloat: r3.
+		r5 := block add: r4 to: r1. "FPR2 + FPR1"
+		r6 := block copy: r5 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	r := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	fr := DRPhysicalFloatingPointRegister name: 'FPR1'.
+	fr2 := DRPhysicalFloatingPointRegister name: 'FPR2'.
+	registerAllocator 
+		integerRegisters: { r };
+		floatRegisters: { fr . fr2 };
+		allocateRegistersIn: cfg.
+			
+	self assert: r5 result name equals: r5 operand1 result name
+
+]
+
+{ #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testAllocateIntegerRegistersAfterOperate [
+
+	| cfg basicBlock pr1 pr2 r0 r1 r2 r3 |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | 
+		r0 := block copy: 2.
+		r1 := block copy: 3.
+		r2 := block add: r0 to: r1. "PR1 + PR2"
+		r3 := block copy: r2 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	pr1 := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	pr2 := DRPhysicalGeneralPurposeRegister name: 'PR2'.
+	registerAllocator 
+		integerRegisters: { pr1 . pr2 };
+		allocateRegistersIn: cfg.
+		
+	self assert: r2 result name equals: r2 operand1 result name
+
+]
+
+{ #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testAllocateIntegerRegistersAfterOperateReversed [
+
+	| cfg basicBlock pr1 pr2 r0 r1 r2 r3 |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | 
+		r0 := block copy: 2.
+		r1 := block copy: 3.
+		r2 := block add: r1 to: r0. "PR2 + PR1"
+		r3 := block copy: r2 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	pr1 := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	pr2 := DRPhysicalGeneralPurposeRegister name: 'PR2'.
+	registerAllocator 
+		integerRegisters: { pr1 . pr2 };
+		allocateRegistersIn: cfg.
+		
+	self assert: r2 result name equals: r2 operand1 result name
+
 ]
 
 { #category : #tests }
@@ -47,7 +152,7 @@ DRLinearScanRegisterAllocatorTest >> testCoallescePhiArguments [
 	
 	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
 	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator 
 		integerRegisters: { firstRegister. secondRegister };
 		allocateRegistersIn: cfg.
 	
@@ -71,7 +176,7 @@ DRLinearScanRegisterAllocatorTest >> testInterferingIntervalsWithEnoughRegisters
 	
 	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
 	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator 
 		integerRegisters: { firstRegister. secondRegister };
 		allocateRegistersIn: cfg.
 	
@@ -110,7 +215,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetCoversCompletelyThenOverlaps [
 		r3 := block copy: r0 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	allocator := DRLinearScanRegisterAllocator new
+	allocator := registerAllocator
 		controlFlowGraph: cfg;
 		buildLiveSets;
 		yourself.
@@ -147,7 +252,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetCoversCompletelyThenOverlapsComm
 		r3 := block copy: r0 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	allocator := DRLinearScanRegisterAllocator new
+	allocator := registerAllocator
 		controlFlowGraph: cfg;
 		buildLiveSets;
 		yourself.
@@ -182,7 +287,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetCoversUntilLoad [
 		r3 := block load: r0 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	allocator := DRLinearScanRegisterAllocator new
+	allocator := registerAllocator
 		controlFlowGraph: cfg;
 		buildLiveSets;
 		yourself.
@@ -280,7 +385,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetOverlaps [
 		r3 := block copy: r1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	allocator := DRLinearScanRegisterAllocator new
+	allocator := registerAllocator
 		controlFlowGraph: cfg;
 		buildLiveSets;
 		yourself.
@@ -318,7 +423,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetOverlapsCommutative [
 		r3 := block copy: r1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	allocator := DRLinearScanRegisterAllocator new
+	allocator := registerAllocator
 		controlFlowGraph: cfg;
 		buildLiveSets;
 		yourself.
@@ -354,7 +459,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetWithManyIntervalsOverlapsIfOneIn
 		r2 := block copy: r0
 	]).
 
-	allocator := DRLinearScanRegisterAllocator new
+	allocator := registerAllocator
 		controlFlowGraph: cfg;
 		buildLiveSets;
 		yourself.
@@ -390,7 +495,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetWithManyIntervalsOverlapsIfOther
 		r2 := block copy: r0
 	]).
 
-	allocator := DRLinearScanRegisterAllocator new
+	allocator := registerAllocator
 		controlFlowGraph: cfg;
 		buildLiveSets;
 		yourself.
@@ -409,7 +514,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetsForReturnInstruction [
 		block return ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	DRLinearScanRegisterAllocator new
+	registerAllocator
 		integerRegisters: { };
 		allocateRegistersIn: cfg.
 		
@@ -429,7 +534,7 @@ DRLinearScanRegisterAllocatorTest >> testNoSpillHasNoSpillSlots [
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
 	r := DRPhysicalGeneralPurposeRegister name: 'PR1'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator
 		integerRegisters: { r };
 		allocateRegistersIn: cfg.
 	
@@ -449,7 +554,7 @@ DRLinearScanRegisterAllocatorTest >> testNonInterferingIntervals [
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
 	r := DRPhysicalGeneralPurposeRegister name: 'PR1'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator
 		integerRegisters: { r };
 		allocateRegistersIn: cfg.
 	
@@ -482,7 +587,7 @@ DRLinearScanRegisterAllocatorTest >> testNonOverlappingVariableInHoleCanReuseHol
 	basicBlockJoin copy: r2.
 	
 	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator
 		integerRegisters: { firstRegister };
 		allocateRegistersIn: cfg.
 	
@@ -514,7 +619,7 @@ DRLinearScanRegisterAllocatorTest >> testOverlappingPhiArguments [
 	basicBlockJoin copy: r0.
 	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
 	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator
 		integerRegisters: { firstRegister. secondRegister };
 		allocateRegistersIn: cfg.
 	
@@ -540,7 +645,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesLoadBeforeUse [
 	
 	"SPR1 is a spill register reserved for spill allocations"
 	spillRegister := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator
 		integerRegisters: { firstRegister };
 		spillRegisters: { spillRegister };
 		allocateRegistersIn: cfg.
@@ -574,7 +679,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesStore [
 
 	"SPR1 is a spill register reserved for spill allocations"
 	spillRegister := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator
 		integerRegisters: { firstRegister };
 		spillRegisters: { spillRegister };
 		allocateRegistersIn: cfg.
@@ -607,7 +712,8 @@ DRLinearScanRegisterAllocatorTest >> testSpillStoresAndLoadsToSameAddress [
 	"SPR1 is a spill register reserved for spill allocations"
 	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
 	spillRegister2 := DRPhysicalGeneralPurposeRegister name: 'SPR2'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator
+		integerRegisters: { };
 		spillRegisters: { spillRegister1. spillRegister2 };
 		allocateRegistersIn: cfg.
 	
@@ -644,7 +750,8 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwice [
 	"SPR1 is a spill register reserved for spill allocations"
 	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
 	spillRegister2 := DRPhysicalGeneralPurposeRegister name: 'SPR2'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator
+		integerRegisters: { };
 		spillRegisters: { spillRegister1. spillRegister2 };
 		allocateRegistersIn: cfg.
 	
@@ -681,14 +788,12 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwiceIncrementsSpillSlotsToTwo [
 	"SPR1 is a spill register reserved for spill allocations"
 	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
 	spillRegister2 := DRPhysicalGeneralPurposeRegister name: 'SPR2'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator
+		integerRegisters: { };
 		spillRegisters: { spillRegister1. spillRegister2 };
 		allocateRegistersIn: cfg.
 	
-	"Since we have no registers, we need three spill slots: 
-	 - two for the ADD operands
-	 - one for the ADD result "
-	self assert: cfg numberOfSpillSlots equals: 3
+	self assert: cfg numberOfSpillSlots equals: 2
 ]
 
 { #category : #tests }
@@ -708,7 +813,8 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwiceUsesDifferentAddresses [
 	"SPR1 is a spill register reserved for spill allocations"
 	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
 	spillRegister2 := DRPhysicalGeneralPurposeRegister name: 'SPR2'.
-	DRLinearScanRegisterAllocator new
+	registerAllocator
+		integerRegisters: { };
 		spillRegisters: { spillRegister1. spillRegister2 };
 		allocateRegistersIn: cfg.
 	

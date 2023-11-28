@@ -1,21 +1,35 @@
 Class {
 	#name : #DRCustomisedCompilerTest,
 	#superclass : #DRDruidTests,
+	#instVars : [
+		'compiler'
+	],
 	#category : #'Druid-Tests'
 }
 
 { #category : #tests }
 DRCustomisedCompilerTest >> compile: selector [
 
-	(self newCompiler: selector) compile
+	self configureCompiler: selector.
+	compiler compile.
+	^ compiler targetMethod 
+]
+
+{ #category : #tests }
+DRCustomisedCompilerTest >> configureCompiler: selector [
+
+	compiler
+		sourceName: selector;
+		targetName: #gen_ , selector
 ]
 
 { #category : #tests }
 DRCustomisedCompilerTest >> generateDruidIRFor: selector [
 
-	| method compiler cfg |
+	| method cfg |
+	self configureCompiler: selector.
+	
 	method := DruidTestInterpreter lookupSelector: selector.
-	compiler := self newCompiler: selector.
 	compiler customiseFor: method.
 	cfg := compiler generateDruidIRFor: method.
 	compiler optimize: cfg.
@@ -24,29 +38,64 @@ DRCustomisedCompilerTest >> generateDruidIRFor: selector [
 ]
 
 { #category : #tests }
-DRCustomisedCompilerTest >> newCompiler: selector [
+DRCustomisedCompilerTest >> newBytecodeCompiler [
 
-	^ DRPrimitiveCompilerCompiler new
+	^ self newCompiler: DRBytecodeCompilerCompiler
+]
+
+{ #category : #tests }
+DRCustomisedCompilerTest >> newCompiler: compilerClass [
+
+	^ compilerClass new
 		interpreter: self interpreter;
-		primitiveName: selector;
-		primitiveCompilerName: #gen_ , selector;
 		compilerClass: DruidTestRTLCompiler;
 		yourself
+]
+
+{ #category : #tests }
+DRCustomisedCompilerTest >> newPrimitiveCompiler [
+
+	^ self newCompiler: DRPrimitiveCompilerCompiler
+]
+
+{ #category : #tests }
+DRCustomisedCompilerTest >> setUp [
+
+	super setUp.
+	compiler := self newPrimitiveCompiler
 ]
 
 { #category : #tests }
 DRCustomisedCompilerTest >> testAddsPreambleToGeneratedCode [
 
 	| genMethod preambleCode |
-	self compile: #primitiveAdd.
-
-	genMethod := DruidTestRTLCompiler lookupSelector: #gen_primitiveAdd.
+	genMethod := self compile: #primitiveAdd.
 	preambleCode := genMethod ast body statements first formattedCode.
 
 	self
 		assert: preambleCode
 		equals:
 		'self mclassIsSmallInteger ifFalse: [ ^ UnimplementedPrimitive ]'
+]
+
+{ #category : #tests }
+DRCustomisedCompilerTest >> testIsMappedShouldAnnotateBytecode [
+
+	| cfg |
+	compiler := self newBytecodeCompiler.
+	cfg := self generateDruidIRFor: #extUnconditionalJump.
+
+	self assert: cfg hasAnnotatedBytecode
+]
+
+{ #category : #tests }
+DRCustomisedCompilerTest >> testIsMappedWithSendShouldNotAnnotateBytecode [
+
+	| cfg |
+	compiler := self newBytecodeCompiler.
+	cfg := self generateDruidIRFor: #bytecodePrimAdd.
+
+	self deny: cfg hasAnnotatedBytecode
 ]
 
 { #category : #tests }

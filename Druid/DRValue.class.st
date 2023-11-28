@@ -34,6 +34,16 @@ DRValue >> addToDependenciesList: alreadyComputedDependencies [
 
 ]
 
+{ #category : #adding }
+DRValue >> addToUsersList: alreadyComputedUsers [
+
+	(alreadyComputedUsers includes: self) ifTrue: [
+		^ alreadyComputedUsers ].
+
+	alreadyComputedUsers add: self.
+	self users do: [ :e | e addToUsersList: alreadyComputedUsers ]
+]
+
 { #category : #'users-definitions' }
 DRValue >> addUser: anInstruction [
 	
@@ -117,6 +127,12 @@ DRValue >> isAdd [
 ]
 
 { #category : #testing }
+DRValue >> isAnnotateBytecode [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isComparison [
 
 	^ false
@@ -132,6 +148,12 @@ DRValue >> isComplexCondition [
 DRValue >> isConstant [
 	
 	^ false
+]
+
+{ #category : #testing }
+DRValue >> isConstraintConstant [
+
+	^ self isConstant 
 ]
 
 { #category : #testing }
@@ -435,4 +457,13 @@ DRValue >> withAllDependencies [
 	dependencies := OrderedCollection new.
 	self addToDependenciesList: dependencies.
 	^ dependencies
+]
+
+{ #category : #accessing }
+DRValue >> withAllUsers [
+
+	| allUsers |
+	allUsers := OrderedCollection new.
+	self addToUsersList: allUsers.
+	^ allUsers
 ]

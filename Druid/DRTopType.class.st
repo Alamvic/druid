@@ -68,6 +68,12 @@ DRTopType >> isFloatType [
 ]
 
 { #category : #testing }
+DRTopType >> isInstruction [
+
+	^ false
+]
+
+{ #category : #testing }
 DRTopType >> isIntegerType [
 	
 	^ false

@@ -30,6 +30,12 @@ DRCogitOperandSorter >> visitAddition: aDRAdd [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitAnnnotateBytecode: aDRAnnotateBytecode [ 
+
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitBitAnd: aDRBitAnd [ 
 	
 	^ self visitCommutativeInstruction: aDRBitAnd
@@ -49,16 +55,20 @@ DRCogitOperandSorter >> visitBitXor: aDRBitXor [
 
 { #category : #visiting }
 DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [
-	"Mask test conditions accept constants in cogit"
 
+	"JIT expressions do not need extras copies"
+	aDRBranchIfCondition isJITCompileTimeExpression ifTrue: [ ^ self ].
+
+	"Mask test conditions accept constants in cogit"
 	(aDRBranchIfCondition condition isTestMask or: [
 		 aDRBranchIfCondition condition isNoTestMask ]) ifTrue: [ ^ self ].
 
+
 	"Cogit only accept constants as first operands (second in DruidIR).
 	Equals comparison being commutative, we can reverse the operands to avoid an extra copy"
-	(aDRBranchIfCondition operand1 isConstant and: [ aDRBranchIfCondition condition isEqualsThanComparison ]) ifTrue: [
-		aDRBranchIfCondition reverseOperands.
-	].
+	(aDRBranchIfCondition operand1 isConstant and: [
+		 aDRBranchIfCondition condition isEqualsThanComparison ]) ifTrue: [
+		aDRBranchIfCondition reverseOperands ].
 
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRBranchIfCondition
 ]
@@ -129,6 +139,13 @@ DRCogitOperandSorter >> visitFloatToIntConversion: aDRFloatToInt [
 	
 	"Int to float conversion is on registers only"
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRFloatToInt
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitFlushStack: aDRFlushStack [
+	"Nothing"
+
+	
 ]
 
 { #category : #visiting }

@@ -102,3 +102,9 @@ DRPrimitiveCompilerCompiler >> targetName [
 
 	^ self primitiveCompilerName
 ]
+
+{ #category : #accessing }
+DRPrimitiveCompilerCompiler >> targetName: aString [ 
+	
+	self primitiveCompilerName: aString
+]
