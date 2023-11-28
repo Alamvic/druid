@@ -103,6 +103,12 @@ DRCogitOperandSorter >> visitCopy: aDRCopy [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitDeoptimize: aDRDeoptimize [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitDivision: aDRDivision [ 
 	
 	"Division only exist between two registers in cogit. Extract the second operand too"

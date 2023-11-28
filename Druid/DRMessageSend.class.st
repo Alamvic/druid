@@ -89,8 +89,6 @@ DRMessageSend >> receiverType [
 DRMessageSend >> sccpEvaluateFor: sccp [
 
 	"Nothing to do"
-
-	
 ]
 
 { #category : #SCCP }
