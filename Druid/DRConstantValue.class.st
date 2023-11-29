@@ -32,7 +32,6 @@ DRConstantValue >> acceptVisitor: aVisitor [
 { #category : #converting }
 DRConstantValue >> asJitCompileTimeExpression [
 
-1haltIf: [ self value asString = 'method' ].
 	^ DRConstantCompileTimeExpression expression: self value asString
 ]
 
