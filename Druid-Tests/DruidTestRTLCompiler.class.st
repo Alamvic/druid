@@ -331,67 +331,59 @@ DruidTestRTLCompiler >> gen_extendedPushBytecode [
 			      ifNone: [ ^ self unknownBytecode ].
 		live := live bitOr: (self registerMaskFor: t0).
 		self genMoveConstant: methodObj R: t0.
-		self
-			ssPushBase: t0
-			offset: (byte1 bitAnd: 63) + LiteralStart << 3 + 8.
+		self ssPushConstant:
+			(coInterpreter int64AtPointer:  ((methodObj + 8) + (((byte1 bitAnd: 63) + LiteralStart) << 3))).
 		^ 0 ].
 	((byte1 >> 6) bitAnd: 3)=3 ifTrue: [
-		| t0 b322 jumpTrue jump1 jumpNext t1 jump3 jump2 t2 |
+		| t0 |
 		t0 := self
 			      allocateRegNotConflictingWith: live
 			      ifNone: [ ^ self unknownBytecode ].
 		live := live bitOr: (self registerMaskFor: t0).
 		self genMoveConstant: methodObj R: t0.
-		self MoveM64: (byte1 bitAnd: 63) + LiteralStart << 3 + 8 r: t0 R: t0.
-		t1 := self
-			      allocateRegNotConflictingWith: live
-			      ifNone: [ ^ self unknownBytecode ].
-		live := live bitOr: (self registerMaskFor: t1).
-		self MoveM64: 0 r: t0 R: t1.
-		self AndCq: 16r3FFFF7 R: t1.
-		self CmpCq: 0 R: t1.
-		jump1 := self JumpZero: 0.
-		self MoveR: t0 R: t1.
-		jump2 := self Jump: 0.
-		currentBlock := self Label.
-		jump1 jmpTarget: currentBlock.
-		self MoveM64: 8 r: t0 R: t1.
-		self MoveR: t1 R: t0.
-		b322 := self Label.
-		self MoveR: t0 R: t1.
-		self AndCq: 7 R: t1.
-		self CmpCq: 0 R: t1.
-		jump1 := self JumpNonZero: 0.
-		self MoveM64: 0 r: t0 R: t1.
-		self AndCq: 16r3FFFF7 R: t1.
-		t2 := self
-			      allocateRegNotConflictingWith: live
-			      ifNone: [ ^ self unknownBytecode ].
-		live := live bitOr: (self registerMaskFor: t2).
-		self MoveR: t1 R: t2.
-		self CmpCq: 0 R: t2.
-		jumpTrue := self JumpZero: 0.
-		self MoveCq: 0 R: t2.
-		jumpNext := self Jump: 0.
-		jumpTrue jmpTarget: self Label.
-		self MoveCq: 1 R: t2.
-		jumpNext jmpTarget: self Label.
-		self CmpCq: 0 R: t1.
-		jump3 := self JumpZero: 0.
-		currentBlock := self Label.
-		jump1 jmpTarget: currentBlock.
-		self MoveR: t0 R: t1.
-		currentBlock := self Label.
-		jump2 jmpTarget: currentBlock.
-		self ssPushBase: t1 offset: ValueIndex << 3 + 8.
-		jump2 := self Jump: 0.
-		currentBlock := self Label.
-		jump3 jmpTarget: currentBlock.
-		self MoveM64: 8 r: t0 R: t2.
-		self MoveR: t2 R: t0.
-		jump3 := self Jump: b322.
-		currentBlock := self Label.
-		jump2 jmpTarget: currentBlock.
+		0=((coInterpreter int64AtPointer:  (coInterpreter int64AtPointer:  ((methodObj + 8) + (((byte1 bitAnd: 63) + LiteralStart) << 3)))) bitAnd: 4194295)
+			ifTrue: [
+				| jumpTrue jumpNext jump1 jump3 b316 t1 jump2 t2 |
+				self
+					MoveCq:
+					(coInterpreter int64AtPointer:  (((coInterpreter int64AtPointer:  ((methodObj + 8) + (((byte1 bitAnd: 63) + LiteralStart) << 3))) + 8) + 0))
+					R: t0.
+				b316 := self Label.
+				t1 := self
+					      allocateRegNotConflictingWith: live
+					      ifNone: [ ^ self unknownBytecode ].
+				live := live bitOr: (self registerMaskFor: t1).
+				self MoveR: t0 R: t1.
+				self AndCq: 7 R: t1.
+				self CmpCq: 0 R: t1.
+				jump1 := self JumpNonZero: 0.
+				self MoveM64: 0 r: t0 R: t1.
+				self AndCq: 16r3FFFF7 R: t1.
+				t2 := self
+					      allocateRegNotConflictingWith: live
+					      ifNone: [ ^ self unknownBytecode ].
+				live := live bitOr: (self registerMaskFor: t2).
+				self MoveR: t1 R: t2.
+				self CmpCq: 0 R: t2.
+				jumpTrue := self JumpZero: 0.
+				self MoveCq: 0 R: t2.
+				jumpNext := self Jump: 0.
+				jumpTrue jmpTarget: self Label.
+				self MoveCq: 1 R: t2.
+				jumpNext jmpTarget: self Label.
+				self CmpCq: 0 R: t1.
+				jump2 := self JumpNonZero: 0.
+				self MoveM64: 8 r: t0 R: t2.
+				self MoveR: t2 R: t0.
+				jump3 := self Jump: b316.
+				currentBlock := self Label.
+				jump1 jmpTarget: currentBlock.
+				jump2 jmpTarget: currentBlock.
+				self ssPushConstant:
+					(coInterpreter int64AtPointer:  (((coInterpreter int64AtPointer:  ((methodObj + 8) + (((byte1 bitAnd: 63) + LiteralStart) << 3))) + 8) + (ValueIndex << 3))).
+				^ 0 ].
+		self ssPushConstant:
+			(coInterpreter int64AtPointer:  (((coInterpreter int64AtPointer:  ((methodObj + 8) + (((byte1 bitAnd: 63) + LiteralStart) << 3))) + 8) + (ValueIndex << 3))).
 		^ 0 ].
 	^ 0
 ]
@@ -1915,9 +1907,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivide [
 	self
 		DivR: ClassReg
 		R: TempReg
-		Quo: ClassReg
-		Rem: TempReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: TempReg
+		Rem: ClassReg.
+	self MoveR: TempReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -2616,38 +2608,40 @@ DruidTestRTLCompiler >> gen_primitiveNewWithArg [
 	self
 		DivR: Extra2Reg
 		R: ClassReg
-		Quo: ClassReg
-		Rem: Extra2Reg.
-	self MoveCq: 8 R: Extra2Reg.
-	self SubR: TempReg R: Extra2Reg.
-	self AndCq: 7 R: Extra2Reg.
-	self AddR: Extra2Reg R: SendNumArgsReg.
+		Quo: Extra2Reg
+		Rem: ClassReg.
+	self MoveCq: 8 R: ClassReg.
+	self SubR: TempReg R: ClassReg.
+	self AndCq: 7 R: ClassReg.
+	self AddR: ClassReg R: SendNumArgsReg.
+	self MoveR: Extra2Reg R: ClassReg.
 	jump9 := self Jump: 0.
 	currentBlock := self Label.
 	jump8 jmpTarget: currentBlock.
-	self MoveR: TempReg R: Extra2Reg.
-	self AddCq: 3 R: Extra2Reg.
-	self MoveCq: 4 R: ClassReg.
-	self
-		DivR: ClassReg
-		R: Extra2Reg
-		Quo: ClassReg
-		Rem: Extra2Reg.
+	self MoveR: TempReg R: ClassReg.
+	self AddCq: 3 R: ClassReg.
 	self MoveCq: 4 R: Extra2Reg.
-	self SubR: TempReg R: Extra2Reg.
-	self AndCq: 3 R: Extra2Reg.
-	self AddR: Extra2Reg R: SendNumArgsReg.
+	self
+		DivR: Extra2Reg
+		R: ClassReg
+		Quo: Extra2Reg
+		Rem: ClassReg.
+	self MoveCq: 4 R: ClassReg.
+	self SubR: TempReg R: ClassReg.
+	self AndCq: 3 R: ClassReg.
+	self AddR: ClassReg R: SendNumArgsReg.
+	self MoveR: Extra2Reg R: ClassReg.
 	jump8 := self Jump: 0.
 	currentBlock := self Label.
 	jump7 jmpTarget: currentBlock.
 	self CmpCq: 34 R: Extra0Reg.
 	jump7 := self JumpZero: 0.
-	self MoveR: TempReg R: Extra2Reg.
-	self AddCq: 1 R: Extra2Reg.
-	self MoveCq: 2 R: ClassReg.
+	self MoveR: TempReg R: ClassReg.
+	self AddCq: 1 R: ClassReg.
+	self MoveCq: 2 R: Extra2Reg.
 	self
-		DivR: ClassReg
-		R: Extra2Reg
+		DivR: Extra2Reg
+		R: ClassReg
 		Quo: ClassReg
 		Rem: Extra2Reg.
 	self AndCq: 1 R: TempReg.
@@ -3534,7 +3528,8 @@ DruidTestRTLCompiler >> gen_pushLiteralConstantBytecode [
 		      ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
 	self genMoveConstant: methodObj R: t0.
-	self ssPushBase: t0 offset: 1 + LiteralStart << 3 + 8.
+	self ssPushConstant:
+		(coInterpreter int64AtPointer:  ((methodObj + 8) + ((1 + LiteralStart) << 3))).
 	^ 0
 ]
 
@@ -3542,63 +3537,56 @@ DruidTestRTLCompiler >> gen_pushLiteralConstantBytecode [
 DruidTestRTLCompiler >> gen_pushLiteralVariable16CasesBytecode [
 	"AutoGenerated by Druid"
 
-	| jump1 jumpNext b232 t1 jump3 currentBlock t0 jumpTrue jump2 t2 live |
+	| live currentBlock t0 |
 	live := 0.
 	t0 := self
 		      allocateRegNotConflictingWith: live
 		      ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
 	self genMoveConstant: methodObj R: t0.
-	self MoveM64: 0 + LiteralStart << 3 + 8 r: t0 R: t0.
-	t1 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
-	live := live bitOr: (self registerMaskFor: t1).
-	self MoveM64: 0 r: t0 R: t1.
-	self AndCq: 16r3FFFF7 R: t1.
-	self CmpCq: 0 R: t1.
-	jump1 := self JumpZero: 0.
-	self MoveR: t0 R: t1.
-	jump2 := self Jump: 0.
-	currentBlock := self Label.
-	jump1 jmpTarget: currentBlock.
-	self MoveM64: 8 r: t0 R: t1.
-	self MoveR: t1 R: t0.
-	b232 := self Label.
-	self MoveR: t0 R: t1.
-	self AndCq: 7 R: t1.
-	self CmpCq: 0 R: t1.
-	jump1 := self JumpNonZero: 0.
-	self MoveM64: 0 r: t0 R: t1.
-	self AndCq: 16r3FFFF7 R: t1.
-	t2 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
-	live := live bitOr: (self registerMaskFor: t2).
-	self MoveR: t1 R: t2.
-	self CmpCq: 0 R: t2.
-	jumpTrue := self JumpZero: 0.
-	self MoveCq: 0 R: t2.
-	jumpNext := self Jump: 0.
-	jumpTrue jmpTarget: self Label.
-	self MoveCq: 1 R: t2.
-	jumpNext jmpTarget: self Label.
-	self CmpCq: 0 R: t1.
-	jump3 := self JumpZero: 0.
-	currentBlock := self Label.
-	jump1 jmpTarget: currentBlock.
-	self MoveR: t0 R: t1.
-	currentBlock := self Label.
-	jump2 jmpTarget: currentBlock.
-	self ssPushBase: t1 offset: ValueIndex << 3 + 8.
-	jump2 := self Jump: 0.
-	currentBlock := self Label.
-	jump3 jmpTarget: currentBlock.
-	self MoveM64: 8 r: t0 R: t2.
-	self MoveR: t2 R: t0.
-	jump3 := self Jump: b232.
-	currentBlock := self Label.
-	jump2 jmpTarget: currentBlock.
+	0=((coInterpreter int64AtPointer:  (coInterpreter int64AtPointer:  ((methodObj + 8) + ((0 + LiteralStart) << 3)))) bitAnd: 4194295)
+		ifTrue: [
+			| jumpTrue jumpNext jump1 jump3 t1 jump2 b227 t2 |
+			self
+				MoveCq:
+				(coInterpreter int64AtPointer:  (((coInterpreter int64AtPointer:  ((methodObj + 8) + ((0 + LiteralStart) << 3))) + 8) + 0))
+				R: t0.
+			b227 := self Label.
+			t1 := self
+				      allocateRegNotConflictingWith: live
+				      ifNone: [ ^ self unknownBytecode ].
+			live := live bitOr: (self registerMaskFor: t1).
+			self MoveR: t0 R: t1.
+			self AndCq: 7 R: t1.
+			self CmpCq: 0 R: t1.
+			jump1 := self JumpNonZero: 0.
+			self MoveM64: 0 r: t0 R: t1.
+			self AndCq: 16r3FFFF7 R: t1.
+			t2 := self
+				      allocateRegNotConflictingWith: live
+				      ifNone: [ ^ self unknownBytecode ].
+			live := live bitOr: (self registerMaskFor: t2).
+			self MoveR: t1 R: t2.
+			self CmpCq: 0 R: t2.
+			jumpTrue := self JumpZero: 0.
+			self MoveCq: 0 R: t2.
+			jumpNext := self Jump: 0.
+			jumpTrue jmpTarget: self Label.
+			self MoveCq: 1 R: t2.
+			jumpNext jmpTarget: self Label.
+			self CmpCq: 0 R: t1.
+			jump2 := self JumpNonZero: 0.
+			self MoveM64: 8 r: t0 R: t2.
+			self MoveR: t2 R: t0.
+			jump3 := self Jump: b227.
+			currentBlock := self Label.
+			jump1 jmpTarget: currentBlock.
+			jump2 jmpTarget: currentBlock.
+			self ssPushConstant:
+				(coInterpreter int64AtPointer:  (((coInterpreter int64AtPointer:  ((methodObj + 8) + ((0 + LiteralStart) << 3))) + 8) + (ValueIndex << 3))).
+			^ 0 ].
+	self ssPushConstant:
+		(coInterpreter int64AtPointer:  (((coInterpreter int64AtPointer:  ((methodObj + 8) + ((0 + LiteralStart) << 3))) + 8) + (ValueIndex << 3))).
 	^ 0
 ]
 

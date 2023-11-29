@@ -567,6 +567,30 @@ DRSCCPConstantFoldingTest >> testFoldingLoadWithOperation [
 ]
 
 { #category : #tests }
+DRSCCPConstantFoldingTest >> testFoldingObjectReferenceIntoJITExpression [
+
+	| cfg copy addition |
+	cfg := self setUpCFG: 1.
+
+	cfg b1 addInstruction: (copy := DRObjectReferenceCopy
+			         operands:
+			         { (DRObjectReferenceValue expression: 'methodObj') }
+			         result: (DRTemporaryRegister id: 999)).
+	addition := cfg b1 add: copy to: 1.
+	cfg b1 return: addition.
+
+	optimisation applyTo: cfg.
+
+	"Object references should keep to be annotated for GC"
+	self assert: cfg instructions first equals: copy.
+	"Anyway, users are folded"
+	self assert: cfg instructions second isCopy.
+	self assert: cfg instructions second operand1 expression equals: '(methodObj + 1)'.
+
+
+]
+
+{ #category : #tests }
 DRSCCPConstantFoldingTest >> testNonConstantFoldingOf: aClass between: aDROperand1 and: aDROperand2 [ 
 	| cfg |
 	cfg := self testConstantFoldingOf: aClass between: aDROperand1 and: aDROperand2.

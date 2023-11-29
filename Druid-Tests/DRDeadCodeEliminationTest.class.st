@@ -4,13 +4,17 @@ Class {
 	#category : #'Druid-Tests-Optimizations'
 }
 
+{ #category : #test }
+DRDeadCodeEliminationTest >> setUp [
+
+	super setUp.
+	optimisation := DRDeadCodeElimination new
+]
+
 { #category : #tests }
 DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 
-
 	| cfg copy1 copy2 copy3 copy4 copy5 copy6 jump add1 add2 phi|
-	optimisation := DRDeadCodeElimination new. 
-
 	copy1 := DRCopy
 		         operands: { (DRConstantValue value: 1) }
 		         result: (DRTemporaryRegister id: 1).
@@ -58,10 +62,7 @@ DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 { #category : #tests }
 DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 
-	| cfg copy1 copy2 phi1|
-	
-	optimisation := DRDeadCodeElimination new. 
-	
+	| cfg copy1 copy2 phi1|	
 	cfg := self setUpCFG: 2. 
 	
 	cfg b1 addInstruction: (DRCopy operands: { DRConstantValue value: 1 } result:  (DRTemporaryRegister id: 1)). 
@@ -87,9 +88,6 @@ DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 
 	| b1 b2 cfg copy1 |
-	
-	optimisation := DRDeadCodeElimination new. 
-	
 	cfg := self setUpCFG: 2. 
 	
 	b1 := cfg b1.
@@ -108,12 +106,27 @@ DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 ]
 
 { #category : #test }
+DRDeadCodeEliminationTest >> testNotRemoveUnusedMandatoryInstruction [
+
+	| cfg copy addition |
+	cfg := self setUpCFG: 2.
+
+	cfg b2 addInstruction: (copy := DRObjectReferenceCopy
+			         operands:
+			         { (DRObjectReferenceValue expression: 'methodObj') }
+			         result: (DRTemporaryRegister id: 1)).
+	addition := cfg b2 add: copy to: 1.
+
+	optimisation applyTo: cfg.
+
+	self denyCollection: cfg instructions includesAny: { addition }.
+	self assertCollection: cfg instructions includesAny: { copy }
+]
+
+{ #category : #test }
 DRDeadCodeEliminationTest >> testRemoveUnusedNoop [
 
 	| cfg |
-	
-	optimisation := DRDeadCodeElimination new. 
-	
 	cfg := self setUpCFG: 2. 
 	
 	cfg b2 addInstruction: (DRNoop new result: DRNoRegister new). 
