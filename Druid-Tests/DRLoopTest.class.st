@@ -55,9 +55,6 @@ DRLoopTest >> testCanRetrieveLoopGraphWithMultipleBodyBlocks [
 DRLoopTest >> testCanRetrieveLoopGraphWithNestedLoops [
 
 	| cfg outerLoop loopSubgraph loopBlocksIds |
-	
-	self skip. "Improve fixBackJump algorithm"
-	
 	cfg := self generateDruidIRFor: #primitiveNestedLoopWithInvariant.
 
 	outerLoop := cfg allLoops first.
@@ -80,4 +77,32 @@ DRLoopTest >> testCanRetrieveLoopGraphWithSingleBodyBlock [
 
 	loopBlocksIds := { 6. 7 }.
 	self assertCollection: (loopSubgraph blocks collect: #id) hasSameElements: loopBlocksIds.
+]
+
+{ #category : #tests }
+DRLoopTest >> testFixBackjumpsIgnoreInnerRecursivePhis [
+
+	| cfg innerPhi loopHeaderPhi loopBody addition1 addition2 |
+	cfg := self setUpCFGWithConditionalWithPhi.
+
+	loopHeaderPhi := cfg b1 phiWithVariables: {  }.
+	addition1 := cfg b2 add: loopHeaderPhi to: 7.
+
+	innerPhi := cfg b4 phiFunctions unique.
+	innerPhi replaceOperandAtIndex: 1 by: addition1.
+
+	loopBody := cfg newBasicBlock. "5"
+	addition2 := loopBody add: innerPhi to: 8.
+	cfg b4 jumpIfTrueTo: loopBody ifFalseTo: cfg newBasicBlock.
+	loopBody backJumpTo: cfg b1.
+	loopHeaderPhi mergeOperands: { DRNullValue new. addition2 }.
+	cfg validate.
+	
+	self assert: loopHeaderPhi hasRecursiveUse.
+	self assert: innerPhi hasRecursiveUse.
+	self assert: cfg allBackJumps unique equals: loopBody endInstruction.
+	
+	cfg fixBackJumps.
+
+	self assert: cfg allBackJumps unique equals: loopBody endInstruction
 ]

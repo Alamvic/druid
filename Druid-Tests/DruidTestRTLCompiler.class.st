@@ -2671,16 +2671,13 @@ DruidTestRTLCompiler >> gen_primitiveNewWithArg [
 	self
 		DivR: ClassReg
 		R: Extra2Reg
-		Quo: Extra2Reg
-		Rem: ClassReg.
+		Quo: ClassReg
+		Rem: Extra2Reg.
 	self AndCq: 1 R: TempReg.
 	self AddR: TempReg R: SendNumArgsReg.
-	self MoveCq: 0 R: TempReg.
-	self MoveR: Extra2Reg R: ClassReg.
-	self MoveR: TempReg R: Extra2Reg.
+	self MoveCq: 0 R: Extra2Reg.
 	currentBlock := self Label.
 	jump13 jmpTarget: currentBlock.
-	self MoveR: ClassReg R: TempReg.
 	jump13 := self Jump: 0.
 	currentBlock := self Label.
 	jump6 jmpTarget: currentBlock.
@@ -2714,11 +2711,10 @@ DruidTestRTLCompiler >> gen_primitiveNewWithArg [
 	jump4 jmpTarget: currentBlock.
 	self CmpCq: 0 R: Extra0Reg.
 	jump4 := self JumpZero: 0.
-	self MoveR: ClassReg R: TempReg.
 	self MoveR: Extra1Reg R: Extra2Reg.
 	currentBlock := self Label.
 	jump13 jmpTarget: currentBlock.
-	self MoveR: TempReg R: Extra3Reg.
+	self MoveR: ClassReg R: Extra3Reg.
 	self MoveR: Extra3Reg Mw: 8 r: SPReg.
 	self MoveR: SendNumArgsReg R: Extra3Reg.
 	self MoveR: Extra3Reg Mw: 16 r: SPReg.

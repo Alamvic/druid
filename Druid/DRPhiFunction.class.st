@@ -62,21 +62,6 @@ DRPhiFunction >> conditionalBranch [
 ]
 
 { #category : #testing }
-DRPhiFunction >> hasBackJumpFlow [
-	"The backjump is to a place with a recursive Phi.
-	Many phis could be part of the recursive use.
-	This method answer the phi in the chain with one predecessor that escape from the loop (the first one)"
-
-	^ self hasRecursiveUse and: [
-		  (self withAllDependencies copyWithout: self) noneSatisfy: [
-			  :dependency |
-			  dependency isPhiFunction and: [
-				  dependency basicBlock ~= self basicBlock and: [
-					  dependency basicBlock predecessors anySatisfy: [ :block |
-						  (block isDominatedBy: self basicBlock) not ] ] ] ] ]
-]
-
-{ #category : #testing }
 DRPhiFunction >> hasRecursiveUse [
 
 	self recursiveUsersDo: [ :i | i = self ifTrue: [ ^ true ] ].
