@@ -255,6 +255,24 @@ DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreation [
+
+	| allocatedTemporary |
+	allocatedTemporary := self allocateVariable:
+		                      aDRClosureCreation result.
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector:
+			 #genCreateFullClosureInIndex:numCopied:ignoreContext:contextNumArgs:large:inBlock:intoRegister:
+			 arguments: (aDRClosureCreation operands collect: [ :e |
+					  (e rtlPushArgumentExpressions: self) first ]) , {
+					 (RBVariableNode named:
+						  '(coInterpreter methodNeedsLargeContext: methodObj)').
+					 (RBVariableNode named: 'inBlock') }
+				 , { (RBVariableNode named: allocatedTemporary) })
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMarshall [
 	"self marshallSendArguments: numArgs."
 
@@ -300,7 +318,8 @@ DRCogitStackToRegisterMappingGenerator >> visitDeoptimize: aDRDeoptimize [
 	generatorMethodBuilder addStatement:
 		(RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #deoptimize)
+			 selector: #deoptimize).
+	markDeadCode := true.
 ]
 
 { #category : #visiting }

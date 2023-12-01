@@ -274,6 +274,12 @@ DRCPSEdge >> visitClosureActivation: aDRClosureActivation [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitClosureCreation: aDRClosureCreation [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
 	| operands constantValue |

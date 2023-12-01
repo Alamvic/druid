@@ -61,6 +61,8 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #fetchByte put: #interpretFetchByteWith:.
 	specialCases at: #druidForceIntepretation put: #interpretDruidForceIntepretationWith:.
 	specialCases at: #remember: put: #interpretRememberWith:.
+	
+	specialCases at: #createFullClosureInIndex:numCopied:ignoreContext:receiverIsOnStack: put: #interpretCreateClosureWith:.
 
 	"Message send"
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
@@ -129,6 +131,19 @@ DRBytecodeIRGenerator >> interpretCommonReturnWith: aRBMessageNode [
 		  addInstructionWithNoResultFrom: aRBMessageNode
 		  instructionKind: DRReturn
 		  operands: { returnedValue . false asDRValue }
+]
+
+{ #category : #'as yet unclassified' }
+DRBytecodeIRGenerator >> interpretCreateClosureWith: aRBMessageNode [
+
+	| operands |
+	operands := aRBMessageNode arguments collect: [ :e |
+		            self visitOperand: e ].
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRClosureCreation
+		  operands: operands
 ]
 
 { #category : #visiting }
@@ -417,21 +432,17 @@ DRBytecodeIRGenerator >> interpretStackTopWith: aRBMessageNode [
 
 { #category : #'special cases - stack' }
 DRBytecodeIRGenerator >> interpretStackValueWith: aRBMessageNode [
-
 	"Interpret messages of the form 
 	interpreter stackValue: xxx.
 	"
 
 	| value |
 	aRBMessageNode arguments first acceptVisitor: self.
-	value := self popOperand.
-	value operand1 value isInteger ifFalse: [ 
-		self error: 'expected an integer value' ].
 
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRLoadStackValue
-		  operands: { value }
+		  operands: { self popOperand }
 ]
 
 { #category : #'special cases' }

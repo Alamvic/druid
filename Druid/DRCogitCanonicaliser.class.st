@@ -127,6 +127,12 @@ DRCogitCanonicaliser >> visitClosureActivation: aDRClosureActivation [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitClosureCreation: aDRClosureCreation [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
 	
 	"Do nothing"

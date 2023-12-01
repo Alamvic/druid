@@ -23,3 +23,9 @@ Object >> sccpEquals: anInteger [
 
 	^ self = anInteger
 ]
+
+{ #category : #'*Druid' }
+Object >> sccpLessThanOrEquals: anInteger [
+
+	^ self <= anInteger
+]

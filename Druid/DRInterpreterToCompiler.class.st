@@ -86,7 +86,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 		"Special sends (+)"
 			96  97  98  99 100 101 102 103 104 105
 			106 107 108 109 110 111 112 113 114 115
-			116 117 "118 120" 121 122 123 124 125 126 127
+			116 117 118 "119" 120 121 122 123 124 125 126 127
 		"sendLiteralSelector0ArgsBytecode"
 			128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143
 		"sendLiteralSelector1ArgBytecode"
@@ -108,18 +108,21 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 		"extension bytecodes"
 			224 225
 		"extended receiver/literal/temporary/constant variable bytecode"
-			"226 left out because it reads contexts..."
+			226
 			227 228 229 232 233
 		"extended send"
 			234
 		"extSendSuperBytecode"
-			"235"
+			235
 		"extended conditional jump"
 			237 238 239
 		"extended store (and pop) temporary"
-			242 245
+			"242 "245
+		
+		"call primitive" 248
+		"push closure" 249
 		"remote temp bytecodes"
-			251
+			"251 -> is breaking"
 			"252 253 left out because of write barrier"
 	).
 

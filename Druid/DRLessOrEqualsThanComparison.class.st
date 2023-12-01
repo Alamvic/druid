@@ -10,6 +10,12 @@ DRLessOrEqualsThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch
 	^ aVisitor visitLessOrEqualsThan: self inBranch: parentBranch
 ]
 
+{ #category : #converting }
+DRLessOrEqualsThanComparison >> asJitCompileTimeExpressionString [
+
+	^ '<='
+]
+
 { #category : #testing }
 DRLessOrEqualsThanComparison >> isLessOrEqualThanComparison [
 	
@@ -38,5 +44,5 @@ DRLessOrEqualsThanComparison >> reversed [
 { #category : #SCCP }
 DRLessOrEqualsThanComparison >> sccpOperateOnLattice: operand and: operand2 [
 	
-	^ operand <= operand2
+	^ operand sccpLessThanOrEquals: operand2
 ]
