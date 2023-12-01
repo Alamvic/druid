@@ -133,10 +133,7 @@ DRCPSEdge >> operandDomainFromInstruction: aDRInstruction inBranch: branch [
 		| constraint |
 		constraint := self constraintFor: aDRInstruction result name.
 		^ constraint
-			  ifNil: [
-				  self
-					  operandDomainFromInstruction: aDRInstruction operand1
-					  inBranch: branch ]
+			  ifNil: [ branch condition acceptVisitor: self withBranch: branch ]
 			  ifNotNil: [
 			  DRRegisterDomain reg: aDRInstruction constraint: constraint ] ].
 
@@ -144,7 +141,9 @@ DRCPSEdge >> operandDomainFromInstruction: aDRInstruction inBranch: branch [
 		^ self operandDomainFromPhi: aDRInstruction ].
 
 	aDRInstruction isSetConditionCode ifTrue: [
-		^ aDRInstruction condition acceptVisitor: self withBranch: aDRInstruction ].
+		^ aDRInstruction condition
+			  acceptVisitor: self
+			  withBranch: aDRInstruction ].
 
 	^ nil
 ]
@@ -320,6 +319,12 @@ DRCPSEdge >> visitCopy: aDRCopy [
 	constraint ifNil: [ ^ nil ].
 
 	^ self addConstraint: constraint to: aDRCopy result name
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitDeoptimize: aDRDeoptimize [
+
+	^ nil
 ]
 
 { #category : #visiting }

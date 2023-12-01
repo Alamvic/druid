@@ -200,6 +200,29 @@ DRPathGenerationTest >> testConstraintsInferenceFromInnerBranches [
 ]
 
 { #category : #constraints }
+DRPathGenerationTest >> testConstraintsInferenceFromJITExpressions [
+
+	| cfg jitExpression copy |
+	cfg := self setUpCFGWithConditional.
+
+	"Put the JIT expression in a register"
+	jitExpression := cfg b1 jitCompileTimeVariable: 'extB'.
+	copy := cfg b1 copy: jitExpression.
+
+	"Same comparison"
+	cfg b1 endInstruction replaceOperandAtIndex: 1 by: copy.
+	cfg b4
+		jumpIf: copy
+		to: cfg newBasicBlock
+		ifFalseTo: cfg newBasicBlock.
+
+	cfg generatePaths.
+
+	"Sand clock pattern have half of the paths dead"
+	self assert: cfg deadPaths size equals: cfg pathsSize / 2
+]
+
+{ #category : #constraints }
 DRPathGenerationTest >> testConstraintsInferenceFromLoop [
 
 	| cfg edges firstPhiConstraint loopedPhiConstraint sumConstraint returnInstruction phi add |
