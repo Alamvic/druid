@@ -645,6 +645,8 @@ DRInstruction >> removeUser: anInstruction [
 { #category : #replacing }
 DRInstruction >> replaceBy: anotherInstruction [
 	
+	self = anotherInstruction ifTrue: [ ^ self ].
+	
 	basicBlock replace: self by: anotherInstruction.
 	
 	self replaceUsesBy: anotherInstruction.
@@ -870,18 +872,4 @@ DRInstruction >> validateUsersUseMyself [
 DRInstruction >> veryDeepCopyWith: deepCopier [
 	deepCopier references at: origin ifAbsentPut: [nil].
 	^ super veryDeepCopyWith: deepCopier
-]
-
-{ #category : #dependencies }
-DRInstruction >> withAllDependenciesExcept: alreadyComputedDependencies [
-	
-	| dependencies |
-	(alreadyComputedDependencies includes: self)
-		ifTrue: [ ^ alreadyComputedDependencies ].
-	
-	dependencies := OrderedCollection new.
-	dependencies add: self.
-	self dependencies do: [ :e |
-		dependencies addAll: e withAllDependencies ].
-	^ dependencies
 ]

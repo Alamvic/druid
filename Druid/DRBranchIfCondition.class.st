@@ -30,7 +30,7 @@ DRBranchIfCondition >> beBackJumpTo: aDRBasicBlock [
 { #category : #accessing }
 DRBranchIfCondition >> beForwardJumpTo: aDRBasicBlock [
 
-	backJumps remove: aDRBasicBlock
+	backJumps remove: aDRBasicBlock ifAbsent: nil
 ]
 
 { #category : #accessing }

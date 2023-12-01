@@ -45,7 +45,7 @@ DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [
 	operands addLast: anInstruction
 ]
 
-{ #category : #accessing }
+{ #category : #'loop-invariance' }
 DRPhiFunction >> canMoveOutsideLoop: backJump [
 
 	^ false
@@ -68,7 +68,7 @@ DRPhiFunction >> hasRecursiveUse [
 	^ false
 ]
 
-{ #category : #accessing }
+{ #category : #testing }
 DRPhiFunction >> initialize [
 
 	super initialize.
@@ -190,7 +190,7 @@ DRPhiFunction >> rtlOperandQualifier [
 	^ 'R:'
 ]
 
-{ #category : #enumerating }
+{ #category : #SCCP }
 DRPhiFunction >> sccpLatticeValueFor: sccp [
 
 	^ sccp latticeValueOfPhiFunction: self
@@ -217,11 +217,11 @@ DRPhiFunction >> simpleConstantFold [
 	^ super simpleConstantFold
 ]
 
-{ #category : #simplification }
+{ #category : #transforming }
 DRPhiFunction >> simplify [
 
-	| simplifiedOperands worklist seen |
-	operands asSet size = 0 ifTrue: [ ^ DRNullValue new ].
+	| simplifiedOperands |
+	operands asSet isEmpty ifTrue: [ ^ DRNullValue new ].
 
 	"Use a worklist algorithm to iterate over the phi graph.
 	Ignore Phis and cut if we see a duplicated phi, this may happen in loops"
@@ -243,7 +243,7 @@ DRPhiFunction >> supportConstantOperand [
 	^ false
 ]
 
-{ #category : #simplification }
+{ #category : #types }
 DRPhiFunction >> type [
 
 	(self operands copyWithout: self) do: [ :o |

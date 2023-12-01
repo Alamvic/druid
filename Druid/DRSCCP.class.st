@@ -196,12 +196,14 @@ DRSCCP >> latticeValue: aValue [
 	^ latticeValues at: aValue ifAbsent: [ self top ]
 ]
 
-{ #category : #executing }
-DRSCCP >> latticeValueOfPhiFunction: operation [
+{ #category : #lattice }
+DRSCCP >> latticeValueOfPhiFunction: phiFunction [
 
 	| values |
+	"Recursive phi cannot determine the lattice (it is involved in a loop)"
+	phiFunction hasRecursiveUse ifTrue: [ ^ self bottom ].
 
-	values := operation operands collect: [ :e | 
+	values := phiFunction operands collect: [ :e | 
 		self latticeValue: e ] as: Set.
 	values remove: self top ifAbsent: [ "Nothing" ].
 	values size = 1 ifTrue: [ ^ values anyOne ].
@@ -335,7 +337,12 @@ DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 	replacement := lattice result isNoResult
 		               ifTrue: [ lattice ]
 		               ifFalse: [
-		               DRCopy operands: { lattice asDRValue } result: i result ].
+			               i isCopy
+				               ifTrue: [ i "Take care of subclasses!" ]
+				               ifFalse: [
+				               DRCopy
+					               operands: { lattice asDRValue }
+					               result: i result ] ].
 
 	"We tell the lattice values that the new instruction has the same vlue as the old one"
 	latticeValues at: replacement put: (latticeValues at: i).
