@@ -62,7 +62,7 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #druidForceIntepretation put: #interpretDruidForceIntepretationWith:.
 	specialCases at: #remember: put: #interpretRememberWith:.
 	
-	specialCases at: #createFullClosure:numCopied:ignoreContext:receiverIsOnStack: put: #interpretCreateClosureWith:.
+	specialCases at: #createFullClosureInIndex:numCopied:ignoreContext:receiverIsOnStack: put: #interpretCreateClosureWith:.
 
 	"Message send"
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.
@@ -343,7 +343,9 @@ DRBytecodeIRGenerator >> interpretRememberWith: aRBMessageNode [
 
 	| obj |
 	obj := self visitOperand: aRBMessageNode arguments first.
-
+	"	
+	cogit 	backEnd saveAndRestoreLinkRegAround: [cogit CallRT: ceStoreCheckTrampoline].
+	"
 	^ (self
 		   addInstructionWithNoResultFrom: aRBMessageNode
 		   instructionKind: DRCall
@@ -351,11 +353,7 @@ DRBytecodeIRGenerator >> interpretRememberWith: aRBMessageNode [
 				   'ceStoreCheckTrampoline'.
 				   obj }) beMapped saveLinkReg
 
-	"	
-	cogit 
-		evaluateTrampolineCallBlock: [cogit CallRT: ceStoreCheckTrampoline]
-		protectLinkRegIfNot: inFrame.
-	"
+
 ]
 
 { #category : #'special-cases' }

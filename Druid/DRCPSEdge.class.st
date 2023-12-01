@@ -275,6 +275,12 @@ DRCPSEdge >> visitClosureActivation: aDRClosureActivation [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitClosureCreation: aDRClosureCreation [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
 	| operands constantValue |
@@ -320,6 +326,12 @@ DRCPSEdge >> visitCopy: aDRCopy [
 	constraint ifNil: [ ^ nil ].
 
 	^ self addConstraint: constraint to: aDRCopy result name
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitDeoptimize: aDRDeoptimize [ 
+	
+	"Nothing"
 ]
 
 { #category : #visiting }

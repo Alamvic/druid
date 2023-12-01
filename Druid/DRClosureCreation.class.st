@@ -15,3 +15,10 @@ DRClosureCreation >> isMandatoryInstruction [
 
 	^ true
 ]
+
+{ #category : #SCCP }
+DRClosureCreation >> sccpLatticeValueFor: sccp [ 
+	
+	"This instruction has no value"
+	^ sccp bottom
+]

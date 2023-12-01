@@ -222,10 +222,7 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 					  arguments: { targetBytecode }) }).
 
 	"Everything that follows an unconditional jump is potentially dead code"
-	markDeadCode := true.
-	generatorMethodBuilder addStatement: (RBAssignmentNode
-				 variable: (RBVariableNode named: 'deadCode')
-				 value: (RBLiteralNode value: true))
+	self markAsDeadCode
 ]
 
 { #category : #visiting }
@@ -266,7 +263,7 @@ DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreati
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector:
-			 #genCreateFullClosure:numCopied:ignoreContext:contextNumArgs:large:inBlock:intoRegister:
+			 #genCreateFullClosureInIndex:numCopied:ignoreContext:contextNumArgs:large:inBlock:intoRegister:
 			 arguments: (aDRClosureCreation operands collect: [ :e |
 					  (e rtlPushArgumentExpressions: self) first ]) , {
 					 (RBVariableNode named:
