@@ -16,16 +16,14 @@ DRMultiplyOverflow >> isMultiplyOverflow [
 	^ true
 ]
 
+{ #category : #transforming }
+DRMultiplyOverflow >> negated [
+
+	^ DRNoMultiplyOverflow new
+]
+
 { #category : #printing }
 DRMultiplyOverflow >> opcode [
 	
 	^ 'Multiply Overflow'
-]
-
-{ #category : #printing }
-DRMultiplyOverflow >> reversed [
-
-	"Returns the same condition but with reversed operands: x = y --> y = x"
-1halt.
-	^ DREqualsThanComparison new
 ]

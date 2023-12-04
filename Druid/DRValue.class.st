@@ -302,6 +302,12 @@ DRValue >> isSetConditionCode [
 	^ false
 ]
 
+{ #category : #testing }
+DRValue >> isStackInstruction [
+
+	^ false
+]
+
 { #category : #visiting }
 DRValue >> isStore [
 

@@ -57,7 +57,7 @@ DRLoopTest >> testCanRetrieveLoopGraphWithNestedLoops [
 	| cfg outerLoop loopSubgraph loopBlocksIds |
 	cfg := self generateDruidIRFor: #primitiveNestedLoopWithInvariant.
 
-	outerLoop := cfg allLoops first.
+	outerLoop := cfg allLoops second.
 	
 	loopSubgraph := outerLoop loopGraph.
 

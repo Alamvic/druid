@@ -6,26 +6,28 @@ Class {
 
 { #category : #'tests-basic' }
 DRLinearizationTest >> testBranchingControlFlow [
-
 	"A block should be visited after all its predecessors are visited"
-	
+
 	| b1 b2 b3 cfg b4 |
 	cfg := DRControlFlowGraph new.
-	
+
 	b1 := cfg newBasicBlock.
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
-	
+
 	cfg initialBasicBlock jumpTo: b1.
-	b1
-		jumpIfTrueTo: b2
-		ifFalseTo: b3.
+	b1 jumpIfTrueTo: b2 ifFalseTo: b3.
 	b2 jumpTo: b4.
 	b3 jumpTo: b4.
 	b4 endInstruction: DRReturn new.
-		
-	self assert: cfg reversePostOrderBlocks asArray equals: { cfg initialBasicBlock . b1 . b3 .b2 . b4 }
+
+	self assert: cfg reversePostOrderBlocks asArray equals: {
+			cfg initialBasicBlock.
+			b1.
+			b2.
+			b3.
+			b4 }
 ]
 
 { #category : #'tests-basic' }
@@ -51,6 +53,74 @@ DRLinearizationTest >> testBranchingControlFlowHasCorrectStructure [
 	
 	"Smoke test. Should fail with an exception if the basic block structure is wrong (successors do not match predecessors)"
 	cfg validate
+]
+
+{ #category : #'tests-basic' }
+DRLinearizationTest >> testBranchingControlFlowWithStackDependency [
+	"A block should be visited after all its predecessors AND stack dependencies are visited"
+
+	| b1 b2 b3 cfg b4 firstPush secondPush |
+	cfg := DRControlFlowGraph new.
+
+	"|0| -> |1| -> |2| -> |4|
+             \ -> |3| --^
+	"
+	b1 := cfg initialBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
+	b4 := cfg newBasicBlock.
+
+	cfg initialBasicBlock jumpTo: b1.
+	b1 jumpIfTrueTo: b2 ifFalseTo: b3.
+	b2 jumpTo: b4.
+	b3 jumpTo: b4.
+	b4 endInstruction: DRReturn new.
+
+	firstPush := b2 push: 1.
+	secondPush := b3 push: 2.
+
+	secondPush stackDependency: firstPush.
+
+	self assert: cfg reversePostOrderBlocks asArray equals: {
+			b1.
+			b2.
+			b3.
+			b4 }.
+	self deny: (b3 canBeLinearizedBefore: b2)
+]
+
+{ #category : #'tests-basic' }
+DRLinearizationTest >> testBranchingControlFlowWithStackDependencyReversed [
+	"A block should be visited after all its predecessors AND stack dependencies are visited"
+
+	| b1 b2 b3 cfg b4 firstPush secondPush |
+	cfg := DRControlFlowGraph new.
+
+	"|0| -> |1| -> |2| -> |4|
+             \ -> |3| --^
+	"
+	b1 := cfg initialBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
+	b4 := cfg newBasicBlock.
+
+	cfg initialBasicBlock jumpTo: b1.
+	b1 jumpIfTrueTo: b2 ifFalseTo: b3.
+	b2 jumpTo: b4.
+	b3 jumpTo: b4.
+	b4 endInstruction: DRReturn new.
+
+	firstPush := b3 push: 1.
+	secondPush := b2 push: 2.
+
+	secondPush stackDependency: firstPush.
+
+	self assert: cfg reversePostOrderBlocks asArray equals: {
+			b1.
+			b3.
+			b2.
+			b4 }.
+	self deny: (b2 canBeLinearizedBefore: b3)
 ]
 
 { #category : #'tests-basic' }
@@ -207,5 +277,5 @@ DRLinearizationTest >> testLoopControlFlow [
 	b2 jumpTo: b3.
 	b3 endInstruction: DRReturn new.
 	
-	self assert: cfg reversePostOrderBlocks asArray equals: { b0 . b2 . b3 . b1 }
+	self assert: cfg reversePostOrderBlocks asArray equals: { b0 . b1 . b2 . b3 }
 ]

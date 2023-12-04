@@ -906,13 +906,6 @@ DRCogitCodeGenerator >> visitMultiplyOverflow: aDRMultiplyOverflow inBranch: aDR
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitMultiplyOverflowJump: aDROverflowJump [ 
-	
-	self generateJump: #JumpMultiplyOverflow: target: aDROverflowJump trueBranch.
-	self generateJump: #JumpMultiplyNoOverflow: target: aDROverflowJump falseBranch.
-]
-
-{ #category : #visiting }
 DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [
 
 	self twoOperandMoveCogitRTL: aDRCogitNegate operands: {

@@ -47,14 +47,6 @@ DROverflow >> prettyPrintWithBranch: aDRBranchIfCondition [
 	^ self opcode
 ]
 
-{ #category : #printing }
-DROverflow >> reversed [
-
-	"Returns the same condition but with reversed operands: x = y --> y = x"
-1halt.
-	^ DREqualsThanComparison new
-]
-
 { #category : #'as yet unclassified' }
 DROverflow >> sccpEvaluateFor: sccp branch: aBranch [
 

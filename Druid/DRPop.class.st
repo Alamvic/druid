@@ -1,6 +1,6 @@
 Class {
 	#name : #DRPop,
-	#superclass : #DRInstruction,
+	#superclass : #DRStackInstruction,
 	#category : #'Druid-BytecodeToJITCompilation'
 }
 
