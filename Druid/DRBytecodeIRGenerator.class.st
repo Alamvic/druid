@@ -523,6 +523,13 @@ DRBytecodeIRGenerator >> receiver: aDRValue [
 ]
 
 { #category : #visiting }
+DRBytecodeIRGenerator >> trackStackInstruction: aDRStrackInstruction [ 
+
+	aDRStrackInstruction stackDependency: executionState lastStackInstruction.
+	executionState lastStackInstruction: aDRStrackInstruction.
+]
+
+{ #category : #visiting }
 DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
 	| value mappings |

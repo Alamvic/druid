@@ -41,6 +41,18 @@ DRExecutionState >> isNotSimplified [
 	^ vmState isNotSimplified and: [ executionStack isNotSimplified ]
 ]
 
+{ #category : #accessing }
+DRExecutionState >> lastStackInstruction [
+
+	^ self vmState lastStackInstruction
+]
+
+{ #category : #accessing }
+DRExecutionState >> lastStackInstruction: aDRStackInstruction [
+
+	self vmState lastStackInstruction: aDRStackInstruction
+]
+
 { #category : #frames }
 DRExecutionState >> popFrame [
 	
