@@ -132,9 +132,10 @@ DRControlFlowGraph >> blocksDo: aFullBlockClosure [
 ]
 
 { #category : #iterating }
-DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [ 
+DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 
 	| workingQueue visited visitsToThisBlockSoFar |
+	self buildDominatorTree.
 	visited := Dictionary new.
 
 	workingQueue := OrderedCollection new.
@@ -142,18 +143,15 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 	[ workingQueue isEmpty ] whileFalse: [ | currentBlock |
 		currentBlock := workingQueue removeFirst.
 		aFullBlockClosure value: currentBlock.
-		currentBlock hasFinalInstruction ifTrue: [
-			currentBlock lastInstruction targets do: [ :target |
-				
-				"Count how many times we have visited this block"
-				visitsToThisBlockSoFar := visited
-					at: target
-					ifPresent: [ :p | p + 1 ]
-					ifAbsent: [ 1 ].
+
+		currentBlock hasFinalInstruction ifTrue: [	| sortedSuccessors |
+			sortedSuccessors := currentBlock lastInstruction targets sorted: [:b1 :b2 | b1 canBeLinearizedBefore: b2].
+			sortedSuccessors reversed do: [ :target | "Count how many times we have visited this block"
+				visitsToThisBlockSoFar := visited at: target ifPresent: [ :p | p + 1 ] ifAbsent: [ 1 ].
 				visited at: target put: visitsToThisBlockSoFar.
-				
-				visitsToThisBlockSoFar = target numberOfForwardPredecessors ifTrue: [ 
-					workingQueue addFirst: target  ] ] ] ]
+				"Check if all predecessors were visited, then visit this block"
+				visitsToThisBlockSoFar = target numberOfForwardPredecessors ifTrue: [
+					workingQueue addFirst: target ] ] ] ]
 ]
 
 { #category : #dominance }
@@ -694,6 +692,12 @@ DRControlFlowGraph >> simplePathsBetween: sourceNode and: destinationNode [
 
 	depthFirstSearch value: sourceNode value: destinationNode.
 	^ simplePaths 
+]
+
+{ #category : #'accessing - query' }
+DRControlFlowGraph >> stackInstructions [
+
+	^ self instructions select: [ :i | i isStackInstruction ]
 ]
 
 { #category : #accessing }

@@ -43,7 +43,7 @@ DRLoopUnrollingTest >> testLoopUnrollingAddsRolledLoopAfterUnrolledLoopToHandleR
 	loop unroll: unrollingFactor.
 	
 	self assert: cfg allLoops size equals: 2.
-	rolledLoop := cfg allLoops first.
+	rolledLoop := cfg allLoops second.
 	rolledLoop bodyInstructions with: rolledLoopInstructions do: [ :copy :original |
 		self assert: copy opcode equals: original opcode ]
 ]

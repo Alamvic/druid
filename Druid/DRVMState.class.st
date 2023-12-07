@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'operandStack',
 		'primitiveFailureCode',
-		'builder'
+		'builder',
+		'lastStackInstruction'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -115,6 +116,18 @@ DRVMState >> isNotSimplified [
 	^ (operandStack allSatisfy: [ :e | 
 			e isPhiFunction or: [ e isDRBlockClosure ] ])
 				and: [ primitiveFailureCode isPhiFunction  or: [ primitiveFailureCode isDRBlockClosure ] ]
+]
+
+{ #category : #accessing }
+DRVMState >> lastStackInstruction [
+
+	^ lastStackInstruction
+]
+
+{ #category : #accessing }
+DRVMState >> lastStackInstruction: aDRStackInstruction [
+
+	lastStackInstruction := aDRStackInstruction
 ]
 
 { #category : #accessing }

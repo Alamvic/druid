@@ -37,9 +37,9 @@ DRUtilitaryTest >> testReversePostOrderOfLoop [
 	loopHeader jumpIfTrueTo: loopBody ifFalseTo: exit.
 	loopBody backJumpTo: loopHeader.
 
-	self assert: cfg reversePostOrderBlocks asArray equals: { 
+	self assert: cfg reversePostOrderBlocks asArray equals: {
 			b0.
 			loopHeader.
-			exit.
-			loopBody }
+			loopBody.
+			exit }
 ]

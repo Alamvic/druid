@@ -110,8 +110,8 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesConstantInstruc
 
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 
-	self assertLoop: cfg allBackJumps first includes: invariant.
-	self denyLoop: cfg allBackJumps second includes: invariant.
+	self assertLoop: cfg allBackJumps second includes: invariant.
+	self denyLoop: cfg allBackJumps first includes: invariant.
 
 ]
 

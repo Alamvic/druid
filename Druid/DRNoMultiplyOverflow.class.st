@@ -9,3 +9,9 @@ DRNoMultiplyOverflow >> isNoMultiplyOverflow [
 	
 	^ true
 ]
+
+{ #category : #transforming }
+DRNoMultiplyOverflow >> negated [
+
+	^ DRMultiplyOverflow new
+]

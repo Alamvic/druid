@@ -42,11 +42,13 @@ DRIRGenerator >> addFrameReturn: aDRStackFrame [
 
 { #category : #visiting }
 DRIRGenerator >> addInstruction: instruction from: aNode [
-	 
+
 	instruction origin: thisContext sender stack.
 	self currentBasicBlock addInstruction: instruction.
 	instruction originAST: aNode.
 	self pushOperand: instruction.
+	instruction isStackInstruction ifTrue: [
+		self trackStackInstruction: instruction ].
 	^ instruction
 ]
 
@@ -1115,20 +1117,20 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 	Pop: keep track of the operand stack and remove one element
 	Push: move the value to the physical register assigned to the current stack position"
 	
-	| elementsToPop elementsToPopNode toPush |
+	| nElementsToPop elementToPush |
 	aRBMessageNode arguments first acceptVisitor: self.
-	elementsToPopNode := self popOperand.
-	elementsToPop := elementsToPopNode simpleConstantFold.
-	elementsToPop isInteger
+	nElementsToPop := self popOperand simpleConstantFold.
+	nElementsToPop isInteger
 		ifFalse: [ self error: 'expected an integer value' ].
 
 	"If it's a pop with push we should evaluate the pushed argument before popping in case it uses the stack elements"
 	aRBMessageNode arguments size > 1 ifTrue: [
 		aRBMessageNode arguments second acceptVisitor: self.
-		toPush := self popOperand ].
-	self pop: elementsToPop.
+		elementToPush := self popOperand ].
+	
+	self pop: nElementsToPop.
 	aRBMessageNode arguments size > 1 ifTrue: [
-		self push: toPush ].
+		self push: elementToPush ].
 
 	"pop:[thenPush:] does not return an interesting value"
 	self pushOperand: DRNullValue new.

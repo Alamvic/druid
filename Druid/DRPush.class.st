@@ -1,6 +1,6 @@
 Class {
 	#name : #DRPush,
-	#superclass : #DRInstruction,
+	#superclass : #DRStackInstruction,
 	#category : #'Druid-BytecodeToJITCompilation'
 }
 

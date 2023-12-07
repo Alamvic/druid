@@ -197,6 +197,24 @@ DRBasicBlock >> breakBy: instruction [
 		  self }
 ]
 
+{ #category : #asserting }
+DRBasicBlock >> canBeLinearizedBefore: aDRBasicBlock [
+
+	self = aDRBasicBlock ifTrue: [ ^ true ].
+
+	"Domination constraints"
+	(self isDominatedBy: aDRBasicBlock) ifTrue: [ ^ false ].
+
+	"Pops and Pushes are constraints for linearization"
+	controlFlowGraph stackInstructions do: [ :stackInstruction | "There is a stack instruction in my path ..."
+		(stackInstruction basicBlock isDominatedBy: self) ifTrue: [
+			stackInstruction stackDependency ifNotNil: [ :dependency | "... with a dependecy in the other path ..."
+				(dependency basicBlock isDominatedBy: aDRBasicBlock) ifTrue: [ "... then the other path must be linearized before"
+					^ false ] ] ] ].
+
+	^ true
+]
+
 { #category : #validating }
 DRBasicBlock >> checkLivenessOf: operand [
 
