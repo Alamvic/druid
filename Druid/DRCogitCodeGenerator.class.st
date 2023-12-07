@@ -323,44 +323,26 @@ DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 { #category : #'code-generation' }
 DRCogitCodeGenerator >> generateLoop: aDRLoop [
 
-	| innerGenerator jitCondition loopPath isTrue loopPhiFunctions |
-	loopPhiFunctions := aDRLoop loopPhiFunctions.
-
-	"Initialize inductive variables"
-	loopPhiFunctions do: [ :phi |
-		| varName |
-		varName := 'loop' , phi result name.
-		generatorMethodBuilder addVariableNamed: varName.
-		generatorMethodBuilder addStatement: (RBAssignmentNode
-				 variable: (RBVariableNode named: varName)
-				 value: (self jitCompileTimeExpression:
-						  (phi valuesForPredecessor: aDRLoop preheaderBlock) unique
-							  asJitCompileTimeExpression)) ].
-
+	| innerGenerator jitCondition loopPath isTrue |
 	loopPath := aDRLoop bodyBlocks.
 
+	self assert:
+		(loopPath allSatisfy: [ :b | b isDominatedBy: aDRLoop headerBlock ]).
 	blocks removeAll: loopPath.
 	innerGenerator := self innerCompileBlocks: loopPath.
 
-	"Update inductive variables"
-	loopPhiFunctions do: [ :phi |
-		| varName |
-		varName := 'loop' , phi result name.
-		innerGenerator generatorMethodBuilder addStatement: (RBAssignmentNode
-				 variable: (RBVariableNode named: varName)
-				 value: (self jitCompileTimeExpression:
-						  (phi valuesForPredecessor: aDRLoop bodyBlocks first) unique)) ].
-
-	jitCondition := aDRLoop loopConditional conditionAsJitCompileTimeExpression.
+	jitCondition := aDRLoop loopConditional
+		                conditionAsJitCompileTimeExpression.
 	isTrue := aDRLoop exitBlock = aDRLoop loopConditional falseBranch.
 
 	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: (RBBlockNode body:
-					  (RBSequenceNode statements: { (RBVariableNode named: jitCondition expression) }))
+			 receiver: (RBBlockNode body: (RBSequenceNode statements:
+						   { (RBVariableNode named: jitCondition expression) }))
 			 selector: (isTrue
 					  ifTrue: [ #whileTrue: ]
 					  ifFalse: [ #whileFalse: ])
-			 arguments: { (RBBlockNode body: innerGenerator generatorMethodBuilder sequenceNode) })
+			 arguments: { (RBBlockNode body:
+					  innerGenerator generatorMethodBuilder sequenceNode) })
 ]
 
 { #category : #visiting }

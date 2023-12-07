@@ -53,6 +53,7 @@ DRBytecodeCompilerCompiler >> initialize [
 	3 timesRepeat: [ 
 		optimisations add: DRBranchCollapse new.
 		optimisations add: DRFailureCodeBasedTailDuplication new.
+		optimisations add: DRStoreTemporaryStagedExpressions new.
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
 		optimisations add: DRCopyPropagation new.
 		optimisations add: DRPhiSimplication new.
