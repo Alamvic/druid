@@ -28,6 +28,14 @@ DRCopy >> isJITCompileTimeExpression [
 	^ operands first isJITCompileTimeExpression
 ]
 
+{ #category : #testing }
+DRCopy >> isJITCompileTimeExpressionIgnoring: aCollection [
+
+	(aCollection includes: self operand) ifTrue: [ ^ true ].
+
+	^ self operand isJITCompileTimeExpressionIgnoring: aCollection
+]
+
 { #category : #SCCP }
 DRCopy >> isMandatoryInstruction [ 
 
@@ -51,6 +59,12 @@ DRCopy >> jitCompileTimeExpression [
 DRCopy >> opcode [
 	
 	^ ':='
+]
+
+{ #category : #accessing }
+DRCopy >> operand [
+
+	^ operands unique
 ]
 
 { #category : #printing }

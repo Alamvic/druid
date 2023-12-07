@@ -45,6 +45,15 @@ DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [
 	operands addLast: anInstruction
 ]
 
+{ #category : #converting }
+DRPhiFunction >> asJitCompileTimeExpression [
+
+	self assert: self hasRecursiveUse.
+1halt.
+	"Coupled to DRCogitCodeGenerator"
+	^ DRConstantCompileTimeExpression expression: ('loop', result name) 
+]
+
 { #category : #'loop-invariance' }
 DRPhiFunction >> canMoveOutsideLoop: backJump [
 
@@ -95,6 +104,12 @@ DRPhiFunction >> isInvariantFrom: loop [
 	The invariance from the loop body is correct if there are no changes for the variable inside the loop => the value for that predecessor is null"
 
 	^ (self valuesForPredecessor: loop latchBlock) anySatisfy: #isNullValue.
+]
+
+{ #category : #testing }
+DRPhiFunction >> isJITCompileTimeExpression [
+	
+	^ self operands allSatisfy: [ :op | op isJITCompileTimeExpressionIgnoring: { self } ]
 ]
 
 { #category : #testing }
