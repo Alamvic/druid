@@ -1,11 +1,11 @@
 Class {
-	#name : #DRStoreTemporaryStagedExpressions,
+	#name : #DRStoreTemporaryStagedLoop,
 	#superclass : #DROptimisation,
 	#category : #'Druid-BytecodeToJITCompilation'
 }
 
 { #category : #accessing }
-DRStoreTemporaryStagedExpressions >> applyTo: cfg [
+DRStoreTemporaryStagedLoop >> applyTo: cfg [
 
 	cfg phiFunctions
 		select: [ :phi | phi hasRecursiveUse and: [ phi isJITCompileTimeExpression ] ]
@@ -13,7 +13,7 @@ DRStoreTemporaryStagedExpressions >> applyTo: cfg [
 ]
 
 { #category : #store }
-DRStoreTemporaryStagedExpressions >> storeOnNewTemporaryVariables: phiFunction [
+DRStoreTemporaryStagedLoop >> storeOnNewTemporaryVariables: phiFunction [
 
 	| variableExpression load instructionFactory |
 	instructionFactory := phiFunction instructionFactory.
