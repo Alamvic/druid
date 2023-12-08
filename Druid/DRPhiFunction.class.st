@@ -40,18 +40,8 @@ DRPhiFunction >> addValue: anInstruction [
 { #category : #accessing }
 DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [ 
 	
-	self haltIf: [ anInstruction isDRBlockClosure ].
 	self assert: self basicBlock predecessors last = aDRBasicBlock.
 	operands addLast: anInstruction
-]
-
-{ #category : #converting }
-DRPhiFunction >> asJitCompileTimeExpression [
-
-	self assert: self hasRecursiveUse.
-1halt.
-	"Coupled to DRCogitCodeGenerator"
-	^ DRConstantCompileTimeExpression expression: ('loop', result name) 
 ]
 
 { #category : #'loop-invariance' }
@@ -120,7 +110,7 @@ DRPhiFunction >> isPhiFunction [
 
 { #category : #accessing }
 DRPhiFunction >> joinedVariables: aCollection [
-	self haltIf: [ aCollection anySatisfy:  #isDRBlockClosure ].
+
 	self operands: aCollection
 ]
 
