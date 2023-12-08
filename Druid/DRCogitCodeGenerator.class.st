@@ -904,11 +904,13 @@ DRCogitCodeGenerator >> visitIntToFloatConversion: aDRIntToFloat [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitJump: aDRJump [ 
+DRCogitCodeGenerator >> visitJump: aDRJump [
 
-	self
-		generateJump: #Jump:
-		target: aDRJump target
+	aDRJump asBackJumpLoop ifNotNil: [ :loop |
+		loop loopConditional isJITCompileTimeExpression ifTrue: [
+			^ self "JIT compile loop" ] ].
+
+	self generateJump: #Jump: target: aDRJump target
 ]
 
 { #category : #visiting }
