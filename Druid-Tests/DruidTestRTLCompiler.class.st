@@ -3811,7 +3811,6 @@ DruidTestRTLCompiler >> gen_storeAndPopReceiverVariableBytecode [
 		      ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t1).
 	(self ssValue: 0) copyToReg: t1.
-	self ssPop: 1.
 	t2 := self
 		      allocateRegNotConflictingWith: live
 		      ifNone: [ ^ self unknownBytecode ].
@@ -3826,6 +3825,7 @@ DruidTestRTLCompiler >> gen_storeAndPopReceiverVariableBytecode [
 	deadCode := false.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
+	self ssPop: 1.
 	self MoveR: t0 R: t2.
 	self AndCq: 7 R: t2.
 	self ssFlushStack.

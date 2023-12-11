@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCogitRegisterAllocatorTest,
-	#superclass : #TestCase,
+	#superclass : #DRIRTest,
 	#category : #'Druid-Tests'
 }
 

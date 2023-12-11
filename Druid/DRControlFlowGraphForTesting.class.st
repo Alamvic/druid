@@ -1,6 +1,6 @@
 Class {
 	#name : #DRControlFlowGraphForTesting,
-	#superclass : #DRControlFlowGraph,
+	#superclass : #DRPrimitiveControlFlowGraph,
 	#instVars : [
 		'b0',
 		'b1',
