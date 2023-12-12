@@ -24,9 +24,24 @@ DruidTestInterpreter >> basicInlineMethod [
 ]
 
 { #category : #'as yet unclassified' }
-DruidTestInterpreter >> bytecodeWithUnknownBytecodeSend [
+DruidTestInterpreter >> bytecodeWithDeoptimisation [
 
 	self druidForceIntepretation
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> bytecodeWithFlushStackOnDominator [
+
+	<compilationInfo: #isMapped>
+	self stackTop > 0
+		ifTrue: [ self druidForceIntepretation ]
+		ifFalse: [ self internalMustBeBoolean: self stackTop ]
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> bytecodeWithPop [
+
+	self pop: 1
 ]
 
 { #category : #'as yet unclassified' }
