@@ -178,6 +178,14 @@ DRCogitSimpleStackGenerator >> visitJITMessageSend: aDRMessageSend [
 ]
 
 { #category : #visiting }
+DRCogitSimpleStackGenerator >> visitLoadFramePointer: aDRLoadFramePointer [
+
+	self twoOperandMoveCogitRTL: aDRLoadFramePointer operands: {
+			(DRPhysicalGeneralPurposeRegister name: 'FPReg').
+			aDRLoadFramePointer result }
+]
+
+{ #category : #visiting }
 DRCogitSimpleStackGenerator >> visitLoadReceiver: aDRLoadReceiver [
 
 	generatorMethodBuilder addStatement:
@@ -224,6 +232,10 @@ DRCogitSimpleStackGenerator >> visitPop: aDRPop [
 { #category : #visiting }
 DRCogitSimpleStackGenerator >> visitPush: aDRPush [
 
+	| arguments |
+	arguments := aDRPush operand1 rtlPushArgumentExpressions: self.
+	arguments size > 1 ifTrue: [ self halt ].
+	
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: 'Push'

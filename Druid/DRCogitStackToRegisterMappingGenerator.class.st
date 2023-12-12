@@ -204,14 +204,6 @@ DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
 ]
 
 { #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitLoadFramePointer: aDRLoadFramePointer [
-
-	self twoOperandMoveCogitRTL: aDRLoadFramePointer operands: {
-			(DRPhysicalGeneralPurposeRegister name: 'FPReg').
-			aDRLoadFramePointer result }
-]
-
-{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 
 	generatorMethodBuilder addStatement: (RBMessageNode

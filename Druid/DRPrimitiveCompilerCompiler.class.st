@@ -37,6 +37,8 @@ DRPrimitiveCompilerCompiler >> buildIR: primitiveSelector [
 DRPrimitiveCompilerCompiler >> initialize [
 
 	super initialize.
+	
+	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 
 	optimisations := OrderedCollection new.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
