@@ -27,6 +27,17 @@ DRBytecodeCompilerCompiler >> buildIR: bytecodeSelector [
 		generateDruidIR
 ]
 
+{ #category : #accessing }
+DRBytecodeCompilerCompiler >> configureForCompilerClass: aCompilerClass [
+
+	super configureForCompilerClass: aCompilerClass.
+	self compilerClass: aCompilerClass.
+
+	registerAllocator := compilerClass druidNewRegisterAllocator.
+	codeGenerator := compilerClass druidNewCodeGenerator.
+	optimisations := compilerClass druidNewOptimizationList
+]
+
 { #category : #'generation-IR' }
 DRBytecodeCompilerCompiler >> createInitialBasicBlock [
 	| initial initialBasicBlock |
@@ -38,51 +49,6 @@ DRBytecodeCompilerCompiler >> createInitialBasicBlock [
 	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
 	initialBasicBlock addInstruction: initial.
 	^ initialBasicBlock
-]
-
-{ #category : #accessing }
-DRBytecodeCompilerCompiler >> initialize [
-
-	super initialize.
-
-
-	(compilerClass isKindOf: StackToRegisterMappingCogit)
-		ifTrue: [
-		registerAllocator := DRCogitDynamicLinearScanRegisterAllocator new ]
-		ifFalse: [
-		registerAllocator := DRCogitLinearScanRegisterAllocator new ].
-
-	(compilerClass isKindOf: StackToRegisterMappingCogit)
-		ifTrue: [
-		codeGenerator := DRCogitStackToRegisterMappingGenerator new ]
-		ifFalse: [ codeGenerator := DRCogitSimpleStackGenerator new ].
-
-	optimisations := OrderedCollection new.
-	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
-
-	"Basic set of optimizations twice for primitives"
-	3 timesRepeat: [
-		optimisations add: DRBranchCollapse new.
-		optimisations add: DRFailureCodeBasedTailDuplication new.
-		optimisations add: (DRSCCP then: DRDeadBlockElimination).
-		optimisations add: DRCopyPropagation new.
-		optimisations add: DRPhiSimplication new.
-		optimisations add: DRCogitCanonicaliser new.
-		optimisations add:
-			(DRDeadCodeElimination then: DRRedundantCopyElimination).
-		optimisations add: DRCleanControlFlow new.
-		optimisations add: DRTailDuplicateStagedExpressions new.
-		optimisations add:
-			(DRDeadEdgeSplitting then: DRDeadBranchElimination) ].
-
-	"Last Phase, make code coggable"
-	optimisations add: DRCogitOperandSorter new.
-
-	(compilerClass isKindOf: StackToRegisterMappingCogit) ifTrue: [
-		optimisations add: DRCogitSendMarshallInsertion new.
-		optimisations add: DRCogitStackToRegisterFlushHoisting new.
-
-		registerAllocator := DRCogitDynamicLinearScanRegisterAllocator new ]
 ]
 
 { #category : #accessing }

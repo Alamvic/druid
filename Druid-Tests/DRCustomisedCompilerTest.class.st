@@ -48,7 +48,7 @@ DRCustomisedCompilerTest >> newCompiler: compilerClass [
 
 	^ compilerClass new
 		interpreter: self interpreter;
-		compilerClass: DruidTestRTLCompiler;
+		configureForCompilerClass: DruidTestRTLCompiler;
 		yourself
 ]
 

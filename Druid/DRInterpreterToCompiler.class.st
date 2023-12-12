@@ -494,8 +494,8 @@ DRInterpreterToCompiler >> isValidPrimitiveName: aString [
 DRInterpreterToCompiler >> newBytecodeCompiler [
 
 	^ (DRBytecodeCompilerCompiler forInterpreter: self newInterpreter)
-		compilerClass: self targetClass;
-		yourself
+		  configureForCompilerClass: self targetClass;
+		  yourself
 ]
 
 { #category : #adding }
