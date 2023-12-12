@@ -10,7 +10,7 @@ DRCogitStackToRegisterFlushHoisting >> applyTo: cfg [
 	"Insert a flush stack instruction in the common dominator of all those instructions that require stack flushing.
 	Explain why we need to hoist it."
 	
-	| toMerge dominator marshall instructionsNeedingStackFlush |
+	| dominator instructionsNeedingStackFlush |
 	instructionsNeedingStackFlush := OrderedCollection new.
 	cfg instructionsDo: [ :e |
 		e needsStackFlush ifTrue: [ instructionsNeedingStackFlush add: e ]
