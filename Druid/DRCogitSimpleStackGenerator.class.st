@@ -232,15 +232,11 @@ DRCogitSimpleStackGenerator >> visitPop: aDRPop [
 { #category : #visiting }
 DRCogitSimpleStackGenerator >> visitPush: aDRPush [
 
-	| arguments |
-	arguments := aDRPush operand1 rtlPushArgumentExpressions: self.
-	arguments size > 1 ifTrue: [ self halt ].
-	
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: 'Push'
-				 ,
-				 (aDRPush operand1 rtlOperandQualifierForInstruction: aDRPush)
+			 selector:
+			 'Push'
+			 , (aDRPush operand1 rtlOperandQualifierForInstruction: aDRPush)
 			 arguments: (aDRPush operand1 rtlPushArgumentExpressions: self))
 ]
 
