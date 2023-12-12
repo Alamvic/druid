@@ -16,6 +16,12 @@ DRLoadStackValue >> opcode [
 	^ 'Load-stack-value'
 ]
 
+{ #category : #'cogit-generation' }
+DRLoadStackValue >> rtlOperandQualifier [
+
+	^ result rtlOperandQualifier
+]
+
 { #category : #SCCP }
 DRLoadStackValue >> sccpLatticeValueFor: sccp [
 

@@ -22,6 +22,12 @@ DRLoadReceiver >> opcode [
 	^ 'LoadReceiver'
 ]
 
+{ #category : #'cogit-generation' }
+DRLoadReceiver >> rtlOperandQualifier [
+
+	^ result rtlOperandQualifier
+]
+
 { #category : #SCCP }
 DRLoadReceiver >> sccpLatticeValueFor: sccp [
 

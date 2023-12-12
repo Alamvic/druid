@@ -45,12 +45,23 @@ DRBytecodeCompilerCompiler >> initialize [
 
 	super initialize.
 
-	codeGenerator := DRCogitStackToRegisterMappingGenerator new.
+
+	(compilerClass isKindOf: StackToRegisterMappingCogit)
+		ifTrue: [
+		registerAllocator := DRCogitDynamicLinearScanRegisterAllocator new ]
+		ifFalse: [
+		registerAllocator := DRCogitLinearScanRegisterAllocator new ].
+
+	(compilerClass isKindOf: StackToRegisterMappingCogit)
+		ifTrue: [
+		codeGenerator := DRCogitStackToRegisterMappingGenerator new ]
+		ifFalse: [ codeGenerator := DRCogitSimpleStackGenerator new ].
+
 	optimisations := OrderedCollection new.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
 
 	"Basic set of optimizations twice for primitives"
-	3 timesRepeat: [ 
+	3 timesRepeat: [
 		optimisations add: DRBranchCollapse new.
 		optimisations add: DRFailureCodeBasedTailDuplication new.
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
@@ -66,10 +77,12 @@ DRBytecodeCompilerCompiler >> initialize [
 
 	"Last Phase, make code coggable"
 	optimisations add: DRCogitOperandSorter new.
-	optimisations add: DRCogitSendMarshallInsertion new.
-	optimisations add: DRCogitStackToRegisterFlushHoisting new.
-	
-	registerAllocator := DRCogitDynamicLinearScanRegisterAllocator new
+
+	(compilerClass isKindOf: StackToRegisterMappingCogit) ifTrue: [
+		optimisations add: DRCogitSendMarshallInsertion new.
+		optimisations add: DRCogitStackToRegisterFlushHoisting new.
+
+		registerAllocator := DRCogitDynamicLinearScanRegisterAllocator new ]
 ]
 
 { #category : #accessing }

@@ -1,9 +1,8 @@
 Class {
 	#name : #DRCogitStackToRegisterMappingGenerator,
-	#superclass : #DRCogitCodeGenerator,
+	#superclass : #DRCogitSimpleStackGenerator,
 	#instVars : [
 		'nextVariableIndex',
-		'variables',
 		'markDeadCode'
 	],
 	#category : #'Druid-Cogit'
@@ -79,51 +78,7 @@ DRCogitStackToRegisterMappingGenerator >> initialize [
 
 	super initialize.
 	nextVariableIndex := 0.
-	variables := Dictionary new.
 	markDeadCode := false
-]
-
-{ #category : #'code-generation' }
-DRCogitStackToRegisterMappingGenerator >> innerCompilePathFrom: aDRBasicBlock [
-
-	| dominatorTree dominatedBlocks sharedPathToTheEnd truePath innerGenerator |
-	"We should create a path from the branch to the end"
-	dominatorTree := aDRBasicBlock controlFlowGraph buildDominatorTree.
-	dominatedBlocks := aDRBasicBlock controlFlowGraph reversePostOrderBlocks select: [ :b |
-		                   b isDominatedBy: aDRBasicBlock ].
-
-	"If the first block is dominated by others don't remove from the list, we still need it"
-	self assert: dominatedBlocks first = aDRBasicBlock.
-	(blocks includesAny: aDRBasicBlock predecessors) 
-		ifFalse: [blocks remove: aDRBasicBlock].
-
-	"Remove blocks only visited during inner compilation from outer"
-	dominatedBlocks allButFirstDo: [ :b | blocks remove: b ].
-
-	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
-	sharedPathToTheEnd := blocks select: [ :e | 
-		sharedPathToTheEnd anySatisfy: [ :potentialDominator |
-			e isDominatedBy: potentialDominator ] ].
-	truePath := dominatedBlocks , sharedPathToTheEnd.
-
-	innerGenerator := self innerGenerator.
-	innerGenerator blocks: truePath.
-	innerGenerator generateCodeFromBlocks.
-	innerGenerator generatePostambleForCFG: aDRBasicBlock controlFlowGraph.
-	innerGenerator generateReturn.
-
-	^ innerGenerator generatorMethodBuilder sequenceNode
-]
-
-{ #category : #copy }
-DRCogitStackToRegisterMappingGenerator >> innerGenerator [
-
-	| innerGenerator |
-	innerGenerator := self copy.
-	innerGenerator variables: variables copy.
-	innerGenerator deferredBranches: deferredBranches copy.
-	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
-	^ innerGenerator
 ]
 
 { #category : #'code-generation' }
@@ -157,12 +112,6 @@ DRCogitStackToRegisterMappingGenerator >> preProcessBlock: aBasicBlock [
 	super preProcessBlock: aBasicBlock
 ]
 
-{ #category : #'ir-to-ast' }
-DRCogitStackToRegisterMappingGenerator >> returnNodeForCompiledMethod [
-
-	^ RBLiteralNode value: 0
-]
-
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> rtlExpressionForValue: aValue [
 
@@ -187,71 +136,13 @@ DRCogitStackToRegisterMappingGenerator >> variables [
 	^ variables
 ]
 
-{ #category : #accessing }
-DRCogitStackToRegisterMappingGenerator >> variables: anObject [
-
-	variables := anObject
-]
-
-{ #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitAnnnotateBytecode: aDRAnnotateBytecode [
-	"self annotateBytecode: self Label"
-
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: #annotateBytecode:
-			 arguments: { (RBMessageNode
-					  receiver: RBVariableNode selfNode
-					  selector: #Label
-					  arguments: #(  )) })
-]
-
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
-	"self Jump: (self ensureFixupAt: targetBytecode)"
 
-	| targetBytecode |
-	targetBytecode := self jitCompileTimeExpression:
-		                  aDRBytecodeJump operand1.
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: #Jump:
-			 arguments: { (RBMessageNode
-					  receiver: RBVariableNode selfNode
-					  selector: #ensureFixupAt:
-					  arguments: { targetBytecode }) }).
+	super visitBytecodeJump: aDRBytecodeJump.
 
 	"Everything that follows an unconditional jump is potentially dead code"
 	self markAsDeadCode
-]
-
-{ #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
-	"self CallRT: ceSendMustBeBooleanTrampoline"
-
-	| rbCallNode |
-	aDRCall operands size > 0 ifTrue: [
-		generatorMethodBuilder addStatement: (RBMessageNode
-				 receiver: RBVariableNode selfNode
-				 selector: #MoveR:R:
-				 arguments: {
-						 (self rtlExpressionForValue: aDRCall operand1).
-						 (RBVariableNode named: 'TempReg') }) ].
-	rbCallNode := RBMessageNode
-		              receiver: RBVariableNode selfNode
-		              selector: #CallRT:
-		              arguments:
-		              { (RBVariableNode named: aDRCall functionName) }.
-	aDRCall shouldSaveLinkReg
-		ifTrue: [
-			generatorMethodBuilder addStatement: (RBMessageNode
-					 receiver: (RBVariableNode named: #backEnd)
-					 selector: #saveAndRestoreLinkRegAround:
-					 arguments:
-					 { (RBBlockNode body: (RBSequenceNode statements: { rbCallNode })) }) ]
-		ifFalse: [ generatorMethodBuilder addStatement: rbCallNode ].
-	aDRCall isMapped ifTrue: [ 
-		self assert: aDRCall controlFlowGraph hasAnnotatedBytecode  ]
 ]
 
 { #category : #visiting }
@@ -285,40 +176,9 @@ DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMa
 ]
 
 { #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitCompileTimeStore: aDRStore [
-
-	| varName |
-	varName := aDRStore address name.
-
-	(varName beginsWith: 'r') ifTrue: [ "Temporary compile time variable"
-		generatorMethodBuilder addVariableNamed: varName ].
-
-	generatorMethodBuilder addStatement: (RBAssignmentNode
-			 variable: (RBVariableNode named: varName)
-			 value: (self jitCompileTimeExpression: aDRStore operand1))
-]
-
-{ #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
-	
-	"This is a continuation to the next bytecode.
-	If this is the last basic block, do nothing.
-	Otherwise, make a jump to the end"
-	self isLastBasicBlock ifTrue: [ ^ self ].
-	
-	"Jump to the end!"
-	self
-		generateJump: #Jump:
-		target: #nextBytecode
-]
-
-{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitDeoptimize: aDRDeoptimize [
 
-	generatorMethodBuilder addStatement:
-		(RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: #deoptimize).
+	super visitDeoptimize: aDRDeoptimize.
 	markDeadCode := true.
 ]
 
@@ -365,16 +225,8 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 ]
 
 { #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitLoadStackPointer: aDRLoadStackPointer [
-
-	self twoOperandMoveCogitRTL: aDRLoadStackPointer operands: {
-			(DRPhysicalGeneralPurposeRegister name: 'SPReg').
-			aDRLoadStackPointer result }
-]
-
-{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue [
-	"(self ssDescriptorAt: 0) moveToReg: TempReg."
+	"(self ssDescriptorAt: 0) copyToReg: TempReg."
 
 	| sourceDescriptorAST |
 	sourceDescriptorAST := RBMessageNode
@@ -437,27 +289,19 @@ DRCogitStackToRegisterMappingGenerator >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [ 
-	
+DRCogitStackToRegisterMappingGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 	"self ssFlushUpThroughTemporaryVariable: index.
 	self MoveR: reg
 		Mw: (self frameOffsetOfTemporary: tempIndex)
 		r: FPReg."
+
 	generatorMethodBuilder addStatement: (RBMessageNode
-		 receiver: RBVariableNode selfNode
-		 selector: #ssFlushUpThroughTemporaryVariable:
-		 arguments: (aDRStoreTemporaryVariable operand1 rtlPushArgumentExpressions: self)).
-	generatorMethodBuilder addStatement: (RBMessageNode
-		 receiver: RBVariableNode selfNode
-		 selector: #MoveR:Mw:r:
-		 arguments: {
-			self rtlExpressionForValue: aDRStoreTemporaryVariable result.
-			RBMessageNode
-				receiver: RBVariableNode selfNode
-				selector: #frameOffsetOfTemporary:
-				arguments: (aDRStoreTemporaryVariable operand1 rtlPushArgumentExpressions: self).
-			RBVariableNode named: 'FPReg'
-	}).
+			 receiver: RBVariableNode selfNode
+			 selector: #ssFlushUpThroughTemporaryVariable:
+			 arguments:
+			 (aDRStoreTemporaryVariable operand1 rtlPushArgumentExpressions:
+				  self)).
+	super visitStoreTempVar: aDRStoreTemporaryVariable
 ]
 
 { #category : #visiting }

@@ -26,7 +26,6 @@ Class {
 		'memory',
 		'primitiveSelector',
 		'failFirst',
-		'bytecodeCompiler',
 		'bytecodeSelector',
 		'errors'
 	],
@@ -50,6 +49,14 @@ DRInterpreterToCompiler class >> generateDruidJITModel [
 
 { #category : #'instance creation' }
 DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
+
+	self
+		generateDruidJITModelOn: targetClass
+		superclass: StackToRegisterMappingCogit
+]
+
+{ #category : #'instance creation' }
+DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass: aSuperclass [
 
 	| primitives bytecodes |
 	primitives := #( #primitiveAdd #primitiveSubtract #primitiveLessThan
@@ -120,7 +127,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 			"242 "245
 		
 		"call primitive" 248
-		"push closure" 249
+		"push closure" "249"
 		"remote temp bytecodes"
 			"251 -> is breaking"
 			"252 253 left out because of write barrier"
@@ -131,7 +138,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 		selectPrimitives: [ :e | primitives includes: e selector ];
 		selectBytecodes: [ :e | bytecodes includes: e bytecodeNumberStart ];
 		targetClass: targetClass;
-		targetSuperclass: StackToRegisterMappingCogit;
+		targetSuperclass: aSuperclass;
 		build
 ]
 
@@ -140,6 +147,15 @@ DRInterpreterToCompiler class >> generateDruidMixedJITModel [
 
 	<script>
 	self generateDruidJITModelOn: DruidCogObjectRepresentationFor64BitSpur "Compiles in the ObjectRepresentation hierarchy"
+]
+
+{ #category : #'instance creation' }
+DRInterpreterToCompiler class >> generateSimpleDruidJITModel [
+
+	<script>
+	self
+		generateDruidJITModelOn: SimpleDruidJIT
+		superclass: SimpleStackBasedCogit
 ]
 
 { #category : #'instance creation' }
