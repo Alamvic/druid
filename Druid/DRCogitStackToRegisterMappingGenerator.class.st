@@ -55,15 +55,6 @@ DRCogitStackToRegisterMappingGenerator >> allocateVariable: aDRResult [
 ]
 
 { #category : #'ir-to-ast' }
-DRCogitStackToRegisterMappingGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
-
-	"Generate the continuation jumps to the following code"
-	self generateBlockIncomingJumps: #nextBytecode.
-
-	super generatePostambleForCFG: aDRControlFlowGraph
-]
-
-{ #category : #'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 
 	super generatePreambleForCFG: aDRControlFlowGraph.
@@ -255,29 +246,6 @@ DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 				 ,
 				 (aDRPush operand1 rtlPushOperandQualifierForInstruction: aDRPush)
 			 arguments: (aDRPush operand1 rtlPushArgumentExpressions: self))
-]
-
-{ #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitReturn: aDRReturn [
-	"Generate the postamble in the return cases"
-
-	| isBlockReturn generator |
-	self generatePostambleForCFG: aDRReturn controlFlowGraph.
-
-	"Move the return value to the receiver register result"
-	self twoOperandMoveCogitRTL: aDRReturn operands: {
-				aDRReturn operands first.
-				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg') }.
-
-	"Then return"
-	isBlockReturn := aDRReturn operand2 value.
-	generator := isBlockReturn
-		ifTrue: [ #genBlockReturn ]
-		ifFalse: [ #genUpArrowReturn ].
-	
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: generator)
 ]
 
 { #category : #visiting }

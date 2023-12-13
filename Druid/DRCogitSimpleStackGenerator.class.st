@@ -7,6 +7,15 @@ Class {
 	#category : #'Druid-Cogit'
 }
 
+{ #category : #'ir-to-ast' }
+DRCogitSimpleStackGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
+
+	"Generate the continuation jumps to the following code"
+	self generateBlockIncomingJumps: #nextBytecode.
+
+	super generatePostambleForCFG: aDRControlFlowGraph
+]
+
 { #category : #initialization }
 DRCogitSimpleStackGenerator >> initialize [
 
@@ -222,11 +231,12 @@ DRCogitSimpleStackGenerator >> visitLoadStackValue: aDRLoadStackValue [
 { #category : #visiting }
 DRCogitSimpleStackGenerator >> visitPop: aDRPop [
 
+	aDRPop numberOfPoppedElements > 1 ifTrue: [ self halt ].
+
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #PopN:
-			 arguments:
-			 { (RBLiteralValueNode value: aDRPop numberOfPoppedElements) })
+			 selector: #PopR:
+			 arguments: { (RBVariableNode named: aDRPop result name) })
 ]
 
 { #category : #visiting }
@@ -238,6 +248,29 @@ DRCogitSimpleStackGenerator >> visitPush: aDRPush [
 			 'Push'
 			 , (aDRPush operand1 rtlOperandQualifierForInstruction: aDRPush)
 			 arguments: (aDRPush operand1 rtlPushArgumentExpressions: self))
+]
+
+{ #category : #visiting }
+DRCogitSimpleStackGenerator >> visitReturn: aDRReturn [
+	"Generate the postamble in the return cases"
+
+	| isBlockReturn generator |
+	self generatePostambleForCFG: aDRReturn controlFlowGraph.
+
+	"Move the return value to the receiver register result"
+	self twoOperandMoveCogitRTL: aDRReturn operands: {
+				aDRReturn operands first.
+				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg') }.
+
+	"Then return"
+	isBlockReturn := aDRReturn operand2 value.
+	generator := isBlockReturn
+		ifTrue: [ #genBlockReturn ]
+		ifFalse: [ #genUpArrowReturn ].
+	
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: generator)
 ]
 
 { #category : #visiting }
