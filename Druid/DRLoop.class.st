@@ -172,6 +172,13 @@ DRLoop >> headerBlock [
 ]
 
 { #category : #accessing }
+DRLoop >> inductionInitialValues [
+
+	^ self loopPhiFunctions flatCollect: [ :phi |
+		  phi valuesForPredecessor: self preheaderBlock ]
+]
+
+{ #category : #accessing }
 DRLoop >> inductionVariable [
 
 	self flag: #TODO. "Handle transitive dependencies"

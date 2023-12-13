@@ -16,6 +16,14 @@ DRBranchIfCondition >> acceptVisitor: aVisitor [
 	^ aVisitor visitBranchIfCondition: self
 ]
 
+{ #category : #converting }
+DRBranchIfCondition >> asConditionalLoop [
+
+	^ self controlFlowGraph allLoops
+		  detect: [ :loop | loop loopConditional = self ]
+		  ifNone: nil
+]
+
 { #category : #accessing }
 DRBranchIfCondition >> backJumpTargets [
 	^ backJumps.
@@ -99,6 +107,14 @@ DRBranchIfCondition >> isBackJumpTo: aDRBasicBlock [
 DRBranchIfCondition >> isConditionalBranch [
 
 	^ true
+]
+
+{ #category : #testing }
+DRBranchIfCondition >> isConditionalLoop [
+
+	^ self asConditionalLoop isNotNil
+	
+
 ]
 
 { #category : #testing }

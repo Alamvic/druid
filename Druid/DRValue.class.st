@@ -206,6 +206,12 @@ DRValue >> isJITCompileTimeExpression: aString [
 	^ false
 ]
 
+{ #category : #testing }
+DRValue >> isJITCompileTimeExpressionIgnoring: aCollection [
+
+	^ self isJITCompileTimeExpression
+]
+
 { #category : #accessing }
 DRValue >> isJump [ 
 

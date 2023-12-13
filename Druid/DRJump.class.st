@@ -21,6 +21,14 @@ DRJump >> acceptVisitor: aVisitor [
 	^ aVisitor visitJump: self
 ]
 
+{ #category : #converting }
+DRJump >> asBackJumpLoop [
+
+	^ self controlFlowGraph allLoops
+		  detect: [ :loop | loop backJump = self ]
+		  ifNone: nil
+]
+
 { #category : #accessing }
 DRJump >> backJumpTargets [
 
@@ -88,6 +96,13 @@ DRJump >> inspectionSource: aBuilder [
 DRJump >> isBackJump [
 
 	^ isBackJump
+]
+
+{ #category : #testing }
+DRJump >> isBackJumpLoop [
+
+	^ self asBackJumpLoop isNotNil
+
 ]
 
 { #category : #testing }

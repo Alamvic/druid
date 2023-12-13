@@ -77,6 +77,12 @@ DRConstantValue >> isJITCompileTimeExpression [
 ]
 
 { #category : #testing }
+DRConstantValue >> isJITCompileTimeExpressionIgnoring: aCollection [ 
+
+	^ self isJITCompileTimeExpression
+]
+
+{ #category : #testing }
 DRConstantValue >> isNumberValue [
 
 	^ value isNumber
