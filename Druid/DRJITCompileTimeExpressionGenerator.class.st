@@ -130,6 +130,12 @@ DRJITCompileTimeExpressionGenerator >> visitNegate: aDRNegated [
 ]
 
 { #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitPhiFunction: aDRPhiFunction [ 
+
+	^ RBVariableNode named: aDRPhiFunction asJitCompileTimeExpression expression
+]
+
+{ #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitRightShift: aDRRightShift [
 
 	^ self

@@ -1,6 +1,6 @@
 Class {
 	#name : #DRBasicBlockBuilderTest,
-	#superclass : #TestCase,
+	#superclass : #DRIRTest,
 	#category : #'Druid-Tests'
 }
 

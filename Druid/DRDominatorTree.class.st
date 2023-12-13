@@ -59,14 +59,19 @@ DRDominatorTree >> dominanceFrontierOf: aBlock [
 ]
 
 { #category : #query }
-DRDominatorTree >> dominatorOfAll: aCollection [ 
-	
-	| node1 node2 |
-	self assert: aCollection size <= 2.
-	
-	node1 := self blockDictionary at: aCollection first basicBlock.
-	node2 := self blockDictionary at: aCollection second basicBlock.
-	^ self nearestCommonAncestorOf: node1 and: node2
+DRDominatorTree >> dominatorOfAll: instructions [
+
+	| firstNode |
+	self assert: instructions size > 1.
+
+	firstNode := self blockDictionary at: instructions first basicBlock.
+
+	^ instructions allButFirst
+		  inject: firstNode
+		  into: [ :dominator :instruction |
+			  self
+				  nearestCommonAncestorOf: dominator
+				  and: (self blockDictionary at: instruction basicBlock) ]
 ]
 
 { #category : #asd }

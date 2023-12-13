@@ -266,15 +266,24 @@ DRCogitCodeGenerator >> generateCompare: aComparison operands: operands [
 { #category : #'generate-code' }
 DRCogitCodeGenerator >> generateCompileTimeIfCondition: aDRBranchIfCondition [
 
-	| jitCondition sequenceNode |
-	jitCondition := aDRBranchIfCondition conditionAsJitCompileTimeExpression.
+	aDRBranchIfCondition isConditionalLoop ifTrue: [ ^ self generateLoop: aDRBranchIfCondition asConditionalLoop ].
 
-	sequenceNode := self innerCompilePathFrom: aDRBranchIfCondition trueBranch.
+	self generateConditional: aDRBranchIfCondition.
+
+
+]
+
+{ #category : #'code-generation' }
+DRCogitCodeGenerator >> generateConditional: aDRBranchIfCondition [
+
+	| jitCondition innerGenerator |
+	jitCondition := aDRBranchIfCondition conditionAsJitCompileTimeExpression.
+	innerGenerator := self innerCompilePathFrom: aDRBranchIfCondition trueBranch.
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: (RBVariableNode named: jitCondition expression)
 			 selector: #ifTrue:
-			 arguments: { (RBBlockNode body: sequenceNode) })
+			 arguments: { (RBBlockNode body: innerGenerator generatorMethodBuilder sequenceNode) })
 ]
 
 { #category : #visiting }
@@ -309,6 +318,31 @@ DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 				
 	generatorMethodBuilder addStatement: jumpStatement.
 	
+]
+
+{ #category : #'code-generation' }
+DRCogitCodeGenerator >> generateLoop: aDRLoop [
+
+	| innerGenerator jitCondition loopPath isTrue |
+	loopPath := aDRLoop bodyBlocks.
+
+	self assert:
+		(loopPath allSatisfy: [ :b | b isDominatedBy: aDRLoop headerBlock ]).
+	blocks removeAll: loopPath.
+	innerGenerator := self innerCompileBlocks: loopPath.
+
+	jitCondition := aDRLoop loopConditional
+		                conditionAsJitCompileTimeExpression.
+	isTrue := aDRLoop exitBlock = aDRLoop loopConditional falseBranch.
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: (RBBlockNode body: (RBSequenceNode statements:
+						   { (RBVariableNode named: jitCondition expression) }))
+			 selector: (isTrue
+					  ifTrue: [ #whileTrue: ]
+					  ifFalse: [ #whileFalse: ])
+			 arguments: { (RBBlockNode body:
+					  innerGenerator generatorMethodBuilder sequenceNode) })
 ]
 
 { #category : #visiting }
@@ -403,6 +437,45 @@ DRCogitCodeGenerator >> initialize [
 	visitedBlocks := OrderedCollection new.
 	visitedBlocksWithIncomingBackjumps := Dictionary new.
 	
+]
+
+{ #category : #'code-generation' }
+DRCogitCodeGenerator >> innerCompileBlocks: innerBlocks [
+
+	| innerGenerator cfg |
+	cfg := innerBlocks first controlFlowGraph.
+	innerGenerator := self innerGenerator.
+	innerGenerator blocks: innerBlocks.
+	innerGenerator generateCodeFromBlocks.
+	^ innerGenerator
+]
+
+{ #category : #'code-generation' }
+DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
+
+	| dominatorTree dominatedBlocks sharedPathToTheEnd fullPath innerGenerator |
+	"We should create a path from the branch to the end"
+	dominatorTree := aDRBasicBlock controlFlowGraph buildDominatorTree.
+	dominatedBlocks := aDRBasicBlock controlFlowGraph reversePostOrderBlocks select: [ :b |
+		                   b isDominatedBy: aDRBasicBlock ].
+
+	"If the first block is dominated by others don't remove from the list, we still need it"
+	self assert: dominatedBlocks first = aDRBasicBlock.
+	(blocks includesAny: aDRBasicBlock predecessors) ifFalse: [ blocks remove: aDRBasicBlock ].
+
+	"Remove blocks only visited during inner compilation from outer"
+	dominatedBlocks allButFirstDo: [ :b | blocks remove: b ].
+
+	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
+	sharedPathToTheEnd := blocks select: [ :e |
+		                      sharedPathToTheEnd anySatisfy: [ :potentialDominator |
+			                      e isDominatedBy: potentialDominator ] ].
+	fullPath := dominatedBlocks , sharedPathToTheEnd.
+
+	innerGenerator := self innerCompileBlocks: fullPath.
+	innerGenerator generatePostambleForCFG: aDRBasicBlock controlFlowGraph.
+	innerGenerator generateReturn.
+	^ innerGenerator 
 ]
 
 { #category : #testing }
@@ -831,11 +904,13 @@ DRCogitCodeGenerator >> visitIntToFloatConversion: aDRIntToFloat [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitJump: aDRJump [ 
+DRCogitCodeGenerator >> visitJump: aDRJump [
 
-	self
-		generateJump: #Jump:
-		target: aDRJump target
+	aDRJump asBackJumpLoop ifNotNil: [ :loop |
+		loop loopConditional isJITCompileTimeExpression ifTrue: [
+			^ self "JIT compile loop" ] ].
+
+	self generateJump: #Jump: target: aDRJump target
 ]
 
 { #category : #visiting }

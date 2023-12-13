@@ -40,7 +40,6 @@ DRPhiFunction >> addValue: anInstruction [
 { #category : #accessing }
 DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [ 
 	
-	self haltIf: [ anInstruction isDRBlockClosure ].
 	self assert: self basicBlock predecessors last = aDRBasicBlock.
 	operands addLast: anInstruction
 ]
@@ -98,6 +97,12 @@ DRPhiFunction >> isInvariantFrom: loop [
 ]
 
 { #category : #testing }
+DRPhiFunction >> isJITCompileTimeExpression [
+	
+	^ self operands allSatisfy: [ :op | op isJITCompileTimeExpressionIgnoring: { self } ]
+]
+
+{ #category : #testing }
 DRPhiFunction >> isPhiFunction [
 
 	^ true
@@ -105,7 +110,7 @@ DRPhiFunction >> isPhiFunction [
 
 { #category : #accessing }
 DRPhiFunction >> joinedVariables: aCollection [
-	self haltIf: [ aCollection anySatisfy:  #isDRBlockClosure ].
+
 	self operands: aCollection
 ]
 

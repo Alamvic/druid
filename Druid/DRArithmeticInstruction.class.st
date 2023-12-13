@@ -4,6 +4,13 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #testing }
+DRArithmeticInstruction >> isJITCompileTimeExpressionIgnoring: aCollection [
+
+	^ (operands copyWithoutAll: aCollection) allSatisfy: [ :op |
+		  op isJITCompileTimeExpressionIgnoring: aCollection ]
+]
+
 { #category : #types }
 DRArithmeticInstruction >> type [
 

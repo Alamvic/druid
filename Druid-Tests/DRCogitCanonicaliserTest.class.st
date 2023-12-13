@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCogitCanonicaliserTest,
-	#superclass : #TestCase,
+	#superclass : #DRIRTest,
 	#category : #'Druid-Tests'
 }
 

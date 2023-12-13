@@ -195,3 +195,28 @@ DRIRTest >> setUpCFGWithConditionalWithPhi [
 	cfg phi: (cfg b4 phiWith: copy1 with: copy2).
 	^ cfg
 ]
+
+{ #category : #initialization }
+DRIRTest >> setUpCFGWithLoop [
+
+	| cfg preHeader initialValue loopPhi loopInstruction header loopBody loopExit |
+	cfg := self setUpCFGWithConditionalWithPhi.
+	cfg b4 phiFunctions unique removeFromCFG.
+
+	header := cfg b1.
+	preHeader := header newEmptyPredecessor.
+	loopBody := cfg b2.	
+	loopExit := cfg b3.
+	
+
+	initialValue := preHeader copy: 0.
+
+	loopBody backJumpTo: cfg b1.
+	loopInstruction := loopBody firstInstruction.
+	loopPhi := header phiWith: loopInstruction with: initialValue.
+
+	loopInstruction replaceBy: (loopBody copy: loopPhi).
+	loopExit firstInstruction replaceBy: (loopExit copy: loopPhi).
+
+	^ cfg
+]
