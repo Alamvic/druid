@@ -143,26 +143,12 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 ]
 
 { #category : #'instance creation' }
-DRInterpreterToCompiler class >> generateDruidMixedJITModel [
-
-	<script>
-	self generateDruidJITModelOn: DruidCogObjectRepresentationFor64BitSpur "Compiles in the ObjectRepresentation hierarchy"
-]
-
-{ #category : #'instance creation' }
 DRInterpreterToCompiler class >> generateSimpleDruidJITModel [
 
 	<script>
 	self
 		generateDruidJITModelOn: SimpleDruidJIT
 		superclass: SimpleStackBasedCogit
-]
-
-{ #category : #'instance creation' }
-DRInterpreterToCompiler class >> generateUnoptimisedDruidJITModel [
-
-	<script>
-	self generateDruidJITModelOn: DruidUnoptimisedJIT
 ]
 
 { #category : #'accessing - bytecodes' }
