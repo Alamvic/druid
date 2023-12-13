@@ -1,6 +1,9 @@
 Class {
 	#name : #DRDruidTests,
 	#superclass : #VMJittedPrimitivesTest,
+	#instVars : [
+		'fakeTrampoline'
+	],
 	#category : #'Druid-Tests'
 }
 
@@ -45,6 +48,8 @@ DRDruidTests >> setUp [
 		setInterpreter: interpreter
 		objectRepresentation: cogit objectRepresentation
 		cogit: cogit.
+		
+	fakeTrampoline := self compile: [ cogit RetN: 0 ].
 		
 	cogInitialAddress := #invalid "will be set by test"
 ]
