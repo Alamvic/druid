@@ -456,26 +456,31 @@ DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
 	| dominatorTree dominatedBlocks sharedPathToTheEnd fullPath innerGenerator |
 	"We should create a path from the branch to the end"
 	dominatorTree := aDRBasicBlock controlFlowGraph buildDominatorTree.
-	dominatedBlocks := aDRBasicBlock controlFlowGraph reversePostOrderBlocks select: [ :b |
+	dominatedBlocks := aDRBasicBlock controlFlowGraph
+		                   reversePostOrderBlocks select: [ :b |
 		                   b isDominatedBy: aDRBasicBlock ].
 
 	"If the first block is dominated by others don't remove from the list, we still need it"
 	self assert: dominatedBlocks first = aDRBasicBlock.
-	(blocks includesAny: aDRBasicBlock predecessors) ifFalse: [ blocks remove: aDRBasicBlock ].
+	(blocks includesAny: aDRBasicBlock predecessors) ifFalse: [
+		blocks remove: aDRBasicBlock ].
 
 	"Remove blocks only visited during inner compilation from outer"
 	dominatedBlocks allButFirstDo: [ :b | blocks remove: b ].
 
-	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
+	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf:
+		                      aDRBasicBlock.
 	sharedPathToTheEnd := blocks select: [ :e |
-		                      sharedPathToTheEnd anySatisfy: [ :potentialDominator |
+		                      sharedPathToTheEnd anySatisfy: [
+			                      :potentialDominator |
 			                      e isDominatedBy: potentialDominator ] ].
 	fullPath := dominatedBlocks , sharedPathToTheEnd.
 
 	innerGenerator := self innerCompileBlocks: fullPath.
-	innerGenerator generatePostambleForCFG: aDRBasicBlock controlFlowGraph.
+	innerGenerator generatePostambleForCFG:
+		aDRBasicBlock controlFlowGraph.
 	innerGenerator generateReturn.
-	^ innerGenerator 
+	^ innerGenerator
 ]
 
 { #category : #testing }

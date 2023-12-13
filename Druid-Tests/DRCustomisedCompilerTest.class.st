@@ -8,19 +8,19 @@ Class {
 }
 
 { #category : #tests }
-DRCustomisedCompilerTest >> compile: selector [
-
-	self configureCompiler: selector.
-	compiler compile.
-	^ compiler targetMethod 
-]
-
-{ #category : #tests }
 DRCustomisedCompilerTest >> configureCompiler: selector [
 
 	compiler
 		sourceName: selector;
 		targetName: #gen_ , selector
+]
+
+{ #category : #tests }
+DRCustomisedCompilerTest >> druidCompile: selector [
+
+	self configureCompiler: selector.
+	compiler compile.
+	^ compiler targetMethod 
 ]
 
 { #category : #tests }
@@ -69,7 +69,7 @@ DRCustomisedCompilerTest >> setUp [
 DRCustomisedCompilerTest >> testAddsPreambleToGeneratedCode [
 
 	| genMethod preambleCode |
-	genMethod := self compile: #primitiveAdd.
+	genMethod := self druidCompile: #primitiveAdd.
 	preambleCode := genMethod ast body statements first formattedCode.
 
 	self

@@ -34,6 +34,17 @@ DRPrimitiveCompilerCompiler >> buildIR: primitiveSelector [
 ]
 
 { #category : #accessing }
+DRPrimitiveCompilerCompiler >> configureForCompilerClass: aCompilerClass [
+
+	super configureForCompilerClass: aCompilerClass.
+	self compilerClass: aCompilerClass.
+
+	registerAllocator := DRCogitLinearScanRegisterAllocator new.
+	codeGenerator := DRCogitCodeGenerator new.
+	optimisations := StackToRegisterMappingCogit druidNewOptimizationList
+]
+
+{ #category : #accessing }
 DRPrimitiveCompilerCompiler >> initialize [
 
 	super initialize.
