@@ -216,6 +216,12 @@ DRCogitSimpleStackGenerator >> visitPop: aDRPop [
 { #category : #visiting }
 DRCogitSimpleStackGenerator >> visitPush: aDRPush [
 
+	aDRPush operand1 isConstant ifTrue: [
+		^ generatorMethodBuilder addStatement: (RBMessageNode
+				   receiver: RBVariableNode selfNode
+				   selector: 'genPushConstant:'
+				   arguments: (aDRPush operand1 rtlPushArgumentExpressions: self)) ].
+
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector:
