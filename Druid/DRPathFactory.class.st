@@ -46,9 +46,12 @@ DRPathFactory >> createInitialEdge [
 
 	| initialBlock initialEdge |
 	initialBlock := cfg initialBasicBlock.
-	initialEdge := cfg addEdgeFrom: initialBlock to: initialBlock successor branchIndex: 1.
-	cfg initialContrainst ifNotNil: [ :constraint | initialEdge addConstraint: constraint constraint to: constraint reg name  ]
-	
+	initialEdge := cfg
+		               addEdgeFrom: initialBlock
+		               to: initialBlock successor
+		               branchIndex: 1.
+	cfg initialContrainst ifNotNil: [ :constraint |
+		constraint addToEdge: initialEdge ]
 ]
 
 { #category : #building }
