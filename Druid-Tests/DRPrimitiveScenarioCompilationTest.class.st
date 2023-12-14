@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #accessing }
+DRPrimitiveScenarioCompilationTest >> cogitStyle: aSymbol [
+
+	cogitStyle := aSymbol
+]
+
 { #category : #'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testAccessTemporaryAfterCall [
 
@@ -550,9 +556,10 @@ DRPrimitiveScenarioCompilationTest >> testCompiledPrimitivePreservesStack [
 	
 	receiver := memory integerObjectOf: 43.
 	self pushAddress: 55.
+
 	self executePrimitiveWithReceiver: receiver.
 	
-	self flag: #TOFIX. "Receiver is pushed after mark" 
+	self assert: machineSimulator receiverRegisterValue equals: receiver.
 	self assert: self popAddress equals: 55
 ]
 
@@ -930,6 +937,26 @@ DRPrimitiveScenarioCompilationTest >> testFourDeadBranchesFourBranches4 [
 ]
 
 { #category : #'tests-comparisons value' }
+DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanArgumentFalse [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualThanArgument.
+	
+	self executePrimitiveWithReceiver: -10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: false asBit
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanArgumentTrue [
+
+	self compileDruidPrimitive: #primitiveGreaterOrEqualThanArgument.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: true asBit
+]
+
+{ #category : #'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanValueFalse [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualThanValue.
@@ -1026,6 +1053,26 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThan [
 	self executePrimitiveWithReceiver: 20.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveScenarioCompilationTest >> testGreaterThanArgumentFalse [
+
+	self compileDruidPrimitive: #primitiveGreaterThanArgument.
+	
+	self executePrimitiveWithReceiver: -10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: false asBit
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveScenarioCompilationTest >> testGreaterThanArgumentTrue [
+
+	self compileDruidPrimitive: #primitiveGreaterThanArgument.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
 { #category : #'tests-comparisons-floats' }
@@ -1412,6 +1459,26 @@ DRPrimitiveScenarioCompilationTest >> testJitCompileTimeExpression [
 ]
 
 { #category : #'tests-comparisons value' }
+DRPrimitiveScenarioCompilationTest >> testLessOrEqualThanArgumentFalse [
+
+	self compileDruidPrimitive: #primitiveLessOrEqualThanArgument.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: false asBit
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveScenarioCompilationTest >> testLessOrEqualThanArgumentTrue [
+
+	self compileDruidPrimitive: #primitiveLessOrEqualThanArgument.
+	
+	self executePrimitiveWithReceiver: -10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: true asBit
+]
+
+{ #category : #'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testLessOrEqualThanValueFalse [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualThanValue.
@@ -1459,6 +1526,26 @@ DRPrimitiveScenarioCompilationTest >> testLessOrEqualsThanFloatsLess [
 	self executePrimitiveWithReceiver: 2 withArguments: { 1 }.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveScenarioCompilationTest >> testLessThanArgumentFalse [
+
+	self compileDruidPrimitive: #primitiveLessThanArgument.
+	
+	self executePrimitiveWithReceiver: 10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: false asBit
+]
+
+{ #category : #'tests-comparisons value' }
+DRPrimitiveScenarioCompilationTest >> testLessThanArgumentTrue [
+
+	self compileDruidPrimitive: #primitiveLessThanArgument.
+	
+	self executePrimitiveWithReceiver: -10.
+	
+	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
 { #category : #'tests-comparisons-floats' }
@@ -1930,6 +2017,42 @@ DRPrimitiveScenarioCompilationTest >> testSmallerThanInverted [
 	self executePrimitiveWithReceiver: 20.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 5
+]
+
+{ #category : #'tests-stack' }
+DRPrimitiveScenarioCompilationTest >> testStackValue0 [
+
+	| receiver |
+	self compileDruidPrimitive: #primitivePushReceiverOf0ArgSelector.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver.
+	
+	self assert: machineSimulator receiverRegisterValue equals: receiver
+]
+
+{ #category : #'tests-stack' }
+DRPrimitiveScenarioCompilationTest >> testStackValue0WithOneArgument [
+
+	| receiver |
+	self compileDruidPrimitive: #primitivePushFirstArgument.
+	
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver withArguments: { 17 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-stack' }
+DRPrimitiveScenarioCompilationTest >> testStackValue1 [
+
+	| receiver |
+	self compileDruidPrimitive: #primitivePushReceiverOf1ArgSelector.
+
+	receiver := memory integerObjectOf: 43.
+	self executePrimitiveWithReceiver: receiver withArguments: { 1 }.
+
+	self assert: machineSimulator receiverRegisterValue equals: receiver
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }

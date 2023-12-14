@@ -847,6 +847,13 @@ DruidTestInterpreter >> primitiveFloatSubtract [
 ]
 
 { #category : #comparisons }
+DruidTestInterpreter >> primitiveGreaterOrEqualThanArgument [
+
+	<numberOfArguments: 1>
+	self pop: 2 thenPush: (self stackTop >= 0)
+]
+
+{ #category : #comparisons }
 DruidTestInterpreter >> primitiveGreaterOrEqualThanValue [
 
 	<numberOfArguments: 0>
@@ -887,6 +894,13 @@ DruidTestInterpreter >> primitiveGreaterThan [
 	| r |
 	r := self stackTop > 10 ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveGreaterThanArgument [
+
+	<numberOfArguments: 1>
+	self pop: 2 thenPush: (self stackTop > 0)
 ]
 
 { #category : #'as yet unclassified' }
@@ -1108,6 +1122,13 @@ DruidTestInterpreter >> primitiveJITCompileTimeExpression [
 ]
 
 { #category : #comparisons }
+DruidTestInterpreter >> primitiveLessOrEqualThanArgument [
+
+	<numberOfArguments: 1>
+	self pop: 2 thenPush: (self stackTop <= 0)
+]
+
+{ #category : #comparisons }
 DruidTestInterpreter >> primitiveLessOrEqualThanValue [
 
 	<numberOfArguments: 0>
@@ -1149,6 +1170,13 @@ DruidTestInterpreter >> primitiveLessThan [
 	| r |
 	r := self stackTop < 10 ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #comparisons }
+DruidTestInterpreter >> primitiveLessThanArgument [
+
+	<numberOfArguments: 1>
+	self pop: 2 thenPush: (self stackTop < 0)
 ]
 
 { #category : #'as yet unclassified' }
@@ -1394,6 +1422,36 @@ DruidTestInterpreter >> primitiveOr [
 		ifFalse: [ result := 10 ].
 
 	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitivePushFirstArgument [
+
+	<numberOfArguments: 1>
+	
+	| thingToPop |
+	thingToPop := self stackValue: 0.
+	self pop: 2 "1 args + 1 receiver" thenPush: thingToPop
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitivePushReceiverOf0ArgSelector [
+
+	<numberOfArguments: 0>
+	
+	| thingToPop |
+	thingToPop := self stackValue: 0.
+	self pop: 1 "0 args + 1 receiver" thenPush: thingToPop
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitivePushReceiverOf1ArgSelector [
+
+	<numberOfArguments: 1>
+	
+	| thingToPop |
+	thingToPop := self stackValue: 1.
+	self pop: 2 "1 args + 1 receiver" thenPush: thingToPop
 ]
 
 { #category : #'as yet unclassified' }

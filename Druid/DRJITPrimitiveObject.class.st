@@ -34,7 +34,7 @@ DRJITPrimitiveObject >> compileUnitUsing: aCompiler [
 		primitiveName: self sourceSelector;
 		interpreter: aCompiler newInterpreter;
 		primitiveCompilerName: self genSelector;
-		compilerClass: aCompiler targetClass;
+		configureForCompilerClass: aCompiler targetClass;
 		compile
 ]
 

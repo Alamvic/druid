@@ -87,7 +87,13 @@ DRMetaCompilerIRGenerator >> numberOfArguments: aValue [
 { #category : #configure }
 DRMetaCompilerIRGenerator >> receiver: aDRValue [
 
-	self push: self receiverRegister
+	| loadReceiver |
+	loadReceiver := self 
+		instantiate: DRLoadReceiver
+		operands: { }.
+	loadReceiver origin: thisContext sender stack.
+	self currentBasicBlock addInstruction: loadReceiver.
+	self push: loadReceiver
 ]
 
 { #category : #visiting }

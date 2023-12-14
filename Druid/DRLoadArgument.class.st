@@ -28,6 +28,12 @@ DRLoadArgument >> argName: selector [
 ]
 
 { #category : #accessing }
+DRLoadArgument >> argNum [
+
+	^ argNum
+]
+
+{ #category : #accessing }
 DRLoadArgument >> classType: aType [
 	
 	classType := aType
@@ -66,6 +72,6 @@ DRLoadArgument >> sccpLatticeValueFor: sccp [
 
 { #category : #accessing }
 DRLoadArgument >> type [
-	
-	^ classType ifNil: [DRUndefinedType new]
+
+	^ DRSignedIntegerType size: 8 "Word size"
 ]

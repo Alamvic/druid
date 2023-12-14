@@ -34,7 +34,6 @@ DRAbstractCompilerCompiler >> compile [
 
 	| druidIR |
 	self customise.
-
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
@@ -66,15 +65,15 @@ DRAbstractCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 
 	| startBlock initialBasicBlock |
-	"Config generator"
-	generator receiver: (DRInterpreterValue value: interpreter).
-	generator numberOfArguments:
-		(self numberOfArgumentsForMethod: method).
-
 	"Create the initial basic block"
 	startBlock := generator initialBasicBlock.
 	initialBasicBlock := generator createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
+
+	"Config generator"
+	generator receiver: (DRInterpreterValue value: interpreter).
+	generator numberOfArguments:
+		(self numberOfArgumentsForMethod: method).
 
 ]
 

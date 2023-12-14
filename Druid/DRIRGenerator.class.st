@@ -79,19 +79,35 @@ DRIRGenerator >> allocateTemporaryRegister [
 ]
 
 { #category : #factory }
-DRIRGenerator >> arg0register [
-	
-	^ self argRegisterNumber: 0
+DRIRGenerator >> argRegisterNumber: anInteger [
+
+	| loadArgument |
+	numberOfArguments = anInteger ifTrue: [
+		1 halt.
+		^ DRLoadReceiver new ].
+
+	loadArgument := self
+		                instantiate: DRLoadArgument
+		                operands:
+		                { (self argumentOffsetForStackValue: anInteger) }.
+	loadArgument origin: thisContext sender stack.
+	self currentBasicBlock addInstruction: loadArgument.
+	^ loadArgument
 ]
 
 { #category : #factory }
-DRIRGenerator >> argRegisterNumber: anInteger [
+DRIRGenerator >> argumentOffsetForStackValue: stackValue [
 
-	| argumentIndex |
-	numberOfArguments = anInteger
-		ifTrue: [ ^ self receiverRegister ].
-	argumentIndex := numberOfArguments - anInteger - 1.
-	^ DRPhysicalGeneralPurposeRegister name: 'Arg', argumentIndex asString, 'Reg'
+	"Arguments are pushed reversed in the stack (first argument is last in the stack).
+	For example, for three arguments, the stack has the following shape: 
+	
+	...
+	stack value 2 => arg 0
+	stack value 1 => arg 1
+	stack value 0 (top) => arg 2
+	"
+
+	^ numberOfArguments - stackValue - 1
 ]
 
 { #category : #'basic-blocks' }
@@ -1189,7 +1205,7 @@ DRIRGenerator >> interpretSpaceMaskToUseWith: aRBVariableNode [
 { #category : #'special cases - stack' }
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
-	self pushOperand: self stackTop
+	self pushOperand: (self stackValue: 0)
 ]
 
 { #category : #'special cases - stack' }
@@ -1203,10 +1219,27 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 	value := self popOperand operand1 simpleConstantFold.
 	value isInteger ifFalse: [ self error: 'expected an integer value' ].
 
+	self pushOperand: (self stackValue: value)
+]
+
+{ #category : #'special cases - stack' }
+DRIRGenerator >> interpretStackValueWith: aRBMessageNode withValue: aValue [
+	"Interpret messages of the form 
+	interpreter stackValue: xxx.
+	"
+
+	aValue isInteger ifFalse: [ self error: 'expected an integer value' ].
+
+	aValue = numberOfArguments ifTrue: [
+		^ self
+			  addInstructionFrom: aRBMessageNode
+			  instructionKind: DRLoadReceiver
+			  operands: #(  ) ].
+
 	^ self
 		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRCopy
-		  operands: { (self argRegisterNumber: value) }
+		  instructionKind: DRLoadArgument
+		  operands: { (self argumentOffsetForStackValue: aValue) asDRValue }
 ]
 
 { #category : #'special cases - memory access' }
@@ -1681,7 +1714,7 @@ DRIRGenerator >> receiver [
 
 { #category : #factory }
 DRIRGenerator >> receiverRegister [
-	
+
 	^ DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg'
 ]
 
@@ -1716,6 +1749,12 @@ DRIRGenerator >> setExecutionStateTo: aBlock [
 DRIRGenerator >> stackTop [
 	
 	^ self executionState topVM
+]
+
+{ #category : #'pharo-stack' }
+DRIRGenerator >> stackValue: offset [
+	
+	^ self executionState valueVM: offset
 ]
 
 { #category : #'special cases' }

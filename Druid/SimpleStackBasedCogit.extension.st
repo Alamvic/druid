@@ -34,6 +34,12 @@ SimpleStackBasedCogit class >> druidNewOptimizationList [
 ]
 
 { #category : #'*Druid' }
+SimpleStackBasedCogit class >> druidNewPrimitiveCodeGenerator [
+
+	^ DRCogitSimpleStackPrimitiveCodeGenerator new
+]
+
+{ #category : #'*Druid' }
 SimpleStackBasedCogit class >> druidNewRegisterAllocator [
 
 	^ DRCogitLinearScanRegisterAllocator new

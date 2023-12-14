@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCogitSimpleStackGenerator,
-	#superclass : #DRCogitCodeGenerator,
+	#superclass : #DRCogitBytecodeCodeGenerator,
 	#instVars : [
 		'variables'
 	],
@@ -200,19 +200,6 @@ DRCogitSimpleStackGenerator >> visitLoadStackPointer: aDRLoadStackPointer [
 	self twoOperandMoveCogitRTL: aDRLoadStackPointer operands: {
 			(DRPhysicalGeneralPurposeRegister name: 'SPReg').
 			aDRLoadStackPointer result }
-]
-
-{ #category : #visiting }
-DRCogitSimpleStackGenerator >> visitLoadStackValue: aDRLoadStackValue [
-	"cogit MoveMw: 0 r: SPReg R: TempReg"
-	self haltIf: [ aDRLoadStackValue operand1 value > 0 ].
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: #MoveMw:r:R:
-			 arguments: {
-					 (aDRLoadStackValue operand1 rtlPushArgumentExpressions: self) first.
-					 (RBVariableNode named: 'SPReg').
-					 (RBVariableNode named: aDRLoadStackValue result name) })
 ]
 
 { #category : #visiting }
