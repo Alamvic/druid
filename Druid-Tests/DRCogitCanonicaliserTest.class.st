@@ -148,6 +148,30 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfZero [
 ]
 
 { #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyCopyLoadReceiver [
+
+	| cfg basicBlock |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 |
+		r0 := block loadReceiver.
+		r1 := block copy: r0.
+		r1 result: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg') ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	"The stack canonicalizer does this simplification"
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+
+	"
+	R0 := load receiver
+	ReceiverResultReg := R0.
+	=>
+	"
+	self assert: basicBlock instructions size equals: 1.
+	self assert: basicBlock instructions first isNoop
+]
+
+{ #category : #tests }
 DRCogitCanonicaliserTest >> testSimplifyLoadAdditionOfAddition [
 
 	| cfg basicBlock |

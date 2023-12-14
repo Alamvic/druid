@@ -139,9 +139,13 @@ DRCogitCanonicaliser >> visitContinueNextBytecode: aDRContinueNextBytecode [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitCopy: aDRCopy [ 
-	
-	"Nothing"
+DRCogitCanonicaliser >> visitCopy: aDRCopy [
+	"Remove instructions of the form: 
+		ReceiverResultReg := LoadReceiver"
+
+	(aDRCopy operand1 isLoadReceiver and: [
+		 aDRCopy result name = 'ReceiverResultReg' and: [
+			 aDRCopy users isEmpty ] ]) ifTrue: [ aDRCopy removeFromCFG ]
 ]
 
 { #category : #visiting }

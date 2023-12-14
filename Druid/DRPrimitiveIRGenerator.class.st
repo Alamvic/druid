@@ -30,6 +30,38 @@ DRPrimitiveIRGenerator >> executeFullCogBlockClosureMayContextSwitchWith: aRBMes
 				  offsetSelector }
 ]
 
+{ #category : #visiting }
+DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
+
+	"Plug the IR with the two exit blocks"
+
+	| conditionalJump |
+	self spillStack.
+
+	conditionalJump := self
+		                   instantiateNoResultInstruction: DRBranchIfCondition
+		                   operands: { 
+				                   DREqualsThanComparison new.
+				                   executionState primitiveFailureCode.
+				                   0 asDRValue }.
+	currentBasicBlock endInstruction: conditionalJump.
+	controlFlowGraph primitiveExitBlock: currentBasicBlock.
+
+	conditionalJump trueBranch: controlFlowGraph successExitBlock.
+	controlFlowGraph successExitBlock addPredecessor: currentBasicBlock.
+
+	conditionalJump falseBranch: controlFlowGraph failureExitBlock.
+	controlFlowGraph failureExitBlock addPredecessor: currentBasicBlock.
+
+	controlFlowGraph successExitBlock endInstruction: (self
+			 instantiateNoResultInstruction: DRReturn
+			 operands: { (DRConstantValue value: numberOfArguments + 1) }).
+
+	"Make the end instruction of the failure exit finish with a Noop"
+	controlFlowGraph failureExitBlock endInstruction:
+		(self instantiateNoResultInstruction: DRPrimitiveFail)
+]
+
 { #category : #accessing }
 DRPrimitiveIRGenerator >> initialize [
 
@@ -176,19 +208,27 @@ DRPrimitiveIRGenerator >> pushFrame: aDruidStackFrame [
 { #category : #'pharo-stack' }
 DRPrimitiveIRGenerator >> spillStack [
 
+	| destinationRegister copyInstruction |
 	"If there is no operand stack, the current block has no predecessors and is considered as dead code.
 	Do not spill the stack here."
 	self currentOperandStack ifNil: [ ^ self ].
+
+	"Two cases can arrive here:
+	  - either the primitive fails and did not touch the stack => no spill
+	  - or the primitive succeeded and only one element is in the stack.
+	We do not currently check this but the more relaxed version below.
+	We do ignore all entries except the receiver entry in the stack however."
+
 	self currentOperandStack size > (numberOfArguments + 1)
 		ifTrue: [ self error: 'Non Balanced Stack!' ].
 
-	[ self currentOperandStack isEmpty ] whileFalse: [ | destinationRegister copyInstruction |
-		destinationRegister := self currentOperandStack size = 1
-			ifTrue: [ self receiverRegister ]
-			ifFalse: [ DRPhysicalGeneralPurposeRegister name: 'Arg', (self currentOperandStack size - 2) asString, 'Reg' ].
-		copyInstruction := DRCopy
-			operands: { self currentOperandStack pop }
-			result: destinationRegister.
-		self currentBasicBlock addInstruction: copyInstruction.
-	]
+	"At the end of compilation, only the receiver register has an interesting value
+	It woud be nice to check here at compile time that this is true and the other entries did not change."
+	[ self currentOperandStack size > 1 ] whileTrue: [ self currentOperandStack pop ].
+	
+	destinationRegister := self receiverRegister.
+	copyInstruction := DRCopy
+		                   operands: { self currentOperandStack pop }
+		                   result: destinationRegister.
+	self currentBasicBlock addInstruction: copyInstruction
 ]

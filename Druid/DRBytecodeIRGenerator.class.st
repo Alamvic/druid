@@ -20,7 +20,7 @@ DRBytecodeIRGenerator >> addAnnotateBytecode: aRBMethodNode [
 { #category : #visiting }
 DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
 
-	self spillStack
+	"Nothing"
 ]
 
 { #category : #accessing }

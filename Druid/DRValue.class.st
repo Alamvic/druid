@@ -236,6 +236,12 @@ DRValue >> isLoadFramePointer [
 	^ false
 ]
 
+{ #category : #testing }
+DRValue >> isLoadReceiver [
+	
+	^ false
+]
+
 { #category : #visiting }
 DRValue >> isMandatoryInstruction [
 
