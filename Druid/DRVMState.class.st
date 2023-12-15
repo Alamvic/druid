@@ -211,6 +211,12 @@ DRVMState >> simplify [
 ]
 
 { #category : #accumulating }
+DRVMState >> stackOperandAt: stackPosition [
+
+	^ operandStack at: stackPosition
+]
+
+{ #category : #accumulating }
 DRVMState >> stackOperandAt: stackPosition ifAbsent: aBlock [
 
 	^ operandStack at: stackPosition ifAbsent: aBlock

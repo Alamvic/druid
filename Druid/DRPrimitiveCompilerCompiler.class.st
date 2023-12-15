@@ -24,6 +24,18 @@ DRPrimitiveCompilerCompiler >> argName: index forMethod: method [
 	^ 'Arg' , index asString
 ]
 
+{ #category : #'initialize-release' }
+DRPrimitiveCompilerCompiler >> beForSimpleStack [
+	
+	codeGenerator := DRCogitSimpleStackPrimitiveCodeGenerator new
+]
+
+{ #category : #'initialize-release' }
+DRPrimitiveCompilerCompiler >> beForStackToRegisterMapping [
+
+	codeGenerator := DRCogitStackToRegisterPrimitiveCodeGenerator new
+]
+
 { #category : #accessing }
 DRPrimitiveCompilerCompiler >> buildIR: primitiveSelector [ 
 	" Answer a DRPrimitiveControlFlowGraph generated for primitiveSelector in the receiver's interpreter "
@@ -34,9 +46,22 @@ DRPrimitiveCompilerCompiler >> buildIR: primitiveSelector [
 ]
 
 { #category : #accessing }
+DRPrimitiveCompilerCompiler >> configureForCompilerClass: aCompilerClass [
+
+	super configureForCompilerClass: aCompilerClass.
+	self compilerClass: aCompilerClass.
+
+	registerAllocator := DRCogitLinearScanRegisterAllocator new.
+	codeGenerator := compilerClass druidNewPrimitiveCodeGenerator.
+	optimisations := StackToRegisterMappingCogit druidNewOptimizationList
+]
+
+{ #category : #accessing }
 DRPrimitiveCompilerCompiler >> initialize [
 
 	super initialize.
+	
+	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 
 	optimisations := OrderedCollection new.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
@@ -64,6 +89,12 @@ DRPrimitiveCompilerCompiler >> initialize [
 DRPrimitiveCompilerCompiler >> newIRGenerator [
 
 	^ DRPrimitiveIRGenerator new
+]
+
+{ #category : #accessing }
+DRPrimitiveCompilerCompiler >> numberOfArguments [
+	
+	^ self numberOfArgumentsForMethod: self sourceMethod
 ]
 
 { #category : #'generation-IR' }

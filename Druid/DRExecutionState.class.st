@@ -122,6 +122,14 @@ DRExecutionState >> topVM [
 	^ self vmState top
 ]
 
+{ #category : #copying }
+DRExecutionState >> valueVM: offset [
+	"0-based offset relateive to top.
+	0 is top, 1 is after top and so on"
+
+	^ self vmState stackOperandAt: offset + 1
+]
+
 { #category : #'vm stack' }
 DRExecutionState >> vmOperandStack [
 	

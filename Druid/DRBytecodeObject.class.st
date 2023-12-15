@@ -96,7 +96,7 @@ DRBytecodeObject >> compileUnitUsing: aCompiler [
 			targetName: self genSelector;
 			sourceName: self sourceSelector;
 			interpreter: interpreter;
-			compilerClass: aCompiler targetClass;
+			configureForCompilerClass: aCompiler targetClass;
 			compile ]
 ]
 

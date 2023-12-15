@@ -93,6 +93,7 @@ DRBytecodeGeneratorTest >> setUp [
 	
 	compilerCompiler := DRMethodCompilerCompiler new.
 	compilerCompiler interpreter: DruidTestInterpreter basicNew.
+	compilerCompiler configureForCompilerClass: nil.
 	
 	bytecodeGenerator := DRBytecodeGenerator new.
 	typeSystem := DRPragmaBasedTypeSystem new
@@ -128,7 +129,6 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 
 	| method result cfg selector |
 	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler := DRMethodCompilerCompiler new.
 	compilerCompiler irGenerator typeSystem: typeSystem.
 	bytecodeGenerator := DRBytecodeGenerator new.
 	selector := #allSatisfy:.
@@ -160,7 +160,6 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAnySatisfy [
 
 	| method result cfg selector |
 	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler := DRMethodCompilerCompiler new.
 	compilerCompiler irGenerator typeSystem: typeSystem.
 	bytecodeGenerator := DRBytecodeGenerator new.
 	selector := #anySatisfy:.
@@ -190,7 +189,6 @@ DRBytecodeGeneratorTest >> testMethodCustomisationBadCount [
 
 	| method result cfg selector |
 	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler := DRMethodCompilerCompiler new.
 	compilerCompiler irGenerator typeSystem: typeSystem.
 	bytecodeGenerator := DRBytecodeGenerator new.
 	selector := #badCount.
@@ -217,7 +215,6 @@ DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 
 	| method result cfg selector |
 	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler := DRMethodCompilerCompiler new.
 	bytecodeGenerator := DRBytecodeGenerator new.
 	selector := #do:.
 	method := SequenceableCollection >> selector.
@@ -245,7 +242,6 @@ DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
 	| method result cfg selector |
 	self skip. "TODO: Fix blocks linearization"
 
-	compilerCompiler := DRMethodCompilerCompiler new.
 	compilerCompiler irGenerator typeSystem:
 		(typeSystem := DRCustomisationTypeSystem new).
 	bytecodeGenerator := DRBytecodeGenerator new.
@@ -313,7 +309,6 @@ DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 		hasSameElements: { (DRClassType for: OrderedCollection) }.
 
 	"Recompile"
-	compilerCompiler := DRMethodCompilerCompiler new.
 	bytecodeGenerator := DRProfileBytecodeGenerator new.
 	cfg := self generateDruidIRFor: method.
 	method := self generateMethodFromCFG: cfg withSelector: selector.

@@ -15,7 +15,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 	compiler := DRBytecodeCompilerCompiler new
 		sourceName: aSelector;
 		interpreter: self interpreter;
-		compilerClass: DruidTestRTLCompiler.
+		configureForCompilerClass: DruidTestRTLCompiler.
 
 	compiler compile.
 	"Then generate the machine code for that method"
@@ -42,7 +42,7 @@ DRBytecodeCompilationTest >> doCompileBytecode: bytecode selector: aSelector [
 	compiler := DRBytecodeCompilerCompiler new
 		sourceName: aSelector;
 		interpreter: self interpreter;
-		compilerClass: DruidTestRTLCompiler.
+		configureForCompilerClass: DruidTestRTLCompiler.
 
 	compiler compile.
 ]

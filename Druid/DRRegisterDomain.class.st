@@ -77,6 +77,12 @@ DRRegisterDomain class >> type: register with: aDRType [
 		  constraint: (DRIncludeTypeConstraint withType: aDRType)
 ]
 
+{ #category : #adding }
+DRRegisterDomain >> addToEdge: anEdge [
+
+	anEdge addConstraint: self constraint to: self reg name
+]
+
 { #category : #accessing }
 DRRegisterDomain >> constraint [
 

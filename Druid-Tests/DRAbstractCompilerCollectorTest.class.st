@@ -33,7 +33,7 @@ DRAbstractCompilerCollectorTest >> jitCompilerClassNameForTest [
 { #category : #running }
 DRAbstractCompilerCollectorTest >> jitSuperclassForTest [
 
-	^ CogVMSimulatorLSB
+	^ StackToRegisterMappingCogit
 ]
 
 { #category : #running }

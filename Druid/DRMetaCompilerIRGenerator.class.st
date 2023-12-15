@@ -18,38 +18,6 @@ DRMetaCompilerIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 	self executionState primitiveFailureCode: anInstruction
 ]
 
-{ #category : #visiting }
-DRMetaCompilerIRGenerator >> finishCodeInterpretation: lastFrame [
-
-	"Plug the IR with the two exit blocks"
-
-	| conditionalJump |
-	self spillStack.
-
-	conditionalJump := self
-		                   instantiateNoResultInstruction: DRBranchIfCondition
-		                   operands: { 
-				                   DREqualsThanComparison new.
-				                   executionState primitiveFailureCode.
-				                   0 asDRValue }.
-	currentBasicBlock endInstruction: conditionalJump.
-	controlFlowGraph primitiveExitBlock: currentBasicBlock.
-
-	conditionalJump trueBranch: controlFlowGraph successExitBlock.
-	controlFlowGraph successExitBlock addPredecessor: currentBasicBlock.
-
-	conditionalJump falseBranch: controlFlowGraph failureExitBlock.
-	controlFlowGraph failureExitBlock addPredecessor: currentBasicBlock.
-
-	controlFlowGraph successExitBlock endInstruction: (self
-			 instantiateNoResultInstruction: DRReturn
-			 operands: { (DRConstantValue value: numberOfArguments + 1) }).
-
-	"Make the end instruction of the failure exit finish with a Noop"
-	controlFlowGraph failureExitBlock endInstruction:
-		(self instantiateNoResultInstruction: DRPrimitiveFail)
-]
-
 { #category : #initialization }
 DRMetaCompilerIRGenerator >> initializeSpecialCases [
 
@@ -87,7 +55,13 @@ DRMetaCompilerIRGenerator >> numberOfArguments: aValue [
 { #category : #configure }
 DRMetaCompilerIRGenerator >> receiver: aDRValue [
 
-	self push: self receiverRegister
+	| loadReceiver |
+	loadReceiver := self 
+		instantiate: DRLoadReceiver
+		operands: { }.
+	loadReceiver origin: thisContext sender stack.
+	self currentBasicBlock addInstruction: loadReceiver.
+	self push: loadReceiver
 ]
 
 { #category : #visiting }

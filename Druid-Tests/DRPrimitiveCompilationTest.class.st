@@ -2,10 +2,28 @@ Class {
 	#name : #DRPrimitiveCompilationTest,
 	#superclass : #DRDruidTests,
 	#instVars : [
-		'stopAddress'
+		'stopAddress',
+		'cogitStyle',
+		'compilerClass'
 	],
 	#category : #'Druid-Tests'
 }
+
+{ #category : #'building suites' }
+DRPrimitiveCompilationTest class >> cogitStyleParameter [
+	"Two ways to compile code with different calling conventions: simple stack vs stack to register mapping"
+
+	^ ParametrizedTestMatrix new
+		addCase: { #cogitStyle -> #beForSimpleStack. #compilerClass -> SimpleDruidTestRTLCompiler};
+		addCase: { #cogitStyle -> #beForStackToRegisterMapping. #compilerClass -> DruidTestRTLCompiler};
+		yourself
+]
+
+{ #category : #'building suites' }
+DRPrimitiveCompilationTest class >> testParameters [ 
+
+	^ super testParameters * self cogitStyleParameter
+]
 
 { #category : #'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidDeferredInlinePrimitive: selector [
@@ -31,18 +49,31 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector with: aBlock [
 		primitiveName: aSelector;
 		interpreter: self interpreter;
 		primitiveCompilerName: generatorSelector;
-		compilerClass: DruidTestRTLCompiler.
+		perform: cogitStyle;
+		compilerClass: compilerClass.
 		
 	aBlock value: compiler.
 	compiler compile.
 
 	"Then generate the machine code for that method"
 	cogInitialAddress := self compile: [
-		cogit methodOrBlockNumArgs: 2. "Hack"
+		cogit methodOrBlockNumArgs: (compiler numberOfArguments). "Hack"
 		cogit perform: generatorSelector.
 		stopInstruction := cogit Stop
 	] bytecodes: 100.
 	stopAddress := stopInstruction address
+]
+
+{ #category : #accessing }
+DRPrimitiveCompilationTest >> compilerClass [
+
+	^ compilerClass
+]
+
+{ #category : #accessing }
+DRPrimitiveCompilationTest >> compilerClass: anObject [
+
+	compilerClass := anObject
 ]
 
 { #category : #'helpers - execution' }
@@ -61,4 +92,10 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 	
 	self prepareStackForSendReceiver: receiverOop arguments: aCollection.
 	self runFrom: cogInitialAddress until: stopAddress.
+]
+
+{ #category : #'helpers-compiling' }
+DRPrimitiveCompilationTest >> jitCompilerClass [
+
+	^ compilerClass
 ]

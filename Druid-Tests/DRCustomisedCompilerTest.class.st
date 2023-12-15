@@ -8,19 +8,19 @@ Class {
 }
 
 { #category : #tests }
-DRCustomisedCompilerTest >> compile: selector [
-
-	self configureCompiler: selector.
-	compiler compile.
-	^ compiler targetMethod 
-]
-
-{ #category : #tests }
 DRCustomisedCompilerTest >> configureCompiler: selector [
 
 	compiler
 		sourceName: selector;
 		targetName: #gen_ , selector
+]
+
+{ #category : #tests }
+DRCustomisedCompilerTest >> druidCompile: selector [
+
+	self configureCompiler: selector.
+	compiler compile.
+	^ compiler targetMethod 
 ]
 
 { #category : #tests }
@@ -48,7 +48,7 @@ DRCustomisedCompilerTest >> newCompiler: compilerClass [
 
 	^ compilerClass new
 		interpreter: self interpreter;
-		compilerClass: DruidTestRTLCompiler;
+		configureForCompilerClass: DruidTestRTLCompiler;
 		yourself
 ]
 
@@ -69,7 +69,7 @@ DRCustomisedCompilerTest >> setUp [
 DRCustomisedCompilerTest >> testAddsPreambleToGeneratedCode [
 
 	| genMethod preambleCode |
-	genMethod := self compile: #primitiveAdd.
+	genMethod := self druidCompile: #primitiveAdd.
 	preambleCode := genMethod ast body statements first formattedCode.
 
 	self
@@ -107,6 +107,6 @@ DRCustomisedCompilerTest >> testRemoveIRChecks [
 	self assert: cfg allConditionalJumps size equals: 2.
 	self
 		assert: cfg allConditionalJumps first operand1 name
-		equals: 'Arg0Reg'.
+		equals: 'R2'.
 	self assert: cfg allConditionalJumps second operand1 isAdd
 ]

@@ -139,9 +139,13 @@ DRCogitCanonicaliser >> visitContinueNextBytecode: aDRContinueNextBytecode [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitCopy: aDRCopy [ 
-	
-	"Nothing"
+DRCogitCanonicaliser >> visitCopy: aDRCopy [
+	"Remove instructions of the form: 
+		ReceiverResultReg := LoadReceiver"
+
+	(aDRCopy operand1 isLoadReceiver and: [
+		 aDRCopy result name = 'ReceiverResultReg' and: [
+			 aDRCopy users isEmpty ] ]) ifTrue: [ aDRCopy removeFromCFG ]
 ]
 
 { #category : #visiting }
@@ -332,13 +336,7 @@ DRCogitCanonicaliser >> visitPopMany: aDRPopMany [
 { #category : #visiting }
 DRCogitCanonicaliser >> visitPush: aDRPush [
 
-	| pushedValue |
-	pushedValue := aDRPush operand1 simpleConstantFold.
-	pushedValue isLoad ifFalse: [ ^ self ].
-	pushedValue address isAbsolute ifTrue: [
-		self flag: #FIXME.
-		^ self ].
-	aDRPush replaceDependency: pushedValue by: pushedValue address
+	"Nothing"
 ]
 
 { #category : #visiting }

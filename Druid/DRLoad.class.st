@@ -78,6 +78,12 @@ DRLoad >> replaceDependency: anOperand by: anotherOperand [
 	self address replaceDependency: anOperand by: anotherOperand
 ]
 
+{ #category : #'cogit-generation' }
+DRLoad >> rtlOperandQualifier [
+	
+	^ result rtlOperandQualifier
+]
+
 { #category : #SCCP }
 DRLoad >> sccpLatticeValueFor: sccp [
 

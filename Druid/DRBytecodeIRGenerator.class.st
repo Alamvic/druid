@@ -20,7 +20,7 @@ DRBytecodeIRGenerator >> addAnnotateBytecode: aRBMethodNode [
 { #category : #visiting }
 DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
 
-	self spillStack
+	"Nothing"
 ]
 
 { #category : #accessing }
@@ -62,7 +62,7 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #druidForceIntepretation put: #interpretDruidForceIntepretationWith:.
 	specialCases at: #remember: put: #interpretRememberWith:.
 	
-	specialCases at: #createFullClosureInIndex:numCopied:ignoreContext:receiverIsOnStack: put: #interpretCreateClosureWith:.
+	specialCases at: #createFullClosureInIndex:numCopied:ignoreContext: put: #interpretCreateClosureWith:.
 
 	"Message send"
 	specialCases at: #normalLiteralSelectorAt:argumentCount: put: #interpretNormalLiteralSendWith:.

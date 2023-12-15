@@ -19,9 +19,7 @@ DRSmallIntegerPrimitiveCustomisation >> generateCustomisedPreamble: aGeneratorMe
 { #category : #'generation-IR' }
 DRSmallIntegerPrimitiveCustomisation >> initialConstraint [
 
-	^ DRRegisterDomain
-		  equals: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg')
-		  than: 1
+	^ DRReceiverConstraint with: (DREqualsConstraint withValue: 1)
 ]
 
 { #category : #api }

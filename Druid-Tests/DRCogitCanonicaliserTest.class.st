@@ -29,6 +29,34 @@ DRCogitCanonicaliserTest >> testDoNotSimplifyAdditionOfAdditionIfMultipleUsers [
 ]
 
 { #category : #tests }
+DRCogitCanonicaliserTest >> testDoNotSimplifyPushLoadBaseOffsetInNormalCanonicalizer [
+
+	| cfg basicBlock |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		r0 := block loadFramePointer.
+		r1 := block add: r0 to: 17.
+		"load the value so it is not treated as dead code"
+		r2 := block loadSInt64: r1.
+		block push: r2 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	"The normal canonicalizer does not this simplification"
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+
+	"The two additions should be simplified to a single one"
+	self assert: basicBlock instructions size equals: 4.
+	
+	self assert: basicBlock instructions second isLoad.
+	self assert: basicBlock instructions second operand1 offset value equals: 17.
+	self assert: basicBlock instructions second operand1 base value equals: basicBlock instructions first.
+	
+	self assert: basicBlock instructions third isPush.
+	self assert: basicBlock instructions third operand1 equals: basicBlock instructions second.
+]
+
+{ #category : #tests }
 DRCogitCanonicaliserTest >> testSimplifyAdditionOfAddition [
 
 	| cfg basicBlock |
@@ -120,6 +148,30 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfZero [
 ]
 
 { #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyCopyLoadReceiver [
+
+	| cfg basicBlock |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 |
+		r0 := block loadReceiver.
+		r1 := block copy: r0.
+		r1 result: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg') ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	"The stack canonicalizer does this simplification"
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+
+	"
+	R0 := load receiver
+	ReceiverResultReg := R0.
+	=>
+	"
+	self assert: basicBlock instructions size equals: 1.
+	self assert: basicBlock instructions first isNoop
+]
+
+{ #category : #tests }
 DRCogitCanonicaliserTest >> testSimplifyLoadAdditionOfAddition [
 
 	| cfg basicBlock |
@@ -202,7 +254,8 @@ DRCogitCanonicaliserTest >> testSimplifyPushLoadBaseOffset [
 		block push: r2 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	DRCogitCanonicaliser new applyTo: cfg.
+	"The stack canonicalizer does this simplification"
+	DRCogitStackCanonicaliser new applyTo: cfg.
 	DRDeadCodeElimination new applyTo: cfg.
 
 	"The two additions should be simplified to a single one"

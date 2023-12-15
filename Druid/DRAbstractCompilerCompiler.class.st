@@ -34,7 +34,6 @@ DRAbstractCompilerCompiler >> compile [
 
 	| druidIR |
 	self customise.
-
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
@@ -56,19 +55,25 @@ DRAbstractCompilerCompiler >> compilerClass: anObject [
 	compilerClass := anObject
 ]
 
+{ #category : #accessing }
+DRAbstractCompilerCompiler >> configureForCompilerClass: aCompilerClass [
+
+	"Hook for subclasses"
+]
+
 { #category : #'generation-IR' }
 DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 
 	| startBlock initialBasicBlock |
-	"Config generator"
-	generator receiver: (DRInterpreterValue value: interpreter).
-	generator numberOfArguments:
-		(self numberOfArgumentsForMethod: method).
-
 	"Create the initial basic block"
 	startBlock := generator initialBasicBlock.
 	initialBasicBlock := generator createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
+
+	"Config generator"
+	generator receiver: (DRInterpreterValue value: interpreter).
+	generator numberOfArguments:
+		(self numberOfArgumentsForMethod: method).
 
 ]
 
@@ -130,25 +135,14 @@ DRAbstractCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 		  methodName: self targetName
 ]
 
-{ #category : #'generation-IR' }
+{ #category : #initialization }
 DRAbstractCompilerCompiler >> initialize [
 
 	super initialize.
 
 	codeGenerator := DRCogitCodeGenerator new.
-	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 	customisation := DRNonePrimitiveCustomisation new.
-	irGenerator := self newIRGenerator.
-
-	optimisations := OrderedCollection new.
-
-	optimisations add: DRInline new.
-	2 timesRepeat: [ 
-		optimisations add: DRDeadBlockElimination new.
-		optimisations add: DRSCCP new.
-		optimisations add: DRCopyPropagation new.
-		optimisations add: DRDeadCodeElimination new.
-		optimisations add: DRCleanControlFlow new. ]
+	irGenerator := self newIRGenerator
 ]
 
 { #category : #accessing }
