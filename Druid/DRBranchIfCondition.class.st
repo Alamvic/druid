@@ -57,9 +57,12 @@ DRBranchIfCondition >> condition: aCondition [
 DRBranchIfCondition >> conditionAsJitCompileTimeExpression [
 
 	| fullExpression |
-	fullExpression := self operand1 asJitCompileTimeExpression expression
-	                  , self condition asJitCompileTimeExpressionString
-	                  , self operand2 asJitCompileTimeExpression expression.
+	fullExpression := self isEqualsThanTrueComparison
+		                  ifTrue: [ self nonTrueOperand asJitCompileTimeExpression expression ]
+		                  ifFalse: [
+			                  self operand1 asJitCompileTimeExpression expression
+			                  , self condition asJitCompileTimeExpressionString
+			                  , self operand2 asJitCompileTimeExpression expression ].
 
 	^ fullExpression asDRValue asJitCompileTimeExpression
 ]
@@ -118,6 +121,12 @@ DRBranchIfCondition >> isConditionalLoop [
 ]
 
 { #category : #testing }
+DRBranchIfCondition >> isEqualsThanTrueComparison [
+
+	^ self condition isEqualsThanComparison and: [ self operands includes: true asDRValue ]
+]
+
+{ #category : #testing }
 DRBranchIfCondition >> isJITCompileTimeExpression [
 
 	^ operands allSatisfy: [ :e | e isJITCompileTimeExpression ]
@@ -147,6 +156,15 @@ DRBranchIfCondition >> newTrueBranch: aDRBasicBlock [
 
 	aDRBasicBlock addPredecessor: self basicBlock.
 	^ self trueBranch: aDRBasicBlock
+]
+
+{ #category : #accessing }
+DRBranchIfCondition >> nonTrueOperand [
+
+	self operand1 = true asDRValue ifFalse: [ ^ self operand1 ].
+
+	self assert: self operand2 ~= true asDRValue.
+	^ self operand2
 ]
 
 { #category : #printing }

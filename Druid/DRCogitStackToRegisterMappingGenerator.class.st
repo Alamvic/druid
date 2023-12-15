@@ -3,7 +3,8 @@ Class {
 	#superclass : #DRCogitSimpleStackGenerator,
 	#instVars : [
 		'nextVariableIndex',
-		'markDeadCode'
+		'markDeadCode',
+		'parent'
 	],
 	#category : #'Druid-Cogit'
 }
@@ -12,6 +13,8 @@ Class {
 DRCogitStackToRegisterMappingGenerator >> allocateVariable: aDRResult [
 
 	| temporaryVariableNode variableIndex |
+	parent ifNotNil: [ ^ parent allocateVariable: aDRResult ].
+	
 	aDRResult isNoResult ifTrue: [ ^ self ].
 	variables at: aDRResult ifPresent: [ :var | ^ var ].
 
@@ -28,28 +31,18 @@ DRCogitStackToRegisterMappingGenerator >> allocateVariable: aDRResult [
 	variableIndex := nextVariableIndex.
 	nextVariableIndex := nextVariableIndex + 1.
 
-	temporaryVariableNode := RBVariableNode named:
-		                         't' , variableIndex asString.
+	temporaryVariableNode := RBVariableNode named: 't' , variableIndex asString.
 	variables at: aDRResult put: temporaryVariableNode name.
 
 	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
-	generatorMethodBuilder addStatement: (RBAssignmentNode
-			 variable: temporaryVariableNode copy
-			 value: (RBMessageNode
-					  receiver: RBVariableNode selfNode
-					  selector: #allocateRegNotConflictingWith:ifNone:
-					  arguments: {
-							  (RBVariableNode named: 'live').
-							  (RBVariableNode named: '[ ^ self unknownBytecode ]') })).
-	generatorMethodBuilder addStatement: (RBAssignmentNode
-			 variable: (RBVariableNode named: 'live')
-			 value: (RBMessageNode
-					  receiver: (RBVariableNode named: 'live')
-					  selector: #bitOr:
-					  arguments: { (RBMessageNode
-							   receiver: RBVariableNode selfNode
-							   selector: #registerMaskFor:
-							   arguments: { temporaryVariableNode copy }) })).
+	generatorMethodBuilder addStatement:
+		(RBAssignmentNode variable: temporaryVariableNode copy value: (RBMessageNode
+				  receiver: RBVariableNode selfNode
+				  selector: #allocateRegNotConflictingWith:ifNone:
+				  arguments: {
+						  (RBVariableNode named: 'live').
+						  (RBVariableNode named: '[ ^ self unknownBytecode ]') })).
+	self saveRegisterLiveMask: temporaryVariableNode.
 
 	^ temporaryVariableNode name
 ]
@@ -72,6 +65,19 @@ DRCogitStackToRegisterMappingGenerator >> initialize [
 	markDeadCode := false
 ]
 
+{ #category : #copy }
+DRCogitStackToRegisterMappingGenerator >> innerGenerator [
+
+	| innerGenerator |
+	innerGenerator := self copy.
+	innerGenerator parent: self.
+	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
+	
+	self flag: #TODO. "If we have a reference to the parent then copying the state could be not needed"
+	innerGenerator deferredBranches: deferredBranches copy.
+	^ innerGenerator
+]
+
 { #category : #'code-generation' }
 DRCogitStackToRegisterMappingGenerator >> markAsDeadCode [
 
@@ -92,6 +98,12 @@ DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRIns
 			 arguments: { (RBVariableNode named: temporaryVariableNode) })
 ]
 
+{ #category : #accessing }
+DRCogitStackToRegisterMappingGenerator >> parent: aDRCogitGenerator [
+
+	parent := aDRCogitGenerator
+]
+
 { #category : #'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> preProcessBlock: aBasicBlock [
 
@@ -108,6 +120,19 @@ DRCogitStackToRegisterMappingGenerator >> rtlExpressionForValue: aValue [
 
 	variables at: aValue result ifPresent: [ :var | ^ RBVariableNode named: var ].
 	^ super rtlExpressionForValue: aValue
+]
+
+{ #category : #helpers }
+DRCogitStackToRegisterMappingGenerator >> saveRegisterLiveMask: temporaryVariableNode [
+
+	generatorMethodBuilder addStatement:
+		(RBAssignmentNode variable: (RBVariableNode named: 'live') value: (RBMessageNode
+				  receiver: (RBVariableNode named: 'live')
+				  selector: #bitOr:
+				  arguments: { (RBMessageNode
+						   receiver: RBVariableNode selfNode
+						   selector: #registerMaskFor:
+						   arguments: { temporaryVariableNode copy }) }))
 ]
 
 { #category : #visiting }
@@ -134,6 +159,70 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 
 	"Everything that follows an unconditional jump is potentially dead code"
 	self markAsDeadCode
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
+	"self CallRT: ceSendMustBeBooleanTrampoline"
+
+	| rbCallNode |
+	aDRCall operands size > 0 ifTrue: [
+		generatorMethodBuilder addStatement: (RBMessageNode
+				 receiver: RBVariableNode selfNode
+				 selector: #MoveR:R:
+				 arguments: {
+						 (self rtlExpressionForValue: aDRCall operand1).
+						 (RBVariableNode named: 'TempReg') }) ].
+	rbCallNode := RBMessageNode
+		              receiver: RBVariableNode selfNode
+		              selector: #CallRT:
+		              arguments:
+		              { (RBVariableNode named: aDRCall functionName) }.
+	aDRCall shouldSaveLinkReg
+		ifTrue: [
+			generatorMethodBuilder addStatement: (RBMessageNode
+					 receiver: (RBVariableNode named: #backEnd)
+					 selector: #saveAndRestoreLinkRegAround:
+					 arguments:
+					 { (RBBlockNode body: (RBSequenceNode statements: { rbCallNode })) }) ]
+		ifFalse: [ generatorMethodBuilder addStatement: rbCallNode ].
+	aDRCall isMapped ifTrue: [ 
+		self assert: aDRCall controlFlowGraph hasAnnotatedBytecode  ]
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreation [
+	"Create full closure intrinsic uses ReceiverResultReg, SendNumArgsReg and ClassReg."
+
+	| copy |
+	"Save registers live"
+	self flag: #TODO. "Validate that the register was not already taken"
+	self saveRegisterLiveMask: (RBVariableNode named:
+			 DRPhysicalGeneralPurposeRegister receiverResultReg name).
+	self saveRegisterLiveMask: (RBVariableNode named:
+			 DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
+	self saveRegisterLiveMask:
+		(RBVariableNode named:
+			 DRPhysicalGeneralPurposeRegister classReg name).
+
+	"Free ReceiverResultReg value"
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #voidReceiverResultRegContainsSelf).
+
+	"Allocate registers for call the trampoline"
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #ssAllocateCallReg:and:and:
+			 arguments: {
+					 (RBVariableNode named:
+						  DRPhysicalGeneralPurposeRegister receiverResultReg name).
+					 (RBVariableNode named:
+						  DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
+					 (RBVariableNode named:
+						  DRPhysicalGeneralPurposeRegister classReg name) }).
+
+	super visitClosureCreation: aDRClosureCreation
 ]
 
 { #category : #visiting }

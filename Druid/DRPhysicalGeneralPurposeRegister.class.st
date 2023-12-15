@@ -4,6 +4,24 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #factory }
+DRPhysicalGeneralPurposeRegister class >> classReg [
+
+	^ self name: 'ClassReg'
+]
+
+{ #category : #factory }
+DRPhysicalGeneralPurposeRegister class >> receiverResultReg [
+
+	^ self name: 'ReceiverResultReg'
+]
+
+{ #category : #factory }
+DRPhysicalGeneralPurposeRegister class >> sendNumArgsReg [
+
+	^ self name: 'SendNumArgsReg'
+]
+
 { #category : #visiting }
 DRPhysicalGeneralPurposeRegister >> acceptVisitor: aVisitor [
 

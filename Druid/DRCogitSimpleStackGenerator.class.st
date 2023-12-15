@@ -109,9 +109,8 @@ DRCogitSimpleStackGenerator >> visitCall: aDRCall [
 { #category : #visiting }
 DRCogitSimpleStackGenerator >> visitClosureCreation: aDRClosureCreation [
 
-	| allocatedTemporary |
-	allocatedTemporary := self allocateVariable:
-		                      aDRClosureCreation result.
+	"Create the closure and save it in ReceiverResultReg"
+	| copy |
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector:
@@ -122,7 +121,15 @@ DRCogitSimpleStackGenerator >> visitClosureCreation: aDRClosureCreation [
 					 (RBVariableNode named:
 						  '(coInterpreter methodNeedsLargeContext: methodObj)').
 					 (RBVariableNode named: 'inBlock') }
-				 , { (RBVariableNode named: allocatedTemporary) })
+				 , { (RBVariableNode named: DRPhysicalGeneralPurposeRegister receiverResultReg name) }).
+
+
+	"Copy from ReceiverResultReg to result register"
+	copy := DRCopy
+		        operands:
+		        { DRPhysicalGeneralPurposeRegister receiverResultReg }
+		        result: aDRClosureCreation result.
+	copy acceptVisitor: self
 ]
 
 { #category : #visiting }
