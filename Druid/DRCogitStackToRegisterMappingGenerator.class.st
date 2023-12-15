@@ -29,28 +29,18 @@ DRCogitStackToRegisterMappingGenerator >> allocateVariable: aDRResult [
 	variableIndex := nextVariableIndex.
 	nextVariableIndex := nextVariableIndex + 1.
 
-	temporaryVariableNode := RBVariableNode named:
-		                         't' , variableIndex asString.
+	temporaryVariableNode := RBVariableNode named: 't' , variableIndex asString.
 	variables at: aDRResult put: temporaryVariableNode name.
 
 	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
-	generatorMethodBuilder addStatement: (RBAssignmentNode
-			 variable: temporaryVariableNode copy
-			 value: (RBMessageNode
-					  receiver: RBVariableNode selfNode
-					  selector: #allocateRegNotConflictingWith:ifNone:
-					  arguments: {
-							  (RBVariableNode named: 'live').
-							  (RBVariableNode named: '[ ^ self unknownBytecode ]') })).
-	generatorMethodBuilder addStatement: (RBAssignmentNode
-			 variable: (RBVariableNode named: 'live')
-			 value: (RBMessageNode
-					  receiver: (RBVariableNode named: 'live')
-					  selector: #bitOr:
-					  arguments: { (RBMessageNode
-							   receiver: RBVariableNode selfNode
-							   selector: #registerMaskFor:
-							   arguments: { temporaryVariableNode copy }) })).
+	generatorMethodBuilder addStatement:
+		(RBAssignmentNode variable: temporaryVariableNode copy value: (RBMessageNode
+				  receiver: RBVariableNode selfNode
+				  selector: #allocateRegNotConflictingWith:ifNone:
+				  arguments: {
+						  (RBVariableNode named: 'live').
+						  (RBVariableNode named: '[ ^ self unknownBytecode ]') })).
+	self saveRegisterLiveMask: temporaryVariableNode.
 
 	^ temporaryVariableNode name
 ]
@@ -136,6 +126,19 @@ DRCogitStackToRegisterMappingGenerator >> rtlExpressionForValue: aValue [
 
 	variables at: aValue result ifPresent: [ :var | ^ RBVariableNode named: var ].
 	^ super rtlExpressionForValue: aValue
+]
+
+{ #category : #helpers }
+DRCogitStackToRegisterMappingGenerator >> saveRegisterLiveMask: temporaryVariableNode [
+
+	generatorMethodBuilder addStatement:
+		(RBAssignmentNode variable: (RBVariableNode named: 'live') value: (RBMessageNode
+				  receiver: (RBVariableNode named: 'live')
+				  selector: #bitOr:
+				  arguments: { (RBMessageNode
+						   receiver: RBVariableNode selfNode
+						   selector: #registerMaskFor:
+						   arguments: { temporaryVariableNode copy }) }))
 ]
 
 { #category : #visiting }
@@ -224,20 +227,50 @@ DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
 
 { #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreation [
+	"Create full closure intrinsic uses ReceiverResultReg, SendNumArgsReg and ClassReg."
 
-	| allocatedTemporary |
-	allocatedTemporary := self allocateVariable:
-		                      aDRClosureCreation result.
+	| copy |
+	1 halt.
+	"Save registers live"
+	self flag: #TODO. "Validate that the register was not already taken"
+	self saveRegisterLiveMask:
+		(RBVariableNode named: DRPhysicalGeneralPurposeRegister receiverResultReg name).
+	self saveRegisterLiveMask:
+		(RBVariableNode named: DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
+	self saveRegisterLiveMask:
+		(RBVariableNode named: DRPhysicalGeneralPurposeRegister classReg name).
+
+	"Free ReceiverResultReg value"
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #voidReceiverResultRegContainsSelf).
+
+	"Allocate registers for call the trampoline"
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #ssAllocateCallReg:and:and:
+			 arguments: {
+					 (RBVariableNode named: DRPhysicalGeneralPurposeRegister receiverResultReg name).
+					 (RBVariableNode named: DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
+					 (RBVariableNode named: DRPhysicalGeneralPurposeRegister classReg name) }).
+
+	"Create the closure and save it in ReceiverResultReg"
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector:
 			 #genCreateFullClosureInIndex:numCopied:ignoreContext:contextNumArgs:large:inBlock:intoRegister:
-			 arguments: (aDRClosureCreation operands collect: [ :e |
+			 arguments: (aDRClosureCreation operands allButLast collect: [ :e |
 					  (e rtlPushArgumentExpressions: self) first ]) , {
-					 (RBVariableNode named:
-						  '(coInterpreter methodNeedsLargeContext: methodObj)').
-					 (RBVariableNode named: 'inBlock') }
-				 , { (RBVariableNode named: allocatedTemporary) })
+					 (RBVariableNode named: 'methodOrBlockNumArgs').
+					 (RBVariableNode named: '(coInterpreter methodNeedsLargeContext: methodObj)').
+					 (RBVariableNode named: 'inBlock').
+					 (RBVariableNode named: DRPhysicalGeneralPurposeRegister receiverResultReg name) }).
+
+	"Copy from ReceiverResultReg to result register"
+	copy := DRCopy
+		        operands: { DRPhysicalGeneralPurposeRegister receiverResultReg }
+		        result: aDRClosureCreation result.
+	copy acceptVisitor: self
 ]
 
 { #category : #visiting }

@@ -442,8 +442,7 @@ DRCogitCodeGenerator >> initialize [
 { #category : #'code-generation' }
 DRCogitCodeGenerator >> innerCompileBlocks: innerBlocks [
 
-	| innerGenerator cfg |
-	cfg := innerBlocks first controlFlowGraph.
+	| innerGenerator |
 	innerGenerator := self innerGenerator.
 	innerGenerator blocks: innerBlocks.
 	innerGenerator generateCodeFromBlocks.
