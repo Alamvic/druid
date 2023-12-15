@@ -230,7 +230,6 @@ DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreati
 	"Create full closure intrinsic uses ReceiverResultReg, SendNumArgsReg and ClassReg."
 
 	| copy |
-	1 halt.
 	"Save registers live"
 	self flag: #TODO. "Validate that the register was not already taken"
 	self saveRegisterLiveMask:
