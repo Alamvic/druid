@@ -4,11 +4,39 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #'special cases' }
+DRSCCPWithStaging >> latticeForLoad: aLoad [
+
+	| addressLattice |
+	aLoad isJITCompileTimeExpression ifTrue: [
+		| newVar |
+		newVar := aLoad result name asLowercase.
+		aLoad replaceUsesBy: newVar asDRValue asJitCompileTimeExpression.
+		^ DRStore
+			  operands: {
+					  aLoad size asDRValue.
+					  aLoad address asJitCompileTimeExpression.
+					  (DRInterpreterExpression reference: newVar) }
+			  result: DRNoRegister new ].
+
+	addressLattice := aLoad address sccpLatticeValueFor: self.
+
+	(self isConstantLattice: addressLattice) ifTrue: [ "If the address is constant, we can move the load to JIT compile time"
+		^ 'coInterpreter int64AtPointer:' asDRValue asJitCompileTimeExpression
+		  , addressLattice asDRValue asJitCompileTimeExpression ].
+
+	"sccp value is the same that the address, either top or bottom"
+	^ addressLattice
+]
+
 { #category : #lattice }
 DRSCCPWithStaging >> latticeValue: aValue [
 
-	aValue isJITCompileTimeExpression ifTrue: [ ^ aValue ].
-	^ super latticeValue: aValue
+	| lattice |
+	lattice := super latticeValue: aValue.
+	(lattice = self top and: [ aValue isInstruction not ])
+		ifTrue: [ ^ aValue ].
+	^ lattice
 ]
 
 { #category : #lattice }

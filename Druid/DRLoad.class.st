@@ -81,26 +81,7 @@ DRLoad >> replaceDependency: anOperand by: anotherOperand [
 { #category : #SCCP }
 DRLoad >> sccpLatticeValueFor: sccp [
 
-	| address |
-	self isJITCompileTimeExpression ifTrue: [
-		| newVar |
-		newVar := self result name asLowercase.
-		self replaceUsesBy: newVar asDRValue asJitCompileTimeExpression.
-		^ DRStore
-			  operands: {
-					  self size asDRValue.
-					  self address asJitCompileTimeExpression.
-					  (DRInterpreterExpression reference: newVar) }
-			  result: DRNoRegister new ].
-
-	address := self address sccpLatticeValueFor: sccp.
-
-	(sccp isConstantLattice: address) ifTrue: [ "If the address is constant, we can move the load to JIT compile time"
-		^ 'coInterpreter int64AtPointer:' asDRValue asJitCompileTimeExpression
-		  , address asDRValue asJitCompileTimeExpression ].
-
-	"sccp value is the same that the address"
-	^ address
+	^ sccp latticeForLoad: self
 ]
 
 { #category : #accessing }

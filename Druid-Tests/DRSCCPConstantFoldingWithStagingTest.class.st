@@ -206,9 +206,3 @@ DRSCCPConstantFoldingWithStagingTest >> testNonConstantFoldingOf: aClass between
 		assert: cfg instructions third operand2 simpleConstantFold 
 		equals: aDROperand2
 ]
-
-{ #category : #operation }
-DRSCCPConstantFoldingWithStagingTest >> varJITExpression [
-
-	^ DRCompositeCompileTimeExpression expression: 'var'
-]

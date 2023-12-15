@@ -183,6 +183,13 @@ DRSCCP >> isConstantLattice: aLattice [
 	^ (nonConstants includes: aLattice) not
 ]
 
+{ #category : #'special cases' }
+DRSCCP >> latticeForLoad: aDRLoad [ 
+	
+	"We know a load has no compile time value"
+	^ self bottom
+]
+
 { #category : #lattice }
 DRSCCP >> latticeValue: aValue [
 

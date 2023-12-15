@@ -196,7 +196,6 @@ DRSCCPConstantFoldingTest >> testConstantFoldingLoadConstant [
 	operand1 := b1 copy: 9999.
 	operand2 := b1 loadSInt64: operand1.
 
-1halt.
 	optimisation applyTo: cfg.
 
 	self assert: cfg instructions first isCopy.
@@ -207,12 +206,16 @@ DRSCCPConstantFoldingTest >> testConstantFoldingLoadConstant [
 DRSCCPConstantFoldingTest >> testConstantFoldingLoadJitCompileExpression [
 
 	| cfg |
-	cfg := self testConstantFoldingOf: DRLoad betweenOp: DRPointerType new and: self varJITExpression.
+	cfg := self
+		       testConstantFoldingOf: DRLoad
+		       betweenOp: DRPointerType new
+		       and: self varJITExpression.
 
 	self assert: cfg instructions allButLast last isCopy.
+	self assert: (cfg instructions allButLast: 2) last isLoad.
 	self
-		assert: cfg instructions allButLast last operand1 expression
-		equals: '(coInterpreter int64AtPointer:  var)'
+		assert: (cfg instructions allButLast: 2) last address expression
+		equals: cfg instructions first
 ]
 
 { #category : #arithmetic }
@@ -317,7 +320,6 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction betweenOp: opera
 			                      result:
 			                      instructionFactory allocateTemporaryRegister).
 	b1 addInstruction: (instructionFactory copy: foldedInstruction).
-
 	optimisation applyTo: cfg.
 	^ cfg
 ]
@@ -505,12 +507,8 @@ DRSCCPConstantFoldingTest >> testFoldingLoadWithConstant [
 
 	optimisation applyTo: cfg.
 
-	"T2 := LOAD_JIT_COMPILE_EXPRESSION 1"
-	self assert:
-		cfg instructions nextToLast operand1 isJITCompileTimeExpression.
-	self
-		assert: cfg instructions nextToLast operand1 expression
-		equals: '(coInterpreter int64AtPointer:  1)'
+	self assert: cfg instructions nextToLast isCopy.
+	self assert: cfg instructions nextToLast operand1 equals: load
 ]
 
 { #category : #tests }
@@ -556,4 +554,10 @@ DRSCCPConstantFoldingTest >> testFoldingObjectReferenceIntoJITExpression [
 		hasSameElements: {
 				copy.
 				1 asDRValue }
+]
+
+{ #category : #operation }
+DRSCCPConstantFoldingTest >> varJITExpression [
+
+	^ DRCompositeCompileTimeExpression expression: 'var'
 ]
