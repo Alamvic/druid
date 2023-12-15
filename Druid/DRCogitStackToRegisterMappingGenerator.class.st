@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'nextVariableIndex',
 		'variables',
-		'markDeadCode'
+		'markDeadCode',
+		'parent'
 	],
 	#category : #'Druid-Cogit'
 }
@@ -13,6 +14,8 @@ Class {
 DRCogitStackToRegisterMappingGenerator >> allocateVariable: aDRResult [
 
 	| temporaryVariableNode variableIndex |
+	parent ifNotNil: [ ^ parent allocateVariable: aDRResult ].
+	
 	aDRResult isNoResult ifTrue: [ ^ self ].
 	variables at: aDRResult ifPresent: [ :var | ^ var ].
 
@@ -78,9 +81,11 @@ DRCogitStackToRegisterMappingGenerator >> innerGenerator [
 
 	| innerGenerator |
 	innerGenerator := self copy.
-	innerGenerator variables: variables copy.
-	innerGenerator deferredBranches: deferredBranches copy.
+	innerGenerator parent: self.
 	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
+	
+	self flag: #TODO. "If we have a reference to the parent then copying the state could be not needed"
+	innerGenerator deferredBranches: deferredBranches copy.
 	^ innerGenerator
 ]
 
@@ -102,6 +107,12 @@ DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRIns
 			 receiver: aRBMessageNode
 			 selector: #copyToReg:
 			 arguments: { (RBVariableNode named: temporaryVariableNode) })
+]
+
+{ #category : #accessing }
+DRCogitStackToRegisterMappingGenerator >> parent: aDRCogitGenerator [
+
+	parent := aDRCogitGenerator
 ]
 
 { #category : #'ir-to-ast' }
