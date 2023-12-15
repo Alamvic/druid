@@ -37,6 +37,12 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 ]
 
 { #category : #'*Druid' }
+StackToRegisterMappingCogit class >> druidNewPrimitiveCodeGenerator [
+
+	^ DRCogitStackToRegisterPrimitiveCodeGenerator new
+]
+
+{ #category : #'*Druid' }
 StackToRegisterMappingCogit class >> druidNewRegisterAllocator [
 
 	^ DRCogitDynamicLinearScanRegisterAllocator new
