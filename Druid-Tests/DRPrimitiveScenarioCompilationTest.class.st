@@ -941,7 +941,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanArgumentFalse [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualThanArgument.
 	
-	self executePrimitiveWithReceiver: -10.
+	self executePrimitiveWithReceiver: 0 withArguments: {-10}.
 	
 	self assert: machineSimulator receiverRegisterValue equals: false asBit
 ]
@@ -951,7 +951,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanArgumentTrue [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualThanArgument.
 	
-	self executePrimitiveWithReceiver: 10.
+	self executePrimitiveWithReceiver: 0 withArguments: { 10 }.
 	
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
@@ -1070,7 +1070,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanArgumentTrue [
 
 	self compileDruidPrimitive: #primitiveGreaterThanArgument.
 	
-	self executePrimitiveWithReceiver: 10.
+	self executePrimitiveWithReceiver: 0 withArguments: { 10 }.
 	
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
@@ -1463,7 +1463,7 @@ DRPrimitiveScenarioCompilationTest >> testLessOrEqualThanArgumentFalse [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualThanArgument.
 	
-	self executePrimitiveWithReceiver: 10.
+	self executePrimitiveWithReceiver: 0 withArguments: { 10 }.
 	
 	self assert: machineSimulator receiverRegisterValue equals: false asBit
 ]
@@ -1543,7 +1543,7 @@ DRPrimitiveScenarioCompilationTest >> testLessThanArgumentTrue [
 
 	self compileDruidPrimitive: #primitiveLessThanArgument.
 	
-	self executePrimitiveWithReceiver: -10.
+	self executePrimitiveWithReceiver: 0 withArguments: { -10 }.
 	
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]

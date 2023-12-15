@@ -7,7 +7,7 @@ Class {
 { #category : #configuration }
 DRInterpreterCompilationUnitTest >> bytecodeMethod [
 
-	^ StackInterpreter >> #pushReceiverVariableBytecode
+	^ DruidTestInterpreter >> #bytecodeWithNoFrameInstVarRefAnnotation
 ]
 
 { #category : #configuration }
@@ -48,35 +48,10 @@ DRInterpreterCompilationUnitTest >> primitiveMethod [
 	^ InterpreterPrimitives >> #primitiveAdd
 ]
 
-{ #category : #running }
-DRInterpreterCompilationUnitTest >> setUp [
-
-	super setUp.
-
-	(StackToRegisterMappingCogit << self targetClassName)
-		tag: 'JIT';
-		package: 'Druid-Tests-InterpreterCompiler';
-		install
-]
-
-{ #category : #configuration }
+{ #category : #'object access' }
 DRInterpreterCompilationUnitTest >> targetClass [
 
-	^ Smalltalk globals at: self targetClassName
-]
-
-{ #category : #configuration }
-DRInterpreterCompilationUnitTest >> targetClassName [
-
-	^ #MyJITCompilerClass
-]
-
-{ #category : #running }
-DRInterpreterCompilationUnitTest >> tearDown [
-
-	super tearDown.
-
-	Smalltalk globals removeClassNamed: self targetClassName
+	^ DruidTestRTLCompiler
 ]
 
 { #category : #'tests - bytecodes' }
@@ -88,18 +63,18 @@ DRInterpreterCompilationUnitTest >> testBytecodeCompilation [
 	"Here the bytecode range is a single range sharing the same selector.
 	That selector will be used for compilation"
 	bytecodes := (self compiler newBytecodes:
-		             StackInterpreter >> #pushReceiverVariableBytecode) first: 4.
+		             self compiler interpreterClass >> #bytecodeWithNoFrameInstVarRefAnnotation) first: 4.
 	compilationUnit bytecodes: bytecodes.
 	self compile: compilationUnit.
 
 	self assert: self targetClass bytecodeTable equals: {
-			#( 1 0 0 #gen_PushReceiverVariableBytecode0 #isInstVarRef
+			#( 1 0 0 #gen_BytecodeWithNoFrameInstVarRefAnnotation0 #isInstVarRef
 			   #needsFrameNever: 1 ).
-			#( 1 1 1 #gen_PushReceiverVariableBytecode1 #isInstVarRef
+			#( 1 1 1 #gen_BytecodeWithNoFrameInstVarRefAnnotation1 #isInstVarRef
 			   #needsFrameNever: 1 ).
-			#( 1 2 2 #gen_PushReceiverVariableBytecode2 #isInstVarRef
+			#( 1 2 2 #gen_BytecodeWithNoFrameInstVarRefAnnotation2 #isInstVarRef
 			   #needsFrameNever: 1 ).
-			#( 1 3 3 #gen_PushReceiverVariableBytecode3 #isInstVarRef
+			#( 1 3 3 #gen_BytecodeWithNoFrameInstVarRefAnnotation3 #isInstVarRef
 			   #needsFrameNever: 1 ) }.
 
 	self targetClass bytecodeTable do: [ :e |
@@ -138,7 +113,7 @@ DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 	"Here the bytecode range is a single range sharing the same selector.
 	That selector will be used for compilation"
 	bytecodes := ((self compiler newBytecodes:
-		               StackInterpreter >> #pushReceiverVariableBytecode)
+		               self compiler interpreterClass >> #bytecodeWithNoFrameInstVarRefAnnotation)
 		              first: 3) , { (DRBytecodeObject new
 		              bytecodeSize: 2;
 		              bytecodeNumberStart: 3;
@@ -149,11 +124,11 @@ DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 	self compile: compilationUnit.
 
 	self assert: self targetClass bytecodeTable equals: {
-			#( 1 0 0 #gen_PushReceiverVariableBytecode0 #isInstVarRef
+			#( 1 0 0 #gen_BytecodeWithNoFrameInstVarRefAnnotation0 #isInstVarRef
 			   #needsFrameNever: 1 ).
-			#( 1 1 1 #gen_PushReceiverVariableBytecode1 #isInstVarRef
+			#( 1 1 1 #gen_BytecodeWithNoFrameInstVarRefAnnotation1 #isInstVarRef
 			   #needsFrameNever: 1 ).
-			#( 1 2 2 #gen_PushReceiverVariableBytecode2 #isInstVarRef
+			#( 1 2 2 #gen_BytecodeWithNoFrameInstVarRefAnnotation2 #isInstVarRef
 			   #needsFrameNever: 1 ).
 			#( 2 3 3 #unknownBytecode ).
 			#( 2 4 4 #unknownBytecode ).
@@ -301,7 +276,7 @@ DRInterpreterCompilationUnitTest >> testSingleBytecodesCompilation [
 
 	self
 		assert: self targetClass bytecodeTable
-		equals: { #( 1 0 0 #gen_PushReceiverVariableBytecode #isInstVarRef #needsFrameNever: 1 ) }.
+		equals: { #( 1 0 0 #gen_BytecodeWithNoFrameInstVarRefAnnotation #isInstVarRef #needsFrameNever: 1 ) }.
 
 	self targetClass bytecodeTable do: [ :e |
 		self assert: (self targetClass canUnderstand: e fourth) ]

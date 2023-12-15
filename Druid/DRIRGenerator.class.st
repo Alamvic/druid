@@ -1236,10 +1236,11 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode withValue: aValue [
 			  instructionKind: DRLoadReceiver
 			  operands: #(  ) ].
 
-	^ self
+	^ (self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRLoadArgument
-		  operands: { (self argumentOffsetForStackValue: aValue) asDRValue }
+		  operands: { (self argumentOffsetForStackValue: aValue) asDRValue })
+			classType: (DRSignedIntegerType size: 8 "Word size")
 ]
 
 { #category : #'special cases - memory access' }

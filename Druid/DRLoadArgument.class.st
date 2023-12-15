@@ -72,6 +72,6 @@ DRLoadArgument >> sccpLatticeValueFor: sccp [
 
 { #category : #accessing }
 DRLoadArgument >> type [
-
-	^ DRSignedIntegerType size: 8 "Word size"
+	
+	^ classType ifNil: [DRUndefinedType new]
 ]

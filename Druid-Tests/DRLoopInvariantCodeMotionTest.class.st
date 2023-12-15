@@ -35,9 +35,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionAdjustsPhiFunctionsO
 
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 
-	self
-		assert: loopInvariantInstruction operand2
-		equals: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg')
+	self assert: loopInvariantInstruction operand2 isLoadReceiver
 ]
 
 { #category : #tests }

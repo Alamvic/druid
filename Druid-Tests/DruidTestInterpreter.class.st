@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #initialization }
+DruidTestInterpreter class >> bytecodeTableArray [
+
+	^ #( #( 1 #( #( 0 15 bytecodeWithNoFrameInstVarRefAnnotation ) ) ) )
+]
+
+{ #category : #initialization }
 DruidTestInterpreter class >> initializePrimitiveTable [
 
 	super initializePrimitiveTable.
@@ -23,13 +29,13 @@ DruidTestInterpreter >> basicInlineMethod [
 	^ self lazyDouble: 42
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #bytecode }
 DruidTestInterpreter >> bytecodeWithDeoptimisation [
 
 	self druidForceIntepretation
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #bytecode }
 DruidTestInterpreter >> bytecodeWithFlushStackOnDominator [
 
 	<compilationInfo: #isMapped>
@@ -38,7 +44,15 @@ DruidTestInterpreter >> bytecodeWithFlushStackOnDominator [
 		ifFalse: [ self internalMustBeBoolean: self stackTop ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #bytecode }
+DruidTestInterpreter >> bytecodeWithNoFrameInstVarRefAnnotation [
+
+	<compilationInfo: #isInstVarRef>
+	<needsFrameNever: 1>
+	"We just care about the annotations..."
+]
+
+{ #category : #bytecode }
 DruidTestInterpreter >> bytecodeWithPop [
 
 	self pop: 1

@@ -181,7 +181,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocks [
 	cfg applyOptimisation: DRCleanControlFlow new.
 
 	self assert: cfg reversePostOrderBlocks size equals: 7 + 1.
-	self assert: cfg instructions size equals: 20
+	self assert: cfg instructions size equals: 21
 ]
 
 { #category : #'tests-building' }
@@ -196,7 +196,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWhenEarlyMethodReturns [
 	cfg applyOptimisation: DRCleanControlFlow new.
 
 	self assert: cfg reversePostOrderBlocks size equals: 8.
-	self assert: cfg instructions size equals: 20
+	self assert: cfg instructions size equals: 21
 ]
 
 { #category : #'tests-building' }
@@ -213,7 +213,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWithTwoNonLocalReturns [
 	DRDeadBlockElimination new applyTo: cfg.
 
 	self assert: cfg reversePostOrderBlocks size equals: 8.
-	self assert: cfg instructions size equals: 20
+	self assert: cfg instructions size equals: 21
 ]
 
 { #category : #'tests-building' }
