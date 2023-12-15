@@ -3,7 +3,6 @@ Class {
 	#superclass : #DRCogitSimpleStackGenerator,
 	#instVars : [
 		'nextVariableIndex',
-		'variables',
 		'markDeadCode',
 		'parent'
 	],
@@ -198,12 +197,13 @@ DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreati
 	| copy |
 	"Save registers live"
 	self flag: #TODO. "Validate that the register was not already taken"
+	self saveRegisterLiveMask: (RBVariableNode named:
+			 DRPhysicalGeneralPurposeRegister receiverResultReg name).
+	self saveRegisterLiveMask: (RBVariableNode named:
+			 DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
 	self saveRegisterLiveMask:
-		(RBVariableNode named: DRPhysicalGeneralPurposeRegister receiverResultReg name).
-	self saveRegisterLiveMask:
-		(RBVariableNode named: DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
-	self saveRegisterLiveMask:
-		(RBVariableNode named: DRPhysicalGeneralPurposeRegister classReg name).
+		(RBVariableNode named:
+			 DRPhysicalGeneralPurposeRegister classReg name).
 
 	"Free ReceiverResultReg value"
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -215,27 +215,14 @@ DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreati
 			 receiver: RBVariableNode selfNode
 			 selector: #ssAllocateCallReg:and:and:
 			 arguments: {
-					 (RBVariableNode named: DRPhysicalGeneralPurposeRegister receiverResultReg name).
-					 (RBVariableNode named: DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
-					 (RBVariableNode named: DRPhysicalGeneralPurposeRegister classReg name) }).
+					 (RBVariableNode named:
+						  DRPhysicalGeneralPurposeRegister receiverResultReg name).
+					 (RBVariableNode named:
+						  DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
+					 (RBVariableNode named:
+						  DRPhysicalGeneralPurposeRegister classReg name) }).
 
-	"Create the closure and save it in ReceiverResultReg"
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector:
-			 #genCreateFullClosureInIndex:numCopied:ignoreContext:contextNumArgs:large:inBlock:intoRegister:
-			 arguments: (aDRClosureCreation operands allButLast collect: [ :e |
-					  (e rtlPushArgumentExpressions: self) first ]) , {
-					 (RBVariableNode named: 'methodOrBlockNumArgs').
-					 (RBVariableNode named: '(coInterpreter methodNeedsLargeContext: methodObj)').
-					 (RBVariableNode named: 'inBlock').
-					 (RBVariableNode named: DRPhysicalGeneralPurposeRegister receiverResultReg name) }).
-
-	"Copy from ReceiverResultReg to result register"
-	copy := DRCopy
-		        operands: { DRPhysicalGeneralPurposeRegister receiverResultReg }
-		        result: aDRClosureCreation result.
-	copy acceptVisitor: self
+	super visitClosureCreation: aDRClosureCreation
 ]
 
 { #category : #visiting }
