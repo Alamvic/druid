@@ -190,7 +190,7 @@ DRSCCP >> latticeValue: aValue [
 	(aValue isRegister and: [ aValue isVirtualRegister not ])
 		ifTrue: [ ^ self bottom ].
 	aValue isStore ifTrue: [ ^ self bottom ].
-	aValue isInstruction ifFalse: [ ^ aValue ].
+	aValue isConstant ifTrue: [ ^ aValue ].
 	aValue isMessageSend ifTrue: [ ^ self bottom ].
 
 	^ latticeValues at: aValue ifAbsent: [ self top ]
@@ -219,14 +219,6 @@ DRSCCP >> sccpLatticeValueFor: instruction latticeOperand1: operand1 latticeOper
 				ifTrue: [ |op1 op2|
 					op1 := operand1.
 					op2 := operand2 .
-					"If they have different values, choose one to continue the work"
-					operand1 class ~= operand2 class
-						ifTrue: [ 
-							op2 := operand1 class tryParseOperandForSCCP: op2.
-							(self isConstantLattice: op2) ifFalse: [ ^ op2 ].
-							op1 := operand2 class tryParseOperandForSCCP: op1.
-							(self isConstantLattice: op1) ifFalse: [ ^ op1 ]
-						].
 					"Compute the lattice value and wrap it as a DR value"
 					^ (instruction sccpOperateOnLattice: op1 value and: op2 value) asDRValue ].
 

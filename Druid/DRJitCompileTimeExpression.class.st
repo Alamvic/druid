@@ -145,12 +145,6 @@ DRJitCompileTimeExpression >> expression: anObject [
 ]
 
 { #category : #testing }
-DRJitCompileTimeExpression >> isConstant [
-
-	^ true
-]
-
-{ #category : #testing }
 DRJitCompileTimeExpression >> isConstraintConstant [
 
 	^ false "Branch constraints doesn't support JIT expressions"

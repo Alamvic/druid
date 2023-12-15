@@ -1229,7 +1229,8 @@ DRBasicBlock >> validatePhiFunctions [
 	self phiFunctions do: [ :e |
 		| ops |
 		ops := e operands asIdentitySet.
-		(ops size > 1 and: [ ops noneSatisfy: [ :o | o isKindOf: DRNullValue ] ]) ifTrue: [
+		(ops size > 1 and: [
+			 ops noneSatisfy: [ :o | o isKindOf: DRNullValue ] ]) ifTrue: [
 			e operands size = self predecessors size ifFalse: [
 				self error: 'Phi-predecessor mismatch' ].
 
@@ -1239,10 +1240,12 @@ DRBasicBlock >> validatePhiFunctions [
 				self assert: (dependency isInstruction or: [
 						 dependency isNullValue or: [
 							 dependency isPhysicalRegister or: [
-								 dependency isDRBlockClosure or: [ dependency class = DruidTestInterpreter ] ] ] ]).
+								 dependency isDRBlockClosure or: [
+									 dependency class = DruidTestInterpreter or: [
+										 dependency isJITCompileTimeExpression ] ] ] ] ]).
 				self assert: (dependency isInstruction not or: [
-						 ((self predecessors at: index) checkLivenessOf: dependency) or: [
-							 e hasRecursiveUse ] ]) ] ] ]
+						 ((self predecessors at: index) checkLivenessOf: dependency)
+							 or: [ e hasRecursiveUse ] ]) ] ] ]
 ]
 
 { #category : #validating }

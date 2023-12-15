@@ -16,12 +16,6 @@ DRClosureCreation >> isMandatoryInstruction [
 	^ true
 ]
 
-{ #category : #'cogit-generation' }
-DRClosureCreation >> rtlOperandQualifier [
-
-	^ result rtlOperandQualifier
-]
-
 { #category : #SCCP }
 DRClosureCreation >> sccpLatticeValueFor: sccp [ 
 	

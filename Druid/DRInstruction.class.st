@@ -759,6 +759,12 @@ DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 			self replaceOperand: operand by: newOperandValues anyOne ]
 ]
 
+{ #category : #'cogit-generation' }
+DRInstruction >> rtlOperandQualifier [
+
+	^ result rtlOperandQualifier
+]
+
 { #category : #cogit }
 DRInstruction >> rtlPushArgumentExpressions: generator [
 	

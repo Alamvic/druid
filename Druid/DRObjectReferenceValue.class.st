@@ -11,12 +11,6 @@ DRObjectReferenceValue >> acceptVisitor: aVisitor [
 ]
 
 { #category : #testing }
-DRObjectReferenceValue >> isConstant [
-
-	^ true
-]
-
-{ #category : #testing }
 DRObjectReferenceValue >> isInvariantFrom: loop [
 	^ true
 ]

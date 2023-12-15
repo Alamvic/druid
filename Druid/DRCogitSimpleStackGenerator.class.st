@@ -64,8 +64,10 @@ DRCogitSimpleStackGenerator >> visitBytecodeJump: aDRBytecodeJump [
 	"self Jump: (self ensureFixupAt: targetBytecode)"
 
 	| targetBytecode |
-	targetBytecode := self jitCompileTimeExpression:
-		                  aDRBytecodeJump operand1.
+	"If we don't have a virtual register, we cannot stage the jump offset calculation!"
+	targetBytecode := aDRBytecodeJump operand1 result name.
+	self assert: aDRBytecodeJump operand1 result isVirtualRegister.
+	
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #Jump:

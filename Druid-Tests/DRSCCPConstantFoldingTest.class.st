@@ -47,39 +47,6 @@ DRSCCPConstantFoldingTest >> testConstantFoldingAddInSingleBasicBlock [
 ]
 
 { #category : #arithmetic }
-DRSCCPConstantFoldingTest >> testConstantFoldingAddJitCompileExpressionWithConstantIsJitCompileExpression [
-
-	| cfg |
-	cfg := self testConstantFoldingOf: DRAdd between: self varJITExpression and: 7 asDRValue.
-
-	self assert: cfg instructions allButLast last isCopy.
-	self
-		assert: cfg instructions allButLast last operand1 expression
-		equals: '(var + 7)'
-]
-
-{ #category : #arithmetic }
-DRSCCPConstantFoldingTest >> testConstantFoldingAddJitCompileExpressionWithJitCompileExpressionIsJitCompileExpression [
-
-	| cfg |
-	cfg := self testConstantFoldingOf: DRAdd between: self varJITExpression and: self varJITExpression.
-
-	self assert: cfg instructions allButLast last isCopy.
-	self
-		assert: cfg instructions allButLast last operand1 expression
-		equals: '(var + var)'
-]
-
-{ #category : #arithmetic }
-DRSCCPConstantFoldingTest >> testConstantFoldingAddJitCompileExpressionWithNonJitCompileExpression [
-
-	self
-		testNonConstantFoldingOf: DRAdd
-		between: self varJITExpression
-		and: self nonReducibleOperation
-]
-
-{ #category : #arithmetic }
 DRSCCPConstantFoldingTest >> testConstantFoldingAddOfLeftNonConstants [
 
 	| r cfg |
@@ -216,10 +183,10 @@ DRSCCPConstantFoldingTest >> testConstantFoldingFalseOrRegisterIsRegister [
 	copy := self copyOfAnyRegister.
 	cfg := self testConstantFoldingOf: DROr between: false andOp: copy.
 
-	self assertLastInstructionOf: cfg isCopyOf: copy operand1.
+	self assertLastInstructionOf: cfg isCopyOf: copy
 ]
 
-{ #category : #arithmetic }
+{ #category : #tests }
 DRSCCPConstantFoldingTest >> testConstantFoldingLoadConstant [
 
 	| b1 cfg operand1 operand2 |
@@ -229,15 +196,14 @@ DRSCCPConstantFoldingTest >> testConstantFoldingLoadConstant [
 	operand1 := b1 copy: 9999.
 	operand2 := b1 loadSInt64: operand1.
 
+1halt.
 	optimisation applyTo: cfg.
 
-	self assert: cfg instructions allButLast last isCopy.
-	self
-		assert: cfg instructions allButLast last operand1 expression
-		equals: '(coInterpreter int64AtPointer:  9999)'
+	self assert: cfg instructions first isCopy.
+	self assert: cfg instructions allButLast last isLoad
 ]
 
-{ #category : #arithmetic }
+{ #category : #tests }
 DRSCCPConstantFoldingTest >> testConstantFoldingLoadJitCompileExpression [
 
 	| cfg |
@@ -413,7 +379,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingRegisterAndTrueIsRegister [
 	copy := self copyOfAnyRegister.
 	cfg := self testConstantFoldingOf: DRAnd betweenOp: copy and: true.
 
-	self assertLastInstructionOf: cfg isCopyOf: copy operand1.
+	self assertLastInstructionOf: cfg isCopyOf: copy
 ]
 
 { #category : #register }
@@ -423,7 +389,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingRegisterOrFalseIsRegister [
 	copy := self copyOfAnyRegister.
 	cfg := self testConstantFoldingOf: DROr betweenOp: copy and: false.
 
-	self assertLastInstructionOf: cfg isCopyOf: copy operand1.
+	self assertLastInstructionOf: cfg isCopyOf: copy
 ]
 
 { #category : #register }
@@ -470,7 +436,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingTrueAndRegisterIsRegister [
 	copy := self copyOfAnyRegister.
 	cfg := self testConstantFoldingOf: DRAnd between: true andOp: copy.
 
-	self assertLastInstructionOf: cfg isCopyOf: copy operand1.
+	self assertLastInstructionOf: cfg isCopyOf: copy.
 ]
 
 { #category : #constant }
@@ -566,7 +532,7 @@ DRSCCPConstantFoldingTest >> testFoldingLoadWithOperation [
 	self assert: cfg instructions nextToLast operand1 equals: load
 ]
 
-{ #category : #tests }
+{ #category : #constant }
 DRSCCPConstantFoldingTest >> testFoldingObjectReferenceIntoJITExpression [
 
 	| cfg copy addition |
@@ -583,29 +549,11 @@ DRSCCPConstantFoldingTest >> testFoldingObjectReferenceIntoJITExpression [
 
 	"Object references should keep to be annotated for GC"
 	self assert: cfg instructions first equals: copy.
-	"Anyway, users are folded"
-	self assert: cfg instructions second isCopy.
-	self assert: cfg instructions second operand1 expression equals: '(methodObj + 1)'.
-
-
-]
-
-{ #category : #tests }
-DRSCCPConstantFoldingTest >> testNonConstantFoldingOf: aClass between: aDROperand1 and: aDROperand2 [ 
-	| cfg |
-	cfg := self testConstantFoldingOf: aClass between: aDROperand1 and: aDROperand2.
-	
-	self assert: cfg instructions third class equals: aClass.
+	"If no staging happens, everything stays the same"
+	self assert: cfg instructions second isAdd.
 	self
-		assert: cfg instructions third operand1 simpleConstantFold 
-		equals: aDROperand1.
-	self
-		assert: cfg instructions third operand2 simpleConstantFold 
-		equals: aDROperand2
-]
-
-{ #category : #operation }
-DRSCCPConstantFoldingTest >> varJITExpression [
-
-	^ DRCompositeCompileTimeExpression expression: 'var'
+		assertCollection: cfg instructions second operands
+		hasSameElements: {
+				copy.
+				1 asDRValue }
 ]

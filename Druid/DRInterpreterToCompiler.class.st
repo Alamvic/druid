@@ -127,7 +127,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 			"242 "245
 		
 		"call primitive" 248
-		"push closure" "249"
+		"push closure" 249
 		"remote temp bytecodes"
 			"251 -> is breaking"
 			"252 253 left out because of write barrier"
