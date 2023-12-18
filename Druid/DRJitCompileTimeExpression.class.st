@@ -175,6 +175,12 @@ DRJitCompileTimeExpression >> isObjectReferenceValue [
 ]
 
 { #category : #testing }
+DRJitCompileTimeExpression >> isReallyJITCompileTimeExpression [
+	
+	^ true
+]
+
+{ #category : #testing }
 DRJitCompileTimeExpression >> jitCompileTimeExpression [
 
 	^ expression

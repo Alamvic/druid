@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #testing }
+DRObjectReferenceCopy >> isObjectReferenceCopy [
+
+	^ true
+]
+
+{ #category : #testing }
 DRObjectReferenceCopy >> shouldKeepInCFG [
 
 	^ true

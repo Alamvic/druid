@@ -1,15 +1,15 @@
 Class {
 	#name : #DRInstruction,
-	#superclass : #DRValue,
+	#superclass : #DRAbstractInstruction,
 	#instVars : [
 		'operands',
 		'result',
 		'order',
-		'origin',
 		'originAST',
-		'basicBlock',
+		'origin',
 		'users',
-		'classType'
+		'classType',
+		'isStaged'
 	],
 	#category : #'Druid-IR'
 }
@@ -89,18 +89,6 @@ DRInstruction >> asNumberedExpression [
 	^ numberedExpression operation: self class;
 	operands: self operands;
 	yourself
-]
-
-{ #category : #accessing }
-DRInstruction >> basicBlock [
-
-	^ basicBlock
-]
-
-{ #category : #accessing }
-DRInstruction >> basicBlock: anObject [
-
-	basicBlock := anObject
 ]
 
 { #category : #'cfg manipulation' }
@@ -192,95 +180,7 @@ DRInstruction >> initialize [
 	super initialize.
 	operands := #().
 	users := IdentitySet new.
-]
-
-{ #category : #inspecting }
-DRInstruction >> inspectionDependencies: aBuilder [
-	<inspectorPresentationOrder: 10 title: 'Dependency Graph'>
-	
-	| view blockViews eb |
-	view := RSCanvas new.
-	blockViews := self withAllDependencies asSet collect: [ :c | | g label |
-		g := RSGroup new.
-		(label := (RSLabel new text: c label asString)
-			borderColor: Color black;
-			yourself).
-		g add: (RSBox new
-			color: Color white;
-			border: (RSBorder new color: Color purple; width: 2);
-			extent: label extent + 10;
-			yourself).
-		g add: label.
-		g asShape
-			@ RSDraggable;
-			model: c;
-			yourself ] as: Array.
-	view addAll: blockViews.
-	
-	eb := RSEdgeBuilder arrowedLine.
-	eb canvas: view.
-	eb withBorderAttachPoint.
-	eb 	shapes: blockViews.
-	eb connectToAll: #dependencies.
-	
-	"All the characters are displayed using a grid layout"
-	RSDominanceTreeLayout new
-		horizontalGap: 50;
-		shouldValidateCycles;
-		applyOn: blockViews.
-	view @ RSCanvasController.
-	
-	^ SpRoassal3InspectorPresenter new
-		canvas: view;
-		yourself
-]
-
-{ #category : #inspecting }
-DRInstruction >> inspectionSource: aBuilder [
-	<inspectorPresentationOrder: 0 title: 'Source'>
-	
-	^ originAST inspectionSourceCode
-]
-
-{ #category : #inspecting }
-DRInstruction >> inspectionUsers: aBuilder [
-	<inspectorPresentationOrder: 10 title: 'Users Graph'>
-	
-	| view blockViews eb |
-	view := RSCanvas new.
-	blockViews := self withAllUsers asSet collect: [ :c | | g label |
-		g := RSGroup new.
-		(label := (RSLabel new text: c label asString)
-			borderColor: Color black;
-			yourself).
-		g add: (RSBox new
-			color: Color white;
-			border: (RSBorder new color: Color purple; width: 2);
-			extent: label extent + 10;
-			yourself).
-		g add: label.
-		g asShape
-			@ RSDraggable;
-			model: c;
-			yourself ] as: Array.
-	view addAll: blockViews.
-	
-	eb := RSEdgeBuilder arrowedLine.
-	eb canvas: view.
-	eb withBorderAttachPoint.
-	eb 	shapes: blockViews.
-	eb connectToAll: #users.
-	
-	"All the characters are displayed using a grid layout"
-	RSDominanceTreeLayout new
-		horizontalGap: 50;
-		shouldValidateCycles;
-		applyOn: blockViews.
-	view @ RSCanvasController.
-	
-	^ SpRoassal3InspectorPresenter new
-		canvas: view;
-		yourself
+	isStaged := false.
 ]
 
 { #category : #accessing }
@@ -398,6 +298,12 @@ DRInstruction >> isPop [
 ]
 
 { #category : #testing }
+DRInstruction >> isStaged [
+
+	^ isStaged
+]
+
+{ #category : #testing }
 DRInstruction >> isValue [
 
 	^ false
@@ -413,6 +319,12 @@ DRInstruction >> label [
 DRInstruction >> lookupClass [
 	
 	^ self type lookupClass 
+]
+
+{ #category : #staging }
+DRInstruction >> markAsStaged [
+
+	isStaged := true
 ]
 
 { #category : #moving }
@@ -433,12 +345,6 @@ DRInstruction >> name [
 DRInstruction >> needsStackFlush [
 	
 	^ false
-]
-
-{ #category : #accessing }
-DRInstruction >> nextInstruction [
-	
-	^ self basicBlock instructionAfter: self
 ]
 
 { #category : #accessing }
@@ -568,10 +474,13 @@ DRInstruction >> postCopy [
 DRInstruction >> prettyPrint [
 
 	| print |
-	print := result ifNil: [ '' ] ifNotNil: [ result name , ' := ' ].
-	
-	^ print , self opcode , ' '
-	  , (' ' join: (self operands collect: [ :e | e ifNotNil: [ e printResult ] ]))
+	print := self isStaged
+		         ifTrue: [ '[STAGED] ' ]
+		         ifFalse: [ '' ].
+	result ifNotNil: [ print := print , result name , ' := ' ].
+
+	^ print , self opcode , ' ' , (' ' join:
+		   (self operands collect: [ :e | e ifNotNil: [ e printResult ] ]))
 ]
 
 { #category : #accessing }
@@ -640,19 +549,6 @@ DRInstruction >> removeOperandAt: anInteger [
 DRInstruction >> removeUser: anInstruction [
 
 	users remove: anInstruction
-]
-
-{ #category : #replacing }
-DRInstruction >> replaceBy: anotherInstruction [
-	
-	self = anotherInstruction ifTrue: [ ^ self ].
-	
-	basicBlock replace: self by: anotherInstruction.
-	
-	self replaceUsesBy: anotherInstruction.
-
-	operands asSet do: [ :instruction |
-		instruction removeUser: self ].
 ]
 
 { #category : #'users-definitions' }
@@ -822,56 +718,10 @@ DRInstruction >> type [
 	^ DRSignedIntegerType size: 8 "Word size"
 ]
 
-{ #category : #inspecting }
-DRInstruction >> uiUnroll [
-
-	| unrollingFactor |
-	self isBackJump ifFalse: [ 
-		^ self inform: 'Can only perform loop unrolling from back jumps' ].
-	unrollingFactor := UIManager default
-		                   request: 'Unrolling factor:'
-		                   initialAnswer: '2'.
-	(unrollingFactor ifNil: [ '' ]) ifEmpty: [ unrollingFactor := 2 ].
-	self loop unroll: unrollingFactor asNumber
-]
-
 { #category : #replacing }
 DRInstruction >> users [
 
 	^ users
-]
-
-{ #category : #validation }
-DRInstruction >> validate [
-
-	self validateDependenciesAreUsedByMyself.
-	self validateUsersUseMyself.
-
-	self isPhiFunction ifTrue: [ ^ self ].
-	self operands do: [ :o | 
-		(o isInstruction not or: [ 
-			 self basicBlock isDominatedBy: o basicBlock ]) ifFalse: [ 
-			DRError signal: 'Invalid operand: ', o asString, ' in: ' , self asString ] ]
-]
-
-{ #category : #validation }
-DRInstruction >> validateDependenciesAreUsedByMyself [
-
-	self dependencies do: [ :op | 
-		(op hasUser: self) ifFalse: [ 
-			DRError signal:
-				'Dependency-user mismatch between: ' , self asString , ' and: '
-				, op asString ] ]
-]
-
-{ #category : #validation }
-DRInstruction >> validateUsersUseMyself [
-
-	self users do: [ :user | 
-		(user hasDependency: self) ifFalse: [ 
-			DRError signal:
-				'User-operand mismatch between: ' , user asString , ' and: '
-				, self asString ] ]
 ]
 
 { #category : #copying }

@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #testing }
+DRArithmeticInstruction >> isArithmeticInstruction [
+
+	^ true
+]
+
+{ #category : #testing }
 DRArithmeticInstruction >> isJITCompileTimeExpressionIgnoring: aCollection [
 
 	^ (operands copyWithoutAll: aCollection) allSatisfy: [ :op |

@@ -196,8 +196,10 @@ DRBranchIfCondition >> prettyConditionPrint [
 { #category : #printing }
 DRBranchIfCondition >> prettyPrint [
 
-	^ 'Jump if ' , self prettyConditionPrint , ' -> '
-	  , (self trueBranch ifNotNil: [ :br | br id ]) asString
+	^ (self isStaged
+		   ifTrue: [ '[STAGED] ' ]
+		   ifFalse: [ '' ]) , 'Jump if ' , self prettyConditionPrint
+	  , ' -> ' , (self trueBranch ifNotNil: [ :br | br id ]) asString
 	  , ' if false -> '
 	  , (self falseBranch ifNotNil: [ :br | br id ]) asString
 ]

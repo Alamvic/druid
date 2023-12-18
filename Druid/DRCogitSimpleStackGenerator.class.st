@@ -263,6 +263,12 @@ DRCogitSimpleStackGenerator >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
+DRCogitSimpleStackGenerator >> visitStagedInstruction: aDRStagedInstruction [ 
+	
+	^ aDRStagedInstruction stagedInstruction acceptVisitor: self
+]
+
+{ #category : #visiting }
 DRCogitSimpleStackGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
 	generatorMethodBuilder addStatement: (RBMessageNode

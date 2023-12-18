@@ -17,6 +17,12 @@ DRInterpreterExpression >> asJitCompileTimeExpression [
 ]
 
 { #category : #testing }
+DRInterpreterExpression >> isInterpreterExpression [
+
+	^ true
+]
+
+{ #category : #testing }
 DRInterpreterExpression >> isJITCompileTimeExpression [
 
 	^ true

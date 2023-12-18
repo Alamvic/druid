@@ -133,6 +133,12 @@ DRValue >> isAnnotateBytecode [
 ]
 
 { #category : #testing }
+DRValue >> isClosureCreation [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isComparison [
 
 	^ false
@@ -212,6 +218,12 @@ DRValue >> isJITCompileTimeExpressionIgnoring: aCollection [
 	^ self isJITCompileTimeExpression
 ]
 
+{ #category : #testing }
+DRValue >> isJITMessageSend [
+	
+	^ false
+]
+
 { #category : #accessing }
 DRValue >> isJump [ 
 
@@ -273,6 +285,12 @@ DRValue >> isNullValue [
 ]
 
 { #category : #testing }
+DRValue >> isObjectReferenceCopy [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isObjectReferenceValue [
 
 	^ false
@@ -297,6 +315,12 @@ DRValue >> isPush [
 ]
 
 { #category : #testing }
+DRValue >> isReallyJITCompileTimeExpression [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isRegister [
 
 	^ false
@@ -317,6 +341,12 @@ DRValue >> isSetConditionCode [
 { #category : #testing }
 DRValue >> isStackInstruction [
 
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isStaged [
+	
 	^ false
 ]
 

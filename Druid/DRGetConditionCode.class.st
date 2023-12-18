@@ -42,7 +42,10 @@ DRGetConditionCode >> operands: operandList [
 DRGetConditionCode >> prettyPrint [
 
 	| print |
-	print := result ifNil: [ '' ] ifNotNil: [ result name , ' := ' ].
+	print := (self isStaged
+		          ifTrue: [ '[STAGED] ' ]
+		          ifFalse: [ '' ])
+	         , (result ifNil: [ '' ] ifNotNil: [ result name , ' := ' ]).
 	^ print , self opcode , ' '
 	  , (self condition prettyPrintWithBranch: self)
 ]

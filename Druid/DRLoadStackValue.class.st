@@ -10,6 +10,12 @@ DRLoadStackValue >> acceptVisitor: aVisitor [
 	^ aVisitor visitLoadStackValue: self
 ]
 
+{ #category : #testing }
+DRLoadStackValue >> isLoadStackValue [
+
+	^ true
+]
+
 { #category : #printing }
 DRLoadStackValue >> opcode [
 	

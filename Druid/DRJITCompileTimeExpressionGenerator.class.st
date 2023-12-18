@@ -82,7 +82,8 @@ DRJITCompileTimeExpressionGenerator >> visitEqualsThan: aDREqualsThanComparison 
 
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
-	self shouldBeImplemented.
+	
+	^ aDRGetConditionCode condition acceptVisitor: self withBranch: aDRGetConditionCode
 ]
 
 { #category : #visiting }
@@ -132,7 +133,7 @@ DRJITCompileTimeExpressionGenerator >> visitNegate: aDRNegated [
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitPhiFunction: aDRPhiFunction [ 
 
-	^ RBVariableNode named: aDRPhiFunction asJitCompileTimeExpression expression
+	^ RBVariableNode named: 't', aDRPhiFunction result id asString
 ]
 
 { #category : #visiting }
@@ -142,4 +143,30 @@ DRJITCompileTimeExpressionGenerator >> visitRightShift: aDRRightShift [
 		  binaryMessage: #'>>'
 		  receiverInstruction: aDRRightShift operand1
 		  argumentInstruction: aDRRightShift operand2
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitStore: aDRStore [
+
+	^ RBAssignmentNode
+		  variable: (RBVariableNode named: aDRStore operand2 name)
+		  value: (aDRStore operand1 acceptVisitor: self)
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitSubstract: aDRSubtract [
+
+	^ self
+		  binaryMessage: #-
+		  receiverInstruction: aDRSubtract operand1
+		  argumentInstruction: aDRSubtract operand2
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitTestMask: aDRTestMask inBranch: aDRGetConditionCode [
+
+	^ self
+		  binaryMessage: #anyMask:
+		  receiverInstruction: aDRGetConditionCode operand1
+		  argumentInstruction: aDRGetConditionCode operand2
 ]

@@ -49,6 +49,12 @@ DRStore >> isStore [
 	^ true
 ]
 
+{ #category : #staging }
+DRStore >> markAsStaged [
+
+	super markAsStaged
+]
+
 { #category : #visiting }
 DRStore >> opcode [
 	

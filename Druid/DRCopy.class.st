@@ -69,8 +69,11 @@ DRCopy >> operand [
 
 { #category : #printing }
 DRCopy >> prettyPrint [
-	
-	^ result name, ' := ', operands first name asString
+
+	^ (self isStaged
+		   ifTrue: [ '[STAGED]' ]
+		   ifFalse: [ '' ]) , result name , ' := '
+	  , operands first name asString
 ]
 
 { #category : #SCCP }

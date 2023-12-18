@@ -15,17 +15,13 @@ DRCogitLinearScanRegisterAllocator >> buildLiveSets [
 
 { #category : #'live-analysis' }
 DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
-
 	"2 address code transformation. Second operand and destination MUST have the same assigned register.
 	If their live intervals do not overlap => merge them.
 	Otherwise => split the intervals by creating a copy instruction"
 
 	self instructionsDo: [ :i |
-	
-		"We should have a special case for phi functions"		
-		i isPhiFunction ifFalse: [
-		
-		"If one of the operands is a physical registers, it gives us an additional constraint that could prevent the 2AC transformation.
+		i isStaged ifFalse: [ "We should have a special case for phi functions"
+			i isPhiFunction ifFalse: [ "If one of the operands is a physical registers, it gives us an additional constraint that could prevent the 2AC transformation.
 		Introduce a copy instruction to cut the instruction in two different and remove this constraint.
 		Then exit and recompute live sets with the new instruction.
 		
@@ -34,21 +30,26 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 		R2 := RP.
 		R1 := R2 + 1
 		"
-		(i result isNoResult not and: [i operands size = 2 and: [ i operands anySatisfy: [ :op | op isPhysicalRegister ] ]]) ifTrue: [
-			| registerToCopy copyInstruction |
-			registerToCopy := i operands detect: [ :op | op isPhysicalRegister ].
-			
-			"Create a copy instruction before, branch it, and return true to indicate we need to recompute intervals"
-			copyInstruction := i controlFlowGraph instructionFactory copy: registerToCopy.
-			i addBefore: copyInstruction.
-			i replaceOperand: registerToCopy by: copyInstruction.
-			^ true
-		].
+				(i result isNoResult not and: [
+					 i operands size = 2 and: [
+						 i operands anySatisfy: [ :op | op isPhysicalRegister ] ] ])
+					ifTrue: [
+						| registerToCopy copyInstruction |
+						registerToCopy := i operands detect: [ :op |
+							                  op isPhysicalRegister ].
 
-		(i result isNoResult not and: [i operands size = 2])
-			ifTrue: [ | secondOperandInterval currentInterval operandToMergeInterval |
-				(i type isFloatType not and: [ (i operands collect: #type) allSatisfy: [ :e | e isFloatType ] ])
-					ifTrue: [^ false].
+						"Create a copy instruction before, branch it, and return true to indicate we need to recompute intervals"
+						copyInstruction := i controlFlowGraph instructionFactory copy:
+							                   registerToCopy.
+						i addBefore: copyInstruction.
+						i replaceOperand: registerToCopy by: copyInstruction.
+						^ true ].
+
+				(i result isNoResult not and: [ i operands size = 2 ]) ifTrue: [
+					| secondOperandInterval currentInterval operandToMergeInterval |
+					(i type isFloatType not and: [
+						 (i operands collect: #type) allSatisfy: [ :e | e isFloatType ] ])
+						ifTrue: [ ^ false ].
 
 					"Merge the two intervals, finding the operand that is not a constant.
 					Take the first operand.
@@ -64,21 +65,25 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 					currentInterval := self liveSetOf: i.
 
 					(secondOperandInterval overlaps: currentInterval)
-						ifTrue: [ | copyInstruction |
+						ifTrue: [
+							| copyInstruction |
 							"Create a copy instruction before, branch it, and return true to indicate we need to recompute intervals"
-							copyInstruction := i controlFlowGraph instructionFactory copy: operandToMergeInterval.
+							copyInstruction := i controlFlowGraph instructionFactory copy:
+								                   operandToMergeInterval.
 							i addBefore: copyInstruction.
 							i replaceOperand: operandToMergeInterval by: copyInstruction.
-							^ true
-						]
-						ifFalse: [ | mergedInterval |
+							^ true ]
+						ifFalse: [
+							| mergedInterval |
 							"Create a merged interval and set it as interval for the current definition and its second operand."
-							mergedInterval := secondOperandInterval mergeWith: currentInterval.
+							mergedInterval := secondOperandInterval mergeWith:
+								                  currentInterval.
 							(liveSets keys sorted: [ :a :b | a name < b name ]) do: [ :k |
-								({ secondOperandInterval . currentInterval } includes: (liveSets at: k))
-									ifTrue: [ liveSets at: k put: mergedInterval ]
-							] ] ] ] ].
-		^ false
+								({
+									 secondOperandInterval.
+									 currentInterval } includes: (liveSets at: k)) ifTrue: [
+									liveSets at: k put: mergedInterval ] ] ] ] ] ] ].
+	^ false
 ]
 
 { #category : #'live-analysis' }

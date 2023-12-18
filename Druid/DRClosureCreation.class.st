@@ -11,6 +11,12 @@ DRClosureCreation >> acceptVisitor: aVisitor [
 ]
 
 { #category : #testing }
+DRClosureCreation >> isClosureCreation [
+
+	^ true
+]
+
+{ #category : #testing }
 DRClosureCreation >> isMandatoryInstruction [
 
 	^ true

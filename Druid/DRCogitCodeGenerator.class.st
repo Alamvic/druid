@@ -35,8 +35,24 @@ DRCogitCodeGenerator >> blocks: aPath [
 ]
 
 { #category : #'ir-generation' }
-DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [ 
+DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 
+	anInstruction isStaged ifTrue: [
+		| varName |
+		anInstruction isStore ifTrue: [
+			^ self jitCompileTimeExpression: anInstruction ].
+
+		"Conditional branch"
+		anInstruction isConditionalBranch ifTrue: [
+			^ self generateCompileTimeIfCondition: anInstruction
+		].
+
+		varName := 't' , anInstruction result id asString.
+		generatorMethodBuilder addVariableNamed: varName.
+		generatorMethodBuilder addStatement: (RBAssignmentNode
+				 variable: (RBVariableNode named: varName)
+				 value: (self jitCompileTimeExpression: anInstruction)).
+		^ self ].
 	^ anInstruction acceptVisitor: self
 ]
 

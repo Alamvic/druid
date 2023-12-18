@@ -111,6 +111,7 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [ 
 
 	self controlFlowGraph: aDRControlFlowGraph.
+	1halt.
 	self prepareSSA.
 	self buildLiveSets.
 	self allocateRegisters.
@@ -165,13 +166,14 @@ DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 { #category : #steps }
 DRLinearScanRegisterAllocator >> assignRegisters [
 
-	self instructionsDo: [ :i | "Assign first registers to operands.
+	self instructionsDo: [ :i |
+		i isStaged ifFalse: [ "Assign first registers to operands.
 		This will use spill registers if needed and return them to the pool.
 		Then, the result can use them if it is spilled too."
-		self assignRegistersToOperandsInInstruction: i.
+			self assignRegistersToOperandsInInstruction: i.
 
-		"Replace the result by the allocated register if necessary"
-		self assignRegisterToResultInInstruction: i ]
+			"Replace the result by the allocated register if necessary"
+			self assignRegisterToResultInInstruction: i ] ]
 ]
 
 { #category : #steps }
@@ -237,7 +239,7 @@ DRLinearScanRegisterAllocator >> buildLiveSets [
 DRLinearScanRegisterAllocator >> coallescePhiIntervals [
 	
 	self instructionsDo: [ :i |
-		i isPhiFunction ifTrue: [ | phiSet operandSets allSets mergedSet |
+		(i isPhiFunction and: [ i isStaged not ]) ifTrue: [ | phiSet operandSets allSets mergedSet |
 			phiSet := self liveSetOf: i.
 			operandSets := i operands collect: [ :op | self liveSetOf: op ].
 			allSets := {phiSet}, operandSets.
@@ -257,48 +259,53 @@ DRLinearScanRegisterAllocator >> coallescePhiIntervals [
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> computeLiveSets [
 
-	| liveVariablesPerBlock |
+	| liveVariablesPerBlock blockInstructionsToCompute |
 	liveVariablesPerBlock := Dictionary new.
 
-	controlFlowGraph postOrderBlocks do: [ :b | 
+	controlFlowGraph postOrderBlocks do: [ :b |
 		| live |
 		live := Set new.
 		liveVariablesPerBlock at: b put: live.
 
 		"Collect all live variables from successors"
-		b successors withIndexDo: [ :s :si | 
+		b successors withIndexDo: [ :s :si |
 			live addAll: (liveVariablesPerBlock at: s ifAbsentPut: [ Set new ]).
-			s phiFunctions do: [ :phi | 
+			s phiFunctions do: [ :phi |
 				live remove: phi ifAbsent: [  ].
-				(phi operandsAtPredecessorsOtherThan: b) do: [ 
-					:notIncomingInstruction | 
-					(live includes: notIncomingInstruction) ifTrue: [ 
+				(phi operandsAtPredecessorsOtherThan: b) do: [
+					:notIncomingInstruction |
+					(live includes: notIncomingInstruction) ifTrue: [
 						live remove: notIncomingInstruction ] ] ] ].
 
+		blockInstructionsToCompute := b instructions select: [ :e |
+			                              e isStaged not ].
 		"Check which live values are defined in this block, or defined in predecessors"
-		(live sorted: [ :l1 :l2 | l1 name < l2 name ]) do: [ :i | 
+		(live sorted: [ :l1 :l2 | l1 name < l2 name ]) do: [ :i |
 			| instructionLiveSet |
 			instructionLiveSet := self liveSetOf: i.
-			(b instructions includes: i)
-				ifTrue: [ 
-				instructionLiveSet addRangeFrom: i to: b instructions last ]
-				ifFalse: [ 
+			(blockInstructionsToCompute includes: i)
+				ifTrue: [
+					instructionLiveSet
+						addRangeFrom: i
+						to: b instructions last ]
+				ifFalse: [
 					instructionLiveSet
 						addRangeFrom: b instructions first
 						to: b instructions last ] ].
 
 		"Finally, for each instruction we define, augment the live set"
-		b instructions reversed do: [ :i | 
+		blockInstructionsToCompute reversed do: [ :i |
 			self computeLivenessOfInstruction: i inBlock: b withLiveSet: live ].
-		
-		
+
+
 		"For each predecessor that is a backjump, we should extend the life of each variable to be live in the loop"
 		b predecessors
 			select: [ :p | p endInstruction isBackJumpTo: b ]
 			thenDo: [ :p |
-				live do: [ :i | | instructionLiveSet |
+				live do: [ :i |
+					| instructionLiveSet |
 					instructionLiveSet := self liveSetOf: i.
-					instructionLiveSet addRangeFrom: b first to: p endInstruction ] ] ].
+					instructionLiveSet addRangeFrom: b first to: p endInstruction ] ] ]
 ]
 
 { #category : #'live-analysis' }
