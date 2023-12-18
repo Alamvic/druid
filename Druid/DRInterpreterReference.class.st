@@ -27,6 +27,18 @@ DRInterpreterReference class >> reference: aReference [
 		yourself
 ]
 
+{ #category : #visiting }
+DRInterpreterReference >> acceptVisitor: aVisitor [ 
+
+	^ aVisitor visitInterpreterReference: self
+]
+
+{ #category : #converting }
+DRInterpreterReference >> asJitCompileTimeExpression [
+
+	^ reference asDRValue asJitCompileTimeExpression
+]
+
 { #category : #memory }
 DRInterpreterReference >> asMemoryAddress [
 	

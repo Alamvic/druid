@@ -74,7 +74,7 @@ DRIRTest >> generateDruidIRFor: methodSelector [
 { #category : #test }
 DRIRTest >> newConditionalJump [
 
-	^ compilerCompiler instructionFactory jumpIf: true
+	^ compilerCompiler instructionFactory jumpIf: DRInterpreterReference freeStartAddress
 ]
 
 { #category : #test }

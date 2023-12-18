@@ -50,6 +50,16 @@ DRControlFlowGraph >> allBackJumps [
 		  thenSelect: [ :i | i isBackJump ]
 ]
 
+{ #category : #'accessing - query' }
+DRControlFlowGraph >> allBlocksBetween: predecessor and: successor [
+	"Retrieve all blocks visited on execution from <predecessor> to <successor>"
+
+	^ (self blocks copyWithoutAll: {
+			   predecessor.
+			   successor }) select: [ :b |
+		  (successor isDominatedBy: b) and: [ b isDominatedBy: predecessor ] ]
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> allConditionalJumps [
 

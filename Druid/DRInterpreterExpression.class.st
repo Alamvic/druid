@@ -10,12 +10,6 @@ DRInterpreterExpression >> acceptVisitor: aVisitor [
 	^ aVisitor visitInterpreterExpression:  self
 ]
 
-{ #category : #converting }
-DRInterpreterExpression >> asJitCompileTimeExpression [
-
-	^ reference asDRValue asJitCompileTimeExpression
-]
-
 { #category : #testing }
 DRInterpreterExpression >> isJITCompileTimeExpression [
 

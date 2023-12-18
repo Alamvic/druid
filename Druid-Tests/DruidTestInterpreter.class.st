@@ -5,12 +5,6 @@ Class {
 }
 
 { #category : #initialization }
-DruidTestInterpreter class >> bytecodeTableArray [
-
-	^ #( #( 1 #( #( 0 15 bytecodeWithNoFrameInstVarRefAnnotation ) ) ) )
-]
-
-{ #category : #initialization }
 DruidTestInterpreter class >> initializePrimitiveTable [
 
 	super initializePrimitiveTable.

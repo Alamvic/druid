@@ -17,6 +17,12 @@ DRJITCompileTimeExpressionGenerator >> binaryMessage: aSymbol receiverInstructio
 		  arguments: { argument }
 ]
 
+{ #category : #parsing }
+DRJITCompileTimeExpressionGenerator >> parse: aString [
+
+	^ RBParser parseExpression: aString
+]
+
 { #category : #building }
 DRJITCompileTimeExpressionGenerator >> simpleMessage: aSymbol receiverInstruction: aDRInstruction [
 
@@ -101,9 +107,15 @@ DRJITCompileTimeExpressionGenerator >> visitInterpreterExpression: aDRInterprete
 ]
 
 { #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitInterpreterReference: aDRInterpreterReference [ 
+
+	^ self parse: aDRInterpreterReference name
+]
+
+{ #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [ 
 	
-	^ RBParser parseExpression: aDRJitCompileTimeExpression expression
+	^ self parse: aDRJitCompileTimeExpression expression
 ]
 
 { #category : #visiting }

@@ -69,12 +69,8 @@ DRCogitStackToRegisterMappingGenerator >> initialize [
 DRCogitStackToRegisterMappingGenerator >> innerGenerator [
 
 	| innerGenerator |
-	innerGenerator := self copy.
+	innerGenerator := super innerGenerator.
 	innerGenerator parent: self.
-	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
-	
-	self flag: #TODO. "If we have a reference to the parent then copying the state could be not needed"
-	innerGenerator deferredBranches: deferredBranches copy.
 	^ innerGenerator
 ]
 

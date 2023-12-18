@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #converting }
+DRStrongCopy >> asCopy [
+
+	^ DRCopy operands: self operands copy result: self result
+]
+
 { #category : #testing }
 DRStrongCopy >> isMandatoryInstruction [
 

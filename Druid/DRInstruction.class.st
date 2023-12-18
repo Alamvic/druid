@@ -112,8 +112,11 @@ DRInstruction >> breakBasicBlock [
 { #category : #'loop-invariance' }
 DRInstruction >> canMoveOutsideLoop: loop [
 
-	^ self operands allSatisfy: [ :operand |
-		operand isInvariantFrom: loop ]
+	^ (self operands allSatisfy: [ :operand | operand isInvariantFrom: loop ]) and: [ 
+		"Can not be inside a if (inside the loop). 
+		In that case also depends of conditional jump operands"
+		  (self controlFlowGraph allBlocksBetween: loop headerBlock and: self basicBlock)
+			  noneSatisfy: [ :middleBlock | middleBlock endInstruction isConditionalBranch ] ]
 ]
 
 { #category : #'users-definitions' }

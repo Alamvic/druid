@@ -19,6 +19,13 @@ DRAbstractMemoryAddress >> asMemoryAddress [
 	^ self
 ]
 
+{ #category : #initialization }
+DRAbstractMemoryAddress >> initialize [
+
+	super initialize.
+	type := DRUnsignedIntegerType new
+]
+
 { #category : #testing }
 DRAbstractMemoryAddress >> isAbsolute [
 	

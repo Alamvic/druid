@@ -61,5 +61,5 @@ DRCogitStackToRegisterGeneratorTest >> testGenerateWhile [
 	cfg := self setUpCFGWithLoop.
 	generator generateCodeForCFG: cfg.
 
-	self assert: self statements sixth selector equals: #whileTrue:
+	self assert: self statements eighth selector equals: #whileTrue:
 ]
