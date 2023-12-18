@@ -133,6 +133,40 @@ DRLinearScanRegisterAllocatorTest >> testAllocateIntegerRegistersAfterOperateRev
 
 ]
 
+{ #category : #'tests-ssa preparation' }
+DRLinearScanRegisterAllocatorTest >> testBreakPhiDuringSSAPreration [
+
+	| cfg basicBlockTrue basicBlockJoin r0 r1 r2 topBasicBlock |
+	cfg := DRControlFlowGraph new.
+
+	topBasicBlock := cfg newBasicBlockWith: [ :block |
+		r0 := block copy: 2 ].
+	basicBlockTrue := cfg newBasicBlockWith: [ :block |
+		r1 := block copy: 1 ].
+	basicBlockJoin := cfg newBasicBlock.
+	
+	cfg initialBasicBlock jumpTo: topBasicBlock.
+	topBasicBlock
+		jumpIf: true asDRValue
+		to: basicBlockTrue
+		ifFalseTo: basicBlockJoin.
+	
+	basicBlockTrue jumpTo: basicBlockJoin.
+	
+	r2 := basicBlockJoin phiWith: r0 with: r1.
+	basicBlockJoin copy: r0.
+	
+	registerAllocator
+		controlFlowGraph: cfg;
+		prepareSSA.
+	
+	self assert: (basicBlockJoin predecessors first instructions atLast: 2) isCopy.
+	self assert: (basicBlockJoin predecessors first instructions atLast: 2) operand1 equals: r0.
+	
+	self assert: (basicBlockJoin predecessors second instructions atLast: 2) isCopy.
+	self assert: (basicBlockJoin predecessors second instructions atLast: 2) operand1 equals: r1.
+]
+
 { #category : #tests }
 DRLinearScanRegisterAllocatorTest >> testCoallescePhiArguments [
 
