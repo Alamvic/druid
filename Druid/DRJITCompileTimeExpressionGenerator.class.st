@@ -155,3 +155,13 @@ DRJITCompileTimeExpressionGenerator >> visitRightShift: aDRRightShift [
 		  receiverInstruction: aDRRightShift operand1
 		  argumentInstruction: aDRRightShift operand2
 ]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitStore: aDRStore [
+
+	| variable value |
+	variable := RBVariableNode named: aDRStore address name.
+	value := aDRStore operand1 acceptVisitor: self.
+
+	^ RBAssignmentNode variable: variable value: value
+]

@@ -463,8 +463,9 @@ DRInstruction >> operand1 [
 ]
 
 { #category : #accessing }
-DRInstruction >> operand1: aDRAbsoluteMemoryAddress [ 
-	self shouldBeImplemented.
+DRInstruction >> operand1: aDRInstruction [
+
+	^ operands at: 1 put: aDRInstruction
 ]
 
 { #category : #accessing }
@@ -474,9 +475,21 @@ DRInstruction >> operand2 [
 ]
 
 { #category : #accessing }
+DRInstruction >> operand2: aDRInstruction [
+
+	^ operands at: 2 put: aDRInstruction
+]
+
+{ #category : #accessing }
 DRInstruction >> operand3 [
 
 	^ operands at: 3 ifAbsent: [nil]
+]
+
+{ #category : #accessing }
+DRInstruction >> operand3: aDRInstruction [
+
+	^ operands at: 3 put: aDRInstruction
 ]
 
 { #category : #operands }

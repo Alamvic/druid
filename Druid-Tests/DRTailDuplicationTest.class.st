@@ -13,6 +13,33 @@ DRTailDuplicationTest >> optimize: cfg [
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateBlockWithBaseOffsetStore [
+
+	| cfg address duplicatedBlocks store1 store2 |
+	cfg := self setUpCFGWithConditionalWithPhi.
+
+	"Address has reference to instruction"
+	address := DRBaseOffsetMemoryAddress new
+		           base: cfg phi;
+		           offset: 8 asDRValue;
+		           yourself.
+	cfg b4 store: 87 asDRValue in: address.
+
+	duplicatedBlocks := cfg b4 tailDuplicate.
+	cfg validate.
+
+	store1 := duplicatedBlocks first instructions second.
+	store2 := duplicatedBlocks second instructions second.
+
+	"Diff address instruction"
+	self assert: store1 address equals: address.
+	self deny: store1 address equals: store2 address.
+
+	"Diff base (phis)"
+	self deny: store1 address base equals: store2 address base
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateBlockWithMultipleSuccessorsAndOnlyInsideUsersShouldKeepInstructionsDependecies [
 
 	| cfg copy duplicatedBlocks lastBlock1 lastBlock2 |

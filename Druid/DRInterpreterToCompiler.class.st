@@ -124,13 +124,12 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 		"extended conditional jump"
 			237 238 239
 		"extended store (and pop) temporary"
-			"242 "245
-		
+			"242 " 243 245
+			
 		"call primitive" 248
 		"push closure" 249
-		"remote temp bytecodes"
-			"251 -> is breaking"
-			"252 253 left out because of write barrier"
+		"remote temp bytecodes"	251
+		"252 253 left out because of write barrier"
 	).
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)

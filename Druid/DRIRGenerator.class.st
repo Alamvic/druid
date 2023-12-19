@@ -1206,6 +1206,8 @@ DRIRGenerator >> interpretSpaceMaskToUseWith: aRBVariableNode [
 { #category : #'special cases - stack' }
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
+	"self addInstruction: (self stackValue: 0) from: aRBMessageNode"
+
 	self pushOperand: (self stackValue: 0)
 ]
 
