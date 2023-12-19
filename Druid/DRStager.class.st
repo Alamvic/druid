@@ -52,26 +52,18 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 		^ anInstruction operands allSatisfy: [ :e | self isStaged: e ] ].
 	anInstruction isJump ifTrue: [ ^ false ].
 	anInstruction isReturn ifTrue: [ ^ false ].
-	anInstruction isObjectReferenceCopy ifTrue: [ ^ true ].
 	anInstruction isJITCompileTimeExpression ifTrue: [ ^ true ].
 	anInstruction isCopy ifTrue: [
-		^ self canStage: anInstruction operand1 ].
-	anInstruction isArithmeticInstruction ifTrue: [
-		^ anInstruction operands allSatisfy: [ :e |
-			  self
-				  canStage: e
-				  modulo:
-				  (aSetOfPotentiallyStagedInstructions copyWith: anInstruction) ] ].
-	anInstruction isLoad ifTrue: [
-		anInstruction address isObjectReferenceValue ifTrue: [ ^ true ].
-		^ false ].
-	anInstruction isStore ifTrue: [
-		(anInstruction address isObjectReferenceValue and: [
-			 self
-				 canStage: anInstruction
-				 modulo: aSetOfPotentiallyStagedInstructions ]) ifTrue: [ ^ true ].
-
-		^ false ].
+		^ self canStageOneLevel: anInstruction operand1 ].
+	(anInstruction isArithmeticInstruction or: [ anInstruction isNegate ])
+		ifTrue: [
+			^ anInstruction operands allSatisfy: [ :e |
+				  self
+					  canStage: e
+					  modulo:
+					  (aSetOfPotentiallyStagedInstructions copyWith: anInstruction) ] ].
+	anInstruction isLoad ifTrue: [ ^ false ].
+	anInstruction isStore ifTrue: [ ^ false ].
 	anInstruction isStackInstruction ifTrue: [ ^ false ].
 	anInstruction isSetConditionCode ifTrue: [
 		^ anInstruction operands allSatisfy: [ :e |
@@ -94,10 +86,18 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 	anInstruction class = DRContinueNextBytecode ifTrue: [ ^ false ].
 	anInstruction isAnnotateBytecode ifTrue: [ ^ true ].
 	anInstruction isCall ifTrue: [ ^ false ].
-	anInstruction class = DRUnsignedCoercion ifTrue: [ ^ false ].
+	anInstruction class = DRUnsignedCoercion ifTrue: [
+		^ anInstruction operands allSatisfy: [ :e |
+			  self
+				  canStage: e
+				  modulo:
+				  (aSetOfPotentiallyStagedInstructions copyWith: anInstruction) ] ].
 	anInstruction class = DRDeoptimize ifTrue: [ ^ false ].
 	anInstruction isLoadStackPointer ifTrue: [ ^ false ].
 	anInstruction isLoadTemporaryVariable ifTrue: [ ^ false ].
+	anInstruction isLoadArgument ifTrue: [ ^ false ].
+	anInstruction isLoadFramePointer ifTrue: [ ^ false ].
+	anInstruction isNoop ifTrue: [ ^ false ].
 	1 halt
 	"(anInstruction isArithmeticInstruction or: [ anInstruction isCopy ])
 		ifFalse: [ ^ false ].
@@ -108,10 +108,7 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 { #category : #testing }
 DRStager >> canStageOneLevel: anOperand [
 
-	anOperand isStaged ifTrue: [ ^ true ].
-	anOperand isConstant ifTrue: [ ^ true ].
-	anOperand isObjectReferenceValue ifTrue: [ ^ true ].
-	anOperand isReallyJITCompileTimeExpression ifTrue: [ ^ true ].
+	anOperand isConstanteable ifTrue: [ ^ true ].
 	^ false
 ]
 
@@ -128,9 +125,7 @@ DRStager >> initialize [
 DRStager >> isStaged: anOperand [
 
 	(self canStageOneLevel: anOperand) ifTrue: [ ^ true ].
-	anOperand isMemoryAddress ifTrue: [
-		^ anOperand operands allSatisfy: [ :e | self canStageOneLevel: e ] ].
-	^ false
+	^ anOperand isStaged
 ]
 
 { #category : #testing }

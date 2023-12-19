@@ -13,7 +13,7 @@ DRCopy >> acceptVisitor: aVisitor [
 { #category : #converting }
 DRCopy >> asJitCompileTimeExpression [
 
-	^ self operand1 asJitCompileTimeExpression
+	^ result asJitCompileTimeExpression
 ]
 
 { #category : #printing }
@@ -25,7 +25,7 @@ DRCopy >> isCopy [
 { #category : #testing }
 DRCopy >> isJITCompileTimeExpression [
 
-	^ operands first isStaged
+	^ operands first isConstanteable
 ]
 
 { #category : #testing }
@@ -98,7 +98,7 @@ DRCopy >> type [
 DRCopy >> typeWithAlreadySeen: aCollection [ 
 	
 	(aCollection includes: self)
-		ifTrue: [ ^ nil ].
+		ifTrue: [ ^ DRUndefinedType new ].
 	
 	aCollection add: self.
 	^ operands first typeWithAlreadySeen: aCollection

@@ -127,6 +127,12 @@ DRAbstractInstruction >> isCall [
 ]
 
 { #category : #testing }
+DRAbstractInstruction >> isInterpreterReference [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRAbstractInstruction >> isLoadStackPointer [
 
 	^ false
@@ -135,6 +141,12 @@ DRAbstractInstruction >> isLoadStackPointer [
 { #category : #testing }
 DRAbstractInstruction >> isLoadStackValue [
 	
+	^ false
+]
+
+{ #category : #testing }
+DRAbstractInstruction >> isNegate [
+
 	^ false
 ]
 

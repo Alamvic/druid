@@ -175,22 +175,19 @@ DRSCCPConstantFoldingWithStagingTest >> testFoldingObjectReferenceIntoJITExpress
 	| cfg copy addition |
 	cfg := self setUpCFG: 1.
 
-	cfg b1 addInstruction: (copy := DRObjectReferenceCopy
+	cfg b1 addInstruction: (copy := DRCopy
 			         operands:
-			         { (DRObjectReferenceValue expression: 'methodObj') }
+			         { (DRInterpreterReference reference: 'methodObj') }
 			         result: (DRTemporaryRegister id: 999)).
 	addition := cfg b1 add: copy to: 1.
 	cfg b1 return: addition.
 
 	optimisation applyTo: cfg.
 
-	"Object references should keep to be annotated for GC"
+	"Object references should keep to be annotated for GC and not folded"
 	self assert: cfg instructions first equals: copy.
-	"Anyway, users are folded"
-	self assert: cfg instructions second isCopy.
-	self assert: cfg instructions second operand1 expression equals: '(methodObj + 1)'.
-
-
+	self assert: cfg instructions second isAdd.
+	self assert: cfg instructions second operand1 equals: copy
 ]
 
 { #category : #tests }

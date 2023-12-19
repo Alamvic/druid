@@ -16,7 +16,7 @@ DRPrimitiveIRGenerator >> executeFullCogBlockClosureMayContextSwitchWith: aRBMes
 	closureCode := self visitOperand: aRBMessageNode arguments first.
 	mayContextSwitch := self visitOperand: aRBMessageNode arguments third.
 
-	offsetSelector := DRInterpreterExpression reference:
+	offsetSelector := DRInterpreterReference reference:
 		                  (mayContextSwitch simpleConstantFold
 			                   ifTrue: [ 'self fullBlockEntryOffset' ]
 			                   ifFalse: [

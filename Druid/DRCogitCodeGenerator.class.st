@@ -15,15 +15,12 @@ Class {
 
 { #category : #helpers }
 DRCogitCodeGenerator >> allocateVariable: aDRResult [
-
-	| allocatedVariable |
-	allocatedVariable := aDRResult id asString.
 	"Virtual register Rn should be translated as tn.
 	Physical registers stay the same"
-	aDRResult isVirtualRegister ifTrue: [ 
-		allocatedVariable := 't', allocatedVariable
-	].
-	^ allocatedVariable
+
+	^ aDRResult isVirtualRegister
+		  ifTrue: [ 't' , aDRResult id asString ]
+		  ifFalse: [ aDRResult name ]
 ]
 
 { #category : #'jump-management' }
@@ -43,6 +40,9 @@ DRCogitCodeGenerator >> blocks: aPath [
 
 { #category : #'ir-generation' }
 DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
+
+	"Do not generate code for phi functions"
+	anInstruction isPhiFunction ifTrue: [ ^ self ].
 
 	(anInstruction isStaged and: [
 		 anInstruction isBytecodeJump not and: [
@@ -263,31 +263,6 @@ DRCogitCodeGenerator >> generateCodeFromBlocks [
 		self visitBasicBlock: current ]
 ]
 
-{ #category : #visiting }
-DRCogitCodeGenerator >> generateCompare: aComparison operands: operands [
-
-	| comparands comparisonToGenerate |
-	"Generate comparison instruction. In cogit, if you want to do A < B, you have to generate:
-	CMP B A
-	JumpLessThan xxx
-	Thus, operands are inverted always"
-	comparands := operands reversed.
-	comparisonToGenerate := aComparison.
-
-	"Cogit RTL only supports constants as the first argument.
-	Invert the comparison and the condition if necessary, mostly for greaterThan comparisons)."
-	
-	comparands second isConstant ifTrue: [ 
-		comparisonToGenerate := aComparison reversed.
-		comparands := comparands reversed ].
-
-	self
-		twoOperandCogitRTL: #Cmp
-		operands: comparands
-		instruction: aComparison.
-	^ comparisonToGenerate
-]
-
 { #category : #'generate-code' }
 DRCogitCodeGenerator >> generateCompileTimeIfCondition: aDRBranchIfCondition [
 
@@ -306,7 +281,7 @@ DRCogitCodeGenerator >> generateConditional: aDRBranchIfCondition [
 	innerGenerator := self innerCompilePathFrom: aDRBranchIfCondition trueBranch.
 
 	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: (RBVariableNode named: jitCondition expression)
+			 receiver: (RBParser parseExpression: jitCondition reference)
 			 selector: #ifTrue:
 			 arguments: { (RBBlockNode body: innerGenerator generatorMethodBuilder sequenceNode) })
 ]
@@ -359,7 +334,7 @@ DRCogitCodeGenerator >> generateLoop: aDRLoop [
 	jitCondition := '('
 	                ,
 	                aDRLoop loopConditional
-		                conditionAsJitCompileTimeExpression expression , ')'.
+		                conditionAsJitCompileTimeExpression reference , ')'.
 	isTrue := aDRLoop exitBlock = aDRLoop loopConditional falseBranch.
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -680,7 +655,15 @@ DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruc
 { #category : #visiting }
 DRCogitCodeGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
 
-	self twoOperandCogitRTL: #Move operands: operands instruction: anInstruction
+	self allocateVariable: anInstruction result.
+	(operands first isInterpreterReference and: [
+		 anInstruction type isObjectReference ]) ifTrue: [
+		"It's moving a constant to a register. This constant could be an oop, so we need to annotate it."
+		^ self generateMessage: #genMoveConstant:R: operands: operands ].
+	self
+		twoOperandCogitRTL: #Move
+		operands: operands
+		instruction: anInstruction
 ]
 
 { #category : #'ir-generation' }
@@ -758,7 +741,6 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 	| replacement |
 	aDRConditionalJump isJITCompileTimeExpression ifTrue: [
 		^ self generateCompileTimeIfCondition: aDRConditionalJump ].
-
 
 	replacement := aDRConditionalJump condition
 		               acceptVisitor: self

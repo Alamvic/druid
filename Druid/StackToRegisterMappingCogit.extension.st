@@ -33,6 +33,7 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 	optimisations add: DRCogitOperandSorter new.
 	optimisations add: DRCogitSendMarshallInsertion new.
 	optimisations add: DRCogitStackToRegisterFlushHoisting new.
+	"optimisations add: DRStager new."
 	^ optimisations
 ]
 

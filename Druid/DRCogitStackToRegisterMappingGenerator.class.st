@@ -122,17 +122,6 @@ DRCogitStackToRegisterMappingGenerator >> saveRegisterLiveMask: temporaryVariabl
 						   arguments: { temporaryVariableNode copy }) }))
 ]
 
-{ #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
-
-	self allocateVariable: anInstruction result.
-	operands first isObjectReferenceValue ifTrue: [
-		"It's moving a constant to a register. This constant could be an oop, so we need to annotate it."
-		^ self generateMessage: #genMoveConstant:R: operands: operands ].
-
-	^ super twoOperandMoveCogitRTL: anInstruction operands: operands
-]
-
 { #category : #accessing }
 DRCogitStackToRegisterMappingGenerator >> variables [
 

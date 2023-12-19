@@ -111,9 +111,9 @@ DRDeadCodeEliminationTest >> testNotRemoveUnusedMandatoryInstruction [
 	| cfg copy addition |
 	cfg := self setUpCFG: 2.
 
-	cfg b2 addInstruction: (copy := DRObjectReferenceCopy
+	cfg b2 addInstruction: (copy := DRCopy
 			         operands:
-			         { (DRObjectReferenceValue expression: 'methodObj') }
+			         { (DRInterpreterReference reference: 'methodObj') }
 			         result: (DRTemporaryRegister id: 1)).
 	addition := cfg b2 add: copy to: 1.
 

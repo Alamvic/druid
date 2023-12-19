@@ -35,7 +35,7 @@ DRAbstractCompilerCompiler >> compile [
 	| druidIR |
 	self customise.
 	
-	self haltIf: [ sourceName = #extBBytecode ].
+	self haltIf: [ sourceName = #extPushLiteralBytecode ].
 	
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.

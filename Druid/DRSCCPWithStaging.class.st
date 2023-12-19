@@ -16,7 +16,7 @@ DRSCCPWithStaging >> latticeForLoad: aLoad [
 			  operands: {
 					  aLoad size asDRValue.
 					  aLoad address asJitCompileTimeExpression.
-					  (DRInterpreterExpression reference: newVar) }
+					  (DRInterpreterReference reference: newVar) }
 			  result: DRNoRegister new ].
 
 	addressLattice := aLoad address sccpLatticeValueFor: self.

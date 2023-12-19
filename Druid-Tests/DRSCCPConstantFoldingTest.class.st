@@ -536,9 +536,9 @@ DRSCCPConstantFoldingTest >> testFoldingObjectReferenceIntoJITExpression [
 	| cfg copy addition |
 	cfg := self setUpCFG: 1.
 
-	cfg b1 addInstruction: (copy := DRObjectReferenceCopy
+	cfg b1 addInstruction: (copy := DRCopy
 			         operands:
-			         { (DRObjectReferenceValue expression: 'methodObj') }
+			         { (DRInterpreterReference reference: 'methodObj') }
 			         result: (DRTemporaryRegister id: 999)).
 	addition := cfg b1 add: copy to: 1.
 	cfg b1 return: addition.
@@ -559,5 +559,5 @@ DRSCCPConstantFoldingTest >> testFoldingObjectReferenceIntoJITExpression [
 { #category : #operation }
 DRSCCPConstantFoldingTest >> varJITExpression [
 
-	^ DRCompositeCompileTimeExpression expression: 'var'
+	^ DRInterpreterReference reference: 'var'
 ]

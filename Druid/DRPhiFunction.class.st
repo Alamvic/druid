@@ -272,7 +272,7 @@ DRPhiFunction >> type [
 DRPhiFunction >> typeWithAlreadySeen: aCollection [
 
 	(aCollection includes: self)
-		ifTrue: [ ^ nil ].
+		ifTrue: [ ^ DRUndefinedType new ].
 	
 	aCollection add: self.
 	self operands do: [ :e | | operandType |

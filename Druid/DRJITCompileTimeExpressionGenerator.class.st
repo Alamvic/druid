@@ -18,11 +18,12 @@ DRJITCompileTimeExpressionGenerator >> binaryMessage: aSymbol receiverInstructio
 ]
 
 { #category : #accessing }
-DRJITCompileTimeExpressionGenerator >> operandNodeFor: aDRInstruction [
+DRJITCompileTimeExpressionGenerator >> operandNodeFor: aValue [
 
-	aDRInstruction isConstanteable ifFalse: [
-		^ RBVariableNode named: 't' , aDRInstruction result id asString ].
-	^ aDRInstruction acceptVisitor: self
+	aValue isInstruction ifFalse: [ ^ aValue acceptVisitor: self ].
+	aValue isConstanteable ifFalse: [
+		^ RBVariableNode named: 't' , aValue result id asString ].
+	^ aValue acceptVisitor: self
 ]
 
 { #category : #building }
@@ -156,7 +157,7 @@ DRJITCompileTimeExpressionGenerator >> visitNegate: aDRNegated [
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitObjectReferenceValue: aDRConstantValue [ 
 	
-	^ RBVariableNode named: aDRConstantValue value expression
+	^ RBVariableNode named: aDRConstantValue value reference
 ]
 
 { #category : #visiting }
@@ -198,4 +199,11 @@ DRJITCompileTimeExpressionGenerator >> visitTestMask: aDRTestMask inBranch: aDRG
 		  binaryMessage: #anyMask:
 		  receiverInstruction: aDRGetConditionCode operand1
 		  argumentInstruction: aDRGetConditionCode operand2
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitUnsignedCoercion: aDRUnsignedCoercion [
+	"For now just return our expression?"
+
+	^ aDRUnsignedCoercion operand1 acceptVisitor: self
 ]

@@ -8,15 +8,75 @@ Class {
 }
 
 { #category : #factory }
+DRInterpreterReference class >> falseObject [
+
+	^ self objectReference: 'objectMemory falseObject'
+]
+
+{ #category : #factory }
 DRInterpreterReference class >> freeStartAddress [
 
-	^ self reference: 'objectMemory freeStartAddress'
+	^ self pointerReference: 'objectMemory freeStartAddress'
+]
+
+{ #category : #accessing }
+DRInterpreterReference class >> getNewSpaceMask [
+
+	^ self pointerReference: 'objectMemory getMemoryMap getNewSpaceMask'
+]
+
+{ #category : #accessing }
+DRInterpreterReference class >> getNewSpaceStart [
+
+	^ self pointerReference: 'objectMemory getMemoryMap getNewSpaceStart'
+]
+
+{ #category : #accessing }
+DRInterpreterReference class >> getOldSpaceMask [
+
+	^ self pointerReference: 'objectMemory getMemoryMap getOldSpaceMask'
+]
+
+{ #category : #accessing }
+DRInterpreterReference class >> getPermSpaceMask [
+
+	^ self pointerReference: 'objectMemory getMemoryMap getPermSpaceMask'
+]
+
+{ #category : #accessing }
+DRInterpreterReference class >> getSpaceMaskToUse [
+
+	^ self pointerReference: 'objectMemory getMemoryMap getSpaceMaskToUse'
+]
+
+{ #category : #factory }
+DRInterpreterReference class >> hiddenRootsObject [
+
+	^ self pointerReference: 'objectMemory hiddenRootsObject'
+]
+
+{ #category : #factory }
+DRInterpreterReference class >> nilObject [
+
+	^ self objectReference: 'objectMemory nilObject'
+]
+
+{ #category : #accessing }
+DRInterpreterReference class >> objectReference: aReference [
+
+	^ (self reference: aReference) type: DRObjectReferenceType new
+]
+
+{ #category : #accessing }
+DRInterpreterReference class >> pointerReference: aReference [
+
+	^ (self reference: aReference) type: DRPointerType new
 ]
 
 { #category : #factory }
 DRInterpreterReference class >> primitiveFailureCodeAddress [
 
-	^ self reference: 'coInterpreter primitiveFailureCodeAddress'
+	^ self pointerReference: 'coInterpreter primitiveFailureCodeAddress'
 ]
 
 { #category : #accessing }
@@ -25,6 +85,12 @@ DRInterpreterReference class >> reference: aReference [
 	^ self new
 		reference: aReference;
 		yourself
+]
+
+{ #category : #factory }
+DRInterpreterReference class >> trueObject [
+
+	^ self objectReference: 'objectMemory trueObject'
 ]
 
 { #category : #visiting }
@@ -37,6 +103,19 @@ DRInterpreterReference >> acceptVisitor: aVisitor [
 DRInterpreterReference >> asMemoryAddress [
 	
 	^ self
+]
+
+{ #category : #testing }
+DRInterpreterReference >> isConstanteable [ 
+
+	"Values known by the interpreter are always staged, and SHOULD be staged"
+	^ self type isObjectReference not
+]
+
+{ #category : #testing }
+DRInterpreterReference >> isInterpreterReference [
+
+	^ true
 ]
 
 { #category : #testing }
@@ -56,6 +135,12 @@ DRInterpreterReference >> name [
 DRInterpreterReference >> operands [
 	
 	^ #()
+]
+
+{ #category : #accessing }
+DRInterpreterReference >> reference [
+
+	^ reference
 ]
 
 { #category : #accessing }

@@ -200,6 +200,18 @@ DRValue >> isInstruction [
 ]
 
 { #category : #testing }
+DRValue >> isInterpreterExpression [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isInterpreterReference [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isInvariantFrom: loop [
 
 	"A value is loop invariant with respect to a given loop if it can be moved outside the body of the loop without affecting the semantics of the program."
@@ -292,15 +304,9 @@ DRValue >> isNullValue [
 ]
 
 { #category : #testing }
-DRValue >> isObjectReferenceCopy [
-
-	^ false
-]
-
-{ #category : #testing }
 DRValue >> isObjectReferenceValue [
 
-	^ false
+	^ self type isObjectReference
 ]
 
 { #category : #testing }
@@ -318,12 +324,6 @@ DRValue >> isPhysicalRegister [
 { #category : #testing }
 DRValue >> isPush [
 
-	^ false
-]
-
-{ #category : #testing }
-DRValue >> isReallyJITCompileTimeExpression [
-	
 	^ false
 ]
 

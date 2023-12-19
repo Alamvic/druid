@@ -209,8 +209,10 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 
 			allocatedLocation isMemoryAddress ifTrue: [ | load |
 				load := (DRLoad
-						 operands: { 
-								 op type.
+						 operands: {
+								 "It does not really matter the type we load.
+								 We spilled 8 bytes, we reload 8 bytes"
+								 DRUnsignedIntegerType size: 8.
 								 allocatedLocation }
 						 result: allocatedRegister).
 				i addBefore: load.

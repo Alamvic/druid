@@ -108,7 +108,9 @@ DRTemporaryRegister >> result [
 { #category : #'cogit-generation' }
 DRTemporaryRegister >> rtlOperandQualifier [
 	
-	^ 'R:'
+	"If we are using a temporary register,
+	it's a compile time register that's known at compile time as a constant"
+	^ 'Cq:'
 ]
 
 { #category : #type }

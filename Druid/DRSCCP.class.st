@@ -192,14 +192,16 @@ DRSCCP >> latticeForLoad: aDRLoad [
 
 { #category : #lattice }
 DRSCCP >> latticeValue: aValue [
-
 	"Return the lattice value for the register"
-	(aValue isRegister and: [ aValue isVirtualRegister not ])
-		ifTrue: [ ^ self bottom ].
-	aValue isStore ifTrue: [ ^ self bottom ].
+
+	(aValue isRegister and: [ aValue isVirtualRegister not ]) ifTrue: [
+		^ self bottom ].
+
 	aValue isConstant ifTrue: [ ^ aValue ].
-	aValue isJITCompileTimeExpression ifTrue: [ ^ self bottom ].
 	aValue isMessageSend ifTrue: [ ^ self bottom ].
+	aValue isStore ifTrue: [ ^ self bottom ].
+	aValue isLoad ifTrue: [ ^ self bottom ].
+	aValue isInterpreterReference ifTrue: [ ^ self bottom ].
 
 	^ latticeValues at: aValue ifAbsent: [ self top ]
 ]

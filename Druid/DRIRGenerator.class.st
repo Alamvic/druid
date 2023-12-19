@@ -762,7 +762,7 @@ DRIRGenerator >> interpretCppIfWith: aRBMessageNode [
 
 	| jitExpressionCopy |
 	jitExpressionCopy := self visitOperand: aRBMessageNode arguments first.
-	jitExpressionCopy simpleConstantFold expression = 'true' ifTrue: [
+	jitExpressionCopy simpleConstantFold reference = 'true' ifTrue: [
 		(RBMessageNode receiver: aRBMessageNode arguments second selector: #value)
 			acceptVisitor: self ]
 ]
@@ -798,7 +798,7 @@ DRIRGenerator >> interpretEqualityComparisonWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: DRFalseObject new
+	^ self addCopy: aRBVariableNode with: DRInterpreterReference falseObject
 ]
 
 { #category : #'special cases' }
@@ -855,7 +855,9 @@ DRIRGenerator >> interpretGreaterThanComparisonWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretHiddenRootsObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: DRHiddenRootsObject new
+	^ self
+		  addCopy: aRBVariableNode
+		  with: DRInterpreterReference hiddenRootsObject
 ]
 
 { #category : #'special cases' }
@@ -1082,7 +1084,7 @@ DRIRGenerator >> interpretNewSpaceMaskWith: aRBVariableNode [
 
 	^ self
 		  addCopy: aRBVariableNode
-		  with: DRConstantCompileTimeExpression getNewSpaceMask
+		  with: DRInterpreterReference getNewSpaceMask
 ]
 
 { #category : #interpreting }
@@ -1090,13 +1092,15 @@ DRIRGenerator >> interpretNewSpaceStartWith: aRBVariableNode [
 
 	^ self
 		  addCopy: aRBVariableNode
-		  with: DRConstantCompileTimeExpression getNewSpaceStart
+		  with: DRInterpreterReference getNewSpaceStart
 ]
 
 { #category : #'special cases' }
 DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: (DRObjectReferenceValue expression: 'objectMemory nilObject')
+	^ self
+		  addCopy: aRBVariableNode
+		  with: DRInterpreterReference nilObject
 ]
 
 { #category : #visiting }
@@ -1109,7 +1113,7 @@ DRIRGenerator >> interpretOldSpaceMaskWith: aRBVariableNode [
 
 	^ self
 		  addCopy: aRBVariableNode
-		  with: DRConstantCompileTimeExpression getOldSpaceMask
+		  with: DRInterpreterReference getOldSpaceMask
 ]
 
 { #category : #'special cases' }
@@ -1123,7 +1127,7 @@ DRIRGenerator >> interpretPermSpaceMaskWith: aRBVariableNode [
 
 	^ self
 		  addCopy: aRBVariableNode
-		  with: DRConstantCompileTimeExpression getPermSpaceMask
+		  with: DRInterpreterReference getPermSpaceMask
 ]
 
 { #category : #'special cases' }
@@ -1182,7 +1186,7 @@ DRIRGenerator >> interpretScavengeThresholdWith: aRBVariableNode [
 	^ self
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
-		  operands: { (DRConstantCompileTimeExpression new expression:
+		  operands: { (DRInterpreterReference new reference:
 				   'objectMemory getScavengeThreshold') }
 ]
 
@@ -1200,7 +1204,7 @@ DRIRGenerator >> interpretSpaceMaskToUseWith: aRBVariableNode [
 
 	^ self
 		  addCopy: aRBVariableNode
-		  with: DRConstantCompileTimeExpression getSpaceMaskToUse
+		  with: DRInterpreterReference getSpaceMaskToUse
 ]
 
 { #category : #'special cases - stack' }
@@ -1390,7 +1394,7 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: DRTrueObject new
+	^ self addCopy: aRBVariableNode with: DRInterpreterReference trueObject
 ]
 
 { #category : #'special cases' }
@@ -1940,7 +1944,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 			self assert: aRBMethodNode statements size = 1.
 			self assert: aRBMethodNode statements first isReturn.
 			copy := self currentBasicBlock copy:
-				        (DRCompositeCompileTimeExpression expression:
+				        (DRInterpreterReference reference:
 					         aRBMethodNode statements first value formattedCode).
 			self topFrame returnValue: copy.
 			self addDeferredReturnState: {
