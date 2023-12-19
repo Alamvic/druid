@@ -256,16 +256,14 @@ DRControlFlowGraph >> createinstructionView: instruction [
 		  model: instruction;
 		  color: (self instructionColor: instruction);
 		  border: (RSBorder new
-				   color: Color black;
+				   color: (instruction isStaged
+						    ifTrue: [ Color red ]
+						    ifFalse: [ Color black ]);
 				   joinMiter);
-		  @ (RSMenuActivable new menuDo: [ :menu :element | 
+		  @ (RSMenuActivable new menuDo: [ :menu :element |
 				   menu
-					   add: 'Inline'
-					   target: element model
-					   selector: #inline;
-						add: 'Unroll'
-					   target: element model
-					   selector: #uiUnroll ]);
+					   add: 'Inline' target: element model selector: #inline;
+					   add: 'Unroll' target: element model selector: #uiUnroll ]);
 		  yourself
 ]
 
