@@ -157,6 +157,13 @@ DRValue >> isConstant [
 ]
 
 { #category : #testing }
+DRValue >> isConstanteable [
+
+	"Can be considered a constant in JIT compile time?"
+	^ self isConstant
+]
+
+{ #category : #testing }
 DRValue >> isConstraintConstant [
 
 	^ self isConstant 

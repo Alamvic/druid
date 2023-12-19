@@ -115,6 +115,24 @@ DRAbstractInstruction >> isArithmeticInstruction [
 ]
 
 { #category : #testing }
+DRAbstractInstruction >> isBytecodeJump [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRAbstractInstruction >> isCall [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRAbstractInstruction >> isLoadStackPointer [
+
+	^ false
+]
+
+{ #category : #testing }
 DRAbstractInstruction >> isLoadStackValue [
 	
 	^ false

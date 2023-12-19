@@ -24,6 +24,12 @@ DRTemporaryRegister >> = aRegister [
 	^ self id = aRegister id
 ]
 
+{ #category : #converting }
+DRTemporaryRegister >> asJitCompileTimeExpression [
+	
+	^ ('t', id asString) asDRValue asJitCompileTimeExpression
+]
+
 { #category : #testing }
 DRTemporaryRegister >> hasId: anId [
 

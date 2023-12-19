@@ -47,7 +47,7 @@ DRLoad >> canMoveOutsideLoop: backJump [
 { #category : #testing }
 DRLoad >> isJITCompileTimeExpression [
 
-	^ self address isJITCompileTimeExpression
+	^ self address isStaged
 ]
 
 { #category : #visiting }

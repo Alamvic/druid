@@ -27,10 +27,23 @@ DRInterpreterReference class >> reference: aReference [
 		yourself
 ]
 
+{ #category : #visiting }
+DRInterpreterReference >> acceptVisitor: aVisitor [
+	
+	^ aVisitor visitInterpreterReference: self
+]
+
 { #category : #memory }
 DRInterpreterReference >> asMemoryAddress [
 	
 	^ self
+]
+
+{ #category : #testing }
+DRInterpreterReference >> isStaged [
+
+	"Values known by the interpreter are always staged, and SHOULD be staged"
+	^ true
 ]
 
 { #category : #accessing }

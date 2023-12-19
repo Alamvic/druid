@@ -197,6 +197,18 @@ DRBasicBlock >> breakBy: instruction [
 		  self }
 ]
 
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> breakCriticalEdgeToPredecessor: predecessor [
+
+	| splitBlock |
+	splitBlock := controlFlowGraph newBasicBlock.
+	splitBlock addPredecessor: predecessor.
+	predecessor replaceSuccessor: self by: splitBlock.
+	self replacePredecessor: predecessor by: splitBlock.
+	splitBlock jumpTo: self.
+	^ splitBlock
+]
+
 { #category : #asserting }
 DRBasicBlock >> canBeLinearizedBefore: aDRBasicBlock [
 

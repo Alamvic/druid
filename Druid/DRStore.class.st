@@ -34,7 +34,7 @@ DRStore >> canMoveOutsideLoop: backJump [
 { #category : #testing }
 DRStore >> isJITCompileTimeExpression [
 
-	^ self address isJITCompileTimeExpression
+	^ self address isStaged
 ]
 
 { #category : #visiting }
@@ -47,12 +47,6 @@ DRStore >> isMandatoryInstruction [
 DRStore >> isStore [ 
 
 	^ true
-]
-
-{ #category : #staging }
-DRStore >> markAsStaged [
-
-	super markAsStaged
 ]
 
 { #category : #visiting }

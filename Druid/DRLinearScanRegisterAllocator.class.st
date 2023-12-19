@@ -111,7 +111,6 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [ 
 
 	self controlFlowGraph: aDRControlFlowGraph.
-	1halt.
 	self prepareSSA.
 	self buildLiveSets.
 	self allocateRegisters.
@@ -397,7 +396,6 @@ DRLinearScanRegisterAllocator >> newStackLocation [
 
 { #category : #steps }
 DRLinearScanRegisterAllocator >> prepareSSA [
-	
 	"Prepare the SSA CFG by adding copies above Phi functions.
 	Phi function arguments are short lived between 
 	 - the end of their predecessors and
@@ -405,27 +403,26 @@ DRLinearScanRegisterAllocator >> prepareSSA [
 	
 	This copy allows simpler coallescing of the life ranges of the  phi function and its operands.
 	"
-	controlFlowGraph phiFunctions do: [ :e |
-		e operands with: e basicBlock predecessors do: [ :operand :predecessor |
-			| copyTarget copy |
-			
-			"If it is a critical edge, split it and insert the copy in the split block instead"
-			copyTarget := predecessor successors size > 1
-				ifTrue: [ | splitBlock |
-					splitBlock := controlFlowGraph newBasicBlock.
-					splitBlock addPredecessor: predecessor.
-					predecessor replaceSuccessor: e basicBlock by: splitBlock.
-					e basicBlock replacePredecessor: predecessor by: splitBlock.
-					splitBlock jumpTo: e basicBlock.
-					splitBlock ]
-				ifFalse: [ predecessor ].
-	
-			copy := copyTarget copy: operand.
-			e replaceOperandAtPredecessor: copyTarget by: copy
-		]
-	].
 
-	controlFlowGraph fixBackJumps.
+	controlFlowGraph phiFunctions do: [ :e |
+		e operands
+			with: e basicBlock predecessors
+			do: [ :operand :predecessor |
+				| copyTarget copy |
+				"If it is a critical edge, split it and insert the copy in the split block instead"
+				copyTarget := predecessor successors size > 1
+					              ifTrue: [
+					              e basicBlock breakCriticalEdgeToPredecessor:
+						              predecessor ]
+					              ifFalse: [ predecessor ].
+
+				copy := copyTarget copy: operand.
+				"All copies should share the same name as the phi"
+				copy result: e result.
+				e isStaged ifTrue: [ copy markAsStaged ].
+				e replaceOperandAtPredecessor: copyTarget by: copy ] ].
+
+	controlFlowGraph fixBackJumps
 ]
 
 { #category : #accessing }

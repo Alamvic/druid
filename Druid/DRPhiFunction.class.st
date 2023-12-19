@@ -44,6 +44,15 @@ DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [
 	operands addLast: anInstruction
 ]
 
+{ #category : #converting }
+DRPhiFunction >> asJitCompileTimeExpression [
+	
+	"If staged, a phi function has the same value as its result.
+	All transformations should have been done by the staging and the register allocator"
+	
+	^ result name asDRValue asJitCompileTimeExpression  
+]
+
 { #category : #'loop-invariance' }
 DRPhiFunction >> canMoveOutsideLoop: backJump [
 
@@ -99,7 +108,7 @@ DRPhiFunction >> isInvariantFrom: loop [
 { #category : #testing }
 DRPhiFunction >> isJITCompileTimeExpression [
 	
-	^ self operands allSatisfy: [ :op | op isJITCompileTimeExpressionIgnoring: { self } ]
+	^ self operands allSatisfy: [ :op | op isStaged ]
 ]
 
 { #category : #testing }

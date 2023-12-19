@@ -73,7 +73,12 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 
 		^ false ].
 	anInstruction isStackInstruction ifTrue: [ ^ false ].
-	anInstruction isSetConditionCode ifTrue: [ ^ true ].
+	anInstruction isSetConditionCode ifTrue: [
+		^ anInstruction operands allSatisfy: [ :e |
+			  self
+				  canStage: e
+				  modulo:
+				  (aSetOfPotentiallyStagedInstructions copyWith: anInstruction) ] ].
 	anInstruction isPhiFunction ifTrue: [
 		^ anInstruction operands allSatisfy: [ :e |
 			  self
@@ -87,6 +92,12 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 	"Bytecode jumps SHOULD be staged, their parameters cannot be registers"
 	anInstruction class = DRBytecodeJump ifTrue: [ ^ true ].
 	anInstruction class = DRContinueNextBytecode ifTrue: [ ^ false ].
+	anInstruction isAnnotateBytecode ifTrue: [ ^ true ].
+	anInstruction isCall ifTrue: [ ^ false ].
+	anInstruction class = DRUnsignedCoercion ifTrue: [ ^ false ].
+	anInstruction class = DRDeoptimize ifTrue: [ ^ false ].
+	anInstruction isLoadStackPointer ifTrue: [ ^ false ].
+	anInstruction isLoadTemporaryVariable ifTrue: [ ^ false ].
 	1 halt
 	"(anInstruction isArithmeticInstruction or: [ anInstruction isCopy ])
 		ifFalse: [ ^ false ].
@@ -136,11 +147,9 @@ DRStager >> isStaged: anOperand modulo: aSetOfPotentiallyStagedInstructions [
 { #category : #staging }
 DRStager >> stageInstruction: anInstruction [
 
-	self haltIf: [ anInstruction result name = 'R29' ].
-	self haltIf: [ anInstruction result name = 'R42' ].
-	self haltIf: [ anInstruction result name = 'R157' ].
 	(self canStage: anInstruction) ifTrue: [
 		anInstruction markAsStaged.
+		
 		"Maybe the users want to change their decisions"
 		anInstruction users
 			select: [ :e |

@@ -7,7 +7,7 @@ Class {
 { #category : #visiting }
 DRObjectReferenceValue >> acceptVisitor: aVisitor [
 
-	^ aVisitor visitConstant: self
+	^ aVisitor visitObjectReferenceValue: self
 ]
 
 { #category : #testing }

@@ -25,7 +25,7 @@ DRCopy >> isCopy [
 { #category : #testing }
 DRCopy >> isJITCompileTimeExpression [
 
-	^ operands first isJITCompileTimeExpression
+	^ operands first isStaged
 ]
 
 { #category : #testing }

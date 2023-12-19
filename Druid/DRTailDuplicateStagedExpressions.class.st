@@ -8,6 +8,5 @@ Class {
 DRTailDuplicateStagedExpressions >> doApplyWithGeneratedPaths: cfg [
 
 	cfg phiFunctions do: [ :phi |
-		(phi operands allSatisfy: [ :op | op isJITCompileTimeExpression ])
-			ifTrue: [ phi basicBlock tailDuplicate ] ]
+		phi isStaged ifTrue: [ phi basicBlock tailDuplicate ] ]
 ]

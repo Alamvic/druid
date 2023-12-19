@@ -10,6 +10,12 @@ DRStoreTemporaryVariable >> acceptVisitor: aVisitor [
 	^ aVisitor visitStoreTempVar: self
 ]
 
+{ #category : #accessing }
+DRStoreTemporaryVariable >> address [
+	
+	^ self operand1
+]
+
 { #category : #testing }
 DRStoreTemporaryVariable >> isMandatoryInstruction [ 
 

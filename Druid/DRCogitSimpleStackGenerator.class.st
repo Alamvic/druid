@@ -24,14 +24,11 @@ DRCogitSimpleStackGenerator >> initialize [
 ]
 
 { #category : #copy }
-DRCogitSimpleStackGenerator >> innerGenerator [
+DRCogitSimpleStackGenerator >> postCopy [
 
-	| innerGenerator |
-	innerGenerator := self copy.
-	innerGenerator variables: variables copy.
-	innerGenerator deferredBranches: deferredBranches copy.
-	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
-	^ innerGenerator
+	variables := variables copy.
+	deferredBranches := deferredBranches copy.
+	^ self
 ]
 
 { #category : #'ir-to-ast' }
@@ -65,7 +62,7 @@ DRCogitSimpleStackGenerator >> visitBytecodeJump: aDRBytecodeJump [
 
 	| targetBytecode |
 	"If we don't have a virtual register, we cannot stage the jump offset calculation!"
-	targetBytecode := aDRBytecodeJump operand1 result name.
+	targetBytecode := self varNodeForStagedInstruction: aDRBytecodeJump operand1.
 	self assert: aDRBytecodeJump operand1 result isVirtualRegister.
 	
 	generatorMethodBuilder addStatement: (RBMessageNode

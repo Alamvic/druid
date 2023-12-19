@@ -15,8 +15,15 @@ Class {
 
 { #category : #helpers }
 DRCogitCodeGenerator >> allocateVariable: aDRResult [
-	
-	^ aDRResult name
+
+	| allocatedVariable |
+	allocatedVariable := aDRResult id asString.
+	"Virtual register Rn should be translated as tn.
+	Physical registers stay the same"
+	aDRResult isVirtualRegister ifTrue: [ 
+		allocatedVariable := 't', allocatedVariable
+	].
+	^ allocatedVariable
 ]
 
 { #category : #'jump-management' }
@@ -37,20 +44,22 @@ DRCogitCodeGenerator >> blocks: aPath [
 { #category : #'ir-generation' }
 DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 
-	anInstruction isStaged ifTrue: [
-		| varName |
+	(anInstruction isStaged and: [
+		 anInstruction isBytecodeJump not and: [
+			 anInstruction isAnnotateBytecode not ] ]) ifTrue: [
+		| varNode |
 		anInstruction isStore ifTrue: [
-			^ self jitCompileTimeExpression: anInstruction ].
+			generatorMethodBuilder addStatement: (self jitCompileTimeExpression: anInstruction).
+			^ self ].
 
 		"Conditional branch"
 		anInstruction isConditionalBranch ifTrue: [
-			^ self generateCompileTimeIfCondition: anInstruction
-		].
+			^ self generateCompileTimeIfCondition: anInstruction ].
 
-		varName := 't' , anInstruction result id asString.
-		generatorMethodBuilder addVariableNamed: varName.
+		varNode := self varNodeForStagedInstruction: anInstruction.
+		generatorMethodBuilder addVariableNamed: varNode name.
 		generatorMethodBuilder addStatement: (RBAssignmentNode
-				 variable: (RBVariableNode named: varName)
+				 variable: varNode
 				 value: (self jitCompileTimeExpression: anInstruction)).
 		^ self ].
 	^ anInstruction acceptVisitor: self
@@ -347,13 +356,16 @@ DRCogitCodeGenerator >> generateLoop: aDRLoop [
 	blocks removeAll: loopPath.
 	innerGenerator := self innerCompileBlocks: loopPath.
 
-	jitCondition := aDRLoop loopConditional
-		                conditionAsJitCompileTimeExpression.
+	jitCondition := '('
+	                ,
+	                aDRLoop loopConditional
+		                conditionAsJitCompileTimeExpression expression , ')'.
 	isTrue := aDRLoop exitBlock = aDRLoop loopConditional falseBranch.
 
 	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: (RBBlockNode body: (RBSequenceNode statements:
-						   { (RBVariableNode named: jitCondition expression) }))
+			 receiver: (RBBlockNode body:
+					  (RBSequenceNode statements:
+						   { (RBVariableNode named: jitCondition) }))
 			 selector: (isTrue
 					  ifTrue: [ #whileTrue: ]
 					  ifFalse: [ #whileFalse: ])
@@ -498,6 +510,15 @@ DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
 	^ innerGenerator
 ]
 
+{ #category : #copy }
+DRCogitCodeGenerator >> innerGenerator [
+
+	| innerGenerator |
+	innerGenerator := self copy.
+	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
+	^ innerGenerator
+]
+
 { #category : #testing }
 DRCogitCodeGenerator >> isLastBasicBlock [
 	
@@ -600,16 +621,19 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 	"Interpret nil as zero"
 	constantValue isNil ifTrue: [ constantValue := 0 ].
 
-	constantValue isInteger ifTrue: [ 
+	constantValue isInteger ifTrue: [
 		^ constantValue <= 5000
-			ifTrue: [ RBLiteralValueNode value: constantValue ]
-			ifFalse: [ RBLiteralValueNode new
-			  value: constantValue
-			  start: 0
-			  stop: -1
-			  source: constantValue hex ] ].
+			  ifTrue: [ RBLiteralValueNode value: constantValue ]
+			  ifFalse: [
+				  RBLiteralValueNode new
+					  value: constantValue
+					  start: 0
+					  stop: -1
+					  source: constantValue hex ] ].
 
-	^ RBVariableNode named: (self registerFor: aValue)
+	^ aValue isStaged
+		  ifTrue: [ self varNodeForStagedInstruction: aValue ]
+		  ifFalse: [ RBVariableNode named: (self registerFor: aValue) ]
 ]
 
 { #category : #visiting }
@@ -657,6 +681,19 @@ DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruc
 DRCogitCodeGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
 
 	self twoOperandCogitRTL: #Move operands: operands instruction: anInstruction
+]
+
+{ #category : #'ir-generation' }
+DRCogitCodeGenerator >> varNameForStagedInstruction: aStagedRegister [
+
+	^ 't' , aStagedRegister result id asString
+]
+
+{ #category : #'ir-generation' }
+DRCogitCodeGenerator >> varNodeForStagedInstruction: aStagedRegister [
+
+	^ RBVariableNode named:
+		  (self varNameForStagedInstruction: aStagedRegister)
 ]
 
 { #category : #verification }
@@ -927,7 +964,7 @@ DRCogitCodeGenerator >> visitIntToFloatConversion: aDRIntToFloat [
 DRCogitCodeGenerator >> visitJump: aDRJump [
 
 	aDRJump asBackJumpLoop ifNotNil: [ :loop |
-		loop loopConditional isJITCompileTimeExpression ifTrue: [
+		loop loopConditional isStaged ifTrue: [
 			^ self "JIT compile loop" ] ].
 
 	self generateJump: #Jump: target: aDRJump target

@@ -5,16 +5,24 @@ Class {
 }
 
 { #category : #building }
-DRJITCompileTimeExpressionGenerator >> binaryMessage: aSymbol receiverInstruction: aDRAdd argumentInstruction: aDRConstantValue [
+DRJITCompileTimeExpressionGenerator >> binaryMessage: aSymbol receiverInstruction: operand1 argumentInstruction: operand2 [
 
 	| receiver argument |
-	receiver := aDRAdd acceptVisitor: self.
-	argument := aDRConstantValue acceptVisitor: self.
+	receiver := self operandNodeFor: operand1.
+	argument := self operandNodeFor: operand2.
 
 	^ RBMessageNode
 		  receiver: receiver
 		  selector: aSymbol
 		  arguments: { argument }
+]
+
+{ #category : #accessing }
+DRJITCompileTimeExpressionGenerator >> operandNodeFor: aDRInstruction [
+
+	aDRInstruction isConstanteable ifFalse: [
+		^ RBVariableNode named: 't' , aDRInstruction result id asString ].
+	^ aDRInstruction acceptVisitor: self
 ]
 
 { #category : #building }
@@ -65,7 +73,7 @@ DRJITCompileTimeExpressionGenerator >> visitConstant: aDRConstantValue [
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitCopy: aDRCopy [ 
 	
-	^ aDRCopy operand1 acceptVisitor: self	
+	^ self operandNodeFor: aDRCopy operand1
 ]
 
 { #category : #visiting }
@@ -102,6 +110,12 @@ DRJITCompileTimeExpressionGenerator >> visitInterpreterExpression: aDRInterprete
 ]
 
 { #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitInterpreterReference: aDRInterpreterReference [
+
+	^ RBVariableNode named: aDRInterpreterReference name
+]
+
+{ #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [ 
 	
 	^ RBParser parseExpression: aDRJitCompileTimeExpression expression
@@ -125,9 +139,24 @@ DRJITCompileTimeExpressionGenerator >> visitLoad: aDRLoad [
 ]
 
 { #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitMultiply: aDRMultiply [
+
+	^ self
+		  binaryMessage: #*
+		  receiverInstruction: aDRMultiply operand1
+		  argumentInstruction: aDRMultiply operand2
+]
+
+{ #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitNegate: aDRNegated [ 
 
 	^ self simpleMessage: #negated receiverInstruction: aDRNegated operand1
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitObjectReferenceValue: aDRConstantValue [ 
+	
+	^ RBVariableNode named: aDRConstantValue value expression
 ]
 
 { #category : #visiting }

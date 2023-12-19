@@ -145,6 +145,13 @@ DRJitCompileTimeExpression >> expression: anObject [
 ]
 
 { #category : #testing }
+DRJitCompileTimeExpression >> isConstanteable [
+
+	"Can be considered a constant in JIT compile time?"
+	^ true
+]
+
+{ #category : #testing }
 DRJitCompileTimeExpression >> isConstraintConstant [
 
 	^ false "Branch constraints doesn't support JIT expressions"

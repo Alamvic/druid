@@ -198,6 +198,7 @@ DRSCCP >> latticeValue: aValue [
 		ifTrue: [ ^ self bottom ].
 	aValue isStore ifTrue: [ ^ self bottom ].
 	aValue isConstant ifTrue: [ ^ aValue ].
+	aValue isJITCompileTimeExpression ifTrue: [ ^ self bottom ].
 	aValue isMessageSend ifTrue: [ ^ self bottom ].
 
 	^ latticeValues at: aValue ifAbsent: [ self top ]
