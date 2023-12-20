@@ -71,6 +71,7 @@ DRBaseOffsetMemoryAddress >> rtlArgumentExpressions: generator [
 	offsetNode := RBParser parseExpression: offset expression.
 	baseNode := RBVariableNode named: (generator allocateVariable: base result).
 
+	"In cogit offset comes before base"
 	^ {
 		  offsetNode.
 		  baseNode }

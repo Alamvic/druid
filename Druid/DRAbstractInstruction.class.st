@@ -174,15 +174,16 @@ DRAbstractInstruction >> replaceBy: anotherInstruction [
 DRAbstractInstruction >> rtlArgumentsForAbsoluteAddressForGenerator: generator [
 	"We are translating ourselves to a Base+offset, where offset=0"
 
+	"In cogit offset comes before base"
 	^ {
-		  (RBVariableNode named: (generator allocateVariable: self result)).
-		  (RBLiteralValueNode value: 0) }
+		  (RBLiteralValueNode value: 0).
+		  (RBVariableNode named: (generator allocateVariable: self result)) }
 ]
 
 { #category : #translating }
 DRAbstractInstruction >> rtlOperandQualifierForAbsoluteAddress [
 	
-	^ #'Mw:r:'
+	^ #'M64:r:'
 ]
 
 { #category : #inspecting }
