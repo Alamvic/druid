@@ -477,7 +477,7 @@ DRInstruction >> prettyPrint [
 	print := self isStaged
 		         ifTrue: [ '[STAGED] ' ]
 		         ifFalse: [ '' ].
-	result ifNotNil: [ print := print , result name , ' := ' ].
+	result ifNotNil: [ print := print , result prettyPrint , ' := ' ].
 
 	^ print , self opcode , ' ' , (' ' join:
 		   (self operands collect: [ :e | e ifNotNil: [ e printResult ] ]))
@@ -658,7 +658,9 @@ DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 { #category : #'cogit-generation' }
 DRInstruction >> rtlOperandQualifier [
 
-	^ result rtlOperandQualifier
+	^ self isStaged
+		  ifFalse: [ 'R:' ]
+		  ifTrue: [ 'Cq:' ]
 ]
 
 { #category : #cogit }

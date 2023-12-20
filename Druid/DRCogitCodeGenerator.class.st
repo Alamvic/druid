@@ -19,7 +19,7 @@ DRCogitCodeGenerator >> allocateVariable: aDRResult [
 	Physical registers stay the same"
 
 	^ aDRResult isVirtualRegister
-		  ifTrue: [ 't' , aDRResult id asString ]
+		  ifTrue: [ 't' , aDRResult name asString ]
 		  ifFalse: [ aDRResult name ]
 ]
 
@@ -606,7 +606,7 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 					  stop: -1
 					  source: constantValue hex ] ].
 
-	^ aValue isStaged
+	^ (aValue isInstruction and: [aValue isStaged])
 		  ifTrue: [ self varNodeForStagedInstruction: aValue ]
 		  ifFalse: [ RBVariableNode named: (self registerFor: aValue) ]
 ]
@@ -620,9 +620,8 @@ DRCogitCodeGenerator >> selectBranchOperand: aDRPhiFunction [
 { #category : #'as yet unclassified' }
 DRCogitCodeGenerator >> selectorCogitRTL: aMnemonic operands: operands instruction: anInstruction [
 
-	^ aMnemonic ,
-	  ('' join:
-		   (operands collect: [ :op | op result rtlOperandQualifierForInstruction: anInstruction ]))
+	^ aMnemonic , ('' join: (operands collect: [ :op |
+			    op rtlOperandQualifierForInstruction: anInstruction ]))
 ]
 
 { #category : #visiting }
@@ -669,7 +668,7 @@ DRCogitCodeGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands
 { #category : #'ir-generation' }
 DRCogitCodeGenerator >> varNameForStagedInstruction: aStagedRegister [
 
-	^ 't' , aStagedRegister result id asString
+	^ 't' , aStagedRegister result name asString
 ]
 
 { #category : #'ir-generation' }
@@ -794,7 +793,7 @@ DRCogitCodeGenerator >> visitCopy: aDRMove [
 	"Do not generate moves of null values"
 	aDRMove operand1 isNullValue ifTrue: [ ^ self ].
 		
-	moveOperands := { aDRMove operand1. aDRMove result }.
+	moveOperands := { aDRMove operand1. aDRMove }.
 	
 	"Do not generate redundant moves (e.g., r0 := r0)"
 	(moveOperands collect: [ :e | e result ] as: Set) size = 1
@@ -973,16 +972,15 @@ DRCogitCodeGenerator >> visitLessThan: aDRGreaterThanComparison inBranch: aDRBra
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLoad: aDRLoad [
 
-	self twoOperandMoveCogitRTL: aDRLoad
-		operands: { 
-				aDRLoad address.
-				aDRLoad result }.
+	self twoOperandMoveCogitRTL: aDRLoad operands: {
+			aDRLoad address.
+			aDRLoad }.
 
 	aDRLoad size < 8 ifFalse: [ ^ self ].
 
 	"If it is smaller than the word size, clean not used digits using a mask"
 	self visitBitAnd: (DRBitAnd
-			 operands: { 
+			 operands: {
 					 aDRLoad result.
 					 aDRLoad size maskOfBytes asDRValue }
 			 result: aDRLoad result)
@@ -1037,7 +1035,7 @@ DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [
 
 	self twoOperandMoveCogitRTL: aDRCogitNegate operands: {
 			aDRCogitNegate operand1.
-			aDRCogitNegate result }.
+			aDRCogitNegate }.
 
 	self flag: #todo. "oneOperandCogitRTL:"
 	generatorMethodBuilder addStatement: (RBMessageNode

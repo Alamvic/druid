@@ -251,7 +251,7 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
   self allocateVariable: aDRLoadReceiver result.
 	self twoOperandMoveCogitRTL: aDRLoadReceiver operands: { 
 				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg').
-				aDRLoadReceiver result }
+				aDRLoadReceiver }
 ]
 
 { #category : #visiting }

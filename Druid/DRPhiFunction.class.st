@@ -108,7 +108,7 @@ DRPhiFunction >> isInvariantFrom: loop [
 { #category : #testing }
 DRPhiFunction >> isJITCompileTimeExpression [
 	
-	^ self operands allSatisfy: [ :op | op isStaged ]
+	^ self operands allSatisfy: [ :op | op isJITCompileTimeExpressionIgnoring: { self } ]
 ]
 
 { #category : #testing }

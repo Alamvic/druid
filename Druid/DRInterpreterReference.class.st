@@ -1,8 +1,9 @@
 Class {
 	#name : #DRInterpreterReference,
-	#superclass : #DRAbstractMemoryAddress,
+	#superclass : #DRValue,
 	#instVars : [
-		'reference'
+		'reference',
+		'type'
 	],
 	#category : #'Druid-IR'
 }
@@ -99,10 +100,11 @@ DRInterpreterReference >> acceptVisitor: aVisitor [
 	^ aVisitor visitInterpreterReference: self
 ]
 
-{ #category : #memory }
-DRInterpreterReference >> asMemoryAddress [
-	
-	^ self
+{ #category : #testing }
+DRInterpreterReference >> initialize [
+
+	super initialize.
+	type := DRPointerType new
 ]
 
 { #category : #testing }
@@ -116,6 +118,12 @@ DRInterpreterReference >> isConstanteable [
 DRInterpreterReference >> isInterpreterReference [
 
 	^ true
+]
+
+{ #category : #testing }
+DRInterpreterReference >> isJITCompileTimeExpression: aString [ 
+	
+	^ reference = aString
 ]
 
 { #category : #testing }
@@ -154,14 +162,26 @@ DRInterpreterReference >> rtlArgumentExpressions: generator [
 	^ {RBVariableNode named: self name}
 ]
 
-{ #category : #cogit }
-DRInterpreterReference >> rtlOperandQualifierForInstruction: instruction [
-
-	^ 'Aw:'
+{ #category : #'cogit-generation' }
+DRInterpreterReference >> rtlOperandQualifier [
+	
+	^ 'Cq:'
 ]
 
 { #category : #SCCP }
 DRInterpreterReference >> sccpLatticeValueFor: aDRSCCP [ 
 
 	^ aDRSCCP bottom 
+]
+
+{ #category : #accessing }
+DRInterpreterReference >> type [
+
+	^ type
+]
+
+{ #category : #accessing }
+DRInterpreterReference >> type: anObject [
+
+	type := anObject
 ]

@@ -63,7 +63,7 @@ DRCogitSimpleStackGenerator >> visitBytecodeJump: aDRBytecodeJump [
 	| targetBytecode |
 	"If we don't have a virtual register, we cannot stage the jump offset calculation!"
 	targetBytecode := self varNodeForStagedInstruction: aDRBytecodeJump operand1.
-	self assert: aDRBytecodeJump operand1 result isVirtualRegister.
+	self assert: aDRBytecodeJump operand1 result isStagedRegister.
 	
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
@@ -184,7 +184,7 @@ DRCogitSimpleStackGenerator >> visitLoadFramePointer: aDRLoadFramePointer [
 
 	self twoOperandMoveCogitRTL: aDRLoadFramePointer operands: {
 			(DRPhysicalGeneralPurposeRegister name: 'FPReg').
-			aDRLoadFramePointer result }
+			aDRLoadFramePointer }
 ]
 
 { #category : #visiting }
@@ -197,7 +197,7 @@ DRCogitSimpleStackGenerator >> visitLoadReceiver: aDRLoadReceiver [
 	self allocateVariable: aDRLoadReceiver result.
 	self twoOperandMoveCogitRTL: aDRLoadReceiver operands: {
 			(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg').
-			aDRLoadReceiver result }
+			aDRLoadReceiver }
 ]
 
 { #category : #visiting }
@@ -205,7 +205,7 @@ DRCogitSimpleStackGenerator >> visitLoadStackPointer: aDRLoadStackPointer [
 
 	self twoOperandMoveCogitRTL: aDRLoadStackPointer operands: {
 			(DRPhysicalGeneralPurposeRegister name: 'SPReg').
-			aDRLoadStackPointer result }
+			aDRLoadStackPointer }
 ]
 
 { #category : #visiting }

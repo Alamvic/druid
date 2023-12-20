@@ -22,7 +22,7 @@ DRJITCompileTimeExpressionGenerator >> operandNodeFor: aValue [
 
 	aValue isInstruction ifFalse: [ ^ aValue acceptVisitor: self ].
 	aValue isConstanteable ifFalse: [
-		^ RBVariableNode named: 't' , aValue result id asString ].
+		^ RBVariableNode named: 't' , aValue result name asString ].
 	^ aValue acceptVisitor: self
 ]
 

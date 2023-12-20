@@ -8,7 +8,8 @@ Class {
 DRCogitLinearScanRegisterAllocator >> buildLiveSets [
 
 	| shouldRecompute |
-	[ super buildLiveSets.
+	[
+	super buildLiveSets.
 	shouldRecompute := self coalesceIntervalsForTwoAddressCode ]
 		doWhileTrue: [ shouldRecompute ]
 ]
@@ -47,6 +48,8 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 
 				(i result isNoResult not and: [ i operands size = 2 ]) ifTrue: [
 					| secondOperandInterval currentInterval operandToMergeInterval |
+					
+					"Floats are not 2AC in cogit..."
 					(i type isFloatType not and: [
 						 (i operands collect: #type) allSatisfy: [ :e | e isFloatType ] ])
 						ifTrue: [ ^ false ].

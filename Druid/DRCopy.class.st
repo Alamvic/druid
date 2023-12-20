@@ -13,7 +13,7 @@ DRCopy >> acceptVisitor: aVisitor [
 { #category : #converting }
 DRCopy >> asJitCompileTimeExpression [
 
-	^ result asJitCompileTimeExpression
+	^ result name
 ]
 
 { #category : #printing }
@@ -40,6 +40,7 @@ DRCopy >> isJITCompileTimeExpressionIgnoring: aCollection [
 DRCopy >> isMandatoryInstruction [ 
 
 	self result isPhysicalRegister ifTrue: [ ^ true ].
+	self result isStagedRegister ifTrue: [ ^ true ].
 	^ false
 ]
 
@@ -72,7 +73,7 @@ DRCopy >> prettyPrint [
 
 	^ (self isStaged
 		   ifTrue: [ '[STAGED]' ]
-		   ifFalse: [ '' ]) , result name , ' := '
+		   ifFalse: [ '' ]) , result name asString , ' := '
 	  , operands first name asString
 ]
 

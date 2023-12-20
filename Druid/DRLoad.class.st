@@ -66,7 +66,6 @@ DRLoad >> opcode [
 DRLoad >> operands: operandList [
 
 	type := operandList first.
-	self haltIf: [ (type isKindOf: DRIntegerType) not ].
 	super operands: { operandList second asMemoryAddress }
 ]
 

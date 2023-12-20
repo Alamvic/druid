@@ -21,7 +21,7 @@ DRInstructionFactory >> allocateTemporaryRegister [
 	| allocatedRegisterId |
 	allocatedRegisterId := nextAvailableRegister.
 	nextAvailableRegister := nextAvailableRegister + 1.
-	^ DRTemporaryRegister id: allocatedRegisterId
+	^ DRSSARegister name: allocatedRegisterId
 ]
 
 { #category : #factory }
@@ -305,9 +305,9 @@ DRInstructionFactory >> storeSInt64: operand at: address [
 ]
 
 { #category : #factory }
-DRInstructionFactory >> strongCopy: aValue [
+DRInstructionFactory >> strongCopyForInlining: aValue [
 
-	^ DRStrongCopy
+	^ DRStrongCopyForInlining
 		  operands: { aValue asDRValue }
 		  result: self allocateTemporaryRegister
 ]

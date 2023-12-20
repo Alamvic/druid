@@ -166,13 +166,18 @@ DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 DRLinearScanRegisterAllocator >> assignRegisters [
 
 	self instructionsDo: [ :i |
-		i isStaged ifFalse: [ "Assign first registers to operands.
+		"If staged, assign a staged register, only if it did not already have one"
+		i isStaged
+			ifTrue: [
+				i result isStagedRegister ifFalse: [
+					i result: (DRStagedRegister name: 's' , i order asString) ] ]
+			ifFalse: [ "Assign first registers to operands.
 		This will use spill registers if needed and return them to the pool.
 		Then, the result can use them if it is spilled too."
-			self assignRegistersToOperandsInInstruction: i.
+				self assignRegistersToOperandsInInstruction: i.
 
-			"Replace the result by the allocated register if necessary"
-			self assignRegisterToResultInInstruction: i ] ]
+				"Replace the result by the allocated register if necessary"
+				self assignRegisterToResultInInstruction: i ] ]
 ]
 
 { #category : #steps }
@@ -312,11 +317,12 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> computeLivenessOfInstruction: i inBlock: b withLiveSet: live [
 
-	i result isVirtualRegister ifTrue: [ 
+	i result isVirtualRegister ifTrue: [
 		live remove: i ifAbsent: [ self initializeLiveSetOfInstruction: i ] ].
-	^ i dependencies do: [ :op | 
-		  (op result isVirtualRegister and: [ (live includes: op) not ]) 
-			  ifTrue: [ 
+	^ i dependencies do: [ :op |
+		  (op result isVirtualRegister and: [
+			   op isStaged not and: [ (live includes: op) not ] ])
+			  ifTrue: [
 				  self
 					  updateLiveSet: live
 					  ofOperand: op
@@ -381,11 +387,16 @@ DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [
 ]
 
 { #category : #accessing }
-DRLinearScanRegisterAllocator >> liveSetOf: anInstruction [
+DRLinearScanRegisterAllocator >> liveSetOf: aDependency [
+	"If it is not an instruction that requires allocation, do not record the live set"
+
+	(aDependency isConstant or: [ aDependency isStaged ]) ifTrue: [
+		^ DRLiveSet definition: aDependency ].
 
 	"Main entry point to get the live set of an instruction"
-
-	^ liveSets at: anInstruction ifAbsentPut: [ DRLiveSet definition: anInstruction ]
+	^ liveSets
+		  at: aDependency
+		  ifAbsentPut: [ DRLiveSet definition: aDependency ]
 ]
 
 { #category : #allocation }

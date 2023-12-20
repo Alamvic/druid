@@ -1394,7 +1394,9 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: DRInterpreterReference trueObject
+	^ self
+		  addCopy: aRBVariableNode
+		  with: DRInterpreterReference trueObject
 ]
 
 { #category : #'special cases' }

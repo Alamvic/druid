@@ -666,6 +666,156 @@ DRCogitRegisterAllocatorTest >> testSecondArgumentUsedButNotFirst [
 ]
 
 { #category : #tests }
+DRCogitRegisterAllocatorTest >> testStagedInstructionAllocatesStagedRegister [
+
+	| cfg basicBlock firstRegister secondRegister |
+	"From
+	
+	R0 := 1.
+	[STAGED] R1 := 2.
+	R2 := R0 + R1.
+	R3 := R2.
+	
+	To
+	
+	R0 := 1.
+	RS0* := 2.
+	R0 := RS0* + R0.
+	R0 := R0.
+	
+	Only one physical register is required for this
+	"
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		              | r0 r1 r2 r3 |
+		              "R0 := 1"
+		              r0 := block copy: 1.
+		              "R1 := 2"
+		              r1 := block copy: 2.
+		              r1 markAsStaged.
+		              "R2 := R0 + R1"
+		              r2 := block add: r1 to: r0.
+		              "R3 := R0"
+		              r3 := block copy: r0 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
+	DRCogitLinearScanRegisterAllocator new
+		integerRegisters: {
+				secondRegister.
+				firstRegister };
+		allocateRegistersIn: cfg.
+
+	self assert: basicBlock instructions second result isStagedRegister
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testStagedInstructionDoesNotTakePhysicalRegister [
+
+	| cfg basicBlock firstRegister secondRegister |
+
+	"From
+	
+	R0 := 1.
+	[STAGED] R1 := 2.
+	R2 := R0 + R1.
+	R3 := R2.
+	
+	To
+	
+	R0 := 1.
+	RS0* := 2.
+	R0 := RS0* + R0.
+	R0 := R0.
+	
+	Only one physical register is required for this
+	"
+
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 r3 |
+		"R0 := 1"
+		r0 := block copy: 1.
+		"R1 := 2"
+		r1 := block copy: 2.
+		r1 markAsStaged.
+		"R2 := R0 + R1"
+		r2 := block add: r1 to: r0.
+		"R3 := R2"
+		r3 := block copy: r2. ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
+	DRCogitLinearScanRegisterAllocator new
+		integerRegisters: { firstRegister. secondRegister };
+		allocateRegistersIn: cfg.
+	
+	self assert: basicBlock instructions first result equals: firstRegister.
+	self assert: basicBlock instructions third result equals: firstRegister.
+	self assert: basicBlock instructions fourth result equals: firstRegister.
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testStagedRegisterDoesNotGetOverwritten [
+
+	| cfg basicBlock stagedRegister |
+	"From
+	
+	extA := 0.
+	
+	To
+	
+	extA := 0.
+	"
+	cfg := DRControlFlowGraph new.
+	stagedRegister := DRStagedRegister name: 'extA'.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		              | r0 |
+		              "R0 := 1"
+		              r0 := block copy: 1.
+		              r0 result: stagedRegister ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitLinearScanRegisterAllocator new
+		integerRegisters: {  };
+		allocateRegistersIn: cfg.
+
+	self assert: basicBlock instructions first result equals: stagedRegister
+]
+
+{ #category : #tests }
+DRCogitRegisterAllocatorTest >> testStagedRegisterInStagedInstructionDoesNotGetOverwritten [
+
+	| cfg basicBlock stagedRegister |
+	"From
+	
+	[STAGED] extA := 0.
+	
+	To
+	
+	[STAGED] extA := 0.
+	"
+	cfg := DRControlFlowGraph new.
+	stagedRegister := DRStagedRegister name: 'extA'.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		              | r0 |
+		              "R0 := 1"
+		              r0 := block copy: 1.
+		              r0 result: stagedRegister.
+		              r0 markAsStaged ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitLinearScanRegisterAllocator new
+		integerRegisters: {  };
+		allocateRegistersIn: cfg.
+
+	self
+		assert: basicBlock instructions first result
+		equals: stagedRegister
+]
+
+{ #category : #tests }
 DRCogitRegisterAllocatorTest >> testTestSpecialRegisterDoesNotModifyInstruction [
 
 	| cfg basicBlock firstRegister specialRegister |

@@ -87,16 +87,11 @@ DRBytecodeIRGenerator >> interpretAsCompilerVariableAssignmentWith: aRBAssignmen
 
 	| operand |
 	operand := self visitOperand: aRBAssignmentNode value.
-	self
-		  addInstructionWithNoResultFrom: aRBAssignmentNode
-		  instructionKind: DRStore
-		  operands: {
-				  8 asDRValue.
-				  operand.
-				  (DRInterpreterReference reference: aRBAssignmentNode variable name) }.
-	
-	"The result of executing a store is actually the stored value, not the store itself"
-	self popOperand; pushOperand: operand
+	(self
+		 addInstructionWithNoResultFrom: aRBAssignmentNode
+		 instructionKind: DRCopy
+		 operands: { operand }) result:
+		(DRStagedRegister name: aRBAssignmentNode variable name)
 ]
 
 { #category : #'special-cases' }

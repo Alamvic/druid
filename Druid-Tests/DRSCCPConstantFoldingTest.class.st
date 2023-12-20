@@ -20,7 +20,7 @@ DRSCCPConstantFoldingTest >> assertLastInstructionOf: cfg isCopyValue: aValue [
 { #category : #helpers }
 DRSCCPConstantFoldingTest >> copyOfAnyRegister [
 
-	^ instructionFactory copy: (DRTemporaryRegister id: 87)
+	^ instructionFactory copy: (DRSSARegister name: 87)
 ]
 
 { #category : #helpers }
@@ -29,9 +29,9 @@ DRSCCPConstantFoldingTest >> nonReducibleOperation [
 	^ DRGetConditionCode
 		  operands: { 
 				  DRGreaterThanComparison new.
-				  (DRTemporaryRegister id: 98).
-				  (DRTemporaryRegister id: 99) }
-		  result: (DRTemporaryRegister id: 100)
+				  (DRSSARegister name: 98).
+				  (DRSSARegister name: 99) }
+		  result: (DRSSARegister name: 100)
 ]
 
 { #category : #arithmetic }
@@ -539,7 +539,7 @@ DRSCCPConstantFoldingTest >> testFoldingObjectReferenceIntoJITExpression [
 	cfg b1 addInstruction: (copy := DRCopy
 			         operands:
 			         { (DRInterpreterReference reference: 'methodObj') }
-			         result: (DRTemporaryRegister id: 999)).
+			         result: (DRSSARegister name: 999)).
 	addition := cfg b1 add: copy to: 1.
 	cfg b1 return: addition.
 

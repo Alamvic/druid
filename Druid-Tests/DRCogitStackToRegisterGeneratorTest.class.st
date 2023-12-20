@@ -16,6 +16,7 @@ DRCogitStackToRegisterGeneratorTest >> testGenerateIf [
 
 	| cfg |
 	cfg := self setUpCFGWithConditional.
+	DRStager new applyTo: cfg.
 	generator generateCodeForCFG: cfg.
 
 	self assert: self statements second selector equals: #ifTrue:
@@ -63,7 +64,8 @@ DRCogitStackToRegisterGeneratorTest >> testGenerateWhile [
 
 	| cfg |
 	cfg := self setUpCFGWithLoop.
+	DRStager new applyTo: cfg.
 	generator generateCodeForCFG: cfg.
 
-	self assert: self statements sixth selector equals: #whileTrue:
+	self assert: self statements fourth selector equals: #whileTrue:
 ]

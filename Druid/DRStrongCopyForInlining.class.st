@@ -1,23 +1,23 @@
 Class {
-	#name : #DRStrongCopy,
+	#name : #DRStrongCopyForInlining,
 	#superclass : #DRCopy,
 	#category : #'Druid-IR'
 }
 
 { #category : #testing }
-DRStrongCopy >> isMandatoryInstruction [
+DRStrongCopyForInlining >> isMandatoryInstruction [
 
 	^ self shouldKeepInCFG
 ]
 
 { #category : #testing }
-DRStrongCopy >> shouldKeepInCFG [
+DRStrongCopyForInlining >> shouldKeepInCFG [
 
 	^ self controlFlowGraph messageSends isNotEmpty
 ]
 
 { #category : #SCCP }
-DRStrongCopy >> supportConstantOperand [
+DRStrongCopyForInlining >> supportConstantOperand [
 
 	^ self shouldKeepInCFG not
 ]

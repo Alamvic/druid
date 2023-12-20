@@ -44,7 +44,7 @@ DRAbsoluteMemoryAddress >> isAbsolute [
 { #category : #testing }
 DRAbsoluteMemoryAddress >> name [
 	
-	^ '[', expression result name, ']'
+	^ '[', expression result name asString, ']'
 ]
 
 { #category : #accessing }

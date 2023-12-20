@@ -59,15 +59,11 @@ DRBranchIfCondition >> conditionAsJitCompileTimeExpression [
 	| fullExpression |
 	fullExpression := self isEqualsThanTrueComparison
 		                  ifTrue: [
-		                  self nonTrueOperand asJitCompileTimeExpression
-			                  reference ]
+		                  self nonTrueOperand asJitCompileTimeExpression ]
 		                  ifFalse: [
-			                  self operand1 result asDRValue
-				                  asJitCompileTimeExpression reference
+			                  self operand1 result name
 			                  , self condition asJitCompileTimeExpressionString
-			                  ,
-			                  self operand2 result asDRValue
-				                  asJitCompileTimeExpression reference ].
+			                  , self operand2 result name ].
 
 	^ fullExpression asDRValue asJitCompileTimeExpression
 ]

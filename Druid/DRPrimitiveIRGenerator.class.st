@@ -96,7 +96,7 @@ DRPrimitiveIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	| value |
 	aRBAssignmentNode value acceptVisitor: self.
 	"Keep instruction in CFG for inlinings"
-	value := currentBasicBlock strongCopy: self operandStackTop. 
+	value := currentBasicBlock strongCopyForInlining: self operandStackTop. 
 
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
 		^ self receiver value

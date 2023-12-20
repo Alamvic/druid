@@ -178,7 +178,7 @@ DRSCCPConstantFoldingWithStagingTest >> testFoldingObjectReferenceIntoJITExpress
 	cfg b1 addInstruction: (copy := DRCopy
 			         operands:
 			         { (DRInterpreterReference reference: 'methodObj') }
-			         result: (DRTemporaryRegister id: 999)).
+			         result: (DRSSARegister name: 999)).
 	addition := cfg b1 add: copy to: 1.
 	cfg b1 return: addition.
 

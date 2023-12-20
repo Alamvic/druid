@@ -108,6 +108,7 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 { #category : #testing }
 DRStager >> canStageOneLevel: anOperand [
 
+	anOperand isStaged ifTrue: [ ^ true ].
 	anOperand isConstanteable ifTrue: [ ^ true ].
 	^ false
 ]

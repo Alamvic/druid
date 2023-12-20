@@ -1161,9 +1161,9 @@ DRBasicBlock >> storeSInt64: operand at: address [
 ]
 
 { #category : #building }
-DRBasicBlock >> strongCopy: aValue [
+DRBasicBlock >> strongCopyForInlining: aValue [
 	
-	^ self addInstruction: (self instructionFactory strongCopy: aValue)
+	^ self addInstruction: (self instructionFactory strongCopyForInlining: aValue)
 ]
 
 { #category : #building }
