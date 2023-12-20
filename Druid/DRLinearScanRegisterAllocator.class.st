@@ -27,7 +27,8 @@ Class {
 		'inactiveIntervals',
 		'unhandledIntervals',
 		'spillingStrategy',
-		'registerPool'
+		'registerPool',
+		'stagedRegisters'
 	],
 	#category : #'Druid-LinearScanRegisterAllocation'
 }
@@ -165,12 +166,16 @@ DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 { #category : #steps }
 DRLinearScanRegisterAllocator >> assignRegisters [
 
-	self instructionsDo: [ :i |
-		"If staged, assign a staged register, only if it did not already have one"
+	self instructionsDo: [ :i | "If staged, assign a staged register, only if it did not already have one"
 		i isStaged
 			ifTrue: [
 				i result isStagedRegister ifFalse: [
-					i result: (DRStagedRegister name: 's' , i order asString) ] ]
+					| newStagedRegister |
+					newStagedRegister := stagedRegisters
+						                     at: i result
+						                     ifAbsentPut: [ DRStagedRegister name: 's' , i order asString ].
+					controlFlowGraph addStagedRegister: newStagedRegister.
+					i result: newStagedRegister ] ]
 			ifFalse: [ "Assign first registers to operands.
 		This will use spill registers if needed and return them to the pool.
 		Then, the result can use them if it is spilled too."
@@ -347,7 +352,8 @@ DRLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
 	self withFirstSpilling.
-	registerPool := DRFixedRegisterPool new
+	registerPool := DRFixedRegisterPool new.
+	stagedRegisters := Dictionary new
 ]
 
 { #category : #'live-analysis' }
@@ -416,7 +422,6 @@ DRLinearScanRegisterAllocator >> prepareSSA [
 	
 	This copy allows simpler coallescing of the life ranges of the  phi function and its operands.
 	"
-
 	controlFlowGraph phiFunctions do: [ :e |
 		e operands
 			with: e basicBlock predecessors

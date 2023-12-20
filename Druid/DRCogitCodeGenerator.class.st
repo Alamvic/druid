@@ -55,7 +55,6 @@ DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 			^ self generateCompileTimeIfCondition: anInstruction ].
 
 		varNode := self varNodeForStagedInstruction: anInstruction.
-		generatorMethodBuilder addVariableNamed: varNode name.
 		generatorMethodBuilder addStatement: (RBAssignmentNode
 				 variable: varNode
 				 value: (self jitCompileTimeExpression: anInstruction)).
@@ -232,6 +231,9 @@ DRCogitCodeGenerator >> generateBlockIncomingJumps: aDRBasicBlock [
 DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 
 	self generatePreambleForCFG: aDRControlFlowGraph.
+
+	aDRControlFlowGraph stagedRegisters do: [ :e |
+		generatorMethodBuilder addVariableNamed: e prettyPrint ].
 
 	"Sort the blocks"
 	blocks := aDRControlFlowGraph reversePostOrderBlocks.

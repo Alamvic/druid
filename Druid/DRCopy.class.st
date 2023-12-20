@@ -74,7 +74,7 @@ DRCopy >> prettyPrint [
 	^ (self isStaged
 		   ifTrue: [ '[STAGED]' ]
 		   ifFalse: [ '' ]) , result prettyPrint , ' := '
-	  , operands first name asString
+	  , operands first result prettyPrint
 ]
 
 { #category : #SCCP }

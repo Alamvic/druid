@@ -168,6 +168,12 @@ DRInterpreterReference >> rtlArgumentExpressions: generator [
 	^ {RBVariableNode named: self name}
 ]
 
+{ #category : #translating }
+DRInterpreterReference >> rtlArgumentsForAbsoluteAddressForGenerator: anObject [
+
+	^ { (RBParser parseExpression: reference) }
+]
+
 { #category : #'cogit-generation' }
 DRInterpreterReference >> rtlOperandQualifier [
 	

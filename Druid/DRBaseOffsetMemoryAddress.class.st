@@ -63,12 +63,17 @@ DRBaseOffsetMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 
 { #category : #cogit }
 DRBaseOffsetMemoryAddress >> rtlArgumentExpressions: generator [
-	
+
 	| offsetNode baseNode |
+	self assert: offset isConstant.
+	self assert: base isInstruction.
+
 	offsetNode := RBParser parseExpression: offset expression.
 	baseNode := RBVariableNode named: (generator allocateVariable: base result).
 
-	^ { offsetNode . baseNode }
+	^ {
+		  offsetNode.
+		  baseNode }
 ]
 
 { #category : #SCCP }

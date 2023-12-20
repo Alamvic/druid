@@ -451,10 +451,23 @@ DRValue >> result [
 	^ self
 ]
 
+{ #category : #translating }
+DRValue >> rtlArgumentsForAbsoluteAddressForGenerator: anObject [
+	self shouldBeImplemented.
+]
+
 { #category : #'cogit-generation' }
 DRValue >> rtlOperandQualifier [
 
 	self subclassResponsibility
+]
+
+{ #category : #translating }
+DRValue >> rtlOperandQualifierForAbsoluteAddress [
+	
+	"I'm a constant, so I'm an absolute memory address"
+	
+	^ 'Aw:'
 ]
 
 { #category : #'cogit-generation' }

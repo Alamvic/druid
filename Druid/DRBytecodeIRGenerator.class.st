@@ -411,7 +411,7 @@ DRBytecodeIRGenerator >> interpretStackLimitWith: aRBVariableNode [
 		        instructionKind: DRLoad
 		        operands: {
 				        (self typeOf: aRBVariableNode).
-				        reference }.
+				        reference asMemoryAddress }.
 	^ load
 ]
 

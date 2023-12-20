@@ -501,7 +501,7 @@ DRInstruction >> printOn: aStream [
 { #category : #printing }
 DRInstruction >> printResult [
 
-	result ifNotNil: [ ^ result name ].
+	result ifNotNil: [ ^ result prettyPrint ].
 	^ self opcode
 ]
 

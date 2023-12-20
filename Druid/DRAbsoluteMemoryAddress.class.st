@@ -65,11 +65,13 @@ DRAbsoluteMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 { #category : #cogit }
 DRAbsoluteMemoryAddress >> rtlArgumentExpressions: generator [
 
-	| offsetNode baseNode |
-	offsetNode := RBLiteralValueNode value: 0.
-	baseNode := RBVariableNode named: (generator allocateVariable: expression result).
+	^ expression rtlArgumentsForAbsoluteAddressForGenerator: generator
+]
 
-	^ { offsetNode . baseNode }
+{ #category : #'meta-data' }
+DRAbsoluteMemoryAddress >> rtlOperandQualifierForInstruction: instruction [
+
+	^ expression rtlOperandQualifierForAbsoluteAddress
 ]
 
 { #category : #SCCP }

@@ -170,6 +170,21 @@ DRAbstractInstruction >> replaceBy: anotherInstruction [
 		instruction removeUser: self ].
 ]
 
+{ #category : #translating }
+DRAbstractInstruction >> rtlArgumentsForAbsoluteAddressForGenerator: generator [
+	"We are translating ourselves to a Base+offset, where offset=0"
+
+	^ {
+		  (RBVariableNode named: (generator allocateVariable: self result)).
+		  (RBLiteralValueNode value: 0) }
+]
+
+{ #category : #translating }
+DRAbstractInstruction >> rtlOperandQualifierForAbsoluteAddress [
+	
+	^ #'Mw:r:'
+]
+
 { #category : #inspecting }
 DRAbstractInstruction >> uiUnroll [
 
