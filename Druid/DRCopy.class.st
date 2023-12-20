@@ -73,7 +73,7 @@ DRCopy >> prettyPrint [
 
 	^ (self isStaged
 		   ifTrue: [ '[STAGED]' ]
-		   ifFalse: [ '' ]) , result name asString , ' := '
+		   ifFalse: [ '' ]) , result prettyPrint , ' := '
 	  , operands first name asString
 ]
 

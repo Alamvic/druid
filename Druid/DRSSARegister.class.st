@@ -10,7 +10,7 @@ Class {
 { #category : #converting }
 DRSSARegister >> asJitCompileTimeExpression [
 	
-	^ ('t', name asString) asDRValue asJitCompileTimeExpression
+	^ self prettyPrint
 ]
 
 { #category : #testing }

@@ -390,7 +390,7 @@ DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [
 DRLinearScanRegisterAllocator >> liveSetOf: aDependency [
 	"If it is not an instruction that requires allocation, do not record the live set"
 
-	(aDependency isConstant or: [ aDependency isStaged ]) ifTrue: [
+	(aDependency isInstruction not or: [ aDependency isStaged ]) ifTrue: [
 		^ DRLiveSet definition: aDependency ].
 
 	"Main entry point to get the live set of an instruction"

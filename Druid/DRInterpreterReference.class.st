@@ -130,7 +130,7 @@ DRInterpreterReference >> isJITCompileTimeExpression: aString [
 DRInterpreterReference >> isStaged [
 
 	"Values known by the interpreter are always staged, and SHOULD be staged"
-	^ true
+	^ self type isObjectReference not
 ]
 
 { #category : #accessing }
@@ -143,6 +143,12 @@ DRInterpreterReference >> name [
 DRInterpreterReference >> operands [
 	
 	^ #()
+]
+
+{ #category : #printing }
+DRInterpreterReference >> prettyPrint [
+
+	^ reference
 ]
 
 { #category : #accessing }

@@ -18,9 +18,7 @@ DRCogitCodeGenerator >> allocateVariable: aDRResult [
 	"Virtual register Rn should be translated as tn.
 	Physical registers stay the same"
 
-	^ aDRResult isVirtualRegister
-		  ifTrue: [ 't' , aDRResult name asString ]
-		  ifFalse: [ aDRResult name ]
+	^ aDRResult name asString
 ]
 
 { #category : #'jump-management' }
@@ -564,7 +562,7 @@ DRCogitCodeGenerator >> preProcessBlock: aDRBasicBlock [
 { #category : #registers }
 DRCogitCodeGenerator >> registerFor: aValue [
 
-	^ aValue result name
+	^ aValue result prettyPrint
 ]
 
 { #category : #'ir-to-ast' }
@@ -668,7 +666,7 @@ DRCogitCodeGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands
 { #category : #'ir-generation' }
 DRCogitCodeGenerator >> varNameForStagedInstruction: aStagedRegister [
 
-	^ 't' , aStagedRegister result name asString
+	^ aStagedRegister result prettyPrint
 ]
 
 { #category : #'ir-generation' }

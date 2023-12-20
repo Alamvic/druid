@@ -22,7 +22,7 @@ DRJITCompileTimeExpressionGenerator >> operandNodeFor: aValue [
 
 	aValue isInstruction ifFalse: [ ^ aValue acceptVisitor: self ].
 	aValue isConstanteable ifFalse: [
-		^ RBVariableNode named: 't' , aValue result name asString ].
+		^ RBVariableNode named: aValue result name asString ].
 	^ aValue acceptVisitor: self
 ]
 
@@ -68,7 +68,13 @@ DRJITCompileTimeExpressionGenerator >> visitBranchIfCondition: aDRBranchIfCondit
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitConstant: aDRConstantValue [ 
 	
-	^ RBLiteralValueNode value: aDRConstantValue value
+	| value |
+	value := aDRConstantValue value.
+	value = false ifTrue: [ value := 0 ].
+	value = true ifTrue: [ value := 1 ].
+	value = nil ifTrue: [ value := 0 ].
+	
+	^ RBLiteralValueNode value: value
 ]
 
 { #category : #visiting }
@@ -163,7 +169,7 @@ DRJITCompileTimeExpressionGenerator >> visitObjectReferenceValue: aDRConstantVal
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitPhiFunction: aDRPhiFunction [ 
 
-	^ RBVariableNode named: 't', aDRPhiFunction result id asString
+	^ RBVariableNode named: aDRPhiFunction result id asString
 ]
 
 { #category : #visiting }

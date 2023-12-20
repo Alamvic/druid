@@ -31,7 +31,7 @@ DRCogitStackToRegisterMappingGenerator >> allocateVariable: aDRResult [
 	variableIndex := nextVariableIndex.
 	nextVariableIndex := nextVariableIndex + 1.
 
-	temporaryVariableNode := RBVariableNode named: 't' , variableIndex asString.
+	temporaryVariableNode := RBVariableNode named: variableIndex asString.
 	variables at: aDRResult put: temporaryVariableNode name.
 
 	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
