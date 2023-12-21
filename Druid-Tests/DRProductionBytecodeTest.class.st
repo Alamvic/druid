@@ -1690,6 +1690,304 @@ DRProductionBytecodeTest >> testExtBBytecode3 [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecode [
+
+	| object |
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+
+	cogit bytecodePC: 87.
+	cogit byte1: 0.
+	cogit extA: 0.
+
+	self
+		compileBytecode: 243
+		selector: #extStoreReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: 1.
+
+	machineSimulator temporaryRegisterValue: memory trueObject.
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: object.
+	self assert: (memory fetchPointer: 0 ofObject: object) equals: memory trueObject
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecode9 [
+
+	| object |
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+
+	cogit bytecodePC: 87.
+	cogit byte1: 9.
+	cogit extA: 0.
+
+	self
+		compileBytecode: 243
+		selector: #extStoreReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: 15.
+
+	machineSimulator temporaryRegisterValue: memory trueObject.
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: object.
+	self assert: (memory fetchPointer: 0 ofObject: object) equals: memory nilObject.
+	self assert: (memory fetchPointer: 9 ofObject: object) equals: memory trueObject
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeCallImmutableTrampoline [
+
+	| object value immutableTrampoline bytecodePC |
+
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+	immutableTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceDeoptimiseFrameTrampoline: immutableTrampoline.
+
+	bytecodePC := 87.
+	cogit bytecodePC: bytecodePC.
+	cogit byte1: 0.
+	cogit extA: 0.
+
+	self
+		compileBytecode: 243
+		selector: #extStoreReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: 1.	
+	memory setIsImmutableOf: object to: true.
+	
+	value := self newObjectWithSlots: 0.
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self
+		prepareStackForPrimitiveReceiver: object
+		arguments: #(  )
+		method: 0.
+
+	"Should arrive to trampoline to put the object in the remembered set"
+	self runFrom: cogInitialAddress until: immutableTrampoline.
+	
+	self assert: machineSimulator receiverRegisterValue equals: bytecodePC
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeCallRememberTrampoline [
+
+	| object value storeCheckTrampoline |
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+
+	cogit bytecodePC: 87.
+	cogit byte1: 0.
+	cogit extA: 0.
+
+	self
+		compileBytecode: 243
+		selector: #extStoreReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newOldSpaceObjectWithSlots: 1.
+	value := self newObjectWithSlots: 0.
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self
+		prepareStackForPrimitiveReceiver: object
+		arguments: #(  )
+		method: 0.
+
+	"Should arrive to trampoline to put the object in the remembered set"
+	self runFrom: cogInitialAddress until: storeCheckTrampoline.
+	
+	self assert: machineSimulator receiverRegisterValue equals: object
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeImmutable [
+
+	| object value storeCheckTrampoline |
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+
+	cogit bytecodePC: 87.
+	cogit byte1: 0.
+	cogit extA: 0.
+
+	self
+		compileBytecode: 243
+		selector: #extStoreReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: 1.
+	memory setIsImmutableOf: object to: true.
+
+	value := self newObjectWithSlots: 0.
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: 87.
+	self assert: (memory fetchPointer: 0 ofObject: object) equals: memory nilObject
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRemember [
+
+	| object value storeCheckTrampoline |
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+
+	cogit bytecodePC: 87.
+	cogit byte1: 0.
+	cogit extA: 0.
+
+	self
+		compileBytecode: 243
+		selector: #extStoreReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newOldSpaceObjectWithSlots: 1.
+	value := self newObjectWithSlots: 0.
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: object.
+	self assert: (memory fetchPointer: 0 ofObject: object) equals: value
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRememberedReceiver [
+
+	| object value storeCheckTrampoline |
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+
+	cogit bytecodePC: 87.
+	cogit byte1: 0.
+	cogit extA: 0.
+
+	self
+		compileBytecode: 243
+		selector: #extStoreReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newOldSpaceObjectWithSlots: 1.
+	memory fromOldSpaceRememberedSet remember: object.
+	value := self newObjectWithSlots: 0.
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: object.
+	self assert: (memory fetchPointer: 0 ofObject: object) equals: value
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRememberedReceiverBuggyIndex [
+
+	| object value storeCheckTrampoline |
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+
+	cogit bytecodePC: 87.
+	cogit byte1: 8.
+	cogit extA: 0.
+
+	self
+		compileBytecode: 243
+		selector: #extStoreReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newOldSpaceObjectWithSlots: 9.
+	memory fromOldSpaceRememberedSet remember: object.
+	value := (memory integerObjectOf: 42).
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: object.
+	self assert: (memory fetchPointer: 8 ofObject: object) equals: value
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testPushReceiver [
 
 	| object |
@@ -1810,8 +2108,7 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode7 [
 { #category : #tests }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode: index [
 
-	| object fakeTrampoline |
-	fakeTrampoline := self compile: [ cogit RetN: 0 ].
+	| object |
 	cogit ceStoreCheckTrampoline: fakeTrampoline.
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
 	cogit bytecodePC: 87.
@@ -1840,9 +2137,8 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode: index [
 { #category : #tests }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutableTrampoline [
 
-	| object value immutableTrampoline fakeTrampoline bytecodePC |
+	| object value immutableTrampoline bytecodePC |
 
-	fakeTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceStoreCheckTrampoline: fakeTrampoline.
 	immutableTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceDeoptimiseFrameTrampoline: immutableTrampoline.
@@ -1882,11 +2178,10 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutable
 { #category : #tests }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallRememberTrampoline [
 
-	| object value storeCheckTrampoline fakeTrampoline |
+	| object value storeCheckTrampoline |
 
 	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
-	fakeTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
 	cogit bytecodePC: 87.
 
@@ -1921,11 +2216,10 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallRememberT
 { #category : #tests }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeImmutable [
 
-	| object value storeCheckTrampoline fakeTrampoline |
+	| object value storeCheckTrampoline |
 
 	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
-	fakeTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
 	cogit bytecodePC: 87.
 
@@ -1957,11 +2251,10 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeImmutable [
 { #category : #tests }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeNotRemember [
 
-	| object value storeCheckTrampoline fakeTrampoline |
+	| object value storeCheckTrampoline |
 
 	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
-	fakeTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
 	cogit bytecodePC: 87.
 
@@ -1991,11 +2284,10 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeNotRemember [
 { #category : #tests }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRemember [
 
-	| object value storeCheckTrampoline fakeTrampoline |
+	| object value storeCheckTrampoline |
 
 	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
-	fakeTrampoline := self compile: [ cogit RetN: 0 ].
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
 	cogit bytecodePC: 87.
 
@@ -2012,6 +2304,40 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRemember [
 			cogit genUpArrowReturn ].
 
 	object := self newOldSpaceObjectWithSlots: 1.
+	value := self newObjectWithSlots: 0.
+
+	machineSimulator temporaryRegisterValue: value.
+
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: object.
+	self assert: (memory fetchPointer: 0 ofObject: object) equals: value
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRememberedReceiver [
+
+	| object value storeCheckTrampoline |
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+	cogit bytecodePC: 87.
+
+	self
+		compileBytecode: 200
+		selector: #storeAndPopReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newOldSpaceObjectWithSlots: 1.
+	memory fromOldSpaceRememberedSet remember: object.
 	value := self newObjectWithSlots: 0.
 
 	machineSimulator temporaryRegisterValue: value.

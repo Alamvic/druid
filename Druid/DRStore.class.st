@@ -75,7 +75,7 @@ DRStore >> replaceDependency: anOperand by: anotherOperand [
 
 	(operands includes: anOperand) ifTrue: [
 		super replaceDependency: anOperand by: anotherOperand.
-		1haltIf: [anOperand isAdd].
+
 		(self address operands includes: anOperand) ifTrue: [
 			self address replaceDependency: anOperand by: anotherOperand ].
 		^ self ].

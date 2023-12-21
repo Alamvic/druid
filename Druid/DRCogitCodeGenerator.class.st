@@ -152,7 +152,7 @@ DRCogitCodeGenerator >> cogitBranchFromCondition: condition types: branchTypes [
 			           types anyOne isUnsigned ])
 			          ifTrue: [ 'BelowOrEqual:' ]
 			          ifFalse: [ 'LessOrEqual:' ].
-		^ branchPrefix , 'LessOrEqual:' ].
+		^ branchPrefix , suffix ].
 
 	1 halt
 ]

@@ -1392,7 +1392,10 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: DRTrueObject new
+	^ self
+		  addCopy: aRBVariableNode
+		  with:
+		  (DRObjectReferenceValue expression: 'objectMemory trueObject')
 ]
 
 { #category : #'special cases' }
