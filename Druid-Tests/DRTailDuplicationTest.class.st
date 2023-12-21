@@ -189,6 +189,45 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunc
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunctionsWithMultipleVariablesUnbalanced [
+	"|0| -> |1| -> |2| -> |4| -> |5| -> |7| -> |8| -> |9|
+				 \ -> |3| --^	\					\ --------^
+									 \ -> |6| ---------------^
+                     
+	"
+
+	| cfg b5 b6 b7 b8 b9 copy1 newPhi user |
+	cfg := self setUpCFGWithConditional.
+	b5 := cfg newBasicBlock.
+	b6 := cfg newBasicBlock.
+	b7 := cfg newBasicBlock.
+	b8 := cfg newBasicBlock.
+	b9 := cfg newBasicBlock.
+
+	cfg b4 jumpIfTrueTo: b5 ifFalseTo: b6.
+	b6 jumpTo: b9.
+
+	b5 jumpTo: b7.
+	b7 jumpIfTrueTo: b9 ifFalseTo: b8.
+
+	b8 jumpTo: b9.
+
+	copy1 := cfg b4 copy: 1.
+	user := b9 copy: copy1.
+
+	cfg validate.
+
+	cfg b4 tailDuplicate.
+
+	"This phi has a same value coming from two predecedors"
+	newPhi := b9 phiFunctions unique.
+
+	self assert: newPhi operands size equals: 3.
+	self assert: (newPhi operands last: 2) asSet size equals: 1.
+
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldReusePhiFunctions [
 
 	| cfg copy closerUserBlock fartherUserBlock fartherAdd newPhi closerAdd |

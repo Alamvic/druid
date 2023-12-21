@@ -487,7 +487,7 @@ DRBasicBlock >> initialize [
 { #category : #splitting }
 DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicatedInstructions withFrontier: frontier withUsers: users [
 
-	| nextFrontier valuesToMerge phis |
+	| nextFrontier phis |
 	self flag: #TODO. "Move this responsability to another object"
 
 	users ifEmpty: [ "Finish" ^ self ].
@@ -498,19 +498,15 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 		self assert: users isEmpty.
 		^ self ].
 
-	valuesToMerge := { myInstruction } , duplicatedInstructions.
-
 	"Create phis on frontier"
-	phis := frontier collect: [ :b | b phiWithVariables: valuesToMerge ].
+	phis := frontier collect: [ :b | b phiWithVariables: duplicatedInstructions ].
 
 	"Replace dominated users"
-	users copy do: [ :u | 
-		(u replaceOperandsIfDominated: myInstruction withAll: phis) 
-			ifNotNil: [ users remove: u ] ].
+	users copy do: [ :u |
+		(u replaceOperandsIfDominated: myInstruction withAll: phis) ifNotNil: [ users remove: u ] ].
 
 	"Create the phi of phis in the frontier and update uses based on blocks dominance"
-	nextFrontier := controlFlowGraph tree minimalDominanceFrontierOfAll:
-		                frontier.
+	nextFrontier := controlFlowGraph tree minimalDominanceFrontierOfAll: frontier.
 	^ self
 		  insertPhisAndReplaceUsersBetween: myInstruction
 		  andAll: phis
@@ -748,7 +744,7 @@ DRBasicBlock >> mergeInstructionsWithDuplicatedBlock: duplicatedBlock withSucces
 		do: [ :myInstruction :duplicatedInstruction | 
 			self
 				insertPhisAndReplaceUsersBetween: myInstruction
-				andAll: { duplicatedInstruction }
+				andAll: { myInstruction . duplicatedInstruction }
 				withFrontier: successors
 				withUsers: (getUsersBlock value: myInstruction) ]
 ]
