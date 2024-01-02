@@ -69,12 +69,8 @@ DRCogitStackToRegisterMappingGenerator >> initialize [
 DRCogitStackToRegisterMappingGenerator >> innerGenerator [
 
 	| innerGenerator |
-	innerGenerator := self copy.
+	innerGenerator := super innerGenerator.
 	innerGenerator parent: self.
-	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
-	
-	self flag: #TODO. "If we have a reference to the parent then copying the state could be not needed"
-	innerGenerator deferredBranches: deferredBranches copy.
 	^ innerGenerator
 ]
 
@@ -159,35 +155,6 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 
 	"Everything that follows an unconditional jump is potentially dead code"
 	self markAsDeadCode
-]
-
-{ #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitCall: aDRCall [
-	"self CallRT: ceSendMustBeBooleanTrampoline"
-
-	| rbCallNode |
-	aDRCall operands size > 0 ifTrue: [
-		generatorMethodBuilder addStatement: (RBMessageNode
-				 receiver: RBVariableNode selfNode
-				 selector: #MoveR:R:
-				 arguments: {
-						 (self rtlExpressionForValue: aDRCall operand1).
-						 (RBVariableNode named: 'TempReg') }) ].
-	rbCallNode := RBMessageNode
-		              receiver: RBVariableNode selfNode
-		              selector: #CallRT:
-		              arguments:
-		              { (RBVariableNode named: aDRCall functionName) }.
-	aDRCall shouldSaveLinkReg
-		ifTrue: [
-			generatorMethodBuilder addStatement: (RBMessageNode
-					 receiver: (RBVariableNode named: #backEnd)
-					 selector: #saveAndRestoreLinkRegAround:
-					 arguments:
-					 { (RBBlockNode body: (RBSequenceNode statements: { rbCallNode })) }) ]
-		ifFalse: [ generatorMethodBuilder addStatement: rbCallNode ].
-	aDRCall isMapped ifTrue: [ 
-		self assert: aDRCall controlFlowGraph hasAnnotatedBytecode  ]
 ]
 
 { #category : #visiting }

@@ -50,6 +50,22 @@ DRControlFlowGraph >> allBackJumps [
 		  thenSelect: [ :i | i isBackJump ]
 ]
 
+{ #category : #'accessing - query' }
+DRControlFlowGraph >> allBlocksBetween: predecessor and: successor [
+	"Retrieve all blocks visited on execution from <predecessor> to <successor>"
+
+	^ (self blocks copyWithoutAll: {
+			   predecessor.
+			   successor }) select: [ :b |
+		  (successor isDominatedBy: b) and: [ b isDominatedBy: predecessor ] ]
+]
+
+{ #category : #'accessing - query' }
+DRControlFlowGraph >> allBlocksDominatedBy: aDRBasicBlock [
+
+	^ self reversePostOrderBlocks select: [ :b | b isDominatedBy: aDRBasicBlock ]
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> allConditionalJumps [
 
@@ -103,6 +119,75 @@ DRControlFlowGraph >> asInspectorIn: view [
 	^ SpRoassal3InspectorPresenter new
 		canvas: view;
 		yourself
+]
+
+{ #category : #printing }
+DRControlFlowGraph >> asciiLineFrom: initBlock to: lastBlock withDeferred: deferred index: index [
+
+	| workingList i |
+	i := index.
+	workingList := { initBlock } asOrderedCollection.
+	^ String streamContents: [ :s |
+		  [ workingList isEmpty ] whileFalse: [
+			  | next |
+			  next := workingList removeLast.
+			  i := i + 1.
+
+			  s << '|' << next id asString << '|'.
+
+			  next = lastBlock ifFalse: [
+				  next successors ifNotEmpty: [ :succs |
+					  succs last predecessors size > 1 ifTrue: [ s << '-' ].
+					  s << '-->'.
+					  workingList add: succs last.
+					  succs size > 1 ifTrue: [ deferred at: i put: succs first ] ] ] ] ]
+]
+
+{ #category : #printing }
+DRControlFlowGraph >> asciiString [
+
+	"WIP!	
+	Draw self in ASCII style:
+		|0| -> |1| -> |2| -> |4|
+	             \ -> |3| --^	
+	"
+
+	| res |
+	res := String streamContents: [ :s |
+		       | deferred |
+		       deferred := OrderedDictionary new.
+		       s << (self
+			        asciiLineFrom: self firstBasicBlock
+			        to: self lastBasicBlock
+			        withDeferred: deferred
+			        index: 0).
+
+		       [ deferred isEmpty ] whileFalse: [
+			       | lineDeferred lastKey |
+			       lineDeferred := deferred associations.
+			       deferred := OrderedDictionary new.
+
+			       s cr.
+			       lastKey := 0.
+			       lineDeferred do: [ :assoc |
+				       | key next path |
+				       key := assoc key.
+				       next := assoc value.
+
+				       path := self allBlocksDominatedBy: next.
+				       key - lastKey > 0
+					       ifFalse: [ deferred add: assoc ]
+					       ifTrue: [
+						       key - lastKey * 2 timesRepeat: [ s << '#' ].
+						       s << '\ ->' << (self
+							        asciiLineFrom: next
+							        to: path last
+							        withDeferred: deferred
+							        index: key) << '--^'.
+						       lastKey := key + path size ] ] ] ].
+
+
+	^ res
 ]
 
 { #category : #accessing }

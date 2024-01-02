@@ -63,19 +63,24 @@ DRInterpreterCompilationUnitTest >> testBytecodeCompilation [
 	"Here the bytecode range is a single range sharing the same selector.
 	That selector will be used for compilation"
 	bytecodes := (self compiler newBytecodes:
-		             self compiler interpreterClass >> #bytecodeWithNoFrameInstVarRefAnnotation) first: 4.
+		              (self compiler interpreterClass lookupSelector:
+			               #storeAndPopReceiverVariableBytecode)) first: 4.
 	compilationUnit bytecodes: bytecodes.
 	self compile: compilationUnit.
 
 	self assert: self targetClass bytecodeTable equals: {
-			#( 1 0 0 #gen_BytecodeWithNoFrameInstVarRefAnnotation0 #isInstVarRef
-			   #needsFrameNever: 1 ).
-			#( 1 1 1 #gen_BytecodeWithNoFrameInstVarRefAnnotation1 #isInstVarRef
-			   #needsFrameNever: 1 ).
-			#( 1 2 2 #gen_BytecodeWithNoFrameInstVarRefAnnotation2 #isInstVarRef
-			   #needsFrameNever: 1 ).
-			#( 1 3 3 #gen_BytecodeWithNoFrameInstVarRefAnnotation3 #isInstVarRef
-			   #needsFrameNever: 1 ) }.
+			#( 1 200 200 #gen_StoreAndPopReceiverVariableBytecode0
+			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
+			   -1 ).
+			#( 1 201 201 #gen_StoreAndPopReceiverVariableBytecode1
+			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
+			   -1 ).
+			#( 1 202 202 #gen_StoreAndPopReceiverVariableBytecode2
+			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
+			   -1 ).
+			#( 1 203 203 #gen_StoreAndPopReceiverVariableBytecode3
+			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
+			   -1 ) }.
 
 	self targetClass bytecodeTable do: [ :e |
 		self assert: (self targetClass canUnderstand: e fourth) ]
@@ -113,26 +118,30 @@ DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 	"Here the bytecode range is a single range sharing the same selector.
 	That selector will be used for compilation"
 	bytecodes := ((self compiler newBytecodes:
-		               self compiler interpreterClass >> #bytecodeWithNoFrameInstVarRefAnnotation)
-		              first: 3) , { (DRBytecodeObject new
-		              bytecodeSize: 2;
-		              bytecodeNumberStart: 3;
-		              bytecodeNumberEnd: 5;
-		              supported: false;
-		              yourself) }.
+		               (self compiler interpreterClass lookupSelector:
+			                #storeAndPopReceiverVariableBytecode)) first: 3)
+	             , { (DRBytecodeObject new
+			              bytecodeSize: 2;
+			              bytecodeNumberStart: 3;
+			              bytecodeNumberEnd: 5;
+			              supported: false;
+			              yourself) }.
 	compilationUnit bytecodes: bytecodes.
 	self compile: compilationUnit.
 
 	self assert: self targetClass bytecodeTable equals: {
-			#( 1 0 0 #gen_BytecodeWithNoFrameInstVarRefAnnotation0 #isInstVarRef
-			   #needsFrameNever: 1 ).
-			#( 1 1 1 #gen_BytecodeWithNoFrameInstVarRefAnnotation1 #isInstVarRef
-			   #needsFrameNever: 1 ).
-			#( 1 2 2 #gen_BytecodeWithNoFrameInstVarRefAnnotation2 #isInstVarRef
-			   #needsFrameNever: 1 ).
 			#( 2 3 3 #unknownBytecode ).
 			#( 2 4 4 #unknownBytecode ).
-			#( 2 5 5 #unknownBytecode ) }.
+			#( 2 5 5 #unknownBytecode ).
+			#( 1 200 200 #gen_StoreAndPopReceiverVariableBytecode0
+			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
+			   -1 ).
+			#( 1 201 201 #gen_StoreAndPopReceiverVariableBytecode1
+			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
+			   -1 ).
+			#( 1 202 202 #gen_StoreAndPopReceiverVariableBytecode2
+			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
+			   -1 ) }.
 
 	self targetClass bytecodeTable do: [ :e |
 		self assert: (self targetClass canUnderstand: e fourth) ]

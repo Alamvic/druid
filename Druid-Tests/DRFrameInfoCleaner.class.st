@@ -9,7 +9,5 @@ DRFrameInfoCleaner >> applyTo: cfg [
 
 	cfg instructionsDo: [ :i |
 		i isLoadArgument ifTrue: [ i hasUsers ifFalse: [ i removeFromCFG ] ].
-		i isFrameReturn ifTrue: [
-			i replaceUsesBy: i operand1.
-			i removeFromCFG ] ]
+		i isFrameReturn ifTrue: [ i replaceBy: i asCopy ] ]
 ]

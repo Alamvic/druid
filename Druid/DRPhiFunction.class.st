@@ -103,6 +103,15 @@ DRPhiFunction >> isJITCompileTimeExpression [
 ]
 
 { #category : #testing }
+DRPhiFunction >> isJITCompileTimeExpressionIgnoring: aCollection [
+
+	(aCollection includes: self) ifTrue: [ ^ true "?" ].
+
+	^ self operands allSatisfy: [ :op |
+		  op isJITCompileTimeExpressionIgnoring: aCollection , { self } ]
+]
+
+{ #category : #testing }
 DRPhiFunction >> isPhiFunction [
 
 	^ true

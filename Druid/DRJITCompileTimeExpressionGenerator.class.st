@@ -17,6 +17,12 @@ DRJITCompileTimeExpressionGenerator >> binaryMessage: aSymbol receiverInstructio
 		  arguments: { argument }
 ]
 
+{ #category : #parsing }
+DRJITCompileTimeExpressionGenerator >> parse: aString [
+
+	^ RBParser parseExpression: aString
+]
+
 { #category : #building }
 DRJITCompileTimeExpressionGenerator >> simpleMessage: aSymbol receiverInstruction: aDRInstruction [
 
@@ -101,9 +107,15 @@ DRJITCompileTimeExpressionGenerator >> visitInterpreterExpression: aDRInterprete
 ]
 
 { #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitInterpreterReference: aDRInterpreterReference [ 
+
+	^ self parse: aDRInterpreterReference name
+]
+
+{ #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [ 
 	
-	^ RBParser parseExpression: aDRJitCompileTimeExpression expression
+	^ self parse: aDRJitCompileTimeExpression expression
 ]
 
 { #category : #visiting }
@@ -142,4 +154,14 @@ DRJITCompileTimeExpressionGenerator >> visitRightShift: aDRRightShift [
 		  binaryMessage: #'>>'
 		  receiverInstruction: aDRRightShift operand1
 		  argumentInstruction: aDRRightShift operand2
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitStore: aDRStore [
+
+	| variable value |
+	variable := RBVariableNode named: aDRStore address name.
+	value := aDRStore operand1 acceptVisitor: self.
+
+	^ RBAssignmentNode variable: variable value: value
 ]

@@ -12,29 +12,27 @@ Class {
 { #category : #'editing keys' }
 DRBlockDuplicator >> basicDuplicateBlock: aBasicBlock [
 
-	| endInstruction endInstructionCopy |
 	^ controlFlowGraph newBasicBlockWith: [ :newBlock |
-		| instructionCopy |
+		  | endInstruction endInstructionCopy |
+		  aBasicBlock predecessors do: [ :p | newBlock addPredecessor: p ].
 
-		aBasicBlock predecessors do: [ :p | newBlock addPredecessor: p ].
+		  "Duplicate instructions"
+		  aBasicBlock instructions allButLast do: [ :instruction |
+			  | instructionCopy |
+			  instructionMap at: instruction put: (instructionCopy := instruction copy).
+			  "New intructions have no users"
+			  instructionCopy clearUsers.
+			  "Dependecies have a new user"
+			  instructionCopy dependencies do: [ :e | e addUser: instructionCopy ].
+			  newBlock addInstruction: instructionCopy ].
 
-		"Duplicate instructions"
-		aBasicBlock instructions allButLast do: [ :instruction |
-			instructionMap at: instruction put: (instructionCopy := instruction copy).
-			instructionCopy clearUsers.
-			instructionCopy operands do: [ :e |
-				e addUser: instructionCopy.
-			].
-			newBlock addInstruction: instructionCopy.
-		 ].
-		endInstruction := aBasicBlock endInstruction.
-		instructionMap at: endInstruction put: (endInstructionCopy := endInstruction copy).
-		newBlock endInstruction: endInstructionCopy.
-		newBlock endInstruction operands do: [ :e |
-				e addUser: newBlock endInstruction.
-		].
-		self patchInstructionsIn: newBlock
-	]
+		  "Duplicate end instruction"
+		  endInstruction := aBasicBlock endInstruction.
+		  instructionMap at: endInstruction put: (endInstructionCopy := endInstruction copy).
+		  newBlock endInstruction: endInstructionCopy.
+		  newBlock endInstruction operands do: [ :e | e addUser: newBlock endInstruction ].
+
+		  self patchInstructionsIn: newBlock ]
 ]
 
 { #category : #accessing }
@@ -81,7 +79,7 @@ DRBlockDuplicator >> patchControlFlowIn: aBasicBlock [
 
 { #category : #'editing keys' }
 DRBlockDuplicator >> patchInstructionsIn: aBasicBlock [
-	"Rewrite all operands"
+	"Replace all users and dependencies of block instructions using the instructionMap"
 
 	aBasicBlock instructions do: [ :newInstruction |
 		newInstruction users copy do: [ :user | | replacement |
@@ -90,10 +88,10 @@ DRBlockDuplicator >> patchInstructionsIn: aBasicBlock [
 			newInstruction removeUser: user.
 			newInstruction addUser: replacement.
 		].
-		newInstruction operands copy do: [ :operand | | replacement |
+		newInstruction dependencies copy do: [ :operand | | replacement |
 			"If an operand comes from another block, keep using it"
 			replacement := instructionMap at: operand ifAbsent: [ operand ].
-			newInstruction replaceOperand: operand by: replacement.
+			newInstruction replaceDependency: operand by: replacement.
 		]
 	]
 ]

@@ -18,31 +18,31 @@ DRJitCompileTimeExpression class >> expression: anExpression [
 { #category : #accessing }
 DRJitCompileTimeExpression class >> getNewSpaceMask [
 
-	^ self expression: 'objectMemory getMemoryMap getNewSpaceMask'
+	^ DRObjectReferenceValue expression: 'objectMemory getMemoryMap getNewSpaceMask'
 ]
 
 { #category : #accessing }
 DRJitCompileTimeExpression class >> getNewSpaceStart [
 
-	^ self expression: 'objectMemory getMemoryMap getNewSpaceStart'
+	^ DRObjectReferenceValue expression: 'objectMemory getMemoryMap getNewSpaceStart'
 ]
 
 { #category : #accessing }
 DRJitCompileTimeExpression class >> getOldSpaceMask [
 
-	^ self expression: 'objectMemory getMemoryMap getOldSpaceMask'
+	^ DRObjectReferenceValue expression: 'objectMemory getMemoryMap getOldSpaceMask'
 ]
 
 { #category : #accessing }
 DRJitCompileTimeExpression class >> getPermSpaceMask [
 
-	^ self expression: 'objectMemory getMemoryMap getPermSpaceMask'
+	^ DRObjectReferenceValue expression: 'objectMemory getMemoryMap getPermSpaceMask'
 ]
 
 { #category : #accessing }
 DRJitCompileTimeExpression class >> getSpaceMaskToUse [
 
-	^ self expression: 'objectMemory getMemoryMap getSpaceMaskToUse'
+	^ DRObjectReferenceValue expression: 'objectMemory getMemoryMap getSpaceMaskToUse'
 ]
 
 { #category : #sccp }

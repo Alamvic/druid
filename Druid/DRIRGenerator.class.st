@@ -1206,6 +1206,8 @@ DRIRGenerator >> interpretSpaceMaskToUseWith: aRBVariableNode [
 { #category : #'special cases - stack' }
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
+	"self addInstruction: (self stackValue: 0) from: aRBMessageNode"
+
 	self pushOperand: (self stackValue: 0)
 ]
 
@@ -1390,7 +1392,10 @@ DRIRGenerator >> interpretSumSmallIntegerWithOverflowWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: DRTrueObject new
+	^ self
+		  addCopy: aRBVariableNode
+		  with:
+		  (DRObjectReferenceValue expression: 'objectMemory trueObject')
 ]
 
 { #category : #'special cases' }

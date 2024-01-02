@@ -23,17 +23,6 @@ DRCogitSimpleStackGenerator >> initialize [
 	variables := Dictionary new
 ]
 
-{ #category : #copy }
-DRCogitSimpleStackGenerator >> innerGenerator [
-
-	| innerGenerator |
-	innerGenerator := self copy.
-	innerGenerator variables: variables copy.
-	innerGenerator deferredBranches: deferredBranches copy.
-	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
-	^ innerGenerator
-]
-
 { #category : #'ir-to-ast' }
 DRCogitSimpleStackGenerator >> returnNodeForCompiledMethod [
 
@@ -128,20 +117,6 @@ DRCogitSimpleStackGenerator >> visitClosureCreation: aDRClosureCreation [
 		        { DRPhysicalGeneralPurposeRegister receiverResultReg }
 		        result: aDRClosureCreation result.
 	copy acceptVisitor: self
-]
-
-{ #category : #visiting }
-DRCogitSimpleStackGenerator >> visitCompileTimeStore: aDRStore [
-
-	| varName |
-	varName := aDRStore address name.
-
-	(varName beginsWith: 'r') ifTrue: [ "Temporary compile time variable"
-		generatorMethodBuilder addVariableNamed: varName ].
-
-	generatorMethodBuilder addStatement: (RBAssignmentNode
-			 variable: (RBVariableNode named: varName)
-			 value: (self jitCompileTimeExpression: aDRStore operand1))
 ]
 
 { #category : #visiting }

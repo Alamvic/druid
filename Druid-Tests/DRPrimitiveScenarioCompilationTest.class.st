@@ -4,12 +4,6 @@ Class {
 	#category : #'Druid-Tests'
 }
 
-{ #category : #accessing }
-DRPrimitiveScenarioCompilationTest >> cogitStyle: aSymbol [
-
-	cogitStyle := aSymbol
-]
-
 { #category : #'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testAccessTemporaryAfterCall [
 
