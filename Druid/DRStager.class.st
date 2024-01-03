@@ -23,6 +23,13 @@ DRStager >> addBlockToWorklist: aDRBasicBlock [
 { #category : #accessing }
 DRStager >> applyTo: cfg [
 
+	"double worklist algorithm. One block worklist, one instruction worklist.
+	Re-work instruction dependents as soon as their instruction is treated.
+	
+	This should probably later be improved into a lattice
+	 - top (we don't know)
+	 - stageable
+	 - bottom (we know it's not stageable)"
 	cfgEdgeWorklist add: cfg initialBasicBlock.
 
 	[ cfgEdgeWorklist isEmpty and: [ ssaWorklist isEmpty ] ] whileFalse: [
@@ -98,6 +105,8 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 	anInstruction isLoadArgument ifTrue: [ ^ false ].
 	anInstruction isLoadFramePointer ifTrue: [ ^ false ].
 	anInstruction isNoop ifTrue: [ ^ false ].
+	anInstruction isCogitSendMarshall ifTrue: [ ^ false ].
+	(anInstruction isKindOf: DRFlushStack) ifTrue: [ ^ false ].
 	1 halt
 	"(anInstruction isArithmeticInstruction or: [ anInstruction isCopy ])
 		ifFalse: [ ^ false ].
@@ -142,16 +151,30 @@ DRStager >> isStaged: anOperand modulo: aSetOfPotentiallyStagedInstructions [
 
 { #category : #staging }
 DRStager >> stageInstruction: anInstruction [
+	"Just staged a push instruction"
+
+	(anInstruction isPush and: [
+		 anInstruction operand1 isMemoryAddress and: [ anInstruction operand1 base isStaged ] ])
+		ifTrue: [
+			| copy |
+			"If we have found a push instruction whose address' base is staged, we must promote the value to runtime.
+			We do so by inserting a non-staged copy.
+			This copy will be register allocated and treat the staged value as a constant"
+			copy := DRCopy
+				        operands: { anInstruction operand1 base }
+				        result: anInstruction instructionFactory allocateTemporaryRegister.
+			anInstruction addBefore: copy.
+			anInstruction replaceDependency: anInstruction operand1 base by: copy.
+			^ self ].
+
 
 	(self canStage: anInstruction) ifTrue: [
 		anInstruction markAsStaged.
-		
+
 		"Maybe the users want to change their decisions"
 		anInstruction users
-			select: [ :e |
-				e isStaged not and: [ (ssaWorklist includes: e) not ] ]
+			select: [ :e | e isStaged not and: [ (ssaWorklist includes: e) not ] ]
 			thenDo: [ :e | ssaWorklist add: e ] ].
 
-	anInstruction isJump ifTrue: [
-		anInstruction targets do: [ :t | cfgEdgeWorklist add: t ] ]
+	anInstruction isJump ifTrue: [ anInstruction targets do: [ :t | cfgEdgeWorklist add: t ] ]
 ]

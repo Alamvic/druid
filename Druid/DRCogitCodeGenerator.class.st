@@ -655,14 +655,10 @@ DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruc
 DRCogitCodeGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
 
 	self allocateVariable: anInstruction result.
-	(operands first isInterpreterReference and: [
-		 anInstruction type isObjectReference ]) ifTrue: [
-		"It's moving a constant to a register. This constant could be an oop, so we need to annotate it."
+	((operands first isStaged or: [ operands first isConstant ]) and: [
+		 operands first type isObjectReference ]) ifTrue: [ "It's moving a constant to a register. This constant could be an oop, so we need to annotate it."
 		^ self generateMessage: #genMoveConstant:R: operands: operands ].
-	self
-		twoOperandCogitRTL: #Move
-		operands: operands
-		instruction: anInstruction
+	self twoOperandCogitRTL: #Move operands: operands instruction: anInstruction
 ]
 
 { #category : #'ir-generation' }
@@ -971,6 +967,16 @@ DRCogitCodeGenerator >> visitLessThan: aDRGreaterThanComparison inBranch: aDRBra
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLoad: aDRLoad [
+
+	(aDRLoad address isStaged and: [ aDRLoad address type isObjectReference ]) ifTrue: [
+		self twoOperandMoveCogitRTL: aDRLoad operands: {
+				aDRLoad address expression.
+				aDRLoad }.
+
+		self twoOperandMoveCogitRTL: aDRLoad operands: {
+				aDRLoad asMemoryAddress.
+				aDRLoad }.
+		^ self ].
 
 	self twoOperandMoveCogitRTL: aDRLoad operands: {
 			aDRLoad address.

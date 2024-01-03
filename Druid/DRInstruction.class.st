@@ -665,13 +665,15 @@ DRInstruction >> rtlOperandQualifier [
 
 { #category : #cogit }
 DRInstruction >> rtlPushArgumentExpressions: generator [
-	
-	^ { RBVariableNode named: (generator allocateVariable: result) }
+
+	self isStaged ifTrue: [ ^ super rtlPushArgumentExpressions: generator ].
+	^ { (RBVariableNode named: (generator allocateVariable: result)) }
 ]
 
 { #category : #cogit }
 DRInstruction >> rtlPushOperandQualifierForInstruction: anInstruction [
-	
+
+	self isStaged ifTrue: [ ^ super rtlPushOperandQualifierForInstruction: anInstruction ].
 	^ 'Register:'
 ]
 

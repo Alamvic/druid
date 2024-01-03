@@ -31,7 +31,7 @@ DRCogitStackToRegisterMappingGenerator >> allocateVariable: aDRResult [
 	variableIndex := nextVariableIndex.
 	nextVariableIndex := nextVariableIndex + 1.
 
-	temporaryVariableNode := RBVariableNode named: variableIndex asString.
+	temporaryVariableNode := RBVariableNode named: 't', variableIndex asString.
 	variables at: aDRResult put: temporaryVariableNode name.
 
 	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
@@ -289,9 +289,7 @@ DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: 'ssPush'
-				 ,
-				 (aDRPush operand1 rtlPushOperandQualifierForInstruction: aDRPush)
+			 selector: 'ssPush' , (aDRPush operand1 rtlPushOperandQualifierForInstruction: aDRPush)
 			 arguments: (aDRPush operand1 rtlPushArgumentExpressions: self))
 ]
 

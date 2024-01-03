@@ -1142,21 +1142,9 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 ]
 
 { #category : #building }
-DRBasicBlock >> store: instruction in: memoryAddress [
-
-	^ self addInstruction:
-		  (self instructionFactory store: instruction in: memoryAddress)
-]
-
-{ #category : #building }
-DRBasicBlock >> store: aValue into: anAddress [
-
-	^ self addInstruction: (self instructionFactory store: aValue into: anAddress)
-]
-
-{ #category : #building }
 DRBasicBlock >> storeSInt64: operand at: address [
 
+1halt.
 	^ self addInstruction: (self instructionFactory storeSInt64: operand at: address)
 ]
 

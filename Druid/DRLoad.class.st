@@ -47,7 +47,7 @@ DRLoad >> canMoveOutsideLoop: backJump [
 { #category : #testing }
 DRLoad >> isJITCompileTimeExpression [
 
-	^ self address isStaged
+	^ false
 ]
 
 { #category : #visiting }
@@ -93,4 +93,10 @@ DRLoad >> size [
 DRLoad >> type [
 	
 	^ type
+]
+
+{ #category : #accessing }
+DRLoad >> type: aType [
+
+	type := aType
 ]

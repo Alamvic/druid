@@ -18,7 +18,7 @@ DRStoreTemporaryStagedLoop >> storeOnNewTemporaryVariables: phiFunction [
 	| variableExpression load instructionFactory |
 	instructionFactory := phiFunction instructionFactory.
 	variableExpression := (DRInterpreterReference reference:
-			                       phiFunction result name asLowercase)
+			                       phiFunction result prettyPrint asLowercase)
 		                      type: (DRSignedIntegerType size: 8);
 		                      yourself.
 

@@ -71,7 +71,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoadsNorS
 	loopConditionBlock loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock.
 
 	loadInstruction := loopBodyBlock load: 0.
-	storeInstruction := loopBodyBlock store: 0 into: 0.
+	storeInstruction := loopBodyBlock storeSInt64: 0 at: 0.
 
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
 

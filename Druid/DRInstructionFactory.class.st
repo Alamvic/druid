@@ -272,30 +272,8 @@ DRInstructionFactory >> setReturnValue: aValue [
 ]
 
 { #category : #factory }
-DRInstructionFactory >> store: instruction in: memoryAddress [
-
-	^ DRStore
-		  operands: { 
-				  8 asDRValue.
-				  instruction.
-				  memoryAddress }
-		  result: DRNoRegister new
-]
-
-{ #category : #factory }
-DRInstructionFactory >> store: aValue into: anAddress [
-
-	^ DRStore
-		  operands: { 
-				  8 asDRValue. "Assume 64 bits for now"
-				  anAddress asDRValue.
-				  aValue asDRValue }
-		  result: self allocateTemporaryRegister
-]
-
-{ #category : #factory }
 DRInstructionFactory >> storeSInt64: operand at: address [
-
+1halt.
 	^ DRStore
 		  operands: { 
 				  8 asDRValue.

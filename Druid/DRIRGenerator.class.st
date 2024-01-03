@@ -9,7 +9,8 @@ Class {
 		'controlFlowGraph',
 		'executionState',
 		'variableSpecialCases',
-		'typeSystem'
+		'typeSystem',
+		'staging'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -265,6 +266,7 @@ DRIRGenerator >> initialize [
 DRIRGenerator >> initializeSpecialCases [
 
 	"Control flow and comparisons"
+	specialCases at: #druidStageable: put: #interpretStageableBlockWith:.
 	specialCases at: #druidIgnore: put: #ignoreMessageWith:.
 	specialCases at: #interpreterIgnore: put: #interpretBlockArgumentValueWith:.
 	specialCases at: #druidFail put: #interpretDruidFailWith:.
@@ -309,6 +311,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #rawFloatBitsOf:in: put: #interpretRawFloatBitsWith:.
 	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
+	specialCases at: #asObjectReference put: #interpretObjectReferenceCoercionWith:.	
 	
 
 	"Memory accesses"
@@ -389,6 +392,7 @@ DRIRGenerator >> instantiate: anInstructionClass operands: aCollection [
 	
 	| instruction |
 	instruction := anInstructionClass operands: aCollection result: self allocateTemporaryRegister.
+	staging = true ifTrue: [ instruction markAsStaged ].
 	^ instruction
 ]
 
@@ -813,7 +817,7 @@ DRIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 	| byteSize valueToStore |
 	aRBAssignmentNode value acceptVisitor: self.
 	valueToStore := self popOperand.
-
+1halt.
 	byteSize := 8.
 	self
 		addInstructionWithNoResultFrom: aRBAssignmentNode
@@ -997,7 +1001,6 @@ DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [
 	| address |
 	
 	address := self visitOperand: aRBMessageNode arguments first.
-	
 	^ self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRLoad
@@ -1106,6 +1109,19 @@ DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [
 { #category : #visiting }
 DRIRGenerator >> interpretNotWith: aRBMessageNode [ 
 	self shouldBeImplemented.
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretObjectReferenceCoercionWith: aRBMessageNode [ 
+	
+	| resultToCAst |
+	aRBMessageNode receiver acceptVisitor: self.
+	
+	"Add the type and repush"
+	resultToCAst :=self popOperand.
+	self assert: resultToCAst isLoad.
+	resultToCAst type: DRObjectReferenceType new.
+	self pushOperand: resultToCAst
 ]
 
 { #category : #interpreting }
@@ -1248,13 +1264,27 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode withValue: aValue [
 			classType: (DRSignedIntegerType size: 8 "Word size")
 ]
 
+{ #category : #'special cases' }
+DRIRGenerator >> interpretStageableBlockWith: aRBMessageNode [
+
+	| stageableBlock |
+	aRBMessageNode arguments first acceptVisitor: self.
+	stageableBlock := self popOperand simplify.
+	stageableBlock isDRBlockClosure ifFalse: [ self error: 'Only consider blocks' ].
+
+	stageableBlock blockNode arguments size > 0 ifTrue: [
+		self error: 'Only consider blocks with no arguments' ].
+
+	self stageInstructionsDuring: [
+		self interpretCode: stageableBlock receiver: stageableBlock arguments: #(  ) ]
+]
+
 { #category : #'special cases - memory access' }
 DRIRGenerator >> interpretStore: aRBMessageNode ofByteSize: byteSize [
 
 	| address value |
 	address := self visitOperand: aRBMessageNode arguments first.
 	value := self visitOperand: aRBMessageNode arguments second.
-
 	self
 		addInstructionWithNoResultFrom: aRBMessageNode
 		instructionKind: DRStore
@@ -1763,6 +1793,15 @@ DRIRGenerator >> stackTop [
 DRIRGenerator >> stackValue: offset [
 	
 	^ self executionState valueVM: offset
+]
+
+{ #category : #staging }
+DRIRGenerator >> stageInstructionsDuring: aFullBlockClosure [ 
+	
+	| oldStaging |
+	oldStaging := staging.
+	staging := true.
+	aFullBlockClosure ensure: [ staging := oldStaging ]
 ]
 
 { #category : #'special cases' }

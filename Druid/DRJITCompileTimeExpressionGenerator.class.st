@@ -42,12 +42,28 @@ DRJITCompileTimeExpressionGenerator >> visit: anInstruction [
 ]
 
 { #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitAbsoluteMemoryAddress: aDRAbsoluteMemoryAddress [
+
+	^ RBVariableNode named: aDRAbsoluteMemoryAddress expression result prettyPrint
+]
+
+{ #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitAddition: aDRAdd [ 
 	
 	^ self 
 		binaryMessage: #+
 		receiverInstruction: aDRAdd operand1
 		argumentInstruction: aDRAdd operand2
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitBaseOffsetMemoryAddress: aDRBaseOffsetMemoryAddress [
+
+	| base offset |
+	"At compile time, a base offset is the sum of the base and offset"
+	base := RBParser parseExpression: aDRBaseOffsetMemoryAddress base result prettyPrint.
+	offset := RBParser parseExpression: aDRBaseOffsetMemoryAddress offset result prettyPrint.
+	^ RBMessageNode receiver: base selector: #+ arguments: { offset }
 ]
 
 { #category : #visiting }
@@ -140,9 +156,10 @@ DRJITCompileTimeExpressionGenerator >> visitLeftShift: aDRLeftShift [
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitLoad: aDRLoad [
 
-	self assert: aDRLoad isJITCompileTimeExpression.
-	"Just visit the operand, should be a variable"
-	^ aDRLoad operand1 acceptVisitor: self
+	^ RBMessageNode
+		  receiver: (RBVariableNode named: 'objectMemory')
+		  selector: #int64AtPointer:
+		  arguments: { (aDRLoad operand1 acceptVisitor: self) }
 ]
 
 { #category : #visiting }

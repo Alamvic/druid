@@ -5,6 +5,12 @@ Class {
 }
 
 { #category : #accessing }
+DROptimisation class >> applyTo: aCfg [
+
+	^ self new applyTo: aCfg
+]
+
+{ #category : #accessing }
 DROptimisation class >> repeat: times [
 
 	^ self new repeat: times

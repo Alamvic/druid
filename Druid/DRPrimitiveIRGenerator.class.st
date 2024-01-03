@@ -119,7 +119,7 @@ DRPrimitiveIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 	| byteSize valueToStore |
 	aRBAssignmentNode value acceptVisitor: self.
 	valueToStore := self popOperand.
-
+1halt.
 	byteSize := 8.
 	self
 		  addInstructionFrom: aRBAssignmentNode

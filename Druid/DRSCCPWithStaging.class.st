@@ -12,6 +12,7 @@ DRSCCPWithStaging >> latticeForLoad: aLoad [
 		| newVar |
 		newVar := aLoad result name asLowercase.
 		aLoad replaceUsesBy: newVar asDRValue asJitCompileTimeExpression.
+		1halt.
 		^ DRStore
 			  operands: {
 					  aLoad size asDRValue.

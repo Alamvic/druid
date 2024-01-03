@@ -15,6 +15,12 @@ DRAbsoluteMemoryAddress class >> register: aRegister [
 		yourself
 ]
 
+{ #category : #visiting }
+DRAbsoluteMemoryAddress >> acceptVisitor: aVisitor [ 
+	
+	^ aVisitor visitAbsoluteMemoryAddress: self
+]
+
 { #category : #'meta-data' }
 DRAbsoluteMemoryAddress >> asDependencyList [
 
@@ -39,6 +45,12 @@ DRAbsoluteMemoryAddress >> expression: anObject [
 DRAbsoluteMemoryAddress >> isAbsolute [
 	
 	^ true
+]
+
+{ #category : #testing }
+DRAbsoluteMemoryAddress >> isStaged [
+	
+	^ expression isStaged
 ]
 
 { #category : #testing }
@@ -78,4 +90,10 @@ DRAbsoluteMemoryAddress >> rtlOperandQualifierForInstruction: instruction [
 DRAbsoluteMemoryAddress >> sccpLatticeValueFor: sccp [
 	
 	^ sccp latticeValue: expression
+]
+
+{ #category : #accessing }
+DRAbsoluteMemoryAddress >> type [
+
+	^ expression type
 ]

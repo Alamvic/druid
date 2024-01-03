@@ -13,5 +13,6 @@ DRCogitStackCanonicaliser >> visitPush: aDRPush [
 	pushedValue address isAbsolute ifTrue: [
 		self flag: #FIXME.
 		^ self ].
+
 	aDRPush replaceDependency: pushedValue by: pushedValue address
 ]
