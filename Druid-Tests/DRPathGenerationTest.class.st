@@ -372,10 +372,10 @@ DRPathGenerationTest >> testInferenceDeadPaths [
 
 	deadPath := cfg deadPaths associations first.
 	deadPathBlocks := deadPath value collect: [ :e | e destination ].
-	
-	expectedTarget := self anyOutgoingEdge: cfg for: (cfg firstBasicBlock).
-	deadCopy := cfg instructions detect: [:i | i isCopy and: [ i operand1  value = 123 ] ].
-	expectedPath := {deadCopy basicBlock . deadCopy basicBlock successor . deadCopy basicBlock successor successor }.
+
+	expectedTarget := self anyOutgoingEdge: cfg for: cfg firstBasicBlock.
+	deadCopy := cfg instructions detect: [ :i | i isCopy and: [ i operand1 value = 123 ] ].
+	expectedPath := { deadCopy basicBlock } , deadCopy basicBlock recursiveSuccessors.
 
 	self assert: deadPath key equals: expectedTarget.
 	self assertCollection: deadPathBlocks hasSameElements: expectedPath

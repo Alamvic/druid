@@ -13,6 +13,33 @@ DRTailDuplicationTest >> optimize: cfg [
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateBlockWithBaseOffsetStore [
+
+	| cfg address duplicatedBlocks store1 store2 |
+	cfg := self setUpCFGWithConditionalWithPhi.
+
+	"Address has reference to instruction"
+	address := DRBaseOffsetMemoryAddress new
+		           base: cfg phi;
+		           offset: 8 asDRValue;
+		           yourself.
+	cfg b4 store: 87 asDRValue in: address.
+
+	duplicatedBlocks := cfg b4 tailDuplicate.
+	cfg validate.
+
+	store1 := duplicatedBlocks first instructions second.
+	store2 := duplicatedBlocks second instructions second.
+
+	"Diff address instruction"
+	self assert: store1 address equals: address.
+	self deny: store1 address equals: store2 address.
+
+	"Diff base (phis)"
+	self deny: store1 address base equals: store2 address base
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateBlockWithMultipleSuccessorsAndOnlyInsideUsersShouldKeepInstructionsDependecies [
 
 	| cfg copy duplicatedBlocks lastBlock1 lastBlock2 |
@@ -159,6 +186,45 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunc
 	self 
 		assertCollection: phi operands 
 		hasSameElements: { copy1. newPhi. copy3 }
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunctionsWithMultipleVariablesUnbalanced [
+	"|0| -> |1| -> |2| -> |4| -> |5| -> |7| -> |8| -> |9|
+				 \ -> |3| --^	\					\ --------^
+									 \ -> |6| ---------------^
+                     
+	"
+
+	| cfg b5 b6 b7 b8 b9 copy1 newPhi user |
+	cfg := self setUpCFGWithConditional.
+	b5 := cfg newBasicBlock.
+	b6 := cfg newBasicBlock.
+	b7 := cfg newBasicBlock.
+	b8 := cfg newBasicBlock.
+	b9 := cfg newBasicBlock.
+
+	cfg b4 jumpIfTrueTo: b5 ifFalseTo: b6.
+	b6 jumpTo: b9.
+
+	b5 jumpTo: b7.
+	b7 jumpIfTrueTo: b9 ifFalseTo: b8.
+
+	b8 jumpTo: b9.
+
+	copy1 := cfg b4 copy: 1.
+	user := b9 copy: copy1.
+
+	cfg validate.
+
+	cfg b4 tailDuplicate.
+
+	"This phi has a same value coming from two predecedors"
+	newPhi := b9 phiFunctions unique.
+
+	self assert: newPhi operands size equals: 3.
+	self assert: (newPhi operands last: 2) asSet size equals: 1.
+
 ]
 
 { #category : #tests }

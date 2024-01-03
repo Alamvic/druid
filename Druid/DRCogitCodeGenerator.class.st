@@ -174,7 +174,7 @@ DRCogitCodeGenerator >> cogitBranchFromCondition: condition types: branchTypes [
 			           types anyOne isUnsigned ])
 			          ifTrue: [ 'BelowOrEqual:' ]
 			          ifFalse: [ 'LessOrEqual:' ].
-		^ branchPrefix , 'LessOrEqual:' ].
+		^ branchPrefix , suffix ].
 
 	1 halt
 ]
@@ -490,6 +490,7 @@ DRCogitCodeGenerator >> innerGenerator [
 
 	| innerGenerator |
 	innerGenerator := self copy.
+	innerGenerator deferredBranches: deferredBranches copy.
 	innerGenerator generatorMethodBuilder: DRGeneratorMethodBuilder new.
 	^ innerGenerator
 ]
@@ -780,6 +781,20 @@ DRCogitCodeGenerator >> visitComparison: aComparison [
 		instruction: aComparison.
 
 	^ aComparison
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitCompileTimeStore: aDRStore [
+
+	| varName |
+	varName := aDRStore address name.
+
+	(varName beginsWith: 'r') ifTrue: [ "Temporary compile time variable"
+		generatorMethodBuilder addVariableNamed: varName ].
+
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: (RBVariableNode named: varName)
+			 value: (self jitCompileTimeExpression: aDRStore operand1))
 ]
 
 { #category : #visiting }
@@ -1118,6 +1133,9 @@ DRCogitCodeGenerator >> visitRightShift: aRightShift [
 DRCogitCodeGenerator >> visitStore: aDRCogitStore [
 
 	aDRCogitStore isJITCompileTimeExpression ifTrue: [
+		self assert: ({
+				 DRInterpreterExpression.
+				 DRJitCompileTimeExpression } includes: aDRCogitStore address class).
 		^ self visitCompileTimeStore: aDRCogitStore ].
 
 	^ self twoOperandMoveCogitRTL: aDRCogitStore operands: {

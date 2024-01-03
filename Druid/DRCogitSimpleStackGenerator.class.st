@@ -130,16 +130,6 @@ DRCogitSimpleStackGenerator >> visitClosureCreation: aDRClosureCreation [
 ]
 
 { #category : #visiting }
-DRCogitSimpleStackGenerator >> visitCompileTimeStore: aDRStore [
-
-	| varName |
-	varName := aDRStore address name.
-	generatorMethodBuilder addStatement: (RBAssignmentNode
-			 variable: (RBVariableNode named: varName)
-			 value: (self jitCompileTimeExpression: aDRStore operand1))
-]
-
-{ #category : #visiting }
 DRCogitSimpleStackGenerator >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
 	
 	"This is a continuation to the next bytecode.

@@ -64,6 +64,8 @@ DRBaseOffsetMemoryAddress >> operands [
 DRBaseOffsetMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 
 	base = anOperand ifTrue: [ ^ base := anotherOperand ].
+	offset = anOperand ifTrue: [ ^ offset := anotherOperand ].
+	
 	super replaceDependency: anOperand by: anotherOperand
 ]
 

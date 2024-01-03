@@ -1,9 +1,8 @@
 Class {
 	#name : #DRInterpreterReference,
-	#superclass : #DRValue,
+	#superclass : #DRAbstractMemoryAddress,
 	#instVars : [
-		'reference',
-		'type'
+		'reference'
 	],
 	#category : #'Druid-IR'
 }

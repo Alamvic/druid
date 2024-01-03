@@ -25,6 +25,12 @@ DRPrimitiveCompilationTest class >> testParameters [
 	^ super testParameters * self cogitStyleParameter
 ]
 
+{ #category : #accessing }
+DRPrimitiveCompilationTest >> cogitStyle: aSymbol [
+
+	cogitStyle := aSymbol
+]
+
 { #category : #'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidDeferredInlinePrimitive: selector [
 

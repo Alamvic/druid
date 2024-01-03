@@ -58,8 +58,16 @@ DRStore >> opcode [
 { #category : #accessing }
 DRStore >> operands: operandList [
 
+	"Why not in the list?"
 	size := operandList first value.
 	super operands: { operandList second. operandList third asMemoryAddress }
+]
+
+{ #category : #accessing }
+DRStore >> postCopy [
+
+	super postCopy.
+	self address: self address copy
 ]
 
 { #category : #'users-definitions' }
@@ -67,6 +75,7 @@ DRStore >> replaceDependency: anOperand by: anotherOperand [
 
 	(operands includes: anOperand) ifTrue: [
 		super replaceDependency: anOperand by: anotherOperand.
+
 		(self address operands includes: anOperand) ifTrue: [
 			self address replaceDependency: anOperand by: anotherOperand ].
 		^ self ].
