@@ -45,6 +45,12 @@ DRJitCompileTimeExpression class >> getSpaceMaskToUse [
 	^ DRObjectReferenceValue expression: 'objectMemory getMemoryMap getSpaceMaskToUse'
 ]
 
+{ #category : #accessing }
+DRJitCompileTimeExpression class >> hiddenRootsObject [
+
+	^ DRObjectReferenceValue expression: 'objectMemory hiddenRootsObject'
+]
+
 { #category : #sccp }
 DRJitCompileTimeExpression class >> tryParseOperandForSCCP: aDRValue [
 

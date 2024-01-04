@@ -369,7 +369,8 @@ DRIRGenerator >> initializeSpecialCases [
 	variableSpecialCases at: #permSpaceMask put: #interpretPermSpaceMaskWith:.
 	
 	"Border case, this should not be defined here, it should be extensible"
-	variableSpecialCases at: #hiddenRootsObj put: #interpretNilObjectWith:
+	variableSpecialCases at: #hiddenRootsObj put: #interpretHiddenRootsObjectWith:.
+	variableSpecialCases at: #classTableFirstPage put: #interpretClassTableRootsObjectWith:.	
 ]
 
 { #category : #visiting }
@@ -725,6 +726,16 @@ DRIRGenerator >> interpretCaseOfWith: aRBMessageNode [
 		mergeAll: { executionState }, (trueBlocks collect: [ :e | e second ]).
 ]
 
+{ #category : #interpreting }
+DRIRGenerator >> interpretClassTableRootsObjectWith: aRBVariableNode [
+	"TODO: interpretAsCompilerVariableWith:"
+
+	^ self
+		  interpretLoad: aRBVariableNode
+		  ofAddress: DRObjectReferenceValue hiddenRootsObject
+		  ofType: (DRUnsignedIntegerType size: 8)
+]
+
 { #category : #API }
 DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
 
@@ -855,7 +866,7 @@ DRIRGenerator >> interpretGreaterThanComparisonWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretHiddenRootsObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: DRHiddenRootsObject new
+	^ self addCopy: aRBVariableNode with: DRObjectReferenceValue hiddenRootsObject
 ]
 
 { #category : #'special cases' }
@@ -934,10 +945,10 @@ DRIRGenerator >> interpretLessThanComparisonWith: aRBMessageNode [
 ]
 
 { #category : #'special cases - memory access' }
-DRIRGenerator >> interpretLoad: aRBMessageNode ofAddress: address ofType: aType [
+DRIRGenerator >> interpretLoad: aRBNode ofAddress: address ofType: aType [
 
 	^ self
-		  addInstructionFrom: aRBMessageNode
+		  addInstructionFrom: aRBNode
 		  instructionKind: DRLoad
 		  operands: {
 				  aType.
