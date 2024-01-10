@@ -272,9 +272,11 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #value: put: #interpretBlockValueWith:.
 	specialCases at: #cull: put: #interpretBlockCullWith:.
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
+	specialCases at: #whileTrue put: #interpretWhileTrueWith:.
 	specialCases at: #whileTrue: put: #interpretWhileTrueWith:.
 	specialCases at: #caseOf:otherwise: put: #interpretCaseOfWith:.
 	specialCases at: #cppIf:ifTrue: put: #interpretCppIfWith:.
+	specialCases at: #cppIf:ifTrue:ifFalse: put: #interpretCppIfWith:.
 
 	specialCases at: #= put: #interpretEqualityComparisonWith:.
 	specialCases at: #~= put: #interpretInequalityComparisonWith:.
@@ -313,14 +315,16 @@ DRIRGenerator >> initializeSpecialCases [
 
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #byteAt:put: put: #interpretStoreUint8AtWith:.
 	self flag: #TODO. "Add types to Druid"
 	specialCases at: #uint8At: put: #interpretLoadUint8AtWith:.
 	specialCases at: #uint8At:put: put: #interpretStoreUint8AtWith:.
 	specialCases at: #uint16At: put: #interpretLoadUint16AtWith:.
 	specialCases at: #uint16At:put: put: #interpretStoreUint16AtWith:.
 	specialCases at: #uint32At: put: #interpretLoadUint32AtWith:.
-	specialCases at: #uint32AtPointer: put: #interpretLoadUint32AtWith:.
 	specialCases at: #uint32At:put: put: #interpretStoreUint32AtWith:.
+	specialCases at: #uint32AtPointer: put: #interpretLoadUint32AtWith:.
+	specialCases at: #uint32AtPointer:put: put: #interpretStoreUint32AtWith:.
 	specialCases at: #uint64At: put: #interpretLoadUint64AtWith:.
 	specialCases at: #uint64At:put: put: #interpretStoreUint64AtWith:.
 	specialCases at: #float64At: put: #interpretLoadFloat64AtWith:.
@@ -773,9 +777,16 @@ DRIRGenerator >> interpretCppIfWith: aRBMessageNode [
 
 	| jitExpressionCopy |
 	jitExpressionCopy := self visitOperand: aRBMessageNode arguments first.
-	jitExpressionCopy simpleConstantFold expression = 'true' ifTrue: [
-		(RBMessageNode receiver: aRBMessageNode arguments second selector: #value)
-			acceptVisitor: self ]
+	jitExpressionCopy simpleConstantFold
+		ifTrue: [
+			(RBMessageNode
+				 receiver: aRBMessageNode arguments second
+				 selector: #value) acceptVisitor: self ]
+		ifFalse: [
+			aRBMessageNode arguments size > 2 ifTrue: [
+				(RBMessageNode
+					 receiver: aRBMessageNode arguments third
+					 selector: #value) acceptVisitor: self ] ]
 ]
 
 { #category : #'special cases' }
@@ -1473,9 +1484,11 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 		                           conditionalJump trueBranch:
 			                           branchEntryBlock ]
 		                           doing: [
-			                           self interpretBlockBody:
-				                           aRBMessageNode arguments first.
-			                           self popOperand ].
+			                           aRBMessageNode arguments size > 0
+				                           ifTrue: [
+					                           self interpretBlockBody:
+						                           aRBMessageNode arguments first.
+					                           self popOperand ] ].
 
 	"Could happen that any evaluated block had a non local return.
 	Otherwise, this block should back jump to the entry block of the loop"

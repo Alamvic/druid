@@ -249,6 +249,14 @@ DRJitCompileTimeExpression >> sccpLessThanOrEquals: aDRJitCompileTimeExpression 
 	^ self mergeExpression: '<=' with: aDRJitCompileTimeExpression
 ]
 
+{ #category : #'constant folding' }
+DRJitCompileTimeExpression >> simpleConstantFold [
+
+	self expression = 'true' ifTrue: [ ^ true ].
+	self expression = 'false' ifTrue: [ ^ false ].
+	super simpleConstantFold
+]
+
 { #category : #accessing }
 DRJitCompileTimeExpression >> type [
 
