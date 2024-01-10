@@ -60,7 +60,6 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #checkForEventsMayContextSwitch: put: #interpretInterruptCheckWith:.
 	specialCases at: #fetchByte put: #interpretFetchByteWith:.
 	specialCases at: #druidForceIntepretation put: #interpretDruidForceIntepretationWith:.
-	specialCases at: #remember: put: #interpretRememberWith:.
 	
 	specialCases at: #createFullClosureInIndex:numCopied:ignoreContext: put: #interpretCreateClosureWith:.
 
@@ -271,22 +270,20 @@ DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
 DRBytecodeIRGenerator >> interpretInterruptCheckWith: aRBMessageNode [
 
 	^ (self
-		   addInstructionFrom: aRBMessageNode
-		   instructionKind: DRCall
-		   operands: { 'ceCheckForInterruptTrampoline' }) beMapped
+		   addInstructionCall: { 'ceCheckForInterruptTrampoline' }
+		   from: aRBMessageNode) beMapped
 ]
 
 { #category : #'special cases' }
-DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [ 
-	
+DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [
+
 	| theNonBoolean |
 	theNonBoolean := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.
-	"self CallRT: ceSendMustBeBooleanTrampoline"
 	^ (self
-		  addInstructionWithNoResultFrom: aRBMessageNode
-		  instructionKind: DRCall
-		  operands: { 'ceSendMustBeBooleanTrampoline'. theNonBoolean })
-			beMapped
+		   addInstructionCall: {
+				   'ceSendMustBeBooleanTrampoline'.
+				   theNonBoolean }
+		   from: aRBMessageNode) beMapped
 ]
 
 { #category : #accessing }
@@ -340,24 +337,6 @@ DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [
 	| receiver |
 	receiver := self visitOperand: aRBMessageNode arguments first.
 	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
-]
-
-{ #category : #'special-cases' }
-DRBytecodeIRGenerator >> interpretRememberWith: aRBMessageNode [
-
-	| obj |
-	obj := self visitOperand: aRBMessageNode arguments first.
-	"	
-	cogit 	backEnd saveAndRestoreLinkRegAround: [cogit CallRT: ceStoreCheckTrampoline].
-	"
-	^ (self
-		   addInstructionWithNoResultFrom: aRBMessageNode
-		   instructionKind: DRCall
-		   operands: {
-				   'ceStoreCheckTrampoline'.
-				   obj }) beMapped saveLinkReg
-
-
 ]
 
 { #category : #'special-cases' }

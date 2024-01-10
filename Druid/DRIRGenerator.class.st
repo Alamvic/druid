@@ -52,6 +52,15 @@ DRIRGenerator >> addInstruction: instruction from: aNode [
 	^ instruction
 ]
 
+{ #category : #adding }
+DRIRGenerator >> addInstructionCall: operands from: aRBMessageNode [
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRCall
+		  operands: operands
+]
+
 { #category : #visiting }
 DRIRGenerator >> addInstructionFrom: aNode instructionKind: instructionClass operands: operands [
 	

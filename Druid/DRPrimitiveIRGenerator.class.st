@@ -77,7 +77,12 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 	variableSpecialCases at: #primFailCode put: #interpretPrimFailCodeWith:.
-	specialCases at: #executeFullCogBlock:closure:mayContextSwitch: put: #executeFullCogBlockClosureMayContextSwitchWith:
+	
+	specialCases at: #executeFullCogBlock:closure:mayContextSwitch: put: #executeFullCogBlockClosureMayContextSwitchWith:.
+	
+	specialCases at: #remember: put: #interpretRememberWith:.
+	specialCases at: #newHashBitsOf: put: #interpretNewHashBitsOfWith:
+
 ]
 
 { #category : #visiting }
@@ -133,6 +138,18 @@ DRPrimitiveIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 	self popOperand; pushOperand: valueToStore
 ]
 
+{ #category : #interpreting }
+DRPrimitiveIRGenerator >> interpretNewHashBitsOfWith: aRBMessageNode [
+
+	| obj |
+	obj := self visitOperand: aRBMessageNode arguments first.
+	^ (self
+		   addInstructionCall: {
+				   'ceNewHashTrampoline'.
+				   obj }
+		   from: aRBMessageNode) saveLinkReg
+]
+
 { #category : #'special cases' }
 DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode [ 
 	
@@ -149,6 +166,18 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode
 DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aRBNode [
 
 	self pushOperand: executionState primitiveFailureCode
+]
+
+{ #category : #'special-cases' }
+DRPrimitiveIRGenerator >> interpretRememberWith: aRBMessageNode [
+
+	| obj |
+	obj := self visitOperand: aRBMessageNode arguments first.
+	^ (self
+		   addInstructionCall: {
+				   'ceStoreCheckTrampoline'.
+				   obj }
+		   from: aRBMessageNode) beMapped saveLinkReg
 ]
 
 { #category : #accessing }

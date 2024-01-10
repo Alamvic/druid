@@ -11,7 +11,7 @@ DRCogitStackCanonicaliser >> visitPush: aDRPush [
 	pushedValue := aDRPush operand1 simpleConstantFold.
 	pushedValue isLoad ifFalse: [ ^ self ].
 	pushedValue address isAbsolute ifTrue: [
-		self flag: #FIXME.
+		self flag: #FIXME. "?"
 		^ self ].
 	aDRPush replaceDependency: pushedValue by: pushedValue address
 ]
