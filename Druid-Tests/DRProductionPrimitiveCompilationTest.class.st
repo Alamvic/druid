@@ -97,6 +97,53 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtManyElements [
 ]
 
 { #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClass [
+
+	| class |
+	self compileDruidPrimitive: #primitiveClass.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory nonIndexablePointerFormat.
+	obj := memory instantiateClass: class.
+
+	self executePrimitiveWithReceiver: obj.
+
+	self assert: machineSimulator receiverRegisterValue equals: class
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassFaillingWithArg [
+
+	| class |
+	self compileDruidPrimitive: #primitiveClass numArgs: 1.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory nonIndexablePointerFormat.
+	obj := memory instantiateClass: class.
+
+	self
+		executeUntilStopPrimitiveWithReceiver: memory nilObject
+		withArguments: { obj }
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassImmediate [
+
+	| int |
+	self compileDruidPrimitive: #primitiveClass.
+
+	int := memory integerObjectOf: 42.
+
+	self executePrimitiveWithReceiver: int.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory fetchClassOf: int)
+]
+
+{ #category : #'tests-real primitives' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInitializesInstance [
 
 	| class |
@@ -134,6 +181,22 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInstantiatesClass
 		assert:
 		(memory fetchClassOf: machineSimulator receiverRegisterValue)
 		equals: class
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSize [
+
+	| class array size |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveSize.
+
+	size := 7.
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	array := memory instantiateClass: class indexableSize: size.
+
+	self executePrimitiveWithReceiver: array.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: size)
 ]
 
 { #category : #'tests-real primitives' }

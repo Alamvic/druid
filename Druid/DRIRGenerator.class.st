@@ -732,7 +732,7 @@ DRIRGenerator >> interpretClassTableRootsObjectWith: aRBVariableNode [
 
 	^ self
 		  interpretLoad: aRBVariableNode
-		  ofAddress: DRObjectReferenceValue hiddenRootsObject
+		  ofAddress: (DRObjectReferenceValue hiddenRootsObject) + 8
 		  ofType: (DRUnsignedIntegerType size: 8)
 ]
 
@@ -1534,7 +1534,7 @@ DRIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 
 	^ aRBMessageNode isSuperSend
 		  ifTrue: [ 
-			  self currentMethod methodClass superclass lookupSelector:
+			  self currentMethod methodNode methodClass superclass lookupSelector:
 				  aRBMessageNode selector ]
 		  ifFalse: [ receiver type lookupSelector: aRBMessageNode selector ]
 ]
@@ -1930,6 +1930,7 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 DRIRGenerator >> visitMethodNode: aRBMethodNode [
 
 	(aRBMethodNode hasPragmaNamed: #doNotGenerate) ifTrue: [ 1 halt ].
+	(aRBMethodNode hasPragmaNamed: #halt) ifTrue: [ 1 halt ].
 
 	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [
 		| failure primitiveReturn returnState |

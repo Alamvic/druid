@@ -8,6 +8,12 @@ Class {
 }
 
 { #category : #accessing }
+DRJitCompileTimeExpression class >> argumentCount [
+
+	^ self expression: 'self methodNumArgs'
+]
+
+{ #category : #accessing }
 DRJitCompileTimeExpression class >> expression: anExpression [
 
 	^ self new
@@ -49,6 +55,12 @@ DRJitCompileTimeExpression class >> getSpaceMaskToUse [
 DRJitCompileTimeExpression class >> hiddenRootsObject [
 
 	^ DRObjectReferenceValue expression: 'objectMemory hiddenRootsObject'
+]
+
+{ #category : #accessing }
+DRJitCompileTimeExpression class >> nilObject [
+
+	^ DRObjectReferenceValue expression: 'objectMemory nilObject'
 ]
 
 { #category : #sccp }

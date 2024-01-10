@@ -88,9 +88,14 @@ DRAbstractCompilerCompiler >> customiseFor: method [
 
 	method ast
 		pragmaNamed: #customisedReceiverFor:
-		ifPresent: [ :pragma | 
+		ifPresent: [ :pragma |
 			customisation := DRPrimitiveCustomisation newCustomisation:
-				                  pragma arguments first value ]
+				                 pragma arguments first value ].
+
+	method ast
+		pragmaNamed: #checkArgumentCount
+		ifPresent: [ :pragma | "TODO: Have a list of customisations"
+			customisation := DRArgumentCountCheckCustomisation withArgumentCount: (self numberOfArgumentsForMethod: method) ]
 ]
 
 { #category : #'generation-IR' }
