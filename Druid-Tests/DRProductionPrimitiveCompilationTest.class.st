@@ -147,7 +147,6 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassImmediate [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInitializesInstance [
 
 	| class |
-	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNew.
 
 	class := self
@@ -168,7 +167,6 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInitializesInstan
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInstantiatesClass [
 
 	| class |
-	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNew.
 
 	class := self

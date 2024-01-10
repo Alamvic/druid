@@ -59,16 +59,14 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass: aSuperclass [
 
 	| primitives bytecodes |
-	primitives := #( #primitiveAdd #primitiveSubtract #primitiveLessThan
-	                 #primitiveGreaterThan #primitiveLessOrEqual
-	                 #primitiveGreaterOrEqual #primitiveEqual "#primitiveNotEqual"
-	                 #primitiveMultiply "#primitiveDivide" "primitiveAt" "primitiveNew
-	                 primitiveNewWithArg" ).
+	primitives := #( 
+	#primitiveAdd #primitiveSubtract #primitiveMultiply #primitiveDivide #primitiveMod "#primitiveBitShift" 
+	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
+	#primitiveEqual #primitiveNotEqual #primitiveIdentical "#primitiveNotIdentical" 
+	#primitiveClass #primitiveSize #primitiveAt "#primitiveAtPut" #primitiveBehaviorHash #primitiveIdentityHash
+	#primitiveNew #primitiveNewWithArg
+	#primitiveFullClosureValue ).
 
-	"bytecodePrimAdd duplicateTopBytecode 
-	sendLiteralSelector0ArgsBytecode shortConditionalJumpTrue 
-	  pushConstantTrueBytecode
-	 "
 	bytecodes := #( 
 		"pushReceiverVariableBytecode"
 			0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
@@ -116,7 +114,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 			224 225
 		"extended receiver/literal/temporary/constant variable bytecode"
 			226
-			227 228 229 232 233
+			227 228 229 "231" 232 233
 		"extended send"
 			234
 		"extSendSuperBytecode"
@@ -513,7 +511,8 @@ DRInterpreterToCompiler >> newInterpreter [
 	" Answer an <AbstractInterpreter|StackInterpreter> from the receiver's interpreter builder "
 
 	memory := self newMemory.
-
+	memory lastHash: 1. "Setup seed for hash related primitives"
+	
 	^ interpreterClass basicNew
 		  objectMemory: memory;
 		  basicInitialize
