@@ -16,7 +16,7 @@ DRPrimitiveIRGenerator >> executeFullCogBlockClosureMayContextSwitchWith: aRBMes
 	closureCode := self visitOperand: aRBMessageNode arguments first.
 	mayContextSwitch := self visitOperand: aRBMessageNode arguments third.
 
-	offsetSelector := DRInterpreterExpression reference:
+	offsetSelector := DRInterpreterReference reference:
 		                  (mayContextSwitch simpleConstantFold
 			                   ifTrue: [ 'self fullBlockEntryOffset' ]
 			                   ifFalse: [
@@ -96,7 +96,7 @@ DRPrimitiveIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	| value |
 	aRBAssignmentNode value acceptVisitor: self.
 	"Keep instruction in CFG for inlinings"
-	value := currentBasicBlock strongCopy: self operandStackTop. 
+	value := currentBasicBlock strongCopyForInlining: self operandStackTop. 
 
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
 		^ self receiver value
@@ -119,7 +119,7 @@ DRPrimitiveIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 	| byteSize valueToStore |
 	aRBAssignmentNode value acceptVisitor: self.
 	valueToStore := self popOperand.
-
+1halt.
 	byteSize := 8.
 	self
 		  addInstructionFrom: aRBAssignmentNode

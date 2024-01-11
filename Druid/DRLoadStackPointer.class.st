@@ -10,6 +10,12 @@ DRLoadStackPointer >> acceptVisitor: aVisitor [
 	^ aVisitor visitLoadStackPointer: self
 ]
 
+{ #category : #testing }
+DRLoadStackPointer >> isLoadStackPointer [
+
+	^ true
+]
+
 { #category : #printing }
 DRLoadStackPointer >> opcode [
 	

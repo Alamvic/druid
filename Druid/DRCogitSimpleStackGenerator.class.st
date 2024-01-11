@@ -23,6 +23,13 @@ DRCogitSimpleStackGenerator >> initialize [
 	variables := Dictionary new
 ]
 
+{ #category : #copy }
+DRCogitSimpleStackGenerator >> postCopy [
+
+	deferredBranches := deferredBranches copy.
+	^ self
+]
+
 { #category : #'ir-to-ast' }
 DRCogitSimpleStackGenerator >> returnNodeForCompiledMethod [
 
@@ -53,8 +60,10 @@ DRCogitSimpleStackGenerator >> visitBytecodeJump: aDRBytecodeJump [
 	"self Jump: (self ensureFixupAt: targetBytecode)"
 
 	| targetBytecode |
-	targetBytecode := self jitCompileTimeExpression:
-		                  aDRBytecodeJump operand1.
+	"If we don't have a virtual register, we cannot stage the jump offset calculation!"
+	targetBytecode := self varNodeForStagedInstruction: aDRBytecodeJump operand1.
+	self assert: aDRBytecodeJump operand1 result isStagedRegister.
+	
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #Jump:
@@ -160,7 +169,7 @@ DRCogitSimpleStackGenerator >> visitLoadFramePointer: aDRLoadFramePointer [
 
 	self twoOperandMoveCogitRTL: aDRLoadFramePointer operands: {
 			(DRPhysicalGeneralPurposeRegister name: 'FPReg').
-			aDRLoadFramePointer result }
+			aDRLoadFramePointer }
 ]
 
 { #category : #visiting }
@@ -173,7 +182,7 @@ DRCogitSimpleStackGenerator >> visitLoadReceiver: aDRLoadReceiver [
 	self allocateVariable: aDRLoadReceiver result.
 	self twoOperandMoveCogitRTL: aDRLoadReceiver operands: {
 			(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg').
-			aDRLoadReceiver result }
+			aDRLoadReceiver }
 ]
 
 { #category : #visiting }
@@ -181,7 +190,7 @@ DRCogitSimpleStackGenerator >> visitLoadStackPointer: aDRLoadStackPointer [
 
 	self twoOperandMoveCogitRTL: aDRLoadStackPointer operands: {
 			(DRPhysicalGeneralPurposeRegister name: 'SPReg').
-			aDRLoadStackPointer result }
+			aDRLoadStackPointer }
 ]
 
 { #category : #visiting }
@@ -198,7 +207,7 @@ DRCogitSimpleStackGenerator >> visitPop: aDRPop [
 { #category : #visiting }
 DRCogitSimpleStackGenerator >> visitPush: aDRPush [
 
-	aDRPush operand1 isConstant ifTrue: [
+	(aDRPush operand1 isConstant or: [ aDRPush operand1 isStaged ]) ifTrue: [
 		^ generatorMethodBuilder addStatement: (RBMessageNode
 				   receiver: RBVariableNode selfNode
 				   selector: 'genPushConstant:'
@@ -233,6 +242,12 @@ DRCogitSimpleStackGenerator >> visitReturn: aDRReturn [
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: generator)
+]
+
+{ #category : #visiting }
+DRCogitSimpleStackGenerator >> visitStagedInstruction: aDRStagedInstruction [ 
+	
+	^ aDRStagedInstruction stagedInstruction acceptVisitor: self
 ]
 
 { #category : #visiting }

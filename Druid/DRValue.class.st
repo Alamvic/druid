@@ -133,6 +133,12 @@ DRValue >> isAnnotateBytecode [
 ]
 
 { #category : #testing }
+DRValue >> isClosureCreation [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isComparison [
 
 	^ false
@@ -148,6 +154,13 @@ DRValue >> isComplexCondition [
 DRValue >> isConstant [
 	
 	^ false
+]
+
+{ #category : #testing }
+DRValue >> isConstanteable [
+
+	"Can be considered a constant in JIT compile time?"
+	^ self isConstant
 ]
 
 { #category : #testing }
@@ -187,6 +200,18 @@ DRValue >> isInstruction [
 ]
 
 { #category : #testing }
+DRValue >> isInterpreterExpression [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isInterpreterReference [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isInvariantFrom: loop [
 
 	"A value is loop invariant with respect to a given loop if it can be moved outside the body of the loop without affecting the semantics of the program."
@@ -210,6 +235,12 @@ DRValue >> isJITCompileTimeExpression: aString [
 DRValue >> isJITCompileTimeExpressionIgnoring: aCollection [
 
 	^ self isJITCompileTimeExpression
+]
+
+{ #category : #testing }
+DRValue >> isJITMessageSend [
+	
+	^ false
 ]
 
 { #category : #accessing }
@@ -275,7 +306,7 @@ DRValue >> isNullValue [
 { #category : #testing }
 DRValue >> isObjectReferenceValue [
 
-	^ false
+	^ self type isObjectReference
 ]
 
 { #category : #testing }
@@ -317,6 +348,12 @@ DRValue >> isSetConditionCode [
 { #category : #testing }
 DRValue >> isStackInstruction [
 
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isStaged [
+	
 	^ false
 ]
 
@@ -414,10 +451,23 @@ DRValue >> result [
 	^ self
 ]
 
+{ #category : #translating }
+DRValue >> rtlArgumentsForAbsoluteAddressForGenerator: anObject [
+	self shouldBeImplemented.
+]
+
 { #category : #'cogit-generation' }
 DRValue >> rtlOperandQualifier [
 
 	self subclassResponsibility
+]
+
+{ #category : #translating }
+DRValue >> rtlOperandQualifierForAbsoluteAddress [
+	
+	"I'm a constant, so I'm an absolute memory address"
+	
+	^ 'Aw:'
 ]
 
 { #category : #'cogit-generation' }

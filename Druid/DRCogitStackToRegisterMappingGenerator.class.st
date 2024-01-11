@@ -31,7 +31,7 @@ DRCogitStackToRegisterMappingGenerator >> allocateVariable: aDRResult [
 	variableIndex := nextVariableIndex.
 	nextVariableIndex := nextVariableIndex + 1.
 
-	temporaryVariableNode := RBVariableNode named: 't' , variableIndex asString.
+	temporaryVariableNode := RBVariableNode named: 't', variableIndex asString.
 	variables at: aDRResult put: temporaryVariableNode name.
 
 	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
@@ -129,17 +129,6 @@ DRCogitStackToRegisterMappingGenerator >> saveRegisterLiveMask: temporaryVariabl
 						   receiver: RBVariableNode selfNode
 						   selector: #registerMaskFor:
 						   arguments: { temporaryVariableNode copy }) }))
-]
-
-{ #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
-
-	self allocateVariable: anInstruction result.
-	operands first isObjectReferenceValue ifTrue: [
-		"It's moving a constant to a register. This constant could be an oop, so we need to annotate it."
-		^ self generateMessage: #genMoveConstant:R: operands: operands ].
-
-	^ super twoOperandMoveCogitRTL: anInstruction operands: operands
 ]
 
 { #category : #accessing }
@@ -242,7 +231,7 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
   self allocateVariable: aDRLoadReceiver result.
 	self twoOperandMoveCogitRTL: aDRLoadReceiver operands: { 
 				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg').
-				aDRLoadReceiver result }
+				aDRLoadReceiver }
 ]
 
 { #category : #visiting }
@@ -280,9 +269,7 @@ DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: 'ssPush'
-				 ,
-				 (aDRPush operand1 rtlPushOperandQualifierForInstruction: aDRPush)
+			 selector: 'ssPush' , (aDRPush operand1 rtlPushOperandQualifierForInstruction: aDRPush)
 			 arguments: (aDRPush operand1 rtlPushArgumentExpressions: self))
 ]
 

@@ -30,7 +30,7 @@ DRCopyPropagationTest >> testCopyIsNotPropagatedFromObjectReferenceToArithmeticF
 	| cfg copy add |
 	cfg := self setUpCFG: 2.
 
-	copy := cfg b1 copy: DRNilObject new.
+	copy := cfg b1 copy: DRInterpreterReference nilObject.
 	add := cfg b2 add: copy to: 8.
 
 	DRCopyPropagation new applyTo: cfg.
@@ -44,7 +44,7 @@ DRCopyPropagationTest >> testCopyIsNotPropagatedFromObjectReferenceToPhiFunction
 	| cfg copy phi |
 	cfg := self setUpCFG: 2.
 
-	copy := cfg b1 copy: DRTrueObject new.
+	copy := cfg b1 copy: DRInterpreterReference trueObject.
 	phi := cfg b2 phiWith: copy.
 
 	DRCopyPropagation new applyTo: cfg.

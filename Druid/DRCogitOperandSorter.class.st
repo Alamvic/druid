@@ -301,6 +301,12 @@ DRCogitOperandSorter >> visitRightShift: aDRRightShift [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitStagedInstruction: aDRStagedInstruction [ 
+	
+	^ aDRStagedInstruction stagedInstruction acceptVisitor: self
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitStore: aDRStore [
 
 	aDRStore isJITCompileTimeExpression ifTrue: [ ^ self ].

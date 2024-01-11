@@ -34,7 +34,7 @@ DRStore >> canMoveOutsideLoop: backJump [
 { #category : #testing }
 DRStore >> isJITCompileTimeExpression [
 
-	^ self address isJITCompileTimeExpression
+	^ self address isStaged
 ]
 
 { #category : #visiting }

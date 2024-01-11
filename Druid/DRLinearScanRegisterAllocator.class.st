@@ -27,7 +27,8 @@ Class {
 		'inactiveIntervals',
 		'unhandledIntervals',
 		'spillingStrategy',
-		'registerPool'
+		'registerPool',
+		'stagedRegisters'
 	],
 	#category : #'Druid-LinearScanRegisterAllocation'
 }
@@ -165,13 +166,23 @@ DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 { #category : #steps }
 DRLinearScanRegisterAllocator >> assignRegisters [
 
-	self instructionsDo: [ :i | "Assign first registers to operands.
+	self instructionsDo: [ :i | "If staged, assign a staged register, only if it did not already have one"
+		i isStaged
+			ifTrue: [
+				i result isStagedRegister ifFalse: [
+					| newStagedRegister |
+					newStagedRegister := stagedRegisters
+						                     at: i result
+						                     ifAbsentPut: [ DRStagedRegister name: 's' , i order asString ].
+					controlFlowGraph addStagedRegister: newStagedRegister.
+					i result: newStagedRegister ] ]
+			ifFalse: [ "Assign first registers to operands.
 		This will use spill registers if needed and return them to the pool.
 		Then, the result can use them if it is spilled too."
-		self assignRegistersToOperandsInInstruction: i.
+				self assignRegistersToOperandsInInstruction: i.
 
-		"Replace the result by the allocated register if necessary"
-		self assignRegisterToResultInInstruction: i ]
+				"Replace the result by the allocated register if necessary"
+				self assignRegisterToResultInInstruction: i ] ]
 ]
 
 { #category : #steps }
@@ -208,8 +219,10 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 
 			allocatedLocation isMemoryAddress ifTrue: [ | load |
 				load := (DRLoad
-						 operands: { 
-								 op type.
+						 operands: {
+								 "It does not really matter the type we load.
+								 We spilled 8 bytes, we reload 8 bytes"
+								 DRUnsignedIntegerType size: 8.
 								 allocatedLocation }
 						 result: allocatedRegister).
 				i addBefore: load.
@@ -237,7 +250,7 @@ DRLinearScanRegisterAllocator >> buildLiveSets [
 DRLinearScanRegisterAllocator >> coallescePhiIntervals [
 	
 	self instructionsDo: [ :i |
-		i isPhiFunction ifTrue: [ | phiSet operandSets allSets mergedSet |
+		(i isPhiFunction and: [ i isStaged not ]) ifTrue: [ | phiSet operandSets allSets mergedSet |
 			phiSet := self liveSetOf: i.
 			operandSets := i operands collect: [ :op | self liveSetOf: op ].
 			allSets := {phiSet}, operandSets.
@@ -257,58 +270,64 @@ DRLinearScanRegisterAllocator >> coallescePhiIntervals [
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> computeLiveSets [
 
-	| liveVariablesPerBlock |
+	| liveVariablesPerBlock blockInstructionsToCompute |
 	liveVariablesPerBlock := Dictionary new.
 
-	controlFlowGraph postOrderBlocks do: [ :b | 
+	controlFlowGraph postOrderBlocks do: [ :b |
 		| live |
 		live := Set new.
 		liveVariablesPerBlock at: b put: live.
 
 		"Collect all live variables from successors"
-		b successors withIndexDo: [ :s :si | 
+		b successors withIndexDo: [ :s :si |
 			live addAll: (liveVariablesPerBlock at: s ifAbsentPut: [ Set new ]).
-			s phiFunctions do: [ :phi | 
+			s phiFunctions do: [ :phi |
 				live remove: phi ifAbsent: [  ].
-				(phi operandsAtPredecessorsOtherThan: b) do: [ 
-					:notIncomingInstruction | 
-					(live includes: notIncomingInstruction) ifTrue: [ 
+				(phi operandsAtPredecessorsOtherThan: b) do: [
+					:notIncomingInstruction |
+					(live includes: notIncomingInstruction) ifTrue: [
 						live remove: notIncomingInstruction ] ] ] ].
 
+		blockInstructionsToCompute := b instructions select: [ :e |
+			                              e isStaged not ].
 		"Check which live values are defined in this block, or defined in predecessors"
-		(live sorted: [ :l1 :l2 | l1 name < l2 name ]) do: [ :i | 
+		(live sorted: [ :l1 :l2 | l1 name < l2 name ]) do: [ :i |
 			| instructionLiveSet |
 			instructionLiveSet := self liveSetOf: i.
-			(b instructions includes: i)
-				ifTrue: [ 
-				instructionLiveSet addRangeFrom: i to: b instructions last ]
-				ifFalse: [ 
+			(blockInstructionsToCompute includes: i)
+				ifTrue: [
+					instructionLiveSet
+						addRangeFrom: i
+						to: b instructions last ]
+				ifFalse: [
 					instructionLiveSet
 						addRangeFrom: b instructions first
 						to: b instructions last ] ].
 
 		"Finally, for each instruction we define, augment the live set"
-		b instructions reversed do: [ :i | 
+		blockInstructionsToCompute reversed do: [ :i |
 			self computeLivenessOfInstruction: i inBlock: b withLiveSet: live ].
-		
-		
+
+
 		"For each predecessor that is a backjump, we should extend the life of each variable to be live in the loop"
 		b predecessors
 			select: [ :p | p endInstruction isBackJumpTo: b ]
 			thenDo: [ :p |
-				live do: [ :i | | instructionLiveSet |
+				live do: [ :i |
+					| instructionLiveSet |
 					instructionLiveSet := self liveSetOf: i.
-					instructionLiveSet addRangeFrom: b first to: p endInstruction ] ] ].
+					instructionLiveSet addRangeFrom: b first to: p endInstruction ] ] ]
 ]
 
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> computeLivenessOfInstruction: i inBlock: b withLiveSet: live [
 
-	i result isVirtualRegister ifTrue: [ 
+	i result isVirtualRegister ifTrue: [
 		live remove: i ifAbsent: [ self initializeLiveSetOfInstruction: i ] ].
-	^ i dependencies do: [ :op | 
-		  (op result isVirtualRegister and: [ (live includes: op) not ]) 
-			  ifTrue: [ 
+	^ i dependencies do: [ :op |
+		  (op result isVirtualRegister and: [
+			   op isStaged not and: [ (live includes: op) not ] ])
+			  ifTrue: [
 				  self
 					  updateLiveSet: live
 					  ofOperand: op
@@ -333,7 +352,8 @@ DRLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
 	self withFirstSpilling.
-	registerPool := DRFixedRegisterPool new
+	registerPool := DRFixedRegisterPool new.
+	stagedRegisters := Dictionary new
 ]
 
 { #category : #'live-analysis' }
@@ -373,11 +393,16 @@ DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [
 ]
 
 { #category : #accessing }
-DRLinearScanRegisterAllocator >> liveSetOf: anInstruction [
+DRLinearScanRegisterAllocator >> liveSetOf: aDependency [
+	"If it is not an instruction that requires allocation, do not record the live set"
+
+	(aDependency isInstruction not or: [ aDependency isStaged ]) ifTrue: [
+		^ DRLiveSet definition: aDependency ].
 
 	"Main entry point to get the live set of an instruction"
-
-	^ liveSets at: anInstruction ifAbsentPut: [ DRLiveSet definition: anInstruction ]
+	^ liveSets
+		  at: aDependency
+		  ifAbsentPut: [ DRLiveSet definition: aDependency ]
 ]
 
 { #category : #allocation }
@@ -390,7 +415,6 @@ DRLinearScanRegisterAllocator >> newStackLocation [
 
 { #category : #steps }
 DRLinearScanRegisterAllocator >> prepareSSA [
-	
 	"Prepare the SSA CFG by adding copies above Phi functions.
 	Phi function arguments are short lived between 
 	 - the end of their predecessors and
@@ -399,26 +423,24 @@ DRLinearScanRegisterAllocator >> prepareSSA [
 	This copy allows simpler coallescing of the life ranges of the  phi function and its operands.
 	"
 	controlFlowGraph phiFunctions do: [ :e |
-		e operands with: e basicBlock predecessors do: [ :operand :predecessor |
-			| copyTarget copy |
-			
-			"If it is a critical edge, split it and insert the copy in the split block instead"
-			copyTarget := predecessor successors size > 1
-				ifTrue: [ | splitBlock |
-					splitBlock := controlFlowGraph newBasicBlock.
-					splitBlock addPredecessor: predecessor.
-					predecessor replaceSuccessor: e basicBlock by: splitBlock.
-					e basicBlock replacePredecessor: predecessor by: splitBlock.
-					splitBlock jumpTo: e basicBlock.
-					splitBlock ]
-				ifFalse: [ predecessor ].
-	
-			copy := copyTarget copy: operand.
-			e replaceOperandAtPredecessor: copyTarget by: copy
-		]
-	].
+		e operands
+			with: e basicBlock predecessors
+			do: [ :operand :predecessor |
+				| copyTarget copy |
+				"If it is a critical edge, split it and insert the copy in the split block instead"
+				copyTarget := predecessor successors size > 1
+					              ifTrue: [
+					              e basicBlock breakCriticalEdgeToPredecessor:
+						              predecessor ]
+					              ifFalse: [ predecessor ].
 
-	controlFlowGraph fixBackJumps.
+				copy := copyTarget copy: operand.
+				"All copies should share the same name as the phi"
+				copy result: e result.
+				e isStaged ifTrue: [ copy markAsStaged ].
+				e replaceOperandAtPredecessor: copyTarget by: copy ] ].
+
+	controlFlowGraph fixBackJumps
 ]
 
 { #category : #accessing }

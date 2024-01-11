@@ -1,6 +1,6 @@
 Class {
 	#name : #DRBytecodeCompilationTest,
-	#superclass : #DRDruidTests,
+	#superclass : #DRDruidTest,
 	#category : #'Druid-Tests'
 }
 

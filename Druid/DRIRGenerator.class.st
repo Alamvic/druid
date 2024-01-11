@@ -9,7 +9,8 @@ Class {
 		'controlFlowGraph',
 		'executionState',
 		'variableSpecialCases',
-		'typeSystem'
+		'typeSystem',
+		'staging'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -265,6 +266,7 @@ DRIRGenerator >> initialize [
 DRIRGenerator >> initializeSpecialCases [
 
 	"Control flow and comparisons"
+	specialCases at: #druidStageable: put: #interpretStageableBlockWith:.
 	specialCases at: #druidIgnore: put: #ignoreMessageWith:.
 	specialCases at: #interpreterIgnore: put: #interpretBlockArgumentValueWith:.
 	specialCases at: #druidFail put: #interpretDruidFailWith:.
@@ -309,6 +311,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #rawFloatBitsOf:in: put: #interpretRawFloatBitsWith:.
 	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
+	specialCases at: #asObjectReference put: #interpretObjectReferenceCoercionWith:.	
 	
 
 	"Memory accesses"
@@ -389,6 +392,7 @@ DRIRGenerator >> instantiate: anInstructionClass operands: aCollection [
 	
 	| instruction |
 	instruction := anInstructionClass operands: aCollection result: self allocateTemporaryRegister.
+	staging = true ifTrue: [ instruction markAsStaged ].
 	^ instruction
 ]
 
@@ -762,7 +766,7 @@ DRIRGenerator >> interpretCppIfWith: aRBMessageNode [
 
 	| jitExpressionCopy |
 	jitExpressionCopy := self visitOperand: aRBMessageNode arguments first.
-	jitExpressionCopy simpleConstantFold expression = 'true' ifTrue: [
+	jitExpressionCopy simpleConstantFold reference = 'true' ifTrue: [
 		(RBMessageNode receiver: aRBMessageNode arguments second selector: #value)
 			acceptVisitor: self ]
 ]
@@ -798,7 +802,7 @@ DRIRGenerator >> interpretEqualityComparisonWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: DRFalseObject new
+	^ self addCopy: aRBVariableNode with: DRInterpreterReference falseObject
 ]
 
 { #category : #'special cases' }
@@ -813,7 +817,7 @@ DRIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 	| byteSize valueToStore |
 	aRBAssignmentNode value acceptVisitor: self.
 	valueToStore := self popOperand.
-
+1halt.
 	byteSize := 8.
 	self
 		addInstructionWithNoResultFrom: aRBAssignmentNode
@@ -855,7 +859,9 @@ DRIRGenerator >> interpretGreaterThanComparisonWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretHiddenRootsObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: DRHiddenRootsObject new
+	^ self
+		  addCopy: aRBVariableNode
+		  with: DRInterpreterReference hiddenRootsObject
 ]
 
 { #category : #'special cases' }
@@ -995,7 +1001,6 @@ DRIRGenerator >> interpretMachineWordAtWith: aRBMessageNode [
 	| address |
 	
 	address := self visitOperand: aRBMessageNode arguments first.
-	
 	^ self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRLoad
@@ -1082,7 +1087,7 @@ DRIRGenerator >> interpretNewSpaceMaskWith: aRBVariableNode [
 
 	^ self
 		  addCopy: aRBVariableNode
-		  with: DRConstantCompileTimeExpression getNewSpaceMask
+		  with: DRInterpreterReference getNewSpaceMask
 ]
 
 { #category : #interpreting }
@@ -1090,13 +1095,15 @@ DRIRGenerator >> interpretNewSpaceStartWith: aRBVariableNode [
 
 	^ self
 		  addCopy: aRBVariableNode
-		  with: DRConstantCompileTimeExpression getNewSpaceStart
+		  with: DRInterpreterReference getNewSpaceStart
 ]
 
 { #category : #'special cases' }
 DRIRGenerator >> interpretNilObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: (DRObjectReferenceValue expression: 'objectMemory nilObject')
+	^ self
+		  addCopy: aRBVariableNode
+		  with: DRInterpreterReference nilObject
 ]
 
 { #category : #visiting }
@@ -1104,12 +1111,25 @@ DRIRGenerator >> interpretNotWith: aRBMessageNode [
 	self shouldBeImplemented.
 ]
 
+{ #category : #'special cases' }
+DRIRGenerator >> interpretObjectReferenceCoercionWith: aRBMessageNode [ 
+	
+	| resultToCAst |
+	aRBMessageNode receiver acceptVisitor: self.
+	
+	"Add the type and repush"
+	resultToCAst :=self popOperand.
+	self assert: resultToCAst isLoad.
+	resultToCAst type: DRObjectReferenceType new.
+	self pushOperand: resultToCAst
+]
+
 { #category : #interpreting }
 DRIRGenerator >> interpretOldSpaceMaskWith: aRBVariableNode [
 
 	^ self
 		  addCopy: aRBVariableNode
-		  with: DRConstantCompileTimeExpression getOldSpaceMask
+		  with: DRInterpreterReference getOldSpaceMask
 ]
 
 { #category : #'special cases' }
@@ -1123,7 +1143,7 @@ DRIRGenerator >> interpretPermSpaceMaskWith: aRBVariableNode [
 
 	^ self
 		  addCopy: aRBVariableNode
-		  with: DRConstantCompileTimeExpression getPermSpaceMask
+		  with: DRInterpreterReference getPermSpaceMask
 ]
 
 { #category : #'special cases' }
@@ -1182,7 +1202,7 @@ DRIRGenerator >> interpretScavengeThresholdWith: aRBVariableNode [
 	^ self
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
-		  operands: { (DRConstantCompileTimeExpression new expression:
+		  operands: { (DRInterpreterReference new reference:
 				   'objectMemory getScavengeThreshold') }
 ]
 
@@ -1200,7 +1220,7 @@ DRIRGenerator >> interpretSpaceMaskToUseWith: aRBVariableNode [
 
 	^ self
 		  addCopy: aRBVariableNode
-		  with: DRConstantCompileTimeExpression getSpaceMaskToUse
+		  with: DRInterpreterReference getSpaceMaskToUse
 ]
 
 { #category : #'special cases - stack' }
@@ -1246,13 +1266,27 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode withValue: aValue [
 			classType: (DRSignedIntegerType size: 8 "Word size")
 ]
 
+{ #category : #'special cases' }
+DRIRGenerator >> interpretStageableBlockWith: aRBMessageNode [
+
+	| stageableBlock |
+	aRBMessageNode arguments first acceptVisitor: self.
+	stageableBlock := self popOperand simplify.
+	stageableBlock isDRBlockClosure ifFalse: [ self error: 'Only consider blocks' ].
+
+	stageableBlock blockNode arguments size > 0 ifTrue: [
+		self error: 'Only consider blocks with no arguments' ].
+
+	self stageInstructionsDuring: [
+		self interpretCode: stageableBlock receiver: stageableBlock arguments: #(  ) ]
+]
+
 { #category : #'special cases - memory access' }
 DRIRGenerator >> interpretStore: aRBMessageNode ofByteSize: byteSize [
 
 	| address value |
 	address := self visitOperand: aRBMessageNode arguments first.
 	value := self visitOperand: aRBMessageNode arguments second.
-
 	self
 		addInstructionWithNoResultFrom: aRBMessageNode
 		instructionKind: DRStore
@@ -1394,8 +1428,7 @@ DRIRGenerator >> interpretTrueObjectWith: aRBVariableNode [
 
 	^ self
 		  addCopy: aRBVariableNode
-		  with:
-		  (DRObjectReferenceValue expression: 'objectMemory trueObject')
+		  with: DRInterpreterReference trueObject
 ]
 
 { #category : #'special cases' }
@@ -1764,6 +1797,15 @@ DRIRGenerator >> stackValue: offset [
 	^ self executionState valueVM: offset
 ]
 
+{ #category : #staging }
+DRIRGenerator >> stageInstructionsDuring: aFullBlockClosure [ 
+	
+	| oldStaging |
+	oldStaging := staging.
+	staging := true.
+	aFullBlockClosure ensure: [ staging := oldStaging ]
+]
+
 { #category : #'special cases' }
 DRIRGenerator >> tagSmallInteger: operand from: aRBMessageNode [
 
@@ -1945,7 +1987,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 			self assert: aRBMethodNode statements size = 1.
 			self assert: aRBMethodNode statements first isReturn.
 			copy := self currentBasicBlock copy:
-				        (DRCompositeCompileTimeExpression expression:
+				        (DRInterpreterReference reference:
 					         aRBMethodNode statements first value formattedCode).
 			self topFrame returnValue: copy.
 			self addDeferredReturnState: {

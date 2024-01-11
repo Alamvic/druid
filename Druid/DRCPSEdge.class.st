@@ -411,6 +411,18 @@ DRCPSEdge >> visitIntToFloatConversion: aDRIntToFloat [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitInterpreterExpression: aDRInterpreterExpression [
+
+	^ nil "Not supported"
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitInterpreterReference: aDRInterpreterReference [
+
+	^ nil "Not supported"
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitInterpreterValue: aDRInterpreterValue [
 
 	^ nil

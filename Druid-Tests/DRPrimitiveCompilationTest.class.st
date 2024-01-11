@@ -1,6 +1,6 @@
 Class {
 	#name : #DRPrimitiveCompilationTest,
-	#superclass : #DRDruidTests,
+	#superclass : #DRDruidTest,
 	#instVars : [
 		'stopAddress',
 		'cogitStyle',

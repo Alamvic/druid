@@ -11,7 +11,8 @@ Class {
 		'deadPaths',
 		'numberOfSpillSlots',
 		'tree',
-		'edgesBySource'
+		'edgesBySource',
+		'stagedRegisters'
 	],
 	#category : #'Druid-IR'
 }
@@ -40,6 +41,13 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 	edge := DRCPSEdge withSource: sourceBlock andDestination: destinationBlock branchIndex: branchIndex.
 	self addEdge: edge.
 	^ edge
+]
+
+{ #category : #adding }
+DRControlFlowGraph >> addStagedRegister: aDRStagedRegister [ 
+	
+	"Track the staged registers in this CFG to generate"
+	stagedRegisters add: aDRStagedRegister
 ]
 
 { #category : #accessing }
@@ -341,16 +349,14 @@ DRControlFlowGraph >> createinstructionView: instruction [
 		  model: instruction;
 		  color: (self instructionColor: instruction);
 		  border: (RSBorder new
-				   color: Color black;
+				   color: (instruction isStaged
+						    ifTrue: [ Color red ]
+						    ifFalse: [ Color black ]);
 				   joinMiter);
-		  @ (RSMenuActivable new menuDo: [ :menu :element | 
+		  @ (RSMenuActivable new menuDo: [ :menu :element |
 				   menu
-					   add: 'Inline'
-					   target: element model
-					   selector: #inline;
-						add: 'Unroll'
-					   target: element model
-					   selector: #uiUnroll ]);
+					   add: 'Inline' target: element model selector: #inline;
+					   add: 'Unroll' target: element model selector: #uiUnroll ]);
 		  yourself
 ]
 
@@ -472,6 +478,7 @@ DRControlFlowGraph >> initialize [
 	super initialize.
 	instructionFactory := DRInstructionFactory new.
 	
+	stagedRegisters := OrderedCollection new.
 	basicBlocks := OrderedCollection new.
 	edges := OrderedCollection new.
 	edgesBySource := Dictionary new.
@@ -783,6 +790,11 @@ DRControlFlowGraph >> simplePathsBetween: sourceNode and: destinationNode [
 DRControlFlowGraph >> stackInstructions [
 
 	^ self instructions select: [ :i | i isStackInstruction ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> stagedRegisters [
+	^ stagedRegisters
 ]
 
 { #category : #accessing }
