@@ -27,14 +27,12 @@ DRCogitStackToRegisterGeneratorTest >> testGenerateMoveConstant [
 
 	| cfg r1 generatedASTInstruction |
 	cfg := DRControlFlowGraph new.
-	r1 := cfg instructionFactory copy: DRInterpreterReference nilObject.
-
+	r1 := cfg initialBasicBlock copy: DRInterpreterReference nilObject.
+	DRStager new applyTo: cfg.
 	self generateCogitForInstruction: r1.
 	generatedASTInstruction := self statements last.
 
-	self
-		assert: generatedASTInstruction selector
-		equals: #genMoveConstant:R:.
+	self assert: generatedASTInstruction selector equals: #genMoveConstant:R:.
 	self
 		assert: generatedASTInstruction arguments first name
 		equals: 'objectMemory nilObject'
@@ -48,7 +46,7 @@ DRCogitStackToRegisterGeneratorTest >> testGeneratePushBaseOffset [
 	basicBlock := cfg newBasicBlockWith: [ :block |
 		              r1 := block
 			                    pushBase: block loadFramePointer
-			                    offset: 17 ].
+			                    offset: 17 asDRValue ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
 	self generateCogitForInstruction: r1.

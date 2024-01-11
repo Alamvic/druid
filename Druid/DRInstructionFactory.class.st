@@ -273,9 +273,9 @@ DRInstructionFactory >> setReturnValue: aValue [
 
 { #category : #factory }
 DRInstructionFactory >> storeSInt64: operand at: address [
-1halt.
+
 	^ DRStore
-		  operands: { 
+		  operands: {
 				  8 asDRValue.
 				  operand asDRValue.
 				  address asDRValue }

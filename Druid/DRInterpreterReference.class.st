@@ -1,8 +1,9 @@
 Class {
 	#name : #DRInterpreterReference,
-	#superclass : #DRAbstractMemoryAddress,
+	#superclass : #DRValue,
 	#instVars : [
-		'reference'
+		'reference',
+		'type'
 	],
 	#category : #'Druid-IR'
 }
@@ -10,7 +11,7 @@ Class {
 { #category : #factory }
 DRInterpreterReference class >> falseObject [
 
-	^ self objectReference: 'objectMemory falseObject'
+	^ self pointerReference: 'objectMemory falseObject'
 ]
 
 { #category : #factory }
@@ -58,7 +59,7 @@ DRInterpreterReference class >> hiddenRootsObject [
 { #category : #factory }
 DRInterpreterReference class >> nilObject [
 
-	^ self objectReference: 'objectMemory nilObject'
+	^ self pointerReference: 'objectMemory nilObject'
 ]
 
 { #category : #accessing }
@@ -90,13 +91,19 @@ DRInterpreterReference class >> reference: aReference [
 { #category : #factory }
 DRInterpreterReference class >> trueObject [
 
-	^ self objectReference: 'objectMemory trueObject'
+	^ self pointerReference: 'objectMemory trueObject'
 ]
 
 { #category : #visiting }
 DRInterpreterReference >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitInterpreterReference: self
+]
+
+{ #category : #converting }
+DRInterpreterReference >> asJitCompileTimeExpression [
+
+	^ reference asDRValue asJitCompileTimeExpression
 ]
 
 { #category : #testing }
@@ -123,13 +130,6 @@ DRInterpreterReference >> isInterpreterReference [
 DRInterpreterReference >> isJITCompileTimeExpression: aString [ 
 	
 	^ reference = aString
-]
-
-{ #category : #testing }
-DRInterpreterReference >> isStaged [
-
-	"Values known by the interpreter are always staged, and SHOULD be staged"
-	^ self type isObjectReference not
 ]
 
 { #category : #accessing }

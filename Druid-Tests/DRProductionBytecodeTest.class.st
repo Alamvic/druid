@@ -470,7 +470,9 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssPopTopToReg: ReceiverResultReg.
+			(cogit isKindOf: StackToRegisterMappingCogit)
+				ifTrue: [ cogit ssPopTopToReg: ReceiverResultReg ]
+				ifFalse: [ cogit PopR: ReceiverResultReg ].
 			cogit genUpArrowReturn ].
 
 	self
@@ -1704,7 +1706,9 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecode [
 		compileBytecode: 243
 		selector: #extStoreReceiverVariableBytecode
 		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
+			(cogit isKindOf: StackToRegisterMappingCogit)
+				ifTrue: [ cogit ssPushRegister: TempReg ]
+				ifFalse: [ cogit PushR: TempReg ].
 
 			"Execute the druid's compiled code"
 			generator value.
@@ -1718,7 +1722,9 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecode [
 	self executePrimitiveWithReceiver: object.
 
 	self assert: machineSimulator receiverRegisterValue equals: object.
-	self assert: (memory fetchPointer: 0 ofObject: object) equals: memory trueObject
+	self
+		assert: (memory fetchPointer: 0 ofObject: object)
+		equals: memory trueObject
 ]
 
 { #category : #tests }

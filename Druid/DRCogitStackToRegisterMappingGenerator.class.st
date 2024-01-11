@@ -65,6 +65,15 @@ DRCogitStackToRegisterMappingGenerator >> initialize [
 	markDeadCode := false
 ]
 
+{ #category : #copy }
+DRCogitStackToRegisterMappingGenerator >> innerGenerator [
+
+	| innerGenerator |
+	innerGenerator := super innerGenerator.
+	innerGenerator parent: self.
+	^ innerGenerator
+]
+
 { #category : #'code-generation' }
 DRCogitStackToRegisterMappingGenerator >> markAsDeadCode [
 

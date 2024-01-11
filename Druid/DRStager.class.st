@@ -61,7 +61,9 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 	anInstruction isReturn ifTrue: [ ^ false ].
 	anInstruction isJITCompileTimeExpression ifTrue: [ ^ true ].
 	anInstruction isCopy ifTrue: [
-		^ self canStageOneLevel: anInstruction operand1 ].
+		^ (anInstruction result isVirtualRegister or: [
+			   anInstruction result isStagedRegister ]) and: [
+			  self canStageOneLevel: anInstruction operand1 ] ].
 	(anInstruction isArithmeticInstruction or: [ anInstruction isNegate ])
 		ifTrue: [
 			^ anInstruction operands allSatisfy: [ :e |

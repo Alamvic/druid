@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #converting }
+DRStrongCopyForInlining >> asCopy [
+
+	^ DRCopy operands: self operands copy result: self result
+]
+
 { #category : #testing }
 DRStrongCopyForInlining >> isMandatoryInstruction [
 

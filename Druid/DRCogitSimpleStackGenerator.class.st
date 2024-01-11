@@ -26,7 +26,6 @@ DRCogitSimpleStackGenerator >> initialize [
 { #category : #copy }
 DRCogitSimpleStackGenerator >> postCopy [
 
-	variables := variables copy.
 	deferredBranches := deferredBranches copy.
 	^ self
 ]

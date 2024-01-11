@@ -1140,7 +1140,6 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 { #category : #building }
 DRBasicBlock >> storeSInt64: operand at: address [
 
-1halt.
 	^ self addInstruction: (self instructionFactory storeSInt64: operand at: address)
 ]
 
