@@ -7,6 +7,12 @@ Class {
 	#category : #'Druid-CompilerCompiler'
 }
 
+{ #category : #accessing }
+DRArgumentCountCheckCustomisation class >> pragmaName [
+
+	^ 'argumentCountCheck'
+]
+
 { #category : #factory }
 DRArgumentCountCheckCustomisation class >> withArgumentCount: anInteger [
 

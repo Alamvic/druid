@@ -21,6 +21,13 @@ DRIntegerType >> isIntegerType [
 	^ true
 ]
 
+{ #category : #printing }
+DRIntegerType >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream << '[' << self size asString << ']'
+]
+
 { #category : #accessing }
 DRIntegerType >> size [
 
