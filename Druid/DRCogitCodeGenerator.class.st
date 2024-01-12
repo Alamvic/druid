@@ -365,7 +365,7 @@ DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 	The first spill slot will be [SP], the second will be [SP+WordSize] and so on."
 	addStatement := RBMessageNode
 		                receiver: RBVariableNode selfNode
-		                selector: #SubCq:R:
+		                selector: #AddCq:R:
 		                arguments: {
 				                (RBLiteralValueNode value:
 					                 aDRControlFlowGraph numberOfSpillSlots * 8). "bytes"
@@ -382,11 +382,11 @@ DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 	"If we need no spill slots, do nothing"
 	aDRControlFlowGraph numberOfSpillSlots = 0 ifTrue: [ ^ self ].
 	
-	"Otherwise, increment the stack pointer by N*WordSize where N is the number of required spill slots.
+	"Otherwise, decrement the stack pointer by N*WordSize where N is the number of required spill slots.
 	The first spill slot will be [SP], the second will be [SP+WordSize] and so on."
 	addStatement := RBMessageNode
 		receiver: RBVariableNode selfNode
-		selector: #AddCq:R:
+		selector: #SubCq:R:
 		arguments: {
 			RBLiteralValueNode value: aDRControlFlowGraph numberOfSpillSlots * 8 "bytes".
 			RBVariableNode named: 'SPReg'

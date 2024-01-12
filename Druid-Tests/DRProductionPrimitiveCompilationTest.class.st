@@ -196,6 +196,24 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInstantiatesClass
 ]
 
 { #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewMoveStartFreeSpace [
+
+	| class freeStart newObjectSize |
+	self compileDruidPrimitive: #primitiveNew.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 4
+		         instSpec: memory nonIndexablePointerFormat.
+	memory ensureBehaviorHash: class.
+	freeStart := memory freeStart.
+
+	self executePrimitiveWithReceiver: class.
+
+	newObjectSize := (memory byteSizeOf: machineSimulator receiverRegisterValue) + memory baseHeaderSize.
+	self assert: memory freeStart equals: freeStart + newObjectSize
+]
+
+{ #category : #'tests-real primitives' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSize [
 
 	| class array size |
