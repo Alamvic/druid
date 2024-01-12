@@ -7,44 +7,6 @@ Class {
 	#category : #'Druid-Cogit'
 }
 
-{ #category : #helpers }
-DRCogitStackToRegisterMappingGenerator >> allocateVariable: aDRResult [
-
-	| temporaryVariableNode variableIndex |
-	parent ifNotNil: [ ^ parent allocateVariable: aDRResult ].
-	
-	aDRResult isNoResult ifTrue: [ ^ self ].
-	variables at: aDRResult ifPresent: [ :var | ^ var ].
-
-	"Should generate a variable allocation in the lines of:
-	
-	live := 0.
-
-	t0 := self allocateRegNotConflictingWith: live ifNone: [ ^ ABANDON COMPILATION ].
-	live := live | t0.
-	
-	t1 := self allocateRegNotConflictingWith: live ifNone: [ ^ ABANDON COMPILATION ].
-	live := live | t1."
-
-	variableIndex := nextVariableIndex.
-	nextVariableIndex := nextVariableIndex + 1.
-
-	temporaryVariableNode := RBVariableNode named: 't', variableIndex asString.
-	variables at: aDRResult put: temporaryVariableNode name.
-
-	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
-	generatorMethodBuilder addStatement:
-		(RBAssignmentNode variable: temporaryVariableNode copy value: (RBMessageNode
-				  receiver: RBVariableNode selfNode
-				  selector: #allocateRegNotConflictingWith:ifNone:
-				  arguments: {
-						  (RBVariableNode named: 'live').
-						  (RBVariableNode named: '[ ^ self unknownBytecode ]') })).
-	self saveRegisterLiveMask: temporaryVariableNode.
-
-	^ temporaryVariableNode name
-]
-
 { #category : #'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 
@@ -56,20 +18,25 @@ DRCogitStackToRegisterMappingGenerator >> generatePreambleForCFG: aDRControlFlow
 ]
 
 { #category : #helpers }
+DRCogitStackToRegisterMappingGenerator >> generateRegisterAllocationFor: aDRResult inVariable: temporaryVariableNode [
+
+	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: temporaryVariableNode copy
+			 value: (RBMessageNode
+					  receiver: RBVariableNode selfNode
+					  selector: #allocateRegNotConflictingWith:ifNone:
+					  arguments: {
+							  (RBVariableNode named: 'live').
+							  (RBVariableNode named: '[ ^ self unknownBytecode ]') })).
+	self saveRegisterLiveMask: temporaryVariableNode
+]
+
+{ #category : #helpers }
 DRCogitStackToRegisterMappingGenerator >> initialize [
 
 	super initialize.
-	nextVariableIndex := 0.
 	markDeadCode := false
-]
-
-{ #category : #copy }
-DRCogitStackToRegisterMappingGenerator >> innerGenerator [
-
-	| innerGenerator |
-	innerGenerator := super innerGenerator.
-	innerGenerator parent: self.
-	^ innerGenerator
 ]
 
 { #category : #'code-generation' }
@@ -92,12 +59,6 @@ DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRIns
 			 arguments: { (RBVariableNode named: temporaryVariableNode) })
 ]
 
-{ #category : #accessing }
-DRCogitStackToRegisterMappingGenerator >> parent: aDRCogitGenerator [
-
-	parent := aDRCogitGenerator
-]
-
 { #category : #'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> preProcessBlock: aBasicBlock [
 
@@ -107,13 +68,6 @@ DRCogitStackToRegisterMappingGenerator >> preProcessBlock: aBasicBlock [
 				 variable: (RBVariableNode named: 'deadCode')
 				 value: (RBLiteralNode value: false)) ].
 	super preProcessBlock: aBasicBlock
-]
-
-{ #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> rtlExpressionForValue: aValue [
-
-	variables at: aValue result ifPresent: [ :var | ^ RBVariableNode named: var ].
-	^ super rtlExpressionForValue: aValue
 ]
 
 { #category : #helpers }
@@ -127,12 +81,6 @@ DRCogitStackToRegisterMappingGenerator >> saveRegisterLiveMask: temporaryVariabl
 						   receiver: RBVariableNode selfNode
 						   selector: #registerMaskFor:
 						   arguments: { temporaryVariableNode copy }) }))
-]
-
-{ #category : #accessing }
-DRCogitStackToRegisterMappingGenerator >> variables [
-
-	^ variables
 ]
 
 { #category : #visiting }

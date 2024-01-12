@@ -133,7 +133,7 @@ DRLinearScanRegisterAllocatorTest >> testAllocateIntegerRegistersAfterOperateRev
 
 ]
 
-{ #category : #'tests-ssa preparation' }
+{ #category : #'tests - ssa preparation' }
 DRLinearScanRegisterAllocatorTest >> testBreakPhiDuringSSAPreparation [
 
 	| cfg basicBlockTrue basicBlockJoin r0 r1 r2 topBasicBlock |
@@ -167,7 +167,7 @@ DRLinearScanRegisterAllocatorTest >> testBreakPhiDuringSSAPreparation [
 	self assert: (basicBlockJoin predecessors second instructions atLast: 2) operand1 equals: r1.
 ]
 
-{ #category : #'tests-ssa preparation' }
+{ #category : #'tests - ssa preparation' }
 DRLinearScanRegisterAllocatorTest >> testBreakPhiDuringSSAPreparationWithStaging [
 
 	| cfg basicBlockTrue basicBlockJoin r0 r1 r2 topBasicBlock firstGeneratedCopy secondGeneratedCopy |
@@ -235,6 +235,52 @@ DRLinearScanRegisterAllocatorTest >> testCoallescePhiArguments [
 	
 	self assert: basicBlockTrue instructions second result equals: firstRegister.
 	self assert: basicBlockFalse instructions second result equals: firstRegister.
+]
+
+{ #category : #'tests - staging' }
+DRLinearScanRegisterAllocatorTest >> testDoNotInsertCopyForStagedNonMovableConstantOperand1 [
+
+	| cfg r0 r1 r2 topBasicBlock firstGeneratedCopy |
+	cfg := DRControlFlowGraph new.
+
+	topBasicBlock := cfg newBasicBlockWith: [ :block |
+		                 r0 := block copy:
+			                       (DRInterpreterReference objectReference:
+				                        'methodObj').
+		                 r1 := (block copy: 2) markAsStaged.
+		                 r2 := block add: r0 to: r1 ].
+	cfg initialBasicBlock jumpTo: topBasicBlock.
+
+	registerAllocator allocateRegistersIn: cfg.
+
+	"There is no need to extract the staged instruction into a copy"
+	firstGeneratedCopy := topBasicBlock instructions allButLast last.
+	self assert: firstGeneratedCopy isAdd.
+	self assert: firstGeneratedCopy operand2 isStaged
+]
+
+{ #category : #'tests - staging' }
+DRLinearScanRegisterAllocatorTest >> testDoNotInsertCopyForStagedNonMovableConstantOperand2 [
+
+	| cfg r0 r1 r2 topBasicBlock firstGeneratedCopy |
+	cfg := DRControlFlowGraph new.
+
+	topBasicBlock := cfg newBasicBlockWith: [ :block |
+		                 r0 := block copy:
+			                       (DRInterpreterReference objectReference:
+				                        'methodObj').
+		                 r1 := (block copy: 2) markAsStaged.
+		                 r2 := block add: r1 to: r0 ].
+	cfg initialBasicBlock jumpTo: topBasicBlock.
+
+	registerAllocator allocateRegistersIn: cfg.
+
+	firstGeneratedCopy := topBasicBlock instructions allButLast last.
+	self assert: firstGeneratedCopy isAdd.
+	
+	"Here we don't have the choice: when transforming to 2AC the first operand should be extracted in a copy"
+	self assert: firstGeneratedCopy operand1 isCopy.
+	self assert: firstGeneratedCopy operand1 operand1 isStaged
 ]
 
 { #category : #tests }

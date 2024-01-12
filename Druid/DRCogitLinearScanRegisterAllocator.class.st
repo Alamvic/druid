@@ -33,24 +33,23 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 		"
 				(i result isNoResult not and: [
 					 i operands size = 2 and: [
-						 i operands anySatisfy: [ :op | op isPhysicalRegister or: [ op isStaged ] ] ] ])
-					ifTrue: [
-						| registerToCopy copyInstruction |
-						registerToCopy := i operands detect: [ :op |
-							                  op isPhysicalRegister or: [ op isStaged ] ].
-
-						"Create a copy instruction before, branch it, and return true to indicate we need to recompute intervals"
-						copyInstruction := i controlFlowGraph instructionFactory copy: registerToCopy.
-						i addBefore: copyInstruction.
-						i replaceOperand: registerToCopy by: copyInstruction.
-						^ true ].
+						 i operands first isPhysicalRegister or: [
+							 i operands first isStaged ] ] ]) ifTrue: [
+					| registerToCopy copyInstruction |
+					registerToCopy := i operands first.
+					"Create a copy instruction before, branch it, and return true to indicate we need to recompute intervals"
+					copyInstruction := i controlFlowGraph instructionFactory copy:
+						                   registerToCopy.
+					i addBefore: copyInstruction.
+					i replaceOperand: registerToCopy by: copyInstruction.
+					^ true ].
 
 				(i result isNoResult not and: [ i operands size = 2 ]) ifTrue: [
 					| secondOperandInterval currentInterval operandToMergeInterval |
 					"Floats are not 2AC in cogit..."
 					(i type isFloatType not and: [
-						 (i operands collect: #type) allSatisfy: [ :e | e isFloatType ] ]) ifTrue: [
-						^ false ].
+						 (i operands collect: #type) allSatisfy: [ :e | e isFloatType ] ])
+						ifTrue: [ ^ false ].
 
 					"Merge the two intervals, finding the operand that is not a constant.
 					Take the first operand.
@@ -77,7 +76,8 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 						ifFalse: [
 							| mergedInterval |
 							"Create a merged interval and set it as interval for the current definition and its second operand."
-							mergedInterval := secondOperandInterval mergeWith: currentInterval.
+							mergedInterval := secondOperandInterval mergeWith:
+								                  currentInterval.
 							(liveSets keys sorted: [ :a :b | a name < b name ]) do: [ :k |
 								({
 									 secondOperandInterval.
