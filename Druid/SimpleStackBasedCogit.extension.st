@@ -31,8 +31,9 @@ SimpleStackBasedCogit class >> druidNewOptimizationList [
 
 	"Last Phase, make code coggable"
 	optimisations add: DRCogitOperandSorter new.
-	optimisations add: DRCogitStager new.
 	optimisations add: DRCogitCanonicaliser new.
+	optimisations add: DRCogitStager new.
+	optimisations add: DRCogitOperandSorter new.
 	optimisations add: DRDeadCodeElimination new.
 	^ optimisations
 ]

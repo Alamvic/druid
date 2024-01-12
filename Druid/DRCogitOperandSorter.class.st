@@ -5,22 +5,24 @@ Class {
 }
 
 { #category : #applying }
-DRCogitOperandSorter >> applyTo: aDRControlFlowGraph [ 
-	
-	aDRControlFlowGraph instructionsDo: [ :e | e acceptVisitor: self ]
+DRCogitOperandSorter >> applyTo: aDRControlFlowGraph [
+
+	aDRControlFlowGraph instructionsDo: [ :e |
+		e isStaged ifFalse: [ e acceptVisitor: self ] ]
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> extractFirstOperandInCopyIfNecessaryFrom: anInstruction [ 
-	
+DRCogitOperandSorter >> extractFirstOperandInCopyIfNecessaryFrom: anInstruction [
+
 	| copy |
 	"If the first operand is a constant, extract it in a copy.
 	This is useful for instructions that do nto accept constants as second operand."
-	anInstruction operand1 isInstruction ifFalse: [
-		copy := anInstruction instructionFactory copy: anInstruction operand1.
-		anInstruction addBefore: copy.
-		anInstruction replaceOperand: anInstruction operand1 by: copy
-	]
+	(anInstruction operand1 isInstruction and: [
+		 anInstruction operand1 isStaged not ]) ifTrue: [ ^ self ].
+
+	copy := anInstruction instructionFactory copy: anInstruction operand1.
+	anInstruction addBefore: copy.
+	anInstruction replaceOperand: anInstruction operand1 by: copy
 ]
 
 { #category : #visiting }
