@@ -10,10 +10,9 @@ DRTailDuplicateStagedExpressions >> doApplyWithGeneratedPaths: cfg [
 	| jitCompileConditionalBlocks |
 	jitCompileConditionalBlocks := cfg allConditionalJumps
 		                               select: [ :jump |
-		                               jump isJITCompileTimeExpression ]
+		                               jump isStaged ]
 		                               thenCollect: [ :jump |
 		                               jump basicBlock ].
-
 	cfg phiFunctions
 		select: [ :phi |
 			jitCompileConditionalBlocks anySatisfy: [ :dominator |

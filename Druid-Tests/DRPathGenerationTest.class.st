@@ -160,7 +160,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranchWithPhi [
 	phi := cfg b4 phiFunctions first.
 	phi replaceOperand: cfg b2 firstInstruction by: copy.
 	cfg b2 firstInstruction removeFromCFG.
-	condition := cfg b3 greater: (DRJitCompileTimeExpression getNewSpaceStart) than: 47 asDRValue.
+	condition := cfg b3 greater: (DRInterpreterReference getNewSpaceStart) than: 47 asDRValue.
 	cfg b3 firstInstruction replaceOperandAtIndex: 1 by: condition.
 	cfg b4 jumpIf: phi to: cfg newBasicBlock ifFalseTo:  cfg newBasicBlock.
 

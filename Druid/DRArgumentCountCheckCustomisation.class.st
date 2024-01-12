@@ -44,7 +44,7 @@ DRArgumentCountCheckCustomisation >> optimize: aDRPrimitiveControlFlowGraph [
 	checkBlock := aDRPrimitiveControlFlowGraph newBasicBlockWith: [ :b |
 		              | condition |
 		              condition := b
-			                           greater: DRJitCompileTimeExpression argumentCount
+			                           greater: DRInterpreterReference argumentCount
 			                           than: argumentCount asDRValue.
 		              b
 			              jumpIf: condition

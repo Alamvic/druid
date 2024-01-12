@@ -53,6 +53,7 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 	(aSetOfPotentiallyStagedInstructions includes: anInstruction)
 		ifTrue: [ ^ true ].
 	(self canStageOneLevel: anInstruction) ifTrue: [ ^ true ].
+	anInstruction isNullValue ifTrue: [ ^ false ].
 	anInstruction isJITMessageSend ifTrue: [ ^ false ].
 	anInstruction isClosureCreation ifTrue: [ ^ false ].
 	anInstruction isConditionalBranch ifTrue: [
@@ -109,7 +110,8 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 	anInstruction isNoop ifTrue: [ ^ false ].
 	anInstruction isCogitSendMarshall ifTrue: [ ^ false ].
 	(anInstruction isKindOf: DRFlushStack) ifTrue: [ ^ false ].
-	1 halt
+	1 halt.
+	^ false
 	"(anInstruction isArithmeticInstruction or: [ anInstruction isCopy ])
 		ifFalse: [ ^ false ].
 

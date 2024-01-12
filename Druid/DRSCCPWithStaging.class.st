@@ -12,7 +12,7 @@ DRSCCPWithStaging >> latticeForLoad: aLoad [
 		| newVar |
 		newVar := aLoad result name asLowercase.
 		aLoad replaceUsesBy: newVar asDRValue asJitCompileTimeExpression.
-		1halt.
+
 		^ DRStore
 			  operands: {
 					  aLoad size asDRValue.
@@ -23,8 +23,8 @@ DRSCCPWithStaging >> latticeForLoad: aLoad [
 	addressLattice := aLoad address sccpLatticeValueFor: self.
 
 	(self isConstantLattice: addressLattice) ifTrue: [ "If the address is constant, we can move the load to JIT compile time"
-		^ 'coInterpreter int64AtPointer:' asDRValue asJitCompileTimeExpression
-		  , addressLattice asDRValue asJitCompileTimeExpression ].
+		^ ('coInterpreter int64AtPointer: ' , addressLattice value asString)
+			  asDRValue asJitCompileTimeExpression ].
 
 	"sccp value is the same that the address, either top or bottom"
 	^ addressLattice

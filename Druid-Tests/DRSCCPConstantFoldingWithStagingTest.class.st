@@ -19,7 +19,7 @@ DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingAddJitCompileExpressi
 
 	self assert: cfg instructions allButLast last isCopy.
 	self
-		assert: cfg instructions allButLast last operand1 expression
+		assert: cfg instructions allButLast last operand expression
 		equals: '(var + 7)'
 ]
 
@@ -143,11 +143,10 @@ DRSCCPConstantFoldingWithStagingTest >> testFoldingLoadWithConstant [
 	optimisation applyTo: cfg.
 
 	"T2 := LOAD_JIT_COMPILE_EXPRESSION 1"
-	self assert:
-		cfg instructions nextToLast operand1 isJITCompileTimeExpression.
+	self assert: cfg instructions nextToLast operand1 isInterpreterReference.
 	self
-		assert: cfg instructions nextToLast operand1 expression
-		equals: '(coInterpreter int64AtPointer:  1)'
+		assert: cfg instructions nextToLast operand1 reference
+		equals: '(coInterpreter int64AtPointer: 1)'
 ]
 
 { #category : #tests }

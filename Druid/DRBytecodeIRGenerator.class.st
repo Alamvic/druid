@@ -514,16 +514,22 @@ DRBytecodeIRGenerator >> trackStackInstruction: aDRStrackInstruction [
 { #category : #visiting }
 DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
-	| value mappings |
-	value := aRBVariableNode variable name.
+	| name value mappings |
+	name := aRBVariableNode variable name.
 	mappings := {
-		            ('FoxIFReceiver' -> 'FrameReceiverOffset').
-		            ('IMMUTABILITY' -> 'true') } asDictionary.
-	value := mappings at: value ifAbsent: [ value ].
+		            ('FoxIFReceiver'
+		             ->
+			             ((DRInterpreterReference reference:
+					               'FrameReceiverOffset')
+				              type: (DRUnsignedIntegerType size: 8);
+				              yourself)).
+		            ('IMMUTABILITY' -> true asDRValue) } asDictionary.
+	value := mappings at: name ifAbsent: [
+		         (DRInterpreterReference reference: name)
+			         type: (DRUnsignedIntegerType size: 8);
+			         yourself ].
 	^ self
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
-		  operands: { ((DRInterpreterReference reference: value)
-				   type: (DRUnsignedIntegerType size: 8);
-				   yourself) }
+		  operands: { value }
 ]

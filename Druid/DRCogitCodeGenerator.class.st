@@ -857,7 +857,6 @@ DRCogitCodeGenerator >> visitDivision: aDRCogitDivision [
 	The (cogit specific) register allocator should inserts a register for REM destination implicitly yet unused.
 	It should also put all operands in registers as the cogit instruction does not support constants."
 
-
 	^ generatorMethodBuilder addStatement: (RBMessageNode
 			   receiver: RBVariableNode selfNode
 			   selector: #DivR:R:Quo:Rem:

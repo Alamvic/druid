@@ -275,6 +275,7 @@ DRIRGenerator >> initialize [
 DRIRGenerator >> initializeSpecialCases [
 
 	"Control flow and comparisons"
+	specialCases at: #druidStageable: put: #interpretStageableBlockWith:.
 	specialCases at: #druidIgnore: put: #ignoreMessageWith:.
 	specialCases at: #interpreterIgnore: put: #interpretBlockArgumentValueWith:.
 	specialCases at: #druidFail put: #interpretDruidFailWith:.
@@ -321,6 +322,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #rawFloatBitsOf:in: put: #interpretRawFloatBitsWith:.
 	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
+	specialCases at: #asObjectReference put: #interpretObjectReferenceCoercionWith:.
 	
 
 	"Memory accesses"
@@ -342,7 +344,6 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
 	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
-	
 	
 	specialCases at: #longAt:put: put: #interpretMachineWordAtPutWith:.
 	specialCases at: #unsignedLong64At:put: put: #interpretMachineWordAtPutWith:.
@@ -747,7 +748,7 @@ DRIRGenerator >> interpretClassTableRootsObjectWith: aRBVariableNode [
 
 	^ self
 		  interpretLoad: aRBVariableNode
-		  ofAddress: (DRObjectReferenceValue hiddenRootsObject) + 8
+		  ofAddress: DRInterpreterReference classTableFirstPage
 		  ofType: (DRUnsignedIntegerType size: 8)
 ]
 
@@ -888,7 +889,9 @@ DRIRGenerator >> interpretGreaterThanComparisonWith: aRBMessageNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretHiddenRootsObjectWith: aRBVariableNode [
 
-	^ self addCopy: aRBVariableNode with: DRObjectReferenceValue hiddenRootsObject
+	^ self
+		  addCopy: aRBVariableNode
+		  with: DRInterpreterReference hiddenRootsObject
 ]
 
 { #category : #'special cases' }
@@ -1990,7 +1993,6 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 DRIRGenerator >> visitMethodNode: aRBMethodNode [
 
 	(aRBMethodNode hasPragmaNamed: #doNotGenerate) ifTrue: [ 1 halt ].
-	(aRBMethodNode hasPragmaNamed: #halt) ifTrue: [ 1 halt ].
 
 	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [
 		| failure primitiveReturn returnState |
@@ -2017,7 +2019,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 			self assert: aRBMethodNode statements size = 1.
 			self assert: aRBMethodNode statements first isReturn.
 			copy := self currentBasicBlock copy:
-				        (DRCompositeCompileTimeExpression expression:
+				        (DRInterpreterReference reference:
 					         aRBMethodNode statements first value formattedCode).
 			self topFrame returnValue: copy.
 			self addDeferredReturnState: {

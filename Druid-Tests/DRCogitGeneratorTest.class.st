@@ -156,7 +156,7 @@ DRCogitGeneratorTest >> testGenerateLoadSpilledMemoryAddress [
 	self generateCogitForInstruction: r0.	
 	loadInstruction := self statements first.
 	self assert: loadInstruction selector equals: #MoveMw:r:R:.
-	self assert: loadInstruction arguments first value equals: 8.
+	self assert: loadInstruction arguments first value equals: 0.
 	self assert: loadInstruction arguments second name equals: 'SPReg'.
 	self assert: loadInstruction arguments third name equals: 't0'
 ]

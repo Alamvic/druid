@@ -199,8 +199,6 @@ DRSCCP >> latticeValue: aValue [
 
 	aValue isConstant ifTrue: [ ^ aValue ].
 	aValue isMessageSend ifTrue: [ ^ self bottom ].
-	aValue isStore ifTrue: [ ^ self bottom ].
-	aValue isLoad ifTrue: [ ^ self bottom ].
 	aValue isInterpreterReference ifTrue: [ ^ self bottom ].
 
 	^ latticeValues at: aValue ifAbsent: [ self top ]
