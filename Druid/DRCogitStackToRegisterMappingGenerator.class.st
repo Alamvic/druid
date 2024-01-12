@@ -2,9 +2,7 @@ Class {
 	#name : #DRCogitStackToRegisterMappingGenerator,
 	#superclass : #DRCogitSimpleStackGenerator,
 	#instVars : [
-		'nextVariableIndex',
-		'markDeadCode',
-		'parent'
+		'markDeadCode'
 	],
 	#category : #'Druid-Cogit'
 }

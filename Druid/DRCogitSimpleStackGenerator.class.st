@@ -2,7 +2,9 @@ Class {
 	#name : #DRCogitSimpleStackGenerator,
 	#superclass : #DRCogitBytecodeCodeGenerator,
 	#instVars : [
-		'variables'
+		'variables',
+		'parent',
+		'nextVariableIndex'
 	],
 	#category : #'Druid-Cogit'
 }
