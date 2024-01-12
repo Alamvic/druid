@@ -199,7 +199,7 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 	i isPhiFunction ifTrue: [ ^ self ].
 
 	usedSpillRegisters := OrderedCollection new: 3.
-	i operands do: [ :op | 
+	i dependencies do: [ :op | 
 		(liveSets includesKey: op) ifTrue: [ 
 			allocatedLocation := self allocatedRegisterFor: op.
 			allocatedRegister := allocatedLocation isMemoryAddress

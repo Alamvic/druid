@@ -144,6 +144,20 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassImmediate [
 ]
 
 { #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewFailingForLongSlotsObjects [
+
+	| class |
+	self compileDruidPrimitive: #primitiveNew.
+
+	class := class := self
+		                  newClassInOldSpaceWithSlots: 256
+		                  instSpec: memory nonIndexablePointerFormat.
+	memory ensureBehaviorHash: class.
+
+	self executeUntilStopPrimitiveWithReceiver: class
+]
+
+{ #category : #'tests-real primitives' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInitializesInstance [
 
 	| class |
