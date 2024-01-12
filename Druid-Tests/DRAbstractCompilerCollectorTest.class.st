@@ -4,7 +4,7 @@ This class provides behavior for subclasses to use a Mock JIT class.
 "
 Class {
 	#name : #DRAbstractCompilerCollectorTest,
-	#superclass : #DRDruidTests,
+	#superclass : #DRDruidTest,
 	#instVars : [
 		'testingEnvironment'
 	],

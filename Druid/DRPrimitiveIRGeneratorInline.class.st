@@ -13,7 +13,7 @@ Class {
 DRPrimitiveIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 
 	"Connect to next basic block and failure code"
-	currentBasicBlock store: executionState primitiveFailureCode in: DRInterpreterReference primitiveFailureCodeAddress.
+	currentBasicBlock storeSInt64: executionState primitiveFailureCode at: DRInterpreterReference primitiveFailureCodeAddress.
 
 ]
 

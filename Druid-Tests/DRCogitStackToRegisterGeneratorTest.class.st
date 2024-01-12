@@ -16,6 +16,7 @@ DRCogitStackToRegisterGeneratorTest >> testGenerateIf [
 
 	| cfg |
 	cfg := self setUpCFGWithConditional.
+	DRStager new applyTo: cfg.
 	generator generateCodeForCFG: cfg.
 
 	self assert: self statements second selector equals: #ifTrue:
@@ -26,13 +27,15 @@ DRCogitStackToRegisterGeneratorTest >> testGenerateMoveConstant [
 
 	| cfg r1 generatedASTInstruction |
 	cfg := DRControlFlowGraph new.
-	r1 := cfg instructionFactory copy: (DRObjectReferenceValue expression: 'self nilObject').
-
+	r1 := cfg initialBasicBlock copy: DRInterpreterReference nilObject.
+	DRStager new applyTo: cfg.
 	self generateCogitForInstruction: r1.
 	generatedASTInstruction := self statements last.
 
 	self assert: generatedASTInstruction selector equals: #genMoveConstant:R:.
-	self assert: generatedASTInstruction arguments first name equals: 'self nilObject'
+	self
+		assert: generatedASTInstruction arguments first name
+		equals: 'objectMemory nilObject'
 ]
 
 { #category : #tests }
@@ -43,7 +46,7 @@ DRCogitStackToRegisterGeneratorTest >> testGeneratePushBaseOffset [
 	basicBlock := cfg newBasicBlockWith: [ :block |
 		              r1 := block
 			                    pushBase: block loadFramePointer
-			                    offset: 17 ].
+			                    offset: 17 asDRValue ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
 	self generateCogitForInstruction: r1.
@@ -59,7 +62,8 @@ DRCogitStackToRegisterGeneratorTest >> testGenerateWhile [
 
 	| cfg |
 	cfg := self setUpCFGWithLoop.
+	DRStager new applyTo: cfg.
 	generator generateCodeForCFG: cfg.
 
-	self assert: self statements eighth selector equals: #whileTrue:
+	self assert: self statements fourth selector equals: #whileTrue:
 ]

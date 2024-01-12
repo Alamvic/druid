@@ -42,6 +42,12 @@ DRCall >> initialize [
 ]
 
 { #category : #testing }
+DRCall >> isCall [
+
+	^ true
+]
+
+{ #category : #testing }
 DRCall >> isMandatoryInstruction [
 
 	^ true

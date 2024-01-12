@@ -1,29 +1,29 @@
 Class {
-	#name : #DRStrongCopy,
+	#name : #DRStrongCopyForInlining,
 	#superclass : #DRCopy,
 	#category : #'Druid-IR'
 }
 
 { #category : #converting }
-DRStrongCopy >> asCopy [
+DRStrongCopyForInlining >> asCopy [
 
 	^ DRCopy operands: self operands copy result: self result
 ]
 
 { #category : #testing }
-DRStrongCopy >> isMandatoryInstruction [
+DRStrongCopyForInlining >> isMandatoryInstruction [
 
 	^ self shouldKeepInCFG
 ]
 
 { #category : #testing }
-DRStrongCopy >> shouldKeepInCFG [
+DRStrongCopyForInlining >> shouldKeepInCFG [
 
 	^ self controlFlowGraph messageSends isNotEmpty
 ]
 
 { #category : #SCCP }
-DRStrongCopy >> supportConstantOperand [
+DRStrongCopyForInlining >> supportConstantOperand [
 
 	^ self shouldKeepInCFG not
 ]

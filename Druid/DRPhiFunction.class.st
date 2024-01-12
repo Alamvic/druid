@@ -44,6 +44,15 @@ DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [
 	operands addLast: anInstruction
 ]
 
+{ #category : #converting }
+DRPhiFunction >> asJitCompileTimeExpression [
+	
+	"If staged, a phi function has the same value as its result.
+	All transformations should have been done by the staging and the register allocator"
+	
+	^ result name asDRValue asJitCompileTimeExpression  
+]
+
 { #category : #'loop-invariance' }
 DRPhiFunction >> canMoveOutsideLoop: backJump [
 
@@ -272,7 +281,7 @@ DRPhiFunction >> type [
 DRPhiFunction >> typeWithAlreadySeen: aCollection [
 
 	(aCollection includes: self)
-		ifTrue: [ ^ nil ].
+		ifTrue: [ ^ DRUndefinedType new ].
 	
 	aCollection add: self.
 	self operands do: [ :e | | operandType |

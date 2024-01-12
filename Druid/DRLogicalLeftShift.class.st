@@ -1,6 +1,6 @@
 Class {
 	#name : #DRLogicalLeftShift,
-	#superclass : #DRInstruction,
+	#superclass : #DRArithmeticInstruction,
 	#category : #'Druid-IR'
 }
 

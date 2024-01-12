@@ -15,6 +15,12 @@ DRAbsoluteMemoryAddress class >> register: aRegister [
 		yourself
 ]
 
+{ #category : #visiting }
+DRAbsoluteMemoryAddress >> acceptVisitor: aVisitor [ 
+	
+	^ aVisitor visitAbsoluteMemoryAddress: self
+]
+
 { #category : #'meta-data' }
 DRAbsoluteMemoryAddress >> asDependencyList [
 
@@ -42,9 +48,15 @@ DRAbsoluteMemoryAddress >> isAbsolute [
 ]
 
 { #category : #testing }
+DRAbsoluteMemoryAddress >> isStaged [
+	
+	^ expression isStaged
+]
+
+{ #category : #testing }
 DRAbsoluteMemoryAddress >> name [
 	
-	^ '[', expression result name, ']'
+	^ '[', expression result name asString, ']'
 ]
 
 { #category : #accessing }
@@ -65,15 +77,23 @@ DRAbsoluteMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 { #category : #cogit }
 DRAbsoluteMemoryAddress >> rtlArgumentExpressions: generator [
 
-	| offsetNode baseNode |
-	offsetNode := RBLiteralValueNode value: 0.
-	baseNode := RBVariableNode named: (generator allocateVariable: expression result).
+	^ expression rtlArgumentsForAbsoluteAddressForGenerator: generator
+]
 
-	^ { offsetNode . baseNode }
+{ #category : #'meta-data' }
+DRAbsoluteMemoryAddress >> rtlOperandQualifierForInstruction: instruction [
+
+	^ expression rtlOperandQualifierForAbsoluteAddress
 ]
 
 { #category : #SCCP }
 DRAbsoluteMemoryAddress >> sccpLatticeValueFor: sccp [
 	
 	^ sccp latticeValue: expression
+]
+
+{ #category : #accessing }
+DRAbsoluteMemoryAddress >> type [
+
+	^ expression type
 ]

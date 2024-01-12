@@ -23,7 +23,7 @@ DRAbstractMemoryAddress >> asMemoryAddress [
 DRAbstractMemoryAddress >> initialize [
 
 	super initialize.
-	type := DRUnsignedIntegerType new
+	type := DRPointerType new
 ]
 
 { #category : #testing }

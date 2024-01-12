@@ -31,7 +31,7 @@ DRPhysicalGeneralPurposeRegister >> acceptVisitor: aVisitor [
 { #category : #memory }
 DRPhysicalGeneralPurposeRegister >> asMemoryAddress [
 	
-	^ DRRegisterMemoryAddress register: self
+	^ DRAbsoluteMemoryAddress register: self
 ]
 
 { #category : #printing }

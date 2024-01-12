@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCustomisedCompilerTest,
-	#superclass : #DRDruidTests,
+	#superclass : #DRDruidTest,
 	#instVars : [
 		'compiler'
 	],

@@ -86,26 +86,21 @@ DRBytecodeIRGenerator >> interpretAsCompilerVariableAssignmentWith: aRBAssignmen
 
 	| operand |
 	operand := self visitOperand: aRBAssignmentNode value.
-	self
-		  addInstructionWithNoResultFrom: aRBAssignmentNode
-		  instructionKind: DRStore
-		  operands: {
-				  8 asDRValue.
-				  operand.
-				  (DRInterpreterExpression reference: aRBAssignmentNode variable name) }.
-	
-	"The result of executing a store is actually the stored value, not the store itself"
-	self popOperand; pushOperand: operand
+	(self
+		 addInstructionWithNoResultFrom: aRBAssignmentNode
+		 instructionKind: DRCopy
+		 operands: { operand }) result:
+		(DRStagedRegister name: aRBAssignmentNode variable name)
 ]
 
 { #category : #'special-cases' }
 DRBytecodeIRGenerator >> interpretAsCompilerVariableWith: aRBVariableNode [
 
 	^ self
-		  interpretLoad: aRBVariableNode
-		  ofAddress:
-		  (DRInterpreterExpression reference: aRBVariableNode name)
-		  ofType: (DRUnsignedIntegerType size: 8)
+		  addCopy: aRBVariableNode
+		  with: ((DRInterpreterReference reference: aRBVariableNode name)
+				   type: (DRSignedIntegerType size: 8);
+				   yourself)
 ]
 
 { #category : #'special cases' }
@@ -146,12 +141,14 @@ DRBytecodeIRGenerator >> interpretCreateClosureWith: aRBMessageNode [
 ]
 
 { #category : #visiting }
-DRBytecodeIRGenerator >> interpretCurrentBytecodeWith: aRBVariableNode [ 
-	
+DRBytecodeIRGenerator >> interpretCurrentBytecodeWith: aRBVariableNode [
+
 	^ self
-		addInstructionFrom: aRBVariableNode
-		instructionKind: DRCopy
-		operands: { DRConstantCompileTimeExpression new expression: 'byte0' }
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRCopy
+		  operands: { ((DRInterpreterReference reference: 'byte0')
+				   type: (DRUnsignedIntegerType size: 1);
+				   yourself) }
 ]
 
 { #category : #'special-cases' }
@@ -185,8 +182,11 @@ DRBytecodeIRGenerator >> interpretFetchByteWith: aRBMessageNode [
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRCopy
-		  operands: { (DRConstantCompileTimeExpression new expression:
-				   'byte' , jumpOffset asString) }
+		  operands:
+			  { ((DRInterpreterReference reference:
+					    'byte' , jumpOffset asString)
+				   type: (DRUnsignedIntegerType size: 1);
+				   yourself) }
 ]
 
 { #category : #'special cases' }
@@ -235,12 +235,13 @@ DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
 ]
 
 { #category : #'special cases' }
-DRBytecodeIRGenerator >> interpretIframeMethodWith: aRBMessageNode [ 
+DRBytecodeIRGenerator >> interpretIframeMethodWith: aRBMessageNode [
 
 	^ self
 		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRObjectReferenceCopy
-		  operands: { (DRObjectReferenceValue expression: 'methodObj') } 
+		  instructionKind: DRCopy
+		  operands:
+		  { (DRInterpreterReference objectReference: 'methodObj') }
 ]
 
 { #category : #'special cases' }
@@ -262,7 +263,9 @@ DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRAdd
 		  operands: {
-				  (DRConstantCompileTimeExpression new expression: 'bytecodePC').
+				  ((DRInterpreterReference reference: 'bytecodePC')
+					   type: (DRUnsignedIntegerType size: 1);
+					   yourself).
 				  jumpOffset asDRValue }
 ]
 
@@ -310,7 +313,7 @@ DRBytecodeIRGenerator >> interpretNumArgsWith: aRBMessageNode [
 	^ self
 		addInstructionFrom: aRBMessageNode
 		instructionKind: DRCopy
-		operands: { DRConstantCompileTimeExpression new expression: 'methodOrBlockNumArgs' }
+		operands: { DRInterpreterReference reference: 'methodOrBlockNumArgs' }
 ]
 
 { #category : #'special cases' }
@@ -387,7 +390,7 @@ DRBytecodeIRGenerator >> interpretStackLimitWith: aRBVariableNode [
 		        instructionKind: DRLoad
 		        operands: {
 				        (self typeOf: aRBVariableNode).
-				        reference }.
+				        reference asMemoryAddress }.
 	^ load
 ]
 
@@ -520,6 +523,7 @@ DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 	^ self
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
-		  operands:
-		  { (DRConstantCompileTimeExpression new expression: value) }
+		  operands: { ((DRInterpreterReference reference: value)
+				   type: (DRUnsignedIntegerType size: 8);
+				   yourself) }
 ]

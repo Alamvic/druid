@@ -29,12 +29,6 @@ DRLoadTemporaryVariable >> opcode [
 	^ 'LoadTemp'
 ]
 
-{ #category : #'cogit-generation' }
-DRLoadTemporaryVariable >> rtlOperandQualifier [
-	
-	^ result rtlOperandQualifier
-]
-
 { #category : #SCCP }
 DRLoadTemporaryVariable >> sccpLatticeValueFor: sccp [
 

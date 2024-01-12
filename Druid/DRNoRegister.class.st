@@ -1,6 +1,6 @@
 Class {
 	#name : #DRNoRegister,
-	#superclass : #DRValue,
+	#superclass : #DRRegister,
 	#category : #'Druid-IR'
 }
 
@@ -11,7 +11,7 @@ DRNoRegister >> isNoResult [
 ]
 
 { #category : #accessing }
-DRNoRegister >> name [
+DRNoRegister >> prettyPrint [
 	
 	^ '_'
 ]

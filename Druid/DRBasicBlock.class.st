@@ -197,6 +197,18 @@ DRBasicBlock >> breakBy: instruction [
 		  self }
 ]
 
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> breakCriticalEdgeToPredecessor: predecessor [
+
+	| splitBlock |
+	splitBlock := controlFlowGraph newBasicBlock.
+	splitBlock addPredecessor: predecessor.
+	predecessor replaceSuccessor: self by: splitBlock.
+	self replacePredecessor: predecessor by: splitBlock.
+	splitBlock jumpTo: self.
+	^ splitBlock
+]
+
 { #category : #asserting }
 DRBasicBlock >> canBeLinearizedBefore: aDRBasicBlock [
 
@@ -1126,28 +1138,15 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 ]
 
 { #category : #building }
-DRBasicBlock >> store: instruction in: memoryAddress [
-
-	^ self addInstruction:
-		  (self instructionFactory store: instruction in: memoryAddress)
-]
-
-{ #category : #building }
-DRBasicBlock >> store: aValue into: anAddress [
-
-	^ self addInstruction: (self instructionFactory store: aValue into: anAddress)
-]
-
-{ #category : #building }
 DRBasicBlock >> storeSInt64: operand at: address [
 
 	^ self addInstruction: (self instructionFactory storeSInt64: operand at: address)
 ]
 
 { #category : #building }
-DRBasicBlock >> strongCopy: aValue [
+DRBasicBlock >> strongCopyForInlining: aValue [
 	
-	^ self addInstruction: (self instructionFactory strongCopy: aValue)
+	^ self addInstruction: (self instructionFactory strongCopyForInlining: aValue)
 ]
 
 { #category : #building }
@@ -1225,7 +1224,8 @@ DRBasicBlock >> validatePhiFunctions [
 	self phiFunctions do: [ :e |
 		| ops |
 		ops := e operands asIdentitySet.
-		(ops size > 1 and: [ ops noneSatisfy: [ :o | o isKindOf: DRNullValue ] ]) ifTrue: [
+		(ops size > 1 and: [
+			 ops noneSatisfy: [ :o | o isKindOf: DRNullValue ] ]) ifTrue: [
 			e operands size = self predecessors size ifFalse: [
 				self error: 'Phi-predecessor mismatch' ].
 
@@ -1235,10 +1235,12 @@ DRBasicBlock >> validatePhiFunctions [
 				self assert: (dependency isInstruction or: [
 						 dependency isNullValue or: [
 							 dependency isPhysicalRegister or: [
-								 dependency isDRBlockClosure or: [ dependency class = DruidTestInterpreter ] ] ] ]).
+								 dependency isDRBlockClosure or: [
+									 dependency class = DruidTestInterpreter or: [
+										 dependency isJITCompileTimeExpression ] ] ] ] ]).
 				self assert: (dependency isInstruction not or: [
-						 ((self predecessors at: index) checkLivenessOf: dependency) or: [
-							 e hasRecursiveUse ] ]) ] ] ]
+						 ((self predecessors at: index) checkLivenessOf: dependency)
+							 or: [ e hasRecursiveUse ] ]) ] ] ]
 ]
 
 { #category : #validating }

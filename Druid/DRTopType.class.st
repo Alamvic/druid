@@ -80,6 +80,12 @@ DRTopType >> isIntegerType [
 ]
 
 { #category : #testing }
+DRTopType >> isObjectReference [
+
+	^ false
+]
+
+{ #category : #testing }
 DRTopType >> isUndefined [
 
 	^ false

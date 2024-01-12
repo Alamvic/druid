@@ -11,15 +11,15 @@ DRClosureCreation >> acceptVisitor: aVisitor [
 ]
 
 { #category : #testing }
-DRClosureCreation >> isMandatoryInstruction [
+DRClosureCreation >> isClosureCreation [
 
 	^ true
 ]
 
-{ #category : #'cogit-generation' }
-DRClosureCreation >> rtlOperandQualifier [
+{ #category : #testing }
+DRClosureCreation >> isMandatoryInstruction [
 
-	^ result rtlOperandQualifier
+	^ true
 ]
 
 { #category : #SCCP }
