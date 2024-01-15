@@ -34,9 +34,9 @@ DRCogitRegisterAllocatorTest >> testAllocatePhiFunction [
 { #category : #tests }
 DRCogitRegisterAllocatorTest >> testAllocateRegistersForDivisionIntroducesRemainder [
 
-	| cfg basicBlock firstRegister secondRegister |
+	| cfg basicBlock firstRegister secondRegister r0 r1 r2 |
 	cfg := DRControlFlowGraph new.
-	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+	basicBlock := cfg newBasicBlockWith: [ :block |
 		"R0 := 2"
 		r0 := block copy: 2.
 		"R1 := 3"
@@ -50,26 +50,27 @@ DRCogitRegisterAllocatorTest >> testAllocateRegistersForDivisionIntroducesRemain
 	DRCogitLinearScanRegisterAllocator new
 		integerRegisters: { firstRegister. secondRegister };
 		allocateRegistersIn: cfg.
-	
-	self assert: basicBlock instructions first result equals: firstRegister.
-	self assert: basicBlock instructions second result equals: secondRegister.
+		
+	self assert: r0 result equals: firstRegister.
+	self assert: r1 result equals: secondRegister.
 	
 	"This should allocate registers as:
 	R2 := DIVIDE R0 (dividend) R1 (divisor) RN (remainder - unused and thus free after the instruction)
 	"
 	
-	self assert: basicBlock instructions third operand1 result equals: firstRegister.
-	self assert: basicBlock instructions third operand2 result equals: secondRegister.
-	self assert: ({ firstRegister . secondRegister } includes: basicBlock instructions third operands third result).
-	self assert: ({ firstRegister . secondRegister } includes: basicBlock instructions third result).
+	self assert: r2 operand1 result equals: firstRegister.
+	self assert: r2 operand2 result equals: secondRegister.
+	self assert: ({ firstRegister . secondRegister } includes: r2 operand3 result).
+	self assert: ({ firstRegister . secondRegister } includes: r2 result).
+	self deny: r2 operand3 result equals: r2 result.
 ]
 
 { #category : #tests }
 DRCogitRegisterAllocatorTest >> testAllocateRegistersForModuloIntroducesQuotient [
 
-	| cfg basicBlock firstRegister secondRegister |
+	| cfg basicBlock firstRegister secondRegister r0 r1 r2 |
 	cfg := DRControlFlowGraph new.
-	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+	basicBlock := cfg newBasicBlockWith: [ :block |
 		"R0 := 2"
 		r0 := block copy: 2.
 		"R1 := 3"
@@ -84,17 +85,18 @@ DRCogitRegisterAllocatorTest >> testAllocateRegistersForModuloIntroducesQuotient
 		integerRegisters: { firstRegister. secondRegister };
 		allocateRegistersIn: cfg.
 	
-	self assert: basicBlock instructions first result equals: firstRegister.
-	self assert: basicBlock instructions second result equals: secondRegister.
+	self assert: r0 result equals: firstRegister.
+	self assert: r1 result equals: secondRegister.
 	
 	"This should allocate registers as:
 	R2 := DIVIDE R0 (dividend) R1 (divisor) RN (quotient - unused and thus free after the instruction)
 	"
 	
-	self assert: basicBlock instructions third operand1 result equals: firstRegister.
-	self assert: basicBlock instructions third operand2 result equals: secondRegister.
-	self assert: ({ firstRegister . secondRegister } includes: basicBlock instructions third operands third result).
-	self assert: ({ firstRegister . secondRegister } includes: basicBlock instructions third result).
+	self assert: r2 operand1 result equals: firstRegister.
+	self assert: r2 operand2 result equals: secondRegister.
+	self assert: ({ firstRegister . secondRegister } includes: r2 operand3 result).
+	self assert: ({ firstRegister . secondRegister } includes: r2 result).
+	self deny: r2 operand3 result equals: r2 result.
 ]
 
 { #category : #tests }

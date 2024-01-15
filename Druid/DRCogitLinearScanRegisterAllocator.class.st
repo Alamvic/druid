@@ -32,7 +32,7 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 		R1 := R2 + 1
 		"
 				(i result isNoResult not and: [
-					 i operands size = 2 and: [
+					 i operands size >= 2 and: [
 						 i operands anySatisfy: [ :op | op isPhysicalRegister or: [ op isStaged ] ] ] ])
 					ifTrue: [
 						| registerToCopy copyInstruction |
