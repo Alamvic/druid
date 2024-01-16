@@ -2,10 +2,35 @@ Class {
 	#name : #DRCogitSimpleStackGenerator,
 	#superclass : #DRCogitBytecodeCodeGenerator,
 	#instVars : [
-		'variables'
+		'variables',
+		'parent',
+		'nextVariableIndex'
 	],
 	#category : #'Druid-Cogit'
 }
+
+{ #category : #helpers }
+DRCogitSimpleStackGenerator >> allocateVariable: aDRResult [
+
+	| temporaryVariableNode variableIndex |
+	parent ifNotNil: [ ^ parent allocateVariable: aDRResult ].
+
+	aDRResult isNoResult ifTrue: [ ^ self ].
+	variables at: aDRResult ifPresent: [ :var | ^ var ].
+
+	variableIndex := nextVariableIndex.
+	nextVariableIndex := nextVariableIndex + 1.
+
+	temporaryVariableNode := RBVariableNode named:
+		                         't' , variableIndex asString.
+	variables at: aDRResult put: temporaryVariableNode name.
+
+	self
+		generateRegisterAllocationFor: aDRResult
+		inVariable: temporaryVariableNode.
+
+	^ temporaryVariableNode name
+]
 
 { #category : #'ir-to-ast' }
 DRCogitSimpleStackGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
@@ -16,11 +41,36 @@ DRCogitSimpleStackGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 	super generatePostambleForCFG: aDRControlFlowGraph
 ]
 
+{ #category : #helpers }
+DRCogitSimpleStackGenerator >> generateRegisterAllocationFor: aDRResult inVariable: temporaryVariableNode [
+
+	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
+	generatorMethodBuilder addStatement: (RBAssignmentNode
+			 variable: temporaryVariableNode copy
+			 value: (RBVariableNode named: aDRResult name asString))
+]
+
 { #category : #initialization }
 DRCogitSimpleStackGenerator >> initialize [
 
 	super initialize.
+	nextVariableIndex := 0.
 	variables := Dictionary new
+]
+
+{ #category : #copy }
+DRCogitSimpleStackGenerator >> innerGenerator [
+
+	| innerGenerator |
+	innerGenerator := super innerGenerator.
+	innerGenerator parent: self.
+	^ innerGenerator
+]
+
+{ #category : #accessing }
+DRCogitSimpleStackGenerator >> parent: aDRCogitGenerator [
+
+	parent := aDRCogitGenerator
 ]
 
 { #category : #copy }
@@ -34,6 +84,19 @@ DRCogitSimpleStackGenerator >> postCopy [
 DRCogitSimpleStackGenerator >> returnNodeForCompiledMethod [
 
 	^ RBLiteralNode value: 0
+]
+
+{ #category : #visiting }
+DRCogitSimpleStackGenerator >> rtlExpressionForValue: aValue [
+
+	variables at: aValue result ifPresent: [ :var | ^ RBVariableNode named: var ].
+	^ super rtlExpressionForValue: aValue
+]
+
+{ #category : #accessing }
+DRCogitSimpleStackGenerator >> variables [
+
+	^ variables
 ]
 
 { #category : #accessing }
