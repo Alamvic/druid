@@ -345,6 +345,14 @@ DRInstruction >> name [
 ]
 
 { #category : #testing }
+DRInstruction >> needs2ACConversion [
+
+	^ self operands size >= 2 and: [
+		  self operands anySatisfy: [ :op |
+			  op isPhysicalRegister or: [ op isStaged ] ] ]
+]
+
+{ #category : #testing }
 DRInstruction >> needsStackFlush [
 	
 	^ false

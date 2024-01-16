@@ -311,7 +311,7 @@ DRCPSEdge >> visitCopy: aDRCopy [
 	| constraint operand |
 	operand := aDRCopy operand1.
 
-	constraint := (operand isConstraintConstant or: [ 
+	constraint := (operand isConstant or: [ 
 		               operand isObjectReferenceValue ])
 		              ifTrue: [ DREqualsConstraint withValue: operand ]
 		              ifFalse: [ self operandConstraint: operand ].

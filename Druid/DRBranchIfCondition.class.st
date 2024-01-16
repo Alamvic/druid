@@ -214,6 +214,13 @@ DRBranchIfCondition >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [
 		self falseBranch: aDRBasicBlock2 ]
 ]
 
+{ #category : #highlighting }
+DRBranchIfCondition >> reverse [
+
+	self reverseOperands.
+	self condition: self condition reversed
+]
+
 { #category : #transforming }
 DRBranchIfCondition >> reversed [
 

@@ -207,12 +207,6 @@ DRPhiFunction >> rewirePhiTo: destinationBlock [
 	self replaceBy: phiReplacement
 ]
 
-{ #category : #'cogit-generation' }
-DRPhiFunction >> rtlOperandQualifier [
-	
-	^ 'R:'
-]
-
 { #category : #SCCP }
 DRPhiFunction >> sccpLatticeValueFor: sccp [
 
