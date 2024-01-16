@@ -5,9 +5,10 @@ Class {
 }
 
 { #category : #applying }
-DRCogitOperandSorter >> applyTo: aDRControlFlowGraph [ 
-	
-	aDRControlFlowGraph instructionsDo: [ :e | e acceptVisitor: self ]
+DRCogitOperandSorter >> applyTo: aDRControlFlowGraph [
+
+	aDRControlFlowGraph instructionsDo: [ :e |
+		e isStaged ifFalse: [ e acceptVisitor: self ] ]
 ]
 
 { #category : #visiting }

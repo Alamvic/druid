@@ -55,8 +55,8 @@ DRAbsoluteMemoryAddress >> isStaged [
 
 { #category : #testing }
 DRAbsoluteMemoryAddress >> name [
-	
-	^ '[', expression result name asString, ']'
+
+	^ '[' , expression result prettyPrint , ']'
 ]
 
 { #category : #accessing }

@@ -120,7 +120,6 @@ DRCogitLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
 	self integerRegisters: { 
-		DRPhysicalGeneralPurposeRegister name: 'TempReg'.
 		DRPhysicalGeneralPurposeRegister name: 'ClassReg'.
 		DRPhysicalGeneralPurposeRegister name: 'SendNumArgsReg'.
 		DRPhysicalGeneralPurposeRegister name: 'Extra0Reg'.

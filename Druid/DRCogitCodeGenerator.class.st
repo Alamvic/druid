@@ -1173,9 +1173,6 @@ DRCogitCodeGenerator >> visitRightShift: aRightShift [
 DRCogitCodeGenerator >> visitStore: aDRCogitStore [
 
 	aDRCogitStore isJITCompileTimeExpression ifTrue: [
-		self assert: ({
-				 DRInterpreterExpression.
-				 DRJitCompileTimeExpression } includes: aDRCogitStore address class).
 		^ self visitCompileTimeStore: aDRCogitStore ].
 
 	^ self twoOperandMoveCogitRTL: aDRCogitStore operands: {
