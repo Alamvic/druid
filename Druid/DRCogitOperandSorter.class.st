@@ -15,9 +15,11 @@ DRCogitOperandSorter >> applyTo: aDRControlFlowGraph [
 DRCogitOperandSorter >> extractFirstOperandInCopyIfNecessaryFrom: anInstruction [
 
 	| copy |
-	anInstruction isStaged ifTrue: [ ^ self ].
-	anInstruction operand1 isInstruction ifTrue: [ ^ self ].
-	
+	"If the first operand is a constant, extract it in a copy.
+	This is useful for instructions that do nto accept constants as second operand."
+	(anInstruction operand1 isInstruction and: [
+		 anInstruction operand1 isStaged not ]) ifTrue: [ ^ self ].
+
 	copy := anInstruction instructionFactory copy: anInstruction operand1.
 	anInstruction addBefore: copy.
 	anInstruction replaceOperand: anInstruction operand1 by: copy
@@ -25,7 +27,7 @@ DRCogitOperandSorter >> extractFirstOperandInCopyIfNecessaryFrom: anInstruction 
 
 { #category : #visiting }
 DRCogitOperandSorter >> visitAddition: aDRAdd [ 
-	
+
 	self visitCommutativeInstruction: aDRAdd
 ]
 
@@ -106,7 +108,7 @@ DRCogitOperandSorter >> visitCogitSendMarshall: aDRCogitSendMarshall [
 { #category : #visiting }
 DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 
-	anInstruction operand1 isInstruction ifFalse: [ 
+	anInstruction operand1 willBeConstant ifTrue: [ 
 		anInstruction reverseOperands ].
 	self extractFirstOperandInCopyIfNecessaryFrom: anInstruction
 ]

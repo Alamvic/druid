@@ -320,7 +320,6 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction betweenOp: opera
 			                      result:
 			                      instructionFactory allocateTemporaryRegister).
 	b1 addInstruction: (instructionFactory copy: foldedInstruction).
-	1halt.
 	optimisation applyTo: cfg.
 	^ cfg
 ]

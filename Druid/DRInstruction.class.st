@@ -348,8 +348,7 @@ DRInstruction >> name [
 DRInstruction >> needs2ACConversion [
 
 	^ self operands size >= 2 and: [
-		  self operands anySatisfy: [ :op |
-			  op isPhysicalRegister or: [ op isStaged ] ] ]
+		  self operand1 isPhysicalRegister or: [ self operand1 isStaged ] ]
 ]
 
 { #category : #testing }

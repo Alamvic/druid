@@ -59,15 +59,15 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass: aSuperclass [
 
 	| primitives bytecodes |
-	primitives := #( 
+		primitives := #( 
 	#primitiveAdd #primitiveSubtract #primitiveMultiply #primitiveDivide #primitiveMod "#primitiveBitShift" 
 	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
 	#primitiveEqual #primitiveNotEqual #primitiveIdentical "#primitiveNotIdentical" 
-	#primitiveClass #primitiveSize #primitiveAt "#primitiveAtPut" #primitiveBehaviorHash #primitiveIdentityHash
+	#primitiveClass #primitiveSize "#primitiveAt" "#primitiveAtPut" "#primitiveBehaviorHash" "#primitiveIdentityHash"
 	#primitiveNew #primitiveNewWithArg
-	#primitiveFullClosureValue ).
-
-	bytecodes := #( 
+	"#primitiveFullClosureValue" ).
+	
+bytecodes := #( 
 		"pushReceiverVariableBytecode"
 			0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 		"pushLiteralVariable16CasesBytecode"
@@ -114,7 +114,9 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 			224 225
 		"extended receiver/literal/temporary/constant variable bytecode"
 			226
-			227 228 229 "231" 232 233
+			227 228 229
+			231 "pushNewArrayBytecode"
+			232 233
 		"extended send"
 			234
 		"extSendSuperBytecode"
@@ -122,13 +124,14 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 		"extended conditional jump"
 			237 238 239
 		"extended store (and pop) temporary"
-			"242 " 243 245
+			240 241 242 243 244 245
 			
 		"call primitive" 248
 		"push closure" 249
 		"remote temp bytecodes"	251
-		"252 253 left out because of write barrier"
+		252 253
 	).
+
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
