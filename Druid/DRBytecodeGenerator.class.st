@@ -194,7 +194,6 @@ DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 { #category : #visiting }
 DRBytecodeGenerator >> visitLoadArrayElement: aDRLoadArrayElement [
 
-1halt.
 	aDRLoadArrayElement executionState executionStack size > 1 
 		ifTrue: [ builder addLiteral: DRDeoptimizationInformation new ].
 

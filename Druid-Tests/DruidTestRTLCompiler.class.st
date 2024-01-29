@@ -30,7 +30,8 @@ DruidTestRTLCompiler class >> initializePrimitiveTable [
 
 	<generated>
 	MaxCompiledPrimitiveIndex := 0.
-	primitiveTable := CArrayAccessor on: (Array new: MaxCompiledPrimitiveIndex + 1).
+	primitiveTable := CArrayAccessor on:
+		                  (Array new: MaxCompiledPrimitiveIndex + 1).
 	self table: primitiveTable from: self primitiveTableArray.
 	^ primitiveTable
 ]

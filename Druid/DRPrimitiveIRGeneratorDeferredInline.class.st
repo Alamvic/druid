@@ -16,7 +16,7 @@ DRPrimitiveIRGeneratorDeferredInline >> resolveMessageSend: aRBMessageNode recei
 			  resolveMessageSend: aRBMessageNode
 			  receiver: receiver
 			  arguments: arguments ].
-		1halt.
+
 	self
 		addInstructionWithNoResultFrom: aRBMessageNode
 		instructionKind: DRStore
