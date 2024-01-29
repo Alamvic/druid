@@ -181,9 +181,8 @@ DRLoop >> inductionInitialValues [
 { #category : #accessing }
 DRLoop >> inductionVariable [
 
-	self flag: #TODO. "Handle transitive dependencies"
 	^ self loopPhiFunctions
-		  detect: [ :phi | self loopConditional hasDependency: phi ]
+		  detect: [ :phi | self loopConditional hasDependencyRecursively: phi ]
 		  ifNone: [ nil ]
 ]
 

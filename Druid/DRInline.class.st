@@ -19,6 +19,7 @@ DRInline >> generateInlineIRForMethod: classAndMethodToInline of: aMessageSend [
 
 	| lastFrame methodClass methodToInline |
 	"TODO: delegate generation to type?"
+		
 	methodClass := classAndMethodToInline key.
 	(methodClass isKindOf: DRUndefinedType) ifTrue: [ "If we don't know the receiver's type, copy the message send"
 		(DRMethod methodNode: aMessageSend originAST methodNode) asDRValue
@@ -27,6 +28,14 @@ DRInline >> generateInlineIRForMethod: classAndMethodToInline of: aMessageSend [
 		^ inlineGenerator resolveMessageSend: aMessageSend originAST receiver: aMessageSend receiver arguments: aMessageSend arguments ].
 
 	methodToInline := classAndMethodToInline value.
+
+	self 
+		inlineKnownPrimitive: methodToInline
+      receiver: aMessageSend operands first
+      arguments: aMessageSend operands allButFirst
+		ifDone: [ :returnInstruction | ^ returnInstruction  ]
+		ofMessageSend: aMessageSend.
+		
 	lastFrame := inlineGenerator
 		             interpretCode: (DRMethod methodNode: methodToInline)
 		             receiver: aMessageSend operands first
@@ -75,7 +84,6 @@ DRInline >> inline: messageSend [
 		ifTrue: [ ^ self ].
 
 	inlineGenerator := messageSend inlineGenerator.
-
 	methodsToInline := self methodsToInlineOf: messageSend.
 	methodsToInline ifEmpty: [ ^ self ].
 
@@ -99,6 +107,23 @@ DRInline >> inline: messageSend [
 	DRDeadBlockElimination new applyTo: inlineGenerator ir.
 	DRDeadCodeElimination new applyTo: inlineGenerator ir.
 	inlineGenerator ir validate
+]
+
+{ #category : #'primitves inlining' }
+DRInline >> inlineKnownPrimitive: aMethodNode receiver: aReceiver arguments: arguments ifDone: ifDoneBlock ofMessageSend: messageSend [
+
+	| loadArrayElementInstruction |
+	aMethodNode primitiveFromPragma num = 60 ifFalse: [ ^ self ].
+
+	loadArrayElementInstruction := inlineGenerator
+		                               instantiate: DRLoadArrayElement
+		                               operands: { aReceiver } , arguments.
+
+	loadArrayElementInstruction executionState: messageSend inlineGenerator executionState copy.
+	
+	inlineGenerator currentBasicBlock addInstruction: loadArrayElementInstruction.
+		
+	ifDoneBlock value: loadArrayElementInstruction
 ]
 
 { #category : #inlining }

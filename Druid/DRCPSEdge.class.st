@@ -472,6 +472,12 @@ DRCPSEdge >> visitLoadArgument: aDRLoadArgument [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitLoadArrayElement: aDRLoadArrayElement [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitLoadFramePointer: aDRLoadFramePointer [ 
 
 	^ nil

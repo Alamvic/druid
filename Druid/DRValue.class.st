@@ -231,6 +231,12 @@ DRValue >> isLoadArgument [
 ]
 
 { #category : #testing }
+DRValue >> isLoadArrayElement [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isLoadFramePointer [
 	
 	^ false

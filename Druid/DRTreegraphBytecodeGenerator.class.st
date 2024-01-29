@@ -10,6 +10,17 @@ Class {
 	#category : #'Druid-BytecodeGeneration'
 }
 
+{ #category : #building }
+DRTreegraphBytecodeGenerator >> compiledMethod [
+
+	| method ir |
+	ir := builder ir.
+	ir numArgs: numArgs.
+	method := ir compiledMethod.
+	method selector: methodName.
+	^ method
+]
+
 { #category : #'cfg-to-ir' }
 DRTreegraphBytecodeGenerator >> generateAllBlocks [
 
@@ -112,17 +123,6 @@ DRTreegraphBytecodeGenerator >> numArgs: anInteger [
 { #category : #'ir-to-target' }
 DRTreegraphBytecodeGenerator >> sendMessage: aString fromInstruction: aDRAdd [ 
 	self shouldBeImplemented.
-]
-
-{ #category : #building }
-DRTreegraphBytecodeGenerator >> targetAST [
-
-	| method ir |
-	ir := builder ir.
-	ir numArgs: numArgs.
-	method := ir compiledMethod.
-	method selector: methodName.
-	^ method
 ]
 
 { #category : #visiting }

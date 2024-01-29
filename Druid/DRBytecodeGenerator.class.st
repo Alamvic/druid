@@ -11,6 +11,18 @@ Class {
 	#category : #'Druid-BytecodeGeneration'
 }
 
+{ #category : #building }
+DRBytecodeGenerator >> compiledMethod [
+
+	| method ir |
+	ir := builder ir.
+	ir numArgs: numArgs.
+
+	method := ir compiledMethod.
+	method selector: methodName.
+	^ method
+]
+
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> generateJump: aDRBranch [
 
@@ -30,6 +42,7 @@ DRBytecodeGenerator >> generateJump: aDRBranch [
 { #category : #API }
 DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
 
+	self methodName: selector.
 	self visitBlock: aDRControlFlowGraph initialBasicBlock.
 ]
 
@@ -82,18 +95,6 @@ DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 		[ aDRInstruction users ifEmpty: [ 
 			builder popTop
 			 ]]
-]
-
-{ #category : #building }
-DRBytecodeGenerator >> targetAST [
-
-	| method ir |
-	ir := builder ir.
-	ir numArgs: numArgs.
-
-	method := ir compiledMethod.
-	method selector: methodName.
-	^ method
 ]
 
 { #category : #'ir-to-target' }
@@ -186,9 +187,20 @@ DRBytecodeGenerator >> visitLessOrEqualsThan: aDRLessOrEqualsThanComparison inBr
 
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
-
 	builder addTemp: aDRLoadArgument argName.
 	builder pushTemp: aDRLoadArgument argName
+]
+
+{ #category : #visiting }
+DRBytecodeGenerator >> visitLoadArrayElement: aDRLoadArrayElement [
+
+1halt.
+	aDRLoadArrayElement executionState executionStack size > 1 
+		ifTrue: [ builder addLiteral: DRDeoptimizationInformation new ].
+
+	aDRLoadArrayElement operand1 acceptVisitor: self.
+	aDRLoadArrayElement operand2 acceptVisitor: self.
+	builder send: #at:
 ]
 
 { #category : #'ir-to-target' }

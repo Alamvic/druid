@@ -7,16 +7,24 @@ Class {
 	#category : #'Druid-IR-Types'
 }
 
-{ #category : #inference }
-DRPragmaBasedTypeSystem >> receiverTypes: aDRMessageSend [
+{ #category : #'as yet unclassified' }
+DRPragmaBasedTypeSystem >> extractTypeOfNode: aRBNode from: msgAST [
 
-	| msgAST receiverTypeNames |
-	msgAST := aDRMessageSend originAST.
-	receiverTypeNames := (msgAST methodNode allPragmasNamed: #var:type:)
+	aRBNode isLiteralNode ifTrue: [ ^ { aRBNode value class name } ].
+
+	^ (msgAST methodNode allPragmasNamed: #var:type:)
 		                     select: [ :pragma |
 		                     pragma arguments first value = msgAST receiver name ]
 		                     thenCollect: [ :pragma |
 		                     pragma arguments last value ].
+]
+
+{ #category : #API }
+DRPragmaBasedTypeSystem >> receiverTypes: aDRMessageSend [
+
+	| msgAST receiverTypeNames |
+	msgAST := aDRMessageSend originAST.
+	receiverTypeNames := self extractTypeOfNode: msgAST receiver from: msgAST.
 
 	"If there are not pragma, try to guess from IR"
 	receiverTypeNames ifEmpty: [ ^ { aDRMessageSend receiverType } ].

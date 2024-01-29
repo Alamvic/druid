@@ -144,12 +144,6 @@ DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arg
 		  method: nil "Infer methods with a Type System"
 ]
 
-{ #category : #accessing }
-DRMethodIRGenerator >> typeSystem: aDRTypeSystem [
-
-	typeSystem := aDRTypeSystem
-]
-
 { #category : #visiting }
 DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [
 

@@ -1645,6 +1645,12 @@ DRIRGenerator >> operandStackTop [
 	^ self topFrame stackTop
 ]
 
+{ #category : #'frame-access' }
+DRIRGenerator >> peekOperand [
+
+	^ self topFrame stackTop
+]
+
 { #category : #'pharo-stack' }
 DRIRGenerator >> pop [
 
@@ -1729,6 +1735,7 @@ DRIRGenerator >> receiverRegister [
 DRIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
 
 	| arguments |
+
 	arguments := aRBMessageNode arguments collect: [ :e | 
 		             e acceptVisitor: self.
 		             self popOperand ].
@@ -1736,7 +1743,9 @@ DRIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
 	self
 		resolveMessageSend: aRBMessageNode
 		receiver: receiver
-		arguments: arguments
+		arguments: arguments.
+
+	
 ]
 
 { #category : #visiting }
@@ -1902,6 +1911,7 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 	"Resolve it as a normal send"
 	aRBMessageNode receiver acceptVisitor: self.
 	receiver := self popOperand.
+
 	self resolveMessageSend: aRBMessageNode receiver: receiver
 ]
 

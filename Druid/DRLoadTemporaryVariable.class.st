@@ -40,3 +40,9 @@ DRLoadTemporaryVariable >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]
+
+{ #category : #accessing }
+DRLoadTemporaryVariable >> variableName [
+
+	^ self operand1 value
+]

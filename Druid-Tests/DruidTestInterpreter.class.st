@@ -12,6 +12,11 @@ DruidTestInterpreter class >> initializePrimitiveTable [
 ]
 
 { #category : #'accessing class hierarchy' }
+DruidTestInterpreter class >> isDruidTestInterpreter [
+	^ true
+]
+
+{ #category : #'accessing class hierarchy' }
 DruidTestInterpreter class >> primitivesClass [
 
 	^ self

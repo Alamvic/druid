@@ -84,7 +84,7 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 	bytecodeGenerator numArgs: numArgs.
 	bytecodeGenerator methodName: selector.
 	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.
-	^ bytecodeGenerator targetAST
+	^ bytecodeGenerator compiledMethod
 ]
 
 { #category : #running }
@@ -221,6 +221,7 @@ DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
+	1halt.
 
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
