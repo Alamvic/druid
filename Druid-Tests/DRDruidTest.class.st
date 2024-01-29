@@ -1,5 +1,5 @@
 Class {
-	#name : #DRDruidTests,
+	#name : #DRDruidTest,
 	#superclass : #VMJittedPrimitivesTest,
 	#instVars : [
 		'fakeTrampoline'
@@ -8,31 +8,31 @@ Class {
 }
 
 { #category : #private }
-DRDruidTests class >> isAbstract [
+DRDruidTest class >> isAbstract [
 
-	^ self == DRDruidTests
+	^ self == DRDruidTest
 ]
 
 { #category : #'building suites' }
-DRDruidTests class >> wordSizeParameters [
+DRDruidTest class >> wordSizeParameters [
 
 	^ self wordSize64Parameters
 ]
 
 { #category : #'helpers-compiling' }
-DRDruidTests >> interpreterClass [ 
+DRDruidTest >> interpreterClass [ 
 
 	^ DruidTestInterpreter
 ]
 
 { #category : #'helpers-compiling' }
-DRDruidTests >> jitCompilerClass [
+DRDruidTest >> jitCompilerClass [
 
 	^ DruidTestRTLCompiler
 ]
 
 { #category : #'helpers-compiling' }
-DRDruidTests >> jitOptions [
+DRDruidTest >> jitOptions [
 
 	^ super jitOptions
 		  at: #bytecodeTableInitializer put: #initializeBytecodeTableForSistaV1;
@@ -40,7 +40,7 @@ DRDruidTests >> jitOptions [
 ]
 
 { #category : #helpers }
-DRDruidTests >> setUp [
+DRDruidTest >> setUp [
 
 	super setUp.
 

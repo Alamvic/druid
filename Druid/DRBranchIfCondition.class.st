@@ -58,11 +58,12 @@ DRBranchIfCondition >> conditionAsJitCompileTimeExpression [
 
 	| fullExpression |
 	fullExpression := self isEqualsThanTrueComparison
-		                  ifTrue: [ self nonTrueOperand asJitCompileTimeExpression expression ]
+		                  ifTrue: [
+		                  self nonTrueOperand asJitCompileTimeExpression ]
 		                  ifFalse: [
-			                  self operand1 asJitCompileTimeExpression expression
+			                  self operand1 result name
 			                  , self condition asJitCompileTimeExpressionString
-			                  , self operand2 asJitCompileTimeExpression expression ].
+			                  , self operand2 result name ].
 
 	^ fullExpression asDRValue asJitCompileTimeExpression
 ]
@@ -129,7 +130,7 @@ DRBranchIfCondition >> isEqualsThanTrueComparison [
 { #category : #testing }
 DRBranchIfCondition >> isJITCompileTimeExpression [
 
-	^ operands allSatisfy: [ :e | e isJITCompileTimeExpression ]
+	^ operands allSatisfy: [ :e | e isStaged ]
 ]
 
 { #category : #accessing }
@@ -196,8 +197,10 @@ DRBranchIfCondition >> prettyConditionPrint [
 { #category : #printing }
 DRBranchIfCondition >> prettyPrint [
 
-	^ 'Jump if ' , self prettyConditionPrint , ' -> '
-	  , (self trueBranch ifNotNil: [ :br | br id ]) asString
+	^ (self isStaged
+		   ifTrue: [ '[STAGED] ' ]
+		   ifFalse: [ '' ]) , 'Jump if ' , self prettyConditionPrint
+	  , ' -> ' , (self trueBranch ifNotNil: [ :br | br id ]) asString
 	  , ' if false -> '
 	  , (self falseBranch ifNotNil: [ :br | br id ]) asString
 ]

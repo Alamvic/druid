@@ -133,6 +133,12 @@ DRCogitCanonicaliser >> visitClosureCreation: aDRClosureCreation [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitCogitSendMarshall: aDRCogitSendMarshall [ 
+	
+	"Do nothing"
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
 	
 	"Do nothing"

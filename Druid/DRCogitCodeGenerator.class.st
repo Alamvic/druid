@@ -15,8 +15,10 @@ Class {
 
 { #category : #helpers }
 DRCogitCodeGenerator >> allocateVariable: aDRResult [
-	
-	^ aDRResult name
+	"Virtual register Rn should be translated as tn.
+	Physical registers stay the same"
+
+	^ aDRResult name asString
 ]
 
 { #category : #'jump-management' }
@@ -35,8 +37,28 @@ DRCogitCodeGenerator >> blocks: aPath [
 ]
 
 { #category : #'ir-generation' }
-DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [ 
+DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 
+	"Do not generate code for phi functions"
+	anInstruction isPhiFunction ifTrue: [ ^ self ].
+
+	(anInstruction isStaged and: [
+		 anInstruction isBytecodeJump not and: [
+			 anInstruction isAnnotateBytecode not ] ]) ifTrue: [
+		| varNode |
+		anInstruction isStore ifTrue: [
+			generatorMethodBuilder addStatement: (self jitCompileTimeExpression: anInstruction).
+			^ self ].
+
+		"Conditional branch"
+		anInstruction isConditionalBranch ifTrue: [
+			^ self generateCompileTimeIfCondition: anInstruction ].
+
+		varNode := self varNodeForStagedInstruction: anInstruction.
+		generatorMethodBuilder addStatement: (RBAssignmentNode
+				 variable: varNode
+				 value: (self jitCompileTimeExpression: anInstruction)).
+		^ self ].
 	^ anInstruction acceptVisitor: self
 ]
 
@@ -210,6 +232,9 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 
 	self generatePreambleForCFG: aDRControlFlowGraph.
 
+	aDRControlFlowGraph stagedRegisters do: [ :e |
+		generatorMethodBuilder addVariableNamed: e prettyPrint ].
+
 	"Sort the blocks"
 	blocks := aDRControlFlowGraph reversePostOrderBlocks.
 
@@ -238,31 +263,6 @@ DRCogitCodeGenerator >> generateCodeFromBlocks [
 		self visitBasicBlock: current ]
 ]
 
-{ #category : #visiting }
-DRCogitCodeGenerator >> generateCompare: aComparison operands: operands [
-
-	| comparands comparisonToGenerate |
-	"Generate comparison instruction. In cogit, if you want to do A < B, you have to generate:
-	CMP B A
-	JumpLessThan xxx
-	Thus, operands are inverted always"
-	comparands := operands reversed.
-	comparisonToGenerate := aComparison.
-
-	"Cogit RTL only supports constants as the first argument.
-	Invert the comparison and the condition if necessary, mostly for greaterThan comparisons)."
-	
-	comparands second isConstant ifTrue: [ 
-		comparisonToGenerate := aComparison reversed.
-		comparands := comparands reversed ].
-
-	self
-		twoOperandCogitRTL: #Cmp
-		operands: comparands
-		instruction: aComparison.
-	^ comparisonToGenerate
-]
-
 { #category : #'generate-code' }
 DRCogitCodeGenerator >> generateCompileTimeIfCondition: aDRBranchIfCondition [
 
@@ -281,7 +281,7 @@ DRCogitCodeGenerator >> generateConditional: aDRBranchIfCondition [
 	innerGenerator := self innerCompilePathFrom: aDRBranchIfCondition trueBranch.
 
 	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: (RBVariableNode named: jitCondition expression)
+			 receiver: (RBParser parseExpression: jitCondition reference)
 			 selector: #ifTrue:
 			 arguments: { (RBBlockNode body: innerGenerator generatorMethodBuilder sequenceNode) })
 ]
@@ -331,13 +331,16 @@ DRCogitCodeGenerator >> generateLoop: aDRLoop [
 	blocks removeAll: loopPath.
 	innerGenerator := self innerCompileBlocks: loopPath.
 
-	jitCondition := aDRLoop loopConditional
-		                conditionAsJitCompileTimeExpression.
+	jitCondition := '('
+	                ,
+	                aDRLoop loopConditional
+		                conditionAsJitCompileTimeExpression reference , ')'.
 	isTrue := aDRLoop exitBlock = aDRLoop loopConditional falseBranch.
 
 	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: (RBBlockNode body: (RBSequenceNode statements:
-						   { (RBVariableNode named: jitCondition expression) }))
+			 receiver: (RBBlockNode body:
+					  (RBSequenceNode statements:
+						   { (RBVariableNode named: jitCondition) }))
 			 selector: (isTrue
 					  ifTrue: [ #whileTrue: ]
 					  ifFalse: [ #whileFalse: ])
@@ -562,7 +565,7 @@ DRCogitCodeGenerator >> preProcessBlock: aDRBasicBlock [
 { #category : #registers }
 DRCogitCodeGenerator >> registerFor: aValue [
 
-	^ aValue result name
+	^ aValue result prettyPrint
 ]
 
 { #category : #'ir-to-ast' }
@@ -594,16 +597,19 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 	"Interpret nil as zero"
 	constantValue isNil ifTrue: [ constantValue := 0 ].
 
-	constantValue isInteger ifTrue: [ 
+	constantValue isInteger ifTrue: [
 		^ constantValue <= 5000
-			ifTrue: [ RBLiteralValueNode value: constantValue ]
-			ifFalse: [ RBLiteralValueNode new
-			  value: constantValue
-			  start: 0
-			  stop: -1
-			  source: constantValue hex ] ].
+			  ifTrue: [ RBLiteralValueNode value: constantValue ]
+			  ifFalse: [
+				  RBLiteralValueNode new
+					  value: constantValue
+					  start: 0
+					  stop: -1
+					  source: constantValue hex ] ].
 
-	^ RBVariableNode named: (self registerFor: aValue)
+	^ (aValue isInstruction and: [aValue isStaged])
+		  ifTrue: [ self varNodeForStagedInstruction: aValue ]
+		  ifFalse: [ RBVariableNode named: (self registerFor: aValue) ]
 ]
 
 { #category : #visiting }
@@ -615,9 +621,8 @@ DRCogitCodeGenerator >> selectBranchOperand: aDRPhiFunction [
 { #category : #'as yet unclassified' }
 DRCogitCodeGenerator >> selectorCogitRTL: aMnemonic operands: operands instruction: anInstruction [
 
-	^ aMnemonic ,
-	  ('' join:
-		   (operands collect: [ :op | op result rtlOperandQualifierForInstruction: anInstruction ]))
+	^ aMnemonic , ('' join: (operands collect: [ :op |
+			    op rtlOperandQualifierForInstruction: anInstruction ]))
 ]
 
 { #category : #visiting }
@@ -650,7 +655,28 @@ DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruc
 { #category : #visiting }
 DRCogitCodeGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
 
-	self twoOperandCogitRTL: #Move operands: operands instruction: anInstruction
+	self allocateVariable: anInstruction result.
+	(operands first isInterpreterReference and: [
+		 anInstruction type isObjectReference ]) ifTrue: [
+		"It's moving a constant to a register. This constant could be an oop, so we need to annotate it."
+		^ self generateMessage: #genMoveConstant:R: operands: operands ].
+	self
+		twoOperandCogitRTL: #Move
+		operands: operands
+		instruction: anInstruction
+]
+
+{ #category : #'ir-generation' }
+DRCogitCodeGenerator >> varNameForStagedInstruction: aStagedRegister [
+
+	^ aStagedRegister result prettyPrint
+]
+
+{ #category : #'ir-generation' }
+DRCogitCodeGenerator >> varNodeForStagedInstruction: aStagedRegister [
+
+	^ RBVariableNode named:
+		  (self varNameForStagedInstruction: aStagedRegister)
 ]
 
 { #category : #verification }
@@ -715,7 +741,6 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 	| replacement |
 	aDRConditionalJump isJITCompileTimeExpression ifTrue: [
 		^ self generateCompileTimeIfCondition: aDRConditionalJump ].
-
 
 	replacement := aDRConditionalJump condition
 		               acceptVisitor: self
@@ -783,7 +808,7 @@ DRCogitCodeGenerator >> visitCopy: aDRMove [
 	"Do not generate moves of null values"
 	aDRMove operand1 isNullValue ifTrue: [ ^ self ].
 		
-	moveOperands := { aDRMove operand1. aDRMove result }.
+	moveOperands := { aDRMove operand1. aDRMove }.
 	
 	"Do not generate redundant moves (e.g., r0 := r0)"
 	(moveOperands collect: [ :e | e result ] as: Set) size = 1
@@ -935,7 +960,7 @@ DRCogitCodeGenerator >> visitIntToFloatConversion: aDRIntToFloat [
 DRCogitCodeGenerator >> visitJump: aDRJump [
 
 	aDRJump asBackJumpLoop ifNotNil: [ :loop |
-		loop loopConditional isJITCompileTimeExpression ifTrue: [
+		loop loopConditional isStaged ifTrue: [
 			^ self "JIT compile loop" ] ].
 
 	self generateJump: #Jump: target: aDRJump target
@@ -962,16 +987,25 @@ DRCogitCodeGenerator >> visitLessThan: aDRGreaterThanComparison inBranch: aDRBra
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLoad: aDRLoad [
 
-	self twoOperandMoveCogitRTL: aDRLoad
-		operands: { 
-				aDRLoad address.
-				aDRLoad result }.
+	(aDRLoad address isStaged and: [ aDRLoad address type isObjectReference ]) ifTrue: [
+		self twoOperandMoveCogitRTL: aDRLoad operands: {
+				aDRLoad address expression.
+				aDRLoad }.
+
+		self twoOperandMoveCogitRTL: aDRLoad operands: {
+				aDRLoad asMemoryAddress.
+				aDRLoad }.
+		^ self ].
+
+	self twoOperandMoveCogitRTL: aDRLoad operands: {
+			aDRLoad address.
+			aDRLoad }.
 
 	aDRLoad size < 8 ifFalse: [ ^ self ].
 
 	"If it is smaller than the word size, clean not used digits using a mask"
 	self visitBitAnd: (DRBitAnd
-			 operands: { 
+			 operands: {
 					 aDRLoad result.
 					 aDRLoad size maskOfBytes asDRValue }
 			 result: aDRLoad result)
@@ -1026,7 +1060,7 @@ DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [
 
 	self twoOperandMoveCogitRTL: aDRCogitNegate operands: {
 			aDRCogitNegate operand1.
-			aDRCogitNegate result }.
+			aDRCogitNegate }.
 
 	self flag: #todo. "oneOperandCogitRTL:"
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -1103,9 +1137,6 @@ DRCogitCodeGenerator >> visitRightShift: aRightShift [
 DRCogitCodeGenerator >> visitStore: aDRCogitStore [
 
 	aDRCogitStore isJITCompileTimeExpression ifTrue: [
-		self assert: ({
-				 DRInterpreterExpression.
-				 DRJitCompileTimeExpression } includes: aDRCogitStore address class).
 		^ self visitCompileTimeStore: aDRCogitStore ].
 
 	^ self twoOperandMoveCogitRTL: aDRCogitStore operands: {

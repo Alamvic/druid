@@ -5,16 +5,25 @@ Class {
 }
 
 { #category : #building }
-DRJITCompileTimeExpressionGenerator >> binaryMessage: aSymbol receiverInstruction: aDRAdd argumentInstruction: aDRConstantValue [
+DRJITCompileTimeExpressionGenerator >> binaryMessage: aSymbol receiverInstruction: operand1 argumentInstruction: operand2 [
 
 	| receiver argument |
-	receiver := aDRAdd acceptVisitor: self.
-	argument := aDRConstantValue acceptVisitor: self.
+	receiver := self operandNodeFor: operand1.
+	argument := self operandNodeFor: operand2.
 
 	^ RBMessageNode
 		  receiver: receiver
 		  selector: aSymbol
 		  arguments: { argument }
+]
+
+{ #category : #accessing }
+DRJITCompileTimeExpressionGenerator >> operandNodeFor: aValue [
+
+	aValue isInstruction ifFalse: [ ^ aValue acceptVisitor: self ].
+	aValue isConstanteable ifFalse: [
+		^ RBVariableNode named: aValue result name asString ].
+	^ aValue acceptVisitor: self
 ]
 
 { #category : #parsing }
@@ -39,12 +48,28 @@ DRJITCompileTimeExpressionGenerator >> visit: anInstruction [
 ]
 
 { #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitAbsoluteMemoryAddress: aDRAbsoluteMemoryAddress [
+
+	^ RBVariableNode named: aDRAbsoluteMemoryAddress expression result prettyPrint
+]
+
+{ #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitAddition: aDRAdd [ 
 	
 	^ self 
 		binaryMessage: #+
 		receiverInstruction: aDRAdd operand1
 		argumentInstruction: aDRAdd operand2
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitBaseOffsetMemoryAddress: aDRBaseOffsetMemoryAddress [
+
+	| base offset |
+	"At compile time, a base offset is the sum of the base and offset"
+	base := RBParser parseExpression: aDRBaseOffsetMemoryAddress base result prettyPrint.
+	offset := RBParser parseExpression: aDRBaseOffsetMemoryAddress offset result prettyPrint.
+	^ RBMessageNode receiver: base selector: #+ arguments: { offset }
 ]
 
 { #category : #visiting }
@@ -65,13 +90,19 @@ DRJITCompileTimeExpressionGenerator >> visitBranchIfCondition: aDRBranchIfCondit
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitConstant: aDRConstantValue [ 
 	
-	^ RBLiteralValueNode value: aDRConstantValue value
+	| value |
+	value := aDRConstantValue value.
+	value = false ifTrue: [ value := 0 ].
+	value = true ifTrue: [ value := 1 ].
+	value = nil ifTrue: [ value := 0 ].
+	
+	^ RBLiteralValueNode value: value
 ]
 
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitCopy: aDRCopy [ 
 	
-	^ aDRCopy operand1 acceptVisitor: self	
+	^ self operandNodeFor: aDRCopy operand1
 ]
 
 { #category : #visiting }
@@ -88,7 +119,8 @@ DRJITCompileTimeExpressionGenerator >> visitEqualsThan: aDREqualsThanComparison 
 
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
-	self shouldBeImplemented.
+	
+	^ aDRGetConditionCode condition acceptVisitor: self withBranch: aDRGetConditionCode
 ]
 
 { #category : #visiting }
@@ -130,9 +162,19 @@ DRJITCompileTimeExpressionGenerator >> visitLeftShift: aDRLeftShift [
 { #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitLoad: aDRLoad [
 
-	self assert: aDRLoad isJITCompileTimeExpression.
-	"Just visit the operand, should be a variable"
-	^ aDRLoad operand1 acceptVisitor: self
+	^ RBMessageNode
+		  receiver: (RBVariableNode named: 'objectMemory')
+		  selector: #int64AtPointer:
+		  arguments: { (aDRLoad operand1 acceptVisitor: self) }
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitMultiply: aDRMultiply [
+
+	^ self
+		  binaryMessage: #*
+		  receiverInstruction: aDRMultiply operand1
+		  argumentInstruction: aDRMultiply operand2
 ]
 
 { #category : #visiting }
@@ -142,9 +184,15 @@ DRJITCompileTimeExpressionGenerator >> visitNegate: aDRNegated [
 ]
 
 { #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitObjectReferenceValue: aDRConstantValue [ 
+	
+	^ RBVariableNode named: aDRConstantValue value reference
+]
+
+{ #category : #visiting }
 DRJITCompileTimeExpressionGenerator >> visitPhiFunction: aDRPhiFunction [ 
 
-	^ RBVariableNode named: aDRPhiFunction asJitCompileTimeExpression expression
+	^ RBVariableNode named: aDRPhiFunction result id asString
 ]
 
 { #category : #visiting }
@@ -164,4 +212,29 @@ DRJITCompileTimeExpressionGenerator >> visitStore: aDRStore [
 	value := aDRStore operand1 acceptVisitor: self.
 
 	^ RBAssignmentNode variable: variable value: value
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitSubstract: aDRSubtract [
+
+	^ self
+		  binaryMessage: #-
+		  receiverInstruction: aDRSubtract operand1
+		  argumentInstruction: aDRSubtract operand2
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitTestMask: aDRTestMask inBranch: aDRGetConditionCode [
+
+	^ self
+		  binaryMessage: #anyMask:
+		  receiverInstruction: aDRGetConditionCode operand1
+		  argumentInstruction: aDRGetConditionCode operand2
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitUnsignedCoercion: aDRUnsignedCoercion [
+	"For now just return our expression?"
+
+	^ aDRUnsignedCoercion operand1 acceptVisitor: self
 ]

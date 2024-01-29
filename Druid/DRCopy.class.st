@@ -13,7 +13,7 @@ DRCopy >> acceptVisitor: aVisitor [
 { #category : #converting }
 DRCopy >> asJitCompileTimeExpression [
 
-	^ self operand1 asJitCompileTimeExpression
+	^ result name
 ]
 
 { #category : #printing }
@@ -25,7 +25,7 @@ DRCopy >> isCopy [
 { #category : #testing }
 DRCopy >> isJITCompileTimeExpression [
 
-	^ operands first isJITCompileTimeExpression
+	^ operands first isConstanteable
 ]
 
 { #category : #testing }
@@ -40,6 +40,7 @@ DRCopy >> isJITCompileTimeExpressionIgnoring: aCollection [
 DRCopy >> isMandatoryInstruction [ 
 
 	self result isPhysicalRegister ifTrue: [ ^ true ].
+	self result isStagedRegister ifTrue: [ ^ true ].
 	^ false
 ]
 
@@ -69,8 +70,11 @@ DRCopy >> operand [
 
 { #category : #printing }
 DRCopy >> prettyPrint [
-	
-	^ result name, ' := ', operands first name asString
+
+	^ (self isStaged
+		   ifTrue: [ '[STAGED]' ]
+		   ifFalse: [ '' ]) , result prettyPrint , ' := '
+	  , operands first result prettyPrint
 ]
 
 { #category : #SCCP }
@@ -95,7 +99,7 @@ DRCopy >> type [
 DRCopy >> typeWithAlreadySeen: aCollection [ 
 	
 	(aCollection includes: self)
-		ifTrue: [ ^ nil ].
+		ifTrue: [ ^ DRUndefinedType new ].
 	
 	aCollection add: self.
 	^ operands first typeWithAlreadySeen: aCollection

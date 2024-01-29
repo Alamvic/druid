@@ -10,6 +10,12 @@ DRTestMask >> acceptVisitor: aVisitor withBranch: parentBranch [
 	^ aVisitor visitTestMask: self inBranch: parentBranch
 ]
 
+{ #category : #converting }
+DRTestMask >> asJitCompileTimeExpressionString [
+
+	^ ' anyMask: '
+]
+
 { #category : #testing }
 DRTestMask >> isTestMask [
 	

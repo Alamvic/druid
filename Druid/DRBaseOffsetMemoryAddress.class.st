@@ -8,6 +8,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #visiting }
+DRBaseOffsetMemoryAddress >> acceptVisitor: aVisitor [ 
+	
+	^ aVisitor visitBaseOffsetMemoryAddress: self
+]
+
 { #category : #'meta-data' }
 DRBaseOffsetMemoryAddress >> asDependencyList [
 
@@ -30,8 +36,9 @@ DRBaseOffsetMemoryAddress >> base: anObject [
 
 { #category : #printing }
 DRBaseOffsetMemoryAddress >> name [
-	
-	^ '[', base result name, ', offset=', offset asDRValue name, ']'
+
+	^ '[' , base result prettyPrint , ', offset='
+	  , offset asDRValue result prettyPrint , ']'
 ]
 
 { #category : #accessing }
@@ -65,12 +72,18 @@ DRBaseOffsetMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 
 { #category : #cogit }
 DRBaseOffsetMemoryAddress >> rtlArgumentExpressions: generator [
-	
+
 	| offsetNode baseNode |
+	self assert: offset isConstant.
+	self assert: base isInstruction.
+
 	offsetNode := RBParser parseExpression: offset expression.
 	baseNode := RBVariableNode named: (generator allocateVariable: base result).
 
-	^ { offsetNode . baseNode }
+	"In cogit offset comes before base"
+	^ {
+		  offsetNode.
+		  baseNode }
 ]
 
 { #category : #SCCP }

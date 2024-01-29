@@ -116,7 +116,9 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 			224 225
 		"extended receiver/literal/temporary/constant variable bytecode"
 			226
-			227 228 229 232 233
+			227 228 229
+			231 "pushNewArrayBytecode"
+			232 233
 		"extended send"
 			234
 		"extSendSuperBytecode"

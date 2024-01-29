@@ -7,8 +7,9 @@ Class {
 { #category : #operations }
 DRCopyPropagation >> applyTo: aDRControlFlowGraph [
 
-	aDRControlFlowGraph instructions copy do: [ :i | 
-		(i isCopy and: [ i result isPhysicalRegister not and: [ i operand1 isConstant not ] ]) 
+	aDRControlFlowGraph instructions copy do: [ :i |
+		(i isCopy and: [
+			 i result isPhysicalRegister not and: [ i operand1 isInstruction ] ])
 			ifTrue: [ self propagateCopyFrom: i ] ]
 ]
 

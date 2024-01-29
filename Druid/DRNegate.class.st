@@ -10,6 +10,12 @@ DRNegate >> acceptVisitor: aVisitor [
 	^ aVisitor visitNegate: self
 ]
 
+{ #category : #testing }
+DRNegate >> isNegate [
+
+	^ true
+]
+
 { #category : #printing }
 DRNegate >> opcode [
 	

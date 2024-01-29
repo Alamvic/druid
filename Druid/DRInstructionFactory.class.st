@@ -21,7 +21,7 @@ DRInstructionFactory >> allocateTemporaryRegister [
 	| allocatedRegisterId |
 	allocatedRegisterId := nextAvailableRegister.
 	nextAvailableRegister := nextAvailableRegister + 1.
-	^ DRTemporaryRegister id: allocatedRegisterId
+	^ DRSSARegister name: allocatedRegisterId
 ]
 
 { #category : #factory }
@@ -119,13 +119,13 @@ DRInstructionFactory >> intToFloat: operand1 [
 { #category : #factory }
 DRInstructionFactory >> jitCompileTimeExpression: aString [
 
-	^ DRCompositeCompileTimeExpression new expression: aString
+	^ DRInterpreterReference reference: aString
 ]
 
 { #category : #factory }
 DRInstructionFactory >> jitCompileTimeVariable: aString [ 
 
-	^ DRConstantCompileTimeExpression new expression: aString
+	^ DRInterpreterReference reference: aString
 ]
 
 { #category : #factory }
@@ -272,32 +272,10 @@ DRInstructionFactory >> setReturnValue: aValue [
 ]
 
 { #category : #factory }
-DRInstructionFactory >> store: instruction in: memoryAddress [
-
-	^ DRStore
-		  operands: { 
-				  8 asDRValue.
-				  instruction.
-				  memoryAddress }
-		  result: DRNoRegister new
-]
-
-{ #category : #factory }
-DRInstructionFactory >> store: aValue into: anAddress [
-
-	^ DRStore
-		  operands: { 
-				  8 asDRValue. "Assume 64 bits for now"
-				  anAddress asDRValue.
-				  aValue asDRValue }
-		  result: self allocateTemporaryRegister
-]
-
-{ #category : #factory }
 DRInstructionFactory >> storeSInt64: operand at: address [
 
 	^ DRStore
-		  operands: { 
+		  operands: {
 				  8 asDRValue.
 				  operand asDRValue.
 				  address asDRValue }
@@ -305,9 +283,9 @@ DRInstructionFactory >> storeSInt64: operand at: address [
 ]
 
 { #category : #factory }
-DRInstructionFactory >> strongCopy: aValue [
+DRInstructionFactory >> strongCopyForInlining: aValue [
 
-	^ DRStrongCopy
+	^ DRStrongCopyForInlining
 		  operands: { aValue asDRValue }
 		  result: self allocateTemporaryRegister
 ]

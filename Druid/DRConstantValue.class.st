@@ -32,7 +32,7 @@ DRConstantValue >> acceptVisitor: aVisitor [
 { #category : #converting }
 DRConstantValue >> asJitCompileTimeExpression [
 
-	^ DRConstantCompileTimeExpression expression: self value asString
+	^ DRInterpreterReference reference: self value asString
 ]
 
 { #category : #accessing }
@@ -73,7 +73,7 @@ DRConstantValue >> isInvariantFrom: loop [
 { #category : #testing }
 DRConstantValue >> isJITCompileTimeExpression [
 	
-	^ value isJITCompileTimeExpression
+	^ value isStaged
 ]
 
 { #category : #testing }

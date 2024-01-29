@@ -45,12 +45,12 @@ DRCogitOperandSorterTest >> testSplitAdditionWithObjectReferences [
 	cfg := self setUpCFG: 2.
 
 	"R1 := 1 + R1"
-	r1 := cfg b1 add: DRNilObject new to: 2.
+	r1 := cfg b1 add: DRInterpreterReference nilObject to: 2.
 
 	"The sorter should split one constant to register"
 	DRCogitOperandSorter new applyTo: cfg.
 
 	self assert: r1 operands first isCopy.
 	self assert: r1 operands first operand1 equals: 2 asDRValue.
-	self assert: r1 operands second isObjectReferenceValue
+	self assert: r1 operands second isInterpreterReference
 ]

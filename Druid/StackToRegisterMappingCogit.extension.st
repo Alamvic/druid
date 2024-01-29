@@ -16,9 +16,9 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 	"Basic set of optimizations twice for primitives"
 	3 timesRepeat: [
 		optimisations add: DRBranchCollapse new.
-		optimisations add: DRStoreTemporaryStagedLoop new.
+		"	optimisations add: DRStoreTemporaryStagedLoop new."
 		optimisations add: DRFailureCodeBasedTailDuplication new.
-		optimisations add: (DRSCCP then: DRDeadBlockElimination).
+		optimisations add: (DRSCCPWithStaging then: DRDeadBlockElimination).
 		optimisations add: DRCopyPropagation new.
 		optimisations add: DRPhiSimplication new.
 		optimisations add: DRCogitStackCanonicaliser new.
@@ -30,9 +30,14 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 			(DRDeadEdgeSplitting then: DRDeadBranchElimination) ].
 
 	"Last Phase, make code coggable"
+	optimisations add: DRCogitCanonicaliser new.
 	optimisations add: DRCogitOperandSorter new.
+	optimisations add: DRCogitStager new.
+	optimisations add: DRCogitOperandSorter new.
+	
 	optimisations add: DRCogitSendMarshallInsertion new.
 	optimisations add: DRCogitStackToRegisterFlushHoisting new.
+	optimisations add: DRDeadCodeElimination new.
 	^ optimisations
 ]
 

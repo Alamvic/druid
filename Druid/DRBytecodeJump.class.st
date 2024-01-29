@@ -11,6 +11,12 @@ DRBytecodeJump >> acceptVisitor: aVisitor [
 ]
 
 { #category : #testing }
+DRBytecodeJump >> isBytecodeJump [
+
+	^ true
+]
+
+{ #category : #testing }
 DRBytecodeJump >> isMandatoryInstruction [
 
 	^ true

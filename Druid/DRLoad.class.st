@@ -47,7 +47,7 @@ DRLoad >> canMoveOutsideLoop: backJump [
 { #category : #testing }
 DRLoad >> isJITCompileTimeExpression [
 
-	^ self address isJITCompileTimeExpression
+	^ false
 ]
 
 { #category : #visiting }
@@ -66,7 +66,6 @@ DRLoad >> opcode [
 DRLoad >> operands: operandList [
 
 	type := operandList first.
-	self haltIf: [ (type isKindOf: DRTopType) not ].
 	super operands: { operandList second asMemoryAddress }
 ]
 
@@ -78,35 +77,10 @@ DRLoad >> replaceDependency: anOperand by: anotherOperand [
 	self address replaceDependency: anOperand by: anotherOperand
 ]
 
-{ #category : #'cogit-generation' }
-DRLoad >> rtlOperandQualifier [
-	
-	^ result rtlOperandQualifier
-]
-
 { #category : #SCCP }
 DRLoad >> sccpLatticeValueFor: sccp [
 
-	| address |
-	self isJITCompileTimeExpression ifTrue: [
-		| newVar |
-		newVar := self result name asLowercase.
-		self replaceUsesBy: newVar asDRValue asJitCompileTimeExpression.
-		^ DRStore
-			  operands: {
-					  self size asDRValue.
-					  self address asJitCompileTimeExpression.
-					  (DRInterpreterExpression reference: newVar) }
-			  result: DRNoRegister new ].
-
-	address := self address sccpLatticeValueFor: sccp.
-
-	(sccp isConstantLattice: address) ifTrue: [ "If the address is constant, we can move the load to JIT compile time"
-		^ 'coInterpreter int64AtPointer:' asDRValue asJitCompileTimeExpression
-		  , address asDRValue asJitCompileTimeExpression ].
-
-	"sccp value is the same that the address"
-	^ address
+	^ sccp latticeForLoad: self
 ]
 
 { #category : #accessing }
@@ -119,4 +93,10 @@ DRLoad >> size [
 DRLoad >> type [
 	
 	^ type
+]
+
+{ #category : #accessing }
+DRLoad >> type: aType [
+
+	type := aType
 ]

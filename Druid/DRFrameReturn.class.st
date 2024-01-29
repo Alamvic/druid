@@ -1,6 +1,6 @@
 Class {
 	#name : #DRFrameReturn,
-	#superclass : #DRStrongCopy,
+	#superclass : #DRStrongCopyForInlining,
 	#category : #'Druid-IR'
 }
 

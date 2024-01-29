@@ -117,10 +117,15 @@ DRCondition >> prettyPrintWithBranch: aDRBranchIfCondition [
 	| conditionResult conditionResultName conditionComparisonValueName |
 	conditionResult := aDRBranchIfCondition operand1 result.
 	conditionResultName := conditionResult
-		                       ifNotNil: [ conditionResult name , ' ' ]
+		                       ifNotNil: [
+		                       conditionResult name asString , ' ' ]
 		                       ifNil: [ '' ].
 	conditionComparisonValueName := aDRBranchIfCondition operand2
-		                                ifNotNil: [ ' ' , aDRBranchIfCondition operand2 name ]
+		                                ifNotNil: [
+		                                ' '
+		                                ,
+		                                aDRBranchIfCondition operand2 name
+			                                asString ]
 		                                ifNil: [ '' ].
 	^ conditionResultName , self opcode , conditionComparisonValueName
 ]
