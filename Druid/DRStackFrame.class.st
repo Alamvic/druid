@@ -10,7 +10,8 @@ Class {
 		'operandStack',
 		'temporaries',
 		'mirrorFrame',
-		'returnValue'
+		'returnValue',
+		'currentNode'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -40,6 +41,17 @@ DRStackFrame >> addTo: aDRStackFrame [
 DRStackFrame >> clearDeferredMethodReturns [
 
 	mirrorFrame clearDeferredMethodReturns
+]
+
+{ #category : #accessing }
+DRStackFrame >> currentNode [
+	^ currentNode
+]
+
+{ #category : #accessing }
+DRStackFrame >> currentNode: aRBProgramNode [ 
+	
+	currentNode := aRBProgramNode
 ]
 
 { #category : #'non lo' }

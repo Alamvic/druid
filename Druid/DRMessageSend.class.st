@@ -20,6 +20,12 @@ DRMessageSend >> arguments [
 	^ operands allButFirst
 ]
 
+{ #category : #accessing }
+DRMessageSend >> executionState [
+	
+	^ inlineGenerator executionState 
+]
+
 { #category : #optimizations }
 DRMessageSend >> inline [
 	

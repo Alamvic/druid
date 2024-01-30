@@ -27,13 +27,13 @@ DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
 	self assert: aDRInstruction result isRegister.
 
 	aDRInstruction replaceUsesBy: (DRLoadTemporaryVariable operands: {
-				 aDRInstruction result name asLowercase asDRValue.
+				 aDRInstruction result name asString asLowercase asDRValue.
 				 "store" }).
 
 	aDRInstruction basicBlock
 		add: (DRStoreTemporaryVariable
 				 operands: {
-						 aDRInstruction result name asLowercase asDRValue.
+						 aDRInstruction result name asString asLowercase asDRValue.
 						 aDRInstruction }
 				 result: DRNoRegister new)
 		after: aDRInstruction

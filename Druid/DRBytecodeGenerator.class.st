@@ -6,7 +6,11 @@ Class {
 		'methodName',
 		'numArgs',
 		'currentBasicBlock',
-		'visitedBlocks'
+		'visitedBlocks',
+		'deoptimizationInformation',
+		'ir',
+		'translator',
+		'method'
 	],
 	#category : #'Druid-BytecodeGeneration'
 }
@@ -14,11 +18,15 @@ Class {
 { #category : #building }
 DRBytecodeGenerator >> compiledMethod [
 
-	| method ir |
 	ir := builder ir.
 	ir numArgs: numArgs.
 
-	method := ir compiledMethod.
+	translator := ir newIRTranslatorForTrailer: CompiledMethodTrailer empty.
+	method := ir generateUsingTranslator: translator.
+	
+	deoptimizationInformation ifNotNil: [ deoptimizationInformation 
+		updatePCForEntries: self ].
+	
 	method selector: methodName.
 	^ method
 ]
@@ -66,11 +74,25 @@ DRBytecodeGenerator >> methodName: aString [
 	methodName := aString
 ]
 
+{ #category : #'as yet unclassified' }
+DRBytecodeGenerator >> mightGenerateDeoptimizationInformationFor: aDRMessageSend [ 
+
+	self recordDeoptimizationInstructionForState: aDRMessageSend executionState
+	
+	
+]
+
 { #category : #accessing }
 DRBytecodeGenerator >> numArgs: anInteger [
 
 	numArgs := anInteger.
 	1 to: anInteger do: [ :i | builder addTemp: 'arg' , (i - 1) asString ]
+]
+
+{ #category : #accessing }
+DRBytecodeGenerator >> pcForInstruction: anIRInstruction [ 
+	
+	^ method initialPC + (translator relativePCOf: anIRInstruction)
 ]
 
 { #category : #'stack - blocks' }
@@ -83,6 +105,20 @@ DRBytecodeGenerator >> popBlock [
 DRBytecodeGenerator >> pushBlock: aDRBasicBlock [ 
 
 	visitedBlocks push: aDRBasicBlock 
+]
+
+{ #category : #'as yet unclassified' }
+DRBytecodeGenerator >> recordDeoptimizationInstructionForState: aDRExecutionState [
+
+	| lastIRInstruction |
+	
+	deoptimizationInformation ifNil: [
+		deoptimizationInformation := DRDeoptimizationInformation new.
+		builder addLiteral: deoptimizationInformation ].
+	
+	lastIRInstruction := builder lastInstruction.
+	
+	deoptimizationInformation addEntryFor: lastIRInstruction forState: aDRExecutionState
 ]
 
 { #category : #'ir-to-target' }
@@ -194,12 +230,11 @@ DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 { #category : #visiting }
 DRBytecodeGenerator >> visitLoadArrayElement: aDRLoadArrayElement [
 
-	aDRLoadArrayElement executionState executionStack size > 1 
-		ifTrue: [ builder addLiteral: DRDeoptimizationInformation new ].
-
 	aDRLoadArrayElement operand1 acceptVisitor: self.
 	aDRLoadArrayElement operand2 acceptVisitor: self.
-	builder send: #at:
+	builder send: #at:.
+	
+	self mightGenerateDeoptimizationInformationFor: aDRLoadArrayElement
 ]
 
 { #category : #'ir-to-target' }
@@ -213,7 +248,9 @@ DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 { #category : #'ir-to-target' }
 DRBytecodeGenerator >> visitMessageSend: aDRMessageSend [ 
 
-	self sendMessage: aDRMessageSend selector fromInstruction: aDRMessageSend
+	self sendMessage: aDRMessageSend selector fromInstruction: aDRMessageSend.
+	
+	self mightGenerateDeoptimizationInformationFor: aDRMessageSend
 ]
 
 { #category : #'ir-to-target' }

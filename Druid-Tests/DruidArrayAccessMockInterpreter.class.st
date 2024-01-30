@@ -22,6 +22,20 @@ DruidArrayAccessMockInterpreter >> from: from to: to do: aBlock [
 ]
 
 { #category : #accessing }
+DruidArrayAccessMockInterpreter >> methodInlined: anArray i: index [
+
+	^ self methodNotToInline: anArray i: index
+]
+
+{ #category : #accessing }
+DruidArrayAccessMockInterpreter >> methodInliningMessageSend: anArray [
+
+	<var: #anArray type: #Array>
+	
+	^ self methodInlined: anArray i: 7
+]
+
+{ #category : #accessing }
 DruidArrayAccessMockInterpreter >> methodIteratingArrayUsingAt: anArray [
 
 	<var: #anArray type: #Array>
@@ -32,6 +46,25 @@ DruidArrayAccessMockInterpreter >> methodIteratingArrayUsingAt: anArray [
 	self from: 1 to: anArray size do: [ :i  | r := r + (anArray at: i) ].
 	
 	^ r
+]
+
+{ #category : #accessing }
+DruidArrayAccessMockInterpreter >> methodIteratingArrayUsingNonInlinedMethod: anArray [
+
+	<var: #anArray type: #Array>
+	
+	| r |
+	
+	r := 0.
+	self from: 1 to: anArray size do: [ :i  | r := r + (self methodNotToInline: anArray i: i) ].
+	
+	^ r
+]
+
+{ #category : #accessing }
+DruidArrayAccessMockInterpreter >> methodNotToInline: anArray i: index [
+
+	^ 23
 ]
 
 { #category : #accessing }

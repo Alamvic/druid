@@ -518,6 +518,7 @@ DRIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 DRIRGenerator >> interpretBinaryInstruction: aRBMessageNode instructionKind: anInstructionKind [
 
 	| operand1 operand2 |
+
 	operand1 := self visitOperand: aRBMessageNode receiver.
 	operand2 := self visitOperand: aRBMessageNode arguments first.
 
@@ -651,14 +652,18 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 
 	| block arguments |
 	aRBMessageNode receiver acceptVisitor: self.
-	block := self popOperand simplify.
+	block := self peekOperand simplify.
 	block isDRBlockClosure ifFalse: [
+		self popOperand. "Receiver"
 		^ self resolveMessageSend: aRBMessageNode receiver: block ].
 
 	arguments := aRBMessageNode arguments collect: [ :e |
 		             e acceptVisitor: self.
-		             self popOperand ].
-	self interpretCode: block receiver: block arguments: arguments
+		             self peekOperand ].
+	
+	aRBMessageNode arguments size + 1 timesRepeat: [ self popOperand ].
+	
+	self interpretCode: block receiver: block arguments: arguments.
 ]
 
 { #category : #'special cases' }
@@ -1771,14 +1776,16 @@ DRIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
 
 	arguments := aRBMessageNode arguments collect: [ :e | 
 		             e acceptVisitor: self.
-		             self popOperand ].
+		             self peekOperand ].
+
+	aRBMessageNode arguments size + 1 timesRepeat: [ self popOperand ].
+
+	self topFrame currentNode: aRBMessageNode.
 
 	self
 		resolveMessageSend: aRBMessageNode
 		receiver: receiver
-		arguments: arguments.
-
-	
+		arguments: arguments
 ]
 
 { #category : #visiting }
@@ -1910,7 +1917,7 @@ DRIRGenerator >> visitCascadeNode: aRBCascadeNode [
 
 	| receiver result |
 	aRBCascadeNode receiver acceptVisitor: self.
-	receiver := self popOperand.
+	receiver := self peekOperand.
 	
 	aRBCascadeNode messages do: [ :e |
 		self visitMessageNode: e receiver: receiver.
@@ -1952,7 +1959,7 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 
 	"Resolve it as a normal send"
 	aRBMessageNode receiver acceptVisitor: self.
-	receiver := self popOperand.
+	receiver := self peekOperand.
 
 	self resolveMessageSend: aRBMessageNode receiver: receiver
 ]

@@ -4,6 +4,23 @@ Class {
 	#category : #'Druid-Tests-Optimizations'
 }
 
+{ #category : #asserting }
+DRInlineArrayAccessTest >> assert: actualContext equalsContext: expectedContext [ 
+
+	(actualContext isNil and: [ expectedContext isNil ])
+		ifTrue: [ ^ self ].
+
+	self assert: actualContext pc equals: expectedContext pc.
+	self assert: actualContext stackPtr equals: expectedContext stackPtr.
+	self assert: actualContext method equals: expectedContext method.
+	self assert: actualContext closure equals: expectedContext closure.
+	self assert: actualContext receiver equals: expectedContext receiver.
+
+	1 to: actualContext stackPtr do: [ :i |
+		self assert: (actualContext at: i) equals: (expectedContext at: i)
+		 ]
+]
+
 { #category : #tests }
 DRInlineArrayAccessTest >> compileCFG: cfg selector: selector [
 
@@ -56,6 +73,24 @@ DRInlineArrayAccessTest >> setUp [
 
 ]
 
+{ #category : #util }
+DRInlineArrayAccessTest >> step: aMethod untilEnteringIn: aSelector receiver: aReceiver arguments: arguments [ 
+
+	| rootCtx currentCtx |
+	
+	rootCtx := Context 
+		sender: nil 
+		receiver: aReceiver
+		method: aMethod 
+		arguments: { arguments }.
+
+	currentCtx := rootCtx.
+
+	[currentCtx method selector = aSelector ] whileFalse: [ currentCtx := currentCtx step].
+
+	^ currentCtx
+]
+
 { #category : #tests }
 DRInlineArrayAccessTest >> testArrayAtInline [
 
@@ -93,7 +128,7 @@ DRInlineArrayAccessTest >> testArrayAtInlineGeneratedMethod [
 ]
 
 { #category : #tests }
-DRInlineArrayAccessTest >> testArrayAtInlineGeneratedMethodDoesNotHaveDeoptimizationInformation [
+DRInlineArrayAccessTest >> testArrayAtInlineGeneratedMethodDoesHasDeoptimizationInformation [
 
 	| cfg m selector |
 
@@ -104,7 +139,7 @@ DRInlineArrayAccessTest >> testArrayAtInlineGeneratedMethodDoesNotHaveDeoptimiza
 
 	m := self compileCFG: cfg selector: selector.
 
-	self assert: m deoptimizationInformation equals: nil
+	self assert: m deoptimizationInformation isNotNil
 
 ]
 
@@ -134,6 +169,71 @@ DRInlineArrayAccessTest >> testIteratingArrayUsingAtGeneratedMethodHasDeoptimiza
 	cfg := self generateDruidIRFor: selector.
 	
 	self inlineAllMessages: #(size from:to:do: at:) in: cfg.
+
+	m := self compileCFG: cfg selector: selector.
+	
+	self assert: m deoptimizationInformation isNotNil.
+]
+
+{ #category : #tests }
+DRInlineArrayAccessTest >> testIteratingArrayUsingNotInlinedMethodGeneratedMethodHasDeoptimizationInformation [
+
+	| cfg m selector |
+
+	selector := #methodIteratingArrayUsingNonInlinedMethod:.
+	cfg := self generateDruidIRFor: selector.
+	
+	self inlineAllMessages: #(size from:to:do: at:) in: cfg.
+
+	m := self compileCFG: cfg selector: selector.
+	
+	self assert: m deoptimizationInformation isNotNil.
+]
+
+{ #category : #tests }
+DRInlineArrayAccessTest >> testMethodInliningMessageSendMethodGeneratedMethodDeoptimizeStack [
+
+	| cfg m selector optimizedCtx unoptimizedCtx receiver args |
+
+	selector := #methodInliningMessageSend:.
+	cfg := self generateDruidIRFor: selector.
+	
+	self inlineAllMessages: #(methodInlined:i:) in: cfg.
+
+	m := self compileCFG: cfg selector: selector.
+
+	receiver := DruidArrayAccessMockInterpreter new.
+	args := { #(1 2 3) }.
+	
+	optimizedCtx := self step: m 
+		untilEnteringIn: #methodNotToInline:i: 
+		receiver: receiver
+		arguments: args.
+
+	unoptimizedCtx := self step: (self interpreterClass lookupSelector: selector)
+		untilEnteringIn: #methodNotToInline:i: 
+		receiver: receiver
+		arguments: args.
+			
+	optimizedCtx deoptimizeSender.
+	
+	self assert: optimizedCtx equalsContext: unoptimizedCtx.
+	self assert: optimizedCtx sender equalsContext: unoptimizedCtx sender.
+	self assert: optimizedCtx sender sender equalsContext: unoptimizedCtx sender sender.
+	self assert: optimizedCtx sender sender sender equalsContext: unoptimizedCtx sender sender sender.
+
+
+]
+
+{ #category : #tests }
+DRInlineArrayAccessTest >> testMethodInliningMessageSendMethodGeneratedMethodHasDeoptimizationInformation [
+
+	| cfg m selector |
+
+	selector := #methodInliningMessageSend:.
+	cfg := self generateDruidIRFor: selector.
+	
+	self inlineAllMessages: #(methodInlined:i:) in: cfg.
 
 	m := self compileCFG: cfg selector: selector.
 	
