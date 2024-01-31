@@ -682,7 +682,10 @@ DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 DRInstruction >> rtlOperandQualifier [
 
 	^ self isStaged
-		  ifFalse: [ 'R:' ]
+		  ifFalse: [
+			  self type isFloatType
+				  ifTrue: [ 'Rd:' ]
+				  ifFalse: [ 'R:' ] ]
 		  ifTrue: [ 'Cq:' ]
 ]
 
