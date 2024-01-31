@@ -81,9 +81,10 @@ DRCogitOperandSorter >> visitBytecodeJump: aDRBytecodeJump [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitCall: aDRCall [ 
+DRCogitOperandSorter >> visitCall: aDRCall [
+	"Nothing"
+
 	
-	^ nil
 ]
 
 { #category : #visiting }
@@ -239,6 +240,13 @@ DRCogitOperandSorter >> visitLoadStackPointer: aDRLoadStackPointer [
 DRCogitOperandSorter >> visitLoadStackValue: aDRLoadStackValue [ 
 	
 	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitMessageSend: aDRMessageSend [
+	"Nothing"
+
+	
 ]
 
 { #category : #visiting }
