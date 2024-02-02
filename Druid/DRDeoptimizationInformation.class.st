@@ -56,5 +56,5 @@ DRDeoptimizationInformation >> initialize [
 { #category : #'as yet unclassified' }
 DRDeoptimizationInformation >> updatePCForEntries: aDRBytecodeGenerator [
 
-	entries do: [ :e | e updatePCFrom: aDRBytecodeGenerator ]
+	entries do: [ :e | e updateInformationFrom: aDRBytecodeGenerator ]
 ]

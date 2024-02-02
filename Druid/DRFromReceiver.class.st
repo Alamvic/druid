@@ -9,3 +9,9 @@ DRFromReceiver >> readFromContext: aContext [
 	
 	^ aContext receiver
 ]
+
+{ #category : #updating }
+DRFromReceiver >> updateInformationFrom: aDRBytecodeGenerator [ 
+
+	"Nothing to do"
+]

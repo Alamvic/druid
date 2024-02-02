@@ -13,6 +13,12 @@ DRFromConstantValue >> readFromContext: aContext [
 	^ value
 ]
 
+{ #category : #updating }
+DRFromConstantValue >> updateInformationFrom: aDRBytecodeGenerator [ 
+	
+	"Nothing to do"
+]
+
 { #category : #accessing }
 DRFromConstantValue >> value: aValue [ 
 	value := aValue

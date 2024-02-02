@@ -79,3 +79,12 @@ DRDeoptimizationFrameEntry >> temporaries: aCollection [
 	temporaries := aCollection 
 
 ]
+
+{ #category : #updating }
+DRDeoptimizationFrameEntry >> updateInformationFrom: aDRBytecodeGenerator [ 
+	
+	receiver updateInformationFrom: aDRBytecodeGenerator.
+	temporaries do: [ :e | e updateInformationFrom: aDRBytecodeGenerator ].
+	arguments do: [ :e | e updateInformationFrom: aDRBytecodeGenerator ].
+	stack do: [ :e | e updateInformationFrom: aDRBytecodeGenerator ].
+]

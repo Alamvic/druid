@@ -62,6 +62,11 @@ DRBytecodeGenerator >> initialize [
 	visitedBlocks := Stack new
 ]
 
+{ #category : #accessing }
+DRBytecodeGenerator >> ir [
+	^ ir
+]
+
 { #category : #testing }
 DRBytecodeGenerator >> isResultInstruction: aDRInstruction [
 
@@ -92,7 +97,7 @@ DRBytecodeGenerator >> numArgs: anInteger [
 { #category : #accessing }
 DRBytecodeGenerator >> pcForInstruction: anIRInstruction [ 
 	
-	^ method initialPC + (translator relativePCOf: anIRInstruction)
+	^ anIRInstruction bytecodeOffset + 1
 ]
 
 { #category : #'stack - blocks' }

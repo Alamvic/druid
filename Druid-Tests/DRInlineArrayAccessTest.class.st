@@ -82,7 +82,7 @@ DRInlineArrayAccessTest >> step: aMethod untilEnteringIn: aSelector receiver: aR
 		sender: nil 
 		receiver: aReceiver
 		method: aMethod 
-		arguments: { arguments }.
+		arguments: arguments.
 
 	currentCtx := rootCtx.
 
@@ -157,6 +157,41 @@ DRInlineArrayAccessTest >> testIteratingArrayUsingAt [
 	self assert: (cfg instructions count: [ :e | e isLoadArrayElement ]) equals: 1.
 	
 	loadArrayInstruction := cfg instructions detect: [ :e | e isLoadArrayElement  ].
+
+]
+
+{ #category : #tests }
+DRInlineArrayAccessTest >> testIteratingArrayUsingAtGeneratedMethodDeoptimizeStack [
+
+	| cfg m selector receiver args optimizedCtx unoptimizedCtx |
+
+	selector := #methodIteratingArrayUsingAt:.
+	cfg := self generateDruidIRFor: selector.
+	
+	self inlineAllMessages: #(size from:to:do: at:) in: cfg.
+
+	m := self compileCFG: cfg selector: selector.
+	
+	receiver := DruidArrayAccessMockInterpreter new.
+	args := { #(1 2 3) }.
+	
+	optimizedCtx := self step: m 
+		untilEnteringIn: #abs 
+		receiver: receiver
+		arguments: args.
+
+	unoptimizedCtx := self step: (self interpreterClass lookupSelector: selector)
+		untilEnteringIn: #abs
+		receiver: receiver
+		arguments: args.
+			
+			
+	optimizedCtx deoptimizeSender.
+	
+	self assert: optimizedCtx equalsContext: unoptimizedCtx.
+	self assert: optimizedCtx sender equalsContext: unoptimizedCtx sender.
+	self assert: optimizedCtx sender sender equalsContext: unoptimizedCtx sender sender.
+	self assert: optimizedCtx sender sender sender equalsContext: unoptimizedCtx sender sender sender.
 
 ]
 

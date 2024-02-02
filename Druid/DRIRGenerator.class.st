@@ -663,6 +663,8 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 	
 	aRBMessageNode arguments size + 1 timesRepeat: [ self popOperand ].
 	
+	self topFrame currentNode: aRBMessageNode.
+		
 	self interpretCode: block receiver: block arguments: arguments.
 ]
 

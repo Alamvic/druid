@@ -15,10 +15,10 @@ DRDeoptimizationEntry >> addFrameForMethod: aCompiledMethod savedPC: savedPC rec
 	frames add: 	(DRDeoptimizationFrameEntry new
 				compiledMethod: aCompiledMethod;
 				savedPC: savedPC;
-				receiver: (aReceiver acceptVisitor: self);
-				arguments: (arguments collect: [:e | e acceptVisitor: self ]);
-				temporaries: (temporaries collect: [:e | e acceptVisitor: self ]);
-				stack: (stackElements collect: [:e | e acceptVisitor: self ]);
+				receiver: (aReceiver simplify acceptVisitor: self);
+				arguments: (arguments collect: [:e | e simplify acceptVisitor: self ]);
+				temporaries: (temporaries collect: [:e | e simplify acceptVisitor: self ]);
+				stack: (stackElements collect: [:e | e simplify acceptVisitor: self ]);
 				yourself)
 ]
 
@@ -34,7 +34,10 @@ DRDeoptimizationEntry >> deoptimizeContext: originalContext [
 		
 		newContext pc: frame savedPC.
 		
-		frame temporaries do: [ :e | 1halt ].
+		frame temporaries do: [ :e | 
+				newContext 
+					writeVariableNamed: e name 
+					value: (e readFromContext: originalContext) ].
 		frame stack do: [ :e | 1halt ].
 		newContext
 		 ]
@@ -59,9 +62,16 @@ DRDeoptimizationEntry >> pc [
 ]
 
 { #category : #updating }
-DRDeoptimizationEntry >> updatePCFrom: aDRBytecodeGenerator [ 
+DRDeoptimizationEntry >> updateInformationFrom: aDRBytecodeGenerator [ 
 
-	pc := aDRBytecodeGenerator pcForInstruction: irInstruction
+	pc := aDRBytecodeGenerator pcForInstruction: irInstruction.
+	frames do: [ :f | f updateInformationFrom: aDRBytecodeGenerator ].
+]
+
+{ #category : #visiting }
+DRDeoptimizationEntry >> visitBlockClosure: aDRBlockClosure [ 
+	
+	^ DRBlockClosureOptimizedValue new
 ]
 
 { #category : #visiting }
@@ -80,6 +90,16 @@ DRDeoptimizationEntry >> visitInterpreterValue: aDRInterpreterValue [
 DRDeoptimizationEntry >> visitLoadArgument: aDRLoadArgument [ 
 	
 	^ DRFromArgument new index: aDRLoadArgument argNum
+]
+
+{ #category : #visiting }
+DRDeoptimizationEntry >> visitPhiFunction: aDRPhiFunction [ 
+
+	
+	(aDRPhiFunction operands allSatisfy: [ :e | e isStore and: [ aDRPhiFunction operands first variableName = e variableName ] ])
+		ifTrue: [ ^ aDRPhiFunction operands first acceptVisitor: self ].
+	
+	self halt.
 ]
 
 { #category : #visiting }

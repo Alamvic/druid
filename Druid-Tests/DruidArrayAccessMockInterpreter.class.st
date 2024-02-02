@@ -43,7 +43,8 @@ DruidArrayAccessMockInterpreter >> methodIteratingArrayUsingAt: anArray [
 	| r |
 	
 	r := 0.
-	self from: 1 to: anArray size do: [ :i  | r := r + (anArray at: i) ].
+	self from: 1 to: anArray size do: [ :i  | 
+		r := (r + (anArray at: i)) abs ].
 	
 	^ r
 ]

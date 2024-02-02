@@ -17,3 +17,9 @@ DRFromArgument >> readFromContext: aContext [
 	
 	^ aContext arguments at: index + 1 
 ]
+
+{ #category : #updating }
+DRFromArgument >> updateInformationFrom: aDRBytecodeGenerator [ 
+	
+	"Nothing to do"
+]
