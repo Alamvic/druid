@@ -387,7 +387,7 @@ Other test classes test a basic register allocation algorithm (`DRRegisterAlloca
  - Practical partial evaluation for high-performance dynamic language runtimes
    https://dl.acm.org/doi/10.1145/3062341.3062381
  - Structure and Interpretation of Computer Programs
-   http://web.mit.edu/alexmv/6.037/sicp.pdf
+   https://web.mit.edu/6.001/6.037/sicp.pdf
  - Fun with Interpreters
    https://github.com/SquareBracketAssociates/Booklet-FunWithInterpreters/releases/download/continuous/fun-with-interpreters-wip.pdf
  - [Trace-Based Register Allocation](https://gitlab.inria.fr/RMOD/vm-papers/-/blob/master/compilation+JIT/2016_Trace-based%20Register%20Allocation%20in%20a%20JIT%20Compiler.pdf)
