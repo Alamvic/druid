@@ -80,12 +80,6 @@ DRCogitSimpleStackGenerator >> postCopy [
 	^ self
 ]
 
-{ #category : #'ir-to-ast' }
-DRCogitSimpleStackGenerator >> returnNodeForCompiledMethod [
-
-	^ RBLiteralNode value: 0
-]
-
 { #category : #visiting }
 DRCogitSimpleStackGenerator >> rtlExpressionForValue: aValue [
 

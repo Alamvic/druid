@@ -250,7 +250,7 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 	self generatePostambleForCFG: aDRControlFlowGraph.
 
 	"Return compiled method status for the compiler"
-	self generateReturn
+	self generateReturnForCFG: aDRControlFlowGraph
 ]
 
 { #category : #'ir-to-ast' }
@@ -398,10 +398,10 @@ DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 ]
 
 { #category : #'ir-to-ast' }
-DRCogitCodeGenerator >> generateReturn [
+DRCogitCodeGenerator >> generateReturnForCFG: aDRControlFlowGraph [
 
 	generatorMethodBuilder addStatement:
-		(RBReturnNode value: self returnNodeForCompiledMethod)
+		(RBReturnNode value: (self returnNodeForCompiledMethod: aDRControlFlowGraph))
 ]
 
 { #category : #'ir-to-ast' }
@@ -479,9 +479,8 @@ DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
 	fullPath := dominatedBlocks , sharedPathToTheEnd.
 
 	innerGenerator := self innerCompileBlocks: fullPath.
-	innerGenerator generatePostambleForCFG:
-		aDRBasicBlock controlFlowGraph.
-	innerGenerator generateReturn.
+	innerGenerator generatePostambleForCFG:	aDRBasicBlock controlFlowGraph.
+	innerGenerator generateReturnForCFG: aDRBasicBlock controlFlowGraph.
 	^ innerGenerator
 ]
 
@@ -569,9 +568,9 @@ DRCogitCodeGenerator >> registerFor: aValue [
 ]
 
 { #category : #'ir-to-ast' }
-DRCogitCodeGenerator >> returnNodeForCompiledMethod [
+DRCogitCodeGenerator >> returnNodeForCompiledMethod: aDRControlFlowGraph [
 
-	^ RBVariableNode named: 'CompletePrimitive'
+	^ RBLiteralNode value: 0
 ]
 
 { #category : #visiting }

@@ -16,7 +16,6 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 	"Basic set of optimizations twice for primitives"
 	3 timesRepeat: [
 		optimisations add: DRBranchCollapse new.
-		"	optimisations add: DRStoreTemporaryStagedLoop new."
 		optimisations add: DRFailureCodeBasedTailDuplication new.
 		optimisations add: (DRSCCPWithStaging then: DRDeadBlockElimination).
 		optimisations add: DRCopyPropagation new.

@@ -328,12 +328,6 @@ DRBytecodeIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode 
 	^ newFailureCode
 ]
 
-{ #category : #accessing }
-DRBytecodeIRGenerator >> interpretPrimFailCodeWith: aRBNode [
-
-	self pushOperand: executionState primitiveFailureCode
-]
-
 { #category : #'special cases' }
 DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [ 
 	

@@ -32,10 +32,46 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAt [
 	memory storePointer: 0 ofObject: array withValue: 42.
 
 	self 	executePrimitiveWithReceiver: array 
-			withArguments: { memory integerObjectOf: 1 }.
-	
+			withArguments: { memory integerObjectOf: 1 }. 
+				
 	self assert: machineSimulator receiverRegisterValue equals: 42
 	
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArray [
+
+	| array |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveAt.
+
+	array := self new8BitIndexableOfSize: 1.
+	memory storeByte: 0 ofObject: array withValue: 42.
+
+	self
+		executePrimitiveWithReceiver: array
+		withArguments: { (memory integerObjectOf: 1) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 42)
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtContext [
+
+	| context |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveAt.
+
+	context := memory
+		           allocateSlots: SmallContextSlots
+		           format: memory indexablePointersFormat
+		           classIndex: ClassMethodContextCompactIndex.
+
+	self
+		executeUntilStopPrimitiveWithReceiver: context
+		withArguments: { (memory integerObjectOf: 1) }
 ]
 
 { #category : #'tests-real primitives' }
@@ -78,6 +114,18 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithZeroIn
 ]
 
 { #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtIsNotCompletePrimitive [
+
+	self
+		compileDruidPrimitiveGenerator: #primitiveAt
+		with: [ :c | "nothing" ].
+
+	self
+		compile: [ self assert: cogit gen_primitiveAt equals: 0 ]
+		bytecodes: 100
+]
+
+{ #category : #'tests-real primitives' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtManyElements [
 
 	| class array |
@@ -94,6 +142,38 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtManyElements [
 	
 	self assert: machineSimulator receiverRegisterValue equals: 41
 	
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtMethod [
+
+	| class method |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveAt.
+
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory firstCompiledMethodFormat.
+	method := memory
+		             instantiateCompiledMethodClass: class
+		             indexableSize: 10.
+
+	self
+		executeUntilStopPrimitiveWithReceiver: method
+		withArguments: { (memory integerObjectOf: 1) }
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtOnNonArray [
+
+	| ephemeron |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveAt.
+
+	self createEphemeronClass.
+	ephemeron := self newEphemeronObject.
+
+	self
+		executeUntilStopPrimitiveWithReceiver: ephemeron
+		withArguments: { (memory integerObjectOf: 1) }
 ]
 
 { #category : #'tests-real primitives' }

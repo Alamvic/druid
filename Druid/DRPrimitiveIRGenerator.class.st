@@ -6,6 +6,9 @@ Expects a primitive method, this is a method of an interpreter implementing a pr
 Class {
 	#name : #DRPrimitiveIRGenerator,
 	#superclass : #DRMetaCompilerIRGenerator,
+	#instVars : [
+		'completePrimitive'
+	],
 	#category : #'Druid-CompilerCompiler'
 }
 
@@ -32,15 +35,15 @@ DRPrimitiveIRGenerator >> executeFullCogBlockClosureMayContextSwitchWith: aRBMes
 
 { #category : #visiting }
 DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
-
 	"Plug the IR with the two exit blocks"
 
 	| conditionalJump |
 	self spillStack.
 
 	conditionalJump := self
-		                   instantiateNoResultInstruction: DRBranchIfCondition
-		                   operands: { 
+		                   instantiateNoResultInstruction:
+		                   DRBranchIfCondition
+		                   operands: {
 				                   DREqualsThanComparison new.
 				                   executionState primitiveFailureCode.
 				                   0 asDRValue }.
@@ -53,19 +56,29 @@ DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
 	conditionalJump falseBranch: controlFlowGraph failureExitBlock.
 	controlFlowGraph failureExitBlock addPredecessor: currentBasicBlock.
 
+	"Return N elements in the stack"
 	controlFlowGraph successExitBlock endInstruction: (self
 			 instantiateNoResultInstruction: DRReturn
 			 operands: { (DRConstantValue value: numberOfArguments + 1) }).
 
-	"Make the end instruction of the failure exit finish with a Noop"
-	controlFlowGraph failureExitBlock endInstruction:
-		(self instantiateNoResultInstruction: DRPrimitiveFail)
+	"Return failure (compilation) code"
+	controlFlowGraph failureExitBlock endInstruction: (self
+			 instantiateNoResultInstruction: DRPrimitiveFail
+			 operands: { completePrimitive asDRValue })
+]
+
+{ #category : #accessing }
+DRPrimitiveIRGenerator >> ignoreMessageWith: aRBMessageNode [
+
+	completePrimitive := false.
+	super ignoreMessageWith: aRBMessageNode
 ]
 
 { #category : #accessing }
 DRPrimitiveIRGenerator >> initialize [
 
 	super initialize.
+	completePrimitive := true.
 	controlFlowGraph successExitBlock:controlFlowGraph newBasicBlock.
 	controlFlowGraph successExitBlock beExitBlock.
 	controlFlowGraph failureExitBlock: controlFlowGraph newBasicBlock.
@@ -116,6 +129,13 @@ DRPrimitiveIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 				  withState: executionState ].
 
 	self halt
+]
+
+{ #category : #interpretation }
+DRPrimitiveIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
+	
+	completePrimitive := false.
+	super interpretDruidExitPointWith: aRBMethodNode
 ]
 
 { #category : #'special cases' }

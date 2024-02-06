@@ -63,7 +63,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 	#primitiveAdd #primitiveSubtract #primitiveMultiply #primitiveDivide #primitiveMod "#primitiveBitShift" 
 	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
 	#primitiveEqual #primitiveNotEqual #primitiveIdentical "#primitiveNotIdentical" 
-	#primitiveClass #primitiveSize "#primitiveAt" "#primitiveAtPut" "#primitiveBehaviorHash" "#primitiveIdentityHash"
+	#primitiveClass #primitiveSize #primitiveAt "#primitiveAtPut" "#primitiveBehaviorHash" "#primitiveIdentityHash"
 	#primitiveNew #primitiveNewWithArg
 	"#primitiveFullClosureValue" ).
 	
