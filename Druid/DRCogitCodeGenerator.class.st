@@ -368,7 +368,7 @@ DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 	The first spill slot will be [SP], the second will be [SP+WordSize] and so on."
 	addStatement := RBMessageNode
 		                receiver: RBVariableNode selfNode
-		                selector: #SubCq:R:
+		                selector: #AddCq:R:
 		                arguments: {
 				                (RBLiteralValueNode value:
 					                 aDRControlFlowGraph numberOfSpillSlots * 8). "bytes"
@@ -385,11 +385,11 @@ DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 	"If we need no spill slots, do nothing"
 	aDRControlFlowGraph numberOfSpillSlots = 0 ifTrue: [ ^ self ].
 	
-	"Otherwise, increment the stack pointer by N*WordSize where N is the number of required spill slots.
+	"Otherwise, decrement the stack pointer by N*WordSize where N is the number of required spill slots.
 	The first spill slot will be [SP], the second will be [SP+WordSize] and so on."
 	addStatement := RBMessageNode
 		receiver: RBVariableNode selfNode
-		selector: #AddCq:R:
+		selector: #SubCq:R:
 		arguments: {
 			RBLiteralValueNode value: aDRControlFlowGraph numberOfSpillSlots * 8 "bytes".
 			RBVariableNode named: 'SPReg'
@@ -762,6 +762,35 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitCall: aDRCall [
+	"self CallRT: ceSendMustBeBooleanTrampoline"
+
+	| rbCallNode |
+	aDRCall operands size > 0 ifTrue: [
+		generatorMethodBuilder addStatement: (RBMessageNode
+				 receiver: RBVariableNode selfNode
+				 selector: #MoveR:R:
+				 arguments: {
+						 (self rtlExpressionForValue: aDRCall operand1).
+						 (RBVariableNode named: 'TempReg') }) ].
+	rbCallNode := RBMessageNode
+		              receiver: RBVariableNode selfNode
+		              selector: #CallRT:
+		              arguments:
+		              { (RBVariableNode named: aDRCall functionName) }.
+	aDRCall shouldSaveLinkReg
+		ifTrue: [
+			generatorMethodBuilder addStatement: (RBMessageNode
+					 receiver: (RBVariableNode named: #backEnd)
+					 selector: #saveAndRestoreLinkRegAround:
+					 arguments:
+					 { (RBBlockNode body: (RBSequenceNode statements: { rbCallNode })) }) ]
+		ifFalse: [ generatorMethodBuilder addStatement: rbCallNode ].
+	aDRCall isMapped ifTrue: [ 
+		self assert: aDRCall controlFlowGraph hasAnnotatedBytecode  ]
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitClosureActivation: aDRClosureActivation [
 
 	self threeOperandCogitRTL: #Add instruction: aDRClosureActivation.
@@ -828,7 +857,6 @@ DRCogitCodeGenerator >> visitDivision: aDRCogitDivision [
 	The (cogit specific) register allocator should inserts a register for REM destination implicitly yet unused.
 	It should also put all operands in registers as the cogit instruction does not support constants."
 
-
 	^ generatorMethodBuilder addStatement: (RBMessageNode
 			   receiver: RBVariableNode selfNode
 			   selector: #DivR:R:Quo:Rem:
@@ -854,6 +882,14 @@ DRCogitCodeGenerator >> visitFloatToIntConversion: aDRFloatToInt [
 				  aDRFloatToInt operand1.
 				  aDRFloatToInt result }
 		  instruction: aDRFloatToInt
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitFlushStack: aDRFlushStack [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #ssFlushStack)
 ]
 
 { #category : #visiting }

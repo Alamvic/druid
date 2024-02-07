@@ -22,6 +22,12 @@ DRClosureCreation >> isMandatoryInstruction [
 	^ true
 ]
 
+{ #category : #testing }
+DRClosureCreation >> needs2ACConversion [
+
+	^ false
+]
+
 { #category : #SCCP }
 DRClosureCreation >> sccpLatticeValueFor: sccp [ 
 	

@@ -60,7 +60,6 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #checkForEventsMayContextSwitch: put: #interpretInterruptCheckWith:.
 	specialCases at: #fetchByte put: #interpretFetchByteWith:.
 	specialCases at: #druidForceIntepretation put: #interpretDruidForceIntepretationWith:.
-	specialCases at: #remember: put: #interpretRememberWith:.
 	
 	specialCases at: #createFullClosureInIndex:numCopied:ignoreContext: put: #interpretCreateClosureWith:.
 
@@ -274,22 +273,20 @@ DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
 DRBytecodeIRGenerator >> interpretInterruptCheckWith: aRBMessageNode [
 
 	^ (self
-		   addInstructionFrom: aRBMessageNode
-		   instructionKind: DRCall
-		   operands: { 'ceCheckForInterruptTrampoline' }) beMapped
+		   addInstructionCall: { 'ceCheckForInterruptTrampoline' }
+		   from: aRBMessageNode) beMapped
 ]
 
 { #category : #'special cases' }
-DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [ 
-	
+DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [
+
 	| theNonBoolean |
 	theNonBoolean := (self visitOperand: aRBMessageNode arguments first) simpleConstantFold.
-	"self CallRT: ceSendMustBeBooleanTrampoline"
 	^ (self
-		  addInstructionWithNoResultFrom: aRBMessageNode
-		  instructionKind: DRCall
-		  operands: { 'ceSendMustBeBooleanTrampoline'. theNonBoolean })
-			beMapped
+		   addInstructionCall: {
+				   'ceSendMustBeBooleanTrampoline'.
+				   theNonBoolean }
+		   from: aRBMessageNode) beMapped
 ]
 
 { #category : #accessing }
@@ -343,24 +340,6 @@ DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [
 	| receiver |
 	receiver := self visitOperand: aRBMessageNode arguments first.
 	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
-]
-
-{ #category : #'special-cases' }
-DRBytecodeIRGenerator >> interpretRememberWith: aRBMessageNode [
-
-	| obj |
-	obj := self visitOperand: aRBMessageNode arguments first.
-	"	
-	cogit 	backEnd saveAndRestoreLinkRegAround: [cogit CallRT: ceStoreCheckTrampoline].
-	"
-	^ (self
-		   addInstructionWithNoResultFrom: aRBMessageNode
-		   instructionKind: DRCall
-		   operands: {
-				   'ceStoreCheckTrampoline'.
-				   obj }) beMapped saveLinkReg
-
-
 ]
 
 { #category : #'special-cases' }
@@ -535,16 +514,22 @@ DRBytecodeIRGenerator >> trackStackInstruction: aDRStrackInstruction [
 { #category : #visiting }
 DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
-	| value mappings |
-	value := aRBVariableNode variable name.
+	| name value mappings |
+	name := aRBVariableNode variable name.
 	mappings := {
-		            ('FoxIFReceiver' -> 'FrameReceiverOffset').
-		            ('IMMUTABILITY' -> 'true') } asDictionary.
-	value := mappings at: value ifAbsent: [ value ].
+		            ('FoxIFReceiver'
+		             ->
+			             ((DRInterpreterReference reference:
+					               'FrameReceiverOffset')
+				              type: (DRUnsignedIntegerType size: 8);
+				              yourself)).
+		            ('IMMUTABILITY' -> true asDRValue) } asDictionary.
+	value := mappings at: name ifAbsent: [
+		         (DRInterpreterReference reference: name)
+			         type: (DRUnsignedIntegerType size: 8);
+			         yourself ].
 	^ self
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy
-		  operands: { ((DRInterpreterReference reference: value)
-				   type: (DRUnsignedIntegerType size: 8);
-				   yourself) }
+		  operands: { value }
 ]

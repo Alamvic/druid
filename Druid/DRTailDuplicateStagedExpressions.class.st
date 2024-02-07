@@ -7,7 +7,17 @@ Class {
 { #category : #accessing }
 DRTailDuplicateStagedExpressions >> doApplyWithGeneratedPaths: cfg [
 
-	cfg phiFunctions do: [ :phi |
-		(phi operands allSatisfy: [ :op | op isJITCompileTimeExpression ])
-			ifTrue: [ phi basicBlock tailDuplicate ] ]
+	| jitCompileConditionalBlocks |
+	jitCompileConditionalBlocks := cfg allConditionalJumps
+		                               select: [ :jump |
+		                               jump isStaged ]
+		                               thenCollect: [ :jump |
+		                               jump basicBlock ].
+	cfg phiFunctions
+		select: [ :phi |
+			jitCompileConditionalBlocks anySatisfy: [ :dominator |
+				phi basicBlock isDominatedBy: dominator ] ]
+		thenDo: [ :phi |
+			phi isJITCompileTimeExpression ifTrue: [
+				phi basicBlock tailDuplicate ] ]
 ]

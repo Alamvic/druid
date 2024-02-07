@@ -785,6 +785,59 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesLoadBeforeUse [
 ]
 
 { #category : #tests }
+DRLinearScanRegisterAllocatorTest >> testSpillIntroducesLoadBeforeUseWithMemoryAccess [
+
+	"From
+	
+	T0 := 1.
+	T1 := 2.
+	T2 := LOAD T0
+	T3 := T0
+	
+	To
+
+	SPR1 := 1.
+	Store M0 SPR1
+	PR1 := 2.
+	SPR1 := Load M0
+	T2 := LOAD SPR1
+	SPR1 := Load M0
+	T3 := SPR1
+	"
+
+	| cfg t0 t1 t2 t3 basicBlock |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		"T0 := 1"
+		t0 := block copy: 1.
+		"T1 := 2"
+		t1 := block copy: 2.
+		"T2 := LOAD T0"
+		t2 := block load: t0.
+		"T3 := T0"
+		t3 := block copy: t0. ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitLinearScanRegisterAllocator new
+		integerRegisters: { DRPhysicalGeneralPurposeRegister name: 'PR1' };
+		allocateRegistersIn: cfg.
+
+	"Store first copy"	
+	self assert: t0 nextInstruction isStore.
+	self assert: t0 nextInstruction operand1 equals: t0 result.
+	self assert: t0 nextInstruction address stackOffset equals: 1.
+
+	"Load on each use"
+	self assert: t2 address expression result equals: t2 previousInstruction result.
+	self assert: t2 previousInstruction isLoad.
+	self assert: t2 previousInstruction address stackOffset equals: 1.
+
+	self assert: t3 operand result equals: t3 previousInstruction result.
+	self assert: t3 previousInstruction isLoad.
+	self assert: t3 previousInstruction address stackOffset equals: 1.
+]
+
+{ #category : #tests }
 DRLinearScanRegisterAllocatorTest >> testSpillIntroducesStore [
 
 	| cfg basicBlock firstRegister spillRegister |

@@ -27,7 +27,7 @@ DRCogitOperandSorter >> extractFirstOperandInCopyIfNecessaryFrom: anInstruction 
 
 { #category : #visiting }
 DRCogitOperandSorter >> visitAddition: aDRAdd [ 
-	
+
 	self visitCommutativeInstruction: aDRAdd
 ]
 
@@ -68,9 +68,8 @@ DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [
 
 	"Cogit only accept constants as first operands (second in DruidIR).
 	Equals comparison being commutative, we can reverse the operands to avoid an extra copy"
-	(aDRBranchIfCondition operand1 isConstant and: [
-		 aDRBranchIfCondition condition isEqualsThanComparison ]) ifTrue: [
-		aDRBranchIfCondition reverseOperands ].
+	(aDRBranchIfCondition operand1 willBeConstant) ifTrue: [
+		aDRBranchIfCondition reverse ].
 
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRBranchIfCondition
 ]
@@ -82,9 +81,10 @@ DRCogitOperandSorter >> visitBytecodeJump: aDRBytecodeJump [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitCall: aDRCall [ 
+DRCogitOperandSorter >> visitCall: aDRCall [
+	"Nothing"
+
 	
-	^ nil
 ]
 
 { #category : #visiting }
@@ -101,9 +101,15 @@ DRCogitOperandSorter >> visitClosureCreation: aDRClosureCreation [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitCogitSendMarshall: aDRCogitSendMarshall [ 
+
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 
-	anInstruction operand1 isInstruction ifFalse: [ 
+	anInstruction operand1 willBeConstant ifTrue: [ 
 		anInstruction reverseOperands ].
 	self extractFirstOperandInCopyIfNecessaryFrom: anInstruction
 ]
@@ -237,6 +243,13 @@ DRCogitOperandSorter >> visitLoadStackValue: aDRLoadStackValue [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitMessageSend: aDRMessageSend [
+	"Nothing"
+
+	
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitMod: aDRMod [ 
 	
 	"Mod and division are the same instruction in cogit"
@@ -300,12 +313,6 @@ DRCogitOperandSorter >> visitRightShift: aDRRightShift [
 	"Shift is not commutative!
 	=> extract its first operand into a copy instruction"
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRRightShift
-]
-
-{ #category : #visiting }
-DRCogitOperandSorter >> visitStagedInstruction: aDRStagedInstruction [ 
-	
-	^ aDRStagedInstruction stagedInstruction acceptVisitor: self
 ]
 
 { #category : #visiting }

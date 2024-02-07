@@ -59,17 +59,15 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass: aSuperclass [
 
 	| primitives bytecodes |
-	primitives := #( #primitiveAdd #primitiveSubtract #primitiveLessThan
-	                 #primitiveGreaterThan #primitiveLessOrEqual
-	                 #primitiveGreaterOrEqual #primitiveEqual "#primitiveNotEqual"
-	                 #primitiveMultiply "#primitiveDivide" "primitiveAt" "primitiveNew
-	                 primitiveNewWithArg" ).
-
-	"bytecodePrimAdd duplicateTopBytecode 
-	sendLiteralSelector0ArgsBytecode shortConditionalJumpTrue 
-	  pushConstantTrueBytecode
-	 "
-	bytecodes := #( 
+		primitives := #( 
+	#primitiveAdd #primitiveSubtract #primitiveMultiply #primitiveDivide #primitiveMod "#primitiveBitShift" 
+	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
+	#primitiveEqual #primitiveNotEqual #primitiveIdentical "#primitiveNotIdentical" 
+	#primitiveClass #primitiveSize "#primitiveAt" "#primitiveAtPut" "#primitiveBehaviorHash" "#primitiveIdentityHash"
+	#primitiveNew #primitiveNewWithArg
+	"#primitiveFullClosureValue" ).
+	
+bytecodes := #( 
 		"pushReceiverVariableBytecode"
 			0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 		"pushLiteralVariable16CasesBytecode"
@@ -126,13 +124,14 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 		"extended conditional jump"
 			237 238 239
 		"extended store (and pop) temporary"
-			"242 " 243 245
+			240 241 242 243 244 245
 			
 		"call primitive" 248
 		"push closure" 249
 		"remote temp bytecodes"	251
-		"252 253 left out because of write barrier"
+		252 253
 	).
+
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
@@ -515,7 +514,8 @@ DRInterpreterToCompiler >> newInterpreter [
 	" Answer an <AbstractInterpreter|StackInterpreter> from the receiver's interpreter builder "
 
 	memory := self newMemory.
-
+	memory lastHash: 1. "Setup seed for hash related primitives"
+	
 	^ interpreterClass basicNew
 		  objectMemory: memory;
 		  basicInitialize

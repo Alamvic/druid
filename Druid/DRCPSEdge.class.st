@@ -129,23 +129,17 @@ DRCPSEdge >> operandConstraint: operand [
 { #category : #visiting }
 DRCPSEdge >> operandDomainFromInstruction: aDRInstruction inBranch: branch [
 
-	aDRInstruction isCopy ifTrue: [
-		| constraint |
-		constraint := self constraintFor: aDRInstruction result name.
-		^ constraint
-			  ifNil: [ branch condition acceptVisitor: self withBranch: branch ]
-			  ifNotNil: [
-			  DRRegisterDomain reg: aDRInstruction constraint: constraint ] ].
-
-	aDRInstruction isPhiFunction ifTrue: [
-		^ self operandDomainFromPhi: aDRInstruction ].
-
+	| constraint |
 	aDRInstruction isSetConditionCode ifTrue: [
 		^ aDRInstruction condition
 			  acceptVisitor: self
 			  withBranch: aDRInstruction ].
 
-	^ nil
+	constraint := self constraintFor: aDRInstruction result name.
+	constraint ifNil: [
+		^ branch condition acceptVisitor: self withBranch: branch ].
+
+	^ DRRegisterDomain reg: aDRInstruction constraint: constraint
 ]
 
 { #category : #visiting }
@@ -156,7 +150,7 @@ DRCPSEdge >> operandDomainFromPhi: aDRPhiFunction [
 		               detect: [ :op | constraints includesKey: op result name ]
 		               ifNone: [ ^ nil ].
 	constraint := self operandConstraint: pathOperand.
-	^ DRRegisterDomain reg: pathOperand constraint: constraint
+	^ DRRegisterDomain reg: aDRPhiFunction constraint: constraint
 ]
 
 { #category : #accessing }
@@ -317,7 +311,7 @@ DRCPSEdge >> visitCopy: aDRCopy [
 	| constraint operand |
 	operand := aDRCopy operand1.
 
-	constraint := (operand isConstraintConstant or: [ 
+	constraint := (operand isConstant or: [ 
 		               operand isObjectReferenceValue ])
 		              ifTrue: [ DREqualsConstraint withValue: operand ]
 		              ifFalse: [ self operandConstraint: operand ].

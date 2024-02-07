@@ -81,8 +81,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 		optimisations add: DRInline new. ].
 	
 	"Last Phase, make code coggable"
-    optimisations add: DRCogitOperandSorter new.
-	"optimisations add: DRCogitJITConstantSplitting new"
+    optimisations add: DRCogitOperandSorter new
 ]
 
 { #category : #accessing }

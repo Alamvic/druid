@@ -108,19 +108,16 @@ DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 { #category : #test }
 DRDeadCodeEliminationTest >> testNotRemoveUnusedMandatoryInstruction [
 
-	| cfg copy addition |
+	| cfg mandatory addition |
 	cfg := self setUpCFG: 2.
 
-	cfg b2 addInstruction: (copy := DRCopy
-			         operands:
-			         { (DRInterpreterReference reference: 'methodObj') }
-			         result: (DRSSARegister name: 1)).
-	addition := cfg b2 add: copy to: 1.
+	mandatory := cfg b2 storeSInt64: 1 asDRValue at: 999.
+	addition := cfg b2 add: mandatory to: 1.
 
 	optimisation applyTo: cfg.
 
 	self denyCollection: cfg instructions includesAny: { addition }.
-	self assertCollection: cfg instructions includesAny: { copy }
+	self assertCollection: cfg instructions includesAny: { mandatory }
 ]
 
 { #category : #test }

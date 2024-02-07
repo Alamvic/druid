@@ -17,7 +17,7 @@ DRStager >> addBlockToWorklist: aDRBasicBlock [
 
 	ssaWorklist addAll:
 		(aDRBasicBlock instructions select: [ :e |
-			 e isStaged not ])
+			 e isStaged not or: [ e isJump "continue tracking the blocks" ] ])
 ]
 
 { #category : #accessing }
@@ -53,17 +53,18 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 	(aSetOfPotentiallyStagedInstructions includes: anInstruction)
 		ifTrue: [ ^ true ].
 	(self canStageOneLevel: anInstruction) ifTrue: [ ^ true ].
+	anInstruction isNullValue ifTrue: [ ^ false ].
 	anInstruction isJITMessageSend ifTrue: [ ^ false ].
 	anInstruction isClosureCreation ifTrue: [ ^ false ].
 	anInstruction isConditionalBranch ifTrue: [
 		^ anInstruction operands allSatisfy: [ :e | self isStaged: e ] ].
 	anInstruction isJump ifTrue: [ ^ false ].
 	anInstruction isReturn ifTrue: [ ^ false ].
-	anInstruction isJITCompileTimeExpression ifTrue: [ ^ true ].
 	anInstruction isCopy ifTrue: [
 		^ (anInstruction result isVirtualRegister or: [
 			   anInstruction result isStagedRegister ]) and: [
 			  self canStageOneLevel: anInstruction operand1 ] ].
+	anInstruction isJITCompileTimeExpression ifTrue: [ ^ true ].
 	(anInstruction isArithmeticInstruction or: [ anInstruction isNegate ])
 		ifTrue: [
 			^ anInstruction operands allSatisfy: [ :e |
@@ -109,7 +110,8 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 	anInstruction isNoop ifTrue: [ ^ false ].
 	anInstruction isCogitSendMarshall ifTrue: [ ^ false ].
 	(anInstruction isKindOf: DRFlushStack) ifTrue: [ ^ false ].
-	1 halt
+
+	^ false
 	"(anInstruction isArithmeticInstruction or: [ anInstruction isCopy ])
 		ifFalse: [ ^ false ].
 

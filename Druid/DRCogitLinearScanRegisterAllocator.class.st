@@ -31,10 +31,7 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 		R2 := RP.
 		R1 := R2 + 1
 		"
-				(i result isNoResult not and: [
-					 i operands size = 2 and: [
-						 i operands first isPhysicalRegister or: [
-							 i operands first isStaged ] ] ]) ifTrue: [
+				(i result isNoResult not and: [ i needs2ACConversion ]) ifTrue: [
 					| registerToCopy copyInstruction |
 					registerToCopy := i operands first.
 					"Create a copy instruction before, branch it, and return true to indicate we need to recompute intervals"

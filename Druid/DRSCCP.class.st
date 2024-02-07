@@ -199,8 +199,6 @@ DRSCCP >> latticeValue: aValue [
 
 	aValue isConstant ifTrue: [ ^ aValue ].
 	aValue isMessageSend ifTrue: [ ^ self bottom ].
-	aValue isStore ifTrue: [ ^ self bottom ].
-	aValue isLoad ifTrue: [ ^ self bottom ].
 	aValue isInterpreterReference ifTrue: [ ^ self bottom ].
 
 	^ latticeValues at: aValue ifAbsent: [ self top ]
@@ -215,8 +213,9 @@ DRSCCP >> latticeValueOfPhiFunction: phiFunction [
 
 	values := phiFunction operands collect: [ :e | 
 		self latticeValue: e ] as: Set.
-	values remove: self top ifAbsent: [ "Nothing" ].
-	values size = 1 ifTrue: [ ^ values anyOne ].
+	(values includes: DRNullValue new) ifFalse: [ 
+		values remove: self top ifAbsent: [ "Nothing" ] ]	.
+	values size = 1 ifTrue: [ values anyOne ifNil: [1halt]. ^ values anyOne ].
 	^ self bottom
 ]
 

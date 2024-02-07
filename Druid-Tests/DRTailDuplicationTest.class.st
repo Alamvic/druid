@@ -23,7 +23,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithBaseOffsetStore [
 		           base: cfg phi;
 		           offset: 8 asDRValue;
 		           yourself.
-	cfg b4 store: 87 asDRValue in: address.
+	cfg b4 storeSInt64: 87 asDRValue at: address.
 
 	duplicatedBlocks := cfg b4 tailDuplicate.
 	cfg validate.

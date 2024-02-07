@@ -156,7 +156,7 @@ DRCogitGeneratorTest >> testGenerateLoadSpilledMemoryAddress [
 	self generateCogitForInstruction: r0.	
 	loadInstruction := self statements first.
 	self assert: loadInstruction selector equals: #MoveMw:r:R:.
-	self assert: loadInstruction arguments first value equals: 8.
+	self assert: loadInstruction arguments first value equals: 0.
 	self assert: loadInstruction arguments second name equals: 'SPReg'.
 	self assert: loadInstruction arguments third name equals: 't0'
 ]
@@ -177,6 +177,31 @@ DRCogitGeneratorTest >> testGenerateMethodWithSpillingAllocatesStackSpace [
 	generator generatePreambleForCFG: cfg.
 
 	stackAllocationInstruction := self statements first.
+	self assert: stackAllocationInstruction selector equals: #SubCq:R:.
+	self
+		assert: stackAllocationInstruction arguments second name
+		equals: 'SPReg'.
+	self
+		assert: stackAllocationInstruction arguments first value
+		equals: cfg numberOfSpillSlots * 8 "bytes"
+]
+
+{ #category : #tests }
+DRCogitGeneratorTest >> testGenerateMethodWithSpillingDeallocatesStackSpace [
+
+	| cfg basicBlock spillRegister1 stackAllocationInstruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | block copy: 2 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
+	DRCogitLinearScanRegisterAllocator new
+		integerRegisters: #(  );
+		spillRegisters: { spillRegister1 };
+		allocateRegistersIn: cfg.
+	generator generatePostambleForCFG: cfg.
+
+	stackAllocationInstruction := self statements last.
 	self assert: stackAllocationInstruction selector equals: #AddCq:R:.
 	self
 		assert: stackAllocationInstruction arguments second name
@@ -304,7 +329,7 @@ DRCogitGeneratorTest >> testGenerateSpillLoadInstruction [
 	spillStoreInstruction := self statements first.
 	self assert: spillStoreInstruction selector equals: #MoveR:Mw:r:.
 	self assert: spillStoreInstruction arguments first name equals: spillRegister1 name.
-	self assert: spillStoreInstruction arguments second value equals: storeInstruction operand2 stackOffset * 8 "bytes".
+	self assert: spillStoreInstruction arguments second value equals: (storeInstruction operand2 stackOffset - 1) * 8 "bytes".
 	self assert: spillStoreInstruction arguments third name equals: 'SPReg'.
 ]
 

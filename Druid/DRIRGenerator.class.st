@@ -53,6 +53,15 @@ DRIRGenerator >> addInstruction: instruction from: aNode [
 	^ instruction
 ]
 
+{ #category : #adding }
+DRIRGenerator >> addInstructionCall: operands from: aRBMessageNode [
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRCall
+		  operands: operands
+]
+
 { #category : #visiting }
 DRIRGenerator >> addInstructionFrom: aNode instructionKind: instructionClass operands: operands [
 	
@@ -274,9 +283,11 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #value: put: #interpretBlockValueWith:.
 	specialCases at: #cull: put: #interpretBlockCullWith:.
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
+	specialCases at: #whileTrue put: #interpretWhileTrueWith:.
 	specialCases at: #whileTrue: put: #interpretWhileTrueWith:.
 	specialCases at: #caseOf:otherwise: put: #interpretCaseOfWith:.
 	specialCases at: #cppIf:ifTrue: put: #interpretCppIfWith:.
+	specialCases at: #cppIf:ifTrue:ifFalse: put: #interpretCppIfWith:.
 
 	specialCases at: #= put: #interpretEqualityComparisonWith:.
 	specialCases at: #~= put: #interpretInequalityComparisonWith:.
@@ -311,19 +322,21 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #rawFloatBitsOf:in: put: #interpretRawFloatBitsWith:.
 	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
-	specialCases at: #asObjectReference put: #interpretObjectReferenceCoercionWith:.	
+	specialCases at: #asObjectReference put: #interpretObjectReferenceCoercionWith:.
 	
 
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #byteAt:put: put: #interpretStoreUint8AtWith:.
 	self flag: #TODO. "Add types to Druid"
 	specialCases at: #uint8At: put: #interpretLoadUint8AtWith:.
 	specialCases at: #uint8At:put: put: #interpretStoreUint8AtWith:.
 	specialCases at: #uint16At: put: #interpretLoadUint16AtWith:.
 	specialCases at: #uint16At:put: put: #interpretStoreUint16AtWith:.
 	specialCases at: #uint32At: put: #interpretLoadUint32AtWith:.
-	specialCases at: #uint32AtPointer: put: #interpretLoadUint32AtWith:.
 	specialCases at: #uint32At:put: put: #interpretStoreUint32AtWith:.
+	specialCases at: #uint32AtPointer: put: #interpretLoadUint32AtWith:.
+	specialCases at: #uint32AtPointer:put: put: #interpretStoreUint32AtWith:.
 	specialCases at: #uint64At: put: #interpretLoadUint64AtWith:.
 	specialCases at: #uint64At:put: put: #interpretStoreUint64AtWith:.
 	specialCases at: #float64At: put: #interpretLoadFloat64AtWith:.
@@ -331,7 +344,6 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
 	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
-	
 	
 	specialCases at: #longAt:put: put: #interpretMachineWordAtPutWith:.
 	specialCases at: #unsignedLong64At:put: put: #interpretMachineWordAtPutWith:.
@@ -372,7 +384,8 @@ DRIRGenerator >> initializeSpecialCases [
 	variableSpecialCases at: #permSpaceMask put: #interpretPermSpaceMaskWith:.
 	
 	"Border case, this should not be defined here, it should be extensible"
-	variableSpecialCases at: #hiddenRootsObj put: #interpretNilObjectWith:
+	variableSpecialCases at: #hiddenRootsObj put: #interpretHiddenRootsObjectWith:.
+	variableSpecialCases at: #classTableFirstPage put: #interpretClassTableRootsObjectWith:.	
 ]
 
 { #category : #visiting }
@@ -729,6 +742,16 @@ DRIRGenerator >> interpretCaseOfWith: aRBMessageNode [
 		mergeAll: { executionState }, (trueBlocks collect: [ :e | e second ]).
 ]
 
+{ #category : #interpreting }
+DRIRGenerator >> interpretClassTableRootsObjectWith: aRBVariableNode [
+	"TODO: interpretAsCompilerVariableWith:"
+
+	^ self
+		  interpretLoad: aRBVariableNode
+		  ofAddress: DRInterpreterReference classTableFirstPage
+		  ofType: (DRUnsignedIntegerType size: 8)
+]
+
 { #category : #API }
 DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
 
@@ -766,9 +789,16 @@ DRIRGenerator >> interpretCppIfWith: aRBMessageNode [
 
 	| jitExpressionCopy |
 	jitExpressionCopy := self visitOperand: aRBMessageNode arguments first.
-	jitExpressionCopy simpleConstantFold reference = 'true' ifTrue: [
-		(RBMessageNode receiver: aRBMessageNode arguments second selector: #value)
-			acceptVisitor: self ]
+	jitExpressionCopy simpleConstantFold
+		ifTrue: [
+			(RBMessageNode
+				 receiver: aRBMessageNode arguments second
+				 selector: #value) acceptVisitor: self ]
+		ifFalse: [
+			aRBMessageNode arguments size > 2 ifTrue: [
+				(RBMessageNode
+					 receiver: aRBMessageNode arguments third
+					 selector: #value) acceptVisitor: self ] ]
 ]
 
 { #category : #'special cases' }
@@ -940,10 +970,10 @@ DRIRGenerator >> interpretLessThanComparisonWith: aRBMessageNode [
 ]
 
 { #category : #'special cases - memory access' }
-DRIRGenerator >> interpretLoad: aRBMessageNode ofAddress: address ofType: aType [
+DRIRGenerator >> interpretLoad: aRBNode ofAddress: address ofType: aType [
 
 	^ self
-		  addInstructionFrom: aRBMessageNode
+		  addInstructionFrom: aRBNode
 		  instructionKind: DRLoad
 		  operands: {
 				  aType.
@@ -1495,9 +1525,11 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 		                           conditionalJump trueBranch:
 			                           branchEntryBlock ]
 		                           doing: [
-			                           self interpretBlockBody:
-				                           aRBMessageNode arguments first.
-			                           self popOperand ].
+			                           aRBMessageNode arguments size > 0
+				                           ifTrue: [
+					                           self interpretBlockBody:
+						                           aRBMessageNode arguments first.
+					                           self popOperand ] ].
 
 	"Could happen that any evaluated block had a non local return.
 	Otherwise, this block should back jump to the entry block of the loop"
@@ -1556,7 +1588,7 @@ DRIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 
 	^ aRBMessageNode isSuperSend
 		  ifTrue: [ 
-			  self currentMethod methodClass superclass lookupSelector:
+			  self currentMethod methodNode methodClass superclass lookupSelector:
 				  aRBMessageNode selector ]
 		  ifFalse: [ receiver type lookupSelector: aRBMessageNode selector ]
 ]

@@ -210,7 +210,7 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 	i isPhiFunction ifTrue: [ ^ self ].
 
 	usedSpillRegisters := OrderedCollection new: 3.
-	i operands do: [ :op | 
+	i dependencies do: [ :op | 
 		(liveSets includesKey: op) ifTrue: [ 
 			allocatedLocation := self allocatedRegisterFor: op.
 			allocatedRegister := allocatedLocation isMemoryAddress
@@ -226,11 +226,11 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 								 allocatedLocation }
 						 result: allocatedRegister).
 				i addBefore: load.
-				i replaceOperand: op by: load ].
+				i replaceOperand: op by: load ] ].
 		
 		"Special case for temporary registers created during register allocation."
 		op isVirtualRegister ifTrue: [ 
-			op physicalRegister: allocatedRegister ] ] ].
+			op physicalRegister: allocatedRegister ] ].
 
 	usedSpillRegisters do: [ :each | registerPool returnSpillRegister: each ]
 ]
@@ -394,10 +394,11 @@ DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [
 
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> liveSetOf: aDependency [
-	"If it is not an instruction that requires allocation, do not record the live set"
 
-	(aDependency isInstruction not or: [ aDependency isStaged ]) ifTrue: [
-		^ DRLiveSet definition: aDependency ].
+	aDependency isVirtualRegister ifFalse: [ 
+		"If it is not an instruction that requires allocation, do not record the live set"
+		(aDependency isInstruction not or: [ aDependency isStaged ])
+			ifTrue: [ ^ DRLiveSet definition: aDependency ] ].
 
 	"Main entry point to get the live set of an instruction"
 	^ liveSets

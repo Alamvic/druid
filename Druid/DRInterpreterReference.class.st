@@ -8,6 +8,18 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #accessing }
+DRInterpreterReference class >> argumentCount [
+
+	^ self integerExpression: 'self methodNumArgs'
+]
+
+{ #category : #accessing }
+DRInterpreterReference class >> classTableFirstPage [
+
+	^ self objectReference: 'objectMemory hiddenRootsObject + 8'
+]
+
 { #category : #factory }
 DRInterpreterReference class >> falseObject [
 
@@ -56,10 +68,16 @@ DRInterpreterReference class >> hiddenRootsObject [
 	^ self pointerReference: 'objectMemory hiddenRootsObject'
 ]
 
+{ #category : #accessing }
+DRInterpreterReference class >> integerExpression: aReference [
+
+	^ (self reference: aReference) type: (DRUnsignedIntegerType size: 8)
+]
+
 { #category : #factory }
 DRInterpreterReference class >> nilObject [
 
-	^ self pointerReference: 'objectMemory nilObject'
+	^ self objectReference: 'objectMemory nilObject'
 ]
 
 { #category : #accessing }

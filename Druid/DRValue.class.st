@@ -518,6 +518,12 @@ DRValue >> users [
 	^ #()
 ]
 
+{ #category : #testing }
+DRValue >> willBeConstant [
+	
+	^ self isConstant or: [ self isStaged ]
+]
+
 { #category : #dependencies }
 DRValue >> withAllDependencies [
 	

@@ -345,6 +345,13 @@ DRInstruction >> name [
 ]
 
 { #category : #testing }
+DRInstruction >> needs2ACConversion [
+
+	^ self operands size >= 2 and: [
+		  self operand1 isPhysicalRegister or: [ self operand1 isStaged ] ]
+]
+
+{ #category : #testing }
 DRInstruction >> needsStackFlush [
 	
 	^ false
@@ -675,7 +682,10 @@ DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 DRInstruction >> rtlOperandQualifier [
 
 	^ self isStaged
-		  ifFalse: [ 'R:' ]
+		  ifFalse: [
+			  self type isFloatType
+				  ifTrue: [ 'Rd:' ]
+				  ifFalse: [ 'R:' ] ]
 		  ifTrue: [ 'Cq:' ]
 ]
 
