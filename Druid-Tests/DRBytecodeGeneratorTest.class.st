@@ -221,7 +221,6 @@ DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
-	1halt.
 
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 

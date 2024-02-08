@@ -27,6 +27,7 @@ DRInlineArrayAccessTest >> compileCFG: cfg selector: selector [
 	| bytecodeGenerator |
 	self optimizeCFG: cfg.
 	bytecodeGenerator := DRBytecodeGenerator new.
+	bytecodeGenerator generateDeoptimizationInformation.
 	bytecodeGenerator numArgs: selector numArgs.
 	bytecodeGenerator generateTargetASTFromIR: cfg methodName: selector.
 	^ bytecodeGenerator compiledMethod

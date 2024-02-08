@@ -10,7 +10,8 @@ Class {
 		'deoptimizationInformation',
 		'ir',
 		'translator',
-		'method'
+		'method',
+		'generatesDeoptimizationInformation'
 	],
 	#category : #'Druid-BytecodeGeneration'
 }
@@ -29,6 +30,12 @@ DRBytecodeGenerator >> compiledMethod [
 	
 	method selector: methodName.
 	^ method
+]
+
+{ #category : #configuring }
+DRBytecodeGenerator >> generateDeoptimizationInformation [
+	
+	generatesDeoptimizationInformation := true
 ]
 
 { #category : #'ir-to-target' }
@@ -59,7 +66,8 @@ DRBytecodeGenerator >> initialize [
 
 	builder := IRBuilder new.
 	numArgs := 0.
-	visitedBlocks := Stack new
+	visitedBlocks := Stack new.
+	generatesDeoptimizationInformation := false
 ]
 
 { #category : #accessing }
@@ -82,8 +90,8 @@ DRBytecodeGenerator >> methodName: aString [
 { #category : #'as yet unclassified' }
 DRBytecodeGenerator >> mightGenerateDeoptimizationInformationFor: aDRMessageSend [ 
 
-	self recordDeoptimizationInstructionForState: aDRMessageSend executionState
-	
+	generatesDeoptimizationInformation 
+		ifTrue: [self recordDeoptimizationInstructionForState: aDRMessageSend executionState]
 	
 ]
 
