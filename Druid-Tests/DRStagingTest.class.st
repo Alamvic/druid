@@ -143,6 +143,34 @@ DRStagingTest >> testStageCopyConstant [
 ]
 
 { #category : #'phi-staging' }
+DRStagingTest >> testStageLoop [
+
+	| cfg b0 b1 phi header increment body exit initialValue |
+	cfg := DRControlFlowGraph new.
+	b0 := cfg initialBasicBlock.
+	b1 := cfg newBasicBlockWith: [ :b | 
+		initialValue := b copy: 0.
+	].
+	b0 jumpTo: b1.
+	header := cfg newBasicBlock.
+	b1 jumpTo: header.
+	
+	phi := header phiWithVariables: {  }.
+	body := cfg newBasicBlock.
+	exit := cfg newBasicBlock.
+	body jumpTo: header.
+
+	increment := body add: 1 to: phi.
+	phi joinedVariables: { initialValue . increment }.
+	header jumpIf: (header greater: 10 than: phi) to: body ifFalseTo: exit.
+
+	1halt.
+	DRStager applyTo: cfg.
+
+	self assert: phi isStaged
+]
+
+{ #category : #'phi-staging' }
 DRStagingTest >> testStagePhiOnNonStageableNestedSinglePredecessorControlFlow [
 
 	| cfg b0 argument b1 b2 b3 copyOnTop copyOnBranch phi subtrue submerge |

@@ -81,12 +81,14 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 				  modulo:
 				  (aSetOfPotentiallyStagedInstructions copyWith: anInstruction) ] ].
 	anInstruction isPhiFunction ifTrue: [
-		^ anInstruction basicBlock dominator lastInstruction isStaged and: [
-			  anInstruction operands allSatisfy: [ :e |
-				  self
-					  canStage: e
-					  modulo:
-					  (aSetOfPotentiallyStagedInstructions copyWith: anInstruction) ] ] ].
+		^ (anInstruction hasRecursiveUse or: [
+			   anInstruction basicBlock dominator lastInstruction isStaged ])
+			  and: [
+				  anInstruction operands allSatisfy: [ :e |
+					  self
+						  canStage: e
+						  modulo:
+						  (aSetOfPotentiallyStagedInstructions copyWith: anInstruction) ] ] ].
 
 	anInstruction isLoadReceiver ifTrue: [ ^ false ].
 	anInstruction isLoadStackValue ifTrue: [ ^ false ].

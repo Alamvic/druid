@@ -48,7 +48,7 @@ DRGetConditionCode >> prettyPrint [
 	         ,
 	         (result
 		          ifNil: [ '' ]
-		          ifNotNil: [ result name asString , ' := ' ]).
+		          ifNotNil: [ result prettyPrint , ' := ' ]).
 	^ print , self opcode , ' '
 	  , (self condition prettyPrintWithBranch: self)
 ]

@@ -124,7 +124,7 @@ DRCondition >> prettyPrintWithBranch: aDRBranchIfCondition [
 		                                ifNotNil: [
 		                                ' '
 		                                ,
-		                                aDRBranchIfCondition operand2
+		                                aDRBranchIfCondition operand2 result
 			                                prettyPrint ]
 		                                ifNil: [ '' ].
 	^ conditionResultName , self opcode , conditionComparisonValueName
