@@ -343,7 +343,6 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #float64At:put: put: #interpretStoreFloat64AtWith:.
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
-	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
 	
 	specialCases at: #longAt:put: put: #interpretMachineWordAtPutWith:.
 	specialCases at: #unsignedLong64At:put: put: #interpretMachineWordAtPutWith:.
@@ -1993,24 +1992,10 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 DRIRGenerator >> visitMethodNode: aRBMethodNode [
 
 	(aRBMethodNode hasPragmaNamed: #doNotGenerate) ifTrue: [ 1 halt ].
+	(aRBMethodNode hasPragmaNamed: #halt) ifTrue: [ 1 halt ].
 
 	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [
-		| failure primitiveReturn returnState |
-		failure := self currentBasicBlock copy: 1.
-		self currentPrimitiveFailureCode: failure.
-
-		returnState := executionState copy.
-		primitiveReturn := returnState baseFrame.
-		primitiveReturn push: DRNullValue new. "Return something"
-
-		"Record that this execution stack did a method return
-		We will merge this one with other returned states when this method finishes"
-		primitiveReturn addDeferredReturnState: {
-				returnState.
-				(self addFrameReturn: primitiveReturn) }.
-
-		"If the method has no return statement, it should still return something"
-		^ self ].
+		^ self interpretDruidExitPointWith: aRBMethodNode ].
 
 	(aRBMethodNode hasPragmaNamed: #druidJITCompileTimeExpression)
 		ifTrue: [

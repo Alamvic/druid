@@ -63,7 +63,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 	#primitiveAdd #primitiveSubtract #primitiveMultiply #primitiveDivide #primitiveMod "#primitiveBitShift" 
 	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
 	#primitiveEqual #primitiveNotEqual #primitiveIdentical "#primitiveNotIdentical" 
-	#primitiveClass #primitiveSize "#primitiveAt" "#primitiveAtPut" "#primitiveBehaviorHash" "#primitiveIdentityHash"
+	#primitiveClass #primitiveSize #primitiveAt "#primitiveAtPut" "#primitiveBehaviorHash" "#primitiveIdentityHash"
 	#primitiveNew #primitiveNewWithArg
 	"#primitiveFullClosureValue" ).
 	
@@ -123,13 +123,15 @@ bytecodes := #(
 			235
 		"extended conditional jump"
 			237 238 239
-		"extended store (and pop) temporary"
-			240 241 242 243 244 245
+		"extended store&pop (receiver var / literal / temp)"
+			"240" 241 242 
+		"extended store (receiver var / literal / temp)"
+			243 244 245
 			
 		"call primitive" 248
 		"push closure" 249
-		"remote temp bytecodes"	251
-		252 253
+		"remote temp (push / store / store&pop)"	
+			251 252 "253"
 	).
 
 

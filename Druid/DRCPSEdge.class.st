@@ -18,6 +18,14 @@ DRCPSEdge class >> withSource: aSource andDestination: aDestination branchIndex:
 ]
 
 { #category : #building }
+DRCPSEdge >> addConstraint: aConditionalConstraint forInstruction: anInstruction [
+
+	^ self
+		  addConstraint: aConditionalConstraint
+		  to: anInstruction result name
+]
+
+{ #category : #building }
 DRCPSEdge >> addConstraint: aConditionalConstraint to: id [
 
 	^ constraints
@@ -89,7 +97,7 @@ DRCPSEdge >> integerOperation: anOperantion [
 	"Could be any number"
 	^ self
 		  addConstraint: DRFullConstraint new
-		  to: anOperantion result name
+		  forInstruction: anOperantion
 ]
 
 { #category : #testing }
@@ -318,7 +326,7 @@ DRCPSEdge >> visitCopy: aDRCopy [
 
 	constraint ifNil: [ ^ nil ].
 
-	^ self addConstraint: constraint to: aDRCopy result name
+	^ self addConstraint: constraint forInstruction: aDRCopy
 ]
 
 { #category : #visiting }
@@ -596,7 +604,7 @@ DRCPSEdge >> visitPhiFunction: aDRPhiFunction [
 			constraint := self parent constraintFor: branchOperand result name ].
 
 	^ constraint ifNotNil: [ 
-		  self addConstraint: constraint to: aDRPhiFunction result name ]
+		  self addConstraint: constraint forInstruction: aDRPhiFunction ]
 ]
 
 { #category : #visiting }
