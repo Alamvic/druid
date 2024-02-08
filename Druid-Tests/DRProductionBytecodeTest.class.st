@@ -347,6 +347,54 @@ DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJumpBackward [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodeIdenticalOfDifferentIntegers [
+
+	self
+		compileBytecode: 118
+		selector: #bytecodePrimIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: { (memory integerObjectOf: 42) }.
+	self deny:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeIdenticalOfEqualIntegers [
+
+	self
+		compileBytecode: 118
+		selector: #bytecodePrimIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: { (memory integerObjectOf: 17) }.
+	self assert:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodePrimSendAdd [
 
 	"Setup the send trampoline"
