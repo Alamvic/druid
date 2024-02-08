@@ -350,7 +350,7 @@ DRControlFlowGraph >> createinstructionView: instruction [
 		  color: (self instructionColor: instruction);
 		  border: (RSBorder new
 				   color: (instruction isStaged
-						    ifTrue: [ Color red ]
+						    ifTrue: [ Color green paler duller duller duller ]
 						    ifFalse: [ Color black ]);
 				   joinMiter);
 		  @ (RSMenuActivable new menuDo: [ :menu :element |

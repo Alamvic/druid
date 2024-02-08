@@ -71,6 +71,32 @@ DRStagingTest >> testDoNotStageLoadWithStagedAddress [
 	self deny: copy2 isStaged
 ]
 
+{ #category : #'phi-staging' }
+DRStagingTest >> testDoNotStagePhiOnNonStageableControlFlow [
+
+	| cfg b0 argument b1 b2 b3 copyOnTop copyOnBranch phi |
+	cfg := DRControlFlowGraph new.
+	b0 := cfg initialBasicBlock.
+	b1 := cfg newBasicBlockWith: [ :b | 
+		copyOnTop := b copy: 17.
+		argument := b loadArgument: 1 ].
+	b0 jumpTo: b1.
+
+	b2 := cfg newBasicBlockWith: [ :b |
+		copyOnBranch := b copy: 42 ].
+	b3 := cfg newBasicBlock.
+	b1 jumpIf: argument to: b2 ifFalseTo: b3.
+	b2 jumpTo: b3.
+	
+	"The jump in b1 cannot be staged because it depends on an argument"
+	"Thus this phi cannot be staged either"
+	phi := b3 phiWith: copyOnTop with: copyOnBranch.
+
+	DRStager applyTo: cfg.
+
+	self deny: phi isStaged
+]
+
 { #category : #tests }
 DRStagingTest >> testInstructionWithStagedRegisterIsNotStagedByDefault [
 
@@ -114,4 +140,63 @@ DRStagingTest >> testStageCopyConstant [
 	DRStager applyTo: cfg.
 	
 	self assert: copy isStaged
+]
+
+{ #category : #'phi-staging' }
+DRStagingTest >> testStagePhiOnNonStageableNestedSinglePredecessorControlFlow [
+
+	| cfg b0 argument b1 b2 b3 copyOnTop copyOnBranch phi subtrue submerge |
+	cfg := DRControlFlowGraph new.
+	b0 := cfg initialBasicBlock.
+	b1 := cfg newBasicBlockWith: [ :b | 
+		copyOnTop := b copy: 17.
+		argument := b loadArgument: 1 ].
+	b0 jumpTo: b1.
+
+	b2 := cfg newBasicBlockWith: [ :b |
+		copyOnBranch := b copy: 42
+	].
+	subtrue := cfg newBasicBlock.
+	submerge := cfg newBasicBlock.
+	b2 jumpIf: argument to: subtrue ifFalseTo: submerge.
+	subtrue jumpTo: submerge.
+	
+	b3 := cfg newBasicBlock.
+	b1 jumpIf: copyOnTop to: b2 ifFalseTo: b3.
+	submerge jumpTo: b3.
+	
+	"The jump in b1 can be staged because it depends on a constant"
+	"However, inside of the conditional, there is another conditional that cannot be staged!"
+	"But this phi can be staged because it does not depend on that control flow edge nor in a non stageable instruction!"
+	phi := b3 phiWith: copyOnTop with: copyOnBranch.
+
+	DRStager applyTo: cfg.
+
+	self assert: phi isStaged
+]
+
+{ #category : #'phi-staging' }
+DRStagingTest >> testStagePhiOnStageableControlFlow [
+
+	| cfg b0 argument b1 b2 b3 copyOnTop copyOnBranch phi |
+	cfg := DRControlFlowGraph new.
+	b0 := cfg initialBasicBlock.
+	b1 := cfg newBasicBlockWith: [ :b | 
+		copyOnTop := b copy: 17.
+		argument := b loadArgument: 1 ].
+	b0 jumpTo: b1.
+
+	b2 := cfg newBasicBlockWith: [ :b |
+		copyOnBranch := b copy: 42 ].
+	b3 := cfg newBasicBlock.
+	b1 jumpIf: copyOnTop to: b2 ifFalseTo: b3.
+	b2 jumpTo: b3.
+	
+	"The jump in b1 can be staged because it depends on a constant"
+	"Thus this phi can be staged too!"
+	phi := b3 phiWith: copyOnTop with: copyOnBranch.
+
+	DRStager applyTo: cfg.
+
+	self assert: phi isStaged
 ]
