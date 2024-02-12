@@ -293,6 +293,12 @@ DRBasicBlock >> divide: aValue by: anotherValue [
 	^ self addInstruction: (self instructionFactory divide: aValue by: anotherValue)
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> dominator [
+	
+	^ self controlFlowGraph tree immediateDominatorOf: self
+]
+
 { #category : #'control-flow' }
 DRBasicBlock >> duplicatePredecessor: existingPredecessor from: newPredecessor [
 	
@@ -484,7 +490,7 @@ DRBasicBlock >> indexOfPredecessor: aDRBasicBlock [
 	^ predecessors indexOf: aDRBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : #initialization }
 DRBasicBlock >> initialize [
 	super initialize.	
 	phiFunctions := OrderedCollection new.

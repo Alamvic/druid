@@ -64,7 +64,6 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 		^ (anInstruction result isVirtualRegister or: [
 			   anInstruction result isStagedRegister ]) and: [
 			  self canStageOneLevel: anInstruction operand1 ] ].
-	anInstruction isJITCompileTimeExpression ifTrue: [ ^ true ].
 	(anInstruction isArithmeticInstruction or: [ anInstruction isNegate ])
 		ifTrue: [
 			^ anInstruction operands allSatisfy: [ :e |
@@ -82,11 +81,14 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 				  modulo:
 				  (aSetOfPotentiallyStagedInstructions copyWith: anInstruction) ] ].
 	anInstruction isPhiFunction ifTrue: [
-		^ anInstruction operands allSatisfy: [ :e |
-			  self
-				  canStage: e
-				  modulo:
-				  (aSetOfPotentiallyStagedInstructions copyWith: anInstruction) ] ].
+		^ (anInstruction hasRecursiveUse or: [
+			   anInstruction basicBlock dominator lastInstruction isStaged ])
+			  and: [
+				  anInstruction operands allSatisfy: [ :e |
+					  self
+						  canStage: e
+						  modulo:
+						  (aSetOfPotentiallyStagedInstructions copyWith: anInstruction) ] ] ].
 
 	anInstruction isLoadReceiver ifTrue: [ ^ false ].
 	anInstruction isLoadStackValue ifTrue: [ ^ false ].
@@ -110,7 +112,7 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 	anInstruction isNoop ifTrue: [ ^ false ].
 	anInstruction isCogitSendMarshall ifTrue: [ ^ false ].
 	(anInstruction isKindOf: DRFlushStack) ifTrue: [ ^ false ].
-
+	anInstruction isJITCompileTimeExpression ifTrue: [ ^ true ].
 	^ false
 	"(anInstruction isArithmeticInstruction or: [ anInstruction isCopy ])
 		ifFalse: [ ^ false ].
@@ -158,27 +160,31 @@ DRStager >> stageInstruction: anInstruction [
 	"Just staged a push instruction"
 
 	(anInstruction isPush and: [
-		 anInstruction operand1 isMemoryAddress and: [ anInstruction operand1 base isStaged ] ])
-		ifTrue: [
-			| copy |
-			"If we have found a push instruction whose address' base is staged, we must promote the value to runtime.
+		 anInstruction operand1 isMemoryAddress and: [
+			 anInstruction operand1 base isStaged ] ]) ifTrue: [
+		| copy |
+		"If we have found a push instruction whose address' base is staged, we must promote the value to runtime.
 			We do so by inserting a non-staged copy.
 			This copy will be register allocated and treat the staged value as a constant"
-			copy := DRCopy
-				        operands: { anInstruction operand1 base }
-				        result: anInstruction instructionFactory allocateTemporaryRegister.
-			anInstruction addBefore: copy.
-			anInstruction replaceDependency: anInstruction operand1 base by: copy.
-			^ self ].
-
+		copy := DRCopy
+			        operands: { anInstruction operand1 base }
+			        result:
+			        anInstruction instructionFactory allocateTemporaryRegister.
+		anInstruction addBefore: copy.
+		anInstruction
+			replaceDependency: anInstruction operand1 base
+			by: copy.
+		^ self ].
 
 	(self canStage: anInstruction) ifTrue: [
 		anInstruction markAsStaged.
 
 		"Maybe the users want to change their decisions"
 		anInstruction users
-			select: [ :e | e isStaged not and: [ (ssaWorklist includes: e) not ] ]
+			select: [ :e |
+			e isStaged not and: [ (ssaWorklist includes: e) not ] ]
 			thenDo: [ :e | ssaWorklist add: e ] ].
 
-	anInstruction isJump ifTrue: [ anInstruction targets do: [ :t | cfgEdgeWorklist add: t ] ]
+	anInstruction isJump ifTrue: [
+		anInstruction targets do: [ :t | cfgEdgeWorklist add: t ] ]
 ]
