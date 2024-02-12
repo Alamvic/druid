@@ -164,7 +164,6 @@ DRStagingTest >> testStageLoop [
 	phi joinedVariables: { initialValue . increment }.
 	header jumpIf: (header greater: 10 than: phi) to: body ifFalseTo: exit.
 
-	1halt.
 	DRStager applyTo: cfg.
 
 	self assert: phi isStaged
