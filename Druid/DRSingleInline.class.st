@@ -18,7 +18,7 @@ DRSingleInline class >> forMessageSend: aDRMessageSend [
 { #category : #accessing }
 DRSingleInline >> doApply: cfg [
 
-	self inline: messageSend
+	^ self inline: messageSend
 ]
 
 { #category : #accessing }

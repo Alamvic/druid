@@ -10,8 +10,13 @@ Class {
 { #category : #accessing }
 DRInline >> doApply: cfg [
 
+	| result |
+	result := false.
+
 	cfg messageSends copy do: [ :messageSend | 
-		self inline: messageSend ]
+		result := result | (self inline: messageSend) ].
+	
+	^ result
 ]
 
 { #category : #inlining }
@@ -81,11 +86,11 @@ DRInline >> inline: messageSend [
 	| methodsToInline inlinedMethodReturnValue |
 
 	(self isIgnoredSelector: messageSend) 
-		ifTrue: [ ^ self ].
+		ifTrue: [ ^ false ].
 
 	inlineGenerator := messageSend inlineGenerator.
 	methodsToInline := self methodsToInlineOf: messageSend.
-	methodsToInline ifEmpty: [ ^ self ].
+	methodsToInline ifEmpty: [ ^ false ].
 
 	"Break message send basic block"
 	messageSend basicBlock breakBy: messageSend.
@@ -106,7 +111,9 @@ DRInline >> inline: messageSend [
 	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: inlineGenerator ir.
 	DRDeadCodeElimination new applyTo: inlineGenerator ir.
-	inlineGenerator ir validate
+	inlineGenerator ir validate.
+	
+	^ true
 ]
 
 { #category : #'primitves inlining' }
@@ -132,6 +139,14 @@ DRInline >> isIgnoredSelector: messageSend [
 	^ { #class. #instVarAt: } includes: messageSend selector
 ]
 
+{ #category : #testing }
+DRInline >> isUnknownPrimitive: anAssociation [ 
+
+	anAssociation value isPrimitive ifFalse: [ ^ false ].
+	
+	^ anAssociation value primitiveFromPragma num ~= 60
+]
+
 { #category : #inlining }
 DRInline >> methodsToInlineOf: messageSend [
 	"Returns a collection of associations: 
@@ -141,5 +156,5 @@ DRInline >> methodsToInlineOf: messageSend [
 	messageSend methodNode ifNotNil: [ "If a method node was set during interpretation then the message send is statically binding to them"
 		^ { (#default -> messageSend methodNode) } ].
 
-	^ inlineGenerator typeSystem methodsForMessage: messageSend
+	^ (inlineGenerator typeSystem methodsForMessage: messageSend) reject: [ :e | self isUnknownPrimitive: e ]
 ]

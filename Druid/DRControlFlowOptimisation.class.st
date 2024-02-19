@@ -7,9 +7,13 @@ Class {
 { #category : #accessing }
 DRControlFlowOptimisation >> applyTo: cfg [
 
-	self doApply: cfg.
+	| result |
+	
+	result := self doApply: cfg.
 	(DRDeadBlockElimination then: DRPhiSimplication) applyTo: cfg.
 	cfg fixBackJumps.
+	
+	^ result
 ]
 
 { #category : #accessing }

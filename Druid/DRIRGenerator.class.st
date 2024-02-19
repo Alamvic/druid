@@ -274,6 +274,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #value: put: #interpretBlockValueWith:.
 	specialCases at: #cull: put: #interpretBlockCullWith:.
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
+	specialCases at: #ifFalse: put: #interpretIfFalseWith:.
 	specialCases at: #whileTrue: put: #interpretWhileTrueWith:.
 	specialCases at: #caseOf:otherwise: put: #interpretCaseOfWith:.
 	specialCases at: #cppIf:ifTrue: put: #interpretCppIfWith:.
@@ -868,6 +869,57 @@ DRIRGenerator >> interpretHiddenRootsObjectWith: aRBVariableNode [
 	^ self
 		  addCopy: aRBVariableNode
 		  with: DRInterpreterReference hiddenRootsObject
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretIfFalseWith: aRBMessageNode [
+
+	| trueBranchBasicBlockOut conditionalJump startingBasicBlock executionStateBeforeBranch |
+	aRBMessageNode receiver acceptVisitor: self.
+	conditionalJump := self
+		                   instantiateNoResultInstruction:
+		                   DRBranchIfCondition
+		                   operands: {
+				                   DREqualsThanComparison new.
+				                   self popOperand.
+				                   true asDRValue }.
+	conditionalJump originAST: aRBMessageNode.
+
+	self currentBasicBlock endInstruction: conditionalJump.
+
+	self pushOperand: DRNullValue new.
+	executionStateBeforeBranch := executionState copy.
+
+	self popOperand.
+
+	trueBranchBasicBlockOut := self
+		                           branchFrom: self currentBasicBlock
+		                           onEdge: [ :branchEntryBlock |
+		                           conditionalJump falseBranch:
+			                           branchEntryBlock ]
+		                           doing: [
+		                           self interpretBlockBody:
+			                           aRBMessageNode arguments first ].
+
+	"Merge point"
+	startingBasicBlock := self currentBasicBlock.
+	self newBasicBlock.
+	self currentBasicBlock addPredecessor: startingBasicBlock.
+	conditionalJump trueBranch: self currentBasicBlock.
+
+	"Could happen that the evaluated block had a non local return.
+	In that case, this block should not arrive to this merge point
+		=> do not add the jump"
+	trueBranchBasicBlockOut hasFinalInstruction
+		ifTrue: [ executionState := executionStateBeforeBranch ]
+		ifFalse: [
+			executionState := DRStackMerger new
+				                  builder: self;
+				                  mergeBlock: currentBasicBlock;
+				                  mergeAll: {
+						                  executionStateBeforeBranch.
+						                  executionState copy }.
+			trueBranchBasicBlockOut jumpTo: self currentBasicBlock ]
 ]
 
 { #category : #'special cases' }

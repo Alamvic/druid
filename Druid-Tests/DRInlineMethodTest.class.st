@@ -4,6 +4,18 @@ Class {
 	#category : #'Druid-Tests-Optimizations'
 }
 
+{ #category : #compiling }
+DRInlineMethodTest >> compileCFG: cfg selector: selector [
+
+	| bytecodeGenerator |
+
+	bytecodeGenerator := DRBytecodeGenerator new.
+	bytecodeGenerator generateDeoptimizationInformation.
+	bytecodeGenerator numArgs: selector numArgs.
+	bytecodeGenerator generateTargetASTFromIR: cfg methodName: selector.
+	^ bytecodeGenerator compiledMethod
+]
+
 { #category : #initialization }
 DRInlineMethodTest >> setUp [
 
