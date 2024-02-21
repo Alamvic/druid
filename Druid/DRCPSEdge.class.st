@@ -640,7 +640,7 @@ DRCPSEdge >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitRightShift: aDRRightShift [ 
+DRCPSEdge >> visitSignedRightShift: aDRRightShift [ 
 
 	^ nil
 ]
@@ -695,6 +695,12 @@ DRCPSEdge >> visitTypeOf: aDRTypeOf inBranch: aDRBranch [
 
 { #category : #visiting }
 DRCPSEdge >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
+
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitUnsignedRightShift: aDRRightShift [ 
 
 	^ nil
 ]

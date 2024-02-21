@@ -1162,7 +1162,7 @@ DRCogitCodeGenerator >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitRightShift: aRightShift [ 
+DRCogitCodeGenerator >> visitSignedRightShift: aRightShift [ 
 
 	^ self threeOperandCogitRTL: #ArithmeticShiftRight instruction: aRightShift
 
@@ -1204,4 +1204,11 @@ DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfConditio
 DRCogitCodeGenerator >> visitUnsignedCoercion: aDRCogitUnsignedCoercion [ 
 
 	^ self visitCopy: aDRCogitUnsignedCoercion
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitUnsignedRightShift: aRightShift [ 
+
+	^ self threeOperandCogitRTL: #LogicalShiftRight instruction: aRightShift
+
 ]

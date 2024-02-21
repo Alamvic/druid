@@ -308,7 +308,7 @@ DRCogitOperandSorter >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitRightShift: aDRRightShift [ 
+DRCogitOperandSorter >> visitSignedRightShift: aDRRightShift [ 
 	
 	"Shift is not commutative!
 	=> extract its first operand into a copy instruction"
@@ -349,4 +349,12 @@ DRCogitOperandSorter >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 DRCogitOperandSorter >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
 	
 	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitUnsignedRightShift: aDRRightShift [ 
+	
+	"Shift is not commutative!
+	=> extract its first operand into a copy instruction"
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRRightShift
 ]
