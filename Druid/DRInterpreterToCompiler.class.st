@@ -64,7 +64,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
 	#primitiveEqual #primitiveNotEqual #primitiveIdentical "#primitiveNotIdentical" 
 	#primitiveClass #primitiveSize #primitiveAt "#primitiveAtPut" "#primitiveBehaviorHash" "#primitiveIdentityHash"
-	#primitiveNew #primitiveNewWithArg primitiveAsFloat primitiveSmallFloatAdd primitiveSmallFloatLessThan primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatEqual primitiveSmallFloatGreaterThan primitiveSmallFloatDivide primitiveSmallFloatMultiply primitiveSmallFloatSubtract primitiveSmallFloatLessOrEqual
+	#primitiveNew #primitiveNewWithArg primitiveAsFloat primitiveSmallFloatAdd primitiveSmallFloatLessThan primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatEqual primitiveSmallFloatGreaterThan primitiveSmallFloatMultiply primitiveSmallFloatSubtract primitiveSmallFloatLessOrEqual
 	"#primitiveFullClosureValue" ).
 	
 bytecodes := #( 
