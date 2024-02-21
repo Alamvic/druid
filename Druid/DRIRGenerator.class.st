@@ -319,7 +319,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
 	specialCases at: #sizeof: put: #interpretSizeofWith:.
 	specialCases at: #asFloat put: #interpretAsFloatWith:.
-	specialCases at: #rawFloatBitsOf:in: put: #interpretRawFloatBitsWith:.
+	specialCases at: #rawFloatBitsOf: put: #interpretRawFloatBitsWith:.
 	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
 	specialCases at: #asObjectReference put: #interpretObjectReferenceCoercionWith:.
@@ -486,7 +486,7 @@ DRIRGenerator >> interpretAsFloatWith: aRBMessageNode [
 	receiver := self popOperand.
 
 	"If it's already a float, do nothing"
-	receiver type isFloat ifTrue: [ ^ self pushOperand: receiver ].
+	receiver type isFloatType ifTrue: [ ^ self pushOperand: receiver ].
 
 	^ self
 		  addInstructionFrom: aRBMessageNode
@@ -862,7 +862,7 @@ DRIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 		pushOperand: valueToStore
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 
 	^ self
