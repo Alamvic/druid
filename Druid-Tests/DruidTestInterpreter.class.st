@@ -578,6 +578,15 @@ DruidTestInterpreter >> primitiveConditionWithObjectReference [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveConstantFloatAsInteger [
+
+	<numberOfArguments: 0>
+	"Transform the integer argument as float.
+	Then read its raw representation and push that to the stack."
+	self pop: 1 thenPush: 17.0 asInteger
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDNA [
 
 	<numberOfArguments: 0>
@@ -1114,7 +1123,7 @@ DruidTestInterpreter >> primitiveIntegerRawBitsAsFloat [
 	<numberOfArguments: 0>
 	"Transform the integer argument as float.
 	Then read its raw representation and push that to the stack."
-	self pop: 1 thenPush: self stackTop float64FromRawBits asInteger
+	self pop: 1 thenPush: (self floatFromRawBits: self stackTop) asInteger
 ]
 
 { #category : #'as yet unclassified' }

@@ -557,6 +557,15 @@ DRPrimitiveScenarioCompilationTest >> testCompiledPrimitivePreservesStack [
 	self assert: self popAddress equals: 55
 ]
 
+{ #category : #'tests-types' }
+DRPrimitiveScenarioCompilationTest >> testConstantFloatAsInteger [
+
+	self compileDruidPrimitive: #primitiveConstantFloatAsInteger.
+	self executePrimitiveWithReceiver: memory nilObject.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
 { #category : #'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testDecrementConstantArgument [
 
