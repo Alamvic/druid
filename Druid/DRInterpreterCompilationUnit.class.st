@@ -36,9 +36,8 @@ DRInterpreterCompilationUnit >> addBytecodeEntry: aDRBytecodeObject [
 DRInterpreterCompilationUnit >> addPrimitiveEntries [
 	"As part of the build unit, add the receiver's primitives from its <Collection> of <DRPrimitiveObject>"
 
-	self addSpecialPrimitives.
-	self primitives do: [ :primitiveObject |
-		self addPrimitiveEntry: primitiveObject ]
+	primitives do: [ :primitiveObject |
+		self addPrimitiveEntry: primitiveObject ].
 ]
 
 { #category : #'accessing - primitives' }
@@ -56,11 +55,6 @@ DRInterpreterCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 		               ifFalse: [ {  } ]).
 
 	self primitiveTable add: tableEntry
-]
-
-{ #category : #'accessing - primitives' }
-DRInterpreterCompilationUnit >> addSpecialPrimitives [
-	"Private - Do nothing for now"
 ]
 
 { #category : #accessing }
@@ -93,7 +87,7 @@ DRInterpreterCompilationUnit >> compileUsing: aCompiler [
 	self addPrimitiveEntries.
 	self addBytecodeEntries.
 
-	self primitives
+	primitives
 		do: [ :e | aCompiler handleErrorDuring: [ e compileUsing: aCompiler ] ]
 		displayingProgress: [ :e | 'Compiling primitive ' , e genSelector ].
 	self bytecodes
@@ -128,7 +122,7 @@ DRInterpreterCompilationUnit >> dispatchTableGeneratorClass [
 DRInterpreterCompilationUnit >> hasPrimitives [
 	"Answer <true> if the receiver already contains primitives"
 
-	^ self primitives notEmpty
+	^ primitives notEmpty
 ]
 
 { #category : #accessing }
@@ -136,7 +130,8 @@ DRInterpreterCompilationUnit >> initialize [
 
 	super initialize.
 	bytecodeTable := OrderedCollection new.
-	primitiveTable := OrderedCollection new
+	primitiveTable := OrderedCollection new.
+	primitives := OrderedCollection new
 ]
 
 { #category : #accessing }
@@ -188,7 +183,6 @@ DRInterpreterCompilationUnit >> primitives [
 	"Answer a <Collection> of IR of primitive methods, instances of <DRPrimitiveControlFlowGraph>"
 
 	^ primitives
-		ifNil: [ primitives := OrderedCollection new ]
 ]
 
 { #category : #'accessing - primitives' }
@@ -196,4 +190,10 @@ DRInterpreterCompilationUnit >> primitives: aCollection [
 	"Set a <Collection> of primitive methods "
 
 	primitives := aCollection
+]
+
+{ #category : #sorting }
+DRInterpreterCompilationUnit >> sortPrimitives [
+
+	primitives sort: [ :a :b | a primitiveNumber < b primitiveNumber ]
 ]

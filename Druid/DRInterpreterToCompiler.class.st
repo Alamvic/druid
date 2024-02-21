@@ -64,7 +64,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
 	#primitiveEqual #primitiveNotEqual #primitiveIdentical "#primitiveNotIdentical" 
 	#primitiveClass #primitiveSize #primitiveAt "#primitiveAtPut" "#primitiveBehaviorHash" "#primitiveIdentityHash"
-	#primitiveNew #primitiveNewWithArg primitiveAsFloat primitiveSmallFloatAdd "primitiveSmallFloatLessThan primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual" "primitiveSmallFloatEqual primitiveSmallFloatGreaterThan primitiveSmallFloatDivide primitiveSmallFloatMultiply" "primitiveSmallFloatSubtract" "primitiveSmallFloatLessOrEqual"
+	#primitiveNew #primitiveNewWithArg primitiveAsFloat primitiveSmallFloatAdd primitiveSmallFloatLessThan primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatEqual primitiveSmallFloatGreaterThan primitiveSmallFloatDivide primitiveSmallFloatMultiply primitiveSmallFloatSubtract primitiveSmallFloatLessOrEqual
 	"#primitiveFullClosureValue" ).
 	
 bytecodes := #( 
@@ -202,7 +202,8 @@ DRInterpreterToCompiler >> addPrimitives [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
 	self addSelectedPrimitives.
-	self addMandatoryPrimitives
+	self addMandatoryPrimitives.
+	compilationUnit sortPrimitives.
 ]
 
 { #category : #adding }

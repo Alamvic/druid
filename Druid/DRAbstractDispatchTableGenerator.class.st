@@ -108,7 +108,17 @@ DRAbstractDispatchTableGenerator >> initPrimitiveTableSelector [
 DRAbstractDispatchTableGenerator >> maxCompiledPrimitives [
 	"Answer the <Number> of compiled primitives in the receiver"
 
-	^ self primTableNode maxCompiledPrimitives
+	"primTableNode is a method node with the following shape
+	
+	foo
+	  ^ { { primID . primName ... } ... { primID . primName ... } }
+	
+	This method returns the primID of the last entry of the table
+	"
+	| arrayNode |
+	arrayNode := self primTableNode returnNode value.
+	arrayNode statements ifEmpty: [ ^ 0 ].
+	^ arrayNode statements last statements first
 ]
 
 { #category : #accessing }
