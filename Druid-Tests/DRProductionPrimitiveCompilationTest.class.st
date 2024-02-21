@@ -529,6 +529,16 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 		equals: class
 ]
 
+{ #category : #'tests-floats' }
+DRProductionPrimitiveCompilationTest >> testIntegerAsFloat [
+
+	self compileDruidPrimitive: #primitiveAsFloat.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42).
+
+	self assert: machineSimulator receiverRegisterValue equals: (memory floatObjectOf: 42.0)
+]
+
 { #category : #'tests-arithmetic-smallIntegers' }
 DRProductionPrimitiveCompilationTest >> testPrimitiveAdd [
 

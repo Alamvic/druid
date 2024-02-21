@@ -158,9 +158,9 @@ DRPrimitiveScenarioCompilationTest >> testArithmeticBitShiftRight [
 
 	self compileDruidPrimitive: #primitiveArithmeticBitShiftRight.
 
-	self executePrimitiveWithReceiver: 2r10 withArguments: { 1 }.
+	self executePrimitiveWithReceiver: 1 << 63 withArguments: { 1 }.
 	
-	self assert: machineSimulator receiverRegisterValue equals: 2r1
+	self assert: machineSimulator receiverRegisterValue equals: 2r11 << 62
 ]
 
 { #category : #'tests-types' }
@@ -1069,6 +1069,39 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanArgumentTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfEqualsNumber [
+	"A negative number bitAnded should be considered a very large positive integer"
+
+	self compileDruidPrimitive: #primitiveGreaterThanBitAnd.
+
+	self executePrimitiveWithReceiver: 1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfNegativeNumber [
+	"A negative number bitAnded should be considered a very large positive integer"
+
+	self compileDruidPrimitive: #primitiveGreaterThanBitAnd.
+
+	self executePrimitiveWithReceiver: -1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfPositiveNumber [
+	"A negative number bitAnded should be considered a very large positive integer"
+
+	self compileDruidPrimitive: #primitiveGreaterThanBitAnd.
+
+	self executePrimitiveWithReceiver: 2.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
 { #category : #'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testGreaterThanFloatsEquals [
 
@@ -1590,6 +1623,18 @@ DRPrimitiveScenarioCompilationTest >> testLessThanValueTrue [
 	self executePrimitiveWithReceiver: -10.
 	
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
+]
+
+{ #category : #'tests-bitwise' }
+DRPrimitiveScenarioCompilationTest >> testLogicalBitShiftRight [
+
+	self compileDruidPrimitive: #primitiveLogicalBitShiftRight.
+
+	"Create a number with the highest bit on.
+	After shifting right, the highest bit should be 0"
+	self executePrimitiveWithReceiver: 1 << 63 withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1 << 62
 ]
 
 { #category : #'tests-loop' }
