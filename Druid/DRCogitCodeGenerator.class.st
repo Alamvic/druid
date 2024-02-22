@@ -1152,6 +1152,23 @@ DRCogitCodeGenerator >> visitPhiFunction: aDRPhiFunction [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitPush: aDRPush [
+
+	(aDRPush operand1 isConstant or: [ aDRPush operand1 isStaged ]) ifTrue: [
+		^ generatorMethodBuilder addStatement: (RBMessageNode
+				   receiver: RBVariableNode selfNode
+				   selector: 'genPushConstant:'
+				   arguments: (aDRPush operand1 rtlPushArgumentExpressions: self)) ].
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector:
+			 'Push'
+			 , (aDRPush operand1 rtlOperandQualifierForInstruction: aDRPush)
+			 arguments: (aDRPush operand1 rtlPushArgumentExpressions: self))
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitReturn: aDRReturn [
 
 	"Generate the postamble in the return cases"
