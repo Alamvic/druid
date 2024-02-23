@@ -8,8 +8,15 @@ Class {
 DruidTestRTLCompiler class >> bytecodeTable [
 
 	<generated>
-	^ { { 1. 0. 0. #gen_BytecodeWithNoFrameInstVarRefAnnotation.
-	  #isInstVarRef. #needsFrameNever:. 1 } }
+	^ {
+		  { 1. 0. 0. #gen_BytecodeWithNoFrameInstVarRefAnnotation.
+		  #isInstVarRef. #needsFrameNever:. 1 }.
+		  { 1. 77. 77. #gen_BytecodeWithNoFrameInstVarRefAnnotation }.
+		  { 1. 90. 90. #gen_BytecodeWithNoFrameInstVarRefAnnotation }.
+		  { 1. 91. 91. #gen_BytecodeWithNoFrameInstVarRefAnnotation }.
+		  { 1. 176. 176. #gen_BytecodeWithNoFrameInstVarRefAnnotation }.
+		  { 1. 184. 184. #gen_BytecodeWithNoFrameInstVarRefAnnotation }.
+		  { 1. 192. 192. #gen_BytecodeWithNoFrameInstVarRefAnnotation } }
 ]
 
 { #category : #'class initialization' }

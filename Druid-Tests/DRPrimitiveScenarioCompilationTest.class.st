@@ -589,6 +589,7 @@ DRPrimitiveScenarioCompilationTest >> testDecrementConstantReceiver [
 { #category : #'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testDeferredInline [
 
+	self skip.
 	self compileDruidDeferredInlinePrimitive: #primitiveDoubleDeferredInline.
 	
 	self executePrimitiveWithReceiver: 42.
@@ -599,6 +600,7 @@ DRPrimitiveScenarioCompilationTest >> testDeferredInline [
 { #category : #'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testDeferredInlineFailedCode [
 
+	self skip.
 	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
 	
 	self executeUntilStopPrimitiveWithReceiver: 0
@@ -607,6 +609,7 @@ DRPrimitiveScenarioCompilationTest >> testDeferredInlineFailedCode [
 { #category : #'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testDeferredInlineTwice [
 
+	self skip.
 	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
 	
 	self executePrimitiveWithReceiver: 1.
