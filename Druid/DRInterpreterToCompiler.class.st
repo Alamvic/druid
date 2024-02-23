@@ -64,7 +64,8 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
 	#primitiveEqual #primitiveNotEqual #primitiveIdentical "#primitiveNotIdentical" 
 	#primitiveClass #primitiveSize #primitiveAt "#primitiveAtPut" "#primitiveBehaviorHash" "#primitiveIdentityHash"
-	#primitiveNew #primitiveNewWithArg
+	#primitiveNew #primitiveNewWithArg primitiveAsFloat primitiveSmallFloatAdd primitiveSmallFloatLessThan primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatEqual primitiveSmallFloatGreaterThan primitiveSmallFloatMultiply primitiveSmallFloatSubtract primitiveSmallFloatLessOrEqual
+	primitiveDiv primitiveQuo primitiveBitShift primitiveBitAnd  primitiveBitXor primitiveBitOr
 	"#primitiveFullClosureValue" ).
 	
 bytecodes := #( 
@@ -124,14 +125,14 @@ bytecodes := #(
 		"extended conditional jump"
 			237 238 239
 		"extended store&pop (receiver var / literal / temp)"
-			"240" 241 242 
+			240 241 242 
 		"extended store (receiver var / literal / temp)"
 			243 244 245
 			
 		"call primitive" 248
 		"push closure" 249
 		"remote temp (push / store / store&pop)"	
-			251 252 "253"
+			251 252 253
 	).
 
 
@@ -202,7 +203,8 @@ DRInterpreterToCompiler >> addPrimitives [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
 	self addSelectedPrimitives.
-	self addMandatoryPrimitives
+	self addMandatoryPrimitives.
+	compilationUnit sortPrimitives.
 ]
 
 { #category : #adding }

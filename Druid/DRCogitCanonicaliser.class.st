@@ -352,7 +352,7 @@ DRCogitCanonicaliser >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitRightShift: aDRRightShift [ 
+DRCogitCanonicaliser >> visitSignedRightShift: aDRRightShift [ 
 	
 	"Nothing"
 ]
@@ -416,6 +416,12 @@ DRCogitCanonicaliser >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitUnsignedRightShift: aDRRightShift [ 
 	
 	"Nothing"
 ]

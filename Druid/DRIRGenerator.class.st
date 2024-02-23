@@ -319,8 +319,8 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
 	specialCases at: #sizeof: put: #interpretSizeofWith:.
 	specialCases at: #asFloat put: #interpretAsFloatWith:.
-	specialCases at: #rawFloatBitsOf:in: put: #interpretRawFloatBitsWith:.
-	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
+	specialCases at: #rawFloatBitsOf: put: #interpretRawFloatBitsWith:.
+	specialCases at: #floatFromRawBits: put: #interpretFloat64FromRawBitsWith:.
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
 	specialCases at: #asObjectReference put: #interpretObjectReferenceCoercionWith:.
 	
@@ -486,7 +486,7 @@ DRIRGenerator >> interpretAsFloatWith: aRBMessageNode [
 	receiver := self popOperand.
 
 	"If it's already a float, do nothing"
-	receiver type isFloat ifTrue: [ ^ self pushOperand: receiver ].
+	receiver type isFloatType ifTrue: [ ^ self pushOperand: receiver ].
 
 	^ self
 		  addInstructionFrom: aRBMessageNode
@@ -835,9 +835,19 @@ DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [
 ]
 
 { #category : #'special cases' }
-DRIRGenerator >> interpretFloat64FromRawBitsWith: aRBMessageNode [ 
+DRIRGenerator >> interpretFloat64FromRawBitsWith: aRBMessageNode [
 
-	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRGetFloatFromBits
+	| receiver |
+	aRBMessageNode arguments first acceptVisitor: self.
+	receiver := self popOperand.
+
+	receiver type isIntegerType ifFalse: [
+		^ self error: 'cannot extract float bits from a non float value' ].
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRGetFloatFromBits
+		  operands: { receiver }
 ]
 
 { #category : #'special cases' }
@@ -862,7 +872,7 @@ DRIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 		pushOperand: valueToStore
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 
 	^ self

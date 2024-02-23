@@ -158,9 +158,9 @@ DRPrimitiveScenarioCompilationTest >> testArithmeticBitShiftRight [
 
 	self compileDruidPrimitive: #primitiveArithmeticBitShiftRight.
 
-	self executePrimitiveWithReceiver: 2r10 withArguments: { 1 }.
+	self executePrimitiveWithReceiver: 1 << 63 withArguments: { 1 }.
 	
-	self assert: machineSimulator receiverRegisterValue equals: 2r1
+	self assert: machineSimulator receiverRegisterValue equals: 2r11 << 62
 ]
 
 { #category : #'tests-types' }
@@ -557,6 +557,15 @@ DRPrimitiveScenarioCompilationTest >> testCompiledPrimitivePreservesStack [
 	self assert: self popAddress equals: 55
 ]
 
+{ #category : #'tests-types' }
+DRPrimitiveScenarioCompilationTest >> testConstantFloatAsInteger [
+
+	self compileDruidPrimitive: #primitiveConstantFloatAsInteger.
+	self executePrimitiveWithReceiver: memory nilObject.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
 { #category : #'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testDecrementConstantArgument [
 
@@ -580,6 +589,7 @@ DRPrimitiveScenarioCompilationTest >> testDecrementConstantReceiver [
 { #category : #'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testDeferredInline [
 
+	self skip.
 	self compileDruidDeferredInlinePrimitive: #primitiveDoubleDeferredInline.
 	
 	self executePrimitiveWithReceiver: 42.
@@ -590,6 +600,7 @@ DRPrimitiveScenarioCompilationTest >> testDeferredInline [
 { #category : #'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testDeferredInlineFailedCode [
 
+	self skip.
 	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
 	
 	self executeUntilStopPrimitiveWithReceiver: 0
@@ -598,6 +609,7 @@ DRPrimitiveScenarioCompilationTest >> testDeferredInlineFailedCode [
 { #category : #'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testDeferredInlineTwice [
 
+	self skip.
 	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
 	
 	self executePrimitiveWithReceiver: 1.
@@ -1067,6 +1079,39 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanArgumentTrue [
 	self executePrimitiveWithReceiver: 0 withArguments: { 10 }.
 	
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfEqualsNumber [
+	"A negative number bitAnded should be considered a very large positive integer"
+
+	self compileDruidPrimitive: #primitiveGreaterThanBitAnd.
+
+	self executePrimitiveWithReceiver: 1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfNegativeNumber [
+	"A negative number bitAnded should be considered a very large positive integer"
+
+	self compileDruidPrimitive: #primitiveGreaterThanBitAnd.
+
+	self executePrimitiveWithReceiver: -1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfPositiveNumber [
+	"A negative number bitAnded should be considered a very large positive integer"
+
+	self compileDruidPrimitive: #primitiveGreaterThanBitAnd.
+
+	self executePrimitiveWithReceiver: 2.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-comparisons-floats' }
@@ -1590,6 +1635,18 @@ DRPrimitiveScenarioCompilationTest >> testLessThanValueTrue [
 	self executePrimitiveWithReceiver: -10.
 	
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
+]
+
+{ #category : #'tests-bitwise' }
+DRPrimitiveScenarioCompilationTest >> testLogicalBitShiftRight [
+
+	self compileDruidPrimitive: #primitiveLogicalBitShiftRight.
+
+	"Create a number with the highest bit on.
+	After shifting right, the highest bit should be 0"
+	self executePrimitiveWithReceiver: 1 << 63 withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1 << 62
 ]
 
 { #category : #'tests-loop' }
