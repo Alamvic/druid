@@ -578,6 +578,15 @@ DruidTestInterpreter >> primitiveConditionWithObjectReference [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveConstantFloatAsInteger [
+
+	<numberOfArguments: 0>
+	"Transform the integer argument as float.
+	Then read its raw representation and push that to the stack."
+	self pop: 1 thenPush: 17.0 asInteger
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDNA [
 
 	<numberOfArguments: 0>
@@ -788,7 +797,7 @@ DruidTestInterpreter >> primitiveFloat64At [
 	addressToRead := self stackTop.
 	self
 		pop: 1
-		thenPush: (objectMemory rawFloatBitsOf: (objectMemory float64At: addressToRead) in: nil) 
+		thenPush: (objectMemory rawFloatBitsOf: (objectMemory float64At: addressToRead)) 
 ]
 
 { #category : #'as yet unclassified' }
@@ -809,10 +818,8 @@ DruidTestInterpreter >> primitiveFloatAdd [
 	Then read the result raw representation and push that to the stack."
 
 	<numberOfArguments: 1>
-	self pop: 2 thenPush: (objectMemory
-			 rawFloatBitsOf:
-			 self stackTop asFloat + (self stackValue: 1) asFloat
-			 in: nil)
+	self pop: 2 thenPush: (objectMemory rawFloatBitsOf:
+			 self stackTop asFloat + (self stackValue: 1) asFloat)
 ]
 
 { #category : #'as yet unclassified' }
@@ -822,10 +829,8 @@ DruidTestInterpreter >> primitiveFloatDivide [
 	Then read the result raw representation and push that to the stack."
 
 	<numberOfArguments: 1>
-	self pop: 2 thenPush: (objectMemory
-			 rawFloatBitsOf:
-			 self stackTop asFloat / (self stackValue: 1) asFloat
-			 in: nil)
+	self pop: 2 thenPush: (objectMemory rawFloatBitsOf:
+			 self stackTop asFloat / (self stackValue: 1) asFloat)
 ]
 
 { #category : #'as yet unclassified' }
@@ -835,10 +840,8 @@ DruidTestInterpreter >> primitiveFloatMultiply [
 	Then read the result raw representation and push that to the stack."
 
 	<numberOfArguments: 1>
-	self pop: 2 thenPush: (objectMemory
-			 rawFloatBitsOf:
-			 self stackTop asFloat * (self stackValue: 1) asFloat
-			 in: nil)
+	self pop: 2 thenPush: (objectMemory rawFloatBitsOf:
+			 self stackTop asFloat * (self stackValue: 1) asFloat)
 ]
 
 { #category : #'as yet unclassified' }
@@ -848,10 +851,8 @@ DruidTestInterpreter >> primitiveFloatSubtract [
 	Then read the result raw representation and push that to the stack."
 
 	<numberOfArguments: 1>
-	self pop: 2 thenPush: (objectMemory
-			 rawFloatBitsOf:
-			 self stackTop asFloat - (self stackValue: 1) asFloat
-			 in: nil)
+	self pop: 2 thenPush: (objectMemory rawFloatBitsOf:
+			 self stackTop asFloat - (self stackValue: 1) asFloat)
 ]
 
 { #category : #comparisons }
@@ -909,6 +910,18 @@ DruidTestInterpreter >> primitiveGreaterThanArgument [
 
 	<numberOfArguments: 1>
 	self pop: 2 thenPush: (self stackTop > 0)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveGreaterThanBitAnd [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := (self stackTop bitAnd: 16rFFFFFFFFFFFFFFFF) > 1
+		     ifTrue: [ 1 ]
+		     ifFalse: [ 2 ].
+	self pop: 1 thenPush: r
 ]
 
 { #category : #'as yet unclassified' }
@@ -1081,8 +1094,7 @@ DruidTestInterpreter >> primitiveIntegerAsFloat [
 	<numberOfArguments: 0>
 	self
 		pop: 1
-		thenPush:
-		(objectMemory rawFloatBitsOf: self stackTop asFloat in: nil)
+		thenPush: (objectMemory rawFloatBitsOf: self stackTop asFloat)
 ]
 
 { #category : #'as yet unclassified' }
@@ -1111,7 +1123,7 @@ DruidTestInterpreter >> primitiveIntegerRawBitsAsFloat [
 	<numberOfArguments: 0>
 	"Transform the integer argument as float.
 	Then read its raw representation and push that to the stack."
-	self pop: 1 thenPush: self stackTop float64FromRawBits asInteger
+	self pop: 1 thenPush: (self floatFromRawBits: self stackTop) asInteger
 ]
 
 { #category : #'as yet unclassified' }
@@ -1211,6 +1223,17 @@ DruidTestInterpreter >> primitiveLessThanValue [
 
 	<numberOfArguments: 0>
 	self pop: 1 thenPush: (self stackTop < 0)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLogicalBitShiftRight [
+
+	<numberOfArguments: 1>
+	<var: #receiver type: #usqInt>
+	| receiver argument |
+	receiver := self stackValue: 1.
+	argument := self stackTop.
+	self pop: 2 thenPush: (receiver >> argument)
 ]
 
 { #category : #'as yet unclassified' }
