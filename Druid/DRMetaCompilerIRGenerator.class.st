@@ -30,6 +30,8 @@ DRMetaCompilerIRGenerator >> initializeSpecialCases [
 	specialCases at: #stackValue: put: #interpretStackValueWith:.
 	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
 	specialCases at: #pop: put: #interpretPopThenPushWith:.
+	specialCases at: #push: put: #interpretPushWith:.
+
 ]
 
 { #category : #interpretation }
@@ -49,6 +51,14 @@ DRMetaCompilerIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
 	primitiveReturn addDeferredReturnState: {
 			returnState.
 			(self addFrameReturn: primitiveReturn) }
+]
+
+{ #category : #'special cases' }
+DRMetaCompilerIRGenerator >> interpretPushWith: aRBMessageNode [ 
+	
+	| receiver |
+	receiver := self visitOperand: aRBMessageNode arguments first.
+	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
 ]
 
 { #category : #visiting }
@@ -102,6 +112,13 @@ DRMetaCompilerIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiv
 		interpretCode: instruction
 		receiver: receiver
 		arguments: arguments
+]
+
+{ #category : #visiting }
+DRMetaCompilerIRGenerator >> trackStackInstruction: aDRStrackInstruction [ 
+
+	aDRStrackInstruction stackDependency: executionState lastStackInstruction.
+	executionState lastStackInstruction: aDRStrackInstruction.
 ]
 
 { #category : #private }

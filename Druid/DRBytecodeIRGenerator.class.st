@@ -54,7 +54,6 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 	specialCases at: #itemporary:in:put: put: #interpretITemporaryInPutWith:.
 	specialCases at: #internalMustBeBoolean: put: #interpretMustBeBooleanWith:.
 	specialCases at: #fetchNextBytecode put: #interpretFetchNextBytecodeWith:.
-	specialCases at: #push: put: #interpretPushWith:.
 	specialCases at: #commonReturn: put: #interpretCommonReturnWith:.
 	specialCases at: #commonCallerReturn: put: #interpretCommonCallerReturnWith:.
 	specialCases at: #checkForEventsMayContextSwitch: put: #interpretInterruptCheckWith:.
@@ -328,14 +327,6 @@ DRBytecodeIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode 
 	^ newFailureCode
 ]
 
-{ #category : #'special cases' }
-DRBytecodeIRGenerator >> interpretPushWith: aRBMessageNode [ 
-	
-	| receiver |
-	receiver := self visitOperand: aRBMessageNode arguments first.
-	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
-]
-
 { #category : #'special-cases' }
 DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSpecialSelector sendTable: sendTableName [
 	"Interpret a send. In the interpreter, this is a send where we don't know yet the receiver or its class.
@@ -496,13 +487,6 @@ DRBytecodeIRGenerator >> pushFrameForCode: aDRCode receiver: aReceiver [
 
 { #category : #accessing }
 DRBytecodeIRGenerator >> receiver: aDRValue [
-]
-
-{ #category : #visiting }
-DRBytecodeIRGenerator >> trackStackInstruction: aDRStrackInstruction [ 
-
-	aDRStrackInstruction stackDependency: executionState lastStackInstruction.
-	executionState lastStackInstruction: aDRStrackInstruction.
 ]
 
 { #category : #visiting }
