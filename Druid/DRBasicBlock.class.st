@@ -1086,6 +1086,12 @@ DRBasicBlock >> return: anInstruction [
 	^ self endInstruction: (DRReturn operands: { anInstruction } )
 ]
 
+{ #category : #building }
+DRBasicBlock >> rotateLeft: aValue by: offset [
+	
+	^ self addInstruction: (self instructionFactory rotateLeft: aValue by: offset)
+]
+
 { #category : #accessing }
 DRBasicBlock >> second [
 	
