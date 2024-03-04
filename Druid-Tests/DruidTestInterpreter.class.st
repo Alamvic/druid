@@ -1518,6 +1518,19 @@ DruidTestInterpreter >> primitiveReturnTrue [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveRotateLeft [
+
+	<numberOfArguments: 0>
+
+	| v |
+	v := objectMemory rotateLeft: self stackTop by: 1.
+	
+	self pop: 1 thenPush: v.
+	
+   
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveSandclock [
 
 	<numberOfArguments: 0>

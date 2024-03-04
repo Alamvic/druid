@@ -1999,6 +1999,16 @@ DRPrimitiveScenarioCompilationTest >> testPrimitiveWithDeadCodeGoesThroughSecond
 	self assert: machineSimulator receiverRegisterValue equals: 55
 ]
 
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testRotateLeft [
+
+	self compileDruidPrimitive: #primitiveRotateLeft.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42 << 1
+]
+
 { #category : #'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testSequentialExitPointRemovesEntireExecutionBranch [
 

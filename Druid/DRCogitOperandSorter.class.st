@@ -199,6 +199,11 @@ DRCogitOperandSorter >> visitJump: aDRJump [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitLeftRotate: aDRRotate [ 
+	^ self
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitLeftShift: aDRLeftShift [ 
 	
 	"Shift is not commutative!

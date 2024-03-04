@@ -449,6 +449,12 @@ DRCPSEdge >> visitJump: aDRJump [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitLeftRotate: aDRRotate [
+
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitLeftShift: aDRLeftShift [ 
 
 	^ nil
