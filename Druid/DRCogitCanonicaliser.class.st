@@ -297,9 +297,22 @@ DRCogitCanonicaliser >> visitMod: aDRMod [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitMultiply: aDRMultiply [ 
+DRCogitCanonicaliser >> visitMultiply: aDRMultiply [
 
-	"Nothing?"
+	| exponent shiftInstr |
+	(aDRMultiply operand2 isConstant and: [
+		 aDRMultiply operand2 value even ]) ifFalse: [ ^ self ].
+
+	"Transform the multiplication by a shift"
+
+	exponent := (aDRMultiply operand2 value log: 2) asInteger.
+	shiftInstr := DRLogicalLeftShift
+		              operands: {
+				              aDRMultiply operand1.
+				              exponent asDRValue }
+		              result: aDRMultiply result.
+
+	aDRMultiply replaceBy: shiftInstr
 ]
 
 { #category : #visiting }
