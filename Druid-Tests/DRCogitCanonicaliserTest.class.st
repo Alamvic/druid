@@ -71,11 +71,12 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfAddition [
 	cfg initialBasicBlock jumpTo: basicBlock.
 
 	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo:cfg.
 	DRDeadCodeElimination new applyTo: cfg.
 
 	"The two additions should be simplified to a single one"
 	self assert: basicBlock instructions size equals: 4.
-	self assert: basicBlock instructions second operand2 value equals: 42 "17 + 25".
+	self assert: basicBlock instructions second operand1 value equals: 42 "17 + 25".
 ]
 
 { #category : #tests }
@@ -118,11 +119,12 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfSubtraction [
 	cfg initialBasicBlock jumpTo: basicBlock.
 
 	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo: cfg.
 	DRDeadCodeElimination new applyTo: cfg.
 
 	"The two additions should be simplified to a single one"
 	self assert: basicBlock instructions size equals: 4.
-	self assert: basicBlock instructions second operand2 value equals: 8 "- 17 + 25".
+	self assert: basicBlock instructions second operand1 value equals: 8 "- 17 + 25".
 ]
 
 { #category : #tests }
@@ -234,6 +236,8 @@ DRCogitCanonicaliserTest >> testSimplifyLoadAdditionOfAddition [
 		block storeSInt64: r3 at: 888 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo: cfg.
 	DRCogitCanonicaliser new applyTo: cfg.
 	DRDeadCodeElimination new applyTo: cfg.
 
