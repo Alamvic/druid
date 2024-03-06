@@ -85,9 +85,28 @@ DRCogitCanonicaliser >> visitAnnnotateBytecode: aDRAnnotateBytecode [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [ 
-	
-	"Nothing"
+DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [
+	"If it is a pattern such as res := ((var ^ const1) ^ const2)"
+
+	aDRBitAnd operands
+		detect: [ :op |
+			op isBitAnd and: [
+				(op operands anySatisfy: [ :opop | opop isConstant ]) and: [
+					op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ]
+		ifFound: [ :subtree |
+			| someConstantOne someConstantTwo instrNotConst |
+			"We know one of the suboperands is a constant and the other is not"
+			someConstantOne := subtree operands detect: [ :op | op isConstant ].
+			instrNotConst := subtree operands detect: [ :op |
+				                 op isConstant not ].
+
+			"Now get the other operand (not the subtree)"
+			someConstantTwo := aDRBitAnd operands detect: [ :op |
+				                   op ~~ subtree ].
+
+			someConstantTwo isConstant ifTrue: [ "If there are two constants and one variable, put the constants together"
+				subtree replaceOperand: instrNotConst by: someConstantTwo.
+				^ aDRBitAnd replaceOperand: someConstantTwo by: instrNotConst ] ]
 ]
 
 { #category : #visiting }

@@ -574,13 +574,13 @@ DRInstruction >> removeUser: anInstruction [
 	users remove: anInstruction
 ]
 
-{ #category : #'users-definitions' }
+{ #category : #replacing }
 DRInstruction >> replaceDependency: anOperand by: anotherOperand [
 
 	self replaceOperand: anOperand by: anotherOperand
 ]
 
-{ #category : #dependencies }
+{ #category : #replacing }
 DRInstruction >> replaceDependency: anOperand by: anotherOperand in: anInstruction [
 	
 	anInstruction replaceOperand: anOperand by: anotherOperand
@@ -596,7 +596,7 @@ DRInstruction >> replaceDominatedUsesBy: anotherInstruction [
 			instruction replaceDependency: self by: anotherInstruction ]
 ]
 
-{ #category : #'users-definitions' }
+{ #category : #replacing }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
 	self flag: #careful.
@@ -608,7 +608,7 @@ DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 	operands replaceAll: anOperand with: anotherOperand
 ]
 
-{ #category : #'users-definitions' }
+{ #category : #replacing }
 DRInstruction >> replaceOperandAtIndex: index by: anotherOperand [
 
 	| operand |
@@ -622,14 +622,14 @@ DRInstruction >> replaceOperandAtIndex: index by: anotherOperand [
 		ifFalse: 	[operand removeUser: self].
 ]
 
-{ #category : #operands }
+{ #category : #replacing }
 DRInstruction >> replaceOperandIfDominated: myOperand by: anotherOperand [
 
 	(self isDominatedBy: anotherOperand) ifFalse: [ ^ nil ].
 	self replaceDependency: myOperand by: anotherOperand
 ]
 
-{ #category : #replace }
+{ #category : #replacing }
 DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
 	| replaced |
@@ -748,7 +748,7 @@ DRInstruction >> type [
 	^ DRSignedIntegerType size: 8 "Word size"
 ]
 
-{ #category : #replacing }
+{ #category : #'users-definitions' }
 DRInstruction >> users [
 
 	^ users
