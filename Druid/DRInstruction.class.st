@@ -199,6 +199,11 @@ DRInstruction >> isBackJump [
 ]
 
 { #category : #testing }
+DRInstruction >> isBitOr [
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isCogitSendMarshall [
 	
 	^ false

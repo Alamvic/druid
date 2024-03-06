@@ -148,6 +148,54 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfZero [
 ]
 
 { #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyBitAndOfBitAnd [
+
+	| cfg basicBlock r0 instruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r1 r2 |
+		r0 := block loadFramePointer.
+		"Two additions of constants over a variable value"
+		r1 := block bitAnd: r0 with: 17.
+		r2 := block bitAnd: r1 with: 25.
+		"Store the value so it is not treated as dead code"
+		block storeSInt64: r2 at: 888 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo: cfg.
+
+	instruction := basicBlock instructions detect: [ :inst | inst isBitAnd ].
+
+	self assert: instruction operand1 value equals: (17 bitAnd: 25). "constant"
+	self assert: instruction operand2 equals: r0
+	
+]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyBitOrOfBitOr [
+
+	| cfg basicBlock r0 instruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r1 r2 |
+		r0 := block loadFramePointer.
+		"Two additions of constants over a variable value"
+		r1 := block bitOr: r0 with: 17.
+		r2 := block bitOr: r1 with: 25.
+		"Store the value so it is not treated as dead code"
+		block storeSInt64: r2 at: 888 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo: cfg.
+
+	instruction := basicBlock instructions detect: [ :inst | inst isBitOr ].
+
+	self assert: instruction operand1 value equals: (17 bitOr: 25). "constant"
+	self assert: instruction operand2 equals: r0
+	
+]
+
+{ #category : #tests }
 DRCogitCanonicaliserTest >> testSimplifyCopyLoadReceiver [
 
 	| cfg basicBlock |

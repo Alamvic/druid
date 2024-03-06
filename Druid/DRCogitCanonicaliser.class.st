@@ -11,6 +11,31 @@ DRCogitCanonicaliser >> applyTo: cfg [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> putConstantsTogetherInDoubleInstruction: aDRBinaryInstruction [
+	"If it is a pattern such as res := ((var ^ const1) ^ const2)"
+
+	aDRBinaryInstruction operands
+		detect: [ :op |
+			op class = aDRBinaryInstruction class and: [
+				(op operands anySatisfy: [ :opop | opop isConstant ]) and: [
+					op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ]
+		ifFound: [ :subtree |
+			| someConstantOne someConstantTwo instrNotConst |
+			"We know one of the suboperands is a constant and the other is not"
+			someConstantOne := subtree operands detect: [ :op | op isConstant ].
+			instrNotConst := subtree operands detect: [ :op |
+				                 op isConstant not ].
+
+			"Now get the other operand (not the subtree)"
+			someConstantTwo := aDRBinaryInstruction operands detect: [ :op |
+				                   op ~~ subtree ].
+
+			someConstantTwo isConstant ifTrue: [ "If there are two constants and one variable, put the constants together"
+				subtree replaceOperand: instrNotConst by: someConstantTwo.
+				^ aDRBinaryInstruction replaceOperand: someConstantTwo by: instrNotConst ] ]
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitAddition: aDRAdd [
 	"Simplify res := a + 0 => res := a"
 
@@ -36,7 +61,7 @@ DRCogitCanonicaliser >> visitAddition: aDRAdd [
 			"Now get the other operand"
 			secondSubtreeOperand := aDRAdd operands detect: [ :op |
 				                        op ~~ subtree ].
-
+"1halt."
 			secondSubtreeOperand isConstant
 				ifTrue: [ "Case 1) if b and c are constants, put constants together
 					=> res := (a + (b + c))"
@@ -86,33 +111,13 @@ DRCogitCanonicaliser >> visitAnnnotateBytecode: aDRAnnotateBytecode [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [
-	"If it is a pattern such as res := ((var ^ const1) ^ const2)"
-
-	aDRBitAnd operands
-		detect: [ :op |
-			op isBitAnd and: [
-				(op operands anySatisfy: [ :opop | opop isConstant ]) and: [
-					op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ]
-		ifFound: [ :subtree |
-			| someConstantOne someConstantTwo instrNotConst |
-			"We know one of the suboperands is a constant and the other is not"
-			someConstantOne := subtree operands detect: [ :op | op isConstant ].
-			instrNotConst := subtree operands detect: [ :op |
-				                 op isConstant not ].
-
-			"Now get the other operand (not the subtree)"
-			someConstantTwo := aDRBitAnd operands detect: [ :op |
-				                   op ~~ subtree ].
-
-			someConstantTwo isConstant ifTrue: [ "If there are two constants and one variable, put the constants together"
-				subtree replaceOperand: instrNotConst by: someConstantTwo.
-				^ aDRBitAnd replaceOperand: someConstantTwo by: instrNotConst ] ]
+	self putConstantsTogetherInDoubleInstruction: aDRBitAnd
 ]
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBitOr: aDRBitOr [ 
 	
-	"Nothing"
+	self putConstantsTogetherInDoubleInstruction: aDRBitOr
 ]
 
 { #category : #visiting }
