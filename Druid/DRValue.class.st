@@ -139,6 +139,11 @@ DRValue >> isBitAnd [
 ]
 
 { #category : #testing }
+DRValue >> isBitXor [
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isClosureCreation [
 	
 	^ false

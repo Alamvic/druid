@@ -173,6 +173,12 @@ DRBasicBlock >> bitOr: aValue with: anotherValue [
 	^ self addInstruction: (self instructionFactory bitOr: aValue with: anotherValue)
 ]
 
+{ #category : #building }
+DRBasicBlock >> bitXor: aValue with: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory bitXor: aValue with: anotherValue)
+]
+
 { #category : #'control-flow' }
 DRBasicBlock >> breakBy: instruction [
 

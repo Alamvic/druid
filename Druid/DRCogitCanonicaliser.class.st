@@ -65,6 +65,7 @@ DRCogitCanonicaliser >> visitAnnnotateBytecode: aDRAnnotateBytecode [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [
+
 	self putConstantsTogetherInDoubleInstructionIfPossible: aDRBitAnd
 ]
 
@@ -77,7 +78,7 @@ DRCogitCanonicaliser >> visitBitOr: aDRBitOr [
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBitXor: aDRBitXor [ 
 	
-	"Nothing"
+	self putConstantsTogetherInDoubleInstructionIfPossible: aDRBitXor 
 ]
 
 { #category : #visiting }
@@ -278,19 +279,20 @@ DRCogitCanonicaliser >> visitMod: aDRMod [
 DRCogitCanonicaliser >> visitMultiply: aDRMultiply [
 
 	| exponent shiftInstr |
+	"If possible, transform the multiplication by a shift"
 	(aDRMultiply operand2 isConstant and: [
-		 aDRMultiply operand2 value even ]) ifFalse: [ ^ self ].
+		 aDRMultiply operand2 value even ])
+		ifTrue: [
+			exponent := (aDRMultiply operand2 value log: 2) asInteger.
+			shiftInstr := DRLogicalLeftShift
+				              operands: {
+						              aDRMultiply operand1.
+						              exponent asDRValue }
+				              result: aDRMultiply result.
 
-	"Transform the multiplication by a shift"
-
-	exponent := (aDRMultiply operand2 value log: 2) asInteger.
-	shiftInstr := DRLogicalLeftShift
-		              operands: {
-				              aDRMultiply operand1.
-				              exponent asDRValue }
-		              result: aDRMultiply result.
-
-	aDRMultiply replaceBy: shiftInstr
+			aDRMultiply replaceBy: shiftInstr ]
+		ifFalse: [ "Else, try to put the constants (or the variables) together"
+			self putConstantsTogetherInDoubleInstructionIfPossible: aDRMultiply ]
 ]
 
 { #category : #visiting }
