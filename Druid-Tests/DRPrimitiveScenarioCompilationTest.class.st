@@ -1999,6 +1999,34 @@ DRPrimitiveScenarioCompilationTest >> testPrimitiveWithDeadCodeGoesThroughSecond
 	self assert: machineSimulator receiverRegisterValue equals: 55
 ]
 
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testRotateLeftBehavesLikeAShift [
+
+	self compileDruidPrimitive: #primitiveRotateLeft.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42 << 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testRotateLeftDoesNotBehavesLikeAShift [
+	"The idea here is to test that this happens:
+		1 0 0 0  ->  0 0 0 1
+	In contrast, a LeftShift would do something like this:
+		1 0 0 0  ->  1 0 0 0 0
+		
+	In this example we assume a simpler representation of 4 bits. Of course in our real system we would have 32 or 64 bits  	
+	"
+
+	self compileDruidPrimitive: #primitiveRotateLeft.
+
+
+	self executePrimitiveWithReceiver: 1 << 63.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
 { #category : #'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testSequentialExitPointRemovesEntireExecutionBranch [
 

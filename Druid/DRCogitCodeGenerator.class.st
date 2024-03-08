@@ -1002,6 +1002,14 @@ DRCogitCodeGenerator >> visitJump: aDRJump [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitLeftRotate: aDRRotate [
+
+	^ self
+		  threeOperandCogitRTL: #RotateLeft
+		  instruction: aDRRotate
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitLeftShift: aDRCogitLeftShift [
 	
 	^ self threeOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitLeftShift

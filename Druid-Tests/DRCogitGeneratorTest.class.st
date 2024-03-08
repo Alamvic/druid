@@ -310,6 +310,29 @@ DRCogitGeneratorTest >> testGenerateOrConstantWithNoResult [
 ]
 
 { #category : #tests }
+DRCogitGeneratorTest >> testGenerateRotate [
+
+	| cfg basicBlock rotateASTInstruction r2 |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		              | r0 |
+		              r0 := block copy: 2.
+		              r2 := block rotateLeft: r0 by: 1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	"Guarantee we are in two address code, and we need no result value"
+	r2 result: DRNoRegister new.
+
+	self generateCogitForInstruction: r2.
+	rotateASTInstruction := self statements first.
+	"self RotateLeftCq: 1 R: t0"
+
+	self assert: rotateASTInstruction selector equals: #RotateLeftCq:R:.
+	self assert: rotateASTInstruction arguments first value equals: 1.
+	self assert: rotateASTInstruction arguments second name equals: 't0'
+]
+
+{ #category : #tests }
 DRCogitGeneratorTest >> testGenerateSpillLoadInstruction [
 
 	| cfg basicBlock spillRegister1 spillStoreInstruction storeInstruction |

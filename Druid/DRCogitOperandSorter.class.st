@@ -199,6 +199,14 @@ DRCogitOperandSorter >> visitJump: aDRJump [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitLeftRotate: aDRRotate [
+	"Left rotation is not commutative!
+	=> extract its first operand into a copy instruction"
+
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRRotate
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitLeftShift: aDRLeftShift [ 
 	
 	"Shift is not commutative!

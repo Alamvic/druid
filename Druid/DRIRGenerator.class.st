@@ -357,6 +357,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #bitOr: put: #interpretBitOrWith:.
 	specialCases at: #bitXor: put: #interpretBitXorWith:.
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
+	specialCases at: #rotateLeft:by: put: #interpretRotateLeftBy:.
 		
 	"special simulation cases"
 	specialCases at: #cCode: put: #interpretCCodeInSmalltalkWith:.
@@ -1233,6 +1234,21 @@ DRIRGenerator >> interpretRawFloatBitsWith: aRBMessageNode [
 DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [ 
 
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRUnsignedRightShift
+]
+
+{ #category : #'special cases' }
+DRIRGenerator >> interpretRotateLeftBy: aRBMessageNode [
+
+	| operand1 operand2 |
+	operand1 := self visitOperand: aRBMessageNode arguments first.
+	operand2 := self visitOperand: aRBMessageNode arguments second.
+"1halt."
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRRotateLeft
+		  operands: {
+				  operand1.
+				  operand2 }
 ]
 
 { #category : #'special cases' }

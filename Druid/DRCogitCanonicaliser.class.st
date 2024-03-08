@@ -210,6 +210,11 @@ DRCogitCanonicaliser >> visitJump: aDRJump [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitLeftRotate: aDRRotate [ 
+	^ self
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitLeftShift: aDRLeftShift [ 
 	
 	"Nothing"

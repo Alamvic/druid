@@ -263,6 +263,16 @@ DRInstructionFactory >> pushBase: base offset: offset [
 		  result: self allocateTemporaryRegister
 ]
 
+{ #category : #building }
+DRInstructionFactory >> rotateLeft: aValue by: anOffset [
+
+	^ DRRotateLeft
+		  operands: {
+				  aValue asDRValue.
+				  anOffset asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
 { #category : #factory }
 DRInstructionFactory >> setReturnValue: aValue [ 
 	
