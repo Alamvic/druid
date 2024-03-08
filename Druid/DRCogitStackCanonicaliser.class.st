@@ -5,11 +5,6 @@ Class {
 }
 
 { #category : #visiting }
-DRCogitStackCanonicaliser >> visitLeftRotate: aDRRotate [ 
-	^ self
-]
-
-{ #category : #visiting }
 DRCogitStackCanonicaliser >> visitPush: aDRPush [
 
 	| pushedValue |

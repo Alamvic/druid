@@ -266,7 +266,7 @@ DRInstructionFactory >> pushBase: base offset: offset [
 { #category : #building }
 DRInstructionFactory >> rotateLeft: aValue by: anOffset [
 
-	^ DRRotate
+	^ DRRotateLeft
 		  operands: {
 				  aValue asDRValue.
 				  anOffset asDRValue }

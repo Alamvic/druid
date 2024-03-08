@@ -1242,10 +1242,10 @@ DRIRGenerator >> interpretRotateLeftBy: aRBMessageNode [
 	| operand1 operand2 |
 	operand1 := self visitOperand: aRBMessageNode arguments first.
 	operand2 := self visitOperand: aRBMessageNode arguments second.
-1halt.
+"1halt."
 	^ self
 		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRRotate
+		  instructionKind: DRRotateLeft
 		  operands: {
 				  operand1.
 				  operand2 }

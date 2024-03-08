@@ -1,11 +1,11 @@
 Class {
-	#name : #DRRotate,
+	#name : #DRRotateLeft,
 	#superclass : #DRArithmeticInstruction,
 	#category : #'Druid-IR'
 }
 
 { #category : #visiting }
-DRRotate >> acceptVisitor: aVisitor [
+DRRotateLeft >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitLeftRotate: self
 ]
