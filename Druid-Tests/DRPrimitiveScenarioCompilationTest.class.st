@@ -2012,9 +2012,9 @@ DRPrimitiveScenarioCompilationTest >> testRotateLeftBehavesLikeAShift [
 { #category : #'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testRotateLeftDoesNotBehavesLikeAShift [
 	"The idea here is to test that this happens:
-		1 0 0 0  ->  0 0 1 0
+		1 0 0 0  ->  0 0 0 1
 	In contrast, a LeftShift would do something like this:
-		1 0 0 0  ->  1 0 0 0 0 0
+		1 0 0 0  ->  1 0 0 0 0
 		
 	In this example we assume a simpler representation of 4 bits. Of course in our real system we would have 32 or 64 bits  	
 	"
