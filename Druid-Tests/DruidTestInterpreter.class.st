@@ -676,6 +676,46 @@ DruidTestInterpreter >> primitiveDivideByConstant [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDoubleBitAndSubtreeLeftVariableLeft [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := (self stackTop bitAnd: 16rFFFFFFFF) bitAnd: 16r3FFFFF.
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDoubleBitAndSubtreeLeftVariableRight [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := (16rFFFFFFFF bitAnd: self stackTop) bitAnd: 16r3FFFFF.
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDoubleBitAndSubtreeRightVariableLeft [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := 16r3FFFFF bitAnd: (self stackTop bitAnd: 16rFFFFFFFF).
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDoubleBitAndSubtreeRightVariableRight [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := 16r3FFFFF bitAnd: (16rFFFFFFFF bitAnd: self stackTop).
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDoubleDeferredInline [
 
 	<numberOfArguments: 0>
