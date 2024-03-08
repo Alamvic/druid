@@ -320,17 +320,13 @@ DRCogitGeneratorTest >> testGenerateRotate [
 		              r2 := block rotateLeft: r0 by: 1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
-	"la idea aca es testear por instruccion. aca arriba generemos el minimo CFG para que la instruccion que queremos testear tenga sentido y sea valida."
-
 	"Guarantee we are in two address code, and we need no result value"
 	r2 result: DRNoRegister new.
 
 	self generateCogitForInstruction: r2.
 	rotateASTInstruction := self statements first.
-	"queremos que rotateASTInstruction tenga esta pinta:"
 	"self RotateLeftCq: 1 R: t0"
 
-	"y aca asserteamos eso:"
 	self assert: rotateASTInstruction selector equals: #RotateLeftCq:R:.
 	self assert: rotateASTInstruction arguments first value equals: 1.
 	self assert: rotateASTInstruction arguments second name equals: 't0'
