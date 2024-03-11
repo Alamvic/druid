@@ -20,7 +20,6 @@ DRCogitCanonicaliserTest >> testDoNotSimplifyAdditionOfAdditionIfMultipleUsers [
 		block storeSInt64: r3 at: 888.
 		block storeSInt64: r2 at: 888 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
-
 	DRCogitCanonicaliser new applyTo: cfg.
 	DRDeadCodeElimination new applyTo: cfg.
 
@@ -71,11 +70,12 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfAddition [
 	cfg initialBasicBlock jumpTo: basicBlock.
 
 	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo:cfg.
 	DRDeadCodeElimination new applyTo: cfg.
 
 	"The two additions should be simplified to a single one"
 	self assert: basicBlock instructions size equals: 4.
-	self assert: basicBlock instructions second operand2 value equals: 42 "17 + 25".
+	self assert: basicBlock instructions second operand1 value equals: 42 "17 + 25".
 ]
 
 { #category : #tests }
@@ -118,11 +118,12 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfSubtraction [
 	cfg initialBasicBlock jumpTo: basicBlock.
 
 	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo: cfg.
 	DRDeadCodeElimination new applyTo: cfg.
 
 	"The two additions should be simplified to a single one"
 	self assert: basicBlock instructions size equals: 4.
-	self assert: basicBlock instructions second operand2 value equals: 8 "- 17 + 25".
+	self assert: basicBlock instructions second operand1 value equals: 8 "- 17 + 25".
 ]
 
 { #category : #tests }
@@ -145,6 +146,78 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfZero [
 	self assert: basicBlock instructions size equals: 3.
 	self assert: basicBlock instructions second isStore.
 	self assert: basicBlock instructions second operand1 equals: basicBlock instructions first.
+]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyBitAndOfBitAnd [
+
+	| cfg basicBlock r0 instruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r1 r2 |
+		r0 := block loadFramePointer.
+		"Two bit ANDs of constants over a variable value"
+		r1 := block bitAnd: r0 with: 17.
+		r2 := block bitAnd: r1 with: 25.
+		"Store the value so it is not treated as dead code"
+		block storeSInt64: r2 at: 888 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo: cfg.
+
+	instruction := basicBlock instructions detect: [ :inst | inst isBitAnd ].
+
+	self assert: instruction operand1 value equals: (17 bitAnd: 25). "constant"
+	self assert: instruction operand2 equals: r0
+	
+]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyBitOrOfBitOr [
+
+	| cfg basicBlock r0 instruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r1 r2 |
+		r0 := block loadFramePointer.
+		"Two Bit ORs of constants over a variable value"
+		r1 := block bitOr: r0 with: 17.
+		r2 := block bitOr: r1 with: 25.
+		"Store the value so it is not treated as dead code"
+		block storeSInt64: r2 at: 888 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo: cfg.
+
+	instruction := basicBlock instructions detect: [ :inst | inst isBitOr ].
+
+	self assert: instruction operand1 value equals: (17 bitOr: 25). "constant"
+	self assert: instruction operand2 equals: r0
+	
+]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyBitXorOfBitXor [
+
+	| cfg basicBlock r0 instruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r1 r2 |
+		r0 := block loadFramePointer.
+		"Two Bit ORs of constants over a variable value"
+		r1 := block bitXor: r0 with: 17.
+		r2 := block bitXor: r1 with: 25.
+		"Store the value so it is not treated as dead code"
+		block storeSInt64: r2 at: 888 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo: cfg.
+
+	instruction := basicBlock instructions detect: [ :inst | inst isBitXor ].
+
+	self assert: instruction operand1 value equals: (17 bitXor: 25). "constant"
+	self assert: instruction operand2 equals: r0
+	
 ]
 
 { #category : #tests }
@@ -186,6 +259,8 @@ DRCogitCanonicaliserTest >> testSimplifyLoadAdditionOfAddition [
 		block storeSInt64: r3 at: 888 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo: cfg.
 	DRCogitCanonicaliser new applyTo: cfg.
 	DRDeadCodeElimination new applyTo: cfg.
 
@@ -239,6 +314,30 @@ DRCogitCanonicaliserTest >> testSimplifyLoadBaseOffset [
 	self assert: basicBlock instructions second isLoad.
 	self assert: basicBlock instructions second address offset value equals: 17.
 	self assert: basicBlock instructions second address base value equals: basicBlock instructions first.
+]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyMultiplyOfMultiply [
+
+	| cfg basicBlock r0 instruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r1 r2 |
+		r0 := block loadFramePointer.
+		"Two bit ANDs of constants over a variable value"
+		r1 := block multiply: r0 by: 17.
+		r2 := block multiply: r1 by: 25.
+		"Store the value so it is not treated as dead code"
+		block storeSInt64: r2 at: 888 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo: cfg.
+
+	instruction := basicBlock instructions detect: [ :inst | inst isMultiply ].
+
+	self assert: instruction operand1 value equals: (17 * 25). "constant"
+	self assert: instruction operand2 equals: r0
+	
 ]
 
 { #category : #tests }

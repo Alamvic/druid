@@ -21,6 +21,12 @@ DRBitAnd >> asNumberedExpression [
 	yourself
 ]
 
+{ #category : #types }
+DRBitAnd >> isBitAnd [
+
+	^ true
+]
+
 { #category : #printing }
 DRBitAnd >> opcode [
 	

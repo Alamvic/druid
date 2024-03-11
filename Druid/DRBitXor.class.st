@@ -22,6 +22,11 @@ DRBitXor >> asNumberedExpression [
 ]
 
 { #category : #printing }
+DRBitXor >> isBitXor [
+	^ true
+]
+
+{ #category : #printing }
 DRBitXor >> opcode [
 	
 	^ 'BitXor'

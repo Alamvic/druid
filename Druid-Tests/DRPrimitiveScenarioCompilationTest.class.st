@@ -671,6 +671,46 @@ DRPrimitiveScenarioCompilationTest >> testDivisionNotExactNegative [
 ]
 
 { #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeLeftVariableLeft [
+
+	self compileDruidPrimitive: #primitiveDoubleBitAndSubtreeLeftVariableLeft.
+
+	self executePrimitiveWithReceiver: 1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeLeftVariableRight [
+
+	self compileDruidPrimitive: #primitiveDoubleBitAndSubtreeLeftVariableRight.
+
+	self executePrimitiveWithReceiver: 1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeRightVariableLeft [
+
+	self compileDruidPrimitive: #primitiveDoubleBitAndSubtreeRightVariableLeft.
+
+	self executePrimitiveWithReceiver: 1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeRightVariableRight [
+
+	self compileDruidPrimitive: #primitiveDoubleBitAndSubtreeRightVariableRight.
+
+	self executePrimitiveWithReceiver: 1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testEqualsThan [
 
 	self compileDruidPrimitive: #primitiveEqualsThan.
