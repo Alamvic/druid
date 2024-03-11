@@ -105,7 +105,11 @@ DRCogitCanonicaliser >> visitBitXor: aDRBitXor [
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBranchIfCondition: aDRConditionalBranch [
 
-	"Nothing"
+	aDRConditionalBranch operands
+		detect: [ :op | op isPhiFunction ]
+		ifFound: [ :thePhi |
+			(thePhi operands allSatisfy: [ :op | op isSetConditionCode ])
+				ifTrue: [ thePhi basicBlock tailDuplicate ] ]
 ]
 
 { #category : #visiting }
