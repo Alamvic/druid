@@ -148,6 +148,30 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfZero [
 ]
 
 { #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyBranchIfCondition [
+
+	| cfg numberOfPhisBefore survivingPhi |
+	cfg := self generateBasicDruidIRFor: #primitiveOr.
+	"Prepare the CFG"
+	DRSCCP new applyTo: cfg.
+	DRCleanControlFlow new applyTo: cfg.
+
+	numberOfPhisBefore := cfg phiFunctions size.
+	survivingPhi := cfg phiFunctions first.
+
+	"Run the optimization to test"
+	DRCogitCanonicaliser new applyTo: cfg.
+
+	"Clean the CFG"
+	DRCleanControlFlow new applyTo: cfg.
+
+
+	self assert: numberOfPhisBefore - 1 equals: cfg phiFunctions size.
+
+	self assert: cfg phiFunctions first equals: survivingPhi
+]
+
+{ #category : #tests }
 DRCogitCanonicaliserTest >> testSimplifyCopyLoadReceiver [
 
 	| cfg basicBlock |

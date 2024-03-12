@@ -718,6 +718,12 @@ DRBasicBlock >> lastInstruction [
 ]
 
 { #category : #building }
+DRBasicBlock >> lessOrEquals: operand1 than: operand2 [
+	
+	^ self addInstruction: (self instructionFactory lessOrEquals: operand1 than: operand2)
+]
+
+{ #category : #building }
 DRBasicBlock >> load: anAddress [
 
 	^ self addInstruction: (self instructionFactory load: anAddress)

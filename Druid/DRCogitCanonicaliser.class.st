@@ -108,7 +108,7 @@ DRCogitCanonicaliser >> visitBranchIfCondition: aDRConditionalBranch [
 	aDRConditionalBranch operands
 		detect: [ :op | op isPhiFunction ]
 		ifFound: [ :thePhi |
-			(thePhi operands allSatisfy: [ :op | op isSetConditionCode ])
+			(thePhi operands allSatisfy: [ :op | op simpleConstantFold isSetConditionCode ])
 				ifTrue: [ thePhi basicBlock tailDuplicate ] ]
 ]
 
