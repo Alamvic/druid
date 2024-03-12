@@ -625,6 +625,9 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValuePushReceiver [
 	initStack := machineSimulator smalltalkStackPointerRegisterValue.
 
 	self prepareStackForSendReceiver: closure arguments: {  }.
+	
+	"self openMachineDebugger . 1halt."
+	
 	self runUntil: finishEndInstruction address.
 
 	endStack := machineSimulator smalltalkStackPointerRegisterValue.
