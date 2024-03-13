@@ -18,6 +18,7 @@ DRCogitCanonicaliser >> sortOperandsInDoubleInstructionIfPossible: aDRBinaryInst
 		((var op X) op const) -> otherwise
 	"
 
+	| newSubtree |
 	aDRBinaryInstruction operands
 		detect: [ :op |
 			op class = aDRBinaryInstruction class and: [ "Operands sorting is only possible if aDRBinaryInstruction is the only user of the subtree"
@@ -25,11 +26,10 @@ DRCogitCanonicaliser >> sortOperandsInDoubleInstructionIfPossible: aDRBinaryInst
 					(op operands anySatisfy: [ :opop | opop isConstant ]) and: [
 						op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ] ]
 		ifFound: [ :subtree |
-			| subConstant otherOperand subNotConstant |
+			| subConstant otherOperand subVariable |
 			"We know one of the suboperands is a constant and the other is not"
 			subConstant := subtree operands detect: [ :op | op isConstant ].
-			subNotConstant := subtree operands detect: [ :op |
-				                  op isConstant not ].
+			subVariable := subtree operands detect: [ :op | op isConstant not ].
 
 			"Now get the other operand (not the subtree)"
 			otherOperand := aDRBinaryInstruction operands detect: [ :op |
@@ -37,15 +37,24 @@ DRCogitCanonicaliser >> sortOperandsInDoubleInstructionIfPossible: aDRBinaryInst
 
 			otherOperand isConstant
 				ifTrue: [ "There are two constants and one variable, put the constants together"
-					subtree replaceOperand: subNotConstant by: otherOperand.
+					subtree replaceOperand: subVariable by: otherOperand.
 					^ aDRBinaryInstruction
 						  replaceOperand: otherOperand
-						  by: subNotConstant ]
+						  by: subVariable ]
 				ifFalse: [ "There are two variables and one constants, put the variables together"
-					subtree replaceOperand: subConstant by: otherOperand.
-					^ aDRBinaryInstruction
-						  replaceOperand: otherOperand
-						  by: subConstant ] ]
+					newSubtree := aDRBinaryInstruction class
+						              operands: {
+								              subVariable.
+								              otherOperand }
+						              result: subtree result.
+					subtree removeFromCFG.
+					"We should create a new subtree next to the instruction due to dominance constratints"
+					aDRBinaryInstruction addBefore: newSubtree.
+					^ aDRBinaryInstruction replaceBy: (aDRBinaryInstruction class
+							   operands: {
+									   newSubtree.
+									   subConstant }
+							   result: aDRBinaryInstruction result) ] ]
 ]
 
 { #category : #visiting }

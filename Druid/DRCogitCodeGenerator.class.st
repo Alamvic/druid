@@ -36,6 +36,24 @@ DRCogitCodeGenerator >> blocks: aPath [
 	blocks := aPath
 ]
 
+{ #category : #factory }
+DRCogitCodeGenerator >> buildPushFrom: aDRPush [
+
+	(aDRPush operand1 isConstant or: [ aDRPush operand1 isStaged ])
+		ifTrue: [
+			^ RBMessageNode
+				  receiver: RBVariableNode selfNode
+				  selector: 'genPushConstant:'
+				  arguments: (aDRPush operand1 rtlPushArgumentExpressions: self) ].
+
+	^ RBMessageNode
+		  receiver: RBVariableNode selfNode
+		  selector:
+		  'Push'
+		  , (aDRPush operand1 rtlOperandQualifierForInstruction: aDRPush)
+		  arguments: (aDRPush operand1 rtlPushArgumentExpressions: self)
+]
+
 { #category : #'ir-generation' }
 DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 
@@ -1162,18 +1180,7 @@ DRCogitCodeGenerator >> visitPhiFunction: aDRPhiFunction [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitPush: aDRPush [
 
-	(aDRPush operand1 isConstant or: [ aDRPush operand1 isStaged ]) ifTrue: [
-		^ generatorMethodBuilder addStatement: (RBMessageNode
-				   receiver: RBVariableNode selfNode
-				   selector: 'genPushConstant:'
-				   arguments: (aDRPush operand1 rtlPushArgumentExpressions: self)) ].
-
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector:
-			 'Push'
-			 , (aDRPush operand1 rtlOperandQualifierForInstruction: aDRPush)
-			 arguments: (aDRPush operand1 rtlPushArgumentExpressions: self))
+	generatorMethodBuilder addStatement: (self buildPushFrom: aDRPush)
 ]
 
 { #category : #visiting }
