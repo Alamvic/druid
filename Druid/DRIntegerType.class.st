@@ -7,6 +7,12 @@ Class {
 	#category : #'Druid-IR-Types'
 }
 
+{ #category : #factory }
+DRIntegerType class >> bits64 [
+
+	^ self size: 8 "bytes per word"
+]
+
 { #category : #accessing }
 DRIntegerType class >> size: aSize [
 
