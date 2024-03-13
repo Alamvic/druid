@@ -29,7 +29,6 @@ DRCogitStackToRegisterPrimitiveCodeGenerator >> visitLoadArgument: aDRLoadArgume
 
 { #category : #'code generation' }
 DRCogitStackToRegisterPrimitiveCodeGenerator >> visitPush: aDRPush [
-
 	"If the backend has not LinkReg
 		- then the return address is on TOS, we must push the value after it.
 		- otherwise, just push.
@@ -37,7 +36,10 @@ DRCogitStackToRegisterPrimitiveCodeGenerator >> visitPush: aDRPush [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: (RBMessageNode
-					  receiver: RBVariableNode selfNode
+					  receiver:
+					  (RBMessageNode
+						   receiver: RBVariableNode selfNode
+						   selector: #backend)
 					  selector: #hasLinkRegister)
 			 selector: #ifTrue:ifFalse:
 			 arguments: {
@@ -57,7 +59,8 @@ DRCogitStackToRegisterPrimitiveCodeGenerator >> visitPush: aDRPush [
 									    receiver: RBVariableNode selfNode
 									    selector: #MoveR:Mw:r:
 									    arguments: {
-											    (aDRPush operand1 rtlPushArgumentExpressions: self) first.
+											    (aDRPush operand1 rtlPushArgumentExpressions: self)
+												    first.
 											    (RBLiteralValueNode value: 0).
 											    self spRegVariable }).
 
