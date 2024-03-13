@@ -676,6 +676,12 @@ DRBasicBlock >> isExitBlock: anObject [
 	isExitBlock := anObject
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> isLastBasicBlock [ 
+
+	^  controlFlowGraph lastBasicBlock = self
+]
+
 { #category : #building }
 DRBasicBlock >> jitCompileTimeVariable: aName [
 
@@ -727,6 +733,12 @@ DRBasicBlock >> jumpTo: aBasicBlock [
 DRBasicBlock >> lastInstruction [
 	
 	^ endInstruction
+]
+
+{ #category : #building }
+DRBasicBlock >> lessOrEquals: operand1 than: operand2 [
+	
+	^ self addInstruction: (self instructionFactory lessOrEquals: operand1 than: operand2)
 ]
 
 { #category : #building }

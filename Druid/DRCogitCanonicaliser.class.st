@@ -102,8 +102,12 @@ DRCogitCanonicaliser >> visitBitXor: aDRBitXor [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBranchIfCondition: aDRConditionalBranch [
-
-	"Nothing"
+"1halt."
+	aDRConditionalBranch operands
+		detect: [ :op | op isPhiFunction ]
+		ifFound: [ :thePhi |
+			(thePhi operands allSatisfy: [ :op | op isSetConditionCode ])
+				ifTrue: [ thePhi basicBlock tailDuplicate ] ]
 ]
 
 { #category : #visiting }
@@ -316,9 +320,10 @@ DRCogitCanonicaliser >> visitNoop: aDRNoop [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [ 
-	
+DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [
 	"Nothing"
+
+	
 ]
 
 { #category : #visiting }

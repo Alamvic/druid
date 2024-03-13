@@ -217,7 +217,32 @@ DRCogitCanonicaliserTest >> testSimplifyBitXorOfBitXor [
 
 	self assert: instruction operand1 value equals: (17 bitXor: 25). "constant"
 	self assert: instruction operand2 equals: r0
-	
+
+]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyBranchIfCondition [
+
+	| cfg numberOfPhisBefore survivingPhi |
+	cfg := self generateBasicDruidIRFor: #primitiveOr.
+	"Prepare the CFG"
+	DRSCCP new applyTo: cfg.
+	DRCleanControlFlow new applyTo: cfg.
+	DRCopyPropagation new applyTo: cfg.
+
+	numberOfPhisBefore := cfg phiFunctions size.
+	survivingPhi := cfg phiFunctions first.
+
+	"Run the optimization to test"
+	DRCogitCanonicaliser new applyTo: cfg.
+
+	"Clean the CFG"
+	DRCleanControlFlow new applyTo: cfg.
+
+
+	self assert: numberOfPhisBefore - 1 equals: cfg phiFunctions size.
+
+	self assert: cfg phiFunctions first equals: survivingPhi
 ]
 
 { #category : #tests }
