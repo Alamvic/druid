@@ -28,7 +28,7 @@ DRGetConditionCode >> isSetConditionCode [
 { #category : #printing }
 DRGetConditionCode >> opcode [
 	
-	^ 'GetConditionCode'
+	^ condition opcode
 ]
 
 { #category : #accessing }

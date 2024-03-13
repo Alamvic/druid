@@ -11,6 +11,60 @@ DRCogitCanonicaliser >> applyTo: cfg [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> sortOperandsInDoubleInstructionIfPossible: aDRBinaryInstruction [
+	"If it is a pattern such as ((var op const) op X)
+	It is replaced by:
+		((X op const) op var) -> if X is constant
+		((var op X) op const) -> otherwise
+	"
+
+	aDRBinaryInstruction operands
+		detect: [ :op |
+			op class = aDRBinaryInstruction class and: [ "Operands sorting is only possible if aDRBinaryInstruction is the only user of the subtree"
+				op users size = 1 and: [
+					(op operands anySatisfy: [ :opop | opop isConstant ]) and: [
+						op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ] ]
+		ifFound: [ :subtree |
+			| subConstant otherOperand subNotConstant |
+			"We know one of the suboperands is a constant and the other is not"
+			subConstant := subtree operands detect: [ :op | op isConstant ].
+			subNotConstant := subtree operands detect: [ :op |
+				                  op isConstant not ].
+
+			"Now get the other operand (not the subtree)"
+			otherOperand := aDRBinaryInstruction operands detect: [ :op |
+				                op ~~ subtree ].
+
+			otherOperand isConstant
+				ifTrue: [ "There are two constants and one variable, put the constants together"
+					subtree replaceOperand: subNotConstant by: otherOperand.
+					^ aDRBinaryInstruction
+						  replaceOperand: otherOperand
+						  by: subNotConstant ]
+				ifFalse: [ "There are two variables and one constants, put the variables together"
+					subtree replaceOperand: subConstant by: otherOperand.
+					^ aDRBinaryInstruction
+						  replaceOperand: otherOperand
+						  by: subConstant ] ]
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> transformMultiplyByShiftIfPossible: aDRMultiply [
+
+	| exponent shiftInstr |
+	(aDRMultiply operand2 isConstant and: [
+		 aDRMultiply operand2 value even ]) ifTrue: [
+		exponent := (aDRMultiply operand2 value log: 2) asInteger.
+		shiftInstr := DRLogicalLeftShift
+			              operands: {
+					              aDRMultiply operand1.
+					              exponent asDRValue }
+			              result: aDRMultiply result.
+
+		aDRMultiply replaceBy: shiftInstr ]
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitAddition: aDRAdd [
 	"Simplify res := a + 0 => res := a"
 
@@ -19,63 +73,7 @@ DRCogitCanonicaliser >> visitAddition: aDRAdd [
 				   operands: (aDRAdd operands select: [ :e | e ~= 0 asDRValue ])
 				   result: aDRAdd result) ].
 
-	"If it is a pattern such as res := ((a + b) + c"
-	aDRAdd operands
-		detect: [ :op |
-			op isAdd and: [
-				(op operands anySatisfy: [ :opop | opop isConstant ]) and: [
-					op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ]
-		ifFound: [ :subtree |
-			| variableOperand subConstantOperand secondSubtreeOperand |
-			"We know one of the suboperands is a constant"
-			subConstantOperand := subtree operands detect: [ :op |
-				                      op isConstant ].
-			variableOperand := subtree operands detect: [ :op |
-				                   op isConstant not ].
-
-			"Now get the other operand"
-			secondSubtreeOperand := aDRAdd operands detect: [ :op |
-				                        op ~~ subtree ].
-
-			secondSubtreeOperand isConstant
-				ifTrue: [ "Case 1) if b and c are constants, put constants together
-					=> res := (a + (b + c))"
-					(subConstantOperand respondsTo: #+) ifFalse: [
-						| swap |
-						swap := subConstantOperand.
-						subConstantOperand := secondSubtreeOperand.
-						secondSubtreeOperand := swap ].
-					^ aDRAdd replaceBy: (DRAdd
-							   operands: {
-									   variableOperand.
-									   (subConstantOperand value + secondSubtreeOperand value)
-										   asDRValue }
-							   result: aDRAdd result) ]
-				ifFalse: [
-					| newSubtree |
-					"Case 2) if b is constant but c is not, take the constant out
-					=> res := ((a + c) + b)"
-					
-					"Check if we can rewrite this instruction. If it may generate an overflow, do not"
-					(aDRAdd users anySatisfy: [ :dependent |
-						 dependent isConditionalBranch and: [
-							 dependent hasOverflowCheck ] ]) ifTrue: [ "Do nothing" ^ self ].
-
-					"Check if we can reuse the subtree result"
-					subtree users size > 1 ifTrue: [ "Do nothing" ^ self ].
-
-					newSubtree := DRAdd
-						              operands: {
-								              variableOperand.
-								              secondSubtreeOperand }
-						              result: subtree result.
-					subtree removeFromCFG.
-					aDRAdd addBefore: newSubtree.
-					^ aDRAdd replaceBy: (DRAdd
-							   operands: {
-									   newSubtree.
-									   subConstantOperand }
-							   result: aDRAdd result) ] ]
+	self sortOperandsInDoubleInstructionIfPossible: aDRAdd 
 ]
 
 { #category : #visiting }
@@ -85,21 +83,21 @@ DRCogitCanonicaliser >> visitAnnnotateBytecode: aDRAnnotateBytecode [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [ 
-	
-	"Nothing"
+DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [
+
+	self sortOperandsInDoubleInstructionIfPossible: aDRBitAnd
 ]
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBitOr: aDRBitOr [ 
 	
-	"Nothing"
+	self sortOperandsInDoubleInstructionIfPossible: aDRBitOr
 ]
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBitXor: aDRBitXor [ 
 	
-	"Nothing"
+	self sortOperandsInDoubleInstructionIfPossible: aDRBitXor 
 ]
 
 { #category : #visiting }
@@ -301,9 +299,12 @@ DRCogitCanonicaliser >> visitMod: aDRMod [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitMultiply: aDRMultiply [ 
+DRCogitCanonicaliser >> visitMultiply: aDRMultiply [
+	"If possible, transform the multiplication by a shift"
+	self transformMultiplyByShiftIfPossible: aDRMultiply.
 
-	"Nothing?"
+	"If possible, put the constants (or the variables) together"
+	self sortOperandsInDoubleInstructionIfPossible: aDRMultiply
 ]
 
 { #category : #visiting }
