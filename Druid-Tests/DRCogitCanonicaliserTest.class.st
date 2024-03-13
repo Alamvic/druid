@@ -5,6 +5,84 @@ Class {
 }
 
 { #category : #tests }
+DRCogitCanonicaliserTest >> testConstantPropagateOnConstantPhiOperands [
+
+	| cfg phi add cmp cfg2 b0 b1 b2 b3 b4 jump b5 b6 jump2 b7 r1 r2 cond jump3 |
+	"cfg := self setUpCFGWithConditionalWithPhi.
+	cfg b3 firstInstruction replaceBy:
+		cfg instructionFactory loadReceiver.
+
+	phi := cfg b4 phiFunctions unique.
+
+	add := cfg b4 lessOrEquals: phi than: 20 asDRValue.
+
+	cfg b4 copy: add.
+	cfg b4 return.
+
+	cfg inspect."
+	1 halt.
+	
+	"-------------"
+	cfg := DRControlFlowGraphForTesting new. 
+	
+	b0 := cfg initialBasicBlock.
+	b1 := cfg newBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
+	b4 := cfg newBasicBlock. 
+	b5 := cfg newBasicBlock. 
+	b6 := cfg newBasicBlock. 
+	b7 := cfg newBasicBlock.
+	jump := cfg instructionFactory jumpIf: false.
+	jump2 := cfg instructionFactory jumpIf: false.
+	
+	b7 endInstruction: DRReturn new. 
+	b0 jumpTo: b1. 
+	jump operand1 isInstruction ifTrue: [
+		b1 addInstruction: jump operand1. 
+	].
+	b1 endInstruction: jump. 
+	jump trueBranch: b2.
+	b2 addPredecessor: b1. 
+	jump falseBranch: b3.
+	b3 addPredecessor: b1. 
+	 
+	r1 := b2 loadReceiver.
+	b2 jumpTo: b4.
+	"b2 jumpIf: "
+	r2 := b3 copy: 17 asDRValue.
+	b3 jumpTo: b4.
+	
+	jump2 operand1 isInstruction ifTrue: [
+		b4 addInstruction: jump2 operand1. 
+	].
+	b4 endInstruction: jump2.
+	jump2 trueBranch: b5.
+	b5 addPredecessor: b4.
+	jump2 falseBranch: b6.
+	b6 addPredecessor: b4.
+	
+	b5 setReturnValue: 42.
+	b5 jumpTo: b7.
+	b6 setReturnValue: 10.
+	b6 jumpTo: b7.
+	
+	1halt.
+	phi := b4 phiWith: r1 with: r2.
+	cond := b4 lessOrEquals: phi than: 20.
+	jump3 := b4 jumpIf: cond to: b6  ifFalseTo: b5.
+	 
+	1halt.
+	DRCogitCanonicaliser new applyTo: cfg.
+	
+	
+	
+	
+	
+	 1halt.
+]
+
+{ #category : #tests }
 DRCogitCanonicaliserTest >> testDoNotSimplifyAdditionOfAdditionIfMultipleUsers [
 
 	| cfg basicBlock |
@@ -228,7 +306,6 @@ DRCogitCanonicaliserTest >> testSimplifyBranchIfCondition [
 	"Prepare the CFG"
 	DRSCCP new applyTo: cfg.
 	DRCleanControlFlow new applyTo: cfg.
-	DRCopyPropagation new applyTo: cfg.
 
 	numberOfPhisBefore := cfg phiFunctions size.
 	survivingPhi := cfg phiFunctions first.
@@ -243,6 +320,7 @@ DRCogitCanonicaliserTest >> testSimplifyBranchIfCondition [
 	self assert: numberOfPhisBefore - 1 equals: cfg phiFunctions size.
 
 	self assert: cfg phiFunctions first equals: survivingPhi
+
 ]
 
 { #category : #tests }

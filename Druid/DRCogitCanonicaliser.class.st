@@ -321,9 +321,16 @@ DRCogitCanonicaliser >> visitNoop: aDRNoop [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [
-	"Nothing"
 
-	
+	aDRPhiFunction basicBlock isExitBlock ifTrue: [ ^ self ].
+
+	aDRPhiFunction operands
+		detect: [ :op | op isCopy ]
+		ifFound: [ :copy |
+			copy operand isConstant ifTrue: [
+				aDRPhiFunction users
+					detect: [ :user | user isSetConditionCode ]
+					ifFound: [ aDRPhiFunction basicBlock splitTo: (aDRPhiFunction predecessorAtOperand: copy) ] ] ]
 ]
 
 { #category : #visiting }
