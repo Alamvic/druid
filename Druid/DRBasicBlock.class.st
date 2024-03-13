@@ -664,6 +664,12 @@ DRBasicBlock >> isExitBlock: anObject [
 	isExitBlock := anObject
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> isLastBasicBlock [ 
+
+	^  controlFlowGraph lastBasicBlock = self
+]
+
 { #category : #building }
 DRBasicBlock >> jitCompileTimeVariable: aName [
 

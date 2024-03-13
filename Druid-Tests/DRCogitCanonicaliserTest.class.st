@@ -155,6 +155,7 @@ DRCogitCanonicaliserTest >> testSimplifyBranchIfCondition [
 	"Prepare the CFG"
 	DRSCCP new applyTo: cfg.
 	DRCleanControlFlow new applyTo: cfg.
+	DRCopyPropagation new applyTo: cfg.
 
 	numberOfPhisBefore := cfg phiFunctions size.
 	survivingPhi := cfg phiFunctions first.
