@@ -19,5 +19,5 @@ DRLogicalLeftShift >> sccpOperateOnLattice: anInteger and: anInteger2 [
 { #category : #types }
 DRLogicalLeftShift >> type [
 
-	^ DRUnsignedIntegerType size: 8 "bytes per word"
+	^ DRUnsignedIntegerType bits64
 ]

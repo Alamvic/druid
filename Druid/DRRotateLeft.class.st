@@ -9,3 +9,9 @@ DRRotateLeft >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitLeftRotate: self
 ]
+
+{ #category : #types }
+DRRotateLeft >> type [
+
+	^ DRUnsignedIntegerType bits64
+]
