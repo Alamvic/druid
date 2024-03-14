@@ -5,9 +5,8 @@ Class {
 }
 
 { #category : #tests }
-DRCogitCanonicaliserTest >> testConstantPropagateOnConstantPhiOperands [
-
-	| cfg phi b0 b1 b2 b3 b4 jump b5 b6 jump2 b7 r1 r2 cond jump3 phiOperandsBefore phiOperandsAfter numberOfPhisBefore |
+DRCogitCanonicaliserTest >> buildCFGWithEightShape [
+	| cfg b0 b1 b2 b3 b4 b5 b6 b7 jump jump2 r1 r2 phi cond jump3 |
 	cfg := DRControlFlowGraphForTesting new.
 
 	b0 := cfg initialBasicBlock.
@@ -54,10 +53,21 @@ DRCogitCanonicaliserTest >> testConstantPropagateOnConstantPhiOperands [
 	jump3 := b4 jumpIf: cond to: b6 ifFalseTo: b5.
 
 	b7 beExitBlock.
+	
+	^ cfg
+]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> testConstantPropagateOnConstantPhiOperands [
+
+	| cfg phi phiOperandsBefore phiOperandsAfter numberOfPhisBefore |
+	cfg := self buildCFGWithEightShape.
+
+	phi := cfg phiFunctions unique.
 
 	"We save this data to test against the CFG after we apply the optimization pass that we are testing"
-	numberOfPhisBefore := cfg phiFunctions size veryDeepCopy.
-	phiOperandsBefore := phi operands veryDeepCopy.
+	numberOfPhisBefore := cfg phiFunctions size.
+	phiOperandsBefore := phi operands copy.
 
 	"Apply the optimization to test"
 	DRCogitCanonicaliser new applyTo: cfg.
@@ -66,9 +76,8 @@ DRCogitCanonicaliserTest >> testConstantPropagateOnConstantPhiOperands [
 	self assert: numberOfPhisBefore * 2 equals: cfg phiFunctions size.
 
 	"And that the two operators of the Phi before the optimization, now each of them belongs to a Phi each of one contains only one operator"
-	phiOperandsAfter := OrderedCollection new.
-	cfg phiFunctions do: [ :aPhi |
-		aPhi operands do: [ :op | phiOperandsAfter add: op ] ].
+	phiOperandsAfter := cfg phiFunctions flatCollect: [ :aPhi |
+		                    aPhi operands ].
 
 	self assert:
 		(cfg phiFunctions allSatisfy: [ :aPhi | aPhi operands size = 1 ]).
@@ -298,7 +307,7 @@ DRCogitCanonicaliserTest >> testSimplifyBranchIfCondition [
 	| cfg numberOfPhisBefore survivingPhi |
 	cfg := self generateBasicDruidIRFor: #primitiveOr.
 	"Prepare the CFG"
-	DRSCCP new applyTo: cfg.
+	(DRSCCP then: DRCopyPropagation) applyTo: cfg.
 	DRCleanControlFlow new applyTo: cfg.
 
 	numberOfPhisBefore := cfg phiFunctions size.
@@ -308,8 +317,7 @@ DRCogitCanonicaliserTest >> testSimplifyBranchIfCondition [
 	DRCogitCanonicaliser new applyTo: cfg.
 
 	"Clean the CFG"
-	DRCleanControlFlow new applyTo: cfg.
-
+	DRPhiSimplication new applyTo: cfg.
 
 	self assert: numberOfPhisBefore - 1 equals: cfg phiFunctions size.
 
