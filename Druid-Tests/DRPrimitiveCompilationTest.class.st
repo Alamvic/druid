@@ -107,20 +107,20 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector with: aBlock [
 ]
 
 { #category : #'helpers-compiling' }
-DRPrimitiveCompilationTest >> compileDruidPrimitiveGenerator: aSelector with: aBlock [
+DRPrimitiveCompilationTest >> compileDruidPrimitiveGenerator: aSelector with: aBlockCompilerConfig [
 
 	| generatorSelector compiler |
 	generatorSelector := (#gen , '_' , aSelector) asSymbol.
 
 	"First generate druid code"
-	compiler := DRPrimitiveCompilerCompiler new
+	compiler := compilerCompilerClass new
 		            primitiveName: aSelector;
 		            interpreter: self interpreter;
 		            primitiveCompilerName: generatorSelector;
 		            perform: cogitStyle;
 		            configureForCompilerClass: compilerClass.
 
-	aBlock value: compiler.
+	aBlockCompilerConfig value: compiler.
 	compiler compile.
 	^ compiler
 ]

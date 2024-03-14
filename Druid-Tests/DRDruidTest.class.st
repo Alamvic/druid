@@ -2,7 +2,8 @@ Class {
 	#name : #DRDruidTest,
 	#superclass : #VMJittedPrimitivesTest,
 	#instVars : [
-		'fakeTrampoline'
+		'fakeTrampoline',
+		'compilerCompilerClass'
 	],
 	#category : #'Druid-Tests'
 }
@@ -43,6 +44,7 @@ DRDruidTest >> jitOptions [
 DRDruidTest >> setUp [
 
 	super setUp.
+	compilerCompilerClass := DRPrimitiveCompilerCompiler.
 
 	cogit methodZone
 		setInterpreter: interpreter
