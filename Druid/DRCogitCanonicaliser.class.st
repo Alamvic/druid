@@ -342,12 +342,13 @@ DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [
 		 user isSetConditionCode or: [ user isConditionalBranch ] ])
 		ifFalse: [ ^ self ].
 
-	"If we don't do this, we might end up in a situation where the Phi 'moves down' in the CFG and we'll have as the last instruction of the BasicBlock containing the Phi, 
-	a BranchIfCondition where in one of the branches we backjump. For the moment, this particular scenario is not supported in the IR->Cogit translation phase (it generates an infinite loop)."
-	aDRPhiFunction basicBlock hasIncomingBackjumps ifTrue: [ ^ self ].
+	"If we don't do this, we might end up in a situation where the Phi 'moves down' in the CFG and after some optimizations, we will have a BasicBlock that jumps to itself. For the moment, this particular scenario is not supported in the IR->Cogit translation phase (it generates an infinite loop)."
+	aDRPhiFunction basicBlock hasIncomingBackjumps ifTrue: [ 1halt. "^ self '"].
 
 	aDRPhiFunction basicBlock splitTo:
-		(aDRPhiFunction predecessorAtOperand: copy)
+		(aDRPhiFunction predecessorAtOperand: copy).
+		
+1halt.
 ]
 
 { #category : #visiting }
