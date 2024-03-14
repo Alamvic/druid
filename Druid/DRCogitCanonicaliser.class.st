@@ -343,12 +343,13 @@ DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [
 		ifFalse: [ ^ self ].
 
 	"If we don't do this, we might end up in a situation where the Phi 'moves down' in the CFG and after some optimizations, we will have a BasicBlock that jumps to itself. For the moment, this particular scenario is not supported in the IR->Cogit translation phase (it generates an infinite loop)."
-	aDRPhiFunction basicBlock hasIncomingBackjumps ifTrue: [ 1halt. "^ self '"].
+	aDRPhiFunction basicBlock hasIncomingBackjumps ifTrue: [ ^ self].
 
 	aDRPhiFunction basicBlock splitTo:
 		(aDRPhiFunction predecessorAtOperand: copy).
 		
-1halt.
+		
+
 ]
 
 { #category : #visiting }
