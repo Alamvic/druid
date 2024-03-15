@@ -111,7 +111,7 @@ DRCogitCanonicaliser >> visitBitXor: aDRBitXor [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBranchIfCondition: aDRConditionalBranch [
-"1halt."
+
 	aDRConditionalBranch operands
 		detect: [ :op | op isPhiFunction ]
 		ifFound: [ :thePhi |
@@ -330,9 +330,23 @@ DRCogitCanonicaliser >> visitNoop: aDRNoop [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [
-	"Nothing"
 
-	
+	| copy |
+	aDRPhiFunction basicBlock isExitBlock ifTrue: [ ^ self ].
+
+	copy := aDRPhiFunction operands
+		        detect: [ :op | op isCopy and: [ op operand isConstant ] ]
+		        ifNone: [ ^ self ].
+
+	(aDRPhiFunction users anySatisfy: [ :user |
+		 user isSetConditionCode or: [ user isConditionalBranch ] ])
+		ifFalse: [ ^ self ].
+
+	"If we don't do this, we might end up in a situation where the Phi 'moves down' in the CFG and after some optimizations, we will have a BasicBlock that jumps to itself. For the moment, this particular scenario is not supported in the IR->Cogit translation phase (it generates an infinite loop)."
+	aDRPhiFunction basicBlock hasIncomingBackjumps ifTrue: [ ^ self ].
+
+	aDRPhiFunction basicBlock splitTo:
+		(aDRPhiFunction predecessorAtOperand: copy)
 ]
 
 { #category : #visiting }
