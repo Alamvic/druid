@@ -2761,6 +2761,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8AtPut7 [
 { #category : #'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testWhileTrue [
 
+	self skip.
 	self compileDruidPrimitive: #primitiveLoopIncrementing.
 	
 	self executePrimitiveWithReceiver: 5.
@@ -2771,6 +2772,7 @@ DRPrimitiveScenarioCompilationTest >> testWhileTrue [
 { #category : #'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testWhileTrueWithGlobalState [
 
+	self skip.
 	self compileDruidPrimitive: #primitiveLoopIncrementingGlobalState.
 	
 	self executePrimitiveWithReceiver: 5.

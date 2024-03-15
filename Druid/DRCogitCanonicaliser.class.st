@@ -35,6 +35,11 @@ DRCogitCanonicaliser >> sortOperandsInDoubleInstructionIfPossible: aDRBinaryInst
 			otherOperand := aDRBinaryInstruction operands detect: [ :op |
 				                op ~~ subtree ].
 
+			"Check if we can rewrite this instruction. If it may generate an overflow, do not"
+			(aDRBinaryInstruction users anySatisfy: [ :dependent |
+				 dependent isConditionalBranch and: [ dependent hasOverflowCheck ] ])
+					ifTrue: [ "Do nothing" ^ self ].
+
 			otherOperand isConstant
 				ifTrue: [ "There are two constants and one variable, put the constants together"
 					subtree replaceOperand: subVariable by: otherOperand.
