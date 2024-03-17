@@ -38,17 +38,17 @@ DRArgumentCountCheckCustomisation >> generateCustomisedPreamble: aDRGeneratorMet
 { #category : #api }
 DRArgumentCountCheckCustomisation >> optimize: aDRPrimitiveControlFlowGraph [
 
-	"self methodNumArgs > 0 ifTrue: [ ^ CompletePrimitive ]."
+	"self methodNumArgs = 0 ifTrue: [ ... ]."
 
 	| checkBlock |
 	checkBlock := aDRPrimitiveControlFlowGraph newBasicBlockWith: [ :b |
 		              | condition |
 		              condition := b
-			                           greater: DRInterpreterReference argumentCount
-			                           than: argumentCount asDRValue.
+			                           equals: DRInterpreterReference argumentCount
+			                           to: argumentCount asDRValue.
 		              b
 			              jumpIf: condition
-			              to: aDRPrimitiveControlFlowGraph failureExitBlock
-			              ifFalseTo: aDRPrimitiveControlFlowGraph firstBasicBlock ].
+			              to: aDRPrimitiveControlFlowGraph firstBasicBlock
+			              ifFalseTo: aDRPrimitiveControlFlowGraph failureExitBlock ].
 	aDRPrimitiveControlFlowGraph initialBasicBlock jumpTo: checkBlock
 ]

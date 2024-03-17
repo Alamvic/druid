@@ -36,6 +36,24 @@ DRCogitCodeGenerator >> blocks: aPath [
 	blocks := aPath
 ]
 
+{ #category : #factory }
+DRCogitCodeGenerator >> buildPushFrom: aDRPush [
+
+	(aDRPush operand1 isConstant or: [ aDRPush operand1 isStaged ])
+		ifTrue: [
+			^ RBMessageNode
+				  receiver: RBVariableNode selfNode
+				  selector: 'genPushConstant:'
+				  arguments: (aDRPush operand1 rtlPushArgumentExpressions: self) ].
+
+	^ RBMessageNode
+		  receiver: RBVariableNode selfNode
+		  selector:
+		  'Push'
+		  , (aDRPush operand1 rtlOperandQualifierForInstruction: aDRPush)
+		  arguments: (aDRPush operand1 rtlPushArgumentExpressions: self)
+]
+
 { #category : #'ir-generation' }
 DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 
@@ -1002,6 +1020,14 @@ DRCogitCodeGenerator >> visitJump: aDRJump [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitLeftRotate: aDRRotate [
+
+	^ self
+		  threeOperandCogitRTL: #RotateLeft
+		  instruction: aDRRotate
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitLeftShift: aDRCogitLeftShift [
 	
 	^ self threeOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitLeftShift
@@ -1152,6 +1178,12 @@ DRCogitCodeGenerator >> visitPhiFunction: aDRPhiFunction [
 ]
 
 { #category : #visiting }
+DRCogitCodeGenerator >> visitPush: aDRPush [
+
+	generatorMethodBuilder addStatement: (self buildPushFrom: aDRPush)
+]
+
+{ #category : #visiting }
 DRCogitCodeGenerator >> visitReturn: aDRReturn [
 
 	"Generate the postamble in the return cases"
@@ -1162,7 +1194,7 @@ DRCogitCodeGenerator >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitRightShift: aRightShift [ 
+DRCogitCodeGenerator >> visitSignedRightShift: aRightShift [ 
 
 	^ self threeOperandCogitRTL: #ArithmeticShiftRight instruction: aRightShift
 
@@ -1204,4 +1236,11 @@ DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfConditio
 DRCogitCodeGenerator >> visitUnsignedCoercion: aDRCogitUnsignedCoercion [ 
 
 	^ self visitCopy: aDRCogitUnsignedCoercion
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitUnsignedRightShift: aRightShift [ 
+
+	^ self threeOperandCogitRTL: #LogicalShiftRight instruction: aRightShift
+
 ]

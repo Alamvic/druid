@@ -167,6 +167,18 @@ DRBasicBlock >> bitAnd: aValue with: anotherValue [
 	^ self addInstruction: (self instructionFactory bitAnd: aValue with: anotherValue)
 ]
 
+{ #category : #building }
+DRBasicBlock >> bitOr: aValue with: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory bitOr: aValue with: anotherValue)
+]
+
+{ #category : #building }
+DRBasicBlock >> bitXor: aValue with: anotherValue [
+	
+	^ self addInstruction: (self instructionFactory bitXor: aValue with: anotherValue)
+]
+
 { #category : #'control-flow' }
 DRBasicBlock >> breakBy: instruction [
 
@@ -664,6 +676,12 @@ DRBasicBlock >> isExitBlock: anObject [
 	isExitBlock := anObject
 ]
 
+{ #category : #accessing }
+DRBasicBlock >> isLastBasicBlock [ 
+
+	^  controlFlowGraph lastBasicBlock = self
+]
+
 { #category : #building }
 DRBasicBlock >> jitCompileTimeVariable: aName [
 
@@ -715,6 +733,12 @@ DRBasicBlock >> jumpTo: aBasicBlock [
 DRBasicBlock >> lastInstruction [
 	
 	^ endInstruction
+]
+
+{ #category : #building }
+DRBasicBlock >> lessOrEquals: operand1 than: operand2 [
+	
+	^ self addInstruction: (self instructionFactory lessOrEquals: operand1 than: operand2)
 ]
 
 { #category : #building }
@@ -1084,6 +1108,12 @@ DRBasicBlock >> return [
 { #category : #building }
 DRBasicBlock >> return: anInstruction [ 
 	^ self endInstruction: (DRReturn operands: { anInstruction } )
+]
+
+{ #category : #building }
+DRBasicBlock >> rotateLeft: aValue by: offset [
+	
+	^ self addInstruction: (self instructionFactory rotateLeft: aValue by: offset)
 ]
 
 { #category : #accessing }

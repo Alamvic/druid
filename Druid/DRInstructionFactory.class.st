@@ -49,6 +49,22 @@ DRInstructionFactory >> bitAnd: operand1 with: operand2 [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> bitOr: operand1 with: operand2 [
+
+	^ DRBitOr
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> bitXor: operand1 with: operand2 [
+
+	^ DRBitXor
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> copy: aValue [
 
 	^ DRCopy
@@ -260,6 +276,16 @@ DRInstructionFactory >> pushBase: base offset: offset [
 				   base: base;
 				   offset: offset;
 				   yourself) }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #building }
+DRInstructionFactory >> rotateLeft: aValue by: anOffset [
+
+	^ DRRotateLeft
+		  operands: {
+				  aValue asDRValue.
+				  anOffset asDRValue }
 		  result: self allocateTemporaryRegister
 ]
 

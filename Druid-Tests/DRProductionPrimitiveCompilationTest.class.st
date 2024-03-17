@@ -529,6 +529,16 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 		equals: class
 ]
 
+{ #category : #'tests-floats' }
+DRProductionPrimitiveCompilationTest >> testIntegerAsFloat [
+
+	self compileDruidPrimitive: #primitiveAsFloat.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42).
+
+	self assert: machineSimulator receiverRegisterValue equals: (memory floatObjectOf: 42.0)
+]
+
 { #category : #'tests-arithmetic-smallIntegers' }
 DRProductionPrimitiveCompilationTest >> testPrimitiveAdd [
 
@@ -597,4 +607,30 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueOnWrongArguments [
 	closure := [ :x | 42 ] forMemory: memory inMethod: methodBuilder.
 
 	self executeUntilStopPrimitiveWithReceiver: closure
+]
+
+{ #category : #'tests-arithmetic-smallIntegers' }
+DRProductionPrimitiveCompilationTest >> testPrimitiveValuePushReceiver [
+
+	<compilerOptions: #( - #optionConstantBlockClosure )>
+	| closure initStack endStack pushedSize |
+	self compileDruidPrimitive: #primitiveFullClosureValue.
+
+	closure := [ 42 ] forMemory: memory inMethod: methodBuilder.
+
+	interpreter
+		rawHeaderOf: (memory fetchPointer: 1 ofObject: closure) "The compiled block is the second inst var"
+		put: finishCodeAddress asInteger.
+
+	initStack := machineSimulator smalltalkStackPointerRegisterValue.
+
+	self prepareStackForSendReceiver: closure arguments: {  }.
+	self runUntil: finishEndInstruction address.
+
+	endStack := machineSimulator smalltalkStackPointerRegisterValue.
+
+	pushedSize := (initStack - endStack) // 8.
+
+	self assert: pushedSize equals: 1 "prepare the Stack in the test" + 1 "this primitive must push the values"
+
 ]

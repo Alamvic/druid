@@ -6,8 +6,8 @@ Class {
 
 { #category : #visiting }
 DRSignedRightShift >> acceptVisitor: aVisitor [
-	
-	^ aVisitor visitRightShift: self
+
+	^ aVisitor visitSignedRightShift: self
 ]
 
 { #category : #SCCP }
