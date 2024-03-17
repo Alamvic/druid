@@ -51,7 +51,7 @@ DRInterpreterCompilationUnitTest >> primitiveMethod [
 { #category : #'object access' }
 DRInterpreterCompilationUnitTest >> targetClass [
 
-	^ DruidTestRTLCompiler
+	^ DruidTestRTLCompilerForTest
 ]
 
 { #category : #'tests - bytecodes' }
