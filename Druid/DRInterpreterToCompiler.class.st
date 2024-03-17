@@ -60,12 +60,16 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 
 	| primitives bytecodes |
 		primitives := #( 
-	#primitiveAdd #primitiveSubtract #primitiveMultiply #primitiveDivide #primitiveMod "#primitiveBitShift" 
+	#primitiveAdd #primitiveSubtract #primitiveMultiply #primitiveDivide #primitiveMod
 	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
 	#primitiveEqual #primitiveNotEqual #primitiveIdentical "#primitiveNotIdentical" 
+	primitiveDiv primitiveQuo primitiveBitShift primitiveBitAnd  primitiveBitXor primitiveBitOr
+
+	primitiveAsFloat primitiveSmallFloatAdd primitiveSmallFloatLessThan primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatEqual 	primitiveSmallFloatGreaterThan primitiveSmallFloatMultiply primitiveSmallFloatSubtract primitiveSmallFloatLessOrEqual
+
 	#primitiveClass #primitiveSize #primitiveAt "#primitiveAtPut" "#primitiveBehaviorHash" "#primitiveIdentityHash"
-	#primitiveNew #primitiveNewWithArg
-	"#primitiveFullClosureValue" ).
+	#primitiveNew #primitiveNewWithArg 
+	#primitiveFullClosureValue ).
 	
 bytecodes := #( 
 		"pushReceiverVariableBytecode"
@@ -202,7 +206,8 @@ DRInterpreterToCompiler >> addPrimitives [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
 	self addSelectedPrimitives.
-	self addMandatoryPrimitives
+	self addMandatoryPrimitives.
+	compilationUnit sortPrimitives.
 ]
 
 { #category : #adding }

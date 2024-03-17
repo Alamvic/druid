@@ -22,6 +22,11 @@ DRBitOr >> asNumberedExpression [
 ]
 
 { #category : #printing }
+DRBitOr >> isBitOr [ 
+	^ true
+]
+
+{ #category : #printing }
 DRBitOr >> opcode [
 	
 	^ 'BitOr'

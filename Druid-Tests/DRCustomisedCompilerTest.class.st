@@ -106,7 +106,7 @@ DRCustomisedCompilerTest >> testRemoveIRChecks [
 
 	self assert: cfg allConditionalJumps size equals: 2.
 	self
-		assert: cfg allConditionalJumps first operand1 name
-		equals: 'R2'.
+		assert: cfg allConditionalJumps first operand1 result prettyPrint
+		equals: 't2'.
 	self assert: cfg allConditionalJumps second operand1 isAdd
 ]

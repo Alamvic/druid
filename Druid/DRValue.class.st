@@ -133,6 +133,17 @@ DRValue >> isAnnotateBytecode [
 ]
 
 { #category : #testing }
+DRValue >> isBitAnd [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isBitXor [
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isClosureCreation [
 	
 	^ false

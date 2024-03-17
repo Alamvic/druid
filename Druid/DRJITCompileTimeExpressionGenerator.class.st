@@ -196,10 +196,10 @@ DRJITCompileTimeExpressionGenerator >> visitPhiFunction: aDRPhiFunction [
 ]
 
 { #category : #visiting }
-DRJITCompileTimeExpressionGenerator >> visitRightShift: aDRRightShift [
+DRJITCompileTimeExpressionGenerator >> visitSignedRightShift: aDRRightShift [
 
 	^ self
-		  binaryMessage: #'>>'
+		  binaryMessage: #'>>>'
 		  receiverInstruction: aDRRightShift operand1
 		  argumentInstruction: aDRRightShift operand2
 ]
@@ -237,4 +237,13 @@ DRJITCompileTimeExpressionGenerator >> visitUnsignedCoercion: aDRUnsignedCoercio
 	"For now just return our expression?"
 
 	^ aDRUnsignedCoercion operand1 acceptVisitor: self
+]
+
+{ #category : #visiting }
+DRJITCompileTimeExpressionGenerator >> visitUnsignedRightShift: aDRRightShift [
+
+	^ self
+		  binaryMessage: #'>>'
+		  receiverInstruction: aDRRightShift operand1
+		  argumentInstruction: aDRRightShift operand2
 ]

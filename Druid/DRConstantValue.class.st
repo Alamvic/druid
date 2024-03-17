@@ -136,10 +136,11 @@ DRConstantValue >> simpleConstantFold [
 
 { #category : #types }
 DRConstantValue >> type [
-	
+
 	value = nil ifTrue: [ ^ DRUndefinedType new ].
-	(#(true false) includes: value) ifTrue: [ ^ DRBooleanType new ].
+	(#( true false ) includes: value) ifTrue: [ ^ DRBooleanType new ].
 	value isInteger ifTrue: [ ^ DRSignedIntegerType size: 8 "Word size" ].
+	value isFloat ifTrue: [ ^ DRFloatType new ].
 	^ value class
 ]
 
