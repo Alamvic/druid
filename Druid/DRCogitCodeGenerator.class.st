@@ -375,6 +375,17 @@ DRCogitCodeGenerator >> generateMessage: selector operands: operands [
 			 arguments: (operands flatCollect: [ :op | self rtlArgumentsForValue: op ]))
 ]
 
+{ #category : #'code-generation' }
+DRCogitCodeGenerator >> generateMoveR: regSource R: regDest [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #MoveR:R:
+			 arguments: {
+					 regSource.
+					 regDest })
+]
+
 { #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 
@@ -642,6 +653,12 @@ DRCogitCodeGenerator >> selectorCogitRTL: aMnemonic operands: operands instructi
 			    op rtlOperandQualifierForInstruction: anInstruction ]))
 ]
 
+{ #category : #'code generation' }
+DRCogitCodeGenerator >> tempRegVariable [
+
+	^ RBVariableNode named: 'TempReg'
+]
+
 { #category : #visiting }
 DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction [
 
@@ -783,13 +800,14 @@ DRCogitCodeGenerator >> visitCall: aDRCall [
 	"self CallRT: ceSendMustBeBooleanTrampoline"
 
 	| rbCallNode |
-	aDRCall operands size > 0 ifTrue: [
-		generatorMethodBuilder addStatement: (RBMessageNode
-				 receiver: RBVariableNode selfNode
-				 selector: #MoveR:R:
-				 arguments: {
-						 (self rtlExpressionForValue: aDRCall operand1).
-						 (RBVariableNode named: 'TempReg') }) ].
+	aDRCall operands size > 1 ifTrue: [ self toImplement ].
+	
+	aDRCall operands size = 1 ifTrue: [
+		"Trampolines are prepared to use TempReg as argument0"
+		self
+			generateMoveR: (self rtlExpressionForValue: aDRCall operand1)
+			R: self tempRegVariable ].
+		
 	rbCallNode := RBMessageNode
 		              receiver: RBVariableNode selfNode
 		              selector: #CallRT:
@@ -803,8 +821,12 @@ DRCogitCodeGenerator >> visitCall: aDRCall [
 					 arguments:
 					 { (RBBlockNode body: (RBSequenceNode statements: { rbCallNode })) }) ]
 		ifFalse: [ generatorMethodBuilder addStatement: rbCallNode ].
-	aDRCall isMapped ifTrue: [ 
-		self assert: aDRCall controlFlowGraph hasAnnotatedBytecode  ]
+
+	aDRCall hasUsers ifTrue: [
+		"Trampolines are prepared to use TempReg as result"
+		self
+			generateMoveR: self tempRegVariable
+			R: (self rtlExpressionForValue: aDRCall) ]
 ]
 
 { #category : #visiting }
@@ -904,9 +926,7 @@ DRCogitCodeGenerator >> visitFloatToIntConversion: aDRFloatToInt [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitFlushStack: aDRFlushStack [
 
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: #ssFlushStack)
+	self subclassResponsibility
 ]
 
 { #category : #visiting }
