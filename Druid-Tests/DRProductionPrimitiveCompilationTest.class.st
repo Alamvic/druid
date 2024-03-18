@@ -197,6 +197,31 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtOnNonArray [
 ]
 
 { #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtPut [
+
+	| class array |
+	self timeLimit: (Duration minutes: 2).
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+
+	self compileDruidPrimitive: #primitiveAtPut.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory arrayFormat.
+	array := memory instantiateClass: class indexableSize: 1.
+
+	self executePrimitiveWithReceiver: array withArguments: {
+			(memory integerObjectOf: 1).
+			(memory integerObjectOf: 42) }.
+
+	self assert: machineSimulator receiverRegisterValue equals: array.
+
+	self
+		assert: (memory fetchPointer: 0 ofObject: array)
+		equals: (memory integerObjectOf: 42)
+]
+
+{ #category : #'tests-real primitives' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClass [
 
 	| class |
@@ -355,6 +380,24 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatSubtract [
 	self
 		assert: machineSimulator receiverRegisterValue
 		equals: (memory floatObjectOf: 1.0)
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveIdentityHash [
+
+	| hash |
+	cogit ceNewHashTrampoline: fakeTrampoline.
+
+	self compileDruidPrimitive: #primitiveIdentityHash.
+
+	obj := self newObjectWithSlots: 0.
+
+	self executePrimitiveWithReceiver: obj.
+
+	"Fake trampoline do nothing -> same object is returned as hash and is used as an integer."
+	hash := memory integerObjectOf: obj.
+
+	self assert: machineSimulator receiverRegisterValue equals: hash
 ]
 
 { #category : #'tests-real primitives' }
@@ -671,6 +714,33 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 		assert:
 		(memory fetchClassOf: machineSimulator receiverRegisterValue)
 		equals: class
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testNewHashTrampoline [
+
+	| hash newHashTrampoline |
+	newHashTrampoline := cogit
+		                     genNewHashTrampoline: true
+		                     called: 'ceInlineNewHash'.
+
+	cogInitialAddress := self
+		                     compile: [
+			                     cogit MoveR: ReceiverResultReg R: TempReg.
+			                     cogit backEnd saveAndRestoreLinkRegAround: [
+				                     cogit CallRT: newHashTrampoline ].
+			                     cogit MoveR: TempReg R: ReceiverResultReg.
+			                     cogit genPrimReturn ]
+		                     bytecodes: 100.
+
+
+	obj := self newObjectWithSlots: 0.
+
+	self executePrimitiveWithReceiver: obj.
+
+	hash := memory integerObjectOf: obj. "?"
+
+	self assert: machineSimulator receiverRegisterValue equals: hash
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }
