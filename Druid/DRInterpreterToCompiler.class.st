@@ -65,11 +65,19 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 	#primitiveEqual #primitiveNotEqual #primitiveIdentical "#primitiveNotIdentical" 
 	primitiveDiv primitiveQuo primitiveBitShift primitiveBitAnd  primitiveBitXor primitiveBitOr
 
-	primitiveAsFloat primitiveSmallFloatAdd primitiveSmallFloatLessThan primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatEqual 	primitiveSmallFloatGreaterThan primitiveSmallFloatMultiply primitiveSmallFloatSubtract primitiveSmallFloatLessOrEqual
+	primitiveSmallFloatAdd primitiveSmallFloatSubtract #primitiveSmallFloatMultiply "primitiveSmallFloatDivide (Fix float comparison)"  
+	primitiveSmallFloatEqual primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatGreaterThan primitiveSmallFloatLessThan  primitiveSmallFloatLessOrEqual
 
-	#primitiveClass #primitiveSize #primitiveAt "#primitiveAtPut" "#primitiveBehaviorHash" "#primitiveIdentityHash"
-	#primitiveNew #primitiveNewWithArg 
-	#primitiveFullClosureValue ).
+	primitiveFloatAdd primitiveFloatSubtract #primitiveFloatMultiply "primitiveFloatDivide (Fix float comparison)"  
+	primitiveFloatEqual primitiveFloatNotEqual primitiveFloatGreaterThan primitiveFloatGreaterOrEqual primitiveFloatLessThan primitiveFloatLessOrEqual
+
+	primitiveAsFloat primitiveAsCharacter #primitiveImmediateAsInteger 
+	"primitiveStringReplace (More than 2 args)"
+
+	primitiveClass #primitiveSize #primitiveAt "#primitiveAtPut" "#primitiveBehaviorHash" "#primitiveIdentityHash"
+	primitiveNew #primitiveNewWithArg 
+	primitiveFullClosureValue 	
+	).
 	
 bytecodes := #( 
 		"pushReceiverVariableBytecode"

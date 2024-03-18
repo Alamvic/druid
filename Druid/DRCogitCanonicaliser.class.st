@@ -111,7 +111,7 @@ DRCogitCanonicaliser >> visitBitXor: aDRBitXor [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBranchIfCondition: aDRConditionalBranch [
-"1halt."
+
 	aDRConditionalBranch operands
 		detect: [ :op | op isPhiFunction ]
 		ifFound: [ :thePhi |

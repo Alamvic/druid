@@ -64,7 +64,7 @@ DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 		 anInstruction isBytecodeJump not and: [
 			 anInstruction isAnnotateBytecode not ] ]) ifTrue: [
 		| varNode |
-		anInstruction isStore ifTrue: [
+		anInstruction isStore ifTrue: [ 
 			generatorMethodBuilder addStatement: (self jitCompileTimeExpression: anInstruction).
 			^ self ].
 

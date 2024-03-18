@@ -21,6 +21,26 @@ DRProductionPrimitiveCompilationTest >> setUp [
 ]
 
 { #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAsCharacter [
+
+	self compileDruidPrimitive: #primitiveAsCharacter.
+
+	self 	executePrimitiveWithReceiver: (memory integerObjectOf: 1). 
+				
+	self assert: machineSimulator receiverRegisterValue equals: (memory characterObjectOf: 1)
+]
+
+{ #category : #'tests-floats' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAsFloat [
+
+	self compileDruidPrimitive: #primitiveAsFloat.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42).
+
+	self assert: machineSimulator receiverRegisterValue equals: (memory floatObjectOf: 42.0)
+]
+
+{ #category : #'tests-real primitives' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
@@ -221,6 +241,130 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassImmediate [
 	self
 		assert: machineSimulator receiverRegisterValue
 		equals: (memory fetchClassOf: int)
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatAdd [
+
+	self compileDruidPrimitive: #primitiveFloatAdd.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
+		withArguments: { (memory floatObjectOf: 2.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory floatObjectOf: 3.0)
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatDivide [
+
+	self skip. "TOFIX: self CmpCq: 0.0 Rd: DPFPReg1."
+
+	self compileDruidPrimitive: #primitiveFloatDivide.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 3.0)
+		withArguments: { (memory floatObjectOf: 2.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory floatObjectOf: 1.5)
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatEqual [
+
+	self compileDruidPrimitive: #primitiveFloatEqual.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
+		withArguments: { (memory floatObjectOf: 1.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory trueObject
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatEqualFalse [
+
+	self compileDruidPrimitive: #primitiveFloatEqual.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
+		withArguments: { (memory floatObjectOf: 2.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory falseObject
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatMultiply [
+
+	self compileDruidPrimitive: #primitiveFloatMultiply.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 3.0)
+		withArguments: { (memory floatObjectOf: 2.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory floatObjectOf: 6.0)
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatNotEqual [
+
+	self compileDruidPrimitive: #primitiveFloatNotEqual.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
+		withArguments: { (memory floatObjectOf: 2.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory trueObject
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatNotEqualFalse [
+
+	self compileDruidPrimitive: #primitiveFloatNotEqual.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
+		withArguments: { (memory floatObjectOf: 1.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory falseObject
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatSubtract [
+
+	self compileDruidPrimitive: #primitiveFloatSubtract.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 3.0)
+		withArguments: { (memory floatObjectOf: 2.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory floatObjectOf: 1.0)
+]
+
+{ #category : #'tests-real primitives' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveImmediateAsInteger [
+
+	self compileDruidPrimitive: #primitiveImmediateAsInteger.
+
+	self 	executePrimitiveWithReceiver: (memory characterObjectOf: 1). 
+				
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 1)
 ]
 
 { #category : #'tests-real primitives' }
@@ -527,16 +671,6 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 		assert:
 		(memory fetchClassOf: machineSimulator receiverRegisterValue)
 		equals: class
-]
-
-{ #category : #'tests-floats' }
-DRProductionPrimitiveCompilationTest >> testIntegerAsFloat [
-
-	self compileDruidPrimitive: #primitiveAsFloat.
-
-	self executePrimitiveWithReceiver: (memory integerObjectOf: 42).
-
-	self assert: machineSimulator receiverRegisterValue equals: (memory floatObjectOf: 42.0)
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }

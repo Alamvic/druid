@@ -27,6 +27,12 @@ DRIntegerType >> isIntegerType [
 	^ true
 ]
 
+{ #category : #'accessing - query' }
+DRIntegerType >> numberOfBits [
+
+	^ self size * 8
+]
+
 { #category : #printing }
 DRIntegerType >> printOn: aStream [
 

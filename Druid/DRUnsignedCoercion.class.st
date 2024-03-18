@@ -19,6 +19,9 @@ DRUnsignedCoercion >> opcode [
 { #category : #printing }
 DRUnsignedCoercion >> sccpOperateOnLattice: operand [
 
-	self haltIf: [ operand isNumber and: [ operand < 0 ] ].
+	self assert: operand isNumber.
+
+	operand < 0 ifTrue: [
+		operand twoComplementOfBitSize: self type numberOfBits ].
 	^ operand
 ]
