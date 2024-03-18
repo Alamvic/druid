@@ -2142,6 +2142,99 @@ DRProductionBytecodeTest >> testExtBBytecode3 [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecode [
+
+	| method literal |
+	self createEphemeronClass.
+	literal := self newEphemeronObject.
+	method := methodBuilder newMethod
+		          literals: { literal };
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+
+	cogit bytecodePC: 87.
+	cogit byte1: 0.
+	cogit extA: 0.
+
+	self
+		compileBytecode: 244
+		selector: #extStoreLiteralVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: memory trueObject.
+
+	self assert: machineSimulator receiverRegisterValue equals: memory trueObject.
+	
+	self assert: (memory fetchPointer: 1 ofObject: literal) equals: memory trueObject
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecodeWriteBarrier [
+
+	| method literal newObj storeCheckTrampoline |
+	self createEphemeronClass.
+	literal := self newOldEphemeronObject.
+	method := methodBuilder newMethod
+		          literals: { literal };
+		          buildMethod.
+
+	newObj := self newObjectWithSlots: 0.
+
+	cogit methodObj: method.
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+
+	cogit bytecodePC: 87.
+	cogit byte1: 0.
+	cogit extA: 0.
+
+	self
+		compileBytecode: 244
+		selector: #extStoreLiteralVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	self
+		prepareStackForPrimitiveReceiver: newObj
+		arguments: #(  )
+		method: method.
+
+	"Should arrive to trampoline to put the object in the remembered set"
+	self runFrom: cogInitialAddress until: storeCheckTrampoline.
+
+	self assert: machineSimulator temporaryRegisterValue equals: literal.
+
+	cogit backEnd hasLinkRegister
+		ifTrue: [ "Push the link register -> a.k.a. caller"
+		self assert: (self stackAddressAt: 0) equals: callerAddress ]
+		ifFalse: [ "Push the return address -> a.k.a after the call (inside the compiled code)"
+			self assert: ((self stackAddressAt: 0)
+					 between: cogInitialAddress
+					 and: cogInitialAddress + codeSize) ].
+
+	self assert: (self stackAddressAt: 1) equals: newObj
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecode [
 
 	| object |
