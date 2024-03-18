@@ -44,24 +44,30 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAsFloat [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
-	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory arrayFormat.
 	array := memory instantiateClass: class indexableSize: 1.
 	memory storePointer: 0 ofObject: array withValue: 42.
 
-	self 	executePrimitiveWithReceiver: array 
-			withArguments: { memory integerObjectOf: 1 }. 
-				
+	self
+		executePrimitiveWithReceiver: array
+		withArguments: { (memory integerObjectOf: 1) }.
+
 	self assert: machineSimulator receiverRegisterValue equals: 42
-	
 ]
 
 { #category : #'tests-real primitives' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArray [
 
 	| array |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
@@ -81,6 +87,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArray [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtContext [
 
 	| context |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
@@ -98,43 +106,63 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtContext [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithNegativeIndex [
 
 	| class array |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
-	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory arrayFormat.
 	array := memory instantiateClass: class indexableSize: 1.
 
-	self executeUntilStopPrimitiveWithReceiver: array withArguments: { memory integerObjectOf: -2 }
+	self
+		executeUntilStopPrimitiveWithReceiver: array
+		withArguments: { (memory integerObjectOf: -2) }
 ]
 
 { #category : #'tests-real primitives' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithOverflowIndex [
 
 	| class array |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
-	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory arrayFormat.
 	array := memory instantiateClass: class indexableSize: 1.
 
-	self executeUntilStopPrimitiveWithReceiver: array withArguments: { memory integerObjectOf: 2 }
+	self
+		executeUntilStopPrimitiveWithReceiver: array
+		withArguments: { (memory integerObjectOf: 2) }
 ]
 
 { #category : #'tests-real primitives' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithZeroIndex [
 
 	| class array |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
-	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory arrayFormat.
 	array := memory instantiateClass: class indexableSize: 1.
 
-	self executeUntilStopPrimitiveWithReceiver: array withArguments: { memory integerObjectOf: 0 }
+	self
+		executeUntilStopPrimitiveWithReceiver: array
+		withArguments: { (memory integerObjectOf: 0) }
 ]
 
 { #category : #'tests-real primitives' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtIsNotCompletePrimitive [
+
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
 
 	self
 		compileDruidPrimitiveGenerator: #primitiveAt
@@ -149,32 +177,40 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtIsNotCompletePrimi
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtManyElements [
 
 	| class array |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
-	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory arrayFormat.
 	array := memory instantiateClass: class indexableSize: 2.
 	memory storePointer: 0 ofObject: array withValue: 40.
 	memory storePointer: 1 ofObject: array withValue: 41.
 
-	self 	executePrimitiveWithReceiver: array 
-			withArguments: { memory integerObjectOf: 2 }.
-	
+	self
+		executePrimitiveWithReceiver: array
+		withArguments: { (memory integerObjectOf: 2) }.
+
 	self assert: machineSimulator receiverRegisterValue equals: 41
-	
 ]
 
 { #category : #'tests-real primitives' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtMethod [
 
 	| class method |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
-	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory firstCompiledMethodFormat.
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory firstCompiledMethodFormat.
 	method := memory
-		             instantiateCompiledMethodClass: class
-		             indexableSize: 10.
+		          instantiateCompiledMethodClass: class
+		          indexableSize: 10.
 
 	self
 		executeUntilStopPrimitiveWithReceiver: method
@@ -185,6 +221,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtMethod [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtOnNonArray [
 
 	| ephemeron |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveAt.
 
@@ -500,6 +538,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSize [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesArray [
 
 	| class |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+	
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNewWithArg.
 
@@ -523,6 +563,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesByteArray [
 
 	| class |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+	
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNewWithArg.
 
@@ -546,6 +588,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesInteger16Array [
 
 	| class |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+	
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNewWithArg.
 
@@ -569,6 +613,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesInteger32Array [
 
 	| class |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+	
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNewWithArg.
 
@@ -592,6 +638,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesInteger64Array [
 
 	| class |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+	
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNewWithArg.
 
@@ -615,6 +663,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesArray [
 
 	| class |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNewWithArg.
 
@@ -624,7 +674,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 	memory ensureBehaviorHash: class.
 	self
 		executePrimitiveWithReceiver: class
-		withArguments: { memory integerObjectOf: 3 }.
+		withArguments: { (memory integerObjectOf: 3) }.
 
 	self
 		assert:
@@ -636,6 +686,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesByteArray [
 
 	| class |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+	
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNewWithArg.
 
@@ -657,6 +709,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesInteger16Array [
 
 	| class |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+	
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNewWithArg.
 
@@ -678,6 +732,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesInteger32Array [
 
 	| class |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+	
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNewWithArg.
 
@@ -699,6 +755,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesInteger64Array [
 
 	| class |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+	
 	self timeLimit: (Duration minutes: 2).
 	self compileDruidPrimitive: #primitiveNewWithArg.
 

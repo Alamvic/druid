@@ -5,6 +5,87 @@ Class {
 }
 
 { #category : #tests }
+DRCogitCanonicaliserTest >> buildCFGWithEightShape [
+	| cfg b0 b1 b2 b3 b4 b5 b6 b7 jump jump2 r1 r2 phi cond jump3 |
+	cfg := DRControlFlowGraphForTesting new.
+
+	b0 := cfg initialBasicBlock.
+	b1 := cfg newBasicBlock.
+	b2 := cfg newBasicBlock.
+	b3 := cfg newBasicBlock.
+	b4 := cfg newBasicBlock.
+	b5 := cfg newBasicBlock.
+	b6 := cfg newBasicBlock.
+	b7 := cfg newBasicBlock.
+	jump := cfg instructionFactory jumpIf: false.
+	jump2 := cfg instructionFactory jumpIf: false.
+
+	b7 endInstruction: DRReturn new.
+	b0 jumpTo: b1.
+	jump operand1 isInstruction ifTrue: [
+		b1 addInstruction: jump operand1 ].
+	b1 endInstruction: jump.
+	jump trueBranch: b2.
+	b2 addPredecessor: b1.
+	jump falseBranch: b3.
+	b3 addPredecessor: b1.
+
+	r1 := b2 loadReceiver.
+	b2 jumpTo: b4.
+	r2 := b3 copy: 17 asDRValue.
+	b3 jumpTo: b4.
+
+	jump2 operand1 isInstruction ifTrue: [
+		b4 addInstruction: jump2 operand1 ].
+	b4 endInstruction: jump2.
+	jump2 trueBranch: b5.
+	b5 addPredecessor: b4.
+	jump2 falseBranch: b6.
+	b6 addPredecessor: b4.
+
+	b5 setReturnValue: 42.
+	b5 jumpTo: b7.
+	b6 setReturnValue: 10.
+	b6 jumpTo: b7.
+
+	phi := b4 phiWith: r1 with: r2.
+	cond := b4 lessOrEquals: phi than: 20.
+	jump3 := b4 jumpIf: cond to: b6 ifFalseTo: b5.
+
+	b7 beExitBlock.
+	
+	^ cfg
+]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> testConstantPropagateOnConstantPhiOperands [
+
+	| cfg phi phiOperandsBefore phiOperandsAfter numberOfPhisBefore |
+	cfg := self buildCFGWithEightShape.
+
+	phi := cfg phiFunctions unique.
+
+	"We save this data to test against the CFG after we apply the optimization pass that we are testing"
+	numberOfPhisBefore := cfg phiFunctions size.
+	phiOperandsBefore := phi operands copy.
+
+	"Apply the optimization to test"
+	DRCogitCanonicaliser new applyTo: cfg.
+
+	"We check that the number of Phi's in our CFG has doubled"
+	self assert: numberOfPhisBefore * 2 equals: cfg phiFunctions size.
+
+	"And that the two operators of the Phi before the optimization, now each of them belongs to a Phi each of one contains only one operator"
+	phiOperandsAfter := cfg phiFunctions flatCollect: [ :aPhi |
+		                    aPhi operands ].
+
+	self assert:
+		(cfg phiFunctions allSatisfy: [ :aPhi | aPhi operands size = 1 ]).
+
+	self assert: phiOperandsBefore equals: phiOperandsAfter
+]
+
+{ #category : #tests }
 DRCogitCanonicaliserTest >> testDoNotSimplifyAdditionOfAdditionIfMultipleUsers [
 
 	| cfg basicBlock |
@@ -226,9 +307,8 @@ DRCogitCanonicaliserTest >> testSimplifyBranchIfCondition [
 	| cfg numberOfPhisBefore survivingPhi |
 	cfg := self generateBasicDruidIRFor: #primitiveOr.
 	"Prepare the CFG"
-	DRSCCP new applyTo: cfg.
+	(DRSCCP then: DRCopyPropagation) applyTo: cfg.
 	DRCleanControlFlow new applyTo: cfg.
-	DRCopyPropagation new applyTo: cfg.
 
 	numberOfPhisBefore := cfg phiFunctions size.
 	survivingPhi := cfg phiFunctions first.
@@ -237,12 +317,12 @@ DRCogitCanonicaliserTest >> testSimplifyBranchIfCondition [
 	DRCogitCanonicaliser new applyTo: cfg.
 
 	"Clean the CFG"
-	DRCleanControlFlow new applyTo: cfg.
-
+	DRPhiSimplication new applyTo: cfg.
 
 	self assert: numberOfPhisBefore - 1 equals: cfg phiFunctions size.
 
 	self assert: cfg phiFunctions first equals: survivingPhi
+
 ]
 
 { #category : #tests }

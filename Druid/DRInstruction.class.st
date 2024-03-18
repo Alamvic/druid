@@ -235,6 +235,8 @@ DRInstruction >> isDivision [
 { #category : #dominance }
 DRInstruction >> isDominatedBy: anotherOperand [
 
+	self = anotherOperand ifTrue: [ ^ true ].
+
 	anotherOperand basicBlock = self basicBlock ifTrue: [
 		^ anotherOperand indexInBasicBlock < self indexInBasicBlock ].
 
