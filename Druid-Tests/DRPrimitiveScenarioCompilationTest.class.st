@@ -613,6 +613,17 @@ DRPrimitiveScenarioCompilationTest >> testCompiledPrimitivePreservesStack [
 	self assert: self popAddress equals: 55
 ]
 
+{ #category : #'tests-stack' }
+DRPrimitiveScenarioCompilationTest >> testCompiledPrimitiveWithTwoArgs [
+
+	self compileDruidPrimitive: #primitiveWithTwoArgs.
+	
+	self executePrimitiveWithReceiver: 42 withArguments: { 1. 2 }.
+	
+	"An empty primitive does nothing and just returns, the return value is the receiver"
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
 { #category : #'tests-types' }
 DRPrimitiveScenarioCompilationTest >> testConstantFloatAsInteger [
 

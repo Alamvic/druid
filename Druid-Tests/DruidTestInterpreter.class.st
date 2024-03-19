@@ -1868,6 +1868,21 @@ DruidTestInterpreter >> primitiveWithSequentialExitPoint [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithTwoArgs [
+
+	<numberOfArguments: 2>
+	
+	|  arg1 arg0 rcvr result |
+	arg1 := self stackValue: 0.
+	arg0 := self stackValue: 1.
+	rcvr := self stackValue: 2.
+	
+	result := rcvr > 0 ifTrue: [ arg1 ] ifFalse: [ arg0 ].
+	
+	self pop: 3 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> returnArg: argument [
 
 	| acc |

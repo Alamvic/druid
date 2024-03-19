@@ -98,9 +98,8 @@ DRIRGenerator >> argRegisterNumber: anInteger [
 
 	loadArgument := (self
 		                 instantiate: DRLoadArgument
-		                 operands:
-		                 { (self argumentOffsetForStackValue: anInteger) })
-		                classType: (DRSignedIntegerType size: 8).
+		                 operands: { anInteger }) classType:
+		                (DRSignedIntegerType size: 8).
 	loadArgument origin: thisContext sender stack.
 	self currentBasicBlock addInstruction: loadArgument.
 	^ loadArgument
