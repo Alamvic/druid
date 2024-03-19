@@ -13,23 +13,22 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 	optimisations := OrderedCollection new.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
 
-	"Basic set of optimizations twice for primitives"
-	3 timesRepeat: [
+	4 timesRepeat: [
 		optimisations add: DRBranchCollapse new.
 		optimisations add: DRFailureCodeBasedTailDuplication new.
-		optimisations add: (DRSCCPWithStaging then: DRDeadBlockElimination).
-		optimisations add: DRCopyPropagation new.
-		optimisations add: DRPhiSimplication new.
+		optimisations add: (DRSCCP then: DRDeadBlockElimination).
+		optimisations add: (DRPhiSimplication then: DRCopyPropagation).
 		optimisations add: DRCogitStackCanonicaliser new.
 		optimisations add:
 			(DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
 		optimisations add: DRTailDuplicateStagedExpressions new.
 		optimisations add:
-			(DRDeadEdgeSplitting then: DRDeadBranchElimination) ].
+			(DRDeadEdgeSplitting then: DRDeadBranchElimination).
+		optimisations add: (DRPhiSimplication then: DRCopyPropagation) ].
 
 	"Last Phase, make code coggable"
-	optimisations add: DRCogitCanonicaliser new.
+	optimisations add: DRCogitStackCanonicaliser new.
 	optimisations add: DRCogitOperandSorter new.
 	optimisations add: DRCogitStager new.
 	optimisations add: DRCogitOperandSorter new.
