@@ -306,7 +306,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassImmediate [
 		equals: (memory fetchClassOf: int)
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatAdd [
 
 	self compileDruidPrimitive: #primitiveFloatAdd.
@@ -320,7 +320,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatAdd [
 		equals: (memory floatObjectOf: 3.0)
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatDivide [
 
 	self skip. "TOFIX: self CmpCq: 0.0 Rd: DPFPReg1."
@@ -336,7 +336,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatDivide [
 		equals: (memory floatObjectOf: 1.5)
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatEqual [
 
 	self compileDruidPrimitive: #primitiveFloatEqual.
@@ -350,7 +350,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatEqual [
 		equals: memory trueObject
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatEqualFalse [
 
 	self compileDruidPrimitive: #primitiveFloatEqual.
@@ -364,7 +364,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatEqualFalse [
 		equals: memory falseObject
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatMultiply [
 
 	self compileDruidPrimitive: #primitiveFloatMultiply.
@@ -378,7 +378,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatMultiply [
 		equals: (memory floatObjectOf: 6.0)
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatNotEqual [
 
 	self compileDruidPrimitive: #primitiveFloatNotEqual.
@@ -392,7 +392,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatNotEqual [
 		equals: memory trueObject
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatNotEqualFalse [
 
 	self compileDruidPrimitive: #primitiveFloatNotEqual.
@@ -406,7 +406,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatNotEqualFalse [
 		equals: memory falseObject
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatSubtract [
 
 	self compileDruidPrimitive: #primitiveFloatSubtract.
@@ -420,7 +420,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatSubtract [
 		equals: (memory floatObjectOf: 1.0)
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-hash' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveIdentityHash [
 
 	| hash |
@@ -438,7 +438,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveIdentityHash [
 	self assert: machineSimulator receiverRegisterValue equals: hash
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-arithmetic-smallIntegers' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveImmediateAsInteger [
 
 	self compileDruidPrimitive: #primitiveImmediateAsInteger.
@@ -774,12 +774,12 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 		equals: class
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-hash' }
 DRProductionPrimitiveCompilationTest >> testNewHashTrampoline [
 
-	| hash newHashTrampoline |
+	| hash newHashTrampoline frame |
 	newHashTrampoline := cogit
-		                     genNewHashTrampoline: true
+		                     genNewHashTrampoline: false
 		                     called: 'ceInlineNewHash'.
 
 	cogInitialAddress := self
@@ -791,12 +791,20 @@ DRProductionPrimitiveCompilationTest >> testNewHashTrampoline [
 			                     cogit genPrimReturn ]
 		                     bytecodes: 100.
 
+	"Prepare the frame to be able to jump to the interpreter"
+	frame := stackBuilder addNewFrame.
+	stackBuilder buildStack.
+	machineSimulator fp: interpreter framePointer.
+	machineSimulator smalltalkStackPointerRegisterValue:
+		interpreter stackPointer.
 
 	obj := self newObjectWithSlots: 0.
 
 	self executePrimitiveWithReceiver: obj.
 
-	hash := memory integerObjectOf: obj. "?"
+	hash := memory rawHashBitsOf: obj.
+
+	self deny: hash equals: 0. "Hash was computed"
 
 	self assert: machineSimulator receiverRegisterValue equals: hash
 ]
