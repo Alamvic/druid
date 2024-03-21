@@ -2,7 +2,9 @@ Class {
 	#name : #DRLinearScanRegisterAllocatorTest,
 	#superclass : #TestCase,
 	#instVars : [
-		'registerAllocator'
+		'registerAllocator',
+		'spillRegister1',
+		'spillRegister2'
 	],
 	#category : #'Druid-Tests'
 }
@@ -10,10 +12,14 @@ Class {
 { #category : #tests }
 DRLinearScanRegisterAllocatorTest >> setUp [
 
-	registerAllocator := DRCogitLinearScanRegisterAllocator new
+	registerAllocator := DRCogitLinearScanRegisterAllocator new.
+	
+	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
+	spillRegister2 := DRPhysicalGeneralPurposeRegister name: 'SPR2'.
+
 ]
 
-{ #category : #tests }
+{ #category : #'tests - floats' }
 DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegister [
 
 	| cfg basicBlock r fr |
@@ -37,7 +43,7 @@ DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegister [
 	self assert: basicBlock instructions second result equals: fr.
 ]
 
-{ #category : #tests }
+{ #category : #'tests - floats' }
 DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegistersAfterOperate [
 
 	| cfg basicBlock r fr fr2 r0 r1 r3 r4 r5 r6 |
@@ -63,7 +69,7 @@ DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegistersAfterOperate [
 
 ]
 
-{ #category : #tests }
+{ #category : #'tests - floats' }
 DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegistersAfterOperateReversed [
 
 	| cfg basicBlock r fr fr2 r0 r1 r3 r4 r5 r6 |
@@ -644,7 +650,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetsForReturnInstruction [
 	"Kind of smoke test, should not fail"
 ]
 
-{ #category : #tests }
+{ #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testNoSpillHasNoSpillSlots [
 
 	| cfg basicBlock r |
@@ -750,7 +756,7 @@ DRLinearScanRegisterAllocatorTest >> testOverlappingPhiArguments [
 	self assert: basicBlockTrue instructions first result equals: secondRegister.
 ]
 
-{ #category : #tests }
+{ #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillIntroducesLoadBeforeUse [
 
 	| cfg basicBlock firstRegister spillRegister |
@@ -784,7 +790,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesLoadBeforeUse [
 	self assert: basicBlock instructions fifth operand1 result equals: spillRegister.
 ]
 
-{ #category : #tests }
+{ #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillIntroducesLoadBeforeUseWithMemoryAccess [
 
 	"From
@@ -837,7 +843,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesLoadBeforeUseWithMemoryA
 	self assert: t3 previousInstruction address stackOffset equals: 1.
 ]
 
-{ #category : #tests }
+{ #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillIntroducesStore [
 
 	| cfg basicBlock firstRegister spillRegister |
@@ -871,7 +877,44 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesStore [
 	self assert: basicBlock instructions second operand1 equals: spillRegister.
 ]
 
-{ #category : #tests }
+{ #category : #'tests - spill' }
+DRLinearScanRegisterAllocatorTest >> testSpillReceiverAndArguments [
+
+	| cfg basicBlock |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		"R0 := 2"
+		r0 := block loadReceiver.
+		"R1 := 3"
+		r1 := block loadArgument: 0.
+		"R2 := 4"
+		r2 := block loadArgument: 1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	registerAllocator
+		integerRegisters: { };
+		spillRegisters: { spillRegister1 };
+		allocateRegistersIn: cfg.
+	
+	"
+	SPR1 := LoadReceriver
+	Store M0 SPR1
+	SPR1 := LoadArg0
+	Store M1 SPR1
+	SPR1 := LoadArg1
+	Store M2 SPR1
+	"
+	
+	self assert: basicBlock instructions first result equals: spillRegister1.
+	self assert: basicBlock instructions second isStore.
+	self assert: basicBlock instructions third result equals: spillRegister1.
+	self assert: basicBlock instructions fourth isStore.
+	self assert: basicBlock instructions fifth result equals: spillRegister1.
+	self assert: basicBlock instructions sixth isStore.
+
+]
+
+{ #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillStoresAndLoadsToSameAddress [
 
 	| cfg basicBlock spillRegister1 spillRegister2 |
@@ -909,7 +952,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillStoresAndLoadsToSameAddress [
 		equals: basicBlock instructions sixth operand1
 ]
 
-{ #category : #tests }
+{ #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillTwice [
 
 	| cfg basicBlock spillRegister1 spillRegister2 |
@@ -947,7 +990,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwice [
 	self assert: basicBlock instructions sixth result equals: spillRegister2.
 ]
 
-{ #category : #tests }
+{ #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillTwiceIncrementsSpillSlotsToTwo [
 
 	| cfg basicBlock spillRegister1 spillRegister2 |
@@ -972,7 +1015,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwiceIncrementsSpillSlotsToTwo [
 	self assert: cfg numberOfSpillSlots equals: 2
 ]
 
-{ #category : #tests }
+{ #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillTwiceUsesDifferentAddresses [
 
 	| cfg basicBlock spillRegister1 spillRegister2 |

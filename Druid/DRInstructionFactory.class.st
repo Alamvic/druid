@@ -180,7 +180,7 @@ DRInstructionFactory >> load: anAdress [
 DRInstructionFactory >> loadArgument: index [
 
 	^ DRLoadArgument
-		  operands: { index }
+		  operands: { index asDRValue }
 		  result: self allocateTemporaryRegister
 ]
 
