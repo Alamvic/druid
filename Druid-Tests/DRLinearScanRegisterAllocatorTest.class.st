@@ -878,6 +878,48 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesStore [
 ]
 
 { #category : #'tests - spill' }
+DRLinearScanRegisterAllocatorTest >> testSpillOnStores [
+
+	| cfg basicBlock |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 address |
+		"R0 := 2"
+		r0 := block copy: 2.
+		"R1 := 3"
+		r1 := block copy: 3.
+		"STORE R0 [R1 + 8]"
+		address := DRBaseOffsetMemoryAddress new
+			           base: r1;
+			           offset: 8 asDRValue;
+			           yourself.
+		block storeSInt64: r0 asDRValue at: address ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	registerAllocator
+		integerRegisters: { };
+		spillRegisters: { spillRegister1. spillRegister2 };
+		allocateRegistersIn: cfg.
+	
+	"SPR1 := 2
+	Store M0 SPR1
+	SPR1 := 3
+	Store M1 SPR1
+	SPR1 := Load M0
+	SPR2 := Load M1
+	STORE SPR1 [SPR2 + 8]"
+	
+	self assert: basicBlock instructions first result equals: spillRegister1.
+	self assert: basicBlock instructions second isStore.
+	self assert: basicBlock instructions third result equals: spillRegister1.
+	self assert: basicBlock instructions fourth isStore.
+	self assert: basicBlock instructions fifth result equals: spillRegister1.
+	self assert: basicBlock instructions sixth result equals: spillRegister2.
+	self 
+		assertCollection: (basicBlock instructions seventh dependencies collect: #result) 
+		includesAll: { spillRegister1. spillRegister2 }
+]
+
+{ #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillReceiverAndArguments [
 
 	| cfg basicBlock |
