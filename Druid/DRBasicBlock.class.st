@@ -894,7 +894,7 @@ DRBasicBlock >> phiWithVariables: variables [
 	| finalVariables allPosibleVariables phi |
 	controlFlowGraph buildDominatorTree.
 
-	allPosibleVariables := variables asOrderedCollection.
+	allPosibleVariables := variables asOrderedCollection copy.
 	self predecessors size > variables size ifTrue: [ 
 		self predecessors size - variables size timesRepeat: [ 
 			allPosibleVariables := allPosibleVariables , variables ] ].

@@ -1194,7 +1194,6 @@ DRCogitCodeGenerator >> visitOverflow: aDRMultiplyOverflow inBranch: aDRBranchIf
 DRCogitCodeGenerator >> visitPhiFunction: aDRPhiFunction [ 
 
 	"For the moment nothing"
-	^ self visitNullValue: aDRPhiFunction
 ]
 
 { #category : #visiting }
