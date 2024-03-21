@@ -252,7 +252,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtPut [
 			(memory integerObjectOf: 1).
 			(memory integerObjectOf: 42) }.
 
-	self assert: machineSimulator receiverRegisterValue equals: array.
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 42).
 
 	self
 		assert: (memory fetchPointer: 0 ofObject: array)
