@@ -337,6 +337,7 @@ DRCogitCanonicaliser >> visitNoop: aDRNoop [
 DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [
 
 	| copy |
+	aDRPhiFunction operands size = 1 ifTrue: [ ^ self ].
 	aDRPhiFunction basicBlock isExitBlock ifTrue: [ ^ self ].
 
 	copy := aDRPhiFunction operands
