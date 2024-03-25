@@ -34,7 +34,7 @@ DRAbstractCompilerCompiler >> compile [
 
 	| druidIR |
 	self customise.
-	
+
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
@@ -69,13 +69,7 @@ DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 	"Create the initial basic block"
 	startBlock := generator initialBasicBlock.
 	initialBasicBlock := generator createInitialBasicBlock.
-	startBlock jumpTo: initialBasicBlock.
-
-	"Config generator"
-	generator receiver: (DRInterpreterValue value: interpreter).
-	generator numberOfArguments:
-		(self numberOfArgumentsForMethod: method).
-
+	startBlock jumpTo: initialBasicBlock
 ]
 
 { #category : #'generation-IR' }
@@ -109,16 +103,34 @@ DRAbstractCompilerCompiler >> generateDruidIR [
 DRAbstractCompilerCompiler >> generateDruidIRFor: method [
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 
-	| cfg receiver arguments |
+	| cfg receiver arguments annotatedArgNums lastPreamble |
 	self configureIRBuilder: irGenerator forMethod: method.
 
-	arguments := method argumentNames collect: [ :_ | irGenerator pop ].
-	receiver := DRInterpreterValue value: interpreter.
+	annotatedArgNums := self numberOfArgumentsForMethod: method.
 
-	irGenerator
-		interpretCode: (DRMethod methodNode: method ast)
-		receiver: receiver
-		arguments: arguments.
+	annotatedArgNums isNumber ifTrue: [
+		annotatedArgNums := { annotatedArgNums } ].
+
+
+	receiver := DRInterpreterValue value: interpreter.
+	lastPreamble := nil.
+	annotatedArgNums do: [ :numArgs |
+		lastPreamble ifNotNil: [
+			lastPreamble endInstruction falseBranch removePredecessor: lastPreamble.
+			lastPreamble endInstruction newFalseBranch: irGenerator createInitialBasicBlock ].
+		lastPreamble := self preambleForNumArgs: numArgs.
+
+		irGenerator receiver: receiver.
+		irGenerator numberOfArguments: numArgs.
+
+		"???"
+		arguments := method argumentNames collect: [ :_ | irGenerator pop ].
+
+		irGenerator
+			interpretCode: (DRMethod methodNode: method ast)
+			receiver: receiver
+			arguments: arguments ].
+
 
 	cfg := irGenerator ir.
 

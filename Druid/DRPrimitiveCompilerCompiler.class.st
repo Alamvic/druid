@@ -103,6 +103,24 @@ DRPrimitiveCompilerCompiler >> numberOfArgumentsForMethod: anObject [
 	^  (anObject ast pragmaNamed: #numberOfArguments:) arguments first value
 ]
 
+{ #category : #'ir-generation' }
+DRPrimitiveCompilerCompiler >> preambleForNumArgs: numArgs [
+
+	| block checkArgCount |
+	block := irGenerator currentBasicBlock.
+
+	checkArgCount := block
+		                 equals: DRInterpreterReference argumentCount
+		                 to: numArgs asDRValue.
+
+	block
+		jumpIf: checkArgCount
+		to: irGenerator newBasicBlock "Continue the interpretation from here"
+		ifFalseTo: block controlFlowGraph failureExitBlock. 
+
+	^ block
+]
+
 { #category : #accessing }
 DRPrimitiveCompilerCompiler >> primitiveCompilerName [
 

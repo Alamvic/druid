@@ -107,22 +107,34 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector with: aBlock [
 ]
 
 { #category : #'helpers-compiling' }
-DRPrimitiveCompilationTest >> compileDruidPrimitiveGenerator: aSelector with: aBlock [
+DRPrimitiveCompilationTest >> compileDruidPrimitiveGenerator: primitiveSelector with: aBlock [
 
-	| generatorSelector compiler |
-	generatorSelector := (#gen , '_' , aSelector) asSymbol.
-
+	| compiler |
 	"First generate druid code"
 	compiler := DRPrimitiveCompilerCompiler new
-		            primitiveName: aSelector;
+		            primitiveName: primitiveSelector;
 		            interpreter: self interpreter;
-		            primitiveCompilerName: generatorSelector;
+		            primitiveCompilerName: (self generatorSelector: primitiveSelector);
 		            perform: cogitStyle;
 		            configureForCompilerClass: compilerClass.
 
 	aBlock value: compiler.
 	compiler compile.
 	^ compiler
+]
+
+{ #category : #compiling }
+DRPrimitiveCompilationTest >> compilePrimitive: primitiveSelector ForSendReceiver: receiver arguments: arguments [
+
+	self
+		compileDruidPrimitiveGenerator: primitiveSelector
+		with: [ :c | "nothing" ].
+
+	self
+		compileCogitSelector: (self generatorSelector: primitiveSelector)
+		numArgs: arguments size.
+
+	self prepareStackForSendReceiver: receiver arguments: arguments
 ]
 
 { #category : #accessing }
@@ -160,4 +172,10 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 DRPrimitiveCompilationTest >> jitCompilerClass [
 
 	^ compilerClass
+]
+
+{ #category : #'helpers - execution' }
+DRPrimitiveCompilationTest >> runUntilStop [
+
+	self runFrom: cogInitialAddress until: stopAddress
 ]

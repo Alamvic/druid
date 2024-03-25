@@ -8,6 +8,25 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #'helpers-compiling' }
+DRProductionPrimitiveCompilationTest >> buildCompiledBlock: aFullBlockClosure [
+
+	"ATTENTION: This method does not compile the closure block.
+	It just put a return compiled in #setUp method (finishCodeAddress)"
+
+	| closure |
+	closure := aFullBlockClosure
+		           forMemory: memory
+		           inMethod: methodBuilder.
+
+	"The compiled block is the second inst var"
+	interpreter
+		rawHeaderOf: (memory fetchPointer: 1 ofObject: closure)
+		put: finishCodeAddress asInteger.
+		
+	^ closure
+]
+
 { #category : #running }
 DRProductionPrimitiveCompilationTest >> setUp [
 
@@ -826,15 +845,14 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValue [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
 	| closure |
-	self compileDruidPrimitive: #primitiveFullClosureValue.
+	closure := self buildCompiledBlock: [ 42 ].
 
-	closure := [ 42 ] forMemory: memory inMethod: methodBuilder.
-
-	interpreter
-		rawHeaderOf: (memory fetchPointer: 1 ofObject: closure) "The compiled block is the second inst var"
-		put: finishCodeAddress asInteger.
-
-	self prepareStackForSendReceiver: closure arguments: {  }.
+	self
+		compilePrimitive: #primitiveFullClosureValue
+		ForSendReceiver: closure
+		arguments: {  }.
+	
+	"Compiled block executed"
 	self runUntil: finishEndInstruction address
 ]
 
@@ -843,16 +861,17 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueOnNonClosureMethod [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
 	| closure |
-	self compileDruidPrimitive: #primitiveFullClosureValue.
+	closure := self buildCompiledBlock: [ 42 ].
 
-	closure := [ 42 ] forMemory: memory inMethod: methodBuilder.
-	
-	memory
-		storePointer: 1 "The compiled block is the second inst var"
-		ofObject: closure
-		withValue: memory nilObject.
+	"Set nil as compiled block"
+	memory storePointer: 1 ofObject: closure withValue: memory nilObject.
 
-	self executeUntilStopPrimitiveWithReceiver: closure
+	self
+		compilePrimitive: #primitiveFullClosureValue
+		ForSendReceiver: closure
+		arguments: {  }.
+
+	self runUntilStop
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }
@@ -860,11 +879,14 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueOnNonCompiledBlock [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
 	| closure |
-	self compileDruidPrimitive: #primitiveFullClosureValue.
-
 	closure := [ 42 ] forMemory: memory inMethod: methodBuilder.
 
-	self executeUntilStopPrimitiveWithReceiver: closure
+	self
+		compilePrimitive: #primitiveFullClosureValue
+		ForSendReceiver: closure
+		arguments: {  }.
+
+	self runUntilStop
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }
@@ -872,11 +894,14 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueOnWrongArguments [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
 	| closure |
-	self compileDruidPrimitive: #primitiveFullClosureValue.
+	closure := self buildCompiledBlock: [ :x | 42 + x ].
 
-	closure := [ :x | 42 ] forMemory: memory inMethod: methodBuilder.
+	self
+		compilePrimitive: #primitiveFullClosureValue
+		ForSendReceiver: closure
+		arguments: {  }.
 
-	self executeUntilStopPrimitiveWithReceiver: closure
+	self runUntilStop
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }
@@ -884,23 +909,61 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValuePushReceiver [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
 	| closure initStack endStack pushedSize |
-	self compileDruidPrimitive: #primitiveFullClosureValue.
+	closure := self buildCompiledBlock: [ 42 ].
 
-	closure := [ 42 ] forMemory: memory inMethod: methodBuilder.
-
-	interpreter
-		rawHeaderOf: (memory fetchPointer: 1 ofObject: closure) "The compiled block is the second inst var"
-		put: finishCodeAddress asInteger.
+	self
+		compilePrimitive: #primitiveFullClosureValue
+		ForSendReceiver: closure
+		arguments: { }.
 
 	initStack := machineSimulator smalltalkStackPointerRegisterValue.
 
-	self prepareStackForSendReceiver: closure arguments: {  }.
 	self runUntil: finishEndInstruction address.
 
 	endStack := machineSimulator smalltalkStackPointerRegisterValue.
 
 	pushedSize := (initStack - endStack) // 8.
 
-	self assert: pushedSize equals: 1 "prepare the Stack in the test" + 1 "this primitive must push the values"
+	self assert: pushedSize equals: 1 "this primitive must push the receiver"
 
+]
+
+{ #category : #'tests-arithmetic-smallIntegers' }
+DRProductionPrimitiveCompilationTest >> testPrimitiveValuePushReceiverAndArg [
+
+	<compilerOptions: #( - #optionConstantBlockClosure )>
+	| closure initStack endStack pushedSize |
+	closure := self buildCompiledBlock: [ :x | 42 + x ].
+
+	self
+		compilePrimitive: #primitiveFullClosureValue
+		ForSendReceiver: closure
+		arguments: { (memory integerObjectOf: 3) }.
+
+	initStack := machineSimulator smalltalkStackPointerRegisterValue.
+
+	self runUntil: finishEndInstruction address.
+
+	endStack := machineSimulator smalltalkStackPointerRegisterValue.
+
+	pushedSize := (initStack - endStack) // 8.
+
+	self assert: pushedSize equals: 2 "this primitive must push the receiver and argument"
+
+]
+
+{ #category : #'tests-arithmetic-smallIntegers' }
+DRProductionPrimitiveCompilationTest >> testPrimitiveValueWithArg [
+
+	<compilerOptions: #( - #optionConstantBlockClosure )>
+	| closure |
+	closure := self buildCompiledBlock: [ :x | 42 + x ].
+
+	self
+		compilePrimitive: #primitiveFullClosureValue
+		ForSendReceiver: closure
+		arguments: { (memory integerObjectOf: 3) }.
+
+	"Compiled block executed"
+	self runUntil: finishEndInstruction address
 ]

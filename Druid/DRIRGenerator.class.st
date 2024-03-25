@@ -1290,7 +1290,7 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 
 	| value |
 	aRBMessageNode arguments first acceptVisitor: self.
-	value := self popOperand operand1 simpleConstantFold.
+	value := self popOperand simpleConstantFold.
 	value isInteger ifFalse: [ self error: 'expected an integer value' ].
 
 	self pushOperand: (self stackValue: value)
