@@ -30,6 +30,13 @@ DRCogitPrimitiveCodeGenerator >> returnNodeForCompiledMethod: aDRControlFlowGrap
 ]
 
 { #category : #visiting }
+DRCogitPrimitiveCodeGenerator >> visitFlushStack: aDRFlushStack [ 
+
+	"Nothing! There are not sym stack on primitives."
+	"TODO: Avoid DRFlushStack instructions on primitive meta-compilation"
+]
+
+{ #category : #visiting }
 DRCogitPrimitiveCodeGenerator >> visitLoadReceiver: aDRLoadReceiver [
 
 	| sourceRegister destinationRegister |

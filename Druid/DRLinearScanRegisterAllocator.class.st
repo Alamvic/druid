@@ -226,7 +226,7 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 								 allocatedLocation }
 						 result: allocatedRegister).
 				i addBefore: load.
-				i replaceOperand: op by: load ] ].
+				i replaceDependency: op by: load ] ].
 		
 		"Special case for temporary registers created during register allocation."
 		op isVirtualRegister ifTrue: [ 

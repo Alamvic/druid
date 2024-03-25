@@ -99,7 +99,7 @@ DRCogitRegisterAllocatorTest >> testAllocateRegistersForModuloIntroducesQuotient
 	self deny: r2 operand3 result equals: r2 result.
 ]
 
-{ #category : #tests }
+{ #category : #'tests - spill' }
 DRCogitRegisterAllocatorTest >> testAllocateTwoSpilledPhiFunctions [
 
 	| cfg specialRegister c1 b1 c2 b2 merge c12 c22 p1 p2 |

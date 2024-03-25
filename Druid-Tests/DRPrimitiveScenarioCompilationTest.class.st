@@ -163,6 +163,62 @@ DRPrimitiveScenarioCompilationTest >> testArithmeticBitShiftRight [
 	self assert: machineSimulator receiverRegisterValue equals: 2r11 << 62
 ]
 
+{ #category : #'tests-arithmetic-floats' }
+DRPrimitiveScenarioCompilationTest >> testAsFloatAddition [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveAsFloatAddition.
+	self
+		executePrimitiveWithReceiver: 17
+		withArguments: { 21 }.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 38
+]
+
+{ #category : #'tests-arithmetic-floats' }
+DRPrimitiveScenarioCompilationTest >> testAsFloatDivide [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveAsFloatDivision.
+	self
+		executePrimitiveWithReceiver: 17
+		withArguments: { 21 }.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 21.0 / 17.0
+]
+
+{ #category : #'tests-arithmetic-floats' }
+DRPrimitiveScenarioCompilationTest >> testAsFloatMultiply [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveAsFloatMultiply.
+	self
+		executePrimitiveWithReceiver: 17
+		withArguments: { 21 }.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 21.0 * 17.0
+]
+
+{ #category : #'tests-arithmetic-floats' }
+DRPrimitiveScenarioCompilationTest >> testAsFloatSubtract [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveAsFloatSubtract.
+	self
+		executePrimitiveWithReceiver: 17
+		withArguments: { 21 }.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 4.0
+]
+
 { #category : #'tests-types' }
 DRPrimitiveScenarioCompilationTest >> testAsInteger [
 
@@ -557,6 +613,17 @@ DRPrimitiveScenarioCompilationTest >> testCompiledPrimitivePreservesStack [
 	self assert: self popAddress equals: 55
 ]
 
+{ #category : #'tests-stack' }
+DRPrimitiveScenarioCompilationTest >> testCompiledPrimitiveWithTwoArgs [
+
+	self compileDruidPrimitive: #primitiveWithTwoArgs.
+	
+	self executePrimitiveWithReceiver: 42 withArguments: { 1. 2 }.
+	
+	"An empty primitive does nothing and just returns, the return value is the receiver"
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
 { #category : #'tests-types' }
 DRPrimitiveScenarioCompilationTest >> testConstantFloatAsInteger [
 
@@ -884,62 +951,6 @@ DRPrimitiveScenarioCompilationTest >> testFloat64AtPut [
 	
 	result := memory fetchPointer: 0 ofObject: object.
 	self assert: (Float fromIEEE64BitWord: result) equals: 1234.0
-]
-
-{ #category : #'tests-arithmetic-floats' }
-DRPrimitiveScenarioCompilationTest >> testFloatAdd [
-
-	| floatRawValue |
-	self compileDruidPrimitive: #primitiveFloatAdd.
-	self
-		executePrimitiveWithReceiver: 17
-		withArguments: { 21 }.
-	
-	floatRawValue := machineSimulator receiverRegisterValue.
-	
-	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 38
-]
-
-{ #category : #'tests-arithmetic-floats' }
-DRPrimitiveScenarioCompilationTest >> testFloatDivide [
-
-	| floatRawValue |
-	self compileDruidPrimitive: #primitiveFloatDivide.
-	self
-		executePrimitiveWithReceiver: 17
-		withArguments: { 21 }.
-	
-	floatRawValue := machineSimulator receiverRegisterValue.
-	
-	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 21.0 / 17.0
-]
-
-{ #category : #'tests-arithmetic-floats' }
-DRPrimitiveScenarioCompilationTest >> testFloatMultiply [
-
-	| floatRawValue |
-	self compileDruidPrimitive: #primitiveFloatMultiply.
-	self
-		executePrimitiveWithReceiver: 17
-		withArguments: { 21 }.
-	
-	floatRawValue := machineSimulator receiverRegisterValue.
-	
-	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 21.0 * 17.0
-]
-
-{ #category : #'tests-arithmetic-floats' }
-DRPrimitiveScenarioCompilationTest >> testFloatSubtract [
-
-	| floatRawValue |
-	self compileDruidPrimitive: #primitiveFloatSubtract.
-	self
-		executePrimitiveWithReceiver: 17
-		withArguments: { 21 }.
-	
-	floatRawValue := machineSimulator receiverRegisterValue.
-	
-	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 4.0
 ]
 
 { #category : #'tests-deadcode' }

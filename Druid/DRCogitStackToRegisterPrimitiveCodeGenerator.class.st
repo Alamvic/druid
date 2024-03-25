@@ -10,12 +10,6 @@ DRCogitStackToRegisterPrimitiveCodeGenerator >> spRegVariable [
 	^ RBVariableNode named: 'SPReg'
 ]
 
-{ #category : #'code generation' }
-DRCogitStackToRegisterPrimitiveCodeGenerator >> tempRegVariable [
-
-	^ RBVariableNode named: 'TempReg'
-]
-
 { #category : #visiting }
 DRCogitStackToRegisterPrimitiveCodeGenerator >> visitLoadArgument: aDRLoadArgument [
 	"Just copy the Arg[X]Reg to the result"

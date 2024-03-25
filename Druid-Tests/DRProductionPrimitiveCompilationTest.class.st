@@ -20,7 +20,27 @@ DRProductionPrimitiveCompilationTest >> setUp [
 		                   selector: memory nilObject. 
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-arithmetic-smallIntegers' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAsCharacter [
+
+	self compileDruidPrimitive: #primitiveAsCharacter.
+
+	self 	executePrimitiveWithReceiver: (memory integerObjectOf: 1). 
+				
+	self assert: machineSimulator receiverRegisterValue equals: (memory characterObjectOf: 1)
+]
+
+{ #category : #'tests-floats' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAsFloat [
+
+	self compileDruidPrimitive: #primitiveAsFloat.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42).
+
+	self assert: machineSimulator receiverRegisterValue equals: (memory floatObjectOf: 42.0)
+]
+
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
@@ -42,7 +62,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAt [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArray [
 
 	| array |
@@ -63,7 +83,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArray [
 		equals: (memory integerObjectOf: 42)
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtContext [
 
 	| context |
@@ -82,7 +102,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtContext [
 		withArguments: { (memory integerObjectOf: 1) }
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithNegativeIndex [
 
 	| class array |
@@ -101,7 +121,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithNegati
 		withArguments: { (memory integerObjectOf: -2) }
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithOverflowIndex [
 
 	| class array |
@@ -120,7 +140,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithOverfl
 		withArguments: { (memory integerObjectOf: 2) }
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithZeroIndex [
 
 	| class array |
@@ -139,7 +159,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithZeroIn
 		withArguments: { (memory integerObjectOf: 0) }
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtIsNotCompletePrimitive [
 
 	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
@@ -153,7 +173,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtIsNotCompletePrimi
 		bytecodes: 100
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtManyElements [
 
 	| class array |
@@ -176,7 +196,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtManyElements [
 	self assert: machineSimulator receiverRegisterValue equals: 41
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtMethod [
 
 	| class method |
@@ -197,7 +217,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtMethod [
 		withArguments: { (memory integerObjectOf: 1) }
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtOnNonArray [
 
 	| ephemeron |
@@ -214,7 +234,32 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtOnNonArray [
 		withArguments: { (memory integerObjectOf: 1) }
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-modify' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtPut [
+
+	| class array |
+	self timeLimit: (Duration minutes: 2).
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+
+	self compileDruidPrimitive: #primitiveAtPut.
+
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory arrayFormat.
+	array := memory instantiateClass: class indexableSize: 1.
+
+	self executePrimitiveWithReceiver: array withArguments: {
+			(memory integerObjectOf: 1).
+			(memory integerObjectOf: 42) }.
+
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 42).
+
+	self
+		assert: (memory fetchPointer: 0 ofObject: array)
+		equals: (memory integerObjectOf: 42)
+]
+
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClass [
 
 	| class |
@@ -230,7 +275,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClass [
 	self assert: machineSimulator receiverRegisterValue equals: class
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassFaillingWithArg [
 
 	| class |
@@ -246,7 +291,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassFaillingWithArg
 		withArguments: { obj }
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassImmediate [
 
 	| int |
@@ -261,7 +306,149 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassImmediate [
 		equals: (memory fetchClassOf: int)
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-floats' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatAdd [
+
+	self compileDruidPrimitive: #primitiveFloatAdd.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
+		withArguments: { (memory floatObjectOf: 2.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory floatObjectOf: 3.0)
+]
+
+{ #category : #'tests-floats' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatDivide [
+
+	self skip. "TOFIX: self CmpCq: 0.0 Rd: DPFPReg1."
+
+	self compileDruidPrimitive: #primitiveFloatDivide.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 3.0)
+		withArguments: { (memory floatObjectOf: 2.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory floatObjectOf: 1.5)
+]
+
+{ #category : #'tests-floats' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatEqual [
+
+	self compileDruidPrimitive: #primitiveFloatEqual.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
+		withArguments: { (memory floatObjectOf: 1.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory trueObject
+]
+
+{ #category : #'tests-floats' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatEqualFalse [
+
+	self compileDruidPrimitive: #primitiveFloatEqual.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
+		withArguments: { (memory floatObjectOf: 2.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory falseObject
+]
+
+{ #category : #'tests-floats' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatMultiply [
+
+	self compileDruidPrimitive: #primitiveFloatMultiply.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 3.0)
+		withArguments: { (memory floatObjectOf: 2.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory floatObjectOf: 6.0)
+]
+
+{ #category : #'tests-floats' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatNotEqual [
+
+	self compileDruidPrimitive: #primitiveFloatNotEqual.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
+		withArguments: { (memory floatObjectOf: 2.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory trueObject
+]
+
+{ #category : #'tests-floats' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatNotEqualFalse [
+
+	self compileDruidPrimitive: #primitiveFloatNotEqual.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
+		withArguments: { (memory floatObjectOf: 1.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory falseObject
+]
+
+{ #category : #'tests-floats' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatSubtract [
+
+	self compileDruidPrimitive: #primitiveFloatSubtract.
+
+	self
+		executePrimitiveWithReceiver: (memory floatObjectOf: 3.0)
+		withArguments: { (memory floatObjectOf: 2.0) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory floatObjectOf: 1.0)
+]
+
+{ #category : #'tests-hash' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveIdentityHash [
+
+	| hash |
+	cogit ceNewHashTrampoline: fakeTrampoline.
+
+	self compileDruidPrimitive: #primitiveIdentityHash.
+
+	obj := self newObjectWithSlots: 0.
+
+	self executePrimitiveWithReceiver: obj.
+
+	"Fake trampoline do nothing -> same object is returned as hash and is used as an integer."
+	hash := memory integerObjectOf: obj.
+
+	self assert: machineSimulator receiverRegisterValue equals: hash
+]
+
+{ #category : #'tests-arithmetic-smallIntegers' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveImmediateAsInteger [
+
+	self compileDruidPrimitive: #primitiveImmediateAsInteger.
+
+	self 	executePrimitiveWithReceiver: (memory characterObjectOf: 1). 
+				
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 1)
+]
+
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewFailingForLongSlotsObjects [
 
 	| class |
@@ -275,7 +462,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewFailingForLongSlo
 	self executeUntilStopPrimitiveWithReceiver: class
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInitializesInstance [
 
 	| class |
@@ -295,7 +482,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInitializesInstan
 	]
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInstantiatesClass [
 
 	| class |
@@ -313,7 +500,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInstantiatesClass
 		equals: class
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewMoveStartFreeSpace [
 
 	| class freeStart newObjectSize |
@@ -331,7 +518,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewMoveStartFreeSpac
 	self assert: memory freeStart equals: freeStart + newObjectSize
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSize [
 
 	| class array size |
@@ -347,7 +534,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSize [
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: size)
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesArray [
 
 	| class |
@@ -372,7 +559,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 	]
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesByteArray [
 
 	| class |
@@ -397,7 +584,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 	]
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesInteger16Array [
 
 	| class |
@@ -422,7 +609,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 	]
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesInteger32Array [
 
 	| class |
@@ -447,7 +634,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 	]
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesInteger64Array [
 
 	| class |
@@ -472,7 +659,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 	]
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesArray [
 
 	| class |
@@ -495,7 +682,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 		equals: class
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesByteArray [
 
 	| class |
@@ -518,7 +705,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 		equals: class
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesInteger16Array [
 
 	| class |
@@ -541,7 +728,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 		equals: class
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesInteger32Array [
 
 	| class |
@@ -564,7 +751,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 		equals: class
 ]
 
-{ #category : #'tests-real primitives' }
+{ #category : #'tests-object-instantiation' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesInteger64Array [
 
 	| class |
@@ -587,14 +774,39 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 		equals: class
 ]
 
-{ #category : #'tests-floats' }
-DRProductionPrimitiveCompilationTest >> testIntegerAsFloat [
+{ #category : #'tests-hash' }
+DRProductionPrimitiveCompilationTest >> testNewHashTrampoline [
 
-	self compileDruidPrimitive: #primitiveAsFloat.
+	| hash newHashTrampoline frame |
+	newHashTrampoline := cogit
+		                     genNewHashTrampoline: false
+		                     called: 'ceInlineNewHash'.
 
-	self executePrimitiveWithReceiver: (memory integerObjectOf: 42).
+	cogInitialAddress := self
+		                     compile: [
+			                     cogit MoveR: ReceiverResultReg R: TempReg.
+			                     cogit backEnd saveAndRestoreLinkRegAround: [
+				                     cogit CallRT: newHashTrampoline ].
+			                     cogit MoveR: TempReg R: ReceiverResultReg.
+			                     cogit genPrimReturn ]
+		                     bytecodes: 100.
 
-	self assert: machineSimulator receiverRegisterValue equals: (memory floatObjectOf: 42.0)
+	"Prepare the frame to be able to jump to the interpreter"
+	frame := stackBuilder addNewFrame.
+	stackBuilder buildStack.
+	machineSimulator fp: interpreter framePointer.
+	machineSimulator smalltalkStackPointerRegisterValue:
+		interpreter stackPointer.
+
+	obj := self newObjectWithSlots: 0.
+
+	self executePrimitiveWithReceiver: obj.
+
+	hash := memory rawHashBitsOf: obj.
+
+	self deny: hash equals: 0. "Hash was computed"
+
+	self assert: machineSimulator receiverRegisterValue equals: hash
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }
