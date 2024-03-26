@@ -56,6 +56,24 @@ DRPrimitiveCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 	optimisations := StackToRegisterMappingCogit druidNewOptimizationList
 ]
 
+{ #category : #'ir-generation' }
+DRPrimitiveCompilerCompiler >> generateCheckForNumArgs: numArgs [
+
+	| block checkArgCount |
+	block := irGenerator currentBasicBlock.
+
+	checkArgCount := block
+		                 equals: DRInterpreterReference argumentCount
+		                 to: numArgs asDRValue.
+
+	block
+		jumpIf: checkArgCount
+		to: irGenerator newBasicBlock "Continue the interpretation from here"
+		ifFalseTo: block controlFlowGraph failureExitBlock. 
+
+	^ block
+]
+
 { #category : #accessing }
 DRPrimitiveCompilerCompiler >> initialize [
 
@@ -101,24 +119,6 @@ DRPrimitiveCompilerCompiler >> numberOfArgumentsForMethod: anObject [
 	"Answer a <Number> representing the number of arguments found in anObject (method or selector in the receiver's primitive's source)"
 
 	^  (anObject ast pragmaNamed: #numberOfArguments:) arguments first value
-]
-
-{ #category : #'ir-generation' }
-DRPrimitiveCompilerCompiler >> preambleForNumArgs: numArgs [
-
-	| block checkArgCount |
-	block := irGenerator currentBasicBlock.
-
-	checkArgCount := block
-		                 equals: DRInterpreterReference argumentCount
-		                 to: numArgs asDRValue.
-
-	block
-		jumpIf: checkArgCount
-		to: irGenerator newBasicBlock "Continue the interpretation from here"
-		ifFalseTo: block controlFlowGraph failureExitBlock. 
-
-	^ block
 ]
 
 { #category : #accessing }
