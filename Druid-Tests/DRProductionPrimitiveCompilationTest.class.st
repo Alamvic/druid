@@ -967,3 +967,39 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueWithArg [
 	"Compiled block executed"
 	self runUntil: finishEndInstruction address
 ]
+
+{ #category : #'tests-arithmetic-smallIntegers' }
+DRProductionPrimitiveCompilationTest >> testPrimitiveValueWithArgs [
+
+	<compilerOptions: #( - #optionConstantBlockClosure )>
+	| closure |
+	closure := self buildCompiledBlock: [ :x :y | 42 + x + y ].
+
+	self
+		compilePrimitive: #primitiveFullClosureValue
+		ForSendReceiver: closure
+		arguments: {
+				(memory integerObjectOf: 3).
+				(memory integerObjectOf: 7) }.
+
+	"Compiled block executed"
+	self runUntil: finishEndInstruction address
+]
+
+{ #category : #'tests-arithmetic-smallIntegers' }
+DRProductionPrimitiveCompilationTest >> testPrimitiveValueWithTooMuchArg [
+
+	<compilerOptions: #( - #optionConstantBlockClosure )>
+	| closure |
+	closure := self buildCompiledBlock: [ :x :y :z | 42 + x + y + z ].
+
+	self
+		compilePrimitive: #primitiveFullClosureValue
+		ForSendReceiver: closure
+		arguments: {
+				(memory integerObjectOf: 3).
+				(memory integerObjectOf: 5).
+				(memory integerObjectOf: 7) }.
+
+	self runUntilStop
+]

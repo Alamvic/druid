@@ -676,6 +676,12 @@ DRBasicBlock >> isExitBlock: anObject [
 	isExitBlock := anObject
 ]
 
+{ #category : #testing }
+DRBasicBlock >> isInitialBlock [
+
+	^ self = self controlFlowGraph initialBasicBlock
+]
+
 { #category : #accessing }
 DRBasicBlock >> isLastBasicBlock [ 
 
