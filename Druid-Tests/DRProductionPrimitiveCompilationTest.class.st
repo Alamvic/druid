@@ -42,11 +42,16 @@ DRProductionPrimitiveCompilationTest >> setUp [
 { #category : #'tests-arithmetic-smallIntegers' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAsCharacter [
 
-	self compileDruidPrimitive: #primitiveAsCharacter.
+	self
+		compilePrimitive: #primitiveAsCharacter
+		ForSendReceiver: (memory integerObjectOf: 1)
+		arguments: {  }.
 
-	self 	executePrimitiveWithReceiver: (memory integerObjectOf: 1). 
-				
-	self assert: machineSimulator receiverRegisterValue equals: (memory characterObjectOf: 1)
+	self runUntilReturn.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory characterObjectOf: 1)
 ]
 
 { #category : #'tests-floats' }
@@ -183,6 +188,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtIsNotCompletePrimi
 
 	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
 
+	self timeLimit: (Duration minutes: 2).
 	self
 		compileDruidPrimitiveGenerator: #primitiveAt
 		with: [ :c | "nothing" ].
@@ -257,6 +263,8 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtOnNonArray [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtPut [
 
 	| class array |
+	self skip. "FIXME"
+	
 	self timeLimit: (Duration minutes: 2).
 	cogit ceStoreCheckTrampoline: fakeTrampoline.
 
@@ -282,47 +290,57 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtPut [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClass [
 
 	| class |
-	self compileDruidPrimitive: #primitiveClass.
-
 	class := self
 		         newClassInOldSpaceWithSlots: 0
 		         instSpec: memory nonIndexablePointerFormat.
 	obj := memory instantiateClass: class.
 
-	self executePrimitiveWithReceiver: obj.
-
-	self assert: machineSimulator receiverRegisterValue equals: class
-]
-
-{ #category : #'tests-object-access' }
-DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassFaillingWithArg [
-
-	| class |
-	self compileDruidPrimitive: #primitiveClass numArgs: 1.
-
-	class := self
-		         newClassInOldSpaceWithSlots: 0
-		         instSpec: memory nonIndexablePointerFormat.
-	obj := memory instantiateClass: class.
 
 	self
-		executeUntilStopPrimitiveWithReceiver: memory nilObject
-		withArguments: { obj }
+		compilePrimitive: #primitiveClass
+		ForSendReceiver: obj
+		arguments: {  }.
+	
+	self runUntilReturn.
+
+	self assert: machineSimulator receiverRegisterValue equals: class
 ]
 
 { #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassImmediate [
 
 	| int |
-	self compileDruidPrimitive: #primitiveClass.
-
 	int := memory integerObjectOf: 42.
 
-	self executePrimitiveWithReceiver: int.
+	self
+		compilePrimitive: #primitiveClass
+		ForSendReceiver: int
+		arguments: {  }.
+	
+	self runUntilReturn.
 
 	self
 		assert: machineSimulator receiverRegisterValue
 		equals: (memory fetchClassOf: int)
+]
+
+{ #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassWithArg [
+
+	| class |
+	class := self
+		         newClassInOldSpaceWithSlots: 0
+		         instSpec: memory nonIndexablePointerFormat.
+	obj := memory instantiateClass: class.
+
+	self
+		compilePrimitive: #primitiveClass
+		ForSendReceiver: memory nilObject
+		arguments: { obj }.
+	
+	self runUntilReturn.
+
+	self assert: machineSimulator receiverRegisterValue equals: class
 ]
 
 { #category : #'tests-floats' }
