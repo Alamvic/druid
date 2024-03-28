@@ -319,6 +319,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #rawFloatBitsOf: put: #interpretRawFloatBitsWith:.
 	specialCases at: #floatFromRawBits: put: #interpretFloat64FromRawBitsWith:.
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
+	specialCases at: #cCoerce:to: put: #interpretCCoerceWith:.	
 	specialCases at: #asObjectReference put: #interpretObjectReferenceCoercionWith:.
 	
 
