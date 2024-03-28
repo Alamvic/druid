@@ -562,7 +562,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewMoveStartFreeSpac
 ]
 
 { #category : #'tests-object-access' }
-DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSize [
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeArray [
 
 	| class array size |
 	self timeLimit: (Duration minutes: 2).
@@ -570,6 +570,82 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSize [
 
 	size := 7.
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	array := memory instantiateClass: class indexableSize: size.
+
+	self executePrimitiveWithReceiver: array.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: size)
+]
+
+{ #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeArrayExtended [
+
+	| class array size |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveSize.
+
+	size := 256.
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	array := memory instantiateClass: class indexableSize: size.
+
+	self executePrimitiveWithReceiver: array.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: size)
+]
+
+{ #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArray [
+
+	| class array size |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveSize.
+
+	size := 256.
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory firstByteFormat.
+	array := memory instantiateClass: class indexableSize: size.
+
+	self executePrimitiveWithReceiver: array.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: size)
+]
+
+{ #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeIndexableObject [
+
+	| class array size |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveSize.
+
+	size := 7.
+	class := self newClassInOldSpaceWithSlots: 2 instSpec: memory indexablePointersFormat.
+	array := memory instantiateClass: class indexableSize: size.
+
+	self executePrimitiveWithReceiver: array.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: size)
+]
+
+{ #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeNonIndexable [
+
+	| class |
+	self compileDruidPrimitive: #primitiveSize.
+
+	class := self newClassInOldSpaceWithSlots: 2 instSpec: memory nonIndexablePointerFormat.
+	obj := memory instantiateClass: class.
+
+	self executeUntilStopPrimitiveWithReceiver: obj
+]
+
+{ #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeWeakArray [
+
+	| class array size |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveSize.
+
+	size := 7.
+	class := self newClassInOldSpaceWithSlots: 2 instSpec: memory weakArrayFormat.
 	array := memory instantiateClass: class indexableSize: size.
 
 	self executePrimitiveWithReceiver: array.
