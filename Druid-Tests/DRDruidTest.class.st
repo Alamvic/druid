@@ -20,6 +20,12 @@ DRDruidTest class >> wordSizeParameters [
 ]
 
 { #category : #'helpers-compiling' }
+DRDruidTest >> generatorSelector: anInterpreterSelector [
+
+	^ ('gen_' , anInterpreterSelector) asSymbol
+]
+
+{ #category : #'helpers-compiling' }
 DRDruidTest >> interpreterClass [ 
 
 	^ DruidTestInterpreter

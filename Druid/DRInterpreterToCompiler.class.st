@@ -565,14 +565,18 @@ DRInterpreterToCompiler >> newNonImplementedPrimitive: interpreterPrimitiveMetho
 DRInterpreterToCompiler >> newPrimitive: primitiveMethod [
 	" Answer a new primitive object with its metadata and CFG generated "
 
-	| selector primCompiler |
+	| selector primCompiler argumentCount |
 	primCompiler := self newPrimitiveCompiler.
 	selector := primitiveMethod selector.
+	
+	"For multiargs, don't fix argumentCount"
+	argumentCount := primCompiler numberOfArgumentsForMethod: primitiveMethod.
+	argumentCount isCollection ifTrue: [ argumentCount := nil ].
+
 	^ DRJITPrimitiveObject new
 		  primitiveNumber: (self primitiveNumberOf: selector);
 		  sourceMethod: primitiveMethod;
-		  argumentCount:
-			  (primCompiler numberOfArgumentsForMethod: primitiveMethod);
+		  argumentCount: argumentCount;
 		  mayCallback: (self isMaycallbackPrimitive: primitiveMethod);
 		  yourself
 ]

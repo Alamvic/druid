@@ -47,8 +47,9 @@ DRInterpreterCompilationUnit >> addPrimitiveEntry: aDRPrimitiveObject [
 	| tableEntry |
 	tableEntry := {
 		              aDRPrimitiveObject primitiveNumber.
-		              aDRPrimitiveObject genSelector.
-		              aDRPrimitiveObject argumentCount }.
+		              aDRPrimitiveObject genSelector }.
+	aDRPrimitiveObject argumentCount ifNotNil: [ 
+		 tableEntry := tableEntry, { aDRPrimitiveObject argumentCount } ].
 
 	tableEntry := tableEntry , (aDRPrimitiveObject mayCallback
 		               ifTrue: [ { #maycallback } ]

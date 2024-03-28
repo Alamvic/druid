@@ -8,8 +8,8 @@ Class {
 DRControlFlowOptimisation >> applyTo: cfg [
 
 	self doApply: cfg.
-	(DRDeadBlockElimination then: DRPhiSimplication) applyTo: cfg.
-	cfg fixBackJumps.
+	DRDeadBlockElimination applyTo: cfg.
+	cfg fixBackJumps
 ]
 
 { #category : #accessing }

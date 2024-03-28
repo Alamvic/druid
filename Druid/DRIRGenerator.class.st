@@ -319,6 +319,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #rawFloatBitsOf: put: #interpretRawFloatBitsWith:.
 	specialCases at: #floatFromRawBits: put: #interpretFloat64FromRawBitsWith:.
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
+	specialCases at: #cCoerce:to: put: #interpretCCoerceWith:.	
 	specialCases at: #asObjectReference put: #interpretObjectReferenceCoercionWith:.
 	
 
@@ -1278,7 +1279,6 @@ DRIRGenerator >> interpretSpaceMaskToUseWith: aRBVariableNode [
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
 	"self addInstruction: (self stackValue: 0) from: aRBMessageNode"
-
 	self pushOperand: (self stackValue: 0)
 ]
 
@@ -1290,7 +1290,7 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 
 	| value |
 	aRBMessageNode arguments first acceptVisitor: self.
-	value := self popOperand operand1 simpleConstantFold.
+	value := self popOperand simpleConstantFold.
 	value isInteger ifFalse: [ self error: 'expected an integer value' ].
 
 	self pushOperand: (self stackValue: value)

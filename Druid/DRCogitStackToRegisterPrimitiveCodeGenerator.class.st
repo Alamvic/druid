@@ -21,7 +21,7 @@ DRCogitStackToRegisterPrimitiveCodeGenerator >> visitLoadArgument: aDRLoadArgume
 	self copyRegister: sourceRegister to: destinationRegister
 ]
 
-{ #category : #'code generation' }
+{ #category : #visiting }
 DRCogitStackToRegisterPrimitiveCodeGenerator >> visitPush: aDRPush [
 	"If the backend has not LinkReg
 		- then the return address is on TOS, we must push the value after it.
