@@ -85,7 +85,7 @@ DRDeadPathEliminationTest >> testEliminateDoubleDeadPaths [
 	| cfg lastBlocks lastPaths lastPathsLeft lastPathsRight |
 	cfg := self generateDruidIRFor: #primitiveDNA.
 
-	3 timesRepeat: [ 
+	4 timesRepeat: [ 
 		cfg applyOptimisation: optimisation.
 		self optimize: cfg ].
 

@@ -19,9 +19,9 @@ DRLoopInvariantCodeMotionTest >> denyLoop: aDRJump includes: aDRInstruction [
 { #category : #running }
 DRLoopInvariantCodeMotionTest >> optimize: cfg [
 
-	cfg applyOptimisation:
-		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
-			 DRCleanControlFlow new)
+	cfg applyOptimisation: (DRSCCP then: DRCopyPropagation).
+	cfg applyOptimisation: (DRDeadCodeElimination then: DRCleanControlFlow).
+	cfg applyOptimisation: DRPhiSimplication new
 ]
 
 { #category : #tests }
