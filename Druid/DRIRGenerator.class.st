@@ -98,7 +98,7 @@ DRIRGenerator >> argRegisterNumber: anInteger [
 		^ self instructionFactory loadReceiver classType:
 			  (DRSignedIntegerType size: 8) ].
 
-	loadArgument := (self instructionFactory loadArgument: (self argumentOffsetForStackValue: anInteger))
+	loadArgument := (self instructionFactory loadArgument: anInteger)
 		                classType: (DRSignedIntegerType size: 8).
 	loadArgument origin: thisContext sender stack.
 	self currentBasicBlock addInstruction: loadArgument.
