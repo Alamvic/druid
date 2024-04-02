@@ -6959,8 +6959,8 @@ SimpleDruidTestRTLCompiler >> gen_primitiveWithTwoArgs [
 
 	| jump1 jump2 currentBlock |
 	self MoveR: ReceiverResultReg R: ClassReg.
-	self genLoadArgAtDepth: 0 into: SendNumArgsReg.
-	self genLoadArgAtDepth: 1 into: Extra0Reg.
+	self genLoadArgAtDepth: 1 into: SendNumArgsReg.
+	self genLoadArgAtDepth: 0 into: Extra0Reg.
 	self CmpCq: 0 R: ClassReg.
 	jump1 := self JumpLessOrEqual: 0.
 	self MoveR: Extra0Reg R: ReceiverResultReg.
