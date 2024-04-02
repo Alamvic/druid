@@ -594,6 +594,28 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeArrayExtended [
 ]
 
 { #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeAsParameter [
+
+	| class array size |
+	self skip. "Not implemented - failing with multiargs"
+
+	self timeLimit: (Duration minutes: 2).
+
+	size := 7.
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	array := memory instantiateClass: class indexableSize: size.
+	
+	self
+		compilePrimitive: #primitiveSize
+		ForSendReceiver: memory nilObject
+		arguments: { array }.
+
+	self runUntilReturn.
+
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: size)
+]
+
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArray [
 
 	| class array size |
