@@ -70,9 +70,8 @@ DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 	self assert: cfg deadPaths isEmpty.
 	self assert: lastPaths size equals: 2.
 
-	"Should propagate conditional exit"
-	conditionalConstraint := lastPaths first constraintFor:
-		                         add result name.
+	"Should propagate conditional constraint to the result"
+	conditionalConstraint := lastPaths first constraintFor: DRPhysicalGeneralPurposeRegister receiverResultReg name.
 	self
 		assertConstraint: (DRGreaterOrEqualsConstraint withValue: 15)
 		includes: conditionalConstraint
@@ -107,13 +106,11 @@ DRDeadPathEliminationTest >> testEliminateDoubleHalfDeadPaths [
 
 	| cfg lastBlocks lastPaths lastPathsLeft lastPathsRight |
 	cfg := self generateDruidIRFor: #primitiveDNA2.
-	cfg generatePaths.
 	3 timesRepeat: [
 		optimisation applyTo: cfg.
-		self optimize: cfg ].
+		2 timesRepeat: [self optimize: cfg ]	].
 	
 	cfg generatePaths.
-	
 	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
 	lastBlocks := cfg lastBasicBlock predecessors.
 	lastPathsLeft := cfg incomingEdgesFor: lastBlocks first.

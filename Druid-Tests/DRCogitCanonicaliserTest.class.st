@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCogitCanonicaliserTest,
-	#superclass : #DRIRTest,
+	#superclass : #DROptimisationTest,
 	#category : #'Druid-Tests'
 }
 
@@ -55,6 +55,21 @@ DRCogitCanonicaliserTest >> buildCFGWithEightShape [
 	b7 beExitBlock.
 	
 	^ cfg
+]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> optimize: cfg [
+
+	cfg applyOptimisation: (DRSCCP then: DRCopyPropagation).
+	cfg applyOptimisation: (DRDeadCodeElimination then: DRCleanControlFlow).
+	cfg applyOptimisation: DRPhiSimplication new
+]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> setUp [
+
+	super setUp.
+	optimisation := DRCogitCanonicaliser new
 ]
 
 { #category : #tests }
@@ -304,24 +319,28 @@ DRCogitCanonicaliserTest >> testSimplifyBitXorOfBitXor [
 { #category : #tests }
 DRCogitCanonicaliserTest >> testSimplifyBranchIfCondition [
 
-	| cfg numberOfPhisBefore survivingPhi |
-	cfg := self generateBasicDruidIRFor: #primitiveOr.
-	"Prepare the CFG"
-	(DRSCCP then: DRCopyPropagation) applyTo: cfg.
-	DRCleanControlFlow new applyTo: cfg.
+	| cfg numberOfPhisBefore survivingPhi phi resultPhi |
+	cfg := self generateDruidIRFor: #primitiveOr.
 
-	numberOfPhisBefore := cfg phiFunctions size.
-	survivingPhi := cfg phiFunctions first.
+	"Phi with complex jumps"
+	phi := cfg mergeBlocks first phiFunctions first.
+	self assert: phi operands size equals: 2.
+	self assert: phi operand1 isSetConditionCode.
 
-	"Run the optimization to test"
-	DRCogitCanonicaliser new applyTo: cfg.
+	resultPhi := cfg mergeBlocks second phiFunctions first.
 
-	"Clean the CFG"
-	DRPhiSimplication new applyTo: cfg.
+	cfg applyOptimisation: optimisation.
 
-	self assert: numberOfPhisBefore - 1 equals: cfg phiFunctions size.
+	"Simple phi"
+	self assert: phi operands size equals: 1.
+	self assert: phi operand1 isSetConditionCode.
 
-	self assert: cfg phiFunctions first equals: survivingPhi
+	"Clean simple phis to copies"
+	cfg applyOptimisation: DRPhiSimplication new.
+
+	"Just result phi survived"
+	self assert: cfg phiFunctions size equals: 1.
+	self assert: cfg phiFunctions first equals: resultPhi
 
 ]
 

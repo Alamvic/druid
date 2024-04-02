@@ -7,9 +7,9 @@ Class {
 { #category : #tests }
 DRTailDuplicationTest >> optimize: cfg [
 
-	cfg applyOptimisation:
-		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
-			 DRCleanControlFlow new)
+	cfg applyOptimisation: (DRSCCP then: DRCopyPropagation).
+	cfg applyOptimisation: (DRDeadCodeElimination then: DRCleanControlFlow).
+	cfg applyOptimisation: DRPhiSimplication new
 ]
 
 { #category : #tests }
@@ -824,10 +824,6 @@ DRTailDuplicationTest >> testTailDuplicateWithPhiUsersInFrontier [
 
 	| cfg frontierOfFrontiers mergeBlocks |
 	cfg := self generateDruidIRFor: #primitiveDoubleInnerBranching.
-
-	cfg applyOptimisation:
-		((DRSCCP then: DRCopyPropagation then: DRDeadCodeElimination) then:
-			 DRCleanControlFlow new).
 
 	mergeBlocks := cfg mergeBlocks .
 	mergeBlocks first tailDuplicate.

@@ -185,7 +185,7 @@ DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 		op = myOperand 
 		ifTrue: [ | predecessor | "Find the new operand dominator of the predecessor"
 			predecessor := self basicBlock predecessorAt: i.
-			newOperands detect: [ :newOperand | predecessor isDominatedBy: newOperand basicBlock ] ] 
+			newOperands detect: [ :newOperand | predecessor isDominatedBy: newOperand basicBlock ] ifNone: [ ^ nil ] ] 
 		ifFalse: [ op ] 
 	].
 	
