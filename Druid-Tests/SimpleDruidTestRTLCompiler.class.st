@@ -1884,7 +1884,7 @@ SimpleDruidTestRTLCompiler >> gen_primitiveAdd [
 	| jump1 jump2 currentBlock |
 	self mclassIsSmallInteger ifFalse: [ ^ UnimplementedPrimitive ].
 	self MoveR: ReceiverResultReg R: ClassReg.
-	self genLoadArgAtDepth: 0 into: SendNumArgsReg.
+	self genLoadArg: 0 into: SendNumArgsReg.
 	self TstCq: 1 R: SendNumArgsReg.
 	jump1 := self JumpZero: 0.
 	self AddCq:  -1 R: SendNumArgsReg.
@@ -1984,7 +1984,7 @@ SimpleDruidTestRTLCompiler >> gen_primitiveAsCharacter [
 	s13 := self methodNumArgs.
 	s13 = 1 ifTrue: [
 		| jump3 jump2 jump1 |
-		self genLoadArgAtDepth: 0 into: ClassReg.
+		self genLoadArg: 0 into: ClassReg.
 		self TstCq: 1 R: ClassReg.
 		jump3 := self JumpZero: 0.
 		self ArithmeticShiftRightCq: 3 R: ClassReg.
@@ -3215,7 +3215,7 @@ SimpleDruidTestRTLCompiler >> gen_primitiveClass [
 	s50 := self methodNumArgs.
 	s50 = 1 ifTrue: [
 		| jump5 jump3 jump1 jump6 jump4 jump2 |
-		self genLoadArgAtDepth: 0 into: Extra0Reg.
+		self genLoadArg: 0 into: Extra0Reg.
 		self MoveR: Extra0Reg R: ClassReg.
 		self AndCq: 7 R: ClassReg.
 		self CmpCq: 0 R: ClassReg.
@@ -3737,7 +3737,7 @@ SimpleDruidTestRTLCompiler >> gen_primitiveFloatAdd [
 
 	| jump1 jumpNext jump9 jump6 jump3 s119 s116 currentBlock jump8 jump5 jump2 jumpTrue jump7 jump4 |
 	self MoveR: ReceiverResultReg R: ClassReg.
-	self genLoadArgAtDepth: 0 into: SendNumArgsReg.
+	self genLoadArg: 0 into: SendNumArgsReg.
 	self MoveR: ClassReg R: Extra0Reg.
 	self AndCq: 7 R: Extra0Reg.
 	self CmpCq: 0 R: Extra0Reg.
@@ -3935,7 +3935,7 @@ SimpleDruidTestRTLCompiler >> gen_primitiveFloatEqual [
 
 	| jump1 jump6 jump3 currentBlock s82 jump8 jump5 s79 jump2 jump7 jump4 |
 	self MoveR: ReceiverResultReg R: ClassReg.
-	self genLoadArgAtDepth: 0 into: SendNumArgsReg.
+	self genLoadArg: 0 into: SendNumArgsReg.
 	self MoveR: ClassReg R: Extra0Reg.
 	self AndCq: 7 R: Extra0Reg.
 	self CmpCq: 0 R: Extra0Reg.
@@ -4052,7 +4052,7 @@ SimpleDruidTestRTLCompiler >> gen_primitiveFloatMultiply [
 
 	| jump1 jumpNext jump9 jump6 jump3 s119 s116 currentBlock jump8 jump5 jump2 jumpTrue jump7 jump4 |
 	self MoveR: ReceiverResultReg R: ClassReg.
-	self genLoadArgAtDepth: 0 into: SendNumArgsReg.
+	self genLoadArg: 0 into: SendNumArgsReg.
 	self MoveR: ClassReg R: Extra0Reg.
 	self AndCq: 7 R: Extra0Reg.
 	self CmpCq: 0 R: Extra0Reg.
@@ -4234,7 +4234,7 @@ SimpleDruidTestRTLCompiler >> gen_primitiveFloatNotEqual [
 
 	| jump1 jump6 jump3 currentBlock s82 jump8 jump5 s79 jump2 jump7 jump4 |
 	self MoveR: ReceiverResultReg R: ClassReg.
-	self genLoadArgAtDepth: 0 into: SendNumArgsReg.
+	self genLoadArg: 0 into: SendNumArgsReg.
 	self MoveR: ClassReg R: Extra0Reg.
 	self AndCq: 7 R: Extra0Reg.
 	self CmpCq: 0 R: Extra0Reg.
@@ -4351,7 +4351,7 @@ SimpleDruidTestRTLCompiler >> gen_primitiveFloatSubtract [
 
 	| jump1 jumpNext jump9 jump6 jump3 s119 s116 currentBlock jump8 jump5 jump2 jumpTrue jump7 jump4 |
 	self MoveR: ReceiverResultReg R: ClassReg.
-	self genLoadArgAtDepth: 0 into: SendNumArgsReg.
+	self genLoadArg: 0 into: SendNumArgsReg.
 	self MoveR: ClassReg R: Extra0Reg.
 	self AndCq: 7 R: Extra0Reg.
 	self CmpCq: 0 R: Extra0Reg.
@@ -4569,7 +4569,7 @@ SimpleDruidTestRTLCompiler >> gen_primitiveFullClosureValue [
 	s23 = 1 ifTrue: [
 		| jump4 jump3 jump2 jump1 |
 		self MoveR: ReceiverResultReg R: Extra0Reg.
-		self genLoadArgAtDepth: 0 into: SendNumArgsReg.
+		self genLoadArg: 0 into: SendNumArgsReg.
 		self MoveM64: 24 r: Extra0Reg R: ClassReg.
 		self ArithmeticShiftRightCq: 3 R: ClassReg.
 		self CmpCq: 1 R: ClassReg.
@@ -4604,8 +4604,8 @@ SimpleDruidTestRTLCompiler >> gen_primitiveFullClosureValue [
 	s46 = 2 ifTrue: [
 		| jump1 jump2 jump3 jump4 |
 		self MoveR: ReceiverResultReg R: Extra1Reg.
-		self genLoadArgAtDepth: 0 into: ClassReg.
-		self genLoadArgAtDepth: 1 into: SendNumArgsReg.
+		self genLoadArg: 0 into: ClassReg.
+		self genLoadArg: 1 into: SendNumArgsReg.
 		self MoveM64: 24 r: Extra1Reg R: Extra0Reg.
 		self ArithmeticShiftRightCq: 3 R: Extra0Reg.
 		self CmpCq: 2 R: Extra0Reg.
@@ -5015,7 +5015,7 @@ SimpleDruidTestRTLCompiler >> gen_primitiveImmediateAsInteger [
 	s40 := self methodNumArgs.
 	s40 = 1 ifTrue: [
 		| jump5 jump3 jump1 jump4 jump2 |
-		self genLoadArgAtDepth: 0 into: ClassReg.
+		self genLoadArg: 0 into: ClassReg.
 		self TstCq: 1 R: ClassReg.
 		jump1 := self JumpZero: 0.
 		self ArithmeticShiftRightCq: 3 R: ClassReg.
