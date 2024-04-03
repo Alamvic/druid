@@ -10,9 +10,9 @@ Class {
 		'edges',
 		'deadPaths',
 		'numberOfSpillSlots',
-		'tree',
 		'edgesBySource',
-		'stagedRegisters'
+		'stagedRegisters',
+		'dominatorTree'
 	],
 	#category : #'Druid-IR'
 }
@@ -250,9 +250,10 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 { #category : #dominance }
 DRControlFlowGraph >> buildDominatorTree [
 
-	self tree: (DRDominatorTree new buildDominatorTreeOf: self).
-	self dominatorTree computeDominanceFrontier.
-	^ self dominatorTree
+	| newDominatorTree |
+	newDominatorTree := DRDominatorTree new buildDominatorTreeOf: self.
+	newDominatorTree computeDominanceFrontier.
+	^ newDominatorTree
 ]
 
 { #category : #edges }
@@ -386,7 +387,7 @@ DRControlFlowGraph >> deadPaths [
 { #category : #accessing }
 DRControlFlowGraph >> dominatorTree [
 
-	^ tree
+	^ dominatorTree ifNil: [ dominatorTree := self buildDominatorTree ]
 ]
 
 { #category : #accessing }
@@ -557,6 +558,12 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 
 	self blocksDo: [ :b | 
 		b instructionsDo: [ :e | aFullBlockClosure value: e ] ]
+]
+
+{ #category : #dominance }
+DRControlFlowGraph >> invalidateDominatorTree [
+
+	dominatorTree := nil
 ]
 
 { #category : #testing }
@@ -831,7 +838,7 @@ DRControlFlowGraph >> subgraphWith: subgraphBlocks [
 { #category : #accessing }
 DRControlFlowGraph >> tree: anObject [
 
-	tree := anObject
+	dominatorTree := anObject
 ]
 
 { #category : #validating }

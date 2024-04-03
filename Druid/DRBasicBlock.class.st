@@ -286,6 +286,14 @@ DRBasicBlock >> copy: aValue [
 	^ self addInstruction: (self instructionFactory copy: aValue)
 ]
 
+{ #category : #building }
+DRBasicBlock >> directlyDominatedBlocks [
+	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
+	This checks transitive domination"
+
+	^ (controlFlowGraph dominatorTree childrenOf: self) asSet
+]
+
 { #category : #accessing }
 DRBasicBlock >> distanceToPredecessor: predecessorBlock [ 
 
@@ -303,6 +311,14 @@ DRBasicBlock >> distanceToPredecessor: predecessorBlock [
 DRBasicBlock >> divide: aValue by: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory divide: aValue by: anotherValue)
+]
+
+{ #category : #building }
+DRBasicBlock >> dominatedBlocks [
+	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
+	This checks transitive domination"
+
+	^ (controlFlowGraph dominatorTree allChildrenOf: self) asSet
 ]
 
 { #category : #accessing }
@@ -637,6 +653,14 @@ DRBasicBlock >> intToFloat: aValue [
 	^ self addInstruction: (self instructionFactory intToFloat: aValue)
 ]
 
+{ #category : #building }
+DRBasicBlock >> isDirectDominatorOfExactly: basicBlocks [
+	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
+	This checks direct domination"
+
+	^ self directlyDominatedBlocks = basicBlocks asSet
+]
+
 { #category : #'testing - dominator' }
 DRBasicBlock >> isDominatedBy: dominatorBlock [
 
@@ -645,20 +669,22 @@ DRBasicBlock >> isDominatedBy: dominatorBlock [
 
 { #category : #building }
 DRBasicBlock >> isDominatorOf: basicBlocks [
-	"Deprecated: should be removed once it's posible. Use DRBasicBlock>#isDominatedBy: instead."
-	| dominatorTree node |
 	
-	dominatorTree := DRDominatorTree new.
-	dominatorTree buildDominatorTreeOf: controlFlowGraph.
-	node := dominatorTree blockDictionary at: self.
-	node children size = basicBlocks size ifTrue: [
-		node children do: [ :child |
-			basicBlocks indexOf: child block ifAbsent: [ ^ false ].
-		].
-		^ true
-	].
+	^ basicBlocks allSatisfy: [ :b | b isDominatedBy: self ]
+]
+
+{ #category : #building }
+DRBasicBlock >> isDominatorOfAllOf: basicBlocks [
 	
-	^ false
+	^ basicBlocks allSatisfy: [ :b | b isDominatedBy: self ]
+]
+
+{ #category : #building }
+DRBasicBlock >> isDominatorOfExactly: basicBlocks [
+	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
+	This checks transitive domination"
+
+	^ self dominatedBlocks = basicBlocks asSet
 ]
 
 { #category : #testing }
@@ -1164,9 +1190,7 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 	self removePredecessor: predecessorToRewire.
 	predecessorToRewire replaceSuccessor: self by: duplicatedBlock.
 
-	controlFlowGraph tree:
-		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
-	controlFlowGraph dominatorTree computeDominanceFrontier.
+	controlFlowGraph invalidateDominatorTree.
 
 	self
 		mergeInstructionsWithDuplicatedBlock: duplicatedBlock

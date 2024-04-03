@@ -9,6 +9,12 @@ Class {
 	#category : #'Druid-Optimizations'
 }
 
+{ #category : #querying }
+DRDominatorTree >> allChildrenOf: aBlock [
+
+	^ (blockDictionary at: aBlock) allChildren collect: [ :e | e block ]
+]
+
 { #category : #inspection }
 DRDominatorTree >> asInspectorIn: view [
 
@@ -23,7 +29,7 @@ DRDominatorTree >> blockDictionary [
 	^ blockDictionary
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #building }
 DRDominatorTree >> buildDominatorTreeOf: cfg [
 
 	| hasChanged currentNode newImmediateDominator|
@@ -41,7 +47,13 @@ DRDominatorTree >> buildDominatorTreeOf: cfg [
 		]]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #querying }
+DRDominatorTree >> childrenOf: aBlock [
+
+	^ (blockDictionary at: aBlock) children collect: [ :e | e block ]
+]
+
+{ #category : #building }
 DRDominatorTree >> computeDominanceFrontier [
 
 	dominanceFrontiers ifNotNil: [ ^ dominanceFrontiers ].
@@ -126,13 +138,13 @@ DRDominatorTree >> createBlockView: treeNode [
 	^ composite
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #querying }
 DRDominatorTree >> dominanceFrontierOf: aBlock [
 
 	^ self computeDominanceFrontier at: aBlock ifAbsent: [ OrderedCollection new ]
 ]
 
-{ #category : #query }
+{ #category : #querying }
 DRDominatorTree >> dominatorOfAll: instructions [
 
 	| firstNode |
@@ -148,7 +160,7 @@ DRDominatorTree >> dominatorOfAll: instructions [
 				  and: (self blockDictionary at: instruction basicBlock) ]
 ]
 
-{ #category : #asd }
+{ #category : #querying }
 DRDominatorTree >> immediateDominatorOf: aBlock [
 
 	| node |
@@ -156,7 +168,7 @@ DRDominatorTree >> immediateDominatorOf: aBlock [
 	^ node parent block
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #initialization }
 DRDominatorTree >> initialize: cfg [
 
 	| currentNode workList node |
@@ -203,7 +215,7 @@ DRDominatorTree >> isDominator: dominatorBlock of: dominatedBlock [
 	^ node isDominatedByBlock: dominatorBlock.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #querying }
 DRDominatorTree >> iteratedDominanceFrontierOf: aDRBasicBlock [
 	" DF+(n) = DF(n) U DF+(DF(n)) 
 		  returns a set of Dominance Frontier of the block "
@@ -213,7 +225,7 @@ DRDominatorTree >> iteratedDominanceFrontierOf: aDRBasicBlock [
 	^ frontier , (frontier flatCollect: [ :each | self iteratedDominanceFrontierOf: each ])
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #querying }
 DRDominatorTree >> minimalDominanceFrontierOfAll: blocks [
 
 	| frontier |
@@ -223,7 +235,7 @@ DRDominatorTree >> minimalDominanceFrontierOfAll: blocks [
 	^ frontier asOrderedCollection
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #querying }
 DRDominatorTree >> nearestCommonAncestorOf: n1 and: n2 [
 	| n1Path n2Path minPathLength |
 	n1Path := self pathToRoot: n1.
@@ -235,7 +247,7 @@ DRDominatorTree >> nearestCommonAncestorOf: n1 and: n2 [
 	^ n1Path at: minPathLength.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #querying }
 DRDominatorTree >> pathToRoot: node [
 	| currentNode path |
 	currentNode := node.
