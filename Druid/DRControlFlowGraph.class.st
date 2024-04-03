@@ -251,8 +251,8 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 DRControlFlowGraph >> buildDominatorTree [
 
 	self tree: (DRDominatorTree new buildDominatorTreeOf: self).
-	self tree computeDominanceFrontier.
-	^ self tree
+	self dominatorTree computeDominanceFrontier.
+	^ self dominatorTree
 ]
 
 { #category : #edges }
@@ -381,6 +381,12 @@ DRControlFlowGraph >> deadPaths [
 			ifPresent: [ :collection | collection add: e ]
 			ifAbsentPut: [{ e } asOrderedCollection] ].
 	^ deadPaths := paths
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> dominatorTree [
+
+	^ tree
 ]
 
 { #category : #accessing }
@@ -820,12 +826,6 @@ DRControlFlowGraph >> subgraphWith: subgraphBlocks [
 	subgraph initialBasicBlock jumpTo: sourceBlockCopy.
 	subgraph generatePaths.
 	^ subgraph
-]
-
-{ #category : #accessing }
-DRControlFlowGraph >> tree [
-
-	^ tree
 ]
 
 { #category : #accessing }

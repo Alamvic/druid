@@ -307,8 +307,8 @@ DRBasicBlock >> divide: aValue by: anotherValue [
 
 { #category : #accessing }
 DRBasicBlock >> dominator [
-	
-	^ self controlFlowGraph tree immediateDominatorOf: self
+
+	^ self controlFlowGraph dominatorTree immediateDominatorOf: self
 ]
 
 { #category : #'control-flow' }
@@ -404,7 +404,7 @@ DRBasicBlock >> hasFinalInstruction [
 DRBasicBlock >> hasFrontier: aBlock [
 
 	| frontier |
-	frontier := controlFlowGraph tree dominanceFrontierOf: self.
+	frontier := controlFlowGraph dominatorTree dominanceFrontierOf: self.
 	^ frontier includes: aBlock
 ]
 
@@ -529,14 +529,17 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 		^ self ].
 
 	"Create phis on frontier"
-	phis := frontier collect: [ :b | b phiWithVariables: duplicatedInstructions ].
+	phis := frontier collect: [ :b |
+		        b phiWithVariables: duplicatedInstructions ].
 
 	"Replace dominated users"
 	users copy do: [ :u |
-		(u replaceOperandsIfDominated: myInstruction withAll: phis) ifNotNil: [ users remove: u ] ].
+		(u replaceOperandsIfDominated: myInstruction withAll: phis)
+			ifNotNil: [ users remove: u ] ].
 
 	"Create the phi of phis in the frontier and update uses based on blocks dominance"
-	nextFrontier := controlFlowGraph tree minimalDominanceFrontierOfAll: frontier.
+	nextFrontier := controlFlowGraph dominatorTree
+		                minimalDominanceFrontierOfAll: frontier.
 	^ self
 		  insertPhisAndReplaceUsersBetween: myInstruction
 		  andAll: phis
@@ -636,8 +639,8 @@ DRBasicBlock >> intToFloat: aValue [
 
 { #category : #'testing - dominator' }
 DRBasicBlock >> isDominatedBy: dominatorBlock [
-	
-	^ controlFlowGraph tree isDominator: dominatorBlock of: self
+
+	^ controlFlowGraph dominatorTree isDominator: dominatorBlock of: self
 ]
 
 { #category : #building }
@@ -1151,11 +1154,11 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 	newSuccessors := self newEmptySuccessors.
 
 	duplicatedBlock := self basicDuplicate.
-	duplicatedBlock successors do: [ :successor | 
+	duplicatedBlock successors do: [ :successor |
 		successor addPredecessor: duplicatedBlock ].
 
-	self predecessors do: [ :predecessorToRemove | 
-		predecessorToRemove = predecessorToRewire ifFalse: [ 
+	self predecessors do: [ :predecessorToRemove |
+		predecessorToRemove = predecessorToRewire ifFalse: [
 			duplicatedBlock removePredecessor: predecessorToRemove ] ].
 
 	self removePredecessor: predecessorToRewire.
@@ -1163,12 +1166,12 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 
 	controlFlowGraph tree:
 		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
-	controlFlowGraph tree computeDominanceFrontier.
+	controlFlowGraph dominatorTree computeDominanceFrontier.
 
 	self
 		mergeInstructionsWithDuplicatedBlock: duplicatedBlock
 		withSuccessors: newSuccessors
-		usingUsers: [:i | i nonLocalUsers].
+		usingUsers: [ :i | i nonLocalUsers ].
 
 	^ duplicatedBlock
 ]

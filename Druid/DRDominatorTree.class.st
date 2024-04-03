@@ -2,9 +2,9 @@ Class {
 	#name : #DRDominatorTree,
 	#superclass : #Object,
 	#instVars : [
-		'tree',
 		'blockDictionary',
-		'dominanceFrontiers'
+		'dominanceFrontiers',
+		'root'
 	],
 	#category : #'Druid-Optimizations'
 }
@@ -162,12 +162,12 @@ DRDominatorTree >> initialize: cfg [
 	| currentNode workList node |
 	
 	blockDictionary := Dictionary new.
-	tree := DRDominatorTreeNode new.
+	root := DRDominatorTreeNode new.
 	workList := OrderedCollection new.
-	workList add: tree.
+	workList add: root.
 	
-	tree block: cfg initialBasicBlock.
-	blockDictionary at: cfg initialBasicBlock put: tree.
+	root block: cfg initialBasicBlock.
+	blockDictionary at: cfg initialBasicBlock put: root.
 	
 	[ workList isNotEmpty ] whileTrue: [
 		currentNode := workList removeAt: 1.
@@ -241,11 +241,17 @@ DRDominatorTree >> pathToRoot: node [
 	currentNode := node.
 	path := OrderedCollection new.
 	path addFirst: currentNode.
-	[ currentNode = tree ] whileFalse: [ 
+	[ currentNode = root ] whileFalse: [ 
 			currentNode := currentNode parent.
 			path addFirst: currentNode.
 	].
 	^ path
+]
+
+{ #category : #accessing }
+DRDominatorTree >> root [
+
+	^ root
 ]
 
 { #category : #inspection }
@@ -265,9 +271,4 @@ DRDominatorTree >> showLines: blockViews in: view [
 		| source destination |
 		source := line model key.
 		destination := line model value ]
-]
-
-{ #category : #accessing }
-DRDominatorTree >> tree [
-	^ tree
 ]
