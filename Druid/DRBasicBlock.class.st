@@ -286,14 +286,6 @@ DRBasicBlock >> copy: aValue [
 	^ self addInstruction: (self instructionFactory copy: aValue)
 ]
 
-{ #category : #building }
-DRBasicBlock >> directlyDominatedBlocks [
-	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
-	This checks transitive domination"
-
-	^ (controlFlowGraph dominatorTree childrenOf: self) asSet
-]
-
 { #category : #accessing }
 DRBasicBlock >> distanceToPredecessor: predecessorBlock [ 
 
@@ -313,7 +305,7 @@ DRBasicBlock >> divide: aValue by: anotherValue [
 	^ self addInstruction: (self instructionFactory divide: aValue by: anotherValue)
 ]
 
-{ #category : #building }
+{ #category : #dominance }
 DRBasicBlock >> dominatedBlocks [
 	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
 	This checks transitive domination"
@@ -502,6 +494,22 @@ DRBasicBlock >> id: anObject [
 	id := anObject
 ]
 
+{ #category : #dominance }
+DRBasicBlock >> immediatelyDominatedBlocks [
+	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
+	This checks transitive domination"
+
+	^ (controlFlowGraph dominatorTree childrenOf: self) asSet
+]
+
+{ #category : #dominance }
+DRBasicBlock >> immediatelyPostDominatedBlocks [
+	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
+	This checks transitive domination"
+
+	^ (controlFlowGraph postDominatorTree childrenOf: self) asSet
+]
+
 { #category : #accessing }
 DRBasicBlock >> includesInstruction: anInstruction [ 
 	^ instructions includes: anInstruction
@@ -653,33 +661,25 @@ DRBasicBlock >> intToFloat: aValue [
 	^ self addInstruction: (self instructionFactory intToFloat: aValue)
 ]
 
-{ #category : #building }
-DRBasicBlock >> isDirectDominatorOfExactly: basicBlocks [
-	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
-	This checks direct domination"
-
-	^ self directlyDominatedBlocks = basicBlocks asSet
-]
-
-{ #category : #'testing - dominator' }
+{ #category : #dominance }
 DRBasicBlock >> isDominatedBy: dominatorBlock [
 
 	^ controlFlowGraph dominatorTree isDominator: dominatorBlock of: self
 ]
 
-{ #category : #building }
+{ #category : #dominance }
 DRBasicBlock >> isDominatorOf: basicBlocks [
 	
 	^ basicBlocks allSatisfy: [ :b | b isDominatedBy: self ]
 ]
 
-{ #category : #building }
+{ #category : #dominance }
 DRBasicBlock >> isDominatorOfAllOf: basicBlocks [
 	
 	^ basicBlocks allSatisfy: [ :b | b isDominatedBy: self ]
 ]
 
-{ #category : #building }
+{ #category : #dominance }
 DRBasicBlock >> isDominatorOfExactly: basicBlocks [
 	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
 	This checks transitive domination"
@@ -705,10 +705,40 @@ DRBasicBlock >> isExitBlock: anObject [
 	isExitBlock := anObject
 ]
 
+{ #category : #dominance }
+DRBasicBlock >> isImmediateDominatorOfExactly: basicBlocks [
+	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
+	This checks direct domination"
+
+	^ self immediatelyDominatedBlocks = basicBlocks asSet
+]
+
+{ #category : #dominance }
+DRBasicBlock >> isImmediatePostDominatorOfExactly: basicBlocks [
+	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
+	This checks direct domination"
+
+	^ self immediatelyPostDominatedBlocks = basicBlocks asSet
+]
+
 { #category : #accessing }
 DRBasicBlock >> isLastBasicBlock [ 
 
 	^  controlFlowGraph lastBasicBlock = self
+]
+
+{ #category : #dominance }
+DRBasicBlock >> isPostDominatedBy: dominatorBlock [
+
+	^ controlFlowGraph postDominatorTree isDominator: dominatorBlock of: self
+]
+
+{ #category : #dominance }
+DRBasicBlock >> isPostDominatorOfExactly: basicBlocks [
+	"Return true if the blocks in the argument are the only post-dominated blocks of the receiver.
+	This checks transitive domination"
+
+	^ self postDominatedBlocks = basicBlocks asSet
 ]
 
 { #category : #building }
@@ -936,6 +966,14 @@ DRBasicBlock >> phiWithVariables: variables [
 
 	phi := self instructionFactory phiWithVariables: finalVariables.
 	^ self addInstruction: phi
+]
+
+{ #category : #dominance }
+DRBasicBlock >> postDominatedBlocks [
+	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
+	This checks transitive domination"
+
+	^ (controlFlowGraph postDominatorTree allChildrenOf: self) asSet
 ]
 
 { #category : #accessing }

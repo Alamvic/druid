@@ -3,6 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'initialBasicBlock',
+		'exitBasicBlock',
 		'initialConstraint',
 		'basicBlocks',
 		'nextBasicBlockId',
@@ -12,7 +13,8 @@ Class {
 		'numberOfSpillSlots',
 		'edgesBySource',
 		'stagedRegisters',
-		'dominatorTree'
+		'dominatorTree',
+		'postDominatorTree'
 	],
 	#category : #'Druid-IR'
 }
@@ -256,6 +258,15 @@ DRControlFlowGraph >> buildDominatorTree [
 	^ newDominatorTree
 ]
 
+{ #category : #dominance }
+DRControlFlowGraph >> buildPostDominatorTree [
+
+	| newDominatorTree |
+	newDominatorTree := DRDominatorTree new buildPostDominatorTreeOf:
+		                    self.
+	^ newDominatorTree
+]
+
 { #category : #edges }
 DRControlFlowGraph >> clearEdges [
 
@@ -384,7 +395,7 @@ DRControlFlowGraph >> deadPaths [
 	^ deadPaths := paths
 ]
 
-{ #category : #accessing }
+{ #category : #dominance }
 DRControlFlowGraph >> dominatorTree [
 
 	^ dominatorTree ifNil: [ dominatorTree := self buildDominatorTree ]
@@ -400,6 +411,18 @@ DRControlFlowGraph >> edges [
 DRControlFlowGraph >> edgesFrom: sourceBlock to: destinationBlock [
 
 	^ (self outgoingEdgesFor: sourceBlock) select: [ :e | e destination = destinationBlock ]
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> exitBasicBlock [
+
+	^ exitBasicBlock
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> exitBasicBlock: anObject [
+
+	exitBasicBlock := anObject
 ]
 
 { #category : #accessing }
@@ -484,17 +507,18 @@ DRControlFlowGraph >> initialize [
 
 	super initialize.
 	instructionFactory := DRInstructionFactory new.
-	
+
 	stagedRegisters := OrderedCollection new.
 	basicBlocks := OrderedCollection new.
 	edges := OrderedCollection new.
 	edgesBySource := Dictionary new.
-	
+
 	"How many spill slots we need in memory to execute the compiled method"
 	numberOfSpillSlots := 0.
-	
+
 	nextBasicBlockId := 0.
 	initialBasicBlock := self privateNewBasicBlock.
+	exitBasicBlock := self privateNewBasicBlock
 ]
 
 { #category : #inspecting }
@@ -564,6 +588,12 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 DRControlFlowGraph >> invalidateDominatorTree [
 
 	dominatorTree := nil
+]
+
+{ #category : #dominance }
+DRControlFlowGraph >> invalidatePostDominatorTree [
+
+	postDominatorTree := nil
 ]
 
 { #category : #testing }
@@ -657,6 +687,12 @@ DRControlFlowGraph >> pathsSize [
 DRControlFlowGraph >> phiFunctions [
 
 	^ self instructions select: [ :i | i isPhiFunction ]
+]
+
+{ #category : #dominance }
+DRControlFlowGraph >> postDominatorTree [
+
+	^ postDominatorTree ifNil: [ postDominatorTree := self buildPostDominatorTree ]
 ]
 
 { #category : #iterating }

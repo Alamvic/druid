@@ -29,22 +29,50 @@ DRDominatorTree >> blockDictionary [
 	^ blockDictionary
 ]
 
-{ #category : #building }
+{ #category : #initialization }
+DRDominatorTree >> buildDominationTreeOf: cfg startingFrom: initialBasicBlock followingInitially: initializationBlockClosure thenFollowing: dominationBlockClosure [
+
+	| hasChanged currentNode newImmediateDominator |
+	self
+		initialize: cfg
+		startingFrom: initialBasicBlock
+		iterating: initializationBlockClosure.
+	hasChanged := true.
+	[ hasChanged ] whileTrue: [
+		hasChanged := false.
+		({
+			 cfg initialBasicBlock.
+			 cfg exitBasicBlock } , cfg blocks copyWithout: initialBasicBlock)
+			do: [ :block |
+				currentNode := blockDictionary at: block.
+				newImmediateDominator := self findImmediateDominatorOfBlock:
+					                         (dominationBlockClosure value: block).
+				currentNode parent = newImmediateDominator ifFalse: [
+					currentNode replaceParent: newImmediateDominator.
+					hasChanged := true ] ] ]
+]
+
+{ #category : #initialization }
 DRDominatorTree >> buildDominatorTreeOf: cfg [
 
-	| hasChanged currentNode newImmediateDominator|
-	self initialize: cfg.
-	hasChanged := true.
-	[ hasChanged ] whileTrue: [ 
-		hasChanged := false.
-		cfg blocksDo: [ :b | 
-			currentNode := blockDictionary at: b.
-			newImmediateDominator := currentNode findImmediateDominator: self.
-			(currentNode parent = newImmediateDominator) ifFalse: [ 
-				currentNode replaceParent: newImmediateDominator.
-				hasChanged := true.
-			]
-		]]
+	self
+		buildDominationTreeOf: cfg
+		startingFrom: cfg initialBasicBlock
+		followingInitially: [ :aBlock | aBlock successors ]
+		thenFollowing: [ :aBlock | aBlock predecessors ]
+]
+
+{ #category : #initialization }
+DRDominatorTree >> buildPostDominatorTreeOf: cfg [
+
+	cfg exitBasicBlock ifNil: [
+		self error:
+			'We need an exitBasicBlock to build a post dominator tree' ].
+	self
+		buildDominationTreeOf: cfg
+		startingFrom: cfg exitBasicBlock
+		followingInitially: [ :aBlock | aBlock predecessors ]
+		thenFollowing: [ :aBlock | aBlock successors ]
 ]
 
 { #category : #querying }
@@ -53,7 +81,7 @@ DRDominatorTree >> childrenOf: aBlock [
 	^ (blockDictionary at: aBlock) children collect: [ :e | e block ]
 ]
 
-{ #category : #building }
+{ #category : #initialization }
 DRDominatorTree >> computeDominanceFrontier [
 
 	dominanceFrontiers ifNotNil: [ ^ dominanceFrontiers ].
@@ -160,6 +188,22 @@ DRDominatorTree >> dominatorOfAll: instructions [
 				  and: (self blockDictionary at: instruction basicBlock) ]
 ]
 
+{ #category : #initialization }
+DRDominatorTree >> findImmediateDominatorOfBlock: nextBlocksToIterate [
+	"Method used during the tree construction, don't use it outside of it"
+
+	| nearestCommonAncestor currentBlock |
+	nearestCommonAncestor := self blockDictionary at:
+		                         nextBlocksToIterate first.
+	nextBlocksToIterate do: [ :p |
+		currentBlock := self blockDictionary at: p.
+		nearestCommonAncestor := self
+			                         nearestCommonAncestorOf:
+			                         nearestCommonAncestor
+			                         and: currentBlock ].
+	^ nearestCommonAncestor
+]
+
 { #category : #querying }
 DRDominatorTree >> immediateDominatorOf: aBlock [
 
@@ -169,33 +213,56 @@ DRDominatorTree >> immediateDominatorOf: aBlock [
 ]
 
 { #category : #initialization }
-DRDominatorTree >> initialize: cfg [
+DRDominatorTree >> initialize: cfg startingFrom: aBlockClosure [
 
-	| currentNode workList node |
-	
+	| currentNode workList node initialBasicBlock |
 	blockDictionary := Dictionary new.
 	root := DRDominatorTreeNode new.
 	workList := OrderedCollection new.
 	workList add: root.
-	
-	root block: cfg initialBasicBlock.
-	blockDictionary at: cfg initialBasicBlock put: root.
-	
+
+	initialBasicBlock := aBlockClosure value: cfg.
+	root block: initialBasicBlock.
+	blockDictionary at: initialBasicBlock put: root.
+
 	[ workList isNotEmpty ] whileTrue: [
-		currentNode := workList removeAt: 1.
-		currentNode block endInstruction targets do: [ :b |
-			node := DRDominatorTreeNode new.
+		currentNode := workList removeFirst.
+		currentNode block successors do: [ :b |
 			blockDictionary at: b ifAbsent: [
-				blockDictionary add: b->node.
-				workList addFirst: (node block: b;
-				parent: currentNode;
-				yourself).
-				currentNode children addLast: node.
-			].
-		].
-	]
-	
-	
+				node := DRDominatorTreeNode new
+					        block: b;
+					        parent: currentNode;
+					        yourself.
+				currentNode addChild: node.
+
+				blockDictionary at: b put: node.
+				workList addFirst: node ] ] ]
+]
+
+{ #category : #initialization }
+DRDominatorTree >> initialize: cfg startingFrom: initialBasicBlock iterating: aBlockClosure [
+
+	| currentNode workList node |
+	blockDictionary := Dictionary new.
+	root := DRDominatorTreeNode new.
+	workList := OrderedCollection new.
+	workList add: root.
+
+	root block: initialBasicBlock.
+	blockDictionary at: initialBasicBlock put: root.
+
+	[ workList isNotEmpty ] whileTrue: [
+		currentNode := workList removeFirst.
+		(aBlockClosure value: currentNode block) do: [ :b |
+			blockDictionary at: b ifAbsent: [
+				node := DRDominatorTreeNode new
+					        block: b;
+					        parent: currentNode;
+					        yourself.
+				currentNode addChild: node.
+
+				blockDictionary at: b put: node.
+				workList addFirst: node ] ] ]
 ]
 
 { #category : #inspection }
