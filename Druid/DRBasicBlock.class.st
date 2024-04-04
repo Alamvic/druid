@@ -286,6 +286,19 @@ DRBasicBlock >> copy: aValue [
 	^ self addInstruction: (self instructionFactory copy: aValue)
 ]
 
+{ #category : #building }
+DRBasicBlock >> detectOperandForIteratedSuccessorPhiFrom: possibleOperands [
+
+	possibleOperands isEmpty ifTrue: [ ^ DRNullValue new ].
+
+	^ possibleOperands
+		  detect: [ :i | self checkLivenessOf: i ]
+		  ifNone: [
+			  self detectOperandForIteratedSuccessorPhiFrom: (possibleOperands
+					   select: [ :i | i isPhiFunction ]
+					   thenCollect: [ :phi | phi operands ]) flattened ]
+]
+
 { #category : #accessing }
 DRBasicBlock >> distanceToPredecessor: predecessorBlock [ 
 
@@ -676,6 +689,12 @@ DRBasicBlock >> isExitBlock: anObject [
 	isExitBlock := anObject
 ]
 
+{ #category : #testing }
+DRBasicBlock >> isInitialBlock [
+
+	^ self = self controlFlowGraph initialBasicBlock
+]
+
 { #category : #accessing }
 DRBasicBlock >> isLastBasicBlock [ 
 
@@ -903,7 +922,7 @@ DRBasicBlock >> phiWithVariables: variables [
 		                  allPosibleVariables
 			                  detect: [ :i | b checkLivenessOf: i ]
 			                  ifFound: [ :i | allPosibleVariables remove: i ]
-			                  ifNone: [ DRNullValue new ] ].
+			                  ifNone: [ b detectOperandForIteratedSuccessorPhiFrom: allPosibleVariables ] ].
 
 	phi := self instructionFactory phiWithVariables: finalVariables.
 	^ self addInstruction: phi
