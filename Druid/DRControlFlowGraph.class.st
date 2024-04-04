@@ -517,8 +517,8 @@ DRControlFlowGraph >> initialize [
 	numberOfSpillSlots := 0.
 
 	nextBasicBlockId := -1.
-	initialBasicBlock := self privateNewBasicBlock.
-	exitBasicBlock := self privateNewBasicBlock
+	exitBasicBlock := self privateNewBasicBlock.
+	initialBasicBlock := self privateNewBasicBlock
 ]
 
 { #category : #inspecting }
