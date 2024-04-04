@@ -32,7 +32,7 @@ DRDominatorTree >> blockDictionary [
 { #category : #initialization }
 DRDominatorTree >> buildDominationTreeOf: cfg startingFrom: initialBasicBlock followingInitially: initializationBlockClosure thenFollowing: dominationBlockClosure [
 
-	| hasChanged currentNode newImmediateDominator |
+	| hasChanged newImmediateDominator |
 	self
 		initialize: cfg
 		startingFrom: initialBasicBlock
@@ -44,12 +44,12 @@ DRDominatorTree >> buildDominationTreeOf: cfg startingFrom: initialBasicBlock fo
 			 cfg initialBasicBlock.
 			 cfg exitBasicBlock } , cfg blocks copyWithout: initialBasicBlock)
 			do: [ :block |
-				currentNode := blockDictionary at: block.
-				newImmediateDominator := self findImmediateDominatorOfBlock:
-					                         (dominationBlockClosure value: block).
-				currentNode parent = newImmediateDominator ifFalse: [
-					currentNode replaceParent: newImmediateDominator.
-					hasChanged := true ] ] ]
+				blockDictionary at: block ifPresent: [ :currentNode |
+					newImmediateDominator := self findImmediateDominatorOfBlock:
+						                         (dominationBlockClosure value: block).
+					currentNode parent = newImmediateDominator ifFalse: [
+						currentNode replaceParent: newImmediateDominator.
+						hasChanged := true ] ] ] ]
 ]
 
 { #category : #initialization }

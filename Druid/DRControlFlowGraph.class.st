@@ -230,7 +230,7 @@ DRControlFlowGraph >> blocksDo: aFullBlockClosure [
 DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 
 	| workingQueue visited visitsToThisBlockSoFar |
-	self buildDominatorTree.
+	self invalidateDominatorTree.
 	visited := Dictionary new.
 
 	workingQueue := OrderedCollection new.
@@ -240,7 +240,7 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 		aFullBlockClosure value: currentBlock.
 
 		currentBlock hasFinalInstruction ifTrue: [	| sortedSuccessors |
-			sortedSuccessors := currentBlock lastInstruction targets sorted: [:b1 :b2 | b1 canBeLinearizedBefore: b2].
+			sortedSuccessors := currentBlock successors sorted: [:b1 :b2 | b1 canBeLinearizedBefore: b2].
 			sortedSuccessors reversed do: [ :target | "Count how many times we have visited this block"
 				visitsToThisBlockSoFar := visited at: target ifPresent: [ :p | p + 1 ] ifAbsent: [ 1 ].
 				visited at: target put: visitsToThisBlockSoFar.
@@ -434,7 +434,7 @@ DRControlFlowGraph >> firstBasicBlock [
 { #category : #edges }
 DRControlFlowGraph >> fixBackJumps [
 
-	self buildDominatorTree.
+	self invalidateDominatorTree.
 	self blocks do: [ :block |
 		| jump |
 		jump := block endInstruction.
@@ -516,7 +516,7 @@ DRControlFlowGraph >> initialize [
 	"How many spill slots we need in memory to execute the compiled method"
 	numberOfSpillSlots := 0.
 
-	nextBasicBlockId := 0.
+	nextBasicBlockId := -1.
 	initialBasicBlock := self privateNewBasicBlock.
 	exitBasicBlock := self privateNewBasicBlock
 ]
@@ -880,6 +880,6 @@ DRControlFlowGraph >> tree: anObject [
 { #category : #validating }
 DRControlFlowGraph >> validate [
 
-	self buildDominatorTree.
+	self invalidateDominatorTree.
 	self blocks do: [ :e | e validate ]
 ]

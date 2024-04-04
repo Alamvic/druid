@@ -24,7 +24,7 @@ DRBasicBlockTest >> testBreakBlockCreateNewBlocks [
 
 	blocks := cfg reversePostOrderBlocks allButFirst. "Ignore initial block"
 
-	self assert: blocks size equals: 3.
+	self assert: blocks size equals: 4.
 	self assertBlock: blocks first jumpsTo: blocks second.
 	self assertBlock: blocks second jumpsTo: blocks third.
 
@@ -75,7 +75,7 @@ DRBasicBlockTest >> testPathAt [
 	cfg := self setUpCFGWithConditional.
 	cfg generatePaths.
 		
-	self assertPath: (cfg pathAt: 1) equalsIds: {0 -> 1 . 1 -> 2 . 2 -> 4}.
-	self assertPath: (cfg pathAt: 2) equalsIds: {0 -> 1 . 1 -> 3 . 3 -> 4}.
+	self assertPath: (cfg pathAt: 1) equalsIds: {-1 -> 1 . 1 -> 2 . 2 -> 4}.
+	self assertPath: (cfg pathAt: 2) equalsIds: {-1 -> 1 . 1 -> 3 . 3 -> 4}.
 
 ]

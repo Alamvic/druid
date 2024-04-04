@@ -23,7 +23,7 @@ DRCogitStackToRegisterFlushHoisting >> applyTo: cfg [
 			cfg instructionFactory flushStack.
 		^ self ].
 
-	cfg buildDominatorTree.
+	cfg invalidateDominatorTree.
 	dominator := (cfg dominatorTree dominatorOfAll:
 		              instructionsNeedingStackFlush) block.
 	dominator endInstruction addBefore:
