@@ -286,6 +286,19 @@ DRBasicBlock >> copy: aValue [
 	^ self addInstruction: (self instructionFactory copy: aValue)
 ]
 
+{ #category : #building }
+DRBasicBlock >> detectOperandForIteratedSuccessorPhiFrom: possibleOperands [
+
+	possibleOperands isEmpty ifTrue: [ ^ DRNullValue new ].
+
+	^ possibleOperands
+		  detect: [ :i | self checkLivenessOf: i ]
+		  ifNone: [
+			  self detectOperandForIteratedSuccessorPhiFrom: (possibleOperands
+					   select: [ :i | i isPhiFunction ]
+					   thenCollect: [ :phi | phi operands ]) flattened ]
+]
+
 { #category : #accessing }
 DRBasicBlock >> distanceToPredecessor: predecessorBlock [ 
 
@@ -719,6 +732,12 @@ DRBasicBlock >> isImmediatePostDominatorOfExactly: basicBlocks [
 	This checks direct domination"
 
 	^ self immediatelyPostDominatedBlocks = basicBlocks asSet
+]
+
+{ #category : #testing }
+DRBasicBlock >> isInitialBlock [
+
+	^ self = self controlFlowGraph initialBasicBlock
 ]
 
 { #category : #accessing }

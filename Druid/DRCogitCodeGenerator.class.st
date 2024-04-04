@@ -8,7 +8,8 @@ Class {
 		'availableJumpIndexes',
 		'blocks',
 		'visitedBlocksWithIncomingBackjumps',
-		'visitedBlocks'
+		'visitedBlocks',
+		'currentBlock'
 	],
 	#category : #'Druid-Cogit'
 }
@@ -275,10 +276,9 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 DRCogitCodeGenerator >> generateCodeFromBlocks [
 
 	[ blocks isNotEmpty ] whileTrue: [
-		| current |
-		current := blocks removeAt: 1. "Remove current block from the list for code generation"
+		currentBlock := blocks removeAt: 1. "Remove current block from the list for code generation"
 		fallthroughBlock := blocks at: 1 ifAbsent: nil. "Store next block for fallthrough jumps"
-		self visitBasicBlock: current ]
+		self visitBasicBlock: currentBlock ]
 ]
 
 { #category : #'generate-code' }
@@ -476,6 +476,7 @@ DRCogitCodeGenerator >> innerCompileBlocks: innerBlocks [
 
 	| innerGenerator |
 	innerGenerator := self innerGenerator.
+	innerGenerator visitedBlocks: (visitedBlocks copyWith: currentBlock).
 	innerGenerator blocks: innerBlocks.
 	innerGenerator generateCodeFromBlocks.
 	^ innerGenerator
@@ -484,7 +485,7 @@ DRCogitCodeGenerator >> innerCompileBlocks: innerBlocks [
 { #category : #'code-generation' }
 DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
 
-	| dominatorTree dominatedBlocks sharedPathToTheEnd fullPath innerGenerator |
+	| dominatorTree dominatedBlocks sharedPathToTheEnd fullPath innerGenerator branchBlocks frontier |
 	"We should create a path from the branch to the end"
 	dominatorTree := aDRBasicBlock controlFlowGraph buildDominatorTree.
 	dominatedBlocks := aDRBasicBlock controlFlowGraph
@@ -499,17 +500,24 @@ DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
 	"Remove blocks only visited during inner compilation from outer"
 	dominatedBlocks allButFirstDo: [ :b | blocks remove: b ].
 
-	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf:
-		                      aDRBasicBlock.
+	"Find the rest of the blocks to the end of the execution (dominated by the frontier)"
+	frontier := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
 	sharedPathToTheEnd := blocks select: [ :e |
-		                      sharedPathToTheEnd anySatisfy: [
-			                      :potentialDominator |
+		                      frontier anySatisfy: [ :potentialDominator |
 			                      e isDominatedBy: potentialDominator ] ].
-	fullPath := dominatedBlocks , sharedPathToTheEnd.
 
+	"Clean blocks that where already visited by inner compilation(s) and have no jumps from here"
+	branchBlocks := visitedBlocks , { currentBlock } , blocks.
+	sharedPathToTheEnd
+		reject: [ :b | branchBlocks includesAny: b predecessors ]
+		thenDo: [ :b | blocks remove: b ].
+
+	"Generate inner code"
+	fullPath := dominatedBlocks , sharedPathToTheEnd.
 	innerGenerator := self innerCompileBlocks: fullPath.
 	innerGenerator generatePostambleForCFG:	aDRBasicBlock controlFlowGraph.
 	innerGenerator generateReturnForCFG: aDRBasicBlock controlFlowGraph.
+	
 	^ innerGenerator
 ]
 
@@ -740,7 +748,10 @@ DRCogitCodeGenerator >> visitAnd: aDRAnd [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitBasicBlock: b [
-
+	
+	"Block is not dead code"
+	self assert: (b isInitialBlock or: [visitedBlocks includesAny: b predecessors]).
+	
 	self preProcessBlock: b.
 	b instructionsDo: [ :e | self buildStatementsForInstruction: e ].
 	self postProcessBlock: b
@@ -1262,4 +1273,16 @@ DRCogitCodeGenerator >> visitUnsignedRightShift: aRightShift [
 
 	^ self threeOperandCogitRTL: #LogicalShiftRight instruction: aRightShift
 
+]
+
+{ #category : #accessing }
+DRCogitCodeGenerator >> visitedBlocks [
+
+	^ visitedBlocks
+]
+
+{ #category : #accessing }
+DRCogitCodeGenerator >> visitedBlocks: aCollection [
+
+	visitedBlocks := aCollection
 ]

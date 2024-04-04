@@ -56,6 +56,24 @@ DRPrimitiveCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 	optimisations := StackToRegisterMappingCogit druidNewOptimizationList
 ]
 
+{ #category : #'ir-generation' }
+DRPrimitiveCompilerCompiler >> generateCheckForNumArgs: numArgs [
+
+	| block checkArgCount |
+	block := irGenerator currentBasicBlock.
+
+	checkArgCount := block
+		                 equals: DRInterpreterReference argumentCount
+		                 to: numArgs asDRValue.
+
+	block
+		jumpIf: checkArgCount
+		to: irGenerator newBasicBlock "Continue the interpretation from here"
+		ifFalseTo: block controlFlowGraph failureExitBlock. 
+
+	^ block
+]
+
 { #category : #accessing }
 DRPrimitiveCompilerCompiler >> initialize [
 
