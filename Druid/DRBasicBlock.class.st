@@ -981,7 +981,7 @@ DRBasicBlock >> phiWithVariables: variables [
 		                  allPosibleVariables
 			                  detect: [ :i | b checkLivenessOf: i ]
 			                  ifFound: [ :i | allPosibleVariables remove: i ]
-			                  ifNone: [ DRNullValue new ] ].
+			                  ifNone: [ b detectOperandForIteratedSuccessorPhiFrom: allPosibleVariables ] ].
 
 	phi := self instructionFactory phiWithVariables: finalVariables.
 	^ self addInstruction: phi
