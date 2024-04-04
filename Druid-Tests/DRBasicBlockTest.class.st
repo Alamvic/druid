@@ -75,7 +75,7 @@ DRBasicBlockTest >> testPathAt [
 	cfg := self setUpCFGWithConditional.
 	cfg generatePaths.
 		
-	self assertPath: (cfg pathAt: 1) equalsIds: {-1 -> 1 . 1 -> 2 . 2 -> 4}.
-	self assertPath: (cfg pathAt: 2) equalsIds: {-1 -> 1 . 1 -> 3 . 3 -> 4}.
+	self assertPath: (cfg pathAt: 1) equalsIds: {0 -> 1 . 1 -> 2 . 2 -> 4}.
+	self assertPath: (cfg pathAt: 2) equalsIds: {0 -> 1 . 1 -> 3 . 3 -> 4}.
 
 ]
