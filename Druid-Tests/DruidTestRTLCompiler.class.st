@@ -8094,6 +8094,13 @@ DruidTestRTLCompiler >> shouldAnnotateObjectReference: anOop [
 ]
 
 { #category : #generated }
+DruidTestRTLCompiler >> smallFloatSpecialisedPreamble [ 
+
+	self mclassIsSmallFloat ifFalse:
+		[^UnimplementedPrimitive].
+]
+
+{ #category : #generated }
 DruidTestRTLCompiler >> smallIntegerSpecialisedPreamble [ 
 
 	self mclassIsSmallInteger ifFalse:

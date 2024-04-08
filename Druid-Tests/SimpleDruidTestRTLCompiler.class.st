@@ -7526,6 +7526,13 @@ SimpleDruidTestRTLCompiler >> shouldAnnotateObjectReference: anOop [
 ]
 
 { #category : #generated }
+SimpleDruidTestRTLCompiler >> smallFloatSpecialisedPreamble [ 
+
+	self mclassIsSmallFloat ifFalse:
+		[^UnimplementedPrimitive].
+]
+
+{ #category : #generated }
 SimpleDruidTestRTLCompiler >> smallIntegerSpecialisedPreamble [ 
 
 	self mclassIsSmallInteger ifFalse:
