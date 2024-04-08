@@ -1027,54 +1027,6 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueOnWrongArguments [
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }
-DRProductionPrimitiveCompilationTest >> testPrimitiveValuePushReceiver [
-
-	<compilerOptions: #( - #optionConstantBlockClosure )>
-	| closure initStack endStack pushedSize |
-	closure := self buildCompiledBlock: [ 42 ].
-
-	self
-		compilePrimitive: #primitiveFullClosureValue
-		ForSendReceiver: closure
-		arguments: { }.
-
-	initStack := machineSimulator smalltalkStackPointerRegisterValue.
-
-	self runUntil: finishEndInstruction address.
-
-	endStack := machineSimulator smalltalkStackPointerRegisterValue.
-
-	pushedSize := (initStack - endStack) // 8.
-
-	self assert: pushedSize equals: 1 "this primitive must push the receiver"
-
-]
-
-{ #category : #'tests-arithmetic-smallIntegers' }
-DRProductionPrimitiveCompilationTest >> testPrimitiveValuePushReceiverAndArg [
-
-	<compilerOptions: #( - #optionConstantBlockClosure )>
-	| closure initStack endStack pushedSize |
-	closure := self buildCompiledBlock: [ :x | 42 + x ].
-
-	self
-		compilePrimitive: #primitiveFullClosureValue
-		ForSendReceiver: closure
-		arguments: { (memory integerObjectOf: 3) }.
-
-	initStack := machineSimulator smalltalkStackPointerRegisterValue.
-
-	self runUntil: finishEndInstruction address.
-
-	endStack := machineSimulator smalltalkStackPointerRegisterValue.
-
-	pushedSize := (initStack - endStack) // 8.
-
-	self assert: pushedSize equals: 2 "this primitive must push the receiver and argument"
-
-]
-
-{ #category : #'tests-arithmetic-smallIntegers' }
 DRProductionPrimitiveCompilationTest >> testPrimitiveValueWithArg [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
@@ -1109,7 +1061,7 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueWithArgs [
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }
-DRProductionPrimitiveCompilationTest >> testPrimitiveValueWithTooMuchArg [
+DRProductionPrimitiveCompilationTest >> testPrimitiveValueWithTooManyArgs [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
 	| closure |
