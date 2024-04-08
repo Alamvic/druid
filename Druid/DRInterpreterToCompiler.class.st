@@ -62,8 +62,8 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 		primitives := #( 
 	#primitiveAdd #primitiveSubtract #primitiveMultiply #primitiveDivide #primitiveMod
 	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
-	#primitiveEqual #primitiveNotEqual #primitiveIdentical "#primitiveNotIdentical" 
-	#primitiveDiv #primitiveQuo "primitiveBitShift" primitiveBitAnd  primitiveBitXor primitiveBitOr
+	#primitiveEqual #primitiveNotEqual #primitiveIdentical #primitiveNotIdentical
+	#primitiveDiv #primitiveQuo primitiveBitShift primitiveBitAnd  primitiveBitXor primitiveBitOr
 
 	primitiveSmallFloatAdd primitiveSmallFloatSubtract #primitiveSmallFloatMultiply "primitiveSmallFloatDivide (Fix float comparison)"  
 	primitiveSmallFloatEqual primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatGreaterThan primitiveSmallFloatLessThan  primitiveSmallFloatLessOrEqual
