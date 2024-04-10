@@ -614,7 +614,7 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: instruct
 	phis do: [ :e |
 		e basicBlock predecessors do: [ :phiPredecessor |
 			| blockDefiningPhiOperand |
-			blockDefiningPhiOperand := controlFlowGraph tree
+			blockDefiningPhiOperand := controlFlowGraph dominatorTree
 				                           lookup: [ :block |
 				                           newNamesPerBlock includesKey: block ]
 				                           startingAt: phiPredecessor.
@@ -628,7 +628,7 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: instruct
 			ifNotNil: [ users remove: u ] ].
 
 	"Create the phi of phis in the frontier and update uses based on blocks dominance"
-	nextFrontier := controlFlowGraph tree minimalDominanceFrontierOfAll:
+	nextFrontier := controlFlowGraph dominatorTree minimalDominanceFrontierOfAll:
 		                frontier.
 	^ self
 		  insertPhisAndReplaceUsersBetween: myInstruction
@@ -915,7 +915,7 @@ DRBasicBlock >> loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock
 DRBasicBlock >> mergeInstructionsWithDuplicatedBlock: duplicatedBlock withSuccessors: successors usingUsers: getUsersBlock dominatedBlocks: dominatedBlocks [
 
 	| nextFrontier |
-	nextFrontier := (controlFlowGraph tree
+	nextFrontier := (controlFlowGraph dominatorTree
 		                 minimalDominanceFrontierOfAll: successors) select: [
 		                :e | dominatedBlocks includes: e ].
 	self instructions copy
@@ -1299,7 +1299,7 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 	newSuccessors := self newEmptySuccessors.
 
 	controlFlowGraph invalidateDominatorTree.
-	allDominatedBlocks := controlFlowGraph tree allChildrenOf: self.
+	allDominatedBlocks := controlFlowGraph dominatorTree allChildrenOf: self.
 
 	duplicatedBlock := self basicDuplicate.
 	duplicatedBlock successors do: [ :successor |
