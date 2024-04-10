@@ -21,8 +21,8 @@ DRCogitSendMarshallHoisting >> applyTo: cfg [
 	toMerge := cfg instructions select: [ :e | e isPop or: [ e isCogitSendMarshall ] ].
 	toMerge size <= 1 ifTrue: [ ^ self "nothing to do" ].
 
-	cfg buildDominatorTree.
-	dominator := cfg tree dominatorOfAll: toMerge.
+	cfg invalidateDominatorTree.
+	dominator := cfg dominatorTree dominatorOfAll: toMerge.
 
 	marshall := toMerge detect: [ :e | e isCogitSendMarshall ] ifNone: [ toMerge anyOne ].
 	toMerge do: [ :e | e = marshall ifFalse: [ e removeFromCFG ] ].

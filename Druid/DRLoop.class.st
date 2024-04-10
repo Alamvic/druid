@@ -286,7 +286,7 @@ DRLoop >> unroll: unrollingFactor [
 
 	copiedLoop := (rolledLoopCopy instructions detect: [ :i |
 		               i isBackJump ]) loop.
-	self controlFlowGraph buildDominatorTree.
+	self controlFlowGraph invalidateDominatorTree.
 	self loopPhiFunctions
 		with: copiedLoop loopPhiFunctions
 		do: [ :unrolledLoopPhi :rolledLoopPhi |
