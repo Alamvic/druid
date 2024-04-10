@@ -75,7 +75,8 @@ DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 { #category : #'generation-IR' }
 DRAbstractCompilerCompiler >> customise [
 
-	^ self customiseFor: self sourceMethod
+	self flag: #TOFIX. "This customisation shoud be done between methods"
+	self sourceMethods do: [ :method | self customiseFor: method ]
 ]
 
 { #category : #'generation-IR' }
@@ -95,25 +96,26 @@ DRAbstractCompilerCompiler >> generateDruidIR [
 ]
 
 { #category : #'generation-IR' }
-DRAbstractCompilerCompiler >> generateDruidIRFor: method [
+DRAbstractCompilerCompiler >> generateDruidIRFor: compiledMethods [
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 
-	| cfg receiver annotatedArgNums aMethod |
+	| cfg receiver annotatedArgNums |
 	self initializeIRBuilder: irGenerator.
 	receiver := DRInterpreterValue value: interpreter.
-	aMethod := DRMethod methodNode: method ast.
 
-	annotatedArgNums := self numberOfArgumentsForMethod: method.
+	annotatedArgNums := compiledMethods size = 1
+		                    ifTrue: [ self numberOfArgumentsForMethod: compiledMethods unique ]
+		                    ifFalse: [ 0 ].
 
 	annotatedArgNums isNumber
 		ifTrue: [
 			self
-				interpretMethod: aMethod
+				interpretMethod: compiledMethods
 				receiver: receiver
 				numArgs: annotatedArgNums ]
 		ifFalse: [
 			self
-				interpretMethod: aMethod
+				interpretMethod: compiledMethods
 				receiver: receiver
 				ManyNumArgs: annotatedArgNums ].
 
@@ -166,7 +168,7 @@ DRAbstractCompilerCompiler >> instructionFactory [
 ]
 
 { #category : #interpretation }
-DRAbstractCompilerCompiler >> interpretMethod: aDRMethod receiver: aDRReceiver ManyNumArgs: annotatedArgNums [
+DRAbstractCompilerCompiler >> interpretMethod: compiledMethods receiver: aDRReceiver ManyNumArgs: annotatedArgNums [
 
 	| lastPreamble |
 	lastPreamble := nil.
@@ -178,25 +180,28 @@ DRAbstractCompilerCompiler >> interpretMethod: aDRMethod receiver: aDRReceiver M
 		lastPreamble := self generateCheckForNumArgs: numArgs.
 
 		self
-			interpretMethod: aDRMethod
+			interpretMethod: compiledMethods
 			receiver: aDRReceiver
 			numArgs: numArgs ]
 ]
 
 { #category : #interpretation }
-DRAbstractCompilerCompiler >> interpretMethod: aDRMethod receiver: aDRReceiver numArgs: numArgs [
+DRAbstractCompilerCompiler >> interpretMethod: compiledMethods receiver: aDRReceiver numArgs: numArgs [
 
-	| arguments |
 	irGenerator receiver: aDRReceiver.
 	irGenerator numberOfArguments: numArgs.
-	"???"
-	arguments := aDRMethod methodNode argumentNames collect: [ :_ |
-		             irGenerator pop ].
 
-	irGenerator
-		interpretCode: aDRMethod
-		receiver: aDRReceiver
-		arguments: arguments
+	compiledMethods do: [ :method |
+		| aDRMethod arguments |
+		aDRMethod := DRMethod methodNode: method ast.
+		"???"
+		arguments := aDRMethod methodNode argumentNames collect: [ :_ |
+			             irGenerator pop ].
+		
+		irGenerator
+			interpretCode: aDRMethod
+			receiver: aDRReceiver
+			arguments: arguments ]
 ]
 
 { #category : #accessing }

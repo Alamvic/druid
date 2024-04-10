@@ -2,7 +2,8 @@ Class {
 	#name : #DRBytecodeCompilerCompiler,
 	#superclass : #DRAbstractCompilerCompiler,
 	#instVars : [
-		'targetName'
+		'targetName',
+		'bytecodes'
 	],
 	#category : #'Druid-BytecodeToJITCompilation'
 }
@@ -25,6 +26,12 @@ DRBytecodeCompilerCompiler >> buildIR: bytecodeSelector [
 	^ self 
 		sourceName: bytecodeSelector;
 		generateDruidIR
+]
+
+{ #category : #accessing }
+DRBytecodeCompilerCompiler >> bytecodes: bytecodeAndSelectors [
+
+	bytecodes := bytecodeAndSelectors
 ]
 
 { #category : #accessing }
@@ -51,6 +58,14 @@ DRBytecodeCompilerCompiler >> createInitialBasicBlock [
 	^ initialBasicBlock
 ]
 
+{ #category : #'generation-IR' }
+DRBytecodeCompilerCompiler >> generateDruidIR [
+
+	bytecodes ifNotNil: [ 
+		interpreter currentBytecode: bytecodes first key ].
+	^ self generateDruidIRFor: self sourceMethods
+]
+
 { #category : #accessing }
 DRBytecodeCompilerCompiler >> newIRGenerator [
 
@@ -63,6 +78,16 @@ DRBytecodeCompilerCompiler >> numberOfArgumentsForMethod: aMethod [
 	(aMethod ast hasPragmaNamed: #numberOfArguments:) ifFalse: [ ^ 0 ].
 
 	^ (aMethod ast pragmaNamed: #numberOfArguments:) arguments first value
+]
+
+{ #category : #accessing }
+DRBytecodeCompilerCompiler >> sourceMethods [
+
+	sourceName ifNotNil: [
+		^ { (interpreter class lookupSelector: sourceName) } ].
+
+	^ bytecodes asOrderedDictionary values collect: [ :selector |
+		  interpreter class lookupSelector: selector ]
 ]
 
 { #category : #accessing }

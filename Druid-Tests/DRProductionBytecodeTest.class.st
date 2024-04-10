@@ -2613,6 +2613,30 @@ DRProductionBytecodeTest >> testPushTrueObject [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testPushTrueObjectAndJump [
+
+	| object |
+	self
+		compileBytecode: 77 selector: #pushConstantTrueBytecode
+		andBytecode: 185 selector: #shortConditionalJumpTrue
+		thenDo: [ :generator |
+			cogit bytecodePC: 13.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: 1.
+	memory storePointer: 0 ofObject: object withValue: 17.
+
+	self executePrimitiveWithReceiver: object.
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory trueObject
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testReturnReceiver [
 
 	| object |

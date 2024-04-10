@@ -193,6 +193,12 @@ DRValue >> isDRBlockClosure [
 ]
 
 { #category : #testing }
+DRValue >> isFlushStack [
+
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isFrameReturn [
 
 	^ false

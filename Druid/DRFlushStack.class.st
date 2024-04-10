@@ -10,6 +10,12 @@ DRFlushStack >> acceptVisitor: aVisitor [
 	^ aVisitor visitFlushStack: self
 ]
 
+{ #category : #testing }
+DRFlushStack >> isFlushStack [
+
+	^ true
+]
+
 { #category : #visiting }
 DRFlushStack >> isMandatoryInstruction [
 

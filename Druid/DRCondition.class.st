@@ -140,6 +140,10 @@ DRCondition >> reversed [
 DRCondition >> sccpEvaluateFor: sccp branch: aBranch [
 
 	| operand1 operand2 |
+	
+	(aBranch operand1 simpleConstantFold sccpEquals:
+		 aBranch operand2 simpleConstantFold) ifTrue: [ ^ true asDRValue ].
+
 	operand1 := sccp latticeValue: aBranch operand1.
 	operand2 := sccp latticeValue: aBranch operand2.
 
