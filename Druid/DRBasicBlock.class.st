@@ -320,8 +320,7 @@ DRBasicBlock >> divide: aValue by: anotherValue [
 
 { #category : #dominance }
 DRBasicBlock >> dominatedBlocks [
-	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
-	This checks transitive domination"
+	"Return a collection of all the blocks that are dominated (transitively) by the block given as argument"
 
 	^ (controlFlowGraph dominatorTree allChildrenOf: self) asSet
 ]
@@ -509,16 +508,14 @@ DRBasicBlock >> id: anObject [
 
 { #category : #dominance }
 DRBasicBlock >> immediatelyDominatedBlocks [
-	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
-	This checks transitive domination"
+	"Return a collection of all the blocks that are immediately dominated by the block given as argument"
 
 	^ (controlFlowGraph dominatorTree childrenOf: self) asSet
 ]
 
 { #category : #dominance }
 DRBasicBlock >> immediatelyPostDominatedBlocks [
-	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
-	This checks transitive domination"
+	"Return a collection of all the blocks that are immediately post dominated by the block given as argument"
 
 	^ (controlFlowGraph postDominatorTree childrenOf: self) asSet
 ]
