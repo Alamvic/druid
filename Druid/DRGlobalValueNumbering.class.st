@@ -26,8 +26,8 @@ DRGlobalValueNumbering >> applyTo: cfg [
 	hashTables := OrderedCollection new.
 	currentScope := 0.
 	valueNumbers := Dictionary new.
-	
-	self dominatorBasedValueNumbering: dominatorTree tree.
+
+	self dominatorBasedValueNumbering: dominatorTree root
 ]
 
 { #category : #operations }

@@ -63,7 +63,7 @@ DRPhiFunction >> canMoveOutsideLoop: backJump [
 DRPhiFunction >> conditionalBranch [
 
 	| dominator conditionalBranch |
-	dominator := self controlFlowGraph tree dominatorOfAll: self operands.
+	dominator := self controlFlowGraph dominatorTree dominatorOfAll: self operands.
 	conditionalBranch := dominator block lastInstruction.
 	self assert: conditionalBranch isConditionalBranch.
 	^ conditionalBranch

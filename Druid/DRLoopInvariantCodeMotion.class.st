@@ -29,7 +29,7 @@ DRLoopInvariantCodeMotion >> moveAllLoopInstructions: instructionsToMove outside
 	preheaderBlock := preheader ifNil: [
 		                  block := loop
 			                           createLoopPreheaderBlockAndWrapWithIf.
-		                  loop controlFlowGraph buildDominatorTree.
+		                  loop controlFlowGraph invalidateDominatorTree.
 		                  block ].
 	instructionsToMove do: [ :i |
 		i moveToDominatingBlock: preheaderBlock ]

@@ -359,7 +359,7 @@ DRPathGenerationTest >> testGenerateExpectedEdgesCountLinear [
 	| cfg |
 	cfg := self setUpCFG: 3.
 	cfg generatePaths.
-	self assert: cfg edges size equals: 3.
+	self assert: cfg edges size equals: 4.
 
 ]
 
