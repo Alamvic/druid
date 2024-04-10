@@ -554,6 +554,39 @@ DRBasicBlock >> initialize [
 	endInstruction basicBlock: self.
 ]
 
+{ #category : #splitting }
+DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicatedInstructions withFrontier: frontier withUsers: users [
+
+	| nextFrontier phis |
+	self flag: #TODO. "Move this responsability to another object"
+
+	users ifEmpty: [ "Finish" ^ self ].
+	myInstruction hasNonLocalUsers ifFalse: [ "Nothing to do"
+		self assert: users isEmpty.
+		^ self ].
+	frontier isEmpty ifTrue: [ "Last useful block"
+		self assert: users isEmpty.
+		^ self ].
+
+	"Create phis on frontier"
+	phis := frontier collect: [ :b |
+		        b phiWithVariables: duplicatedInstructions ].
+
+	"Replace dominated users"
+	users copy do: [ :u |
+		(u replaceOperandsIfDominated: myInstruction withAll: phis)
+			ifNotNil: [ users remove: u ] ].
+
+	"Create the phi of phis in the frontier and update uses based on blocks dominance"
+	nextFrontier := controlFlowGraph dominatorTree
+		                minimalDominanceFrontierOfAll: frontier.
+	^ self
+		  insertPhisAndReplaceUsersBetween: myInstruction
+		  andAll: phis
+		  withFrontier: nextFrontier
+		  withUsers: users
+]
+
 { #category : #'as yet unclassified' }
 DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: instructionsToRename withFrontier: frontier withUsers: users dominatedBlocks: dominatedBlocks [
 
@@ -1265,8 +1298,7 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 
 	newSuccessors := self newEmptySuccessors.
 
-	controlFlowGraph tree:
-		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
+	controlFlowGraph invalidateDominatorTree.
 	allDominatedBlocks := controlFlowGraph tree allChildrenOf: self.
 
 	duplicatedBlock := self basicDuplicate.
@@ -1280,9 +1312,7 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 	self removePredecessor: predecessorToRewire.
 	predecessorToRewire replaceSuccessor: self by: duplicatedBlock.
 
-	controlFlowGraph tree:
-		(DRDominatorTree new buildDominatorTreeOf: controlFlowGraph).
-	controlFlowGraph tree computeDominanceFrontier.
+	controlFlowGraph invalidateDominatorTree.
 
 	self
 		mergeInstructionsWithDuplicatedBlock: duplicatedBlock

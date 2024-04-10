@@ -21,13 +21,11 @@ DRGlobalValueNumbering >> adjustPhiFunctions: block [
 { #category : #operations }
 DRGlobalValueNumbering >> applyTo: cfg [
 
-	dominatorTree := DRDominatorTree new.
-	dominatorTree buildDominatorTreeOf: cfg.
 	hashTables := OrderedCollection new.
 	currentScope := 0.
 	valueNumbers := Dictionary new.
 
-	self dominatorBasedValueNumbering: dominatorTree root
+	self dominatorBasedValueNumbering: cfg dominatorTree
 ]
 
 { #category : #operations }
