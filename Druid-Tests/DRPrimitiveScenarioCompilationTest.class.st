@@ -1455,6 +1455,17 @@ DRPrimitiveScenarioCompilationTest >> testIntegerAsFloat [
 ]
 
 { #category : #'tests-arithmetic' }
+DRPrimitiveScenarioCompilationTest >> testIntegerBitAndSmallIntegers [
+
+	cogit receiverTags: 1.
+	self compileDruidPrimitive: #primitiveBitAnd.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { (memory integerObjectOf: 11) }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: (42 bitAnd: 11))
+]
+
+{ #category : #'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testIntegerDivision [
 
 	self compileDruidPrimitive: #primitiveIntegerDivide.

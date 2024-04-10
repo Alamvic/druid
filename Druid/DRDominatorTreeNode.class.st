@@ -19,6 +19,12 @@ DRDominatorTreeNode class >> new [
 ]
 
 { #category : #accessing }
+DRDominatorTreeNode >> allChildren [
+
+	^ self children , (self children flatCollect: [ :e | e allChildren ])
+]
+
+{ #category : #accessing }
 DRDominatorTreeNode >> block [
 	^ block
 ]

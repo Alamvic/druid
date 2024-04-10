@@ -74,7 +74,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 	primitiveAsFloat primitiveAsCharacter #primitiveImmediateAsInteger 
 	"primitiveStringReplace (More than 2 args)"
 
-	primitiveClass #primitiveSize #primitiveAt "#primitiveAtPut" "#primitiveBehaviorHash" #primitiveIdentityHash
+	primitiveClass #primitiveSize #primitiveAt #primitiveStringAt "#primitiveAtPut" "#primitiveBehaviorHash" #primitiveIdentityHash
 	primitiveNew #primitiveNewWithArg 
 	primitiveFullClosureValue 	
 	).
