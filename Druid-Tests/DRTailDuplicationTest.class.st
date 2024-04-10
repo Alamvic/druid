@@ -216,7 +216,6 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunc
 	user := b9 copy: copy1.
 
 	cfg validate.
-"1halt."
 	cfg b4 tailDuplicate.
 
 	"This phi has a same value coming from two predecedors"
