@@ -319,6 +319,12 @@ DRBasicBlock >> divide: aValue by: anotherValue [
 ]
 
 { #category : #dominance }
+DRBasicBlock >> dominanceFronter [
+
+	^ controlFlowGraph tree dominanceFrontierOf: self
+]
+
+{ #category : #dominance }
 DRBasicBlock >> dominatedBlocks [
 	"Return a collection of all the blocks that are dominated (transitively) by the block given as argument"
 
@@ -579,6 +585,58 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 		  andAll: phis
 		  withFrontier: nextFrontier
 		  withUsers: users
+]
+
+{ #category : #'as yet unclassified' }
+DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: instructionsToRename withFrontier: frontier withUsers: users dominatedBlocks: dominatedBlocks [
+
+	| nextFrontier phis newNamesPerBlock |
+	self flag: #TODO. "Move this responsability to another object"
+
+	users ifEmpty: [ "Finish" ^ self ].
+	myInstruction hasNonLocalUsers ifFalse: [ "Nothing to do"
+		self assert: users isEmpty.
+		^ self ].
+	frontier isEmpty ifTrue: [ "Last useful block"
+		self assert: users isEmpty.
+		^ self ].
+
+	"Create empty phis on frontier"
+	phis := frontier collect: [ :b | b phiWithVariables: #(  ) ].
+	newNamesPerBlock := phis , instructionsToRename
+		                    collect: [ :instruction |
+		                    instruction basicBlock -> instruction ]
+		                    as: Dictionary.
+
+	"Bind phi operands.
+	For each phi, lookup for each predecessor the corresponding variable using the dominator tree.
+	It should be either the instructionsToRename or the phis."
+	phis do: [ :e |
+		e basicBlock predecessors do: [ :phiPredecessor |
+			| blockDefiningPhiOperand |
+			blockDefiningPhiOperand := controlFlowGraph tree
+				                           lookup: [ :block |
+				                           newNamesPerBlock includesKey: block ]
+				                           startingAt: phiPredecessor.
+			e
+				replaceOperandAtPredecessor: phiPredecessor
+				by: (newNamesPerBlock at: blockDefiningPhiOperand) ] ].
+
+	"Replace dominated users"
+	users copy do: [ :u |
+		(u replaceOperandsIfDominated: myInstruction withAll: phis)
+			ifNotNil: [ users remove: u ] ].
+
+	"Create the phi of phis in the frontier and update uses based on blocks dominance"
+	nextFrontier := controlFlowGraph tree minimalDominanceFrontierOfAll:
+		                frontier.
+	^ self
+		  insertPhisAndReplaceUsersBetween: myInstruction
+		  andAll: phis , instructionsToRename
+		  withFrontier:
+		  (nextFrontier select: [ :e | dominatedBlocks includes: e ])
+		  withUsers: users
+		  dominatedBlocks: dominatedBlocks
 ]
 
 { #category : #inspection }
@@ -854,16 +912,23 @@ DRBasicBlock >> loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock
 ]
 
 { #category : #splitting }
-DRBasicBlock >> mergeInstructionsWithDuplicatedBlock: duplicatedBlock withSuccessors: successors usingUsers: getUsersBlock [
+DRBasicBlock >> mergeInstructionsWithDuplicatedBlock: duplicatedBlock withSuccessors: successors usingUsers: getUsersBlock dominatedBlocks: dominatedBlocks [
 
+	| nextFrontier |
+	nextFrontier := (controlFlowGraph tree
+		                 minimalDominanceFrontierOfAll: successors) select: [
+		                :e | dominatedBlocks includes: e ].
 	self instructions copy
 		with: duplicatedBlock instructions copy
-		do: [ :myInstruction :duplicatedInstruction | 
+		do: [ :myInstruction :duplicatedInstruction |
 			self
 				insertPhisAndReplaceUsersBetween: myInstruction
-				andAll: { myInstruction . duplicatedInstruction }
-				withFrontier: successors
-				withUsers: (getUsersBlock value: myInstruction) ]
+				andAll: {
+						myInstruction.
+						duplicatedInstruction }
+				withFrontier: nextFrontier
+				withUsers: (getUsersBlock value: myInstruction)
+				dominatedBlocks: dominatedBlocks ]
 ]
 
 { #category : #building }
@@ -1228,10 +1293,13 @@ DRBasicBlock >> sourceInterval [
 { #category : #splitting }
 DRBasicBlock >> splitTo: predecessorToRewire [
 
-	| duplicatedBlock newSuccessors |
+	| duplicatedBlock newSuccessors allDominatedBlocks |
 	self assert: self predecessors size > 1.
 
 	newSuccessors := self newEmptySuccessors.
+
+	controlFlowGraph invalidateDominatorTree.
+	allDominatedBlocks := controlFlowGraph tree allChildrenOf: self.
 
 	duplicatedBlock := self basicDuplicate.
 	duplicatedBlock successors do: [ :successor |
@@ -1248,8 +1316,11 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 
 	self
 		mergeInstructionsWithDuplicatedBlock: duplicatedBlock
-		withSuccessors: newSuccessors
-		usingUsers: [ :i | i nonLocalUsers ].
+		withSuccessors: {
+				self.
+				duplicatedBlock }
+		usingUsers: [ :i | i nonLocalUsers ]
+		dominatedBlocks: allDominatedBlocks.
 
 	^ duplicatedBlock
 ]

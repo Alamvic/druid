@@ -24,14 +24,10 @@ DRSSAPRE >> initialize [
 DRSSAPRE >> insertPhi: cfg [
 	" when an expression appears, inserting a PHi at its iterated dominance frointer "
 
-	| dt |
-	dt := DRDominatorTree new.
-	dt buildDominatorTreeOf: cfg.
-
 	cfg blocksInReversePostOrderDo: [ :b | 
 		b instructionsDo: [ :i | 
 			i isCopy ifTrue: [ 
-				(dt iteratedDominanceFrontierOf: b) asSet do: [ :bl | 
+				(cfg dominatorTree iteratedDominanceFrontierOf: b) asSet do: [ :bl | 
 					bl addInstructionFirst: bl newPhi ] ] ] ]
 ]
 

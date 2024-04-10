@@ -216,7 +216,6 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunc
 	user := b9 copy: copy1.
 
 	cfg validate.
-
 	cfg b4 tailDuplicate.
 
 	"This phi has a same value coming from two predecedors"
@@ -329,6 +328,40 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithSingleSuccessorAndOutsideAndI
 		self assert: (b instructions first users includes: b instructions second).
 		self assert: b phiFunctions first operands size equals: 1
 		 ]
+]
+
+{ #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateInsertingPhiInDegenerateControlFlow [
+	"|0| -> |1| -> |2| -> |4| -> |5| -> |7| -------> |9|
+				 \ -> |3| --^	\				\	          ^
+									 \ ------------> |6| ----/
+	"
+
+
+	| cfg b6 b7 b9 copy1 newPhi user |
+	cfg := self setUpCFGWithConditional.
+	b6 := cfg newBasicBlock.
+	b7 := cfg newBasicBlock.
+	b9 := cfg newBasicBlock.
+
+	cfg b4 jumpIfTrueTo: b7 ifFalseTo: b6.
+	b6 jumpTo: b9.
+
+	b7 jumpIfTrueTo: b9 ifFalseTo: b6.
+
+	copy1 := cfg b4 copy: 1.
+	user := b9 copy: copy1.
+
+	cfg validate.
+"1halt."
+	cfg b4 tailDuplicate.
+
+	"This phi has a same value coming from two predecedors"
+	newPhi := b9 phiFunctions unique.
+
+	self assert: newPhi operands first equals: (cfg blockById: 5) phiFunctions unique.
+	self assert: newPhi operands second equals: (cfg blockById: 8) phiFunctions unique.
+
 ]
 
 { #category : #tests }
@@ -643,15 +676,12 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierDominatedByItself [
 	phi1 := cfg b4 phiWith: copy1 with: copy2.
 	phi2 := b5 phiWith: phi1 with: copy2.
 	b5 copy: phi2.
-	b5 copy: copy2.
-	
+
 	cfg b3 tailDuplicate.
 
-	self assert: cfg b4 phiFunctions first users size equals: 1.	"First phi used"
-	self assert: cfg b4 phiFunctions second users isEmpty.	"Second phi does not used"
-		
-	self assert: b5 phiFunctions first users size equals: 1. "First master phi used (frontier of frontier)"
-	self assert: b5 phiFunctions second users size equals: 1. "Second phi used too"
+	self assert: cfg b4 phiFunctions first users size equals: 1. "First phi used"
+
+	self assert: b5 phiFunctions first users size equals: 1 "First master phi used (frontier of frontier)"
 ]
 
 { #category : #tests }
@@ -712,7 +742,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierSecondBlock [
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocks [
 
-	| cfg b5 b6 b7 b8 b9 b10 copy multipleFrontier |
+	| cfg b5 b6 b7 b8 b9 b10 copy multipleFrontier copyLeft copyRight leftPhi rightPhi |
 	cfg := self setUpCFGWithConditional.
 
 	"Remove predecessors because jumps add it..."
@@ -733,8 +763,15 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocks [
 	cfg b2 jumpIfTrueTo: b8 ifFalseTo: cfg b4.
 	cfg b3 jumpIfTrueTo: b9 ifFalseTo: cfg b4.
 
-	copy := cfg b4	copy: 1.
-	b10 copy: copy.	
+	
+	copyLeft := cfg b2 copy: 1.
+	copyRight := cfg b3 copy: 1.
+	copy := cfg b4 copy: 1.
+	
+	leftPhi := b9 phiWithVariables: { copyRight . copy }.
+	rightPhi :=  b8 phiWithVariables: { copyLeft . copy }.
+	
+	b10 copy: (b10 phiWithVariables: { leftPhi . copy . rightPhi }).
 
 	cfg b4 tailDuplicate.
 	
@@ -750,7 +787,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocks [
 { #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocksTwice [
 
-	| cfg b5 b6 b7 b8 b9 b10 copy b11 b12 firstFrontier secondFrontier user |
+	| cfg b5 b6 b7 b8 b9 b10 copy b11 b12 firstFrontier secondFrontier user copyLeft copyRight leftPhi rightPhi leftPhiPhi rightPhiPhi |
 	cfg := self setUpCFGWithConditional.
 
 	"Remove predecessors because jumps add it..."
@@ -775,8 +812,17 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocksTwice [
 	cfg b2 jumpIfTrueTo: b8 ifFalseTo: cfg b4.
 	cfg b3 jumpIfTrueTo: b9 ifFalseTo: cfg b4.
 
+	copyLeft := cfg b2 copy: 1.
+	copyRight := cfg b3 copy: 1.
 	copy := cfg b4	copy: 1.
-	user := b12 copy: copy.	
+	
+	leftPhi := b9 phiWithVariables: { copyRight . copy }.
+	rightPhi :=  b8 phiWithVariables: { copyLeft . copy }.
+	
+	leftPhiPhi := b11 phiWithVariables: { leftPhi . copy }.
+	rightPhiPhi := b10 phiWithVariables: { rightPhi . copy }.
+
+	user := b12 copy: (b12 phiWithVariables: { leftPhiPhi . rightPhiPhi }).	
 
 	cfg b4 tailDuplicate.
 	

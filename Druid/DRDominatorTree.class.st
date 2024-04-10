@@ -282,14 +282,35 @@ DRDominatorTree >> isDominator: dominatorBlock of: dominatedBlock [
 	^ node isDominatedByBlock: dominatorBlock.
 ]
 
-{ #category : #querying }
+{ #category : #'as yet unclassified' }
 DRDominatorTree >> iteratedDominanceFrontierOf: aDRBasicBlock [
 	" DF+(n) = DF(n) U DF+(DF(n)) 
 		  returns a set of Dominance Frontier of the block "
 
-	| frontier |
+	| frontier frontierWithoutLoops |
 	frontier := self dominanceFrontierOf: aDRBasicBlock.
-	^ frontier , (frontier flatCollect: [ :each | self iteratedDominanceFrontierOf: each ])
+	frontierWithoutLoops := frontier copyWithout: aDRBasicBlock.
+	^ frontier , (frontierWithoutLoops flatCollect: [ :each | self iteratedDominanceFrontierOf: each ])
+]
+
+{ #category : #'as yet unclassified' }
+DRDominatorTree >> iteratedDominanceFrontierOfAll: aCollection [
+	"returns a set witht the union of Dominance Frontiers of all blocks passed as argument"
+
+	^ aCollection flatCollectAsSet: [ :block |
+		  self iteratedDominanceFrontierOf: block ]
+]
+
+{ #category : #'as yet unclassified' }
+DRDominatorTree >> lookup: aBlock startingAt: aBasicBlock [
+	"Look up in the dominator tree starting from a node using a block.
+	If the block returns true, return the basic block.
+	If the block return false continue in the parent.
+	Throw an exception when above the root"
+
+	self pathToRootBasicBlock: aBasicBlock do: [ :blockInPath |
+		(aBlock value: blockInPath) ifTrue: [ ^ blockInPath ] ].
+	NotFound signal: aBlock
 ]
 
 { #category : #querying }
@@ -314,17 +335,56 @@ DRDominatorTree >> nearestCommonAncestorOf: n1 and: n2 [
 	^ n1Path at: minPathLength.
 ]
 
-{ #category : #querying }
+{ #category : #'as yet unclassified' }
+DRDominatorTree >> nodeOfBlock: aBasicBlock [
+
+	^ self blockDictionary at: aBasicBlock
+]
+
+{ #category : #'as yet unclassified' }
 DRDominatorTree >> pathToRoot: node [
-	| currentNode path |
-	currentNode := node.
+
+	| path |
 	path := OrderedCollection new.
-	path addFirst: currentNode.
-	[ currentNode = root ] whileFalse: [ 
-			currentNode := currentNode parent.
-			path addFirst: currentNode.
-	].
+
+	self
+		pathToRoot: node
+		do: [ :currentNode | path addFirst: currentNode ].
+
 	^ path
+]
+
+{ #category : #'as yet unclassified' }
+DRDominatorTree >> pathToRoot: node do: aBlock [
+
+	| currentNode |
+	currentNode := node.
+	aBlock value: currentNode.
+	[ currentNode = tree ] whileFalse: [
+		currentNode := currentNode parent.
+		aBlock value: currentNode ]
+]
+
+{ #category : #'as yet unclassified' }
+DRDominatorTree >> pathToRootBasicBlock: aBasicBlock do: aBlock [
+	"Iterate the tree from the given basic block to the root executing the block for each block in the path"
+
+	self
+		pathToRootNode: (self nodeOfBlock: aBasicBlock)
+		do: [ :node | aBlock value: node block ]
+]
+
+{ #category : #'as yet unclassified' }
+DRDominatorTree >> pathToRootNode: node do: aBlock [
+
+	"Iterate the tree from the given node to the root executing the block for each node in the path"
+	
+	| currentNode |
+	currentNode := node.
+	aBlock value: currentNode.
+	[ currentNode = tree ] whileFalse: [
+		currentNode := currentNode parent.
+		aBlock value: currentNode ]
 ]
 
 { #category : #accessing }

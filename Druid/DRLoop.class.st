@@ -90,13 +90,19 @@ DRLoop >> createLoopPreheaderBlock [
 
 { #category : #'cfg manipulation' }
 DRLoop >> createLoopPreheaderBlockAndWrapWithIf [
-
 	"The loop pre-header will contain the loop-invariant instructions that are moved out of the loop.
 	The if is necessary to preserve semantics in case the loop body is never executed"
 
-	| preheaderBlock loopPredecessor conditionJump headerBlock loopExitBlock preheaderConditionBlock loopConditionJump |
+	| preheaderBlock loopPredecessor conditionJump headerBlock loopExitBlock preheaderConditionBlock loopConditionJump allDominatedBlocks |
+
+	self headerBlock invalidateDominatorTree.
+	allDominatedBlocks := self headerBlock dominatedBlocks.
+
+
 	preheaderBlock := self createLoopPreheaderBlock.
 	headerBlock := self headerBlock.
+	
+	
 	loopPredecessor := preheaderBlock predecessor.
 
 	"1. Create preheader condition block"
@@ -104,9 +110,9 @@ DRLoop >> createLoopPreheaderBlockAndWrapWithIf [
 
 	"2. Rewire preheader condition block phis"
 	"We need to replace the phis from last to first, since phis should otherwise be declares above other instructions"
-	preheaderConditionBlock phiFunctions reverse do: [ :phi | 
+	preheaderConditionBlock phiFunctions reverse do: [ :phi |
 		phi rewirePhiTo: preheaderBlock ].
-	preheaderConditionBlock predecessors copy do: [ :p | 
+	preheaderConditionBlock predecessors copy do: [ :p |
 		preheaderConditionBlock removePredecessor: p ].
 
 	"3. Link new blocks"
@@ -125,12 +131,15 @@ DRLoop >> createLoopPreheaderBlockAndWrapWithIf [
 		by: preheaderConditionBlock.
 	preheaderConditionBlock addPredecessor: loopPredecessor.
 
+	headerBlock controlFlowGraph invalidateDominatorTree.
+
 	headerBlock
 		mergeInstructionsWithDuplicatedBlock: preheaderConditionBlock
-		withSuccessors: { loopExitBlock }
-		usingUsers: [ :i | 
-			i nonLocalUsers select: [ :u | 
-				u isDominatedBy: loopExitBlock firstInstruction ] ].
+		withSuccessors: { headerBlock }
+		usingUsers: [ :i |
+			i nonLocalUsers select: [ :u |
+				u isDominatedBy: loopExitBlock firstInstruction ] ]
+		dominatedBlocks: allDominatedBlocks.
 	^ preheaderBlock
 ]
 
