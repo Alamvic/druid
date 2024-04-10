@@ -136,7 +136,7 @@ bytecodes := #(
 		"extended conditional jump"
 			237 238 239
 		"extended store&pop (receiver var / literal / temp)"
-			"240" 241 242 
+			240 241 242 
 		"extended store (receiver var / literal / temp)"
 			243 244 245
 			
