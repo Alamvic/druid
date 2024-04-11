@@ -62,7 +62,7 @@ DRBytecodeCompilerCompiler >> createInitialBasicBlock [
 DRBytecodeCompilerCompiler >> generateDruidIR [
 
 	bytecodes ifNotNil: [ 
-		interpreter currentBytecode: bytecodes first key ].
+		interpreter currentBytecode: bytecodes last key ].
 	^ self generateDruidIRFor: self sourceMethods
 ]
 

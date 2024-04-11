@@ -92,7 +92,7 @@ DRAbstractCompilerCompiler >> customiseFor: method [
 { #category : #'generation-IR' }
 DRAbstractCompilerCompiler >> generateDruidIR [
 
-	^ self generateDruidIRFor: self sourceMethod
+	^ self generateDruidIRFor: self sourceMethods
 ]
 
 { #category : #'generation-IR' }
@@ -263,6 +263,12 @@ DRAbstractCompilerCompiler >> sourceMethod [
 	" Answer a <CompiledMethod> matching the current receiver's sourceName in the interpreter class "
 
 	^ interpreter class lookupSelector: sourceName
+]
+
+{ #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> sourceMethods [
+
+	self subclassResponsibility 
 ]
 
 { #category : #accessing }

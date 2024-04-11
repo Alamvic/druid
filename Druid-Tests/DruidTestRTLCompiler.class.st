@@ -7611,7 +7611,7 @@ DruidTestRTLCompiler >> gen_pushConstantTrueBytecode_shortConditionalJumpTrue [
 	live := 0.
 	self annotateBytecode: self Label.
 	s3 := bytecodePC.
-	s4 := s3 + 7.
+	s4 := s3 + 3.
 	self ssFlushStack.
 	self Jump: (self ensureFixupAt: s4).
 	deadCode := true.

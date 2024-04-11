@@ -200,7 +200,7 @@ DRInterpreterReference >> rtlOperandQualifier [
 { #category : #'as yet unclassified' }
 DRInterpreterReference >> sccpEquals: other [
 
-	^ other isInterpreterReference and: [ reference = other reference ]
+	^ other asDRValue isInterpreterReference and: [ reference = other reference ]
 ]
 
 { #category : #SCCP }

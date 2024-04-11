@@ -146,6 +146,12 @@ DRPrimitiveCompilerCompiler >> primitiveName: anObject [
 ]
 
 { #category : #accessing }
+DRPrimitiveCompilerCompiler >> sourceMethods [
+
+	^ { self sourceMethod }
+]
+
+{ #category : #accessing }
 DRPrimitiveCompilerCompiler >> targetName [
 
 	^ self primitiveCompilerName
