@@ -95,7 +95,7 @@ DRLoop >> createLoopPreheaderBlockAndWrapWithIf [
 
 	| preheaderBlock loopPredecessor conditionJump headerBlock loopExitBlock preheaderConditionBlock loopConditionJump allDominatedBlocks |
 
-	self headerBlock invalidateDominatorTree.
+	self headerBlock controlFlowGraph invalidateDominatorTree.
 	allDominatedBlocks := self headerBlock dominatedBlocks.
 
 
