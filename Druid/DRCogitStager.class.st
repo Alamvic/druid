@@ -4,8 +4,10 @@ Class {
 	#category : #'Druid-Staging'
 }
 
-{ #category : #accessing }
-DRCogitStager >> applyTo: aControlFlowGraph [
+{ #category : #staging }
+DRCogitStager >> canStage: anInstruction [
 
-	super applyTo: aControlFlowGraph
+	(anInstruction isCopy and: [anInstruction type isFloatType ])
+		ifTrue: [ ^ false ].
+	^ super canStage: anInstruction
 ]

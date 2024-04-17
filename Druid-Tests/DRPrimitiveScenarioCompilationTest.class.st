@@ -953,6 +953,36 @@ DRPrimitiveScenarioCompilationTest >> testFloat64AtPut [
 	self assert: (Float fromIEEE64BitWord: result) equals: 1234.0
 ]
 
+{ #category : #'tests-comparisons-floats' }
+DRPrimitiveScenarioCompilationTest >> testFloatAddConstant [
+
+	self compileDruidPrimitive: #primitivePlusFloatConstant.
+	
+	self executePrimitiveWithReceiver: 1 withArguments: { }.
+	
+	self assert: (Float fromIEEE64Bit: machineSimulator receiverRegisterValue) closeTo: 4.14
+]
+
+{ #category : #'tests-comparisons-floats' }
+DRPrimitiveScenarioCompilationTest >> testFloatFalseComparisonToConstantFloat [
+
+	self compileDruidPrimitive: #primitiveEqualsThanFloatConstant.
+	
+	self executePrimitiveWithReceiver: 1 withArguments: { }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-comparisons-floats' }
+DRPrimitiveScenarioCompilationTest >> testFloatTrueComparisonToConstantFloat [
+
+	self compileDruidPrimitive: #primitiveEqualsThanFloatConstant.
+	
+	self executePrimitiveWithReceiver: 0 withArguments: { }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
 { #category : #'tests-deadcode' }
 DRPrimitiveScenarioCompilationTest >> testFourDeadBranchesFourBranches1 [
 
