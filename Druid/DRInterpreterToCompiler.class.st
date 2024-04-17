@@ -65,8 +65,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 	#primitiveEqual #primitiveNotEqual #primitiveIdentical #primitiveNotIdentical
 	#primitiveDiv #primitiveQuo primitiveBitShift primitiveBitAnd  primitiveBitXor primitiveBitOr
 
-	primitiveSmallFloatAdd primitiveSmallFloatSubtract #primitiveSmallFloatMultiply "primitiveSmallFloatDivide (Fix float comparison)"  
-	primitiveSmallFloatEqual primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatGreaterThan primitiveSmallFloatLessThan  primitiveSmallFloatLessOrEqual
+	primitiveSmallFloatAdd primitiveSmallFloatSubtract #primitiveSmallFloatMultiply primitiveSmallFloatDivide primitiveSmallFloatEqual primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatGreaterThan primitiveSmallFloatLessThan  primitiveSmallFloatLessOrEqual
 
 	primitiveFloatAdd primitiveFloatSubtract #primitiveFloatMultiply "primitiveFloatDivide (Fix float comparison)"  
 	primitiveFloatEqual primitiveFloatNotEqual primitiveFloatGreaterThan primitiveFloatGreaterOrEqual primitiveFloatLessThan primitiveFloatLessOrEqual
@@ -74,9 +73,10 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 	primitiveAsFloat primitiveAsCharacter #primitiveImmediateAsInteger 
 	"primitiveStringReplace (More than 2 args)"
 
-	primitiveClass #primitiveSize #primitiveAt #primitiveStringAt "#primitiveAtPut" "#primitiveBehaviorHash" #primitiveIdentityHash
+	primitiveClass #primitiveSize #primitiveAt #primitiveStringAt #primitiveAtPut #primitiveStringAtPut "#primitiveBehaviorHash" #primitiveIdentityHash
 	primitiveNew #primitiveNewWithArg 
-	primitiveFullClosureValue 	
+	primitiveFullClosureValue
+	primitiveFullClosureValueNoContextSwitch
 	).
 	
 bytecodes := #( 
@@ -143,14 +143,14 @@ bytecodes := #(
 		"call primitive" 248
 		"push closure" 249
 		"remote temp (push / store / store&pop)"	
-			251 252 "253"
+			251 252 253
 	).
 
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
-		selectPrimitives: [ :e | primitives includes: e selector ];
-		selectBytecodes: [ :e | bytecodes includes: e bytecodeNumberStart ];
+		selectPrimitives: [ :e | false "primitives includes: e selector" ];
+		selectBytecodes: [ :e | "bytecodes includes:" e bytecodeNumberStart = 253 ];
 		targetClass: targetClass;
 		targetSuperclass: aSuperclass;
 		build

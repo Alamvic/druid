@@ -804,6 +804,15 @@ DruidTestInterpreter >> primitiveEqualsThan [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveEqualsThanFloatConstant [
+
+	<numberOfArguments: 0>
+	self
+		pop: 1
+		thenPush: self stackTop asFloat = 0.0
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveEqualsThanFloats [
 
 	<numberOfArguments: 1>
@@ -1493,6 +1502,15 @@ DruidTestInterpreter >> primitiveOr [
 		ifFalse: [ result := 10 ].
 
 	self pop: 1 thenPush: result
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitivePlusFloatConstant [
+
+	<numberOfArguments: 0>
+	self
+		pop: 1
+		thenPush: (self rawFloatBitsOf: (self stackTop asFloat + 3.14))
 ]
 
 { #category : #'as yet unclassified' }

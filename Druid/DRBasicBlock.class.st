@@ -395,6 +395,12 @@ DRBasicBlock >> firstInstruction [
 	^ self instructions first
 ]
 
+{ #category : #building }
+DRBasicBlock >> floatFromBits: aValue [
+	
+	^ self addInstruction: (self instructionFactory floatFromBits: aValue)
+]
+
 { #category : #accessing }
 DRBasicBlock >> forwardPredecessors [
 	
