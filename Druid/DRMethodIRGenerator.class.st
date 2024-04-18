@@ -98,6 +98,7 @@ DRMethodIRGenerator >> resolveDeferredMethodReturns: aDRFrame [
 
 	| mirrorFrame newFrameReturn deferredReturnsBlock pieces deferredFrameReturn newReturn |
 	aDRFrame deferredMethodReturns ifEmpty: [ ^ self ].
+	1halt.
 	mirrorFrame := aDRFrame mirrorFrame.
 
 	"If there were returns attached to popped frame, merge all of them in a single state. If there was only one return this is important also to override implicit returns"

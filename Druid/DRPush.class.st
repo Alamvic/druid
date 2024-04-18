@@ -1,6 +1,6 @@
 Class {
 	#name : #DRPush,
-	#superclass : #DRStackInstruction,
+	#superclass : #DRStackEffect,
 	#category : #'Druid-BytecodeToJITCompilation'
 }
 
@@ -8,12 +8,6 @@ Class {
 DRPush >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitPush: self
-]
-
-{ #category : #testing }
-DRPush >> isMandatoryInstruction [
-
-	^ true
 ]
 
 { #category : #testing }
@@ -26,6 +20,13 @@ DRPush >> isPush [
 DRPush >> opcode [
 	
 	^ 'Push'
+]
+
+{ #category : #removing }
+DRPush >> removeFromCFG [ 
+
+	self halt.
+	super removeFromCFG 
 ]
 
 { #category : #'users-definitions' }
@@ -52,4 +53,14 @@ DRPush >> size [
 	"Pushed memory size"
 	
 	^ 8 "bytes"
+]
+
+{ #category : #testing }
+DRPush >> stackDepth [
+	
+	"Return the stack depth left on the stack after applying this operation.
+	Push will add one element to the stack depth of the previous stack instruction"
+	
+	stackDependency ifEmpty: [ ^ 1 ].
+	^ stackDependency anyOne stackDepth + 1
 ]

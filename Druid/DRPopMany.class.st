@@ -1,6 +1,6 @@
 Class {
 	#name : #DRPopMany,
-	#superclass : #DRStackInstruction,
+	#superclass : #DRStackEffect,
 	#category : #'Druid-BytecodeToJITCompilation'
 }
 
@@ -8,12 +8,6 @@ Class {
 DRPopMany >> acceptVisitor: aVisitor [ 
 	
 	aVisitor visitPopMany: self
-]
-
-{ #category : #testing }
-DRPopMany >> isMandatoryInstruction [
-
-	^ true
 ]
 
 { #category : #testing }

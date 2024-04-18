@@ -13,6 +13,7 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 	optimisations := OrderedCollection new.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
 
+	optimisations add: DRCogitStackCoallescing new.
 	4 timesRepeat: [
 		optimisations add: DRBranchCollapse new.
 		optimisations add: DRFailureCodeBasedTailDuplication new.

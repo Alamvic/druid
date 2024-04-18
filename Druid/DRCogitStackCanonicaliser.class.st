@@ -8,7 +8,7 @@ Class {
 DRCogitStackCanonicaliser >> visitPush: aDRPush [
 
 	| pushedValue |
-	pushedValue := aDRPush operand1 simpleConstantFold.
+	pushedValue := aDRPush operand1 simpleConstantFold asDRValue.
 	pushedValue isLoad ifFalse: [ ^ self ].
 	pushedValue address isAbsolute ifTrue: [
 		self flag: #FIXME. "?"

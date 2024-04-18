@@ -74,6 +74,74 @@ DRBytecodeScenarioCompilationTest >> testPopAfterFlushStack [
 ]
 
 { #category : #tests }
+DRBytecodeScenarioCompilationTest >> testPopsAreCoallesced [
+
+	self
+		compileBytecode: 0
+		selector: #bytecodePopOnTwoBranches
+		thenDo: [ :generator | "Push the receiver"
+			cogit ssPushRegister: ReceiverResultReg.
+			"Then execute the druid's compiled code"
+			generator value ].
+
+	self executePrimitiveWithReceiver: 17.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #tests }
+DRBytecodeScenarioCompilationTest >> testPushAreCoallescedBranchOne [
+
+	self
+		compileBytecode: 0
+		selector: #bytecodePushOnTwoBranches
+		thenDo: [ :generator | "Push the receiver"
+			cogit ssPushRegister: ReceiverResultReg.
+			"Then execute the druid's compiled code"
+			generator value.
+			cogit genReturnTopFromMethod ].
+
+	self executePrimitiveWithReceiver: 17.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #tests }
+DRBytecodeScenarioCompilationTest >> testPushAreCoallescedBranchTwo [
+
+	self
+		compileBytecode: 0
+		selector: #bytecodePushOnTwoBranches
+		thenDo: [ :generator | "Push the receiver"
+			cogit ssPushRegister: ReceiverResultReg.
+			"Then execute the druid's compiled code"
+			generator value.
+			cogit genReturnTopFromMethod ].
+
+	self executePrimitiveWithReceiver: -17.
+
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : #tests }
+DRBytecodeScenarioCompilationTest >> testTwoPopsAreCoallesced [
+
+	self
+		compileBytecode: 0
+		selector: #bytecodeTwoPopOnTwoBranches
+		thenDo: [ :generator | "Push the receiver"
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+			"Then execute the druid's compiled code"
+			generator value.
+			cogit genReturnTopFromMethod ].
+
+	self executePrimitiveWithReceiver: 17 withArguments: { 42 }.
+
+	self assert: machineSimulator receiverRegisterValue equals: 59
+]
+
+{ #category : #tests }
 DRBytecodeScenarioCompilationTest >> testUnknownBytecode [
 
 	| method deoptimizeTrampoline |

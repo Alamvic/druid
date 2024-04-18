@@ -8,7 +8,6 @@ Class {
 DRProductionBytecodeTest >> testBytecodeAdd [
 
 	"We do not support the static type prediction yet"
-	self skip.
 
 	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
 	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.

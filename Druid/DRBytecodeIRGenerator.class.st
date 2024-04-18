@@ -20,7 +20,7 @@ DRBytecodeIRGenerator >> addAnnotateBytecode: aRBMethodNode [
 { #category : #visiting }
 DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
 
-	"Nothing"
+	currentBasicBlock jumpTo: controlFlowGraph exitBasicBlock
 ]
 
 { #category : #accessing }
@@ -390,7 +390,7 @@ DRBytecodeIRGenerator >> interpretStackPointerWith: aRBVariableNode [
 
 { #category : #'special cases - stack' }
 DRBytecodeIRGenerator >> interpretStackTopWith: aRBMessageNode [
-
+	
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRLoadStackValue
@@ -405,7 +405,7 @@ DRBytecodeIRGenerator >> interpretStackValueWith: aRBMessageNode [
 
 	| value |
 	aRBMessageNode arguments first acceptVisitor: self.
-
+1halt.
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRLoadStackValue

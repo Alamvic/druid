@@ -150,6 +150,12 @@ DRAbstractInstruction >> isNegate [
 	^ false
 ]
 
+{ #category : #testing }
+DRAbstractInstruction >> isStackEffect [
+	
+	^ false
+]
+
 { #category : #accessing }
 DRAbstractInstruction >> nextInstruction [
 	
@@ -161,7 +167,6 @@ DRAbstractInstruction >> replaceBy: anotherInstruction [
 	
 	self = anotherInstruction ifTrue: [ ^ self ].
 
-	self haltIf: [self asString = 'a DRPhiFunction(R250 := Ø R218 R177)'].
 	basicBlock replace: self by: anotherInstruction.
 	
 	self replaceUsesBy: anotherInstruction.

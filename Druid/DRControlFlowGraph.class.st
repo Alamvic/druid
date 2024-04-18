@@ -209,7 +209,9 @@ DRControlFlowGraph >> blockById: anInteger [
 { #category : #iterating }
 DRControlFlowGraph >> blocks [
 
-	^ basicBlocks
+	^ basicBlocks copyWithAll: {
+			  initialBasicBlock.
+			  exitBasicBlock }
 ]
 
 { #category : #accessing }
@@ -223,7 +225,7 @@ DRControlFlowGraph >> blocksBetween: sourceBlock and: destinationBlock [
 { #category : #iterating }
 DRControlFlowGraph >> blocksDo: aFullBlockClosure [ 
 
-	basicBlocks do: aFullBlockClosure
+	self blocks do: aFullBlockClosure
 ]
 
 { #category : #iterating }
@@ -279,7 +281,7 @@ DRControlFlowGraph >> clearEdges [
 DRControlFlowGraph >> configureVisualization: view [
 
 	| blockViews controller |
-	blockViews := self blocks collect: [ :b | self createBlockView: b. ].
+	blockViews := self blocks collect: [ :b | self createBlockView: b ].
 
 	view addAll: blockViews.
 	self showLines: blockViews in: view.
@@ -292,8 +294,8 @@ DRControlFlowGraph >> configureVisualization: view [
 	self showInfoIn: view.
 
 	controller := RSCanvasController new
-		noLegend;
-		yourself.
+		              noLegend;
+		              yourself.
 
 	view @ controller
 ]
@@ -518,6 +520,7 @@ DRControlFlowGraph >> initialize [
 
 	nextBasicBlockId := -1.
 	exitBasicBlock := self privateNewBasicBlock.
+	exitBasicBlock beExitBlock.
 	initialBasicBlock := self privateNewBasicBlock
 ]
 

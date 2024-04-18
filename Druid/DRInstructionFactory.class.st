@@ -104,7 +104,7 @@ DRInstructionFactory >> flushStack [
 
 { #category : #factory }
 DRInstructionFactory >> frameReturn: aValue [
-
+1halt.
 	^ DRFrameReturn operands: { aValue asDRValue } result: self allocateTemporaryRegister
 ]
 
@@ -266,6 +266,12 @@ DRInstructionFactory >> phiWithVariables: variables [
 	^ (DRPhiFunction joinedVariables: variables)
 		  result: self allocateTemporaryRegister;
 		  yourself
+]
+
+{ #category : #factory }
+DRInstructionFactory >> pop [
+
+	^ DRPop operands: #(  ) result: self allocateTemporaryRegister
 ]
 
 { #category : #factory }

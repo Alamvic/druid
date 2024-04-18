@@ -31,6 +31,16 @@ DRIRGenerator >> addDeferredReturnState: anExecutionState [
 		  addDeferredReturnState: anExecutionState
 ]
 
+{ #category : #visiting }
+DRIRGenerator >> addEndInstructionFrom: aNode instructionKind: instructionClass operands: operands [
+	
+	| instruction |
+	instruction := self
+		instantiate: instructionClass
+		operands: operands.
+	^ self addEndInstruction: instruction from: aNode
+]
+
 { #category : #'execution state' }
 DRIRGenerator >> addFrameReturn: aDRStackFrame [
 
@@ -2070,10 +2080,11 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 	homeFrame := fork topFrame homeFrameWithState: fork.
 	homeFrame push: value.
 	homeFrame returnValue: value.
-
 	self addDeferredReturnState: { 
 			fork.
 			self addFrameReturn: homeFrame }.
+	
+	executionState vmState lastStackInstructions: #().
 
 	"The return is a statement with no value"
 	self pushOperand: DRNullValue new

@@ -119,7 +119,6 @@ DRAbstractCompilerCompiler >> generateDruidIRFor: method [
 
 
 	cfg := irGenerator ir.
-
 	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: cfg.
 	DRDeadCodeElimination new applyTo: cfg.
