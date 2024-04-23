@@ -18,7 +18,7 @@ DRMetaCompilerIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 	self executionState primitiveFailureCode: anInstruction
 ]
 
-{ #category : #initialization }
+{ #category : #'special cases' }
 DRMetaCompilerIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
@@ -32,6 +32,30 @@ DRMetaCompilerIRGenerator >> initializeSpecialCases [
 	specialCases at: #pop: put: #interpretPopThenPushWith:.
 	specialCases at: #push: put: #interpretPushWith:.
 
+	specialCases at: #remember: put: #interpretRememberWith:.
+]
+
+{ #category : #interpreting }
+DRMetaCompilerIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
+
+	| value |
+	aRBAssignmentNode value acceptVisitor: self.
+	"Keep instruction in CFG for inlinings"
+	value := currentBasicBlock strongCopyForInlining: self operandStackTop. 
+
+	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
+		^ self receiver value
+			  instVarNamed: aRBAssignmentNode variable name
+			  put: value ].
+
+	aRBAssignmentNode variable binding originalVar isTempVariable
+		ifTrue: [
+			^ self topFrame
+				  temporaryAt: aRBAssignmentNode variable name
+				  put: value
+				  withState: executionState ].
+
+	self halt
 ]
 
 { #category : #interpretation }
@@ -61,6 +85,18 @@ DRMetaCompilerIRGenerator >> interpretPushWith: aRBMessageNode [
 	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
 ]
 
+{ #category : #'special-cases' }
+DRMetaCompilerIRGenerator >> interpretRememberWith: aRBMessageNode [
+
+	| obj |
+	obj := self visitOperand: aRBMessageNode arguments first.
+	^ (self
+		   addInstructionCall: {
+				   'ceStoreCheckTrampoline'.
+				   obj }
+		   from: aRBMessageNode) beMapped saveLinkReg
+]
+
 { #category : #visiting }
 DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 
@@ -79,6 +115,32 @@ DRMetaCompilerIRGenerator >> numberOfArguments: aValue [
 	super numberOfArguments: aValue.
 	0 to: numberOfArguments - 1 do: [ :i |
 		self push: (self argRegisterNumber: i) ]
+]
+
+{ #category : #'frame-access' }
+DRMetaCompilerIRGenerator >> popFrameMergingDeferredReturns [
+
+	| exitBasicBlock topReturns |
+	exitBasicBlock := self topFrame exitBasicBlock.
+	topReturns := self topFrame deferredMethodReturns.
+	topReturns size > 0
+		ifTrue: [
+			| mergedState |
+			self assert: exitBasicBlock predecessors isEmpty. "If not, check if new predecessors will be added"
+			topReturns keysDo: [ :frameReturn | 
+				frameReturn breakBasicBlock. "Breaking the block in case of be shared by many returns"
+				frameReturn basicBlock jumpTo: exitBasicBlock ].
+			mergedState := DRStackMerger new
+				               builder: self;
+				               mergeBlock: exitBasicBlock;
+				               mergeAll: topReturns values upTo: self topFrame.
+			executionState := mergedState.
+			currentBasicBlock := exitBasicBlock ].
+
+	"Returns installed in the CFG -> stop tracking"
+	self topFrame clearDeferredMethodReturns.
+
+	^ executionState popFrame
 ]
 
 { #category : #configure }

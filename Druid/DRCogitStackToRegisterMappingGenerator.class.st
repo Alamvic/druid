@@ -62,11 +62,12 @@ DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRIns
 { #category : #'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> preProcessBlock: aBasicBlock [
 
-	markDeadCode ifTrue: [ "If a previous instruction marked dead code, we need to unmark it because we keep generating code"
-		markDeadCode := false.
-		generatorMethodBuilder addStatement: (RBAssignmentNode
-				 variable: (RBVariableNode named: 'deadCode')
-				 value: (RBLiteralNode value: false)) ].
+	(markDeadCode and: [ self hasDeferredBranchesTo: aBasicBlock ])
+		ifTrue: [ "If a previous instruction marked dead code, we need to unmark it because we keep generating code"
+			markDeadCode := false.
+			generatorMethodBuilder addStatement: (RBAssignmentNode
+					 variable: (RBVariableNode named: 'deadCode')
+					 value: (RBLiteralNode value: false)) ].
 	super preProcessBlock: aBasicBlock
 ]
 

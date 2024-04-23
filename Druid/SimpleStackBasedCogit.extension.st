@@ -16,7 +16,6 @@ SimpleStackBasedCogit class >> druidNewOptimizationList [
 	"Basic set of optimizations twice for primitives"
 	3 timesRepeat: [
 		optimisations add: DRBranchCollapse new.
-		optimisations add: DRFailureCodeBasedTailDuplication new.
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
 
 		optimisations add: DRCopyPropagation new.

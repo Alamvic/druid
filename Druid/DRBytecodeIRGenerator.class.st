@@ -1,6 +1,6 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
-	#superclass : #DRPrimitiveIRGenerator,
+	#superclass : #DRMetaCompilerIRGenerator,
 	#instVars : [
 		'jumpOffset'
 	],
@@ -23,16 +23,11 @@ DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
 	currentBasicBlock jumpTo: controlFlowGraph exitBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : #initialization }
 DRBytecodeIRGenerator >> initialize [
 
 	super initialize.
-	jumpOffset := 0.
-
-	controlFlowGraph successExitBlock:controlFlowGraph newBasicBlock.
-	controlFlowGraph successExitBlock beExitBlock.
-	controlFlowGraph failureExitBlock: controlFlowGraph newBasicBlock.
-	controlFlowGraph failureExitBlock beExitBlock.
+	jumpOffset := 0
 ]
 
 { #category : #accessing }
@@ -405,7 +400,7 @@ DRBytecodeIRGenerator >> interpretStackValueWith: aRBMessageNode [
 
 	| value |
 	aRBMessageNode arguments first acceptVisitor: self.
-1halt.
+
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRLoadStackValue
@@ -436,10 +431,10 @@ DRBytecodeIRGenerator >> newBasicBlockWithState: executionState [
 	^ newBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : #initialization }
 DRBytecodeIRGenerator >> newCFG [
 	
-	^ DRPrimitiveControlFlowGraph new
+	^ DRControlFlowGraph new
 ]
 
 { #category : #accessing }

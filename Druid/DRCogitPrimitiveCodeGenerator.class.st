@@ -16,6 +16,21 @@ DRCogitPrimitiveCodeGenerator >> copyRegister: sourceRegister to: destinationReg
 ]
 
 { #category : #'ir-to-ast' }
+DRCogitPrimitiveCodeGenerator >> linearizeBlocksInCFG: aControlFlowGraph [
+
+	| linearizedBlocks |
+	linearizedBlocks := super linearizeBlocksInCFG: aControlFlowGraph.
+
+	"Make sure the failure exit block is at the end, so it works as a fallthrough with the following bytecode"
+	(linearizedBlocks includes: aControlFlowGraph failureExitBlock)
+		ifTrue: [
+			linearizedBlocks remove: aControlFlowGraph failureExitBlock.
+			linearizedBlocks addLast: aControlFlowGraph failureExitBlock ].
+
+	^ linearizedBlocks
+]
+
+{ #category : #'ir-to-ast' }
 DRCogitPrimitiveCodeGenerator >> returnNodeForCompiledMethod: aDRControlFlowGraph [
 
 	| primitiveFail isCompletePrimitive |

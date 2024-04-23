@@ -254,15 +254,7 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 	aDRControlFlowGraph stagedRegisters do: [ :e |
 		generatorMethodBuilder addVariableNamed: e prettyPrint ].
 
-	"Sort the blocks"
-	blocks := aDRControlFlowGraph reversePostOrderBlocks.
-
-	"Make sure the failure exit block is at the end, so it works as a fallthrough with the following bytecode"
-	(blocks includes: aDRControlFlowGraph failureExitBlock) ifTrue: [
-		blocks remove: aDRControlFlowGraph failureExitBlock.
-		blocks addLast: aDRControlFlowGraph failureExitBlock ].
-
-	"Generate CFG code"
+	blocks := self linearizeBlocksInCFG: aDRControlFlowGraph.
 	self generateCodeFromBlocks.
 
 	"Generate the postamble in the fallthrough case"
@@ -452,6 +444,12 @@ DRCogitCodeGenerator >> generatorMethodBuilder: aDRGeneratorMethodBuilder [
 	generatorMethodBuilder := aDRGeneratorMethodBuilder
 ]
 
+{ #category : #'jump-management' }
+DRCogitCodeGenerator >> hasDeferredBranchesTo: aDRBasicBlock [
+
+	^ deferredBranches includesKey: aDRBasicBlock
+]
+
 { #category : #testing }
 DRCogitCodeGenerator >> hasIncomingBackjumps: aDRBasicBlock [ 
 	
@@ -561,6 +559,12 @@ DRCogitCodeGenerator >> labelForBlock: aDRBasicBlock [
 DRCogitCodeGenerator >> labelForJump: jumpIndex [
 	
 	^ 'jump', jumpIndex asString
+]
+
+{ #category : #'ir-to-ast' }
+DRCogitCodeGenerator >> linearizeBlocksInCFG: aDRControlFlowGraph [
+
+	^ aDRControlFlowGraph reversePostOrderBlocks
 ]
 
 { #category : #visiting }
