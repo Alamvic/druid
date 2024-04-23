@@ -1,11 +1,11 @@
 Class {
-	#name : #DRCogitStackCoallescing,
+	#name : #DRCogitStackCoalescing,
 	#superclass : #DROptimisation,
 	#category : #'Druid-Cogit'
 }
 
 { #category : #accessing }
-DRCogitStackCoallescing >> applyTo: cfg [
+DRCogitStackCoalescing >> applyTo: cfg [
 	"Get all stack effect instructions (push and pops).
 	We should move them down to their common post dominator.
 	Effects that apply the same operation on different branches get coallesced into a single effect (one push on each branch turns into a single push down in the CFG)"
@@ -23,12 +23,12 @@ DRCogitStackCoallescing >> applyTo: cfg [
 
 			instructionsAtDepth anyOne isPush
 				ifTrue: [
-				self coallescePushes: instructionsAtDepth in: basicBlock ]
-				ifFalse: [ self coallescePops: instructionsAtDepth in: basicBlock ] ] ]
+				self coalescePushes: instructionsAtDepth in: basicBlock ]
+				ifFalse: [ self coalescePops: instructionsAtDepth in: basicBlock ] ] ]
 ]
 
 { #category : #accessing }
-DRCogitStackCoallescing >> coallescePops: pops in: postDominator [
+DRCogitStackCoalescing >> coalescePops: pops in: postDominator [
 
 	postDominator addInstructionFirst:
 		postDominator instructionFactory pop.
@@ -37,7 +37,7 @@ DRCogitStackCoallescing >> coallescePops: pops in: postDominator [
 ]
 
 { #category : #accessing }
-DRCogitStackCoallescing >> coallescePushes: pushes in: postDominator [
+DRCogitStackCoalescing >> coalescePushes: pushes in: postDominator [
 	"We have two pushes in two different branches
 	
 	   |           |

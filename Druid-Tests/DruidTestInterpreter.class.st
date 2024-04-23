@@ -59,6 +59,20 @@ DruidTestInterpreter >> bytecodeTwoPopOnTwoBranches [
 ]
 
 { #category : #bytecode }
+DruidTestInterpreter >> bytecodeTwoPushOnTwoBranches [
+
+	<compilationInfo: #isMapped>
+	self popStack > 0
+		ifTrue: [
+			self push: 1.
+			self push: 2 ]
+		ifFalse: [
+			self push: 3.
+			self push: 4 ].
+	self push: self popStack + self popStack
+]
+
+{ #category : #bytecode }
 DruidTestInterpreter >> bytecodeWithDeoptimisation [
 
 	self druidForceIntepretation

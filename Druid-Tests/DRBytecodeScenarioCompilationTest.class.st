@@ -142,6 +142,40 @@ DRBytecodeScenarioCompilationTest >> testTwoPopsAreCoallesced [
 ]
 
 { #category : #tests }
+DRBytecodeScenarioCompilationTest >> testTwoPushesAreCoallescedBranchOne [
+
+	self
+		compileBytecode: 0
+		selector: #bytecodeTwoPushOnTwoBranches
+		thenDo: [ :generator | "Push the receiver"
+			cogit ssPushRegister: ReceiverResultReg.
+			"Then execute the druid's compiled code"
+			generator value.
+			cogit genReturnTopFromMethod ].
+
+	self executePrimitiveWithReceiver: 17.
+
+	self assert: machineSimulator receiverRegisterValue equals: 3
+]
+
+{ #category : #tests }
+DRBytecodeScenarioCompilationTest >> testTwoPushesAreCoallescedBranchTwo [
+
+	self
+		compileBytecode: 0
+		selector: #bytecodeTwoPushOnTwoBranches
+		thenDo: [ :generator | "Push the receiver"
+			cogit ssPushRegister: ReceiverResultReg.
+			"Then execute the druid's compiled code"
+			generator value.
+			cogit genReturnTopFromMethod ].
+
+	self executePrimitiveWithReceiver: -17.
+
+	self assert: machineSimulator receiverRegisterValue equals: 7
+]
+
+{ #category : #tests }
 DRBytecodeScenarioCompilationTest >> testUnknownBytecode [
 
 	| method deoptimizeTrampoline |
