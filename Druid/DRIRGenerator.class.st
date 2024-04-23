@@ -2,6 +2,7 @@ Class {
 	#name : #DRIRGenerator,
 	#superclass : #Object,
 	#instVars : [
+		'compiler',
 		'specialCases',
 		'currentBasicBlock',
 		'firstBasicBlock',
@@ -168,6 +169,24 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 ]
 
 { #category : #accessing }
+DRIRGenerator >> compiler [
+
+	^ compiler
+]
+
+{ #category : #accessing }
+DRIRGenerator >> compiler: anObject [
+
+	compiler := anObject
+]
+
+{ #category : #accessing }
+DRIRGenerator >> compilerOptions [
+
+	^ self compiler compilerOptions
+]
+
+{ #category : #accessing }
 DRIRGenerator >> controlFlowGraph: aDRControlFlowGraph [
 
 	controlFlowGraph := aDRControlFlowGraph
@@ -205,6 +224,24 @@ DRIRGenerator >> currentMethod [
 DRIRGenerator >> currentOperandStack [
 
 	^ executionState vmOperandStack
+]
+
+{ #category : #accessing }
+DRIRGenerator >> druidConditionalCompilationWith: aRBMessageNode [
+
+	| condition |
+	condition := aRBMessageNode arguments first value.
+	^ (self compilerOptions includes: condition)
+		ifTrue: [
+			| block |
+			aRBMessageNode arguments second acceptVisitor: self.
+			block := self popOperand simplify.
+			block isDRBlockClosure ifFalse: [
+				self error: 'Only consider blocks' ].
+			block blockNode arguments size > 0 ifTrue: [
+				self error: 'Only consider blocks with no arguments' ].
+			self interpretCode: block receiver: block arguments: #(  ) ]
+		ifFalse: [ self noop: aRBMessageNode ]
 ]
 
 { #category : #'execution state' }
@@ -286,6 +323,7 @@ DRIRGenerator >> initializeSpecialCases [
 	"Control flow and comparisons"
 	specialCases at: #druidStageable: put: #interpretStageableBlockWith:.
 	specialCases at: #druidIgnore: put: #ignoreMessageWith:.
+	specialCases at: #druidIf:do: put: #druidConditionalCompilationWith:.
 	specialCases at: #interpreterIgnore: put: #interpretBlockArgumentValueWith:.
 	specialCases at: #druidFail put: #interpretDruidFailWith:.
 	specialCases at: #value put: #interpretBlockValueWith:.

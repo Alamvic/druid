@@ -624,6 +624,18 @@ DRPrimitiveScenarioCompilationTest >> testCompiledPrimitiveWithTwoArgs [
 	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
+{ #category : #'tests-comparisons-floats' }
+DRPrimitiveScenarioCompilationTest >> testConditionalCompilationWithNoConditionGiven [
+
+	self
+		compileDruidPrimitive: #primitiveWithConditionalCompilation
+		with: [ :druid | druid addCompilerOption: #condition ].
+
+	self executePrimitiveWithReceiver: 0 withArguments: {  }.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
 { #category : #'tests-types' }
 DRPrimitiveScenarioCompilationTest >> testConstantFloatAsInteger [
 
