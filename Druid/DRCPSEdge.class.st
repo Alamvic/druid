@@ -626,12 +626,6 @@ DRCPSEdge >> visitPop: aDRPop [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitPopMany: aDRPopMany [ 
-	
-	^ nil
-]
-
-{ #category : #visiting }
 DRCPSEdge >> visitPush: aDRPush [ 
 	
 	^ nil

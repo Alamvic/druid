@@ -197,12 +197,6 @@ DRCogitStackToRegisterMappingGenerator >> visitPop: aDRPop [
 ]
 
 { #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitPopMany: aDRPopMany [ 
-
-	^ self visitPop: aDRPopMany
-]
-
-{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 
 	generatorMethodBuilder addStatement: (RBMessageNode

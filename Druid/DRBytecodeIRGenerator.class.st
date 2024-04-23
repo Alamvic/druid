@@ -457,7 +457,7 @@ DRBytecodeIRGenerator >> pop [
 	self
 		addInstructionFrom: nil
 		instructionKind: DRPop
-		operands: #().
+		operands: #( 1 ).
 	^ self popOperand
 ]
 

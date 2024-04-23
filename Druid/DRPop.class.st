@@ -19,7 +19,7 @@ DRPop >> isPop [
 { #category : #accessing }
 DRPop >> numberOfPoppedElements [
 	
-	^ 1
+	^ self operand1 value
 ]
 
 { #category : #printing }

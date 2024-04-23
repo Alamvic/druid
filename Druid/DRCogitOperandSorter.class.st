@@ -328,12 +328,6 @@ DRCogitOperandSorter >> visitPop: aDRPop [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitPopMany: aDRPopMany [ 
-	
-	"Nothing"
-]
-
-{ #category : #visiting }
 DRCogitOperandSorter >> visitPush: aDRPush [ 
 	
 	"Nothing"

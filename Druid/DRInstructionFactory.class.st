@@ -271,7 +271,7 @@ DRInstructionFactory >> phiWithVariables: variables [
 { #category : #factory }
 DRInstructionFactory >> pop [
 
-	^ DRPop operands: #(  ) result: self allocateTemporaryRegister
+	^ DRPop operands: #( 1 ) result: self allocateTemporaryRegister
 ]
 
 { #category : #factory }
