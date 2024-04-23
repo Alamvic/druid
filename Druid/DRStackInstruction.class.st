@@ -14,11 +14,19 @@ DRStackInstruction >> addStackDependent: aStackInstruction [
 	stackDependents add: aStackInstruction
 ]
 
+{ #category : #dependencies }
+DRStackInstruction >> clearStackDependencies [
+
+	stackDependency := OrderedCollection new.
+	stackDependents := OrderedCollection new
+]
+
 { #category : #testing }
 DRStackInstruction >> initialize [
 
 	super initialize.
-	stackDependents := OrderedCollection new
+
+	self clearStackDependencies
 ]
 
 { #category : #testing }
@@ -39,7 +47,7 @@ DRStackInstruction >> removeStackDependent: aStackDependent [
 	stackDependents := stackDependents copyWithout: aStackDependent
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #dependencies }
 DRStackInstruction >> shiftStackAccessBy: anInteger [ 
 	
 	"Delegate to my stack dependents"

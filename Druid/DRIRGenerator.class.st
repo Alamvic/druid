@@ -11,7 +11,8 @@ Class {
 		'executionState',
 		'variableSpecialCases',
 		'typeSystem',
-		'staging'
+		'staging',
+		'currentASTNode'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -33,13 +34,10 @@ DRIRGenerator >> addDeferredReturnState: anExecutionState [
 ]
 
 { #category : #visiting }
-DRIRGenerator >> addEndInstructionFrom: aNode instructionKind: instructionClass operands: operands [
-	
-	| instruction |
-	instruction := self
-		instantiate: instructionClass
-		operands: operands.
-	^ self addEndInstruction: instruction from: aNode
+DRIRGenerator >> addEndInstruction: instruction [
+
+	self currentBasicBlock endInstruction: instruction.
+	instruction originAST: currentASTNode
 ]
 
 { #category : #'execution state' }
@@ -71,6 +69,15 @@ DRIRGenerator >> addInstructionCall: operands from: aRBMessageNode [
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRCall
 		  operands: operands
+]
+
+{ #category : #visiting }
+DRIRGenerator >> addInstructionFrom: aNode instructionKind: instructionClass [
+
+	^ self
+		  addInstructionFrom: aNode
+		  instructionKind: instructionClass
+		  operands: #(  )
 ]
 
 { #category : #visiting }
@@ -166,6 +173,51 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 	branchExitBlock := self currentBasicBlock.
 	currentBasicBlock := startingBasicBlock.	
 	^ branchExitBlock
+]
+
+{ #category : #building }
+DRIRGenerator >> buildIfTrue: aCondition then: aBuildingBlock [
+
+	| conditionalJump executionStateBeforeBranch trueBranchBasicBlockOut startingBasicBlock |
+	conditionalJump := self
+		                   instantiateNoResultInstruction:
+		                   DRBranchIfCondition
+		                   operands: {
+				                   DREqualsThanComparison new.
+				                   aCondition.
+				                   true asDRValue }.
+	self addEndInstruction: conditionalJump.
+
+	self pushOperand: DRNullValue new.
+	executionStateBeforeBranch := executionState copy.
+	self popOperand.
+
+	trueBranchBasicBlockOut := self
+		                           branchFrom: self currentBasicBlock
+		                           onEdge: [ :branchEntryBlock |
+		                           conditionalJump trueBranch:
+			                           branchEntryBlock ]
+		                           doing: aBuildingBlock.
+
+	"Merge point"
+	startingBasicBlock := self currentBasicBlock.
+	self newBasicBlock.
+	self currentBasicBlock addPredecessor: startingBasicBlock.
+	conditionalJump falseBranch: self currentBasicBlock.
+
+	"Could happen that the evaluated block had a non local return.
+	In that case, this block should not arrive to this merge point
+		=> do not add the jump"
+	trueBranchBasicBlockOut hasFinalInstruction
+		ifTrue: [ executionState := executionStateBeforeBranch ]
+		ifFalse: [
+			executionState := DRStackMerger new
+				                  builder: self;
+				                  mergeBlock: currentBasicBlock;
+				                  mergeAll: {
+						                  executionStateBeforeBranch.
+						                  executionState copy }.
+			trueBranchBasicBlockOut jumpTo: self currentBasicBlock ]
 ]
 
 { #category : #accessing }
@@ -955,52 +1007,11 @@ DRIRGenerator >> interpretHiddenRootsObjectWith: aRBVariableNode [
 { #category : #'special cases' }
 DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 
-	| trueBranchBasicBlockOut conditionalJump startingBasicBlock executionStateBeforeBranch |
 	aRBMessageNode receiver acceptVisitor: self.
-	conditionalJump := self
-		                   instantiateNoResultInstruction:
-		                   DRBranchIfCondition
-		                   operands: {
-				                   DREqualsThanComparison new.
-				                   self popOperand.
-				                   true asDRValue }.
-	conditionalJump originAST: aRBMessageNode.
-
-	self currentBasicBlock endInstruction: conditionalJump.
-
-	self pushOperand: DRNullValue new.
-	executionStateBeforeBranch := executionState copy.
-
-	self popOperand.
-
-	trueBranchBasicBlockOut := self
-		                           branchFrom: self currentBasicBlock
-		                           onEdge: [ :branchEntryBlock |
-		                           conditionalJump trueBranch:
-			                           branchEntryBlock ]
-		                           doing: [
-		                           self interpretBlockBody:
-			                           aRBMessageNode arguments first ].
-
-	"Merge point"
-	startingBasicBlock := self currentBasicBlock.
-	self newBasicBlock.
-	self currentBasicBlock addPredecessor: startingBasicBlock.
-	conditionalJump falseBranch: self currentBasicBlock.
-
-	"Could happen that the evaluated block had a non local return.
-	In that case, this block should not arrive to this merge point
-		=> do not add the jump"
-	trueBranchBasicBlockOut hasFinalInstruction
-		ifTrue: [ executionState := executionStateBeforeBranch ]
-		ifFalse: [
-			executionState := DRStackMerger new
-				                  builder: self;
-				                  mergeBlock: currentBasicBlock;
-				                  mergeAll: {
-						                  executionStateBeforeBranch.
-						                  executionState copy }.
-			trueBranchBasicBlockOut jumpTo: self currentBasicBlock ]
+	currentASTNode := aRBMessageNode.
+	self
+		buildIfTrue: self popOperand
+		then: [ self interpretBlockBody: aRBMessageNode arguments first ]
 ]
 
 { #category : #'special cases' }

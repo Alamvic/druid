@@ -721,6 +721,26 @@ DRControlFlowGraph >> privateNewBasicBlock [
 	^ newBlock
 ]
 
+{ #category : #building }
+DRControlFlowGraph >> rebuildStackDependencies [
+
+	| lastStackInstructionPerBlock incomingStackInstructions |
+	lastStackInstructionPerBlock  := Dictionary new.
+
+	self reversePostOrderBlocks do: [ :e |
+		incomingStackInstructions := e predecessors flatCollect: [ :p |
+			                             lastStackInstructionPerBlock
+				                             at: p
+				                             ifAbsent: [ #(  ) ] ].
+		e instructions do: [ :i |
+			i isStackInstruction ifTrue: [
+				i clearStackDependencies.
+				i stackDependency: incomingStackInstructions.
+				incomingStackInstructions do: [ :s | s addStackDependent: i ].
+				incomingStackInstructions := { i } ] ].
+		lastStackInstructionPerBlock at: e put: incomingStackInstructions ]
+]
+
 { #category : #removing }
 DRControlFlowGraph >> removeBasicBlock: aDRBasicBlock [ 
 
