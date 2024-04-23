@@ -1783,6 +1783,14 @@ DruidTestInterpreter >> primitiveUint8AtPut [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithConditionalCompilation [
+
+	<numberOfArguments: 0>
+	self druidIf: #condition do: [ ^ self pop: 1 thenPush: 17 ].
+	self pop: 1 thenPush: 42
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveWithDeadCode [
 
 	<numberOfArguments: 0>
