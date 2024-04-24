@@ -121,7 +121,7 @@ DRMetaCompilerIRGenerator >> numberOfArguments: aValue [
 DRMetaCompilerIRGenerator >> popFrameMergingDeferredReturns [
 
 	| exitBasicBlock topReturns |
-	exitBasicBlock := self newBasicBlock.
+	exitBasicBlock := self basicNewBasicBlock.
 	topReturns := self topFrame deferredMethodReturns.
 	topReturns size > 0
 		ifTrue: [

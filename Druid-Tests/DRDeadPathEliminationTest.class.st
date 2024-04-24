@@ -28,25 +28,25 @@ DRDeadPathEliminationTest >> setUp [
 { #category : #optimization }
 DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 
-	| cfg lastBlocks lastPaths newMergePoint oldMergePoint newBlock |
+	| cfg lastBlocks lastPaths newMergePoint oldMergePoint newBlock exitBasicBlock |
 	cfg := self generateDruidIRFor: #primitiveSandclock.
 	oldMergePoint := cfg mergeBlocks first.
 	newMergePoint := oldMergePoint newEmptyPredecessor.
+	exitBasicBlock := cfg exitBasicBlock.
+	
 	newBlock := cfg newBasicBlockWith: [ :b | b copy: 1 ].
 	oldMergePoint removePredecessorAt: 1.
 	newMergePoint
 		jumpIf: (DRPhysicalGeneralPurposeRegister name: 'Parameter')
 		to: oldMergePoint
 		ifFalseTo: newBlock.
-	newBlock jumpTo: (cfg blockById: 1).
+	newBlock jumpTo: exitBasicBlock.
 
 	2 timesRepeat: [ 
 		cfg applyOptimisation: optimisation.
 		cfg applyOptimisation: DRCleanControlFlow new ].
 
 	cfg generatePaths.
-	lastBlocks := cfg lastBasicBlock predecessors.
-	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
 
 	self assert: cfg deadPaths isEmpty.
 ]
