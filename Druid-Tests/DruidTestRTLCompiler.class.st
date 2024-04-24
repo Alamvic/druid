@@ -3604,16 +3604,17 @@ DruidTestRTLCompiler >> gen_primitiveBitShift [
 	self CmpCq: 0 R: SendNumArgsReg.
 	jump1 := self JumpLessOrEqual: 0.
 	self LogicalShiftLeftR: SendNumArgsReg R: ClassReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+	self MoveR: ClassReg R: SendNumArgsReg.
 	jump2 := self Jump: 0.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	self MoveR: SendNumArgsReg R: SendNumArgsReg.
 	self NegateR: SendNumArgsReg.
 	self LogicalShiftRightR: SendNumArgsReg R: ClassReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+	self MoveR: ClassReg R: SendNumArgsReg.
 	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
+	self MoveR: SendNumArgsReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -4131,9 +4132,9 @@ DruidTestRTLCompiler >> gen_primitiveDivide [
 	self
 		DivR: SendNumArgsReg
 		R: ClassReg
-		Quo: SendNumArgsReg
-		Rem: ClassReg.
-	self MoveR: SendNumArgsReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: SendNumArgsReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
@@ -5972,9 +5973,9 @@ DruidTestRTLCompiler >> gen_primitiveIntegerDivide [
 	self
 		DivR: SendNumArgsReg
 		R: ClassReg
-		Quo: ClassReg
-		Rem: SendNumArgsReg.
-	self MoveR: ClassReg R: ReceiverResultReg.
+		Quo: SendNumArgsReg
+		Rem: ClassReg.
+	self MoveR: SendNumArgsReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]

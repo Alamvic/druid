@@ -22,6 +22,12 @@ DRDivision >> opcode [
 	^ 'DIV'
 ]
 
+{ #category : #accessing }
+DRDivision >> operands: aCollection [
+
+	super operands: aCollection asOrderedCollection
+]
+
 { #category : #SCCP }
 DRDivision >> sccpOperateOnLattice: operand and: operand2 [
 	
