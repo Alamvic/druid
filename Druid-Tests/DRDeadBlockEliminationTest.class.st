@@ -16,7 +16,7 @@ Class {
 	#category : #'Druid-Tests-Optimizations'
 }
 
-{ #category : #initialization }
+{ #category : #running }
 DRDeadBlockEliminationTest >> setUp [
 	super setUp.
 	
@@ -25,7 +25,7 @@ DRDeadBlockEliminationTest >> setUp [
 	
 	cfg := DRControlFlowGraph new.
 	entryBlock := cfg newBasicBlock.
-	exitBlock := cfg newBasicBlock.
+	exitBlock := cfg exitBasicBlock.
 	deadBlock := cfg newBasicBlock.
 	deadBlock2 := cfg newBasicBlock.
 
