@@ -79,7 +79,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 DRDeadPathEliminationTest >> testEliminateDoubleDeadPaths [
 	"TOFIX: it's trying to create phis in wrong 'frontier' blocks"
 
-	| cfg lastBlocks lastPaths lastPathsLeft lastPathsRight |
+	| cfg lastBlocks lastPaths lastPathsOne lastPathsTwo lastPathsThird |
 	cfg := self generateDruidIRFor: #primitiveDNA.
 
 	4 timesRepeat: [ 
@@ -88,15 +88,17 @@ DRDeadPathEliminationTest >> testEliminateDoubleDeadPaths [
 
 	cfg generatePaths.
 
-	lastPaths := cfg exitBasicBlocks collect: [ :e | cfg incomingEdgesFor: e ].
+	lastPaths := cfg exitBasicBlocks flatCollect: [ :e | cfg incomingEdgesFor: e ].
 	lastBlocks := cfg exitBasicBlocks.
-	lastPathsLeft := cfg incomingEdgesFor: lastBlocks first.
-	lastPathsRight := cfg incomingEdgesFor: lastBlocks last.
+	lastPathsOne := cfg incomingEdgesFor: lastBlocks first.
+	lastPathsTwo := cfg incomingEdgesFor: lastBlocks second.
+	lastPathsThird := cfg incomingEdgesFor: lastBlocks third.
 
 	self assert: cfg deadPaths isEmpty.
 	self assert: lastPaths size equals: 4. "X>10 || 10<=X>7 || 7<=X>0 || 0<=X"
-	self assert: lastPathsLeft size equals: 2.
-	self assert: lastPathsRight size equals: 2
+	self assert: lastPathsOne size equals: 1.
+	self assert: lastPathsTwo size equals: 1.
+	self assert: lastPathsThird size equals: 2.
 ]
 
 { #category : #optimization }
@@ -124,6 +126,7 @@ DRDeadPathEliminationTest >> testEliminateDoubleHalfDeadPaths [
 DRDeadPathEliminationTest >> testEliminateInnerDeadPaths [
 
 	| cfg lastBlocks |
+
 	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
 
 	optimisation applyTo: cfg.
