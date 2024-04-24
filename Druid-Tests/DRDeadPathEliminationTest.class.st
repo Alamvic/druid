@@ -54,11 +54,9 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 { #category : #optimization }
 DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 
-	| cfg lastPaths conditionalConstraint add |
+	| cfg lastPaths conditionalConstraint |
 	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
 	cfg generatePaths.
-
-	add := cfg instructions detect: [ :i | i isAdd ].
 
 	self assert: cfg deadPaths isNotEmpty.
 
@@ -71,7 +69,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 	self assert: lastPaths size equals: 2.
 
 	"Should propagate conditional constraint to the result"
-	conditionalConstraint := lastPaths first constraintFor: DRPhysicalGeneralPurposeRegister receiverResultReg name.
+	conditionalConstraint := lastPaths first constraintFor: 7"t7".
 	self
 		assertConstraint: (DRGreaterOrEqualsConstraint withValue: 15)
 		includes: conditionalConstraint

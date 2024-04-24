@@ -371,7 +371,7 @@ DRTailDuplicationTest >> testTailDuplicateOnLoop [
 	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
 
 	"Duplicate loop header"
-	duplicatedBlocks := (cfg blockById: 6) tailDuplicate.
+	duplicatedBlocks := (cfg blockById: 4) tailDuplicate.
 
 	"Build 1 duplication"
 	self assert: duplicatedBlocks size equals: 2.
@@ -404,7 +404,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldCopyBlock [
 
 	cfg b4 tailDuplicate.
 	cfg validate.
-	newBlock := cfg blockById: 5.
+	newBlock := cfg blockById: 4.
 
 	self
 		assertCollection: cfg b4 predecessors
@@ -424,7 +424,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldGenerateNewVariables [
 
 	cfg b4 tailDuplicate.
 	cfg validate.
-	newBlock := cfg blockById: 5.
+	newBlock := cfg blockById: 4.
 
 	self
 		assert: newBlock instructions size
@@ -447,7 +447,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldKeepInstructionDependenciesInPhi
 
 	cfg b4 tailDuplicate.
 	cfg validate.
-	newBlock := cfg blockById: 5.
+	newBlock := cfg blockById: 4.
 
 	"On splitting, phis loses one argument"
 	self
