@@ -3,7 +3,6 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'initialBasicBlock',
-		'exitBasicBlock',
 		'initialConstraint',
 		'basicBlocks',
 		'nextBasicBlockId',
@@ -209,9 +208,7 @@ DRControlFlowGraph >> blockById: anInteger [
 { #category : #iterating }
 DRControlFlowGraph >> blocks [
 
-	^ basicBlocks copyWithAll: {
-			  initialBasicBlock.
-			  exitBasicBlock }
+	^ basicBlocks copyWithAll: { initialBasicBlock }
 ]
 
 { #category : #accessing }
@@ -415,16 +412,19 @@ DRControlFlowGraph >> edgesFrom: sourceBlock to: destinationBlock [
 	^ (self outgoingEdgesFor: sourceBlock) select: [ :e | e destination = destinationBlock ]
 ]
 
-{ #category : #accessing }
+{ #category : #testing }
 DRControlFlowGraph >> exitBasicBlock [
-
-	^ exitBasicBlock
+	
+	| theExitBlocks |
+	theExitBlocks := self exitBasicBlocks.
+	theExitBlocks size > 1 ifTrue: [ self error: 'This CFG has more than one exit basic block' ].
+	^ theExitBlocks anyOne
 ]
 
-{ #category : #accessing }
-DRControlFlowGraph >> exitBasicBlock: anObject [
+{ #category : #testing }
+DRControlFlowGraph >> exitBasicBlocks [
 
-	exitBasicBlock := anObject
+	^ self blocks select: [ :b | b hasSuccessors not ]
 ]
 
 { #category : #accessing }
@@ -519,8 +519,6 @@ DRControlFlowGraph >> initialize [
 	numberOfSpillSlots := 0.
 
 	nextBasicBlockId := -1.
-	exitBasicBlock := self privateNewBasicBlock.
-	exitBasicBlock beExitBlock.
 	initialBasicBlock := self privateNewBasicBlock
 ]
 

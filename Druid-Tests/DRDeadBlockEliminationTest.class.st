@@ -25,7 +25,7 @@ DRDeadBlockEliminationTest >> setUp [
 	
 	cfg := DRControlFlowGraph new.
 	entryBlock := cfg newBasicBlock.
-	exitBlock := cfg exitBasicBlock.
+	exitBlock := cfg newBasicBlock.
 	deadBlock := cfg newBasicBlock.
 	deadBlock2 := cfg newBasicBlock.
 

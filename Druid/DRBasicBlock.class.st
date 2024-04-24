@@ -466,6 +466,12 @@ DRBasicBlock >> hasPredecessors [
 ]
 
 { #category : #accessing }
+DRBasicBlock >> hasSuccessors [
+	
+	^ self successors notEmpty
+]
+
+{ #category : #accessing }
 DRBasicBlock >> hyperblock [
 
 	| workingQueue visited visitsToThisBlockSoFar blocks |
@@ -770,7 +776,7 @@ DRBasicBlock >> isEmptyBasicBlock [
 { #category : #accessing }
 DRBasicBlock >> isExitBlock [
 
-	^ isExitBlock
+	^ false
 ]
 
 { #category : #accessing }

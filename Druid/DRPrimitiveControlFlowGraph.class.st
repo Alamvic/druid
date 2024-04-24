@@ -14,12 +14,6 @@ Class {
 	#category : #'Druid-IR'
 }
 
-{ #category : #iterating }
-DRPrimitiveControlFlowGraph >> blocks [
-
-	^ basicBlocks
-]
-
 { #category : #accessing }
 DRPrimitiveControlFlowGraph >> failureExitBlock [
 

@@ -12,7 +12,7 @@ DRPostdominatorTreeTest >> testConditionalCFGDomination [
 
 	b0 := cfg initialBasicBlock.
 	b1 := cfg newBasicBlock.
-	b2 := cfg exitBasicBlock.
+	b2 := cfg newBasicBlock.
 	b0 jumpIf: true to: b1 ifFalseTo: b2.
 	b1 jumpTo: b2.
 
@@ -57,7 +57,7 @@ DRPostdominatorTreeTest >> testDegenerateLoopCFGDomination [
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
-	b5 := cfg exitBasicBlock.
+	b5 := cfg newBasicBlock.
 
 	b0 jumpIf: true to: b1 ifFalseTo: b2.
 	b1 jumpTo: b3.
@@ -89,7 +89,7 @@ DRPostdominatorTreeTest >> testDegenerateLoopCFGImmediateDomination [
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
-	b5 := cfg exitBasicBlock.
+	b5 := cfg newBasicBlock.
 
 	b0 jumpIf: true to: b1 ifFalseTo: b2.
 	b1 jumpTo: b3.
@@ -118,7 +118,7 @@ DRPostdominatorTreeTest >> testDiamondConditionalCFGDomination [
 	b0 := cfg initialBasicBlock.
 	b1 := cfg newBasicBlock.
 	b2 := cfg newBasicBlock.
-	b3 := cfg exitBasicBlock.
+	b3 := cfg newBasicBlock.
 
 	b0 jumpIf: true to: b1 ifFalseTo: b2.
 	b1 jumpTo: b3.
@@ -150,7 +150,7 @@ DRPostdominatorTreeTest >> testDoubleDiamondConditionalCFGDomination [
 
 	b4 := cfg newBasicBlock.
 	b5 := cfg newBasicBlock.
-	b6 := cfg exitBasicBlock.
+	b6 := cfg newBasicBlock.
 
 	b3 jumpIf: true to: b4 ifFalseTo: b5.
 	b4 jumpTo: b6.
@@ -191,7 +191,7 @@ DRPostdominatorTreeTest >> testDoubleDiamondConditionalCFGImmediateDomination [
 
 	b4 := cfg newBasicBlock.
 	b5 := cfg newBasicBlock.
-	b6 := cfg exitBasicBlock.
+	b6 := cfg newBasicBlock.
 
 	b3 jumpIf: true to: b4 ifFalseTo: b5.
 	b4 jumpTo: b6.
@@ -212,7 +212,7 @@ DRPostdominatorTreeTest >> testExactDominationFailsWithIncompleteNumberOfBlocks 
 	b0 := cfg initialBasicBlock.
 	b1 := cfg newBasicBlock.
 	b2 := cfg newBasicBlock.
-	b3 := cfg exitBasicBlock.
+	b3 := cfg newBasicBlock.
 	b0 jumpIf: true to: b1 ifFalseTo: b2.
 	b1 jumpTo: b3.
 	b2 jumpTo: b3.
@@ -233,7 +233,7 @@ DRPostdominatorTreeTest >> testLinearCFGDomination [
 	cfg := DRControlFlowGraphForTesting new.
 
 	b0 := cfg initialBasicBlock.
-	b1 := cfg exitBasicBlock.
+	b1 := cfg newBasicBlock.
 	b0 jumpTo: b1.
 
 
@@ -253,7 +253,7 @@ DRPostdominatorTreeTest >> testNestedDiamondConditionalCFGDomination [
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
 	b5 := cfg newBasicBlock.
-	b6 := cfg exitBasicBlock.
+	b6 := cfg newBasicBlock.
 
 	b0 jumpIf: true to: b1 ifFalseTo: b2.
 	b1 jumpTo: b6.
@@ -291,7 +291,7 @@ DRPostdominatorTreeTest >> testNestedDiamondConditionalCFGImmediateDomination [
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
 	b5 := cfg newBasicBlock.
-	b6 := cfg exitBasicBlock.
+	b6 := cfg newBasicBlock.
 
 	b0 jumpIf: true to: b1 ifFalseTo: b2.
 	b1 jumpTo: b6.

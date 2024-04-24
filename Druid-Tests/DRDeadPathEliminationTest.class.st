@@ -90,8 +90,8 @@ DRDeadPathEliminationTest >> testEliminateDoubleDeadPaths [
 
 	cfg generatePaths.
 
-	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
-	lastBlocks := cfg lastBasicBlock predecessors.
+	lastPaths := cfg exitBasicBlocks collect: [ :e | cfg incomingEdgesFor: e ].
+	lastBlocks := cfg exitBasicBlocks.
 	lastPathsLeft := cfg incomingEdgesFor: lastBlocks first.
 	lastPathsRight := cfg incomingEdgesFor: lastBlocks last.
 
@@ -132,7 +132,7 @@ DRDeadPathEliminationTest >> testEliminateInnerDeadPaths [
 	self optimize: cfg.
 	cfg generatePaths.
 
-	lastBlocks := cfg lastBasicBlock predecessors.
+	lastBlocks := cfg exitBasicBlocks.
 
 	self assert: cfg deadPaths isEmpty.
 	self assert: lastBlocks first firstInstruction isCopy.

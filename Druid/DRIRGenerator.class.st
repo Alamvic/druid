@@ -1810,6 +1810,7 @@ DRIRGenerator >> popFrame [
 	
 	| poppedFrame |
 	"Here we are in callee"
+
 	poppedFrame := self popFrameMergingDeferredReturns.
 	
 	"Last frame!"

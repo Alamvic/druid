@@ -96,16 +96,15 @@ DRMethodIRGenerator >> receiver: aDRValue [
 { #category : #'deferred returns' }
 DRMethodIRGenerator >> resolveDeferredMethodReturns: aDRFrame [
 
-	| mirrorFrame newFrameReturn deferredReturnsBlock pieces deferredFrameReturn newReturn |
+	| mirrorFrame newFrameReturn deferredReturnsBlock pieces deferredFrameReturn newReturn exitBasicBlock |
 	aDRFrame deferredMethodReturns ifEmpty: [ ^ self ].
-	1halt.
+
 	mirrorFrame := aDRFrame mirrorFrame.
 
 	"If there were returns attached to popped frame, merge all of them in a single state. If there was only one return this is important also to override implicit returns"
-
+	exitBasicBlock := self newBasicBlock.
 	mirrorFrame poppedValue ifNil: [ "There are no provious returns"
-		self assert: aDRFrame exitBasicBlock isEmptyBasicBlock.
-		newFrameReturn := self mergeDeferredReturns: aDRFrame deferredMethodReturns in: aDRFrame exitBasicBlock.
+		newFrameReturn := self mergeDeferredReturns: aDRFrame deferredMethodReturns in: exitBasicBlock.
 		mirrorFrame poppedValue: newFrameReturn. "Save it in a secure and common place"
 		aDRFrame clearDeferredMethodReturns.
 		^ self ].
@@ -120,11 +119,10 @@ DRMethodIRGenerator >> resolveDeferredMethodReturns: aDRFrame [
 	pieces := mirrorFrame poppedValue breakBasicBlock.
 
 	"Update exitBasicBlock and continue from there"
-	aDRFrame exitBasicBlock: pieces last.
-	self currentBasicBlock: aDRFrame exitBasicBlock.
+	self currentBasicBlock: pieces last.
 
-	deferredReturnsBlock jumpTo: aDRFrame exitBasicBlock.
-	newReturn := aDRFrame exitBasicBlock addInstruction: (self instructionFactory phiWithVariables: {  }).
+	deferredReturnsBlock jumpTo: pieces last.
+	newReturn := pieces last addInstruction: (self instructionFactory phiWithVariables: {  }).
 	aDRFrame returnValue: newReturn.
 	newFrameReturn := self addFrameReturn: aDRFrame.
 	mirrorFrame poppedValue replaceUsesBy: newFrameReturn.

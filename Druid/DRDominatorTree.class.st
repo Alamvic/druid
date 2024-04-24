@@ -40,16 +40,14 @@ DRDominatorTree >> buildDominationTreeOf: cfg startingFrom: initialBasicBlock fo
 	hasChanged := true.
 	[ hasChanged ] whileTrue: [
 		hasChanged := false.
-		({
-			 cfg initialBasicBlock.
-			 cfg exitBasicBlock } , cfg blocks copyWithout: initialBasicBlock)
-			do: [ :block |
-				blockDictionary at: block ifPresent: [ :currentNode |
-					newImmediateDominator := self findImmediateDominatorOfBlock:
-						                         (dominationBlockClosure value: block).
-					currentNode parent = newImmediateDominator ifFalse: [
-						currentNode replaceParent: newImmediateDominator.
-						hasChanged := true ] ] ] ]
+		({ cfg initialBasicBlock } , cfg blocks copyWithout:
+			 initialBasicBlock) do: [ :block |
+			blockDictionary at: block ifPresent: [ :currentNode |
+				newImmediateDominator := self findImmediateDominatorOfBlock:
+					                         (dominationBlockClosure value: block).
+				currentNode parent = newImmediateDominator ifFalse: [
+					currentNode replaceParent: newImmediateDominator.
+					hasChanged := true ] ] ] ]
 ]
 
 { #category : #initialization }
@@ -65,9 +63,6 @@ DRDominatorTree >> buildDominatorTreeOf: cfg [
 { #category : #initialization }
 DRDominatorTree >> buildPostDominatorTreeOf: cfg [
 
-	cfg exitBasicBlock ifNil: [
-		self error:
-			'We need an exitBasicBlock to build a post dominator tree' ].
 	self
 		buildDominationTreeOf: cfg
 		startingFrom: cfg exitBasicBlock
