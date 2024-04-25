@@ -441,7 +441,7 @@ DRInstruction >> operands [
 DRInstruction >> operands: aCollection [ 
 
 	operands asSet do: [ :each | each removeUser: self ].
-	operands := aCollection collect: [:e | e asDRValue ].
+	operands := aCollection collect: [:e | e asDRValue ] as: OrderedCollection.
 	self dependencies asSet do: [ :each | each addUser: self ]
 ]
 

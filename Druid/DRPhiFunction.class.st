@@ -153,12 +153,6 @@ DRPhiFunction >> opcode [
 ]
 
 { #category : #accessing }
-DRPhiFunction >> operands: aCollection [
-
-	super operands: aCollection asOrderedCollection
-]
-
-{ #category : #accessing }
 DRPhiFunction >> predecessorAtOperand: anOperand [
 
 	| index |

@@ -518,7 +518,7 @@ DRControlFlowGraph >> initialize [
 	"How many spill slots we need in memory to execute the compiled method"
 	numberOfSpillSlots := 0.
 
-	nextBasicBlockId := -1.
+	nextBasicBlockId := 0.
 	initialBasicBlock := self privateNewBasicBlock
 ]
 

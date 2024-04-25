@@ -7,7 +7,8 @@ Class {
 	#name : #DRPrimitiveIRGenerator,
 	#superclass : #DRMetaCompilerIRGenerator,
 	#instVars : [
-		'completePrimitive'
+		'completePrimitive',
+		'failureExitBlock'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -33,6 +34,11 @@ DRPrimitiveIRGenerator >> executeFullCogBlockClosureMayContextSwitchWith: aRBMes
 				  offsetSelector }
 ]
 
+{ #category : #accessing }
+DRPrimitiveIRGenerator >> failureExitBlock [
+	^ failureExitBlock
+]
+
 { #category : #visiting }
 DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
 	"Plug the IR with the two exit blocks"
@@ -53,8 +59,8 @@ DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
 	conditionalJump trueBranch: controlFlowGraph successExitBlock.
 	controlFlowGraph successExitBlock addPredecessor: currentBasicBlock.
 
-	conditionalJump falseBranch: controlFlowGraph failureExitBlock.
-	controlFlowGraph failureExitBlock addPredecessor: currentBasicBlock.
+	conditionalJump falseBranch: failureExitBlock.
+	failureExitBlock addPredecessor: currentBasicBlock.
 
 	"Return N elements in the stack"
 	controlFlowGraph successExitBlock endInstruction: (self
@@ -62,7 +68,7 @@ DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
 			 operands: { (DRConstantValue value: numberOfArguments + 1) }).
 
 	"Return failure (compilation) code"
-	controlFlowGraph failureExitBlock endInstruction: (self
+	failureExitBlock endInstruction: (self
 			 instantiateNoResultInstruction: DRPrimitiveFail
 			 operands: { completePrimitive asDRValue })
 ]
@@ -81,8 +87,8 @@ DRPrimitiveIRGenerator >> initialize [
 	completePrimitive := true.
 	controlFlowGraph successExitBlock:controlFlowGraph newBasicBlock.
 	controlFlowGraph successExitBlock beExitBlock.
-	controlFlowGraph failureExitBlock: controlFlowGraph newBasicBlock.
-	controlFlowGraph failureExitBlock beExitBlock.
+	failureExitBlock := controlFlowGraph newBasicBlock.
+	failureExitBlock beExitBlock.
 ]
 
 { #category : #'special cases' }

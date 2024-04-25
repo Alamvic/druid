@@ -69,7 +69,7 @@ DRPrimitiveCompilerCompiler >> generateCheckForNumArgs: numArgs [
 	block
 		jumpIf: checkArgCount
 		to: irGenerator newBasicBlock "Continue the interpretation from here"
-		ifFalseTo: block controlFlowGraph failureExitBlock. 
+		ifFalseTo: irGenerator failureExitBlock. 
 
 	^ block
 ]

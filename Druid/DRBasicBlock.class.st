@@ -1378,15 +1378,14 @@ DRBasicBlock >> successors [
 
 { #category : #transformations }
 DRBasicBlock >> tailDuplicate [
-
 	"Duplicate the receiver so there is a different copy of it for each predecessor"
 
 	| duplicatedBlocks |
-	duplicatedBlocks := self predecessors allButFirst collect: [ 
-		                    :predecessorToRewire | 
+	duplicatedBlocks := self predecessors allButFirst collect: [
+		                    :predecessorToRewire |
 		                    self splitTo: predecessorToRewire ].
 
-	self assert: (duplicatedBlocks allSatisfy: [ :b | 
+	self assert: (duplicatedBlocks allSatisfy: [ :b |
 			 b instructions size = self instructions size ]).
 
 	controlFlowGraph validate.

@@ -22,6 +22,14 @@ DRPush >> opcode [
 	^ 'Push'
 ]
 
+{ #category : #copying }
+DRPush >> postCopy [
+
+	super postCopy.
+	self operand1 isMemoryAddress ifTrue: [
+		self operand1: self operand1 copy ]
+]
+
 { #category : #removing }
 DRPush >> removeFromCFG [ 
 

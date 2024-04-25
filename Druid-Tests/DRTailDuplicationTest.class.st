@@ -105,8 +105,8 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
 
 	newBlocks := b7 tailDuplicate allButFirst.
 
-	phi1 := (cfg blockById: 10) firstInstruction.
-	phi2 := (cfg blockById: 8) firstInstruction.
+	phi1 := (cfg blockById: 11) firstInstruction.
+	phi2 := (cfg blockById: 9) firstInstruction.
 
 	self assert: phi1 isPhiFunction.
 	self
@@ -180,7 +180,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunc
 
 	b5 tailDuplicate.
 	phi := b7 firstInstruction.
-	newPhi := (cfg blockById: 7) firstInstruction.
+	newPhi := (cfg blockById: 8) firstInstruction.
 
 	self assert: newPhi isPhiFunction.
 	self 
@@ -279,7 +279,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithPhiUsersShouldUpdateOperandTo
 
 	newBlock := cfg b4 tailDuplicate last.
 	phi := b6 firstInstruction.
-	newPhi := (cfg blockById: 6) firstInstruction.
+	newPhi := (cfg blockById: 7) firstInstruction.
 
 	self assert: newPhi isPhiFunction.
 	self assert: newPhi operands size equals: 2.
@@ -353,14 +353,13 @@ DRTailDuplicationTest >> testTailDuplicateInsertingPhiInDegenerateControlFlow [
 	user := b9 copy: copy1.
 
 	cfg validate.
-"1halt."
 	cfg b4 tailDuplicate.
 
 	"This phi has a same value coming from two predecedors"
 	newPhi := b9 phiFunctions unique.
 
-	self assert: newPhi operands first equals: (cfg blockById: 4) phiFunctions unique.
-	self assert: newPhi operands second equals: (cfg blockById: 7) phiFunctions unique.
+	self assert: newPhi operands first equals: (cfg blockById: 5) phiFunctions unique.
+	self assert: newPhi operands second equals: (cfg blockById: 8) phiFunctions unique.
 
 ]
 
@@ -371,7 +370,7 @@ DRTailDuplicationTest >> testTailDuplicateOnLoop [
 	cfg := self generateDruidIRFor: #primitiveLoopIncrementing.
 
 	"Duplicate loop header"
-	duplicatedBlocks := (cfg blockById: 4) tailDuplicate.
+	duplicatedBlocks := (cfg blockById: 5) tailDuplicate.
 
 	"Build 1 duplication"
 	self assert: duplicatedBlocks size equals: 2.
@@ -404,7 +403,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldCopyBlock [
 
 	cfg b4 tailDuplicate.
 	cfg validate.
-	newBlock := cfg blockById: 4.
+	newBlock := cfg blockById: 5.
 
 	self
 		assertCollection: cfg b4 predecessors
@@ -424,7 +423,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldGenerateNewVariables [
 
 	cfg b4 tailDuplicate.
 	cfg validate.
-	newBlock := cfg blockById: 4.
+	newBlock := cfg blockById: 5.
 
 	self
 		assert: newBlock instructions size
@@ -447,7 +446,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldKeepInstructionDependenciesInPhi
 
 	cfg b4 tailDuplicate.
 	cfg validate.
-	newBlock := cfg blockById: 4.
+	newBlock := cfg blockById: 5.
 
 	"On splitting, phis loses one argument"
 	self
@@ -640,7 +639,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierAsDirectSuccessor [
 
 	phiHolders := cfg b4 successors.
 
-	frontier := cfg blockById: 5.
+	frontier := cfg blockById: 6.
 
 	self assert: cfg blocks size equals: bocksBefore size + 3. "Duplicated + 2 phi holders"
 

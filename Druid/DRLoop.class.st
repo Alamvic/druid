@@ -233,7 +233,8 @@ DRLoop >> loopConditional [
 DRLoop >> loopGraph [
 
 	^ self controlFlowGraph
-		  subgraphBetween: self headerBlock and: self latchBlock
+		  blocksBetween: self headerBlock
+		  and: self latchBlock
 ]
 
 { #category : #'cfg manipulation' }

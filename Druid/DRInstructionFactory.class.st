@@ -279,7 +279,7 @@ DRInstructionFactory >> push: operand [
 
 	^ DRPush
 		  operands: { operand asDRValue }
-		  result: self allocateTemporaryRegister
+		  result: DRNoRegister new
 ]
 
 { #category : #factory }
@@ -290,7 +290,7 @@ DRInstructionFactory >> pushBase: base offset: offset [
 				   base: base;
 				   offset: offset;
 				   yourself) }
-		  result: self allocateTemporaryRegister
+		  result: DRNoRegister new
 ]
 
 { #category : #building }

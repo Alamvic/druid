@@ -32,7 +32,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 	cfg := self generateDruidIRFor: #primitiveSandclock.
 	oldMergePoint := cfg mergeBlocks first.
 	newMergePoint := oldMergePoint newEmptyPredecessor.
-	exitBasicBlock := cfg exitBasicBlock.
+	exitBasicBlock := cfg exitBasicBlocks anyOne.
 	
 	newBlock := cfg newBasicBlockWith: [ :b | b copy: 1 ].
 	oldMergePoint removePredecessorAt: 1.
@@ -104,22 +104,22 @@ DRDeadPathEliminationTest >> testEliminateDoubleDeadPaths [
 { #category : #optimization }
 DRDeadPathEliminationTest >> testEliminateDoubleHalfDeadPaths [
 
-	| cfg lastBlocks lastPaths lastPathsLeft lastPathsRight |
+	| cfg lastBlocks lastPaths |
 	cfg := self generateDruidIRFor: #primitiveDNA2.
 	3 timesRepeat: [
 		optimisation applyTo: cfg.
 		2 timesRepeat: [self optimize: cfg ]	].
 	
 	cfg generatePaths.
-	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
-	lastBlocks := cfg lastBasicBlock predecessors.
-	lastPathsLeft := cfg incomingEdgesFor: lastBlocks first.
-	lastPathsRight := cfg incomingEdgesFor: lastBlocks last.
+	lastPaths := cfg exitBasicBlocks flatCollect: [:e | cfg incomingEdgesFor: e ].
+	lastBlocks := cfg exitBasicBlocks.
 
 	self assert: cfg deadPaths isEmpty.
 	self assert: lastPaths size equals: 4.
-	self assert: lastPathsLeft size equals: 3.
-	self assert: lastPathsRight size equals: 1
+	self assert: (cfg incomingEdgesFor: lastBlocks first) size equals: 1.
+	self assert: (cfg incomingEdgesFor: lastBlocks second) size equals: 1.
+	self assert: (cfg incomingEdgesFor: lastBlocks third) size equals: 1.
+	self assert: (cfg incomingEdgesFor: lastBlocks fourth) size equals: 1.
 ]
 
 { #category : #optimization }
@@ -152,8 +152,8 @@ DRDeadPathEliminationTest >> testEliminateOnlyDeadPaths [
 	optimisation applyTo: cfg.
 	cfg generatePaths.
 
-	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
-	lastBlocks := cfg lastBasicBlock predecessors.
+	lastPaths := cfg exitBasicBlocks flatCollect: [ :e | cfg incomingEdgesFor: e ].
+	lastBlocks := cfg exitBasicBlocks.
 	lastPathsLeft := cfg incomingEdgesFor: lastBlocks first.
 	lastPathsRight := cfg incomingEdgesFor: lastBlocks last.
 
@@ -173,16 +173,16 @@ DRDeadPathEliminationTest >> testEliminateSimpleDeadPaths [
 	self optimize: cfg.
 	cfg generatePaths.
 
-	lastBlocks := cfg lastBasicBlock predecessors.
-	lastPaths := cfg incomingEdgesFor: cfg lastBasicBlock.
+	lastBlocks := cfg exitBasicBlocks.
+	lastPaths := cfg exitBasicBlocks flatCollect: [ :e | cfg incomingEdgesFor: e ].
 
 	self assert: cfg deadPaths isEmpty.
 	self assert: lastPaths size equals: 3.
 
-	self assert: lastBlocks first firstInstruction isPhiFunction. "One branch finishes in a phi"
-	self assert: lastBlocks second firstInstruction isCopy.
+	self assert: lastBlocks second firstInstruction isPhiFunction. "One branch finishes in a phi"
+	self assert: lastBlocks first firstInstruction isCopy.
 	self
-		assert: lastBlocks second firstInstruction operand1 value
+		assert: lastBlocks first firstInstruction operand1 value
 		equals: 116 "Other branch harcodes the value"
 ]
 

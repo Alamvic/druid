@@ -19,8 +19,10 @@ DRBytecodeIRGenerator >> addAnnotateBytecode: aRBMethodNode [
 
 { #category : #visiting }
 DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
-1halt.
-	currentBasicBlock jumpTo: controlFlowGraph exitBasicBlock
+
+	"If this is the base frame, it should continue with the next bytecode at the end"
+	currentBasicBlock endInstruction:
+		(self instantiateNoResultInstruction: DRContinueNextBytecode)
 ]
 
 { #category : #initialization }
@@ -464,20 +466,6 @@ DRBytecodeIRGenerator >> push: aValue [
 		instructionKind: DRPush
 		operands: { aValue }.
 	^ self popOperand
-]
-
-{ #category : #'stack management' }
-DRBytecodeIRGenerator >> pushFrameForCode: aDRCode receiver: aReceiver [
-
-	| frame |
-	frame := super pushFrameForCode: aDRCode receiver: aReceiver.
-1halt.
-	"If this is the base frame, it should continue with the next bytecode at the end"
-	executionState baseFrame = frame ifTrue: [
-		frame exitBasicBlock endInstruction:
-			(self instantiateNoResultInstruction: DRContinueNextBytecode) ].
-
-	^ frame
 ]
 
 { #category : #accessing }

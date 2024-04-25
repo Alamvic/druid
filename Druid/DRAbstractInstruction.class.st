@@ -151,6 +151,12 @@ DRAbstractInstruction >> isNegate [
 ]
 
 { #category : #testing }
+DRAbstractInstruction >> isPrimitiveFail [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRAbstractInstruction >> isStackEffect [
 	
 	^ false
