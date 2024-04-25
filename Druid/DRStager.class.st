@@ -61,7 +61,7 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 	anInstruction isJump ifTrue: [ ^ false ].
 	anInstruction isReturn ifTrue: [ ^ false ].
 	anInstruction isCopy ifTrue: [
-		^ (anInstruction result isVirtualRegister or: [
+		^ (anInstruction result isSSARegister or: [
 			   anInstruction result isStagedRegister ]) and: [
 			  self canStageOneLevel: anInstruction operand1 ] ].
 	(anInstruction isArithmeticInstruction or: [ anInstruction isNegate ])

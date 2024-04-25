@@ -492,14 +492,13 @@ DRInstruction >> originAST: aNode [
 DRInstruction >> postCopy [
 
 	super postCopy.
-	
+
 	operands := operands copy.
 	operands do: [ :e | e addUser: self ].
 	users := users copy.
-	
-	((result isKindOf: DRNoRegister) not and: [ result isPhysicalRegister not ]) ifTrue: [ 
-		result := basicBlock controlFlowGraph allocateTemporaryRegister ].
 
+	result isSSARegister ifTrue: [
+		result := basicBlock controlFlowGraph allocateTemporaryRegister ]
 ]
 
 { #category : #printing }

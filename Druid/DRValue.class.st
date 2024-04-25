@@ -351,6 +351,12 @@ DRValue >> isReturn [
 ]
 
 { #category : #testing }
+DRValue >> isSSARegister [
+	
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isSetConditionCode [
 	
 	^ false
@@ -390,12 +396,6 @@ DRValue >> isSubtract [
 DRValue >> isValue [
 
 	^ true
-]
-
-{ #category : #testing }
-DRValue >> isVirtualRegister [
-	
-	^ false
 ]
 
 { #category : #joining }

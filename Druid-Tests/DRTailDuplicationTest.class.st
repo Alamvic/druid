@@ -364,6 +364,21 @@ DRTailDuplicationTest >> testTailDuplicateInsertingPhiInDegenerateControlFlow [
 ]
 
 { #category : #tests }
+DRTailDuplicationTest >> testTailDuplicateMaintainsStagedRegisters [
+
+	| cfg newBlock stagedRegister duplicated |
+	cfg := self setUpCFGWithConditional.
+	stagedRegister := DRStagedRegister name: 'staged'.
+	(cfg b4 copy: 1) result: stagedRegister.
+
+	duplicated := cfg b4 tailDuplicate.
+	cfg validate.
+
+	self assert: duplicated first firstInstruction result equals: stagedRegister.
+	self assert: duplicated second firstInstruction result equals: stagedRegister.
+]
+
+{ #category : #tests }
 DRTailDuplicationTest >> testTailDuplicateOnLoop [
 
 	| cfg duplicatedBlocks phi1 phi2 successors backjumpPredecessor |
