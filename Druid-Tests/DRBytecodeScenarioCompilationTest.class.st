@@ -82,7 +82,8 @@ DRBytecodeScenarioCompilationTest >> testPopsAreCoallesced [
 		thenDo: [ :generator | "Push the receiver"
 			cogit ssPushRegister: ReceiverResultReg.
 			"Then execute the druid's compiled code"
-			generator value ].
+			generator value.
+			cogit genReturnTopFromMethod ].
 
 	self executePrimitiveWithReceiver: 17.
 
