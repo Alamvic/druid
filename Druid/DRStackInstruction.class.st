@@ -2,8 +2,8 @@ Class {
 	#name : #DRStackInstruction,
 	#superclass : #DRInstruction,
 	#instVars : [
-		'stackDependency',
-		'stackDependents'
+		'stackDependents',
+		'stackDependencies'
 	],
 	#category : #'Druid-IR'
 }
@@ -17,7 +17,7 @@ DRStackInstruction >> addStackDependent: aStackInstruction [
 { #category : #dependencies }
 DRStackInstruction >> clearStackDependencies [
 
-	stackDependency := OrderedCollection new.
+	stackDependencies := OrderedCollection new.
 	stackDependents := OrderedCollection new
 ]
 
@@ -38,7 +38,7 @@ DRStackInstruction >> isStackInstruction [
 { #category : #removing }
 DRStackInstruction >> removeStackDependency: aStackDependency [
 	
-	stackDependency := stackDependency copyWithout: aStackDependency
+	stackDependencies := stackDependencies copyWithout: aStackDependency
 ]
 
 { #category : #removing }
@@ -55,16 +55,16 @@ DRStackInstruction >> shiftStackAccessBy: anInteger [
 ]
 
 { #category : #accessing }
-DRStackInstruction >> stackDependency [
+DRStackInstruction >> stackDependencies [
 
-	^ stackDependency
+	^ stackDependencies
 ]
 
 { #category : #accessing }
-DRStackInstruction >> stackDependency: anObject [
+DRStackInstruction >> stackDependencies: anObject [
 
-	stackDependency := anObject.
-	stackDependency do: [ :e | e addStackDependent: self ]
+	stackDependencies := anObject.
+	stackDependencies do: [ :e | e addStackDependent: self ]
 ]
 
 { #category : #accessing }

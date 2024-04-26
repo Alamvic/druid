@@ -55,7 +55,7 @@ DRPop >> stackDepth [
 	"Return the stack depth left on the stack after applying this operation.
 	Pop will remove one element from the stack depth of the previous stack instruction"
 	
-	stackDependency ifEmpty: [ ^ 0 ].
-	^ stackDependency anyOne stackDepth - 1
+	stackDependencies ifEmpty: [ ^ 0 ].
+	^ stackDependencies anyOne stackDepth - 1
 	
 ]

@@ -79,7 +79,7 @@ DRLinearizationTest >> testBranchingControlFlowWithStackDependency [
 	firstPush := b2 push: 1.
 	secondPush := b3 push: 2.
 
-	secondPush stackDependency: {firstPush}.
+	secondPush stackDependencies: {firstPush}.
 
 	self assert: cfg reversePostOrderBlocks asArray equals: {
 			b1.
@@ -113,7 +113,7 @@ DRLinearizationTest >> testBranchingControlFlowWithStackDependencyReversed [
 	firstPush := b3 push: 1.
 	secondPush := b2 push: 2.
 
-	secondPush stackDependency: {firstPush}.
+	secondPush stackDependencies: {firstPush}.
 
 	self assert: cfg reversePostOrderBlocks asArray equals: {
 			b1.

@@ -14,7 +14,7 @@ DRStackEffectTest >> testInitialStackInstructionHasNoStackDependencies [
 	push := irBuilder addInstructionFrom: nil instructionKind: DRPush operands: { 17 }.
 	pop := irBuilder addInstructionFrom: nil instructionKind: DRPop.
 	
-	self assert: push stackDependency isEmpty
+	self assert: push stackDependencies isEmpty
 ]
 
 { #category : #tests }
@@ -40,7 +40,7 @@ DRStackEffectTest >> testPopDependsOnPush [
 	push := irBuilder addInstructionFrom: nil instructionKind: DRPush operands: { 17 }.
 	pop := irBuilder addInstructionFrom: nil instructionKind: DRPop.
 	
-	self assert: pop stackDependency asArray equals: { push }.
+	self assert: pop stackDependencies asArray equals: { push }.
 	self assert: push stackDependents asArray equals: { pop }
 ]
 
@@ -63,7 +63,7 @@ DRStackEffectTest >> testPopInMergePointDependsOnBothBranches [
 		                         instructionKind: DRPush
 		                         operands: { 17 }.
 
-	self assert: finalStackInstruction stackDependency asArray equals: {
+	self assert: finalStackInstruction stackDependencies asArray equals: {
 			pop1.
 			pop2 }
 ]
@@ -78,7 +78,7 @@ DRStackEffectTest >> testPushDependsOnPop [
 	pop := irBuilder addInstructionFrom: nil instructionKind: DRPop.
 	push := irBuilder addInstructionFrom: nil instructionKind: DRPush operands: { 17 }.
 
-	self assert: push stackDependency asArray equals: { pop }.
+	self assert: push stackDependencies asArray equals: { pop }.
 	self assert: pop stackDependents asArray equals: { push }
 ]
 
@@ -102,7 +102,7 @@ DRStackEffectTest >> testRebuildStackDependenciesReconstructsOriginalGraph [
 		                         operands: { 17 }.
 
 	irBuilder ir rebuildStackDependencies.
-	self assert: finalStackInstruction stackDependency asArray equals: {
+	self assert: finalStackInstruction stackDependencies asArray equals: {
 			pop1.
 			pop2 }
 ]

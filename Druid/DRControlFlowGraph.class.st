@@ -733,7 +733,7 @@ DRControlFlowGraph >> rebuildStackDependencies [
 		e instructions do: [ :i |
 			i isStackInstruction ifTrue: [
 				i clearStackDependencies.
-				i stackDependency: incomingStackInstructions.
+				i stackDependencies: incomingStackInstructions.
 				incomingStackInstructions do: [ :s | s addStackDependent: i ].
 				incomingStackInstructions := { i } ] ].
 		lastStackInstructionPerBlock at: e put: incomingStackInstructions ]

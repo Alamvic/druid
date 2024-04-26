@@ -232,7 +232,7 @@ DRBasicBlock >> canBeLinearizedBefore: aDRBasicBlock [
 	"Pops and Pushes are constraints for linearization"
 	controlFlowGraph stackInstructions do: [ :stackInstruction | "There is a stack instruction in my path ..."
 		(stackInstruction basicBlock isDominatedBy: self) ifTrue: [
-			stackInstruction stackDependency do: [ :dependency | "... with a dependecy in the other path ..."
+			stackInstruction stackDependencies do: [ :dependency | "... with a dependecy in the other path ..."
 				(dependency basicBlock isDominatedBy: aDRBasicBlock) ifTrue: [ "... then the other path must be linearized before"
 					^ false ] ] ] ].
 

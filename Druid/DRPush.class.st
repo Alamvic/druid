@@ -69,6 +69,6 @@ DRPush >> stackDepth [
 	"Return the stack depth left on the stack after applying this operation.
 	Push will add one element to the stack depth of the previous stack instruction"
 	
-	stackDependency ifEmpty: [ ^ 1 ].
-	^ stackDependency anyOne stackDepth + 1
+	stackDependencies ifEmpty: [ ^ 1 ].
+	^ stackDependencies anyOne stackDepth + 1
 ]

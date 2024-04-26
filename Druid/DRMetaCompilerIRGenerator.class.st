@@ -179,7 +179,7 @@ DRMetaCompilerIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiv
 { #category : #visiting }
 DRMetaCompilerIRGenerator >> trackStackInstruction: aDRStrackInstruction [ 
 
-	aDRStrackInstruction stackDependency: executionState lastStackInstruction.
+	aDRStrackInstruction stackDependencies: executionState lastStackInstruction.
 	executionState lastStackInstruction: aDRStrackInstruction.
 ]
 

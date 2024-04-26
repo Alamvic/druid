@@ -41,6 +41,6 @@ DRLoadStackValue >> shiftStackAccessBy: anInteger [
 DRLoadStackValue >> stackDepth [
 	
 	"I don't change the stack depth, so just return the stack depth of my stack dependant"
-	stackDependency ifEmpty: [ ^ 0 ].
-	^ stackDependency anyOne stackDepth
+	stackDependencies ifEmpty: [ ^ 0 ].
+	^ stackDependencies anyOne stackDepth
 ]
