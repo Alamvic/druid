@@ -1043,7 +1043,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAlloca
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: n [
 
-	| method |
+	| method x |
 	method := methodBuilder newMethod
 		          literals:
 			          (((1 to: 16) collect: [ :e | nil -> (e + 16rFF - 1) ])
@@ -1070,9 +1070,9 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAlloca
 			generator value.
 			
 			"Flush the stack"
-			cogit ssFlushTo: cogit simStackPointer.
+			cogit ssFlushStack.
 
-			"Pop the top 4 elements, the fourth should be the first pushed constant"
+			"Pop the top n + 1 elements, the last should be the first pushed constant"
 			1 to: n + 1 do: [ :i |
 				cogit ssPopTopToReg: ReceiverResultReg ].
 			cogit genUpArrowReturn ].

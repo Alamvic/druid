@@ -8,7 +8,8 @@ Class {
 DRFailureCodeBasedTailDuplication >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph exitBasicBlocks do: [ :bb |
-		bb predecessors size > 1 ifTrue: [
+		(bb predecessors size > 1 and: [
+			 bb instructions noneSatisfy: [ :e | e isStackEffect ] ]) ifTrue: [
 			bb tailDuplicate ] ]
 ]
 

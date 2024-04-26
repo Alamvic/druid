@@ -11,6 +11,7 @@ DRCogitStackCoalescing >> applyTo: cfg [
 	Effects that apply the same operation on different branches get coallesced into a single effect (one push on each branch turns into a single push down in the CFG)"
 
 	| commonPostDominator basicBlock instructionsByStackDepth stackEffects |
+	true ifTrue: [^ self].
 	stackEffects := cfg instructions select: [ :e | e isStackEffect ].
 	1 haltIf: [ stackEffects anySatisfy: [ :p | p hasUsers ] ].
 	instructionsByStackDepth := stackEffects groupedBy: [ :effect |
