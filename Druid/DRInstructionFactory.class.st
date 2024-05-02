@@ -89,6 +89,14 @@ DRInstructionFactory >> equals: operand1 to: operand2 [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> floatFromBits: operand1 [
+
+	^ DRGetFloatFromBits
+		  operands: { operand1 asDRValue. }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> flushStack [
 
 	^ DRFlushStack operands: #(  ) result: DRNoRegister new

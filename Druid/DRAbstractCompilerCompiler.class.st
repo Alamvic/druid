@@ -10,7 +10,8 @@ Class {
 		'optimisations',
 		'codeGenerator',
 		'customisation',
-		'irGenerator'
+		'irGenerator',
+		'compilerOptions'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -21,6 +22,12 @@ DRAbstractCompilerCompiler class >> forInterpreter: anAbstractInterpreter [
 	^ self new
 		interpreter: anAbstractInterpreter;
 		yourself
+]
+
+{ #category : #accessing }
+DRAbstractCompilerCompiler >> addCompilerOption: anOption [
+
+	compilerOptions add: anOption
 ]
 
 { #category : #api }
@@ -54,6 +61,11 @@ DRAbstractCompilerCompiler >> compilerClass [
 DRAbstractCompilerCompiler >> compilerClass: anObject [
 
 	compilerClass := anObject
+]
+
+{ #category : #accessing }
+DRAbstractCompilerCompiler >> compilerOptions [
+	^ compilerOptions
 ]
 
 { #category : #accessing }
@@ -148,7 +160,8 @@ DRAbstractCompilerCompiler >> initialize [
 
 	codeGenerator := DRCogitCodeGenerator new.
 	customisation := DRNonePrimitiveCustomisation new.
-	irGenerator := self newIRGenerator
+	irGenerator := self newIRGenerator.
+	compilerOptions := Set new
 ]
 
 { #category : #'generation-IR' }
@@ -231,7 +244,7 @@ DRAbstractCompilerCompiler >> irGenerator: aDRIRGenerator [
 { #category : #'generation-IR' }
 DRAbstractCompilerCompiler >> newIRGenerator [
 
-	^ DRIRGenerator new
+	^ DRIRGenerator new compiler: self
 ]
 
 { #category : #accessing }

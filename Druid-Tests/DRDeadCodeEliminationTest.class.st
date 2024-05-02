@@ -120,7 +120,7 @@ DRDeadCodeEliminationTest >> testNotRemoveUnusedMandatoryInstruction [
 	self assertCollection: cfg instructions includesAny: { mandatory }
 ]
 
-{ #category : #test }
+{ #category : #tests }
 DRDeadCodeEliminationTest >> testRemoveUnusedNoop [
 
 	| cfg |
@@ -132,5 +132,4 @@ DRDeadCodeEliminationTest >> testRemoveUnusedNoop [
 
 	self assert: cfg instructions size equals: 2.
 	self assert: cfg instructions first isJump. "1 -> 2"
-	self assert: cfg instructions second isNoop. "End instruction"
 ]

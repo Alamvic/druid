@@ -812,6 +812,15 @@ DruidTestInterpreter >> primitiveEqualsThan [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveEqualsThanFloatConstant [
+
+	<numberOfArguments: 0>
+	self
+		pop: 1
+		thenPush: self stackTop asFloat = 0.0
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveEqualsThanFloats [
 
 	<numberOfArguments: 1>
@@ -1504,6 +1513,15 @@ DruidTestInterpreter >> primitiveOr [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitivePlusFloatConstant [
+
+	<numberOfArguments: 0>
+	self
+		pop: 1
+		thenPush: (self rawFloatBitsOf: (self stackTop asFloat + 3.14))
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitivePushFirstArgument [
 
 	<numberOfArguments: 1>
@@ -1770,6 +1788,14 @@ DruidTestInterpreter >> primitiveUint8AtPut [
 	valueToStore := self stackTop.
 	addressToRead := self stackValue: 1.
 	objectMemory uint8At: addressToRead put: valueToStore
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithConditionalCompilation [
+
+	<numberOfArguments: 0>
+	self druidIf: #condition do: [ ^ self pop: 1 thenPush: 17 ].
+	self pop: 1 thenPush: 42
 ]
 
 { #category : #'as yet unclassified' }

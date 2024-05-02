@@ -3,6 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'initialBasicBlock',
+		'exitBasicBlock',
 		'initialConstraint',
 		'basicBlocks',
 		'nextBasicBlockId',
@@ -10,9 +11,10 @@ Class {
 		'edges',
 		'deadPaths',
 		'numberOfSpillSlots',
-		'tree',
 		'edgesBySource',
-		'stagedRegisters'
+		'stagedRegisters',
+		'dominatorTree',
+		'postDominatorTree'
 	],
 	#category : #'Druid-IR'
 }
@@ -228,7 +230,7 @@ DRControlFlowGraph >> blocksDo: aFullBlockClosure [
 DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 
 	| workingQueue visited visitsToThisBlockSoFar |
-	self buildDominatorTree.
+	self invalidateDominatorTree.
 	visited := Dictionary new.
 
 	workingQueue := OrderedCollection new.
@@ -238,7 +240,7 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 		aFullBlockClosure value: currentBlock.
 
 		currentBlock hasFinalInstruction ifTrue: [	| sortedSuccessors |
-			sortedSuccessors := currentBlock lastInstruction targets sorted: [:b1 :b2 | b1 canBeLinearizedBefore: b2].
+			sortedSuccessors := currentBlock successors sorted: [:b1 :b2 | b1 canBeLinearizedBefore: b2].
 			sortedSuccessors reversed do: [ :target | "Count how many times we have visited this block"
 				visitsToThisBlockSoFar := visited at: target ifPresent: [ :p | p + 1 ] ifAbsent: [ 1 ].
 				visited at: target put: visitsToThisBlockSoFar.
@@ -250,9 +252,19 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 { #category : #dominance }
 DRControlFlowGraph >> buildDominatorTree [
 
-	self tree: (DRDominatorTree new buildDominatorTreeOf: self).
-	self tree computeDominanceFrontier.
-	^ self tree
+	| newDominatorTree |
+	newDominatorTree := DRDominatorTree new buildDominatorTreeOf: self.
+	newDominatorTree computeDominanceFrontier.
+	^ newDominatorTree
+]
+
+{ #category : #dominance }
+DRControlFlowGraph >> buildPostDominatorTree [
+
+	| newDominatorTree |
+	newDominatorTree := DRDominatorTree new buildPostDominatorTreeOf:
+		                    self.
+	^ newDominatorTree
 ]
 
 { #category : #edges }
@@ -383,6 +395,12 @@ DRControlFlowGraph >> deadPaths [
 	^ deadPaths := paths
 ]
 
+{ #category : #dominance }
+DRControlFlowGraph >> dominatorTree [
+
+	^ dominatorTree ifNil: [ dominatorTree := self buildDominatorTree ]
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> edges [
 
@@ -396,6 +414,18 @@ DRControlFlowGraph >> edgesFrom: sourceBlock to: destinationBlock [
 ]
 
 { #category : #accessing }
+DRControlFlowGraph >> exitBasicBlock [
+
+	^ exitBasicBlock
+]
+
+{ #category : #accessing }
+DRControlFlowGraph >> exitBasicBlock: anObject [
+
+	exitBasicBlock := anObject
+]
+
+{ #category : #accessing }
 DRControlFlowGraph >> firstBasicBlock [
 
 	^ initialBasicBlock successor
@@ -404,7 +434,7 @@ DRControlFlowGraph >> firstBasicBlock [
 { #category : #edges }
 DRControlFlowGraph >> fixBackJumps [
 
-	self buildDominatorTree.
+	self invalidateDominatorTree.
 	self blocks do: [ :block |
 		| jump |
 		jump := block endInstruction.
@@ -477,17 +507,18 @@ DRControlFlowGraph >> initialize [
 
 	super initialize.
 	instructionFactory := DRInstructionFactory new.
-	
+
 	stagedRegisters := OrderedCollection new.
 	basicBlocks := OrderedCollection new.
 	edges := OrderedCollection new.
 	edgesBySource := Dictionary new.
-	
+
 	"How many spill slots we need in memory to execute the compiled method"
 	numberOfSpillSlots := 0.
-	
-	nextBasicBlockId := 0.
-	initialBasicBlock := self privateNewBasicBlock.
+
+	nextBasicBlockId := -1.
+	exitBasicBlock := self privateNewBasicBlock.
+	initialBasicBlock := self privateNewBasicBlock
 ]
 
 { #category : #inspecting }
@@ -551,6 +582,18 @@ DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 
 	self blocksDo: [ :b | 
 		b instructionsDo: [ :e | aFullBlockClosure value: e ] ]
+]
+
+{ #category : #dominance }
+DRControlFlowGraph >> invalidateDominatorTree [
+
+	dominatorTree := nil
+]
+
+{ #category : #dominance }
+DRControlFlowGraph >> invalidatePostDominatorTree [
+
+	postDominatorTree := nil
 ]
 
 { #category : #testing }
@@ -644,6 +687,12 @@ DRControlFlowGraph >> pathsSize [
 DRControlFlowGraph >> phiFunctions [
 
 	^ self instructions select: [ :i | i isPhiFunction ]
+]
+
+{ #category : #dominance }
+DRControlFlowGraph >> postDominatorTree [
+
+	^ postDominatorTree ifNil: [ postDominatorTree := self buildPostDominatorTree ]
 ]
 
 { #category : #iterating }
@@ -823,20 +872,14 @@ DRControlFlowGraph >> subgraphWith: subgraphBlocks [
 ]
 
 { #category : #accessing }
-DRControlFlowGraph >> tree [
-
-	^ tree
-]
-
-{ #category : #accessing }
 DRControlFlowGraph >> tree: anObject [
 
-	tree := anObject
+	dominatorTree := anObject
 ]
 
 { #category : #validating }
 DRControlFlowGraph >> validate [
 
-	self buildDominatorTree.
+	self invalidateDominatorTree.
 	self blocks do: [ :e | e validate ]
 ]

@@ -8,7 +8,21 @@ Class {
 DRCogitOperandSorter >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph instructionsDo: [ :e |
-		e isStaged ifFalse: [ e acceptVisitor: self ] ]
+		e isStaged ifFalse: [
+			e acceptVisitor: self.
+			"If after sorting the second operand is a constant float, we need to extract it in a copy."
+			(e operands size > 1 and: [
+				 e operand2 isConstant and: [ e operand2 type isFloatType ] ])
+				ifTrue: [ self extractCopyFor: e operand2 fromInstruction: e ] ] ]
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> extractCopyFor: operand fromInstruction: anInstruction [
+
+	| copy |
+	copy := anInstruction instructionFactory copy: operand.
+	anInstruction addBefore: copy.
+	anInstruction replaceOperand: operand by: copy
 ]
 
 { #category : #visiting }
@@ -123,7 +137,23 @@ DRCogitOperandSorter >> visitContinueNextBytecode: aDRContinueNextBytecode [
 { #category : #visiting }
 DRCogitOperandSorter >> visitCopy: aDRCopy [ 
 	
-	"Nothing"
+	"There is no load of float constants in the Cogit IR.
+	This means we need to transform the instruction to the following sequence
+	
+	Rd1 := 3.14.
+	=>
+	self MoveCq: (objectMemory rawFloatBitsOf: 3.14) R: R1.
+	self MoveR: R1 Rd: Rd1.
+	"
+	
+	| copyFloatBits convert |
+	(aDRCopy type isFloatType and: [ aDRCopy operand1 isConstant ])
+		ifFalse: [ ^ self ].
+	
+	copyFloatBits := aDRCopy instructionFactory copy: (DRInterpreterReference integerExpression: '(objectMemory rawFloatBitsOf: ', aDRCopy operand1 value asString, ')').
+	convert := aDRCopy instructionFactory floatFromBits: copyFloatBits.
+	aDRCopy addBefore: copyFloatBits.
+	aDRCopy replaceBy: convert
 ]
 
 { #category : #visiting }
@@ -160,7 +190,7 @@ DRCogitOperandSorter >> visitFlushStack: aDRFlushStack [
 DRCogitOperandSorter >> visitGetConditionCode: aDRGetConditionCode [
 
 	(aDRGetConditionCode condition isCommutative and: [ 
-		 aDRGetConditionCode operand1 isInstruction not ]) ifTrue: [ 
+		 aDRGetConditionCode operand1 isInstruction ]) ifTrue: [ 
 		aDRGetConditionCode reverseOperands ].
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRGetConditionCode
 ]

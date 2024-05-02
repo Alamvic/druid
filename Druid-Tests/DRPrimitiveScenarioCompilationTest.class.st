@@ -624,6 +624,18 @@ DRPrimitiveScenarioCompilationTest >> testCompiledPrimitiveWithTwoArgs [
 	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
+{ #category : #'tests-comparisons-floats' }
+DRPrimitiveScenarioCompilationTest >> testConditionalCompilationWithNoConditionGiven [
+
+	self
+		compileDruidPrimitive: #primitiveWithConditionalCompilation
+		with: [ :druid | druid addCompilerOption: #condition ].
+
+	self executePrimitiveWithReceiver: 0 withArguments: {  }.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
 { #category : #'tests-types' }
 DRPrimitiveScenarioCompilationTest >> testConstantFloatAsInteger [
 
@@ -951,6 +963,36 @@ DRPrimitiveScenarioCompilationTest >> testFloat64AtPut [
 	
 	result := memory fetchPointer: 0 ofObject: object.
 	self assert: (Float fromIEEE64BitWord: result) equals: 1234.0
+]
+
+{ #category : #'tests-comparisons-floats' }
+DRPrimitiveScenarioCompilationTest >> testFloatAddConstant [
+
+	self compileDruidPrimitive: #primitivePlusFloatConstant.
+	
+	self executePrimitiveWithReceiver: 1 withArguments: { }.
+	
+	self assert: (Float fromIEEE64Bit: machineSimulator receiverRegisterValue) closeTo: 4.14
+]
+
+{ #category : #'tests-comparisons-floats' }
+DRPrimitiveScenarioCompilationTest >> testFloatFalseComparisonToConstantFloat [
+
+	self compileDruidPrimitive: #primitiveEqualsThanFloatConstant.
+	
+	self executePrimitiveWithReceiver: 1 withArguments: { }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 0
+]
+
+{ #category : #'tests-comparisons-floats' }
+DRPrimitiveScenarioCompilationTest >> testFloatTrueComparisonToConstantFloat [
+
+	self compileDruidPrimitive: #primitiveEqualsThanFloatConstant.
+	
+	self executePrimitiveWithReceiver: 0 withArguments: { }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-deadcode' }
@@ -1452,6 +1494,17 @@ DRPrimitiveScenarioCompilationTest >> testIntegerAsFloat [
 	floatRawValue := machineSimulator receiverRegisterValue.
 	
 	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 17.0
+]
+
+{ #category : #'tests-arithmetic' }
+DRPrimitiveScenarioCompilationTest >> testIntegerBitAndSmallIntegers [
+
+	cogit receiverTags: 1.
+	self compileDruidPrimitive: #primitiveBitAnd.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { (memory integerObjectOf: 11) }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: (42 bitAnd: 11))
 ]
 
 { #category : #'tests-arithmetic' }

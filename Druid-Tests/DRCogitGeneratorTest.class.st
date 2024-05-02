@@ -257,9 +257,9 @@ DRCogitGeneratorTest >> testGenerateNilAsZero [
 	cfg initialBasicBlock jumpTo: basicBlock.
 	DRCogitOperandSorter new applyTo: cfg.	
 	
-	self generateCogitForInstruction: r1.	
+	self generateCogitForInstruction: r1 previousInstruction.
 	compare := self statements first.
-	self assert: compare selector equals: #CmpCq:R:.
+	self assert: compare selector equals: #MoveCq:R:.
 	self assert: compare arguments first value equals: 0
 ]
 

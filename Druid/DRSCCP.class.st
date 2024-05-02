@@ -211,11 +211,14 @@ DRSCCP >> latticeValueOfPhiFunction: phiFunction [
 	"Recursive phi cannot determine the lattice (it is involved in a loop)"
 	phiFunction hasRecursiveUse ifTrue: [ ^ self bottom ].
 
-	values := phiFunction operands collect: [ :e | 
-		self latticeValue: e ] as: Set.
-	(values includes: DRNullValue new) ifFalse: [ 
-		values remove: self top ifAbsent: [ "Nothing" ] ]	.
-	values size = 1 ifTrue: [ values anyOne ifNil: [1halt]. ^ values anyOne ].
+	values := phiFunction operands
+		          collect: [ :e | self latticeValue: e ]
+		          as: Set.
+	(values includes: DRNullValue new) ifFalse: [
+		values remove: self top ifAbsent: [ "Nothing" ] ].
+	values size = 1 ifTrue: [
+		values anyOne ifNil: [ 1 halt ].
+		^ values anyOne ].
 	^ self bottom
 ]
 

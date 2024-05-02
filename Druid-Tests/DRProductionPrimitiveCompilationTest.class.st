@@ -87,7 +87,71 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAt [
 ]
 
 { #category : #'tests-object-access' }
-DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArray [
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArrayPadding1 [
+
+	| array |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveAt.
+
+	array := self new8BitIndexableOfSize: 7.
+	memory storeByte: 6 ofObject: array withValue: 42.
+
+	self
+		executePrimitiveWithReceiver: array
+		withArguments: { (memory integerObjectOf: 7) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 42)
+]
+
+{ #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArrayPadding5 [
+
+	| array |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveAt.
+
+	array := self new8BitIndexableOfSize: 2.
+	memory storeByte: 0 ofObject: array withValue: 42.
+
+	self
+		executePrimitiveWithReceiver: array
+		withArguments: { (memory integerObjectOf: 1) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 42)
+]
+
+{ #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArrayPadding6 [
+
+	| array index |
+	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
+
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveAt.
+
+	index := 2.
+	array := self new8BitIndexableOfSize: 2.
+	memory storeByte: index - 1 ofObject: array withValue: 42.
+
+	self
+		executePrimitiveWithReceiver: array
+		withArguments: { (memory integerObjectOf: index) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 42)
+]
+
+{ #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArrayPadding7 [
 
 	| array |
 	(cogit isKindOf: SimpleDruidTestRTLCompiler) ifTrue: [ ^ self skip ].
@@ -632,6 +696,54 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArray [
 ]
 
 { #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArrayPadding0 [
+
+	| class array size |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveSize.
+
+	size := 8.
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory firstByteFormat.
+	array := memory instantiateClass: class indexableSize: size.
+
+	self executePrimitiveWithReceiver: array.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: size)
+]
+
+{ #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArrayPadding1 [
+
+	| class array size |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveSize.
+
+	size := 7.
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory firstByteFormat.
+	array := memory instantiateClass: class indexableSize: size.
+
+	self executePrimitiveWithReceiver: array.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: size)
+]
+
+{ #category : #'tests-object-access' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArrayPadding7 [
+
+	| class array size |
+	self timeLimit: (Duration minutes: 2).
+	self compileDruidPrimitive: #primitiveSize.
+
+	size := 1.
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory firstByteFormat.
+	array := memory instantiateClass: class indexableSize: size.
+
+	self executePrimitiveWithReceiver: array.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: size)
+]
+
+{ #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeIndexableObject [
 
 	| class array size |
@@ -963,6 +1075,18 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveAdd [
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }
+DRProductionPrimitiveCompilationTest >> testPrimitiveBitAnd [
+
+	cogit receiverTags: memory smallIntegerTag.
+
+	self compileDruidPrimitive: #primitiveBitAnd.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 11 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: (42 bitAnd: 11))
+]
+
+{ #category : #'tests-arithmetic-smallIntegers' }
 DRProductionPrimitiveCompilationTest >> testPrimitiveValue [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
@@ -1024,6 +1148,55 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueOnWrongArguments [
 		arguments: {  }.
 
 	self runUntilStop
+]
+
+{ #category : #'tests-arithmetic-smallIntegers' }
+DRProductionPrimitiveCompilationTest >> testPrimitiveValuePushReceiver [
+
+	<compilerOptions: #( - #optionConstantBlockClosure )>
+	| closure initStack endStack pushedSize |
+	closure := self buildCompiledBlock: [ 42 ].
+
+	self
+		compilePrimitive: #primitiveFullClosureValue
+		ForSendReceiver: closure
+		arguments: { }.
+
+	initStack := machineSimulator smalltalkStackPointerRegisterValue.
+
+	self runUntil: finishEndInstruction address.
+
+	endStack := machineSimulator smalltalkStackPointerRegisterValue.
+
+	pushedSize := (initStack - endStack) // 8.
+
+	"this primitive does not push anything to the stack and jumps to the block"
+	self assert: pushedSize equals: 0
+
+]
+
+{ #category : #'tests-arithmetic-smallIntegers' }
+DRProductionPrimitiveCompilationTest >> testPrimitiveValuePushReceiverAndArg [
+
+	<compilerOptions: #( - #optionConstantBlockClosure )>
+	| closure initStack endStack pushedSize |
+	closure := self buildCompiledBlock: [ :x | 42 + x ].
+
+	self
+		compilePrimitive: #primitiveFullClosureValue
+		ForSendReceiver: closure
+		arguments: { (memory integerObjectOf: 3) }.
+
+	initStack := machineSimulator smalltalkStackPointerRegisterValue.
+
+	self runUntil: finishEndInstruction address.
+
+	endStack := machineSimulator smalltalkStackPointerRegisterValue.
+
+	pushedSize := (initStack - endStack) // 8.
+
+	"this primitive does not push anything to the stack and jumps to the block"
+	self assert: pushedSize equals: 0
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }

@@ -38,7 +38,7 @@ DRMethodCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 { #category : #'instance creation' }
 DRMethodCompilerCompiler >> newIRGenerator [
 
-	^ DRMethodIRGenerator new
+	^ DRMethodIRGenerator new compiler: self
 ]
 
 { #category : #'generation-IR' }

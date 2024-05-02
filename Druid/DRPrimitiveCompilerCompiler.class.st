@@ -105,7 +105,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 { #category : #accessing }
 DRPrimitiveCompilerCompiler >> newIRGenerator [
 
-	^ DRPrimitiveIRGenerator new
+	^ DRPrimitiveIRGenerator new compiler: self
 ]
 
 { #category : #accessing }

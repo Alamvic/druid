@@ -62,11 +62,10 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 		primitives := #( 
 	#primitiveAdd #primitiveSubtract #primitiveMultiply #primitiveDivide #primitiveMod
 	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
-	#primitiveEqual #primitiveNotEqual #primitiveIdentical "#primitiveNotIdentical" 
-	#primitiveDiv #primitiveQuo "primitiveBitShift" primitiveBitAnd  primitiveBitXor primitiveBitOr
+	#primitiveEqual #primitiveNotEqual #primitiveIdentical #primitiveNotIdentical
+	#primitiveDiv #primitiveQuo primitiveBitShift primitiveBitAnd  primitiveBitXor primitiveBitOr
 
-	primitiveSmallFloatAdd primitiveSmallFloatSubtract #primitiveSmallFloatMultiply "primitiveSmallFloatDivide (Fix float comparison)"  
-	primitiveSmallFloatEqual primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatGreaterThan primitiveSmallFloatLessThan  primitiveSmallFloatLessOrEqual
+	primitiveSmallFloatAdd primitiveSmallFloatSubtract #primitiveSmallFloatMultiply primitiveSmallFloatDivide primitiveSmallFloatEqual primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatGreaterThan primitiveSmallFloatLessThan  primitiveSmallFloatLessOrEqual
 
 	primitiveFloatAdd primitiveFloatSubtract #primitiveFloatMultiply "primitiveFloatDivide (Fix float comparison)"  
 	primitiveFloatEqual primitiveFloatNotEqual primitiveFloatGreaterThan primitiveFloatGreaterOrEqual primitiveFloatLessThan primitiveFloatLessOrEqual
@@ -74,9 +73,11 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 	primitiveAsFloat primitiveAsCharacter #primitiveImmediateAsInteger 
 	"primitiveStringReplace (More than 2 args)"
 
-	primitiveClass #primitiveSize #primitiveAt #primitiveAtPut "#primitiveBehaviorHash" #primitiveIdentityHash
-	primitiveNew #primitiveNewWithArg 
-	primitiveFullClosureValue 	
+	primitiveClass #primitiveSize #primitiveAt #primitiveStringAt #primitiveAtPut #primitiveStringAtPut "#primitiveBehaviorHash" #primitiveIdentityHash
+
+  primitiveNew #primitiveNewWithArg 
+	primitiveFullClosureValue
+	primitiveFullClosureValueNoContextSwitch
 	).
 	
 bytecodes := #( 
@@ -136,21 +137,21 @@ bytecodes := #(
 		"extended conditional jump"
 			237 238 239
 		"extended store&pop (receiver var / literal / temp)"
-			"240" 241 242 
+			240 241 242 
 		"extended store (receiver var / literal / temp)"
 			243 244 245
 			
 		"call primitive" 248
 		"push closure" 249
 		"remote temp (push / store / store&pop)"	
-			251 252 "253"
+			251 252 253
 	).
 
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
-		selectPrimitives: [ :e | primitives includes: e selector ];
-		selectBytecodes: [ :e | bytecodes includes: e bytecodeNumberStart ];
+		selectPrimitives: [ :e | false "primitives includes: e selector" ];
+		selectBytecodes: [ :e | "bytecodes includes:" e bytecodeNumberStart = 253 ];
 		targetClass: targetClass;
 		targetSuperclass: aSuperclass;
 		build
