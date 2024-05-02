@@ -45,7 +45,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 	"First generate druid code"
 	self interpreter currentBytecode: bytecode.
 	compiler := DRBytecodeCompilerCompiler new
-		sourceName: aSelector;
+		bytecodes: { bytecode -> aSelector };
 		interpreter: self interpreter;
 		configureForCompilerClass: DruidTestRTLCompiler.
 

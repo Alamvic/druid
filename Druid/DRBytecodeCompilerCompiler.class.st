@@ -59,6 +59,26 @@ DRBytecodeCompilerCompiler >> createInitialBasicBlock [
 ]
 
 { #category : #'generation-IR' }
+DRBytecodeCompilerCompiler >> customiseFor: method [
+
+	self flag: #TODO. "Allow mix of customisations"
+
+	super customiseFor: method.
+
+	"Avoid the customisation if we are compiling the super instruction"
+	self sourceMethods size > 1 ifFalse: [
+		method ast
+			pragmaNamed: #nextSuperInstructions:
+			ifPresent: [ :pragma |
+				bytecodes ifNil: [ self error: 'Missing current bytecode' ].
+				customisation := DRSuperInstructionCustomisation
+					                 interpreter: interpreter
+					                 compilerClass: compilerClass 
+					                 currentBytecode: bytecodes unique key
+					                 nextBytecodes: pragma arguments first value ] ]
+]
+
+{ #category : #'generation-IR' }
 DRBytecodeCompilerCompiler >> generateDruidIR [
 
 	bytecodes ifNotNil: [ 
@@ -88,6 +108,12 @@ DRBytecodeCompilerCompiler >> sourceMethods [
 
 	^ bytecodes asOrderedDictionary values collect: [ :selector |
 		  interpreter class lookupSelector: selector ]
+]
+
+{ #category : #accessing }
+DRBytecodeCompilerCompiler >> sourceName [
+
+	^ super sourceName ifNil: [ self sourceMethods unique selector ]
 ]
 
 { #category : #accessing }
