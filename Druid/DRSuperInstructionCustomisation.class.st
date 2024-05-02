@@ -95,9 +95,7 @@ DRSuperInstructionCustomisation >> generateCustomisedPreamble: aGeneratorMethodB
 	aGeneratorMethodBuilder addVariableNamed: 'nextBytecode'.
 	aGeneratorMethodBuilder addStatement: self fetchNextBytecodeNode.
 	nextBytecodes do: [ :next |
-		aGeneratorMethodBuilder addStatement: (self caseNodeFor: next) ].
-
-	1 halt
+		aGeneratorMethodBuilder addStatement: (self caseNodeFor: next) ]
 ]
 
 { #category : #accessing }

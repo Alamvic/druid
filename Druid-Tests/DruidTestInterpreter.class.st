@@ -90,6 +90,14 @@ DruidTestInterpreter >> failingSuccess [
 	self success: false
 ]
 
+{ #category : #bytecode }
+DruidTestInterpreter >> fakePushConstantTrueBytecode [
+
+	<nextSuperInstructions: #(92)>
+
+	self pushConstantTrueBytecode
+]
+
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> ifZeroFailPrimitive [
 

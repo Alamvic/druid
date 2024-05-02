@@ -74,6 +74,41 @@ DRBytecodeScenarioCompilationTest >> testPopAfterFlushStack [
 ]
 
 { #category : #tests }
+DRBytecodeScenarioCompilationTest >> testPushTrueAndReturn [
+
+	self
+		compileBytecode: 77 selector: #pushConstantTrueBytecode
+		andBytecode: 92 selector: #returnTopFromMethod
+		thenDo: [ :generator | generator value ].
+
+	self executePrimitiveWithReceiver: memory nilObject.
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: memory trueObject
+]
+
+{ #category : #tests }
+DRBytecodeScenarioCompilationTest >> testSuperInstructionCompilation [
+
+	| compiledMethod check returns |
+	self
+		compileBytecode: 77 selector: #fakePushConstantTrueBytecode
+		thenDo: [ :generator | "Nothing" ].
+	
+	compiledMethod := DruidTestRTLCompiler >> #gen_fakePushConstantTrueBytecode.
+	
+	check := compiledMethod ast allChildren detect: [ :n | n isMessage and: [ n selector = #ifTrue: ] ].
+	self assert: check receiver receiver name equals: #nextBytecode.
+	self assert: check receiver arguments first value equals: 92.
+	
+	returns := compiledMethod ast allChildren select: [ :n | n isReturn ].
+	self assert: returns size equals: 2.
+	self assert: returns first value selector equals:  #gen_pushConstantTrueBytecode_returnTopFromMethod
+
+
+]
+
+{ #category : #tests }
 DRBytecodeScenarioCompilationTest >> testUnknownBytecode [
 
 	| method deoptimizeTrampoline |
