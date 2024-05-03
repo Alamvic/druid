@@ -104,11 +104,17 @@ DRAbstractCompilerCompiler >> customiseFor: method [
 { #category : #'generation-IR' }
 DRAbstractCompilerCompiler >> generateDruidIR [
 
-	^ self generateDruidIRFor: self sourceMethods
+	^ self generateDruidIRForAll: self sourceMethods
 ]
 
 { #category : #'generation-IR' }
-DRAbstractCompilerCompiler >> generateDruidIRFor: compiledMethods [
+DRAbstractCompilerCompiler >> generateDruidIRFor: compiledMethod [
+
+	^ self generateDruidIRForAll: { compiledMethod }
+]
+
+{ #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> generateDruidIRForAll: compiledMethods [
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 
 	| cfg receiver annotatedArgNums |
