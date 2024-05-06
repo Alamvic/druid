@@ -63,6 +63,13 @@ DRPush >> size [
 	^ 8 "bytes"
 ]
 
+{ #category : #accessing }
+DRPush >> stackDelta [
+	
+	"I add one element to the stack"
+	^ -1
+]
+
 { #category : #testing }
 DRPush >> stackDepth [
 	
@@ -71,4 +78,11 @@ DRPush >> stackDepth [
 	
 	stackDependencies ifEmpty: [ ^ 1 ].
 	^ stackDependencies anyOne stackDepth + 1
+]
+
+{ #category : #'as yet unclassified' }
+DRPush >> stackSlotsDefiningAtDepth: anInteger [
+
+	anInteger = 0 ifTrue: [ ^ { self } ].
+	^ super stackSlotsDefiningAtDepth: anInteger
 ]

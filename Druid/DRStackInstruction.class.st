@@ -27,6 +27,13 @@ DRStackInstruction >> dataDependencies [
 	^ super dependencies
 ]
 
+{ #category : #'as yet unclassified' }
+DRStackInstruction >> definingStackInstruction [
+
+	"Return the stack instruction defining the stack slot I'm popping"
+	^ self stackSlotDefiningAtDepth: -1 ifNone: [ nil ]
+]
+
 { #category : #accessing }
 DRStackInstruction >> dependencies [
 
@@ -92,6 +99,26 @@ DRStackInstruction >> stackEffectDependencies [
 		  e isStackEffect
 			  ifTrue: [ { e } ]
 			  ifFalse: [ e stackEffectDependencies ] ]
+]
+
+{ #category : #'as yet unclassified' }
+DRStackInstruction >> stackSlotDefiningAtDepth: anInteger ifNone: aBlock [
+	"The only stack instructions defining stack slots are the push instructions"
+
+	| definingSlots |
+	definingSlots := self stackSlotsDefiningAtDepth: anInteger.
+	definingSlots ifEmpty: [ ^ aBlock value ].
+	^ definingSlots unique
+]
+
+{ #category : #'as yet unclassified' }
+DRStackInstruction >> stackSlotsDefiningAtDepth: anInteger [ 
+	"The only stack instructions defining stack slots are the push instructions"
+
+	| definingSlots |
+	definingSlots := self stackDependencies flatCollect: [ :s |
+		  s stackSlotsDefiningAtDepth: anInteger + self stackDelta ].
+	^ definingSlots
 ]
 
 { #category : #validation }

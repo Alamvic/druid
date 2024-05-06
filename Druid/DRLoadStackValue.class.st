@@ -10,6 +10,12 @@ DRLoadStackValue >> acceptVisitor: aVisitor [
 	^ aVisitor visitLoadStackValue: self
 ]
 
+{ #category : #visiting }
+DRLoadStackValue >> definingStackInstruction [
+
+	^ self stackSlotDefiningAtDepth: operands first value ifNone: [ nil ]
+]
+
 { #category : #testing }
 DRLoadStackValue >> isLoadStackValue [
 
@@ -35,6 +41,12 @@ DRLoadStackValue >> shiftStackAccessBy: anInteger [
 	self assert: operands first isConstant.
 	operands := OrderedCollection with: (operands first value + anInteger) asDRValue.
 	super shiftStackAccessBy: anInteger
+]
+
+{ #category : #accessing }
+DRLoadStackValue >> stackDelta [
+	
+	^ 0
 ]
 
 { #category : #testing }

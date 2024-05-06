@@ -84,34 +84,30 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 ]
 
 { #category : #'live-analysis' }
-DRCogitLinearScanRegisterAllocator >> computeLivenessOfInstruction: anInstruction inBlock: b withLiveSet: live [
+DRCogitLinearScanRegisterAllocator >> computeLivenessOfInstruction: i inBlock: b withLiveSet: live [
 
-	"If the instruction is an integer division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
-	This instruction requires 4 different registers and not three (operands + destination).
-	We model this by adding an extra operand at this point."
+	(i isStackInstruction and: [ i isPush not ]) ifTrue: [
+		| definingStackInstruction |
+		definingStackInstruction := i definingStackInstruction.
+		definingStackInstruction ifNotNil: [
+			self assert: definingStackInstruction isPush.
+			self
+				updateLiveSet: live
+				ofOperand: definingStackInstruction operand1
+				ofInstruction: i
+				inBlock: b ] ].
 
-	"Then regiter the live interval for the new synthetic operand"
-
-	((anInstruction isDivision or: [ anInstruction isModulo ]) and: [ 
-		 anInstruction type isFloatType not ]) ifTrue: [ 
-		| newOperand |
-		anInstruction operands size = 2
-			ifTrue: [ 
-				newOperand := anInstruction basicBlock controlFlowGraph
-					              allocateTemporaryRegister.
-				anInstruction addOperand: newOperand ]
-			ifFalse: [ newOperand := anInstruction operands last ].
-
-
-		"This live set starts in the next instruction, but it is not used so it will be freed"
-		(self liveSetOf: newOperand)
-			addRangeFrom: anInstruction
-			to: anInstruction nextInstruction ].
-
-	^ super
-		  computeLivenessOfInstruction: anInstruction
-		  inBlock: b
-		  withLiveSet: live
+	"If i defines an SSA register, remove it from the live set from now on"
+	i result isSSARegister ifTrue: [
+		live remove: i ifAbsent: [ self initializeLiveSetOfInstruction: i ] ].
+	^ i dependencies do: [ :op |
+		  (op result isSSARegister and: [
+			   op isStaged not and: [ (live includes: op) not ] ]) ifTrue: [
+			  self
+				  updateLiveSet: live
+				  ofOperand: op
+				  ofInstruction: i
+				  inBlock: b ] ]
 ]
 
 { #category : #initialization }

@@ -69,6 +69,28 @@ DRStackEffectTest >> testPopInMergePointDependsOnBothBranches [
 ]
 
 { #category : #tests }
+DRStackEffectTest >> testPopKnowsDefiningInstruction [
+
+	| irBuilder push pop push2 pop2 |
+	irBuilder := DRMetaCompilerIRGenerator new.
+	irBuilder pushFrame: DRStackFrame new.
+
+	push := irBuilder
+		        addInstructionFrom: nil
+		        instructionKind: DRPush
+		        operands: { 17 }.
+	push2 := irBuilder
+		        addInstructionFrom: nil
+		        instructionKind: DRPush
+		        operands: { 17 }.
+	pop := irBuilder addInstructionFrom: nil instructionKind: DRPop.
+	pop2 := irBuilder addInstructionFrom: nil instructionKind: DRPop.
+
+	self assert: pop definingStackInstruction equals: push2.
+	self assert: pop2 definingStackInstruction equals: push
+]
+
+{ #category : #tests }
 DRStackEffectTest >> testPushDependsOnPop [
 
 	| irBuilder push pop |
@@ -105,4 +127,26 @@ DRStackEffectTest >> testRebuildStackDependenciesReconstructsOriginalGraph [
 	self assert: finalStackInstruction stackDependencies asArray equals: {
 			pop1.
 			pop2 }
+]
+
+{ #category : #tests }
+DRStackEffectTest >> testStackValueKnowsDefiningInstruction [
+
+	| irBuilder push push2 loadPrev loadTop |
+	irBuilder := DRMetaCompilerIRGenerator new.
+	irBuilder pushFrame: DRStackFrame new.
+
+	push := irBuilder
+		        addInstructionFrom: nil
+		        instructionKind: DRPush
+		        operands: { 17 }.
+	push2 := irBuilder
+		        addInstructionFrom: nil
+		        instructionKind: DRPush
+		        operands: { 17 }.
+	loadPrev := irBuilder addInstructionFrom: nil instructionKind: DRLoadStackValue operands: { 1 }.
+	loadTop := irBuilder addInstructionFrom: nil instructionKind: DRLoadStackValue operands: { 0 }.
+
+	self assert: loadTop definingStackInstruction equals: push2.
+	self assert: loadPrev definingStackInstruction equals: push
 ]
