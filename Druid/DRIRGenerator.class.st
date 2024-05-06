@@ -378,6 +378,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #druidIf:do: put: #druidConditionalCompilationWith:.
 	specialCases at: #interpreterIgnore: put: #interpretBlockArgumentValueWith:.
 	specialCases at: #druidFail put: #interpretDruidFailWith:.
+
 	specialCases at: #value put: #interpretBlockValueWith:.
 	specialCases at: #value: put: #interpretBlockValueWith:.
 	specialCases at: #cull: put: #interpretBlockCullWith:.

@@ -17,8 +17,20 @@ DRStackInstruction >> addStackDependent: aStackInstruction [
 { #category : #dependencies }
 DRStackInstruction >> clearStackDependencies [
 
-	stackDependencies := OrderedCollection new.
-	stackDependents := OrderedCollection new
+	stackDependencies := Set new.
+	stackDependents := Set new
+]
+
+{ #category : #validation }
+DRStackInstruction >> dataDependencies [
+
+	^ super dependencies
+]
+
+{ #category : #accessing }
+DRStackInstruction >> dependencies [
+
+	^ super dependencies , self stackDependencies
 ]
 
 { #category : #testing }
@@ -72,8 +84,28 @@ DRStackInstruction >> stackDependents [
 	^ stackDependents
 ]
 
+{ #category : #accessing }
+DRStackInstruction >> stackEffectDependencies [
+	"Return the closest stack effect dependencies following the stack dependencies"
+
+	^ self stackDependencies flatCollect: [ :e |
+		  e isStackEffect
+			  ifTrue: [ { e } ]
+			  ifFalse: [ e stackEffectDependencies ] ]
+]
+
 { #category : #validation }
 DRStackInstruction >> validate [
 
 	super validate
+]
+
+{ #category : #validation }
+DRStackInstruction >> validateDependenciesAreUsedByMyself [
+
+	self dataDependencies do: [ :op | 
+		(op hasUser: self) ifFalse: [ 
+			DRError signal:
+				'Dependency-user mismatch between: ' , self asString , ' and: '
+				, op asString ] ]
 ]

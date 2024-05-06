@@ -10,21 +10,36 @@ DRCogitStackCoalescing >> applyTo: cfg [
 	We should move them down to their common post dominator.
 	Effects that apply the same operation on different branches get coallesced into a single effect (one push on each branch turns into a single push down in the CFG)"
 
-	| commonPostDominator basicBlock instructionsByStackDepth stackEffects |
+	| commonPostDominator basicBlock stackEffects currentStackEffects stackEffectsInReverseOrder |
+	cfg rebuildStackDependencies.
 	stackEffects := cfg instructions select: [ :e | e isStackEffect ].
 	1 haltIf: [ stackEffects anySatisfy: [ :p | p hasUsers ] ].
-	instructionsByStackDepth := stackEffects groupedBy: [ :effect |
-		                            {effect stackDepth . effect class} ].
-	instructionsByStackDepth keysAndValuesDo: [ :depth :instructionsAtDepth |
-		instructionsAtDepth size > 1 ifTrue: [
-			commonPostDominator := cfg postDominatorTree dominatorOfAll:
-				                       instructionsAtDepth.
-			basicBlock := commonPostDominator block.
 
-			instructionsAtDepth anyOne isPush
-				ifTrue: [
-				self coalescePushes: instructionsAtDepth in: basicBlock ]
-				ifFalse: [ self coalescePops: instructionsAtDepth in: basicBlock ] ] ]
+	stackEffectsInReverseOrder := Stack new.
+	currentStackEffects := #(  ).
+	currentStackEffects := stackEffects select: [ :e |
+		                       (stackEffects intersection:
+			                        e stackEffectDependencies) isEmpty ].
+
+	[ stackEffects notEmpty ] whileTrue: [
+		stackEffects removeAll: currentStackEffects.
+		currentStackEffects size > 1 ifTrue: [
+			stackEffectsInReverseOrder push: currentStackEffects ].
+		currentStackEffects := stackEffects select: [ :e |
+			                       (stackEffects intersection:
+				                        e stackEffectDependencies) isEmpty ] ].
+
+	[ stackEffectsInReverseOrder isEmpty ] whileFalse: [
+		currentStackEffects := stackEffectsInReverseOrder pop.
+		commonPostDominator := cfg postDominatorTree dominatorOfAll:
+			                       currentStackEffects.
+		basicBlock := commonPostDominator block.
+
+		currentStackEffects anyOne isPush
+			ifTrue: [ self coalescePushes: currentStackEffects in: basicBlock ]
+			ifFalse: [ self coalescePops: currentStackEffects in: basicBlock ] ].
+
+	cfg rebuildStackDependencies
 ]
 
 { #category : #accessing }
