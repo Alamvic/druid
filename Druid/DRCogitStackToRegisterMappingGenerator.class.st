@@ -134,7 +134,7 @@ DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMa
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #marshallSendArguments:
+			 selector: #marshallSendArgumentsNoPush:
 			 arguments:
 				 (aDRCogitSendMarshall numberOfArguments
 					  rtlPushArgumentExpressions: self))
@@ -153,7 +153,7 @@ DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #genMarshalledSend:numArgs:sendTable:
+			 selector: #genMarshalledSendNoPush:numArgs:sendTable:
 			 arguments: {
 				(aDRMessageSend operand1 rtlPushArgumentExpressions: self) first.
 				(aDRMessageSend operand2 rtlPushArgumentExpressions: self) first.

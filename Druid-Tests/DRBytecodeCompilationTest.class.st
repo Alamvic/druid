@@ -5,7 +5,7 @@ Class {
 }
 
 { #category : #tests }
-DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenDo: aBlock [
+DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector options: options thenDo: aBlock [
 
 	| generatorSelector compiler |
 	generatorSelector := (#gen, '_' , aSelector) asSymbol.
@@ -15,7 +15,8 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 	compiler := DRBytecodeCompilerCompiler new
 		sourceName: aSelector;
 		interpreter: self interpreter;
-		configureForCompilerClass: DruidTestRTLCompiler.
+		configureForCompilerClass: DruidTestRTLCompiler;
+		addCompilerOptions: options.
 
 	compiler compile.
 	"Then generate the machine code for that method"
@@ -30,6 +31,16 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 		
 		aBlock value: [ cogit perform: generatorSelector ].
 	] bytecodes: 100
+]
+
+{ #category : #tests }
+DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenDo: aBlock [
+
+	^ self
+		  compileBytecode: bytecode
+		  selector: aSelector
+		  options: #(  )
+		  thenDo: aBlock
 ]
 
 { #category : #tests }

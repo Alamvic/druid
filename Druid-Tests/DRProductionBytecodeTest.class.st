@@ -15,6 +15,7 @@ DRProductionBytecodeTest >> testBytecodeAdd [
 	self
 		compileBytecode: 96
 		selector: #bytecodePrimAdd
+		options: #( staticTypePrediction )
 		thenDo: [ :generator | 
 			cogit ssPushRegister: ReceiverResultReg.
 			cogit ssPushRegister: Arg0Reg.
@@ -45,6 +46,7 @@ DRProductionBytecodeTest >> testBytecodeAddOverflow [
 	self
 		compileBytecode: 96
 		selector: #bytecodePrimAdd
+		options: #( staticTypePrediction )
 		thenDo: [ :generator | 
 			cogit ssPushRegister: ReceiverResultReg.
 			cogit ssPushRegister: Arg0Reg.
@@ -812,6 +814,7 @@ DRProductionBytecodeTest >> testBytecodePrimSendAdd [
 	self
 		compileBytecode: 96
 		selector: #bytecodePrimAdd
+		options: #( staticTypePrediction )
 		thenDo: [ :generator | 
 			cogit methodObj: method.
 			"The receiver of the send!"

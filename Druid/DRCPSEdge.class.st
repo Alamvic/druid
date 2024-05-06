@@ -282,6 +282,12 @@ DRCPSEdge >> visitClosureCreation: aDRClosureCreation [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitCogitSendMarshall: aDRCogitSendMarshall [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
 	| operands constantValue |

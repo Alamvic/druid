@@ -30,6 +30,12 @@ DRAbstractCompilerCompiler >> addCompilerOption: anOption [
 	compilerOptions add: anOption
 ]
 
+{ #category : #adding }
+DRAbstractCompilerCompiler >> addCompilerOptions: aCollection [
+
+	aCollection do: [ :e | self addCompilerOption: e ]
+]
+
 { #category : #api }
 DRAbstractCompilerCompiler >> allocateRegistersIn: druidIR [
 

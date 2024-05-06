@@ -331,7 +331,7 @@ DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSp
 	
 	Translate this as a send instruction"
 
-	| selectorIndex argumentCount |
+	| selectorIndex argumentCount send marshall |
 	selectorIndex := self visitOperand: aRBMessageNode arguments first.
 	argumentCount := self visitOperand: aRBMessageNode arguments second.
 
@@ -352,13 +352,22 @@ DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSp
 	"DRJITMessageSend will be translated using a instrinsic that already annotate the bytecode"
 	self assert: controlFlowGraph hasAnnotatedBytecode not.
 
-	^ self
-		  addInstructionWithNoResultFrom: aRBMessageNode
-		  instructionKind: DRJITMessageSend
-		  operands: {
-				  selectorIndex asDRValue.
-				  argumentCount asDRValue.
-				  sendTableName asDRValue }
+	send := self
+		        addInstructionWithNoResultFrom: aRBMessageNode
+		        instructionKind: DRJITMessageSend
+		        operands: {
+				        selectorIndex asDRValue.
+				        argumentCount asDRValue.
+				        sendTableName asDRValue }.
+	send addBefore: (marshall := DRCogitSendMarshall send: send).
+	argumentCount simpleConstantFold asDRValue isConstant
+		ifTrue: [
+			argumentCount simpleConstantFold + 1 "Receiver"
+				timesRepeat: [
+					self pop"ShouldPopSpilled:
+						argumentCount simpleConstantFold > self numRegArgs" ] ]
+		ifFalse: [ marshall "doPop: true" ].
+	^ self push: DRPhysicalGeneralPurposeRegister receiverResultReg
 ]
 
 { #category : #'special cases' }
