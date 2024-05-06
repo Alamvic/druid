@@ -55,14 +55,16 @@ DRProductionBytecodeTest >> testBytecodeAddOverflow [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssPopTopToReg: ReceiverResultReg.
-			cogit genUpArrowReturn ].
+			cogit Stop ].
 
-	"Should run, overflow, jump to the trampoline, and 17"
+	"Should run, overflow, jump to the trampoline and leave the registers as they are"
 	self
-		executePrimitiveWithReceiver:
-		(memory integerObjectOf: memory maxSmallInteger)
-		withArguments: { (memory integerObjectOf: 1) }.
+		prepareStackForPrimitiveReceiver: (memory integerObjectOf: memory maxSmallInteger)
+		arguments: { memory integerObjectOf: 1 }
+		method: memory nilObject.
+
+	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
+	self runFrom: cogInitialAddress until: sendTrampolineAddress.
 	
 	self
 		assert: (memory integerValueOf: machineSimulator receiverRegisterValue)
@@ -799,23 +801,21 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfNonIdenticalObjectsWithFor
 
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePrimSendAdd [
-
 	"Setup the send trampoline"
+
 	| method selector |
 	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
-	cogit ordinarySendTrampolineAt: 1 "arg" put: sendTrampolineAddress.
-	
+	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress. "arg"
+
 	method := methodBuilder
-		newMethod;
-		literals: { 
-			selector := (memory integerObjectOf: 42) };
-		buildMethod.
+		          newMethod;
+		          literals: { (selector := memory integerObjectOf: 42) };
+		          buildMethod.
 
 	self
 		compileBytecode: 96
 		selector: #bytecodePrimAdd
-		options: #( staticTypePrediction )
-		thenDo: [ :generator | 
+		thenDo: [ :generator |
 			cogit methodObj: method.
 			"The receiver of the send!"
 			cogit ssPushRegister: ReceiverResultReg.
@@ -828,20 +828,23 @@ DRProductionBytecodeTest >> testBytecodePrimSendAdd [
 
 	self
 		prepareStackForPrimitiveReceiver: (memory integerObjectOf: 17)
-		arguments: #()
+		arguments: #(  )
 		method: method.
 
 	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
 	self runFrom: cogInitialAddress until: sendTrampolineAddress.
+
 	"First argument: the selector"
-	self assert: machineSimulator classRegisterValue equals: (-1 twoComplementOfBitSize: 64) "+ selector index".
+	self
+		assert: machineSimulator classRegisterValue
+		equals: (-1 twoComplementOfBitSize: 64). "+ selector index"
 	"Third argument: the receiver, then the argument is on the stack"
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17).
-	self assert: machineSimulator arg0RegisterValue equals: (memory integerObjectOf: 42)
-	
-
-
-
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 17).
+	self
+		assert: machineSimulator arg0RegisterValue
+		equals: (memory integerObjectOf: 42)
 ]
 
 { #category : #tests }

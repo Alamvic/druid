@@ -390,3 +390,9 @@ DRCogitOperandSorter >> visitUnsignedRightShift: aDRRightShift [
 	=> extract its first operand into a copy instruction"
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRRightShift
 ]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitUnspillStackSlot: aDRUnspillStackSlot [ 
+	
+	"Nothing"
+]

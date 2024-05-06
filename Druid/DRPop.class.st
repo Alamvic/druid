@@ -16,6 +16,12 @@ DRPop >> isPop [
 	^ true
 ]
 
+{ #category : #testing }
+DRPop >> isUnspilled [
+	
+	^ operands second value
+]
+
 { #category : #accessing }
 DRPop >> numberOfPoppedElements [
 	

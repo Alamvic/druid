@@ -710,3 +710,9 @@ DRCPSEdge >> visitUnsignedRightShift: aDRRightShift [
 
 	^ nil
 ]
+
+{ #category : #visiting }
+DRCPSEdge >> visitUnspillStackSlot: aDRUnspillStackSlot [ 
+	
+	^ nil
+]

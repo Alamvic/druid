@@ -44,10 +44,18 @@ DRCogitStackCoalescing >> applyTo: cfg [
 
 { #category : #accessing }
 DRCogitStackCoalescing >> coalescePops: pops in: postDominator [
+	"If two pops have different spilling value, we need to unspill the spilled one"
 
-	postDominator addInstructionFirst:
-		postDominator instructionFactory pop.
+	(pops collect: [ :e | e isUnspilled ] as: Set) size > 1 ifTrue: [
+		pops
+			reject: [ :e | e isUnspilled ]
+			thenDo: [ :e |
+			e addBefore: (e instructionFactory unspill: e stackDepth negated - 1) ] ].
 
+
+	postDominator addInstructionFirst: (postDominator instructionFactory
+			 pop: 1
+			 unspilled: (pops anySatisfy: [ :e | e isUnspilled ])).
 	pops do: [ :p | p removeFromCFG ]
 ]
 

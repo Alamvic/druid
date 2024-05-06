@@ -1061,6 +1061,24 @@ DRBasicBlock >> phiWithVariables: variables [
 	^ self addInstruction: phi
 ]
 
+{ #category : #building }
+DRBasicBlock >> pop [
+	
+	^ self pop: 1 unspilled: false
+]
+
+{ #category : #building }
+DRBasicBlock >> pop: anInteger unspilled: aBoolean [
+	
+	^ self addInstruction: (self instructionFactory pop: anInteger unspilled: aBoolean)
+]
+
+{ #category : #building }
+DRBasicBlock >> popUnspilled [
+	
+	^ self pop: 1 unspilled: true
+]
+
 { #category : #dominance }
 DRBasicBlock >> postDominatedBlocks [
 	"Return true if the blocks in the argument are the only dominated blocks of the receiver.

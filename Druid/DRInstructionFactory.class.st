@@ -271,7 +271,17 @@ DRInstructionFactory >> phiWithVariables: variables [
 { #category : #factory }
 DRInstructionFactory >> pop [
 
-	^ DRPop operands: #( 1 ) result: self allocateTemporaryRegister
+	^ self pop: 1 unspilled: false
+]
+
+{ #category : #building }
+DRInstructionFactory >> pop: anInteger unspilled: aBoolean [
+
+	^ DRPop
+		  operands: {
+				  anInteger.
+				  aBoolean }
+		  result: self allocateTemporaryRegister
 ]
 
 { #category : #factory }
@@ -344,4 +354,10 @@ DRInstructionFactory >> subtract: subtrahend from: minuend [
 	^ DRSubtract
 		  operands: { minuend asDRValue. subtrahend asDRValue }
 		  result: self allocateTemporaryRegister
+]
+
+{ #category : #building }
+DRInstructionFactory >> unspill: anInteger [
+
+	^ DRUnspillStackSlot operands: { anInteger } result: DRNoRegister new
 ]

@@ -358,19 +358,21 @@ DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitPop: aDRPop [
-	"If I have no users, and my previous instruction is also a pop without users, merge us in a single PopMany instruction"
 
 	| canBeMerged previous |
 	previous := aDRPop previousInstruction ifNil: [ ^ self ].
 	canBeMerged := aDRPop hasUsers not and: [
-		               previous isPop and: [ previous hasUsers not ] ].
-	canBeMerged ifTrue: [
-		aDRPop previousInstruction removeFromCFG.
-		aDRPop replaceBy: (DRPop
-				 operands:
-					 { (previous numberOfPoppedElements
-					  + aDRPop numberOfPoppedElements) asDRValue }
-				 result: DRNoRegister new) ]
+		               previous isPop and: [
+			               previous hasUsers not and: [
+				               previous isUnspilled = aDRPop isUnspilled ] ] ].
+	canBeMerged ifFalse: [ ^ self ].
+	aDRPop previousInstruction removeFromCFG.
+	aDRPop replaceBy: (DRPop
+			 operands: {
+					 (previous numberOfPoppedElements + aDRPop numberOfPoppedElements)
+						 asDRValue.
+					 aDRPop isUnspilled }
+			 result: DRNoRegister new)
 ]
 
 { #category : #visiting }

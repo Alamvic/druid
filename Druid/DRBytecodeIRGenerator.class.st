@@ -360,13 +360,15 @@ DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSp
 				        argumentCount asDRValue.
 				        sendTableName asDRValue }.
 	send addBefore: (marshall := DRCogitSendMarshall send: send).
+
+	"If all arguments pass on registers, then we need to pop them from the stack, but the marshall already unspill them if spilled"
 	argumentCount simpleConstantFold asDRValue isConstant
 		ifTrue: [
-			argumentCount simpleConstantFold + 1 "Receiver"
-				timesRepeat: [
-					self pop"ShouldPopSpilled:
-						argumentCount simpleConstantFold > self numRegArgs" ] ]
-		ifFalse: [ marshall "doPop: true" ].
+			argumentCount simpleConstantFold + 1 timesRepeat: [
+				self
+					pop: 1
+					unspilled: argumentCount simpleConstantFold <= self numRegArgs ] "Receiver" ]
+		ifFalse: [ marshall doPop: true ].
 	^ self push: DRPhysicalGeneralPurposeRegister receiverResultReg
 ]
 
@@ -457,13 +459,23 @@ DRBytecodeIRGenerator >> numberOfArguments: aValue [
 		self push: (self argRegisterNumber: i) ]"
 ]
 
-{ #category : #accessing }
+{ #category : #'pharo-stack' }
 DRBytecodeIRGenerator >> pop [
 
 	self
 		addInstructionFrom: nil
 		instructionKind: DRPop
-		operands: #( 1 ).
+		operands: #( 1 false ).
+	^ self popOperand
+]
+
+{ #category : #accessing }
+DRBytecodeIRGenerator >> pop: n unspilled: aBoolean [
+
+	self
+		addInstructionFrom: nil
+		instructionKind: DRPop
+		operands: { n . aBoolean}.
 	^ self popOperand
 ]
 

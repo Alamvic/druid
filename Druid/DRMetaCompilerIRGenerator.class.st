@@ -109,6 +109,12 @@ DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 	^ methodFound
 ]
 
+{ #category : #'calling convention' }
+DRMetaCompilerIRGenerator >> numRegArgs [
+
+	^ executionState baseFrame receiver value cogit numRegArgs
+]
+
 { #category : #accessing }
 DRMetaCompilerIRGenerator >> numberOfArguments: aValue [ 
 	

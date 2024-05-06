@@ -134,7 +134,10 @@ DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMa
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #marshallSendArgumentsNoPush:
+			 selector:
+				 #marshallSendArguments , (aDRCogitSendMarshall shouldPop
+					  ifTrue: [ #NoPush ]
+					  ifFalse: [ '' ]) , ':'
 			 arguments:
 				 (aDRCogitSendMarshall numberOfArguments
 					  rtlPushArgumentExpressions: self))
@@ -193,8 +196,10 @@ DRCogitStackToRegisterMappingGenerator >> visitPop: aDRPop [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #ssPop:
-			 arguments: { (RBLiteralValueNode value: aDRPop numberOfPoppedElements) })
+			 selector: #ssPop:popSpilled:
+			 arguments: {
+					 (RBLiteralValueNode value: aDRPop numberOfPoppedElements).
+					 (RBLiteralValueNode value: aDRPop isUnspilled not) })
 ]
 
 { #category : #visiting }
@@ -235,4 +240,14 @@ DRCogitStackToRegisterMappingGenerator >> visitTemporaryVariable: aDRLoadTempora
 			                        rtlPushArgumentExpressions: self).
 
 	self moveToReg: sourceDescriptorAST from: aDRLoadTemporaryVariable
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitUnspillStackSlot: aDRUnspillStackSlot [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #ssUnspillStackSlotAt:
+			 arguments:
+			 { (RBLiteralValueNode value: aDRUnspillStackSlot operand1 value) })
 ]

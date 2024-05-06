@@ -15,3 +15,9 @@ DRCogitStackCanonicaliser >> visitPush: aDRPush [
 		^ self ].
 	aDRPush replaceDependency: pushedValue by: pushedValue address
 ]
+
+{ #category : #visiting }
+DRCogitStackCanonicaliser >> visitUnspillStackSlot: aDRUnspillStackSlot [ 
+	
+	"Nothing for now"
+]
