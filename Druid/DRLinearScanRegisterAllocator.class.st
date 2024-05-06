@@ -322,24 +322,17 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> computeLivenessOfInstruction: i inBlock: b withLiveSet: live [
 
-	"If this is a pop, it may implicitly be using a register (the one it's popping)"
-	i isPop ifTrue: [
-		self
-			updateLiveSet: live
-			ofOperand: i definingStackInstruction
-			ofInstruction: i
-			inBlock: b ].
-
 	i result isSSARegister ifTrue: [
 		live remove: i ifAbsent: [ self initializeLiveSetOfInstruction: i ] ].
 	^ i dependencies do: [ :op |
 		  (op result isSSARegister and: [
-			   op isStaged not and: [ (live includes: op) not ] ]) ifTrue: [
-			  self
-				  updateLiveSet: live
-				  ofOperand: op
-				  ofInstruction: i
-				  inBlock: b ] ]
+			   op isStaged not and: [ (live includes: op) not ] ])
+			  ifTrue: [
+				  self
+					  updateLiveSet: live
+					  ofOperand: op
+					  ofInstruction: i
+					  inBlock: b ] ]
 ]
 
 { #category : #accessing }
