@@ -149,8 +149,8 @@ bytecodes := #(
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
-		selectPrimitives: [ :e | false "primitives includes: e selector" ];
-		selectBytecodes: [ :e | "bytecodes includes:" e bytecodeNumberStart = 253 ];
+		selectPrimitives: [ :e | primitives includes: e selector ];
+		selectBytecodes: [ :e | bytecodes includes: e bytecodeNumberStart ];
 		targetClass: targetClass;
 		targetSuperclass: aSuperclass;
 		build
