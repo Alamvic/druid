@@ -10,7 +10,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode1 selector: selector1 andB
 		| generatorSelector compiler |
 	generatorSelector := ('_' join: { #gen . selector1 . selector2 }) asSymbol.
 
-	self flag: #TODO. "self interpreter currentBytecode: bytecode."
+	self interpreter currentBytecode: bytecode1.
 	compiler := DRBytecodeCompilerCompiler new
 		bytecodes: {
 			bytecode1 -> selector1.
