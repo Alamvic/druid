@@ -317,9 +317,28 @@ DRCogitCanonicaliserTest >> testSimplifyBitXorOfBitXor [
 ]
 
 { #category : #tests }
-DRCogitCanonicaliserTest >> testSimplifyBranchIfCondition [
+DRCogitCanonicaliserTest >> testSimplifyBranchIfConstanteable [
 
-	| cfg numberOfPhisBefore survivingPhi phi resultPhi |
+	| cfg condition initialBlockCount |
+	cfg := self
+		       setUpCFGWithConditionalWithPhiBetween: DRInterpreterReference trueObject
+		       and: DRInterpreterReference falseObject.
+	condition := cfg b4 equals: cfg phi to: DRInterpreterReference trueObject.
+	cfg b4 jumpIf: condition to: cfg newBasicBlock ifFalseTo: cfg newBasicBlock.
+
+	DRBranchCollapse new applyTo: cfg.
+
+	initialBlockCount := cfg blocks size.
+	DRCogitCanonicaliser new applyTo: cfg.
+
+	self assert: cfg blocks size equals: initialBlockCount + 3.
+	self assert: cfg phi operands size equals: 1
+]
+
+{ #category : #tests }
+DRCogitCanonicaliserTest >> testSimplifyBranchIfSetConditionCode [
+
+	| cfg phi resultPhi |
 	cfg := self generateDruidIRFor: #primitiveOr.
 
 	"Phi with complex jumps"

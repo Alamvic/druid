@@ -196,10 +196,16 @@ DRIRTest >> setUpCFGWithConditional: jump [
 { #category : #test }
 DRIRTest >> setUpCFGWithConditionalWithPhi [
 
+	^ self setUpCFGWithConditionalWithPhiBetween: 1 and: 2
+]
+
+{ #category : #test }
+DRIRTest >> setUpCFGWithConditionalWithPhiBetween: aDRValue and: otherDRValue [
+
 	| cfg copy1 copy2 |
 	cfg := self setUpCFGWithConditional.
-	copy1 := cfg b2 copy: 1.
-	copy2 := cfg b3 copy: 2.
+	copy1 := cfg b2 copy: aDRValue.
+	copy2 := cfg b3 copy: otherDRValue.
 	cfg phi: (cfg b4 phiWith: copy1 with: copy2).
 	^ cfg
 ]

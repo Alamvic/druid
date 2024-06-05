@@ -16,6 +16,12 @@ DRCopy >> asJitCompileTimeExpression [
 	^ result name
 ]
 
+{ #category : #testing }
+DRCopy >> isConstanteable [
+
+	^ self operand isConstanteable
+]
+
 { #category : #printing }
 DRCopy >> isCopy [ 
 

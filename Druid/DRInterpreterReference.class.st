@@ -119,6 +119,15 @@ DRInterpreterReference >> acceptVisitor: aVisitor [
 ]
 
 { #category : #converting }
+DRInterpreterReference >> asBoolean [
+
+	reference = self class trueObject reference ifTrue: [ ^ true ].
+	reference = self class falseObject reference ifTrue: [ ^ false ].
+
+	self error: 'InterpreterReference is not a boolean'
+]
+
+{ #category : #converting }
 DRInterpreterReference >> asJitCompileTimeExpression [
 
 	^ reference asDRValue asJitCompileTimeExpression
@@ -129,6 +138,14 @@ DRInterpreterReference >> initialize [
 
 	super initialize.
 	type := DRPointerType new
+]
+
+{ #category : #testing }
+DRInterpreterReference >> isBooleanValue [
+
+	^ {
+		  self class trueObject reference.
+		  self class falseObject reference } includes: reference
 ]
 
 { #category : #testing }
@@ -197,7 +214,7 @@ DRInterpreterReference >> rtlOperandQualifier [
 	^ 'Cq:'
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #SCCP }
 DRInterpreterReference >> sccpEquals: other [
 
 	^ other asDRValue isInterpreterReference and: [ reference = other reference ]
