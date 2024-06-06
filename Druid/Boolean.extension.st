@@ -1,6 +1,12 @@
 Extension { #name : #Boolean }
 
 { #category : #'*Druid' }
+Boolean >> asBoolean [
+
+	^ self
+]
+
+{ #category : #'*Druid' }
 Boolean >> isBooleanValue [
 
 	^ true

@@ -19,7 +19,9 @@ DRBytecodeScenarioCompilationTest >> testBytecodePrimIdenticalAndJumpFalse [
 		numberOfTemporaries: 2;
 		buildMethod.
 
-	cogit ceSendMustBeBooleanTrampoline: fakeTrampoline.
+	"Force failing test if tries to compile the trampoline call:
+		Should be removed due to super-instruction."
+	cogit ceSendMustBeBooleanTrampoline: nil.
 
 	self
 		compileBytecode: 118
