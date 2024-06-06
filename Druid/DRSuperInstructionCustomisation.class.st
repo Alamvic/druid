@@ -85,8 +85,10 @@ DRSuperInstructionCustomisation >> fetchNextBytecodeNode [
 		  variable: (RBVariableNode named: 'nextBytecode')
 		  value: (RBMessageNode
 				   receiver: (RBVariableNode named: 'objectMemory')
-				   selector: #byteAt:
-				   arguments: { self nextBytecodePCNode })
+				   selector: #fetchByte:ofObject:
+				   arguments: {
+						   self nextBytecodePCNode.
+						   (RBVariableNode named: 'methodObj') })
 ]
 
 { #category : #api }
