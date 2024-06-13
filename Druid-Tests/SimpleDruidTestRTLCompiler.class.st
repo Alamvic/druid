@@ -5246,9 +5246,9 @@ SimpleDruidTestRTLCompiler >> gen_primitiveIntegerDivideByConstant [
 	self
 		DivR: SendNumArgsReg
 		R: ClassReg
-		Quo: SendNumArgsReg
-		Rem: ClassReg.
-	self MoveR: SendNumArgsReg R: ReceiverResultReg.
+		Quo: ClassReg
+		Rem: SendNumArgsReg.
+	self MoveR: ClassReg R: ReceiverResultReg.
 	self genPrimReturn.
 	^ CompletePrimitive
 ]
