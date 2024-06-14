@@ -1071,7 +1071,7 @@ DruidTestRTLCompiler >> gen_bytecodePrimIdenticalSistaV1_shortConditionalJumpFal
 	jump3 jmpTarget: currentBlock.
 	self annotateBytecode: self Label.
 	s58 := bytecodePC.
-	s59 := s58 + 4.
+	s59 := s58 + 2.
 	self Jump: (self ensureFixupAt: s59).
 	deadCode := true.
 	deadCode := false.

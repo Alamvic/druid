@@ -46,23 +46,9 @@ DRBytecodeCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 ]
 
 { #category : #'generation-IR' }
-DRBytecodeCompilerCompiler >> createInitialBasicBlock [
-	| initial initialBasicBlock |
-	
-	"Probably to be removed? the bytecode does not have a failure code.
-	Although some bytecode use primitive code and use the failure code!!"
-	
-	initialBasicBlock := super createInitialBasicBlock.
-	irGenerator currentPrimitiveFailureCode: (initial := irGenerator instructionFactory copy: 0).
-	initialBasicBlock addInstruction: initial.
-	^ initialBasicBlock
-]
-
-{ #category : #'generation-IR' }
 DRBytecodeCompilerCompiler >> customiseFor: method [
 
 	self flag: #TODO. "Allow mix of customisations"
-
 	super customiseFor: method.
 
 	"Avoid the customisation if we are compiling the super instruction"

@@ -117,27 +117,9 @@ DRAbstractCompilerCompiler >> generateDruidIRFor: compiledMethod [
 DRAbstractCompilerCompiler >> generateDruidIRForAll: compiledMethods [
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 
-	| cfg receiver annotatedArgNums |
-	self initializeIRBuilder: irGenerator.
-	receiver := DRInterpreterValue value: interpreter.
-
-	annotatedArgNums := compiledMethods size = 1
-		                    ifTrue: [ self numberOfArgumentsForMethod: compiledMethods unique ]
-		                    ifFalse: [ 0 ].
-
-	annotatedArgNums isNumber
-		ifTrue: [
-			self
-				interpretMethod: compiledMethods
-				receiver: receiver
-				numArgs: annotatedArgNums ]
-		ifFalse: [
-			self
-				interpretMethod: compiledMethods
-				receiver: receiver
-				ManyNumArgs: annotatedArgNums ].
-
-
+	| cfg |
+	irGenerator initializeIR.	
+	self interpreteMethods: compiledMethods.
 	cfg := irGenerator ir.
 
 	"Clean garbage to generate a valid CFG"
@@ -170,16 +152,6 @@ DRAbstractCompilerCompiler >> initialize [
 	compilerOptions := Set new
 ]
 
-{ #category : #'generation-IR' }
-DRAbstractCompilerCompiler >> initializeIRBuilder: generator [
-
-	| startBlock initialBasicBlock |
-	"Create the initial basic block"
-	startBlock := generator initialBasicBlock.
-	initialBasicBlock := generator createInitialBasicBlock.
-	startBlock jumpTo: initialBasicBlock
-]
-
 { #category : #accessing }
 DRAbstractCompilerCompiler >> instructionFactory [
 	
@@ -187,25 +159,7 @@ DRAbstractCompilerCompiler >> instructionFactory [
 ]
 
 { #category : #interpretation }
-DRAbstractCompilerCompiler >> interpretMethod: compiledMethods receiver: aDRReceiver ManyNumArgs: annotatedArgNums [
-
-	| lastPreamble |
-	lastPreamble := nil.
-	annotatedArgNums do: [ :numArgs |
-		lastPreamble ifNotNil: [ "Chain the checks"
-			lastPreamble endInstruction falseBranch removePredecessor: lastPreamble.
-			lastPreamble endInstruction newFalseBranch: irGenerator createInitialBasicBlock "Restart the VM state" ].
-
-		lastPreamble := self generateCheckForNumArgs: numArgs.
-
-		self
-			interpretMethod: compiledMethods
-			receiver: aDRReceiver
-			numArgs: numArgs ]
-]
-
-{ #category : #interpretation }
-DRAbstractCompilerCompiler >> interpretMethod: compiledMethods receiver: aDRReceiver numArgs: numArgs [
+DRAbstractCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRReceiver numArgs: numArgs [
 
 	irGenerator receiver: aDRReceiver.
 	irGenerator numberOfArguments: numArgs.
@@ -221,6 +175,19 @@ DRAbstractCompilerCompiler >> interpretMethod: compiledMethods receiver: aDRRece
 			interpretCode: aDRMethod
 			receiver: aDRReceiver
 			arguments: arguments ]
+]
+
+{ #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> interpreteMethods: compiledMethods [
+
+	| receiver numArgs |
+	receiver := DRInterpreterValue value: interpreter.
+	numArgs := self numberOfArgumentsForManyMethods: compiledMethods.
+
+	self
+		interpretMethods: compiledMethods
+		receiver: receiver
+		numArgs: numArgs
 ]
 
 { #category : #accessing }
@@ -251,6 +218,14 @@ DRAbstractCompilerCompiler >> irGenerator: aDRIRGenerator [
 DRAbstractCompilerCompiler >> newIRGenerator [
 
 	^ DRIRGenerator new compiler: self
+]
+
+{ #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> numberOfArgumentsForManyMethods: compiledMethods [
+
+	^ compiledMethods size = 1
+		  ifTrue: [ self numberOfArgumentsForMethod: compiledMethods unique ]
+		  ifFalse: [ 0 ]
 ]
 
 { #category : #accessing }
