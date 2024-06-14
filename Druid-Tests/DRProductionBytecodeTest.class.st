@@ -5,6 +5,25 @@ Class {
 }
 
 { #category : #tests }
+DRProductionBytecodeTest >> setUp [ 
+
+	| method |
+	super setUp.
+	
+	method := methodBuilder
+		newMethod;
+		literals: { (memory integerObjectOf: 42) };
+		bytecodes: #[ 
+			91 "return true"];
+		numberOfTemporaries: 2;
+		buildMethod.
+	
+	"Set a random methodObj and bytecodePC to avoid nil errors"
+	cogit methodObj: method.
+	cogit bytecodePC: 1.
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAdd [
 
 	"We do not support the static type prediction yet"
