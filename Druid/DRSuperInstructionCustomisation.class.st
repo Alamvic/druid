@@ -42,7 +42,7 @@ DRSuperInstructionCustomisation >> bytecodeTable [
 ]
 
 { #category : #'ast-nodes' }
-DRSuperInstructionCustomisation >> caseNodeFor: nextBytecode [
+DRSuperInstructionCustomisation >> caseNodeFor: nextBytecode index: index [
 
 	^ RBMessageNode
 		  receiver: (RBMessageNode
@@ -57,7 +57,7 @@ DRSuperInstructionCustomisation >> caseNodeFor: nextBytecode [
 						    (RBReturnNode value: (RBMessageNode
 								      receiver: RBVariableNode selfNode
 								      selector:
-								      (self selectorForSuperInstruction: nextBytecode))) })) }
+								      (self selectorForSuperInstruction: nextBytecode index: index))) })) }
 ]
 
 { #category : #accessing }
@@ -96,8 +96,8 @@ DRSuperInstructionCustomisation >> generateCustomisedPreamble: aGeneratorMethodB
 
 	aGeneratorMethodBuilder addVariableNamed: 'nextBytecode'.
 	aGeneratorMethodBuilder addStatement: self fetchNextBytecodeNode.
-	nextBytecodes do: [ :next |
-		aGeneratorMethodBuilder addStatement: (self caseNodeFor: next) ]
+	nextBytecodes doWithIndex: [ :next :i |
+		aGeneratorMethodBuilder addStatement: (self caseNodeFor: next index: i) ]
 ]
 
 { #category : #accessing }
@@ -126,23 +126,24 @@ DRSuperInstructionCustomisation >> optimize: anIR [
 	"Compile the super instructions. Maybe we want to do this in another moment."
 
 	| compiler |
-	nextBytecodes do: [ :next |
+	nextBytecodes doWithIndex: [ :next :i |
 		compiler := DRBytecodeCompilerCompiler new
 			            bytecodes: {
 					            (currentBytecode -> (self bytecodeSelector: currentBytecode)).
 					            (next -> (self bytecodeSelector: next)) };
 			            interpreter: interpreter;
-			            targetName: (self selectorForSuperInstruction: next);
+			            targetName: (self selectorForSuperInstruction: next index: i);
 			            configureForCompilerClass: compilerClass.
 
 		compiler compile ]
 ]
 
 { #category : #'ast-nodes' }
-DRSuperInstructionCustomisation >> selectorForSuperInstruction: nextBytecode [
+DRSuperInstructionCustomisation >> selectorForSuperInstruction: nextBytecode index: index [
 
 	^ #_ join: {
 			  #gen.
 			  (self bytecodeSelector: currentBytecode).
-			  (self bytecodeSelector: nextBytecode) }
+			  (self bytecodeSelector: nextBytecode).
+			  index asString }
 ]
