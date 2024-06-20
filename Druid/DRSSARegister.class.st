@@ -43,6 +43,11 @@ DRSSARegister >> isValue [
 ]
 
 { #category : #accessing }
+DRSSARegister >> name [
+	^ 'ssa_', name asString
+]
+
+{ #category : #accessing }
 DRSSARegister >> physicalRegister: anObject [
 
 	physicalRegister := anObject

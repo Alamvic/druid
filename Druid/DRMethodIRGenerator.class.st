@@ -57,7 +57,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [
 		| result |
 		result := self
-			          addInstructionFrom: aRBAssignmentNode
+			          addInstructionWithNoResultFrom: aRBAssignmentNode
 			          instructionKind: DRStoreTemporaryVariable
 			          operands: {
 					          aRBAssignmentNode variable name asDRValue. "Fix temporary names collisions"

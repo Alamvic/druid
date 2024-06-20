@@ -255,6 +255,9 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 		generatorMethodBuilder addVariableNamed: e prettyPrint ].
 
 	blocks := self linearizeBlocksInCFG: aDRControlFlowGraph.
+	blocks do: [ :b |
+		b instructionsDo: [ :i |
+			i isStaged ifFalse: [ self allocateVariable: i result ] ] ].
 	self generateCodeFromBlocks.
 
 	"Generate the postamble in the fallthrough case"
@@ -701,10 +704,8 @@ DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruc
 { #category : #visiting }
 DRCogitCodeGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
 
-	self allocateVariable: anInstruction result.
 	(operands first isInterpreterReference and: [
-		 anInstruction type isObjectReference ]) ifTrue: [
-		"It's moving a constant to a register. This constant could be an oop, so we need to annotate it."
+		 anInstruction type isObjectReference ]) ifTrue: [ "It's moving a constant to a register. This constant could be an oop, so we need to annotate it."
 		^ self generateMessage: #genMoveConstant:R: operands: operands ].
 	self
 		twoOperandCogitRTL: #Move

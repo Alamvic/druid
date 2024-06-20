@@ -58,102 +58,111 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 { #category : #'instance creation' }
 DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass: aSuperclass [
 
+	^ self generateDruidJITModelOn: targetClass superclass: aSuperclass compilerOptions: #()
+]
+
+{ #category : #'instance creation' }
+DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass: aSuperclass compilerOptions: options [
+
 	| primitives bytecodes |
-		primitives := #( 
-	#primitiveAdd #primitiveSubtract #primitiveMultiply #primitiveDivide #primitiveMod
-	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
-	#primitiveEqual #primitiveNotEqual #primitiveIdentical #primitiveNotIdentical
-	#primitiveDiv #primitiveQuo primitiveBitShift primitiveBitAnd  primitiveBitXor primitiveBitOr
+	primitives := #( #primitiveAdd #primitiveSubtract #primitiveMultiply
+	                 ')' expected -> #primitiveDivide #primitiveMod
+	                 #primitiveLessThan #primitiveLessOrEqual
+	                 #primitiveGreaterThan #primitiveGreaterOrEqual
+	                 #primitiveEqual #primitiveNotEqual
+	                 #primitiveIdentical #primitiveNotIdentical
+	                 #primitiveDiv #primitiveQuo primitiveBitShift
+	                 primitiveBitAnd primitiveBitXor primitiveBitOr
+	                 primitiveSmallFloatAdd primitiveSmallFloatSubtract
+	                 #primitiveSmallFloatMultiply
+	                 primitiveSmallFloatDivide primitiveSmallFloatEqual
+	                 primitiveSmallFloatNotEqual
+	                 primitiveSmallFloatGreaterOrEqual
+	                 primitiveSmallFloatGreaterThan
+	                 primitiveSmallFloatLessThan
+	                 primitiveSmallFloatLessOrEqual
+	                 primitiveFloatAdd primitiveFloatSubtract
+	                 #primitiveFloatMultiply primitiveFloatEqual
+	                 primitiveFloatNotEqual primitiveFloatGreaterThan
+	                 primitiveFloatGreaterOrEqual
+	                 primitiveFloatLessThan primitiveFloatLessOrEqual
+	                 primitiveAsFloat primitiveAsCharacter
+	                 #primitiveImmediateAsInteger
+	                 primitiveClass #primitiveSize #primitiveAt
+	                 #primitiveStringAt #primitiveAtPut #primitiveIdentityHash
+	                 primitiveNew #primitiveNewWithArg
+	                 primitiveFullClosureValue primitiveFullClosureValueNoContextSwitch ). "primitiveFloatDivide (Fix float comparison)"
+	"primitiveStringReplace (More than 2 args)" "#primitiveStringAtPut" "#primitiveBehaviorHash"
 
-	primitiveSmallFloatAdd primitiveSmallFloatSubtract #primitiveSmallFloatMultiply primitiveSmallFloatDivide primitiveSmallFloatEqual primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatGreaterThan primitiveSmallFloatLessThan  primitiveSmallFloatLessOrEqual
+	bytecodes := #( 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+	                21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38
+	                39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56
+	                57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74
+	                75 76 77 78 79 80 81 83 88 89 90 91 92 93 94 95 96 97
+	                98 99 100 101 102 103 104 105 106 107 108 109 110 111
+	                112 113 114 115 116 117 118 120 121 122 123 124 125
+	                126 127 128 129 130 131 132 133 134 135 136 137 138
+	                139 140 141 142 143 144 145 146 147 148 149 150 150
+	                151 152 153 154 155 156 157 158 159 160 161 162 163
+	                164 165 166 167 168 169 170 171 172 173 174 175 176
+	                177 178 179 180 181 182 183 184 185 186 187 188 189
+	                190 191 192 193 194 195 196 197 198 199 200 201 202
+	                203 204 205 206 207 208 209 210 211 212 213 214 215
+	                216 224 225 226 227 228 229 231 232 233 234 235 237
+	                238 239 240 241 242 243 244 245 248 249 251 252 253 ).
+	"pushReceiverVariableBytecode"
+	"pushLiteralVariable16CasesBytecode"
+	"pushLiteralConstantBytecode"
+	"pushTemporaryVariableBytecode"
+	"pushReceiverBytecode"
+	"pushConstantTrue/False/Nil/Zero/OneBytecode"
+	"duplicateTop"
+	"returnReceiver/True/False/Nil"
+	"return top from method/nil from block/top from block"
+	"Nop"
+	"Special sends (+)" "119"
+	"sendLiteralSelector0ArgsBytecode"
+	"sendLiteralSelector1ArgBytecode"
+	"sendLiteralSelector2ArgsBytecode"
+	"shortUnconditionalJump"
+	"shortConditionalJumpTrue"
+	"shortConditionalJumpFalse"
+	"store and pop into inst var"
+	"store and pop into temp"
+	"popStackBytecode"
+	"extension bytecodes"
+	"extended receiver/literal/temporary/constant variable bytecode" "pushNewArrayBytecode"
+	"extended send"
+	"extSendSuperBytecode"
+	"extended conditional jump"
+	"extended store&pop (receiver var / literal / temp)"
+	"extended store (receiver var / literal / temp)"
 
-	primitiveFloatAdd primitiveFloatSubtract #primitiveFloatMultiply "primitiveFloatDivide (Fix float comparison)"  
-	primitiveFloatEqual primitiveFloatNotEqual primitiveFloatGreaterThan primitiveFloatGreaterOrEqual primitiveFloatLessThan primitiveFloatLessOrEqual
-
-	primitiveAsFloat primitiveAsCharacter #primitiveImmediateAsInteger 
-	"primitiveStringReplace (More than 2 args)"
-
-	primitiveClass #primitiveSize #primitiveAt #primitiveStringAt #primitiveAtPut #primitiveStringAtPut "#primitiveBehaviorHash" #primitiveIdentityHash
-	primitiveNew #primitiveNewWithArg 
-	primitiveFullClosureValue
-	primitiveFullClosureValueNoContextSwitch
-	).
-	
-bytecodes := #( 
-		"pushReceiverVariableBytecode"
-			0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
-		"pushLiteralVariable16CasesBytecode"
-			16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 
-		"pushLiteralConstantBytecode"
-			32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63
-		"pushTemporaryVariableBytecode"
-			64 65 66 67 68 69 70 71 72 73 74 75
-		"pushReceiverBytecode"
-			76
-		"pushConstantTrue/False/Nil/Zero/OneBytecode"
-			77 78 79 80 81
-		"duplicateTop"
-			83
-		"returnReceiver/True/False/Nil"
-			88 89 90 91
-		"return top from method/nil from block/top from block" 
-			92 93 94
-		"Nop"
-			95
-		"Special sends (+)"
-			96  97  98  99 100 101 102 103 104 105
-			106 107 108 109 110 111 112 113 114 115
-			116 117 118 "119" 120 121 122 123 124 125 126 127
-		"sendLiteralSelector0ArgsBytecode"
-			128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143
-		"sendLiteralSelector1ArgBytecode"
-			144 145 146 147 148 149 150 150 151 152 153 154 155 156 157 158 159
-		"sendLiteralSelector2ArgsBytecode"
-			160 161 162 163 164 165 166 167 168 169 170 171 172 173 174 175
-		"shortUnconditionalJump"
-			176 177 178 179 180 181 182 183
-		"shortConditionalJumpTrue"
-			184 185 186 187 188 189 190 191
-		"shortConditionalJumpFalse"
-			192 193 194 195 196 197 198 199
-		"store and pop into inst var"
-			200 201 202 203 204 205 206 207
-		"store and pop into temp"
-			208 209 210 211 212 213 214 215
-		"popStackBytecode"
-			216
-		"extension bytecodes"
-			224 225
-		"extended receiver/literal/temporary/constant variable bytecode"
-			226
-			227 228 229
-			231 "pushNewArrayBytecode"
-			232 233
-		"extended send"
-			234
-		"extSendSuperBytecode"
-			235
-		"extended conditional jump"
-			237 238 239
-		"extended store&pop (receiver var / literal / temp)"
-			240 241 242 
-		"extended store (receiver var / literal / temp)"
-			243 244 245
-			
-		"call primitive" 248
-		"push closure" 249
-		"remote temp (push / store / store&pop)"	
-			251 252 253
-	).
+	"call primitive"
+	"push closure"
+	"remote temp (push / store / store&pop)"
 
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
 		selectPrimitives: [ :e | false "primitives includes: e selector" ];
-		selectBytecodes: [ :e | "bytecodes includes:" e bytecodeNumberStart = 253 ];
+		selectBytecodes: [ :e |
+			(e bytecodeNumberStart between: 0 and: 96) and: [
+					bytecodes includes: e bytecodeNumberStart ] ];
 		targetClass: targetClass;
 		targetSuperclass: aSuperclass;
+		compilerOptions: options;
 		build
+]
+
+{ #category : #'instance creation' }
+DRInterpreterToCompiler class >> generateDruidStaticTypePredictionJITModel [
+
+	<script>
+	self
+		generateDruidJITModelOn: DruidStaticTypePredictionJIT
+		superclass: StackToRegisterMappingCogit
+		compilerOptions: #( staticTypePrediction )
 ]
 
 { #category : #'instance creation' }

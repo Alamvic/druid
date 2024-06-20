@@ -281,7 +281,7 @@ DRInstructionFactory >> pop: anInteger unspilled: aBoolean [
 		  operands: {
 				  anInteger.
 				  aBoolean }
-		  result: self allocateTemporaryRegister
+		  result: DRNoRegister new
 ]
 
 { #category : #factory }

@@ -11,9 +11,9 @@ Class {
 DRBytecodeIRGenerator >> addAnnotateBytecode: aRBMethodNode [
 
 	self
-		  addInstructionWithNoResultFrom: aRBMethodNode
-		  instructionKind: DRAnnotateBytecode
-		  operands: #(  ).
+		addInstructionWithNoResultFrom: aRBMethodNode
+		instructionKind: DRAnnotateBytecode
+		operands: #(  ).
 	^ self popOperand "Let the stack empty"
 ]
 
@@ -213,7 +213,7 @@ DRBytecodeIRGenerator >> interpretITemporaryInPutWith: aRBMessageNode [
 	value := (self visitOperand: aRBMessageNode arguments third) simpleConstantFold.
 
 	^ self
-		  addInstructionFrom: aRBMessageNode
+		  addInstructionWithNoResultFrom: aRBMessageNode
 		  instructionKind: DRStoreTemporaryVariable
 		  operands: { index asDRValue . value asDRValue }
 ]
@@ -360,14 +360,15 @@ DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSp
 				        argumentCount asDRValue.
 				        sendTableName asDRValue }.
 	send addBefore: (marshall := DRCogitSendMarshall send: send).
+	marshall addBefore: controlFlowGraph instructionFactory flushStack.
 
 	"If all arguments pass on registers, then we need to pop them from the stack, but the marshall already unspill them if spilled"
 	argumentCount simpleConstantFold asDRValue isConstant
 		ifTrue: [
-			argumentCount simpleConstantFold + 1 timesRepeat: [
+			argumentCount simpleConstantFold + 1 timesRepeat: [ "Receiver"
 				self
 					pop: 1
-					unspilled: argumentCount simpleConstantFold <= self numRegArgs ] "Receiver" ]
+					unspilled: argumentCount simpleConstantFold <= self numRegArgs ] ]
 		ifFalse: [ marshall doPop: true ].
 	^ self push: DRPhysicalGeneralPurposeRegister receiverResultReg
 ]
@@ -463,7 +464,7 @@ DRBytecodeIRGenerator >> numberOfArguments: aValue [
 DRBytecodeIRGenerator >> pop [
 
 	self
-		addInstructionFrom: nil
+		addInstructionWithNoResultFrom: nil
 		instructionKind: DRPop
 		operands: #( 1 false ).
 	^ self popOperand
@@ -472,10 +473,9 @@ DRBytecodeIRGenerator >> pop [
 { #category : #accessing }
 DRBytecodeIRGenerator >> pop: n unspilled: aBoolean [
 
-	self
-		addInstructionFrom: nil
-		instructionKind: DRPop
-		operands: { n . aBoolean}.
+	self addInstructionWithNoResultFrom: nil instructionKind: DRPop operands: {
+			n.
+			aBoolean }.
 	^ self popOperand
 ]
 

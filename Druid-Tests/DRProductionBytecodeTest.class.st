@@ -37,6 +37,46 @@ DRProductionBytecodeTest >> testBytecodeAdd [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testBytecodeAddOneSpilledArg [
+
+	"We do not support the static type prediction yet"
+
+	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
+	
+	self
+		compileBytecode: 96
+		selector: #bytecodePrimAdd
+		options: #( staticTypePrediction )
+		thenDo: [ :generator | 
+			
+			cogit methodOrBlockNumArgs: 0. "Hack"
+			cogit methodOrBlockNumTemps: 0. "Hack"
+			"Initialize the simulated stack"
+			cogit initSimStackForFramefulMethod: 0.
+		
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssFlushStack.
+
+			cogit ssPushRegister: Arg0Reg.			
+
+			"Execute the druid's compiled code"
+			generator value.
+	
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: { (memory integerObjectOf: 42) }.
+	self
+		assert:
+		(memory integerValueOf: machineSimulator receiverRegisterValue)
+		equals: 42 + 17
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAddOverflow [
 
 	sendTrampolineAddress := self compile: [ "In case of overflow, this routine is called and returns the receiver unchanged"
@@ -69,6 +109,46 @@ DRProductionBytecodeTest >> testBytecodeAddOverflow [
 	self
 		assert: (memory integerValueOf: machineSimulator receiverRegisterValue)
 		equals: memory maxSmallInteger
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeAddWithSpilledArgs [
+
+	"We do not support the static type prediction yet"
+
+	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
+	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
+	
+	self
+		compileBytecode: 96
+		selector: #bytecodePrimAdd
+		options: #( staticTypePrediction )
+		thenDo: [ :generator | 
+			
+			cogit methodOrBlockNumArgs: 0. "Hack"
+			cogit methodOrBlockNumTemps: 0. "Hack"
+			"Initialize the simulated stack"
+			cogit initSimStackForFramefulMethod: 0.
+		
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.			
+			cogit ssFlushStack.
+
+			"Execute the druid's compiled code"
+			1halt.
+			generator value.
+	
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+1halt.
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: { (memory integerObjectOf: 42) }.
+	self
+		assert:
+		(memory integerValueOf: machineSimulator receiverRegisterValue)
+		equals: 42 + 17
 ]
 
 { #category : #tests }

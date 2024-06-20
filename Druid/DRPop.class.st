@@ -57,11 +57,9 @@ DRPop >> stackDelta [
 
 { #category : #testing }
 DRPop >> stackDepth [
-	
 	"Return the stack depth left on the stack after applying this operation.
 	Pop will remove one element from the stack depth of the previous stack instruction"
-	
-	stackDependencies ifEmpty: [ ^ 0 ].
+
+	stackDependencies ifEmpty: [ ^ -1 ].
 	^ stackDependencies anyOne stackDepth - 1
-	
 ]

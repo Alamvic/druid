@@ -406,6 +406,7 @@ DRCogitCanonicaliser >> visitStore: aDRStore [
 	| address addressExpression addressOperands offsetOperand baseOperand |
 
 	address := aDRStore address.
+
 	(address isAbsolute and: [ address expression isAdd ]) ifFalse: [ ^ self ].
 
 	addressExpression := address expression.

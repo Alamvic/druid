@@ -722,21 +722,35 @@ DRControlFlowGraph >> privateNewBasicBlock [
 { #category : #building }
 DRControlFlowGraph >> rebuildStackDependencies [
 
-	| lastStackInstructionPerBlock incomingStackInstructions |
-	lastStackInstructionPerBlock  := Dictionary new.
+	| lastStackInstructionPerBlock incomingStackInstructions blocks |
+	lastStackInstructionPerBlock := Dictionary new.
 
-	self reversePostOrderBlocks do: [ :e |
-		incomingStackInstructions := e predecessors flatCollect: [ :p |
+	blocks := self reversePostOrderBlocks.
+
+	[ blocks isEmpty ] whileFalse: [ | e previousDependencies |
+		e := blocks removeFirst.
+		incomingStackInstructions := e predecessors
+			                             flatCollect: [ :p |
 			                             lastStackInstructionPerBlock
 				                             at: p
-				                             ifAbsent: [ #(  ) ] ].
+				                             ifAbsent: [ #(  ) ] ]
+			                             as: Set.
 		e instructions do: [ :i |
-			i isStackInstruction ifTrue: [
+			i isStackInstruction ifTrue: [ | thisIncomingStackInstructions |
 				i clearStackDependencies.
-				i stackDependencies: incomingStackInstructions.
-				incomingStackInstructions do: [ :s | s addStackDependent: i ].
+				thisIncomingStackInstructions := incomingStackInstructions select: [ :d | (d stackEffectDependencies includes: i) not ].
+				i stackDependencies: thisIncomingStackInstructions.
+				thisIncomingStackInstructions do: [ :s | s addStackDependent: i ].
 				incomingStackInstructions := { i } ] ].
-		lastStackInstructionPerBlock at: e put: incomingStackInstructions ]
+
+		previousDependencies := lastStackInstructionPerBlock
+			                        at: e
+			                        ifAbsent: [ Set new ].
+		previousDependencies ~= incomingStackInstructions ifTrue: [
+			lastStackInstructionPerBlock at: e put: incomingStackInstructions.
+			e successors do: [ :succ | 
+				(blocks includes: succ)
+					ifFalse: [ blocks add: succ ] ] ] ].
 ]
 
 { #category : #removing }

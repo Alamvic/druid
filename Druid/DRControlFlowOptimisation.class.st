@@ -7,6 +7,7 @@ Class {
 { #category : #accessing }
 DRControlFlowOptimisation >> applyTo: cfg [
 
+	cfg rebuildStackDependencies.
 	self doApply: cfg.
 	DRDeadBlockElimination applyTo: cfg.
 	cfg fixBackJumps

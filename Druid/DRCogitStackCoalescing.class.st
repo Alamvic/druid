@@ -10,7 +10,7 @@ DRCogitStackCoalescing >> applyTo: cfg [
 	We should move them down to their common post dominator.
 	Effects that apply the same operation on different branches get coallesced into a single effect (one push on each branch turns into a single push down in the CFG)"
 
-	| commonPostDominator basicBlock stackEffects currentStackEffects stackEffectsInReverseOrder |
+	| commonPostDominator basicBlock stackEffects currentStackEffects stackEffectsInReverseOrder previous |
 	cfg rebuildStackDependencies.
 	stackEffects := cfg instructions select: [ :e | e isStackEffect ].
 	1 haltIf: [ stackEffects anySatisfy: [ :p | p hasUsers ] ].
@@ -21,7 +21,9 @@ DRCogitStackCoalescing >> applyTo: cfg [
 		                       (stackEffects intersection:
 			                        e stackEffectDependencies) isEmpty ].
 
-	[ stackEffects notEmpty ] whileTrue: [
+	previous := nil.
+	[ stackEffects notEmpty and: [ stackEffects ~= previous ] ] whileTrue: [
+		previous := stackEffects copy.
 		stackEffects removeAll: currentStackEffects.
 		currentStackEffects size > 1 ifTrue: [
 			stackEffectsInReverseOrder push: currentStackEffects ].
@@ -47,10 +49,8 @@ DRCogitStackCoalescing >> coalescePops: pops in: postDominator [
 	"If two pops have different spilling value, we need to unspill the spilled one"
 
 	(pops collect: [ :e | e isUnspilled ] as: Set) size > 1 ifTrue: [
-		pops
-			reject: [ :e | e isUnspilled ]
-			thenDo: [ :e |
-			e addBefore: (e instructionFactory unspill: e stackDepth negated - 1) ] ].
+		pops reject: [ :e | e isUnspilled ] thenDo: [ :e |
+			e addBefore: (e instructionFactory unspill: (e stackDepth + 1) negated) ] ].
 
 
 	postDominator addInstructionFirst: (postDominator instructionFactory

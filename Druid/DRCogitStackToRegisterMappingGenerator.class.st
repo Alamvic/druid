@@ -7,6 +7,19 @@ Class {
 	#category : #'Druid-Cogit'
 }
 
+{ #category : #helpers }
+DRCogitStackToRegisterMappingGenerator >> freeRegisterLiveMask: temporaryVariableNode [
+
+	generatorMethodBuilder addStatement:
+		(RBAssignmentNode variable: (RBVariableNode named: 'live') value: (RBMessageNode
+				  receiver: (RBVariableNode named: 'live')
+				  selector: #bitClear:
+				  arguments: { (RBMessageNode
+						   receiver: RBVariableNode selfNode
+						   selector: #registerMaskFor:
+						   arguments: { temporaryVariableNode copy }) }))
+]
+
 { #category : #'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 
@@ -125,7 +138,12 @@ DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreati
 					 (RBVariableNode named:
 						  DRPhysicalGeneralPurposeRegister classReg name) }).
 
-	super visitClosureCreation: aDRClosureCreation
+	super visitClosureCreation: aDRClosureCreation.
+	self freeRegisterLiveMask: (RBVariableNode named:
+			 DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
+	self freeRegisterLiveMask:
+		(RBVariableNode named:
+			 DRPhysicalGeneralPurposeRegister classReg name)
 ]
 
 { #category : #visiting }
@@ -136,8 +154,8 @@ DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMa
 			 receiver: RBVariableNode selfNode
 			 selector:
 				 #marshallSendArguments , (aDRCogitSendMarshall shouldPop
-					  ifTrue: [ #NoPush ]
-					  ifFalse: [ '' ]) , ':'
+					  ifTrue: [ #'' ]
+					  ifFalse: [ 'NoPush' ]) , ':'
 			 arguments:
 				 (aDRCogitSendMarshall numberOfArguments
 					  rtlPushArgumentExpressions: self))
@@ -170,10 +188,9 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 			 receiver: RBVariableNode selfNode
 			 selector: #ensureReceiverResultRegContainsSelf).
 
-  self allocateVariable: aDRLoadReceiver result.
-	self twoOperandMoveCogitRTL: aDRLoadReceiver operands: { 
-				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg').
-				aDRLoadReceiver }
+	self twoOperandMoveCogitRTL: aDRLoadReceiver operands: {
+			(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg').
+			aDRLoadReceiver }
 ]
 
 { #category : #visiting }
@@ -224,6 +241,7 @@ DRCogitStackToRegisterMappingGenerator >> visitStoreTempVar: aDRStoreTemporaryVa
 			 arguments:
 			 (aDRStoreTemporaryVariable operand1 rtlPushArgumentExpressions:
 				  self)).
+
 	super visitStoreTempVar: aDRStoreTemporaryVariable
 ]
 

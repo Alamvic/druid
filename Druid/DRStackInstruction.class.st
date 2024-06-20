@@ -37,7 +37,7 @@ DRStackInstruction >> definingStackInstruction [
 { #category : #accessing }
 DRStackInstruction >> dependencies [
 
-	^ super dependencies , self stackDependencies
+	^ super dependencies , self stackDependencies asArray
 ]
 
 { #category : #testing }
@@ -82,7 +82,7 @@ DRStackInstruction >> stackDependencies [
 { #category : #accessing }
 DRStackInstruction >> stackDependencies: anObject [
 
-	stackDependencies := anObject.
+	stackDependencies := anObject asSet.
 	stackDependencies do: [ :e | e addStackDependent: self ]
 ]
 
