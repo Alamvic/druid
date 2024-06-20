@@ -33,8 +33,7 @@ DruidTestRTLCompilerForTest class >> initializePrimitiveTable [
 
 	<generated>
 	MaxCompiledPrimitiveIndex := 0.
-	primitiveTable := CArrayAccessor on:
-		                  (Array new: MaxCompiledPrimitiveIndex + 1).
+	primitiveTable := CArrayAccessor on: (Array new: MaxCompiledPrimitiveIndex + 1).
 	self table: primitiveTable from: self primitiveTableArray.
 	^ primitiveTable
 ]
@@ -83,9 +82,7 @@ DruidTestRTLCompilerForTest >> gen_ReturnTopFromMethod [
 
 	| live currentBlock t0 |
 	live := 0.
-	t0 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t0 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
 	(self ssValue: 0) copyToReg: t0.
 	self ssPop: 1.

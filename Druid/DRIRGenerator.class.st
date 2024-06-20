@@ -369,6 +369,16 @@ DRIRGenerator >> initialize [
 		yourself
 ]
 
+{ #category : #initialization }
+DRIRGenerator >> initializeIR [
+	"Create the initial basic block"
+
+	| startBlock initialBasicBlock |
+	startBlock := self initialBasicBlock.
+	initialBasicBlock := self createInitialBasicBlock.
+	startBlock jumpTo: initialBasicBlock
+]
+
 { #category : #'special cases' }
 DRIRGenerator >> initializeSpecialCases [
 

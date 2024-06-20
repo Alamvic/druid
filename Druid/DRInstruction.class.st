@@ -80,6 +80,12 @@ DRInstruction >> addUser: anInstruction [
 	users add: anInstruction
 ]
 
+{ #category : #converting }
+DRInstruction >> asFloat [
+
+	self classType: DRFloatType new
+]
+
 { #category : #accessing }
 DRInstruction >> asNumberedExpression [
 
@@ -105,6 +111,12 @@ DRInstruction >> canMoveOutsideLoop: loop [
 		In that case also depends of conditional jump operands"
 		  (self controlFlowGraph allBlocksBetween: loop headerBlock and: self basicBlock)
 			  noneSatisfy: [ :middleBlock | middleBlock endInstruction isConditionalBranch ] ]
+]
+
+{ #category : #accessing }
+DRInstruction >> classType: aType [
+	
+	classType := aType
 ]
 
 { #category : #'users-definitions' }

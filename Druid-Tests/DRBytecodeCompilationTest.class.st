@@ -4,6 +4,38 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #enumerating }
+DRBytecodeCompilationTest >> compileBytecode: bytecode1 selector: selector1 andBytecode: bytecode2 selector: selector2 thenDo: aFullBlockClosure [ 
+
+		| generatorSelector compiler |
+	generatorSelector := ('_' join: { #gen . selector1 . selector2 }) asSymbol.
+
+	self interpreter currentBytecode: bytecode1.
+	compiler := DRBytecodeCompilerCompiler new
+		bytecodes: {
+			bytecode1 -> selector1.
+			bytecode2 -> selector2.
+		};
+		interpreter: self interpreter;
+		targetName: generatorSelector;
+		configureForCompilerClass: DruidTestRTLCompiler.
+
+	compiler compile.
+	"Then generate the machine code for that method"
+	cogInitialAddress := self compile: [
+		cogit needsFrame: true.
+		cogit byte0: bytecode1.
+		cogit byte1: bytecode2.
+		cogit methodOrBlockNumArgs: 3. "Hack"
+		cogit methodOrBlockNumTemps: 2. "Hack"
+		"Initialize the simulated stack"
+		cogit initSimStackForFramefulMethod: 2.
+		cogit zeroOpcodeIndexForNewOpcodes.
+		
+		aFullBlockClosure value: [ cogit perform: generatorSelector ].
+	] bytecodes: 100
+]
+
 { #category : #tests }
 DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector options: options thenDo: aBlock [
 

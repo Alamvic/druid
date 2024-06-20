@@ -31,12 +31,6 @@ DRLoadArgument >> argNum [
 	^ self operand1 value
 ]
 
-{ #category : #accessing }
-DRLoadArgument >> classType: aType [
-	
-	classType := aType
-]
-
 { #category : #visiting }
 DRLoadArgument >> isLoadArgument [
 

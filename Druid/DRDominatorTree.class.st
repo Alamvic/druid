@@ -171,8 +171,6 @@ DRDominatorTree >> dominanceFrontierOf: aBlock [
 DRDominatorTree >> dominatorOfAll: instructions [
 
 	| firstNode |
-	self assert: instructions size > 1.
-
 	firstNode := self blockDictionary at: instructions first basicBlock.
 
 	^ instructions allButFirst
@@ -181,6 +179,13 @@ DRDominatorTree >> dominatorOfAll: instructions [
 			  self
 				  nearestCommonAncestorOf: dominator
 				  and: (self blockDictionary at: instruction basicBlock) ]
+]
+
+{ #category : #querying }
+DRDominatorTree >> dominatorPathToRoot: aDRBasicBlock [
+
+	^ (self pathToRoot: (self nodeOfBlock: aDRBasicBlock)) collect: [
+		  :node | node block ]
 ]
 
 { #category : #initialization }
@@ -355,7 +360,7 @@ DRDominatorTree >> pathToRoot: node do: aBlock [
 	| currentNode |
 	currentNode := node.
 	aBlock value: currentNode.
-	[ currentNode = tree ] whileFalse: [
+	[ currentNode = root ] whileFalse: [
 		currentNode := currentNode parent.
 		aBlock value: currentNode ]
 ]
