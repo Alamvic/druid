@@ -8,7 +8,7 @@ Class {
 DRTailDuplicateStagedExpressionsTest >> setUp [
 
 	super setUp.
-	optimisation := DRCogitStager then: DRTailDuplicateStagedExpressions
+	optimisation := DRCogitStager then: DRIsolateStagedJumps
 ]
 
 { #category : #tests }

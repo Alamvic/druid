@@ -1234,7 +1234,7 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveValueWithArgs [
 ]
 
 { #category : #'tests-arithmetic-smallIntegers' }
-DRProductionPrimitiveCompilationTest >> testPrimitiveValueWithTooMuchArg [
+DRProductionPrimitiveCompilationTest >> testPrimitiveValueWithTooManyArgs [
 
 	<compilerOptions: #( - #optionConstantBlockClosure )>
 	| closure |

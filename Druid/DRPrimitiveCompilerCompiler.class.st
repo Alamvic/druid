@@ -102,6 +102,39 @@ DRPrimitiveCompilerCompiler >> initialize [
     optimisations add: DRCogitOperandSorter new
 ]
 
+{ #category : #interpretation }
+DRPrimitiveCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRReceiver manyNumArgs: annotatedArgNums [
+
+	| lastPreamble |
+	lastPreamble := nil.
+	annotatedArgNums do: [ :numArgs |
+		lastPreamble ifNotNil: [ "Chain the checks"
+			lastPreamble endInstruction falseBranch removePredecessor: lastPreamble.
+			lastPreamble endInstruction newFalseBranch: irGenerator createInitialBasicBlock "Restart the VM state" ].
+
+		lastPreamble := self generateCheckForNumArgs: numArgs.
+
+		self
+			interpretMethods: compiledMethods
+			receiver: aDRReceiver
+			numArgs: numArgs ]
+]
+
+{ #category : #interpretation }
+DRPrimitiveCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRReceiver numArgs: numArgs [
+
+	numArgs isArray ifTrue: [
+		^ self
+			  interpretMethods: compiledMethods
+			  receiver: aDRReceiver
+			  manyNumArgs: numArgs ].
+
+	^ super
+		  interpretMethods: compiledMethods
+		  receiver: aDRReceiver
+		  numArgs: numArgs
+]
+
 { #category : #accessing }
 DRPrimitiveCompilerCompiler >> newIRGenerator [
 
@@ -143,6 +176,12 @@ DRPrimitiveCompilerCompiler >> primitiveName [
 DRPrimitiveCompilerCompiler >> primitiveName: anObject [
 
 	self sourceName: anObject
+]
+
+{ #category : #accessing }
+DRPrimitiveCompilerCompiler >> sourceMethods [
+
+	^ { self sourceMethod }
 ]
 
 { #category : #accessing }

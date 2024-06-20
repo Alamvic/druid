@@ -22,7 +22,9 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 		optimisations add:
 			(DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
-		optimisations add: DRTailDuplicateStagedExpressions new.
+
+		optimisations add: DRCleanStackInstructions new.
+		
 		optimisations add:
 			(DRDeadEdgeSplitting then: DRDeadBranchElimination).
 		optimisations add: (DRPhiSimplication then: DRCopyPropagation) ].

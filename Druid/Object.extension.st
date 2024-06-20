@@ -13,6 +13,12 @@ Object >> asDRValue [
 ]
 
 { #category : #'*Druid' }
+Object >> isBooleanValue [
+
+	^ false
+]
+
+{ #category : #'*Druid' }
 Object >> isStaged [
 	
 	^ true

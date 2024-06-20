@@ -33,8 +33,7 @@ DruidTestRTLCompilerForTest class >> initializePrimitiveTable [
 
 	<generated>
 	MaxCompiledPrimitiveIndex := 0.
-	primitiveTable := CArrayAccessor on:
-		                  (Array new: MaxCompiledPrimitiveIndex + 1).
+	primitiveTable := CArrayAccessor on: (Array new: MaxCompiledPrimitiveIndex + 1).
 	self table: primitiveTable from: self primitiveTableArray.
 	^ primitiveTable
 ]
@@ -82,9 +81,7 @@ DruidTestRTLCompilerForTest >> gen_ReturnTopFromMethod [
 
 	| live currentBlock t0 |
 	live := 0.
-	t0 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t0 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
 	(self ssValue: 0) copyToReg: t0.
 	self ssPop: 1.
@@ -101,19 +98,13 @@ DruidTestRTLCompilerForTest >> gen_StoreAndPopReceiverVariableBytecode0 [
 	live := 0.
 	self annotateBytecode: self Label.
 	self ensureReceiverResultRegContainsSelf.
-	t0 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t0 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
 	self MoveR: ReceiverResultReg R: t0.
-	t1 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t1 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t1).
 	(self ssValue: 0) copyToReg: t1.
-	t2 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t2 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t2).
 	self MoveM64: 0 r: t0 R: t2.
 	self LogicalShiftRightCq: 23 R: t2.
@@ -156,8 +147,7 @@ DruidTestRTLCompilerForTest >> gen_StoreAndPopReceiverVariableBytecode0 [
 	self CmpCq: 0 R: t2.
 	jump7 := self JumpNonZero: 0.
 	self MoveR: t0 R: TempReg.
-	backEnd saveAndRestoreLinkRegAround: [
-		self CallRT: ceStoreCheckTrampoline ].
+	backEnd saveAndRestoreLinkRegAround: [ self CallRT: ceStoreCheckTrampoline ].
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	jump3 jmpTarget: currentBlock.
@@ -188,8 +178,7 @@ DruidTestRTLCompilerForTest >> gen_StoreAndPopReceiverVariableBytecode0 [
 	self CmpCq: s48 R: t1.
 	jump3 := self JumpBelow: 0.
 	self MoveR: t0 R: TempReg.
-	backEnd saveAndRestoreLinkRegAround: [
-		self CallRT: ceStoreCheckTrampoline ].
+	backEnd saveAndRestoreLinkRegAround: [ self CallRT: ceStoreCheckTrampoline ].
 	currentBlock := self Label.
 	jump7 jmpTarget: currentBlock.
 	jump6 jmpTarget: currentBlock.
@@ -211,19 +200,13 @@ DruidTestRTLCompilerForTest >> gen_StoreAndPopReceiverVariableBytecode1 [
 	live := 0.
 	self annotateBytecode: self Label.
 	self ensureReceiverResultRegContainsSelf.
-	t0 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t0 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
 	self MoveR: ReceiverResultReg R: t0.
-	t1 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t1 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t1).
 	(self ssValue: 0) copyToReg: t1.
-	t2 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t2 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t2).
 	self MoveM64: 0 r: t0 R: t2.
 	self LogicalShiftRightCq: 23 R: t2.
@@ -266,8 +249,7 @@ DruidTestRTLCompilerForTest >> gen_StoreAndPopReceiverVariableBytecode1 [
 	self CmpCq: 0 R: t2.
 	jump7 := self JumpNonZero: 0.
 	self MoveR: t0 R: TempReg.
-	backEnd saveAndRestoreLinkRegAround: [
-		self CallRT: ceStoreCheckTrampoline ].
+	backEnd saveAndRestoreLinkRegAround: [ self CallRT: ceStoreCheckTrampoline ].
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	jump3 jmpTarget: currentBlock.
@@ -298,8 +280,7 @@ DruidTestRTLCompilerForTest >> gen_StoreAndPopReceiverVariableBytecode1 [
 	self CmpCq: s48 R: t1.
 	jump3 := self JumpBelow: 0.
 	self MoveR: t0 R: TempReg.
-	backEnd saveAndRestoreLinkRegAround: [
-		self CallRT: ceStoreCheckTrampoline ].
+	backEnd saveAndRestoreLinkRegAround: [ self CallRT: ceStoreCheckTrampoline ].
 	currentBlock := self Label.
 	jump7 jmpTarget: currentBlock.
 	jump6 jmpTarget: currentBlock.
@@ -321,19 +302,13 @@ DruidTestRTLCompilerForTest >> gen_StoreAndPopReceiverVariableBytecode2 [
 	live := 0.
 	self annotateBytecode: self Label.
 	self ensureReceiverResultRegContainsSelf.
-	t0 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t0 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
 	self MoveR: ReceiverResultReg R: t0.
-	t1 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t1 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t1).
 	(self ssValue: 0) copyToReg: t1.
-	t2 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t2 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t2).
 	self MoveM64: 0 r: t0 R: t2.
 	self LogicalShiftRightCq: 23 R: t2.
@@ -376,8 +351,7 @@ DruidTestRTLCompilerForTest >> gen_StoreAndPopReceiverVariableBytecode2 [
 	self CmpCq: 0 R: t2.
 	jump7 := self JumpNonZero: 0.
 	self MoveR: t0 R: TempReg.
-	backEnd saveAndRestoreLinkRegAround: [
-		self CallRT: ceStoreCheckTrampoline ].
+	backEnd saveAndRestoreLinkRegAround: [ self CallRT: ceStoreCheckTrampoline ].
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	jump3 jmpTarget: currentBlock.
@@ -408,8 +382,7 @@ DruidTestRTLCompilerForTest >> gen_StoreAndPopReceiverVariableBytecode2 [
 	self CmpCq: s48 R: t1.
 	jump3 := self JumpBelow: 0.
 	self MoveR: t0 R: TempReg.
-	backEnd saveAndRestoreLinkRegAround: [
-		self CallRT: ceStoreCheckTrampoline ].
+	backEnd saveAndRestoreLinkRegAround: [ self CallRT: ceStoreCheckTrampoline ].
 	currentBlock := self Label.
 	jump7 jmpTarget: currentBlock.
 	jump6 jmpTarget: currentBlock.
@@ -431,19 +404,13 @@ DruidTestRTLCompilerForTest >> gen_StoreAndPopReceiverVariableBytecode3 [
 	live := 0.
 	self annotateBytecode: self Label.
 	self ensureReceiverResultRegContainsSelf.
-	t0 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t0 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
 	self MoveR: ReceiverResultReg R: t0.
-	t1 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t1 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t1).
 	(self ssValue: 0) copyToReg: t1.
-	t2 := self
-		      allocateRegNotConflictingWith: live
-		      ifNone: [ ^ self unknownBytecode ].
+	t2 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t2).
 	self MoveM64: 0 r: t0 R: t2.
 	self LogicalShiftRightCq: 23 R: t2.
@@ -486,8 +453,7 @@ DruidTestRTLCompilerForTest >> gen_StoreAndPopReceiverVariableBytecode3 [
 	self CmpCq: 0 R: t2.
 	jump7 := self JumpNonZero: 0.
 	self MoveR: t0 R: TempReg.
-	backEnd saveAndRestoreLinkRegAround: [
-		self CallRT: ceStoreCheckTrampoline ].
+	backEnd saveAndRestoreLinkRegAround: [ self CallRT: ceStoreCheckTrampoline ].
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
 	jump3 jmpTarget: currentBlock.
@@ -518,8 +484,7 @@ DruidTestRTLCompilerForTest >> gen_StoreAndPopReceiverVariableBytecode3 [
 	self CmpCq: s48 R: t1.
 	jump3 := self JumpBelow: 0.
 	self MoveR: t0 R: TempReg.
-	backEnd saveAndRestoreLinkRegAround: [
-		self CallRT: ceStoreCheckTrampoline ].
+	backEnd saveAndRestoreLinkRegAround: [ self CallRT: ceStoreCheckTrampoline ].
 	currentBlock := self Label.
 	jump7 jmpTarget: currentBlock.
 	jump6 jmpTarget: currentBlock.
