@@ -170,15 +170,22 @@ DRDominatorTree >> dominanceFrontierOf: aBlock [
 { #category : #querying }
 DRDominatorTree >> dominatorOfAll: instructions [
 
-	| firstNode |
-	firstNode := self blockDictionary at: instructions first basicBlock.
+	^ self dominatorOfAllBlocks:
+		  (instructions collect: [ :i | i basicBlock ])
+]
 
-	^ instructions allButFirst
+{ #category : #querying }
+DRDominatorTree >> dominatorOfAllBlocks: blocks [
+
+	| firstNode |
+	firstNode := self blockDictionary at: blocks first.
+
+	^ blocks allButFirst
 		  inject: firstNode
-		  into: [ :dominator :instruction |
+		  into: [ :dominator :basicBlock |
 			  self
 				  nearestCommonAncestorOf: dominator
-				  and: (self blockDictionary at: instruction basicBlock) ]
+				  and: (self blockDictionary at: basicBlock) ]
 ]
 
 { #category : #querying }

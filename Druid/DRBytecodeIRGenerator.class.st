@@ -360,7 +360,7 @@ DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSp
 				        argumentCount asDRValue.
 				        sendTableName asDRValue }.
 	send addBefore: (marshall := DRCogitSendMarshall send: send).
-	marshall addBefore: controlFlowGraph instructionFactory flushStack.
+	"marshall addBefore: controlFlowGraph instructionFactory flushStack."
 
 	"If all arguments pass on registers, then we need to pop them from the stack, but the marshall already unspill them if spilled"
 	argumentCount simpleConstantFold asDRValue isConstant

@@ -45,24 +45,26 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector optio
 	"First generate druid code"
 	self interpreter currentBytecode: bytecode.
 	compiler := DRBytecodeCompilerCompiler new
-		sourceName: aSelector;
-		interpreter: self interpreter;
-		configureForCompilerClass: DruidTestRTLCompiler;
-		addCompilerOptions: options.
+		            bytecodes: { (bytecode -> aSelector) };
+		            interpreter: self interpreter;
+		            configureForCompilerClass: DruidTestRTLCompiler;
+		            addCompilerOptions: options.
 
 	compiler compile.
 	"Then generate the machine code for that method"
-	cogInitialAddress := self compile: [
-		cogit needsFrame: true.
-		cogit byte0: bytecode.
-		cogit methodOrBlockNumArgs: 3. "Hack"
-		cogit methodOrBlockNumTemps: 2. "Hack"
-		"Initialize the simulated stack"
-		cogit initSimStackForFramefulMethod: 2.
-		cogit zeroOpcodeIndexForNewOpcodes.
-		
-		aBlock value: [ cogit perform: generatorSelector ].
-	] bytecodes: 100
+	cogInitialAddress := self
+		                     compile: [
+			                     cogit needsFrame: true.
+			                     cogit byte0: bytecode.
+			                     cogit methodOrBlockNumArgs: 3. "Hack"
+			                     cogit methodOrBlockNumTemps: 2. "Hack"
+			                     "Initialize the simulated stack"
+			                     cogit initSimStackForFramefulMethod: 2.
+			                     cogit zeroOpcodeIndexForNewOpcodes.
+
+			                     aBlock value: [
+				                     cogit perform: generatorSelector ] ]
+		                     bytecodes: 100
 ]
 
 { #category : #tests }

@@ -114,36 +114,9 @@ DRAbstractCompilerCompiler >> generateDruidIR [
 ]
 
 { #category : #'generation-IR' }
-DRAbstractCompilerCompiler >> generateDruidIRFor: method [
-	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
+DRAbstractCompilerCompiler >> generateDruidIRFor: compiledMethod [
 
-	| cfg receiver annotatedArgNums aMethod |
-	self initializeIRBuilder: irGenerator.
-	receiver := DRInterpreterValue value: interpreter.
-	aMethod := DRMethod methodNode: method ast.
-
-	annotatedArgNums := self numberOfArgumentsForMethod: method.
-
-	annotatedArgNums isNumber
-		ifTrue: [
-			self
-				interpretMethod: aMethod
-				receiver: receiver
-				numArgs: annotatedArgNums ]
-		ifFalse: [
-			self
-				interpretMethod: aMethod
-				receiver: receiver
-				ManyNumArgs: annotatedArgNums ].
-
-
-	cfg := irGenerator ir.
-	"Clean garbage to generate a valid CFG"
-	DRDeadBlockElimination new applyTo: cfg.
-	DRDeadCodeElimination new applyTo: cfg.
-	cfg validate.
-
-	^ cfg
+	^ self generateDruidIRForAll: { compiledMethod }
 ]
 
 { #category : #'generation-IR' }

@@ -93,8 +93,8 @@ DRBytecodeObject >> compileUnitUsing: aCompiler [
 	self bytecodeNumberStart to: self bytecodeNumberEnd do: [ :e |
 		interpreter currentBytecode: e.
 		DRBytecodeCompilerCompiler new
+			bytecodes: { (e -> self sourceSelector) };
 			targetName: self genSelector;
-			sourceName: self sourceSelector;
 			interpreter: interpreter;
 			configureForCompilerClass: aCompiler targetClass;
 			addCompilerOptions: aCompiler compilerOptions;

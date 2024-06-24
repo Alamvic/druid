@@ -39,6 +39,12 @@ DRJITMessageSend >> isSpecialSelectorSend [
 	^ operands last value
 ]
 
+{ #category : #testing }
+DRJITMessageSend >> needsStackFlush [
+
+	^ true
+]
+
 { #category : #accessing }
 DRJITMessageSend >> numberOfArguments [
 	

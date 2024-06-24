@@ -147,7 +147,7 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 		doFailOnFirst;
 		selectPrimitives: [ :e | false "primitives includes: e selector" ];
 		selectBytecodes: [ :e |
-			(e bytecodeNumberStart between: 0 and: 96) and: [
+			(e bytecodeNumberStart between: 0 and: 255) and: [
 					bytecodes includes: e bytecodeNumberStart ] ];
 		targetClass: targetClass;
 		targetSuperclass: aSuperclass;

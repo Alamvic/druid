@@ -1,7 +1,7 @@
 Class {
 	#name : #DRCogitStackToRegisterFlushHoisting,
 	#superclass : #DROptimisation,
-	#category : #'Druid-BytecodeToJITCompilation'
+	#category : #'Druid-Cogit'
 }
 
 { #category : #accessing }
@@ -9,7 +9,7 @@ DRCogitStackToRegisterFlushHoisting >> applyTo: cfg [
 	"Insert a flush stack instruction in the common dominator of all those instructions that require stack flushing.
 	Explain why we need to hoist it."
 
-	| dominator instructionsNeedingStackFlush instructionDominatorPath targetBlock |
+	| dominator instructionsNeedingStackFlush targetBlock |
 	instructionsNeedingStackFlush := OrderedCollection new.
 	cfg instructionsDo: [ :e |
 		e needsStackFlush ifTrue: [ instructionsNeedingStackFlush add: e ] ].
@@ -19,28 +19,30 @@ DRCogitStackToRegisterFlushHoisting >> applyTo: cfg [
 
 	"Find the blocks that will be executed always"
 	cfg invalidateDominatorTree.
-	instructionDominatorPath := cfg dominatorTree dominatorPathToRoot: cfg lastBasicBlock.
-
 	"We have to find the dominator of all instructions..."
-	dominator := (cfg dominatorTree dominatorOfAll:
-		              instructionsNeedingStackFlush) block.
+	dominator := cfg dominatorTree dominatorOfAllBlocks:
+		             (instructionsNeedingStackFlush collect: [ :e |
+			              e basicBlock ]) , { cfg exitBasicBlock }.
+
 	"... and add the flush to the closest dominator in the path to the end"
-	targetBlock := instructionDominatorPath reversed detect: [ :block |
-		               dominator isDominatedBy: block ].
+	targetBlock := dominator block.
 
 	"BUT! If the target block has a conditional staged, we must follow the linearization at runtime"
-	[ targetBlock ~= dominator and: [ targetBlock endInstruction isStaged ] ]
-		whileTrue: [
-			targetBlock := targetBlock successors detect: [ :succ |
-				               dominator isDominatedBy: succ ] ].
+	[
+	targetBlock ~= dominator block and: [
+		targetBlock endInstruction isStaged ] ] whileTrue: [
+		targetBlock := targetBlock successors detect: [ :succ |
+			               dominator block isDominatedBy: succ ] ].
 
 	"If only one instruction requires to flush and it is in the target block, 
 		the add it just before the instruction"
 	(instructionsNeedingStackFlush size = 1 and: [
-		 instructionsNeedingStackFlush first basicBlock = targetBlock ]) ifTrue: [
-			instructionsNeedingStackFlush first addBefore: cfg instructionFactory flushStack.
+		 instructionsNeedingStackFlush first basicBlock = targetBlock ])
+		ifTrue: [
+			instructionsNeedingStackFlush first basicBlock addInstructionFirst:
+				cfg instructionFactory flushStack.
 			^ self ].
 
 	"Add the flush at the end of the target block"
-	targetBlock addInstruction: dominator instructionFactory flushStack
+	targetBlock addInstruction: targetBlock instructionFactory flushStack
 ]
