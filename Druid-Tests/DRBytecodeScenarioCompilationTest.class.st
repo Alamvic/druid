@@ -255,7 +255,7 @@ DRBytecodeScenarioCompilationTest >> testSuperInstructionCompilation [
 	
 	returns := compiledMethod ast allChildren select: [ :n | n isReturn ].
 	self assert: returns size equals: 2.
-	self assert: returns first value selector equals:  #gen_pushConstantTrueBytecode_returnTopFromMethod
+	self assert: returns first value selector equals:  #gen_pushConstantTrueBytecode_returnTopFromMethod_1
 
 
 ]
