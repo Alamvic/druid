@@ -30,13 +30,6 @@ DRPush >> postCopy [
 		self operand1: self operand1 copy ]
 ]
 
-{ #category : #removing }
-DRPush >> removeFromCFG [ 
-
-	self halt.
-	super removeFromCFG 
-]
-
 { #category : #'users-definitions' }
 DRPush >> replaceDependency: anOperand by: anotherOperand [
 
