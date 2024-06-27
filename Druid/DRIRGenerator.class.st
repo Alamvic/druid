@@ -54,6 +54,8 @@ DRIRGenerator >> addFrameReturn: aDRStackFrame [
 DRIRGenerator >> addInstruction: instruction from: aNode [
 
 	instruction origin: thisContext sender stack.
+	instruction needsStackFlush ifTrue: [
+		self currentBasicBlock flushStack ].
 	self currentBasicBlock addInstruction: instruction.
 	instruction originAST: aNode.
 	self pushOperand: instruction.

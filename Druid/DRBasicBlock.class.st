@@ -401,6 +401,18 @@ DRBasicBlock >> floatFromBits: aValue [
 	^ self addInstruction: (self instructionFactory floatFromBits: aValue)
 ]
 
+{ #category : #building }
+DRBasicBlock >> flushStack [
+
+	^ self addInstruction: self instructionFactory flushStack
+]
+
+{ #category : #building }
+DRBasicBlock >> flushStackExceptTop: n [
+
+	^ self addInstruction: (self instructionFactory flushStackExceptTop: n)
+]
+
 { #category : #accessing }
 DRBasicBlock >> forwardPredecessors [
 	

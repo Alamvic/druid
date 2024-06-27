@@ -66,14 +66,14 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 
 	| primitives bytecodes |
 	primitives := #( #primitiveAdd #primitiveSubtract #primitiveMultiply
-	                 ')' expected -> #primitiveDivide #primitiveMod
-	                 #primitiveLessThan #primitiveLessOrEqual
-	                 #primitiveGreaterThan #primitiveGreaterOrEqual
-	                 #primitiveEqual #primitiveNotEqual
-	                 #primitiveIdentical #primitiveNotIdentical
-	                 #primitiveDiv #primitiveQuo primitiveBitShift
-	                 primitiveBitAnd primitiveBitXor primitiveBitOr
-	                 primitiveSmallFloatAdd primitiveSmallFloatSubtract
+	                 #primitiveDivide #primitiveMod #primitiveLessThan
+	                 #primitiveLessOrEqual #primitiveGreaterThan
+	                 #primitiveGreaterOrEqual #primitiveEqual
+	                 #primitiveNotEqual #primitiveIdentical
+	                 #primitiveNotIdentical #primitiveDiv #primitiveQuo
+	                 primitiveBitShift primitiveBitAnd primitiveBitXor
+	                 primitiveBitOr primitiveSmallFloatAdd
+	                 primitiveSmallFloatSubtract
 	                 #primitiveSmallFloatMultiply
 	                 primitiveSmallFloatDivide primitiveSmallFloatEqual
 	                 primitiveSmallFloatNotEqual
@@ -145,7 +145,9 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
-		selectPrimitives: [ :e | false "primitives includes: e selector" ];
+		selectPrimitives: [ :e |
+			((primitives indexOf: e selector) between: 0 and: 54) and: [
+					primitives includes: e selector ] ];
 		selectBytecodes: [ :e |
 			(e bytecodeNumberStart between: 0 and: 255) and: [
 					bytecodes includes: e bytecodeNumberStart ] ];

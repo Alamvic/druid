@@ -99,7 +99,13 @@ DRInstructionFactory >> floatFromBits: operand1 [
 { #category : #factory }
 DRInstructionFactory >> flushStack [
 
-	^ DRFlushStack operands: #(  ) result: DRNoRegister new
+	^ self flushStackExceptTop: 0
+]
+
+{ #category : #factory }
+DRInstructionFactory >> flushStackExceptTop: n [
+
+	^ DRFlushStack operands: { n } result: DRNoRegister new
 ]
 
 { #category : #factory }
