@@ -328,12 +328,6 @@ DRCogitOperandSorter >> visitPop: aDRPop [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitPopMany: aDRPopMany [ 
-	
-	"Nothing"
-]
-
-{ #category : #visiting }
 DRCogitOperandSorter >> visitPush: aDRPush [ 
 	
 	"Nothing"
@@ -395,4 +389,10 @@ DRCogitOperandSorter >> visitUnsignedRightShift: aDRRightShift [
 	"Shift is not commutative!
 	=> extract its first operand into a copy instruction"
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRRightShift
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitUnspillStackSlot: aDRUnspillStackSlot [ 
+	
+	"Nothing"
 ]

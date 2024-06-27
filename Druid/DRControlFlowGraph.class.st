@@ -3,7 +3,6 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'initialBasicBlock',
-		'exitBasicBlock',
 		'initialConstraint',
 		'basicBlocks',
 		'nextBasicBlockId',
@@ -209,7 +208,7 @@ DRControlFlowGraph >> blockById: anInteger [
 { #category : #iterating }
 DRControlFlowGraph >> blocks [
 
-	^ basicBlocks
+	^ basicBlocks copyWithAll: { initialBasicBlock }
 ]
 
 { #category : #accessing }
@@ -223,7 +222,7 @@ DRControlFlowGraph >> blocksBetween: sourceBlock and: destinationBlock [
 { #category : #iterating }
 DRControlFlowGraph >> blocksDo: aFullBlockClosure [ 
 
-	basicBlocks do: aFullBlockClosure
+	self blocks do: aFullBlockClosure
 ]
 
 { #category : #iterating }
@@ -279,7 +278,7 @@ DRControlFlowGraph >> clearEdges [
 DRControlFlowGraph >> configureVisualization: view [
 
 	| blockViews controller |
-	blockViews := self blocks collect: [ :b | self createBlockView: b. ].
+	blockViews := self blocks collect: [ :b | self createBlockView: b ].
 
 	view addAll: blockViews.
 	self showLines: blockViews in: view.
@@ -292,8 +291,8 @@ DRControlFlowGraph >> configureVisualization: view [
 	self showInfoIn: view.
 
 	controller := RSCanvasController new
-		noLegend;
-		yourself.
+		              noLegend;
+		              yourself.
 
 	view @ controller
 ]
@@ -413,16 +412,19 @@ DRControlFlowGraph >> edgesFrom: sourceBlock to: destinationBlock [
 	^ (self outgoingEdgesFor: sourceBlock) select: [ :e | e destination = destinationBlock ]
 ]
 
-{ #category : #accessing }
+{ #category : #testing }
 DRControlFlowGraph >> exitBasicBlock [
-
-	^ exitBasicBlock
+	
+	| theExitBlocks |
+	theExitBlocks := self exitBasicBlocks.
+	theExitBlocks size > 1 ifTrue: [ self error: 'This CFG has more than one exit basic block' ].
+	^ theExitBlocks anyOne
 ]
 
-{ #category : #accessing }
-DRControlFlowGraph >> exitBasicBlock: anObject [
+{ #category : #testing }
+DRControlFlowGraph >> exitBasicBlocks [
 
-	exitBasicBlock := anObject
+	^ self blocks select: [ :b | b hasSuccessors not ]
 ]
 
 { #category : #accessing }
@@ -516,8 +518,7 @@ DRControlFlowGraph >> initialize [
 	"How many spill slots we need in memory to execute the compiled method"
 	numberOfSpillSlots := 0.
 
-	nextBasicBlockId := -1.
-	exitBasicBlock := self privateNewBasicBlock.
+	nextBasicBlockId := 0.
 	initialBasicBlock := self privateNewBasicBlock
 ]
 
@@ -716,6 +717,40 @@ DRControlFlowGraph >> privateNewBasicBlock [
 	newBlock := DRBasicBlock id: self allocateBasicBlockID.
 	newBlock controlFlowGraph: self.
 	^ newBlock
+]
+
+{ #category : #building }
+DRControlFlowGraph >> rebuildStackDependencies [
+
+	| lastStackInstructionPerBlock incomingStackInstructions blocks |
+	lastStackInstructionPerBlock := Dictionary new.
+
+	blocks := self reversePostOrderBlocks.
+
+	[ blocks isEmpty ] whileFalse: [ | e previousDependencies |
+		e := blocks removeFirst.
+		incomingStackInstructions := e predecessors
+			                             flatCollect: [ :p |
+			                             lastStackInstructionPerBlock
+				                             at: p
+				                             ifAbsent: [ #(  ) ] ]
+			                             as: Set.
+		e instructions do: [ :i |
+			i isStackInstruction ifTrue: [ | thisIncomingStackInstructions |
+				i clearStackDependencies.
+				thisIncomingStackInstructions := incomingStackInstructions select: [ :d | (d stackEffectDependencies includes: i) not ].
+				i stackDependencies: thisIncomingStackInstructions.
+				thisIncomingStackInstructions do: [ :s | s addStackDependent: i ].
+				incomingStackInstructions := { i } ] ].
+
+		previousDependencies := lastStackInstructionPerBlock
+			                        at: e
+			                        ifAbsent: [ Set new ].
+		previousDependencies ~= incomingStackInstructions ifTrue: [
+			lastStackInstructionPerBlock at: e put: incomingStackInstructions.
+			e successors do: [ :succ | 
+				(blocks includes: succ)
+					ifFalse: [ blocks add: succ ] ] ] ].
 ]
 
 { #category : #removing }

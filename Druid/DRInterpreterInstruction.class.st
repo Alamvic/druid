@@ -69,7 +69,9 @@ DRInterpreterInstruction >> sourceMethod: anObject [
 { #category : #accessing }
 DRInterpreterInstruction >> sourceSelector [
 
-	^ self sourceMethod selector
+	^ self sourceMethod
+		  ifNil: [ self notSupportedSelector ]
+		  ifNotNil: [ :m | m selector ]
 ]
 
 { #category : #accessing }

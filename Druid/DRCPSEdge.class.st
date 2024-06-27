@@ -282,6 +282,12 @@ DRCPSEdge >> visitClosureCreation: aDRClosureCreation [
 ]
 
 { #category : #visiting }
+DRCPSEdge >> visitCogitSendMarshall: aDRCogitSendMarshall [ 
+	
+	^ nil
+]
+
+{ #category : #visiting }
 DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
 	| operands constantValue |
@@ -626,12 +632,6 @@ DRCPSEdge >> visitPop: aDRPop [
 ]
 
 { #category : #visiting }
-DRCPSEdge >> visitPopMany: aDRPopMany [ 
-	
-	^ nil
-]
-
-{ #category : #visiting }
 DRCPSEdge >> visitPush: aDRPush [ 
 	
 	^ nil
@@ -708,5 +708,11 @@ DRCPSEdge >> visitUnsignedCoercion: aDRUnsignedCoercion [
 { #category : #visiting }
 DRCPSEdge >> visitUnsignedRightShift: aDRRightShift [ 
 
+	^ nil
+]
+
+{ #category : #visiting }
+DRCPSEdge >> visitUnspillStackSlot: aDRUnspillStackSlot [ 
+	
 	^ nil
 ]

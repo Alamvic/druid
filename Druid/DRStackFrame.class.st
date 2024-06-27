@@ -6,7 +6,6 @@ Class {
 		'method',
 		'irGenerator',
 		'entryBasicBlock',
-		'exitBasicBlock',
 		'operandStack',
 		'temporaries',
 		'mirrorFrame',
@@ -70,17 +69,6 @@ DRStackFrame >> entryBasicBlock [
 DRStackFrame >> entryBasicBlock: anObject [
 
 	entryBasicBlock := anObject
-]
-
-{ #category : #accessing }
-DRStackFrame >> exitBasicBlock [
-	^ exitBasicBlock
-]
-
-{ #category : #accessing }
-DRStackFrame >> exitBasicBlock: aDRBasicBlock [
-
-	exitBasicBlock := aDRBasicBlock
 ]
 
 { #category : #temporaries }

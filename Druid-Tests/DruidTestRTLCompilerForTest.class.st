@@ -71,6 +71,7 @@ DruidTestRTLCompilerForTest >> gen_PrimitiveAdd [
 	self genPrimReturn.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
+	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	^ 0
 ]

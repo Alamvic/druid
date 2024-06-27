@@ -63,7 +63,7 @@ DRDeadCodeElimination >> canBeAppliedIn: aDRControlFlowGraph [
 { #category : #operations }
 DRDeadCodeElimination >> dependenciesOf: anInstruction [
 	
-	^ anInstruction dependencies select: [ :op | op isInstruction ]
+	^ anInstruction dataDependencies select: [ :op | op isInstruction ]
 ]
 
 { #category : #operations }

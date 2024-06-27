@@ -253,5 +253,5 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationWithFarAwayPhiFunctio
 
 	cfg applyOptimisation: optimisation.
 	
-	self assertCollection: cfg blocks hasSameElements: { b0 . b4 }
+	self assertCollection: cfg blocks hasSameElements: { b0 . b4 . cfg initialBasicBlock }
 ]

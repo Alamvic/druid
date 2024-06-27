@@ -11,7 +11,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'compilationUnit',
-		'interpreterClass'
+		'interpreterClass',
+		'compilerOptions'
 	],
 	#category : #'Druid-CompilerBuilder'
 }
@@ -36,6 +37,17 @@ DRAbstractCompilerBuilder >> compilationUnitClass [
 ]
 
 { #category : #accessing }
+DRAbstractCompilerBuilder >> compilerOptions [
+	^ compilerOptions
+]
+
+{ #category : #options }
+DRAbstractCompilerBuilder >> compilerOptions: aCollection [ 
+	
+	compilerOptions := aCollection
+]
+
+{ #category : #accessing }
 DRAbstractCompilerBuilder >> environmentAt: aClass [
 	"Answer the class named aClass. Create if it doesn't exist"
 
@@ -55,6 +67,13 @@ DRAbstractCompilerBuilder >> environmentAt: aClass [
 { #category : #private }
 DRAbstractCompilerBuilder >> handleErrorDuring: aFullBlockClosure [ 
 	self shouldBeImplemented.
+]
+
+{ #category : #initialization }
+DRAbstractCompilerBuilder >> initialize [
+
+	super initialize.
+	compilerOptions := #(  )
 ]
 
 { #category : #accessing }

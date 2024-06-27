@@ -17,5 +17,6 @@ DRCogitBytecodeCodeGenerator >> visitFlushStack: aDRFlushStack [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #ssFlushStack)
+			 selector: #ssFlushStackExceptTop:
+			 arguments: { (RBLiteralValueNode value: aDRFlushStack operand1 value) })
 ]

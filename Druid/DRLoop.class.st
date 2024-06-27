@@ -36,9 +36,11 @@ DRLoop >> backJump: aBackJump [
 DRLoop >> blocks [
 
 	| loopGraphBlocks |
-	loopGraphBlocks := self loopGraph blocks.
+	loopGraphBlocks := self controlFlowGraph
+		                   blocksBetween: self headerBlock
+		                   and: self latchBlock.
 	"The loop graph contains copies of the complete graph's blocks. Return the original blocks"
-	^ self controlFlowGraph blocks select: [ :b | 
+	^ self controlFlowGraph blocks select: [ :b |
 		  loopGraphBlocks anySatisfy: [ :loopBlock | b id = loopBlock id ] ]
 ]
 
@@ -231,7 +233,8 @@ DRLoop >> loopConditional [
 DRLoop >> loopGraph [
 
 	^ self controlFlowGraph
-		  subgraphBetween: self headerBlock and: self latchBlock
+		  blocksBetween: self headerBlock
+		  and: self latchBlock
 ]
 
 { #category : #'cfg manipulation' }

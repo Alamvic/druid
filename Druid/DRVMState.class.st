@@ -74,6 +74,8 @@ DRVMState >> addTo: aDRVMState depth: maxVMStackDepth [
 	primitiveFailureCode ifNotNil: [ 
 		"Only valid for primitives"
 		aDRVMState addPrimitiveFailureCode: primitiveFailureCode ].
+
+	aDRVMState lastStackInstructions: (aDRVMState lastStackInstructions copyWithAll: self lastStackInstructions).
 ]
 
 { #category : #merging }
@@ -98,7 +100,8 @@ DRVMState >> completeOperandStackUpTo: anInteger do: aBlockValue [
 DRVMState >> initialize [
 	super initialize.
 	
-	operandStack := Stack new
+	operandStack := Stack new.
+	lastStackInstruction := #()
 ]
 
 { #category : #initialization }
@@ -127,7 +130,22 @@ DRVMState >> lastStackInstruction [
 { #category : #accessing }
 DRVMState >> lastStackInstruction: aDRStackInstruction [
 
-	lastStackInstruction := aDRStackInstruction
+	self haltIf: [ aDRStackInstruction isStackInstruction not ].
+
+	lastStackInstruction := {aDRStackInstruction}
+]
+
+{ #category : #accessing }
+DRVMState >> lastStackInstructions [
+
+	^ lastStackInstruction
+]
+
+{ #category : #accessing }
+DRVMState >> lastStackInstructions: aCollectionOfStackInstructions [
+
+	self haltIf: [ aCollectionOfStackInstructions anySatisfy: [ :e | e isStackInstruction not ] ].
+	lastStackInstruction := aCollectionOfStackInstructions
 ]
 
 { #category : #accessing }

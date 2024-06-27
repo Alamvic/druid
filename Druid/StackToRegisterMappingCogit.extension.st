@@ -13,9 +13,10 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 	optimisations := OrderedCollection new.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
 
+	optimisations add: DRCogitStackCoalescing new.
 	4 timesRepeat: [
 		optimisations add: DRBranchCollapse new.
-		optimisations add: DRFailureCodeBasedTailDuplication new.
+		"optimisations add: DRFailureCodeBasedTailDuplication new."
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
 		optimisations add: (DRPhiSimplication then: DRCopyPropagation).
 		optimisations add: DRCogitStackCanonicaliser new.
@@ -24,7 +25,7 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 		optimisations add: DRCleanControlFlow new.
 
 		optimisations add: DRCleanStackInstructions new.
-		
+
 		optimisations add:
 			(DRDeadEdgeSplitting then: DRDeadBranchElimination).
 		optimisations add: (DRPhiSimplication then: DRCopyPropagation) ].
@@ -34,8 +35,7 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 	optimisations add: DRCogitOperandSorter new.
 	optimisations add: DRCogitStager new.
 	optimisations add: DRCogitOperandSorter new.
-	
-	optimisations add: DRCogitSendMarshallInsertion new.
+
 	optimisations add: DRCogitStackToRegisterFlushHoisting new.
 	optimisations add: DRDeadCodeElimination new.
 	^ optimisations

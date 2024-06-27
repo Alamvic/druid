@@ -1,6 +1,6 @@
 Class {
 	#name : #DRPop,
-	#superclass : #DRStackInstruction,
+	#superclass : #DRStackEffect,
 	#category : #'Druid-BytecodeToJITCompilation'
 }
 
@@ -11,21 +11,21 @@ DRPop >> acceptVisitor: aVisitor [
 ]
 
 { #category : #testing }
-DRPop >> isMandatoryInstruction [
-
-	^ true
-]
-
-{ #category : #testing }
 DRPop >> isPop [
 	
 	^ true
 ]
 
+{ #category : #testing }
+DRPop >> isUnspilled [
+	
+	^ operands second value
+]
+
 { #category : #accessing }
 DRPop >> numberOfPoppedElements [
 	
-	^ 1
+	^ self operand1 value
 ]
 
 { #category : #printing }
@@ -46,4 +46,20 @@ DRPop >> size [
 	"Popped memory size"
 	
 	^ 8 "bytes"
+]
+
+{ #category : #accessing }
+DRPop >> stackDelta [
+	
+	"If I don't pop, my dependants should add one to their stack indexes"
+	^ 1
+]
+
+{ #category : #testing }
+DRPop >> stackDepth [
+	"Return the stack depth left on the stack after applying this operation.
+	Pop will remove one element from the stack depth of the previous stack instruction"
+
+	stackDependencies ifEmpty: [ ^ -1 ].
+	^ stackDependencies anyOne stackDepth - 1
 ]

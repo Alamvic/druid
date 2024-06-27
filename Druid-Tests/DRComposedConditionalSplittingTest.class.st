@@ -34,7 +34,7 @@ DRComposedConditionalSplittingTest >> testSplitAnd [
 	
 	cfg applyOptimisation: optimisation.
 
-	newBlock := cfg blocks last.
+	newBlock := jump trueBranch.
 	newJump := newBlock endInstruction.
 	
 	self assert: jump operand1 equals: composedCondition operand1.
@@ -60,9 +60,9 @@ DRComposedConditionalSplittingTest >> testSplitMultipleComposedCondition [
 
 	cfg applyOptimisation: optimisation.
 
-	newBlock1 := cfg blocks allButLast last.
+	newBlock1 := jump trueBranch endInstruction trueBranch.
 	newJump1 := newBlock1 endInstruction.
-	newBlock2 := cfg blocks last.
+	newBlock2 := jump trueBranch.
 	newJump2 := newBlock2 endInstruction.
 
 	self assert: jump operand1 equals: composedCondition operand1 operand1.
@@ -91,9 +91,9 @@ DRComposedConditionalSplittingTest >> testSplitMultipleComposedConditionLeftAsso
 
 	cfg applyOptimisation: optimisation.
 
-	newBlock1 := cfg blocks last.
+	newBlock1 := jump trueBranch.
 	newJump1 := newBlock1 endInstruction.
-	newBlock2 := cfg blocks allButLast last.
+	newBlock2 := jump trueBranch endInstruction trueBranch.
 	newJump2 := newBlock2 endInstruction.
 
 	self assert: jump operand1 equals: composedCondition operand1 operand1.
@@ -122,7 +122,7 @@ DRComposedConditionalSplittingTest >> testSplitOr [
 
 	cfg applyOptimisation: optimisation.
 
-	newBlock := cfg blocks last.
+	newBlock := jump falseBranch.
 	newJump := newBlock endInstruction.
 	
 	self assert: jump operand1 equals: composedCondition operand1.

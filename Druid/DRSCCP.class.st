@@ -194,7 +194,7 @@ DRSCCP >> latticeForLoad: aDRLoad [
 DRSCCP >> latticeValue: aValue [
 	"Return the lattice value for the register"
 
-	(aValue isRegister and: [ aValue isVirtualRegister not ]) ifTrue: [
+	(aValue isRegister and: [ aValue isSSARegister not ]) ifTrue: [
 		^ self bottom ].
 
 	aValue isConstant ifTrue: [ ^ aValue ].

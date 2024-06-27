@@ -25,14 +25,17 @@ DRLoopTest >> setUp [
 DRLoopTest >> testCanRetrieveLoopGraphWithIfs [
 
 	| cfg loop loopSubgraph loopBlocksIds |
-	cfg := self generateDruidIRFor: #primitiveLoopWithLoopInvariantInstructionInsideIf.
+	cfg := self generateDruidIRFor:
+		       #primitiveLoopWithLoopInvariantInstructionInsideIf.
 
 	loop := cfg allLoops first.
-	
+
 	loopSubgraph := loop loopGraph.
 
-	loopBlocksIds := { 6. 7. 8. 9 }.
-	self assertCollection: (loopSubgraph blocks collect: #id) hasSameElements: loopBlocksIds.
+	loopBlocksIds := { 5. 6. 7. 8 }.
+	self
+		assertCollection: (loopSubgraph collect: #id)
+		hasSameElements: loopBlocksIds
 ]
 
 { #category : #tests }
@@ -41,14 +44,16 @@ DRLoopTest >> testCanRetrieveLoopGraphWithMultipleBodyBlocks [
 	| cfg loop loopSubgraph loopBlocksIds loopBodyBlock |
 	cfg := self generateDruidIRFor: #primitiveLoopWithMultipleInvariants.
 
-	loopBodyBlock := cfg blockById: 7.
+	loopBodyBlock := cfg blockById: 6.
 	loopBodyBlock second breakBasicBlock.
 	loop := cfg allLoops anyOne.
-	
+
 	loopSubgraph := loop loopGraph.
 
-	loopBlocksIds := { 6. 12. 13 . 7 }.
-	self assertCollection: (loopSubgraph blocks collect: #id) hasSameElements: loopBlocksIds.
+	loopBlocksIds := { 5. 6. 12. 13 }.
+	self
+		assertCollection: (loopSubgraph collect: #id)
+		hasSameElements: loopBlocksIds
 ]
 
 { #category : #tests }
@@ -58,11 +63,13 @@ DRLoopTest >> testCanRetrieveLoopGraphWithNestedLoops [
 	cfg := self generateDruidIRFor: #primitiveNestedLoopWithInvariant.
 
 	outerLoop := cfg allLoops second.
-	
+
 	loopSubgraph := outerLoop loopGraph.
 
-	loopBlocksIds := { 6. 8. 9. 10 }.
-	self assertCollection: (loopSubgraph blocks collect: #id) hasSameElements: loopBlocksIds.
+	loopBlocksIds := { 5. 7. 8. 9 }.
+	self
+		assertCollection: (loopSubgraph collect: #id)
+		hasSameElements: loopBlocksIds
 ]
 
 { #category : #tests }
@@ -72,11 +79,13 @@ DRLoopTest >> testCanRetrieveLoopGraphWithSingleBodyBlock [
 	cfg := self generateDruidIRFor: #primitiveLoopWithInvariant.
 
 	loop := cfg allLoops anyOne.
-	
+
 	loopSubgraph := loop loopGraph.
 
-	loopBlocksIds := { 6. 7 }.
-	self assertCollection: (loopSubgraph blocks collect: #id) hasSameElements: loopBlocksIds.
+	loopBlocksIds := { 5. 6 }.
+	self
+		assertCollection: (loopSubgraph collect: #id)
+		hasSameElements: loopBlocksIds
 ]
 
 { #category : #tests }

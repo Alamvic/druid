@@ -23,7 +23,6 @@ DRLocalVariableInstructionScheluder >> shouldIgnore: aDRInstruction [
 { #category : #transformation }
 DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
 
-	| store |
 	self assert: aDRInstruction result isRegister.
 
 	aDRInstruction replaceUsesBy: (DRLoadTemporaryVariable operands: {

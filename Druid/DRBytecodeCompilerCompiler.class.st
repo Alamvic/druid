@@ -75,7 +75,7 @@ DRBytecodeCompilerCompiler >> generateDruidIR [
 { #category : #accessing }
 DRBytecodeCompilerCompiler >> newIRGenerator [
 
-	^ DRBytecodeIRGenerator new
+	^ DRBytecodeIRGenerator new compiler: self
 ]
 
 { #category : #'generation-IR' }

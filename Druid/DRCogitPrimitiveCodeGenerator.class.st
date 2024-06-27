@@ -16,12 +16,27 @@ DRCogitPrimitiveCodeGenerator >> copyRegister: sourceRegister to: destinationReg
 ]
 
 { #category : #'ir-to-ast' }
+DRCogitPrimitiveCodeGenerator >> linearizeBlocksInCFG: aControlFlowGraph [
+
+	| linearizedBlocks |
+	linearizedBlocks := super linearizeBlocksInCFG: aControlFlowGraph.
+
+	"Make sure the failure exit block is at the end, so it works as a fallthrough with the following bytecode"
+	linearizedBlocks removeAll: aControlFlowGraph failureExitBlocks.
+	linearizedBlocks addAllLast: aControlFlowGraph failureExitBlocks.
+
+	^ linearizedBlocks
+]
+
+{ #category : #'ir-to-ast' }
 DRCogitPrimitiveCodeGenerator >> returnNodeForCompiledMethod: aDRControlFlowGraph [
 
-	| primitiveFail isCompletePrimitive |
-	primitiveFail := aDRControlFlowGraph failureExitBlock instructions
-		                 unique.
-	isCompletePrimitive := primitiveFail operand1 value.
+	| isCompletePrimitive |
+	isCompletePrimitive := aDRControlFlowGraph failureExitBlocks
+		                       allSatisfy: [ :b |
+			                       | primitiveFail |
+			                       primitiveFail := b endInstruction.
+			                       primitiveFail operand1 value ].
 
 	isCompletePrimitive ifTrue: [
 		^ RBVariableNode named: 'CompletePrimitive' ].

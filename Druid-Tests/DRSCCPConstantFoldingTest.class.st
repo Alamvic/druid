@@ -7,8 +7,8 @@ Class {
 { #category : #assertions }
 DRSCCPConstantFoldingTest >> assertLastInstructionOf: cfg isCopyOf: instruction [
 
-	self assert: cfg instructions allButLast last isCopy.
-	self assert: cfg instructions allButLast last operand1 equals: instruction.
+	self assert: cfg instructions fourth isCopy.
+	self assert: cfg instructions fourth operand1 equals: instruction.
 ]
 
 { #category : #assertions }
@@ -40,9 +40,9 @@ DRSCCPConstantFoldingTest >> testConstantFoldingAddInSingleBasicBlock [
 	| cfg |
 	cfg := self testConstantFoldingOf: DRAdd between: 3 and: 4.
 
-	self assert: cfg instructions allButLast last isCopy.
+	self assert: cfg instructions third isCopy.
 	self
-		assert: cfg instructions allButLast last operand1
+		assert: cfg instructions third operand1
 		equals: 7 asDRValue
 ]
 
@@ -87,9 +87,9 @@ DRSCCPConstantFoldingTest >> testConstantFoldingBitAndInSingleBasicBlock [
 		       between: 2r0101010110
 		       and: 2r0101011111.
 
-	self assert: cfg instructions allButLast last isCopy.
+	self assert: cfg instructions third isCopy.
 	self
-		assert: cfg instructions allButLast last operand1
+		assert: cfg instructions third operand1
 		equals: 2r0101010110 asDRValue
 ]
 
@@ -199,7 +199,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingLoadConstant [
 	optimisation applyTo: cfg.
 
 	self assert: cfg instructions first isCopy.
-	self assert: cfg instructions allButLast last isLoad
+	self assert: cfg instructions second isLoad
 ]
 
 { #category : #tests }
@@ -211,10 +211,10 @@ DRSCCPConstantFoldingTest >> testConstantFoldingLoadJitCompileExpression [
 		       betweenOp: DRPointerType new
 		       and: self varJITExpression.
 
-	self assert: cfg instructions allButLast last isCopy.
-	self assert: (cfg instructions allButLast: 2) last isLoad.
+	self assert: cfg instructions first isCopy.
+	self assert: cfg instructions second isLoad.
 	self
-		assert: (cfg instructions allButLast: 2) last address expression
+		assert: cfg instructions second address expression
 		equals: cfg instructions first
 ]
 
@@ -475,9 +475,9 @@ DRSCCPConstantFoldingTest >> testFoldBitShiftWithConstants [
 	| cfg |
 	cfg := self testConstantFoldingOf: DRBitShift between: 2r1000 and: 1.
 
-	self assert: cfg instructions allButLast last isCopy.
+	self assert: cfg instructions third isCopy.
 	self
-		assert: cfg instructions allButLast last operand1
+		assert: cfg instructions third operand1
 		equals: 2r100 asDRValue
 ]
 
@@ -507,8 +507,8 @@ DRSCCPConstantFoldingTest >> testFoldingLoadWithConstant [
 
 	optimisation applyTo: cfg.
 
-	self assert: cfg instructions nextToLast isCopy.
-	self assert: cfg instructions nextToLast operand1 equals: load
+	self assert: cfg instructions second isCopy.
+	self assert: cfg instructions second operand1 equals: load
 ]
 
 { #category : #tests }
@@ -527,7 +527,7 @@ DRSCCPConstantFoldingTest >> testFoldingLoadWithOperation [
 	optimisation applyTo: cfg.
 
 	"T3 := T2"
-	self assert: cfg instructions nextToLast operand1 equals: load
+	self assert: cfg instructions third operand1 equals: load
 ]
 
 { #category : #constant }

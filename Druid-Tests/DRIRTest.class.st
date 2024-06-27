@@ -102,28 +102,28 @@ DRIRTest >> setUpCFG: n [
 	b0 := cfg initialBasicBlock.
 	cfg b0: b0.
 	n = 0 ifTrue: [ 
-		b0 jumpTo: cfg exitBasicBlock.
+		b0 jumpTo: cfg newBasicBlock.
 		^ cfg ].
 	
 	b1 := cfg newBasicBlock.
 	cfg b1: b1.
 	b0 jumpTo: b1.
 	n = 1 ifTrue: [ 
-		b1 jumpTo: cfg exitBasicBlock.
+		b1 jumpTo: cfg newBasicBlock.
 		^ cfg ].
 	
 	b2 := cfg newBasicBlock.
 	cfg b2: b2.
 	b1 jumpTo: b2.
 	n = 2 ifTrue: [ 
-		b2 jumpTo: cfg exitBasicBlock.
+		b2 jumpTo: cfg newBasicBlock.
 		^ cfg ].
 
 	b3 := cfg newBasicBlock.
 	cfg b3: b3.
 	b2 jumpTo: b3.
 	n = 3 ifTrue: [ 
-		b3 jumpTo: cfg exitBasicBlock.
+		b3 jumpTo: cfg newBasicBlock.
 		^ cfg ].
 
 	self error: 'Unsupported graph size: ', n asString

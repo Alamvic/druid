@@ -80,7 +80,6 @@ DRBlockDuplicator >> patchControlFlowIn: aBasicBlock [
 { #category : #'editing keys' }
 DRBlockDuplicator >> patchInstructionsIn: aBasicBlock [
 	"Replace all users and dependencies of block instructions using the instructionMap"
-
 	aBasicBlock instructions do: [ :newInstruction |
 		newInstruction users copy do: [ :user | | replacement |
 			"If an user comes from another block, keep using it"

@@ -138,6 +138,12 @@ DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode
 	^ self
 ]
 
+{ #category : #validation }
+DRInstruction >> dataDependencies [
+
+	^ self dependencies
+]
+
 { #category : #testing }
 DRInstruction >> hasDependency: anInstruction [
 	
@@ -453,7 +459,7 @@ DRInstruction >> operands [
 DRInstruction >> operands: aCollection [ 
 
 	operands asSet do: [ :each | each removeUser: self ].
-	operands := aCollection asOrderedCollection.
+	operands := aCollection collect: [:e | e asDRValue ] as: OrderedCollection.
 	self dependencies asSet do: [ :each | each addUser: self ]
 ]
 
@@ -504,14 +510,13 @@ DRInstruction >> originAST: aNode [
 DRInstruction >> postCopy [
 
 	super postCopy.
-	
+
 	operands := operands copy.
 	operands do: [ :e | e addUser: self ].
 	users := users copy.
-	
-	((result isKindOf: DRNoRegister) not and: [ result isPhysicalRegister not ]) ifTrue: [ 
-		result := basicBlock controlFlowGraph allocateTemporaryRegister ].
 
+	result isSSARegister ifTrue: [
+		result := basicBlock controlFlowGraph allocateTemporaryRegister ]
 ]
 
 { #category : #printing }

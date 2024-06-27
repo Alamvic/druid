@@ -142,7 +142,7 @@ DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 	This means that we should reserve at least 1 registers for spilled results.
 	Do not add stores for phi functions
 	"
-	i result isVirtualRegister ifFalse: [ ^ self ].
+	i result isSSARegister ifFalse: [ ^ self ].
 	i isPhiFunction ifTrue: [
 		i result: (self allocatedRegisterFor: i).
 		^  self ].
@@ -229,7 +229,7 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 				i replaceDependency: op by: load ] ].
 		
 		"Special case for temporary registers created during register allocation."
-		op isVirtualRegister ifTrue: [ 
+		op isSSARegister ifTrue: [ 
 			op physicalRegister: allocatedRegister ] ].
 
 	usedSpillRegisters do: [ :each | registerPool returnSpillRegister: each ]
@@ -322,10 +322,10 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 { #category : #'live-analysis' }
 DRLinearScanRegisterAllocator >> computeLivenessOfInstruction: i inBlock: b withLiveSet: live [
 
-	i result isVirtualRegister ifTrue: [
+	i result isSSARegister ifTrue: [
 		live remove: i ifAbsent: [ self initializeLiveSetOfInstruction: i ] ].
 	^ i dependencies do: [ :op |
-		  (op result isVirtualRegister and: [
+		  (op result isSSARegister and: [
 			   op isStaged not and: [ (live includes: op) not ] ])
 			  ifTrue: [
 				  self
@@ -395,7 +395,7 @@ DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [
 { #category : #accessing }
 DRLinearScanRegisterAllocator >> liveSetOf: aDependency [
 
-	aDependency isVirtualRegister ifFalse: [ 
+	aDependency isSSARegister ifFalse: [ 
 		"If it is not an instruction that requires allocation, do not record the live set"
 		(aDependency isInstruction not or: [ aDependency isStaged ])
 			ifTrue: [ ^ DRLiveSet definition: aDependency ] ].

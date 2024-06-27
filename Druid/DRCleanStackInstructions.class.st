@@ -45,5 +45,5 @@ DRCleanStackInstructions >> interpretAndOptimise: aDRInstruction on: aStack [
 			"Replace by the pushed value"
 			aDRInstruction replaceBy: pushInstruction operand1 ] ].
 
-	aDRInstruction isFlushStack ifTrue: [ 1 halt ]
+	"aDRInstruction isFlushStack ifTrue: [ 1 halt ]"
 ]

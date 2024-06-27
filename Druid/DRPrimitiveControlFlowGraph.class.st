@@ -8,7 +8,6 @@ Class {
 	#superclass : #DRControlFlowGraph,
 	#instVars : [
 		'successExitBlock',
-		'failureExitBlock',
 		'primitiveExitBlock'
 	],
 	#category : #'Druid-IR'
@@ -17,13 +16,16 @@ Class {
 { #category : #accessing }
 DRPrimitiveControlFlowGraph >> failureExitBlock [
 
-	^ failureExitBlock
+	| blocks |
+	blocks := self failureExitBlocks.
+	self assert: blocks size = 1.
+	^ blocks anyOne
 ]
 
 { #category : #accessing }
-DRPrimitiveControlFlowGraph >> failureExitBlock: anObject [
+DRPrimitiveControlFlowGraph >> failureExitBlocks [
 
-	failureExitBlock := anObject
+	^ self blocks select: [ :e | e endInstruction isPrimitiveFail ]
 ]
 
 { #category : #accessing }

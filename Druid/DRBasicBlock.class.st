@@ -232,7 +232,7 @@ DRBasicBlock >> canBeLinearizedBefore: aDRBasicBlock [
 	"Pops and Pushes are constraints for linearization"
 	controlFlowGraph stackInstructions do: [ :stackInstruction | "There is a stack instruction in my path ..."
 		(stackInstruction basicBlock isDominatedBy: self) ifTrue: [
-			stackInstruction stackDependency ifNotNil: [ :dependency | "... with a dependecy in the other path ..."
+			stackInstruction stackDependencies do: [ :dependency | "... with a dependecy in the other path ..."
 				(dependency basicBlock isDominatedBy: aDRBasicBlock) ifTrue: [ "... then the other path must be linearized before"
 					^ false ] ] ] ].
 
@@ -401,6 +401,18 @@ DRBasicBlock >> floatFromBits: aValue [
 	^ self addInstruction: (self instructionFactory floatFromBits: aValue)
 ]
 
+{ #category : #building }
+DRBasicBlock >> flushStack [
+
+	^ self addInstruction: self instructionFactory flushStack
+]
+
+{ #category : #building }
+DRBasicBlock >> flushStackExceptTop: n [
+
+	^ self addInstruction: (self instructionFactory flushStackExceptTop: n)
+]
+
 { #category : #accessing }
 DRBasicBlock >> forwardPredecessors [
 	
@@ -463,6 +475,12 @@ DRBasicBlock >> hasPredecessor: aDRBasicBlock [
 DRBasicBlock >> hasPredecessors [
 	
 	^ predecessors notEmpty
+]
+
+{ #category : #accessing }
+DRBasicBlock >> hasSuccessors [
+	
+	^ self successors notEmpty
 ]
 
 { #category : #accessing }
@@ -770,7 +788,7 @@ DRBasicBlock >> isEmptyBasicBlock [
 { #category : #accessing }
 DRBasicBlock >> isExitBlock [
 
-	^ isExitBlock
+	^ false
 ]
 
 { #category : #accessing }
@@ -1053,6 +1071,24 @@ DRBasicBlock >> phiWithVariables: variables [
 
 	phi := self instructionFactory phiWithVariables: finalVariables.
 	^ self addInstruction: phi
+]
+
+{ #category : #building }
+DRBasicBlock >> pop [
+	
+	^ self pop: 1 unspilled: false
+]
+
+{ #category : #building }
+DRBasicBlock >> pop: anInteger unspilled: aBoolean [
+	
+	^ self addInstruction: (self instructionFactory pop: anInteger unspilled: aBoolean)
+]
+
+{ #category : #building }
+DRBasicBlock >> popUnspilled [
+	
+	^ self pop: 1 unspilled: true
 ]
 
 { #category : #dominance }
@@ -1372,15 +1408,14 @@ DRBasicBlock >> successors [
 
 { #category : #transformations }
 DRBasicBlock >> tailDuplicate [
-
 	"Duplicate the receiver so there is a different copy of it for each predecessor"
 
 	| duplicatedBlocks |
-	duplicatedBlocks := self predecessors allButFirst collect: [ 
-		                    :predecessorToRewire | 
+	duplicatedBlocks := self predecessors allButFirst collect: [
+		                    :predecessorToRewire |
 		                    self splitTo: predecessorToRewire ].
 
-	self assert: (duplicatedBlocks allSatisfy: [ :b | 
+	self assert: (duplicatedBlocks allSatisfy: [ :b |
 			 b instructions size = self instructions size ]).
 
 	controlFlowGraph validate.

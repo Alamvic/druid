@@ -37,7 +37,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode1 selector: selector1 andB
 ]
 
 { #category : #tests }
-DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenDo: aBlock [
+DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector options: options thenDo: aBlock [
 
 	| generatorSelector compiler |
 	generatorSelector := (#gen, '_' , aSelector) asSymbol.
@@ -45,23 +45,36 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 	"First generate druid code"
 	self interpreter currentBytecode: bytecode.
 	compiler := DRBytecodeCompilerCompiler new
-		bytecodes: { bytecode -> aSelector };
-		interpreter: self interpreter;
-		configureForCompilerClass: DruidTestRTLCompiler.
+		            bytecodes: { (bytecode -> aSelector) };
+		            interpreter: self interpreter;
+		            configureForCompilerClass: DruidTestRTLCompiler;
+		            addCompilerOptions: options.
 
 	compiler compile.
 	"Then generate the machine code for that method"
-	cogInitialAddress := self compile: [
-		cogit needsFrame: true.
-		cogit byte0: bytecode.
-		cogit methodOrBlockNumArgs: 3. "Hack"
-		cogit methodOrBlockNumTemps: 2. "Hack"
-		"Initialize the simulated stack"
-		cogit initSimStackForFramefulMethod: 2.
-		cogit zeroOpcodeIndexForNewOpcodes.
-		
-		aBlock value: [ cogit perform: generatorSelector ].
-	] bytecodes: 100
+	cogInitialAddress := self
+		                     compile: [
+			                     cogit needsFrame: true.
+			                     cogit byte0: bytecode.
+			                     cogit methodOrBlockNumArgs: 3. "Hack"
+			                     cogit methodOrBlockNumTemps: 2. "Hack"
+			                     "Initialize the simulated stack"
+			                     cogit initSimStackForFramefulMethod: 2.
+			                     cogit zeroOpcodeIndexForNewOpcodes.
+
+			                     aBlock value: [
+				                     cogit perform: generatorSelector ] ]
+		                     bytecodes: 100
+]
+
+{ #category : #tests }
+DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenDo: aBlock [
+
+	^ self
+		  compileBytecode: bytecode
+		  selector: aSelector
+		  options: #(  )
+		  thenDo: aBlock
 ]
 
 { #category : #tests }

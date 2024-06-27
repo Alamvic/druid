@@ -93,11 +93,25 @@ DRBytecodeObject >> compileUnitUsing: aCompiler [
 	self bytecodeNumberStart to: self bytecodeNumberEnd do: [ :e |
 		interpreter currentBytecode: e.
 		DRBytecodeCompilerCompiler new
-			bytecodes: { e -> self sourceSelector };
+			bytecodes: { (e -> self sourceSelector) };
 			targetName: self genSelector;
 			interpreter: interpreter;
 			configureForCompilerClass: aCompiler targetClass;
+			addCompilerOptions: aCompiler compilerOptions;
 			compile ]
+]
+
+{ #category : #translating }
+DRBytecodeObject >> generate [
+
+	| compilerCompiler |
+	compilerCompiler := DRInterpreterToCompiler fromInterpreterClass:
+		                    CogVMSimulatorLSB.
+	compilerCompiler
+		doFailOnFirst;
+		targetClass: DruidJIT.
+
+	^ self compileUsing: compilerCompiler
 ]
 
 { #category : #accessing }
@@ -114,11 +128,15 @@ DRBytecodeObject >> printOn: aStream [
 		<< self bytecodeSize asString;
 		<< $);
 		space;
-		<< self bytecodeNumberStart asString;
-		<< ' - ';
-		<< self bytecodeNumberEnd asString;
+		<< self range asString;
 		space;
 		<< self genSelector
+]
+
+{ #category : #printing }
+DRBytecodeObject >> range [
+
+	^ self bytecodeNumberStart to: self bytecodeNumberEnd
 ]
 
 { #category : #accessing }

@@ -84,7 +84,7 @@ DRBranchIfCondition >> falseBranch: aDRBasicBlock [
 { #category : #accessing }
 DRBranchIfCondition >> hasOverflowCheck [
 
-	^ condition isOverflow
+	^ condition isOverflow or: [ condition isNoOverflow ]
 ]
 
 { #category : #initialization }
