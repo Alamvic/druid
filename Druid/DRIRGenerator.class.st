@@ -323,6 +323,7 @@ DRIRGenerator >> initializeSpecialCases [
 	"Control flow and comparisons"
 	specialCases at: #druidStageable: put: #interpretStageableBlockWith:.
 	specialCases at: #druidIgnore: put: #ignoreMessageWith:.
+	specialCases at: #druidIf:do: put: #druidConditionalCompilationWith:.
 	specialCases at: #interpreterIgnore: put: #interpretBlockArgumentValueWith:.
 	specialCases at: #druidFail put: #interpretDruidFailWith:.
 	specialCases at: #value put: #interpretBlockValueWith:.
@@ -330,9 +331,11 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #cull: put: #interpretBlockCullWith:.
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
 	specialCases at: #ifFalse: put: #interpretIfFalseWith:.
+	specialCases at: #whileTrue put: #interpretWhileTrueWith:.
 	specialCases at: #whileTrue: put: #interpretWhileTrueWith:.
 	specialCases at: #caseOf:otherwise: put: #interpretCaseOfWith:.
 	specialCases at: #cppIf:ifTrue: put: #interpretCppIfWith:.
+	specialCases at: #cppIf:ifTrue:ifFalse: put: #interpretCppIfWith:.
 
 	specialCases at: #= put: #interpretEqualityComparisonWith:.
 	specialCases at: #~= put: #interpretInequalityComparisonWith:.
@@ -364,30 +367,31 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
 	specialCases at: #sizeof: put: #interpretSizeofWith:.
 	specialCases at: #asFloat put: #interpretAsFloatWith:.
-	specialCases at: #rawFloatBitsOf:in: put: #interpretRawFloatBitsWith:.
-	specialCases at: #float64FromRawBits put: #interpretFloat64FromRawBitsWith:.
+	specialCases at: #rawFloatBitsOf: put: #interpretRawFloatBitsWith:.
+	specialCases at: #floatFromRawBits: put: #interpretFloat64FromRawBitsWith:.
 	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
-	specialCases at: #asObjectReference put: #interpretObjectReferenceCoercionWith:.	
+	specialCases at: #cCoerce:to: put: #interpretCCoerceWith:.	
+	specialCases at: #asObjectReference put: #interpretObjectReferenceCoercionWith:.
 	
 
 	"Memory accesses"
 	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #byteAt:put: put: #interpretStoreUint8AtWith:.
 	self flag: #TODO. "Add types to Druid"
 	specialCases at: #uint8At: put: #interpretLoadUint8AtWith:.
 	specialCases at: #uint8At:put: put: #interpretStoreUint8AtWith:.
 	specialCases at: #uint16At: put: #interpretLoadUint16AtWith:.
 	specialCases at: #uint16At:put: put: #interpretStoreUint16AtWith:.
 	specialCases at: #uint32At: put: #interpretLoadUint32AtWith:.
-	specialCases at: #uint32AtPointer: put: #interpretLoadUint32AtWith:.
 	specialCases at: #uint32At:put: put: #interpretStoreUint32AtWith:.
+	specialCases at: #uint32AtPointer: put: #interpretLoadUint32AtWith:.
+	specialCases at: #uint32AtPointer:put: put: #interpretStoreUint32AtWith:.
 	specialCases at: #uint64At: put: #interpretLoadUint64AtWith:.
 	specialCases at: #uint64At:put: put: #interpretStoreUint64AtWith:.
 	specialCases at: #float64At: put: #interpretLoadFloat64AtWith:.
 	specialCases at: #float64At:put: put: #interpretStoreFloat64AtWith:.
 	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
 	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
-	specialCases at: #positive32BitIntegerFor: put: #interpretPrimFailCodeWith:. "integerObjectOf:"
-	
 	
 	specialCases at: #longAt:put: put: #interpretMachineWordAtPutWith:.
 	specialCases at: #unsignedLong64At:put: put: #interpretMachineWordAtPutWith:.
@@ -402,6 +406,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #bitOr: put: #interpretBitOrWith:.
 	specialCases at: #bitXor: put: #interpretBitXorWith:.
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
+	specialCases at: #rotateLeft:by: put: #interpretRotateLeftBy:.
 		
 	"special simulation cases"
 	specialCases at: #cCode: put: #interpretCCodeInSmalltalkWith:.
@@ -428,7 +433,8 @@ DRIRGenerator >> initializeSpecialCases [
 	variableSpecialCases at: #permSpaceMask put: #interpretPermSpaceMaskWith:.
 	
 	"Border case, this should not be defined here, it should be extensible"
-	variableSpecialCases at: #hiddenRootsObj put: #interpretNilObjectWith:
+	variableSpecialCases at: #hiddenRootsObj put: #interpretHiddenRootsObjectWith:.
+	variableSpecialCases at: #classTableFirstPage put: #interpretClassTableRootsObjectWith:.	
 ]
 
 { #category : #visiting }

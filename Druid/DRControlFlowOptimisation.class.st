@@ -10,7 +10,7 @@ DRControlFlowOptimisation >> applyTo: cfg [
 	| result |
 	
 	result := self doApply: cfg.
-	(DRDeadBlockElimination then: DRPhiSimplication) applyTo: cfg.
+	DRDeadBlockElimination applyTo: cfg.
 	cfg fixBackJumps.
 	
 	^ result
