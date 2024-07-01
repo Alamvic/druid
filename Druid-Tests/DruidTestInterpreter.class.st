@@ -144,6 +144,24 @@ DruidTestInterpreter >> methodCollectionSize: aCollection [
 	^ aCollection size
 ]
 
+{ #category : #blockClosure }
+DruidTestInterpreter >> methodReturningEmptyBlock [
+	
+	^ [ ]
+]
+
+{ #category : #blockClosure }
+DruidTestInterpreter >> methodSendingAMessageWithABlock [
+
+	| copiedVariable returnedVariable |
+
+	copiedVariable := 17.
+
+	self messageUsingABlock: [ :aBlockArgument | returnedVariable := copiedVariable + aBlockArgument ].
+	
+	^ returnedVariable 
+]
+
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> methodSendingClass: aCollection [
 

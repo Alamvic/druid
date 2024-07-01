@@ -125,6 +125,34 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 ]
 
 { #category : #tests }
+DRBytecodeGeneratorTest >> testMethodCreatingBlock [
+
+	| method result |
+	method := self generateMethodForSelector: #methodSendingAMessageWithABlock.
+
+1halt.
+	result := method
+		          valueWithReceiver: nil
+		          arguments: { { 1. 2. 3 } asOrderedCollection }.
+	self assert: result equals: 3.
+
+	result := method
+		          valueWithReceiver: nil
+		          arguments: { (Array2D rows: 2 columns: 2) }.
+	self assert: result equals: 4
+]
+
+{ #category : #tests }
+DRBytecodeGeneratorTest >> testMethodCreatingEmptyBlock [
+
+	| method result |
+	method := self generateMethodForSelector: #methodReturningEmptyBlock.
+
+1halt.
+
+]
+
+{ #category : #tests }
 DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 
 	| method result cfg selector |

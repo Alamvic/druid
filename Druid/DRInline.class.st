@@ -156,5 +156,6 @@ DRInline >> methodsToInlineOf: messageSend [
 	messageSend methodNode ifNotNil: [ "If a method node was set during interpretation then the message send is statically binding to them"
 		^ { (#default -> messageSend methodNode) } ].
 
-	^ (inlineGenerator typeSystem methodsForMessage: messageSend) reject: [ :e | self isUnknownPrimitive: e ]
+	^ (inlineGenerator typeSystem methodsForMessage: messageSend) reject: [ :e | 
+			e key isUndefined or: [self isUnknownPrimitive: e] ]
 ]
