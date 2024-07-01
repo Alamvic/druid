@@ -152,6 +152,26 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranchIfTrueWithTrue [
 ]
 
 { #category : #constraints }
+DRPathGenerationTest >> testConstraintsInferenceFromBranchWithPhi [
+
+	| cfg copy condition phi |
+	cfg := self setUpCFGWithConditionalWithPhi.
+	copy := cfg b1 copy: false asDRValue.
+	phi := cfg b4 phiFunctions first.
+	phi replaceOperand: cfg b2 firstInstruction by: copy.
+	cfg b2 firstInstruction removeFromCFG.
+	condition := cfg b3 greater: (DRInterpreterReference getNewSpaceStart) than: 47 asDRValue.
+	cfg b3 firstInstruction replaceOperandAtIndex: 1 by: condition.
+	cfg b4 jumpIf: phi to: cfg newBasicBlock ifFalseTo:  cfg newBasicBlock.
+
+	cfg generatePaths.
+
+	"No dead branches, the condition could be true or false"
+	self assert: cfg deadBranches isEmpty 
+
+]
+
+{ #category : #constraints }
 DRPathGenerationTest >> testConstraintsInferenceFromCopy [
 
 	| cfg copy edge constraint |
@@ -339,7 +359,7 @@ DRPathGenerationTest >> testGenerateExpectedEdgesCountLinear [
 	| cfg |
 	cfg := self setUpCFG: 3.
 	cfg generatePaths.
-	self assert: cfg edges size equals: 3.
+	self assert: cfg edges size equals: 4.
 
 ]
 

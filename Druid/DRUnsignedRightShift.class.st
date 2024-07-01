@@ -4,6 +4,12 @@ Class {
 	#category : #'Druid-IR'
 }
 
+{ #category : #visiting }
+DRUnsignedRightShift >> acceptVisitor: aVisitor [
+	
+	^ aVisitor visitUnsignedRightShift: self
+]
+
 { #category : #types }
 DRUnsignedRightShift >> type [
 

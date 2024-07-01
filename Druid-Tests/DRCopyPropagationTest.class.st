@@ -57,17 +57,14 @@ DRCopyPropagationTest >> testCopyIsPropagatedInBlockSequence [
 
 	| cfg t1 t2 b1 b2 |
 	cfg := DRControlFlowGraph new.
-	b1 := cfg newBasicBlockWith: [ :block |
-		t1 := block copy: (DRPhysicalGeneralPurposeRegister name: 'argument').
-	].
-
-	b1 jumpTo: (b2 := cfg newBasicBlockWith: [ :block |
-		t2 := block copy: t1.
-	]).
+	b1 := cfg newBasicBlockWith: [ :block | t1 := block add: 1 to: 2 ].
+	b1 jumpTo:
+		(b2 := cfg newBasicBlockWith: [ :block | t2 := block copy: t1 ]).
 
 	DRCopyPropagation new applyTo: cfg.
-	
-	self assert: t2 operands first equals: t1 operands first
+
+	self assert: t2 isCopy.
+	self assert: t2 operand equals: t1
 ]
 
 { #category : #tests }
@@ -76,14 +73,14 @@ DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlock [
 	| cfg t1 t2 t3 |
 	cfg := DRControlFlowGraph new.
 	cfg newBasicBlockWith: [ :block |
-		t1 := block copy: (DRPhysicalGeneralPurposeRegister name: 'argument').
+		t1 := block add: 1 to: 2.
 		t2 := block copy: t1.
-		t3 := block copy: t2.
-	].
+		t3 := block copy: t2 ].
 
 	DRCopyPropagation new applyTo: cfg.
-	
-	self assert: t3 operand1 equals: t1 operand1
+
+	self assert: t3 isCopy.
+	self assert: t3 operand equals: t1
 ]
 
 { #category : #tests }
@@ -108,7 +105,7 @@ DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlockWithSequencesOfUsages 
 	| cfg t1 t2 t3 t4 t5 |
 	cfg := DRControlFlowGraph new.
 	cfg newBasicBlockWith: [ :block |
-		t1 := block copy: (DRPhysicalGeneralPurposeRegister name: 'argument').
+		t1 := block add: 1 to: 2.
 		t2 := block copy: t1.
 		t3 := block copy: t2.
 		t4 := block copy: t3.
@@ -117,5 +114,6 @@ DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlockWithSequencesOfUsages 
 
 	DRCopyPropagation new applyTo: cfg.
 	
-	self assert: t5 operands first equals: t1 operands first
+	self assert: t5 isCopy.
+	self assert: t5 operands first equals: t1
 ]

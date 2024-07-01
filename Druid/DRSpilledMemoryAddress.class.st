@@ -45,8 +45,8 @@ DRSpilledMemoryAddress >> printOn: aStream [
 { #category : #cogit }
 DRSpilledMemoryAddress >> rtlArgumentExpressions: generator [
 
-	^ { 
-		  (RBLiteralValueNode value: self stackOffset * 8). "bytes"
+	^ {
+		  (RBLiteralValueNode value: self stackOffset - 1 * 8). "bytes"
 		  (RBVariableNode named: 'SPReg') }
 ]
 

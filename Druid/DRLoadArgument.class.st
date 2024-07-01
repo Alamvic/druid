@@ -2,8 +2,6 @@ Class {
 	#name : #DRLoadArgument,
 	#superclass : #DRInstruction,
 	#instVars : [
-		'size',
-		'argNum',
 		'argName'
 	],
 	#category : #'Druid-IR'
@@ -18,7 +16,7 @@ DRLoadArgument >> acceptVisitor: aVisitor [
 { #category : #accessing }
 DRLoadArgument >> argName [
 
-	^ argName ifNil: [ 'arg' , argNum asString ]
+	^ argName ifNil: [ 'arg' , self argNum asString ]
 ]
 
 { #category : #accessing }
@@ -30,13 +28,7 @@ DRLoadArgument >> argName: selector [
 { #category : #accessing }
 DRLoadArgument >> argNum [
 
-	^ argNum
-]
-
-{ #category : #accessing }
-DRLoadArgument >> classType: aType [
-	
-	classType := aType
+	^ self operand1 value
 ]
 
 { #category : #visiting }
@@ -54,14 +46,7 @@ DRLoadArgument >> isMandatoryInstruction [
 { #category : #printing }
 DRLoadArgument >> opcode [
 	
-	^ 'LoadArgument', argNum asString
-]
-
-{ #category : #accessing }
-DRLoadArgument >> operands: operandList [
-
-	argNum := operandList first value.
-	super operands: operandList allButFirst
+	^ 'LoadArg'
 ]
 
 { #category : #SCCP }

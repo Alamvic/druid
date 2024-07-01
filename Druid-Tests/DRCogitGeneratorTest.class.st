@@ -156,7 +156,7 @@ DRCogitGeneratorTest >> testGenerateLoadSpilledMemoryAddress [
 	self generateCogitForInstruction: r0.	
 	loadInstruction := self statements first.
 	self assert: loadInstruction selector equals: #MoveMw:r:R:.
-	self assert: loadInstruction arguments first value equals: 8.
+	self assert: loadInstruction arguments first value equals: 0.
 	self assert: loadInstruction arguments second name equals: 'SPReg'.
 	self assert: loadInstruction arguments third name equals: 't0'
 ]
@@ -177,6 +177,31 @@ DRCogitGeneratorTest >> testGenerateMethodWithSpillingAllocatesStackSpace [
 	generator generatePreambleForCFG: cfg.
 
 	stackAllocationInstruction := self statements first.
+	self assert: stackAllocationInstruction selector equals: #SubCq:R:.
+	self
+		assert: stackAllocationInstruction arguments second name
+		equals: 'SPReg'.
+	self
+		assert: stackAllocationInstruction arguments first value
+		equals: cfg numberOfSpillSlots * 8 "bytes"
+]
+
+{ #category : #tests }
+DRCogitGeneratorTest >> testGenerateMethodWithSpillingDeallocatesStackSpace [
+
+	| cfg basicBlock spillRegister1 stackAllocationInstruction |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | block copy: 2 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
+	DRCogitLinearScanRegisterAllocator new
+		integerRegisters: #(  );
+		spillRegisters: { spillRegister1 };
+		allocateRegistersIn: cfg.
+	generator generatePostambleForCFG: cfg.
+
+	stackAllocationInstruction := self statements last.
 	self assert: stackAllocationInstruction selector equals: #AddCq:R:.
 	self
 		assert: stackAllocationInstruction arguments second name
@@ -232,9 +257,9 @@ DRCogitGeneratorTest >> testGenerateNilAsZero [
 	cfg initialBasicBlock jumpTo: basicBlock.
 	DRCogitOperandSorter new applyTo: cfg.	
 	
-	self generateCogitForInstruction: r1.	
+	self generateCogitForInstruction: r1 previousInstruction.
 	compare := self statements first.
-	self assert: compare selector equals: #CmpCq:R:.
+	self assert: compare selector equals: #MoveCq:R:.
 	self assert: compare arguments first value equals: 0
 ]
 
@@ -285,6 +310,29 @@ DRCogitGeneratorTest >> testGenerateOrConstantWithNoResult [
 ]
 
 { #category : #tests }
+DRCogitGeneratorTest >> testGenerateRotate [
+
+	| cfg basicBlock rotateASTInstruction r2 |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block |
+		              | r0 |
+		              r0 := block copy: 2.
+		              r2 := block rotateLeft: r0 by: 1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	"Guarantee we are in two address code, and we need no result value"
+	r2 result: DRNoRegister new.
+
+	self generateCogitForInstruction: r2.
+	rotateASTInstruction := self statements first.
+	"self RotateLeftCq: 1 R: t0"
+
+	self assert: rotateASTInstruction selector equals: #RotateLeftCq:R:.
+	self assert: rotateASTInstruction arguments first value equals: 1.
+	self assert: rotateASTInstruction arguments second name equals: 't0'
+]
+
+{ #category : #tests }
 DRCogitGeneratorTest >> testGenerateSpillLoadInstruction [
 
 	| cfg basicBlock spillRegister1 spillStoreInstruction storeInstruction |
@@ -304,7 +352,7 @@ DRCogitGeneratorTest >> testGenerateSpillLoadInstruction [
 	spillStoreInstruction := self statements first.
 	self assert: spillStoreInstruction selector equals: #MoveR:Mw:r:.
 	self assert: spillStoreInstruction arguments first name equals: spillRegister1 name.
-	self assert: spillStoreInstruction arguments second value equals: storeInstruction operand2 stackOffset * 8 "bytes".
+	self assert: spillStoreInstruction arguments second value equals: (storeInstruction operand2 stackOffset - 1) * 8 "bytes".
 	self assert: spillStoreInstruction arguments third name equals: 'SPReg'.
 ]
 

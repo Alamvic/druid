@@ -80,12 +80,6 @@ DRCogitSimpleStackGenerator >> postCopy [
 	^ self
 ]
 
-{ #category : #'ir-to-ast' }
-DRCogitSimpleStackGenerator >> returnNodeForCompiledMethod [
-
-	^ RBLiteralNode value: 0
-]
-
 { #category : #visiting }
 DRCogitSimpleStackGenerator >> rtlExpressionForValue: aValue [
 
@@ -134,35 +128,6 @@ DRCogitSimpleStackGenerator >> visitBytecodeJump: aDRBytecodeJump [
 					  receiver: RBVariableNode selfNode
 					  selector: #ensureFixupAt:
 					  arguments: { targetBytecode }) })
-]
-
-{ #category : #visiting }
-DRCogitSimpleStackGenerator >> visitCall: aDRCall [
-	"self CallRT: ceSendMustBeBooleanTrampoline"
-
-	| rbCallNode |
-	aDRCall operands size > 0 ifTrue: [
-		generatorMethodBuilder addStatement: (RBMessageNode
-				 receiver: RBVariableNode selfNode
-				 selector: #MoveR:R:
-				 arguments: {
-						 (self rtlExpressionForValue: aDRCall operand1).
-						 (RBVariableNode named: 'TempReg') }) ].
-	rbCallNode := RBMessageNode
-		              receiver: RBVariableNode selfNode
-		              selector: #CallRT:
-		              arguments:
-		              { (RBVariableNode named: aDRCall functionName) }.
-	aDRCall shouldSaveLinkReg
-		ifTrue: [
-			generatorMethodBuilder addStatement: (RBMessageNode
-					 receiver: (RBVariableNode named: #backEnd)
-					 selector: #saveAndRestoreLinkRegAround:
-					 arguments:
-					 { (RBBlockNode body: (RBSequenceNode statements: { rbCallNode })) }) ]
-		ifFalse: [ generatorMethodBuilder addStatement: rbCallNode ].
-	aDRCall isMapped ifTrue: [ 
-		self assert: aDRCall controlFlowGraph hasAnnotatedBytecode  ]
 ]
 
 { #category : #visiting }
@@ -265,23 +230,6 @@ DRCogitSimpleStackGenerator >> visitPop: aDRPop [
 			 receiver: RBVariableNode selfNode
 			 selector: #PopR:
 			 arguments: { (RBVariableNode named: aDRPop result name) })
-]
-
-{ #category : #visiting }
-DRCogitSimpleStackGenerator >> visitPush: aDRPush [
-
-	(aDRPush operand1 isConstant or: [ aDRPush operand1 isStaged ]) ifTrue: [
-		^ generatorMethodBuilder addStatement: (RBMessageNode
-				   receiver: RBVariableNode selfNode
-				   selector: 'genPushConstant:'
-				   arguments: (aDRPush operand1 rtlPushArgumentExpressions: self)) ].
-
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector:
-			 'Push'
-			 , (aDRPush operand1 rtlOperandQualifierForInstruction: aDRPush)
-			 arguments: (aDRPush operand1 rtlPushArgumentExpressions: self))
 ]
 
 { #category : #visiting }

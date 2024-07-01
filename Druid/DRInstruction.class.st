@@ -80,6 +80,12 @@ DRInstruction >> addUser: anInstruction [
 	users add: anInstruction
 ]
 
+{ #category : #converting }
+DRInstruction >> asFloat [
+
+	self classType: DRFloatType new
+]
+
 { #category : #accessing }
 DRInstruction >> asNumberedExpression [
 
@@ -105,6 +111,12 @@ DRInstruction >> canMoveOutsideLoop: loop [
 		In that case also depends of conditional jump operands"
 		  (self controlFlowGraph allBlocksBetween: loop headerBlock and: self basicBlock)
 			  noneSatisfy: [ :middleBlock | middleBlock endInstruction isConditionalBranch ] ]
+]
+
+{ #category : #accessing }
+DRInstruction >> classType: aType [
+	
+	classType := aType
 ]
 
 { #category : #'users-definitions' }
@@ -199,6 +211,11 @@ DRInstruction >> isBackJump [
 ]
 
 { #category : #testing }
+DRInstruction >> isBitOr [
+	^ false
+]
+
+{ #category : #testing }
 DRInstruction >> isCogitSendMarshall [
 	
 	^ false
@@ -230,8 +247,12 @@ DRInstruction >> isDivision [
 { #category : #dominance }
 DRInstruction >> isDominatedBy: anotherOperand [
 
-	^ anotherOperand basicBlock = self basicBlock or: [ 
-		  self basicBlock isDominatedBy: anotherOperand basicBlock ]
+	self = anotherOperand ifTrue: [ ^ true ].
+
+	anotherOperand basicBlock = self basicBlock ifTrue: [
+		^ anotherOperand indexInBasicBlock < self indexInBasicBlock ].
+
+	^ self basicBlock isDominatedBy: anotherOperand basicBlock
 ]
 
 { #category : #accessing }
@@ -342,6 +363,13 @@ DRInstruction >> moveToDominatingBlock: destinationBlock [
 DRInstruction >> name [
 	
 	^ result name
+]
+
+{ #category : #testing }
+DRInstruction >> needs2ACConversion [
+
+	^ self operands size >= 2 and: [
+		  self operand1 isPhysicalRegister or: [ self operand1 isStaged ] ]
 ]
 
 { #category : #testing }
@@ -567,13 +595,13 @@ DRInstruction >> removeUser: anInstruction [
 	users remove: anInstruction
 ]
 
-{ #category : #'users-definitions' }
+{ #category : #replacing }
 DRInstruction >> replaceDependency: anOperand by: anotherOperand [
 
 	self replaceOperand: anOperand by: anotherOperand
 ]
 
-{ #category : #dependencies }
+{ #category : #replacing }
 DRInstruction >> replaceDependency: anOperand by: anotherOperand in: anInstruction [
 	
 	anInstruction replaceOperand: anOperand by: anotherOperand
@@ -589,7 +617,7 @@ DRInstruction >> replaceDominatedUsesBy: anotherInstruction [
 			instruction replaceDependency: self by: anotherInstruction ]
 ]
 
-{ #category : #'users-definitions' }
+{ #category : #replacing }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
 	self flag: #careful.
@@ -601,7 +629,7 @@ DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 	operands replaceAll: anOperand with: anotherOperand
 ]
 
-{ #category : #'users-definitions' }
+{ #category : #replacing }
 DRInstruction >> replaceOperandAtIndex: index by: anotherOperand [
 
 	| operand |
@@ -615,14 +643,14 @@ DRInstruction >> replaceOperandAtIndex: index by: anotherOperand [
 		ifFalse: 	[operand removeUser: self].
 ]
 
-{ #category : #operands }
+{ #category : #replacing }
 DRInstruction >> replaceOperandIfDominated: myOperand by: anotherOperand [
 
 	(self isDominatedBy: anotherOperand) ifFalse: [ ^ nil ].
 	self replaceDependency: myOperand by: anotherOperand
 ]
 
-{ #category : #replace }
+{ #category : #replacing }
 DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
 	| replaced |
@@ -675,7 +703,10 @@ DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 DRInstruction >> rtlOperandQualifier [
 
 	^ self isStaged
-		  ifFalse: [ 'R:' ]
+		  ifFalse: [
+			  self type isFloatType
+				  ifTrue: [ 'Rd:' ]
+				  ifFalse: [ 'R:' ] ]
 		  ifTrue: [ 'Cq:' ]
 ]
 
@@ -738,7 +769,7 @@ DRInstruction >> type [
 	^ DRSignedIntegerType size: 8 "Word size"
 ]
 
-{ #category : #replacing }
+{ #category : #'users-definitions' }
 DRInstruction >> users [
 
 	^ users

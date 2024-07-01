@@ -63,7 +63,7 @@ DRPhiFunction >> canMoveOutsideLoop: backJump [
 DRPhiFunction >> conditionalBranch [
 
 	| dominator conditionalBranch |
-	dominator := self controlFlowGraph tree dominatorOfAll: self operands.
+	dominator := self controlFlowGraph dominatorTree dominatorOfAll: self operands.
 	conditionalBranch := dominator block lastInstruction.
 	self assert: conditionalBranch isConditionalBranch.
 	^ conditionalBranch
@@ -179,16 +179,18 @@ DRPhiFunction >> replaceOperandAtPredecessor: predecessor by: anotherOperand [
 { #category : #replace }
 DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
-	| fullNewOperands replacement predecessorForValue |
-	"Only replace values by dominated phi function in the corresponding predecessor"
-	predecessorForValue := self predecessorAtOperand: myOperand.
-	replacement := newOperands
-		detect: [ :newOperand | predecessorForValue isDominatedBy: newOperand basicBlock ]
-		ifNone: [ ^ nil ].
+	| replacingOperands |
 
-	"Replace phis operands is hard, we build a new one and replace"
-	fullNewOperands := operands collect: [ :e | e = myOperand ifTrue: [ replacement ] ifFalse: [ e ] ].
-	^ self replaceBy: (self basicBlock phiWithVariables: fullNewOperands)
+	replacingOperands := operands collectWithIndex: [ :op :i | 
+		op = myOperand 
+		ifTrue: [ | predecessor | "Find the new operand dominator of the predecessor"
+			predecessor := self basicBlock predecessorAt: i.
+			newOperands detect: [ :newOperand | predecessor isDominatedBy: newOperand basicBlock ] ifNone: [ ^ nil ] ] 
+		ifFalse: [ op ] 
+	].
+	
+	"Replace phis operands is hard, we build a new one and replace"	
+	^ self replaceBy: (self basicBlock phiWithVariables: replacingOperands)
 ]
 
 { #category : #accessing }
@@ -205,12 +207,6 @@ DRPhiFunction >> rewirePhiTo: destinationBlock [
 	self assert: [ newOperandValues size = 1 ].
 	phiReplacement := self instructionFactory copy: newOperandValues anyOne.
 	self replaceBy: phiReplacement
-]
-
-{ #category : #'cogit-generation' }
-DRPhiFunction >> rtlOperandQualifier [
-	
-	^ 'R:'
 ]
 
 { #category : #SCCP }

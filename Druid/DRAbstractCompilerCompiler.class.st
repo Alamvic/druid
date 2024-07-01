@@ -10,7 +10,8 @@ Class {
 		'optimisations',
 		'codeGenerator',
 		'customisation',
-		'irGenerator'
+		'irGenerator',
+		'compilerOptions'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -21,6 +22,12 @@ DRAbstractCompilerCompiler class >> forInterpreter: anAbstractInterpreter [
 	^ self new
 		interpreter: anAbstractInterpreter;
 		yourself
+]
+
+{ #category : #accessing }
+DRAbstractCompilerCompiler >> addCompilerOption: anOption [
+
+	compilerOptions add: anOption
 ]
 
 { #category : #api }
@@ -34,7 +41,7 @@ DRAbstractCompilerCompiler >> compile [
 
 	| druidIR |
 	self customise.
-	
+
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
 
@@ -57,6 +64,11 @@ DRAbstractCompilerCompiler >> compilerClass: anObject [
 ]
 
 { #category : #accessing }
+DRAbstractCompilerCompiler >> compilerOptions [
+	^ compilerOptions
+]
+
+{ #category : #accessing }
 DRAbstractCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 
 	"Hook for subclasses"
@@ -69,19 +81,14 @@ DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 	"Create the initial basic block"
 	startBlock := generator initialBasicBlock.
 	initialBasicBlock := generator createInitialBasicBlock.
-	startBlock jumpTo: initialBasicBlock.
-
-	"Config generator"
-	generator receiver: (DRInterpreterValue value: interpreter).
-	generator numberOfArguments:
-		(self numberOfArgumentsForMethod: method).
-
+	startBlock jumpTo: initialBasicBlock
 ]
 
 { #category : #'generation-IR' }
 DRAbstractCompilerCompiler >> customise [
 
-	^ self customiseFor: self sourceMethod
+	self flag: #TOFIX. "This customisation shoud be done between methods"
+	self sourceMethods do: [ :method | self customiseFor: method ]
 ]
 
 { #category : #'generation-IR' }
@@ -89,32 +96,30 @@ DRAbstractCompilerCompiler >> customiseFor: method [
 
 	method ast
 		pragmaNamed: #customisedReceiverFor:
-		ifPresent: [ :pragma | 
+		ifPresent: [ :pragma |
 			customisation := DRPrimitiveCustomisation newCustomisation:
-				                  pragma arguments first value ]
+				                 pragma arguments first value ]
 ]
 
 { #category : #'generation-IR' }
 DRAbstractCompilerCompiler >> generateDruidIR [
 
-	^ self generateDruidIRFor: self sourceMethod
+	^ self generateDruidIRForAll: self sourceMethods
 ]
 
 { #category : #'generation-IR' }
-DRAbstractCompilerCompiler >> generateDruidIRFor: method [
+DRAbstractCompilerCompiler >> generateDruidIRFor: compiledMethod [
+
+	^ self generateDruidIRForAll: { compiledMethod }
+]
+
+{ #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> generateDruidIRForAll: compiledMethods [
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 
-	| cfg receiver arguments |
-	self configureIRBuilder: irGenerator forMethod: method.
-
-	arguments := method argumentNames collect: [ :_ | irGenerator pop ].
-	receiver := DRInterpreterValue value: interpreter.
-
-	irGenerator
-		interpretCode: (DRMethod methodNode: method ast)
-		receiver: receiver
-		arguments: arguments.
-
+	| cfg |
+	irGenerator initializeIR.	
+	self interpreteMethods: compiledMethods.
 	cfg := irGenerator ir.
 
 	"Clean garbage to generate a valid CFG"
@@ -143,13 +148,46 @@ DRAbstractCompilerCompiler >> initialize [
 
 	codeGenerator := DRCogitCodeGenerator new.
 	customisation := DRNonePrimitiveCustomisation new.
-	irGenerator := self newIRGenerator
+	irGenerator := self newIRGenerator.
+	compilerOptions := Set new
 ]
 
 { #category : #accessing }
 DRAbstractCompilerCompiler >> instructionFactory [
 	
 	^ irGenerator instructionFactory
+]
+
+{ #category : #interpretation }
+DRAbstractCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRReceiver numArgs: numArgs [
+
+	irGenerator receiver: aDRReceiver.
+	irGenerator numberOfArguments: numArgs.
+
+	compiledMethods do: [ :method |
+		| aDRMethod arguments |
+		aDRMethod := DRMethod methodNode: method ast.
+		"???"
+		arguments := aDRMethod methodNode argumentNames collect: [ :_ |
+			             irGenerator pop ].
+		
+		irGenerator
+			interpretCode: aDRMethod
+			receiver: aDRReceiver
+			arguments: arguments ]
+]
+
+{ #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> interpreteMethods: compiledMethods [
+
+	| receiver numArgs |
+	receiver := DRInterpreterValue value: interpreter.
+	numArgs := self numberOfArgumentsForManyMethods: compiledMethods.
+
+	self
+		interpretMethods: compiledMethods
+		receiver: receiver
+		numArgs: numArgs
 ]
 
 { #category : #accessing }
@@ -179,7 +217,15 @@ DRAbstractCompilerCompiler >> irGenerator: aDRIRGenerator [
 { #category : #'generation-IR' }
 DRAbstractCompilerCompiler >> newIRGenerator [
 
-	^ DRIRGenerator new
+	^ DRIRGenerator new compiler: self
+]
+
+{ #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> numberOfArgumentsForManyMethods: compiledMethods [
+
+	^ compiledMethods size = 1
+		  ifTrue: [ self numberOfArgumentsForMethod: compiledMethods unique ]
+		  ifFalse: [ 0 ]
 ]
 
 { #category : #accessing }
@@ -211,6 +257,12 @@ DRAbstractCompilerCompiler >> sourceMethod [
 	" Answer a <CompiledMethod> matching the current receiver's sourceName in the interpreter class "
 
 	^ interpreter class lookupSelector: sourceName
+]
+
+{ #category : #'generation-IR' }
+DRAbstractCompilerCompiler >> sourceMethods [
+
+	self subclassResponsibility 
 ]
 
 { #category : #accessing }

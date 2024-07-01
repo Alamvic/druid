@@ -69,6 +69,13 @@ DRLoad >> operands: operandList [
 	super operands: { operandList second asMemoryAddress }
 ]
 
+{ #category : #'cogit-generation' }
+DRLoad >> postCopy [
+
+	super postCopy.
+	self address: self address copy
+]
+
 { #category : #'users-definitions' }
 DRLoad >> replaceDependency: anOperand by: anotherOperand [
 

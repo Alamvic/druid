@@ -23,7 +23,7 @@ DRFloatToInt >> sccpLatticeValueFor: sccp [
 	lattice := (sccp latticeValue: operands first).
 	(sccp isConstantLattice: lattice)
 		ifFalse: [ ^ lattice ].
-	^ lattice asInteger
+	^ lattice value asInteger asDRValue
 ]
 
 { #category : #'constant folding' }

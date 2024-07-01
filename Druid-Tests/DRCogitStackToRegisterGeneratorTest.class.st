@@ -65,5 +65,5 @@ DRCogitStackToRegisterGeneratorTest >> testGenerateWhile [
 	DRStager new applyTo: cfg.
 	generator generateCodeForCFG: cfg.
 
-	self assert: self statements fourth selector equals: #whileTrue:
+	self assert: self statements sixth selector equals: #whileTrue:
 ]

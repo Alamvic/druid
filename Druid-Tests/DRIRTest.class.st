@@ -107,22 +107,30 @@ DRIRTest >> setUpCFG: n [
 	
 	b0 := cfg initialBasicBlock.
 	cfg b0: b0.
-	n = 0 ifTrue: [ ^ cfg ].
+	n = 0 ifTrue: [ 
+		b0 jumpTo: cfg exitBasicBlock.
+		^ cfg ].
 	
 	b1 := cfg newBasicBlock.
 	cfg b1: b1.
 	b0 jumpTo: b1.
-	n = 1 ifTrue: [ ^ cfg ].
+	n = 1 ifTrue: [ 
+		b1 jumpTo: cfg exitBasicBlock.
+		^ cfg ].
 	
 	b2 := cfg newBasicBlock.
 	cfg b2: b2.
 	b1 jumpTo: b2.
-	n = 2 ifTrue: [ ^ cfg ].
+	n = 2 ifTrue: [ 
+		b2 jumpTo: cfg exitBasicBlock.
+		^ cfg ].
 
 	b3 := cfg newBasicBlock.
 	cfg b3: b3.
 	b2 jumpTo: b3.
-	n = 3 ifTrue: [ ^ cfg ].
+	n = 3 ifTrue: [ 
+		b3 jumpTo: cfg exitBasicBlock.
+		^ cfg ].
 
 	self error: 'Unsupported graph size: ', n asString
 ]
@@ -194,10 +202,16 @@ DRIRTest >> setUpCFGWithConditional: jump [
 { #category : #test }
 DRIRTest >> setUpCFGWithConditionalWithPhi [
 
+	^ self setUpCFGWithConditionalWithPhiBetween: 1 and: 2
+]
+
+{ #category : #test }
+DRIRTest >> setUpCFGWithConditionalWithPhiBetween: aDRValue and: otherDRValue [
+
 	| cfg copy1 copy2 |
 	cfg := self setUpCFGWithConditional.
-	copy1 := cfg b2 copy: 1.
-	copy2 := cfg b3 copy: 2.
+	copy1 := cfg b2 copy: aDRValue.
+	copy2 := cfg b3 copy: otherDRValue.
 	cfg phi: (cfg b4 phiWith: copy1 with: copy2).
 	^ cfg
 ]

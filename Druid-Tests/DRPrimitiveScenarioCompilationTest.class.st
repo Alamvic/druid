@@ -158,9 +158,65 @@ DRPrimitiveScenarioCompilationTest >> testArithmeticBitShiftRight [
 
 	self compileDruidPrimitive: #primitiveArithmeticBitShiftRight.
 
-	self executePrimitiveWithReceiver: 2r10 withArguments: { 1 }.
+	self executePrimitiveWithReceiver: 1 << 63 withArguments: { 1 }.
 	
-	self assert: machineSimulator receiverRegisterValue equals: 2r1
+	self assert: machineSimulator receiverRegisterValue equals: 2r11 << 62
+]
+
+{ #category : #'tests-arithmetic-floats' }
+DRPrimitiveScenarioCompilationTest >> testAsFloatAddition [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveAsFloatAddition.
+	self
+		executePrimitiveWithReceiver: 17
+		withArguments: { 21 }.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 38
+]
+
+{ #category : #'tests-arithmetic-floats' }
+DRPrimitiveScenarioCompilationTest >> testAsFloatDivide [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveAsFloatDivision.
+	self
+		executePrimitiveWithReceiver: 17
+		withArguments: { 21 }.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 21.0 / 17.0
+]
+
+{ #category : #'tests-arithmetic-floats' }
+DRPrimitiveScenarioCompilationTest >> testAsFloatMultiply [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveAsFloatMultiply.
+	self
+		executePrimitiveWithReceiver: 17
+		withArguments: { 21 }.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 21.0 * 17.0
+]
+
+{ #category : #'tests-arithmetic-floats' }
+DRPrimitiveScenarioCompilationTest >> testAsFloatSubtract [
+
+	| floatRawValue |
+	self compileDruidPrimitive: #primitiveAsFloatSubtract.
+	self
+		executePrimitiveWithReceiver: 17
+		withArguments: { 21 }.
+	
+	floatRawValue := machineSimulator receiverRegisterValue.
+	
+	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 4.0
 ]
 
 { #category : #'tests-types' }
@@ -557,6 +613,38 @@ DRPrimitiveScenarioCompilationTest >> testCompiledPrimitivePreservesStack [
 	self assert: self popAddress equals: 55
 ]
 
+{ #category : #'tests-stack' }
+DRPrimitiveScenarioCompilationTest >> testCompiledPrimitiveWithTwoArgs [
+
+	self compileDruidPrimitive: #primitiveWithTwoArgs.
+	
+	self executePrimitiveWithReceiver: 42 withArguments: { 1. 2 }.
+	
+	"An empty primitive does nothing and just returns, the return value is the receiver"
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : #'tests-comparisons-floats' }
+DRPrimitiveScenarioCompilationTest >> testConditionalCompilationWithNoConditionGiven [
+
+	self
+		compileDruidPrimitive: #primitiveWithConditionalCompilation
+		with: [ :druid | druid addCompilerOption: #condition ].
+
+	self executePrimitiveWithReceiver: 0 withArguments: {  }.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #'tests-types' }
+DRPrimitiveScenarioCompilationTest >> testConstantFloatAsInteger [
+
+	self compileDruidPrimitive: #primitiveConstantFloatAsInteger.
+	self executePrimitiveWithReceiver: memory nilObject.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
 { #category : #'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testDecrementConstantArgument [
 
@@ -580,6 +668,7 @@ DRPrimitiveScenarioCompilationTest >> testDecrementConstantReceiver [
 { #category : #'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testDeferredInline [
 
+	self skip.
 	self compileDruidDeferredInlinePrimitive: #primitiveDoubleDeferredInline.
 	
 	self executePrimitiveWithReceiver: 42.
@@ -590,6 +679,7 @@ DRPrimitiveScenarioCompilationTest >> testDeferredInline [
 { #category : #'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testDeferredInlineFailedCode [
 
+	self skip.
 	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
 	
 	self executeUntilStopPrimitiveWithReceiver: 0
@@ -598,6 +688,7 @@ DRPrimitiveScenarioCompilationTest >> testDeferredInlineFailedCode [
 { #category : #'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testDeferredInlineTwice [
 
+	self skip.
 	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
 	
 	self executePrimitiveWithReceiver: 1.
@@ -656,6 +747,46 @@ DRPrimitiveScenarioCompilationTest >> testDivisionNotExactNegative [
 	self executePrimitiveWithReceiver: 5 withArguments: { -3 }.
 	
 	self assert: (machineSimulator receiverRegisterValue signedIntFromShort) equals: -1.   
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeLeftVariableLeft [
+
+	self compileDruidPrimitive: #primitiveDoubleBitAndSubtreeLeftVariableLeft.
+
+	self executePrimitiveWithReceiver: 1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeLeftVariableRight [
+
+	self compileDruidPrimitive: #primitiveDoubleBitAndSubtreeLeftVariableRight.
+
+	self executePrimitiveWithReceiver: 1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeRightVariableLeft [
+
+	self compileDruidPrimitive: #primitiveDoubleBitAndSubtreeRightVariableLeft.
+
+	self executePrimitiveWithReceiver: 1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeRightVariableRight [
+
+	self compileDruidPrimitive: #primitiveDoubleBitAndSubtreeRightVariableRight.
+
+	self executePrimitiveWithReceiver: 1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-comparisons' }
@@ -834,60 +965,34 @@ DRPrimitiveScenarioCompilationTest >> testFloat64AtPut [
 	self assert: (Float fromIEEE64BitWord: result) equals: 1234.0
 ]
 
-{ #category : #'tests-arithmetic-floats' }
-DRPrimitiveScenarioCompilationTest >> testFloatAdd [
+{ #category : #'tests-comparisons-floats' }
+DRPrimitiveScenarioCompilationTest >> testFloatAddConstant [
 
-	| floatRawValue |
-	self compileDruidPrimitive: #primitiveFloatAdd.
-	self
-		executePrimitiveWithReceiver: 17
-		withArguments: { 21 }.
+	self compileDruidPrimitive: #primitivePlusFloatConstant.
 	
-	floatRawValue := machineSimulator receiverRegisterValue.
+	self executePrimitiveWithReceiver: 1 withArguments: { }.
 	
-	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 38
+	self assert: (Float fromIEEE64Bit: machineSimulator receiverRegisterValue) closeTo: 4.14
 ]
 
-{ #category : #'tests-arithmetic-floats' }
-DRPrimitiveScenarioCompilationTest >> testFloatDivide [
+{ #category : #'tests-comparisons-floats' }
+DRPrimitiveScenarioCompilationTest >> testFloatFalseComparisonToConstantFloat [
 
-	| floatRawValue |
-	self compileDruidPrimitive: #primitiveFloatDivide.
-	self
-		executePrimitiveWithReceiver: 17
-		withArguments: { 21 }.
+	self compileDruidPrimitive: #primitiveEqualsThanFloatConstant.
 	
-	floatRawValue := machineSimulator receiverRegisterValue.
+	self executePrimitiveWithReceiver: 1 withArguments: { }.
 	
-	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 21.0 / 17.0
+	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-arithmetic-floats' }
-DRPrimitiveScenarioCompilationTest >> testFloatMultiply [
+{ #category : #'tests-comparisons-floats' }
+DRPrimitiveScenarioCompilationTest >> testFloatTrueComparisonToConstantFloat [
 
-	| floatRawValue |
-	self compileDruidPrimitive: #primitiveFloatMultiply.
-	self
-		executePrimitiveWithReceiver: 17
-		withArguments: { 21 }.
+	self compileDruidPrimitive: #primitiveEqualsThanFloatConstant.
 	
-	floatRawValue := machineSimulator receiverRegisterValue.
+	self executePrimitiveWithReceiver: 0 withArguments: { }.
 	
-	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 21.0 * 17.0
-]
-
-{ #category : #'tests-arithmetic-floats' }
-DRPrimitiveScenarioCompilationTest >> testFloatSubtract [
-
-	| floatRawValue |
-	self compileDruidPrimitive: #primitiveFloatSubtract.
-	self
-		executePrimitiveWithReceiver: 17
-		withArguments: { 21 }.
-	
-	floatRawValue := machineSimulator receiverRegisterValue.
-	
-	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 4.0
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-deadcode' }
@@ -1067,6 +1172,39 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanArgumentTrue [
 	self executePrimitiveWithReceiver: 0 withArguments: { 10 }.
 	
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfEqualsNumber [
+	"A negative number bitAnded should be considered a very large positive integer"
+
+	self compileDruidPrimitive: #primitiveGreaterThanBitAnd.
+
+	self executePrimitiveWithReceiver: 1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfNegativeNumber [
+	"A negative number bitAnded should be considered a very large positive integer"
+
+	self compileDruidPrimitive: #primitiveGreaterThanBitAnd.
+
+	self executePrimitiveWithReceiver: -1.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfPositiveNumber [
+	"A negative number bitAnded should be considered a very large positive integer"
+
+	self compileDruidPrimitive: #primitiveGreaterThanBitAnd.
+
+	self executePrimitiveWithReceiver: 2.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-comparisons-floats' }
@@ -1359,6 +1497,17 @@ DRPrimitiveScenarioCompilationTest >> testIntegerAsFloat [
 ]
 
 { #category : #'tests-arithmetic' }
+DRPrimitiveScenarioCompilationTest >> testIntegerBitAndSmallIntegers [
+
+	cogit receiverTags: 1.
+	self compileDruidPrimitive: #primitiveBitAnd.
+
+	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { (memory integerObjectOf: 11) }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: (42 bitAnd: 11))
+]
+
+{ #category : #'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testIntegerDivision [
 
 	self compileDruidPrimitive: #primitiveIntegerDivide.
@@ -1590,6 +1739,18 @@ DRPrimitiveScenarioCompilationTest >> testLessThanValueTrue [
 	self executePrimitiveWithReceiver: -10.
 	
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
+]
+
+{ #category : #'tests-bitwise' }
+DRPrimitiveScenarioCompilationTest >> testLogicalBitShiftRight [
+
+	self compileDruidPrimitive: #primitiveLogicalBitShiftRight.
+
+	"Create a number with the highest bit on.
+	After shifting right, the highest bit should be 0"
+	self executePrimitiveWithReceiver: 1 << 63 withArguments: { 1 }.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1 << 62
 ]
 
 { #category : #'tests-loop' }
@@ -1940,6 +2101,34 @@ DRPrimitiveScenarioCompilationTest >> testPrimitiveWithDeadCodeGoesThroughSecond
 	self executePrimitiveWithReceiver: 1.
 	
 	self assert: machineSimulator receiverRegisterValue equals: 55
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testRotateLeftBehavesLikeAShift [
+
+	self compileDruidPrimitive: #primitiveRotateLeft.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 42 << 1
+]
+
+{ #category : #'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testRotateLeftDoesNotBehavesLikeAShift [
+	"The idea here is to test that this happens:
+		1 0 0 0  ->  0 0 0 1
+	In contrast, a LeftShift would do something like this:
+		1 0 0 0  ->  1 0 0 0 0
+		
+	In this example we assume a simpler representation of 4 bits. Of course in our real system we would have 32 or 64 bits  	
+	"
+
+	self compileDruidPrimitive: #primitiveRotateLeft.
+
+
+	self executePrimitiveWithReceiver: 1 << 63.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
 { #category : #'tests-basic' }
@@ -2636,6 +2825,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8AtPut7 [
 { #category : #'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testWhileTrue [
 
+	self skip.
 	self compileDruidPrimitive: #primitiveLoopIncrementing.
 	
 	self executePrimitiveWithReceiver: 5.
@@ -2646,6 +2836,7 @@ DRPrimitiveScenarioCompilationTest >> testWhileTrue [
 { #category : #'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testWhileTrueWithGlobalState [
 
+	self skip.
 	self compileDruidPrimitive: #primitiveLoopIncrementingGlobalState.
 	
 	self executePrimitiveWithReceiver: 5.

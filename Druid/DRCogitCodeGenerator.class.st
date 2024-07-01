@@ -8,7 +8,8 @@ Class {
 		'availableJumpIndexes',
 		'blocks',
 		'visitedBlocksWithIncomingBackjumps',
-		'visitedBlocks'
+		'visitedBlocks',
+		'currentBlock'
 	],
 	#category : #'Druid-Cogit'
 }
@@ -36,6 +37,24 @@ DRCogitCodeGenerator >> blocks: aPath [
 	blocks := aPath
 ]
 
+{ #category : #factory }
+DRCogitCodeGenerator >> buildPushFrom: aDRPush [
+
+	(aDRPush operand1 isConstant or: [ aDRPush operand1 isStaged ])
+		ifTrue: [
+			^ RBMessageNode
+				  receiver: RBVariableNode selfNode
+				  selector: 'genPushConstant:'
+				  arguments: (aDRPush operand1 rtlPushArgumentExpressions: self) ].
+
+	^ RBMessageNode
+		  receiver: RBVariableNode selfNode
+		  selector:
+		  'Push'
+		  , (aDRPush operand1 rtlOperandQualifierForInstruction: aDRPush)
+		  arguments: (aDRPush operand1 rtlPushArgumentExpressions: self)
+]
+
 { #category : #'ir-generation' }
 DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 
@@ -46,7 +65,7 @@ DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 		 anInstruction isBytecodeJump not and: [
 			 anInstruction isAnnotateBytecode not ] ]) ifTrue: [
 		| varNode |
-		anInstruction isStore ifTrue: [
+		anInstruction isStore ifTrue: [ 
 			generatorMethodBuilder addStatement: (self jitCompileTimeExpression: anInstruction).
 			^ self ].
 
@@ -250,17 +269,16 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 	self generatePostambleForCFG: aDRControlFlowGraph.
 
 	"Return compiled method status for the compiler"
-	self generateReturn
+	self generateReturnForCFG: aDRControlFlowGraph
 ]
 
 { #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> generateCodeFromBlocks [
 
 	[ blocks isNotEmpty ] whileTrue: [
-		| current |
-		current := blocks removeAt: 1. "Remove current block from the list for code generation"
+		currentBlock := blocks removeAt: 1. "Remove current block from the list for code generation"
 		fallthroughBlock := blocks at: 1 ifAbsent: nil. "Store next block for fallthrough jumps"
-		self visitBasicBlock: current ]
+		self visitBasicBlock: currentBlock ]
 ]
 
 { #category : #'generate-code' }
@@ -357,6 +375,17 @@ DRCogitCodeGenerator >> generateMessage: selector operands: operands [
 			 arguments: (operands flatCollect: [ :op | self rtlArgumentsForValue: op ]))
 ]
 
+{ #category : #'code-generation' }
+DRCogitCodeGenerator >> generateMoveR: regSource R: regDest [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #MoveR:R:
+			 arguments: {
+					 regSource.
+					 regDest })
+]
+
 { #category : #'ir-to-ast' }
 DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 
@@ -368,7 +397,7 @@ DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 	The first spill slot will be [SP], the second will be [SP+WordSize] and so on."
 	addStatement := RBMessageNode
 		                receiver: RBVariableNode selfNode
-		                selector: #SubCq:R:
+		                selector: #AddCq:R:
 		                arguments: {
 				                (RBLiteralValueNode value:
 					                 aDRControlFlowGraph numberOfSpillSlots * 8). "bytes"
@@ -385,11 +414,11 @@ DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 	"If we need no spill slots, do nothing"
 	aDRControlFlowGraph numberOfSpillSlots = 0 ifTrue: [ ^ self ].
 	
-	"Otherwise, increment the stack pointer by N*WordSize where N is the number of required spill slots.
+	"Otherwise, decrement the stack pointer by N*WordSize where N is the number of required spill slots.
 	The first spill slot will be [SP], the second will be [SP+WordSize] and so on."
 	addStatement := RBMessageNode
 		receiver: RBVariableNode selfNode
-		selector: #AddCq:R:
+		selector: #SubCq:R:
 		arguments: {
 			RBLiteralValueNode value: aDRControlFlowGraph numberOfSpillSlots * 8 "bytes".
 			RBVariableNode named: 'SPReg'
@@ -398,10 +427,10 @@ DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 ]
 
 { #category : #'ir-to-ast' }
-DRCogitCodeGenerator >> generateReturn [
+DRCogitCodeGenerator >> generateReturnForCFG: aDRControlFlowGraph [
 
 	generatorMethodBuilder addStatement:
-		(RBReturnNode value: self returnNodeForCompiledMethod)
+		(RBReturnNode value: (self returnNodeForCompiledMethod: aDRControlFlowGraph))
 ]
 
 { #category : #'ir-to-ast' }
@@ -447,6 +476,7 @@ DRCogitCodeGenerator >> innerCompileBlocks: innerBlocks [
 
 	| innerGenerator |
 	innerGenerator := self innerGenerator.
+	innerGenerator visitedBlocks: (visitedBlocks copyWith: currentBlock).
 	innerGenerator blocks: innerBlocks.
 	innerGenerator generateCodeFromBlocks.
 	^ innerGenerator
@@ -455,7 +485,7 @@ DRCogitCodeGenerator >> innerCompileBlocks: innerBlocks [
 { #category : #'code-generation' }
 DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
 
-	| dominatorTree dominatedBlocks sharedPathToTheEnd fullPath innerGenerator |
+	| dominatorTree dominatedBlocks sharedPathToTheEnd fullPath innerGenerator branchBlocks frontier |
 	"We should create a path from the branch to the end"
 	dominatorTree := aDRBasicBlock controlFlowGraph buildDominatorTree.
 	dominatedBlocks := aDRBasicBlock controlFlowGraph
@@ -470,18 +500,24 @@ DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
 	"Remove blocks only visited during inner compilation from outer"
 	dominatedBlocks allButFirstDo: [ :b | blocks remove: b ].
 
-	sharedPathToTheEnd := dominatorTree iteratedDominanceFrontierOf:
-		                      aDRBasicBlock.
+	"Find the rest of the blocks to the end of the execution (dominated by the frontier)"
+	frontier := dominatorTree iteratedDominanceFrontierOf: aDRBasicBlock.
 	sharedPathToTheEnd := blocks select: [ :e |
-		                      sharedPathToTheEnd anySatisfy: [
-			                      :potentialDominator |
+		                      frontier anySatisfy: [ :potentialDominator |
 			                      e isDominatedBy: potentialDominator ] ].
-	fullPath := dominatedBlocks , sharedPathToTheEnd.
 
+	"Clean blocks that where already visited by inner compilation(s) and have no jumps from here"
+	branchBlocks := visitedBlocks , { currentBlock } , blocks.
+	sharedPathToTheEnd
+		reject: [ :b | branchBlocks includesAny: b predecessors ]
+		thenDo: [ :b | blocks remove: b ].
+
+	"Generate inner code"
+	fullPath := dominatedBlocks , sharedPathToTheEnd.
 	innerGenerator := self innerCompileBlocks: fullPath.
-	innerGenerator generatePostambleForCFG:
-		aDRBasicBlock controlFlowGraph.
-	innerGenerator generateReturn.
+	innerGenerator generatePostambleForCFG:	aDRBasicBlock controlFlowGraph.
+	innerGenerator generateReturnForCFG: aDRBasicBlock controlFlowGraph.
+	
 	^ innerGenerator
 ]
 
@@ -569,9 +605,9 @@ DRCogitCodeGenerator >> registerFor: aValue [
 ]
 
 { #category : #'ir-to-ast' }
-DRCogitCodeGenerator >> returnNodeForCompiledMethod [
+DRCogitCodeGenerator >> returnNodeForCompiledMethod: aDRControlFlowGraph [
 
-	^ RBVariableNode named: 'CompletePrimitive'
+	^ RBLiteralNode value: 0
 ]
 
 { #category : #visiting }
@@ -623,6 +659,12 @@ DRCogitCodeGenerator >> selectorCogitRTL: aMnemonic operands: operands instructi
 
 	^ aMnemonic , ('' join: (operands collect: [ :op |
 			    op rtlOperandQualifierForInstruction: anInstruction ]))
+]
+
+{ #category : #'code generation' }
+DRCogitCodeGenerator >> tempRegVariable [
+
+	^ RBVariableNode named: 'TempReg'
 ]
 
 { #category : #visiting }
@@ -706,7 +748,10 @@ DRCogitCodeGenerator >> visitAnd: aDRAnd [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitBasicBlock: b [
-
+	
+	"Block is not dead code"
+	self assert: (b isInitialBlock or: [visitedBlocks includesAny: b predecessors]).
+	
 	self preProcessBlock: b.
 	b instructionsDo: [ :e | self buildStatementsForInstruction: e ].
 	self postProcessBlock: b
@@ -759,6 +804,40 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 					 ((replacement condition operandsForInstruction: replacement)
 						  collect: [ :e | e type ]))
 		target: replacement falseBranch
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitCall: aDRCall [
+	"self CallRT: ceSendMustBeBooleanTrampoline"
+
+	| rbCallNode |
+	aDRCall operands size > 1 ifTrue: [ self toImplement ].
+	
+	aDRCall operands size = 1 ifTrue: [
+		"Trampolines are prepared to use TempReg as argument0"
+		self
+			generateMoveR: (self rtlExpressionForValue: aDRCall operand1)
+			R: self tempRegVariable ].
+		
+	rbCallNode := RBMessageNode
+		              receiver: RBVariableNode selfNode
+		              selector: #CallRT:
+		              arguments:
+		              { (RBVariableNode named: aDRCall functionName) }.
+	aDRCall shouldSaveLinkReg
+		ifTrue: [
+			generatorMethodBuilder addStatement: (RBMessageNode
+					 receiver: (RBVariableNode named: #backEnd)
+					 selector: #saveAndRestoreLinkRegAround:
+					 arguments:
+					 { (RBBlockNode body: (RBSequenceNode statements: { rbCallNode })) }) ]
+		ifFalse: [ generatorMethodBuilder addStatement: rbCallNode ].
+
+	aDRCall hasUsers ifTrue: [
+		"Trampolines are prepared to use TempReg as result"
+		self
+			generateMoveR: self tempRegVariable
+			R: (self rtlExpressionForValue: aDRCall) ]
 ]
 
 { #category : #visiting }
@@ -828,7 +907,6 @@ DRCogitCodeGenerator >> visitDivision: aDRCogitDivision [
 	The (cogit specific) register allocator should inserts a register for REM destination implicitly yet unused.
 	It should also put all operands in registers as the cogit instruction does not support constants."
 
-
 	^ generatorMethodBuilder addStatement: (RBMessageNode
 			   receiver: RBVariableNode selfNode
 			   selector: #DivR:R:Quo:Rem:
@@ -854,6 +932,12 @@ DRCogitCodeGenerator >> visitFloatToIntConversion: aDRFloatToInt [
 				  aDRFloatToInt operand1.
 				  aDRFloatToInt result }
 		  instruction: aDRFloatToInt
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitFlushStack: aDRFlushStack [
+
+	self subclassResponsibility
 ]
 
 { #category : #visiting }
@@ -964,6 +1048,14 @@ DRCogitCodeGenerator >> visitJump: aDRJump [
 			^ self "JIT compile loop" ] ].
 
 	self generateJump: #Jump: target: aDRJump target
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitLeftRotate: aDRRotate [
+
+	^ self
+		  threeOperandCogitRTL: #RotateLeft
+		  instruction: aDRRotate
 ]
 
 { #category : #visiting }
@@ -1113,7 +1205,12 @@ DRCogitCodeGenerator >> visitOverflow: aDRMultiplyOverflow inBranch: aDRBranchIf
 DRCogitCodeGenerator >> visitPhiFunction: aDRPhiFunction [ 
 
 	"For the moment nothing"
-	^ self visitNullValue: aDRPhiFunction
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitPush: aDRPush [
+
+	generatorMethodBuilder addStatement: (self buildPushFrom: aDRPush)
 ]
 
 { #category : #visiting }
@@ -1127,7 +1224,7 @@ DRCogitCodeGenerator >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRCogitCodeGenerator >> visitRightShift: aRightShift [ 
+DRCogitCodeGenerator >> visitSignedRightShift: aRightShift [ 
 
 	^ self threeOperandCogitRTL: #ArithmeticShiftRight instruction: aRightShift
 
@@ -1169,4 +1266,23 @@ DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfConditio
 DRCogitCodeGenerator >> visitUnsignedCoercion: aDRCogitUnsignedCoercion [ 
 
 	^ self visitCopy: aDRCogitUnsignedCoercion
+]
+
+{ #category : #visiting }
+DRCogitCodeGenerator >> visitUnsignedRightShift: aRightShift [ 
+
+	^ self threeOperandCogitRTL: #LogicalShiftRight instruction: aRightShift
+
+]
+
+{ #category : #accessing }
+DRCogitCodeGenerator >> visitedBlocks [
+
+	^ visitedBlocks
+]
+
+{ #category : #accessing }
+DRCogitCodeGenerator >> visitedBlocks: aCollection [
+
+	visitedBlocks := aCollection
 ]

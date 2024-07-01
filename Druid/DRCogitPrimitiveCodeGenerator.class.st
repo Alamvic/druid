@@ -15,6 +15,27 @@ DRCogitPrimitiveCodeGenerator >> copyRegister: sourceRegister to: destinationReg
 					 (RBVariableNode named: destinationRegister) })
 ]
 
+{ #category : #'ir-to-ast' }
+DRCogitPrimitiveCodeGenerator >> returnNodeForCompiledMethod: aDRControlFlowGraph [
+
+	| primitiveFail isCompletePrimitive |
+	primitiveFail := aDRControlFlowGraph failureExitBlock instructions
+		                 unique.
+	isCompletePrimitive := primitiveFail operand1 value.
+
+	isCompletePrimitive ifTrue: [
+		^ RBVariableNode named: 'CompletePrimitive' ].
+
+	^ super returnNodeForCompiledMethod: aDRControlFlowGraph
+]
+
+{ #category : #visiting }
+DRCogitPrimitiveCodeGenerator >> visitFlushStack: aDRFlushStack [ 
+
+	"Nothing! There are not sym stack on primitives."
+	"TODO: Avoid DRFlushStack instructions on primitive meta-compilation"
+]
+
 { #category : #visiting }
 DRCogitPrimitiveCodeGenerator >> visitLoadReceiver: aDRLoadReceiver [
 

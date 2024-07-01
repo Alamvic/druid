@@ -213,7 +213,7 @@ DRVMState >> simplify [
 { #category : #accumulating }
 DRVMState >> stackOperandAt: stackPosition [
 
-	^ operandStack at: stackPosition
+	^ operandStack at: stackPosition ifAbsent: [ DRNullValue new ]
 ]
 
 { #category : #accumulating }

@@ -34,6 +34,12 @@ DRPhysicalGeneralPurposeRegister >> asMemoryAddress [
 	^ DRAbsoluteMemoryAddress register: self
 ]
 
+{ #category : #printing }
+DRPhysicalGeneralPurposeRegister >> printResult [
+
+	^ name
+]
+
 { #category : #'register allocation' }
 DRPhysicalGeneralPurposeRegister >> returnToAllocator: aRegisterAllocator [
 	

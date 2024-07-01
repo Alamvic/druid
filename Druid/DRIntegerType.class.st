@@ -7,6 +7,12 @@ Class {
 	#category : #'Druid-IR-Types'
 }
 
+{ #category : #factory }
+DRIntegerType class >> bits64 [
+
+	^ self size: 8 "bytes per word"
+]
+
 { #category : #accessing }
 DRIntegerType class >> size: aSize [
 
@@ -19,6 +25,19 @@ DRIntegerType class >> size: aSize [
 DRIntegerType >> isIntegerType [
 	
 	^ true
+]
+
+{ #category : #'accessing - query' }
+DRIntegerType >> numberOfBits [
+
+	^ self size * 8
+]
+
+{ #category : #printing }
+DRIntegerType >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream << '[' << self size asString << ']'
 ]
 
 { #category : #accessing }

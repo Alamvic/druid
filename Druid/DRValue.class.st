@@ -133,6 +133,17 @@ DRValue >> isAnnotateBytecode [
 ]
 
 { #category : #testing }
+DRValue >> isBitAnd [
+	
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isBitXor [
+	^ false
+]
+
+{ #category : #testing }
 DRValue >> isClosureCreation [
 	
 	^ false
@@ -178,6 +189,12 @@ DRValue >> isCopy [
 { #category : #testing }
 DRValue >> isDRBlockClosure [
 	
+	^ false
+]
+
+{ #category : #testing }
+DRValue >> isFlushStack [
+
 	^ false
 ]
 
@@ -522,6 +539,12 @@ DRValue >> typeWithAlreadySeen: aCollection [
 DRValue >> users [
 	
 	^ #()
+]
+
+{ #category : #testing }
+DRValue >> willBeConstant [
+	
+	^ self isConstant or: [ self isStaged ]
 ]
 
 { #category : #dependencies }

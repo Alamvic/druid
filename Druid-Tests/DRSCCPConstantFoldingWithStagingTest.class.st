@@ -12,30 +12,6 @@ DRSCCPConstantFoldingWithStagingTest >> setUp [
 ]
 
 { #category : #arithmetic }
-DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingAddJitCompileExpressionWithConstantIsJitCompileExpression [
-
-	| cfg |
-	cfg := self testConstantFoldingOf: DRAdd between: self varJITExpression and: 7 asDRValue.
-
-	self assert: cfg instructions allButLast last isCopy.
-	self
-		assert: cfg instructions allButLast last operand1 expression
-		equals: '(var + 7)'
-]
-
-{ #category : #arithmetic }
-DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingAddJitCompileExpressionWithJitCompileExpressionIsJitCompileExpression [
-
-	| cfg |
-	cfg := self testConstantFoldingOf: DRAdd between: self varJITExpression and: self varJITExpression.
-
-	self assert: cfg instructions allButLast last isCopy.
-	self
-		assert: cfg instructions allButLast last operand1 expression
-		equals: '(var + var)'
-]
-
-{ #category : #arithmetic }
 DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingAddJitCompileExpressionWithNonJitCompileExpression [
 
 	self
@@ -53,36 +29,6 @@ DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingFalseOrRegisterIsRegi
 
 	"When staging, the temporary registers are considered constants and this can be folded"
 	self assertLastInstructionOf: cfg isCopyOf: copy operand1
-]
-
-{ #category : #arithmetic }
-DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingLoadConstant [
-
-	| b1 cfg operand1 operand2 |
-	cfg := self setUpCFG: 1.
-	b1 := cfg b1.
-
-	operand1 := b1 copy: 9999.
-	operand2 := b1 loadSInt64: operand1.
-
-	optimisation applyTo: cfg.
-
-	self assert: cfg instructions allButLast last isCopy.
-	self
-		assert: cfg instructions allButLast last operand1 expression
-		equals: '(coInterpreter int64AtPointer:  9999)'
-]
-
-{ #category : #arithmetic }
-DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingLoadJitCompileExpression [
-
-	| cfg |
-	cfg := self testConstantFoldingOf: DRLoad betweenOp: DRPointerType new and: self varJITExpression.
-
-	self assert: cfg instructions allButLast last isCopy.
-	self
-		assert: cfg instructions allButLast last operand1 expression
-		equals: '(coInterpreter int64AtPointer:  var)'
 ]
 
 { #category : #arithmetic }
@@ -143,11 +89,10 @@ DRSCCPConstantFoldingWithStagingTest >> testFoldingLoadWithConstant [
 	optimisation applyTo: cfg.
 
 	"T2 := LOAD_JIT_COMPILE_EXPRESSION 1"
-	self assert:
-		cfg instructions nextToLast operand1 isJITCompileTimeExpression.
+	self assert: cfg instructions nextToLast operand1 isInterpreterReference.
 	self
-		assert: cfg instructions nextToLast operand1 expression
-		equals: '(coInterpreter int64AtPointer:  1)'
+		assert: cfg instructions nextToLast operand1 reference
+		equals: '(coInterpreter int64AtPointer: 1)'
 ]
 
 { #category : #tests }

@@ -18,16 +18,14 @@ DRGlobalValueNumbering >> adjustPhiFunctions: block [
 	]
 ]
 
-{ #category : #operations }
+{ #category : #accessing }
 DRGlobalValueNumbering >> applyTo: cfg [
 
-	dominatorTree := DRDominatorTree new.
-	dominatorTree buildDominatorTreeOf: cfg.
 	hashTables := OrderedCollection new.
 	currentScope := 0.
 	valueNumbers := Dictionary new.
-	
-	self dominatorBasedValueNumbering: dominatorTree tree.
+
+	self dominatorBasedValueNumbering: cfg dominatorTree root
 ]
 
 { #category : #operations }

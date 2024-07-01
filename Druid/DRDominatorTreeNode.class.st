@@ -19,13 +19,27 @@ DRDominatorTreeNode class >> new [
 ]
 
 { #category : #accessing }
+DRDominatorTreeNode >> addChild: aChild [
+
+	children addLast: aChild
+]
+
+{ #category : #accessing }
+DRDominatorTreeNode >> allChildren [
+	"Cumulate all the transitive children of this node"
+
+	^ self children , (self children flatCollect: [ :e | e allChildren ])
+]
+
+{ #category : #accessing }
 DRDominatorTreeNode >> block [
 	^ block
 ]
 
 { #category : #accessing }
 DRDominatorTreeNode >> block: b [
-	block := b.
+
+	block := b
 ]
 
 { #category : #accessing }
@@ -35,18 +49,8 @@ DRDominatorTreeNode >> children [
 
 { #category : #accessing }
 DRDominatorTreeNode >> children: c [
-	children := c.
-]
 
-{ #category : #accessing }
-DRDominatorTreeNode >> findImmediateDominator: tree [
-	| nearestCommonAncestor currentPredecessor |
-	nearestCommonAncestor := tree blockDictionary at: (block predecessors at: 1).
-	block predecessors do: [ :p |
-		currentPredecessor := tree blockDictionary at: p.
-		nearestCommonAncestor := (tree nearestCommonAncestorOf: nearestCommonAncestor and: currentPredecessor).
-	].
-	^ nearestCommonAncestor
+	children := c
 ]
 
 { #category : #testing }
@@ -65,6 +69,16 @@ DRDominatorTreeNode >> parent [
 { #category : #accessing }
 DRDominatorTreeNode >> parent: node [
 	parent := node
+]
+
+{ #category : #printing }
+DRDominatorTreeNode >> printOn: aStream [
+	"Generate a string representation of the receiver based on its instance variables."
+
+	super printOn: aStream.
+	aStream
+		nextPutAll: ' block: ';
+		print: block
 ]
 
 { #category : #accessing }

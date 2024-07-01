@@ -95,6 +95,14 @@ DruidTestInterpreter >> failingSuccess [
 	self success: false
 ]
 
+{ #category : #bytecode }
+DruidTestInterpreter >> fakePushConstantTrueBytecode [
+
+	<nextSuperInstructions: #(92)>
+
+	self pushConstantTrueBytecode
+]
+
 { #category : #'as yet unclassified' }
 DruidTestInterpreter >> ifZeroFailPrimitive [
 
@@ -314,6 +322,50 @@ DruidTestInterpreter >> primitiveArithmeticBitShiftRight [
 	receiver := self stackValue: 1.
 	argument := self stackTop.
 	self pop: 2 thenPush: (receiver >>> argument)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAsFloatAddition [
+	"Transform the integers as float.
+	Add the floats.
+	Then read the result raw representation and push that to the stack."
+
+	<numberOfArguments: 1>
+	self pop: 2 thenPush: (objectMemory rawFloatBitsOf:
+			 self stackTop asFloat + (self stackValue: 1) asFloat)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAsFloatDivision [
+	"Transform the integers as float.
+	Add the floats.
+	Then read the result raw representation and push that to the stack."
+
+	<numberOfArguments: 1>
+	self pop: 2 thenPush: (objectMemory rawFloatBitsOf:
+			 self stackTop asFloat / (self stackValue: 1) asFloat)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAsFloatMultiply [
+	"Transform the integers as float.
+	Add the floats.
+	Then read the result raw representation and push that to the stack."
+
+	<numberOfArguments: 1>
+	self pop: 2 thenPush: (objectMemory rawFloatBitsOf:
+			 self stackTop asFloat * (self stackValue: 1) asFloat)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveAsFloatSubtract [
+	"Transform the integers as float.
+	Add the floats.
+	Then read the result raw representation and push that to the stack."
+
+	<numberOfArguments: 1>
+	self pop: 2 thenPush: (objectMemory rawFloatBitsOf:
+			 self stackTop asFloat - (self stackValue: 1) asFloat)
 ]
 
 { #category : #'as yet unclassified' }
@@ -601,6 +653,15 @@ DruidTestInterpreter >> primitiveConditionWithObjectReference [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveConstantFloatAsInteger [
+
+	<numberOfArguments: 0>
+	"Transform the integer argument as float.
+	Then read its raw representation and push that to the stack."
+	self pop: 1 thenPush: 17.0 asInteger
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDNA [
 
 	<numberOfArguments: 0>
@@ -690,6 +751,46 @@ DruidTestInterpreter >> primitiveDivideByConstant [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDoubleBitAndSubtreeLeftVariableLeft [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := (self stackTop bitAnd: 16rFFFFFFFF) bitAnd: 16r3FFFFF.
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDoubleBitAndSubtreeLeftVariableRight [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := (16rFFFFFFFF bitAnd: self stackTop) bitAnd: 16r3FFFFF.
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDoubleBitAndSubtreeRightVariableLeft [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := 16r3FFFFF bitAnd: (self stackTop bitAnd: 16rFFFFFFFF).
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveDoubleBitAndSubtreeRightVariableRight [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := 16r3FFFFF bitAnd: (16rFFFFFFFF bitAnd: self stackTop).
+	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveDoubleDeferredInline [
 
 	<numberOfArguments: 0>
@@ -731,6 +832,15 @@ DruidTestInterpreter >> primitiveEqualsThan [
 	| r |
 	r := self stackTop = 10 ifTrue: [ 5 ] ifFalse: [11].
 	self pop: 1 thenPush: r
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveEqualsThanFloatConstant [
+
+	<numberOfArguments: 0>
+	self
+		pop: 1
+		thenPush: self stackTop asFloat = 0.0
 ]
 
 { #category : #'as yet unclassified' }
@@ -811,7 +921,7 @@ DruidTestInterpreter >> primitiveFloat64At [
 	addressToRead := self stackTop.
 	self
 		pop: 1
-		thenPush: (objectMemory rawFloatBitsOf: (objectMemory float64At: addressToRead) in: nil) 
+		thenPush: (objectMemory rawFloatBitsOf: (objectMemory float64At: addressToRead)) 
 ]
 
 { #category : #'as yet unclassified' }
@@ -823,58 +933,6 @@ DruidTestInterpreter >> primitiveFloat64AtPut [
 	valueToStore := self stackTop.
 	addressToRead := self stackValue: 1.
 	objectMemory float64At: addressToRead put: valueToStore asFloat
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveFloatAdd [
-	"Transform the integers as float.
-	Add the floats.
-	Then read the result raw representation and push that to the stack."
-
-	<numberOfArguments: 1>
-	self pop: 2 thenPush: (objectMemory
-			 rawFloatBitsOf:
-			 self stackTop asFloat + (self stackValue: 1) asFloat
-			 in: nil)
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveFloatDivide [
-	"Transform the integers as float.
-	Add the floats.
-	Then read the result raw representation and push that to the stack."
-
-	<numberOfArguments: 1>
-	self pop: 2 thenPush: (objectMemory
-			 rawFloatBitsOf:
-			 self stackTop asFloat / (self stackValue: 1) asFloat
-			 in: nil)
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveFloatMultiply [
-	"Transform the integers as float.
-	Add the floats.
-	Then read the result raw representation and push that to the stack."
-
-	<numberOfArguments: 1>
-	self pop: 2 thenPush: (objectMemory
-			 rawFloatBitsOf:
-			 self stackTop asFloat * (self stackValue: 1) asFloat
-			 in: nil)
-]
-
-{ #category : #'as yet unclassified' }
-DruidTestInterpreter >> primitiveFloatSubtract [
-	"Transform the integers as float.
-	Add the floats.
-	Then read the result raw representation and push that to the stack."
-
-	<numberOfArguments: 1>
-	self pop: 2 thenPush: (objectMemory
-			 rawFloatBitsOf:
-			 self stackTop asFloat - (self stackValue: 1) asFloat
-			 in: nil)
 ]
 
 { #category : #comparisons }
@@ -932,6 +990,18 @@ DruidTestInterpreter >> primitiveGreaterThanArgument [
 
 	<numberOfArguments: 1>
 	self pop: 2 thenPush: (self stackTop > 0)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveGreaterThanBitAnd [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+	| r |
+	r := (self stackTop bitAnd: 16rFFFFFFFFFFFFFFFF) > 1
+		     ifTrue: [ 1 ]
+		     ifFalse: [ 2 ].
+	self pop: 1 thenPush: r
 ]
 
 { #category : #'as yet unclassified' }
@@ -1104,8 +1174,7 @@ DruidTestInterpreter >> primitiveIntegerAsFloat [
 	<numberOfArguments: 0>
 	self
 		pop: 1
-		thenPush:
-		(objectMemory rawFloatBitsOf: self stackTop asFloat in: nil)
+		thenPush: (objectMemory rawFloatBitsOf: self stackTop asFloat)
 ]
 
 { #category : #'as yet unclassified' }
@@ -1134,7 +1203,7 @@ DruidTestInterpreter >> primitiveIntegerRawBitsAsFloat [
 	<numberOfArguments: 0>
 	"Transform the integer argument as float.
 	Then read its raw representation and push that to the stack."
-	self pop: 1 thenPush: self stackTop float64FromRawBits asInteger
+	self pop: 1 thenPush: (self floatFromRawBits: self stackTop) asInteger
 ]
 
 { #category : #'as yet unclassified' }
@@ -1234,6 +1303,17 @@ DruidTestInterpreter >> primitiveLessThanValue [
 
 	<numberOfArguments: 0>
 	self pop: 1 thenPush: (self stackTop < 0)
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveLogicalBitShiftRight [
+
+	<numberOfArguments: 1>
+	<var: #receiver type: #usqInt>
+	| receiver argument |
+	receiver := self stackValue: 1.
+	argument := self stackTop.
+	self pop: 2 thenPush: (receiver >> argument)
 ]
 
 { #category : #'as yet unclassified' }
@@ -1456,6 +1536,15 @@ DruidTestInterpreter >> primitiveOr [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitivePlusFloatConstant [
+
+	<numberOfArguments: 0>
+	self
+		pop: 1
+		thenPush: (self rawFloatBitsOf: (self stackTop asFloat + 3.14))
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitivePushFirstArgument [
 
 	<numberOfArguments: 1>
@@ -1515,6 +1604,19 @@ DruidTestInterpreter >> primitiveReturnTrue [
 	<numberOfArguments: 0>
 	
 	self pop: 1 thenPush: objectMemory trueObject
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveRotateLeft [
+
+	<numberOfArguments: 0>
+
+	| v |
+	v := objectMemory rotateLeft: self stackTop by: 1.
+	
+	self pop: 1 thenPush: v.
+	
+   
 ]
 
 { #category : #'as yet unclassified' }
@@ -1712,6 +1814,14 @@ DruidTestInterpreter >> primitiveUint8AtPut [
 ]
 
 { #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithConditionalCompilation [
+
+	<numberOfArguments: 0>
+	self druidIf: #condition do: [ ^ self pop: 1 thenPush: 17 ].
+	self pop: 1 thenPush: 42
+]
+
+{ #category : #'as yet unclassified' }
 DruidTestInterpreter >> primitiveWithDeadCode [
 
 	<numberOfArguments: 0>
@@ -1812,6 +1922,21 @@ DruidTestInterpreter >> primitiveWithSequentialExitPoint [
 	This primitive always fails and all is dead code"
 	self nonCompilableMethod.
 	self pop: 1 thenPush: r.
+]
+
+{ #category : #'as yet unclassified' }
+DruidTestInterpreter >> primitiveWithTwoArgs [
+
+	<numberOfArguments: 2>
+	
+	|  arg1 arg0 rcvr result |
+	arg1 := self stackValue: 0.
+	arg0 := self stackValue: 1.
+	rcvr := self stackValue: 2.
+	
+	result := rcvr > 0 ifTrue: [ arg1 ] ifFalse: [ arg0 ].
+	
+	self pop: 3 thenPush: result
 ]
 
 { #category : #'as yet unclassified' }

@@ -1,11 +1,11 @@
 Class {
-	#name : #DRDominatorTreeTest,
+	#name : #DRPostdominatorTreeTest,
 	#superclass : #DROptimisationTest,
 	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #'test - scenarios' }
-DRDominatorTreeTest >> testConditionalCFGDomination [
+DRPostdominatorTreeTest >> testConditionalCFGDomination [
 
 	| cfg b0 b1 b2 |
 	cfg := DRControlFlowGraphForTesting new.
@@ -16,15 +16,15 @@ DRDominatorTreeTest >> testConditionalCFGDomination [
 	b0 jumpIf: true to: b1 ifFalseTo: b2.
 	b1 jumpTo: b2.
 
-	self assert: (b0 isDominatorOfExactly: {
+	self assert: (b2 isPostDominatorOfExactly: {
 				 b1.
-				 b2 }).
-	self assert: b1 dominatedBlocks isEmpty.
-	self assert: b2 dominatedBlocks isEmpty
+				 b0 }).
+	self assert: b1 postDominatedBlocks isEmpty.
+	self assert: b0 postDominatedBlocks isEmpty
 ]
 
 { #category : #old }
-DRDominatorTreeTest >> testCorrectDominatorTreeWithLoop [
+DRPostdominatorTreeTest >> testCorrectDominatorTreeWithLoop [
 
 	| cfg jump |
 	jump := self newConditionalJump.
@@ -47,7 +47,7 @@ DRDominatorTreeTest >> testCorrectDominatorTreeWithLoop [
 ]
 
 { #category : #'test - scenarios' }
-DRDominatorTreeTest >> testDegenerateLoopCFGDomination [
+DRPostdominatorTreeTest >> testDegenerateLoopCFGDomination [
 
 	| cfg b0 b1 b2 b3 b4 b5 |
 	cfg := DRControlFlowGraphForTesting new.
@@ -65,21 +65,21 @@ DRDominatorTreeTest >> testDegenerateLoopCFGDomination [
 	b3 jumpIf: true to: b2 ifFalseTo: b5.
 	b4 jumpIf: true to: b1 ifFalseTo: b5.
 
-	self assert: (b0 isDominatorOfExactly: {
+	self assert: (b5 isPostDominatorOfExactly: {
+				 b0.
 				 b1.
 				 b2.
 				 b3.
-				 b4.
-				 b5 }).
-	self assert: (b1 isDominatorOfExactly: { b3 }).
-	self assert: (b2 isDominatorOfExactly: { b4 }).
-	self assert: b3 dominatedBlocks isEmpty.
-	self assert: b4 dominatedBlocks isEmpty.
-	self assert: b5 dominatedBlocks isEmpty
+				 b4 }).
+	self assert: (b3 isPostDominatorOfExactly: { b1 }).
+	self assert: (b4 isPostDominatorOfExactly: { b2 }).
+	self assert: b1 postDominatedBlocks isEmpty.
+	self assert: b2 postDominatedBlocks isEmpty.
+	self assert: b0 postDominatedBlocks isEmpty
 ]
 
 { #category : #'test - scenarios' }
-DRDominatorTreeTest >> testDegenerateLoopCFGImmediateDomination [
+DRPostdominatorTreeTest >> testDegenerateLoopCFGImmediateDomination [
 
 	| cfg b0 b1 b2 b3 b4 b5 |
 	cfg := DRControlFlowGraphForTesting new.
@@ -97,20 +97,20 @@ DRDominatorTreeTest >> testDegenerateLoopCFGImmediateDomination [
 	b3 jumpIf: true to: b2 ifFalseTo: b5.
 	b4 jumpIf: true to: b1 ifFalseTo: b5.
 
-	self assert: (b0 isImmediateDominatorOfExactly: {
-				 b1.
-				 b2.
-				 b5 }).
-	self assert: (b1 isImmediateDominatorOfExactly: { b3 }).
+	self assert: (b5 isImmediatePostDominatorOfExactly: {
+				 b3.
+				 b4.
+				 b0 }).
+	self assert: (b3 isImmediatePostDominatorOfExactly: { b1 }).
 
-	self assert: (b2 isImmediateDominatorOfExactly: { b4 }).
-	self assert: b3 dominatedBlocks isEmpty.
-	self assert: b4 dominatedBlocks isEmpty.
-	self assert: b5 dominatedBlocks isEmpty
+	self assert: (b4 isImmediatePostDominatorOfExactly: { b2 }).
+	self assert: b1 postDominatedBlocks isEmpty.
+	self assert: b2 postDominatedBlocks isEmpty.
+	self assert: b0 postDominatedBlocks isEmpty
 ]
 
 { #category : #'test - scenarios' }
-DRDominatorTreeTest >> testDiamondConditionalCFGDomination [
+DRPostdominatorTreeTest >> testDiamondConditionalCFGDomination [
 
 	| cfg b0 b1 b2 b3 |
 	cfg := DRControlFlowGraphForTesting new.
@@ -119,22 +119,22 @@ DRDominatorTreeTest >> testDiamondConditionalCFGDomination [
 	b1 := cfg newBasicBlock.
 	b2 := cfg newBasicBlock.
 	b3 := cfg exitBasicBlock.
-	
+
 	b0 jumpIf: true to: b1 ifFalseTo: b2.
 	b1 jumpTo: b3.
 	b2 jumpTo: b3.
 
-	self assert: (b0 isDominatorOfExactly: {
+	self assert: (b3 isPostDominatorOfExactly: {
+				 b0.
 				 b1.
-				 b2.
-				 b3 }).
-	self assert: b1 dominatedBlocks isEmpty.
-	self assert: b2 dominatedBlocks isEmpty.
-	self assert: b3 dominatedBlocks isEmpty
+				 b2 }).
+	self assert: b0 postDominatedBlocks isEmpty.
+	self assert: b1 postDominatedBlocks isEmpty.
+	self assert: b2 postDominatedBlocks isEmpty
 ]
 
 { #category : #'test - scenarios' }
-DRDominatorTreeTest >> testDoubleDiamondConditionalCFGDomination [
+DRPostdominatorTreeTest >> testDoubleDiamondConditionalCFGDomination [
 
 	| cfg b0 b1 b2 b3 b4 b5 b6 |
 	cfg := DRControlFlowGraphForTesting new.
@@ -156,26 +156,26 @@ DRDominatorTreeTest >> testDoubleDiamondConditionalCFGDomination [
 	b4 jumpTo: b6.
 	b5 jumpTo: b6.
 
-	self assert: (b0 isDominatorOfExactly: {
+	self assert: (b6 isPostDominatorOfExactly: {
 				 b1.
 				 b2.
 				 b3.
 				 b4.
 				 b5.
-				 b6 }).
-	self assert: b1 dominatedBlocks isEmpty.
-	self assert: b2 dominatedBlocks isEmpty.
-	self assert: (b3 isDominatorOfExactly: {
-				 b4.
-				 b5.
-				 b6 }).
-	self assert: b4 dominatedBlocks isEmpty.
-	self assert: b5 dominatedBlocks isEmpty.
-	self assert: b6 dominatedBlocks isEmpty
+				 b0 }).
+	self assert: b4 postDominatedBlocks isEmpty.
+	self assert: b5 postDominatedBlocks isEmpty.
+	self assert: (b3 isPostDominatorOfExactly: {
+				 b0.
+				 b1.
+				 b2 }).
+	self assert: b0 postDominatedBlocks isEmpty.
+	self assert: b1 postDominatedBlocks isEmpty.
+	self assert: b2 postDominatedBlocks isEmpty
 ]
 
 { #category : #'test - scenarios' }
-DRDominatorTreeTest >> testDoubleDiamondConditionalCFGImmediateDomination [
+DRPostdominatorTreeTest >> testDoubleDiamondConditionalCFGImmediateDomination [
 
 	| cfg b0 b1 b2 b3 b4 b5 b6 |
 	cfg := DRControlFlowGraphForTesting new.
@@ -197,14 +197,14 @@ DRDominatorTreeTest >> testDoubleDiamondConditionalCFGImmediateDomination [
 	b4 jumpTo: b6.
 	b5 jumpTo: b6.
 
-	self assert: (b0 isImmediateDominatorOfExactly: {
-				 b1.
-				 b2.
+	self assert: (b6 isImmediatePostDominatorOfExactly: {
+				 b4.
+				 b5.
 				 b3 })
 ]
 
 { #category : #'test - api' }
-DRDominatorTreeTest >> testExactDominationFailsWithIncompleteNumberOfBlocks [
+DRPostdominatorTreeTest >> testExactDominationFailsWithIncompleteNumberOfBlocks [
 
 	| cfg b0 b1 b2 b3 |
 	cfg := DRControlFlowGraphForTesting new.
@@ -227,7 +227,7 @@ DRDominatorTreeTest >> testExactDominationFailsWithIncompleteNumberOfBlocks [
 ]
 
 { #category : #'test - scenarios' }
-DRDominatorTreeTest >> testLinearCFGDomination [
+DRPostdominatorTreeTest >> testLinearCFGDomination [
 
 	| cfg b0 b1 |
 	cfg := DRControlFlowGraphForTesting new.
@@ -236,14 +236,15 @@ DRDominatorTreeTest >> testLinearCFGDomination [
 	b1 := cfg exitBasicBlock.
 	b0 jumpTo: b1.
 
-	self assert: (b0 isDominatorOfExactly: { b1 }).
-	self assert: (b1 isDominatedBy: b0)
+
+	self assert: (b1 isPostDominatorOfExactly: { b0 }).
+	self assert: (b0 isPostDominatedBy: b1)
 ]
 
 { #category : #'test - scenarios' }
-DRDominatorTreeTest >> testNestedDiamondConditionalCFGDomination [
+DRPostdominatorTreeTest >> testNestedDiamondConditionalCFGDomination [
 
-	| cfg b0 b1 b2 b3 b4 b5 |
+	| cfg b0 b1 b2 b3 b4 b5 b6 |
 	cfg := DRControlFlowGraphForTesting new.
 
 	b0 := cfg initialBasicBlock.
@@ -251,33 +252,37 @@ DRDominatorTreeTest >> testNestedDiamondConditionalCFGDomination [
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
-	b5 := cfg exitBasicBlock.
+	b5 := cfg newBasicBlock.
+	b6 := cfg exitBasicBlock.
 
 	b0 jumpIf: true to: b1 ifFalseTo: b2.
-	b1 jumpTo: b5.
+	b1 jumpTo: b6.
 	b2 jumpIf: true to: b3 ifFalseTo: b4.
 	b3 jumpTo: b5.
 	b4 jumpTo: b5.
+	b5 jumpTo: b6.
 
-	self assert: (b0 isDominatorOfExactly: {
+	self assert: (b6 isPostDominatorOfExactly: {
 				 b1.
 				 b2.
 				 b3.
 				 b4.
+				 b0.
 				 b5 }).
-	self assert: b1 dominatedBlocks isEmpty.
-	self assert: (b2 isDominatorOfExactly: {
+	self assert: b1 postDominatedBlocks isEmpty.
+	self assert: (b5 isPostDominatorOfExactly: {
+				 b2.
 				 b3.
 				 b4 }).
-	self assert: b3 dominatedBlocks isEmpty.
-	self assert: b4 dominatedBlocks isEmpty.
-	self assert: b5 dominatedBlocks isEmpty
+	self assert: b3 postDominatedBlocks isEmpty.
+	self assert: b4 postDominatedBlocks isEmpty.
+	self assert: b2 postDominatedBlocks isEmpty
 ]
 
 { #category : #'test - scenarios' }
-DRDominatorTreeTest >> testNestedDiamondConditionalCFGImmediateDomination [
+DRPostdominatorTreeTest >> testNestedDiamondConditionalCFGImmediateDomination [
 
-	| cfg b0 b1 b2 b3 b4 b5 |
+	| cfg b0 b1 b2 b3 b4 b5 b6 |
 	cfg := DRControlFlowGraphForTesting new.
 
 	b0 := cfg initialBasicBlock.
@@ -285,23 +290,26 @@ DRDominatorTreeTest >> testNestedDiamondConditionalCFGImmediateDomination [
 	b2 := cfg newBasicBlock.
 	b3 := cfg newBasicBlock.
 	b4 := cfg newBasicBlock.
-	b5 := cfg exitBasicBlock.
+	b5 := cfg newBasicBlock.
+	b6 := cfg exitBasicBlock.
 
 	b0 jumpIf: true to: b1 ifFalseTo: b2.
-	b1 jumpTo: b5.
+	b1 jumpTo: b6.
 	b2 jumpIf: true to: b3 ifFalseTo: b4.
 	b3 jumpTo: b5.
 	b4 jumpTo: b5.
+	b5 jumpTo: b6.
 
-	self assert: (b0 isImmediateDominatorOfExactly: {
+	self assert: (b6 isImmediatePostDominatorOfExactly: {
+				 b0.
 				 b1.
-				 b2.
 				 b5 }).
-	self assert: b1 dominatedBlocks isEmpty.
-	self assert: (b2 isDominatorOfExactly: {
+	self assert: b1 postDominatedBlocks isEmpty.
+	self assert: (b5 isImmediatePostDominatorOfExactly: {
+				 b2.
 				 b3.
 				 b4 }).
-	self assert: b3 dominatedBlocks isEmpty.
-	self assert: b4 dominatedBlocks isEmpty.
-	self assert: b5 dominatedBlocks isEmpty
+	self assert: b3 postDominatedBlocks isEmpty.
+	self assert: b4 postDominatedBlocks isEmpty.
+	self assert: b2 postDominatedBlocks isEmpty
 ]

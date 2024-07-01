@@ -49,6 +49,22 @@ DRInstructionFactory >> bitAnd: operand1 with: operand2 [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> bitOr: operand1 with: operand2 [
+
+	^ DRBitOr
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
+DRInstructionFactory >> bitXor: operand1 with: operand2 [
+
+	^ DRBitXor
+		  operands: { operand1 asDRValue. operand2 asDRValue }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #factory }
 DRInstructionFactory >> copy: aValue [
 
 	^ DRCopy
@@ -70,6 +86,14 @@ DRInstructionFactory >> equals: operand1 to: operand2 [
 	^ self getConditionCodeOf: DREqualsThanComparison new operands: { 
 			  operand1 asDRValue.
 			  operand2 asDRValue }
+]
+
+{ #category : #factory }
+DRInstructionFactory >> floatFromBits: operand1 [
+
+	^ DRGetFloatFromBits
+		  operands: { operand1 asDRValue. }
+		  result: self allocateTemporaryRegister
 ]
 
 { #category : #factory }
@@ -164,7 +188,7 @@ DRInstructionFactory >> load: anAdress [
 DRInstructionFactory >> loadArgument: index [
 
 	^ DRLoadArgument
-		  operands: { index }
+		  operands: { index asDRValue }
 		  result: self allocateTemporaryRegister
 ]
 
@@ -260,6 +284,16 @@ DRInstructionFactory >> pushBase: base offset: offset [
 				   base: base;
 				   offset: offset;
 				   yourself) }
+		  result: self allocateTemporaryRegister
+]
+
+{ #category : #building }
+DRInstructionFactory >> rotateLeft: aValue by: anOffset [
+
+	^ DRRotateLeft
+		  operands: {
+				  aValue asDRValue.
+				  anOffset asDRValue }
 		  result: self allocateTemporaryRegister
 ]
 

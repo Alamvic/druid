@@ -59,17 +59,28 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass: aSuperclass [
 
 	| primitives bytecodes |
-	primitives := #( #primitiveAdd #primitiveSubtract #primitiveLessThan
-	                 #primitiveGreaterThan #primitiveLessOrEqual
-	                 #primitiveGreaterOrEqual #primitiveEqual "#primitiveNotEqual"
-	                 #primitiveMultiply "#primitiveDivide" "primitiveAt" "primitiveNew
-	                 primitiveNewWithArg" ).
+		primitives := #( 
+	#primitiveAdd #primitiveSubtract #primitiveMultiply #primitiveDivide #primitiveMod
+	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
+	#primitiveEqual #primitiveNotEqual #primitiveIdentical #primitiveNotIdentical
+	#primitiveDiv #primitiveQuo primitiveBitShift primitiveBitAnd  primitiveBitXor primitiveBitOr
 
-	"bytecodePrimAdd duplicateTopBytecode 
-	sendLiteralSelector0ArgsBytecode shortConditionalJumpTrue 
-	  pushConstantTrueBytecode
-	 "
-	bytecodes := #( 
+	primitiveSmallFloatAdd primitiveSmallFloatSubtract #primitiveSmallFloatMultiply primitiveSmallFloatDivide primitiveSmallFloatEqual primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatGreaterThan primitiveSmallFloatLessThan  primitiveSmallFloatLessOrEqual
+
+	primitiveFloatAdd primitiveFloatSubtract #primitiveFloatMultiply "primitiveFloatDivide (Fix float comparison)"  
+	primitiveFloatEqual primitiveFloatNotEqual primitiveFloatGreaterThan primitiveFloatGreaterOrEqual primitiveFloatLessThan primitiveFloatLessOrEqual
+
+	primitiveAsFloat primitiveAsCharacter #primitiveImmediateAsInteger 
+	"primitiveStringReplace (More than 2 args)"
+
+	primitiveClass #primitiveSize #primitiveAt #primitiveStringAt #primitiveAtPut #primitiveStringAtPut "#primitiveBehaviorHash" #primitiveIdentityHash
+
+  primitiveNew #primitiveNewWithArg 
+	primitiveFullClosureValue
+	primitiveFullClosureValueNoContextSwitch
+	).
+	
+bytecodes := #( 
 		"pushReceiverVariableBytecode"
 			0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 		"pushLiteralVariable16CasesBytecode"
@@ -125,14 +136,17 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 			235
 		"extended conditional jump"
 			237 238 239
-		"extended store (and pop) temporary"
-			"242 " 243 245
+		"extended store&pop (receiver var / literal / temp)"
+			240 241 242 
+		"extended store (receiver var / literal / temp)"
+			243 244 245
 			
 		"call primitive" 248
 		"push closure" 249
-		"remote temp bytecodes"	251
-		"252 253 left out because of write barrier"
+		"remote temp (push / store / store&pop)"	
+			251 252 253
 	).
+
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
@@ -201,7 +215,8 @@ DRInterpreterToCompiler >> addPrimitives [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
 
 	self addSelectedPrimitives.
-	self addMandatoryPrimitives
+	self addMandatoryPrimitives.
+	compilationUnit sortPrimitives.
 ]
 
 { #category : #adding }
@@ -515,7 +530,8 @@ DRInterpreterToCompiler >> newInterpreter [
 	" Answer an <AbstractInterpreter|StackInterpreter> from the receiver's interpreter builder "
 
 	memory := self newMemory.
-
+	memory lastHash: 1. "Setup seed for hash related primitives"
+	
 	^ interpreterClass basicNew
 		  objectMemory: memory;
 		  basicInitialize
@@ -550,14 +566,18 @@ DRInterpreterToCompiler >> newNonImplementedPrimitive: interpreterPrimitiveMetho
 DRInterpreterToCompiler >> newPrimitive: primitiveMethod [
 	" Answer a new primitive object with its metadata and CFG generated "
 
-	| selector primCompiler |
+	| selector primCompiler argumentCount |
 	primCompiler := self newPrimitiveCompiler.
 	selector := primitiveMethod selector.
+	
+	"For multiargs, don't fix argumentCount"
+	argumentCount := primCompiler numberOfArgumentsForMethod: primitiveMethod.
+	argumentCount isCollection ifTrue: [ argumentCount := nil ].
+
 	^ DRJITPrimitiveObject new
 		  primitiveNumber: (self primitiveNumberOf: selector);
 		  sourceMethod: primitiveMethod;
-		  argumentCount:
-			  (primCompiler numberOfArgumentsForMethod: primitiveMethod);
+		  argumentCount: argumentCount;
 		  mayCallback: (self isMaycallbackPrimitive: primitiveMethod);
 		  yourself
 ]

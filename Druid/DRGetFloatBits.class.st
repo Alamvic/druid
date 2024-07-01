@@ -27,6 +27,9 @@ DRGetFloatBits >> sccpLatticeValueFor: sccp [
 
 { #category : #'constant folding' }
 DRGetFloatBits >> simpleConstantFold [
-	
-	^ self operand1 simpleConstantFold asIEEE64BitWord
+
+	| folded |
+	folded := self operand1 simpleConstantFold.
+	folded isNumber ifTrue: [ ^ folded asIEEE64BitWord ].
+	^ folded
 ]

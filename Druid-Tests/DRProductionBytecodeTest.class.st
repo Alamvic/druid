@@ -5,6 +5,25 @@ Class {
 }
 
 { #category : #tests }
+DRProductionBytecodeTest >> setUp [ 
+
+	| method |
+	super setUp.
+	
+	method := methodBuilder
+		newMethod;
+		literals: { (memory integerObjectOf: 42) };
+		bytecodes: #[ 
+			91 "return true"];
+		numberOfTemporaries: 2;
+		buildMethod.
+	
+	"Set a random methodObj and bytecodePC to avoid nil errors"
+	cogit methodObj: method.
+	cogit bytecodePC: 1.
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAdd [
 
 	"We do not support the static type prediction yet"
@@ -344,6 +363,456 @@ DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJumpBackward [
 	self assert: machineSimulator receiverRegisterValue equals: memory trueObject.
 	
 	self assert: (cogit hasAnnotatedAbstractInstructions: cogit getIsBytecodePCReference)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeIdenticalOfDifferentIntegers [
+
+	self
+		compileBytecode: 118
+		selector: #bytecodePrimIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: { (memory integerObjectOf: 42) }.
+	self deny:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeIdenticalOfEqualIntegers [
+
+	self
+		compileBytecode: 118
+		selector: #bytecodePrimIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: { (memory integerObjectOf: 17) }.
+	self assert:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjects [
+
+	| oop |
+	oop := self newObjectWithSlots: 0.
+	self
+		compileBytecode: 118
+		selector: #bytecodePrimIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: oop withArguments: { oop }.
+	self assert:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithBothForwarders [
+
+	| oop forwardedOop forwardedOop2 oop2 |
+	"We need to setup the stack to forward objects"
+	self createBaseFrame.
+	
+	forwardedOop := self newObjectWithSlots: 0.
+	oop := memory pinObject: forwardedOop.
+	self assert: (memory isForwarded: forwardedOop).
+	
+	forwardedOop2 := self newObjectWithSlots: 0.
+	oop2 := memory pinObject: forwardedOop2.
+	self assert: (memory isForwarded: forwardedOop2).
+	
+	self
+		compileBytecode: 118
+		selector: #bytecodePrimIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: forwardedOop2 withArguments: { forwardedOop }.
+	self deny:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithForwarderArgument [
+
+	| oop forwardedOop oop2 |
+	"We need to setup the stack to forward objects"
+	self createBaseFrame.
+	
+	forwardedOop := self newObjectWithSlots: 0.
+	oop := memory pinObject: forwardedOop.
+	self assert: (memory isForwarded: forwardedOop).
+	
+	oop2 := self newObjectWithSlots: 0.
+	
+	self
+		compileBytecode: 118
+		selector: #bytecodePrimIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: oop2 withArguments: { forwardedOop }.
+	self deny:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithForwarderReceiver [
+
+	| oop forwardedOop |
+	"We need to setup the stack to forward objects"
+	self createBaseFrame.
+	
+	forwardedOop := self newObjectWithSlots: 0.
+	oop := memory pinObject: forwardedOop.
+	self assert: (memory isForwarded: forwardedOop).
+	
+	self
+		compileBytecode: 118
+		selector: #bytecodePrimIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: forwardedOop withArguments: { oop }.
+	self assert:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeIdenticalOfNonIdenticalObjects [
+
+	| oop oop2 |
+	oop := self newObjectWithSlots: 0.
+	oop2 := self newObjectWithSlots: 0.
+	self
+		compileBytecode: 118
+		selector: #bytecodePrimIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: oop withArguments: { oop2 }.
+	self deny:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeIdenticalOfNonIdenticalObjectsWithForwarderReceiver [
+
+	| oop forwardedOop oop2 |
+	"We need to setup the stack to forward objects"
+	self createBaseFrame.
+	
+	forwardedOop := self newObjectWithSlots: 0.
+	oop := memory pinObject: forwardedOop.
+	self assert: (memory isForwarded: forwardedOop).
+	
+	oop2 := self newObjectWithSlots: 0.
+	
+	self
+		compileBytecode: 118
+		selector: #bytecodePrimIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: forwardedOop withArguments: { oop2 }.
+	self deny:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeNonIdenticalOfDifferentIntegers [
+
+	self
+		compileBytecode: 120
+		selector: #bytecodePrimNotIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: { (memory integerObjectOf: 42) }.
+	self assert:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeNotIdenticalOfEqualIntegers [
+
+	self
+		compileBytecode: 120
+		selector: #bytecodePrimNotIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: { (memory integerObjectOf: 17) }.
+	self deny:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjects [
+
+	| oop |
+	oop := self newObjectWithSlots: 0.
+	self
+		compileBytecode: 120
+		selector: #bytecodePrimNotIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: oop withArguments: { oop }.
+	self deny:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithBothForwarders [
+
+	| oop forwardedOop forwardedOop2 oop2 |
+	"We need to setup the stack to forward objects"
+	self createBaseFrame.
+	
+	forwardedOop := self newObjectWithSlots: 0.
+	oop := memory pinObject: forwardedOop.
+	self assert: (memory isForwarded: forwardedOop).
+	
+	forwardedOop2 := self newObjectWithSlots: 0.
+	oop2 := memory pinObject: forwardedOop2.
+	self assert: (memory isForwarded: forwardedOop2).
+	
+	self
+		compileBytecode: 120
+		selector: #bytecodePrimNotIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: forwardedOop2 withArguments: { forwardedOop }.
+	self assert:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithForwarderArgument [
+
+	| oop forwardedOop oop2 |
+	"We need to setup the stack to forward objects"
+	self createBaseFrame.
+	
+	forwardedOop := self newObjectWithSlots: 0.
+	oop := memory pinObject: forwardedOop.
+	self assert: (memory isForwarded: forwardedOop).
+	
+	oop2 := self newObjectWithSlots: 0.
+	
+	self
+		compileBytecode: 120
+		selector: #bytecodePrimNotIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: oop2 withArguments: { forwardedOop }.
+	self assert:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithForwarderReceiver [
+
+	| oop forwardedOop |
+	"We need to setup the stack to forward objects"
+	self createBaseFrame.
+	
+	forwardedOop := self newObjectWithSlots: 0.
+	oop := memory pinObject: forwardedOop.
+	self assert: (memory isForwarded: forwardedOop).
+	
+	self
+		compileBytecode: 120
+		selector: #bytecodePrimNotIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: forwardedOop withArguments: { oop }.
+	self deny:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeNotIdenticalOfNonIdenticalObjects [
+
+	| oop oop2 |
+	oop := self newObjectWithSlots: 0.
+	oop2 := self newObjectWithSlots: 0.
+	self
+		compileBytecode: 120
+		selector: #bytecodePrimNotIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: oop withArguments: { oop2 }.
+	self assert:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
+]
+
+{ #category : #'tests - identical' }
+DRProductionBytecodeTest >> testBytecodeNotIdenticalOfNonIdenticalObjectsWithForwarderReceiver [
+
+	| oop forwardedOop oop2 |
+	"We need to setup the stack to forward objects"
+	self createBaseFrame.
+	
+	forwardedOop := self newObjectWithSlots: 0.
+	oop := memory pinObject: forwardedOop.
+	self assert: (memory isForwarded: forwardedOop).
+	
+	oop2 := self newObjectWithSlots: 0.
+	
+	self
+		compileBytecode: 120
+		selector: #bytecodePrimNotIdenticalSistaV1
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: forwardedOop withArguments: { oop2 }.
+	self assert:
+		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
 { #category : #tests }
@@ -1689,6 +2158,99 @@ DRProductionBytecodeTest >> testExtBBytecode3 [
 
 	self assert: cogit extB equals: -128.
 	self assert: cogit numExtB equals: 1
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecode [
+
+	| method literal |
+	self createEphemeronClass.
+	literal := self newEphemeronObject.
+	method := methodBuilder newMethod
+		          literals: { literal };
+		          buildMethod.
+
+	cogit methodObj: method.
+
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+
+	cogit bytecodePC: 87.
+	cogit byte1: 0.
+	cogit extA: 0.
+
+	self
+		compileBytecode: 244
+		selector: #extStoreLiteralVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+			
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	self executePrimitiveWithReceiver: memory trueObject.
+
+	self assert: machineSimulator receiverRegisterValue equals: memory trueObject.
+	
+	self assert: (memory fetchPointer: 1 ofObject: literal) equals: memory trueObject
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecodeWriteBarrier [
+
+	| method literal newObj storeCheckTrampoline |
+	self createEphemeronClass.
+	literal := self newOldEphemeronObject.
+	method := methodBuilder newMethod
+		          literals: { literal };
+		          buildMethod.
+
+	newObj := self newObjectWithSlots: 0.
+
+	cogit methodObj: method.
+
+	storeCheckTrampoline := self compile: [ cogit RetN: 0 ].
+	cogit ceStoreCheckTrampoline: storeCheckTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+
+	cogit bytecodePC: 87.
+	cogit byte1: 0.
+	cogit extA: 0.
+
+	self
+		compileBytecode: 244
+		selector: #extStoreLiteralVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: ReceiverResultReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	self
+		prepareStackForPrimitiveReceiver: newObj
+		arguments: #(  )
+		method: method.
+
+	"Should arrive to trampoline to put the object in the remembered set"
+	self runFrom: cogInitialAddress until: storeCheckTrampoline.
+
+	self assert: machineSimulator temporaryRegisterValue equals: literal.
+
+	cogit backEnd hasLinkRegister
+		ifTrue: [ "Push the link register -> a.k.a. caller"
+		self assert: (self stackAddressAt: 0) equals: callerAddress ]
+		ifFalse: [ "Push the return address -> a.k.a after the call (inside the compiled code)"
+			self assert: ((self stackAddressAt: 0)
+					 between: cogInitialAddress
+					 and: cogInitialAddress + codeSize) ].
+
+	self assert: (self stackAddressAt: 1) equals: newObj
 ]
 
 { #category : #tests }

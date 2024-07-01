@@ -23,7 +23,7 @@ DRReceiverConstraint >> addToEdge: aDRCPSEdge [
 		                            instructions select: [ :e |
 		                            e isLoadReceiver ].
 	loadReceiverInstructions do: [ :instruction |
-		aDRCPSEdge addConstraint: constraint to: instruction result name ]
+		aDRCPSEdge addConstraint: constraint forInstruction: instruction ]
 ]
 
 { #category : #accessing }

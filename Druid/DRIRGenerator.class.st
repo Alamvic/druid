@@ -2,6 +2,7 @@ Class {
 	#name : #DRIRGenerator,
 	#superclass : #Object,
 	#instVars : [
+		'compiler',
 		'specialCases',
 		'currentBasicBlock',
 		'firstBasicBlock',
@@ -53,6 +54,15 @@ DRIRGenerator >> addInstruction: instruction from: aNode [
 	^ instruction
 ]
 
+{ #category : #adding }
+DRIRGenerator >> addInstructionCall: operands from: aRBMessageNode [
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRCall
+		  operands: operands
+]
+
 { #category : #visiting }
 DRIRGenerator >> addInstructionFrom: aNode instructionKind: instructionClass operands: operands [
 	
@@ -82,15 +92,14 @@ DRIRGenerator >> allocateTemporaryRegister [
 { #category : #factory }
 DRIRGenerator >> argRegisterNumber: anInteger [
 
+	"TODO: Merge with #interpretStackValueWith: aRBMessageNode withValue: aValue ?"
+
 	| loadArgument |
 	numberOfArguments = anInteger ifTrue: [
-		1 halt.
-		^ DRLoadReceiver new ].
+		^ self instructionFactory loadReceiver classType:
+			  (DRSignedIntegerType size: 8) ].
 
-	loadArgument := (self
-		                 instantiate: DRLoadArgument
-		                 operands:
-		                 { (self argumentOffsetForStackValue: anInteger) })
+	loadArgument := (self instructionFactory loadArgument: anInteger)
 		                classType: (DRSignedIntegerType size: 8).
 	loadArgument origin: thisContext sender stack.
 	self currentBasicBlock addInstruction: loadArgument.
@@ -150,6 +159,24 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 ]
 
 { #category : #accessing }
+DRIRGenerator >> compiler [
+
+	^ compiler
+]
+
+{ #category : #accessing }
+DRIRGenerator >> compiler: anObject [
+
+	compiler := anObject
+]
+
+{ #category : #accessing }
+DRIRGenerator >> compilerOptions [
+
+	^ self compiler compilerOptions
+]
+
+{ #category : #accessing }
 DRIRGenerator >> controlFlowGraph: aDRControlFlowGraph [
 
 	controlFlowGraph := aDRControlFlowGraph
@@ -187,6 +214,24 @@ DRIRGenerator >> currentMethod [
 DRIRGenerator >> currentOperandStack [
 
 	^ executionState vmOperandStack
+]
+
+{ #category : #accessing }
+DRIRGenerator >> druidConditionalCompilationWith: aRBMessageNode [
+
+	| condition |
+	condition := aRBMessageNode arguments first value.
+	^ (self compilerOptions includes: condition)
+		ifTrue: [
+			| block |
+			aRBMessageNode arguments second acceptVisitor: self.
+			block := self popOperand simplify.
+			block isDRBlockClosure ifFalse: [
+				self error: 'Only consider blocks' ].
+			block blockNode arguments size > 0 ifTrue: [
+				self error: 'Only consider blocks with no arguments' ].
+			self interpretCode: block receiver: block arguments: #(  ) ]
+		ifFalse: [ self noop: aRBMessageNode ]
 ]
 
 { #category : #'execution state' }
@@ -260,6 +305,16 @@ DRIRGenerator >> initialize [
 			yourself);
 		executionStack: initialExecutionState;
 		yourself
+]
+
+{ #category : #initialization }
+DRIRGenerator >> initializeIR [
+	"Create the initial basic block"
+
+	| startBlock initialBasicBlock |
+	startBlock := self initialBasicBlock.
+	initialBasicBlock := self createInitialBasicBlock.
+	startBlock jumpTo: initialBasicBlock
 ]
 
 { #category : #'special cases' }
@@ -475,7 +530,7 @@ DRIRGenerator >> interpretAsFloatWith: aRBMessageNode [
 	receiver := self popOperand.
 
 	"If it's already a float, do nothing"
-	receiver type isFloat ifTrue: [ ^ self pushOperand: receiver ].
+	receiver type isFloatType ifTrue: [ ^ self pushOperand: receiver ].
 
 	^ self
 		  addInstructionFrom: aRBMessageNode
@@ -736,6 +791,16 @@ DRIRGenerator >> interpretCaseOfWith: aRBMessageNode [
 		mergeAll: { executionState }, (trueBlocks collect: [ :e | e second ]).
 ]
 
+{ #category : #interpreting }
+DRIRGenerator >> interpretClassTableRootsObjectWith: aRBVariableNode [
+	"TODO: interpretAsCompilerVariableWith:"
+
+	^ self
+		  interpretLoad: aRBVariableNode
+		  ofAddress: DRInterpreterReference classTableFirstPage
+		  ofType: (DRUnsignedIntegerType size: 8)
+]
+
 { #category : #API }
 DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
 
@@ -773,9 +838,16 @@ DRIRGenerator >> interpretCppIfWith: aRBMessageNode [
 
 	| jitExpressionCopy |
 	jitExpressionCopy := self visitOperand: aRBMessageNode arguments first.
-	jitExpressionCopy simpleConstantFold reference = 'true' ifTrue: [
-		(RBMessageNode receiver: aRBMessageNode arguments second selector: #value)
-			acceptVisitor: self ]
+	jitExpressionCopy simpleConstantFold
+		ifTrue: [
+			(RBMessageNode
+				 receiver: aRBMessageNode arguments second
+				 selector: #value) acceptVisitor: self ]
+		ifFalse: [
+			aRBMessageNode arguments size > 2 ifTrue: [
+				(RBMessageNode
+					 receiver: aRBMessageNode arguments third
+					 selector: #value) acceptVisitor: self ] ]
 ]
 
 { #category : #'special cases' }
@@ -813,9 +885,19 @@ DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [
 ]
 
 { #category : #'special cases' }
-DRIRGenerator >> interpretFloat64FromRawBitsWith: aRBMessageNode [ 
+DRIRGenerator >> interpretFloat64FromRawBitsWith: aRBMessageNode [
 
-	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRGetFloatFromBits
+	| receiver |
+	aRBMessageNode arguments first acceptVisitor: self.
+	receiver := self popOperand.
+
+	receiver type isIntegerType ifFalse: [
+		^ self error: 'cannot extract float bits from a non float value' ].
+
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRGetFloatFromBits
+		  operands: { receiver }
 ]
 
 { #category : #'special cases' }
@@ -840,7 +922,7 @@ DRIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 		pushOperand: valueToStore
 ]
 
-{ #category : #'special-cases' }
+{ #category : #'special cases' }
 DRIRGenerator >> interpretFreeStartWith: aRBVariableNode [
 
 	^ self
@@ -998,10 +1080,10 @@ DRIRGenerator >> interpretLessThanComparisonWith: aRBMessageNode [
 ]
 
 { #category : #'special cases - memory access' }
-DRIRGenerator >> interpretLoad: aRBMessageNode ofAddress: address ofType: aType [
+DRIRGenerator >> interpretLoad: aRBNode ofAddress: address ofType: aType [
 
 	^ self
-		  addInstructionFrom: aRBMessageNode
+		  addInstructionFrom: aRBNode
 		  instructionKind: DRLoad
 		  operands: {
 				  aType.
@@ -1255,6 +1337,20 @@ DRIRGenerator >> interpretRightShiftWith: aRBMessageNode [
 ]
 
 { #category : #'special cases' }
+DRIRGenerator >> interpretRotateLeftBy: aRBMessageNode [
+
+	| operand1 operand2 |
+	operand1 := self visitOperand: aRBMessageNode arguments first.
+	operand2 := self visitOperand: aRBMessageNode arguments second.
+	^ self
+		  addInstructionFrom: aRBMessageNode
+		  instructionKind: DRRotateLeft
+		  operands: {
+				  operand1.
+				  operand2 }
+]
+
+{ #category : #'special cases' }
 DRIRGenerator >> interpretScavengeThresholdWith: aRBVariableNode [
 
 	^ self
@@ -1285,7 +1381,6 @@ DRIRGenerator >> interpretSpaceMaskToUseWith: aRBVariableNode [
 DRIRGenerator >> interpretStackTopWith: aRBMessageNode [ 
 
 	"self addInstruction: (self stackValue: 0) from: aRBMessageNode"
-
 	self pushOperand: (self stackValue: 0)
 ]
 
@@ -1297,7 +1392,7 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 
 	| value |
 	aRBMessageNode arguments first acceptVisitor: self.
-	value := self popOperand operand1 simpleConstantFold.
+	value := self popOperand simpleConstantFold.
 	value isInteger ifFalse: [ self error: 'expected an integer value' ].
 
 	self pushOperand: (self stackValue: value)
@@ -1553,9 +1648,11 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 		                           conditionalJump trueBranch:
 			                           branchEntryBlock ]
 		                           doing: [
-			                           self interpretBlockBody:
-				                           aRBMessageNode arguments first.
-			                           self popOperand ].
+			                           aRBMessageNode arguments size > 0
+				                           ifTrue: [
+					                           self interpretBlockBody:
+						                           aRBMessageNode arguments first.
+					                           self popOperand ] ].
 
 	"Could happen that any evaluated block had a non local return.
 	Otherwise, this block should back jump to the entry block of the loop"
@@ -1614,7 +1711,7 @@ DRIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 
 	^ aRBMessageNode isSuperSend
 		  ifTrue: [ 
-			  self currentMethod methodClass superclass lookupSelector:
+			  self currentMethod methodNode methodClass superclass lookupSelector:
 				  aRBMessageNode selector ]
 		  ifFalse: [ receiver type lookupSelector: aRBMessageNode selector ]
 ]
@@ -2031,24 +2128,10 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 DRIRGenerator >> visitMethodNode: aRBMethodNode [
 
 	(aRBMethodNode hasPragmaNamed: #doNotGenerate) ifTrue: [ 1 halt ].
+	(aRBMethodNode hasPragmaNamed: #halt) ifTrue: [ 1 halt ].
 
 	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [
-		| failure primitiveReturn returnState |
-		failure := self currentBasicBlock copy: 1.
-		self currentPrimitiveFailureCode: failure.
-
-		returnState := executionState copy.
-		primitiveReturn := returnState baseFrame.
-		primitiveReturn push: DRNullValue new. "Return something"
-
-		"Record that this execution stack did a method return
-		We will merge this one with other returned states when this method finishes"
-		primitiveReturn addDeferredReturnState: {
-				returnState.
-				(self addFrameReturn: primitiveReturn) }.
-
-		"If the method has no return statement, it should still return something"
-		^ self ].
+		^ self interpretDruidExitPointWith: aRBMethodNode ].
 
 	(aRBMethodNode hasPragmaNamed: #druidJITCompileTimeExpression)
 		ifTrue: [

@@ -11,6 +11,74 @@ DRCogitCanonicaliser >> applyTo: cfg [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> sortOperandsInDoubleInstructionIfPossible: aDRBinaryInstruction [
+	"If it is a pattern such as ((var op const) op X)
+	It is replaced by:
+		((X op const) op var) -> if X is constant
+		((var op X) op const) -> otherwise
+	"
+
+	| newSubtree |
+	aDRBinaryInstruction operands
+		detect: [ :op |
+			op class = aDRBinaryInstruction class and: [ "Operands sorting is only possible if aDRBinaryInstruction is the only user of the subtree"
+				op users size = 1 and: [
+					(op operands anySatisfy: [ :opop | opop isConstant ]) and: [
+						op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ] ]
+		ifFound: [ :subtree |
+			| subConstant otherOperand subVariable |
+			"We know one of the suboperands is a constant and the other is not"
+			subConstant := subtree operands detect: [ :op | op isConstant ].
+			subVariable := subtree operands detect: [ :op | op isConstant not ].
+
+			"Now get the other operand (not the subtree)"
+			otherOperand := aDRBinaryInstruction operands detect: [ :op |
+				                op ~~ subtree ].
+
+			"Check if we can rewrite this instruction. If it may generate an overflow, do not"
+			(aDRBinaryInstruction users anySatisfy: [ :dependent |
+				 dependent isConditionalBranch and: [ dependent hasOverflowCheck ] ])
+					ifTrue: [ "Do nothing" ^ self ].
+
+			otherOperand isConstant
+				ifTrue: [ "There are two constants and one variable, put the constants together"
+					subtree replaceOperand: subVariable by: otherOperand.
+					^ aDRBinaryInstruction
+						  replaceOperand: otherOperand
+						  by: subVariable ]
+				ifFalse: [ "There are two variables and one constants, put the variables together"
+					newSubtree := aDRBinaryInstruction class
+						              operands: {
+								              subVariable.
+								              otherOperand }
+						              result: subtree result.
+					subtree removeFromCFG.
+					"We should create a new subtree next to the instruction due to dominance constratints"
+					aDRBinaryInstruction addBefore: newSubtree.
+					^ aDRBinaryInstruction replaceBy: (aDRBinaryInstruction class
+							   operands: {
+									   newSubtree.
+									   subConstant }
+							   result: aDRBinaryInstruction result) ] ]
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> transformMultiplyByShiftIfPossible: aDRMultiply [
+
+	| exponent shiftInstr |
+	(aDRMultiply operand2 isConstant and: [
+		 aDRMultiply operand2 value even ]) ifTrue: [
+		exponent := (aDRMultiply operand2 value log: 2) asInteger.
+		shiftInstr := DRLogicalLeftShift
+			              operands: {
+					              aDRMultiply operand1.
+					              exponent asDRValue }
+			              result: aDRMultiply result.
+
+		aDRMultiply replaceBy: shiftInstr ]
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitAddition: aDRAdd [
 	"Simplify res := a + 0 => res := a"
 
@@ -19,63 +87,7 @@ DRCogitCanonicaliser >> visitAddition: aDRAdd [
 				   operands: (aDRAdd operands select: [ :e | e ~= 0 asDRValue ])
 				   result: aDRAdd result) ].
 
-	"If it is a pattern such as res := ((a + b) + c"
-	aDRAdd operands
-		detect: [ :op |
-			op isAdd and: [
-				(op operands anySatisfy: [ :opop | opop isConstant ]) and: [
-					op operands anySatisfy: [ :opop | opop isConstant not ] ] ] ]
-		ifFound: [ :subtree |
-			| variableOperand subConstantOperand secondSubtreeOperand |
-			"We know one of the suboperands is a constant"
-			subConstantOperand := subtree operands detect: [ :op |
-				                      op isConstant ].
-			variableOperand := subtree operands detect: [ :op |
-				                   op isConstant not ].
-
-			"Now get the other operand"
-			secondSubtreeOperand := aDRAdd operands detect: [ :op |
-				                        op ~~ subtree ].
-
-			secondSubtreeOperand isConstant
-				ifTrue: [ "Case 1) if b and c are constants, put constants together
-					=> res := (a + (b + c))"
-					(subConstantOperand respondsTo: #+) ifFalse: [
-						| swap |
-						swap := subConstantOperand.
-						subConstantOperand := secondSubtreeOperand.
-						secondSubtreeOperand := swap ].
-					^ aDRAdd replaceBy: (DRAdd
-							   operands: {
-									   variableOperand.
-									   (subConstantOperand value + secondSubtreeOperand value)
-										   asDRValue }
-							   result: aDRAdd result) ]
-				ifFalse: [
-					| newSubtree |
-					"Case 2) if b is constant but c is not, take the constant out
-					=> res := ((a + c) + b)"
-					
-					"Check if we can rewrite this instruction. If it may generate an overflow, do not"
-					(aDRAdd users anySatisfy: [ :dependent |
-						 dependent isConditionalBranch and: [
-							 dependent hasOverflowCheck ] ]) ifTrue: [ "Do nothing" ^ self ].
-
-					"Check if we can reuse the subtree result"
-					subtree users size > 1 ifTrue: [ "Do nothing" ^ self ].
-
-					newSubtree := DRAdd
-						              operands: {
-								              variableOperand.
-								              secondSubtreeOperand }
-						              result: subtree result.
-					subtree removeFromCFG.
-					aDRAdd addBefore: newSubtree.
-					^ aDRAdd replaceBy: (DRAdd
-							   operands: {
-									   newSubtree.
-									   subConstantOperand }
-							   result: aDRAdd result) ] ]
+	self sortOperandsInDoubleInstructionIfPossible: aDRAdd 
 ]
 
 { #category : #visiting }
@@ -85,27 +97,31 @@ DRCogitCanonicaliser >> visitAnnnotateBytecode: aDRAnnotateBytecode [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [ 
-	
-	"Nothing"
+DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [
+
+	self sortOperandsInDoubleInstructionIfPossible: aDRBitAnd
 ]
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBitOr: aDRBitOr [ 
 	
-	"Nothing"
+	self sortOperandsInDoubleInstructionIfPossible: aDRBitOr
 ]
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBitXor: aDRBitXor [ 
 	
-	"Nothing"
+	self sortOperandsInDoubleInstructionIfPossible: aDRBitXor 
 ]
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBranchIfCondition: aDRConditionalBranch [
 
-	"Nothing"
+	aDRConditionalBranch operands
+		detect: [ :op | op isPhiFunction and: [ op operands size > 1 ] ]
+		ifFound: [ :thePhi |
+			(thePhi operands allSatisfy: [ :op | op isSetConditionCode or: [ op isJITCompileTimeExpression ] ])
+				ifTrue: [ thePhi basicBlock tailDuplicate ] ]
 ]
 
 { #category : #visiting }
@@ -210,6 +226,11 @@ DRCogitCanonicaliser >> visitJump: aDRJump [
 ]
 
 { #category : #visiting }
+DRCogitCanonicaliser >> visitLeftRotate: aDRRotate [ 
+	^ self
+]
+
+{ #category : #visiting }
 DRCogitCanonicaliser >> visitLeftShift: aDRLeftShift [ 
 	
 	"Nothing"
@@ -292,9 +313,12 @@ DRCogitCanonicaliser >> visitMod: aDRMod [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitMultiply: aDRMultiply [ 
+DRCogitCanonicaliser >> visitMultiply: aDRMultiply [
+	"If possible, transform the multiplication by a shift"
+	self transformMultiplyByShiftIfPossible: aDRMultiply.
 
-	"Nothing?"
+	"If possible, put the constants (or the variables) together"
+	self sortOperandsInDoubleInstructionIfPossible: aDRMultiply
 ]
 
 { #category : #visiting }
@@ -310,9 +334,26 @@ DRCogitCanonicaliser >> visitNoop: aDRNoop [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [ 
-	
-	"Nothing"
+DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [
+
+	| copy |
+	aDRPhiFunction operands size = 1 ifTrue: [ ^ self ].
+	aDRPhiFunction basicBlock isExitBlock ifTrue: [ ^ self ].
+
+	(aDRPhiFunction users anySatisfy: [ :user |
+		 user isSetConditionCode or: [ user isConditionalBranch ] ])
+		ifFalse: [ ^ self ].
+
+	"If we don't do this, we might end up in a situation where the Phi 'moves down' in the CFG and after some optimizations, we will have a BasicBlock that jumps to itself. For the moment, this particular scenario is not supported in the IR->Cogit translation phase (it generates an infinite loop)."
+	aDRPhiFunction basicBlock hasIncomingBackjumps ifTrue: [ ^ self ].
+
+
+	copy := aDRPhiFunction operands
+		        detect: [ :op | op isCopy and: [ op operand isConstant ] ]
+		        ifNone: [ ^ self ].
+
+	aDRPhiFunction basicBlock splitTo:
+		(aDRPhiFunction predecessorAtOperand: copy)
 ]
 
 { #category : #visiting }
@@ -352,7 +393,7 @@ DRCogitCanonicaliser >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitRightShift: aDRRightShift [ 
+DRCogitCanonicaliser >> visitSignedRightShift: aDRRightShift [ 
 	
 	"Nothing"
 ]
@@ -416,6 +457,12 @@ DRCogitCanonicaliser >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
+	
+	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitCanonicaliser >> visitUnsignedRightShift: aDRRightShift [ 
 	
 	"Nothing"
 ]

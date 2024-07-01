@@ -56,6 +56,24 @@ DRPrimitiveCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 	optimisations := StackToRegisterMappingCogit druidNewOptimizationList
 ]
 
+{ #category : #'ir-generation' }
+DRPrimitiveCompilerCompiler >> generateCheckForNumArgs: numArgs [
+
+	| block checkArgCount |
+	block := irGenerator currentBasicBlock.
+
+	checkArgCount := block
+		                 equals: DRInterpreterReference argumentCount
+		                 to: numArgs asDRValue.
+
+	block
+		jumpIf: checkArgCount
+		to: irGenerator newBasicBlock "Continue the interpretation from here"
+		ifFalseTo: block controlFlowGraph failureExitBlock. 
+
+	^ block
+]
+
 { #category : #accessing }
 DRPrimitiveCompilerCompiler >> initialize [
 
@@ -81,14 +99,46 @@ DRPrimitiveCompilerCompiler >> initialize [
 		optimisations add: DRInline new. ].
 	
 	"Last Phase, make code coggable"
-    optimisations add: DRCogitOperandSorter new.
-	"optimisations add: DRCogitJITConstantSplitting new"
+    optimisations add: DRCogitOperandSorter new
+]
+
+{ #category : #interpretation }
+DRPrimitiveCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRReceiver manyNumArgs: annotatedArgNums [
+
+	| lastPreamble |
+	lastPreamble := nil.
+	annotatedArgNums do: [ :numArgs |
+		lastPreamble ifNotNil: [ "Chain the checks"
+			lastPreamble endInstruction falseBranch removePredecessor: lastPreamble.
+			lastPreamble endInstruction newFalseBranch: irGenerator createInitialBasicBlock "Restart the VM state" ].
+
+		lastPreamble := self generateCheckForNumArgs: numArgs.
+
+		self
+			interpretMethods: compiledMethods
+			receiver: aDRReceiver
+			numArgs: numArgs ]
+]
+
+{ #category : #interpretation }
+DRPrimitiveCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRReceiver numArgs: numArgs [
+
+	numArgs isArray ifTrue: [
+		^ self
+			  interpretMethods: compiledMethods
+			  receiver: aDRReceiver
+			  manyNumArgs: numArgs ].
+
+	^ super
+		  interpretMethods: compiledMethods
+		  receiver: aDRReceiver
+		  numArgs: numArgs
 ]
 
 { #category : #accessing }
 DRPrimitiveCompilerCompiler >> newIRGenerator [
 
-	^ DRPrimitiveIRGenerator new
+	^ DRPrimitiveIRGenerator new compiler: self
 ]
 
 { #category : #accessing }
@@ -126,6 +176,12 @@ DRPrimitiveCompilerCompiler >> primitiveName [
 DRPrimitiveCompilerCompiler >> primitiveName: anObject [
 
 	self sourceName: anObject
+]
+
+{ #category : #accessing }
+DRPrimitiveCompilerCompiler >> sourceMethods [
+
+	^ { self sourceMethod }
 ]
 
 { #category : #accessing }

@@ -30,6 +30,35 @@ DRMetaCompilerIRGenerator >> initializeSpecialCases [
 	specialCases at: #stackValue: put: #interpretStackValueWith:.
 	specialCases at: #pop:thenPush: put: #interpretPopThenPushWith:.
 	specialCases at: #pop: put: #interpretPopThenPushWith:.
+	specialCases at: #push: put: #interpretPushWith:.
+
+]
+
+{ #category : #interpretation }
+DRMetaCompilerIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
+
+	| failure primitiveReturn returnState |
+	failure := self currentBasicBlock copy: 1.
+	self currentPrimitiveFailureCode: failure.
+
+
+	returnState := executionState copy.
+	primitiveReturn := returnState baseFrame.
+	primitiveReturn push: DRNullValue new. "Return something"
+
+	"Record that this execution stack did a method return
+		We will merge this one with other returned states when this method finishes"
+	primitiveReturn addDeferredReturnState: {
+			returnState.
+			(self addFrameReturn: primitiveReturn) }
+]
+
+{ #category : #'special cases' }
+DRMetaCompilerIRGenerator >> interpretPushWith: aRBMessageNode [ 
+	
+	| receiver |
+	receiver := self visitOperand: aRBMessageNode arguments first.
+	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
 ]
 
 { #category : #visiting }
@@ -83,6 +112,13 @@ DRMetaCompilerIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiv
 		interpretCode: instruction
 		receiver: receiver
 		arguments: arguments
+]
+
+{ #category : #visiting }
+DRMetaCompilerIRGenerator >> trackStackInstruction: aDRStrackInstruction [ 
+
+	aDRStrackInstruction stackDependency: executionState lastStackInstruction.
+	executionState lastStackInstruction: aDRStrackInstruction.
 ]
 
 { #category : #private }

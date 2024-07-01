@@ -8,7 +8,21 @@ Class {
 DRCogitOperandSorter >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph instructionsDo: [ :e |
-		e isStaged ifFalse: [ e acceptVisitor: self ] ]
+		e isStaged ifFalse: [
+			e acceptVisitor: self.
+			"If after sorting the second operand is a constant float, we need to extract it in a copy."
+			(e operands size > 1 and: [
+				 e operand2 isConstant and: [ e operand2 type isFloatType ] ])
+				ifTrue: [ self extractCopyFor: e operand2 fromInstruction: e ] ] ]
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> extractCopyFor: operand fromInstruction: anInstruction [
+
+	| copy |
+	copy := anInstruction instructionFactory copy: operand.
+	anInstruction addBefore: copy.
+	anInstruction replaceOperand: operand by: copy
 ]
 
 { #category : #visiting }
@@ -27,7 +41,7 @@ DRCogitOperandSorter >> extractFirstOperandInCopyIfNecessaryFrom: anInstruction 
 
 { #category : #visiting }
 DRCogitOperandSorter >> visitAddition: aDRAdd [ 
-	
+
 	self visitCommutativeInstruction: aDRAdd
 ]
 
@@ -68,9 +82,8 @@ DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [
 
 	"Cogit only accept constants as first operands (second in DruidIR).
 	Equals comparison being commutative, we can reverse the operands to avoid an extra copy"
-	(aDRBranchIfCondition operand1 isConstant and: [
-		 aDRBranchIfCondition condition isEqualsThanComparison ]) ifTrue: [
-		aDRBranchIfCondition reverseOperands ].
+	(aDRBranchIfCondition operand1 willBeConstant) ifTrue: [
+		aDRBranchIfCondition reverse ].
 
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRBranchIfCondition
 ]
@@ -82,9 +95,10 @@ DRCogitOperandSorter >> visitBytecodeJump: aDRBytecodeJump [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitCall: aDRCall [ 
+DRCogitOperandSorter >> visitCall: aDRCall [
+	"Nothing"
+
 	
-	^ nil
 ]
 
 { #category : #visiting }
@@ -101,9 +115,15 @@ DRCogitOperandSorter >> visitClosureCreation: aDRClosureCreation [
 ]
 
 { #category : #visiting }
+DRCogitOperandSorter >> visitCogitSendMarshall: aDRCogitSendMarshall [ 
+
+	"Nothing"
+]
+
+{ #category : #visiting }
 DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 
-	anInstruction operand1 isInstruction ifFalse: [ 
+	anInstruction operand1 willBeConstant ifTrue: [ 
 		anInstruction reverseOperands ].
 	self extractFirstOperandInCopyIfNecessaryFrom: anInstruction
 ]
@@ -117,7 +137,23 @@ DRCogitOperandSorter >> visitContinueNextBytecode: aDRContinueNextBytecode [
 { #category : #visiting }
 DRCogitOperandSorter >> visitCopy: aDRCopy [ 
 	
-	"Nothing"
+	"There is no load of float constants in the Cogit IR.
+	This means we need to transform the instruction to the following sequence
+	
+	Rd1 := 3.14.
+	=>
+	self MoveCq: (objectMemory rawFloatBitsOf: 3.14) R: R1.
+	self MoveR: R1 Rd: Rd1.
+	"
+	
+	| copyFloatBits convert |
+	(aDRCopy type isFloatType and: [ aDRCopy operand1 isConstant ])
+		ifFalse: [ ^ self ].
+	
+	copyFloatBits := aDRCopy instructionFactory copy: (DRInterpreterReference integerExpression: '(objectMemory rawFloatBitsOf: ', aDRCopy operand1 value asString, ')').
+	convert := aDRCopy instructionFactory floatFromBits: copyFloatBits.
+	aDRCopy addBefore: copyFloatBits.
+	aDRCopy replaceBy: convert
 ]
 
 { #category : #visiting }
@@ -154,7 +190,7 @@ DRCogitOperandSorter >> visitFlushStack: aDRFlushStack [
 DRCogitOperandSorter >> visitGetConditionCode: aDRGetConditionCode [
 
 	(aDRGetConditionCode condition isCommutative and: [ 
-		 aDRGetConditionCode operand1 isInstruction not ]) ifTrue: [ 
+		 aDRGetConditionCode operand1 isInstruction ]) ifTrue: [ 
 		aDRGetConditionCode reverseOperands ].
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRGetConditionCode
 ]
@@ -190,6 +226,14 @@ DRCogitOperandSorter >> visitJITMessageSend: aDRMessageSend [
 DRCogitOperandSorter >> visitJump: aDRJump [ 
 	
 	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitLeftRotate: aDRRotate [
+	"Left rotation is not commutative!
+	=> extract its first operand into a copy instruction"
+
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRRotate
 ]
 
 { #category : #visiting }
@@ -234,6 +278,13 @@ DRCogitOperandSorter >> visitLoadStackPointer: aDRLoadStackPointer [
 DRCogitOperandSorter >> visitLoadStackValue: aDRLoadStackValue [ 
 	
 	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitMessageSend: aDRMessageSend [
+	"Nothing"
+
+	
 ]
 
 { #category : #visiting }
@@ -295,17 +346,11 @@ DRCogitOperandSorter >> visitReturn: aDRReturn [
 ]
 
 { #category : #visiting }
-DRCogitOperandSorter >> visitRightShift: aDRRightShift [ 
+DRCogitOperandSorter >> visitSignedRightShift: aDRRightShift [ 
 	
 	"Shift is not commutative!
 	=> extract its first operand into a copy instruction"
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRRightShift
-]
-
-{ #category : #visiting }
-DRCogitOperandSorter >> visitStagedInstruction: aDRStagedInstruction [ 
-	
-	^ aDRStagedInstruction stagedInstruction acceptVisitor: self
 ]
 
 { #category : #visiting }
@@ -342,4 +387,12 @@ DRCogitOperandSorter >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 DRCogitOperandSorter >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
 	
 	"Nothing"
+]
+
+{ #category : #visiting }
+DRCogitOperandSorter >> visitUnsignedRightShift: aDRRightShift [ 
+	
+	"Shift is not commutative!
+	=> extract its first operand into a copy instruction"
+	self extractFirstOperandInCopyIfNecessaryFrom: aDRRightShift
 ]
