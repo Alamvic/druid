@@ -87,6 +87,13 @@ DRBytecodeCompilerCompiler >> numberOfArgumentsForMethod: aMethod [
 ]
 
 { #category : #accessing }
+DRBytecodeCompilerCompiler >> optimize: anIR [
+
+	super optimize: anIR.
+	anIR applyOptimisation: DRAnnotateBytecodeInstructionCoalescing new
+]
+
+{ #category : #accessing }
 DRBytecodeCompilerCompiler >> sourceMethods [
 
 	sourceName ifNotNil: [
