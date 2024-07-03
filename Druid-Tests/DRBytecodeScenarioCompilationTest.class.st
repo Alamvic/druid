@@ -242,20 +242,28 @@ DRBytecodeScenarioCompilationTest >> testPushTrueAndReturn [
 { #category : #tests }
 DRBytecodeScenarioCompilationTest >> testSuperInstructionCompilation [
 
-	| compiledMethod check returns |
+	| compiledMethod fixupCheck returns nextBytecodeCheck |
 	self
 		compileBytecode: 77 selector: #fakePushConstantTrueBytecode
 		thenDo: [ :generator | "Nothing" ].
 	
 	compiledMethod := DruidTestRTLCompiler >> #gen_fakePushConstantTrueBytecode.
 	
-	check := compiledMethod ast allChildren detect: [ :n | n isMessage and: [ n selector = #ifTrue: ] ].
-	self assert: check receiver receiver name equals: #nextBytecode.
-	self assert: check receiver arguments first value equals: 92.
+	"Avoid super-instruction if there is a fixup to the next bytecode"
+	fixupCheck := compiledMethod ast allChildren detect: [ :n | n isMessage and: [ n selector = #ifTrue: ] ].
+	self assert: fixupCheck receiver receiver name equals: #nextFixup.
+	self assert: fixupCheck receiver selector equals: #notAFixup.
+
+	"Check for next bytecode"
+	nextBytecodeCheck := fixupCheck arguments first allChildren detect: [ :n | n isMessage and: [ n selector = #ifTrue: ] ].
+	self assert: nextBytecodeCheck receiver receiver name equals: #nextBytecode.
+	self assert: nextBytecodeCheck receiver arguments first value equals: 92.
 	
+	"Two returns: super-instruction or compiler result"
 	returns := compiledMethod ast allChildren select: [ :n | n isReturn ].
 	self assert: returns size equals: 2.
-	self assert: returns first value selector equals:  #gen_pushConstantTrueBytecode_returnTopFromMethod_1
+	self assert: returns first value selector equals: #gen_pushConstantTrueBytecode_returnTopFromMethod_1.
+	self assert: returns second value value equals: 0
 
 
 ]

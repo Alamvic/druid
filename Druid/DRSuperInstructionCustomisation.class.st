@@ -114,16 +114,10 @@ DRSuperInstructionCustomisation >> generateCustomisedPreamble: aGeneratorMethodB
 					  selector: #notAFixup
 					  arguments: {  })
 			 selector: #ifTrue:
-			 arguments: { (RBBlockNode body: (RBSequenceNode statements:
-						   ({ self fetchNextBytecodeNode } , (nextBytecodes collectWithIndex: [
-							    :next
-							    :i | self caseNodeFor: next index: i ])))) })
-						
-						
-	"aGeneratorMethodBuilder addStatement: self fetchNextBytecodeNode.
-	nextBytecodes doWithIndex: [ :next :i |
-		aGeneratorMethodBuilder addStatement:
-			(self caseNodeFor: next index: i) ]"
+			 arguments: { (RBBlockNode body:
+					  (RBSequenceNode statements: { self fetchNextBytecodeNode }
+						   , (nextBytecodes collectWithIndex: [ :next :i |
+								    self caseNodeFor: next index: i ]))) })
 ]
 
 { #category : #accessing }
