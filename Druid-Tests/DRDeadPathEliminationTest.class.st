@@ -69,7 +69,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 	self assert: lastPaths size equals: 2.
 
 	"Should propagate conditional constraint to the result"
-	conditionalConstraint := lastPaths first constraintFor: 7"t7".
+	conditionalConstraint := lastPaths first constraintFor: 'ssa_7'.
 	self
 		assertConstraint: (DRGreaterOrEqualsConstraint withValue: 15)
 		includes: conditionalConstraint

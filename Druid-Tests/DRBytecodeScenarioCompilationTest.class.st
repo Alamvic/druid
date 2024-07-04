@@ -21,7 +21,7 @@ DRBytecodeScenarioCompilationTest >> testBytecodePrimIdenticalAndJumpFalse [
 
 	"Force failing test if tries to compile the trampoline call:
 		Should be removed due to super-instruction."
-	cogit ceSendMustBeBooleanTrampoline: nil.
+	cogit ceSendMustBeBooleanTrampoline: fakeTrampoline.
 
 	self
 		compileBytecode: 118
@@ -81,7 +81,7 @@ DRBytecodeScenarioCompilationTest >> testCoalesceOneSpilledAndOneUnspilledPopIns
 	DRCogitStackCoalescing applyTo: cfg.
 
 	self assert: basicBlock2 firstInstruction isUnspill.
-	self assert: basicBlock2 firstInstruction operand1 value equals: popStackDepth negated
+	self assert: basicBlock2 firstInstruction operand1 value equals: popStackDepth negated - 1
 ]
 
 { #category : #tests }
@@ -488,9 +488,7 @@ DRBytecodeScenarioCompilationTest >> testSuperInstructionCompilation [
 	
 	returns := compiledMethod ast allChildren select: [ :n | n isReturn ].
 	self assert: returns size equals: 2.
-	self assert: returns first value selector equals:  #gen_pushConstantTrueBytecode_returnTopFromMethod
-
-
+	self assert: returns first value selector equals:  #gen_pushConstantTrueBytecode_returnTopFromMethod_1
 ]
 
 { #category : #tests }
