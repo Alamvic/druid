@@ -110,7 +110,7 @@ DRInstructionFactory >> flushStackExceptTop: n [
 
 { #category : #factory }
 DRInstructionFactory >> frameReturn: aValue [
-1halt.
+
 	^ DRFrameReturn operands: { aValue asDRValue } result: self allocateTemporaryRegister
 ]
 

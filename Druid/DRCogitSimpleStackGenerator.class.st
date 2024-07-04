@@ -21,7 +21,7 @@ DRCogitSimpleStackGenerator >> allocateVariable: aDRResult [
 
 	variableIndex := nextVariableIndex.
 	nextVariableIndex := nextVariableIndex + 1.
-self haltIf: [ variableIndex = 4 ].
+
 	temporaryVariableNode := RBVariableNode named:
 		                         't' , variableIndex asString.
 	variables at: aDRResult put: temporaryVariableNode name.

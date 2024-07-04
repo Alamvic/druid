@@ -26,16 +26,14 @@ DRProductionBytecodeTest >> setUp [
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAdd [
 
-	"We do not support the static type prediction yet"
+	"We need the send trampoline to compile even though it is not called"
+	cogit ordinarySendTrampolineAt: 1 put: fakeTrampoline.
 
-	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
-	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
-	
 	self
 		compileBytecode: 96
 		selector: #bytecodePrimAdd
 		options: #( staticTypePrediction )
-		thenDo: [ :generator | 
+		thenDo: [ :generator |
 			cogit ssPushRegister: ReceiverResultReg.
 			cogit ssPushRegister: Arg0Reg.
 
@@ -58,10 +56,8 @@ DRProductionBytecodeTest >> testBytecodeAdd [
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAddOneSpilledArg [
 
-	"We do not support the static type prediction yet"
-
-	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
-	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
+	"We need the send trampoline to compile even though it is not called"
+	cogit ordinarySendTrampolineAt: 1 put: fakeTrampoline.
 	
 	self
 		compileBytecode: 96
@@ -98,9 +94,8 @@ DRProductionBytecodeTest >> testBytecodeAddOneSpilledArg [
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAddOverflow [
 
-	sendTrampolineAddress := self compile: [ "In case of overflow, this routine is called and returns the receiver unchanged"
-		cogit RetN: 0 ].
-	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
+	"We need the send trampoline to compile even though it is not called"
+	cogit ordinarySendTrampolineAt: 1 put: fakeTrampoline.
 
 	self
 		compileBytecode: 96
@@ -133,10 +128,8 @@ DRProductionBytecodeTest >> testBytecodeAddOverflow [
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAddWithSpilledArgs [
 
-	"We do not support the static type prediction yet"
-
-	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
-	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
+	"We need the send trampoline to compile even though it is not called"
+	cogit ordinarySendTrampolineAt: 1 put: fakeTrampoline.
 	
 	self
 		compileBytecode: 96
@@ -154,13 +147,12 @@ DRProductionBytecodeTest >> testBytecodeAddWithSpilledArgs [
 			cogit ssFlushStack.
 
 			"Execute the druid's compiled code"
-			1halt.
 			generator value.
 	
 			"Then return without druid's compiled code"
 			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
-1halt.
+
 	self
 		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
 		withArguments: { (memory integerObjectOf: 42) }.

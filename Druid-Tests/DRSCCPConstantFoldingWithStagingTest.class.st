@@ -98,7 +98,7 @@ DRSCCPConstantFoldingWithStagingTest >> testFoldingLoadWithConstant [
 { #category : #tests }
 DRSCCPConstantFoldingWithStagingTest >> testFoldingLoadWithOperation [
 
-	| cfg load op copyOfCopy |
+	| cfg load op copyOfLoad |
 	cfg := self setUpCFG: 1.
 
 	"T1 := op"
@@ -106,12 +106,12 @@ DRSCCPConstantFoldingWithStagingTest >> testFoldingLoadWithOperation [
 	"T2 := LOAD T1"
 	load := cfg b1 load: op.
 	"T3 := T2"
-	copyOfCopy := cfg b1 copy: load.
+	copyOfLoad := cfg b1 copy: load.
 
 	optimisation applyTo: cfg.
 
 	"T3 := T2"
-	self assert: copyOfCopy operand1 equals: load
+	self assert: copyOfLoad operand1 equals: load
 ]
 
 { #category : #tests }

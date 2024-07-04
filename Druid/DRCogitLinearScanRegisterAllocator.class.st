@@ -86,6 +86,10 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 { #category : #'live-analysis' }
 DRCogitLinearScanRegisterAllocator >> computeLivenessOfInstruction: anInstruction inBlock: b withLiveSet: live [
 
+	"Instructions pushing registers to the stack extend the life of the register up to its pop or last use.
+	Thus, for each stack instruction (pop, stack access) we need to find the defining instruction (the push) if any.
+	If there is one, it means that we need to extend the life of that register up to this using instruction.
+	If there is none, it means that this is a bytecode parameter pushed by another bytecode, there is nothing to do"
 	(anInstruction isStackInstruction and: [ anInstruction isPush not ])
 		ifTrue: [
 			| definingStackInstruction |

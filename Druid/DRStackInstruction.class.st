@@ -122,12 +122,6 @@ DRStackInstruction >> stackSlotsDefiningAtDepth: anInteger [
 ]
 
 { #category : #validation }
-DRStackInstruction >> validate [
-
-	super validate
-]
-
-{ #category : #validation }
 DRStackInstruction >> validateDependenciesAreUsedByMyself [
 
 	self dataDependencies do: [ :op | 
