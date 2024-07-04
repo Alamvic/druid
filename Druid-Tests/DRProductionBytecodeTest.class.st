@@ -94,8 +94,9 @@ DRProductionBytecodeTest >> testBytecodeAddOneSpilledArg [
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAddOverflow [
 
-	"We need the send trampoline to compile even though it is not called"
-	cogit ordinarySendTrampolineAt: 1 put: fakeTrampoline.
+	sendTrampolineAddress := self compile: [ "In case of overflow, this routine is called and returns the receiver unchanged"
+		cogit RetN: 0 ].
+	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
 
 	self
 		compileBytecode: 96
@@ -327,6 +328,10 @@ DRProductionBytecodeTest >> testBytecodeExtendedSuperSend [
 	self compileBytecode: 235 selector: #extSendSuperBytecode thenDo: [ :generator |
 		cogit methodObj: method.
 
+		cogit methodOrBlockNumArgs: 1. "Hack"
+		cogit methodOrBlockNumTemps: 1. "Hack"
+		cogit initSimStackForFramefulMethod: 2 "fake Bytecode pc".
+
 		"The receiver of the send!"
 		cogit ssPushRegister: ReceiverResultReg.
 		cogit ssPushRegister: Arg0Reg.
@@ -336,17 +341,20 @@ DRProductionBytecodeTest >> testBytecodeExtendedSuperSend [
 
 		cogit Stop ].
 
+	"Execute the method with receiver smi 17 and argument smi 53"
+	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
 	self
 		prepareStackForPrimitiveReceiver: (memory integerObjectOf: 17)
-		arguments: #(  )
+		arguments: { (memory integerObjectOf: 53) }
 		method: method.
 
-	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
 	self runFrom: cogInitialAddress until: sendTrampolineAddress.
+
 	"First argument: the selector"
 	self assert: machineSimulator classRegisterValue equals: selectorIndex.
 	"Third argument: the receiver"
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17)
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17).
+	self assert: machineSimulator arg0RegisterValue equals: (memory integerObjectOf: 53).
 ]
 
 { #category : #tests }
