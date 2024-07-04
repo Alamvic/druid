@@ -127,7 +127,7 @@ DRBytecodeScenarioCompilationTest >> testCoalesceOneUnspilledAndOneSpilledPopIns
 	DRCogitStackCoalescing applyTo: cfg.
 
 	self assert: basicBlock2 firstInstruction isUnspill.
-	self assert: basicBlock2 firstInstruction operand1 value equals: popStackDepth negated
+	self assert: basicBlock2 firstInstruction operand1 value equals: popStackDepth negated - 1
 ]
 
 { #category : #tests }
