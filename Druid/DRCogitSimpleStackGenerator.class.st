@@ -16,6 +16,7 @@ DRCogitSimpleStackGenerator >> allocateVariable: aDRResult [
 	parent ifNotNil: [ ^ parent allocateVariable: aDRResult ].
 
 	aDRResult isNoResult ifTrue: [ ^ self ].
+
 	variables at: aDRResult ifPresent: [ :var | ^ var ].
 
 	variableIndex := nextVariableIndex.
@@ -207,7 +208,6 @@ DRCogitSimpleStackGenerator >> visitLoadReceiver: aDRLoadReceiver [
 		(RBVariableNode named: 'needsFrame ifTrue:
 		[self putSelfInReceiverResultReg].').
 
-	self allocateVariable: aDRLoadReceiver result.
 	self twoOperandMoveCogitRTL: aDRLoadReceiver operands: {
 			(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg').
 			aDRLoadReceiver }
@@ -268,7 +268,7 @@ DRCogitSimpleStackGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 			 receiver: RBVariableNode selfNode
 			 selector: #MoveR:Mw:r:
 			 arguments: {
-					 (self rtlExpressionForValue: aDRStoreTemporaryVariable result).
+					 (self rtlExpressionForValue: aDRStoreTemporaryVariable operand2).
 					 (RBMessageNode
 						  receiver: RBVariableNode selfNode
 						  selector: #frameOffsetOfTemporary:

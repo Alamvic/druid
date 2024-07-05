@@ -84,7 +84,7 @@ DRLoopUnrollingTest >> testLoopUnrollingDuplicatesMultipleBodyBlocks [
 	unrollingFactor := 2.
 	cfg := self generateDruidIRFor: #primitiveLoopWithMultipleInstructions.
 
-	loopBlock := cfg blockById: 7.
+	loopBlock := cfg blockById: 6.
 	loopBlock second breakBasicBlock.
 
 	loop := cfg allLoops anyOne.
@@ -101,7 +101,7 @@ DRLoopUnrollingTest >> testLoopUnrollingDuplicatesMultipleBodyBlocksMultipleTime
 	unrollingFactor := 4.
 	cfg := self generateDruidIRFor: #primitiveLoopWithMultipleInstructions.
 
-	loopBlock := cfg blockById: 7.
+	loopBlock := cfg blockById: 6.
 	loopBlock second breakBasicBlock.
 
 	loop := cfg allLoops anyOne.

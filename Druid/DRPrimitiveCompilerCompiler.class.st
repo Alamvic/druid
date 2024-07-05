@@ -69,7 +69,7 @@ DRPrimitiveCompilerCompiler >> generateCheckForNumArgs: numArgs [
 	block
 		jumpIf: checkArgCount
 		to: irGenerator newBasicBlock "Continue the interpretation from here"
-		ifFalseTo: block controlFlowGraph failureExitBlock. 
+		ifFalseTo: irGenerator failureExitBlock. 
 
 	^ block
 ]
@@ -88,7 +88,7 @@ DRPrimitiveCompilerCompiler >> initialize [
 	"Basic set of optimizations twice for primitives"
 	3 timesRepeat: [ 
 		optimisations add: DRBranchCollapse new.
-		optimisations add: DRFailureCodeBasedTailDuplication new.
+		"optimisations add: DRFailureCodeBasedTailDuplication new."
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
 		optimisations add: DRCopyPropagation new.
 		optimisations add: DRPhiSimplication new.

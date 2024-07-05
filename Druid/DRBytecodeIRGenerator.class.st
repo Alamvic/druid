@@ -1,6 +1,6 @@
 Class {
 	#name : #DRBytecodeIRGenerator,
-	#superclass : #DRPrimitiveIRGenerator,
+	#superclass : #DRMetaCompilerIRGenerator,
 	#instVars : [
 		'jumpOffset'
 	],
@@ -11,28 +11,25 @@ Class {
 DRBytecodeIRGenerator >> addAnnotateBytecode: aRBMethodNode [
 
 	self
-		  addInstructionWithNoResultFrom: aRBMethodNode
-		  instructionKind: DRAnnotateBytecode
-		  operands: #(  ).
+		addInstructionWithNoResultFrom: aRBMethodNode
+		instructionKind: DRAnnotateBytecode
+		operands: #(  ).
 	^ self popOperand "Let the stack empty"
 ]
 
 { #category : #visiting }
 DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
 
-	"Nothing"
+	"If this is the base frame, it should continue with the next bytecode at the end"
+	currentBasicBlock endInstruction:
+		(self instantiateNoResultInstruction: DRContinueNextBytecode)
 ]
 
-{ #category : #accessing }
+{ #category : #initialization }
 DRBytecodeIRGenerator >> initialize [
 
 	super initialize.
-	jumpOffset := 0.
-
-	controlFlowGraph successExitBlock:controlFlowGraph newBasicBlock.
-	controlFlowGraph successExitBlock beExitBlock.
-	controlFlowGraph failureExitBlock: controlFlowGraph newBasicBlock.
-	controlFlowGraph failureExitBlock beExitBlock.
+	jumpOffset := 0
 ]
 
 { #category : #accessing }
@@ -216,7 +213,7 @@ DRBytecodeIRGenerator >> interpretITemporaryInPutWith: aRBMessageNode [
 	value := (self visitOperand: aRBMessageNode arguments third) simpleConstantFold.
 
 	^ self
-		  addInstructionFrom: aRBMessageNode
+		  addInstructionWithNoResultFrom: aRBMessageNode
 		  instructionKind: DRStoreTemporaryVariable
 		  operands: { index asDRValue . value asDRValue }
 ]
@@ -334,7 +331,7 @@ DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSp
 	
 	Translate this as a send instruction"
 
-	| selectorIndex argumentCount |
+	| selectorIndex argumentCount send marshall |
 	selectorIndex := self visitOperand: aRBMessageNode arguments first.
 	argumentCount := self visitOperand: aRBMessageNode arguments second.
 
@@ -355,13 +352,27 @@ DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSp
 	"DRJITMessageSend will be translated using a instrinsic that already annotate the bytecode"
 	self assert: controlFlowGraph hasAnnotatedBytecode not.
 
-	^ self
-		  addInstructionWithNoResultFrom: aRBMessageNode
-		  instructionKind: DRJITMessageSend
-		  operands: {
-				  selectorIndex asDRValue.
-				  argumentCount asDRValue.
-				  sendTableName asDRValue }
+	send := self
+		        addInstructionWithNoResultFrom: aRBMessageNode
+		        instructionKind: DRJITMessageSend
+		        operands: {
+				        selectorIndex asDRValue.
+				        argumentCount asDRValue.
+				        sendTableName asDRValue }.
+	send addBefore: (marshall := DRCogitSendMarshall send: send).
+	
+	"If all arguments pass on registers, then we need to pop them from the stack, but the marshall already unspill them if spilled"
+	argumentCount simpleConstantFold asDRValue isConstant
+		ifTrue: [
+			marshall addBefore: (controlFlowGraph instructionFactory flushStackExceptTop: argumentCount simpleConstantFold + 1).
+			argumentCount simpleConstantFold + 1 timesRepeat: [ "Receiver"
+				self
+					pop: 1
+					unspilled: argumentCount simpleConstantFold <= self numRegArgs ] ]
+		ifFalse: [ 
+			marshall addBefore: controlFlowGraph instructionFactory flushStack.
+			marshall doPop: true ].
+	^ self push: DRPhysicalGeneralPurposeRegister receiverResultReg
 ]
 
 { #category : #'special cases' }
@@ -390,7 +401,7 @@ DRBytecodeIRGenerator >> interpretStackPointerWith: aRBVariableNode [
 
 { #category : #'special cases - stack' }
 DRBytecodeIRGenerator >> interpretStackTopWith: aRBMessageNode [
-
+	
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRLoadStackValue
@@ -436,10 +447,10 @@ DRBytecodeIRGenerator >> newBasicBlockWithState: executionState [
 	^ newBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : #initialization }
 DRBytecodeIRGenerator >> newCFG [
 	
-	^ DRPrimitiveControlFlowGraph new
+	^ DRControlFlowGraph new
 ]
 
 { #category : #accessing }
@@ -451,13 +462,22 @@ DRBytecodeIRGenerator >> numberOfArguments: aValue [
 		self push: (self argRegisterNumber: i) ]"
 ]
 
-{ #category : #accessing }
+{ #category : #'pharo-stack' }
 DRBytecodeIRGenerator >> pop [
 
 	self
-		addInstructionFrom: nil
+		addInstructionWithNoResultFrom: nil
 		instructionKind: DRPop
-		operands: #().
+		operands: #( 1 false ).
+	^ self popOperand
+]
+
+{ #category : #accessing }
+DRBytecodeIRGenerator >> pop: n unspilled: aBoolean [
+
+	self addInstructionWithNoResultFrom: nil instructionKind: DRPop operands: {
+			n.
+			aBoolean }.
 	^ self popOperand
 ]
 
@@ -469,20 +489,6 @@ DRBytecodeIRGenerator >> push: aValue [
 		instructionKind: DRPush
 		operands: { aValue }.
 	^ self popOperand
-]
-
-{ #category : #'stack management' }
-DRBytecodeIRGenerator >> pushFrameForCode: aDRCode receiver: aReceiver [
-
-	| frame |
-	frame := super pushFrameForCode: aDRCode receiver: aReceiver.
-
-	"If this is the base frame, it should continue with the next bytecode at the end"
-	executionState baseFrame = frame ifTrue: [
-		frame exitBasicBlock endInstruction:
-			(self instantiateNoResultInstruction: DRContinueNextBytecode) ].
-
-	^ frame
 ]
 
 { #category : #accessing }

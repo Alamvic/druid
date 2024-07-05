@@ -7,7 +7,8 @@ Class {
 	#name : #DRPrimitiveIRGenerator,
 	#superclass : #DRMetaCompilerIRGenerator,
 	#instVars : [
-		'completePrimitive'
+		'completePrimitive',
+		'failureExitBlock'
 	],
 	#category : #'Druid-CompilerCompiler'
 }
@@ -33,6 +34,11 @@ DRPrimitiveIRGenerator >> executeFullCogBlockClosureMayContextSwitchWith: aRBMes
 				  offsetSelector }
 ]
 
+{ #category : #accessing }
+DRPrimitiveIRGenerator >> failureExitBlock [
+	^ failureExitBlock
+]
+
 { #category : #visiting }
 DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
 	"Plug the IR with the two exit blocks"
@@ -53,8 +59,8 @@ DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
 	conditionalJump trueBranch: controlFlowGraph successExitBlock.
 	controlFlowGraph successExitBlock addPredecessor: currentBasicBlock.
 
-	conditionalJump falseBranch: controlFlowGraph failureExitBlock.
-	controlFlowGraph failureExitBlock addPredecessor: currentBasicBlock.
+	conditionalJump falseBranch: failureExitBlock.
+	failureExitBlock addPredecessor: currentBasicBlock.
 
 	"Return N elements in the stack"
 	controlFlowGraph successExitBlock endInstruction: (self
@@ -62,7 +68,7 @@ DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
 			 operands: { (DRConstantValue value: numberOfArguments + 1) }).
 
 	"Return failure (compilation) code"
-	controlFlowGraph failureExitBlock endInstruction: (self
+	failureExitBlock endInstruction: (self
 			 instantiateNoResultInstruction: DRPrimitiveFail
 			 operands: { completePrimitive asDRValue })
 ]
@@ -81,11 +87,11 @@ DRPrimitiveIRGenerator >> initialize [
 	completePrimitive := true.
 	controlFlowGraph successExitBlock:controlFlowGraph newBasicBlock.
 	controlFlowGraph successExitBlock beExitBlock.
-	controlFlowGraph failureExitBlock: controlFlowGraph newBasicBlock.
-	controlFlowGraph failureExitBlock beExitBlock.
+	failureExitBlock := controlFlowGraph newBasicBlock.
+	failureExitBlock beExitBlock.
 ]
 
-{ #category : #accessing }
+{ #category : #'special cases' }
 DRPrimitiveIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
@@ -93,7 +99,6 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 	
 	specialCases at: #executeFullCogBlock:closure:mayContextSwitch: put: #executeFullCogBlockClosureMayContextSwitchWith:.
 	
-	specialCases at: #remember: put: #interpretRememberWith:.
 	specialCases at: #newHashBitsOf: put: #interpretNewHashBitsOfWith:
 
 ]
@@ -106,29 +111,6 @@ DRPrimitiveIRGenerator >> inlineGenerator [
 		  executionState: executionState copy;
 		  typeSystem: self typeSystem;		
 		  yourself
-]
-
-{ #category : #interpreting }
-DRPrimitiveIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
-
-	| value |
-	aRBAssignmentNode value acceptVisitor: self.
-	"Keep instruction in CFG for inlinings"
-	value := currentBasicBlock strongCopyForInlining: self operandStackTop. 
-
-	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
-		^ self receiver value
-			  instVarNamed: aRBAssignmentNode variable name
-			  put: value ].
-
-	aRBAssignmentNode variable binding originalVar isTempVariable
-		ifTrue: [
-			^ self topFrame
-				  temporaryAt: aRBAssignmentNode variable name
-				  put: value
-				  withState: executionState ].
-
-	self halt
 ]
 
 { #category : #interpretation }
@@ -188,18 +170,6 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aRBNode [
 	self pushOperand: executionState primitiveFailureCode
 ]
 
-{ #category : #'special-cases' }
-DRPrimitiveIRGenerator >> interpretRememberWith: aRBMessageNode [
-
-	| obj |
-	obj := self visitOperand: aRBMessageNode arguments first.
-	^ (self
-		   addInstructionCall: {
-				   'ceStoreCheckTrampoline'.
-				   obj }
-		   from: aRBMessageNode) beMapped saveLinkReg
-]
-
 { #category : #accessing }
 DRPrimitiveIRGenerator >> newBasicBlock [
 
@@ -219,32 +189,6 @@ DRPrimitiveIRGenerator >> newBasicBlockWithState: executionState [
 DRPrimitiveIRGenerator >> newCFG [
 	
 	^ DRPrimitiveControlFlowGraph new
-]
-
-{ #category : #'frame-access' }
-DRPrimitiveIRGenerator >> popFrameMergingDeferredReturns [
-
-	| exitBasicBlock topReturns |
-	exitBasicBlock := self topFrame exitBasicBlock.
-	topReturns := self topFrame deferredMethodReturns.
-	topReturns size > 0
-		ifTrue: [
-			| mergedState |
-			self assert: exitBasicBlock predecessors isEmpty. "If not, check if new predecessors will be added"
-			topReturns keysDo: [ :frameReturn | 
-				frameReturn breakBasicBlock. "Breaking the block in case of be shared by many returns"
-				frameReturn basicBlock jumpTo: exitBasicBlock ].
-			mergedState := DRStackMerger new
-				               builder: self;
-				               mergeBlock: exitBasicBlock;
-				               mergeAll: topReturns values upTo: self topFrame.
-			executionState := mergedState.
-			currentBasicBlock := exitBasicBlock ].
-
-	"Returns installed in the CFG -> stop tracking"
-	self topFrame clearDeferredMethodReturns.
-
-	^ executionState popFrame
 ]
 
 { #category : #frames }

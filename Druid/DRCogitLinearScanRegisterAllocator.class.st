@@ -86,17 +86,32 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 { #category : #'live-analysis' }
 DRCogitLinearScanRegisterAllocator >> computeLivenessOfInstruction: anInstruction inBlock: b withLiveSet: live [
 
+	"Instructions pushing registers to the stack extend the life of the register up to its pop or last use.
+	Thus, for each stack instruction (pop, stack access) we need to find the defining instruction (the push) if any.
+	If there is one, it means that we need to extend the life of that register up to this using instruction.
+	If there is none, it means that this is a bytecode parameter pushed by another bytecode, there is nothing to do"
+	(anInstruction isStackInstruction and: [ anInstruction isPush not ])
+		ifTrue: [
+			| definingStackInstruction |
+			definingStackInstruction := anInstruction definingStackInstruction.
+			definingStackInstruction ifNotNil: [
+				self assert: definingStackInstruction isPush.
+				self
+					updateLiveSet: live
+					ofOperand: definingStackInstruction operand1
+					ofInstruction: anInstruction
+					inBlock: b ] ].
+
 	"If the instruction is an integer division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.
 	This instruction requires 4 different registers and not three (operands + destination).
 	We model this by adding an extra operand at this point."
 
-	"Then regiter the live interval for the new synthetic operand"
-
-	((anInstruction isDivision or: [ anInstruction isModulo ]) and: [ 
-		 anInstruction type isFloatType not ]) ifTrue: [ 
+	"Then register the live interval for the new synthetic operand"
+	((anInstruction isDivision or: [ anInstruction isModulo ]) and: [
+		 anInstruction type isFloatType not ]) ifTrue: [
 		| newOperand |
 		anInstruction operands size = 2
-			ifTrue: [ 
+			ifTrue: [
 				newOperand := anInstruction basicBlock controlFlowGraph
 					              allocateTemporaryRegister.
 				anInstruction addOperand: newOperand ]

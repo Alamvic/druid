@@ -58,29 +58,43 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 { #category : #'instance creation' }
 DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass: aSuperclass [
 
+	^ self generateDruidJITModelOn: targetClass superclass: aSuperclass compilerOptions: #()
+]
+
+{ #category : #'instance creation' }
+DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass: aSuperclass compilerOptions: options [
+
 	| primitives bytecodes |
-		primitives := #( 
-	#primitiveAdd #primitiveSubtract #primitiveMultiply #primitiveDivide #primitiveMod
-	#primitiveLessThan  #primitiveLessOrEqual #primitiveGreaterThan #primitiveGreaterOrEqual 
-	#primitiveEqual #primitiveNotEqual #primitiveIdentical #primitiveNotIdentical
-	#primitiveDiv #primitiveQuo primitiveBitShift primitiveBitAnd  primitiveBitXor primitiveBitOr
+	primitives := #( #primitiveAdd #primitiveSubtract #primitiveMultiply
+	                 #primitiveDivide #primitiveMod #primitiveLessThan
+	                 #primitiveLessOrEqual #primitiveGreaterThan
+	                 #primitiveGreaterOrEqual #primitiveEqual
+	                 #primitiveNotEqual #primitiveIdentical
+	                 #primitiveNotIdentical #primitiveDiv #primitiveQuo
+	                 primitiveBitShift primitiveBitAnd primitiveBitXor
+	                 primitiveBitOr primitiveSmallFloatAdd
+	                 primitiveSmallFloatSubtract
+	                 #primitiveSmallFloatMultiply
+	                 primitiveSmallFloatDivide primitiveSmallFloatEqual
+	                 primitiveSmallFloatNotEqual
+	                 primitiveSmallFloatGreaterOrEqual
+	                 primitiveSmallFloatGreaterThan
+	                 primitiveSmallFloatLessThan
+	                 primitiveSmallFloatLessOrEqual
+	                 primitiveFloatAdd primitiveFloatSubtract
+	                 #primitiveFloatMultiply primitiveFloatEqual
+	                 primitiveFloatNotEqual primitiveFloatGreaterThan
+	                 primitiveFloatGreaterOrEqual
+	                 primitiveFloatLessThan primitiveFloatLessOrEqual
+	                 primitiveAsFloat primitiveAsCharacter
+	                 #primitiveImmediateAsInteger
+	                 primitiveClass #primitiveSize #primitiveAt
+	                 #primitiveStringAt #primitiveAtPut #primitiveIdentityHash
+	                 primitiveNew #primitiveNewWithArg
+	                 primitiveFullClosureValue primitiveFullClosureValueNoContextSwitch ). "primitiveFloatDivide (Fix float comparison)"
+	"primitiveStringReplace (More than 2 args)" "#primitiveStringAtPut" "#primitiveBehaviorHash"
 
-	primitiveSmallFloatAdd primitiveSmallFloatSubtract #primitiveSmallFloatMultiply primitiveSmallFloatDivide primitiveSmallFloatEqual primitiveSmallFloatNotEqual primitiveSmallFloatGreaterOrEqual primitiveSmallFloatGreaterThan primitiveSmallFloatLessThan  primitiveSmallFloatLessOrEqual
-
-	primitiveFloatAdd primitiveFloatSubtract #primitiveFloatMultiply "primitiveFloatDivide (Fix float comparison)"  
-	primitiveFloatEqual primitiveFloatNotEqual primitiveFloatGreaterThan primitiveFloatGreaterOrEqual primitiveFloatLessThan primitiveFloatLessOrEqual
-
-	primitiveAsFloat primitiveAsCharacter #primitiveImmediateAsInteger 
-	"primitiveStringReplace (More than 2 args)"
-
-	primitiveClass #primitiveSize #primitiveAt #primitiveStringAt #primitiveAtPut #primitiveStringAtPut "#primitiveBehaviorHash" #primitiveIdentityHash
-
-  primitiveNew #primitiveNewWithArg 
-	primitiveFullClosureValue
-	primitiveFullClosureValueNoContextSwitch
-	).
-	
-bytecodes := #( 
+	bytecodes := #( 
 		"pushReceiverVariableBytecode"
 			0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
 		"pushLiteralVariable16CasesBytecode"
@@ -150,11 +164,26 @@ bytecodes := #(
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
-		selectPrimitives: [ :e | primitives includes: e selector ];
-		selectBytecodes: [ :e | bytecodes includes: e bytecodeNumberStart ];
+		selectPrimitives: [ :e |
+			((primitives indexOf: e selector) between: 0 and: 54) and: [
+					primitives includes: e selector ] ];
+		selectBytecodes: [ :e |
+			(e bytecodeNumberStart between: 0 and: 255) and: [
+					bytecodes includes: e bytecodeNumberStart ] ];
 		targetClass: targetClass;
 		targetSuperclass: aSuperclass;
+		compilerOptions: options;
 		build
+]
+
+{ #category : #'instance creation' }
+DRInterpreterToCompiler class >> generateDruidStaticTypePredictionJITModel [
+
+	<script>
+	self
+		generateDruidJITModelOn: DruidStaticTypePredictionJIT
+		superclass: StackToRegisterMappingCogit
+		compilerOptions: #( staticTypePrediction )
 ]
 
 { #category : #'instance creation' }
@@ -531,10 +560,12 @@ DRInterpreterToCompiler >> newInterpreter [
 
 	memory := self newMemory.
 	memory lastHash: 1. "Setup seed for hash related primitives"
-	
+	memory ensureMemoryMap.
+
 	^ interpreterClass basicNew
 		  objectMemory: memory;
-		  basicInitialize
+		  basicInitialize;
+		  yourself
 ]
 
 { #category : #'accessing - object memory' }

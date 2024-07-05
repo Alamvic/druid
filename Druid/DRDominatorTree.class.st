@@ -40,16 +40,14 @@ DRDominatorTree >> buildDominationTreeOf: cfg startingFrom: initialBasicBlock fo
 	hasChanged := true.
 	[ hasChanged ] whileTrue: [
 		hasChanged := false.
-		({
-			 cfg initialBasicBlock.
-			 cfg exitBasicBlock } , cfg blocks copyWithout: initialBasicBlock)
-			do: [ :block |
-				blockDictionary at: block ifPresent: [ :currentNode |
-					newImmediateDominator := self findImmediateDominatorOfBlock:
-						                         (dominationBlockClosure value: block).
-					currentNode parent = newImmediateDominator ifFalse: [
-						currentNode replaceParent: newImmediateDominator.
-						hasChanged := true ] ] ] ]
+		({ cfg initialBasicBlock } , cfg blocks copyWithout:
+			 initialBasicBlock) do: [ :block |
+			blockDictionary at: block ifPresent: [ :currentNode |
+				newImmediateDominator := self findImmediateDominatorOfBlock:
+					                         (dominationBlockClosure value: block).
+				currentNode parent = newImmediateDominator ifFalse: [
+					currentNode replaceParent: newImmediateDominator.
+					hasChanged := true ] ] ] ]
 ]
 
 { #category : #initialization }
@@ -65,9 +63,6 @@ DRDominatorTree >> buildDominatorTreeOf: cfg [
 { #category : #initialization }
 DRDominatorTree >> buildPostDominatorTreeOf: cfg [
 
-	cfg exitBasicBlock ifNil: [
-		self error:
-			'We need an exitBasicBlock to build a post dominator tree' ].
 	self
 		buildDominationTreeOf: cfg
 		startingFrom: cfg exitBasicBlock
@@ -175,15 +170,22 @@ DRDominatorTree >> dominanceFrontierOf: aBlock [
 { #category : #querying }
 DRDominatorTree >> dominatorOfAll: instructions [
 
-	| firstNode |
-	firstNode := self blockDictionary at: instructions first basicBlock.
+	^ self dominatorOfAllBlocks:
+		  (instructions collect: [ :i | i basicBlock ])
+]
 
-	^ instructions allButFirst
+{ #category : #querying }
+DRDominatorTree >> dominatorOfAllBlocks: blocks [
+
+	| firstNode |
+	firstNode := self blockDictionary at: blocks first.
+
+	^ blocks allButFirst
 		  inject: firstNode
-		  into: [ :dominator :instruction |
+		  into: [ :dominator :basicBlock |
 			  self
 				  nearestCommonAncestorOf: dominator
-				  and: (self blockDictionary at: instruction basicBlock) ]
+				  and: (self blockDictionary at: basicBlock) ]
 ]
 
 { #category : #querying }

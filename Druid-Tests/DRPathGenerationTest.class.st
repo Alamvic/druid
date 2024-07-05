@@ -56,11 +56,11 @@ DRPathGenerationTest >> testConstraintsFromComplexConditionalOnDifferentRegs [
 	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnDifferentVariables. "n ~= 2 AND m < 5"
 
 	edges := cfg lastBasicBlock predecessors flatCollect: [ :b | cfg incomingEdgesFor: b ].
-	trueNDomain := edges first constraintFor: 1.  "n ~= 2"
-	trueMDomain := edges first constraintFor: 2.  "m < 5"
-	firstFalseNDomain := edges second constraintFor: 1.  "n = 2"
-	secondFalseNDomain := edges third constraintFor: 1.  "n ~= 2"
-	secondFalseMDomain := edges third constraintFor: 2.  "m >= 5"
+	trueNDomain := edges first constraintFor: 'ssa_1'.  "n ~= 2"
+	trueMDomain := edges first constraintFor: 'ssa_2'.  "m < 5"
+	firstFalseNDomain := edges second constraintFor: 'ssa_1'.  "n = 2"
+	secondFalseNDomain := edges third constraintFor: 'ssa_1'.  "n ~= 2"
+	secondFalseMDomain := edges third constraintFor: 'ssa_2'.  "m >= 5"
 
 	self assert: (trueNDomain includes: (DRNotEqualsConstraint withValue: 2)).
 	self assert: (trueMDomain includes: (DRLessConstraint withValue: 5)).
@@ -77,9 +77,9 @@ DRPathGenerationTest >> testConstraintsFromComplexConditionalOnSameReg [
 	cfg := self generateDruidIRFor: #primitiveBranchingWithAndConditionOnSameVariable. "n ~= 2 AND n < 5"
 
 	edges := cfg lastBasicBlock predecessors flatCollect: [ :b | cfg incomingEdgesFor: b ].
-	trueRegDomain := edges second constraintFor: 1.  "n ~= 2 AND n < 5"
-	firstFalseRegDomain := edges first constraintFor: 1.  "n = 2"
-	secondFalseRegDomain := edges third constraintFor: 1.  "n >= 5"
+	trueRegDomain := edges second constraintFor: 'ssa_1'.  "n ~= 2 AND n < 5"
+	firstFalseRegDomain := edges first constraintFor: 'ssa_1'.  "n = 2"
+	secondFalseRegDomain := edges third constraintFor: 'ssa_1'.  "n >= 5"
 
 	self assert: (trueRegDomain includes: (DRIntersectionConstraint constraints: {
 		DRNotEqualsConstraint withValue: 2.
@@ -98,8 +98,8 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranchIfCondition [
 	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThan.
 
 	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
-	trueConstraint := edges first constraintFor: 1. ">= 10"
-	falseConstraint := edges second constraintFor: 1. "< 10"
+	trueConstraint := edges first constraintFor: 'ssa_1'. ">= 10"
+	falseConstraint := edges second constraintFor: 'ssa_1'. "< 10"
 	
 	self assertConstraint: trueConstraint includes: (DRGreaterOrEqualsConstraint withValue: 10).
 	self assertConstraint: falseConstraint includes: (DRLessConstraint withValue: 10).
@@ -112,8 +112,8 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranchIfConditionInverted [
 	cfg := self generateDruidIRFor: #primitiveGreaterOrEqualsThanInverted.
 
 	edges := cfg outgoingEdgesFor: cfg firstBasicBlock.
-	trueConstraint := edges first constraintFor: 1. "<= 10"
-	falseConstraint := edges second constraintFor: 1. "> 10"
+	trueConstraint := edges first constraintFor: 'ssa_1'. "<= 10"
+	falseConstraint := edges second constraintFor: 'ssa_1'. "> 10"
 	
 	self assertConstraint: trueConstraint includes: (DRLessOrEqualsConstraint withValue: 10).
 	self assertConstraint: falseConstraint includes: (DRGreaterConstraint withValue: 10).
@@ -212,8 +212,8 @@ DRPathGenerationTest >> testConstraintsInferenceFromInnerBranches [
 
 	innerMergeBlock := cfg mergeBlocks first.
 	edges := cfg incomingEdgesFor: innerMergeBlock.
-	trueConstraint := edges first constraintFor: 1. "10 < Reg < 20"
-	falseConstraint := edges second constraintFor: 1. ">= 20"
+	trueConstraint := edges first constraintFor: 'ssa_1'. "10 < Reg < 20"
+	falseConstraint := edges second constraintFor: 'ssa_1'. ">= 20"
 
 	self assertConstraint: trueConstraint includes: (DRIntersectionConstraint between: 10 and: 20).
 	self assertConstraint: falseConstraint includes: (DRGreaterOrEqualsConstraint withValue: 20)

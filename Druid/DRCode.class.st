@@ -49,8 +49,7 @@ DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
 		receiver: aReceiver;
 		method: self codeNode;
 		irGenerator: interpreter;
-		entryBasicBlock: newMethodEntry;
-		exitBasicBlock: interpreter basicNewBasicBlock.
+		entryBasicBlock: newMethodEntry.
 
 	self codeNode temporaryNames , self codeNode argumentNames do: [ :e | frame defineVariableNamed: e ].
 	frame returnValue: (self defaultReturnValue: aReceiver).
