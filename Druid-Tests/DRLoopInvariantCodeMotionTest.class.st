@@ -30,7 +30,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionAdjustsPhiFunctionsO
 	| cfg loopBlock loopInvariantInstruction |
 	cfg := self generateDruidIRFor: #primitiveLoopWithInvariant.
 
-	loopBlock := cfg blockById: 7.
+	loopBlock := cfg blockById: 6.
 	loopInvariantInstruction := loopBlock firstInstruction.
 
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
@@ -44,7 +44,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveInstructi
 	| cfg ifBlock loopVariantInstruction |
 	cfg := self generateDruidIRFor: #primitiveLoopWithLoopInvariantInstructionInsideIf.
 
-	ifBlock := cfg blockById: 8.
+	ifBlock := cfg blockById: 6.
 	loopVariantInstruction := ifBlock firstInstruction.
 
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.
@@ -86,7 +86,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoopVaria
 	| cfg loopBlock loopVariantInstructions |
 	cfg := self generateDruidIRFor: #primitiveLoopWithLoopVariantInstructions.
 
-	loopBlock := cfg blockById: 7.
+	loopBlock := cfg blockById: 6.
 	loopVariantInstructions := loopBlock instructions allButLast.
 
 	cfg applyOptimisation: DRLoopInvariantCodeMotion new.

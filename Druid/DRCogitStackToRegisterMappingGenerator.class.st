@@ -7,6 +7,19 @@ Class {
 	#category : #'Druid-Cogit'
 }
 
+{ #category : #helpers }
+DRCogitStackToRegisterMappingGenerator >> freeRegisterLiveMask: temporaryVariableNode [
+
+	generatorMethodBuilder addStatement:
+		(RBAssignmentNode variable: (RBVariableNode named: 'live') value: (RBMessageNode
+				  receiver: (RBVariableNode named: 'live')
+				  selector: #bitClear:
+				  arguments: { (RBMessageNode
+						   receiver: RBVariableNode selfNode
+						   selector: #registerMaskFor:
+						   arguments: { temporaryVariableNode copy }) }))
+]
+
 { #category : #'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 
@@ -62,11 +75,12 @@ DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRIns
 { #category : #'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> preProcessBlock: aBasicBlock [
 
-	markDeadCode ifTrue: [ "If a previous instruction marked dead code, we need to unmark it because we keep generating code"
-		markDeadCode := false.
-		generatorMethodBuilder addStatement: (RBAssignmentNode
-				 variable: (RBVariableNode named: 'deadCode')
-				 value: (RBLiteralNode value: false)) ].
+	(markDeadCode and: [ self hasDeferredBranchesTo: aBasicBlock ])
+		ifTrue: [ "If a previous instruction marked dead code, we need to unmark it because we keep generating code"
+			markDeadCode := false.
+			generatorMethodBuilder addStatement: (RBAssignmentNode
+					 variable: (RBVariableNode named: 'deadCode')
+					 value: (RBLiteralNode value: false)) ].
 	super preProcessBlock: aBasicBlock
 ]
 
@@ -124,7 +138,12 @@ DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreati
 					 (RBVariableNode named:
 						  DRPhysicalGeneralPurposeRegister classReg name) }).
 
-	super visitClosureCreation: aDRClosureCreation
+	super visitClosureCreation: aDRClosureCreation.
+	self freeRegisterLiveMask: (RBVariableNode named:
+			 DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
+	self freeRegisterLiveMask:
+		(RBVariableNode named:
+			 DRPhysicalGeneralPurposeRegister classReg name)
 ]
 
 { #category : #visiting }
@@ -133,7 +152,10 @@ DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMa
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #marshallSendArguments:
+			 selector:
+				 #marshallSendArguments , (aDRCogitSendMarshall shouldPop
+					  ifTrue: [ #'' ]
+					  ifFalse: [ 'NoPush' ]) , ':'
 			 arguments:
 				 (aDRCogitSendMarshall numberOfArguments
 					  rtlPushArgumentExpressions: self))
@@ -152,7 +174,7 @@ DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #genMarshalledSend:numArgs:sendTable:
+			 selector: #genMarshalledSendNoPush:numArgs:sendTable:
 			 arguments: {
 				(aDRMessageSend operand1 rtlPushArgumentExpressions: self) first.
 				(aDRMessageSend operand2 rtlPushArgumentExpressions: self) first.
@@ -166,10 +188,9 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 			 receiver: RBVariableNode selfNode
 			 selector: #ensureReceiverResultRegContainsSelf).
 
-  self allocateVariable: aDRLoadReceiver result.
-	self twoOperandMoveCogitRTL: aDRLoadReceiver operands: { 
-				(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg').
-				aDRLoadReceiver }
+	self twoOperandMoveCogitRTL: aDRLoadReceiver operands: {
+			(DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg').
+			aDRLoadReceiver }
 ]
 
 { #category : #visiting }
@@ -192,14 +213,10 @@ DRCogitStackToRegisterMappingGenerator >> visitPop: aDRPop [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #ssPop:
-			 arguments: { (RBLiteralValueNode value: aDRPop numberOfPoppedElements) })
-]
-
-{ #category : #visiting }
-DRCogitStackToRegisterMappingGenerator >> visitPopMany: aDRPopMany [ 
-
-	^ self visitPop: aDRPopMany
+			 selector: #ssPop:popSpilled:
+			 arguments: {
+					 (RBLiteralValueNode value: aDRPop numberOfPoppedElements).
+					 (RBLiteralValueNode value: aDRPop isUnspilled not) })
 ]
 
 { #category : #visiting }
@@ -224,6 +241,7 @@ DRCogitStackToRegisterMappingGenerator >> visitStoreTempVar: aDRStoreTemporaryVa
 			 arguments:
 			 (aDRStoreTemporaryVariable operand1 rtlPushArgumentExpressions:
 				  self)).
+
 	super visitStoreTempVar: aDRStoreTemporaryVariable
 ]
 
@@ -240,4 +258,14 @@ DRCogitStackToRegisterMappingGenerator >> visitTemporaryVariable: aDRLoadTempora
 			                        rtlPushArgumentExpressions: self).
 
 	self moveToReg: sourceDescriptorAST from: aDRLoadTemporaryVariable
+]
+
+{ #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitUnspillStackSlot: aDRUnspillStackSlot [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #ssUnspillStackSlotAt:
+			 arguments:
+			 { (RBLiteralValueNode value: aDRUnspillStackSlot operand1 value) })
 ]

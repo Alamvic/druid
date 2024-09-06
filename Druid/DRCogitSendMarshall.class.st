@@ -1,6 +1,9 @@
 Class {
 	#name : #DRCogitSendMarshall,
 	#superclass : #DRInstruction,
+	#instVars : [
+		'doPop'
+	],
 	#category : #'Druid-BytecodeToJITCompilation'
 }
 
@@ -14,6 +17,19 @@ DRCogitSendMarshall class >> send: aSend [
 DRCogitSendMarshall >> acceptVisitor: aVisitor [
 
 	aVisitor visitCogitSendMarshall: self
+]
+
+{ #category : #accessing }
+DRCogitSendMarshall >> doPop: aBoolean [ 
+	
+	doPop := aBoolean
+]
+
+{ #category : #testing }
+DRCogitSendMarshall >> initialize [
+
+	super initialize.
+	doPop := false
 ]
 
 { #category : #testing }
@@ -57,4 +73,10 @@ DRCogitSendMarshall >> sccpLatticeValueFor: sccp [
 DRCogitSendMarshall >> send [
 	
 	^ self operand1
+]
+
+{ #category : #asserting }
+DRCogitSendMarshall >> shouldPop [
+	
+	^ doPop
 ]

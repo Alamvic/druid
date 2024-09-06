@@ -11,6 +11,12 @@ DRPrimitiveFail >> isMandatoryInstruction [
 ]
 
 { #category : #testing }
+DRPrimitiveFail >> isPrimitiveFail [
+
+	^ true
+]
+
+{ #category : #testing }
 DRPrimitiveFail >> opcode [
 	
 	^ 'PrimitiveFail'

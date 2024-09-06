@@ -31,15 +31,20 @@ DRSSARegister >> isRegister [
 ]
 
 { #category : #testing }
+DRSSARegister >> isSSARegister [
+	
+	^ true
+]
+
+{ #category : #testing }
 DRSSARegister >> isValue [
 
 	^ false
 ]
 
 { #category : #accessing }
-DRSSARegister >> isVirtualRegister [
-	
-	^ true
+DRSSARegister >> name [
+	^ 'ssa_', name asString
 ]
 
 { #category : #accessing }

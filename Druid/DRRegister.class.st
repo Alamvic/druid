@@ -56,7 +56,7 @@ DRRegister >> isValue [
 
 { #category : #accessing }
 DRRegister >> name [
-	^ name
+	^ name asString
 ]
 
 { #category : #accessing }
@@ -77,4 +77,10 @@ DRRegister >> printOn: aStream [
 		nextPutAll: self class name , '(';
 		print: name;
 		nextPut: $)
+]
+
+{ #category : #cogit }
+DRRegister >> rtlPushOperandQualifierForInstruction: anInstruction [
+
+	^ 'Register:'
 ]

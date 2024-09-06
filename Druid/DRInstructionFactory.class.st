@@ -99,7 +99,13 @@ DRInstructionFactory >> floatFromBits: operand1 [
 { #category : #factory }
 DRInstructionFactory >> flushStack [
 
-	^ DRFlushStack operands: #(  ) result: DRNoRegister new
+	^ self flushStackExceptTop: 0
+]
+
+{ #category : #factory }
+DRInstructionFactory >> flushStackExceptTop: n [
+
+	^ DRFlushStack operands: { n } result: DRNoRegister new
 ]
 
 { #category : #factory }
@@ -269,11 +275,27 @@ DRInstructionFactory >> phiWithVariables: variables [
 ]
 
 { #category : #factory }
+DRInstructionFactory >> pop [
+
+	^ self pop: 1 unspilled: false
+]
+
+{ #category : #building }
+DRInstructionFactory >> pop: anInteger unspilled: aBoolean [
+
+	^ DRPop
+		  operands: {
+				  anInteger.
+				  aBoolean }
+		  result: DRNoRegister new
+]
+
+{ #category : #factory }
 DRInstructionFactory >> push: operand [
 
 	^ DRPush
 		  operands: { operand asDRValue }
-		  result: self allocateTemporaryRegister
+		  result: DRNoRegister new
 ]
 
 { #category : #factory }
@@ -284,7 +306,7 @@ DRInstructionFactory >> pushBase: base offset: offset [
 				   base: base;
 				   offset: offset;
 				   yourself) }
-		  result: self allocateTemporaryRegister
+		  result: DRNoRegister new
 ]
 
 { #category : #building }
@@ -338,4 +360,10 @@ DRInstructionFactory >> subtract: subtrahend from: minuend [
 	^ DRSubtract
 		  operands: { minuend asDRValue. subtrahend asDRValue }
 		  result: self allocateTemporaryRegister
+]
+
+{ #category : #building }
+DRInstructionFactory >> unspill: anInteger [
+
+	^ DRUnspillStackSlot operands: { anInteger } result: DRNoRegister new
 ]

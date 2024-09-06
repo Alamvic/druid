@@ -24,6 +24,55 @@ DruidTestInterpreter >> basicInlineMethod [
 ]
 
 { #category : #bytecode }
+DruidTestInterpreter >> bytecodePopOnTwoBranches [
+
+	<compilationInfo: #isMapped>
+	| r1 |
+	self stackTop > 0
+		ifTrue: [ r1 := self popStack ]
+		ifFalse: [ r1 := self popStack ].
+	self push: r1
+]
+
+{ #category : #bytecode }
+DruidTestInterpreter >> bytecodePushOnTwoBranches [
+
+	<compilationInfo: #isMapped>
+	self stackTop > 0
+		ifTrue: [ self push: 1 ]
+		ifFalse: [ self push: 2 ]
+]
+
+{ #category : #bytecode }
+DruidTestInterpreter >> bytecodeTwoPopOnTwoBranches [
+
+	<compilationInfo: #isMapped>
+	| r1 r2 |
+	self stackTop > 0
+		ifTrue: [ 
+			r1 := self popStack.
+			r2 := self popStack ]
+		ifFalse: [ 
+			r1 := self popStack.
+			r2 := self popStack ].
+	self push: r1 + r2
+]
+
+{ #category : #bytecode }
+DruidTestInterpreter >> bytecodeTwoPushOnTwoBranches [
+
+	<compilationInfo: #isMapped>
+	self popStack > 0
+		ifTrue: [
+			self push: 1.
+			self push: 2 ]
+		ifFalse: [
+			self push: 3.
+			self push: 4 ].
+	self push: self popStack + self popStack
+]
+
+{ #category : #bytecode }
 DruidTestInterpreter >> bytecodeWithDeoptimisation [
 
 	self druidForceIntepretation

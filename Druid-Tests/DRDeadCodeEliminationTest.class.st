@@ -14,7 +14,7 @@ DRDeadCodeEliminationTest >> setUp [
 { #category : #tests }
 DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 
-	| cfg copy1 copy2 copy3 copy4 copy5 copy6 jump add1 add2 phi|
+	| cfg copy1 copy2 copy3 copy4 copy5 copy6 jump add1 add2 phi instructionsBefore |
 	copy1 := DRCopy
 		         operands: { (DRConstantValue value: 1) }
 		         result: (DRSSARegister name: 1).
@@ -52,17 +52,18 @@ DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 		"value"   phi.
 		"address" 17 asDRValue }). 
 	
+	instructionsBefore := cfg instructions size.
 	optimisation applyTo: cfg.
 
 
 	"Should eliminate R1:= and R2:="
-	self assert: cfg instructions size equals: 12.
+	self assert: cfg instructions size equals: instructionsBefore - 2.
 ]
 
 { #category : #tests }
 DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 
-	| cfg copy1 copy2 phi1|	
+	| cfg copy1 copy2 phi1 instructionsBefore |	
 	cfg := self setUpCFG: 2. 
 	
 	cfg b1 addInstruction: (DRCopy operands: { DRConstantValue value: 1 } result:  (DRSSARegister name: 1)). 
@@ -78,31 +79,30 @@ DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 		"value"   phi1.
 		"address" 17 asDRValue }).
 
+	instructionsBefore := cfg instructions size.
 	optimisation applyTo: cfg.
 	
-	self assert: cfg instructions size equals: 6. "4 + Jump + Noop" 
+	self assert: cfg instructions size equals: instructionsBefore - 1.
 	self assert: cfg instructions first equals: copy1. 
 ]
 
 { #category : #tests }
 DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 
-	| b1 b2 cfg copy1 |
-	cfg := self setUpCFG: 2. 
-	
+	| b1 b2 cfg copy1 instructionsBefore |
+	cfg := self setUpCFG: 2.
+
 	b1 := cfg b1.
 	b2 := cfg b2.
 
-	b1 addInstruction: (copy1 := DRCopy operands: { DRConstantValue value: 1 } result:  (DRSSARegister name: 1)). 
-	
-	b2 addInstruction: (DRStore new operands: {
-		"size"    8 asDRValue. 
-		"value"   copy1.
-		"address" 17 asDRValue }). 
+	b1 copy: 1.
 
+	b2 storeSInt64: copy1 at: 17 asDRValue.
+
+	instructionsBefore := cfg instructions size.
 	optimisation applyTo: cfg.
-	
-	self assert: cfg instructions size equals: 4.
+
+	self assert: cfg instructions size equals: instructionsBefore - 1
 ]
 
 { #category : #test }
@@ -123,13 +123,14 @@ DRDeadCodeEliminationTest >> testNotRemoveUnusedMandatoryInstruction [
 { #category : #tests }
 DRDeadCodeEliminationTest >> testRemoveUnusedNoop [
 
-	| cfg |
+	| cfg instructionsBefore |
 	cfg := self setUpCFG: 2. 
 	
 	cfg b2 addInstruction: (DRNoop new result: DRNoRegister new). 
-	
+
+	instructionsBefore := cfg instructions size.
 	optimisation applyTo: cfg.
 
-	self assert: cfg instructions size equals: 2.
+	self assert: cfg instructions size equals: instructionsBefore - 1.
 	self assert: cfg instructions first isJump. "1 -> 2"
 ]

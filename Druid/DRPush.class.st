@@ -1,6 +1,6 @@
 Class {
 	#name : #DRPush,
-	#superclass : #DRStackInstruction,
+	#superclass : #DRStackEffect,
 	#category : #'Druid-BytecodeToJITCompilation'
 }
 
@@ -8,12 +8,6 @@ Class {
 DRPush >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitPush: self
-]
-
-{ #category : #testing }
-DRPush >> isMandatoryInstruction [
-
-	^ true
 ]
 
 { #category : #testing }
@@ -26,6 +20,14 @@ DRPush >> isPush [
 DRPush >> opcode [
 	
 	^ 'Push'
+]
+
+{ #category : #copying }
+DRPush >> postCopy [
+
+	super postCopy.
+	self operand1 isMemoryAddress ifTrue: [
+		self operand1: self operand1 copy ]
 ]
 
 { #category : #'users-definitions' }
@@ -52,4 +54,28 @@ DRPush >> size [
 	"Pushed memory size"
 	
 	^ 8 "bytes"
+]
+
+{ #category : #accessing }
+DRPush >> stackDelta [
+	
+	"I add one element to the stack"
+	^ -1
+]
+
+{ #category : #testing }
+DRPush >> stackDepth [
+	
+	"Return the stack depth left on the stack after applying this operation.
+	Push will add one element to the stack depth of the previous stack instruction"
+	
+	stackDependencies ifEmpty: [ ^ 1 ].
+	^ stackDependencies anyOne stackDepth + 1
+]
+
+{ #category : #'as yet unclassified' }
+DRPush >> stackSlotsDefiningAtDepth: anInteger [
+
+	anInteger = 0 ifTrue: [ ^ { self } ].
+	^ super stackSlotsDefiningAtDepth: anInteger
 ]

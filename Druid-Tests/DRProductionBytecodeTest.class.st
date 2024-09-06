@@ -26,22 +26,58 @@ DRProductionBytecodeTest >> setUp [
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodeAdd [
 
-	"We do not support the static type prediction yet"
-	self skip.
+	"We need the send trampoline to compile even though it is not called"
+	cogit ordinarySendTrampolineAt: 1 put: fakeTrampoline.
 
-	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
-	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress.
-	
 	self
 		compileBytecode: 96
 		selector: #bytecodePrimAdd
-		thenDo: [ :generator | 
+		options: #( staticTypePrediction )
+		thenDo: [ :generator |
 			cogit ssPushRegister: ReceiverResultReg.
 			cogit ssPushRegister: Arg0Reg.
 
 			"Execute the druid's compiled code"
 			generator value.
 
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: { (memory integerObjectOf: 42) }.
+	self
+		assert:
+		(memory integerValueOf: machineSimulator receiverRegisterValue)
+		equals: 42 + 17
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeAddOneSpilledArg [
+
+	"We need the send trampoline to compile even though it is not called"
+	cogit ordinarySendTrampolineAt: 1 put: fakeTrampoline.
+	
+	self
+		compileBytecode: 96
+		selector: #bytecodePrimAdd
+		options: #( staticTypePrediction )
+		thenDo: [ :generator | 
+			
+			cogit methodOrBlockNumArgs: 0. "Hack"
+			cogit methodOrBlockNumTemps: 0. "Hack"
+			"Initialize the simulated stack"
+			cogit initSimStackForFramefulMethod: 0.
+		
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssFlushStack.
+
+			cogit ssPushRegister: Arg0Reg.			
+
+			"Execute the druid's compiled code"
+			generator value.
+	
 			"Then return without druid's compiled code"
 			cogit ssPopTopToReg: ReceiverResultReg.
 			cogit genUpArrowReturn ].
@@ -65,6 +101,7 @@ DRProductionBytecodeTest >> testBytecodeAddOverflow [
 	self
 		compileBytecode: 96
 		selector: #bytecodePrimAdd
+		options: #( staticTypePrediction )
 		thenDo: [ :generator | 
 			cogit ssPushRegister: ReceiverResultReg.
 			cogit ssPushRegister: Arg0Reg.
@@ -73,18 +110,57 @@ DRProductionBytecodeTest >> testBytecodeAddOverflow [
 			generator value.
 
 			"Then return without druid's compiled code"
-			cogit ssPopTopToReg: ReceiverResultReg.
-			cogit genUpArrowReturn ].
+			cogit Stop ].
 
-	"Should run, overflow, jump to the trampoline, and 17"
+	"Should run, overflow, jump to the trampoline and leave the registers as they are"
 	self
-		executePrimitiveWithReceiver:
-		(memory integerObjectOf: memory maxSmallInteger)
-		withArguments: { (memory integerObjectOf: 1) }.
+		prepareStackForPrimitiveReceiver: (memory integerObjectOf: memory maxSmallInteger)
+		arguments: { memory integerObjectOf: 1 }
+		method: memory nilObject.
+
+	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
+	self runFrom: cogInitialAddress until: sendTrampolineAddress.
 	
 	self
 		assert: (memory integerValueOf: machineSimulator receiverRegisterValue)
 		equals: memory maxSmallInteger
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodeAddWithSpilledArgs [
+
+	"We need the send trampoline to compile even though it is not called"
+	cogit ordinarySendTrampolineAt: 1 put: fakeTrampoline.
+	
+	self
+		compileBytecode: 96
+		selector: #bytecodePrimAdd
+		options: #( staticTypePrediction )
+		thenDo: [ :generator | 
+			
+			cogit methodOrBlockNumArgs: 0. "Hack"
+			cogit methodOrBlockNumTemps: 0. "Hack"
+			"Initialize the simulated stack"
+			cogit initSimStackForFramefulMethod: 0.
+		
+			cogit ssPushRegister: ReceiverResultReg.
+			cogit ssPushRegister: Arg0Reg.			
+			cogit ssFlushStack.
+
+			"Execute the druid's compiled code"
+			generator value.
+	
+			"Then return without druid's compiled code"
+			cogit ssPopTopToReg: ReceiverResultReg.
+			cogit genUpArrowReturn ].
+
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 17)
+		withArguments: { (memory integerObjectOf: 42) }.
+	self
+		assert:
+		(memory integerValueOf: machineSimulator receiverRegisterValue)
+		equals: 42 + 17
 ]
 
 { #category : #tests }
@@ -252,6 +328,10 @@ DRProductionBytecodeTest >> testBytecodeExtendedSuperSend [
 	self compileBytecode: 235 selector: #extSendSuperBytecode thenDo: [ :generator |
 		cogit methodObj: method.
 
+		cogit methodOrBlockNumArgs: 1. "Hack"
+		cogit methodOrBlockNumTemps: 1. "Hack"
+		cogit initSimStackForFramefulMethod: 2 "fake Bytecode pc".
+
 		"The receiver of the send!"
 		cogit ssPushRegister: ReceiverResultReg.
 		cogit ssPushRegister: Arg0Reg.
@@ -261,17 +341,20 @@ DRProductionBytecodeTest >> testBytecodeExtendedSuperSend [
 
 		cogit Stop ].
 
+	"Execute the method with receiver smi 17 and argument smi 53"
+	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
 	self
 		prepareStackForPrimitiveReceiver: (memory integerObjectOf: 17)
-		arguments: #(  )
+		arguments: { (memory integerObjectOf: 53) }
 		method: method.
 
-	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
 	self runFrom: cogInitialAddress until: sendTrampolineAddress.
+
 	"First argument: the selector"
 	self assert: machineSimulator classRegisterValue equals: selectorIndex.
 	"Third argument: the receiver"
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17)
+	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17).
+	self assert: machineSimulator arg0RegisterValue equals: (memory integerObjectOf: 53).
 ]
 
 { #category : #tests }
@@ -817,22 +900,21 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfNonIdenticalObjectsWithFor
 
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePrimSendAdd [
-
 	"Setup the send trampoline"
+
 	| method selector |
 	sendTrampolineAddress := self compile: [ cogit RetN: 0 ].
-	cogit ordinarySendTrampolineAt: 1 "arg" put: sendTrampolineAddress.
-	
+	cogit ordinarySendTrampolineAt: 1 put: sendTrampolineAddress. "arg"
+
 	method := methodBuilder
-		newMethod;
-		literals: { 
-			selector := (memory integerObjectOf: 42) };
-		buildMethod.
+		          newMethod;
+		          literals: { (selector := memory integerObjectOf: 42) };
+		          buildMethod.
 
 	self
 		compileBytecode: 96
 		selector: #bytecodePrimAdd
-		thenDo: [ :generator | 
+		thenDo: [ :generator |
 			cogit methodObj: method.
 			"The receiver of the send!"
 			cogit ssPushRegister: ReceiverResultReg.
@@ -845,20 +927,23 @@ DRProductionBytecodeTest >> testBytecodePrimSendAdd [
 
 	self
 		prepareStackForPrimitiveReceiver: (memory integerObjectOf: 17)
-		arguments: #()
+		arguments: #(  )
 		method: method.
 
 	"Check it arrives to trampoline ceSend: ClassReg above: true to: ReceiverReg numArgs: numArgs"
 	self runFrom: cogInitialAddress until: sendTrampolineAddress.
+
 	"First argument: the selector"
-	self assert: machineSimulator classRegisterValue equals: (-1 twoComplementOfBitSize: 64) "+ selector index".
+	self
+		assert: machineSimulator classRegisterValue
+		equals: (-1 twoComplementOfBitSize: 64). "+ selector index"
 	"Third argument: the receiver, then the argument is on the stack"
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17).
-	self assert: machineSimulator arg0RegisterValue equals: (memory integerObjectOf: 42)
-	
-
-
-
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 17).
+	self
+		assert: machineSimulator arg0RegisterValue
+		equals: (memory integerObjectOf: 42)
 ]
 
 { #category : #tests }
@@ -1063,7 +1148,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAlloca
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: n [
 
-	| method |
+	| method x |
 	method := methodBuilder newMethod
 		          literals:
 			          (((1 to: 16) collect: [ :e | nil -> (e + 16rFF - 1) ])
@@ -1090,9 +1175,9 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAlloca
 			generator value.
 			
 			"Flush the stack"
-			cogit ssFlushTo: cogit simStackPointer.
+			cogit ssFlushStack.
 
-			"Pop the top 4 elements, the fourth should be the first pushed constant"
+			"Pop the top n + 1 elements, the last should be the first pushed constant"
 			1 to: n + 1 do: [ :i |
 				cogit ssPopTopToReg: ReceiverResultReg ].
 			cogit genUpArrowReturn ].

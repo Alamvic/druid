@@ -16,7 +16,7 @@ Class {
 	#category : #'Druid-Tests-Optimizations'
 }
 
-{ #category : #initialization }
+{ #category : #running }
 DRDeadBlockEliminationTest >> setUp [
 	super setUp.
 	

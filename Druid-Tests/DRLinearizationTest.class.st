@@ -79,7 +79,7 @@ DRLinearizationTest >> testBranchingControlFlowWithStackDependency [
 	firstPush := b2 push: 1.
 	secondPush := b3 push: 2.
 
-	secondPush stackDependency: firstPush.
+	secondPush stackDependencies: {firstPush}.
 
 	self assert: cfg reversePostOrderBlocks asArray equals: {
 			b1.
@@ -113,7 +113,7 @@ DRLinearizationTest >> testBranchingControlFlowWithStackDependencyReversed [
 	firstPush := b3 push: 1.
 	secondPush := b2 push: 2.
 
-	secondPush stackDependency: firstPush.
+	secondPush stackDependencies: {firstPush}.
 
 	self assert: cfg reversePostOrderBlocks asArray equals: {
 			b1.
@@ -181,7 +181,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocks [
 	cfg applyOptimisation: DRCleanControlFlow new.
 
 	self assert: cfg reversePostOrderBlocks size equals: 7 + 1.
-	self assert: cfg instructions size equals: 21
+	self assert: cfg instructions size equals: 22
 ]
 
 { #category : #'tests-building' }
@@ -196,7 +196,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWhenEarlyMethodReturns [
 	cfg applyOptimisation: DRCleanControlFlow new.
 
 	self assert: cfg reversePostOrderBlocks size equals: 8.
-	self assert: cfg instructions size equals: 21
+	self assert: cfg instructions size equals: 22
 ]
 
 { #category : #'tests-building' }
@@ -213,7 +213,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWithTwoNonLocalReturns [
 	DRDeadBlockElimination new applyTo: cfg.
 
 	self assert: cfg reversePostOrderBlocks size equals: 8.
-	self assert: cfg instructions size equals: 21
+	self assert: cfg instructions size equals: 22
 ]
 
 { #category : #'tests-building' }
