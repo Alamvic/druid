@@ -531,6 +531,7 @@ DRInterpreterToCompiler >> newInterpreter [
 
 	memory := self newMemory.
 	memory lastHash: 1. "Setup seed for hash related primitives"
+	memory ensureMemoryMap.
 	
 	^ interpreterClass basicNew
 		  objectMemory: memory;
