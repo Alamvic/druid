@@ -28,7 +28,7 @@ DRDeadBranchElimination >> removeBranchFrom: sourceBasicBlock to: destinationBas
 	| newSucessors |
 	newSucessors := sourceBasicBlock successors copyWithout: destinationBasicBlock.
 	newSucessors
-		ifEmpty: [ sourceBasicBlock removeFromCFGAndDisconnectSuccessors ]
+		ifEmpty: [ sourceBasicBlock removeFromCFG ]
 		ifNotEmpty: [ 
 			self assert: newSucessors size < 2. "A basic block has 2 successors max"
 			sourceBasicBlock jumpTo: newSucessors first ]
