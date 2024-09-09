@@ -387,7 +387,7 @@ DRPathGenerationTest >> testGenerateExpectedEdgesCountMerging [
 { #category : #'dead-path' }
 DRPathGenerationTest >> testInferenceDeadPaths [
 
-	| cfg deadPath expectedTarget deadPathBlocks deadCopy expectedPath |
+	| cfg deadPath expectedTarget deadPathBlocks deadCopy |
 	cfg := self generateDruidIRFor: #primitiveInnerBranchingWithDeadBranch.
 
 	deadPath := cfg deadPaths associations first.
@@ -395,10 +395,9 @@ DRPathGenerationTest >> testInferenceDeadPaths [
 
 	expectedTarget := self anyOutgoingEdge: cfg for: cfg firstBasicBlock.
 	deadCopy := cfg instructions detect: [ :i | i isCopy and: [ i operand1 value = 123 ] ].
-	expectedPath := { deadCopy basicBlock } , deadCopy basicBlock recursiveSuccessors.
 
 	self assert: deadPath key equals: expectedTarget.
-	self assertCollection: deadPathBlocks hasSameElements: expectedPath
+	self assertCollection: deadPathBlocks hasSameElements: { deadCopy basicBlock }
 ]
 
 { #category : #'dead-path' }

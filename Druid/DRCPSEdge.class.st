@@ -121,7 +121,10 @@ DRCPSEdge >> mergeConstraint: aConditionalConstraint to: id [
 
 	constraints
 		at: id
-		update: [ :oldConstraint | oldConstraint intersectionWith: aConditionalConstraint ]
+		update: [ :oldConstraint | | newValue |
+			newValue := oldConstraint intersectionWith: aConditionalConstraint.
+			isDead := isDead or: [ newValue isEmpty ].
+			newValue ]
 		initial: aConditionalConstraint
 ]
 
