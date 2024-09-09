@@ -451,6 +451,8 @@ DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJumpBackward [
 { #category : #'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeIdenticalOfDifferentIntegers [
 
+	self timeLimit: (Duration minutes: 2).
+
 	self
 		compileBytecode: 118
 		selector: #bytecodePrimIdenticalSistaV1
@@ -474,6 +476,8 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfDifferentIntegers [
 
 { #category : #'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeIdenticalOfEqualIntegers [
+
+	self timeLimit: (Duration minutes: 2).
 
 	self
 		compileBytecode: 118
@@ -500,6 +504,8 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfEqualIntegers [
 DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjects [
 
 	| oop |
+	self timeLimit: (Duration minutes: 2).
+
 	oop := self newObjectWithSlots: 0.
 	self
 		compileBytecode: 118
@@ -524,6 +530,8 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjects [
 DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithBothForwarders [
 
 	| oop forwardedOop forwardedOop2 oop2 |
+	self timeLimit: (Duration minutes: 2).
+
 	"We need to setup the stack to forward objects"
 	self createBaseFrame.
 	
@@ -558,6 +566,8 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithBothForwa
 DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithForwarderArgument [
 
 	| oop forwardedOop oop2 |
+	self timeLimit: (Duration minutes: 2).
+
 	"We need to setup the stack to forward objects"
 	self createBaseFrame.
 	
@@ -590,6 +600,8 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithForwarder
 DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithForwarderReceiver [
 
 	| oop forwardedOop |
+	self timeLimit: (Duration minutes: 2).
+
 	"We need to setup the stack to forward objects"
 	self createBaseFrame.
 	
@@ -620,6 +632,8 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithForwarder
 DRProductionBytecodeTest >> testBytecodeIdenticalOfNonIdenticalObjects [
 
 	| oop oop2 |
+	self timeLimit: (Duration minutes: 2).
+
 	oop := self newObjectWithSlots: 0.
 	oop2 := self newObjectWithSlots: 0.
 	self
@@ -645,6 +659,8 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfNonIdenticalObjects [
 DRProductionBytecodeTest >> testBytecodeIdenticalOfNonIdenticalObjectsWithForwarderReceiver [
 
 	| oop forwardedOop oop2 |
+	self timeLimit: (Duration minutes: 2).
+
 	"We need to setup the stack to forward objects"
 	self createBaseFrame.
 	
@@ -676,6 +692,8 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfNonIdenticalObjectsWithForwar
 { #category : #'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeNonIdenticalOfDifferentIntegers [
 
+	self timeLimit: (Duration minutes: 2).
+
 	self
 		compileBytecode: 120
 		selector: #bytecodePrimNotIdenticalSistaV1
@@ -699,6 +717,8 @@ DRProductionBytecodeTest >> testBytecodeNonIdenticalOfDifferentIntegers [
 
 { #category : #'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfEqualIntegers [
+
+	self timeLimit: (Duration minutes: 2).
 
 	self
 		compileBytecode: 120
@@ -725,6 +745,8 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfEqualIntegers [
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjects [
 
 	| oop |
+	self timeLimit: (Duration minutes: 2).
+
 	oop := self newObjectWithSlots: 0.
 	self
 		compileBytecode: 120
@@ -749,6 +771,8 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjects [
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithBothForwarders [
 
 	| oop forwardedOop forwardedOop2 oop2 |
+	self timeLimit: (Duration minutes: 2).
+
 	"We need to setup the stack to forward objects"
 	self createBaseFrame.
 	
@@ -783,6 +807,8 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithBothFo
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithForwarderArgument [
 
 	| oop forwardedOop oop2 |
+	self timeLimit: (Duration minutes: 2).
+
 	"We need to setup the stack to forward objects"
 	self createBaseFrame.
 	
@@ -815,6 +841,8 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithForwar
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithForwarderReceiver [
 
 	| oop forwardedOop |
+	self timeLimit: (Duration minutes: 2).
+
 	"We need to setup the stack to forward objects"
 	self createBaseFrame.
 	
@@ -845,6 +873,8 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithForwar
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfNonIdenticalObjects [
 
 	| oop oop2 |
+	self timeLimit: (Duration minutes: 2).
+
 	oop := self newObjectWithSlots: 0.
 	oop2 := self newObjectWithSlots: 0.
 	self
@@ -870,6 +900,8 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfNonIdenticalObjects [
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfNonIdenticalObjectsWithForwarderReceiver [
 
 	| oop forwardedOop oop2 |
+	self timeLimit: (Duration minutes: 2).
+
 	"We need to setup the stack to forward objects"
 	self createBaseFrame.
 	
