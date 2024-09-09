@@ -13,7 +13,8 @@ Class {
 		'edgesBySource',
 		'stagedRegisters',
 		'dominatorTree',
-		'postDominatorTree'
+		'postDominatorTree',
+		'deadBranches'
 	],
 	#category : #'Druid-IR'
 }
@@ -271,7 +272,8 @@ DRControlFlowGraph >> clearEdges [
 
 	edges := OrderedCollection new.
 	edgesBySource := Dictionary new.
-	deadPaths := nil
+	deadPaths := nil.
+	deadBranches := nil
 ]
 
 { #category : #inspecting }
@@ -374,7 +376,9 @@ DRControlFlowGraph >> createinstructionView: instruction [
 { #category : #'dead-path' }
 DRControlFlowGraph >> deadBranches [
 
-	^ self deadPaths
+	deadBranches ifNotNil: [ ^ deadBranches ].
+
+	^ deadBranches := self deadPaths
 		  collect: [ :path | path first ]
 		  thenSelect: [ :edge | 
 		  self isDeadBranch: edge source to: edge destination ]

@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'constraints',
 		'parent',
-		'branchIndex'
+		'branchIndex',
+		'isDead'
 	],
 	#category : #'Druid-IR-Paths'
 }
@@ -27,6 +28,8 @@ DRCPSEdge >> addConstraint: aConditionalConstraint forInstruction: anInstruction
 
 { #category : #building }
 DRCPSEdge >> addConstraint: aConditionalConstraint to: id [
+
+	isDead := isDead or: [ aConditionalConstraint isEmpty ].
 
 	^ constraints
 		at: id
@@ -89,6 +92,7 @@ DRCPSEdge >> initialize [
 
 	super initialize.
 	constraints := Dictionary new.
+	isDead := false
 ]
 
 { #category : #visiting }
@@ -108,7 +112,8 @@ DRCPSEdge >> isBackJump [
 
 { #category : #testing }
 DRCPSEdge >> isDead [
-	^ constraints anySatisfy: [ :c | c isEmpty ]
+
+	^ isDead
 ]
 
 { #category : #building }
