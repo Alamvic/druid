@@ -76,7 +76,9 @@ DRCPSEdge >> constraints [
 { #category : #accessing }
 DRCPSEdge >> constraints: anObject [
 
+	isDead := isDead or: [ anObject anySatisfy: [ :c | c isEmpty ] ].
 	constraints := anObject
+
 ]
 
 { #category : #accessing }
@@ -112,6 +114,8 @@ DRCPSEdge >> isBackJump [
 
 { #category : #testing }
 DRCPSEdge >> isDead [
+
+	"self assert: isDead = (constraints anySatisfy: [ :c | c isEmpty ])."
 
 	^ isDead
 ]
@@ -178,6 +182,7 @@ DRCPSEdge >> parent [
 DRCPSEdge >> parent: aDRRegistersInfo [
 
 	constraints := aDRRegistersInfo constraints copy.
+	isDead := aDRRegistersInfo isDead.
 	parent := aDRRegistersInfo
 ]
 
