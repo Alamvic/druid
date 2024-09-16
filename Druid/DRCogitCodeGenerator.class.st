@@ -1110,8 +1110,8 @@ DRCogitCodeGenerator >> visitLoad: aDRLoad [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLoadStackValue: aDRLoadStackValue [
-	"cogit MoveMw: 0 r: SPReg R: TempReg"
-	self haltIf: [ aDRLoadStackValue operand1 value > 0 ].
+
+	"cogit MoveMw: index r: SPReg R: TempReg"
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #MoveMw:r:R:

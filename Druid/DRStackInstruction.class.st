@@ -66,6 +66,18 @@ DRStackInstruction >> removeStackDependent: aStackDependent [
 	stackDependents := stackDependents copyWithout: aStackDependent
 ]
 
+{ #category : #accessing }
+DRStackInstruction >> replaceDependency: anOperand by: anotherOperand [
+
+	(self stackDependencies asArray includes: anOperand) ifTrue: [
+		anOperand replaceBy: anotherOperand.
+		self stackDependencies: (self stackDependencies asArray copyWithout: anOperand).
+		self stackDependencies add: anotherOperand.
+		^ self ].
+
+	super replaceDependency: anOperand by: anotherOperand
+]
+
 { #category : #dependencies }
 DRStackInstruction >> shiftStackAccessBy: anInteger [ 
 	
