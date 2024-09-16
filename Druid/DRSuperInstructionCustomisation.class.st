@@ -91,13 +91,33 @@ DRSuperInstructionCustomisation >> fetchNextBytecodeNode [
 						   (RBVariableNode named: 'methodObj') })
 ]
 
+{ #category : #'ast-nodes' }
+DRSuperInstructionCustomisation >> fetchNextFixup [
+
+	^ RBAssignmentNode
+		  variable: (RBVariableNode named: 'nextFixup')
+		  value: (RBMessageNode
+				   receiver: RBVariableNode selfNode
+				   selector: #fixupAt:
+				   arguments: { self nextBytecodePCNode })
+]
+
 { #category : #api }
 DRSuperInstructionCustomisation >> generateCustomisedPreamble: aGeneratorMethodBuilder [
 
+	aGeneratorMethodBuilder addVariableNamed: 'nextFixup'.
 	aGeneratorMethodBuilder addVariableNamed: 'nextBytecode'.
-	aGeneratorMethodBuilder addStatement: self fetchNextBytecodeNode.
-	nextBytecodes doWithIndex: [ :next :i |
-		aGeneratorMethodBuilder addStatement: (self caseNodeFor: next index: i) ]
+	aGeneratorMethodBuilder addStatement: self fetchNextFixup.
+	aGeneratorMethodBuilder addStatement: (RBMessageNode
+			 receiver: (RBMessageNode
+					  receiver: (RBVariableNode named: 'nextFixup')
+					  selector: #notAFixup
+					  arguments: {  })
+			 selector: #ifTrue:
+			 arguments: { (RBBlockNode body:
+					  (RBSequenceNode statements: { self fetchNextBytecodeNode }
+						   , (nextBytecodes collectWithIndex: [ :next :i |
+								    self caseNodeFor: next index: i ]))) })
 ]
 
 { #category : #accessing }

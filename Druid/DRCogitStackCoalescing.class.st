@@ -1,48 +1,8 @@
 Class {
 	#name : #DRCogitStackCoalescing,
-	#superclass : #DROptimisation,
+	#superclass : #DRStackOptimisation,
 	#category : #'Druid-Cogit'
 }
-
-{ #category : #accessing }
-DRCogitStackCoalescing >> applyTo: cfg [
-	"Get all stack effect instructions (push and pops).
-	We should move them down to their common post dominator.
-	Effects that apply the same operation on different branches get coallesced into a single effect (one push on each branch turns into a single push down in the CFG)"
-
-	| commonPostDominator basicBlock stackEffects currentStackEffects stackEffectsInReverseOrder previous |
-	cfg rebuildStackDependencies.
-	stackEffects := cfg instructions select: [ :e | e isStackEffect ].
-	1 haltIf: [ stackEffects anySatisfy: [ :p | p hasUsers ] ].
-
-	stackEffectsInReverseOrder := Stack new.
-	currentStackEffects := #(  ).
-	currentStackEffects := stackEffects select: [ :e |
-		                       (stackEffects intersection:
-			                        e stackEffectDependencies) isEmpty ].
-
-	previous := nil.
-	[ stackEffects notEmpty and: [ stackEffects ~= previous ] ] whileTrue: [
-		previous := stackEffects copy.
-		stackEffects removeAll: currentStackEffects.
-		currentStackEffects size > 1 ifTrue: [
-			stackEffectsInReverseOrder push: currentStackEffects ].
-		currentStackEffects := stackEffects select: [ :e |
-			                       (stackEffects intersection:
-				                        e stackEffectDependencies) isEmpty ] ].
-
-	[ stackEffectsInReverseOrder isEmpty ] whileFalse: [
-		currentStackEffects := stackEffectsInReverseOrder pop.
-		commonPostDominator := cfg postDominatorTree dominatorOfAll:
-			                       currentStackEffects.
-		basicBlock := commonPostDominator block.
-
-		currentStackEffects anyOne isPush
-			ifTrue: [ self coalescePushes: currentStackEffects in: basicBlock ]
-			ifFalse: [ self coalescePops: currentStackEffects in: basicBlock ] ].
-
-	cfg rebuildStackDependencies
-]
 
 { #category : #accessing }
 DRCogitStackCoalescing >> coalescePops: pops in: postDominator [
@@ -93,4 +53,40 @@ DRCogitStackCoalescing >> coalescePushes: pushes in: postDominator [
 	phi := postDominator phiWithVariables: copies.
 	postDominator addInstructionFirst:
 		(postDominator instructionFactory push: phi)
+]
+
+{ #category : #accessing }
+DRCogitStackCoalescing >> doApply: cfg [
+	"Get all stack effect instructions (push and pops).
+	We should move them down to their common post dominator.
+	Effects that apply the same operation on different branches get coallesced into a single effect (one push on each branch turns into a single push down in the CFG)"
+
+	| commonPostDominator basicBlock stackEffects currentStackEffects stackEffectsInReverseOrder previous |
+	stackEffects := cfg instructions select: [ :e | e isStackEffect ].
+
+	stackEffectsInReverseOrder := Stack new.
+	currentStackEffects := #(  ).
+	currentStackEffects := stackEffects select: [ :e |
+		                       (stackEffects intersection:
+			                        e stackEffectDependencies) isEmpty ].
+
+	previous := nil.
+	[ stackEffects notEmpty and: [ stackEffects ~= previous ] ] whileTrue: [
+		previous := stackEffects copy.
+		stackEffects removeAll: currentStackEffects.
+		currentStackEffects size > 1 ifTrue: [
+			stackEffectsInReverseOrder push: currentStackEffects ].
+		currentStackEffects := stackEffects select: [ :e |
+			                       (stackEffects intersection:
+				                        e stackEffectDependencies) isEmpty ] ].
+
+	[ stackEffectsInReverseOrder isEmpty ] whileFalse: [
+		currentStackEffects := stackEffectsInReverseOrder pop.
+		commonPostDominator := cfg postDominatorTree dominatorOfAll:
+			                       currentStackEffects.
+		basicBlock := commonPostDominator block.
+
+		currentStackEffects anyOne isPush
+			ifTrue: [ self coalescePushes: currentStackEffects in: basicBlock ]
+			ifFalse: [ self coalescePops: currentStackEffects in: basicBlock ] ]
 ]

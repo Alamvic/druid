@@ -11,19 +11,8 @@ Class {
 DruidTestRTLCompilerForTest class >> bytecodeTable [
 
 	<generated>
-	^ {
-		  { 2. 3. 3. #unknownBytecode }.
-		  { 2. 4. 4. #unknownBytecode }.
-		  { 2. 5. 5. #unknownBytecode }.
-		  { 1. 200. 200. #gen_StoreAndPopReceiverVariableBytecode0.
-		  #isInstVarRef. #isMappedIfImmutability. #needsFrameIfImmutability:.
-		   -1 }.
-		  { 1. 201. 201. #gen_StoreAndPopReceiverVariableBytecode1.
-		  #isInstVarRef. #isMappedIfImmutability. #needsFrameIfImmutability:.
-		   -1 }.
-		  { 1. 202. 202. #gen_StoreAndPopReceiverVariableBytecode2.
-		  #isInstVarRef. #isMappedIfImmutability. #needsFrameIfImmutability:.
-		   -1 } }
+	^ { { 1. 0. 0. #gen_BytecodeWithNoFrameInstVarRefAnnotation.
+	  #isInstVarRef. #needsFrameNever:. 1 } }
 ]
 
 { #category : #'class initialization' }
@@ -83,7 +72,6 @@ DruidTestRTLCompilerForTest >> gen_PrimitiveAdd [
 	self genPrimReturn.
 	currentBlock := self Label.
 	jump1 jmpTarget: currentBlock.
-	currentBlock := self Label.
 	jump2 jmpTarget: currentBlock.
 	^ 0
 ]
@@ -94,10 +82,12 @@ DruidTestRTLCompilerForTest >> gen_ReturnTopFromMethod [
 
 	| live currentBlock t0 |
 	live := 0.
-	t0 := self allocateRegNotConflictingWith: live ifNone: [ ^ self unknownBytecode ].
+	t0 := self
+		      allocateRegNotConflictingWith: live
+		      ifNone: [ ^ self unknownBytecode ].
 	live := live bitOr: (self registerMaskFor: t0).
 	(self ssValue: 0) copyToReg: t0.
-	self ssPop: 1.
+	self ssPop: 1 popSpilled: true.
 	self MoveR: t0 R: ReceiverResultReg.
 	self genUpArrowReturn.
 	^ 0

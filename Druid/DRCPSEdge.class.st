@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'constraints',
 		'parent',
-		'branchIndex'
+		'branchIndex',
+		'isDead'
 	],
 	#category : #'Druid-IR-Paths'
 }
@@ -27,6 +28,8 @@ DRCPSEdge >> addConstraint: aConditionalConstraint forInstruction: anInstruction
 
 { #category : #building }
 DRCPSEdge >> addConstraint: aConditionalConstraint to: id [
+
+	isDead := isDead or: [ aConditionalConstraint isEmpty ].
 
 	^ constraints
 		at: id
@@ -73,7 +76,9 @@ DRCPSEdge >> constraints [
 { #category : #accessing }
 DRCPSEdge >> constraints: anObject [
 
+	isDead := isDead or: [ anObject anySatisfy: [ :c | c isEmpty ] ].
 	constraints := anObject
+
 ]
 
 { #category : #accessing }
@@ -89,6 +94,7 @@ DRCPSEdge >> initialize [
 
 	super initialize.
 	constraints := Dictionary new.
+	isDead := false
 ]
 
 { #category : #visiting }
@@ -108,7 +114,10 @@ DRCPSEdge >> isBackJump [
 
 { #category : #testing }
 DRCPSEdge >> isDead [
-	^ constraints anySatisfy: [ :c | c isEmpty ]
+
+	"self assert: isDead = (constraints anySatisfy: [ :c | c isEmpty ])."
+
+	^ isDead
 ]
 
 { #category : #building }
@@ -116,7 +125,10 @@ DRCPSEdge >> mergeConstraint: aConditionalConstraint to: id [
 
 	constraints
 		at: id
-		update: [ :oldConstraint | oldConstraint intersectionWith: aConditionalConstraint ]
+		update: [ :oldConstraint | | newValue |
+			newValue := oldConstraint intersectionWith: aConditionalConstraint.
+			isDead := isDead or: [ newValue isEmpty ].
+			newValue ]
 		initial: aConditionalConstraint
 ]
 
@@ -170,6 +182,7 @@ DRCPSEdge >> parent [
 DRCPSEdge >> parent: aDRRegistersInfo [
 
 	constraints := aDRRegistersInfo constraints copy.
+	isDead := aDRRegistersInfo isDead.
 	parent := aDRRegistersInfo
 ]
 

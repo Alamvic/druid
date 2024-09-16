@@ -1,7 +1,7 @@
 Class {
 	#name : #DRStoreTemporaryStagedLoopTest,
 	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #running }

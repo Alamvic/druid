@@ -929,6 +929,19 @@ DRBasicBlock >> loadSInt64: operand [
 ]
 
 { #category : #building }
+DRBasicBlock >> loadStackTop [
+
+	^ self addInstruction: self instructionFactory loadStackTop
+]
+
+{ #category : #accessing }
+DRBasicBlock >> loadStackValueAt: anInteger [
+
+	^ self addInstruction:
+		  (self instructionFactory loadStackValueAt: anInteger)
+]
+
+{ #category : #building }
 DRBasicBlock >> loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock [
 
 	self jumpIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock.

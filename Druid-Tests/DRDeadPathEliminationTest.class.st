@@ -82,7 +82,7 @@ DRDeadPathEliminationTest >> testEliminateDoubleDeadPaths [
 	| cfg lastBlocks lastPaths lastPathsOne lastPathsTwo lastPathsThird |
 	cfg := self generateDruidIRFor: #primitiveDNA.
 
-	4 timesRepeat: [ 
+	5 timesRepeat: [ 
 		cfg applyOptimisation: optimisation.
 		self optimize: cfg ].
 
@@ -90,15 +90,16 @@ DRDeadPathEliminationTest >> testEliminateDoubleDeadPaths [
 
 	lastPaths := cfg exitBasicBlocks flatCollect: [ :e | cfg incomingEdgesFor: e ].
 	lastBlocks := cfg exitBasicBlocks.
-	lastPathsOne := cfg incomingEdgesFor: lastBlocks first.
-	lastPathsTwo := cfg incomingEdgesFor: lastBlocks second.
-	lastPathsThird := cfg incomingEdgesFor: lastBlocks third.
 
 	self assert: cfg deadPaths isEmpty.
 	self assert: lastPaths size equals: 4. "X>10 || 10<=X>7 || 7<=X>0 || 0<=X"
-	self assert: lastPathsOne size equals: 1.
-	self assert: lastPathsTwo size equals: 1.
-	self assert: lastPathsThird size equals: 2.
+
+	"Each path is folded until the last block"
+	self assert: lastBlocks size equals: 4. 
+	self assert: lastBlocks first firstInstruction operand equals: 158 asDRValue.
+	self assert: lastBlocks second firstInstruction operand equals: 146 asDRValue.
+	self assert: lastBlocks third firstInstruction operand equals: 119 asDRValue.
+	self assert: lastBlocks fourth firstInstruction operand equals: 21 asDRValue
 ]
 
 { #category : #optimization }

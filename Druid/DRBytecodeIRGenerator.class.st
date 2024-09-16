@@ -401,7 +401,7 @@ DRBytecodeIRGenerator >> interpretStackPointerWith: aRBVariableNode [
 
 { #category : #'special cases - stack' }
 DRBytecodeIRGenerator >> interpretStackTopWith: aRBMessageNode [
-	
+
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRLoadStackValue
