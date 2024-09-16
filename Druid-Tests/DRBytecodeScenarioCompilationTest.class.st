@@ -534,6 +534,7 @@ DRBytecodeScenarioCompilationTest >> testSuperInstructionCompilation [
 	| compiledMethod fixupCheck returns nextBytecodeCheck |
 	self
 		compileBytecode: 77 selector: #fakePushConstantTrueBytecode
+		options: #( superInstructions )
 		thenDo: [ :generator | "Nothing" ].
 	
 	compiledMethod := DruidTestRTLCompiler >> #gen_fakePushConstantTrueBytecode.
