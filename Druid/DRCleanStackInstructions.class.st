@@ -1,11 +1,11 @@
 Class {
 	#name : #DRCleanStackInstructions,
-	#superclass : #DROptimisation,
+	#superclass : #DRStackOptimisation,
 	#category : #'Druid-Optimizations'
 }
 
 { #category : #accessing }
-DRCleanStackInstructions >> applyTo: cfg [
+DRCleanStackInstructions >> doApply: cfg [
 
 	cfg reversePostOrderBlocks do: [ :b | self interpretAndOptimise: b ].
 
@@ -27,15 +27,15 @@ DRCleanStackInstructions >> interpretAndOptimise: aDRInstruction on: aStack [
 		aStack push: aDRInstruction ].
 
 	aDRInstruction isPop ifTrue: [
-		| pushInstruction |
 		aStack isEmpty ifTrue: [ ^ self ].
-		pushInstruction := aStack pop.
+		aDRInstruction stackDelta timesRepeat: [
+			| pushInstruction |
+			pushInstruction := aStack pop.
+			pushInstruction removeFromCFG ].
 
-		"Clean both instructions"
-		aDRInstruction removeFromCFG.
-		pushInstruction removeFromCFG ].
+		aDRInstruction removeFromCFG ].
 
-	aDRInstruction isLoadStackValue ifTrue: [
+	aDRInstruction isLoadStackValue ifTrue: [ "aDRInstruction isFlushStack ifTrue: [ 1 halt ]"
 		| index |
 		index := aDRInstruction operand1 simpleConstantFold.
 		index isNumber ifTrue: [
@@ -43,7 +43,5 @@ DRCleanStackInstructions >> interpretAndOptimise: aDRInstruction on: aStack [
 			pushInstruction := aStack at: index + 1 ifAbsent: [ ^ self ]. "Zero based"
 
 			"Replace by the pushed value"
-			aDRInstruction replaceBy: pushInstruction operand1 ] ].
-
-	"aDRInstruction isFlushStack ifTrue: [ 1 halt ]"
+			aDRInstruction replaceByMaybeValue: pushInstruction operand1 ] ]
 ]

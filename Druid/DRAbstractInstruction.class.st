@@ -181,6 +181,14 @@ DRAbstractInstruction >> replaceBy: anotherInstruction [
 		instruction removeUser: self ].
 ]
 
+{ #category : #replacing }
+DRAbstractInstruction >> replaceByMaybeValue: aDRValue [
+
+	aDRValue isInstruction ifTrue: [ ^ self replaceBy: aDRValue ].
+
+	^ self replaceBy: (DRCopy operands: { aDRValue } result: self result)
+]
+
 { #category : #translating }
 DRAbstractInstruction >> rtlArgumentsForAbsoluteAddressForGenerator: generator [
 	"We are translating ourselves to a Base+offset, where offset=0"

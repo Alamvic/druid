@@ -24,5 +24,8 @@ DRStackEffect >> removeFromCFG [
 		e shiftStackAccessBy: self stackDelta.
 		e removeStackDependency: self ].
 
-	super removeFromCFG
+	super removeFromCFG.
+	
+	self controlFlowGraph rebuildStackDependencies.
+
 ]

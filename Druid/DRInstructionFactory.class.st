@@ -220,6 +220,18 @@ DRInstructionFactory >> loadSInt64: operand [
 		  result: self allocateTemporaryRegister
 ]
 
+{ #category : #building }
+DRInstructionFactory >> loadStackTop [
+
+	^ self loadStackValueAt: 0
+]
+
+{ #category : #accessing }
+DRInstructionFactory >> loadStackValueAt: anInteger [
+
+	^ DRLoadStackValue operands: { anInteger asDRValue } result: self allocateTemporaryRegister
+]
+
 { #category : #factory }
 DRInstructionFactory >> messageSend: selector withOperands: operands [
 

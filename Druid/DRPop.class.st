@@ -51,8 +51,7 @@ DRPop >> size [
 { #category : #accessing }
 DRPop >> stackDelta [
 	
-	"If I don't pop, my dependants should add one to their stack indexes"
-	^ 1
+	^ self operand1 value
 ]
 
 { #category : #testing }

@@ -65,7 +65,6 @@ DRMetaCompilerIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
 	failure := self currentBasicBlock copy: 1.
 	self currentPrimitiveFailureCode: failure.
 
-
 	returnState := executionState copy.
 	primitiveReturn := returnState baseFrame.
 	primitiveReturn push: DRNullValue new. "Return something"

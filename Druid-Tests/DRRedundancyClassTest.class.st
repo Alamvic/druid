@@ -1,7 +1,7 @@
 Class {
 	#name : #DRRedundancyClassTest,
 	#superclass : #DRSSAPRETest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
 
 { #category : #tests }

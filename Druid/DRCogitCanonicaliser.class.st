@@ -358,6 +358,13 @@ DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitPop: aDRPop [
+	"Merge:
+		POP n
+		POP m
+	into:
+		NOOP
+		POP (n+m)
+	"
 
 	| canBeMerged previous |
 	previous := aDRPop previousInstruction ifNil: [ ^ self ].
@@ -366,7 +373,7 @@ DRCogitCanonicaliser >> visitPop: aDRPop [
 			               previous hasUsers not and: [
 				               previous isUnspilled = aDRPop isUnspilled ] ] ].
 	canBeMerged ifFalse: [ ^ self ].
-	aDRPop previousInstruction removeFromCFG.
+	previous replaceBy: DRNoop new.
 	aDRPop replaceBy: (DRPop
 			 operands: {
 					 (previous numberOfPoppedElements + aDRPop numberOfPoppedElements)

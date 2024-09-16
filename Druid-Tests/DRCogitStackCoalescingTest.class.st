@@ -1,5 +1,5 @@
 Class {
 	#name : #DRCogitStackCoalescingTest,
 	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests'
+	#category : #'Druid-Tests-Optimizations'
 }
