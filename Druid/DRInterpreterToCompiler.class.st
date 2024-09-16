@@ -187,6 +187,16 @@ DRInterpreterToCompiler class >> generateDruidStaticTypePredictionJITModel [
 ]
 
 { #category : #'instance creation' }
+DRInterpreterToCompiler class >> generateDruidSuperInstructionsJITModel [
+
+	<script>
+	self
+		generateDruidJITModelOn: DruidSuperInstructionsJIT
+		superclass: StackToRegisterMappingCogit
+		compilerOptions: #( superInstructions )
+]
+
+{ #category : #'instance creation' }
 DRInterpreterToCompiler class >> generateSimpleDruidJITModel [
 
 	<script>

@@ -52,16 +52,17 @@ DRBytecodeCompilerCompiler >> customiseFor: method [
 	super customiseFor: method.
 
 	"Avoid the customisation if we are compiling the super instruction"
-	self sourceMethods size > 1 ifFalse: [
-		method ast
-			pragmaNamed: #nextSuperInstructions:
-			ifPresent: [ :pragma |
-				bytecodes ifNil: [ self error: 'Missing current bytecode' ].
-				customisation := DRSuperInstructionCustomisation
-					                 interpreter: interpreter
-					                 compilerClass: compilerClass 
-					                 currentBytecode: bytecodes unique key
-					                 nextBytecodes: pragma arguments first value ] ]
+	(self compilerOptions includes: #superInstructions) ifTrue: [
+		self sourceMethods size > 1 ifFalse: [
+			method ast
+				pragmaNamed: #nextSuperInstructions:
+				ifPresent: [ :pragma |
+					bytecodes ifNil: [ self error: 'Missing current bytecode' ].
+					customisation := DRSuperInstructionCustomisation
+						                 interpreter: interpreter
+						                 compilerClass: compilerClass
+						                 currentBytecode: bytecodes unique key
+						                 nextBytecodes: pragma arguments first value ] ] ]
 ]
 
 { #category : #'generation-IR' }
