@@ -169,6 +169,15 @@ DRCogitStackToRegisterMappingGenerator >> visitDeoptimize: aDRDeoptimize [
 ]
 
 { #category : #visiting }
+DRCogitStackToRegisterMappingGenerator >> visitFlushStack: aDRFlushStack [
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #ssFlushStackExceptTop:
+			 arguments: { (RBLiteralValueNode value: aDRFlushStack operand1 value) })
+]
+
+{ #category : #visiting }
 DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
 	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: aSendTable"
 
