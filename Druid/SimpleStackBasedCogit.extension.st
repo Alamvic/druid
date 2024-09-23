@@ -49,3 +49,9 @@ SimpleStackBasedCogit class >> druidNewRegisterAllocator [
 
 	^ DRCogitLinearScanRegisterAllocator new
 ]
+
+{ #category : #'*Druid' }
+SimpleStackBasedCogit class >> isSimpleStack [
+
+	^ true
+]

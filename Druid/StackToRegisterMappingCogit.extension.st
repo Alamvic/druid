@@ -52,3 +52,9 @@ StackToRegisterMappingCogit class >> druidNewRegisterAllocator [
 
 	^ DRCogitDynamicLinearScanRegisterAllocator new
 ]
+
+{ #category : #'*Druid' }
+StackToRegisterMappingCogit class >> isSimpleStack [
+
+	^ false
+]
