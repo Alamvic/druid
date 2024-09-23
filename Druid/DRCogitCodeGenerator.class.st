@@ -1111,12 +1111,25 @@ DRCogitCodeGenerator >> visitLoad: aDRLoad [
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLoadStackValue: aDRLoadStackValue [
 
+
+	| offset |
+	
+	self assert: aDRLoadStackValue operand1 simpleConstantFold isNumber.
+	
+	offset := RBLiteralNode value: aDRLoadStackValue operand1 simpleConstantFold << 3.
+
+"	RBMessageNode 
+			receiver: (aDRLoadStackValue operand1 rtlPushArgumentExpressions: self) first 
+			selector: #<< 
+			arguments: { RBVariableNode named: '3' }.
+"
+
 	"cogit MoveMw: index r: SPReg R: TempReg"
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #MoveMw:r:R:
 			 arguments: {
-					 (aDRLoadStackValue operand1 rtlPushArgumentExpressions: self) first.
+					 offset.
 					 (RBVariableNode named: 'SPReg').
 					 (RBVariableNode named: aDRLoadStackValue result name) })
 ]
