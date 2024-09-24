@@ -92,18 +92,30 @@ DRBytecodeCompilationTest >> doCompileBytecode: bytecode selector: aSelector [
 	compiler compile.
 ]
 
+{ #category : #initialization }
+DRBytecodeCompilationTest >> initializeSStack: argCount [
+
+	self isSimpleStack ifTrue: [ ^ self ]. "No SSTack"
+
+	cogit ssPushRegister: ReceiverResultReg.
+	argCount > 0 ifTrue: [ cogit ssPushRegister: Arg0Reg ].
+	argCount > 1 ifTrue: [ cogit ssPushRegister: Arg1Reg ]
+]
+
 { #category : #helpers }
 DRBytecodeCompilationTest >> makeFrame: aReceiver arguments: arguments method: aMethod [
-
 	"Callee side - make up the frame"
+
 	"Now push the link register, it will be popped by the return"
 	machineSimulator hasLinkRegister ifTrue: [
 		self pushAddress: machineSimulator linkRegisterValue ].
 	self pushAddress: machineSimulator fp.
-	machineSimulator fp: machineSimulator smalltalkStackPointerRegisterValue.
+	machineSimulator fp:
+		machineSimulator smalltalkStackPointerRegisterValue.
 	self pushAddress: aMethod.
-	self pushAddress: 0 "context".
-	self pushAddress: aReceiver. 
+	self pushAddress: 0. "context"
+	self pushAddress: aReceiver.
+	arguments do: [ :anArgument | self pushAddress: anArgument ].
 
 ]
 

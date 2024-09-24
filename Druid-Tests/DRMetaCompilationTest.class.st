@@ -42,6 +42,12 @@ DRMetaCompilationTest >> compilerClass: anObject [
 	compilerClass := anObject
 ]
 
+{ #category : #testing }
+DRMetaCompilationTest >> isSimpleStack [
+
+	^ compilerClass isSimpleStack
+]
+
 { #category : #'helpers-compiling' }
 DRMetaCompilationTest >> jitCompilerClass [
 

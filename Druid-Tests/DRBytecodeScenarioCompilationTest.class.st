@@ -5,14 +5,112 @@ Class {
 }
 
 { #category : #tests }
+DRBytecodeScenarioCompilationTest >> testCoallescedPops [
+
+	self
+		compileBytecode: 0
+		selector: #bytecodePopOnTwoBranches
+		thenDo: [ :generator | "Push the receiver"
+			self initializeSStack: 0.
+			"Then execute the druid's compiled code"
+			generator value.
+			cogit genReturnTopFromMethod ].
+
+	self executePrimitiveWithReceiver: 17.
+
+	self assert: machineSimulator receiverRegisterValue equals: 17
+]
+
+{ #category : #tests }
+DRBytecodeScenarioCompilationTest >> testCoallescedPushOnBranchOne [
+
+	self
+		compileBytecode: 0
+		selector: #bytecodePushOnTwoBranches
+		thenDo: [ :generator | 
+			self initializeSStack: 0.
+			generator value. "Call generator"
+			cogit genReturnTopFromMethod ].
+
+	self executePrimitiveWithReceiver: 17.
+
+	self assert: machineSimulator receiverRegisterValue equals: 1
+]
+
+{ #category : #tests }
+DRBytecodeScenarioCompilationTest >> testCoallescedPushOnBranchTwo [
+
+	self
+		compileBytecode: 0
+		selector: #bytecodePushOnTwoBranches
+		thenDo: [ :generator | 
+			self initializeSStack: 0.
+			generator value. "Call generator"
+			cogit genReturnTopFromMethod ].
+
+	self executePrimitiveWithReceiver: -17.
+
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : #tests }
+DRBytecodeScenarioCompilationTest >> testCoallescedTwoPops [
+
+	self
+		compileBytecode: 0
+		selector: #bytecodeTwoPopOnTwoBranches
+		thenDo: [ :generator | 
+			self initializeSStack: 1.
+			generator value. "Call generator"
+			cogit genReturnTopFromMethod ].
+
+	self executePrimitiveWithReceiver: 17 withArguments: { 42 }.
+
+	self assert: machineSimulator receiverRegisterValue equals: 59
+]
+
+{ #category : #tests }
+DRBytecodeScenarioCompilationTest >> testCoallescedTwoPushesOnBranchOne [
+
+	self
+		compileBytecode: 0
+		selector: #bytecodeTwoPushOnTwoBranches
+		thenDo: [ :generator | 
+			self initializeSStack: 0.
+			generator value. "Call generator"
+			cogit genReturnTopFromMethod ].
+
+	self executePrimitiveWithReceiver: 17.
+
+	self assert: machineSimulator receiverRegisterValue equals: 3
+]
+
+{ #category : #tests }
+DRBytecodeScenarioCompilationTest >> testCoallescedTwoPushesOnBranchTwo [
+
+	self
+		compileBytecode: 0
+		selector: #bytecodeTwoPushOnTwoBranches
+		thenDo: [ :generator | 
+			self initializeSStack: 0.
+			generator value. "Call generator"
+			cogit genReturnTopFromMethod ].
+
+	self executePrimitiveWithReceiver: -17.
+
+	self assert: machineSimulator receiverRegisterValue equals: 7
+]
+
+{ #category : #tests }
 DRBytecodeScenarioCompilationTest >> testFlushStackOnBranch1 [
 
-	| mustBeBooleanTrampolineAddress |
+	| mustBeBooleanTrampolineAddress |	
+	self isSimpleStack ifTrue: [ self skip ].
+	
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
 	
 	mustBeBooleanTrampolineAddress := self compile: [ cogit RetN: 0 ].
 	cogit ceSendMustBeBooleanTrampoline: mustBeBooleanTrampolineAddress.
-
 
 	self
 		compileBytecode: 0
@@ -34,6 +132,8 @@ DRBytecodeScenarioCompilationTest >> testFlushStackOnBranch1 [
 DRBytecodeScenarioCompilationTest >> testFlushStackOnBranch2 [
 
 	| deoptimizeAddress |
+	self isSimpleStack ifTrue: [ self skip ].
+
 	deoptimizeAddress := self compile: [ cogit RetN: 0 ].
 	cogit ceDeoptimiseFrameTrampoline: deoptimizeAddress.
 
@@ -56,7 +156,9 @@ DRBytecodeScenarioCompilationTest >> testFlushStackOnBranch2 [
 ]
 
 { #category : #tests }
-DRBytecodeScenarioCompilationTest >> testPopAfterFlushStack [
+DRBytecodeScenarioCompilationTest >> testFlushStackThenPop [
+
+	self isSimpleStack ifTrue: [ self skip ].
 
 	self
 		compileBytecode: 0
@@ -68,60 +170,9 @@ DRBytecodeScenarioCompilationTest >> testPopAfterFlushStack [
 			generator value.
 			cogit genUpArrowReturn ].
 
-	self executeMethodWithReceiver: 0 withArguments: #(  ).
+	self executePrimitiveWithReceiver: 0.
 
 	self assert: cogit ssTop constant equals: 237
-]
-
-{ #category : #tests }
-DRBytecodeScenarioCompilationTest >> testPopsAreCoallesced [
-
-	self
-		compileBytecode: 0
-		selector: #bytecodePopOnTwoBranches
-		thenDo: [ :generator | "Push the receiver"
-			cogit ssPushRegister: ReceiverResultReg.
-			"Then execute the druid's compiled code"
-			generator value.
-			cogit genReturnTopFromMethod ].
-
-	self executePrimitiveWithReceiver: 17.
-
-	self assert: machineSimulator receiverRegisterValue equals: 17
-]
-
-{ #category : #tests }
-DRBytecodeScenarioCompilationTest >> testPushAreCoallescedBranchOne [
-
-	self
-		compileBytecode: 0
-		selector: #bytecodePushOnTwoBranches
-		thenDo: [ :generator | "Push the receiver"
-			cogit ssPushRegister: ReceiverResultReg.
-			"Then execute the druid's compiled code"
-			generator value.
-			cogit genReturnTopFromMethod ].
-
-	self executePrimitiveWithReceiver: 17.
-
-	self assert: machineSimulator receiverRegisterValue equals: 1
-]
-
-{ #category : #tests }
-DRBytecodeScenarioCompilationTest >> testPushAreCoallescedBranchTwo [
-
-	self
-		compileBytecode: 0
-		selector: #bytecodePushOnTwoBranches
-		thenDo: [ :generator | "Push the receiver"
-			cogit ssPushRegister: ReceiverResultReg.
-			"Then execute the druid's compiled code"
-			generator value.
-			cogit genReturnTopFromMethod ].
-
-	self executePrimitiveWithReceiver: -17.
-
-	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
 { #category : #tests }
@@ -259,9 +310,8 @@ DRBytecodeScenarioCompilationTest >> testSuperBytecodePrimIdenticalAndJumpFalse 
 		andBytecode: 184
 		selector: #shortConditionalJumpFalse
 		thenDo: [ :generator |
-			cogit ssPushRegister: ReceiverResultReg.
-			cogit ssPushRegister: Arg0Reg.
-
+			self initializeSStack: 1.
+		
 			cogit bytecodePC: 16.
 			cogit methodObj: method.
 			cogit debugStackPointers:
@@ -315,8 +365,7 @@ DRBytecodeScenarioCompilationTest >> testSuperBytecodePrimIdenticalAndJumpFalse2
 		andBytecode: 184
 		selector: #shortConditionalJumpFalse
 		thenDo: [ :generator |
-			cogit ssPushRegister: ReceiverResultReg.
-			cogit ssPushRegister: Arg0Reg.
+			self initializeSStack: 1.
 
 			cogit bytecodePC: 16.
 			cogit methodObj: method.
@@ -355,7 +404,7 @@ DRBytecodeScenarioCompilationTest >> testSuperInstructionCompilation [
 		options: #( superInstructions )
 		thenDo: [ :generator | "Nothing" ].
 	
-	compiledMethod := DruidTestRTLCompiler >> #gen_fakePushConstantTrueBytecode.
+	compiledMethod := compilerClass  >> #gen_fakePushConstantTrueBytecode.
 	
 	"Avoid super-instruction if there is a fixup to the next bytecode"
 	fixupCheck := compiledMethod ast allChildren detect: [ :n | n isMessage and: [ n selector = #ifTrue: ] ].
@@ -374,58 +423,6 @@ DRBytecodeScenarioCompilationTest >> testSuperInstructionCompilation [
 	self assert: returns second value value equals: 0
 
 
-]
-
-{ #category : #tests }
-DRBytecodeScenarioCompilationTest >> testTwoPopsAreCoallesced [
-
-	self
-		compileBytecode: 0
-		selector: #bytecodeTwoPopOnTwoBranches
-		thenDo: [ :generator | "Push the receiver"
-			cogit ssPushRegister: ReceiverResultReg.
-			cogit ssPushRegister: Arg0Reg.
-			"Then execute the druid's compiled code"
-			generator value.
-			cogit genReturnTopFromMethod ].
-
-	self executePrimitiveWithReceiver: 17 withArguments: { 42 }.
-
-	self assert: machineSimulator receiverRegisterValue equals: 59
-]
-
-{ #category : #tests }
-DRBytecodeScenarioCompilationTest >> testTwoPushesAreCoallescedBranchOne [
-
-	self
-		compileBytecode: 0
-		selector: #bytecodeTwoPushOnTwoBranches
-		thenDo: [ :generator | "Push the receiver"
-			cogit ssPushRegister: ReceiverResultReg.
-			"Then execute the druid's compiled code"
-			generator value.
-			cogit genReturnTopFromMethod ].
-
-	self executePrimitiveWithReceiver: 17.
-
-	self assert: machineSimulator receiverRegisterValue equals: 3
-]
-
-{ #category : #tests }
-DRBytecodeScenarioCompilationTest >> testTwoPushesAreCoallescedBranchTwo [
-
-	self
-		compileBytecode: 0
-		selector: #bytecodeTwoPushOnTwoBranches
-		thenDo: [ :generator | "Push the receiver"
-			cogit ssPushRegister: ReceiverResultReg.
-			"Then execute the druid's compiled code"
-			generator value.
-			cogit genReturnTopFromMethod ].
-
-	self executePrimitiveWithReceiver: -17.
-
-	self assert: machineSimulator receiverRegisterValue equals: 7
 ]
 
 { #category : #tests }
