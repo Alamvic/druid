@@ -1,35 +1,11 @@
 Class {
 	#name : #DRPrimitiveCompilationTest,
-	#superclass : #DRDruidTest,
+	#superclass : #DRMetaCompilationTest,
 	#instVars : [
-		'stopAddress',
-		'cogitStyle',
-		'compilerClass'
+		'stopAddress'
 	],
 	#category : #'Druid-Tests'
 }
-
-{ #category : #'building suites' }
-DRPrimitiveCompilationTest class >> cogitStyleParameter [
-	"Two ways to compile code with different calling conventions: simple stack vs stack to register mapping"
-
-	^ ParametrizedTestMatrix new
-		addCase: { #cogitStyle -> #beForStackToRegisterMapping. #compilerClass -> DruidTestRTLCompiler};
-		addCase: { #cogitStyle -> #beForSimpleStack. #compilerClass -> SimpleDruidTestRTLCompiler};
-		yourself
-]
-
-{ #category : #'building suites' }
-DRPrimitiveCompilationTest class >> testParameters [ 
-
-	^ super testParameters * self cogitStyleParameter
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilationTest >> cogitStyle: aSymbol [
-
-	cogitStyle := aSymbol
-]
 
 { #category : #'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileCogitSelector: aSelector numArgs: argumentCount [
@@ -137,18 +113,6 @@ DRPrimitiveCompilationTest >> compilePrimitive: primitiveSelector ForSendReceive
 	self prepareStackForSendReceiver: receiver arguments: arguments
 ]
 
-{ #category : #accessing }
-DRPrimitiveCompilationTest >> compilerClass [
-
-	^ compilerClass
-]
-
-{ #category : #accessing }
-DRPrimitiveCompilationTest >> compilerClass: anObject [
-
-	compilerClass := anObject
-]
-
 { #category : #'helpers - execution' }
 DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop [
 	
@@ -166,12 +130,6 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 	cogit methodOrBlockNumArgs: aCollection size.
 	self prepareStackForSendReceiver: receiverOop arguments: aCollection.
 	self runFrom: cogInitialAddress until: stopAddress.
-]
-
-{ #category : #'helpers-compiling' }
-DRPrimitiveCompilationTest >> jitCompilerClass [
-
-	^ compilerClass
 ]
 
 { #category : #'helpers - execution' }
