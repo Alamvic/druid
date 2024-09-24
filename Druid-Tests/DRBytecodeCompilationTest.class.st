@@ -124,7 +124,7 @@ DRBytecodeCompilationTest >> makeFrame: aReceiver arguments: arguments method: a
 	self pushAddress: aMethod.
 	self pushAddress: 0. "context"
 	self pushAddress: aReceiver.
-	arguments do: [ :anArgument | self pushAddress: anArgument ].
+	"arguments do: [ :anArgument | self pushAddress: anArgument ]."
 
 ]
 
