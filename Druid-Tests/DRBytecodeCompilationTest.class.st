@@ -4,6 +4,15 @@ Class {
 	#category : #'Druid-Tests'
 }
 
+{ #category : #'building suites' }
+DRBytecodeCompilationTest class >> cogitStyleParameter [
+
+	^ ParametrizedTestMatrix new
+		addCase: { #cogitStyle -> #beForStackToRegisterMapping. #compilerClass -> DruidTestRTLCompiler};
+		"addCase: { #cogitStyle -> #beForSimpleStack. #compilerClass -> SimpleDruidTestRTLCompiler};"
+		yourself
+]
+
 { #category : #enumerating }
 DRBytecodeCompilationTest >> compileBytecode: bytecode1 selector: selector1 andBytecode: bytecode2 selector: selector2 thenDo: aFullBlockClosure [ 
 
