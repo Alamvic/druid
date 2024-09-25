@@ -10,7 +10,7 @@ DRCogitSimpleStackPrimitiveCodeGenerator >> visitLoadArgument: aDRLoadArgument [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #genLoadArg:into:
+			 selector: #genLoadArgAtDepth:into:
 			 arguments: {
 					 (RBLiteralValueNode value: aDRLoadArgument argNum).
 					 (RBVariableNode named: aDRLoadArgument result name) })
