@@ -4,12 +4,6 @@ Class {
 	#category : #'Druid-Cogit'
 }
 
-{ #category : #'code generation' }
-DRCogitStackToRegisterPrimitiveCodeGenerator >> spRegVariable [
-
-	^ RBVariableNode named: 'SPReg'
-]
-
 { #category : #visiting }
 DRCogitStackToRegisterPrimitiveCodeGenerator >> visitLoadArgument: aDRLoadArgument [
 	"Just copy the Arg[X]Reg to the result"
