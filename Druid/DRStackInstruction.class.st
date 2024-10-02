@@ -69,8 +69,9 @@ DRStackInstruction >> removeStackDependent: aStackDependent [
 { #category : #accessing }
 DRStackInstruction >> replaceDependency: anOperand by: anotherOperand [
 
+	anOperand = anotherOperand ifTrue: [ ^ self ].
+
 	(self stackDependencies asArray includes: anOperand) ifTrue: [
-		anOperand replaceBy: anotherOperand.
 		self stackDependencies: (self stackDependencies asArray copyWithout: anOperand).
 		self stackDependencies add: anotherOperand.
 		^ self ].
