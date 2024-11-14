@@ -201,6 +201,16 @@ DRInterpreterToCompiler class >> generateSimpleDruidJITModel [
 		superclass: SimpleStackBasedCogit
 ]
 
+{ #category : #'instance creation' }
+DRInterpreterToCompiler class >> generateSimpleDruidStaticTypePredictionJITModel [
+
+	<script>
+	self
+		generateDruidJITModelOn: SimpleDruidStaticTypePredictionJIT
+		superclass: SimpleStackBasedCogit
+		compilerOptions: #( staticTypePrediction )
+]
+
 { #category : #'accessing - bytecodes' }
 DRInterpreterToCompiler >> addBytecodes [
 	"Iterate over the receiver's interpreter (assumed to contain primitive methods) and add them to compilationUnit"
