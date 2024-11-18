@@ -33,6 +33,7 @@ DRMetaCompilerIRGenerator >> initializeSpecialCases [
 	specialCases at: #push: put: #interpretPushWith:.
 
 	specialCases at: #remember: put: #interpretRememberWith:.
+	specialCases at: #fixedPermSpaceStart put: #interpretFixedPermSpaceStartWith:.
 ]
 
 { #category : #interpreting }
@@ -74,6 +75,14 @@ DRMetaCompilerIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
 	primitiveReturn addDeferredReturnState: {
 			returnState.
 			(self addFrameReturn: primitiveReturn) }
+]
+
+{ #category : #interpretation }
+DRMetaCompilerIRGenerator >> interpretFixedPermSpaceStartWith: aRBMessageNode [
+
+	^ self
+		  addCopy: aRBMessageNode
+		  with: DRInterpreterReference getFixedPermSpaceStart
 ]
 
 { #category : #'special cases' }
