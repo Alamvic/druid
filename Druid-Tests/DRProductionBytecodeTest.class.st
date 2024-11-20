@@ -2278,6 +2278,16 @@ DRProductionBytecodeTest >> testExtBBytecode3 [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testExtPushFullClosure [
+	"Fake test, only assert the correct generation of the method."
+
+	self
+		compileBytecode: 249
+		selector: #extPushFullClosureBytecode
+		thenDo: [ :generator | self flag: #TODO "Test the execution of compiled code" ]
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecode [
 
 	| method literal |
