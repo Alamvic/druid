@@ -60,24 +60,6 @@ DRMetaCompilerIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 ]
 
 { #category : #interpretation }
-DRMetaCompilerIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
-
-	| failure primitiveReturn returnState |
-	failure := self currentBasicBlock copy: 1.
-	self currentPrimitiveFailureCode: failure.
-
-	returnState := executionState copy.
-	primitiveReturn := returnState baseFrame.
-	primitiveReturn push: DRNullValue new. "Return something"
-
-	"Record that this execution stack did a method return
-		We will merge this one with other returned states when this method finishes"
-	primitiveReturn addDeferredReturnState: {
-			returnState.
-			(self addFrameReturn: primitiveReturn) }
-]
-
-{ #category : #interpretation }
 DRMetaCompilerIRGenerator >> interpretFixedPermSpaceStartWith: aRBMessageNode [
 
 	^ self

@@ -930,6 +930,12 @@ DRIRGenerator >> interpretDivisionWith: aRBMessageNode [
 		operands: { leftOperand . rightOperand }
 ]
 
+{ #category : #interpretation }
+DRIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
+
+	self subclassResponsibility
+]
+
 { #category : #accessing }
 DRIRGenerator >> interpretDruidFailWith: aMessageNode [
 
