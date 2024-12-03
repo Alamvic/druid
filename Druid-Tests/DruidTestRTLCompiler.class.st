@@ -5224,6 +5224,7 @@ DruidTestRTLCompiler >> gen_extUnconditionalJump [
 			s27 := s26 + 2.
 			self Jump: (self ensureFixupAt: s27).
 			deadCode := true.
+			self annotateBytecode: self Label.
 			^ 0 ].
 		self MoveR: SPReg R: t0.
 		self MoveAw: coInterpreter stackLimitAddress R: t1.
@@ -5251,6 +5252,7 @@ DruidTestRTLCompiler >> gen_extUnconditionalJump [
 		s27 := s26 + 2.
 		self Jump: (self ensureFixupAt: s27).
 		deadCode := true.
+		self annotateBytecode: self Label.
 		^ 0 ].
 	self MoveR: SPReg R: t0.
 	self MoveAw: coInterpreter stackLimitAddress R: t1.
