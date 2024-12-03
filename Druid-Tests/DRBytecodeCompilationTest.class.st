@@ -1,8 +1,17 @@
 Class {
 	#name : #DRBytecodeCompilationTest,
-	#superclass : #DRDruidTest,
+	#superclass : #DRMetaCompilationTest,
 	#category : #'Druid-Tests'
 }
+
+{ #category : #'building suites' }
+DRBytecodeCompilationTest class >> cogitStyleParameter [
+
+	^ ParametrizedTestMatrix new
+		addCase: { #cogitStyle -> #beForStackToRegisterMapping. #compilerClass -> DruidTestRTLCompiler};
+		"addCase: { #cogitStyle -> #beForSimpleStack. #compilerClass -> SimpleDruidTestRTLCompiler};"
+		yourself
+]
 
 { #category : #enumerating }
 DRBytecodeCompilationTest >> compileBytecode: bytecode1 selector: selector1 andBytecode: bytecode2 selector: selector2 thenDo: aFullBlockClosure [ 
@@ -18,7 +27,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode1 selector: selector1 andB
 		};
 		interpreter: self interpreter;
 		targetName: generatorSelector;
-		configureForCompilerClass: DruidTestRTLCompiler.
+		configureForCompilerClass: compilerClass.
 
 	compiler compile.
 	"Then generate the machine code for that method"
@@ -47,7 +56,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector optio
 	compiler := DRBytecodeCompilerCompiler new
 		            bytecodes: { (bytecode -> aSelector) };
 		            interpreter: self interpreter;
-		            configureForCompilerClass: DruidTestRTLCompiler;
+						configureForCompilerClass: compilerClass;
 		            addCompilerOptions: options.
 
 	compiler compile.
@@ -87,23 +96,35 @@ DRBytecodeCompilationTest >> doCompileBytecode: bytecode selector: aSelector [
 	compiler := DRBytecodeCompilerCompiler new
 		sourceName: aSelector;
 		interpreter: self interpreter;
-		configureForCompilerClass: DruidTestRTLCompiler.
+		configureForCompilerClass: compilerClass.
 
 	compiler compile.
 ]
 
+{ #category : #initialization }
+DRBytecodeCompilationTest >> initializeSStack: argCount [
+
+	self isSimpleStack ifTrue: [ ^ self ]. "No SSTack"
+
+	cogit ssPushRegister: ReceiverResultReg.
+	argCount > 0 ifTrue: [ cogit ssPushRegister: Arg0Reg ].
+	argCount > 1 ifTrue: [ cogit ssPushRegister: Arg1Reg ]
+]
+
 { #category : #helpers }
 DRBytecodeCompilationTest >> makeFrame: aReceiver arguments: arguments method: aMethod [
-
 	"Callee side - make up the frame"
+
 	"Now push the link register, it will be popped by the return"
 	machineSimulator hasLinkRegister ifTrue: [
 		self pushAddress: machineSimulator linkRegisterValue ].
 	self pushAddress: machineSimulator fp.
-	machineSimulator fp: machineSimulator smalltalkStackPointerRegisterValue.
+	machineSimulator fp:
+		machineSimulator smalltalkStackPointerRegisterValue.
 	self pushAddress: aMethod.
-	self pushAddress: 0 "context".
-	self pushAddress: aReceiver. 
+	self pushAddress: 0. "context"
+	self pushAddress: aReceiver.
+	"arguments do: [ :anArgument | self pushAddress: anArgument ]."
 
 ]
 
@@ -119,9 +140,10 @@ DRBytecodeCompilationTest >> prepareStackForPrimitiveReceiver: aReceiver argumen
 DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: arguments method: aMethod [
 
 	super prepareStackForSendReceiver: aReceiver arguments: arguments method: aMethod.
-	
+
 	self makeFrame: aReceiver arguments: arguments method: aMethod.
-	
+
+	self flag: #TODO. "Receive this by param, method is not used for the tests"
 	cogit methodOrBlockNumTemps timesRepeat: [
 		self pushAddress: memory nilObject  ]
 

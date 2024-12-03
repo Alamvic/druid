@@ -164,12 +164,8 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
-		selectPrimitives: [ :e |
-			((primitives indexOf: e selector) between: 0 and: 54) and: [
-					primitives includes: e selector ] ];
-		selectBytecodes: [ :e |
-			(e bytecodeNumberStart between: 0 and: 255) and: [
-					bytecodes includes: e bytecodeNumberStart ] ];
+		selectPrimitives: [ :e | primitives includes: e selector ];
+		selectBytecodes: [ :e | bytecodes includes: e bytecodeNumberStart ];
 		targetClass: targetClass;
 		targetSuperclass: aSuperclass;
 		compilerOptions: options;
@@ -203,6 +199,16 @@ DRInterpreterToCompiler class >> generateSimpleDruidJITModel [
 	self
 		generateDruidJITModelOn: SimpleDruidJIT
 		superclass: SimpleStackBasedCogit
+]
+
+{ #category : #'instance creation' }
+DRInterpreterToCompiler class >> generateSimpleDruidStaticTypePredictionJITModel [
+
+	<script>
+	self
+		generateDruidJITModelOn: SimpleDruidStaticTypePredictionJIT
+		superclass: SimpleStackBasedCogit
+		compilerOptions: #( staticTypePrediction )
 ]
 
 { #category : #'accessing - bytecodes' }

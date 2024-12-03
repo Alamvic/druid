@@ -158,6 +158,12 @@ DRCogitSimpleStackGenerator >> visitClosureCreation: aDRClosureCreation [
 ]
 
 { #category : #visiting }
+DRCogitSimpleStackGenerator >> visitCogitSendMarshall: aDRCogitSendMarshall [ 
+
+	"Avoid marshalling in SimpleStack"
+]
+
+{ #category : #visiting }
 DRCogitSimpleStackGenerator >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
 	
 	"This is a continuation to the next bytecode.
@@ -178,6 +184,13 @@ DRCogitSimpleStackGenerator >> visitDeoptimize: aDRDeoptimize [
 		(RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #deoptimize)
+]
+
+{ #category : #visiting }
+DRCogitSimpleStackGenerator >> visitFlushStack: aDRFlushStack [ 
+
+	"Nothing! There are not sym stack on simple stack VMs."
+	"TODO: Avoid DRFlushStack instructions on primitive meta-compilation"
 ]
 
 { #category : #visiting }
@@ -224,12 +237,12 @@ DRCogitSimpleStackGenerator >> visitLoadStackPointer: aDRLoadStackPointer [
 { #category : #visiting }
 DRCogitSimpleStackGenerator >> visitPop: aDRPop [
 
-	aDRPop numberOfPoppedElements > 1 ifTrue: [ self halt ].
+	aDRPop numberOfPoppedElements isNumber ifFalse: [ self halt ].
 
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #PopR:
-			 arguments: { (RBVariableNode named: aDRPop result name) })
+			 selector: #PopN:
+			 arguments: { RBLiteralNode value: aDRPop numberOfPoppedElements })
 ]
 
 { #category : #visiting }

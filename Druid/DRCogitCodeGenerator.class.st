@@ -669,6 +669,12 @@ DRCogitCodeGenerator >> selectorCogitRTL: aMnemonic operands: operands instructi
 ]
 
 { #category : #'code generation' }
+DRCogitCodeGenerator >> spRegVariable [
+
+	^ RBVariableNode named: 'SPReg'
+]
+
+{ #category : #'code generation' }
 DRCogitCodeGenerator >> tempRegVariable [
 
 	^ RBVariableNode named: 'TempReg'
@@ -1110,15 +1116,22 @@ DRCogitCodeGenerator >> visitLoad: aDRLoad [
 
 { #category : #visiting }
 DRCogitCodeGenerator >> visitLoadStackValue: aDRLoadStackValue [
-	"cogit MoveMw: 0 r: SPReg R: TempReg"
-	self haltIf: [ aDRLoadStackValue operand1 value > 0 ].
+
+	| offset |
+	self assert: aDRLoadStackValue operand1 simpleConstantFold isNumber.
+
+	offset := aDRLoadStackValue operand1 simpleConstantFold
+	          + aDRLoadStackValue controlFlowGraph numberOfSpillSlots
+	          << 3. "bytes"
+
+	"cogit MoveMw: offset r: SPReg R: t0"
 	generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
 			 selector: #MoveMw:r:R:
 			 arguments: {
-					 (aDRLoadStackValue operand1 rtlPushArgumentExpressions: self) first.
-					 (RBVariableNode named: 'SPReg').
-					 (RBVariableNode named: aDRLoadStackValue result name) })
+					 (RBLiteralNode value: offset).
+					 self spRegVariable.
+					 (self rtlExpressionForValue: aDRLoadStackValue) })
 ]
 
 { #category : #visiting }

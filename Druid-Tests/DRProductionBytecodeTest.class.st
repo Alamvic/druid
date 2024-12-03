@@ -3032,3 +3032,44 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRememberedRec
 	self assert: machineSimulator receiverRegisterValue equals: object.
 	self assert: (memory fetchPointer: 0 ofObject: object) equals: value
 ]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testStoreAndPopRemoteTempLongBytecode [
+
+	| object vectIndex tempIndex |
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+	vectIndex := 3.
+	tempIndex := 1.
+	
+	cogit byte1: vectIndex.
+	cogit byte2: tempIndex.
+
+	self
+		compileBytecode: 253
+		selector: #storeAndPopRemoteTempLongBytecode
+		thenDo: [ :generator |
+			cogit methodOrBlockNumTemps: 2.
+			cogit methodOrBlockNumArgs: 0.
+			cogit ssPushRegister: ReceiverResultReg.
+			
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: vectIndex + 1.
+
+	self 
+		createFramefulCallFrom: callerAddress 
+		receiver: memory trueObject
+		arguments: #() 
+		temporaries: { object }.
+	self pushAddress: memory nilObject.
+	
+	self executePrimitiveWithReceiver: memory trueObject. "????"
+
+	self assert: machineSimulator receiverRegisterValue equals: memory trueObject.
+	
+	self assert: (memory fetchPointer: vectIndex ofObject: object) equals: memory trueObject
+]

@@ -6,12 +6,13 @@ Class {
 
 { #category : #visiting }
 DRCogitSimpleStackPrimitiveCodeGenerator >> visitLoadArgument: aDRLoadArgument [
-	"cogit genLoadArgAtDepth: 0 into: Arg0Reg."
+	"cogit genLoadArg: i spilled: n into: Reg."
 
-	generatorMethodBuilder addStatement: (RBMessageNode
+	self generatorMethodBuilder addStatement: (RBMessageNode
 			 receiver: RBVariableNode selfNode
-			 selector: #genLoadArg:into:
+			 selector: #genLoadArg:spilled:into:
 			 arguments: {
 					 (RBLiteralValueNode value: aDRLoadArgument argNum).
+					 (RBLiteralValueNode value: aDRLoadArgument controlFlowGraph numberOfSpillSlots ).
 					 (RBVariableNode named: aDRLoadArgument result name) })
 ]

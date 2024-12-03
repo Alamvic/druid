@@ -11,12 +11,3 @@ DRCogitBytecodeCodeGenerator >> visitCall: aDRCall [
 	aDRCall isMapped ifTrue: [
 		self assert: aDRCall controlFlowGraph hasAnnotatedBytecode ]
 ]
-
-{ #category : #visiting }
-DRCogitBytecodeCodeGenerator >> visitFlushStack: aDRFlushStack [
-
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: #ssFlushStackExceptTop:
-			 arguments: { (RBLiteralValueNode value: aDRFlushStack operand1 value) })
-]

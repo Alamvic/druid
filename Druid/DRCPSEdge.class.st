@@ -291,7 +291,7 @@ DRCPSEdge >> visitClosureActivation: aDRClosureActivation [
 { #category : #visiting }
 DRCPSEdge >> visitClosureCreation: aDRClosureCreation [ 
 	
-	"Nothing"
+	^ nil
 ]
 
 { #category : #visiting }

@@ -878,6 +878,47 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesStore [
 ]
 
 { #category : #'tests - spill' }
+DRLinearScanRegisterAllocatorTest >> testSpillLoadStackValue [
+
+	| cfg basicBlock |
+	cfg := DRControlFlowGraph new.
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		r0 := block loadReceiver.
+		r1 := block loadStackValueAt: 0.
+		r2 := block loadStackValueAt: 1 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	registerAllocator
+		integerRegisters: { };
+		spillRegisters: { spillRegister1 };
+		allocateRegistersIn: cfg.
+	
+	"
+	SPR1 := LoadReceriver
+	Store M0 SPR1
+	SPR1 := Load-stack-value 0
+	Store M1 SPR1
+	SPR1 := Load-stack-value 1
+	Store M2 SPR1
+	"
+
+	self assert: basicBlock instructions first isLoadReceiver.
+	self assert: basicBlock instructions first result equals: spillRegister1.
+	self assert: basicBlock instructions second isStore.
+
+	self assert: basicBlock instructions third isLoadStackValue.
+	self assert: basicBlock instructions third operand1 value equals: 0.
+	self assert: basicBlock instructions third result equals: spillRegister1.
+	self assert: basicBlock instructions fourth isStore.
+
+	self assert: basicBlock instructions fifth isLoadStackValue.
+	self assert: basicBlock instructions fifth operand1 value equals: 1.
+	self assert: basicBlock instructions fifth result equals: spillRegister1.
+	self assert: basicBlock instructions sixth isStore.
+
+]
+
+{ #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillOnStores [
 
 	| cfg basicBlock |
@@ -925,11 +966,8 @@ DRLinearScanRegisterAllocatorTest >> testSpillReceiverAndArguments [
 	| cfg basicBlock |
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
-		"R0 := 2"
 		r0 := block loadReceiver.
-		"R1 := 3"
 		r1 := block loadArgument: 0.
-		"R2 := 4"
 		r2 := block loadArgument: 1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
@@ -946,11 +984,18 @@ DRLinearScanRegisterAllocatorTest >> testSpillReceiverAndArguments [
 	SPR1 := LoadArg1
 	Store M2 SPR1
 	"
-	
+
+	self assert: basicBlock instructions first isLoadReceiver.
 	self assert: basicBlock instructions first result equals: spillRegister1.
 	self assert: basicBlock instructions second isStore.
+
+	self assert: basicBlock instructions third isLoadArgument.
+	self assert: basicBlock instructions third operand1 value equals: 0.
 	self assert: basicBlock instructions third result equals: spillRegister1.
 	self assert: basicBlock instructions fourth isStore.
+
+	self assert: basicBlock instructions fifth isLoadArgument.
+	self assert: basicBlock instructions fifth operand1 value equals: 1.
 	self assert: basicBlock instructions fifth result equals: spillRegister1.
 	self assert: basicBlock instructions sixth isStore.
 
@@ -959,7 +1004,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillReceiverAndArguments [
 { #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillStoresAndLoadsToSameAddress [
 
-	| cfg basicBlock spillRegister1 spillRegister2 |
+	| cfg basicBlock |
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
 		"R0 := 2"
@@ -970,9 +1015,6 @@ DRLinearScanRegisterAllocatorTest >> testSpillStoresAndLoadsToSameAddress [
 		r2 := block add: r0 to: r1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	"SPR1 is a spill register reserved for spill allocations"
-	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
-	spillRegister2 := DRPhysicalGeneralPurposeRegister name: 'SPR2'.
 	registerAllocator
 		integerRegisters: { };
 		spillRegisters: { spillRegister1. spillRegister2 };
@@ -997,7 +1039,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillStoresAndLoadsToSameAddress [
 { #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillTwice [
 
-	| cfg basicBlock spillRegister1 spillRegister2 |
+	| cfg basicBlock |
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
 		"R0 := 2"
@@ -1008,9 +1050,6 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwice [
 		r2 := block add: r0 to: r1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	"SPR1 is a spill register reserved for spill allocations"
-	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
-	spillRegister2 := DRPhysicalGeneralPurposeRegister name: 'SPR2'.
 	registerAllocator
 		integerRegisters: { };
 		spillRegisters: { spillRegister1. spillRegister2 };
@@ -1035,7 +1074,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwice [
 { #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillTwiceIncrementsSpillSlotsToTwo [
 
-	| cfg basicBlock spillRegister1 spillRegister2 |
+	| cfg basicBlock |
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
 		"R0 := 2"
@@ -1046,9 +1085,6 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwiceIncrementsSpillSlotsToTwo [
 		r2 := block add: r0 to: r1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	"SPR1 is a spill register reserved for spill allocations"
-	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
-	spillRegister2 := DRPhysicalGeneralPurposeRegister name: 'SPR2'.
 	registerAllocator
 		integerRegisters: { };
 		spillRegisters: { spillRegister1. spillRegister2 };
@@ -1060,7 +1096,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwiceIncrementsSpillSlotsToTwo [
 { #category : #'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillTwiceUsesDifferentAddresses [
 
-	| cfg basicBlock spillRegister1 spillRegister2 |
+	| cfg basicBlock |
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
 		"R0 := 2"
@@ -1071,9 +1107,6 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwiceUsesDifferentAddresses [
 		r2 := block add: r0 to: r1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
 	
-	"SPR1 is a spill register reserved for spill allocations"
-	spillRegister1 := DRPhysicalGeneralPurposeRegister name: 'SPR1'.
-	spillRegister2 := DRPhysicalGeneralPurposeRegister name: 'SPR2'.
 	registerAllocator
 		integerRegisters: { };
 		spillRegisters: { spillRegister1. spillRegister2 };
