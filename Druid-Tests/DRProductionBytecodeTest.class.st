@@ -2329,6 +2329,36 @@ DRProductionBytecodeTest >> testExtPushFullClosure [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testExtStoreAndPopReceiverVariableBytecode [
+
+	| object index |
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+	cogit bytecodePC: 87.
+	cogit byte1: (index := 1).
+
+	self
+		compileBytecode: 240
+		selector: #extStoreAndPopReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: index + 1.
+
+	machineSimulator temporaryRegisterValue: memory trueObject.
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: object.
+	self assert: (memory fetchPointer: index ofObject: object) equals: memory trueObject
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecode [
 
 	| method literal |
