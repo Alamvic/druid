@@ -36,16 +36,6 @@ DRMethod >> defaultReturnValue: receiver [
 
 { #category : #executing }
 DRMethod >> executeOn: interpreter [
-	"Initialize based on pragmas"
-
-	| mappedPragmas |
-	interpreter ir hasAnnotatedBytecode ifFalse: [
-		(self methodNode compiledMethod pragmaRefersToLiteral: #hasSend)
-			ifFalse: [
-				mappedPragmas := #( isMapped isMappedIfImmutability ).
-				(mappedPragmas anySatisfy: [ :literal |
-					 self methodNode compiledMethod pragmaRefersToLiteral: literal ])
-					ifTrue: [ interpreter addAnnotateBytecode: self methodNode ] ] ].
 
 	self codeNode acceptVisitor: interpreter
 ]
@@ -60,6 +50,20 @@ DRMethod >> methodNode [
 DRMethod >> methodNode: anObject [
 
 	methodNode := anObject
+]
+
+{ #category : #'accessing - testing' }
+DRMethod >> mustAnnotateBytecode [
+
+	| interpreterMethod |
+	interpreterMethod := self methodNode compiledMethod.
+
+	"Sends annotate the bytecode by the compiler"
+	(interpreterMethod pragmaRefersToLiteral: #hasSend) ifTrue: [ ^ false ].
+
+	"Bytecode needs to be mapped for annotation"
+	^ #( isMapped isMappedIfImmutability ) anySatisfy: [ :literal |
+		  interpreterMethod pragmaRefersToLiteral: literal ]
 ]
 
 { #category : #printing }

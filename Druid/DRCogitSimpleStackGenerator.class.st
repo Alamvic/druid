@@ -36,8 +36,16 @@ DRCogitSimpleStackGenerator >> allocateVariable: aDRResult [
 { #category : #'ir-to-ast' }
 DRCogitSimpleStackGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 
+	self assert: blocks isEmpty.
+
 	"Generate the continuation jumps to the following code"
 	self generateBlockIncomingJumps: #nextBytecode.
+
+	aDRControlFlowGraph isMapped ifTrue: [
+		(visitedBlocks anySatisfy: [ :b | b instructions anySatisfy: [ :i | i isCall and: [ i isMapped ] ] ])
+			ifFalse: [ 
+				"Force annotate bytecode for staged branches"
+				DRAnnotateBytecode new acceptVisitor: self ] ].
 
 	super generatePostambleForCFG: aDRControlFlowGraph
 ]

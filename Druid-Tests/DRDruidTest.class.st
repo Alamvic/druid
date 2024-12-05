@@ -41,7 +41,7 @@ DRDruidTest >> jitCompilerClass [
 DRDruidTest >> jitOptions [
 
 	^ super jitOptions
-		  at: #bytecodeTableInitializer put: #initializeBytecodeTableForSistaV1;
+		  at: #IMMUTABILITY put: true;
 		  yourself
 ]
 

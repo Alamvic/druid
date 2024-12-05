@@ -33,6 +33,7 @@ DRMetaCompilerIRGenerator >> initializeSpecialCases [
 	specialCases at: #push: put: #interpretPushWith:.
 
 	specialCases at: #remember: put: #interpretRememberWith:.
+	specialCases at: #fixedPermSpaceStart put: #interpretFixedPermSpaceStartWith:.
 ]
 
 { #category : #interpreting }
@@ -59,21 +60,11 @@ DRMetaCompilerIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 ]
 
 { #category : #interpretation }
-DRMetaCompilerIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
+DRMetaCompilerIRGenerator >> interpretFixedPermSpaceStartWith: aRBMessageNode [
 
-	| failure primitiveReturn returnState |
-	failure := self currentBasicBlock copy: 1.
-	self currentPrimitiveFailureCode: failure.
-
-	returnState := executionState copy.
-	primitiveReturn := returnState baseFrame.
-	primitiveReturn push: DRNullValue new. "Return something"
-
-	"Record that this execution stack did a method return
-		We will merge this one with other returned states when this method finishes"
-	primitiveReturn addDeferredReturnState: {
-			returnState.
-			(self addFrameReturn: primitiveReturn) }
+	^ self
+		  addCopy: aRBMessageNode
+		  with: DRInterpreterReference getFixedPermSpaceStart
 ]
 
 { #category : #'special cases' }

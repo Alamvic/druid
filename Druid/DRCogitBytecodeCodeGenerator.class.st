@@ -9,5 +9,8 @@ DRCogitBytecodeCodeGenerator >> visitCall: aDRCall [
 
 	super visitCall: aDRCall.
 	aDRCall isMapped ifTrue: [
-		self assert: aDRCall controlFlowGraph hasAnnotatedBytecode ]
+		DRAnnotateBytecode new acceptVisitor: self.
+		
+		"Validate only one annotateBytecode: in the path. And the annotation in the table."
+		self flag: #TODO. "See DRMethod >> mustAnnotateBytecode" ]
 ]

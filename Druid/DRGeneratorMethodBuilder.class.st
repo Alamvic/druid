@@ -21,6 +21,12 @@ DRGeneratorMethodBuilder >> addVariableNamed: aVariableName [
 	variableNames add: aVariableName
 ]
 
+{ #category : #'bytecode generation' }
+DRGeneratorMethodBuilder >> after: previousNode addStatement: aRBNode [
+
+	statements add: aRBNode after: previousNode
+]
+
 { #category : #accessing }
 DRGeneratorMethodBuilder >> initialize [
 

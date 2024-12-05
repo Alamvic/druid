@@ -159,10 +159,16 @@ DRBytecodeIRGenerator >> interpretDirectSuperSendWith: aRBMessageNode [
 ]
 
 { #category : #'as yet unclassified' }
-DRBytecodeIRGenerator >> interpretDruidForceIntepretationWith: aRBMessageNode [
+DRBytecodeIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
+
+	^ self interpretDruidForceIntepretationWith: aRBMethodNode
+]
+
+{ #category : #'as yet unclassified' }
+DRBytecodeIRGenerator >> interpretDruidForceIntepretationWith: aRBNode [
 
 	self
-		addInstructionFrom: aRBMessageNode
+		addInstructionFrom: aRBNode
 		instructionKind: DRDeoptimize
 		operands: #(  ).
 

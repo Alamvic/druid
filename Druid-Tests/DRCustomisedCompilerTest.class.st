@@ -82,6 +82,9 @@ DRCustomisedCompilerTest >> testAddsPreambleToGeneratedCode [
 DRCustomisedCompilerTest >> testIsMappedShouldAnnotateBytecode [
 
 	| cfg |
+	"Now the annotateBytecode: is introduced during code generation, it is not in the CFG anymore."
+	self skip.
+	
 	compiler := self newBytecodeCompiler.
 	cfg := self generateDruidIRFor: #extUnconditionalJump.
 
