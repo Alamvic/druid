@@ -2925,7 +2925,7 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutable
 
 	object := self newObjectWithSlots: 1.	
 	memory setIsImmutableOf: object to: true.
-	
+
 	value := self newObjectWithSlots: 0.
 
 	machineSimulator temporaryRegisterValue: value.
@@ -2937,8 +2937,9 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutable
 
 	"Should arrive to trampoline to put the object in the remembered set"
 	self runFrom: cogInitialAddress until: immutableTrampoline.
-	
-	self assert: machineSimulator receiverRegisterValue equals: bytecodePC
+
+	self assert: machineSimulator receiverRegisterValue equals: bytecodePC.
+	self assert: machineSimulator smalltalkStackPointerValue equals: value
 ]
 
 { #category : #tests }

@@ -11915,9 +11915,14 @@ DruidTestRTLCompiler >> gen_storeAndPopReceiverVariableBytecode [
 	self MoveM64: 0 r: t0 R: t2.
 	self LogicalShiftRightCq: 23 R: t2.
 	self AndCq: 1 R: t2.
-	self ssFlushStackExceptTop: 0.
+	
+	"self ssFlushStackExceptTop: 0."
+	
 	self CmpCq: 0 R: t2.
 	jump1 := self JumpZero: 0.
+	
+	self ssSilentlyFlushStackExceptTop: 0.
+	
 	self deoptimize.
 	jump2 := self Jump: 0.
 	deadCode := false.
