@@ -83,7 +83,7 @@ DRInterpreterReference class >> integerExpression: aReference [
 { #category : #factory }
 DRInterpreterReference class >> nilObject [
 
-	^ self objectReference: 'objectMemory nilObject'
+	^ self pointerReference: 'objectMemory nilObject'
 ]
 
 { #category : #accessing }
