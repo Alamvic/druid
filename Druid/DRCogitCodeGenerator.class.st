@@ -967,6 +967,7 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 
 	| comparisonToGenerate branch |
 	comparisonToGenerate := self visitComparison: aDRGetConditionCode.
+
 	generatorMethodBuilder addVariableNamed: 'jumpTrue'.
 	generatorMethodBuilder addVariableNamed: 'jumpNext'.
 	branch := self

@@ -20,14 +20,12 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
 		optimisations add: (DRPhiSimplication then: DRCopyPropagation).
 		optimisations add: DRCogitStackCanonicaliser new.
-		optimisations add:
-			(DRDeadCodeElimination then: DRRedundantCopyElimination).
+		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
 
 		optimisations add: DRCleanStackInstructions new.
 
-		optimisations add:
-			(DRDeadEdgeSplitting then: DRDeadBranchElimination).
+		optimisations add: (DRDeadEdgeSplitting then: DRDeadBranchElimination).
 		optimisations add: (DRPhiSimplication then: DRCopyPropagation) ].
 
 	"Last Phase, make code coggable"

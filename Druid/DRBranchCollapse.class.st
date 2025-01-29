@@ -6,39 +6,46 @@ Class {
 
 { #category : #accessing }
 DRBranchCollapse >> applyTo: aDRControlFlowGraph [
-	"If we have a sequence of the form: 
-	
+
+	aDRControlFlowGraph blocksDo: [ :b | self applyToBlock: b ]
+]
+
+{ #category : #'as yet unclassified' }
+DRBranchCollapse >> applyToBlock: aDRBasicBlock [
+
+	| setConditionCode replacementBranch |
+	(self canBeAppliedToBlock: aDRBasicBlock) ifFalse: [ ^ self ].
+
+	"
 	R1 := SetConditionCode a > b
 	Jump if R1 = true
-	
+
 	=>
 	
 	Jump if a > b
 	"
 
-	aDRControlFlowGraph blocksDo: [ :b |
-		(b endInstruction isConditionalBranch and: [
-			 b endInstruction condition isEqualsThanComparison and: [
-				 b endInstruction operand1 isSetConditionCode and: [
-					 b endInstruction operand2 = true asDRValue ] ] ]) ifTrue: [
-			| replacementBranch setConditionCode |
-			setConditionCode := b endInstruction operand1 simpleConstantFold.
-			replacementBranch := DRBranchIfCondition operands: {
-					                     setConditionCode condition.
-					                     setConditionCode operand1.
-					                     setConditionCode operand2 }.
-			replacementBranch trueBranch: b endInstruction trueBranch.
-			replacementBranch falseBranch: b endInstruction falseBranch.
-			b endInstruction replaceBy: replacementBranch ] ]
+	setConditionCode := aDRBasicBlock endInstruction operand1 simpleConstantFold.
+	replacementBranch := DRBranchIfCondition operands: {
+			                     setConditionCode condition.
+			                     setConditionCode operand1.
+			                     setConditionCode operand2 }.
+	replacementBranch trueBranch: aDRBasicBlock endInstruction trueBranch.
+	replacementBranch falseBranch: aDRBasicBlock endInstruction falseBranch.
+	aDRBasicBlock endInstruction replaceBy: replacementBranch
 ]
 
 { #category : #testing }
 DRBranchCollapse >> canBeAppliedIn: aDRControlFlowGraph [
 
-	aDRControlFlowGraph blocksDo: [ :b | 
-		(b endInstruction condition isEqualsThanComparison and: [ 
-			b endInstruction operand1 isSetConditionCode
-				and: [ b endInstruction operand2 = true asDRValue ] ]) ifTrue: [ 
-			^ true ] ].
-	^ false
+	^ aDRControlFlowGraph blocks anySatisfy: [ :b | self canBeAppliedToBlock: b ]
+]
+
+{ #category : #testing }
+DRBranchCollapse >> canBeAppliedToBlock: aDRBasicBlock [
+
+	^ aDRBasicBlock endInstruction isConditionalBranch and: [
+		  aDRBasicBlock endInstruction condition isEqualsThanComparison and: [
+			  aDRBasicBlock endInstruction operand1 isSetConditionCode and: [
+				  aDRBasicBlock endInstruction operand2 = true asDRValue ] ] ]
 ]
