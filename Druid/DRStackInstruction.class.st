@@ -34,12 +34,6 @@ DRStackInstruction >> definingStackInstruction [
 	^ self stackSlotDefiningAtDepth: -1 ifNone: [ nil ]
 ]
 
-{ #category : #accessing }
-DRStackInstruction >> dependencies [
-
-	^ super dependencies , self stackDependencies asArray
-]
-
 { #category : #testing }
 DRStackInstruction >> initialize [
 
