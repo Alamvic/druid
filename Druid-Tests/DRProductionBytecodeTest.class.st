@@ -2903,7 +2903,7 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode: index [
 { #category : #tests }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutableTrampoline [
 
-	| object value immutableTrampoline bytecodePC |
+	| object value immutableTrampoline bytecodePC valueToStore |
 
 	cogit ceStoreCheckTrampoline: fakeTrampoline.
 	immutableTrampoline := self compile: [ cogit RetN: 0 ].
@@ -2939,7 +2939,11 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutable
 	self runFrom: cogInitialAddress until: immutableTrampoline.
 
 	self assert: machineSimulator receiverRegisterValue equals: bytecodePC.
-	self assert: machineSimulator smalltalkStackPointerValue equals: value
+	
+	valueToStore := machineSimulator hasLinkRegister 
+		ifTrue: [ machineSimulator smalltalkStackPointerValue ]
+		ifFalse: [ machineSimulator smalltalkStackPointerValueAt: 1 ].
+	self assert: valueToStore equals: value
 ]
 
 { #category : #tests }

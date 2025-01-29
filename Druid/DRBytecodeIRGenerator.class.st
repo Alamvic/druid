@@ -242,8 +242,7 @@ DRBytecodeIRGenerator >> interpretIframeMethodWith: aRBMessageNode [
 	^ self
 		  addInstructionFrom: aRBMessageNode
 		  instructionKind: DRCopy
-		  operands:
-		  { (DRInterpreterReference objectReference: 'methodObj') }
+		  operands: { DRInterpreterReference methodObj }
 ]
 
 { #category : #'special cases' }
