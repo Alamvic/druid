@@ -63,27 +63,18 @@ DRInterpreterCompilationUnitTest >> testBytecodeCompilation [
 	"Here the bytecode range is a single range sharing the same selector.
 	That selector will be used for compilation"
 	bytecodes := (self compiler newBytecodes:
-		              (self compiler interpreterClass lookupSelector:
-			               #storeAndPopReceiverVariableBytecode)) first: 4.
+		              (self compiler interpreterClass lookupSelector: #storeAndPopReceiverVariableBytecode)) first:
+		             4.
 	compilationUnit bytecodes: bytecodes.
 	self compile: compilationUnit.
 
 	self assert: self targetClass bytecodeTable equals: {
-			#( 1 200 200 #gen_StoreAndPopReceiverVariableBytecode0
-			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
-			   -1 ).
-			#( 1 201 201 #gen_StoreAndPopReceiverVariableBytecode1
-			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
-			   -1 ).
-			#( 1 202 202 #gen_StoreAndPopReceiverVariableBytecode2
-			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
-			   -1 ).
-			#( 1 203 203 #gen_StoreAndPopReceiverVariableBytecode3
-			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
-			   -1 ) }.
+			#( 1 200 200 #gen_StoreAndPopReceiverVariableBytecode0 #isInstVarRef #isMapped ).
+			#( 1 201 201 #gen_StoreAndPopReceiverVariableBytecode1 #isInstVarRef #isMapped ).
+			#( 1 202 202 #gen_StoreAndPopReceiverVariableBytecode2 #isInstVarRef #isMapped ).
+			#( 1 203 203 #gen_StoreAndPopReceiverVariableBytecode3 #isInstVarRef #isMapped ) }.
 
-	self targetClass bytecodeTable do: [ :e |
-		self assert: (self targetClass canUnderstand: e fourth) ]
+	self targetClass bytecodeTable do: [ :e | self assert: (self targetClass canUnderstand: e fourth) ]
 ]
 
 { #category : #'tests - bytecodes' }
@@ -118,14 +109,13 @@ DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 	"Here the bytecode range is a single range sharing the same selector.
 	That selector will be used for compilation"
 	bytecodes := ((self compiler newBytecodes:
-		               (self compiler interpreterClass lookupSelector:
-			                #storeAndPopReceiverVariableBytecode)) first: 3)
-	             , { (DRBytecodeObject new
-			              bytecodeSize: 2;
-			              bytecodeNumberStart: 3;
-			              bytecodeNumberEnd: 5;
-			              supported: false;
-			              yourself) }.
+		               (self compiler interpreterClass lookupSelector: #storeAndPopReceiverVariableBytecode))
+		              first: 3) , { (DRBytecodeObject new
+		              bytecodeSize: 2;
+		              bytecodeNumberStart: 3;
+		              bytecodeNumberEnd: 5;
+		              supported: false;
+		              yourself) }.
 	compilationUnit bytecodes: bytecodes.
 	self compile: compilationUnit.
 
@@ -133,18 +123,11 @@ DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 			#( 2 3 3 #unknownBytecode ).
 			#( 2 4 4 #unknownBytecode ).
 			#( 2 5 5 #unknownBytecode ).
-			#( 1 200 200 #gen_StoreAndPopReceiverVariableBytecode0
-			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
-			   -1 ).
-			#( 1 201 201 #gen_StoreAndPopReceiverVariableBytecode1
-			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
-			   -1 ).
-			#( 1 202 202 #gen_StoreAndPopReceiverVariableBytecode2
-			   #isInstVarRef #isMappedIfImmutability #needsFrameIfImmutability:
-			   -1 ) }.
+			#( 1 200 200 #gen_StoreAndPopReceiverVariableBytecode0 #isInstVarRef #isMapped ).
+			#( 1 201 201 #gen_StoreAndPopReceiverVariableBytecode1 #isInstVarRef #isMapped ).
+			#( 1 202 202 #gen_StoreAndPopReceiverVariableBytecode2 #isInstVarRef #isMapped ) }.
 
-	self targetClass bytecodeTable do: [ :e |
-		self assert: (self targetClass canUnderstand: e fourth) ]
+	self targetClass bytecodeTable do: [ :e | self assert: (self targetClass canUnderstand: e fourth) ]
 ]
 
 { #category : #'tests - primitives' }
