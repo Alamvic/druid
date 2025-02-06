@@ -115,9 +115,21 @@ DRPrimitiveIRGenerator >> inlineGenerator [
 
 { #category : #interpretation }
 DRPrimitiveIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
-	
+
+	| failure primitiveReturn returnState |
 	completePrimitive := false.
-	super interpretDruidExitPointWith: aRBMethodNode
+	
+	failure := self currentBasicBlock copy: 1.
+	self currentPrimitiveFailureCode: failure.
+	returnState := executionState copy.
+	primitiveReturn := returnState baseFrame.
+	primitiveReturn push: DRNullValue new. "Return something" 
+	
+	"Record that this execution stack did a method return
+		We will merge this one with other returned states when this method finishes"
+	primitiveReturn addDeferredReturnState: {
+			returnState.
+			(self addFrameReturn: primitiveReturn) }
 ]
 
 { #category : #'special cases' }

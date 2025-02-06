@@ -32,6 +32,12 @@ DRInterpreterReference class >> freeStartAddress [
 	^ self pointerReference: 'objectMemory freeStartAddress'
 ]
 
+{ #category : #'accesing - defaults' }
+DRInterpreterReference class >> getFixedPermSpaceStart [
+
+	^ self pointerReference: 'objectMemory getMemoryMap fixedPermSpaceStart'
+]
+
 { #category : #accessing }
 DRInterpreterReference class >> getNewSpaceMask [
 
@@ -77,7 +83,7 @@ DRInterpreterReference class >> integerExpression: aReference [
 { #category : #factory }
 DRInterpreterReference class >> nilObject [
 
-	^ self objectReference: 'objectMemory nilObject'
+	^ self pointerReference: 'objectMemory nilObject'
 ]
 
 { #category : #accessing }

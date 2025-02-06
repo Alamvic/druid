@@ -128,6 +128,15 @@ DRBytecodeCompilationTest >> makeFrame: aReceiver arguments: arguments method: a
 
 ]
 
+{ #category : #'as yet unclassified' }
+DRBytecodeCompilationTest >> popAndReturn: reg [
+
+	self isSimpleStack
+		ifTrue: [ cogit PopR: reg ]
+		ifFalse: [ cogit ssPopTopToReg: reg ].
+	cogit genUpArrowReturn
+]
+
 { #category : #helpers }
 DRBytecodeCompilationTest >> prepareStackForPrimitiveReceiver: aReceiver arguments: arguments method: aMethod [
 
@@ -147,4 +156,11 @@ DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: a
 	cogit methodOrBlockNumTemps timesRepeat: [
 		self pushAddress: memory nilObject  ]
 
+]
+
+{ #category : #helpers }
+DRBytecodeCompilationTest >> setUp [
+
+	super setUp.
+	cogit useTwoPaths: false
 ]

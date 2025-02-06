@@ -20,7 +20,7 @@ DRProductionBytecodeTest >> setUp [
 	
 	"Set a random methodObj and bytecodePC to avoid nil errors"
 	cogit methodObj: method.
-	cogit bytecodePC: 1.
+	cogit bytecodePC: 1
 ]
 
 { #category : #tests }
@@ -397,6 +397,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJump [
 
 	self assert: machineSimulator receiverRegisterValue equals: memory trueObject.
 	
+	self flag: #TODO. "Force bytecode annotation on staged branches!"
 	self assert: (cogit hasAnnotatedAbstractInstructions: cogit getIsBytecodePCReference)
 ]
 
@@ -1180,7 +1181,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAlloca
 { #category : #tests }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: n [
 
-	| method x |
+	| method |
 	method := methodBuilder newMethod
 		          literals:
 			          (((1 to: 16) collect: [ :e | nil -> (e + 16rFF - 1) ])
@@ -1221,6 +1222,46 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAlloca
 	self
 		assert: machineSimulator receiverRegisterValue
 		equals: 1
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushNewArray [
+
+	| size |
+	size := 1.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+	cogit byte1: size.
+
+	self compileBytecode: 231 selector: #pushNewArrayBytecode thenDo: [ :generator |
+		generator value.
+		self popAndReturn: ReceiverResultReg ].
+
+	self executePrimitiveWithReceiver: memory nilObject.
+	
+
+	self assert: (memory isArray: machineSimulator receiverRegisterValue).
+	self assert: (memory numSlotsOf: machineSimulator receiverRegisterValue) equals: size.
+	self assert: (memory fetchPointer: 0 ofObject: machineSimulator receiverRegisterValue) equals: memory nilObject
+	
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testBytecodePushNewArrayBig [
+
+	| size |
+	size := 10.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+	cogit byte1: size.
+
+	"Allocation touch the threshold"
+	memory scavengeThreshold: memory freeStart + 1.
+
+	self compileBytecode: 231 selector: #pushNewArrayBytecode thenDo: [ :generator |
+		generator value.
+		self popAndReturn: ReceiverResultReg ].
+
+	"Deoptimize to run the scavenge"
+	self runFrom: cogInitialAddress until: fakeTrampoline
 ]
 
 { #category : #tests }
@@ -2278,6 +2319,46 @@ DRProductionBytecodeTest >> testExtBBytecode3 [
 ]
 
 { #category : #tests }
+DRProductionBytecodeTest >> testExtPushFullClosure [
+	"Fake test, only assert the correct generation of the method."
+
+	self
+		compileBytecode: 249
+		selector: #extPushFullClosureBytecode
+		thenDo: [ :generator | self flag: #TODO "Test the execution of compiled code" ]
+]
+
+{ #category : #tests }
+DRProductionBytecodeTest >> testExtStoreAndPopReceiverVariableBytecode [
+
+	| object index |
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
+	cogit bytecodePC: 87.
+	cogit byte1: (index := 1).
+
+	self
+		compileBytecode: 240
+		selector: #extStoreAndPopReceiverVariableBytecode
+		thenDo: [ :generator |
+			cogit ssPushRegister: TempReg.
+
+			"Execute the druid's compiled code"
+			generator value.
+
+			"Then return without druid's compiled code"
+			cogit genUpArrowReturn ].
+
+	object := self newObjectWithSlots: index + 1.
+
+	machineSimulator temporaryRegisterValue: memory trueObject.
+	self executePrimitiveWithReceiver: object.
+
+	self assert: machineSimulator receiverRegisterValue equals: object.
+	self assert: (memory fetchPointer: index ofObject: object) equals: memory trueObject
+]
+
+{ #category : #tests }
 DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecode [
 
 	| method literal |
@@ -2844,7 +2925,7 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutable
 
 	object := self newObjectWithSlots: 1.	
 	memory setIsImmutableOf: object to: true.
-	
+
 	value := self newObjectWithSlots: 0.
 
 	machineSimulator temporaryRegisterValue: value.
@@ -2856,8 +2937,9 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutable
 
 	"Should arrive to trampoline to put the object in the remembered set"
 	self runFrom: cogInitialAddress until: immutableTrampoline.
-	
-	self assert: machineSimulator receiverRegisterValue equals: bytecodePC
+
+	self assert: machineSimulator receiverRegisterValue equals: bytecodePC.
+	self assert: machineSimulator smalltalkStackPointerValue equals: value
 ]
 
 { #category : #tests }

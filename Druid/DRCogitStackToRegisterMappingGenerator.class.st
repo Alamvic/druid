@@ -34,15 +34,14 @@ DRCogitStackToRegisterMappingGenerator >> generatePreambleForCFG: aDRControlFlow
 DRCogitStackToRegisterMappingGenerator >> generateRegisterAllocationFor: aDRResult inVariable: temporaryVariableNode [
 
 	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
-	generatorMethodBuilder addStatement: (RBAssignmentNode
-			 variable: temporaryVariableNode copy
-			 value: (RBMessageNode
-					  receiver: RBVariableNode selfNode
-					  selector: #allocateRegNotConflictingWith:ifNone:
-					  arguments: {
-							  (RBVariableNode named: 'live').
-							  (RBVariableNode named: '[ ^ self unknownBytecode ]') })).
-	self saveRegisterLiveMask: temporaryVariableNode
+	generatorMethodBuilder addStatement:
+		(RBAssignmentNode variable: temporaryVariableNode copy value: (RBMessageNode
+				  receiver: RBVariableNode selfNode
+				  selector: #allocateRegNotConflictingWith:ifNone:
+				  arguments: {
+						  (RBVariableNode named: 'live').
+						  (RBVariableNode named: '[ ^ self unknownBytecode ]') })).
+	generatorMethodBuilder addStatement: (self saveRegisterLiveMask: temporaryVariableNode)
 ]
 
 { #category : #helpers }
@@ -87,14 +86,16 @@ DRCogitStackToRegisterMappingGenerator >> preProcessBlock: aBasicBlock [
 { #category : #helpers }
 DRCogitStackToRegisterMappingGenerator >> saveRegisterLiveMask: temporaryVariableNode [
 
-	generatorMethodBuilder addStatement:
-		(RBAssignmentNode variable: (RBVariableNode named: 'live') value: (RBMessageNode
-				  receiver: (RBVariableNode named: 'live')
-				  selector: #bitOr:
-				  arguments: { (RBMessageNode
-						   receiver: RBVariableNode selfNode
-						   selector: #registerMaskFor:
-						   arguments: { temporaryVariableNode copy }) }))
+	^ RBAssignmentNode
+		  variable: (RBVariableNode named: 'live')
+		  value:
+			  (RBMessageNode 
+					receiver: (RBVariableNode named: 'live') 
+					selector: #bitOr: 
+					arguments: { (RBMessageNode
+					    receiver: RBVariableNode selfNode
+					    selector: #registerMaskFor:
+					    arguments: { temporaryVariableNode copy }) })
 ]
 
 { #category : #visiting }
@@ -110,40 +111,35 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreation [
 	"Create full closure intrinsic uses ReceiverResultReg, SendNumArgsReg and ClassReg."
 
-	| copy |
 	"Save registers live"
-	self flag: #TODO. "Validate that the register was not already taken"
-	self saveRegisterLiveMask: (RBVariableNode named:
-			 DRPhysicalGeneralPurposeRegister receiverResultReg name).
-	self saveRegisterLiveMask: (RBVariableNode named:
-			 DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
-	self saveRegisterLiveMask:
-		(RBVariableNode named:
-			 DRPhysicalGeneralPurposeRegister classReg name).
+	| liveInit |
+	liveInit := generatorMethodBuilder statements
+		                 detect: [ :statement | statement isAssignment and: [ statement variable name = 'live' ] ]
+		                 ifNone: [ self error: 'Missing variable #live initialization!' ].
+	generatorMethodBuilder after: liveInit addStatement:
+		(self saveRegisterLiveMask: (RBVariableNode named: DRPhysicalGeneralPurposeRegister receiverResultReg name)).
+	generatorMethodBuilder after: liveInit addStatement:
+		(self saveRegisterLiveMask: (RBVariableNode named: DRPhysicalGeneralPurposeRegister sendNumArgsReg name)).
+	generatorMethodBuilder after: liveInit addStatement:
+		(self saveRegisterLiveMask: (RBVariableNode named: DRPhysicalGeneralPurposeRegister classReg name)).
 
 	"Free ReceiverResultReg value"
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: #voidReceiverResultRegContainsSelf).
+	generatorMethodBuilder addStatement:
+		(RBMessageNode receiver: RBVariableNode selfNode selector: #voidReceiverResultRegContainsSelf).
 
 	"Allocate registers for call the trampoline"
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: #ssAllocateCallReg:and:and:
-			 arguments: {
-					 (RBVariableNode named:
-						  DRPhysicalGeneralPurposeRegister receiverResultReg name).
-					 (RBVariableNode named:
-						  DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
-					 (RBVariableNode named:
-						  DRPhysicalGeneralPurposeRegister classReg name) }).
+	generatorMethodBuilder addStatement:
+		(RBMessageNode receiver: RBVariableNode selfNode selector: #ssAllocateCallReg:and:and: arguments: {
+				 (RBVariableNode named: DRPhysicalGeneralPurposeRegister receiverResultReg name).
+				 (RBVariableNode named: DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
+				 (RBVariableNode named: DRPhysicalGeneralPurposeRegister classReg name) }).
 
+	"Create the Closure (saved in ReceiverResultReg)"
 	super visitClosureCreation: aDRClosureCreation.
-	self freeRegisterLiveMask: (RBVariableNode named:
-			 DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
-	self freeRegisterLiveMask:
-		(RBVariableNode named:
-			 DRPhysicalGeneralPurposeRegister classReg name)
+
+	"Free auxiliar registers"
+	self freeRegisterLiveMask: (RBVariableNode named: DRPhysicalGeneralPurposeRegister sendNumArgsReg name).
+	self freeRegisterLiveMask: (RBVariableNode named: DRPhysicalGeneralPurposeRegister classReg name)
 ]
 
 { #category : #visiting }

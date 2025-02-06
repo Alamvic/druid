@@ -324,6 +324,28 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtPut [
 		equals: (memory integerObjectOf: 42)
 ]
 
+{ #category : #'tests-object-modify' }
+DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtPutImmutable [
+
+	| class array |
+	self timeLimit: (Duration minutes: 5).
+	cogit ceStoreCheckTrampoline: fakeTrampoline.
+
+	self compileDruidPrimitive: #primitiveAtPut.
+
+	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
+	array := memory instantiateClass: class indexableSize: 1.
+
+	memory setIsImmutableOf: array to: true.
+
+
+	self executeUntilStopPrimitiveWithReceiver: array withArguments: {
+			(memory integerObjectOf: 1).
+			(memory integerObjectOf: 42) }.
+
+	self assert: (memory fetchPointer: 0 ofObject: array) equals: memory nilObject
+]
+
 { #category : #'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClass [
 

@@ -58,11 +58,11 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass [
 { #category : #'instance creation' }
 DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass: aSuperclass [
 
-	^ self generateDruidJITModelOn: targetClass superclass: aSuperclass compilerOptions: #()
+	^ self generateDruidJITModelOn: targetClass superclass: aSuperclass metacompilerOptions: #()
 ]
 
 { #category : #'instance creation' }
-DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass: aSuperclass compilerOptions: options [
+DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass: aSuperclass metacompilerOptions: options [
 
 	| primitives bytecodes |
 	primitives := #( #primitiveAdd #primitiveSubtract #primitiveMultiply
@@ -161,7 +161,6 @@ DRInterpreterToCompiler class >> generateDruidJITModelOn: targetClass superclass
 			251 252 253
 	).
 
-
 	(self fromInterpreterClass: CogVMSimulatorLSB)
 		doFailOnFirst;
 		selectPrimitives: [ :e | primitives includes: e selector ];
@@ -179,7 +178,7 @@ DRInterpreterToCompiler class >> generateDruidStaticTypePredictionJITModel [
 	self
 		generateDruidJITModelOn: DruidStaticTypePredictionJIT
 		superclass: StackToRegisterMappingCogit
-		compilerOptions: #( staticTypePrediction )
+		metacompilerOptions: #( staticTypePrediction )
 ]
 
 { #category : #'instance creation' }
@@ -189,7 +188,7 @@ DRInterpreterToCompiler class >> generateDruidSuperInstructionsJITModel [
 	self
 		generateDruidJITModelOn: DruidSuperInstructionsJIT
 		superclass: StackToRegisterMappingCogit
-		compilerOptions: #( superInstructions )
+		metacompilerOptions: #( superInstructions )
 ]
 
 { #category : #'instance creation' }
@@ -208,7 +207,7 @@ DRInterpreterToCompiler class >> generateSimpleDruidStaticTypePredictionJITModel
 	self
 		generateDruidJITModelOn: SimpleDruidStaticTypePredictionJIT
 		superclass: SimpleStackBasedCogit
-		compilerOptions: #( staticTypePrediction )
+		metacompilerOptions: #( staticTypePrediction )
 ]
 
 { #category : #'accessing - bytecodes' }
@@ -574,9 +573,17 @@ DRInterpreterToCompiler >> newBytecodes: bytecodeMethod [
 DRInterpreterToCompiler >> newInterpreter [
 	" Answer an <AbstractInterpreter|StackInterpreter> from the receiver's interpreter builder "
 
+	| options |
 	memory := self newMemory.
 	memory lastHash: 1. "Setup seed for hash related primitives"
 	memory ensureMemoryMap.
+
+	options := Cogit asOptionsDictionary: {
+           #IMMUTABILITY. true.
+           #bytecodeTableInitializer. #initializeBytecodeTableForSistaV1.
+           #ObjectMemory. memory class name }.
+
+	interpreterClass initializeWithOptions: options.
 
 	^ interpreterClass basicNew
 		  objectMemory: memory;

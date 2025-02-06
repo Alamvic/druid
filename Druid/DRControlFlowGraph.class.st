@@ -615,6 +615,13 @@ DRControlFlowGraph >> isDeadBranch: aDRBasicBlock to: aDRBasicBlock2 [
 		  e isDead ]
 ]
 
+{ #category : #testing }
+DRControlFlowGraph >> isMapped [
+
+	self instructionsDo: [ :i | (i isCall and: [ i isMapped ]) ifTrue: [ ^ true ] ].
+	^ false
+]
+
 { #category : #accessing }
 DRControlFlowGraph >> lastBasicBlock [
 
