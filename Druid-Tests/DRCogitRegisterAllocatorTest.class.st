@@ -600,6 +600,37 @@ DRCogitRegisterAllocatorTest >> testSecondArgumentUsedButNotFirst [
 ]
 
 { #category : #tests }
+DRCogitRegisterAllocatorTest >> testStackDependeciesReuseRegister [
+
+	| cfg firstRegister secondRegister r0 r1 r2 phi push |
+	
+	cfg := self setUpCFGWithConditional.
+
+	r0 := cfg b1 loadStackValueAt: 0.
+	cfg b1 endInstruction replaceOperandAtIndex: 1 by: r0.
+
+	r1 := cfg b2 copy: DRInterpreterReference trueObject.
+	r1 markAsStaged.
+
+	r2 := cfg b3 copy: DRInterpreterReference falseObject.
+	r2 markAsStaged.
+
+	phi := cfg b4 phiWith: r1 with: r2. 
+	push := cfg b4 push: phi.
+	push stackDependencies: { r0 }. "!!!"
+	cfg b4 endInstruction: (DRContinueNextBytecode result: DRNoRegister new).
+
+
+	firstRegister := DRPhysicalGeneralPurposeRegister name: 'PR1'.
+	secondRegister := DRPhysicalGeneralPurposeRegister name: 'PR2'.
+	DRCogitLinearScanRegisterAllocator new
+		integerRegisters: { firstRegister. secondRegister	 };
+		allocateRegistersIn: cfg.
+
+	self assert: r0 result equals: phi result
+]
+
+{ #category : #tests }
 DRCogitRegisterAllocatorTest >> testStagedInstructionAllocatesStagedRegister [
 
 	| cfg basicBlock firstRegister secondRegister |

@@ -80,6 +80,12 @@ DRInterpreterReference class >> integerExpression: aReference [
 	^ (self reference: aReference) type: (DRUnsignedIntegerType size: 8)
 ]
 
+{ #category : #accessing }
+DRInterpreterReference class >> methodObj [
+
+	^ self objectReference: 'methodObj'
+]
+
 { #category : #factory }
 DRInterpreterReference class >> nilObject [
 

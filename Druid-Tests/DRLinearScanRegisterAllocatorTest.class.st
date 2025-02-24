@@ -250,9 +250,7 @@ DRLinearScanRegisterAllocatorTest >> testDoNotInsertCopyForStagedNonMovableConst
 	cfg := DRControlFlowGraph new.
 
 	topBasicBlock := cfg newBasicBlockWith: [ :block |
-		                 r0 := block copy:
-			                       (DRInterpreterReference objectReference:
-				                        'methodObj').
+		                 r0 := block copy: DRInterpreterReference methodObj.
 		                 r1 := (block copy: 2) markAsStaged.
 		                 r2 := block add: r0 to: r1 ].
 	cfg initialBasicBlock jumpTo: topBasicBlock.
@@ -272,9 +270,7 @@ DRLinearScanRegisterAllocatorTest >> testDoNotInsertCopyForStagedNonMovableConst
 	cfg := DRControlFlowGraph new.
 
 	topBasicBlock := cfg newBasicBlockWith: [ :block |
-		                 r0 := block copy:
-			                       (DRInterpreterReference objectReference:
-				                        'methodObj').
+		                 r0 := block copy: DRInterpreterReference methodObj.
 		                 r1 := (block copy: 2) markAsStaged.
 		                 r2 := block add: r1 to: r0 ].
 	cfg initialBasicBlock jumpTo: topBasicBlock.
@@ -283,7 +279,7 @@ DRLinearScanRegisterAllocatorTest >> testDoNotInsertCopyForStagedNonMovableConst
 
 	firstGeneratedCopy := topBasicBlock instructions allButLast last.
 	self assert: firstGeneratedCopy isAdd.
-	
+
 	"Here we don't have the choice: when transforming to 2AC the first operand should be extracted in a copy"
 	self assert: firstGeneratedCopy operand1 isCopy.
 	self assert: firstGeneratedCopy operand1 operand1 isStaged

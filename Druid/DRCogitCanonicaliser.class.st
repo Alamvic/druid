@@ -116,10 +116,11 @@ DRCogitCanonicaliser >> visitBitXor: aDRBitXor [
 
 { #category : #visiting }
 DRCogitCanonicaliser >> visitBranchIfCondition: aDRConditionalBranch [
+	"Tail duplicate branches on (optimizable) phis"
 
 	aDRConditionalBranch operands
 		detect: [ :op | op isPhiFunction and: [ op operands size > 1 ] ]
-		ifFound: [ :thePhi |
+		ifFound: [ :thePhi | "Improve the condition over the phi for better optimization"
 			(thePhi operands allSatisfy: [ :op | op isSetConditionCode or: [ op isJITCompileTimeExpression ] ])
 				ifTrue: [ thePhi basicBlock tailDuplicate ] ]
 ]
@@ -190,9 +191,12 @@ DRCogitCanonicaliser >> visitFlushStack: aDRFlushStack [
 ]
 
 { #category : #visiting }
-DRCogitCanonicaliser >> visitGetConditionCode: aDRGetConditionCode [ 
-	
-	"Nothing"
+DRCogitCanonicaliser >> visitGetConditionCode: aDRGetConditionCode [
+
+	"Force collapse of conditional branches users - trying to clean this instruction"
+	aDRGetConditionCode users
+		select: [ :u | u isConditionalBranch ]
+		thenDo: [ :branch | DRBranchCollapse new applyToBlock: branch basicBlock ]
 ]
 
 { #category : #visiting }

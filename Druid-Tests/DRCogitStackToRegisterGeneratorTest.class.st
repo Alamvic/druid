@@ -27,7 +27,7 @@ DRCogitStackToRegisterGeneratorTest >> testGenerateMoveConstant [
 
 	| cfg r1 generatedASTInstruction |
 	cfg := DRControlFlowGraph new.
-	r1 := cfg initialBasicBlock copy: DRInterpreterReference nilObject.
+	r1 := cfg initialBasicBlock copy: DRInterpreterReference methodObj.
 	DRStager new applyTo: cfg.
 	self generateCogitForInstruction: r1.
 	generatedASTInstruction := self statements last.
@@ -35,7 +35,7 @@ DRCogitStackToRegisterGeneratorTest >> testGenerateMoveConstant [
 	self assert: generatedASTInstruction selector equals: #genMoveConstant:R:.
 	self
 		assert: generatedASTInstruction arguments first name
-		equals: 'objectMemory nilObject'
+		equals: #methodObj
 ]
 
 { #category : #tests }
