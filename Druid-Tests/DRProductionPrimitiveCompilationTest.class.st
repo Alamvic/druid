@@ -36,7 +36,7 @@ DRProductionPrimitiveCompilationTest >> setUp [
 	cogit computeFullBlockEntryOffsets.
 	methodBuilder buildMethod.
 	finishCodeAddress := self
-		                   generateCogMethod: [ finishEndInstruction := cogit RetN: 0 ]
+		                   generateCogClosure: [ finishEndInstruction := cogit RetN: 0 ]
 		                   selector: memory nilObject. 
 ]
 
