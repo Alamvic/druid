@@ -1,10 +1,12 @@
 Class {
-	#name : #DRSSAPREConstantLinearCFGTest,
-	#superclass : #DRSSAPRETest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRSSAPREConstantLinearCFGTest',
+	#superclass : 'DRSSAPRETest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPREConstantLinearCFGTest >> testFullRedundancyCaseWith3ConstExpressInSingleBlock [
 	"case B: full redundancy
 	T1 = 3
@@ -30,7 +32,7 @@ DRSSAPREConstantLinearCFGTest >> testFullRedundancyCaseWith3ConstExpressInSingle
 	self assert: cfg b1 third operand1 equals: instruction1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPREConstantLinearCFGTest >> testFullRedundancyCaseWithAlternateConstExpressInLinearCF [
 	"case C: full redundancy linear CF with alternate instructions
 		T1 = e → T2 = e2 → T3 = e → T4= e2"
@@ -49,7 +51,7 @@ DRSSAPREConstantLinearCFGTest >> testFullRedundancyCaseWithAlternateConstExpress
 	self assert: cfg b3 first operand1 equals: instruction1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPREConstantLinearCFGTest >> testFullRedundancyCaseWithConstantInSingleBlock [
 	"case B: full redundancy
 	T1 = 3
@@ -71,7 +73,7 @@ DRSSAPREConstantLinearCFGTest >> testFullRedundancyCaseWithConstantInSingleBlock
 	self assert: cfg b1 second operand1 equals: instruction1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPREConstantLinearCFGTest >> testFullRedundancyCaseWithMultipleConstExpressInLinearCF [
 	"case C: full redundancy linear CF with multiple instructions
 	T1 = e
@@ -102,7 +104,7 @@ DRSSAPREConstantLinearCFGTest >> testFullRedundancyCaseWithMultipleConstExpressI
 	self assert: cfg b2 second operand1 equals: instruction2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPREConstantLinearCFGTest >> testFullRedundancyCaseWithSingleConstExpressInLinearCF [
 	"case C: full redundancy linear CF with single instruction
 	T1 = e → T2 = e
@@ -122,7 +124,7 @@ DRSSAPREConstantLinearCFGTest >> testFullRedundancyCaseWithSingleConstExpressInL
 	self assert: cfg b2 first operand1 equals: instruction1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPREConstantLinearCFGTest >> testNoRedundancyCaseWithConstantInDiffBlock [
 	"case A: no redundancy
 	T1 = 3
@@ -145,7 +147,7 @@ DRSSAPREConstantLinearCFGTest >> testNoRedundancyCaseWithConstantInDiffBlock [
 	self assert: cfg b2 first operand1 value equals: 2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPREConstantLinearCFGTest >> testPartialRedundancyWithSameConstExpressInConditionCF [
 	" T1 = e → T2 = e    →  T4 = e
          	\→ T3 = p  /

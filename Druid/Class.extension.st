@@ -1,6 +1,6 @@
-Extension { #name : #Class }
+Extension { #name : 'Class' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 Class >> asDRType [
 
 	^ DRClassType for: self

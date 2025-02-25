@@ -1,22 +1,24 @@
 Class {
-	#name : #DRInterpreterCompilationUnitTest,
-	#superclass : #TestCase,
-	#category : #'Druid-Tests-CompilerBuilder'
+	#name : 'DRInterpreterCompilationUnitTest',
+	#superclass : 'TestCase',
+	#category : 'Druid-Tests-CompilerBuilder',
+	#package : 'Druid-Tests',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #configuration }
+{ #category : 'configuration' }
 DRInterpreterCompilationUnitTest >> bytecodeMethod [
 
 	^ DruidTestInterpreter >> #bytecodeWithNoFrameInstVarRefAnnotation
 ]
 
-{ #category : #configuration }
+{ #category : 'configuration' }
 DRInterpreterCompilationUnitTest >> bytecodeMethodWithDescriptors [
 
 	^ StackInterpreter >> #returnTopFromMethod
 ]
 
-{ #category : #compiling }
+{ #category : 'compiling' }
 DRInterpreterCompilationUnitTest >> compile: compilationUnit [
 
 	| compiler |
@@ -26,7 +28,7 @@ DRInterpreterCompilationUnitTest >> compile: compilationUnit [
 	compilationUnit compileUsing: compiler
 ]
 
-{ #category : #compiling }
+{ #category : 'compiling' }
 DRInterpreterCompilationUnitTest >> compiler [
 
 	^ (DRInterpreterToCompiler fromInterpreterClass: DruidTestInterpreter)
@@ -34,7 +36,7 @@ DRInterpreterCompilationUnitTest >> compiler [
 		  yourself
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRInterpreterCompilationUnitTest >> newEmptyCompilationUnit [
 
 	^ DRInterpreterCompilationUnit new
@@ -42,19 +44,19 @@ DRInterpreterCompilationUnitTest >> newEmptyCompilationUnit [
 		  yourself
 ]
 
-{ #category : #'object access' }
+{ #category : 'object access' }
 DRInterpreterCompilationUnitTest >> primitiveMethod [
 
 	^ InterpreterPrimitives >> #primitiveAdd
 ]
 
-{ #category : #'object access' }
+{ #category : 'object access' }
 DRInterpreterCompilationUnitTest >> targetClass [
 
 	^ DruidTestRTLCompilerForTest
 ]
 
-{ #category : #'tests - bytecodes' }
+{ #category : 'tests - bytecodes' }
 DRInterpreterCompilationUnitTest >> testBytecodeCompilation [
 
 	| compilationUnit bytecodes |
@@ -77,7 +79,7 @@ DRInterpreterCompilationUnitTest >> testBytecodeCompilation [
 	self targetClass bytecodeTable do: [ :e | self assert: (self targetClass canUnderstand: e fourth) ]
 ]
 
-{ #category : #'tests - bytecodes' }
+{ #category : 'tests - bytecodes' }
 DRInterpreterCompilationUnitTest >> testBytecodesCompilationWithAnnotatedDescriptors [
 
 	| compilationUnit bytecodes |
@@ -101,7 +103,7 @@ DRInterpreterCompilationUnitTest >> testBytecodesCompilationWithAnnotatedDescrip
 		self assert: (self targetClass canUnderstand: e fourth) ]
 ]
 
-{ #category : #'tests - bytecodes' }
+{ #category : 'tests - bytecodes' }
 DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 
 	| compilationUnit bytecodes |
@@ -130,7 +132,7 @@ DRInterpreterCompilationUnitTest >> testManyBytecodesCompilation [
 	self targetClass bytecodeTable do: [ :e | self assert: (self targetClass canUnderstand: e fourth) ]
 ]
 
-{ #category : #'tests - primitives' }
+{ #category : 'tests - primitives' }
 DRInterpreterCompilationUnitTest >> testManyPrimitivesCompilation [
 
 	| compilationUnit |
@@ -169,7 +171,7 @@ DRInterpreterCompilationUnitTest >> testManyPrimitivesCompilation [
 	self assert: (self targetClass canUnderstand: #gen_PrimitiveAdd)
 ]
 
-{ #category : #'tests - primitives' }
+{ #category : 'tests - primitives' }
 DRInterpreterCompilationUnitTest >> testMaycallbackPrimitiveCompilation [
 
 	| compilationUnit |
@@ -191,7 +193,7 @@ DRInterpreterCompilationUnitTest >> testMaycallbackPrimitiveCompilation [
 	self assert: (self targetClass canUnderstand: #gen_PrimitiveAdd)
 ]
 
-{ #category : #'tests - bytecodes' }
+{ #category : 'tests - bytecodes' }
 DRInterpreterCompilationUnitTest >> testNotSupportedBytecodeCompilation [
 
 	| compilationUnit |
@@ -211,7 +213,7 @@ DRInterpreterCompilationUnitTest >> testNotSupportedBytecodeCompilation [
 		equals: { #( 1 0 0 #unknownBytecode ) }
 ]
 
-{ #category : #'tests - primitives' }
+{ #category : 'tests - primitives' }
 DRInterpreterCompilationUnitTest >> testNotSupportedPrimitiveCompilation [
 
 	| compilationUnit |
@@ -230,7 +232,7 @@ DRInterpreterCompilationUnitTest >> testNotSupportedPrimitiveCompilation [
 		equals: { #( 7 #genNonImplementedPrimitive -1 ) }
 ]
 
-{ #category : #'tests - primitives' }
+{ #category : 'tests - primitives' }
 DRInterpreterCompilationUnitTest >> testPrimitiveCompilation [
 
 	| compilationUnit |
@@ -251,7 +253,7 @@ DRInterpreterCompilationUnitTest >> testPrimitiveCompilation [
 	self assert: (self targetClass canUnderstand: #gen_PrimitiveAdd)
 ]
 
-{ #category : #'tests - bytecodes' }
+{ #category : 'tests - bytecodes' }
 DRInterpreterCompilationUnitTest >> testSingleBytecodesCompilation [
 
 	| compilationUnit |

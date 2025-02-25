@@ -1,65 +1,67 @@
 Class {
-	#name : #DRSSARegister,
-	#superclass : #DRRegister,
+	#name : 'DRSSARegister',
+	#superclass : 'DRRegister',
 	#instVars : [
 		'physicalRegister'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRSSARegister >> asJitCompileTimeExpression [
 	
 	^ self prettyPrint
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRSSARegister >> hasId: anId [
 
 	^ name = anId
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSSARegister >> id [
 	^ name
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRSSARegister >> isRegister [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRSSARegister >> isSSARegister [
 	
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRSSARegister >> isValue [
 
 	^ false
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSSARegister >> name [
 	^ 'ssa_', name asString
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSSARegister >> physicalRegister: anObject [
 
 	physicalRegister := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSSARegister >> prettyPrint [
 
 	^ 't', name asString
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSSARegister >> printOn: aStream [
 
 	aStream
@@ -69,14 +71,14 @@ DRSSARegister >> printOn: aStream [
 		nextPutAll: ')'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSSARegister >> result [
 
 	physicalRegister ifNotNil: [ ^ physicalRegister ].
 	^ self
 ]
 
-{ #category : #'cogit-generation' }
+{ #category : 'cogit-generation' }
 DRSSARegister >> rtlOperandQualifier [
 	
 	"If we are using a temporary register,
@@ -84,7 +86,7 @@ DRSSARegister >> rtlOperandQualifier [
 	^ 'Cq:'
 ]
 
-{ #category : #type }
+{ #category : 'type' }
 DRSSARegister >> type [
 	"Maybe this should be parametrised"
 

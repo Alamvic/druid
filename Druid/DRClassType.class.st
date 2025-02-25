@@ -1,13 +1,15 @@
 Class {
-	#name : #DRClassType,
-	#superclass : #DRTopType,
+	#name : 'DRClassType',
+	#superclass : 'DRTopType',
 	#instVars : [
 		'classType'
 	],
-	#category : #'Druid-IR-Types'
+	#category : 'Druid-IR-Types',
+	#package : 'Druid',
+	#tag : 'IR-Types'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRClassType class >> for: aClass [
 
 	| type |
@@ -16,85 +18,85 @@ DRClassType class >> for: aClass [
 	^ type
 ]
 
-{ #category : #comparing }
+{ #category : 'comparing' }
 DRClassType >> = aType [
 
 	^ (self species = aType species) and: [ classType = aType classType ]
 ]
 
-{ #category : #lookup }
+{ #category : 'lookup' }
 DRClassType >> astForSelector: aSelector [ 
 	^ (classType lookupSelector: aSelector) ast
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRClassType >> binding [
 
 	^ classType binding
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRClassType >> classType [
 
 	^ classType
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRClassType >> classType: aClass [
 
 	classType := aClass
 ]
 
-{ #category : #comparing }
+{ #category : 'comparing' }
 DRClassType >> hash [
 
 	^ self species hash bitXor: classType hash
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRClassType >> isClassType [
 	
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRClassType >> isGlobalVariable [
 
 	^ false
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRClassType >> lookupClass [
 	
 	^ classType
 ]
 
-{ #category : #lookup }
+{ #category : 'lookup' }
 DRClassType >> lookupSelector: aString [ 
 
 	^ classType lookupSelector: aString 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRClassType >> name [
 
 	^ classType name
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRClassType >> printOn: aStream [
 
 	super printOn: aStream.
 	aStream << '(' << classType name << ')'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRClassType >> systemClass [
 
 	^ classType 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRClassType >> typeName [
 
 	^ classType name

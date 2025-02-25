@@ -1,6 +1,6 @@
 Class {
-	#name : #DRBasicBlock,
-	#superclass : #Object,
+	#name : 'DRBasicBlock',
+	#superclass : 'Object',
 	#instVars : [
 		'id',
 		'phiFunctions',
@@ -11,10 +11,12 @@ Class {
 		'controlFlowGraph',
 		'isExitBlock'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock class >> id: anInteger [ 
 	
 	^ self new
@@ -22,7 +24,7 @@ DRBasicBlock class >> id: anInteger [
 		yourself
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> add: anInstruction after: anotherInstruction [
 
 	anInstruction basicBlock: self.
@@ -31,7 +33,7 @@ DRBasicBlock >> add: anInstruction after: anotherInstruction [
 		after: anotherInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> add: anInstruction before: anotherInstruction [
 
 	anInstruction basicBlock: self.
@@ -42,13 +44,13 @@ DRBasicBlock >> add: anInstruction before: anotherInstruction [
 		before: anotherInstruction
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> add: aValue to: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory add: aValue to: anotherValue)
 ]
 
-{ #category : #'control-flow' }
+{ #category : 'control-flow' }
 DRBasicBlock >> addBetween: sourceBlock and: targetBlock [
 
 	sourceBlock replaceSuccessor: targetBlock by: self.
@@ -58,7 +60,7 @@ DRBasicBlock >> addBetween: sourceBlock and: targetBlock [
 	self controlFlowGraph fixBackJumps
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> addInstruction: anInstruction [
 
 	(self instructions includes: anInstruction) ifTrue: [ ^ self ].
@@ -68,7 +70,7 @@ DRBasicBlock >> addInstruction: anInstruction [
 	^ (self collectionOf: anInstruction) add: anInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> addInstructionFirst: anInstruction [
 
 	(self instructions includes: anInstruction) ifTrue: [ ^ self ].
@@ -80,7 +82,7 @@ DRBasicBlock >> addInstructionFirst: anInstruction [
 		  ifFalse: [ instructions addFirst: anInstruction ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> addPredecessor: aBasicBlock [
 
 	predecessors add: aBasicBlock.
@@ -88,25 +90,25 @@ DRBasicBlock >> addPredecessor: aBasicBlock [
 		phi operands size < self predecessors size ifTrue: [ phi addOperand ] ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> allInstructions [
 	
 	^ instructions , { endInstruction  }
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> and: aValue with: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory and: aValue with: anotherValue)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> anyMask: aValue with: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory anyMask: aValue with: anotherValue)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> backJumpPredecessors [
 
 	| result |
@@ -119,7 +121,7 @@ DRBasicBlock >> backJumpPredecessors [
 	^ result
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> backJumpTo: aDRBasicBlock [ 
 
 	^ (self jumpTo: aDRBasicBlock)
@@ -127,7 +129,7 @@ DRBasicBlock >> backJumpTo: aDRBasicBlock [
 		yourself
 ]
 
-{ #category : #transformations }
+{ #category : 'transformations' }
 DRBasicBlock >> basicDuplicate [
 
 	^ DRBlockDuplicator new
@@ -135,51 +137,51 @@ DRBasicBlock >> basicDuplicate [
 		  basicDuplicateBlock: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> basicEndInstruction: aDRInstruction [
 
 	aDRInstruction basicBlock: self.
 	^ endInstruction := aDRInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> basicEndInstructionRemovingUsers: aDRInstruction [
 
 	endInstruction ifNotNil: [ endInstruction operands do: [ :o | o removeUser: endInstruction ] ].
 	^ self basicEndInstruction: aDRInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> basicRemovePredecessor: aDRBasicBlock [ 
 	
 	predecessors remove: aDRBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> beExitBlock [
 
 	isExitBlock := true
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> bitAnd: aValue with: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory bitAnd: aValue with: anotherValue)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> bitOr: aValue with: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory bitOr: aValue with: anotherValue)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> bitXor: aValue with: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory bitXor: aValue with: anotherValue)
 ]
 
-{ #category : #'control-flow' }
+{ #category : 'control-flow' }
 DRBasicBlock >> breakBy: instruction [
 
 	"For avoid duplicate instructions on branches, this method create two predecessors chain from this basic block. Then move: 
@@ -209,7 +211,7 @@ DRBasicBlock >> breakBy: instruction [
 		  self }
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRBasicBlock >> breakCriticalEdgeToPredecessor: predecessor [
 
 	| splitBlock |
@@ -221,7 +223,7 @@ DRBasicBlock >> breakCriticalEdgeToPredecessor: predecessor [
 	^ splitBlock
 ]
 
-{ #category : #asserting }
+{ #category : 'asserting' }
 DRBasicBlock >> canBeLinearizedBefore: aDRBasicBlock [
 
 	self = aDRBasicBlock ifTrue: [ ^ true ].
@@ -239,7 +241,7 @@ DRBasicBlock >> canBeLinearizedBefore: aDRBasicBlock [
 	^ true
 ]
 
-{ #category : #validating }
+{ #category : 'validating' }
 DRBasicBlock >> checkLivenessOf: operand [
 
 	"Check if the value exists within this branch of execution"
@@ -248,7 +250,7 @@ DRBasicBlock >> checkLivenessOf: operand [
 	^ self isDominatedBy: operand basicBlock
 ]
 
-{ #category : #instructions }
+{ #category : 'instructions' }
 DRBasicBlock >> cleanInstructions [
 
 	"
@@ -260,7 +262,7 @@ DRBasicBlock >> cleanInstructions [
 		i operands asSet do: [ :op | op removeUser: i ] ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> collectionOf: aDRInstruction [
 
 	^ aDRInstruction isPhiFunction
@@ -268,25 +270,25 @@ DRBasicBlock >> collectionOf: aDRInstruction [
 		  ifFalse: [ instructions ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> controlFlowGraph [
 
 	^ controlFlowGraph
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> controlFlowGraph: anObject [
 
 	controlFlowGraph := anObject
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> copy: aValue [
 	
 	^ self addInstruction: (self instructionFactory copy: aValue)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> detectOperandForIteratedSuccessorPhiFrom: possibleOperands [
 
 	possibleOperands isEmpty ifTrue: [ ^ DRNullValue new ].
@@ -299,7 +301,7 @@ DRBasicBlock >> detectOperandForIteratedSuccessorPhiFrom: possibleOperands [
 					   thenCollect: [ :phi | phi operands ]) flattened ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> distanceToPredecessor: predecessorBlock [ 
 
 	"Number of blocks between self and the argument"
@@ -312,32 +314,32 @@ DRBasicBlock >> distanceToPredecessor: predecessorBlock [
 
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> divide: aValue by: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory divide: aValue by: anotherValue)
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> dominanceFronter [
 
 	^ controlFlowGraph tree dominanceFrontierOf: self
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> dominatedBlocks [
 	"Return a collection of all the blocks that are dominated (transitively) by the block given as argument"
 
 	^ (controlFlowGraph dominatorTree allChildrenOf: self) asSet
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> dominator [
 
 	^ self controlFlowGraph dominatorTree immediateDominatorOf: self
 ]
 
-{ #category : #'control-flow' }
+{ #category : 'control-flow' }
 DRBasicBlock >> duplicatePredecessor: existingPredecessor from: newPredecessor [
 	
 	"Add newPredecessor as predecessor, make sure all Phi functions in this block get a new value.
@@ -351,13 +353,13 @@ DRBasicBlock >> duplicatePredecessor: existingPredecessor from: newPredecessor [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> endInstruction [
 
 	^ endInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> endInstruction: aDRInstruction [ 
 
 	"Set the argument as my end instruction.
@@ -375,13 +377,13 @@ DRBasicBlock >> endInstruction: aDRInstruction [
 	^ aDRInstruction
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> equals: operand1 to: operand2 [ 
 	
 	^ self addInstruction: (self instructionFactory equals: operand1 to: operand2)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> first [
 	
 	instructions ifEmpty: [ ^ endInstruction ].
@@ -389,62 +391,62 @@ DRBasicBlock >> first [
 	^ instructions first
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> firstInstruction [
 	
 	^ self instructions first
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> floatFromBits: aValue [
 	
 	^ self addInstruction: (self instructionFactory floatFromBits: aValue)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> flushStack [
 
 	^ self addInstruction: self instructionFactory flushStack
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> flushStackExceptTop: n [
 
 	^ self addInstruction: (self instructionFactory flushStackExceptTop: n)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> forwardPredecessors [
 	
 	"Ignore predecessors coming from backjumps"
 	^ predecessors reject: [ :e | e endInstruction isBackJumpTo: self ]
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> frameReturn: aDRValue [
 
 	^ self addInstruction: (self instructionFactory frameReturn: aDRValue)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> frameReturns [
 
 	^ self instructions select: [ :i | i isFrameReturn ]
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> greater: operand1 than: operand2 [
 	
 	^ self addInstruction: (self instructionFactory greater: operand1 than: operand2)
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBasicBlock >> hasFinalInstruction [
 
 	^ endInstruction notNil and: [ endInstruction isNoop not ]
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> hasFrontier: aBlock [
 
 	| frontier |
@@ -452,38 +454,38 @@ DRBasicBlock >> hasFrontier: aBlock [
 	^ frontier includes: aBlock
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBasicBlock >> hasIncomingBackjumps [
 	
 	^ self predecessors anySatisfy: [ :p |
 		p lastInstruction isBackJumpTo: self ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBasicBlock >> hasPhiFunctions [
 
 	^ phiFunctions isNotEmpty
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBasicBlock >> hasPredecessor: aDRBasicBlock [ 
 	
 	^ predecessors includes: aDRBasicBlock
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBasicBlock >> hasPredecessors [
 	
 	^ predecessors notEmpty
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> hasSuccessors [
 	
 	^ self successors notEmpty
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> hyperblock [
 
 	| workingQueue visited visitsToThisBlockSoFar blocks |
@@ -524,49 +526,49 @@ DRBasicBlock >> hyperblock [
 	^ DRHyperBlock blocks: blocks
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> id [
 
 	^ id
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> id: anObject [
 
 	id := anObject
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> immediatelyDominatedBlocks [
 	"Return a collection of all the blocks that are immediately dominated by the block given as argument"
 
 	^ (controlFlowGraph dominatorTree childrenOf: self) asSet
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> immediatelyPostDominatedBlocks [
 	"Return a collection of all the blocks that are immediately post dominated by the block given as argument"
 
 	^ (controlFlowGraph postDominatorTree childrenOf: self) asSet
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> includesInstruction: anInstruction [ 
 	^ instructions includes: anInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> indexOfInstruction: anInstruction [ 
 	^ self instructions indexOf: anInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> indexOfPredecessor: aDRBasicBlock [ 
 	
 	^ predecessors indexOf: aDRBasicBlock
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRBasicBlock >> initialize [
 	super initialize.	
 	phiFunctions := OrderedCollection new.
@@ -578,7 +580,7 @@ DRBasicBlock >> initialize [
 	endInstruction basicBlock: self.
 ]
 
-{ #category : #splitting }
+{ #category : 'splitting' }
 DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicatedInstructions withFrontier: frontier withUsers: users [
 
 	| nextFrontier phis |
@@ -611,7 +613,7 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 		  withUsers: users
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: instructionsToRename withFrontier: frontier withUsers: users dominatedBlocks: dominatedBlocks [
 
 	| nextFrontier phis newNamesPerBlock |
@@ -663,7 +665,7 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: instruct
 		  dominatedBlocks: dominatedBlocks
 ]
 
-{ #category : #inspection }
+{ #category : 'inspection' }
 DRBasicBlock >> inspectionInstructions: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Instructions'> 
 	
@@ -673,7 +675,7 @@ DRBasicBlock >> inspectionInstructions: aBuilder [
 		yourself
 ]
 
-{ #category : #inspection }
+{ #category : 'inspection' }
 DRBasicBlock >> inspectionSourceCode [
 	<inspectorPresentationOrder: 30 title: 'Source code'>
 
@@ -688,7 +690,7 @@ DRBasicBlock >> inspectionSourceCode [
 		yourself
 ]
 
-{ #category : #'enumerating instructions' }
+{ #category : 'enumerating instructions' }
 DRBasicBlock >> instructionAfter: anInstruction [
 	
 	"Phi functions are always at the beginning of the block and they are conceptually executed all at the same time
@@ -704,7 +706,7 @@ DRBasicBlock >> instructionAfter: anInstruction [
 	^ instructions after: anInstruction
 ]
 
-{ #category : #'enumerating instructions' }
+{ #category : 'enumerating instructions' }
 DRBasicBlock >> instructionBefore: anInstruction [
 
 	anInstruction isPhiFunction ifTrue: [ 
@@ -724,13 +726,13 @@ DRBasicBlock >> instructionBefore: anInstruction [
 	^ instructions before: anInstruction
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> instructionFactory [
 	
 	^ controlFlowGraph instructionFactory
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> instructions [
 
 	| allInstructions |
@@ -739,7 +741,7 @@ DRBasicBlock >> instructions [
 	^ allInstructions
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRBasicBlock >> instructionsDo: aFullBlockClosure [
 
 	phiFunctions copy do: aFullBlockClosure.
@@ -747,31 +749,31 @@ DRBasicBlock >> instructionsDo: aFullBlockClosure [
 	endInstruction ifNotNil: [ aFullBlockClosure value: endInstruction ]
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> intToFloat: aValue [
 	
 	^ self addInstruction: (self instructionFactory intToFloat: aValue)
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> isDominatedBy: dominatorBlock [
 
 	^ controlFlowGraph dominatorTree isDominator: dominatorBlock of: self
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> isDominatorOf: basicBlocks [
 	
 	^ basicBlocks allSatisfy: [ :b | b isDominatedBy: self ]
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> isDominatorOfAllOf: basicBlocks [
 	
 	^ basicBlocks allSatisfy: [ :b | b isDominatedBy: self ]
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> isDominatorOfExactly: basicBlocks [
 	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
 	This checks transitive domination"
@@ -779,25 +781,25 @@ DRBasicBlock >> isDominatorOfExactly: basicBlocks [
 	^ self dominatedBlocks = basicBlocks asSet
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBasicBlock >> isEmptyBasicBlock [
 
 	^ endInstruction isNoop and: [ self instructions allButLast isEmpty ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> isExitBlock [
 
 	^ false
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> isExitBlock: anObject [
 
 	isExitBlock := anObject
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> isImmediateDominatorOfExactly: basicBlocks [
 	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
 	This checks direct domination"
@@ -805,7 +807,7 @@ DRBasicBlock >> isImmediateDominatorOfExactly: basicBlocks [
 	^ self immediatelyDominatedBlocks = basicBlocks asSet
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> isImmediatePostDominatorOfExactly: basicBlocks [
 	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
 	This checks direct domination"
@@ -813,25 +815,25 @@ DRBasicBlock >> isImmediatePostDominatorOfExactly: basicBlocks [
 	^ self immediatelyPostDominatedBlocks = basicBlocks asSet
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBasicBlock >> isInitialBlock [
 
 	^ self = self controlFlowGraph initialBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> isLastBasicBlock [ 
 
 	^  controlFlowGraph lastBasicBlock = self
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> isPostDominatedBy: dominatorBlock [
 
 	^ controlFlowGraph postDominatorTree isDominator: dominatorBlock of: self
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> isPostDominatorOfExactly: basicBlocks [
 	"Return true if the blocks in the argument are the only post-dominated blocks of the receiver.
 	This checks transitive domination"
@@ -839,19 +841,19 @@ DRBasicBlock >> isPostDominatorOfExactly: basicBlocks [
 	^ self postDominatedBlocks = basicBlocks asSet
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> jitCompileTimeVariable: aName [
 
 	^ self instructionFactory jitCompileTimeVariable: aName
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> jumpIf: aCondition [
 	
 	^ self endInstruction: (self instructionFactory jumpIf: aCondition)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> jumpIf: condition to: trueTarget ifFalseTo: falseTarget [
 	" Used for removing an existing edge that jumps to the target block,
 	 for being able to relink to the target block with a new desired jump "
@@ -868,7 +870,7 @@ DRBasicBlock >> jumpIf: condition to: trueTarget ifFalseTo: falseTarget [
 	^ branch
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 
 	^ self
@@ -877,7 +879,7 @@ DRBasicBlock >> jumpIfTrueTo: aDRBasicBlock ifFalseTo: aDRBasicBlock2 [
 		  ifFalseTo: aDRBasicBlock2
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> jumpTo: aBasicBlock [
 
 	self endInstruction: (DRJump new target: aBasicBlock).
@@ -886,69 +888,69 @@ DRBasicBlock >> jumpTo: aBasicBlock [
 	^ endInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> lastInstruction [
 	
 	^ endInstruction
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> lessOrEquals: operand1 than: operand2 [
 	
 	^ self addInstruction: (self instructionFactory lessOrEquals: operand1 than: operand2)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> load: anAddress [
 
 	^ self addInstruction: (self instructionFactory load: anAddress)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> loadArgument: index [
 
 	^ self addInstruction: (self instructionFactory loadArgument: index)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> loadFramePointer [
 
 	^ self addInstruction: self instructionFactory loadFramePointer
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> loadReceiver [
 
 	^ self addInstruction: self instructionFactory loadReceiver
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> loadSInt64: operand [
 	
 	^ self addInstruction: (self instructionFactory loadSInt64: operand)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> loadStackTop [
 
 	^ self addInstruction: self instructionFactory loadStackTop
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> loadStackValueAt: anInteger [
 
 	^ self addInstruction:
 		  (self instructionFactory loadStackValueAt: anInteger)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock [
 
 	self jumpIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock.
 	loopBodyBlock backJumpTo: self
 ]
 
-{ #category : #splitting }
+{ #category : 'splitting' }
 DRBasicBlock >> mergeInstructionsWithDuplicatedBlock: duplicatedBlock withSuccessors: successors usingUsers: getUsersBlock dominatedBlocks: dominatedBlocks [
 
 	| nextFrontier |
@@ -968,31 +970,31 @@ DRBasicBlock >> mergeInstructionsWithDuplicatedBlock: duplicatedBlock withSucces
 				dominatedBlocks: dominatedBlocks ]
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> messageSend: selector withOperands: operands [
 
 	^ self addInstruction: (self instructionFactory messageSend: selector withOperands: operands)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> methodNode [
 	
 	^ (self instructions select: [ :i | i originAST notNil ] thenCollect: [ :i | i originAST methodNode ]) anyOne
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> modulo: aValue by: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory modulo: aValue by: anotherValue)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> multiply: aValue by: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory multiply: aValue by: anotherValue)
 ]
 
-{ #category : #'control-flow' }
+{ #category : 'control-flow' }
 DRBasicBlock >> newEmptyPredecessor [
 
 	| newBlock |
@@ -1008,7 +1010,7 @@ DRBasicBlock >> newEmptyPredecessor [
 	^ newBlock
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> newEmptySuccessors [
 	"Create new block for each successor and insert it in between"
 
@@ -1022,50 +1024,50 @@ DRBasicBlock >> newEmptySuccessors [
 		newBlock ].
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> newPhi [
 
 	"Explain what it does"
 	^ self phiWithVariables: #(  )
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> numberOfForwardPredecessors [
 	
 	"Ignore predecessors coming from backjumps"
 	^ predecessors count: [ :e | (e endInstruction isBackJumpTo: self) not ]
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> or: aValue with: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory or: aValue with: anotherValue)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> origin: aCollection [ 
 	origin := aCollection
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> phiFunctions [
 	
 	^ phiFunctions
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> phiWith: aValue [
 
 	^ self phiWithVariables: { aValue }
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> phiWith: aValue with: aValue2 [
 
 	^ self phiWithVariables: { aValue. aValue2 }
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> phiWithVariables: variables [
 
 	| finalVariables allPosibleVariables phi |
@@ -1086,25 +1088,25 @@ DRBasicBlock >> phiWithVariables: variables [
 	^ self addInstruction: phi
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> pop [
 	
 	^ self pop: 1 unspilled: false
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> pop: anInteger unspilled: aBoolean [
 	
 	^ self addInstruction: (self instructionFactory pop: anInteger unspilled: aBoolean)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> popUnspilled [
 	
 	^ self pop: 1 unspilled: true
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRBasicBlock >> postDominatedBlocks [
 	"Return true if the blocks in the argument are the only dominated blocks of the receiver.
 	This checks transitive domination"
@@ -1112,7 +1114,7 @@ DRBasicBlock >> postDominatedBlocks [
 	^ (controlFlowGraph postDominatorTree allChildrenOf: self) asSet
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> predecessor [
 	
 	| predecessors |
@@ -1121,18 +1123,18 @@ DRBasicBlock >> predecessor [
 	^ predecessors first
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> predecessorAt: index [
 	
 	^ predecessors at: index
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> predecessors [
 	^ predecessors
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRBasicBlock >> printOn: aStream [
 
 	aStream nextPutAll: 'DRBasicBlock('.
@@ -1150,19 +1152,19 @@ DRBasicBlock >> printOn: aStream [
 	aStream nextPutAll: ')'
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> push: operand [
 	
 	^ self addInstruction: (self instructionFactory push: operand)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> pushBase: base offset: offset [
 	
 	^ self addInstruction: (self instructionFactory pushBase: base offset: offset)
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRBasicBlock >> recursivePredecessors [
 
 	| recursivePredecessors |
@@ -1171,13 +1173,13 @@ DRBasicBlock >> recursivePredecessors [
 	^ recursivePredecessors
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRBasicBlock >> recursivePredecessorsDo: aBlock [
 
 	self recursivePredecessorsDo: aBlock visited: {  }
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRBasicBlock >> recursivePredecessorsDo: aBlock visited: alreadyVisited [
 
 	(alreadyVisited includes: self) ifTrue: [ ^ self ].
@@ -1186,7 +1188,7 @@ DRBasicBlock >> recursivePredecessorsDo: aBlock visited: alreadyVisited [
 		b recursivePredecessorsDo: aBlock visited: { self } , alreadyVisited ]
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRBasicBlock >> recursiveSuccessors [
 
 	| recursiveSuccessors |
@@ -1195,13 +1197,13 @@ DRBasicBlock >> recursiveSuccessors [
 	^ recursiveSuccessors
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRBasicBlock >> recursiveSuccessorsDo: aBlock [
 
 	self recursiveSuccessorsDo: aBlock visited: {  }
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRBasicBlock >> recursiveSuccessorsDo: aBlock visited: alreadyVisited [
 
 	(alreadyVisited includes: self) ifTrue: [ ^ self ].
@@ -1210,21 +1212,21 @@ DRBasicBlock >> recursiveSuccessorsDo: aBlock visited: alreadyVisited [
 		b recursiveSuccessorsDo: aBlock visited: { self } , alreadyVisited ]
 ]
 
-{ #category : #'control-flow' }
+{ #category : 'control-flow' }
 DRBasicBlock >> removeFromCFG [
 
 	self cleanInstructions.
 	controlFlowGraph removeBasicBlock: self
 ]
 
-{ #category : #'control-flow' }
+{ #category : 'control-flow' }
 DRBasicBlock >> removeFromCFGAndDisconnectSuccessors [
 
 	self successors copy do: [ :succ | succ removePredecessor: self ].
 	self removeFromCFG
 ]
 
-{ #category : #instructions }
+{ #category : 'instructions' }
 DRBasicBlock >> removeInstruction: aDRInstruction [
 
 	endInstruction = aDRInstruction ifTrue: [ 
@@ -1235,7 +1237,7 @@ DRBasicBlock >> removeInstruction: aDRInstruction [
 		ifFalse: [ instructions remove: aDRInstruction ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> removePredecessor: aDRBasicBlock [ 
 	
 	| index |
@@ -1243,7 +1245,7 @@ DRBasicBlock >> removePredecessor: aDRBasicBlock [
 	self removePredecessorAt: index
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> removePredecessorAt: index [ 
 	
 	self instructionsDo: [ :e |
@@ -1252,13 +1254,13 @@ DRBasicBlock >> removePredecessorAt: index [
 	self basicRemovePredecessor: (predecessors at: index)
 ]
 
-{ #category : #instructions }
+{ #category : 'instructions' }
 DRBasicBlock >> replace: anInstruction by: aReplacementInstruction [
 	
 	self replaceInstruction: anInstruction by: aReplacementInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [
 
 	anotherInstruction basicBlock = self ifTrue: [ 
@@ -1290,54 +1292,54 @@ DRBasicBlock >> replaceInstruction: anInstruction by: anotherInstruction [
 	endInstruction := anotherInstruction
 ]
 
-{ #category : #'control-flow' }
+{ #category : 'control-flow' }
 DRBasicBlock >> replacePredecessor: aDRBasicBlock by: aDRBasicBlock2 [ 
 	
 	predecessors replaceAll: aDRBasicBlock with: aDRBasicBlock2
 ]
 
-{ #category : #'control-flow' }
+{ #category : 'control-flow' }
 DRBasicBlock >> replaceSuccessor: aDRBasicBlock by: aDRBasicBlock2 [ 
 	
 	endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock2
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> return [
 
 	^ self endInstruction: DRReturn new
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> return: anInstruction [ 
 	^ self endInstruction: (DRReturn operands: { anInstruction } )
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> rotateLeft: aValue by: offset [
 	
 	^ self addInstruction: (self instructionFactory rotateLeft: aValue by: offset)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> second [
 	
 	^ self allInstructions second
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> setReturnValue: anInteger [
 	
 	^ self addInstruction: (self instructionFactory setReturnValue: anInteger)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> source [
 	
 	^ self methodNode source
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> sourceInterval [
 	
 	| nodes |
@@ -1345,7 +1347,7 @@ DRBasicBlock >> sourceInterval [
 	^ nodes first start to: nodes last stop
 ]
 
-{ #category : #splitting }
+{ #category : 'splitting' }
 DRBasicBlock >> splitTo: predecessorToRewire [
 
 	| duplicatedBlock newSuccessors allDominatedBlocks |
@@ -1380,31 +1382,31 @@ DRBasicBlock >> splitTo: predecessorToRewire [
 	^ duplicatedBlock
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> storeSInt64: operand at: address [
 
 	^ self addInstruction: (self instructionFactory storeSInt64: operand at: address)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> strongCopyForInlining: aValue [
 	
 	^ self addInstruction: (self instructionFactory strongCopyForInlining: aValue)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> sub: aValue from: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory sub: aValue from: anotherValue)
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBasicBlock >> subtract: aValue from: anotherValue [
 	
 	^ self addInstruction: (self instructionFactory subtract: aValue from: anotherValue)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> successor [
 	
 	| successors |
@@ -1413,13 +1415,13 @@ DRBasicBlock >> successor [
 	^ successors first
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> successors [
 	
 	^ endInstruction targets
 ]
 
-{ #category : #transformations }
+{ #category : 'transformations' }
 DRBasicBlock >> tailDuplicate [
 	"Duplicate the receiver so there is a different copy of it for each predecessor"
 
@@ -1436,13 +1438,13 @@ DRBasicBlock >> tailDuplicate [
 	^ { self } , duplicatedBlocks
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBasicBlock >> third [
 	
 	^ self allInstructions third
 ]
 
-{ #category : #validating }
+{ #category : 'validating' }
 DRBasicBlock >> validate [
 
 	self validatePhiFunctions.
@@ -1451,7 +1453,7 @@ DRBasicBlock >> validate [
 	self validateInstructions
 ]
 
-{ #category : #validating }
+{ #category : 'validating' }
 DRBasicBlock >> validateInstructions [
 
 	(self instructions allSatisfy: [ :i | i basicBlock = self ]) 
@@ -1460,7 +1462,7 @@ DRBasicBlock >> validateInstructions [
 	self instructionsDo: [ :instruction | instruction validate ]
 ]
 
-{ #category : #validating }
+{ #category : 'validating' }
 DRBasicBlock >> validatePhiFunctions [
 
 	self phiFunctions do: [ :e |
@@ -1485,7 +1487,7 @@ DRBasicBlock >> validatePhiFunctions [
 							 or: [ e hasRecursiveUse ] ]) ] ] ]
 ]
 
-{ #category : #validating }
+{ #category : 'validating' }
 DRBasicBlock >> validatePredecessors [
 	
 	self predecessors do: [ :p |
@@ -1493,7 +1495,7 @@ DRBasicBlock >> validatePredecessors [
 			ifFalse: [ self error: 'Predecessor not pointing to me' ] ]
 ]
 
-{ #category : #validating }
+{ #category : 'validating' }
 DRBasicBlock >> validateSuccessors [
 	
 	self successors do: [ :s |
@@ -1501,7 +1503,7 @@ DRBasicBlock >> validateSuccessors [
 			ifFalse: [ self error: 'Successor not pointing to me' ] ]
 ]
 
-{ #category : #copying }
+{ #category : 'copying' }
 DRBasicBlock >> veryDeepCopyWith: deepCopier [
 	deepCopier references at: origin ifAbsentPut: [nil].
 	^ super veryDeepCopyWith: deepCopier

@@ -1,22 +1,24 @@
 Class {
-	#name : #DRStackEffect,
-	#superclass : #DRStackInstruction,
-	#category : #'Druid-BytecodeToJITCompilation'
+	#name : 'DRStackEffect',
+	#superclass : 'DRStackInstruction',
+	#category : 'Druid-BytecodeToJITCompilation',
+	#package : 'Druid',
+	#tag : 'BytecodeToJITCompilation'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStackEffect >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStackEffect >> isStackEffect [
 
 	^ true
 ]
 
-{ #category : #removing }
+{ #category : 'removing' }
 DRStackEffect >> removeFromCFG [
 	"I'm a pop. If I'm removed, all my dependents should shift up by one their stack accesses"
 

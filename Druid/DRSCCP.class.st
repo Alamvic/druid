@@ -25,8 +25,8 @@ The CFGEdges are modelled by the DREdge objects.
 The SSAEdges are modelled by the instruction itself, because Druid IR is in SSA form. 
 "
 Class {
-	#name : #DRSCCP,
-	#superclass : #DRControlFlowOptimisation,
+	#name : 'DRSCCP',
+	#superclass : 'DRControlFlowOptimisation',
 	#instVars : [
 		'latticeValues',
 		'edges',
@@ -35,10 +35,12 @@ Class {
 		'cfgEdgeWorkList',
 		'edgesByDestination'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> addJumpToCFGWorklist: aDRJump [
 
 	"Add to the edge work list the edge corresponding to this jump instruction"
@@ -47,7 +49,7 @@ DRSCCP >> addJumpToCFGWorklist: aDRJump [
 			  e destination = aDRJump target ] ])
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> addToEdgeCFGWorklistConditionalJump: aDRJump targetting: aBasicBlock [
 
 	"Add to the edge work list the edge corresponding to this jump instruction"
@@ -59,7 +61,7 @@ DRSCCP >> addToEdgeCFGWorklistConditionalJump: aDRJump targetting: aBasicBlock [
 	cfgEdgeWorkList add: edge
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> applyPropagation [
 
 	instancecfg instructions copy do: [ :i |
@@ -67,7 +69,7 @@ DRSCCP >> applyPropagation [
 		self applyPropagationToInstruction: i ]
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> applyPropagationToInstruction: i [
 
 	"Replace the operands of instructions by their propagated values on non phi functions"
@@ -77,13 +79,13 @@ DRSCCP >> applyPropagationToInstruction: i [
 
 ]
 
-{ #category : #lattice }
+{ #category : 'lattice' }
 DRSCCP >> bottom [
 
 	^ 'Bot'
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRSCCP >> buildEdges: cfg [
 
 	| list workList currentBlock edge done |
@@ -112,14 +114,14 @@ DRSCCP >> buildEdges: cfg [
 	^ list
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRSCCP >> canBeAppliedIn: aDRControlFlowGraph [
 
 	^ aDRControlFlowGraph instructions anySatisfy: [ :i | 
 		  i isConditionalBranch or: [ self isConstantLattice: (self latticeValue: i) ] ]
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> doApply: cfg [
 
 	self setupWithCFG: cfg.
@@ -127,13 +129,13 @@ DRSCCP >> doApply: cfg [
 	self applyPropagation.
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> evaluateInstruction: instruction [
 
 	instruction sccpEvaluateFor: self
 ]
 
-{ #category : #querying }
+{ #category : 'querying' }
 DRSCCP >> executedEdgesEntering: aBlock [
 
 	| theEdgesOfThisDestination |
@@ -142,7 +144,7 @@ DRSCCP >> executedEdgesEntering: aBlock [
 	^ theEdgesOfThisDestination select: [ :e | e isExecuted ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRSCCP >> initialize [
 
 	super initialize.
@@ -154,7 +156,7 @@ DRSCCP >> initialize [
 	edgesByDestination := Dictionary new
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> initializeLattice [
 
 	[ cfgEdgeWorkList isEmpty and: [ ssaWorkList isEmpty ] ] whileFalse: [
@@ -162,7 +164,7 @@ DRSCCP >> initializeLattice [
 		self stepInstructionWorklist ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRSCCP >> initializeSCCPWithCFG: cfg [
 
 	self initialize.
@@ -175,7 +177,7 @@ DRSCCP >> initializeSCCPWithCFG: cfg [
 	cfgEdgeWorkList addAll: (edges select: [ :edge | edge source = cfg initialBasicBlock ])
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> isConstantLattice: aLattice [
 
 	| nonConstants |
@@ -183,14 +185,14 @@ DRSCCP >> isConstantLattice: aLattice [
 	^ (nonConstants includes: aLattice) not
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRSCCP >> latticeForLoad: aDRLoad [ 
 	
 	"We know a load has no compile time value"
 	^ self bottom
 ]
 
-{ #category : #lattice }
+{ #category : 'lattice' }
 DRSCCP >> latticeValue: aValue [
 	"Return the lattice value for the register"
 
@@ -204,7 +206,7 @@ DRSCCP >> latticeValue: aValue [
 	^ latticeValues at: aValue ifAbsent: [ self top ]
 ]
 
-{ #category : #lattice }
+{ #category : 'lattice' }
 DRSCCP >> latticeValueOfPhiFunction: phiFunction [
 
 	| values |
@@ -222,7 +224,7 @@ DRSCCP >> latticeValueOfPhiFunction: phiFunction [
 	^ self bottom
 ]
 
-{ #category : #lattice }
+{ #category : 'lattice' }
 DRSCCP >> sccpLatticeValueFor: instruction latticeOperand1: operand1 latticeOperand2: operand2 [
 
 	((({ self top. self bottom } includes: operand1) not
@@ -240,7 +242,7 @@ DRSCCP >> sccpLatticeValueFor: instruction latticeOperand1: operand1 latticeOper
 	^ self top
 ]
 
-{ #category : #lattice }
+{ #category : 'lattice' }
 DRSCCP >> setValueOf: anInstruction at: aValue [
 
 	"Set the new lattice value associated with the instruction.
@@ -249,7 +251,7 @@ DRSCCP >> setValueOf: anInstruction at: aValue [
 	ssaWorkList addAll: (self usesOf: anInstruction)
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> setupWithCFG: cfg [
 
 	self initializeSCCPWithCFG: cfg.
@@ -257,7 +259,7 @@ DRSCCP >> setupWithCFG: cfg [
 	self initializeLattice
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> stepCFGEdgeWorklist [
 
 	"Each basic block is visited only once.
@@ -282,7 +284,7 @@ DRSCCP >> stepCFGEdgeWorklist [
 		self evaluateInstruction: instruction ]
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> stepInstructionWorklist [
 
 	| currentInstruction workingBlock |
@@ -294,13 +296,13 @@ DRSCCP >> stepInstructionWorklist [
 		self evaluateInstruction: currentInstruction ]
 ]
 
-{ #category : #lattice }
+{ #category : 'lattice' }
 DRSCCP >> top [
 
 	^ 'Top'
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> tryReplaceConditionalJump: i [
 
 	| constantTarget removedTarget conditionLattice |
@@ -328,7 +330,7 @@ DRSCCP >> tryReplaceConditionalJump: i [
 	i replaceBy: (DRJump new target: constantTarget)
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 
 	| lattice replacement |
@@ -353,7 +355,7 @@ DRSCCP >> tryReplaceInstructionByFoldedValue: i [
 	i replaceBy: replacement
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRSCCP >> tryReplaceInstructionOperands: i [
 
 	i supportConstantOperand ifFalse: [ ^ self ].
@@ -366,7 +368,7 @@ DRSCCP >> tryReplaceInstructionOperands: i [
 			i replaceOperand: (i operands at: index) by: lattice asDRValue ] ]
 ]
 
-{ #category : #querying }
+{ #category : 'querying' }
 DRSCCP >> usesOf: anInstruction [
 
 	| ret |

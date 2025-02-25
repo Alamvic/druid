@@ -1,61 +1,63 @@
 Class {
-	#name : #DRLoadArgument,
-	#superclass : #DRInstruction,
+	#name : 'DRLoadArgument',
+	#superclass : 'DRInstruction',
 	#instVars : [
 		'argName'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRLoadArgument >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitLoadArgument: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoadArgument >> argName [
 
 	^ argName ifNil: [ 'arg' , self argNum asString ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoadArgument >> argName: selector [
 
 	argName := selector
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoadArgument >> argNum [
 
 	^ self operand1 value
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRLoadArgument >> isLoadArgument [
 
 	^ true
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRLoadArgument >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRLoadArgument >> opcode [
 	
 	^ 'LoadArg'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRLoadArgument >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoadArgument >> type [
 	
 	^ classType ifNil: [DRUndefinedType new]

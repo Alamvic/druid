@@ -1,10 +1,11 @@
 Class {
-	#name : #DRJITCompileTimeExpressionGenerator,
-	#superclass : #Object,
-	#category : #Druid
+	#name : 'DRJITCompileTimeExpressionGenerator',
+	#superclass : 'Object',
+	#category : 'Druid',
+	#package : 'Druid'
 }
 
-{ #category : #building }
+{ #category : 'building' }
 DRJITCompileTimeExpressionGenerator >> binaryMessage: aSymbol receiverInstruction: operand1 argumentInstruction: operand2 [
 
 	| receiver argument |
@@ -17,7 +18,7 @@ DRJITCompileTimeExpressionGenerator >> binaryMessage: aSymbol receiverInstructio
 		  arguments: { argument }
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJITCompileTimeExpressionGenerator >> operandNodeFor: aValue [
 
 	aValue isInstruction ifFalse: [ ^ aValue acceptVisitor: self ].
@@ -26,13 +27,13 @@ DRJITCompileTimeExpressionGenerator >> operandNodeFor: aValue [
 	^ aValue acceptVisitor: self
 ]
 
-{ #category : #parsing }
+{ #category : 'parsing' }
 DRJITCompileTimeExpressionGenerator >> parse: aString [
 
 	^ RBParser parseExpression: aString
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRJITCompileTimeExpressionGenerator >> simpleMessage: aSymbol receiverInstruction: aDRInstruction [
 
 	| receiver |
@@ -41,19 +42,19 @@ DRJITCompileTimeExpressionGenerator >> simpleMessage: aSymbol receiverInstructio
 	^ RBMessageNode receiver: receiver selector: aSymbol arguments: {  }
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visit: anInstruction [
 	
 	^ anInstruction acceptVisitor: self
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitAbsoluteMemoryAddress: aDRAbsoluteMemoryAddress [
 
 	^ RBVariableNode named: aDRAbsoluteMemoryAddress expression result prettyPrint
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitAddition: aDRAdd [ 
 	
 	^ self 
@@ -62,7 +63,7 @@ DRJITCompileTimeExpressionGenerator >> visitAddition: aDRAdd [
 		argumentInstruction: aDRAdd operand2
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitBaseOffsetMemoryAddress: aDRBaseOffsetMemoryAddress [
 
 	| base offset |
@@ -72,7 +73,7 @@ DRJITCompileTimeExpressionGenerator >> visitBaseOffsetMemoryAddress: aDRBaseOffs
 	^ RBMessageNode receiver: base selector: #+ arguments: { offset }
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitBitAnd: aDRBitAnd [
 
 	^ self
@@ -81,13 +82,13 @@ DRJITCompileTimeExpressionGenerator >> visitBitAnd: aDRBitAnd [
 		  argumentInstruction: aDRBitAnd operand2
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitBranchIfCondition: aDRBranchIfCondition [
 
 	^ aDRBranchIfCondition condition acceptVisitor: self withBranch: aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitConstant: aDRConstantValue [ 
 	
 	| value |
@@ -99,13 +100,13 @@ DRJITCompileTimeExpressionGenerator >> visitConstant: aDRConstantValue [
 	^ RBLiteralValueNode value: value
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitCopy: aDRCopy [ 
 	
 	^ self operandNodeFor: aDRCopy operand1
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBranchIfCondition [
 
 	aDRBranchIfCondition operands last value = true ifTrue: [
@@ -117,13 +118,13 @@ DRJITCompileTimeExpressionGenerator >> visitEqualsThan: aDREqualsThanComparison 
 		  argumentInstruction: aDRBranchIfCondition operand2
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
 	
 	^ aDRGetConditionCode condition acceptVisitor: self withBranch: aDRGetConditionCode
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [
 
 	^ self
@@ -132,25 +133,25 @@ DRJITCompileTimeExpressionGenerator >> visitGreaterThan: aDRGreaterThanCompariso
 		  argumentInstruction: aDRBranchIfCondition operand2
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitInterpreterExpression: aDRInterpreterExpression [
 
 	^ RBVariableNode named: aDRInterpreterExpression name
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitInterpreterReference: aDRInterpreterReference [ 
 
 	^ self parse: aDRInterpreterReference name
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [ 
 	
 	^ self parse: aDRJitCompileTimeExpression expression
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitLeftShift: aDRLeftShift [
 
 	^ self
@@ -159,7 +160,7 @@ DRJITCompileTimeExpressionGenerator >> visitLeftShift: aDRLeftShift [
 		  argumentInstruction: aDRLeftShift operand2
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitLoad: aDRLoad [
 
 	^ RBMessageNode
@@ -168,7 +169,7 @@ DRJITCompileTimeExpressionGenerator >> visitLoad: aDRLoad [
 		  arguments: { (aDRLoad operand1 acceptVisitor: self) }
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitMultiply: aDRMultiply [
 
 	^ self
@@ -177,25 +178,25 @@ DRJITCompileTimeExpressionGenerator >> visitMultiply: aDRMultiply [
 		  argumentInstruction: aDRMultiply operand2
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitNegate: aDRNegated [ 
 
 	^ self simpleMessage: #negated receiverInstruction: aDRNegated operand1
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitObjectReferenceValue: aDRConstantValue [ 
 	
 	^ RBVariableNode named: aDRConstantValue value reference
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitPhiFunction: aDRPhiFunction [ 
 
 	^ RBVariableNode named: aDRPhiFunction result id asString
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitSignedRightShift: aDRRightShift [
 
 	^ self
@@ -204,7 +205,7 @@ DRJITCompileTimeExpressionGenerator >> visitSignedRightShift: aDRRightShift [
 		  argumentInstruction: aDRRightShift operand2
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitStore: aDRStore [
 
 	| variable value |
@@ -214,7 +215,7 @@ DRJITCompileTimeExpressionGenerator >> visitStore: aDRStore [
 	^ RBAssignmentNode variable: variable value: value
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitSubstract: aDRSubtract [
 
 	^ self
@@ -223,7 +224,7 @@ DRJITCompileTimeExpressionGenerator >> visitSubstract: aDRSubtract [
 		  argumentInstruction: aDRSubtract operand2
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitTestMask: aDRTestMask inBranch: aDRGetConditionCode [
 
 	^ self
@@ -232,14 +233,14 @@ DRJITCompileTimeExpressionGenerator >> visitTestMask: aDRTestMask inBranch: aDRG
 		  argumentInstruction: aDRGetConditionCode operand2
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitUnsignedCoercion: aDRUnsignedCoercion [
 	"For now just return our expression?"
 
 	^ aDRUnsignedCoercion operand1 acceptVisitor: self
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitUnsignedRightShift: aDRRightShift [
 
 	^ self

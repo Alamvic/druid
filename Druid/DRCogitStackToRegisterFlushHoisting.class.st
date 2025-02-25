@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCogitStackToRegisterFlushHoisting,
-	#superclass : #DROptimisation,
-	#category : #'Druid-Cogit'
+	#name : 'DRCogitStackToRegisterFlushHoisting',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitStackToRegisterFlushHoisting >> applyTo: cfg [
 	"Insert a flush stack instruction in the common dominator of all those instructions that require stack flushing.
 	Explain why we need to hoist it."

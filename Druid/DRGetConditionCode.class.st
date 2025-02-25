@@ -1,44 +1,46 @@
 Class {
-	#name : #DRGetConditionCode,
-	#superclass : #DRInstruction,
+	#name : 'DRGetConditionCode',
+	#superclass : 'DRInstruction',
 	#instVars : [
 		'condition'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRGetConditionCode >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitGetConditionCode: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRGetConditionCode >> condition [
 	
 	^ condition
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRGetConditionCode >> isSetConditionCode [
 	
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRGetConditionCode >> opcode [
 	
 	^ condition opcode
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRGetConditionCode >> operands: operandList [
 
 	condition := operandList first value.
 	super operands: operandList allButFirst
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRGetConditionCode >> prettyPrint [
 
 	| print |
@@ -53,7 +55,7 @@ DRGetConditionCode >> prettyPrint [
 	  , (self condition prettyPrintWithBranch: self)
 ]
 
-{ #category : #reversing }
+{ #category : 'reversing' }
 DRGetConditionCode >> reversed [
 
 	^ self class
@@ -61,7 +63,7 @@ DRGetConditionCode >> reversed [
 		  result: result
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRGetConditionCode >> sccpLatticeValueFor: sccp [
 
 	| operand1 operand2 |
@@ -74,7 +76,7 @@ DRGetConditionCode >> sccpLatticeValueFor: sccp [
 		  latticeOperand2: operand2
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRGetConditionCode >> type [
 	
 	^ DRBooleanType new

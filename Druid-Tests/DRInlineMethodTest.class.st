@@ -1,10 +1,12 @@
 Class {
-	#name : #DRInlineMethodTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRInlineMethodTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRInlineMethodTest >> setUp [
 
 	super setUp.
@@ -15,7 +17,7 @@ DRInlineMethodTest >> setUp [
 	optimisation := DRInline new
 ]
 
-{ #category : #'tests - type systems' }
+{ #category : 'tests - type systems' }
 DRInlineMethodTest >> testImplementorsTypeSystem [
 
 	| cfg messageSend selector |
@@ -32,7 +34,7 @@ DRInlineMethodTest >> testImplementorsTypeSystem [
 	self assert: cfg messageSends isEmpty.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInlineMethodTest >> testInlineMethodCopiesCalleeIntoCallerMethod [
 
 	| cfg messageSend |	
@@ -43,7 +45,7 @@ DRInlineMethodTest >> testInlineMethodCopiesCalleeIntoCallerMethod [
 	self assert: cfg messageSends size equals: 2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInlineMethodTest >> testInlineMethodKeepsMessageSendFallbackAsLastBranch [
 
 	| cfg messageSend inlinedCondition inlinedMessageSend |	
@@ -56,7 +58,7 @@ DRInlineMethodTest >> testInlineMethodKeepsMessageSendFallbackAsLastBranch [
 	self assert: (inlinedCondition falseBranch successors anySatisfy: [:block | block includesInstruction: inlinedMessageSend]).
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInlineMethodTest >> testInlineMethodKeepsMessageSendIfTypeIsUnknown [
 
 	| cfg messageSend |	
@@ -68,7 +70,7 @@ DRInlineMethodTest >> testInlineMethodKeepsMessageSendIfTypeIsUnknown [
 	self assert: (cfg messageSends anySatisfy: [ :ms | ms originAST = messageSend originAST ])
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInlineMethodTest >> testInlineMethodWithMultiplePossibleTypesInlinesAllPossibleMethods [
 
 	| cfg messageSend |	
@@ -78,7 +80,7 @@ DRInlineMethodTest >> testInlineMethodWithMultiplePossibleTypesInlinesAllPossibl
 	self assert: cfg messageSends size equals: 4
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInlineMethodTest >> testInlineMethodWithNPossibleTypesMakesNMinus1TypeChecks [
 
 	| cfg |	
@@ -89,7 +91,7 @@ DRInlineMethodTest >> testInlineMethodWithNPossibleTypesMakesNMinus1TypeChecks [
 	self assert: (cfg allConditionalJumps count: [:jump | jump condition isTypeOf]) equals: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInlineMethodTest >> testMessageSendsAreNotInlinedWhenCreatingCFGForMethod [
 
 	| cfg |	
@@ -97,7 +99,7 @@ DRInlineMethodTest >> testMessageSendsAreNotInlinedWhenCreatingCFGForMethod [
 	self assert: cfg messageSends size equals: 1
 ]
 
-{ #category : #'tests - type systems' }
+{ #category : 'tests - type systems' }
 DRInlineMethodTest >> testMethodSendingIndirectClassGetToIt [
 
 	| cfg  |
@@ -110,7 +112,7 @@ DRInlineMethodTest >> testMethodSendingIndirectClassGetToIt [
 	self assert: cfg messageSends unique selector equals: #class.	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInlineMethodTest >> testNotInlineMethodWithNoTypeAnnotation [
 
 	| cfg messageSend |	
@@ -121,7 +123,7 @@ DRInlineMethodTest >> testNotInlineMethodWithNoTypeAnnotation [
 	self assert: cfg messageSends size equals: 1
 ]
 
-{ #category : #'tests - type systems' }
+{ #category : 'tests - type systems' }
 DRInlineMethodTest >> testPragmaBasedTypeSystem [
 
 	| cfg messageSend selector |
@@ -142,7 +144,7 @@ DRInlineMethodTest >> testPragmaBasedTypeSystem [
 		hasSameElements: selector
 ]
 
-{ #category : #'tests - type systems' }
+{ #category : 'tests - type systems' }
 DRInlineMethodTest >> testProfileBasedTypeSystem_empty [
 
 	| cfg messageSend selector |
@@ -161,7 +163,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_empty [
 
 ]
 
-{ #category : #'tests - type systems' }
+{ #category : 'tests - type systems' }
 DRInlineMethodTest >> testProfileBasedTypeSystem_monomorphic [
 
 	| cfg messageSend selector typeSystem |
@@ -195,7 +197,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_monomorphic [
 	self assert: cfg messageSends unique selector equals: selector
 ]
 
-{ #category : #'tests - type systems' }
+{ #category : 'tests - type systems' }
 DRInlineMethodTest >> testProfileBasedTypeSystem_polimorphic [
 
 	| cfg messageSend selector typeSystem inlinedSend |
@@ -240,7 +242,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_polimorphic [
 		equals: #methodCollectionSize:
 ]
 
-{ #category : #'tests - type systems' }
+{ #category : 'tests - type systems' }
 DRInlineMethodTest >> testUnknownTypeSystem [
 
 	| cfg messageSend selector |

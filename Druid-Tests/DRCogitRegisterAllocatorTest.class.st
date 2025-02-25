@@ -1,10 +1,11 @@
 Class {
-	#name : #DRCogitRegisterAllocatorTest,
-	#superclass : #DRIRTest,
-	#category : #'Druid-Tests'
+	#name : 'DRCogitRegisterAllocatorTest',
+	#superclass : 'DRIRTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testAllocatePhiFunction [
 
 	| cfg firstRegister specialRegister c1 b1 c2 b2 merge |
@@ -31,7 +32,7 @@ DRCogitRegisterAllocatorTest >> testAllocatePhiFunction [
 	self assert: merge instructions first result equals: merge instructions first operand2 result. 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testAllocateRegistersForDivisionIntroducesRemainder [
 
 	| cfg basicBlock firstRegister secondRegister r0 r1 r2 |
@@ -65,7 +66,7 @@ DRCogitRegisterAllocatorTest >> testAllocateRegistersForDivisionIntroducesRemain
 	self deny: r2 operand3 result equals: r2 result.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testAllocateRegistersForModuloIntroducesQuotient [
 
 	| cfg basicBlock firstRegister secondRegister r0 r1 r2 |
@@ -99,7 +100,7 @@ DRCogitRegisterAllocatorTest >> testAllocateRegistersForModuloIntroducesQuotient
 	self deny: r2 operand3 result equals: r2 result.
 ]
 
-{ #category : #'tests - spill' }
+{ #category : 'tests - spill' }
 DRCogitRegisterAllocatorTest >> testAllocateTwoSpilledPhiFunctions [
 
 	| cfg specialRegister c1 b1 c2 b2 merge c12 c22 p1 p2 |
@@ -131,7 +132,7 @@ DRCogitRegisterAllocatorTest >> testAllocateTwoSpilledPhiFunctions [
 	self assert: merge instructions fourth isLoad.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testCmpSpecialRegisterDoesNotModifyInstruction [
 
 	| cfg basicBlock firstRegister specialRegister |
@@ -164,7 +165,7 @@ DRCogitRegisterAllocatorTest >> testCmpSpecialRegisterDoesNotModifyInstruction [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testCoallesceTwoConsecutiveRanges [
 
 	| cfg basicBlock firstRegister secondRegister |
@@ -211,7 +212,7 @@ DRCogitRegisterAllocatorTest >> testCoallesceTwoConsecutiveRanges [
 	self assert: basicBlock instructions fourth result equals: firstRegister.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testCoallesceTwoOverlappingRanges [
 
 	| cfg basicBlock firstRegister secondRegister thirdRegister |
@@ -275,7 +276,7 @@ DRCogitRegisterAllocatorTest >> testCoallesceTwoOverlappingRanges [
 	"Do not assert anything on the last instruction, since all variables are not live, all registers are available"
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testCoallesceTwoOverlappingRanges2 [
 
 	| cfg basicBlock firstRegister secondRegister thirdRegister |
@@ -343,7 +344,7 @@ DRCogitRegisterAllocatorTest >> testCoallesceTwoOverlappingRanges2 [
 	"Do not assert anything on the last instruction, since all variables are not live, all registers are available"
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testFirstArgumentFarDefinitionNotUsed [
 
 	| cfg basicBlock firstRegister secondRegister |
@@ -382,7 +383,7 @@ DRCogitRegisterAllocatorTest >> testFirstArgumentFarDefinitionNotUsed [
 	self assert: basicBlock instructions third result equals: firstRegister.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testFirstArgumentIsConstant [
 
 	| cfg basicBlock firstRegister |
@@ -415,7 +416,7 @@ DRCogitRegisterAllocatorTest >> testFirstArgumentIsConstant [
 	self assert: basicBlock instructions second result equals: firstRegister.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testFirstArgumentNotUsed [
 
 	| cfg basicBlock firstRegister secondRegister |
@@ -454,7 +455,7 @@ DRCogitRegisterAllocatorTest >> testFirstArgumentNotUsed [
 	self assert: basicBlock instructions third result equals: secondRegister.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testFirstArgumentUsedCreatesCopy [
 
 	| cfg basicBlock firstRegister secondRegister thirdRegister |
@@ -518,7 +519,7 @@ DRCogitRegisterAllocatorTest >> testFirstArgumentUsedCreatesCopy [
 	self assert: ({ firstRegister . secondRegister. thirdRegister } includes: basicBlock instructions fourth result).
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testSecondArgumentIsConstant [
 
 	| cfg basicBlock firstRegister secondRegister |
@@ -553,7 +554,7 @@ DRCogitRegisterAllocatorTest >> testSecondArgumentIsConstant [
 	self assert: basicBlock instructions second result equals: firstRegister.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testSecondArgumentUsedButNotFirst [
 
 	| cfg basicBlock firstRegister secondRegister |
@@ -599,7 +600,7 @@ DRCogitRegisterAllocatorTest >> testSecondArgumentUsedButNotFirst [
 	self assert: ({ firstRegister . secondRegister } includes: basicBlock instructions fourth result).
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testStackDependeciesReuseRegister [
 
 	| cfg firstRegister secondRegister r0 r1 r2 phi push |
@@ -630,7 +631,7 @@ DRCogitRegisterAllocatorTest >> testStackDependeciesReuseRegister [
 	self assert: r0 result equals: phi result
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testStagedInstructionAllocatesStagedRegister [
 
 	| cfg basicBlock firstRegister secondRegister |
@@ -675,7 +676,7 @@ DRCogitRegisterAllocatorTest >> testStagedInstructionAllocatesStagedRegister [
 	self assert: basicBlock instructions second result isStagedRegister
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testStagedInstructionDoesNotTakePhysicalRegister [
 
 	| cfg basicBlock firstRegister secondRegister |
@@ -724,7 +725,7 @@ DRCogitRegisterAllocatorTest >> testStagedInstructionDoesNotTakePhysicalRegister
 	self assert: basicBlock instructions fourth result equals: firstRegister.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testStagedInstructionDoesNotTakePhysicalRegisterReversed [
 
 	| cfg basicBlock firstRegister secondRegister |
@@ -773,7 +774,7 @@ DRCogitRegisterAllocatorTest >> testStagedInstructionDoesNotTakePhysicalRegister
 	self assert: basicBlock instructions fourth result equals: firstRegister.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testStagedRegisterDoesNotGetOverwritten [
 
 	| cfg basicBlock stagedRegister |
@@ -801,7 +802,7 @@ DRCogitRegisterAllocatorTest >> testStagedRegisterDoesNotGetOverwritten [
 	self assert: basicBlock instructions first result equals: stagedRegister
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testStagedRegisterInStagedInstructionDoesNotGetOverwritten [
 
 	| cfg basicBlock stagedRegister |
@@ -832,7 +833,7 @@ DRCogitRegisterAllocatorTest >> testStagedRegisterInStagedInstructionDoesNotGetO
 		equals: stagedRegister
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitRegisterAllocatorTest >> testTestSpecialRegisterDoesNotModifyInstruction [
 
 	| cfg basicBlock firstRegister specialRegister |

@@ -1,40 +1,42 @@
 Class {
-	#name : #DRNoOverflow,
-	#superclass : #DRCondition,
-	#category : #'Druid-IR'
+	#name : 'DRNoOverflow',
+	#superclass : 'DRCondition',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRNoOverflow >> acceptVisitor: aVisitor withBranch: aDRBranchIfCondition [ 
 	 
 	^ aVisitor visitNoOverflow: self inBranch: aDRBranchIfCondition
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNoOverflow >> isNoMultiplyOverflow [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNoOverflow >> isNoOverflow [
 
 	^ true
 ]
 
-{ #category : #transforming }
+{ #category : 'transforming' }
 DRNoOverflow >> negated [
 	
 	^ DROverflow new
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRNoOverflow >> opcode [
 	
 	^ 'No Overflow'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRNoOverflow >> sccpEvaluateFor: sccp branch: aBranch [
 
 	"We cannot know statically if an overflow will happen.

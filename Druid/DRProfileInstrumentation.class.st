@@ -1,45 +1,47 @@
 Class {
-	#name : #DRProfileInstrumentation,
-	#superclass : #Object,
+	#name : 'DRProfileInstrumentation',
+	#superclass : 'Object',
 	#classInstVars : [
 		'default'
 	],
-	#category : #'Druid-BytecodeGeneration'
+	#category : 'Druid-BytecodeGeneration',
+	#package : 'Druid',
+	#tag : 'BytecodeGeneration'
 }
 
-{ #category : #'not instrument' }
+{ #category : 'not instrument' }
 DRProfileInstrumentation class >> class [
 	"Hack to not instrument this messages"
 
 	^ super class
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRProfileInstrumentation class >> default [
 
 	^ default ifNil: [ default := self new ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRProfileInstrumentation class >> default: anObject [
 
 	default := anObject
 ]
 
-{ #category : #'not instrument' }
+{ #category : 'not instrument' }
 DRProfileInstrumentation class >> instVarAt: index [
 	"Hack to not instrument this messages"
 
 	^ super instVarAt: index
 ]
 
-{ #category : #listener }
+{ #category : 'listener' }
 DRProfileInstrumentation class >> sendingMessageTo: anObject [
 
 	self default sendingMessageTo: anObject
 ]
 
-{ #category : #listener }
+{ #category : 'listener' }
 DRProfileInstrumentation >> sendingMessageTo: anObject [
 
 	| callerContext receiverNode |

@@ -1,10 +1,11 @@
 Class {
-	#name : #DRBytecodeScenarioCompilationTest,
-	#superclass : #DRBytecodeCompilationTest,
-	#category : #'Druid-Tests'
+	#name : 'DRBytecodeScenarioCompilationTest',
+	#superclass : 'DRBytecodeCompilationTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedPops [
 
 	self
@@ -21,7 +22,7 @@ DRBytecodeScenarioCompilationTest >> testCoallescedPops [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedPushOnBranchOne [
 
 	self
@@ -37,7 +38,7 @@ DRBytecodeScenarioCompilationTest >> testCoallescedPushOnBranchOne [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedPushOnBranchTwo [
 
 	self
@@ -53,7 +54,7 @@ DRBytecodeScenarioCompilationTest >> testCoallescedPushOnBranchTwo [
 	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedTwoPops [
 
 	self
@@ -69,7 +70,7 @@ DRBytecodeScenarioCompilationTest >> testCoallescedTwoPops [
 	self assert: machineSimulator receiverRegisterValue equals: 59
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedTwoPushesOnBranchOne [
 
 	self
@@ -85,7 +86,7 @@ DRBytecodeScenarioCompilationTest >> testCoallescedTwoPushesOnBranchOne [
 	self assert: machineSimulator receiverRegisterValue equals: 3
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedTwoPushesOnBranchTwo [
 
 	self
@@ -101,7 +102,7 @@ DRBytecodeScenarioCompilationTest >> testCoallescedTwoPushesOnBranchTwo [
 	self assert: machineSimulator receiverRegisterValue equals: 7
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testFlushStackOnBranch1 [
 
 	| mustBeBooleanTrampolineAddress |	
@@ -128,7 +129,7 @@ DRBytecodeScenarioCompilationTest >> testFlushStackOnBranch1 [
 	self assert: cogit ssTop constant equals: 0
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testFlushStackOnBranch2 [
 
 	| deoptimizeAddress |
@@ -155,7 +156,7 @@ DRBytecodeScenarioCompilationTest >> testFlushStackOnBranch2 [
 	self assert: cogit ssTop constant equals: 42
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testFlushStackThenPop [
 
 	self isSimpleStack ifTrue: [ self skip ].
@@ -175,7 +176,7 @@ DRBytecodeScenarioCompilationTest >> testFlushStackThenPop [
 	self assert: cogit ssTop constant equals: 237
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testPushTrueAndJumpFalse [
 
 	| method |
@@ -223,7 +224,7 @@ DRBytecodeScenarioCompilationTest >> testPushTrueAndJumpFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testPushTrueAndJumpTrue [
 
 	| method |
@@ -271,7 +272,7 @@ DRBytecodeScenarioCompilationTest >> testPushTrueAndJumpTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testPushTrueAndReturn [
 
 	self
@@ -285,7 +286,7 @@ DRBytecodeScenarioCompilationTest >> testPushTrueAndReturn [
 		equals: memory trueObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testSuperBytecodePrimIdenticalAndJumpFalse [
 
 	| method |
@@ -340,7 +341,7 @@ DRBytecodeScenarioCompilationTest >> testSuperBytecodePrimIdenticalAndJumpFalse 
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testSuperBytecodePrimIdenticalAndJumpFalse2 [
 
 	| method |
@@ -395,7 +396,7 @@ DRBytecodeScenarioCompilationTest >> testSuperBytecodePrimIdenticalAndJumpFalse2
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testSuperInstructionCompilation [
 
 	| compiledMethod fixupCheck returns nextBytecodeCheck |
@@ -425,7 +426,7 @@ DRBytecodeScenarioCompilationTest >> testSuperInstructionCompilation [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testUnknownBytecode [
 
 	| method deoptimizeTrampoline |

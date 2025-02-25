@@ -1,10 +1,12 @@
 Class {
-	#name : #DREqualsConstraint,
-	#superclass : #DRSimpleConstraint,
-	#category : #'Druid-IR-Paths'
+	#name : 'DREqualsConstraint',
+	#superclass : 'DRSimpleConstraint',
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DREqualsConstraint class >> withValue: aConstantValue [
 
 	| value |
@@ -18,43 +20,43 @@ DREqualsConstraint class >> withValue: aConstantValue [
 	^ super withValue: value
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DREqualsConstraint >> hasAllValuesGreaterThan: aConstantValue [
 
 	^ false
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DREqualsConstraint >> hasAllValuesLessThan: aConstantValue [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DREqualsConstraint >> hasAllValuesWithMask: aMask [
 
 	^ false "always?"
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DREqualsConstraint >> hasAllValuesWithoutMask: aMask [
 
 	^ false "always?"
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DREqualsConstraint >> hasValue: otherConstantValue [
 
 	^ constantValue = otherConstantValue
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DREqualsConstraint >> isIncludedIn: otherConstraint [
 
 	^ otherConstraint hasValue: constantValue.
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DREqualsConstraint >> negated [
 
 	^ DRNotEqualsConstraint new
@@ -62,13 +64,13 @@ DREqualsConstraint >> negated [
 		  yourself
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DREqualsConstraint >> opCode [
 
 	^ '='
 ]
 
-{ #category : #reversing }
+{ #category : 'reversing' }
 DREqualsConstraint >> reversed [
 	
 	^ self

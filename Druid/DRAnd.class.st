@@ -1,16 +1,18 @@
 Class {
-	#name : #DRAnd,
-	#superclass : #DRBooleanInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRAnd',
+	#superclass : 'DRBooleanInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRAnd >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitAnd: self
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRAnd >> asNumberedExpression [
 
 	| numberedExpression |
@@ -21,13 +23,13 @@ DRAnd >> asNumberedExpression [
 	yourself
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRAnd >> opcode [
 	
 	^ 'AND'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRAnd >> sccpLatticeValueFor: sccp [
 
 	| operand1 operand2 |
@@ -44,7 +46,7 @@ DRAnd >> sccpLatticeValueFor: sccp [
 	^ super sccpLatticeValueFor: sccp
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRAnd >> sccpOperateOnLattice: aBoolean and: anotherBoolean [
 
 	^ aBoolean and: anotherBoolean

@@ -1,10 +1,12 @@
 Class {
-	#name : #DRLoopUnrollingTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRLoopUnrollingTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRLoopUnrollingTest >> generateDruidIRFor: aSelector [
 
 	| cfg |
@@ -14,7 +16,7 @@ DRLoopUnrollingTest >> generateDruidIRFor: aSelector [
 	^ cfg
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRLoopUnrollingTest >> optimize: cfg [
 
 	cfg applyOptimisation:
@@ -22,7 +24,7 @@ DRLoopUnrollingTest >> optimize: cfg [
 			 DRCleanControlFlow new)
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRLoopUnrollingTest >> setUp [
 
 	super setUp.
@@ -30,7 +32,7 @@ DRLoopUnrollingTest >> setUp [
 	compilerCompiler irGenerator: DRPrimitiveIRGeneratorDeferredInline new.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopUnrollingTest >> testLoopUnrollingAddsRolledLoopAfterUnrolledLoopToHandleRemainingElements [
 
 	| unrollingFactor cfg loop rolledLoop rolledLoopInstructions |
@@ -48,7 +50,7 @@ DRLoopUnrollingTest >> testLoopUnrollingAddsRolledLoopAfterUnrolledLoopToHandleR
 		self assert: copy opcode equals: original opcode ]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopUnrollingTest >> testLoopUnrollingDuplicatesBodyBlock [
 
 	| unrollingFactor cfg loop |
@@ -63,7 +65,7 @@ DRLoopUnrollingTest >> testLoopUnrollingDuplicatesBodyBlock [
 	self assert: (loop bodyInstructions count: [ :i | i isAdd ]) equals: unrollingFactor
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopUnrollingTest >> testLoopUnrollingDuplicatesBodyBlockMultipleTimes [
 
 	| unrollingFactor cfg loop |
@@ -77,7 +79,7 @@ DRLoopUnrollingTest >> testLoopUnrollingDuplicatesBodyBlockMultipleTimes [
 	self assert: (loop bodyInstructions count: [ :i | i isAdd ]) equals: unrollingFactor
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopUnrollingTest >> testLoopUnrollingDuplicatesMultipleBodyBlocks [
 
 	| unrollingFactor cfg loop loopBlock |
@@ -94,7 +96,7 @@ DRLoopUnrollingTest >> testLoopUnrollingDuplicatesMultipleBodyBlocks [
 	self assert: (loop bodyInstructions count: [ :i | i isAdd ]) equals: 2 * unrollingFactor
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopUnrollingTest >> testLoopUnrollingDuplicatesMultipleBodyBlocksMultipleTimes [
 
 	| unrollingFactor cfg loop loopBlock |
@@ -111,7 +113,7 @@ DRLoopUnrollingTest >> testLoopUnrollingDuplicatesMultipleBodyBlocksMultipleTime
 	self assert: (loop bodyInstructions count: [ :i | i isAdd ]) equals: 2 * unrollingFactor
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopUnrollingTest >> testLoopUnrollingModifiesLoopConditionToPreventAdditionalIterations [
 
 	| unrollingFactor cfg loop |

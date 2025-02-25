@@ -1,46 +1,48 @@
 Class {
-	#name : #DRLoadInstanceVariable,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRLoadInstanceVariable',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRLoadInstanceVariable >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitLoadInstVar: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoadInstanceVariable >> index [
 
 	^ self originAST variable index
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRLoadInstanceVariable >> isLoadInstanceVariable [
 
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRLoadInstanceVariable >> opcode [
 	
 	^ 'LoadInstVar'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRLoadInstanceVariable >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRLoadInstanceVariable >> type [
 
 	^ DRUndefinedType new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoadInstanceVariable >> variableName [
 
 	^ self originAST name

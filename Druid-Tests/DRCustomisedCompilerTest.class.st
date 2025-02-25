@@ -1,13 +1,14 @@
 Class {
-	#name : #DRCustomisedCompilerTest,
-	#superclass : #DRDruidTest,
+	#name : 'DRCustomisedCompilerTest',
+	#superclass : 'DRDruidTest',
 	#instVars : [
 		'compiler'
 	],
-	#category : #'Druid-Tests'
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCustomisedCompilerTest >> configureCompiler: selector [
 
 	compiler
@@ -15,7 +16,7 @@ DRCustomisedCompilerTest >> configureCompiler: selector [
 		targetName: #gen_ , selector
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCustomisedCompilerTest >> druidCompile: selector [
 
 	self configureCompiler: selector.
@@ -23,7 +24,7 @@ DRCustomisedCompilerTest >> druidCompile: selector [
 	^ compiler targetMethod 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCustomisedCompilerTest >> generateDruidIRFor: selector [
 
 	| method cfg |
@@ -37,13 +38,13 @@ DRCustomisedCompilerTest >> generateDruidIRFor: selector [
 	^ cfg
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCustomisedCompilerTest >> newBytecodeCompiler [
 
 	^ self newCompiler: DRBytecodeCompilerCompiler
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCustomisedCompilerTest >> newCompiler: compilerClass [
 
 	^ compilerClass new
@@ -52,20 +53,20 @@ DRCustomisedCompilerTest >> newCompiler: compilerClass [
 		yourself
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCustomisedCompilerTest >> newPrimitiveCompiler [
 
 	^ self newCompiler: DRPrimitiveCompilerCompiler
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCustomisedCompilerTest >> setUp [
 
 	super setUp.
 	compiler := self newPrimitiveCompiler
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCustomisedCompilerTest >> testAddsPreambleToGeneratedCode [
 
 	| genMethod preambleCode |
@@ -78,7 +79,7 @@ DRCustomisedCompilerTest >> testAddsPreambleToGeneratedCode [
 		'self mclassIsSmallInteger ifFalse: [ ^ UnimplementedPrimitive ]'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCustomisedCompilerTest >> testIsMappedShouldAnnotateBytecode [
 
 	| cfg |
@@ -91,7 +92,7 @@ DRCustomisedCompilerTest >> testIsMappedShouldAnnotateBytecode [
 	self assert: cfg hasAnnotatedBytecode
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCustomisedCompilerTest >> testIsMappedWithSendShouldNotAnnotateBytecode [
 
 	| cfg |
@@ -101,7 +102,7 @@ DRCustomisedCompilerTest >> testIsMappedWithSendShouldNotAnnotateBytecode [
 	self deny: cfg hasAnnotatedBytecode
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCustomisedCompilerTest >> testRemoveIRChecks [
 
 	| cfg |

@@ -1,14 +1,15 @@
 Class {
-	#name : #DRExecutionStack,
-	#superclass : #Object,
+	#name : 'DRExecutionStack',
+	#superclass : 'Object',
 	#instVars : [
 		'stateStack',
 		'mirrorStack'
 	],
-	#category : #'Druid-Tests'
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRExecutionStack >> addTo: aDRExecutionStack [ 
 	
 	self assert: mirrorStack = aDRExecutionStack mirrorStack.
@@ -18,55 +19,55 @@ DRExecutionStack >> addTo: aDRExecutionStack [
 	]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRExecutionStack >> at: index [
 
 	^ stateStack at: index
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRExecutionStack >> baseFrame [
 	
 	^ stateStack last
 ]
 
-{ #category : #enumerating }
+{ #category : 'enumerating' }
 DRExecutionStack >> detectFrame: aFullBlockClosure [ 
 	
 	^ stateStack detect: aFullBlockClosure
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRExecutionStack >> frameAt: anInteger [ 
 	
 	^ stateStack at: anInteger
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRExecutionStack >> frameAt: index ifAbsent: aBlock [
 
 	^ stateStack at: index ifAbsent: aBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRExecutionStack >> framesDo: aBlock [
 	
 	^ stateStack do: aBlock
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRExecutionStack >> ifEmpty: aFullBlockClosure [
 
 	stateStack ifEmpty: aFullBlockClosure
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRExecutionStack >> indexOfFrame: aDRStackFrame [ 
 	
 	^ stateStack indexOf: aDRStackFrame
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRExecutionStack >> initialize [
 
 	super initialize.
@@ -74,19 +75,19 @@ DRExecutionStack >> initialize [
 	stateStack := Stack new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRExecutionStack >> mirrorStack [
 	^ mirrorStack
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRExecutionStack >> popFrame [
 	
 	mirrorStack pop.
 	^ stateStack pop
 ]
 
-{ #category : #copying }
+{ #category : 'copying' }
 DRExecutionStack >> postCopy [
 
 	super postCopy.
@@ -100,27 +101,27 @@ DRExecutionStack >> postCopy [
 	
 ]
 
-{ #category : #frames }
+{ #category : 'frames' }
 DRExecutionStack >> pushFrame: aDRStackStack [
 
 	mirrorStack push: aDRStackStack mirrorFrame.
 	stateStack push: aDRStackStack
 ]
 
-{ #category : #frames }
+{ #category : 'frames' }
 DRExecutionStack >> pushMergeFrame: aDRStackStack [
 
 	mirrorStack push: aDRStackStack mirrorFrame.
 	stateStack push: aDRStackStack
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRExecutionStack >> size [
 
 	^ stateStack size
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRExecutionStack >> topFrame [
 	
 	^ stateStack top

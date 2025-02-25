@@ -1,16 +1,18 @@
 Class {
-	#name : #DRCopyPropagationTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRCopyPropagationTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRCopyPropagationTest >> previousOptimizations [
 
 	^ { (DRPhiSimplication then: DRDeadCodeElimination) }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCopyPropagationTest >> testCopyIsNotPropagatedFromConstantToPhiFunctions [
 
 	| cfg copy phi |
@@ -24,7 +26,7 @@ DRCopyPropagationTest >> testCopyIsNotPropagatedFromConstantToPhiFunctions [
 	self assert: phi operands first equals: copy
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCopyPropagationTest >> testCopyIsNotPropagatedFromObjectReferenceToArithmeticFunctions [
 
 	| cfg copy add |
@@ -38,7 +40,7 @@ DRCopyPropagationTest >> testCopyIsNotPropagatedFromObjectReferenceToArithmeticF
 	self assert: add operands first equals: copy
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCopyPropagationTest >> testCopyIsNotPropagatedFromObjectReferenceToPhiFunctions [
 
 	| cfg copy phi |
@@ -52,7 +54,7 @@ DRCopyPropagationTest >> testCopyIsNotPropagatedFromObjectReferenceToPhiFunction
 	self assert: phi operands first equals: copy
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCopyPropagationTest >> testCopyIsPropagatedInBlockSequence [
 
 	| cfg t1 t2 b1 b2 |
@@ -67,7 +69,7 @@ DRCopyPropagationTest >> testCopyIsPropagatedInBlockSequence [
 	self assert: t2 operand equals: t1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlock [
 
 	| cfg t1 t2 t3 |
@@ -83,7 +85,7 @@ DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlock [
 	self assert: t3 operand equals: t1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlockToManyInstructions [
 
 	| cfg t1 t2 t3 |
@@ -99,7 +101,7 @@ DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlockToManyInstructions [
 	self assert: t3 operands first equals: t2 operands first
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlockWithSequencesOfUsages [
 
 	| cfg t1 t2 t3 t4 t5 |

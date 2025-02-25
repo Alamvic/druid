@@ -1,10 +1,12 @@
 Class {
-	#name : #DRPrimitiveIRGeneratorDeferredInline,
-	#superclass : #DRPrimitiveIRGenerator,
-	#category : #'Druid-CompilerCompiler'
+	#name : 'DRPrimitiveIRGeneratorDeferredInline',
+	#superclass : 'DRPrimitiveIRGenerator',
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRPrimitiveIRGeneratorDeferredInline >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
 
 	| newPrimitiveFailureCode method |

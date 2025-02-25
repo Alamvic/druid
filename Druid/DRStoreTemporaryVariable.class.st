@@ -1,52 +1,54 @@
 Class {
-	#name : #DRStoreTemporaryVariable,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRStoreTemporaryVariable',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRStoreTemporaryVariable >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitStoreTempVar: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStoreTemporaryVariable >> address [
 	
 	^ self operand1
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStoreTemporaryVariable >> isMandatoryInstruction [ 
 
 	^ true
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRStoreTemporaryVariable >> isStore [ 
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStoreTemporaryVariable >> isStoreTemporaryVariable [
 
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRStoreTemporaryVariable >> opcode [
 	
 	^ 'StoreTemp'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRStoreTemporaryVariable >> sccpLatticeValueFor: sccp [ 
 	
 	^ sccp bottom  "latticeValue: operands second"
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStoreTemporaryVariable >> variableName [
 
 	^ self operand1 value

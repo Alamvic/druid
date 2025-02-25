@@ -1,16 +1,18 @@
 Class {
-	#name : #DRCogitStackCoalescingTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRCogitStackCoalescingTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackCoalescingTest >> setUp [
 
 	optimisation := DRCogitStackCoalescing new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackCoalescingTest >> testCoalesceOneSpilledAndOneUnspilledPopInsertsUnspill [
 
 	| cfg basicBlock1 basicBlock2 mergeBlock popToUnspill popStackDepth |
@@ -34,7 +36,7 @@ DRCogitStackCoalescingTest >> testCoalesceOneSpilledAndOneUnspilledPopInsertsUns
 	self assert: basicBlock2 firstInstruction operand1 value equals: popStackDepth negated - 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackCoalescingTest >> testCoalesceOneSpilledAndOneUnspilledPopsIntoSingleUnpilledPop [
 
 	| cfg basicBlock1 basicBlock2 mergeBlock |
@@ -56,7 +58,7 @@ DRCogitStackCoalescingTest >> testCoalesceOneSpilledAndOneUnspilledPopsIntoSingl
 	self assert: mergeBlock firstInstruction isUnspilled
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackCoalescingTest >> testCoalesceOneUnspilledAndOneSpilledPopInsertsUnspill [
 
 	| cfg basicBlock1 basicBlock2 mergeBlock popToUnspill popStackDepth |
@@ -80,7 +82,7 @@ DRCogitStackCoalescingTest >> testCoalesceOneUnspilledAndOneSpilledPopInsertsUns
 	self assert: basicBlock2 firstInstruction operand1 value equals: popStackDepth negated - 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackCoalescingTest >> testCoalesceOneUnspilledAndOnespilledPopsIntoSingleUnpilledPop [
 
 	| cfg basicBlock1 basicBlock2 mergeBlock |
@@ -102,7 +104,7 @@ DRCogitStackCoalescingTest >> testCoalesceOneUnspilledAndOnespilledPopsIntoSingl
 	self assert: mergeBlock firstInstruction isUnspilled
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackCoalescingTest >> testCoalesceTwoSpilledPopsDoesNotReplaceMovedInstructions [
 
 	| cfg basicBlock1 basicBlock2 mergeBlock |
@@ -125,7 +127,7 @@ DRCogitStackCoalescingTest >> testCoalesceTwoSpilledPopsDoesNotReplaceMovedInstr
 	self assert: basicBlock2 instructions size equals: 1.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackCoalescingTest >> testCoalesceTwoSpilledPopsIntoSingleSpilledPop [
 
 	| cfg basicBlock1 basicBlock2 mergeBlock |
@@ -147,7 +149,7 @@ DRCogitStackCoalescingTest >> testCoalesceTwoSpilledPopsIntoSingleSpilledPop [
 	self deny: mergeBlock firstInstruction isUnspilled
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackCoalescingTest >> testCoalesceTwoUnspilledPopsDoesNotReplaceMovedInstructions [
 
 	| cfg basicBlock1 basicBlock2 mergeBlock |
@@ -170,7 +172,7 @@ DRCogitStackCoalescingTest >> testCoalesceTwoUnspilledPopsDoesNotReplaceMovedIns
 	self assert: basicBlock2 instructions size equals: 1.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackCoalescingTest >> testCoalesceTwoUnspilledPopsIntoSingleUnspilledPop [
 
 	| cfg basicBlock1 basicBlock2 mergeBlock |

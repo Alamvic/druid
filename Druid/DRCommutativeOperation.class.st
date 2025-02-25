@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCommutativeOperation,
-	#superclass : #DRArithmeticInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRCommutativeOperation',
+	#superclass : 'DRArithmeticInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCommutativeOperation >> hasSameExpressionAs: instruction [
 
 	self class = instruction class ifTrue: [
@@ -12,7 +14,7 @@ DRCommutativeOperation >> hasSameExpressionAs: instruction [
 	^ false
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRCommutativeOperation >> reversed [
 
 	^ self class operands: operands reversed result: result

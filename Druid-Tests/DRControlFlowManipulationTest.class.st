@@ -1,10 +1,12 @@
 Class {
-	#name : #DRControlFlowManipulationTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRControlFlowManipulationTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRControlFlowManipulationTest >> testRemoveInstructionWithDuplicatedOperandRemovesBackpointer [
 
 	| cfg r0 r1 |
@@ -18,7 +20,7 @@ DRControlFlowManipulationTest >> testRemoveInstructionWithDuplicatedOperandRemov
 	self assert: r0 users isEmpty
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRControlFlowManipulationTest >> testRemovePredecessorRemovesPhiArgument [
 
 	| cfg comingFrom1 comingFrom2 phiFunction |
@@ -37,7 +39,7 @@ DRControlFlowManipulationTest >> testRemovePredecessorRemovesPhiArgument [
 	self deny: (comingFrom1 users includes: phiFunction)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRControlFlowManipulationTest >> testRemovePredecessorWithRedundantPhiKeepsPhiOperandUser [
 
 	| cfg comingFromTop phiFunction |

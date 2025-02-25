@@ -1,19 +1,21 @@
 Class {
-	#name : #DROptimisationTest,
-	#superclass : #DRIRTest,
+	#name : 'DROptimisationTest',
+	#superclass : 'DRIRTest',
 	#instVars : [
 		'optimisation'
 	],
-	#category : #'Druid-Tests-Optimizations'
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DROptimisationTest class >> isAbstract [
 
 	^ self class == DROptimisationTest
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DROptimisationTest >> generateDruidIRFor: methodSelector [
 
 	| cfg |
@@ -22,26 +24,26 @@ DROptimisationTest >> generateDruidIRFor: methodSelector [
 	^ cfg
 ]
 
-{ #category : #optimising }
+{ #category : 'optimising' }
 DROptimisationTest >> optimisation [
 
 	^ optimisation
 ]
 
-{ #category : #optimising }
+{ #category : 'optimising' }
 DROptimisationTest >> optimisation: anObject [
 
 	optimisation := anObject
 ]
 
-{ #category : #optimising }
+{ #category : 'optimising' }
 DROptimisationTest >> optimize: anIR [
 
 	self previousOptimizations do: [ :optimization | 
 		anIR applyOptimisation: optimization ]
 ]
 
-{ #category : #optimising }
+{ #category : 'optimising' }
 DROptimisationTest >> previousOptimizations [
 
 	^ {  }

@@ -1,10 +1,12 @@
 Class {
-	#name : #DRDominatorTreeTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRDominatorTreeTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #'test - scenarios' }
+{ #category : 'test - scenarios' }
 DRDominatorTreeTest >> testConditionalCFGDomination [
 
 	| cfg b0 b1 b2 |
@@ -23,7 +25,7 @@ DRDominatorTreeTest >> testConditionalCFGDomination [
 	self assert: b2 dominatedBlocks isEmpty
 ]
 
-{ #category : #old }
+{ #category : 'old' }
 DRDominatorTreeTest >> testCorrectDominatorTreeWithLoop [
 
 	| cfg jump |
@@ -46,7 +48,7 @@ DRDominatorTreeTest >> testCorrectDominatorTreeWithLoop [
 	self assert: (cfg b3 isDominatorOf: {  })
 ]
 
-{ #category : #'test - scenarios' }
+{ #category : 'test - scenarios' }
 DRDominatorTreeTest >> testDegenerateLoopCFGDomination [
 
 	| cfg b0 b1 b2 b3 b4 b5 |
@@ -78,7 +80,7 @@ DRDominatorTreeTest >> testDegenerateLoopCFGDomination [
 	self assert: b5 dominatedBlocks isEmpty
 ]
 
-{ #category : #'test - scenarios' }
+{ #category : 'test - scenarios' }
 DRDominatorTreeTest >> testDegenerateLoopCFGImmediateDomination [
 
 	| cfg b0 b1 b2 b3 b4 b5 |
@@ -109,7 +111,7 @@ DRDominatorTreeTest >> testDegenerateLoopCFGImmediateDomination [
 	self assert: b5 dominatedBlocks isEmpty
 ]
 
-{ #category : #'test - scenarios' }
+{ #category : 'test - scenarios' }
 DRDominatorTreeTest >> testDiamondConditionalCFGDomination [
 
 	| cfg b0 b1 b2 b3 |
@@ -133,7 +135,7 @@ DRDominatorTreeTest >> testDiamondConditionalCFGDomination [
 	self assert: b3 dominatedBlocks isEmpty
 ]
 
-{ #category : #'test - scenarios' }
+{ #category : 'test - scenarios' }
 DRDominatorTreeTest >> testDoubleDiamondConditionalCFGDomination [
 
 	| cfg b0 b1 b2 b3 b4 b5 b6 |
@@ -174,7 +176,7 @@ DRDominatorTreeTest >> testDoubleDiamondConditionalCFGDomination [
 	self assert: b6 dominatedBlocks isEmpty
 ]
 
-{ #category : #'test - scenarios' }
+{ #category : 'test - scenarios' }
 DRDominatorTreeTest >> testDoubleDiamondConditionalCFGImmediateDomination [
 
 	| cfg b0 b1 b2 b3 b4 b5 b6 |
@@ -203,7 +205,7 @@ DRDominatorTreeTest >> testDoubleDiamondConditionalCFGImmediateDomination [
 				 b3 })
 ]
 
-{ #category : #'test - api' }
+{ #category : 'test - api' }
 DRDominatorTreeTest >> testExactDominationFailsWithIncompleteNumberOfBlocks [
 
 	| cfg b0 b1 b2 b3 |
@@ -226,7 +228,7 @@ DRDominatorTreeTest >> testExactDominationFailsWithIncompleteNumberOfBlocks [
 				 b2 })
 ]
 
-{ #category : #'test - scenarios' }
+{ #category : 'test - scenarios' }
 DRDominatorTreeTest >> testLinearCFGDomination [
 
 	| cfg b0 b1 |
@@ -240,7 +242,7 @@ DRDominatorTreeTest >> testLinearCFGDomination [
 	self assert: (b1 isDominatedBy: b0)
 ]
 
-{ #category : #'test - scenarios' }
+{ #category : 'test - scenarios' }
 DRDominatorTreeTest >> testNestedDiamondConditionalCFGDomination [
 
 	| cfg b0 b1 b2 b3 b4 b5 |
@@ -274,7 +276,7 @@ DRDominatorTreeTest >> testNestedDiamondConditionalCFGDomination [
 	self assert: b5 dominatedBlocks isEmpty
 ]
 
-{ #category : #'test - scenarios' }
+{ #category : 'test - scenarios' }
 DRDominatorTreeTest >> testNestedDiamondConditionalCFGImmediateDomination [
 
 	| cfg b0 b1 b2 b3 b4 b5 |

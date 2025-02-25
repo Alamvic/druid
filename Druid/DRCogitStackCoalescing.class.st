@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCogitStackCoalescing,
-	#superclass : #DRStackOptimisation,
-	#category : #'Druid-Cogit'
+	#name : 'DRCogitStackCoalescing',
+	#superclass : 'DRStackOptimisation',
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitStackCoalescing >> coalescePops: pops in: postDominator [
 	"If two pops have different spilling value, we need to unspill the spilled one"
 
@@ -19,7 +21,7 @@ DRCogitStackCoalescing >> coalescePops: pops in: postDominator [
 	pops do: [ :p | p removeFromCFG ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitStackCoalescing >> coalescePushes: pushes in: postDominator [
 	"We have two pushes in two different branches
 	
@@ -55,7 +57,7 @@ DRCogitStackCoalescing >> coalescePushes: pushes in: postDominator [
 		(postDominator instructionFactory push: phi)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitStackCoalescing >> doApply: cfg [
 	"Get all stack effect instructions (push and pops).
 	We should move them down to their common post dominator.

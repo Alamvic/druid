@@ -1,10 +1,12 @@
 Class {
-	#name : #DRStackOptimisation,
-	#superclass : #DROptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRStackOptimisation',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackOptimisation >> applyTo: cfg [
 
 	cfg rebuildStackDependencies.
@@ -13,7 +15,7 @@ DRStackOptimisation >> applyTo: cfg [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackOptimisation >> doApply: cfg [
 
 	self subclassResponsibility

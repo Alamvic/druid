@@ -1,6 +1,6 @@
-Extension { #name : #Symbol }
+Extension { #name : 'Symbol' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 Symbol >> matchArgumentsAgainst: aPragma [
 
 	aPragma
@@ -9,7 +9,7 @@ Symbol >> matchArgumentsAgainst: aPragma [
 	^ true
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 Symbol >> prettyPrint [
 	
 	^ self

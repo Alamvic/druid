@@ -1,35 +1,37 @@
 Class {
-	#name : #DRLoadFramePointer,
-	#superclass : #DRAbstractLoad,
-	#category : #'Druid-IR'
+	#name : 'DRLoadFramePointer',
+	#superclass : 'DRAbstractLoad',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRLoadFramePointer >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitLoadFramePointer: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRLoadFramePointer >> isLoadFramePointer [
 	
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRLoadFramePointer >> opcode [
 	
 	^ 'LoadFramePointer'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRLoadFramePointer >> sccpLatticeValueFor: sccp [
 
 	"We know that we know nothing about the frame pointer"
 	^ sccp bottom
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRLoadFramePointer >> type [
 
 	^ DRPointerType new

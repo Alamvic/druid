@@ -1,10 +1,12 @@
 Class {
-	#name : #DRProfileBytecodeGenerator,
-	#superclass : #DRBytecodeGenerator,
-	#category : #'Druid-BytecodeGeneration'
+	#name : 'DRProfileBytecodeGenerator',
+	#superclass : 'DRBytecodeGenerator',
+	#category : 'Druid-BytecodeGeneration',
+	#package : 'Druid',
+	#tag : 'BytecodeGeneration'
 }
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRProfileBytecodeGenerator >> addProfileFor: aDRMessageSend [
 
 	builder pushLiteralVariable: DRProfileInstrumentation binding.
@@ -13,7 +15,7 @@ DRProfileBytecodeGenerator >> addProfileFor: aDRMessageSend [
 	builder popTop
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRProfileBytecodeGenerator >> visitMessageSend: aDRMessageSend [
 
 	(DRProfileInstrumentation class selectors includes:

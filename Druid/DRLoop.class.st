@@ -4,15 +4,17 @@ I represent a loop inside Druid's control flow graph.
 I'm not a node in the graph, but rather an utility used to access and manipulate loops inside CFGs.
 "
 Class {
-	#name : #DRLoop,
-	#superclass : #Object,
+	#name : 'DRLoop',
+	#superclass : 'Object',
 	#instVars : [
 		'backJump'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRLoop class >> fromBackJump: aBackJump [ 
 	| instance |
 	instance := self new.
@@ -20,19 +22,19 @@ DRLoop class >> fromBackJump: aBackJump [
 	^ instance
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> backJump [
 
 	^ backJump
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> backJump: aBackJump [
 
 	backJump := aBackJump
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> blocks [
 
 	| loopGraphBlocks |
@@ -44,44 +46,44 @@ DRLoop >> blocks [
 		  loopGraphBlocks anySatisfy: [ :loopBlock | b id = loopBlock id ] ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> bodyBlocks [
 
 	^ self blocks select: [ :b | b ~= self headerBlock ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> bodyHyperblock [
 
 	^ DRHyperBlock blocks: self bodyBlocks.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> bodyInstructions [
 
 	^ self bodyBlocks flatCollect: [ :block | block instructions ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> condition [
 
 	self flag: #TODO. "See proper way to get condition for all cases"
 	^ self loopConditional condition
 ]
 
-{ #category : #querying }
+{ #category : 'querying' }
 DRLoop >> containsStraightLineCode [
 
 	^ self bodyBlocks size = 1
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> controlFlowGraph [
 
 	^ self backJump basicBlock controlFlowGraph
 ]
 
-{ #category : #'cfg manipulation' }
+{ #category : 'cfg manipulation' }
 DRLoop >> createLoopPreheaderBlock [
 
 	| loopPredecessor preheaderBlock |
@@ -90,7 +92,7 @@ DRLoop >> createLoopPreheaderBlock [
 	^ preheaderBlock
 ]
 
-{ #category : #'cfg manipulation' }
+{ #category : 'cfg manipulation' }
 DRLoop >> createLoopPreheaderBlockAndWrapWithIf [
 	"The loop pre-header will contain the loop-invariant instructions that are moved out of the loop.
 	The if is necessary to preserve semantics in case the loop body is never executed"
@@ -145,12 +147,12 @@ DRLoop >> createLoopPreheaderBlockAndWrapWithIf [
 	^ preheaderBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> exitBlock [
 	^ self headerBlock successors detect: [ :s | (self bodyBlocks includes: s) not ]
 ]
 
-{ #category : #'cfg manipulation' }
+{ #category : 'cfg manipulation' }
 DRLoop >> fixLoopPhiFunctions: blockCopy [
 
 	self loopPhiFunctions do: [ :phi |
@@ -174,7 +176,7 @@ DRLoop >> fixLoopPhiFunctions: blockCopy [
 		phi replaceDependency: loopOutput by: newBlockOutput ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> headerBlock [
 
 	"A loop's header block is a basic block that contains the loop's condition"
@@ -182,14 +184,14 @@ DRLoop >> headerBlock [
 	^ self latchBlock successor.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> inductionInitialValues [
 
 	^ self loopPhiFunctions flatCollect: [ :phi |
 		  phi valuesForPredecessor: self preheaderBlock ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> inductionVariable [
 
 	self flag: #TODO. "Handle transitive dependencies"
@@ -198,19 +200,19 @@ DRLoop >> inductionVariable [
 		  ifNone: [ nil ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> instructions [
 
 	^ self blocks flatCollect: [ :b | b instructions ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> isCountingLoop [
 
 	^ self stride ~= 0
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> latchBlock [
 
 	"A loop's latch block is a basic block that contains a back jump to the header of the loop"
@@ -218,7 +220,7 @@ DRLoop >> latchBlock [
 	^ self backJump basicBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> loopConditional [
 
 	"Answer the conditional branch that governs this loop.
@@ -229,7 +231,7 @@ DRLoop >> loopConditional [
 	^ self headerBlock endInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> loopGraph [
 
 	^ self controlFlowGraph
@@ -237,7 +239,7 @@ DRLoop >> loopGraph [
 		  and: self latchBlock
 ]
 
-{ #category : #'cfg manipulation' }
+{ #category : 'cfg manipulation' }
 DRLoop >> loopPhiFunctions [
 
 	| loopBody |
@@ -247,7 +249,7 @@ DRLoop >> loopPhiFunctions [
 			  phi operands includes: result ] ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> preheaderBlock [
 
 	"A loop's pre-header block is the basic block from which the loop is entered.
@@ -257,7 +259,7 @@ DRLoop >> preheaderBlock [
 	^ (self headerBlock predecessors asSet copyWithout: self latchBlock) unique
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLoop >> stride [
 
 	"Returns the value with which the loop's induction variable is incremented on each loop iteration, or 0 if the value is unknown or not constant"
@@ -281,7 +283,7 @@ DRLoop >> stride [
 		  ifFalse: [ 0 ]
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRLoop >> unroll: unrollingFactor [
 
 	| isIncrementingLoop rolledLoop rolledLoopCopy loopBody bodyCopy copiedLoop loopCondition nonInductionOperand decrementInstruction |

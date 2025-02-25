@@ -1,10 +1,11 @@
 Class {
-	#name : #DRVMStateTest,
-	#superclass : #TestCase,
-	#category : #'Druid-Tests'
+	#name : 'DRVMStateTest',
+	#superclass : 'TestCase',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRVMStateTest >> testMergeVMStateToBiggerVMStateFillsHoles [
 
 	| state mergeState irBuilder |
@@ -22,7 +23,7 @@ DRVMStateTest >> testMergeVMStateToBiggerVMStateFillsHoles [
 	self assert: mergeState operandStack second operands size equals: 2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRVMStateTest >> testMergeVMStateToEmptyVMState [
 
 	| state mergeState irBuilder |
@@ -38,7 +39,7 @@ DRVMStateTest >> testMergeVMStateToEmptyVMState [
 	self assert: mergeState operandStack size equals: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRVMStateTest >> testMergeVMStateToNonEmptyVMStateFillsState [
 
 	| state mergeState irBuilder |

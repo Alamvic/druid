@@ -1,61 +1,63 @@
 Class {
-	#name : #DRStore,
-	#superclass : #DRInstruction,
+	#name : 'DRStore',
+	#superclass : 'DRInstruction',
 	#instVars : [
 		'size'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRStore >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitStore: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStore >> address [
 
 	^ self operand2
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStore >> address: anAddress [
 
 	^ self operand2: anAddress
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStore >> canMoveOutsideLoop: backJump [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStore >> isJITCompileTimeExpression [
 
 	^ self address isStaged
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRStore >> isMandatoryInstruction [ 
 
 	^ true
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRStore >> isStore [ 
 
 	^ true
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRStore >> opcode [
 	
 	^ 'Store'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStore >> operands: operandList [
 
 	"Why not in the list?"
@@ -63,14 +65,14 @@ DRStore >> operands: operandList [
 	super operands: { operandList second. operandList third asMemoryAddress }
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStore >> postCopy [
 
 	super postCopy.
 	self address: self address copy
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRStore >> replaceDependency: anOperand by: anotherOperand [
 
 	(operands includes: anOperand) ifTrue: [
@@ -85,20 +87,20 @@ DRStore >> replaceDependency: anOperand by: anotherOperand [
 	self address replaceDependency: anOperand by: anotherOperand
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRStore >> sccpLatticeValueFor: sccp [ 
 	
 	"This instruction has no value"
 	^ sccp bottom
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStore >> size [
 
 	^ size
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRStore >> type [
 
 	^ DRVoidType new

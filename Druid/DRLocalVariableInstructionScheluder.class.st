@@ -1,10 +1,12 @@
 Class {
-	#name : #DRLocalVariableInstructionScheluder,
-	#superclass : #DROptimisation,
-	#category : #'Druid-BytecodeGeneration'
+	#name : 'DRLocalVariableInstructionScheluder',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-BytecodeGeneration',
+	#package : 'Druid',
+	#tag : 'BytecodeGeneration'
 }
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRLocalVariableInstructionScheluder >> applyTo: cfg [
 
 	cfg instructionsDo: [ :i |
@@ -12,7 +14,7 @@ DRLocalVariableInstructionScheluder >> applyTo: cfg [
 			i users size > 1 ifTrue: [ self storeReusedResultOf: i ] ] ]
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRLocalVariableInstructionScheluder >> shouldIgnore: aDRInstruction [
 
 	^ aDRInstruction isStore or: [
@@ -20,7 +22,7 @@ DRLocalVariableInstructionScheluder >> shouldIgnore: aDRInstruction [
 			  aDRInstruction operands allSatisfy: [ :op | op isStore ] ] ]
 ]
 
-{ #category : #transformation }
+{ #category : 'transformation' }
 DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
 
 	self assert: aDRInstruction result isRegister.

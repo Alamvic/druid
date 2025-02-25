@@ -4,16 +4,18 @@ For example, primitives have two exit blocks and not one.
 A backend may benefit from this information and order blocks differently.
 "
 Class {
-	#name : #DRPrimitiveControlFlowGraph,
-	#superclass : #DRControlFlowGraph,
+	#name : 'DRPrimitiveControlFlowGraph',
+	#superclass : 'DRControlFlowGraph',
 	#instVars : [
 		'successExitBlock',
 		'primitiveExitBlock'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveControlFlowGraph >> failureExitBlock [
 
 	| blocks |
@@ -22,31 +24,31 @@ DRPrimitiveControlFlowGraph >> failureExitBlock [
 	^ blocks anyOne
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveControlFlowGraph >> failureExitBlocks [
 
 	^ self blocks select: [ :e | e endInstruction isPrimitiveFail ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveControlFlowGraph >> primitiveExitBlock [
 
 	^ primitiveExitBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveControlFlowGraph >> primitiveExitBlock: aBlock [
 
 	primitiveExitBlock := aBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveControlFlowGraph >> successExitBlock [
 
 	^ successExitBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveControlFlowGraph >> successExitBlock: anObject [
 
 	successExitBlock := anObject

@@ -1,14 +1,16 @@
 Class {
-	#name : #DRSSAPRETest,
-	#superclass : #DROptimisationTest,
+	#name : 'DRSSAPRETest',
+	#superclass : 'DROptimisationTest',
 	#instVars : [
 		'instructionFactory',
 		'valueNumberer'
 	],
-	#category : #'Druid-Tests-Optimizations'
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRSSAPRETest >> setUp [
 
 	super setUp.
@@ -17,7 +19,7 @@ DRSSAPRETest >> setUp [
 	valueNumberer := DRValueNumberer new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPRETest >> testPartialRedundancyWithSameConstIn124BlockInConditionCF [
 	"
 T1 = e  → T2 = e  →   T4 = e
@@ -43,7 +45,7 @@ T1 = e  → T2 = T1  →  T4 = T1
 	self assert: cfg b4 first operand1 value equals: instruction1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPRETest >> testPartialRedundancyWithSameConstIn12BlockInConditionCF [
 	"
 T1 = e → T2 = e  →   T4
@@ -68,7 +70,7 @@ T1 = e  → T2 = T1  →  T4
 	self assert: cfg b3 first operand1 value equals: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPRETest >> testPhiInsertionInConditionalCase1 [
 	"
 	  T1  →   T2 = e   →   T3
@@ -91,7 +93,7 @@ DRSSAPRETest >> testPhiInsertionInConditionalCase1 [
 	self assert: b3 hasPhiFunctions equals: true
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPRETest >> testPhiInsertionInConditionalCase2 [
 	"
        /------------------\
@@ -116,7 +118,7 @@ DRSSAPRETest >> testPhiInsertionInConditionalCase2 [
 	self assert: b4 hasPhiFunctions equals: true
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPRETest >> testPhiInsertionInConditionalCase3 [
 	"
        /------------------\
@@ -143,7 +145,7 @@ DRSSAPRETest >> testPhiInsertionInConditionalCase3 [
 	self assert: b4 instructions size equals: 3
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPRETest >> testPhiInsertionInConditionalCase4 [
 	"
        /------------------\
@@ -171,7 +173,7 @@ DRSSAPRETest >> testPhiInsertionInConditionalCase4 [
 	self assert: b4 instructions size equals: 4
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSSAPRETest >> testPhiInsertionInConditionalCase5 [
 "
 T1  →  T2 = e  →   T4 = e

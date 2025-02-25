@@ -1,10 +1,12 @@
 Class {
-	#name : #DRStagingTest,
-	#superclass : #DRDruidTest,
-	#category : #'Druid-Tests-Staging'
+	#name : 'DRStagingTest',
+	#superclass : 'DRDruidTest',
+	#category : 'Druid-Tests-Staging',
+	#package : 'Druid-Tests',
+	#tag : 'Staging'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStagingTest >> testDoNotChangeStagedRegister [
 
 	| cfg b0 copy b1 |
@@ -21,7 +23,7 @@ DRStagingTest >> testDoNotChangeStagedRegister [
 	self assert: copy result name equals: 'stg'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStagingTest >> testDoNotStageAddOfNotStagedInstructions [
 
 	| cfg b0 copy b1 copy2 add |
@@ -38,7 +40,7 @@ DRStagingTest >> testDoNotStageAddOfNotStagedInstructions [
 	self assert: add isStaged not
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStagingTest >> testDoNotStageLoad [
 
 	| cfg b0 copy b1 copy2 add |
@@ -55,7 +57,7 @@ DRStagingTest >> testDoNotStageLoad [
 	self deny: add isStaged
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStagingTest >> testDoNotStageLoadWithStagedAddress [
 
 	| cfg b0 copy b1 copy2 |
@@ -71,7 +73,7 @@ DRStagingTest >> testDoNotStageLoadWithStagedAddress [
 	self deny: copy2 isStaged
 ]
 
-{ #category : #'phi-staging' }
+{ #category : 'phi-staging' }
 DRStagingTest >> testDoNotStagePhiOnNonStageableControlFlow [
 
 	| cfg b0 argument b1 b2 b3 copyOnTop copyOnBranch phi |
@@ -97,7 +99,7 @@ DRStagingTest >> testDoNotStagePhiOnNonStageableControlFlow [
 	self deny: phi isStaged
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStagingTest >> testInstructionWithStagedRegisterIsNotStagedByDefault [
 
 	| cfg b0 copy b1 |
@@ -111,7 +113,7 @@ DRStagingTest >> testInstructionWithStagedRegisterIsNotStagedByDefault [
 	self deny: copy isStaged
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStagingTest >> testStageAddOfStagedInstructions [
 
 	| cfg b0 copy b1 copy2 add |
@@ -128,7 +130,7 @@ DRStagingTest >> testStageAddOfStagedInstructions [
 	self assert: add isStaged
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStagingTest >> testStageCopyConstant [
 
 	| cfg b0 copy b1 |
@@ -142,7 +144,7 @@ DRStagingTest >> testStageCopyConstant [
 	self assert: copy isStaged
 ]
 
-{ #category : #'phi-staging' }
+{ #category : 'phi-staging' }
 DRStagingTest >> testStageLoop [
 
 	| cfg b0 b1 phi header increment body exit initialValue |
@@ -169,7 +171,7 @@ DRStagingTest >> testStageLoop [
 	self assert: phi isStaged
 ]
 
-{ #category : #'phi-staging' }
+{ #category : 'phi-staging' }
 DRStagingTest >> testStagePhiOnNonStageableNestedSinglePredecessorControlFlow [
 
 	| cfg b0 argument b1 b2 b3 copyOnTop copyOnBranch phi subtrue submerge |
@@ -202,7 +204,7 @@ DRStagingTest >> testStagePhiOnNonStageableNestedSinglePredecessorControlFlow [
 	self assert: phi isStaged
 ]
 
-{ #category : #'phi-staging' }
+{ #category : 'phi-staging' }
 DRStagingTest >> testStagePhiOnStageableControlFlow [
 
 	| cfg b0 argument b1 b2 b3 copyOnTop copyOnBranch phi |

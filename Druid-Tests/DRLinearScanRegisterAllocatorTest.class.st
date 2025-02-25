@@ -1,15 +1,16 @@
 Class {
-	#name : #DRLinearScanRegisterAllocatorTest,
-	#superclass : #TestCase,
+	#name : 'DRLinearScanRegisterAllocatorTest',
+	#superclass : 'TestCase',
 	#instVars : [
 		'registerAllocator',
 		'spillRegister1',
 		'spillRegister2'
 	],
-	#category : #'Druid-Tests'
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLinearScanRegisterAllocatorTest >> setUp [
 
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
@@ -19,7 +20,7 @@ DRLinearScanRegisterAllocatorTest >> setUp [
 
 ]
 
-{ #category : #'tests - floats' }
+{ #category : 'tests - floats' }
 DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegister [
 
 	| cfg basicBlock r fr |
@@ -43,7 +44,7 @@ DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegister [
 	self assert: basicBlock instructions second result equals: fr.
 ]
 
-{ #category : #'tests - floats' }
+{ #category : 'tests - floats' }
 DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegistersAfterOperate [
 
 	| cfg basicBlock r fr fr2 r0 r1 r3 r4 r5 r6 |
@@ -69,7 +70,7 @@ DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegistersAfterOperate [
 
 ]
 
-{ #category : #'tests - floats' }
+{ #category : 'tests - floats' }
 DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegistersAfterOperateReversed [
 
 	| cfg basicBlock r fr fr2 r0 r1 r3 r4 r5 r6 |
@@ -95,7 +96,7 @@ DRLinearScanRegisterAllocatorTest >> testAllocateFloatRegistersAfterOperateRever
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLinearScanRegisterAllocatorTest >> testAllocateIntegerRegistersAfterOperate [
 
 	| cfg basicBlock pr1 pr2 r0 r1 r2 r3 |
@@ -117,7 +118,7 @@ DRLinearScanRegisterAllocatorTest >> testAllocateIntegerRegistersAfterOperate [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLinearScanRegisterAllocatorTest >> testAllocateIntegerRegistersAfterOperateReversed [
 
 	| cfg basicBlock pr1 pr2 r0 r1 r2 r3 |
@@ -139,7 +140,7 @@ DRLinearScanRegisterAllocatorTest >> testAllocateIntegerRegistersAfterOperateRev
 
 ]
 
-{ #category : #'tests - ssa preparation' }
+{ #category : 'tests - ssa preparation' }
 DRLinearScanRegisterAllocatorTest >> testBreakPhiDuringSSAPreparation [
 
 	| cfg basicBlockTrue basicBlockJoin r0 r1 r2 topBasicBlock |
@@ -173,7 +174,7 @@ DRLinearScanRegisterAllocatorTest >> testBreakPhiDuringSSAPreparation [
 	self assert: (basicBlockJoin predecessors second instructions atLast: 2) operand1 equals: r1.
 ]
 
-{ #category : #'tests - ssa preparation' }
+{ #category : 'tests - ssa preparation' }
 DRLinearScanRegisterAllocatorTest >> testBreakPhiDuringSSAPreparationWithStaging [
 
 	| cfg basicBlockTrue basicBlockJoin r0 r1 r2 topBasicBlock firstGeneratedCopy secondGeneratedCopy |
@@ -216,7 +217,7 @@ DRLinearScanRegisterAllocatorTest >> testBreakPhiDuringSSAPreparationWithStaging
 	self assert: firstGeneratedCopy result equals: secondGeneratedCopy result
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLinearScanRegisterAllocatorTest >> testCoallescePhiArguments [
 
 	| cfg basicBlockTrue basicBlockFalse basicBlockJoin firstRegister secondRegister r0 r1 r2 |
@@ -243,7 +244,7 @@ DRLinearScanRegisterAllocatorTest >> testCoallescePhiArguments [
 	self assert: basicBlockFalse instructions second result equals: firstRegister.
 ]
 
-{ #category : #'tests - staging' }
+{ #category : 'tests - staging' }
 DRLinearScanRegisterAllocatorTest >> testDoNotInsertCopyForStagedNonMovableConstantOperand1 [
 
 	| cfg r0 r1 r2 topBasicBlock firstGeneratedCopy |
@@ -263,7 +264,7 @@ DRLinearScanRegisterAllocatorTest >> testDoNotInsertCopyForStagedNonMovableConst
 	self assert: firstGeneratedCopy operand2 isStaged
 ]
 
-{ #category : #'tests - staging' }
+{ #category : 'tests - staging' }
 DRLinearScanRegisterAllocatorTest >> testDoNotInsertCopyForStagedNonMovableConstantOperand2 [
 
 	| cfg r0 r1 r2 topBasicBlock firstGeneratedCopy |
@@ -285,7 +286,7 @@ DRLinearScanRegisterAllocatorTest >> testDoNotInsertCopyForStagedNonMovableConst
 	self assert: firstGeneratedCopy operand1 operand1 isStaged
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLinearScanRegisterAllocatorTest >> testInterferingIntervalsWithEnoughRegisters [
 
 	| cfg basicBlock firstRegister secondRegister |
@@ -313,7 +314,7 @@ DRLinearScanRegisterAllocatorTest >> testInterferingIntervalsWithEnoughRegisters
 	self assert: ({ firstRegister. secondRegister } includes: basicBlock instructions third result)
 ]
 
-{ #category : #'tests - live set overlap' }
+{ #category : 'tests - live set overlap' }
 DRLinearScanRegisterAllocatorTest >> testLiveSetCoversCompletelyThenOverlaps [
 
 	| cfg basicBlock r0 r1 r0Interval r1Interval r2 r3 allocator |
@@ -350,7 +351,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetCoversCompletelyThenOverlaps [
 	self assert: (r0Interval overlaps: r1Interval)
 ]
 
-{ #category : #'tests - live set overlap' }
+{ #category : 'tests - live set overlap' }
 DRLinearScanRegisterAllocatorTest >> testLiveSetCoversCompletelyThenOverlapsCommutative [
 
 	| cfg basicBlock r0 r1 r0Interval r1Interval r2 r3 allocator |
@@ -388,7 +389,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetCoversCompletelyThenOverlapsComm
 	self assert: (r1Interval overlaps: r0Interval)
 ]
 
-{ #category : #'tests - live set overlap' }
+{ #category : 'tests - live set overlap' }
 DRLinearScanRegisterAllocatorTest >> testLiveSetCoversUntilLoad [
 
 	| cfg basicBlock r0 r1 r0Interval r1Interval r3 allocator |
@@ -422,7 +423,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetCoversUntilLoad [
 	self assert: (r0Interval overlaps: r1Interval)
 ]
 
-{ #category : #'tests - live set overlap' }
+{ #category : 'tests - live set overlap' }
 DRLinearScanRegisterAllocatorTest >> testLiveSetDoesNotOverlapsIfLastUsageIsDefinition [
 
 	| cfg basicBlock r0 r1 r0Interval r1Interval |
@@ -454,7 +455,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetDoesNotOverlapsIfLastUsageIsDefi
 	self deny: (r0Interval overlaps: r1Interval)
 ]
 
-{ #category : #'tests - live set overlap' }
+{ #category : 'tests - live set overlap' }
 DRLinearScanRegisterAllocatorTest >> testLiveSetDoesNotOverlapsIfLastUsageIsDefinitionCommutative [
 
 	| cfg basicBlock r0 r1 r0Interval r1Interval |
@@ -483,7 +484,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetDoesNotOverlapsIfLastUsageIsDefi
 	self deny: (r1Interval overlaps: r0Interval)
 ]
 
-{ #category : #'tests - live set overlap' }
+{ #category : 'tests - live set overlap' }
 DRLinearScanRegisterAllocatorTest >> testLiveSetOverlaps [
 
 	| cfg basicBlock r0 r1 r0Interval r1Interval r2 r3 allocator |
@@ -521,7 +522,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetOverlaps [
 	self assert: (r0Interval overlaps: r1Interval)
 ]
 
-{ #category : #'tests - live set overlap' }
+{ #category : 'tests - live set overlap' }
 DRLinearScanRegisterAllocatorTest >> testLiveSetOverlapsCommutative [
 
 	| cfg basicBlock r0 r1 r0Interval r1Interval r2 r3 allocator |
@@ -558,7 +559,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetOverlapsCommutative [
 	self assert: (r1Interval overlaps: r0Interval)
 ]
 
-{ #category : #'tests - live set overlap' }
+{ #category : 'tests - live set overlap' }
 DRLinearScanRegisterAllocatorTest >> testLiveSetWithManyIntervalsOverlapsIfOneIntervalOverlaps [
 
 	| cfg r0 r1 r0Interval r1Interval r2 allocator |
@@ -594,7 +595,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetWithManyIntervalsOverlapsIfOneIn
 	self assert: (r0Interval overlaps: r1Interval)
 ]
 
-{ #category : #'tests - live set overlap' }
+{ #category : 'tests - live set overlap' }
 DRLinearScanRegisterAllocatorTest >> testLiveSetWithManyIntervalsOverlapsIfOtherIntervalOverlaps [
 
 	| cfg r0 r1 r0Interval r1Interval r2 allocator |
@@ -630,7 +631,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetWithManyIntervalsOverlapsIfOther
 	self assert: (r0Interval overlaps: r1Interval)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLinearScanRegisterAllocatorTest >> testLiveSetsForReturnInstruction [
 
 	| cfg basicBlock |
@@ -646,7 +647,7 @@ DRLinearScanRegisterAllocatorTest >> testLiveSetsForReturnInstruction [
 	"Kind of smoke test, should not fail"
 ]
 
-{ #category : #'tests - spill' }
+{ #category : 'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testNoSpillHasNoSpillSlots [
 
 	| cfg basicBlock r |
@@ -666,7 +667,7 @@ DRLinearScanRegisterAllocatorTest >> testNoSpillHasNoSpillSlots [
 	self assert: cfg numberOfSpillSlots equals: 0
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLinearScanRegisterAllocatorTest >> testNonInterferingIntervals [
 
 	| cfg basicBlock r |
@@ -688,7 +689,7 @@ DRLinearScanRegisterAllocatorTest >> testNonInterferingIntervals [
 	self assert: basicBlock instructions second result equals: r.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLinearScanRegisterAllocatorTest >> testNonOverlappingVariableInHoleCanReuseHoleRegister [
 
 	| cfg basicBlockTrue basicBlockFalse basicBlockJoin firstRegister r0 r1 r2 rNotOverlapping1 rNotOverlapping2 initialOne |
@@ -720,7 +721,7 @@ DRLinearScanRegisterAllocatorTest >> testNonOverlappingVariableInHoleCanReuseHol
 	self assert: rNotOverlapping2 result equals: r2 result.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLinearScanRegisterAllocatorTest >> testOverlappingPhiArguments [
 
 	| cfg basicBlockTrue basicBlockJoin firstRegister secondRegister r0 r1 r2 topBasicBlock |
@@ -752,7 +753,7 @@ DRLinearScanRegisterAllocatorTest >> testOverlappingPhiArguments [
 	self assert: basicBlockTrue instructions first result equals: secondRegister.
 ]
 
-{ #category : #'tests - spill' }
+{ #category : 'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillIntroducesLoadBeforeUse [
 
 	| cfg basicBlock firstRegister spillRegister |
@@ -786,7 +787,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesLoadBeforeUse [
 	self assert: basicBlock instructions fifth operand1 result equals: spillRegister.
 ]
 
-{ #category : #'tests - spill' }
+{ #category : 'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillIntroducesLoadBeforeUseWithMemoryAccess [
 
 	"From
@@ -839,7 +840,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesLoadBeforeUseWithMemoryA
 	self assert: t3 previousInstruction address stackOffset equals: 1.
 ]
 
-{ #category : #'tests - spill' }
+{ #category : 'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillIntroducesStore [
 
 	| cfg basicBlock firstRegister spillRegister |
@@ -873,7 +874,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillIntroducesStore [
 	self assert: basicBlock instructions second operand1 equals: spillRegister.
 ]
 
-{ #category : #'tests - spill' }
+{ #category : 'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillLoadStackValue [
 
 	| cfg basicBlock |
@@ -914,7 +915,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillLoadStackValue [
 
 ]
 
-{ #category : #'tests - spill' }
+{ #category : 'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillOnStores [
 
 	| cfg basicBlock |
@@ -956,7 +957,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillOnStores [
 		includesAll: { spillRegister1. spillRegister2 }
 ]
 
-{ #category : #'tests - spill' }
+{ #category : 'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillReceiverAndArguments [
 
 	| cfg basicBlock |
@@ -997,7 +998,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillReceiverAndArguments [
 
 ]
 
-{ #category : #'tests - spill' }
+{ #category : 'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillStoresAndLoadsToSameAddress [
 
 	| cfg basicBlock |
@@ -1032,7 +1033,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillStoresAndLoadsToSameAddress [
 		equals: basicBlock instructions sixth operand1
 ]
 
-{ #category : #'tests - spill' }
+{ #category : 'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillTwice [
 
 	| cfg basicBlock |
@@ -1067,7 +1068,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwice [
 	self assert: basicBlock instructions sixth result equals: spillRegister2.
 ]
 
-{ #category : #'tests - spill' }
+{ #category : 'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillTwiceIncrementsSpillSlotsToTwo [
 
 	| cfg basicBlock |
@@ -1089,7 +1090,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillTwiceIncrementsSpillSlotsToTwo [
 	self assert: cfg numberOfSpillSlots equals: 2
 ]
 
-{ #category : #'tests - spill' }
+{ #category : 'tests - spill' }
 DRLinearScanRegisterAllocatorTest >> testSpillTwiceUsesDifferentAddresses [
 
 	| cfg basicBlock |

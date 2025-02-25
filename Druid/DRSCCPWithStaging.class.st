@@ -1,10 +1,12 @@
 Class {
-	#name : #DRSCCPWithStaging,
-	#superclass : #DRSCCP,
-	#category : #'Druid-Optimizations'
+	#name : 'DRSCCPWithStaging',
+	#superclass : 'DRSCCP',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRSCCPWithStaging >> latticeForLoad: aLoad [
 
 	| addressLattice |
@@ -30,7 +32,7 @@ DRSCCPWithStaging >> latticeForLoad: aLoad [
 	^ addressLattice
 ]
 
-{ #category : #lattice }
+{ #category : 'lattice' }
 DRSCCPWithStaging >> latticeValue: aValue [
 
 	| lattice |
@@ -40,7 +42,7 @@ DRSCCPWithStaging >> latticeValue: aValue [
 	^ lattice
 ]
 
-{ #category : #lattice }
+{ #category : 'lattice' }
 DRSCCPWithStaging >> sccpLatticeValueFor: instruction latticeOperand1: operand1 latticeOperand2: operand2 [
 
 	((({ self top. self bottom } includes: operand1) not

@@ -1,13 +1,15 @@
 Class {
-	#name : #DRComposedConstraint,
-	#superclass : #DRConditionalConstraint,
+	#name : 'DRComposedConstraint',
+	#superclass : 'DRConditionalConstraint',
 	#instVars : [
 		'constraints'
 	],
-	#category : #'Druid-IR-Paths'
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRComposedConstraint class >> constraints: constraints [
 
 	^ self new
@@ -15,33 +17,33 @@ DRComposedConstraint class >> constraints: constraints [
 		  yourself
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRComposedConstraint class >> withTypes: types [
 
 	^ self constraints:
 		  (types collect: [ :t | DRIncludeTypeConstraint withType: t ])
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRComposedConstraint class >> withoutTypes: types [
 
 	^ self constraints:
 		  (types collect: [ :t | DRExcludeTypeConstraint withType: t ])
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRComposedConstraint >> constraints [
 
 	^ constraints
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRComposedConstraint >> constraints: anObject [
 
 	constraints := anObject
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRComposedConstraint >> printOn: aStream [
 
 	aStream

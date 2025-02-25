@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCustomisationTypeSystem,
-	#superclass : #DRTypeSystem,
-	#category : #'Druid-IR-Types'
+	#name : 'DRCustomisationTypeSystem',
+	#superclass : 'DRTypeSystem',
+	#category : 'Druid-IR-Types',
+	#package : 'Druid',
+	#tag : 'IR-Types'
 }
 
-{ #category : #API }
+{ #category : 'API' }
 DRCustomisationTypeSystem >> receiverTypes: aDRMessageSend [
 
 	aDRMessageSend receiver type isUndefined ifTrue: [

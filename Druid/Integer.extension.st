@@ -1,6 +1,6 @@
-Extension { #name : #Integer }
+Extension { #name : 'Integer' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 Integer >> maskOfBytes [
 
 	| res |

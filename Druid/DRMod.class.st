@@ -1,22 +1,24 @@
 Class {
-	#name : #DRMod,
-	#superclass : #DRArithmeticInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRMod',
+	#superclass : 'DRArithmeticInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRMod >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitMod: self
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRMod >> isModulo [
 	
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRMod >> opcode [
 	
 	^ 'MOD'

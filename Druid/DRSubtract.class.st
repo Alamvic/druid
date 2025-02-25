@@ -1,40 +1,42 @@
 Class {
-	#name : #DRSubtract,
-	#superclass : #DRArithmeticInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRSubtract',
+	#superclass : 'DRArithmeticInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRSubtract >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitSubstract: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRSubtract >> isSubtract [
 
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSubtract >> minuend [
 	
 	^ self operand1
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRSubtract >> opcode [
 	
 	^ 'SUB'
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRSubtract >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand - operand2
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSubtract >> subtrahend [
 	
 	^ self operand2

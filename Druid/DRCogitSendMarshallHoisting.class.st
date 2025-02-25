@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCogitSendMarshallHoisting,
-	#superclass : #DROptimisation,
-	#category : #'Druid-BytecodeToJITCompilation'
+	#name : 'DRCogitSendMarshallHoisting',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-BytecodeToJITCompilation',
+	#package : 'Druid',
+	#tag : 'BytecodeToJITCompilation'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitSendMarshallHoisting >> applyTo: cfg [
 	"This transformation copes with a limitation of Cogit: it does not properly handle the simulated stack on different execution branches.
 	Since it executes linearly, if we pop on one branch, that will affect other branches (!!).

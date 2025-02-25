@@ -1,22 +1,24 @@
 Class {
-	#name : #DRUndefinedType,
-	#superclass : #DRTopType,
-	#category : #'Druid-IR-Types'
+	#name : 'DRUndefinedType',
+	#superclass : 'DRTopType',
+	#category : 'Druid-IR-Types',
+	#package : 'Druid',
+	#tag : 'IR-Types'
 }
 
-{ #category : #lookup }
+{ #category : 'lookup' }
 DRUndefinedType >> astForSelector: aSelector [
 
 	^ nil
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRUndefinedType >> isUndefined [
 
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRUndefinedType >> typeName [
 
 	^ 'Undefined'

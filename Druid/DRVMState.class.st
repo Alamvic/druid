@@ -1,22 +1,24 @@
 Class {
-	#name : #DRVMState,
-	#superclass : #Object,
+	#name : 'DRVMState',
+	#superclass : 'Object',
 	#instVars : [
 		'operandStack',
 		'primitiveFailureCode',
 		'builder',
 		'lastStackInstruction'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #accumulating }
+{ #category : 'accumulating' }
 DRVMState >> addPrimitiveFailureCode: aValue [
 	
 	primitiveFailureCode addValue: aValue
 ]
 
-{ #category : #accumulating }
+{ #category : 'accumulating' }
 DRVMState >> addStackOperand: operand at: stackPosition [
 
 	| stackOperandPhi |
@@ -43,7 +45,7 @@ DRVMState >> addStackOperand: operand at: stackPosition [
 	stackOperandPhi addValue: operand
 ]
 
-{ #category : #accumulating }
+{ #category : 'accumulating' }
 DRVMState >> addTo: aDRVMState [
 
 	"Add my own state to the execution state in parameter"
@@ -59,7 +61,7 @@ DRVMState >> addTo: aDRVMState [
 		aDRVMState addPrimitiveFailureCode: primitiveFailureCode ]
 ]
 
-{ #category : #accumulating }
+{ #category : 'accumulating' }
 DRVMState >> addTo: aDRVMState depth: maxVMStackDepth [
 	
 	"Add my own state to the execution state in parameter"
@@ -78,7 +80,7 @@ DRVMState >> addTo: aDRVMState depth: maxVMStackDepth [
 	aDRVMState lastStackInstructions: (aDRVMState lastStackInstructions copyWithAll: self lastStackInstructions).
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRVMState >> completeOperandStackUpTo: anInteger [ 
 	
 	| predecessorsUntilNow |
@@ -90,13 +92,13 @@ DRVMState >> completeOperandStackUpTo: anInteger [
 					withAll: DRNullValue new)) ]
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRVMState >> completeOperandStackUpTo: anInteger do: aBlockValue [
 
 	operandStack size + 1 to: anInteger do: [ :i | aBlockValue cull: i ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRVMState >> initialize [
 	super initialize.
 	
@@ -104,7 +106,7 @@ DRVMState >> initialize [
 	lastStackInstruction := #()
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRVMState >> initializeOnBuilder: aBuilder [ 
 	
 	builder := aBuilder.
@@ -112,7 +114,7 @@ DRVMState >> initializeOnBuilder: aBuilder [
 	
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRVMState >> isNotSimplified [
 	
 	"All should be phi functions"
@@ -121,13 +123,13 @@ DRVMState >> isNotSimplified [
 				and: [ primitiveFailureCode isPhiFunction  or: [ primitiveFailureCode isDRBlockClosure ] ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRVMState >> lastStackInstruction [
 
 	^ lastStackInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRVMState >> lastStackInstruction: aDRStackInstruction [
 
 	self haltIf: [ aDRStackInstruction isStackInstruction not ].
@@ -135,20 +137,20 @@ DRVMState >> lastStackInstruction: aDRStackInstruction [
 	lastStackInstruction := {aDRStackInstruction}
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRVMState >> lastStackInstructions [
 
 	^ lastStackInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRVMState >> lastStackInstructions: aCollectionOfStackInstructions [
 
 	self haltIf: [ aCollectionOfStackInstructions anySatisfy: [ :e | e isStackInstruction not ] ].
 	lastStackInstruction := aCollectionOfStackInstructions
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRVMState >> maxNumberOfPredecessors [
 
 	"Select the max number of operands in the phis"
@@ -163,56 +165,56 @@ DRVMState >> maxNumberOfPredecessors [
 	^ (operandStack max: [ :e | e operands size ]) max: max
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRVMState >> operandStack [
 
 	^ operandStack
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRVMState >> operandStack: anObject [
 
 	operandStack := anObject
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRVMState >> operandStackWithIndexDo: aFullBlockClosure [ 
 	
 	operandStack withIndexDo: aFullBlockClosure
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRVMState >> pop [
 
 	operandStack ifEmpty: [ self error: 'Operand stack underflow!' ].
 	^ operandStack pop
 ]
 
-{ #category : #copying }
+{ #category : 'copying' }
 DRVMState >> postCopy [
 	super postCopy.
 	operandStack := operandStack copy
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRVMState >> primitiveFailureCode [
 
 	^ primitiveFailureCode
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRVMState >> primitiveFailureCode: anObject [
 
 	primitiveFailureCode := anObject
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRVMState >> push: aValue [
 
 	operandStack push: aValue
 ]
 
-{ #category : #simplification }
+{ #category : 'simplification' }
 DRVMState >> simplify [
 	
 	| newOperand newPrimitiveFailureCode |
@@ -228,19 +230,19 @@ DRVMState >> simplify [
 		primitiveFailureCode replaceUsesBy: newPrimitiveFailureCode ].
 ]
 
-{ #category : #accumulating }
+{ #category : 'accumulating' }
 DRVMState >> stackOperandAt: stackPosition [
 
 	^ operandStack at: stackPosition ifAbsent: [ DRNullValue new ]
 ]
 
-{ #category : #accumulating }
+{ #category : 'accumulating' }
 DRVMState >> stackOperandAt: stackPosition ifAbsent: aBlock [
 
 	^ operandStack at: stackPosition ifAbsent: aBlock
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRVMState >> top [
 
 	operandStack ifEmpty: [ self error: 'Operand stack underflow!' ].

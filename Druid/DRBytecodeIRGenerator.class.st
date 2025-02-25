@@ -1,13 +1,15 @@
 Class {
-	#name : #DRBytecodeIRGenerator,
-	#superclass : #DRMetaCompilerIRGenerator,
+	#name : 'DRBytecodeIRGenerator',
+	#superclass : 'DRMetaCompilerIRGenerator',
 	#instVars : [
 		'jumpOffset'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRBytecodeIRGenerator >> addAnnotateBytecode: aRBMethodNode [
 
 	self
@@ -17,7 +19,7 @@ DRBytecodeIRGenerator >> addAnnotateBytecode: aRBMethodNode [
 	^ self popOperand "Let the stack empty"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
 
 	"If this is the base frame, it should continue with the next bytecode at the end"
@@ -25,14 +27,14 @@ DRBytecodeIRGenerator >> finishCodeInterpretation: lastFrame [
 		(self instantiateNoResultInstruction: DRContinueNextBytecode)
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRBytecodeIRGenerator >> initialize [
 
 	super initialize.
 	jumpOffset := 0
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
@@ -68,7 +70,7 @@ DRBytecodeIRGenerator >> initializeSpecialCases [
 
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretArgumentCountAssignmentWith: aRBAssignmentNode [ 
 	
 	"Ok, we are probably doing a message send!
@@ -77,7 +79,7 @@ DRBytecodeIRGenerator >> interpretArgumentCountAssignmentWith: aRBAssignmentNode
 	aRBAssignmentNode value acceptVisitor: self.
 ]
 
-{ #category : #'special-cases' }
+{ #category : 'special-cases' }
 DRBytecodeIRGenerator >> interpretAsCompilerVariableAssignmentWith: aRBAssignmentNode [
 
 	| operand |
@@ -89,7 +91,7 @@ DRBytecodeIRGenerator >> interpretAsCompilerVariableAssignmentWith: aRBAssignmen
 		(DRStagedRegister name: aRBAssignmentNode variable name)
 ]
 
-{ #category : #'special-cases' }
+{ #category : 'special-cases' }
 DRBytecodeIRGenerator >> interpretAsCompilerVariableWith: aRBVariableNode [
 
 	^ self
@@ -99,7 +101,7 @@ DRBytecodeIRGenerator >> interpretAsCompilerVariableWith: aRBVariableNode [
 				   yourself)
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretCommonCallerReturnWith: aRBMessageNode [
 
 	| returnedValue |
@@ -111,7 +113,7 @@ DRBytecodeIRGenerator >> interpretCommonCallerReturnWith: aRBMessageNode [
 		  operands: { returnedValue . true asDRValue }
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretCommonReturnWith: aRBMessageNode [
 
 	| returnedValue |
@@ -123,7 +125,7 @@ DRBytecodeIRGenerator >> interpretCommonReturnWith: aRBMessageNode [
 		  operands: { returnedValue . false asDRValue }
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRBytecodeIRGenerator >> interpretCreateClosureWith: aRBMessageNode [
 
 	| operands |
@@ -136,7 +138,7 @@ DRBytecodeIRGenerator >> interpretCreateClosureWith: aRBMessageNode [
 		  operands: operands
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBytecodeIRGenerator >> interpretCurrentBytecodeWith: aRBVariableNode [
 
 	^ self
@@ -147,7 +149,7 @@ DRBytecodeIRGenerator >> interpretCurrentBytecodeWith: aRBVariableNode [
 				   yourself) }
 ]
 
-{ #category : #'special-cases' }
+{ #category : 'special-cases' }
 DRBytecodeIRGenerator >> interpretDirectSuperSendWith: aRBMessageNode [
 
 	^ self
@@ -158,13 +160,13 @@ DRBytecodeIRGenerator >> interpretDirectSuperSendWith: aRBMessageNode [
 								ifFalse: [directedSuperSendTrampolines])' "TODO: improve"
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRBytecodeIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
 
 	^ self interpretDruidForceIntepretationWith: aRBMethodNode
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRBytecodeIRGenerator >> interpretDruidForceIntepretationWith: aRBNode [
 
 	self
@@ -177,7 +179,7 @@ DRBytecodeIRGenerator >> interpretDruidForceIntepretationWith: aRBNode [
 	^ (RBReturnNode value: (RBLiteralNode value: 0)) acceptVisitor: self
 ]
 
-{ #category : #'special-cases' }
+{ #category : 'special-cases' }
 DRBytecodeIRGenerator >> interpretFetchByteWith: aRBMessageNode [
 
 	jumpOffset := jumpOffset + 1.
@@ -191,7 +193,7 @@ DRBytecodeIRGenerator >> interpretFetchByteWith: aRBMessageNode [
 				   yourself) }
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretFetchNextBytecodeWith: aRBMessageNode [ 
 	
 	"Push a 1 for now"
@@ -201,7 +203,7 @@ DRBytecodeIRGenerator >> interpretFetchNextBytecodeWith: aRBMessageNode [
 		operands: { 1 asDRValue }
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBytecodeIRGenerator >> interpretFramePointerWith: aRBVariableNode [ 
 	
 	^ self
@@ -210,7 +212,7 @@ DRBytecodeIRGenerator >> interpretFramePointerWith: aRBVariableNode [
 		operands: #()
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretITemporaryInPutWith: aRBMessageNode [ 
 
 	| index value |
@@ -224,7 +226,7 @@ DRBytecodeIRGenerator >> interpretITemporaryInPutWith: aRBMessageNode [
 		  operands: { index asDRValue . value asDRValue }
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
 
 	| index |
@@ -236,7 +238,7 @@ DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
 		  operands: { index asDRValue }
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretIframeMethodWith: aRBMessageNode [
 
 	^ self
@@ -245,7 +247,7 @@ DRBytecodeIRGenerator >> interpretIframeMethodWith: aRBMessageNode [
 		  operands: { DRInterpreterReference methodObj }
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretInstructionPointerAssignmentWith: aRBAssignmentNode [ 
 
 	"Changing the bytecode instruction pointer, we must generate a jump to the new target"
@@ -257,7 +259,7 @@ DRBytecodeIRGenerator >> interpretInstructionPointerAssignmentWith: aRBAssignmen
 		  operands: { self popOperand }
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
 
 	^ self
@@ -270,7 +272,7 @@ DRBytecodeIRGenerator >> interpretInstructionPointerWith: aRBVariableNode [
 				  jumpOffset asDRValue }
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretInterruptCheckWith: aRBMessageNode [
 
 	^ (self
@@ -278,7 +280,7 @@ DRBytecodeIRGenerator >> interpretInterruptCheckWith: aRBMessageNode [
 		   from: aRBMessageNode) beMapped
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [
 
 	| theNonBoolean |
@@ -290,7 +292,7 @@ DRBytecodeIRGenerator >> interpretMustBeBooleanWith: aRBMessageNode [
 		   from: aRBMessageNode) beMapped
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeIRGenerator >> interpretNormalLiteralSendWith: aMessage [
 
 	^ self
@@ -299,7 +301,7 @@ DRBytecodeIRGenerator >> interpretNormalLiteralSendWith: aMessage [
 		  sendTable: 'ordinarySendTrampolines'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeIRGenerator >> interpretNormalSpecialSelectorSendWith: aMessage [
 
 	^ self
@@ -308,7 +310,7 @@ DRBytecodeIRGenerator >> interpretNormalSpecialSelectorSendWith: aMessage [
 		  sendTable: 'ordinarySendTrampolines'
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretNumArgsWith: aRBMessageNode [ 
 
 	^ self
@@ -317,7 +319,7 @@ DRBytecodeIRGenerator >> interpretNumArgsWith: aRBMessageNode [
 		operands: { DRInterpreterReference reference: 'methodOrBlockNumArgs' }
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode [ 
 	
 	| newFailureCode copy |
@@ -329,7 +331,7 @@ DRBytecodeIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode 
 	^ newFailureCode
 ]
 
-{ #category : #'special-cases' }
+{ #category : 'special-cases' }
 DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSpecialSelector sendTable: sendTableName [
 	"Interpret a send. In the interpreter, this is a send where we don't know yet the receiver or its class.
 	We know the numberOfArguments that we should use to extract the receiver, then its class.
@@ -382,7 +384,7 @@ DRBytecodeIRGenerator >> interpretSendWith: aRBMessageNode specialSelector: isSp
 		^ self push: DRPhysicalGeneralPurposeRegister receiverResultReg ]
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretStackLimitWith: aRBVariableNode [
 
 	| reference load |
@@ -397,7 +399,7 @@ DRBytecodeIRGenerator >> interpretStackLimitWith: aRBVariableNode [
 	^ load
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBytecodeIRGenerator >> interpretStackPointerWith: aRBVariableNode [ 
 	
 	^ self
@@ -406,7 +408,7 @@ DRBytecodeIRGenerator >> interpretStackPointerWith: aRBVariableNode [
 		operands: #()
 ]
 
-{ #category : #'special cases - stack' }
+{ #category : 'special cases - stack' }
 DRBytecodeIRGenerator >> interpretStackTopWith: aRBMessageNode [
 
 	^ self
@@ -415,7 +417,7 @@ DRBytecodeIRGenerator >> interpretStackTopWith: aRBMessageNode [
 		  operands: { 0 asDRValue }
 ]
 
-{ #category : #'special cases - stack' }
+{ #category : 'special cases - stack' }
 DRBytecodeIRGenerator >> interpretStackValueWith: aRBMessageNode [
 	"Interpret messages of the form 
 	interpreter stackValue: xxx.
@@ -430,7 +432,7 @@ DRBytecodeIRGenerator >> interpretStackValueWith: aRBMessageNode [
 		  operands: { self popOperand }
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> interpretSuperSendWith: aRBMessageNode [
 
 	^ self
@@ -439,13 +441,13 @@ DRBytecodeIRGenerator >> interpretSuperSendWith: aRBMessageNode [
 		  sendTable: 'superSendTrampolines'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeIRGenerator >> newBasicBlock [
 
 	^ self newBasicBlockWithState: nil
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeIRGenerator >> newBasicBlockWithState: executionState [
 
 	| newBasicBlock |
@@ -454,13 +456,13 @@ DRBytecodeIRGenerator >> newBasicBlockWithState: executionState [
 	^ newBasicBlock
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRBytecodeIRGenerator >> newCFG [
 	
 	^ DRControlFlowGraph new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeIRGenerator >> numberOfArguments: aValue [ 
 	
 	numberOfArguments := aValue.
@@ -469,7 +471,7 @@ DRBytecodeIRGenerator >> numberOfArguments: aValue [
 		self push: (self argRegisterNumber: i) ]"
 ]
 
-{ #category : #'pharo-stack' }
+{ #category : 'pharo-stack' }
 DRBytecodeIRGenerator >> pop [
 
 	self
@@ -479,7 +481,7 @@ DRBytecodeIRGenerator >> pop [
 	^ self popOperand
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeIRGenerator >> pop: n unspilled: aBoolean [
 
 	self addInstructionWithNoResultFrom: nil instructionKind: DRPop operands: {
@@ -488,7 +490,7 @@ DRBytecodeIRGenerator >> pop: n unspilled: aBoolean [
 	^ self popOperand
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRBytecodeIRGenerator >> push: aValue [
 
 	self
@@ -498,11 +500,11 @@ DRBytecodeIRGenerator >> push: aValue [
 	^ self popOperand
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeIRGenerator >> receiver: aDRValue [
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
 	| name value mappings |

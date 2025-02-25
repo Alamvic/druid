@@ -1,16 +1,18 @@
 Class {
-	#name : #DRJITMessageSend,
-	#superclass : #DRInstruction,
-	#category : #'Druid-BytecodeToJITCompilation'
+	#name : 'DRJITMessageSend',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-BytecodeToJITCompilation',
+	#package : 'Druid',
+	#tag : 'BytecodeToJITCompilation'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJITMessageSend >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitJITMessageSend: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJITMessageSend >> cogitSelectorIndex [
 	
 	"Special selectors are negative and 1 based in cogit.
@@ -20,38 +22,38 @@ DRJITMessageSend >> cogitSelectorIndex [
 		ifFalse: [ self selectorIndex ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRJITMessageSend >> isJITMessageSend [
 	
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRJITMessageSend >> isMandatoryInstruction [
 
 	"It represents a potential side effect!"
 	^ true	
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJITMessageSend >> isSpecialSelectorSend [
 		
 	^ operands last value
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJITMessageSend >> numberOfArguments [
 	
 	^ operands second
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRJITMessageSend >> opcode [
 	
 	^ 'SEND'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRJITMessageSend >> sccpEvaluateFor: sccp [
 
 	"Nothing to do"
@@ -59,13 +61,13 @@ DRJITMessageSend >> sccpEvaluateFor: sccp [
 	
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJITMessageSend >> selectorIndex [
 
 	^ operands first
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJITMessageSend >> sendTable [
 
 	^ self operand3

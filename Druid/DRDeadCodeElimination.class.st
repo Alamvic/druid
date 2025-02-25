@@ -35,16 +35,18 @@ This means that every time an instruction is marked, the last instruction of all
 Since we consider jumps as normal instructions, this will trigger the marking of the entire path that reaches mandatory instructions.
 "
 Class {
-	#name : #DRDeadCodeElimination,
-	#superclass : #DROptimisation,
+	#name : 'DRDeadCodeElimination',
+	#superclass : 'DROptimisation',
 	#instVars : [
 		'workList',
 		'markedInstructions'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRDeadCodeElimination >> applyTo: cfg [
 
 	self initialize.
@@ -53,33 +55,33 @@ DRDeadCodeElimination >> applyTo: cfg [
 	self sweepInstructions: cfg
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRDeadCodeElimination >> canBeAppliedIn: aDRControlFlowGraph [
 
 	^ aDRControlFlowGraph instructions anySatisfy: [ :i | 
 		  i isMandatoryInstruction not and: [ i users isEmpty ] ]
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRDeadCodeElimination >> dependenciesOf: anInstruction [
 	
 	^ anInstruction dataDependencies select: [ :op | op isInstruction ]
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRDeadCodeElimination >> initialize [ 
 
 	markedInstructions := IdentitySet new. 
 	workList := OrderedCollection new.
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRDeadCodeElimination >> markInitialInstructions: cfg [
 
 	cfg instructionsDo: [ :i | i isMandatoryInstruction ifTrue: [ workList add: i] ]
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRDeadCodeElimination >> markInstructions [
 
 	[ workList isEmpty ] whileFalse: [ 
@@ -98,7 +100,7 @@ DRDeadCodeElimination >> markInstructions [
 			workList addAll: (self dependenciesOf: instruction) ] ]
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRDeadCodeElimination >> sweepInstructions: cfg [
 
 	"Remove all non marked instructions from the CFG.

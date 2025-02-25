@@ -1,60 +1,62 @@
 Class {
-	#name : #DRPop,
-	#superclass : #DRStackEffect,
-	#category : #'Druid-BytecodeToJITCompilation'
+	#name : 'DRPop',
+	#superclass : 'DRStackEffect',
+	#category : 'Druid-BytecodeToJITCompilation',
+	#package : 'Druid',
+	#tag : 'BytecodeToJITCompilation'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRPop >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitPop: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPop >> isPop [
 	
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPop >> isUnspilled [
 	
 	^ operands second value
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPop >> numberOfPoppedElements [
 	
 	^ self operand1 value
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRPop >> opcode [
 	
 	^ 'Pop'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRPop >> sccpLatticeValueFor: sccp [ 
 	
 	"We know that we know nothing about what is in the stack"
 	^ sccp bottom
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRPop >> size [
 	"Popped memory size"
 	
 	^ 8 "bytes"
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPop >> stackDelta [
 	
 	^ self operand1 value
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPop >> stackDepth [
 	"Return the stack depth left on the stack after applying this operation.
 	Pop will remove one element from the stack depth of the previous stack instruction"
