@@ -23,6 +23,8 @@ DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method [
 DRBytecodeGeneratorTest >> assertCompilationFor: aSelector fromClass: aClass [
 
 	| compiledMethod expectedMethod |
+	self setUp.
+	
 	expectedMethod := aClass >> aSelector.
 	compiledMethod := self compileSelector: aSelector fromClass: aClass.
 	self assert: compiledMethod equalsResult: expectedMethod
@@ -450,7 +452,6 @@ DRBytecodeGeneratorTest >> testOpalConditionalMethods [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalSimpleMethods [
 
-	self skip. "TO FIX"
 	OCOpalExamples methods
 		select: [ :opalMethod | opalMethod protocolName = #'examples - simple' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
