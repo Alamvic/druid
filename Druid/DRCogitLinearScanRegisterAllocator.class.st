@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCogitLinearScanRegisterAllocator,
-	#superclass : #DRLinearScanRegisterAllocator,
-	#category : #'Druid-Cogit'
+	#name : 'DRCogitLinearScanRegisterAllocator',
+	#superclass : 'DRLinearScanRegisterAllocator',
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #'live-analysis' }
+{ #category : 'live-analysis' }
 DRCogitLinearScanRegisterAllocator >> buildLiveSets [
 
 	| shouldRecompute |
@@ -14,7 +16,7 @@ DRCogitLinearScanRegisterAllocator >> buildLiveSets [
 		doWhileTrue: [ shouldRecompute ]
 ]
 
-{ #category : #'live-analysis' }
+{ #category : 'live-analysis' }
 DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 	"2 address code transformation. Second operand and destination MUST have the same assigned register.
 	If their live intervals do not overlap => merge them.
@@ -83,7 +85,7 @@ DRCogitLinearScanRegisterAllocator >> coalesceIntervalsForTwoAddressCode [
 	^ false
 ]
 
-{ #category : #'live-analysis' }
+{ #category : 'live-analysis' }
 DRCogitLinearScanRegisterAllocator >> computeLivenessOfInstruction: anInstruction inBlock: b withLiveSet: live [
 
 	"Instructions pushing registers to the stack extend the life of the register up to its pop or last use.
@@ -129,7 +131,7 @@ DRCogitLinearScanRegisterAllocator >> computeLivenessOfInstruction: anInstructio
 		  withLiveSet: live
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRCogitLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
@@ -150,7 +152,7 @@ DRCogitLinearScanRegisterAllocator >> initialize [
 		DRPhysicalGeneralPurposeRegister name: 'Extra4Reg' }
 ]
 
-{ #category : #'live-analysis' }
+{ #category : 'live-analysis' }
 DRCogitLinearScanRegisterAllocator >> updateLiveSet: liveSet ofOperand: op ofInstruction: anInstruction inBlock: b [
 
 	"If the instruction is an integer division or modulo, this will be translated in cogit's DIVR:R:Quo:Rem: instruction.

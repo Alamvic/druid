@@ -1,17 +1,19 @@
 Class {
-	#name : #DRCleanStackInstructionsTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRCleanStackInstructionsTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRCleanStackInstructionsTest >> setUp [
 
 	super setUp.
 	optimisation := DRCleanStackInstructions new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCleanStackInstructionsTest >> testReplaceComplexPushLoadPopSequence [
 
 	| cfg push load pop push2 pop2 push3 pop3 |
@@ -37,7 +39,7 @@ DRCleanStackInstructionsTest >> testReplaceComplexPushLoadPopSequence [
 	self denyCollection: cfg instructions includesAny: { push. push2. push3. load. pop. pop2. pop3 }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCleanStackInstructionsTest >> testReplaceManyPushLoadPopSequence [
 
 	| cfg push load pop push2 load2 pop2 |
@@ -62,7 +64,7 @@ DRCleanStackInstructionsTest >> testReplaceManyPushLoadPopSequence [
 	self denyCollection: cfg instructions includesAny: { push. push2. load. load2. pop. pop2 }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCleanStackInstructionsTest >> testReplacePushLoadPopSequence [
 
 	| cfg push load pop |
@@ -80,7 +82,7 @@ DRCleanStackInstructionsTest >> testReplacePushLoadPopSequence [
 	self denyCollection: cfg instructions includesAny: { push. load. pop }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCleanStackInstructionsTest >> testReplacePushLoadPopSequenceAfterMerge [
 
 	| cfg push load pop push2 pop2 push3 pop3 |
@@ -110,7 +112,7 @@ DRCleanStackInstructionsTest >> testReplacePushLoadPopSequenceAfterMerge [
 	self denyCollection: cfg instructions includesAny: { push. push2. push3. load. pop. pop2. pop3 }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCleanStackInstructionsTest >> testReplaceSomePushLoadPopSequence [
 
 	| cfg push load pop push2 pop2 |

@@ -1,10 +1,11 @@
 Class {
-	#name : #DRFrameInfoCleaner,
-	#superclass : #DROptimisation,
-	#category : #'Druid-Tests'
+	#name : 'DRFrameInfoCleaner',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRFrameInfoCleaner >> applyTo: cfg [
 
 	cfg instructionsDo: [ :i |

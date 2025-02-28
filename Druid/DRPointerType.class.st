@@ -1,10 +1,12 @@
 Class {
-	#name : #DRPointerType,
-	#superclass : #DRUnsignedIntegerType,
-	#category : #'Druid-IR-Types'
+	#name : 'DRPointerType',
+	#superclass : 'DRUnsignedIntegerType',
+	#category : 'Druid-IR-Types',
+	#package : 'Druid',
+	#tag : 'IR-Types'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRPointerType >> initialize [
 
 	super initialize.

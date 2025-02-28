@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCogitDynamicLinearScanRegisterAllocator,
-	#superclass : #DRCogitLinearScanRegisterAllocator,
-	#category : #'Druid-Cogit'
+	#name : 'DRCogitDynamicLinearScanRegisterAllocator',
+	#superclass : 'DRCogitLinearScanRegisterAllocator',
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRCogitDynamicLinearScanRegisterAllocator >> initialize [
 
 	super initialize.

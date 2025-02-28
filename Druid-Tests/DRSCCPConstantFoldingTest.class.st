@@ -1,29 +1,31 @@
 Class {
-	#name : #DRSCCPConstantFoldingTest,
-	#superclass : #DRSCCPTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRSCCPConstantFoldingTest',
+	#superclass : 'DRSCCPTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #assertions }
+{ #category : 'assertions' }
 DRSCCPConstantFoldingTest >> assertLastInstructionOf: cfg isCopyOf: instruction [
 
 	self assert: cfg instructions fourth isCopy.
 	self assert: cfg instructions fourth operand1 equals: instruction.
 ]
 
-{ #category : #assertions }
+{ #category : 'assertions' }
 DRSCCPConstantFoldingTest >> assertLastInstructionOf: cfg isCopyValue: aValue [
 
 	self assertLastInstructionOf: cfg isCopyOf: aValue asDRValue.
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRSCCPConstantFoldingTest >> copyOfAnyRegister [
 
 	^ instructionFactory copy: (DRSSARegister name: 87)
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRSCCPConstantFoldingTest >> nonReducibleOperation [
 
 	^ DRGetConditionCode
@@ -34,7 +36,7 @@ DRSCCPConstantFoldingTest >> nonReducibleOperation [
 		  result: (DRSSARegister name: 100)
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingTest >> testConstantFoldingAddInSingleBasicBlock [
 
 	| cfg |
@@ -46,7 +48,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingAddInSingleBasicBlock [
 		equals: 7 asDRValue
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingTest >> testConstantFoldingAddOfLeftNonConstants [
 
 	| r cfg |
@@ -62,7 +64,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingAddOfLeftNonConstants [
 		equals: 3 asDRValue
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingTest >> testConstantFoldingAddOfRightNonConstants [
 
 	| r cfg |
@@ -78,7 +80,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingAddOfRightNonConstants [
 		equals: r
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingTest >> testConstantFoldingBitAndInSingleBasicBlock [
 
 	| cfg |
@@ -93,7 +95,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingBitAndInSingleBasicBlock [
 		equals: 2r0101010110 asDRValue
 ]
 
-{ #category : #constant }
+{ #category : 'constant' }
 DRSCCPConstantFoldingTest >> testConstantFoldingConstantAndFalseIsFalse [
 
 	| cfg |
@@ -102,7 +104,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingConstantAndFalseIsFalse [
 	self assertLastInstructionOf: cfg isCopyValue: false.
 ]
 
-{ #category : #constant }
+{ #category : 'constant' }
 DRSCCPConstantFoldingTest >> testConstantFoldingConstantAndTrueIsConstant [
 
 	| cfg |
@@ -111,7 +113,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingConstantAndTrueIsConstant [
 	self assertLastInstructionOf: cfg isCopyValue: 17.
 ]
 
-{ #category : #constant }
+{ #category : 'constant' }
 DRSCCPConstantFoldingTest >> testConstantFoldingConstantOrFalseIsConstant [
 
 	| cfg |
@@ -120,7 +122,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingConstantOrFalseIsConstant [
 	self assertLastInstructionOf: cfg isCopyValue: 17.
 ]
 
-{ #category : #constant }
+{ #category : 'constant' }
 DRSCCPConstantFoldingTest >> testConstantFoldingConstantOrTrueIsTrue [
 
 	| cfg |
@@ -129,7 +131,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingConstantOrTrueIsTrue [
 	self assertLastInstructionOf: cfg isCopyValue: true.
 ]
 
-{ #category : #constant }
+{ #category : 'constant' }
 DRSCCPConstantFoldingTest >> testConstantFoldingFalseAndConstantIsFalse [
 
 	| cfg |
@@ -138,7 +140,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingFalseAndConstantIsFalse [
 	self assertLastInstructionOf: cfg isCopyValue: false.
 ]
 
-{ #category : #operation }
+{ #category : 'operation' }
 DRSCCPConstantFoldingTest >> testConstantFoldingFalseAndOperationIsFalse [
 
 	| cfg op |
@@ -148,7 +150,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingFalseAndOperationIsFalse [
 	self assertLastInstructionOf: cfg isCopyValue: false.
 ]
 
-{ #category : #register }
+{ #category : 'register' }
 DRSCCPConstantFoldingTest >> testConstantFoldingFalseAndRegisterIsFalse [
 
 	| cfg |
@@ -157,7 +159,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingFalseAndRegisterIsFalse [
 	self assertLastInstructionOf: cfg isCopyValue: false.
 ]
 
-{ #category : #constant }
+{ #category : 'constant' }
 DRSCCPConstantFoldingTest >> testConstantFoldingFalseOrConstantIsConstant [
 
 	| cfg |
@@ -166,7 +168,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingFalseOrConstantIsConstant [
 	self assertLastInstructionOf: cfg isCopyValue: 17.
 ]
 
-{ #category : #operation }
+{ #category : 'operation' }
 DRSCCPConstantFoldingTest >> testConstantFoldingFalseOrOperationIsOperation [
 
 	| cfg op |
@@ -176,7 +178,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingFalseOrOperationIsOperation [
 	self assertLastInstructionOf: cfg isCopyOf: op.
 ]
 
-{ #category : #register }
+{ #category : 'register' }
 DRSCCPConstantFoldingTest >> testConstantFoldingFalseOrRegisterIsRegister [
 
 	| cfg copy |
@@ -186,7 +188,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingFalseOrRegisterIsRegister [
 	self assertLastInstructionOf: cfg isCopyOf: copy
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantFoldingTest >> testConstantFoldingLoadConstant [
 
 	| b1 cfg operand1 operand2 |
@@ -202,7 +204,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingLoadConstant [
 	self assert: cfg instructions second isLoad
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantFoldingTest >> testConstantFoldingLoadJitCompileExpression [
 
 	| cfg |
@@ -218,7 +220,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingLoadJitCompileExpression [
 		equals: cfg instructions first
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingTest >> testConstantFoldingLoadNonConstant [
 
 	| cfg |
@@ -229,7 +231,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingLoadNonConstant [
 	self assert: cfg instructions second operand1 isMemoryAddress
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyByZeroLeft [
 
 	| cfg |
@@ -241,7 +243,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyByZeroLeft [
 	self assertLastInstructionOf: cfg isCopyValue: 0
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyByZeroRight [
 
 	| cfg |
@@ -252,7 +254,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyByZeroRight [
 	self assertLastInstructionOf: cfg isCopyValue: 0
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyInSingleBasicBlock [
 
 	| cfg |
@@ -260,7 +262,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyInSingleBasicBlock [
 	self assertLastInstructionOf: cfg isCopyValue: 12
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyWithFoldedUsers [
 
 	| b1 cfg foldedInstruction operand1 operand2 |
@@ -277,7 +279,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingMultiplyWithFoldedUsers [
 	self assertLastInstructionOf: cfg isCopyValue: 15
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction between: value1 and: value2 [
 
 	^ self
@@ -286,7 +288,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction between: value1 
 		  andOp: (instructionFactory copy: value2)
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction between: value andOp: operand [
 
 	^ self
@@ -295,7 +297,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction between: value a
 		  andOp: operand
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction betweenOp: operand and: value [
 
 	^ self
@@ -304,7 +306,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction betweenOp: opera
 		  andOp: (instructionFactory copy: value)
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction betweenOp: operand1 andOp: operand2 [
 
 	| b1 cfg foldedInstruction |
@@ -324,7 +326,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOf: instruction betweenOp: opera
 	^ cfg
 ]
 
-{ #category : #operation }
+{ #category : 'operation' }
 DRSCCPConstantFoldingTest >> testConstantFoldingOperationAndFalseIsFalse [
 
 	| cfg op |
@@ -334,7 +336,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOperationAndFalseIsFalse [
 	self assertLastInstructionOf: cfg isCopyValue: false.
 ]
 
-{ #category : #operation }
+{ #category : 'operation' }
 DRSCCPConstantFoldingTest >> testConstantFoldingOperationAndTrueIsOperation [
 
 	| cfg op |
@@ -344,7 +346,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOperationAndTrueIsOperation [
 	self assertLastInstructionOf: cfg isCopyOf: op.
 ]
 
-{ #category : #operation }
+{ #category : 'operation' }
 DRSCCPConstantFoldingTest >> testConstantFoldingOperationOrFalseIsOperation [
 
 	| cfg op |
@@ -354,7 +356,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOperationOrFalseIsOperation [
 	self assertLastInstructionOf: cfg isCopyOf: op.
 ]
 
-{ #category : #operation }
+{ #category : 'operation' }
 DRSCCPConstantFoldingTest >> testConstantFoldingOperationOrTrueIsTrue [
 
 	| cfg op |
@@ -364,7 +366,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingOperationOrTrueIsTrue [
 	self assertLastInstructionOf: cfg isCopyValue: true.
 ]
 
-{ #category : #register }
+{ #category : 'register' }
 DRSCCPConstantFoldingTest >> testConstantFoldingRegisterAndFalseIsFalse [
 
 	| cfg copy |
@@ -374,7 +376,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingRegisterAndFalseIsFalse [
 	self assertLastInstructionOf: cfg isCopyValue: false.
 ]
 
-{ #category : #register }
+{ #category : 'register' }
 DRSCCPConstantFoldingTest >> testConstantFoldingRegisterAndTrueIsRegister [
 
 	| cfg copy |
@@ -384,7 +386,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingRegisterAndTrueIsRegister [
 	self assertLastInstructionOf: cfg isCopyOf: copy
 ]
 
-{ #category : #register }
+{ #category : 'register' }
 DRSCCPConstantFoldingTest >> testConstantFoldingRegisterOrFalseIsRegister [
 
 	| cfg copy |
@@ -394,7 +396,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingRegisterOrFalseIsRegister [
 	self assertLastInstructionOf: cfg isCopyOf: copy
 ]
 
-{ #category : #register }
+{ #category : 'register' }
 DRSCCPConstantFoldingTest >> testConstantFoldingRegisterOrTrueIsTrue [
 
 	| cfg copy |
@@ -404,7 +406,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingRegisterOrTrueIsTrue [
 	self assertLastInstructionOf: cfg isCopyValue: true.
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingTest >> testConstantFoldingSubstractInSingleBasicBlock [
 
 	| cfg |
@@ -412,7 +414,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingSubstractInSingleBasicBlock [
 	self assertLastInstructionOf: cfg isCopyValue: -1
 ]
 
-{ #category : #constant }
+{ #category : 'constant' }
 DRSCCPConstantFoldingTest >> testConstantFoldingTrueAndConstantIsConstant [
 
 	| cfg |
@@ -421,7 +423,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingTrueAndConstantIsConstant [
 	self assertLastInstructionOf: cfg isCopyValue: 17.
 ]
 
-{ #category : #operation }
+{ #category : 'operation' }
 DRSCCPConstantFoldingTest >> testConstantFoldingTrueAndOperationIsOperation [
 
 	| cfg op |
@@ -431,7 +433,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingTrueAndOperationIsOperation [
 	self assertLastInstructionOf: cfg isCopyOf: op.
 ]
 
-{ #category : #register }
+{ #category : 'register' }
 DRSCCPConstantFoldingTest >> testConstantFoldingTrueAndRegisterIsRegister [
 
 	| cfg copy |
@@ -441,7 +443,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingTrueAndRegisterIsRegister [
 	self assertLastInstructionOf: cfg isCopyOf: copy.
 ]
 
-{ #category : #constant }
+{ #category : 'constant' }
 DRSCCPConstantFoldingTest >> testConstantFoldingTrueOrConstantIsTrue [
 
 	| cfg |
@@ -450,7 +452,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingTrueOrConstantIsTrue [
 	self assertLastInstructionOf: cfg isCopyValue: true.
 ]
 
-{ #category : #operation }
+{ #category : 'operation' }
 DRSCCPConstantFoldingTest >> testConstantFoldingTrueOrOperationIsTrue [
 
 	| cfg op |
@@ -460,7 +462,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingTrueOrOperationIsTrue [
 	self assertLastInstructionOf: cfg isCopyValue: true.
 ]
 
-{ #category : #register }
+{ #category : 'register' }
 DRSCCPConstantFoldingTest >> testConstantFoldingTrueOrRegisterIsTrue [
 
 	| cfg |
@@ -469,7 +471,7 @@ DRSCCPConstantFoldingTest >> testConstantFoldingTrueOrRegisterIsTrue [
 	self assertLastInstructionOf: cfg isCopyValue: true.
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingTest >> testFoldBitShiftWithConstants [
 
 	| cfg |
@@ -481,7 +483,7 @@ DRSCCPConstantFoldingTest >> testFoldBitShiftWithConstants [
 		equals: 2r100 asDRValue
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingTest >> testFoldBitShiftWithNonLeftConstant [
 
 	| cfg r lastInstruction |
@@ -494,7 +496,7 @@ DRSCCPConstantFoldingTest >> testFoldBitShiftWithNonLeftConstant [
 	self assert: lastInstruction operand2 value equals: 1.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantFoldingTest >> testFoldingLoadWithConstant [
 
 	| cfg load |
@@ -511,7 +513,7 @@ DRSCCPConstantFoldingTest >> testFoldingLoadWithConstant [
 	self assert: cfg instructions second operand1 equals: load
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantFoldingTest >> testFoldingLoadWithOperation [
 
 	| cfg load op |
@@ -530,7 +532,7 @@ DRSCCPConstantFoldingTest >> testFoldingLoadWithOperation [
 	self assert: cfg instructions third operand1 equals: load
 ]
 
-{ #category : #constant }
+{ #category : 'constant' }
 DRSCCPConstantFoldingTest >> testFoldingObjectReferenceIntoJITExpression [
 
 	| cfg copy addition |
@@ -556,7 +558,7 @@ DRSCCPConstantFoldingTest >> testFoldingObjectReferenceIntoJITExpression [
 				1 asDRValue }
 ]
 
-{ #category : #operation }
+{ #category : 'operation' }
 DRSCCPConstantFoldingTest >> varJITExpression [
 
 	^ DRInterpreterReference reference: 'var'

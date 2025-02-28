@@ -1,15 +1,17 @@
 Class {
-	#name : #DRStager,
-	#superclass : #DROptimisation,
+	#name : 'DRStager',
+	#superclass : 'DROptimisation',
 	#instVars : [
 		'cfgEdgeWorklist',
 		'ssaWorklist',
 		'visited'
 	],
-	#category : #'Druid-Staging'
+	#category : 'Druid-Staging',
+	#package : 'Druid',
+	#tag : 'Staging'
 }
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRStager >> addBlockToWorklist: aDRBasicBlock [
 
 	(visited includes: aDRBasicBlock) ifTrue: [ ^ self ].
@@ -20,7 +22,7 @@ DRStager >> addBlockToWorklist: aDRBasicBlock [
 			 e isStaged not or: [ e isJump "continue tracking the blocks" ] ])
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStager >> applyTo: cfg [
 
 	"double worklist algorithm. One block worklist, one instruction worklist.
@@ -41,13 +43,13 @@ DRStager >> applyTo: cfg [
 			self addBlockToWorklist: cfgEdgeWorklist removeFirst ] ]
 ]
 
-{ #category : #staging }
+{ #category : 'staging' }
 DRStager >> canStage: anInstruction [
 
 	^ self canStage: anInstruction modulo: Set new
 ]
 
-{ #category : #staging }
+{ #category : 'staging' }
 DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions [
 
 	(aSetOfPotentiallyStagedInstructions includes: anInstruction)
@@ -120,7 +122,7 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 	^ anInstruction operands allSatisfy: [ :e | self isStaged: e ]"
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStager >> canStageOneLevel: anOperand [
 
 	anOperand isStaged ifTrue: [ ^ true ].
@@ -128,7 +130,7 @@ DRStager >> canStageOneLevel: anOperand [
 	^ false
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRStager >> initialize [
 
 	super initialize.
@@ -137,14 +139,14 @@ DRStager >> initialize [
 	visited := Set new.
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStager >> isStaged: anOperand [
 
 	(self canStageOneLevel: anOperand) ifTrue: [ ^ true ].
 	^ anOperand isStaged
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStager >> isStaged: anOperand modulo: aSetOfPotentiallyStagedInstructions [
 
 	"Returns true if the operand could be staged if we assume that the given set is staged"
@@ -155,7 +157,7 @@ DRStager >> isStaged: anOperand modulo: aSetOfPotentiallyStagedInstructions [
 	^ false
 ]
 
-{ #category : #staging }
+{ #category : 'staging' }
 DRStager >> stageInstruction: anInstruction [
 	"Just staged a push instruction"
 

@@ -1,16 +1,18 @@
 Class {
-	#name : #DRMultiply,
-	#superclass : #DRArithmeticInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRMultiply',
+	#superclass : 'DRArithmeticInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMultiply >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitMultiply: self
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRMultiply >> asNumberedExpression [
 
 	| numberedExpression |
@@ -21,19 +23,19 @@ DRMultiply >> asNumberedExpression [
 	yourself
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRMultiply >> isMultiply [
 	
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRMultiply >> opcode [
 	
 	^ 'MUL'
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMultiply >> sccpLatticeValueFor: sccp [
 
 	| operand1LatticeValue operand2LatticeValue operand1IsConstant operand2IsConstant nonConstantLattices |
@@ -57,7 +59,7 @@ DRMultiply >> sccpLatticeValueFor: sccp [
 		latticeOperand2: operand2LatticeValue
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRMultiply >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand * operand2

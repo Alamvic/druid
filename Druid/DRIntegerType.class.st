@@ -1,19 +1,21 @@
 Class {
-	#name : #DRIntegerType,
-	#superclass : #DRTopType,
+	#name : 'DRIntegerType',
+	#superclass : 'DRTopType',
 	#instVars : [
 		'size'
 	],
-	#category : #'Druid-IR-Types'
+	#category : 'Druid-IR-Types',
+	#package : 'Druid',
+	#tag : 'IR-Types'
 }
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRIntegerType class >> bits64 [
 
 	^ self size: 8 "bytes per word"
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRIntegerType class >> size: aSize [
 
 	^ self new
@@ -21,32 +23,32 @@ DRIntegerType class >> size: aSize [
 		  yourself
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRIntegerType >> isIntegerType [
 	
 	^ true
 ]
 
-{ #category : #'accessing - query' }
+{ #category : 'accessing - query' }
 DRIntegerType >> numberOfBits [
 
 	^ self size * 8
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRIntegerType >> printOn: aStream [
 
 	super printOn: aStream.
 	aStream << '[' << self size asString << ']'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRIntegerType >> size [
 
 	^ size
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRIntegerType >> size: anObject [
 
 	size := anObject

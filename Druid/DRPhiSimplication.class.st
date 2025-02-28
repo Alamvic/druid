@@ -1,10 +1,12 @@
 Class {
-	#name : #DRPhiSimplication,
-	#superclass : #DROptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRPhiSimplication',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRPhiSimplication >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph phiFunctions do: [ :i |
@@ -17,7 +19,7 @@ DRPhiSimplication >> applyTo: aDRControlFlowGraph [
 			i replaceBy: (DRCopy operands: { operandsWithoutMyself anyOne } result: i result) ] ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPhiSimplication >> canBeAppliedIn: aDRControlFlowGraph [
 
 	^ aDRControlFlowGraph phiFunctions notEmpty

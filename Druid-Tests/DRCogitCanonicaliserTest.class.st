@@ -1,10 +1,11 @@
 Class {
-	#name : #DRCogitCanonicaliserTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests'
+	#name : 'DRCogitCanonicaliserTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> buildCFGWithEightShape [
 	| cfg b0 b1 b2 b3 b4 b5 b6 b7 jump jump2 r1 r2 phi cond jump3 |
 	cfg := DRControlFlowGraphForTesting new.
@@ -57,7 +58,7 @@ DRCogitCanonicaliserTest >> buildCFGWithEightShape [
 	^ cfg
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> optimize: cfg [
 
 	cfg applyOptimisation: (DRSCCP then: DRCopyPropagation).
@@ -65,14 +66,14 @@ DRCogitCanonicaliserTest >> optimize: cfg [
 	cfg applyOptimisation: DRPhiSimplication new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> setUp [
 
 	super setUp.
 	optimisation := DRCogitCanonicaliser new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testConstantPropagateOnConstantPhiOperands [
 
 	| cfg phi phiOperandsBefore phiOperandsAfter numberOfPhisBefore |
@@ -100,7 +101,7 @@ DRCogitCanonicaliserTest >> testConstantPropagateOnConstantPhiOperands [
 	self assert: phiOperandsBefore equals: phiOperandsAfter
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testDoNotSimplifyAdditionOfAdditionIfMultipleUsers [
 
 	| cfg basicBlock |
@@ -123,7 +124,7 @@ DRCogitCanonicaliserTest >> testDoNotSimplifyAdditionOfAdditionIfMultipleUsers [
 	self assert: basicBlock instructions third operand2 value equals: 17.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testDoNotSimplifyPushLoadBaseOffsetInNormalCanonicalizer [
 
 	| cfg basicBlock |
@@ -151,7 +152,7 @@ DRCogitCanonicaliserTest >> testDoNotSimplifyPushLoadBaseOffsetInNormalCanonical
 	self assert: basicBlock instructions third operand1 equals: basicBlock instructions second.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyAdditionOfAddition [
 
 	| cfg basicBlock |
@@ -174,7 +175,7 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfAddition [
 	self assert: basicBlock instructions second operand1 value equals: 42 "17 + 25".
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyAdditionOfAdditionNoConstant [
 
 	| cfg basicBlock |
@@ -198,7 +199,7 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfAdditionNoConstant [
 	self assert: basicBlock instructions fourth operand2 value equals: 17.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyAdditionOfSubtraction [
 
 	| cfg basicBlock |
@@ -222,7 +223,7 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfSubtraction [
 	self assert: basicBlock instructions second operand1 value equals: 8 "- 17 + 25".
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyAdditionOfZero [
 
 	| cfg basicBlock |
@@ -244,7 +245,7 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfZero [
 	self assert: basicBlock instructions second operand1 equals: basicBlock instructions first.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyBitAndOfBitAnd [
 
 	| cfg basicBlock r0 instruction |
@@ -268,7 +269,7 @@ DRCogitCanonicaliserTest >> testSimplifyBitAndOfBitAnd [
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyBitOrOfBitOr [
 
 	| cfg basicBlock r0 instruction |
@@ -292,7 +293,7 @@ DRCogitCanonicaliserTest >> testSimplifyBitOrOfBitOr [
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyBitXorOfBitXor [
 
 	| cfg basicBlock r0 instruction |
@@ -316,7 +317,7 @@ DRCogitCanonicaliserTest >> testSimplifyBitXorOfBitXor [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyBranchIfConstanteable [
 
 	| cfg condition initialBlockCount |
@@ -335,7 +336,7 @@ DRCogitCanonicaliserTest >> testSimplifyBranchIfConstanteable [
 	self assert: cfg phi operands size equals: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyBranchIfSetConditionCode [
 
 	| cfg phi resultPhi |
@@ -363,7 +364,7 @@ DRCogitCanonicaliserTest >> testSimplifyBranchIfSetConditionCode [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyCopyLoadReceiver [
 
 	| cfg basicBlock |
@@ -387,7 +388,7 @@ DRCogitCanonicaliserTest >> testSimplifyCopyLoadReceiver [
 	self assert: basicBlock instructions first isNoop
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyLoadAdditionOfAddition [
 
 	| cfg basicBlock |
@@ -413,7 +414,7 @@ DRCogitCanonicaliserTest >> testSimplifyLoadAdditionOfAddition [
 	self assert: basicBlock instructions second address offset value equals: 42
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyLoadBaseNegativeOffset [
 
 	| cfg basicBlock |
@@ -436,7 +437,7 @@ DRCogitCanonicaliserTest >> testSimplifyLoadBaseNegativeOffset [
 	self assert: basicBlock instructions second address base value equals: basicBlock instructions first.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyLoadBaseOffset [
 
 	| cfg basicBlock |
@@ -459,7 +460,7 @@ DRCogitCanonicaliserTest >> testSimplifyLoadBaseOffset [
 	self assert: basicBlock instructions second address base value equals: basicBlock instructions first.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyMultiplyOfMultiply [
 
 	| cfg basicBlock r0 instruction |
@@ -483,7 +484,7 @@ DRCogitCanonicaliserTest >> testSimplifyMultiplyOfMultiply [
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyPushLoadBaseOffset [
 
 	| cfg basicBlock |
@@ -507,7 +508,7 @@ DRCogitCanonicaliserTest >> testSimplifyPushLoadBaseOffset [
 	self assert: basicBlock instructions second operand1 base value equals: basicBlock instructions first.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyReceiverAccess [
 
 	| cfg basicBlock |
@@ -528,7 +529,7 @@ DRCogitCanonicaliserTest >> testSimplifyReceiverAccess [
 	self assert: basicBlock instructions first isLoadReceiver.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyStoreBaseNegativeOffset [
 
 	| cfg basicBlock |
@@ -550,7 +551,7 @@ DRCogitCanonicaliserTest >> testSimplifyStoreBaseNegativeOffset [
 	self assert: basicBlock instructions second address base value equals: basicBlock instructions first.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyStoreBaseOffset [
 
 	| cfg basicBlock |

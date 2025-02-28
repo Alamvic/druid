@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCogitSimpleStackPrimitiveCodeGenerator,
-	#superclass : #DRCogitPrimitiveCodeGenerator,
-	#category : #'Druid-Cogit'
+	#name : 'DRCogitSimpleStackPrimitiveCodeGenerator',
+	#superclass : 'DRCogitPrimitiveCodeGenerator',
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackPrimitiveCodeGenerator >> visitLoadArgument: aDRLoadArgument [
 	"cogit genLoadArg: i spilled: n into: Reg."
 

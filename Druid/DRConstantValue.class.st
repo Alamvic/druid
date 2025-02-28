@@ -1,13 +1,15 @@
 Class {
-	#name : #DRConstantValue,
-	#superclass : #DRValue,
+	#name : 'DRConstantValue',
+	#superclass : 'DRValue',
 	#instVars : [
 		'value'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRConstantValue class >> value: anInteger [
 	
 	^ self new
@@ -15,7 +17,7 @@ DRConstantValue class >> value: anInteger [
 		yourself
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRConstantValue >> = anObject [
 
 	self class = anObject class ifTrue: [ 
@@ -23,90 +25,90 @@ DRConstantValue >> = anObject [
 	^ false. 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRConstantValue >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitConstant: self
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRConstantValue >> asJitCompileTimeExpression [
 
 	^ DRInterpreterReference reference: '(' , self value asString , ')'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRConstantValue >> expression [
 	
 	^ value asString
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRConstantValue >> hash [
 
 	^ value hash
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRConstantValue >> includes: anInstruction [ 
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRConstantValue >> isConstant [
 	
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRConstantValue >> isCopy [ 
 
 	^ false
 ]
 
-{ #category : #'loop-invariance' }
+{ #category : 'loop-invariance' }
 DRConstantValue >> isInvariantFrom: loop [
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRConstantValue >> isJITCompileTimeExpression [
 	
 	^ value isStaged
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRConstantValue >> isJITCompileTimeExpressionIgnoring: aCollection [ 
 
 	^ self isJITCompileTimeExpression
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRConstantValue >> isNumberValue [
 
 	^ value isNumber
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRConstantValue >> jitCompileTimeExpression [
 
 	^ RBLiteralValueNode value: value
 ]
 
-{ #category : #interpretation }
+{ #category : 'interpretation' }
 DRConstantValue >> lookupClass [
 	
 	^ value class
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRConstantValue >> name [
 
 	^ value asString
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRConstantValue >> printOn: aStream [
 
 	super printOn: aStream.
@@ -116,25 +118,25 @@ DRConstantValue >> printOn: aStream [
 		nextPutAll: ')'
 ]
 
-{ #category : #'cogit-generation' }
+{ #category : 'cogit-generation' }
 DRConstantValue >> rtlOperandQualifier [
 	
 	^ 'Cq:'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRConstantValue >> sccpLatticeValueFor: sccp [
 
 	^ self
 ]
 
-{ #category : #'constant folding' }
+{ #category : 'constant folding' }
 DRConstantValue >> simpleConstantFold [
 	
 	^ value
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRConstantValue >> type [
 
 	value = nil ifTrue: [ ^ DRUndefinedType new ].
@@ -144,12 +146,12 @@ DRConstantValue >> type [
 	^ value class
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRConstantValue >> value [
 	^ value
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRConstantValue >> value: anInteger [ 
 
 	value := anInteger

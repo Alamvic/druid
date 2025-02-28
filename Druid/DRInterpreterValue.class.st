@@ -1,13 +1,15 @@
 Class {
-	#name : #DRInterpreterValue,
-	#superclass : #DRValue,
+	#name : 'DRInterpreterValue',
+	#superclass : 'DRValue',
 	#instVars : [
 		'value'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterValue class >> value: anInterpreterObject [
 
 	^ self new
@@ -15,60 +17,60 @@ DRInterpreterValue class >> value: anInterpreterObject [
 		  yourself
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRInterpreterValue >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitInterpreterValue: self
 ]
 
-{ #category : #lookup }
+{ #category : 'lookup' }
 DRInterpreterValue >> astForSelector: aString [
 
 	^ (self lookupSelector: aString) ast
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInterpreterValue >> isFloatType [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInterpreterValue >> isUndefined [
 
 	^ false
 ]
 
-{ #category : #interpretation }
+{ #category : 'interpretation' }
 DRInterpreterValue >> lookupClass [
 	
 	^ value class
 ]
 
-{ #category : #lookup }
+{ #category : 'lookup' }
 DRInterpreterValue >> lookupSelector: aString [ 
 
 	^ value class lookupSelector: aString
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterValue >> name [
 
 	^ value class name
 ]
 
-{ #category : #interpretation }
+{ #category : 'interpretation' }
 DRInterpreterValue >> type [
 	
 	^ self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterValue >> value [
 	^ value
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterValue >> value: anInterpreterValue [ 
 	value := anInterpreterValue
 ]

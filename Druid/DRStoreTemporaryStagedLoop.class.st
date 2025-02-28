@@ -1,10 +1,12 @@
 Class {
-	#name : #DRStoreTemporaryStagedLoop,
-	#superclass : #DROptimisation,
-	#category : #'Druid-BytecodeToJITCompilation'
+	#name : 'DRStoreTemporaryStagedLoop',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-BytecodeToJITCompilation',
+	#package : 'Druid',
+	#tag : 'BytecodeToJITCompilation'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStoreTemporaryStagedLoop >> applyTo: cfg [
 
 	cfg phiFunctions
@@ -12,7 +14,7 @@ DRStoreTemporaryStagedLoop >> applyTo: cfg [
 		thenDo: [ :phi | self storeOnNewTemporaryVariables: phi ]
 ]
 
-{ #category : #store }
+{ #category : 'store' }
 DRStoreTemporaryStagedLoop >> storeOnNewTemporaryVariables: phiFunction [
 
 	| variableExpression load instructionFactory |

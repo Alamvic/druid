@@ -1,25 +1,26 @@
 Class {
-	#name : #DRIRTest,
-	#superclass : #TestCase,
+	#name : 'DRIRTest',
+	#superclass : 'TestCase',
 	#instVars : [
 		'compilerCompiler'
 	],
-	#category : #'Druid-Tests'
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #edges }
+{ #category : 'edges' }
 DRIRTest >> anyIncomingEdge: cfg for: aBlock [
 
 	^ (cfg incomingEdgesFor: aBlock) first "unique?"
 ]
 
-{ #category : #edges }
+{ #category : 'edges' }
 DRIRTest >> anyOutgoingEdge: cfg for: aBlock [
 
 	^ (cfg outgoingEdgesFor: aBlock) first "unique?"
 ]
 
-{ #category : #assertions }
+{ #category : 'assertions' }
 DRIRTest >> assertBlock: aBlock hasSameInstructions: expectedInstructions [
 
 	self
@@ -28,32 +29,32 @@ DRIRTest >> assertBlock: aBlock hasSameInstructions: expectedInstructions [
 
 ]
 
-{ #category : #assertions }
+{ #category : 'assertions' }
 DRIRTest >> assertBlock: aBlock jumpsTo: nextBlock [
 
 	self assert: (aBlock successors includes: nextBlock).
 
 ]
 
-{ #category : #assertions }
+{ #category : 'assertions' }
 DRIRTest >> assertConstraint: aConstraint includes: includedConstraint [
 
 	self assert: (aConstraint includes: includedConstraint)
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRIRTest >> configureInterpreter [
 
 	compilerCompiler interpreter: DruidTestInterpreter basicNew 
 ]
 
-{ #category : #assertions }
+{ #category : 'assertions' }
 DRIRTest >> denyConstraint: aConstraint includes: includedConstraint [
 
 	self deny: (aConstraint includes: includedConstraint)
 ]
 
-{ #category : #test }
+{ #category : 'test' }
 DRIRTest >> generateBasicDruidIRFor: methodSelector [
 
 	| method cfg |
@@ -62,7 +63,7 @@ DRIRTest >> generateBasicDruidIRFor: methodSelector [
 	^ cfg
 ]
 
-{ #category : #test }
+{ #category : 'test' }
 DRIRTest >> generateDruidIRFor: methodSelector [
 
 	| cfg |
@@ -71,19 +72,19 @@ DRIRTest >> generateDruidIRFor: methodSelector [
 	^ cfg
 ]
 
-{ #category : #test }
+{ #category : 'test' }
 DRIRTest >> newConditionalJump [
 
 	^ compilerCompiler instructionFactory jumpIf: false
 ]
 
-{ #category : #test }
+{ #category : 'test' }
 DRIRTest >> optimize: cfg [
 
 	compilerCompiler optimize: cfg
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRIRTest >> setUp [
 
 	super setUp.
@@ -91,7 +92,7 @@ DRIRTest >> setUp [
 	compilerCompiler := DRPrimitiveCompilerCompiler new
 ]
 
-{ #category : #test }
+{ #category : 'test' }
 DRIRTest >> setUpCFG: n [
 	"Creates a sequence of n + 1 blocks: |0| -> |1| -> ... -> |n|"
 
@@ -129,14 +130,14 @@ DRIRTest >> setUpCFG: n [
 	self error: 'Unsupported graph size: ', n asString
 ]
 
-{ #category : #test }
+{ #category : 'test' }
 DRIRTest >> setUpCFGWithConditional [
 
 	^ self setUpCFGWithConditional: self newConditionalJump.
 
 ]
 
-{ #category : #test }
+{ #category : 'test' }
 DRIRTest >> setUpCFGWithConditional: jump [
 	"|0| -> |1| -> |2| -> |4|
              \ -> |3| --^
@@ -193,13 +194,13 @@ DRIRTest >> setUpCFGWithConditional: jump [
 
 ]
 
-{ #category : #test }
+{ #category : 'test' }
 DRIRTest >> setUpCFGWithConditionalWithPhi [
 
 	^ self setUpCFGWithConditionalWithPhiBetween: 1 and: 2
 ]
 
-{ #category : #test }
+{ #category : 'test' }
 DRIRTest >> setUpCFGWithConditionalWithPhiBetween: aDRValue and: otherDRValue [
 
 	| cfg copy1 copy2 |
@@ -210,7 +211,7 @@ DRIRTest >> setUpCFGWithConditionalWithPhiBetween: aDRValue and: otherDRValue [
 	^ cfg
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRIRTest >> setUpCFGWithLoop [
 
 	| cfg preHeader initialValue loopPhi loopInstruction header loopBody loopExit |

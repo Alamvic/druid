@@ -1,34 +1,36 @@
 Class {
-	#name : #DRClosureStackFrame,
-	#superclass : #DRStackFrame,
-	#category : #'Druid-CompilerCompiler'
+	#name : 'DRClosureStackFrame',
+	#superclass : 'DRStackFrame',
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRClosureStackFrame >> homeFrame [
 
 	^ receiver outerContext homeFrame
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRClosureStackFrame >> homeFrameWithState: aState [
 	
 	^ (self outerFrameWithState: aState) homeFrameWithState: aState
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRClosureStackFrame >> outerFrame [
 
 	^ receiver outerContext
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRClosureStackFrame >> outerFrameWithState: aState [
 
 	^ aState executionStack detectFrame: [ :f | f mirrorFrame == self outerFrame mirrorFrame ]
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRClosureStackFrame >> printOn: stream [
 
 	stream
@@ -38,13 +40,13 @@ DRClosureStackFrame >> printOn: stream [
 		nextPutAll: ')'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRClosureStackFrame >> receiver [
 
 	^ self homeFrame receiver
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRClosureStackFrame >> receiverWithState: aState [
 
 	^ (self homeFrameWithState: aState) receiver

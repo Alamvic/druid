@@ -1,10 +1,11 @@
 Class {
-	#name : #DRBasicBlockTest,
-	#superclass : #DRIRTest,
-	#category : #'Druid-Tests'
+	#name : 'DRBasicBlockTest',
+	#superclass : 'DRIRTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #assertion }
+{ #category : 'assertion' }
 DRBasicBlockTest >> assertPath: path equalsIds: associationIds [
 
 	| actualIds |
@@ -12,7 +13,7 @@ DRBasicBlockTest >> assertPath: path equalsIds: associationIds [
 	self assert: actualIds equals: associationIds
 ]
 
-{ #category : #break }
+{ #category : 'break' }
 DRBasicBlockTest >> testBreakBlockCreateNewBlocks [
 
 	| cfg copy blocks|
@@ -30,7 +31,7 @@ DRBasicBlockTest >> testBreakBlockCreateNewBlocks [
 
 ]
 
-{ #category : #break }
+{ #category : 'break' }
 DRBasicBlockTest >> testBreakBlockDivideInstructions [
 
 	| cfg copy1 copy2 copy3 copy4 copy5 blocks |
@@ -51,7 +52,7 @@ DRBasicBlockTest >> testBreakBlockDivideInstructions [
 	self assertBlock: blocks third hasSameInstructions: { copy4. copy5 }.
 ]
 
-{ #category : #break }
+{ #category : 'break' }
 DRBasicBlockTest >> testBreakBlockWithPhis [
 
 	| cfg copy blocks |
@@ -68,7 +69,7 @@ DRBasicBlockTest >> testBreakBlockWithPhis [
 	self assert: blocks sixth instructions first isNoop.
 ]
 
-{ #category : #pathAt }
+{ #category : 'pathAt' }
 DRBasicBlockTest >> testPathAt [
 
 	| cfg |

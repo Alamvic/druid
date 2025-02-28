@@ -1,6 +1,6 @@
 Class {
-	#name : #DRControlFlowGraphForTesting,
-	#superclass : #DRPrimitiveControlFlowGraph,
+	#name : 'DRControlFlowGraphForTesting',
+	#superclass : 'DRPrimitiveControlFlowGraph',
 	#instVars : [
 		'b0',
 		'b1',
@@ -10,76 +10,78 @@ Class {
 		'phi',
 		'ConditionnalJump'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraphForTesting >> b0 [
 
 	^ b0
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraphForTesting >> b0: aBlock [
 
 	b0 := aBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraphForTesting >> b1 [
 
 	^ b1
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraphForTesting >> b1: aBlock [
 
 	b1 := aBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraphForTesting >> b2 [
 
 	^ b2
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraphForTesting >> b2: aBlock [
 
 	b2 := aBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraphForTesting >> b3 [
 
 	^ b3
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraphForTesting >> b3: aBlock [
 
 	b3 := aBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraphForTesting >> b4 [ 
 
 	^ b4
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraphForTesting >> b4: aBlock [ 
 
 	b4 := aBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraphForTesting >> phi [
 
 	^ phi
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraphForTesting >> phi: anObject [
 
 	phi := anObject

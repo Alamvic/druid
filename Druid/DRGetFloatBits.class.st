@@ -1,22 +1,24 @@
 Class {
-	#name : #DRGetFloatBits,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRGetFloatBits',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRGetFloatBits >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitGetFloatBits: self
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRGetFloatBits >> opcode [
 	
 	^ 'GetFloatBits'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRGetFloatBits >> sccpLatticeValueFor: sccp [
 
 	| lattice |
@@ -25,7 +27,7 @@ DRGetFloatBits >> sccpLatticeValueFor: sccp [
 	^ lattice asIEEE64BitWord
 ]
 
-{ #category : #'constant folding' }
+{ #category : 'constant folding' }
 DRGetFloatBits >> simpleConstantFold [
 
 	| folded |

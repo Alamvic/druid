@@ -1,10 +1,11 @@
 Class {
-	#name : #DRUtilitaryTest,
-	#superclass : #TestCase,
-	#category : #'Druid-Tests'
+	#name : 'DRUtilitaryTest',
+	#superclass : 'TestCase',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRUtilitaryTest >> testReplaceInstructionBy [
 
 	|instruction1 instruction2 block cfg |
@@ -23,7 +24,7 @@ DRUtilitaryTest >> testReplaceInstructionBy [
 	self assert: block instructions allButLast last isAdd.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRUtilitaryTest >> testReversePostOrderOfLoop [
 
 	| cfg b0 loopHeader loopBody exit |

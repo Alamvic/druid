@@ -1,19 +1,21 @@
 Class {
-	#name : #DRMethodCompilerCompiler,
-	#superclass : #DRAbstractCompilerCompiler,
+	#name : 'DRMethodCompilerCompiler',
+	#superclass : 'DRAbstractCompilerCompiler',
 	#instVars : [
 		'primitiveCompilerName'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #'ir-generation' }
+{ #category : 'ir-generation' }
 DRMethodCompilerCompiler >> argName: index forMethod: method [
 
 	^ method argumentNames at: index
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMethodCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 
 	super configureForCompilerClass: aCompilerClass.
@@ -35,13 +37,13 @@ DRMethodCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 		optimisations add: DRCleanControlFlow new. ]
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRMethodCompilerCompiler >> newIRGenerator [
 
 	^ DRMethodIRGenerator new compiler: self
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRMethodCompilerCompiler >> numberOfArgumentsForMethod: aMethod [ 
 
 	^ aMethod numArgs

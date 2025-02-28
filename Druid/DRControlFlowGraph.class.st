@@ -1,6 +1,6 @@
 Class {
-	#name : #DRControlFlowGraph,
-	#superclass : #Object,
+	#name : 'DRControlFlowGraph',
+	#superclass : 'Object',
 	#instVars : [
 		'initialBasicBlock',
 		'initialConstraint',
@@ -16,10 +16,12 @@ Class {
 		'postDominatorTree',
 		'deadBranches'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRControlFlowGraph >> addBasicBlock: aBlock [
 
 	self assert: (basicBlocks noneSatisfy: [:b | b id = aBlock id]).
@@ -27,7 +29,7 @@ DRControlFlowGraph >> addBasicBlock: aBlock [
 	^ aBlock
 ]
 
-{ #category : #edges }
+{ #category : 'edges' }
 DRControlFlowGraph >> addEdge: anEdge [
 
 	edges add: anEdge.
@@ -36,7 +38,7 @@ DRControlFlowGraph >> addEdge: anEdge [
 		 ifAbsentPut: [ OrderedCollection new ]) add: anEdge
 ]
 
-{ #category : #edges }
+{ #category : 'edges' }
 DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex: branchIndex [
 
 	| edge |
@@ -45,14 +47,14 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 	^ edge
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRControlFlowGraph >> addStagedRegister: aDRStagedRegister [ 
 	
 	"Track the staged registers in this CFG to generate"
 	stagedRegisters add: aDRStagedRegister
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> allBackJumps [
 
 	^ self reversePostOrderBlocks
@@ -60,7 +62,7 @@ DRControlFlowGraph >> allBackJumps [
 		  thenSelect: [ :i | i isBackJump ]
 ]
 
-{ #category : #'accessing - query' }
+{ #category : 'accessing - query' }
 DRControlFlowGraph >> allBlocksBetween: predecessor and: successor [
 	"Retrieve all blocks visited on execution from <predecessor> to <successor>"
 
@@ -70,13 +72,13 @@ DRControlFlowGraph >> allBlocksBetween: predecessor and: successor [
 		  (successor isDominatedBy: b) and: [ b isDominatedBy: predecessor ] ]
 ]
 
-{ #category : #'accessing - query' }
+{ #category : 'accessing - query' }
 DRControlFlowGraph >> allBlocksDominatedBy: aDRBasicBlock [
 
 	^ self reversePostOrderBlocks select: [ :b | b isDominatedBy: aDRBasicBlock ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> allConditionalJumps [
 
 	^ self reversePostOrderBlocks
@@ -84,7 +86,7 @@ DRControlFlowGraph >> allConditionalJumps [
 		  thenSelect: [ :i | i isConditionalBranch ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> allJumps [
 
 	^ self reversePostOrderBlocks
@@ -92,7 +94,7 @@ DRControlFlowGraph >> allJumps [
 		  thenSelect: [ :i | i isNoop not ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> allLoops [
 
 	^ (self allBackJumps select: [ :backJump | 
@@ -100,7 +102,7 @@ DRControlFlowGraph >> allLoops [
 		  backJump loop ]
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRControlFlowGraph >> allocateBasicBlockID [
 	
 	| allocatedID |
@@ -109,20 +111,20 @@ DRControlFlowGraph >> allocateBasicBlockID [
 	^ allocatedID
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRControlFlowGraph >> allocateTemporaryRegister [
 	
 	^ instructionFactory allocateTemporaryRegister
 ]
 
-{ #category : #optimization }
+{ #category : 'optimization' }
 DRControlFlowGraph >> applyOptimisation: optimisation [
 
 	optimisation applyTo: self.
 	self validate
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRControlFlowGraph >> asInspectorIn: view [
 
 	self configureVisualization: view.
@@ -131,7 +133,7 @@ DRControlFlowGraph >> asInspectorIn: view [
 		yourself
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRControlFlowGraph >> asciiLineFrom: initBlock to: lastBlock withDeferred: deferred index: index [
 
 	| workingList i |
@@ -153,7 +155,7 @@ DRControlFlowGraph >> asciiLineFrom: initBlock to: lastBlock withDeferred: defer
 					  succs size > 1 ifTrue: [ deferred at: i put: succs first ] ] ] ] ]
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRControlFlowGraph >> asciiString [
 
 	"WIP!	
@@ -200,19 +202,19 @@ DRControlFlowGraph >> asciiString [
 	^ res
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> blockById: anInteger [ 
 	
 	^ self blocks detect: [ :e | e id = anInteger ]
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRControlFlowGraph >> blocks [
 
 	^ basicBlocks copyWithAll: { initialBasicBlock }
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> blocksBetween: sourceBlock and: destinationBlock [
 
 	| paths |
@@ -220,13 +222,13 @@ DRControlFlowGraph >> blocksBetween: sourceBlock and: destinationBlock [
 	^ paths flattened asSet
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRControlFlowGraph >> blocksDo: aFullBlockClosure [ 
 
 	self blocks do: aFullBlockClosure
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 
 	| workingQueue visited visitsToThisBlockSoFar |
@@ -249,7 +251,7 @@ DRControlFlowGraph >> blocksInReversePostOrderDo: aFullBlockClosure [
 					workingQueue addFirst: target ] ] ] ]
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRControlFlowGraph >> buildDominatorTree [
 
 	| newDominatorTree |
@@ -258,7 +260,7 @@ DRControlFlowGraph >> buildDominatorTree [
 	^ newDominatorTree
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRControlFlowGraph >> buildPostDominatorTree [
 
 	| newDominatorTree |
@@ -267,7 +269,7 @@ DRControlFlowGraph >> buildPostDominatorTree [
 	^ newDominatorTree
 ]
 
-{ #category : #edges }
+{ #category : 'edges' }
 DRControlFlowGraph >> clearEdges [
 
 	edges := OrderedCollection new.
@@ -276,7 +278,7 @@ DRControlFlowGraph >> clearEdges [
 	deadBranches := nil
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRControlFlowGraph >> configureVisualization: view [
 
 	| blockViews controller |
@@ -299,7 +301,7 @@ DRControlFlowGraph >> configureVisualization: view [
 	view @ controller
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRControlFlowGraph >> createBlockView: aBlock [
 	| box label boxes composite labelBackground |
 	label := RSLabel new
@@ -355,7 +357,7 @@ DRControlFlowGraph >> createBlockView: aBlock [
 	^ composite
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRControlFlowGraph >> createinstructionView: instruction [
 
 	^ RSBox new
@@ -373,7 +375,7 @@ DRControlFlowGraph >> createinstructionView: instruction [
 		  yourself
 ]
 
-{ #category : #'dead-path' }
+{ #category : 'dead-path' }
 DRControlFlowGraph >> deadBranches [
 
 	deadBranches ifNotNil: [ ^ deadBranches ].
@@ -384,7 +386,7 @@ DRControlFlowGraph >> deadBranches [
 		  self isDeadBranch: edge source to: edge destination ]
 ]
 
-{ #category : #edges }
+{ #category : 'edges' }
 DRControlFlowGraph >> deadPaths [
 
 	| paths |
@@ -398,25 +400,25 @@ DRControlFlowGraph >> deadPaths [
 	^ deadPaths := paths
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRControlFlowGraph >> dominatorTree [
 
 	^ dominatorTree ifNil: [ dominatorTree := self buildDominatorTree ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> edges [
 
 	^ edges
 ]
 
-{ #category : #edges }
+{ #category : 'edges' }
 DRControlFlowGraph >> edgesFrom: sourceBlock to: destinationBlock [
 
 	^ (self outgoingEdgesFor: sourceBlock) select: [ :e | e destination = destinationBlock ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRControlFlowGraph >> exitBasicBlock [
 	
 	| theExitBlocks |
@@ -425,19 +427,19 @@ DRControlFlowGraph >> exitBasicBlock [
 	^ theExitBlocks anyOne
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRControlFlowGraph >> exitBasicBlocks [
 
 	^ self blocks select: [ :b | b hasSuccessors not ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> firstBasicBlock [
 
 	^ initialBasicBlock successor
 ]
 
-{ #category : #edges }
+{ #category : 'edges' }
 DRControlFlowGraph >> fixBackJumps [
 
 	self invalidateDominatorTree.
@@ -452,7 +454,7 @@ DRControlFlowGraph >> fixBackJumps [
 				ifFalse: [ jump beForwardJumpTo: succ ] ] ]
 ]
 
-{ #category : #edges }
+{ #category : 'edges' }
 DRControlFlowGraph >> fixBlocksSuccessorsAndPredecessors [
 		
 	self blocks do: [ :block | 
@@ -460,55 +462,55 @@ DRControlFlowGraph >> fixBlocksSuccessorsAndPredecessors [
 			thenDo: [ :b | block removePredecessor: b ] ].
 ]
 
-{ #category : #edges }
+{ #category : 'edges' }
 DRControlFlowGraph >> generatePaths [
 
 	self clearEdges.
 	^ (DRPathFactory withCFG: self) generatePaths
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRControlFlowGraph >> hasAnnotatedBytecode [
 
 	self instructionsDo: [ :i | i isAnnotateBytecode ifTrue: [ ^ true ] ].
 	^ false
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> hasConditionJump [
 
 	^ self allConditionalJumps isNotEmpty
 ]
 
-{ #category : #edges }
+{ #category : 'edges' }
 DRControlFlowGraph >> incomingEdgesFor: aBlock [
 
 	^ edges select: [ :e | e destination = aBlock ]
 ]
 
-{ #category : #spilling }
+{ #category : 'spilling' }
 DRControlFlowGraph >> incrementSpillSlots [
 	
 	^ numberOfSpillSlots := numberOfSpillSlots + 1
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> initialBasicBlock [ 
 	^ initialBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> initialConstraint: constraint [
 	initialConstraint := constraint
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> initialContrainst [
 
 	^ initialConstraint
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRControlFlowGraph >> initialize [
 
 	super initialize.
@@ -526,7 +528,7 @@ DRControlFlowGraph >> initialize [
 	initialBasicBlock := self privateNewBasicBlock
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRControlFlowGraph >> inspectionCFG [
 
 	<inspectorPresentationOrder: 0 title: 'CFG'>
@@ -535,13 +537,13 @@ DRControlFlowGraph >> inspectionCFG [
 	^ self asInspectorIn: view
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> instructionByResultId: anInteger [ 
 
 	^ self instructions detect: [ :i | i result hasId: anInteger ]
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRControlFlowGraph >> instructionColor: instruction [
 
 	instruction isJump ifTrue: [
@@ -560,19 +562,19 @@ DRControlFlowGraph >> instructionColor: instruction [
 	^ Color white
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> instructionFactory [
 
 	^ instructionFactory
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> instructionFactory: anObject [
 
 	instructionFactory := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> instructions [
 	
 	| instructions |
@@ -582,53 +584,53 @@ DRControlFlowGraph >> instructions [
 	^ instructions
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRControlFlowGraph >> instructionsDo: aFullBlockClosure [
 
 	self blocksDo: [ :b | 
 		b instructionsDo: [ :e | aFullBlockClosure value: e ] ]
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRControlFlowGraph >> invalidateDominatorTree [
 
 	dominatorTree := nil
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRControlFlowGraph >> invalidatePostDominatorTree [
 
 	postDominatorTree := nil
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRControlFlowGraph >> isAlmostDeadBranch: aDRBasicBlock to: aDRBasicBlock2 [
 
 	^ (self edgesFrom: aDRBasicBlock to: aDRBasicBlock2) anySatisfy: [ :e | 
 		  e isDead ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRControlFlowGraph >> isDeadBranch: aDRBasicBlock to: aDRBasicBlock2 [
 
 	^ (self edgesFrom: aDRBasicBlock to: aDRBasicBlock2) allSatisfy: [ :e | 
 		  e isDead ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRControlFlowGraph >> isMapped [
 
 	self instructionsDo: [ :i | (i isCall and: [ i isMapped ]) ifTrue: [ ^ true ] ].
 	^ false
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> lastBasicBlock [
 
 	^ self reversePostOrderBlocks last
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> lastPaths [
 
 	^ (self blocks
@@ -636,31 +638,31 @@ DRControlFlowGraph >> lastPaths [
 		   thenCollect: [ :b | self incomingEdgesFor: b ]) flattened
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> leafBlocks [
 
 	^ self blocks select: [ :b | b endInstruction isNoop ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> mergeBlocks [
 
 	^ self reversePostOrderBlocks select: [ :b | b hasPhiFunctions ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> messageSends [
 
 	^ self instructions select: [ :i | i isMessageSend ]
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRControlFlowGraph >> newBasicBlock [
 	
 	^ self addBasicBlock: self privateNewBasicBlock
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [ 
 	
 	| newBlock |
@@ -669,19 +671,19 @@ DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [
 	^ newBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> numberOfSpillSlots [
 	
 	^ numberOfSpillSlots
 ]
 
-{ #category : #edges }
+{ #category : 'edges' }
 DRControlFlowGraph >> outgoingEdgesFor: aBlock [
 
 	^ edgesBySource at: aBlock ifAbsent: [ #() ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> pathAt: index [
 
 	| lastEdge |
@@ -689,25 +691,25 @@ DRControlFlowGraph >> pathAt: index [
 	^ lastEdge ancestors , { lastEdge }
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> pathsSize [
 
 	^ self lastPaths size
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> phiFunctions [
 
 	^ self instructions select: [ :i | i isPhiFunction ]
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRControlFlowGraph >> postDominatorTree [
 
 	^ postDominatorTree ifNil: [ postDominatorTree := self buildPostDominatorTree ]
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRControlFlowGraph >> postOrderBlocks [
 
 	"Return the list of blocks based on a simple linearization algorithm"
@@ -715,13 +717,13 @@ DRControlFlowGraph >> postOrderBlocks [
 	^ self reversePostOrderBlocks reversed
 ]
 
-{ #category : #enumeration }
+{ #category : 'enumeration' }
 DRControlFlowGraph >> postOrderInstructions [
 
 	^ self postOrderBlocks flatCollect: [ :b | b instructions reversed ]
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRControlFlowGraph >> privateNewBasicBlock [
 	
 	| newBlock |
@@ -730,7 +732,7 @@ DRControlFlowGraph >> privateNewBasicBlock [
 	^ newBlock
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRControlFlowGraph >> rebuildStackDependencies [
 
 	| lastStackInstructionPerBlock incomingStackInstructions blocks |
@@ -764,19 +766,19 @@ DRControlFlowGraph >> rebuildStackDependencies [
 					ifFalse: [ blocks add: succ ] ] ] ].
 ]
 
-{ #category : #removing }
+{ #category : 'removing' }
 DRControlFlowGraph >> removeBasicBlock: aDRBasicBlock [ 
 
 	basicBlocks remove: aDRBasicBlock
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRControlFlowGraph >> removeInstruction: aDRInstruction [
 	
 	self blocksInReversePostOrderDo: [ :b | b instructions do: [ :i | i = aDRInstruction ifTrue: [ b removeInstruction: aDRInstruction ] ] ]
 ]
 
-{ #category : #iterating }
+{ #category : 'iterating' }
 DRControlFlowGraph >> reversePostOrderBlocks [
 
 	"Return the list of blocks based on a simple linearization algorithm"
@@ -787,7 +789,7 @@ DRControlFlowGraph >> reversePostOrderBlocks [
 	^ blocks
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRControlFlowGraph >> showBranchConstraints: branchEdges [
 
 	^ String streamContents: [ :s | 
@@ -799,7 +801,7 @@ DRControlFlowGraph >> showBranchConstraints: branchEdges [
 				  s << (String cr , '--o--o--o--o--o--o--o--' , String cr) ] ]
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRControlFlowGraph >> showInfoIn: view [
 
 	| label instructions blocks paths info |
@@ -832,7 +834,7 @@ DRControlFlowGraph >> showInfoIn: view [
 	view add: info
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRControlFlowGraph >> showLines: blockViews in: view [
 
 	| eb |
@@ -857,7 +859,7 @@ DRControlFlowGraph >> showLines: blockViews in: view [
 			line color: Color red muchDarker ] ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> simplePathsBetween: sourceNode and: destinationNode [ 
 	| visited currentPath simplePaths depthFirstSearch |
 	visited := Set new.
@@ -881,18 +883,18 @@ DRControlFlowGraph >> simplePathsBetween: sourceNode and: destinationNode [
 	^ simplePaths 
 ]
 
-{ #category : #'accessing - query' }
+{ #category : 'accessing - query' }
 DRControlFlowGraph >> stackInstructions [
 
 	^ self instructions select: [ :i | i isStackInstruction ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> stagedRegisters [
 	^ stagedRegisters
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> subgraphBetween: sourceBlock and: destinationBlock [
 
 	| subgraphBlocks |
@@ -903,7 +905,7 @@ DRControlFlowGraph >> subgraphBetween: sourceBlock and: destinationBlock [
 		  (subgraphBlocks collect: [ :b | b veryDeepCopy ])
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> subgraphWith: subgraphBlocks [
 
 	| sourceBlockCopy subgraph |
@@ -917,13 +919,13 @@ DRControlFlowGraph >> subgraphWith: subgraphBlocks [
 	^ subgraph
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowGraph >> tree: anObject [
 
 	dominatorTree := anObject
 ]
 
-{ #category : #validating }
+{ #category : 'validating' }
 DRControlFlowGraph >> validate [
 
 	self invalidateDominatorTree.

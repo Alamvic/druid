@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCogitBytecodeCodeGenerator,
-	#superclass : #DRCogitCodeGenerator,
-	#category : #'Druid-Cogit'
+	#name : 'DRCogitBytecodeCodeGenerator',
+	#superclass : 'DRCogitCodeGenerator',
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitBytecodeCodeGenerator >> visitCall: aDRCall [
 
 	super visitCall: aDRCall.

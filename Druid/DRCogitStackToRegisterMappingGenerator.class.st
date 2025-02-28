@@ -1,13 +1,15 @@
 Class {
-	#name : #DRCogitStackToRegisterMappingGenerator,
-	#superclass : #DRCogitSimpleStackGenerator,
+	#name : 'DRCogitStackToRegisterMappingGenerator',
+	#superclass : 'DRCogitSimpleStackGenerator',
 	#instVars : [
 		'markDeadCode'
 	],
-	#category : #'Druid-Cogit'
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRCogitStackToRegisterMappingGenerator >> freeRegisterLiveMask: temporaryVariableNode [
 
 	generatorMethodBuilder addStatement:
@@ -20,7 +22,7 @@ DRCogitStackToRegisterMappingGenerator >> freeRegisterLiveMask: temporaryVariabl
 						   arguments: { temporaryVariableNode copy }) }))
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 
 	super generatePreambleForCFG: aDRControlFlowGraph.
@@ -30,7 +32,7 @@ DRCogitStackToRegisterMappingGenerator >> generatePreambleForCFG: aDRControlFlow
 			 value: (RBLiteralValueNode value: 0))
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRCogitStackToRegisterMappingGenerator >> generateRegisterAllocationFor: aDRResult inVariable: temporaryVariableNode [
 
 	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
@@ -44,14 +46,14 @@ DRCogitStackToRegisterMappingGenerator >> generateRegisterAllocationFor: aDRResu
 	generatorMethodBuilder addStatement: (self saveRegisterLiveMask: temporaryVariableNode)
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRCogitStackToRegisterMappingGenerator >> initialize [
 
 	super initialize.
 	markDeadCode := false
 ]
 
-{ #category : #'code-generation' }
+{ #category : 'code-generation' }
 DRCogitStackToRegisterMappingGenerator >> markAsDeadCode [
 
 	generatorMethodBuilder addStatement: (RBAssignmentNode
@@ -60,7 +62,7 @@ DRCogitStackToRegisterMappingGenerator >> markAsDeadCode [
 	markDeadCode := true
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRInstruction [
 
 	| temporaryVariableNode |
@@ -71,7 +73,7 @@ DRCogitStackToRegisterMappingGenerator >> moveToReg: aRBMessageNode from: aDRIns
 			 arguments: { (RBVariableNode named: temporaryVariableNode) })
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitStackToRegisterMappingGenerator >> preProcessBlock: aBasicBlock [
 
 	(markDeadCode and: [ self hasDeferredBranchesTo: aBasicBlock ])
@@ -83,7 +85,7 @@ DRCogitStackToRegisterMappingGenerator >> preProcessBlock: aBasicBlock [
 	super preProcessBlock: aBasicBlock
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRCogitStackToRegisterMappingGenerator >> saveRegisterLiveMask: temporaryVariableNode [
 
 	^ RBAssignmentNode
@@ -98,7 +100,7 @@ DRCogitStackToRegisterMappingGenerator >> saveRegisterLiveMask: temporaryVariabl
 					    arguments: { temporaryVariableNode copy }) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 
 	super visitBytecodeJump: aDRBytecodeJump.
@@ -107,7 +109,7 @@ DRCogitStackToRegisterMappingGenerator >> visitBytecodeJump: aDRBytecodeJump [
 	self markAsDeadCode
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreation [
 	"Create full closure intrinsic uses ReceiverResultReg, SendNumArgsReg and ClassReg."
 
@@ -142,7 +144,7 @@ DRCogitStackToRegisterMappingGenerator >> visitClosureCreation: aDRClosureCreati
 	self freeRegisterLiveMask: (RBVariableNode named: DRPhysicalGeneralPurposeRegister classReg name)
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMarshall [
 	"self marshallSendArguments: numArgs."
 
@@ -157,14 +159,14 @@ DRCogitStackToRegisterMappingGenerator >> visitCogitSendMarshall: aDRCogitSendMa
 					  rtlPushArgumentExpressions: self))
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitDeoptimize: aDRDeoptimize [
 
 	super visitDeoptimize: aDRDeoptimize.
 	markDeadCode := true.
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitFlushStack: aDRFlushStack [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -173,7 +175,7 @@ DRCogitStackToRegisterMappingGenerator >> visitFlushStack: aDRFlushStack [
 			 arguments: { (RBLiteralValueNode value: aDRFlushStack operand1 value) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
 	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: aSendTable"
 
@@ -186,7 +188,7 @@ DRCogitStackToRegisterMappingGenerator >> visitJITMessageSend: aDRMessageSend [
 				(RBVariableNode named: aDRMessageSend sendTable value) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -198,7 +200,7 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadReceiver: aDRLoadReceiver [
 			aDRLoadReceiver }
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue [
 	"(self ssDescriptorAt: 0) copyToReg: TempReg."
 
@@ -213,7 +215,7 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue
 	self moveToReg: sourceDescriptorAST from: aDRLoadStackValue
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitPop: aDRPop [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -224,7 +226,7 @@ DRCogitStackToRegisterMappingGenerator >> visitPop: aDRPop [
 					 (RBLiteralValueNode value: aDRPop isUnspilled not) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -233,7 +235,7 @@ DRCogitStackToRegisterMappingGenerator >> visitPush: aDRPush [
 			 arguments: (aDRPush operand1 rtlPushArgumentExpressions: self))
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 	"self ssFlushUpThroughTemporaryVariable: index.
 	self MoveR: reg
@@ -250,7 +252,7 @@ DRCogitStackToRegisterMappingGenerator >> visitStoreTempVar: aDRStoreTemporaryVa
 	super visitStoreTempVar: aDRStoreTemporaryVariable
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 	"self simStackAt: index."
 
@@ -265,7 +267,7 @@ DRCogitStackToRegisterMappingGenerator >> visitTemporaryVariable: aDRLoadTempora
 	self moveToReg: sourceDescriptorAST from: aDRLoadTemporaryVariable
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitUnspillStackSlot: aDRUnspillStackSlot [
 
 	generatorMethodBuilder addStatement: (RBMessageNode

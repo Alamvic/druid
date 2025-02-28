@@ -1,13 +1,15 @@
 Class {
-	#name : #DRPrimitiveCompilerCompiler,
-	#superclass : #DRAbstractCompilerCompiler,
+	#name : 'DRPrimitiveCompilerCompiler',
+	#superclass : 'DRAbstractCompilerCompiler',
 	#instVars : [
 		'primitiveCompilerName'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #API }
+{ #category : 'API' }
 DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInterpreter as: primitiveCompilerName in: aCompilerClass [ 
 	
 	^ self new
@@ -18,25 +20,25 @@ DRPrimitiveCompilerCompiler class >> compilePrimitive: primitiveName from: anInt
 		compile
 ]
 
-{ #category : #'ir-generation' }
+{ #category : 'ir-generation' }
 DRPrimitiveCompilerCompiler >> argName: index forMethod: method [
 
 	^ 'Arg' , index asString
 ]
 
-{ #category : #'initialize-release' }
+{ #category : 'initialize-release' }
 DRPrimitiveCompilerCompiler >> beForSimpleStack [
 	
 	codeGenerator := DRCogitSimpleStackPrimitiveCodeGenerator new
 ]
 
-{ #category : #'initialize-release' }
+{ #category : 'initialize-release' }
 DRPrimitiveCompilerCompiler >> beForStackToRegisterMapping [
 
 	codeGenerator := DRCogitStackToRegisterPrimitiveCodeGenerator new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> buildIR: primitiveSelector [ 
 	" Answer a DRPrimitiveControlFlowGraph generated for primitiveSelector in the receiver's interpreter "
 
@@ -45,7 +47,7 @@ DRPrimitiveCompilerCompiler >> buildIR: primitiveSelector [
 		generateDruidIR
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 
 	super configureForCompilerClass: aCompilerClass.
@@ -56,7 +58,7 @@ DRPrimitiveCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 	optimisations := StackToRegisterMappingCogit druidNewOptimizationList
 ]
 
-{ #category : #'ir-generation' }
+{ #category : 'ir-generation' }
 DRPrimitiveCompilerCompiler >> generateCheckForNumArgs: numArgs [
 
 	| block checkArgCount |
@@ -74,7 +76,7 @@ DRPrimitiveCompilerCompiler >> generateCheckForNumArgs: numArgs [
 	^ block
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> initialize [
 
 	super initialize.
@@ -102,7 +104,7 @@ DRPrimitiveCompilerCompiler >> initialize [
     optimisations add: DRCogitOperandSorter new
 ]
 
-{ #category : #interpretation }
+{ #category : 'interpretation' }
 DRPrimitiveCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRReceiver manyNumArgs: annotatedArgNums [
 
 	| lastPreamble |
@@ -120,7 +122,7 @@ DRPrimitiveCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRRe
 			numArgs: numArgs ]
 ]
 
-{ #category : #interpretation }
+{ #category : 'interpretation' }
 DRPrimitiveCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRReceiver numArgs: numArgs [
 
 	numArgs isArray ifTrue: [
@@ -135,62 +137,62 @@ DRPrimitiveCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRRe
 		  numArgs: numArgs
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> newIRGenerator [
 
 	^ DRPrimitiveIRGenerator new compiler: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> numberOfArguments [
 	
 	^ self numberOfArgumentsForMethod: self sourceMethod
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRPrimitiveCompilerCompiler >> numberOfArgumentsForMethod: anObject [
 	"Answer a <Number> representing the number of arguments found in anObject (method or selector in the receiver's primitive's source)"
 
 	^  (anObject ast pragmaNamed: #numberOfArguments:) arguments first value
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> primitiveCompilerName [
 
 	^ primitiveCompilerName
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> primitiveCompilerName: anObject [
 
 	primitiveCompilerName := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> primitiveName [
 
 	^ self sourceName
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> primitiveName: anObject [
 
 	self sourceName: anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> sourceMethods [
 
 	^ { self sourceMethod }
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> targetName [
 
 	^ self primitiveCompilerName
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> targetName: aString [ 
 	
 	self primitiveCompilerName: aString

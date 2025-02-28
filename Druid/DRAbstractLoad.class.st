@@ -1,10 +1,12 @@
 Class {
-	#name : #DRAbstractLoad,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRAbstractLoad',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #types }
+{ #category : 'types' }
 DRAbstractLoad >> type [
 
 	^ self subclassResponsibility

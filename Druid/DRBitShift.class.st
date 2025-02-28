@@ -1,28 +1,30 @@
 Class {
-	#name : #DRBitShift,
-	#superclass : #DRArithmeticInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRBitShift',
+	#superclass : 'DRArithmeticInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBitShift >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitBitShift: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBitShift >> isLogicalRightShift [
 	
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRBitShift >> opcode [
 	
 	^ 'BitShift'
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRBitShift >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand >> operand2

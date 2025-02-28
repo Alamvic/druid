@@ -1,14 +1,16 @@
 Class {
-	#name : #DRNumberedExpression,
-	#superclass : #Object,
+	#name : 'DRNumberedExpression',
+	#superclass : 'Object',
 	#instVars : [
 		'operation',
 		'operands'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #comparing }
+{ #category : 'comparing' }
 DRNumberedExpression >> = anObject [
 
 	self class = anObject class ifTrue: [ 
@@ -18,28 +20,28 @@ DRNumberedExpression >> = anObject [
 	^ false.
 ]
 
-{ #category : #comparing }
+{ #category : 'comparing' }
 DRNumberedExpression >> hash [
 
 	^ self operation hash bitXor: self operands hash
 ]
 
-{ #category : #comparing }
+{ #category : 'comparing' }
 DRNumberedExpression >> operands [
 	^ operands
 ]
 
-{ #category : #comparing }
+{ #category : 'comparing' }
 DRNumberedExpression >> operands: op [
 	operands := op
 ]
 
-{ #category : #comparing }
+{ #category : 'comparing' }
 DRNumberedExpression >> operation [
 	^ operation
 ]
 
-{ #category : #comparing }
+{ #category : 'comparing' }
 DRNumberedExpression >> operation: op [
 	operation := op
 ]

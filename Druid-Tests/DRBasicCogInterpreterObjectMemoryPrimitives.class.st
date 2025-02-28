@@ -1,10 +1,12 @@
 Class {
-	#name : #DRBasicCogInterpreterObjectMemoryPrimitives,
-	#superclass : #CogVMSimulatorLSB,
-	#category : #'Druid-Tests-CompilerBuilder'
+	#name : 'DRBasicCogInterpreterObjectMemoryPrimitives',
+	#superclass : 'CogVMSimulatorLSB',
+	#category : 'Druid-Tests-CompilerBuilder',
+	#package : 'Druid-Tests',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #constants }
+{ #category : 'constants' }
 DRBasicCogInterpreterObjectMemoryPrimitives class >> basicPrimitiveTable [
 
 	MaxPrimitiveIndex := 7.

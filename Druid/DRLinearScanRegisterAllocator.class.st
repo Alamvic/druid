@@ -17,8 +17,8 @@ When a register allocation request is found, it checks if there are available re
 
 "
 Class {
-	#name : #DRLinearScanRegisterAllocator,
-	#superclass : #Object,
+	#name : 'DRLinearScanRegisterAllocator',
+	#superclass : 'Object',
 	#instVars : [
 		'blocks',
 		'liveSets',
@@ -30,10 +30,12 @@ Class {
 		'registerPool',
 		'stagedRegisters'
 	],
-	#category : #'Druid-LinearScanRegisterAllocation'
+	#category : 'Druid-LinearScanRegisterAllocation',
+	#package : 'Druid',
+	#tag : 'LinearScanRegisterAllocation'
 }
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRLinearScanRegisterAllocator >> allocateRegisterForInterval: aDRLiveRegisterInterval ifPresent: presentBlock [
 
 	| isFloat inactiveOverlappingRegisters |
@@ -59,7 +61,7 @@ DRLinearScanRegisterAllocator >> allocateRegisterForInterval: aDRLiveRegisterInt
 				^ presentBlock value: selectedRegister ] ]
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiveRegisterInterval [
 
 	| intervalToSpill |
@@ -79,7 +81,7 @@ DRLinearScanRegisterAllocator >> allocateRegisterForLiveRegisterInterval: aDRLiv
 	intervalToSpill location: self newStackLocation
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRLinearScanRegisterAllocator >> allocateRegisters [
 
 	activeIntervals := OrderedCollection new.
@@ -108,7 +110,7 @@ DRLinearScanRegisterAllocator >> allocateRegisters [
 		self allocateRegisterForLiveRegisterInterval: currentInterval ]
 ]
 
-{ #category : #api }
+{ #category : 'api' }
 DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [ 
 
 	self controlFlowGraph: aDRControlFlowGraph.
@@ -118,13 +120,13 @@ DRLinearScanRegisterAllocator >> allocateRegistersIn: aDRControlFlowGraph [
 	self assignRegisters.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLinearScanRegisterAllocator >> allocatedRegisterFor: aValue [
 	
 	^ (self liveSetOf: aValue) location
 ]
 
-{ #category : #steps }
+{ #category : 'steps' }
 DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 
 	| allocatedLocation allocatedRegister |
@@ -163,7 +165,7 @@ DRLinearScanRegisterAllocator >> assignRegisterToResultInInstruction: i [
 				 result: DRNoRegister new) ]
 ]
 
-{ #category : #steps }
+{ #category : 'steps' }
 DRLinearScanRegisterAllocator >> assignRegisters [
 
 	self instructionsDo: [ :i | "If staged, assign a staged register, only if it did not already have one"
@@ -185,7 +187,7 @@ DRLinearScanRegisterAllocator >> assignRegisters [
 				self assignRegisterToResultInInstruction: i ] ]
 ]
 
-{ #category : #steps }
+{ #category : 'steps' }
 DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 
 	"Assign first registers to operands.
@@ -235,7 +237,7 @@ DRLinearScanRegisterAllocator >> assignRegistersToOperandsInInstruction: i [
 	usedSpillRegisters do: [ :each | registerPool returnSpillRegister: each ]
 ]
 
-{ #category : #'live-analysis' }
+{ #category : 'live-analysis' }
 DRLinearScanRegisterAllocator >> buildLiveSets [
 	
 	"For now do a simple live interval computation.
@@ -246,7 +248,7 @@ DRLinearScanRegisterAllocator >> buildLiveSets [
 	self coallescePhiIntervals.
 ]
 
-{ #category : #steps }
+{ #category : 'steps' }
 DRLinearScanRegisterAllocator >> coallescePhiIntervals [
 	
 	self instructionsDo: [ :i |
@@ -267,7 +269,7 @@ DRLinearScanRegisterAllocator >> coallescePhiIntervals [
 	]
 ]
 
-{ #category : #'live-analysis' }
+{ #category : 'live-analysis' }
 DRLinearScanRegisterAllocator >> computeLiveSets [
 
 	| liveVariablesPerBlock blockInstructionsToCompute |
@@ -319,7 +321,7 @@ DRLinearScanRegisterAllocator >> computeLiveSets [
 					instructionLiveSet addRangeFrom: b first to: p endInstruction ] ] ]
 ]
 
-{ #category : #'live-analysis' }
+{ #category : 'live-analysis' }
 DRLinearScanRegisterAllocator >> computeLivenessOfInstruction: i inBlock: b withLiveSet: live [
 
 	i result isSSARegister ifTrue: [
@@ -335,19 +337,19 @@ DRLinearScanRegisterAllocator >> computeLivenessOfInstruction: i inBlock: b with
 					  inBlock: b ] ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLinearScanRegisterAllocator >> controlFlowGraph: aDRControlFlowGraph [
 
 	controlFlowGraph := aDRControlFlowGraph
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLinearScanRegisterAllocator >> floatRegisters: aCollection [ 
 
 	registerPool floatingPointRegisters: aCollection
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRLinearScanRegisterAllocator >> initialize [
 
 	super initialize.
@@ -356,7 +358,7 @@ DRLinearScanRegisterAllocator >> initialize [
 	stagedRegisters := Dictionary new
 ]
 
-{ #category : #'live-analysis' }
+{ #category : 'live-analysis' }
 DRLinearScanRegisterAllocator >> initializeLiveSetOfInstruction: anInstruction [
 
 	| liveSetOfOp |
@@ -367,20 +369,20 @@ DRLinearScanRegisterAllocator >> initializeLiveSetOfInstruction: anInstruction [
 		to: anInstruction nextInstruction
 ]
 
-{ #category : #enumerating }
+{ #category : 'enumerating' }
 DRLinearScanRegisterAllocator >> instructionsDo: aFullBlockClosure [ 
 	
 	blocks do: [ :b |
 		b instructionsDo: aFullBlockClosure ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLinearScanRegisterAllocator >> integerRegisters: aCollection [
 
 	registerPool integerRegisters: aCollection
 ]
 
-{ #category : #'block-linearization' }
+{ #category : 'block-linearization' }
 DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [ 
 	
 	| order |
@@ -392,7 +394,7 @@ DRLinearScanRegisterAllocator >> linearizeBlocks: aDRControlFlowGraph [
 		order := order + 1 ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLinearScanRegisterAllocator >> liveSetOf: aDependency [
 
 	aDependency isSSARegister ifFalse: [ 
@@ -406,7 +408,7 @@ DRLinearScanRegisterAllocator >> liveSetOf: aDependency [
 		  ifAbsentPut: [ DRLiveSet definition: aDependency ]
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRLinearScanRegisterAllocator >> newStackLocation [
 	
 	| allocatedSpillSlot |
@@ -414,7 +416,7 @@ DRLinearScanRegisterAllocator >> newStackLocation [
 	^ DRSpilledMemoryAddress stackOffset: allocatedSpillSlot
 ]
 
-{ #category : #steps }
+{ #category : 'steps' }
 DRLinearScanRegisterAllocator >> prepareSSA [
 	"Prepare the SSA CFG by adding copies above Phi functions.
 	Phi function arguments are short lived between 
@@ -444,61 +446,61 @@ DRLinearScanRegisterAllocator >> prepareSSA [
 	controlFlowGraph fixBackJumps
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLinearScanRegisterAllocator >> registerPool: aRegisterPool [
 	
 	registerPool := aRegisterPool
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRLinearScanRegisterAllocator >> returnFloatRegister: aPhisicalRegister [
 
 	registerPool returnFloatRegister: aPhisicalRegister
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRLinearScanRegisterAllocator >> returnIntegerRegister: aRegister [
 
 	registerPool returnIntegerRegister: aRegister
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRLinearScanRegisterAllocator >> returnRegister: aPhysicalRegister [
 
 	aPhysicalRegister returnToAllocator: self
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRLinearScanRegisterAllocator >> selectIntervalToSpill [
 
 	^ spillingStrategy value
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLinearScanRegisterAllocator >> spillRegisters: aCollection [
 	
 	registerPool spillRegisters: aCollection
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRLinearScanRegisterAllocator >> takeFloatRegister: aDRPhysicalRegister [
 	
 	registerPool takeFloatRegister: aDRPhysicalRegister
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRLinearScanRegisterAllocator >> takeIntegerRegister: aRegister [
 
 	registerPool takeIntegerRegister: aRegister
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRLinearScanRegisterAllocator >> takeRegister: aDRPhysicalRegister [ 
 	
 	aDRPhysicalRegister takeFromAllocator: self
 ]
 
-{ #category : #'live-analysis' }
+{ #category : 'live-analysis' }
 DRLinearScanRegisterAllocator >> updateLiveSet: liveSet ofOperand: op ofInstruction: i inBlock: b [
 
 	| liveSetOfOp |
@@ -509,32 +511,32 @@ DRLinearScanRegisterAllocator >> updateLiveSet: liveSet ofOperand: op ofInstruct
 		ifFalse: [ liveSetOfOp addRangeFrom: b instructions first to: i ]
 ]
 
-{ #category : #'spilling strategies' }
+{ #category : 'spilling strategies' }
 DRLinearScanRegisterAllocator >> withFirstSpilling [
 
 	spillingStrategy := [ activeIntervals first ].
 ]
 
-{ #category : #'spilling strategies' }
+{ #category : 'spilling strategies' }
 DRLinearScanRegisterAllocator >> withFurthestIntervalSpilling [
 
 	spillingStrategy := [ 
 		activeIntervals detectMax: [ :e | e stop ] ].
 ]
 
-{ #category : #'spilling strategies' }
+{ #category : 'spilling strategies' }
 DRLinearScanRegisterAllocator >> withLastSpilling [
 
 	spillingStrategy := [ activeIntervals last ].
 ]
 
-{ #category : #'spilling strategies' }
+{ #category : 'spilling strategies' }
 DRLinearScanRegisterAllocator >> withLeastUsedInterval [
 
 	spillingStrategy := [ activeIntervals detectMin: [ :e | e numberOfUsers ] ]
 ]
 
-{ #category : #'spilling strategies' }
+{ #category : 'spilling strategies' }
 DRLinearScanRegisterAllocator >> withRandomSpilling [
 
 	spillingStrategy := [ activeIntervals atRandom ].

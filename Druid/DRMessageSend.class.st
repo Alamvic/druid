@@ -1,26 +1,28 @@
 Class {
-	#name : #DRMessageSend,
-	#superclass : #DRInstruction,
+	#name : 'DRMessageSend',
+	#superclass : 'DRInstruction',
 	#instVars : [
 		'methodNode',
 		'inlineGenerator'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMessageSend >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitMessageSend: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMessageSend >> arguments [
 
 	^ operands allButFirst
 ]
 
-{ #category : #optimizations }
+{ #category : 'optimizations' }
 DRMessageSend >> inline [
 	
 	"Used by the visualization"
@@ -28,55 +30,55 @@ DRMessageSend >> inline [
 	self controlFlowGraph applyOptimisation: (DRSingleInline forMessageSend: self)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMessageSend >> inlineGenerator [
 
 	^ inlineGenerator
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMessageSend >> inlineGenerator: anIrGenerator [ 
 
 	inlineGenerator := anIrGenerator
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMessageSend >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMessageSend >> isMessageSend [
 
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMessageSend >> methodNode [
 
 	^ methodNode
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMessageSend >> methodNode: anObject [
 
 	methodNode := anObject
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRMessageSend >> opcode [
 
 	^ '#' , self selector , ' '
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMessageSend >> receiver [
 
 	^ self operand1
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRMessageSend >> receiverType [
 
 	(self receiver type lookupSelector: self selector) ifNil: [ "Check if the receiver type understands me, if not then fallback to Undefined type"
@@ -85,31 +87,31 @@ DRMessageSend >> receiverType [
 	^ self receiver type
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRMessageSend >> sccpEvaluateFor: sccp [
 
 	"Nothing to do"
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRMessageSend >> sccpLatticeValueFor: sccp [ 
 	
 	^ sccp bottom
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMessageSend >> selector [
 
 	^ self originAST selector
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRMessageSend >> supportConstantOperand [
 
 	^ false
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRMessageSend >> type [
 
 	methodNode ifNotNil: [ "TODO: Connext with type system"
@@ -119,7 +121,7 @@ DRMessageSend >> type [
 	^ DRUndefinedType new
 ]
 
-{ #category : #copying }
+{ #category : 'copying' }
 DRMessageSend >> veryDeepCopyWith: deepCopier [
 	deepCopier references at: operands put: operands.
 	^ super veryDeepCopyWith: deepCopier

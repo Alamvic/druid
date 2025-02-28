@@ -1,16 +1,18 @@
 Class {
-	#name : #DRPathOptimisation,
-	#superclass : #DRControlFlowOptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRPathOptimisation',
+	#superclass : 'DRControlFlowOptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPathOptimisation >> canBeAppliedIn: aDRontrolFlowGraph [ 
 
 	^ aDRontrolFlowGraph generatePaths and: [ self canBeAppliedWithGeneratedPathsIn: aDRontrolFlowGraph  ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPathOptimisation >> doApply: cfg [
 
 	cfg applyOptimisation: DRBranchCollapse new.
@@ -18,7 +20,7 @@ DRPathOptimisation >> doApply: cfg [
 	self doApplyWithGeneratedPaths: cfg.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPathOptimisation >> doApplyWithGeneratedPaths: cfg [
 
 	self subclassResponsibility

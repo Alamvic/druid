@@ -1,13 +1,15 @@
 Class {
-	#name : #DRRegister,
-	#superclass : #DRValue,
+	#name : 'DRRegister',
+	#superclass : 'DRValue',
 	#instVars : [
 		'name'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #'instance-creation' }
+{ #category : 'instance-creation' }
 DRRegister class >> name: aString [ 
 	
 	^ self new
@@ -15,7 +17,7 @@ DRRegister class >> name: aString [
 		yourself
 ]
 
-{ #category : #comparing }
+{ #category : 'comparing' }
 DRRegister >> = anotherRegister [
 
 	self == anotherRegister ifTrue: [ ^ true ].
@@ -24,53 +26,53 @@ DRRegister >> = anotherRegister [
 	^ name = anotherRegister name
 ]
 
-{ #category : #comparing }
+{ #category : 'comparing' }
 DRRegister >> hash [
 
 	^ name hash
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRRegister >> id [
 	
 	^ name
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRRegister >> isRegister [
 	
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRRegister >> isStagedRegister [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRRegister >> isValue [
 
 	^ false
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRRegister >> name [
 	^ name asString
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRRegister >> name: aString [ 
 	name := aString
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRRegister >> prettyPrint [
 
 	^ self name asString
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRRegister >> printOn: aStream [
 
 	aStream
@@ -79,7 +81,7 @@ DRRegister >> printOn: aStream [
 		nextPut: $)
 ]
 
-{ #category : #cogit }
+{ #category : 'cogit' }
 DRRegister >> rtlPushOperandQualifierForInstruction: anInstruction [
 
 	^ 'Register:'

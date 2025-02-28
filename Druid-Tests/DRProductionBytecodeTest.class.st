@@ -1,10 +1,11 @@
 Class {
-	#name : #DRProductionBytecodeTest,
-	#superclass : #DRBytecodeCompilationTest,
-	#category : #'Druid-Tests'
+	#name : 'DRProductionBytecodeTest',
+	#superclass : 'DRBytecodeCompilationTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> setUp [ 
 
 	| method |
@@ -23,7 +24,7 @@ DRProductionBytecodeTest >> setUp [
 	cogit bytecodePC: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeAdd [
 
 	"We need the send trampoline to compile even though it is not called"
@@ -53,7 +54,7 @@ DRProductionBytecodeTest >> testBytecodeAdd [
 		equals: 42 + 17
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeAddOneSpilledArg [
 
 	"We need the send trampoline to compile even though it is not called"
@@ -91,7 +92,7 @@ DRProductionBytecodeTest >> testBytecodeAddOneSpilledArg [
 		equals: 42 + 17
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeAddOverflow [
 
 	sendTrampolineAddress := self compile: [ "In case of overflow, this routine is called and returns the receiver unchanged"
@@ -126,7 +127,7 @@ DRProductionBytecodeTest >> testBytecodeAddOverflow [
 		equals: memory maxSmallInteger
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeAddWithSpilledArgs [
 
 	"We need the send trampoline to compile even though it is not called"
@@ -163,7 +164,7 @@ DRProductionBytecodeTest >> testBytecodeAddWithSpilledArgs [
 		equals: 42 + 17
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 
 	self compileBytecode: 83 selector: #duplicateTopBytecode thenDo: [ :generator |
@@ -182,7 +183,7 @@ DRProductionBytecodeTest >> testBytecodeDuplicateTop [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeExtPushInteger [
 
 	cogit extB: 1. "256"
@@ -208,7 +209,7 @@ DRProductionBytecodeTest >> testBytecodeExtPushInteger [
 	self assert: cogit extB equals: 0
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode0 [
 
 	| method variableType variableIndex object |
@@ -238,7 +239,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode0 [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode1 [
 
 	| method variableType variableIndex |
@@ -274,7 +275,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode1 [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode2 [
 
 	| method variableType variableIndex |
@@ -305,7 +306,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedPushBytecode2 [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeExtendedSuperSend [
 
 	| method numArgs |
@@ -357,7 +358,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedSuperSend [
 	self assert: machineSimulator arg0RegisterValue equals: (memory integerObjectOf: 53).
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJump [
 
 	| method |
@@ -401,7 +402,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJump [
 	self assert: (cogit hasAnnotatedAbstractInstructions: cogit getIsBytecodePCReference)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJumpBackward [
 
 	| method bytecodeAddress |
@@ -449,7 +450,7 @@ DRProductionBytecodeTest >> testBytecodeExtendedUnconditionalJumpBackward [
 	self assert: (cogit hasAnnotatedAbstractInstructions: cogit getIsBytecodePCReference)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeIdenticalOfDifferentIntegers [
 
 	self timeLimit: (Duration minutes: 2).
@@ -475,7 +476,7 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfDifferentIntegers [
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeIdenticalOfEqualIntegers [
 
 	self timeLimit: (Duration minutes: 2).
@@ -501,7 +502,7 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfEqualIntegers [
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjects [
 
 	| oop |
@@ -527,7 +528,7 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjects [
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithBothForwarders [
 
 	| oop forwardedOop forwardedOop2 oop2 |
@@ -563,7 +564,7 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithBothForwa
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithForwarderArgument [
 
 	| oop forwardedOop oop2 |
@@ -597,7 +598,7 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithForwarder
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithForwarderReceiver [
 
 	| oop forwardedOop |
@@ -629,7 +630,7 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfIdenticalObjectsWithForwarder
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeIdenticalOfNonIdenticalObjects [
 
 	| oop oop2 |
@@ -656,7 +657,7 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfNonIdenticalObjects [
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeIdenticalOfNonIdenticalObjectsWithForwarderReceiver [
 
 	| oop forwardedOop oop2 |
@@ -690,7 +691,7 @@ DRProductionBytecodeTest >> testBytecodeIdenticalOfNonIdenticalObjectsWithForwar
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeNonIdenticalOfDifferentIntegers [
 
 	self timeLimit: (Duration minutes: 2).
@@ -716,7 +717,7 @@ DRProductionBytecodeTest >> testBytecodeNonIdenticalOfDifferentIntegers [
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfEqualIntegers [
 
 	self timeLimit: (Duration minutes: 2).
@@ -742,7 +743,7 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfEqualIntegers [
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjects [
 
 	| oop |
@@ -768,7 +769,7 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjects [
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithBothForwarders [
 
 	| oop forwardedOop forwardedOop2 oop2 |
@@ -804,7 +805,7 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithBothFo
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithForwarderArgument [
 
 	| oop forwardedOop oop2 |
@@ -838,7 +839,7 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithForwar
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithForwarderReceiver [
 
 	| oop forwardedOop |
@@ -870,7 +871,7 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfIdenticalObjectsWithForwar
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfNonIdenticalObjects [
 
 	| oop oop2 |
@@ -897,7 +898,7 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfNonIdenticalObjects [
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #'tests - identical' }
+{ #category : 'tests - identical' }
 DRProductionBytecodeTest >> testBytecodeNotIdenticalOfNonIdenticalObjectsWithForwarderReceiver [
 
 	| oop forwardedOop oop2 |
@@ -931,7 +932,7 @@ DRProductionBytecodeTest >> testBytecodeNotIdenticalOfNonIdenticalObjectsWithFor
 		(memory booleanValueOf: machineSimulator receiverRegisterValue)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePrimSendAdd [
 	"Setup the send trampoline"
 
@@ -979,7 +980,7 @@ DRProductionBytecodeTest >> testBytecodePrimSendAdd [
 		equals: (memory integerObjectOf: 42)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushConstantOneBytecode [
 
 	| method |
@@ -1009,7 +1010,7 @@ DRProductionBytecodeTest >> testBytecodePushConstantOneBytecode [
 		equals: (memory integerObjectOf: 1)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushConstantZeroBytecode [
 
 	| method |
@@ -1039,7 +1040,7 @@ DRProductionBytecodeTest >> testBytecodePushConstantZeroBytecode [
 		equals: (memory integerObjectOf: 0)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushLiteralConstant [
 
 	| literalIndex method |
@@ -1074,7 +1075,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant [
 		(cogit hasAnnotatedAbstractInstructions: cogit getIsObjectReference)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 
 	| literalIndex method |
@@ -1105,25 +1106,25 @@ DRProductionBytecodeTest >> testBytecodePushLiteralConstant2 [
 		(cogit hasAnnotatedAbstractInstructions: cogit getIsObjectReference)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable0 [
 
 	self testBytecodePushLiteralVariable: 0
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable1 [
 
 	self testBytecodePushLiteralVariable: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable15 [
 
 	self testBytecodePushLiteralVariable: 15
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariable: tempIndex [
 
 	| method |
@@ -1157,28 +1158,28 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariable: tempIndex [
 		(cogit hasAnnotatedAbstractInstructions: cogit getIsObjectReference)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTop2AllocatedRegister [
 
 	self
 		testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: 2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTop3AllocatedRegister [
 
 	self
 		testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: 3
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister [
 
 	
 	self testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAllocatedRegister: n [
 
 	| method |
@@ -1224,7 +1225,7 @@ DRProductionBytecodeTest >> testBytecodePushLiteralVariableDoesOverrideTopAlloca
 		equals: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushNewArray [
 
 	| size |
@@ -1245,7 +1246,7 @@ DRProductionBytecodeTest >> testBytecodePushNewArray [
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushNewArrayBig [
 
 	| size |
@@ -1264,7 +1265,7 @@ DRProductionBytecodeTest >> testBytecodePushNewArrayBig [
 	self runFrom: cogInitialAddress until: fakeTrampoline
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushReceiverDoesNotOverridePreviousPush [
 
 	| method |
@@ -1303,7 +1304,7 @@ DRProductionBytecodeTest >> testBytecodePushReceiverDoesNotOverridePreviousPush 
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushTemporaryArg0DoesNotOverridePreviousPush [
 
 	| tempIndex method |
@@ -1342,7 +1343,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryArg0DoesNotOverridePrevious
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushTemporaryArg0NoTemps [
 
 	| tempIndex method |
@@ -1375,7 +1376,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryArg0NoTemps [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushTemporaryArg0WithTemps [
 
 	| tempIndex method |
@@ -1408,7 +1409,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryArg0WithTemps [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushTemporaryArg1NoTemps [
 
 	| tempIndex method |
@@ -1441,7 +1442,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryArg1NoTemps [
 	self assert: machineSimulator receiverRegisterValue equals: 43
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushTemporaryArg1WithTemps [
 
 	| tempIndex method |
@@ -1474,7 +1475,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryArg1WithTemps [
 	self assert: machineSimulator receiverRegisterValue equals: 43
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushTemporaryTemp0NoArgs [
 
 	| tempIndex method |
@@ -1514,7 +1515,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryTemp0NoArgs [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushTemporaryTemp0WithArgs [
 
 	| tempIndex method |
@@ -1554,7 +1555,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryTemp0WithArgs [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushTemporaryTemp1NoArgs [
 
 	| tempIndex method |
@@ -1594,7 +1595,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryTemp1NoArgs [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodePushTemporaryTemp1WithArgs [
 
 	| tempIndex method |
@@ -1634,7 +1635,7 @@ DRProductionBytecodeTest >> testBytecodePushTemporaryTemp1WithArgs [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeReturnFalse [
 
 	| method |
@@ -1657,7 +1658,7 @@ DRProductionBytecodeTest >> testBytecodeReturnFalse [
 		equals: memory falseObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeReturnNil [
 
 	| method |
@@ -1680,7 +1681,7 @@ DRProductionBytecodeTest >> testBytecodeReturnNil [
 		equals: memory nilObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeReturnTrue [
 
 	| method |
@@ -1703,7 +1704,7 @@ DRProductionBytecodeTest >> testBytecodeReturnTrue [
 		equals: memory trueObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeSendLiteral0ToSelf [
 
 	"128 - sendLiteralSelector0ArgsBytecode selector=literal0, numargs=0.
@@ -1746,7 +1747,7 @@ DRProductionBytecodeTest >> testBytecodeSendLiteral0ToSelf [
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeSendLiteral1ToSelf [
 
 	"129 - sendLiteralSelector0ArgsBytecode selector=literal0, numargs=0.
@@ -1790,7 +1791,7 @@ DRProductionBytecodeTest >> testBytecodeSendLiteral1ToSelf [
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 17)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeShortJumpIfFalseWithFalse [
 
 	| method mustBeBooleanTrampolineAddress |
@@ -1841,7 +1842,7 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfFalseWithFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeShortJumpIfFalseWithNil [
 
 	| method mustBeBooleanTrampolineAddress |
@@ -1895,7 +1896,7 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfFalseWithNil [
 	self assert: machineSimulator receiverRegisterValue equals: memory nilObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeShortJumpIfFalseWithTrue [
 
 	| method mustBeBooleanTrampolineAddress |
@@ -1952,7 +1953,7 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfFalseWithTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithFalse [
 
 	| method mustBeBooleanTrampolineAddress |
@@ -2009,7 +2010,7 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithFalseNotMustBeBoolean [
 
 	| method mustBeBooleanTrampolineAddress |
@@ -2063,7 +2064,7 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithFalseNotMustBeBoolean
 	self should: [ self runFrom: cogInitialAddress until: mustBeBooleanTrampolineAddress ] raise: Exception 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithNil [
 
 	| method mustBeBooleanTrampolineAddress |
@@ -2118,7 +2119,7 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithNil [
 	self assert: machineSimulator receiverRegisterValue equals: memory nilObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithTrue [
 
 	| method mustBeBooleanTrampolineAddress |
@@ -2175,7 +2176,7 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithTrueNotMustBeBoolean [
 
 	| method mustBeBooleanTrampolineAddress |
@@ -2229,7 +2230,7 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithTrueNotMustBeBoolean 
 	self should: [ self runFrom: cogInitialAddress until: mustBeBooleanTrampolineAddress ] raise: Exception 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testBytecodeShortUnconditionalJump [
 
 	| method |
@@ -2267,7 +2268,7 @@ DRProductionBytecodeTest >> testBytecodeShortUnconditionalJump [
 	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtBBytecode [
 
 	self
@@ -2284,7 +2285,7 @@ DRProductionBytecodeTest >> testExtBBytecode [
 	self assert: cogit numExtB equals: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtBBytecode2 [
 
 	self
@@ -2301,7 +2302,7 @@ DRProductionBytecodeTest >> testExtBBytecode2 [
 	self assert: cogit numExtB equals: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtBBytecode3 [
 
 	self
@@ -2318,7 +2319,7 @@ DRProductionBytecodeTest >> testExtBBytecode3 [
 	self assert: cogit numExtB equals: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtPushFullClosure [
 	"Fake test, only assert the correct generation of the method."
 
@@ -2328,7 +2329,7 @@ DRProductionBytecodeTest >> testExtPushFullClosure [
 		thenDo: [ :generator | self flag: #TODO "Test the execution of compiled code" ]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtStoreAndPopReceiverVariableBytecode [
 
 	| object index |
@@ -2358,7 +2359,7 @@ DRProductionBytecodeTest >> testExtStoreAndPopReceiverVariableBytecode [
 	self assert: (memory fetchPointer: index ofObject: object) equals: memory trueObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecode [
 
 	| method literal |
@@ -2396,7 +2397,7 @@ DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecode [
 	self assert: (memory fetchPointer: 1 ofObject: literal) equals: memory trueObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecodeWriteBarrier [
 
 	| method literal newObj storeCheckTrampoline |
@@ -2451,7 +2452,7 @@ DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecodeWriteBarrier [
 	self assert: (self stackAddressAt: 1) equals: newObj
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecode [
 
 	| object |
@@ -2487,7 +2488,7 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecode [
 		equals: memory trueObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecode9 [
 
 	| object |
@@ -2520,7 +2521,7 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecode9 [
 	self assert: (memory fetchPointer: 9 ofObject: object) equals: memory trueObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeCallImmutableTrampoline [
 
 	| object value immutableTrampoline bytecodePC |
@@ -2564,7 +2565,7 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeCallImmutableTra
 	self assert: machineSimulator receiverRegisterValue equals: bytecodePC
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeCallRememberTrampoline [
 
 	| object value storeCheckTrampoline |
@@ -2605,7 +2606,7 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeCallRememberTram
 	self assert: machineSimulator receiverRegisterValue equals: object
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeImmutable [
 
 	| object value storeCheckTrampoline |
@@ -2643,7 +2644,7 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeImmutable [
 	self assert: (memory fetchPointer: 0 ofObject: object) equals: memory nilObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRemember [
 
 	| object value storeCheckTrampoline |
@@ -2679,7 +2680,7 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRemember [
 	self assert: (memory fetchPointer: 0 ofObject: object) equals: value
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRememberedReceiver [
 
 	| object value storeCheckTrampoline |
@@ -2716,7 +2717,7 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRememberedReceiv
 	self assert: (memory fetchPointer: 0 ofObject: object) equals: value
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRememberedReceiverBuggyIndex [
 
 	| object value storeCheckTrampoline |
@@ -2753,7 +2754,7 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRememberedReceiv
 	self assert: (memory fetchPointer: 8 ofObject: object) equals: value
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testPushReceiver [
 
 	| object |
@@ -2772,7 +2773,7 @@ DRProductionBytecodeTest >> testPushReceiver [
 	self assert: machineSimulator receiverRegisterValue equals: object
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testPushReceiverVariableBytecode [
 
 	| object |
@@ -2791,7 +2792,7 @@ DRProductionBytecodeTest >> testPushReceiverVariableBytecode [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testPushReceiverVariableBytecode2 [
 
 	| object |
@@ -2810,7 +2811,7 @@ DRProductionBytecodeTest >> testPushReceiverVariableBytecode2 [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testPushTrueObject [
 
 	| object |
@@ -2829,7 +2830,7 @@ DRProductionBytecodeTest >> testPushTrueObject [
 	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testReturnReceiver [
 
 	| object |
@@ -2843,7 +2844,7 @@ DRProductionBytecodeTest >> testReturnReceiver [
 	self assert: machineSimulator receiverRegisterValue equals: object
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testReturnTopFromMethod [
 
 	| object |
@@ -2859,19 +2860,19 @@ DRProductionBytecodeTest >> testReturnTopFromMethod [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode0 [
 
 	self testStoreAndPopReceiverVariableBytecode: 0
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode7 [
 
 	self testStoreAndPopReceiverVariableBytecode: 7
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode: index [
 
 	| object |
@@ -2900,7 +2901,7 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode: index [
 	self assert: (memory fetchPointer: index ofObject: object) equals: memory trueObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutableTrampoline [
 
 	| object value immutableTrampoline bytecodePC valueToStore |
@@ -2946,7 +2947,7 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutable
 	self assert: valueToStore equals: value
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallRememberTrampoline [
 
 	| object value storeCheckTrampoline |
@@ -2984,7 +2985,7 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallRememberT
 	self assert: machineSimulator receiverRegisterValue equals: object
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeImmutable [
 
 	| object value storeCheckTrampoline |
@@ -3019,7 +3020,7 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeImmutable [
 	self assert: (memory fetchPointer: 0 ofObject: object) equals: memory nilObject
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeNotRemember [
 
 	| object value storeCheckTrampoline |
@@ -3052,7 +3053,7 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeNotRemember [
 	self assert: (memory fetchPointer: 0 ofObject: object) equals: value
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRemember [
 
 	| object value storeCheckTrampoline |
@@ -3085,7 +3086,7 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRemember [
 	self assert: (memory fetchPointer: 0 ofObject: object) equals: value
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRememberedReceiver [
 
 	| object value storeCheckTrampoline |
@@ -3119,7 +3120,7 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRememberedRec
 	self assert: (memory fetchPointer: 0 ofObject: object) equals: value
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRProductionBytecodeTest >> testStoreAndPopRemoteTempLongBytecode [
 
 	| object vectIndex tempIndex |

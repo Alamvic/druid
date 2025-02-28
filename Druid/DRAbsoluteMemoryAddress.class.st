@@ -1,13 +1,15 @@
 Class {
-	#name : #DRAbsoluteMemoryAddress,
-	#superclass : #DRAbstractMemoryAddress,
+	#name : 'DRAbsoluteMemoryAddress',
+	#superclass : 'DRAbstractMemoryAddress',
 	#instVars : [
 		'expression'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRAbsoluteMemoryAddress class >> register: aRegister [
 	
 	^ self new
@@ -15,13 +17,13 @@ DRAbsoluteMemoryAddress class >> register: aRegister [
 		yourself
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRAbsoluteMemoryAddress >> acceptVisitor: aVisitor [ 
 	
 	^ aVisitor visitAbsoluteMemoryAddress: self
 ]
 
-{ #category : #'meta-data' }
+{ #category : 'meta-data' }
 DRAbsoluteMemoryAddress >> asDependencyList [
 
 	"Return myself as a list of dependencies, independently of MY dependencies.
@@ -29,43 +31,43 @@ DRAbsoluteMemoryAddress >> asDependencyList [
 	^ { expression }
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbsoluteMemoryAddress >> expression [
 	
 	^ expression
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbsoluteMemoryAddress >> expression: anObject [
 
 	expression := anObject
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbsoluteMemoryAddress >> isAbsolute [
 	
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbsoluteMemoryAddress >> isStaged [
 	
 	^ expression isStaged
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbsoluteMemoryAddress >> name [
 
 	^ '[' , expression result prettyPrint , ']'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbsoluteMemoryAddress >> operands [
 
 	^ { expression }
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRAbsoluteMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 
 	expression = anOperand
@@ -74,25 +76,25 @@ DRAbsoluteMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 	self error: 'Invalid dependency'
 ]
 
-{ #category : #cogit }
+{ #category : 'cogit' }
 DRAbsoluteMemoryAddress >> rtlArgumentExpressions: generator [
 
 	^ expression rtlArgumentsForAbsoluteAddressForGenerator: generator
 ]
 
-{ #category : #'meta-data' }
+{ #category : 'meta-data' }
 DRAbsoluteMemoryAddress >> rtlOperandQualifierForInstruction: instruction [
 
 	^ expression rtlOperandQualifierForAbsoluteAddress
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRAbsoluteMemoryAddress >> sccpLatticeValueFor: sccp [
 	
 	^ sccp latticeValue: expression
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbsoluteMemoryAddress >> type [
 
 	^ expression type

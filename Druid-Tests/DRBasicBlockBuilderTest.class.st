@@ -1,10 +1,11 @@
 Class {
-	#name : #DRBasicBlockBuilderTest,
-	#superclass : #DRIRTest,
-	#category : #'Druid-Tests'
+	#name : 'DRBasicBlockBuilderTest',
+	#superclass : 'DRIRTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBasicBlockBuilderTest >> testBlockHasSequentialId [
 
 	| cfg |
@@ -13,7 +14,7 @@ DRBasicBlockBuilderTest >> testBlockHasSequentialId [
 	self assert: cfg newBasicBlock id equals: 2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBasicBlockBuilderTest >> testBlockInitialSequenceId [
 
 	| cfg |
@@ -21,7 +22,7 @@ DRBasicBlockBuilderTest >> testBlockInitialSequenceId [
 	self assert: cfg newBasicBlock id equals: 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBasicBlockBuilderTest >> testRemovingBlockKeepsSequence [
 
 	| cfg blockToRemove |

@@ -1,23 +1,25 @@
 Class {
-	#name : #DRArithmeticInstruction,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRArithmeticInstruction',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRArithmeticInstruction >> isArithmeticInstruction [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRArithmeticInstruction >> isJITCompileTimeExpressionIgnoring: aCollection [
 
 	^ (operands copyWithoutAll: aCollection) allSatisfy: [ :op |
 		  op isJITCompileTimeExpressionIgnoring: aCollection ]
 ]
 
-{ #category : #'constant folding' }
+{ #category : 'constant folding' }
 DRArithmeticInstruction >> simpleConstantFold [
 
 	| operand1 operand2 |
@@ -30,13 +32,13 @@ DRArithmeticInstruction >> simpleConstantFold [
 	^ self sccpOperateOnLattice: operand1 and: operand2
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRArithmeticInstruction >> type [
 
 	^ self typeWithAlreadySeen: Set new
 ]
 
-{ #category : #type }
+{ #category : 'type' }
 DRArithmeticInstruction >> typeWithAlreadySeen: aCollection [ 
 	
 	(aCollection includes: self)

@@ -1,13 +1,15 @@
 Class {
-	#name : #DRInstructionFactory,
-	#superclass : #Object,
+	#name : 'DRInstructionFactory',
+	#superclass : 'Object',
 	#instVars : [
 		'nextAvailableRegister'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> add: operand1 to: operand2 [
 
 	^ DRAdd
@@ -15,7 +17,7 @@ DRInstructionFactory >> add: operand1 to: operand2 [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> allocateTemporaryRegister [
 	
 	| allocatedRegisterId |
@@ -24,7 +26,7 @@ DRInstructionFactory >> allocateTemporaryRegister [
 	^ DRSSARegister name: allocatedRegisterId
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> and: operand1 with: operand2 [
 
 	^ DRAnd
@@ -32,7 +34,7 @@ DRInstructionFactory >> and: operand1 with: operand2 [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> anyMask: operand1 with: operand2 [
 
 	^ self getConditionCodeOf: DRTestMask new operands: { 
@@ -40,7 +42,7 @@ DRInstructionFactory >> anyMask: operand1 with: operand2 [
 			operand2 asDRValue }
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> bitAnd: operand1 with: operand2 [
 
 	^ DRBitAnd
@@ -48,7 +50,7 @@ DRInstructionFactory >> bitAnd: operand1 with: operand2 [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> bitOr: operand1 with: operand2 [
 
 	^ DRBitOr
@@ -56,7 +58,7 @@ DRInstructionFactory >> bitOr: operand1 with: operand2 [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> bitXor: operand1 with: operand2 [
 
 	^ DRBitXor
@@ -64,7 +66,7 @@ DRInstructionFactory >> bitXor: operand1 with: operand2 [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> copy: aValue [
 
 	^ DRCopy
@@ -72,7 +74,7 @@ DRInstructionFactory >> copy: aValue [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> divide: aValue by: anotherValue [
 
 	^ DRDivision
@@ -80,7 +82,7 @@ DRInstructionFactory >> divide: aValue by: anotherValue [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> equals: operand1 to: operand2 [
 
 	^ self getConditionCodeOf: DREqualsThanComparison new operands: { 
@@ -88,7 +90,7 @@ DRInstructionFactory >> equals: operand1 to: operand2 [
 			  operand2 asDRValue }
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> floatFromBits: operand1 [
 
 	^ DRGetFloatFromBits
@@ -96,25 +98,25 @@ DRInstructionFactory >> floatFromBits: operand1 [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> flushStack [
 
 	^ self flushStackExceptTop: 0
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> flushStackExceptTop: n [
 
 	^ DRFlushStack operands: { n } result: DRNoRegister new
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> frameReturn: aValue [
 
 	^ DRFrameReturn operands: { aValue asDRValue } result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> getConditionCodeOf: aCondition operands: aCollection [ 
 
 	^ DRGetConditionCode new
@@ -123,7 +125,7 @@ DRInstructionFactory >> getConditionCodeOf: aCondition operands: aCollection [
 		yourself
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> greater: operand1 than: operand2 [
 
 	^ self getConditionCodeOf: DRGreaterThanComparison new operands: { 
@@ -131,14 +133,14 @@ DRInstructionFactory >> greater: operand1 than: operand2 [
 			operand2 asDRValue }
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> initialize [
 
 	super initialize.
 	nextAvailableRegister := 0
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> intToFloat: operand1 [
 
 	^ DRIntToFloat
@@ -146,19 +148,19 @@ DRInstructionFactory >> intToFloat: operand1 [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> jitCompileTimeExpression: aString [
 
 	^ DRInterpreterReference reference: aString
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> jitCompileTimeVariable: aString [ 
 
 	^ DRInterpreterReference reference: aString
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> jumpIf: aBoolean [
 
 	^ DRBranchIfCondition operands: {
@@ -167,7 +169,7 @@ DRInstructionFactory >> jumpIf: aBoolean [
 			  true asDRValue }
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> jumpIf: aCondition trueTarget: trueTarget falseTarget: falseTarget [
 
 	^ (self jumpIf: aCondition)
@@ -176,7 +178,7 @@ DRInstructionFactory >> jumpIf: aCondition trueTarget: trueTarget falseTarget: f
 		  yourself
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> lessOrEquals: operand1 than: operand2 [
 
 	^ self getConditionCodeOf: DRLessOrEqualsThanComparison new operands: { 
@@ -184,13 +186,13 @@ DRInstructionFactory >> lessOrEquals: operand1 than: operand2 [
 			  operand2 asDRValue }
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> load: anAdress [
 
 	^ self loadSInt64: anAdress
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> loadArgument: index [
 
 	^ DRLoadArgument
@@ -198,19 +200,19 @@ DRInstructionFactory >> loadArgument: index [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> loadFramePointer [
 
 	^ DRLoadFramePointer result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> loadReceiver [
 
 	^ DRLoadReceiver result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> loadSInt64: operand [
 
 	^ DRLoad
@@ -220,19 +222,19 @@ DRInstructionFactory >> loadSInt64: operand [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRInstructionFactory >> loadStackTop [
 
 	^ self loadStackValueAt: 0
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstructionFactory >> loadStackValueAt: anInteger [
 
 	^ DRLoadStackValue operands: { anInteger asDRValue } result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> messageSend: selector withOperands: operands [
 
 	^ DRMessageSend
@@ -240,7 +242,7 @@ DRInstructionFactory >> messageSend: selector withOperands: operands [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> modulo: aValue by: anotherValue [
 
 	^ DRMod
@@ -248,7 +250,7 @@ DRInstructionFactory >> modulo: aValue by: anotherValue [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> multiply: aValue by: anotherValue [
 
 	^ DRMultiply
@@ -256,7 +258,7 @@ DRInstructionFactory >> multiply: aValue by: anotherValue [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> or: operand1 with: operand2 [
 
 	^ DROr
@@ -264,13 +266,13 @@ DRInstructionFactory >> or: operand1 with: operand2 [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> phiWith: value1 [
 
 	^ self phiWithVariables: { value1 asDRValue }
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> phiWith: value1 with: value2 [
 
 	^ self phiWithVariables: { 
@@ -278,7 +280,7 @@ DRInstructionFactory >> phiWith: value1 with: value2 [
 			  value2 asDRValue }
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> phiWithVariables: variables [
 
 	^ (DRPhiFunction joinedVariables: variables)
@@ -286,13 +288,13 @@ DRInstructionFactory >> phiWithVariables: variables [
 		  yourself
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> pop [
 
 	^ self pop: 1 unspilled: false
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRInstructionFactory >> pop: anInteger unspilled: aBoolean [
 
 	^ DRPop
@@ -302,7 +304,7 @@ DRInstructionFactory >> pop: anInteger unspilled: aBoolean [
 		  result: DRNoRegister new
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> push: operand [
 
 	^ DRPush
@@ -310,7 +312,7 @@ DRInstructionFactory >> push: operand [
 		  result: DRNoRegister new
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> pushBase: base offset: offset [
 
 	^ DRPush
@@ -321,7 +323,7 @@ DRInstructionFactory >> pushBase: base offset: offset [
 		  result: DRNoRegister new
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRInstructionFactory >> rotateLeft: aValue by: anOffset [
 
 	^ DRRotateLeft
@@ -331,7 +333,7 @@ DRInstructionFactory >> rotateLeft: aValue by: anOffset [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> setReturnValue: aValue [ 
 	
 	^ DRCopy
@@ -339,7 +341,7 @@ DRInstructionFactory >> setReturnValue: aValue [
 		  result: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg')
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> storeSInt64: operand at: address [
 
 	^ DRStore
@@ -350,7 +352,7 @@ DRInstructionFactory >> storeSInt64: operand at: address [
 		  result: DRNoRegister new
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> strongCopyForInlining: aValue [
 
 	^ DRStrongCopyForInlining
@@ -358,7 +360,7 @@ DRInstructionFactory >> strongCopyForInlining: aValue [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> sub: operand1 from: operand2 [
 
 	^ DRSubtract 
@@ -366,7 +368,7 @@ DRInstructionFactory >> sub: operand1 from: operand2 [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRInstructionFactory >> subtract: subtrahend from: minuend [
 
 	^ DRSubtract
@@ -374,7 +376,7 @@ DRInstructionFactory >> subtract: subtrahend from: minuend [
 		  result: self allocateTemporaryRegister
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRInstructionFactory >> unspill: anInteger [
 
 	^ DRUnspillStackSlot operands: { anInteger } result: DRNoRegister new

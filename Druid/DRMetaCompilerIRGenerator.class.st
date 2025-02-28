@@ -1,10 +1,12 @@
 Class {
-	#name : #DRMetaCompilerIRGenerator,
-	#superclass : #DRIRGenerator,
-	#category : #'Druid-CompilerCompiler'
+	#name : 'DRMetaCompilerIRGenerator',
+	#superclass : 'DRIRGenerator',
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRMetaCompilerIRGenerator >> createInitialBasicBlock [
 	| initialBasicBlock |
 	initialBasicBlock := super createInitialBasicBlock.
@@ -12,13 +14,13 @@ DRMetaCompilerIRGenerator >> createInitialBasicBlock [
 	^ initialBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMetaCompilerIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 	
 	self executionState primitiveFailureCode: anInstruction
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRMetaCompilerIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
@@ -36,7 +38,7 @@ DRMetaCompilerIRGenerator >> initializeSpecialCases [
 	specialCases at: #fixedPermSpaceStart put: #interpretFixedPermSpaceStartWith:.
 ]
 
-{ #category : #interpreting }
+{ #category : 'interpreting' }
 DRMetaCompilerIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
 	| value |
@@ -59,7 +61,7 @@ DRMetaCompilerIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	self halt
 ]
 
-{ #category : #interpretation }
+{ #category : 'interpretation' }
 DRMetaCompilerIRGenerator >> interpretFixedPermSpaceStartWith: aRBMessageNode [
 
 	^ self
@@ -67,7 +69,7 @@ DRMetaCompilerIRGenerator >> interpretFixedPermSpaceStartWith: aRBMessageNode [
 		  with: DRInterpreterReference getFixedPermSpaceStart
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRMetaCompilerIRGenerator >> interpretPushWith: aRBMessageNode [ 
 	
 	| receiver |
@@ -75,7 +77,7 @@ DRMetaCompilerIRGenerator >> interpretPushWith: aRBMessageNode [
 	^ self addInstructionWithNoResultFrom: aRBMessageNode instructionKind: DRPush operands: { receiver }
 ]
 
-{ #category : #'special-cases' }
+{ #category : 'special-cases' }
 DRMetaCompilerIRGenerator >> interpretRememberWith: aRBMessageNode [
 
 	| obj |
@@ -87,7 +89,7 @@ DRMetaCompilerIRGenerator >> interpretRememberWith: aRBMessageNode [
 		   from: aRBMessageNode) beMapped saveLinkReg
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 
 	| methodFound |
@@ -99,13 +101,13 @@ DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 	^ methodFound
 ]
 
-{ #category : #'calling convention' }
+{ #category : 'calling convention' }
 DRMetaCompilerIRGenerator >> numRegArgs [
 
 	^ executionState baseFrame receiver value cogit numRegArgs
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMetaCompilerIRGenerator >> numberOfArguments: aValue [ 
 	
 	super numberOfArguments: aValue.
@@ -113,7 +115,7 @@ DRMetaCompilerIRGenerator >> numberOfArguments: aValue [
 		self push: (self argRegisterNumber: i) ]
 ]
 
-{ #category : #'frame-access' }
+{ #category : 'frame-access' }
 DRMetaCompilerIRGenerator >> popFrameMergingDeferredReturns [
 
 	| exitBasicBlock topReturns |
@@ -139,7 +141,7 @@ DRMetaCompilerIRGenerator >> popFrameMergingDeferredReturns [
 	^ executionState popFrame
 ]
 
-{ #category : #configure }
+{ #category : 'configure' }
 DRMetaCompilerIRGenerator >> receiver: aDRValue [
 
 	| loadReceiver |
@@ -151,7 +153,7 @@ DRMetaCompilerIRGenerator >> receiver: aDRValue [
 	self push: loadReceiver
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMetaCompilerIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
 
 	| instruction method |
@@ -172,20 +174,20 @@ DRMetaCompilerIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiv
 		arguments: arguments
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMetaCompilerIRGenerator >> trackStackInstruction: aDRStrackInstruction [ 
 
 	aDRStrackInstruction stackDependencies: executionState lastStackInstruction.
 	executionState lastStackInstruction: aDRStrackInstruction.
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 DRMetaCompilerIRGenerator >> typeOf: aRBVariableNode [ 
 
 	^ typeSystem typeOf: aRBVariableNode
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMetaCompilerIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
 	variableSpecialCases at: aRBVariableNode name ifPresent: [ :mapping | 

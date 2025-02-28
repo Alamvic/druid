@@ -1,58 +1,60 @@
 Class {
-	#name : #DRFullConstraint,
-	#superclass : #DRConditionalConstraint,
-	#category : #'Druid-IR-Paths'
+	#name : 'DRFullConstraint',
+	#superclass : 'DRConditionalConstraint',
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRFullConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
 	^ true
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRFullConstraint >> hasAllValuesLessThan: otherConstantValue [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRFullConstraint >> hasAllValuesWithMask: aMask [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRFullConstraint >> hasAllValuesWithoutMask: aMask [
 
 	^ true
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRFullConstraint >> hasValue: otherConstantValue [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRFullConstraint >> includes: otherConstraint [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRFullConstraint >> isAny [
 
 	^ true
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRFullConstraint >> negated [
 
 	^ DREmptyConstraint new
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRFullConstraint >> opCode [
 
 	^ 'ANY'

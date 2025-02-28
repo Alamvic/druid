@@ -1,28 +1,30 @@
 Class {
-	#name : #DRProfileBasedTypeSystem,
-	#superclass : #DRTypeSystem,
+	#name : 'DRProfileBasedTypeSystem',
+	#superclass : 'DRTypeSystem',
 	#instVars : [
 		'profileTable'
 	],
 	#classInstVars : [
 		'default'
 	],
-	#category : #'Druid-IR-Types'
+	#category : 'Druid-IR-Types',
+	#package : 'Druid',
+	#tag : 'IR-Types'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRProfileBasedTypeSystem class >> default [
 
 	^ default ifNil: [ self reset ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRProfileBasedTypeSystem class >> reset [
 
 	^ default := self new
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRProfileBasedTypeSystem >> addReceiverInfo: anObject forNode: aRBNode [
 
 	| methodNode type profiler |
@@ -36,25 +38,25 @@ DRProfileBasedTypeSystem >> addReceiverInfo: anObject forNode: aRBNode [
 	profiler addType: type forNode: aRBNode
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRProfileBasedTypeSystem >> addReceiverInfo: anObject inMessage: aRBMessageNode [
 
 	self addReceiverInfo: anObject forNode: aRBMessageNode receiver
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRProfileBasedTypeSystem >> initialize [
 
 	profileTable := Dictionary new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRProfileBasedTypeSystem >> profileTable [
 
 	^ profileTable
 ]
 
-{ #category : #API }
+{ #category : 'API' }
 DRProfileBasedTypeSystem >> receiverTypes: aDRMessageSend [
 
 	| profiledTypes |

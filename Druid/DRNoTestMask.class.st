@@ -1,10 +1,12 @@
 Class {
-	#name : #DRNoTestMask,
-	#superclass : #DRCondition,
-	#category : #'Druid-IR'
+	#name : 'DRNoTestMask',
+	#superclass : 'DRCondition',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNoTestMask >> isNoTestMask [
 	
 	^ true

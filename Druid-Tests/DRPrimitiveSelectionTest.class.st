@@ -1,14 +1,16 @@
 Class {
-	#name : #DRPrimitiveSelectionTest,
-	#superclass : #DRAbstractCompilerCollectorTest,
+	#name : 'DRPrimitiveSelectionTest',
+	#superclass : 'DRAbstractCompilerCollectorTest',
 	#instVars : [
 		'primitiveMethods',
 		'interpreterToCompiler'
 	],
-	#category : #'Druid-Tests-CompilerBuilder'
+	#category : 'Druid-Tests-CompilerBuilder',
+	#package : 'Druid-Tests',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRPrimitiveSelectionTest >> setUp [
 
 	super setUp.
@@ -18,7 +20,7 @@ DRPrimitiveSelectionTest >> setUp [
 		targetSuperclass: CogVMSimulatorLSB
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRPrimitiveSelectionTest >> testSelectionMultipleParams [
 
 	interpreterToCompiler selectPrimitives: [ : p | p hasPragmaNamed: #var:type: setting: #('value' #sqLong) ].
@@ -28,7 +30,7 @@ DRPrimitiveSelectionTest >> testSelectionMultipleParams [
 	self assert: (interpreterToCompiler primitives allSatisfy: [ : cm | ((cm pragmaAt: #var:type:) argumentNamed: #type:) = 'sqLong' ])
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRPrimitiveSelectionTest >> testSelectionNoParam [
 
 	interpreterToCompiler selectPrimitives: [ :p |
@@ -38,7 +40,7 @@ DRPrimitiveSelectionTest >> testSelectionNoParam [
 			 cm hasPragmaNamed: #api ])
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRPrimitiveSelectionTest >> testSelectionNumberOfArguments [
 
 	interpreterToCompiler selectPrimitives: [ :p | p hasPragmaNamed: #numberOfArguments: setting: 1 ].
@@ -51,7 +53,7 @@ DRPrimitiveSelectionTest >> testSelectionNumberOfArguments [
 				 ((cm sourceMethod pragmaAt: #numberOfArguments:) argumentNamed:  #numberOfArguments:) = 1 ] ])
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRPrimitiveSelectionTest >> testSelectionSingleParam [
 
 	interpreterToCompiler selectPrimitives: [ : p | p hasPragmaNamed: #inline: setting: true ].

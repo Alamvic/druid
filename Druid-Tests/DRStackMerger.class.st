@@ -1,33 +1,34 @@
 Class {
-	#name : #DRStackMerger,
-	#superclass : #Object,
+	#name : 'DRStackMerger',
+	#superclass : 'Object',
 	#instVars : [
 		'mergedState',
 		'mergeBlock',
 		'builder'
 	],
-	#category : #'Druid-Tests'
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackMerger >> builder [
 
 	^ builder
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackMerger >> builder: anObject [
 
 	builder := anObject
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRStackMerger >> freshPhiFunction [
 	
 	^ self instructionFactory phiWithVariables: OrderedCollection new
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRStackMerger >> installInstructions [
 
 	mergedState executionStack framesDo: [ :mergeFrame | 
@@ -40,13 +41,13 @@ DRStackMerger >> installInstructions [
 		mergeBlock addInstruction: mergedState primitiveFailureCode ]
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRStackMerger >> instructionFactory [
 
 	^ mergeBlock controlFlowGraph instructionFactory
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRStackMerger >> mergeAll: aCollectionOfExecutionStates [
 
 	| stacks mergedStack mergedVMState vmStates |
@@ -63,25 +64,25 @@ DRStackMerger >> mergeAll: aCollectionOfExecutionStates [
 	^ mergedState
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRStackMerger >> mergeAll: aCollectionOfExecutionStates upTo: aFrame [
 
 	^ self mergeAll: (aCollectionOfExecutionStates collect: [ :e | e popUpTo: aFrame ])
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackMerger >> mergeBlock [
 
 	^ mergeBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackMerger >> mergeBlock: anObject [
 
 	mergeBlock := anObject
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRStackMerger >> mergeFramesIn: stacksToMerge at: anInteger [ 
 	
 	"If I have no predecessors, I'm very probably dead code.
@@ -121,7 +122,7 @@ DRStackMerger >> mergeFramesIn: stacksToMerge at: anInteger [
 	^ mergeFrame
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRStackMerger >> mergeStacks: stacksToMerge simplifying: aBoolean [ 
 		
 	| mergedExecutionStack maxStackDepth |
@@ -136,7 +137,7 @@ DRStackMerger >> mergeStacks: stacksToMerge simplifying: aBoolean [
 	^ mergedExecutionStack
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRStackMerger >> mergeVMStates: vmStates [ 
 	
 	| mergedVMState maxVMStackDepth |

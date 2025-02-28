@@ -1,22 +1,24 @@
 Class {
-	#name : #DREqualsObjectConstraint,
-	#superclass : #DREqualsConstraint,
-	#category : #'Druid-IR-Paths'
+	#name : 'DREqualsObjectConstraint',
+	#superclass : 'DREqualsConstraint',
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DREqualsObjectConstraint >> hasObjectValue: objectValue [
 
 	^ constantValue = objectValue
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DREqualsObjectConstraint >> isIncludedIn: otherConstraint [
 
 	^ otherConstraint hasObjectValue: constantValue
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DREqualsObjectConstraint >> negated [
 
 	^ DRNotEqualsObjectConstraint new

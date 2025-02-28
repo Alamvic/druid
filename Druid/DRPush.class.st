@@ -1,28 +1,30 @@
 Class {
-	#name : #DRPush,
-	#superclass : #DRStackEffect,
-	#category : #'Druid-BytecodeToJITCompilation'
+	#name : 'DRPush',
+	#superclass : 'DRStackEffect',
+	#category : 'Druid-BytecodeToJITCompilation',
+	#package : 'Druid',
+	#tag : 'BytecodeToJITCompilation'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRPush >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitPush: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPush >> isPush [
 	
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRPush >> opcode [
 	
 	^ 'Push'
 ]
 
-{ #category : #copying }
+{ #category : 'copying' }
 DRPush >> postCopy [
 
 	super postCopy.
@@ -30,7 +32,7 @@ DRPush >> postCopy [
 		self operand1: self operand1 copy ]
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRPush >> replaceDependency: anOperand by: anotherOperand [
 
 	"A push instruction can have two kind of operands.
@@ -42,28 +44,28 @@ DRPush >> replaceDependency: anOperand by: anotherOperand [
 		in: self
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRPush >> sccpLatticeValueFor: sccp [ 
 	
 	"This instruction has no value"
 	^ sccp bottom
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRPush >> size [
 	"Pushed memory size"
 	
 	^ 8 "bytes"
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPush >> stackDelta [
 	
 	"I add one element to the stack"
 	^ -1
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPush >> stackDepth [
 	
 	"Return the stack depth left on the stack after applying this operation.
@@ -73,7 +75,7 @@ DRPush >> stackDepth [
 	^ stackDependencies anyOne stackDepth + 1
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRPush >> stackSlotsDefiningAtDepth: anInteger [
 
 	anInteger = 0 ifTrue: [ ^ { self } ].

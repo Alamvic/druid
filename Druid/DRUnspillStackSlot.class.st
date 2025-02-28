@@ -1,28 +1,30 @@
 Class {
-	#name : #DRUnspillStackSlot,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRUnspillStackSlot',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRUnspillStackSlot >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitUnspillStackSlot: self
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRUnspillStackSlot >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRUnspillStackSlot >> isUnspill [
 	
 	^ true
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRUnspillStackSlot >> sccpLatticeValueFor: sccp [
 
 	"We know that we know nothing about the frame pointer"

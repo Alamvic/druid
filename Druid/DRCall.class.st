@@ -1,39 +1,41 @@
 Class {
-	#name : #DRCall,
-	#superclass : #DRInstruction,
+	#name : 'DRCall',
+	#superclass : 'DRInstruction',
 	#instVars : [
 		'mapped',
 		'functionName',
 		'shouldSaveLinkReg'
 	],
-	#category : #'Druid-BytecodeToJITCompilation'
+	#category : 'Druid-BytecodeToJITCompilation',
+	#package : 'Druid',
+	#tag : 'BytecodeToJITCompilation'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCall >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitCall: self
 ]
 
-{ #category : #properties }
+{ #category : 'properties' }
 DRCall >> beMapped [
 	
 	mapped := true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCall >> functionName [
 
 	^ functionName
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCall >> functionName: anObject [
 
 	functionName := anObject
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCall >> initialize [
 
 	super initialize.
@@ -41,64 +43,64 @@ DRCall >> initialize [
 	shouldSaveLinkReg := false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCall >> isCall [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCall >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCall >> isMapped [
 	
 	^ mapped
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCall >> mapped: anObject [
 
 	mapped := anObject
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCall >> needsStackFlush [
 
 	"We need to guarantee that if we arrive to the runtime from this path, everything is in memory"
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRCall >> opcode [
 	
 	^ 'Call'
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRCall >> operands: aCollection [
 
 	functionName := aCollection first.
 	super operands: aCollection allButFirst
 ]
 
-{ #category : #accessors }
+{ #category : 'accessors' }
 DRCall >> saveLinkReg [
 
 	shouldSaveLinkReg := true
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRCall >> sccpLatticeValueFor: sccp [ 
 	
 	"This instruction has no value"
 	^ sccp bottom
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCall >> shouldSaveLinkReg [
 
 	^ shouldSaveLinkReg

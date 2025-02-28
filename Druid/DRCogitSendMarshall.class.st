@@ -1,81 +1,83 @@
 Class {
-	#name : #DRCogitSendMarshall,
-	#superclass : #DRInstruction,
+	#name : 'DRCogitSendMarshall',
+	#superclass : 'DRInstruction',
 	#instVars : [
 		'doPop'
 	],
-	#category : #'Druid-BytecodeToJITCompilation'
+	#category : 'Druid-BytecodeToJITCompilation',
+	#package : 'Druid',
+	#tag : 'BytecodeToJITCompilation'
 }
 
-{ #category : #instructions }
+{ #category : 'instructions' }
 DRCogitSendMarshall class >> send: aSend [
 
 	^ self operands: { aSend } result: DRNoRegister new
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSendMarshall >> acceptVisitor: aVisitor [
 
 	aVisitor visitCogitSendMarshall: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitSendMarshall >> doPop: aBoolean [ 
 	
 	doPop := aBoolean
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCogitSendMarshall >> initialize [
 
 	super initialize.
 	doPop := false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCogitSendMarshall >> isCogitSendMarshall [
 	
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCogitSendMarshall >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitSendMarshall >> numberOfArguments [
 	
 	^ self send numberOfArguments
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRCogitSendMarshall >> opcode [
 	
 	^ 'CogitMarshallSend'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitSendMarshall >> operands [
 
 	^ #()
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRCogitSendMarshall >> sccpLatticeValueFor: sccp [ 
 	
 	"This instruction has no value"
 	^ sccp bottom
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitSendMarshall >> send [
 	
 	^ self operand1
 ]
 
-{ #category : #asserting }
+{ #category : 'asserting' }
 DRCogitSendMarshall >> shouldPop [
 	
 	^ doPop

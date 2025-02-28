@@ -1,21 +1,23 @@
 Class {
-	#name : #DRDominatorTree,
-	#superclass : #Object,
+	#name : 'DRDominatorTree',
+	#superclass : 'Object',
 	#instVars : [
 		'blockDictionary',
 		'dominanceFrontiers',
 		'root'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #querying }
+{ #category : 'querying' }
 DRDominatorTree >> allChildrenOf: aBlock [
 
 	^ (blockDictionary at: aBlock) allChildren collect: [ :e | e block ]
 ]
 
-{ #category : #inspection }
+{ #category : 'inspection' }
 DRDominatorTree >> asInspectorIn: view [
 
 	self configureVisualization: view.
@@ -24,12 +26,12 @@ DRDominatorTree >> asInspectorIn: view [
 		yourself
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDominatorTree >> blockDictionary [
 	^ blockDictionary
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRDominatorTree >> buildDominationTreeOf: cfg startingFrom: initialBasicBlock followingInitially: initializationBlockClosure thenFollowing: dominationBlockClosure [
 
 	| hasChanged newImmediateDominator |
@@ -50,7 +52,7 @@ DRDominatorTree >> buildDominationTreeOf: cfg startingFrom: initialBasicBlock fo
 					hasChanged := true ] ] ] ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRDominatorTree >> buildDominatorTreeOf: cfg [
 
 	self
@@ -60,7 +62,7 @@ DRDominatorTree >> buildDominatorTreeOf: cfg [
 		thenFollowing: [ :aBlock | aBlock predecessors ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRDominatorTree >> buildPostDominatorTreeOf: cfg [
 
 	self
@@ -70,13 +72,13 @@ DRDominatorTree >> buildPostDominatorTreeOf: cfg [
 		thenFollowing: [ :aBlock | aBlock successors ]
 ]
 
-{ #category : #querying }
+{ #category : 'querying' }
 DRDominatorTree >> childrenOf: aBlock [
 
 	^ (blockDictionary at: aBlock) children collect: [ :e | e block ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRDominatorTree >> computeDominanceFrontier [
 
 	dominanceFrontiers ifNotNil: [ ^ dominanceFrontiers ].
@@ -96,7 +98,7 @@ DRDominatorTree >> computeDominanceFrontier [
 	^ dominanceFrontiers
 ]
 
-{ #category : #inspection }
+{ #category : 'inspection' }
 DRDominatorTree >> configureVisualization: view [
 
 	| blockViews controller |
@@ -117,7 +119,7 @@ DRDominatorTree >> configureVisualization: view [
 	view @ controller
 ]
 
-{ #category : #inspection }
+{ #category : 'inspection' }
 DRDominatorTree >> createBlockView: treeNode [
 
 	| box label composite labelBackground |
@@ -161,20 +163,20 @@ DRDominatorTree >> createBlockView: treeNode [
 	^ composite
 ]
 
-{ #category : #querying }
+{ #category : 'querying' }
 DRDominatorTree >> dominanceFrontierOf: aBlock [
 
 	^ self computeDominanceFrontier at: aBlock ifAbsent: [ OrderedCollection new ]
 ]
 
-{ #category : #querying }
+{ #category : 'querying' }
 DRDominatorTree >> dominatorOfAll: instructions [
 
 	^ self dominatorOfAllBlocks:
 		  (instructions collect: [ :i | i basicBlock ])
 ]
 
-{ #category : #querying }
+{ #category : 'querying' }
 DRDominatorTree >> dominatorOfAllBlocks: blocks [
 
 	| firstNode |
@@ -188,14 +190,14 @@ DRDominatorTree >> dominatorOfAllBlocks: blocks [
 				  and: (self blockDictionary at: basicBlock) ]
 ]
 
-{ #category : #querying }
+{ #category : 'querying' }
 DRDominatorTree >> dominatorPathToRoot: aDRBasicBlock [
 
 	^ (self pathToRoot: (self nodeOfBlock: aDRBasicBlock)) collect: [
 		  :node | node block ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRDominatorTree >> findImmediateDominatorOfBlock: nextBlocksToIterate [
 	"Method used during the tree construction, don't use it outside of it"
 
@@ -211,7 +213,7 @@ DRDominatorTree >> findImmediateDominatorOfBlock: nextBlocksToIterate [
 	^ nearestCommonAncestor
 ]
 
-{ #category : #querying }
+{ #category : 'querying' }
 DRDominatorTree >> immediateDominatorOf: aBlock [
 
 	| node |
@@ -219,7 +221,7 @@ DRDominatorTree >> immediateDominatorOf: aBlock [
 	^ node parent block
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRDominatorTree >> initialize: cfg startingFrom: aBlockClosure [
 
 	| currentNode workList node initialBasicBlock |
@@ -246,7 +248,7 @@ DRDominatorTree >> initialize: cfg startingFrom: aBlockClosure [
 				workList addFirst: node ] ] ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRDominatorTree >> initialize: cfg startingFrom: initialBasicBlock iterating: aBlockClosure [
 
 	| currentNode workList node |
@@ -272,7 +274,7 @@ DRDominatorTree >> initialize: cfg startingFrom: initialBasicBlock iterating: aB
 				workList addFirst: node ] ] ]
 ]
 
-{ #category : #inspection }
+{ #category : 'inspection' }
 DRDominatorTree >> inspectionDominatorTree [
 
 	<inspectorPresentationOrder: 0 title: 'DominatorTree'>
@@ -281,7 +283,7 @@ DRDominatorTree >> inspectionDominatorTree [
 	^ self asInspectorIn: view
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRDominatorTree >> isDominator: dominatorBlock of: dominatedBlock [
 	
 	| node |
@@ -289,7 +291,7 @@ DRDominatorTree >> isDominator: dominatorBlock of: dominatedBlock [
 	^ node isDominatedByBlock: dominatorBlock.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRDominatorTree >> iteratedDominanceFrontierOf: aDRBasicBlock [
 	" DF+(n) = DF(n) U DF+(DF(n)) 
 		  returns a set of Dominance Frontier of the block "
@@ -300,7 +302,7 @@ DRDominatorTree >> iteratedDominanceFrontierOf: aDRBasicBlock [
 	^ frontier , (frontierWithoutLoops flatCollect: [ :each | self iteratedDominanceFrontierOf: each ])
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRDominatorTree >> iteratedDominanceFrontierOfAll: aCollection [
 	"returns a set witht the union of Dominance Frontiers of all blocks passed as argument"
 
@@ -308,7 +310,7 @@ DRDominatorTree >> iteratedDominanceFrontierOfAll: aCollection [
 		  self iteratedDominanceFrontierOf: block ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRDominatorTree >> lookup: aBlock startingAt: aBasicBlock [
 	"Look up in the dominator tree starting from a node using a block.
 	If the block returns true, return the basic block.
@@ -320,7 +322,7 @@ DRDominatorTree >> lookup: aBlock startingAt: aBasicBlock [
 	NotFound signal: aBlock
 ]
 
-{ #category : #querying }
+{ #category : 'querying' }
 DRDominatorTree >> minimalDominanceFrontierOfAll: blocks [
 
 	| frontier |
@@ -330,7 +332,7 @@ DRDominatorTree >> minimalDominanceFrontierOfAll: blocks [
 	^ frontier asOrderedCollection
 ]
 
-{ #category : #querying }
+{ #category : 'querying' }
 DRDominatorTree >> nearestCommonAncestorOf: n1 and: n2 [
 	| n1Path n2Path minPathLength |
 	n1Path := self pathToRoot: n1.
@@ -342,13 +344,13 @@ DRDominatorTree >> nearestCommonAncestorOf: n1 and: n2 [
 	^ n1Path at: minPathLength.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRDominatorTree >> nodeOfBlock: aBasicBlock [
 
 	^ self blockDictionary at: aBasicBlock
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRDominatorTree >> pathToRoot: node [
 
 	| path |
@@ -361,7 +363,7 @@ DRDominatorTree >> pathToRoot: node [
 	^ path
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRDominatorTree >> pathToRoot: node do: aBlock [
 
 	| currentNode |
@@ -372,35 +374,22 @@ DRDominatorTree >> pathToRoot: node do: aBlock [
 		aBlock value: currentNode ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRDominatorTree >> pathToRootBasicBlock: aBasicBlock do: aBlock [
 	"Iterate the tree from the given basic block to the root executing the block for each block in the path"
 
 	self
-		pathToRootNode: (self nodeOfBlock: aBasicBlock)
+		pathToRoot: (self nodeOfBlock: aBasicBlock)
 		do: [ :node | aBlock value: node block ]
 ]
 
-{ #category : #'as yet unclassified' }
-DRDominatorTree >> pathToRootNode: node do: aBlock [
-
-	"Iterate the tree from the given node to the root executing the block for each node in the path"
-	
-	| currentNode |
-	currentNode := node.
-	aBlock value: currentNode.
-	[ currentNode = tree ] whileFalse: [
-		currentNode := currentNode parent.
-		aBlock value: currentNode ]
-]
-
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDominatorTree >> root [
 
 	^ root
 ]
 
-{ #category : #inspection }
+{ #category : 'inspection' }
 DRDominatorTree >> showLines: blockViews in: view [
 
 	| eb |

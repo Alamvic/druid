@@ -1,14 +1,16 @@
 Class {
-	#name : #DREdge,
-	#superclass : #Object,
+	#name : 'DREdge',
+	#superclass : 'Object',
 	#instVars : [
 		'destination',
 		'source'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DREdge class >> withSource: aSource andDestination: aDestination [
 
 	^ self new
@@ -17,19 +19,19 @@ DREdge class >> withSource: aSource andDestination: aDestination [
 		  yourself
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DREdge >> destination [
 
 	^ destination
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DREdge >> destination: anObject [
 
 	destination := anObject
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DREdge >> printOn: aStream [
 
 	aStream nextPutAll: self class name asString.
@@ -40,13 +42,13 @@ DREdge >> printOn: aStream [
 	aStream nextPutAll: ')'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DREdge >> source [
 
 	^ source
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DREdge >> source: anObject [
 
 	source := anObject

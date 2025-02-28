@@ -6,147 +6,168 @@ Uses a Pharo Code Generator to build methods conforming to the Cogit JIT dispatc
 
 "
 Class {
-	#name : #DRCogitDispatchTableGenerator,
-	#superclass : #DRAbstractDispatchTableGenerator,
-	#category : #'Druid-CompilerBuilder'
+	#name : 'DRCogitDispatchTableGenerator',
+	#superclass : 'DRAbstractDispatchTableGenerator',
+	#category : 'Druid-CompilerBuilder',
+	#package : 'Druid',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #'accessing - building' }
+{ #category : 'accessing - building' }
 DRCogitDispatchTableGenerator >> arrayAccessorGlobalName [
 
 	^ #CArrayAccessor
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRCogitDispatchTableGenerator >> buildBytecodeTableMethodNode [
 	"Sort by bytecode number"
 
 	| sortedBytecodeTable |
 	sortedBytecodeTable := self bytecodeTable sorted: [ :e1 :e2 |
 		                       e1 second < e2 second ].
-	^ (PCGMethodNode selector: #bytecodeTable) bodyBlock: [ :body |
-		  body << sortedBytecodeTable asPCG returnIt ]
+	^ RBMethodNode
+		  selector: #bytecodeTable
+		  body: (RBReturnNode value: sortedBytecodeTable asArray asLiteralNode) asSequenceNode
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
 DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableAssignmentNode [
-	"Answer a <PCGMessageNode> with the bytecode table initialization setter message send"
 
-	^ PCGMessageNode
-			receiver: #self asPCGNode
-			selector: #generatorTableFrom:
-			arguments: { #'self bytecodeTable' asPCGArgument  }
+	^ RBMessageNode
+		  receiver: RBVariableNode selfNode
+		  selector: #generatorTableFrom:
+		  arguments: { (RBMessageNode
+				   receiver: RBVariableNode selfNode
+				   selector: self bytecodeTableVariableName) } 
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
 DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableBytecodeSetHasDirectedSuperSendNode [
 
-	^ PCGAssignmentNode new
-		  variable: #BytecodeSetHasDirectedSuperSend asPCGGlobal;
-		  value: true asPCG
+	^ RBAssignmentNode
+		  variable: (RBVariableNode named: #BytecodeSetHasDirectedSuperSend)
+		  value: true asLiteralNode 
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
 DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableBytecodeSetHasExtensionsNode [
 
-	^ PCGAssignmentNode new
-		  variable: #BytecodeSetHasExtensions asPCGGlobal;
-		  value: true asPCG
+	^ RBAssignmentNode
+		  variable: (RBVariableNode named: #BytecodeSetHasExtensions)
+		  value: true asLiteralNode
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
 DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableFirstSpecialSelectorNode [
 
-	^ PCGAssignmentNode new
-		  variable: #FirstSpecialSelector asPCGGlobal;
-		  value: 96 asPCG
+	^ RBAssignmentNode
+		  variable: (RBVariableNode named: #FirstSpecialSelector)
+		  value: 96 asLiteralNode
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
 DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableMethodNode [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
-	^ (PCGMethodNode selector: self initBytecodeTableSelector) bodyBlock: [ : body |
-		  body
-			<< self buildInitializeBytecodeTablenumPushNilsFunctionNode;
-			<< self buildInitializeBytecodeTablepushNilSizeFunctionNode;
-			<< self buildInitializeBytecodeTableBytecodeSetHasDirectedSuperSendNode;
-			<< self buildInitializeBytecodeTableBytecodeSetHasExtensionsNode;
-			<< self buildInitializeBytecodeTableFirstSpecialSelectorNode;
-			<< self buildInitializeBytecodeTableNumSpecialSelectorsNode;
-			<< self buildInitializeBytecodeTableAssignmentNode ]
+	^ RBMethodNode
+		  selector: self initBytecodeTableSelector
+		  body: (RBSequenceNode statements: {
+					   self buildInitializeBytecodeTablenumPushNilsFunctionNode.
+					   self buildInitializeBytecodeTablepushNilSizeFunctionNode.
+					   self buildInitializeBytecodeTableBytecodeSetHasDirectedSuperSendNode.
+					   self buildInitializeBytecodeTableBytecodeSetHasExtensionsNode.
+					   self buildInitializeBytecodeTableFirstSpecialSelectorNode.
+					   self buildInitializeBytecodeTableNumSpecialSelectorsNode.
+					   self buildInitializeBytecodeTableAssignmentNode })
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
 DRCogitDispatchTableGenerator >> buildInitializeBytecodeTableNumSpecialSelectorsNode [
 
-	^ PCGAssignmentNode new
-		  variable: #NumSpecialSelectors asPCGGlobal;
-		  value: 32 asPCG
+	^ RBAssignmentNode
+		  variable: (RBVariableNode named: #NumSpecialSelectors)
+		  value: 32 asLiteralNode 
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
 DRCogitDispatchTableGenerator >> buildInitializeBytecodeTablenumPushNilsFunctionNode [
 
-	^ PCGAssignmentNode new
-		  variable: #numPushNilsFunction asPCGInstanceVariable;
-		  value: #sistaV1:Num:Push:Nils: asPCG
+	compilationUnit targetClass isSimpleStack ifTrue: [
+		^ nil asLiteralNode ].
+
+	^ RBAssignmentNode
+		  variable: (RBVariableNode named: #numPushNilsFunction)
+		  value: #sistaV1:Num:Push:Nils: asLiteralNode
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
 DRCogitDispatchTableGenerator >> buildInitializeBytecodeTablepushNilSizeFunctionNode [
 
-	^ PCGAssignmentNode new
-		  variable: #pushNilSizeFunction asPCGInstanceVariable;
-		  value: #sistaV1PushNilSize:numInitialNils: asPCG
+	compilationUnit targetClass isSimpleStack ifTrue: [
+		^ nil asLiteralNode ].
+
+	^ RBAssignmentNode
+		  variable: (RBVariableNode named: #pushNilSizeFunction)
+		  value: #sistaV1PushNilSize:numInitialNils: asLiteralNode
 ]
 
-{ #category : #'accessing - primitives' }
+{ #category : 'accessing - primitives' }
 DRCogitDispatchTableGenerator >> buildInitializePrimitiveTableAssignmentNode [
 	"Answer a <PCGMessageNode> with the primitive table initialization setter message send"
 
-	^ PCGMessageNode
-			receiver: #self asPCGNode
-			selector: #table:from:
-			arguments: { self buildPrimitiveTableVariableNode . #'self primitiveTableArray' asPCGArgument }
+	^ RBMessageNode
+		  receiver: RBVariableNode selfNode
+		  selector: #table:from:
+		  arguments: {
+				  (RBVariableNode named: self primitiveTableVariableName).
+				  (RBMessageNode
+					   receiver: RBVariableNode selfNode
+					   selector: #primitiveTableArray) }
 ]
 
-{ #category : #'accessing - primitives' }
+{ #category : 'accessing - primitives' }
 DRCogitDispatchTableGenerator >> buildPrimitiveTableInitialValueNode [
 
-	^ PCGMessageNode
-		receiver: self arrayAccessorGlobalName asPCGGlobal
-		selector: #on:
-		argument:
-			(PCGMessageNode
-				receiver: #Array asPCGGlobal
-				selector: #new:
-				argument: (PCGMessageNode
-					receiver: self maxPrimitiveIndexGlobalName asPCGGlobal
-					selector: #+
-					arguments: { 1 asPCG }))
+	^ RBMessageNode
+		  receiver: (RBVariableNode named: self arrayAccessorGlobalName)
+		  selector: #on:
+		  arguments: { (RBMessageNode
+				   receiver: (RBVariableNode named: #Array)
+				   selector: #new:
+				   arguments: { (RBMessageNode
+						    receiver:
+						    (RBVariableNode named: self maxPrimitiveIndexGlobalName)
+						    selector: #+
+						    arguments: { 1 asLiteralNode }) }) }
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
 DRCogitDispatchTableGenerator >> bytecodeTable [
 	"Answer a <Collection> of bytecode table entries"
 	
 	^ self compilationUnit bytecodeTable 
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
+DRCogitDispatchTableGenerator >> bytecodeTableVariableName [
+
+	^ #bytecodeTable
+]
+
+{ #category : 'accessing - bytecodes' }
 DRCogitDispatchTableGenerator >> initBytecodeTableSelector [ 
 
 	^ #initializeBytecodeTableForSistaV1
 ]
 
-{ #category : #'accessing - primitives' }
+{ #category : 'accessing - primitives' }
 DRCogitDispatchTableGenerator >> initPrimitiveTableSelector [ 
 
 	^ #initializePrimitiveTable
 ]
 
-{ #category : #'accessing - installation' }
+{ #category : 'accessing - installation' }
 DRCogitDispatchTableGenerator >> installAllMethodsOn: aJITCompilerClass [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
@@ -155,14 +176,17 @@ DRCogitDispatchTableGenerator >> installAllMethodsOn: aJITCompilerClass [
 		  self buildInitializePrimitiveTableMethodNode.
 		  self buildBytecodeTableMethodNode.
 		  self buildInitializeBytecodeTableMethodNode }
-		  do: [ :pcgNode |
-			  pcgNode
-				  protocol: #'class initialization';
-				  installOn: aJITCompilerClass ]
-		  displayingProgress: 'Installing methods on ' , aJITCompilerClass name
+		  do: [ :methodNode |
+			  self addGeneratedComment: methodNode.
+			  aJITCompilerClass
+				  compile: methodNode formattedCode
+				  classified: #'class initialization'
+				  notifying: nil ]
+		  displayingProgress:
+		  'Installing methods on ' , aJITCompilerClass name
 ]
 
-{ #category : #'accessing - primitives' }
+{ #category : 'accessing - primitives' }
 DRCogitDispatchTableGenerator >> maxPrimitiveIndexGlobalName [
 
 	^ #MaxCompiledPrimitiveIndex

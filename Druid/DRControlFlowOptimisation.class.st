@@ -1,10 +1,12 @@
 Class {
-	#name : #DRControlFlowOptimisation,
-	#superclass : #DROptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRControlFlowOptimisation',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowOptimisation >> applyTo: cfg [
 
 	cfg rebuildStackDependencies.
@@ -13,7 +15,7 @@ DRControlFlowOptimisation >> applyTo: cfg [
 	cfg fixBackJumps
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRControlFlowOptimisation >> doApply: cfg [
 
 	self subclassResponsibility

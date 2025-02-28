@@ -1,23 +1,25 @@
 Class {
-	#name : #DRReturn,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRReturn',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRReturn >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitReturn: self
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRReturn >> initialize [
 
 	super initialize.
 	result := DRNoRegister new
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRReturn >> inspectionSource: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Source'>
 
@@ -26,32 +28,32 @@ DRReturn >> inspectionSource: aBuilder [
 		yourself
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRReturn >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRReturn >> isReturn [
 
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRReturn >> opcode [
 	
 	^ 'Return'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRReturn >> sccpLatticeValueFor: sccp [ 
 	
 	"This instruction has no value"
 	^ sccp bottom
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRReturn >> supportConstantOperand [
 
 	^ false

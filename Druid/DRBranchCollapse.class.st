@@ -1,16 +1,18 @@
 Class {
-	#name : #DRBranchCollapse,
-	#superclass : #DROptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRBranchCollapse',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchCollapse >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph blocksDo: [ :b | self applyToBlock: b ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRBranchCollapse >> applyToBlock: aDRBasicBlock [
 
 	| setConditionCode replacementBranch |
@@ -35,13 +37,13 @@ DRBranchCollapse >> applyToBlock: aDRBasicBlock [
 	aDRBasicBlock endInstruction replaceBy: replacementBranch
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBranchCollapse >> canBeAppliedIn: aDRControlFlowGraph [
 
 	^ aDRControlFlowGraph blocks anySatisfy: [ :b | self canBeAppliedToBlock: b ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBranchCollapse >> canBeAppliedToBlock: aDRBasicBlock [
 
 	^ aDRBasicBlock endInstruction isConditionalBranch and: [

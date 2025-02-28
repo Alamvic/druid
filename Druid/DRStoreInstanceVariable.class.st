@@ -1,34 +1,36 @@
 Class {
-	#name : #DRStoreInstanceVariable,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRStoreInstanceVariable',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRStoreInstanceVariable >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitStoreInstVar: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStoreInstanceVariable >> isMandatoryInstruction [ 
 
 	^ true
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRStoreInstanceVariable >> isStore [ 
 
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRStoreInstanceVariable >> opcode [
 	
 	^ 'StoreInstVar'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRStoreInstanceVariable >> sccpLatticeValueFor: sccp [ 
 	
 	"This instruction has no value"

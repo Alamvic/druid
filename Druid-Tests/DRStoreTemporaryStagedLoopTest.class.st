@@ -1,17 +1,19 @@
 Class {
-	#name : #DRStoreTemporaryStagedLoopTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRStoreTemporaryStagedLoopTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRStoreTemporaryStagedLoopTest >> setUp [
 
 	super setUp.
 	optimisation := DRStoreTemporaryStagedLoop new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStoreTemporaryStagedLoopTest >> testNotStoreTemporaryForNotStagedLoop [
 
 	| cfg loop inductionPhi nInstructions |
@@ -31,7 +33,7 @@ DRStoreTemporaryStagedLoopTest >> testNotStoreTemporaryForNotStagedLoop [
 	self assert: cfg instructions size equals: nInstructions
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStoreTemporaryStagedLoopTest >> testStoreTemporaryForLoopInductionVariables [
 
 	| cfg loop inductionPhi |

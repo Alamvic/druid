@@ -1,34 +1,36 @@
 Class {
-	#name : #DRCopy,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRCopy',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCopy >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitCopy: self
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRCopy >> asJitCompileTimeExpression [
 
 	^ result name
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRCopy >> isCopy [ 
 
 	^true 
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCopy >> isJITCompileTimeExpression [
 
 	^ operands first isConstanteable
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCopy >> isJITCompileTimeExpressionIgnoring: aCollection [
 
 	(aCollection includes: self operand) ifTrue: [ ^ true ].
@@ -36,7 +38,7 @@ DRCopy >> isJITCompileTimeExpressionIgnoring: aCollection [
 	^ self operand isJITCompileTimeExpressionIgnoring: aCollection
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRCopy >> isMandatoryInstruction [ 
 
 	self result isPhysicalRegister ifTrue: [ ^ true ].
@@ -44,31 +46,31 @@ DRCopy >> isMandatoryInstruction [
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCopy >> isSetReturnValue [
 	
 	^ self result isPhysicalRegister and:  [ self result name = 'ReceiverResultReg' ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCopy >> jitCompileTimeExpression [
 
 	^ operands first jitCompileTimeExpression
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRCopy >> opcode [
 	
 	^ ':='
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCopy >> operand [
 
 	^ operands unique
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRCopy >> prettyPrint [
 
 	^ (self isStaged
@@ -77,25 +79,25 @@ DRCopy >> prettyPrint [
 	  , operands first result prettyPrint
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRCopy >> sccpLatticeValueFor: sccp [
 
 	^ sccp latticeValue: operands first
 ]
 
-{ #category : #'constant folding' }
+{ #category : 'constant folding' }
 DRCopy >> simpleConstantFold [
 	
 	^ self operand1 simpleConstantFold
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRCopy >> type [
 	
 	^ self operands first type
 ]
 
-{ #category : #type }
+{ #category : 'type' }
 DRCopy >> typeWithAlreadySeen: aCollection [ 
 	
 	(aCollection includes: self)

@@ -1,10 +1,12 @@
 Class {
-	#name : #DRSCCPConstantPropagationTest,
-	#superclass : #DRSCCPTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRSCCPConstantPropagationTest',
+	#superclass : 'DRSCCPTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantPropagationTest >> testDoNotPropagateInMessageSends [
 
 	| cfg copy send |
@@ -19,7 +21,7 @@ DRSCCPConstantPropagationTest >> testDoNotPropagateInMessageSends [
 	self assert: cfg b1 instructions second equals: send
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantPropagationTest >> testDoNotPropagateInPhiFunctions [
 
 	"Phi functions should contain variables and not values"
@@ -38,7 +40,7 @@ DRSCCPConstantPropagationTest >> testDoNotPropagateInPhiFunctions [
 	self assert: phi operand2 equals: copy2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantPropagationTest >> testDoNotPropagateInReturn [
 
 	| cfg copy return |
@@ -52,7 +54,7 @@ DRSCCPConstantPropagationTest >> testDoNotPropagateInReturn [
 	self assert: return operand1 equals: copy
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantPropagationTest >> testPropagateBetweenBasicBlocks [
 
 	| cfg copy1 copyOfCopy |
@@ -70,7 +72,7 @@ DRSCCPConstantPropagationTest >> testPropagateBetweenBasicBlocks [
 	self assert: copyOfCopy operand1 equals: 1 asDRValue
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantPropagationTest >> testPropagateToAddFixesUsers [
 
 	| cfg copy1 add rewrittenAdd |
@@ -92,7 +94,7 @@ DRSCCPConstantPropagationTest >> testPropagateToAddFixesUsers [
 	self deny: (rewrittenAdd operands includes: copy1).
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantPropagationTest >> testPropagateToAddOperand [
 
 	| cfg copy1 |
@@ -111,7 +113,7 @@ DRSCCPConstantPropagationTest >> testPropagateToAddOperand [
 	self assert: cfg instructions second operand2 equals: 1 asDRValue
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantPropagationTest >> testPropagateToCopyOperand [
 
 	| cfg copy1 copyOfCopy |
@@ -128,7 +130,7 @@ DRSCCPConstantPropagationTest >> testPropagateToCopyOperand [
 	self assert: copyOfCopy operand1 equals: 1 asDRValue
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantPropagationTest >> testPropagateToEqualsFixesUsers [
 
 	| cfg copy1 add |
@@ -148,7 +150,7 @@ DRSCCPConstantPropagationTest >> testPropagateToEqualsFixesUsers [
 	self deny: (add operands includes: copy1).
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantPropagationTest >> testPropagateToMulOperand [
 
 	| cfg copy1 |
@@ -167,7 +169,7 @@ DRSCCPConstantPropagationTest >> testPropagateToMulOperand [
 	self assert: cfg instructions second operand2 equals: 1 asDRValue
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantPropagationTest >> testPropagateWhenResultIsPhisicalRegister [
 
 	"Phi functions should contain variables and not values"

@@ -1,34 +1,36 @@
 Class {
-	#name : #DRSmallIntegerPrimitiveCustomisation,
-	#superclass : #DRPrimitiveCustomisation,
-	#category : #'Druid-CompilerCompiler'
+	#name : 'DRSmallIntegerPrimitiveCustomisation',
+	#superclass : 'DRPrimitiveCustomisation',
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSmallIntegerPrimitiveCustomisation class >> pragmaName [
 
 	^ #smallInteger
 ]
 
-{ #category : #api }
+{ #category : 'api' }
 DRSmallIntegerPrimitiveCustomisation >> generateCustomisedPreamble: aGeneratorMethodBuilder [
 
 	aGeneratorMethodBuilder addStatement: self preamble
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRSmallIntegerPrimitiveCustomisation >> initialConstraint [
 
 	^ DRReceiverConstraint with: (DREqualsConstraint withValue: 1)
 ]
 
-{ #category : #api }
+{ #category : 'api' }
 DRSmallIntegerPrimitiveCustomisation >> optimize: anIR [
 
 	anIR initialConstraint: self initialConstraint
 ]
 
-{ #category : #'code-generation' }
+{ #category : 'code-generation' }
 DRSmallIntegerPrimitiveCustomisation >> preamble [
 
 	| preamble |

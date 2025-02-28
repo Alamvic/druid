@@ -1,10 +1,12 @@
 Class {
-	#name : #DRRedundantCodeEliminationTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRRedundantCodeEliminationTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRRedundantCodeEliminationTest >> testRedundantCopyIsEliminated [
 
 	| cfg b1 |
@@ -20,7 +22,7 @@ DRRedundantCodeEliminationTest >> testRedundantCopyIsEliminated [
 	self assert: b1 instructions size equals: 1. "Noop"
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRRedundantCodeEliminationTest >> testValueCopyIsNotEliminated [
 
 	| cfg b1 |

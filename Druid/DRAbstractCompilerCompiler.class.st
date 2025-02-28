@@ -1,6 +1,6 @@
 Class {
-	#name : #DRAbstractCompilerCompiler,
-	#superclass : #Object,
+	#name : 'DRAbstractCompilerCompiler',
+	#superclass : 'Object',
 	#instVars : [
 		'interpreter',
 		'compilerClass',
@@ -13,10 +13,12 @@ Class {
 		'irGenerator',
 		'compilerOptions'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRAbstractCompilerCompiler class >> forInterpreter: anAbstractInterpreter [ 
 
 	^ self new
@@ -24,25 +26,25 @@ DRAbstractCompilerCompiler class >> forInterpreter: anAbstractInterpreter [
 		yourself
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> addCompilerOption: anOption [
 
 	compilerOptions add: anOption
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRAbstractCompilerCompiler >> addCompilerOptions: aCollection [
 
 	aCollection do: [ :e | self addCompilerOption: e ]
 ]
 
-{ #category : #api }
+{ #category : 'api' }
 DRAbstractCompilerCompiler >> allocateRegistersIn: druidIR [
 
 	registerAllocator allocateRegistersIn: druidIR.
 ]
 
-{ #category : #api }
+{ #category : 'api' }
 DRAbstractCompilerCompiler >> compile [
 
 	| druidIR |
@@ -57,30 +59,30 @@ DRAbstractCompilerCompiler >> compile [
 	self writeAST: targetAST
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> compilerClass [
 
 	^ compilerClass
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> compilerClass: anObject [
 
 	compilerClass := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> compilerOptions [
 	^ compilerOptions
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 
 	"Hook for subclasses"
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 
 	| startBlock initialBasicBlock |
@@ -90,14 +92,14 @@ DRAbstractCompilerCompiler >> configureIRBuilder: generator forMethod: method [
 	startBlock jumpTo: initialBasicBlock
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> customise [
 
 	self flag: #TOFIX. "This customisation shoud be done between methods"
 	self sourceMethods do: [ :method | self customiseFor: method ]
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> customiseFor: method [
 
 	method ast
@@ -107,19 +109,19 @@ DRAbstractCompilerCompiler >> customiseFor: method [
 				                 pragma arguments first value ]
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> generateDruidIR [
 
 	^ self generateDruidIRForAll: self sourceMethods
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> generateDruidIRFor: compiledMethod [
 
 	^ self generateDruidIRForAll: { compiledMethod }
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> generateDruidIRForAll: compiledMethods [
 	"Generates and returns an intermediate representation of the primitive from the interpreter primitive"
 
@@ -136,7 +138,7 @@ DRAbstractCompilerCompiler >> generateDruidIRForAll: compiledMethods [
 	^ cfg
 ]
 
-{ #category : #'code-generation' }
+{ #category : 'code-generation' }
 DRAbstractCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 
 	customisation generateCustomisedPreamble:
@@ -147,7 +149,7 @@ DRAbstractCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 		  methodName: self targetName
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRAbstractCompilerCompiler >> initialize [
 
 	super initialize.
@@ -158,13 +160,13 @@ DRAbstractCompilerCompiler >> initialize [
 	compilerOptions := Set new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> instructionFactory [
 	
 	^ irGenerator instructionFactory
 ]
 
-{ #category : #interpretation }
+{ #category : 'interpretation' }
 DRAbstractCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRReceiver numArgs: numArgs [
 
 	irGenerator receiver: aDRReceiver.
@@ -183,7 +185,7 @@ DRAbstractCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRRec
 			arguments: arguments ]
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> interpreteMethods: compiledMethods [
 
 	| receiver numArgs |
@@ -196,37 +198,37 @@ DRAbstractCompilerCompiler >> interpreteMethods: compiledMethods [
 		numArgs: numArgs
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> interpreter [
 
 	^ interpreter
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> interpreter: anObject [
 
 	interpreter := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> irGenerator [
 
 	^ irGenerator
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> irGenerator: aDRIRGenerator [
 
 	irGenerator := aDRIRGenerator
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> newIRGenerator [
 
 	^ DRIRGenerator new compiler: self
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> numberOfArgumentsForManyMethods: compiledMethods [
 
 	^ compiledMethods size = 1
@@ -234,68 +236,68 @@ DRAbstractCompilerCompiler >> numberOfArgumentsForManyMethods: compiledMethods [
 		  ifFalse: [ 0 ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> numberOfArgumentsForMethod: method [
 
 	^ self subclassResponsibility
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> optimisations: aCollection [
 
 	optimisations := aCollection
 ]
 
-{ #category : #api }
+{ #category : 'api' }
 DRAbstractCompilerCompiler >> optimize: anIR [
 
 	customisation optimize: anIR.
 	optimisations do: [ :optimization | anIR applyOptimisation: optimization ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> registerAllocator [
 	^ registerAllocator
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> sourceMethod [
 	" Answer a <CompiledMethod> matching the current receiver's sourceName in the interpreter class "
 
 	^ interpreter class lookupSelector: sourceName
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> sourceMethods [
 
 	self subclassResponsibility 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> sourceName [
 
 	^ sourceName
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> sourceName: anObject [
 
 	sourceName := anObject
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> targetMethod [
 
 	^ compilerClass lookupSelector: self targetName
 ]
 
-{ #category : #'code-generation' }
+{ #category : 'code-generation' }
 DRAbstractCompilerCompiler >> targetName [
 
 	self subclassResponsibility
 ]
 
-{ #category : #'ast-to-source' }
+{ #category : 'ast-to-source' }
 DRAbstractCompilerCompiler >> writeAST: aRBMethodNode [ 
 	
 	compilerClass

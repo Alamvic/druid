@@ -1,22 +1,24 @@
 Class {
-	#name : #DRLoopInvariantCodeMotionTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRLoopInvariantCodeMotionTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #assertion }
+{ #category : 'assertion' }
 DRLoopInvariantCodeMotionTest >> assertLoop: aDRJump includes: aDRInstruction [
 
 	self assert: (aDRJump loop instructions includes: aDRInstruction)
 ]
 
-{ #category : #assertion }
+{ #category : 'assertion' }
 DRLoopInvariantCodeMotionTest >> denyLoop: aDRJump includes: aDRInstruction [
 
 	self deny: (aDRJump loop instructions includes: aDRInstruction)
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRLoopInvariantCodeMotionTest >> optimize: cfg [
 
 	cfg applyOptimisation: (DRSCCP then: DRCopyPropagation).
@@ -24,7 +26,7 @@ DRLoopInvariantCodeMotionTest >> optimize: cfg [
 	cfg applyOptimisation: DRPhiSimplication new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionAdjustsPhiFunctionsOfMovedInstruction [
 
 	| cfg loopBlock loopInvariantInstruction |
@@ -38,7 +40,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionAdjustsPhiFunctionsO
 	self assert: loopInvariantInstruction operand2 isLoadReceiver
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveInstructionsInsideIf [
 
 	| cfg ifBlock loopVariantInstruction |
@@ -53,7 +55,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveInstructi
 	self assert: (ifBlock includesInstruction: loopVariantInstruction)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoadsNorStores [
 
 	| cfg initialBlock loopConditionBlock loopBodyBlock loopExitBlock loopCondition loadInstruction storeInstruction |
@@ -80,7 +82,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoadsNorS
 	self assert: (loopBodyBlock includesInstruction: storeInstruction).
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoopVariantInstructionsOutsideOfLoop [
 
 	| cfg loopBlock loopVariantInstructions |
@@ -95,7 +97,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionDoesNotMoveLoopVaria
 	self assert: (loopVariantInstructions allSatisfy: [:i | loopBlock includesInstruction: i])
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesConstantInstructionOutsideNestedLoops [
 
 	| cfg invariant |
@@ -116,7 +118,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesConstantInstruc
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesConstantInstructionOutsideOfLoop [
 
 	| cfg invariant |
@@ -132,7 +134,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesConstantInstruc
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesMultipleRelatedInstructionsOutsideOfLoop [
 
 	| cfg invariant1 invariant2 |
@@ -150,7 +152,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionMovesMultipleRelated
 	self denyLoop: cfg allBackJumps first includes: invariant2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionWorksWithLoopsWithMultipleBodyBlocks [
 
 	| cfg  loopBlocks invariant1 invariant2 |
@@ -166,7 +168,7 @@ DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionWorksWithLoopsWithMu
 	self denyLoop: cfg allBackJumps first includes: invariant2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopInvariantCodeMotionTest >> testLoopInvariantCodeMotionWrapsMovedInstructionWithIf [
 
 	| cfg invariant |

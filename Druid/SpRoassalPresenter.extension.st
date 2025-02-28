@@ -1,24 +1,24 @@
-Extension { #name : #SpRoassalPresenter }
+Extension { #name : 'SpRoassalPresenter' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 SpRoassalPresenter >> defaultOutputPort [
 
 	^ self outputSelectionPort
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 SpRoassalPresenter >> outputActivationPort [
 
 	^ SpActivationPort newPresenter: self
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 SpRoassalPresenter >> outputSelectionPort [
 
 	^ SpActivationPort newPresenter: self
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 SpRoassalPresenter >> whenActivatedDo: aBlock [
 
 	| context |

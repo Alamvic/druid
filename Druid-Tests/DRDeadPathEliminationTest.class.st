@@ -1,10 +1,12 @@
 Class {
-	#name : #DRDeadPathEliminationTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRDeadPathEliminationTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRDeadPathEliminationTest >> previousOptimizations [
 
 	^ { 
@@ -17,7 +19,7 @@ DRDeadPathEliminationTest >> previousOptimizations [
 		  DRPhiSimplication new. }
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRDeadPathEliminationTest >> setUp [
 
 	super setUp.
@@ -25,7 +27,7 @@ DRDeadPathEliminationTest >> setUp [
 	optimisation := DRDeadEdgeSplitting then: DRDeadBranchElimination
 ]
 
-{ #category : #optimization }
+{ #category : 'optimization' }
 DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 
 	| cfg lastBlocks lastPaths newMergePoint oldMergePoint newBlock exitBasicBlock |
@@ -51,7 +53,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathWithOnePredecessor [
 	self assert: cfg deadPaths isEmpty.
 ]
 
-{ #category : #optimization }
+{ #category : 'optimization' }
 DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 
 	| cfg lastPaths conditionalConstraint |
@@ -75,7 +77,7 @@ DRDeadPathEliminationTest >> testEliminateDeadPathsOnLoop [
 		includes: conditionalConstraint
 ]
 
-{ #category : #optimization }
+{ #category : 'optimization' }
 DRDeadPathEliminationTest >> testEliminateDoubleDeadPaths [
 	"TOFIX: it's trying to create phis in wrong 'frontier' blocks"
 
@@ -102,7 +104,7 @@ DRDeadPathEliminationTest >> testEliminateDoubleDeadPaths [
 	self assert: lastBlocks fourth firstInstruction operand equals: 21 asDRValue
 ]
 
-{ #category : #optimization }
+{ #category : 'optimization' }
 DRDeadPathEliminationTest >> testEliminateDoubleHalfDeadPaths [
 
 	| cfg lastBlocks lastPaths |
@@ -123,7 +125,7 @@ DRDeadPathEliminationTest >> testEliminateDoubleHalfDeadPaths [
 	self assert: (cfg incomingEdgesFor: lastBlocks fourth) size equals: 1.
 ]
 
-{ #category : #optimization }
+{ #category : 'optimization' }
 DRDeadPathEliminationTest >> testEliminateInnerDeadPaths [
 
 	| cfg lastBlocks |
@@ -144,7 +146,7 @@ DRDeadPathEliminationTest >> testEliminateInnerDeadPaths [
 
 ]
 
-{ #category : #optimization }
+{ #category : 'optimization' }
 DRDeadPathEliminationTest >> testEliminateOnlyDeadPaths [
 
 	| cfg lastBlocks lastPaths lastPathsLeft lastPathsRight |
@@ -164,7 +166,7 @@ DRDeadPathEliminationTest >> testEliminateOnlyDeadPaths [
 	self assert: lastPathsRight size equals: 2
 ]
 
-{ #category : #optimization }
+{ #category : 'optimization' }
 DRDeadPathEliminationTest >> testEliminateSimpleDeadPaths [
 
 	| cfg lastBlocks lastPaths |
@@ -187,7 +189,7 @@ DRDeadPathEliminationTest >> testEliminateSimpleDeadPaths [
 		equals: 116 "Other branch harcodes the value"
 ]
 
-{ #category : #optimization }
+{ #category : 'optimization' }
 DRDeadPathEliminationTest >> testNotSplitUnnecessaryBlocks [
 
 	"TO CHECK if we want this behavior, this simple case finish with same instructions count but 1 block more"

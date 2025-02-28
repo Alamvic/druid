@@ -15,16 +15,18 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #DRLiveRange,
-	#superclass : #Object,
+	#name : 'DRLiveRange',
+	#superclass : 'Object',
 	#instVars : [
 		'start',
 		'stop'
 	],
-	#category : #'Druid-LinearScanRegisterAllocation'
+	#category : 'Druid-LinearScanRegisterAllocation',
+	#package : 'Druid',
+	#tag : 'LinearScanRegisterAllocation'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRLiveRange >> isActiveAt: aPosition [
 	
 	"We consider that the stop of the live range is open at the end.
@@ -32,19 +34,19 @@ DRLiveRange >> isActiveAt: aPosition [
 	^ aPosition between: self start order and: self stop order - 1
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveRange >> orderInterval [
 
 	^ self start order to: self stop order - 1
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRLiveRange >> overlaps: aDRLiveRange [ 
 
 	^ (self orderInterval intersection: aDRLiveRange orderInterval) notEmpty
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRLiveRange >> printOn: aStream [
 
 	super printOn: aStream.
@@ -55,25 +57,25 @@ DRLiveRange >> printOn: aStream [
 	aStream << '['.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveRange >> start [
 
 	^ start
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveRange >> start: anObject [
 
 	start := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveRange >> stop [
 
 	^ stop
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveRange >> stop: anObject [
 
 	stop := anObject

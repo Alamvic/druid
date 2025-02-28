@@ -1,10 +1,12 @@
 Class {
-	#name : #DRPrimitiveCustomisation,
-	#superclass : #Object,
-	#category : #'Druid-CompilerCompiler'
+	#name : 'DRPrimitiveCustomisation',
+	#superclass : 'Object',
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRPrimitiveCustomisation class >> newCustomisation: specialisedSelector [
 
 	| specialisedClass |
@@ -13,13 +15,13 @@ DRPrimitiveCustomisation class >> newCustomisation: specialisedSelector [
 	^ specialisedClass new
 ]
 
-{ #category : #api }
+{ #category : 'api' }
 DRPrimitiveCustomisation >> generateCustomisedPreamble: aGeneratorMethodBuilder [
 
 	self subclassResponsibility
 ]
 
-{ #category : #api }
+{ #category : 'api' }
 DRPrimitiveCustomisation >> optimize: anIR [
 
 	self subclassResponsibility

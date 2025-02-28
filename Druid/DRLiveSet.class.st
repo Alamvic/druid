@@ -19,17 +19,19 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #DRLiveSet,
-	#superclass : #Object,
+	#name : 'DRLiveSet',
+	#superclass : 'Object',
 	#instVars : [
 		'location',
 		'liveRanges',
 		'definitions'
 	],
-	#category : #'Druid-LinearScanRegisterAllocation'
+	#category : 'Druid-LinearScanRegisterAllocation',
+	#package : 'Druid',
+	#tag : 'LinearScanRegisterAllocation'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveSet class >> definition: aDefinition [
 
 	^ self new
@@ -37,32 +39,32 @@ DRLiveSet class >> definition: aDefinition [
 		yourself
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRLiveSet >> addDefinition: aDefinition [
 
 	definitions add: aDefinition
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveSet >> addDefinitions: aCollection [
 
 	definitions addAll: aCollection
 ]
 
-{ #category : #ranges }
+{ #category : 'ranges' }
 DRLiveSet >> addLiveRange: aRange [
 	
 	"Add a liveness range that goes from the first instruction to just before the last instruction"
 	liveRanges add: aRange
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveSet >> addLiveRanges: someLiveRanges [
 
 	someLiveRanges do: [ :e | self addLiveRange: e ]
 ]
 
-{ #category : #ranges }
+{ #category : 'ranges' }
 DRLiveSet >> addRangeFrom: firstInstruction to: lastInstruction [
 
 	"Add a liveness range that goes from the first instruction to just before the last instruction"
@@ -73,42 +75,42 @@ DRLiveSet >> addRangeFrom: firstInstruction to: lastInstruction [
 			 yourself).
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRLiveSet >> definitions [
 
 	^ definitions
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRLiveSet >> initialize [
 	super initialize.
 	liveRanges := OrderedCollection new.
 	definitions := Set new
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRLiveSet >> isActiveAt: position [
 
 	^ liveRanges anySatisfy: [ :e | e isActiveAt: position ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveSet >> liveRanges [
 	^ liveRanges
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveSet >> location [
 	^ location
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveSet >> location: aLocation [
 	
 	location := aLocation
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRLiveSet >> mergeWith: aDRLiveSet [
 
 	"Merge two non overlapping live sets"
@@ -120,25 +122,25 @@ DRLiveSet >> mergeWith: aDRLiveSet [
 		  yourself
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveSet >> numberOfUsers [
 	
 	^ definitions sum: [ :e | e users size ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRLiveSet >> overlaps: aDRLiveSet [ 
 	
 	^ liveRanges anySatisfy: [ :e | aDRLiveSet overlivesLiveRange: e ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRLiveSet >> overlivesLiveRange: aDRLiveRange [ 
 	
 	^ liveRanges anySatisfy: [ :e | e overlaps: aDRLiveRange ]
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRLiveSet >> printOn: aStream [
 
 	super printOn: aStream.
@@ -149,19 +151,19 @@ DRLiveSet >> printOn: aStream [
 	aStream << '['.
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRLiveSet >> size [
 
 	^ self stop - self start
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveSet >> start [
 	
 	^ liveRanges min: [ :e | e start order ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRLiveSet >> stop [
 	
 	^ liveRanges max: [ :e | e stop order ]

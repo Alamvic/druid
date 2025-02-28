@@ -1,13 +1,15 @@
 Class {
-	#name : #DRInterpreterToCompilerTest,
-	#superclass : #DRAbstractCompilerCollectorTest,
+	#name : 'DRInterpreterToCompilerTest',
+	#superclass : 'DRAbstractCompilerCollectorTest',
 	#instVars : [
 		'interpreterToCompiler'
 	],
-	#category : #'Druid-Tests-CompilerBuilder'
+	#category : 'Druid-Tests-CompilerBuilder',
+	#package : 'Druid-Tests',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRInterpreterToCompilerTest >> setUp [
 
 	super setUp.
@@ -18,7 +20,7 @@ DRInterpreterToCompilerTest >> setUp [
 		                         yourself
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInterpreterToCompilerTest >> testEmptyInterpreterGeneratesEmptyCompilationUnits [
 
 	interpreterToCompiler
@@ -28,7 +30,7 @@ DRInterpreterToCompilerTest >> testEmptyInterpreterGeneratesEmptyCompilationUnit
 	self assert: interpreterToCompiler bytecodes isEmpty
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInterpreterToCompilerTest >> testErrorHandling [
 
 	interpreterToCompiler := DRInterpreterToCompiler fromInterpreterClass: DruidTestInterpreter.
@@ -40,7 +42,7 @@ DRInterpreterToCompilerTest >> testErrorHandling [
 	self assert: interpreterToCompiler errors notEmpty.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInterpreterToCompilerTest >> testGeneratesBytecodeCompilationUnits [
 
 	| currentBytecodeNumber |
@@ -62,7 +64,7 @@ DRInterpreterToCompilerTest >> testGeneratesBytecodeCompilationUnits [
 	self assert: currentBytecodeNumber equals: 255
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInterpreterToCompilerTest >> testGeneratesPrimitiveCompilationUnits [
 
 	| primitiveSet |
@@ -76,7 +78,7 @@ DRInterpreterToCompilerTest >> testGeneratesPrimitiveCompilationUnits [
 		hasSameElements: primitiveSet
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInterpreterToCompilerTest >> testMandatoryPrimitiveCompilationUnits [
 
 	| supportedPrimitive mandatoryPrimitives |
@@ -101,7 +103,7 @@ DRInterpreterToCompilerTest >> testMandatoryPrimitiveCompilationUnits [
 		self assert: mandatoryPrimitive mayCallback ]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInterpreterToCompilerTest >> testSelectBytecodeCompilationUnits [
 
 	| supportedBytecode unknownBytecodes currentBytecodeNumber |
@@ -139,7 +141,7 @@ DRInterpreterToCompilerTest >> testSelectBytecodeCompilationUnits [
 	self assert: currentBytecodeNumber equals: 255
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInterpreterToCompilerTest >> testSelectPrimitiveCompilationUnits [
 
 	interpreterToCompiler
@@ -152,7 +154,7 @@ DRInterpreterToCompilerTest >> testSelectPrimitiveCompilationUnits [
 		hasSameElements: { #primitiveAdd }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInterpreterToCompilerTest >> testSelectSingleBytecodeNumberCompilationUnits [
 
 	| supportedBytecode |

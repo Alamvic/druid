@@ -2,15 +2,17 @@
 A DRCogitPrimitiveDumperTest is a test class for testing the behavior of DRCogitPrimitiveDumper
 "
 Class {
-	#name : #DRDispatchTableBuilderTest,
-	#superclass : #DRAbstractCompilerCollectorTest,
+	#name : 'DRDispatchTableBuilderTest',
+	#superclass : 'DRAbstractCompilerCollectorTest',
 	#instVars : [
 		'dispatchTableBuilder'
 	],
-	#category : #'Druid-Tests-InterpreterBuilder'
+	#category : 'Druid-Tests-InterpreterBuilder',
+	#package : 'Druid-Tests',
+	#tag : 'InterpreterBuilder'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRDispatchTableBuilderTest >> compilationUnitForTesting [
 
 	^ DRInterpreterCompilationUnit new
@@ -18,7 +20,7 @@ DRDispatchTableBuilderTest >> compilationUnitForTesting [
 		yourself
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRDispatchTableBuilderTest >> setUp [
 
 	super setUp.
@@ -26,7 +28,7 @@ DRDispatchTableBuilderTest >> setUp [
 		                        self compilationUnitForTesting
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRDispatchTableBuilderTest >> testCollectAllMethodsOn [
 
 	| pcgMethodNodes |

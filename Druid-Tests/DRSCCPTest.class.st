@@ -1,6 +1,6 @@
 Class {
-	#name : #DRSCCPTest,
-	#superclass : #DROptimisationTest,
+	#name : 'DRSCCPTest',
+	#superclass : 'DROptimisationTest',
 	#instVars : [
 		'instructionFactory',
 		'leftOperand1',
@@ -8,10 +8,12 @@ Class {
 		'rightOperand1',
 		'rightOperand2'
 	],
-	#category : #'Druid-Tests-Optimizations'
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRSCCPTest >> setUp [
 
 	super setUp.

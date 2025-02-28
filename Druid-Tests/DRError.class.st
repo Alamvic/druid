@@ -1,5 +1,6 @@
 Class {
-	#name : #DRError,
-	#superclass : #Error,
-	#category : #'Druid-Tests'
+	#name : 'DRError',
+	#superclass : 'Error',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }

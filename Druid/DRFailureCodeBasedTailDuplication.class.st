@@ -1,10 +1,12 @@
 Class {
-	#name : #DRFailureCodeBasedTailDuplication,
-	#superclass : #DROptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRFailureCodeBasedTailDuplication',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRFailureCodeBasedTailDuplication >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph exitBasicBlocks do: [ :bb |
@@ -13,7 +15,7 @@ DRFailureCodeBasedTailDuplication >> applyTo: aDRControlFlowGraph [
 			bb tailDuplicate ] ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRFailureCodeBasedTailDuplication >> canBeAppliedIn: aDRControlFlowGraph [
 
 	^ aDRControlFlowGraph exitBasicBlocks anySatisfy: [ :bb |

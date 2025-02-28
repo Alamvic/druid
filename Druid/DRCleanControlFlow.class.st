@@ -1,17 +1,19 @@
 Class {
-	#name : #DRCleanControlFlow,
-	#superclass : #DRControlFlowOptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRCleanControlFlow',
+	#superclass : 'DRControlFlowOptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCleanControlFlow >> canBeAppliedIn: aDRControlFlowGraph [
 
 	^ aDRControlFlowGraph allJumps anySatisfy: [ :j | 
 		  j isConditionalBranch or: [ j target predecessors size = 1 ] ]
 ]
 
-{ #category : #combining }
+{ #category : 'combining' }
 DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: aCFG [
 	
 	"Assume that
@@ -46,7 +48,7 @@ DRCleanControlFlow >> combineBlocks: aDRBasicBlock and: aDRBasicBlock2 fromCfg: 
 	aCFG removeBasicBlock: aDRBasicBlock2.
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRCleanControlFlow >> doApply: aCFG [
 
 	| didChange counter |
@@ -58,14 +60,14 @@ DRCleanControlFlow >> doApply: aCFG [
 	]
 ]
 
-{ #category : #folding }
+{ #category : 'folding' }
 DRCleanControlFlow >> foldRedundantBranch: aDRConditionalJump [ 
 	
 	aDRConditionalJump replaceBy: (DRJump new target: aDRConditionalJump trueBranch).
 	aDRConditionalJump trueBranch removePredecessor: aDRConditionalJump basicBlock.
 ]
 
-{ #category : #hoisting }
+{ #category : 'hoisting' }
 DRCleanControlFlow >> hoistBranchInto: aDRBasicBlock [ 
 
 	"Assume the basic branch has a single non conditional jump.
@@ -79,7 +81,7 @@ DRCleanControlFlow >> hoistBranchInto: aDRBasicBlock [
 		e addPredecessor: aDRBasicBlock ]
 ]
 
-{ #category : #'empty blocks' }
+{ #category : 'empty blocks' }
 DRCleanControlFlow >> removeEmptyBlock: aDRBasicBlock fromCfg: aCFG [
 	
 	"Assume this is an empty block with a single non-conditional jump.
@@ -101,7 +103,7 @@ DRCleanControlFlow >> removeEmptyBlock: aDRBasicBlock fromCfg: aCFG [
 	aCFG removeBasicBlock: aDRBasicBlock
 ]
 
-{ #category : #combining }
+{ #category : 'combining' }
 DRCleanControlFlow >> shouldCombineBlock: aDRBasicBlock [
 	
 	"Assume that
@@ -119,7 +121,7 @@ DRCleanControlFlow >> shouldCombineBlock: aDRBasicBlock [
 				and: [ aDRBasicBlock successor instructions noneSatisfy: [ :i | i isPhiFunction ] ] ]
 ]
 
-{ #category : #folding }
+{ #category : 'folding' }
 DRCleanControlFlow >> shouldFoldRedundantBranch: aDRConditionalJump [ 
 
 	"If they are not the same branch, we cannot fold"	
@@ -133,14 +135,14 @@ DRCleanControlFlow >> shouldFoldRedundantBranch: aDRConditionalJump [
 			asSet size = 1 ].
 ]
 
-{ #category : #folding }
+{ #category : 'folding' }
 DRCleanControlFlow >> shouldFoldRedundantBranchIn: aBlock [ 
 	
 	^ aBlock endInstruction isConditionalBranch and: [ 
 		self shouldFoldRedundantBranch: aBlock endInstruction ]
 ]
 
-{ #category : #hoisting }
+{ #category : 'hoisting' }
 DRCleanControlFlow >> shouldHoistBranchInto: aDRBasicBlock [ 
 
 	"
@@ -151,7 +153,7 @@ DRCleanControlFlow >> shouldHoistBranchInto: aDRBasicBlock [
 		targetInstructions size = 1 and: [ targetInstructions first isConditionalBranch ] ]
 ]
 
-{ #category : #'empty blocks' }
+{ #category : 'empty blocks' }
 DRCleanControlFlow >> shouldRemoveEmptyBlock: aDRBasicBlock [ 
 	
 	aDRBasicBlock isExitBlock ifTrue: [ ^ false ].
@@ -173,7 +175,7 @@ DRCleanControlFlow >> shouldRemoveEmptyBlock: aDRBasicBlock [
 	^ true
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRCleanControlFlow >> step: cfg [
 
 	| didChange |
@@ -183,7 +185,7 @@ DRCleanControlFlow >> step: cfg [
 	^ didChange
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRCleanControlFlow >> stepBlock: aDRBasicBlock fromCfg: aCFG [
 	
 	(self shouldFoldRedundantBranchIn: aDRBasicBlock) ifTrue: [ 

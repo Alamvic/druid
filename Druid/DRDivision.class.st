@@ -1,28 +1,30 @@
 Class {
-	#name : #DRDivision,
-	#superclass : #DRArithmeticInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRDivision',
+	#superclass : 'DRArithmeticInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRDivision >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitDivision: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRDivision >> isDivision [
 	
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRDivision >> opcode [
 	
 	^ 'DIV'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRDivision >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand // operand2

@@ -1,10 +1,12 @@
 Class {
-	#name : #DRNotEqualsConstraint,
-	#superclass : #DRSimpleConstraint,
-	#category : #'Druid-IR-Paths'
+	#name : 'DRNotEqualsConstraint',
+	#superclass : 'DRSimpleConstraint',
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRNotEqualsConstraint class >> withValue: aConstantValue [
 
 	| value |
@@ -18,49 +20,49 @@ DRNotEqualsConstraint class >> withValue: aConstantValue [
 	^ super withValue: value
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRNotEqualsConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
 	^ otherConstantValue >= constantValue
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRNotEqualsConstraint >> hasAllValuesLessThan: otherConstantValue [
 
 	^ otherConstantValue <= constantValue
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNotEqualsConstraint >> hasAllValuesWithMask: aMask [
 
 	^ (constantValue anyMask: aMask) not
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNotEqualsConstraint >> hasAllValuesWithoutMask: aMask [
 	
 	^ constantValue anyMask: aMask
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNotEqualsConstraint >> hasObjectValue: objectValue [
 
 	^ true
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRNotEqualsConstraint >> hasValue: otherConstantValue [
 
 	^ otherConstantValue ~= constantValue 
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRNotEqualsConstraint >> isIncludedIn: otherConstraint [
 
 	^ (otherConstraint hasAllValuesLessThan: constantValue) and: [ otherConstraint hasAllValuesGreaterThan: constantValue ]
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRNotEqualsConstraint >> negated [
 
 	^ DREqualsConstraint new
@@ -68,13 +70,13 @@ DRNotEqualsConstraint >> negated [
 		  yourself
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRNotEqualsConstraint >> opCode [
 
 	^ '~='
 ]
 
-{ #category : #reversing }
+{ #category : 'reversing' }
 DRNotEqualsConstraint >> reversed [
 	
 	^ self

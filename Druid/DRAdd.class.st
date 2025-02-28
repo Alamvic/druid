@@ -1,16 +1,18 @@
 Class {
-	#name : #DRAdd,
-	#superclass : #DRCommutativeOperation,
-	#category : #'Druid-IR'
+	#name : 'DRAdd',
+	#superclass : 'DRCommutativeOperation',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRAdd >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitAddition: self
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRAdd >> asNumberedExpression [
 
 	| numberedExpression |
@@ -21,25 +23,25 @@ DRAdd >> asNumberedExpression [
 	yourself
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAdd >> isAdd [
 	
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAdd >> isCommutative [
 	
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRAdd >> opcode [
 	
 	^ 'ADD'
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRAdd >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand + operand2

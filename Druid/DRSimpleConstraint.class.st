@@ -1,13 +1,15 @@
 Class {
-	#name : #DRSimpleConstraint,
-	#superclass : #DRConditionalConstraint,
+	#name : 'DRSimpleConstraint',
+	#superclass : 'DRConditionalConstraint',
 	#instVars : [
 		'constantValue'
 	],
-	#category : #'Druid-IR-Paths'
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRSimpleConstraint class >> withValue: aConstantValue [
 
 	^ self new
@@ -15,51 +17,51 @@ DRSimpleConstraint class >> withValue: aConstantValue [
 		  yourself
 ]
 
-{ #category : #comparing }
+{ #category : 'comparing' }
 DRSimpleConstraint >> = otherConstraint [
 
 	^ self class = otherConstraint class and: [ 
 		  self constantValue = otherConstraint constantValue ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSimpleConstraint >> constantValue [
 
 	^ constantValue
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSimpleConstraint >> constantValue: anObject [
 
 	constantValue := anObject
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRSimpleConstraint >> hasType: aDRClassType [
 
 	^ false
 ]
 
-{ #category : #comparing }
+{ #category : 'comparing' }
 DRSimpleConstraint >> hash [
 	"Hash implemented because #= was implemented"
 
 	^ self class hash bitXor: self constantValue hash
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRSimpleConstraint >> includes: otherConstraint [
 
 	^ self negated isIncludedIn: otherConstraint negated.
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSimpleConstraint >> isIncludedIn: otherConstraint [
 
 	self subclassResponsibility 
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRSimpleConstraint >> printOn: aStream [
 
 	aStream

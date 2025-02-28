@@ -1,14 +1,16 @@
 Class {
-	#name : #DRSCCPConditionalConstantFoldingTest,
-	#superclass : #DRSCCPTest,
+	#name : 'DRSCCPConditionalConstantFoldingTest',
+	#superclass : 'DRSCCPTest',
 	#instVars : [
 		'rightAddInstruction',
 		'leftAddInstruction'
 	],
-	#category : #'Druid-Tests-Optimizations'
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRSCCPConditionalConstantFoldingTest >> setUpControlFlowGraphWithConditionalJump: aJump [
 
 	| cfg copy3 copy4 copy5 copy6 |
@@ -27,7 +29,7 @@ DRSCCPConditionalConstantFoldingTest >> setUpControlFlowGraphWithConditionalJump
 	^ cfg
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRSCCPConditionalConstantFoldingTest >> setUpControlFlowGraphWithDecidableConditionalJumpOnLeft: onLeft [
 
 	| copy1 copy2 jump cfg |
@@ -51,7 +53,7 @@ DRSCCPConditionalConstantFoldingTest >> setUpControlFlowGraphWithDecidableCondit
 	^ cfg
 ]
 
-{ #category : #'tests - conditional folding' }
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftAppliesFolding [
 
 	"This test asserts that SCCP optimises only the blocks that are used.
@@ -68,7 +70,7 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftAppliesFo
 	self assert: (cfg b2 instructions at: 3) operand1 value equals: 7
 ]
 
-{ #category : #'tests - conditional folding' }
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftDoesNotApplyFolding [
 	"This test asserts that SCCP optimises only the blocks that are used.
 	Here the constants in the conditional jump are propagated, the algorithm knows that the block2 b2 will not be called because the condition is always false.
@@ -85,7 +87,7 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftDoesNotAp
 		identicalTo: leftAddInstruction
 ]
 
-{ #category : #'tests - conditional folding' }
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftReplacesConditionalJump [
 
 	"This test asserts that SCCP optimises only the blocks that are used.
@@ -103,7 +105,7 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftReplacesC
 	self assert: cfg b1 endInstruction target equals: originalConditionalJump trueBranch
 ]
 
-{ #category : #'tests - conditional folding' }
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnRightAppliesFolding [
 
 	"This test asserts that SCCP optimises only the blocks that are used.
@@ -119,7 +121,7 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnRightAppliesF
 	self assert: (cfg b3 instructions at: 3) operand1 value equals: 11
 ]
 
-{ #category : #'tests - conditional folding' }
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnRightDoesNotApplyFolding [
 
 	"This test asserts that SCCP optimises only the blocks that are used.
@@ -135,7 +137,7 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnRightDoesNotA
 	self assert: (cfg b3 instructions at: 3) == rightAddInstruction
 ]
 
-{ #category : #'tests - conditional folding' }
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationBothWithPhiFunction [
 
 	| cfg phiInstruction |
@@ -153,7 +155,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationBothWithPhiFunction [
 	self assert: cfg b4 instructions allButLast last operand1 value equals: leftOperand1 + leftOperand2
 ]
 
-{ #category : #'tests - conditional folding' }
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationLeftWithPhiFunction [
 
 	| cfg phiInstruction |
@@ -165,7 +167,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationLeftWithPhiFunction [
 	self assert: cfg b4 instructions allButLast last operand1 value equals: 7
 ]
 
-{ #category : #'tests - conditional folding' }
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationLeftWithPhiFunctionLeavesValidCFG [
 
 	| cfg phiInstruction |
@@ -177,7 +179,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationLeftWithPhiFunctionLe
 	cfg validate.
 ]
 
-{ #category : #'tests - conditional folding' }
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationRightWithPhiFunction [
 
 	| cfg phiInstruction |
@@ -189,7 +191,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationRightWithPhiFunction 
 	self assert: cfg b4 instructions allButLast last operand1 value equals: 11
 ]
 
-{ #category : #'tests - conditional folding' }
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationRightWithPhiFunctionLevesValidCFG [
 
 	| cfg phiInstruction |
@@ -201,7 +203,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationRightWithPhiFunctionL
 	cfg validate.
 ]
 
-{ #category : #'tests - conditional folding' }
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationWithFarAwayPhiFunctionFinishWithValidCFG [
 	" |0| - - - - - - - - - -> |4| 
 		  \-> |1| - - - -> |3| -^

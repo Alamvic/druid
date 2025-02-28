@@ -1,16 +1,18 @@
 Class {
-	#name : #DRSignedRightShift,
-	#superclass : #DRArithmeticInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRSignedRightShift',
+	#superclass : 'DRArithmeticInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRSignedRightShift >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitSignedRightShift: self
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRSignedRightShift >> sccpOperateOnLattice: anInteger and: anInteger2 [ 
 	
 	^ anInteger >> anInteger2

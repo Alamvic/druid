@@ -1,17 +1,19 @@
 Class {
-	#name : #DRDeadCodeEliminationTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRDeadCodeEliminationTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #test }
+{ #category : 'test' }
 DRDeadCodeEliminationTest >> setUp [
 
 	super setUp.
 	optimisation := DRDeadCodeElimination new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 
 	| cfg copy1 copy2 copy3 copy4 copy5 copy6 jump add1 add2 phi instructionsBefore |
@@ -60,7 +62,7 @@ DRDeadCodeEliminationTest >> testDCEOnConditionalJump [
 	self assert: cfg instructions size equals: instructionsBefore - 2.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 
 	| cfg copy1 copy2 phi1 instructionsBefore |	
@@ -86,7 +88,7 @@ DRDeadCodeEliminationTest >> testDCEOnDeadEndInstruction [
 	self assert: cfg instructions first equals: copy1. 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 
 	| b1 b2 cfg copy1 instructionsBefore |
@@ -105,7 +107,7 @@ DRDeadCodeEliminationTest >> testDCEOnSeveralBlocs [
 	self assert: cfg instructions size equals: instructionsBefore - 1
 ]
 
-{ #category : #test }
+{ #category : 'test' }
 DRDeadCodeEliminationTest >> testNotRemoveUnusedMandatoryInstruction [
 
 	| cfg mandatory addition |
@@ -120,7 +122,7 @@ DRDeadCodeEliminationTest >> testNotRemoveUnusedMandatoryInstruction [
 	self assertCollection: cfg instructions includesAny: { mandatory }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRDeadCodeEliminationTest >> testRemoveUnusedNoop [
 
 	| cfg instructionsBefore |

@@ -1,34 +1,36 @@
 Class {
-	#name : #DRIncludeTypeConstraint,
-	#superclass : #DRTypeConstraint,
-	#category : #'Druid-IR-Paths'
+	#name : 'DRIncludeTypeConstraint',
+	#superclass : 'DRTypeConstraint',
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRIncludeTypeConstraint >> hasNotType: aDRType [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRIncludeTypeConstraint >> hasType: aDRType [
 
 	^ type = aDRType
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRIncludeTypeConstraint >> isIncludedIn: otherConstraint [
 
 	^ otherConstraint hasType: type
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRIncludeTypeConstraint >> negated [
 
 	^ DRExcludeTypeConstraint withType: type
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRIncludeTypeConstraint >> opCode [
 
 	^ 'TYPEOF'

@@ -1,13 +1,15 @@
 Class {
-	#name : #DRSpilledMemoryAddress,
-	#superclass : #DRValue,
+	#name : 'DRSpilledMemoryAddress',
+	#superclass : 'DRValue',
 	#instVars : [
 		'stackOffset'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRSpilledMemoryAddress class >> stackOffset: offset [
 
 	^ self new
@@ -15,25 +17,25 @@ DRSpilledMemoryAddress class >> stackOffset: offset [
 		yourself
 ]
 
-{ #category : #memory }
+{ #category : 'memory' }
 DRSpilledMemoryAddress >> asMemoryAddress [
 	
 	^ self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRSpilledMemoryAddress >> isMemoryAddress [
 	
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRSpilledMemoryAddress >> name [
 	
 	^ 'StackEntry-', stackOffset asString
 ]
 
-{ #category : #memory }
+{ #category : 'memory' }
 DRSpilledMemoryAddress >> printOn: aStream [
 
 	super printOn: aStream.
@@ -42,7 +44,7 @@ DRSpilledMemoryAddress >> printOn: aStream [
 	aStream nextPutAll: ')'.
 ]
 
-{ #category : #cogit }
+{ #category : 'cogit' }
 DRSpilledMemoryAddress >> rtlArgumentExpressions: generator [
 
 	^ {
@@ -50,19 +52,19 @@ DRSpilledMemoryAddress >> rtlArgumentExpressions: generator [
 		  (RBVariableNode named: 'SPReg') }
 ]
 
-{ #category : #'cogit-generation' }
+{ #category : 'cogit-generation' }
 DRSpilledMemoryAddress >> rtlOperandQualifier [
 	
 	^ 'Mw:r:'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSpilledMemoryAddress >> stackOffset [
 	
 	^ stackOffset
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSpilledMemoryAddress >> stackOffset: offset [ 
 	stackOffset := offset
 ]

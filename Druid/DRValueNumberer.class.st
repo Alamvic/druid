@@ -1,14 +1,16 @@
 Class {
-	#name : #DRValueNumberer,
-	#superclass : #Object,
+	#name : 'DRValueNumberer',
+	#superclass : 'Object',
 	#instVars : [
 		'valueNumberList',
 		'valueNumberDictionary'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRValueNumberer >> initialize [
 
 	super initialize.
@@ -16,7 +18,7 @@ DRValueNumberer >> initialize [
 	valueNumberDictionary := Dictionary new
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRValueNumberer >> valueNumberOf: instruction [
 
 	" returns the class number of an instruction by recursively checking on the instruction if it fits in any class. "

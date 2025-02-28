@@ -1,13 +1,15 @@
 Class {
-	#name : #DRPathSplitting,
-	#superclass : #DRPathOptimisation,
+	#name : 'DRPathSplitting',
+	#superclass : 'DRPathOptimisation',
 	#instVars : [
 		'pathIndex'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPathSplitting class >> index: pathIndex [
 
 	^ self new
@@ -15,7 +17,7 @@ DRPathSplitting class >> index: pathIndex [
 		  yourself
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPathSplitting >> doApplyWithGeneratedPaths: cfg [
 
 	"Split all blocks in selected index path"
@@ -27,13 +29,13 @@ DRPathSplitting >> doApplyWithGeneratedPaths: cfg [
 		edge destination predecessors size > 1 ifTrue: [ edge split ] ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPathSplitting >> pathIndex [
 
 	^ pathIndex
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPathSplitting >> pathIndex: anObject [
 
 	pathIndex := anObject

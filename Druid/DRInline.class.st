@@ -1,20 +1,22 @@
 Class {
-	#name : #DRInline,
-	#superclass : #DRControlFlowOptimisation,
+	#name : 'DRInline',
+	#superclass : 'DRControlFlowOptimisation',
 	#instVars : [
 		'inlineGenerator'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInline >> doApply: cfg [
 
 	cfg messageSends copy do: [ :messageSend | 
 		self inline: messageSend ]
 ]
 
-{ #category : #inlining }
+{ #category : 'inlining' }
 DRInline >> generateInlineIRForMethod: classAndMethodToInline of: aMessageSend [
 
 	| lastFrame methodClass methodToInline |
@@ -37,7 +39,7 @@ DRInline >> generateInlineIRForMethod: classAndMethodToInline of: aMessageSend [
 	^ lastFrame returnedValue
 ]
 
-{ #category : #inlining }
+{ #category : 'inlining' }
 DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 
 	| returnValues lastBlock |
@@ -66,7 +68,7 @@ DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 		  (aMessageSend instructionFactory phiWithVariables: returnValues)
 ]
 
-{ #category : #inlining }
+{ #category : 'inlining' }
 DRInline >> inline: messageSend [
 
 	| methodsToInline inlinedMethodReturnValue |
@@ -101,13 +103,13 @@ DRInline >> inline: messageSend [
 	inlineGenerator ir validate
 ]
 
-{ #category : #inlining }
+{ #category : 'inlining' }
 DRInline >> isIgnoredSelector: messageSend [
 
 	^ { #class. #instVarAt: } includes: messageSend selector
 ]
 
-{ #category : #inlining }
+{ #category : 'inlining' }
 DRInline >> methodsToInlineOf: messageSend [
 	"Returns a collection of associations: 
 	    DRType (or #default) -> method AST

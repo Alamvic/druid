@@ -1,117 +1,119 @@
 Class {
-	#name : #DRCondition,
-	#superclass : #Object,
-	#category : #'Druid-IR'
+	#name : 'DRCondition',
+	#superclass : 'Object',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition class >> isEqualsThanComparison [
 
 	^ false
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCondition >> acceptVisitor: aVisitor withBranch: parentBranch [
 	
 	self subclassResponsibility
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isCommutative [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isComparison [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isComplexCondition [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isEqualsThanComparison [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isGreaterOrEqualThanComparison [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isGreaterThanComparison [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isLessOrEqualThanComparison [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isLessThanComparison [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isNoOverflow [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isNoTestMask [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isNotEqualsThanComparison [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isOverflow [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isTestMask [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCondition >> isTypeOf [
 	^ false
 ]
 
-{ #category : #transforming }
+{ #category : 'transforming' }
 DRCondition >> negated [
 	
 	^ self subclassResponsibility
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCondition >> operandsForInstruction: aDRBranchIfCondition [ 
 	
 	^ aDRBranchIfCondition operands
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRCondition >> prettyPrintWithBranch: aDRBranchIfCondition [
 
 	| conditionResult conditionResultName conditionComparisonValueName |
@@ -130,13 +132,13 @@ DRCondition >> prettyPrintWithBranch: aDRBranchIfCondition [
 	^ conditionResultName , self opcode , conditionComparisonValueName
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRCondition >> reversed [
 	
 	self subclassResponsibility
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRCondition >> sccpEvaluateFor: sccp branch: aBranch [
 
 	| value1 value2 operand1 operand2 |
@@ -162,13 +164,13 @@ DRCondition >> sccpEvaluateFor: sccp branch: aBranch [
 		  latticeOperand2: operand2
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRCondition >> sccpOperateOnLattice: operand and: operand2 [
 
 	self subclassResponsibility
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCondition >> type [
 	
 	^ DRBooleanType new

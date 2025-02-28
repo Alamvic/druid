@@ -1,16 +1,18 @@
 Class {
-	#name : #DRMethodIRGeneratorInline,
-	#superclass : #DRMethodIRGenerator,
-	#category : #'Druid-CompilerCompiler'
+	#name : 'DRMethodIRGeneratorInline',
+	#superclass : 'DRMethodIRGenerator',
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMethodIRGeneratorInline >> currentBasicBlock: aDRBasicBlock [
 
 	currentBasicBlock := aDRBasicBlock
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 
 	| lastBlock |
@@ -20,7 +22,7 @@ DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 	currentBasicBlock := lastBlock
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRMethodIRGeneratorInline >> newFirstBasicBlock [
 
 	^ self newBasicBlock

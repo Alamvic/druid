@@ -1,10 +1,12 @@
 Class {
-	#name : #DRTailDuplicationTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRTailDuplicationTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> optimize: cfg [
 
 	cfg applyOptimisation: (DRSCCP then: DRCopyPropagation).
@@ -12,7 +14,7 @@ DRTailDuplicationTest >> optimize: cfg [
 	cfg applyOptimisation: DRPhiSimplication new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateBlockWithBaseOffsetStore [
 
 	| cfg address duplicatedBlocks store1 store2 |
@@ -39,7 +41,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithBaseOffsetStore [
 	self deny: store1 address base equals: store2 address base
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateBlockWithMultipleSuccessorsAndOnlyInsideUsersShouldKeepInstructionsDependecies [
 
 	| cfg copy duplicatedBlocks lastBlock1 lastBlock2 |
@@ -59,7 +61,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithMultipleSuccessorsAndOnlyInsi
 		self assert: (b instructions first users includes: b instructions second) ]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFunction [
 
 	| cfg copy userBlock newPhi user |
@@ -79,7 +81,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
 	self assert: user operands last equals: newPhi
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFunctionWithMultipleVariables [
 
 	"|0| -> |1| -> |2| --> |4| -> |7| -> |8|
@@ -125,7 +127,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
 	self assert: (add operands includes: phi2).
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFunctionsChain [
 
 	| cfg copy userBlock leftBlock rightBlock |
@@ -152,7 +154,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldCreatePhiFun
 		hasSameElements: userBlock firstInstruction operands
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunctionsWithMultipleVariables [
 
 	"|0| -> |1| -> |2| --> |4| -> |7|
@@ -188,7 +190,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunc
 		hasSameElements: { copy1. newPhi. copy3 }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunctionsWithMultipleVariablesUnbalanced [
 	"|0| -> |1| -> |2| -> |4| -> |5| -> |7| -> |8| -> |9|
 				 \ -> |3| --^	\					\ --------^
@@ -226,7 +228,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldMergePhiFunc
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldReusePhiFunctions [
 
 	| cfg copy closerUserBlock fartherUserBlock fartherAdd newPhi closerAdd |
@@ -255,7 +257,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithOusideUsersShouldReusePhiFunc
 		hasSameElements: { closerAdd . fartherAdd  }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateBlockWithPhiUsersShouldUpdateOperandToNewPhi [
 
 	"|0| -> |1| -> |2| --> |4| --> |6|
@@ -288,7 +290,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithPhiUsersShouldUpdateOperandTo
 			r2 }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateBlockWithSingleSuccessorAndOnlyInsideUsersShouldKeepInstructionsDependecies [
 
 	| cfg copy lastBlock duplicatedBlocks |
@@ -307,7 +309,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithSingleSuccessorAndOnlyInsideU
 		self assert: (b instructions first users includes: b instructions second) ]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateBlockWithSingleSuccessorAndOutsideAndInsideUsersShouldKeepInstructionsDependecies [
 
 	| cfg phi lastBlock duplicatedBlocks copy1 copy2 |
@@ -330,7 +332,7 @@ DRTailDuplicationTest >> testTailDuplicateBlockWithSingleSuccessorAndOutsideAndI
 		 ]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateInsertingPhiInDegenerateControlFlow [
 	"|0| -> |1| -> |2| -> |4| -> |5| -> |7| -------> |9|
 				 \ -> |3| --^	\				\	          ^
@@ -363,7 +365,7 @@ DRTailDuplicationTest >> testTailDuplicateInsertingPhiInDegenerateControlFlow [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateMaintainsStagedRegisters [
 
 	| cfg newBlock stagedRegister duplicated |
@@ -378,7 +380,7 @@ DRTailDuplicationTest >> testTailDuplicateMaintainsStagedRegisters [
 	self assert: duplicated second firstInstruction result equals: stagedRegister.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateOnLoop [
 
 	| cfg duplicatedBlocks phi1 phi2 successors backjumpPredecessor |
@@ -410,7 +412,7 @@ DRTailDuplicationTest >> testTailDuplicateOnLoop [
 	self assert: backjumpPredecessor endInstruction isBackJump
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateShouldCopyBlock [
 
 	| cfg newBlock |
@@ -428,7 +430,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldCopyBlock [
 		hasSameElements: { cfg b3 }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateShouldGenerateNewVariables [
 
 	| cfg newBlock |
@@ -448,7 +450,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldGenerateNewVariables [
 		equals: newBlock firstInstruction result
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateShouldKeepInstructionDependenciesInPhiWithinBlock [
 
 	| cfg comingFrom1 comingFrom2 newBlock |
@@ -472,7 +474,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldKeepInstructionDependenciesInPhi
 		hasSameElements: { newBlock firstInstruction }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateShouldKeepInstructionDependenciesWithinBlock [
 
 	| cfg copy1 copy2 b1 pred1 pred2 |
@@ -497,7 +499,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldKeepInstructionDependenciesWithi
 	pred2 successor validate.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateShouldKeepInstructionUsersWithinBlock [
 
 	| cfg copy1 copy2 b1 pred1 pred2 branch tailDuplicated |
@@ -524,7 +526,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldKeepInstructionUsersWithinBlock 
 	tailDuplicated validate.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateShouldKeepPhiFunctionDependencies [
 
 	| cfg copy1 copy2 b1 pred1 pred2 comingFrom1 comingFrom2 tailDuplicated |
@@ -554,7 +556,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldKeepPhiFunctionDependencies [
 	tailDuplicated validate
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateShouldNotGenerateNewVariablesForReturnValue [
 
 	| cfg copy1 b1 pred1 pred2 |
@@ -576,7 +578,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldNotGenerateNewVariablesForReturn
 	self assert: pred2 successor instructions first isSetReturnValue
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateShouldSplitPhiFunctions [
 
 	| cfg copy1 copy2 b1 pred1 pred2 comingFrom1 comingFrom2 tailDuplicated |
@@ -609,7 +611,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldSplitPhiFunctions [
 		equals: comingFrom2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateShouldWithPhiFunctionWithRepeatedOperands [
 
 	| cfg inst firstMergeBlock secondMergeBlock newOperands phi copy mergeBlocks |
@@ -634,7 +636,7 @@ DRTailDuplicationTest >> testTailDuplicateShouldWithPhiFunctionWithRepeatedOpera
 	self deny: (secondMergeBlock instructions includes: phi)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierAsDirectSuccessor [
 
 	| cfg copy b5 b6 b7 bocksBefore phiHolders duplicatedBlocks frontier |
@@ -670,7 +672,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierAsDirectSuccessor [
 		hasSameElements: (phiHolders collect: [ :b | b firstInstruction ])
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierDominatedByItself [
 
 	| cfg b5 copy1 copy2 phi1 phi2 |
@@ -698,7 +700,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierDominatedByItself [
 	self assert: b5 phiFunctions first users size equals: 1 "First master phi used (frontier of frontier)"
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierFirstBlock [
 
 	| cfg duplicatedBlocks successors frontierOfFrontiers mergeBlocks |
@@ -725,7 +727,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierFirstBlock [
 		hasSameElements: (successors collect: [ :b | b firstInstruction ])
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierSecondBlock [
 
 	| cfg duplicatedBlocks successors frontier mergeBlocks |
@@ -753,7 +755,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierSecondBlock [
 		hasSameElements: { frontier instructions second . frontier instructions third }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocks [
 
 	| cfg b5 b6 b7 b8 b9 b10 copy multipleFrontier copyLeft copyRight leftPhi rightPhi |
@@ -798,7 +800,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocks [
 		hasSameElements: multipleFrontier 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocksTwice [
 
 	| cfg b5 b6 b7 b8 b9 b10 copy b11 b12 firstFrontier secondFrontier user copyLeft copyRight leftPhi rightPhi leftPhiPhi rightPhiPhi |
@@ -849,7 +851,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithMultipleBlocksTwice [
 	self assert: (user operands includes: b12 firstInstruction) 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateWithFrontierWithTwoBlocks [
 
 	| cfg lastFrontier firstFrontier mergeBlocks |
@@ -879,7 +881,7 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithTwoBlocks [
 		hasSameElements: { lastFrontier phiFunctions second . lastFrontier phiFunctions third }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateWithPhiUsersInFrontier [
 
 	| cfg frontierOfFrontiers mergeBlocks |

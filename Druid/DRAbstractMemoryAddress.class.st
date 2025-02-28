@@ -1,69 +1,71 @@
 Class {
-	#name : #DRAbstractMemoryAddress,
-	#superclass : #DRValue,
+	#name : 'DRAbstractMemoryAddress',
+	#superclass : 'DRValue',
 	#instVars : [
 		'type'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #'meta-data' }
+{ #category : 'meta-data' }
 DRAbstractMemoryAddress >> addUser: anInstruction [
 	
 	self dependencies do: [ :e | e addUser: anInstruction ]
 ]
 
-{ #category : #memory }
+{ #category : 'memory' }
 DRAbstractMemoryAddress >> asMemoryAddress [
 
 	^ self
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRAbstractMemoryAddress >> initialize [
 
 	super initialize.
 	type := DRPointerType new
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbstractMemoryAddress >> isAbsolute [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbstractMemoryAddress >> isMemoryAddress [
 	
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractMemoryAddress >> operands [
 
 	self subclassResponsibility
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbstractMemoryAddress >> printResult [
 
 	^ self name
 ]
 
-{ #category : #'meta-data' }
+{ #category : 'meta-data' }
 DRAbstractMemoryAddress >> removeUser: anInstruction [
 	
 	self dependencies do: [ :e | e removeUser: anInstruction ]
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRAbstractMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 
 	self dependencies do: [ :e | 
 		e replaceDependency: anOperand by: anotherOperand ]
 ]
 
-{ #category : #dependencies }
+{ #category : 'dependencies' }
 DRAbstractMemoryAddress >> replaceDependency: anOperand by: anotherOperand in: anInstruction [
 	
 	anOperand removeUser: anInstruction.
@@ -71,13 +73,13 @@ DRAbstractMemoryAddress >> replaceDependency: anOperand by: anotherOperand in: a
 	self replaceDependency: anOperand by: anotherOperand.
 ]
 
-{ #category : #cogit }
+{ #category : 'cogit' }
 DRAbstractMemoryAddress >> rtlArgumentExpressions: generator [
 	
 	self subclassResponsibility
 ]
 
-{ #category : #'cogit-generation' }
+{ #category : 'cogit-generation' }
 DRAbstractMemoryAddress >> rtlOperandQualifierForInstruction: instruction [
 
 	| bytesSuffix |
@@ -88,7 +90,7 @@ DRAbstractMemoryAddress >> rtlOperandQualifierForInstruction: instruction [
 	^ 'M' , bytesSuffix , ':r:'
 ]
 
-{ #category : #cogit }
+{ #category : 'cogit' }
 DRAbstractMemoryAddress >> rtlPushArgumentExpressions: generator [
 	"Normal load and store instructions have offset, then base.
 	Push instructions have base, then offset"
@@ -96,18 +98,18 @@ DRAbstractMemoryAddress >> rtlPushArgumentExpressions: generator [
 	^ (self rtlArgumentExpressions: generator) reversed
 ]
 
-{ #category : #cogit }
+{ #category : 'cogit' }
 DRAbstractMemoryAddress >> rtlPushOperandQualifierForInstruction: aPush [
 
 	^ 'Base:offset:'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractMemoryAddress >> type [
 	^ type
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractMemoryAddress >> type: aDRType [
 
 	type := aDRType

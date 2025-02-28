@@ -1,10 +1,11 @@
 Class {
-	#name : #DRLoopTest,
-	#superclass : #DRIRTest,
-	#category : #'Druid-Tests'
+	#name : 'DRLoopTest',
+	#superclass : 'DRIRTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRLoopTest >> optimize: cfg [
 
 	cfg applyOptimisation:
@@ -12,7 +13,7 @@ DRLoopTest >> optimize: cfg [
 			 DRCleanControlFlow new)
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRLoopTest >> setUp [
 
 	super setUp.
@@ -21,7 +22,7 @@ DRLoopTest >> setUp [
 	compilerCompiler irGenerator: DRPrimitiveIRGeneratorDeferredInline new.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopTest >> testCanRetrieveLoopGraphWithIfs [
 
 	| cfg loop loopSubgraph loopBlocksIds |
@@ -38,7 +39,7 @@ DRLoopTest >> testCanRetrieveLoopGraphWithIfs [
 		hasSameElements: loopBlocksIds
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopTest >> testCanRetrieveLoopGraphWithMultipleBodyBlocks [
 
 	| cfg loop loopSubgraph loopBlocksIds loopBodyBlock |
@@ -56,7 +57,7 @@ DRLoopTest >> testCanRetrieveLoopGraphWithMultipleBodyBlocks [
 		hasSameElements: loopBlocksIds
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopTest >> testCanRetrieveLoopGraphWithNestedLoops [
 
 	| cfg outerLoop loopSubgraph loopBlocksIds |
@@ -72,7 +73,7 @@ DRLoopTest >> testCanRetrieveLoopGraphWithNestedLoops [
 		hasSameElements: loopBlocksIds
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopTest >> testCanRetrieveLoopGraphWithSingleBodyBlock [
 
 	| cfg loop loopSubgraph loopBlocksIds |
@@ -88,7 +89,7 @@ DRLoopTest >> testCanRetrieveLoopGraphWithSingleBodyBlock [
 		hasSameElements: loopBlocksIds
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRLoopTest >> testFixBackjumpsIgnoreInnerRecursivePhis [
 
 	| cfg innerPhi loopHeaderPhi loopBody addition1 addition2 |

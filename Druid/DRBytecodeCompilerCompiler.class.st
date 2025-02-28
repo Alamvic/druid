@@ -1,14 +1,16 @@
 Class {
-	#name : #DRBytecodeCompilerCompiler,
-	#superclass : #DRAbstractCompilerCompiler,
+	#name : 'DRBytecodeCompilerCompiler',
+	#superclass : 'DRAbstractCompilerCompiler',
 	#instVars : [
 		'targetName',
 		'bytecodes'
 	],
-	#category : #'Druid-BytecodeToJITCompilation'
+	#category : 'Druid-BytecodeToJITCompilation',
+	#package : 'Druid',
+	#tag : 'BytecodeToJITCompilation'
 }
 
-{ #category : #API }
+{ #category : 'API' }
 DRBytecodeCompilerCompiler class >> compilePrimitive: primitiveName from: anInterpreter as: primitiveCompilerName in: aCompilerClass [ 
 	
 	^ self new
@@ -19,7 +21,7 @@ DRBytecodeCompilerCompiler class >> compilePrimitive: primitiveName from: anInte
 		compile
 ]
 
-{ #category : #'builder api' }
+{ #category : 'builder api' }
 DRBytecodeCompilerCompiler >> buildIR: bytecodeSelector [ 
 	" Answer a DRPrimitiveControlFlowGraph generated for bytecodeSelector in the receiver's interpreter "
 
@@ -28,13 +30,13 @@ DRBytecodeCompilerCompiler >> buildIR: bytecodeSelector [
 		generateDruidIR
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeCompilerCompiler >> bytecodes: bytecodeAndSelectors [
 
 	bytecodes := bytecodeAndSelectors
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 
 	super configureForCompilerClass: aCompilerClass.
@@ -45,7 +47,7 @@ DRBytecodeCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 	optimisations := compilerClass druidNewOptimizationList
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRBytecodeCompilerCompiler >> customiseFor: method [
 
 	self flag: #TODO. "Allow mix of customisations"
@@ -65,7 +67,7 @@ DRBytecodeCompilerCompiler >> customiseFor: method [
 						                 nextBytecodes: pragma arguments first value ] ] ]
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRBytecodeCompilerCompiler >> generateDruidIR [
 
 	bytecodes ifNotNil: [ 
@@ -73,13 +75,13 @@ DRBytecodeCompilerCompiler >> generateDruidIR [
 	^ self generateDruidIRForAll: self sourceMethods
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeCompilerCompiler >> newIRGenerator [
 
 	^ DRBytecodeIRGenerator new compiler: self
 ]
 
-{ #category : #'generation-IR' }
+{ #category : 'generation-IR' }
 DRBytecodeCompilerCompiler >> numberOfArgumentsForMethod: aMethod [
 
 	(aMethod ast hasPragmaNamed: #numberOfArguments:) ifFalse: [ ^ 0 ].
@@ -87,14 +89,14 @@ DRBytecodeCompilerCompiler >> numberOfArgumentsForMethod: aMethod [
 	^ (aMethod ast pragmaNamed: #numberOfArguments:) arguments first value
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeCompilerCompiler >> optimize: anIR [
 
 	super optimize: anIR.
 	anIR applyOptimisation: DRAnnotateBytecodeInstructionCoalescing new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeCompilerCompiler >> sourceMethods [
 
 	sourceName ifNotNil: [
@@ -104,20 +106,20 @@ DRBytecodeCompilerCompiler >> sourceMethods [
 		  interpreter class lookupSelector: selector ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeCompilerCompiler >> sourceName [
 
 	^ super sourceName ifNil: [ self sourceMethods unique selector ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeCompilerCompiler >> targetName [
 
 	^ targetName 
 		ifNil: [ targetName := 'gen_', self sourceName ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeCompilerCompiler >> targetName: anObject [
 
 	targetName := anObject

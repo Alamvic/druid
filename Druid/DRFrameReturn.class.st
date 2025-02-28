@@ -1,22 +1,24 @@
 Class {
-	#name : #DRFrameReturn,
-	#superclass : #DRStrongCopyForInlining,
-	#category : #'Druid-IR'
+	#name : 'DRFrameReturn',
+	#superclass : 'DRStrongCopyForInlining',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRFrameReturn >> isCopy [
 
 	^ self shouldKeepInCFG not
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRFrameReturn >> isFrameReturn [
 
 	^ true
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRFrameReturn >> sccpLatticeValueFor: sccp [
 
 	self shouldKeepInCFG ifTrue: [ ^ sccp bottom ].

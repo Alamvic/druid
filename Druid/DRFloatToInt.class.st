@@ -1,22 +1,24 @@
 Class {
-	#name : #DRFloatToInt,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRFloatToInt',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRFloatToInt >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitFloatToIntConversion: self
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRFloatToInt >> opcode [
 	
 	^ 'FloatToInt'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRFloatToInt >> sccpLatticeValueFor: sccp [
 
 	| lattice |
@@ -26,7 +28,7 @@ DRFloatToInt >> sccpLatticeValueFor: sccp [
 	^ lattice value asInteger asDRValue
 ]
 
-{ #category : #'constant folding' }
+{ #category : 'constant folding' }
 DRFloatToInt >> simpleConstantFold [
 	
 	^ self operand1 simpleConstantFold asInteger

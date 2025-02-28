@@ -1,6 +1,6 @@
 Class {
-	#name : #DRDeadBlockEliminationTest,
-	#superclass : #DROptimisationTest,
+	#name : 'DRDeadBlockEliminationTest',
+	#superclass : 'DROptimisationTest',
 	#instVars : [
 		'instructionFactory',
 		'cfg',
@@ -13,10 +13,12 @@ Class {
 		'entryBlock',
 		'entryCopy'
 	],
-	#category : #'Druid-Tests-Optimizations'
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRDeadBlockEliminationTest >> setUp [
 	super setUp.
 	
@@ -44,7 +46,7 @@ DRDeadBlockEliminationTest >> setUp [
 	cfg initialBasicBlock jumpTo: entryBlock.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRDeadBlockEliminationTest >> testKeepExitBlock [
 
 	optimisation applyTo: cfg.
@@ -52,7 +54,7 @@ DRDeadBlockEliminationTest >> testKeepExitBlock [
 	self assert: (cfg blocks includes: exitBlock)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRDeadBlockEliminationTest >> testKeepInitialBlock [
 
 	optimisation applyTo: cfg.
@@ -60,7 +62,7 @@ DRDeadBlockEliminationTest >> testKeepInitialBlock [
 	self assert: (cfg blocks includes: entryBlock)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRDeadBlockEliminationTest >> testRemoveDeadBlock [
 
 	optimisation applyTo: cfg.
@@ -68,7 +70,7 @@ DRDeadBlockEliminationTest >> testRemoveDeadBlock [
 	self deny: (cfg blocks includes: deadBlock)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRDeadBlockEliminationTest >> testRemoveDeadBlockBacklink [
 
 	optimisation applyTo: cfg.
@@ -76,7 +78,7 @@ DRDeadBlockEliminationTest >> testRemoveDeadBlockBacklink [
 	self assert: (deadBlock successors noneSatisfy: [ :s | s hasPredecessor: deadBlock ])
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRDeadBlockEliminationTest >> testRemoveDeadBlockChain [
 
 	optimisation applyTo: cfg.
@@ -84,7 +86,7 @@ DRDeadBlockEliminationTest >> testRemoveDeadBlockChain [
 	self deny: (cfg blocks includes: deadBlock2)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRDeadBlockEliminationTest >> testRemoveDeadBlockPhi [
 
 	optimisation applyTo: cfg.
@@ -93,7 +95,7 @@ DRDeadBlockEliminationTest >> testRemoveDeadBlockPhi [
 	self assert: exitPhi operands first equals: alivePhiOperand
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRDeadBlockEliminationTest >> testUsersAreCleanedUp [
 
 	"A dead block uses a non dead instruction.

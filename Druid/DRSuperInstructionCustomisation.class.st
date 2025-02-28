@@ -1,16 +1,18 @@
 Class {
-	#name : #DRSuperInstructionCustomisation,
-	#superclass : #DRPrimitiveCustomisation,
+	#name : 'DRSuperInstructionCustomisation',
+	#superclass : 'DRPrimitiveCustomisation',
 	#instVars : [
 		'nextBytecodes',
 		'currentBytecode',
 		'interpreter',
 		'compilerClass'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRSuperInstructionCustomisation class >> interpreter: anInterpreter compilerClass: compilerClass currentBytecode: currentBytecode nextBytecodes: nextBytecodes [
 
 	^ self new
@@ -21,13 +23,13 @@ DRSuperInstructionCustomisation class >> interpreter: anInterpreter compilerClas
 		  yourself
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
 DRSuperInstructionCustomisation >> bytecodeSelector: bytecode [
 
 	^ self bytecodeTable at: bytecode + 1
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
 DRSuperInstructionCustomisation >> bytecodeSizeOf: bytecode [
 
 	bytecode < 224 ifTrue: [ ^ 1 ].
@@ -35,13 +37,13 @@ DRSuperInstructionCustomisation >> bytecodeSizeOf: bytecode [
 	^ 3
 ]
 
-{ #category : #'class initialization' }
+{ #category : 'class initialization' }
 DRSuperInstructionCustomisation >> bytecodeTable [
 
 	^ interpreter class bytecodeTable
 ]
 
-{ #category : #'ast-nodes' }
+{ #category : 'ast-nodes' }
 DRSuperInstructionCustomisation >> caseNodeFor: nextBytecode index: index [
 
 	^ RBMessageNode
@@ -60,25 +62,25 @@ DRSuperInstructionCustomisation >> caseNodeFor: nextBytecode index: index [
 								      (self selectorForSuperInstruction: nextBytecode index: index))) })) }
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSuperInstructionCustomisation >> compilerClass: aClass [
 
 	compilerClass := aClass
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSuperInstructionCustomisation >> currentBytecode: bytecode [
 
 	currentBytecode := bytecode
 ]
 
-{ #category : #'accessing - bytecodes' }
+{ #category : 'accessing - bytecodes' }
 DRSuperInstructionCustomisation >> currentBytecodeSize [
 
 	^ self bytecodeSizeOf: currentBytecode 
 ]
 
-{ #category : #'ast-nodes' }
+{ #category : 'ast-nodes' }
 DRSuperInstructionCustomisation >> fetchNextBytecodeNode [
 
 	^ RBAssignmentNode
@@ -91,7 +93,7 @@ DRSuperInstructionCustomisation >> fetchNextBytecodeNode [
 						   (RBVariableNode named: 'methodObj') })
 ]
 
-{ #category : #'ast-nodes' }
+{ #category : 'ast-nodes' }
 DRSuperInstructionCustomisation >> fetchNextFixup [
 
 	^ RBAssignmentNode
@@ -102,7 +104,7 @@ DRSuperInstructionCustomisation >> fetchNextFixup [
 				   arguments: { self nextBytecodePCNode })
 ]
 
-{ #category : #api }
+{ #category : 'api' }
 DRSuperInstructionCustomisation >> generateCustomisedPreamble: aGeneratorMethodBuilder [
 
 	aGeneratorMethodBuilder addVariableNamed: 'nextFixup'.
@@ -120,13 +122,13 @@ DRSuperInstructionCustomisation >> generateCustomisedPreamble: aGeneratorMethodB
 								    self caseNodeFor: next index: i ]))) })
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSuperInstructionCustomisation >> interpreter: anInterpreter [
 
 	interpreter := anInterpreter
 ]
 
-{ #category : #'ast-nodes' }
+{ #category : 'ast-nodes' }
 DRSuperInstructionCustomisation >> nextBytecodePCNode [
 
 	^ RBMessageNode
@@ -135,13 +137,13 @@ DRSuperInstructionCustomisation >> nextBytecodePCNode [
 		  arguments: { self currentBytecodeSize asLiteralNode   }
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRSuperInstructionCustomisation >> nextBytecodes: bytecodes [
 
 	nextBytecodes := bytecodes
 ]
 
-{ #category : #api }
+{ #category : 'api' }
 DRSuperInstructionCustomisation >> optimize: anIR [
 	"Compile the super instructions. Maybe we want to do this in another moment."
 
@@ -158,7 +160,7 @@ DRSuperInstructionCustomisation >> optimize: anIR [
 		compiler compile ]
 ]
 
-{ #category : #'ast-nodes' }
+{ #category : 'ast-nodes' }
 DRSuperInstructionCustomisation >> selectorForSuperInstruction: nextBytecode index: index [
 
 	^ #_ join: {

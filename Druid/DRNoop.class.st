@@ -1,35 +1,37 @@
 Class {
-	#name : #DRNoop,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRNoop',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRNoop >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitNoop: self
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRNoop >> initialize [
 
 	super initialize.
 	result := DRNoRegister new
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRNoop >> isNoop [
 
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRNoop >> opcode [
 	
 	^ 'Noop'
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRNoop >> removeFromCFG [
 
 	"If I am the ending instruction of a block, keep me around"
@@ -39,7 +41,7 @@ DRNoop >> removeFromCFG [
 	super removeFromCFG
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRNoop >> sccpLatticeValueFor: sccp [ 
 	
 	^ sccp top

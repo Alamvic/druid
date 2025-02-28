@@ -1,6 +1,6 @@
-Extension { #name : #PCGMethodNode }
+Extension { #name : 'PCGMethodNode' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 PCGMethodNode >> returnNode [
 	"Answer the receiver's <PCGReturnNode>"
 

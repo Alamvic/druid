@@ -1,64 +1,66 @@
 Class {
-	#name : #DRPhysicalGeneralPurposeRegister,
-	#superclass : #DRPhysicalRegister,
-	#category : #'Druid-IR'
+	#name : 'DRPhysicalGeneralPurposeRegister',
+	#superclass : 'DRPhysicalRegister',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRPhysicalGeneralPurposeRegister class >> classReg [
 
 	^ self name: 'ClassReg'
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRPhysicalGeneralPurposeRegister class >> receiverResultReg [
 
 	^ self name: 'ReceiverResultReg'
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRPhysicalGeneralPurposeRegister class >> sendNumArgsReg [
 
 	^ self name: 'SendNumArgsReg'
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRPhysicalGeneralPurposeRegister >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitPhysicalRegister: self
 ]
 
-{ #category : #memory }
+{ #category : 'memory' }
 DRPhysicalGeneralPurposeRegister >> asMemoryAddress [
 	
 	^ DRAbsoluteMemoryAddress register: self
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRPhysicalGeneralPurposeRegister >> printResult [
 
 	^ name
 ]
 
-{ #category : #'register allocation' }
+{ #category : 'register allocation' }
 DRPhysicalGeneralPurposeRegister >> returnToAllocator: aRegisterAllocator [
 	
 	aRegisterAllocator returnIntegerRegister: self
 ]
 
-{ #category : #'cogit-generation' }
+{ #category : 'cogit-generation' }
 DRPhysicalGeneralPurposeRegister >> rtlOperandQualifier [
 	
 	^ 'R:'
 ]
 
-{ #category : #'register allocation' }
+{ #category : 'register allocation' }
 DRPhysicalGeneralPurposeRegister >> takeFromAllocator: aRegisterAllocator [ 
 	
 	aRegisterAllocator takeIntegerRegister: self
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRPhysicalGeneralPurposeRegister >> type [
 
 	^ DRSignedIntegerType size: 8 "Word size"

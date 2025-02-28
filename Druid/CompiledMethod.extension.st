@@ -1,6 +1,6 @@
-Extension { #name : #CompiledMethod }
+Extension { #name : 'CompiledMethod' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 CompiledMethod >> hasPragmaNamed: pragmaName setting: argumentValue [
 	" Answer <true> if receiver defines pragmaName with argumentValue as argument "
 
@@ -8,7 +8,7 @@ CompiledMethod >> hasPragmaNamed: pragmaName setting: argumentValue [
 		argumentValue matchArgumentsAgainst: (self pragmaAt: pragmaName) ]
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 CompiledMethod >> numberOfArguments [
 
 	^ (self ast pragmaNamed: #numberOfArguments:) arguments first value

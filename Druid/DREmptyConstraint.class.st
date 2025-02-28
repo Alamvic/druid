@@ -1,58 +1,60 @@
 Class {
-	#name : #DREmptyConstraint,
-	#superclass : #DRConditionalConstraint,
-	#category : #'Druid-IR-Paths'
+	#name : 'DREmptyConstraint',
+	#superclass : 'DRConditionalConstraint',
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DREmptyConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
 	^ false
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DREmptyConstraint >> hasAllValuesLessThan: otherConstantValue [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DREmptyConstraint >> hasAllValuesWithMask: aMask [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DREmptyConstraint >> hasAllValuesWithoutMask: aMask [
 
 	^ false
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DREmptyConstraint >> hasValue: otherConstantValue [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DREmptyConstraint >> includes: otherConstraint [
 
 	^ otherConstraint isEmpty
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DREmptyConstraint >> isEmpty [
 
 	^ true
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DREmptyConstraint >> negated [
 
 	^ DRFullConstraint new
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DREmptyConstraint >> opCode [
 
 	^ 'EMPTY'

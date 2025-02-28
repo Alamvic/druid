@@ -3,15 +3,17 @@ This class provides behavior for subclasses to use a Mock JIT class.
 
 "
 Class {
-	#name : #DRAbstractCompilerCollectorTest,
-	#superclass : #DRDruidTest,
+	#name : 'DRAbstractCompilerCollectorTest',
+	#superclass : 'DRDruidTest',
 	#instVars : [
 		'testingEnvironment'
 	],
-	#category : #'Druid-Tests-CompilerBuilder'
+	#category : 'Druid-Tests-CompilerBuilder',
+	#package : 'Druid-Tests',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRAbstractCompilerCollectorTest >> jitCompilerClassForTest [
 
 	^ testingEnvironment 
@@ -24,26 +26,26 @@ DRAbstractCompilerCollectorTest >> jitCompilerClassForTest [
 					category: self jitCompilerClassNameForTest ]. ]
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRAbstractCompilerCollectorTest >> jitCompilerClassNameForTest [ 
 
 	^ #MyJITCompilerClass
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRAbstractCompilerCollectorTest >> jitSuperclassForTest [
 
 	^ StackToRegisterMappingCogit
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRAbstractCompilerCollectorTest >> setUp [
 
 	super setUp.
 	testingEnvironment := Smalltalk globals.
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRAbstractCompilerCollectorTest >> tearDown [
 
 	| className |

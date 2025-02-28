@@ -1,12 +1,12 @@
-Extension { #name : #StackToRegisterMappingCogit }
+Extension { #name : 'StackToRegisterMappingCogit' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 StackToRegisterMappingCogit class >> druidNewCodeGenerator [
 
 	^ DRCogitStackToRegisterMappingGenerator new
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 StackToRegisterMappingCogit class >> druidNewOptimizationList [
 
 	| optimisations |
@@ -39,19 +39,19 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 	^ optimisations
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 StackToRegisterMappingCogit class >> druidNewPrimitiveCodeGenerator [
 
 	^ DRCogitStackToRegisterPrimitiveCodeGenerator new
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 StackToRegisterMappingCogit class >> druidNewRegisterAllocator [
 
 	^ DRCogitDynamicLinearScanRegisterAllocator new
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 StackToRegisterMappingCogit class >> isSimpleStack [
 
 	^ false

@@ -1,52 +1,54 @@
 Class {
-	#name : #DROptimisation,
-	#superclass : #Object,
-	#category : #'Druid-Optimizations'
+	#name : 'DROptimisation',
+	#superclass : 'Object',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DROptimisation class >> applyTo: aCfg [
 
 	^ self new applyTo: aCfg
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DROptimisation class >> repeat: times [
 
 	^ self new repeat: times
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DROptimisation class >> then: anotherOptimisationClass [
 
 	^ self new then: anotherOptimisationClass new
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DROptimisation class >> then: firstOptimisationClass then: secondOptimisationClass [ 
 	
 	^ (self then: firstOptimisationClass) then: secondOptimisationClass new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DROptimisation >> applyTo: cfg [
 
 	self subclassResponsibility
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DROptimisation >> isNoOptimisation [
 
 	^ false
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DROptimisation >> prettyPrint [
 
 	^ self className
 ]
 
-{ #category : #'accessing - structure variables' }
+{ #category : 'accessing - structure variables' }
 DROptimisation >> repeat: times [
 
 	| sequencer |
@@ -55,7 +57,7 @@ DROptimisation >> repeat: times [
 	^ sequencer
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DROptimisation >> then: anotherOptimisation [
 
 	^ DROptimisationSequence new
@@ -65,7 +67,7 @@ DROptimisation >> then: anotherOptimisation [
 		
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DROptimisation >> visitDeoptimize: aDRDeoptimize [ 
 	
 	"Do nothing by default"

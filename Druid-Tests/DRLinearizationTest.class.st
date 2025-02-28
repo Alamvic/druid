@@ -1,10 +1,11 @@
 Class {
-	#name : #DRLinearizationTest,
-	#superclass : #DRDruidTest,
-	#category : #'Druid-Tests'
+	#name : 'DRLinearizationTest',
+	#superclass : 'DRDruidTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRLinearizationTest >> testBranchingControlFlow [
 	"A block should be visited after all its predecessors are visited"
 
@@ -30,7 +31,7 @@ DRLinearizationTest >> testBranchingControlFlow [
 			b4 }
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRLinearizationTest >> testBranchingControlFlowHasCorrectStructure [
 
 	"A block should be visited after all its predecessors are visited"
@@ -55,7 +56,7 @@ DRLinearizationTest >> testBranchingControlFlowHasCorrectStructure [
 	cfg validate
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRLinearizationTest >> testBranchingControlFlowWithStackDependency [
 	"A block should be visited after all its predecessors AND stack dependencies are visited"
 
@@ -89,7 +90,7 @@ DRLinearizationTest >> testBranchingControlFlowWithStackDependency [
 	self deny: (b3 canBeLinearizedBefore: b2)
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRLinearizationTest >> testBranchingControlFlowWithStackDependencyReversed [
 	"A block should be visited after all its predecessors AND stack dependencies are visited"
 
@@ -123,7 +124,7 @@ DRLinearizationTest >> testBranchingControlFlowWithStackDependencyReversed [
 	self deny: (b2 canBeLinearizedBefore: b3)
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRLinearizationTest >> testBranchingControlFlowWithUnevenBranches [
 
 	"A block should be visited after all its predecessors are visited"
@@ -145,7 +146,7 @@ DRLinearizationTest >> testBranchingControlFlowWithUnevenBranches [
 	self assert: cfg reversePostOrderBlocks asArray equals: { b1 . b2 . b3 . b4 }
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRLinearizationTest >> testBranchingControlFlowWithUnevenBranchesHasCorrectStructure [
 
 	"A block should be visited after all its predecessors are visited"
@@ -169,7 +170,7 @@ DRLinearizationTest >> testBranchingControlFlowWithUnevenBranchesHasCorrectStruc
 	cfg validate
 ]
 
-{ #category : #'tests-building' }
+{ #category : 'tests-building' }
 DRLinearizationTest >> testBuildCFGHasAllBlocks [
 
 	| cfg |
@@ -184,7 +185,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocks [
 	self assert: cfg instructions size equals: 22
 ]
 
-{ #category : #'tests-building' }
+{ #category : 'tests-building' }
 DRLinearizationTest >> testBuildCFGHasAllBlocksWhenEarlyMethodReturns [
 
 	| cfg |
@@ -199,7 +200,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWhenEarlyMethodReturns [
 	self assert: cfg instructions size equals: 22
 ]
 
-{ #category : #'tests-building' }
+{ #category : 'tests-building' }
 DRLinearizationTest >> testBuildCFGHasAllBlocksWithTwoNonLocalReturns [
 
 	| cfg |
@@ -216,7 +217,7 @@ DRLinearizationTest >> testBuildCFGHasAllBlocksWithTwoNonLocalReturns [
 	self assert: cfg instructions size equals: 22
 ]
 
-{ #category : #'tests-building' }
+{ #category : 'tests-building' }
 DRLinearizationTest >> testBuildCFGHasCorrectStructure [
 
 	| cfg |
@@ -229,7 +230,7 @@ DRLinearizationTest >> testBuildCFGHasCorrectStructure [
 	cfg validate
 ]
 
-{ #category : #'tests-building' }
+{ #category : 'tests-building' }
 DRLinearizationTest >> testBuildCFGHasCorrectStructureWhenEarlyMethodReturns [
 
 	| cfg |
@@ -242,7 +243,7 @@ DRLinearizationTest >> testBuildCFGHasCorrectStructureWhenEarlyMethodReturns [
 	cfg validate
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRLinearizationTest >> testLinearControlFlow [
 
 	"A block should be visited after all its predecessors are visited"
@@ -260,7 +261,7 @@ DRLinearizationTest >> testLinearControlFlow [
 	self assert: cfg reversePostOrderBlocks asArray equals: { b1 . b2 . b3 }
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRLinearizationTest >> testLoopControlFlow [
 
 	"A block should be visited after all its predecessors are visited"

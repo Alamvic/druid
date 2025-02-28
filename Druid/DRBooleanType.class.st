@@ -1,17 +1,19 @@
 Class {
-	#name : #DRBooleanType,
-	#superclass : #DRTopType,
-	#category : #'Druid-IR-Types'
+	#name : 'DRBooleanType',
+	#superclass : 'DRTopType',
+	#category : 'Druid-IR-Types',
+	#package : 'Druid',
+	#tag : 'IR-Types'
 }
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRBooleanType >> and: aBlock [
 
 	self ifFalse: [ ^ false ].
 	^ aBlock value
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRBooleanType >> asInteger [
 
 	^ self = true
@@ -19,41 +21,41 @@ DRBooleanType >> asInteger [
 		ifFalse: [ 0 ]
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRBooleanType >> ifFalse: falseBlock [
 
 	self ifTrue: [ ^ nil ].
 	^ falseBlock value
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRBooleanType >> ifFalse: falseBlock ifTrue: trueBlock [
 
 	self ifTrue: [ ^ trueBlock value ].
 	^ falseBlock value
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRBooleanType >> ifTrue: trueBlock ifFalse: falseBlock [
 
 	self ifTrue: [ ^ trueBlock value ].
 	^ falseBlock value
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBooleanType >> isBooleanType [
 
 	^ true
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRBooleanType >> not [
 
 	self ifTrue: [ ^ false ].
 	^ true
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRBooleanType >> or: aBlock [
 
 	self ifTrue: [ ^ self ].

@@ -1,78 +1,71 @@
 Class {
-	#name : #DRBytecodeGenerator,
-	#superclass : #Object,
+	#name : 'DRBytecodeGenerator',
+	#superclass : 'Object',
 	#instVars : [
 		'builder',
 		'methodName',
-		'numArgs',
-		'currentBasicBlock',
-		'visitedBlocks'
+		'numArgs'
 	],
-	#category : #'Druid-BytecodeGeneration'
+	#category : 'Druid-BytecodeGeneration',
+	#package : 'Druid',
+	#tag : 'BytecodeGeneration'
 }
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> generateJump: aDRBranch [
 
-	| createJumpToEnd |
+	| createJumpToEnd trueLabel falseLabel |
 	self flag: #TOCHECK. "Always ifTrue: ?"
 	builder addLiteral: #ifTrue:.
 
-	builder jumpAheadTo: #else if: false.
-	self visitBlock: aDRBranch trueBranch.
-	createJumpToEnd := currentBasicBlock endInstruction isBackJump not.
-	createJumpToEnd ifTrue: [ builder jumpAheadTo: #end ].
-	builder jumpAheadTarget: #else.
-	self visitBlock: aDRBranch falseBranch.
-	createJumpToEnd ifTrue: [ builder jumpAheadTarget: #end ]
+	trueLabel := self labelBlock: aDRBranch trueBranch.
+	falseLabel := self labelBlock: aDRBranch falseBranch.
+		
+	builder jumpAheadTo: falseLabel if: false.
+	builder jumpAheadTo: trueLabel.
+
 ]
 
-{ #category : #API }
+{ #category : 'API' }
 DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
 
-	self visitBlock: aDRControlFlowGraph initialBasicBlock.
+	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
+		self visitBlock: block ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRBytecodeGenerator >> initialize [
 
 	builder := IRBuilder new.
-	numArgs := 0.
-	visitedBlocks := Stack new
+	numArgs := 0
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBytecodeGenerator >> isResultInstruction: aDRInstruction [
 
 	^ aDRInstruction users isEmpty or: [ aDRInstruction isStore ]
 ]
 
-{ #category : #accessing }
+{ #category : 'jump' }
+DRBytecodeGenerator >> labelBlock: aDRBasicBlock [
+
+	^ ('b' , aDRBasicBlock id asString) asSymbol
+]
+
+{ #category : 'accessing' }
 DRBytecodeGenerator >> methodName: aString [
 
 	methodName := aString
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeGenerator >> numArgs: anInteger [
 
 	numArgs := anInteger.
 	1 to: anInteger do: [ :i | builder addTemp: 'arg' , (i - 1) asString ]
 ]
 
-{ #category : #'stack - blocks' }
-DRBytecodeGenerator >> popBlock [
-
-	^ visitedBlocks pop
-]
-
-{ #category : #'stack - blocks' }
-DRBytecodeGenerator >> pushBlock: aDRBasicBlock [ 
-
-	visitedBlocks push: aDRBasicBlock 
-]
-
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 
 	aDRInstruction operands do: [ :o | o acceptVisitor: self ].
@@ -84,7 +77,7 @@ DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 			 ]]
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBytecodeGenerator >> targetAST [
 
 	| method ir |
@@ -96,36 +89,41 @@ DRBytecodeGenerator >> targetAST [
 	^ method
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitAddition: aDRAdd [
 
 	self sendMessage: #+ fromInstruction: aDRAdd
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 
-	currentBasicBlock := aDRBasicBlock.
-	self pushBlock: aDRBasicBlock.
-
-	"Take care of backjumps!"
-	(aDRBasicBlock predecessors anySatisfy: [ :pred |
-		 pred endInstruction isBackJump ]) ifTrue: [
-		builder jumpBackTarget: #begin ].
+	aDRBasicBlock hasPredecessors ifTrue: [
+		| label |
+		"Somebody will jump to me, set a target"
+		label := self labelBlock: aDRBasicBlock.
+		aDRBasicBlock predecessors do: [ :pred |
+			pred endInstruction isBackJump
+				ifTrue: [ builder jumpBackTarget: label ]
+				ifFalse: [ builder jumpAheadTarget: label ] ] ].
 
 	aDRBasicBlock instructionsDo: [ :i |
-		(self isResultInstruction: i) ifTrue: [ i acceptVisitor: self ] ].
-	self assert: self popBlock = aDRBasicBlock
+		(self isResultInstruction: i) ifTrue: [ i acceptVisitor: self ] ]
 ]
 
-{ #category : #'ir-to-target' }
-DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [ 
+{ #category : 'ir-to-target' }
+DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 
-	| blockCFG |
-	blockCFG := aDRBlockClosure generateCFG. 1halt.
+	| blockNode compiledBlock |
+	blockNode := aDRBlockClosure blockNode.
+	compiledBlock := OCASTTranslator new translateFullBlock: blockNode.
+	builder
+		pushFullClosureCompiledBlock: compiledBlock
+		copiedValues: blockNode scope inComingCopiedVarNames
+		"outerContextNeeded: blockNode hasNonLocalReturn"
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBranchIfCondition: aDRConditionalBranch [
 
 	aDRConditionalBranch condition
@@ -135,7 +133,7 @@ DRBytecodeGenerator >> visitBranchIfCondition: aDRConditionalBranch [
 	self generateJump: aDRConditionalBranch
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitConstant: aDRConstantValue [
 
 	aDRConstantValue value isLiteral ifFalse: [
@@ -145,53 +143,58 @@ DRBytecodeGenerator >> visitConstant: aDRConstantValue [
 	builder pushLiteral: aDRConstantValue value
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitCopy: aDRCopy [
 
 	aDRCopy operand1 acceptVisitor: self
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBranchIfCondition [
 
 	self sendMessage: #= fromInstruction: aDRBranchIfCondition
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
 
 	aDRGetConditionCode condition acceptVisitor: self withBranch: aDRGetConditionCode
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitInterpreterValue: aDRInterpreterValue [ 
 
 	self flag: #TODO. "It is always self ?"
 	builder pushReceiver
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitJump: aDRJump [
 
-	aDRJump isBackJump ifTrue: [ ^ builder jumpBackTo: #begin ].
+	| targetLabel |
+	targetLabel := self labelBlock: aDRJump target.
 
-	self visitBlock: aDRJump target
+	aDRJump isBackJump ifTrue: [
+		^ builder jumpBackTo: targetLabel ].
+
+	^ builder jumpAheadTo: targetLabel
+	"	self visitBlock: aDRJump target"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBytecodeGenerator >> visitLessOrEqualsThan: aDRLessOrEqualsThanComparison inBranch: aDRGetConditionCode [
 
 	self sendMessage: #'<=' fromInstruction: aDRGetConditionCode
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 
 	builder addTemp: aDRLoadArgument argName.
 	builder pushTemp: aDRLoadArgument argName
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [ 
 	
 	aDRLoadInstVar operand1 acceptVisitor: self.
@@ -199,19 +202,19 @@ DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 	builder send: #instVarAt:
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitMessageSend: aDRMessageSend [ 
 
 	self sendMessage: aDRMessageSend selector fromInstruction: aDRMessageSend
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitMultiply: aDRMultiply [
 
 	self sendMessage: #* fromInstruction: aDRMultiply
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitNoop: aDRNoop [
 
 	"Do nothing"
@@ -219,23 +222,19 @@ DRBytecodeGenerator >> visitNoop: aDRNoop [
 	
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBytecodeGenerator >> visitNullValue: aDRNullValue [
 
 	builder pushLiteral: nil
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitPhiFunction: aDRPhiFunction [
 
-	| resolved |
-	resolved := aDRPhiFunction valuesForPredecessor: (self visitedPredecessorOf: aDRPhiFunction basicBlock).
-	resolved ifEmpty: [ 1halt ].
-	resolved unique isStore ifTrue: [ ^ self ].
-	resolved unique acceptVisitor: self
+	self error: 'Phi functions are not compiled'
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 
 	self flag: #TODO. "Remove physical registers, use LoadReceiver / LoadArgument instructions"
@@ -243,14 +242,14 @@ DRBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 	1 halt
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitReturn: aDRReturn [ 
 
 	aDRReturn operand1 acceptVisitor: self.
 	builder returnTop.
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [ 
 
 	aDRStoreInstanceVariable operand1 acceptVisitor: self.
@@ -259,23 +258,27 @@ DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 	builder send: #instVarAt:put:
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
-	aDRStoreTemporaryVariable operand2 acceptVisitor: self.
+	| value |
+	value := aDRStoreTemporaryVariable operand2 simpleConstantFold asDRValue.
+	value isStoreTemporaryVariable
+		ifTrue: [ builder pushTemp: value operand1 value ]
+		ifFalse: [ value acceptVisitor: self ].
 
 	builder addTemp: aDRStoreTemporaryVariable operand1 value.
 	builder storeTemp: aDRStoreTemporaryVariable operand1 value.
 	builder popTop
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitSubstract: aDRSubstract [
 
 	self sendMessage: #- fromInstruction: aDRSubstract
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBytecodeGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 
 	| tempName |
@@ -285,19 +288,11 @@ DRBytecodeGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 	builder pushTemp: tempName
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBytecodeGenerator >> visitTypeOf: aDRTypeOf inBranch: aDRBranchIfCondition [ 
 
 	aDRBranchIfCondition operand1 acceptVisitor: self.
 	builder send: #class.
 	builder pushLiteralVariable: aDRBranchIfCondition operand2 value classType binding.
 	builder send: #=.
-]
-
-{ #category : #'stack - blocks' }
-DRBytecodeGenerator >> visitedPredecessorOf: aDRBasicBlock [
-
-	| pred |
-	pred := visitedBlocks detect: [ :b | aDRBasicBlock hasPredecessor: b ].
-	^ pred
 ]

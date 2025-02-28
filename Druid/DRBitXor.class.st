@@ -1,16 +1,18 @@
 Class {
-	#name : #DRBitXor,
-	#superclass : #DRCommutativeOperation,
-	#category : #'Druid-IR'
+	#name : 'DRBitXor',
+	#superclass : 'DRCommutativeOperation',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBitXor >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitBitXor: self
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRBitXor >> asNumberedExpression [
 
 	| numberedExpression |
@@ -21,18 +23,18 @@ DRBitXor >> asNumberedExpression [
 		  yourself
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRBitXor >> isBitXor [
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRBitXor >> opcode [
 	
 	^ 'BitXor'
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRBitXor >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand bitXor: operand2

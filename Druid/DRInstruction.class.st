@@ -1,6 +1,6 @@
 Class {
-	#name : #DRInstruction,
-	#superclass : #DRAbstractInstruction,
+	#name : 'DRInstruction',
+	#superclass : 'DRAbstractInstruction',
 	#instVars : [
 		'operands',
 		'result',
@@ -11,10 +11,12 @@ Class {
 		'classType',
 		'isStaged'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRInstruction class >> operands: aCollection [
 	
 	"Validate operands collections size?"
@@ -23,7 +25,7 @@ DRInstruction class >> operands: aCollection [
 		yourself
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRInstruction class >> operands: aCollection result: aResultRegister [
 	
 	"Validate operands collections size?"
@@ -33,13 +35,13 @@ DRInstruction class >> operands: aCollection result: aResultRegister [
 		yourself
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRInstruction class >> result: aResultRegister [
 
 	^ self operands: #() result: aResultRegister
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> = anObject [ 
 
 	self class = anObject class ifTrue: [ 
@@ -49,44 +51,44 @@ DRInstruction >> = anObject [
 	^ false. 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRInstruction >> acceptVisitor: aVisitor withBranch: aDRPhiFunction [ 
 	
 	^ self acceptVisitor: aVisitor
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> addBefore: anotherInstruction [
 	
 	basicBlock add: anotherInstruction before: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> addNext: anotherInstruction [
 	
 	basicBlock add: anotherInstruction after: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> addOperand: anOperand [
 
 	operands add: anOperand.
 	anOperand addUser: self.
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRInstruction >> addUser: anInstruction [
 
 	users add: anInstruction
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRInstruction >> asFloat [
 
 	self classType: DRFloatType new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> asNumberedExpression [
 
 	| numberedExpression |
@@ -97,13 +99,13 @@ DRInstruction >> asNumberedExpression [
 	yourself
 ]
 
-{ #category : #'cfg manipulation' }
+{ #category : 'cfg manipulation' }
 DRInstruction >> breakBasicBlock [
 
 	^ self basicBlock breakBy: self
 ]
 
-{ #category : #'loop-invariance' }
+{ #category : 'loop-invariance' }
 DRInstruction >> canMoveOutsideLoop: loop [
 
 	^ (self operands allSatisfy: [ :operand | operand isInvariantFrom: loop ]) and: [ 
@@ -113,44 +115,44 @@ DRInstruction >> canMoveOutsideLoop: loop [
 			  noneSatisfy: [ :middleBlock | middleBlock endInstruction isConditionalBranch ] ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> classType: aType [
 	
 	classType := aType
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRInstruction >> clearUsers [
 
 	users removeAll
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> controlFlowGraph [
 	
 	^ basicBlock controlFlowGraph
 ]
 
-{ #category : #copying }
+{ #category : 'copying' }
 DRInstruction >> copyToVariableIn: aDRPrimitiveIRGenerator inNode: aRBReturnNode [ 
 	
 	"I'm an already an instruction with a value. No need to do anything"
 	^ self
 ]
 
-{ #category : #validation }
+{ #category : 'validation' }
 DRInstruction >> dataDependencies [
 
 	^ self dependencies
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> hasDependency: anInstruction [
 	
 	^ self dependencies includes: anInstruction
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> hasNonLocalUsers [
 
 	"Answer if exist any user outside the block"
@@ -158,13 +160,13 @@ DRInstruction >> hasNonLocalUsers [
 	^ users anySatisfy: [ :u | u basicBlock ~= basicBlock ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> hasOperand: anInstruction [
 	
 	^ operands includes: anInstruction
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> hasSameExpressionAs: instruction [
 
 	self class = instruction class ifTrue: [ 
@@ -172,30 +174,30 @@ DRInstruction >> hasSameExpressionAs: instruction [
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> hasUser: anInstruction [
 	
 	^ users includes: anInstruction
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> hasUsers [
 	
 	^ users notEmpty
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> hash [
 
 	^ self result hash
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> indexInBasicBlock [
 	^ self basicBlock indexOfInstruction: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> initialize [
 
 	super initialize.
@@ -204,53 +206,53 @@ DRInstruction >> initialize [
 	isStaged := false.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> instructionFactory [
 	
 	^ basicBlock instructionFactory
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> isBackJump [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isBitOr [
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isCogitSendMarshall [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isCommutative [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isConditionalBranch [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isCopy [
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isDivision [
 	
 	^ false
 ]
 
-{ #category : #dominance }
+{ #category : 'dominance' }
 DRInstruction >> isDominatedBy: anotherOperand [
 
 	self = anotherOperand ifTrue: [ ^ true ].
@@ -261,103 +263,103 @@ DRInstruction >> isDominatedBy: anotherOperand [
 	^ self basicBlock isDominatedBy: anotherOperand basicBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> isInstruction [
 
 	^ true
 ]
 
-{ #category : #'loop-invariance' }
+{ #category : 'loop-invariance' }
 DRInstruction >> isInvariantFrom: loop [
 
 	^ loop headerBlock isDominatedBy: self basicBlock
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isJITCompileTimeExpression: aString [ 
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isJITMessageSend [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isLoadInstanceVariable [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isLoadTemporaryVariable [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isModulo [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isMultiply [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isNonConditionalJump [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isPhiFunction [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isPop [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isStaged [
 
 	^ isStaged
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> isValue [
 
 	^ false
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> label [
 
 	^ self opcode, '(', (self result ifNotNil: [ :e | e name ] ifNil: [self]) asString, ')'
 ]
 
-{ #category : #interpretation }
+{ #category : 'interpretation' }
 DRInstruction >> lookupClass [
 	
 	^ self type lookupClass 
 ]
 
-{ #category : #staging }
+{ #category : 'staging' }
 DRInstruction >> markAsStaged [
 
 	isStaged := true
 ]
 
-{ #category : #moving }
+{ #category : 'moving' }
 DRInstruction >> moveToDominatingBlock: destinationBlock [
 
 	self basicBlock removeInstruction: self.
@@ -365,97 +367,97 @@ DRInstruction >> moveToDominatingBlock: destinationBlock [
 	self rewirePhiOperandsTo: destinationBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> name [
 	
 	^ result name
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> needs2ACConversion [
 
 	^ self operands size >= 2 and: [
 		  self operand1 isPhysicalRegister or: [ self operand1 isStaged ] ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> needsStackFlush [
 	
 	^ false
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> nonLocalUsers [
 
 	^ self users reject: [ :i | i basicBlock = self basicBlock ]
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRInstruction >> opcode [
 	
 	^ self class name
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> operand1 [
 	
 	^ operands at: 1
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> operand1: aDRInstruction [
 
 	^ operands at: 1 put: aDRInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> operand2 [
 
 	^ operands at: 2 ifAbsent: [nil]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> operand2: aDRInstruction [
 
 	^ operands at: 2 put: aDRInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> operand3 [
 
 	^ operands at: 3 ifAbsent: [nil]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> operand3: aDRInstruction [
 
 	^ operands at: 3 put: aDRInstruction
 ]
 
-{ #category : #operands }
+{ #category : 'operands' }
 DRInstruction >> operandAt: anInteger [
 	
 	^ operands at: anInteger
 ]
 
-{ #category : #operands }
+{ #category : 'operands' }
 DRInstruction >> operandAt: anInteger put: aValue [ 
 	
 	operands at: anInteger put: aValue
 ]
 
-{ #category : #operands }
+{ #category : 'operands' }
 DRInstruction >> operandAtPredecessor: aPredecessor [
 	
 	^ operands at: (self basicBlock indexOfPredecessor: aPredecessor)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> operands [
 	^ operands
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> operands: aCollection [ 
 
 	operands asSet do: [ :each | each removeUser: self ].
@@ -463,7 +465,7 @@ DRInstruction >> operands: aCollection [
 	self dependencies asSet do: [ :each | each addUser: self ]
 ]
 
-{ #category : #operands }
+{ #category : 'operands' }
 DRInstruction >> operandsAtPredecessorsOtherThan: aPredecessor [
 	
 	| index |
@@ -471,42 +473,42 @@ DRInstruction >> operandsAtPredecessorsOtherThan: aPredecessor [
 	^ operands withIndexSelect: [ :op :in | in ~= index ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> order [
 	
 	^ order
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> order: anInteger [ 
 	order := anInteger
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> origin [
 
 	^ origin
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> origin: anObject [
 
 	origin := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> originAST [
 	
 	^ originAST
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> originAST: aNode [
 	
 	originAST := aNode
 ]
 
-{ #category : #copying }
+{ #category : 'copying' }
 DRInstruction >> postCopy [
 
 	super postCopy.
@@ -519,7 +521,7 @@ DRInstruction >> postCopy [
 		result := basicBlock controlFlowGraph allocateTemporaryRegister ]
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRInstruction >> prettyPrint [
 
 	| print |
@@ -532,13 +534,13 @@ DRInstruction >> prettyPrint [
 		   (self operands collect: [ :e | e ifNotNil: [ e printResult ] ]))
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> previousInstruction [
 	
 	^ self basicBlock instructionBefore: self
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRInstruction >> printOn: aStream [
 
 	super printOn: aStream.
@@ -547,20 +549,20 @@ DRInstruction >> printOn: aStream [
 	aStream nextPut: $)
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRInstruction >> printResult [
 
 	result ifNotNil: [ ^ result prettyPrint ].
 	^ self opcode
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRInstruction >> recursiveUsersDo: aBlock [
 
 	self recursiveUsersDo: aBlock iteratedSet: Set new
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRInstruction >> recursiveUsersDo: aBlock iteratedSet: set [
 
 	"If I'm already done, exit"
@@ -573,7 +575,7 @@ DRInstruction >> recursiveUsersDo: aBlock iteratedSet: set [
 		i recursiveUsersDo: aBlock iteratedSet: set ]
 ]
 
-{ #category : #removing }
+{ #category : 'removing' }
 DRInstruction >> removeFromCFG [
 
 	basicBlock removeInstruction: self.
@@ -581,7 +583,7 @@ DRInstruction >> removeFromCFG [
 	self users asSet do: [ :e | e replaceDependency: self by: DRNullValue new  ]
 ]
 
-{ #category : #operands }
+{ #category : 'operands' }
 DRInstruction >> removeOperandAt: anInteger [ 
 
 	| removed |
@@ -594,25 +596,25 @@ DRInstruction >> removeOperandAt: anInteger [
 		ifFalse: [ removed removeUser: self ]
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRInstruction >> removeUser: anInstruction [
 
 	users remove: anInstruction
 ]
 
-{ #category : #replacing }
+{ #category : 'replacing' }
 DRInstruction >> replaceDependency: anOperand by: anotherOperand [
 
 	self replaceOperand: anOperand by: anotherOperand
 ]
 
-{ #category : #replacing }
+{ #category : 'replacing' }
 DRInstruction >> replaceDependency: anOperand by: anotherOperand in: anInstruction [
 	
 	anInstruction replaceOperand: anOperand by: anotherOperand
 ]
 
-{ #category : #replacing }
+{ #category : 'replacing' }
 DRInstruction >> replaceDominatedUsesBy: anotherInstruction [
 
 	users
@@ -622,7 +624,7 @@ DRInstruction >> replaceDominatedUsesBy: anotherInstruction [
 			instruction replaceDependency: self by: anotherInstruction ]
 ]
 
-{ #category : #replacing }
+{ #category : 'replacing' }
 DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 
 	self flag: #careful.
@@ -634,7 +636,7 @@ DRInstruction >> replaceOperand: anOperand by: anotherOperand [
 	operands replaceAll: anOperand with: anotherOperand
 ]
 
-{ #category : #replacing }
+{ #category : 'replacing' }
 DRInstruction >> replaceOperandAtIndex: index by: anotherOperand [
 
 	| operand |
@@ -648,14 +650,14 @@ DRInstruction >> replaceOperandAtIndex: index by: anotherOperand [
 		ifFalse: 	[operand removeUser: self].
 ]
 
-{ #category : #replacing }
+{ #category : 'replacing' }
 DRInstruction >> replaceOperandIfDominated: myOperand by: anotherOperand [
 
 	(self isDominatedBy: anotherOperand) ifFalse: [ ^ nil ].
 	self replaceDependency: myOperand by: anotherOperand
 ]
 
-{ #category : #replacing }
+{ #category : 'replacing' }
 DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
 	| replaced |
@@ -666,32 +668,32 @@ DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 	^ replaced
 ]
 
-{ #category : #replacing }
+{ #category : 'replacing' }
 DRInstruction >> replaceUsesBy: anotherInstruction [
 	
 	users copy do: [ :instruction |
 		instruction replaceDependency: self by: anotherInstruction ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> result [
 
 	^ result
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInstruction >> result: anObject [
 
 	result := anObject
 ]
 
-{ #category : #operands }
+{ #category : 'operands' }
 DRInstruction >> reverseOperands [
 	
 	operands := operands reversed
 ]
 
-{ #category : #moving }
+{ #category : 'moving' }
 DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 
 	self operands
@@ -704,7 +706,7 @@ DRInstruction >> rewirePhiOperandsTo: destinationBlock [
 			self replaceOperand: operand by: newOperandValues anyOne ]
 ]
 
-{ #category : #'cogit-generation' }
+{ #category : 'cogit-generation' }
 DRInstruction >> rtlOperandQualifier [
 
 	^ self isStaged
@@ -715,21 +717,21 @@ DRInstruction >> rtlOperandQualifier [
 		  ifTrue: [ 'Cq:' ]
 ]
 
-{ #category : #cogit }
+{ #category : 'cogit' }
 DRInstruction >> rtlPushArgumentExpressions: generator [
 
 	self isStaged ifTrue: [ ^ super rtlPushArgumentExpressions: generator ].
 	^ { (RBVariableNode named: (generator allocateVariable: result)) }
 ]
 
-{ #category : #cogit }
+{ #category : 'cogit' }
 DRInstruction >> rtlPushOperandQualifierForInstruction: anInstruction [
 
 	self isStaged ifTrue: [ ^ super rtlPushOperandQualifierForInstruction: anInstruction ].
 	^ 'Register:'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRInstruction >> sccpEvaluateFor: sccp [
 
 	| previousValue newValue |
@@ -743,7 +745,7 @@ DRInstruction >> sccpEvaluateFor: sccp [
 		sccp setValueOf: self at: newValue ]
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRInstruction >> sccpLatticeValueFor: sccp [
 
 	| operand1 operand2 |
@@ -756,31 +758,31 @@ DRInstruction >> sccpLatticeValueFor: sccp [
 		  latticeOperand2: operand2
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 	
 	self subclassResponsibility
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInstruction >> supportConstantOperand [
 
 	^ true
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRInstruction >> type [
 
 	^ DRSignedIntegerType size: 8 "Word size"
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRInstruction >> users [
 
 	^ users
 ]
 
-{ #category : #copying }
+{ #category : 'copying' }
 DRInstruction >> veryDeepCopyWith: deepCopier [
 	deepCopier references at: origin ifAbsentPut: [nil].
 	^ super veryDeepCopyWith: deepCopier

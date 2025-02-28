@@ -1,34 +1,36 @@
 Class {
-	#name : #DRNotEqualsThanComparison,
-	#superclass : #DRCondition,
-	#category : #'Druid-IR'
+	#name : 'DRNotEqualsThanComparison',
+	#superclass : 'DRCondition',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRNotEqualsThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch [
 	
 	^ aVisitor visitNotEqualsThan: self inBranch: parentBranch
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNotEqualsThanComparison >> isNotEqualsThanComparison [
 	
 	^ true
 ]
 
-{ #category : #transforming }
+{ #category : 'transforming' }
 DRNotEqualsThanComparison >> negated [
 	
 	^ DREqualsThanComparison new
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRNotEqualsThanComparison >> opcode [
 	
 	^ 'NotEqualsThan'
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRNotEqualsThanComparison >> reversed [
 
 	"Returns the same condition but with reversed operands: x ~= y --> y ~= x"

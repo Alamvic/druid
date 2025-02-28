@@ -1,15 +1,16 @@
 Class {
-	#name : #DRBytecodeGeneratorTest,
-	#superclass : #TestCase,
+	#name : 'DRBytecodeGeneratorTest',
+	#superclass : 'TestCase',
 	#instVars : [
 		'compilerCompiler',
 		'bytecodeGenerator',
 		'typeSystem'
 	],
-	#category : #'Druid-Tests'
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #assertion }
+{ #category : 'assertion' }
 DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method [
 
 	| result expectedResult |
@@ -18,16 +19,18 @@ DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method [
 	self assert: result equals: expectedResult
 ]
 
-{ #category : #assertion }
+{ #category : 'assertion' }
 DRBytecodeGeneratorTest >> assertCompilationFor: aSelector fromClass: aClass [
 
 	| compiledMethod expectedMethod |
+	self setUp.
+	
 	expectedMethod := aClass >> aSelector.
 	compiledMethod := self compileSelector: aSelector fromClass: aClass.
 	self assert: compiledMethod equalsResult: expectedMethod
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> compileSelector: selector fromClass: interpreterClass [
 
 	| method interpreter cfg |
@@ -40,7 +43,7 @@ DRBytecodeGeneratorTest >> compileSelector: selector fromClass: interpreterClass
 	^ method
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> generateDruidIRFor: method [
 
 	| cfg |
@@ -49,13 +52,13 @@ DRBytecodeGeneratorTest >> generateDruidIRFor: method [
 	^ cfg
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> generateDruidIRForSelector: selector [
 
 	^ self generateDruidIRFor: (DruidTestInterpreter lookupSelector: selector)
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRBytecodeGeneratorTest >> generateMethodForSelector: aSelector [
 
 	| cfg method |
@@ -64,7 +67,7 @@ DRBytecodeGeneratorTest >> generateMethodForSelector: aSelector [
 	^ method
 ]
 
-{ #category : #utilities }
+{ #category : 'utilities' }
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector [
 
 	^ self
@@ -73,12 +76,13 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 		  numArgs: compilerCompiler irGenerator numberOfArguments
 ]
 
-{ #category : #utilities }
+{ #category : 'utilities' }
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
 
 	aDRControlFlowGraph applyOptimisation: DRFrameInfoCleaner new.
 	aDRControlFlowGraph applyOptimisation: DRBranchCollapse new.
 	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
+	
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
 
 	bytecodeGenerator numArgs: numArgs.
@@ -87,7 +91,7 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 	^ bytecodeGenerator targetAST
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRBytecodeGeneratorTest >> setUp [
 	super setUp.
 	
@@ -99,7 +103,7 @@ DRBytecodeGeneratorTest >> setUp [
 	typeSystem := DRPragmaBasedTypeSystem new
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRBytecodeGeneratorTest >> tearDown [
 
 	| aPackage |
@@ -109,7 +113,7 @@ DRBytecodeGeneratorTest >> tearDown [
 	super tearDown.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testBasicControlFlow [
 
 	| cfg method result |
@@ -124,7 +128,7 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 	self assert: result equals: 7
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 
 	| method result cfg selector |
@@ -155,7 +159,7 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 	"
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodCustomisationAnySatisfy [
 
 	| method result cfg selector |
@@ -184,7 +188,7 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAnySatisfy [
 			e addSelectorSilently: selector withMethod: method ]"
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodCustomisationBadCount [
 
 	| method result cfg selector |
@@ -210,7 +214,32 @@ DRBytecodeGeneratorTest >> testMethodCustomisationBadCount [
 	self assert: result equals: 3.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodCustomisationDifference [
+
+	| method result cfg selector |
+	typeSystem := DRCustomisationTypeSystem new.
+	bytecodeGenerator := DRBytecodeGenerator new.
+	selector := #difference:.
+	method := Set >> selector.
+
+	compilerCompiler interpreter: {  }.
+	cfg := self generateDruidIRFor: method.
+
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+
+	result := method valueWithReceiver: { 1. 2. 3 } asSet arguments: { { 3 . 4 . 5 } asSet }.
+
+	self assertCollection: result includesAll: { 1. 2 }.
+
+
+"	{ Array }	
+		do: [ :e |
+			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
+			e addSelectorSilently: selector withMethod: method ]"
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 
 	| method result cfg selector |
@@ -236,12 +265,10 @@ DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 			e addSelectorSilently: selector withMethod: method ]"
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
 
 	| method result cfg selector |
-	self skip. "TODO: Fix blocks linearization"
-
 	compilerCompiler irGenerator typeSystem:
 		(typeSystem := DRCustomisationTypeSystem new).
 	bytecodeGenerator := DRBytecodeGenerator new.
@@ -251,36 +278,35 @@ DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
 	compilerCompiler optimize: cfg.
-	compilerCompiler optimize: cfg.
 
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
 	result := method
-		          valueWithReceiver: { 1. 2. 3 }
+		          valueWithReceiver: { 1. 2. 3 } asOrderedCollection
 		          arguments: { [ :e | e even ] }.
 
-	self assertCollection: result includesAll: { 1. 2. 3 }.
+	self assertCollection: result includesAll: { 2 }.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodEmpty [
 
 	self assertCompilationFor: #exampleEmptyMethod fromClass: OCOpalExamples
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInline [
 
 	self assertCompilationFor: #basicInlineMethod fromClass: DruidTestInterpreter
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodManyReturns [
 
 	self assertCompilationFor: #methodWithThreeNonLocalReturn fromClass: DruidTestInterpreter
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 
 	| method result cfg selector methodProfiler |
@@ -356,7 +382,7 @@ DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 		hasSameElements: { (DRClassType for: Array) }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithArg [
 
 	| method result |
@@ -366,7 +392,7 @@ DRBytecodeGeneratorTest >> testMethodWithArg [
 	self assert: result equals: 24
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithEarlyReturn [
 
 	| method result |
@@ -376,7 +402,7 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn [
 	self assert: result equals: 42
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 
 	| method result |
@@ -386,7 +412,7 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 	self assert: result equals: 57
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 
 	| method result |
@@ -405,29 +431,28 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 	self assert: result equals: 4
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalBooleanMethods [
 
 	self skip. "TO FIX"
 	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocol = #'examples - andor' ]
+		select: [ :opalMethod | opalMethod protocolName = #'examples - andor' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalConditionalMethods [
 
 	self skip. "TO FIX"
 	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocol = #'examples - conditionals' ]
+		select: [ :opalMethod | opalMethod protocolName = #'examples - conditionals' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalSimpleMethods [
 
-	self skip. "TO FIX"
 	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocol = #'examples - simple' ]
+		select: [ :opalMethod | opalMethod protocolName = #'examples - simple' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]

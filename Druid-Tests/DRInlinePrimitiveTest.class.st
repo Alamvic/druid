@@ -1,10 +1,12 @@
 Class {
-	#name : #DRInlinePrimitiveTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRInlinePrimitiveTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRInlinePrimitiveTest >> setUp [
 
 	super setUp.
@@ -13,7 +15,7 @@ DRInlinePrimitiveTest >> setUp [
 	optimisation := DRInline new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInlinePrimitiveTest >> testInlinePreservePrimitiveFailCode [
 
 	| cfg send failureCodeUser loadFailureCode storeFailureCode |
@@ -36,7 +38,7 @@ DRInlinePrimitiveTest >> testInlinePreservePrimitiveFailCode [
 	self assert: (cfg instructions count: [ :i | i isStore]) equals: 2.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInlinePrimitiveTest >> testInlinePreservePrimitiveFailCodeManyLevels [
 
 	| cfg |
@@ -52,7 +54,7 @@ DRInlinePrimitiveTest >> testInlinePreservePrimitiveFailCodeManyLevels [
 		equals: (cfg instructions count: [ :i | i isStore ]) - 1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInlinePrimitiveTest >> testInlinedSend [
 
 	| cfg |
@@ -66,7 +68,7 @@ DRInlinePrimitiveTest >> testInlinedSend [
 	self assert: (cfg instructions count: [ :i | i isStore ]) equals: 2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRInlinePrimitiveTest >> testNotInlinedSend [
 
 	| cfg |

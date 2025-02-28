@@ -1,10 +1,12 @@
 Class {
-	#name : #DRGlobalValueNumberingTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRGlobalValueNumberingTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRGlobalValueNumberingTest >> testCommutativeOperationIsReplacedByPreviousInstance [
 	"This test asserts whether or not equivalent operations are correctly identified and replaced by the optimisation"
 			
@@ -22,7 +24,7 @@ DRGlobalValueNumberingTest >> testCommutativeOperationIsReplacedByPreviousInstan
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRGlobalValueNumberingTest >> testComplexEquivalentOperationIsReplacedByPreviousInstance [
 	"This test asserts whether or not equivalent operations are correctly identified and replaced by the optimisation"
 			
@@ -42,7 +44,7 @@ DRGlobalValueNumberingTest >> testComplexEquivalentOperationIsReplacedByPrevious
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesMerge [
 	"This test asserts whether operations in different branches are scoped differently"
 			
@@ -63,7 +65,7 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesMe
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesSplit [
 	"This test asserts whether operations in different branches are scoped differently"
 			
@@ -84,7 +86,7 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsNotReplacedWhenBranchesSp
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRGlobalValueNumberingTest >> testEquivalentOperationIsReplacedByPreviousInstance [
 	"This test asserts whether or not equivalent operations are correctly identified and replaced by the optimisation"
 			
@@ -102,7 +104,7 @@ DRGlobalValueNumberingTest >> testEquivalentOperationIsReplacedByPreviousInstanc
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRGlobalValueNumberingTest >> testEquivalentPhiFunctionsAreRemoved [
 			
 	| cfg instructionFactory copy1 copy2 copy3 copy4 phi1 phi2 |
@@ -124,7 +126,7 @@ DRGlobalValueNumberingTest >> testEquivalentPhiFunctionsAreRemoved [
 	self assert: ((cfg b4 instructions includes: phi2) xor: (cfg b4 instructions includes: phi1)).
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRGlobalValueNumberingTest >> testInstructionOperandsStayLive [
 
 	| cfg copy1 copy2 instructionFactory addition |
@@ -141,7 +143,7 @@ DRGlobalValueNumberingTest >> testInstructionOperandsStayLive [
 	addition validate
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRGlobalValueNumberingTest >> testLoadInstructionOperandsAreNotDeteleted [
 
 	| cfg instructionFactory load |
@@ -154,7 +156,7 @@ DRGlobalValueNumberingTest >> testLoadInstructionOperandsAreNotDeteleted [
 	self assert: load operands size = 1.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRGlobalValueNumberingTest >> testNonEquivalentOperationIsNotReplaced [
 	"This test asserts whether or not non equivalent operations are left alone by the optimisation"
 			
@@ -174,7 +176,7 @@ DRGlobalValueNumberingTest >> testNonEquivalentOperationIsNotReplaced [
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRGlobalValueNumberingTest >> testPhiFunctionOperandsStayLive [
 	"This test asserts whether operands of phi functions remain live after applying global value numbering"
 			
@@ -194,7 +196,7 @@ DRGlobalValueNumberingTest >> testPhiFunctionOperandsStayLive [
 	phi1 validate.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRGlobalValueNumberingTest >> testPhiOperandReplacement [
 	"This test asserts whether or not equivalent operations are correctly identified and replaced by the optimisation"
 			

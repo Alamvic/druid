@@ -1,18 +1,18 @@
-Extension { #name : #Number }
+Extension { #name : 'Number' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 Number >> expression [
 	
 	^ self asString
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 Number >> isJITCompileTimeExpression [
 	
 	^ true
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 Number >> matchArgumentsAgainst: aPragma [
 
 	^ aPragma arguments anyOne = self

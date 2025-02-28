@@ -1,13 +1,15 @@
 Class {
-	#name : #DRTypeConstraint,
-	#superclass : #DRConditionalConstraint,
+	#name : 'DRTypeConstraint',
+	#superclass : 'DRConditionalConstraint',
 	#instVars : [
 		'type'
 	],
-	#category : #'Druid-IR-Paths'
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRTypeConstraint class >> withType: types [
 
 	^ self new
@@ -15,50 +17,50 @@ DRTypeConstraint class >> withType: types [
 		  yourself
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRTypeConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
 	^ false
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRTypeConstraint >> hasAllValuesLessThan: otherConstantValue [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRTypeConstraint >> hasAllValuesWithMask: aMask [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRTypeConstraint >> hasAllValuesWithoutMask: aMask [
 
 	^ false
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRTypeConstraint >> hasValue: otherConstantValue [
 	"Only for constants values"
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRTypeConstraint >> includes: otherConstraint [
 
 	^ self negated isIncludedIn: otherConstraint negated.
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRTypeConstraint >> isIncludedIn: otherConstraint [
 
 	self subclassResponsibility 
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRTypeConstraint >> printOn: aStream [
 
 	super printOn: aStream.
@@ -66,13 +68,13 @@ DRTypeConstraint >> printOn: aStream [
 	aStream << type name
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRTypeConstraint >> type [
 
 	^ type
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRTypeConstraint >> type: anObject [
 
 	type := anObject

@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCogitPrimitiveCodeGenerator,
-	#superclass : #DRCogitCodeGenerator,
-	#category : #'Druid-Cogit'
+	#name : 'DRCogitPrimitiveCodeGenerator',
+	#superclass : 'DRCogitCodeGenerator',
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitPrimitiveCodeGenerator >> copyRegister: sourceRegister to: destinationRegister [
 	
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -15,7 +17,7 @@ DRCogitPrimitiveCodeGenerator >> copyRegister: sourceRegister to: destinationReg
 					 (RBVariableNode named: destinationRegister) })
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitPrimitiveCodeGenerator >> linearizeBlocksInCFG: aControlFlowGraph [
 
 	| linearizedBlocks |
@@ -28,7 +30,7 @@ DRCogitPrimitiveCodeGenerator >> linearizeBlocksInCFG: aControlFlowGraph [
 	^ linearizedBlocks
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitPrimitiveCodeGenerator >> returnNodeForCompiledMethod: aDRControlFlowGraph [
 
 	| isCompletePrimitive |
@@ -44,14 +46,14 @@ DRCogitPrimitiveCodeGenerator >> returnNodeForCompiledMethod: aDRControlFlowGrap
 	^ super returnNodeForCompiledMethod: aDRControlFlowGraph
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitPrimitiveCodeGenerator >> visitFlushStack: aDRFlushStack [ 
 
 	"Nothing! There are not sym stack on primitives."
 	"TODO: Avoid DRFlushStack instructions on primitive meta-compilation"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitPrimitiveCodeGenerator >> visitLoadReceiver: aDRLoadReceiver [
 
 	| sourceRegister destinationRegister |

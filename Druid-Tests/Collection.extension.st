@@ -1,6 +1,6 @@
-Extension { #name : #Collection }
+Extension { #name : 'Collection' }
 
-{ #category : #'*Druid-Tests' }
+{ #category : '*Druid-Tests' }
 Collection >> badCount [
 
 	| r |

@@ -1,10 +1,11 @@
 Class {
-	#name : #DRCogitOperandSorterTest,
-	#superclass : #DRIRTest,
-	#category : #'Druid-Tests'
+	#name : 'DRCogitOperandSorterTest',
+	#superclass : 'DRIRTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitOperandSorterTest >> testExtractFirstOperandInCopy [
 
 	| cfg r1 |
@@ -21,7 +22,7 @@ DRCogitOperandSorterTest >> testExtractFirstOperandInCopy [
 	self assert: r1 operands second equals: 1 asDRValue
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitOperandSorterTest >> testSortConstantAndPhysicalRegister [
 
 	| cfg basicBlock firstRegister physicalRegister |
@@ -44,7 +45,7 @@ DRCogitOperandSorterTest >> testSortConstantAndPhysicalRegister [
 	self assert: basicBlock instructions second operand2 equals: 1 asDRValue
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitOperandSorterTest >> testSortConstantAndPhysicalRegisterNonCommutative [
 
 	| cfg basicBlock specialRegister |
@@ -64,7 +65,7 @@ DRCogitOperandSorterTest >> testSortConstantAndPhysicalRegisterNonCommutative [
 	self assert: basicBlock instructions second operand2 equals: specialRegister
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitOperandSorterTest >> testSortConstantAndSSARegister [
 
 	| cfg r1 r2 |
@@ -81,7 +82,7 @@ DRCogitOperandSorterTest >> testSortConstantAndSSARegister [
 	self assert: r2 operands second equals: 1 asDRValue.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitOperandSorterTest >> testTestSpecialRegisterDoesNotModifyInstructionInversed [
 
 	| cfg basicBlock specialRegister |

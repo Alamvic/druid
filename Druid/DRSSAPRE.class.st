@@ -1,26 +1,28 @@
 Class {
-	#name : #DRSSAPRE,
-	#superclass : #DRControlFlowOptimisation,
+	#name : 'DRSSAPRE',
+	#superclass : 'DRControlFlowOptimisation',
 	#instVars : [
 		'dominatorTree'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSSAPRE >> doApply: cfg [
 	
 	self lookForRedundancy: cfg
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRSSAPRE >> initialize [
 
 	super initialize.
 	dominatorTree := DRDominatorTree new.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRSSAPRE >> insertPhi: cfg [
 	" when an expression appears, inserting a PHi at its iterated dominance frointer "
 
@@ -31,7 +33,7 @@ DRSSAPRE >> insertPhi: cfg [
 					bl addInstructionFirst: bl newPhi ] ] ] ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRSSAPRE >> lookForRedundancy: cfg [
 
 	| visitedInstructions |
@@ -46,7 +48,7 @@ DRSSAPRE >> lookForRedundancy: cfg [
 			visitedInstructions add: i ] ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRSSAPRE >> renamePhi: cfg [
 
 		cfg blocksInReversePostOrderDo: [ :b | 

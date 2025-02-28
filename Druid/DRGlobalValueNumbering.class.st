@@ -1,16 +1,18 @@
 Class {
-	#name : #DRGlobalValueNumbering,
-	#superclass : #DROptimisation,
+	#name : 'DRGlobalValueNumbering',
+	#superclass : 'DROptimisation',
 	#instVars : [
 		'dominatorTree',
 		'valueNumbers',
 		'hashTables',
 		'currentScope'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRGlobalValueNumbering >> adjustPhiFunctions: block [
 
 	block phiFunctions do: [ :instruction |
@@ -18,7 +20,7 @@ DRGlobalValueNumbering >> adjustPhiFunctions: block [
 	]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRGlobalValueNumbering >> applyTo: cfg [
 
 	hashTables := OrderedCollection new.
@@ -28,7 +30,7 @@ DRGlobalValueNumbering >> applyTo: cfg [
 	self dominatorBasedValueNumbering: cfg dominatorTree root
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRGlobalValueNumbering >> dominatorBasedValueNumbering: node [
 
 	| symbolTable |
@@ -45,14 +47,14 @@ DRGlobalValueNumbering >> dominatorBasedValueNumbering: node [
 	self finalizeScope
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRGlobalValueNumbering >> finalizeScope [
 	
 	currentScope := currentScope - 1.
 	hashTables removeLast.
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRGlobalValueNumbering >> initializeScope [
 	
 	| symbolTable |
@@ -61,7 +63,7 @@ DRGlobalValueNumbering >> initializeScope [
 	^ hashTables addLast: symbolTable.
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRGlobalValueNumbering >> processInstructions: block [
 
 	| expression |
@@ -91,7 +93,7 @@ DRGlobalValueNumbering >> processInstructions: block [
 	self simplifyOperands: block endInstruction
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRGlobalValueNumbering >> processMeaningless: instruction in: block [
 
 	instruction operands doWithIndex: [ :operand :index |
@@ -110,7 +112,7 @@ DRGlobalValueNumbering >> processMeaningless: instruction in: block [
 	^ true
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRGlobalValueNumbering >> processPhiFunctions: block [
 
 	block phiFunctions copy do: [ :instruction |
@@ -124,7 +126,7 @@ DRGlobalValueNumbering >> processPhiFunctions: block [
 	]
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRGlobalValueNumbering >> processRedundant: instruction in: block [
 
 	| isRedundant |
@@ -150,7 +152,7 @@ DRGlobalValueNumbering >> processRedundant: instruction in: block [
 	^ false
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRGlobalValueNumbering >> searchHashTables: expression ifPresent: aPresentBlock ifAbsent: anAbsentBlock [
 
 	hashTables reverseDo: [ :table |
@@ -163,7 +165,7 @@ DRGlobalValueNumbering >> searchHashTables: expression ifPresent: aPresentBlock 
 	anAbsentBlock value
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRGlobalValueNumbering >> simplifyOperands: instruction [
 
 	| valueNumber |
@@ -177,7 +179,7 @@ DRGlobalValueNumbering >> simplifyOperands: instruction [
 	]).
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRGlobalValueNumbering >> valueNumberOf: expr [
 	
 	^ valueNumbers at: expr ifAbsent: [ expr ]

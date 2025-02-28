@@ -1,25 +1,27 @@
 Class {
-	#name : #DRAbstractInstruction,
-	#superclass : #DRValue,
+	#name : 'DRAbstractInstruction',
+	#superclass : 'DRValue',
 	#instVars : [
 		'basicBlock'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractInstruction >> basicBlock [
 
 	^ basicBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractInstruction >> basicBlock: anObject [
 
 	basicBlock := anObject
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRAbstractInstruction >> inspectionDependencies: aBuilder [
 	<inspectorPresentationOrder: 10 title: 'Dependency Graph'>
 	
@@ -60,14 +62,14 @@ DRAbstractInstruction >> inspectionDependencies: aBuilder [
 		yourself
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRAbstractInstruction >> inspectionSource: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Source'>
 	
 	^ self originAST inspectionSourceCode
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRAbstractInstruction >> inspectionUsers: aBuilder [
 	<inspectorPresentationOrder: 10 title: 'Users Graph'>
 	
@@ -108,67 +110,67 @@ DRAbstractInstruction >> inspectionUsers: aBuilder [
 		yourself
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbstractInstruction >> isArithmeticInstruction [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbstractInstruction >> isBytecodeJump [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbstractInstruction >> isCall [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbstractInstruction >> isInterpreterReference [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbstractInstruction >> isLoadStackPointer [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbstractInstruction >> isLoadStackValue [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbstractInstruction >> isNegate [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbstractInstruction >> isPrimitiveFail [
 	
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAbstractInstruction >> isStackEffect [
 	
 	^ false
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractInstruction >> nextInstruction [
 	
 	^ self basicBlock instructionAfter: self
 ]
 
-{ #category : #replacing }
+{ #category : 'replacing' }
 DRAbstractInstruction >> replaceBy: anotherInstruction [
 	
 	self = anotherInstruction ifTrue: [ ^ self ].
@@ -181,7 +183,7 @@ DRAbstractInstruction >> replaceBy: anotherInstruction [
 		instruction removeUser: self ].
 ]
 
-{ #category : #replacing }
+{ #category : 'replacing' }
 DRAbstractInstruction >> replaceByMaybeValue: aDRValue [
 
 	aDRValue isInstruction ifTrue: [ ^ self replaceBy: aDRValue ].
@@ -189,7 +191,7 @@ DRAbstractInstruction >> replaceByMaybeValue: aDRValue [
 	^ self replaceBy: (DRCopy operands: { aDRValue } result: self result)
 ]
 
-{ #category : #translating }
+{ #category : 'translating' }
 DRAbstractInstruction >> rtlArgumentsForAbsoluteAddressForGenerator: generator [
 	"We are translating ourselves to a Base+offset, where offset=0"
 
@@ -199,13 +201,13 @@ DRAbstractInstruction >> rtlArgumentsForAbsoluteAddressForGenerator: generator [
 		  (RBVariableNode named: (generator allocateVariable: self result)) }
 ]
 
-{ #category : #translating }
+{ #category : 'translating' }
 DRAbstractInstruction >> rtlOperandQualifierForAbsoluteAddress [
 	
 	^ #'M64:r:'
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRAbstractInstruction >> uiUnroll [
 
 	| unrollingFactor |
@@ -218,7 +220,7 @@ DRAbstractInstruction >> uiUnroll [
 	self loop unroll: unrollingFactor asNumber
 ]
 
-{ #category : #validation }
+{ #category : 'validation' }
 DRAbstractInstruction >> validate [
 
 	self validateDependenciesAreUsedByMyself.
@@ -231,7 +233,7 @@ DRAbstractInstruction >> validate [
 			DRError signal: 'Invalid operand: ', o asString, ' in: ' , self asString ] ]
 ]
 
-{ #category : #validation }
+{ #category : 'validation' }
 DRAbstractInstruction >> validateDependenciesAreUsedByMyself [
 
 	self dependencies do: [ :op | 
@@ -241,7 +243,7 @@ DRAbstractInstruction >> validateDependenciesAreUsedByMyself [
 				, op asString ] ]
 ]
 
-{ #category : #validation }
+{ #category : 'validation' }
 DRAbstractInstruction >> validateUsersUseMyself [
 
 	self users do: [ :user | 

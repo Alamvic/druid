@@ -7,47 +7,49 @@ Abstract class providing:
 
 "
 Class {
-	#name : #DRAbstractCompilerBuilder,
-	#superclass : #Object,
+	#name : 'DRAbstractCompilerBuilder',
+	#superclass : 'Object',
 	#instVars : [
 		'compilationUnit',
 		'interpreterClass',
 		'compilerOptions'
 	],
-	#category : #'Druid-CompilerBuilder'
+	#category : 'Druid-CompilerBuilder',
+	#package : 'Druid',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #'accessing - compiler' }
+{ #category : 'accessing - compiler' }
 DRAbstractCompilerBuilder >> compilationUnit [
 
 	^ compilationUnit ifNil: [
 		  compilationUnit := self compilationUnitClass new ]
 ]
 
-{ #category : #'accessing - compiler' }
+{ #category : 'accessing - compiler' }
 DRAbstractCompilerBuilder >> compilationUnit: anObject [
 
 	compilationUnit := anObject
 ]
 
-{ #category : #'accessing - compiler' }
+{ #category : 'accessing - compiler' }
 DRAbstractCompilerBuilder >> compilationUnitClass [
 
 	^ DRInterpreterCompilationUnit 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerBuilder >> compilerOptions [
 	^ compilerOptions
 ]
 
-{ #category : #options }
+{ #category : 'options' }
 DRAbstractCompilerBuilder >> compilerOptions: aCollection [ 
 	
 	compilerOptions := aCollection
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerBuilder >> environmentAt: aClass [
 	"Answer the class named aClass. Create if it doesn't exist"
 
@@ -64,19 +66,19 @@ DRAbstractCompilerBuilder >> environmentAt: aClass [
 		ifAbsent: [ self newClassNamed: aClass superclass: realSuperclass ]
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 DRAbstractCompilerBuilder >> handleErrorDuring: aFullBlockClosure [ 
 	self shouldBeImplemented.
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRAbstractCompilerBuilder >> initialize [
 
 	super initialize.
 	compilerOptions := #(  )
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerBuilder >> newClassNamed: aString superclass: aSuperclass [
 	"Answer a new <StackToRegisterMappingCogit> subclass named aString"
 
@@ -87,27 +89,27 @@ DRAbstractCompilerBuilder >> newClassNamed: aString superclass: aSuperclass [
 				category: aString ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerBuilder >> targetClass [
 	" Answer the <Class> which we are building "
 
 	^ self compilationUnit targetClass
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerBuilder >> targetClass: aClass [
 	" Set the <Class> which we are building "
 
 	^ self compilationUnit targetClass: aClass
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerBuilder >> targetSuperclass [
 
 	^ self compilationUnit targetSuperclass
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractCompilerBuilder >> targetSuperclass: anObject [
 
 	self compilationUnit targetSuperclass: anObject

@@ -1,10 +1,12 @@
 Class {
-	#name : #DRIntersectionConstraint,
-	#superclass : #DRComposedConstraint,
-	#category : #'Druid-IR-Paths'
+	#name : 'DRIntersectionConstraint',
+	#superclass : 'DRComposedConstraint',
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRIntersectionConstraint class >> between: minValue and: maxValue [
 
 	^ self constraints: { 
@@ -12,19 +14,19 @@ DRIntersectionConstraint class >> between: minValue and: maxValue [
 			  (DRLessConstraint withValue: maxValue) }
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRIntersectionConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
 	^ constraints allSatisfy: [ :c | c hasAllValuesGreaterThan: otherConstantValue ]
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRIntersectionConstraint >> hasAllValuesLessThan: otherConstantValue [
 
 	^ constraints allSatisfy: [ :c | c hasAllValuesLessThan: otherConstantValue ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRIntersectionConstraint >> hasAllValuesWithMask: aMask [
 
 	"ATENTION: This implementation does not work mixing Masked & Ranged constraints"
@@ -32,7 +34,7 @@ DRIntersectionConstraint >> hasAllValuesWithMask: aMask [
 	^ constraints allSatisfy: [ :c | c hasAllValuesWithMask: aMask ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRIntersectionConstraint >> hasAllValuesWithoutMask: aMask [
 
 	"ATENTION: This implementation does not work mixing Masked & Ranged constraints"
@@ -40,37 +42,37 @@ DRIntersectionConstraint >> hasAllValuesWithoutMask: aMask [
 	^ constraints allSatisfy: [ :c | c hasAllValuesWithoutMask: aMask ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRIntersectionConstraint >> hasNotType: aDRClassType [
 
 	^ constraints allSatisfy: [ :c | c hasNotType: aDRClassType ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRIntersectionConstraint >> hasType: aDRClassType [
 
 	^ constraints allSatisfy: [ :c | c hasType: aDRClassType ]
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRIntersectionConstraint >> hasValue: otherConstantValue [
 
 	^ constraints allSatisfy: [ :c | c hasValue: otherConstantValue ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRIntersectionConstraint >> includes: otherConstraint [
 
 	^ constraints allSatisfy: [ :c | c includes: otherConstraint ]
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRIntersectionConstraint >> negated [
 
 	^ DRUnionConstraint constraints: (constraints collect: [ :c | c negated ])
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRIntersectionConstraint >> opCode [
 
 	^ 'AND'

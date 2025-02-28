@@ -1,47 +1,49 @@
 Class {
-	#name : #DRLessThanComparison,
-	#superclass : #DRCondition,
-	#category : #'Druid-IR'
+	#name : 'DRLessThanComparison',
+	#superclass : 'DRCondition',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRLessThanComparison >> acceptVisitor: aVisitor withBranch: parentBranch [
 	
 	^ aVisitor visitLessThan: self inBranch: parentBranch
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRLessThanComparison >> asJitCompileTimeExpressionString [
 	
 	^ '<'
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRLessThanComparison >> isLessThanComparison [
 
 	^ true
 ]
 
-{ #category : #transforming }
+{ #category : 'transforming' }
 DRLessThanComparison >> negated [
 	
 	^ DRGreaterOrEqualsThanComparison new
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRLessThanComparison >> opcode [
 	
 	^ 'LessThan'
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRLessThanComparison >> reversed [
 
 	"Returns the same condition but with reversed operands: x < y --> y > x"
 	^ DRGreaterThanComparison new
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRLessThanComparison >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand < operand2

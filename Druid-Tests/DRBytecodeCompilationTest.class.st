@@ -1,10 +1,11 @@
 Class {
-	#name : #DRBytecodeCompilationTest,
-	#superclass : #DRMetaCompilationTest,
-	#category : #'Druid-Tests'
+	#name : 'DRBytecodeCompilationTest',
+	#superclass : 'DRMetaCompilationTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #'building suites' }
+{ #category : 'building suites' }
 DRBytecodeCompilationTest class >> cogitStyleParameter [
 
 	^ ParametrizedTestMatrix new
@@ -13,7 +14,7 @@ DRBytecodeCompilationTest class >> cogitStyleParameter [
 		yourself
 ]
 
-{ #category : #enumerating }
+{ #category : 'enumerating' }
 DRBytecodeCompilationTest >> compileBytecode: bytecode1 selector: selector1 andBytecode: bytecode2 selector: selector2 thenDo: aFullBlockClosure [ 
 
 		| generatorSelector compiler |
@@ -45,7 +46,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode1 selector: selector1 andB
 	] bytecodes: 100
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector options: options thenDo: aBlock [
 
 	| generatorSelector compiler |
@@ -76,7 +77,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector optio
 		                     bytecodes: 100
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenDo: aBlock [
 
 	^ self
@@ -86,7 +87,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 		  thenDo: aBlock
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRBytecodeCompilationTest >> doCompileBytecode: bytecode selector: aSelector [
 
 	| compiler |
@@ -101,7 +102,7 @@ DRBytecodeCompilationTest >> doCompileBytecode: bytecode selector: aSelector [
 	compiler compile.
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRBytecodeCompilationTest >> initializeSStack: argCount [
 
 	self isSimpleStack ifTrue: [ ^ self ]. "No SSTack"
@@ -111,7 +112,7 @@ DRBytecodeCompilationTest >> initializeSStack: argCount [
 	argCount > 1 ifTrue: [ cogit ssPushRegister: Arg1Reg ]
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRBytecodeCompilationTest >> makeFrame: aReceiver arguments: arguments method: aMethod [
 	"Callee side - make up the frame"
 
@@ -128,7 +129,7 @@ DRBytecodeCompilationTest >> makeFrame: aReceiver arguments: arguments method: a
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRBytecodeCompilationTest >> popAndReturn: reg [
 
 	self isSimpleStack
@@ -137,7 +138,7 @@ DRBytecodeCompilationTest >> popAndReturn: reg [
 	cogit genUpArrowReturn
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRBytecodeCompilationTest >> prepareStackForPrimitiveReceiver: aReceiver arguments: arguments method: aMethod [
 
 	super prepareStackForPrimitiveReceiver: aReceiver arguments: arguments method: aMethod.
@@ -145,7 +146,7 @@ DRBytecodeCompilationTest >> prepareStackForPrimitiveReceiver: aReceiver argumen
 	self makeFrame: aReceiver arguments: arguments method: aMethod
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: arguments method: aMethod [
 
 	super prepareStackForSendReceiver: aReceiver arguments: arguments method: aMethod.
@@ -158,7 +159,7 @@ DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: a
 
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRBytecodeCompilationTest >> setUp [
 
 	super setUp.

@@ -1,13 +1,15 @@
 Class {
-	#name : #DRMethod,
-	#superclass : #DRCode,
+	#name : 'DRMethod',
+	#superclass : 'DRCode',
 	#instVars : [
 		'methodNode'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMethod class >> methodNode: aMethodNode [
 
 	^ self new
@@ -15,44 +17,44 @@ DRMethod class >> methodNode: aMethodNode [
 		yourself
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMethod >> basicNewFrame [
 
 	^ DRStackFrame new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMethod >> codeNode [
 	
 	^ self methodNode
 ]
 
-{ #category : #activation }
+{ #category : 'activation' }
 DRMethod >> defaultReturnValue: receiver [
 
 	receiver isInstruction ifTrue: [ ^ receiver ].
 	^ DRInterpreterValue value: receiver
 ]
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRMethod >> executeOn: interpreter [
 
 	self codeNode acceptVisitor: interpreter
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMethod >> methodNode [
 
 	^ methodNode
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMethod >> methodNode: anObject [
 
 	methodNode := anObject
 ]
 
-{ #category : #'accessing - testing' }
+{ #category : 'accessing - testing' }
 DRMethod >> mustAnnotateBytecode [
 
 	| interpreterMethod |
@@ -66,13 +68,13 @@ DRMethod >> mustAnnotateBytecode [
 		  interpreterMethod pragmaRefersToLiteral: literal ]
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRMethod >> opcode [
 	
 	^ methodNode selector 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMethod >> operands: aCollection [
 
 	"Do not track users from methods"

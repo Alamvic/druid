@@ -1,6 +1,6 @@
-Extension { #name : #RBValueNode }
+Extension { #name : 'RBValueNode' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 RBValueNode >> inspectionSourceCode [
 	<inspectorPresentationOrder: 30 title: 'Source code'>
 

@@ -1,10 +1,12 @@
 Class {
-	#name : #DRAnnotateBytecodeInstructionCoalescing,
-	#superclass : #DROptimisation,
-	#category : #'Druid-BytecodeToJITCompilation'
+	#name : 'DRAnnotateBytecodeInstructionCoalescing',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-BytecodeToJITCompilation',
+	#package : 'Druid',
+	#tag : 'BytecodeToJITCompilation'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAnnotateBytecodeInstructionCoalescing >> applyTo: cfg [
 
 	"Moves all annotateBytecode: to the beginning of the cfg."

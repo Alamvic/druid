@@ -1,6 +1,6 @@
-Extension { #name : #SimpleStackBasedCogit }
+Extension { #name : 'SimpleStackBasedCogit' }
 
-{ #category : #'*Druid-Tests' }
+{ #category : '*Druid-Tests' }
 SimpleStackBasedCogit >> byte2: anInteger [ 
 
 	byte2 := anInteger 

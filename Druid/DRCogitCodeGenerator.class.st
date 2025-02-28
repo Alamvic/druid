@@ -1,6 +1,6 @@
 Class {
-	#name : #DRCogitCodeGenerator,
-	#superclass : #Object,
+	#name : 'DRCogitCodeGenerator',
+	#superclass : 'Object',
 	#instVars : [
 		'generatorMethodBuilder',
 		'fallthroughBlock',
@@ -11,10 +11,12 @@ Class {
 		'visitedBlocks',
 		'currentBlock'
 	],
-	#category : #'Druid-Cogit'
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRCogitCodeGenerator >> allocateVariable: aDRResult [
 	"Virtual register Rn should be translated as tn.
 	Physical registers stay the same"
@@ -22,13 +24,13 @@ DRCogitCodeGenerator >> allocateVariable: aDRResult [
 	^ aDRResult name asString
 ]
 
-{ #category : #'jump-management' }
+{ #category : 'jump-management' }
 DRCogitCodeGenerator >> assignAvailableJumpIndex [
 
 	^ availableJumpIndexes removeFirst
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitCodeGenerator >> blocks: aPath [
 
 	"Clean deferred branches outside the path"
@@ -37,7 +39,7 @@ DRCogitCodeGenerator >> blocks: aPath [
 	blocks := aPath
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRCogitCodeGenerator >> buildPushFrom: aDRPush [
 
 	(aDRPush operand1 isConstant or: [ aDRPush operand1 isStaged ])
@@ -55,7 +57,7 @@ DRCogitCodeGenerator >> buildPushFrom: aDRPush [
 		  arguments: (aDRPush operand1 rtlPushArgumentExpressions: self)
 ]
 
-{ #category : #'ir-generation' }
+{ #category : 'ir-generation' }
 DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 
 	"Do not generate code for phi functions"
@@ -81,7 +83,7 @@ DRCogitCodeGenerator >> buildStatementsForInstruction: anInstruction [
 	^ anInstruction acceptVisitor: self
 ]
 
-{ #category : #branching }
+{ #category : 'branching' }
 DRCogitCodeGenerator >> cogitBranchFromCondition: condition types: branchTypes [
 
 	| branchPrefix aType types |
@@ -198,31 +200,31 @@ DRCogitCodeGenerator >> cogitBranchFromCondition: condition types: branchTypes [
 	1 halt
 ]
 
-{ #category : #'jump-management' }
+{ #category : 'jump-management' }
 DRCogitCodeGenerator >> deferBranch: anIndex to: aDRBasicBlock [ 
 	
 	(deferredBranches at: aDRBasicBlock ifAbsentPut: [ OrderedCollection new ])
 		add: anIndex
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitCodeGenerator >> deferredBranches [
 	^ deferredBranches
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitCodeGenerator >> deferredBranches: anObject [
 
 	deferredBranches := anObject
 ]
 
-{ #category : #'jump-management' }
+{ #category : 'jump-management' }
 DRCogitCodeGenerator >> freeJumpIndex: anIndex [ 
 	
 	availableJumpIndexes addFirst: anIndex
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitCodeGenerator >> generateBlockIncomingJumps: aDRBasicBlock [
 
 	| jumpIndexes |
@@ -246,7 +248,7 @@ DRCogitCodeGenerator >> generateBlockIncomingJumps: aDRBasicBlock [
 		self freeJumpIndex: i ]
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 
 	self generatePreambleForCFG: aDRControlFlowGraph.
@@ -267,7 +269,7 @@ DRCogitCodeGenerator >> generateCodeForCFG: aDRControlFlowGraph [
 	self generateReturnForCFG: aDRControlFlowGraph
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitCodeGenerator >> generateCodeFromBlocks [
 
 	[ blocks isNotEmpty ] whileTrue: [
@@ -276,7 +278,7 @@ DRCogitCodeGenerator >> generateCodeFromBlocks [
 		self visitBasicBlock: currentBlock ]
 ]
 
-{ #category : #'generate-code' }
+{ #category : 'generate-code' }
 DRCogitCodeGenerator >> generateCompileTimeIfCondition: aDRBranchIfCondition [
 
 	aDRBranchIfCondition isConditionalLoop ifTrue: [ ^ self generateLoop: aDRBranchIfCondition asConditionalLoop ].
@@ -286,7 +288,7 @@ DRCogitCodeGenerator >> generateCompileTimeIfCondition: aDRBranchIfCondition [
 
 ]
 
-{ #category : #'code-generation' }
+{ #category : 'code-generation' }
 DRCogitCodeGenerator >> generateConditional: aDRBranchIfCondition [
 
 	| jitCondition innerGenerator |
@@ -299,7 +301,7 @@ DRCogitCodeGenerator >> generateConditional: aDRBranchIfCondition [
 			 arguments: { (RBBlockNode body: innerGenerator generatorMethodBuilder sequenceNode) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 
 	| jumpStatement jumpVariableName jumpTarget jumpIndex |
@@ -333,7 +335,7 @@ DRCogitCodeGenerator >> generateJump: jumpKind target: aTarget [
 	
 ]
 
-{ #category : #'code-generation' }
+{ #category : 'code-generation' }
 DRCogitCodeGenerator >> generateLoop: aDRLoop [
 
 	| innerGenerator jitCondition loopPath isTrue |
@@ -361,7 +363,7 @@ DRCogitCodeGenerator >> generateLoop: aDRLoop [
 					  innerGenerator generatorMethodBuilder sequenceNode) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> generateMessage: selector operands: operands [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -370,7 +372,7 @@ DRCogitCodeGenerator >> generateMessage: selector operands: operands [
 			 arguments: (operands flatCollect: [ :op | self rtlArgumentsForValue: op ]))
 ]
 
-{ #category : #'code-generation' }
+{ #category : 'code-generation' }
 DRCogitCodeGenerator >> generateMoveR: regSource R: regDest [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -381,7 +383,7 @@ DRCogitCodeGenerator >> generateMoveR: regSource R: regDest [
 					 regDest })
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 
 	| addStatement |
@@ -400,7 +402,7 @@ DRCogitCodeGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 	generatorMethodBuilder addStatement: addStatement
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 
 	| addStatement |
@@ -421,14 +423,14 @@ DRCogitCodeGenerator >> generatePreambleForCFG: aDRControlFlowGraph [
 	generatorMethodBuilder addStatement: addStatement.
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitCodeGenerator >> generateReturnForCFG: aDRControlFlowGraph [
 
 	generatorMethodBuilder addStatement:
 		(RBReturnNode value: (self returnNodeForCompiledMethod: aDRControlFlowGraph))
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitCodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: aName [
 
 	generatorMethodBuilder selector: aName.
@@ -436,30 +438,30 @@ DRCogitCodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName:
 	^ generatorMethodBuilder methodNode
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitCodeGenerator >> generatorMethodBuilder [
 	^ generatorMethodBuilder
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitCodeGenerator >> generatorMethodBuilder: aDRGeneratorMethodBuilder [
 
 	generatorMethodBuilder := aDRGeneratorMethodBuilder
 ]
 
-{ #category : #'jump-management' }
+{ #category : 'jump-management' }
 DRCogitCodeGenerator >> hasDeferredBranchesTo: aDRBasicBlock [
 
 	^ deferredBranches includesKey: aDRBasicBlock
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCogitCodeGenerator >> hasIncomingBackjumps: aDRBasicBlock [ 
 	
 	^ visitedBlocksWithIncomingBackjumps includesKey: aDRBasicBlock
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRCogitCodeGenerator >> initialize [
 
 	super initialize.
@@ -472,7 +474,7 @@ DRCogitCodeGenerator >> initialize [
 	
 ]
 
-{ #category : #'code-generation' }
+{ #category : 'code-generation' }
 DRCogitCodeGenerator >> innerCompileBlocks: innerBlocks [
 
 	| innerGenerator |
@@ -483,7 +485,7 @@ DRCogitCodeGenerator >> innerCompileBlocks: innerBlocks [
 	^ innerGenerator
 ]
 
-{ #category : #'code-generation' }
+{ #category : 'code-generation' }
 DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
 
 	| dominatorTree dominatedBlocks sharedPathToTheEnd fullPath innerGenerator branchBlocks frontier |
@@ -522,7 +524,7 @@ DRCogitCodeGenerator >> innerCompilePathFrom: aDRBasicBlock [
 	^ innerGenerator
 ]
 
-{ #category : #copy }
+{ #category : 'copy' }
 DRCogitCodeGenerator >> innerGenerator [
 
 	| innerGenerator |
@@ -532,14 +534,14 @@ DRCogitCodeGenerator >> innerGenerator [
 	^ innerGenerator
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCogitCodeGenerator >> isLastBasicBlock [
 	
 	"It's the last if we have no fallthrough basic block"
 	^ fallthroughBlock isNil
 ]
 
-{ #category : #compiling }
+{ #category : 'compiling' }
 DRCogitCodeGenerator >> jitCompileTimeExpression: aDRInstruction [
 
 	| expressionInstruction |
@@ -552,25 +554,25 @@ DRCogitCodeGenerator >> jitCompileTimeExpression: aDRInstruction [
 	^ DRJITCompileTimeExpressionGenerator new visit: expressionInstruction
 ]
 
-{ #category : #'jump-management' }
+{ #category : 'jump-management' }
 DRCogitCodeGenerator >> labelForBlock: aDRBasicBlock [ 
 	
 	^ RBVariableNode named: (visitedBlocksWithIncomingBackjumps at: aDRBasicBlock)
 ]
 
-{ #category : #'jump-management' }
+{ #category : 'jump-management' }
 DRCogitCodeGenerator >> labelForJump: jumpIndex [
 	
 	^ 'jump', jumpIndex asString
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitCodeGenerator >> linearizeBlocksInCFG: aDRControlFlowGraph [
 
 	^ aDRControlFlowGraph reversePostOrderBlocks
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> oneOperandCogitRTL: aMnemonic operands: operands instruction: anInstruction [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -582,13 +584,13 @@ DRCogitCodeGenerator >> oneOperandCogitRTL: aMnemonic operands: operands instruc
 			 arguments: (self rtlArgumentsForValue: operands first))
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> postProcessBlock: aDRBasicBlock [
 
 	visitedBlocks add: aDRBasicBlock
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitCodeGenerator >> preProcessBlock: aDRBasicBlock [
 
 	aDRBasicBlock hasIncomingBackjumps ifTrue: [ 
@@ -605,19 +607,19 @@ DRCogitCodeGenerator >> preProcessBlock: aDRBasicBlock [
 	self generateBlockIncomingJumps: aDRBasicBlock
 ]
 
-{ #category : #registers }
+{ #category : 'registers' }
 DRCogitCodeGenerator >> registerFor: aValue [
 
 	^ aValue result prettyPrint
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitCodeGenerator >> returnNodeForCompiledMethod: aDRControlFlowGraph [
 
 	^ RBLiteralNode value: 0
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> rtlArgumentsForValue: aValue [
 	"If it is a spilling stack location, we need to return a pair (offset, baseRegister)"
 
@@ -628,7 +630,7 @@ DRCogitCodeGenerator >> rtlArgumentsForValue: aValue [
 	^ { (self rtlExpressionForValue: aValue) }
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 
 	| constantValue |
@@ -655,32 +657,32 @@ DRCogitCodeGenerator >> rtlExpressionForValue: aValue [
 		  ifFalse: [ RBVariableNode named: (self registerFor: aValue) ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> selectBranchOperand: aDRPhiFunction [
 
 	^ aDRPhiFunction operandAtPredecessor: visitedBlocks last
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRCogitCodeGenerator >> selectorCogitRTL: aMnemonic operands: operands instruction: anInstruction [
 
 	^ aMnemonic , ('' join: (operands collect: [ :op |
 			    op rtlOperandQualifierForInstruction: anInstruction ]))
 ]
 
-{ #category : #'code generation' }
+{ #category : 'code generation' }
 DRCogitCodeGenerator >> spRegVariable [
 
 	^ RBVariableNode named: 'SPReg'
 ]
 
-{ #category : #'code generation' }
+{ #category : 'code generation' }
 DRCogitCodeGenerator >> tempRegVariable [
 
 	^ RBVariableNode named: 'TempReg'
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction [
 
 	(instruction operand1 isConstant and: [ 
@@ -699,7 +701,7 @@ DRCogitCodeGenerator >> threeOperandCogitRTL: aMnemonic instruction: instruction
 		  instruction: instruction
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruction: anInstruction [
 
 	self
@@ -707,7 +709,7 @@ DRCogitCodeGenerator >> twoOperandCogitRTL: aMnemonic operands: operands instruc
 		operands: operands
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands [
 
 	(operands first isInterpreterReference and: [
@@ -719,20 +721,20 @@ DRCogitCodeGenerator >> twoOperandMoveCogitRTL: anInstruction operands: operands
 		instruction: anInstruction
 ]
 
-{ #category : #'ir-generation' }
+{ #category : 'ir-generation' }
 DRCogitCodeGenerator >> varNameForStagedInstruction: aStagedRegister [
 
 	^ aStagedRegister result prettyPrint
 ]
 
-{ #category : #'ir-generation' }
+{ #category : 'ir-generation' }
 DRCogitCodeGenerator >> varNodeForStagedInstruction: aStagedRegister [
 
 	^ RBVariableNode named:
 		  (self varNameForStagedInstruction: aStagedRegister)
 ]
 
-{ #category : #verification }
+{ #category : 'verification' }
 DRCogitCodeGenerator >> verifyAllocationIn2AC: instruction [
 
 	| allocatedOperands |
@@ -745,19 +747,19 @@ DRCogitCodeGenerator >> verifyAllocationIn2AC: instruction [
 			, instruction asString ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitAddition: aDRCogitAdd [ 
 
 	^ self threeOperandCogitRTL: #Add instruction: aDRCogitAdd 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitAnd: aDRAnd [
 
 	^ self threeOperandCogitRTL: #And instruction: aDRAnd
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitBasicBlock: b [
 	
 	"Block is not dead code"
@@ -768,28 +770,28 @@ DRCogitCodeGenerator >> visitBasicBlock: b [
 	self postProcessBlock: b
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitBitAnd: aDRCogitBitAnd [ 
 
 	^ self threeOperandCogitRTL: #And instruction: aDRCogitBitAnd
 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitBitOr: aDRCogitBitAnd [ 
 
 	^ self threeOperandCogitRTL: #Or instruction: aDRCogitBitAnd
 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitBitXor: aDRCogitBitXor [ 
 
 	^ self threeOperandCogitRTL: #Xor instruction: aDRCogitBitXor
 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 	"Delegate the condition generation to the condition itself.
 	It may be a Cmp, a Test or no instruction at all."
@@ -817,7 +819,7 @@ DRCogitCodeGenerator >> visitBranchIfCondition: aDRConditionalJump [
 		target: replacement falseBranch
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitCall: aDRCall [
 	"self CallRT: ceSendMustBeBooleanTrampoline"
 
@@ -851,7 +853,7 @@ DRCogitCodeGenerator >> visitCall: aDRCall [
 			R: (self rtlExpressionForValue: aDRCall) ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitClosureActivation: aDRClosureActivation [
 
 	self threeOperandCogitRTL: #Add instruction: aDRClosureActivation.
@@ -862,7 +864,7 @@ DRCogitCodeGenerator >> visitClosureActivation: aDRClosureActivation [
 		instruction: aDRClosureActivation
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitComparison: aComparison [
 
 	"Generate comparison instruction. In cogit, if you want to do A < B, you have to generate:
@@ -877,7 +879,7 @@ DRCogitCodeGenerator >> visitComparison: aComparison [
 	^ aComparison
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitCompileTimeStore: aDRStore [
 
 	| varName |
@@ -891,7 +893,7 @@ DRCogitCodeGenerator >> visitCompileTimeStore: aDRStore [
 			 value: (self jitCompileTimeExpression: aDRStore operand1))
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitCopy: aDRMove [
 
 	| moveOperands |
@@ -907,7 +909,7 @@ DRCogitCodeGenerator >> visitCopy: aDRMove [
 	self twoOperandMoveCogitRTL: aDRMove operands: moveOperands
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitDivision: aDRCogitDivision [
 
 	aDRCogitDivision type isFloatType ifTrue: [
@@ -928,13 +930,13 @@ DRCogitCodeGenerator >> visitDivision: aDRCogitDivision [
 					   (self rtlExpressionForValue: aDRCogitDivision operands third) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitEqualsThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 	
 	^ self visitComparison: aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitFloatToIntConversion: aDRFloatToInt [
 
 	^ self
@@ -945,13 +947,13 @@ DRCogitCodeGenerator >> visitFloatToIntConversion: aDRFloatToInt [
 		  instruction: aDRFloatToInt
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitFlushStack: aDRFlushStack [
 
 	self subclassResponsibility
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 	"Generate the code of the form
 		CMP
@@ -1015,33 +1017,33 @@ DRCogitCodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 				  selector: #Label) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitGetFloatBits: aDRGetFloatBits [ 
 	
 	"This should be translated as a normal move"
 	^ self visitCopy: aDRGetFloatBits
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitGetFloatFromBits: aDRGetFloatFromBits [
 
 	"This should be translated as a normal move"
 	^ self visitCopy: aDRGetFloatFromBits
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitGreaterOrEqualsThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 
 	^ self visitComparison: aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 	
 	^ self visitComparison: aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitIntToFloatConversion: aDRIntToFloat [
 
 	^ self
@@ -1052,7 +1054,7 @@ DRCogitCodeGenerator >> visitIntToFloatConversion: aDRIntToFloat [
 		instruction: aDRIntToFloat
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitJump: aDRJump [
 
 	aDRJump asBackJumpLoop ifNotNil: [ :loop |
@@ -1062,7 +1064,7 @@ DRCogitCodeGenerator >> visitJump: aDRJump [
 	self generateJump: #Jump: target: aDRJump target
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitLeftRotate: aDRRotate [
 
 	^ self
@@ -1070,25 +1072,25 @@ DRCogitCodeGenerator >> visitLeftRotate: aDRRotate [
 		  instruction: aDRRotate
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitLeftShift: aDRCogitLeftShift [
 	
 	^ self threeOperandCogitRTL: #LogicalShiftLeft instruction: aDRCogitLeftShift
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitLessOrEqualsThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 	
 	^ self visitComparison: aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitLessThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 
 	^ self visitComparison: aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitLoad: aDRLoad [
 
 	(aDRLoad address isStaged and: [ aDRLoad address type isObjectReference ]) ifTrue: [
@@ -1115,7 +1117,7 @@ DRCogitCodeGenerator >> visitLoad: aDRLoad [
 			 result: aDRLoad result)
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitLoadStackValue: aDRLoadStackValue [
 
 	| offset |
@@ -1135,7 +1137,7 @@ DRCogitCodeGenerator >> visitLoadStackValue: aDRLoadStackValue [
 					 (self rtlExpressionForValue: aDRLoadStackValue) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitMod: aDRCogitDivision [
 
 	"Cogit division (and thus remainder too) is not in 2AC but in 4AC.
@@ -1152,21 +1154,21 @@ DRCogitCodeGenerator >> visitMod: aDRCogitDivision [
 					   (self rtlExpressionForValue: aDRCogitDivision result) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitMultiply: aDRCogitMultiply [ 
 
 	^ self threeOperandCogitRTL: #Mul instruction: aDRCogitMultiply
 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitMultiplyOverflow: aDRMultiplyOverflow inBranch: aDRBranchIfCondition [ 
 	
 	"Do nothing... Should we make sure nobody overwrote the overflow flag?"
 	^ aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [
 
 	self twoOperandMoveCogitRTL: aDRCogitNegate operands: {
@@ -1180,26 +1182,26 @@ DRCogitCodeGenerator >> visitNegate: aDRCogitNegate [
 			 arguments: (self rtlArgumentsForValue: aDRCogitNegate))
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitNoOverflow: aDRNoOverflow inBranch: aDRBranchIfCondition [ 
 
 	"Do nothing... Should we make sure nobody overwrote the overflow flag?"
 	^ aDRBranchIfCondition 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitNoop: aDRNoop [ 
 	
 	"Do nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitNotEqualsThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 	
 	^ self visitComparison: aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitNullValue: aDRNullValue [ 
 
 	^ RBMessageNode
@@ -1207,32 +1209,32 @@ DRCogitCodeGenerator >> visitNullValue: aDRNullValue [
 		selector: #Nop
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitOr: aDROr [ 
 
 	^ self threeOperandCogitRTL: #Or instruction: aDROr
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitOverflow: aDRMultiplyOverflow inBranch: aDRBranchIfCondition [ 
 	
 	"Do nothing... Should we make sure nobody overwrote the overflow flag?"
 	^ aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitPhiFunction: aDRPhiFunction [ 
 
 	"For the moment nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitPush: aDRPush [
 
 	generatorMethodBuilder addStatement: (self buildPushFrom: aDRPush)
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitReturn: aDRReturn [
 
 	"Generate the postamble in the return cases"
@@ -1242,14 +1244,14 @@ DRCogitCodeGenerator >> visitReturn: aDRReturn [
 			 selector: #genPrimReturn)
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitSignedRightShift: aRightShift [ 
 
 	^ self threeOperandCogitRTL: #ArithmeticShiftRight instruction: aRightShift
 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitStore: aDRCogitStore [
 
 	aDRCogitStore isJITCompileTimeExpression ifTrue: [
@@ -1260,14 +1262,14 @@ DRCogitCodeGenerator >> visitStore: aDRCogitStore [
 			  aDRCogitStore operand2 asMemoryAddress }
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitSubstract: aDRCogitSubstract [ 
 	
 	^ self threeOperandCogitRTL: #Sub instruction: aDRCogitSubstract
 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfCondition [
 
 	| comparands |
@@ -1281,26 +1283,26 @@ DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfConditio
 	^ aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitUnsignedCoercion: aDRCogitUnsignedCoercion [ 
 
 	^ self visitCopy: aDRCogitUnsignedCoercion
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitUnsignedRightShift: aRightShift [ 
 
 	^ self threeOperandCogitRTL: #LogicalShiftRight instruction: aRightShift
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitCodeGenerator >> visitedBlocks [
 
 	^ visitedBlocks
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitCodeGenerator >> visitedBlocks: aCollection [
 
 	visitedBlocks := aCollection

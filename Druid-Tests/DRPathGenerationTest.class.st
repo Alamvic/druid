@@ -1,10 +1,11 @@
 Class {
-	#name : #DRPathGenerationTest,
-	#superclass : #DRIRTest,
-	#category : #'Druid-Tests'
+	#name : 'DRPathGenerationTest',
+	#superclass : 'DRIRTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #api }
+{ #category : 'api' }
 DRPathGenerationTest >> optimize: cfg [
 
 	cfg applyOptimisation:
@@ -16,7 +17,7 @@ DRPathGenerationTest >> optimize: cfg [
 	cfg generatePaths
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsArePropagated [
 
 	| cfg blocks edge12 edge23 |
@@ -31,7 +32,7 @@ DRPathGenerationTest >> testConstraintsArePropagated [
 
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsAreStacked [
 
 	| cfg blocks edge12 edge23 |
@@ -49,7 +50,7 @@ DRPathGenerationTest >> testConstraintsAreStacked [
 
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsFromComplexConditionalOnDifferentRegs [
 
 	| cfg edges trueNDomain trueMDomain firstFalseNDomain secondFalseNDomain secondFalseMDomain |
@@ -70,7 +71,7 @@ DRPathGenerationTest >> testConstraintsFromComplexConditionalOnDifferentRegs [
 
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsFromComplexConditionalOnSameReg [
 
 	| cfg edges trueRegDomain firstFalseRegDomain secondFalseRegDomain |
@@ -91,7 +92,7 @@ DRPathGenerationTest >> testConstraintsFromComplexConditionalOnSameReg [
 
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsInferenceFromBranchIfCondition [
 
 	| cfg edges trueConstraint falseConstraint |
@@ -105,7 +106,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranchIfCondition [
 	self assertConstraint: falseConstraint includes: (DRLessConstraint withValue: 10).
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsInferenceFromBranchIfConditionInverted [
 
 	| cfg edges trueConstraint falseConstraint |
@@ -119,7 +120,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranchIfConditionInverted [
 	self assertConstraint: falseConstraint includes: (DRGreaterConstraint withValue: 10).
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsInferenceFromBranchIfTrueWithFalse [
 
 	| cfg jump trueEdge falseEdge |
@@ -135,7 +136,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranchIfTrueWithFalse [
 	self deny: falseEdge isDead.
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsInferenceFromBranchIfTrueWithTrue [
 
 	| cfg jump trueEdge falseEdge |
@@ -151,7 +152,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranchIfTrueWithTrue [
 	self assert: falseEdge isDead.
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsInferenceFromBranchWithPhi [
 
 	| cfg copy condition phi |
@@ -171,7 +172,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromBranchWithPhi [
 
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsInferenceFromCopy [
 
 	| cfg copy edge constraint |
@@ -187,7 +188,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromCopy [
 
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsInferenceFromCopyOfCopy [
 
 	| cfg copy1 copy2 edge constraint |
@@ -204,7 +205,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromCopyOfCopy [
 
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsInferenceFromInnerBranches [
 
 	| cfg edges trueConstraint falseConstraint innerMergeBlock |
@@ -219,7 +220,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromInnerBranches [
 	self assertConstraint: falseConstraint includes: (DRGreaterOrEqualsConstraint withValue: 20)
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsInferenceFromJITExpressions [
 
 	| cfg jitExpression copy |
@@ -242,7 +243,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromJITExpressions [
 	self assert: cfg deadPaths size equals: cfg pathsSize / 2
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsInferenceFromLoop [
 
 	| cfg edges firstPhiConstraint loopedPhiConstraint sumConstraint returnInstruction phi add |
@@ -265,7 +266,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromLoop [
 	self assert: sumConstraint isNotNil
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsInferenceFromPhi [
 
 	| cfg edges constraints |
@@ -286,7 +287,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromPhi [
 		includes: (DREqualsConstraint withValue: 2)
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRPathGenerationTest >> testConstraintsInferenceFromPhiWithNull [
 
 	| cfg copy1 copy2 phi edges constraints |
@@ -306,7 +307,7 @@ DRPathGenerationTest >> testConstraintsInferenceFromPhiWithNull [
 
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPathGenerationTest >> testCopyConstantAddNewConstraint [
 
 	| cfg block |
@@ -319,7 +320,7 @@ DRPathGenerationTest >> testCopyConstantAddNewConstraint [
 	self assert: (self anyOutgoingEdge: cfg for: block) constraints size equals: 1
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPathGenerationTest >> testCopyRegisterNotAddNewConstraint [
 
 	| cfg block |
@@ -332,7 +333,7 @@ DRPathGenerationTest >> testCopyRegisterNotAddNewConstraint [
 	self assert: (self anyOutgoingEdge: cfg for: block) constraints isEmpty.
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPathGenerationTest >> testFirstIncomingInfoHasNoConstraints [
 
 	| cfg edge |
@@ -343,7 +344,7 @@ DRPathGenerationTest >> testFirstIncomingInfoHasNoConstraints [
 
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPathGenerationTest >> testGenerateExpectedEdgesCountBranching [
 
 	| cfg |
@@ -353,7 +354,7 @@ DRPathGenerationTest >> testGenerateExpectedEdgesCountBranching [
 	self assert: cfg edges size equals: 5
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPathGenerationTest >> testGenerateExpectedEdgesCountLinear [
 
 	| cfg |
@@ -363,7 +364,7 @@ DRPathGenerationTest >> testGenerateExpectedEdgesCountLinear [
 
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPathGenerationTest >> testGenerateExpectedEdgesCountLoop [
 
 	| cfg edges |
@@ -372,7 +373,7 @@ DRPathGenerationTest >> testGenerateExpectedEdgesCountLoop [
 	self assert: edges size equals: 2
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPathGenerationTest >> testGenerateExpectedEdgesCountMerging [
 
 	| cfg edges |
@@ -384,7 +385,7 @@ DRPathGenerationTest >> testGenerateExpectedEdgesCountMerging [
 	self assert: edges size equals: 2
 ]
 
-{ #category : #'dead-path' }
+{ #category : 'dead-path' }
 DRPathGenerationTest >> testInferenceDeadPaths [
 
 	| cfg deadPath expectedTarget deadPathBlocks deadCopy expectedPath |
@@ -401,7 +402,7 @@ DRPathGenerationTest >> testInferenceDeadPaths [
 	self assertCollection: deadPathBlocks hasSameElements: expectedPath
 ]
 
-{ #category : #'dead-path' }
+{ #category : 'dead-path' }
 DRPathGenerationTest >> testInferenceDeadPathsFromPhi [
 
 	| cfg deadPaths sourceBlockIds condition |
@@ -422,7 +423,7 @@ DRPathGenerationTest >> testInferenceDeadPathsFromPhi [
 	self assertCollection: sourceBlockIds hasSameElements: { 2 . 3 }
 ]
 
-{ #category : #'dead-path' }
+{ #category : 'dead-path' }
 DRPathGenerationTest >> testInferenceManyDeadPaths [
 
 	| cfg deadPaths deadTargetIds |
@@ -434,7 +435,7 @@ DRPathGenerationTest >> testInferenceManyDeadPaths [
 	self assertCollection: deadTargetIds hasSameElements: cfg firstBasicBlock successors
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPathGenerationTest >> testJumpDoesNotAddConstraint [
 
 	| cfg edge |
@@ -446,7 +447,7 @@ DRPathGenerationTest >> testJumpDoesNotAddConstraint [
 
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPathGenerationTest >> testLinearContigousBlocksShareEdge [
 
 	| cfg blocks |
@@ -458,7 +459,7 @@ DRPathGenerationTest >> testLinearContigousBlocksShareEdge [
 		equals: (self anyIncomingEdge: cfg for: blocks second)
 ]
 
-{ #category : #'dead-path' }
+{ #category : 'dead-path' }
 DRPathGenerationTest >> testUnmergeableConditionalBranchToSameTarget [
 
 	| cfg b0 copy1 copy2 b1 condition |

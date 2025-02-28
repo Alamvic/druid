@@ -1,43 +1,44 @@
 Class {
-	#name : #DRDruidTest,
-	#superclass : #VMJittedPrimitivesTest,
+	#name : 'DRDruidTest',
+	#superclass : 'VMJittedPrimitivesTest',
 	#instVars : [
 		'fakeTrampoline'
 	],
-	#category : #'Druid-Tests'
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #private }
+{ #category : 'private' }
 DRDruidTest class >> isAbstract [
 
 	^ self == DRDruidTest
 ]
 
-{ #category : #'building suites' }
+{ #category : 'building suites' }
 DRDruidTest class >> wordSizeParameters [
 
 	^ self wordSize64Parameters
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : 'helpers-compiling' }
 DRDruidTest >> generatorSelector: anInterpreterSelector [
 
 	^ ('gen_' , anInterpreterSelector) asSymbol
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : 'helpers-compiling' }
 DRDruidTest >> interpreterClass [ 
 
 	^ DruidTestInterpreter
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : 'helpers-compiling' }
 DRDruidTest >> jitCompilerClass [
 
 	^ DruidTestRTLCompiler
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : 'helpers-compiling' }
 DRDruidTest >> jitOptions [
 
 	^ super jitOptions
@@ -45,7 +46,7 @@ DRDruidTest >> jitOptions [
 		  yourself
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRDruidTest >> setUp [
 
 	super setUp.

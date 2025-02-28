@@ -1,10 +1,12 @@
 Class {
-	#name : #DRUnionConstraint,
-	#superclass : #DRComposedConstraint,
-	#category : #'Druid-IR-Paths'
+	#name : 'DRUnionConstraint',
+	#superclass : 'DRComposedConstraint',
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRUnionConstraint class >> less: minValue greater: maxValue [
 
 	^ self constraints: { 
@@ -12,19 +14,19 @@ DRUnionConstraint class >> less: minValue greater: maxValue [
 			  (DRGreaterConstraint withValue: maxValue) }
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRUnionConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
 	^ constraints anySatisfy: [ :c | c hasAllValuesGreaterThan: otherConstantValue ]
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRUnionConstraint >> hasAllValuesLessThan: otherConstantValue [
 
 	^ constraints anySatisfy: [ :c | c hasAllValuesLessThan: otherConstantValue ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRUnionConstraint >> hasAllValuesWithMask: aMask [
 
 	"ATENTION: This implementation does not work mixing Masked & Ranged constraints"
@@ -32,7 +34,7 @@ DRUnionConstraint >> hasAllValuesWithMask: aMask [
 	^ constraints anySatisfy: [ :c | c hasAllValuesWithMask: aMask ]
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRUnionConstraint >> hasAllValuesWithoutMask: aMask [
 
 	"ATENTION: This implementation does not work mixing Masked & Ranged constraints"
@@ -40,25 +42,25 @@ DRUnionConstraint >> hasAllValuesWithoutMask: aMask [
 	^ constraints anySatisfy: [ :c | c hasAllValuesWithoutMask: aMask ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRUnionConstraint >> hasNotType: aDRClassType [
 
 	^ constraints anySatisfy: [ :c | c hasNotType: aDRClassType ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRUnionConstraint >> hasType: aDRClassType [
 
 	^ constraints anySatisfy: [ :c | c hasType: aDRClassType ]
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRUnionConstraint >> hasValue: otherConstantValue [
 
 	^ constraints anySatisfy: [ :c | c hasValue: otherConstantValue ]
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRUnionConstraint >> includes: otherConstraint [
 
 	otherConstraint isUnion ifTrue: [ 
@@ -67,19 +69,19 @@ DRUnionConstraint >> includes: otherConstraint [
 	^ constraints anySatisfy: [ :c | c includes: otherConstraint ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRUnionConstraint >> isUnion [ 
 
 	^ true
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRUnionConstraint >> negated [
 
 	^ DRIntersectionConstraint constraints: (constraints collect: [ :c | c negated ])
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRUnionConstraint >> opCode [
 
 	^ 'OR'
