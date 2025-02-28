@@ -68,7 +68,7 @@ DRAbstractDispatchTableGenerator >> buildInitializePrimitiveTableMaxCompiledPrim
 
 	^ RBAssignmentNode
 		  variable: (RBVariableNode named: self maxPrimitiveIndexGlobalName )
-		  value: self maxCompiledPrimitives asLiteralNode
+		  value: self maxCompiledPrimitives
 ]
 
 { #category : 'accessing - building' }
@@ -127,8 +127,8 @@ DRAbstractDispatchTableGenerator >> maxCompiledPrimitives [
 	"
 	| arrayNode |
 	arrayNode := self primTableNode statements last value.
-	arrayNode statements ifEmpty: [ ^ 0 ].
-	^ arrayNode statements last statements first
+	arrayNode contents ifEmpty: [ ^ 0 ].
+	^ arrayNode contents last contents first
 ]
 
 { #category : 'accessing' }
