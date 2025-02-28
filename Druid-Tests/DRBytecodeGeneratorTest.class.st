@@ -80,6 +80,7 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 	aDRControlFlowGraph applyOptimisation: DRFrameInfoCleaner new.
 	aDRControlFlowGraph applyOptimisation: DRBranchCollapse new.
 	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
+	
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
 
 	bytecodeGenerator numArgs: numArgs.
@@ -212,6 +213,31 @@ DRBytecodeGeneratorTest >> testMethodCustomisationBadCount [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodCustomisationDifference [
+
+	| method result cfg selector |
+	typeSystem := DRCustomisationTypeSystem new.
+	bytecodeGenerator := DRBytecodeGenerator new.
+	selector := #difference:.
+	method := Set >> selector.
+
+	compilerCompiler interpreter: {  }.
+	cfg := self generateDruidIRFor: method.
+
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+
+	result := method valueWithReceiver: { 1. 2. 3 } asSet arguments: { { 3 . 4 . 5 } asSet }.
+
+	self assertCollection: result includesAll: { 1. 2 }.
+
+
+"	{ Array }	
+		do: [ :e |
+			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
+			e addSelectorSilently: selector withMethod: method ]"
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 
 	| method result cfg selector |
@@ -241,8 +267,6 @@ DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
 
 	| method result cfg selector |
-	self skip. "TODO: Fix blocks linearization"
-
 	compilerCompiler irGenerator typeSystem:
 		(typeSystem := DRCustomisationTypeSystem new).
 	bytecodeGenerator := DRBytecodeGenerator new.
@@ -252,15 +276,14 @@ DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
 	compilerCompiler optimize: cfg.
-	compilerCompiler optimize: cfg.
 
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
 	result := method
-		          valueWithReceiver: { 1. 2. 3 }
+		          valueWithReceiver: { 1. 2. 3 } asOrderedCollection
 		          arguments: { [ :e | e even ] }.
 
-	self assertCollection: result includesAll: { 1. 2. 3 }.
+	self assertCollection: result includesAll: { 2 }.
 ]
 
 { #category : 'tests' }
@@ -411,7 +434,7 @@ DRBytecodeGeneratorTest >> testOpalBooleanMethods [
 
 	self skip. "TO FIX"
 	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocol = #'examples - andor' ]
+		select: [ :opalMethod | opalMethod protocolName = #'examples - andor' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]
 
@@ -420,7 +443,7 @@ DRBytecodeGeneratorTest >> testOpalConditionalMethods [
 
 	self skip. "TO FIX"
 	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocol = #'examples - conditionals' ]
+		select: [ :opalMethod | opalMethod protocolName = #'examples - conditionals' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]
 
@@ -429,6 +452,6 @@ DRBytecodeGeneratorTest >> testOpalSimpleMethods [
 
 	self skip. "TO FIX"
 	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocol = #'examples - simple' ]
+		select: [ :opalMethod | opalMethod protocolName = #'examples - simple' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]
