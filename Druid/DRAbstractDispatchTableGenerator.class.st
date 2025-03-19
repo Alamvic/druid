@@ -127,7 +127,7 @@ DRAbstractDispatchTableGenerator >> maxCompiledPrimitives [
 	"
 	| arrayNode |
 	arrayNode := self primTableNode statements last value.
-	arrayNode contents ifEmpty: [ ^ 0 ].
+	arrayNode contents ifEmpty: [ ^ 0 asLiteralNode ].
 	^ arrayNode contents last contents first
 ]
 

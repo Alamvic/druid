@@ -2101,10 +2101,9 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 		^ self interpretDruidExitPointWith: aRBMethodNode ].
 
 
-	(aRBMethodNode hasPragmaNamed: #doNotGenerate) ifTrue: [
-		aRBMethodNode selector = #rawHeaderOf: ifFalse: [ 1 halt ] ].
+	(aRBMethodNode hasPragmaNamed: #doNotGenerate) ifTrue: [ 1 halt ].
 	(aRBMethodNode hasPragmaNamed: #halt) ifTrue: [ 1 halt ].
-	(aRBMethodNode hasPragmaNamed: #primitive:) ifTrue: [ 1 halt ].
+	"(aRBMethodNode hasPragmaNamed: #primitive:) ifTrue: [ 1 halt ]."
 
 
 	(aRBMethodNode hasPragmaNamed: #druidJITCompileTimeExpression)
