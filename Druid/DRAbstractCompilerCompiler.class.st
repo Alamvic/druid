@@ -52,6 +52,8 @@ DRAbstractCompilerCompiler >> compile [
 
 	druidIR := self generateDruidIR.
 	self optimize: druidIR.
+	
+	DRCogitStackCoalescing applyTo: druidIR.
 
 	self allocateRegistersIn: druidIR.
 

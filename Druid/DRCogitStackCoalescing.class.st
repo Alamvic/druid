@@ -14,9 +14,10 @@ DRCogitStackCoalescing >> coalescePops: pops in: postDominator [
 		pops reject: [ :e | e isUnspilled ] thenDo: [ :e |
 			e addBefore: (e instructionFactory unspill: (e stackDepth + 1) negated) ] ].
 
+	self assert: (pops collect: [ :popopop | popopop operand1 ] as: Set) size = 1.
 
 	postDominator addInstructionFirst: (postDominator instructionFactory
-			 pop: 1
+			 pop: pops anyOne operand1
 			 unspilled: (pops anySatisfy: [ :e | e isUnspilled ])).
 	pops do: [ :p | p removeFromCFG ]
 ]
