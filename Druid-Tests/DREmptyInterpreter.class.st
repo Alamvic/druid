@@ -3,24 +3,25 @@ It represents an empty interpreter, i.e. it doesn't provide any primitive method
 
 "
 Class {
-	#name : #DREmptyInterpreter,
-	#superclass : #CogVMSimulatorLSB,
-	#category : #'Druid-Tests'
+	#name : 'DREmptyInterpreter',
+	#superclass : 'CogVMSimulatorLSB',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #constants }
+{ #category : 'constants' }
 DREmptyInterpreter class >> basicPrimitiveTable [ 
 
 	^ Array empty
 ]
 
-{ #category : #constants }
+{ #category : 'constants' }
 DREmptyInterpreter class >> bytecodeTableArray [ 
 
 	^ Array empty
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DREmptyInterpreter class >> initializeBytecodeTableForSistaV1 [
 	"See e.g. the cass comment for EncoderForSistaV1"
 	"StackInterpreter initializeBytecodeTableForSistaV1"
@@ -31,7 +32,7 @@ DREmptyInterpreter class >> initializeBytecodeTableForSistaV1 [
 
 ]
 
-{ #category : #'class initialization' }
+{ #category : 'class initialization' }
 DREmptyInterpreter class >> primitiveTableArray [
 
 	<generated>

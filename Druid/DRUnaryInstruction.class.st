@@ -1,10 +1,12 @@
 Class {
-	#name : #DRUnaryInstruction,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRUnaryInstruction',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRUnaryInstruction >> sccpLatticeValueFor: sccp [
 
 	| operand1 |
@@ -21,7 +23,7 @@ DRUnaryInstruction >> sccpLatticeValueFor: sccp [
 	^ sccp top
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRUnaryInstruction >> sccpOperateOnLattice: operand [
 	
 	self subclassResponsibility

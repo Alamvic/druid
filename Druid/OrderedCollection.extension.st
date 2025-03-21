@@ -1,11 +1,11 @@
-Extension { #name : #OrderedCollection }
+Extension { #name : 'OrderedCollection' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 OrderedCollection >> asPCG [
 	^ PCGArrayNode statements: (self collect: #asPCG)
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 OrderedCollection >> whileNotEmpty: aBlock [
 
 	"aCol whileNotEmpty: [:current :col :marked | ...iteration... ]"

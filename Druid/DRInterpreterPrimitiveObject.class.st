@@ -1,25 +1,27 @@
 Class {
-	#name : #DRInterpreterPrimitiveObject,
-	#superclass : #DRInterpreterInstruction,
+	#name : 'DRInterpreterPrimitiveObject',
+	#superclass : 'DRInterpreterInstruction',
 	#instVars : [
 		'primitiveNumber'
 	],
-	#category : #'Druid-CompilerBuilder'
+	#category : 'Druid-CompilerBuilder',
+	#package : 'Druid',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterPrimitiveObject >> primitiveNumber [
 
 	^ primitiveNumber
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterPrimitiveObject >> primitiveNumber: anInteger [ 
 
 	primitiveNumber := anInteger 
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRInterpreterPrimitiveObject >> printOn: aStream [
 
 	aStream

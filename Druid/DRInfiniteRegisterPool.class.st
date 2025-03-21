@@ -15,17 +15,19 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #DRInfiniteRegisterPool,
-	#superclass : #Object,
+	#name : 'DRInfiniteRegisterPool',
+	#superclass : 'Object',
 	#instVars : [
 		'integerRegisters',
 		'floatingPointRegisters',
 		'nextId'
 	],
-	#category : #'Druid-LinearScanRegisterAllocation'
+	#category : 'Druid-LinearScanRegisterAllocation',
+	#package : 'Druid',
+	#tag : 'LinearScanRegisterAllocation'
 }
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRInfiniteRegisterPool >> createNewRegister [
 
 	| newRegister |
@@ -34,7 +36,7 @@ DRInfiniteRegisterPool >> createNewRegister [
 	^ DRPhysicalGeneralPurposeRegister name: newRegister
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRInfiniteRegisterPool >> initialize [
 
 	super initialize.
@@ -44,25 +46,25 @@ DRInfiniteRegisterPool >> initialize [
 	floatingPointRegisters := Stack new.
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRInfiniteRegisterPool >> returnFloatRegister: aRegister [
 
 	floatingPointRegisters push: aRegister
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRInfiniteRegisterPool >> returnIntegerRegister: aRegister [
 
 	integerRegisters push: aRegister
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRInfiniteRegisterPool >> takeFloatRegister: aRegister [ 
 	
 	floatingPointRegisters remove: aRegister
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRInfiniteRegisterPool >> takeFloatingPointRegisterNotIn: inactiveOverlappingRegisters ifPresent: presentBlock [
 
 	self
@@ -75,13 +77,13 @@ DRInfiniteRegisterPool >> takeFloatingPointRegisterNotIn: inactiveOverlappingReg
 	^ presentBlock value: self createNewRegister
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRInfiniteRegisterPool >> takeIntegerRegister: aDRPhysicalRegister [ 
 	
 	integerRegisters remove: aDRPhysicalRegister
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRInfiniteRegisterPool >> takeIntegerRegisterNotIn: inactiveOverlappingRegisters ifPresent: presentBlock [
 
 	self
@@ -94,7 +96,7 @@ DRInfiniteRegisterPool >> takeIntegerRegisterNotIn: inactiveOverlappingRegisters
 	^ presentBlock value: self createNewRegister
 ]
 
-{ #category : #'private - allocation' }
+{ #category : 'private - allocation' }
 DRInfiniteRegisterPool >> takeRegisterFrom: aCollection notIn: inactiveOverlappingRegisters ifPresent: presentBlock [
 
 	| currentRegisters |

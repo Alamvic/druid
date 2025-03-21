@@ -1,16 +1,18 @@
 Class {
-	#name : #DRDeadBranchElimination,
-	#superclass : #DRPathOptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRDeadBranchElimination',
+	#superclass : 'DRPathOptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRDeadBranchElimination >> canBeAppliedWithGeneratedPathsIn: aDRControlFlowGraph [
 
 	^ aDRControlFlowGraph deadBranches isNotEmpty
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRDeadBranchElimination >> doApplyWithGeneratedPaths: cfg [
 	"Remove all dead branches in CFG"
 
@@ -22,7 +24,7 @@ DRDeadBranchElimination >> doApplyWithGeneratedPaths: cfg [
 		self removeBranchFrom: edge key to: edge value ]
 ]
 
-{ #category : #optimising }
+{ #category : 'optimising' }
 DRDeadBranchElimination >> removeBranchFrom: sourceBasicBlock to: destinationBasicBlock [
 
 	| newSucessors |

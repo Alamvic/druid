@@ -1,29 +1,31 @@
 Class {
-	#name : #DRDeoptimize,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRDeoptimize',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRDeoptimize >> acceptVisitor: aDRCogitCanonicaliser [ 
 	
 	aDRCogitCanonicaliser visitDeoptimize: self
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRDeoptimize >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRDeoptimize >> needsStackFlush [
 
 	"Stack must be flushed to jump to interpreted mode"
 	^ true
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRDeoptimize >> sccpEvaluateFor: sccp [
 
 	"Nothing to do"

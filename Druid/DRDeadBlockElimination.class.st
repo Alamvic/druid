@@ -1,10 +1,12 @@
 Class {
-	#name : #DRDeadBlockElimination,
-	#superclass : #DROptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRDeadBlockElimination',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #executing }
+{ #category : 'executing' }
 DRDeadBlockElimination >> applyTo: aDRControlFlowGraph [
 
 	| reachableBlocks deadBlocks |
@@ -23,7 +25,7 @@ DRDeadBlockElimination >> applyTo: aDRControlFlowGraph [
 	deadBlocks do: [ :e | e removeFromCFG ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRDeadBlockElimination >> canBeAppliedIn: aDRControlFlowGraph [
 
 	aDRControlFlowGraph blocksDo: [ :b | b predecessors ifEmpty: [ ^ true ] ].

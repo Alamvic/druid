@@ -1,17 +1,19 @@
 Class {
-	#name : #DRCleanStackInstructions,
-	#superclass : #DRStackOptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRCleanStackInstructions',
+	#superclass : 'DRStackOptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCleanStackInstructions >> doApply: cfg [
 
 	cfg reversePostOrderBlocks do: [ :b | self interpretAndOptimise: b ].
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCleanStackInstructions >> interpretAndOptimise: basicBlock [
 
 	| stack |
@@ -20,7 +22,7 @@ DRCleanStackInstructions >> interpretAndOptimise: basicBlock [
 		self interpretAndOptimise: i on: stack ]
 ]
 
-{ #category : #optimising }
+{ #category : 'optimising' }
 DRCleanStackInstructions >> interpretAndOptimise: aDRInstruction on: aStack [
 
 	aDRInstruction isPush ifTrue: [ "Record the instruction"

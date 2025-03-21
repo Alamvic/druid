@@ -1,13 +1,15 @@
 Class {
-	#name : #DRPathFactory,
-	#superclass : #Object,
+	#name : 'DRPathFactory',
+	#superclass : 'Object',
 	#instVars : [
 		'cfg'
 	],
-	#category : #'Druid-IR-Paths'
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRPathFactory class >> withCFG: aCfg [
 
 	^ self new
@@ -15,19 +17,19 @@ DRPathFactory class >> withCFG: aCfg [
 		  yourself
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPathFactory >> cfg [
 
 	^ cfg
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPathFactory >> cfg: anObject [
 
 	cfg := anObject
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPathFactory >> createEdgeFromParent: parentEdge to: destination branchIndex: branchIndex [
 
 	| source edge |
@@ -41,7 +43,7 @@ DRPathFactory >> createEdgeFromParent: parentEdge to: destination branchIndex: b
 	^ edge
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPathFactory >> createInitialEdge [
 
 	| initialBlock initialEdge |
@@ -54,7 +56,7 @@ DRPathFactory >> createInitialEdge [
 		constraint addToEdge: initialEdge ]
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPathFactory >> generatePaths [
 
 	| maxBatch done |

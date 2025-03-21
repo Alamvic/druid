@@ -1,14 +1,16 @@
 Class {
-	#name : #DRRegisterDomain,
-	#superclass : #Object,
+	#name : 'DRRegisterDomain',
+	#superclass : 'Object',
 	#instVars : [
 		'reg',
 		'constraint'
 	],
-	#category : #'Druid-IR-Paths'
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRRegisterDomain class >> equals: register than: aValue [
 
 	^ self
@@ -16,7 +18,7 @@ DRRegisterDomain class >> equals: register than: aValue [
 		  constraint: (DREqualsConstraint withValue: aValue)
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRRegisterDomain class >> greater: register than: aValue [
 
 	^ self
@@ -24,7 +26,7 @@ DRRegisterDomain class >> greater: register than: aValue [
 		  constraint: (DRGreaterConstraint withValue: aValue)
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRRegisterDomain class >> greaterOrEquals: register than: aValue [
 
 	^ self
@@ -32,13 +34,13 @@ DRRegisterDomain class >> greaterOrEquals: register than: aValue [
 		  constraint: (DRGreaterOrEqualsConstraint withValue: aValue)
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRRegisterDomain class >> less: register than: aValue [
 
 	^ self reg: register constraint: (DRLessConstraint withValue: aValue)
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRRegisterDomain class >> lessOrEquals: register than: aValue [
 
 	^ self
@@ -46,13 +48,13 @@ DRRegisterDomain class >> lessOrEquals: register than: aValue [
 		  constraint: (DRLessOrEqualsConstraint withValue: aValue)
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRRegisterDomain class >> mask: register with: aValue [
 
 	^ self reg: register constraint: (DRAnyMaskConstraint withValue: aValue)
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRRegisterDomain class >> notEquals: register than: aValue [
 
 	^ self
@@ -60,7 +62,7 @@ DRRegisterDomain class >> notEquals: register than: aValue [
 		  constraint: (DRNotEqualsConstraint withValue: aValue)
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRRegisterDomain class >> reg: register constraint: aConstraint [
 
 	^ self new
@@ -69,7 +71,7 @@ DRRegisterDomain class >> reg: register constraint: aConstraint [
 		  yourself
 ]
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRRegisterDomain class >> type: register with: aDRType [
 
 	^ self
@@ -77,37 +79,37 @@ DRRegisterDomain class >> type: register with: aDRType [
 		  constraint: (DRIncludeTypeConstraint withType: aDRType)
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRRegisterDomain >> addToEdge: anEdge [
 
 	anEdge addConstraint: self constraint to: self reg name
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRRegisterDomain >> constraint [
 
 	^ constraint
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRRegisterDomain >> constraint: anObject [
 
 	constraint := anObject
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRRegisterDomain >> includes: otherRegisterConstraint [
 
 	^ reg = otherRegisterConstraint reg and: [ constraint includes: otherRegisterConstraint constraint ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRRegisterDomain >> isDead [
 
 	^ constraint isEmpty
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRRegisterDomain >> mergedWith: aDRRegisterConstraint [ 
 	
 	^ self class
@@ -115,7 +117,7 @@ DRRegisterDomain >> mergedWith: aDRRegisterConstraint [
 		  constraint: (constraint intersectionWith: aDRRegisterConstraint constraint)
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRRegisterDomain >> negated [
 
 	^ self class new
@@ -124,7 +126,7 @@ DRRegisterDomain >> negated [
 		  yourself
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRRegisterDomain >> printOn: aStream [
 
 	aStream 
@@ -133,19 +135,19 @@ DRRegisterDomain >> printOn: aStream [
 		print: constraint
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRRegisterDomain >> reg [
 
 	^ reg
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRRegisterDomain >> reg: anObject [
 
 	reg := anObject
 ]
 
-{ #category : #reversing }
+{ #category : 'reversing' }
 DRRegisterDomain >> reversed [
 
 	^ self class new

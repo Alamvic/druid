@@ -1,22 +1,24 @@
 Class {
-	#name : #DRNoRegister,
-	#superclass : #DRRegister,
-	#category : #'Druid-IR'
+	#name : 'DRNoRegister',
+	#superclass : 'DRRegister',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNoRegister >> isNoResult [
 	
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRNoRegister >> prettyPrint [
 	
 	^ '_'
 ]
 
-{ #category : #'cogit-generation' }
+{ #category : 'cogit-generation' }
 DRNoRegister >> rtlOperandQualifier [
 
 	^ 'Null:' ":("

@@ -1,13 +1,15 @@
 Class {
-	#name : #DRCleanControlFlowTest,
-	#superclass : #DROptimisationTest,
+	#name : 'DRCleanControlFlowTest',
+	#superclass : 'DROptimisationTest',
 	#instVars : [
 		'instructionFactory'
 	],
-	#category : #'Druid-Tests-Optimizations'
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRCleanControlFlowTest >> setUp [
 	super setUp.
 	
@@ -15,7 +17,7 @@ DRCleanControlFlowTest >> setUp [
 	optimisation := DRCleanControlFlow new
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testCannotCombineBlocksWhenSecondBlockContainsPhiFunctions [
 
 	| b0 b1 b2 copy cfg |
@@ -30,7 +32,7 @@ DRCleanControlFlowTest >> testCannotCombineBlocksWhenSecondBlockContainsPhiFunct
 	self deny: (optimisation shouldCombineBlock: b1)
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testCombineBlocks [
 
 	| b0 b1 b2 copy add combinedBlock cfg |
@@ -51,7 +53,7 @@ DRCleanControlFlowTest >> testCombineBlocks [
 	self assert: combinedBlock instructions second equals: add
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testDoNotRemoveEmptyBlockIfItCreatesPredecessorSuccessorAmbiguities [
 
 	| cfg c1 c2 |
@@ -67,7 +69,7 @@ DRCleanControlFlowTest >> testDoNotRemoveEmptyBlockIfItCreatesPredecessorSuccess
 	self assert: cfg b1 successors asSet size equals: 1
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testFoldRedundantBranch [
 
 	| b0 b1 jump cfg |
@@ -86,7 +88,7 @@ DRCleanControlFlowTest >> testFoldRedundantBranch [
 	self assert: b0 endInstruction target equals: b1.
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testFoldRedundantBranchMergesPredecessors [
 
 	| b0 b1 jump cfg |
@@ -108,7 +110,7 @@ DRCleanControlFlowTest >> testFoldRedundantBranchMergesPredecessors [
 	self assert: b0 successors first predecessors size equals: 1
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testHoistBranch [
 
 	| b0 b1 b2 b3 b4 branch cfg |
@@ -136,7 +138,7 @@ DRCleanControlFlowTest >> testHoistBranch [
 	self assert: b1 endInstruction equals: branch
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testHoistBranchWithMultiplePredecessors [
 
 	| b0 b1 b2 b3 b4 branch cfg b11 |
@@ -163,7 +165,7 @@ DRCleanControlFlowTest >> testHoistBranchWithMultiplePredecessors [
 	b2 validate.
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testRemoveEmptyBlock [
 
 	| b0 b1 b2 cfg |
@@ -180,7 +182,7 @@ DRCleanControlFlowTest >> testRemoveEmptyBlock [
 	self assert: b0 endInstruction target equals: b2
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionFirstPredecessor [
 
 	| b0 b1 b2 cfg r0 r1 b3 |
@@ -203,7 +205,7 @@ DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionFirstPred
 	b3 validatePhiFunctions.
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionSecondPredecessor [
 
 	| cfg r0 r1 phi |
@@ -220,7 +222,7 @@ DRCleanControlFlowTest >> testRemoveEmptyBlockDoesNotReorderPhiFunctionSecondPre
 	cfg b4 validatePhiFunctions.
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testRemoveEmptyBlockWithManyPredecessors [
 
 	| b0 b1 b2 emptyBlock b4 cfg |
@@ -244,7 +246,7 @@ DRCleanControlFlowTest >> testRemoveEmptyBlockWithManyPredecessors [
 	self assert: b2 endInstruction target equals: b4.
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testShouldFoldRedundantBranch [
 
 	| b0 b1 jump cfg |
@@ -259,7 +261,7 @@ DRCleanControlFlowTest >> testShouldFoldRedundantBranch [
 	self assert: (optimisation shouldFoldRedundantBranchIn: b0)
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testShouldFoldRedundantBranchWithSameTargetAndSamePhiValues [
 
 	| b0 b1 jump cfg r0 |
@@ -283,7 +285,7 @@ DRCleanControlFlowTest >> testShouldFoldRedundantBranchWithSameTargetAndSamePhiV
 	self assert: (optimisation shouldFoldRedundantBranch: b0 endInstruction)
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testShouldHoistBranch [
 
 	| b0 b1 b2 b3 b4 branch cfg |
@@ -309,7 +311,7 @@ DRCleanControlFlowTest >> testShouldHoistBranch [
 	self assert: (optimisation shouldHoistBranchInto: b1)
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testShouldNotFoldRedundantBranch [
 
 	| b0 b1 jump b2 cfg |
@@ -325,7 +327,7 @@ DRCleanControlFlowTest >> testShouldNotFoldRedundantBranch [
 	self deny: (optimisation shouldFoldRedundantBranch: b0 endInstruction)
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testShouldNotFoldRedundantBranchWithSameTargetButDifferentPhiValues [
 
 	| b0 b1 jump cfg r0 r1 |
@@ -351,7 +353,7 @@ DRCleanControlFlowTest >> testShouldNotFoldRedundantBranchWithSameTargetButDiffe
 	self deny: (optimisation shouldFoldRedundantBranch: b0 endInstruction)
 ]
 
-{ #category : #'tests - redundant branches' }
+{ #category : 'tests - redundant branches' }
 DRCleanControlFlowTest >> testShouldNotHoistBranchBecauseNotEmpty [
 
 	| b0 b1 b2 b3 b4 branch cfg |

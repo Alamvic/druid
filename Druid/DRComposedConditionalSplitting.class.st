@@ -1,13 +1,15 @@
 Class {
-	#name : #DRComposedConditionalSplitting,
-	#superclass : #DROptimisation,
+	#name : 'DRComposedConditionalSplitting',
+	#superclass : 'DROptimisation',
 	#instVars : [
 		'currentJump'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRComposedConditionalSplitting >> applyTo: cfg [
 
 	cfg allConditionalJumps 
@@ -15,7 +17,7 @@ DRComposedConditionalSplitting >> applyTo: cfg [
 		thenDo: [ :jump | jump acceptVisitor: self ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRComposedConditionalSplitting >> splitComplexConditionOf: aJump between: targetSuccessor [
 
 	| aComplexCondition newJump |
@@ -40,7 +42,7 @@ DRComposedConditionalSplitting >> splitComplexConditionOf: aJump between: target
 		newJump acceptVisitor: self ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRComposedConditionalSplitting >> visitAnd: aDRAnd [
 
 	self
@@ -48,14 +50,14 @@ DRComposedConditionalSplitting >> visitAnd: aDRAnd [
 		between: currentJump trueBranch
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRComposedConditionalSplitting >> visitBranchIfCondition: aDRBranchIfCondition [ 
 	
 	currentJump := aDRBranchIfCondition.
 	aDRBranchIfCondition operand1 acceptVisitor: self
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRComposedConditionalSplitting >> visitOr: aDROr [
 
 	self

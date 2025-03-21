@@ -1,10 +1,12 @@
 Class {
-	#name : #DRConstantPhiInsertionTest,
-	#superclass : #DRSSAPRETest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRConstantPhiInsertionTest',
+	#superclass : 'DRSSAPRETest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase1 [
 	" 
 	  T1  →   T2 = e   →   T3   
@@ -30,7 +32,7 @@ DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase1 [
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase2 [
 	" 
        /------------------\  
@@ -55,7 +57,7 @@ DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase2 [
 	self assert: b4 hasPhiFunctions equals: true
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase3 [
 	" 
        /------------------\  
@@ -82,7 +84,7 @@ DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase3 [
 	self assert: b4 instructions size equals: 3.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase4 [
 	" 
        /------------------\  
@@ -110,7 +112,7 @@ DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase4 [
 	self assert: b4 instructions size equals: 4.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRConstantPhiInsertionTest >> testPhiInsertionInConditionalCase5 [
 "
 T1  →  T2 = e  →   T4 = e

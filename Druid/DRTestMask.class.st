@@ -1,47 +1,49 @@
 Class {
-	#name : #DRTestMask,
-	#superclass : #DRCondition,
-	#category : #'Druid-IR'
+	#name : 'DRTestMask',
+	#superclass : 'DRCondition',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTestMask >> acceptVisitor: aVisitor withBranch: parentBranch [
 	
 	^ aVisitor visitTestMask: self inBranch: parentBranch
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRTestMask >> asJitCompileTimeExpressionString [
 
 	^ ' anyMask: '
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRTestMask >> isTestMask [
 	
 	^ true
 ]
 
-{ #category : #transforming }
+{ #category : 'transforming' }
 DRTestMask >> negated [
 	
 	^ DRNoTestMask new
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRTestMask >> opcode [
 	
 	^ 'Test'
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRTestMask >> reversed [
 
 	"Returns the same condition but with reversed operands: Test x y --> Test y x"
 	^ DRTestMask new
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRTestMask >> sccpOperateOnLattice: operand and: operand2 [
 	
 	^ operand anyMask: operand2

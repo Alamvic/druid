@@ -1,13 +1,15 @@
 Class {
-	#name : #DRHyperBlock,
-	#superclass : #Object,
+	#name : 'DRHyperBlock',
+	#superclass : 'Object',
 	#instVars : [
 		'blocks'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRHyperBlock class >> blocks: aCollection [
 	
 	^ self new
@@ -15,7 +17,7 @@ DRHyperBlock class >> blocks: aCollection [
 		yourself
 ]
 
-{ #category : #'control-flow' }
+{ #category : 'control-flow' }
 DRHyperBlock >> addBetween: sourceBlock and: targetBlock [
 
 	| newFirstBlock newLastBlock currentTarget |
@@ -29,18 +31,18 @@ DRHyperBlock >> addBetween: sourceBlock and: targetBlock [
 	self controlFlowGraph fixBackJumps
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRHyperBlock >> blocks: aCollection [ 
 	blocks := aCollection
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRHyperBlock >> controlFlowGraph [
 
 	^ self entryBlock controlFlowGraph
 ]
 
-{ #category : #transformations }
+{ #category : 'transformations' }
 DRHyperBlock >> duplicate [
 	
 	self hasSingleExit ifFalse: [ self error: 'Cannot duplicate if more than one exit' ].
@@ -50,13 +52,13 @@ DRHyperBlock >> duplicate [
 		duplicate: blocks
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRHyperBlock >> endInstruction [
 
 	^ self exitBlock endInstruction
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRHyperBlock >> entryBlock [
 
 	^ self hasSingleEntry
@@ -64,7 +66,7 @@ DRHyperBlock >> entryBlock [
 		  ifFalse: [ blocks first ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRHyperBlock >> entryBlocks [
 
 	^ blocks select: [ :block | 
@@ -72,7 +74,7 @@ DRHyperBlock >> entryBlocks [
 			  block predecessors anySatisfy: [ :p | (blocks includes: p) not ] ] ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRHyperBlock >> exitBlock [
 
 	^ self hasSingleExit
@@ -80,43 +82,43 @@ DRHyperBlock >> exitBlock [
 		  ifFalse: [ blocks last ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRHyperBlock >> exitBlocks [
 
 	^ blocks select: [ :e | 
 		  e successors anySatisfy: [ :s | (blocks includes: s) not ] ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRHyperBlock >> hasSingleEntry [
 
 	^ self entryBlocks size = 1
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRHyperBlock >> hasSingleExit [
 
 	^ self exitBlocks size = 1
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRHyperBlock >> instructions [
 	^ blocks flatCollect: [ :block | block instructions ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRHyperBlock >> predecessor [
 
 	^ self entryBlock predecessor
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRHyperBlock >> predecessors [
 	
 	^ self entryBlock predecessors
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRHyperBlock >> removePredecessor: aDRBasicBlock [ 
 	
 	| index |
@@ -124,12 +126,12 @@ DRHyperBlock >> removePredecessor: aDRBasicBlock [
 	self entryBlock removePredecessorAt: index
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRHyperBlock >> removePredecessors [
 	self predecessors copy do: [ :p | self removePredecessor: p ]
 ]
 
-{ #category : #transformation }
+{ #category : 'transformation' }
 DRHyperBlock >> tailDuplicate [
 
 	"We can only tail duplicate if the instructions do not escape"

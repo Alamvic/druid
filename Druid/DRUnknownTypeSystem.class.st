@@ -1,10 +1,12 @@
 Class {
-	#name : #DRUnknownTypeSystem,
-	#superclass : #DRTypeSystem,
-	#category : #'Druid-IR-Types'
+	#name : 'DRUnknownTypeSystem',
+	#superclass : 'DRTypeSystem',
+	#category : 'Druid-IR-Types',
+	#package : 'Druid',
+	#tag : 'IR-Types'
 }
 
-{ #category : #API }
+{ #category : 'API' }
 DRUnknownTypeSystem >> receiverTypes: aDRMessageSend [
 
 	^ { DRUndefinedType new }

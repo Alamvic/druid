@@ -1,10 +1,12 @@
 Class {
-	#name : #DRRedundancyClassTest,
-	#superclass : #DRSSAPRETest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRRedundancyClassTest',
+	#superclass : 'DRSSAPRETest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRRedundancyClassTest >> test2DiffAddExpressionHasDiffClassNumber [
 
 	| cfg instruction1 instruction2 |
@@ -17,7 +19,7 @@ DRRedundancyClassTest >> test2DiffAddExpressionHasDiffClassNumber [
 		equals: (valueNumberer valueNumberOf: instruction2)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRRedundancyClassTest >> test2DiffConstexpressHasDiffClassNumber [
 
 	| cfg instruction1 instruction2 |
@@ -31,7 +33,7 @@ DRRedundancyClassTest >> test2DiffConstexpressHasDiffClassNumber [
 		equals: (valueNumberer valueNumberOf: instruction2)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRRedundancyClassTest >> test2DiffExpressionHasDiffClassNumberCommutative [
 	"1 - 2  vs  2 - 1  != "
 	| cfg instruction1 instruction2 |
@@ -45,7 +47,7 @@ DRRedundancyClassTest >> test2DiffExpressionHasDiffClassNumberCommutative [
 		equals: (valueNumberer valueNumberOf: instruction2)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRRedundancyClassTest >> test2SameAddExpressionHasSameClassNumber [
 	
 	| cfg instruction1 instruction2 |
@@ -59,7 +61,7 @@ DRRedundancyClassTest >> test2SameAddExpressionHasSameClassNumber [
 		equals: (valueNumberer valueNumberOf: instruction2)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRRedundancyClassTest >> test2SameAddExpressionHasSameClassNumberCommutative [
 	
 	| cfg instruction1 instruction2 |
@@ -73,7 +75,7 @@ DRRedundancyClassTest >> test2SameAddExpressionHasSameClassNumberCommutative [
 		equals: (valueNumberer valueNumberOf: instruction2)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRRedundancyClassTest >> test2SameConstexpressHasSameClassNumber [
 
 	| cfg instruction1 instruction2 |
@@ -86,7 +88,7 @@ DRRedundancyClassTest >> test2SameConstexpressHasSameClassNumber [
 		equals: (valueNumberer valueNumberOf: instruction2)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRRedundancyClassTest >> test3DiffConstexpressHasCorrectClassNumber [
 
 	| cfg instruction1 instruction2 instruction3 |
@@ -102,7 +104,7 @@ DRRedundancyClassTest >> test3DiffConstexpressHasCorrectClassNumber [
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRRedundancyClassTest >> test3SameConstexpressHasCorrectClassNumber [
 
 	| cfg instruction1 instruction2 instruction3 |
@@ -118,7 +120,7 @@ DRRedundancyClassTest >> test3SameConstexpressHasCorrectClassNumber [
 	
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRRedundancyClassTest >> testConstantFoldingExpressionHasSameClassNumber [
 	"C1 = 1
 	 1 + C1 is in the same class as 1 + 1
@@ -135,7 +137,7 @@ DRRedundancyClassTest >> testConstantFoldingExpressionHasSameClassNumber [
 		equals: (valueNumberer valueNumberOf: instruction3)
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRRedundancyClassTest >> testConstantFoldingExpressionHasSameClassNumber2 [
 	"T1 = 2
     T2 = T1

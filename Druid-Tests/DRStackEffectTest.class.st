@@ -1,13 +1,14 @@
 Class {
-	#name : #DRStackEffectTest,
-	#superclass : #DRIRTest,
+	#name : 'DRStackEffectTest',
+	#superclass : 'DRIRTest',
 	#instVars : [
 		'irBuilder'
 	],
-	#category : #'Druid-Tests'
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackEffectTest >> addLoadStackValueAt: aValue [
 
 	^ irBuilder
@@ -16,13 +17,13 @@ DRStackEffectTest >> addLoadStackValueAt: aValue [
 		operands: { aValue asDRValue }
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRStackEffectTest >> addLoadStackValueTop [
 
 	^ self addLoadStackValueAt: 0
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRStackEffectTest >> addPop [
 
 	^ irBuilder
@@ -31,7 +32,7 @@ DRStackEffectTest >> addPop [
 		  operands: #( 1 false )
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRStackEffectTest >> addPush: aValue [
 
 	^ irBuilder
@@ -40,7 +41,7 @@ DRStackEffectTest >> addPush: aValue [
 		operands: { aValue asDRValue }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStackEffectTest >> setUp [ 
 
 	irBuilder := DRMetaCompilerIRGenerator new.
@@ -50,7 +51,7 @@ DRStackEffectTest >> setUp [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStackEffectTest >> testInitialStackInstructionHasNoStackDependencies [
 
 	| push pop |
@@ -60,7 +61,7 @@ DRStackEffectTest >> testInitialStackInstructionHasNoStackDependencies [
 	self assert: push stackDependencies isEmpty
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStackEffectTest >> testLastStackInstructionHasNoStackDependents [
 
 	| push pop |
@@ -70,7 +71,7 @@ DRStackEffectTest >> testLastStackInstructionHasNoStackDependents [
 	self assert: pop stackDependents isEmpty
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStackEffectTest >> testPopDependsOnPush [
 
 	| push pop |
@@ -81,7 +82,7 @@ DRStackEffectTest >> testPopDependsOnPush [
 	self assert: push stackDependents asArray equals: { pop }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStackEffectTest >> testPopInMergePointDependsOnBothBranches [
 
 	| pop1 pop2 finalStackInstruction |
@@ -99,7 +100,7 @@ DRStackEffectTest >> testPopInMergePointDependsOnBothBranches [
 			pop2 }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStackEffectTest >> testPopKnowsDefiningInstruction [
 
 	| push pop push2 pop2 |
@@ -113,7 +114,7 @@ DRStackEffectTest >> testPopKnowsDefiningInstruction [
 	self assert: pop2 definingStackInstruction equals: push
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStackEffectTest >> testPushDependsOnPop [
 
 	| push pop |
@@ -124,7 +125,7 @@ DRStackEffectTest >> testPushDependsOnPop [
 	self assert: pop stackDependents asArray equals: { push }
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStackEffectTest >> testRebuildStackDependenciesReconstructsOriginalGraph [
 
 	| pop1 pop2 finalStackInstruction |
@@ -141,7 +142,7 @@ DRStackEffectTest >> testRebuildStackDependenciesReconstructsOriginalGraph [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStackEffectTest >> testStackValueDoesNotUpdateWhenPopsAreMerged [
 
 	|  pop1 pop2 loadTop |
@@ -160,7 +161,7 @@ DRStackEffectTest >> testStackValueDoesNotUpdateWhenPopsAreMerged [
 	self assert: loadTop operand1 equals: 0 asDRValue
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStackEffectTest >> testStackValueKnowsDefiningInstruction [
 
 	| push push2 loadPrev loadTop |
@@ -174,7 +175,7 @@ DRStackEffectTest >> testStackValueKnowsDefiningInstruction [
 	self assert: loadTop definingStackInstruction equals: push2
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStackEffectTest >> testStackValueLoseDefinitionWhenInstructionIsRemoved [
 
 	| push loadTop |
@@ -191,7 +192,7 @@ DRStackEffectTest >> testStackValueLoseDefinitionWhenInstructionIsRemoved [
 	self assert: loadTop operand1 equals: -1 asDRValue "Is this ok? Maybe check it in the validate?"
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRStackEffectTest >> testStackValueUpdatesWhenInstructionIsRemoved [
 
 	| push push2 loadPrev |

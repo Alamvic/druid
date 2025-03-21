@@ -1,35 +1,37 @@
 Class {
-	#name : #DRLoadStackPointer,
-	#superclass : #DRAbstractLoad,
-	#category : #'Druid-IR'
+	#name : 'DRLoadStackPointer',
+	#superclass : 'DRAbstractLoad',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRLoadStackPointer >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitLoadStackPointer: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRLoadStackPointer >> isLoadStackPointer [
 
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRLoadStackPointer >> opcode [
 	
 	^ 'LoadStackPointer'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRLoadStackPointer >> sccpLatticeValueFor: sccp [
 
 	"We know that we know nothing about the stack pointer"
 	^ sccp bottom
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRLoadStackPointer >> type [
 
 	^ DRPointerType new

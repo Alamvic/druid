@@ -1,15 +1,17 @@
 Class {
-	#name : #DRBlockDuplicator,
-	#superclass : #Object,
+	#name : 'DRBlockDuplicator',
+	#superclass : 'Object',
 	#instVars : [
 		'controlFlowGraph',
 		'instructionMap',
 		'blockMap'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #'editing keys' }
+{ #category : 'editing keys' }
 DRBlockDuplicator >> basicDuplicateBlock: aBasicBlock [
 
 	^ controlFlowGraph newBasicBlockWith: [ :newBlock |
@@ -35,19 +37,19 @@ DRBlockDuplicator >> basicDuplicateBlock: aBasicBlock [
 		  self patchInstructionsIn: newBlock ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBlockDuplicator >> controlFlowGraph [
 
 	^ controlFlowGraph
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBlockDuplicator >> controlFlowGraph: anObject [
 
 	controlFlowGraph := anObject
 ]
 
-{ #category : #'editing keys' }
+{ #category : 'editing keys' }
 DRBlockDuplicator >> duplicate: blocks [
 
 	blocks do: [ :b | 
@@ -57,14 +59,14 @@ DRBlockDuplicator >> duplicate: blocks [
 	^ blockMap
 ]
 
-{ #category : #'editing keys' }
+{ #category : 'editing keys' }
 DRBlockDuplicator >> initialize [
 	super initialize.
 	instructionMap := Dictionary new.
 	blockMap := Dictionary new.
 ]
 
-{ #category : #'editing keys' }
+{ #category : 'editing keys' }
 DRBlockDuplicator >> patchControlFlowIn: aBasicBlock [
 
 	aBasicBlock predecessors copy do: [ :p | 
@@ -77,7 +79,7 @@ DRBlockDuplicator >> patchControlFlowIn: aBasicBlock [
 		aBasicBlock replaceSuccessor: p by: newSuccessor ]
 ]
 
-{ #category : #'editing keys' }
+{ #category : 'editing keys' }
 DRBlockDuplicator >> patchInstructionsIn: aBasicBlock [
 	"Replace all users and dependencies of block instructions using the instructionMap"
 	aBasicBlock instructions do: [ :newInstruction |

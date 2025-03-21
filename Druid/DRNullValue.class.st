@@ -1,28 +1,30 @@
 Class {
-	#name : #DRNullValue,
-	#superclass : #DRValue,
-	#category : #'Druid-IR'
+	#name : 'DRNullValue',
+	#superclass : 'DRValue',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRNullValue >> = anotherValue [
 
 	^ self species = anotherValue species
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRNullValue >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitNullValue: self
 ]
 
-{ #category : #'control-flow' }
+{ #category : 'control-flow' }
 DRNullValue >> addToBlock: aDRBasicBlock [ 
 	
 	"Nothing"
 ]
 
-{ #category : #copying }
+{ #category : 'copying' }
 DRNullValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 	
 	"I'm not a value, so I cannot be copied.
@@ -30,55 +32,55 @@ DRNullValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 	^ self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRNullValue >> hash [
 
 	^ self class hash
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRNullValue >> id [
 
 	^ self
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRNullValue >> isNullValue [
 
 	^ true
 ]
 
-{ #category : #'control-flow' }
+{ #category : 'control-flow' }
 DRNullValue >> joinNonNull: anotherValue onIRGenerator: anIRGenerator from: originBlocks [
 
 	^ anotherValue
 ]
 
-{ #category : #'control-flow' }
+{ #category : 'control-flow' }
 DRNullValue >> joinValue: anotherValue onIRGenerator: anIRGenerator from: originBlocks [
 
 	^ anotherValue
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRNullValue >> name [
 	
 	^ 'NULL'
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRNullValue >> rtlOperandQualifier [
 	
 	^ 'Null:'
 ]
 
-{ #category : #sccp }
+{ #category : 'sccp' }
 DRNullValue >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]
 
-{ #category : #asd }
+{ #category : 'asd' }
 DRNullValue >> type [
 	
 	^ DRUndefinedType new

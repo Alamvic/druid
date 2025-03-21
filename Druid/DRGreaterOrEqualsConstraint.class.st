@@ -1,46 +1,48 @@
 Class {
-	#name : #DRGreaterOrEqualsConstraint,
-	#superclass : #DRRangedConstraint,
-	#category : #'Druid-IR-Paths'
+	#name : 'DRGreaterOrEqualsConstraint',
+	#superclass : 'DRRangedConstraint',
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRGreaterOrEqualsConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
 	^ otherConstantValue >= constantValue 
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRGreaterOrEqualsConstraint >> hasAllValuesLessThan: aConstantValue [
 
 	^ false
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRGreaterOrEqualsConstraint >> hasValue: otherConstantValue [
 
 	^ otherConstantValue >= constantValue
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRGreaterOrEqualsConstraint >> isIncludedIn: otherConstraint [
 
 	^ (otherConstraint hasValue: constantValue) and: [ otherConstraint hasAllValuesGreaterThan: constantValue ]
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRGreaterOrEqualsConstraint >> negated [
 
 	^ DRLessConstraint withValue: constantValue
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRGreaterOrEqualsConstraint >> opCode [
 
 	^ '>='
 ]
 
-{ #category : #reversing }
+{ #category : 'reversing' }
 DRGreaterOrEqualsConstraint >> reversed [
 	
 	^ DRLessOrEqualsConstraint withValue: constantValue

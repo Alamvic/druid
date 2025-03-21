@@ -1,16 +1,18 @@
 Class {
-	#name : #DRCPSEdge,
-	#superclass : #DREdge,
+	#name : 'DRCPSEdge',
+	#superclass : 'DREdge',
 	#instVars : [
 		'constraints',
 		'parent',
 		'branchIndex',
 		'isDead'
 	],
-	#category : #'Druid-IR-Paths'
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRCPSEdge class >> withSource: aSource andDestination: aDestination branchIndex: branchIndex [
 
 	^ (self withSource: aSource andDestination: aDestination)
@@ -18,7 +20,7 @@ DRCPSEdge class >> withSource: aSource andDestination: aDestination branchIndex:
 		  yourself
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRCPSEdge >> addConstraint: aConditionalConstraint forInstruction: anInstruction [
 
 	^ self
@@ -26,7 +28,7 @@ DRCPSEdge >> addConstraint: aConditionalConstraint forInstruction: anInstruction
 		  to: anInstruction result name
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRCPSEdge >> addConstraint: aConditionalConstraint to: id [
 
 	isDead := isDead or: [ aConditionalConstraint isEmpty ].
@@ -36,7 +38,7 @@ DRCPSEdge >> addConstraint: aConditionalConstraint to: id [
 		put: aConditionalConstraint
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCPSEdge >> ancestors [
 
 	parent ifNil: [ ^ {  } ].
@@ -44,13 +46,13 @@ DRCPSEdge >> ancestors [
 	^ parent ancestors , { parent }
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCPSEdge >> branchIndex: anInteger [ 
 	
 	branchIndex := anInteger
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> composedConstraint: aConstraintClass from: aDRInstruction [
 
 	| operands |
@@ -61,19 +63,19 @@ DRCPSEdge >> composedConstraint: aConstraintClass from: aDRInstruction [
 		  constraint: (aConstraintClass constraints: operands)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCPSEdge >> constraintFor: regKey [
 
 	^ constraints at: regKey ifAbsent: [ ^ nil ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCPSEdge >> constraints [
 
 	^ constraints
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCPSEdge >> constraints: anObject [
 
 	isDead := isDead or: [ anObject anySatisfy: [ :c | c isEmpty ] ].
@@ -81,7 +83,7 @@ DRCPSEdge >> constraints: anObject [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCPSEdge >> deadTarget [
 
 	^ self isDead
@@ -89,7 +91,7 @@ DRCPSEdge >> deadTarget [
 		  ifFalse: [ nil ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRCPSEdge >> initialize [ 
 
 	super initialize.
@@ -97,7 +99,7 @@ DRCPSEdge >> initialize [
 	isDead := false
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> integerOperation: anOperantion [
 
 	"Could be any number"
@@ -106,13 +108,13 @@ DRCPSEdge >> integerOperation: anOperantion [
 		  forInstruction: anOperantion
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCPSEdge >> isBackJump [
 
 	^ source lastInstruction isBackJumpTo: destination 
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCPSEdge >> isDead [
 
 	"self assert: isDead = (constraints anySatisfy: [ :c | c isEmpty ])."
@@ -120,7 +122,7 @@ DRCPSEdge >> isDead [
 	^ isDead
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRCPSEdge >> mergeConstraint: aConditionalConstraint to: id [
 
 	constraints
@@ -132,7 +134,7 @@ DRCPSEdge >> mergeConstraint: aConditionalConstraint to: id [
 		initial: aConditionalConstraint
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> operandConstraint: operand [
 
 	| constraintOrDomain |
@@ -146,7 +148,7 @@ DRCPSEdge >> operandConstraint: operand [
 		  ifFalse: [ constraintOrDomain ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> operandDomainFromInstruction: aDRInstruction inBranch: branch [
 
 	| constraint |
@@ -162,7 +164,7 @@ DRCPSEdge >> operandDomainFromInstruction: aDRInstruction inBranch: branch [
 	^ DRRegisterDomain reg: aDRInstruction constraint: constraint
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> operandDomainFromPhi: aDRPhiFunction [
 
 	| pathOperand constraint |
@@ -173,12 +175,12 @@ DRCPSEdge >> operandDomainFromPhi: aDRPhiFunction [
 	^ DRRegisterDomain reg: aDRPhiFunction constraint: constraint
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCPSEdge >> parent [
 	^ parent
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCPSEdge >> parent: aDRRegistersInfo [
 
 	constraints := aDRRegistersInfo constraints copy.
@@ -186,55 +188,55 @@ DRCPSEdge >> parent: aDRRegistersInfo [
 	parent := aDRRegistersInfo
 ]
 
-{ #category : #optimising }
+{ #category : 'optimising' }
 DRCPSEdge >> split [
 
 	destination splitTo: source
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitAddition: aDRAdd [
 
 	^ self integerOperation: aDRAdd
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitAnd: aDRAnd [
 
 	^ self composedConstraint: DRIntersectionConstraint from: aDRAnd
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitAnnnotateBytecode: aDRAnnotateBytecode [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitBitAnd: aDRBitAnd [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitBitOr: aDRBitOr [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitBitShift: aDRBitShift [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitBitXor: aDRBitOr [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitBranchIfCondition: aDRConditionalBranch [
 
 	| domain id constraint isBranchIfTrue |
@@ -270,37 +272,37 @@ DRCPSEdge >> visitBranchIfCondition: aDRConditionalBranch [
 		  ifFalse: [ self mergeConstraint: constraint negated to: id ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitBytecodeJump: aDRBytecodeJump [ 
 	
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitCall: aDRCall [ 
 	
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitClosureActivation: aDRClosureActivation [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitClosureCreation: aDRClosureCreation [ 
 	
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitCogitSendMarshall: aDRCogitSendMarshall [ 
 	
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure [
 
 	| operands constantValue |
@@ -326,13 +328,13 @@ DRCPSEdge >> visitComparison: aDRComparison ofBranch: aDRBranch andDo: aClosure 
 	^ aClosure value: operands first value: constantValue
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitConstant: aDRConstantValue [ 
 	
 	^ aDRConstantValue 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitCopy: aDRCopy [
 
 	| constraint operand |
@@ -348,19 +350,19 @@ DRCPSEdge >> visitCopy: aDRCopy [
 	^ self addConstraint: constraint forInstruction: aDRCopy
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitDeoptimize: aDRDeoptimize [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitDivision: aDRDivision [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBranch [
 
 	^ self
@@ -369,44 +371,44 @@ DRCPSEdge >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBranch [
 		  andDo: [ :reg :value | DRRegisterDomain equals: reg than: value ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitFalseObject: aDRFalseObject [
 
 	^ aDRFalseObject
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitFloatToIntConversion: aDRFloatToInt [ 
 	
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitFlushStack: aDRFlushStack [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitGetConditionCode: aDRGetConditionCode [
 	
 	"Condition codes do not contribute constraints per se, only when they are used directly from a branch"
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitGetFloatBits: aDRGetFloatBits [ 
 	
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitGetFloatFromBits: aDRGetFloatFromBits [ 
 	
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitGreaterOrEqualsThan: aDRGreaterOrEqualsThanComparison inBranch: aDRBranch [
 
 	^ self
@@ -416,7 +418,7 @@ DRCPSEdge >> visitGreaterOrEqualsThan: aDRGreaterOrEqualsThanComparison inBranch
 		  DRRegisterDomain greaterOrEquals: reg than: value ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranch [
 
 	^ self
@@ -425,61 +427,61 @@ DRCPSEdge >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranch [
 		  andDo: [ :reg :value | DRRegisterDomain greater: reg than: value ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitIntToFloatConversion: aDRIntToFloat [ 
 	
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitInterpreterExpression: aDRInterpreterExpression [
 
 	^ nil "Not supported"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitInterpreterReference: aDRInterpreterReference [
 
 	^ nil "Not supported"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitInterpreterValue: aDRInterpreterValue [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitJITCompileTimeExpression: aDRJitCompileTimeExpression [
 	
 	^ nil "Not supported"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitJITMessageSend: aDRMessageSend [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitJump: aDRJump [ 
 
 	"Simple jumps do not have type constraints"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitLeftRotate: aDRRotate [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitLeftShift: aDRLeftShift [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitLessOrEqualsThan: aDRLessOrEqualsThanComparison inBranch: aDRBranch [
 
 	^ self
@@ -489,7 +491,7 @@ DRCPSEdge >> visitLessOrEqualsThan: aDRLessOrEqualsThanComparison inBranch: aDRB
 		  DRRegisterDomain lessOrEquals: reg than: value ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitLessThan: aDRLessThanComparison inBranch: aDRBranch [
 
 	^ self
@@ -498,93 +500,93 @@ DRCPSEdge >> visitLessThan: aDRLessThanComparison inBranch: aDRBranch [
 		  andDo: [ :reg :value | DRRegisterDomain less: reg than: value ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitLoad: aDRLoad [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitLoadArgument: aDRLoadArgument [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitLoadFramePointer: aDRLoadFramePointer [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitLoadInstVar: aDRLoadInstanceVariable [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitLoadReceiver: aDRLoadReceiver [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitLoadStackPointer: aDRLoadStackPointer [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitLoadStackValue: aDRLoadStackValue [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitMessageSend: aDRMessageSend [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitMod: aDRMod [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitMultiply: aDRMultiply [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitMultiplyOverflow: aDROverflow inBranch: aDRBranch [ 
 	
 	self flag: #TODO. "Do nothing?"
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitNegate: aDRNegate [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitNoOverflow: aDROverflow inBranch: aDRBranch [ 
 	
 	self flag: #TODO. "Do nothing?"
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitNoop: aDRNoop [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitNotEqualsThan: aDRNotEqualsThanComparison inBranch: aDRBranch [ 
 	
 	^ self
@@ -593,26 +595,26 @@ DRCPSEdge >> visitNotEqualsThan: aDRNotEqualsThanComparison inBranch: aDRBranch 
 		  andDo: [ :reg :value | DRRegisterDomain notEquals: reg than: value ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitNullValue: aDRNullValue [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitOr: aDROr [
 		
 	^ self composedConstraint: DRUnionConstraint from: aDROr
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitOverflow: aDROverflow inBranch: aDRBranch [ 
 	
 	self flag: #TODO. "Do nothing?"
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitPhiFunction: aDRPhiFunction [
 
 	| branchOperand sourcePredecessor index constraint |
@@ -632,25 +634,25 @@ DRCPSEdge >> visitPhiFunction: aDRPhiFunction [
 		  self addConstraint: constraint forInstruction: aDRPhiFunction ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitPhysicalRegister: aDRPhysicalRegister [ 
 	
 	^ self constraintFor: aDRPhysicalRegister name
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitPop: aDRPop [ 
 	
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitPush: aDRPush [ 
 	
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitReturn: aDRReturn [
 
 	"Returns do not have type constraints"
@@ -658,37 +660,37 @@ DRCPSEdge >> visitReturn: aDRReturn [
 	
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitSignedRightShift: aDRRightShift [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitStore: aDRLoad [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitSubstract: aDRSubtract [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitTestMask: aDRTestMask inBranch: aDRBranch [
 
 	^ self
@@ -697,13 +699,13 @@ DRCPSEdge >> visitTestMask: aDRTestMask inBranch: aDRBranch [
 		  andDo: [ :reg :value | DRRegisterDomain mask: reg with: value ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitTrueObject: aDRTrueObject [
 
 	^ aDRTrueObject
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitTypeOf: aDRTypeOf inBranch: aDRBranch [ 
 
 		^ self
@@ -712,19 +714,19 @@ DRCPSEdge >> visitTypeOf: aDRTypeOf inBranch: aDRBranch [
 		  andDo: [ :reg :type | DRRegisterDomain type: reg with: type value ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitUnsignedRightShift: aDRRightShift [ 
 
 	^ nil
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCPSEdge >> visitUnspillStackSlot: aDRUnspillStackSlot [ 
 	
 	^ nil

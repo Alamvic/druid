@@ -1,23 +1,25 @@
 Class {
-	#name : #DRTreegraphBytecodeGenerator,
-	#superclass : #Object,
+	#name : 'DRTreegraphBytecodeGenerator',
+	#superclass : 'Object',
 	#instVars : [
 		'builder',
 		'methodName',
 		'numArgs',
 		'workingListBlocks'
 	],
-	#category : #'Druid-BytecodeGeneration'
+	#category : 'Druid-BytecodeGeneration',
+	#package : 'Druid',
+	#tag : 'BytecodeGeneration'
 }
 
-{ #category : #'cfg-to-ir' }
+{ #category : 'cfg-to-ir' }
 DRTreegraphBytecodeGenerator >> generateAllBlocks [
 
 	[ workingListBlocks isEmpty ] whileFalse: [
 		self generateBytecodesForNextBlock ]
 ]
 
-{ #category : #'cfg-to-ir' }
+{ #category : 'cfg-to-ir' }
 DRTreegraphBytecodeGenerator >> generateBranch: aDRBranch [
 
 	| lastBlockInOneBranch |
@@ -41,7 +43,7 @@ DRTreegraphBytecodeGenerator >> generateBranch: aDRBranch [
 	builder jumpAheadTarget: #end
 ]
 
-{ #category : #'cfg-to-ir' }
+{ #category : 'cfg-to-ir' }
 DRTreegraphBytecodeGenerator >> generateBytecodeForInstruction: anInstruction [
 
 	| nDup |
@@ -57,33 +59,33 @@ DRTreegraphBytecodeGenerator >> generateBytecodeForInstruction: anInstruction [
 	nDup timesRepeat: [ builder pushDup ] 
 ]
 
-{ #category : #'cfg-to-ir' }
+{ #category : 'cfg-to-ir' }
 DRTreegraphBytecodeGenerator >> generateBytecodesForBlock: aDRBasicBlock [
 
 	aDRBasicBlock instructionsDo: [ :i |
 		self generateBytecodeForInstruction: i ]
 ]
 
-{ #category : #'cfg-to-ir' }
+{ #category : 'cfg-to-ir' }
 DRTreegraphBytecodeGenerator >> generateBytecodesForNextBlock [
 
 	self generateBytecodesForBlock: workingListBlocks removeFirst
 ]
 
-{ #category : #API }
+{ #category : 'API' }
 DRTreegraphBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
 
 	workingListBlocks := aDRControlFlowGraph reversePostOrderBlocks.
 	self generateAllBlocks
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRTreegraphBytecodeGenerator >> hasNextBlock [
 
 	^ workingListBlocks isNotEmpty
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRTreegraphBytecodeGenerator >> initialize [
 
 	builder := IRBuilder new.
@@ -91,30 +93,30 @@ DRTreegraphBytecodeGenerator >> initialize [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRTreegraphBytecodeGenerator >> methodName: aString [
 
 	methodName := aString
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRTreegraphBytecodeGenerator >> nextBlock [
 
 	^ workingListBlocks first
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRTreegraphBytecodeGenerator >> numArgs: anInteger [
 
 	numArgs := anInteger
 ]
 
-{ #category : #'ir-to-target' }
+{ #category : 'ir-to-target' }
 DRTreegraphBytecodeGenerator >> sendMessage: aString fromInstruction: aDRAdd [ 
 	self shouldBeImplemented.
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRTreegraphBytecodeGenerator >> targetAST [
 
 	| method ir |
@@ -125,13 +127,13 @@ DRTreegraphBytecodeGenerator >> targetAST [
 	^ method
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitAddition: aDRAdd [
 
 	builder send: #+
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitBranchIfCondition: aDRBranchIfCondition [
 
 	aDRBranchIfCondition condition
@@ -141,7 +143,7 @@ DRTreegraphBytecodeGenerator >> visitBranchIfCondition: aDRBranchIfCondition [
 	self generateBranch: aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitConstant: aDRConstantValue [
 
 	aDRConstantValue value isLiteral ifFalse: [
@@ -153,19 +155,19 @@ DRTreegraphBytecodeGenerator >> visitConstant: aDRConstantValue [
 	builder pushLiteral: aDRConstantValue value
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitCopy: aDRCopy [ 
 
 	"Operand was already pushed, so do nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRGetConditionCode [ 
 
 	builder send: #=
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 
 	aDRGetConditionCode condition
@@ -173,63 +175,63 @@ DRTreegraphBytecodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 		withBranch: aDRGetConditionCode
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitInterpreterValue: aDRInterpreterValue [ 
 
 	self flag: #TODO. "It is always self ?"
 	builder pushReceiver
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitJump: aDRJump [ 
 
 	"Fall directly"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 
 	builder addTemp: aDRLoadArgument argName.
 	builder pushTemp: aDRLoadArgument argName
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitLoadInstVar: aDRLoadInstanceVariable [
 
 	builder send: #instVarAt:
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitMessageSend: aDRMessageSend [
 
 	builder send: aDRMessageSend selector
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitMultiply: aDRMultiply [ 
 
 	builder send: #*
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitPhiFunction: aDRPhiFunction [ 
 
 	"Everything is resolved in the branch?"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitReturn: aDRReturn [
 
 	builder returnTop
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitSubstract: aDRSubtract [
 
 	builder send: #-
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitTypeOf: aDRTypeOf inBranch: aDRBranchIfCondition [ 
 
 	builder send: #isMemberOf:

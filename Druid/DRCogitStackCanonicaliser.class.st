@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCogitStackCanonicaliser,
-	#superclass : #DRCogitCanonicaliser,
-	#category : #'Druid-Cogit'
+	#name : 'DRCogitStackCanonicaliser',
+	#superclass : 'DRCogitCanonicaliser',
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackCanonicaliser >> visitPush: aDRPush [
 
 	| pushedValue |
@@ -16,7 +18,7 @@ DRCogitStackCanonicaliser >> visitPush: aDRPush [
 	aDRPush replaceDependency: pushedValue by: pushedValue address
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackCanonicaliser >> visitUnspillStackSlot: aDRUnspillStackSlot [ 
 	
 	"Nothing for now"

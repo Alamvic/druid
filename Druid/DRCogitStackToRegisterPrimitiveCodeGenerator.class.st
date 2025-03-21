@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCogitStackToRegisterPrimitiveCodeGenerator,
-	#superclass : #DRCogitPrimitiveCodeGenerator,
-	#category : #'Druid-Cogit'
+	#name : 'DRCogitStackToRegisterPrimitiveCodeGenerator',
+	#superclass : 'DRCogitPrimitiveCodeGenerator',
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterPrimitiveCodeGenerator >> visitLoadArgument: aDRLoadArgument [
 	"Just copy the Arg[X]Reg to the result"
 
@@ -15,7 +17,7 @@ DRCogitStackToRegisterPrimitiveCodeGenerator >> visitLoadArgument: aDRLoadArgume
 	self copyRegister: sourceRegister to: destinationRegister
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitStackToRegisterPrimitiveCodeGenerator >> visitPush: aDRPush [
 	"If the backend has not LinkReg
 		- then the return address is on TOS, we must push the value after it.

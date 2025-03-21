@@ -1,16 +1,18 @@
 Class {
-	#name : #DRBooleanInstruction,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRBooleanInstruction',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBooleanInstruction >> isComplexCondition [
 
 	^ true
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRBooleanInstruction >> sccpLatticeValueOperand: index for: sccp [
 
 	| operand value |
@@ -20,7 +22,7 @@ DRBooleanInstruction >> sccpLatticeValueOperand: index for: sccp [
 	^ value
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRBooleanInstruction >> type [
 	
 	^ DRBooleanType new

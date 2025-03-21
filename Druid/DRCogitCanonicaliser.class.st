@@ -1,16 +1,18 @@
 Class {
-	#name : #DRCogitCanonicaliser,
-	#superclass : #DROptimisation,
-	#category : #'Druid-Cogit'
+	#name : 'DRCogitCanonicaliser',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitCanonicaliser >> applyTo: cfg [
 
 	cfg instructions copy do: [ :e | e acceptVisitor: self ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> sortOperandsInDoubleInstructionIfPossible: aDRBinaryInstruction [
 	"If it is a pattern such as ((var op const) op X)
 	It is replaced by:
@@ -62,7 +64,7 @@ DRCogitCanonicaliser >> sortOperandsInDoubleInstructionIfPossible: aDRBinaryInst
 							   result: aDRBinaryInstruction result) ] ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> transformMultiplyByShiftIfPossible: aDRMultiply [
 
 	| exponent shiftInstr |
@@ -78,7 +80,7 @@ DRCogitCanonicaliser >> transformMultiplyByShiftIfPossible: aDRMultiply [
 		aDRMultiply replaceBy: shiftInstr ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitAddition: aDRAdd [
 	"Simplify res := a + 0 => res := a"
 
@@ -90,31 +92,31 @@ DRCogitCanonicaliser >> visitAddition: aDRAdd [
 	self sortOperandsInDoubleInstructionIfPossible: aDRAdd 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitAnnnotateBytecode: aDRAnnotateBytecode [ 
 
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitBitAnd: aDRBitAnd [
 
 	self sortOperandsInDoubleInstructionIfPossible: aDRBitAnd
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitBitOr: aDRBitOr [ 
 	
 	self sortOperandsInDoubleInstructionIfPossible: aDRBitOr
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitBitXor: aDRBitXor [ 
 	
 	self sortOperandsInDoubleInstructionIfPossible: aDRBitXor 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitBranchIfCondition: aDRConditionalBranch [
 	"Tail duplicate branches on (optimizable) phis"
 
@@ -125,43 +127,43 @@ DRCogitCanonicaliser >> visitBranchIfCondition: aDRConditionalBranch [
 				ifTrue: [ thePhi basicBlock tailDuplicate ] ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitBytecodeJump: aDRBytecodeJump [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitCall: aDRCall [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitClosureActivation: aDRClosureActivation [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitClosureCreation: aDRClosureCreation [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitCogitSendMarshall: aDRCogitSendMarshall [ 
 	
 	"Do nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
 	
 	"Do nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitCopy: aDRCopy [
 	"Remove instructions of the form: 
 		ReceiverResultReg := LoadReceiver"
@@ -171,26 +173,26 @@ DRCogitCanonicaliser >> visitCopy: aDRCopy [
 			 aDRCopy users isEmpty ] ]) ifTrue: [ aDRCopy removeFromCFG ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitDivision: aDRDivision [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitFloatToIntConversion: aDRFloatToInt [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitFlushStack: aDRFlushStack [
 	"Nothing"
 
 	
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitGetConditionCode: aDRGetConditionCode [
 
 	"Force collapse of conditional branches users - trying to clean this instruction"
@@ -199,48 +201,48 @@ DRCogitCanonicaliser >> visitGetConditionCode: aDRGetConditionCode [
 		thenDo: [ :branch | DRBranchCollapse new applyToBlock: branch basicBlock ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitGetFloatBits: aDRGetFloatBits [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitGetFloatFromBits: aDRGetFloatFromBits [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitIntToFloatConversion: aDRIntToFloat [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitJITMessageSend: aDRMessageSend [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitJump: aDRJump [ 
 	
 	"Nothing for jumps"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitLeftRotate: aDRRotate [ 
 	^ self
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitLeftShift: aDRLeftShift [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitLoad: aDRLoad [
 
 	| address addressOperands offsetOperand baseOperand addressExpression |
@@ -274,49 +276,49 @@ DRCogitCanonicaliser >> visitLoad: aDRLoad [
 			   yourself)
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitLoadArgument: aDRLoadArgument [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitLoadFramePointer: aDRLoadFramePointer [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitLoadReceiver: aDRLoadReceiver [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitLoadStackPointer: aDRLoadStackPointer [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitLoadStackValue: aDRLoadStackValue [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitMessageSend: aDRMessageSend [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitMod: aDRMod [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitMultiply: aDRMultiply [
 	"If possible, transform the multiplication by a shift"
 	self transformMultiplyByShiftIfPossible: aDRMultiply.
@@ -325,19 +327,19 @@ DRCogitCanonicaliser >> visitMultiply: aDRMultiply [
 	self sortOperandsInDoubleInstructionIfPossible: aDRMultiply
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitNegate: aDRNegate [ 
 
 	"Nothing?"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitNoop: aDRNoop [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [
 
 	| copy |
@@ -360,7 +362,7 @@ DRCogitCanonicaliser >> visitPhiFunction: aDRPhiFunction [
 		(aDRPhiFunction predecessorAtOperand: copy)
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitPop: aDRPop [
 	"Merge:
 		POP n
@@ -386,25 +388,25 @@ DRCogitCanonicaliser >> visitPop: aDRPop [
 			 result: DRNoRegister new)
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitPush: aDRPush [
 
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitReturn: aDRReturn [ 
 
 	"Do nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitSignedRightShift: aDRRightShift [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitStore: aDRStore [ 
 	
 	"General optimisation:
@@ -435,13 +437,13 @@ DRCogitCanonicaliser >> visitStore: aDRStore [
 		yourself)
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitStoreTempVar: aDRStoreTemporaryVariable [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitSubstract: aDRSubtract [
 	"Replace a subtractions of a constant by an addition to simplify transformations"
 
@@ -456,19 +458,19 @@ DRCogitCanonicaliser >> visitSubstract: aDRSubtract [
 					 result: aDRSubtract result) ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitTemporaryVariable: aDRLoadTemporaryVariable [ 
 
 	"Nothing?"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitUnsignedRightShift: aDRRightShift [ 
 	
 	"Nothing"

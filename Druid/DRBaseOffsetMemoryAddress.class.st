@@ -1,20 +1,22 @@
 Class {
-	#name : #DRBaseOffsetMemoryAddress,
-	#superclass : #DRAbstractMemoryAddress,
+	#name : 'DRBaseOffsetMemoryAddress',
+	#superclass : 'DRAbstractMemoryAddress',
 	#instVars : [
 		'base',
 		'offset'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBaseOffsetMemoryAddress >> acceptVisitor: aVisitor [ 
 	
 	^ aVisitor visitBaseOffsetMemoryAddress: self
 ]
 
-{ #category : #'meta-data' }
+{ #category : 'meta-data' }
 DRBaseOffsetMemoryAddress >> asDependencyList [
 
 	"Return myself as a list of dependencies, independently of MY dependencies.
@@ -22,38 +24,38 @@ DRBaseOffsetMemoryAddress >> asDependencyList [
 	^ { base . offset asDRValue }
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBaseOffsetMemoryAddress >> base [
 
 	^ base
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBaseOffsetMemoryAddress >> base: anObject [
 
 	base := anObject
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRBaseOffsetMemoryAddress >> name [
 
 	^ '[' , base result prettyPrint , ', offset='
 	  , offset asDRValue result prettyPrint , ']'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBaseOffsetMemoryAddress >> offset [
 
 	^ offset
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBaseOffsetMemoryAddress >> offset: anObject [
 
 	offset := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBaseOffsetMemoryAddress >> operands [
 
 	^ { 
@@ -61,7 +63,7 @@ DRBaseOffsetMemoryAddress >> operands [
 		  offset }
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRBaseOffsetMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 
 	base = anOperand ifTrue: [ ^ base := anotherOperand ].
@@ -70,7 +72,7 @@ DRBaseOffsetMemoryAddress >> replaceDependency: anOperand by: anotherOperand [
 	super replaceDependency: anOperand by: anotherOperand
 ]
 
-{ #category : #cogit }
+{ #category : 'cogit' }
 DRBaseOffsetMemoryAddress >> rtlArgumentExpressions: generator [
 
 	| offsetNode baseNode |
@@ -86,7 +88,7 @@ DRBaseOffsetMemoryAddress >> rtlArgumentExpressions: generator [
 		  baseNode }
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRBaseOffsetMemoryAddress >> sccpLatticeValueFor: aDRSCCP [ 
 
 	^ aDRSCCP bottom "?"

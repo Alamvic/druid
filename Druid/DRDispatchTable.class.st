@@ -51,15 +51,17 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #DRDispatchTable,
-	#superclass : #Object,
+	#name : 'DRDispatchTable',
+	#superclass : 'Object',
 	#instVars : [
 		'interpreterClass'
 	],
-	#category : #'Druid-CompilerBuilder'
+	#category : 'Druid-CompilerBuilder',
+	#package : 'Druid',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #examples }
+{ #category : 'examples' }
 DRDispatchTable class >> example [
 
 	| dispatchTable |
@@ -79,7 +81,7 @@ DRDispatchTable class >> example [
 	dispatchTable generateInterpreterTableIn: #TargetClass.
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRDispatchTable class >> for: anInterpreterClass [
 
 	^ self new
@@ -87,7 +89,7 @@ DRDispatchTable class >> for: anInterpreterClass [
 		yourself
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDispatchTable >> addFromProtocol: aString [
 	" Add all methods from the protocol named aString in the receiver's interpreter classs"
 
@@ -96,7 +98,7 @@ DRDispatchTable >> addFromProtocol: aString [
 		ifTrue: [ self methods addAll: (self interpreterProtocol methodsInProtocolNamed: aString) ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDispatchTable >> addFromProtocols: aCollectionOfProtocolNames [
 	" Add all methods from the protocol named aString in the receiver's interpreter classs"
 
@@ -105,24 +107,24 @@ DRDispatchTable >> addFromProtocols: aCollectionOfProtocolNames [
 		displayingProgress: [ : name | 'Adding primitives in ' , name ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDispatchTable >> generateInterpreterTableIn: aClassName [
 
 	self shouldBeImplemented
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRDispatchTable >> initializeFor: anInterpreterClass [
 
 	interpreterClass := anInterpreterClass
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDispatchTable >> interpreterClass [
 	^ interpreterClass
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 DRDispatchTable >> interpreterProtocol [
 	" Answer the <ProtocolOrganizer> for the receiver's interpreter "
 

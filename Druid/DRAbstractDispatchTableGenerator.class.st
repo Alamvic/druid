@@ -5,16 +5,18 @@ Methods starting with `build` answer Pharo Code Generator node instances, used t
 
 "
 Class {
-	#name : #DRAbstractDispatchTableGenerator,
-	#superclass : #Object,
+	#name : 'DRAbstractDispatchTableGenerator',
+	#superclass : 'Object',
 	#instVars : [
 		'primTableNode',
 		'compilationUnit'
 	],
-	#category : #'Druid-CompilerBuilder'
+	#category : 'Druid-CompilerBuilder',
+	#package : 'Druid',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRAbstractDispatchTableGenerator class >> fromCompilationUnit: aDRCompilationUnit [
 	"Answer a <DRCogitPrimitiveInstaller> method representation of aDRCompilationUnit"
 
@@ -23,88 +25,96 @@ DRAbstractDispatchTableGenerator class >> fromCompilationUnit: aDRCompilationUni
 		yourself
 ]
 
-{ #category : #'accessing - building' }
+{ #category : 'adding' }
+DRAbstractDispatchTableGenerator >> addGeneratedComment: aRBMethodNode [
+
+	"TODO: Duplicated from DRGeneratorMethodBuilder >> #methodNode"
+
+	aRBMethodNode comments:
+		{ (RBComment with: (RBCommentToken value: self methodComment in: 1)) }
+]
+
+{ #category : 'accessing - building' }
 DRAbstractDispatchTableGenerator >> arrayAccessorGlobalName [
 
 	self subclassResponsibility
 ]
 
-{ #category : #'accessing - building' }
+{ #category : 'accessing - building' }
 DRAbstractDispatchTableGenerator >> buildInitializePrimitiveTableArrayMethodNode [
-	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
-	primTableNode := (PCGMethodNode selector: #primitiveTableArray)
-			bodyBlock: [ :body |
-				body << self buildPrimitiveTableArrayNode ].
+	primTableNode := RBMethodNode 
+		selector: #primitiveTableArray
+		body: self buildPrimitiveTableArrayNode asSequenceNode.
 	^ primTableNode
 ]
 
-{ #category : #'accessing - building' }
+{ #category : 'accessing - building' }
 DRAbstractDispatchTableGenerator >> buildInitializePrimitiveTableAssignmentNode [
 
 	self subclassResponsibility
 ]
 
-{ #category : #'accessing - building' }
+{ #category : 'accessing - building' }
 DRAbstractDispatchTableGenerator >> buildInitializePrimitiveTableIVarAssignmentNode [
 
-	^ PCGAssignmentNode new
-		  variable: self buildPrimitiveTableVariableNode;
+	^ RBAssignmentNode
+		  variable: (RBVariableNode named: self primitiveTableVariableName)
 		  value: self buildPrimitiveTableInitialValueNode
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractDispatchTableGenerator >> buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode [
 
-	^ PCGAssignmentNode new
-		  variable: self maxPrimitiveIndexGlobalName asPCGGlobal;
-		  value: self maxCompiledPrimitives asPCG
+	^ RBAssignmentNode
+		  variable: (RBVariableNode named: self maxPrimitiveIndexGlobalName )
+		  value: self maxCompiledPrimitives
 ]
 
-{ #category : #'accessing - building' }
+{ #category : 'accessing - building' }
 DRAbstractDispatchTableGenerator >> buildInitializePrimitiveTableMethodNode [
 	"Answer a <PCGMethodNode> ready for installation in a JIT compiler class"
 
-	^ (PCGMethodNode selector: self initPrimitiveTableSelector) bodyBlock: [ : body |
-		  body
-			<< self buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode;
-			<< self buildInitializePrimitiveTableIVarAssignmentNode;
-			<< self buildInitializePrimitiveTableAssignmentNode;
-			<< self buildPrimitiveTableVariableNode returnIt ]
+	^ RBMethodNode
+		  selector: self initPrimitiveTableSelector
+		  body: (RBSequenceNode statements: {
+					   self buildInitializePrimitiveTableMaxCompiledPrimitiveIndexNode.
+					   self buildInitializePrimitiveTableIVarAssignmentNode.
+					   self buildInitializePrimitiveTableAssignmentNode.
+					   RBReturnNode value: (RBVariableNode named: self primitiveTableVariableName) })
 ]
 
-{ #category : #'accessing - building' }
+{ #category : 'accessing - building' }
 DRAbstractDispatchTableGenerator >> buildPrimitiveTableArrayNode [
-	"Answer a <PCGReturnNode> with the primitive table initialization setter message send"
 
-	^ self primitiveTable asPCG returnIt
+	^ RBReturnNode value: self primitiveTable asArray asLiteralNode
 ]
 
-{ #category : #'accessing - primitives' }
+{ #category : 'accessing - primitives' }
 DRAbstractDispatchTableGenerator >> buildPrimitiveTableVariableNode [
 
 	^ #primitiveTable asPCGInstanceVariable
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractDispatchTableGenerator >> compilationUnit [
 
 	^ compilationUnit
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractDispatchTableGenerator >> compilationUnit: anObject [
 
 	compilationUnit := anObject
 ]
 
-{ #category : #'accessing - building' }
+{ #category : 'accessing - building' }
 DRAbstractDispatchTableGenerator >> initPrimitiveTableSelector [
 
 	self subclassResponsibility
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractDispatchTableGenerator >> maxCompiledPrimitives [
 	"Answer the <Number> of compiled primitives in the receiver"
 
@@ -116,26 +126,38 @@ DRAbstractDispatchTableGenerator >> maxCompiledPrimitives [
 	This method returns the primID of the last entry of the table
 	"
 	| arrayNode |
-	arrayNode := self primTableNode returnNode value.
-	arrayNode statements ifEmpty: [ ^ 0 ].
-	^ arrayNode statements last statements first
+	arrayNode := self primTableNode statements last value.
+	arrayNode contents ifEmpty: [ ^ 0 asLiteralNode ].
+	^ arrayNode contents last contents first
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRAbstractDispatchTableGenerator >> maxPrimitiveIndexGlobalName [
 
 	self subclassResponsibility
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
+DRAbstractDispatchTableGenerator >> methodComment [
+
+	^ 'AutoGenerated by Druid'
+]
+
+{ #category : 'accessing' }
 DRAbstractDispatchTableGenerator >> primTableNode [
 
 	^ primTableNode
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRAbstractDispatchTableGenerator >> primitiveTable [
 	"Answer a <Collection> with primitive table entries"
 
 	^ self compilationUnit primitiveTable
+]
+
+{ #category : 'accessing - primitives' }
+DRAbstractDispatchTableGenerator >> primitiveTableVariableName [
+
+	^ #primitiveTable
 ]

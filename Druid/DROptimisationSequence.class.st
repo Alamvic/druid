@@ -1,32 +1,34 @@
 Class {
-	#name : #DROptimisationSequence,
-	#superclass : #DROptimisation,
+	#name : 'DROptimisationSequence',
+	#superclass : 'DROptimisation',
 	#instVars : [
 		'sequence'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #adding }
+{ #category : 'adding' }
 DROptimisationSequence >> addOptimisation: anOptimisation [
 
 	sequence add: anOptimisation
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DROptimisationSequence >> applyTo: anIR [
 
 	sequence do: [ :each | each applyTo: anIR ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DROptimisationSequence >> initialize [
 
 	super initialize.
 	sequence := OrderedCollection new
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DROptimisationSequence >> prettyPrint [
 
 	^ String streamContents: [ :stream | 
@@ -38,7 +40,7 @@ DROptimisationSequence >> prettyPrint [
 		  stream nextPutAll: sequence last prettyPrint ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DROptimisationSequence >> then: anotherOptimisation [
 
 	self addOptimisation: anotherOptimisation.

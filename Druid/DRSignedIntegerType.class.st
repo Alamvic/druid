@@ -1,10 +1,12 @@
 Class {
-	#name : #DRSignedIntegerType,
-	#superclass : #DRIntegerType,
-	#category : #'Druid-IR-Types'
+	#name : 'DRSignedIntegerType',
+	#superclass : 'DRIntegerType',
+	#category : 'Druid-IR-Types',
+	#package : 'Druid',
+	#tag : 'IR-Types'
 }
 
-{ #category : #interpreting }
+{ #category : 'interpreting' }
 DRSignedIntegerType >> bitShift: shiftValue [
 
 	^ shiftValue > 0
@@ -12,13 +14,13 @@ DRSignedIntegerType >> bitShift: shiftValue [
 		ifFalse: [ self >> shiftValue negated ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRSignedIntegerType >> isUnsigned [
 	
 	^ false
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSignedIntegerType >> systemClass [
 	
 	^ Integer

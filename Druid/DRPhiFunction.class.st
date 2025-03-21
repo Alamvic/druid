@@ -1,10 +1,12 @@
 Class {
-	#name : #DRPhiFunction,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRPhiFunction',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #'instance-creation' }
+{ #category : 'instance-creation' }
 DRPhiFunction class >> joinedVariables: aCollection [ 
 
 	^ self new
@@ -12,39 +14,39 @@ DRPhiFunction class >> joinedVariables: aCollection [
 		yourself
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRPhiFunction >> acceptVisitor: aVisitor [ 
 	
 	^ aVisitor visitPhiFunction: self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPhiFunction >> addNext: anotherInstruction [
 	
 	^ basicBlock addInstructionFirst: anotherInstruction
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRPhiFunction >> addOperand [
 
 	operands add: DRNullValue new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPhiFunction >> addValue: anInstruction [
 
 	operands add: anInstruction.
 	anInstruction addUser: self.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPhiFunction >> addValue: anInstruction forPredecessor: aDRBasicBlock [ 
 	
 	self assert: self basicBlock predecessors last = aDRBasicBlock.
 	operands addLast: anInstruction
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRPhiFunction >> asJitCompileTimeExpression [
 	
 	"If staged, a phi function has the same value as its result.
@@ -53,13 +55,13 @@ DRPhiFunction >> asJitCompileTimeExpression [
 	^ result name asDRValue asJitCompileTimeExpression  
 ]
 
-{ #category : #'loop-invariance' }
+{ #category : 'loop-invariance' }
 DRPhiFunction >> canMoveOutsideLoop: backJump [
 
 	^ false
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPhiFunction >> conditionalBranch [
 
 	| dominator conditionalBranch |
@@ -69,34 +71,34 @@ DRPhiFunction >> conditionalBranch [
 	^ conditionalBranch
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPhiFunction >> hasRecursiveUse [
 
 	self recursiveUsersDo: [ :i | i = self ifTrue: [ ^ true ] ].
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPhiFunction >> initialize [
 
 	super initialize.
 	operands := OrderedCollection new.
 ]
 
-{ #category : #operands }
+{ #category : 'operands' }
 DRPhiFunction >> isDominatedBy: anotherOperand [
 
 	^ (super isDominatedBy: anotherOperand) or: [ 
 		  anotherOperand basicBlock hasFrontier: self basicBlock ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPhiFunction >> isEmpty [
 	
 	^ operands isEmpty 
 ]
 
-{ #category : #'loop-invariance' }
+{ #category : 'loop-invariance' }
 DRPhiFunction >> isInvariantFrom: loop [
 
 	"This is thought for phis inside loop header blocks. 
@@ -105,13 +107,13 @@ DRPhiFunction >> isInvariantFrom: loop [
 	^ (self valuesForPredecessor: loop latchBlock) anySatisfy: #isNullValue.
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPhiFunction >> isJITCompileTimeExpression [
 	
 	^ self operands allSatisfy: [ :op | op isJITCompileTimeExpressionIgnoring: { self } ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPhiFunction >> isJITCompileTimeExpressionIgnoring: aCollection [
 
 	(aCollection includes: self) ifTrue: [ ^ true "?" ].
@@ -120,39 +122,39 @@ DRPhiFunction >> isJITCompileTimeExpressionIgnoring: aCollection [
 		  op isJITCompileTimeExpressionIgnoring: aCollection , { self } ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPhiFunction >> isPhiFunction [
 
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPhiFunction >> joinedVariables: aCollection [
 
 	self operands: aCollection
 ]
 
-{ #category : #operands }
+{ #category : 'operands' }
 DRPhiFunction >> mergeOperands: anotherOperands [
 
 	operands with: anotherOperands do: [ :op1 :op2 | 
 		self replaceOperand: op1 by: (self selectOperand: op1 with: op2) ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPhiFunction >> name [
 	
 	^ self result name
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRPhiFunction >> opcode [
 	
 	^ 'Ø'
 	 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPhiFunction >> predecessorAtOperand: anOperand [
 
 	| index |
@@ -160,7 +162,7 @@ DRPhiFunction >> predecessorAtOperand: anOperand [
 	^ self basicBlock predecessorAt: index
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
 
 	"If this is a recursive phi instruction, we do not care about the operands"
@@ -168,7 +170,7 @@ DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
 	super replaceOperand: anOperand by: anotherOperand
 ]
 
-{ #category : #'users-definitions' }
+{ #category : 'users-definitions' }
 DRPhiFunction >> replaceOperandAtPredecessor: predecessor by: anotherOperand [
 
 	| index |
@@ -176,7 +178,7 @@ DRPhiFunction >> replaceOperandAtPredecessor: predecessor by: anotherOperand [
 	self replaceOperandAtIndex: index by: anotherOperand
 ]
 
-{ #category : #replace }
+{ #category : 'replace' }
 DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
 	| replacingOperands |
@@ -193,13 +195,13 @@ DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 	^ self replaceBy: (self basicBlock phiWithVariables: replacingOperands)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPhiFunction >> result [
 	
 	^ result ifNil: [ self ]
 ]
 
-{ #category : #'loop-invariance' }
+{ #category : 'loop-invariance' }
 DRPhiFunction >> rewirePhiTo: destinationBlock [
 
 	| newOperandValues phiReplacement |
@@ -209,13 +211,13 @@ DRPhiFunction >> rewirePhiTo: destinationBlock [
 	self replaceBy: phiReplacement
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRPhiFunction >> sccpLatticeValueFor: sccp [
 
 	^ sccp latticeValueOfPhiFunction: self
 ]
 
-{ #category : #operands }
+{ #category : 'operands' }
 DRPhiFunction >> selectOperand: anOperand with: anotherOperand [
 
 	anOperand = anotherOperand ifTrue: [ ^ anOperand ].
@@ -224,7 +226,7 @@ DRPhiFunction >> selectOperand: anOperand with: anotherOperand [
 	^ anotherOperand
 ]
 
-{ #category : #'constant folding' }
+{ #category : 'constant folding' }
 DRPhiFunction >> simpleConstantFold [
 
 	| operandsWithoutMe operandValues |
@@ -236,7 +238,7 @@ DRPhiFunction >> simpleConstantFold [
 	^ super simpleConstantFold
 ]
 
-{ #category : #transforming }
+{ #category : 'transforming' }
 DRPhiFunction >> simplify [
 
 	| simplifiedOperands |
@@ -256,13 +258,13 @@ DRPhiFunction >> simplify [
 	^ self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPhiFunction >> supportConstantOperand [
 
 	^ false
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRPhiFunction >> type [
 
 	(self operands copyWithout: self) do: [ :o |
@@ -273,7 +275,7 @@ DRPhiFunction >> type [
 	^ DRUndefinedType new
 ]
 
-{ #category : #simplification }
+{ #category : 'simplification' }
 DRPhiFunction >> typeWithAlreadySeen: aCollection [
 
 	(aCollection includes: self)
@@ -288,7 +290,7 @@ DRPhiFunction >> typeWithAlreadySeen: aCollection [
 	self halt
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPhiFunction >> valuesForPredecessor: aDRBasicBlock [ 
 	
 	"Return a collection of all values in this Phi that correspond to the given basic block"

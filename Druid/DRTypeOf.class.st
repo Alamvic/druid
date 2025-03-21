@@ -1,13 +1,15 @@
 Class {
-	#name : #DRTypeOf,
-	#superclass : #DRCondition,
+	#name : 'DRTypeOf',
+	#superclass : 'DRCondition',
 	#instVars : [
 		'typeClass'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRTypeOf class >> typeClass: aClass [
 
 	| instance |
@@ -16,24 +18,24 @@ DRTypeOf class >> typeClass: aClass [
 	^ instance
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRTypeOf >> acceptVisitor: aVisitor withBranch: parentBranch [ 
 
 	^ aVisitor visitTypeOf: self inBranch: parentBranch
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRTypeOf >> isTypeOf [
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRTypeOf >> opcode [
 
 	^ 'type of ', typeClass typeName
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRTypeOf >> typeClass: aClass [
 	typeClass := aClass
 ]

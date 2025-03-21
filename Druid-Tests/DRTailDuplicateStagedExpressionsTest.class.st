@@ -1,17 +1,19 @@
 Class {
-	#name : #DRTailDuplicateStagedExpressionsTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRTailDuplicateStagedExpressionsTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRTailDuplicateStagedExpressionsTest >> setUp [
 
 	super setUp.
 	optimisation := DRCogitStager then: DRIsolateStagedJumps
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicateStagedExpressionsTest >> testNotTailDuplicatePhi [
 
 	| cfg nBlocks |
@@ -30,7 +32,7 @@ DRTailDuplicateStagedExpressionsTest >> testNotTailDuplicatePhi [
 	self assert: cfg blocks size equals: nBlocks
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRTailDuplicateStagedExpressionsTest >> testTailDuplicatePhi [
 
 	| cfg nBlocks |

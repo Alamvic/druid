@@ -1,17 +1,18 @@
 Class {
-	#name : #DRCogitStackToRegisterGeneratorTest,
-	#superclass : #DRCogitGeneratorTest,
-	#category : #'Druid-Tests'
+	#name : 'DRCogitStackToRegisterGeneratorTest',
+	#superclass : 'DRCogitGeneratorTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRCogitStackToRegisterGeneratorTest >> setUp [
 
 	super setUp.
 	generator := DRCogitStackToRegisterMappingGenerator new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackToRegisterGeneratorTest >> testGenerateIf [
 
 	| cfg |
@@ -22,7 +23,7 @@ DRCogitStackToRegisterGeneratorTest >> testGenerateIf [
 	self assert: self statements second selector equals: #ifTrue:
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackToRegisterGeneratorTest >> testGenerateMoveConstant [
 
 	| cfg r1 generatedASTInstruction |
@@ -38,7 +39,7 @@ DRCogitStackToRegisterGeneratorTest >> testGenerateMoveConstant [
 		equals: #methodObj
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackToRegisterGeneratorTest >> testGeneratePushBaseOffset [
 
 	| cfg basicBlock r1 orASTInstruction |
@@ -57,7 +58,7 @@ DRCogitStackToRegisterGeneratorTest >> testGeneratePushBaseOffset [
 	self assert: orASTInstruction arguments second value equals: 17
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRCogitStackToRegisterGeneratorTest >> testGenerateWhile [
 
 	| cfg |

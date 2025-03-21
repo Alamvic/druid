@@ -1,16 +1,18 @@
 Class {
-	#name : #DRBytecodeObject,
-	#superclass : #DRInterpreterInstruction,
+	#name : 'DRBytecodeObject',
+	#superclass : 'DRInterpreterInstruction',
 	#instVars : [
 		'bytecodeSize',
 		'bytecodeNumberEnd',
 		'bytecodeNumber',
 		'targetSelector'
 	],
-	#category : #'Druid-CompilerBuilder'
+	#category : 'Druid-CompilerBuilder',
+	#package : 'Druid',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #compiling }
+{ #category : 'compiling' }
 DRBytecodeObject >> annotatedDescriptors [
 
 	| complementaryThings |
@@ -29,7 +31,7 @@ DRBytecodeObject >> annotatedDescriptors [
 	^ complementaryThings
 ]
 
-{ #category : #compiling }
+{ #category : 'compiling' }
 DRBytecodeObject >> byteCodeEntries [
 
 	^ (bytecodeNumber to: bytecodeNumberEnd) collect: [ :e |
@@ -42,50 +44,50 @@ DRBytecodeObject >> byteCodeEntries [
 			  self genSelector }, self annotatedDescriptors ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeObject >> bytecodeNumber: anInteger [
 
 	bytecodeNumber := anInteger.
 	bytecodeNumberEnd := anInteger
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeObject >> bytecodeNumberEnd [
 
 	^ bytecodeNumberEnd
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeObject >> bytecodeNumberEnd: anObject [
 
 	bytecodeNumberEnd := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeObject >> bytecodeNumberStart [
 
 	^ bytecodeNumber
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeObject >> bytecodeNumberStart: anObject [
 
 	bytecodeNumber := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeObject >> bytecodeSize [
 
 	^ bytecodeSize
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeObject >> bytecodeSize: anObject [
 
 	bytecodeSize := anObject
 ]
 
-{ #category : #compiling }
+{ #category : 'compiling' }
 DRBytecodeObject >> compileUnitUsing: aCompiler [
 
 	| interpreter |
@@ -101,7 +103,7 @@ DRBytecodeObject >> compileUnitUsing: aCompiler [
 			compile ]
 ]
 
-{ #category : #translating }
+{ #category : 'translating' }
 DRBytecodeObject >> generate [
 
 	| compilerCompiler |
@@ -114,13 +116,13 @@ DRBytecodeObject >> generate [
 	^ self compileUsing: compilerCompiler
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeObject >> notSupportedSelector [
 
 	^ #unknownBytecode
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRBytecodeObject >> printOn: aStream [
 
 	aStream
@@ -133,19 +135,19 @@ DRBytecodeObject >> printOn: aStream [
 		<< self genSelector
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRBytecodeObject >> range [
 
 	^ self bytecodeNumberStart to: self bytecodeNumberEnd
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeObject >> targetSelector [
 
 	^ targetSelector ifNil: [ super targetSelector ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBytecodeObject >> targetSelector: anObject [
 
 	targetSelector := anObject

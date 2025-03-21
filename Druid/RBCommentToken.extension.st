@@ -1,6 +1,6 @@
-Extension { #name : #RBCommentToken }
+Extension { #name : 'RBCommentToken' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 RBCommentToken class >> value: aString in: aStartPosition [
 
 	^ self

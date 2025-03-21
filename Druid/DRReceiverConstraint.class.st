@@ -1,13 +1,15 @@
 Class {
-	#name : #DRReceiverConstraint,
-	#superclass : #Object,
+	#name : 'DRReceiverConstraint',
+	#superclass : 'Object',
 	#instVars : [
 		'constraint'
 	],
-	#category : #'Druid-IR-Paths'
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRReceiverConstraint class >> with: aConstraint [
 
 	^ self new
@@ -15,7 +17,7 @@ DRReceiverConstraint class >> with: aConstraint [
 		  yourself
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRReceiverConstraint >> addToEdge: aDRCPSEdge [
 
 	| loadReceiverInstructions |
@@ -26,7 +28,7 @@ DRReceiverConstraint >> addToEdge: aDRCPSEdge [
 		aDRCPSEdge addConstraint: constraint forInstruction: instruction ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRReceiverConstraint >> constraint: aDREqualsConstraint [ 
 	constraint := aDREqualsConstraint
 ]

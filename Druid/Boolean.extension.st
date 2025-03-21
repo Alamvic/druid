@@ -1,18 +1,18 @@
-Extension { #name : #Boolean }
+Extension { #name : 'Boolean' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 Boolean >> asBoolean [
 
 	^ self
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 Boolean >> isBooleanValue [
 
 	^ true
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 Boolean >> matchArgumentsAgainst: aPragma [
 
 	^ aPragma arguments anySatisfy: [ : arg | self = arg ]

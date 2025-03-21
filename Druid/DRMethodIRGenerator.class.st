@@ -1,16 +1,18 @@
 Class {
-	#name : #DRMethodIRGenerator,
-	#superclass : #DRIRGenerator,
-	#category : #'Druid-CompilerCompiler'
+	#name : 'DRMethodIRGenerator',
+	#superclass : 'DRIRGenerator',
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMethodIRGenerator >> finishCodeInterpretation: lastFrame [
 
 	currentBasicBlock return: lastFrame returnedValue
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRMethodIRGenerator >> initialize [
 
 	super initialize.
@@ -18,7 +20,7 @@ DRMethodIRGenerator >> initialize [
 	typeSystem := DRPragmaBasedTypeSystem new
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRMethodIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
@@ -27,7 +29,7 @@ DRMethodIRGenerator >> initializeSpecialCases [
 
 ]
 
-{ #category : #inline }
+{ #category : 'inline' }
 DRMethodIRGenerator >> inlineGenerator [
 
 	| newIR |
@@ -39,7 +41,7 @@ DRMethodIRGenerator >> inlineGenerator [
 	^ newIR
 ]
 
-{ #category : #interpreting }
+{ #category : 'interpreting' }
 DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
 	| value |
@@ -72,7 +74,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	self unexplored
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMethodIRGenerator >> numberOfArguments: aValue [ 
 	
 	super numberOfArguments: aValue.
@@ -80,20 +82,20 @@ DRMethodIRGenerator >> numberOfArguments: aValue [
 		self push: (self currentBasicBlock loadArgument: i) ]
 ]
 
-{ #category : #'frame-access' }
+{ #category : 'frame-access' }
 DRMethodIRGenerator >> popFrameMergingDeferredReturns [
 
 	self resolveDeferredMethodReturns: self topFrame.
 	^ executionState popFrame
 ]
 
-{ #category : #configure }
+{ #category : 'configure' }
 DRMethodIRGenerator >> receiver: aDRValue [
 
 	self push: aDRValue
 ]
 
-{ #category : #'deferred returns' }
+{ #category : 'deferred returns' }
 DRMethodIRGenerator >> resolveDeferredMethodReturns: aDRFrame [
 
 	| mirrorFrame newFrameReturn deferredReturnsBlock pieces deferredFrameReturn newReturn exitBasicBlock |
@@ -133,7 +135,7 @@ DRMethodIRGenerator >> resolveDeferredMethodReturns: aDRFrame [
 	aDRFrame clearDeferredMethodReturns
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
 
 	^ self
@@ -143,19 +145,19 @@ DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arg
 		  method: nil "Infer methods with a Type System"
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMethodIRGenerator >> typeSystem: aDRTypeSystem [
 
 	typeSystem := aDRTypeSystem
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [
 
 	self pushOperand: aRBVariableNode binding asDRValue
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
 	self
@@ -166,7 +168,7 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 				aRBVariableNode variable index asDRValue }
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
 	| value |

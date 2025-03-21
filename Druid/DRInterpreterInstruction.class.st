@@ -3,22 +3,24 @@ Abstract class to provide a source method, i.e., for example, in the interpreter
 
 "
 Class {
-	#name : #DRInterpreterInstruction,
-	#superclass : #Object,
+	#name : 'DRInterpreterInstruction',
+	#superclass : 'Object',
 	#instVars : [
 		'sourceMethod',
 		'supported'
 	],
-	#category : #'Druid-CompilerBuilder'
+	#category : 'Druid-CompilerBuilder',
+	#package : 'Druid',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #compiling }
+{ #category : 'compiling' }
 DRInterpreterInstruction >> compileUnitUsing: aCompiler [
 
 	self subclassResponsibility
 ]
 
-{ #category : #compiling }
+{ #category : 'compiling' }
 DRInterpreterInstruction >> compileUsing: aCompiler [
 
 	self supported ifFalse: [ ^ self ].
@@ -26,7 +28,7 @@ DRInterpreterInstruction >> compileUsing: aCompiler [
 	self compileUnitUsing: aCompiler
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterInstruction >> genSelector [
 	" Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (compiler) method"
 
@@ -35,38 +37,38 @@ DRInterpreterInstruction >> genSelector [
 	^ self targetSelector
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRInterpreterInstruction >> hasPragmaNamed: aString [
 
 	^ self sourceMethod hasPragmaNamed: aString
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRInterpreterInstruction >> initialize [
 
 	supported := true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterInstruction >> notSupportedSelector [
 	"Should return the selector used when this instruction is not supported in the compiler"
 
 	self subclassResponsibility
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterInstruction >> sourceMethod [
 
 	^ sourceMethod
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterInstruction >> sourceMethod: anObject [
 
 	sourceMethod := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterInstruction >> sourceSelector [
 
 	^ self sourceMethod
@@ -74,19 +76,19 @@ DRInterpreterInstruction >> sourceSelector [
 		  ifNotNil: [ :m | m selector ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterInstruction >> supported [
 
 	^ supported
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterInstruction >> supported: aBoolean [
 
 	supported := aBoolean
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRInterpreterInstruction >> targetSelector [
 	"Answer a <Symbol> specifying the JITed selector of the interpreter's counterpart (compiler) method"
 

@@ -1,10 +1,12 @@
 Class {
-	#name : #DRIsolateStagedJumps,
-	#superclass : #DRControlFlowOptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRIsolateStagedJumps',
+	#superclass : 'DRControlFlowOptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRIsolateStagedJumps >> doApply: cfg [
 
 	| jitCompileConditionalBlocks |

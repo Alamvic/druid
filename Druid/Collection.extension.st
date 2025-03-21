@@ -1,6 +1,6 @@
-Extension { #name : #Collection }
+Extension { #name : 'Collection' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 Collection >> unique [
 	
 	self assert: self size = 1.

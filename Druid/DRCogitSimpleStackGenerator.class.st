@@ -1,15 +1,17 @@
 Class {
-	#name : #DRCogitSimpleStackGenerator,
-	#superclass : #DRCogitBytecodeCodeGenerator,
+	#name : 'DRCogitSimpleStackGenerator',
+	#superclass : 'DRCogitBytecodeCodeGenerator',
 	#instVars : [
 		'variables',
 		'parent',
 		'nextVariableIndex'
 	],
-	#category : #'Druid-Cogit'
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRCogitSimpleStackGenerator >> allocateVariable: aDRResult [
 
 	| temporaryVariableNode variableIndex |
@@ -33,7 +35,7 @@ DRCogitSimpleStackGenerator >> allocateVariable: aDRResult [
 	^ temporaryVariableNode name
 ]
 
-{ #category : #'ir-to-ast' }
+{ #category : 'ir-to-ast' }
 DRCogitSimpleStackGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 
 	self assert: blocks isEmpty.
@@ -50,7 +52,7 @@ DRCogitSimpleStackGenerator >> generatePostambleForCFG: aDRControlFlowGraph [
 	super generatePostambleForCFG: aDRControlFlowGraph
 ]
 
-{ #category : #helpers }
+{ #category : 'helpers' }
 DRCogitSimpleStackGenerator >> generateRegisterAllocationFor: aDRResult inVariable: temporaryVariableNode [
 
 	generatorMethodBuilder addVariableNamed: temporaryVariableNode name.
@@ -59,7 +61,7 @@ DRCogitSimpleStackGenerator >> generateRegisterAllocationFor: aDRResult inVariab
 			 value: (RBVariableNode named: aDRResult name asString))
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRCogitSimpleStackGenerator >> initialize [
 
 	super initialize.
@@ -67,7 +69,7 @@ DRCogitSimpleStackGenerator >> initialize [
 	variables := Dictionary new
 ]
 
-{ #category : #copy }
+{ #category : 'copy' }
 DRCogitSimpleStackGenerator >> innerGenerator [
 
 	| innerGenerator |
@@ -76,39 +78,39 @@ DRCogitSimpleStackGenerator >> innerGenerator [
 	^ innerGenerator
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitSimpleStackGenerator >> parent: aDRCogitGenerator [
 
 	parent := aDRCogitGenerator
 ]
 
-{ #category : #copy }
+{ #category : 'copy' }
 DRCogitSimpleStackGenerator >> postCopy [
 
 	deferredBranches := deferredBranches copy.
 	^ self
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> rtlExpressionForValue: aValue [
 
 	variables at: aValue result ifPresent: [ :var | ^ RBVariableNode named: var ].
 	^ super rtlExpressionForValue: aValue
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitSimpleStackGenerator >> variables [
 
 	^ variables
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCogitSimpleStackGenerator >> variables: anObject [
 
 	variables := anObject
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitAnnnotateBytecode: aDRAnnotateBytecode [
 	"self annotateBytecode: self Label"
 
@@ -121,7 +123,7 @@ DRCogitSimpleStackGenerator >> visitAnnnotateBytecode: aDRAnnotateBytecode [
 					  arguments: #(  )) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitBytecodeJump: aDRBytecodeJump [
 	"self Jump: (self ensureFixupAt: targetBytecode)"
 
@@ -139,7 +141,7 @@ DRCogitSimpleStackGenerator >> visitBytecodeJump: aDRBytecodeJump [
 					  arguments: { targetBytecode }) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitClosureCreation: aDRClosureCreation [
 
 	"Create the closure and save it in ReceiverResultReg"
@@ -165,13 +167,13 @@ DRCogitSimpleStackGenerator >> visitClosureCreation: aDRClosureCreation [
 	copy acceptVisitor: self
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitCogitSendMarshall: aDRCogitSendMarshall [ 
 
 	"Avoid marshalling in SimpleStack"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
 	
 	"This is a continuation to the next bytecode.
@@ -185,7 +187,7 @@ DRCogitSimpleStackGenerator >> visitContinueNextBytecode: aDRContinueNextBytecod
 		target: #nextBytecode
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitDeoptimize: aDRDeoptimize [
 
 	generatorMethodBuilder addStatement:
@@ -194,14 +196,14 @@ DRCogitSimpleStackGenerator >> visitDeoptimize: aDRDeoptimize [
 			 selector: #deoptimize)
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitFlushStack: aDRFlushStack [ 
 
 	"Nothing! There are not sym stack on simple stack VMs."
 	"TODO: Avoid DRFlushStack instructions on primitive meta-compilation"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitJITMessageSend: aDRMessageSend [
 	"self genMarshalledSend: selectorIndex numArgs: numArgs sendTable: aSendTable"
 
@@ -214,7 +216,7 @@ DRCogitSimpleStackGenerator >> visitJITMessageSend: aDRMessageSend [
 				(RBVariableNode named: aDRMessageSend sendTable value) })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitLoadFramePointer: aDRLoadFramePointer [
 
 	self twoOperandMoveCogitRTL: aDRLoadFramePointer operands: {
@@ -222,7 +224,7 @@ DRCogitSimpleStackGenerator >> visitLoadFramePointer: aDRLoadFramePointer [
 			aDRLoadFramePointer }
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitLoadReceiver: aDRLoadReceiver [
 
 	generatorMethodBuilder addStatement:
@@ -234,7 +236,7 @@ DRCogitSimpleStackGenerator >> visitLoadReceiver: aDRLoadReceiver [
 			aDRLoadReceiver }
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitLoadStackPointer: aDRLoadStackPointer [
 
 	self twoOperandMoveCogitRTL: aDRLoadStackPointer operands: {
@@ -242,7 +244,7 @@ DRCogitSimpleStackGenerator >> visitLoadStackPointer: aDRLoadStackPointer [
 			aDRLoadStackPointer }
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitPop: aDRPop [
 
 	aDRPop numberOfPoppedElements isNumber ifFalse: [ self halt ].
@@ -253,7 +255,7 @@ DRCogitSimpleStackGenerator >> visitPop: aDRPop [
 			 arguments: { RBLiteralNode value: aDRPop numberOfPoppedElements })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitReturn: aDRReturn [
 	"Generate the postamble in the return cases"
 
@@ -276,13 +278,13 @@ DRCogitSimpleStackGenerator >> visitReturn: aDRReturn [
 			 selector: generator)
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitStagedInstruction: aDRStagedInstruction [ 
 	
 	^ aDRStagedInstruction stagedInstruction acceptVisitor: self
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -299,7 +301,7 @@ DRCogitSimpleStackGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 					 (RBVariableNode named: 'FPReg') })
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [ 
 
 	"self MoveMw: (self frameOffsetOfTemporary: index) r: FPReg R: TempReg."

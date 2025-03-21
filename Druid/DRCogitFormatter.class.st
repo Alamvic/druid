@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCogitFormatter,
-	#superclass : #EFFormatter,
-	#category : #'Druid-Cogit'
+	#name : 'DRCogitFormatter',
+	#superclass : 'EFFormatter',
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitFormatter >> visitAssignmentNode: assignmentNode [
 
 	(assignmentNode value isMessage and: [ 

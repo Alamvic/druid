@@ -1,22 +1,24 @@
 Class {
-	#name : #DRLogicalLeftShift,
-	#superclass : #DRArithmeticInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRLogicalLeftShift',
+	#superclass : 'DRArithmeticInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRLogicalLeftShift >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitLeftShift: self
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRLogicalLeftShift >> sccpOperateOnLattice: anInteger and: anInteger2 [ 
 	
 	^ anInteger << anInteger2
 ]
 
-{ #category : #types }
+{ #category : 'types' }
 DRLogicalLeftShift >> type [
 
 	^ DRUnsignedIntegerType bits64

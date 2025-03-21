@@ -1,6 +1,6 @@
 Class {
-	#name : #DRStackFrame,
-	#superclass : #Object,
+	#name : 'DRStackFrame',
+	#superclass : 'Object',
 	#instVars : [
 		'receiver',
 		'method',
@@ -11,16 +11,18 @@ Class {
 		'mirrorFrame',
 		'returnValue'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #'non local returns' }
+{ #category : 'non local returns' }
 DRStackFrame >> addDeferredReturnState: aDRExecutionState [ 
 	
 	^ mirrorFrame addDeferredReturnState: aDRExecutionState 
 ]
 
-{ #category : #merging }
+{ #category : 'merging' }
 DRStackFrame >> addTo: aDRStackFrame [ 
 	
 	"Add my values to the argument.
@@ -35,43 +37,43 @@ DRStackFrame >> addTo: aDRStackFrame [
 	aDRStackFrame returnValue addValue: self returnValue
 ]
 
-{ #category : #'deferred returns' }
+{ #category : 'deferred returns' }
 DRStackFrame >> clearDeferredMethodReturns [
 
 	mirrorFrame clearDeferredMethodReturns
 ]
 
-{ #category : #'non lo' }
+{ #category : 'non lo' }
 DRStackFrame >> deferredMethodReturns [
 	
 	^ mirrorFrame deferredMethodReturns
 ]
 
-{ #category : #temporaries }
+{ #category : 'temporaries' }
 DRStackFrame >> defineVariableNamed: aName [ 
 	
 	temporaries at: aName put: DRNullValue new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> definedTemporaryNames [
 	
 	^ method argumentNames, method temporaryNames
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> entryBasicBlock [
 
 	^ entryBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> entryBasicBlock: anObject [
 
 	entryBasicBlock := anObject
 ]
 
-{ #category : #temporaries }
+{ #category : 'temporaries' }
 DRStackFrame >> frameDefining: aName withState: aState [
 	
 	(temporaries includesKey: aName)
@@ -82,13 +84,13 @@ DRStackFrame >> frameDefining: aName withState: aState [
 		withState: aState
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStackFrame >> hasTemporaryNamed: aName [
 
 	^ temporaries includesKey: aName
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> homeFrame [
 
 	"The home frame of a frame is the method frame where the current frame is defined.
@@ -101,13 +103,13 @@ DRStackFrame >> homeFrame [
 	^ self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> homeFrameWithState: aState [
 	
 	^ self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> initialize [
 
 	super initialize.
@@ -116,59 +118,59 @@ DRStackFrame >> initialize [
 	temporaries := Dictionary new.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> irGenerator [
 
 	^ irGenerator
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> irGenerator: anObject [
 
 	irGenerator := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> method [
 
 	^ method
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> method: anObject [
 
 	method := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> mirrorFrame [
 	^ mirrorFrame
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> mirrorFrame: aDRMirrorFrame [ 
 	mirrorFrame := aDRMirrorFrame
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> operandStack [
 
 	^ operandStack
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> operandStack: anObject [
 
 	operandStack := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> pop [
 
 	^ operandStack pop
 ]
 
-{ #category : #copying }
+{ #category : 'copying' }
 DRStackFrame >> postCopy [
 
 	super postCopy.
@@ -176,7 +178,7 @@ DRStackFrame >> postCopy [
 	operandStack := operandStack copy.
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRStackFrame >> printOn: stream [
 
 	stream
@@ -186,83 +188,83 @@ DRStackFrame >> printOn: stream [
 		nextPutAll: ')'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> push: aValue [
 
 	operandStack push: aValue
 ]
 
-{ #category : #temporaries }
+{ #category : 'temporaries' }
 DRStackFrame >> readTemporaryNamed: aString [ 
 	
 	^ temporaries at: aString
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> receiver [
 
 	^ receiver
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> receiver: aCogVMSimulatorLSB [ 
 	receiver := aCogVMSimulatorLSB
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> receiverWithState: aState [
 	^ receiver
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> returnValue [
 
 	^ returnValue
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> returnValue: aValue [
 
 	^ returnValue := aValue
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> returnedValue [
 
 	^ mirrorFrame poppedValue ifNil: [ self returnValue ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> stackTop [
 	
 	^ operandStack top
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> temporariesDo: aFullBlockClosure [ 
 	
 	temporaries valuesDo: aFullBlockClosure
 ]
 
-{ #category : #temporaries }
+{ #category : 'temporaries' }
 DRStackFrame >> temporaryAt: aName put: aValue withState: aState [
 
 	(self frameDefining: aName withState: aState) writeTemporaryNamed: aName withValue: aValue
 ]
 
-{ #category : #temporaries }
+{ #category : 'temporaries' }
 DRStackFrame >> temporaryAt: aName withState: aState [
 
 	^ (self frameDefining: aName withState: aState) readTemporaryNamed: aName
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackFrame >> temporaryNames [
 	
 	^ temporaries keys
 ]
 
-{ #category : #temporaries }
+{ #category : 'temporaries' }
 DRStackFrame >> writeTemporaryNamed: aString withValue: aValue [
 	
 	^ temporaries at: aString put: aValue

@@ -1,27 +1,29 @@
 Class {
-	#name : #DRJump,
-	#superclass : #DRInstruction,
+	#name : 'DRJump',
+	#superclass : 'DRInstruction',
 	#instVars : [
 		'target',
 		'isBackJump'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJump >> = aJump [
 
 	super = aJump ifFalse: [ ^ false ].
 	^ target = aJump target
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJump >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitJump: self
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRJump >> asBackJumpLoop [
 
 	^ self controlFlowGraph allLoops
@@ -29,7 +31,7 @@ DRJump >> asBackJumpLoop [
 		  ifNone: nil
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJump >> backJumpTargets [
 
 	^ isBackJump
@@ -37,45 +39,45 @@ DRJump >> backJumpTargets [
 		  ifFalse: [ Set new ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJump >> beBackJump [
 	
 	isBackJump := true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJump >> beBackJumpTo: aDRBasicBlock [
 
 	self assert: aDRBasicBlock = target.
 	self beBackJump
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJump >> beForwardJump [
 	
 	isBackJump := false
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJump >> beForwardJumpTo: aDRBasicBlock [
 
 	self assert: aDRBasicBlock = target.
 	self beForwardJump
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRJump >> canMoveOutsideLoop: backJump [
 
 	^ false
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRJump >> hash [
 
 	^ super hash + target hash
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRJump >> initialize [
 
 	super initialize.
@@ -83,7 +85,7 @@ DRJump >> initialize [
 	isBackJump := false
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRJump >> inspectionSource: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Source'>
 
@@ -92,97 +94,97 @@ DRJump >> inspectionSource: aBuilder [
 		yourself
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRJump >> isBackJump [
 
 	^ isBackJump
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRJump >> isBackJumpLoop [
 
 	^ self asBackJumpLoop isNotNil
 
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRJump >> isBackJumpTo: aDRBasicBlock [
 
 	^ isBackJump and: [ target = aDRBasicBlock ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJump >> isJump [ 
 
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJump >> isMandatoryInstruction [
 	
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJump >> isNonConditionalJump [
 	
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJump >> loop [
 	^ self isBackJump ifTrue: [ DRLoop fromBackJump: self ] ifFalse: [ self error: 'Cannot obtain loop from forward jump'].
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRJump >> opcode [
 	
 	^ 'Jump'
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRJump >> prettyPrint [
 
 	^ 'Jump -> ', target id asString
 ]
 
-{ #category : #replacing }
+{ #category : 'replacing' }
 DRJump >> replaceTarget: previousTarget by: newTarget [
 	
 	target = previousTarget ifFalse: [ self error: 'Invalid target' ].
 	target := newTarget.
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRJump >> result: r [
 
 	self halt.
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRJump >> sccpEvaluateFor: sccp [
 
 	sccp addJumpToCFGWorklist: self
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRJump >> sccpLatticeValueFor: sccp [
 
 	^ sccp top
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJump >> target [
 	^ target
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJump >> target: aBasicBlock [ 
 	
 	target := aBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRJump >> targets [
 	
 	^ { target }

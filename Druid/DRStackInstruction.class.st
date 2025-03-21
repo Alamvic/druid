@@ -1,40 +1,42 @@
 Class {
-	#name : #DRStackInstruction,
-	#superclass : #DRInstruction,
+	#name : 'DRStackInstruction',
+	#superclass : 'DRInstruction',
 	#instVars : [
 		'stackDependents',
 		'stackDependencies'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRStackInstruction >> addStackDependent: aStackInstruction [ 
 
 	stackDependents add: aStackInstruction
 ]
 
-{ #category : #dependencies }
+{ #category : 'dependencies' }
 DRStackInstruction >> clearStackDependencies [
 
 	stackDependencies := Set new.
 	stackDependents := Set new
 ]
 
-{ #category : #validation }
+{ #category : 'validation' }
 DRStackInstruction >> dataDependencies [
 
 	^ super dependencies
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRStackInstruction >> definingStackInstruction [
 
 	"Return the stack instruction defining the stack slot I'm popping"
 	^ self stackSlotDefiningAtDepth: -1 ifNone: [ nil ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStackInstruction >> initialize [
 
 	super initialize.
@@ -42,25 +44,25 @@ DRStackInstruction >> initialize [
 	self clearStackDependencies
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStackInstruction >> isStackInstruction [
 
 	^ true
 ]
 
-{ #category : #removing }
+{ #category : 'removing' }
 DRStackInstruction >> removeStackDependency: aStackDependency [
 	
 	stackDependencies := stackDependencies copyWithout: aStackDependency
 ]
 
-{ #category : #removing }
+{ #category : 'removing' }
 DRStackInstruction >> removeStackDependent: aStackDependent [ 
 	
 	stackDependents := stackDependents copyWithout: aStackDependent
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackInstruction >> replaceDependency: anOperand by: anotherOperand [
 
 	anOperand = anotherOperand ifTrue: [ ^ self ].
@@ -73,32 +75,32 @@ DRStackInstruction >> replaceDependency: anOperand by: anotherOperand [
 	super replaceDependency: anOperand by: anotherOperand
 ]
 
-{ #category : #dependencies }
+{ #category : 'dependencies' }
 DRStackInstruction >> shiftStackAccessBy: anInteger [ 
 	
 	"Delegate to my stack dependents"
 	stackDependents do: [ :e | e shiftStackAccessBy: anInteger ].
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackInstruction >> stackDependencies [
 
 	^ stackDependencies
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackInstruction >> stackDependencies: anObject [
 
 	stackDependencies := anObject asSet.
 	stackDependencies do: [ :e | e addStackDependent: self ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackInstruction >> stackDependents [
 	^ stackDependents
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRStackInstruction >> stackEffectDependencies [
 	"Return the closest stack effect dependencies following the stack dependencies"
 
@@ -108,7 +110,7 @@ DRStackInstruction >> stackEffectDependencies [
 			  ifFalse: [ e stackEffectDependencies ] ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRStackInstruction >> stackSlotDefiningAtDepth: anInteger ifNone: aBlock [
 	"The only stack instructions defining stack slots are the push instructions"
 
@@ -118,7 +120,7 @@ DRStackInstruction >> stackSlotDefiningAtDepth: anInteger ifNone: aBlock [
 	^ definingSlots unique
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRStackInstruction >> stackSlotsDefiningAtDepth: anInteger [ 
 	"The only stack instructions defining stack slots are the push instructions"
 
@@ -128,7 +130,7 @@ DRStackInstruction >> stackSlotsDefiningAtDepth: anInteger [
 	^ definingSlots
 ]
 
-{ #category : #validation }
+{ #category : 'validation' }
 DRStackInstruction >> validateDependenciesAreUsedByMyself [
 
 	self dataDependencies do: [ :op | 

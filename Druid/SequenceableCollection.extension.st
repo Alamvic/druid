@@ -1,12 +1,12 @@
-Extension { #name : #SequenceableCollection }
+Extension { #name : 'SequenceableCollection' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 SequenceableCollection >> allUntil: element [
 
 	^ (self splitOn: element) first
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 SequenceableCollection >> matchArgumentsAgainst: aPragma [
 
 	aPragma arguments with: self do: [ : pragmaArgument : queryArgument |

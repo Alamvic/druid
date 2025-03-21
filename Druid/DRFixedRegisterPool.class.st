@@ -12,29 +12,31 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #DRFixedRegisterPool,
-	#superclass : #Object,
+	#name : 'DRFixedRegisterPool',
+	#superclass : 'Object',
 	#instVars : [
 		'integerRegisters',
 		'floatingPointRegisters',
 		'spillRegisters'
 	],
-	#category : #'Druid-LinearScanRegisterAllocation'
+	#category : 'Druid-LinearScanRegisterAllocation',
+	#package : 'Druid',
+	#tag : 'LinearScanRegisterAllocation'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRFixedRegisterPool >> floatingPointRegisters [
 
 	^ floatingPointRegisters
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRFixedRegisterPool >> floatingPointRegisters: anObject [
 
 	floatingPointRegisters := anObject asOrderedCollection
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRFixedRegisterPool >> initialize [
 
 	super initialize.
@@ -43,61 +45,61 @@ DRFixedRegisterPool >> initialize [
 	
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRFixedRegisterPool >> integerRegisters [
 
 	^ integerRegisters
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRFixedRegisterPool >> integerRegisters: anObject [
 
 	integerRegisters := anObject asOrderedCollection
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRFixedRegisterPool >> peekSpillRegister [
 
 	^ spillRegisters first
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRFixedRegisterPool >> returnFloatRegister: aRegister [
 
 	floatingPointRegisters addFirst: aRegister
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRFixedRegisterPool >> returnIntegerRegister: aPhisicalRegister [
 
 	integerRegisters addFirst: aPhisicalRegister
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRFixedRegisterPool >> returnSpillRegister: aRegister [
 
 	 spillRegisters addFirst: aRegister
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRFixedRegisterPool >> spillRegisters [
 
 	^ spillRegisters
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRFixedRegisterPool >> spillRegisters: aCollection [
 
 	spillRegisters := aCollection asOrderedCollection
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRFixedRegisterPool >> takeFloatRegister: aRegister [ 
 	
 	floatingPointRegisters remove: aRegister
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRFixedRegisterPool >> takeFloatingPointRegisterNotIn: inactiveOverlappingRegisters ifPresent: presentBlock [
 
 	self
@@ -108,13 +110,13 @@ DRFixedRegisterPool >> takeFloatingPointRegisterNotIn: inactiveOverlappingRegist
 			^ presentBlock value: selectedRegister ]
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRFixedRegisterPool >> takeIntegerRegister: aDRPhysicalRegister [ 
 	
 	integerRegisters remove: aDRPhysicalRegister
 ]
 
-{ #category : #allocation }
+{ #category : 'allocation' }
 DRFixedRegisterPool >> takeIntegerRegisterNotIn: inactiveOverlappingRegisters ifPresent: presentBlock [
 
 	self
@@ -125,7 +127,7 @@ DRFixedRegisterPool >> takeIntegerRegisterNotIn: inactiveOverlappingRegisters if
 			^ presentBlock value: selectedRegister ]
 ]
 
-{ #category : #'private - allocation' }
+{ #category : 'private - allocation' }
 DRFixedRegisterPool >> takeRegisterFrom: aCollection notIn: inactiveOverlappingRegisters ifPresent: presentBlock [
 
 	| currentRegisters |
@@ -140,7 +142,7 @@ DRFixedRegisterPool >> takeRegisterFrom: aCollection notIn: inactiveOverlappingR
 		presentBlock value: currentRegisters first ]
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRFixedRegisterPool >> takeSpillRegister [
 
 	^ spillRegisters removeFirst

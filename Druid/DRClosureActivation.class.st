@@ -1,22 +1,24 @@
 Class {
-	#name : #DRClosureActivation,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRClosureActivation',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRClosureActivation >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitClosureActivation: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRClosureActivation >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRClosureActivation >> opcode [
 
 	^ 'CODE ACTIVATION'

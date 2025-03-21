@@ -1,28 +1,30 @@
 Class {
-	#name : #DRContinueNextBytecode,
-	#superclass : #DRInstruction,
-	#category : #'Druid-CompilerCompiler'
+	#name : 'DRContinueNextBytecode',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRContinueNextBytecode >> acceptVisitor: aDRCogitCanonicaliser [
 	
 	aDRCogitCanonicaliser visitContinueNextBytecode: self
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRContinueNextBytecode >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRContinueNextBytecode >> opcode [
 	
 	^ 'Next Bytecode'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRContinueNextBytecode >> sccpLatticeValueFor: sccp [ 
 	
 	"This instruction has no value"

@@ -1,46 +1,48 @@
 Class {
-	#name : #DRAnyMaskConstraint,
-	#superclass : #DRMaskedConstraint,
-	#category : #'Druid-IR-Paths'
+	#name : 'DRAnyMaskConstraint',
+	#superclass : 'DRMaskedConstraint',
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAnyMaskConstraint >> hasAllValuesWithMask: aMask [
 
 	^ constantValue allMask: aMask
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRAnyMaskConstraint >> hasAllValuesWithoutMask: aMask [
 
 	^ false "always?"
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRAnyMaskConstraint >> hasValue: otherConstantValue [
 
 	^ otherConstantValue anyMask: constantValue 
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRAnyMaskConstraint >> isIncludedIn: otherConstraint [
 
 	^ otherConstraint hasAllValuesWithMask: constantValue
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRAnyMaskConstraint >> negated [
 
 	^ DRNoneMaskConstraint withValue: constantValue
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRAnyMaskConstraint >> opCode [
 
 	^ 'Mask'
 ]
 
-{ #category : #reverting }
+{ #category : 'reverting' }
 DRAnyMaskConstraint >> reversed [
 	
 	^ self

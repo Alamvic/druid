@@ -1,41 +1,43 @@
 Class {
-	#name : #DRBytecodeJump,
-	#superclass : #DRInstruction,
-	#category : #'Druid-BytecodeToJITCompilation'
+	#name : 'DRBytecodeJump',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-BytecodeToJITCompilation',
+	#package : 'Druid',
+	#tag : 'BytecodeToJITCompilation'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBytecodeJump >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitBytecodeJump: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBytecodeJump >> isBytecodeJump [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBytecodeJump >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBytecodeJump >> needsStackFlush [
 
 	"We need to guarantee that if we arrive to the target from this path, everything is in memory"
 	^ true
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRBytecodeJump >> opcode [
 	
 	^ 'BytecodeJump'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRBytecodeJump >> sccpLatticeValueFor: sccp [ 
 	
 	"We know that we know nothing about what is in the stack"

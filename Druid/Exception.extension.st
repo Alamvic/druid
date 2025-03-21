@@ -1,6 +1,6 @@
-Extension { #name : #Exception }
+Extension { #name : 'Exception' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 Exception >> handlePrimitiveCompilationFor: aDRPrimitiveCCCollector [
 
 	aDRPrimitiveCCCollector

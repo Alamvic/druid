@@ -1,15 +1,17 @@
 Class {
-	#name : #DRDominatorTreeNode,
-	#superclass : #Object,
+	#name : 'DRDominatorTreeNode',
+	#superclass : 'Object',
 	#instVars : [
 		'block',
 		'children',
 		'parent'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRDominatorTreeNode class >> new [
 	| node |
 	node := super new.
@@ -18,42 +20,42 @@ DRDominatorTreeNode class >> new [
 	
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDominatorTreeNode >> addChild: aChild [
 
 	children addLast: aChild
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDominatorTreeNode >> allChildren [
 	"Cumulate all the transitive children of this node"
 
 	^ self children , (self children flatCollect: [ :e | e allChildren ])
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDominatorTreeNode >> block [
 	^ block
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDominatorTreeNode >> block: b [
 
 	block := b
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDominatorTreeNode >> children [
 	^ children
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDominatorTreeNode >> children: c [
 
 	children := c
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRDominatorTreeNode >> isDominatedByBlock: dominatorBlock [
 
 	block = dominatorBlock ifTrue: [ ^ true ].
@@ -61,17 +63,17 @@ DRDominatorTreeNode >> isDominatedByBlock: dominatorBlock [
 	^ parent isDominatedByBlock: dominatorBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDominatorTreeNode >> parent [
 	^ parent
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDominatorTreeNode >> parent: node [
 	parent := node
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRDominatorTreeNode >> printOn: aStream [
 	"Generate a string representation of the receiver based on its instance variables."
 
@@ -81,7 +83,7 @@ DRDominatorTreeNode >> printOn: aStream [
 		print: block
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDominatorTreeNode >> replaceParent: node [
 	self parent children remove: self.
 	self parent: node.

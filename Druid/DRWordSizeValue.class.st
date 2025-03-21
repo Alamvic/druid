@@ -1,16 +1,18 @@
 Class {
-	#name : #DRWordSizeValue,
-	#superclass : #DRValue,
-	#category : #'Druid-IR'
+	#name : 'DRWordSizeValue',
+	#superclass : 'DRValue',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #'cogit-generation' }
+{ #category : 'cogit-generation' }
 DRWordSizeValue >> name [
 	
 	^ 'objectMemory wordSize'
 ]
 
-{ #category : #'cogit-generation' }
+{ #category : 'cogit-generation' }
 DRWordSizeValue >> rtlOperandQualifier [
 
 	^ 'Cq:'

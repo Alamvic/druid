@@ -1,32 +1,34 @@
 Class {
-	#name : #DRSCCPEdge,
-	#superclass : #DREdge,
+	#name : 'DRSCCPEdge',
+	#superclass : 'DREdge',
 	#instVars : [
 		'executed'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSCCPEdge >> executed: anObject [
 
 	executed := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSCCPEdge >> initialize [
 
 	super initialize.
 	executed := false
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSCCPEdge >> isExecuted [
 
 	^ executed
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSCCPEdge >> mark [ 
 
 	executed := true

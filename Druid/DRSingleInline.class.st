@@ -1,13 +1,15 @@
 Class {
-	#name : #DRSingleInline,
-	#superclass : #DRInline,
+	#name : 'DRSingleInline',
+	#superclass : 'DRInline',
 	#instVars : [
 		'messageSend'
 	],
-	#category : #'Druid-Optimizations'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRSingleInline class >> forMessageSend: aDRMessageSend [ 
 	
 	^ self new
@@ -15,13 +17,13 @@ DRSingleInline class >> forMessageSend: aDRMessageSend [
 		yourself
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSingleInline >> doApply: cfg [
 
 	self inline: messageSend
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRSingleInline >> messageSend: aDRMessageSend [ 
 	messageSend := aDRMessageSend
 ]

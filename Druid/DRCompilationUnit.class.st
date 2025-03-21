@@ -6,35 +6,37 @@ Abstract class to provide compilation behavior. Subclasses represents a Unit of 
 
 "
 Class {
-	#name : #DRCompilationUnit,
-	#superclass : #Object,
+	#name : 'DRCompilationUnit',
+	#superclass : 'Object',
 	#instVars : [
 		'targetClass',
 		'targetSuperclass'
 	],
-	#category : #'Druid-CompilerBuilder'
+	#category : 'Druid-CompilerBuilder',
+	#package : 'Druid',
+	#tag : 'CompilerBuilder'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilationUnit >> defaultTargetSuperclass [
 
 	^ StackToRegisterMappingCogit
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilationUnit >> targetClass [
 	" Answer a <Class> which is the where the methods will be stored "
 
 	^ targetClass
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilationUnit >> targetClass: aClass [
 
 	targetClass := aClass
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilationUnit >> targetSuperclass [
 	" Answer a <Class> acting as the receiver's superclass for compilation "
 
@@ -42,7 +44,7 @@ DRCompilationUnit >> targetSuperclass [
 		ifNil: [ targetSuperclass := self defaultTargetSuperclass ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilationUnit >> targetSuperclass: aClass [
 
 	targetSuperclass := aClass

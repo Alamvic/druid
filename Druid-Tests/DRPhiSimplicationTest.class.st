@@ -1,17 +1,19 @@
 Class {
-	#name : #DRPhiSimplicationTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRPhiSimplicationTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRPhiSimplicationTest >> setUp [ 
 
 	super setUp.
 	optimisation := DRPhiSimplication new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRPhiSimplicationTest >> testNotSimplifyDualPhi [
 
 	| cfg t1 t2 phi |
@@ -26,7 +28,7 @@ DRPhiSimplicationTest >> testNotSimplifyDualPhi [
 	self assert: cfg b4 firstInstruction equals: phi
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRPhiSimplicationTest >> testNotSimplifyPhiWithNull [
 
 	| cfg  t1 block phi |
@@ -43,7 +45,7 @@ DRPhiSimplicationTest >> testNotSimplifyPhiWithNull [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRPhiSimplicationTest >> testSimplifyPhiOnlyWithNulls [
 
 	| cfg |
@@ -59,7 +61,7 @@ DRPhiSimplicationTest >> testSimplifyPhiOnlyWithNulls [
 	self assert: cfg b1 firstInstruction operand1 isNullValue
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRPhiSimplicationTest >> testSimplifyRecursivePhi [
 
 	| cfg t1 block phi |
@@ -81,7 +83,7 @@ DRPhiSimplicationTest >> testSimplifyRecursivePhi [
 	self assert: block firstInstruction operand1 equals: t1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRPhiSimplicationTest >> testSimplifyRedundantPhi [
 
 	| cfg t1 block phi |
@@ -102,7 +104,7 @@ DRPhiSimplicationTest >> testSimplifyRedundantPhi [
 	self assert: block firstInstruction operand1 equals: t1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRPhiSimplicationTest >> testSimplifyRedundantPhiFromDifferentCopies [
 
 	| cfg t1 t2 t3 block phi |
@@ -128,7 +130,7 @@ DRPhiSimplicationTest >> testSimplifyRedundantPhiFromDifferentCopies [
 	self assert: block firstInstruction operand1 equals: t1
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRPhiSimplicationTest >> testSimplifyRedundantPhiFromDifferentPhis [
 
 	| cfg t1 t2 t3 block phi |
@@ -154,7 +156,7 @@ DRPhiSimplicationTest >> testSimplifyRedundantPhiFromDifferentPhis [
 	self assert: block firstInstruction operand1 equals: 1 asDRValue
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRPhiSimplicationTest >> testSimplifySimplePhi [
 
 	| cfg t1 phi block |

@@ -1,10 +1,12 @@
 Class {
-	#name : #DRLoopInvariantCodeMotion,
-	#superclass : #DROptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRLoopInvariantCodeMotion',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRLoopInvariantCodeMotion >> applyTo: aDRControlFlowGraph [
 
 	"Note: when optimizing nested loops, the current implementation of loop-invariant code motion will only hoist loop-invariant instructions out of a single loop"
@@ -13,7 +15,7 @@ DRLoopInvariantCodeMotion >> applyTo: aDRControlFlowGraph [
 		self moveAllInvariantLoopInstructionsUp: loop ]
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRLoopInvariantCodeMotion >> moveAllInvariantLoopInstructionsUp: loop [
 
 	self
@@ -22,7 +24,7 @@ DRLoopInvariantCodeMotion >> moveAllInvariantLoopInstructionsUp: loop [
 		intoPreheader: nil
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRLoopInvariantCodeMotion >> moveAllLoopInstructions: instructionsToMove outsideLoop: loop intoPreheader: preheader [
 
 	| preheaderBlock block |
@@ -35,7 +37,7 @@ DRLoopInvariantCodeMotion >> moveAllLoopInstructions: instructionsToMove outside
 		i moveToDominatingBlock: preheaderBlock ]
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRLoopInvariantCodeMotion >> tryMoveAllInstructions: candidateInstructions outsideLoop: loop intoPreheader: preheader [
 
 	| instructionsToMove |

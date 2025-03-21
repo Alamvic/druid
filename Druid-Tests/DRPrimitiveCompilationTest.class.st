@@ -1,13 +1,14 @@
 Class {
-	#name : #DRPrimitiveCompilationTest,
-	#superclass : #DRMetaCompilationTest,
+	#name : 'DRPrimitiveCompilationTest',
+	#superclass : 'DRMetaCompilationTest',
 	#instVars : [
 		'stopAddress'
 	],
-	#category : #'Druid-Tests'
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #'helpers-compiling' }
+{ #category : 'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileCogitSelector: aSelector numArgs: argumentCount [
 
 	| stopInstruction |
@@ -20,14 +21,14 @@ DRPrimitiveCompilationTest >> compileCogitSelector: aSelector numArgs: argumentC
 	stopAddress := stopInstruction address
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : 'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidDeferredInlinePrimitive: selector [
 
 	self compileDruidPrimitive: selector with: [ :compiler | 
 		compiler irGenerator: DRPrimitiveIRGeneratorDeferredInline new ]
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : 'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 	
 	| compiler |
@@ -36,7 +37,7 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 	self compileCogitSelector: compiler primitiveCompilerName numArgs: compiler numberOfArguments
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : 'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector numArgs: argumentCount [
 	
 	| compiler |
@@ -45,7 +46,7 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector numArgs: argument
 	self compileCogitSelector: compiler primitiveCompilerName numArgs: argumentCount
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : 'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector numArgs: argumentCount with: aBlock [
 	
 	| generatorSelector stopInstruction compiler |
@@ -71,7 +72,7 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector numArgs: argument
 	stopAddress := stopInstruction address
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : 'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector with: aBlock [
 
 	| compiler |
@@ -82,7 +83,7 @@ DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector with: aBlock [
 		numArgs: compiler numberOfArguments
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : 'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidPrimitiveGenerator: primitiveSelector with: aBlock [
 
 	| compiler |
@@ -99,7 +100,7 @@ DRPrimitiveCompilationTest >> compileDruidPrimitiveGenerator: primitiveSelector 
 	^ compiler
 ]
 
-{ #category : #compiling }
+{ #category : 'compiling' }
 DRPrimitiveCompilationTest >> compilePrimitive: primitiveSelector ForSendReceiver: receiver arguments: arguments [
 
 	self
@@ -113,13 +114,13 @@ DRPrimitiveCompilationTest >> compilePrimitive: primitiveSelector ForSendReceive
 	self prepareStackForSendReceiver: receiver arguments: arguments
 ]
 
-{ #category : #'helpers - execution' }
+{ #category : 'helpers - execution' }
 DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop [
 	
 	^ self executeUntilStopPrimitiveWithReceiver: receiverOop withArguments: { }
 ]
 
-{ #category : #'helpers - execution' }
+{ #category : 'helpers - execution' }
 DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop withArguments: aCollection [
 	
 	"Simulate a primitive execution having an object as receiver and a single argument
@@ -132,7 +133,7 @@ DRPrimitiveCompilationTest >> executeUntilStopPrimitiveWithReceiver: receiverOop
 	self runFrom: cogInitialAddress until: stopAddress.
 ]
 
-{ #category : #'helpers - execution' }
+{ #category : 'helpers - execution' }
 DRPrimitiveCompilationTest >> runUntilStop [
 
 	self runFrom: cogInitialAddress until: stopAddress

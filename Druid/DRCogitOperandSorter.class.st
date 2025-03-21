@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCogitOperandSorter,
-	#superclass : #Object,
-	#category : #'Druid-Cogit'
+	#name : 'DRCogitOperandSorter',
+	#superclass : 'Object',
+	#category : 'Druid-Cogit',
+	#package : 'Druid',
+	#tag : 'Cogit'
 }
 
-{ #category : #applying }
+{ #category : 'applying' }
 DRCogitOperandSorter >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph instructionsDo: [ :e |
@@ -16,7 +18,7 @@ DRCogitOperandSorter >> applyTo: aDRControlFlowGraph [
 				ifTrue: [ self extractCopyFor: e operand2 fromInstruction: e ] ] ]
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> extractCopyFor: operand fromInstruction: anInstruction [
 
 	| copy |
@@ -25,7 +27,7 @@ DRCogitOperandSorter >> extractCopyFor: operand fromInstruction: anInstruction [
 	anInstruction replaceOperand: operand by: copy
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> extractFirstOperandInCopyIfNecessaryFrom: anInstruction [
 
 	| copy |
@@ -39,37 +41,37 @@ DRCogitOperandSorter >> extractFirstOperandInCopyIfNecessaryFrom: anInstruction 
 	anInstruction replaceOperand: anInstruction operand1 by: copy
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitAddition: aDRAdd [ 
 
 	self visitCommutativeInstruction: aDRAdd
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitAnnnotateBytecode: aDRAnnotateBytecode [ 
 
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitBitAnd: aDRBitAnd [ 
 	
 	^ self visitCommutativeInstruction: aDRBitAnd
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitBitOr: aDRBitOr [ 
 	
 	^ self visitCommutativeInstruction: aDRBitOr
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitBitXor: aDRBitXor [ 
 	
 	^ self visitCommutativeInstruction: aDRBitXor
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [
 
 	"JIT expressions do not need extras copies"
@@ -88,39 +90,39 @@ DRCogitOperandSorter >> visitBranchIfCondition: aDRBranchIfCondition [
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRBranchIfCondition
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitBytecodeJump: aDRBytecodeJump [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitCall: aDRCall [
 	"Nothing"
 
 	
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitClosureActivation: aDRClosureActivation [
 	"Nothing"
 
 	
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitClosureCreation: aDRClosureCreation [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitCogitSendMarshall: aDRCogitSendMarshall [ 
 
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 
 	anInstruction operand1 willBeConstant ifTrue: [ 
@@ -128,13 +130,13 @@ DRCogitOperandSorter >> visitCommutativeInstruction: anInstruction [
 	self extractFirstOperandInCopyIfNecessaryFrom: anInstruction
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitContinueNextBytecode: aDRContinueNextBytecode [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitCopy: aDRCopy [ 
 	
 	"There is no load of float constants in the Cogit IR.
@@ -156,13 +158,13 @@ DRCogitOperandSorter >> visitCopy: aDRCopy [
 	aDRCopy replaceBy: convert
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitDeoptimize: aDRDeoptimize [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitDivision: aDRDivision [ 
 	
 	"Division only exist between two registers in cogit. Extract the second operand too"
@@ -172,21 +174,21 @@ DRCogitOperandSorter >> visitDivision: aDRDivision [
 	aDRDivision reverseOperands.
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitFloatToIntConversion: aDRFloatToInt [ 
 	
 	"Int to float conversion is on registers only"
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRFloatToInt
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitFlushStack: aDRFlushStack [
 	"Nothing"
 
 	
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitGetConditionCode: aDRGetConditionCode [
 
 	(aDRGetConditionCode condition isCommutative and: [ 
@@ -195,40 +197,40 @@ DRCogitOperandSorter >> visitGetConditionCode: aDRGetConditionCode [
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRGetConditionCode
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitGetFloatBits: aDRGetFloatBits [ 
 
 	"Get float bits are only from registers..."
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRGetFloatBits
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitGetFloatFromBits: aDRGetFloatFromBits [ 
 
 	"Get float bits are only from registers..."
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRGetFloatFromBits
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitIntToFloatConversion: aDRIntToFloat [ 
 	
 	"Int to float conversion is on registers only"
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRIntToFloat
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitJITMessageSend: aDRMessageSend [ 
 
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitJump: aDRJump [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitLeftRotate: aDRRotate [
 	"Left rotation is not commutative!
 	=> extract its first operand into a copy instruction"
@@ -236,7 +238,7 @@ DRCogitOperandSorter >> visitLeftRotate: aDRRotate [
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRRotate
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitLeftShift: aDRLeftShift [ 
 	
 	"Shift is not commutative!
@@ -244,57 +246,57 @@ DRCogitOperandSorter >> visitLeftShift: aDRLeftShift [
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRLeftShift
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitLoad: aDRLoad [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitLoadArgument: aDRLoadArgument [ 
 	
 	"Do nothing for load argument"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitLoadFramePointer: aDRLoadFramePointer [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitLoadReceiver: aDRLoadReceiver [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitLoadStackPointer: aDRLoadStackPointer [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitLoadStackValue: aDRLoadStackValue [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitMessageSend: aDRMessageSend [
 	"Nothing"
 
 	
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitMod: aDRMod [ 
 	
 	"Mod and division are the same instruction in cogit"
 	self visitDivision: aDRMod
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitMultiply: aDRMultiply [ 
 	
 	"Multiply only exist between two registers in cogit. Extract the second operand too"
@@ -303,43 +305,43 @@ DRCogitOperandSorter >> visitMultiply: aDRMultiply [
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRMultiply.
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitNegate: aDRNegate [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitNoop: aDRNoop [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitPhiFunction: aDRPhiFunction [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitPop: aDRPop [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitPush: aDRPush [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitReturn: aDRReturn [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitSignedRightShift: aDRRightShift [ 
 	
 	"Shift is not commutative!
@@ -347,7 +349,7 @@ DRCogitOperandSorter >> visitSignedRightShift: aDRRightShift [
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRRightShift
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitStore: aDRStore [
 
 	aDRStore isJITCompileTimeExpression ifTrue: [ ^ self ].
@@ -356,13 +358,13 @@ DRCogitOperandSorter >> visitStore: aDRStore [
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRStore
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitStoreTempVar: aDRStoreTemporaryVariable [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitSubstract: aDRSubtract [ 
 	
 	"Subtraction is not commutative!
@@ -371,19 +373,19 @@ DRCogitOperandSorter >> visitSubstract: aDRSubtract [
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRSubtract
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitTemporaryVariable: aDRLoadTemporaryVariable [ 
 
 	"Nothing?"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitUnsignedCoercion: aDRUnsignedCoercion [ 
 	
 	"Nothing"
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitUnsignedRightShift: aDRRightShift [ 
 	
 	"Shift is not commutative!
@@ -391,7 +393,7 @@ DRCogitOperandSorter >> visitUnsignedRightShift: aDRRightShift [
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRRightShift
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitUnspillStackSlot: aDRUnspillStackSlot [ 
 	
 	"Nothing"

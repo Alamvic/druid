@@ -1,40 +1,41 @@
 Class {
-	#name : #DruidCogit,
-	#superclass : #Cogit,
-	#category : #'Druid-Tests'
+	#name : 'DruidCogit',
+	#superclass : 'Cogit',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #configuration }
+{ #category : 'configuration' }
 DruidCogit class >> initializeBytecodeTableForSistaV1 [
 	
 	"Do nothing for now"
 ]
 
-{ #category : #configuration }
+{ #category : 'configuration' }
 DruidCogit class >> initializePrimitiveTable [
 	
 	"Do nothing for now"
 ]
 
-{ #category : #'simulation only' }
+{ #category : 'simulation only' }
 DruidCogit >> bytecodeFixupClass [
 	<doNotGenerate>
 	^CogBytecodeFixup
 ]
 
-{ #category : #garbage }
+{ #category : 'garbage' }
 DruidCogit >> entryOffset: anInteger [ 
 	
 	"Nothing"
 ]
 
-{ #category : #garbage }
+{ #category : 'garbage' }
 DruidCogit >> forCogit: aDruidCogit methodZone: aCogMethodZone [ 
 	
 	^ objectMemory 
 ]
 
-{ #category : #generated }
+{ #category : 'generated' }
 DruidCogit >> genPrimitiveAdd [
 
 	| currentBlock jump0 jump1 jump2 |
@@ -56,7 +57,7 @@ DruidCogit >> genPrimitiveAdd [
 	^ CompletePrimitive
 ]
 
-{ #category : #generated }
+{ #category : 'generated' }
 DruidCogit >> genPrimitiveEqual [
 
 	| currentBlock jump0 jump1 jump2 jump3 jump4 |
@@ -93,7 +94,7 @@ DruidCogit >> genPrimitiveEqual [
 	^ CompletePrimitive
 ]
 
-{ #category : #generated }
+{ #category : 'generated' }
 DruidCogit >> genPrimitiveGreaterOrEqual [
 
 	| currentBlock jump0 jump1 jump2 jump3 jump4 |
@@ -130,7 +131,7 @@ DruidCogit >> genPrimitiveGreaterOrEqual [
 	^ CompletePrimitive
 ]
 
-{ #category : #generated }
+{ #category : 'generated' }
 DruidCogit >> genPrimitiveGreaterThan [
 
 	| currentBlock jump0 jump1 jump2 jump3 jump4 |
@@ -167,7 +168,7 @@ DruidCogit >> genPrimitiveGreaterThan [
 	^ CompletePrimitive
 ]
 
-{ #category : #generated }
+{ #category : 'generated' }
 DruidCogit >> genPrimitiveLessOrEqual [
 
 	| currentBlock jump0 jump1 jump2 jump3 jump4 |
@@ -204,7 +205,7 @@ DruidCogit >> genPrimitiveLessOrEqual [
 	^ CompletePrimitive
 ]
 
-{ #category : #generated }
+{ #category : 'generated' }
 DruidCogit >> genPrimitiveLessThan [
 
 	| currentBlock jump0 jump1 jump2 jump3 jump4 |
@@ -241,7 +242,7 @@ DruidCogit >> genPrimitiveLessThan [
 	^ CompletePrimitive
 ]
 
-{ #category : #generated }
+{ #category : 'generated' }
 DruidCogit >> genPrimitiveSubtract [
 
 	| currentBlock jump0 jump1 jump2 jump3 jump4 jump5 jump6 |
@@ -289,13 +290,13 @@ DruidCogit >> genPrimitiveSubtract [
 	^ CompletePrimitive
 ]
 
-{ #category : #garbage }
+{ #category : 'garbage' }
 DruidCogit >> minCallAddress: anInteger [ 
 	
 	"Nothing"
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DruidCogit >> objectRepresentationClass [
 
 	^ self

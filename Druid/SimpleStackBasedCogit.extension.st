@@ -1,12 +1,12 @@
-Extension { #name : #SimpleStackBasedCogit }
+Extension { #name : 'SimpleStackBasedCogit' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 SimpleStackBasedCogit class >> druidNewCodeGenerator [
 
 	^ DRCogitSimpleStackGenerator new
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 SimpleStackBasedCogit class >> druidNewOptimizationList [
 
 	| optimisations |
@@ -38,19 +38,19 @@ SimpleStackBasedCogit class >> druidNewOptimizationList [
 	^ optimisations
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 SimpleStackBasedCogit class >> druidNewPrimitiveCodeGenerator [
 
 	^ DRCogitSimpleStackPrimitiveCodeGenerator new
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 SimpleStackBasedCogit class >> druidNewRegisterAllocator [
 
 	^ DRCogitLinearScanRegisterAllocator new
 ]
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 SimpleStackBasedCogit class >> isSimpleStack [
 
 	^ true

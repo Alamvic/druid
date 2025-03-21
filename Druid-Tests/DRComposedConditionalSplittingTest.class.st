@@ -1,10 +1,12 @@
 Class {
-	#name : #DRComposedConditionalSplittingTest,
-	#superclass : #DROptimisationTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRComposedConditionalSplittingTest',
+	#superclass : 'DROptimisationTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRComposedConditionalSplittingTest >> previousOptimizations [
 
 	^ { 
@@ -13,7 +15,7 @@ DRComposedConditionalSplittingTest >> previousOptimizations [
 		  DRDeadCodeElimination new }
 ]
 
-{ #category : #running }
+{ #category : 'running' }
 DRComposedConditionalSplittingTest >> setUp [
 
 	super setUp.
@@ -21,7 +23,7 @@ DRComposedConditionalSplittingTest >> setUp [
 	optimisation := DRComposedConditionalSplitting new
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRComposedConditionalSplittingTest >> testSplitAnd [
 
 	| cfg jump composedCondition newBlock newJump trueBlock falseBlock |
@@ -47,7 +49,7 @@ DRComposedConditionalSplittingTest >> testSplitAnd [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRComposedConditionalSplittingTest >> testSplitMultipleComposedCondition [
 
 	| cfg jump composedCondition trueBlock falseBlock newBlock1 newBlock2 newJump1 newJump2 |
@@ -78,7 +80,7 @@ DRComposedConditionalSplittingTest >> testSplitMultipleComposedCondition [
 	self assert: newJump2 falseBranch equals: falseBlock
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRComposedConditionalSplittingTest >> testSplitMultipleComposedConditionLeftAssociated [
 
 	| cfg jump composedCondition trueBlock falseBlock newBlock1 newBlock2 newJump1 newJump2 |
@@ -109,7 +111,7 @@ DRComposedConditionalSplittingTest >> testSplitMultipleComposedConditionLeftAsso
 	self assert: newJump2 falseBranch equals: falseBlock
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRComposedConditionalSplittingTest >> testSplitOr [
 
 	| cfg jump composedCondition trueBlock falseBlock newBlock newJump |
@@ -135,7 +137,7 @@ DRComposedConditionalSplittingTest >> testSplitOr [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRComposedConditionalSplittingTest >> testSplitSimpleCondition [
 
 	| cfg previousBlocks |

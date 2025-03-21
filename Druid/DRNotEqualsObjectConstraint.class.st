@@ -1,46 +1,48 @@
 Class {
-	#name : #DRNotEqualsObjectConstraint,
-	#superclass : #DRNotEqualsConstraint,
-	#category : #'Druid-IR-Paths'
+	#name : 'DRNotEqualsObjectConstraint',
+	#superclass : 'DRNotEqualsConstraint',
+	#category : 'Druid-IR-Paths',
+	#package : 'Druid',
+	#tag : 'IR-Paths'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNotEqualsObjectConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNotEqualsObjectConstraint >> hasAllValuesLessThan: otherConstantValue [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNotEqualsObjectConstraint >> hasAllValuesWithMask: otherConstantValue [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNotEqualsObjectConstraint >> hasAllValuesWithoutMask: otherConstantValue [
 
 	^ false
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNotEqualsObjectConstraint >> hasObjectValue: objectValue [
 
 	^ constantValue ~= objectValue
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNotEqualsObjectConstraint >> isIncludedIn: otherConstraint [
 
 	^ self = otherConstraint
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRNotEqualsObjectConstraint >> negated [
 
 	^ DREqualsObjectConstraint new

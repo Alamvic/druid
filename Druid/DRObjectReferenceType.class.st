@@ -1,10 +1,12 @@
 Class {
-	#name : #DRObjectReferenceType,
-	#superclass : #DRPointerType,
-	#category : #'Druid-IR-Types'
+	#name : 'DRObjectReferenceType',
+	#superclass : 'DRPointerType',
+	#category : 'Druid-IR-Types',
+	#package : 'Druid',
+	#tag : 'IR-Types'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRObjectReferenceType >> isObjectReference [
 	
 	^ true

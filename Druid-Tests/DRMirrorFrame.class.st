@@ -1,44 +1,45 @@
 Class {
-	#name : #DRMirrorFrame,
-	#superclass : #Object,
+	#name : 'DRMirrorFrame',
+	#superclass : 'Object',
 	#instVars : [
 		'deferredMethodReturns',
 		'poppedValue'
 	],
-	#category : #'Druid-Tests'
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRMirrorFrame >> addDeferredReturnState: aDRExecutionState [ 
 	
 	deferredMethodReturns at: aDRExecutionState second put: aDRExecutionState first
 ]
 
-{ #category : #'deferred returns' }
+{ #category : 'deferred returns' }
 DRMirrorFrame >> clearDeferredMethodReturns [
 
 	deferredMethodReturns removeAll
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMirrorFrame >> deferredMethodReturns [
 
 	^ deferredMethodReturns
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRMirrorFrame >> initialize [
 	super initialize.
 	deferredMethodReturns := Dictionary new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMirrorFrame >> poppedValue [
 
 	^ poppedValue
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMirrorFrame >> poppedValue: aDRValue [
 
 	^ poppedValue := aDRValue

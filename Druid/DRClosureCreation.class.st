@@ -1,34 +1,36 @@
 Class {
-	#name : #DRClosureCreation,
-	#superclass : #DRInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRClosureCreation',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRClosureCreation >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitClosureCreation: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRClosureCreation >> isClosureCreation [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRClosureCreation >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRClosureCreation >> needs2ACConversion [
 
 	^ false
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRClosureCreation >> sccpLatticeValueFor: sccp [ 
 	
 	"This instruction has no value"

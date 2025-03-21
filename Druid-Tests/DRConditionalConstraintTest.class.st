@@ -1,10 +1,11 @@
 Class {
-	#name : #DRConditionalConstraintTest,
-	#superclass : #DRIRTest,
-	#category : #'Druid-Tests'
+	#name : 'DRConditionalConstraintTest',
+	#superclass : 'DRIRTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testEmptyConstraint [
 
 	| constraint |
@@ -33,7 +34,7 @@ DRConditionalConstraintTest >> testEmptyConstraint [
 	self assertConstraint: (DRFullConstraint new) includes: constraint.
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testEqualsConstraint [
 
 	| constraint |
@@ -48,7 +49,7 @@ DRConditionalConstraintTest >> testEqualsConstraint [
 	self denyConstraint: constraint includes: (DRNotEqualsConstraint withValue: 10).
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testEqualsObjectConstraint [
 
 	| constraint |
@@ -64,7 +65,7 @@ DRConditionalConstraintTest >> testEqualsObjectConstraint [
 	self denyConstraint: constraint includes: (DRNotEqualsConstraint withValue: nil).
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testExcludeTypeConstraint [
 
 	| constraint types |
@@ -93,7 +94,7 @@ DRConditionalConstraintTest >> testExcludeTypeConstraint [
 
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testGreaterConstraint [
 
 	| constraint |
@@ -121,7 +122,7 @@ DRConditionalConstraintTest >> testGreaterConstraint [
 	self denyConstraint: constraint includes: (DRUnionConstraint less: 5 greater: 15).
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testGreaterOrEqualsConstraint [
 
 	| constraint |
@@ -139,7 +140,7 @@ DRConditionalConstraintTest >> testGreaterOrEqualsConstraint [
 	self denyConstraint: constraint includes: (DRNotEqualsConstraint withValue: 10).
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testIncludeTypeConstraint [
 
 	| constraint types |
@@ -168,7 +169,7 @@ DRConditionalConstraintTest >> testIncludeTypeConstraint [
 
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testIntersectionConstraint [
 
 	| constraint |
@@ -195,7 +196,7 @@ DRConditionalConstraintTest >> testIntersectionConstraint [
 	self denyConstraint: constraint includes: (DRNoneMaskConstraint withValue: 2)
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testLessConstraint [
 
 	| constraint |
@@ -213,7 +214,7 @@ DRConditionalConstraintTest >> testLessConstraint [
 	self denyConstraint: constraint includes: (DRNotEqualsConstraint withValue: 10).
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testLessOrEqualsConstraint [
 
 	| constraint |
@@ -231,7 +232,7 @@ DRConditionalConstraintTest >> testLessOrEqualsConstraint [
 	self denyConstraint: constraint includes: (DRNotEqualsConstraint withValue: 10).
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testMaskConstraint [
 
 	| constraint |
@@ -269,7 +270,7 @@ DRConditionalConstraintTest >> testMaskConstraint [
 
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testNotEqualsConstraint [
 
 	| constraint |
@@ -305,7 +306,7 @@ DRConditionalConstraintTest >> testNotEqualsConstraint [
 
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testNotEqualsObjectConstraint [
 
 	| constraint |
@@ -321,7 +322,7 @@ DRConditionalConstraintTest >> testNotEqualsObjectConstraint [
 	self denyConstraint: constraint includes: (DREqualsConstraint withValue: nil).
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testNotMaskConstraint [
 
 	| constraint |
@@ -355,7 +356,7 @@ DRConditionalConstraintTest >> testNotMaskConstraint [
 
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRConditionalConstraintTest >> testNotSupportedCases [
 
 	<expectedFailure>
@@ -377,7 +378,7 @@ DRConditionalConstraintTest >> testNotSupportedCases [
 
 ]
 
-{ #category : #constraints }
+{ #category : 'constraints' }
 DRConditionalConstraintTest >> testUnionConstraint [
 
 	| constraint |

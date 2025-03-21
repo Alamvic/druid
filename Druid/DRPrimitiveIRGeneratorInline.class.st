@@ -1,15 +1,17 @@
 Class {
-	#name : #DRPrimitiveIRGeneratorInline,
-	#superclass : #DRPrimitiveIRGeneratorDeferredInline,
+	#name : 'DRPrimitiveIRGeneratorInline',
+	#superclass : 'DRPrimitiveIRGeneratorDeferredInline',
 	#instVars : [
 		'previousBasicBlock',
 		'messageSend',
 		'endBasicBlock'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRPrimitiveIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 
 	"Connect to next basic block and failure code"
@@ -17,13 +19,13 @@ DRPrimitiveIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveIRGeneratorInline >> messageSend: aDRMessageSend [
 
 	messageSend := aDRMessageSend
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRPrimitiveIRGeneratorInline >> newFirstBasicBlock [
 
 	| block |
@@ -33,7 +35,7 @@ DRPrimitiveIRGeneratorInline >> newFirstBasicBlock [
 	^ block
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveIRGeneratorInline >> previousBasicBlock: aDRBasicBlock [
 
 	previousBasicBlock := aDRBasicBlock

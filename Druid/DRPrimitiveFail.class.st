@@ -1,22 +1,24 @@
 Class {
-	#name : #DRPrimitiveFail,
-	#superclass : #DRNoop,
-	#category : #'Druid-IR'
+	#name : 'DRPrimitiveFail',
+	#superclass : 'DRNoop',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPrimitiveFail >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPrimitiveFail >> isPrimitiveFail [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRPrimitiveFail >> opcode [
 	
 	^ 'PrimitiveFail'

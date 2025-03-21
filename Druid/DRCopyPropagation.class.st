@@ -1,10 +1,12 @@
 Class {
-	#name : #DRCopyPropagation,
-	#superclass : #DROptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRCopyPropagation',
+	#superclass : 'DROptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRCopyPropagation >> applyTo: aDRControlFlowGraph [
 
 	aDRControlFlowGraph instructions copy do: [ :i |
@@ -13,13 +15,13 @@ DRCopyPropagation >> applyTo: aDRControlFlowGraph [
 			ifTrue: [ self propagateCopyFrom: i ] ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCopyPropagation >> canBeAppliedIn: aDRControlFlowGraph [
 
 	^ aDRControlFlowGraph instructions anySatisfy: [ :i | i isCopy ]
 ]
 
-{ #category : #operations }
+{ #category : 'operations' }
 DRCopyPropagation >> propagateCopyFrom: i [
 
 	i users copy do: [ :user | user replaceDependency: i by: i operands first ]

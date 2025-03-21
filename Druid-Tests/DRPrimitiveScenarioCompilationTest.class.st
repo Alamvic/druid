@@ -1,10 +1,11 @@
 Class {
-	#name : #DRPrimitiveScenarioCompilationTest,
-	#superclass : #DRPrimitiveCompilationTest,
-	#category : #'Druid-Tests'
+	#name : 'DRPrimitiveScenarioCompilationTest',
+	#superclass : 'DRPrimitiveCompilationTest',
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #'tests-methodactivations' }
+{ #category : 'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testAccessTemporaryAfterCall [
 
 	| receiver |
@@ -17,7 +18,7 @@ DRPrimitiveScenarioCompilationTest >> testAccessTemporaryAfterCall [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'tests-arithmetic-smallIntegers' }
+{ #category : 'tests-arithmetic-smallIntegers' }
 DRPrimitiveScenarioCompilationTest >> testAdditionIntrinsecWithNoOverflow [
 
 	self compileDruidPrimitive: #primitiveSumWithOverflow.
@@ -27,7 +28,7 @@ DRPrimitiveScenarioCompilationTest >> testAdditionIntrinsecWithNoOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 52)
 ]
 
-{ #category : #'tests-arithmetic-smallIntegers' }
+{ #category : 'tests-arithmetic-smallIntegers' }
 DRPrimitiveScenarioCompilationTest >> testAdditionIntrinsecWithOverflow [
 
 	self compileDruidPrimitive: #primitiveSumWithOverflow.
@@ -37,7 +38,7 @@ DRPrimitiveScenarioCompilationTest >> testAdditionIntrinsecWithOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: 99
 ]
 
-{ #category : #'tests-booleans' }
+{ #category : 'tests-booleans' }
 DRPrimitiveScenarioCompilationTest >> testAndFalseReceiverFalseArgument [
 
 	self compileDruidPrimitive: #primitiveAndIfTrue.
@@ -48,7 +49,7 @@ DRPrimitiveScenarioCompilationTest >> testAndFalseReceiverFalseArgument [
 	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
-{ #category : #'tests-booleans' }
+{ #category : 'tests-booleans' }
 DRPrimitiveScenarioCompilationTest >> testAndFalseReceiverTrueArgument [
 
 	self compileDruidPrimitive: #primitiveAndIfTrue.
@@ -59,7 +60,7 @@ DRPrimitiveScenarioCompilationTest >> testAndFalseReceiverTrueArgument [
 	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testAndFirstFalseSecondFalse [
 
 	self compileDruidPrimitive: #primitiveAnd.
@@ -69,7 +70,7 @@ DRPrimitiveScenarioCompilationTest >> testAndFirstFalseSecondFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 10
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testAndFirstTrueSecondFalse [
 
 	self compileDruidPrimitive: #primitiveAnd.
@@ -79,7 +80,7 @@ DRPrimitiveScenarioCompilationTest >> testAndFirstTrueSecondFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 10
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testAndFirstTrueSecondTrue [
 
 	self compileDruidPrimitive: #primitiveAnd.
@@ -89,7 +90,7 @@ DRPrimitiveScenarioCompilationTest >> testAndFirstTrueSecondTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-booleans' }
+{ #category : 'tests-booleans' }
 DRPrimitiveScenarioCompilationTest >> testAndTrueReceiverFalseArgument [
 
 	self compileDruidPrimitive: #primitiveAndIfTrue.
@@ -100,7 +101,7 @@ DRPrimitiveScenarioCompilationTest >> testAndTrueReceiverFalseArgument [
 	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
-{ #category : #'tests-booleans' }
+{ #category : 'tests-booleans' }
 DRPrimitiveScenarioCompilationTest >> testAndTrueReceiverTrueArgument [
 
 	self compileDruidPrimitive: #primitiveAndIfTrue.
@@ -111,7 +112,7 @@ DRPrimitiveScenarioCompilationTest >> testAndTrueReceiverTrueArgument [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testAnyMaskFalse [
 
 	self compileDruidPrimitive: #primitiveConditionWithAnyMask.
@@ -121,7 +122,7 @@ DRPrimitiveScenarioCompilationTest >> testAnyMaskFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testAnyMaskFalseInverted [
 
 	self compileDruidPrimitive: #primitiveConditionWithAnyMaskInverted.
@@ -131,7 +132,7 @@ DRPrimitiveScenarioCompilationTest >> testAnyMaskFalseInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testAnyMaskTrue [
 
 	self compileDruidPrimitive: #primitiveConditionWithAnyMask.
@@ -142,7 +143,7 @@ DRPrimitiveScenarioCompilationTest >> testAnyMaskTrue [
 
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testAnyMaskTrueInverted [
 
 	self compileDruidPrimitive: #primitiveConditionWithAnyMaskInverted.
@@ -153,7 +154,7 @@ DRPrimitiveScenarioCompilationTest >> testAnyMaskTrueInverted [
 
 ]
 
-{ #category : #'tests-bitwise' }
+{ #category : 'tests-bitwise' }
 DRPrimitiveScenarioCompilationTest >> testArithmeticBitShiftRight [
 
 	self compileDruidPrimitive: #primitiveArithmeticBitShiftRight.
@@ -163,7 +164,7 @@ DRPrimitiveScenarioCompilationTest >> testArithmeticBitShiftRight [
 	self assert: machineSimulator receiverRegisterValue equals: 2r11 << 62
 ]
 
-{ #category : #'tests-arithmetic-floats' }
+{ #category : 'tests-arithmetic-floats' }
 DRPrimitiveScenarioCompilationTest >> testAsFloatAddition [
 
 	| floatRawValue |
@@ -177,7 +178,7 @@ DRPrimitiveScenarioCompilationTest >> testAsFloatAddition [
 	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 38
 ]
 
-{ #category : #'tests-arithmetic-floats' }
+{ #category : 'tests-arithmetic-floats' }
 DRPrimitiveScenarioCompilationTest >> testAsFloatDivide [
 
 	| floatRawValue |
@@ -191,7 +192,7 @@ DRPrimitiveScenarioCompilationTest >> testAsFloatDivide [
 	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 21.0 / 17.0
 ]
 
-{ #category : #'tests-arithmetic-floats' }
+{ #category : 'tests-arithmetic-floats' }
 DRPrimitiveScenarioCompilationTest >> testAsFloatMultiply [
 
 	| floatRawValue |
@@ -205,7 +206,7 @@ DRPrimitiveScenarioCompilationTest >> testAsFloatMultiply [
 	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 21.0 * 17.0
 ]
 
-{ #category : #'tests-arithmetic-floats' }
+{ #category : 'tests-arithmetic-floats' }
 DRPrimitiveScenarioCompilationTest >> testAsFloatSubtract [
 
 	| floatRawValue |
@@ -219,7 +220,7 @@ DRPrimitiveScenarioCompilationTest >> testAsFloatSubtract [
 	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 4.0
 ]
 
-{ #category : #'tests-types' }
+{ #category : 'tests-types' }
 DRPrimitiveScenarioCompilationTest >> testAsInteger [
 
 	| floatRawValue |
@@ -231,7 +232,7 @@ DRPrimitiveScenarioCompilationTest >> testAsInteger [
 	self assert: (Float fromIEEE64BitWord: floatRawValue) equals: 17
 ]
 
-{ #category : #'tests-failing-primitive' }
+{ #category : 'tests-failing-primitive' }
 DRPrimitiveScenarioCompilationTest >> testAssertIsIgnored [
 
 	self compileDruidPrimitive: #primitiveAssertIsIgnored.
@@ -242,7 +243,7 @@ DRPrimitiveScenarioCompilationTest >> testAssertIsIgnored [
 
 ]
 
-{ #category : #'tests-bitwise' }
+{ #category : 'tests-bitwise' }
 DRPrimitiveScenarioCompilationTest >> testBitXor [
 
 	self compileDruidPrimitive: #primitiveBitXor.
@@ -252,7 +253,7 @@ DRPrimitiveScenarioCompilationTest >> testBitXor [
 	self assert: machineSimulator receiverRegisterValue equals: 2r100
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testBranchingWithAssigmentsFalse [
 
 	self compileDruidPrimitive: #primitiveBranchingWithAssigments.
@@ -262,7 +263,7 @@ DRPrimitiveScenarioCompilationTest >> testBranchingWithAssigmentsFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testBranchingWithAssigmentsTrue [
 
 	self compileDruidPrimitive: #primitiveBranchingWithAssigments.
@@ -272,7 +273,7 @@ DRPrimitiveScenarioCompilationTest >> testBranchingWithAssigmentsTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testCascade [
 
 	| object pointerToFirstSlot result |
@@ -296,7 +297,7 @@ DRPrimitiveScenarioCompilationTest >> testCascade [
 	self assert: result equals: 2
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testCaseOfOtherwiseCaseOne [
 
 	self compileDruidPrimitive: #primitiveCaseOfOtherwiseValue.
@@ -306,7 +307,7 @@ DRPrimitiveScenarioCompilationTest >> testCaseOfOtherwiseCaseOne [
 	self assert: machineSimulator receiverRegisterValue equals: 57
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testCaseOfOtherwiseCaseOtherwise [
 
 	self compileDruidPrimitive: #primitiveCaseOfOtherwiseValue.
@@ -316,7 +317,7 @@ DRPrimitiveScenarioCompilationTest >> testCaseOfOtherwiseCaseOtherwise [
 	self assert: machineSimulator receiverRegisterValue equals: 77
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testCaseOfOtherwiseCaseTwo [
 
 	self compileDruidPrimitive: #primitiveCaseOfOtherwiseValue.
@@ -326,7 +327,7 @@ DRPrimitiveScenarioCompilationTest >> testCaseOfOtherwiseCaseTwo [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testClassVariables [
 
 	self compileDruidPrimitive: #primitiveClassVariable.
@@ -336,7 +337,7 @@ DRPrimitiveScenarioCompilationTest >> testClassVariables [
 	self assert: machineSimulator receiverRegisterValue equals: ClassFloatCompactIndex
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testClassVariablesWithControlFlow [
 
 	self compileDruidPrimitive: #primitiveClassVariableWithBranch.
@@ -346,7 +347,7 @@ DRPrimitiveScenarioCompilationTest >> testClassVariablesWithControlFlow [
 	self assert: machineSimulator receiverRegisterValue equals: ClassFloatCompactIndex + 2
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testCompareObjectReferenceFalse [
 
 	self compileDruidPrimitive: #primitiveConditionWithObjectReference.
@@ -356,7 +357,7 @@ DRPrimitiveScenarioCompilationTest >> testCompareObjectReferenceFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testCompareObjectReferenceTrue [
 
 	self compileDruidPrimitive: #primitiveConditionWithObjectReference.
@@ -366,7 +367,7 @@ DRPrimitiveScenarioCompilationTest >> testCompareObjectReferenceTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testCompareRefenceValueFalse [
 
 	self compileDruidPrimitive: #primitiveGreaterThanReferenceValue.
@@ -376,7 +377,7 @@ DRPrimitiveScenarioCompilationTest >> testCompareRefenceValueFalse [
 	self assert: machineSimulator receiverRegisterValue equals: false asBit
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testCompareRefenceValueTrue [
 
 	self compileDruidPrimitive: #primitiveGreaterThanReferenceValue.
@@ -386,7 +387,7 @@ DRPrimitiveScenarioCompilationTest >> testCompareRefenceValueTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testCompileEmptyPrimitiveWithArgumentsReturnsReceiver [
 
 	| receiver |
@@ -399,7 +400,7 @@ DRPrimitiveScenarioCompilationTest >> testCompileEmptyPrimitiveWithArgumentsRetu
 	self assert: machineSimulator receiverRegisterValue equals: receiver.
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsReturnsTopOfTheStack [
 
 	| receiver |
@@ -412,7 +413,7 @@ DRPrimitiveScenarioCompilationTest >> testCompileEmptyPrimitiveWithoutArgumentsR
 	self assert: machineSimulator receiverRegisterValue equals: receiver
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testCompileNonCompiledCaseExitsWithFailure [
 
 	| receiver |
@@ -426,7 +427,7 @@ DRPrimitiveScenarioCompilationTest >> testCompileNonCompiledCaseExitsWithFailure
 	self assert: machineSimulator instructionPointerRegisterValue equals: stopAddress
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testCompileNonCompiledCaseExitsWithSuccess [
 
 	| receiver |
@@ -439,7 +440,7 @@ DRPrimitiveScenarioCompilationTest >> testCompileNonCompiledCaseExitsWithSuccess
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'test-blocks' }
+{ #category : 'test-blocks' }
 DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingBlock [
 
 	| receiver |
@@ -451,7 +452,7 @@ DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingBlock [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'test-blocks' }
+{ #category : 'test-blocks' }
 DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingBlockReadingExternalTemp [
 
 	| receiver |
@@ -463,7 +464,7 @@ DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingBlockReadingExt
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'test-blocks' }
+{ #category : 'test-blocks' }
 DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingBlockWithArgument [
 
 	| receiver |
@@ -475,7 +476,7 @@ DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingBlockWithArgume
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'test-blocks' }
+{ #category : 'test-blocks' }
 DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingBlockWithNonLocalReturn [
 
 	| receiver |
@@ -487,7 +488,7 @@ DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingBlockWithNonLoc
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'test-blocks' }
+{ #category : 'test-blocks' }
 DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingBlockWritingExternalTemp [
 
 	| receiver |
@@ -499,7 +500,7 @@ DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingBlockWritingExt
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'test-blocks' }
+{ #category : 'test-blocks' }
 DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingEmptyBlock [
 
 	| receiver |
@@ -511,7 +512,7 @@ DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingEmptyBlock [
 	self assert: machineSimulator receiverRegisterValue equals: 18
 ]
 
-{ #category : #'tests-methodactivations' }
+{ #category : 'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingMethod [
 
 	| receiver |
@@ -524,7 +525,7 @@ DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingMethod [
 	self assert: machineSimulator receiverRegisterValue equals: 73
 ]
 
-{ #category : #'tests-methodactivations' }
+{ #category : 'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingMethodWithEarlyReturnCaseFalse [
 
 	self compileDruidPrimitive: #primitiveCallingMethodWithEarlyReturn.
@@ -535,7 +536,7 @@ DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingMethodWithEarly
 	self assert: machineSimulator receiverRegisterValue equals: 57
 ]
 
-{ #category : #'tests-methodactivations' }
+{ #category : 'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingMethodWithEarlyReturnCaseTrue [
 
 	self compileDruidPrimitive: #primitiveCallingMethodWithEarlyReturn.
@@ -546,7 +547,7 @@ DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveCallingMethodWithEarly
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveReturningConstant [
 
 	| receiver |
@@ -559,7 +560,7 @@ DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveReturningConstant [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveReturningFalseObjectReference [
 
 	| receiver |
@@ -571,7 +572,7 @@ DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveReturningFalseObjectRe
 	self assert: machineSimulator receiverRegisterValue equals: memory falseObject
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveReturningObjectReference [
 
 	| receiver |
@@ -584,7 +585,7 @@ DRPrimitiveScenarioCompilationTest >> testCompilePrimitiveReturningObjectReferen
 	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
 ]
 
-{ #category : #'tests-stack' }
+{ #category : 'tests-stack' }
 DRPrimitiveScenarioCompilationTest >> testCompiledPrimitiveInitializesCorrectlyTheSimulatedStack [
 
 	| receiver |
@@ -598,7 +599,7 @@ DRPrimitiveScenarioCompilationTest >> testCompiledPrimitiveInitializesCorrectlyT
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-stack' }
+{ #category : 'tests-stack' }
 DRPrimitiveScenarioCompilationTest >> testCompiledPrimitivePreservesStack [
 
 	| receiver |
@@ -613,7 +614,7 @@ DRPrimitiveScenarioCompilationTest >> testCompiledPrimitivePreservesStack [
 	self assert: self popAddress equals: 55
 ]
 
-{ #category : #'tests-stack' }
+{ #category : 'tests-stack' }
 DRPrimitiveScenarioCompilationTest >> testCompiledPrimitiveWithTwoArgs [
 
 	self compileDruidPrimitive: #primitiveWithTwoArgs.
@@ -624,7 +625,7 @@ DRPrimitiveScenarioCompilationTest >> testCompiledPrimitiveWithTwoArgs [
 	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testConditionalCompilationWithNoConditionGiven [
 
 	self
@@ -636,7 +637,7 @@ DRPrimitiveScenarioCompilationTest >> testConditionalCompilationWithNoConditionG
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'tests-types' }
+{ #category : 'tests-types' }
 DRPrimitiveScenarioCompilationTest >> testConstantFloatAsInteger [
 
 	self compileDruidPrimitive: #primitiveConstantFloatAsInteger.
@@ -645,7 +646,7 @@ DRPrimitiveScenarioCompilationTest >> testConstantFloatAsInteger [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testDecrementConstantArgument [
 
 	self compileDruidPrimitive: #primitiveDecrementConstantArgument.
@@ -655,7 +656,7 @@ DRPrimitiveScenarioCompilationTest >> testDecrementConstantArgument [
 	self assert: machineSimulator receiverRegisterValue equals: 41
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testDecrementConstantReceiver [
 
 	self compileDruidPrimitive: #primitiveDecrementConstantReceiver.
@@ -665,7 +666,7 @@ DRPrimitiveScenarioCompilationTest >> testDecrementConstantReceiver [
 	self assert: machineSimulator receiverRegisterValue equals: 37
 ]
 
-{ #category : #'tests-methodactivations' }
+{ #category : 'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testDeferredInline [
 
 	self skip.
@@ -676,7 +677,7 @@ DRPrimitiveScenarioCompilationTest >> testDeferredInline [
 	self assert: machineSimulator receiverRegisterValue equals: 84
 ]
 
-{ #category : #'tests-methodactivations' }
+{ #category : 'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testDeferredInlineFailedCode [
 
 	self skip.
@@ -685,7 +686,7 @@ DRPrimitiveScenarioCompilationTest >> testDeferredInlineFailedCode [
 	self executeUntilStopPrimitiveWithReceiver: 0
 ]
 
-{ #category : #'tests-methodactivations' }
+{ #category : 'tests-methodactivations' }
 DRPrimitiveScenarioCompilationTest >> testDeferredInlineTwice [
 
 	self skip.
@@ -696,7 +697,7 @@ DRPrimitiveScenarioCompilationTest >> testDeferredInlineTwice [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testDivision [
 
 	self compileDruidPrimitive: #primitiveDivide.
@@ -706,7 +707,7 @@ DRPrimitiveScenarioCompilationTest >> testDivision [
 	self assert: machineSimulator receiverRegisterValue equals: 21
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testDivisionByConstant [
 
 	self compileDruidPrimitive: #primitiveDivideByConstant.
@@ -716,7 +717,7 @@ DRPrimitiveScenarioCompilationTest >> testDivisionByConstant [
 	self assert: machineSimulator receiverRegisterValue equals: 21
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testDivisionByZero [
 
 	<expectedFailure>
@@ -729,7 +730,7 @@ DRPrimitiveScenarioCompilationTest >> testDivisionByZero [
 	self assert: machineSimulator overflow "Replace with expected assertion"
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testDivisionNotExact [
 
 	self compileDruidPrimitive: #primitiveDivide.
@@ -739,7 +740,7 @@ DRPrimitiveScenarioCompilationTest >> testDivisionNotExact [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testDivisionNotExactNegative [
 
 	self compileDruidPrimitive: #primitiveDivide.
@@ -749,7 +750,7 @@ DRPrimitiveScenarioCompilationTest >> testDivisionNotExactNegative [
 	self assert: (machineSimulator receiverRegisterValue signedIntFromShort) equals: -1.   
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeLeftVariableLeft [
 
 	self compileDruidPrimitive: #primitiveDoubleBitAndSubtreeLeftVariableLeft.
@@ -759,7 +760,7 @@ DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeLeftVariableLeft [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeLeftVariableRight [
 
 	self compileDruidPrimitive: #primitiveDoubleBitAndSubtreeLeftVariableRight.
@@ -769,7 +770,7 @@ DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeLeftVariableRight [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeRightVariableLeft [
 
 	self compileDruidPrimitive: #primitiveDoubleBitAndSubtreeRightVariableLeft.
@@ -779,7 +780,7 @@ DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeRightVariableLeft [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeRightVariableRight [
 
 	self compileDruidPrimitive: #primitiveDoubleBitAndSubtreeRightVariableRight.
@@ -789,7 +790,7 @@ DRPrimitiveScenarioCompilationTest >> testDoubleBitAndSubtreeRightVariableRight 
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testEqualsThan [
 
 	self compileDruidPrimitive: #primitiveEqualsThan.
@@ -799,7 +800,7 @@ DRPrimitiveScenarioCompilationTest >> testEqualsThan [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testEqualsThanFail [
 
 	self compileDruidPrimitive: #primitiveEqualsThan.
@@ -809,7 +810,7 @@ DRPrimitiveScenarioCompilationTest >> testEqualsThanFail [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testEqualsThanFloatsEquals [
 
 	self compileDruidPrimitive: #primitiveEqualsThanFloats.
@@ -819,7 +820,7 @@ DRPrimitiveScenarioCompilationTest >> testEqualsThanFloatsEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testEqualsThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveEqualsThanFloats.
@@ -829,7 +830,7 @@ DRPrimitiveScenarioCompilationTest >> testEqualsThanFloatsGreater [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testEqualsThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveEqualsThanFloats.
@@ -839,7 +840,7 @@ DRPrimitiveScenarioCompilationTest >> testEqualsThanFloatsLess [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testEqualsThanInverted [
 
 	self compileDruidPrimitive: #primitiveEqualsThanInverted.
@@ -849,7 +850,7 @@ DRPrimitiveScenarioCompilationTest >> testEqualsThanInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testEqualsThanInvertedFail [
 
 	self compileDruidPrimitive: #primitiveEqualsThanInverted.
@@ -859,7 +860,7 @@ DRPrimitiveScenarioCompilationTest >> testEqualsThanInvertedFail [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testEqualsThanValueFalse [
 
 	self compileDruidPrimitive: #primitiveEqualsThanValue.
@@ -869,7 +870,7 @@ DRPrimitiveScenarioCompilationTest >> testEqualsThanValueFalse [
 	self assert: machineSimulator receiverRegisterValue equals: false asBit
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testEqualsThanValueTrue [
 
 	self compileDruidPrimitive: #primitiveEqualsThanValue.
@@ -879,7 +880,7 @@ DRPrimitiveScenarioCompilationTest >> testEqualsThanValueTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
-{ #category : #'tests-failing-primitive' }
+{ #category : 'tests-failing-primitive' }
 DRPrimitiveScenarioCompilationTest >> testFailingPrimitive2ExecutesUntilStop [
 
 	self compileDruidPrimitive: #failingPrimitive.
@@ -887,7 +888,7 @@ DRPrimitiveScenarioCompilationTest >> testFailingPrimitive2ExecutesUntilStop [
 	self executeUntilStopPrimitiveWithReceiver: 1
 ]
 
-{ #category : #'tests-failing-primitive' }
+{ #category : 'tests-failing-primitive' }
 DRPrimitiveScenarioCompilationTest >> testFailingPrimitiveWithArgExecutesUntilStop [
 
 	self compileDruidPrimitive: #failingPrimitiveWithArg.
@@ -895,7 +896,7 @@ DRPrimitiveScenarioCompilationTest >> testFailingPrimitiveWithArgExecutesUntilSt
 	self executeUntilStopPrimitiveWithReceiver: 1 withArguments: { 42 }
 ]
 
-{ #category : #'tests-failing-primitive' }
+{ #category : 'tests-failing-primitive' }
 DRPrimitiveScenarioCompilationTest >> testFailingSuccessExecutesUntilStop [
 
 	self compileDruidPrimitive: #failingSuccess.
@@ -903,7 +904,7 @@ DRPrimitiveScenarioCompilationTest >> testFailingSuccessExecutesUntilStop [
 	self executeUntilStopPrimitiveWithReceiver: 1
 ]
 
-{ #category : #'tests-booleans' }
+{ #category : 'tests-booleans' }
 DRPrimitiveScenarioCompilationTest >> testFalseAsInteger [
 
 	self compileDruidPrimitive: #primitiveFalseAsInteger.
@@ -913,7 +914,7 @@ DRPrimitiveScenarioCompilationTest >> testFalseAsInteger [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-booleans' }
+{ #category : 'tests-booleans' }
 DRPrimitiveScenarioCompilationTest >> testFalseAssigmentAsInteger [
 
 	self compileDruidPrimitive: #primitiveFalseAssignmentAsInteger.
@@ -923,7 +924,7 @@ DRPrimitiveScenarioCompilationTest >> testFalseAssigmentAsInteger [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-booleans' }
+{ #category : 'tests-booleans' }
 DRPrimitiveScenarioCompilationTest >> testFalseNot [
 
 	self compileDruidPrimitive: #primitiveFalseNot.
@@ -933,7 +934,7 @@ DRPrimitiveScenarioCompilationTest >> testFalseNot [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testFloat64At [
 
 	| object pointerToFirstSlot |
@@ -949,7 +950,7 @@ DRPrimitiveScenarioCompilationTest >> testFloat64At [
 	self assert: (Float fromIEEE64BitWord: machineSimulator receiverRegisterValue) equals: 1234.0
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testFloat64AtPut [
 
 	| object pointerToFirstSlot result |
@@ -965,7 +966,7 @@ DRPrimitiveScenarioCompilationTest >> testFloat64AtPut [
 	self assert: (Float fromIEEE64BitWord: result) equals: 1234.0
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testFloatAddConstant [
 
 	self compileDruidPrimitive: #primitivePlusFloatConstant.
@@ -975,7 +976,7 @@ DRPrimitiveScenarioCompilationTest >> testFloatAddConstant [
 	self assert: (Float fromIEEE64Bit: machineSimulator receiverRegisterValue) closeTo: 4.14
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testFloatFalseComparisonToConstantFloat [
 
 	self compileDruidPrimitive: #primitiveEqualsThanFloatConstant.
@@ -985,7 +986,7 @@ DRPrimitiveScenarioCompilationTest >> testFloatFalseComparisonToConstantFloat [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testFloatTrueComparisonToConstantFloat [
 
 	self compileDruidPrimitive: #primitiveEqualsThanFloatConstant.
@@ -995,7 +996,7 @@ DRPrimitiveScenarioCompilationTest >> testFloatTrueComparisonToConstantFloat [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-deadcode' }
+{ #category : 'tests-deadcode' }
 DRPrimitiveScenarioCompilationTest >> testFourDeadBranchesFourBranches1 [
 
 	self compileDruidPrimitive: #primitiveDNA.
@@ -1005,7 +1006,7 @@ DRPrimitiveScenarioCompilationTest >> testFourDeadBranchesFourBranches1 [
 	self assert: machineSimulator receiverRegisterValue equals: 21
 ]
 
-{ #category : #'tests-deadcode' }
+{ #category : 'tests-deadcode' }
 DRPrimitiveScenarioCompilationTest >> testFourDeadBranchesFourBranches2 [
 
 	self compileDruidPrimitive: #primitiveDNA.
@@ -1015,7 +1016,7 @@ DRPrimitiveScenarioCompilationTest >> testFourDeadBranchesFourBranches2 [
 	self assert: machineSimulator receiverRegisterValue equals: 119
 ]
 
-{ #category : #'tests-deadcode' }
+{ #category : 'tests-deadcode' }
 DRPrimitiveScenarioCompilationTest >> testFourDeadBranchesFourBranches3 [
 
 	self compileDruidPrimitive: #primitiveDNA.
@@ -1025,7 +1026,7 @@ DRPrimitiveScenarioCompilationTest >> testFourDeadBranchesFourBranches3 [
 	self assert: machineSimulator receiverRegisterValue equals: 146
 ]
 
-{ #category : #'tests-deadcode' }
+{ #category : 'tests-deadcode' }
 DRPrimitiveScenarioCompilationTest >> testFourDeadBranchesFourBranches4 [
 
 	self compileDruidPrimitive: #primitiveDNA.
@@ -1035,7 +1036,7 @@ DRPrimitiveScenarioCompilationTest >> testFourDeadBranchesFourBranches4 [
 	self assert: machineSimulator receiverRegisterValue equals: 158
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanArgumentFalse [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualThanArgument.
@@ -1045,7 +1046,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanArgumentFalse [
 	self assert: machineSimulator receiverRegisterValue equals: false asBit
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanArgumentTrue [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualThanArgument.
@@ -1055,7 +1056,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanArgumentTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanValueFalse [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualThanValue.
@@ -1065,7 +1066,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanValueFalse [
 	self assert: machineSimulator receiverRegisterValue equals: false asBit
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanValueTrue [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualThanValue.
@@ -1075,7 +1076,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualThanValueTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThan [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThan.
@@ -1084,7 +1085,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThan [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThanEquals [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThan.
@@ -1094,7 +1095,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThanEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThanEqualsInverted [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanInverted.
@@ -1104,7 +1105,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThanEqualsInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThanFloatsEquals [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanFloats.
@@ -1114,7 +1115,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThanFloatsEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanFloats.
@@ -1124,7 +1125,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThanFloatsGreater [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanFloats.
@@ -1134,7 +1135,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThanFloatsLess [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThanInverted [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanInverted.
@@ -1144,7 +1145,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterOrEqualsThanInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testGreaterThan [
 
 	self compileDruidPrimitive: #primitiveGreaterThan.
@@ -1154,7 +1155,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThan [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testGreaterThanArgumentFalse [
 
 	self compileDruidPrimitive: #primitiveGreaterThanArgument.
@@ -1164,7 +1165,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanArgumentFalse [
 	self assert: machineSimulator receiverRegisterValue equals: false asBit
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testGreaterThanArgumentTrue [
 
 	self compileDruidPrimitive: #primitiveGreaterThanArgument.
@@ -1174,7 +1175,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanArgumentTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfEqualsNumber [
 	"A negative number bitAnded should be considered a very large positive integer"
 
@@ -1185,7 +1186,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfEqualsNumber [
 	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfNegativeNumber [
 	"A negative number bitAnded should be considered a very large positive integer"
 
@@ -1196,7 +1197,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfNegativeNumber [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfPositiveNumber [
 	"A negative number bitAnded should be considered a very large positive integer"
 
@@ -1207,7 +1208,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanBitAndOfPositiveNumber [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testGreaterThanFloatsEquals [
 
 	self compileDruidPrimitive: #primitiveGreaterThanFloats.
@@ -1217,7 +1218,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanFloatsEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testGreaterThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveGreaterThanFloats.
@@ -1227,7 +1228,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanFloatsGreater [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testGreaterThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveGreaterThanFloats.
@@ -1237,7 +1238,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanFloatsLess [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testGreaterThanInverted [
 
 	self compileDruidPrimitive: #primitiveGreaterThanInverted.
@@ -1247,7 +1248,7 @@ DRPrimitiveScenarioCompilationTest >> testGreaterThanInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfFalseIfTrueReturningValueCaseFalse [
 
 	self compileDruidPrimitive: #primitiveIfFalseIfTrueReturningValue.
@@ -1257,7 +1258,7 @@ DRPrimitiveScenarioCompilationTest >> testIfFalseIfTrueReturningValueCaseFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfFalseIfTrueReturningValueCaseTrue [
 
 	self compileDruidPrimitive: #primitiveIfFalseIfTrueReturningValue.
@@ -1267,7 +1268,7 @@ DRPrimitiveScenarioCompilationTest >> testIfFalseIfTrueReturningValueCaseTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 57
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfNilNotNilStatementWithNil [
 
 	self compileDruidPrimitive: #primitiveWithIfNilIfNotNilStatement.
@@ -1278,7 +1279,7 @@ DRPrimitiveScenarioCompilationTest >> testIfNilNotNilStatementWithNil [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfNilNotNilStatementWithNotNil [
 
 	self compileDruidPrimitive: #primitiveWithIfNilIfNotNilStatement.
@@ -1289,7 +1290,7 @@ DRPrimitiveScenarioCompilationTest >> testIfNilNotNilStatementWithNotNil [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfNotNilArgumentIfNilStatementWithNil [
 
 	self compileDruidPrimitive: #primitiveWithIfNotNilIfNilStatementWithArgument.
@@ -1300,7 +1301,7 @@ DRPrimitiveScenarioCompilationTest >> testIfNotNilArgumentIfNilStatementWithNil 
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfNotNilArgumentIfNilStatementWithNotNil [
 
 	self compileDruidPrimitive: #primitiveWithIfNotNilIfNilStatementWithArgument.
@@ -1311,7 +1312,7 @@ DRPrimitiveScenarioCompilationTest >> testIfNotNilArgumentIfNilStatementWithNotN
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfNotNilIfNilStatementWithNil [
 
 	self compileDruidPrimitive: #primitiveWithIfNotNilIfNilStatement.
@@ -1322,7 +1323,7 @@ DRPrimitiveScenarioCompilationTest >> testIfNotNilIfNilStatementWithNil [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfNotNilIfNilStatementWithNotNil [
 
 	self compileDruidPrimitive: #primitiveWithIfNotNilIfNilStatement.
@@ -1333,7 +1334,7 @@ DRPrimitiveScenarioCompilationTest >> testIfNotNilIfNilStatementWithNotNil [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfNotNilStatementWithNil [
 
 	self compileDruidPrimitive: #primitiveDeadBranchWithError.
@@ -1343,7 +1344,7 @@ DRPrimitiveScenarioCompilationTest >> testIfNotNilStatementWithNil [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfNotNilStatementWithNotNil [
 
 	self compileDruidPrimitive: #primitiveWithIfNotNilStatement.
@@ -1354,7 +1355,7 @@ DRPrimitiveScenarioCompilationTest >> testIfNotNilStatementWithNotNil [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfTrueIfFalseAssigningValueCaseFalse [
 
 	self compileDruidPrimitive: #primitiveIfTrueIfFalseAssigningValue.
@@ -1364,7 +1365,7 @@ DRPrimitiveScenarioCompilationTest >> testIfTrueIfFalseAssigningValueCaseFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 57
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfTrueIfFalseAssigningValueCaseTrue [
 
 	self compileDruidPrimitive: #primitiveIfTrueIfFalseAssigningValue.
@@ -1374,7 +1375,7 @@ DRPrimitiveScenarioCompilationTest >> testIfTrueIfFalseAssigningValueCaseTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfTrueIfFalseReturningValueCaseFalse [
 
 	self compileDruidPrimitive: #primitiveIfTrueIfFalseReturningValue.
@@ -1384,7 +1385,7 @@ DRPrimitiveScenarioCompilationTest >> testIfTrueIfFalseReturningValueCaseFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 57
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfTrueIfFalseReturningValueCaseTrue [
 
 	self compileDruidPrimitive: #primitiveIfTrueIfFalseReturningValue.
@@ -1394,7 +1395,7 @@ DRPrimitiveScenarioCompilationTest >> testIfTrueIfFalseReturningValueCaseTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfTrueStatementCaseFalse [
 
 	self compileDruidPrimitive: #primitiveIfTrueStatement.
@@ -1404,7 +1405,7 @@ DRPrimitiveScenarioCompilationTest >> testIfTrueStatementCaseFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 10
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testIfTrueStatementCaseTrue [
 
 	self compileDruidPrimitive: #primitiveIfTrueStatement.
@@ -1414,7 +1415,7 @@ DRPrimitiveScenarioCompilationTest >> testIfTrueStatementCaseTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-bitwise' }
+{ #category : 'tests-bitwise' }
 DRPrimitiveScenarioCompilationTest >> testImplicitBitShiftLeft [
 
 	self compileDruidPrimitive: #primitiveBitShift.
@@ -1424,7 +1425,7 @@ DRPrimitiveScenarioCompilationTest >> testImplicitBitShiftLeft [
 	self assert: machineSimulator receiverRegisterValue equals: 2r100
 ]
 
-{ #category : #'tests-bitwise' }
+{ #category : 'tests-bitwise' }
 DRPrimitiveScenarioCompilationTest >> testImplicitBitShiftRight [
 
 	self compileDruidPrimitive: #primitiveBitShift.
@@ -1434,7 +1435,7 @@ DRPrimitiveScenarioCompilationTest >> testImplicitBitShiftRight [
 	self assert: machineSimulator receiverRegisterValue equals: 2r1
 ]
 
-{ #category : #'tests-bitwise' }
+{ #category : 'tests-bitwise' }
 DRPrimitiveScenarioCompilationTest >> testImplicitConstantArgumentBitShiftLeft [
 
 	self compileDruidPrimitive: #primitiveImplicitArgumentBitShiftLeft.
@@ -1444,7 +1445,7 @@ DRPrimitiveScenarioCompilationTest >> testImplicitConstantArgumentBitShiftLeft [
 	self assert: machineSimulator receiverRegisterValue equals: 2r100
 ]
 
-{ #category : #'tests-bitwise' }
+{ #category : 'tests-bitwise' }
 DRPrimitiveScenarioCompilationTest >> testImplicitConstantBitShiftLeft [
 
 	self compileDruidPrimitive: #primitiveImplicitBitShiftLeft.
@@ -1454,7 +1455,7 @@ DRPrimitiveScenarioCompilationTest >> testImplicitConstantBitShiftLeft [
 	self assert: machineSimulator receiverRegisterValue equals: 2r100
 ]
 
-{ #category : #'tests-bitwise' }
+{ #category : 'tests-bitwise' }
 DRPrimitiveScenarioCompilationTest >> testImplicitConstantBitShiftRight [
 
 	self compileDruidPrimitive: #primitiveImplicitBitShiftRight.
@@ -1464,7 +1465,7 @@ DRPrimitiveScenarioCompilationTest >> testImplicitConstantBitShiftRight [
 	self assert: machineSimulator receiverRegisterValue equals: 2r1
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testIncrementConstantArgument [
 
 	self compileDruidPrimitive: #primitiveIncrementConstantArgument.
@@ -1474,7 +1475,7 @@ DRPrimitiveScenarioCompilationTest >> testIncrementConstantArgument [
 	self assert: machineSimulator receiverRegisterValue equals: 43
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testIncrementConstantReceiver [
 
 	self compileDruidPrimitive: #primitiveIncrementConstantReceiver.
@@ -1484,7 +1485,7 @@ DRPrimitiveScenarioCompilationTest >> testIncrementConstantReceiver [
 	self assert: machineSimulator receiverRegisterValue equals: 43
 ]
 
-{ #category : #'tests-types' }
+{ #category : 'tests-types' }
 DRPrimitiveScenarioCompilationTest >> testIntegerAsFloat [
 
 	| floatRawValue |
@@ -1496,7 +1497,7 @@ DRPrimitiveScenarioCompilationTest >> testIntegerAsFloat [
 	self assert: (Float fromIEEE64Bit: floatRawValue) equals: 17.0
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testIntegerBitAndSmallIntegers [
 
 	cogit receiverTags: 1.
@@ -1507,7 +1508,7 @@ DRPrimitiveScenarioCompilationTest >> testIntegerBitAndSmallIntegers [
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: (42 bitAnd: 11))
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testIntegerDivision [
 
 	self compileDruidPrimitive: #primitiveIntegerDivide.
@@ -1517,7 +1518,7 @@ DRPrimitiveScenarioCompilationTest >> testIntegerDivision [
 	self assert: machineSimulator receiverRegisterValue equals: 21
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testIntegerDivisionByConstant [
 
 	self compileDruidPrimitive: #primitiveIntegerDivideByConstant.
@@ -1527,7 +1528,7 @@ DRPrimitiveScenarioCompilationTest >> testIntegerDivisionByConstant [
 	self assert: machineSimulator receiverRegisterValue equals: 21
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testIntegerDivisionByZero [
 
 	<expectedFailure>
@@ -1540,7 +1541,7 @@ DRPrimitiveScenarioCompilationTest >> testIntegerDivisionByZero [
 	self assert: machineSimulator overflow "Replace with expected assertion"
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testIntegerDivisionNotExact [
 
 	self compileDruidPrimitive: #primitiveIntegerDivide.
@@ -1550,7 +1551,7 @@ DRPrimitiveScenarioCompilationTest >> testIntegerDivisionNotExact [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testIntegerDivisionNotExactNegative [
 
 	self compileDruidPrimitive: #primitiveIntegerDivide.
@@ -1560,7 +1561,7 @@ DRPrimitiveScenarioCompilationTest >> testIntegerDivisionNotExactNegative [
 	self assert: (machineSimulator receiverRegisterValue signedIntFromShort) equals: -1.   
 ]
 
-{ #category : #'tests-types' }
+{ #category : 'tests-types' }
 DRPrimitiveScenarioCompilationTest >> testIntegerRawBitsAsFloat [
 
 	| floatRawValue |
@@ -1572,7 +1573,7 @@ DRPrimitiveScenarioCompilationTest >> testIntegerRawBitsAsFloat [
 	self assert: floatRawValue equals: 17
 ]
 
-{ #category : #'tests-builtins' }
+{ #category : 'tests-builtins' }
 DRPrimitiveScenarioCompilationTest >> testIsIntegerObjectWithIntegerObject [
 
 	self compileDruidPrimitive: #primitiveIsIntegerObject.
@@ -1581,7 +1582,7 @@ DRPrimitiveScenarioCompilationTest >> testIsIntegerObjectWithIntegerObject [
 	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
 ]
 
-{ #category : #'tests-builtins' }
+{ #category : 'tests-builtins' }
 DRPrimitiveScenarioCompilationTest >> testIsIntegerObjectWithNonIntegerObject [
 
 	self compileDruidPrimitive: #primitiveIsIntegerObject.
@@ -1590,7 +1591,7 @@ DRPrimitiveScenarioCompilationTest >> testIsIntegerObjectWithNonIntegerObject [
 	self assert: machineSimulator receiverRegisterValue equals: memory falseObject
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testJitCompileTimeExpression [
 
 	memory trueObject: 17.
@@ -1601,7 +1602,7 @@ DRPrimitiveScenarioCompilationTest >> testJitCompileTimeExpression [
 	self assert: machineSimulator receiverRegisterValue equals: 22 "17 + 5"
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testLessOrEqualThanArgumentFalse [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualThanArgument.
@@ -1611,7 +1612,7 @@ DRPrimitiveScenarioCompilationTest >> testLessOrEqualThanArgumentFalse [
 	self assert: machineSimulator receiverRegisterValue equals: false asBit
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testLessOrEqualThanArgumentTrue [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualThanArgument.
@@ -1621,7 +1622,7 @@ DRPrimitiveScenarioCompilationTest >> testLessOrEqualThanArgumentTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testLessOrEqualThanValueFalse [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualThanValue.
@@ -1631,7 +1632,7 @@ DRPrimitiveScenarioCompilationTest >> testLessOrEqualThanValueFalse [
 	self assert: machineSimulator receiverRegisterValue equals: false asBit
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testLessOrEqualThanValueTrue [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualThanValue.
@@ -1641,7 +1642,7 @@ DRPrimitiveScenarioCompilationTest >> testLessOrEqualThanValueTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testLessOrEqualsThanFloatsEquals [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualsThanFloats.
@@ -1651,7 +1652,7 @@ DRPrimitiveScenarioCompilationTest >> testLessOrEqualsThanFloatsEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testLessOrEqualsThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualsThanFloats.
@@ -1661,7 +1662,7 @@ DRPrimitiveScenarioCompilationTest >> testLessOrEqualsThanFloatsGreater [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testLessOrEqualsThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualsThanFloats.
@@ -1671,7 +1672,7 @@ DRPrimitiveScenarioCompilationTest >> testLessOrEqualsThanFloatsLess [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testLessThanArgumentFalse [
 
 	self compileDruidPrimitive: #primitiveLessThanArgument.
@@ -1681,7 +1682,7 @@ DRPrimitiveScenarioCompilationTest >> testLessThanArgumentFalse [
 	self assert: machineSimulator receiverRegisterValue equals: false asBit
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testLessThanArgumentTrue [
 
 	self compileDruidPrimitive: #primitiveLessThanArgument.
@@ -1691,7 +1692,7 @@ DRPrimitiveScenarioCompilationTest >> testLessThanArgumentTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testLessThanFloatsEquals [
 
 	self compileDruidPrimitive: #primitiveLessThanFloats.
@@ -1701,7 +1702,7 @@ DRPrimitiveScenarioCompilationTest >> testLessThanFloatsEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testLessThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveLessThanFloats.
@@ -1711,7 +1712,7 @@ DRPrimitiveScenarioCompilationTest >> testLessThanFloatsGreater [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testLessThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveLessThanFloats.
@@ -1721,7 +1722,7 @@ DRPrimitiveScenarioCompilationTest >> testLessThanFloatsLess [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testLessThanValueFalse [
 
 	self compileDruidPrimitive: #primitiveLessThanValue.
@@ -1731,7 +1732,7 @@ DRPrimitiveScenarioCompilationTest >> testLessThanValueFalse [
 	self assert: machineSimulator receiverRegisterValue equals: false asBit
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testLessThanValueTrue [
 
 	self compileDruidPrimitive: #primitiveLessThanValue.
@@ -1741,7 +1742,7 @@ DRPrimitiveScenarioCompilationTest >> testLessThanValueTrue [
 	self assert: machineSimulator receiverRegisterValue equals: true asBit
 ]
 
-{ #category : #'tests-bitwise' }
+{ #category : 'tests-bitwise' }
 DRPrimitiveScenarioCompilationTest >> testLogicalBitShiftRight [
 
 	self compileDruidPrimitive: #primitiveLogicalBitShiftRight.
@@ -1753,7 +1754,7 @@ DRPrimitiveScenarioCompilationTest >> testLogicalBitShiftRight [
 	self assert: machineSimulator receiverRegisterValue equals: 1 << 62
 ]
 
-{ #category : #'tests-loop' }
+{ #category : 'tests-loop' }
 DRPrimitiveScenarioCompilationTest >> testLoopInvariantCodeMotionPreservesSemanticsIfLoopIsNeverRun [
 
 	cogit receiverTags: memory smallIntegerTag.
@@ -1765,7 +1766,7 @@ DRPrimitiveScenarioCompilationTest >> testLoopInvariantCodeMotionPreservesSemant
 	self assert: machineSimulator receiverRegisterValue equals: 3
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testMod [
 
 	self compileDruidPrimitive: #primitiveModByConstant.
@@ -1775,7 +1776,7 @@ DRPrimitiveScenarioCompilationTest >> testMod [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testModNegative [
 
 	self compileDruidPrimitive: #primitiveMod.
@@ -1785,7 +1786,7 @@ DRPrimitiveScenarioCompilationTest >> testModNegative [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-arithmetic-smallIntegers' }
+{ #category : 'tests-arithmetic-smallIntegers' }
 DRPrimitiveScenarioCompilationTest >> testMultiplicationIntrinsecWithNoOverflow [
 
 	self compileDruidPrimitive: #primitiveMultiplyWithOverflow.
@@ -1795,7 +1796,7 @@ DRPrimitiveScenarioCompilationTest >> testMultiplicationIntrinsecWithNoOverflow 
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 420)
 ]
 
-{ #category : #'tests-arithmetic-smallIntegers' }
+{ #category : 'tests-arithmetic-smallIntegers' }
 DRPrimitiveScenarioCompilationTest >> testMultiplicationIntrinsecWithOverflow [
 
 	self compileDruidPrimitive: #primitiveMultiplyWithOverflow.
@@ -1805,7 +1806,7 @@ DRPrimitiveScenarioCompilationTest >> testMultiplicationIntrinsecWithOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: 99
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testMultiplyConstantArgument [
 
 	self compileDruidPrimitive: #primitiveMultiplyConstantArgument.
@@ -1815,7 +1816,7 @@ DRPrimitiveScenarioCompilationTest >> testMultiplyConstantArgument [
 	self assert: machineSimulator receiverRegisterValue equals: 84
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testMultiplyConstantReceiver [
 
 	self compileDruidPrimitive: #primitiveMultiplyConstantReceiver.
@@ -1825,7 +1826,7 @@ DRPrimitiveScenarioCompilationTest >> testMultiplyConstantReceiver [
 	self assert: machineSimulator receiverRegisterValue equals: 84
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testNegated [
 
 	self compileDruidPrimitive: #primitiveNegated.
@@ -1835,7 +1836,7 @@ DRPrimitiveScenarioCompilationTest >> testNegated [
 	self assert: (machineSimulator receiverRegisterValue signedIntFromShort) equals: -5
 ]
 
-{ #category : #'tests-arithmetic' }
+{ #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testNegatedNegative [
 
 	self compileDruidPrimitive: #primitiveNegated.
@@ -1845,7 +1846,7 @@ DRPrimitiveScenarioCompilationTest >> testNegatedNegative [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotEqualsThan [
 
 	self compileDruidPrimitive: #primitiveNotEqualsThan.
@@ -1855,7 +1856,7 @@ DRPrimitiveScenarioCompilationTest >> testNotEqualsThan [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotEqualsThanFail [
 
 	self compileDruidPrimitive: #primitiveNotEqualsThan.
@@ -1865,7 +1866,7 @@ DRPrimitiveScenarioCompilationTest >> testNotEqualsThanFail [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testNotEqualsThanFloatsEquals [
 
 	self compileDruidPrimitive: #primitiveNotEqualsThanFloats.
@@ -1875,7 +1876,7 @@ DRPrimitiveScenarioCompilationTest >> testNotEqualsThanFloatsEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testNotEqualsThanFloatsGreater [
 
 	self compileDruidPrimitive: #primitiveNotEqualsThanFloats.
@@ -1885,7 +1886,7 @@ DRPrimitiveScenarioCompilationTest >> testNotEqualsThanFloatsGreater [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons-floats' }
+{ #category : 'tests-comparisons-floats' }
 DRPrimitiveScenarioCompilationTest >> testNotEqualsThanFloatsLess [
 
 	self compileDruidPrimitive: #primitiveNotEqualsThanFloats.
@@ -1895,7 +1896,7 @@ DRPrimitiveScenarioCompilationTest >> testNotEqualsThanFloatsLess [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotEqualsThanInverted [
 
 	self compileDruidPrimitive: #primitiveNotEqualsThanInverted.
@@ -1905,7 +1906,7 @@ DRPrimitiveScenarioCompilationTest >> testNotEqualsThanInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotEqualsThanInvertedFail [
 
 	self compileDruidPrimitive: #primitiveNotEqualsThanInverted.
@@ -1915,7 +1916,7 @@ DRPrimitiveScenarioCompilationTest >> testNotEqualsThanInvertedFail [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotGreaterOrEqualsThan [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThan.
@@ -1925,7 +1926,7 @@ DRPrimitiveScenarioCompilationTest >> testNotGreaterOrEqualsThan [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotGreaterOrEqualsThanInverted [
 
 	self compileDruidPrimitive: #primitiveGreaterOrEqualsThanInverted.
@@ -1935,7 +1936,7 @@ DRPrimitiveScenarioCompilationTest >> testNotGreaterOrEqualsThanInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotGreaterThan [
 
 	self compileDruidPrimitive: #primitiveGreaterThan.
@@ -1945,7 +1946,7 @@ DRPrimitiveScenarioCompilationTest >> testNotGreaterThan [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotGreaterThanEquals [
 
 	self compileDruidPrimitive: #primitiveGreaterThan.
@@ -1955,7 +1956,7 @@ DRPrimitiveScenarioCompilationTest >> testNotGreaterThanEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotGreaterThanInverted [
 
 	self compileDruidPrimitive: #primitiveGreaterThanInverted.
@@ -1965,7 +1966,7 @@ DRPrimitiveScenarioCompilationTest >> testNotGreaterThanInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotSmallerOrEqualsThan [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualsThan.
@@ -1975,7 +1976,7 @@ DRPrimitiveScenarioCompilationTest >> testNotSmallerOrEqualsThan [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotSmallerOrEqualsThanInverted [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualsThanInverted.
@@ -1985,7 +1986,7 @@ DRPrimitiveScenarioCompilationTest >> testNotSmallerOrEqualsThanInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotSmallerThan [
 
 	self compileDruidPrimitive: #primitiveLessThan.
@@ -1995,7 +1996,7 @@ DRPrimitiveScenarioCompilationTest >> testNotSmallerThan [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotSmallerThanEquals [
 
 	self compileDruidPrimitive: #primitiveLessThan.
@@ -2005,7 +2006,7 @@ DRPrimitiveScenarioCompilationTest >> testNotSmallerThanEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotSmallerThanInverted [
 
 	self compileDruidPrimitive: #primitiveLessThanInverted.
@@ -2015,7 +2016,7 @@ DRPrimitiveScenarioCompilationTest >> testNotSmallerThanInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 11
 ]
 
-{ #category : #'tests-deadcode' }
+{ #category : 'tests-deadcode' }
 DRPrimitiveScenarioCompilationTest >> testOneDeadBranchThreeBranches1 [
 
 	self compileDruidPrimitive: #primitiveSandclock.
@@ -2025,7 +2026,7 @@ DRPrimitiveScenarioCompilationTest >> testOneDeadBranchThreeBranches1 [
 	self assert: machineSimulator receiverRegisterValue equals: 6
 ]
 
-{ #category : #'tests-deadcode' }
+{ #category : 'tests-deadcode' }
 DRPrimitiveScenarioCompilationTest >> testOneDeadBranchThreeBranches2 [
 
 	self compileDruidPrimitive: #primitiveSandclock.
@@ -2035,7 +2036,7 @@ DRPrimitiveScenarioCompilationTest >> testOneDeadBranchThreeBranches2 [
 	self assert: machineSimulator receiverRegisterValue equals: 104
 ]
 
-{ #category : #'tests-deadcode' }
+{ #category : 'tests-deadcode' }
 DRPrimitiveScenarioCompilationTest >> testOneDeadBranchThreeBranches3 [
 
 	self compileDruidPrimitive: #primitiveSandclock.
@@ -2045,7 +2046,7 @@ DRPrimitiveScenarioCompilationTest >> testOneDeadBranchThreeBranches3 [
 	self assert: machineSimulator receiverRegisterValue equals: 116
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testOrFirstFalseSecondFalse [
 
 	self compileDruidPrimitive: #primitiveOr.
@@ -2055,7 +2056,7 @@ DRPrimitiveScenarioCompilationTest >> testOrFirstFalseSecondFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 10
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testOrFirstFalseSecondTrue [
 
 	self compileDruidPrimitive: #primitiveOr.
@@ -2065,7 +2066,7 @@ DRPrimitiveScenarioCompilationTest >> testOrFirstFalseSecondTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-comparisons value' }
+{ #category : 'tests-comparisons value' }
 DRPrimitiveScenarioCompilationTest >> testOrFirstTrueSecondFalse [
 
 	self compileDruidPrimitive: #primitiveOr.
@@ -2075,7 +2076,7 @@ DRPrimitiveScenarioCompilationTest >> testOrFirstTrueSecondFalse [
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-failing-primitive' }
+{ #category : 'tests-failing-primitive' }
 DRPrimitiveScenarioCompilationTest >> testPassingSuccess [
 
 	self compileDruidPrimitive: #passingSuccess.
@@ -2085,7 +2086,7 @@ DRPrimitiveScenarioCompilationTest >> testPassingSuccess [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-deadcode' }
+{ #category : 'tests-deadcode' }
 DRPrimitiveScenarioCompilationTest >> testPrimitiveWithDeadCodeGoesThroughFirstCase [
 
 	self compileDruidPrimitive: #primitiveWithDeadCode.
@@ -2094,7 +2095,7 @@ DRPrimitiveScenarioCompilationTest >> testPrimitiveWithDeadCodeGoesThroughFirstC
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
-{ #category : #'tests-deadcode' }
+{ #category : 'tests-deadcode' }
 DRPrimitiveScenarioCompilationTest >> testPrimitiveWithDeadCodeGoesThroughSecondCase [
 
 	self compileDruidPrimitive: #primitiveWithDeadCode.
@@ -2103,7 +2104,7 @@ DRPrimitiveScenarioCompilationTest >> testPrimitiveWithDeadCodeGoesThroughSecond
 	self assert: machineSimulator receiverRegisterValue equals: 55
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testRotateLeftBehavesLikeAShift [
 
 	self compileDruidPrimitive: #primitiveRotateLeft.
@@ -2113,7 +2114,7 @@ DRPrimitiveScenarioCompilationTest >> testRotateLeftBehavesLikeAShift [
 	self assert: machineSimulator receiverRegisterValue equals: 42 << 1
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testRotateLeftDoesNotBehavesLikeAShift [
 	"The idea here is to test that this happens:
 		1 0 0 0  ->  0 0 0 1
@@ -2131,7 +2132,7 @@ DRPrimitiveScenarioCompilationTest >> testRotateLeftDoesNotBehavesLikeAShift [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-basic' }
+{ #category : 'tests-basic' }
 DRPrimitiveScenarioCompilationTest >> testSequentialExitPointRemovesEntireExecutionBranch [
 
 	self compileDruidPrimitive: #primitiveWithSequentialExitPoint.
@@ -2142,7 +2143,7 @@ DRPrimitiveScenarioCompilationTest >> testSequentialExitPointRemovesEntireExecut
 	self assert: machineSimulator instructionPointerRegisterValue equals: stopAddress
 ]
 
-{ #category : #'tests-types' }
+{ #category : 'tests-types' }
 DRPrimitiveScenarioCompilationTest >> testSizeOfUsqInt [
 
 	self compileDruidPrimitive: #primitiveSizeofusqInt.
@@ -2152,7 +2153,7 @@ DRPrimitiveScenarioCompilationTest >> testSizeOfUsqInt [
 	self assert: machineSimulator receiverRegisterValue equals: memory bytesPerOop
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testSmallerOrEqualsThan [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualsThan.
@@ -2162,7 +2163,7 @@ DRPrimitiveScenarioCompilationTest >> testSmallerOrEqualsThan [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testSmallerOrEqualsThanEquals [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualsThan.
@@ -2172,7 +2173,7 @@ DRPrimitiveScenarioCompilationTest >> testSmallerOrEqualsThanEquals [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testSmallerOrEqualsThanInverted [
 
 	self compileDruidPrimitive: #primitiveLessOrEqualsThanInverted.
@@ -2182,7 +2183,7 @@ DRPrimitiveScenarioCompilationTest >> testSmallerOrEqualsThanInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testSmallerThan [
 
 	self compileDruidPrimitive: #primitiveLessThan.
@@ -2192,7 +2193,7 @@ DRPrimitiveScenarioCompilationTest >> testSmallerThan [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-comparisons' }
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testSmallerThanInverted [
 
 	self compileDruidPrimitive: #primitiveLessThanInverted.
@@ -2202,7 +2203,7 @@ DRPrimitiveScenarioCompilationTest >> testSmallerThanInverted [
 	self assert: machineSimulator receiverRegisterValue equals: 5
 ]
 
-{ #category : #'tests-stack' }
+{ #category : 'tests-stack' }
 DRPrimitiveScenarioCompilationTest >> testStackValue0 [
 
 	| receiver |
@@ -2214,7 +2215,7 @@ DRPrimitiveScenarioCompilationTest >> testStackValue0 [
 	self assert: machineSimulator receiverRegisterValue equals: receiver
 ]
 
-{ #category : #'tests-stack' }
+{ #category : 'tests-stack' }
 DRPrimitiveScenarioCompilationTest >> testStackValue0WithOneArgument [
 
 	| receiver |
@@ -2226,7 +2227,7 @@ DRPrimitiveScenarioCompilationTest >> testStackValue0WithOneArgument [
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
-{ #category : #'tests-stack' }
+{ #category : 'tests-stack' }
 DRPrimitiveScenarioCompilationTest >> testStackValue1 [
 
 	| receiver |
@@ -2238,7 +2239,7 @@ DRPrimitiveScenarioCompilationTest >> testStackValue1 [
 	self assert: machineSimulator receiverRegisterValue equals: receiver
 ]
 
-{ #category : #'tests-arithmetic-smallIntegers' }
+{ #category : 'tests-arithmetic-smallIntegers' }
 DRPrimitiveScenarioCompilationTest >> testSubtractionIntrinsecWithNoOverflow [
 
 	self compileDruidPrimitive: #primitiveSubWithOverflow.
@@ -2248,7 +2249,7 @@ DRPrimitiveScenarioCompilationTest >> testSubtractionIntrinsecWithNoOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 32)
 ]
 
-{ #category : #'tests-arithmetic-smallIntegers' }
+{ #category : 'tests-arithmetic-smallIntegers' }
 DRPrimitiveScenarioCompilationTest >> testSubtractionIntrinsecWithOverflow [
 
 	self compileDruidPrimitive: #primitiveSubWithOverflow.
@@ -2258,7 +2259,7 @@ DRPrimitiveScenarioCompilationTest >> testSubtractionIntrinsecWithOverflow [
 	self assert: machineSimulator receiverRegisterValue equals: 99
 ]
 
-{ #category : #'tests-booleans' }
+{ #category : 'tests-booleans' }
 DRPrimitiveScenarioCompilationTest >> testTrueAssigmentAsInteger [
 
 	self compileDruidPrimitive: #primitiveTrueAssignmentAsInteger.
@@ -2268,7 +2269,7 @@ DRPrimitiveScenarioCompilationTest >> testTrueAssigmentAsInteger [
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
-{ #category : #'tests-booleans' }
+{ #category : 'tests-booleans' }
 DRPrimitiveScenarioCompilationTest >> testTrueAssigmentAsIntegerShifted [
 
 	self compileDruidPrimitive: #primitiveTrueAssignmentAsIntegerShifted.
@@ -2278,7 +2279,7 @@ DRPrimitiveScenarioCompilationTest >> testTrueAssigmentAsIntegerShifted [
 	self assert: machineSimulator receiverRegisterValue equals: 2
 ]
 
-{ #category : #'tests-booleans' }
+{ #category : 'tests-booleans' }
 DRPrimitiveScenarioCompilationTest >> testTrueNot [
 
 	self compileDruidPrimitive: #primitiveTrueNot.
@@ -2288,7 +2289,7 @@ DRPrimitiveScenarioCompilationTest >> testTrueNot [
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint16At [
 
 	| object pointerToFirstSlot |
@@ -2303,7 +2304,7 @@ DRPrimitiveScenarioCompilationTest >> testUint16At [
 	self assert: machineSimulator receiverRegisterValue equals: 16r0708
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint16At2 [
 
 	| object pointerToFirstSlot |
@@ -2318,7 +2319,7 @@ DRPrimitiveScenarioCompilationTest >> testUint16At2 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r0607
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint16At3 [
 
 	| object pointerToFirstSlot |
@@ -2333,7 +2334,7 @@ DRPrimitiveScenarioCompilationTest >> testUint16At3 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r0506
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint16At4 [
 
 	| object pointerToFirstSlot |
@@ -2352,7 +2353,7 @@ DRPrimitiveScenarioCompilationTest >> testUint16At4 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r0405
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint16At5 [
 
 	| object pointerToFirstSlot |
@@ -2371,7 +2372,7 @@ DRPrimitiveScenarioCompilationTest >> testUint16At5 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r0304
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint16At6 [
 
 	| object pointerToFirstSlot |
@@ -2390,7 +2391,7 @@ DRPrimitiveScenarioCompilationTest >> testUint16At6 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r0203
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint16At7 [
 
 	| object pointerToFirstSlot |
@@ -2409,7 +2410,7 @@ DRPrimitiveScenarioCompilationTest >> testUint16At7 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r0102
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint16AtPut [
 
 	| object pointerToFirstSlot result |
@@ -2425,7 +2426,7 @@ DRPrimitiveScenarioCompilationTest >> testUint16AtPut [
 	self assert: result equals: 16r0102
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint16AtPut1 [
 
 	| object pointerToFirstSlot result |
@@ -2441,7 +2442,7 @@ DRPrimitiveScenarioCompilationTest >> testUint16AtPut1 [
 	self assert: result equals: 16r0102
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint16AtPut2 [
 
 	| object pointerToFirstSlot result |
@@ -2457,7 +2458,7 @@ DRPrimitiveScenarioCompilationTest >> testUint16AtPut2 [
 	self assert: result equals: 16r0102
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint16AtPut4 [
 
 	| object pointerToFirstSlot result |
@@ -2473,7 +2474,7 @@ DRPrimitiveScenarioCompilationTest >> testUint16AtPut4 [
 	self assert: result equals: 16r0102
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint32At [
 
 	| object pointerToFirstSlot |
@@ -2488,7 +2489,7 @@ DRPrimitiveScenarioCompilationTest >> testUint32At [
 	self assert: machineSimulator receiverRegisterValue equals: 16r05060708
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint32At2 [
 
 	| object pointerToFirstSlot |
@@ -2507,7 +2508,7 @@ DRPrimitiveScenarioCompilationTest >> testUint32At2 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r04050607
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint32At3 [
 
 	| object pointerToFirstSlot |
@@ -2526,7 +2527,7 @@ DRPrimitiveScenarioCompilationTest >> testUint32At3 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r03040506
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint32At4 [
 
 	| object pointerToFirstSlot |
@@ -2545,7 +2546,7 @@ DRPrimitiveScenarioCompilationTest >> testUint32At4 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r02030405
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint32At5 [
 
 	| object pointerToFirstSlot |
@@ -2564,7 +2565,7 @@ DRPrimitiveScenarioCompilationTest >> testUint32At5 [
 	self assert: machineSimulator receiverRegisterValue equals: 16r01020304
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint32AtPut [
 
 	| object pointerToFirstSlot result |
@@ -2580,7 +2581,7 @@ DRPrimitiveScenarioCompilationTest >> testUint32AtPut [
 	self assert: result equals: 16r01020304
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint32AtPut2 [
 
 	| object pointerToFirstSlot result |
@@ -2596,7 +2597,7 @@ DRPrimitiveScenarioCompilationTest >> testUint32AtPut2 [
 	self assert: result equals: 16r01020304
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint64At [
 
 	| object pointerToFirstSlot |
@@ -2615,7 +2616,7 @@ DRPrimitiveScenarioCompilationTest >> testUint64At [
 	self assert: machineSimulator receiverRegisterValue equals: 16r0102030405060708
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint64AtPut [
 
 	| object pointerToFirstSlot result |
@@ -2634,7 +2635,7 @@ DRPrimitiveScenarioCompilationTest >> testUint64AtPut [
 	self assert: result equals: 16r0102030405060708
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint8At [
 
 	| object pointerToFirstSlot |
@@ -2649,7 +2650,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8At [
 	self assert: machineSimulator receiverRegisterValue equals: 16rFE
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint8At2 [
 
 	| object pointerToFirstSlot |
@@ -2664,7 +2665,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8At2 [
 	self assert: machineSimulator receiverRegisterValue equals: 16rCA
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint8At3 [
 
 	| object pointerToFirstSlot |
@@ -2679,7 +2680,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8At3 [
 	self assert: machineSimulator receiverRegisterValue equals: 16rBE
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint8At4 [
 
 	| object pointerToFirstSlot |
@@ -2694,7 +2695,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8At4 [
 	self assert: machineSimulator receiverRegisterValue equals: 16rBA
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint8AtPut [
 
 	| object pointerToFirstSlot result |
@@ -2710,7 +2711,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8AtPut [
 	self assert: result equals: 16rF1
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint8AtPut1 [
 
 	| object pointerToFirstSlot result |
@@ -2726,7 +2727,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8AtPut1 [
 	self assert: result equals: 16rF1
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint8AtPut2 [
 
 	| object pointerToFirstSlot result |
@@ -2742,7 +2743,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8AtPut2 [
 	self assert: result equals: 16rF1
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint8AtPut3 [
 
 	| object pointerToFirstSlot result |
@@ -2758,7 +2759,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8AtPut3 [
 	self assert: result equals: 16rF1
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint8AtPut4 [
 
 	| object pointerToFirstSlot result |
@@ -2774,7 +2775,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8AtPut4 [
 	self assert: result equals: 16rF1
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint8AtPut5 [
 
 	| object pointerToFirstSlot result |
@@ -2790,7 +2791,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8AtPut5 [
 	self assert: result equals: 16rF1
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint8AtPut6 [
 
 	| object pointerToFirstSlot result |
@@ -2806,7 +2807,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8AtPut6 [
 	self assert: result equals: 16rF1
 ]
 
-{ #category : #'test-memory access' }
+{ #category : 'test-memory access' }
 DRPrimitiveScenarioCompilationTest >> testUint8AtPut7 [
 
 	| object pointerToFirstSlot result |
@@ -2822,7 +2823,7 @@ DRPrimitiveScenarioCompilationTest >> testUint8AtPut7 [
 	self assert: result equals: 16rF1
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testWhileTrue [
 
 	self skip.
@@ -2833,7 +2834,7 @@ DRPrimitiveScenarioCompilationTest >> testWhileTrue [
 	self assert: machineSimulator receiverRegisterValue equals: 15
 ]
 
-{ #category : #'tests-control flow' }
+{ #category : 'tests-control flow' }
 DRPrimitiveScenarioCompilationTest >> testWhileTrueWithGlobalState [
 
 	self skip.
@@ -2844,7 +2845,7 @@ DRPrimitiveScenarioCompilationTest >> testWhileTrueWithGlobalState [
 	self assert: machineSimulator receiverRegisterValue equals: 15
 ]
 
-{ #category : #'tests-failing-primitive' }
+{ #category : 'tests-failing-primitive' }
 DRPrimitiveScenarioCompilationTest >> testifZeroFailPrimitiveFail [
 
 	self compileDruidPrimitive: #ifZeroFailPrimitive.
@@ -2852,7 +2853,7 @@ DRPrimitiveScenarioCompilationTest >> testifZeroFailPrimitiveFail [
 	self executeUntilStopPrimitiveWithReceiver: 0 withArguments: { 0 }
 ]
 
-{ #category : #'tests-failing-primitive' }
+{ #category : 'tests-failing-primitive' }
 DRPrimitiveScenarioCompilationTest >> testifZeroFailPrimitiveSuccess [
 
 	self compileDruidPrimitive: #ifZeroFailPrimitive.

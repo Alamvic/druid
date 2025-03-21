@@ -1,28 +1,30 @@
 Class {
-	#name : #DRFlushStack,
-	#superclass : #DRInstruction,
-	#category : #'Druid-BytecodeToJITCompilation'
+	#name : 'DRFlushStack',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-BytecodeToJITCompilation',
+	#package : 'Druid',
+	#tag : 'BytecodeToJITCompilation'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRFlushStack >> acceptVisitor: aVisitor [ 
 
 	^ aVisitor visitFlushStack: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRFlushStack >> isFlushStack [
 
 	^ true
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRFlushStack >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRFlushStack >> sccpLatticeValueFor: sccp [ 
 	
 	"This instruction has no value"

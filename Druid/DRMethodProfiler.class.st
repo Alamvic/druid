@@ -1,14 +1,16 @@
 Class {
-	#name : #DRMethodProfiler,
-	#superclass : #Object,
+	#name : 'DRMethodProfiler',
+	#superclass : 'Object',
 	#instVars : [
 		'method',
 		'typesDictionary'
 	],
-	#category : #'Druid-IR-Types'
+	#category : 'Druid-IR-Types',
+	#package : 'Druid',
+	#tag : 'IR-Types'
 }
 
-{ #category : #factory }
+{ #category : 'factory' }
 DRMethodProfiler class >> forMethod: aCompiledMethod [
 
 	^ self new
@@ -16,7 +18,7 @@ DRMethodProfiler class >> forMethod: aCompiledMethod [
 		  yourself
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRMethodProfiler >> addType: aDRType forNode: aRBNode [
 
 	typesDictionary
@@ -25,19 +27,19 @@ DRMethodProfiler >> addType: aDRType forNode: aRBNode [
 		ifAbsentPut: [ { aDRType } asSet ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRMethodProfiler >> initialize [
 
 	typesDictionary := Dictionary new
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMethodProfiler >> method: aCompiledMethod [
 
 	method := aCompiledMethod
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMethodProfiler >> typesFor: aRBNode [
 
 	^ typesDictionary at: aRBNode ifAbsent: [ {  } ]

@@ -1,28 +1,30 @@
 Class {
-	#name : #DRNegate,
-	#superclass : #DRUnaryInstruction,
-	#category : #'Druid-IR'
+	#name : 'DRNegate',
+	#superclass : 'DRUnaryInstruction',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRNegate >> acceptVisitor: aVisitor [ 
 	
 	^ aVisitor visitNegate: self
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRNegate >> isNegate [
 
 	^ true
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRNegate >> opcode [
 	
 	^ 'Negate'
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRNegate >> sccpOperateOnLattice: operand [
 	
 	^ operand negated

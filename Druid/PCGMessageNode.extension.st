@@ -1,6 +1,6 @@
-Extension { #name : #PCGMessageNode }
+Extension { #name : 'PCGMessageNode' }
 
-{ #category : #'*Druid' }
+{ #category : '*Druid' }
 PCGMessageNode class >> receiver: receiver selector: selector argument: argument [
 	^ self new
 		receiver: receiver;

@@ -4,16 +4,18 @@ Expects a primitive method, this is a method of an interpreter implementing a pr
 
 "
 Class {
-	#name : #DRPrimitiveIRGenerator,
-	#superclass : #DRMetaCompilerIRGenerator,
+	#name : 'DRPrimitiveIRGenerator',
+	#superclass : 'DRMetaCompilerIRGenerator',
 	#instVars : [
 		'completePrimitive',
 		'failureExitBlock'
 	],
-	#category : #'Druid-CompilerCompiler'
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRPrimitiveIRGenerator >> executeFullCogBlockClosureMayContextSwitchWith: aRBMessageNode [
 
 	| closureCode mayContextSwitch offsetSelector |
@@ -34,12 +36,12 @@ DRPrimitiveIRGenerator >> executeFullCogBlockClosureMayContextSwitchWith: aRBMes
 				  offsetSelector }
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveIRGenerator >> failureExitBlock [
 	^ failureExitBlock
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
 	"Plug the IR with the two exit blocks"
 
@@ -73,14 +75,14 @@ DRPrimitiveIRGenerator >> finishCodeInterpretation: lastFrame [
 			 operands: { completePrimitive asDRValue })
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveIRGenerator >> ignoreMessageWith: aRBMessageNode [
 
 	completePrimitive := false.
 	super ignoreMessageWith: aRBMessageNode
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveIRGenerator >> initialize [
 
 	super initialize.
@@ -91,7 +93,7 @@ DRPrimitiveIRGenerator >> initialize [
 	failureExitBlock beExitBlock.
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRPrimitiveIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
@@ -103,7 +105,7 @@ DRPrimitiveIRGenerator >> initializeSpecialCases [
 
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRPrimitiveIRGenerator >> inlineGenerator [
 
 	^ DRPrimitiveIRGeneratorInline new
@@ -113,7 +115,7 @@ DRPrimitiveIRGenerator >> inlineGenerator [
 		  yourself
 ]
 
-{ #category : #interpretation }
+{ #category : 'interpretation' }
 DRPrimitiveIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
 
 	| failure primitiveReturn returnState |
@@ -132,7 +134,7 @@ DRPrimitiveIRGenerator >> interpretDruidExitPointWith: aRBMethodNode [
 			(self addFrameReturn: primitiveReturn) }
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRPrimitiveIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 
 	| byteSize valueToStore |
@@ -152,7 +154,7 @@ DRPrimitiveIRGenerator >> interpretFreeStartAssignmentWith: aRBAssignmentNode [
 	self popOperand; pushOperand: valueToStore
 ]
 
-{ #category : #interpreting }
+{ #category : 'interpreting' }
 DRPrimitiveIRGenerator >> interpretNewHashBitsOfWith: aRBMessageNode [
 
 	| obj |
@@ -164,7 +166,7 @@ DRPrimitiveIRGenerator >> interpretNewHashBitsOfWith: aRBMessageNode [
 		   from: aRBMessageNode) saveLinkReg
 ]
 
-{ #category : #'special cases' }
+{ #category : 'special cases' }
 DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode [ 
 	
 	| newFailureCode copy |
@@ -176,19 +178,19 @@ DRPrimitiveIRGenerator >> interpretPrimFailCodeAssignmentWith: aRBAssignmentNode
 	^ newFailureCode
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveIRGenerator >> interpretPrimFailCodeWith: aRBNode [
 
 	self pushOperand: executionState primitiveFailureCode
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveIRGenerator >> newBasicBlock [
 
 	^ self newBasicBlockWithState: nil
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveIRGenerator >> newBasicBlockWithState: executionState [
 
 	| newBasicBlock |
@@ -197,20 +199,20 @@ DRPrimitiveIRGenerator >> newBasicBlockWithState: executionState [
 	^ newBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPrimitiveIRGenerator >> newCFG [
 	
 	^ DRPrimitiveControlFlowGraph new
 ]
 
-{ #category : #frames }
+{ #category : 'frames' }
 DRPrimitiveIRGenerator >> pushFrame: aDruidStackFrame [
 
 	aDruidStackFrame returnValue: DRNullValue new.
 	super pushFrame: aDruidStackFrame
 ]
 
-{ #category : #'pharo-stack' }
+{ #category : 'pharo-stack' }
 DRPrimitiveIRGenerator >> spillStack [
 
 	| destinationRegister copyInstruction |

@@ -1,10 +1,12 @@
 Class {
-	#name : #DRStagedRegister,
-	#superclass : #DRRegister,
-	#category : #'Druid-LinearScanRegisterAllocation'
+	#name : 'DRStagedRegister',
+	#superclass : 'DRRegister',
+	#category : 'Druid-LinearScanRegisterAllocation',
+	#package : 'Druid',
+	#tag : 'LinearScanRegisterAllocation'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRStagedRegister >> isStagedRegister [
 	
 	^ true

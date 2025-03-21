@@ -1,13 +1,15 @@
 Class {
-	#name : #DRPragmaBasedTypeSystem,
-	#superclass : #DRTypeSystem,
+	#name : 'DRPragmaBasedTypeSystem',
+	#superclass : 'DRTypeSystem',
 	#instVars : [
 		'slang'
 	],
-	#category : #'Druid-IR-Types'
+	#category : 'Druid-IR-Types',
+	#package : 'Druid',
+	#tag : 'IR-Types'
 }
 
-{ #category : #inference }
+{ #category : 'inference' }
 DRPragmaBasedTypeSystem >> receiverTypes: aDRMessageSend [
 
 	| msgAST receiverTypeNames |
@@ -33,7 +35,7 @@ DRPragmaBasedTypeSystem >> receiverTypes: aDRMessageSend [
 			  DRClassType for: (self class environment at: typeName) ] ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRPragmaBasedTypeSystem >> slangTyper [
 	
 	slang ifNil: [ | codeGenerator |
@@ -48,13 +50,13 @@ DRPragmaBasedTypeSystem >> slangTyper [
 	^ slang
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 DRPragmaBasedTypeSystem >> typeOf: aNode [
 
 	^ aNode acceptVisitor: self
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRPragmaBasedTypeSystem >> visitInstanceVariableNode: aRBVariableNode [ 
 	
 	| slangType isPointer |

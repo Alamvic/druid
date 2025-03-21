@@ -1,17 +1,19 @@
 Class {
-	#name : #DRSCCPConstantFoldingWithStagingTest,
-	#superclass : #DRSCCPConstantFoldingTest,
-	#category : #'Druid-Tests-Optimizations'
+	#name : 'DRSCCPConstantFoldingWithStagingTest',
+	#superclass : 'DRSCCPConstantFoldingTest',
+	#category : 'Druid-Tests-Optimizations',
+	#package : 'Druid-Tests',
+	#tag : 'Optimizations'
 }
 
-{ #category : #running }
+{ #category : 'running' }
 DRSCCPConstantFoldingWithStagingTest >> setUp [
 
 	super setUp.
 	optimisation := DRSCCPWithStaging new
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingAddJitCompileExpressionWithNonJitCompileExpression [
 
 	self
@@ -20,7 +22,7 @@ DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingAddJitCompileExpressi
 		and: self nonReducibleOperation
 ]
 
-{ #category : #register }
+{ #category : 'register' }
 DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingFalseOrRegisterIsRegister [
 
 	| cfg copy |
@@ -31,7 +33,7 @@ DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingFalseOrRegisterIsRegi
 	self assertLastInstructionOf: cfg isCopyOf: copy operand1
 ]
 
-{ #category : #arithmetic }
+{ #category : 'arithmetic' }
 DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingLoadNonConstant [
 
 	| cfg |
@@ -42,7 +44,7 @@ DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingLoadNonConstant [
 	self assert: cfg instructions second operand1 isMemoryAddress
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingRegisterAndTrueIsRegister [
 
 	| cfg copy |
@@ -53,7 +55,7 @@ DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingRegisterAndTrueIsRegi
 	self assertLastInstructionOf: cfg isCopyOf: copy operand1
 ]
 
-{ #category : #register }
+{ #category : 'register' }
 DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingRegisterOrFalseIsRegister [
 
 	| cfg copy |
@@ -64,7 +66,7 @@ DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingRegisterOrFalseIsRegi
 	self assertLastInstructionOf: cfg isCopyOf: copy operand1.
 ]
 
-{ #category : #register }
+{ #category : 'register' }
 DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingTrueAndRegisterIsRegister [
 
 	| cfg copy |
@@ -75,7 +77,7 @@ DRSCCPConstantFoldingWithStagingTest >> testConstantFoldingTrueAndRegisterIsRegi
 	self assertLastInstructionOf: cfg isCopyOf: copy operand1.
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantFoldingWithStagingTest >> testFoldingLoadWithConstant [
 
 	| cfg load copyOfCopy |
@@ -95,7 +97,7 @@ DRSCCPConstantFoldingWithStagingTest >> testFoldingLoadWithConstant [
 		equals: '(coInterpreter int64AtPointer: 1)'
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantFoldingWithStagingTest >> testFoldingLoadWithOperation [
 
 	| cfg load op copyOfLoad |
@@ -114,7 +116,7 @@ DRSCCPConstantFoldingWithStagingTest >> testFoldingLoadWithOperation [
 	self assert: copyOfLoad operand1 equals: load
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantFoldingWithStagingTest >> testFoldingObjectReferenceIntoJITExpression [
 
 	| cfg copy addition |
@@ -135,7 +137,7 @@ DRSCCPConstantFoldingWithStagingTest >> testFoldingObjectReferenceIntoJITExpress
 	self assert: cfg instructions second operand1 equals: copy
 ]
 
-{ #category : #tests }
+{ #category : 'tests' }
 DRSCCPConstantFoldingWithStagingTest >> testNonConstantFoldingOf: aClass between: aDROperand1 and: aDROperand2 [ 
 	| cfg |
 	cfg := self testConstantFoldingOf: aClass between: aDROperand1 and: aDROperand2.

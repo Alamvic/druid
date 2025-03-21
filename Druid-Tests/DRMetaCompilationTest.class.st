@@ -1,14 +1,15 @@
 Class {
-	#name : #DRMetaCompilationTest,
-	#superclass : #DRDruidTest,
+	#name : 'DRMetaCompilationTest',
+	#superclass : 'DRDruidTest',
 	#instVars : [
 		'cogitStyle',
 		'compilerClass'
 	],
-	#category : #'Druid-Tests'
+	#category : 'Druid-Tests',
+	#package : 'Druid-Tests'
 }
 
-{ #category : #'building suites' }
+{ #category : 'building suites' }
 DRMetaCompilationTest class >> cogitStyleParameter [
 	"Two ways to compile code with different calling conventions: simple stack vs stack to register mapping"
 
@@ -18,37 +19,37 @@ DRMetaCompilationTest class >> cogitStyleParameter [
 		yourself
 ]
 
-{ #category : #'building suites' }
+{ #category : 'building suites' }
 DRMetaCompilationTest class >> testParameters [ 
 
 	^ super testParameters * self cogitStyleParameter
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMetaCompilationTest >> cogitStyle: aSymbol [
 
 	cogitStyle := aSymbol
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMetaCompilationTest >> compilerClass [
 
 	^ compilerClass
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRMetaCompilationTest >> compilerClass: anObject [
 
 	compilerClass := anObject
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRMetaCompilationTest >> isSimpleStack [
 
 	^ compilerClass isSimpleStack
 ]
 
-{ #category : #'helpers-compiling' }
+{ #category : 'helpers-compiling' }
 DRMetaCompilationTest >> jitCompilerClass [
 
 	^ compilerClass

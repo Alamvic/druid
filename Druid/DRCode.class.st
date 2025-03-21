@@ -1,41 +1,43 @@
 Class {
-	#name : #DRCode,
-	#superclass : #DRInstruction,
-	#category : #'Druid-CompilerCompiler'
+	#name : 'DRCode',
+	#superclass : 'DRInstruction',
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
-{ #category : #activation }
+{ #category : 'activation' }
 DRCode >> basicNewFrame [
 
 	^ self subclassResponsibility
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCode >> codeNode [
 
 	self subclassResponsibility
 ]
 
-{ #category : #activation }
+{ #category : 'activation' }
 DRCode >> defaultReturnValue: receiver [
 
 	^ self subclassResponsibility
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCode >> initialize [
 
 	super initialize.
 	result := DRNoRegister new
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRCode >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #activation }
+{ #category : 'activation' }
 DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
 
 	| newMethodEntry incomingBasicBlock |
@@ -57,7 +59,7 @@ DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
 	^ frame
 ]
 
-{ #category : #activation }
+{ #category : 'activation' }
 DRCode >> pushFrameIn: interpreter receiver: aReceiver [
 
 	^ self pushFrame: self basicNewFrame In: interpreter receiver: aReceiver

@@ -1,28 +1,30 @@
 Class {
-	#name : #DRMultiplyOverflow,
-	#superclass : #DROverflow,
-	#category : #'Druid-IR'
+	#name : 'DRMultiplyOverflow',
+	#superclass : 'DROverflow',
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRMultiplyOverflow >> acceptVisitor: aVisitor withBranch: aDRBranchIfCondition [ 
 	
 	^ aVisitor visitMultiplyOverflow: self inBranch: aDRBranchIfCondition
 ]
 
-{ #category : #'rtl-translation' }
+{ #category : 'rtl-translation' }
 DRMultiplyOverflow >> isMultiplyOverflow [
 
 	^ true
 ]
 
-{ #category : #transforming }
+{ #category : 'transforming' }
 DRMultiplyOverflow >> negated [
 
 	^ DRNoMultiplyOverflow new
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRMultiplyOverflow >> opcode [
 	
 	^ 'Multiply Overflow'

@@ -1,16 +1,18 @@
 Class {
-	#name : #DRDeadEdgeSplitting,
-	#superclass : #DRPathOptimisation,
-	#category : #'Druid-Optimizations'
+	#name : 'DRDeadEdgeSplitting',
+	#superclass : 'DRPathOptimisation',
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRDeadEdgeSplitting >> canBeAppliedWithGeneratedPathsIn: aDRControlFlowGraph [ 
 
 	^ aDRControlFlowGraph deadPaths isNotEmpty 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRDeadEdgeSplitting >> doApplyWithGeneratedPaths: aCFG [
 	"Find the longest (not backjump) dead path in CFG and split guilty edge"
 

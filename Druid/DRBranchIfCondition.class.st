@@ -1,22 +1,24 @@
 Class {
-	#name : #DRBranchIfCondition,
-	#superclass : #DRInstruction,
+	#name : 'DRBranchIfCondition',
+	#superclass : 'DRInstruction',
 	#instVars : [
 		'trueBranch',
 		'falseBranch',
 		'backJumps',
 		'condition'
 	],
-	#category : #'Druid-IR'
+	#category : 'Druid-IR',
+	#package : 'Druid',
+	#tag : 'IR'
 }
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBranchIfCondition >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitBranchIfCondition: self
 ]
 
-{ #category : #converting }
+{ #category : 'converting' }
 DRBranchIfCondition >> asConditionalLoop [
 
 	^ self controlFlowGraph allLoops
@@ -24,36 +26,36 @@ DRBranchIfCondition >> asConditionalLoop [
 		  ifNone: nil
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> backJumpTargets [
 	^ backJumps.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> beBackJumpTo: aDRBasicBlock [
 
 	backJumps add: aDRBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> beForwardJumpTo: aDRBasicBlock [
 
 	backJumps remove: aDRBasicBlock ifAbsent: nil
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> condition [
 	
 	^ condition
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> condition: aCondition [
 
 	condition := aCondition
 ]
 
-{ #category : #'jit-compile-time' }
+{ #category : 'jit-compile-time' }
 DRBranchIfCondition >> conditionAsJitCompileTimeExpression [
 
 	| fullExpression |
@@ -68,12 +70,12 @@ DRBranchIfCondition >> conditionAsJitCompileTimeExpression [
 	^ fullExpression asDRValue asJitCompileTimeExpression
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> falseBranch [
 	^ falseBranch
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> falseBranch: aDRBasicBlock [ 
 
 	backJumps remove: falseBranch ifAbsent: [  ].
@@ -81,13 +83,13 @@ DRBranchIfCondition >> falseBranch: aDRBasicBlock [
 	
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> hasOverflowCheck [
 
 	^ condition isOverflow or: [ condition isNoOverflow ]
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRBranchIfCondition >> initialize [
 
 	super initialize.
@@ -95,25 +97,25 @@ DRBranchIfCondition >> initialize [
 	backJumps := Set new
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBranchIfCondition >> isBackJump [
 
 	^ backJumps isNotEmpty
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBranchIfCondition >> isBackJumpTo: aDRBasicBlock [ 
 	
 	^ backJumps includes: aDRBasicBlock
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBranchIfCondition >> isConditionalBranch [
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBranchIfCondition >> isConditionalLoop [
 
 	^ self asConditionalLoop isNotNil
@@ -121,45 +123,45 @@ DRBranchIfCondition >> isConditionalLoop [
 
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBranchIfCondition >> isEqualsThanTrueComparison [
 
 	^ self condition isEqualsThanComparison and: [ self operands includes: true asDRValue ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBranchIfCondition >> isJITCompileTimeExpression [
 
 	^ operands allSatisfy: [ :e | e isStaged ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> isJump [ 
 
 	^ true
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DRBranchIfCondition >> isMandatoryInstruction [
 
 	^ true
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBranchIfCondition >> newFalseBranch: aDRBasicBlock [
 
 	aDRBasicBlock addPredecessor: self basicBlock.
 	^ self falseBranch: aDRBasicBlock
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 DRBranchIfCondition >> newTrueBranch: aDRBasicBlock [
 
 	aDRBasicBlock addPredecessor: self basicBlock.
 	^ self trueBranch: aDRBasicBlock
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> nonTrueOperand [
 
 	self operand1 = true asDRValue ifFalse: [ ^ self operand1 ].
@@ -168,33 +170,33 @@ DRBranchIfCondition >> nonTrueOperand [
 	^ self operand2
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRBranchIfCondition >> opcode [
 	
 	^ 'If'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> operands: operandList [
 
 	condition := operandList first value.
 	super operands: operandList allButFirst
 ]
 
-{ #category : #copying }
+{ #category : 'copying' }
 DRBranchIfCondition >> postCopy [
 
 	super postCopy.
 	backJumps := backJumps copy
 ]
 
-{ #category : #visiting }
+{ #category : 'visiting' }
 DRBranchIfCondition >> prettyConditionPrint [
 
 	^ self condition prettyPrintWithBranch: self
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DRBranchIfCondition >> prettyPrint [
 
 	^ (self isStaged
@@ -205,7 +207,7 @@ DRBranchIfCondition >> prettyPrint [
 	  , (self falseBranch ifNotNil: [ :br | br id ]) asString
 ]
 
-{ #category : #replacing }
+{ #category : 'replacing' }
 DRBranchIfCondition >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [
 
 	trueBranch = aDRBasicBlock ifTrue: [ 
@@ -214,14 +216,14 @@ DRBranchIfCondition >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [
 		self falseBranch: aDRBasicBlock2 ]
 ]
 
-{ #category : #highlighting }
+{ #category : 'highlighting' }
 DRBranchIfCondition >> reverse [
 
 	self reverseOperands.
 	self condition: self condition reversed
 ]
 
-{ #category : #transforming }
+{ #category : 'transforming' }
 DRBranchIfCondition >> reversed [
 
 	^ DRBranchIfCondition new
@@ -231,7 +233,7 @@ DRBranchIfCondition >> reversed [
 		yourself
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRBranchIfCondition >> sccpEvaluateConditionFor: sccp [
 
 	^ self condition
@@ -239,7 +241,7 @@ DRBranchIfCondition >> sccpEvaluateConditionFor: sccp [
 		branch: self
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRBranchIfCondition >> sccpEvaluateFor: sccp [
 
 	| conditionLattice jumpTarget |
@@ -265,25 +267,25 @@ DRBranchIfCondition >> sccpEvaluateFor: sccp [
 		sccp addToEdgeCFGWorklistConditionalJump: self targetting: t ]
 ]
 
-{ #category : #SCCP }
+{ #category : 'SCCP' }
 DRBranchIfCondition >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> targets [
 
 	^ { trueBranch . falseBranch }
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> trueBranch [
 
 	^ trueBranch
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRBranchIfCondition >> trueBranch: aDRBasicBlock [
 
 	backJumps remove: trueBranch ifAbsent: [  ].
