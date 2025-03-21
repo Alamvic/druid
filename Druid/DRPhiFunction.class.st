@@ -162,6 +162,14 @@ DRPhiFunction >> predecessorAtOperand: anOperand [
 	^ self basicBlock predecessorAt: index
 ]
 
+{ #category : 'transforming' }
+DRPhiFunction >> replaceByCopy [
+
+	self assert: self operands size = 1.
+
+	self replaceBy: (DRCopy operands: operands result: result)
+]
+
 { #category : 'users-definitions' }
 DRPhiFunction >> replaceOperand: anOperand by: anotherOperand [
 

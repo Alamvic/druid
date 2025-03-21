@@ -9,9 +9,18 @@ Class {
 { #category : 'operations' }
 DRLocalVariableInstructionScheluder >> applyTo: cfg [
 
-	cfg instructionsDo: [ :i |
-		(self shouldIgnore: i) ifFalse: [
-			i users size > 1 ifTrue: [ self storeReusedResultOf: i ] ] ]
+	self replacePhisByStores: cfg.
+	self storeResultsToBeReused: cfg.
+
+]
+
+{ #category : 'transformation' }
+DRLocalVariableInstructionScheluder >> replacePhisByStores: aDRControlFlowGraph [
+
+	aDRControlFlowGraph phiFunctions do: [ :phi |
+		phi operands size = 1
+			ifTrue: [ phi replaceByCopy ]
+			ifFalse: [ self storePhiOperands: phi ] ]
 ]
 
 { #category : 'operations' }
@@ -23,19 +32,57 @@ DRLocalVariableInstructionScheluder >> shouldIgnore: aDRInstruction [
 ]
 
 { #category : 'transformation' }
+DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
+
+	| variableName loadInst |
+	variableName := aDRPhiFunction result name asLowercase asDRValue.
+	loadInst := DRLoadTemporaryVariable operands: { variableName }.
+
+	aDRPhiFunction replaceBy: loadInst.
+
+	(aDRPhiFunction operands allSatisfy: [ :op |
+		 op isStoreTemporaryVariable ]) ifTrue: [ "If they are already temporaries then it is ok"
+		^ self ].
+
+	(aDRPhiFunction operands copyWithout: aDRPhiFunction) do: [ :op |
+		| storeInst |
+		storeInst := DRStoreTemporaryVariable
+			             operands: {
+					             variableName.
+					             op }
+			             result: DRNoRegister new.
+		op basicBlock add: storeInst after: op ]
+]
+
+{ #category : 'transformation' }
+DRLocalVariableInstructionScheluder >> storeResultsToBeReused: aDRControlFlowGraph [
+
+	aDRControlFlowGraph instructionsDo: [ :i |
+		(self shouldIgnore: i) ifFalse: [
+			i users size > 1 ifTrue: [ self storeReusedResultOf: i ] ] ]
+]
+
+{ #category : 'transformation' }
 DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
 
+	| variableName storeInst |
 	self assert: aDRInstruction result isRegister.
 
-	aDRInstruction replaceUsesBy: (DRLoadTemporaryVariable operands: {
-				 aDRInstruction result name asString asLowercase asDRValue.
-				 "store" }).
+	variableName := aDRInstruction isLoadTemporaryVariable
+		                ifTrue: [ aDRInstruction operand1 ]
+		                ifFalse: [
+		                aDRInstruction result name asLowercase asDRValue ].
 
-	aDRInstruction basicBlock
-		add: (DRStoreTemporaryVariable
-				 operands: {
-						 aDRInstruction result name asString asLowercase asDRValue.
-						 aDRInstruction }
-				 result: DRNoRegister new)
-		after: aDRInstruction
+	aDRInstruction users copy do: [ :user |
+		| loadInst |
+		loadInst := DRLoadTemporaryVariable operands: { variableName }.
+		user basicBlock add: loadInst before: user.
+		user replaceDependency: aDRInstruction by: loadInst ].
+
+	storeInst := DRStoreTemporaryVariable
+		             operands: {
+				             variableName.
+				             aDRInstruction }
+		             result: DRNoRegister new.
+	aDRInstruction basicBlock add: storeInst after: aDRInstruction
 ]
