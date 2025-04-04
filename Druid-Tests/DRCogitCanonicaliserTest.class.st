@@ -581,7 +581,6 @@ DRCogitCanonicaliserTest >> testSimplifySubtractionOfAddition [
 	"(A + Constant1) - Constant2 => A + (Constant1 - Constant2)"
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
 		r0 := block loadFramePointer.
-		"Two additions of constants over a variable value"
 		r1 := block add: r0 to: 17.
 		r2 := block subtract: 25 from: r1.
 		"Store the value so it is not treated as dead code"
