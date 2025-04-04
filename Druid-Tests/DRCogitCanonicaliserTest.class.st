@@ -591,7 +591,8 @@ DRCogitCanonicaliserTest >> testSimplifySubtractionOfAddition [
 	DRSCCP new applyTo:cfg.
 	DRDeadCodeElimination new applyTo: cfg.
 
-	"The two additions should be simplified to a single one"
+	"Constants operations should be simplified"
 	self assert: basicBlock instructions size equals: 4.
+	self assert: basicBlock instructions second isAdd.
 	self assert: basicBlock instructions second operand2 value equals: -8 "17 - 25".
 ]
