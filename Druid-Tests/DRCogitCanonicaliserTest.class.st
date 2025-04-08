@@ -246,6 +246,52 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfZero [
 ]
 
 { #category : 'tests' }
+DRCogitCanonicaliserTest >> testSimplifyBitAndEquals0 [
+	"Convert TestEqualsThan(BitAnd(a, b), 0) into  TestNoMask(a, b)"
+	| cfg basicBlock b1 b2 |
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlockWith: [ :block | block storeSInt64: 1 at: 888 ].
+	b2 := cfg newBasicBlockWith: [ :block | block storeSInt64: 2 at: 888 ].
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		r0 := block loadFramePointer.
+		r1 := block bitAnd: r0 with: 17.
+		r2 := block equals: r1 to: 0.
+		block jumpIf: r2 to: b1 ifFalseTo: b2.
+	].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+
+	self assert: basicBlock instructions size equals: 2.
+	self assert: basicBlock instructions second condition class equals: DRNoTestMask.
+	self assert: basicBlock instructions second operand2 value equals: 17.
+]
+
+{ #category : 'tests' }
+DRCogitCanonicaliserTest >> testSimplifyBitAndNotEquals0 [
+	"Convert TestNotEqualsThan(BitAnd(a, b), 0) into  TestMask(a, b)"
+	| cfg basicBlock b1 b2 |
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlockWith: [ :block | block storeSInt64: 1 at: 888 ].
+	b2 := cfg newBasicBlockWith: [ :block | block storeSInt64: 2 at: 888 ].
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		r0 := block loadFramePointer.
+		r1 := block bitAnd: r0 with: 17.
+		r2 := block notEquals: r1 to: 0.
+		block jumpIf: r2 to: b1 ifFalseTo: b2.
+	].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+
+	self assert: basicBlock instructions size equals: 2.
+	self assert: basicBlock instructions second condition class equals: DRTestMask.
+	self assert: basicBlock instructions second operand2 value equals: 17.
+]
+
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyBitAndOfBitAnd [
 
 	| cfg basicBlock r0 instruction |

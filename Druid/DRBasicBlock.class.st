@@ -1031,6 +1031,12 @@ DRBasicBlock >> newPhi [
 	^ self phiWithVariables: #(  )
 ]
 
+{ #category : 'building' }
+DRBasicBlock >> notEquals: operand1 to: operand2 [ 
+	
+	^ self addInstruction: (self instructionFactory notEquals: operand1 to: operand2)
+]
+
 { #category : 'accessing' }
 DRBasicBlock >> numberOfForwardPredecessors [
 	

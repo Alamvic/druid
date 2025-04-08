@@ -25,6 +25,41 @@ DRCogitCanonicaliser >> applyTo: cfg [
 ]
 
 { #category : 'visiting' }
+DRCogitCanonicaliser >> collapseBitwiseOperationIfPossible: aDRGetConditionCode [
+	"Convert TestEqualsThan(BitAnd(a, b), 0)     into  TestNoMask(a, b)
+	     and TestNotEqualsThan(BitAnd(a, b), 0)  into  TestMask(a, b)"
+
+	| oldCondition newCondition newInstruction |
+	oldCondition := aDRGetConditionCode condition.
+	(oldCondition isEqualsThanComparison or:
+		 oldCondition isNotEqualsThanComparison) ifFalse: [ ^ aDRGetConditionCode ].
+
+	"Move constant, if present, to the right"
+	aDRGetConditionCode operand1 isConstant ifTrue: [
+		aDRGetConditionCode operands: aDRGetConditionCode operands reverse ].
+
+	"Validate there is a constant, and it's zero"
+	(aDRGetConditionCode operand2 isConstant and: [
+		 aDRGetConditionCode operand2 value == 0 ]) ifFalse: [ ^ aDRGetConditionCode ].
+
+	"Validate the other operand is a bitAnd"
+	aDRGetConditionCode operand1 isBitAnd ifFalse: [ ^ aDRGetConditionCode ].
+
+	newCondition := (oldCondition isEqualsThanComparison
+		                 ifTrue: [ DRNoTestMask ]
+		                 ifFalse: [ DRTestMask ]) new.
+
+	newInstruction := aDRGetConditionCode class
+		operands:
+			{ newCondition },
+			aDRGetConditionCode operand1 operands
+		result: aDRGetConditionCode result.
+
+	aDRGetConditionCode replaceBy: newInstruction.
+	^ newInstruction
+]
+
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> sortOperandsInDoubleInstructionIfPossible: aDRBinaryInstruction [
 	"If it is a pattern such as ((var op const) op X)
 	It is replaced by:
@@ -206,9 +241,12 @@ DRCogitCanonicaliser >> visitFlushStack: aDRFlushStack [
 
 { #category : 'visiting' }
 DRCogitCanonicaliser >> visitGetConditionCode: aDRGetConditionCode [
+	| newInstr |
+
+	newInstr := self collapseBitwiseOperationIfPossible: aDRGetConditionCode.
 
 	"Force collapse of conditional branches users - trying to clean this instruction"
-	aDRGetConditionCode users
+	newInstr users
 		select: [ :u | u isConditionalBranch ]
 		thenDo: [ :branch | DRBranchCollapse new applyToBlock: branch basicBlock ]
 ]

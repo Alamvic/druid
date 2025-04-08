@@ -11,3 +11,9 @@ DRNoTestMask >> isNoTestMask [
 	
 	^ true
 ]
+
+{ #category : 'testing' }
+DRNoTestMask >> opcode [
+	
+	^ 'NoTest'
+]
