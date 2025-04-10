@@ -1,15 +1,27 @@
 Class {
 	#name : 'DRCogitCanonicaliser',
 	#superclass : 'DROptimisation',
+	#instVars : [
+		'worklist'
+	],
 	#category : 'Druid-Cogit',
 	#package : 'Druid',
 	#tag : 'Cogit'
 }
 
+{ #category : 'visiting' }
+DRCogitCanonicaliser >> addToWorklist: instruction [
+
+	worklist add: instruction.
+
+]
+
 { #category : 'accessing' }
 DRCogitCanonicaliser >> applyTo: cfg [
 
-	cfg instructions copy do: [ :e | e acceptVisitor: self ]
+	worklist := cfg instructions reversed.
+	[ worklist isEmpty ] whileFalse: [
+		worklist removeLast acceptVisitor: self ]
 ]
 
 { #category : 'visiting' }
@@ -451,11 +463,17 @@ DRCogitCanonicaliser >> visitSubstract: aDRSubtract [
 		 aDRSubtract users allSatisfy: [ :e |
 			 e isAdd or: [ e isSubtract or: [ e isLoad or: [ e isStore ] ] ] ] ])
 		ifTrue: [
-			aDRSubtract replaceBy: (DRAdd
+			| newInstruction |
+			newInstruction := DRAdd
 					 operands: {
 							 aDRSubtract subtrahend value negated asDRValue.
 							 aDRSubtract minuend }
-					 result: aDRSubtract result) ]
+					 result: aDRSubtract result.
+
+			aDRSubtract replaceBy: newInstruction.
+			aDRSubtract minuend isAdd ifTrue: [
+				"Maybe the additions can be further canonicalised"
+				self addToWorklist: newInstruction ] ]
 ]
 
 { #category : 'visiting' }

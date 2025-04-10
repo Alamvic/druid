@@ -572,3 +572,27 @@ DRCogitCanonicaliserTest >> testSimplifyStoreBaseOffset [
 	self assert: basicBlock instructions second address offset value equals: 17.
 	self assert: basicBlock instructions second address base value equals: basicBlock instructions first.
 ]
+
+{ #category : 'tests' }
+DRCogitCanonicaliserTest >> testSimplifySubtractionOfAddition [
+
+	| cfg basicBlock |
+	cfg := DRControlFlowGraph new.
+	"(A + Constant1) - Constant2 => A + (Constant1 - Constant2)"
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		r0 := block loadFramePointer.
+		r1 := block add: r0 to: 17.
+		r2 := block subtract: 25 from: r1.
+		"Store the value so it is not treated as dead code"
+		block storeSInt64: r2 at: 888 ].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRSCCP new applyTo:cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+
+	"Constants operations should be simplified"
+	self assert: basicBlock instructions size equals: 4.
+	self assert: basicBlock instructions second isAdd.
+	self assert: basicBlock instructions second operand2 value equals: -8 "17 - 25".
+]
