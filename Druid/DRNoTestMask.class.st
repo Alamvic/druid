@@ -6,14 +6,32 @@ Class {
 	#tag : 'IR'
 }
 
+{ #category : 'visiting' }
+DRNoTestMask >> acceptVisitor: aVisitor withBranch: parentBranch [
+	
+	^ aVisitor visitNoTestMask: self inBranch: parentBranch
+]
+
 { #category : 'testing' }
 DRNoTestMask >> isNoTestMask [
 	
 	^ true
 ]
 
+{ #category : 'transforming' }
+DRNoTestMask >> negated [
+	
+	^ DRTestMask new
+]
+
 { #category : 'testing' }
 DRNoTestMask >> opcode [
 	
 	^ 'NoTest'
+]
+
+{ #category : 'converting' }
+DRNoTestMask >> reversed [
+	"Returns the same condition but with reversed operands: NoTest x y --> NoTest y x"
+	^ DRNoTestMask new.
 ]

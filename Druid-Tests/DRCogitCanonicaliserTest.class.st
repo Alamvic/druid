@@ -246,8 +246,8 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfZero [
 ]
 
 { #category : 'tests' }
-DRCogitCanonicaliserTest >> testSimplifyBitAndEquals0 [
-	"Convert TestEqualsThan(BitAnd(a, b), 0) into  TestNoMask(a, b)"
+DRCogitCanonicaliserTest >> testSimplifyBitAndEqualsZero [
+	"Convert TestEqualsThan(BitAnd(a, b), 0) into  TestNoMask(a, b) and collapse into branch"
 	| cfg basicBlock b1 b2 |
 	cfg := DRControlFlowGraph new.
 	b1 := cfg newBasicBlockWith: [ :block | block storeSInt64: 1 at: 888 ].
@@ -264,13 +264,14 @@ DRCogitCanonicaliserTest >> testSimplifyBitAndEquals0 [
 	DRDeadCodeElimination new applyTo: cfg.
 
 	self assert: basicBlock instructions size equals: 2.
+	self assert: basicBlock instructions second isConditionalBranch.
 	self assert: basicBlock instructions second condition class equals: DRNoTestMask.
 	self assert: basicBlock instructions second operand2 value equals: 17.
 ]
 
 { #category : 'tests' }
-DRCogitCanonicaliserTest >> testSimplifyBitAndNotEquals0 [
-	"Convert TestNotEqualsThan(BitAnd(a, b), 0) into  TestMask(a, b)"
+DRCogitCanonicaliserTest >> testSimplifyBitAndNotEqualsZero [
+	"Convert TestNotEqualsThan(BitAnd(a, b), 0) into  TestMask(a, b) and collapse into branch"
 	| cfg basicBlock b1 b2 |
 	cfg := DRControlFlowGraph new.
 	b1 := cfg newBasicBlockWith: [ :block | block storeSInt64: 1 at: 888 ].
@@ -285,8 +286,9 @@ DRCogitCanonicaliserTest >> testSimplifyBitAndNotEquals0 [
 
 	DRCogitCanonicaliser new applyTo: cfg.
 	DRDeadCodeElimination new applyTo: cfg.
-
+	
 	self assert: basicBlock instructions size equals: 2.
+	self assert: basicBlock instructions second isConditionalBranch.
 	self assert: basicBlock instructions second condition class equals: DRTestMask.
 	self assert: basicBlock instructions second operand2 value equals: 17.
 ]

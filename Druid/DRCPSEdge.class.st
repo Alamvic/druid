@@ -581,6 +581,15 @@ DRCPSEdge >> visitNoOverflow: aDROverflow inBranch: aDRBranch [
 ]
 
 { #category : 'visiting' }
+DRCPSEdge >> visitNoTestMask: aDRTestMask inBranch: aDRBranch [
+
+	^ self
+		  visitComparison: aDRTestMask
+		  ofBranch: aDRBranch
+		  andDo: [ :reg :value | (DRRegisterDomain mask: reg with: value) negated ]
+]
+
+{ #category : 'visiting' }
 DRCPSEdge >> visitNoop: aDRNoop [
 
 	^ nil

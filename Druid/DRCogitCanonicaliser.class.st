@@ -36,7 +36,8 @@ DRCogitCanonicaliser >> collapseBitwiseOperationIfPossible: aDRGetConditionCode 
 
 	"Move constant, if present, to the right"
 	aDRGetConditionCode operand1 isConstant ifTrue: [
-		aDRGetConditionCode operands: aDRGetConditionCode operands reverse ].
+		aDRGetConditionCode operands:
+			{ oldCondition }, aDRGetConditionCode operands reverse ].
 
 	"Validate there is a constant, and it's zero"
 	(aDRGetConditionCode operand2 isConstant and: [
