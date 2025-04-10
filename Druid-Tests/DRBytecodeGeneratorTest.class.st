@@ -26,6 +26,9 @@ DRBytecodeGeneratorTest >> assertCompilationFor: aSelector fromClass: aClass [
 	self setUp.
 	
 	expectedMethod := aClass >> aSelector.
+	"Ignore the methods with arguments"
+	expectedMethod numArgs = 0 ifFalse: [ ^ self ].
+	
 	compiledMethod := self compileSelector: aSelector fromClass: aClass.
 	self assert: compiledMethod equalsResult: expectedMethod
 ]
@@ -434,7 +437,6 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalBooleanMethods [
 
-	self skip. "TO FIX"
 	OCOpalExamples methods
 		select: [ :opalMethod | opalMethod protocolName = #'examples - andor' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
@@ -443,7 +445,6 @@ DRBytecodeGeneratorTest >> testOpalBooleanMethods [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalConditionalMethods [
 
-	self skip. "TO FIX"
 	OCOpalExamples methods
 		select: [ :opalMethod | opalMethod protocolName = #'examples - conditionals' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]

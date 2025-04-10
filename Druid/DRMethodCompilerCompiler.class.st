@@ -29,6 +29,7 @@ DRMethodCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 	optimisations := OrderedCollection new.
 
 	optimisations add: DRInline new.
+	optimisations add: DRInline new.
 	2 timesRepeat: [ 
 		optimisations add: DRDeadBlockElimination new.
 		optimisations add: DRSCCP new.
