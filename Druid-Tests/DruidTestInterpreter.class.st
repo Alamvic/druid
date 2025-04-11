@@ -198,10 +198,10 @@ DruidTestInterpreter >> methodCollectionSize: aCollection [
 ]
 
 { #category : 'as yet unclassified' }
-DruidTestInterpreter >> methodSendingClass: aCollection [
+DruidTestInterpreter >> methodInlineThenSendClass: aCollection [
 
 	<var: #aCollection type: #Array>
-	^ aCollection species
+	^ aCollection className
 ]
 
 { #category : 'as yet unclassified' }
