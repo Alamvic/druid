@@ -104,12 +104,12 @@ DRInlineMethodTest >> testMethodSendingIndirectClassGetToIt [
 
 	| cfg  |
 
-	cfg := self generateDruidIRFor: #methodSendingClass:.
+	cfg := self generateDruidIRFor: #methodInlineThenSendClass:.
 
 	cfg applyOptimisation: DRInline new. "Inline only one implementor"
 
-	self assert: cfg messageSends size equals: 1.
-	self assert: cfg messageSends unique selector equals: #class.	
+	self assert: cfg messageSends size > 1.
+	self assert: cfg messageSends first selector equals: #class.	
 ]
 
 { #category : 'tests' }
