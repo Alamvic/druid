@@ -83,7 +83,7 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
 
 	aDRControlFlowGraph applyOptimisation: DRFrameInfoCleaner new.
-	aDRControlFlowGraph applyOptimisation: DRBranchCollapse new.
+	aDRControlFlowGraph applyOptimisation: (DRBranchCollapse then: DRPhiSimplication).
 	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
 	
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
@@ -312,7 +312,7 @@ DRBytecodeGeneratorTest >> testMethodManyReturns [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 
-	| method result cfg selector methodProfiler |
+	| method result cfg selector methodProfiler previousMethodSize |
 	
 	self skip. "This is a proof of concept, does not metter"
 	
@@ -321,7 +321,10 @@ DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 	selector := #methodCollectionSize:.
 	method := self generateMethodForSelector: selector.
 
-	self assert: method size equals: 51. "Small"
+	previousMethodSize := (DruidTestInterpreter >> selector) size.
+
+	self assert: method size > previousMethodSize. "Bigger than original"
+	previousMethodSize := method size.
 
 	"First execution"
 	result := method
@@ -342,7 +345,8 @@ DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 	cfg := self generateDruidIRFor: method.
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
-	self assert: method size equals: 117. "bigger"
+	self assert: method size > previousMethodSize. "Bigger because of new guard"
+	previousMethodSize := method size.
 
 	result := method
 		          valueWithReceiver: nil
@@ -419,8 +423,6 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 
 	| method result |
-	self skip. "Broken :("
-	
 	method := self generateMethodForSelector: #methodCollectionSize:.
 
 	result := method
