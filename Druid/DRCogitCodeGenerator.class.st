@@ -1190,6 +1190,14 @@ DRCogitCodeGenerator >> visitNoOverflow: aDRNoOverflow inBranch: aDRBranchIfCond
 ]
 
 { #category : 'visiting' }
+DRCogitCodeGenerator >> visitNoTestMask: aDRNoTestMask inBranch: aDRBranchIfCondition [
+	
+	self visitTestMask: nil inBranch: aDRBranchIfCondition.
+	
+	^ aDRBranchIfCondition reversed
+]
+
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitNoop: aDRNoop [ 
 	
 	"Do nothing"
