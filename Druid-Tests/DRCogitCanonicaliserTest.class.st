@@ -246,6 +246,54 @@ DRCogitCanonicaliserTest >> testSimplifyAdditionOfZero [
 ]
 
 { #category : 'tests' }
+DRCogitCanonicaliserTest >> testSimplifyAndEqualsZero [
+	"Convert TestEqualsThan(And(a, b), 0) into  TestNand(a, b) and collapse into branch"
+	| cfg basicBlock b1 b2 |
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlockWith: [ :block | block storeSInt64: 1 at: 888 ].
+	b2 := cfg newBasicBlockWith: [ :block | block storeSInt64: 2 at: 888 ].
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		r0 := block loadFramePointer.
+		r1 := block and: r0 with: 1.
+		r2 := block equals: r1 to: 0.
+		block jumpIf: r2 to: b1 ifFalseTo: b2.
+	].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+	
+	self assert: basicBlock instructions size equals: 2.
+	self assert: basicBlock instructions second isConditionalBranch.
+	self assert: basicBlock instructions second condition class equals: DRTestNand.
+	self assert: basicBlock instructions second operand2 value equals: 1.
+]
+
+{ #category : 'tests' }
+DRCogitCanonicaliserTest >> testSimplifyAndNotEqualsZero [
+	"Convert TestNotEqualsThan(And(a, b), 0) into  TestAnd(a, b) and collapse into branch"
+	| cfg basicBlock b1 b2 |
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlockWith: [ :block | block storeSInt64: 1 at: 888 ].
+	b2 := cfg newBasicBlockWith: [ :block | block storeSInt64: 2 at: 888 ].
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
+		r0 := block loadFramePointer.
+		r1 := block and: r0 with: 1.
+		r2 := block notEquals: r1 to: 0.
+		block jumpIf: r2 to: b1 ifFalseTo: b2.
+	].
+	cfg initialBasicBlock jumpTo: basicBlock.
+
+	DRCogitCanonicaliser new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+	
+	self assert: basicBlock instructions size equals: 2.
+	self assert: basicBlock instructions second isConditionalBranch.
+	self assert: basicBlock instructions second condition class equals: DRTestAnd.
+	self assert: basicBlock instructions second operand2 value equals: 1.
+]
+
+{ #category : 'tests' }
 DRCogitCanonicaliserTest >> testSimplifyBitAndEqualsZero [
 	"Convert TestEqualsThan(BitAnd(a, b), 0) into  TestNoMask(a, b) and collapse into branch"
 	| cfg basicBlock b1 b2 |
