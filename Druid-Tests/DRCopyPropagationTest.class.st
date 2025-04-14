@@ -72,17 +72,17 @@ DRCopyPropagationTest >> testCopyIsPropagatedInBlockSequence [
 { #category : 'tests' }
 DRCopyPropagationTest >> testCopyIsPropagatedInSingleBlock [
 
-	| cfg t1 t2 t3 |
+	| cfg t0 t1 t2 |
 	cfg := DRControlFlowGraph new.
 	cfg newBasicBlockWith: [ :block |
-		t1 := block add: 1 to: 2.
-		t2 := block copy: t1.
-		t3 := block copy: t2 ].
-
+		t0 := block add: 1 to: 2.
+		t1 := block copy: t0.
+		t2 := block copy: t1 ].
+	
 	DRCopyPropagation new applyTo: cfg.
 
-	self assert: t3 isCopy.
-	self assert: t3 operand equals: t1
+	self assert: t2 isCopy.
+	self assert: t2 operand equals: t0
 ]
 
 { #category : 'tests' }
