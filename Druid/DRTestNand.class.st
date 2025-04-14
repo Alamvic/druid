@@ -12,16 +12,28 @@ DRTestNand >> acceptVisitor: aVisitor withBranch: parentBranch [
 	^ aVisitor visitTestNand: self inBranch: parentBranch
 ]
 
+{ #category : 'testing' }
+DRTestNand >> isTestNand [
+
+	^true
+]
+
 { #category : 'transforming' }
 DRTestNand >> negated [
 
 	^ DRTestAnd new
 ]
 
+{ #category : 'printing' }
+DRTestNand >> opcode [
+
+	^ 'Nand'
+]
+
 { #category : 'converting' }
 DRTestNand >> reversed [
-	"Returns the same condition but with reversed operands: Nand x y --> Nand y x"
-	^ DRTestNand new
+
+	^ self
 ]
 
 { #category : 'SCCP' }

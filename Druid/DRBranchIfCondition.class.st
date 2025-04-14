@@ -292,3 +292,12 @@ DRBranchIfCondition >> trueBranch: aDRBasicBlock [
 
 	trueBranch := aDRBasicBlock
 ]
+
+{ #category : 'validation' }
+DRBranchIfCondition >> validate [
+
+	super validate.
+	
+	condition isComparison ifFalse: [ 
+			DRError signal: 'Invalid condition: ', condition asString, ' in: ' , self asString ]
+]

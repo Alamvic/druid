@@ -125,6 +125,18 @@ DRCogitCodeGenerator >> cogitBranchFromCondition: condition types: branchTypes [
 			self error:
 				'unsupported: cannot test the mask on a floating point number' ].
 		^ branchPrefix , 'Zero:' ].
+	
+	condition isTestAnd ifTrue: [
+		aType isFloatType ifTrue: [
+			self error:
+				'unsupported: cannot test "and" on a floating point number' ].
+		^ branchPrefix , 'NonZero:' ].
+
+	condition isTestNand ifTrue: [
+		aType isFloatType ifTrue: [
+			self error:
+				'unsupported: cannot test "nand" on a floating point number' ].
+		^ branchPrefix , 'Zero:' ].
 
 	condition isEqualsThanComparison ifTrue: [
 		^ aType isFloatType
@@ -197,7 +209,7 @@ DRCogitCodeGenerator >> cogitBranchFromCondition: condition types: branchTypes [
 			          ifFalse: [ 'LessOrEqual:' ].
 		^ branchPrefix , suffix ].
 
-	1 halt
+	self notYetImplemented.
 ]
 
 { #category : 'jump-management' }
@@ -1192,6 +1204,8 @@ DRCogitCodeGenerator >> visitNoOverflow: aDRNoOverflow inBranch: aDRBranchIfCond
 { #category : 'visiting' }
 DRCogitCodeGenerator >> visitNoTestMask: aDRNoTestMask inBranch: aDRBranchIfCondition [
 	
+	"Use nil, since I don't have an Test Instruction here,
+	and it isn't used anyways"
 	self visitTestMask: nil inBranch: aDRBranchIfCondition.
 	
 	^ aDRBranchIfCondition reversed
@@ -1278,6 +1292,20 @@ DRCogitCodeGenerator >> visitSubstract: aDRCogitSubstract [
 ]
 
 { #category : 'visiting' }
+DRCogitCodeGenerator >> visitTestAnd: aDRTestAnd inBranch: aDRBranchIfCondition [ 
+	
+	| comparands |
+	comparands := aDRBranchIfCondition operands.
+	aDRBranchIfCondition operands second isConstant ifTrue: [ 
+		comparands := comparands reversed ].
+	self
+		twoOperandCogitRTL: #And
+		operands: comparands
+		instruction: aDRBranchIfCondition.
+	^ aDRBranchIfCondition.
+]
+
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfCondition [
 
 	| comparands |
@@ -1289,6 +1317,16 @@ DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfConditio
 		operands: comparands
 		instruction: aDRBranchIfCondition.
 	^ aDRBranchIfCondition
+]
+
+{ #category : 'visiting' }
+DRCogitCodeGenerator >> visitTestNand: aDRTestNand inBranch: aDRBranchIfCondition [ 
+
+	"Use nil, since I don't have an And Instruction here,
+	and it isn't used anyways"
+	self visitTestAnd: nil inBranch: aDRBranchIfCondition.
+	
+	^ aDRBranchIfCondition reversed
 ]
 
 { #category : 'visiting' }

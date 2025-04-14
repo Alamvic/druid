@@ -91,7 +91,19 @@ DRCondition >> isOverflow [
 ]
 
 { #category : 'testing' }
+DRCondition >> isTestAnd [
+	
+	^ false
+]
+
+{ #category : 'testing' }
 DRCondition >> isTestMask [
+	
+	^ false
+]
+
+{ #category : 'testing' }
+DRCondition >> isTestNand [
 	
 	^ false
 ]
