@@ -1847,6 +1847,48 @@ DRPrimitiveScenarioCompilationTest >> testNegatedNegative [
 ]
 
 { #category : 'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testNoMaskFalse [
+
+	self compileDruidPrimitive: #primitiveConditionWithNoMask.
+	
+	self executePrimitiveWithReceiver: 37.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : 'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testNoMaskFalseInverted [
+
+	self compileDruidPrimitive: #primitiveConditionWithNoMaskInverted.
+	
+	self executePrimitiveWithReceiver: 37.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 2
+]
+
+{ #category : 'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testNoMaskTrue [
+
+	self compileDruidPrimitive: #primitiveConditionWithNoMask.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+
+]
+
+{ #category : 'tests-comparisons' }
+DRPrimitiveScenarioCompilationTest >> testNoMaskTrueInverted [
+
+	self compileDruidPrimitive: #primitiveConditionWithNoMaskInverted.
+	
+	self executePrimitiveWithReceiver: 42.
+	
+	self assert: machineSimulator receiverRegisterValue equals: 1
+
+]
+
+{ #category : 'tests-comparisons' }
 DRPrimitiveScenarioCompilationTest >> testNotEqualsThan [
 
 	self compileDruidPrimitive: #primitiveNotEqualsThan.
