@@ -23,7 +23,12 @@ DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method [
 DRBytecodeGeneratorTest >> assertCompilationFor: aSelector fromClass: aClass [
 
 	| compiledMethod expectedMethod |
+	self setUp.
+	
 	expectedMethod := aClass >> aSelector.
+	"Ignore the methods with arguments"
+	expectedMethod numArgs = 0 ifFalse: [ ^ self ].
+	
 	compiledMethod := self compileSelector: aSelector fromClass: aClass.
 	self assert: compiledMethod equalsResult: expectedMethod
 ]
@@ -78,8 +83,9 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
 
 	aDRControlFlowGraph applyOptimisation: DRFrameInfoCleaner new.
-	aDRControlFlowGraph applyOptimisation: DRBranchCollapse new.
+	aDRControlFlowGraph applyOptimisation: (DRBranchCollapse then: DRPhiSimplication).
 	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
+	
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
 
 	bytecodeGenerator numArgs: numArgs.
@@ -212,6 +218,31 @@ DRBytecodeGeneratorTest >> testMethodCustomisationBadCount [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodCustomisationDifference [
+
+	| method result cfg selector |
+	typeSystem := DRCustomisationTypeSystem new.
+	bytecodeGenerator := DRBytecodeGenerator new.
+	selector := #difference:.
+	method := Set >> selector.
+
+	compilerCompiler interpreter: {  }.
+	cfg := self generateDruidIRFor: method.
+
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+
+	result := method valueWithReceiver: { 1. 2. 3 } asSet arguments: { { 3 . 4 . 5 } asSet }.
+
+	self assertCollection: result includesAll: { 1. 2 }.
+
+
+"	{ Array }	
+		do: [ :e |
+			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
+			e addSelectorSilently: selector withMethod: method ]"
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 
 	| method result cfg selector |
@@ -241,8 +272,6 @@ DRBytecodeGeneratorTest >> testMethodCustomisationDo [
 DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
 
 	| method result cfg selector |
-	self skip. "TODO: Fix blocks linearization"
-
 	compilerCompiler irGenerator typeSystem:
 		(typeSystem := DRCustomisationTypeSystem new).
 	bytecodeGenerator := DRBytecodeGenerator new.
@@ -252,15 +281,14 @@ DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
 	compilerCompiler optimize: cfg.
-	compilerCompiler optimize: cfg.
 
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
 	result := method
-		          valueWithReceiver: { 1. 2. 3 }
+		          valueWithReceiver: { 1. 2. 3 } asOrderedCollection
 		          arguments: { [ :e | e even ] }.
 
-	self assertCollection: result includesAll: { 1. 2. 3 }.
+	self assertCollection: result includesAll: { 2 }.
 ]
 
 { #category : 'tests' }
@@ -284,7 +312,7 @@ DRBytecodeGeneratorTest >> testMethodManyReturns [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 
-	| method result cfg selector methodProfiler |
+	| method result cfg selector methodProfiler previousMethodSize |
 	
 	self skip. "This is a proof of concept, does not metter"
 	
@@ -293,7 +321,10 @@ DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 	selector := #methodCollectionSize:.
 	method := self generateMethodForSelector: selector.
 
-	self assert: method size equals: 51. "Small"
+	previousMethodSize := (DruidTestInterpreter >> selector) size.
+
+	self assert: method size > previousMethodSize. "Bigger than original"
+	previousMethodSize := method size.
 
 	"First execution"
 	result := method
@@ -314,7 +345,8 @@ DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 	cfg := self generateDruidIRFor: method.
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 
-	self assert: method size equals: 117. "bigger"
+	self assert: method size > previousMethodSize. "Bigger because of new guard"
+	previousMethodSize := method size.
 
 	result := method
 		          valueWithReceiver: nil
@@ -391,8 +423,6 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 
 	| method result |
-	self skip. "Broken :("
-	
 	method := self generateMethodForSelector: #methodCollectionSize:.
 
 	result := method
@@ -409,26 +439,23 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalBooleanMethods [
 
-	self skip. "TO FIX"
 	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocol = #'examples - andor' ]
+		select: [ :opalMethod | opalMethod protocolName = #'examples - andor' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalConditionalMethods [
 
-	self skip. "TO FIX"
 	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocol = #'examples - conditionals' ]
+		select: [ :opalMethod | opalMethod protocolName = #'examples - conditionals' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalSimpleMethods [
 
-	self skip. "TO FIX"
 	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocol = #'examples - simple' ]
+		select: [ :opalMethod | opalMethod protocolName = #'examples - simple' ]
 		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]

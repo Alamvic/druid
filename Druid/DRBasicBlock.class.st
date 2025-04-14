@@ -28,6 +28,13 @@ DRBasicBlock class >> id: anInteger [
 DRBasicBlock >> add: anInstruction after: anotherInstruction [
 
 	anInstruction basicBlock: self.
+
+	anInstruction isPhiFunction = anotherInstruction isPhiFunction
+		ifFalse: [
+			anotherInstruction isPhiFunction ifFalse: [
+				self error: 'Trying to insert a Phi after a normal instruction.' ].
+			^ instructions addFirst: anInstruction ].
+
 	(self collectionOf: anotherInstruction)
 		add: anInstruction
 		after: anotherInstruction
@@ -37,8 +44,15 @@ DRBasicBlock >> add: anInstruction after: anotherInstruction [
 DRBasicBlock >> add: anInstruction before: anotherInstruction [
 
 	anInstruction basicBlock: self.
-	anotherInstruction = endInstruction ifTrue: [ 
+	anotherInstruction = endInstruction ifTrue: [
 		^ instructions addLast: anInstruction ].
+
+	anInstruction isPhiFunction = anotherInstruction isPhiFunction
+		ifFalse: [
+			anotherInstruction isPhiFunction ifTrue: [
+				self error: 'Trying to insert a normal instruction before a Phi.' ].
+			^ phiFunctions addLast: anInstruction ].
+
 	(self collectionOf: anotherInstruction)
 		add: anInstruction
 		before: anotherInstruction

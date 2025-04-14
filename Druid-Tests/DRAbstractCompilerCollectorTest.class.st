@@ -23,7 +23,7 @@ DRAbstractCompilerCollectorTest >> jitCompilerClassForTest [
 				builder
 					name: self jitCompilerClassNameForTest;
 					superclass: self jitSuperclassForTest;
-					category: self jitCompilerClassNameForTest ]. ]
+					package: self jitCompilerClassNameForTest ]. ]
 ]
 
 { #category : 'running' }
