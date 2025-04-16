@@ -229,7 +229,7 @@ DRCogitGeneratorTest >> testGenerateJmpIfNand [
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
 		r0 := block loadFramePointer.
 		r1 := block addInstruction: ((block instructionFactory jumpIf: true trueTarget: b1 falseTarget: b2)
-			operands: {DRTestNand new. r0. (17 asDRValue)};
+			operands: {DRNoTestAnd new. r0. (17 asDRValue)};
 			yourself).
 	].
 	cfg initialBasicBlock jumpTo: basicBlock.

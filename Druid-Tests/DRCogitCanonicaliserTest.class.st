@@ -265,7 +265,7 @@ DRCogitCanonicaliserTest >> testSimplifyAndEqualsZero [
 	
 	self assert: basicBlock instructions size equals: 2.
 	self assert: basicBlock instructions second isConditionalBranch.
-	self assert: basicBlock instructions second condition class equals: DRTestNand.
+	self assert: basicBlock instructions second condition class equals: DRNoTestAnd.
 	self assert: basicBlock instructions second operand2 value equals: 1.
 ]
 

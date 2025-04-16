@@ -1,5 +1,5 @@
 Class {
-	#name : 'DRTestNand',
+	#name : 'DRNoTestAnd',
 	#superclass : 'DRCondition',
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -7,37 +7,37 @@ Class {
 }
 
 { #category : 'visiting' }
-DRTestNand >> acceptVisitor: aVisitor withBranch: parentBranch [
+DRNoTestAnd >> acceptVisitor: aVisitor withBranch: parentBranch [
 
 	^ aVisitor visitTestNand: self inBranch: parentBranch
 ]
 
 { #category : 'testing' }
-DRTestNand >> isTestNand [
+DRNoTestAnd >> isNoTestAnd [
 
 	^true
 ]
 
 { #category : 'transforming' }
-DRTestNand >> negated [
+DRNoTestAnd >> negated [
 
 	^ DRTestAnd new
 ]
 
 { #category : 'printing' }
-DRTestNand >> opcode [
+DRNoTestAnd >> opcode [
 
 	^ 'Nand'
 ]
 
 { #category : 'converting' }
-DRTestNand >> reversed [
+DRNoTestAnd >> reversed [
 
 	^ self
 ]
 
 { #category : 'SCCP' }
-DRTestNand >> sccpOperateOnLattice: operand and: operand2 [
+DRNoTestAnd >> sccpOperateOnLattice: operand and: operand2 [
 
 	^ (operand and: operand2) not
 ]

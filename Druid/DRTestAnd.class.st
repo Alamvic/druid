@@ -21,7 +21,7 @@ DRTestAnd >> isTestAnd [
 { #category : 'transforming' }
 DRTestAnd >> negated [
 
-	^ DRTestNand new
+	^ DRNoTestAnd new
 ]
 
 { #category : 'printing' }

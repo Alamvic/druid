@@ -26,12 +26,33 @@ DRCogitCanonicaliser >> applyTo: cfg [
 ]
 
 { #category : 'visiting' }
+DRCogitCanonicaliser >> collapseConditionFor: aDRGetConditionCode ifNotPossible: aBlock [
+
+	| newConditionPossibleClasses newCondition |
+
+	newConditionPossibleClasses := collapsibleLogicAndBitwiseInstructions at: aDRGetConditionCode operand1 class
+		ifAbsent: aBlock.
+
+	newCondition := (newConditionPossibleClasses at:
+							(aDRGetConditionCode condition isEqualsThanComparison
+								ifTrue:  [ 1 ]
+								ifFalse: [ 2 ])) new.
+								
+	^ aDRGetConditionCode class
+		operands:
+			{ newCondition },
+			aDRGetConditionCode operand1 operands
+		result: aDRGetConditionCode result.
+
+]
+
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> collapseLogicOrBitwiseOperationIfPossible: aDRGetConditionCode [
 	"Convert TestEqualsThan(BitAnd(a, b), 0)     into  TestNoMask(a, b)
 		and TestNotEqualsThan(BitAnd(a, b), 0)  into  TestMask(a, b)
 		and so on"
 
-	| oldCondition newConditionPossibleClasses newCondition newInstruction |
+	| oldCondition newInstruction |
 	oldCondition := aDRGetConditionCode condition.
 	(oldCondition isEqualsThanComparison or:
 		 oldCondition isNotEqualsThanComparison) ifFalse: [ ^ aDRGetConditionCode ].
@@ -45,20 +66,8 @@ DRCogitCanonicaliser >> collapseLogicOrBitwiseOperationIfPossible: aDRGetConditi
 	(aDRGetConditionCode operand2 isConstant and: [
 		 aDRGetConditionCode operand2 value == 0 ]) ifFalse: [ ^ aDRGetConditionCode ].
 
-	"Validate the other operand is a supported one"
-	newConditionPossibleClasses := collapsibleLogicAndBitwiseInstructions at: aDRGetConditionCode operand1 class
-		ifAbsent: [ ^aDRGetConditionCode ].
-
-	newCondition := (newConditionPossibleClasses at:
-							(oldCondition isEqualsThanComparison
-								ifTrue:  [ 1 ]
-								ifFalse: [ 2 ])) new.
-
-	newInstruction := aDRGetConditionCode class
-		operands:
-			{ newCondition },
-			aDRGetConditionCode operand1 operands
-		result: aDRGetConditionCode result.
+	newInstruction := self collapseConditionFor: aDRGetConditionCode
+									ifNotPossible: [ ^aDRGetConditionCode ].
 
 	aDRGetConditionCode replaceBy: newInstruction.
 	^ newInstruction
@@ -68,7 +77,7 @@ DRCogitCanonicaliser >> collapseLogicOrBitwiseOperationIfPossible: aDRGetConditi
 DRCogitCanonicaliser >> initialize [
 	collapsibleLogicAndBitwiseInstructions := Dictionary new
 		at: DRBitAnd put: { DRNoTestMask. DRTestMask };
-		at: DRAnd put: { DRTestNand. DRTestAnd };
+		at: DRAnd put: { DRNoTestAnd. DRTestAnd };
 		yourself.
 ]
 

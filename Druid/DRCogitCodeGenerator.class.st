@@ -132,7 +132,7 @@ DRCogitCodeGenerator >> cogitBranchFromCondition: condition types: branchTypes [
 				'unsupported: cannot test "and" on a floating point number' ].
 		^ branchPrefix , 'NonZero:' ].
 
-	condition isTestNand ifTrue: [
+	condition isNoTestAnd ifTrue: [
 		aType isFloatType ifTrue: [
 			self error:
 				'unsupported: cannot test "nand" on a floating point number' ].
@@ -1295,12 +1295,8 @@ DRCogitCodeGenerator >> visitSubstract: aDRCogitSubstract [
 DRCogitCodeGenerator >> visitTestAnd: aDRTestAnd inBranch: aDRBranchIfCondition [ 
 	
 	| comparands |
-	comparands := aDRBranchIfCondition operands.
-	aDRBranchIfCondition operands second isConstant ifTrue: [ 
-		comparands := comparands reversed ].
 	self
-		twoOperandCogitRTL: #And
-		operands: comparands
+		threeOperandCogitRTL: #And
 		instruction: aDRBranchIfCondition.
 	^ aDRBranchIfCondition.
 ]
@@ -1309,12 +1305,8 @@ DRCogitCodeGenerator >> visitTestAnd: aDRTestAnd inBranch: aDRBranchIfCondition 
 DRCogitCodeGenerator >> visitTestMask: aDRTestMask inBranch: aDRBranchIfCondition [
 
 	| comparands |
-	comparands := aDRBranchIfCondition operands.
-	aDRBranchIfCondition operands second isConstant ifTrue: [ 
-		comparands := comparands reversed ].
 	self
-		twoOperandCogitRTL: #Tst
-		operands: comparands
+		threeOperandCogitRTL: #Tst
 		instruction: aDRBranchIfCondition.
 	^ aDRBranchIfCondition
 ]
