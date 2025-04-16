@@ -16,7 +16,8 @@ DRFrameInfoCleanerTest >> testFrameReturnConvertedIntoCopy [
 
 	DRFrameInfoCleaner new applyTo: cfg.
 
-	self deny: cfg instructions first isFrameReturn
+	self deny: cfg instructions first isFrameReturn.
+	self assert: cfg instructions first isCopy.
 ]
 
 { #category : 'tests' }
