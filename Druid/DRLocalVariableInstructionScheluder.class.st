@@ -36,7 +36,10 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 
 	| variableName loadInst |
 	variableName := aDRPhiFunction result name asLowercase asDRValue.
-	loadInst := DRLoadTemporaryVariable operands: { variableName }.
+
+	loadInst := DRLoadTemporaryVariable 
+			operands: { variableName }
+			result: aDRPhiFunction result.
 
 	aDRPhiFunction replaceBy: loadInst.
 
@@ -75,7 +78,9 @@ DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
 
 	aDRInstruction users copy do: [ :user |
 		| loadInst |
-		loadInst := DRLoadTemporaryVariable operands: { variableName }.
+		loadInst := DRLoadTemporaryVariable 
+				operands: { variableName }
+				result: aDRInstruction controlFlowGraph allocateTemporaryRegister.
 		user basicBlock add: loadInst before: user.
 		user replaceDependency: aDRInstruction by: loadInst ].
 
