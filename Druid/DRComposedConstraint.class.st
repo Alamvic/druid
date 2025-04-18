@@ -32,6 +32,13 @@ DRComposedConstraint class >> withoutTypes: types [
 ]
 
 { #category : 'accessing' }
+DRComposedConstraint >> asDependencyList [
+
+	constraints flatCollect: [ :constraint | constraint asDependencyList ]
+
+]
+
+{ #category : 'accessing' }
 DRComposedConstraint >> constraints [
 
 	^ constraints

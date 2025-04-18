@@ -25,6 +25,12 @@ DRSimpleConstraint >> = otherConstraint [
 ]
 
 { #category : 'accessing' }
+DRSimpleConstraint >> asDependencyList [
+
+	^ constantValue asDependencyList
+]
+
+{ #category : 'accessing' }
 DRSimpleConstraint >> constantValue [
 
 	^ constantValue
@@ -59,6 +65,11 @@ DRSimpleConstraint >> includes: otherConstraint [
 DRSimpleConstraint >> isIncludedIn: otherConstraint [
 
 	self subclassResponsibility 
+]
+
+{ #category : 'printing' }
+DRSimpleConstraint >> prettyPrint [
+	^ self className, '(', self constantValue asDRValue prettyPrint, ')'.
 ]
 
 { #category : 'printing' }

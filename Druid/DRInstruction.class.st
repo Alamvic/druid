@@ -324,6 +324,11 @@ DRInstruction >> isPhiFunction [
 ]
 
 { #category : 'testing' }
+DRInstruction >> isPiNode [
+	^ false
+]
+
+{ #category : 'testing' }
 DRInstruction >> isPop [
 	
 	^ false

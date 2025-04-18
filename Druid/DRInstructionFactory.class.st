@@ -297,6 +297,15 @@ DRInstructionFactory >> phiWithVariables: variables [
 ]
 
 { #category : 'factory' }
+DRInstructionFactory >> piConstraint: aDRConditionalConstraint on: aValue [
+
+	^ DRPiNode constraint: aDRConditionalConstraint
+			on: aValue;
+			result: self allocateTemporaryRegister;
+			yourself
+]
+
+{ #category : 'factory' }
 DRInstructionFactory >> pop [
 
 	^ self pop: 1 unspilled: false
