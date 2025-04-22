@@ -197,9 +197,16 @@ DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [ 
 	
-	aDRLoadInstVar operand1 acceptVisitor: self.
-	builder pushLiteral: aDRLoadInstVar index.
-	builder send: #instVarAt:
+	aDRLoadInstVar operand1 acceptVisitor: self. 
+	
+	aDRLoadInstVar operand1 value class = DRLoadTemporaryVariable ifTrue: [ 
+		builder pushLiteral: aDRLoadInstVar index.
+		builder send: #instVarAt:
+	] 
+	ifFalse: [ 
+		builder pushInstVar: aDRLoadInstVar index.
+	].
+	
 ]
 
 { #category : 'ir-to-target' }
@@ -251,11 +258,20 @@ DRBytecodeGenerator >> visitReturn: aDRReturn [
 
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [ 
-
+	
 	aDRStoreInstanceVariable operand1 acceptVisitor: self.
-	builder pushLiteral: aDRStoreInstanceVariable operand2 value.
-	aDRStoreInstanceVariable operand3 acceptVisitor: self.
-	builder send: #instVarAt:put:
+	aDRStoreInstanceVariable operand1 class = DRLoadTemporaryVariable ifTrue: [ 
+		builder pushLiteral: aDRStoreInstanceVariable operand2 value.
+		aDRStoreInstanceVariable operand3 acceptVisitor: self.
+		builder send: #instVarAt:put: .
+		builder popTop.
+	]
+	ifFalse: [ 
+		aDRStoreInstanceVariable operand3 acceptVisitor: self.
+		builder storeInstVar: aDRStoreInstanceVariable operand2 value.
+		builder popTop.
+	].
+	
 ]
 
 { #category : 'visiting' }

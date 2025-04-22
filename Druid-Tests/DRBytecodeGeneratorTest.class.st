@@ -304,6 +304,30 @@ DRBytecodeGeneratorTest >> testMethodInline [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineObjectAccessInstVar [
+
+	self assertCompilationFor: #basicInlineMethodAccesInstVar fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineObjectSettingInstVar [
+
+	self assertCompilationFor: #basicInlineMethodSettingInstVar fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineSelfAccessInstVar [
+
+	self assertCompilationFor: #basicInlineMethodSelfAccesInstVar fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineSelfSettingInstVar [
+
+	self assertCompilationFor: #basicInlineMethodSelfSettingInstVar fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodManyReturns [
 
 	self assertCompilationFor: #methodWithThreeNonLocalReturn fromClass: DruidTestInterpreter
