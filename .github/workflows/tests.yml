@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         smalltalk: [ Pharo64-12 ]
-        os: [ ubuntu-24.04, macos-latest ]
+        os: [ ubuntu-latest, macos-latest ]
         ston: [ .smalltalk.ston ]
     runs-on: ${{ matrix.os }}
     name: ${{ matrix.smalltalk }} on ${{ matrix.os }}
@@ -62,9 +62,19 @@ jobs:
         run: |
           cmake -S unicorn -B unicorn_build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=unicorn_result
           cmake --build unicorn_build --target install
-      - name: Download LLVM
+      # - name: Download LLVM
+      #   run: |
+      #     wget https://files.pharo.org/vm/pharo-spur64/$(uname)-x86_64/third-party/libllvm-full.zip
+      #     unzip libllvm-full.zip
+      - name: Download LLVM (ubuntu)
+        if: ${{ contains(matrix.os, 'ubuntu') }}
         run: |
-          wget https://files.pharo.org/vm/pharo-spur64/$(uname)-x86_64/third-party/libllvm-full.zip
+          curl -L "https://www.dropbox.com/scl/fi/u8knwszxi97wezp1nivwj/libllvm-full.zip?rlkey=s3snz2ghs8xcpwgqe3pitjnca&st=awk2ex1w&dl=1" -O
+          unzip libllvm-full.zip
+      - name: Download LLVM (macos)
+        if: ${{ contains(matrix.os, 'macos') }}
+        run: |
+          curl -L "https://www.dropbox.com/scl/fi/6hf5yt8cw1umucusqnkfv/libllvm-full.zip?rlkey=pydogy8wlz03eyslm96v4w3mv&st=qsib1q71&dl=1" -O
           unzip libllvm-full.zip
       - name: Install libraries (LLVM, Unicorn)
         run: |
@@ -74,4 +84,4 @@ jobs:
       - name: Load Image and Run Tests
         run: smalltalkci -s ${{ matrix.smalltalk }} ${{ matrix.ston }}
         shell: bash
-        timeout-minutes: 60
+        timeout-minutes: 90

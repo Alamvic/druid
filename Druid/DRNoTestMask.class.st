@@ -32,6 +32,5 @@ DRNoTestMask >> opcode [
 
 { #category : 'converting' }
 DRNoTestMask >> reversed [
-	"Returns the same condition but with reversed operands: NoTest x y --> NoTest y x"
-	^ DRNoTestMask new.
+	^ self
 ]

@@ -36,3 +36,9 @@ DRLoadTemporaryVariable >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]
+
+{ #category : 'types' }
+DRLoadTemporaryVariable >> type [
+
+	^ DRUndefinedType new
+]

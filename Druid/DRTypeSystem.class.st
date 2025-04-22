@@ -7,12 +7,13 @@ Class {
 }
 
 { #category : 'API' }
-DRTypeSystem >> methodsForMessage: aDRMessageSend [ 
+DRTypeSystem >> methodsForMessage: aDRMessageSend [
 
 	| receiverTypes |
 	receiverTypes := self receiverTypes: aDRMessageSend.
-	^ receiverTypes collect: [ :type |
-		  type -> (type astForSelector: aDRMessageSend selector) ]
+	^ receiverTypes
+		  collect: [ :type | type -> (type astForSelector: aDRMessageSend selector) ]
+		  thenReject: [ :assoc | assoc value isNotNil and: [ assoc value isPrimitive ] ]
 ]
 
 { #category : 'API' }
