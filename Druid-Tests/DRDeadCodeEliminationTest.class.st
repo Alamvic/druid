@@ -123,6 +123,22 @@ DRDeadCodeEliminationTest >> testNotRemoveUnusedMandatoryInstruction [
 ]
 
 { #category : 'tests' }
+DRDeadCodeEliminationTest >> testRemoveUnusedCopy [
+
+	| cfg t0 t1 t2 |
+	cfg := DRControlFlowGraph new.
+	cfg newBasicBlockWith: [ :block |
+		t0 := block add: 1 to: 2.
+		t1 := block copy: t0. "unused"
+		t2 := block copy: t0.
+		block return: t2 ].
+
+	optimisation applyTo: cfg.
+
+	self deny: (cfg instructions includes: t1)
+]
+
+{ #category : 'tests' }
 DRDeadCodeEliminationTest >> testRemoveUnusedNoop [
 
 	| cfg instructionsBefore |
