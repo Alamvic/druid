@@ -76,11 +76,6 @@ jobs:
         run: |
           curl -L "https://www.dropbox.com/scl/fi/6hf5yt8cw1umucusqnkfv/libllvm-full.zip?rlkey=pydogy8wlz03eyslm96v4w3mv&st=qsib1q71&dl=1" -O
           unzip libllvm-full.zip
-      - name: Download LLVM
-        run: |
-          # wget https://files.pharo.org/vm/pharo-spur64/$(uname)-x86_64/third-party/libllvm-full.zip
-          curl -L "https://www.dropbox.com/scl/fi/6hf5yt8cw1umucusqnkfv/libllvm-full.zip?rlkey=pydogy8wlz03eyslm96v4w3mv&st=qsib1q71&dl=1" -O
-          unzip libllvm-full.zip
       - name: Install libraries (LLVM, Unicorn)
         run: |
           mkdir -p ${SMALLTALK_CI_BUILD}
