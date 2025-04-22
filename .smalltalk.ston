@@ -5,5 +5,8 @@ SmalltalkCISpec {
       #baseline : 'Druid',
       #platforms : [ #pharo ]
     }
-  ]
+  ],
+  #testing: {
+    #classes : [ #DRPrimitiveScenarioCompilationTest ]
+  }
 }
