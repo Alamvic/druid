@@ -36,6 +36,12 @@ DRInterpreterValue >> isFloatType [
 ]
 
 { #category : 'testing' }
+DRInterpreterValue >> isInterpreterValue [
+
+	^ true
+]
+
+{ #category : 'testing' }
 DRInterpreterValue >> isUndefined [
 
 	^ false

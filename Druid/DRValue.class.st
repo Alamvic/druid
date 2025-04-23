@@ -230,6 +230,12 @@ DRValue >> isInterpreterReference [
 	^ false
 ]
 
+{ #category : 'memory' }
+DRValue >> isInterpreterValue [
+
+	^ false
+]
+
 { #category : 'testing' }
 DRValue >> isInvariantFrom: loop [
 

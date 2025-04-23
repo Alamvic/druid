@@ -49,7 +49,7 @@ DRBytecodeGenerator >> isResultInstruction: aDRInstruction [
 { #category : 'testing' }
 DRBytecodeGenerator >> isSelf: aDRInstruction [
 
-	^ aDRInstruction operand1 class = DRLoadTemporaryVariable.
+	^ aDRInstruction operand1 simpleConstantFold asDRValue isInterpreterValue .
 ]
 
 { #category : 'jump' }
@@ -202,17 +202,15 @@ DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
-
-	"aDRLoadInstVar operand1 acceptVisitor: self."
-
+	
 	(self isSelf: aDRLoadInstVar) ifTrue: [
-		aDRLoadInstVar operand1 acceptVisitor: self.
-		builder pushLiteral: aDRLoadInstVar index.
-		builder send: #instVarAt:.
+		builder pushInstVar: aDRLoadInstVar index.
 		^ self 
 	].
 
-	builder pushInstVar: aDRLoadInstVar index
+	aDRLoadInstVar operand1 acceptVisitor: self.
+	builder pushLiteral: aDRLoadInstVar index.
+	builder send: #instVarAt:.
 ]
 
 { #category : 'ir-to-target' }
@@ -266,16 +264,15 @@ DRBytecodeGenerator >> visitReturn: aDRReturn [
 DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 
 	(self isSelf: aDRStoreInstanceVariable) ifTrue: [
-		aDRStoreInstanceVariable operand1 acceptVisitor: self.
-		builder pushLiteral: aDRStoreInstanceVariable operand2 value.
 		aDRStoreInstanceVariable operand3 acceptVisitor: self.
-		builder send: #instVarAt:put:.
+		builder storeInstVar: aDRStoreInstanceVariable operand2 value.
 		builder popTop.
 		^ self 
 	].
-
+	aDRStoreInstanceVariable operand1 acceptVisitor: self.
+	builder pushLiteral: aDRStoreInstanceVariable operand2 value.
 	aDRStoreInstanceVariable operand3 acceptVisitor: self.
-	builder storeInstVar: aDRStoreInstanceVariable operand2 value.
+	builder send: #instVarAt:put:.
 	builder popTop
 ]
 

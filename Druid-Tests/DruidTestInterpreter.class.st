@@ -57,7 +57,7 @@ DruidTestInterpreter >> basicInlineMethodSettingInstVar [
 	<var: #assoc type: #Association  >
 	
 	| assoc |
-	assoc := Association key: 'key' value: 'aValue'.
+	assoc := Association new.
 	assoc value: 'aNewValue'.
 	^ assoc value = 'aNewValue'
 ]
