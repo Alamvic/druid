@@ -2,7 +2,8 @@ Class {
 	#name : 'DRCogitCanonicaliser',
 	#superclass : 'DROptimisation',
 	#instVars : [
-		'worklist'
+		'worklist',
+		'collapsibleLogicAndBitwiseInstructions'
 	],
 	#category : 'Druid-Cogit',
 	#package : 'Druid',
@@ -22,6 +23,62 @@ DRCogitCanonicaliser >> applyTo: cfg [
 	worklist := cfg instructions reversed.
 	[ worklist isEmpty ] whileFalse: [
 		worklist removeLast acceptVisitor: self ]
+]
+
+{ #category : 'visiting' }
+DRCogitCanonicaliser >> collapseConditionFor: aDRGetConditionCode ifNotPossible: aBlock [
+
+	| newConditionPossibleClasses newCondition |
+
+	newConditionPossibleClasses := collapsibleLogicAndBitwiseInstructions at: aDRGetConditionCode operand1 class
+		ifAbsent: aBlock.
+
+	newCondition := (newConditionPossibleClasses at:
+							(aDRGetConditionCode condition isEqualsThanComparison
+								ifTrue:  [ 1 ]
+								ifFalse: [ 2 ])) new.
+								
+	^ aDRGetConditionCode class
+		operands:
+			{ newCondition },
+			aDRGetConditionCode operand1 operands
+		result: aDRGetConditionCode result.
+
+]
+
+{ #category : 'visiting' }
+DRCogitCanonicaliser >> collapseLogicOrBitwiseOperationIfPossible: aDRGetConditionCode [
+	"Convert TestEqualsThan(BitAnd(a, b), 0)     into  TestNoMask(a, b)
+		and TestNotEqualsThan(BitAnd(a, b), 0)  into  TestMask(a, b)
+		and so on"
+
+	| oldCondition newInstruction |
+	oldCondition := aDRGetConditionCode condition.
+	(oldCondition isEqualsThanComparison or:
+		 oldCondition isNotEqualsThanComparison) ifFalse: [ ^ aDRGetConditionCode ].
+
+	"Move constant, if present, to the right"
+	aDRGetConditionCode operand1 isConstant ifTrue: [
+		aDRGetConditionCode operands:
+			{ oldCondition reversed }, aDRGetConditionCode operands reverse ].
+
+	"Validate there is a constant, and it's zero"
+	(aDRGetConditionCode operand2 isConstant and: [
+		 aDRGetConditionCode operand2 value == 0 ]) ifFalse: [ ^ aDRGetConditionCode ].
+
+	newInstruction := self collapseConditionFor: aDRGetConditionCode
+									ifNotPossible: [ ^aDRGetConditionCode ].
+
+	aDRGetConditionCode replaceBy: newInstruction.
+	^ newInstruction
+]
+
+{ #category : 'initialization' }
+DRCogitCanonicaliser >> initialize [
+	collapsibleLogicAndBitwiseInstructions := Dictionary new
+		at: DRBitAnd put: { DRNoTestMask. DRTestMask };
+		at: DRAnd put: { DRNoTestAnd. DRTestAnd };
+		yourself.
 ]
 
 { #category : 'visiting' }
@@ -102,6 +159,12 @@ DRCogitCanonicaliser >> visitAddition: aDRAdd [
 				   result: aDRAdd result) ].
 
 	self sortOperandsInDoubleInstructionIfPossible: aDRAdd 
+]
+
+{ #category : 'visiting' }
+DRCogitCanonicaliser >> visitAnd: aDRAnd [
+
+	self sortOperandsInDoubleInstructionIfPossible: aDRAnd.
 ]
 
 { #category : 'visiting' }
@@ -206,9 +269,12 @@ DRCogitCanonicaliser >> visitFlushStack: aDRFlushStack [
 
 { #category : 'visiting' }
 DRCogitCanonicaliser >> visitGetConditionCode: aDRGetConditionCode [
+	| newInstr |
+
+	newInstr := self collapseLogicOrBitwiseOperationIfPossible: aDRGetConditionCode.
 
 	"Force collapse of conditional branches users - trying to clean this instruction"
-	aDRGetConditionCode users
+	newInstr users
 		select: [ :u | u isConditionalBranch ]
 		thenDo: [ :branch | DRBranchCollapse new applyToBlock: branch basicBlock ]
 ]

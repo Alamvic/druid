@@ -259,6 +259,14 @@ DRInstructionFactory >> multiply: aValue by: anotherValue [
 ]
 
 { #category : 'factory' }
+DRInstructionFactory >> notEquals: operand1 to: operand2 [
+
+	^ self getConditionCodeOf: DRNotEqualsThanComparison new operands: { 
+			  operand1 asDRValue.
+			  operand2 asDRValue }
+]
+
+{ #category : 'factory' }
 DRInstructionFactory >> or: operand1 with: operand2 [
 
 	^ DROr

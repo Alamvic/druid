@@ -77,6 +77,60 @@ DRCogitGeneratorTest >> testGenerateAndBetweenRegistersAndNoResult [
 ]
 
 { #category : 'tests' }
+DRCogitGeneratorTest >> testGenerateBitAndEqualsZero [
+
+	| cfg b1 b2 basicBlock r1 instruction |
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlockWith: [ :block | block storeSInt64: 1 at: 888 ].
+	b2 := cfg newBasicBlockWith: [ :block | block storeSInt64: 2 at: 888 ].
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
+		r0 := block loadFramePointer.
+		r1 := block addInstruction: ((block instructionFactory jumpIf: true trueTarget: b1 falseTarget: b2)
+			operands: {DRNoTestMask new. r0. (17 asDRValue)};
+			yourself).
+	].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	self generateCogitForInstruction: r1.
+
+	instruction := self statements first.
+	self assert: instruction selector equals: #TstCq:R:.
+	self assert: instruction arguments first value equals: 17.
+	self assert: instruction arguments second name equals: 't0'.
+	
+	self assert: self statements second value selector equals: #JumpZero:.
+	self assert: self statements third value selector equals: #JumpNonZero:.
+
+]
+
+{ #category : 'tests' }
+DRCogitGeneratorTest >> testGenerateBitAndNotEqualsZero [
+
+	| cfg b1 b2 basicBlock r1 instruction |
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlockWith: [ :block | block storeSInt64: 1 at: 888 ].
+	b2 := cfg newBasicBlockWith: [ :block | block storeSInt64: 2 at: 888 ].
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
+		r0 := block loadFramePointer.
+		r1 := block addInstruction: ((block instructionFactory jumpIf: true trueTarget: b1 falseTarget: b2)
+			operands: {DRTestMask new. r0. (17 asDRValue)};
+			yourself).
+	].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	self generateCogitForInstruction: r1.
+
+	instruction := self statements first.
+	self assert: instruction selector equals: #TstCq:R:.
+	self assert: instruction arguments first value equals: 17.
+	self assert: instruction arguments second name equals: 't0'.
+	
+	self assert: self statements second value selector equals: #JumpNonZero:.
+	self assert: self statements third value selector equals: #JumpZero:.
+
+]
+
+{ #category : 'tests' }
 DRCogitGeneratorTest >> testGenerateDivision [
 
 	| cfg basicBlock r1 divideASTInstruction r2 |
@@ -136,6 +190,60 @@ DRCogitGeneratorTest >> testGenerateFalseAsZero [
 
 	self assert: compare selector equals: #MoveCq:R:.
 	self assert: compare arguments first value equals: 0
+]
+
+{ #category : 'tests' }
+DRCogitGeneratorTest >> testGenerateJmpIfAnd [
+
+	| cfg b1 b2 basicBlock r1 instruction |
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlockWith: [ :block | block storeSInt64: 1 at: 888 ].
+	b2 := cfg newBasicBlockWith: [ :block | block storeSInt64: 2 at: 888 ].
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
+		r0 := block loadFramePointer.
+		r1 := block addInstruction: ((block instructionFactory jumpIf: true trueTarget: b1 falseTarget: b2)
+			operands: {DRTestAnd new. r0. (17 asDRValue)};
+			yourself).
+	].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	self generateCogitForInstruction: r1.
+
+	instruction := self statements first.
+	self assert: instruction selector equals: #AndCq:R:.
+	self assert: instruction arguments first value equals: 17.
+	self assert: instruction arguments second name equals: 't0'.
+	
+	self assert: self statements second value selector equals: #JumpNonZero:.
+	self assert: self statements third value selector equals: #JumpZero:.
+
+]
+
+{ #category : 'tests' }
+DRCogitGeneratorTest >> testGenerateJmpIfNand [
+
+	| cfg b1 b2 basicBlock r1 instruction |
+	cfg := DRControlFlowGraph new.
+	b1 := cfg newBasicBlockWith: [ :block | block storeSInt64: 1 at: 888 ].
+	b2 := cfg newBasicBlockWith: [ :block | block storeSInt64: 2 at: 888 ].
+	basicBlock := cfg newBasicBlockWith: [ :block | | r0 |
+		r0 := block loadFramePointer.
+		r1 := block addInstruction: ((block instructionFactory jumpIf: true trueTarget: b1 falseTarget: b2)
+			operands: {DRNoTestAnd new. r0. (17 asDRValue)};
+			yourself).
+	].
+	cfg initialBasicBlock jumpTo: basicBlock.
+	
+	self generateCogitForInstruction: r1.
+
+	instruction := self statements first.
+	self assert: instruction selector equals: #AndCq:R:.
+	self assert: instruction arguments first value equals: 17.
+	self assert: instruction arguments second name equals: 't0'.
+	
+	self assert: self statements second value selector equals: #JumpZero:.
+	self assert: self statements third value selector equals: #JumpNonZero:.
+
 ]
 
 { #category : 'tests' }

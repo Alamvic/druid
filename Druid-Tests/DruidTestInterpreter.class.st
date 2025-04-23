@@ -705,6 +705,33 @@ DruidTestInterpreter >> primitiveConditionWithAnyMaskInverted [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> primitiveConditionWithNoMask [
+
+	<numberOfArguments: 0>
+
+	| v |
+	v := (self stackTop noMask: 1)
+		ifTrue: [ 1 ]
+		ifFalse: [ 2 ].
+	
+	self pop: 1 thenPush: v
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> primitiveConditionWithNoMaskInverted [
+	"Put the constant as the receiver"
+
+	<numberOfArguments: 0>
+
+	| v |
+	v := (1 noMask: self stackTop)
+		ifTrue: [ 1 ]
+		ifFalse: [ 2 ].
+	
+	self pop: 1 thenPush: v
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> primitiveConditionWithObjectReference [
 
 	<numberOfArguments: 0>

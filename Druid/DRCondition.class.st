@@ -73,6 +73,12 @@ DRCondition >> isNoOverflow [
 ]
 
 { #category : 'testing' }
+DRCondition >> isNoTestAnd [
+	
+	^ false
+]
+
+{ #category : 'testing' }
 DRCondition >> isNoTestMask [
 	
 	^ false
@@ -87,6 +93,12 @@ DRCondition >> isNotEqualsThanComparison [
 { #category : 'testing' }
 DRCondition >> isOverflow [
 
+	^ false
+]
+
+{ #category : 'testing' }
+DRCondition >> isTestAnd [
+	
 	^ false
 ]
 

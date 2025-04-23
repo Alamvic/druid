@@ -41,3 +41,8 @@ DRNoneMaskConstraint >> opCode [
 
 	^ 'Not mask'
 ]
+
+{ #category : 'converting' }
+DRNoneMaskConstraint >> reversed [
+	^ self.
+]
