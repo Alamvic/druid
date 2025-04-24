@@ -46,6 +46,12 @@ DRBytecodeGenerator >> isResultInstruction: aDRInstruction [
 	^ aDRInstruction users isEmpty or: [ aDRInstruction isStore ]
 ]
 
+{ #category : 'testing' }
+DRBytecodeGenerator >> isSelf: aDRInstruction [
+
+	^ aDRInstruction simpleConstantFold asDRValue isInterpreterValue .
+]
+
 { #category : 'jump' }
 DRBytecodeGenerator >> labelBlock: aDRBasicBlock [
 
@@ -195,11 +201,16 @@ DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 ]
 
 { #category : 'ir-to-target' }
-DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [ 
+DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 	
+	(self isSelf: aDRLoadInstVar operand1) ifTrue: [
+		builder pushInstVar: aDRLoadInstVar index.
+		^ self 
+	].
+
 	aDRLoadInstVar operand1 acceptVisitor: self.
 	builder pushLiteral: aDRLoadInstVar index.
-	builder send: #instVarAt:
+	builder send: #instVarAt:.
 ]
 
 { #category : 'ir-to-target' }
@@ -250,12 +261,21 @@ DRBytecodeGenerator >> visitReturn: aDRReturn [
 ]
 
 { #category : 'ir-to-target' }
-DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [ 
-
+DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
+	
+	(self isSelf: aDRStoreInstanceVariable operand1) ifTrue: [
+		aDRStoreInstanceVariable operand3 acceptVisitor: self.
+		builder storeInstVar: aDRStoreInstanceVariable operand2 value.
+		aDRStoreInstanceVariable users size = 0 ifTrue: [ 
+			builder popTop.
+		].
+		^ self 
+	].
 	aDRStoreInstanceVariable operand1 acceptVisitor: self.
 	builder pushLiteral: aDRStoreInstanceVariable operand2 value.
 	aDRStoreInstanceVariable operand3 acceptVisitor: self.
-	builder send: #instVarAt:put:
+	builder send: #instVarAt:put:.
+	builder popTop
 ]
 
 { #category : 'visiting' }

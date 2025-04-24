@@ -33,6 +33,28 @@ DRBytecodeGeneratorTest >> assertCompilationFor: aSelector fromClass: aClass [
 	self assert: compiledMethod equalsResult: expectedMethod
 ]
 
+{ #category : 'assertion' }
+DRBytecodeGeneratorTest >> assertCompilationFor: aSelector fromClass: aClass checkByteCode: byteCode [
+
+	| compiledMethod expectedMethod |
+	self setUp.
+	
+	expectedMethod := aClass >> aSelector.
+	"Ignore the methods with arguments"
+	expectedMethod numArgs = 0 ifFalse: [ ^ self ].
+	compiledMethod := self compileSelector: aSelector fromClass: aClass.
+	
+	self assert: (self checkByteCode: byteCode in: compiledMethod ir).
+	self assert: compiledMethod equalsResult: expectedMethod
+]
+
+{ #category : 'assertion' }
+DRBytecodeGeneratorTest >> checkByteCode: byteCode in: compiledMethodIR [
+	"check if the provided bytecode exist in the compiledMethod IR"
+	
+	^ compiledMethodIR startSequence sequence anySatisfy: [ :each | each printString includesAll: byteCode]
+]
+
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> compileSelector: selector fromClass: interpreterClass [
 
@@ -301,6 +323,32 @@ DRBytecodeGeneratorTest >> testMethodEmpty [
 DRBytecodeGeneratorTest >> testMethodInline [
 
 	self assertCompilationFor: #basicInlineMethod fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineObjectAccessInstVar [
+
+	self assertCompilationFor: #basicInlineMethodAccesInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #instVarAt:'
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineObjectSettingInstVar [
+
+	self assertCompilationFor: #basicInlineMethodSettingInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #instVarAt:put:'
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineSelfAccessInstVar [
+
+	self assertCompilationFor: #basicInlineMethodSelfAccesInstVar fromClass: DruidTestInterpreter checkByteCode: 'pushInstVar:'
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineSelfSettingInstVar [
+
+	self assertCompilationFor: #basicInlineMethodSelfSettingInstVar fromClass: DruidTestInterpreter checkByteCode: 'storeInstVar:'.
+	self assertCompilationFor: #basicInlineMethodSelfSettingInstVarOnReturn fromClass: DruidTestInterpreter checkByteCode: 'storeInstVar:'.
+	self assertCompilationFor: #basicInlineMethodSelfSettingInstVarWithUsers fromClass: DruidTestInterpreter checkByteCode: 'storeInstVar:'.
 ]
 
 { #category : 'tests' }

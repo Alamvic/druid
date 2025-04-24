@@ -1,6 +1,9 @@
 Class {
 	#name : 'DruidTestInterpreter',
 	#superclass : 'CogVMSimulatorLSB',
+	#instVars : [
+		'dummyVariable'
+	],
 	#category : 'Druid-Tests',
 	#package : 'Druid-Tests'
 }
@@ -22,6 +25,53 @@ DruidTestInterpreter class >> primitivesClass [
 DruidTestInterpreter >> basicInlineMethod [
 
 	^ self lazyDouble: 42
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> basicInlineMethodAccesInstVar [
+	<var: #aStack type: #Stack >
+	
+	| aStack |
+	aStack := Stack new.
+	aStack push: 'element'.
+	
+	^ aStack firstLink 
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> basicInlineMethodSelfAccesInstVar [
+	
+	^ dummyVariable 
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> basicInlineMethodSelfSettingInstVar [
+
+	dummyVariable := 5.
+	^ dummyVariable
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> basicInlineMethodSelfSettingInstVarOnReturn [
+
+	^ dummyVariable := 5
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> basicInlineMethodSelfSettingInstVarWithUsers [
+
+	| tempVariable |
+	^ tempVariable := dummyVariable := 5
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> basicInlineMethodSettingInstVar [
+	<var: #assoc type: #Association  >
+	
+	| assoc |
+	assoc := Association new.
+	assoc value: 'aNewValue'.
+	^ assoc value = 'aNewValue'
 ]
 
 { #category : 'bytecode' }
