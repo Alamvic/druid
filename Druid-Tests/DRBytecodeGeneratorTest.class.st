@@ -346,7 +346,9 @@ DRBytecodeGeneratorTest >> testMethodInlineSelfAccessInstVar [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineSelfSettingInstVar [
 
-	self assertCompilationFor: #basicInlineMethodSelfSettingInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #='
+	self assertCompilationFor: #basicInlineMethodSelfSettingInstVar fromClass: DruidTestInterpreter checkByteCode: 'storeInstVar:'.
+	self assertCompilationFor: #basicInlineMethodSelfSettingInstVarOnReturn fromClass: DruidTestInterpreter checkByteCode: 'storeInstVar:'.
+	self assertCompilationFor: #basicInlineMethodSelfSettingInstVarWithUsers fromClass: DruidTestInterpreter checkByteCode: 'storeInstVar:'.
 ]
 
 { #category : 'tests' }

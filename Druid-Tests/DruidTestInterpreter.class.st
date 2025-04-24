@@ -48,8 +48,20 @@ DruidTestInterpreter >> basicInlineMethodSelfAccesInstVar [
 DruidTestInterpreter >> basicInlineMethodSelfSettingInstVar [
 
 	dummyVariable := 5.
-	
-	^ dummyVariable = 5
+	^ dummyVariable
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> basicInlineMethodSelfSettingInstVarOnReturn [
+
+	^ dummyVariable := 5
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> basicInlineMethodSelfSettingInstVarWithUsers [
+
+	| tempVariable |
+	^ tempVariable := dummyVariable := 5
 ]
 
 { #category : 'as yet unclassified' }

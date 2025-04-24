@@ -49,7 +49,7 @@ DRBytecodeGenerator >> isResultInstruction: aDRInstruction [
 { #category : 'testing' }
 DRBytecodeGenerator >> isSelf: aDRInstruction [
 
-	^ aDRInstruction operand1 simpleConstantFold asDRValue isInterpreterValue .
+	^ aDRInstruction simpleConstantFold asDRValue isInterpreterValue .
 ]
 
 { #category : 'jump' }
@@ -203,7 +203,7 @@ DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 	
-	(self isSelf: aDRLoadInstVar) ifTrue: [
+	(self isSelf: aDRLoadInstVar operand1) ifTrue: [
 		builder pushInstVar: aDRLoadInstVar index.
 		^ self 
 	].
@@ -262,11 +262,13 @@ DRBytecodeGenerator >> visitReturn: aDRReturn [
 
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
-
-	(self isSelf: aDRStoreInstanceVariable) ifTrue: [
+	
+	(self isSelf: aDRStoreInstanceVariable operand1) ifTrue: [
 		aDRStoreInstanceVariable operand3 acceptVisitor: self.
 		builder storeInstVar: aDRStoreInstanceVariable operand2 value.
-		builder popTop.
+		aDRStoreInstanceVariable users size = 0 ifTrue: [ 
+			builder popTop.
+		].
 		^ self 
 	].
 	aDRStoreInstanceVariable operand1 acceptVisitor: self.
