@@ -5,17 +5,43 @@ Class {
 	#package : 'Druid-Tests'
 }
 
+{ #category : 'accessing' }
+DRBytecodeScenarioCompilationTest class >> bytecodes [
+
+	^ {
+		  (0 -> #bytecodePopOnTwoBranches).
+		  (0 -> #bytecodePushOnTwoBranches).
+		  (0 -> #bytecodeTwoPopOnTwoBranches).
+		  (0 -> #bytecodeTwoPushOnTwoBranches).
+		  (0 -> #bytecodeWithFlushStackOnDominator).
+		  (0 -> #bytecodeWithPop).
+		  (0 -> #bytecodeWithDeoptimisation).
+		  (77 -> #fakePushConstantTrueBytecode).	
+		  {
+			  (77 -> #pushConstantTrueBytecode).
+			  (192 -> #shortConditionalJumpFalse) }.
+
+		  {
+			  (77 -> #pushConstantTrueBytecode).
+			  (184 -> #shortConditionalJumpTrue) }.
+
+		  {
+			  (77 -> #pushConstantTrueBytecode).
+			  (92 -> #returnTopFromMethod) }.
+		  {
+			  (118 -> #bytecodePrimIdenticalSistaV1).
+			  (192 -> #shortConditionalJumpFalse) }.
+			
+	  }
+]
+
 { #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedPops [
 
-	self
-		compileBytecode: 0
-		selector: #bytecodePopOnTwoBranches
-		thenDo: [ :generator | "Push the receiver"
-			self initializeSStack: 0.
-			"Then execute the druid's compiled code"
-			generator value.
-			cogit genReturnTopFromMethod ].
+	self compileBytecode: [
+		self initializeSStack: 0.
+		self compileBytecodeSelector: #bytecodePopOnTwoBranches.
+		cogit genReturnTopFromMethod ].
 
 	self executePrimitiveWithReceiver: 17.
 
@@ -25,13 +51,10 @@ DRBytecodeScenarioCompilationTest >> testCoallescedPops [
 { #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedPushOnBranchOne [
 
-	self
-		compileBytecode: 0
-		selector: #bytecodePushOnTwoBranches
-		thenDo: [ :generator | 
-			self initializeSStack: 0.
-			generator value. "Call generator"
-			cogit genReturnTopFromMethod ].
+	self compileBytecode: [
+		self initializeSStack: 0.
+		self compileBytecodeSelector: #bytecodePushOnTwoBranches.
+		cogit genReturnTopFromMethod ].
 
 	self executePrimitiveWithReceiver: 17.
 
@@ -41,13 +64,10 @@ DRBytecodeScenarioCompilationTest >> testCoallescedPushOnBranchOne [
 { #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedPushOnBranchTwo [
 
-	self
-		compileBytecode: 0
-		selector: #bytecodePushOnTwoBranches
-		thenDo: [ :generator | 
-			self initializeSStack: 0.
-			generator value. "Call generator"
-			cogit genReturnTopFromMethod ].
+	self compileBytecode: [
+		self initializeSStack: 0.
+		self compileBytecodeSelector: #bytecodePushOnTwoBranches.
+		cogit genReturnTopFromMethod ].
 
 	self executePrimitiveWithReceiver: -17.
 
@@ -57,13 +77,10 @@ DRBytecodeScenarioCompilationTest >> testCoallescedPushOnBranchTwo [
 { #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedTwoPops [
 
-	self
-		compileBytecode: 0
-		selector: #bytecodeTwoPopOnTwoBranches
-		thenDo: [ :generator | 
-			self initializeSStack: 1.
-			generator value. "Call generator"
-			cogit genReturnTopFromMethod ].
+	self compileBytecode: [
+		self initializeSStack: 1.
+		self compileBytecodeSelector: #bytecodeTwoPopOnTwoBranches.
+		cogit genReturnTopFromMethod ].
 
 	self executePrimitiveWithReceiver: 17 withArguments: { 42 }.
 
@@ -73,13 +90,10 @@ DRBytecodeScenarioCompilationTest >> testCoallescedTwoPops [
 { #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedTwoPushesOnBranchOne [
 
-	self
-		compileBytecode: 0
-		selector: #bytecodeTwoPushOnTwoBranches
-		thenDo: [ :generator | 
-			self initializeSStack: 0.
-			generator value. "Call generator"
-			cogit genReturnTopFromMethod ].
+	self compileBytecode: [
+		self initializeSStack: 0.
+		self compileBytecodeSelector: #bytecodeTwoPushOnTwoBranches.
+		cogit genReturnTopFromMethod ].
 
 	self executePrimitiveWithReceiver: 17.
 
@@ -89,13 +103,10 @@ DRBytecodeScenarioCompilationTest >> testCoallescedTwoPushesOnBranchOne [
 { #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedTwoPushesOnBranchTwo [
 
-	self
-		compileBytecode: 0
-		selector: #bytecodeTwoPushOnTwoBranches
-		thenDo: [ :generator | 
-			self initializeSStack: 0.
-			generator value. "Call generator"
-			cogit genReturnTopFromMethod ].
+	self compileBytecode: [
+		self initializeSStack: 0.
+		self compileBytecodeSelector: #bytecodeTwoPushOnTwoBranches.
+		cogit genReturnTopFromMethod ].
 
 	self executePrimitiveWithReceiver: -17.
 
@@ -105,26 +116,23 @@ DRBytecodeScenarioCompilationTest >> testCoallescedTwoPushesOnBranchTwo [
 { #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testFlushStackOnBranch1 [
 
-	| mustBeBooleanTrampolineAddress |	
+	| mustBeBooleanTrampolineAddress |
 	self isSimpleStack ifTrue: [ self skip ].
-	
+
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
-	
+
 	mustBeBooleanTrampolineAddress := self compile: [ cogit RetN: 0 ].
 	cogit ceSendMustBeBooleanTrampoline: mustBeBooleanTrampolineAddress.
 
-	self
-		compileBytecode: 0
-		selector: #bytecodeWithFlushStackOnDominator
-		thenDo: [ :generator | "Execute the druid's compiled code"
-			cogit ssPushConstant: 0.
-			cogit bytecodePC: 237.
-			generator value ].
+	cogit bytecodePC: 237.
+	self compileBytecode: [
+		cogit ssPushConstant: 0.
+		self compileBytecodeSelector: #bytecodeWithFlushStackOnDominator ].
 
 	self prepareStackForPrimitiveReceiver: 0 arguments: #(  ) method: 0.
 
 	self runFrom: cogInitialAddress until: mustBeBooleanTrampolineAddress.
-	
+
 	self assert: cogit ssTop spilled.
 	self assert: cogit ssTop constant equals: 0
 ]
@@ -140,18 +148,16 @@ DRBytecodeScenarioCompilationTest >> testFlushStackOnBranch2 [
 
 	cogit ceSendMustBeBooleanTrampoline: fakeTrampoline.
 
-	self
-		compileBytecode: 0
-		selector: #bytecodeWithFlushStackOnDominator
-		thenDo: [ :generator | "Execute the druid's compiled code"
-			cogit ssPushConstant: 42.
-			cogit bytecodePC: 237.
-			generator value ].
+	cogit bytecodePC: 237.
+	self compileBytecode: [
+		cogit ssPushConstant: 42.
+		self compileBytecodeSelector: #bytecodeWithFlushStackOnDominator ].
+
 
 	self prepareStackForPrimitiveReceiver: 0 arguments: #(  ) method: 0.
 
 	self runFrom: cogInitialAddress until: deoptimizeAddress.
-	
+
 	self assert: cogit ssTop spilled.
 	self assert: cogit ssTop constant equals: 42
 ]
@@ -161,15 +167,12 @@ DRBytecodeScenarioCompilationTest >> testFlushStackThenPop [
 
 	self isSimpleStack ifTrue: [ self skip ].
 
-	self
-		compileBytecode: 0
-		selector: #bytecodeWithPop
-		thenDo: [ :generator |
-			cogit ssPushConstant: 237.
-			cogit ssPushConstant: 42.
-			cogit ssFlushStack.
-			generator value.
-			cogit genUpArrowReturn ].
+	self compileBytecode: [
+		cogit ssPushConstant: 237.
+		cogit ssPushConstant: 42.
+		cogit ssFlushStack.
+		self compileBytecodeSelector: #bytecodeWithPop.
+		cogit genUpArrowReturn ].
 
 	self executePrimitiveWithReceiver: 0.
 
@@ -181,44 +184,35 @@ DRBytecodeScenarioCompilationTest >> testPushTrueAndJumpFalse [
 
 	| method |
 	method := methodBuilder
-		newMethod;
-		literals: { (memory integerObjectOf: 42) };
-		bytecodes: #[ 
-			77 "push true"
-			192 "jump if false over next"
-			90 "return false"
-			91 "return true"];
-		numberOfTemporaries: 2;
-		buildMethod.
+		          newMethod;
+		          literals: { (memory integerObjectOf: 42) };
+		          bytecodes: #[ 77 192 90 91 ];
+		          numberOfTemporaries: 2;
+		          buildMethod. "push true" "jump if false over next" "return false" "return true"
 
-	self
-		compileBytecode: 77
-		selector: #pushConstantTrueBytecode
-		andBytecode: 184
-		selector: #shortConditionalJumpFalse
-		thenDo: [ :generator |
-			cogit bytecodePC: 16.
-			cogit methodObj: method.
-			cogit debugStackPointers:
-				(cogit coInterpreter debugStackPointersFor: method).
+	cogit methodObj: method.
+	cogit bytecodePC: 16.
+	cogit debugStackPointers:
+		(cogit coInterpreter debugStackPointersFor: method).
 
-			"Execute the druid's compiled code"
-			cogit bytecodePC: cogit bytecodePC + 1. "Generated by optimisation preamble" 
-			generator value.
+	self compileBytecode: [
+		cogit bytecodePC: 17. "Generated by optimisation preamble"
+		self
+			compileBytecodeSelector: #pushConstantTrueBytecode
+			andSelector: #shortConditionalJumpFalse.
 
-			"We will jump over the stop!"
-			cogit bytecodePC: 18.
-			cogit ssPushConstant: 0.
-			cogit genReturnTopFromMethod.
-			cogit Stop.
+		"We will jump over the stop!"
+		cogit bytecodePC: 18.
+		cogit ssPushConstant: 0.
+		cogit genReturnTopFromMethod.
+		cogit Stop.
 
-
-			cogit bytecodePC: 19.
-			cogit
-				patchFixupTargetIfNeeded: (cogit fixupAt: 19)
-				nextOpcodeIndex: cogit opcodeIndex.
-			cogit ssPushConstant: 42.
-			cogit genReturnTopFromMethod ].
+		cogit bytecodePC: 19.
+		cogit
+			patchFixupTargetIfNeeded: (cogit fixupAt: 19)
+			nextOpcodeIndex: cogit opcodeIndex.
+		cogit ssPushConstant: 42.
+		cogit genReturnTopFromMethod ].
 
 	self executePrimitiveWithReceiver: memory nilObject.
 	self assert: machineSimulator receiverRegisterValue equals: 0
@@ -229,44 +223,35 @@ DRBytecodeScenarioCompilationTest >> testPushTrueAndJumpTrue [
 
 	| method |
 	method := methodBuilder
-		newMethod;
-		literals: { (memory integerObjectOf: 42) };
-		bytecodes: #[ 
-			77 "push true"
-			184 "jump if true over next"
-			90 "return false"
-			91 "return true"];
-		numberOfTemporaries: 2;
-		buildMethod.
+		          newMethod;
+		          literals: { (memory integerObjectOf: 42) };
+		          bytecodes: #[ 77 184 90 91 ];
+		          numberOfTemporaries: 2;
+		          buildMethod. "push true" "jump if true over next" "return false" "return true"
 
-	self
-		compileBytecode: 77
-		selector: #pushConstantTrueBytecode
-		andBytecode: 184
-		selector: #shortConditionalJumpTrue
-		thenDo: [ :generator |
-			cogit bytecodePC: 16.
-			cogit methodObj: method.
-			cogit debugStackPointers:
-				(cogit coInterpreter debugStackPointersFor: method).
+	cogit methodObj: method.
+	cogit bytecodePC: 16.
+	cogit debugStackPointers:
+		(cogit coInterpreter debugStackPointersFor: method).
 
-			"Execute the druid's compiled code"
-			cogit bytecodePC: cogit bytecodePC + 1. "Generated by optimisation preamble" 
-			generator value.
+	self compileBytecode: [
+		cogit bytecodePC: 17. "Generated by optimisation preamble"
+		self
+			compileBytecodeSelector: #pushConstantTrueBytecode
+			andSelector: #shortConditionalJumpTrue.
 
-			"We will jump over the stop!"
-			cogit bytecodePC: 18.
-			cogit ssPushConstant: 0.
-			cogit genReturnTopFromMethod.
-			cogit Stop.
+		"We will jump over the stop!"
+		cogit bytecodePC: 18.
+		cogit ssPushConstant: 0.
+		cogit genReturnTopFromMethod.
+		cogit Stop.
 
-
-			cogit bytecodePC: 19.
-			cogit
-				patchFixupTargetIfNeeded: (cogit fixupAt: 19)
-				nextOpcodeIndex: cogit opcodeIndex.
-			cogit ssPushConstant: 42.
-			cogit genReturnTopFromMethod ].
+		cogit bytecodePC: 19.
+		cogit
+			patchFixupTargetIfNeeded: (cogit fixupAt: 19)
+			nextOpcodeIndex: cogit opcodeIndex.
+		cogit ssPushConstant: 42.
+		cogit genReturnTopFromMethod ].
 
 	self executePrimitiveWithReceiver: memory nilObject.
 	self assert: machineSimulator receiverRegisterValue equals: 42
@@ -275,10 +260,10 @@ DRBytecodeScenarioCompilationTest >> testPushTrueAndJumpTrue [
 { #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testPushTrueAndReturn [
 
-	self
-		compileBytecode: 77 selector: #pushConstantTrueBytecode
-		andBytecode: 92 selector: #returnTopFromMethod
-		thenDo: [ :generator | generator value ].
+	self compileBytecode: [
+		self
+			compileBytecodeSelector: #pushConstantTrueBytecode
+			andSelector: #returnTopFromMethod ].
 
 	self executePrimitiveWithReceiver: memory nilObject.
 	self
@@ -291,53 +276,46 @@ DRBytecodeScenarioCompilationTest >> testSuperBytecodePrimIdenticalAndJumpFalse 
 
 	| method |
 	method := methodBuilder
-		newMethod;
-		literals: { (memory integerObjectOf: 42) };
-		bytecodes: #[ 
-			77 "fake"
-			192 "jump if false over next"
-			90 "return false"
-			91 "return true"];
-		numberOfTemporaries: 2;
-		buildMethod.
+		          newMethod;
+		          literals: { (memory integerObjectOf: 42) };
+		          bytecodes: #[ 77 192 90 91 ];
+		          numberOfTemporaries: 2;
+		          buildMethod. "fake" "jump if false over next" "return false" "return true"
 
 	"Force failing test if tries to compile the trampoline call:
 		Should be removed due to super-instruction."
 	cogit ceSendMustBeBooleanTrampoline: fakeTrampoline.
 
+	cogit methodObj: method.
+	cogit bytecodePC: 16.
+	cogit debugStackPointers:
+		(cogit coInterpreter debugStackPointersFor: method).
+
+	self compileBytecode: [
+		self initializeSStack: 1.
+
+		cogit bytecodePC: 17.
+		self
+			compileBytecodeSelector: #bytecodePrimIdenticalSistaV1
+			andSelector: #shortConditionalJumpFalse.
+
+		"We will jump over the stop!"
+		cogit bytecodePC: 18.
+		cogit ssPushConstant: 0.
+		cogit genReturnTopFromMethod.
+		cogit Stop.
+
+		cogit bytecodePC: 19.
+		cogit
+			patchFixupTargetIfNeeded: (cogit fixupAt: 19)
+			nextOpcodeIndex: cogit opcodeIndex.
+		cogit ssPushConstant: 42.
+		cogit genReturnTopFromMethod ].
+
 	self
-		compileBytecode: 118
-		selector: #bytecodePrimIdenticalSistaV1
-		andBytecode: 184
-		selector: #shortConditionalJumpFalse
-		thenDo: [ :generator |
-			self initializeSStack: 1.
-		
-			cogit bytecodePC: 16.
-			cogit methodObj: method.
-			cogit debugStackPointers:
-				(cogit coInterpreter debugStackPointersFor: method).
+		executePrimitiveWithReceiver: memory nilObject
+		withArgument: memory nilObject.
 
-			"Execute the druid's compiled code"
-			cogit bytecodePC: cogit bytecodePC + 1. "Generated by optimisation preamble" 
-			generator value.
-
-			"We will jump over the stop!"
-			cogit bytecodePC: 18.
-			cogit ssPushConstant: 0.
-			cogit genReturnTopFromMethod.
-			cogit Stop.
-
-
-			cogit bytecodePC: 19.
-			cogit
-				patchFixupTargetIfNeeded: (cogit fixupAt: 19)
-				nextOpcodeIndex: cogit opcodeIndex.
-			cogit ssPushConstant: 42.
-			cogit genReturnTopFromMethod ].
-
-	self executePrimitiveWithReceiver: memory nilObject withArgument: memory nilObject.
-	
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
@@ -346,53 +324,46 @@ DRBytecodeScenarioCompilationTest >> testSuperBytecodePrimIdenticalAndJumpFalse2
 
 	| method |
 	method := methodBuilder
-		newMethod;
-		literals: { (memory integerObjectOf: 42) };
-		bytecodes: #[ 
-			77 "fake"
-			192 "jump if false over next"
-			90 "return false"
-			91 "return true"];
-		numberOfTemporaries: 2;
-		buildMethod.
+		          newMethod;
+		          literals: { (memory integerObjectOf: 42) };
+		          bytecodes: #[ 77 192 90 91 ];
+		          numberOfTemporaries: 2;
+		          buildMethod. "fake" "jump if false over next" "return false" "return true"
 
 	"Force failing test if tries to compile the trampoline call:
 		Should be removed due to super-instruction."
 	cogit ceSendMustBeBooleanTrampoline: fakeTrampoline.
 
+	cogit methodObj: method.
+	cogit bytecodePC: 16.
+	cogit debugStackPointers:
+		(cogit coInterpreter debugStackPointersFor: method).
+
+	self compileBytecode: [
+		self initializeSStack: 1.
+
+		cogit bytecodePC: 17.
+		self
+			compileBytecodeSelector: #bytecodePrimIdenticalSistaV1
+			andSelector: #shortConditionalJumpFalse.
+
+		"We will jump over the stop!"
+		cogit bytecodePC: 18.
+		cogit ssPushConstant: 0.
+		cogit genReturnTopFromMethod.
+		cogit Stop.
+
+		cogit bytecodePC: 19.
+		cogit
+			patchFixupTargetIfNeeded: (cogit fixupAt: 19)
+			nextOpcodeIndex: cogit opcodeIndex.
+		cogit ssPushConstant: 42.
+		cogit genReturnTopFromMethod ].
+
 	self
-		compileBytecode: 118
-		selector: #bytecodePrimIdenticalSistaV1
-		andBytecode: 184
-		selector: #shortConditionalJumpFalse
-		thenDo: [ :generator |
-			self initializeSStack: 1.
+		executePrimitiveWithReceiver: memory nilObject
+		withArgument: memory trueObject.
 
-			cogit bytecodePC: 16.
-			cogit methodObj: method.
-			cogit debugStackPointers:
-				(cogit coInterpreter debugStackPointersFor: method).
-
-			"Execute the druid's compiled code"
-			cogit bytecodePC: cogit bytecodePC + 1. "Generated by optimisation preamble" 
-			generator value.
-
-			"We will jump over the stop!"
-			cogit bytecodePC: 18.
-			cogit ssPushConstant: 0.
-			cogit genReturnTopFromMethod.
-			cogit Stop.
-
-
-			cogit bytecodePC: 19.
-			cogit
-				patchFixupTargetIfNeeded: (cogit fixupAt: 19)
-				nextOpcodeIndex: cogit opcodeIndex.
-			cogit ssPushConstant: 42.
-			cogit genReturnTopFromMethod ].
-
-	self executePrimitiveWithReceiver: memory nilObject withArgument: memory trueObject.
-	
 	self assert: machineSimulator receiverRegisterValue equals: 42
 ]
 
@@ -400,10 +371,6 @@ DRBytecodeScenarioCompilationTest >> testSuperBytecodePrimIdenticalAndJumpFalse2
 DRBytecodeScenarioCompilationTest >> testSuperInstructionCompilation [
 
 	| compiledMethod fixupCheck returns nextBytecodeCheck |
-	self
-		compileBytecode: 77 selector: #fakePushConstantTrueBytecode
-		options: #( superInstructions )
-		thenDo: [ :generator | "Nothing" ].
 	
 	compiledMethod := compilerClass  >> #gen_fakePushConstantTrueBytecode.
 	
@@ -435,13 +402,10 @@ DRBytecodeScenarioCompilationTest >> testUnknownBytecode [
 	method := methodBuilder newMethod buildMethod.
 
 	cogit methodObj: method.
+	cogit bytecodePC: 237.
 
-	self
-		compileBytecode: 0
-		selector: #bytecodeWithDeoptimisation
-		thenDo: [ :generator | "Execute the druid's compiled code"
-			cogit bytecodePC: 237.
-			generator value ].
+	self compileBytecode: [
+		self compileBytecodeSelector: #bytecodeWithDeoptimisation ].
 
 	self prepareStackForPrimitiveReceiver: 0 arguments: #(  ) method: 0.
 

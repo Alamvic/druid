@@ -14,6 +14,18 @@ DRBytecodeCompilationTest class >> cogitStyleParameter [
 		yourself
 ]
 
+{ #category : 'accessing' }
+DRBytecodeCompilationTest class >> resources [
+
+	^Array with: DRBytecodeCompilationTestResource
+]
+
+{ #category : 'compiling' }
+DRBytecodeCompilationTest >> compileBytecode: aBlock [
+
+	cogInitialAddress := self compile: aBlock bytecodes: 100
+]
+
 { #category : 'enumerating' }
 DRBytecodeCompilationTest >> compileBytecode: bytecode1 selector: selector1 andBytecode: bytecode2 selector: selector2 thenDo: aFullBlockClosure [ 
 
@@ -34,6 +46,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode1 selector: selector1 andB
 	"Then generate the machine code for that method"
 	cogInitialAddress := self compile: [
 		cogit needsFrame: true.
+		cogit useTwoPaths: false.
 		cogit byte0: bytecode1.
 		cogit byte1: bytecode2.
 		cogit methodOrBlockNumArgs: 3. "Hack"
@@ -65,6 +78,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector optio
 	cogInitialAddress := self
 		                     compile: [
 			                     cogit needsFrame: true.
+			                     cogit useTwoPaths: false.
 			                     cogit byte0: bytecode.
 			                     cogit methodOrBlockNumArgs: 3. "Hack"
 			                     cogit methodOrBlockNumTemps: 2. "Hack"
@@ -85,6 +99,31 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 		  selector: aSelector
 		  options: #(  )
 		  thenDo: aBlock
+]
+
+{ #category : 'compiling' }
+DRBytecodeCompilationTest >> compileBytecodeSelector: aSelector [
+
+	| generatorSelector |
+	generatorSelector := (#gen , '_' , aSelector) asSymbol.
+	cogit byte0:
+		(self class bytecodes detect: [ :assoc | assoc value = aSelector ]).
+	cogit perform: generatorSelector
+]
+
+{ #category : 'compiling' }
+DRBytecodeCompilationTest >> compileBytecodeSelector: selector1 andSelector: selector2 [
+
+	| generatorSelector bytecodes |
+	generatorSelector := (#gen , '_' , selector1 , '_' , selector2) asSymbol.
+	bytecodes := self class bytecodes detect: [ :assocOrArray |
+		             assocOrArray isCollection and: [
+			             assocOrArray first value = selector1 and: [
+				             assocOrArray second value = selector2 ] ] ].
+
+	cogit byte0: bytecodes first key.
+	cogit byte1: bytecodes second key.
+	cogit perform: generatorSelector
 ]
 
 { #category : 'tests' }
@@ -163,5 +202,11 @@ DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: a
 DRBytecodeCompilationTest >> setUp [
 
 	super setUp.
-	cogit useTwoPaths: false
+	cogit needsFrame: true.
+	cogit useTwoPaths: false.
+	cogit methodOrBlockNumArgs: 3. "Hack"
+	cogit methodOrBlockNumTemps: 2. "Hack"
+	"Initialize the simulated stack"
+	cogit initSimStackForFramefulMethod: 2.
+	cogit zeroOpcodeIndexForNewOpcodes
 ]
