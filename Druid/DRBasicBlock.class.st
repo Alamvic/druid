@@ -272,8 +272,8 @@ DRBasicBlock >> cleanInstructions [
 	Warning: This method breaks the invariant user-operand.
 	"
 
-	self instructions do: [ :i | 
-		i operands asSet do: [ :op | op removeUser: i ] ]
+	self instructions do: [ :i |
+		i dependencies asSet do: [ :op | op removeUser: i ] ]
 ]
 
 { #category : 'accessing' }
@@ -1112,6 +1112,12 @@ DRBasicBlock >> phiWithVariables: variables [
 
 	phi := self instructionFactory phiWithVariables: finalVariables.
 	^ self addInstruction: phi
+]
+
+{ #category : 'accessing' }
+DRBasicBlock >> piNodes [
+
+	^ self instructions select: [ :i | i isPiNode ]
 ]
 
 { #category : 'building' }

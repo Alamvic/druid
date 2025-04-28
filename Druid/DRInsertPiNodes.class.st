@@ -9,10 +9,8 @@ Class {
 { #category : 'accessing' }
 DRInsertPiNodes >> applyTo: cfg [
 
-	cfg blocks do: [ :b |
-		b endInstruction isConditionalBranch ifTrue: [
-			self insertPiNodesFor: b endInstruction.
-		]
+	cfg allConditionalJumps do: [ :jump |
+		self insertPiNodesFor: jump
 	]
 ]
 
@@ -32,16 +30,16 @@ DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBloc
 ]
 
 { #category : 'accessing' }
-DRInsertPiNodes >> insertPiNode: aDRPiNode in: aDRBasicBlock withoutModifyingAnyOf: aCollection [
+DRInsertPiNodes >> insertPiNode: aDRPiNode in: aDRBasicBlock withoutModifyingAnyOf: piNodesNotToModify [
 
-	aDRPiNode result: aDRBasicBlock controlFlowGraph instructionFactory allocateTemporaryRegister.
 	aDRBasicBlock addInstructionFirst: aDRPiNode.
 
 	aDRPiNode operand users
-		select: [ :user | user ~= aDRPiNode and: [
-								(aCollection includes: user) not and: [
-								(user basicBlock isDominatedBy: aDRBasicBlock) ] ] ]
+		select: [ :user | (piNodesNotToModify includes: user) not and: [
+								(user basicBlock isDominatedBy: aDRBasicBlock) ] ]
 		thenDo: [ :user | user replaceDependency: aDRPiNode operand by: aDRPiNode ]
+		
+
 ]
 
 { #category : 'accessing' }
@@ -58,7 +56,7 @@ DRInsertPiNodes >> insertPiNodes: piNodes in: aDRBasicBlock [
 DRInsertPiNodes >> insertPiNodesFor: aDRBranchIfCondition [
 	| piNodeBuilder |
 	
-	piNodeBuilder := DRPiNodeBuilder new.
+	piNodeBuilder := DRPiNodeBuilder withInstructionFactory: aDRBranchIfCondition basicBlock controlFlowGraph instructionFactory.
 	aDRBranchIfCondition condition
 		acceptVisitor: piNodeBuilder
 		withBranch: aDRBranchIfCondition.

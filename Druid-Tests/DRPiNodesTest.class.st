@@ -25,34 +25,18 @@ DRPiNodesTest >> optimize: cfg with: optimisations [
 ]
 
 { #category : 'running' }
-DRPiNodesTest >> piNodesIn: aDRBasicBlock [
-
-	^ aDRBasicBlock instructions select: [ :i | i isPiNode ]
-]
-
-{ #category : 'running' }
 DRPiNodesTest >> setUpCFGWithConditionalBetweenVars: aBlock [
 
-	| var1 var2 cfg instructionFactory cond jumpIf realCond |
+	| var1 var2 cfg instructionFactory realCond |
 	
-	instructionFactory := DRInstructionFactory new.
-	cond := instructionFactory equals: 1 to: 2.
-	jumpIf := instructionFactory jumpIf: cond.
-	cfg := self setUpCFGWithConditional: jumpIf.
+	cfg := self setUpCFGWithConditional.
 	
 	instructionFactory := cfg instructionFactory.
-	var1 := instructionFactory loadFramePointer.
-	var2 := instructionFactory loadFramePointer.
-
+	var1 := cfg b1 addInstruction: instructionFactory loadFramePointer.
+	var2 := cfg b1 addInstruction: instructionFactory loadFramePointer.
 	realCond := (aBlock value: cfg value: var1 value: var2).
-	cfg b1 replaceInstruction: cond by: realCond.
-	cfg b1 replaceInstruction: jumpIf by: ((instructionFactory jumpIf: realCond)
-		trueBranch: cfg b2;
-		falseBranch: cfg b3;
-		yourself).
-		
-	cfg b0 addInstructionFirst: var1.
-	cfg b0 addInstructionFirst: var2.
+	cfg b1 replaceInstruction: (cfg b1 instructions at: cfg b1 instructions size - 1) by: realCond.
+	cfg b1 endInstruction operands: {cfg b1 endInstruction condition. realCond. true}.
 	
 	cfg b2 storeSInt64: var1 at: 777.
 	cfg b3 storeSInt64: var1 at: 888.
@@ -66,10 +50,18 @@ DRPiNodesTest >> setUpCFGWithConditionalBetweenVars: aBlock [
 
 { #category : 'tests' }
 DRPiNodesTest >> testABCDGraph [
-	| cfg b_i b_end limit0 limit1 st0 st1 while b_for j1 b_if1 st3 limit3 j0 b_if2 t0 b_if2_after_check2 b_if2_after_check1 j4 cmp_for dummyOperand1 jmp_for |
+	| cfg b_i b_end limit0 limit1 st0 st1 b_while b_for j1 b_if1 st3 limit3 j0 b_if2 t0 b_if2_after_check2 b_if2_after_check1 j4 cmp_for dummyOperand1 jmp_for |
 	
 	"This is the running example in the ABCD paper, reproduced it just to have something to validate our results agains
 	The code is kinda ugly, I don't know if there's a nicer way to build this self-referencial/cyclic IRs"
+	
+	"             /->------------------------------------------------------------------------------------->-\
+	             / V--<-------------------<-\                                   /->---------------------/->--\
+	 |b_i| -> |b_while| -> |b_if1| -> |b_for| -> |b_if2| -> |b_if2_after_check1| -> |b_if2_after_check2| -> |b_end|
+                                           \-<------------------------------------------------------<-/
+	"
+	
+	"Check Figure 3 in ABCD: Eliminating Array Bounds Checks on Demand for it to make *a bit* more sense"
 
 	cfg := DRControlFlowGraph new.
 	
@@ -120,7 +112,7 @@ DRPiNodesTest >> testABCDGraph [
 	j1 replaceOperand: j1 operands first by: j0.
 	j1 replaceOperand: j1 operands second by: j4.
 		
-	while := cfg newBasicBlockWith: [ :block | |cmp|
+	b_while := cfg newBasicBlockWith: [ :block | |cmp|
 		limit1 := block phiWith: {limit0. limit3}.
 		st1 := block phiWith: {st0. st3}.
 		cmp := block less: st1 than: limit1.
@@ -130,10 +122,10 @@ DRPiNodesTest >> testABCDGraph [
 	b_if1 instructions first replaceOperand: dummyOperand1 by: st1.
 	b_if1 instructions second replaceOperand: dummyOperand1 by: limit1.
 
-	b_i jumpTo: while.
+	b_i jumpTo: b_while.
 
 	jmp_for falseBranch removePredecessor: jmp_for basicBlock.
-	jmp_for newFalseBranch: while.
+	jmp_for newFalseBranch: b_while.
 	jmp_for basicBlock predecessors add: jmp_for basicBlock predecessors removeFirst.
 
 	
@@ -148,15 +140,15 @@ DRPiNodesTest >> testInsertPiNodesEqualsCondition [
 	| cfg |
 	
 	cfg := self setUpCFGWithConditionalBetweenVars:
-				[ :cfg :var :cte | cfg instructionFactory equals: var to: cte ].
+				[ :cfg :var1 :var2 | cfg instructionFactory equals: var1 to: var2 ].
 
 	self insertPiNodes: cfg.
 	
-	self assert: (self piNodesIn: cfg b2) size equals: 2.
-	self assert: ((self piNodesIn: cfg b2) allSatisfy: [ :pi | pi constraint class == DREqualsObjectConstraint ]).
+	self assert: cfg b2 piNodes size equals: 2.
+	self assert: (cfg b2 piNodes allSatisfy: [ :pi | pi constraint class == DREqualsObjectConstraint ]).
 	
-	self assert: (self piNodesIn: cfg b3) size equals: 2.
-	self assert: ((self piNodesIn: cfg b3) allSatisfy: [ :pi | pi constraint class == DRNotEqualsObjectConstraint ]).
+	self assert: cfg b3 piNodes size equals: 2.
+	self assert: (cfg b3 piNodes allSatisfy: [ :pi | pi constraint class == DRNotEqualsObjectConstraint ]).
 
 ]
 
@@ -166,39 +158,39 @@ DRPiNodesTest >> testInsertPiNodesRemoval [
 	| cfg |
 	
 	cfg := self setUpCFGWithConditionalBetweenVars:
-				[ :cfg :var :cte | cfg instructionFactory equals: var to: cte ].
+				[ :cfg :var1 :var2 | cfg instructionFactory equals: var1 to: var2 ].
 
 	self optimize: cfg with: {DRNoOptimisation}.
 	
-	self assert: (self piNodesIn: cfg b2) size equals: 0.
+	self assert: cfg b2 piNodes size equals: 0.
 	
-	self assert: (self piNodesIn: cfg b3) size equals: 0.
+	self assert: cfg b3 piNodes size equals: 0.
 
 ]
 
 { #category : 'tests' }
 DRPiNodesTest >> testPiInsertionBreaksCriticalEdges [
 
-	| cfg store |
+	| cfg newBlock |
 	
 	cfg := self setUpCFGWithConditionalBetweenVars:
-				[ :cfg :var :cte | cfg instructionFactory equals: var to: cte ].
+				[ :cfg :var1 :var2 | cfg instructionFactory equals: var1 to: var2 ].
 			
 	cfg b1 lastInstruction replaceTarget: cfg b2 by: cfg b4.
 	cfg b4 addPredecessor: cfg b1.
 	
-	cfg b2 instructionsDo: [ :i | i removeFromCFG ].
-	cfg removeBasicBlock: cfg b2.
-	
+	cfg b2 removeFromCFG.
+
 	self insertPiNodes: cfg.
 	
 	self assert: cfg blocks size equals: 5.
-	self assert: (cfg b1 successors includes: cfg b4) not.
-	self assert: (cfg b1 successors includes: (cfg blocks detect: [ :b | b id == 5 ])).	
+	self deny: (cfg b1 successors includes: cfg b4).
+	newBlock := cfg blockById: 5.
+	self assert: (cfg b1 successors includes: newBlock).	
+	self assert: (newBlock successors includes: cfg b4).	
 	
-	self assert: ((cfg blocks detect: [ :b | b id == 5 ]) instructions anySatisfy: [ :i | i isPiNode ]).
-	self assert: (cfg b4 instructions noneSatisfy: [ :i | i isPiNode ]).
-
+	self assert: newBlock piNodes size equals: 2.
+	self assert: cfg b4 piNodes size equals: 0.
 ]
 
 { #category : 'tests' }
@@ -207,14 +199,13 @@ DRPiNodesTest >> testUsagesInDominatedBlocksAreReplaced [
 	| cfg store |
 	
 	cfg := self setUpCFGWithConditionalBetweenVars:
-				[ :cfg :var :cte | cfg instructionFactory equals: var to: cte ].
+				[ :cfg :var1 :var2 | cfg instructionFactory equals: var1 to: var2 ].
 	
 	self insertPiNodes: cfg.
 	
-	store := cfg b2 instructions at: 3.
+	store := cfg b2 instructions third.
 	self assert: store isStore.
-	self assert: ((self piNodesIn: cfg b2) anySatisfy: [ :pi| pi == store operand1]).
-
+	self assert: store operand1 isPiNode
 ]
 
 { #category : 'tests' }
@@ -223,14 +214,12 @@ DRPiNodesTest >> testUsagesInNonDominatedBlocksAreNotReplaced [
 	| cfg store |
 	
 	cfg := self setUpCFGWithConditionalBetweenVars:
-				[ :cfg :var :cte | cfg instructionFactory equals: var to: cte ].
+				[ :cfg :var1 :var2 | cfg instructionFactory equals: var1 to: var2 ].
 	
 	self insertPiNodes: cfg.
 	
 	store := cfg b4 instructions first.
 	self assert: store isStore.
 	
-	self assert: ((self piNodesIn: cfg b2) noneSatisfy: [ :pi| pi result == store operand1]).
-	self assert: ((self piNodesIn: cfg b3) noneSatisfy: [ :pi| pi result == store operand1]).
-	
+	self deny: store operand1 isPiNode
 ]

@@ -2,20 +2,28 @@ Class {
 	#name : 'DRPiNodeBuilder',
 	#superclass : 'Object',
 	#instVars : [
-		'trueNodes'
+		'trueNodes',
+		'instructionFactory'
 	],
 	#category : 'Druid-Optimizations',
 	#package : 'Druid',
 	#tag : 'Optimizations'
 }
 
+{ #category : 'instance creation' }
+DRPiNodeBuilder class >> withInstructionFactory: aDRInstructionFactory [ 
+	^ self new withInstructionFactory: aDRInstructionFactory.
+]
+
 { #category : 'private - building' }
 DRPiNodeBuilder >> createPiNode: aDRConditionalConstraintClass on: aValue withTheOtherOperand: otherOperands then: aBlock [ 
 	
 	otherOperands detect: [ :otherOp | otherOp ~= aValue ] ifFound: [ :otherOp |
-		aBlock value: (DRPiNode
+		aBlock value: ((DRPiNode
 			constraint: (aDRConditionalConstraintClass withValue: otherOp)
 			on: aValue)
+			result: instructionFactory allocateTemporaryRegister;
+			yourself)
 	]
 ]
 
@@ -28,7 +36,9 @@ DRPiNodeBuilder >> initialize [
 { #category : 'accesing' }
 DRPiNodeBuilder >> nodesForFalseBranch [
 	
-	^ trueNodes collect: [ :pi | pi negated ]
+	^ trueNodes collect: [ :pi | pi negated
+											result: instructionFactory allocateTemporaryRegister;
+											yourself ]
 
 ]
 
@@ -85,4 +95,9 @@ DRPiNodeBuilder >> visitNoTestMask: aDRCondition inBranch: aDRBranchIfCondition 
 DRPiNodeBuilder >> visitTestMask: aDRCondition inBranch: aDRBranchIfCondition [ 
 
 	self visitComparison: aDRBranchIfCondition withConstraint: DRAnyMaskConstraint.
+]
+
+{ #category : 'initialization' }
+DRPiNodeBuilder >> withInstructionFactory: aDRInstructionFactory [ 
+	instructionFactory := aDRInstructionFactory.
 ]

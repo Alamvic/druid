@@ -60,12 +60,7 @@ DRPiNode >> opcode [
 { #category : 'printing' }
 DRPiNode >> prettyPrint [
 
-	^ (self isStaged
-		   ifTrue: [ '[STAGED]' ]
-		   ifFalse: [ '' ]),
-		(result ifNil: [ 'nil' ] ifNotNil: [ result prettyPrint ]), ' := <- Pi(',
-		operands first result prettyPrint, ', ',
-		constraint prettyPrint, ')'
+	^ super prettyPrint, ', ', self opcode, ' ', constraint prettyPrint
 		
 ]
 
