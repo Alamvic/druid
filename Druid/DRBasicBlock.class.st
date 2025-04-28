@@ -909,6 +909,12 @@ DRBasicBlock >> lastInstruction [
 ]
 
 { #category : 'building' }
+DRBasicBlock >> less: operand1 than: operand2 [
+	
+	^ self addInstruction: (self instructionFactory less: operand1 than: operand2)
+]
+
+{ #category : 'building' }
 DRBasicBlock >> lessOrEquals: operand1 than: operand2 [
 	
 	^ self addInstruction: (self instructionFactory lessOrEquals: operand1 than: operand2)

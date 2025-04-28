@@ -178,6 +178,14 @@ DRInstructionFactory >> jumpIf: aCondition trueTarget: trueTarget falseTarget: f
 		  yourself
 ]
 
+{ #category : 'building' }
+DRInstructionFactory >> less: operand1 than: operand2 [ 
+	
+	^ self getConditionCodeOf: DRLessThanComparison new operands: { 
+			  operand1 asDRValue.
+			  operand2 asDRValue }.
+]
+
 { #category : 'factory' }
 DRInstructionFactory >> lessOrEquals: operand1 than: operand2 [
 
