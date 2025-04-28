@@ -80,3 +80,9 @@ DRSimpleConstraint >> printOn: aStream [
 		nextPutAll: ' ';
 		print: constantValue
 ]
+
+{ #category : 'replacing' }
+DRSimpleConstraint >> replaceOperand: anOperand by: anotherOperand [
+
+	(constantValue = anOperand) ifTrue: [ constantValue := anotherOperand ]
+]

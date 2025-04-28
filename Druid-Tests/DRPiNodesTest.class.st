@@ -135,7 +135,7 @@ DRPiNodesTest >> testUsagesInDominatedBlocksAreReplaced [
 	
 	store := cfg b2 instructions at: 3.
 	self assert: store isStore.
-	self assert: ((self piNodesIn: cfg b2) anySatisfy: [ :pi| pi result == store operand1]).
+	self assert: ((self piNodesIn: cfg b2) anySatisfy: [ :pi| pi == store operand1]).
 
 ]
 

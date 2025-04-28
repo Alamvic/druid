@@ -126,3 +126,8 @@ DRConditionalConstraint >> removeUserOfValues: aDRInstruction [
 
 	self asDependencyList do: [ :dep | dep removeUser: aDRInstruction ]
 ]
+
+{ #category : 'replacing' }
+DRConditionalConstraint >> replaceOperand: anOperand by: anotherOperand [
+	self subclassResponsibility
+]

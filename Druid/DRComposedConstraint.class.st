@@ -63,3 +63,9 @@ DRComposedConstraint >> printOn: aStream [
 		nextPutAll: ')'
 
 ]
+
+{ #category : 'replacing' }
+DRComposedConstraint >> replaceOperand: anOperand by: anotherOperand [
+	
+	constraints do: [ :c | c replaceOperand: anOperand by: anotherOperand. ]
+]

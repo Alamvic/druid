@@ -36,19 +36,22 @@ DRInsertPiNodes >> insertPiNode: aDRPiNode in: aDRBasicBlock withoutModifyingAny
 
 	aDRPiNode result: aDRBasicBlock controlFlowGraph instructionFactory allocateTemporaryRegister.
 	aDRBasicBlock addInstructionFirst: aDRPiNode.
-	"1halt."
+
 	aDRPiNode operand users
 		select: [ :user | user ~= aDRPiNode and: [
-								(aCollection noneSatisfy: [ :instr | instr = user "Don't want to change dependencies between pi nodes while adding them"]) and: [
-								(user basicBlock isDominatedBy: aDRBasicBlock) ] ]
-			]
-		thenDo: [ :user | user replaceDependency: aDRPiNode operand by: aDRPiNode result ]
+								(aCollection includes: user) not and: [
+								(user basicBlock isDominatedBy: aDRBasicBlock) ] ] ]
+		thenDo: [ :user | user replaceDependency: aDRPiNode operand by: aDRPiNode ]
 ]
 
 { #category : 'accessing' }
 DRInsertPiNodes >> insertPiNodes: piNodes in: aDRBasicBlock [ 
 	
-	piNodes do: [ :pi | self insertPiNode: pi in: aDRBasicBlock withoutModifyingAnyOf: piNodes ].
+	piNodes do: [ :pi | self
+		insertPiNode: pi
+		in: aDRBasicBlock
+		withoutModifyingAnyOf: piNodes "Don't want the pi nodes I'm adding to have dependencies between them"
+	].
 ]
 
 { #category : 'accessing' }

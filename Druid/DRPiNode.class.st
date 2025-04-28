@@ -29,10 +29,7 @@ DRPiNode >> constraint: aDRConditionalConstraint [
 	constraint ifNotNil: [ constraint removeUserOfValues: self ].
 	constraint := aDRConditionalConstraint.
 	constraint addUserOfValues: self.
-	
-"	operands asSet do: [ :each | each removeUser: self ].
-	operands := aCollection collect: [:e | e asDRValue ] as: OrderedCollection.
-	self dependencies asSet do: [ :each | each addUser: self ]"
+
 ]
 
 { #category : 'accessing' }
@@ -91,4 +88,12 @@ DRPiNode >> removeFromCFG [
 	super removeFromCFG.
 	self removeDependencyOnConstraint.
 
+]
+
+{ #category : 'replacing' }
+DRPiNode >> replaceOperand: anOperand by: anotherOperand [
+
+	super replaceOperand: anOperand by: anotherOperand.
+	
+	constraint replaceOperand: anOperand by: anotherOperand.
 ]
