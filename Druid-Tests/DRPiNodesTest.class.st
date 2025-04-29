@@ -8,7 +8,11 @@ Class {
 
 { #category : 'running' }
 DRPiNodesTest >> insertPiNodes: cfg [
-	cfg applyOptimisation: DRCogitCanonicaliser new. 
+	cfg applyOptimisation: DRBranchCollapse new.
+	
+	"DRBranchCollapse messes up the backjumps"
+	cfg fixBackJumps.
+	
 	cfg applyOptimisation: DRInsertPiNodes new.
 
 ]
@@ -88,7 +92,7 @@ DRPiNodesTest >> testABCDGraph [
 		block jumpIf: check to: b_if2_after_check1 ifFalseTo: b_end.
 	].
 
-	b_for := cfg newBasicBlockWith: [ :block | ].
+	b_for := cfg newBasicBlock.
 
 	b_if2_after_check2 jumpTo: b_for.
 	
