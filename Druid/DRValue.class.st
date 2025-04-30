@@ -73,6 +73,13 @@ DRValue >> asMemoryAddress [
 		  yourself
 ]
 
+{ #category : 'visiting' }
+DRValue >> collectConstraints [
+
+	"No information about the value"
+	^ DRFullConstraint new
+]
+
 { #category : 'copying' }
 DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 	

@@ -12,7 +12,7 @@ DRConditionalConstraint >> addUserOfValues: aDRInstruction [
 	self asDependencyList do: [ :dep | dep addUser: aDRInstruction ]
 ]
 
-{ #category : 'testing' }
+{ #category : 'accessing' }
 DRConditionalConstraint >> asDependencyList [
 
 	self subclassResponsibility

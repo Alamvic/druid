@@ -27,7 +27,9 @@ DRSimpleConstraint >> = otherConstraint [
 { #category : 'accessing' }
 DRSimpleConstraint >> asDependencyList [
 
-	^ constantValue asDependencyList
+	^ (constantValue isKindOf: DRInstruction)
+			ifTrue: [ constantValue asDependencyList ]
+			ifFalse: [ {} ].
 ]
 
 { #category : 'accessing' }
@@ -65,6 +67,13 @@ DRSimpleConstraint >> includes: otherConstraint [
 DRSimpleConstraint >> isIncludedIn: otherConstraint [
 
 	self subclassResponsibility 
+]
+
+{ #category : 'testing' }
+DRSimpleConstraint >> isSatisfiableFor: aDRValue [
+	
+	^ (aDRValue collectConstraints negated includes: self) not
+	
 ]
 
 { #category : 'printing' }

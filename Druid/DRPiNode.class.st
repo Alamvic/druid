@@ -17,6 +17,12 @@ DRPiNode class >> constraint: aDRConditionalConstraint on: aDRValue [
 		yourself
 ]
 
+{ #category : 'visiting' }
+DRPiNode >> collectConstraints [
+
+	^ self operand collectConstraints intersectionWith: constraint
+]
+
 { #category : 'testing' }
 DRPiNode >> constraint [
 	
