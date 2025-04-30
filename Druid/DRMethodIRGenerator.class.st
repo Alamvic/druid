@@ -170,10 +170,12 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
-
+	
 	| value |
+	controlFlowGraph addTemporaries: aRBVariableNode name.
+	
 	value := self temporaryAt: aRBVariableNode name.
-
+	
 	aRBVariableNode isTempVariable ifTrue: [
 		| store |
 		store := self topFrame temporaryAt: aRBVariableNode name withState: executionState.

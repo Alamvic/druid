@@ -4,12 +4,22 @@ Class {
 	#instVars : [
 		'builder',
 		'methodName',
-		'numArgs'
+		'numArgs',
+		'vectorTempName',
+		'tempMapping'
 	],
 	#category : 'Druid-BytecodeGeneration',
 	#package : 'Druid',
 	#tag : 'BytecodeGeneration'
 }
+
+{ #category : 'API' }
+DRBytecodeGenerator >> createTempVector: temporariesList [
+	
+	tempMapping := temporariesList. "dict to map tempName and index"
+	
+	builder createTempVectorNamed: vectorTempName withVars: temporariesList keys.
+]
 
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> generateJump: aDRBranch [
@@ -28,6 +38,9 @@ DRBytecodeGenerator >> generateJump: aDRBranch [
 
 { #category : 'API' }
 DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
+	
+	"Construct the tempVector"
+	self createTempVector: aDRControlFlowGraph temporariesList.
 
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
 		self visitBlock: block ]
@@ -37,7 +50,9 @@ DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: 
 DRBytecodeGenerator >> initialize [
 
 	builder := IRBuilder new.
-	numArgs := 0
+	numArgs := 0.
+	
+	vectorTempName := 'vector0'
 ]
 
 { #category : 'testing' }
@@ -282,14 +297,15 @@ DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
 	| value |
-	value := aDRStoreTemporaryVariable operand2 simpleConstantFold asDRValue.
+	value := aDRStoreTemporaryVariable operand2 simpleConstantFold
+		         asDRValue.
 	value isStoreTemporaryVariable
 		ifTrue: [ builder pushTemp: value operand1 value ]
 		ifFalse: [ value acceptVisitor: self ].
 
-	builder addTemp: aDRStoreTemporaryVariable operand1 value.
-	builder storeTemp: aDRStoreTemporaryVariable operand1 value.
-	builder popTop
+	builder
+		storeRemoteTemp: aDRStoreTemporaryVariable operand1 value
+		inVector: vectorTempName
 ]
 
 { #category : 'ir-to-target' }
@@ -301,11 +317,7 @@ DRBytecodeGenerator >> visitSubstract: aDRSubstract [
 { #category : 'visiting' }
 DRBytecodeGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 
-	| tempName |
-	tempName := aDRLoadTemporaryVariable operand1 value.
-
-	builder addTemp: tempName.
-	builder pushTemp: tempName
+	builder pushRemoteTemp: aDRLoadTemporaryVariable operand1 value inVector: vectorTempName
 ]
 
 { #category : 'visiting' }

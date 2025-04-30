@@ -14,7 +14,8 @@ Class {
 		'stagedRegisters',
 		'dominatorTree',
 		'postDominatorTree',
-		'deadBranches'
+		'deadBranches',
+		'temporariesList'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -52,6 +53,12 @@ DRControlFlowGraph >> addStagedRegister: aDRStagedRegister [
 	
 	"Track the staged registers in this CFG to generate"
 	stagedRegisters add: aDRStagedRegister
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> addTemporaries: aDRTemp [
+
+	temporariesList at: aDRTemp ifAbsentPut: temporariesList size.
 ]
 
 { #category : 'accessing' }
@@ -525,7 +532,9 @@ DRControlFlowGraph >> initialize [
 	numberOfSpillSlots := 0.
 
 	nextBasicBlockId := 0.
-	initialBasicBlock := self privateNewBasicBlock
+	initialBasicBlock := self privateNewBasicBlock.
+	
+	temporariesList := Dictionary new.
 ]
 
 { #category : 'inspecting' }
@@ -917,6 +926,12 @@ DRControlFlowGraph >> subgraphWith: subgraphBlocks [
 	subgraph initialBasicBlock jumpTo: sourceBlockCopy.
 	subgraph generatePaths.
 	^ subgraph
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> temporariesList [
+
+	^ temporariesList
 ]
 
 { #category : 'accessing' }
