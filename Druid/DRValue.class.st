@@ -73,13 +73,6 @@ DRValue >> asMemoryAddress [
 		  yourself
 ]
 
-{ #category : 'visiting' }
-DRValue >> collectConstraints [
-
-	"No information about the value"
-	^ DRFullConstraint new
-]
-
 { #category : 'copying' }
 DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 	
@@ -356,6 +349,11 @@ DRValue >> isPhiFunction [
 { #category : 'testing' }
 DRValue >> isPhysicalRegister [
 
+	^ false
+]
+
+{ #category : 'testing' }
+DRValue >> isPiNode [
 	^ false
 ]
 

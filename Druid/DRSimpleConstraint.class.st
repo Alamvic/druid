@@ -69,13 +69,6 @@ DRSimpleConstraint >> isIncludedIn: otherConstraint [
 	self subclassResponsibility 
 ]
 
-{ #category : 'testing' }
-DRSimpleConstraint >> isSatisfiableFor: aDRValue [
-	
-	^ (aDRValue collectConstraints negated includes: self) not
-	
-]
-
 { #category : 'printing' }
 DRSimpleConstraint >> prettyPrint [
 	^ self className, '(', self constantValue asDRValue prettyPrint, ')'.

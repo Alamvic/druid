@@ -19,6 +19,17 @@ DRPiDeadBranchElimination >> applyTo: cfg [
 			 andDestination: cfg initialBasicBlock).
 	"The source doesn't matter in the initial edge, it'll be never be dead anyways"
 
+	deadEdges := self computeDeadeEdges.
+
+	deadEdges ifNotEmpty: [
+		self removeUnnecessaryConditionalJumps: deadEdges.
+		cfg applyOptimisation: DRDeadBlockElimination new ]
+]
+
+{ #category : 'accessing' }
+DRPiDeadBranchElimination >> computeDeadeEdges [
+
+	| deadEdges |
 	deadEdges := OrderedCollection new.
 
 	[ worklist isEmpty ] whileFalse: [
@@ -27,11 +38,9 @@ DRPiDeadBranchElimination >> applyTo: cfg [
 		(self isReachable: currentEdge destination)
 			ifTrue: [ self updateWorklistFrom: currentEdge destination ]
 			ifFalse: [ deadEdges add: currentEdge ] ].
-
-	deadEdges ifNotEmpty: [
-		self removeUnnecessaryConditionalJumps: deadEdges.
-		cfg applyOptimisation: DRDeadBlockElimination new ].
-
+		"TODO if a block is unreachable, then its sibling must be reachable,
+		so we can remove it from the worklist"
+	^ deadEdges
 ]
 
 { #category : 'initialization' }
@@ -41,13 +50,10 @@ DRPiDeadBranchElimination >> initialize [
 	visited := Set new.
 ]
 
-{ #category : 'testing' }
+{ #category : 'as yet unclassified' }
 DRPiDeadBranchElimination >> isReachable: aDRBasicBlock [
 
-	aDRBasicBlock piNodes ifEmpty: [ ^true ].
-
-	^ aDRBasicBlock piNodes allSatisfy: [ :pi | pi constraint isSatisfiableFor: pi operand ].
-
+	self subclassResponsibility
 ]
 
 { #category : 'removing' }

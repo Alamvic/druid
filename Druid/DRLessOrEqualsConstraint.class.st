@@ -46,5 +46,5 @@ DRLessOrEqualsConstraint >> opCode [
 DRLessOrEqualsConstraint >> reversed [
 
 	"Returns the same condition but with reversed operands: x <= y --> y >= x"
-	^ DRGreaterOrEqualsConstraint new
+	^ DRGreaterOrEqualsConstraint withValue: constantValue
 ]

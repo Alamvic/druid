@@ -10,7 +10,9 @@ Class {
 DRPiNodesTest >> insertPiNodes: cfg [
 	cfg applyOptimisation: DRBranchCollapse new.
 	
-	"DRBranchCollapse messes up the backjumps"
+	"DRBranchCollapse messes up the backjumps
+	TODO - Should every optimization leave backjumps in a consistent state, just in case? If so, we should validate that in `cfg validate`
+			 Or should DRInsertPiNodes call `cfg fixBackJumps` when applied?"
 	cfg fixBackJumps.
 	
 	cfg applyOptimisation: DRInsertPiNodes new.

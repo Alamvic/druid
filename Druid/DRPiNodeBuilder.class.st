@@ -15,18 +15,6 @@ DRPiNodeBuilder class >> withInstructionFactory: aDRInstructionFactory [
 	^ self new withInstructionFactory: aDRInstructionFactory.
 ]
 
-{ #category : 'private - building' }
-DRPiNodeBuilder >> createPiNode: aDRConditionalConstraintClass on: aValue withTheOtherOperand: otherOperands then: aBlock [ 
-	
-	otherOperands detect: [ :otherOp | otherOp ~= aValue ] ifFound: [ :otherOp |
-		aBlock value: ((DRPiNode
-			constraint: (aDRConditionalConstraintClass withValue: otherOp)
-			on: aValue)
-			result: instructionFactory allocateTemporaryRegister;
-			yourself)
-	]
-]
-
 { #category : 'initialization' }
 DRPiNodeBuilder >> initialize [ 
 	
@@ -51,14 +39,23 @@ DRPiNodeBuilder >> nodesForTrueBranch [
 { #category : 'visiting' }
 DRPiNodeBuilder >> visitComparison: aDRBranchIfCondition withConstraint: constraint [
 
-	aDRBranchIfCondition operands
-		select: [ :operand | operand isInstruction or: operand isRegister ]
-		thenDo: [ :operand |
-			self
-				createPiNode: constraint
-				on: operand
-				withTheOtherOperand: aDRBranchIfCondition operands
-				then: [ :pi | trueNodes add: pi ] ]
+	(aDRBranchIfCondition operand1 isInstruction or:
+		 aDRBranchIfCondition operand1 isRegister) ifTrue: [
+		trueNodes add: ((DRPiNode
+				  constraint:
+					  (constraint withValue: aDRBranchIfCondition operand2)
+				  on: aDRBranchIfCondition operand1)
+				 result: instructionFactory allocateTemporaryRegister;
+				 yourself) ].
+
+	(aDRBranchIfCondition operand2 isInstruction or:
+		 aDRBranchIfCondition operand2 isRegister) ifTrue: [
+		trueNodes add: ((DRPiNode
+				  constraint:
+					  (constraint withValue: aDRBranchIfCondition operand1) reversed
+				  on: aDRBranchIfCondition operand2)
+				 result: instructionFactory allocateTemporaryRegister;
+				 yourself) ]
 ]
 
 { #category : 'visiting' }

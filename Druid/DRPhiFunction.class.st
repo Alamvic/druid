@@ -61,13 +61,6 @@ DRPhiFunction >> canMoveOutsideLoop: backJump [
 	^ false
 ]
 
-{ #category : 'visiting' }
-DRPhiFunction >> collectConstraints [
-
-	^ DRUnionConstraint constraints:
-			 (operands collect: [ :op | op collectConstraints ])
-]
-
 { #category : 'accessing' }
 DRPhiFunction >> conditionalBranch [
 

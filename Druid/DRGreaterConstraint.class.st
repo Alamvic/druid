@@ -45,5 +45,5 @@ DRGreaterConstraint >> opCode [
 { #category : 'reversing' }
 DRGreaterConstraint >> reversed [
 	
-	^ DRLessConstraint new
+	^ DRLessConstraint withValue: constantValue
 ]
