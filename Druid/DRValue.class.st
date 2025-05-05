@@ -338,7 +338,7 @@ DRValue >> isNullValue [
 { #category : 'testing' }
 DRValue >> isNumberValue [
 
-	^ self type isObjectReference
+	^ false.
 ]
 
 { #category : 'testing' }

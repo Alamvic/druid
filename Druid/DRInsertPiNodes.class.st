@@ -15,17 +15,20 @@ DRInsertPiNodes >> applyTo: cfg [
 ]
 
 { #category : 'enumerating' }
-DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBlock ofCondition: aDRBranchIfCondition andDo: aBlock [ 
-	
+DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBlock ofCondition: aDRBranchIfCondition andDo: aBlock [
+
 	| newBlock |
 	"We need to break critical edges, because in that case, the constraint may not be true in every possible path"
-	
-	(currentBranchBasicBlock predecessors size == 1) ifTrue: [ ^ aBlock value: currentBranchBasicBlock ].
-	
-	newBlock := currentBranchBasicBlock breakCriticalEdgeToPredecessor: aDRBranchIfCondition basicBlock.
-	
-	newBlock controlFlowGraph invalidateDominatorTree; invalidatePostDominatorTree.
-	
+	currentBranchBasicBlock predecessors size == 1 ifTrue: [
+		^ aBlock value: currentBranchBasicBlock ].
+
+	newBlock := currentBranchBasicBlock breakCriticalEdgeToPredecessor:
+		            aDRBranchIfCondition basicBlock.
+
+	newBlock controlFlowGraph
+		invalidateDominatorTree;
+		invalidatePostDominatorTree.
+
 	^ aBlock value: newBlock
 ]
 
@@ -34,11 +37,10 @@ DRInsertPiNodes >> insertPiNode: aDRPiNode in: aDRBasicBlock withoutModifyingAny
 
 	aDRBasicBlock addInstructionFirst: aDRPiNode.
 
-	aDRPiNode operand users
+	aDRPiNode operand users copy
 		select: [ :user | (piNodesNotToModify includes: user) not and: [
-								(user basicBlock isDominatedBy: aDRBasicBlock) ] ]
-		thenDo: [ :user | user replaceDependency: aDRPiNode operand by: aDRPiNode ]
-		
+								(user basicBlock isDominatedBy: aDRBasicBlock)] ]
+		thenDo: [ :user | user replaceDependency: aDRPiNode operand by: aDRPiNode.].
 
 ]
 
