@@ -18,6 +18,12 @@ DRConditionalConstraint >> asDependencyList [
 	self subclassResponsibility
 ]
 
+{ #category : 'as yet unclassified' }
+DRConditionalConstraint >> distanceABCD [
+
+	^ nil
+]
+
 { #category : 'arithmetic' }
 DRConditionalConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
