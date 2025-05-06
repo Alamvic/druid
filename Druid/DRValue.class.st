@@ -329,6 +329,12 @@ DRValue >> isNullValue [
 ]
 
 { #category : 'testing' }
+DRValue >> isNumberValue [
+
+	^ false.
+]
+
+{ #category : 'testing' }
 DRValue >> isObjectReferenceValue [
 
 	^ self type isObjectReference
@@ -343,6 +349,11 @@ DRValue >> isPhiFunction [
 { #category : 'testing' }
 DRValue >> isPhysicalRegister [
 
+	^ false
+]
+
+{ #category : 'testing' }
+DRValue >> isPiNode [
 	^ false
 ]
 

@@ -6,6 +6,18 @@ Class {
 	#tag : 'IR-Paths'
 }
 
+{ #category : 'testing' }
+DRConditionalConstraint >> addUserOfValues: aDRInstruction [
+
+	self asDependencyList do: [ :dep | dep addUser: aDRInstruction ]
+]
+
+{ #category : 'accessing' }
+DRConditionalConstraint >> asDependencyList [
+
+	self subclassResponsibility
+]
+
 { #category : 'arithmetic' }
 DRConditionalConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
@@ -107,4 +119,15 @@ DRConditionalConstraint >> opCode [
 DRConditionalConstraint >> printOn: aStream [
 
 	aStream nextPutAll: self opCode
+]
+
+{ #category : 'testing' }
+DRConditionalConstraint >> removeUserOfValues: aDRInstruction [
+
+	self asDependencyList do: [ :dep | dep removeUser: aDRInstruction ]
+]
+
+{ #category : 'replacing' }
+DRConditionalConstraint >> replaceOperand: anOperand by: anotherOperand [
+	self subclassResponsibility
 ]

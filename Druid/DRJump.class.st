@@ -189,3 +189,13 @@ DRJump >> targets [
 	
 	^ { target }
 ]
+
+{ #category : 'accessing' }
+DRJump >> validate [
+
+	super validate.
+
+	(self basicBlock controlFlowGraph blocks includes: target) ifFalse: [ 
+			DRError signal: 'Invalid jump target ', target id asString, ' in: ' , self prettyPrint ].
+
+]

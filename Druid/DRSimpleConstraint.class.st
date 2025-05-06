@@ -25,6 +25,14 @@ DRSimpleConstraint >> = otherConstraint [
 ]
 
 { #category : 'accessing' }
+DRSimpleConstraint >> asDependencyList [
+
+	^ (constantValue isKindOf: DRInstruction)
+			ifTrue: [ constantValue asDependencyList ]
+			ifFalse: [ {} ].
+]
+
+{ #category : 'accessing' }
 DRSimpleConstraint >> constantValue [
 
 	^ constantValue
@@ -62,10 +70,21 @@ DRSimpleConstraint >> isIncludedIn: otherConstraint [
 ]
 
 { #category : 'printing' }
+DRSimpleConstraint >> prettyPrint [
+	^ self className, '(', self constantValue asDRValue prettyPrint, ')'.
+]
+
+{ #category : 'printing' }
 DRSimpleConstraint >> printOn: aStream [
 
 	aStream
 		nextPutAll: self opCode;
 		nextPutAll: ' ';
 		print: constantValue
+]
+
+{ #category : 'replacing' }
+DRSimpleConstraint >> replaceOperand: anOperand by: anotherOperand [
+
+	(constantValue = anOperand) ifTrue: [ constantValue := anotherOperand ]
 ]

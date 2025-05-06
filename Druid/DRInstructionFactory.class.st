@@ -178,6 +178,14 @@ DRInstructionFactory >> jumpIf: aCondition trueTarget: trueTarget falseTarget: f
 		  yourself
 ]
 
+{ #category : 'building' }
+DRInstructionFactory >> less: operand1 than: operand2 [ 
+	
+	^ self getConditionCodeOf: DRLessThanComparison new operands: { 
+			  operand1 asDRValue.
+			  operand2 asDRValue }.
+]
+
 { #category : 'factory' }
 DRInstructionFactory >> lessOrEquals: operand1 than: operand2 [
 
@@ -294,6 +302,15 @@ DRInstructionFactory >> phiWithVariables: variables [
 	^ (DRPhiFunction joinedVariables: variables)
 		  result: self allocateTemporaryRegister;
 		  yourself
+]
+
+{ #category : 'factory' }
+DRInstructionFactory >> piConstraint: aDRConditionalConstraint on: aValue [
+
+	^ DRPiNode constraint: aDRConditionalConstraint
+			on: aValue;
+			result: self allocateTemporaryRegister;
+			yourself
 ]
 
 { #category : 'factory' }

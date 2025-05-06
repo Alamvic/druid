@@ -299,5 +299,11 @@ DRBranchIfCondition >> validate [
 	super validate.
 	
 	condition isComparison ifFalse: [ 
-			DRError signal: 'Invalid condition: ', condition asString, ' in: ' , self asString ]
+			DRError signal: 'Invalid condition: ', condition asString, ' in: ' , self asString ].
+
+	(self basicBlock controlFlowGraph blocks includes: trueBranch) ifFalse: [ 
+			DRError signal: 'Invalid trueBranch target ', trueBranch id asString, ' in: ' , self prettyPrint ].
+	
+	(self basicBlock controlFlowGraph blocks includes: falseBranch) ifFalse: [ 
+			DRError signal: 'Invalid falseBranch target ', falseBranch id asString, ' in: ' , self prettyPrint ]
 ]

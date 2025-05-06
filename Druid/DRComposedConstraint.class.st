@@ -32,6 +32,13 @@ DRComposedConstraint class >> withoutTypes: types [
 ]
 
 { #category : 'accessing' }
+DRComposedConstraint >> asDependencyList [
+
+	constraints flatCollect: [ :constraint | constraint asDependencyList ]
+
+]
+
+{ #category : 'accessing' }
 DRComposedConstraint >> constraints [
 
 	^ constraints
@@ -55,4 +62,10 @@ DRComposedConstraint >> printOn: aStream [
 		print: constraints second;
 		nextPutAll: ')'
 
+]
+
+{ #category : 'replacing' }
+DRComposedConstraint >> replaceOperand: anOperand by: anotherOperand [
+	
+	constraints do: [ :c | c replaceOperand: anOperand by: anotherOperand. ]
 ]
