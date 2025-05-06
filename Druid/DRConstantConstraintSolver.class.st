@@ -35,16 +35,12 @@ DRConstantConstraintSolver >> collectConstraintsFrom: aDRValue [
 	^ DRFullConstraint new
 ]
 
-{ #category : 'initialization' }
-DRConstantConstraintSolver >> initialize [
-
-	visited := Set new.
-
-]
-
 { #category : 'testing' }
 DRConstantConstraintSolver >> isSatisfiable: aDRPiNode [
 	| collectedConstraint |
+	
+	visited := Set new.
 	collectedConstraint := self collectConstraintsFrom: aDRPiNode operand.
+	
 	^ (collectedConstraint negated includes: aDRPiNode constraint) not.
 ]

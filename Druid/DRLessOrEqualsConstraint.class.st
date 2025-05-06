@@ -6,6 +6,12 @@ Class {
 	#tag : 'IR-Paths'
 }
 
+{ #category : 'reversing' }
+DRLessOrEqualsConstraint >> distanceABCD [
+
+	^ 0
+]
+
 { #category : 'arithmetic' }
 DRLessOrEqualsConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 

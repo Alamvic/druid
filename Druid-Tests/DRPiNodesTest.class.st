@@ -23,9 +23,9 @@ DRPiNodesTest >> insertPiNodes: cfg [
 DRPiNodesTest >> optimize: cfg with: optimisations [
 
 	self insertPiNodes: cfg.
-	
-	cfg applyOptimisation: ((optimisations collect: [ :o | o new ]) reduce: [ :o1 :o2 | o1 then: o2 ]).
-	
+"	cfg inspect."
+	cfg applyOptimisation: (optimisations reduce: [ :o1 :o2 | o1 then: o2 ]).
+"	cfg inspect."
 	cfg applyOptimisation: DRCopyPropagation new.
 	cfg applyOptimisation: DRDeadCodeElimination new.
 ]
