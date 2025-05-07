@@ -930,8 +930,14 @@ DRControlFlowGraph >> temporariesList [
 
 { #category : 'accessing' }
 DRControlFlowGraph >> temporariesList: aTemporaryList [
-	1 halt.
+	
 	temporariesList := aTemporaryList 
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> temporaryIndexOf: name [
+
+	^ (temporariesList indexOf: name) - 1
 ]
 
 { #category : 'accessing' }

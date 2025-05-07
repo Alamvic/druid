@@ -179,9 +179,7 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
-	| value loadArg index|
-	1 halt.
-"	value := self temporaryAt: aRBVariableNode name."
+	|loadArg index|
 	
 	aRBVariableNode isTempVariable ifTrue: [
 		| store |
@@ -197,7 +195,7 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 					  store } ].
 
 	"Else, it is an argument"
-	index := (controlFlowGraph "temporaryIndexOf:" temporariesList indexOf: aRBVariableNode name) - 1.
+	index := controlFlowGraph temporaryIndexOf: aRBVariableNode name.
 	
 	loadArg := self
 		  addInstructionFrom: aRBVariableNode

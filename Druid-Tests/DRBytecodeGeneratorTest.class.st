@@ -136,7 +136,7 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 	bytecodeGenerator numArgs: numArgs.
 	bytecodeGenerator methodName: selector.
 	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.
-	1 halt.
+	
 	^ bytecodeGenerator targetAST
 ]
 
@@ -545,15 +545,13 @@ DRBytecodeGeneratorTest >> testOpalSimpleMethods [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testSimpleMethod [
 	
-	| compiledMethod expectedMethod aSelector result |
-	
-	self setUp.
+	| compiledMethod expectedMethod aSelector |
+
 	compilerCompiler configureForCompilerClass: nil.
 	aSelector:= #simpleMethod.
 	expectedMethod := DruidTestInterpreter >> aSelector.
-	1 halt.
+	
 	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	1 halt.
 	
 	self assert: compiledMethod equalsResult: expectedMethod
 	
@@ -563,14 +561,13 @@ DRBytecodeGeneratorTest >> testSimpleMethod [
 DRBytecodeGeneratorTest >> testSimpleMethodReturnArg [
 	
 	| compiledMethod expectedMethod aSelector result |
-	
-	self setUp.
+
 	compilerCompiler configureForCompilerClass: nil.
 	aSelector:= #simpleMethodReturnArg: .
 	expectedMethod := DruidTestInterpreter >> aSelector.
-	1 halt.
+	
 	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	1 halt.
+	
 	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { 5 }.
 	
 	self assert: result equals: 5.
@@ -583,14 +580,13 @@ DRBytecodeGeneratorTest >> testSimpleMethodReturnArg [
 DRBytecodeGeneratorTest >> testSimpleMethodWith1arg [
 	
 	| compiledMethod expectedMethod aSelector result|
-	self skip.
-	self setUp.
+	
 	compilerCompiler configureForCompilerClass: nil.
 	aSelector:= #simpleMethodWith1Arg:.
 	expectedMethod := DruidTestInterpreter >> aSelector.
-	1 halt.
+	
 	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	1 halt.
+	
 	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { 5 }.
 	
 	self assert: result equals: 6.
@@ -602,14 +598,13 @@ DRBytecodeGeneratorTest >> testSimpleMethodWith1arg [
 DRBytecodeGeneratorTest >> testSimpleMethodWith2arg [
 	
 	| compiledMethod expectedMethod aSelector result |
-	self skip.
-	self setUp.
+	
 	compilerCompiler configureForCompilerClass: nil.
 	aSelector:= #simpleMethodWith1Arg:arg2:.
 	expectedMethod := DruidTestInterpreter >> aSelector.
-	1 halt.
+	
 	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	1 halt.
+	
 	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { 5 . 6}.
 	
 	self assert: result equals: 12.

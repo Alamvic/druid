@@ -33,12 +33,6 @@ DRLoadArgument >> argNum [
 	^ self operand1 value
 ]
 
-{ #category : 'accessing' }
-DRLoadArgument >> argumentName [
-
-	^ self operand1 value
-]
-
 { #category : 'visiting' }
 DRLoadArgument >> isLoadArgument [
 
