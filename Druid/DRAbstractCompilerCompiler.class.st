@@ -171,18 +171,18 @@ DRAbstractCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRRec
 
 	irGenerator receiver: aDRReceiver.
 	irGenerator numberOfArguments: numArgs.
-
+	1 halt.
 	compiledMethods do: [ :method |
 		| aDRMethod arguments |
 		aDRMethod := DRMethod methodNode: method ast.
 		"???"
-		arguments := aDRMethod methodNode argumentNames collect: [ :_ |
+"		arguments := aDRMethod methodNode argumentNames collect: [ :_ |
 			             irGenerator pop ].
-		
+"		
 		irGenerator
 			interpretCode: aDRMethod
 			receiver: aDRReceiver
-			arguments: arguments ]
+		"	arguments: arguments" ]
 ]
 
 { #category : 'generation-IR' }

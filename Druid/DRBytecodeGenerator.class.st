@@ -5,8 +5,7 @@ Class {
 		'builder',
 		'methodName',
 		'numArgs',
-		'vectorTempName',
-		'tempMapping'
+		'vectorTempName'
 	],
 	#category : 'Druid-BytecodeGeneration',
 	#package : 'Druid',
@@ -16,9 +15,7 @@ Class {
 { #category : 'API' }
 DRBytecodeGenerator >> createTempVector: temporariesList [
 	
-	tempMapping := temporariesList. "dict to map tempName and index"
-	
-	builder createTempVectorNamed: vectorTempName withVars: temporariesList keys.
+	builder createTempVectorNamed: vectorTempName withVars: temporariesList.
 ]
 
 { #category : 'ir-to-target' }
@@ -39,8 +36,20 @@ DRBytecodeGenerator >> generateJump: aDRBranch [
 { #category : 'API' }
 DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
 	
+	| args |
+	1 halt.
 	"Construct the tempVector"
+	args := aDRControlFlowGraph temporariesList first: numArgs.
+	
+	args do: [ :arg| 
+		builder addTemp: arg ].
+	
 	self createTempVector: aDRControlFlowGraph temporariesList.
+	
+	args do: [ :arg | 
+		builder pushTemp: arg.
+		builder storeRemoteTemp: arg inVector: vectorTempName.
+		builder popTop ].
 
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
 		self visitBlock: block ]
@@ -83,7 +92,7 @@ DRBytecodeGenerator >> methodName: aString [
 DRBytecodeGenerator >> numArgs: anInteger [
 
 	numArgs := anInteger.
-	1 to: anInteger do: [ :i | builder addTemp: 'arg' , (i - 1) asString ]
+	"1 to: anInteger do: [ :i | builder addTemp: 'arg' , (i - 1) asString ]"
 ]
 
 { #category : 'ir-to-target' }
@@ -210,9 +219,13 @@ DRBytecodeGenerator >> visitLessOrEqualsThan: aDRLessOrEqualsThanComparison inBr
 
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
-
-	builder addTemp: aDRLoadArgument argName.
-	builder pushTemp: aDRLoadArgument argName
+	1 halt.
+	
+	"builder addTemp: 'arg'."
+	builder pushRemoteTemp: aDRLoadArgument argName inVector: vectorTempName
+	
+	"builder addTemp: aDRLoadArgument argName.
+	builder pushTemp: aDRLoadArgument argName"
 ]
 
 { #category : 'ir-to-target' }
@@ -297,15 +310,19 @@ DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
 	| value |
+	
 	value := aDRStoreTemporaryVariable operand2 simpleConstantFold
 		         asDRValue.
 	value isStoreTemporaryVariable
-		ifTrue: [ builder pushTemp: value operand1 value ]
 		ifFalse: [ value acceptVisitor: self ].
 
 	builder
 		storeRemoteTemp: aDRStoreTemporaryVariable operand1 value
-		inVector: vectorTempName
+		inVector: vectorTempName.
+		
+	(aDRStoreTemporaryVariable users reject: [ :each | each isLoadTemporaryVariable ]) size = 0 ifTrue: [ 
+		builder popTop.
+	 ]
 ]
 
 { #category : 'ir-to-target' }
@@ -316,7 +333,7 @@ DRBytecodeGenerator >> visitSubstract: aDRSubstract [
 
 { #category : 'visiting' }
 DRBytecodeGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
-
+	
 	builder pushRemoteTemp: aDRLoadTemporaryVariable operand1 value inVector: vectorTempName
 ]
 

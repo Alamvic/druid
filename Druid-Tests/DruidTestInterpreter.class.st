@@ -2056,22 +2056,19 @@ DruidTestInterpreter >> returnArg: argument [
 { #category : 'as yet unclassified' }
 DruidTestInterpreter >> simpleMethod [
 
-	| x y | 
+	| x y| 
 	x := 1.
 	y := 2.
 	
 	^ x + y
 	
+	
 ]
 
 { #category : 'as yet unclassified' }
-DruidTestInterpreter >> simpleMethod: arg [
-
-	| x y | 
-	x := 1.
-	y := 2.
+DruidTestInterpreter >> simpleMethodReturnArg: arg [
 	
-	^ x + y + arg
+	^ arg
 	
 	
 ]
@@ -2079,11 +2076,10 @@ DruidTestInterpreter >> simpleMethod: arg [
 { #category : 'as yet unclassified' }
 DruidTestInterpreter >> simpleMethodWith1Arg: argument [
 
-	| x y | 
+	| x | 
 	x := 1.
-	y := 2.
 	
-	^ x + y + argument
+	^ x + argument
 	
 	
 ]
@@ -2091,12 +2087,23 @@ DruidTestInterpreter >> simpleMethodWith1Arg: argument [
 { #category : 'as yet unclassified' }
 DruidTestInterpreter >> simpleMethodWith1Arg: argument1 arg2: argument2 [
 
-	| x y | 
+	| x| 
 	x := 1.
-	y := 2.
 	
-	^ x + y + argument1 + argument2
+	^ x + argument1 + argument2
 	
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithTempAssignment [
+
+	| x y tmp| 
+	x := 1.
+	tmp := y := 2.
+	
+	^ x + y
 	
 	
 ]

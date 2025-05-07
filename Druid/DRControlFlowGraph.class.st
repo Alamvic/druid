@@ -56,12 +56,6 @@ DRControlFlowGraph >> addStagedRegister: aDRStagedRegister [
 ]
 
 { #category : 'accessing' }
-DRControlFlowGraph >> addTemporaries: aDRTemp [
-
-	temporariesList at: aDRTemp ifAbsentPut: temporariesList size.
-]
-
-{ #category : 'accessing' }
 DRControlFlowGraph >> allBackJumps [
 
 	^ self reversePostOrderBlocks
@@ -533,8 +527,8 @@ DRControlFlowGraph >> initialize [
 
 	nextBasicBlockId := 0.
 	initialBasicBlock := self privateNewBasicBlock.
+	temporariesList := OrderedCollection new.
 	
-	temporariesList := Dictionary new.
 ]
 
 { #category : 'inspecting' }
@@ -932,6 +926,12 @@ DRControlFlowGraph >> subgraphWith: subgraphBlocks [
 DRControlFlowGraph >> temporariesList [
 
 	^ temporariesList
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> temporariesList: aTemporaryList [
+	1 halt.
+	temporariesList := aTemporaryList 
 ]
 
 { #category : 'accessing' }

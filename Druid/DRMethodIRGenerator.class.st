@@ -74,12 +74,20 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	self unexplored
 ]
 
+{ #category : 'as yet unclassified' }
+DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [ 
+
+	self pushFrameForCode: aDRMethod receiver: aReceiver.
+	aDRMethod executeOn: self.
+	^ self popFrame.
+]
+
 { #category : 'accessing' }
 DRMethodIRGenerator >> numberOfArguments: aValue [ 
 	
 	super numberOfArguments: aValue.
-	0 to: numberOfArguments - 1 do: [ :i |
-		self push: (self currentBasicBlock loadArgument: i) ]
+"	0 to: numberOfArguments - 1 do: [ :i |
+		self push: (self currentBasicBlock loadArgument: i) ]"
 ]
 
 { #category : 'frame-access' }
@@ -170,15 +178,16 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
-	
-	| value |
-	controlFlowGraph addTemporaries: aRBVariableNode name.
-	
-	value := self temporaryAt: aRBVariableNode name.
+
+	| value loadArg index|
+	1 halt.
+"	value := self temporaryAt: aRBVariableNode name."
 	
 	aRBVariableNode isTempVariable ifTrue: [
 		| store |
-		store := self topFrame temporaryAt: aRBVariableNode name withState: executionState.
+		store := self topFrame
+			         temporaryAt: aRBVariableNode name
+			         withState: executionState.
 
 		^ self
 			  addInstructionFrom: aRBVariableNode
@@ -188,5 +197,12 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 					  store } ].
 
 	"Else, it is an argument"
-	^ self pushOperand: value
+	index := (controlFlowGraph "temporaryIndexOf:" temporariesList indexOf: aRBVariableNode name) - 1.
+	
+	loadArg := self
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRLoadArgument
+		  operands: { index asDRValue }.
+	loadArg argName: aRBVariableNode name.
+	^  loadArg
 ]
