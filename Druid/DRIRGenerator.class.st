@@ -1867,6 +1867,8 @@ DRIRGenerator >> push: aValue [
 
 { #category : 'stack management' }
 DRIRGenerator >> pushFrame: aDruidStackFrame [ 
+
+	controlFlowGraph temporariesList: aDruidStackFrame temporaryNames.
 	
 	executionState pushFrame: aDruidStackFrame
 ]

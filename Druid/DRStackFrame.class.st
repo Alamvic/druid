@@ -115,7 +115,7 @@ DRStackFrame >> initialize [
 	super initialize.
 	mirrorFrame := DRMirrorFrame new.
 	operandStack := Stack new.
-	temporaries := Dictionary new.
+	temporaries := OrderedDictionary new.
 ]
 
 { #category : 'accessing' }

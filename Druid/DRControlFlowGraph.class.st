@@ -14,7 +14,8 @@ Class {
 		'stagedRegisters',
 		'dominatorTree',
 		'postDominatorTree',
-		'deadBranches'
+		'deadBranches',
+		'temporariesList'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -525,7 +526,9 @@ DRControlFlowGraph >> initialize [
 	numberOfSpillSlots := 0.
 
 	nextBasicBlockId := 0.
-	initialBasicBlock := self privateNewBasicBlock
+	initialBasicBlock := self privateNewBasicBlock.
+	temporariesList := OrderedCollection new.
+	
 ]
 
 { #category : 'inspecting' }
@@ -917,6 +920,24 @@ DRControlFlowGraph >> subgraphWith: subgraphBlocks [
 	subgraph initialBasicBlock jumpTo: sourceBlockCopy.
 	subgraph generatePaths.
 	^ subgraph
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> temporariesList [
+
+	^ temporariesList
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> temporariesList: aTemporaryList [
+	
+	temporariesList := aTemporaryList 
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> temporaryIndexOf: name [
+
+	^ (temporariesList indexOf: name) - 1
 ]
 
 { #category : 'accessing' }
