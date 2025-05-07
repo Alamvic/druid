@@ -29,7 +29,7 @@ DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method arguments
 DRBytecodeGeneratorTest >> assertCompilationFor: aSelector fromClass: aClass [
 
 	| compiledMethod expectedMethod |
-	self setUp.
+	
 	compilerCompiler configureForCompilerClass: nil.
 	expectedMethod := aClass >> aSelector.
 	"Ignore the methods with arguments"
@@ -85,6 +85,7 @@ DRBytecodeGeneratorTest >> compileSelector: selector fromClass: interpreterClass
 	method := interpreterClass >> selector.
 	interpreter := interpreterClass basicNew.
 	compilerCompiler interpreter: interpreter.
+
 	cfg := self generateDruidIRFor: method.
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 	method methodClass: interpreterClass.
@@ -531,7 +532,9 @@ DRBytecodeGeneratorTest >> testOpalConditionalMethods [
 
 	OCOpalExamples methods
 		select: [ :opalMethod | opalMethod protocolName = #'examples - conditionals' ]
-		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+		thenDo: [ :opalMethod | 
+			self setUp.
+			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]
 
 { #category : 'tests' }
@@ -539,7 +542,9 @@ DRBytecodeGeneratorTest >> testOpalSimpleMethods [
 
 	OCOpalExamples methods
 		select: [ :opalMethod | opalMethod protocolName = #'examples - simple' ]
-		thenDo: [ :opalMethod | self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+		thenDo: [ :opalMethod | 
+			self setUp.
+			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]
 
 { #category : 'tests' }

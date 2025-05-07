@@ -14,8 +14,10 @@ Class {
 
 { #category : 'API' }
 DRBytecodeGenerator >> createTempVector: temporariesList [
+
+	temporariesList isNotEmpty ifTrue: [
+		builder createTempVectorNamed: vectorTempName withVars: temporariesList.]
 	
-	builder createTempVectorNamed: vectorTempName withVars: temporariesList.
 ]
 
 { #category : 'ir-to-target' }
@@ -207,7 +209,6 @@ DRBytecodeGenerator >> visitJump: aDRJump [
 		^ builder jumpBackTo: targetLabel ].
 
 	^ builder jumpAheadTo: targetLabel
-	"	self visitBlock: aDRJump target"
 ]
 
 { #category : 'visiting' }
