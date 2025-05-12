@@ -82,6 +82,6 @@ jobs:
           cp unicorn_result/lib/libunicorn.* ${SMALLTALK_CI_BUILD}
           cp libLLVM* ${SMALLTALK_CI_BUILD}
       - name: Load Image and Run Tests
-        run: smalltalkci -s ${{ matrix.smalltalk }} ${{ matrix.ston }}
+        run: export PHARO_CI_TESTING_ENVIRONMENT=1 ; smalltalkci -s ${{ matrix.smalltalk }} ${{ matrix.ston }}
         shell: bash
         timeout-minutes: 90
