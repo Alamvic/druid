@@ -10,6 +10,12 @@ DRProductionBytecodeTest class >> bytecodes [
 
 	 ^ {
 		   {
+			   (0 -> #pushReceiverVariableBytecode).
+			   #( version0 ) }.
+		   {
+			   (1 -> #pushReceiverVariableBytecode).
+			   #( version1 ) }.
+		   {
 			   (16 -> #pushLiteralVariable16CasesBytecode).
 			   #( version0 ) }.
 		   {
@@ -24,12 +30,15 @@ DRProductionBytecodeTest class >> bytecodes [
 			   #( version1 ) }.
 		   { (64 -> #pushTemporaryVariableBytecode) }.
 		   { (76 -> #pushReceiverBytecode) }.
+		   { (77 -> #pushConstantTrueBytecode) }.
 		   { (80 -> #pushConstantZeroBytecode) }.
 		   { (81 -> #pushConstantOneBytecode) }.
 		   { (83 -> #duplicateTopBytecode) }.
+		   { (88 -> #returnReceiver) }.
 		   { (89 -> #returnTrue) }.
 		   { (90 -> #returnFalse) }.
 		   { (91 -> #returnNil) }.
+		   { (92 -> #returnTopFromMethod) }.
 		   {
 			   (96 -> #bytecodePrimAdd).
 			   #( staticTypePrediction ) }.
@@ -44,10 +53,25 @@ DRProductionBytecodeTest class >> bytecodes [
 		   {
 			   (128 + 1 -> #sendLiteralSelector0ArgsBytecode).
 			   #( version1 ) }.
+		   { (176 -> #shortUnconditionalJump) }.
+		   { (184 -> #shortConditionalJumpTrue) }.
+		   { (192 -> #shortConditionalJumpFalse) }.
+		   {
+			   (200 -> #storeAndPopReceiverVariableBytecode).
+			   #( version0 ) }.
+		   {
+			   (200 + 7 -> #storeAndPopReceiverVariableBytecode).
+			   #( version7 ) }.
+		   { (225 -> #extBBytecode) }.
 		   { (231 -> #pushNewArrayBytecode) }.
 		   { (232 -> #extPushIntegerBytecode) }.
 		   { (235 -> #extSendSuperBytecode) }.
 		   { (237 -> #extUnconditionalJump) }.
+		   { (240 -> #extStoreAndPopReceiverVariableBytecode) }.
+		   { (243 -> #extStoreReceiverVariableBytecode) }.
+		   { (244 -> #extStoreLiteralVariableBytecode) }.
+		   { (249 -> #extPushFullClosureBytecode) }.
+		   { (253 -> #storeAndPopRemoteTempLongBytecode) }.
 		   { (999 -> #extendedPushBytecode) } }
 ]
 
@@ -1475,31 +1499,28 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfFalseWithFalse [
 		numberOfTemporaries: 2;
 		buildMethod.
 
-	self
-		compileBytecode: 192
-		selector: #shortConditionalJumpFalse
-		thenDo: [ :generator | 
-			cogit methodObj: method.
+	cogit methodObj: method.
 
-			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+	self compileBytecode: [ 
+		cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
 
-			cogit bytecodePC: 16.
-			cogit ssPushRegister: ReceiverResultReg.
-			
-			"Execute the druid's compiled code"
-			cogit bytecodePC: 17.
-			generator value.
-			
-			"We will jump over the stop!"
-			cogit bytecodePC: 18.
-			cogit ssPushConstant: 0.
-			cogit genReturnTopFromMethod.
-			cogit Stop.
-			
-			cogit bytecodePC: 19.
-			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
-			cogit ssPushConstant: 1.
-			cogit genReturnTopFromMethod. ].
+		cogit bytecodePC: 16.
+		cogit ssPushRegister: ReceiverResultReg.
+		
+		"Execute the druid's compiled code"
+		cogit bytecodePC: 17.
+		self compileBytecodeSelector: #shortConditionalJumpFalse.
+		
+		"We will jump over the stop!"
+		cogit bytecodePC: 18.
+		cogit ssPushConstant: 0.
+		cogit genReturnTopFromMethod.
+		cogit Stop.
+		
+		cogit bytecodePC: 19.
+		cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
+		cogit ssPushConstant: 1.
+		cogit genReturnTopFromMethod ].
 
 	self executePrimitiveWithReceiver: memory falseObject.
 
@@ -1526,31 +1547,28 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfFalseWithNil [
 		numberOfTemporaries: 2;
 		buildMethod.
 
-	self
-		compileBytecode: 192
-		selector: #shortConditionalJumpFalse
-		thenDo: [ :generator | 
-			cogit methodObj: method.
+	cogit methodObj: method.
 
-			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+	self compileBytecode: [ 
+		cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
 
-			cogit bytecodePC: 16.
-			cogit ssPushRegister: ReceiverResultReg.
-			
-			"Execute the druid's compiled code"
-			cogit bytecodePC: 17.
-			generator value.
-			
-			"We will jump over the stop!"
-			cogit bytecodePC: 18.
-			cogit ssPushConstant: 0.
-			cogit genReturnTopFromMethod.
-			cogit Stop.
-			
-			cogit bytecodePC: 19.
-			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
-			cogit ssPushConstant: 1.
-			cogit genReturnTopFromMethod. ].
+		cogit bytecodePC: 16.
+		cogit ssPushRegister: ReceiverResultReg.
+		
+		"Execute the druid's compiled code"
+		cogit bytecodePC: 17.
+		self compileBytecodeSelector: #shortConditionalJumpFalse.
+		
+		"We will jump over the stop!"
+		cogit bytecodePC: 18.
+		cogit ssPushConstant: 0.
+		cogit genReturnTopFromMethod.
+		cogit Stop.
+		
+		cogit bytecodePC: 19.
+		cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
+		cogit ssPushConstant: 1.
+		cogit genReturnTopFromMethod ].
 
 	self
 		prepareStackForSendReceiver: memory nilObject
@@ -1580,41 +1598,31 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfFalseWithTrue [
 		numberOfTemporaries: 2;
 		buildMethod.
 
-	self
-		compileBytecode: 192
-		selector: #shortConditionalJumpFalse
-		thenDo: [ :generator | 
-			cogit methodObj: method.
+	cogit methodObj: method.
 
-			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+	self compileBytecode: [ 
+		cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
 
-			cogit bytecodePC: 16.
-			cogit ssPushRegister: ReceiverResultReg.
-			
-			"Execute the druid's compiled code"
-			cogit bytecodePC: 17.
-			generator value.
-			
-			"We will jump over the stop!"
-			cogit bytecodePC: 18.
-			cogit ssPushConstant: 0.
-			cogit genReturnTopFromMethod.
-			cogit Stop.
-
-			
-			cogit bytecodePC: 19.
-			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
-			cogit ssPushConstant: 1.
-			cogit genReturnTopFromMethod. ].
-
-	"self
-		prepareStackForSendReceiver: memory trueObject
-		arguments: #()
-		method: method.
-	self runFrom: initialAddress until: mustBeBooleanTrampolineAddress."
+		cogit bytecodePC: 16.
+		cogit ssPushRegister: ReceiverResultReg.
+		
+		"Execute the druid's compiled code"
+		cogit bytecodePC: 17.
+		self compileBytecodeSelector: #shortConditionalJumpFalse.
+		
+		"We will jump over the stop!"
+		cogit bytecodePC: 18.
+		cogit ssPushConstant: 0.
+		cogit genReturnTopFromMethod.
+		cogit Stop.
+		
+		cogit bytecodePC: 19.
+		cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
+		cogit ssPushConstant: 1.
+		cogit genReturnTopFromMethod ].
+		
 	self executePrimitiveWithReceiver: memory trueObject.
 
-	"Did it jump over?"
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
@@ -1637,41 +1645,31 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithFalse [
 		numberOfTemporaries: 2;
 		buildMethod.
 
-	self
-		compileBytecode: 184
-		selector: #shortConditionalJumpTrue
-		thenDo: [ :generator | 
-			cogit methodObj: method.
+	cogit methodObj: method.
 
-			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+	self compileBytecode: [ 
+		cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
 
-			cogit bytecodePC: 16.
-			cogit ssPushRegister: ReceiverResultReg.
-			
-			"Execute the druid's compiled code"
-			cogit bytecodePC: 17.
-			generator value.
-			
-			"We will jump over the stop!"
-			cogit bytecodePC: 18.
-			cogit ssPushConstant: 0.
-			cogit genReturnTopFromMethod.
-			cogit Stop.
+		cogit bytecodePC: 16.
+		cogit ssPushRegister: ReceiverResultReg.
+		
+		"Execute the druid's compiled code"
+		cogit bytecodePC: 17.
+		self compileBytecodeSelector: #shortConditionalJumpTrue.
+		
+		"We will jump over the stop!"
+		cogit bytecodePC: 18.
+		cogit ssPushConstant: 0.
+		cogit genReturnTopFromMethod.
+		cogit Stop.
+		
+		cogit bytecodePC: 19.
+		cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
+		cogit ssPushConstant: 1.
+		cogit genReturnTopFromMethod ].
 
-			
-			cogit bytecodePC: 19.
-			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
-			cogit ssPushConstant: 1.
-			cogit genReturnTopFromMethod. ].
-
-	"self
-		prepareStackForSendReceiver: memory trueObject
-		arguments: #()
-		method: method.
-	self runFrom: initialAddress until: mustBeBooleanTrampolineAddress."
 	self executePrimitiveWithReceiver: memory falseObject.
 
-	"Did it jump over?"
 	self assert: machineSimulator receiverRegisterValue equals: 0
 ]
 
@@ -1694,32 +1692,28 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithFalseNotMustBeBoolean
 		numberOfTemporaries: 2;
 		buildMethod.
 
-	self
-		compileBytecode: 184
-		selector: #shortConditionalJumpTrue
-		thenDo: [ :generator | 
-			cogit methodObj: method.
+	cogit methodObj: method.
 
-			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+	self compileBytecode: [ 
+		cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
 
-			cogit bytecodePC: 16.
-			cogit ssPushRegister: ReceiverResultReg.
-			
-			"Execute the druid's compiled code"
-			cogit bytecodePC: 17.
-			generator value.
-			
-			"We will jump over the stop!"
-			cogit bytecodePC: 18.
-			cogit ssPushConstant: 0.
-			cogit genReturnTopFromMethod.
-			cogit Stop.
-
-			
-			cogit bytecodePC: 19.
-			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
-			cogit ssPushConstant: 1.
-			cogit genReturnTopFromMethod. ].
+		cogit bytecodePC: 16.
+		cogit ssPushRegister: ReceiverResultReg.
+		
+		"Execute the druid's compiled code"
+		cogit bytecodePC: 17.
+		self compileBytecodeSelector: #shortConditionalJumpTrue.
+		
+		"We will jump over the stop!"
+		cogit bytecodePC: 18.
+		cogit ssPushConstant: 0.
+		cogit genReturnTopFromMethod.
+		cogit Stop.
+		
+		cogit bytecodePC: 19.
+		cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
+		cogit ssPushConstant: 1.
+		cogit genReturnTopFromMethod ].
 
 	self
 		prepareStackForSendReceiver: memory falseObject
@@ -1748,32 +1742,28 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithNil [
 		numberOfTemporaries: 2;
 		buildMethod.
 
-	self
-		compileBytecode: 184
-		selector: #shortConditionalJumpTrue
-		thenDo: [ :generator | 
-			cogit methodObj: method.
+	cogit methodObj: method.
 
-			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+	self compileBytecode: [ 
+		cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
 
-			cogit bytecodePC: 16.
-			cogit ssPushRegister: ReceiverResultReg.
-			
-			"Execute the druid's compiled code"
-			cogit bytecodePC: 17.
-			generator value.
-			
-			"We will jump over the stop!"
-			cogit bytecodePC: 18.
-			cogit ssPushConstant: 0.
-			cogit genReturnTopFromMethod.
-			cogit Stop.
-
-			
-			cogit bytecodePC: 19.
-			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
-			cogit ssPushConstant: 1.
-			cogit genReturnTopFromMethod. ].
+		cogit bytecodePC: 16.
+		cogit ssPushRegister: ReceiverResultReg.
+		
+		"Execute the druid's compiled code"
+		cogit bytecodePC: 17.
+		self compileBytecodeSelector: #shortConditionalJumpTrue.
+		
+		"We will jump over the stop!"
+		cogit bytecodePC: 18.
+		cogit ssPushConstant: 0.
+		cogit genReturnTopFromMethod.
+		cogit Stop.
+		
+		cogit bytecodePC: 19.
+		cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
+		cogit ssPushConstant: 1.
+		cogit genReturnTopFromMethod ].
 
 	self
 		prepareStackForSendReceiver: memory nilObject
@@ -1803,41 +1793,31 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithTrue [
 		numberOfTemporaries: 2;
 		buildMethod.
 
-	self
-		compileBytecode: 184
-		selector: #shortConditionalJumpTrue
-		thenDo: [ :generator | 
-			cogit methodObj: method.
+	cogit methodObj: method.
 
-			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+	self compileBytecode: [ 
+		cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
 
-			cogit bytecodePC: 16.
-			cogit ssPushRegister: ReceiverResultReg.
-			
-			"Execute the druid's compiled code"
-			cogit bytecodePC: 17.
-			generator value.
-			
-			"We will jump over the stop!"
-			cogit bytecodePC: 18.
-			cogit ssPushConstant: 0.
-			cogit genReturnTopFromMethod.
-			cogit Stop.
-
-			
-			cogit bytecodePC: 19.
-			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
-			cogit ssPushConstant: 1.
-			cogit genReturnTopFromMethod. ].
-
-	"self
-		prepareStackForSendReceiver: memory trueObject
-		arguments: #()
-		method: method.
-	self runFrom: initialAddress until: mustBeBooleanTrampolineAddress."
+		cogit bytecodePC: 16.
+		cogit ssPushRegister: ReceiverResultReg.
+		
+		"Execute the druid's compiled code"
+		cogit bytecodePC: 17.
+		self compileBytecodeSelector: #shortConditionalJumpTrue.
+		
+		"We will jump over the stop!"
+		cogit bytecodePC: 18.
+		cogit ssPushConstant: 0.
+		cogit genReturnTopFromMethod.
+		cogit Stop.
+		
+		cogit bytecodePC: 19.
+		cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
+		cogit ssPushConstant: 1.
+		cogit genReturnTopFromMethod ].
+	
 	self executePrimitiveWithReceiver: memory trueObject.
 
-	"Did it jump over?"
 	self assert: machineSimulator receiverRegisterValue equals: 1
 ]
 
@@ -1860,32 +1840,28 @@ DRProductionBytecodeTest >> testBytecodeShortJumpIfTrueWithTrueNotMustBeBoolean 
 		numberOfTemporaries: 2;
 		buildMethod.
 
-	self
-		compileBytecode: 184
-		selector: #shortConditionalJumpTrue
-		thenDo: [ :generator | 
-			cogit methodObj: method.
+	cogit methodObj: method.
 
-			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+	self compileBytecode: [ 
+		cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
 
-			cogit bytecodePC: 16.
-			cogit ssPushRegister: ReceiverResultReg.
-			
-			"Execute the druid's compiled code"
-			cogit bytecodePC: 17.
-			generator value.
-			
-			"We will jump over the stop!"
-			cogit bytecodePC: 18.
-			cogit ssPushConstant: 0.
-			cogit genReturnTopFromMethod.
-			cogit Stop.
-
-			
-			cogit bytecodePC: 19.
-			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
-			cogit ssPushConstant: 1.
-			cogit genReturnTopFromMethod. ].
+		cogit bytecodePC: 16.
+		cogit ssPushRegister: ReceiverResultReg.
+		
+		"Execute the druid's compiled code"
+		cogit bytecodePC: 17.
+		self compileBytecodeSelector: #shortConditionalJumpTrue.
+		
+		"We will jump over the stop!"
+		cogit bytecodePC: 18.
+		cogit ssPushConstant: 0.
+		cogit genReturnTopFromMethod.
+		cogit Stop.
+		
+		cogit bytecodePC: 19.
+		cogit patchFixupTargetIfNeeded: (cogit fixupAt: 19) nextOpcodeIndex: cogit opcodeIndex.
+		cogit ssPushConstant: 1.
+		cogit genReturnTopFromMethod ].
 
 	self
 		prepareStackForSendReceiver: memory trueObject
@@ -1906,45 +1882,38 @@ DRProductionBytecodeTest >> testBytecodeShortUnconditionalJump [
 		numberOfTemporaries: 2;
 		buildMethod.
 
-	self
-		compileBytecode: 176
-		selector: #shortUnconditionalJump
-		thenDo: [ :generator | 
-			cogit methodObj: method.
-			cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
-			
-			"Execute the druid's compiled code"
-			cogit bytecodePC: 16.
-			generator value.
-			self assert: cogit deadCode.
-			
-			"We will jump over the stop!"
-			cogit bytecodePC: 17.
-			cogit genReturnFalse.
-			cogit Stop.
+	cogit methodObj: method.
 
-			cogit bytecodePC: 18.
-			cogit patchFixupTargetIfNeeded: (cogit fixupAt: 18) nextOpcodeIndex: cogit opcodeIndex.
-			cogit genReturnTrue.
-			cogit genUpArrowReturn ].
+	self compileBytecode: [ 
+		cogit debugStackPointers: (cogit coInterpreter debugStackPointersFor: method).
+		
+		"Execute the druid's compiled code"
+		cogit bytecodePC: 16.
+		self compileBytecodeSelector: #shortUnconditionalJump.
+		self assert: cogit deadCode.
+		
+		"We will jump over the stop!"
+		cogit bytecodePC: 17.
+		cogit genReturnFalse.
+		cogit Stop.
+
+		cogit bytecodePC: 18.
+		cogit patchFixupTargetIfNeeded: (cogit fixupAt: 18) nextOpcodeIndex: cogit opcodeIndex.
+		cogit genReturnTrue.
+		cogit genUpArrowReturn ].
 
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 17).
-	"Did it jump over?"
+
 	self assert: machineSimulator receiverRegisterValue equals: memory trueObject
 ]
 
 { #category : 'tests' }
 DRProductionBytecodeTest >> testExtBBytecode [
 
-	self
-		compileBytecode: 225
-		selector: #extBBytecode
-		thenDo: [ :generator | cogit genUpArrowReturn ].
-
 	cogit byte1: 1.
 	cogit extB: 7.
 
-	cogit gen_extBBytecode.
+	self compileBytecodeSelector: #extBBytecode.
 
 	self assert: cogit extB equals: 7 << 8 + 1.
 	self assert: cogit numExtB equals: 1
@@ -1953,15 +1922,10 @@ DRProductionBytecodeTest >> testExtBBytecode [
 { #category : 'tests' }
 DRProductionBytecodeTest >> testExtBBytecode2 [
 
-	self
-		compileBytecode: 225
-		selector: #extBBytecode
-		thenDo: [ :generator | cogit genUpArrowReturn ].
-
 	cogit byte1: 256.
 	cogit extB: 7.
 
-	cogit gen_extBBytecode.
+	self compileBytecodeSelector: #extBBytecode.
 
 	self assert: cogit extB equals: 0.
 	self assert: cogit numExtB equals: 1
@@ -1970,15 +1934,10 @@ DRProductionBytecodeTest >> testExtBBytecode2 [
 { #category : 'tests' }
 DRProductionBytecodeTest >> testExtBBytecode3 [
 
-	self
-		compileBytecode: 225
-		selector: #extBBytecode
-		thenDo: [ :generator | cogit genUpArrowReturn ].
-
 	cogit byte1: 128.
 	cogit extB: 7.
 
-	cogit gen_extBBytecode.
+	self compileBytecodeSelector: #extBBytecode.
 
 	self assert: cogit extB equals: -128.
 	self assert: cogit numExtB equals: 1
@@ -1986,12 +1945,13 @@ DRProductionBytecodeTest >> testExtBBytecode3 [
 
 { #category : 'tests' }
 DRProductionBytecodeTest >> testExtPushFullClosure [
-	"Fake test, only assert the correct generation of the method."
+	"Fake test, hard to test now. Let's come back in the future."
 
-	self
-		compileBytecode: 249
-		selector: #extPushFullClosureBytecode
-		thenDo: [ :generator | self flag: #TODO "Test the execution of compiled code" ]
+	self skip.
+	
+	self compileBytecodeSelector: #extPushFullClosureBytecode.
+
+	self flag: #TODO "Test the execution of compiled code"
 ]
 
 { #category : 'tests' }
@@ -2003,17 +1963,10 @@ DRProductionBytecodeTest >> testExtStoreAndPopReceiverVariableBytecode [
 	cogit bytecodePC: 87.
 	cogit byte1: (index := 1).
 
-	self
-		compileBytecode: 240
-		selector: #extStoreAndPopReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	self compileBytecode: [ 
+		cogit ssPushRegister: TempReg.
+		self compileBytecodeSelector: #extStoreAndPopReceiverVariableBytecode.
+		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: index + 1.
 
@@ -2043,17 +1996,10 @@ DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecode [
 	cogit byte1: 0.
 	cogit extA: 0.
 
-	self
-		compileBytecode: 244
-		selector: #extStoreLiteralVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: ReceiverResultReg.
-			
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	self compileBytecode: [ 
+		self initializeSStack: 0.
+		self compileBytecodeSelector: #extStoreLiteralVariableBytecode.
+		cogit genUpArrowReturn ].
 
 	self executePrimitiveWithReceiver: memory trueObject.
 
@@ -2084,17 +2030,10 @@ DRProductionBytecodeTest >> testExtStoreLiteralVariableBytecodeWriteBarrier [
 	cogit byte1: 0.
 	cogit extA: 0.
 
-	self
-		compileBytecode: 244
-		selector: #extStoreLiteralVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: ReceiverResultReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	self compileBytecode: [ 
+		self initializeSStack: 0.
+		self compileBytecodeSelector: #extStoreLiteralVariableBytecode.
+		cogit genUpArrowReturn ].
 
 	self
 		prepareStackForPrimitiveReceiver: newObj
@@ -2128,19 +2067,12 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecode [
 	cogit byte1: 0.
 	cogit extA: 0.
 
-	self
-		compileBytecode: 243
-		selector: #extStoreReceiverVariableBytecode
-		thenDo: [ :generator |
-			(cogit isKindOf: StackToRegisterMappingCogit)
-				ifTrue: [ cogit ssPushRegister: TempReg ]
-				ifFalse: [ cogit PushR: TempReg ].
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	self compileBytecode: [ 
+		(cogit isKindOf: StackToRegisterMappingCogit)
+			ifTrue: [ cogit ssPushRegister: TempReg ]
+			ifFalse: [ cogit PushR: TempReg ].
+		self compileBytecodeSelector: #extStoreReceiverVariableBytecode.
+		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
 
@@ -2164,17 +2096,12 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecode9 [
 	cogit byte1: 9.
 	cogit extA: 0.
 
-	self
-		compileBytecode: 243
-		selector: #extStoreReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	self compileBytecode: [ 
+		(cogit isKindOf: StackToRegisterMappingCogit)
+			ifTrue: [ cogit ssPushRegister: TempReg ]
+			ifFalse: [ cogit PushR: TempReg ].
+		self compileBytecodeSelector: #extStoreReceiverVariableBytecode.
+		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 15.
 
@@ -2200,17 +2127,12 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeCallImmutableTra
 	cogit byte1: 0.
 	cogit extA: 0.
 
-	self
-		compileBytecode: 243
-		selector: #extStoreReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	self compileBytecode: [ 
+		(cogit isKindOf: StackToRegisterMappingCogit)
+			ifTrue: [ cogit ssPushRegister: TempReg ]
+			ifFalse: [ cogit PushR: TempReg ].
+		self compileBytecodeSelector: #extStoreReceiverVariableBytecode.
+		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.	
 	memory setIsImmutableOf: object to: true.
@@ -2243,17 +2165,12 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeCallRememberTram
 	cogit byte1: 0.
 	cogit extA: 0.
 
-	self
-		compileBytecode: 243
-		selector: #extStoreReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	self compileBytecode: [ 
+		(cogit isKindOf: StackToRegisterMappingCogit)
+			ifTrue: [ cogit ssPushRegister: TempReg ]
+			ifFalse: [ cogit PushR: TempReg ].
+		self compileBytecodeSelector: #extStoreReceiverVariableBytecode.
+		cogit genUpArrowReturn ].
 
 	object := self newOldSpaceObjectWithSlots: 1.
 	value := self newObjectWithSlots: 0.
@@ -2284,17 +2201,12 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeImmutable [
 	cogit byte1: 0.
 	cogit extA: 0.
 
-	self
-		compileBytecode: 243
-		selector: #extStoreReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	self compileBytecode: [ 
+		(cogit isKindOf: StackToRegisterMappingCogit)
+			ifTrue: [ cogit ssPushRegister: TempReg ]
+			ifFalse: [ cogit PushR: TempReg ].
+		self compileBytecodeSelector: #extStoreReceiverVariableBytecode.
+		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
 	memory setIsImmutableOf: object to: true.
@@ -2322,17 +2234,12 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRemember [
 	cogit byte1: 0.
 	cogit extA: 0.
 
-	self
-		compileBytecode: 243
-		selector: #extStoreReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	self compileBytecode: [ 
+		(cogit isKindOf: StackToRegisterMappingCogit)
+			ifTrue: [ cogit ssPushRegister: TempReg ]
+			ifFalse: [ cogit PushR: TempReg ].
+		self compileBytecodeSelector: #extStoreReceiverVariableBytecode.
+		cogit genUpArrowReturn ].
 
 	object := self newOldSpaceObjectWithSlots: 1.
 	value := self newObjectWithSlots: 0.
@@ -2358,17 +2265,12 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRememberedReceiv
 	cogit byte1: 0.
 	cogit extA: 0.
 
-	self
-		compileBytecode: 243
-		selector: #extStoreReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	self compileBytecode: [ 
+		(cogit isKindOf: StackToRegisterMappingCogit)
+			ifTrue: [ cogit ssPushRegister: TempReg ]
+			ifFalse: [ cogit PushR: TempReg ].
+		self compileBytecodeSelector: #extStoreReceiverVariableBytecode.
+		cogit genUpArrowReturn ].
 
 	object := self newOldSpaceObjectWithSlots: 1.
 	memory fromOldSpaceRememberedSet remember: object.
@@ -2395,17 +2297,12 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRememberedReceiv
 	cogit byte1: 8.
 	cogit extA: 0.
 
-	self
-		compileBytecode: 243
-		selector: #extStoreReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	self compileBytecode: [ 
+		(cogit isKindOf: StackToRegisterMappingCogit)
+			ifTrue: [ cogit ssPushRegister: TempReg ]
+			ifFalse: [ cogit PushR: TempReg ].
+		self compileBytecodeSelector: #extStoreReceiverVariableBytecode.
+		cogit genUpArrowReturn ].
 
 	object := self newOldSpaceObjectWithSlots: 9.
 	memory fromOldSpaceRememberedSet remember: object.
@@ -2423,14 +2320,10 @@ DRProductionBytecodeTest >> testExtStoreReceiverVariableBytecodeRememberedReceiv
 DRProductionBytecodeTest >> testPushReceiver [
 
 	| object |
-	self compileBytecode: 76 selector: #pushReceiverBytecode thenDo: [ :generator |
-		"Execute the druid's compiled code"
-		generator value.
-
-		"Then return without druid's compiled code"
-		cogit ssPopTopToReg: ReceiverResultReg.
-		cogit genUpArrowReturn ].
-
+	self compileBytecode: [
+		self compileBytecodeSelector: #pushReceiverBytecode.
+		cogit genReturnTopFromMethod ].
+	
 	object := self newObjectWithSlots: 1.
 	memory storePointer: 0 ofObject: object withValue: 17.
 
@@ -2442,14 +2335,10 @@ DRProductionBytecodeTest >> testPushReceiver [
 DRProductionBytecodeTest >> testPushReceiverVariableBytecode [
 
 	| object |
-	self compileBytecode: 0 selector: #pushReceiverVariableBytecode thenDo: [ :generator |
-		"Execute the druid's compiled code"
-		generator value.
+	self compileBytecode: [
+		self compileBytecodeSelector: #pushReceiverVariableBytecode version: 0.
+		cogit genReturnTopFromMethod ].
 	
-		"Then return without druid's compiled code"
-		cogit ssPopTopToReg: ReceiverResultReg.
-		cogit genUpArrowReturn ].
-
 	object := self newObjectWithSlots: 1.
 	memory storePointer: 0 ofObject: object withValue: 17.
 
@@ -2461,13 +2350,9 @@ DRProductionBytecodeTest >> testPushReceiverVariableBytecode [
 DRProductionBytecodeTest >> testPushReceiverVariableBytecode2 [
 
 	| object |
-	self compileBytecode: 1 selector: #pushReceiverVariableBytecode thenDo: [ :generator |
-		"Execute the druid's compiled code"
-		generator value.
-	
-		"Then return without druid's compiled code"
-		cogit ssPopTopToReg: ReceiverResultReg.
-		cogit genUpArrowReturn ].
+	self compileBytecode: [
+		self compileBytecodeSelector: #pushReceiverVariableBytecode version: 1.
+		cogit genReturnTopFromMethod ].
 
 	object := self newObjectWithSlots: 1.
 	memory storePointer: 1 ofObject: object withValue: 17.
@@ -2480,13 +2365,9 @@ DRProductionBytecodeTest >> testPushReceiverVariableBytecode2 [
 DRProductionBytecodeTest >> testPushTrueObject [
 
 	| object |
-	self compileBytecode: 77 selector: #pushConstantTrueBytecode thenDo: [ :generator |
-		"Execute the druid's compiled code"
-		generator value.
-	
-		"Then return without druid's compiled code"
-		cogit ssPopTopToReg: ReceiverResultReg.
-		cogit genUpArrowReturn ].
+	self compileBytecode: [
+		self compileBytecodeSelector: #pushConstantTrueBytecode.
+		cogit genReturnTopFromMethod ].
 
 	object := self newObjectWithSlots: 1.
 	memory storePointer: 0 ofObject: object withValue: 17.
@@ -2498,30 +2379,24 @@ DRProductionBytecodeTest >> testPushTrueObject [
 { #category : 'tests' }
 DRProductionBytecodeTest >> testReturnReceiver [
 
-	| object |
-	self compileBytecode: 88 selector: #returnReceiver thenDo: [ :generator |
-		"Execute the druid's compiled code"
-		generator value ].
+	 | object |
+	 self compileBytecode: [
+		 self compileBytecodeSelector: #returnReceiver ].
 
-	object := self newObjectWithSlots: 0.
+	 object := self newObjectWithSlots: 0.
 
-	self executePrimitiveWithReceiver: object.
-	self assert: machineSimulator receiverRegisterValue equals: object
+	 self executePrimitiveWithReceiver: object.
+	 self assert: machineSimulator receiverRegisterValue equals: object
 ]
 
 { #category : 'tests' }
 DRProductionBytecodeTest >> testReturnTopFromMethod [
 
-	| object |
-	self compileBytecode: 92 selector: #returnTopFromMethod thenDo: [ :generator |
-		cogit ssPushConstant: 17.
+	 self compileBytecode: [
+		 cogit ssPushConstant: 17.
+		 self compileBytecodeSelector: #returnTopFromMethod ].
 
-		"Execute the druid's compiled code"
-		generator value ].
-
-	object := self newObjectWithSlots: 0.
-
-	self executePrimitiveWithReceiver: object.
+	self executePrimitiveWithReceiver: memory nilObject.
 	self assert: machineSimulator receiverRegisterValue equals: 17
 ]
 
@@ -2545,17 +2420,10 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecode: index [
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
 	cogit bytecodePC: 87.
 
-	self
-		compileBytecode: 200 + index
-		selector: #storeAndPopReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	 self compileBytecode: [
+		cogit ssPushRegister: TempReg. 
+		self compileBytecodeSelector: #storeAndPopReceiverVariableBytecode version: index.
+		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: index + 1.
 
@@ -2577,17 +2445,10 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallImmutable
 	bytecodePC := 87.
 	cogit bytecodePC: bytecodePC.
 
-	self
-		compileBytecode: 200
-		selector: #storeAndPopReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	 self compileBytecode: [
+		cogit ssPushRegister: TempReg. 
+		self compileBytecodeSelector: #storeAndPopReceiverVariableBytecode version: 0.
+		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.	
 	memory setIsImmutableOf: object to: true.
@@ -2622,17 +2483,10 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeCallRememberT
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
 	cogit bytecodePC: 87.
 
-	self
-		compileBytecode: 200
-		selector: #storeAndPopReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	 self compileBytecode: [
+		cogit ssPushRegister: TempReg. 
+		self compileBytecodeSelector: #storeAndPopReceiverVariableBytecode version: 0.
+		cogit genUpArrowReturn ].
 
 	object := self newOldSpaceObjectWithSlots: 1.
 	value := self newObjectWithSlots: 0.
@@ -2660,17 +2514,10 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeImmutable [
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
 	cogit bytecodePC: 87.
 
-	self
-		compileBytecode: 200
-		selector: #storeAndPopReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	 self compileBytecode: [
+		cogit ssPushRegister: TempReg. 
+		self compileBytecodeSelector: #storeAndPopReceiverVariableBytecode version: 0.
+		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
 	memory setIsImmutableOf: object to: true.
@@ -2695,17 +2542,10 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeNotRemember [
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
 	cogit bytecodePC: 87.
 
-	self
-		compileBytecode: 200
-		selector: #storeAndPopReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	 self compileBytecode: [
+		cogit ssPushRegister: TempReg. 
+		self compileBytecodeSelector: #storeAndPopReceiverVariableBytecode version: 0.
+		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: 1.
 	value := self newObjectWithSlots: 0.
@@ -2728,17 +2568,10 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRemember [
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
 	cogit bytecodePC: 87.
 
-	self
-		compileBytecode: 200
-		selector: #storeAndPopReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	 self compileBytecode: [
+		cogit ssPushRegister: TempReg. 
+		self compileBytecodeSelector: #storeAndPopReceiverVariableBytecode version: 0.
+		cogit genUpArrowReturn ].
 
 	object := self newOldSpaceObjectWithSlots: 1.
 	value := self newObjectWithSlots: 0.
@@ -2761,17 +2594,10 @@ DRProductionBytecodeTest >> testStoreAndPopReceiverVariableBytecodeRememberedRec
 	cogit ceDeoptimiseFrameTrampoline: fakeTrampoline.
 	cogit bytecodePC: 87.
 
-	self
-		compileBytecode: 200
-		selector: #storeAndPopReceiverVariableBytecode
-		thenDo: [ :generator |
-			cogit ssPushRegister: TempReg.
-
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	 self compileBytecode: [
+		cogit ssPushRegister: TempReg. 
+		self compileBytecodeSelector: #storeAndPopReceiverVariableBytecode version: 0.
+		cogit genUpArrowReturn ].
 
 	object := self newOldSpaceObjectWithSlots: 1.
 	memory fromOldSpaceRememberedSet remember: object.
@@ -2796,19 +2622,10 @@ DRProductionBytecodeTest >> testStoreAndPopRemoteTempLongBytecode [
 	cogit byte1: vectIndex.
 	cogit byte2: tempIndex.
 
-	self
-		compileBytecode: 253
-		selector: #storeAndPopRemoteTempLongBytecode
-		thenDo: [ :generator |
-			cogit methodOrBlockNumTemps: 2.
-			cogit methodOrBlockNumArgs: 0.
-			cogit ssPushRegister: ReceiverResultReg.
-			
-			"Execute the druid's compiled code"
-			generator value.
-
-			"Then return without druid's compiled code"
-			cogit genUpArrowReturn ].
+	 self compileBytecode: [
+		self initializeSStack: 0.
+		self compileBytecodeSelector: #storeAndPopRemoteTempLongBytecode.
+		cogit genUpArrowReturn ].
 
 	object := self newObjectWithSlots: vectIndex + 1.
 

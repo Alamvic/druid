@@ -97,7 +97,9 @@ DRBytecodeCompilationTestResource >> compilerClass [
 DRBytecodeCompilationTestResource >> configureInterpreter [
 	
 	objectMemory := self objectMemoryClass simulatorClass new.
-	
+	objectMemory lastHash: 1. "Setup seed for hash related primitives"
+	objectMemory ensureMemoryMap.
+
 	self interpreterClass
 		initializeWithOptions: self initializationOptions
 		objectMemoryClass: objectMemory class "Spur64BitMMLECoSimulator".
