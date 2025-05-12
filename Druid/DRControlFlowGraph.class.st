@@ -14,7 +14,8 @@ Class {
 		'stagedRegisters',
 		'dominatorTree',
 		'postDominatorTree',
-		'deadBranches'
+		'deadBranches',
+		'numArgs'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -102,6 +103,12 @@ DRControlFlowGraph >> allLoops [
 		  backJump loop ]
 ]
 
+{ #category : 'accessing' }
+DRControlFlowGraph >> allTemporaryStoreInstructions [
+
+	^ self instructions select: [ :i | i isStoreTemporaryVariable ]
+]
+
 { #category : 'building' }
 DRControlFlowGraph >> allocateBasicBlockID [
 	
@@ -122,6 +129,12 @@ DRControlFlowGraph >> applyOptimisation: optimisation [
 
 	optimisation applyTo: self.
 	self validate
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> argumentNames [
+
+	^ (1 to: numArgs ) collect: [ :i | 'arg', i asString ]
 ]
 
 { #category : 'inspecting' }
@@ -525,7 +538,9 @@ DRControlFlowGraph >> initialize [
 	numberOfSpillSlots := 0.
 
 	nextBasicBlockId := 0.
-	initialBasicBlock := self privateNewBasicBlock
+	initialBasicBlock := self privateNewBasicBlock.
+	numArgs := 0
+	
 ]
 
 { #category : 'inspecting' }
@@ -669,6 +684,12 @@ DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [
 	newBlock := self newBasicBlock.
 	aFullBlockClosure value: newBlock.
 	^ newBlock
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> numArgs: anInteger [
+
+	numArgs := anInteger
 ]
 
 { #category : 'accessing' }
@@ -917,6 +938,12 @@ DRControlFlowGraph >> subgraphWith: subgraphBlocks [
 	subgraph initialBasicBlock jumpTo: sourceBlockCopy.
 	subgraph generatePaths.
 	^ subgraph
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> temporaryVariableNames [
+
+	^ (self allTemporaryStoreInstructions collect: [ :i | i address value ]) copyWithoutDuplicates sorted
 ]
 
 { #category : 'accessing' }

@@ -74,12 +74,20 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	self unexplored
 ]
 
+{ #category : 'as yet unclassified' }
+DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [ 
+
+	self pushFrameForCode: aDRMethod receiver: aReceiver.
+	aDRMethod executeOn: self.
+	^ self popFrame.
+]
+
 { #category : 'accessing' }
 DRMethodIRGenerator >> numberOfArguments: aValue [ 
 	
 	super numberOfArguments: aValue.
-	0 to: numberOfArguments - 1 do: [ :i |
-		self push: (self currentBasicBlock loadArgument: i) ]
+"	0 to: numberOfArguments - 1 do: [ :i |
+		self push: (self currentBasicBlock loadArgument: i) ]"
 ]
 
 { #category : 'frame-access' }
@@ -171,12 +179,13 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
-	| value |
-	value := self temporaryAt: aRBVariableNode name.
+	|loadArg|	
 
 	aRBVariableNode isTempVariable ifTrue: [
 		| store |
-		store := self topFrame temporaryAt: aRBVariableNode name withState: executionState.
+		store := self topFrame
+			         temporaryAt: aRBVariableNode name
+			         withState: executionState.
 
 		^ self
 			  addInstructionFrom: aRBVariableNode
@@ -186,5 +195,11 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 					  store } ].
 
 	"Else, it is an argument"
-	^ self pushOperand: value
+	
+	loadArg := self
+		  addInstructionFrom: aRBVariableNode
+		  instructionKind: DRLoadArgument
+		  operands: { aRBVariableNode variable index asDRValue.}.
+	loadArg argName: aRBVariableNode name.
+	^  loadArg
 ]

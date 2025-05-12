@@ -2052,3 +2052,58 @@ DruidTestInterpreter >> returnArg: argument [
 		ifFalse: [ 2 ].
 	^ argument + acc
 ]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethod [
+
+	| x y| 
+	x := 1.
+	y := 2.
+	
+	^ x + y
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodReturnArg: arg [
+	
+	^ arg
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWith1Arg: argument [
+
+	| x | 
+	x := 1.
+	
+	^ x + argument
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWith1Arg: argument1 arg2: argument2 [
+
+	| x| 
+	x := 1.
+	
+	^ x + argument1 + argument2
+	
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithTempAssignment [
+
+	| x y tmp| 
+	x := 1.
+	tmp := y := 2.
+	
+	^ x + y
+	
+	
+]
