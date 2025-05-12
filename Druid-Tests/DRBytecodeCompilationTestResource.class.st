@@ -112,5 +112,8 @@ DRBytecodeCompilationTestResource >> setUp [
 
 	'Compiling bytecodes...' traceCr.
 	DRBytecodeScenarioCompilationTest bytecodes do: [ :assoc |
-		self compileBytecode: assoc ]
+		self compileBytecode: assoc ].
+
+	"On CI, we want to execute this setUp only once"
+	self onPharoCITestingEnvironment ifTrue: [ self class modeNone ]
 ]
