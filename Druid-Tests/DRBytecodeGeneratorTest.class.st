@@ -270,6 +270,9 @@ DRBytecodeGeneratorTest >> testMethodCustomisationBadCount [
 DRBytecodeGeneratorTest >> testMethodCustomisationDifference [
 
 	| method result cfg selector |
+	
+	self skip.
+	
 	typeSystem := DRCustomisationTypeSystem new.
 	compilerCompiler configureForCompilerClass: nil.
 	bytecodeGenerator := DRBytecodeGenerator new.

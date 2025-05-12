@@ -22,6 +22,15 @@ DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 	currentBasicBlock := lastBlock
 ]
 
+{ #category : 'testing' }
+DRMethodIRGeneratorInline >> isBaseMethodArgument: aRBVariableNode [
+
+	"Here we check if the variable is accessing to a temporary (mainly arguments) from the compiled method.
+	This change between accessing a variable from the method to inline and from the method where it is inlined."
+
+	^ executionState baseFrame method = aRBVariableNode variable scope node
+]
+
 { #category : 'building' }
 DRMethodIRGeneratorInline >> newFirstBasicBlock [
 
@@ -31,12 +40,11 @@ DRMethodIRGeneratorInline >> newFirstBasicBlock [
 { #category : 'visiting' }
 DRMethodIRGeneratorInline >> visitTemporaryVariableNode: aRBVariableNode [
 
-	| value |
-	value := self temporaryAt: aRBVariableNode name.
-
 	aRBVariableNode isTempVariable ifTrue: [
 		| store |
-		store := self topFrame temporaryAt: aRBVariableNode name withState: executionState.
+		store := self topFrame
+			         temporaryAt: aRBVariableNode name
+			         withState: executionState.
 
 		^ self
 			  addInstructionFrom: aRBVariableNode
@@ -46,5 +54,19 @@ DRMethodIRGeneratorInline >> visitTemporaryVariableNode: aRBVariableNode [
 					  store } ].
 
 	"Else, it is an argument"
-	^ self pushOperand: value
+	(self isBaseMethodArgument: aRBVariableNode)
+		ifTrue: [
+			| loadArg |
+			loadArg := self
+				           addInstructionFrom: aRBVariableNode
+				           instructionKind: DRLoadArgument
+				           operands: { aRBVariableNode variable index asDRValue }.
+			loadArg argName: aRBVariableNode name.
+			^ loadArg ]
+		ifFalse: [
+			| value |
+			"If it is not accesssing a method argument, 
+			then get the target instruction and push it"
+			value := self temporaryAt: aRBVariableNode name.
+			^ self pushOperand: value ]
 ]
