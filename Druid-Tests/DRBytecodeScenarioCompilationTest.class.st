@@ -8,31 +8,29 @@ Class {
 { #category : 'accessing' }
 DRBytecodeScenarioCompilationTest class >> bytecodes [
 
-	^ {
-		  (0 -> #bytecodePopOnTwoBranches).
-		  (0 -> #bytecodePushOnTwoBranches).
-		  (0 -> #bytecodeTwoPopOnTwoBranches).
-		  (0 -> #bytecodeTwoPushOnTwoBranches).
-		  (0 -> #bytecodeWithFlushStackOnDominator).
-		  (0 -> #bytecodeWithPop).
-		  (0 -> #bytecodeWithDeoptimisation).
-		  (77 -> #fakePushConstantTrueBytecode).	
-		  {
-			  (77 -> #pushConstantTrueBytecode).
-			  (192 -> #shortConditionalJumpFalse) }.
+	 ^ {
+		   { (0 -> #bytecodePopOnTwoBranches) }.
+		   { (0 -> #bytecodePushOnTwoBranches) }.
+		   { (0 -> #bytecodeTwoPopOnTwoBranches) }.
+		   { (0 -> #bytecodeTwoPushOnTwoBranches) }.
+		   { (0 -> #bytecodeWithFlushStackOnDominator) }.
+		   { (0 -> #bytecodeWithPop) }.
+		   { (0 -> #bytecodeWithDeoptimisation) }.
+		   { (77 -> #fakePushConstantTrueBytecode) }.
+		   {
+			   (77 -> #pushConstantTrueBytecode).
+			   (192 -> #shortConditionalJumpFalse) }.
 
-		  {
-			  (77 -> #pushConstantTrueBytecode).
-			  (184 -> #shortConditionalJumpTrue) }.
+		   {
+			   (77 -> #pushConstantTrueBytecode).
+			   (184 -> #shortConditionalJumpTrue) }.
 
-		  {
-			  (77 -> #pushConstantTrueBytecode).
-			  (92 -> #returnTopFromMethod) }.
-		  {
-			  (118 -> #bytecodePrimIdenticalSistaV1).
-			  (192 -> #shortConditionalJumpFalse) }.
-			
-	  }
+		   {
+			   (77 -> #pushConstantTrueBytecode).
+			   (92 -> #returnTopFromMethod) }.
+		   {
+			   (118 -> #bytecodePrimIdenticalSistaV1).
+			   (192 -> #shortConditionalJumpFalse) } }
 ]
 
 { #category : 'tests' }

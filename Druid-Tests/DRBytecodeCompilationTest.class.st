@@ -5,6 +5,12 @@ Class {
 	#package : 'Druid-Tests'
 }
 
+{ #category : 'accessing' }
+DRBytecodeCompilationTest class >> bytecodes [
+
+	^ self subclasses flatCollect: #bytecodes
+]
+
 { #category : 'building suites' }
 DRBytecodeCompilationTest class >> cogitStyleParameter [
 
@@ -104,11 +110,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 { #category : 'compiling' }
 DRBytecodeCompilationTest >> compileBytecodeSelector: aSelector [
 
-	| generatorSelector |
-	generatorSelector := (#gen , '_' , aSelector) asSymbol.
-	cogit byte0:
-		(self class bytecodes detect: [ :assoc | assoc value = aSelector ]).
-	cogit perform: generatorSelector
+	 self compileBytecodeSelector: aSelector sufix: ''
 ]
 
 { #category : 'compiling' }
@@ -116,14 +118,34 @@ DRBytecodeCompilationTest >> compileBytecodeSelector: selector1 andSelector: sel
 
 	| generatorSelector bytecodes |
 	generatorSelector := (#gen , '_' , selector1 , '_' , selector2) asSymbol.
-	bytecodes := self class bytecodes detect: [ :assocOrArray |
-		             assocOrArray isCollection and: [
-			             assocOrArray first value = selector1 and: [
-				             assocOrArray second value = selector2 ] ] ].
+	bytecodes := self class bytecodes detect: [ :descriptor |
+			             descriptor first value = selector1 and: [
+				             descriptor second value = selector2 ] ].
 
 	cogit byte0: bytecodes first key.
 	cogit byte1: bytecodes second key.
 	cogit perform: generatorSelector
+]
+
+{ #category : 'compiling' }
+DRBytecodeCompilationTest >> compileBytecodeSelector: aSelector sufix: sufix [
+
+	 | generatorSelector currentBytecode |
+	 generatorSelector := (#gen , '_' , aSelector, sufix) asSymbol.
+	 currentBytecode := self class bytecodes
+		                    detect: [ :array | array first value = aSelector ]
+		                    ifFound: [ :array | array first key ]
+		                    ifNone: [ self error: 'Missing bytecode descriptor...' ].
+	 cogit byte0: currentBytecode.
+	 cogit perform: generatorSelector
+]
+
+{ #category : 'compiling' }
+DRBytecodeCompilationTest >> compileBytecodeSelector: aSelector version: version [
+
+	 self
+		 compileBytecodeSelector: aSelector
+		 sufix: '_version' , version asString
 ]
 
 { #category : 'tests' }
