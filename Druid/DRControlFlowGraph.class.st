@@ -15,7 +15,7 @@ Class {
 		'dominatorTree',
 		'postDominatorTree',
 		'deadBranches',
-		'temporariesList'
+		'numArgs'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -103,6 +103,12 @@ DRControlFlowGraph >> allLoops [
 		  backJump loop ]
 ]
 
+{ #category : 'accessing' }
+DRControlFlowGraph >> allTemporaryStoreInstructions [
+
+	^ self instructions select: [ :i | i isStoreTemporaryVariable ]
+]
+
 { #category : 'building' }
 DRControlFlowGraph >> allocateBasicBlockID [
 	
@@ -123,6 +129,12 @@ DRControlFlowGraph >> applyOptimisation: optimisation [
 
 	optimisation applyTo: self.
 	self validate
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> argumentNames [
+
+	^ (1 to: numArgs ) collect: [ :i | 'arg', i asString ]
 ]
 
 { #category : 'inspecting' }
@@ -527,7 +539,7 @@ DRControlFlowGraph >> initialize [
 
 	nextBasicBlockId := 0.
 	initialBasicBlock := self privateNewBasicBlock.
-	temporariesList := OrderedCollection new.
+	numArgs := 0
 	
 ]
 
@@ -672,6 +684,12 @@ DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [
 	newBlock := self newBasicBlock.
 	aFullBlockClosure value: newBlock.
 	^ newBlock
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> numArgs: anInteger [
+
+	numArgs := anInteger
 ]
 
 { #category : 'accessing' }
@@ -923,21 +941,9 @@ DRControlFlowGraph >> subgraphWith: subgraphBlocks [
 ]
 
 { #category : 'accessing' }
-DRControlFlowGraph >> temporariesList [
+DRControlFlowGraph >> temporaryVariableNames [
 
-	^ temporariesList
-]
-
-{ #category : 'accessing' }
-DRControlFlowGraph >> temporariesList: aTemporaryList [
-	
-	temporariesList := aTemporaryList 
-]
-
-{ #category : 'accessing' }
-DRControlFlowGraph >> temporaryIndexOf: name [
-
-	^ (temporariesList indexOf: name) - 1
+	^ (self allTemporaryStoreInstructions collect: [ :i | i address value ]) copyWithoutDuplicates sorted
 ]
 
 { #category : 'accessing' }

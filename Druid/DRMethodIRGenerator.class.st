@@ -179,8 +179,8 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
-	|loadArg index|
-	
+	|loadArg|	
+
 	aRBVariableNode isTempVariable ifTrue: [
 		| store |
 		store := self topFrame
@@ -195,12 +195,11 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 					  store } ].
 
 	"Else, it is an argument"
-	index := controlFlowGraph temporaryIndexOf: aRBVariableNode name.
 	
 	loadArg := self
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRLoadArgument
-		  operands: { index asDRValue }.
+		  operands: { aRBVariableNode variable index asDRValue.}.
 	loadArg argName: aRBVariableNode name.
 	^  loadArg
 ]

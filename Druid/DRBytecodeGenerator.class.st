@@ -38,15 +38,16 @@ DRBytecodeGenerator >> generateJump: aDRBranch [
 { #category : 'API' }
 DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
 	
-	| args |
+	| args temps|
 	
 	"Construct the tempVector"
-	args := aDRControlFlowGraph temporariesList first: numArgs.
+	args := aDRControlFlowGraph argumentNames.
+	temps := aDRControlFlowGraph temporaryVariableNames. 
 	
 	args do: [ :arg| 
 		builder addTemp: arg ].
 	
-	self createTempVector: aDRControlFlowGraph temporariesList.
+	self createTempVector: args , temps.
 	
 	args do: [ :arg | 
 		builder pushTemp: arg.
@@ -220,7 +221,7 @@ DRBytecodeGenerator >> visitLessOrEqualsThan: aDRLessOrEqualsThanComparison inBr
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 	
-	builder pushRemoteTemp: aDRLoadArgument argName inVector: vectorTempName
+	builder pushRemoteTemp: aDRLoadArgument argumentName inVector: vectorTempName
 	
 ]
 
