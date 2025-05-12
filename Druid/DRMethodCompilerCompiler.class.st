@@ -59,6 +59,21 @@ DRMethodCompilerCompiler >> configureForCompilerClassWithoutInline: aCompilerCla
 		optimisations add: DRCleanControlFlow new. ]
 ]
 
+{ #category : 'generation-IR' }
+DRMethodCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRReceiver numArgs: numArgs [
+
+	irGenerator receiver: aDRReceiver.
+	irGenerator numberOfArguments: numArgs.
+	
+	compiledMethods do: [ :method |
+		| aDRMethod |
+		aDRMethod := DRMethod methodNode: method ast.
+			
+		irGenerator
+			interpretCode: aDRMethod
+			receiver: aDRReceiver ]
+]
+
 { #category : 'instance creation' }
 DRMethodCompilerCompiler >> newIRGenerator [
 

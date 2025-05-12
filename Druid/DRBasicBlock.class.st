@@ -922,7 +922,7 @@ DRBasicBlock >> load: anAddress [
 
 { #category : 'building' }
 DRBasicBlock >> loadArgument: index [
-1halt. 
+
 	^ self addInstruction: (self instructionFactory loadArgument: index)
 ]
 
