@@ -146,12 +146,19 @@ DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 
-	| blockNode compiledBlock |
+	| blockNode compiledBlock blockCFG blockBuilder|
+	
 	blockNode := aDRBlockClosure blockNode.
-	compiledBlock := OCASTTranslator new translateFullBlock: blockNode.
+	blockCFG := aDRBlockClosure generateCFG.
+	
+	blockBuilder := DRBytecodeBlockGenerator new.
+	blockBuilder generateTargetASTFromIR: blockCFG.
+	
+	compiledBlock := blockBuilder compileBlockWithScope: blockNode scope.
+	"compiledBlock := OCASTTranslator new translateFullBlock: blockNode."
 	builder
 		pushFullClosureCompiledBlock: compiledBlock
-		copiedValues: blockNode scope inComingCopiedVarNames
+		copiedValues: { vectorTempName }
 		"outerContextNeeded: blockNode hasNonLocalReturn"
 ]
 

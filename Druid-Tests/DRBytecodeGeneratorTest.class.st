@@ -619,3 +619,18 @@ DRBytecodeGeneratorTest >> testSimpleMethodWith2arg [
 	self assert: compiledMethod equalsResult: expectedMethod arguments: { 5 . 6}.
 	
 ]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testSimpleMethodWithBlock [
+	
+	| compiledMethod expectedMethod aSelector |
+
+	compilerCompiler configureForCompilerClass: nil.
+	aSelector:= #callMethodWithBlock.
+	expectedMethod := DruidTestInterpreter >> aSelector.
+	
+	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
+	
+	self assert: compiledMethod equalsResult: expectedMethod
+	
+]

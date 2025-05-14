@@ -69,7 +69,6 @@ DRBlockClosure >> executeOn: interpreter [
 { #category : 'interpreting' }
 DRBlockClosure >> generateCFG [
 
-	self error: #ToImplement.
 	irGenerator interpretBlockClosure: self.
 	^ irGenerator ir
 ]
@@ -120,6 +119,12 @@ DRBlockClosure >> numberOfArguments [
 DRBlockClosure >> opcode [
 	
 	^ blockNode asString 
+]
+
+{ #category : 'inspecting' }
+DRBlockClosure >> originAST [
+
+	^ blockNode
 ]
 
 { #category : 'accessing' }
