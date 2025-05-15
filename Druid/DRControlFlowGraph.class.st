@@ -104,7 +104,7 @@ DRControlFlowGraph >> allLoops [
 ]
 
 { #category : 'accessing' }
-DRControlFlowGraph >> allTemporaryStoreInstructions [
+DRControlFlowGraph >> allTemporaryInstructions [
 
 	^ self instructions select: [ :i | i isStoreTemporaryVariable or: [i isLoadTemporaryVariable ]].
 ]
@@ -943,7 +943,7 @@ DRControlFlowGraph >> subgraphWith: subgraphBlocks [
 { #category : 'accessing' }
 DRControlFlowGraph >> temporaryVariableNames [
 
-	^ (self allTemporaryStoreInstructions collect: [ :i | i address value ]) copyWithoutDuplicates sorted
+	^ (self allTemporaryInstructions collect: [ :i | i address value ]) copyWithoutDuplicates sorted
 ]
 
 { #category : 'accessing' }

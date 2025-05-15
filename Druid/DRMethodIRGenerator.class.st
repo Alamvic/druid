@@ -45,6 +45,7 @@ DRMethodIRGenerator >> inlineGenerator [
 DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
 	| value |
+	
 	value := self visitOperand: aRBAssignmentNode value.
 
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
@@ -55,6 +56,20 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 					  self receiver.
 					  aRBAssignmentNode variable binding index asDRValue.
 					  value } ].
+				
+	aRBAssignmentNode variable binding originalVar isTempVectorTemp ifTrue: [
+		| result |
+		"maybe should create DRStoreVectorTemporaryVariable ???"
+		result := self
+			          addInstructionWithNoResultFrom: aRBAssignmentNode
+			          instructionKind: DRStoreTemporaryVariable
+			          operands: {
+					          aRBAssignmentNode variable name asDRValue.
+					          value }.
+					
+		self topFrame writeTemporaryNamed: aRBAssignmentNode variable name withValue: result.
+
+		^ result ].
 
 	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [
 		| result |
@@ -70,6 +85,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 			withState: executionState.
 
 		^ result ].
+	
 
 	self unexplored
 ]
