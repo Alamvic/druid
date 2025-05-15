@@ -6,9 +6,9 @@ Class {
 	#tag : 'Optimizations'
 }
 
-{ #category : 'testing' }
-DRPiConstantDeadBranchElimination >> isReachable: aDRBasicBlock [
+{ #category : 'initialization' }
+DRPiConstantDeadBranchElimination >> initialize [
 
-	^ aDRBasicBlock piNodes allSatisfy: [ :pi |
-		  DRConstantConstraintSolver new isSatisfiable: pi ]
+	super initialize.
+	solver := DRConstantConstraintSolver new.
 ]
