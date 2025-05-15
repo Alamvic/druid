@@ -21,6 +21,8 @@ DRBytecodeBlockGenerator >> compileBlockWithScope: aScope [
 { #category : 'code-generation' }
 DRBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 
+	self handleTemporaryVariable: aDRControlFlowGraph.
+
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
 		self visitBlock: block ]
 ]
@@ -30,28 +32,4 @@ DRBytecodeBlockGenerator >> visitReturn: aDRReturn [
 
 	aDRReturn operand1 acceptVisitor: self.
 	builder blockReturnTop.
-]
-
-{ #category : 'code-generation' }
-DRBytecodeBlockGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
-
-	| value |
-	value := aDRStoreTemporaryVariable operand2 simpleConstantFold asDRValue.
-	value isStoreTemporaryVariable
-		ifTrue: [ builder pushTemp: value operand1 value ]
-		ifFalse: [ value acceptVisitor: self ].
-
-	builder addTemp: aDRStoreTemporaryVariable operand1 value.
-	builder storeTemp: aDRStoreTemporaryVariable operand1 value.
-	builder popTop
-]
-
-{ #category : 'code-generation' }
-DRBytecodeBlockGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
-
-	| tempName |
-	tempName := aDRLoadTemporaryVariable operand1 value.
-	
-	builder addTemp: tempName.
-	builder pushTemp: tempName
 ]

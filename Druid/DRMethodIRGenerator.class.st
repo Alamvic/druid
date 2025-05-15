@@ -179,13 +179,14 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
-	|loadArg|	
+	| loadArg |
 
 	aRBVariableNode isTempVariable ifTrue: [
 		| store |
-		store := self topFrame
-			         temporaryAt: aRBVariableNode name
-			         withState: executionState.
+		store := aRBVariableNode variable isEscaping ifFalse: [
+			         self topFrame
+				         temporaryAt: aRBVariableNode name
+				         withState: executionState ].
 
 		^ self
 			  addInstructionFrom: aRBVariableNode
@@ -195,11 +196,11 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 					  store } ].
 
 	"Else, it is an argument"
-	
+
 	loadArg := self
-		  addInstructionFrom: aRBVariableNode
-		  instructionKind: DRLoadArgument
-		  operands: { aRBVariableNode variable index asDRValue.}.
+		           addInstructionFrom: aRBVariableNode
+		           instructionKind: DRLoadArgument
+		           operands: { aRBVariableNode variable index asDRValue }.
 	loadArg argName: aRBVariableNode name.
-	^  loadArg
+	^ loadArg
 ]
