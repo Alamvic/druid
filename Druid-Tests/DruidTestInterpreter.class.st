@@ -74,6 +74,15 @@ DruidTestInterpreter >> basicInlineMethodSettingInstVar [
 	^ assoc value = 'aNewValue'
 ]
 
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> basicMethodWithBlock: aBlock [
+
+	| tmp1 |
+	tmp1  := aBlock value.
+	^ tmp1
+	
+]
+
 { #category : 'bytecode' }
 DruidTestInterpreter >> bytecodePopOnTwoBranches [
 
@@ -2093,6 +2102,47 @@ DruidTestInterpreter >> simpleMethodWith1Arg: argument1 arg2: argument2 [
 	^ x + argument1 + argument2
 	
 	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlock [
+
+	| temp |
+	temp:=0.
+	self basicMethodWithBlock: [ | x | 
+		x:=5.
+		x].
+	
+	^ temp
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockReadingOuterVariable [
+
+	| temp |
+	temp:=0.
+	self basicMethodWithBlock: [ |x|.
+		temp:=x.
+		x].
+	
+	^ temp
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockWritingOuterVariable [
+
+	| temp |
+	temp:=0.
+	self basicMethodWithBlock: [ | x |
+		x := temp.
+		temp := 5.
+		x
+		].
+	
+	^ temp
 	
 ]
 

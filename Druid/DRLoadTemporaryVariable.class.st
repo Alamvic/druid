@@ -12,6 +12,11 @@ DRLoadTemporaryVariable >> acceptVisitor: aVisitor [
 	^ aVisitor visitTemporaryVariable: self
 ]
 
+{ #category : 'accessing' }
+DRLoadTemporaryVariable >> address [
+	^ self operand1
+]
+
 { #category : 'initialization' }
 DRLoadTemporaryVariable >> initialize [
 
@@ -23,6 +28,12 @@ DRLoadTemporaryVariable >> initialize [
 DRLoadTemporaryVariable >> isLoadTemporaryVariable [
 
 	^ true
+]
+
+{ #category : 'testing' }
+DRLoadTemporaryVariable >> isTempVectorTemp [
+	
+	^ false
 ]
 
 { #category : 'printing' }

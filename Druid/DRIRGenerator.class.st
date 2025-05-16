@@ -735,8 +735,9 @@ DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
 	"Create the initial basic block"
 
 	| initialBasicBlock startBlock numArgs arguments |
-	initialBasicBlock := self initialBasicBlock.
-	startBlock := self newBasicBlock.
+	
+	startBlock := self initialBasicBlock.
+	initialBasicBlock := self createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
 
 
