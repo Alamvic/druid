@@ -2123,9 +2123,24 @@ DruidTestInterpreter >> simpleMethodWithBlockReadingOuterVariable [
 
 	| temp |
 	temp:=0.
-	self basicMethodWithBlock: [ | x | 
-		x:=temp.
+	self basicMethodWithBlock: [ |x|.
+		temp:=x.
 		x].
+	
+	^ temp
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockWritingOuterVariable [
+
+	| temp |
+	temp:=0.
+	self basicMethodWithBlock: [ | x |
+		x := temp.
+		temp := 5.
+		x
+		].
 	
 	^ temp
 	

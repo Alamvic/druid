@@ -196,13 +196,13 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
 	| loadArg |
-
+	
 	aRBVariableNode isTempVariable ifTrue: [
 		| store |
-		store := aRBVariableNode variable isEscaping ifFalse: [
-			         self topFrame
+		aRBVariableNode variable isEscaping ifFalse: [ "should use isCopying"
+			store := self topFrame
 				         temporaryAt: aRBVariableNode name
-				         withState: executionState ].
+				         withState: executionState.
 
 		^ self
 			  addInstructionFrom: aRBVariableNode
@@ -210,7 +210,13 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 			  operands: {
 					  aRBVariableNode name asDRValue.
 					  store } ].
-
+		^ self
+			  addInstructionFrom: aRBVariableNode
+			  instructionKind: DRLoadVectorTemporaryVariable 
+			  operands: {
+					  aRBVariableNode name asDRValue.
+					  store }.
+	].
 	"Else, it is an argument"
 
 	loadArg := self

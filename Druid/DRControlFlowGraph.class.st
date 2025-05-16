@@ -106,7 +106,13 @@ DRControlFlowGraph >> allLoops [
 { #category : 'accessing' }
 DRControlFlowGraph >> allTemporaryInstructions [
 
-	^ self instructions select: [ :i | i isStoreTemporaryVariable or: [i isLoadTemporaryVariable ]].
+	^ self instructions select: [ :i | (i isStoreTemporaryVariable  or: [i isLoadTemporaryVariable]) "and: [i isTempVectorTemp not]"].
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> allVectorTemporaryInstructions [
+
+	^ self instructions select: [ :i | (i isStoreTemporaryVariable  or: [i isLoadTemporaryVariable]) and: [i isTempVectorTemp]].
 ]
 
 { #category : 'building' }
@@ -957,4 +963,10 @@ DRControlFlowGraph >> validate [
 
 	self invalidateDominatorTree.
 	self blocks do: [ :e | e validate ]
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> vectorTemporaryVariableNames [
+
+	^ (self allVectorTemporaryInstructions collect: [ :i | i address value ]) copyWithoutDuplicates sorted
 ]

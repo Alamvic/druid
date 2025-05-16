@@ -30,6 +30,12 @@ DRLoadTemporaryVariable >> isLoadTemporaryVariable [
 	^ true
 ]
 
+{ #category : 'testing' }
+DRLoadTemporaryVariable >> isTempVectorTemp [
+	
+	^ false
+]
+
 { #category : 'printing' }
 DRLoadTemporaryVariable >> opcode [
 	
