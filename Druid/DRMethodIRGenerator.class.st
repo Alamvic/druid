@@ -47,7 +47,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	| value |
 	
 	value := self visitOperand: aRBAssignmentNode value.
-
+	
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
 		^ self
 			  addInstructionWithNoResultFrom: aRBAssignmentNode
@@ -59,10 +59,10 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 				
 	aRBAssignmentNode variable binding originalVar isTempVectorTemp ifTrue: [
 		| result |
-		"maybe should create DRStoreVectorTemporaryVariable ???"
+		
 		result := self
 			          addInstructionWithNoResultFrom: aRBAssignmentNode
-			          instructionKind: DRStoreTemporaryVariable
+			          instructionKind: DRStoreVectorTemporaryVariable
 			          operands: {
 					          aRBAssignmentNode variable name asDRValue.
 					          value }.
@@ -92,7 +92,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
 { #category : 'as yet unclassified' }
 DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [ 
-
+	
 	self pushFrameForCode: aDRMethod receiver: aReceiver.
 	aDRMethod executeOn: self.
 	^ self popFrame.

@@ -106,7 +106,7 @@ DRControlFlowGraph >> allLoops [
 { #category : 'accessing' }
 DRControlFlowGraph >> allTemporaryInstructions [
 
-	^ self instructions select: [ :i | (i isStoreTemporaryVariable  or: [i isLoadTemporaryVariable]) "and: [i isTempVectorTemp not]"].
+	^ self instructions select: [ :i | (i isStoreTemporaryVariable  or: [i isLoadTemporaryVariable])].
 ]
 
 { #category : 'accessing' }

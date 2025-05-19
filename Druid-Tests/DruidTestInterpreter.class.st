@@ -2124,7 +2124,7 @@ DruidTestInterpreter >> simpleMethodWithBlockReadingOuterVariable [
 	| temp |
 	temp:=0.
 	self basicMethodWithBlock: [ |x|.
-		temp:=x.
+		x:=temp.
 		x].
 	
 	^ temp
@@ -2136,10 +2136,8 @@ DruidTestInterpreter >> simpleMethodWithBlockWritingOuterVariable [
 
 	| temp |
 	temp:=0.
-	self basicMethodWithBlock: [ | x |
-		x := temp.
+	self basicMethodWithBlock: [
 		temp := 5.
-		x
 		].
 	
 	^ temp

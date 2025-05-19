@@ -6,49 +6,33 @@ Class {
 	#tag : 'BytecodeGeneration'
 }
 
+{ #category : 'adding' }
+DRBytecodeBlockGenerator >> addOuterVector: vectorName withVars: variableNames [ 
+	self shouldBeImplemented.
+]
+
 { #category : 'compiling' }
 DRBytecodeBlockGenerator >> compileBlockFrom: aDRControlFlowGraph withScope: aScope [ 
 	
 	| ir compiledBlock|
 	
 	ir := builder ir.
-	1 halt.
-	"add vectorTempVar to the scope of the block"
-	"aDRControlFlowGraph allVectorTemporaryInstructions do: [ :var |
-		aScope addTemp: var.
-		 ]."
+	
 	compiledBlock := ir compiledBlock: aScope.
 	
 	^ compiledBlock 
-]
-
-{ #category : 'code-generation' }
-DRBytecodeBlockGenerator >> compileBlockWithScope: aScope [
-
-	| ir compiledBlock|
-	
-	ir := builder ir.
-	compiledBlock := ir compiledBlock: aScope.
-	
-	^ compiledBlock 
-
 ]
 
 { #category : 'code-generation' }
 DRBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 
-	| args temps vectorTemps temporariesList |
-	"Construct the tempVector"
+	| args temps temporariesList |
+	
 	args := aDRControlFlowGraph argumentNames.
 	temps := aDRControlFlowGraph temporaryVariableNames. 
-	vectorTemps := aDRControlFlowGraph vectorTemporaryVariableNames .
-	1 halt.
 	
 	args do: [ :arg| 
 		builder addTemp: arg ].
-	1 halt.
-	"vectorTemps do: [ :var| 
-		builder addTemp: var ]."
 	
 	builder addTemp: self vectorTempName.
 	
@@ -63,6 +47,14 @@ DRBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
 		self visitBlock: block ]
+]
+
+{ #category : 'code-generation' }
+DRBytecodeBlockGenerator >> vectorTempNameFromTempVar: aTemporaryVariable [
+
+	^ aTemporaryVariable isTempVectorTemp
+		  ifTrue: [ self vectorTempName ]
+		  ifFalse: [ 'vector1' ]
 ]
 
 { #category : 'ir-to-target' }

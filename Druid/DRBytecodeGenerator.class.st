@@ -14,7 +14,7 @@ Class {
 
 { #category : 'API' }
 DRBytecodeGenerator >> createTempVector: temporariesList [
-
+	
 	temporariesList isNotEmpty ifTrue: [
 		builder createTempVectorNamed: self vectorTempName withVars: temporariesList.]
 	
@@ -38,18 +38,19 @@ DRBytecodeGenerator >> generateJump: aDRBranch [
 { #category : 'API' }
 DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
 	
-	self handleTemporaryVariable: aDRControlFlowGraph .
+	self handleTemporaryVariableFromCFG: aDRControlFlowGraph .
 
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
 		self visitBlock: block ]
 ]
 
 { #category : 'API' }
-DRBytecodeGenerator >> handleTemporaryVariable: aDRControlFlowGraph [
+DRBytecodeGenerator >> handleTemporaryVariableFromCFG: aDRControlFlowGraph [
 
 	| args temps|
 	
-	"Construct the tempVector"
+	"Create a tempVector with arguments and all temporary variable
+	- Copy all arguments to the temp vector"
 	args := aDRControlFlowGraph argumentNames.
 	temps := aDRControlFlowGraph temporaryVariableNames. 
 	
@@ -142,7 +143,14 @@ DRBytecodeGenerator >> vectorTempIndex: anInteger [
 { #category : 'accessing' }
 DRBytecodeGenerator >> vectorTempName [
 
+	"hardcoded for now, name comes from the default scope, and we use it for now"
 	^ '0vector0' ", self vectorTempIndex asString"
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> vectorTempNameFromTempVar: aTemporaryVariable [
+
+	^ self vectorTempName 
 ]
 
 { #category : 'ir-to-target' }
@@ -170,23 +178,21 @@ DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 
-	| blockNode compiledBlock blockCFG blockBuilder|
+	| blockNode compiledBlock blockCFG blockBuilder copiedValues |
 	
 	blockNode := aDRBlockClosure blockNode.
 	blockCFG := aDRBlockClosure generateCFG.
-	1 halt.
+	
 	blockBuilder := DRBytecodeBlockGenerator new.
-	blockBuilder vectorTempIndex: self vectorTempIndex + 1.
-"	blockBuilder addOuterVector: 'vector0' withVars: blockCFG vectorTemporaryVariableNames.
-"	blockBuilder generateTargetASTFromIR: blockCFG.
-	1 halt.
+	blockBuilder generateTargetASTFromIR: blockCFG.
+	
 	compiledBlock := blockBuilder compileBlockFrom: blockCFG withScope: blockNode scope.
-	1halt.
-	"compiledBlock := OCASTTranslator new translateFullBlock: blockNode."
+	
+	copiedValues := blockCFG vectorTemporaryVariableNames isEmpty ifTrue: [ { } ]
+		ifFalse: [ {self vectorTempName} ].
 	builder
 		pushFullClosureCompiledBlock: compiledBlock
-		copiedValues: { self vectorTempName } "blockCFG vectorTemporaryVariableNames "
-		"outerContextNeeded: blockNode hasNonLocalReturn"
+		copiedValues: copiedValues 
 ]
 
 { #category : 'ir-to-target' }
@@ -345,9 +351,8 @@ DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 		         asDRValue.
 	value isStoreTemporaryVariable ifFalse: [ value acceptVisitor: self ].
 	
-	vectorTempName := aDRStoreTemporaryVariable isTempVectorTemp
-		                  ifTrue: [ self vectorTempName ]
-		                  ifFalse: [ 'vector1' ].
+	vectorTempName := self vectorTempNameFromTempVar:
+		                  aDRStoreTemporaryVariable.
 
 	builder
 		storeRemoteTemp: aDRStoreTemporaryVariable operand1 value
@@ -365,14 +370,14 @@ DRBytecodeGenerator >> visitSubstract: aDRSubstract [
 
 { #category : 'visiting' }
 DRBytecodeGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
-	
+
 	| vectorTempName |
-	
-	vectorTempName := aDRLoadTemporaryVariable isTempVectorTemp
-		                  ifTrue: [ self vectorTempName ]
-		                  ifFalse: [ 'vector1' ].
-		
-	builder pushRemoteTemp: aDRLoadTemporaryVariable operand1 value inVector: vectorTempName 
+	vectorTempName := self vectorTempNameFromTempVar:
+		                  aDRLoadTemporaryVariable.
+
+	builder
+		pushRemoteTemp: aDRLoadTemporaryVariable operand1 value
+		inVector: vectorTempName
 ]
 
 { #category : 'visiting' }

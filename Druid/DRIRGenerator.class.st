@@ -873,7 +873,7 @@ DRIRGenerator >> interpretClassTableRootsObjectWith: aRBVariableNode [
 DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
 
 	self pushFrameForCode: aDRCode receiver: aReceiver.
-
+	
 	"Iterate based on the defined arguments.
 	In ifNotNil: arguments are optional"
 	1 to: aDRCode codeNode argumentNames size do: [ :i | | name |
@@ -2170,7 +2170,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitSelfNode: aRBVariableNode [ 
 	
-	self pushOperand: (self topFrame receiverWithState: executionState)
+	self pushOperand: self receiver "(self topFrame receiverWithState: executionState)"
 ]
 
 { #category : 'visiting' }
