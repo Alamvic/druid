@@ -2132,6 +2132,17 @@ DruidTestInterpreter >> simpleMethodWithBlockReadingOuterVariable [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockWithArg [
+	
+	self basicMethodWithBlock: [ :arg |
+		| x | 
+		x:=arg.
+		x].
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> simpleMethodWithBlockWritingOuterVariable [
 
 	| temp |

@@ -179,10 +179,14 @@ DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 
 	| blockNode compiledBlock blockCFG blockBuilder copiedValues |
-	
 	blockNode := aDRBlockClosure blockNode.
 	blockCFG := aDRBlockClosure generateCFG.
 	
+	blockCFG applyOptimisation: DRFrameInfoCleaner new.
+	blockCFG applyOptimisation: (DRBranchCollapse then: DRPhiSimplication).
+	blockCFG applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
+	DRLocalVariableInstructionScheluder new applyTo: blockCFG.
+
 	blockBuilder := DRBytecodeBlockGenerator new.
 	blockBuilder generateTargetASTFromIR: blockCFG.
 	

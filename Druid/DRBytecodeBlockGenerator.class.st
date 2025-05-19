@@ -42,7 +42,7 @@ DRBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 	
 	args do: [ :arg | 
 		builder pushTemp: arg.
-		builder storeRemoteTemp: arg inVector: self vectorTempName.
+		builder storeRemoteTemp: arg inVector: 'vector1'.
 		builder popTop ].
 
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
