@@ -693,6 +693,11 @@ DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [
 ]
 
 { #category : 'accessing' }
+DRControlFlowGraph >> numArgs [
+	^ numArgs
+]
+
+{ #category : 'accessing' }
 DRControlFlowGraph >> numArgs: anInteger [
 
 	numArgs := anInteger

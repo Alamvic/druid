@@ -200,6 +200,13 @@ DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 ]
 
 { #category : 'ir-to-target' }
+DRBytecodeGenerator >> visitBlockReturn: aDBlockRReturn [ 
+
+	aDBlockRReturn operand1 acceptVisitor: self.
+	builder blockReturnTop.
+]
+
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBranchIfCondition: aDRConditionalBranch [
 
 	aDRConditionalBranch condition

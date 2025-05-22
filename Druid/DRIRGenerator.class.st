@@ -160,7 +160,11 @@ DRIRGenerator >> basicNewBasicBlockWithState: anExecutionState [
 { #category : 'ir-genera' }
 DRIRGenerator >> blockClosureGenerator [
 
-	^ self class new
+	| blockGenerator |
+	blockGenerator := DRBlockIRGenerator new.
+	blockGenerator executionState: executionState copy.
+
+	^ blockGenerator
 ]
 
 { #category : 'special cases' }
@@ -743,20 +747,23 @@ DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
 
 	numArgs := aDRBlockClosure numberOfArguments.
 	self numberOfArguments: numArgs.
-	arguments := OrderedCollection new.
-	numArgs > 0 ifTrue: [ 
-		1 to: numArgs do: [ :i | 
-			| loadInstruction |
-			loadInstruction := startBlock loadArgument: i.
-			loadInstruction argName: (aDRBlockClosure argName: i ).
-			arguments add: loadInstruction ] ].
 
 	self
-		interpretCode: aDRBlockClosure
-		receiver: aDRBlockClosure
-		arguments: arguments.
-
+		interpretBlockCode: aDRBlockClosure
+		receiver: aDRBlockClosure.
+		
+	self ir numArgs: numArgs.
+	
 	^ self ir
+]
+
+{ #category : 'API' }
+DRIRGenerator >> interpretBlockCode: aDRCode receiver: aReceiver [ 
+
+	self pushFrameForCode: aDRCode receiver: aReceiver.
+
+	aDRCode executeOn: self.
+	^ self popBlockFrame.
 ]
 
 { #category : 'special cases' }
@@ -1826,6 +1833,25 @@ DRIRGenerator >> pop [
 DRIRGenerator >> pop: anInteger [ 
 
 	anInteger timesRepeat: [ self pop ]
+]
+
+{ #category : 'frame-access' }
+DRIRGenerator >> popBlockFrame [
+	"To handle block frame and the local and non-local return"
+	| poppedFrame |
+	"Here we are in callee"
+	
+	poppedFrame := self popFrameMergingDeferredReturns.
+	
+	"Last frame!"
+	executionState executionStack ifEmpty: [
+		self finishCodeInterpretation: poppedFrame.
+		^ poppedFrame ].
+	
+	"Here we are in caller"
+	self pushOperand: poppedFrame returnValue.	
+	
+	^ poppedFrame
 ]
 
 { #category : 'frame-access' }
