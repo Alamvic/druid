@@ -195,6 +195,11 @@ DRBasicBlock >> bitXor: aValue with: anotherValue [
 	^ self addInstruction: (self instructionFactory bitXor: aValue with: anotherValue)
 ]
 
+{ #category : 'building' }
+DRBasicBlock >> blockReturn: anInstruction [ 
+	^ self endInstruction: (DRBlockReturn operands: { anInstruction } )
+]
+
 { #category : 'control-flow' }
 DRBasicBlock >> breakBy: instruction [
 

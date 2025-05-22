@@ -74,6 +74,24 @@ DruidTestInterpreter >> basicInlineMethodSettingInstVar [
 	^ assoc value = 'aNewValue'
 ]
 
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> basicMethodWithBlock: aBlock [
+
+	| tmp1 |
+	tmp1  := aBlock value.
+	^ tmp1
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> basicMethodWithBlockArg: aBlock [
+
+	| tmp1 |
+	tmp1  := aBlock value:nil.
+	^ tmp1
+	
+]
+
 { #category : 'bytecode' }
 DruidTestInterpreter >> bytecodePopOnTwoBranches [
 
@@ -240,11 +258,52 @@ DruidTestInterpreter >> lazyFail [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodBlockConstant [
+	"a constant block closure"
+	
+	| temp |
+	temp:= self basicMethodWithBlock: [ 2 ].
+	^ temp
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodBlockLocalAndNonLocalReturn [
+	"a constant block closure"
+	
+	| temp |
+	temp:= self basicMethodWithBlock: [ | x | x ifNil: [ ^ 2 ].
+		4 ].
+	^ 5
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodBlockNonLocalReturn [
+	"a constant block closure"
+	
+	| temp |
+	temp:= self basicMethodWithBlock: [ ^ 2 ].
+	^ 5
+	
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> methodCollectionSize: aCollection [
 	<var: #aCollection type: #OrderedCollection>
 	<var: #aCollection type: #Array2D>
 	
 	^ aCollection size
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodEmptyBlock [ 
+	"a constant block closure"
+	
+	| temp |
+	temp:= self basicMethodWithBlock: [ ].
+	^ temp
+	
 ]
 
 { #category : 'as yet unclassified' }
@@ -2093,6 +2152,57 @@ DruidTestInterpreter >> simpleMethodWith1Arg: argument1 arg2: argument2 [
 	^ x + argument1 + argument2
 	
 	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlock [
+
+	| temp |
+	temp:=0.
+	self basicMethodWithBlock: [ | x | 
+		x:=5.
+		x].
+	
+	^ temp
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockReadingOuterVariable [
+
+	| temp |
+	temp:=0.
+	self basicMethodWithBlock: [ |x|.
+		x:=temp.
+		x].
+	
+	^ temp
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockWithArg [
+	
+	self basicMethodWithBlockArg: [ :arg |
+		| x | 
+		x:=arg.
+		x].
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockWritingOuterVariable [
+
+	| temp |
+	temp:=0.
+	self basicMethodWithBlock: [
+		temp := 5.
+		temp.
+		].
+	
+	^ temp
 	
 ]
 
