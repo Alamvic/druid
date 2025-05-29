@@ -160,7 +160,11 @@ DRIRGenerator >> basicNewBasicBlockWithState: anExecutionState [
 { #category : 'ir-genera' }
 DRIRGenerator >> blockClosureGenerator [
 
-	^ self class new
+	| blockGenerator |
+	blockGenerator := DRBlockIRGenerator new.
+	blockGenerator executionState: executionState copy.
+
+	^ blockGenerator
 ]
 
 { #category : 'special cases' }
@@ -735,27 +739,31 @@ DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
 	"Create the initial basic block"
 
 	| initialBasicBlock startBlock numArgs arguments |
-	initialBasicBlock := self initialBasicBlock.
-	startBlock := self newBasicBlock.
+	
+	startBlock := self initialBasicBlock.
+	initialBasicBlock := self createInitialBasicBlock.
 	startBlock jumpTo: initialBasicBlock.
 
 
 	numArgs := aDRBlockClosure numberOfArguments.
 	self numberOfArguments: numArgs.
-	arguments := OrderedCollection new.
-	numArgs > 0 ifTrue: [ 
-		1 to: numArgs do: [ :i | 
-			| loadInstruction |
-			loadInstruction := startBlock loadArgument: i.
-			loadInstruction argName: (aDRBlockClosure argName: i ).
-			arguments add: loadInstruction ] ].
 
 	self
-		interpretCode: aDRBlockClosure
-		receiver: aDRBlockClosure
-		arguments: arguments.
-
+		interpretBlockCode: aDRBlockClosure
+		receiver: aDRBlockClosure.
+		
+	self ir numArgs: numArgs.
+	
 	^ self ir
+]
+
+{ #category : 'API' }
+DRIRGenerator >> interpretBlockCode: aDRCode receiver: aReceiver [ 
+
+	self pushFrameForCode: aDRCode receiver: aReceiver.
+
+	aDRCode executeOn: self.
+	^ self popBlockFrame.
 ]
 
 { #category : 'special cases' }
@@ -872,7 +880,7 @@ DRIRGenerator >> interpretClassTableRootsObjectWith: aRBVariableNode [
 DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
 
 	self pushFrameForCode: aDRCode receiver: aReceiver.
-
+	
 	"Iterate based on the defined arguments.
 	In ifNotNil: arguments are optional"
 	1 to: aDRCode codeNode argumentNames size do: [ :i | | name |
@@ -1828,6 +1836,25 @@ DRIRGenerator >> pop: anInteger [
 ]
 
 { #category : 'frame-access' }
+DRIRGenerator >> popBlockFrame [
+	"To handle block frame and the local and non-local return"
+	| poppedFrame |
+	"Here we are in callee"
+	
+	poppedFrame := self popFrameMergingDeferredReturns.
+	
+	"Last frame!"
+	executionState executionStack ifEmpty: [
+		self finishCodeInterpretation: poppedFrame.
+		^ poppedFrame ].
+	
+	"Here we are in caller"
+	self pushOperand: poppedFrame returnValue.	
+	
+	^ poppedFrame
+]
+
+{ #category : 'frame-access' }
 DRIRGenerator >> popFrame [
 	
 	| poppedFrame |
@@ -2169,7 +2196,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitSelfNode: aRBVariableNode [ 
 	
-	self pushOperand: (self topFrame receiverWithState: executionState)
+	self pushOperand: self receiver "(self topFrame receiverWithState: executionState)"
 ]
 
 { #category : 'visiting' }
