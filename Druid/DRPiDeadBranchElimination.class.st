@@ -15,9 +15,9 @@ Class {
 DRPiDeadBranchElimination >> addSuccessorsToWorklist: aDRBasicBlock [
 
 	aDRBasicBlock successors
-		select: [ :succ | (visited includes: succ) not ]
+		reject: [ :succ | visited includes: succ ]
 		thenDo: [ :succ |
-			worklist add: (DREdge withSource: aDRBasicBlock andDestination: succ).
+			worklist add: succ.
 			visited add: succ.
 		].
 ]
@@ -25,17 +25,14 @@ DRPiDeadBranchElimination >> addSuccessorsToWorklist: aDRBasicBlock [
 { #category : 'accessing' }
 DRPiDeadBranchElimination >> applyTo: cfg [
 
-	| deadEdges |
+	| unreachableBlocks |
 	visited := Set new.
-	worklist := OrderedCollection with: (DREdge
-			             withSource: cfg initialBasicBlock
-			             andDestination: cfg initialBasicBlock).
-	"The source doesn't matter in the initial edge, it'll be never be dead anyways"
+	worklist := OrderedCollection with: cfg initialBasicBlock.
 
-	deadEdges := self computeDeadeEdges.
+	unreachableBlocks := self computeUnreachableBlocks.
 
-	deadEdges ifNotEmpty: [
-		self removeUnnecessaryConditionalJumps: deadEdges.
+	unreachableBlocks ifNotEmpty: [
+		self removeUnnecessaryConditionalJumps: unreachableBlocks.
 		cfg
 			invalidateDominatorTree;
 			invalidatePostDominatorTree.
@@ -43,20 +40,20 @@ DRPiDeadBranchElimination >> applyTo: cfg [
 ]
 
 { #category : 'accessing' }
-DRPiDeadBranchElimination >> computeDeadeEdges [
+DRPiDeadBranchElimination >> computeUnreachableBlocks [
 
-	| deadEdges |
-	deadEdges := OrderedCollection new.
+	| unreachableBlocks |
+	unreachableBlocks := OrderedCollection new.
 
 	[ worklist isEmpty ] whileFalse: [
-		| currentEdge |
-		currentEdge := worklist removeFirst.
-		(self isReachable: currentEdge destination)
-			ifTrue: [ self addSuccessorsToWorklist: currentEdge destination ]
-			ifFalse: [ deadEdges add: currentEdge ] ].
+		| currentBlock |
+		currentBlock := worklist removeFirst.
+		(self isReachable: currentBlock)
+			ifTrue: [ self addSuccessorsToWorklist: currentBlock ]
+			ifFalse: [ unreachableBlocks add: currentBlock ] ].
 		"TODO if a block is unreachable, then its sibling must be reachable,
 		so we can remove it from the worklist"
-	^ deadEdges
+	^ unreachableBlocks
 ]
 
 { #category : 'as yet unclassified' }
@@ -66,7 +63,9 @@ DRPiDeadBranchElimination >> isReachable: aDRBasicBlock [
 ]
 
 { #category : 'removing' }
-DRPiDeadBranchElimination >> removeUnnecessaryConditionalJumps: deadEdges [ 
+DRPiDeadBranchElimination >> removeUnnecessaryConditionalJumps: unreachableBlocks [
 
-	deadEdges do: [ :edge | edge kill ].
+	unreachableBlocks do: [ :block |
+		(DREdge withSource: block predecessors unique andDestination: block)
+			kill ]
 ]
