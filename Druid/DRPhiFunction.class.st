@@ -65,9 +65,8 @@ DRPhiFunction >> canMoveOutsideLoop: backJump [
 DRPhiFunction >> clearNullOperands [
 
 	| notNilOperands |
-	
-	notNilOperands :=operands select: [ :o | o isNullValue not ].
-	operands := notNilOperands .
+	notNilOperands := operands reject: [ :o | o isNullValue ].
+	operands := notNilOperands
 ]
 
 { #category : 'accessing' }

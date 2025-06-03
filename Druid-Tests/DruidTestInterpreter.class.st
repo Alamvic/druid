@@ -87,7 +87,7 @@ DruidTestInterpreter >> basicMethodWithBlock: aBlock [
 DruidTestInterpreter >> basicMethodWithBlockArg: aBlock [
 
 	| tmp1 |
-	tmp1  := aBlock value:nil.
+	tmp1  := aBlock value: nil.
 	^ tmp1
 	
 ]
@@ -2235,7 +2235,6 @@ DruidTestInterpreter >> simpleMethodWithBlockWritingOuterVariable [
 	temp:=0.
 	self basicMethodWithBlock: [
 		temp := 5.
-		temp.
 		].
 	
 	^ temp

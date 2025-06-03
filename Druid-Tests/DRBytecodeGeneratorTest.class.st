@@ -20,6 +20,7 @@ DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method [
 DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method arguments: arguments [
 
 	| result expectedResult |
+	
 	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: arguments.
 	expectedResult := method valueWithReceiver: compilerCompiler interpreter arguments: arguments.
 	self assert: result equals: expectedResult
@@ -69,6 +70,20 @@ DRBytecodeGeneratorTest >> assertCompilationNoInlineFor: aSelector fromClass: aC
 	
 	compiledMethod := self compileSelector: aSelector fromClass: aClass.
 	self assert: compiledMethod equalsResult: expectedMethod
+]
+
+{ #category : 'assertion' }
+DRBytecodeGeneratorTest >> assertCompilationNoInlineFor: aSelector fromClass: aClass arguments: args [
+
+	| compiledMethod expectedMethod |
+	
+	compilerCompiler configureForCompilerClassWithoutInline: nil.
+	
+	expectedMethod := aClass >> aSelector.
+	
+	compiledMethod := self compileSelector: aSelector fromClass: aClass.
+	
+	self assert: compiledMethod equalsResult: expectedMethod arguments: args
 ]
 
 { #category : 'assertion' }
@@ -360,13 +375,13 @@ DRBytecodeGeneratorTest >> testMethodInline [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectAccessInstVar [
 
-	self assertCompilationFor: #basicInlineMethodAccesInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #instVarAt:'
+	self assertCompilationFor: #basicInlineMethodAccesInstVar fromClass: DruidTestInterpreter
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectSettingInstVar [
 
-	self assertCompilationFor: #basicInlineMethodSettingInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #instVarAt:put:'
+	self assertCompilationFor: #basicInlineMethodSettingInstVar fromClass: DruidTestInterpreter
 ]
 
 { #category : 'tests' }
@@ -482,62 +497,71 @@ DRBytecodeGeneratorTest >> testMethodWithArg [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockArg [
+	
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockWithArg fromClass: DruidTestInterpreter arguments: {}.
+
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockArgWithBlockArg [
+	
+	self assertCompilationNoInlineFor: #simpleMethodArgWithBlockWithArg: fromClass: DruidTestInterpreter arguments: { nil }.
+
+	
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockConstant [
 	
-	| compiledMethod expectedMethod aSelector |
+	self assertCompilationNoInlineFor: #methodBlockConstant fromClass: DruidTestInterpreter arguments: { }.
 
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #methodBlockConstant .
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockEmpty [
 	
-	| compiledMethod expectedMethod aSelector |
+	self assertCompilationNoInlineFor: #methodEmptyBlock fromClass: DruidTestInterpreter arguments: { }.
 
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #methodEmptyBlock .
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockLocalAndNonLocalReturn [
 	
-	| compiledMethod expectedMethod aSelector |
-
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #methodBlockLocalAndNonLocalReturn .
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
+	self assertCompilationNoInlineFor: #methodBlockLocalAndNonLocalReturn fromClass: DruidTestInterpreter arguments: { }.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNonLocalReturn [
 	
-	| compiledMethod expectedMethod aSelector |
+	self assertCompilationNoInlineFor: #methodBlockNonLocalReturn fromClass: DruidTestInterpreter arguments: { }.
 
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #methodBlockNonLocalReturn .
-	expectedMethod := DruidTestInterpreter >> aSelector.
 	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockReadingArgVar [
 	
-	self assert: compiledMethod equalsResult: expectedMethod
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingArgVariable: fromClass: DruidTestInterpreter arguments: { nil }.
+
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockReadingVar [
+
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingOuterVariable fromClass: DruidTestInterpreter arguments: {}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockWritingVar [
+	
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockWritingOuterVariable fromClass: DruidTestInterpreter arguments: {}.
 	
 ]
 
@@ -627,23 +651,6 @@ DRBytecodeGeneratorTest >> testSimpleMethod [
 ]
 
 { #category : 'tests' }
-DRBytecodeGeneratorTest >> testSimpleMethodArgWithBlockArg [
-	
-	| compiledMethod expectedMethod aSelector result |
-
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #simpleMethodArgWithBlockWithArg:.
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { nil }.
-	
-	self assert: compiledMethod equalsResult: expectedMethod arguments: { nil }.
-	
-]
-
-{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testSimpleMethodReturnArg [
 	
 	| compiledMethod expectedMethod aSelector result |
@@ -695,82 +702,5 @@ DRBytecodeGeneratorTest >> testSimpleMethodWith2arg [
 	
 	self assert: result equals: 12.
 	self assert: compiledMethod equalsResult: expectedMethod arguments: { 5 . 6}.
-	
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testSimpleMethodWithBlock [
-	
-	| compiledMethod expectedMethod aSelector |
-
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #simpleMethodWithBlock.
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
-	
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testSimpleMethodWithBlockArg [
-	
-	| compiledMethod expectedMethod aSelector |
-
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #simpleMethodWithBlockWithArg.
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
-	
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testSimpleMethodWithBlockReadingArgVar [
-	
-	| compiledMethod expectedMethod aSelector |
-
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #simpleMethodWithBlockReadingOuterVariable.
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
-	
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testSimpleMethodWithBlockReadingVar [
-	
-	| compiledMethod expectedMethod aSelector result |
-
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #simpleMethodWithBlockReadingArgVariable: .
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { nil }.
-	
-	self assert: compiledMethod equalsResult: expectedMethod arguments: { nil }.
-	
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testSimpleMethodWithBlockWritingVar [
-	
-	| compiledMethod expectedMethod aSelector |
-	
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #simpleMethodWithBlockWritingOuterVariable .
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
 	
 ]
