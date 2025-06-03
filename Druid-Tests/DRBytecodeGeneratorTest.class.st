@@ -127,7 +127,7 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 
 { #category : 'utilities' }
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
-
+	
 	aDRControlFlowGraph applyOptimisation: DRFrameInfoCleaner new.
 	aDRControlFlowGraph applyOptimisation: (DRBranchCollapse then: DRPhiSimplication).
 	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
@@ -166,11 +166,11 @@ DRBytecodeGeneratorTest >> tearDown [
 DRBytecodeGeneratorTest >> testBasicControlFlow [
 
 	| cfg method result |
-	cfg := DRControlFlowGraph new.
+	cfg := DRMethodControlFlowGraph new.
 	cfg newBasicBlockWith: [ :b | 
 		cfg initialBasicBlock jumpTo: b.
 		b return: (b add: 3 to: 4) ].
-
+	cfg scope: DRScope new.
 	method := self generateMethodFromCFG: cfg withSelector: #m numArgs: 0.
 	result := method valueWithReceiver: nil arguments: {  }.
 
@@ -187,7 +187,7 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 	bytecodeGenerator := DRBytecodeGenerator new.
 	selector := #allSatisfy:.
 	method := Array lookupSelector: selector.
-
+	
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
 
@@ -195,7 +195,7 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 	compilerCompiler optimize: cfg.
 
 	method := self generateMethodFromCFG: cfg withSelector: selector.
-
+	
 	result := method valueWithReceiver: { 1. 2 } arguments: { [ :e | e even ] }.
 	self assert: result equals: false.
 
@@ -213,6 +213,7 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
 DRBytecodeGeneratorTest >> testMethodCustomisationAnySatisfy [
 
 	| method result cfg selector |
+	
 	typeSystem := DRCustomisationTypeSystem new.
 	compilerCompiler irGenerator typeSystem: typeSystem.
 	compilerCompiler configureForCompilerClass: nil.
@@ -240,38 +241,9 @@ DRBytecodeGeneratorTest >> testMethodCustomisationAnySatisfy [
 ]
 
 { #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationBadCount [
-
-	| method result cfg selector |
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler irGenerator typeSystem: typeSystem.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #badCount.
-	method := Array lookupSelector: selector.
-
-	compilerCompiler interpreter: Array new.
-
-	cfg := self generateDruidIRFor: method.
-
-	compilerCompiler optimize: cfg.
-	compilerCompiler optimize: cfg.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	result := method valueWithReceiver: { 1. 2 } arguments: {}.
-	self assert: result equals: 2.
-
-	result := method valueWithReceiver: { 2. 4. 6 } arguments: {}.
-	self assert: result equals: 3.
-]
-
-{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodCustomisationDifference [
 
 	| method result cfg selector |
-	
-	self skip.
 	
 	typeSystem := DRCustomisationTypeSystem new.
 	compilerCompiler configureForCompilerClass: nil.
@@ -344,6 +316,33 @@ DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
 		          arguments: { [ :e | e even ] }.
 
 	self assertCollection: result includesAll: { 2 }.
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodCustomisationSlowCount [
+
+	| method result cfg selector |
+	typeSystem := DRCustomisationTypeSystem new.
+	compilerCompiler irGenerator typeSystem: typeSystem.
+	compilerCompiler configureForCompilerClass: nil.
+	bytecodeGenerator := DRBytecodeGenerator new.
+	selector := #slowCount.
+	method := Array lookupSelector: selector.
+	
+	compilerCompiler interpreter: Array new.
+
+	cfg := self generateDruidIRFor: method.
+
+	compilerCompiler optimize: cfg.
+	compilerCompiler optimize: cfg.
+
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+	
+	result := method valueWithReceiver: { 1. 2 } arguments: {}.
+	self assert: result equals: 2.
+
+	result := method valueWithReceiver: { 2. 4. 6 } arguments: {}.
+	self assert: result equals: 3.
 ]
 
 { #category : 'tests' }
@@ -628,6 +627,23 @@ DRBytecodeGeneratorTest >> testSimpleMethod [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testSimpleMethodArgWithBlockArg [
+	
+	| compiledMethod expectedMethod aSelector result |
+
+	compilerCompiler configureForCompilerClassWithoutInline: nil.
+	aSelector:= #simpleMethodArgWithBlockWithArg:.
+	expectedMethod := DruidTestInterpreter >> aSelector.
+	
+	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
+	
+	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { nil }.
+	
+	self assert: compiledMethod equalsResult: expectedMethod arguments: { nil }.
+	
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testSimpleMethodReturnArg [
 	
 	| compiledMethod expectedMethod aSelector result |
@@ -713,11 +729,9 @@ DRBytecodeGeneratorTest >> testSimpleMethodWithBlockArg [
 ]
 
 { #category : 'tests' }
-DRBytecodeGeneratorTest >> testSimpleMethodWithBlockReadingVar [
+DRBytecodeGeneratorTest >> testSimpleMethodWithBlockReadingArgVar [
 	
 	| compiledMethod expectedMethod aSelector |
-
-	self skip. "in this case, no vectorTemp is supposed to be created on the outerScope"
 
 	compilerCompiler configureForCompilerClassWithoutInline: nil.
 	aSelector:= #simpleMethodWithBlockReadingOuterVariable.
@@ -726,6 +740,23 @@ DRBytecodeGeneratorTest >> testSimpleMethodWithBlockReadingVar [
 	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
 	
 	self assert: compiledMethod equalsResult: expectedMethod
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testSimpleMethodWithBlockReadingVar [
+	
+	| compiledMethod expectedMethod aSelector result |
+
+	compilerCompiler configureForCompilerClassWithoutInline: nil.
+	aSelector:= #simpleMethodWithBlockReadingArgVariable: .
+	expectedMethod := DruidTestInterpreter >> aSelector.
+	
+	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
+	
+	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { nil }.
+	
+	self assert: compiledMethod equalsResult: expectedMethod arguments: { nil }.
 	
 ]
 

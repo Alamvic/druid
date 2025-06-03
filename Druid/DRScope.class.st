@@ -2,9 +2,154 @@ Class {
 	#name : 'DRScope',
 	#superclass : 'Object',
 	#instVars : [
-		'outerScope'
+		'argumentNames',
+		'numArgs',
+		'tempVars',
+		'copiedVars',
+		'tempVector',
+		'id',
+		'tempVectorVar',
+		'node',
+		'outerScope',
+		'opalScope'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
 	#tag : 'IR'
 }
+
+{ #category : 'accessing' }
+DRScope >> addTemps: aCollection [
+
+	tempVector addAll: aCollection.
+]
+
+{ #category : 'accessing' }
+DRScope >> argumentNames [
+
+	^ argumentNames 
+]
+
+{ #category : 'accessing' }
+DRScope >> argumentNames: anObject [
+
+	argumentNames := anObject
+]
+
+{ #category : 'accessing' }
+DRScope >> copiedVarNames [ 
+	"the name of the tempVector is not a valid name of a temp variable
+	 This way we avoid name clashes "
+	^ copiedVars values 
+]
+
+{ #category : 'accessing' }
+DRScope >> hasTempVector [
+
+	^ true
+]
+
+{ #category : 'accessing' }
+DRScope >> id [
+
+	^ id
+]
+
+{ #category : 'accessing' }
+DRScope >> id: anObject [
+
+	id := anObject
+]
+
+{ #category : 'initialization' }
+DRScope >> initialize [
+
+	"For now, follow Opal structure, will change this incrementally"
+	
+	argumentNames := OrderedCollection new.
+	tempVars :=  OrderedCollection new. "local temporaries"
+	tempVector  := OrderedCollection new. "vars in the tempVector of this scope"
+	copiedVars := OrderedDictionary new. "vars from outside: vectorTemp + outer read temp | nil if first scope"
+	id := 0
+]
+
+{ #category : 'accessing' }
+DRScope >> lookupVar: name [
+
+	| vectorName |
+	((tempVector includes: name) or: [argumentNames includes: name]) ifTrue: [ ^ self tempVectorName ].
+
+	vectorName := outerScope
+		              ifNotNil: [ :os | os lookupVar: name ]
+		              ifNil: [ self error: 'Not explored' ].
+	copiedVars at: vectorName put: vectorName.
+	
+	^ vectorName
+]
+
+{ #category : 'accessing' }
+DRScope >> node [
+
+	^ node
+]
+
+{ #category : 'accessing' }
+DRScope >> node: anObject [
+
+	node := anObject
+]
+
+{ #category : 'accessing' }
+DRScope >> numArgs [
+
+	^ numArgs
+]
+
+{ #category : 'accessing' }
+DRScope >> numArgs: anObject [
+
+	numArgs := anObject
+]
+
+{ #category : 'accessing' }
+DRScope >> opalScope [
+
+	^ opalScope
+]
+
+{ #category : 'accessing' }
+DRScope >> opalScope: anObject [
+
+	opalScope := anObject
+]
+
+{ #category : 'accessing' }
+DRScope >> outerScope [
+
+	^ outerScope
+]
+
+{ #category : 'accessing' }
+DRScope >> outerScope: aScope [
+
+	outerScope := aScope
+]
+
+{ #category : 'accessing' }
+DRScope >> tempVarNames [ 
+	
+	^ tempVector asArray 
+]
+
+{ #category : 'accessing' }
+DRScope >> tempVectorName [
+	"the name of the tempVector is not a valid name of a temp variable
+	 This way we avoid name clashes "
+	^'0vector', id asString
+]
+
+{ #category : 'accessing' }
+DRScope >> tempVectorVarNames [ 
+	
+	^ (argumentNames , tempVector) asArray 
+]

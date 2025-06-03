@@ -2125,6 +2125,17 @@ DruidTestInterpreter >> simpleMethod [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodArgWithBlockWithArg: arg [
+	
+	self basicMethodWithBlockArg: [ :argBlock |
+		| x | 
+		x:=arg.
+		x].
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> simpleMethodReturnArg: arg [
 	
 	^ arg
@@ -2169,6 +2180,31 @@ DruidTestInterpreter >> simpleMethodWithBlock [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockExperimental: arg [
+
+	self basicMethodWithBlock: [ :arg2 |
+		|x|
+		x := arg.
+		self basicMethodWithBlock: [ | y |
+			y := arg2.
+			y := arg ]
+	 ].
+	
+	^ arg
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockReadingArgVariable: arg [
+
+	self basicMethodWithBlock: [ |x|.
+		x:=arg.
+		x].
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> simpleMethodWithBlockReadingOuterVariable [
 
 	| temp |
@@ -2200,6 +2236,28 @@ DruidTestInterpreter >> simpleMethodWithBlockWritingOuterVariable [
 	self basicMethodWithBlock: [
 		temp := 5.
 		temp.
+		].
+	
+	^ temp
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockWritingOuterVariable: arg [
+
+	| temp read|
+	temp:=0.
+	read:=5.
+	self basicMethodWithBlock: [ |x|
+		x := read.
+		temp := 5.
+		temp.
+		self basicMethodWithBlock: [
+		read:=1.
+		x:=0.
+		temp := 5.
+		temp.
+		].
 		].
 	
 	^ temp

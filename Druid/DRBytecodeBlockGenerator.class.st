@@ -26,31 +26,19 @@ DRBytecodeBlockGenerator >> compileBlockFrom: aDRControlFlowGraph withScope: aSc
 
 { #category : 'code-generation' }
 DRBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
-
-	| args temps temporariesList outerTemps |
 	
-	args := aDRControlFlowGraph argumentNames.
-	outerTemps := aDRControlFlowGraph vectorTemporaryVariableNames.
-	temps := aDRControlFlowGraph temporaryVariableNames difference: outerTemps. 
+	self handleTemporaryVariableFromCFG: aDRControlFlowGraph.
 	
-	args do: [ :arg| 
-		builder addTemp: arg ].
-	
-	outerTemps isNotEmpty ifTrue:[
-		builder addTemp: super vectorTempName].
-	
-	
-	temporariesList := args , temps.
-	temporariesList isNotEmpty ifTrue: [
-		builder createTempVectorNamed: self vectorTempName withVars: temporariesList.].
-	
-	args do: [ :arg | 
-		builder pushTemp: arg.
-		builder storeRemoteTemp: arg inVector: self vectorTempName.
-		builder popTop ].
-
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
 		self visitBlock: block ].
+	
+
+]
+
+{ #category : 'code-generation' }
+DRBytecodeBlockGenerator >> isResultInstruction: aDRInstruction [
+
+	^ aDRInstruction users isEmpty or: ([ aDRInstruction isStore and: [aDRInstruction users anySatisfy: [:i | i isReturn not]]])
 	
 
 ]

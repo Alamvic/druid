@@ -56,20 +56,6 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 					  self receiver.
 					  aRBAssignmentNode variable binding index asDRValue.
 					  value } ].
-				
-	aRBAssignmentNode variable binding originalVar isTempVectorTemp ifTrue: [
-		| result |
-		
-		result := self
-			          addInstructionWithNoResultFrom: aRBAssignmentNode
-			          instructionKind: DRStoreVectorTemporaryVariable
-			          operands: {
-					          aRBAssignmentNode variable name asDRValue.
-					          value }.
-					
-		self topFrame writeTemporaryNamed: aRBAssignmentNode variable name withValue: result.
-
-		^ result ].
 
 	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [
 		| result |
@@ -79,6 +65,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 			          operands: {
 					          aRBAssignmentNode variable name asDRValue. "Fix temporary names collisions"
 					          value }.
+		result vectorName: (self ir scope lookupVar: aRBAssignmentNode variable name).
 		self topFrame
 			temporaryAt: aRBAssignmentNode variable name
 			put: result
@@ -96,6 +83,12 @@ DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [
 	self pushFrameForCode: aDRMethod receiver: aReceiver.
 	aDRMethod executeOn: self.
 	^ self popFrame.
+]
+
+{ #category : 'initialization' }
+DRMethodIRGenerator >> newCFG [
+	
+	^ DRMethodControlFlowGraph new
 ]
 
 { #category : 'accessing' }
@@ -198,24 +191,22 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 	| loadArg |
 	
 	aRBVariableNode isTempVariable ifTrue: [
-		| store |
-		aRBVariableNode variable isEscaping ifFalse: [ "should use isCopying"
+		| store loadTemp|
+		aRBVariableNode variable isEscaping ifFalse: [ 
 			store := self topFrame
 				         temporaryAt: aRBVariableNode name
 				         withState: executionState.
-
-		^ self
+		].
+	
+		loadTemp := self
 			  addInstructionFrom: aRBVariableNode
 			  instructionKind: DRLoadTemporaryVariable
 			  operands: {
 					  aRBVariableNode name asDRValue.
-					  store } ].
-		^ self
-			  addInstructionFrom: aRBVariableNode
-			  instructionKind: DRLoadVectorTemporaryVariable 
-			  operands: {
-					  aRBVariableNode name asDRValue.
 					  store }.
+		
+		loadTemp vectorName: (self ir scope lookupVar: aRBVariableNode name).
+		 ^ loadTemp.
 	].
 	"Else, it is an argument"
 
@@ -224,5 +215,9 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 		           instructionKind: DRLoadArgument
 		           operands: { aRBVariableNode variable index asDRValue }.
 	loadArg argName: aRBVariableNode name.
+	
+	
+	loadArg vectorName: (self ir scope lookupVar: aRBVariableNode name).
+	 
 	^ loadArg
 ]
