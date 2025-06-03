@@ -162,7 +162,6 @@ DRIRGenerator >> blockClosureGenerator [
 
 	| blockGenerator |
 	blockGenerator := DRBlockIRGenerator new.
-	blockGenerator executionState: executionState copy.
 
 	^ blockGenerator
 ]
@@ -764,7 +763,6 @@ DRIRGenerator >> interpretBlockCode: aDRCode receiver: aReceiver [
 	self pushFrameForCode: aDRCode receiver: aReceiver.
 
 	aDRCode executeOn: self.
-	^ self popBlockFrame.
 ]
 
 { #category : 'special cases' }
