@@ -12,7 +12,12 @@ Class {
 { #category : 'accessing - primitives' }
 DRProductionPrimitiveCompilationTest class >> primitives [
 
-	^ { #primitiveAt}
+	 ^ { #primitiveAdd. #primitiveBitAnd. #primitiveAt. #primitiveAtPut.
+	   #primitiveClass. #primitiveAsFloat. #primitiveFloatAdd.
+	   #primitiveFloatDivide. #primitiveFloatEqual. #primitiveFloatMultiply.
+	   #primitiveFloatNotEqual. #primitiveFloatSubtract.
+	   #primitiveIdentityHash. #primitiveNew. #primitiveNewWithArg.
+	   #primitiveSize. #primitiveFullClosureValue }
 ]
 
 { #category : 'helpers-compiling' }
@@ -64,7 +69,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAsCharacter [
 { #category : 'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAsFloat [
 
-	self compileDruidPrimitive: #primitiveAsFloat.
+	self compileSelector: #primitiveAsFloat.
 
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 42).
 
@@ -294,10 +299,9 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtOnNonArray [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtPut [
 
 	| class array |
-	self timeLimit: (Duration minutes: 5).
 	cogit ceStoreCheckTrampoline: fakeTrampoline.
 
-	self compileDruidPrimitive: #primitiveAtPut.
+	self compileSelector: #primitiveAtPut.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -319,10 +323,9 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtPut [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtPutImmutable [
 
 	| class array |
-	self timeLimit: (Duration minutes: 5).
 	cogit ceStoreCheckTrampoline: fakeTrampoline.
 
-	self compileDruidPrimitive: #primitiveAtPut.
+	self compileSelector: #primitiveAtPut.
 
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
 	array := memory instantiateClass: class indexableSize: 1.
@@ -345,7 +348,6 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClass [
 		         newClassInOldSpaceWithSlots: 0
 		         instSpec: memory nonIndexablePointerFormat.
 	obj := memory instantiateClass: class.
-
 
 	self
 		compilePrimitive: #primitiveClass
@@ -397,7 +399,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveClassWithArg [
 { #category : 'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatAdd [
 
-	self compileDruidPrimitive: #primitiveFloatAdd.
+	self compileSelector: #primitiveFloatAdd.
 
 	self
 		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
@@ -427,7 +429,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatDivide [
 { #category : 'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatEqual [
 
-	self compileDruidPrimitive: #primitiveFloatEqual.
+	self compileSelector: #primitiveFloatEqual.
 
 	self
 		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
@@ -441,7 +443,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatEqual [
 { #category : 'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatEqualFalse [
 
-	self compileDruidPrimitive: #primitiveFloatEqual.
+	self compileSelector: #primitiveFloatEqual.
 
 	self
 		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
@@ -455,7 +457,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatEqualFalse [
 { #category : 'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatMultiply [
 
-	self compileDruidPrimitive: #primitiveFloatMultiply.
+	self compileSelector: #primitiveFloatMultiply.
 
 	self
 		executePrimitiveWithReceiver: (memory floatObjectOf: 3.0)
@@ -469,7 +471,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatMultiply [
 { #category : 'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatNotEqual [
 
-	self compileDruidPrimitive: #primitiveFloatNotEqual.
+	self compileSelector: #primitiveFloatNotEqual.
 
 	self
 		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
@@ -483,7 +485,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatNotEqual [
 { #category : 'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatNotEqualFalse [
 
-	self compileDruidPrimitive: #primitiveFloatNotEqual.
+	self compileSelector: #primitiveFloatNotEqual.
 
 	self
 		executePrimitiveWithReceiver: (memory floatObjectOf: 1.0)
@@ -497,7 +499,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatNotEqualFalse [
 { #category : 'tests-floats' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveFloatSubtract [
 
-	self compileDruidPrimitive: #primitiveFloatSubtract.
+	self compileSelector: #primitiveFloatSubtract.
 
 	self
 		executePrimitiveWithReceiver: (memory floatObjectOf: 3.0)
@@ -514,7 +516,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveIdentityHash [
 	| hash |
 	cogit ceNewHashTrampoline: fakeTrampoline.
 
-	self compileDruidPrimitive: #primitiveIdentityHash.
+	self compileSelector: #primitiveIdentityHash.
 
 	obj := self newObjectWithSlots: 0.
 
@@ -545,7 +547,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveImmediateAsInteger [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewFailingForLongSlotsObjects [
 
 	| class |
-	self compileDruidPrimitive: #primitiveNew.
+	self compileSelector: #primitiveNew.
 
 	class := class := self
 		                  newClassInOldSpaceWithSlots: 256
@@ -559,7 +561,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewFailingForLongSlo
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInitializesInstance [
 
 	| class |
-	self compileDruidPrimitive: #primitiveNew.
+	self compileSelector: #primitiveNew.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 4
@@ -579,7 +581,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInitializesInstan
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInstantiatesClass [
 
 	| class |
-	self compileDruidPrimitive: #primitiveNew.
+	self compileSelector: #primitiveNew.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 4
@@ -597,7 +599,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewInstantiatesClass
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewMoveStartFreeSpace [
 
 	| class freeStart newObjectSize |
-	self compileDruidPrimitive: #primitiveNew.
+	self compileSelector: #primitiveNew.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 4
@@ -615,8 +617,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveNewMoveStartFreeSpac
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeArray [
 
 	| class array size |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveSize.
+	self compileSelector: #primitiveSize.
 
 	size := 7.
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
@@ -631,8 +632,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeArray [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeArrayExtended [
 
 	| class array size |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveSize.
+	self compileSelector: #primitiveSize.
 
 	size := 256.
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory arrayFormat.
@@ -669,8 +669,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeAsParameter [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArray [
 
 	| class array size |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveSize.
+	self compileSelector: #primitiveSize.
 
 	size := 256.
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory firstByteFormat.
@@ -685,8 +684,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArray [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArrayPadding0 [
 
 	| class array size |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveSize.
+	self compileSelector: #primitiveSize.
 
 	size := 8.
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory firstByteFormat.
@@ -701,8 +699,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArrayPadding
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArrayPadding1 [
 
 	| class array size |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveSize.
+	self compileSelector: #primitiveSize.
 
 	size := 7.
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory firstByteFormat.
@@ -717,8 +714,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArrayPadding
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArrayPadding7 [
 
 	| class array size |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveSize.
+	self compileSelector: #primitiveSize.
 
 	size := 1.
 	class := self newClassInOldSpaceWithSlots: 0 instSpec: memory firstByteFormat.
@@ -733,8 +729,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeByteArrayPadding
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeIndexableObject [
 
 	| class array size |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveSize.
+	self compileSelector: #primitiveSize.
 
 	size := 7.
 	class := self newClassInOldSpaceWithSlots: 2 instSpec: memory indexablePointersFormat.
@@ -749,7 +744,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeIndexableObject 
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeNonIndexable [
 
 	| class |
-	self compileDruidPrimitive: #primitiveSize.
+	self compileSelector: #primitiveSize.
 
 	class := self newClassInOldSpaceWithSlots: 2 instSpec: memory nonIndexablePointerFormat.
 	obj := memory instantiateClass: class.
@@ -761,8 +756,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeNonIndexable [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeWeakArray [
 
 	| class array size |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveSize.
+	self compileSelector: #primitiveSize.
 
 	size := 7.
 	class := self newClassInOldSpaceWithSlots: 2 instSpec: memory weakArrayFormat.
@@ -777,8 +771,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveSizeWeakArray [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesArray [
 
 	| class |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveNewWithArg.
+	self compileSelector: #primitiveNewWithArg.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -800,8 +793,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesByteArray [
 
 	| class |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveNewWithArg.
+	self compileSelector: #primitiveNewWithArg.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -823,8 +815,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesInteger16Array [
 
 	| class |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveNewWithArg.
+	self compileSelector: #primitiveNewWithArg.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -846,8 +837,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesInteger32Array [
 
 	| class |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveNewWithArg.
+	self compileSelector: #primitiveNewWithArg.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -869,8 +859,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitializesInteger64Array [
 
 	| class |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveNewWithArg.
+	self compileSelector: #primitiveNewWithArg.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -892,8 +881,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInitialize
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesArray [
 
 	| class |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveNewWithArg.
+	self compileSelector: #primitiveNewWithArg.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 4
@@ -913,8 +901,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesByteArray [
 
 	| class |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveNewWithArg.
+	self compileSelector: #primitiveNewWithArg.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -934,8 +921,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesInteger16Array [
 
 	| class |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveNewWithArg.
+	self compileSelector: #primitiveNewWithArg.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -955,8 +941,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesInteger32Array [
 
 	| class |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveNewWithArg.
+	self compileSelector: #primitiveNewWithArg.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -976,8 +961,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiat
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveWithArgNewInstantiatesInteger64Array [
 
 	| class |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveNewWithArg.
+	self compileSelector: #primitiveNewWithArg.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -1033,11 +1017,15 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveAdd [
 
 	cogit receiverTags: memory smallIntegerTag.
 
-	self compileDruidPrimitive: #primitiveAdd.
+	self compileSelector: #primitiveAdd.
 
-	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 10 }.
-	
-	self assert: machineSimulator receiverRegisterValue equals: (memory integerObjectOf: 52)
+	self
+		executePrimitiveWithReceiver: (memory integerObjectOf: 42)
+		withArguments: { (memory integerObjectOf: 10) }.
+
+	self
+		assert: machineSimulator receiverRegisterValue
+		equals: (memory integerObjectOf: 52)
 ]
 
 { #category : 'tests-arithmetic-smallIntegers' }
@@ -1045,7 +1033,7 @@ DRProductionPrimitiveCompilationTest >> testPrimitiveBitAnd [
 
 	cogit receiverTags: memory smallIntegerTag.
 
-	self compileDruidPrimitive: #primitiveBitAnd.
+	self compileSelector: #primitiveBitAnd.
 
 	self executePrimitiveWithReceiver: (memory integerObjectOf: 42) withArguments: { memory integerObjectOf: 11 }.
 	
