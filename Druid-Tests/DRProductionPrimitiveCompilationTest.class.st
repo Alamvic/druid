@@ -12,12 +12,12 @@ Class {
 { #category : 'accessing - primitives' }
 DRProductionPrimitiveCompilationTest class >> primitives [
 
-	 ^ { #primitiveAdd. #primitiveBitAnd. #primitiveAt. #primitiveAtPut.
-	   #primitiveClass. #primitiveAsFloat. #primitiveFloatAdd.
-	   #primitiveFloatDivide. #primitiveFloatEqual. #primitiveFloatMultiply.
-	   #primitiveFloatNotEqual. #primitiveFloatSubtract.
-	   #primitiveIdentityHash. #primitiveNew. #primitiveNewWithArg.
-	   #primitiveSize. #primitiveFullClosureValue }
+	^ { #primitiveAdd. #primitiveBitAnd. #primitiveAt. #primitiveAtPut.
+	  #primitiveClass. #primitiveAsFloat. #primitiveAsCharacter.
+	  #primitiveFloatAdd. #primitiveFloatDivide. #primitiveFloatEqual.
+	  #primitiveFloatMultiply. #primitiveFloatNotEqual.
+	  #primitiveFloatSubtract. #primitiveIdentityHash.
+	  #primitiveNew. #primitiveNewWithArg. #primitiveSize. #primitiveFullClosureValue }
 ]
 
 { #category : 'helpers-compiling' }
