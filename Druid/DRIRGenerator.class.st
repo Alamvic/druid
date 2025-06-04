@@ -2062,6 +2062,7 @@ DRIRGenerator >> visitBlockNode: aRBBlockNode [
 		              node: aRBBlockNode;
 		              id: self ir scope id + 1;
 		              outerScope: self ir scope;
+		              addCopiedVarsFromOuterScope: self ir scope;
 		              yourself.
 	irBlockGenerator ir scope: blockScope.
 
@@ -2219,7 +2220,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitSelfNode: aRBVariableNode [ 
 	
-	self pushOperand: self receiver "(self topFrame receiverWithState: executionState)"
+	self pushOperand: self receiver
 ]
 
 { #category : 'visiting' }

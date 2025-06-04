@@ -18,6 +18,16 @@ Class {
 	#tag : 'IR'
 }
 
+{ #category : 'adding' }
+DRScope >> addCopiedVarsFromOuterScope: aDRScope [
+	"pass vectorTemps of outer Scope to the actual one"
+	
+	aDRScope tempVectorVarNames isNotEmpty ifTrue: [ 
+		 copiedVars at: aDRScope tempVectorName put: aDRScope tempVectorName ].
+		
+	aDRScope copiedVarNames do: [ :var | copiedVars at: var put: var ]
+]
+
 { #category : 'accessing' }
 DRScope >> addTemps: aCollection [
 
@@ -82,7 +92,7 @@ DRScope >> lookupVar: name [
 	vectorName := outerScope
 		              ifNotNil: [ :os | os lookupVar: name ]
 		              ifNil: [ self error: 'Not explored' ].
-	copiedVars at: vectorName put: vectorName.
+	"copiedVars at: vectorName put: vectorName."
 	
 	^ vectorName
 ]
@@ -131,8 +141,8 @@ DRScope >> outerScope [
 
 { #category : 'accessing' }
 DRScope >> outerScope: aScope [
-
-	outerScope := aScope
+	
+	outerScope := aScope.
 ]
 
 { #category : 'accessing' }

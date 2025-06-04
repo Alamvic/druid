@@ -536,6 +536,83 @@ DRBytecodeGeneratorTest >> testMethodWithBlockLocalAndNonLocalReturn [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadAndWrite [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadAndWrite fromClass: DruidTestInterpreter arguments: { }.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadAndWriteWithArg [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadAndWriteWithArg: fromClass: DruidTestInterpreter arguments: { 5 }.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterArg: fromClass: DruidTestInterpreter arguments: {1}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg2 [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterArg2: fromClass: DruidTestInterpreter arguments: {1}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterTemp [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterTemp fromClass: DruidTestInterpreter arguments: {}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterTemp2 [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterTemp2 fromClass: DruidTestInterpreter arguments: {}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2Simple [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2Simple fromClass: DruidTestInterpreter arguments: {}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2WithArg [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2WithArg fromClass: DruidTestInterpreter arguments: { }.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2WithArg2 [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2WithArg2 fromClass: DruidTestInterpreter arguments: { }.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2WritingOuterTemp [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2WritingOuterTemp fromClass: DruidTestInterpreter arguments: {}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2WritingOuterTemp2 [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2WritingOuterTemp2 fromClass: DruidTestInterpreter arguments: {}.
+	
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNonLocalReturn [
 	
 	self assertCompilationNoInlineFor: #methodBlockNonLocalReturn fromClass: DruidTestInterpreter arguments: { }.

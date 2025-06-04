@@ -140,31 +140,6 @@ DRBytecodeGenerator >> targetAST [
 	^ method
 ]
 
-{ #category : 'accessing' }
-DRBytecodeGenerator >> vectorTempIndex [
-
-	^ vectorTempIndex ifNil: [ ^ 0 ]
-]
-
-{ #category : 'accessing' }
-DRBytecodeGenerator >> vectorTempIndex: anInteger [
-
-	vectorTempIndex := anInteger
-]
-
-{ #category : 'accessing' }
-DRBytecodeGenerator >> vectorTempName [
-
-	"hardcoded for now, name comes from the default scope, and we use it for now"
-	^ '0vector0' ", self vectorTempIndex asString"
-]
-
-{ #category : 'visiting' }
-DRBytecodeGenerator >> vectorTempNameFromTempVar: aTemporaryVariable [
-
-	^ self vectorTempName 
-]
-
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitAddition: aDRAdd [
 
