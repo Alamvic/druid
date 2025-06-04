@@ -51,3 +51,9 @@ DRClosureStackFrame >> receiverWithState: aState [
 
 	^ (self homeFrameWithState: aState) receiver
 ]
+
+{ #category : 'instance creation' }
+DRClosureStackFrame >> temporaryAt: aName put: aValue withState: aState [
+
+	self  writeTemporaryNamed: aName withValue: aValue
+]

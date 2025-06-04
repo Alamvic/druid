@@ -1,6 +1,9 @@
 Class {
 	#name : 'DRLoadTemporaryVariable',
 	#superclass : 'DRInstruction',
+	#instVars : [
+		'vectorName'
+	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
 	#tag : 'IR'
@@ -30,12 +33,6 @@ DRLoadTemporaryVariable >> isLoadTemporaryVariable [
 	^ true
 ]
 
-{ #category : 'testing' }
-DRLoadTemporaryVariable >> isTempVectorTemp [
-	
-	^ false
-]
-
 { #category : 'printing' }
 DRLoadTemporaryVariable >> opcode [
 	
@@ -52,4 +49,16 @@ DRLoadTemporaryVariable >> sccpLatticeValueFor: sccp [
 DRLoadTemporaryVariable >> type [
 
 	^ DRUndefinedType new
+]
+
+{ #category : 'accessing' }
+DRLoadTemporaryVariable >> vectorName [
+
+	^ vectorName
+]
+
+{ #category : 'accessing' }
+DRLoadTemporaryVariable >> vectorName: anObject [
+
+	vectorName := anObject
 ]

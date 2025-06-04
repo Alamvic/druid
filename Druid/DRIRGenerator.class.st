@@ -162,7 +162,6 @@ DRIRGenerator >> blockClosureGenerator [
 
 	| blockGenerator |
 	blockGenerator := DRBlockIRGenerator new.
-	blockGenerator executionState: executionState copy.
 
 	^ blockGenerator
 ]
@@ -187,6 +186,7 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 DRIRGenerator >> buildIfTrue: aCondition then: aBuildingBlock [
 
 	| conditionalJump executionStateBeforeBranch trueBranchBasicBlockOut startingBasicBlock |
+	
 	conditionalJump := self
 		                   instantiateNoResultInstruction:
 		                   DRBranchIfCondition
@@ -763,7 +763,6 @@ DRIRGenerator >> interpretBlockCode: aDRCode receiver: aReceiver [
 	self pushFrameForCode: aDRCode receiver: aReceiver.
 
 	aDRCode executeOn: self.
-	^ self popBlockFrame.
 ]
 
 { #category : 'special cases' }
@@ -2052,9 +2051,24 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 
+	| irBlockGenerator blockScope |
+	
+	irBlockGenerator := self blockClosureGenerator.
+	blockScope := DRScope new
+		              numArgs: aRBBlockNode arguments size;
+		              argumentNames: aRBBlockNode argumentNames;
+		              addTemps: aRBBlockNode temporaryNames;
+		              opalScope: aRBBlockNode scope;
+		              node: aRBBlockNode;
+		              id: self ir scope id + 1;
+		              outerScope: self ir scope;
+		              addCopiedVarsFromOuterScope: self ir scope;
+		              yourself.
+	irBlockGenerator ir scope: blockScope.
+
 	self pushOperand: (DRBlockClosure new
 			 blockNode: aRBBlockNode;
-			 irGenerator: self blockClosureGenerator;
+			 irGenerator: irBlockGenerator;
 			 outerContext: self topFrame;
 			 yourself)
 ]
@@ -2124,9 +2138,9 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 { #category : 'visiting' }
 DRIRGenerator >> visitMethodNode: aRBMethodNode [
 
+	| methodScope |
 	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [
 		^ self interpretDruidExitPointWith: aRBMethodNode ].
-
 
 	(aRBMethodNode hasPragmaNamed: #doNotGenerate) ifTrue: [
 		(aRBMethodNode hasPragmaNamed: #druidNotIgnore) ifFalse: [ 1 halt ] ].
@@ -2148,6 +2162,16 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 					executionState copy.
 					(self addFrameReturn: self topFrame) }.
 			^ self ].
+
+	
+	methodScope := DRScope new
+		               numArgs: aRBMethodNode arguments size;
+		               argumentNames: aRBMethodNode argumentNames ;
+		               addTemps: aRBMethodNode temporaryNames;
+		               opalScope: aRBMethodNode scope;
+		               node: aRBMethodNode;
+		               yourself.
+	self ir scope: methodScope.
 
 	aRBMethodNode statements do: [ :each |
 		self assert: self topFrame operandStack isEmpty.
@@ -2196,7 +2220,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitSelfNode: aRBVariableNode [ 
 	
-	self pushOperand: self receiver "(self topFrame receiverWithState: executionState)"
+	self pushOperand: self receiver
 ]
 
 { #category : 'visiting' }

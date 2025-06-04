@@ -1,6 +1,9 @@
 Class {
 	#name : 'DRStoreTemporaryVariable',
 	#superclass : 'DRInstruction',
+	#instVars : [
+		'vectorName'
+	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
 	#tag : 'IR'
@@ -36,12 +39,6 @@ DRStoreTemporaryVariable >> isStoreTemporaryVariable [
 	^ true
 ]
 
-{ #category : 'testing' }
-DRStoreTemporaryVariable >> isTempVectorTemp [ 
-
-	^ false
-]
-
 { #category : 'printing' }
 DRStoreTemporaryVariable >> opcode [
 	
@@ -58,4 +55,16 @@ DRStoreTemporaryVariable >> sccpLatticeValueFor: sccp [
 DRStoreTemporaryVariable >> variableName [
 
 	^ self operand1 value
+]
+
+{ #category : 'accessing' }
+DRStoreTemporaryVariable >> vectorName [
+
+	^ vectorName
+]
+
+{ #category : 'accessing' }
+DRStoreTemporaryVariable >> vectorName: anObject [
+
+	vectorName := anObject
 ]

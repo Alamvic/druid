@@ -1,10 +1,10 @@
 Extension { #name : 'Collection' }
 
 { #category : '*Druid-Tests' }
-Collection >> badCount [
+Collection >> slowCount [
 
 	| r |
 	r := 0.
-	self do: [ r := r + 1 ].
+	self do: [ :each | r := r + 1 ].
 	^ r 
 ]

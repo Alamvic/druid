@@ -61,6 +61,14 @@ DRPhiFunction >> canMoveOutsideLoop: backJump [
 	^ false
 ]
 
+{ #category : 'transforming' }
+DRPhiFunction >> clearNullOperands [
+
+	| notNilOperands |
+	notNilOperands := operands reject: [ :o | o isNullValue ].
+	operands := notNilOperands
+]
+
 { #category : 'accessing' }
 DRPhiFunction >> conditionalBranch [
 
