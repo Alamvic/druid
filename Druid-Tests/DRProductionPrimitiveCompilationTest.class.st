@@ -9,6 +9,12 @@ Class {
 	#package : 'Druid-Tests'
 }
 
+{ #category : 'accessing - primitives' }
+DRProductionPrimitiveCompilationTest class >> primitives [
+
+	^ { #primitiveAt}
+]
+
 { #category : 'helpers-compiling' }
 DRProductionPrimitiveCompilationTest >> buildCompiledBlock: aFullBlockClosure [
 
@@ -69,8 +75,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAsFloat [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAt [
 
 	| class array |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveAt.
+	self compileSelector: #primitiveAt.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -89,8 +94,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAt [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArrayPadding1 [
 
 	| array |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveAt.
+	self compileSelector: #primitiveAt.
 
 	array := self new8BitIndexableOfSize: 7.
 	memory storeByte: 6 ofObject: array withValue: 42.
@@ -108,8 +112,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArrayPadding1 
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArrayPadding5 [
 
 	| array |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveAt.
+	self compileSelector: #primitiveAt.
 
 	array := self new8BitIndexableOfSize: 2.
 	memory storeByte: 0 ofObject: array withValue: 42.
@@ -127,8 +130,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArrayPadding5 
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArrayPadding6 [
 
 	| array index |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveAt.
+	self compileSelector: #primitiveAt.
 
 	index := 2.
 	array := self new8BitIndexableOfSize: 2.
@@ -147,8 +149,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArrayPadding6 
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArrayPadding7 [
 
 	| array |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveAt.
+	self compileSelector: #primitiveAt.
 
 	array := self new8BitIndexableOfSize: 1.
 	memory storeByte: 0 ofObject: array withValue: 42.
@@ -166,8 +167,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtByteArrayPadding7 
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtContext [
 
 	| context |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveAt.
+	self compileSelector: #primitiveAt.
 
 	context := memory
 		           allocateSlots: SmallContextSlots
@@ -183,8 +183,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtContext [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithNegativeIndex [
 
 	| class array |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveAt.
+	self compileSelector: #primitiveAt.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -200,8 +199,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithNegati
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithOverflowIndex [
 
 	| class array |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveAt.
+	self compileSelector: #primitiveAt.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -217,8 +215,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithOverfl
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithZeroIndex [
 
 	| class array |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveAt.
+	self compileSelector: #primitiveAt.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -233,11 +230,6 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtFaillingWithZeroIn
 { #category : 'tests-object-access' }
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtIsNotCompletePrimitive [
 
-	self timeLimit: (Duration minutes: 2).
-	self
-		compileDruidPrimitiveGenerator: #primitiveAt
-		with: [ :c | "nothing" ].
-
 	self
 		compile: [ self assert: cogit gen_primitiveAt equals: 0 ]
 		bytecodes: 100
@@ -247,8 +239,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtIsNotCompletePrimi
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtManyElements [
 
 	| class array |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveAt.
+	self compileSelector: #primitiveAt.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0
@@ -268,8 +259,7 @@ DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtManyElements [
 DRProductionPrimitiveCompilationTest >> testCompilePrimitiveAtMethod [
 
 	| class method |
-	self timeLimit: (Duration minutes: 2).
-	self compileDruidPrimitive: #primitiveAt.
+	self compileSelector: #primitiveAt.
 
 	class := self
 		         newClassInOldSpaceWithSlots: 0

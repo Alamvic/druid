@@ -8,6 +8,18 @@ Class {
 	#package : 'Druid-Tests'
 }
 
+{ #category : 'accessing - primitives' }
+DRPrimitiveCompilationTest class >> primitives [
+
+	^ self subclasses flatCollect: #primitives
+]
+
+{ #category : 'accessing' }
+DRPrimitiveCompilationTest class >> resources [
+
+	^Array with: DRPrimitiveCompilationTestResource
+]
+
 { #category : 'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileCogitSelector: aSelector numArgs: argumentCount [
 
@@ -112,6 +124,16 @@ DRPrimitiveCompilationTest >> compilePrimitive: primitiveSelector ForSendReceive
 		numArgs: arguments size.
 
 	self prepareStackForSendReceiver: receiver arguments: arguments
+]
+
+{ #category : 'compiling' }
+DRPrimitiveCompilationTest >> compileSelector: primitiveSelector [
+
+	 | generatorSelector method numArgs |
+	 generatorSelector := ('gen_' , primitiveSelector) asSymbol.
+	 method := self interpreterClass lookupSelector: primitiveSelector.
+	 numArgs := (method pragmaAt: #numberOfArguments:) arguments unique.
+	 self compileCogitSelector: generatorSelector numArgs: numArgs
 ]
 
 { #category : 'helpers - execution' }

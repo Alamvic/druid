@@ -48,6 +48,20 @@ DRBytecodeCompilationTestResource class >> resetMode [
 	mode := nil
 ]
 
+{ #category : 'helpers' }
+DRBytecodeCompilationTestResource >> compile [
+
+	 self class mode
+		 ifNil: [ self compileAll ]
+		 ifNotNil: [ :descriptor | self compileDescriptor: descriptor ]
+]
+
+{ #category : 'helpers' }
+DRBytecodeCompilationTestResource >> compileAll [
+
+	 self compileAllBytecodeForTesting
+]
+
 { #category : 'compiling' }
 DRBytecodeCompilationTestResource >> compileAllBytecodeForTesting [
 
@@ -85,6 +99,12 @@ DRBytecodeCompilationTestResource >> compileBytecode: descriptor [
 		                 addCompilerOptions: options.
 
 	 metacompiler compile
+]
+
+{ #category : 'helpers' }
+DRBytecodeCompilationTestResource >> compileDescriptor: descriptor [
+
+	 self compileBytecode: descriptor
 ]
 
 { #category : 'accessing' }
@@ -136,9 +156,7 @@ DRBytecodeCompilationTestResource >> setUp [
 
 	 "Compile..."
 	 self configureInterpreter.
-	 self class mode
-		 ifNil: [ self compileAllBytecodeForTesting ]
-		 ifNotNil: [ :descriptor | self compileBytecode: descriptor ].
+	 self compile.
 
 	 "On CI, we want to execute this setUp only once"
 	 self onPharoCITestingEnvironment ifTrue: [ self class modeNone ]
