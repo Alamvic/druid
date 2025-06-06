@@ -541,6 +541,19 @@ DRInstruction >> previousInstruction [
 ]
 
 { #category : 'printing' }
+DRInstruction >> printIR [
+
+	^ self result prettyPrint , ' := ' , self opcode , '('
+	  , self printIROperands , ')'
+]
+
+{ #category : 'printing' }
+DRInstruction >> printIROperands [
+
+	^ ', ' join: (self operands collect: [ :op | op result prettyPrint ])
+]
+
+{ #category : 'printing' }
 DRInstruction >> printOn: aStream [
 
 	super printOn: aStream.

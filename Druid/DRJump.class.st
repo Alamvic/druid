@@ -148,6 +148,12 @@ DRJump >> prettyPrint [
 	^ 'Jump -> ', target id asString
 ]
 
+{ #category : 'printing' }
+DRJump >> printIROperands [
+
+	^ ('b' , self target id asString)
+]
+
 { #category : 'replacing' }
 DRJump >> replaceTarget: previousTarget by: newTarget [
 	
