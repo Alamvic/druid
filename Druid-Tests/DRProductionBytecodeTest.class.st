@@ -994,19 +994,26 @@ DRProductionBytecodeTest >> testBytecodePushReceiverDoesNotOverridePreviousPush 
 
 	cogit methodObj: method.
 
-	cogit methodOrBlockNumArgs: 1.
-	cogit methodOrBlockNumTemps: 1.
-	cogit initSimStackForFramefulMethod: 2.
+	"Push temporary 0 -- aka first argument if there are arguments"
+	self doCompileBytecode: 64 selector: #pushTemporaryVariableBytecode.
 
-	self compileBytecode: [
-		"Push temporary 0 -- aka first argument if there are arguments"
-		self compileBytecodeSelector: #pushTemporaryVariableBytecode.
+	self compileBytecode: 76 selector: #pushReceiverBytecode thenDo: [ :generator |
+			cogit methodOrBlockNumArgs: 1.
+			cogit methodOrBlockNumTemps: 1.
+			cogit initSimStackForFramefulMethod: 2.
+
+			"Push argument 0"
+			cogit gen_pushTemporaryVariableBytecode.
+
+			"Push the temp, then pop it"
+			generator value.
+			cogit ssPopTopToReg: (cogit allocateRegNotConflictingWith: 0).
+	
+			"Pop the value pushed by the first bytecode"
+			cogit ssPopTopToReg: ReceiverResultReg.
 		
-		"Push receiver, then pop it"
-		self compileBytecodeSelector: #pushReceiverBytecode.
-		cogit ssPopTopToReg: (cogit allocateRegNotConflictingWith: 0).
-		
-		cogit genReturnTopFromMethod ].
+			"Return the top of the stack which is the receiver"
+			cogit genUpArrowReturn ].
 
 	self
 		executeMethodWithReceiver: memory nilObject

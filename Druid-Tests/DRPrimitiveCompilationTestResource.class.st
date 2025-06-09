@@ -5,6 +5,15 @@ Class {
 	#package : 'Druid-Tests'
 }
 
+{ #category : 'accessing' }
+DRPrimitiveCompilationTestResource class >> modeDev [
+	"Replace for the bytecode that you are testing"
+
+	<script>
+	mode := #primitiveAdd.
+	self new setUp
+]
+
 { #category : 'helpers' }
 DRPrimitiveCompilationTestResource >> compileAll [
 
@@ -30,7 +39,7 @@ DRPrimitiveCompilationTestResource >> compileAllPrimitivesForTesting [
 { #category : 'helpers' }
 DRPrimitiveCompilationTestResource >> compileDescriptor: descriptor [
 
-	 self compilePrimitive: descriptor
+	self compilePrimitive: descriptor with: DRPrimitiveCompilationTest cogitStyleParameter expandMatrix first 
 ]
 
 { #category : 'compiling' }
