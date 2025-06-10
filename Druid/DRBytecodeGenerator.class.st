@@ -13,18 +13,9 @@ Class {
 }
 
 { #category : 'API' }
-DRBytecodeGenerator >> createTempVector: temporariesList [
-	
-	temporariesList isNotEmpty ifTrue: [
-		builder createTempVectorNamed: self vectorTempName withVars: temporariesList.]
-	
-]
-
-{ #category : 'API' }
 DRBytecodeGenerator >> createTempVector: temporariesList vectorName: vectorName [
 	
-	temporariesList isNotEmpty ifTrue: [
-		builder createTempVectorNamed: vectorName withVars: temporariesList.]
+	builder createTempVectorNamed: vectorName withVars: temporariesList.
 	
 ]
 
@@ -55,7 +46,7 @@ DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: 
 { #category : 'API' }
 DRBytecodeGenerator >> handleTemporaryVariableFromCFG: aDRControlFlowGraph [
 
-	| args temps copiedTemps aDRScope |
+	| args temps copiedTemps allTemps aDRScope |
 	
 	aDRScope := aDRControlFlowGraph scope.
 	
@@ -69,7 +60,11 @@ DRBytecodeGenerator >> handleTemporaryVariableFromCFG: aDRControlFlowGraph [
 	copiedTemps do: [ :tmp| 
 		builder addTemp: tmp ].
 	
-	self createTempVector: args , copiedTemps , temps vectorName: aDRScope tempVectorName.
+	allTemps := args , copiedTemps , temps.
+	
+	allTemps isNotEmpty ifTrue: [ 
+		self createTempVector: allTemps vectorName: aDRScope tempVectorName.
+		 ].
 	
 	args do: [ :arg | 
 		builder pushTemp: arg.
