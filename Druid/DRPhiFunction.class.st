@@ -173,9 +173,12 @@ DRPhiFunction >> predecessorAtOperand: anOperand [
 { #category : 'transforming' }
 DRPhiFunction >> replaceByCopy [
 
-	self assert: self operands size = 1.
+	| filteredOperands |
+	
+	filteredOperands := operands reject: [ :op | op isNullValue ].
+	self assert: filteredOperands size = 1.
 
-	self replaceBy: (DRCopy operands: operands result: result)
+	self replaceBy: (DRCopy operands: filteredOperands result: result)
 ]
 
 { #category : 'users-definitions' }

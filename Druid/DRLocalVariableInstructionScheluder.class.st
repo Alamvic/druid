@@ -18,9 +18,10 @@ DRLocalVariableInstructionScheluder >> applyTo: cfg [
 DRLocalVariableInstructionScheluder >> replacePhisByStores: aDRControlFlowGraph [
 	"when we replace phi by store/temp.
 	We should add the created temps to the scope"
+	
 	aDRControlFlowGraph phiFunctions do: [ :phi |
-		phi clearNullOperands.
-		phi operands size = 1
+		
+		(phi operands reject:[ :op | op isNullValue ]) size = 1
 			ifTrue: [ phi replaceByCopy ]
 			ifFalse: [ self storePhiOperands: phi ] ]
 ]
