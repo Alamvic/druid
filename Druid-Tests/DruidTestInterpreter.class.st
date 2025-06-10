@@ -2297,13 +2297,10 @@ DruidTestInterpreter >> simpleMethodWith1Arg: argument1 arg2: argument2 [
 { #category : 'as yet unclassified' }
 DruidTestInterpreter >> simpleMethodWithBlock [
 
-	| temp |
-	temp:=0.
-	self basicMethodWithBlock: [ | x | 
+	^ self basicMethodWithBlock: [ | x | 
 		x:=5.
 		x].
 	
-	^ temp
 	
 ]
 

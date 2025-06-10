@@ -23,15 +23,35 @@ DRScope >> addCopiedVarsFromOuterScope: aDRScope [
 	"pass vectorTemps of outer Scope to the actual one"
 	
 	aDRScope tempVectorVarNames isNotEmpty ifTrue: [ 
-		 copiedVars at: aDRScope tempVectorName put: aDRScope tempVectorName ].
+		 copiedVars at: aDRScope tempVectorName put: aDRScope tempVectorVarNames ].
 		
-	aDRScope copiedVarNames do: [ :var | copiedVars at: var put: var ]
+	aDRScope copiedVars keysAndValuesDo: [ :k :v | copiedVars at: k put: v ]
 ]
 
 { #category : 'accessing' }
 DRScope >> addTemps: aCollection [
 
 	tempVector addAll: aCollection.
+]
+
+{ #category : 'as yet unclassified' }
+DRScope >> allLocalTemps [
+	
+	^ argumentNames , self copiedVarNames , { self tempVectorName }
+]
+
+{ #category : 'as yet unclassified' }
+DRScope >> allLocalVectorTemps [
+	
+	^ argumentNames , self copiedVarNames , self tempVarNames
+]
+
+{ #category : 'as yet unclassified' }
+DRScope >> allVectorTemp [
+	| copy |
+	copy := copiedVars copy.
+	copy add: (self tempVectorName -> self allLocalVectorTemps).
+	^ copy
 ]
 
 { #category : 'accessing' }
@@ -48,9 +68,20 @@ DRScope >> argumentNames: anObject [
 
 { #category : 'accessing' }
 DRScope >> copiedVarNames [ 
-	"the name of the tempVector is not a valid name of a temp variable
-	 This way we avoid name clashes "
-	^ copiedVars values 
+	
+	^ copiedVars keys
+]
+
+{ #category : 'accessing' }
+DRScope >> copiedVars [
+
+	^ copiedVars
+]
+
+{ #category : 'accessing' }
+DRScope >> copiedVars: anObject [
+
+	copiedVars := anObject
 ]
 
 { #category : 'accessing' }

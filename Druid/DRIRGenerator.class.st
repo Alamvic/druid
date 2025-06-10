@@ -2051,20 +2051,9 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 
-	| irBlockGenerator blockScope |
+	| irBlockGenerator |
 	
 	irBlockGenerator := self blockClosureGenerator.
-	blockScope := DRScope new
-		              numArgs: aRBBlockNode arguments size;
-		              argumentNames: aRBBlockNode argumentNames;
-		              addTemps: aRBBlockNode temporaryNames;
-		              opalScope: aRBBlockNode scope;
-		              node: aRBBlockNode;
-		              id: self ir scope id + 1;
-		              outerScope: self ir scope;
-		              addCopiedVarsFromOuterScope: self ir scope;
-		              yourself.
-	irBlockGenerator ir scope: blockScope.
 
 	self pushOperand: (DRBlockClosure new
 			 blockNode: aRBBlockNode;
@@ -2138,7 +2127,6 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode receiver: receiver [
 { #category : 'visiting' }
 DRIRGenerator >> visitMethodNode: aRBMethodNode [
 
-	| methodScope |
 	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [
 		^ self interpretDruidExitPointWith: aRBMethodNode ].
 
@@ -2162,16 +2150,6 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 					executionState copy.
 					(self addFrameReturn: self topFrame) }.
 			^ self ].
-
-	
-	methodScope := DRScope new
-		               numArgs: aRBMethodNode arguments size;
-		               argumentNames: aRBMethodNode argumentNames ;
-		               addTemps: aRBMethodNode temporaryNames;
-		               opalScope: aRBMethodNode scope;
-		               node: aRBMethodNode;
-		               yourself.
-	self ir scope: methodScope.
 
 	aRBMethodNode statements do: [ :each |
 		self assert: self topFrame operandStack isEmpty.

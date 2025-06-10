@@ -169,6 +169,31 @@ DRMethodIRGenerator >> typeSystem: aDRTypeSystem [
 ]
 
 { #category : 'visiting' }
+DRMethodIRGenerator >> visitBlockNode: aRBBlockNode [
+
+	| irBlockGenerator blockScope |
+	
+	irBlockGenerator := self blockClosureGenerator.
+	blockScope := DRScope new
+		              numArgs: aRBBlockNode arguments size;
+		              argumentNames: aRBBlockNode argumentNames;
+		              addTemps: aRBBlockNode temporaryNames;
+		              opalScope: aRBBlockNode scope;
+		              node: aRBBlockNode;
+		              id: self ir scope id + 1;
+		              outerScope: self ir scope;
+		              addCopiedVarsFromOuterScope: self ir scope;
+		              yourself.
+	irBlockGenerator ir scope: blockScope.
+
+	self pushOperand: (DRBlockClosure new
+			 blockNode: aRBBlockNode;
+			 irGenerator: irBlockGenerator;
+			 outerContext: self topFrame;
+			 yourself)
+]
+
+{ #category : 'visiting' }
 DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [
 
 	self pushOperand: aRBVariableNode binding asDRValue
@@ -183,6 +208,59 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 		operands: { 
 				self topFrame receiver.
 				aRBVariableNode variable index asDRValue }
+]
+
+{ #category : 'visiting' }
+DRMethodIRGenerator >> visitMethodNode: aRBMethodNode [
+
+	| methodScope |
+	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [
+		^ self interpretDruidExitPointWith: aRBMethodNode ].
+
+	(aRBMethodNode hasPragmaNamed: #doNotGenerate) ifTrue: [
+		(aRBMethodNode hasPragmaNamed: #druidNotIgnore) ifFalse: [ 1 halt ] ].
+	(aRBMethodNode hasPragmaNamed: #halt) ifTrue: [ 1 halt ].
+	"(aRBMethodNode hasPragmaNamed: #primitive:) ifTrue: [ 1 halt ]."
+
+
+	(aRBMethodNode hasPragmaNamed: #druidJITCompileTimeExpression)
+		ifTrue: [
+			| copy |
+			"Only support single return statements for now"
+			self assert: aRBMethodNode statements size = 1.
+			self assert: aRBMethodNode statements first isReturn.
+			copy := self currentBasicBlock copy:
+				        (DRInterpreterReference reference:
+					         aRBMethodNode statements first value formattedCode).
+			self topFrame returnValue: copy.
+			self addDeferredReturnState: {
+					executionState copy.
+					(self addFrameReturn: self topFrame) }.
+			^ self ].
+
+	
+	methodScope := DRScope new
+		               numArgs: aRBMethodNode arguments size;
+		               argumentNames: aRBMethodNode argumentNames ;
+		               addTemps: aRBMethodNode temporaryNames;
+		               opalScope: aRBMethodNode scope;
+		               node: aRBMethodNode;
+		               yourself.
+	self ir scope: methodScope.
+
+	aRBMethodNode statements do: [ :each |
+		self assert: self topFrame operandStack isEmpty.
+		each acceptVisitor: self.
+		self popOperand.
+		self assert: self topFrame operandStack isEmpty.
+		each isReturn ifTrue: [ ^ self ] ].
+
+	self assert: self topFrame operandStack isEmpty.
+	"If the method has no return statement, it should return default value"
+	self pushOperand: self topFrame returnValue.
+	self addDeferredReturnState: {
+			executionState copy.
+			(self addFrameReturn: self topFrame) }
 ]
 
 { #category : 'visiting' }

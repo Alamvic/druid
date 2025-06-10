@@ -636,6 +636,14 @@ DRBytecodeGeneratorTest >> testMethodWithBlockReadingVar [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockTemp [
+	
+	self assertCompilationNoInlineFor: #simpleMethodWithBlock fromClass: DruidTestInterpreter arguments: { }.
+
+	
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockWritingVar [
 	
 	self assertCompilationNoInlineFor: #simpleMethodWithBlockWritingOuterVariable fromClass: DruidTestInterpreter arguments: {}.
