@@ -9,6 +9,32 @@ Class {
 	#tag : 'IR'
 }
 
+{ #category : 'testing' }
+DRGetConditionCode class >> acceptsOpcode: anOpcode [
+
+	^ DRCondition allSubclasses anySatisfy: [ :class |
+		  class ~= DRTypeOf and: [ class new opcode = anOpcode ] ]
+]
+
+{ #category : 'testing' }
+DRGetConditionCode class >> getDependenciesFromOperandsString: operandsStr withOpcode: opcode [
+
+	| operands conditionClasses condition |
+	operands := operandsStr substrings: ','.
+
+	operands := self processDependencyOperands: operands.
+
+	conditionClasses := DRCondition allSubclasses.
+	condition := (conditionClasses at:
+		              (conditionClasses findFirst: [ :cl |
+			               cl ~= DRTypeOf and: [ cl new opcode = opcode ] ]))
+		             new.
+
+	^ {
+		  ({ condition } , operands).
+		  nil }
+]
+
 { #category : 'visiting' }
 DRGetConditionCode >> acceptVisitor: aVisitor [
 	
