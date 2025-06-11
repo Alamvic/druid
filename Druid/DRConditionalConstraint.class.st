@@ -19,7 +19,7 @@ DRConditionalConstraint >> asDependencyList [
 ]
 
 { #category : 'as yet unclassified' }
-DRConditionalConstraint >> distanceABCD [
+DRConditionalConstraint >> distanceForBuildingABCDGraph [
 
 	^ nil
 ]
@@ -107,6 +107,12 @@ DRConditionalConstraint >> isEmpty [
 DRConditionalConstraint >> isUnion [
 
 	^ false
+]
+
+{ #category : 'as yet unclassified' }
+DRConditionalConstraint >> minABCDDistanceToBeSatisfiable [
+
+	^ nil
 ]
 
 { #category : 'arithmetic' }

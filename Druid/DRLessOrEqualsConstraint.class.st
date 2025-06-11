@@ -7,7 +7,7 @@ Class {
 }
 
 { #category : 'reversing' }
-DRLessOrEqualsConstraint >> distanceABCD [
+DRLessOrEqualsConstraint >> distanceForBuildingABCDGraph [
 
 	^ 0
 ]

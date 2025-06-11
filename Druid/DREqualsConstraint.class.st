@@ -21,7 +21,7 @@ DREqualsConstraint class >> withValue: aConstantValue [
 ]
 
 { #category : 'arithmetic' }
-DREqualsConstraint >> distanceABCD [
+DREqualsConstraint >> distanceForBuildingABCDGraph [
 
 	^ 0
 ]
@@ -60,6 +60,12 @@ DREqualsConstraint >> hasValue: otherConstantValue [
 DREqualsConstraint >> isIncludedIn: otherConstraint [
 
 	^ otherConstraint hasValue: constantValue.
+]
+
+{ #category : 'printing' }
+DREqualsConstraint >> minABCDDistanceToBeSatisfiable [
+
+	^ 0
 ]
 
 { #category : 'arithmetic' }

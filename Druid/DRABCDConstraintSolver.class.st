@@ -64,33 +64,35 @@ DRABCDConstraintSolver >> initializeFor: aDRControlFlowGraph [
 ]
 
 { #category : 'testing' }
-DRABCDConstraintSolver >> isSatisfiable: aDRPiNode [ 
-
+DRABCDConstraintSolver >> isSatisfiable: aDRPiNode [
 	"TODO - for unsupported constraints, return true
 			- do we need different ABCD subclasses for upper/lower bounds checks?"
-			
-	| shortestPath |
-	((aDRPiNode constraint isKindOf: DRGreaterOrEqualsConstraint) or:
-		 (aDRPiNode constraint isKindOf: DREqualsConstraint)) ifFalse: [ ^true. ].
-	"TODO podemos hacer por > tambien creo, pidiendo que la distancia sea 1 mas/menos/yoquese"
-		
+
+	| shortestPath minABCDDistanceToBeSatisfiable |
+	minABCDDistanceToBeSatisfiable := aDRPiNode constraint
+		                                  minABCDDistanceToBeSatisfiable
+		                                  ifNil: [ ^ true ].
+
 	shortestPath := AIShortestPathWithMaxAndMinNodes new.
 	shortestPath nodes: nodes.
-	shortestPath 
-	   edges: edges
+	shortestPath
+		edges: edges
 		from: #first
 		to: #second
 		weight: #third.
 
-	shortestPath start: (self piNodesOriginalVariable: aDRPiNode constraint constantValue asDRValue);
+	shortestPath
+		start: (self piNodesOriginalVariable:
+					 aDRPiNode constraint constantValue asDRValue);
 		isMaxNodePredicate: [ :n | n isPhiFunction ];
 		memoDictionary: memo.
 	shortestPath run.
 
 	"Distance < 0 means the other side is a tautology => this side is unsatisfiable
 	>= 0 means this side isn't tautology => this side is satisfiable"
-	^ (shortestPath distanceTo: aDRPiNode operand isLessThan: 0) = -1.
-	
+	^ (shortestPath
+		   distanceTo: aDRPiNode operand
+		   isLessThan: minABCDDistanceToBeSatisfiable) = -1
 ]
 
 { #category : 'building - graph' }
@@ -134,7 +136,7 @@ DRABCDConstraintSolver >> processPiNode: aDRPiNode [
 	constraint := aDRPiNode constraint.
 	nodes add: constraint constantValue asDRValue.
 
-	distance := constraint distanceABCD.
+	distance := constraint distanceForBuildingABCDGraph.
 	distance ifNil: [ ^nil ].
 
 	edges add: {
