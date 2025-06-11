@@ -5,6 +5,12 @@ Class {
 	#package : 'Druid-Tests'
 }
 
+{ #category : 'accessing' }
+DRBytecodeCompilationTest class >> bytecodes [
+
+	^ self subclasses flatCollect: #bytecodes
+]
+
 { #category : 'building suites' }
 DRBytecodeCompilationTest class >> cogitStyleParameter [
 
@@ -12,6 +18,18 @@ DRBytecodeCompilationTest class >> cogitStyleParameter [
 		addCase: { #cogitStyle -> #beForStackToRegisterMapping. #compilerClass -> DruidTestRTLCompiler};
 		"addCase: { #cogitStyle -> #beForSimpleStack. #compilerClass -> SimpleDruidTestRTLCompiler};"
 		yourself
+]
+
+{ #category : 'accessing' }
+DRBytecodeCompilationTest class >> resources [
+
+	^Array with: DRBytecodeCompilationTestResource
+]
+
+{ #category : 'compiling' }
+DRBytecodeCompilationTest >> compileBytecode: aBlock [
+
+	cogInitialAddress := self compile: aBlock bytecodes: 100
 ]
 
 { #category : 'enumerating' }
@@ -34,6 +52,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode1 selector: selector1 andB
 	"Then generate the machine code for that method"
 	cogInitialAddress := self compile: [
 		cogit needsFrame: true.
+		cogit useTwoPaths: false.
 		cogit byte0: bytecode1.
 		cogit byte1: bytecode2.
 		cogit methodOrBlockNumArgs: 3. "Hack"
@@ -65,6 +84,7 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector optio
 	cogInitialAddress := self
 		                     compile: [
 			                     cogit needsFrame: true.
+			                     cogit useTwoPaths: false.
 			                     cogit byte0: bytecode.
 			                     cogit methodOrBlockNumArgs: 3. "Hack"
 			                     cogit methodOrBlockNumTemps: 2. "Hack"
@@ -85,6 +105,47 @@ DRBytecodeCompilationTest >> compileBytecode: bytecode selector: aSelector thenD
 		  selector: aSelector
 		  options: #(  )
 		  thenDo: aBlock
+]
+
+{ #category : 'compiling' }
+DRBytecodeCompilationTest >> compileBytecodeSelector: aSelector [
+
+	 self compileBytecodeSelector: aSelector sufix: ''
+]
+
+{ #category : 'compiling' }
+DRBytecodeCompilationTest >> compileBytecodeSelector: selector1 andSelector: selector2 [
+
+	| generatorSelector bytecodes |
+	generatorSelector := (#gen , '_' , selector1 , '_' , selector2) asSymbol.
+	bytecodes := self class bytecodes detect: [ :descriptor |
+			             descriptor first value = selector1 and: [
+				             descriptor second value = selector2 ] ].
+
+	cogit byte0: bytecodes first key.
+	cogit byte1: bytecodes second key.
+	cogit perform: generatorSelector
+]
+
+{ #category : 'compiling' }
+DRBytecodeCompilationTest >> compileBytecodeSelector: aSelector sufix: sufix [
+
+	 | generatorSelector currentBytecode |
+	 generatorSelector := (#gen , '_' , aSelector, sufix) asSymbol.
+	 currentBytecode := self class bytecodes
+		                    detect: [ :array | array first value = aSelector ]
+		                    ifFound: [ :array | array first key ]
+		                    ifNone: [ self error: 'Missing bytecode descriptor...' ].
+	 cogit byte0: currentBytecode.
+	 cogit perform: generatorSelector
+]
+
+{ #category : 'compiling' }
+DRBytecodeCompilationTest >> compileBytecodeSelector: aSelector version: version [
+
+	 self
+		 compileBytecodeSelector: aSelector
+		 sufix: '_version' , version asString
 ]
 
 { #category : 'tests' }
@@ -163,5 +224,11 @@ DRBytecodeCompilationTest >> prepareStackForSendReceiver: aReceiver arguments: a
 DRBytecodeCompilationTest >> setUp [
 
 	super setUp.
-	cogit useTwoPaths: false
+	cogit needsFrame: true.
+	cogit useTwoPaths: false.
+	cogit methodOrBlockNumArgs: 3. "Hack"
+	cogit methodOrBlockNumTemps: 2. "Hack"
+	"Initialize the simulated stack"
+	cogit initSimStackForFramefulMethod: 2.
+	cogit zeroOpcodeIndexForNewOpcodes
 ]
