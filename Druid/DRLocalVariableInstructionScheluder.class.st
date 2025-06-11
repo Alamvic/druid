@@ -16,8 +16,6 @@ DRLocalVariableInstructionScheluder >> applyTo: cfg [
 
 { #category : 'transformation' }
 DRLocalVariableInstructionScheluder >> replacePhisByStores: aDRControlFlowGraph [
-	"when we replace phi by store/temp.
-	We should add the created temps to the scope"
 	
 	aDRControlFlowGraph phiFunctions do: [ :phi |
 		
@@ -41,7 +39,7 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 	variableName := aDRPhiFunction result name asLowercase asDRValue.
 	
 	"add the new created temporary variable to the scope"
-	cfgScope := aDRPhiFunction basicBlock controlFlowGraph scope.
+	cfgScope := aDRPhiFunction controlFlowGraph scope.
 	cfgScope addTemps: { aDRPhiFunction result name asLowercase }.
 	
 	loadInst := DRLoadTemporaryVariable 

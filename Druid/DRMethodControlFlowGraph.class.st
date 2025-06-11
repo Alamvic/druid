@@ -18,5 +18,5 @@ DRMethodControlFlowGraph >> scope [
 { #category : 'accessing' }
 DRMethodControlFlowGraph >> scope: anObject [
 
-	scope ifNil: [ scope := anObject ]
+	scope := anObject
 ]
