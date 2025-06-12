@@ -18,9 +18,13 @@ BaselineOfDruid >> baseline: spec [
 		spec
 			baseline: 'PharoCodeGenerator'
 			with: [ spec repository: 'github://juliendelplanque/PharoCodeGenerator/src' ].
-
-      spec
-			package: 'Druid' with: [ spec requires: #('PharoVM' 'PharoCodeGenerator') ];
+		spec
+			baseline: 'AIGraphAlgorithms'
+			with: [ spec
+				className: 'BaselineOfAIGraphAlgorithms';
+				repository: 'github://pharo-ai/graph-algorithms:master' ].
+		spec
+			package: 'Druid' with: [ spec requires: #('PharoVM' 'PharoCodeGenerator' 'AIGraphAlgorithms') ];
 			package: 'Druid-Tests' with: [ spec requires: 'Druid' ];
 			package: 'Druid-UI' with: [ spec requires: #('Druid' 'Druid-Tests') ].
 
