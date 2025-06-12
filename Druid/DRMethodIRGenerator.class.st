@@ -12,6 +12,21 @@ DRMethodIRGenerator >> finishCodeInterpretation: lastFrame [
 	currentBasicBlock return: lastFrame returnedValue
 ]
 
+{ #category : 'accessing' }
+DRMethodIRGenerator >> handleCFGScope: methodNode [
+
+	| methodScope |
+	methodScope := DRScope new
+		               numArgs: methodNode arguments size;
+		               argumentNames: methodNode argumentNames ;
+		               addTemps: methodNode temporaryNames;
+		               opalScope: methodNode scope;
+		               node: methodNode;
+		               yourself.
+		
+	self ir scope: methodScope.
+]
+
 { #category : 'initialization' }
 DRMethodIRGenerator >> initialize [
 
@@ -65,7 +80,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 			          operands: {
 					          aRBAssignmentNode variable name asDRValue. "Fix temporary names collisions"
 					          value }.
-		result vectorName: (self ir scope lookupVar: aRBAssignmentNode variable name).
+		result scope: (self ir scope lookupVar: aRBAssignmentNode variable name).
 		self topFrame
 			temporaryAt: aRBAssignmentNode variable name
 			put: result
@@ -211,59 +226,6 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 ]
 
 { #category : 'visiting' }
-DRMethodIRGenerator >> visitMethodNode: aRBMethodNode [
-
-	| methodScope |
-	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [
-		^ self interpretDruidExitPointWith: aRBMethodNode ].
-
-	(aRBMethodNode hasPragmaNamed: #doNotGenerate) ifTrue: [
-		(aRBMethodNode hasPragmaNamed: #druidNotIgnore) ifFalse: [ 1 halt ] ].
-	(aRBMethodNode hasPragmaNamed: #halt) ifTrue: [ 1 halt ].
-	"(aRBMethodNode hasPragmaNamed: #primitive:) ifTrue: [ 1 halt ]."
-
-
-	(aRBMethodNode hasPragmaNamed: #druidJITCompileTimeExpression)
-		ifTrue: [
-			| copy |
-			"Only support single return statements for now"
-			self assert: aRBMethodNode statements size = 1.
-			self assert: aRBMethodNode statements first isReturn.
-			copy := self currentBasicBlock copy:
-				        (DRInterpreterReference reference:
-					         aRBMethodNode statements first value formattedCode).
-			self topFrame returnValue: copy.
-			self addDeferredReturnState: {
-					executionState copy.
-					(self addFrameReturn: self topFrame) }.
-			^ self ].
-
-	
-	methodScope := DRScope new
-		               numArgs: aRBMethodNode arguments size;
-		               argumentNames: aRBMethodNode argumentNames ;
-		               addTemps: aRBMethodNode temporaryNames;
-		               opalScope: aRBMethodNode scope;
-		               node: aRBMethodNode;
-		               yourself.
-	self ir scope: methodScope.
-
-	aRBMethodNode statements do: [ :each |
-		self assert: self topFrame operandStack isEmpty.
-		each acceptVisitor: self.
-		self popOperand.
-		self assert: self topFrame operandStack isEmpty.
-		each isReturn ifTrue: [ ^ self ] ].
-
-	self assert: self topFrame operandStack isEmpty.
-	"If the method has no return statement, it should return default value"
-	self pushOperand: self topFrame returnValue.
-	self addDeferredReturnState: {
-			executionState copy.
-			(self addFrameReturn: self topFrame) }
-]
-
-{ #category : 'visiting' }
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
 	| loadArg |
@@ -283,7 +245,7 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 					  aRBVariableNode name asDRValue.
 					  store }.
 		
-		loadTemp vectorName: (self ir scope lookupVar: aRBVariableNode name).
+		loadTemp scope: (self ir scope lookupVar: aRBVariableNode name).
 		 ^ loadTemp.
 	].
 	"Else, it is an argument"
@@ -295,7 +257,7 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 	loadArg argName: aRBVariableNode name.
 	
 	
-	loadArg vectorName: (self ir scope lookupVar: aRBVariableNode name).
+	loadArg scope: (self ir scope lookupVar: aRBVariableNode name).
 	 
 	^ loadArg
 ]

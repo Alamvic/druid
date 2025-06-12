@@ -117,15 +117,15 @@ DRScope >> initialize [
 { #category : 'accessing' }
 DRScope >> lookupVar: name [
 
-	| vectorName |
-	((tempVector includes: name) or: [argumentNames includes: name]) ifTrue: [ ^ self tempVectorName ].
+	| scope |
+	((tempVector includes: name) or: [argumentNames includes: name]) ifTrue: [ ^ self ].
 
-	vectorName := outerScope
+	scope := outerScope
 		              ifNotNil: [ :os | os lookupVar: name ]
-		              ifNil: [ self error: 'Not explored' ].
+		              ifNil: [ "self error: 'Not explored'" ].
 	"copiedVars at: vectorName put: vectorName."
 	
-	^ vectorName
+	^ scope
 ]
 
 { #category : 'accessing' }

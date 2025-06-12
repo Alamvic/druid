@@ -1,9 +1,6 @@
 Class {
 	#name : 'DRStoreTemporaryVariable',
 	#superclass : 'DRInstruction',
-	#instVars : [
-		'vectorName'
-	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
 	#tag : 'IR'
@@ -55,16 +52,4 @@ DRStoreTemporaryVariable >> sccpLatticeValueFor: sccp [
 DRStoreTemporaryVariable >> variableName [
 
 	^ self operand1 value
-]
-
-{ #category : 'accessing' }
-DRStoreTemporaryVariable >> vectorName [
-
-	^ vectorName
-]
-
-{ #category : 'accessing' }
-DRStoreTemporaryVariable >> vectorName: anObject [
-
-	vectorName := anObject
 ]

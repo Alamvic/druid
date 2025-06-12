@@ -9,13 +9,15 @@ Class {
 { #category : 'compiling' }
 DRBytecodeBlockGenerator >> compileBlockFrom: aDRControlFlowGraph withScope: aScope [ 
 	
-	| ir compiledBlock irTranslator|
+	| ir compiledBlock |
 	builder numArgs: aDRControlFlowGraph numArgs.
 	
 	ir := builder ir.
 	
-	irTranslator := DRIRToBytecodeTranslator new compilationContext: ir compilationContext; yourself. 
-	compiledBlock := irTranslator compileBlockIR: ir withScope: aScope.
+	"irTranslator := DRIRToBytecodeTranslator new compilationContext: ir compilationContext; yourself. 
+	compiledBlock := irTranslator compileBlockIR: ir withScope: aScope."
+	
+	compiledBlock := ir compiledBlock: aScope.
 	
 	^ compiledBlock 
 ]

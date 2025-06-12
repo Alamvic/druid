@@ -334,6 +334,12 @@ DRIRGenerator >> firstBasicBlock [
 	^ firstBasicBlock
 ]
 
+{ #category : 'visiting' }
+DRIRGenerator >> handleCFGScope: methodNode [
+
+
+]
+
 { #category : 'stack management' }
 DRIRGenerator >> homeFrame [
 	
@@ -763,6 +769,8 @@ DRIRGenerator >> interpretBlockCode: aDRCode receiver: aReceiver [
 	self pushFrameForCode: aDRCode receiver: aReceiver.
 
 	aDRCode executeOn: self.
+	
+	self popBlockFrame.
 ]
 
 { #category : 'special cases' }
@@ -2150,6 +2158,8 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 					executionState copy.
 					(self addFrameReturn: self topFrame) }.
 			^ self ].
+		
+	self handleCFGScope: aRBMethodNode .
 
 	aRBMethodNode statements do: [ :each |
 		self assert: self topFrame operandStack isEmpty.
@@ -2198,7 +2208,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitSelfNode: aRBVariableNode [ 
 	
-	self pushOperand: self receiver
+	self pushOperand: (self topFrame receiverWithState: executionState)
 ]
 
 { #category : 'visiting' }

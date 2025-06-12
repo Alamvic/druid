@@ -272,7 +272,8 @@ DruidTestInterpreter >> methodBlockLocalAndNonLocalReturn [
 	"a constant block closure"
 	
 	| temp |
-	temp:= self basicMethodWithBlock: [ | x | x ifNil: [ ^ 2 ].
+	temp:= self basicMethodWithBlock: [ | x | 
+		x ifNil: [ ^ 2 ].
 		4 ].
 	^ 5
 	

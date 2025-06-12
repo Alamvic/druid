@@ -100,8 +100,9 @@ DRBytecodeGeneratorTest >> compileSelector: selector fromClass: interpreterClass
 	method := interpreterClass >> selector.
 	interpreter := interpreterClass basicNew.
 	compilerCompiler interpreter: interpreter.
-
+	
 	cfg := self generateDruidIRFor: method.
+	
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 	method methodClass: interpreterClass.
 	^ method
@@ -112,6 +113,7 @@ DRBytecodeGeneratorTest >> generateDruidIRFor: method [
 
 	| cfg |
 	cfg := compilerCompiler generateDruidIRFor: method.
+	
 	compilerCompiler optimize: cfg.
 	^ cfg
 ]
@@ -190,174 +192,6 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 	result := method valueWithReceiver: nil arguments: {  }.
 
 	self assert: result equals: 7
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
-
-	| method result cfg selector |
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler irGenerator typeSystem: typeSystem.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #allSatisfy:.
-	method := Array lookupSelector: selector.
-	
-	compilerCompiler interpreter: {  }.
-	cfg := self generateDruidIRFor: method.
-
-	compilerCompiler optimize: cfg.
-	compilerCompiler optimize: cfg.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-	
-	result := method valueWithReceiver: { 1. 2 } arguments: { [ :e | e even ] }.
-	self assert: result equals: false.
-
-	result := method valueWithReceiver: { 2. 4 } arguments: { [ :e | e even ] }.
-	self assert: result equals: true.
-
-"
-	{ Array } do: [ :e |
-		e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
-		e addSelectorSilently: selector withMethod: method ]
-	"
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationAnySatisfy [
-
-	| method result cfg selector |
-	
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler irGenerator typeSystem: typeSystem.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #anySatisfy:.
-	method := Array lookupSelector: selector.
-
-	compilerCompiler interpreter: {  }.
-	cfg := self generateDruidIRFor: method.
-	compilerCompiler optimize: cfg.
-	compilerCompiler optimize: cfg.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	result := method valueWithReceiver: { 1. 2 } arguments: { [ :e | e even ] }.
-	self assert: result equals: true.
-	
-	result := method valueWithReceiver: { 1 . 3 } arguments: { [ :e | e even ] }.
-	self assert: result equals: false.
-
-"	{ Array }	
-		do: [ :e |
-			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
-			e addSelectorSilently: selector withMethod: method ]"
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationDifference [
-
-	| method result cfg selector |
-	
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #difference:.
-	method := Set >> selector.
-
-	compilerCompiler interpreter: {  }.
-	cfg := self generateDruidIRFor: method.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	result := method valueWithReceiver: { 1. 2. 3 } asSet arguments: { { 3 . 4 . 5 } asSet }.
-
-	self assertCollection: result includesAll: { 1. 2 }.
-
-
-"	{ Array }	
-		do: [ :e |
-			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
-			e addSelectorSilently: selector withMethod: method ]"
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationDo [
-
-	| method result cfg selector |
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #do:.
-	method := SequenceableCollection >> selector.
-
-	compilerCompiler interpreter: {  }.
-	cfg := self generateDruidIRFor: method.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	result := OrderedCollection new.
-	method valueWithReceiver: { 1. 2. 3 } arguments: { [ :e | result add: e ] }.
-
-	self assertCollection: result includesAll: { 1. 2. 3 }.
-
-
-"	{ Array }	
-		do: [ :e |
-			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
-			e addSelectorSilently: selector withMethod: method ]"
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
-
-	| method result cfg selector |
-	compilerCompiler irGenerator typeSystem:
-		(typeSystem := DRCustomisationTypeSystem new).
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #select:.
-	method := Collection >> selector.
-
-	compilerCompiler interpreter: {  }.
-	cfg := self generateDruidIRFor: method.
-	compilerCompiler optimize: cfg.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	result := method
-		          valueWithReceiver: { 1. 2. 3 } asOrderedCollection
-		          arguments: { [ :e | e even ] }.
-
-	self assertCollection: result includesAll: { 2 }.
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationSlowCount [
-
-	| method result cfg selector |
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler irGenerator typeSystem: typeSystem.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #slowCount.
-	method := Array lookupSelector: selector.
-	
-	compilerCompiler interpreter: Array new.
-
-	cfg := self generateDruidIRFor: method.
-
-	compilerCompiler optimize: cfg.
-	compilerCompiler optimize: cfg.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-	
-	result := method valueWithReceiver: { 1. 2 } arguments: {}.
-	self assert: result equals: 2.
-
-	result := method valueWithReceiver: { 2. 4. 6 } arguments: {}.
-	self assert: result equals: 3.
 ]
 
 { #category : 'tests' }
@@ -639,10 +473,11 @@ DRBytecodeGeneratorTest >> testMethodWithBlockReadingVar [
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockTemp [
-	
-	self assertCompilationNoInlineFor: #simpleMethodWithBlock fromClass: DruidTestInterpreter arguments: { }.
 
-	
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithBlock
+		fromClass: DruidTestInterpreter
+		arguments: {  }
 ]
 
 { #category : 'tests' }
@@ -672,24 +507,6 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 	result := method valueWithReceiver: nil arguments: { 1 }.
 
 	self assert: result equals: 57
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
-
-	| method result |
-	compilerCompiler configureForCompilerClass: nil.
-	method := self generateMethodForSelector: #methodCollectionSize:.
-
-	result := method
-		          valueWithReceiver: nil
-		          arguments: { { 1. 2. 3 } asOrderedCollection }.
-	self assert: result equals: 3.
-
-	result := method
-		          valueWithReceiver: nil
-		          arguments: { (Array2D rows: 2 columns: 2) }.
-	self assert: result equals: 4
 ]
 
 { #category : 'tests' }

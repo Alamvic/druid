@@ -2,8 +2,7 @@ Class {
 	#name : 'DRLoadArgument',
 	#superclass : 'DRInstruction',
 	#instVars : [
-		'argName',
-		'vectorName'
+		'argName'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -68,16 +67,4 @@ DRLoadArgument >> sccpLatticeValueFor: sccp [
 DRLoadArgument >> type [
 	
 	^ classType ifNil: [DRUndefinedType new]
-]
-
-{ #category : 'accessing' }
-DRLoadArgument >> vectorName [
-
-	^ vectorName
-]
-
-{ #category : 'accessing' }
-DRLoadArgument >> vectorName: anObject [
-
-	vectorName := anObject
 ]

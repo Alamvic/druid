@@ -45,7 +45,7 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 	loadInst := DRLoadTemporaryVariable 
 			operands: { variableName }
 			result: aDRPhiFunction result.
-	loadInst vectorName: cfgScope tempVectorName.
+	loadInst scope: cfgScope.
 	aDRPhiFunction replaceBy: loadInst.
 
 	(aDRPhiFunction operands allSatisfy: [ :op |
@@ -59,7 +59,7 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 					             variableName.
 					             op }
 			             result: DRNoRegister new.
-		storeInst vectorName: cfgScope tempVectorName.
+		storeInst scope: cfgScope.
 		op basicBlock add: storeInst after: op ]
 ]
 

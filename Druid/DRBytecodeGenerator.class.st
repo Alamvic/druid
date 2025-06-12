@@ -257,7 +257,7 @@ DRBytecodeGenerator >> visitLessOrEqualsThan: aDRLessOrEqualsThanComparison inBr
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 	
-	builder pushRemoteTemp: aDRLoadArgument argName inVector: aDRLoadArgument vectorName 
+	builder pushRemoteTemp: aDRLoadArgument argName inVector: aDRLoadArgument scope tempVectorName. 
 	
 ]
 
@@ -349,7 +349,7 @@ DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
 	builder
 		storeRemoteTemp: aDRStoreTemporaryVariable operand1 value
-		inVector: aDRStoreTemporaryVariable vectorName .
+		inVector: aDRStoreTemporaryVariable scope tempVectorName .
 
 	(aDRStoreTemporaryVariable users reject: [ :each |
 		 each isLoadTemporaryVariable ]) size = 0 ifTrue: [ builder popTop ]
@@ -366,7 +366,7 @@ DRBytecodeGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 
 	builder
 		pushRemoteTemp: aDRLoadTemporaryVariable operand1 value
-		inVector: aDRLoadTemporaryVariable vectorName .
+		inVector: aDRLoadTemporaryVariable scope tempVectorName .
 ]
 
 { #category : 'visiting' }
