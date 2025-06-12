@@ -3,72 +3,69 @@ Class {
 	#superclass : 'DROptimisation',
 	#instVars : [
 		'worklist',
-		'visited'
+		'visited',
+		'solver'
 	],
 	#category : 'Druid-Optimizations',
 	#package : 'Druid',
 	#tag : 'Optimizations'
 }
 
+{ #category : 'as yet unclassified' }
+DRPiDeadBranchElimination >> addSuccessorsToWorklist: aDRBasicBlock [
+
+	aDRBasicBlock successors
+		reject: [ :succ | visited includes: succ ]
+		thenDo: [ :succ |
+			worklist add: succ.
+			visited add: succ.
+		].
+]
+
 { #category : 'accessing' }
 DRPiDeadBranchElimination >> applyTo: cfg [
 
-	| deadEdges |
-	worklist add: (DREdge
-			 withSource: cfg initialBasicBlock
-			 andDestination: cfg initialBasicBlock).
-	"The source doesn't matter in the initial edge, it'll be never be dead anyways"
+	| unreachableBlocks |
+	visited := Set new.
+	worklist := OrderedCollection with: cfg initialBasicBlock.
 
-	deadEdges := self computeDeadeEdges.
+	unreachableBlocks := self computeUnreachableBlocks.
 
-	deadEdges ifNotEmpty: [
-		self removeUnnecessaryConditionalJumps: deadEdges.
+	unreachableBlocks ifNotEmpty: [
+		self removeUnnecessaryConditionalJumps: unreachableBlocks.
+		cfg
+			invalidateDominatorTree;
+			invalidatePostDominatorTree.
 		cfg applyOptimisation: DRDeadBlockElimination new ]
 ]
 
 { #category : 'accessing' }
-DRPiDeadBranchElimination >> computeDeadeEdges [
+DRPiDeadBranchElimination >> computeUnreachableBlocks [
 
-	| deadEdges |
-	deadEdges := OrderedCollection new.
+	| unreachableBlocks |
+	unreachableBlocks := OrderedCollection new.
 
 	[ worklist isEmpty ] whileFalse: [
-		| currentEdge |
-		currentEdge := worklist removeFirst.
-		(self isReachable: currentEdge destination)
-			ifTrue: [ self updateWorklistFrom: currentEdge destination ]
-			ifFalse: [ deadEdges add: currentEdge ] ].
+		| currentBlock |
+		currentBlock := worklist removeFirst.
+		(self isReachable: currentBlock)
+			ifTrue: [ self addSuccessorsToWorklist: currentBlock ]
+			ifFalse: [ unreachableBlocks add: currentBlock ] ].
 		"TODO if a block is unreachable, then its sibling must be reachable,
 		so we can remove it from the worklist"
-	^ deadEdges
-]
-
-{ #category : 'initialization' }
-DRPiDeadBranchElimination >> initialize [
-
-	worklist := OrderedCollection new.
-	visited := Set new.
+	^ unreachableBlocks
 ]
 
 { #category : 'as yet unclassified' }
 DRPiDeadBranchElimination >> isReachable: aDRBasicBlock [
 
-	self subclassResponsibility
+	^ aDRBasicBlock piNodes allSatisfy: [ :pi | solver isSatisfiable: pi ]
 ]
 
 { #category : 'removing' }
-DRPiDeadBranchElimination >> removeUnnecessaryConditionalJumps: deadEdges [ 
+DRPiDeadBranchElimination >> removeUnnecessaryConditionalJumps: unreachableBlocks [
 
-	deadEdges do: [ :edge | edge kill ].
-]
-
-{ #category : 'as yet unclassified' }
-DRPiDeadBranchElimination >> updateWorklistFrom: aDRBasicBlock [
-
-	aDRBasicBlock successors
-		select: [ :succ | (visited includes: succ) not ]
-		thenDo: [ :succ |
-			worklist add: (DREdge withSource: aDRBasicBlock andDestination: succ).
-			visited add: succ.
-		].
+	unreachableBlocks do: [ :block |
+		(DREdge withSource: block predecessors unique andDestination: block)
+			kill ]
 ]

@@ -17,8 +17,14 @@ BaselineOfDruid >> baseline: spec [
 				className: 'BaselineOfVMMaker';
 				repository: 'github://pharo-project/opensmalltalk-vm:druid' ].
 
-      spec
-			package: 'Druid' with: [ spec requires: #('PharoVM') ];
+		spec
+			baseline: 'AIGraphAlgorithms'
+			with: [ spec
+				className: 'BaselineOfAIGraphAlgorithms';
+				repository: 'github://pharo-ai/graph-algorithms:master' ].
+
+		spec
+			package: 'Druid' with: [ spec requires: #('PharoVM' 'AIGraphAlgorithms') ];
 			package: 'Druid-Tests' with: [ spec requires: 'Druid' ];
 			package: 'Druid-UI' with: [ spec requires: #('Druid' 'Druid-Tests') ].
 

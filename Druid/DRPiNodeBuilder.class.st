@@ -71,6 +71,12 @@ DRPiNodeBuilder >> visitGreaterOrEqualsThan: aDRCondition inBranch: aDRBranchIfC
 ]
 
 { #category : 'visiting' }
+DRPiNodeBuilder >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
+	
+	self visitComparison: aDRBranchIfCondition withConstraint: DRGreaterConstraint.
+]
+
+{ #category : 'visiting' }
 DRPiNodeBuilder >> visitLessOrEqualsThan: aDRCondition inBranch: aDRBranchIfCondition [ 
 
 	self visitComparison: aDRBranchIfCondition withConstraint: DRLessOrEqualsConstraint.

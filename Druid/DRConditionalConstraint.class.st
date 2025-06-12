@@ -18,6 +18,12 @@ DRConditionalConstraint >> asDependencyList [
 	self subclassResponsibility
 ]
 
+{ #category : 'as yet unclassified' }
+DRConditionalConstraint >> distanceForBuildingABCDGraph [
+
+	^ nil
+]
+
 { #category : 'arithmetic' }
 DRConditionalConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
@@ -101,6 +107,12 @@ DRConditionalConstraint >> isEmpty [
 DRConditionalConstraint >> isUnion [
 
 	^ false
+]
+
+{ #category : 'as yet unclassified' }
+DRConditionalConstraint >> minABCDDistanceToBeSatisfiable [
+
+	^ nil
 ]
 
 { #category : 'arithmetic' }
