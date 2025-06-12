@@ -36,12 +36,6 @@ DRStoreTemporaryVariable >> isStoreTemporaryVariable [
 	^ true
 ]
 
-{ #category : 'testing' }
-DRStoreTemporaryVariable >> isTempVectorTemp [ 
-
-	^ false
-]
-
 { #category : 'printing' }
 DRStoreTemporaryVariable >> opcode [
 	

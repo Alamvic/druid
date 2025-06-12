@@ -22,6 +22,12 @@ DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 	currentBasicBlock := lastBlock
 ]
 
+{ #category : 'accessing' }
+DRMethodIRGeneratorInline >> handleCFGScope: methodNode [
+
+	"here to handle the scope with inlining"
+]
+
 { #category : 'testing' }
 DRMethodIRGeneratorInline >> isBaseMethodArgument: aRBVariableNode [
 

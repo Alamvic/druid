@@ -9,7 +9,8 @@ Class {
 		'origin',
 		'users',
 		'classType',
-		'isStaged'
+		'isStaged',
+		'scope'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -762,6 +763,18 @@ DRInstruction >> sccpLatticeValueFor: sccp [
 DRInstruction >> sccpOperateOnLattice: operand and: operand2 [
 	
 	self subclassResponsibility
+]
+
+{ #category : 'accessing' }
+DRInstruction >> scope [
+
+	^ scope
+]
+
+{ #category : 'accessing' }
+DRInstruction >> scope: anObject [
+
+	scope := anObject
 ]
 
 { #category : 'testing' }
