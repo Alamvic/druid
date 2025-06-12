@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRStagingTest',
-	#superclass : 'DRDruidTest',
+	#superclass : 'DROptimisationTest',
 	#category : 'Druid-Tests-Staging',
 	#package : 'Druid-Tests',
 	#tag : 'Staging'

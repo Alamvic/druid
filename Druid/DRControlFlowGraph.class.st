@@ -14,7 +14,8 @@ Class {
 		'stagedRegisters',
 		'dominatorTree',
 		'postDominatorTree',
-		'deadBranches'
+		'deadBranches',
+		'numArgs'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -102,6 +103,18 @@ DRControlFlowGraph >> allLoops [
 		  backJump loop ]
 ]
 
+{ #category : 'accessing' }
+DRControlFlowGraph >> allTemporaryInstructions [
+
+	^ self instructions select: [ :i | (i isStoreTemporaryVariable  or: [i isLoadTemporaryVariable])].
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> allVectorTemporaryInstructions [
+
+	^ self instructions select: [ :i | (i isStoreTemporaryVariable  or: [i isLoadTemporaryVariable]) and: [i isTempVectorTemp]].
+]
+
 { #category : 'building' }
 DRControlFlowGraph >> allocateBasicBlockID [
 	
@@ -122,6 +135,12 @@ DRControlFlowGraph >> applyOptimisation: optimisation [
 
 	optimisation applyTo: self.
 	self validate
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> argumentNames [
+
+	^ (1 to: numArgs ) collect: [ :i | 'arg', i asString ]
 ]
 
 { #category : 'inspecting' }
@@ -525,7 +544,9 @@ DRControlFlowGraph >> initialize [
 	numberOfSpillSlots := 0.
 
 	nextBasicBlockId := 0.
-	initialBasicBlock := self privateNewBasicBlock
+	initialBasicBlock := self privateNewBasicBlock.
+	numArgs := 0
+	
 ]
 
 { #category : 'inspecting' }
@@ -669,6 +690,17 @@ DRControlFlowGraph >> newBasicBlockWith: aFullBlockClosure [
 	newBlock := self newBasicBlock.
 	aFullBlockClosure value: newBlock.
 	^ newBlock
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> numArgs [
+	^ numArgs
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> numArgs: anInteger [
+
+	numArgs := anInteger
 ]
 
 { #category : 'accessing' }
@@ -920,6 +952,12 @@ DRControlFlowGraph >> subgraphWith: subgraphBlocks [
 ]
 
 { #category : 'accessing' }
+DRControlFlowGraph >> temporaryVariableNames [
+
+	^ (self allTemporaryInstructions collect: [ :i | i address value ]) copyWithoutDuplicates sorted
+]
+
+{ #category : 'accessing' }
 DRControlFlowGraph >> tree: anObject [
 
 	dominatorTree := anObject
@@ -930,4 +968,10 @@ DRControlFlowGraph >> validate [
 
 	self invalidateDominatorTree.
 	self blocks do: [ :e | e validate ]
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> vectorTemporaryVariableNames [
+
+	^ (self allVectorTemporaryInstructions collect: [ :i | i address value ]) copyWithoutDuplicates sorted
 ]

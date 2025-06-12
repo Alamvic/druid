@@ -18,7 +18,7 @@ DRLoadArgument >> acceptVisitor: aVisitor [
 { #category : 'accessing' }
 DRLoadArgument >> argName [
 
-	^ argName ifNil: [ 'arg' , self argNum asString ]
+	^ argName
 ]
 
 { #category : 'accessing' }
@@ -31,6 +31,12 @@ DRLoadArgument >> argName: selector [
 DRLoadArgument >> argNum [
 
 	^ self operand1 value
+]
+
+{ #category : 'accessing' }
+DRLoadArgument >> argumentName [
+
+	^ 'arg' , self argNum asString
 ]
 
 { #category : 'visiting' }

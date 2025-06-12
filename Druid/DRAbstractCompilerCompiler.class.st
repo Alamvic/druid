@@ -129,6 +129,7 @@ DRAbstractCompilerCompiler >> generateDruidIRForAll: compiledMethods [
 	irGenerator initializeIR.	
 	self interpreteMethods: compiledMethods.
 	cfg := irGenerator ir.
+	cfg numArgs: irGenerator numberOfArguments.
 
 	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: cfg.

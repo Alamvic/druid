@@ -38,7 +38,7 @@ DRMethod >> defaultReturnValue: receiver [
 
 { #category : 'executing' }
 DRMethod >> executeOn: interpreter [
-
+	
 	self codeNode acceptVisitor: interpreter
 ]
 

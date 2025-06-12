@@ -1,10 +1,11 @@
 Class {
-	#name : #BaselineOfDruid,
-	#superclass : #BaselineOf,
-	#category : #BaselineOfDruid
+	#name : 'BaselineOfDruid',
+	#superclass : 'BaselineOf',
+	#category : 'BaselineOfDruid',
+	#package : 'BaselineOfDruid'
 }
 
-{ #category : #baselines }
+{ #category : 'baselines' }
 BaselineOfDruid >> baseline: spec [
   <baseline>
   spec
@@ -15,16 +16,15 @@ BaselineOfDruid >> baseline: spec [
 			with: [ spec
 				className: 'BaselineOfVMMaker';
 				repository: 'github://pharo-project/opensmalltalk-vm:druid' ].
-		spec
-			baseline: 'PharoCodeGenerator'
-			with: [ spec repository: 'github://juliendelplanque/PharoCodeGenerator/src' ].
+
 		spec
 			baseline: 'AIGraphAlgorithms'
 			with: [ spec
 				className: 'BaselineOfAIGraphAlgorithms';
 				repository: 'github://pharo-ai/graph-algorithms:master' ].
+
 		spec
-			package: 'Druid' with: [ spec requires: #('PharoVM' 'PharoCodeGenerator' 'AIGraphAlgorithms') ];
+			package: 'Druid' with: [ spec requires: #('PharoVM' 'AIGraphAlgorithms') ];
 			package: 'Druid-Tests' with: [ spec requires: 'Druid' ];
 			package: 'Druid-UI' with: [ spec requires: #('Druid' 'Druid-Tests') ].
 
@@ -35,7 +35,7 @@ BaselineOfDruid >> baseline: spec [
 			group: 'default' with: #('Druid' 'DruidTests' 'Druid-UI') ]
 ]
 
-{ #category : #doits }
+{ #category : 'doits' }
 BaselineOfDruid >> changeRepositoryType [
 	| repos newRepo |
 	(Smalltalk hasClassNamed: #MCGitRepository) ifFalse: [ ^ self ].
@@ -58,7 +58,7 @@ BaselineOfDruid >> changeRepositoryType [
 			group addRepository: newRepo ]
 ]
 
-{ #category : #doits }
+{ #category : 'doits' }
 BaselineOfDruid >> postLoadActions [
 	self changeRepositoryType
 ]
