@@ -12,6 +12,25 @@ Class {
 	#tag : 'IR'
 }
 
+{ #category : 'testing' }
+DRBranchIfCondition class >> getDependenciesFromOperandsString: operandsStr withOpcode: opcode [
+
+	| split operands targets conditionClasses condition |
+	split := operandsStr substrings: ';'.
+	operands := split first substrings: ','.
+	targets := split second substrings: ','.
+
+	operands := self processDependencyOperands: operands.
+
+	conditionClasses := DRCondition allSubclasses.
+	condition := (conditionClasses at:
+		              (conditionClasses findFirst: [ :cl |
+			               cl new opcode = operands first ])) new.
+	operands at: 1 put: condition.
+
+	^ { operands. targets }
+]
+
 { #category : 'visiting' }
 DRBranchIfCondition >> acceptVisitor: aVisitor [
 
@@ -207,6 +226,13 @@ DRBranchIfCondition >> prettyPrint [
 	  , (self falseBranch ifNotNil: [ :br | br id ]) asString
 ]
 
+{ #category : 'printing' }
+DRBranchIfCondition >> printIROperands [
+
+	^ condition opcode , ', ' , super printIROperands , '; '
+	  , (', ' join: (self targets collect: [ :b | 'b' , b id asString ]))
+]
+
 { #category : 'replacing' }
 DRBranchIfCondition >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [
 
@@ -277,6 +303,13 @@ DRBranchIfCondition >> sccpLatticeValueFor: sccp [
 DRBranchIfCondition >> targets [
 
 	^ { trueBranch . falseBranch }
+]
+
+{ #category : 'accessing' }
+DRBranchIfCondition >> targets: targets [ 
+	
+	self trueBranch: targets first.
+	self falseBranch: targets second.
 ]
 
 { #category : 'accessing' }

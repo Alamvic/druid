@@ -10,6 +10,12 @@ Class {
 	#tag : 'IR'
 }
 
+{ #category : 'testing' }
+DRJump class >> getDependenciesFromOperandsString: operands withOpcode: opcode [
+
+	^ { nil. { operands } }
+]
+
 { #category : 'visiting' }
 DRJump >> = aJump [
 
@@ -148,6 +154,12 @@ DRJump >> prettyPrint [
 	^ 'Jump -> ', target id asString
 ]
 
+{ #category : 'printing' }
+DRJump >> printIROperands [
+
+	^ ('b' , self target id asString)
+]
+
 { #category : 'replacing' }
 DRJump >> replaceTarget: previousTarget by: newTarget [
 	
@@ -155,10 +167,9 @@ DRJump >> replaceTarget: previousTarget by: newTarget [
 	target := newTarget.
 ]
 
-{ #category : 'initialization' }
+{ #category : 'accessing' }
 DRJump >> result: r [
 
-	self halt.
 ]
 
 { #category : 'SCCP' }
@@ -188,6 +199,11 @@ DRJump >> target: aBasicBlock [
 DRJump >> targets [
 	
 	^ { target }
+]
+
+{ #category : 'accessing' }
+DRJump >> targets: aCollection [ 
+	self target: aCollection unique.
 ]
 
 { #category : 'accessing' }
