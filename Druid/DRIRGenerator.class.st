@@ -334,12 +334,6 @@ DRIRGenerator >> firstBasicBlock [
 	^ firstBasicBlock
 ]
 
-{ #category : 'visiting' }
-DRIRGenerator >> handleCFGScope: methodNode [
-
-
-]
-
 { #category : 'stack management' }
 DRIRGenerator >> homeFrame [
 	
@@ -753,24 +747,14 @@ DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
 
 	numArgs := aDRBlockClosure numberOfArguments.
 	self numberOfArguments: numArgs.
-
+	
 	self
-		interpretBlockCode: aDRBlockClosure
+		interpretCode: aDRBlockClosure
 		receiver: aDRBlockClosure.
 		
 	self ir numArgs: numArgs.
 	
 	^ self ir
-]
-
-{ #category : 'API' }
-DRIRGenerator >> interpretBlockCode: aDRCode receiver: aReceiver [ 
-
-	self pushFrameForCode: aDRCode receiver: aReceiver.
-
-	aDRCode executeOn: self.
-	
-	self popBlockFrame.
 ]
 
 { #category : 'special cases' }
@@ -885,7 +869,7 @@ DRIRGenerator >> interpretClassTableRootsObjectWith: aRBVariableNode [
 
 { #category : 'API' }
 DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
-
+	"this method is used when interpreting a method from inlining"
 	self pushFrameForCode: aDRCode receiver: aReceiver.
 	
 	"Iterate based on the defined arguments.
@@ -1988,6 +1972,12 @@ DRIRGenerator >> tagSmallInteger: operand from: aRBMessageNode [
 
 ]
 
+{ #category : 'as yet unclassified' }
+DRIRGenerator >> temporariesListfrom: aNode [ 
+	
+	^ aNode argumentNames , aNode temporaryNames.
+]
+
 { #category : 'frame-access' }
 DRIRGenerator >> temporaryAt: aString [ 
 	
@@ -2158,8 +2148,6 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 					executionState copy.
 					(self addFrameReturn: self topFrame) }.
 			^ self ].
-		
-	self handleCFGScope: aRBMethodNode .
 
 	aRBMethodNode statements do: [ :each |
 		self assert: self topFrame operandStack isEmpty.

@@ -10,6 +10,18 @@ Class {
 }
 
 { #category : 'accessing' }
+DRMethodControlFlowGraph >> addScopeToInstructionIfNeeded: anInstruction [
+
+	anInstruction scope: self scope.
+]
+
+{ #category : 'accessing' }
+DRMethodControlFlowGraph >> addTempNameToScope: aName [
+
+	scope addTemps: { aName }
+]
+
+{ #category : 'accessing' }
 DRMethodControlFlowGraph >> scope [
 
 	^ scope

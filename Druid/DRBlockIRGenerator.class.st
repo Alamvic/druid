@@ -28,6 +28,12 @@ DRBlockIRGenerator >> interpretBlockActivation: aRBBlockNode [
 	
 ]
 
+{ #category : 'as yet unclassified' }
+DRBlockIRGenerator >> temporariesListfrom: aNode [
+
+	^ self ir scope allTempsWithOuterTemps 
+]
+
 { #category : 'visiting' }
 DRBlockIRGenerator >> visitReturnNode: aRBReturnNode [
 

@@ -35,17 +35,17 @@ DRLocalVariableInstructionScheluder >> shouldIgnore: aDRInstruction [
 { #category : 'transformation' }
 DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 
-	| variableName loadInst cfgScope |
+	| variableName loadInst cfgScope cfg|
 	variableName := aDRPhiFunction result name asLowercase asDRValue.
 	
 	"add the new created temporary variable to the scope"
-	cfgScope := aDRPhiFunction controlFlowGraph scope.
-	cfgScope addTemps: { aDRPhiFunction result name asLowercase }.
+	cfg := aDRPhiFunction controlFlowGraph.
+	cfg addTempNameToScope: aDRPhiFunction result name asLowercase.
 	
 	loadInst := DRLoadTemporaryVariable 
 			operands: { variableName }
 			result: aDRPhiFunction result.
-	loadInst scope: cfgScope.
+	cfg addScopeToInstructionIfNeeded: loadInst .
 	aDRPhiFunction replaceBy: loadInst.
 
 	(aDRPhiFunction operands allSatisfy: [ :op |
@@ -59,7 +59,8 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 					             variableName.
 					             op }
 			             result: DRNoRegister new.
-		storeInst scope: cfgScope.
+		
+		cfg addScopeToInstructionIfNeeded: storeInst .
 		op basicBlock add: storeInst after: op ]
 ]
 

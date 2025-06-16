@@ -47,6 +47,12 @@ DRScope >> allLocalVectorTemps [
 ]
 
 { #category : 'as yet unclassified' }
+DRScope >> allTempsWithOuterTemps [
+
+	^ self tempVectorVarNames , self copiedVars values flattened
+]
+
+{ #category : 'as yet unclassified' }
 DRScope >> allVectorTemp [
 	| copy |
 	copy := copiedVars copy.

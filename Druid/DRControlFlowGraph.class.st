@@ -48,11 +48,21 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 	^ edge
 ]
 
+{ #category : 'accessing' }
+DRControlFlowGraph >> addScopeToInstructionIfNeeded: anInstruction [
+
+]
+
 { #category : 'adding' }
 DRControlFlowGraph >> addStagedRegister: aDRStagedRegister [ 
 	
 	"Track the staged registers in this CFG to generate"
 	stagedRegisters add: aDRStagedRegister
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> addTempNameToScope: aName [
+
 ]
 
 { #category : 'accessing' }

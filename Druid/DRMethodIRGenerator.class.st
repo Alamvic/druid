@@ -6,31 +6,31 @@ Class {
 	#tag : 'CompilerCompiler'
 }
 
+{ #category : 'initialization' }
+DRMethodIRGenerator >> blockClosureGenerator [
+
+	| blockGenerator |
+	blockGenerator := DRBlockIRGenerator new.
+	
+	blockGenerator ir scope
+		outerScope: self ir scope;
+		id: self ir scope id + 1;
+		addCopiedVarsFromOuterScope: self ir scope.
+		
+	^ blockGenerator
+]
+
 { #category : 'visiting' }
 DRMethodIRGenerator >> finishCodeInterpretation: lastFrame [
 
 	currentBasicBlock return: lastFrame returnedValue
 ]
 
-{ #category : 'accessing' }
-DRMethodIRGenerator >> handleCFGScope: methodNode [
-
-	| methodScope |
-	methodScope := DRScope new
-		               numArgs: methodNode arguments size;
-		               argumentNames: methodNode argumentNames ;
-		               addTemps: methodNode temporaryNames;
-		               opalScope: methodNode scope;
-		               node: methodNode;
-		               yourself.
-		
-	self ir scope: methodScope.
-]
-
 { #category : 'initialization' }
 DRMethodIRGenerator >> initialize [
 
 	super initialize.
+	controlFlowGraph scope: DRScope new.
 
 	typeSystem := DRPragmaBasedTypeSystem new
 ]
@@ -95,8 +95,11 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 { #category : 'as yet unclassified' }
 DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [ 
 	
+	self setupCFGScope: aDRMethod codeNode.
+	
 	self pushFrameForCode: aDRMethod receiver: aReceiver.
 	aDRMethod executeOn: self.
+	
 	^ self popFrame.
 ]
 
@@ -177,35 +180,21 @@ DRMethodIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arg
 		  method: nil "Infer methods with a Type System"
 ]
 
+{ #category : 'as yet unclassified' }
+DRMethodIRGenerator >> setupCFGScope: aNode [ 
+
+	self ir scope
+		numArgs: aNode arguments size;
+		argumentNames: aNode argumentNames;
+		addTemps: aNode temporaryNames;
+		opalScope: aNode scope;
+		node: aNode
+]
+
 { #category : 'accessing' }
 DRMethodIRGenerator >> typeSystem: aDRTypeSystem [
 
 	typeSystem := aDRTypeSystem
-]
-
-{ #category : 'visiting' }
-DRMethodIRGenerator >> visitBlockNode: aRBBlockNode [
-
-	| irBlockGenerator blockScope |
-	
-	irBlockGenerator := self blockClosureGenerator.
-	blockScope := DRScope new
-		              numArgs: aRBBlockNode arguments size;
-		              argumentNames: aRBBlockNode argumentNames;
-		              addTemps: aRBBlockNode temporaryNames;
-		              opalScope: aRBBlockNode scope;
-		              node: aRBBlockNode;
-		              id: self ir scope id + 1;
-		              outerScope: self ir scope;
-		              addCopiedVarsFromOuterScope: self ir scope;
-		              yourself.
-	irBlockGenerator ir scope: blockScope.
-
-	self pushOperand: (DRBlockClosure new
-			 blockNode: aRBBlockNode;
-			 irGenerator: irBlockGenerator;
-			 outerContext: self topFrame;
-			 yourself)
 ]
 
 { #category : 'visiting' }
