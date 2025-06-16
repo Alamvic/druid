@@ -47,7 +47,7 @@ b2:
 b3:
 	t6 := :=(2)
 	_ := Jump(b4)
-b4:
+b4:[b2, b3]
 	t8 := Ø(t4, t6)
 	_ := Noop()
 b0:
@@ -80,7 +80,7 @@ b0:
 
 	self assert: printer asString equals: '[[b0]]
 
-b1:
+b1:[b0, b2]
 	t0 := Ø(t5, t2)
 	t1 := If(LessThan, t0, 10; b2, b3)
 b2:
