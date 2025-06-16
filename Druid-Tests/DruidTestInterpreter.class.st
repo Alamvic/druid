@@ -2306,6 +2306,31 @@ DruidTestInterpreter >> simpleMethodWithBlock [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockActivated [
+
+	| tmp |
+	tmp := [ | x | 
+		x:=5.
+		x] value.
+	
+	^ tmp
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockActivatedArg [
+
+	| tmp |
+	tmp := [ :arg |
+	       | x |
+	       x := 5.
+	       x ] value: 2.
+
+	^ tmp
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> simpleMethodWithBlockExperimental: arg [
 
 	self basicMethodWithBlock: [ :arg2 |

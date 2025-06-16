@@ -869,7 +869,7 @@ DRIRGenerator >> interpretClassTableRootsObjectWith: aRBVariableNode [
 
 { #category : 'API' }
 DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
-	"this method is used when interpreting a method from inlining"
+	
 	self pushFrameForCode: aDRCode receiver: aReceiver.
 	
 	"Iterate based on the defined arguments.
@@ -878,7 +878,7 @@ DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments
 		name := aDRCode codeNode argumentNames at: i.
 		self topFrame writeTemporaryNamed: name withValue: (arguments at: i).
 	].
-
+	
 	aDRCode executeOn: self.
 	^ self popFrame.
 ]

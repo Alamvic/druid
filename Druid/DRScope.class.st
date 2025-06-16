@@ -35,29 +35,9 @@ DRScope >> addTemps: aCollection [
 ]
 
 { #category : 'as yet unclassified' }
-DRScope >> allLocalTemps [
-	
-	^ argumentNames , self copiedVarNames , { self tempVectorName }
-]
-
-{ #category : 'as yet unclassified' }
-DRScope >> allLocalVectorTemps [
-	
-	^ argumentNames , self copiedVarNames , self tempVarNames
-]
-
-{ #category : 'as yet unclassified' }
 DRScope >> allTempsWithOuterTemps [
 
 	^ self tempVectorVarNames , self copiedVars values flattened
-]
-
-{ #category : 'as yet unclassified' }
-DRScope >> allVectorTemp [
-	| copy |
-	copy := copiedVars copy.
-	copy add: (self tempVectorName -> self allLocalVectorTemps).
-	^ copy
 ]
 
 { #category : 'accessing' }

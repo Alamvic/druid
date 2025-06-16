@@ -333,6 +333,24 @@ DRBytecodeGeneratorTest >> testMethodWithArg [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockActivated [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithBlockActivated
+		fromClass: DruidTestInterpreter
+		arguments: {  }
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockActivatedArg [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithBlockActivatedArg
+		fromClass: DruidTestInterpreter
+		arguments: {  }
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockArg [
 	
 	self assertCompilationNoInlineFor: #simpleMethodWithBlockWithArg fromClass: DruidTestInterpreter arguments: {}.

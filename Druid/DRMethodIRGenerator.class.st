@@ -92,6 +92,20 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	self unexplored
 ]
 
+{ #category : 'interpreting' }
+DRMethodIRGenerator >> interpretBlockValueWith: aRBMessageNode [
+
+	| block |
+	
+	aRBMessageNode receiver acceptVisitor: self.
+	block := self popOperand simplify.
+	block isDRBlockClosure ifFalse: [
+		^ self resolveMessageSend: aRBMessageNode receiver: block ].
+	
+	
+	self interpretCode: block receiver: block
+]
+
 { #category : 'as yet unclassified' }
 DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [ 
 	
