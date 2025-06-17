@@ -1,31 +1,37 @@
 Class {
-	#name : 'DRCustomizedBytecodedGeneratorTest',
+	#name : 'DRCustomizedTypeSystemInliningTest',
 	#superclass : 'DRBytecodeGeneratorTest',
 	#category : 'Druid-Tests',
 	#package : 'Druid-Tests'
 }
 
 { #category : 'running' }
-DRCustomizedBytecodedGeneratorTest >> setUp [
+DRCustomizedTypeSystemInliningTest >> setUp [
 	super setUp.
 	
-	self skip "return to this when doing inlining"
+	self skip ."return to this when doing inlining"
+	
+	compilerCompiler := DRMethodCompilerCompiler new.
+	typeSystem := DRCustomisationTypeSystem new.
+	
+	compilerCompiler configureForCompilerClass: nil.
+	compilerCompiler irGenerator typeSystem: typeSystem.
+	
+	bytecodeGenerator := DRBytecodeGenerator new.
+	
 ]
 
 { #category : 'tests' }
-DRCustomizedBytecodedGeneratorTest >> testMethodCustomisationAllSatisfy [
+DRCustomizedTypeSystemInliningTest >> testMethodCustomisationAllSatisfy [
 
 	| method result cfg selector |
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler irGenerator typeSystem: typeSystem.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
+	
 	selector := #allSatisfy:.
 	method := Array lookupSelector: selector.
 	
 	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
-
+	
 	compilerCompiler optimize: cfg.
 	compilerCompiler optimize: cfg.
 
@@ -45,14 +51,10 @@ DRCustomizedBytecodedGeneratorTest >> testMethodCustomisationAllSatisfy [
 ]
 
 { #category : 'tests' }
-DRCustomizedBytecodedGeneratorTest >> testMethodCustomisationAnySatisfy [
+DRCustomizedTypeSystemInliningTest >> testMethodCustomisationAnySatisfy [
 
 	| method result cfg selector |
 	
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler irGenerator typeSystem: typeSystem.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
 	selector := #anySatisfy:.
 	method := Array lookupSelector: selector.
 
@@ -76,13 +78,10 @@ DRCustomizedBytecodedGeneratorTest >> testMethodCustomisationAnySatisfy [
 ]
 
 { #category : 'tests' }
-DRCustomizedBytecodedGeneratorTest >> testMethodCustomisationDifference [
+DRCustomizedTypeSystemInliningTest >> testMethodCustomisationDifference [
 
 	| method result cfg selector |
 	
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
 	selector := #difference:.
 	method := Set >> selector.
 
@@ -103,12 +102,10 @@ DRCustomizedBytecodedGeneratorTest >> testMethodCustomisationDifference [
 ]
 
 { #category : 'tests' }
-DRCustomizedBytecodedGeneratorTest >> testMethodCustomisationDo [
+DRCustomizedTypeSystemInliningTest >> testMethodCustomisationDo [
 
 	| method result cfg selector |
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
+	
 	selector := #do:.
 	method := SequenceableCollection >> selector.
 
@@ -130,13 +127,10 @@ DRCustomizedBytecodedGeneratorTest >> testMethodCustomisationDo [
 ]
 
 { #category : 'tests' }
-DRCustomizedBytecodedGeneratorTest >> testMethodCustomisationSelect [
+DRCustomizedTypeSystemInliningTest >> testMethodCustomisationSelect [
 
 	| method result cfg selector |
-	compilerCompiler irGenerator typeSystem:
-		(typeSystem := DRCustomisationTypeSystem new).
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
+	
 	selector := #select:.
 	method := Collection >> selector.
 
@@ -154,13 +148,10 @@ DRCustomizedBytecodedGeneratorTest >> testMethodCustomisationSelect [
 ]
 
 { #category : 'tests' }
-DRCustomizedBytecodedGeneratorTest >> testMethodCustomisationSlowCount [
+DRCustomizedTypeSystemInliningTest >> testMethodCustomisationSlowCount [
 
 	| method result cfg selector |
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler irGenerator typeSystem: typeSystem.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
+	
 	selector := #slowCount.
 	method := Array lookupSelector: selector.
 	
@@ -178,23 +169,4 @@ DRCustomizedBytecodedGeneratorTest >> testMethodCustomisationSlowCount [
 
 	result := method valueWithReceiver: { 2. 4. 6 } arguments: {}.
 	self assert: result equals: 3.
-]
-
-{ #category : 'tests' }
-DRCustomizedBytecodedGeneratorTest >> testMethodWithTypeCheck [
-
-	| method result |
-	
-	compilerCompiler configureForCompilerClass: nil.
-	method := self generateMethodForSelector: #methodCollectionSize:.
-
-	result := method
-		          valueWithReceiver: nil
-		          arguments: { { 1. 2. 3 } asOrderedCollection }.
-	self assert: result equals: 3.
-
-	result := method
-		          valueWithReceiver: nil
-		          arguments: { (Array2D rows: 2 columns: 2) }.
-	self assert: result equals: 4
 ]

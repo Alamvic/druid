@@ -108,8 +108,7 @@ DRScope >> lookupVar: name [
 
 	scope := outerScope
 		              ifNotNil: [ :os | os lookupVar: name ]
-		              ifNil: [ "self error: 'Not explored'" ].
-	"copiedVars at: vectorName put: vectorName."
+		              ifNil: [ "self error: 'Not explored'"]. "I need to comment this to make the inlining work"
 	
 	^ scope
 ]

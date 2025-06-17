@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRLoadArgument',
-	#superclass : 'DRInstruction',
+	#superclass : 'DRTemporaryVariableInstruction',
 	#instVars : [
 		'argName'
 	],

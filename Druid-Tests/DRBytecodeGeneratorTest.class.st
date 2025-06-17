@@ -528,6 +528,27 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
+
+	| method result |
+	
+	self skip: 'Depends on the inlining'.
+	
+	compilerCompiler configureForCompilerClass: nil.
+	method := self generateMethodForSelector: #methodCollectionSize:.
+
+	result := method
+		          valueWithReceiver: nil
+		          arguments: { { 1. 2. 3 } asOrderedCollection }.
+	self assert: result equals: 3.
+
+	result := method
+		          valueWithReceiver: nil
+		          arguments: { (Array2D rows: 2 columns: 2) }.
+	self assert: result equals: 4
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalBooleanMethods [
 
 	OCOpalExamples methods

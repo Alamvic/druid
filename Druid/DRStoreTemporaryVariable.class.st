@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRStoreTemporaryVariable',
-	#superclass : 'DRInstruction',
+	#superclass : 'DRTemporaryVariableInstruction',
 	#category : 'Druid-IR',
 	#package : 'Druid',
 	#tag : 'IR'

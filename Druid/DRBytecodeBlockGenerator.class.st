@@ -14,9 +14,6 @@ DRBytecodeBlockGenerator >> compileBlockFrom: aDRControlFlowGraph withScope: aSc
 	
 	ir := builder ir.
 	
-	"irTranslator := DRIRToBytecodeTranslator new compilationContext: ir compilationContext; yourself. 
-	compiledBlock := irTranslator compileBlockIR: ir withScope: aScope."
-	
 	compiledBlock := ir compiledBlock: aScope.
 	
 	^ compiledBlock 
