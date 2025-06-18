@@ -36,12 +36,16 @@ DRIRParser >> addInstr: opcode to: aDRBasicBlock withResult: result andOperands:
 		              ifAbsent: [ self error: 'Invalid opcode ' , opcode ].
 
 	instr := instrClass new.
-	instr result: aDRBasicBlock controlFlowGraph instructionFactory
-			allocateTemporaryRegister.
-	instrMapping
-		at: result
-		ifPresent: [ self assert: (result = '_') description: 'Attempting to redefine variable ' , result ]
-		ifAbsentPut: [ instr ].
+
+	result = '_' ifFalse: [
+		instr result: aDRBasicBlock controlFlowGraph instructionFactory
+				allocateTemporaryRegister.
+		instrMapping
+			at: result
+			ifPresent: [
+			self error: 'Attempting to redefine variable ' , result ]
+			ifAbsentPut: [ instr ] ].
+
 	instrDependencies at: instr put: (instrClass
 			 getDependenciesFromOperandsString: operands
 			 withOpcode: opcode).

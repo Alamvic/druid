@@ -170,6 +170,7 @@ DRJump >> replaceTarget: previousTarget by: newTarget [
 { #category : 'accessing' }
 DRJump >> result: r [
 
+	self halt.
 ]
 
 { #category : 'SCCP' }

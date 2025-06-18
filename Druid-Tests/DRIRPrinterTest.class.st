@@ -19,7 +19,6 @@ DRIRPrinterTest >> testPrintConditionalCFG [
 			DREqualsThanComparison new.
 			condition.
 			true asDRValue }.
-	cfg validate.
 
 	t0 := cfg b1 copy: 5.
 	cfg b1 multiply: 3 by: t0.

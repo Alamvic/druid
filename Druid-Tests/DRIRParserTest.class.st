@@ -40,15 +40,15 @@ b1:
 	t0 := LessThan(1, 2)
 	t1 := :=(5)
 	t2 := MUL(3, t1)
-	t3 := If(EqualsThan, t0, true; b2, b3)
+	_ := If(EqualsThan, t0, true; b2, b3)
 b2:
-	t4 := :=(1)
+	t3 := :=(1)
 	_ := Jump(b4)
 b3:
-	t6 := :=(2)
+	t4 := :=(2)
 	_ := Jump(b4)
 b4:[b2, b3]
-	t8 := Ø(t4, t6)
+	t5 := Ø(t3, t4)
 	_ := Noop()
 b0:
 	_ := Jump(b1)
@@ -61,7 +61,7 @@ DRIRParserTest >> testParseCyclicCFG [
 	| printer cfg src parser |
 	src := 	'[[b0]]
 
-b1:
+b1:[b0, b2]
 	t1 := Ø(t0, t2)
 	_ := If(LessThan, t1, 10; b2, b3)
 b2:
@@ -81,15 +81,15 @@ b0:
 	self assert: printer asString equals: '[[b0]]
 
 b1:[b0, b2]
-	t0 := Ø(t5, t2)
-	t1 := If(LessThan, t0, 10; b2, b3)
+	t0 := Ø(t2, t1)
+	_ := If(LessThan, t0, 10; b2, b3)
 b2:
-	t2 := ADD(1, t0)
+	t1 := ADD(1, t0)
 	_ := Jump(b1)
 b3:
-	t4 := Return(t0)
+	_ := Return(t0)
 b0:
-	t5 := :=(1)
+	t2 := :=(1)
 	_ := Jump(b1)
 '.
 ]

@@ -41,11 +41,6 @@ DRNoop >> removeFromCFG [
 	super removeFromCFG
 ]
 
-{ #category : 'accessing' }
-DRNoop >> result: _ [
-
-]
-
 { #category : 'SCCP' }
 DRNoop >> sccpLatticeValueFor: sccp [ 
 	
