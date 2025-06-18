@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRStoreTemporaryVariable',
-	#superclass : 'DRInstruction',
+	#superclass : 'DRTemporaryVariableInstruction',
 	#category : 'Druid-IR',
 	#package : 'Druid',
 	#tag : 'IR'
@@ -34,12 +34,6 @@ DRStoreTemporaryVariable >> isStore [
 DRStoreTemporaryVariable >> isStoreTemporaryVariable [
 
 	^ true
-]
-
-{ #category : 'testing' }
-DRStoreTemporaryVariable >> isTempVectorTemp [ 
-
-	^ false
 ]
 
 { #category : 'printing' }

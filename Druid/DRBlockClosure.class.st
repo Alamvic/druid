@@ -80,6 +80,12 @@ DRBlockClosure >> hash [
 ]
 
 { #category : 'accessing' }
+DRBlockClosure >> irGenerator [
+
+	^ irGenerator
+]
+
+{ #category : 'accessing' }
 DRBlockClosure >> irGenerator: anIRGenerator [
 
 	irGenerator := anIRGenerator

@@ -162,7 +162,6 @@ DRIRGenerator >> blockClosureGenerator [
 
 	| blockGenerator |
 	blockGenerator := DRBlockIRGenerator new.
-	blockGenerator executionState: executionState copy.
 
 	^ blockGenerator
 ]
@@ -187,6 +186,7 @@ DRIRGenerator >> branchFrom: startingBasicBlock onEdge: anEdgeBlock doing: aBloc
 DRIRGenerator >> buildIfTrue: aCondition then: aBuildingBlock [
 
 	| conditionalJump executionStateBeforeBranch trueBranchBasicBlockOut startingBasicBlock |
+	
 	conditionalJump := self
 		                   instantiateNoResultInstruction:
 		                   DRBranchIfCondition
@@ -747,23 +747,14 @@ DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
 
 	numArgs := aDRBlockClosure numberOfArguments.
 	self numberOfArguments: numArgs.
-
+	
 	self
-		interpretBlockCode: aDRBlockClosure
+		interpretCode: aDRBlockClosure
 		receiver: aDRBlockClosure.
 		
 	self ir numArgs: numArgs.
 	
 	^ self ir
-]
-
-{ #category : 'API' }
-DRIRGenerator >> interpretBlockCode: aDRCode receiver: aReceiver [ 
-
-	self pushFrameForCode: aDRCode receiver: aReceiver.
-
-	aDRCode executeOn: self.
-	^ self popBlockFrame.
 ]
 
 { #category : 'special cases' }
@@ -878,7 +869,7 @@ DRIRGenerator >> interpretClassTableRootsObjectWith: aRBVariableNode [
 
 { #category : 'API' }
 DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
-
+	
 	self pushFrameForCode: aDRCode receiver: aReceiver.
 	
 	"Iterate based on the defined arguments.
@@ -887,7 +878,7 @@ DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments
 		name := aDRCode codeNode argumentNames at: i.
 		self topFrame writeTemporaryNamed: name withValue: (arguments at: i).
 	].
-
+	
 	aDRCode executeOn: self.
 	^ self popFrame.
 ]
@@ -1981,6 +1972,12 @@ DRIRGenerator >> tagSmallInteger: operand from: aRBMessageNode [
 
 ]
 
+{ #category : 'as yet unclassified' }
+DRIRGenerator >> temporariesListfrom: aNode [ 
+	
+	^ aNode argumentNames , aNode temporaryNames.
+]
+
 { #category : 'frame-access' }
 DRIRGenerator >> temporaryAt: aString [ 
 	
@@ -2052,9 +2049,13 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 
+	| irBlockGenerator |
+	
+	irBlockGenerator := self blockClosureGenerator.
+
 	self pushOperand: (DRBlockClosure new
 			 blockNode: aRBBlockNode;
-			 irGenerator: self blockClosureGenerator;
+			 irGenerator: irBlockGenerator;
 			 outerContext: self topFrame;
 			 yourself)
 ]
@@ -2127,7 +2128,6 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 	(aRBMethodNode hasPragmaNamed: #druidExitPoint) ifTrue: [
 		^ self interpretDruidExitPointWith: aRBMethodNode ].
 
-
 	(aRBMethodNode hasPragmaNamed: #doNotGenerate) ifTrue: [
 		(aRBMethodNode hasPragmaNamed: #druidNotIgnore) ifFalse: [ 1 halt ] ].
 	(aRBMethodNode hasPragmaNamed: #halt) ifTrue: [ 1 halt ].
@@ -2196,7 +2196,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitSelfNode: aRBVariableNode [ 
 	
-	self pushOperand: self receiver "(self topFrame receiverWithState: executionState)"
+	self pushOperand: (self topFrame receiverWithState: executionState)
 ]
 
 { #category : 'visiting' }

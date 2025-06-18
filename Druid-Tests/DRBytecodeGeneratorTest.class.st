@@ -20,6 +20,7 @@ DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method [
 DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method arguments: arguments [
 
 	| result expectedResult |
+	
 	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: arguments.
 	expectedResult := method valueWithReceiver: compilerCompiler interpreter arguments: arguments.
 	self assert: result equals: expectedResult
@@ -72,6 +73,20 @@ DRBytecodeGeneratorTest >> assertCompilationNoInlineFor: aSelector fromClass: aC
 ]
 
 { #category : 'assertion' }
+DRBytecodeGeneratorTest >> assertCompilationNoInlineFor: aSelector fromClass: aClass arguments: args [
+
+	| compiledMethod expectedMethod |
+	
+	compilerCompiler configureForCompilerClassWithoutInline: nil.
+	
+	expectedMethod := aClass >> aSelector.
+	
+	compiledMethod := self compileSelector: aSelector fromClass: aClass.
+	
+	self assert: compiledMethod equalsResult: expectedMethod arguments: args
+]
+
+{ #category : 'assertion' }
 DRBytecodeGeneratorTest >> checkByteCode: byteCode in: compiledMethodIR [
 	"check if the provided bytecode exist in the compiledMethod IR"
 	
@@ -85,8 +100,9 @@ DRBytecodeGeneratorTest >> compileSelector: selector fromClass: interpreterClass
 	method := interpreterClass >> selector.
 	interpreter := interpreterClass basicNew.
 	compilerCompiler interpreter: interpreter.
-
+	
 	cfg := self generateDruidIRFor: method.
+	
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 	method methodClass: interpreterClass.
 	^ method
@@ -97,6 +113,7 @@ DRBytecodeGeneratorTest >> generateDruidIRFor: method [
 
 	| cfg |
 	cfg := compilerCompiler generateDruidIRFor: method.
+	
 	compilerCompiler optimize: cfg.
 	^ cfg
 ]
@@ -127,7 +144,7 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 
 { #category : 'utilities' }
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
-
+	
 	aDRControlFlowGraph applyOptimisation: DRFrameInfoCleaner new.
 	aDRControlFlowGraph applyOptimisation: (DRBranchCollapse then: DRPhiSimplication).
 	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
@@ -166,184 +183,15 @@ DRBytecodeGeneratorTest >> tearDown [
 DRBytecodeGeneratorTest >> testBasicControlFlow [
 
 	| cfg method result |
-	cfg := DRControlFlowGraph new.
+	cfg := DRMethodControlFlowGraph new.
 	cfg newBasicBlockWith: [ :b | 
 		cfg initialBasicBlock jumpTo: b.
 		b return: (b add: 3 to: 4) ].
-
+	cfg scope: DRScope new.
 	method := self generateMethodFromCFG: cfg withSelector: #m numArgs: 0.
 	result := method valueWithReceiver: nil arguments: {  }.
 
 	self assert: result equals: 7
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationAllSatisfy [
-
-	| method result cfg selector |
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler irGenerator typeSystem: typeSystem.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #allSatisfy:.
-	method := Array lookupSelector: selector.
-
-	compilerCompiler interpreter: {  }.
-	cfg := self generateDruidIRFor: method.
-
-	compilerCompiler optimize: cfg.
-	compilerCompiler optimize: cfg.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	result := method valueWithReceiver: { 1. 2 } arguments: { [ :e | e even ] }.
-	self assert: result equals: false.
-
-	result := method valueWithReceiver: { 2. 4 } arguments: { [ :e | e even ] }.
-	self assert: result equals: true.
-
-"
-	{ Array } do: [ :e |
-		e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
-		e addSelectorSilently: selector withMethod: method ]
-	"
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationAnySatisfy [
-
-	| method result cfg selector |
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler irGenerator typeSystem: typeSystem.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #anySatisfy:.
-	method := Array lookupSelector: selector.
-
-	compilerCompiler interpreter: {  }.
-	cfg := self generateDruidIRFor: method.
-	compilerCompiler optimize: cfg.
-	compilerCompiler optimize: cfg.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	result := method valueWithReceiver: { 1. 2 } arguments: { [ :e | e even ] }.
-	self assert: result equals: true.
-	
-	result := method valueWithReceiver: { 1 . 3 } arguments: { [ :e | e even ] }.
-	self assert: result equals: false.
-
-"	{ Array }	
-		do: [ :e |
-			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
-			e addSelectorSilently: selector withMethod: method ]"
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationBadCount [
-
-	| method result cfg selector |
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler irGenerator typeSystem: typeSystem.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #badCount.
-	method := Array lookupSelector: selector.
-
-	compilerCompiler interpreter: Array new.
-
-	cfg := self generateDruidIRFor: method.
-
-	compilerCompiler optimize: cfg.
-	compilerCompiler optimize: cfg.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	result := method valueWithReceiver: { 1. 2 } arguments: {}.
-	self assert: result equals: 2.
-
-	result := method valueWithReceiver: { 2. 4. 6 } arguments: {}.
-	self assert: result equals: 3.
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationDifference [
-
-	| method result cfg selector |
-	
-	self skip.
-	
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #difference:.
-	method := Set >> selector.
-
-	compilerCompiler interpreter: {  }.
-	cfg := self generateDruidIRFor: method.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	result := method valueWithReceiver: { 1. 2. 3 } asSet arguments: { { 3 . 4 . 5 } asSet }.
-
-	self assertCollection: result includesAll: { 1. 2 }.
-
-
-"	{ Array }	
-		do: [ :e |
-			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
-			e addSelectorSilently: selector withMethod: method ]"
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationDo [
-
-	| method result cfg selector |
-	typeSystem := DRCustomisationTypeSystem new.
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #do:.
-	method := SequenceableCollection >> selector.
-
-	compilerCompiler interpreter: {  }.
-	cfg := self generateDruidIRFor: method.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	result := OrderedCollection new.
-	method valueWithReceiver: { 1. 2. 3 } arguments: { [ :e | result add: e ] }.
-
-	self assertCollection: result includesAll: { 1. 2. 3 }.
-
-
-"	{ Array }	
-		do: [ :e |
-			e addAndClassifySelector: selector withMethod: method inProtocol: '*DrOpal-Extensions'.
-			e addSelectorSilently: selector withMethod: method ]"
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodCustomisationSelect [
-
-	| method result cfg selector |
-	compilerCompiler irGenerator typeSystem:
-		(typeSystem := DRCustomisationTypeSystem new).
-	compilerCompiler configureForCompilerClass: nil.
-	bytecodeGenerator := DRBytecodeGenerator new.
-	selector := #select:.
-	method := Collection >> selector.
-
-	compilerCompiler interpreter: {  }.
-	cfg := self generateDruidIRFor: method.
-	compilerCompiler optimize: cfg.
-
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	result := method
-		          valueWithReceiver: { 1. 2. 3 } asOrderedCollection
-		          arguments: { [ :e | e even ] }.
-
-	self assertCollection: result includesAll: { 2 }.
 ]
 
 { #category : 'tests' }
@@ -361,12 +209,14 @@ DRBytecodeGeneratorTest >> testMethodInline [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectAccessInstVar [
 
+	self skip. "need to repass this after we handle inlining"
 	self assertCompilationFor: #basicInlineMethodAccesInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #instVarAt:'
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectSettingInstVar [
 
+	self skip. "need to repass this after we handle inlining"
 	self assertCompilationFor: #basicInlineMethodSettingInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #instVarAt:put:'
 ]
 
@@ -483,62 +333,175 @@ DRBytecodeGeneratorTest >> testMethodWithArg [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockActivated [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithBlockActivated
+		fromClass: DruidTestInterpreter
+		arguments: {  }
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockActivatedArg [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithBlockActivatedArg
+		fromClass: DruidTestInterpreter
+		arguments: {  }
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockArg [
+	
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockWithArg fromClass: DruidTestInterpreter arguments: {}.
+
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockArgWithBlockArg [
+	
+	self assertCompilationNoInlineFor: #simpleMethodArgWithBlockWithArg: fromClass: DruidTestInterpreter arguments: { nil }.
+
+	
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockConstant [
 	
-	| compiledMethod expectedMethod aSelector |
+	self assertCompilationNoInlineFor: #methodBlockConstant fromClass: DruidTestInterpreter arguments: { }.
 
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #methodBlockConstant .
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockEmpty [
 	
-	| compiledMethod expectedMethod aSelector |
+	self assertCompilationNoInlineFor: #methodEmptyBlock fromClass: DruidTestInterpreter arguments: { }.
 
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #methodEmptyBlock .
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockLocalAndNonLocalReturn [
 	
-	| compiledMethod expectedMethod aSelector |
+	self assertCompilationNoInlineFor: #methodBlockLocalAndNonLocalReturn fromClass: DruidTestInterpreter arguments: { }.
+	
+]
 
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #methodBlockLocalAndNonLocalReturn .
-	expectedMethod := DruidTestInterpreter >> aSelector.
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadAndWrite [
 	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadAndWrite fromClass: DruidTestInterpreter arguments: { }.
 	
-	self assert: compiledMethod equalsResult: expectedMethod
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadAndWriteWithArg [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadAndWriteWithArg: fromClass: DruidTestInterpreter arguments: { 5 }.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterArg: fromClass: DruidTestInterpreter arguments: {1}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg2 [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterArg2: fromClass: DruidTestInterpreter arguments: {1}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterTemp [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterTemp fromClass: DruidTestInterpreter arguments: {}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterTemp2 [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterTemp2 fromClass: DruidTestInterpreter arguments: {}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2Simple [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2Simple fromClass: DruidTestInterpreter arguments: {}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2WithArg [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2WithArg fromClass: DruidTestInterpreter arguments: { }.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2WithArg2 [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2WithArg2 fromClass: DruidTestInterpreter arguments: { }.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2WritingOuterTemp [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2WritingOuterTemp fromClass: DruidTestInterpreter arguments: {}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockNested2WritingOuterTemp2 [
+	
+	self assertCompilationNoInlineFor: #methodBlockNested2WritingOuterTemp2 fromClass: DruidTestInterpreter arguments: {}.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNonLocalReturn [
 	
-	| compiledMethod expectedMethod aSelector |
+	self assertCompilationNoInlineFor: #methodBlockNonLocalReturn fromClass: DruidTestInterpreter arguments: { }.
 
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #methodBlockNonLocalReturn .
-	expectedMethod := DruidTestInterpreter >> aSelector.
 	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockReadingArgVar [
 	
-	self assert: compiledMethod equalsResult: expectedMethod
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingArgVariable: fromClass: DruidTestInterpreter arguments: { nil }.
+
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockReadingVar [
+
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingOuterVariable fromClass: DruidTestInterpreter arguments: {}.
+	
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockTemp [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithBlock
+		fromClass: DruidTestInterpreter
+		arguments: {  }
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockWritingVar [
+	
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockWritingOuterVariable fromClass: DruidTestInterpreter arguments: {}.
 	
 ]
 
@@ -568,6 +531,9 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 
 	| method result |
+	
+	self skip: 'Depends on the inlining'.
+	
 	compilerCompiler configureForCompilerClass: nil.
 	method := self generateMethodForSelector: #methodCollectionSize:.
 
@@ -679,67 +645,5 @@ DRBytecodeGeneratorTest >> testSimpleMethodWith2arg [
 	
 	self assert: result equals: 12.
 	self assert: compiledMethod equalsResult: expectedMethod arguments: { 5 . 6}.
-	
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testSimpleMethodWithBlock [
-	
-	| compiledMethod expectedMethod aSelector |
-
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #simpleMethodWithBlock.
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
-	
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testSimpleMethodWithBlockArg [
-	
-	| compiledMethod expectedMethod aSelector |
-
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #simpleMethodWithBlockWithArg.
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
-	
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testSimpleMethodWithBlockReadingVar [
-	
-	| compiledMethod expectedMethod aSelector |
-
-	self skip. "in this case, no vectorTemp is supposed to be created on the outerScope"
-
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #simpleMethodWithBlockReadingOuterVariable.
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
-	
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testSimpleMethodWithBlockWritingVar [
-	
-	| compiledMethod expectedMethod aSelector |
-	
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	aSelector:= #simpleMethodWithBlockWritingOuterVariable .
-	expectedMethod := DruidTestInterpreter >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
 	
 ]

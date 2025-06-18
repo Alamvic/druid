@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRLoadTemporaryVariable',
-	#superclass : 'DRInstruction',
+	#superclass : 'DRTemporaryVariableInstruction',
 	#category : 'Druid-IR',
 	#package : 'Druid',
 	#tag : 'IR'
@@ -28,12 +28,6 @@ DRLoadTemporaryVariable >> initialize [
 DRLoadTemporaryVariable >> isLoadTemporaryVariable [
 
 	^ true
-]
-
-{ #category : 'testing' }
-DRLoadTemporaryVariable >> isTempVectorTemp [
-	
-	^ false
 ]
 
 { #category : 'printing' }

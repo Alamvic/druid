@@ -7,24 +7,31 @@ Class {
 }
 
 { #category : 'visiting' }
-DRBlockIRGenerator >> finishCodeInterpretation: anInstruction [
-
-	currentBasicBlock blockReturn: anInstruction 
+DRBlockIRGenerator >> finishCodeInterpretation: lastFrame [
+	
+	lastFrame returnedValue isReturn ifFalse: [ 
+		currentBasicBlock blockReturn: lastFrame returnedValue.
+	]
+	
 ]
 
 { #category : 'visiting' }
 DRBlockIRGenerator >> interpretBlockActivation: aRBBlockNode [
 
 	| result copy |
+	
 	self interpretBlockBody: aRBBlockNode.
+	
+	result := self operandStackTop.
+	copy := self instructionFor: result inNode: aRBBlockNode.
+	self topFrame returnValue: copy.
+	
+]
 
-	"add block return if no return in the block"
-	self ir lastBasicBlock endInstruction isReturn ifFalse: [
-		result := self operandStackTop.
-		copy := self instructionFor: result inNode: aRBBlockNode.
+{ #category : 'as yet unclassified' }
+DRBlockIRGenerator >> temporariesListfrom: aNode [
 
-		self topFrame returnValue: copy.
-		self finishCodeInterpretation: copy ]
+	^ self ir scope allTempsWithOuterTemps 
 ]
 
 { #category : 'visiting' }
@@ -34,6 +41,13 @@ DRBlockIRGenerator >> visitReturnNode: aRBReturnNode [
 	
 	value := self visitOperand: aRBReturnNode value.
 
-	self pushOperand: value.
-	currentBasicBlock return: value.
+	self pushOperand:(currentBasicBlock return: value).
+
+]
+
+{ #category : 'visiting' }
+DRBlockIRGenerator >> visitSelfNode: aRBVariableNode [ 
+
+	self pushOperand: self receiver.
+
 ]

@@ -48,11 +48,21 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 	^ edge
 ]
 
+{ #category : 'accessing' }
+DRControlFlowGraph >> addScopeToInstructionIfNeeded: anInstruction [
+
+]
+
 { #category : 'adding' }
 DRControlFlowGraph >> addStagedRegister: aDRStagedRegister [ 
 	
 	"Track the staged registers in this CFG to generate"
 	stagedRegisters add: aDRStagedRegister
+]
+
+{ #category : 'accessing' }
+DRControlFlowGraph >> addTempNameToScope: aName [
+
 ]
 
 { #category : 'accessing' }
@@ -107,12 +117,6 @@ DRControlFlowGraph >> allLoops [
 DRControlFlowGraph >> allTemporaryInstructions [
 
 	^ self instructions select: [ :i | (i isStoreTemporaryVariable  or: [i isLoadTemporaryVariable])].
-]
-
-{ #category : 'accessing' }
-DRControlFlowGraph >> allVectorTemporaryInstructions [
-
-	^ self instructions select: [ :i | (i isStoreTemporaryVariable  or: [i isLoadTemporaryVariable]) and: [i isTempVectorTemp]].
 ]
 
 { #category : 'building' }
@@ -968,10 +972,4 @@ DRControlFlowGraph >> validate [
 
 	self invalidateDominatorTree.
 	self blocks do: [ :e | e validate ]
-]
-
-{ #category : 'accessing' }
-DRControlFlowGraph >> vectorTemporaryVariableNames [
-
-	^ (self allVectorTemporaryInstructions collect: [ :i | i address value ]) copyWithoutDuplicates sorted
 ]
