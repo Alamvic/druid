@@ -10,7 +10,8 @@ Class {
 		'blockLabelRegex',
 		'instructionRegex',
 		'instrDependencies',
-		'blockPredecessorsOrder'
+		'blockPredecessorsOrder',
+		'opcodeToInstrMap'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -29,12 +30,7 @@ DRIRParser >> addInstr: opcode to: aDRBasicBlock withResult: result andOperands:
 	| instrSubclasses instrClass instr |
 	instrSubclasses := DRInstruction allSubclasses.
 
-	instrClass := instrSubclasses
-		              at:
-		              (instrSubclasses findFirst: [ :class |
-			               class acceptsOpcode: opcode ])
-		              ifAbsent: [ self error: 'Invalid opcode ' , opcode ].
-
+	instrClass := self resolveInstruction: opcode.
 	instr := instrClass new.
 
 	result = '_' ifFalse: [
@@ -103,6 +99,7 @@ DRIRParser >> initializeFor: inputString [
 		         collect: #trim
 		         thenSelect: #isNotEmpty.
 	cfg := DRControlFlowGraph new.
+	self initializeOpcodeToInstrMap.
 
 	blockMapping := Dictionary new.
 	instrMapping := Dictionary new.
@@ -117,6 +114,29 @@ DRIRParser >> initializeFor: inputString [
 	operandsRegex := '[^)]*'.
 	instructionRegex := varRegex , '\:=' , opcodeRegex , '\('
 	                    , operandsRegex , '\)'
+]
+
+{ #category : 'initialization' }
+DRIRParser >> initializeOpcodeToInstrMap [
+
+	opcodeToInstrMap := Dictionary newFrom: {
+			                    ('copy' -> DRCopy).
+
+			                    ('if' -> DRBranchIfCondition).
+			                    ('jump' -> DRJump).
+
+			                    ('noop' -> DRNoop).
+
+	}.
+
+	DRInstruction allSubclasses
+		reject: [ :i | { DRMessageSend. DRMethod. DRGetConditionCode } includes: i ]
+		thenDo: [ :i | opcodeToInstrMap at: i new opcode asLowercase put: i ].
+		
+	DRCondition allSubclasses
+		reject: [ :c | c = DRTypeOf ]
+		thenDo: [ :c | opcodeToInstrMap at: c new opcode asLowercase put: DRGetConditionCode ].
+	
 ]
 
 { #category : 'parsing' }
@@ -194,4 +214,12 @@ DRIRParser >> parseBlockLabel: blockLabel [
 		^ blockName ].
 
 	^ label allButLast
+]
+
+{ #category : 'adding' }
+DRIRParser >> resolveInstruction: opcode [
+
+	^ opcodeToInstrMap
+		  at: opcode asLowercase
+		  ifAbsent: [ self error: 'Invalid opcode ' , opcode ]
 ]

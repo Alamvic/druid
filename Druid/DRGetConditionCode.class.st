@@ -10,13 +10,6 @@ Class {
 }
 
 { #category : 'testing' }
-DRGetConditionCode class >> acceptsOpcode: anOpcode [
-
-	^ DRCondition allSubclasses anySatisfy: [ :class |
-		  class ~= DRTypeOf and: [ class new opcode = anOpcode ] ]
-]
-
-{ #category : 'testing' }
 DRGetConditionCode class >> getDependenciesFromOperandsString: operandsStr withOpcode: opcode [
 
 	| operands conditionClasses condition |

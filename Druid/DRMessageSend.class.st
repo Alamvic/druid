@@ -10,12 +10,6 @@ Class {
 	#tag : 'IR'
 }
 
-{ #category : 'testing' }
-DRMessageSend class >> acceptsOpcode: anOpcode [
-
-	^ false
-]
-
 { #category : 'visiting' }
 DRMessageSend >> acceptVisitor: aVisitor [
 

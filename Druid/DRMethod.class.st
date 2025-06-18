@@ -9,12 +9,6 @@ Class {
 	#tag : 'CompilerCompiler'
 }
 
-{ #category : 'testing' }
-DRMethod class >> acceptsOpcode: anOpcode [
-
-	^false
-]
-
 { #category : 'accessing' }
 DRMethod class >> methodNode: aMethodNode [
 

@@ -17,12 +17,6 @@ Class {
 }
 
 { #category : 'testing' }
-DRInstruction class >> acceptsOpcode: anOpcode [
-
-	^self new opcode = anOpcode.
-]
-
-{ #category : 'testing' }
 DRInstruction class >> getDependenciesFromOperandsString: operands withOpcode: opcode [
 
 	^ {
