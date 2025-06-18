@@ -226,13 +226,6 @@ DRBranchIfCondition >> prettyPrint [
 	  , (self falseBranch ifNotNil: [ :br | br id ]) asString
 ]
 
-{ #category : 'printing' }
-DRBranchIfCondition >> printIROperands [
-
-	^ condition opcode , ', ' , super printIROperands , '; '
-	  , (', ' join: (self targets collect: [ :b | 'b' , b id asString ]))
-]
-
 { #category : 'replacing' }
 DRBranchIfCondition >> replaceTarget: aDRBasicBlock by: aDRBasicBlock2 [
 
