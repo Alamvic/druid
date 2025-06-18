@@ -12,25 +12,6 @@ Class {
 	#tag : 'IR'
 }
 
-{ #category : 'testing' }
-DRBranchIfCondition class >> getDependenciesFromOperandsString: operandsStr withOpcode: opcode [
-
-	| split operands targets conditionClasses condition |
-	split := operandsStr substrings: ';'.
-	operands := split first substrings: ','.
-	targets := split second substrings: ','.
-
-	operands := self processDependencyOperands: operands.
-
-	conditionClasses := DRCondition allSubclasses.
-	condition := (conditionClasses at:
-		              (conditionClasses findFirst: [ :cl |
-			               cl new opcode = operands first ])) new.
-	operands at: 1 put: condition.
-
-	^ { operands. targets }
-]
-
 { #category : 'visiting' }
 DRBranchIfCondition >> acceptVisitor: aVisitor [
 

@@ -11,7 +11,8 @@ Class {
 		'instructionRegex',
 		'instrDependencies',
 		'blockPredecessorsOrder',
-		'opcodeToInstrMap'
+		'opcodeToInstrMap',
+		'opcodeToDependencyStringParserMap'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -42,7 +43,7 @@ DRIRParser >> addInstr: opcode to: aDRBasicBlock withResult: result andOperands:
 			self error: 'Attempting to redefine variable ' , result ]
 			ifAbsentPut: [ instr ] ].
 
-	instrDependencies at: instr put: (instrClass
+	instrDependencies at: instr put: (self
 			 getDependenciesFromOperandsString: operands
 			 withOpcode: opcode).
 
@@ -91,6 +92,20 @@ DRIRParser >> fixPredecessors [
 			thenDo: [ :pred | currBlock addPredecessor: pred ] ]
 ]
 
+{ #category : 'parsing' }
+DRIRParser >> getDependenciesFromOperandsString: operandsString withOpcode: opcode [
+
+	| dependenciesGetter |
+
+	dependenciesGetter := opcodeToDependencyStringParserMap at: opcode asLowercase ifAbsent: [
+		[ :operands | {
+			(self processDependencyOperands: (operands substrings: ',')).
+			nil } ]
+	].
+
+	^ dependenciesGetter cull: operandsString cull: opcode.
+]
+
 { #category : 'initialization' }
 DRIRParser >> initializeFor: inputString [
 
@@ -100,6 +115,7 @@ DRIRParser >> initializeFor: inputString [
 		         thenSelect: #isNotEmpty.
 	cfg := DRControlFlowGraph new.
 	self initializeOpcodeToInstrMap.
+	self initializeOpcodeToDependencyStringParserMap.
 
 	blockMapping := Dictionary new.
 	instrMapping := Dictionary new.
@@ -114,6 +130,45 @@ DRIRParser >> initializeFor: inputString [
 	operandsRegex := '[^)]*'.
 	instructionRegex := varRegex , '\:=' , opcodeRegex , '\('
 	                    , operandsRegex , '\)'
+]
+
+{ #category : 'initialization' }
+DRIRParser >> initializeOpcodeToDependencyStringParserMap [
+
+	opcodeToDependencyStringParserMap := Dictionary new.
+
+	opcodeToDependencyStringParserMap at: 'jump' put: [ :operands | { nil. { operands } } ].
+
+	opcodeToDependencyStringParserMap at: 'if' put: [ :operandsStr |
+		| split operands targets conditionClasses condition |
+		split := operandsStr substrings: ';'.
+		operands := split first substrings: ','.
+		targets := split second substrings: ','.
+
+		operands := self processDependencyOperands: operands.
+
+		conditionClasses := DRCondition allSubclasses.
+		condition := (conditionClasses at:
+			              (conditionClasses findFirst: [ :cl |
+				               cl ~= DRTypeOf and: [cl new opcode = operands first] ])) new.
+		operands at: 1 put: condition.
+
+		{ operands. targets } ].
+
+
+	DRCondition allSubclasses
+		reject: [ :c | c = DRTypeOf ]
+		thenDo: [ :conditionClass |
+			opcodeToDependencyStringParserMap
+				at: conditionClass new opcode asLowercase
+				put: [ :operandsStr |
+					| operands |
+					operands := operandsStr substrings: ','.
+					operands := self processDependencyOperands: operands.
+
+					{
+						  ({ conditionClass new } , operands).
+						  nil } ] ]
 ]
 
 { #category : 'initialization' }
@@ -214,6 +269,18 @@ DRIRParser >> parseBlockLabel: blockLabel [
 		^ blockName ].
 
 	^ label allButLast
+]
+
+{ #category : 'adding' }
+DRIRParser >> processDependencyOperands: operands [
+
+	^ operands collect: [ :op |
+		  op startsWithDigit
+			  ifTrue: [ op asNumber asDRValue ]
+			  ifFalse: [
+				  ({ 'true'. 'false' } includes: op)
+					  ifTrue: [ (op = 'true') asDRValue ]
+					  ifFalse: [ op ] ] ]
 ]
 
 { #category : 'adding' }

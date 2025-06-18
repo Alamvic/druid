@@ -10,12 +10,6 @@ Class {
 	#tag : 'IR'
 }
 
-{ #category : 'testing' }
-DRJump class >> getDependenciesFromOperandsString: operands withOpcode: opcode [
-
-	^ { nil. { operands } }
-]
-
 { #category : 'visiting' }
 DRJump >> = aJump [
 

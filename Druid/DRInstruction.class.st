@@ -16,14 +16,6 @@ Class {
 	#tag : 'IR'
 }
 
-{ #category : 'testing' }
-DRInstruction class >> getDependenciesFromOperandsString: operands withOpcode: opcode [
-
-	^ {
-		  (self processDependencyOperands: (operands substrings: ',')).
-		  nil }
-]
-
 { #category : 'instance creation' }
 DRInstruction class >> operands: aCollection [
 	
@@ -41,18 +33,6 @@ DRInstruction class >> operands: aCollection result: aResultRegister [
 		operands: aCollection;
 		result: aResultRegister;
 		yourself
-]
-
-{ #category : 'parsing' }
-DRInstruction class >> processDependencyOperands: operands [
-
-	^ operands collect: [ :op |
-		  op startsWithDigit
-			  ifTrue: [ op asNumber asDRValue ]
-			  ifFalse: [
-				  ({ 'true'. 'false' } includes: op)
-					  ifTrue: [ (op = 'true') asDRValue ]
-					  ifFalse: [ op ] ] ]
 ]
 
 { #category : 'instance creation' }
