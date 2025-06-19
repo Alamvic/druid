@@ -155,7 +155,7 @@ DRJump >> replaceTarget: previousTarget by: newTarget [
 	target := newTarget.
 ]
 
-{ #category : 'initialization' }
+{ #category : 'accessing' }
 DRJump >> result: r [
 
 	self halt.
@@ -188,6 +188,11 @@ DRJump >> target: aBasicBlock [
 DRJump >> targets [
 	
 	^ { target }
+]
+
+{ #category : 'accessing' }
+DRJump >> targets: aCollection [ 
+	self target: aCollection unique.
 ]
 
 { #category : 'accessing' }

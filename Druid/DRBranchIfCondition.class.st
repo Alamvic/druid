@@ -280,6 +280,13 @@ DRBranchIfCondition >> targets [
 ]
 
 { #category : 'accessing' }
+DRBranchIfCondition >> targets: targets [ 
+	
+	self trueBranch: targets first.
+	self falseBranch: targets second.
+]
+
+{ #category : 'accessing' }
 DRBranchIfCondition >> trueBranch [
 
 	^ trueBranch
