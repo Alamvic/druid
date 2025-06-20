@@ -60,7 +60,7 @@ DRBytecodeGenerator >> handleTemporaryVariableFromCFG: aDRControlFlowGraph [
 	copiedTemps do: [ :tmp| 
 		builder addTemp: tmp ].
 	
-	allTemps := args , copiedTemps , temps.
+	allTemps := args , temps.
 	
 	allTemps isNotEmpty ifTrue: [ 
 		self createTempVector: allTemps vectorName: aDRScope tempVectorName.

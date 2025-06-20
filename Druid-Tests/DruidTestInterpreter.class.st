@@ -87,7 +87,7 @@ DruidTestInterpreter >> basicMethodWithBlock: aBlock [
 DruidTestInterpreter >> basicMethodWithBlockArg: aBlock [
 
 	| tmp1 |
-	tmp1  := aBlock value: 0.
+	tmp1  := aBlock value: 5.
 	^ tmp1
 	
 ]
@@ -369,6 +369,21 @@ DruidTestInterpreter >> methodBlockNested2Simple [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodBlockNested2Simple: arg [
+
+	^ self basicMethodWithBlock: [ 
+		| tmp |
+		tmp := 7.
+		self basicMethodWithBlock: [ 
+			| tmp2| 
+			tmp2 := tmp.
+			tmp2.
+			] 
+			
+	]
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> methodBlockNested2WithArg [
 
 	^ self basicMethodWithBlockArg: [ :arg1 |
@@ -382,7 +397,8 @@ DruidTestInterpreter >> methodBlockNested2WithArg2 [
 
 	^ self basicMethodWithBlockArg: [ :arg1 |
 		  self basicMethodWithBlock: [ 
-			arg1 ]
+			arg1 traceCr.
+			arg1]
 		 ]
 ]
 
@@ -2298,9 +2314,12 @@ DruidTestInterpreter >> simpleMethodWith1Arg: argument1 arg2: argument2 [
 { #category : 'as yet unclassified' }
 DruidTestInterpreter >> simpleMethodWithBlock [
 
-	^ self basicMethodWithBlock: [ | x | 
+	| tmp |
+	tmp := self basicMethodWithBlock: [ | x | 
 		x:=5.
 		x].
+	
+	^ tmp
 	
 	
 ]
@@ -2371,9 +2390,9 @@ DruidTestInterpreter >> simpleMethodWithBlockReadingOuterVariable [
 { #category : 'as yet unclassified' }
 DruidTestInterpreter >> simpleMethodWithBlockWithArg [
 	
-	self basicMethodWithBlockArg: [ :arg |
+	^ self basicMethodWithBlockArg: [ :arg |
 		| x | 
-		x:=arg.
+		x:=arg + 1.
 		x].
 	
 	
