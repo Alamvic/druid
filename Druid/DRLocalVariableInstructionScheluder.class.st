@@ -75,26 +75,30 @@ DRLocalVariableInstructionScheluder >> storeResultsToBeReused: aDRControlFlowGra
 { #category : 'transformation' }
 DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
 
-	| variableName storeInst |
-	self assert: aDRInstruction result isRegister.
+    | variableName storeInst cfg |
+    self assert: aDRInstruction result isRegister.
+    cfg := aDRInstruction controlFlowGraph.
 
-	variableName := aDRInstruction isLoadTemporaryVariable
-		                ifTrue: [ aDRInstruction operand1 ]
-		                ifFalse: [
-		                aDRInstruction result name asLowercase asDRValue ].
+    variableName := aDRInstruction isLoadTemporaryVariable
+                        ifTrue: [ aDRInstruction operand1 ]
+                        ifFalse: [
+                        aDRInstruction result name asLowercase asDRValue ].
+    cfg addTempNameToScope: variableName value.
 
-	aDRInstruction users copy do: [ :user |
-		| loadInst |
-		loadInst := DRLoadTemporaryVariable 
-				operands: { variableName }
-				result: aDRInstruction controlFlowGraph allocateTemporaryRegister.
-		user basicBlock add: loadInst before: user.
-		user replaceDependency: aDRInstruction by: loadInst ].
+    aDRInstruction users copy do: [ :user |
+        | loadInst |
+        loadInst := DRLoadTemporaryVariable 
+                operands: { variableName }
+                result: aDRInstruction controlFlowGraph allocateTemporaryRegister.
+        aDRInstruction controlFlowGraph addScopeToInstructionIfNeeded: loadInst.
+        user basicBlock add: loadInst before: user.
+        user replaceDependency: aDRInstruction by: loadInst ].
 
-	storeInst := DRStoreTemporaryVariable
-		             operands: {
-				             variableName.
-				             aDRInstruction }
-		             result: DRNoRegister new.
-	aDRInstruction basicBlock add: storeInst after: aDRInstruction
+    storeInst := DRStoreTemporaryVariable
+                     operands: {
+                             variableName.
+                             aDRInstruction }
+                     result: DRNoRegister new.
+    cfg addScopeToInstructionIfNeeded: storeInst.
+    aDRInstruction basicBlock add: storeInst after: aDRInstruction
 ]
