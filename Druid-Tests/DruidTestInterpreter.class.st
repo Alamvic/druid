@@ -509,6 +509,15 @@ DruidTestInterpreter >> methodWithThreeNonLocalReturn [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodWithToDo [
+
+	| n |
+	n := 0.
+	1 to: 10 do: [ :i | n := n + i ].
+	^ n
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	self stackTop = 0

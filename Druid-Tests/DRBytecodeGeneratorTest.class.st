@@ -236,6 +236,12 @@ DRBytecodeGeneratorTest >> testMethodInlineSelfSettingInstVar [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineToDo [
+
+	self assertCompilationFor: #methodWithToDo fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodManyReturns [
 
 	self assertCompilationFor: #methodWithThreeNonLocalReturn fromClass: DruidTestInterpreter

@@ -80,7 +80,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 			          operands: {
 					          aRBAssignmentNode variable name asDRValue. "Fix temporary names collisions"
 					          value }.
-		result scope: (self ir scope lookupVar: aRBAssignmentNode variable name).
+		result scope: (self ir scope lookupVarOrAddNewTemp: aRBAssignmentNode variable name).
 		self topFrame
 			temporaryAt: aRBAssignmentNode variable name
 			put: result
@@ -247,8 +247,7 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 			  operands: {
 					  aRBVariableNode name asDRValue.
 					  store }.
-		
-		loadTemp scope: (self ir scope lookupVar: aRBVariableNode name).
+		loadTemp scope: (self ir scope lookupVarOrAddNewTemp: aRBVariableNode name).
 		 ^ loadTemp.
 	].
 	"Else, it is an argument"
@@ -260,7 +259,7 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 	loadArg argName: aRBVariableNode name.
 	
 	
-	loadArg scope: (self ir scope lookupVar: aRBVariableNode name).
+	loadArg scope: (self ir scope lookupVarOrAddNewTemp: aRBVariableNode name).
 	 
 	^ loadArg
 ]

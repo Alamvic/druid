@@ -47,17 +47,21 @@ DRMethodIRGeneratorInline >> newFirstBasicBlock [
 DRMethodIRGeneratorInline >> visitTemporaryVariableNode: aRBVariableNode [
 
 	aRBVariableNode isTempVariable ifTrue: [
-		| store |
+		| store temp |
 		store := self topFrame
 			         temporaryAt: aRBVariableNode name
 			         withState: executionState.
 
-		^ self
-			  addInstructionFrom: aRBVariableNode
-			  instructionKind: DRLoadTemporaryVariable
-			  operands: {
-					  aRBVariableNode name asDRValue.
-					  store } ].
+		temp := self
+			        addInstructionFrom: aRBVariableNode
+			        instructionKind: DRLoadTemporaryVariable
+			        operands: {
+					        aRBVariableNode name asDRValue.
+					        store }.
+
+		temp scope:
+			(self ir scope lookupVarOrAddNewTemp: aRBVariableNode name).
+		^ temp ].
 
 	"Else, it is an argument"
 	(self isBaseMethodArgument: aRBVariableNode)
