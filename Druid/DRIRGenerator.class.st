@@ -761,8 +761,12 @@ DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
 DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 
 	| block arguments |
+	
 	aRBMessageNode receiver acceptVisitor: self.
 	block := self popOperand simplify.
+	1 haltIf: [ block isDRBlockClosure not ].
+	block isDRBlockClosure ifFalse: [
+		^ self resolveMessageSend: aRBMessageNode receiver: block ].
 	arguments := aRBMessageNode arguments collect: [ :e |
 		e acceptVisitor: self.
 		self popOperand ].
@@ -778,6 +782,7 @@ DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 
 	| block arguments |
+	
 	aRBMessageNode receiver acceptVisitor: self.
 	block := self popOperand simplify.
 	block isDRBlockClosure ifFalse: [
@@ -2103,6 +2108,7 @@ DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 DRIRGenerator >> visitMessageNode: aRBMessageNode [
 
 	| receiver |
+	
 	specialCases at: aRBMessageNode selector ifPresent: [ :mapping | 
 		^ self perform: mapping withArguments: { aRBMessageNode } ].
 

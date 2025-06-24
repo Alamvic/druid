@@ -241,6 +241,11 @@ DRStackFrame >> stackTop [
 ]
 
 { #category : 'accessing' }
+DRStackFrame >> temporaries [
+	^ temporaries
+]
+
+{ #category : 'accessing' }
 DRStackFrame >> temporariesDo: aFullBlockClosure [ 
 	
 	temporaries valuesDo: aFullBlockClosure

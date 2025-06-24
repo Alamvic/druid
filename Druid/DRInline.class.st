@@ -106,7 +106,7 @@ DRInline >> inline: messageSend [
 { #category : 'inlining' }
 DRInline >> isIgnoredSelector: messageSend [
 
-	^ { #class. #instVarAt: } includes: messageSend selector
+	^ { #class. #instVarAt: . #and: . #or} includes: messageSend selector
 ]
 
 { #category : 'inlining' }

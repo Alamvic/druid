@@ -77,12 +77,12 @@ DRBytecodeGeneratorTest >> assertCompilationNoInlineFor: aSelector fromClass: aC
 
 	| compiledMethod expectedMethod |
 	
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	"compilerCompiler configureForCompilerClass: nil."
+	"compilerCompiler configureForCompilerClassWithoutInline: nil."
+	compilerCompiler configureForCompilerClass: nil.
 	expectedMethod := aClass >> aSelector.
 	
 	compiledMethod := self compileSelector: aSelector fromClass: aClass.
-	1 halt.
+	
 	self assert: compiledMethod equalsResult: expectedMethod arguments: args
 ]
 
@@ -376,6 +376,33 @@ DRBytecodeGeneratorTest >> testMethodWithBlockConstant [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockCulled [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithBlockCull
+		fromClass: DruidTestInterpreter
+		arguments: {  }
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockCulled1Arg [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithBlockCull1Arg
+		fromClass: DruidTestInterpreter
+		arguments: {  }
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockCulled2Arg [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithBlockCull2Arg
+		fromClass: DruidTestInterpreter
+		arguments: {  }
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockEmpty [
 	
 	self assertCompilationNoInlineFor: #methodEmptyBlock fromClass: DruidTestInterpreter arguments: { }.
@@ -436,7 +463,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterTemp2 [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2Simple [
 	
-	self assertCompilationNoInlineFor: #methodBlockNested2Simple: fromClass: DruidTestInterpreter arguments: { 1 }.
+	self assertCompilationNoInlineFor: #methodBlockNested2Simple fromClass: DruidTestInterpreter arguments: {}.
 	
 ]
 
@@ -479,7 +506,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockNonLocalReturn [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockReadingArgVar [
 	
-	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingArgVariable: fromClass: DruidTestInterpreter arguments: { nil }.
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingArgVariable: fromClass: DruidTestInterpreter arguments: { 0 }.
 
 	
 ]

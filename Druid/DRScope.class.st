@@ -18,6 +18,12 @@ Class {
 	#tag : 'IR'
 }
 
+{ #category : 'accessing' }
+DRScope >> addArguments: anObject [
+
+	argumentNames addAll: anObject.
+]
+
 { #category : 'adding' }
 DRScope >> addCopiedVarsFromOuterScope: aDRScope [
 	"pass vectorTemps of outer Scope to the actual one"
@@ -44,12 +50,6 @@ DRScope >> allTempsWithOuterTemps [
 DRScope >> argumentNames [
 
 	^ argumentNames 
-]
-
-{ #category : 'accessing' }
-DRScope >> argumentNames: anObject [
-
-	argumentNames := anObject
 ]
 
 { #category : 'accessing' }

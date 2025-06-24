@@ -1,6 +1,9 @@
 Class {
 	#name : 'DRBlockIRGenerator',
 	#superclass : 'DRMethodIRGenerator',
+	#instVars : [
+		'outerContext'
+	],
 	#category : 'Druid-CompilerCompiler',
 	#package : 'Druid',
 	#tag : 'CompilerCompiler'
@@ -28,10 +31,28 @@ DRBlockIRGenerator >> interpretBlockActivation: aRBBlockNode [
 	
 ]
 
+{ #category : 'accessing' }
+DRBlockIRGenerator >> outerContext [
+
+	^ outerContext
+]
+
+{ #category : 'accessing' }
+DRBlockIRGenerator >> outerContext: anObject [
+
+	outerContext := anObject
+]
+
 { #category : 'as yet unclassified' }
 DRBlockIRGenerator >> temporariesListfrom: aNode [
 
 	^ self ir scope allTempsWithOuterTemps 
+]
+
+{ #category : 'visiting' }
+DRBlockIRGenerator >> variableFrame [
+
+	^ self outerContext
 ]
 
 { #category : 'visiting' }
