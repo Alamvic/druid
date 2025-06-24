@@ -5,8 +5,9 @@ Class {
 		'stateStack',
 		'mirrorStack'
 	],
-	#category : 'Druid-Tests',
-	#package : 'Druid-Tests'
+	#category : 'Druid-CompilerCompiler',
+	#package : 'Druid',
+	#tag : 'CompilerCompiler'
 }
 
 { #category : 'merging' }
@@ -17,6 +18,12 @@ DRExecutionStack >> addTo: aDRExecutionStack [
 	stateStack withIndexDo: [ :e :i |
 		e addTo: (aDRExecutionStack frameAt: i)
 	]
+]
+
+{ #category : 'accessing' }
+DRExecutionStack >> allTemporaryInstructions [
+
+	^ (stateStack flatCollect: #temporaries) reject: #isNullValue
 ]
 
 { #category : 'accessing' }
