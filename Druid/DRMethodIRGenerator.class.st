@@ -105,6 +105,24 @@ DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [
 	^ self popFrame.
 ]
 
+{ #category : 'as yet unclassified' }
+DRMethodIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
+	
+	self setupCFGScope: aDRCode codeNode.
+	
+	self pushFrameForCode: aDRCode receiver: aReceiver.
+	
+	"Iterate based on the defined arguments.
+	In ifNotNil: arguments are optional"
+	1 to: aDRCode codeNode argumentNames size do: [ :i | | name |
+		name := aDRCode codeNode argumentNames at: i.
+		self topFrame writeTemporaryNamed: name withValue: (arguments at: i).
+	].
+	
+	aDRCode executeOn: self.
+	^ self popFrame.
+]
+
 { #category : 'initialization' }
 DRMethodIRGenerator >> newCFG [
 	
@@ -190,10 +208,10 @@ DRMethodIRGenerator >> scope [
 
 { #category : 'as yet unclassified' }
 DRMethodIRGenerator >> setupCFGScope: aNode [ 
-
+	
 	self ir scope
 		numArgs: aNode arguments size;
-		argumentNames: aNode argumentNames;
+		addArguments: aNode argumentNames;
 		addTemps: aNode temporaryNames;
 		opalScope: aNode scope;
 		node: aNode
@@ -203,6 +221,40 @@ DRMethodIRGenerator >> setupCFGScope: aNode [
 DRMethodIRGenerator >> typeSystem: aDRTypeSystem [
 
 	typeSystem := aDRTypeSystem
+]
+
+{ #category : 'accessing' }
+DRMethodIRGenerator >> variableFrame [
+
+	^ self topFrame 
+]
+
+{ #category : 'accessing' }
+DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
+
+	| loadArg frame varName |
+	varName := aRBVariableNode name.
+	frame := self variableFrame.
+	((frame hasTemporaryNamed: varName) and: [
+		 (frame readTemporaryNamed: varName) isNullValue not ]) ifTrue: [
+		| value |
+		value := frame readTemporaryNamed: varName.
+		value isCopy ifTrue: [
+			^ self
+				  addInstructionFrom: value
+				  instructionKind: DRCopy
+				  operands: { value operand1 } ].
+		^ self pushOperand: value ].
+	
+	loadArg := self
+		           addInstructionFrom: aRBVariableNode
+		           instructionKind: DRLoadArgument
+		           operands: { aRBVariableNode variable index asDRValue }.
+	loadArg argName: aRBVariableNode name.
+
+	loadArg scope: (self ir scope lookupVar: aRBVariableNode name).
+
+	^ loadArg
 ]
 
 { #category : 'visiting' }

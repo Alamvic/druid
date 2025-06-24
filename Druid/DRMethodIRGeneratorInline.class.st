@@ -48,8 +48,13 @@ DRMethodIRGeneratorInline >> isBaseMethodArgument: aRBVariableNode [
 
 	"Here we check if the variable is accessing to a temporary (mainly arguments) from the compiled method.
 	This change between accessing a variable from the method to inline and from the method where it is inlined."
+	
+	| variableScope |
+	variableScope := aRBVariableNode variable scope.
+	[variableScope isMethodScope] whileFalse: [ 
+		variableScope := variableScope outerScope ].
 
-	^ executionState baseFrame method = aRBVariableNode variable scope node
+	^ executionState baseFrame method = variableScope node
 ]
 
 { #category : 'scopes' }
@@ -90,36 +95,22 @@ DRMethodIRGeneratorInline >> scope [
 ]
 
 { #category : 'visiting' }
-DRMethodIRGeneratorInline >> visitTemporaryVariableNode: aRBVariableNode [
+DRMethodIRGeneratorInline >> setupCFGScope: aNode [
 
-	aRBVariableNode isTempVariable ifTrue: [
-		| store temp |
-		store := self topFrame
-			         temporaryAt: aRBVariableNode name
-			         withState: executionState.
-		"store isStore ifFalse: [
-			store := nil ]."
-		temp := self
-			        addInstructionFrom: aRBVariableNode
-			        instructionKind: DRLoadTemporaryVariable
-			        operands: {
-					        aRBVariableNode name asDRValue.
-					        store }.
+	| scope |
+	scope := self ir scope.
+	scope addTemps: aNode temporaryNames.
 
-		temp scope:
-			(self scope lookupVarOrAddNewTemp: aRBVariableNode name).
-		^ temp ].
+	"aNode methodNode == executionState baseFrame method ifTrue: [
+		scope addArguments: aNode argumentNames ]"
+]
 
-	"Else, it is an argument"
+{ #category : 'visiting' }
+DRMethodIRGeneratorInline >> visitArgumentVariableNode: aRBVariableNode [ 
+	
 	(self isBaseMethodArgument: aRBVariableNode)
 		ifTrue: [
-			| loadArg |
-			loadArg := self
-				           addInstructionFrom: aRBVariableNode
-				           instructionKind: DRLoadArgument
-				           operands: { aRBVariableNode variable index asDRValue }.
-			loadArg argName: aRBVariableNode name.
-			^ loadArg ]
+			super visitArgumentVariableNode: aRBVariableNode .]
 		ifFalse: [
 			| value |
 			"If it is not accesssing a method argument, 
