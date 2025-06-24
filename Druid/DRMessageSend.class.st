@@ -22,6 +22,12 @@ DRMessageSend >> arguments [
 	^ operands allButFirst
 ]
 
+{ #category : 'accessing' }
+DRMessageSend >> dependencies [
+
+	^ super dependencies , self innerDependencies
+]
+
 { #category : 'optimizations' }
 DRMessageSend >> inline [
 	
@@ -40,6 +46,14 @@ DRMessageSend >> inlineGenerator [
 DRMessageSend >> inlineGenerator: anIrGenerator [ 
 
 	inlineGenerator := anIrGenerator
+]
+
+{ #category : 'inline' }
+DRMessageSend >> innerDependencies [
+
+	inlineGenerator ifNil: [ ^ #(  ) ].
+	^ (inlineGenerator allTemporaryInstructions reject: #isDRBlockClosure)
+		  copyWithoutAll: self operands
 ]
 
 { #category : 'accessing' }

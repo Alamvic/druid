@@ -10,6 +10,12 @@ Class {
 }
 
 { #category : 'accessing' }
+DRMethodIRGeneratorInline >> allTemporaryInstructions [
+
+	^ executionState allTemporaryInstructions
+]
+
+{ #category : 'accessing' }
 DRMethodIRGeneratorInline >> currentBasicBlock: aDRBasicBlock [
 
 	currentBasicBlock := aDRBasicBlock
