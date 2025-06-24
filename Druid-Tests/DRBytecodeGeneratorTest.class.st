@@ -210,14 +210,12 @@ DRBytecodeGeneratorTest >> testMethodInline [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectAccessInstVar [
 
-	self skip. "need to repass this after we handle inlining"
 	self assertCompilationFor: #basicInlineMethodAccesInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #instVarAt:'
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectSettingInstVar [
 
-	self skip. "need to repass this after we handle inlining"
 	self assertCompilationFor: #basicInlineMethodSettingInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #instVarAt:put:'
 ]
 
@@ -572,8 +570,6 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 
 	| method result |
-	
-	self skip: 'Depends on the inlining'.
 	
 	compilerCompiler configureForCompilerClass: nil.
 	method := self generateMethodForSelector: #methodCollectionSize:.
