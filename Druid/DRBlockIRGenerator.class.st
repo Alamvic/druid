@@ -31,7 +31,7 @@ DRBlockIRGenerator >> interpretBlockActivation: aRBBlockNode [
 { #category : 'as yet unclassified' }
 DRBlockIRGenerator >> temporariesListfrom: aNode [
 
-	^ self ir scope allTempsWithOuterTemps 
+	^ self scope allTempsWithOuterTemps 
 ]
 
 { #category : 'visiting' }

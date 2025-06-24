@@ -112,9 +112,14 @@ DRScope >> lookupVar: name ifNone: noneBlock [
 	((tempVector includes: name) or: [ argumentNames includes: name ])
 		ifTrue: [ ^ self ].
 
-	^ outerScope ifNotNil: [ :os | os lookupVar: name ] ifNil: [
-		  noneBlock cull: name.
-		  self ]
+	^ outerScope
+		  ifNotNil: [ :os |
+			  os lookupVar: name ifNone: [
+				  noneBlock cull: name.
+				  ^ self ] ]
+		  ifNil: [
+			  noneBlock cull: name.
+			  self ]
 ]
 
 { #category : 'accessing' }
@@ -169,6 +174,14 @@ DRScope >> outerScope [
 DRScope >> outerScope: aScope [
 	
 	outerScope := aScope.
+]
+
+{ #category : 'modifying' }
+DRScope >> renameTempVar: oldName into: newName [
+
+	tempVector := tempVector
+		              copyReplaceAll: { oldName }
+		              with: { newName }
 ]
 
 { #category : 'accessing' }

@@ -1,6 +1,9 @@
 Class {
 	#name : 'DRMethodIRGeneratorInline',
 	#superclass : 'DRMethodIRGenerator',
+	#instVars : [
+		'scope'
+	],
 	#category : 'Druid-CompilerCompiler',
 	#package : 'Druid',
 	#tag : 'CompilerCompiler'
@@ -12,14 +15,26 @@ DRMethodIRGeneratorInline >> currentBasicBlock: aDRBasicBlock [
 	currentBasicBlock := aDRBasicBlock
 ]
 
+{ #category : 'scopes' }
+DRMethodIRGeneratorInline >> ensureScope [
+
+	^ scope := DRScope new
+		           outerScope: self outerScope;
+		           "id: self outerScope id + 1;"
+		           "addCopiedVarsFromOuterScope: self outerScope;"
+		           yourself
+]
+
 { #category : 'visiting' }
 DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 
 	| lastBlock |
 	lastBlock := currentBasicBlock.
 	"Non-local returns can add new returns to any frame, pop all frames to resolve them"
-	[ executionState executionStack size = 0 ] whileFalse: [ self popFrame ].
-	currentBasicBlock := lastBlock
+	[ executionState executionStack size = 0 ] whileFalse: [ self popFrameMergingDeferredReturns ].
+	currentBasicBlock := lastBlock.
+	self mergeScope
+
 ]
 
 { #category : 'accessing' }
@@ -37,10 +52,41 @@ DRMethodIRGeneratorInline >> isBaseMethodArgument: aRBVariableNode [
 	^ executionState baseFrame method = aRBVariableNode variable scope node
 ]
 
+{ #category : 'scopes' }
+DRMethodIRGeneratorInline >> mergeScope [
+
+	self assert: self scope outerScope = self outerScope.
+
+	"Rename to avoid collision"
+	self scope tempVarNames do: [ :name |
+		| suffix |
+		suffix := self outerScope tempVarNames count: [ :outerName | outerName beginsWith: name ].
+		self ir
+			renameTempVar: name
+			from: self scope
+			into: name , suffix asString ].
+
+	self ir mergeScope: self scope into: self outerScope.
+
+	1 halt
+]
+
 { #category : 'building' }
 DRMethodIRGeneratorInline >> newFirstBasicBlock [
 
 	^ self newBasicBlock
+]
+
+{ #category : 'accessing' }
+DRMethodIRGeneratorInline >> outerScope [
+
+	^ self ir scope
+]
+
+{ #category : 'accessing' }
+DRMethodIRGeneratorInline >> scope [
+
+	^ scope
 ]
 
 { #category : 'visiting' }

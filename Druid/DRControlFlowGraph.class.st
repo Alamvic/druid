@@ -371,7 +371,7 @@ DRControlFlowGraph >> createBlockView: aBlock [
 		outer;
 		right;
 		top;
-		offset: 3@(-3);
+		offset: (-2)@2;
 		move: label on: boxes.
 
 	labelBackground position: label position.

@@ -529,6 +529,15 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodWithTwoToDos [
+
+	| n |
+	n := 0.
+	1 to: 10 do: [ :i | 1 to: 10 do: [ :j | n := n + i + j ] ].
+	^ n
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> methodWithUnknownTypeAnnotation: aCollection [
 
 	<var: #aCollection type: #OrderedCollection>
