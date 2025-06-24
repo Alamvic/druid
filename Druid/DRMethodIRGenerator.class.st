@@ -250,11 +250,12 @@ DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 		           addInstructionFrom: aRBVariableNode
 		           instructionKind: DRLoadArgument
 		           operands: { aRBVariableNode variable index asDRValue }.
+
 	loadArg argName: aRBVariableNode name.
-
-	loadArg scope: (self ir scope lookupVar: aRBVariableNode name).
-
+	loadArg scope: (self scope lookupVarOrAddNewTemp: aRBVariableNode name).
+	 
 	^ loadArg
+
 ]
 
 { #category : 'visiting' }
@@ -277,37 +278,22 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
-	| loadArg |
-
-	aRBVariableNode isTempVariable ifTrue: [
-		| store loadTemp|
-		aRBVariableNode variable isEscaping ifFalse: [ 
-			store := self topFrame
-				         temporaryAt: aRBVariableNode name
-				         withState: executionState.
-		].
-"		store ifNil: [ 1halt ].
+	| store loadTemp |
+	aRBVariableNode variable isEscaping ifFalse: [
+		store := self topFrame
+			         temporaryAt: aRBVariableNode name
+			         withState: executionState ].
+	"		store ifNil: [ 1halt ].
 		store isStore ifFalse: [ 1halt ]."
-		loadTemp := self
-			  addInstructionFrom: aRBVariableNode
-			  instructionKind: DRLoadTemporaryVariable
-			  operands: {
-					  aRBVariableNode name asDRValue.
-					  store }.
-					
+	loadTemp := self
+		            addInstructionFrom: aRBVariableNode
+		            instructionKind: DRLoadTemporaryVariable
+		            operands: {
+				            aRBVariableNode name asDRValue.
+				            store }.
 
-		loadTemp scope: (self scope lookupVarOrAddNewTemp: aRBVariableNode name).
-		 ^ loadTemp.
-	].
-	"Else, it is an argument"
 
-	loadArg := self
-		           addInstructionFrom: aRBVariableNode
-		           instructionKind: DRLoadArgument
-		           operands: { aRBVariableNode variable index asDRValue }.
-	
-	loadArg argName: aRBVariableNode name.
-	loadArg scope: (self scope lookupVarOrAddNewTemp: aRBVariableNode name).
-	 
-	^ loadArg
+	loadTemp scope:
+		(self scope lookupVarOrAddNewTemp: aRBVariableNode name).
+	^ loadTemp
 ]

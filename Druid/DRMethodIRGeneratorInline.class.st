@@ -45,16 +45,16 @@ DRMethodIRGeneratorInline >> handleCFGScope: methodNode [
 
 { #category : 'testing' }
 DRMethodIRGeneratorInline >> isBaseMethodArgument: aRBVariableNode [
-
 	"Here we check if the variable is accessing to a temporary (mainly arguments) from the compiled method.
 	This change between accessing a variable from the method to inline and from the method where it is inlined."
-	
-	| variableScope |
-	variableScope := aRBVariableNode variable scope.
-	[variableScope isMethodScope] whileFalse: [ 
-		variableScope := variableScope outerScope ].
 
-	^ executionState baseFrame method = variableScope node
+	| variableDefinitionScope |
+	variableDefinitionScope := aRBVariableNode scope.
+	[ variableDefinitionScope hasTempDefinitionFor: aRBVariableNode name ]
+		whileFalse: [
+		variableDefinitionScope := variableDefinitionScope outerScope ].
+
+	^ executionState baseFrame method = variableDefinitionScope node
 ]
 
 { #category : 'scopes' }
@@ -71,9 +71,7 @@ DRMethodIRGeneratorInline >> mergeScope [
 			from: self scope
 			into: name , suffix asString ].
 
-	self ir mergeScope: self scope into: self outerScope.
-
-	1 halt
+	self ir mergeScope: self scope into: self outerScope
 ]
 
 { #category : 'building' }
