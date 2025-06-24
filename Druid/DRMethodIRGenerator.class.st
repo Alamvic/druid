@@ -12,6 +12,9 @@ DRMethodIRGenerator >> blockClosureGenerator [
 	| blockGenerator |
 	blockGenerator := DRBlockIRGenerator new.
 	
+	"Review this decision..."
+	blockGenerator outerContext: self topFrame copy.
+	
 	blockGenerator ir scope
 		outerScope: self scope;
 		id: self scope id + 1;
