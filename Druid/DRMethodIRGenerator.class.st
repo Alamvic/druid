@@ -234,8 +234,8 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 				         temporaryAt: aRBVariableNode name
 				         withState: executionState.
 		].
-		store ifNil: [ 1halt ].
-		store isStore ifFalse: [ 1halt ].
+"		store ifNil: [ 1halt ].
+		store isStore ifFalse: [ 1halt ]."
 		loadTemp := self
 			  addInstructionFrom: aRBVariableNode
 			  instructionKind: DRLoadTemporaryVariable
@@ -254,7 +254,6 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 		           instructionKind: DRLoadArgument
 		           operands: { aRBVariableNode variable index asDRValue }.
 	
-	1halt.
 	loadArg argName: aRBVariableNode name.
 	loadArg scope: (self scope lookupVarOrAddNewTemp: aRBVariableNode name).
 	 

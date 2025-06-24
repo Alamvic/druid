@@ -48,11 +48,6 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 	^ edge
 ]
 
-{ #category : 'accessing' }
-DRControlFlowGraph >> addScopeToInstructionIfNeeded: anInstruction [
-
-]
-
 { #category : 'adding' }
 DRControlFlowGraph >> addStagedRegister: aDRStagedRegister [ 
 	

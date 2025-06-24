@@ -16,6 +16,12 @@ DRLoadArgument >> acceptVisitor: aVisitor [
 ]
 
 { #category : 'accessing' }
+DRLoadArgument >> address: aDRValue [
+
+	self notYetImplemented 
+]
+
+{ #category : 'accessing' }
 DRLoadArgument >> argName [
 
 	^ argName

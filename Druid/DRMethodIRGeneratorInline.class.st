@@ -97,7 +97,8 @@ DRMethodIRGeneratorInline >> visitTemporaryVariableNode: aRBVariableNode [
 		store := self topFrame
 			         temporaryAt: aRBVariableNode name
 			         withState: executionState.
-
+		"store isStore ifFalse: [
+			store := nil ]."
 		temp := self
 			        addInstructionFrom: aRBVariableNode
 			        instructionKind: DRLoadTemporaryVariable
@@ -106,7 +107,7 @@ DRMethodIRGeneratorInline >> visitTemporaryVariableNode: aRBVariableNode [
 					        store }.
 
 		temp scope:
-			(self ir scope lookupVarOrAddNewTemp: aRBVariableNode name).
+			(self scope lookupVarOrAddNewTemp: aRBVariableNode name).
 		^ temp ].
 
 	"Else, it is an argument"
