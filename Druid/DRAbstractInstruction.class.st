@@ -159,6 +159,12 @@ DRAbstractInstruction >> isPrimitiveFail [
 ]
 
 { #category : 'testing' }
+DRAbstractInstruction >> isScopedInstruction [
+
+	^ false
+]
+
+{ #category : 'testing' }
 DRAbstractInstruction >> isStackEffect [
 	
 	^ false

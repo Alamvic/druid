@@ -48,11 +48,6 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 	^ edge
 ]
 
-{ #category : 'accessing' }
-DRControlFlowGraph >> addScopeToInstructionIfNeeded: anInstruction [
-
-]
-
 { #category : 'adding' }
 DRControlFlowGraph >> addStagedRegister: aDRStagedRegister [ 
 	
@@ -371,7 +366,7 @@ DRControlFlowGraph >> createBlockView: aBlock [
 		outer;
 		right;
 		top;
-		offset: 3@(-3);
+		offset: (-2)@2;
 		move: label on: boxes.
 
 	labelBackground position: label position.

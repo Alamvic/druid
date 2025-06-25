@@ -6,8 +6,9 @@ Class {
 		'mergeBlock',
 		'builder'
 	],
-	#category : 'Druid-Tests',
-	#package : 'Druid-Tests'
+	#category : 'Druid-CompilerBuilder',
+	#package : 'Druid',
+	#tag : 'CompilerBuilder'
 }
 
 { #category : 'accessing' }

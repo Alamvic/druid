@@ -71,7 +71,7 @@ DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 { #category : 'inlining' }
 DRInline >> inline: messageSend [
 
-	| methodsToInline inlinedMethodReturnValue |
+	| methodsToInline inlinedMethodReturnValue innerDependencies |
 
 	(self isIgnoredSelector: messageSend) 
 		ifTrue: [ ^ self ].
@@ -80,6 +80,9 @@ DRInline >> inline: messageSend [
 
 	methodsToInline := self methodsToInlineOf: messageSend.
 	methodsToInline ifEmpty: [ ^ self ].
+
+	"Keep the the dependecies from inner blocks to remove the message as user"
+	innerDependencies := messageSend innerDependencies.
 
 	"Break message send basic block"
 	messageSend basicBlock breakBy: messageSend.
@@ -93,6 +96,7 @@ DRInline >> inline: messageSend [
 	"Replace usages by inlines result"
 	inlineGenerator currentBasicBlock jumpTo: messageSend basicBlock successor.
 	messageSend replaceUsesBy: inlinedMethodReturnValue.
+	(innerDependencies copyWithoutAll: messageSend innerDependencies) do: [ :i | i removeUser: messageSend ].
 
 	"Remove message send block"
 	messageSend basicBlock removeFromCFGAndDisconnectSuccessors.

@@ -502,6 +502,15 @@ DruidTestInterpreter >> methodWithThreeNonLocalReturn [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodWithToDo [
+
+	| n |
+	n := 0.
+	1 to: 10 do: [ :i | n := n + i ].
+	^ n
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	self stackTop = 0
@@ -510,6 +519,15 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	"Dead code"
 	^ 16rFFFF
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodWithTwoToDos [
+
+	| n |
+	n := 0.
+	1 to: 10 do: [ :i | 1 to: 10 do: [ :j | n := n + i + j ] ].
+	^ n
 ]
 
 { #category : 'as yet unclassified' }

@@ -6,6 +6,12 @@ Class {
 	#tag : 'CompilerCompiler'
 }
 
+{ #category : 'accessing' }
+DRMetaCompilerIRGenerator >> allTemporaryInstructions [
+
+	^ #(  )
+]
+
 { #category : 'factory' }
 DRMetaCompilerIRGenerator >> createInitialBasicBlock [
 	| initialBasicBlock |

@@ -103,14 +103,29 @@ DRScope >> initialize [
 { #category : 'accessing' }
 DRScope >> lookupVar: name [
 
-	| scope |
-	((tempVector includes: name) or: [argumentNames includes: name]) ifTrue: [ ^ self ].
+	^ self lookupVar: name ifNone: [ self unexplored ]
+]
 
-	scope := outerScope
-		              ifNotNil: [ :os | os lookupVar: name ]
-		              ifNil: [ "self error: 'Not explored'"]. "I need to comment this to make the inlining work"
-	
-	^ scope
+{ #category : 'accessing' }
+DRScope >> lookupVar: name ifNone: noneBlock [
+
+	((tempVector includes: name) or: [ argumentNames includes: name ])
+		ifTrue: [ ^ self ].
+
+	^ outerScope
+		  ifNotNil: [ :os |
+			  os lookupVar: name ifNone: [
+				  noneBlock cull: name.
+				  ^ self ] ]
+		  ifNil: [
+			  noneBlock cull: name.
+			  self ]
+]
+
+{ #category : 'accessing' }
+DRScope >> lookupVarOrAddNewTemp: name [
+
+	^ self lookupVar: name ifNone: [ self addTemps: { name } ]
 ]
 
 { #category : 'accessing' }
@@ -159,6 +174,14 @@ DRScope >> outerScope [
 DRScope >> outerScope: aScope [
 	
 	outerScope := aScope.
+]
+
+{ #category : 'modifying' }
+DRScope >> renameTempVar: oldName into: newName [
+
+	tempVector := tempVector
+		              copyReplaceAll: { oldName }
+		              with: { newName }
 ]
 
 { #category : 'accessing' }
