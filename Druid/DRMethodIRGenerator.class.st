@@ -16,9 +16,9 @@ DRMethodIRGenerator >> blockClosureGenerator [
 	blockGenerator outerContext: self topFrame copy.
 	
 	blockGenerator ir scope
-		outerScope: self scope;
-		id: self scope id + 1;
-		addCopiedVarsFromOuterScope: self scope.
+		outerScope: self ir scope;
+		id: self ir scope id + 1;
+		addCopiedVarsFromOuterScope: self ir scope.
 		
 	^ blockGenerator
 ]

@@ -23,11 +23,11 @@ DRMethodIRGeneratorInline >> currentBasicBlock: aDRBasicBlock [
 
 { #category : 'scopes' }
 DRMethodIRGeneratorInline >> ensureScope [
-
+	
 	^ scope := DRScope new
 		           outerScope: self outerScope;
 		           "id: self outerScope id + 1;"
-		           "addCopiedVarsFromOuterScope: self outerScope;"
+		           addCopiedVarsFromOuterScope: self outerScope;
 		           yourself
 ]
 

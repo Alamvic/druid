@@ -49,7 +49,7 @@ DRScope >> allTempsWithOuterTemps [
 { #category : 'accessing' }
 DRScope >> argumentNames [
 
-	^ argumentNames 
+	^ argumentNames asArray 
 ]
 
 { #category : 'accessing' }

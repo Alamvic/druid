@@ -22,7 +22,7 @@ DRMethodCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 
 	optimisations := OrderedCollection new.
 
-	optimisations add: DRInline new.
+	"optimisations add: DRInline new."
 	optimisations add: DRInline new.
 	
 	2 timesRepeat: [ 
