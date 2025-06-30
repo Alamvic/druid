@@ -50,12 +50,17 @@ DRMethodIRGenerator >> initializeSpecialCases [
 { #category : 'inline' }
 DRMethodIRGenerator >> inlineGenerator [
 
-	| newIRGenerator |
+	| newIRGenerator executionStateCopy |
 	newIRGenerator := DRMethodIRGeneratorInline new
 		         controlFlowGraph: controlFlowGraph;
 					typeSystem: typeSystem;
 		         yourself.
-	newIRGenerator executionState: executionState copy.
+		
+	executionStateCopy := executionState copy.
+	newIRGenerator executionState: executionStateCopy .
+	
+	controlFlowGraph executionStack: executionStateCopy executionStack.
+	
 	newIRGenerator ensureScope.
 	^ newIRGenerator
 ]

@@ -103,7 +103,7 @@ DRMethodIRGeneratorInline >> setupCFGScope: aNode [
 
 	| scope |
 	scope := self ir scope.
-	scope addTemps: aNode temporaryNames.
+	"scope addTemps: aNode temporaryNames."
 
 	"aNode methodNode == executionState baseFrame method ifTrue: [
 		scope addArguments: aNode argumentNames ]"

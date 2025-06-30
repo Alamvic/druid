@@ -217,6 +217,14 @@ DRStackFrame >> receiverWithState: aState [
 ]
 
 { #category : 'accessing' }
+DRStackFrame >> replaceTemporaries: anInstruction by: aCopy [
+	| keys |
+	
+	keys := temporaries keyAtValue: anInstruction .
+	self writeTemporaryNamed: keys withValue: aCopy.
+]
+
+{ #category : 'accessing' }
 DRStackFrame >> returnValue [
 
 	^ returnValue

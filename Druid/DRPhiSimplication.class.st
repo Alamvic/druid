@@ -8,7 +8,7 @@ Class {
 
 { #category : 'operations' }
 DRPhiSimplication >> applyTo: aDRControlFlowGraph [
-
+	
 	aDRControlFlowGraph phiFunctions do: [ :i |
 		| operands operandsWithoutMyself |
 		"If all operands are the same (excluding myself),
@@ -16,7 +16,12 @@ DRPhiSimplication >> applyTo: aDRControlFlowGraph [
 		operands := i operands asSet.
 		operandsWithoutMyself := operands copyWithout: i.
 		operandsWithoutMyself size = 1 ifTrue: [
-			i replaceBy: (DRCopy operands: { operandsWithoutMyself anyOne } result: i result) ] ]
+			| copy |
+			copy := DRCopy operands: { operandsWithoutMyself anyOne } result: i result.
+			i replaceBy: copy .
+			i controlFlowGraph executionStack ifNotNil:[:stack | stack replaceTemporaries: i by: copy].
+			] 
+		]
 ]
 
 { #category : 'testing' }

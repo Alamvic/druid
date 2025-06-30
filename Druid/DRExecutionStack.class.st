@@ -122,6 +122,21 @@ DRExecutionStack >> pushMergeFrame: aDRStackStack [
 	stateStack push: aDRStackStack
 ]
 
+{ #category : 'as yet unclassified' }
+DRExecutionStack >> replaceTemporaries: anInstruction by: copy [ 
+	| stack |
+	
+	stack := (stateStack select: [ :frame | frame temporaries anySatisfy: [ :i | i==anInstruction]]).
+	stack ifNotEmpty: [ 
+		stack first replaceTemporaries: anInstruction by: copy.
+	].
+	
+	
+	
+	
+	
+]
+
 { #category : 'accessing' }
 DRExecutionStack >> size [
 

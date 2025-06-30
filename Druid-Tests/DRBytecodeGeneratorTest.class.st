@@ -147,7 +147,9 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
 	
 	aDRControlFlowGraph applyOptimisation: DRFrameInfoCleaner new.
-	aDRControlFlowGraph applyOptimisation: (DRBranchCollapse then: DRPhiSimplication).
+	aDRControlFlowGraph applyOptimisation: DRBranchCollapse new.
+	
+	aDRControlFlowGraph applyOptimisation: DRPhiSimplication new.
 	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
 	
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.

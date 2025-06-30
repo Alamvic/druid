@@ -2,7 +2,8 @@ Class {
 	#name : 'DRMethodControlFlowGraph',
 	#superclass : 'DRControlFlowGraph',
 	#instVars : [
-		'scope'
+		'scope',
+		'executionStack'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -26,6 +27,18 @@ DRMethodControlFlowGraph >> allInstructionsWithScope: aDRScope [
 
 	^ self instructions select: [ :i |
 		  i isScopedInstruction and: [ i scope = aDRScope ] ]
+]
+
+{ #category : 'accessing' }
+DRMethodControlFlowGraph >> executionStack [
+
+	^ executionStack
+]
+
+{ #category : 'accessing' }
+DRMethodControlFlowGraph >> executionStack: anObject [
+
+	executionStack := anObject
 ]
 
 { #category : 'scopes' }
