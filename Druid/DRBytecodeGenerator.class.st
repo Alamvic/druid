@@ -342,7 +342,7 @@ DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 { #category : 'visiting' }
 DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
-	| value vectorTempName |
+	| value |
 	
 	value := aDRStoreTemporaryVariable operand2 simpleConstantFold
 		         asDRValue.

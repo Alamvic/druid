@@ -29,6 +29,23 @@ DRPhiSimplicationTest >> testNotSimplifyDualPhi [
 ]
 
 { #category : 'tests' }
+DRPhiSimplicationTest >> testNotSimplifyPhiWithNoResultInstruction [
+
+	| cfg  t1 block phi |
+	cfg := self setUpCFGWithConditional.
+	block := cfg b4.
+		
+	t1 := cfg b2 storeSInt64: 1 at: 2.
+	phi := block phiWith: t1.
+
+	cfg applyOptimisation: optimisation.
+
+	self assert: phi operands size equals: 2.
+	self assert: phi operands last isNullValue.
+
+]
+
+{ #category : 'tests' }
 DRPhiSimplicationTest >> testNotSimplifyPhiWithNull [
 
 	| cfg  t1 block phi |

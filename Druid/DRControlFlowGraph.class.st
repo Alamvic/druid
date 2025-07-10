@@ -327,10 +327,10 @@ DRControlFlowGraph >> createBlockView: aBlock [
 		color: Color black;
 		fontSize: 4;
 		yourself.
-	labelBackground := RSEllipse new
+	labelBackground := RSCircle new
 		color: Color white;
 		border: (RSBorder new color: 'black');
-		extent: label extent + 5;
+		radius: (label extent x max: label extent y) - 2;
 		yourself.
 	box := RSBox new
 		noPaint;
@@ -348,8 +348,27 @@ DRControlFlowGraph >> createBlockView: aBlock [
 	box
 		position: boxes position;
 		extent: boxes extent + 10.
-	composite := ({box},boxes) asShape
+		
+	"composite := ({box},boxes) asShape.
+	composite"
+		"draggable;"
+		"@ (RSPopup text: [:model |
+			String streamContents: [:s | (model instructions collect: #prettyPrint)
+				asStringOn: s delimiter: String cr]
+			]);
+		@ (RSMenuActivable new menuDo: [ :menu :element |
+			menu
+				add: 'Tail-duplicate'
+				target: element model
+				selector: #tailDuplicate ]);"
+		"model: aBlock;
+		yourself."
+		
+	composite := RSComposite new
+		add: box; addAll: boxes;
 		draggable;
+		model: aBlock;
+		adjustToChildren;
 		@ (RSPopup text: [:model |
 			String streamContents: [:s | (model instructions collect: #prettyPrint)
 				asStringOn: s delimiter: String cr]
@@ -359,7 +378,6 @@ DRControlFlowGraph >> createBlockView: aBlock [
 				add: 'Tail-duplicate'
 				target: element model
 				selector: #tailDuplicate ]);
-		model: aBlock;
 		yourself.
 
 	RSLocation new
