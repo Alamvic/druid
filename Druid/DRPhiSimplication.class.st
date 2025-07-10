@@ -18,8 +18,7 @@ DRPhiSimplication >> applyTo: aDRControlFlowGraph [
 		((operandsWithoutMyself size = 1) and: [ operandsWithoutMyself unique result isNoResult not ]) ifTrue: [
 			| copy |
 			copy := DRCopy operands: { operandsWithoutMyself unique } result: i result.
-			i replaceBy: copy .
-			i controlFlowGraph executionStack ifNotNil:[:stack | stack replaceTemporaries: i by: copy].
+			i replaceBy: copy
 			] 
 		]
 ]

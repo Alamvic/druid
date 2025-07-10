@@ -101,6 +101,23 @@ DRMessageSend >> receiverType [
 	^ self receiver type
 ]
 
+{ #category : 'replacing' }
+DRMessageSend >> replaceDependency: anOperand by: anotherOperand [
+
+	(self innerDependencies includes: anOperand) ifTrue: [
+		self replaceInnerDependencie: anOperand by: anotherOperand ].
+
+	super replaceDependency: anOperand by: anotherOperand
+]
+
+{ #category : 'replacement' }
+DRMessageSend >> replaceInnerDependencie: anInstructionDependency by: anotherInstruction [
+
+	self inlineGenerator executionStack
+		replaceTemporaries: anInstructionDependency
+		by: anotherInstruction
+]
+
 { #category : 'SCCP' }
 DRMessageSend >> sccpEvaluateFor: sccp [
 
