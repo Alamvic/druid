@@ -8,9 +8,7 @@ Class {
 { #category : 'running' }
 DRCustomizedTypeSystemInliningTest >> setUp [
 	super setUp.
-	
-	self skip ."return to this when doing inlining"
-	
+		
 	compilerCompiler := DRMethodCompilerCompiler new.
 	typeSystem := DRCustomisationTypeSystem new.
 	

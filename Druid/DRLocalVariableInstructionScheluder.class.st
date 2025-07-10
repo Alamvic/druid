@@ -35,7 +35,7 @@ DRLocalVariableInstructionScheluder >> shouldIgnore: aDRInstruction [
 { #category : 'transformation' }
 DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 
-	| variableName loadInst cfgScope cfg|
+	| variableName loadInst cfg|
 	variableName := aDRPhiFunction result name asLowercase asDRValue.
 	
 	"add the new created temporary variable to the scope"
@@ -48,11 +48,13 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 	cfg addScopeToInstructionIfNeeded: loadInst .
 	aDRPhiFunction replaceBy: loadInst.
 
-	(aDRPhiFunction operands allSatisfy: [ :op |
-		 op isStoreTemporaryVariable ]) ifTrue: [ "If they are already temporaries then it is ok"
+	(aDRPhiFunction operandsWithoutMe allSatisfy: [ :op |
+		 op result isNoResult  ]) ifTrue: [ "If they are already temporaries then it is ok"
 		^ self ].
 
-	(aDRPhiFunction operands copyWithout: aDRPhiFunction) do: [ :op |
+	aDRPhiFunction operandsWithoutMe 
+		select: [ :op | op isInstruction ]
+		thenDo: [ :op |
 		| storeInst |
 		storeInst := DRStoreTemporaryVariable
 			             operands: {
