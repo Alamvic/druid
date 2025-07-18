@@ -72,10 +72,6 @@ DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 DRInline >> inline: messageSend [
 
 	| methodsToInline inlinedMethodReturnValue innerDependencies |
-
-	(self isIgnoredSelector: messageSend) 
-		ifTrue: [ ^ self ].
-
 	inlineGenerator := messageSend inlineGenerator.
 
 	methodsToInline := self methodsToInlineOf: messageSend.
@@ -86,17 +82,22 @@ DRInline >> inline: messageSend [
 
 	"Break message send basic block"
 	messageSend basicBlock breakBy: messageSend.
-	messageSend basicBlock predecessor jumpTo: inlineGenerator newFirstBasicBlock.
+	messageSend basicBlock predecessor jumpTo:
+		inlineGenerator newFirstBasicBlock.
 
 	"Generate inlining methods IR"
-	inlineGenerator numberOfArguments:
-		messageSend operands size - 1.
-	inlinedMethodReturnValue := self generateInlineIRForMethods: methodsToInline of: messageSend.
+	inlineGenerator numberOfArguments: messageSend operands size - 1.
+	inlinedMethodReturnValue := self
+		                            generateInlineIRForMethods:
+		                            methodsToInline
+		                            of: messageSend.
 
 	"Replace usages by inlines result"
-	inlineGenerator currentBasicBlock jumpTo: messageSend basicBlock successor.
+	inlineGenerator currentBasicBlock jumpTo:
+		messageSend basicBlock successor.
 	messageSend replaceUsesBy: inlinedMethodReturnValue.
-	(innerDependencies copyWithoutAll: messageSend innerDependencies) do: [ :i | i removeUser: messageSend ].
+	(innerDependencies copyWithoutAll: messageSend innerDependencies)
+		do: [ :i | i removeUser: messageSend ].
 
 	"Remove message send block"
 	messageSend basicBlock removeFromCFGAndDisconnectSuccessors.
@@ -105,12 +106,6 @@ DRInline >> inline: messageSend [
 	DRDeadBlockElimination new applyTo: inlineGenerator ir.
 	DRDeadCodeElimination new applyTo: inlineGenerator ir.
 	inlineGenerator ir validate
-]
-
-{ #category : 'inlining' }
-DRInline >> isIgnoredSelector: messageSend [
-
-	^ { #class. #instVarAt: . #and: . #or} includes: messageSend selector
 ]
 
 { #category : 'inlining' }

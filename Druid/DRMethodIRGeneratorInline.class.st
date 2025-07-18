@@ -23,10 +23,10 @@ DRMethodIRGeneratorInline >> currentBasicBlock: aDRBasicBlock [
 
 { #category : 'scopes' }
 DRMethodIRGeneratorInline >> ensureScope [
-	
+
 	^ scope := DRScope new
 		           outerScope: self outerScope;
-		           "id: self outerScope id + 1;"
+		           id: self outerScope id + 1;
 		           addCopiedVarsFromOuterScope: self outerScope;
 		           yourself
 ]
@@ -100,13 +100,7 @@ DRMethodIRGeneratorInline >> scope [
 
 { #category : 'visiting' }
 DRMethodIRGeneratorInline >> setupCFGScope: aNode [
-
-	| scope |
-	scope := self ir scope.
-	"scope addTemps: aNode temporaryNames."
-
-	"aNode methodNode == executionState baseFrame method ifTrue: [
-		scope addArguments: aNode argumentNames ]"
+	"We don't need to configure the inlined scope"
 ]
 
 { #category : 'visiting' }

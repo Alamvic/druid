@@ -123,18 +123,11 @@ DRExecutionStack >> pushMergeFrame: aDRStackStack [
 ]
 
 { #category : 'as yet unclassified' }
-DRExecutionStack >> replaceTemporaries: anInstruction by: copy [ 
-	| stack |
-	
-	stack := (stateStack select: [ :frame | frame temporaries anySatisfy: [ :i | i==anInstruction]]).
-	stack ifNotEmpty: [ 
-		stack first replaceTemporaries: anInstruction by: copy.
-	].
-	
-	
-	
-	
-	
+DRExecutionStack >> replaceTemporaries: anInstruction by: anotherInstruction [
+
+	stateStack
+		select: [ :frame | frame temporaries includes: anInstruction ]
+		thenDo: [ :frame | frame replaceTemporaries: anInstruction by: anotherInstruction ]
 ]
 
 { #category : 'accessing' }

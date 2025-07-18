@@ -76,14 +76,16 @@ DRBytecodeGeneratorTest >> assertCompilationNoInlineFor: aSelector fromClass: aC
 DRBytecodeGeneratorTest >> assertCompilationNoInlineFor: aSelector fromClass: aClass arguments: args [
 
 	| compiledMethod expectedMethod |
-	
-	"compilerCompiler configureForCompilerClassWithoutInline: nil."
-	compilerCompiler configureForCompilerClass: nil.
+	compilerCompiler configureForCompilerClassWithoutInline: nil.
+
 	expectedMethod := aClass >> aSelector.
-	
+
 	compiledMethod := self compileSelector: aSelector fromClass: aClass.
-	
-	self assert: compiledMethod equalsResult: expectedMethod arguments: args
+
+	self
+		assert: compiledMethod
+		equalsResult: expectedMethod
+		arguments: args
 ]
 
 { #category : 'assertion' }
@@ -452,10 +454,11 @@ DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg [
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg2 [
-	
-	self flag: ''.
-	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterArg2: fromClass: DruidTestInterpreter arguments: {1}.
-	
+
+	self
+		assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterArg2:
+		fromClass: DruidTestInterpreter
+		arguments: { 1 }
 ]
 
 { #category : 'tests' }

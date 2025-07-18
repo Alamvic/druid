@@ -2,7 +2,7 @@ Class {
 	#name : 'DRBlockIRGenerator',
 	#superclass : 'DRMethodIRGenerator',
 	#instVars : [
-		'outerContext'
+		'variableFrame'
 	],
 	#category : 'Druid-CompilerCompiler',
 	#package : 'Druid',
@@ -31,18 +31,6 @@ DRBlockIRGenerator >> interpretBlockActivation: aRBBlockNode [
 	
 ]
 
-{ #category : 'accessing' }
-DRBlockIRGenerator >> outerContext [
-
-	^ outerContext
-]
-
-{ #category : 'accessing' }
-DRBlockIRGenerator >> outerContext: anObject [
-
-	outerContext := anObject
-]
-
 { #category : 'as yet unclassified' }
 DRBlockIRGenerator >> temporariesListfrom: aNode [
 
@@ -52,7 +40,12 @@ DRBlockIRGenerator >> temporariesListfrom: aNode [
 { #category : 'visiting' }
 DRBlockIRGenerator >> variableFrame [
 
-	^ self outerContext
+	^ variableFrame 
+]
+
+{ #category : 'accessing' }
+DRBlockIRGenerator >> variableFrame: aDRStackFrame [ 
+	variableFrame := aDRStackFrame
 ]
 
 { #category : 'visiting' }

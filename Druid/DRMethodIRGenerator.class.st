@@ -13,7 +13,7 @@ DRMethodIRGenerator >> blockClosureGenerator [
 	blockGenerator := DRBlockIRGenerator new.
 	
 	"Review this decision..."
-	blockGenerator outerContext: self topFrame copy.
+	blockGenerator variableFrame: self topFrame copy.
 	
 	blockGenerator ir scope
 		outerScope: self ir scope;
@@ -52,15 +52,13 @@ DRMethodIRGenerator >> inlineGenerator [
 
 	| newIRGenerator executionStateCopy |
 	newIRGenerator := DRMethodIRGeneratorInline new
-		         controlFlowGraph: controlFlowGraph;
-					typeSystem: typeSystem;
-		         yourself.
-		
+		                  controlFlowGraph: controlFlowGraph;
+		                  typeSystem: typeSystem;
+		                  yourself.
+
 	executionStateCopy := executionState copy.
-	newIRGenerator executionState: executionStateCopy .
-	
-	controlFlowGraph executionStack: executionStateCopy executionStack.
-	
+	newIRGenerator executionState: executionStateCopy.
+
 	newIRGenerator ensureScope.
 	^ newIRGenerator
 ]
@@ -215,14 +213,14 @@ DRMethodIRGenerator >> scope [
 ]
 
 { #category : 'as yet unclassified' }
-DRMethodIRGenerator >> setupCFGScope: aNode [ 
+DRMethodIRGenerator >> setupCFGScope: aCodeNode [ 
 	
 	self ir scope
-		numArgs: aNode arguments size;
-		addArguments: aNode argumentNames;
-		addTemps: aNode temporaryNames;
-		opalScope: aNode scope;
-		node: aNode
+		numArgs: aCodeNode arguments size;
+		addArguments: aCodeNode argumentNames;
+		addTemps: aCodeNode temporaryNames;
+		opalScope: aCodeNode scope;
+		node: aCodeNode
 ]
 
 { #category : 'accessing' }
@@ -242,6 +240,8 @@ DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 
 	| loadArg frame varName |
 	varName := aRBVariableNode name.
+
+	self flag: #TOCHECK. "Can we use the scope? And avoid to manage the variableFrame?"
 	frame := self variableFrame.
 	((frame hasTemporaryNamed: varName) and: [
 		 (frame readTemporaryNamed: varName) isNullValue not ]) ifTrue: [
@@ -253,17 +253,17 @@ DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 				  instructionKind: DRCopy
 				  operands: { value operand1 } ].
 		^ self pushOperand: value ].
-	
+
 	loadArg := self
 		           addInstructionFrom: aRBVariableNode
 		           instructionKind: DRLoadArgument
 		           operands: { aRBVariableNode variable index asDRValue }.
 
 	loadArg argName: aRBVariableNode name.
-	loadArg scope: (self scope lookupVarOrAddNewTemp: aRBVariableNode name).
-	 
-	^ loadArg
+	loadArg scope:
+		(self scope lookupVarOrAddNewTemp: aRBVariableNode name).
 
+	^ loadArg
 ]
 
 { #category : 'visiting' }

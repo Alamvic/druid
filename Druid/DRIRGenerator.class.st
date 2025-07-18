@@ -761,16 +761,15 @@ DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
 DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 
 	| block arguments |
-	
 	aRBMessageNode receiver acceptVisitor: self.
 	block := self popOperand simplify.
-	1 haltIf: [ block isDRBlockClosure not ].
+
 	block isDRBlockClosure ifFalse: [
 		^ self resolveMessageSend: aRBMessageNode receiver: block ].
 	arguments := aRBMessageNode arguments collect: [ :e |
-		e acceptVisitor: self.
-		self popOperand ].
-	
+		             e acceptVisitor: self.
+		             self popOperand ].
+
 	"cull: only pass the required number of arguments and ignore the rest"
 	self
 		interpretCode: block

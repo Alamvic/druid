@@ -343,17 +343,17 @@ DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
 	| value |
-	
 	value := aDRStoreTemporaryVariable operand2 simpleConstantFold
 		         asDRValue.
 	value isStoreTemporaryVariable ifFalse: [ value acceptVisitor: self ].
 
 	builder
 		storeRemoteTemp: aDRStoreTemporaryVariable operand1 value
-		inVector: aDRStoreTemporaryVariable scope tempVectorName .
+		inVector: aDRStoreTemporaryVariable scope tempVectorName.
 
 	(aDRStoreTemporaryVariable users reject: [ :each |
-		 each isLoadTemporaryVariable or: [ each isCopy] ]) size = 0 ifTrue: [ builder popTop ]
+		 each isLoadTemporaryVariable "or: [ each isCopy ]" ]) size = 0
+		ifTrue: [ builder popTop ]
 ]
 
 { #category : 'ir-to-target' }
