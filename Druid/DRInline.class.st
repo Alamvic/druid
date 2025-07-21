@@ -71,28 +71,33 @@ DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 { #category : 'inlining' }
 DRInline >> inline: messageSend [
 
-	| methodsToInline inlinedMethodReturnValue |
-
-	(self isIgnoredSelector: messageSend) 
-		ifTrue: [ ^ self ].
-
+	| methodsToInline inlinedMethodReturnValue innerDependencies |
 	inlineGenerator := messageSend inlineGenerator.
 
 	methodsToInline := self methodsToInlineOf: messageSend.
 	methodsToInline ifEmpty: [ ^ self ].
 
+	"Keep the the dependecies from inner blocks to remove the message as user"
+	innerDependencies := messageSend innerDependencies.
+
 	"Break message send basic block"
 	messageSend basicBlock breakBy: messageSend.
-	messageSend basicBlock predecessor jumpTo: inlineGenerator newFirstBasicBlock.
+	messageSend basicBlock predecessor jumpTo:
+		inlineGenerator newFirstBasicBlock.
 
 	"Generate inlining methods IR"
-	inlineGenerator numberOfArguments:
-		messageSend operands size - 1.
-	inlinedMethodReturnValue := self generateInlineIRForMethods: methodsToInline of: messageSend.
+	inlineGenerator numberOfArguments: messageSend operands size - 1.
+	inlinedMethodReturnValue := self
+		                            generateInlineIRForMethods:
+		                            methodsToInline
+		                            of: messageSend.
 
 	"Replace usages by inlines result"
-	inlineGenerator currentBasicBlock jumpTo: messageSend basicBlock successor.
+	inlineGenerator currentBasicBlock jumpTo:
+		messageSend basicBlock successor.
 	messageSend replaceUsesBy: inlinedMethodReturnValue.
+	(innerDependencies copyWithoutAll: messageSend innerDependencies)
+		do: [ :i | i removeUser: messageSend ].
 
 	"Remove message send block"
 	messageSend basicBlock removeFromCFGAndDisconnectSuccessors.
@@ -101,12 +106,6 @@ DRInline >> inline: messageSend [
 	DRDeadBlockElimination new applyTo: inlineGenerator ir.
 	DRDeadCodeElimination new applyTo: inlineGenerator ir.
 	inlineGenerator ir validate
-]
-
-{ #category : 'inlining' }
-DRInline >> isIgnoredSelector: messageSend [
-
-	^ { #class. #instVarAt: } includes: messageSend selector
 ]
 
 { #category : 'inlining' }

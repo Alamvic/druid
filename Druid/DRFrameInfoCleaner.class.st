@@ -1,8 +1,9 @@
 Class {
 	#name : 'DRFrameInfoCleaner',
 	#superclass : 'DROptimisation',
-	#category : 'Druid-Tests',
-	#package : 'Druid-Tests'
+	#category : 'Druid-Optimizations',
+	#package : 'Druid',
+	#tag : 'Optimizations'
 }
 
 { #category : 'accessing' }

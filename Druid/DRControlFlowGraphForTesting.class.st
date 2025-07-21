@@ -15,6 +15,13 @@ Class {
 	#tag : 'IR'
 }
 
+{ #category : 'adding' }
+DRControlFlowGraphForTesting >> addScopeToInstructionIfNeeded: aDRLoadTemporaryVariable [ 
+
+	self flag: #TODO.
+	"We need to re-think the CFG for testing to apply for all the hierarchy of CFG"
+]
+
 { #category : 'accessing' }
 DRControlFlowGraphForTesting >> b0 [
 

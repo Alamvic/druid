@@ -75,6 +75,15 @@ DruidTestInterpreter >> basicInlineMethodSettingInstVar [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> basicMethodWithBlock2: aBlock [
+
+	| tmp2 |
+	tmp2  := aBlock value.
+	^ tmp2
+	
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> basicMethodWithBlock: aBlock [
 
 	| tmp1 |
@@ -87,7 +96,7 @@ DruidTestInterpreter >> basicMethodWithBlock: aBlock [
 DruidTestInterpreter >> basicMethodWithBlockArg: aBlock [
 
 	| tmp1 |
-	tmp1  := aBlock value: 0.
+	tmp1  := aBlock value: 5.
 	^ tmp1
 	
 ]
@@ -382,7 +391,7 @@ DruidTestInterpreter >> methodBlockNested2WithArg2 [
 
 	^ self basicMethodWithBlockArg: [ :arg1 |
 		  self basicMethodWithBlock: [ 
-			arg1 ]
+			arg1]
 		 ]
 ]
 
@@ -493,6 +502,15 @@ DruidTestInterpreter >> methodWithThreeNonLocalReturn [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodWithToDo [
+
+	| n |
+	n := 0.
+	1 to: 10 do: [ :i | n := n + i ].
+	^ n
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	self stackTop = 0
@@ -501,6 +519,15 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	"Dead code"
 	^ 16rFFFF
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodWithTwoToDos [
+
+	| n |
+	n := 0.
+	1 to: 10 do: [ :i | 1 to: 10 do: [ :j | n := n + i + j ] ].
+	^ n
 ]
 
 { #category : 'as yet unclassified' }
@@ -2298,9 +2325,12 @@ DruidTestInterpreter >> simpleMethodWith1Arg: argument1 arg2: argument2 [
 { #category : 'as yet unclassified' }
 DruidTestInterpreter >> simpleMethodWithBlock [
 
-	^ self basicMethodWithBlock: [ | x | 
+	| tmp |
+	tmp := self basicMethodWithBlock: [ | x | 
 		x:=5.
 		x].
+	
+	^ tmp
 	
 	
 ]
@@ -2328,6 +2358,41 @@ DruidTestInterpreter >> simpleMethodWithBlockActivatedArg [
 	       x ] value: 2.
 
 	^ tmp
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockCull [
+
+	| tmp |
+	tmp := [ 5 ] cull: 0.
+	
+	^ tmp
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockCull1Arg [
+
+	| tmp |
+	tmp := [ :arg1 |
+		arg1] cull: 0.
+	
+	^ tmp
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> simpleMethodWithBlockCull2Arg [
+
+	| tmp |
+	tmp := [ :arg1 |
+		arg1] cull: 0 cull:1.
+	
+	^ tmp
+	
+	
 ]
 
 { #category : 'as yet unclassified' }
@@ -2371,9 +2436,9 @@ DruidTestInterpreter >> simpleMethodWithBlockReadingOuterVariable [
 { #category : 'as yet unclassified' }
 DruidTestInterpreter >> simpleMethodWithBlockWithArg [
 	
-	self basicMethodWithBlockArg: [ :arg |
+	^ self basicMethodWithBlockArg: [ :arg |
 		| x | 
-		x:=arg.
+		x:=arg + 1.
 		x].
 	
 	

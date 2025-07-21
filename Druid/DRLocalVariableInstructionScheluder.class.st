@@ -35,7 +35,7 @@ DRLocalVariableInstructionScheluder >> shouldIgnore: aDRInstruction [
 { #category : 'transformation' }
 DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 
-	| variableName loadInst cfgScope cfg|
+	| variableName loadInst cfg|
 	variableName := aDRPhiFunction result name asLowercase asDRValue.
 	
 	"add the new created temporary variable to the scope"
@@ -48,11 +48,13 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 	cfg addScopeToInstructionIfNeeded: loadInst .
 	aDRPhiFunction replaceBy: loadInst.
 
-	(aDRPhiFunction operands allSatisfy: [ :op |
-		 op isStoreTemporaryVariable ]) ifTrue: [ "If they are already temporaries then it is ok"
+	(aDRPhiFunction operandsWithoutMe allSatisfy: [ :op |
+		 op result isNoResult  ]) ifTrue: [ "If they are already temporaries then it is ok"
 		^ self ].
 
-	(aDRPhiFunction operands copyWithout: aDRPhiFunction) do: [ :op |
+	aDRPhiFunction operandsWithoutMe 
+		select: [ :op | op isInstruction ]
+		thenDo: [ :op |
 		| storeInst |
 		storeInst := DRStoreTemporaryVariable
 			             operands: {
@@ -75,26 +77,30 @@ DRLocalVariableInstructionScheluder >> storeResultsToBeReused: aDRControlFlowGra
 { #category : 'transformation' }
 DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
 
-	| variableName storeInst |
-	self assert: aDRInstruction result isRegister.
+    | variableName storeInst cfg |
+    self assert: aDRInstruction result isRegister.
+    cfg := aDRInstruction controlFlowGraph.
 
-	variableName := aDRInstruction isLoadTemporaryVariable
-		                ifTrue: [ aDRInstruction operand1 ]
-		                ifFalse: [
-		                aDRInstruction result name asLowercase asDRValue ].
+    variableName := aDRInstruction isLoadTemporaryVariable
+                        ifTrue: [ aDRInstruction operand1 ]
+                        ifFalse: [
+                        aDRInstruction result name asLowercase asDRValue ].
+    cfg addTempNameToScope: variableName value.
 
-	aDRInstruction users copy do: [ :user |
-		| loadInst |
-		loadInst := DRLoadTemporaryVariable 
-				operands: { variableName }
-				result: aDRInstruction controlFlowGraph allocateTemporaryRegister.
-		user basicBlock add: loadInst before: user.
-		user replaceDependency: aDRInstruction by: loadInst ].
+    aDRInstruction users copy do: [ :user |
+        | loadInst |
+        loadInst := DRLoadTemporaryVariable 
+                operands: { variableName }
+                result: aDRInstruction controlFlowGraph allocateTemporaryRegister.
+        aDRInstruction controlFlowGraph addScopeToInstructionIfNeeded: loadInst.
+        user basicBlock add: loadInst before: user.
+        user replaceDependency: aDRInstruction by: loadInst ].
 
-	storeInst := DRStoreTemporaryVariable
-		             operands: {
-				             variableName.
-				             aDRInstruction }
-		             result: DRNoRegister new.
-	aDRInstruction basicBlock add: storeInst after: aDRInstruction
+    storeInst := DRStoreTemporaryVariable
+                     operands: {
+                             variableName.
+                             aDRInstruction }
+                     result: DRNoRegister new.
+    cfg addScopeToInstructionIfNeeded: storeInst.
+    aDRInstruction basicBlock add: storeInst after: aDRInstruction
 ]

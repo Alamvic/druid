@@ -48,11 +48,6 @@ DRControlFlowGraph >> addEdgeFrom: sourceBlock to: destinationBlock branchIndex:
 	^ edge
 ]
 
-{ #category : 'accessing' }
-DRControlFlowGraph >> addScopeToInstructionIfNeeded: anInstruction [
-
-]
-
 { #category : 'adding' }
 DRControlFlowGraph >> addStagedRegister: aDRStagedRegister [ 
 	
@@ -326,52 +321,59 @@ DRControlFlowGraph >> configureVisualization: view [
 
 { #category : 'inspecting' }
 DRControlFlowGraph >> createBlockView: aBlock [
+
 	| box label boxes composite labelBackground |
 	label := RSLabel new
-		text: aBlock id asString;
-		color: Color black;
-		fontSize: 4;
-		yourself.
-	labelBackground := RSEllipse new
-		color: Color white;
-		border: (RSBorder new color: 'black');
-		extent: label extent + 5;
-		yourself.
+		         text: aBlock id asString;
+		         color: Color black;
+		         fontSize: 4;
+		         yourself.
+	labelBackground := RSCircle new
+		                   color: Color white;
+		                   border: (RSBorder new color: 'black');
+		                   radius: (label extent x max: label extent y) - 2;
+		                   yourself.
 	box := RSBox new
-		noPaint;
-		border: (RSBorder new
-			width: 2;
-			color: Color black;
-			yourself);
-		cornerRadius: 2;
-		yourself.
+		       noPaint;
+		       border: (RSBorder new
+				        width: 2;
+				        color: Color black;
+				        yourself);
+		       cornerRadius: 2;
+		       yourself.
 
-	boxes := aBlock instructions collect: [ :inst |
-		self createinstructionView: inst ] as: RSGroup.
+	boxes := aBlock instructions
+		         collect: [ :inst | self createinstructionView: inst ]
+		         as: RSGroup.
 	RSGridLayout on: boxes.
 
 	box
 		position: boxes position;
 		extent: boxes extent + 10.
-	composite := ({box},boxes) asShape
-		draggable;
-		@ (RSPopup text: [:model |
-			String streamContents: [:s | (model instructions collect: #prettyPrint)
-				asStringOn: s delimiter: String cr]
-			]);
-		@ (RSMenuActivable new menuDo: [ :menu :element |
-			menu
-				add: 'Tail-duplicate'
-				target: element model
-				selector: #tailDuplicate ]);
-		model: aBlock;
-		yourself.
+
+	composite := RSComposite new
+		             add: box;
+		             addAll: boxes;
+		             draggable;
+		             model: aBlock;
+		             adjustToChildren;
+		             @ (RSPopup text: [ :model |
+					              String streamContents: [ :s |
+							              (model instructions collect: #prettyPrint)
+								              asStringOn: s
+								              delimiter: String cr ] ]);
+		             @ (RSMenuActivable new menuDo: [ :menu :element |
+					              menu
+						              add: 'Tail-duplicate'
+						              target: element model
+						              selector: #tailDuplicate ]);
+		             yourself.
 
 	RSLocation new
 		outer;
 		right;
 		top;
-		offset: 3@(-3);
+		offset: -2 @ 2;
 		move: label on: boxes.
 
 	labelBackground position: label position.
