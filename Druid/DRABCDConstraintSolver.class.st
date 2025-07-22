@@ -98,7 +98,10 @@ DRABCDConstraintSolver >> isSatisfiable: aDRPiNode [
 { #category : 'building - graph' }
 DRABCDConstraintSolver >> piNodesOriginalVariable: aDRValue [
 
-	^ aDRValue simpleConstantFold asDRValue
+	| val |
+	val := aDRValue.
+	[ val isPiNode ] whileTrue: [ val := val operand ].
+	^ val
 ]
 
 { #category : 'building - graph' }
