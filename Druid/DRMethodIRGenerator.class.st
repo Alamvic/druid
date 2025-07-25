@@ -78,6 +78,15 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 					  self receiver.
 					  aRBAssignmentNode variable binding index asDRValue.
 					  value } ].
+			
+	aRBAssignmentNode variable binding isClassVariable ifTrue: [
+		
+		^ self
+			  addInstructionWithNoResultFrom: aRBAssignmentNode
+			  instructionKind: DRStoreLiteralVariable 
+			  operands: {
+					  aRBAssignmentNode variable binding asDRValue.
+					  value } ].
 
 	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [
 		| result |

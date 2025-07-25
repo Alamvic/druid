@@ -256,6 +256,12 @@ DRBytecodeGeneratorTest >> testMethodManyReturns [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodReadingClassVariable [
+
+	self assertCompilationFor: #methodReadingClassVariable fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 
 	| method result cfg selector methodProfiler previousMethodSize |
@@ -591,6 +597,12 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWritingClassVariable [
+
+	self assertCompilationFor: #methodWritingClassVariable fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalBooleanMethods [
 
 	OCOpalExamples methods
@@ -605,6 +617,16 @@ DRBytecodeGeneratorTest >> testOpalConditionalMethods [
 
 	OCOpalExamples methods
 		select: [ :opalMethod | opalMethod protocolName = #'examples - conditionals' ]
+		thenDo: [ :opalMethod | 
+			self setUp.
+			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testOpalLiteralMethods [
+
+	OCOpalExamples methods
+		select: [ :opalMethod | opalMethod protocolName = #'examples - literals' ]
 		thenDo: [ :opalMethod | 
 			self setUp.
 			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
