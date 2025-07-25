@@ -367,6 +367,12 @@ DRCogitCanonicaliser >> visitLoadFramePointer: aDRLoadFramePointer [
 ]
 
 { #category : 'visiting' }
+DRCogitCanonicaliser >> visitLoadLiteralVariable: aDRLoadLiteralVariable [ 
+	
+	"Nothing"
+]
+
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitLoadReceiver: aDRLoadReceiver [ 
 	
 	"Nothing"
@@ -513,6 +519,12 @@ DRCogitCanonicaliser >> visitStore: aDRStore [
 		base: baseOperand;
 		offset: offsetOperand;
 		yourself)
+]
+
+{ #category : 'visiting' }
+DRCogitCanonicaliser >> visitStoreLiteralVariable: aDRStoreLiteralVariable [ 
+	
+	"Nothing"
 ]
 
 { #category : 'visiting' }
