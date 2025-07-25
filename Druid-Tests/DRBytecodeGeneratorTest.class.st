@@ -623,6 +623,16 @@ DRBytecodeGeneratorTest >> testOpalConditionalMethods [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testOpalLiteralMethods [
+
+	OCOpalExamples methods
+		select: [ :opalMethod | opalMethod protocolName = #'examples - literals' ]
+		thenDo: [ :opalMethod | 
+			self setUp.
+			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalSimpleMethods [
 
 	OCOpalExamples methods

@@ -2098,6 +2098,12 @@ DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 ]
 
 { #category : 'visiting' }
+DRIRGenerator >> visitLiteralArrayNode: aRBLiteralArrayNode [ 
+	
+	self visitLiteralValueNode: aRBLiteralArrayNode 
+]
+
+{ #category : 'visiting' }
 DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 
 	self
