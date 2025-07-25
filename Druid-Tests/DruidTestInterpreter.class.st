@@ -4,6 +4,9 @@ Class {
 	#instVars : [
 		'dummyVariable'
 	],
+	#classVars : [
+		'classVariable'
+	],
 	#category : 'Druid-Tests',
 	#package : 'Druid-Tests'
 }
@@ -452,6 +455,15 @@ DruidTestInterpreter >> methodInlineThenSendClass: aCollection [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodReadingClassVariable [
+	
+	^ classVariable.
+	
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> methodWithArg: aCollection [
 	<var: #aCollection type: #OrderedCollection>
 	^ aCollection select: [ :element | element even ]
@@ -544,6 +556,15 @@ DruidTestInterpreter >> methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotat
 	<var: #aCollection type: #Unknown>
 	<var: #aCollection type: #Dictionary>
 	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodWritingClassVariable [
+	
+	classVariable := 1.
+	
+	
+	
 ]
 
 { #category : 'as yet unclassified' }

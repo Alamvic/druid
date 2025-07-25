@@ -256,6 +256,12 @@ DRBytecodeGeneratorTest >> testMethodManyReturns [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodReadingClassVariable [
+
+	self assertCompilationFor: #methodReadingClassVariable fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
 
 	| method result cfg selector methodProfiler previousMethodSize |
@@ -588,6 +594,12 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 		          valueWithReceiver: nil
 		          arguments: { (Array2D rows: 2 columns: 2) }.
 	self assert: result equals: 4
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWritingClassVariable [
+
+	self assertCompilationFor: #methodWritingClassVariable fromClass: DruidTestInterpreter
 ]
 
 { #category : 'tests' }

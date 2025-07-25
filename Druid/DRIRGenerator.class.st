@@ -2085,10 +2085,10 @@ DRIRGenerator >> visitCascadeNode: aRBCascadeNode [
 DRIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
 	| value |
-	value := aRBVariableNode variable value asDRValue.
+	value := aRBVariableNode variable asDRValue.
 	self
 		addInstructionFrom: aRBVariableNode
-		instructionKind: DRCopy
+		instructionKind: DRLoadLiteralVariable 
 		operands: { value }
 ]
 
