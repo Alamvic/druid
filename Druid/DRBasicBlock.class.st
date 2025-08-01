@@ -1278,6 +1278,7 @@ DRBasicBlock >> removeInstruction: aDRInstruction [
 DRBasicBlock >> removePiNodes [
 
 	self piNodes do: [ :pi |
+		pi operand removeUser: pi.
 		pi users do: [ :user | user replaceOperand: pi by: pi operand ].
 		self removeInstruction: pi ]
 ]
