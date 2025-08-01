@@ -120,6 +120,22 @@ DRIRPrinter >> visitJump: aDRJump [
 ]
 
 { #category : 'visiting' }
+DRIRPrinter >> visitLoadArgument: aDRLoadArgument [ 
+	
+	^ self
+		  printInstr: aDRLoadArgument
+		  withOperands: (self printRegularOperands: aDRLoadArgument).
+]
+
+{ #category : 'visiting' }
+DRIRPrinter >> visitLoadReceiver: aDRLoadReceiver [ 
+	
+	^ self
+		  printInstr: aDRLoadReceiver
+		  withOperands: (self printRegularOperands: aDRLoadReceiver)
+]
+
+{ #category : 'visiting' }
 DRIRPrinter >> visitMultiply: aDRMultiply [
 
 	^ self
@@ -147,4 +163,11 @@ DRIRPrinter >> visitReturn: aDRReturn [
 	^ self
 		  printInstr: aDRReturn
 		  withOperands: (self printRegularOperands: aDRReturn)
+]
+
+{ #category : 'visiting' }
+DRIRPrinter >> visitSubstract: aDRSubtract [ 
+		^ self
+		  printInstr: aDRSubtract
+		  withOperands: (self printRegularOperands: aDRSubtract).
 ]

@@ -34,14 +34,14 @@ DREdge >> destination: anObject [
 { #category : 'deleting' }
 DREdge >> kill [
 
-	| newSucessors |
-	
+	| newSucessor |
 	"Precondition: source has 2 successors
 	Does it make sense to kill an edge from a block with only 1 successor?
 	PiNodes shouldn't generate such situation anyways, because they are inserted at split points"
-
-	newSucessors := source successors copyWithout: destination.
-	source jumpTo: newSucessors unique.
+	
+	newSucessor := (source successors copyWithout: destination) unique.
+	source jumpTo: newSucessor.
+	newSucessor removePiNodes
 ]
 
 { #category : 'printing' }

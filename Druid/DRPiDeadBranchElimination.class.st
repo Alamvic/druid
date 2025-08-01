@@ -36,7 +36,7 @@ DRPiDeadBranchElimination >> applyTo: cfg [
 		cfg
 			invalidateDominatorTree;
 			invalidatePostDominatorTree.
-		cfg applyOptimisation: DRDeadBlockElimination new ]
+		DRDeadBlockElimination new applyTo: cfg]
 ]
 
 { #category : 'accessing' }
