@@ -6,6 +6,14 @@ Class {
 	#tag : 'IR-Paths'
 }
 
+{ #category : 'testing' }
+DRLessOrEqualsConstraint >> asZ3ConstraintOnVar: varName forSolver: aZ3ConstraintSolver [
+
+	^ varName toInt <= (constantValue asDRValue isNumberValue
+		   ifTrue: [ constantValue ]
+		   ifFalse: [ constantValue name ])
+]
+
 { #category : 'reversing' }
 DRLessOrEqualsConstraint >> distanceForBuildingABCDGraph [
 

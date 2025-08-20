@@ -6,6 +6,14 @@ Class {
 	#tag : 'IR-Paths'
 }
 
+{ #category : 'converting' }
+DRGreaterOrEqualsConstraint >> asZ3ConstraintOnVar: varName forSolver: aZ3ConstraintSolver [
+
+	^ varName toInt >= (constantValue asDRValue isNumberValue
+		   ifTrue: [ constantValue ]
+		   ifFalse: [ constantValue name ])
+]
+
 { #category : 'arithmetic' }
 DRGreaterOrEqualsConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 

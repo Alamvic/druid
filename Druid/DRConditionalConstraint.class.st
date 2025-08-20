@@ -18,6 +18,12 @@ DRConditionalConstraint >> asDependencyList [
 	self subclassResponsibility
 ]
 
+{ #category : 'testing' }
+DRConditionalConstraint >> asZ3ConstraintOnVar: varName forSolver: aZ3ConstraintSolver [
+
+	self subclassResponsibility
+]
+
 { #category : 'as yet unclassified' }
 DRConditionalConstraint >> distanceForBuildingABCDGraph [
 
