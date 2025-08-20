@@ -5,3 +5,8 @@ Class {
 	#package : 'Druid',
 	#tag : 'IR-Paths'
 }
+
+{ #category : 'as yet unclassified' }
+DRConstraintSolver >> isSatisfiable: aDRPiNode [ 
+	^ self subclassResponsibility
+]
