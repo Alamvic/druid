@@ -83,7 +83,7 @@ DRABCDConstraintSolver >> isSatisfiable: aDRPiNode [
 
 	shortestPath
 		start: (self piNodesOriginalVariable:
-					 aDRPiNode constraint constantValue asDRValue);
+					 aDRPiNode constraint otherValue asDRValue);
 		isMaxNodePredicate: [ :n | n isPhiFunction ];
 		memoDictionary: memo.
 	shortestPath run.
@@ -137,13 +137,13 @@ DRABCDConstraintSolver >> processPiNode: aDRPiNode [
 
 	| constraint distance |
 	constraint := aDRPiNode constraint.
-	nodes add: constraint constantValue asDRValue.
+	nodes add: constraint otherValue asDRValue.
 
 	distance := constraint distanceForBuildingABCDGraph.
 	distance ifNil: [ ^nil ].
 
 	edges add: {
-			constraint constantValue asDRValue. "According to the paper, the edge source should be the pi-node associated to the constraint,
+			constraint otherValue asDRValue. "According to the paper, the edge source should be the pi-node associated to the constraint,
 															but I don't think there's a difference here, and this is easier"
 			aDRPiNode.
 			distance }.

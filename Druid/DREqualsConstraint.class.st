@@ -21,12 +21,6 @@ DREqualsConstraint class >> withValue: aConstantValue [
 ]
 
 { #category : 'arithmetic' }
-DREqualsConstraint >> distanceForBuildingABCDGraph [
-
-	^ 0
-]
-
-{ #category : 'arithmetic' }
 DREqualsConstraint >> hasAllValuesGreaterThan: aConstantValue [
 
 	^ false

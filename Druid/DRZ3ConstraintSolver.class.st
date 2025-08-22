@@ -60,7 +60,7 @@ DRZ3ConstraintSolver >> visitCopy: aDRCopy [
 
 	aDRCopy dependencies reject: #isNumberValue thenDo: [ :dep | self z3ConstraintOn: dep ].
 	^ aDRCopy isPiNode
-		  ifTrue: [ aDRCopy asZ3ConstraintForSolver: self ]
+		  ifTrue: [ aDRCopy asZ3Constraint ]
 		  ifFalse: [
 			  | operand |
 			  operand := aDRCopy operand.

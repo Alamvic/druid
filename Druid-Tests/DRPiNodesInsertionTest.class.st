@@ -17,10 +17,10 @@ DRPiNodesInsertionTest >> testInsertPiNodesEqualsCondition [
 	self insertPiNodes: cfg.
 	
 	self assert: cfg b2 piNodes size equals: 2.
-	self assert: (cfg b2 piNodes allSatisfy: [ :pi | pi constraint class == DREqualsObjectConstraint ]).
+	self assert: (cfg b2 piNodes allSatisfy: [ :pi | pi constraint class == DRPiEqualsConstraint ]).
 	
 	self assert: cfg b3 piNodes size equals: 2.
-	self assert: (cfg b3 piNodes allSatisfy: [ :pi | pi constraint class == DRNotEqualsObjectConstraint ]).
+	self assert: (cfg b3 piNodes allSatisfy: [ :pi | pi constraint class == DRPiNotEqualsConstraint ]).
 
 ]
 
