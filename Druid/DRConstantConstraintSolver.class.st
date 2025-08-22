@@ -24,13 +24,10 @@ DRConstantConstraintSolver >> collectConstraintsFrom: aDRValue [
 			  (aDRValue operands collect: [ :op | self collectConstraintsFrom: op ]) ].
 
 	aDRValue isPiNode ifTrue: [
-		| val |
-		val := aDRValue constraint constantValue asDRValue
-			       simpleConstantFold value.
-		(val isNumber or: val isBooleanValue)
-			ifTrue: [
-				^ (self collectConstraintsFrom: aDRValue operand) intersectionWith: aDRValue constraint ]
-			ifFalse: [ ^ DRFullConstraint new ] ].
+		| constantConstraint |
+		constantConstraint := aDRValue constraint asConstantConstraint
+			                      ifNil: [ ^ DRFullConstraint new ].
+		^ (self collectConstraintsFrom: aDRValue operand) intersectionWith: constantConstraint ].
 
 	aDRValue isCopy ifTrue: [
 		^ self collectConstraintsFrom: aDRValue operand ].
@@ -40,12 +37,12 @@ DRConstantConstraintSolver >> collectConstraintsFrom: aDRValue [
 
 { #category : 'testing' }
 DRConstantConstraintSolver >> isSatisfiable: aDRPiNode [
-	| collectedConstraint |
+	| collectedConstraint piNodeConstraint |
 	
-	(aDRPiNode constraint constantValue isNumber or: aDRPiNode constraint constantValue value isBooleanValue) ifFalse: [ ^true ].
+	piNodeConstraint := (aDRPiNode constraint asConstantConstraint) ifNil: [ ^true ].
 
 	visited := Set new.
 	collectedConstraint := self collectConstraintsFrom: aDRPiNode operand.
 
-	^ (collectedConstraint negated includes: aDRPiNode constraint) not.
+	^ (collectedConstraint negated includes: piNodeConstraint) not.
 ]

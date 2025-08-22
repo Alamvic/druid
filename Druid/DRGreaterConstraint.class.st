@@ -6,14 +6,6 @@ Class {
 	#tag : 'IR-Paths'
 }
 
-{ #category : 'testing' }
-DRGreaterConstraint >> asZ3ConstraintOnVar: varName forSolver: aZ3ConstraintSolver [
-
-	^ varName toInt > (constantValue asDRValue isNumberValue
-		   ifTrue: [ constantValue ]
-		   ifFalse: [ constantValue name ])
-]
-
 { #category : 'arithmetic' }
 DRGreaterConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
@@ -36,16 +28,6 @@ DRGreaterConstraint >> hasValue: otherConstantValue [
 DRGreaterConstraint >> isIncludedIn: otherConstraint [
 
 	^ otherConstraint hasAllValuesGreaterThan: constantValue
-]
-
-{ #category : 'reversing' }
-DRGreaterConstraint >> minABCDDistanceToBeSatisfiable [
-
-	"TODO
-	I'm not sure, but I think returning 1 here is fine, and may allow it to optimize more cases.
-	Needs testing though"
-	"^ 1"
-	^ nil
 ]
 
 { #category : 'arithmetic' }
