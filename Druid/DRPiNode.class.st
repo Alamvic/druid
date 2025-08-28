@@ -20,8 +20,7 @@ DRPiNode class >> constraint: aDRConditionalConstraint on: aDRValue [
 { #category : 'converting' }
 DRPiNode >> asZ3Constraint [
 
-	^ self name toInt === self operand name toInt and:
-		  (constraint asZ3ConstraintOnVar: self name)
+	^ constraint asZ3ConstraintOnVar: self name
 ]
 
 { #category : 'testing' }

@@ -134,3 +134,51 @@ b0:
 	self assert: b_if2 endInstruction target equals: b_end1.
 
 ]
+
+{ #category : 'tests' }
+DRPiZ3DeadBranchEliminationTest >> testUpperBoundsCheckElimination [
+
+	"                
+	                           /->-|b_error|
+	 |b0| -> |b_i| -> |b_while| -> |b_access| -> |b_end|
+	                  \-<-------------------/
+	"
+
+	| cfg blocks b_error b_access b_while |
+
+	cfg := (DRIRParser for: '[[b0]]
+b_i:
+	len := LoadFramePointer()
+	i0 := Copy(0)
+	_ := Jump(b_while)
+b_while:[b_i, b_access]
+	i1 := phi(i0, i2)
+	_ := If(LessThan, i1, len; b_access, b_error)
+
+b_access:
+	x := LoadFramePointer()
+	i2 := Add(i1, 1)
+	_ := If(LessThan, i2, len; b_while, b_end)
+
+b_end:
+	_ := Store(8, 2, 777)
+b_error:
+	_ := Store(8, 2, 999)
+
+b0:
+	_ := Jump(b_i)
+') parse.
+
+	blocks := cfg blocks.
+	b_error := blocks at: 5.
+	b_access := blocks at: 3.
+	b_while := blocks at: 2.
+
+	self optimize: cfg with: { DRPiZ3DeadBranchElimination }.
+	
+	self assert: (cfg blocks includes: b_error) not.
+	self assert: b_while endInstruction isJump.
+	self assert: b_while endInstruction isConditionalBranch not.
+	self assert: b_while endInstruction target equals: b_access.
+
+]
