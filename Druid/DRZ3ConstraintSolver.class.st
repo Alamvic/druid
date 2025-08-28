@@ -2,10 +2,9 @@ Class {
 	#name : 'DRZ3ConstraintSolver',
 	#superclass : 'DRConstraintSolver',
 	#instVars : [
-		'visited',
 		'cfg',
 		'memo',
-		'currentConstraint'
+		'assertions'
 	],
 	#category : 'Druid-IR-Paths',
 	#package : 'Druid',
@@ -16,6 +15,12 @@ Class {
 DRZ3ConstraintSolver class >> for: aDRControlFlowGraph [
 
 	^ self new initializeFor: aDRControlFlowGraph
+]
+
+{ #category : 'as yet unclassified' }
+DRZ3ConstraintSolver >> addZ3ConstraintFrom: aDRValue [
+
+	aDRValue acceptVisitor: self
 ]
 
 { #category : 'initialization' }
@@ -29,13 +34,36 @@ DRZ3ConstraintSolver >> initializeFor: aDRControlFlowGraph [
 { #category : 'as yet unclassified' }
 DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode [
 
-	| operandConstraint newConstraint |
-	currentConstraint := Bool true.
+	| solver ctxt retval |
+	
+	assertions := OrderedCollection new.
 
-	operandConstraint := self z3ConstraintOn: aDRPiNode operand.
-	newConstraint := self visitCopy: aDRPiNode.
+	ctxt := Z3Context global.
+	solver := ctxt mkSolver.
 
-	^ (currentConstraint ==> newConstraint not) isValid not
+	self addZ3ConstraintFrom: aDRPiNode.
+
+	assertions do: [ :a | solver assert: a ].
+	retval := solver check.
+
+	solver release.
+	^ retval
+]
+
+{ #category : 'as yet unclassified' }
+DRZ3ConstraintSolver >> recurseOnlyPis: aDRValue [
+
+	| currentVal |
+	currentVal := aDRValue.
+	[ currentVal isPiNode and: [ currentVal operand isPhiFunction not ] ] whileTrue: [
+		assertions add: (currentVal name toInt === currentVal operand name and:
+				 currentVal asZ3Constraint).
+		self recurseOnlyPis: currentVal constraint otherValue.
+		currentVal := currentVal operand ].
+
+	currentVal := currentVal simpleConstantFold asDRValue.
+	currentVal isNumberValue ifTrue: [
+		assertions add: aDRValue name toInt === currentVal value ]
 ]
 
 { #category : 'visiting' }
@@ -47,47 +75,53 @@ DRZ3ConstraintSolver >> visitAddition: aDRAdd [
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitBinaryOp: aDRInstruction with: selector [
 
-	aDRInstruction operands do: [ :op | self z3ConstraintOn: op ].
+	| constraints |
+	constraints := aDRInstruction operands do: [ :op |
+		               self addZ3ConstraintFrom: op ].
+	assertions add:
+		aDRInstruction name toInt === (aDRInstruction operand1 name toInt
+			 perform: selector
+			 with: aDRInstruction operand2 name toInt)
+]
 
-	^ aDRInstruction name toInt === (aDRInstruction operand1 name toInt
-		   perform: selector
-		   with: aDRInstruction operand2 name toInt)
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitConstant: aDRConstantValue [
+
+	assertions add:
+		aDRConstantValue name toInt === aDRConstantValue value
 ]
 
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitCopy: aDRCopy [
 	"TODO bitvectors? floats?"
 
-	aDRCopy dependencies reject: #isNumberValue thenDo: [ :dep | self z3ConstraintOn: dep ].
-	^ aDRCopy isPiNode
-		  ifTrue: [ aDRCopy asZ3Constraint ]
-		  ifFalse: [
-			  | operand |
-			  operand := aDRCopy operand.
-			  aDRCopy name toInt === (operand isNumberValue
-				   ifTrue: [ aDRCopy operand value toInt ]
-				   ifFalse: [
-					   operand name ]) ]
+	aDRCopy dependencies
+		reject: #isNumberValue
+		thenDo: [ :dep | self addZ3ConstraintFrom: dep ].
+
+	assertions add:
+		aDRCopy name toInt === (aDRCopy operand isNumberValue
+			 ifTrue: [ aDRCopy operand value toInt ]
+			 ifFalse: [ aDRCopy operand name ]).
+
+	aDRCopy isPiNode ifTrue: [
+		assertions add: aDRCopy asZ3Constraint.
+	].
+
+	
 ]
 
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitLoadFramePointer: aDRLoadFramePointer [ 
 	
-	^nil.
 ]
 
-{ #category : 'as yet unclassified' }
-DRZ3ConstraintSolver >> z3ConstraintOn: aDRValue [
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitPhiFunction: aDRPhiFunction [
 
-	| newConstraint |
-	"memo
-		at: aDRValue
-		ifPresent: [ :val |
-		^ currentConstraint := currentConstraint and: val ].
-	"
-	newConstraint := (aDRValue acceptVisitor: self) ifNil: [ ^ currentConstraint ].
-	memo at: aDRValue put: newConstraint.
-
-	^ currentConstraint := currentConstraint and: newConstraint.
+	aDRPhiFunction operands do: [ :op | self recurseOnlyPis: op ].
+	assertions add: ((aDRPhiFunction operands collect: [ :op |
+			  op name toInt === aDRPhiFunction name toInt ]) reduce: [ :a :b |
+			 a or: b ]).
 
 ]
