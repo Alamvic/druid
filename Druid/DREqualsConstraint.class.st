@@ -62,12 +62,6 @@ DREqualsConstraint >> isIncludedIn: otherConstraint [
 	^ otherConstraint hasValue: constantValue.
 ]
 
-{ #category : 'printing' }
-DREqualsConstraint >> minABCDDistanceToBeSatisfiable [
-
-	^ 0
-]
-
 { #category : 'arithmetic' }
 DREqualsConstraint >> negated [
 

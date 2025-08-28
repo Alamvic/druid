@@ -15,12 +15,12 @@ DRInsertPiNodes >> applyTo: cfg [
 ]
 
 { #category : 'enumerating' }
-DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBlock ofCondition: aDRBranchIfCondition andDo: aBlock [
+DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBlock ofCondition: aDRBranchIfCondition [
 
 	| newBlock |
 	"We need to break critical edges, because in that case, the constraint may not be true in every possible path"
 	currentBranchBasicBlock predecessors size == 1 ifTrue: [
-		^ aBlock value: currentBranchBasicBlock ].
+		^ currentBranchBasicBlock ].
 
 	newBlock := currentBranchBasicBlock breakCriticalEdgeToPredecessor:
 		            aDRBranchIfCondition basicBlock.
@@ -29,7 +29,7 @@ DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBloc
 		invalidateDominatorTree;
 		invalidatePostDominatorTree.
 
-	^ aBlock value: newBlock
+	^ newBlock
 ]
 
 { #category : 'accessing' }
@@ -57,18 +57,19 @@ DRInsertPiNodes >> insertPiNodes: piNodes in: aDRBasicBlock [
 { #category : 'accessing' }
 DRInsertPiNodes >> insertPiNodesFor: aDRBranchIfCondition [
 	| piNodeBuilder |
-	
+
 	piNodeBuilder := DRPiNodeBuilder withInstructionFactory: aDRBranchIfCondition basicBlock controlFlowGraph instructionFactory.
 	aDRBranchIfCondition condition
 		acceptVisitor: piNodeBuilder
 		withBranch: aDRBranchIfCondition.
 
-	self getBasicBlockToInsertPiNodesForBranch: aDRBranchIfCondition trueBranch ofCondition: aDRBranchIfCondition andDo: [ :block |
-		self insertPiNodes: piNodeBuilder nodesForTrueBranch in: aDRBranchIfCondition trueBranch
-	].
+	self insertPiNodes: piNodeBuilder nodesForTrueBranch in: (self
+			 getBasicBlockToInsertPiNodesForBranch:
+			 aDRBranchIfCondition trueBranch
+			 ofCondition: aDRBranchIfCondition).
 
-	self getBasicBlockToInsertPiNodesForBranch: aDRBranchIfCondition falseBranch ofCondition: aDRBranchIfCondition andDo: [ :block |
-		self insertPiNodes: piNodeBuilder nodesForFalseBranch in: aDRBranchIfCondition falseBranch
-	].
-
+	self insertPiNodes: piNodeBuilder nodesForFalseBranch in: (self
+			 getBasicBlockToInsertPiNodesForBranch:
+			 aDRBranchIfCondition falseBranch
+			 ofCondition: aDRBranchIfCondition)
 ]

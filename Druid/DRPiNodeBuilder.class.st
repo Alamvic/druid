@@ -89,9 +89,27 @@ DRPiNodeBuilder >> visitLessThan: aDRCondition inBranch: aDRBranchIfCondition [
 ]
 
 { #category : 'visiting' }
+DRPiNodeBuilder >> visitMultiplyOverflow: aDRCondition inBranch: aDRBranchIfCondition [
+
+	
+]
+
+{ #category : 'visiting' }
 DRPiNodeBuilder >> visitNoTestMask: aDRCondition inBranch: aDRBranchIfCondition [ 
 
 	self visitComparison: aDRBranchIfCondition withConstraint: DRNoneMaskConstraint.
+]
+
+{ #category : 'visiting' }
+DRPiNodeBuilder >> visitNotEqualsThan: aDRCondition inBranch:  aDRBranchIfCondition [
+
+	self visitComparison: aDRBranchIfCondition withConstraint: DRNotEqualsConstraint
+]
+
+{ #category : 'visiting' }
+DRPiNodeBuilder >> visitOverflow: aDRCondition inBranch: aDRBranchIfCondition [
+
+	
 ]
 
 { #category : 'visiting' }

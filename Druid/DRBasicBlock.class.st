@@ -1275,6 +1275,14 @@ DRBasicBlock >> removeInstruction: aDRInstruction [
 ]
 
 { #category : 'accessing' }
+DRBasicBlock >> removePiNodes [
+
+	self piNodes do: [ :pi |
+		pi users do: [ :user | user replaceOperand: pi by: pi operand ].
+		pi removeFromCFG ]
+]
+
+{ #category : 'accessing' }
 DRBasicBlock >> removePredecessor: aDRBasicBlock [ 
 	
 	| index |
