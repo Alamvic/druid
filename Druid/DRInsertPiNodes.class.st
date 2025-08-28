@@ -39,7 +39,7 @@ DRInsertPiNodes >> insertPiNode: aDRPiNode in: aDRBasicBlock withoutModifyingAny
 
 	aDRPiNode operand users copy
 		select: [ :user | (piNodesNotToModify includes: user) not and: [
-								(user basicBlock isDominatedBy: aDRBasicBlock)] ]
+								(self shouldReplaceUser: user withPiNode: aDRPiNode )] ]
 		thenDo: [ :user | user replaceDependency: aDRPiNode operand by: aDRPiNode.].
 
 ]
@@ -72,4 +72,17 @@ DRInsertPiNodes >> insertPiNodesFor: aDRBranchIfCondition [
 			 getBasicBlockToInsertPiNodesForBranch:
 			 aDRBranchIfCondition falseBranch
 			 ofCondition: aDRBranchIfCondition)
+]
+
+{ #category : 'accessing' }
+DRInsertPiNodes >> shouldReplaceUser: user withPiNode: aDRPiNode [
+
+	| operandIdx |
+	(user basicBlock isDominatedBy: aDRPiNode basicBlock) ifTrue: [ ^ true ].
+
+	user isPhiFunction ifFalse: [ ^ false ].
+
+	operandIdx := user operands indexOf: aDRPiNode operand.
+	^ (user basicBlock predecessorAt: operandIdx) isDominatedBy:
+		  aDRPiNode basicBlock
 ]

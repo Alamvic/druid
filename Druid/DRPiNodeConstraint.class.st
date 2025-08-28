@@ -99,6 +99,12 @@ DRPiNodeConstraint >> otherValue [
 	^ otherValue
 ]
 
+{ #category : 'printing' }
+DRPiNodeConstraint >> prettyPrint [
+
+	^ self className , '(' , self otherValue asDRValue prettyPrint , ')'
+]
+
 { #category : 'removing' }
 DRPiNodeConstraint >> removeUserOfValues: aDRPiNode [
 
