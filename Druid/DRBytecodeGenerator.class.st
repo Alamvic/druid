@@ -141,6 +141,17 @@ DRBytecodeGenerator >> visitAddition: aDRAdd [
 	self sendMessage: #+ fromInstruction: aDRAdd
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitArrayNode: aDRArrayNode [ 
+	
+	| elements |
+	elements := aDRArrayNode operand1 value.
+	1 halt.
+	elements do: [ :each | each acceptVisitor: self ].
+	
+	builder pushConsArray: elements size
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 

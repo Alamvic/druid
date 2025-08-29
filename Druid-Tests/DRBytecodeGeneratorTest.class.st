@@ -159,7 +159,7 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 	bytecodeGenerator numArgs: numArgs.
 	bytecodeGenerator methodName: selector.
 	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.
-	
+	1 halt.
 	^ bytecodeGenerator targetAST
 ]
 
@@ -556,6 +556,12 @@ DRBytecodeGeneratorTest >> testMethodWithBlockWritingVar [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithDynamicArray [
+
+	self assertCompilationFor: #methodWithDynamicArray fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithEarlyReturn [
 
 	| method result |
@@ -627,6 +633,16 @@ DRBytecodeGeneratorTest >> testOpalLiteralMethods [
 
 	OCOpalExamples methods
 		select: [ :opalMethod | opalMethod protocolName = #'examples - literals' ]
+		thenDo: [ :opalMethod | 
+			self setUp.
+			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testOpalMiscMethods [
+
+	OCOpalExamples methods
+		select: [ :opalMethod | opalMethod protocolName = #'examples - misc' ]
 		thenDo: [ :opalMethod | 
 			self setUp.
 			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
