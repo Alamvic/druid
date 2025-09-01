@@ -4,7 +4,6 @@ Class {
 	#instVars : [
 		'cfg',
 		'memo',
-		'visitingPhis',
 		'assertions'
 	],
 	#category : 'Druid-IR-Paths',
@@ -37,7 +36,6 @@ DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode [
 
 	| solver ctxt retval |
 	
-	visitingPhis := Set new.
 	assertions := OrderedCollection new.
 
 	ctxt := Z3Context global.
@@ -121,13 +119,9 @@ DRZ3ConstraintSolver >> visitLoadFramePointer: aDRLoadFramePointer [
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitPhiFunction: aDRPhiFunction [
 
-	(visitingPhis includes: aDRPhiFunction) ifTrue: [ ^ nil ].
-	visitingPhis add: aDRPhiFunction.
-
 	aDRPhiFunction operands do: [ :op | self recurseOnlyPis: op ].
 	assertions add: ((aDRPhiFunction operands collect: [ :op |
 			  op name toInt === aDRPhiFunction name toInt ]) reduce: [ :a :b |
 			 a or: b ]).
 
-	visitingPhis remove: aDRPhiFunction
 ]
