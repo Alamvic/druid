@@ -66,6 +66,23 @@ jobs:
       #   run: |
       #     wget https://files.pharo.org/vm/pharo-spur64/$(uname)-x86_64/third-party/libllvm-full.zip
       #     unzip libllvm-full.zip
+      - name: Install Z3 (Ubuntu)
+        uses: pavpanchekha/setup-z3@v1.3
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        with:
+          version: '4.15.3'
+          distribution: 'glibc-2.39'
+      - name: Install Z3 (MacOS)
+        if: ${{ contains(matrix.os, 'macos') }}
+        uses: pavpanchekha/setup-z3@v1.3
+        with:
+          version: '4.15.3'
+          architecture: 'arm64'
+          distribution: 'osx-13.7.6'
+      - name: Correct Z3_LIBRARY_PATH (MacOS)
+        if: ${{ contains(matrix.os, 'macos') }}
+        run: |
+          echo "Z3_LIBRARY_PATH=$LIBRARY_PATH/libz3.dylib" >> $GITHUB_ENV
       - name: Download LLVM (ubuntu)
         if: ${{ contains(matrix.os, 'ubuntu') }}
         run: |
