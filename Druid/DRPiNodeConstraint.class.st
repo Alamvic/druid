@@ -110,7 +110,8 @@ DRPiNodeConstraint >> prettyPrint [
 { #category : 'removing' }
 DRPiNodeConstraint >> removeUserOfValues: aDRPiNode [
 
-	self asDependencyList do: [ :dep | dep removeUser: aDRPiNode ]
+	self asDependencyList do: [ :dep |
+		(dep ~= aDRPiNode operand) ifTrue: [ dep removeUser: aDRPiNode ] ]
 ]
 
 { #category : 'replacing' }

@@ -161,7 +161,9 @@ DRBasicBlock >> basicEndInstruction: aDRInstruction [
 { #category : 'accessing' }
 DRBasicBlock >> basicEndInstructionRemovingUsers: aDRInstruction [
 
-	endInstruction ifNotNil: [ endInstruction operands do: [ :o | o removeUser: endInstruction ] ].
+	endInstruction ifNotNil: [
+		endInstruction operands asSet do: [ :o |
+			o removeUser: endInstruction ] ].
 	^ self basicEndInstruction: aDRInstruction
 ]
 
