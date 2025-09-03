@@ -227,10 +227,17 @@ DRAbstractInstruction >> validate [
 	self validateUsersUseMyself.
 
 	self isPhiFunction ifTrue: [ ^ self ].
-	self operands do: [ :o | 
-		(o isInstruction not or: [ 
-			 self basicBlock isDominatedBy: o basicBlock ]) ifFalse: [ 
-			DRError signal: 'Invalid operand: ', o asString, ' in: ' , self asString ] ]
+	self operands do: [ :o |
+		(o isInstruction not or: [
+			 self basicBlock isDominatedBy: o basicBlock ]) ifFalse: [
+			DRError signal: 'Invalid operand: ' , o asString , ' in: ' , self asString ].
+
+		(o isInstruction and: [ self basicBlock = o basicBlock ]) ifTrue: [
+			(self basicBlock instructions indexOf: self) > (o basicBlock instructions indexOf: o)
+				ifFalse: [
+					DRError signal: 'Invalid operand: ' , o asString , ' in: ' , self asString ]
+		]
+	]
 ]
 
 { #category : 'validation' }
