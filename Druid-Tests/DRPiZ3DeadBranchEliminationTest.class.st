@@ -7,14 +7,14 @@ Class {
 }
 
 { #category : 'tests' }
-DRPiZ3DeadBranchEliminationTest >> testAdditionBetweenVariables [
+DRPiZ3DeadBranchEliminationTest >> testAdditionBetweenVariablesIsNotOptimizedWithoutUB [
 
 	"                /->--------/----------/------------>-|b_end1|
 	                /          /                     /-->-|b_end2|
 	 |b0| -> |b_if1| -> |b_if2| -> |b_if3| -> |b_if4| --> |b_end_unreachable|
 	"
 
-	| cfg b_end2 b_end_unreachable b_if4 blocks |
+	| cfg b_end2 b_end_unreachable b_if4 blocks b_if1 i |
 	
 	cfg := (DRIRParser for: '[[b0]]
 b_if1:
@@ -45,13 +45,127 @@ b0:
 	b_end_unreachable := blocks at: 7.
 	b_end2 := blocks at: 6.
 	b_if4 := blocks at: 4.
+	b_if1 := blocks at: 1.
+	
+	i := (cfg instructionFactory load: 111).
+	b_if1 instructions first replaceUsesBy: i.
+	b_if1 replaceInstruction: b_if1 instructions first by: i.
+	i := (cfg instructionFactory load: 222).
+	b_if1 instructions second replaceUsesBy: i.
+	b_if1 replaceInstruction: b_if1 instructions second by: i.
+	i := (cfg instructionFactory load: 333).
+	b_if1 instructions third replaceUsesBy: i.
+	b_if1 replaceInstruction: b_if1 instructions third by: i.
 
-	self optimize: cfg with: { DRPiZ3DeadBranchElimination }.
+
+	self optimize: cfg with: { DRPiZ3DeadBranchElimination withUndefinedBehaviour: false }.
+	
+	self assert: (cfg blocks includes: b_end_unreachable).
+	self assert: b_if4 endInstruction isJump.
+	self assert: b_if4 endInstruction isConditionalBranch.
+
+]
+
+{ #category : 'tests' }
+DRPiZ3DeadBranchEliminationTest >> testAdditionBetweenVariablesIsOptimizedWithUB [
+
+	"                /->--------/----------/------------>-|b_end1|
+	                /          /                     /-->-|b_end2|
+	 |b0| -> |b_if1| -> |b_if2| -> |b_if3| -> |b_if4| --> |b_end_unreachable|
+	"
+
+	| cfg b_end2 b_end_unreachable b_if4 blocks b_if1 i |
+	
+	cfg := (DRIRParser for: '[[b0]]
+b_if1:
+	x := LoadFramePointer()
+	y := LoadFramePointer()
+	z := LoadFramePointer()
+	_ := If(GreaterThan, x, z; b_if2, b_end1)
+b_if2:
+	_ := If(GreaterThan, y, z; b_if3, b_end1)
+b_if3:
+	_ := If(GreaterThan, z, 0; b_if4, b_end1)
+b_if4:
+	sum := Add(x, y)
+	_ := If(GreaterThan, sum, z; b_end2, b_end_unreachable)
+
+b_end1:
+	_ := Store(8, 2, 777)
+b_end2:
+	_ := Store(8, 2, 888)
+b_end_unreachable:
+	_ := Store(8, 2, 999)
+
+b0:
+	_ := Jump(b_if1)
+') parse.
+
+	blocks := cfg blocks.
+	b_end_unreachable := blocks at: 7.
+	b_end2 := blocks at: 6.
+	b_if4 := blocks at: 4.
+	b_if1 := blocks at: 1.
+	
+	i := (cfg instructionFactory load: 111).
+	b_if1 instructions first replaceUsesBy: i.
+	b_if1 replaceInstruction: b_if1 instructions first by: i.
+	i := (cfg instructionFactory load: 222).
+	b_if1 instructions second replaceUsesBy: i.
+	b_if1 replaceInstruction: b_if1 instructions second by: i.
+	i := (cfg instructionFactory load: 333).
+	b_if1 instructions third replaceUsesBy: i.
+	b_if1 replaceInstruction: b_if1 instructions third by: i.
+
+
+	self optimize: cfg with: { DRPiZ3DeadBranchElimination withUndefinedBehaviour: true }.
 	
 	self assert: (cfg blocks includes: b_end_unreachable) not.
 	self assert: b_if4 endInstruction isJump.
 	self assert: b_if4 endInstruction isConditionalBranch not.
 	self assert: b_if4 endInstruction target equals: b_end2.
+
+]
+
+{ #category : 'tests' }
+DRPiZ3DeadBranchEliminationTest >> testDetectRedundantAnyMask [
+
+	"                /->--------->-|b_end0|
+	                /          /->-|b_end1|
+	 |b0| -> |b_if1| -> |b_if2| -> |b_end_unreachable|
+	"
+
+	| cfg b_end1 b_end_unreachable b_if2 blocks |
+	
+	cfg := (DRIRParser for: '[[b0]]
+b_if1:
+	x := LoadFramePointer()
+	_ := If(Test, x, 2; b_if2, b_end0)
+b_if2:
+	_ := If(Test, x, 7; b_end1, b_end_unreachable)
+
+b_end0:
+	_ := Store(8, 2, 777)
+b_end1:
+	_ := Store(8, 2, 888)
+b_end_unreachable:
+	_ := Store(8, 2, 999)
+
+b0:
+	_ := Jump(b_if1)
+') parse.
+
+	blocks := cfg blocks.
+	b_end_unreachable := blocks at: 5.
+	b_end1 := blocks at: 4.
+	b_if2 := blocks at: 2.
+
+	self optimize: cfg with: { DRPiZ3DeadBranchElimination }.
+	
+	self assert: (cfg blocks includes: b_end_unreachable) not.
+	self assert: b_if2 endInstruction isJump.
+	self assert: b_if2 endInstruction isConditionalBranch not.
+	self assert: b_if2 endInstruction target equals: b_end1.
 
 ]
 

@@ -14,6 +14,12 @@ DRSignedIntegerType >> bitShift: shiftValue [
 		ifFalse: [ self >> shiftValue negated ]
 ]
 
+{ #category : 'accessing' }
+DRSignedIntegerType >> isSigned [
+
+	^ true
+]
+
 { #category : 'testing' }
 DRSignedIntegerType >> isUnsigned [
 	
