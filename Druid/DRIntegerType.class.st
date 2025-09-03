@@ -29,6 +29,12 @@ DRIntegerType >> isIntegerType [
 	^ true
 ]
 
+{ #category : 'testing' }
+DRIntegerType >> isSigned [
+
+	self subclassResponsibility
+]
+
 { #category : 'accessing - query' }
 DRIntegerType >> numberOfBits [
 

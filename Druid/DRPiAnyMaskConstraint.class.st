@@ -6,6 +6,14 @@ Class {
 	#tag : 'IR-Paths'
 }
 
+{ #category : 'arithmetic' }
+DRPiAnyMaskConstraint >> asZ3ConstraintOnVar: aDRPiNode withSolver: aZ3Solver [
+
+	^ ((aZ3Solver drValAsZ3Val: aDRPiNode) bitAnd:
+		  (self ifConstantDo: [ :val | val ] ifNot: [ :val | val name ]))
+		  ~== 0
+]
+
 { #category : 'accessing' }
 DRPiAnyMaskConstraint >> constantConstraintClass [
 

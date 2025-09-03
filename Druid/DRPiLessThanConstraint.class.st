@@ -7,9 +7,9 @@ Class {
 }
 
 { #category : 'arithmetic' }
-DRPiLessThanConstraint >> asZ3ConstraintOnVar: varName [
+DRPiLessThanConstraint >> asZ3ConstraintOnVar: aDRValue withSolver: aZ3Solver [
 
-	^ self binaryConstraint: #< on: varName
+	^ self binaryConstraint: #< on: aDRValue withSolver: aZ3Solver
 ]
 
 { #category : 'adding' }

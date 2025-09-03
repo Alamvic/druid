@@ -39,18 +39,20 @@ DRPiNodeConstraint >> asDependencyList [
 ]
 
 { #category : 'arithmetic' }
-DRPiNodeConstraint >> asZ3ConstraintOnVar: varName [
+DRPiNodeConstraint >> asZ3ConstraintOnVar: aDRPiNode withSolver: aZ3Solver [
 
-	self subclassResponsibility
+	^ ((aZ3Solver drValAsZ3Val: aDRPiNode) bitAnd:
+		  (self ifConstantDo: #yourself ifNot: #name))
+		  === 0
 ]
 
 { #category : 'accessing' }
-DRPiNodeConstraint >> binaryConstraint: constraint on: varName [
+DRPiNodeConstraint >> binaryConstraint: constraint on: aDRValue withSolver: aZ3Solver [
 
-	^ varName toInt
+	^ (aZ3Solver drValAsZ3Val: aDRValue)
 		  perform: constraint
 		  with:
-		  (self ifConstantDo: [ :val | val ] ifNot: [ :val | val name ])
+		  (self ifConstantDo: #yourself ifNot: #name)
 ]
 
 { #category : 'accessing' }
