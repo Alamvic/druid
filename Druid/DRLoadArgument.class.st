@@ -64,7 +64,7 @@ DRLoadArgument >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : 'accessing' }
-DRLoadArgument >> type [
+DRLoadArgument >> typeWithAlreadySeen: _ [
 	
 	^ classType ifNil: [DRUndefinedType new]
 ]

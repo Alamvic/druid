@@ -87,7 +87,7 @@ DRSSARegister >> rtlOperandQualifier [
 ]
 
 { #category : 'type' }
-DRSSARegister >> type [
+DRSSARegister >> typeWithAlreadySeen: _ [
 	"Maybe this should be parametrised"
 
 	^ DRSignedIntegerType size: 8 "Word size"

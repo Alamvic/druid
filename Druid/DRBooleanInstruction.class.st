@@ -23,7 +23,7 @@ DRBooleanInstruction >> sccpLatticeValueOperand: index for: sccp [
 ]
 
 { #category : 'types' }
-DRBooleanInstruction >> type [
+DRBooleanInstruction >> typeWithAlreadySeen: _ [
 	
 	^ DRBooleanType new
 ]

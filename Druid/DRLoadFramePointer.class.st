@@ -32,7 +32,7 @@ DRLoadFramePointer >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : 'types' }
-DRLoadFramePointer >> type [
+DRLoadFramePointer >> typeWithAlreadySeen: _ [
 
 	^ DRPointerType new
 ]

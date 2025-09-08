@@ -105,12 +105,12 @@ DRAbstractMemoryAddress >> rtlPushOperandQualifierForInstruction: aPush [
 ]
 
 { #category : 'accessing' }
-DRAbstractMemoryAddress >> type [
-	^ type
-]
-
-{ #category : 'accessing' }
 DRAbstractMemoryAddress >> type: aDRType [
 
 	type := aDRType
+]
+
+{ #category : 'accessing' }
+DRAbstractMemoryAddress >> typeWithAlreadySeen: _ [
+	^ type
 ]

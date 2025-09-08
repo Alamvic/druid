@@ -99,13 +99,13 @@ DRLoad >> size [
 ]
 
 { #category : 'accessing' }
-DRLoad >> type [
-	
-	^ type
-]
-
-{ #category : 'accessing' }
 DRLoad >> type: aType [
 
 	type := aType
+]
+
+{ #category : 'accessing' }
+DRLoad >> typeWithAlreadySeen: _ [
+	
+	^ type
 ]

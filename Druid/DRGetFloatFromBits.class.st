@@ -37,7 +37,7 @@ DRGetFloatFromBits >> simpleConstantFold [
 ]
 
 { #category : 'types' }
-DRGetFloatFromBits >> type [
+DRGetFloatFromBits >> typeWithAlreadySeen: _ [
 	
 	^ DRFloatType new
 ]

@@ -275,17 +275,6 @@ DRPhiFunction >> supportConstantOperand [
 	^ false
 ]
 
-{ #category : 'types' }
-DRPhiFunction >> type [
-
-	(self operands copyWithout: self) do: [ :o |
-		| operandType |
-		operandType := o type.
-		operandType isUndefined ifFalse: [ ^ operandType ] ].
-
-	^ DRUndefinedType new
-]
-
 { #category : 'simplification' }
 DRPhiFunction >> typeWithAlreadySeen: aCollection [
 
@@ -296,9 +285,9 @@ DRPhiFunction >> typeWithAlreadySeen: aCollection [
 	self operands do: [ :e | | operandType |
 		operandType := e typeWithAlreadySeen: aCollection.
 		"If nil it means it's a recursive type, we continue with the next operand"
-		operandType ifNotNil: [ ^ operandType ] ].
+		(operandType isNil or: [operandType isUndefined]) ifFalse: [ ^ operandType ] ].
 	
-	self halt
+	^ DRUndefinedType new
 ]
 
 { #category : 'accessing' }
