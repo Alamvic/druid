@@ -9,7 +9,7 @@ Class {
 { #category : 'arithmetic' }
 DRPiAnyMaskConstraint >> asZ3ConstraintOnVar: aDRPiNode withSolver: aZ3Solver [
 
-	^ ((aZ3Solver drValAsZ3Val: aDRPiNode) bitAnd:
+	^ ((aZ3Solver drValAsZ3Val: aDRPiNode ifUnsupported: [ ^ nil ]) bitAnd:
 		  (self ifConstantDo: [ :val | val ] ifNot: [ :val | val name ]))
 		  ~== 0
 ]
