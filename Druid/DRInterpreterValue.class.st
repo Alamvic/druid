@@ -66,7 +66,7 @@ DRInterpreterValue >> name [
 ]
 
 { #category : 'interpretation' }
-DRInterpreterValue >> type [
+DRInterpreterValue >> typeWithAlreadySeen: _ [
 	
 	^ self
 ]

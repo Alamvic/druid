@@ -241,13 +241,13 @@ DRInterpreterReference >> sccpLatticeValueFor: aDRSCCP [
 ]
 
 { #category : 'accessing' }
-DRInterpreterReference >> type [
-
-	^ type
-]
-
-{ #category : 'accessing' }
 DRInterpreterReference >> type: anObject [
 
 	type := anObject
+]
+
+{ #category : 'accessing' }
+DRInterpreterReference >> typeWithAlreadySeen: _ [
+
+	^ type
 ]

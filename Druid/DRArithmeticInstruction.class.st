@@ -32,12 +32,6 @@ DRArithmeticInstruction >> simpleConstantFold [
 	^ self sccpOperateOnLattice: operand1 and: operand2
 ]
 
-{ #category : 'types' }
-DRArithmeticInstruction >> type [
-
-	^ self typeWithAlreadySeen: Set new
-]
-
 { #category : 'type' }
 DRArithmeticInstruction >> typeWithAlreadySeen: aCollection [ 
 	

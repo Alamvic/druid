@@ -81,7 +81,7 @@ DRNullValue >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : 'asd' }
-DRNullValue >> type [
+DRNullValue >> typeWithAlreadySeen: _ [
 	
 	^ DRUndefinedType new
 ]
