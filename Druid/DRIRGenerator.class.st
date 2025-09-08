@@ -763,10 +763,13 @@ DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 	| block arguments |
 	aRBMessageNode receiver acceptVisitor: self.
 	block := self popOperand simplify.
+
+	block isDRBlockClosure ifFalse: [
+		^ self resolveMessageSend: aRBMessageNode receiver: block ].
 	arguments := aRBMessageNode arguments collect: [ :e |
-		e acceptVisitor: self.
-		self popOperand ].
-	
+		             e acceptVisitor: self.
+		             self popOperand ].
+
 	"cull: only pass the required number of arguments and ignore the rest"
 	self
 		interpretCode: block
@@ -778,6 +781,7 @@ DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 
 	| block arguments |
+	
 	aRBMessageNode receiver acceptVisitor: self.
 	block := self popOperand simplify.
 	block isDRBlockClosure ifFalse: [
@@ -1680,9 +1684,12 @@ DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver ar
 	instruction := self
 		               instantiate: DRMessageSend
 		               operands: { receiver } , arguments.
-
 	instruction inlineGenerator: self inlineGenerator.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
+
+	"Set the send as user to the dependecies from inner blocks"
+	instruction innerDependencies do: [ :i | i addUser: instruction ].
+	
 	^ self addInstruction: instruction from: aRBMessageNode
 ]
 
@@ -2103,6 +2110,7 @@ DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 DRIRGenerator >> visitMessageNode: aRBMessageNode [
 
 	| receiver |
+	
 	specialCases at: aRBMessageNode selector ifPresent: [ :mapping | 
 		^ self perform: mapping withArguments: { aRBMessageNode } ].
 

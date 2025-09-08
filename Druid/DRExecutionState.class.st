@@ -19,6 +19,12 @@ DRExecutionState >> addTo: aDRExecutionState [
 	executionStack addTo: aDRExecutionState executionStack
 ]
 
+{ #category : 'accessing' }
+DRExecutionState >> allTemporaryInstructions [
+
+	^ executionStack allTemporaryInstructions
+]
+
 { #category : 'stack access' }
 DRExecutionState >> baseFrame [
 	

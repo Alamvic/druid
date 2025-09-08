@@ -10,6 +10,18 @@ Class {
 }
 
 { #category : 'accessing' }
+DRTemporaryVariableInstruction >> address: aDRValue [
+
+	self replaceOperandAtIndex: 1 by: aDRValue
+]
+
+{ #category : 'testing' }
+DRTemporaryVariableInstruction >> isScopedInstruction [
+
+	^ true
+]
+
+{ #category : 'accessing' }
 DRTemporaryVariableInstruction >> scope [
 
 	^ scope

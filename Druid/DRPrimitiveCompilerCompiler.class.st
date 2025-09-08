@@ -83,7 +83,6 @@ DRPrimitiveCompilerCompiler >> initialize [
 	
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 
-	optimisations := OrderedCollection new.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
 	optimisations add: DRLoopInvariantCodeMotion new.
 

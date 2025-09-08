@@ -9,12 +9,6 @@ Class {
 	#tag : 'CompilerCompiler'
 }
 
-{ #category : 'ir-generation' }
-DRMethodCompilerCompiler >> argName: index forMethod: method [
-
-	^ method argumentNames at: index
-]
-
 { #category : 'accessing' }
 DRMethodCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 

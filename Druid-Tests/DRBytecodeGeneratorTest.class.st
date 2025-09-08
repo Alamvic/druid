@@ -76,14 +76,16 @@ DRBytecodeGeneratorTest >> assertCompilationNoInlineFor: aSelector fromClass: aC
 DRBytecodeGeneratorTest >> assertCompilationNoInlineFor: aSelector fromClass: aClass arguments: args [
 
 	| compiledMethod expectedMethod |
-	
 	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	
+
 	expectedMethod := aClass >> aSelector.
-	
+
 	compiledMethod := self compileSelector: aSelector fromClass: aClass.
-	
-	self assert: compiledMethod equalsResult: expectedMethod arguments: args
+
+	self
+		assert: compiledMethod
+		equalsResult: expectedMethod
+		arguments: args
 ]
 
 { #category : 'assertion' }
@@ -115,6 +117,7 @@ DRBytecodeGeneratorTest >> generateDruidIRFor: method [
 	cfg := compilerCompiler generateDruidIRFor: method.
 	
 	compilerCompiler optimize: cfg.
+	
 	^ cfg
 ]
 
@@ -146,7 +149,9 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
 	
 	aDRControlFlowGraph applyOptimisation: DRFrameInfoCleaner new.
-	aDRControlFlowGraph applyOptimisation: (DRBranchCollapse then: DRPhiSimplication).
+	aDRControlFlowGraph applyOptimisation: DRBranchCollapse new.
+	
+	aDRControlFlowGraph applyOptimisation: DRPhiSimplication new.
 	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
 	
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
@@ -209,14 +214,12 @@ DRBytecodeGeneratorTest >> testMethodInline [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectAccessInstVar [
 
-	self skip. "need to repass this after we handle inlining"
 	self assertCompilationFor: #basicInlineMethodAccesInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #instVarAt:'
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectSettingInstVar [
 
-	self skip. "need to repass this after we handle inlining"
 	self assertCompilationFor: #basicInlineMethodSettingInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #instVarAt:put:'
 ]
 
@@ -232,6 +235,18 @@ DRBytecodeGeneratorTest >> testMethodInlineSelfSettingInstVar [
 	self assertCompilationFor: #basicInlineMethodSelfSettingInstVar fromClass: DruidTestInterpreter checkByteCode: 'storeInstVar:'.
 	self assertCompilationFor: #basicInlineMethodSelfSettingInstVarOnReturn fromClass: DruidTestInterpreter checkByteCode: 'storeInstVar:'.
 	self assertCompilationFor: #basicInlineMethodSelfSettingInstVarWithUsers fromClass: DruidTestInterpreter checkByteCode: 'storeInstVar:'.
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineToDo [
+
+	self assertCompilationFor: #methodWithToDo fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineToDoInner [
+
+	self assertCompilationFor: #methodWithTwoToDos fromClass: DruidTestInterpreter
 ]
 
 { #category : 'tests' }
@@ -375,6 +390,33 @@ DRBytecodeGeneratorTest >> testMethodWithBlockConstant [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockCulled [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithBlockCull
+		fromClass: DruidTestInterpreter
+		arguments: {  }
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockCulled1Arg [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithBlockCull1Arg
+		fromClass: DruidTestInterpreter
+		arguments: {  }
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithBlockCulled2Arg [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithBlockCull2Arg
+		fromClass: DruidTestInterpreter
+		arguments: {  }
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockEmpty [
 	
 	self assertCompilationNoInlineFor: #methodEmptyBlock fromClass: DruidTestInterpreter arguments: { }.
@@ -412,9 +454,11 @@ DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg [
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg2 [
-	
-	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterArg2: fromClass: DruidTestInterpreter arguments: {1}.
-	
+
+	self
+		assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterArg2:
+		fromClass: DruidTestInterpreter
+		arguments: { 1 }
 ]
 
 { #category : 'tests' }
@@ -477,7 +521,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockNonLocalReturn [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockReadingArgVar [
 	
-	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingArgVariable: fromClass: DruidTestInterpreter arguments: { nil }.
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingArgVariable: fromClass: DruidTestInterpreter arguments: { 0 }.
 
 	
 ]
@@ -531,8 +575,6 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 
 	| method result |
-	
-	self skip: 'Depends on the inlining'.
 	
 	compilerCompiler configureForCompilerClass: nil.
 	method := self generateMethodForSelector: #methodCollectionSize:.

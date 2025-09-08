@@ -5,8 +5,9 @@ Class {
 		'deferredMethodReturns',
 		'poppedValue'
 	],
-	#category : 'Druid-Tests',
-	#package : 'Druid-Tests'
+	#category : 'Druid-CompilerBuilder',
+	#package : 'Druid',
+	#tag : 'CompilerBuilder'
 }
 
 { #category : 'adding' }

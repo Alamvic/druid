@@ -155,6 +155,12 @@ DRPhiFunction >> opcode [
 ]
 
 { #category : 'accessing' }
+DRPhiFunction >> operandsWithoutMe [
+
+	^ self operands copyWithout: self
+]
+
+{ #category : 'accessing' }
 DRPhiFunction >> predecessorAtOperand: anOperand [
 
 	| index |

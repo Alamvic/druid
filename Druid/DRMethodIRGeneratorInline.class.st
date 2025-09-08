@@ -1,15 +1,34 @@
 Class {
 	#name : 'DRMethodIRGeneratorInline',
 	#superclass : 'DRMethodIRGenerator',
+	#instVars : [
+		'scope'
+	],
 	#category : 'Druid-CompilerCompiler',
 	#package : 'Druid',
 	#tag : 'CompilerCompiler'
 }
 
 { #category : 'accessing' }
+DRMethodIRGeneratorInline >> allTemporaryInstructions [
+
+	^ executionState allTemporaryInstructions
+]
+
+{ #category : 'accessing' }
 DRMethodIRGeneratorInline >> currentBasicBlock: aDRBasicBlock [
 
 	currentBasicBlock := aDRBasicBlock
+]
+
+{ #category : 'scopes' }
+DRMethodIRGeneratorInline >> ensureScope [
+
+	^ scope := DRScope new
+		           outerScope: self outerScope;
+		           id: self outerScope id + 1;
+		           addCopiedVarsFromOuterScope: self outerScope;
+		           yourself
 ]
 
 { #category : 'visiting' }
@@ -18,8 +37,10 @@ DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 	| lastBlock |
 	lastBlock := currentBasicBlock.
 	"Non-local returns can add new returns to any frame, pop all frames to resolve them"
-	[ executionState executionStack size = 0 ] whileFalse: [ self popFrame ].
-	currentBasicBlock := lastBlock
+	[ executionState executionStack size = 0 ] whileFalse: [ self popFrameMergingDeferredReturns ].
+	currentBasicBlock := lastBlock.
+	self mergeScope
+
 ]
 
 { #category : 'accessing' }
@@ -30,11 +51,33 @@ DRMethodIRGeneratorInline >> handleCFGScope: methodNode [
 
 { #category : 'testing' }
 DRMethodIRGeneratorInline >> isBaseMethodArgument: aRBVariableNode [
-
 	"Here we check if the variable is accessing to a temporary (mainly arguments) from the compiled method.
 	This change between accessing a variable from the method to inline and from the method where it is inlined."
 
-	^ executionState baseFrame method = aRBVariableNode variable scope node
+	| variableDefinitionScope |
+	variableDefinitionScope := aRBVariableNode scope.
+	[ variableDefinitionScope hasTempDefinitionFor: aRBVariableNode name ]
+		whileFalse: [
+		variableDefinitionScope := variableDefinitionScope outerScope ].
+
+	^ executionState baseFrame method = variableDefinitionScope node
+]
+
+{ #category : 'scopes' }
+DRMethodIRGeneratorInline >> mergeScope [
+
+	self assert: self scope outerScope = self outerScope.
+
+	"Rename to avoid collision"
+	self scope tempVarNames do: [ :name |
+		| suffix |
+		suffix := self outerScope tempVarNames count: [ :outerName | outerName beginsWith: name ].
+		self ir
+			renameTempVar: name
+			from: self scope
+			into: name , suffix asString ].
+
+	self ir mergeScope: self scope into: self outerScope
 ]
 
 { #category : 'building' }
@@ -43,32 +86,29 @@ DRMethodIRGeneratorInline >> newFirstBasicBlock [
 	^ self newBasicBlock
 ]
 
+{ #category : 'accessing' }
+DRMethodIRGeneratorInline >> outerScope [
+
+	^ self ir scope
+]
+
+{ #category : 'accessing' }
+DRMethodIRGeneratorInline >> scope [
+
+	^ scope
+]
+
 { #category : 'visiting' }
-DRMethodIRGeneratorInline >> visitTemporaryVariableNode: aRBVariableNode [
+DRMethodIRGeneratorInline >> setupCFGScope: aNode [
+	"We don't need to configure the inlined scope"
+]
 
-	aRBVariableNode isTempVariable ifTrue: [
-		| store |
-		store := self topFrame
-			         temporaryAt: aRBVariableNode name
-			         withState: executionState.
-
-		^ self
-			  addInstructionFrom: aRBVariableNode
-			  instructionKind: DRLoadTemporaryVariable
-			  operands: {
-					  aRBVariableNode name asDRValue.
-					  store } ].
-
-	"Else, it is an argument"
+{ #category : 'visiting' }
+DRMethodIRGeneratorInline >> visitArgumentVariableNode: aRBVariableNode [ 
+	
 	(self isBaseMethodArgument: aRBVariableNode)
 		ifTrue: [
-			| loadArg |
-			loadArg := self
-				           addInstructionFrom: aRBVariableNode
-				           instructionKind: DRLoadArgument
-				           operands: { aRBVariableNode variable index asDRValue }.
-			loadArg argName: aRBVariableNode name.
-			^ loadArg ]
+			super visitArgumentVariableNode: aRBVariableNode .]
 		ifFalse: [
 			| value |
 			"If it is not accesssing a method argument, 

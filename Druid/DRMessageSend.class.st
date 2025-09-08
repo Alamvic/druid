@@ -22,6 +22,12 @@ DRMessageSend >> arguments [
 	^ operands allButFirst
 ]
 
+{ #category : 'accessing' }
+DRMessageSend >> dependencies [
+
+	^ super dependencies , self innerDependencies
+]
+
 { #category : 'optimizations' }
 DRMessageSend >> inline [
 	
@@ -40,6 +46,14 @@ DRMessageSend >> inlineGenerator [
 DRMessageSend >> inlineGenerator: anIrGenerator [ 
 
 	inlineGenerator := anIrGenerator
+]
+
+{ #category : 'inline' }
+DRMessageSend >> innerDependencies [
+
+	inlineGenerator ifNil: [ ^ #(  ) ].
+	^ (inlineGenerator allTemporaryInstructions reject: #isDRBlockClosure)
+		  copyWithoutAll: self operands
 ]
 
 { #category : 'accessing' }
@@ -85,6 +99,23 @@ DRMessageSend >> receiverType [
 		^ DRUndefinedType new ].
 
 	^ self receiver type
+]
+
+{ #category : 'replacing' }
+DRMessageSend >> replaceDependency: anOperand by: anotherOperand [
+
+	(self innerDependencies includes: anOperand) ifTrue: [
+		self replaceInnerDependencie: anOperand by: anotherOperand ].
+
+	super replaceDependency: anOperand by: anotherOperand
+]
+
+{ #category : 'replacement' }
+DRMessageSend >> replaceInnerDependencie: anInstructionDependency by: anotherInstruction [
+
+	self inlineGenerator executionStack
+		replaceTemporaries: anInstructionDependency
+		by: anotherInstruction
 ]
 
 { #category : 'SCCP' }
