@@ -7,9 +7,9 @@ Class {
 }
 
 { #category : 'arithmetic' }
-DRPiAnyMaskConstraint >> asZ3ConstraintOnVar: aDRPiNode withSolver: aZ3Solver [
+DRPiAnyMaskConstraint >> asZ3ConstraintOnVar: aZ3Variable [
 
-	^ ((aZ3Solver drValAsZ3Val: aDRPiNode ifUnsupported: [ ^ nil ]) bitAnd:
+	^ (aZ3Variable bitAnd:
 		  (self ifConstantDo: [ :val | val ] ifNot: [ :val | val name ]))
 		  ~== 0
 ]

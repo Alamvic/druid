@@ -7,9 +7,9 @@ Class {
 }
 
 { #category : 'arithmetic' }
-DRPiGreaterOrEqualsConstraint >> asZ3ConstraintOnVar: aDRValue withSolver: aZ3Solver [
+DRPiGreaterOrEqualsConstraint >> asZ3ConstraintOnVar: aZ3Variable [
 
-	^ self binaryConstraint: #'>=' on: aDRValue withSolver: aZ3Solver
+	^ self binaryConstraint: #'>=' on: aZ3Variable
 ]
 
 { #category : 'accessing' }
