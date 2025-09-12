@@ -69,3 +69,14 @@ DRConstantConstraintSolver >> isSatisfiable: piNodeConstraint onVar: constrained
 		  isConstraint: piNodeConstraint
 		  satisfiableWith: collectedConstraint
 ]
+
+{ #category : 'testing' }
+DRConstantConstraintSolver >> isSatisfiable: aDRPiNode replacingPhi: phi for: phiOp [
+
+	| retval |
+	phiReplacement := phi -> phiOp.
+	retval := self isSatisfiable: aDRPiNode.
+	phiReplacement := nil.
+
+	^ retval
+]
