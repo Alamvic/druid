@@ -262,7 +262,7 @@ DRPiZ3DeadBranchEliminationTest >> testUpperBoundsCheckElimination [
 
 	cfg := (DRIRParser for: '[[b0]]
 b_i:
-	len := LoadFramePointer()
+	len := Copy(5)
 	i0 := Copy(0)
 	_ := Jump(b_while)
 b_while:[b_i, b_access]

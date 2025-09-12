@@ -6,7 +6,9 @@ Class {
 		'memo',
 		'assertions',
 		'ctxt',
-		'signedIntOverflowIsUB'
+		'signedIntOverflowIsUB',
+		'phiReplacement',
+		'freeVarCounter'
 	],
 	#category : 'Druid-IR-Paths',
 	#package : 'Druid',
@@ -16,7 +18,7 @@ Class {
 { #category : 'instance creation' }
 DRZ3ConstraintSolver class >> for: aDRControlFlowGraph [
 
-	^ self new initializeFor: aDRControlFlowGraph
+	^ self for: aDRControlFlowGraph signedIntOverflowIsUB: false
 ]
 
 { #category : 'instance creation' }
@@ -25,7 +27,7 @@ DRZ3ConstraintSolver class >> for: aDRControlFlowGraph signedIntOverflowIsUB: aB
 	^ self new initializeFor: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean
 ]
 
-{ #category : 'visiting' }
+{ #category : 'as yet unclassified' }
 DRZ3ConstraintSolver >> adaptSize: op1 with: op2 andDo: aBlock [
 	| _op1 _op2 |
 	op1 isBitVector ifFalse: [ ^ aBlock value: op1 value: op2 ].
@@ -48,16 +50,28 @@ DRZ3ConstraintSolver >> addZ3ConstraintFrom: aDRValue [
 { #category : 'as yet unclassified' }
 DRZ3ConstraintSolver >> drValAsZ3Val: aDRValue ifUnsupported: aBlock [
 
-	aDRValue type isIntegerType ifTrue: [
-		^ aDRValue name toBitVector: aDRValue type numberOfBits ].
-
-	aDRValue type isBooleanType ifTrue: [ ^ aDRValue name toBool ].
-
-	aDRValue type isFloatType ifTrue: [ "^ aDRValue name toReal"
-	"TODO I think MachineArithmetic doesn't have floats yet? only Reals"].
+	| converter |
+	converter := self
+		             getZ3ValueConverterFor: aDRValue type
+		             ifUnsupported: aBlock.
 	
-	(aDRValue type isUndefined or: [aDRValue type isFloatType]) ifTrue: [ aBlock value ].
-	
+	^ converter value: (aDRValue isConstant
+			   ifTrue: [ aDRValue value ]
+			   ifFalse: [ aDRValue name ])
+]
+
+{ #category : 'as yet unclassified' }
+DRZ3ConstraintSolver >> getZ3ValueConverterFor: type ifUnsupported: aBlock [
+
+	type isIntegerType ifTrue: [
+		^ [ :val | val toBitVector: type numberOfBits ] ].
+
+	type isBooleanType ifTrue: [ ^ [ :val | val toBool ] ].
+
+	type isFloatType ifTrue: [ "TODO MachineArithmetic doesn't have floats yet? only Reals" ].
+
+	(type isUndefined or: [ type isFloatType ]) ifTrue: [ ^ aBlock value ].
+
 	self error: 'Unsupported type'
 ]
 
@@ -75,8 +89,8 @@ DRZ3ConstraintSolver >> initializeFor: aDRControlFlowGraph signedIntOverflowIsUB
 DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode [
 
 	| solver retval |
-
 	assertions := OrderedCollection new.
+	freeVarCounter := 0.
 
 	ctxt := Z3Context global.
 	solver := ctxt mkSolver.
@@ -91,25 +105,41 @@ DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode [
 ]
 
 { #category : 'as yet unclassified' }
+DRZ3ConstraintSolver >> nextFreeVarOfType: type ifUnsupported: aBlock [
+
+	| varName converter |
+	converter := self getZ3ValueConverterFor: type ifUnsupported: aBlock.
+	
+	freeVarCounter := freeVarCounter + 1.
+	varName := 'z3tmp_' , freeVarCounter asString.
+	
+	^ converter value: varName.
+	
+]
+
+{ #category : 'as yet unclassified' }
 DRZ3ConstraintSolver >> recurseOnlyPis: aDRValue [
 
-	| currentVal |
+	| currentVal varForConstraints |
 	currentVal := aDRValue.
+
+	varForConstraints := self
+		                     nextFreeVarOfType: aDRValue type
+		                     ifUnsupported: [ ^ nil ].
+
 	[ currentVal isPiNode and: [ currentVal operand isPhiFunction not ] ]
 		whileTrue: [
-			| res op |
-			res := self drValAsZ3Val: currentVal ifUnsupported: [ ^ nil ].
-			op := self drValAsZ3Val: currentVal operand ifUnsupported: [ ^ nil ].
-
-			assertions add: (res === op and: (currentVal asZ3Constraint: self)).
-			self recurseOnlyPis: currentVal constraint otherValue.
+			assertions add:
+				(currentVal constraint asZ3ConstraintOnVar: varForConstraints).
 			currentVal := currentVal operand ].
 
-	(currentVal isCopy or: [currentVal isConstant]) ifFalse: [ ^nil ].
+	(currentVal isCopy or: [ currentVal isConstant ]) ifFalse: [ ^ varForConstraints ].
 
 	currentVal := currentVal simpleConstantFold asDRValue.
 	currentVal isConstant ifTrue: [
-		assertions add: (self drValAsZ3Val: aDRValue ifUnsupported: [ ^ nil ]) === currentVal value ]
+		assertions add: varForConstraints === currentVal value ].
+
+	^ varForConstraints
 ]
 
 { #category : 'visiting' }
@@ -227,13 +257,23 @@ DRZ3ConstraintSolver >> visitNullValue: _ [
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitPhiFunction: aDRPhiFunction [
 
-	| res |
-	aDRPhiFunction operands do: [ :op | self recurseOnlyPis: op ].
+	| res newVars |
 
 	res := self drValAsZ3Val: aDRPhiFunction ifUnsupported: [ ^ nil ].
-	assertions add: ((aDRPhiFunction operands collect: [ :opDRVal |
-			  | op |
-			  op := self drValAsZ3Val: opDRVal ifUnsupported: [ ^ nil ].
+
+	phiReplacement ifNotNil: [
+		phiReplacement key = aDRPhiFunction ifTrue: [ |replacement replacementZ3|
+			replacement := phiReplacement value.
+			replacementZ3 := self drValAsZ3Val: replacement ifUnsupported: [ ^nil ].
+			self addZ3ConstraintFrom: replacement.
+			assertions add: res === replacementZ3.
+			^ nil
+		]
+	].
+
+	newVars := aDRPhiFunction operands collect: [ :op | self recurseOnlyPis: op ].
+
+	assertions add: ((newVars collect: [ :op |
 			  self adaptSize: op with: res andDo: [ :_op :_res | _op === _res ] ])
 			 reduce: [ :a :b | a or: b ])
 ]
