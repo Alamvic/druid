@@ -105,6 +105,17 @@ DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode [
 ]
 
 { #category : 'as yet unclassified' }
+DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode replacingPhi: phi for: phiOp [
+
+	| retval |
+	phiReplacement := phi -> phiOp.
+	retval := self isSatisfiable: aDRPiNode.
+	phiReplacement := nil.
+
+	^ retval
+]
+
+{ #category : 'as yet unclassified' }
 DRZ3ConstraintSolver >> nextFreeVarOfType: type ifUnsupported: aBlock [
 
 	| varName converter |
