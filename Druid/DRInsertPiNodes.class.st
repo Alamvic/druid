@@ -32,16 +32,39 @@ DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBloc
 	^ newBlock
 ]
 
+{ #category : 'as yet unclassified' }
+DRInsertPiNodes >> insertPhiNodesFor: aDRBranchIfCondition withTruePis: truePis andFalsePis: falsePis [
+
+	| cfg mergePoints |
+	cfg := aDRBranchIfCondition basicBlock controlFlowGraph.
+
+	mergePoints := aDRBranchIfCondition basicBlock immediatelyDominatedBlocks
+		remove: truePis first basicBlock;
+		remove: falsePis first basicBlock;
+		yourself.
+
+	truePis with: falsePis do: [ :tPi :fPi |
+		| phis originalVariable |
+		originalVariable := tPi operand.
+		phis := mergePoints collect: [ :b | b phiWithVariables: #(  ) ].
+		phis do: [ :p | |phi|
+			phi := p replaceOperandsIfDominated: DRNullValue new withAll: { tPi. fPi }.
+			originalVariable users copy do: [ :user | (user isDominatedBy: phi) ifTrue: [
+					user replaceOperandIfDominated: originalVariable by: phi]
+			]
+		]
+	]
+]
+
 { #category : 'accessing' }
 DRInsertPiNodes >> insertPiNode: aDRPiNode in: aDRBasicBlock withoutModifyingAnyOf: piNodesNotToModify [
 
 	aDRBasicBlock addInstructionFirst: aDRPiNode.
 
 	aDRPiNode operand users copy
-		select: [ :user | (piNodesNotToModify includes: user) not and: [
-								(self shouldReplaceUser: user withPiNode: aDRPiNode )] ]
-		thenDo: [ :user | user replaceDependency: aDRPiNode operand by: aDRPiNode.].
-
+		reject: [ :user | piNodesNotToModify includes: user ]
+		thenDo: [ :user |
+			user replaceOperandIfDominated: aDRPiNode operand by: aDRPiNode ]
 ]
 
 { #category : 'accessing' }
@@ -56,33 +79,38 @@ DRInsertPiNodes >> insertPiNodes: piNodes in: aDRBasicBlock [
 
 { #category : 'accessing' }
 DRInsertPiNodes >> insertPiNodesFor: aDRBranchIfCondition [
-	| piNodeBuilder |
 
-	piNodeBuilder := DRPiNodeBuilder withInstructionFactory: aDRBranchIfCondition basicBlock controlFlowGraph instructionFactory.
-	aDRBranchIfCondition condition
-		acceptVisitor: piNodeBuilder
-		withBranch: aDRBranchIfCondition.
+	| piNodeBuilder truePis falsePis |
+	piNodeBuilder := self piNodeBuilderFor: aDRBranchIfCondition.
 
-	self insertPiNodes: piNodeBuilder nodesForTrueBranch in: (self
+	truePis := piNodeBuilder nodesForTrueBranch ifEmpty: [ ^ nil ].
+	self insertPiNodes: truePis in: (self
 			 getBasicBlockToInsertPiNodesForBranch:
 			 aDRBranchIfCondition trueBranch
 			 ofCondition: aDRBranchIfCondition).
 
-	self insertPiNodes: piNodeBuilder nodesForFalseBranch in: (self
+	falsePis := piNodeBuilder nodesForFalseBranch.
+	self insertPiNodes: falsePis in: (self
 			 getBasicBlockToInsertPiNodesForBranch:
 			 aDRBranchIfCondition falseBranch
-			 ofCondition: aDRBranchIfCondition)
+			 ofCondition: aDRBranchIfCondition).
+
+	self
+		insertPhiNodesFor: aDRBranchIfCondition
+		withTruePis: truePis
+		andFalsePis: falsePis
 ]
 
 { #category : 'accessing' }
-DRInsertPiNodes >> shouldReplaceUser: user withPiNode: aDRPiNode [
+DRInsertPiNodes >> piNodeBuilderFor: aDRBranchIfCondition [
 
-	| operandIdx |
-	(user basicBlock isDominatedBy: aDRPiNode basicBlock) ifTrue: [ ^ true ].
+	| piNodeBuilder |
+	piNodeBuilder := DRPiNodeBuilder withInstructionFactory:
+		                 aDRBranchIfCondition basicBlock controlFlowGraph
+			                 instructionFactory.
+	aDRBranchIfCondition condition
+		acceptVisitor: piNodeBuilder
+		withBranch: aDRBranchIfCondition.
 
-	user isPhiFunction ifFalse: [ ^ false ].
-
-	operandIdx := user operands indexOf: aDRPiNode operand.
-	^ (user basicBlock predecessorAt: operandIdx) isDominatedBy:
-		  aDRPiNode basicBlock
+	^ piNodeBuilder
 ]

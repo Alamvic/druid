@@ -37,7 +37,55 @@ DRPiNodesInsertionTest >> testInsertPiNodesRemoval [
 	self assert: cfg b2 piNodes size equals: 0.
 	
 	self assert: cfg b3 piNodes size equals: 0.
+	
+	self assert: cfg b4 phiFunctions size equals: 0.
 
+]
+
+{ #category : 'tests' }
+DRPiNodesInsertionTest >> testPhisInsertedInIfMergePoint [
+
+	| cfg blocks b_i b_if_true b_if_false b_end phis |
+	cfg := cfg := (DRIRParser for: '[[b0]]
+b_i:
+	i := Copy(0)
+	j := Copy(1)
+	_ := If(LessThan, i, j; b_if_true, b_if_false)
+
+b_if_true:
+	_ := Jump(b_end)
+
+b_if_false:
+	_ := Jump(b_end)
+
+b_end:[b_if_true, b_if_false]
+	_ := Store(8, i, 777)
+
+b0:
+	_ := Jump(b_i)
+') parse.
+
+	blocks := cfg blocks.
+	b_i := blocks at: 1.
+	b_if_true := blocks at: 2.
+	b_if_false := blocks at: 3.
+	b_end := blocks at: 4.
+
+	self assert: b_end phiFunctions isEmpty.
+
+	self insertPiNodes: cfg.
+
+	self assert: b_end phiFunctions size equals: 2.
+
+	phis := b_end phiFunctions.
+
+	self assert: (phis allSatisfy: [ :phi | phi operands allSatisfy: #isPiNode ]).
+	
+	self assert: (phis anySatisfy: [ :phi | phi operands allSatisfy: [ :pi | pi simpleConstantFold = 0 ] ]).
+	self assert: (phis anySatisfy: [ :phi | phi operands allSatisfy: [ :pi | pi simpleConstantFold = 1 ] ]).
+
+	self assert: (b_end instructions anySatisfy: [:i | i isStore and: [i operands anySatisfy: [:op | op isPhiFunction and: [ op simpleConstantFold = 0 ] ]]])
+	
 ]
 
 { #category : 'tests' }
@@ -136,7 +184,7 @@ DRPiNodesInsertionTest >> testUsagesInNonDominatedBlocksAreNotReplaced [
 	
 	self insertPiNodes: cfg.
 	
-	store := cfg b4 instructions first.
+	store := cfg b4 instructions third.
 	self assert: store isStore.
 	
 	self deny: store operand1 isPiNode

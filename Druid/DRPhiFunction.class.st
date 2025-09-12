@@ -196,6 +196,23 @@ DRPhiFunction >> replaceOperandAtPredecessor: predecessor by: anotherOperand [
 ]
 
 { #category : 'replace' }
+DRPhiFunction >> replaceOperandIfDominated: myOperand by: anotherOperand [
+
+	| replacingOperands |
+
+	replacingOperands := operands collectWithIndex: [ :op :i | 
+		op = myOperand 
+		ifTrue: [ | predecessor | "Find the new operand dominator of the predecessor"
+			predecessor := self basicBlock predecessorAt: i.
+			(predecessor isDominatedBy: anotherOperand basicBlock) ifTrue: [anotherOperand] ifFalse: [ op ] ] 
+		ifFalse: [ op ] 
+	].
+	
+	"Replace phis operands is hard, we build a new one and replace"	
+	^ self replaceBy: (self basicBlock phiWithVariables: replacingOperands)
+]
+
+{ #category : 'replace' }
 DRPhiFunction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
 	| replacingOperands |
