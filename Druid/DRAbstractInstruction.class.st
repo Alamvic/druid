@@ -187,6 +187,8 @@ DRAbstractInstruction >> replaceBy: anotherInstruction [
 
 	self operands asSet do: [ :instruction |
 		instruction removeUser: self ].
+	
+	^ anotherInstruction
 ]
 
 { #category : 'replacing' }
