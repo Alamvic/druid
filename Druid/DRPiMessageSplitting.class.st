@@ -12,26 +12,31 @@ Class {
 { #category : 'accessing' }
 DRPiMessageSplitting >> applyTo: cfg [
 
-	solver := DRZ3ConstraintSolver for: cfg.
-"	solver := DRConstantConstraintSolver new."
+	| anyChanged |
+	solver := self solverFor: cfg.
 
-	cfg allConditionalJumps do: [ :condJump |
-		| splittable |
-		splittable := condJump targets anySatisfy: [ :b |
-			              b piNodes anySatisfy: [ :pi |
-				              self
-					              firstPhiDependencyOf: pi
-					              do: [ :phi |
-						              (solver isSatisfiable: pi) and: [
-							              phi operands anySatisfy: [ :phiOp |
-								              (solver
-									               isSatisfiable: pi
-									               replacingPhi: phi
-									               for: phiOp) not ] ] ]
-					              ifNone: false
-							]
+	self doWhilePossible: [
+		anyChanged := false.
+		cfg allConditionalJumps do: [ :condJump |
+			condJump targets do: [ :b |
+				(b piNodes anySatisfy: [ :pi | self trySplitWith: pi ]) ifTrue: [
+					anyChanged := true
+				]
+			]
 		].
-		1 haltIf: splittable
+		anyChanged
+	]
+]
+
+{ #category : 'accessing' }
+DRPiMessageSplitting >> doWhilePossible: aBlock [
+
+	| maxIters continue |
+	maxIters := 5.
+	continue := true.
+	[ maxIters > 0 and: continue ] whileTrue: [
+		continue := aBlock value.
+		maxIters := maxIters - 1.
 	]
 ]
 
@@ -49,4 +54,30 @@ DRPiMessageSplitting >> firstPhiDependencyOf: aDRValue do: aBlock ifNone: anothe
 	].
 
 	^ anotherBlock value
+]
+
+{ #category : 'accessing' }
+DRPiMessageSplitting >> solverFor: cfg [
+
+	^ self subclassResponsibility
+]
+
+{ #category : 'accessing' }
+DRPiMessageSplitting >> trySplitWith: pi [
+
+	self
+		firstPhiDependencyOf: pi
+		do: [ :phi |
+			(solver isSatisfiable: pi) and: [
+				phi operands do: [ :phiOp |
+					(solver isSatisfiable: pi replacingPhi: phi for: phiOp)
+						ifFalse: [
+							phi basicBlock splitTo: phiOp basicBlock.
+							^ true ]
+				]
+			]
+		]
+		ifNone: [].
+		
+	^ false
 ]
