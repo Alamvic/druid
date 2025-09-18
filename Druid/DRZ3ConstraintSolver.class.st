@@ -7,8 +7,7 @@ Class {
 		'assertions',
 		'ctxt',
 		'signedIntOverflowIsUB',
-		'phiReplacement',
-		'freeVarCounter'
+		'phiReplacement'
 	],
 	#category : 'Druid-IR-Paths',
 	#package : 'Druid',
@@ -90,7 +89,6 @@ DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode [
 
 	| solver retval |
 	assertions := OrderedCollection new.
-	freeVarCounter := 0.
 
 	ctxt := Z3Context global.
 	solver := ctxt mkSolver.
@@ -116,41 +114,29 @@ DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode replacingPhi: phi for: phiOp [
 ]
 
 { #category : 'as yet unclassified' }
-DRZ3ConstraintSolver >> nextFreeVarOfType: type ifUnsupported: aBlock [
+DRZ3ConstraintSolver >> recurseOnlyPis: aDRValue addingConstraintsOn: varForConstraints [
 
-	| varName converter |
-	converter := self getZ3ValueConverterFor: type ifUnsupported: aBlock.
-	
-	freeVarCounter := freeVarCounter + 1.
-	varName := 'z3tmp_' , freeVarCounter asString.
-	
-	^ converter value: varName.
-	
-]
-
-{ #category : 'as yet unclassified' }
-DRZ3ConstraintSolver >> recurseOnlyPis: aDRValue [
-
-	| currentVal varForConstraints |
+	| currentVal constraint |
 	currentVal := aDRValue.
-
-	varForConstraints := self
-		                     nextFreeVarOfType: aDRValue type
-		                     ifUnsupported: [ ^ nil ].
+	constraint := true toBool.
 
 	[ currentVal isPiNode and: [ currentVal operand isPhiFunction not ] ]
 		whileTrue: [
-			assertions add:
-				(currentVal constraint asZ3ConstraintOnVar: varForConstraints).
+			constraint := constraint and:
+				              (currentVal constraint asZ3ConstraintOnVar:
+					               varForConstraints).
 			currentVal := currentVal operand ].
 
-	(currentVal isCopy or: [ currentVal isConstant ]) ifFalse: [ ^ varForConstraints ].
+	(currentVal isCopy or: [
+		 currentVal isConstant or: [
+			 currentVal isPhiFunction and: currentVal operands size = 1 ] ])
+		ifFalse: [ ^ constraint ].
 
 	currentVal := currentVal simpleConstantFold asDRValue.
 	currentVal isConstant ifTrue: [
-		assertions add: varForConstraints === currentVal value ].
+		constraint := constraint and: varForConstraints === currentVal value ].
 
-	^ varForConstraints
+	^ constraint
 ]
 
 { #category : 'visiting' }
@@ -212,6 +198,31 @@ DRZ3ConstraintSolver >> visitCopy: aDRCopy [
 ]
 
 { #category : 'visiting' }
+DRZ3ConstraintSolver >> visitGetConditionCode: aDRGetConditionCode [
+
+	| res piNodeBuilder piNode assertion operand piNodes |
+	res := self drValAsZ3Val: aDRGetConditionCode ifUnsupported: [ ^ nil ].
+
+	piNodeBuilder := DRPiNodeBuilder withInstructionFactory:
+		                 cfg instructionFactory.
+	aDRGetConditionCode condition
+		acceptVisitor: piNodeBuilder
+		withBranch: aDRGetConditionCode.
+
+	piNodes := piNodeBuilder nodesForTrueBranch.
+	piNode := piNodes at: 1 ifAbsent: [ ^ nil ].
+	operand := self drValAsZ3Val: piNode operand ifUnsupported: [ ^ nil ].
+
+	assertion := res === (piNode constraint asZ3ConstraintOnVar: operand).
+
+	assertions add: assertion.
+
+	piNodes do: [ :pi |
+		pi dependencies copy do: [ :each | each removeUser: pi ] ].
+
+]
+
+{ #category : 'visiting' }
 DRZ3ConstraintSolver >> visitGetFloatBits: aDRGetFloatBits [
 
 	"TODO I think MachineArithmetic doesn't have floats yet? only Reals"
@@ -268,25 +279,23 @@ DRZ3ConstraintSolver >> visitNullValue: _ [
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitPhiFunction: aDRPhiFunction [
 
-	| res newVars |
-
+	| res opsConstraints |
 	res := self drValAsZ3Val: aDRPhiFunction ifUnsupported: [ ^ nil ].
 
 	phiReplacement ifNotNil: [
-		phiReplacement key = aDRPhiFunction ifTrue: [ |replacement replacementZ3|
+		phiReplacement key = aDRPhiFunction ifTrue: [ | replacement replacementZ3 |
 			replacement := phiReplacement value.
-			replacementZ3 := self drValAsZ3Val: replacement ifUnsupported: [ ^nil ].
+			replacementZ3 := self drValAsZ3Val: replacement ifUnsupported: [ ^ nil ].
 			self addZ3ConstraintFrom: replacement.
 			assertions add: res === replacementZ3.
 			^ nil
 		]
 	].
 
-	newVars := aDRPhiFunction operands collect: [ :op | self recurseOnlyPis: op ].
+	opsConstraints := aDRPhiFunction operands collect: [ :op |
+		                  self recurseOnlyPis: op addingConstraintsOn: res ].
 
-	assertions add: ((newVars collect: [ :op |
-			  self adaptSize: op with: res andDo: [ :_op :_res | _op === _res ] ])
-			 reduce: [ :a :b | a or: b ])
+	assertions add: (opsConstraints reduce: [ :a :b | a or: b ])
 ]
 
 { #category : 'visiting' }
