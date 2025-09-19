@@ -46,7 +46,7 @@ DRPiNodesInsertionTest >> testInsertPiNodesRemoval [
 DRPiNodesInsertionTest >> testPhisInsertedInIfMergePoint [
 
 	| cfg blocks b_i b_if_true b_if_false b_end phis |
-	cfg := cfg := (DRIRParser for: '[[b0]]
+	cfg := (DRIRParser for: '[[b0]]
 b_i:
 	i := Copy(0)
 	j := Copy(1)
@@ -89,6 +89,40 @@ b0:
 ]
 
 { #category : 'tests' }
+DRPiNodesInsertionTest >> testPhisOfPhisInsertedInIfMergePoint [
+
+	| cfg blocks phis block_C block_D block_E block_F |
+	"case A->{B, C}, B->D, C->{D,E}, D->F, E->F}
+	Phis should be inserted both in D and in F,
+	and the F should have the one in D as one of its operands"
+	
+	
+	cfg := self setUpCFGWithConditionalBetweenVars:
+				[ :cfg :var1 :var2 | cfg instructionFactory equals: var1 to: var2 ].
+
+	blocks := cfg blocks.
+	block_C := blocks at: 3.
+	block_D := blocks at: 4.
+	block_E := cfg newBasicBlock.
+	block_F := cfg newBasicBlock.
+	block_D removePredecessor: block_C.
+	block_C jumpIf: (cfg instructionFactory equals: 1 to: 2) to: block_D ifFalseTo: block_E.
+	block_D jumpTo: block_F.
+	block_E jumpTo: block_F.
+	
+	self insertPiNodes: cfg.
+
+	self deny: block_D phiFunctions isEmpty.
+	self deny: block_F phiFunctions isEmpty.
+
+	phis := block_F phiFunctions.
+
+	self assert: (phis allSatisfy: [ :phi | phi operands anySatisfy: #isPiNode ]).
+	self assert: (phis allSatisfy: [ :phi | phi operands anySatisfy: #isPhiFunction ]).
+	
+]
+
+{ #category : 'tests' }
 DRPiNodesInsertionTest >> testPiInsertionBreaksCriticalEdges [
 
 	| cfg newBlock |
@@ -118,7 +152,7 @@ DRPiNodesInsertionTest >> testUsagesAreReplacedInPhiFunctionIfPredecesorIsDomina
 
 	| cfg blocks b_error b_while2 b_while phi pi |
 	
-	cfg := cfg := (DRIRParser for: '[[b0]]
+	cfg := (DRIRParser for: '[[b0]]
 b_i:
 	i0 := Copy(0)
 	_ := Jump(b_while)

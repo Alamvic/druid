@@ -42,13 +42,21 @@ DRInsertPiNodes >> insertPhiNodesFor: aDRBranchIfCondition withTruePis: truePis 
 		remove: truePis first basicBlock;
 		remove: falsePis first basicBlock;
 		yourself.
+		
+	mergePoints size > 1 ifTrue: [ |reversePostOrderBlocks|
+		reversePostOrderBlocks := cfg reversePostOrderBlocks.
+		mergePoints := mergePoints asOrderedCollection sort: [ :a :b |
+			(reversePostOrderBlocks indexOf: a) <= (reversePostOrderBlocks indexOf: b) ].
+	].
 
 	truePis with: falsePis do: [ :tPi :fPi |
-		| phis originalVariable |
+		| phis originalVariable replacableValues |
 		originalVariable := tPi operand.
 		phis := mergePoints collect: [ :b | b phiWithVariables: #(  ) ].
+		replacableValues := OrderedCollection with: tPi with: fPi.
 		phis do: [ :p | |phi|
-			phi := p replaceOperandsIfDominated: DRNullValue new withAll: { tPi. fPi }.
+			phi := p replaceOperandsIfDominated: DRNullValue new withAll: replacableValues.
+			replacableValues add: phi.
 			originalVariable users copy do: [ :user | (user isDominatedBy: phi) ifTrue: [
 					user replaceOperandIfDominated: originalVariable by: phi]
 			]
