@@ -68,14 +68,14 @@ DRPiMessageSplitting >> trySplitWith: pi [
 	self
 		firstPhiDependencyOf: pi
 		do: [ :phi |
-			(solver isSatisfiable: pi) and: [
-				phi operands do: [ :phiOp |
+			phi operands size > 1 and: [(solver isSatisfiable: pi) and: [
+				phi operands withIndexDo: [ :phiOp :i |
 					(solver isSatisfiable: pi replacingPhi: phi for: phiOp)
 						ifFalse: [
-							phi basicBlock splitTo: phiOp basicBlock.
+							phi basicBlock splitTo: (phi basicBlock predecessorAt: i).
 							^ true ]
 				]
-			]
+			]]
 		]
 		ifNone: [].
 		
