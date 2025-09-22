@@ -28,8 +28,7 @@ DRIRParser class >> for: inputString [
 { #category : 'adding' }
 DRIRParser >> addInstr: opcode to: aDRBasicBlock withResult: result andOperands: operands [
 
-	| instrSubclasses instrClass instr |
-	instrSubclasses := DRInstruction allSubclasses.
+	| instrClass instr |
 
 	instrClass := self resolveInstruction: opcode.
 	instr := instrClass new.
@@ -119,7 +118,7 @@ DRIRParser >> initializeFor: inputString [
 
 	blockMapping := Dictionary new.
 	instrMapping := Dictionary new.
-	instrDependencies := Dictionary new.
+	instrDependencies := IdentityDictionary new.
 	
 	blockPredecessorsOrder := Dictionary new.
 
@@ -175,13 +174,8 @@ DRIRParser >> initializeOpcodeToDependencyStringParserMap [
 DRIRParser >> initializeOpcodeToInstrMap [
 
 	opcodeToInstrMap := Dictionary newFrom: {
-			                    ('copy' -> DRCopy).
-
-			                    ('if' -> DRBranchIfCondition).
-			                    ('jump' -> DRJump).
-
-			                    ('noop' -> DRNoop).
-
+		('copy' -> DRCopy).
+		('phi' -> DRPhiFunction).
 	}.
 
 	DRInstruction allSubclasses
@@ -275,7 +269,7 @@ DRIRParser >> parseBlockLabel: blockLabel [
 DRIRParser >> processDependencyOperands: operands [
 
 	^ operands collect: [ :op |
-		  op startsWithDigit
+		  (op startsWithDigit or: [ op first = $- ])
 			  ifTrue: [ op asNumber asDRValue ]
 			  ifFalse: [
 				  ({ 'true'. 'false' } includes: op)
