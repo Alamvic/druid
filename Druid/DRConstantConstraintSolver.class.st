@@ -2,8 +2,7 @@ Class {
 	#name : 'DRConstantConstraintSolver',
 	#superclass : 'DRConstraintSolver',
 	#instVars : [
-		'visited',
-		'phiReplacement'
+		'visited'
 	],
 	#category : 'Druid-IR-Paths',
 	#package : 'Druid',
@@ -21,11 +20,11 @@ DRConstantConstraintSolver >> collectConstraintsFrom: aDRValue [
 		ifPresentDo: [ ^ DRFullConstraint new ].
 
 	aDRValue isPhiFunction ifTrue: [
-		^ (phiReplacement isNil or: [ phiReplacement key ~= aDRValue ]) ifTrue: [
+		^ phiReplacements at: aDRValue ifPresent: [ :phiReplacement |
+			self collectConstraintsFrom: phiReplacement
+		] ifAbsent: [
 			DRUnionConstraint constraints:
 			  (aDRValue operands collect: [ :op | self collectConstraintsFrom: op ])
-		] ifFalse: [
-			self collectConstraintsFrom: phiReplacement value
 		].
 	].
 
@@ -68,15 +67,4 @@ DRConstantConstraintSolver >> isSatisfiable: piNodeConstraint onVar: constrained
 	^ self
 		  isConstraint: piNodeConstraint
 		  satisfiableWith: collectedConstraint
-]
-
-{ #category : 'testing' }
-DRConstantConstraintSolver >> isSatisfiable: aDRPiNode replacingPhi: phi for: phiOp [
-
-	| retval |
-	phiReplacement := phi -> phiOp.
-	retval := self isSatisfiable: aDRPiNode.
-	phiReplacement := nil.
-
-	^ retval
 ]

@@ -6,8 +6,7 @@ Class {
 		'memo',
 		'assertions',
 		'ctxt',
-		'signedIntOverflowIsUB',
-		'phiReplacement'
+		'signedIntOverflowIsUB'
 	],
 	#category : 'Druid-IR-Paths',
 	#package : 'Druid',
@@ -23,7 +22,7 @@ DRZ3ConstraintSolver class >> for: aDRControlFlowGraph [
 { #category : 'instance creation' }
 DRZ3ConstraintSolver class >> for: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean [
 
-	^ self new initializeFor: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean
+	^ self new for: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean
 ]
 
 { #category : 'as yet unclassified' }
@@ -59,6 +58,16 @@ DRZ3ConstraintSolver >> drValAsZ3Val: aDRValue ifUnsupported: aBlock [
 			   ifFalse: [ aDRValue name ])
 ]
 
+{ #category : 'initialization' }
+DRZ3ConstraintSolver >> for: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean [
+
+	cfg := aDRControlFlowGraph.
+	
+	memo := IdentityDictionary new.
+	
+	signedIntOverflowIsUB := aBoolean.
+]
+
 { #category : 'as yet unclassified' }
 DRZ3ConstraintSolver >> getZ3ValueConverterFor: type ifUnsupported: aBlock [
 
@@ -72,16 +81,6 @@ DRZ3ConstraintSolver >> getZ3ValueConverterFor: type ifUnsupported: aBlock [
 	(type isUndefined or: [ type isFloatType ]) ifTrue: [ ^ aBlock value ].
 
 	self error: 'Unsupported type'
-]
-
-{ #category : 'initialization' }
-DRZ3ConstraintSolver >> initializeFor: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean [
-
-	cfg := aDRControlFlowGraph.
-	
-	memo := IdentityDictionary new.
-	
-	signedIntOverflowIsUB := aBoolean.
 ]
 
 { #category : 'as yet unclassified' }
@@ -100,17 +99,6 @@ DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode [
 
 	solver release.
 	^ retval ifNil: [ true ]
-]
-
-{ #category : 'as yet unclassified' }
-DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode replacingPhi: phi for: phiOp [
-
-	| retval |
-	phiReplacement := phi -> phiOp.
-	retval := self isSatisfiable: aDRPiNode.
-	phiReplacement := nil.
-
-	^ retval
 ]
 
 { #category : 'as yet unclassified' }
@@ -282,15 +270,14 @@ DRZ3ConstraintSolver >> visitPhiFunction: aDRPhiFunction [
 	| res opsConstraints |
 	res := self drValAsZ3Val: aDRPhiFunction ifUnsupported: [ ^ nil ].
 
-	phiReplacement ifNotNil: [
-		phiReplacement key = aDRPhiFunction ifTrue: [ | replacement replacementZ3 |
-			replacement := phiReplacement value.
-			replacementZ3 := self drValAsZ3Val: replacement ifUnsupported: [ ^ nil ].
-			self addZ3ConstraintFrom: replacement.
-			assertions add: res === replacementZ3.
-			^ nil
-		]
+	
+	phiReplacements at: aDRPhiFunction ifPresent: [ :phiReplacement | | replacementZ3 |
+		replacementZ3 := self drValAsZ3Val: phiReplacement ifUnsupported: [ ^ nil ].
+		self addZ3ConstraintFrom: phiReplacement.
+		assertions add: res === replacementZ3.
+		^ nil
 	].
+	
 
 	opsConstraints := aDRPhiFunction operands collect: [ :op |
 		                  self recurseOnlyPis: op addingConstraintsOn: res ].

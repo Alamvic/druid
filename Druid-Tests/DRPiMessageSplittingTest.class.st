@@ -39,7 +39,7 @@ b0:
 	b_if1_true := blocks at: 2.
 	b_if1 := blocks at: 1.
 
-	self optimize: cfg with: { DRPiConstantMessageSplitting }.
+	self optimize: cfg with: { DRPiZ3MessageSplitting }.
 
 	self assert: b_if1_true lastInstruction target
 		~= b_if1_false lastInstruction target.

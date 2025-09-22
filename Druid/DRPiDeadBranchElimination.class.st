@@ -14,25 +14,30 @@ Class {
 { #category : 'as yet unclassified' }
 DRPiDeadBranchElimination >> addSuccessorsToWorklist: aDRBasicBlock [
 
-	aDRBasicBlock successors
-		reject: [ :succ | visited includes: succ ]
+	| tail |
+	tail := self tailOfBranchWithHeader: aDRBasicBlock.
+	tail successors
+		collect: [ :succ | DREdge withSource: tail andDestination: succ ]
 		thenDo: [ :succ |
-			worklist add: succ.
-			visited add: succ.
-		].
+			(visited includes: succ) ifFalse: [
+				worklist add: succ.
+				visited add: succ
+			]
+		]
 ]
 
 { #category : 'accessing' }
 DRPiDeadBranchElimination >> applyTo: cfg [
 
-	| unreachableBlocks |
+	| deadEdges |
 	visited := Set new.
-	worklist := OrderedCollection with: cfg initialBasicBlock.
+	worklist := OrderedCollection new.
+	self addSuccessorsToWorklist: cfg initialBasicBlock.
 
-	unreachableBlocks := self computeUnreachableBlocks.
+	deadEdges := self computeDeadEdges.
 
-	unreachableBlocks ifNotEmpty: [
-		self removeUnnecessaryConditionalJumps: unreachableBlocks.
+	deadEdges ifNotEmpty: [
+		self removeUnnecessaryConditionalJumps: deadEdges.
 		cfg
 			invalidateDominatorTree;
 			invalidatePostDominatorTree.
@@ -40,32 +45,83 @@ DRPiDeadBranchElimination >> applyTo: cfg [
 ]
 
 { #category : 'accessing' }
-DRPiDeadBranchElimination >> computeUnreachableBlocks [
+DRPiDeadBranchElimination >> computeDeadEdges [
 
-	| unreachableBlocks |
-	unreachableBlocks := OrderedCollection new.
+	| deadEdges |
+	deadEdges := OrderedCollection new.
 
 	[ worklist isEmpty ] whileFalse: [
-		| currentBlock |
-		currentBlock := worklist removeFirst.
-		(self isReachable: currentBlock)
-			ifTrue: [ self addSuccessorsToWorklist: currentBlock ]
-			ifFalse: [ unreachableBlocks add: currentBlock ] ].
+		| currentEdge |
+		currentEdge := worklist removeFirst.
+		(self isAlive: currentEdge)
+			ifTrue: [ self addSuccessorsToWorklist: currentEdge destination ]
+			ifFalse: [ deadEdges add: currentEdge ] ].
 		"TODO if a block is unreachable, then its sibling must be reachable,
 		so we can remove it from the worklist"
-	^ unreachableBlocks
+	^ deadEdges
 ]
 
 { #category : 'as yet unclassified' }
-DRPiDeadBranchElimination >> isReachable: aDRBasicBlock [
+DRPiDeadBranchElimination >> directSuccessorsOf: aDRBasicBlock do: aBlock [
 
-	^ aDRBasicBlock piNodes allSatisfy: [ :pi | solver isSatisfiable: pi ]
+	| current |
+	current := aDRBasicBlock.
+
+	[
+	aBlock value: current.
+	(current successors size = 1 and: [
+			 current successors unique predecessors size = 1 ])
+		ifTrue: [ current := current successors unique ];
+		yourself ] whileTrue
+
+]
+
+{ #category : 'as yet unclassified' }
+DRPiDeadBranchElimination >> isAlive: aDREdge [
+
+	^ self isReachable: aDREdge destination from: aDREdge source.
+
+]
+
+{ #category : 'as yet unclassified' }
+DRPiDeadBranchElimination >> isReachable: destinationBlock from: sourceBlock [
+
+	| phiReplacements i |
+	
+	phiReplacements := Dictionary new.
+	i := destinationBlock predecessors indexOf: sourceBlock.
+	destinationBlock phiFunctions do: [ :phi |
+		phiReplacements at: phi put: (phi operands at: i).
+	].
+	
+	^ (self piNodesOfBranchWithHeader: destinationBlock) allSatisfy: [ :pi |
+		solver isSatisfiable: pi replacingPhis: phiReplacements ]
+]
+
+{ #category : 'as yet unclassified' }
+DRPiDeadBranchElimination >> piNodesOfBranchWithHeader: aDRBasicBlock [
+
+	| piNodes |
+	
+	piNodes := OrderedCollection new.
+	self
+		directSuccessorsOf: aDRBasicBlock
+		do: [ :b | piNodes addAll: b piNodes ].
+	^ piNodes
 ]
 
 { #category : 'removing' }
-DRPiDeadBranchElimination >> removeUnnecessaryConditionalJumps: unreachableBlocks [
+DRPiDeadBranchElimination >> removeUnnecessaryConditionalJumps: deadEdges [
 
-	unreachableBlocks do: [ :block |
-		(DREdge withSource: block predecessors unique andDestination: block)
-			kill ]
+	deadEdges do: #kill
+]
+
+{ #category : 'as yet unclassified' }
+DRPiDeadBranchElimination >> tailOfBranchWithHeader: aDRBasicBlock [
+
+	| tail |
+	
+	tail := aDRBasicBlock.
+	self directSuccessorsOf: aDRBasicBlock do: [ :b | tail := b ].
+	^ tail
 ]
