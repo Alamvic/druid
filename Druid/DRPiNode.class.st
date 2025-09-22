@@ -18,9 +18,11 @@ DRPiNode class >> constraint: aDRConditionalConstraint on: aDRValue [
 ]
 
 { #category : 'converting' }
-DRPiNode >> asZ3Constraint [
+DRPiNode >> asZ3Constraint: aZ3Solver [
 
-	^ constraint asZ3ConstraintOnVar: self name
+	| var |
+	var := aZ3Solver drValAsZ3Val: self ifUnsupported: [ ^ nil ].
+	^ constraint asZ3ConstraintOnVar: var
 ]
 
 { #category : 'testing' }

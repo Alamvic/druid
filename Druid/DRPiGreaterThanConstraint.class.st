@@ -7,9 +7,9 @@ Class {
 }
 
 { #category : 'arithmetic' }
-DRPiGreaterThanConstraint >> asZ3ConstraintOnVar: varName [
+DRPiGreaterThanConstraint >> asZ3ConstraintOnVar: aZ3Variable [
 
-	^ self binaryConstraint: #> on: varName
+	^ self binaryConstraint: #> on: aZ3Variable
 ]
 
 { #category : 'accessing' }

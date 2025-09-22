@@ -543,9 +543,15 @@ DRValue >> targets [
 ]
 
 { #category : 'types' }
+DRValue >> type [
+
+	^ self typeWithAlreadySeen: Set new
+]
+
+{ #category : 'types' }
 DRValue >> typeWithAlreadySeen: aCollection [ 
 	
-	^ self type
+	^ self subclassResponsibility
 ]
 
 { #category : 'accessing' }

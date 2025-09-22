@@ -38,19 +38,19 @@ DRPiNodeConstraint >> asDependencyList [
 		  ifTrue: [ {  } ]
 ]
 
-{ #category : 'arithmetic' }
-DRPiNodeConstraint >> asZ3ConstraintOnVar: varName [
+{ #category : 'accessing' }
+DRPiNodeConstraint >> asZ3ConstraintOnVar: aZ3Variable [
 
-	self subclassResponsibility
+	self subclassResponsibility 
 ]
 
 { #category : 'accessing' }
-DRPiNodeConstraint >> binaryConstraint: constraint on: varName [
+DRPiNodeConstraint >> binaryConstraint: constraint on: aZ3Variable [
 
-	^ varName toInt
+	^ aZ3Variable
 		  perform: constraint
 		  with:
-		  (self ifConstantDo: [ :val | val ] ifNot: [ :val | val name ])
+		  (self ifConstantDo: #yourself ifNot: #name)
 ]
 
 { #category : 'accessing' }
@@ -108,7 +108,8 @@ DRPiNodeConstraint >> prettyPrint [
 { #category : 'removing' }
 DRPiNodeConstraint >> removeUserOfValues: aDRPiNode [
 
-	self asDependencyList do: [ :dep | dep removeUser: aDRPiNode ]
+	self asDependencyList do: [ :dep |
+		(dep ~= aDRPiNode operand) ifTrue: [ dep removeUser: aDRPiNode ] ]
 ]
 
 { #category : 'replacing' }

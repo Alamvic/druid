@@ -7,9 +7,9 @@ Class {
 }
 
 { #category : 'arithmetic' }
-DRPiEqualsConstraint >> asZ3ConstraintOnVar: varName [
+DRPiEqualsConstraint >> asZ3ConstraintOnVar: aZ3Variable [
 
-	^ self binaryConstraint: #=== on: varName
+	^ self binaryConstraint: #'===' on: aZ3Variable
 ]
 
 { #category : 'accessing' }

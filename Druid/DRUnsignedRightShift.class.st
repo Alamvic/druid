@@ -13,7 +13,7 @@ DRUnsignedRightShift >> acceptVisitor: aVisitor [
 ]
 
 { #category : 'types' }
-DRUnsignedRightShift >> type [
+DRUnsignedRightShift >> typeWithAlreadySeen: _ [
 
 	^ DRUnsignedIntegerType size: 8 "bytes per word"
 ]

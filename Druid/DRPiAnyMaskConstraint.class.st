@@ -6,6 +6,14 @@ Class {
 	#tag : 'IR-Paths'
 }
 
+{ #category : 'arithmetic' }
+DRPiAnyMaskConstraint >> asZ3ConstraintOnVar: aZ3Variable [
+
+	^ (aZ3Variable bitAnd:
+		  (self ifConstantDo: [ :val | val ] ifNot: [ :val | val name ]))
+		  ~== 0
+]
+
 { #category : 'accessing' }
 DRPiAnyMaskConstraint >> constantConstraintClass [
 

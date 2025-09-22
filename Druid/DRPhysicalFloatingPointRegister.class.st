@@ -31,7 +31,7 @@ DRPhysicalFloatingPointRegister >> takeFromAllocator: aRegisterAllocator [
 ]
 
 { #category : 'types' }
-DRPhysicalFloatingPointRegister >> type [
+DRPhysicalFloatingPointRegister >> typeWithAlreadySeen: _ [
 	
 	^ DRFloatType new
 ]

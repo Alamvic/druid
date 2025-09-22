@@ -95,7 +95,8 @@ DRAbsoluteMemoryAddress >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : 'accessing' }
-DRAbsoluteMemoryAddress >> type [
+DRAbsoluteMemoryAddress >> typeWithAlreadySeen: aCollection [
 
-	^ expression type
+	aCollection add: self.
+	^ expression typeWithAlreadySeen: aCollection
 ]
