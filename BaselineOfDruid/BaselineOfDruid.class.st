@@ -22,9 +22,16 @@ BaselineOfDruid >> baseline: spec [
 			with: [ spec
 				className: 'BaselineOfAIGraphAlgorithms';
 				repository: 'github://pharo-ai/graph-algorithms:master' ].
+		
+		spec
+			baseline: 'MachineArithmetic'
+			with: [ spec
+				className: 'BaselineOfMachineArithmetic';
+				repository: 'github://shingarov/MachineArithmetic:pure-z3';
+				loads: #(Z3Proper) ].
 
 		spec
-			package: 'Druid' with: [ spec requires: #('PharoVM' 'AIGraphAlgorithms') ];
+			package: 'Druid' with: [ spec requires: #('PharoVM' 'AIGraphAlgorithms' 'MachineArithmetic') ];
 			package: 'Druid-Tests' with: [ spec requires: 'Druid' ];
 			package: 'Druid-UI' with: [ spec requires: #('Druid' 'Druid-Tests') ].
 

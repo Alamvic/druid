@@ -6,12 +6,6 @@ Class {
 	#tag : 'IR-Paths'
 }
 
-{ #category : 'reversing' }
-DRLessConstraint >> distanceForBuildingABCDGraph [
-
-	^ -1
-]
-
 { #category : 'arithmetic' }
 DRLessConstraint >> hasAllValuesGreaterThan: otherConstantValue [
 
