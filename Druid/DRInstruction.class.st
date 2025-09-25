@@ -660,12 +660,10 @@ DRInstruction >> replaceOperandIfDominated: myOperand by: anotherOperand [
 { #category : 'replacing' }
 DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
-	| replaced |
-	replaced := nil.
-	newOperands do: [ :newOperand | 
-		(self replaceOperandIfDominated: myOperand by: newOperand) 
-			ifNotNil: [ replaced := self ] ].
-	^ replaced
+	newOperands do: [ :newOperand |
+		(self replaceOperandIfDominated: myOperand by: newOperand)
+			ifNotNil: [ ^ self ] ].
+	^ nil
 ]
 
 { #category : 'replacing' }

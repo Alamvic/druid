@@ -882,6 +882,62 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithTwoBlocks [
 ]
 
 { #category : 'tests' }
+DRTailDuplicationTest >> testTailDuplicateWithPhiAtMergePointBigGraph [
+
+	| cfg b4 b5 b6 b7 b8 b9 b10 b11 b12 phi user |
+	cfg := self setUpCFGWithConditional.
+	b4 := cfg b4.
+	b5 := cfg newBasicBlock.
+	b6 := cfg newBasicBlock.
+	b7 := cfg newBasicBlock.
+	b8 := cfg newBasicBlock.
+	b9 := cfg newBasicBlock.
+	b10 := cfg newBasicBlock.
+	b11 := cfg newBasicBlock.
+	b12 := cfg newBasicBlock.
+
+	b4 jumpIfTrueTo: b5 ifFalseTo: b10.
+	b5 jumpIfTrueTo: b6 ifFalseTo: b7.
+	b6 jumpTo: b7.
+	b7 jumpIfTrueTo: b8 ifFalseTo: b11.
+	b8 jumpIfTrueTo: b9 ifFalseTo: b12.
+	b9 jumpTo: b10.
+	b10 jumpTo: b11.
+	b11 jumpTo: b12.
+	
+	phi := b4 copy: 4.
+	user := b12 phiWithVariables: { phi. phi }.
+
+	cfg validate.
+	cfg b4 tailDuplicate.
+	cfg validate.
+
+]
+
+{ #category : 'tests' }
+DRTailDuplicationTest >> testTailDuplicateWithPhiAtMergePointSmallGraph [
+
+	| cfg b4 b8 b10 b12 copy1 user |
+	cfg := self setUpCFGWithConditional.
+	b4 := cfg b4.
+	b8 := cfg newBasicBlock.
+	b10 := cfg newBasicBlock.
+	b12 := cfg newBasicBlock.
+
+	b4 jumpIfTrueTo: b8 ifFalseTo: b10.
+	b8 jumpIfTrueTo: b10 ifFalseTo: b12.
+	b10 jumpTo: b12.
+	
+	copy1 := b4 copy: 4.
+	user := b12 phiWithVariables: { copy1. copy1 }.
+
+	cfg validate.
+	cfg b4 tailDuplicate.
+	cfg validate.
+
+]
+
+{ #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateWithPhiUsersInFrontier [
 
 	| cfg frontierOfFrontiers mergeBlocks |
