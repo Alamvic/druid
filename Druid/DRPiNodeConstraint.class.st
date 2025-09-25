@@ -33,9 +33,7 @@ DRPiNodeConstraint >> asConstantConstraint [
 { #category : 'converting' }
 DRPiNodeConstraint >> asDependencyList [
 
-	^ otherValue isConstant
-		  ifFalse: [ otherValue asDependencyList ]
-		  ifTrue: [ {  } ]
+	^ self ifConstantDo: [ {  } ] ifNot: #asDependencyList
 ]
 
 { #category : 'accessing' }
@@ -69,7 +67,11 @@ DRPiNodeConstraint >> distanceForBuildingABCDGraph [
 DRPiNodeConstraint >> ifConstantDo: trueBlock ifNot: falseBlock [
 
 	| val |
-	val := otherValue asDRValue simpleConstantFold value.
+	val := otherValue asDRValue.
+	(val isConstant or: [val isCopy]) ifTrue: [
+		val := val simpleConstantFold value.
+	].
+
 	(val isNumber or: val isBooleanValue)
 		ifTrue: [ ^ trueBlock cull: val ]
 		ifFalse: [ ^ falseBlock cull: otherValue ]

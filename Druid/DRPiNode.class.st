@@ -65,6 +65,13 @@ DRPiNode >> opcode [
 	^ 'π'
 ]
 
+{ #category : 'replacing' }
+DRPiNode >> postCopy [ 
+
+	super postCopy.
+	constraint := constraint copy.
+]
+
 { #category : 'printing' }
 DRPiNode >> prettyPrint [
 
@@ -93,10 +100,15 @@ DRPiNode >> removeFromCFG [
 
 ]
 
-{ #category : 'replacing' }
-DRPiNode >> replaceOperand: anOperand by: anotherOperand [
+{ #category : 'testing' }
+DRPiNode >> replaceDependency: anOperand by: anotherOperand [
 
-	super replaceOperand: anOperand by: anotherOperand.
-	
-	constraint replaceOperand: anOperand by: anotherOperand.
+	self replaceOperand: anOperand by: anotherOperand.
+
+	constraint ifConstantDo: [  ] ifNot: [ :val |
+		val = anOperand ifTrue: [| newConstraint |
+			newConstraint := constraint class withValue: anotherOperand.
+			constraint := newConstraint.
+			constraint addUserOfValues: self ]
+	]
 ]

@@ -514,7 +514,7 @@ DRInstruction >> postCopy [
 	super postCopy.
 
 	operands := operands copy.
-	operands do: [ :e | e addUser: self ].
+	self dependencies do: [ :e | e addUser: self ].
 	users := users copy.
 
 	result isSSARegister ifTrue: [
