@@ -17,7 +17,7 @@ DRPiDeadBranchElimination >> addSuccessorsToWorklist: aDRBasicBlock [
 	| tail |
 	tail := self tailOfBranchWithHeader: aDRBasicBlock.
 	tail successors
-		collect: [ :succ | DREdge withSource: tail andDestination: succ ]
+		collect: [ :succ | DRPiDBEEdge withSource: tail andDestination: succ ]
 		thenDo: [ :succ |
 			(visited includes: succ) ifFalse: [
 				worklist add: succ.
@@ -68,12 +68,13 @@ DRPiDeadBranchElimination >> directSuccessorsOf: aDRBasicBlock do: aBlock [
 	current := aDRBasicBlock.
 
 	[
-	aBlock value: current.
-	(current successors size = 1 and: [
-			 current successors unique predecessors size = 1 ])
-		ifTrue: [ current := current successors unique ];
-		yourself ] whileTrue
-
+		aBlock value: current.
+		current successors size = 1
+			ifTrue: [
+				current := current successors unique.
+				true ]
+			ifFalse: [ false ]
+	] whileTrue
 ]
 
 { #category : 'as yet unclassified' }

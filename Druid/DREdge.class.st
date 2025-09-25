@@ -20,14 +20,6 @@ DREdge class >> withSource: aSource andDestination: aDestination [
 ]
 
 { #category : 'accessing' }
-DREdge >> = anObject [
-
-	^ self class = anObject class and: [
-		  self source = anObject source and: [
-			  self destination = anObject destination ] ]
-]
-
-{ #category : 'accessing' }
 DREdge >> destination [
 
 	^ destination
@@ -40,9 +32,9 @@ DREdge >> destination: anObject [
 ]
 
 { #category : 'accessing' }
-DREdge >> hash [
+DREdge >> isBackJump [
 
-	^ source hash bitXor: destination hash
+	^ source lastInstruction isBackJumpTo: destination 
 ]
 
 { #category : 'deleting' }
