@@ -21,7 +21,7 @@ DRPiZ3DeadBranchElimination >> applyTo: cfg [
 	solver := DRZ3ConstraintSolver
 		          for: cfg
 		          signedIntOverflowIsUB:
-		          (signedIntOverflowIsUB ifNil: [ true ]).
+		          (signedIntOverflowIsUB ifNil: [ false ]).
 	super applyTo: cfg
 ]
 

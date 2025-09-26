@@ -43,6 +43,12 @@ DRPiNodeConstraint >> asZ3ConstraintOnVar: aZ3Variable [
 ]
 
 { #category : 'accessing' }
+DRPiNodeConstraint >> asZ3UnsignedConstraintOnVar: aZ3Variable [
+
+	^ self asZ3ConstraintOnVar: aZ3Variable 
+]
+
+{ #category : 'accessing' }
 DRPiNodeConstraint >> binaryConstraint: constraint on: aZ3Variable [
 
 	^ aZ3Variable

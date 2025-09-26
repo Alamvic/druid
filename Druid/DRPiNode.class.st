@@ -20,9 +20,16 @@ DRPiNode class >> constraint: aDRConditionalConstraint on: aDRValue [
 { #category : 'converting' }
 DRPiNode >> asZ3Constraint: aZ3Solver [
 
-	| var |
+	| var types useUnsigned |
 	var := aZ3Solver drValAsZ3Val: self ifUnsupported: [ ^ nil ].
-	^ constraint asZ3ConstraintOnVar: var
+	types := {
+		         self operand type.
+		         constraint otherValue asDRValue type }.
+	useUnsigned := (types allSatisfy: [ :e | e isIntegerType ]) and: [
+		               types anySatisfy: [ :e | e isUnsigned ] ].
+	^ useUnsigned
+		  ifTrue: [ constraint asZ3UnsignedConstraintOnVar: var ]
+		  ifFalse: [ constraint asZ3ConstraintOnVar: var ]
 ]
 
 { #category : 'testing' }

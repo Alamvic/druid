@@ -139,7 +139,7 @@ DRZ3ConstraintSolver >> visitAddition: aDRAdd [
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitBinaryOp: aDRInstruction with: selector [
 
-	| constraints res op1 op2 |
+	| constraints res op1 op2 afterOperation |
 	constraints := aDRInstruction operands do: [ :op |
 		               self addZ3ConstraintFrom: op ].
 
@@ -148,7 +148,11 @@ DRZ3ConstraintSolver >> visitBinaryOp: aDRInstruction with: selector [
 	op2 := self drValAsZ3Val: aDRInstruction operand2 ifUnsupported: [ ^ nil ].
 
 	self adaptSize: op1 with: op2 andDo: [ :op1 :op2 |
-		assertions add: res === (op1 perform: selector with: op2) ]
+		afterOperation := (op1 perform: selector with: op2).
+		self adaptSize: res with: afterOperation andDo: [ :_res :_afterOp |
+			assertions add: _res === _afterOp
+		]
+	]
 ]
 
 { #category : 'visiting' }
@@ -178,6 +182,12 @@ DRZ3ConstraintSolver >> visitCopy: aDRCopy [
 	assertions add: res === op.
 
 	aDRCopy isPiNode ifTrue: [ assertions add: (aDRCopy asZ3Constraint: self) ]
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitDivision: aDRDivision [
+
+	^ self visitBinaryOp: aDRDivision with: #/
 ]
 
 { #category : 'visiting' }
@@ -269,7 +279,9 @@ DRZ3ConstraintSolver >> visitPhiFunction: aDRPhiFunction [
 	phiReplacements at: aDRPhiFunction ifPresent: [ :phiReplacement | | replacementZ3 |
 		replacementZ3 := self drValAsZ3Val: phiReplacement ifUnsupported: [ ^ nil ].
 		self addZ3ConstraintFrom: phiReplacement.
-		assertions add: res === replacementZ3.
+		self adaptSize: res with: replacementZ3 andDo: [ :_res :_replacementZ3 |
+			assertions add: _res === _replacementZ3.
+		].
 		^ nil
 	].
 	
@@ -308,7 +320,8 @@ DRZ3ConstraintSolver >> visitUnsignedCoercion: aDRUnsignedCoercion [
 	op := self drValAsZ3Val: aDRUnsignedCoercion operand1 ifUnsupported: [ ^ nil ].
 
 	"Z3 bitvectors are unsigned, and you treat them as positive/negative when you operate on them"
-	assertions add: res === op
+	self adaptSize: res with: op andDo: [ :_res :_op | assertions add: _res === _op ]
+	
 ]
 
 { #category : 'visiting' }
