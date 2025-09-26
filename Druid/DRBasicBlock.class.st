@@ -978,6 +978,12 @@ DRBasicBlock >> loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock
 	loopBodyBlock backJumpTo: self
 ]
 
+{ #category : 'accessing' }
+DRBasicBlock >> mark [
+
+	controlFlowGraph markBlock: self.
+]
+
 { #category : 'splitting' }
 DRBasicBlock >> mergeInstructionsWithDuplicatedBlock: duplicatedBlock withSuccessors: successors usingUsers: getUsersBlock dominatedBlocks: dominatedBlocks [
 
@@ -1490,6 +1496,12 @@ DRBasicBlock >> tailDuplicate [
 DRBasicBlock >> third [
 	
 	^ self allInstructions third
+]
+
+{ #category : 'accessing' }
+DRBasicBlock >> unmark [
+
+	controlFlowGraph unmarkBlock: self.
 ]
 
 { #category : 'validating' }

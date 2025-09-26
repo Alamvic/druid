@@ -15,7 +15,8 @@ Class {
 		'dominatorTree',
 		'postDominatorTree',
 		'deadBranches',
-		'numArgs'
+		'numArgs',
+		'markedBlocks'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -322,7 +323,7 @@ DRControlFlowGraph >> configureVisualization: view [
 { #category : 'inspecting' }
 DRControlFlowGraph >> createBlockView: aBlock [
 
-	| box label boxes composite labelBackground |
+	| box label boxes composite labelBackground borderColor |
 	label := RSLabel new
 		         text: aBlock id asString;
 		         color: Color black;
@@ -333,11 +334,14 @@ DRControlFlowGraph >> createBlockView: aBlock [
 		                   border: (RSBorder new color: 'black');
 		                   radius: (label extent x max: label extent y) - 2;
 		                   yourself.
+	borderColor := (markedBlocks includes: aBlock)
+		ifTrue: [ Color red ]
+		ifFalse: [ Color black ].
 	box := RSBox new
 		       noPaint;
 		       border: (RSBorder new
 				        width: 2;
-				        color: Color black;
+				        color: borderColor;
 				        yourself);
 		       cornerRadius: 2;
 		       yourself.
@@ -551,7 +555,9 @@ DRControlFlowGraph >> initialize [
 
 	nextBasicBlockId := 0.
 	initialBasicBlock := self privateNewBasicBlock.
-	numArgs := 0
+	numArgs := 0.
+
+	markedBlocks := Set new.
 	
 ]
 
@@ -669,6 +675,12 @@ DRControlFlowGraph >> lastPaths [
 DRControlFlowGraph >> leafBlocks [
 
 	^ self blocks select: [ :b | b endInstruction isNoop ]
+]
+
+{ #category : 'edges' }
+DRControlFlowGraph >> markBlock: aBlock [
+
+	markedBlocks add: aBlock
 ]
 
 { #category : 'accessing' }
@@ -967,6 +979,12 @@ DRControlFlowGraph >> temporaryVariableNames [
 DRControlFlowGraph >> tree: anObject [
 
 	dominatorTree := anObject
+]
+
+{ #category : 'edges' }
+DRControlFlowGraph >> unmarkBlock: aBlock [
+
+	markedBlocks remove: aBlock
 ]
 
 { #category : 'validating' }
