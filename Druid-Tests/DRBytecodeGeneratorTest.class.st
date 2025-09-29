@@ -159,7 +159,7 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 	bytecodeGenerator numArgs: numArgs.
 	bytecodeGenerator methodName: selector.
 	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.
-	
+	1 halt.
 	^ bytecodeGenerator targetAST
 ]
 
@@ -253,6 +253,12 @@ DRBytecodeGeneratorTest >> testMethodInlineToDoInner [
 DRBytecodeGeneratorTest >> testMethodManyReturns [
 
 	self assertCompilationFor: #methodWithThreeNonLocalReturn fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodReadingClassVariable [
+
+	self assertCompilationFor: #methodReadingClassVariable fromClass: DruidTestInterpreter
 ]
 
 { #category : 'tests' }
@@ -550,6 +556,12 @@ DRBytecodeGeneratorTest >> testMethodWithBlockWritingVar [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithDynamicArray [
+
+	self assertCompilationFor: #methodWithDynamicArray fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithEarlyReturn [
 
 	| method result |
@@ -591,6 +603,12 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWritingClassVariable [
+
+	self assertCompilationFor: #methodWritingClassVariable fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalBooleanMethods [
 
 	OCOpalExamples methods
@@ -605,6 +623,26 @@ DRBytecodeGeneratorTest >> testOpalConditionalMethods [
 
 	OCOpalExamples methods
 		select: [ :opalMethod | opalMethod protocolName = #'examples - conditionals' ]
+		thenDo: [ :opalMethod | 
+			self setUp.
+			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testOpalLiteralMethods [
+
+	OCOpalExamples methods
+		select: [ :opalMethod | opalMethod protocolName = #'examples - literals' ]
+		thenDo: [ :opalMethod | 
+			self setUp.
+			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testOpalMiscMethods [
+
+	OCOpalExamples methods
+		select: [ :opalMethod | opalMethod protocolName = #'examples - misc' ]
 		thenDo: [ :opalMethod | 
 			self setUp.
 			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
