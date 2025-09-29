@@ -15,7 +15,7 @@ DRPiZ3DeadBranchElimination class >> withUndefinedBehaviour: ub [
 	^ self new withUndefinedBehaviour: ub
 ]
 
-{ #category : 'accessing' }
+{ #category : 'operations' }
 DRPiZ3DeadBranchElimination >> applyTo: cfg [
 
 	solver := DRZ3ConstraintSolver
@@ -25,7 +25,7 @@ DRPiZ3DeadBranchElimination >> applyTo: cfg [
 	super applyTo: cfg
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'initialization' }
 DRPiZ3DeadBranchElimination >> withUndefinedBehaviour: ub [
 
 	signedIntOverflowIsUB := ub

@@ -63,7 +63,7 @@ DRABCDConstraintSolver >> initializeFor: aDRControlFlowGraph [
 
 ]
 
-{ #category : 'testing' }
+{ #category : 'solving' }
 DRABCDConstraintSolver >> isSatisfiable: aDRPiNode [
 	"TODO - for unsupported constraints, return true
 			- do we need different ABCD subclasses for upper/lower bounds checks?"
@@ -95,7 +95,7 @@ DRABCDConstraintSolver >> isSatisfiable: aDRPiNode [
 		   isLessThan: minABCDDistanceToBeSatisfiable) = -1
 ]
 
-{ #category : 'building - graph' }
+{ #category : 'solving' }
 DRABCDConstraintSolver >> piNodesOriginalVariable: aDRValue [
 
 	| val |
@@ -104,7 +104,7 @@ DRABCDConstraintSolver >> piNodesOriginalVariable: aDRValue [
 	^ val
 ]
 
-{ #category : 'building - graph' }
+{ #category : 'solving' }
 DRABCDConstraintSolver >> processAdd: aDRValue [
 
 	| ops |
@@ -118,7 +118,7 @@ DRABCDConstraintSolver >> processAdd: aDRValue [
 			ops second value }
 ]
 
-{ #category : 'building - graph' }
+{ #category : 'solving' }
 DRABCDConstraintSolver >> processCopy: aDRValue [
 	"Remember a PiNode is a Copy too"
 
@@ -132,7 +132,7 @@ DRABCDConstraintSolver >> processCopy: aDRValue [
 	aDRValue isPiNode ifTrue: [ self processPiNode: aDRValue ]
 ]
 
-{ #category : 'building - graph' }
+{ #category : 'solving' }
 DRABCDConstraintSolver >> processPiNode: aDRPiNode [
 
 	| constraint distance |
@@ -150,7 +150,7 @@ DRABCDConstraintSolver >> processPiNode: aDRPiNode [
 
 ]
 
-{ #category : 'building - graph' }
+{ #category : 'solving' }
 DRABCDConstraintSolver >> processSub: aDRValue [
 
 	| ops |
@@ -163,7 +163,7 @@ DRABCDConstraintSolver >> processSub: aDRValue [
 			ops second value negated }
 ]
 
-{ #category : 'building - graph' }
+{ #category : 'solving' }
 DRABCDConstraintSolver >> processValue: aDRValue [
 
 	aDRValue isAdd ifTrue: [ ^ self processAdd: aDRValue ].

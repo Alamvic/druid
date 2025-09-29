@@ -9,18 +9,18 @@ Class {
 	#tag : 'IR-Paths'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'initialization' }
 DRConstraintSolver >> initialize [
 
 	phiReplacements := Dictionary new.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'solving' }
 DRConstraintSolver >> isSatisfiable: aDRPiNode [ 
 	^ self subclassResponsibility
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'solving' }
 DRConstraintSolver >> isSatisfiable: aDRPiNode replacingPhi: phi for: phiOp [
 
 	^ self
@@ -28,7 +28,7 @@ DRConstraintSolver >> isSatisfiable: aDRPiNode replacingPhi: phi for: phiOp [
 		  replacingPhis: (Dictionary newFrom: { (phi -> phiOp) })
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'solving' }
 DRConstraintSolver >> isSatisfiable: aDRPiNode replacingPhis: aDictionary [
 
 	| retval |

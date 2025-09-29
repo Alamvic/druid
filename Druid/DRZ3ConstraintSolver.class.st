@@ -26,7 +26,7 @@ DRZ3ConstraintSolver class >> for: aDRControlFlowGraph signedIntOverflowIsUB: aB
 	^ self new for: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'z3' }
 DRZ3ConstraintSolver >> adaptSize: op1 with: op2 andDo: aBlock [
 	| _op1 _op2 |
 	op1 isBitVector ifFalse: [ ^ aBlock value: op1 value: op2 ].
@@ -40,13 +40,13 @@ DRZ3ConstraintSolver >> adaptSize: op1 with: op2 andDo: aBlock [
 	
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'solving' }
 DRZ3ConstraintSolver >> addZ3ConstraintFrom: aDRValue [
 
 	aDRValue acceptVisitor: self
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'z3' }
 DRZ3ConstraintSolver >> drValAsZ3Val: aDRValue ifUnsupported: aBlock [
 
 	| converter |
@@ -71,7 +71,7 @@ DRZ3ConstraintSolver >> for: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean
 	useFloats := false.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'z3' }
 DRZ3ConstraintSolver >> getZ3ValueConverterFor: type ifUnsupported: aBlock [
 
 	type isIntegerType ifTrue: [
@@ -87,7 +87,7 @@ DRZ3ConstraintSolver >> getZ3ValueConverterFor: type ifUnsupported: aBlock [
 	self error: 'Unsupported type'
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'solving' }
 DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode [
 
 	| solver retval |
@@ -105,7 +105,7 @@ DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode [
 	^ retval ifNil: [ true ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'solving' }
 DRZ3ConstraintSolver >> recurseOnlyPis: aDRValue addingConstraintsOn: varForConstraints [
 
 	| currentVal constraint |

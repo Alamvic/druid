@@ -11,7 +11,7 @@ Class {
 	#tag : 'Optimizations'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'analysis' }
 DRPiDeadBranchElimination >> addSuccessorsToWorklist: aDRBasicBlock [
 
 	| tail |
@@ -26,7 +26,7 @@ DRPiDeadBranchElimination >> addSuccessorsToWorklist: aDRBasicBlock [
 		]
 ]
 
-{ #category : 'accessing' }
+{ #category : 'operations' }
 DRPiDeadBranchElimination >> applyTo: cfg [
 
 	| deadEdges |
@@ -44,7 +44,7 @@ DRPiDeadBranchElimination >> applyTo: cfg [
 		DRDeadBlockElimination new applyTo: cfg]
 ]
 
-{ #category : 'accessing' }
+{ #category : 'analysis' }
 DRPiDeadBranchElimination >> computeDeadEdges [
 
 	| deadEdges |
@@ -61,7 +61,7 @@ DRPiDeadBranchElimination >> computeDeadEdges [
 	^ deadEdges
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'analysis' }
 DRPiDeadBranchElimination >> directSuccessorsOf: aDRBasicBlock do: aBlock [
 
 	| current |
@@ -77,14 +77,14 @@ DRPiDeadBranchElimination >> directSuccessorsOf: aDRBasicBlock do: aBlock [
 	] whileTrue
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'analysis' }
 DRPiDeadBranchElimination >> isAlive: aDREdge [
 
 	^ self isReachable: aDREdge destination from: aDREdge source.
 
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'analysis' }
 DRPiDeadBranchElimination >> isReachable: destinationBlock from: sourceBlock [
 
 	| phiReplacements i |
@@ -99,7 +99,7 @@ DRPiDeadBranchElimination >> isReachable: destinationBlock from: sourceBlock [
 		solver isSatisfiable: pi replacingPhis: phiReplacements ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'analysis' }
 DRPiDeadBranchElimination >> piNodesOfBranchWithHeader: aDRBasicBlock [
 
 	| piNodes |
@@ -117,7 +117,7 @@ DRPiDeadBranchElimination >> removeUnnecessaryConditionalJumps: deadEdges [
 	deadEdges do: #kill
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'analysis' }
 DRPiDeadBranchElimination >> tailOfBranchWithHeader: aDRBasicBlock [
 
 	| tail |

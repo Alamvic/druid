@@ -77,7 +77,7 @@ DRGetConditionCode >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : 'types' }
-DRGetConditionCode >> typeWithAlreadySeen: _ [
+DRGetConditionCode >> typeWithAlreadySeen: aCollection [
 	
 	^ DRBooleanType new
 ]

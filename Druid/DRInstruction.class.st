@@ -769,7 +769,7 @@ DRInstruction >> supportConstantOperand [
 ]
 
 { #category : 'types' }
-DRInstruction >> typeWithAlreadySeen: _ [
+DRInstruction >> typeWithAlreadySeen: aCollection [
 
 	^ DRSignedIntegerType size: 8 "Word size"
 ]

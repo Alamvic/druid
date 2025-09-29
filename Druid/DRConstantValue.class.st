@@ -137,7 +137,7 @@ DRConstantValue >> simpleConstantFold [
 ]
 
 { #category : 'types' }
-DRConstantValue >> typeWithAlreadySeen: _ [
+DRConstantValue >> typeWithAlreadySeen: aCollection [
 
 	value = nil ifTrue: [ ^ DRUndefinedType new ].
 	(#( true false ) includes: value) ifTrue: [ ^ DRBooleanType new ].

@@ -9,8 +9,7 @@ Class {
 { #category : 'arithmetic' }
 DRPiNoneMaskConstraint >> asZ3ConstraintOnVar: aZ3Variable [
 
-	^ (aZ3Variable bitAnd: (self ifConstantDo: #yourself ifNot: #name))
-	  === 0
+	^ (aZ3Variable bitAnd: self z3VarName) === 0
 ]
 
 { #category : 'accessing' }

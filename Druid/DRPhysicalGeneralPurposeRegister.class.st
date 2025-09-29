@@ -61,7 +61,7 @@ DRPhysicalGeneralPurposeRegister >> takeFromAllocator: aRegisterAllocator [
 ]
 
 { #category : 'types' }
-DRPhysicalGeneralPurposeRegister >> typeWithAlreadySeen: _ [
+DRPhysicalGeneralPurposeRegister >> typeWithAlreadySeen: aCollection [
 
 	^ DRSignedIntegerType size: 8 "Word size"
 ]

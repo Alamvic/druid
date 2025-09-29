@@ -9,7 +9,7 @@ Class {
 	#tag : 'IR-Paths'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'solving' }
 DRConstantConstraintSolver >> collectConstraintsFrom: aDRValue [
 
 	(aDRValue isNumberValue or: aDRValue value isBooleanValue) ifTrue: [
@@ -40,13 +40,13 @@ DRConstantConstraintSolver >> collectConstraintsFrom: aDRValue [
 	^ DRFullConstraint new
 ]
 
-{ #category : 'testing' }
+{ #category : 'solving' }
 DRConstantConstraintSolver >> isConstraint: piNodeConstraint satisfiableWith: collectedConstraint [
 
 	^ (piNodeConstraint negated includes: collectedConstraint) not
 ]
 
-{ #category : 'testing' }
+{ #category : 'solving' }
 DRConstantConstraintSolver >> isSatisfiable: aDRPiNode [
 
 	| constraint |
@@ -55,7 +55,7 @@ DRConstantConstraintSolver >> isSatisfiable: aDRPiNode [
 	^ self isSatisfiable: constraint onVar: aDRPiNode operand
 ]
 
-{ #category : 'testing' }
+{ #category : 'solving' }
 DRConstantConstraintSolver >> isSatisfiable: piNodeConstraint onVar: constrainedVariable [
 
 	| collectedConstraint |

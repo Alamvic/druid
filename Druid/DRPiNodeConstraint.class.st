@@ -53,10 +53,7 @@ DRPiNodeConstraint >> asZ3UnsignedConstraintOnVar: aZ3Variable [
 { #category : 'accessing' }
 DRPiNodeConstraint >> binaryConstraint: constraint on: aZ3Variable [
 
-	^ aZ3Variable
-		  perform: constraint
-		  with:
-		  (self ifConstantDo: #yourself ifNot: #name)
+	^ aZ3Variable perform: constraint with: self z3VarName
 ]
 
 { #category : 'accessing' }
@@ -139,4 +136,10 @@ DRPiNodeConstraint >> replaceOperand: anOperand by: anotherOperand [
 DRPiNodeConstraint >> reversed [
 
 	self subclassResponsibility
+]
+
+{ #category : 'accessing' }
+DRPiNodeConstraint >> z3VarName [
+
+	^ self ifConstantDo: #yourself ifNot: #name
 ]
