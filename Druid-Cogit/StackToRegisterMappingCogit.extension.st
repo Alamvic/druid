@@ -11,6 +11,11 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 
 	| optimisations |
 	optimisations := OrderedCollection new.
+	optimisations add: (DRPhiSimplication then: DRCopyPropagation).
+	optimisations add: (DRPhiSimplication then: DRCopyPropagation).
+	optimisations add: DRDeadCodeElimination.
+	optimisations add: DRBranchCollapse.
+	optimisations add: DRSCCP.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
 
 	optimisations add: DRCogitStackCoalescing new.
