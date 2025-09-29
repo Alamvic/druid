@@ -112,10 +112,10 @@ DRPiNode >> replaceDependency: anOperand by: anotherOperand [
 
 	self replaceOperand: anOperand by: anotherOperand.
 
-	constraint ifConstantDo: [  ] ifNot: [ :val |
+	constraint ifImmediateConstantDo: [  ] ifNot: [ :val |
 		val = anOperand ifTrue: [| newConstraint |
 			newConstraint := constraint class withValue: anotherOperand.
 			constraint := newConstraint.
-			constraint addUserOfValues: self ]
+		]
 	]
 ]

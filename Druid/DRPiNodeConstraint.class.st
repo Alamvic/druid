@@ -33,7 +33,9 @@ DRPiNodeConstraint >> asConstantConstraint [
 { #category : 'converting' }
 DRPiNodeConstraint >> asDependencyList [
 
-	^ self ifConstantDo: [ {  } ] ifNot: #asDependencyList
+	^ self
+		  ifImmediateConstantDo: [ {  } ]
+		  ifNot: [ otherValue asDependencyList ]
 ]
 
 { #category : 'accessing' }
@@ -80,6 +82,14 @@ DRPiNodeConstraint >> ifConstantDo: trueBlock ifNot: falseBlock [
 
 	(val isNumber or: val isBooleanValue)
 		ifTrue: [ ^ trueBlock cull: val ]
+		ifFalse: [ ^ falseBlock cull: otherValue ]
+]
+
+{ #category : 'adding' }
+DRPiNodeConstraint >> ifImmediateConstantDo: trueBlock ifNot: falseBlock [
+
+	(otherValue isConstant)
+		ifTrue: [ ^ trueBlock cull: otherValue value ]
 		ifFalse: [ ^ falseBlock cull: otherValue ]
 ]
 
