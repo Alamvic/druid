@@ -6,7 +6,8 @@ Class {
 		'memo',
 		'assertions',
 		'ctxt',
-		'signedIntOverflowIsUB'
+		'signedIntOverflowIsUB',
+		'useFloats'
 	],
 	#category : 'Druid-IR-Paths',
 	#package : 'Druid',
@@ -66,6 +67,8 @@ DRZ3ConstraintSolver >> for: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean
 	memo := IdentityDictionary new.
 	
 	signedIntOverflowIsUB := aBoolean.
+	
+	useFloats := false.
 ]
 
 { #category : 'as yet unclassified' }
@@ -76,7 +79,8 @@ DRZ3ConstraintSolver >> getZ3ValueConverterFor: type ifUnsupported: aBlock [
 
 	type isBooleanType ifTrue: [ ^ [ :val | val toBool ] ].
 
-	type isFloatType ifTrue: [ "TODO MachineArithmetic doesn't have floats yet? only Reals" ].
+	(useFloats and: [ type isFloatType ]) ifTrue: [
+		^ [ :val | val toFloatingPoint: type numberOfBits ] ].
 
 	(type isUndefined or: [ type isFloatType ]) ifTrue: [ ^ aBlock value ].
 
@@ -139,9 +143,8 @@ DRZ3ConstraintSolver >> visitAddition: aDRAdd [
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitBinaryOp: aDRInstruction with: selector [
 
-	| constraints res op1 op2 afterOperation |
-	constraints := aDRInstruction operands do: [ :op |
-		               self addZ3ConstraintFrom: op ].
+	| res op1 op2 afterOperation |
+	aDRInstruction operands do: [ :op | self addZ3ConstraintFrom: op ].
 
 	res := self drValAsZ3Val: aDRInstruction ifUnsupported: [ ^ nil ].
 	op1 := self drValAsZ3Val: aDRInstruction operand1 ifUnsupported: [ ^ nil ].
@@ -218,7 +221,40 @@ DRZ3ConstraintSolver >> visitGetConditionCode: aDRGetConditionCode [
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitGetFloatBits: aDRGetFloatBits [
 
-	"TODO I think MachineArithmetic doesn't have floats yet? only Reals"
+	| res op1 |
+	res := self drValAsZ3Val: aDRGetFloatBits ifUnsupported: [ ^ nil ].
+	self addZ3ConstraintFrom: aDRGetFloatBits operand1.
+	
+	op1 := self
+		       drValAsZ3Val: aDRGetFloatBits operand1
+		       ifUnsupported: [ ^ nil ].
+	assertions add: res === op1 toBitVector
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitGetFloatFromBits: aDRGetFloatFromBits [
+
+	| res op1 sort opAsFloat |
+	res := self
+		       drValAsZ3Val: aDRGetFloatFromBits
+		       ifUnsupported: [ ^ nil ].
+	op1 := self
+		       drValAsZ3Val: aDRGetFloatFromBits operand1
+		       ifUnsupported: [ ^ nil ].
+	op1 sort length ~= 64 ifTrue: [
+		self error.
+		"op1 := op1 zeroExtend: 64 - op1 sort length" ].
+	self addZ3ConstraintFrom: aDRGetFloatFromBits operand1.
+
+	sort := ctxt mkFloatingPointSort64.
+	opAsFloat := (Z3 mk_fpa_to_fp_bv: ctxt _: op1 _: sort) simplify.
+	assertions add: res === opAsFloat
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitIntToFloatConversion: aDRIntToFloat [
+
+	self flag: #TODO
 ]
 
 { #category : 'visiting' }
@@ -263,6 +299,12 @@ DRZ3ConstraintSolver >> visitLoadFramePointer: aDRLoadFramePointer [
 
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitLoadReceiver: _ [
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitMultiply: aDRMultiply [
+
+	^ self visitBinaryOp: aDRMultiply with: #*
 ]
 
 { #category : 'visiting' }
