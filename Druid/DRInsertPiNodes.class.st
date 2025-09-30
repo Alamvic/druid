@@ -7,11 +7,48 @@ Class {
 }
 
 { #category : 'accessing' }
+DRInsertPiNodes >> addCustomization: constraint forInstruction: i [
+
+	| basicBlock piNode cfg |
+	basicBlock := i basicBlock.
+	cfg := basicBlock cfg.
+	piNode := (DRPiNode
+		           constraint:
+			           (DRPiAnyMaskConstraint withValue:
+					            constraint constantValue asDRValue)
+		           on: i)
+		          result: cfg instructionFactory allocateTemporaryRegister;
+		          yourself.
+	basicBlock addInstruction: piNode.
+	piNode operand users copy
+		reject: [ :u | u = piNode ]
+		thenDo: [ :user |
+		user replaceOperandIfDominated: piNode operand by: piNode ]
+]
+
+{ #category : 'accessing' }
+DRInsertPiNodes >> addPisForCustomizations: cfg [
+
+	| constraint initConstraint |
+	cfg initialContrainst ifNil: [ ^ self ].
+
+	initConstraint := cfg initialContrainst.
+	"We only support Receiver Constraints for now"
+	self assert: (initConstraint isKindOf: DRReceiverConstraint).
+	self assert: (initConstraint constraint isKindOf: DREqualsConstraint).
+	constraint := initConstraint constraint.
+
+	cfg instructionsDo: [ :i |
+		i isLoadReceiver ifTrue: [
+			self addCustomization: constraint forInstruction: i ] ]
+]
+
+{ #category : 'accessing' }
 DRInsertPiNodes >> applyTo: cfg [
 
-	cfg allConditionalJumps do: [ :jump |
-		self insertPiNodesFor: jump
-	]
+	self addPisForCustomizations: cfg.
+
+	cfg allConditionalJumps do: [ :jump | self insertPiNodesFor: jump ]
 ]
 
 { #category : 'enumerating' }

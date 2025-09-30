@@ -29,6 +29,11 @@ DRReceiverConstraint >> addToEdge: aDRCPSEdge [
 ]
 
 { #category : 'accessing' }
+DRReceiverConstraint >> constraint [
+	^ constraint
+]
+
+{ #category : 'accessing' }
 DRReceiverConstraint >> constraint: aDREqualsConstraint [ 
 	constraint := aDREqualsConstraint
 ]
