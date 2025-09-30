@@ -517,10 +517,15 @@ DRBytecodeIRGenerator >> visitClassVariableNode: aRBVariableNode [
 				              type: (DRUnsignedIntegerType size: 8);
 				              yourself)).
 		            ('IMMUTABILITY' -> true asDRValue) } asDictionary.
-	value := mappings at: name ifAbsent: [
-		         (DRInterpreterReference reference: name)
-			         type: (DRUnsignedIntegerType size: 8);
-			         yourself ].
+	
+	value := mappings at: name ifAbsent: [ | variableValue variableType |
+			variableValue := aRBVariableNode variable value.
+			variableType := variableValue isBooleanValue
+				ifTrue: [ DRBooleanType new ]
+				ifFalse: [ (DRUnsignedIntegerType size: 8) ].
+	         (DRInterpreterReference reference: name)
+		         type: variableType;
+		         yourself ].
 	^ self
 		  addInstructionFrom: aRBVariableNode
 		  instructionKind: DRCopy

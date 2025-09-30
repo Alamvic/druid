@@ -73,12 +73,12 @@ DRPiNodeConstraint >> ifConstantDo: trueBlock ifNot: falseBlock [
 
 	| val |
 	val := otherValue asDRValue.
-	(val isConstant or: [val isCopy]) ifTrue: [
-		val := val simpleConstantFold value.
+	val isCopy ifTrue: [
+		val := val simpleConstantFold asDRValue.
 	].
 
-	(val isNumber or: val isBooleanValue)
-		ifTrue: [ ^ trueBlock cull: val ]
+	(val isConstant and: [ val value isNotNil ])
+		ifTrue: [ ^ trueBlock cull: val value ]
 		ifFalse: [ ^ falseBlock cull: otherValue ]
 ]
 
