@@ -29,16 +29,31 @@ DRZ3ConstraintSolver class >> for: aDRControlFlowGraph signedIntOverflowIsUB: aB
 
 { #category : 'z3' }
 DRZ3ConstraintSolver >> adaptSize: op1 with: op2 andDo: aBlock [
-	| _op1 _op2 |
-	op1 isBitVector ifFalse: [ ^ aBlock value: op1 value: op2 ].
 	
+	^ self adaptSize: op1 with: op2 signed: false andDo: aBlock
+]
+
+{ #category : 'z3' }
+DRZ3ConstraintSolver >> adaptSize: op1 with: op2 signed: aBoolean andDo: aBlock [
+
+	| _op1 _op2 selector |
+	op1 isBitVector ifFalse: [ ^ aBlock value: op1 value: op2 ].
+
+	selector := aBoolean
+		            ifTrue: [ #signExtend: ]
+		            ifFalse: [ #zeroExtend: ].
 	_op1 := op1.
 	_op2 := op2.
-	op1 sort length < op2 sort length ifTrue: [ _op1 := op1 "signExtend:" zeroExtend: op2 sort length - op1 sort length ].
-	op2 sort length < op1 sort length ifTrue: [ _op2 := op2 "signExtend:" zeroExtend: op1 sort length - op2 sort length ].
-	
-	^ aBlock value: _op1 value: _op2.
-	
+	op1 sort length < op2 sort length ifTrue: [
+		_op1 := op1
+			        perform: selector
+			        with: op2 sort length - op1 sort length ].
+	op2 sort length < op1 sort length ifTrue: [
+		_op2 := op2
+			        perform: selector
+			        with: op1 sort length - op2 sort length ].
+
+	^ aBlock value: _op1 value: _op2
 ]
 
 { #category : 'solving' }
@@ -155,15 +170,24 @@ DRZ3ConstraintSolver >> visitBinaryOp: aDRInstruction with: selector [
 	aDRInstruction operands do: [ :op | self addZ3ConstraintFrom: op ].
 
 	res := self drValAsZ3Val: aDRInstruction ifUnsupported: [ ^ nil ].
-	op1 := self drValAsZ3Val: aDRInstruction operand1 ifUnsupported: [ ^ nil ].
-	op2 := self drValAsZ3Val: aDRInstruction operand2 ifUnsupported: [ ^ nil ].
+	op1 := self
+		       drValAsZ3Val: aDRInstruction operand1
+		       ifUnsupported: [ ^ nil ].
+	op2 := self
+		       drValAsZ3Val: aDRInstruction operand2
+		       ifUnsupported: [ ^ nil ].
 
-	self adaptSize: op1 with: op2 andDo: [ :op1 :op2 |
-		afterOperation := (op1 perform: selector with: op2).
-		self adaptSize: res with: afterOperation andDo: [ :_res :_afterOp |
-			assertions add: _res === _afterOp
-		]
-	]
+	self
+		adaptSize: op1
+		with: op2
+		signed: aDRInstruction type isSigned
+		andDo: [ :adaptedOp1 :adaptedOp2 |
+			afterOperation := adaptedOp1 perform: selector with: adaptedOp2.
+			self
+				adaptSize: res
+				with: afterOperation
+				signed: aDRInstruction type isSigned
+				andDo: [ :_res :_afterOp | assertions add: _res === _afterOp ] ]
 ]
 
 { #category : 'visiting' }
@@ -176,6 +200,11 @@ DRZ3ConstraintSolver >> visitBitAnd: aDRBitAnd [
 DRZ3ConstraintSolver >> visitBitXor: aDRBitXor [ 
 	
 	^ self visitBinaryOp: aDRBitXor with: #bitXor:
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitCall: aDRCall [ 
+	
 ]
 
 { #category : 'visiting' }
@@ -316,6 +345,12 @@ DRZ3ConstraintSolver >> visitLoadReceiver: _ [
 ]
 
 { #category : 'visiting' }
+DRZ3ConstraintSolver >> visitLoadStackPointer: aDRLoadStackPointer [ 
+	
+	"Nothing"
+]
+
+{ #category : 'visiting' }
 DRZ3ConstraintSolver >> visitLoadStackValue: aDRLoadStackValue [ 
 	self visitLoad: aDRLoadStackValue 
 ]
@@ -349,9 +384,12 @@ DRZ3ConstraintSolver >> visitPhiFunction: aDRPhiFunction [
 		phiReplacements at: aDRPhiFunction ifPresent: [ :phiReplacement | | replacementZ3 |
 			replacementZ3 := self drValAsZ3Val: phiReplacement ifUnsupported: [ ^ nil ].
 			self addZ3ConstraintFrom: phiReplacement.
-			self adaptSize: res with: replacementZ3 andDo: [ :_res :_replacementZ3 |
-				assertions add: _res === _replacementZ3.
-			].
+			self
+				adaptSize: res
+				with: replacementZ3
+				signed: aDRPhiFunction type isSigned
+				andDo: [ :_res :_replacementZ3 |
+					assertions add: _res === _replacementZ3 ].
 			^ nil
 		].
 	
@@ -361,6 +399,19 @@ DRZ3ConstraintSolver >> visitPhiFunction: aDRPhiFunction [
 
 		assertions add: (opsConstraints reduce: [ :a :b | a or: b ])
 	]
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitSignedCoercion: aDRSignedCoercion [
+	
+	| res op |
+	res := self drValAsZ3Val: aDRSignedCoercion ifUnsupported: [ ^ nil ].
+	op := self drValAsZ3Val: aDRSignedCoercion operand1 ifUnsupported: [ ^ nil ].
+
+	"Z3 bitvectors are unsigned, and you treat them as positive/negative when you operate on them"
+	self adaptSize: res with: op signed: true andDo: [ :_res :_op | assertions add: _res === _op ].
+	
+	self addZ3ConstraintFrom: aDRSignedCoercion operand1.
 ]
 
 { #category : 'visiting' }
@@ -391,7 +442,9 @@ DRZ3ConstraintSolver >> visitUnsignedCoercion: aDRUnsignedCoercion [
 	op := self drValAsZ3Val: aDRUnsignedCoercion operand1 ifUnsupported: [ ^ nil ].
 
 	"Z3 bitvectors are unsigned, and you treat them as positive/negative when you operate on them"
-	self adaptSize: res with: op andDo: [ :_res :_op | assertions add: _res === _op ]
+	self adaptSize: res with: op signed: false andDo: [ :_res :_op | assertions add: _res === _op ].
+	
+	self addZ3ConstraintFrom: aDRUnsignedCoercion operand1.
 	
 ]
 
