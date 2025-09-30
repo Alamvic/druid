@@ -11,7 +11,7 @@ DRInsertPiNodes >> addCustomization: constraint forInstruction: i [
 
 	| basicBlock piNode cfg |
 	basicBlock := i basicBlock.
-	cfg := basicBlock cfg.
+	cfg := basicBlock controlFlowGraph.
 	piNode := (DRPiNode
 		           constraint:
 			           (DRPiAnyMaskConstraint withValue:

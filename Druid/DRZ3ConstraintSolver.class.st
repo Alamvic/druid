@@ -375,8 +375,10 @@ DRZ3ConstraintSolver >> visitNullValue: _ [
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitPhiFunction: aDRPhiFunction [
 
-	| res opsConstraints |
+	| res opsConstraints type |
 	(visitedPhis includes: aDRPhiFunction) ifTrue: [ ^nil ].
+	
+	type := aDRPhiFunction type.
 	self visitingPhi: aDRPhiFunction do: [
 		res := self drValAsZ3Val: aDRPhiFunction ifUnsupported: [ ^ nil ].
 
@@ -387,7 +389,7 @@ DRZ3ConstraintSolver >> visitPhiFunction: aDRPhiFunction [
 			self
 				adaptSize: res
 				with: replacementZ3
-				signed: aDRPhiFunction type isSigned
+				signed: (type isIntegerType and: [ type isSigned])
 				andDo: [ :_res :_replacementZ3 |
 					assertions add: _res === _replacementZ3 ].
 			^ nil

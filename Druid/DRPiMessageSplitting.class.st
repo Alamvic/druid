@@ -100,9 +100,15 @@ DRPiMessageSplitting >> trySplitPhi: aDRPhiFunction toIndex: operandIdx with: aD
 		 andDestination: aDRPhiFunction basicBlock) isBackJump ifTrue: [
 		^ self ].
 
-	"Evaluate profitability"
-	(solver isSatisfiable: aDRPiNode replacingPhi: aDRPhiFunction for: op)
-		ifTrue: [ ^ self ].
+	"Evaluate profitability.
+	Split if either 
+	 - the operands is a setConditionCode instruction (for better code gen)
+	 - the branch is not satisfiable for that operand"
+	(op isSetConditionCode not and: [
+		 solver
+			 isSatisfiable: aDRPiNode
+			 replacingPhi: aDRPhiFunction
+			 for: op ]) ifTrue: [ ^ self ].
 
 	aDRPhiFunction basicBlock splitTo: predecessor.
 	aBlock value
