@@ -7,7 +7,7 @@ Class {
 }
 
 { #category : 'types' }
-DRAbstractLoad >> typeWithAlreadySeen: _ [
+DRAbstractLoad >> typeWithAlreadySeen: aCollection [
 
 	^ self subclassResponsibility
 ]

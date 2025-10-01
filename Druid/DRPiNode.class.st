@@ -20,9 +20,16 @@ DRPiNode class >> constraint: aDRConditionalConstraint on: aDRValue [
 { #category : 'converting' }
 DRPiNode >> asZ3Constraint: aZ3Solver [
 
-	| var |
+	| var types useUnsigned |
 	var := aZ3Solver drValAsZ3Val: self ifUnsupported: [ ^ nil ].
-	^ constraint asZ3ConstraintOnVar: var
+	types := {
+		         self operand type.
+		         constraint otherValue asDRValue type }.
+	useUnsigned := (types allSatisfy: [ :e | e isIntegerType ]) and: [
+		               types anySatisfy: [ :e | e isUnsigned ] ].
+	^ useUnsigned
+		  ifTrue: [ constraint asZ3UnsignedConstraintOnVar: var ]
+		  ifFalse: [ constraint asZ3ConstraintOnVar: var ]
 ]
 
 { #category : 'testing' }
@@ -65,6 +72,13 @@ DRPiNode >> opcode [
 	^ 'π'
 ]
 
+{ #category : 'replacing' }
+DRPiNode >> postCopy [ 
+
+	super postCopy.
+	constraint := constraint copy.
+]
+
 { #category : 'printing' }
 DRPiNode >> prettyPrint [
 
@@ -93,10 +107,15 @@ DRPiNode >> removeFromCFG [
 
 ]
 
-{ #category : 'replacing' }
-DRPiNode >> replaceOperand: anOperand by: anotherOperand [
+{ #category : 'testing' }
+DRPiNode >> replaceDependency: anOperand by: anotherOperand [
 
-	super replaceOperand: anOperand by: anotherOperand.
-	
-	constraint replaceOperand: anOperand by: anotherOperand.
+	self replaceOperand: anOperand by: anotherOperand.
+
+	constraint ifImmediateConstantDo: [  ] ifNot: [ :val |
+		val = anOperand ifTrue: [| newConstraint |
+			newConstraint := constraint class withValue: anotherOperand.
+			constraint := newConstraint.
+		]
+	]
 ]

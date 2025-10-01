@@ -6,7 +6,7 @@ Class {
 	#tag : 'Optimizations'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'operations' }
 DRPiABCDDeadBranchElimination >> applyTo: cfg [
 
 	solver := DRABCDConstraintSolver for: cfg.

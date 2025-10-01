@@ -479,6 +479,12 @@ DRCogitCanonicaliser >> visitReturn: aDRReturn [
 ]
 
 { #category : 'visiting' }
+DRCogitCanonicaliser >> visitSignedCoercion: aDRSignedCoercion [ 
+	
+	"Nothing"
+]
+
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitSignedRightShift: aDRRightShift [ 
 	
 	"Nothing"

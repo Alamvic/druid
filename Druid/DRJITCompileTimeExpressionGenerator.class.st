@@ -197,6 +197,14 @@ DRJITCompileTimeExpressionGenerator >> visitPhiFunction: aDRPhiFunction [
 ]
 
 { #category : 'visiting' }
+DRJITCompileTimeExpressionGenerator >> visitSignedCoercion: aDRSignedCoercion [ 
+
+	"For now just return our expression?"
+
+	^ aDRSignedCoercion operand1 acceptVisitor: self
+]
+
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitSignedRightShift: aDRRightShift [
 
 	^ self

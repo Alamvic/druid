@@ -1267,6 +1267,12 @@ DRCogitCodeGenerator >> visitReturn: aDRReturn [
 ]
 
 { #category : 'visiting' }
+DRCogitCodeGenerator >> visitSignedCoercion: aDRCogitUnsignedCoercion [ 
+
+	^ self visitCopy: aDRCogitUnsignedCoercion
+]
+
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitSignedRightShift: aRightShift [ 
 
 	^ self threeOperandCogitRTL: #ArithmeticShiftRight instruction: aRightShift

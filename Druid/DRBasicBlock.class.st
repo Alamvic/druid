@@ -637,7 +637,7 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicat
 { #category : 'as yet unclassified' }
 DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: instructionsToRename withFrontier: frontier withUsers: users dominatedBlocks: dominatedBlocks [
 
-	| nextFrontier phis newNamesPerBlock |
+	| nextFrontier phis newNamesPerBlock nextUsers newInstructionsToRename |
 	self flag: #TODO. "Move this responsability to another object"
 
 	users ifEmpty: [ "Finish" ^ self ].
@@ -650,14 +650,15 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: instruct
 
 	"Create empty phis on frontier"
 	phis := frontier collect: [ :b | b phiWithVariables: #(  ) ].
-	newNamesPerBlock := phis , instructionsToRename
+	newInstructionsToRename := phis, instructionsToRename.
+	newNamesPerBlock := newInstructionsToRename
 		                    collect: [ :instruction |
 		                    instruction basicBlock -> instruction ]
 		                    as: Dictionary.
 
 	"Bind phi operands.
 	For each phi, lookup for each predecessor the corresponding variable using the dominator tree.
-	It should be either the instructionsToRename or the phis."
+	It should be either the newInstructionsToRename or the phis."
 	phis do: [ :e |
 		e basicBlock predecessors do: [ :phiPredecessor |
 			| blockDefiningPhiOperand |
@@ -670,19 +671,19 @@ DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: instruct
 				by: (newNamesPerBlock at: blockDefiningPhiOperand) ] ].
 
 	"Replace dominated users"
-	users copy do: [ :u |
-		(u replaceOperandsIfDominated: myInstruction withAll: phis)
-			ifNotNil: [ users remove: u ] ].
+	nextUsers := users select: [ :u |
+		(u replaceOperandsIfDominated: myInstruction withAll: newInstructionsToRename)
+			isNil ].
 
 	"Create the phi of phis in the frontier and update uses based on blocks dominance"
 	nextFrontier := controlFlowGraph dominatorTree minimalDominanceFrontierOfAll:
 		                frontier.
 	^ self
 		  insertPhisAndReplaceUsersBetween: myInstruction
-		  andAll: phis , instructionsToRename
+		  andAll: newInstructionsToRename
 		  withFrontier:
 		  (nextFrontier select: [ :e | dominatedBlocks includes: e ])
-		  withUsers: users
+		  withUsers: nextUsers
 		  dominatedBlocks: dominatedBlocks
 ]
 
@@ -975,6 +976,12 @@ DRBasicBlock >> loopIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock
 
 	self jumpIf: loopCondition to: loopBodyBlock ifFalseTo: loopExitBlock.
 	loopBodyBlock backJumpTo: self
+]
+
+{ #category : 'accessing' }
+DRBasicBlock >> mark [
+
+	controlFlowGraph markBlock: self.
 ]
 
 { #category : 'splitting' }
@@ -1280,7 +1287,7 @@ DRBasicBlock >> removeInstruction: aDRInstruction [
 DRBasicBlock >> removePiNodes [
 
 	self piNodes do: [ :pi |
-		pi users do: [ :user | user replaceOperand: pi by: pi operand ].
+		pi users do: [ :user | user replaceDependency: pi by: pi operand ].
 		pi removeFromCFG ]
 ]
 
@@ -1489,6 +1496,12 @@ DRBasicBlock >> tailDuplicate [
 DRBasicBlock >> third [
 	
 	^ self allInstructions third
+]
+
+{ #category : 'accessing' }
+DRBasicBlock >> unmark [
+
+	controlFlowGraph unmarkBlock: self.
 ]
 
 { #category : 'validating' }

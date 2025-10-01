@@ -31,6 +31,12 @@ DREdge >> destination: anObject [
 	destination := anObject
 ]
 
+{ #category : 'accessing' }
+DREdge >> isBackJump [
+
+	^ source lastInstruction isBackJumpTo: destination 
+]
+
 { #category : 'deleting' }
 DREdge >> kill [
 

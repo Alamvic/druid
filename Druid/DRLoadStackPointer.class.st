@@ -32,7 +32,7 @@ DRLoadStackPointer >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : 'types' }
-DRLoadStackPointer >> typeWithAlreadySeen: _ [
+DRLoadStackPointer >> typeWithAlreadySeen: aCollection [
 
 	^ DRPointerType new
 ]

@@ -111,6 +111,6 @@ DRAbstractMemoryAddress >> type: aDRType [
 ]
 
 { #category : 'accessing' }
-DRAbstractMemoryAddress >> typeWithAlreadySeen: _ [
+DRAbstractMemoryAddress >> typeWithAlreadySeen: aCollection [
 	^ type
 ]

@@ -247,7 +247,7 @@ DRInterpreterReference >> type: anObject [
 ]
 
 { #category : 'accessing' }
-DRInterpreterReference >> typeWithAlreadySeen: _ [
+DRInterpreterReference >> typeWithAlreadySeen: aCollection [
 
 	^ type
 ]
