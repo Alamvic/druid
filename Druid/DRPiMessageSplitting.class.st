@@ -14,6 +14,14 @@ Class {
 DRPiMessageSplitting >> applyTo: cfg [
 
 	| anyChanged |
+	"Simplify phis before to avoid entering border cases.
+	For example, if a we have a cyclic Phi node defined in terms of itself:
+	
+	  phi1 := phi(phi1, someValue)
+	
+	"
+	(DRPhiSimplication then: DRCleanControlFlow) applyTo: cfg.
+	
 	solver := self solverFor: cfg.
 	
 	self doWhilePossible: [
