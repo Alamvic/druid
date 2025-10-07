@@ -37,7 +37,7 @@ DRLoadInstanceVariable >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : 'types' }
-DRLoadInstanceVariable >> type [
+DRLoadInstanceVariable >> typeWithAlreadySeen: _ [
 
 	^ DRUndefinedType new
 ]

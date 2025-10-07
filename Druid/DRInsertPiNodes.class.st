@@ -15,12 +15,12 @@ DRInsertPiNodes >> applyTo: cfg [
 ]
 
 { #category : 'enumerating' }
-DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBlock ofCondition: aDRBranchIfCondition andDo: aBlock [
+DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBlock ofCondition: aDRBranchIfCondition [
 
 	| newBlock |
 	"We need to break critical edges, because in that case, the constraint may not be true in every possible path"
 	currentBranchBasicBlock predecessors size == 1 ifTrue: [
-		^ aBlock value: currentBranchBasicBlock ].
+		^ currentBranchBasicBlock ].
 
 	newBlock := currentBranchBasicBlock breakCriticalEdgeToPredecessor:
 		            aDRBranchIfCondition basicBlock.
@@ -29,7 +29,39 @@ DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBloc
 		invalidateDominatorTree;
 		invalidatePostDominatorTree.
 
-	^ aBlock value: newBlock
+	^ newBlock
+]
+
+{ #category : 'as yet unclassified' }
+DRInsertPiNodes >> insertPhiNodesFor: aDRBranchIfCondition withTruePis: truePis andFalsePis: falsePis [
+
+	| cfg mergePoints |
+	cfg := aDRBranchIfCondition basicBlock controlFlowGraph.
+
+	mergePoints := aDRBranchIfCondition basicBlock immediatelyDominatedBlocks
+		remove: truePis first basicBlock;
+		remove: falsePis first basicBlock;
+		yourself.
+		
+	mergePoints size > 1 ifTrue: [ |reversePostOrderBlocks|
+		reversePostOrderBlocks := cfg reversePostOrderBlocks.
+		mergePoints := mergePoints asOrderedCollection sort: [ :a :b |
+			(reversePostOrderBlocks indexOf: a) <= (reversePostOrderBlocks indexOf: b) ].
+	].
+
+	truePis with: falsePis do: [ :tPi :fPi |
+		| phis originalVariable replacableValues |
+		originalVariable := tPi operand.
+		phis := mergePoints collect: [ :b | b phiWithVariables: #(  ) ].
+		replacableValues := OrderedCollection with: tPi with: fPi.
+		phis do: [ :p | |phi|
+			phi := p replaceOperandsIfDominated: DRNullValue new withAll: replacableValues.
+			replacableValues add: phi.
+			originalVariable users copy do: [ :user | (user isDominatedBy: phi) ifTrue: [
+					user replaceOperandIfDominated: originalVariable by: phi]
+			]
+		]
+	]
 ]
 
 { #category : 'accessing' }
@@ -38,10 +70,9 @@ DRInsertPiNodes >> insertPiNode: aDRPiNode in: aDRBasicBlock withoutModifyingAny
 	aDRBasicBlock addInstructionFirst: aDRPiNode.
 
 	aDRPiNode operand users copy
-		select: [ :user | (piNodesNotToModify includes: user) not and: [
-								(user basicBlock isDominatedBy: aDRBasicBlock)] ]
-		thenDo: [ :user | user replaceDependency: aDRPiNode operand by: aDRPiNode.].
-
+		reject: [ :user | piNodesNotToModify includes: user ]
+		thenDo: [ :user |
+			user replaceOperandIfDominated: aDRPiNode operand by: aDRPiNode ]
 ]
 
 { #category : 'accessing' }
@@ -56,19 +87,38 @@ DRInsertPiNodes >> insertPiNodes: piNodes in: aDRBasicBlock [
 
 { #category : 'accessing' }
 DRInsertPiNodes >> insertPiNodesFor: aDRBranchIfCondition [
+
+	| piNodeBuilder truePis falsePis |
+	piNodeBuilder := self piNodeBuilderFor: aDRBranchIfCondition.
+
+	truePis := piNodeBuilder nodesForTrueBranch ifEmpty: [ ^ nil ].
+	self insertPiNodes: truePis in: (self
+			 getBasicBlockToInsertPiNodesForBranch:
+			 aDRBranchIfCondition trueBranch
+			 ofCondition: aDRBranchIfCondition).
+
+	falsePis := piNodeBuilder nodesForFalseBranch.
+	self insertPiNodes: falsePis in: (self
+			 getBasicBlockToInsertPiNodesForBranch:
+			 aDRBranchIfCondition falseBranch
+			 ofCondition: aDRBranchIfCondition).
+
+	self
+		insertPhiNodesFor: aDRBranchIfCondition
+		withTruePis: truePis
+		andFalsePis: falsePis
+]
+
+{ #category : 'accessing' }
+DRInsertPiNodes >> piNodeBuilderFor: aDRBranchIfCondition [
+
 	| piNodeBuilder |
-	
-	piNodeBuilder := DRPiNodeBuilder withInstructionFactory: aDRBranchIfCondition basicBlock controlFlowGraph instructionFactory.
+	piNodeBuilder := DRPiNodeBuilder withInstructionFactory:
+		                 aDRBranchIfCondition basicBlock controlFlowGraph
+			                 instructionFactory.
 	aDRBranchIfCondition condition
 		acceptVisitor: piNodeBuilder
 		withBranch: aDRBranchIfCondition.
 
-	self getBasicBlockToInsertPiNodesForBranch: aDRBranchIfCondition trueBranch ofCondition: aDRBranchIfCondition andDo: [ :block |
-		self insertPiNodes: piNodeBuilder nodesForTrueBranch in: aDRBranchIfCondition trueBranch
-	].
-
-	self getBasicBlockToInsertPiNodesForBranch: aDRBranchIfCondition falseBranch ofCondition: aDRBranchIfCondition andDo: [ :block |
-		self insertPiNodes: piNodeBuilder nodesForFalseBranch in: aDRBranchIfCondition falseBranch
-	].
-
+	^ piNodeBuilder
 ]

@@ -101,7 +101,7 @@ DRStore >> size [
 ]
 
 { #category : 'types' }
-DRStore >> type [
+DRStore >> typeWithAlreadySeen: _ [
 
 	^ DRVoidType new
 ]

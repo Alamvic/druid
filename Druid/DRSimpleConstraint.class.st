@@ -25,14 +25,6 @@ DRSimpleConstraint >> = otherConstraint [
 ]
 
 { #category : 'accessing' }
-DRSimpleConstraint >> asDependencyList [
-
-	^ (constantValue isKindOf: DRInstruction)
-			ifTrue: [ constantValue asDependencyList ]
-			ifFalse: [ {} ].
-]
-
-{ #category : 'accessing' }
 DRSimpleConstraint >> constantValue [
 
 	^ constantValue
@@ -81,10 +73,4 @@ DRSimpleConstraint >> printOn: aStream [
 		nextPutAll: self opCode;
 		nextPutAll: ' ';
 		print: constantValue
-]
-
-{ #category : 'replacing' }
-DRSimpleConstraint >> replaceOperand: anOperand by: anotherOperand [
-
-	(constantValue = anOperand) ifTrue: [ constantValue := anotherOperand ]
 ]

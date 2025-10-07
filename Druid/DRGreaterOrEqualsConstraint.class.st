@@ -31,12 +31,6 @@ DRGreaterOrEqualsConstraint >> isIncludedIn: otherConstraint [
 ]
 
 { #category : 'arithmetic' }
-DRGreaterOrEqualsConstraint >> minABCDDistanceToBeSatisfiable [
-
-	^ 0
-]
-
-{ #category : 'arithmetic' }
 DRGreaterOrEqualsConstraint >> negated [
 
 	^ DRLessConstraint withValue: constantValue

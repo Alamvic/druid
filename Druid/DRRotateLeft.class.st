@@ -13,7 +13,7 @@ DRRotateLeft >> acceptVisitor: aVisitor [
 ]
 
 { #category : 'types' }
-DRRotateLeft >> type [
+DRRotateLeft >> typeWithAlreadySeen: _ [
 
 	^ DRUnsignedIntegerType bits64
 ]

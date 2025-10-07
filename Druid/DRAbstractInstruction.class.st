@@ -187,6 +187,8 @@ DRAbstractInstruction >> replaceBy: anotherInstruction [
 
 	self operands asSet do: [ :instruction |
 		instruction removeUser: self ].
+	
+	^ anotherInstruction
 ]
 
 { #category : 'replacing' }
@@ -232,11 +234,11 @@ DRAbstractInstruction >> validate [
 	self validateDependenciesAreUsedByMyself.
 	self validateUsersUseMyself.
 
-	self isPhiFunction ifTrue: [ ^ self ].
 	self operands do: [ :o |
-		((o isInstruction not or: [
-			  self basicBlock isDominatedBy: o basicBlock ]) or: [ "this is to handle the case we have different CFG, block is interpreted with a new CFG"
-			 self controlFlowGraph ~= o controlFlowGraph ]) ifFalse: [
+		(o isInstruction not or: [
+			 (self isDominatedBy: o) or: [
+				 "this is to handle the case we have different CFG, block is interpreted with a new CFG"
+				 self controlFlowGraph ~= o controlFlowGraph ] ]) ifFalse: [
 			DRError signal:
 				'Invalid operand: ' , o asString , ' in: ' , self asString ] ]
 ]

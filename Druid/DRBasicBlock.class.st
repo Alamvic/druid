@@ -161,7 +161,9 @@ DRBasicBlock >> basicEndInstruction: aDRInstruction [
 { #category : 'accessing' }
 DRBasicBlock >> basicEndInstructionRemovingUsers: aDRInstruction [
 
-	endInstruction ifNotNil: [ endInstruction operands do: [ :o | o removeUser: endInstruction ] ].
+	endInstruction ifNotNil: [
+		endInstruction operands asSet do: [ :o |
+			o removeUser: endInstruction ] ].
 	^ self basicEndInstruction: aDRInstruction
 ]
 
@@ -1272,6 +1274,14 @@ DRBasicBlock >> removeInstruction: aDRInstruction [
 	aDRInstruction isPhiFunction
 		ifTrue: [ phiFunctions remove: aDRInstruction ]
 		ifFalse: [ instructions remove: aDRInstruction ]
+]
+
+{ #category : 'accessing' }
+DRBasicBlock >> removePiNodes [
+
+	self piNodes do: [ :pi |
+		pi users do: [ :user | user replaceOperand: pi by: pi operand ].
+		pi removeFromCFG ]
 ]
 
 { #category : 'accessing' }

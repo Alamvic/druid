@@ -30,16 +30,6 @@ DRGreaterConstraint >> isIncludedIn: otherConstraint [
 	^ otherConstraint hasAllValuesGreaterThan: constantValue
 ]
 
-{ #category : 'reversing' }
-DRGreaterConstraint >> minABCDDistanceToBeSatisfiable [
-
-	"TODO
-	I'm not sure, but I think returning 1 here is fine, and may allow it to optimize more cases.
-	Needs testing though"
-	"^ 1"
-	^ nil
-]
-
 { #category : 'arithmetic' }
 DRGreaterConstraint >> negated [
 

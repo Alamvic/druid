@@ -2,7 +2,8 @@ Class {
 	#name : 'DRConstantConstraintSolver',
 	#superclass : 'DRConstraintSolver',
 	#instVars : [
-		'visited'
+		'visited',
+		'phiReplacement'
 	],
 	#category : 'Druid-IR-Paths',
 	#package : 'Druid',
@@ -12,35 +13,70 @@ Class {
 { #category : 'as yet unclassified' }
 DRConstantConstraintSolver >> collectConstraintsFrom: aDRValue [
 
-	visited addIfNotPresent: aDRValue ifPresentDo: [ ^DRFullConstraint new ].
-	
+	(aDRValue isNumberValue or: aDRValue value isBooleanValue) ifTrue: [
+		^ DREqualsConstraint withValue: aDRValue ].
+
+	visited
+		addIfNotPresent: aDRValue
+		ifPresentDo: [ ^ DRFullConstraint new ].
+
 	aDRValue isPhiFunction ifTrue: [
-		^ DRUnionConstraint constraints:
-			 (aDRValue operands collect: [ :op | self collectConstraintsFrom: op ])
+		^ (phiReplacement isNil or: [ phiReplacement key ~= aDRValue ]) ifTrue: [
+			DRUnionConstraint constraints:
+			  (aDRValue operands collect: [ :op | self collectConstraintsFrom: op ])
+		] ifFalse: [
+			self collectConstraintsFrom: phiReplacement value
+		].
 	].
 
 	aDRValue isPiNode ifTrue: [
-		aDRValue constraint constantValue isNumber ifFalse: [ ^DRFullConstraint new ].
-		^ (self collectConstraintsFrom: aDRValue operand) intersectionWith: aDRValue constraint
-	].
+		| constantConstraint |
+		constantConstraint := aDRValue constraint asConstantConstraint
+			                      ifNil: [ ^ DRFullConstraint new ].
+		^ (self collectConstraintsFrom: aDRValue operand) intersectionWith: constantConstraint ].
 
 	aDRValue isCopy ifTrue: [
-		^ self collectConstraintsFrom: aDRValue operand
-	].
-
-	aDRValue isNumberValue ifTrue: [
-		^ DREqualsConstraint withValue: aDRValue
-	].
+		^ self collectConstraintsFrom: aDRValue operand ].
 
 	^ DRFullConstraint new
 ]
 
 { #category : 'testing' }
+DRConstantConstraintSolver >> isConstraint: piNodeConstraint satisfiableWith: collectedConstraint [
+
+	^ (piNodeConstraint negated includes: collectedConstraint) not
+]
+
+{ #category : 'testing' }
 DRConstantConstraintSolver >> isSatisfiable: aDRPiNode [
+
+	| constraint |
+
+	constraint := aDRPiNode constraint asConstantConstraint ifNil: [ ^ true ].
+	^ self isSatisfiable: constraint onVar: aDRPiNode operand
+]
+
+{ #category : 'testing' }
+DRConstantConstraintSolver >> isSatisfiable: piNodeConstraint onVar: constrainedVariable [
+
 	| collectedConstraint |
-	
+
 	visited := Set new.
-	collectedConstraint := self collectConstraintsFrom: aDRPiNode operand.
-	
-	^ (collectedConstraint negated includes: aDRPiNode constraint) not.
+	collectedConstraint := self collectConstraintsFrom:
+		                       constrainedVariable.
+
+	^ self
+		  isConstraint: piNodeConstraint
+		  satisfiableWith: collectedConstraint
+]
+
+{ #category : 'testing' }
+DRConstantConstraintSolver >> isSatisfiable: aDRPiNode replacingPhi: phi for: phiOp [
+
+	| retval |
+	phiReplacement := phi -> phiOp.
+	retval := self isSatisfiable: aDRPiNode.
+	phiReplacement := nil.
+
+	^ retval
 ]

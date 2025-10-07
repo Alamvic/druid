@@ -61,43 +61,61 @@ DRPiNodeBuilder >> visitComparison: aDRBranchIfCondition withConstraint: constra
 { #category : 'visiting' }
 DRPiNodeBuilder >> visitEqualsThan: aDRCondition inBranch: aDRBranchIfCondition [
 
-	self visitComparison: aDRBranchIfCondition withConstraint: DREqualsConstraint
+	self visitComparison: aDRBranchIfCondition withConstraint: DRPiEqualsConstraint
 ]
 
 { #category : 'visiting' }
 DRPiNodeBuilder >> visitGreaterOrEqualsThan: aDRCondition inBranch: aDRBranchIfCondition [ 
 
-	self visitComparison: aDRBranchIfCondition withConstraint: DRGreaterOrEqualsConstraint.
+	self visitComparison: aDRBranchIfCondition withConstraint: DRPiGreaterOrEqualsConstraint.
 ]
 
 { #category : 'visiting' }
 DRPiNodeBuilder >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [ 
 	
-	self visitComparison: aDRBranchIfCondition withConstraint: DRGreaterConstraint.
+	self visitComparison: aDRBranchIfCondition withConstraint: DRPiGreaterThanConstraint.
 ]
 
 { #category : 'visiting' }
 DRPiNodeBuilder >> visitLessOrEqualsThan: aDRCondition inBranch: aDRBranchIfCondition [ 
 
-	self visitComparison: aDRBranchIfCondition withConstraint: DRLessOrEqualsConstraint.
+	self visitComparison: aDRBranchIfCondition withConstraint: DRPiLessOrEqualsConstraint.
 ]
 
 { #category : 'visiting' }
 DRPiNodeBuilder >> visitLessThan: aDRCondition inBranch: aDRBranchIfCondition [ 
 
-	self visitComparison: aDRBranchIfCondition withConstraint: DRLessConstraint.
+	self visitComparison: aDRBranchIfCondition withConstraint: DRPiLessThanConstraint.
+]
+
+{ #category : 'visiting' }
+DRPiNodeBuilder >> visitMultiplyOverflow: aDRCondition inBranch: aDRBranchIfCondition [
+
+	
 ]
 
 { #category : 'visiting' }
 DRPiNodeBuilder >> visitNoTestMask: aDRCondition inBranch: aDRBranchIfCondition [ 
 
-	self visitComparison: aDRBranchIfCondition withConstraint: DRNoneMaskConstraint.
+	self visitComparison: aDRBranchIfCondition withConstraint: DRPiNoneMaskConstraint.
+]
+
+{ #category : 'visiting' }
+DRPiNodeBuilder >> visitNotEqualsThan: aDRCondition inBranch:  aDRBranchIfCondition [
+
+	self visitComparison: aDRBranchIfCondition withConstraint: DRPiNotEqualsConstraint
+]
+
+{ #category : 'visiting' }
+DRPiNodeBuilder >> visitOverflow: aDRCondition inBranch: aDRBranchIfCondition [
+
+	
 ]
 
 { #category : 'visiting' }
 DRPiNodeBuilder >> visitTestMask: aDRCondition inBranch: aDRBranchIfCondition [ 
 
-	self visitComparison: aDRBranchIfCondition withConstraint: DRAnyMaskConstraint.
+	self visitComparison: aDRBranchIfCondition withConstraint: DRPiAnyMaskConstraint.
 ]
 
 { #category : 'initialization' }
