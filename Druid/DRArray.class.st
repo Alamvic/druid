@@ -1,28 +1,25 @@
 Class {
-	#name : 'DRArrayNode',
+	#name : 'DRArray',
 	#superclass : 'DRInstruction',
-	#instVars : [
-		'argName'
-	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
 	#tag : 'IR'
 }
 
 { #category : 'visiting' }
-DRArrayNode >> acceptVisitor: aVisitor [
+DRArray >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitArrayNode: self
 ]
 
 { #category : 'visiting' }
-DRArrayNode >> opcode [
+DRArray >> opcode [
 	
 	^ 'Array'
 ]
 
 { #category : 'visiting' }
-DRArrayNode >> sccpLatticeValueFor: sccp [
+DRArray >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]

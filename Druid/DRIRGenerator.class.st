@@ -2048,7 +2048,7 @@ DRIRGenerator >> visitArrayNode: aRBArrayNode [
 	values := aRBArrayNode children collect: [ :each | self visitOperand: each ].
 	self
 		addInstructionFrom: aRBArrayNode
-		instructionKind: DRArrayNode 
+		instructionKind: DRArray 
 		operands: values asArray
 ]
 
