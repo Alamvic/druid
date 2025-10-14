@@ -159,7 +159,6 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 	bytecodeGenerator numArgs: numArgs.
 	bytecodeGenerator methodName: selector.
 	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.
-	
 	^ bytecodeGenerator targetAST
 ]
 
@@ -256,84 +255,9 @@ DRBytecodeGeneratorTest >> testMethodManyReturns [
 ]
 
 { #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodRecompilationWithProfile [
+DRBytecodeGeneratorTest >> testMethodReadingClassVariable [
 
-	| method result cfg selector methodProfiler previousMethodSize |
-	
-	self skip. "This is a proof of concept, does not metter"
-	
-	bytecodeGenerator := DRProfileBytecodeGenerator new.
-	typeSystem := DRProfileBasedTypeSystem reset.
-	compilerCompiler configureForCompilerClass: nil.
-	selector := #methodCollectionSize:.
-	method := self generateMethodForSelector: selector.
-
-	previousMethodSize := (DruidTestInterpreter >> selector) size.
-
-	self assert: method size > previousMethodSize. "Bigger than original"
-	previousMethodSize := method size.
-
-	"First execution"
-	result := method
-		          valueWithReceiver: nil
-		          arguments: { { 1. 2. 3 } asOrderedCollection }.
-	self assert: result equals: 3.
-
-	"Profiled type"
-	self assert: typeSystem profileTable size equals: 1.
-	methodProfiler := typeSystem profileTable at: method ast.
-	self
-		assertCollection:
-		(methodProfiler typesFor: method ast arguments first)
-		hasSameElements: { (DRClassType for: OrderedCollection) }.
-
-	"Recompile"
-	bytecodeGenerator := DRProfileBytecodeGenerator new.
-	cfg := self generateDruidIRFor: method.
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	self assert: method size > previousMethodSize. "Bigger because of new guard"
-	previousMethodSize := method size.
-
-	result := method
-		          valueWithReceiver: nil
-		          arguments: { (Array2D rows: 2 columns: 2) }.
-	self assert: result equals: 4.
-
-	"New profiled type"
-	self assert: typeSystem profileTable size equals: 2. "Old and new methods"
-	methodProfiler := typeSystem profileTable at: method ast.
-	self
-		assertCollection:
-		(methodProfiler typesFor: method ast temporaries first)
-		hasSameElements: { (DRClassType for: Array2D) }.
-
-
-	"Recompile again"
-	compilerCompiler := DRMethodCompilerCompiler new.
-	bytecodeGenerator := DRProfileBytecodeGenerator new.
-	cfg := self generateDruidIRFor: method.
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-
-	self assert: method size equals: 144. "bigger then before"
-
-	result := method
-		          valueWithReceiver: nil
-		          arguments: { { 1. 2. 3 } asOrderedCollection }.
-	self assert: result equals: 3.
-
-	result := method
-		          valueWithReceiver: nil
-		          arguments: { (Array2D rows: 2 columns: 2) }.
-	self assert: result equals: 4.
-
-	"Last profiled type"
-	self assert: typeSystem profileTable size equals: 3. "New type from Array2D inline"
-	methodProfiler := typeSystem profileTable at: method ast.
-	self
-		assertCollection:
-		(methodProfiler typesFor: method ast temporaries second)
-		hasSameElements: { (DRClassType for: Array) }
+	self assertCompilationFor: #methodReadingClassVariable fromClass: DruidTestInterpreter
 ]
 
 { #category : 'tests' }
@@ -550,6 +474,12 @@ DRBytecodeGeneratorTest >> testMethodWithBlockWritingVar [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithDynamicArray [
+
+	self assertCompilationFor: #methodWithDynamicArray fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithEarlyReturn [
 
 	| method result |
@@ -591,6 +521,12 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWritingClassVariable [
+
+	self assertCompilationFor: #methodWritingClassVariable fromClass: DruidTestInterpreter
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalBooleanMethods [
 
 	OCOpalExamples methods
@@ -605,6 +541,26 @@ DRBytecodeGeneratorTest >> testOpalConditionalMethods [
 
 	OCOpalExamples methods
 		select: [ :opalMethod | opalMethod protocolName = #'examples - conditionals' ]
+		thenDo: [ :opalMethod | 
+			self setUp.
+			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testOpalLiteralMethods [
+
+	OCOpalExamples methods
+		select: [ :opalMethod | opalMethod protocolName = #'examples - literals' ]
+		thenDo: [ :opalMethod | 
+			self setUp.
+			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testOpalMiscMethods [
+
+	OCOpalExamples methods
+		select: [ :opalMethod | opalMethod protocolName = #'examples - misc' ]
 		thenDo: [ :opalMethod | 
 			self setUp.
 			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]

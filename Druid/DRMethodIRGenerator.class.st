@@ -78,6 +78,15 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 					  self receiver.
 					  aRBAssignmentNode variable binding index asDRValue.
 					  value } ].
+			
+	aRBAssignmentNode variable binding isClassVariable ifTrue: [
+		
+		^ self
+			  addInstructionWithNoResultFrom: aRBAssignmentNode
+			  instructionKind: DRStoreLiteralVariable 
+			  operands: {
+					  aRBAssignmentNode variable binding asDRValue.
+					  value } ].
 
 	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [
 		| result |
@@ -264,6 +273,28 @@ DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 		(self scope lookupVarOrAddNewTemp: aRBVariableNode name).
 
 	^ loadArg
+]
+
+{ #category : 'visiting' }
+DRMethodIRGenerator >> visitArrayNode: aRBArrayNode [ 
+	
+	| values |
+	values := aRBArrayNode children collect: [ :each | self visitOperand: each ].
+	self
+		addInstructionFrom: aRBArrayNode
+		instructionKind: DRArray 
+		operands: values asArray
+]
+
+{ #category : 'visiting' }
+DRMethodIRGenerator >> visitClassVariableNode: aRBVariableNode [
+
+	| value |
+	value := aRBVariableNode variable asDRValue.
+	self
+		addInstructionFrom: aRBVariableNode
+		instructionKind: DRLoadLiteralVariable 
+		operands: { value }
 ]
 
 { #category : 'visiting' }

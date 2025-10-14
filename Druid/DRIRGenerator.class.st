@@ -1928,7 +1928,7 @@ DRIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
 		             e acceptVisitor: self.
 		             self popOperand ].
 
-	self
+	^ self
 		resolveMessageSend: aRBMessageNode
 		receiver: receiver
 		arguments: arguments
@@ -2098,9 +2098,15 @@ DRIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 ]
 
 { #category : 'visiting' }
+DRIRGenerator >> visitLiteralArrayNode: aRBLiteralArrayNode [ 
+	
+	self visitLiteralValueNode: aRBLiteralArrayNode 
+]
+
+{ #category : 'visiting' }
 DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 
-	self
+	^ self
 		addInstructionFrom: aRBLiteralValueNode
 		instructionKind: DRCopy
 		operands: { (DRConstantValue value: aRBLiteralValueNode value) }
@@ -2117,7 +2123,7 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 	"Resolve it as a normal send"
 	aRBMessageNode receiver acceptVisitor: self.
 	receiver := self popOperand.
-	self resolveMessageSend: aRBMessageNode receiver: receiver
+	^ self resolveMessageSend: aRBMessageNode receiver: receiver
 ]
 
 { #category : 'visiting' }
@@ -2183,7 +2189,7 @@ DRIRGenerator >> visitOperand: aDRValue [
 DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
 	| value homeFrame fork |
-
+	
 	value := self visitOperand: aRBReturnNode value.
 	
 	"Create a fork, push value operand and create a FrameReturn to keep DeferredReturnState ready to merge"
