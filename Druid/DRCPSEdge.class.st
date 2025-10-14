@@ -525,6 +525,12 @@ DRCPSEdge >> visitLoadInstVar: aDRLoadInstanceVariable [
 ]
 
 { #category : 'visiting' }
+DRCPSEdge >> visitLoadLiteralVariable: aDRLoadLiteralVariable [ 
+	
+	^ nil
+]
+
+{ #category : 'visiting' }
 DRCPSEdge >> visitLoadReceiver: aDRLoadReceiver [
 
 	^ nil

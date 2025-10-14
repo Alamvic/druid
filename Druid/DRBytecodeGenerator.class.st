@@ -144,11 +144,9 @@ DRBytecodeGenerator >> visitAddition: aDRAdd [
 { #category : 'visiting' }
 DRBytecodeGenerator >> visitArrayNode: aDRArrayNode [ 
 	
-	| elements |
-	elements := aDRArrayNode operand1 value.
-	elements do: [ :each | each acceptVisitor: self ].
+	aDRArrayNode operands do: [ :each | each acceptVisitor: self ].
 	
-	builder pushConsArray: elements size
+	builder pushConsArray: aDRArrayNode operands size
 ]
 
 { #category : 'ir-to-target' }
@@ -286,7 +284,7 @@ DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 
 { #category : 'visiting' }
 DRBytecodeGenerator >> visitLoadLiteralVariable: aDRLoadLiteralVariable [ 
-	
+
 	builder pushLiteralVariable: aDRLoadLiteralVariable operand1 value
 ]
 

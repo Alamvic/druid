@@ -472,10 +472,7 @@ DruidTestInterpreter >> methodWithArg: aCollection [
 { #category : 'as yet unclassified' }
 DruidTestInterpreter >> methodWithDynamicArray [
 	
-	^ { 1 . 2 . 3+2}
-	
-	
-	
+	^ { 1 . 2 . 3+2 }
 ]
 
 { #category : 'as yet unclassified' }

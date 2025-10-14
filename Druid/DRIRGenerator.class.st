@@ -2044,13 +2044,12 @@ DRIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitArrayNode: aRBArrayNode [ 
 	
-	| value |
-	value := aRBArrayNode children collect: [ :each | each acceptVisitor:self ].
-	value size timesRepeat: [ self popOperand ].
+	| values |
+	values := aRBArrayNode children collect: [ :each | self visitOperand: each ].
 	self
 		addInstructionFrom: aRBArrayNode
 		instructionKind: DRArrayNode 
-		operands: { value }.
+		operands: values asArray
 ]
 
 { #category : 'visiting' }
