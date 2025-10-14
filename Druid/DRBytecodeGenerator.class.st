@@ -146,7 +146,6 @@ DRBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 	
 	| elements |
 	elements := aDRArrayNode operand1 value.
-	1 halt.
 	elements do: [ :each | each acceptVisitor: self ].
 	
 	builder pushConsArray: elements size

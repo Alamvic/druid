@@ -2045,7 +2045,6 @@ DRIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 DRIRGenerator >> visitArrayNode: aRBArrayNode [ 
 	
 	| value |
-	1 halt.
 	value := aRBArrayNode children collect: [ :each | each acceptVisitor:self ].
 	value size timesRepeat: [ self popOperand ].
 	self
