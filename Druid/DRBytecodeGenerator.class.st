@@ -366,18 +366,16 @@ DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 ]
 
 { #category : 'visiting' }
-DRBytecodeGenerator >> visitStoreLiteralVariable: aDRStoreLiteralVariable [ 
-	
+DRBytecodeGenerator >> visitStoreLiteralVariable: aDRStoreLiteralVariable [
+
 	| value |
-	
 	value := aDRStoreLiteralVariable operand2.
-	value acceptVisitor:self.
-		
-	builder storeIntoLiteralVariable: aDRStoreLiteralVariable operand1 value.
-	
-	aDRStoreLiteralVariable users size = 0 ifTrue: [ 
-			builder popTop.
-		].
+	value acceptVisitor: self.
+
+	builder storeIntoLiteralVariable:
+		aDRStoreLiteralVariable operand1 value.
+
+	aDRStoreLiteralVariable hasUsers ifFalse: [ builder popTop ]
 ]
 
 { #category : 'visiting' }
