@@ -142,10 +142,22 @@ DRBytecodeGenerator >> visitAddition: aDRAdd [
 ]
 
 { #category : 'visiting' }
-DRBytecodeGenerator >> visitArrayNode: aDRArrayNode [ 
-	
+DRBytecodeGenerator >> visitArrayNode: aDRArrayNode [
+
+	aDRArrayNode operands size > 127 ifTrue: [ "Long form: using at:put:"
+		builder pushLiteralVariable: Array binding.
+		builder pushLiteral: aDRArrayNode operands size.
+		builder send: #new:.
+		aDRArrayNode operands withIndexDo: [ :each :index |
+			builder pushDup.
+			builder pushLiteral: index.
+			each acceptVisitor: self.
+			builder send: #at:put:.
+			builder popTop ].
+		^ self ].
+
 	aDRArrayNode operands do: [ :each | each acceptVisitor: self ].
-	
+
 	builder pushConsArray: aDRArrayNode operands size
 ]
 
