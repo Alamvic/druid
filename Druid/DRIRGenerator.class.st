@@ -2042,17 +2042,6 @@ DRIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 ]
 
 { #category : 'visiting' }
-DRIRGenerator >> visitArrayNode: aRBArrayNode [ 
-	
-	| values |
-	values := aRBArrayNode children collect: [ :each | self visitOperand: each ].
-	self
-		addInstructionFrom: aRBArrayNode
-		instructionKind: DRArray 
-		operands: values asArray
-]
-
-{ #category : 'visiting' }
 DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 
 	variableSpecialCases at: aRBAssignmentNode variable name ifPresent: [ :mapping | 
@@ -2096,10 +2085,10 @@ DRIRGenerator >> visitCascadeNode: aRBCascadeNode [
 DRIRGenerator >> visitClassVariableNode: aRBVariableNode [
 
 	| value |
-	value := aRBVariableNode variable asDRValue.
+	value := aRBVariableNode variable value asDRValue.
 	self
 		addInstructionFrom: aRBVariableNode
-		instructionKind: DRLoadLiteralVariable 
+		instructionKind: DRCopy
 		operands: { value }
 ]
 
