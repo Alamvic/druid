@@ -141,6 +141,26 @@ DRBytecodeGenerator >> visitAddition: aDRAdd [
 	self sendMessage: #+ fromInstruction: aDRAdd
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitArrayNode: aDRArrayNode [
+
+	aDRArrayNode operands size > 127 ifTrue: [ "Long form: using at:put:"
+		builder pushLiteralVariable: Array binding.
+		builder pushLiteral: aDRArrayNode operands size.
+		builder send: #new:.
+		aDRArrayNode operands withIndexDo: [ :each :index |
+			builder pushDup.
+			builder pushLiteral: index.
+			each acceptVisitor: self.
+			builder send: #at:put:.
+			builder popTop ].
+		^ self ].
+
+	aDRArrayNode operands do: [ :each | each acceptVisitor: self ].
+
+	builder pushConsArray: aDRArrayNode operands size
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 
@@ -274,6 +294,12 @@ DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 	builder send: #instVarAt:.
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitLoadLiteralVariable: aDRLoadLiteralVariable [ 
+
+	builder pushLiteralVariable: aDRLoadLiteralVariable operand1 value
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitMessageSend: aDRMessageSend [ 
 
@@ -337,6 +363,19 @@ DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 	aDRStoreInstanceVariable operand3 acceptVisitor: self.
 	builder send: #instVarAt:put:.
 	builder popTop
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitStoreLiteralVariable: aDRStoreLiteralVariable [
+
+	| value |
+	value := aDRStoreLiteralVariable operand2.
+	value acceptVisitor: self.
+
+	builder storeIntoLiteralVariable:
+		aDRStoreLiteralVariable operand1 value.
+
+	aDRStoreLiteralVariable hasUsers ifFalse: [ builder popTop ]
 ]
 
 { #category : 'visiting' }
