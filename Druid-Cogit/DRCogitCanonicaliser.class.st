@@ -75,6 +75,9 @@ DRCogitCanonicaliser >> collapseLogicOrBitwiseOperationIfPossible: aDRGetConditi
 
 { #category : 'initialization' }
 DRCogitCanonicaliser >> initialize [
+
+	super initialize.
+
 	collapsibleLogicAndBitwiseInstructions := Dictionary new
 		at: DRBitAnd put: { DRNoTestMask. DRTestMask };
 		at: DRAnd put: { DRNoTestAnd. DRTestAnd };

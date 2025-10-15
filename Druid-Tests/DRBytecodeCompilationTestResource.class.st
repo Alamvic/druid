@@ -98,6 +98,8 @@ DRBytecodeCompilationTestResource >> compileBytecode: descriptor [
 		                 configureForCompilerClass: self compilerClass;
 		                 addCompilerOptions: options.
 
+	 ('Compiling: ' , generatorSelector) traceCr.
+
 	 metacompiler compile
 ]
 
