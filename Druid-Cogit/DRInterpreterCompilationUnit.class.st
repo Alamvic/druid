@@ -15,9 +15,9 @@ Class {
 		'bytecodeTable',
 		'primitiveTable'
 	],
-	#category : 'Druid-CompilerBuilder',
-	#package : 'Druid',
-	#tag : 'CompilerBuilder'
+	#category : 'Druid-Cogit-Metacompiler',
+	#package : 'Druid-Cogit',
+	#tag : 'Metacompiler'
 }
 
 { #category : 'adding' }
@@ -98,6 +98,12 @@ DRInterpreterCompilationUnit >> compileUsing: aCompiler [
 		displayingProgress: [ :e | 'Compiling primitive ' , e genSelector ].
 
 	self dispatchTableGenerator installAllMethodsOn: realTargetClass class
+]
+
+{ #category : 'accessing' }
+DRInterpreterCompilationUnit >> defaultTargetSuperclass [
+
+	^ StackToRegisterMappingCogit
 ]
 
 { #category : 'private' }
