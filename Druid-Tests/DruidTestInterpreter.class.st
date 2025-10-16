@@ -31,6 +31,15 @@ DruidTestInterpreter >> basicInlineMethod [
 ]
 
 { #category : 'bytecode' }
+DruidTestInterpreter >> basicMethodWithBlock: aBlock [
+
+	| tmp1 |
+	tmp1  := aBlock value.
+	^ tmp1
+	
+]
+
+{ #category : 'bytecode' }
 DruidTestInterpreter >> bytecodePopOnTwoBranches [
 
 	<compilationInfo: #isMapped>
@@ -1948,4 +1957,17 @@ DruidTestInterpreter >> returnArg: argument [
 		ifTrue: [ 1 ]
 		ifFalse: [ 2 ].
 	^ argument + acc
+]
+
+{ #category : 'bytecode' }
+DruidTestInterpreter >> simpleMethodWithBlockReadingOuterVariable [
+
+	| temp |
+	temp:=0.
+	self basicMethodWithBlock: [ |x|.
+		x:=temp.
+		x].
+	
+	^ temp
+	
 ]
