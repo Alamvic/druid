@@ -38,10 +38,13 @@ BaselineOfDruid >> baseline: spec [
 			package: 'Druid-UI' with: [ spec requires: #('Druid' 'Druid-Tests') ].
 
 		spec
-			group: 'Core' with: #('Druid' "Move to another groups:" 'Druid-Cogit' 'Druid-Opal');
-			group: 'DruidTests' with: #('Core' 'Druid-Tests');
+			group: 'Core' with: #('Druid');
+			group: 'Cogit' with: #('Druid-Cogit');
+			group: 'Opal' with: #('Druid-Opal');
+			group: 'Full' with: #('Core' 'Cogit' 'Opal');
+			group: 'Tests' with: #('Druid-Tests');
 			group: 'UI' with: #('Druid-UI');
-			group: 'default' with: #('Druid' 'DruidTests' 'Druid-UI') ]
+			group: 'default' with: #('Full' 'Tests' 'UI') ]
 ]
 
 { #category : 'doits' }
