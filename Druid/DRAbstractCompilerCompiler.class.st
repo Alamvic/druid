@@ -158,9 +158,9 @@ DRAbstractCompilerCompiler >> initialize [
 	compilerOptions := Set new.
 	optimisations := OrderedCollection new.
 
-	codeGenerator := DRCogitCodeGenerator new.
-	customisation := DRNonePrimitiveCustomisation new.
 	irGenerator := self newIRGenerator.
+	codeGenerator := self newCodeGenerator.
+	customisation := DRNonePrimitiveCustomisation new.
 
 ]
 
@@ -224,6 +224,12 @@ DRAbstractCompilerCompiler >> irGenerator [
 DRAbstractCompilerCompiler >> irGenerator: aDRIRGenerator [
 
 	irGenerator := aDRIRGenerator
+]
+
+{ #category : 'code-generation' }
+DRAbstractCompilerCompiler >> newCodeGenerator [
+
+	self subclassResponsibility 
 ]
 
 { #category : 'generation-IR' }

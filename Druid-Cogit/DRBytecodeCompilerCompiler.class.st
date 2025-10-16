@@ -75,6 +75,12 @@ DRBytecodeCompilerCompiler >> generateDruidIR [
 	^ self generateDruidIRForAll: self sourceMethods
 ]
 
+{ #category : 'code-generation' }
+DRBytecodeCompilerCompiler >> newCodeGenerator [
+
+	^ DRCogitCodeGenerator new
+]
+
 { #category : 'accessing' }
 DRBytecodeCompilerCompiler >> newIRGenerator [
 

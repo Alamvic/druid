@@ -136,6 +136,12 @@ DRPrimitiveCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRRe
 		  numArgs: numArgs
 ]
 
+{ #category : 'code-generation' }
+DRPrimitiveCompilerCompiler >> newCodeGenerator [
+
+	^ DRCogitCodeGenerator new
+]
+
 { #category : 'accessing' }
 DRPrimitiveCompilerCompiler >> newIRGenerator [
 
