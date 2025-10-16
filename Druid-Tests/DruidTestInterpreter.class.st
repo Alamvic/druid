@@ -204,6 +204,13 @@ DruidTestInterpreter >> methodCollectionSize: aCollection [
 ]
 
 { #category : 'as yet unclassified' }
+DruidTestInterpreter >> methodWithEarlyReturn: n [
+
+	n = 0 ifTrue: [ ^ 42 ].
+	^ 57
+]
+
+{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> methodWithNonLocalReturn [
 
 	[ :arg | ^ arg ] value: 17.

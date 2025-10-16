@@ -17,8 +17,6 @@ DRInlineMethodTest >> setUp [
 
 	"super setUp." "Avoid VM dependecies"
 	compilerCompiler := DRMethodCompilerCompiler new.
-	self configureInterpreter.
-
 	compilerCompiler irGenerator: DRMethodIRGenerator new.
 	optimisation := DRInline new
 ]
