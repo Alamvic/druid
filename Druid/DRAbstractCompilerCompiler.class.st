@@ -155,11 +155,12 @@ DRAbstractCompilerCompiler >> initialize [
 
 	super initialize.
 
+	compilerOptions := Set new.
 	optimisations := OrderedCollection new.
+
 	codeGenerator := DRCogitCodeGenerator new.
 	customisation := DRNonePrimitiveCustomisation new.
 	irGenerator := self newIRGenerator.
-	compilerOptions := Set new.
 
 ]
 
