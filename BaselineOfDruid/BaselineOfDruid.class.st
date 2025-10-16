@@ -32,11 +32,13 @@ BaselineOfDruid >> baseline: spec [
 
 		spec
 			package: 'Druid' with: [ spec requires: #('PharoVM' 'AIGraphAlgorithms' 'MachineArithmetic') ];
-			package: 'Druid-Tests' with: [ spec requires: 'Druid' ];
+			package: 'Druid-Cogit' with: [ spec requires: 'Druid' ];
+			package: 'Druid-Opal' with: [ spec requires: 'Druid' ];
+			package: 'Druid-Tests' with: [ spec requires: #('Druid' 'Druid-Cogit' 'Druid-Opal') ];
 			package: 'Druid-UI' with: [ spec requires: #('Druid' 'Druid-Tests') ].
 
 		spec
-			group: 'Core' with: #('Druid' );
+			group: 'Core' with: #('Druid' "Move to another groups:" 'Druid-Cogit' 'Druid-Opal');
 			group: 'DruidTests' with: #('Core' 'Druid-Tests');
 			group: 'UI' with: #('Druid-UI');
 			group: 'default' with: #('Druid' 'DruidTests' 'Druid-UI') ]
