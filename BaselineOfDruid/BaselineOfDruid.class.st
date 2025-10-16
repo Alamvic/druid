@@ -15,7 +15,7 @@ BaselineOfDruid >> baseline: spec [
 			baseline: 'PharoVM'
 			with: [ spec
 				className: 'BaselineOfVMMaker';
-				repository: 'github://pharo-project/opensmalltalk-vm:druid' ].
+				repository: 'github://pharo-project/pharo-vm:druid' ].
 
 		spec
 			baseline: 'AIGraphAlgorithms'
