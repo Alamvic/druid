@@ -157,13 +157,13 @@ DRIRGenerator >> basicNewBasicBlockWithState: anExecutionState [
 	^ block
 ]
 
-{ #category : 'ir-genera' }
-DRIRGenerator >> blockClosureGenerator [
+{ #category : 'building' }
+DRIRGenerator >> blockClosureFor: aRBBlockNode [
 
-	| blockGenerator |
-	blockGenerator := DRBlockIRGenerator new.
-
-	^ blockGenerator
+	^ DRBlockClosure new
+		  blockNode: aRBBlockNode;
+		  outerContext: self topFrame;
+		  yourself
 ]
 
 { #category : 'special cases' }
@@ -2056,15 +2056,7 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 
-	| irBlockGenerator |
-	
-	irBlockGenerator := self blockClosureGenerator.
-
-	self pushOperand: (DRBlockClosure new
-			 blockNode: aRBBlockNode;
-			 irGenerator: irBlockGenerator;
-			 outerContext: self topFrame;
-			 yourself)
+	self pushOperand: (self blockClosureFor: aRBBlockNode )
 ]
 
 { #category : 'visiting' }

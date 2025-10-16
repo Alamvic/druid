@@ -6,7 +6,15 @@ Class {
 	#tag : 'Compiler'
 }
 
-{ #category : 'initialization' }
+{ #category : 'building' }
+DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
+
+	^ (super blockClosureFor: aRBBlockNode)
+		  irGenerator: self blockClosureGenerator;
+		  yourself
+]
+
+{ #category : 'building' }
 DRMethodIRGenerator >> blockClosureGenerator [
 
 	| blockGenerator |
