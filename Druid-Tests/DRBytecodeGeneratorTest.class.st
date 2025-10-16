@@ -170,7 +170,7 @@ DRBytecodeGeneratorTest >> setUp [
 	compilerCompiler interpreter: DruidTestInterpreter basicNew.
 	
 	bytecodeGenerator := DRBytecodeGenerator new.
-	typeSystem := DRPragmaBasedTypeSystem new
+	typeSystem := DRSlangTypeSystem new
 ]
 
 { #category : 'running' }

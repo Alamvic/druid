@@ -26,6 +26,14 @@ DRMetaCompilerIRGenerator >> currentPrimitiveFailureCode: anInstruction [
 	self executionState primitiveFailureCode: anInstruction
 ]
 
+{ #category : 'initialization' }
+DRMetaCompilerIRGenerator >> initialize [
+
+	super initialize.
+	typeSystem := DRSlangTypeSystem new.
+
+]
+
 { #category : 'special cases' }
 DRMetaCompilerIRGenerator >> initializeSpecialCases [
 
