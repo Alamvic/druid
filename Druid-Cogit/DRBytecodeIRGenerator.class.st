@@ -422,8 +422,6 @@ DRBytecodeIRGenerator >> interpretStackValueWith: aRBMessageNode [
 	"Interpret messages of the form 
 	interpreter stackValue: xxx.
 	"
-
-	| value |
 	aRBMessageNode arguments first acceptVisitor: self.
 
 	^ self

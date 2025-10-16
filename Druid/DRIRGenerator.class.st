@@ -1382,27 +1382,6 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 	self pushOperand: (self stackValue: value)
 ]
 
-{ #category : 'special cases - stack' }
-DRIRGenerator >> interpretStackValueWith: aRBMessageNode withValue: aValue [
-	"Interpret messages of the form 
-	interpreter stackValue: xxx.
-	"
-
-	aValue isInteger ifFalse: [ self error: 'expected an integer value' ].
-
-	aValue = numberOfArguments ifTrue: [
-		^ self
-			  addInstructionFrom: aRBMessageNode
-			  instructionKind: DRLoadReceiver
-			  operands: #(  ) ].
-
-	^ (self
-		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRLoadArgument
-		  operands: { (self argumentOffsetForStackValue: aValue) asDRValue })
-			classType: (DRSignedIntegerType size: 8 "Word size")
-]
-
 { #category : 'special cases' }
 DRIRGenerator >> interpretStageableBlockWith: aRBMessageNode [
 

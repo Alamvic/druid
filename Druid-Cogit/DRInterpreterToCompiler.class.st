@@ -29,9 +29,9 @@ Class {
 		'bytecodeSelector',
 		'errors'
 	],
-	#category : 'Druid-CompilerBuilder',
-	#package : 'Druid',
-	#tag : 'CompilerBuilder'
+	#category : 'Druid-Cogit-Metacompiler',
+	#package : 'Druid-Cogit',
+	#tag : 'Metacompiler'
 }
 
 { #category : 'instance creation' }

@@ -4,9 +4,9 @@ Class {
 	#instVars : [
 		'primitiveNumber'
 	],
-	#category : 'Druid-CompilerBuilder',
-	#package : 'Druid',
-	#tag : 'CompilerBuilder'
+	#category : 'Druid-Cogit-Metacompiler',
+	#package : 'Druid-Cogit',
+	#tag : 'Metacompiler'
 }
 
 { #category : 'accessing' }
