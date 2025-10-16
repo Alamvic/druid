@@ -1,8 +1,9 @@
 Class {
 	#name : 'DRCustomizedTypeSystemInliningTest',
 	#superclass : 'DRBytecodeGeneratorTest',
-	#category : 'Druid-Tests',
-	#package : 'Druid-Tests'
+	#category : 'Druid-Opal-Tests',
+	#package : 'Druid-Opal',
+	#tag : 'Tests'
 }
 
 { #category : 'running' }
@@ -182,7 +183,7 @@ DRCustomizedTypeSystemInliningTest >> testMethodRecompilationWithProfile [
 	selector := #methodCollectionSize:.
 	method := self generateMethodForSelector: selector.
 
-	previousMethodSize := (DruidTestInterpreter >> selector) size.
+	previousMethodSize := (DrOpalExamples >> selector) size.
 
 	self assert: method size > previousMethodSize. "Bigger than original"
 	previousMethodSize := method size.

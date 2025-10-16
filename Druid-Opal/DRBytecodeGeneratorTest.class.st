@@ -6,8 +6,9 @@ Class {
 		'bytecodeGenerator',
 		'typeSystem'
 	],
-	#category : 'Druid-Tests',
-	#package : 'Druid-Tests'
+	#category : 'Druid-Opal-Tests',
+	#package : 'Druid-Opal',
+	#tag : 'Tests'
 }
 
 { #category : 'assertion' }
@@ -124,7 +125,7 @@ DRBytecodeGeneratorTest >> generateDruidIRFor: method [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> generateDruidIRForSelector: selector [
 
-	^ self generateDruidIRFor: (DruidTestInterpreter lookupSelector: selector)
+	^ self generateDruidIRFor: (DrOpalExamples lookupSelector: selector)
 ]
 
 { #category : 'helpers' }
@@ -167,10 +168,9 @@ DRBytecodeGeneratorTest >> setUp [
 	super setUp.
 	
 	compilerCompiler := DRMethodCompilerCompiler new.
-	compilerCompiler interpreter: DruidTestInterpreter basicNew.
+	compilerCompiler interpreter: DrOpalExamples basicNew.
 	
-	bytecodeGenerator := DRBytecodeGenerator new.
-	typeSystem := DRSlangTypeSystem new
+	bytecodeGenerator := DRBytecodeGenerator new
 ]
 
 { #category : 'running' }
@@ -207,57 +207,57 @@ DRBytecodeGeneratorTest >> testMethodEmpty [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInline [
 
-	self assertCompilationFor: #basicInlineMethod fromClass: DruidTestInterpreter
+	self assertCompilationFor: #basicInlineMethod fromClass: DrOpalExamples
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectAccessInstVar [
 
-	self assertCompilationFor: #basicInlineMethodAccesInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #instVarAt:'
+	self assertCompilationFor: #basicInlineMethodAccesInstVar fromClass: DrOpalExamples checkByteCode: 'send: #instVarAt:'
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectSettingInstVar [
 
-	self assertCompilationFor: #basicInlineMethodSettingInstVar fromClass: DruidTestInterpreter checkByteCode: 'send: #instVarAt:put:'
+	self assertCompilationFor: #basicInlineMethodSettingInstVar fromClass: DrOpalExamples checkByteCode: 'send: #instVarAt:put:'
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineSelfAccessInstVar [
 
-	self assertCompilationFor: #basicInlineMethodSelfAccesInstVar fromClass: DruidTestInterpreter checkByteCode: 'pushInstVar:'
+	self assertCompilationFor: #basicInlineMethodSelfAccesInstVar fromClass: DrOpalExamples checkByteCode: 'pushInstVar:'
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineSelfSettingInstVar [
 
-	self assertCompilationFor: #basicInlineMethodSelfSettingInstVar fromClass: DruidTestInterpreter checkByteCode: 'storeInstVar:'.
-	self assertCompilationFor: #basicInlineMethodSelfSettingInstVarOnReturn fromClass: DruidTestInterpreter checkByteCode: 'storeInstVar:'.
-	self assertCompilationFor: #basicInlineMethodSelfSettingInstVarWithUsers fromClass: DruidTestInterpreter checkByteCode: 'storeInstVar:'.
+	self assertCompilationFor: #basicInlineMethodSelfSettingInstVar fromClass: DrOpalExamples checkByteCode: 'storeInstVar:'.
+	self assertCompilationFor: #basicInlineMethodSelfSettingInstVarOnReturn fromClass: DrOpalExamples checkByteCode: 'storeInstVar:'.
+	self assertCompilationFor: #basicInlineMethodSelfSettingInstVarWithUsers fromClass: DrOpalExamples checkByteCode: 'storeInstVar:'.
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineToDo [
 
-	self assertCompilationFor: #methodWithToDo fromClass: DruidTestInterpreter
+	self assertCompilationFor: #methodWithToDo fromClass: DrOpalExamples
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineToDoInner [
 
-	self assertCompilationFor: #methodWithTwoToDos fromClass: DruidTestInterpreter
+	self assertCompilationFor: #methodWithTwoToDos fromClass: DrOpalExamples
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodManyReturns [
 
-	self assertCompilationFor: #methodWithThreeNonLocalReturn fromClass: DruidTestInterpreter
+	self assertCompilationFor: #methodWithThreeNonLocalReturn fromClass: DrOpalExamples
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodReadingClassVariable [
 
-	self assertCompilationFor: #methodReadingClassVariable fromClass: DruidTestInterpreter
+	self assertCompilationFor: #methodReadingClassVariable fromClass: DrOpalExamples
 ]
 
 { #category : 'tests' }
@@ -276,7 +276,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockActivated [
 
 	self
 		assertCompilationNoInlineFor: #simpleMethodWithBlockActivated
-		fromClass: DruidTestInterpreter
+		fromClass: DrOpalExamples
 		arguments: {  }
 ]
 
@@ -285,14 +285,14 @@ DRBytecodeGeneratorTest >> testMethodWithBlockActivatedArg [
 
 	self
 		assertCompilationNoInlineFor: #simpleMethodWithBlockActivatedArg
-		fromClass: DruidTestInterpreter
+		fromClass: DrOpalExamples
 		arguments: {  }
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockArg [
 	
-	self assertCompilationNoInlineFor: #simpleMethodWithBlockWithArg fromClass: DruidTestInterpreter arguments: {}.
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockWithArg fromClass: DrOpalExamples arguments: {}.
 
 	
 ]
@@ -300,7 +300,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockArg [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockArgWithBlockArg [
 	
-	self assertCompilationNoInlineFor: #simpleMethodArgWithBlockWithArg: fromClass: DruidTestInterpreter arguments: { nil }.
+	self assertCompilationNoInlineFor: #simpleMethodArgWithBlockWithArg: fromClass: DrOpalExamples arguments: { nil }.
 
 	
 ]
@@ -308,7 +308,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockArgWithBlockArg [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockConstant [
 	
-	self assertCompilationNoInlineFor: #methodBlockConstant fromClass: DruidTestInterpreter arguments: { }.
+	self assertCompilationNoInlineFor: #methodBlockConstant fromClass: DrOpalExamples arguments: { }.
 
 	
 ]
@@ -318,7 +318,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockCulled [
 
 	self
 		assertCompilationNoInlineFor: #simpleMethodWithBlockCull
-		fromClass: DruidTestInterpreter
+		fromClass: DrOpalExamples
 		arguments: {  }
 ]
 
@@ -327,7 +327,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockCulled1Arg [
 
 	self
 		assertCompilationNoInlineFor: #simpleMethodWithBlockCull1Arg
-		fromClass: DruidTestInterpreter
+		fromClass: DrOpalExamples
 		arguments: {  }
 ]
 
@@ -336,14 +336,14 @@ DRBytecodeGeneratorTest >> testMethodWithBlockCulled2Arg [
 
 	self
 		assertCompilationNoInlineFor: #simpleMethodWithBlockCull2Arg
-		fromClass: DruidTestInterpreter
+		fromClass: DrOpalExamples
 		arguments: {  }
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockEmpty [
 	
-	self assertCompilationNoInlineFor: #methodEmptyBlock fromClass: DruidTestInterpreter arguments: { }.
+	self assertCompilationNoInlineFor: #methodEmptyBlock fromClass: DrOpalExamples arguments: { }.
 
 	
 ]
@@ -351,28 +351,28 @@ DRBytecodeGeneratorTest >> testMethodWithBlockEmpty [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockLocalAndNonLocalReturn [
 	
-	self assertCompilationNoInlineFor: #methodBlockLocalAndNonLocalReturn fromClass: DruidTestInterpreter arguments: { }.
+	self assertCompilationNoInlineFor: #methodBlockLocalAndNonLocalReturn fromClass: DrOpalExamples arguments: { }.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadAndWrite [
 	
-	self assertCompilationNoInlineFor: #methodBlockNested2ReadAndWrite fromClass: DruidTestInterpreter arguments: { }.
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadAndWrite fromClass: DrOpalExamples arguments: { }.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadAndWriteWithArg [
 	
-	self assertCompilationNoInlineFor: #methodBlockNested2ReadAndWriteWithArg: fromClass: DruidTestInterpreter arguments: { 5 }.
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadAndWriteWithArg: fromClass: DrOpalExamples arguments: { 5 }.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg [
 	
-	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterArg: fromClass: DruidTestInterpreter arguments: {1}.
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterArg: fromClass: DrOpalExamples arguments: {1}.
 	
 ]
 
@@ -381,63 +381,63 @@ DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg2 [
 
 	self
 		assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterArg2:
-		fromClass: DruidTestInterpreter
+		fromClass: DrOpalExamples
 		arguments: { 1 }
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterTemp [
 	
-	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterTemp fromClass: DruidTestInterpreter arguments: {}.
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterTemp fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterTemp2 [
 	
-	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterTemp2 fromClass: DruidTestInterpreter arguments: {}.
+	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterTemp2 fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2Simple [
 	
-	self assertCompilationNoInlineFor: #methodBlockNested2Simple fromClass: DruidTestInterpreter arguments: {}.
+	self assertCompilationNoInlineFor: #methodBlockNested2Simple fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2WithArg [
 	
-	self assertCompilationNoInlineFor: #methodBlockNested2WithArg fromClass: DruidTestInterpreter arguments: { }.
+	self assertCompilationNoInlineFor: #methodBlockNested2WithArg fromClass: DrOpalExamples arguments: { }.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2WithArg2 [
 	
-	self assertCompilationNoInlineFor: #methodBlockNested2WithArg2 fromClass: DruidTestInterpreter arguments: { }.
+	self assertCompilationNoInlineFor: #methodBlockNested2WithArg2 fromClass: DrOpalExamples arguments: { }.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2WritingOuterTemp [
 	
-	self assertCompilationNoInlineFor: #methodBlockNested2WritingOuterTemp fromClass: DruidTestInterpreter arguments: {}.
+	self assertCompilationNoInlineFor: #methodBlockNested2WritingOuterTemp fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2WritingOuterTemp2 [
 	
-	self assertCompilationNoInlineFor: #methodBlockNested2WritingOuterTemp2 fromClass: DruidTestInterpreter arguments: {}.
+	self assertCompilationNoInlineFor: #methodBlockNested2WritingOuterTemp2 fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNonLocalReturn [
 	
-	self assertCompilationNoInlineFor: #methodBlockNonLocalReturn fromClass: DruidTestInterpreter arguments: { }.
+	self assertCompilationNoInlineFor: #methodBlockNonLocalReturn fromClass: DrOpalExamples arguments: { }.
 
 	
 ]
@@ -445,7 +445,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockNonLocalReturn [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockReadingArgVar [
 	
-	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingArgVariable: fromClass: DruidTestInterpreter arguments: { 0 }.
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingArgVariable: fromClass: DrOpalExamples arguments: { 0 }.
 
 	
 ]
@@ -453,7 +453,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockReadingArgVar [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockReadingVar [
 
-	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingOuterVariable fromClass: DruidTestInterpreter arguments: {}.
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingOuterVariable fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
@@ -462,21 +462,21 @@ DRBytecodeGeneratorTest >> testMethodWithBlockTemp [
 
 	self
 		assertCompilationNoInlineFor: #simpleMethodWithBlock
-		fromClass: DruidTestInterpreter
+		fromClass: DrOpalExamples
 		arguments: {  }
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithBlockWritingVar [
 	
-	self assertCompilationNoInlineFor: #simpleMethodWithBlockWritingOuterVariable fromClass: DruidTestInterpreter arguments: {}.
+	self assertCompilationNoInlineFor: #simpleMethodWithBlockWritingOuterVariable fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithDynamicArray [
 
-	self assertCompilationFor: #methodWithDynamicArray fromClass: DruidTestInterpreter
+	self assertCompilationFor: #methodWithDynamicArray fromClass: DrOpalExamples
 ]
 
 { #category : 'tests' }
@@ -523,7 +523,7 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWritingClassVariable [
 
-	self assertCompilationFor: #methodWritingClassVariable fromClass: DruidTestInterpreter
+	self assertCompilationFor: #methodWritingClassVariable fromClass: DrOpalExamples
 ]
 
 { #category : 'tests' }
@@ -583,9 +583,9 @@ DRBytecodeGeneratorTest >> testSimpleMethod [
 
 	compilerCompiler configureForCompilerClass: nil.
 	aSelector:= #simpleMethod.
-	expectedMethod := DruidTestInterpreter >> aSelector.
+	expectedMethod := DrOpalExamples >> aSelector.
 	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
+	compiledMethod := self compileSelector: aSelector fromClass: DrOpalExamples.
 	
 	self assert: compiledMethod equalsResult: expectedMethod
 	
@@ -598,9 +598,9 @@ DRBytecodeGeneratorTest >> testSimpleMethodReturnArg [
 
 	compilerCompiler configureForCompilerClass: nil.
 	aSelector:= #simpleMethodReturnArg: .
-	expectedMethod := DruidTestInterpreter >> aSelector.
+	expectedMethod := DrOpalExamples >> aSelector.
 	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
+	compiledMethod := self compileSelector: aSelector fromClass: DrOpalExamples.
 	
 	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { 5 }.
 	
@@ -617,9 +617,9 @@ DRBytecodeGeneratorTest >> testSimpleMethodWith1arg [
 	
 	compilerCompiler configureForCompilerClass: nil.
 	aSelector:= #simpleMethodWith1Arg:.
-	expectedMethod := DruidTestInterpreter >> aSelector.
+	expectedMethod := DrOpalExamples >> aSelector.
 	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
+	compiledMethod := self compileSelector: aSelector fromClass: DrOpalExamples.
 	
 	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { 5 }.
 	
@@ -635,9 +635,9 @@ DRBytecodeGeneratorTest >> testSimpleMethodWith2arg [
 	
 	compilerCompiler configureForCompilerClass: nil.
 	aSelector:= #simpleMethodWith1Arg:arg2:.
-	expectedMethod := DruidTestInterpreter >> aSelector.
+	expectedMethod := DrOpalExamples >> aSelector.
 	
-	compiledMethod := self compileSelector: aSelector fromClass: DruidTestInterpreter.
+	compiledMethod := self compileSelector: aSelector fromClass: DrOpalExamples.
 	
 	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { 5 . 6}.
 	

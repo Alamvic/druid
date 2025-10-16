@@ -1,9 +1,9 @@
 Class {
 	#name : 'DRInlineMethodTest',
 	#superclass : 'DROptimisationTest',
-	#category : 'Druid-Tests-Optimizations',
-	#package : 'Druid-Tests',
-	#tag : 'Optimizations'
+	#category : 'Druid-Opal-Tests',
+	#package : 'Druid-Opal',
+	#tag : 'Tests'
 }
 
 { #category : 'initialization' }
