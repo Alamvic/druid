@@ -31,8 +31,8 @@ BaselineOfDruid >> baseline: spec [
 				loads: #(Z3Proper) ].
 
 		spec
-			package: 'Druid' with: [ spec requires: #('PharoVM' 'AIGraphAlgorithms' 'MachineArithmetic') ];
-			package: 'Druid-Cogit' with: [ spec requires: 'Druid' ];
+			package: 'Druid' with: [ spec requires: #('AIGraphAlgorithms' 'MachineArithmetic') ];
+			package: 'Druid-Cogit' with: [ spec requires: #('Druid' 'PharoVM') ];
 			package: 'Druid-Opal' with: [ spec requires: 'Druid' ];
 			package: 'Druid-Tests' with: [ spec requires: #('Druid' 'Druid-Cogit' 'Druid-Opal') ];
 			package: 'Druid-UI' with: [ spec requires: #('Druid' 'Druid-Tests') ].
