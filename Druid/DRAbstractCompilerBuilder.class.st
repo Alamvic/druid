@@ -32,12 +32,6 @@ DRAbstractCompilerBuilder >> compilationUnit: anObject [
 	compilationUnit := anObject
 ]
 
-{ #category : 'accessing - compiler' }
-DRAbstractCompilerBuilder >> compilationUnitClass [
-
-	^ DRInterpreterCompilationUnit 
-]
-
 { #category : 'accessing' }
 DRAbstractCompilerBuilder >> compilerOptions [
 	^ compilerOptions

@@ -353,6 +353,12 @@ DRInterpreterToCompiler >> collectPrimitives: aCollection [
 		  thenSelect: [ :method | self isSelectedPrimitive: method ]
 ]
 
+{ #category : 'accessing - compiler' }
+DRInterpreterToCompiler >> compilationUnitClass [
+
+	^ DRInterpreterCompilationUnit 
+]
+
 { #category : 'initialization' }
 DRInterpreterToCompiler >> doFailOnFirst [
 
