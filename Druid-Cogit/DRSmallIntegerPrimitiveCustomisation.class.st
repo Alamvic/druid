@@ -34,6 +34,6 @@ DRSmallIntegerPrimitiveCustomisation >> optimize: anIR [
 DRSmallIntegerPrimitiveCustomisation >> preamble [
 
 	| preamble |
-	preamble := DruidTestRTLCompiler lookupSelector: #smallIntegerSpecialisedPreamble.
+	preamble := DruidJIT lookupSelector: #smallIntegerSpecialisedPreamble.
 	^ preamble ast body copy
 ]

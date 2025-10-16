@@ -12643,17 +12643,3 @@ DruidTestRTLCompiler >> shouldAnnotateObjectReference: anOop [
 	  and: [(self oop: anOop isGreaterThan: objectMemory classTableRootObj)
 		or: [self oop: anOop isLessThan: objectMemory nilObject]]
 ]
-
-{ #category : 'generated' }
-DruidTestRTLCompiler >> smallFloatSpecialisedPreamble [ 
-
-	self mclassIsSmallFloat ifFalse:
-		[^UnimplementedPrimitive].
-]
-
-{ #category : 'generated' }
-DruidTestRTLCompiler >> smallIntegerSpecialisedPreamble [ 
-
-	self mclassIsSmallInteger ifFalse:
-		[^UnimplementedPrimitive].
-]

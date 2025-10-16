@@ -34,6 +34,6 @@ DRSmallFloatPrimitiveCustomisation >> optimize: anIR [
 DRSmallFloatPrimitiveCustomisation >> preamble [
 
 	| preamble |
-	preamble := DruidTestRTLCompiler lookupSelector: #smallFloatSpecialisedPreamble.
+	preamble := DruidJIT lookupSelector: #smallFloatSpecialisedPreamble.
 	^ preamble ast body copy
 ]
