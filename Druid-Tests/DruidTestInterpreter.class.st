@@ -204,33 +204,6 @@ DruidTestInterpreter >> methodCollectionSize: aCollection [
 ]
 
 { #category : 'as yet unclassified' }
-DruidTestInterpreter >> methodInlineThenSendClass: aCollection [
-
-	<var: #aCollection type: #Array>
-	^ aCollection className
-]
-
-{ #category : 'as yet unclassified' }
-DruidTestInterpreter >> methodWithArg: aCollection [
-	<var: #aCollection type: #OrderedCollection>
-	^ aCollection select: [ :element | element even ]
-]
-
-{ #category : 'as yet unclassified' }
-DruidTestInterpreter >> methodWithMultipleTypeAnnotations: aCollection [
-
-	<var: #aCollection type: #OrderedCollection>
-	<var: #aCollection type: #Dictionary>
-	^ aCollection select: [ :element | element even ]
-]
-
-{ #category : 'as yet unclassified' }
-DruidTestInterpreter >> methodWithNoTypeAnnotation: aCollection [
-	
-	^ aCollection select: [ :element | element even ]
-]
-
-{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> methodWithNonLocalReturn [
 
 	[ :arg | ^ arg ] value: 17.
@@ -246,22 +219,6 @@ DruidTestInterpreter >> methodWithTwoEarlyReturns [
 
 	"Dead code"
 	^ 16rFFFF
-]
-
-{ #category : 'as yet unclassified' }
-DruidTestInterpreter >> methodWithUnknownTypeAnnotation: aCollection [
-
-	<var: #aCollection type: #OrderedCollection>
-	<var: #aCollection type: #Unknown>
-	^ aCollection select: [ :element | element even ]
-]
-
-{ #category : 'as yet unclassified' }
-DruidTestInterpreter >> methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotation: aCollection [
-
-	<var: #aCollection type: #Unknown>
-	<var: #aCollection type: #Dictionary>
-	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : 'as yet unclassified' }

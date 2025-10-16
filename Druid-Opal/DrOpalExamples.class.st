@@ -278,9 +278,22 @@ DrOpalExamples >> methodEmptyBlock [
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> methodInlineThenSendClass: aCollection [
+
+	<var: #aCollection type: #Array>
+	^ aCollection className
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> methodReadingClassVariable [
 
 	^ classVariable
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodWithArg: aCollection [
+	<var: #aCollection type: #OrderedCollection>
+	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -294,6 +307,20 @@ DrOpalExamples >> methodWithEarlyReturn: n [
 
 	n = 0 ifTrue: [ ^ 42 ].
 	^ 57
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodWithMultipleTypeAnnotations: aCollection [
+
+	<var: #aCollection type: #OrderedCollection>
+	<var: #aCollection type: #Dictionary>
+	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodWithNoTypeAnnotation: aCollection [
+	
+	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -321,6 +348,22 @@ DrOpalExamples >> methodWithTwoToDos [
 	n := 0.
 	1 to: 10 do: [ :i | 1 to: 10 do: [ :j | n := n + i + j ] ].
 	^ n
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodWithUnknownTypeAnnotation: aCollection [
+
+	<var: #aCollection type: #OrderedCollection>
+	<var: #aCollection type: #Unknown>
+	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotation: aCollection [
+
+	<var: #aCollection type: #Unknown>
+	<var: #aCollection type: #Dictionary>
+	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : 'as yet unclassified' }

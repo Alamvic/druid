@@ -6,10 +6,16 @@ Class {
 	#tag : 'Tests'
 }
 
+{ #category : 'tests - type systems' }
+DRInlineMethodTest >> interpreterClass [
+
+	^ DrOpalExamples 
+]
+
 { #category : 'initialization' }
 DRInlineMethodTest >> setUp [
 
-	super setUp.
+	"super setUp." "Avoid VM dependecies"
 	compilerCompiler := DRMethodCompilerCompiler new.
 	self configureInterpreter.
 
@@ -73,7 +79,7 @@ DRInlineMethodTest >> testInlineMethodKeepsMessageSendIfTypeIsUnknown [
 { #category : 'tests' }
 DRInlineMethodTest >> testInlineMethodWithMultiplePossibleTypesInlinesAllPossibleMethods [
 
-	| cfg messageSend |	
+	| cfg |	
 	cfg := self generateDruidIRFor: #methodWithMultipleTypeAnnotations:.
 	cfg applyOptimisation: DRInline new.
 	

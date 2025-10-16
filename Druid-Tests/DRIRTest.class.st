@@ -58,7 +58,7 @@ DRIRTest >> denyConstraint: aConstraint includes: includedConstraint [
 DRIRTest >> generateBasicDruidIRFor: methodSelector [
 
 	| method cfg |
-	method := DruidTestInterpreter lookupSelector: methodSelector.
+	method := self interpreterClass lookupSelector: methodSelector.
 	cfg := compilerCompiler generateDruidIRFor: method.
 	^ cfg
 ]
@@ -70,6 +70,12 @@ DRIRTest >> generateDruidIRFor: methodSelector [
 	cfg := self generateBasicDruidIRFor: methodSelector.
 	self optimize: cfg.
 	^ cfg
+]
+
+{ #category : 'test' }
+DRIRTest >> interpreterClass [
+
+	^ DruidTestInterpreter
 ]
 
 { #category : 'test' }
