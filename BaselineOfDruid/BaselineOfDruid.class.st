@@ -39,7 +39,7 @@ BaselineOfDruid >> baseline: spec [
 
 		spec
 			group: 'Core' with: #('Druid');
-			group: 'Cogit' with: #('Druid-Cogit');
+			group: 'Cogit' with: #('Druid-Cogit' 'Druid-Tests');
 			group: 'Opal' with: #('Druid-Opal');
 			group: 'Full' with: #('Core' 'Cogit' 'Opal');
 			group: 'Tests' with: #('Druid-Tests');
