@@ -17,7 +17,6 @@ DRMethodCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 
 	codeGenerator := DRCogitCodeGenerator new.
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
-	customisation := DRNonePrimitiveCustomisation new.
 	irGenerator := self newIRGenerator.
 
 	optimisations := OrderedCollection new.
@@ -41,7 +40,6 @@ DRMethodCompilerCompiler >> configureForCompilerClassWithoutInline: aCompilerCla
 
 	codeGenerator := DRCogitCodeGenerator new.
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
-	customisation := DRNonePrimitiveCustomisation new.
 	irGenerator := self newIRGenerator.
 
 	optimisations := OrderedCollection new.

@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRPrimitiveCompilerCompiler',
-	#superclass : 'DRAbstractCompilerCompiler',
+	#superclass : 'DRMetaCompilerCompiler',
 	#instVars : [
 		'primitiveCompilerName'
 	],
@@ -56,6 +56,16 @@ DRPrimitiveCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 	registerAllocator := DRCogitLinearScanRegisterAllocator new.
 	codeGenerator := compilerClass druidNewPrimitiveCodeGenerator.
 	optimisations := StackToRegisterMappingCogit druidNewOptimizationList
+]
+
+{ #category : 'generation-IR' }
+DRPrimitiveCompilerCompiler >> customiseFor: method [
+
+	method ast
+		pragmaNamed: #customisedReceiverFor:
+		ifPresent: [ :pragma |
+			customisation := DRPrimitiveCustomisation newCustomisation:
+				                 pragma arguments first value ]
 ]
 
 { #category : 'ir-generation' }
@@ -134,12 +144,6 @@ DRPrimitiveCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRRe
 		  interpretMethods: compiledMethods
 		  receiver: aDRReceiver
 		  numArgs: numArgs
-]
-
-{ #category : 'code-generation' }
-DRPrimitiveCompilerCompiler >> newCodeGenerator [
-
-	^ DRCogitCodeGenerator new
 ]
 
 { #category : 'accessing' }

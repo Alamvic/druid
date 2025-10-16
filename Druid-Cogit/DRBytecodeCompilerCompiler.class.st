@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRBytecodeCompilerCompiler',
-	#superclass : 'DRAbstractCompilerCompiler',
+	#superclass : 'DRMetaCompilerCompiler',
 	#instVars : [
 		'targetName',
 		'bytecodes'
@@ -50,9 +50,6 @@ DRBytecodeCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 { #category : 'generation-IR' }
 DRBytecodeCompilerCompiler >> customiseFor: method [
 
-	self flag: #TODO. "Allow mix of customisations"
-	super customiseFor: method.
-
 	"Avoid the customisation if we are compiling the super instruction"
 	(self compilerOptions includes: #superInstructions) ifTrue: [
 		self sourceMethods size > 1 ifFalse: [
@@ -73,12 +70,6 @@ DRBytecodeCompilerCompiler >> generateDruidIR [
 	bytecodes ifNotNil: [ 
 		interpreter currentBytecode: bytecodes last key ].
 	^ self generateDruidIRForAll: self sourceMethods
-]
-
-{ #category : 'code-generation' }
-DRBytecodeCompilerCompiler >> newCodeGenerator [
-
-	^ DRCogitCodeGenerator new
 ]
 
 { #category : 'accessing' }
