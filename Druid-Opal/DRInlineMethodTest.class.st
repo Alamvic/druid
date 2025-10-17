@@ -13,10 +13,15 @@ DRInlineMethodTest >> interpreterClass [
 ]
 
 { #category : 'initialization' }
+DRInlineMethodTest >> newCompiler [
+
+	^ DRMethodCompilerCompiler new
+]
+
+{ #category : 'initialization' }
 DRInlineMethodTest >> setUp [
 
-	"super setUp." "Avoid VM dependecies"
-	compilerCompiler := DRMethodCompilerCompiler new.
+	super setUp.
 	compilerCompiler irGenerator: DRMethodIRGenerator new.
 	optimisation := DRInline new
 ]

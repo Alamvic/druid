@@ -78,6 +78,12 @@ DRIRTest >> interpreterClass [
 	^ DruidTestInterpreter
 ]
 
+{ #category : 'running' }
+DRIRTest >> newCompiler [
+
+	^ DRPrimitiveCompilerCompiler new
+]
+
 { #category : 'test' }
 DRIRTest >> newConditionalJump [
 
@@ -94,8 +100,7 @@ DRIRTest >> optimize: cfg [
 DRIRTest >> setUp [
 
 	super setUp.
-
-	compilerCompiler := DRPrimitiveCompilerCompiler new
+	compilerCompiler := self newCompiler
 ]
 
 { #category : 'test' }
