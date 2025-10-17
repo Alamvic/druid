@@ -28,7 +28,8 @@ DRBranchIfCondition >> asConditionalLoop [
 
 { #category : 'accessing' }
 DRBranchIfCondition >> backJumpTargets [
-	^ backJumps.
+
+	^ backJumps
 ]
 
 { #category : 'accessing' }

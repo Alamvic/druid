@@ -174,6 +174,7 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 	aDRControlFlowGraph applyOptimisation: DRPhiSimplication new.
 	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
 	
+	DRUnconditionalBackJumpScheluder new applyTo: aDRControlFlowGraph.
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
 
 	bytecodeGenerator numArgs: numArgs.
@@ -543,6 +544,12 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 DRBytecodeGeneratorTest >> testMethodWritingClassVariable [
 
 	self assertCompilationFor: #methodWritingClassVariable fromClass: DrOpalExamples
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testOpalASD [
+
+	self assertCompilationFor: #exampleWhileWithTempNotInlined fromClass: OCOpalExamples
 ]
 
 { #category : 'tests' }

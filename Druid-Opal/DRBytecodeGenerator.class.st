@@ -280,6 +280,12 @@ DRBytecodeGenerator >> visitLessOrEqualsThan: aDRLessOrEqualsThanComparison inBr
 	self sendMessage: #'<=' fromInstruction: aDRGetConditionCode
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitLessThan: aDRLessThanComparison inBranch: aDRBranchIfCondition [
+
+	self sendMessage: #< fromInstruction: aDRBranchIfCondition
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 	
