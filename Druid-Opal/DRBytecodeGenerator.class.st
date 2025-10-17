@@ -181,7 +181,7 @@ DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 
 	| blockNode compiledBlock blockCFG blockBytecodeGenerator copiedValues |
-	
+
 	blockNode := aDRBlockClosure blockNode.
 	blockCFG := aDRBlockClosure generateCFG.
 	
@@ -225,6 +225,8 @@ DRBytecodeGenerator >> visitBranchIfCondition: aDRConditionalBranch [
 DRBytecodeGenerator >> visitConstant: aDRConstantValue [
 
 	aDRConstantValue value isLiteral ifFalse: [
+		aDRConstantValue value isThisContextVariable ifTrue: [
+			^ builder pushThisContext ].
 		aDRConstantValue value isGlobalVariable ifTrue: [
 			^ builder pushLiteralVariable: aDRConstantValue value ] ].
 

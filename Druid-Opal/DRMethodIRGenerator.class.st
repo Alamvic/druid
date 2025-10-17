@@ -344,3 +344,9 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 		(self scope lookupVarOrAddNewTemp: aRBVariableNode name).
 	^ loadTemp
 ]
+
+{ #category : 'visiting' }
+DRMethodIRGenerator >> visitThisContextNode: aRBVariableNode [
+
+	self visitGlobalVariableNode: aRBVariableNode
+]
