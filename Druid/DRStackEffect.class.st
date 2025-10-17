@@ -1,9 +1,9 @@
 Class {
 	#name : 'DRStackEffect',
 	#superclass : 'DRStackInstruction',
-	#category : 'Druid-BytecodeToJITCompilation',
+	#category : 'Druid-IR',
 	#package : 'Druid',
-	#tag : 'BytecodeToJITCompilation'
+	#tag : 'IR'
 }
 
 { #category : 'testing' }

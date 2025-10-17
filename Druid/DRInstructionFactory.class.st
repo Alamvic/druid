@@ -99,18 +99,6 @@ DRInstructionFactory >> floatFromBits: operand1 [
 ]
 
 { #category : 'factory' }
-DRInstructionFactory >> flushStack [
-
-	^ self flushStackExceptTop: 0
-]
-
-{ #category : 'factory' }
-DRInstructionFactory >> flushStackExceptTop: n [
-
-	^ DRFlushStack operands: { n } result: DRNoRegister new
-]
-
-{ #category : 'factory' }
 DRInstructionFactory >> frameReturn: aValue [
 
 	^ DRFrameReturn operands: { aValue asDRValue } result: self allocateTemporaryRegister

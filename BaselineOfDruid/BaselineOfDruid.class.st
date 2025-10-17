@@ -15,7 +15,7 @@ BaselineOfDruid >> baseline: spec [
 			baseline: 'PharoVM'
 			with: [ spec
 				className: 'BaselineOfVMMaker';
-				repository: 'github://pharo-project/opensmalltalk-vm:druid' ].
+				repository: 'github://pharo-project/pharo-vm:druid' ].
 
 		spec
 			baseline: 'AIGraphAlgorithms'
@@ -31,15 +31,20 @@ BaselineOfDruid >> baseline: spec [
 				loads: #(Z3Proper) ].
 
 		spec
-			package: 'Druid' with: [ spec requires: #('PharoVM' 'AIGraphAlgorithms' 'MachineArithmetic') ];
-			package: 'Druid-Tests' with: [ spec requires: 'Druid' ];
+			package: 'Druid' with: [ spec requires: #('AIGraphAlgorithms' 'MachineArithmetic') ];
+			package: 'Druid-Cogit' with: [ spec requires: #('Druid' 'PharoVM') ];
+			package: 'Druid-Opal' with: [ spec requires: #('Druid' 'Druid-Tests') ];
+			package: 'Druid-Tests' with: [ spec requires: #('Druid') ];
 			package: 'Druid-UI' with: [ spec requires: #('Druid' 'Druid-Tests') ].
 
 		spec
-			group: 'Core' with: #('Druid' );
-			group: 'DruidTests' with: #('Core' 'Druid-Tests');
+			group: 'Core' with: #('Druid');
+			group: 'Cogit' with: #('Druid-Cogit' 'Druid-Tests');
+			group: 'Opal' with: #('Druid-Opal');
+			group: 'Full' with: #('Core' 'Cogit' 'Opal');
+			group: 'Tests' with: #('Druid-Tests');
 			group: 'UI' with: #('Druid-UI');
-			group: 'default' with: #('Druid' 'DruidTests' 'Druid-UI') ]
+			group: 'default' with: #('Full' 'Tests' 'UI') ]
 ]
 
 { #category : 'doits' }

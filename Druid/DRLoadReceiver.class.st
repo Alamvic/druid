@@ -1,9 +1,9 @@
 Class {
 	#name : 'DRLoadReceiver',
 	#superclass : 'DRInstruction',
-	#category : 'Druid-Cogit',
+	#category : 'Druid-IR',
 	#package : 'Druid',
-	#tag : 'Cogit'
+	#tag : 'IR'
 }
 
 { #category : 'visiting' }

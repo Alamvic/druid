@@ -1,9 +1,9 @@
 Class {
 	#name : 'DRPop',
 	#superclass : 'DRStackEffect',
-	#category : 'Druid-BytecodeToJITCompilation',
+	#category : 'Druid-IR',
 	#package : 'Druid',
-	#tag : 'BytecodeToJITCompilation'
+	#tag : 'IR'
 }
 
 { #category : 'visiting' }
