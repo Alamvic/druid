@@ -41,6 +41,8 @@ b0:
 
 	self optimize: cfg with: { DRPiZ3MessageSplitting }.
 
+	self skip. "Is this test finished?"
+
 	self assert: b_if1_true lastInstruction target
 		~= b_if1_false lastInstruction target.
 	

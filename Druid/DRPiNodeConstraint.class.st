@@ -72,7 +72,7 @@ DRPiNodeConstraint >> distanceForBuildingABCDGraph [
 DRPiNodeConstraint >> ifConstantDo: trueBlock ifNot: falseBlock [
 
 	| val |
-	val := otherValue asDRValue.
+	val := otherValue.
 	val isCopy ifTrue: [
 		val := val simpleConstantFold asDRValue.
 	].

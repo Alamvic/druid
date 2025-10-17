@@ -15,7 +15,7 @@ Class {
 DRPiDeadBranchElimination >> addSuccessorsToWorklist: aDRBasicBlock [
 
 	| tail |
-	tail := self tailOfBranchWithHeader: aDRBasicBlock.
+	tail := self lastOfDirectBranchFrom: aDRBasicBlock.
 	tail successors
 		collect: [ :succ | DRPiDBEEdge withSource: tail andDestination: succ ]
 		thenDo: [ :succ |
@@ -100,6 +100,16 @@ DRPiDeadBranchElimination >> isReachable: destinationBlock from: sourceBlock [
 ]
 
 { #category : 'analysis' }
+DRPiDeadBranchElimination >> lastOfDirectBranchFrom: aDRBasicBlock [
+
+	| tail |
+	
+	tail := aDRBasicBlock.
+	self directSuccessorsOf: aDRBasicBlock do: [ :b | tail := b ].
+	^ tail
+]
+
+{ #category : 'analysis' }
 DRPiDeadBranchElimination >> piNodesOfBranchWithHeader: aDRBasicBlock [
 
 	| piNodes |
@@ -115,14 +125,4 @@ DRPiDeadBranchElimination >> piNodesOfBranchWithHeader: aDRBasicBlock [
 DRPiDeadBranchElimination >> removeUnnecessaryConditionalJumps: deadEdges [
 
 	deadEdges do: #kill
-]
-
-{ #category : 'analysis' }
-DRPiDeadBranchElimination >> tailOfBranchWithHeader: aDRBasicBlock [
-
-	| tail |
-	
-	tail := aDRBasicBlock.
-	self directSuccessorsOf: aDRBasicBlock do: [ :b | tail := b ].
-	^ tail
 ]

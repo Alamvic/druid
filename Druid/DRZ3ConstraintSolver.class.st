@@ -136,7 +136,7 @@ DRZ3ConstraintSolver >> recurseOnlyPis: aDRValue addingConstraintsOn: varForCons
 	constraint := true toBool.
 
 	[ currentVal isCopy or: [
-		currentVal isPhiFunction and: currentVal operands size = 1 ] ] whileTrue: [
+		currentVal isPhiFunction and: [ currentVal operands size = 1 ] ] ] whileTrue: [
 			currentVal isPiNode ifTrue: [
 				constraint := constraint and:
 					              (currentVal constraint asZ3ConstraintOnVar: varForConstraints) ].

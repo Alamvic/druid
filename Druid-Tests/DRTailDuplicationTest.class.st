@@ -884,6 +884,11 @@ DRTailDuplicationTest >> testTailDuplicateWithFrontierWithTwoBlocks [
 { #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateWithPhiAtMergePointBigGraph [
 
+ "'|1|-->|3|--->|4|--------------------------------->|10|--->|11|--->|12|
+     \ ->|2|--^    \ ->|5|-------->|7|---------------^-------^       ^
+                          \ ->|6|--^  \ ->|8|--------^--------------^
+                                             \ ->|9|-^'"
+
 	| cfg b4 b5 b6 b7 b8 b9 b10 b11 b12 phi user |
 	cfg := self setUpCFGWithConditional.
 	b4 := cfg b4.
@@ -911,11 +916,15 @@ DRTailDuplicationTest >> testTailDuplicateWithPhiAtMergePointBigGraph [
 	cfg validate.
 	cfg b4 tailDuplicate.
 	cfg validate.
-
+	
+	"Asserts?"
 ]
 
 { #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateWithPhiAtMergePointSmallGraph [
+	"'|1|-->|3|--->|4|-------->|6|--->|7|
+    \ ->|2|----^  \ ->|5|--^      ^
+                        \ -------^ '"
 
 	| cfg b4 b8 b10 b12 copy1 user |
 	cfg := self setUpCFGWithConditional.
@@ -935,6 +944,7 @@ DRTailDuplicationTest >> testTailDuplicateWithPhiAtMergePointSmallGraph [
 	cfg b4 tailDuplicate.
 	cfg validate.
 
+	"Asserts?"
 ]
 
 { #category : 'tests' }
