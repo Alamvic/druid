@@ -114,13 +114,17 @@ DRBytecodeGenerator >> numArgs: anInteger [
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 
+	| sendAST |
 	aDRInstruction operands do: [ :o | o acceptVisitor: self ].
-	builder send: selector.
-	
-	aDRInstruction isConditionalBranch ifFalse: 
-		[ aDRInstruction users ifEmpty: [ 
-			builder popTop
-			 ]]
+
+	"TODO: Avoid come back to the AST. Include super in the IR."
+	sendAST := aDRInstruction originAST.
+	(sendAST ifNotNil: [sendAST superOf])
+		ifNil: [ builder send: selector ]
+		ifNotNil: [ :behavior |  builder send: selector toSuperOf: behavior ].
+
+	aDRInstruction isConditionalBranch ifFalse: [
+		aDRInstruction users ifEmpty: [ builder popTop ] ]
 ]
 
 { #category : 'building' }
