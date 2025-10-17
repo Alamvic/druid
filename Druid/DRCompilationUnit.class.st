@@ -18,12 +18,6 @@ Class {
 }
 
 { #category : 'accessing' }
-DRCompilationUnit >> defaultTargetSuperclass [
-
-	^ StackToRegisterMappingCogit
-]
-
-{ #category : 'accessing' }
 DRCompilationUnit >> targetClass [
 	" Answer a <Class> which is the where the methods will be stored "
 

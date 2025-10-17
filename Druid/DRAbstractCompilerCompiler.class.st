@@ -9,7 +9,6 @@ Class {
 		'targetAST',
 		'optimisations',
 		'codeGenerator',
-		'customisation',
 		'irGenerator',
 		'compilerOptions'
 	],
@@ -100,16 +99,6 @@ DRAbstractCompilerCompiler >> customise [
 ]
 
 { #category : 'generation-IR' }
-DRAbstractCompilerCompiler >> customiseFor: method [
-
-	method ast
-		pragmaNamed: #customisedReceiverFor:
-		ifPresent: [ :pragma |
-			customisation := DRPrimitiveCustomisation newCustomisation:
-				                 pragma arguments first value ]
-]
-
-{ #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> generateDruidIR [
 
 	^ self generateDruidIRForAll: self sourceMethods
@@ -142,9 +131,6 @@ DRAbstractCompilerCompiler >> generateDruidIRForAll: compiledMethods [
 { #category : 'code-generation' }
 DRAbstractCompilerCompiler >> generateTargetASTFromIR: aDRControlFlowGraph [
 
-	customisation generateCustomisedPreamble:
-		codeGenerator generatorMethodBuilder.
-
 	^ codeGenerator
 		  generateTargetASTFromIR: aDRControlFlowGraph
 		  methodName: self targetName
@@ -155,11 +141,11 @@ DRAbstractCompilerCompiler >> initialize [
 
 	super initialize.
 
-	optimisations := OrderedCollection new.
-	codeGenerator := DRCogitCodeGenerator new.
-	customisation := DRNonePrimitiveCustomisation new.
-	irGenerator := self newIRGenerator.
 	compilerOptions := Set new.
+	optimisations := OrderedCollection new.
+
+	irGenerator := self newIRGenerator.
+	codeGenerator := self newCodeGenerator
 
 ]
 
@@ -225,6 +211,12 @@ DRAbstractCompilerCompiler >> irGenerator: aDRIRGenerator [
 	irGenerator := aDRIRGenerator
 ]
 
+{ #category : 'code-generation' }
+DRAbstractCompilerCompiler >> newCodeGenerator [
+
+	self subclassResponsibility 
+]
+
 { #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> newIRGenerator [
 
@@ -254,7 +246,6 @@ DRAbstractCompilerCompiler >> optimisations: aCollection [
 { #category : 'api' }
 DRAbstractCompilerCompiler >> optimize: anIR [
 
-	customisation optimize: anIR.
 	optimisations do: [ :optimization | anIR applyOptimisation: optimization ]
 ]
 

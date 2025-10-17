@@ -6,9 +6,9 @@ Class {
 		'functionName',
 		'shouldSaveLinkReg'
 	],
-	#category : 'Druid-BytecodeToJITCompilation',
+	#category : 'Druid-IR',
 	#package : 'Druid',
-	#tag : 'BytecodeToJITCompilation'
+	#tag : 'IR'
 }
 
 { #category : 'visiting' }

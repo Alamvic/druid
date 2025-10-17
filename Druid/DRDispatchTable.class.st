@@ -61,26 +61,6 @@ Class {
 	#tag : 'CompilerBuilder'
 }
 
-{ #category : 'examples' }
-DRDispatchTable class >> example [
-
-	| dispatchTable |
-
-	dispatchTable := DRDispatchTable for: StackInterpreterPrimitives. "InterpreterPrimitives"
-	dispatchTable := DRDispatchTable for: StackInterpreterPrimitives.
-	dispatchTable := DRDispatchTable for: StackInterpreter.
-	"dispatchTable := DRDispatchTable for: CoInterpreter." 
-	dispatchTable addFromSelectorPattern: 'prim'.
-	dispatchTable addFromProtocol: ''.
-	dispatchTable addFromProtocol: 'arithmetic float primitives'.
-	dispatchTable addFromProtocols: #(
-		'arithmetic float primitives' 
-		'control primitives').
-	" Obtain the Dictionary of primitives "
-	dispatchTable methods.
-	dispatchTable generateInterpreterTableIn: #TargetClass.
-]
-
 { #category : 'instance creation' }
 DRDispatchTable class >> for: anInterpreterClass [
 

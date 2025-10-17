@@ -157,13 +157,13 @@ DRIRGenerator >> basicNewBasicBlockWithState: anExecutionState [
 	^ block
 ]
 
-{ #category : 'ir-genera' }
-DRIRGenerator >> blockClosureGenerator [
+{ #category : 'building' }
+DRIRGenerator >> blockClosureFor: aRBBlockNode [
 
-	| blockGenerator |
-	blockGenerator := DRBlockIRGenerator new.
-
-	^ blockGenerator
+	^ DRBlockClosure new
+		  blockNode: aRBBlockNode;
+		  outerContext: self topFrame;
+		  yourself
 ]
 
 { #category : 'special cases' }
@@ -1382,27 +1382,6 @@ DRIRGenerator >> interpretStackValueWith: aRBMessageNode [
 	self pushOperand: (self stackValue: value)
 ]
 
-{ #category : 'special cases - stack' }
-DRIRGenerator >> interpretStackValueWith: aRBMessageNode withValue: aValue [
-	"Interpret messages of the form 
-	interpreter stackValue: xxx.
-	"
-
-	aValue isInteger ifFalse: [ self error: 'expected an integer value' ].
-
-	aValue = numberOfArguments ifTrue: [
-		^ self
-			  addInstructionFrom: aRBMessageNode
-			  instructionKind: DRLoadReceiver
-			  operands: #(  ) ].
-
-	^ (self
-		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRLoadArgument
-		  operands: { (self argumentOffsetForStackValue: aValue) asDRValue })
-			classType: (DRSignedIntegerType size: 8 "Word size")
-]
-
 { #category : 'special cases' }
 DRIRGenerator >> interpretStageableBlockWith: aRBMessageNode [
 
@@ -2056,15 +2035,7 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 
-	| irBlockGenerator |
-	
-	irBlockGenerator := self blockClosureGenerator.
-
-	self pushOperand: (DRBlockClosure new
-			 blockNode: aRBBlockNode;
-			 irGenerator: irBlockGenerator;
-			 outerContext: self topFrame;
-			 yourself)
+	self pushOperand: (self blockClosureFor: aRBBlockNode )
 ]
 
 { #category : 'visiting' }

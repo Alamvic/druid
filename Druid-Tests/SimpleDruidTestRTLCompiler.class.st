@@ -8058,17 +8058,3 @@ SimpleDruidTestRTLCompiler >> shouldAnnotateObjectReference: anOop [
 	  and: [(self oop: anOop isGreaterThan: objectMemory classTableRootObj)
 		or: [self oop: anOop isLessThan: objectMemory nilObject]]
 ]
-
-{ #category : 'generated' }
-SimpleDruidTestRTLCompiler >> smallFloatSpecialisedPreamble [ 
-
-	self mclassIsSmallFloat ifFalse:
-		[^UnimplementedPrimitive].
-]
-
-{ #category : 'generated' }
-SimpleDruidTestRTLCompiler >> smallIntegerSpecialisedPreamble [ 
-
-	self mclassIsSmallInteger ifFalse:
-		[^UnimplementedPrimitive].
-]
