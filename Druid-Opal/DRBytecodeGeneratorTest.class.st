@@ -21,10 +21,29 @@ DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method [
 DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method arguments: arguments [
 
 	| result expectedResult |
-	
+
 	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: arguments.
 	expectedResult := method valueWithReceiver: compilerCompiler interpreter arguments: arguments.
+
+	expectedResult isClosure ifTrue: [ 
+		^ self assertClosure: result equals: expectedResult ].
+
 	self assert: result equals: expectedResult
+]
+
+{ #category : 'asserting' }
+DRBytecodeGeneratorTest >> assertClosure: result equals: expected [
+
+	| blockResult blockExpected |
+
+	self assert: result isClosure.
+	self assert: expected isClosure.	
+	self assert: result argumentCount equals: expected argumentCount.
+	
+	"Try some value?"
+	blockResult := result valueWithArguments: (Array ofSize: result argumentCount).
+	blockExpected := result valueWithArguments: (Array ofSize: result argumentCount).
+	self assert: blockResult equals: blockExpected
 ]
 
 { #category : 'assertion' }
@@ -571,6 +590,16 @@ DRBytecodeGeneratorTest >> testOpalSimpleMethods [
 
 	OCOpalExamples methods
 		select: [ :opalMethod | opalMethod protocolName = #'examples - simple' ]
+		thenDo: [ :opalMethod | 
+			self setUp.
+			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testOpalVariablesMethods [
+
+	OCOpalExamples methods
+		select: [ :opalMethod | opalMethod protocolName = #'examples - variables' ]
 		thenDo: [ :opalMethod | 
 			self setUp.
 			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
