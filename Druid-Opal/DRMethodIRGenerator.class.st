@@ -146,6 +146,19 @@ DRMethodIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arg
 	^ self popFrame.
 ]
 
+{ #category : 'special cases' }
+DRMethodIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
+
+	| receiver |
+	(aRBMessageNode receiver isBlockNode and: [
+		 aRBMessageNode arguments first isBlockNode ]) ifTrue: [
+		^ super interpretWhileTrueWith: aRBMessageNode ].
+	
+	"Resolve it as a normal send"
+	receiver := self visitOperand: aRBMessageNode receiver.
+	^ self resolveMessageSend: aRBMessageNode receiver: receiver
+]
+
 { #category : 'initialization' }
 DRMethodIRGenerator >> newCFG [
 	

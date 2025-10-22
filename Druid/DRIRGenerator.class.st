@@ -710,6 +710,8 @@ DRIRGenerator >> interpretBlockArgumentValueWith: aRBMessageNode [
 { #category : 'interpreting' }
 DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 
+	self assert: aRBBlockNode isBlockNode.
+
 	aRBBlockNode statements allButLastDo: [ :e |
 		e acceptVisitor: self.
 		"If this is a return, exit.
