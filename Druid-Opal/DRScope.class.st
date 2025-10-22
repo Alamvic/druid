@@ -13,8 +13,8 @@ Class {
 		'outerScope',
 		'opalScope'
 	],
-	#category : 'Druid-IR',
-	#package : 'Druid',
+	#category : 'Druid-Opal-IR',
+	#package : 'Druid-Opal',
 	#tag : 'IR'
 }
 

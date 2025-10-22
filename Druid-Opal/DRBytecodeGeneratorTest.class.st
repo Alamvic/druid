@@ -22,7 +22,9 @@ DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method arguments
 
 	| result expectedResult |
 
+	compilerCompiler interpreter initialize.
 	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: arguments.
+	compilerCompiler interpreter initialize.
 	expectedResult := method valueWithReceiver: compilerCompiler interpreter arguments: arguments.
 
 	expectedResult isClosure ifTrue: [ 
@@ -135,9 +137,7 @@ DRBytecodeGeneratorTest >> generateDruidIRFor: method [
 
 	| cfg |
 	cfg := compilerCompiler generateDruidIRFor: method.
-	
-	compilerCompiler optimize: cfg.
-	
+	compilerCompiler optimize: cfg.	
 	^ cfg
 ]
 

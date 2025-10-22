@@ -1,8 +1,9 @@
 Class {
 	#name : 'DRLocalVariableInstructionScheluderTest',
 	#superclass : 'DRIRTest',
-	#category : 'Druid-Tests',
-	#package : 'Druid-Tests'
+	#category : 'Druid-Opal-Tests',
+	#package : 'Druid-Opal',
+	#tag : 'Tests'
 }
 
 { #category : 'tests' }
