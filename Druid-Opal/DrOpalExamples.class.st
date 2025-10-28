@@ -93,6 +93,10 @@ DrOpalExamples >> basicMethodWithBlockArg: aBlock [
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> empty [
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> lazyDouble: n [
 
 	<druidDeferredInline>

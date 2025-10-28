@@ -28,6 +28,12 @@ DRMessageSend >> dependencies [
 	^ super dependencies , self innerDependencies
 ]
 
+{ #category : 'testing' }
+DRMessageSend >> hasBlockArgument [
+
+	^ self arguments anySatisfy: [ :arg | arg isDRBlockClosure ]
+]
+
 { #category : 'optimizations' }
 DRMessageSend >> inline [
 	
@@ -66,6 +72,12 @@ DRMessageSend >> isMandatoryInstruction [
 DRMessageSend >> isMessageSend [
 
 	^ true
+]
+
+{ #category : 'types' }
+DRMessageSend >> isScopedInstruction [
+
+	^ self hasBlockArgument
 ]
 
 { #category : 'accessing' }

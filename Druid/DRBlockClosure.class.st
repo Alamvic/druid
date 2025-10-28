@@ -60,17 +60,19 @@ DRBlockClosure >> defaultReturnValue: receiver [
 	^ DRNullValue new
 ]
 
+{ #category : 'ir-generation' }
+DRBlockClosure >> ensureIR [
+
+	irGenerator isEmpty ifTrue: [
+		irGenerator interpretBlockClosure: self ].
+
+	^ irGenerator ir
+]
+
 { #category : 'executing' }
 DRBlockClosure >> executeOn: interpreter [
 	
 	interpreter interpretBlockActivation: blockNode
-]
-
-{ #category : 'interpreting' }
-DRBlockClosure >> generateCFG [
-
-	irGenerator interpretBlockClosure: self.
-	^ irGenerator ir
 ]
 
 { #category : 'comparing' }

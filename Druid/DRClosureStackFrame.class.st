@@ -51,3 +51,25 @@ DRClosureStackFrame >> receiverWithState: aState [
 
 	^ (self homeFrameWithState: aState) receiver
 ]
+
+{ #category : 'temporaries' }
+DRClosureStackFrame >> temporaryAt: aName put: aValue withState: aState [
+
+	aState baseFrame = self ifFalse: [
+		^ super temporaryAt: aName put: aValue withState: aState ].
+
+
+	"We are compiling a block, temporary comes from temp vector. Simulates here"
+	self writeTemporaryNamed: aName withValue: aValue
+]
+
+{ #category : 'temporaries' }
+DRClosureStackFrame >> temporaryAt: aName withState: aState [
+
+	aState baseFrame = self ifTrue: [
+		(temporaries includesKey: aName) ifFalse: [ 
+			"We are compiling a block, temporary comes from temp vector, not in this compilation scope"
+			^ DRNullValue new ] ].
+
+	^ super temporaryAt: aName withState: aState
+]

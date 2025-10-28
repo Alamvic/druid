@@ -75,13 +75,14 @@ DRStackFrame >> entryBasicBlock: anObject [
 
 { #category : 'temporaries' }
 DRStackFrame >> frameDefining: aName withState: aState [
-	
-	(temporaries includesKey: aName)
-		ifTrue: [ ^ self ].
+	"TODO: Split this logic to the subclass"
 
+	(temporaries includesKey: aName) ifTrue: [ ^ self ].
+
+	"We are compiling a closure evaluation, search the temporary in the outer"
 	^ (self outerFrameWithState: aState)
-		frameDefining: aName
-		withState: aState
+		  frameDefining: aName
+		  withState: aState
 ]
 
 { #category : 'testing' }
@@ -262,7 +263,9 @@ DRStackFrame >> temporariesDo: aFullBlockClosure [
 { #category : 'temporaries' }
 DRStackFrame >> temporaryAt: aName put: aValue withState: aState [
 
-	(self frameDefining: aName withState: aState) writeTemporaryNamed: aName withValue: aValue
+	(self frameDefining: aName withState: aState)
+		writeTemporaryNamed: aName
+		withValue: aValue
 ]
 
 { #category : 'temporaries' }

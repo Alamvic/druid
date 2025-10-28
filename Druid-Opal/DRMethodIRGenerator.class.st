@@ -11,6 +11,7 @@ DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
 
 	^ (super blockClosureFor: aRBBlockNode)
 		  irGenerator: self blockClosureGenerator;
+		  ensureIR;
 		  yourself
 ]
 
@@ -24,9 +25,8 @@ DRMethodIRGenerator >> blockClosureGenerator [
 	blockGenerator variableFrame: self topFrame copy.
 	
 	blockGenerator ir scope
-		outerScope: self ir scope;
-		id: self ir scope id + 1;
-		addCopiedVarsFromOuterScope: self ir scope.
+		outerScope: self scope;
+		id: self scope id + 1.
 		
 	^ blockGenerator
 ]
@@ -62,12 +62,13 @@ DRMethodIRGenerator >> inlineGenerator [
 	newIRGenerator := DRMethodIRGeneratorInline new
 		                  controlFlowGraph: controlFlowGraph;
 		                  typeSystem: typeSystem;
+		                  outerScope: self scope;
 		                  yourself.
 
 	executionStateCopy := executionState copy.
 	newIRGenerator executionState: executionStateCopy.
 
-	newIRGenerator ensureScope.
+	newIRGenerator generateScope.
 	^ newIRGenerator
 ]
 
@@ -249,7 +250,6 @@ DRMethodIRGenerator >> setupCFGScope: aCodeNode [
 		numArgs: aCodeNode arguments size;
 		addArguments: aCodeNode argumentNames;
 		addTemps: aCodeNode temporaryNames;
-		opalScope: aCodeNode scope;
 		node: aCodeNode
 ]
 
@@ -343,8 +343,7 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 		store := self topFrame
 			         temporaryAt: aRBVariableNode name
 			         withState: executionState ].
-	"		store ifNil: [ 1halt ].
-		store isStore ifFalse: [ 1halt ]."
+
 	loadTemp := self
 		            addInstructionFrom: aRBVariableNode
 		            instructionKind: DRLoadTemporaryVariable
@@ -352,9 +351,8 @@ DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 				            aRBVariableNode name asDRValue.
 				            store }.
 
+	loadTemp scope: (self scope lookupVar: aRBVariableNode name).
 
-	loadTemp scope:
-		(self scope lookupVarOrAddNewTemp: aRBVariableNode name).
 	^ loadTemp
 ]
 

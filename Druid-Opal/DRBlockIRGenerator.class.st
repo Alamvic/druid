@@ -31,6 +31,13 @@ DRBlockIRGenerator >> interpretBlockActivation: aRBBlockNode [
 	
 ]
 
+{ #category : 'testing' }
+DRBlockIRGenerator >> isEmpty [
+
+	^ self ir instructions last isNoop
+	
+]
+
 { #category : 'as yet unclassified' }
 DRBlockIRGenerator >> temporariesListfrom: aNode [
 

@@ -11,7 +11,7 @@ Class {
 		'tempVectorVar',
 		'node',
 		'outerScope',
-		'opalScope'
+		'inlinedScopes'
 	],
 	#category : 'Druid-Opal-IR',
 	#package : 'Druid-Opal',
@@ -25,13 +25,11 @@ DRScope >> addArguments: anObject [
 ]
 
 { #category : 'adding' }
-DRScope >> addCopiedVarsFromOuterScope: aDRScope [
-	"pass vectorTemps of outer Scope to the actual one"
-	
-	aDRScope tempVectorVarNames isNotEmpty ifTrue: [ 
-		 copiedVars at: aDRScope tempVectorName put: aDRScope tempVectorVarNames ].
-		
-	aDRScope copiedVars keysAndValuesDo: [ :k :v | copiedVars at: k put: v ]
+DRScope >> addInlinedScope: aDRScope [ 
+
+	self assert: aDRScope outerScope = self.
+
+	inlinedScopes add: aDRScope 
 ]
 
 { #category : 'accessing' }
@@ -55,19 +53,33 @@ DRScope >> argumentNames [
 { #category : 'accessing' }
 DRScope >> copiedVarNames [ 
 	
-	^ copiedVars keys
+	^ self copiedVars keys
 ]
 
 { #category : 'accessing' }
 DRScope >> copiedVars [
 
-	^ copiedVars
+	self outerScope ifNil: [ ^ OrderedDictionary new ].
+
+	^ self outerScope copiedVars, self outerScope definedTempVectors
 ]
 
-{ #category : 'accessing' }
-DRScope >> copiedVars: anObject [
+{ #category : 'as yet unclassified' }
+DRScope >> defineTempVector [
 
-	copiedVars := anObject
+	| tempVec |
+	tempVec := self tempVectorVarNames
+		           ifEmpty: [ {  } ]
+		           ifNotEmpty: [ :temps |
+		           { (self tempVectorName -> temps) } ].
+
+	^ tempVec asOrderedDictionary
+]
+
+{ #category : 'query' }
+DRScope >> definedTempVectors [
+
+	^ self defineTempVector, self inlinedTempVectors
 ]
 
 { #category : 'accessing' }
@@ -92,12 +104,37 @@ DRScope >> id: anObject [
 DRScope >> initialize [
 
 	"For now, follow Opal structure, will change this incrementally"
-	
+
 	argumentNames := OrderedCollection new.
 	tempVars :=  OrderedCollection new. "local temporaries"
 	tempVector  := OrderedCollection new. "vars in the tempVector of this scope"
-	copiedVars := OrderedDictionary new. "vars from outside: vectorTemp + outer read temp | nil if first scope"
+
+	inlinedScopes  := OrderedCollection new.
+	
 	id := 0
+]
+
+{ #category : 'accessing' }
+DRScope >> inlinedScopes [
+
+	^ inlinedScopes
+]
+
+{ #category : 'as yet unclassified' }
+DRScope >> inlinedTempVectors [
+
+	^ inlinedScopes
+		  inject: OrderedDictionary new
+		  into: [ :vectors :scope | vectors , scope definedTempVectors ]
+]
+
+{ #category : 'testing' }
+DRScope >> isEmpty [
+
+	tempVars isEmpty ifFalse: [ ^ false ].
+	self copiedVars isEmpty ifFalse: [ ^ false ].
+	tempVector isEmpty ifFalse: [ ^ false ].
+	^ true
 ]
 
 { #category : 'accessing' }
@@ -124,6 +161,8 @@ DRScope >> lookupVar: name ifNone: noneBlock [
 
 { #category : 'accessing' }
 DRScope >> lookupVarOrAddNewTemp: name [
+
+	"Remove this?"
 
 	^ self lookupVar: name ifNone: [ self addTemps: { name } ]
 ]
@@ -153,18 +192,6 @@ DRScope >> numArgs: anObject [
 ]
 
 { #category : 'accessing' }
-DRScope >> opalScope [
-
-	^ opalScope
-]
-
-{ #category : 'accessing' }
-DRScope >> opalScope: anObject [
-
-	opalScope := anObject
-]
-
-{ #category : 'accessing' }
 DRScope >> outerScope [
 
 	^ outerScope
@@ -174,14 +201,6 @@ DRScope >> outerScope [
 DRScope >> outerScope: aScope [
 	
 	outerScope := aScope.
-]
-
-{ #category : 'modifying' }
-DRScope >> renameTempVar: oldName into: newName [
-
-	tempVector := tempVector
-		              copyReplaceAll: { oldName }
-		              with: { newName }
 ]
 
 { #category : 'accessing' }

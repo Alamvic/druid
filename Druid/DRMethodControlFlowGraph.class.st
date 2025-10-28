@@ -28,28 +28,6 @@ DRMethodControlFlowGraph >> allInstructionsWithScope: aDRScope [
 		  i isScopedInstruction and: [ i scope = aDRScope ] ]
 ]
 
-{ #category : 'scopes' }
-DRMethodControlFlowGraph >> mergeScope: innerScope into: outerScope [
-
-	| instructions |
-	outerScope addTemps: innerScope tempVarNames.
-
-	instructions := self allInstructionsWithScope: innerScope.
-	instructions do: [ :i | i scope: outerScope ]
-]
-
-{ #category : 'scopes' }
-DRMethodControlFlowGraph >> renameTempVar: originalName from: aDRScope into: newName [
-
-	| instructions |
-	instructions := self allInstructionsWithScope: aDRScope.
-	instructions do: [ :i |
-		i address value = originalName ifTrue: [
-			i address: newName asDRValue ] ].
-
-	aDRScope renameTempVar: originalName into: newName
-]
-
 { #category : 'accessing' }
 DRMethodControlFlowGraph >> scope [
 

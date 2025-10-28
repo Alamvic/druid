@@ -46,29 +46,29 @@ DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: 
 { #category : 'API' }
 DRBytecodeGenerator >> handleTemporaryVariableFromCFG: aDRControlFlowGraph [
 
-	| args temps copiedTemps allTemps aDRScope |
+	"TODO: Have an instruction for this and use it for inlined scopes"
+
+	| args scope |	
+	scope := aDRControlFlowGraph scope.
+	args := scope argumentNames.
 	
-	aDRScope := aDRControlFlowGraph scope.
-	
-	args := aDRScope argumentNames.
-	copiedTemps := aDRScope copiedVarNames.
-	temps := aDRScope tempVarNames.
-	
+	"Add arguments"
 	args do: [ :arg| 
 		builder addTemp: arg ].
 	
-	copiedTemps do: [ :tmp| 
+	"Add temps copied from outer"
+	scope copiedVarNames do: [ :tmp| 
 		builder addTemp: tmp ].
-	
-	allTemps := args , temps.
-	
-	allTemps isNotEmpty ifTrue: [ 
-		self createTempVector: allTemps vectorName: aDRScope tempVectorName.
+		
+	"Add own temp vectors (could be many due to inlinings)"
+	scope definedTempVectors keysAndValuesDo: [ :vector :temps |
+		self createTempVector: temps vectorName: vector
 		 ].
 	
+	"Store arguments to temp vectors"
 	args do: [ :arg | 
 		builder pushTemp: arg.
-		builder storeRemoteTemp: arg inVector: aDRScope tempVectorName .
+		builder storeRemoteTemp: arg inVector: scope tempVectorName .
 		builder popTop ].
 ]
 
@@ -187,7 +187,7 @@ DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	| blockNode compiledBlock blockCFG blockBytecodeGenerator copiedValues |
 
 	blockNode := aDRBlockClosure blockNode.
-	blockCFG := aDRBlockClosure generateCFG.
+	blockCFG := aDRBlockClosure ensureIR.
 	
 	blockCFG applyOptimisation: DRFrameInfoCleaner new.
 	blockCFG applyOptimisation: DRBranchCollapse new.
@@ -403,8 +403,12 @@ DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 		inVector: aDRStoreTemporaryVariable scope tempVectorName.
 
 	(aDRStoreTemporaryVariable users reject: [ :each |
-		 each isLoadTemporaryVariable "or: [ each isCopy ]" ]) size = 0
-		ifTrue: [ builder popTop ]
+		 each isLoadTemporaryVariable or: [
+			 each isMessageSend or: [
+				"TODO: Check why this case"
+				 each isCopy and: [
+					 each simpleConstantFold = aDRStoreTemporaryVariable ] ] ] ])
+		isEmpty ifTrue: [ builder popTop ]
 ]
 
 { #category : 'ir-to-target' }

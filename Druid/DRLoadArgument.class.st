@@ -16,6 +16,12 @@ DRLoadArgument >> acceptVisitor: aVisitor [
 ]
 
 { #category : 'accessing' }
+DRLoadArgument >> address [
+
+	^ self operand1
+]
+
+{ #category : 'accessing' }
 DRLoadArgument >> argName [
 
 	^ argName

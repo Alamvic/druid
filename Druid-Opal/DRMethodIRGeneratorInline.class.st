@@ -2,7 +2,8 @@ Class {
 	#name : 'DRMethodIRGeneratorInline',
 	#superclass : 'DRMethodIRGenerator',
 	#instVars : [
-		'scope'
+		'scope',
+		'outerScope'
 	],
 	#category : 'Druid-Opal-Compiler',
 	#package : 'Druid-Opal',
@@ -21,16 +22,6 @@ DRMethodIRGeneratorInline >> currentBasicBlock: aDRBasicBlock [
 	currentBasicBlock := aDRBasicBlock
 ]
 
-{ #category : 'scopes' }
-DRMethodIRGeneratorInline >> ensureScope [
-
-	^ scope := DRScope new
-		           outerScope: self outerScope;
-		           id: self outerScope id + 1;
-		           addCopiedVarsFromOuterScope: self outerScope;
-		           yourself
-]
-
 { #category : 'visiting' }
 DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 
@@ -38,9 +29,18 @@ DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 	lastBlock := currentBasicBlock.
 	"Non-local returns can add new returns to any frame, pop all frames to resolve them"
 	[ executionState executionStack size = 0 ] whileFalse: [ self popFrameMergingDeferredReturns ].
-	currentBasicBlock := lastBlock.
-	self mergeScope
+	currentBasicBlock := lastBlock
+]
 
+{ #category : 'scopes' }
+DRMethodIRGeneratorInline >> generateScope [
+
+	scope := DRScope new
+		         outerScope: self outerScope;
+		         id: self outerScope id + 1;
+		         yourself.
+
+	self outerScope addInlinedScope: scope
 ]
 
 { #category : 'accessing' }
@@ -63,23 +63,6 @@ DRMethodIRGeneratorInline >> isBaseMethodArgument: aRBVariableNode [
 	^ executionState baseFrame method = variableDefinitionScope node
 ]
 
-{ #category : 'scopes' }
-DRMethodIRGeneratorInline >> mergeScope [
-
-	self assert: self scope outerScope = self outerScope.
-
-	"Rename to avoid collision"
-	self scope tempVarNames do: [ :name |
-		| suffix |
-		suffix := self outerScope tempVarNames count: [ :outerName | outerName beginsWith: name ].
-		self ir
-			renameTempVar: name
-			from: self scope
-			into: name , suffix asString ].
-
-	self ir mergeScope: self scope into: self outerScope
-]
-
 { #category : 'building' }
 DRMethodIRGeneratorInline >> newFirstBasicBlock [
 
@@ -89,7 +72,13 @@ DRMethodIRGeneratorInline >> newFirstBasicBlock [
 { #category : 'accessing' }
 DRMethodIRGeneratorInline >> outerScope [
 
-	^ self ir scope
+	^ outerScope
+]
+
+{ #category : 'accessing' }
+DRMethodIRGeneratorInline >> outerScope: aDRScope [
+
+	outerScope := aDRScope
 ]
 
 { #category : 'accessing' }
@@ -99,8 +88,9 @@ DRMethodIRGeneratorInline >> scope [
 ]
 
 { #category : 'visiting' }
-DRMethodIRGeneratorInline >> setupCFGScope: aNode [
-	"We don't need to configure the inlined scope"
+DRMethodIRGeneratorInline >> setupCFGScope: aCodeNode [
+
+	self scope addTemps: aCodeNode temporaryNames, aCodeNode argumentNames
 ]
 
 { #category : 'visiting' }

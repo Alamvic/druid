@@ -219,6 +219,12 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testCreateTempVectorInsideLoop [
+
+	self assertCompilationFor: #exampleToDoInsideTemp fromClass: OCOpalExamples
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodEmpty [
 
 	self assertCompilationFor: #exampleEmptyMethod fromClass: OCOpalExamples
@@ -547,69 +553,30 @@ DRBytecodeGeneratorTest >> testMethodWritingClassVariable [
 ]
 
 { #category : 'tests' }
-DRBytecodeGeneratorTest >> testOpalASD [
-
-	self assertCompilationFor: #exampleWhileWithTempNotInlined fromClass: OCOpalExamples
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testOpalBooleanMethods [
+DRBytecodeGeneratorTest >> testOpalBlocksMethods [
 
 	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocolName = #'examples - andor' ]
+		select: [ :opalMethod | opalMethod protocolName = #'examples - blocks' ]
 		thenDo: [ :opalMethod | 
 			self setUp.
 			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]
 
 { #category : 'tests' }
-DRBytecodeGeneratorTest >> testOpalConditionalMethods [
+DRBytecodeGeneratorTest >> testOpalExamples [
+
+	| ignoredProtocols |
+	ignoredProtocols := #( #examples #'examples - blocks'
+	                       #'examples - pragmas' #'examples - blocks-optimized' ).
 
 	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocolName = #'examples - conditionals' ]
-		thenDo: [ :opalMethod | 
+		reject: [ :opalMethod |
+		ignoredProtocols includes: opalMethod protocolName ]
+		thenDo: [ :opalMethod |
 			self setUp.
-			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testOpalLiteralMethods [
-
-	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocolName = #'examples - literals' ]
-		thenDo: [ :opalMethod | 
-			self setUp.
-			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testOpalMiscMethods [
-
-	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocolName = #'examples - misc' ]
-		thenDo: [ :opalMethod | 
-			self setUp.
-			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testOpalSimpleMethods [
-
-	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocolName = #'examples - simple' ]
-		thenDo: [ :opalMethod | 
-			self setUp.
-			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
-]
-
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testOpalVariablesMethods [
-
-	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocolName = #'examples - variables' ]
-		thenDo: [ :opalMethod | 
-			self setUp.
-			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
+			self
+				assertCompilationFor: opalMethod selector
+				fromClass: OCOpalExamples ]
 ]
 
 { #category : 'tests' }
