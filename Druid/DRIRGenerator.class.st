@@ -334,6 +334,12 @@ DRIRGenerator >> firstBasicBlock [
 	^ firstBasicBlock
 ]
 
+{ #category : 'testing' }
+DRIRGenerator >> hasTemporary: name [
+
+	^ self topFrame hasTemporaryAt: name withState: executionState
+]
+
 { #category : 'stack management' }
 DRIRGenerator >> homeFrame [
 	
@@ -737,25 +743,16 @@ DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 
 { #category : 'API' }
 DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
-
 	"Create the initial basic block"
 
-	| initialBasicBlock startBlock numArgs arguments |
-	
-	startBlock := self initialBasicBlock.
-	initialBasicBlock := self createInitialBasicBlock.
-	startBlock jumpTo: initialBasicBlock.
-
-
+	| numArgs |
 	numArgs := aDRBlockClosure numberOfArguments.
 	self numberOfArguments: numArgs.
-	
-	self
-		interpretCode: aDRBlockClosure
-		receiver: aDRBlockClosure.
-		
+
+	self interpretCode: aDRBlockClosure receiver: aDRBlockClosure.
+
 	self ir numArgs: numArgs.
-	
+
 	^ self ir
 ]
 
@@ -792,6 +789,7 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 	arguments := aRBMessageNode arguments collect: [ :e |
 		             e acceptVisitor: self.
 		             self popOperand ].
+
 	self interpretCode: block receiver: block arguments: arguments
 ]
 

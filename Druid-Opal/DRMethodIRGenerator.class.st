@@ -47,6 +47,27 @@ DRMethodIRGenerator >> initialize [
 ]
 
 { #category : 'initialization' }
+DRMethodIRGenerator >> initializeArgumentsNames: aDRCode with: argumentsValues [
+
+	| argumentNames |
+	argumentNames := aDRCode codeNode argumentNames.
+	1 to: argumentNames size do: [ :i |
+		| name |
+		name := argumentNames at: i.
+		self topFrame
+			writeTemporaryNamed: name
+			withValue: (argumentsValues at: i) ]
+]
+
+{ #category : 'initialization' }
+DRMethodIRGenerator >> initializeIR [
+	"Initialize scope temps"
+
+	super initializeIR.
+	self currentBasicBlock initializeScope: self scope
+]
+
+{ #category : 'initialization' }
 DRMethodIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
@@ -131,20 +152,17 @@ DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [
 
 { #category : 'as yet unclassified' }
 DRMethodIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
-	
+
 	self setupCFGScope: aDRCode codeNode.
-	
+
 	self pushFrameForCode: aDRCode receiver: aReceiver.
-	
-	"Iterate based on the defined arguments.
-	In ifNotNil: arguments are optional"
-	1 to: aDRCode codeNode argumentNames size do: [ :i | | name |
-		name := aDRCode codeNode argumentNames at: i.
-		self topFrame writeTemporaryNamed: name withValue: (arguments at: i).
-	].
-	
+
+	self
+		initializeArgumentsNames: aDRCode
+		with: arguments.
+
 	aDRCode executeOn: self.
-	^ self popFrame.
+	^ self popFrame
 ]
 
 { #category : 'special cases' }
@@ -273,16 +291,13 @@ DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 
 	self flag: #TOCHECK. "Can we use the scope? And avoid to manage the variableFrame?"
 	frame := self variableFrame.
-	((frame hasTemporaryNamed: varName) and: [
-		 (frame readTemporaryNamed: varName) isNullValue not ]) ifTrue: [
+
+	(self hasTemporary: varName) ifTrue: [
 		| value |
-		value := frame readTemporaryNamed: varName.
-		value isCopy ifTrue: [
-			^ self
-				  addInstructionFrom: value
-				  instructionKind: DRCopy
-				  operands: { value operand1 } ].
-		^ self pushOperand: value ].
+		value := self temporaryAt: varName.
+		"TODO: Avoid Nulls here (do not initialize)"
+		value simpleConstantFold asDRValue isNullValue ifFalse: [
+			^ self pushOperand: value ] ].
 
 	loadArg := self
 		           addInstructionFrom: aRBVariableNode
@@ -339,7 +354,7 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
 	| store loadTemp |
-	aRBVariableNode variable isEscaping ifFalse: [
+	(self hasTemporary: aRBVariableNode name) ifTrue: [
 		store := self topFrame
 			         temporaryAt: aRBVariableNode name
 			         withState: executionState ].

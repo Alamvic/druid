@@ -36,20 +36,24 @@ DRBytecodeGenerator >> generateJump: aDRBranch [
 
 { #category : 'API' }
 DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
-	
-	self handleTemporaryVariableFromCFG: aDRControlFlowGraph .
 
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
 		self visitBlock: block ]
 ]
 
+{ #category : 'initialization' }
+DRBytecodeGenerator >> initialize [
+
+	builder := IRBuilder new.
+	numArgs := 0.
+	
+	vectorTempIndex:= nil.
+]
+
 { #category : 'API' }
-DRBytecodeGenerator >> handleTemporaryVariableFromCFG: aDRControlFlowGraph [
+DRBytecodeGenerator >> interpretInitializeScope: scope [
 
-	"TODO: Have an instruction for this and use it for inlined scopes"
-
-	| args scope |	
-	scope := aDRControlFlowGraph scope.
+	| args  |	
 	args := scope argumentNames.
 	
 	"Add arguments"
@@ -70,15 +74,6 @@ DRBytecodeGenerator >> handleTemporaryVariableFromCFG: aDRControlFlowGraph [
 		builder pushTemp: arg.
 		builder storeRemoteTemp: arg inVector: scope tempVectorName .
 		builder popTop ].
-]
-
-{ #category : 'initialization' }
-DRBytecodeGenerator >> initialize [
-
-	builder := IRBuilder new.
-	numArgs := 0.
-	
-	vectorTempIndex:= nil.
 ]
 
 { #category : 'testing' }
@@ -253,6 +248,12 @@ DRBytecodeGenerator >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBra
 DRBytecodeGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
 
 	aDRGetConditionCode condition acceptVisitor: self withBranch: aDRGetConditionCode
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitInitializeScope: aDRInitializeScope [ 
+
+	self interpretInitializeScope: aDRInitializeScope scope
 ]
 
 { #category : 'ir-to-target' }

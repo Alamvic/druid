@@ -79,7 +79,7 @@ DRScope >> defineTempVector [
 { #category : 'query' }
 DRScope >> definedTempVectors [
 
-	^ self defineTempVector, self inlinedTempVectors
+	^ self defineTempVector", self inlinedTempVectors"
 ]
 
 { #category : 'accessing' }
@@ -132,7 +132,6 @@ DRScope >> inlinedTempVectors [
 DRScope >> isEmpty [
 
 	tempVars isEmpty ifFalse: [ ^ false ].
-	self copiedVars isEmpty ifFalse: [ ^ false ].
 	tempVector isEmpty ifFalse: [ ^ false ].
 	^ true
 ]

@@ -75,14 +75,16 @@ DRStackFrame >> entryBasicBlock: anObject [
 
 { #category : 'temporaries' }
 DRStackFrame >> frameDefining: aName withState: aState [
-	"TODO: Split this logic to the subclass"
 
-	(temporaries includesKey: aName) ifTrue: [ ^ self ].
+	(temporaries includesKey: aName) ifFalse: [ ^ nil ].
 
-	"We are compiling a closure evaluation, search the temporary in the outer"
-	^ (self outerFrameWithState: aState)
-		  frameDefining: aName
-		  withState: aState
+	^ self
+]
+
+{ #category : 'accessing' }
+DRStackFrame >> hasTemporaryAt: aName withState: aDRExecutionState [
+
+	^ (self frameDefining: aName withState: aDRExecutionState) isNotNil
 ]
 
 { #category : 'testing' }

@@ -55,7 +55,7 @@ DRScopeTest >> testMethodOneArgsWithBlockOneLocals [
 	| cfg blockCFG |
 	cfg := self generateDruidIRFor: #simpleMethodWithBlockReadingArgVariable:.
 	blockCFG := cfg messageSends first arguments first ensureIR.
-	
+
 	self assert: blockCFG scope outerScope equals: cfg scope.
 	
 	self assert: cfg scope argumentNames equals: #( arg ).

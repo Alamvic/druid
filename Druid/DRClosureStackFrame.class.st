@@ -6,6 +6,15 @@ Class {
 	#tag : 'CompilerCompiler'
 }
 
+{ #category : 'temporaries' }
+DRClosureStackFrame >> frameDefining: aName withState: aState [
+
+	^ (super frameDefining: aName withState: aState) ifNil: [
+		  (self outerFrameWithState: aState)
+			  frameDefining: aName
+			  withState: aState ]
+]
+
 { #category : 'accessing' }
 DRClosureStackFrame >> homeFrame [
 
@@ -67,7 +76,7 @@ DRClosureStackFrame >> temporaryAt: aName put: aValue withState: aState [
 DRClosureStackFrame >> temporaryAt: aName withState: aState [
 
 	aState baseFrame = self ifTrue: [
-		(temporaries includesKey: aName) ifFalse: [ 
+		(temporaries includesKey: aName) ifFalse: [ 1halt.
 			"We are compiling a block, temporary comes from temp vector, not in this compilation scope"
 			^ DRNullValue new ] ].
 

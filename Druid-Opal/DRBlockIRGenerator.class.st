@@ -51,8 +51,27 @@ DRBlockIRGenerator >> variableFrame [
 ]
 
 { #category : 'accessing' }
-DRBlockIRGenerator >> variableFrame: aDRStackFrame [ 
+DRBlockIRGenerator >> variableFrame: aDRStackFrame [
+
 	variableFrame := aDRStackFrame
+]
+
+{ #category : 'accessing' }
+DRBlockIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
+	"TODO: Repeat code"
+
+	| loadArg varName |
+	varName := aRBVariableNode name.
+
+	loadArg := self
+		           addInstructionFrom: aRBVariableNode
+		           instructionKind: DRLoadArgument
+		           operands: { aRBVariableNode variable index asDRValue }.
+
+	loadArg argName: aRBVariableNode name.
+	loadArg scope: (self scope lookupVar: aRBVariableNode name).
+
+	^ loadArg
 ]
 
 { #category : 'visiting' }

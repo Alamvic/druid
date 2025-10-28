@@ -93,6 +93,11 @@ DrOpalExamples >> basicMethodWithBlockArg: aBlock [
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> blockWithValue: arg [
+	^ [ arg ]
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> empty [
 ]
 
@@ -261,6 +266,15 @@ DrOpalExamples >> methodBlockNonLocalReturn [
 	temp:= self basicMethodWithBlock: [ ^ 2 ].
 	^ 5
 	
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodBlockTwoOuterScopes [
+
+	| temp block |
+	temp := 1.
+	block := self blockWithValue: temp.
+	^ block value
 ]
 
 { #category : 'as yet unclassified' }

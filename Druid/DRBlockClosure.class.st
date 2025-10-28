@@ -64,6 +64,7 @@ DRBlockClosure >> defaultReturnValue: receiver [
 DRBlockClosure >> ensureIR [
 
 	irGenerator isEmpty ifTrue: [
+		irGenerator initializeIR.
 		irGenerator interpretBlockClosure: self ].
 
 	^ irGenerator ir

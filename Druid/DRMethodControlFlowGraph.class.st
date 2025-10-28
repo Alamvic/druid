@@ -22,6 +22,17 @@ DRMethodControlFlowGraph >> addTempNameToScope: aName [
 ]
 
 { #category : 'queries' }
+DRMethodControlFlowGraph >> allBlockClosures [
+
+	| closures |
+	closures := OrderedCollection new.
+	self instructionsDo: [ :i |
+		i operands do: [ :op |
+			op isDRBlockClosure ifTrue: [ closures add: op ] ] ].
+	^ closures
+]
+
+{ #category : 'queries' }
 DRMethodControlFlowGraph >> allInstructionsWithScope: aDRScope [
 
 	^ self instructions select: [ :i |

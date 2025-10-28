@@ -17,3 +17,9 @@ DRBlockReturn >> opcode [
 	
 	^ 'BlockReturn'
 ]
+
+{ #category : 'accessing' }
+DRBlockReturn >> returnedValue [
+
+	^ self operand1
+]

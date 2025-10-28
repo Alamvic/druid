@@ -49,6 +49,30 @@ DRMethodIRGeneratorInline >> handleCFGScope: methodNode [
 	"here to handle the scope with inlining"
 ]
 
+{ #category : 'initialization' }
+DRMethodIRGeneratorInline >> initializeArgumentsNames: aDRCode with: argumentsValues [
+
+	| argumentNames |
+	super initializeArgumentsNames: aDRCode with: argumentsValues.
+
+	"Remove this if by a better support for inlined blocks"
+	aDRCode isDRBlockClosure ifFalse: [
+		self currentBasicBlock initializeScope: self scope ].
+
+	"Copy values to argument temps"
+	argumentNames := aDRCode codeNode argumentNames.
+	argumentNames withIndexDo: [ :name :index |
+		| store |
+		store := self
+			         addInstructionWithNoResultFrom: self scope node
+			         instructionKind: DRStoreTemporaryVariable
+			         operands: {
+					         name.
+					         (argumentsValues at: index) }.
+		store scope: self scope.
+		self popOperand ]
+]
+
 { #category : 'testing' }
 DRMethodIRGeneratorInline >> isBaseMethodArgument: aRBVariableNode [
 	"Here we check if the variable is accessing to a temporary (mainly arguments) from the compiled method.
