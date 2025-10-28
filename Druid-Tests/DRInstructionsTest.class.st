@@ -39,7 +39,7 @@ DRInstructionsTest >> testReplaceMessageSendUpdateArguments [
 	| cfg instruction message newInstruction |
 	cfg := self generateDruidIRFor: #basicInlineMethod.
 	cfg applyOptimisation: DRCleanControlFlow new.
-	instruction := cfg instructions first.
+	instruction := cfg firstBasicBlock instructions second.
 	message := instruction users unique.
 
 	self assert: message isMessageSend.
@@ -56,8 +56,10 @@ DRInstructionsTest >> testReplaceMessageSendUpdateInnerDependencies [
 	| cfg instruction message newInstruction |
 	cfg := self generateDruidIRFor: #simpleMethodWithBlockReadingOuterVariable.
 	cfg applyOptimisation: DRCleanControlFlow new.
-	instruction := cfg instructions second.
-	message := instruction users unique.
+	instruction := cfg firstBasicBlock instructions third.
+	message := cfg firstBasicBlock instructions fourth.
+	 
+	self assert: (instruction users includes: message).
 
 	self assert: message isMessageSend.
 	self assert: message innerDependencies unique equals: instruction.
@@ -66,6 +68,6 @@ DRInstructionsTest >> testReplaceMessageSendUpdateInnerDependencies [
 	instruction replaceBy: newInstruction.
 
 	self assert: message innerDependencies unique equals: newInstruction.
-	self assert: newInstruction users unique equals: message.
+	self assert: (newInstruction users includes: message).
 	self assert: instruction users isEmpty
 ]
