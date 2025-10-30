@@ -14,17 +14,16 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 	optimisations add: (DRPhiSimplication then: DRCopyPropagation).
 	optimisations add: (DRPhiSimplication then: DRCopyPropagation).
 	optimisations add: DRDeadCodeElimination.
-	optimisations add: DRBranchCollapse.
 	optimisations add: DRSCCP.
 	optimisations add: (DRCleanControlFlow then: DRCopyPropagation).
 
 	optimisations add: DRCogitStackCoalescing new.
 	4 timesRepeat: [
-		optimisations add: DRBranchCollapse new.
 		"optimisations add: DRFailureCodeBasedTailDuplication new."
 		optimisations add: (DRSCCP then: DRDeadBlockElimination).
 		optimisations add: (DRPhiSimplication then: DRCopyPropagation).
 		optimisations add: DRCogitStackCanonicaliser new.
+		optimisations add: DRBranchCollapse new.
 		optimisations add: (DRDeadCodeElimination then: DRRedundantCopyElimination).
 		optimisations add: DRCleanControlFlow new.
 
