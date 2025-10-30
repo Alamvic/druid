@@ -12,11 +12,6 @@ DRLoadTemporaryVariable >> acceptVisitor: aVisitor [
 	^ aVisitor visitTemporaryVariable: self
 ]
 
-{ #category : 'accessing' }
-DRLoadTemporaryVariable >> address [
-	^ self operand1
-]
-
 { #category : 'initialization' }
 DRLoadTemporaryVariable >> initialize [
 

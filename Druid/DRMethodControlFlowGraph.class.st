@@ -35,8 +35,14 @@ DRMethodControlFlowGraph >> allBlockClosures [
 { #category : 'queries' }
 DRMethodControlFlowGraph >> allInstructionsWithScope: aDRScope [
 
-	^ self instructions select: [ :i |
-		  i isScopedInstruction and: [ i scope = aDRScope ] ]
+	| cfgInstructions blockInstructions |
+	cfgInstructions := self instructions select: [ :i |
+		                   i isScopedInstruction and: [ i scope = aDRScope ] ].
+
+	blockInstructions := self allBlockClosures flatCollect: [ :b |
+		                     b ensureIR allInstructionsWithScope: aDRScope ].
+
+	^ cfgInstructions , blockInstructions
 ]
 
 { #category : 'accessing' }

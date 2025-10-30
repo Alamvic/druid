@@ -10,6 +10,12 @@ Class {
 }
 
 { #category : 'accessing' }
+DRTemporaryVariableInstruction >> address [
+
+	^ self operand1
+]
+
+{ #category : 'accessing' }
 DRTemporaryVariableInstruction >> address: aDRValue [
 
 	self replaceOperandAtIndex: 1 by: aDRValue
@@ -31,4 +37,10 @@ DRTemporaryVariableInstruction >> scope [
 DRTemporaryVariableInstruction >> scope: anObject [
 
 	scope := anObject
+]
+
+{ #category : 'accessing' }
+DRTemporaryVariableInstruction >> variableName [
+
+	^ self address value
 ]

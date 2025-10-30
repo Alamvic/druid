@@ -57,6 +57,7 @@ DRMessageSend >> inlineGenerator: anIrGenerator [
 { #category : 'inline' }
 DRMessageSend >> innerDependencies [
 
+	self hasBlockArgument ifFalse: [ ^ #(  ) ].
 	inlineGenerator ifNil: [ ^ #(  ) ].
 	^ (inlineGenerator allTemporaryInstructions reject: #isDRBlockClosure)
 		  copyWithoutAll: self operands
@@ -72,12 +73,6 @@ DRMessageSend >> isMandatoryInstruction [
 DRMessageSend >> isMessageSend [
 
 	^ true
-]
-
-{ #category : 'types' }
-DRMessageSend >> isScopedInstruction [
-
-	^ self hasBlockArgument
 ]
 
 { #category : 'accessing' }

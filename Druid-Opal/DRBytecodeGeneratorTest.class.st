@@ -173,9 +173,11 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 	
 	aDRControlFlowGraph applyOptimisation: DRPhiSimplication new.
 	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
-	
+
 	DRUnconditionalBackJumpScheluder new applyTo: aDRControlFlowGraph.
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
+	aDRControlFlowGraph applyOptimisation: DRCleanScopes new.
+	aDRControlFlowGraph applyOptimisation: DRDeadCodeElimination new.
 
 	bytecodeGenerator numArgs: numArgs.
 	bytecodeGenerator methodName: selector.
@@ -220,8 +222,6 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testCreateTempVectorInsideLoop [
-
-	self skip. "Fix me :("
 
 	self assertCompilationFor: #exampleToDoInsideTemp fromClass: OCOpalExamples
 ]

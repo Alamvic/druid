@@ -11,7 +11,20 @@ DRLocalVariableInstructionScheluder >> applyTo: cfg [
 
 	self replacePhisByStores: cfg.
 	self storeResultsToBeReused: cfg.
+	self cleanRedundantStores: cfg
+]
 
+{ #category : 'as yet unclassified' }
+DRLocalVariableInstructionScheluder >> cleanRedundantStores: cfg [
+
+	cfg instructions copy
+		select: [ :i | i isStoreTemporaryVariable ]
+		thenDo: [ :store |
+			(store storeValue isInstruction and: [
+				 store storeValue isLoadTemporaryVariable ]) ifTrue: [
+				store address = store storeValue address ifTrue: [
+					store scope = store storeValue scope ifTrue: [
+						store removeFromCFG ] ] ] ]
 ]
 
 { #category : 'transformation' }
@@ -19,7 +32,7 @@ DRLocalVariableInstructionScheluder >> replacePhisByStores: aDRControlFlowGraph 
 	
 	aDRControlFlowGraph phiFunctions do: [ :phi |
 		
-		(phi operands reject:[ :op | op isNullValue ]) size = 1
+		phi operands size = 1
 			ifTrue: [ phi replaceByCopy ]
 			ifFalse: [ self storePhiOperands: phi ] ]
 ]

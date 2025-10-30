@@ -23,6 +23,13 @@ DRInitializeScope >> acceptVisitor: aVisitor [
 	aVisitor visitInitializeScope: self
 ]
 
+{ #category : 'nil' }
+DRInitializeScope >> inspectionSource: aBuilder [
+	<inspectorPresentationOrder: 0 title: 'Source'>
+	
+	^ scope node inspectionSource
+]
+
 { #category : 'visiting' }
 DRInitializeScope >> isMandatoryInstruction [
 

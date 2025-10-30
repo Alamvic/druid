@@ -16,12 +16,6 @@ DRLoadArgument >> acceptVisitor: aVisitor [
 ]
 
 { #category : 'accessing' }
-DRLoadArgument >> address [
-
-	^ self operand1
-]
-
-{ #category : 'accessing' }
 DRLoadArgument >> argName [
 
 	^ argName
@@ -73,4 +67,10 @@ DRLoadArgument >> sccpLatticeValueFor: sccp [
 DRLoadArgument >> typeWithAlreadySeen: _ [
 	
 	^ classType ifNil: [DRUndefinedType new]
+]
+
+{ #category : 'accessing' }
+DRLoadArgument >> variableName [
+
+	^ self argName
 ]
