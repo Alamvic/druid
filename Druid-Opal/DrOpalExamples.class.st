@@ -15,7 +15,7 @@ Class {
 { #category : 'as yet unclassified' }
 DrOpalExamples >> basicInlineMethod [
 
-	^ self lazyDouble: 42
+	^ self doubleOf: 42
 ]
 
 { #category : 'as yet unclassified' }
@@ -98,14 +98,13 @@ DrOpalExamples >> blockWithValue: arg [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> empty [
+DrOpalExamples >> doubleOf: n [
+
+	^ n * 2
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> lazyDouble: n [
-
-	<druidDeferredInline>
-	^ n * 2
+DrOpalExamples >> empty [
 ]
 
 { #category : 'as yet unclassified' }

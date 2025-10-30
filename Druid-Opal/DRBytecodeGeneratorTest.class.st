@@ -306,7 +306,7 @@ DRBytecodeGeneratorTest >> testMethodWithArg [
 
 	| method result |
 	compilerCompiler configureForCompilerClass: nil.
-	method := self generateMethodForSelector: #lazyDouble:.
+	method := self generateMethodForSelector: #doubleOf:.
 	result := method valueWithReceiver: nil arguments: { 12 }.
 
 	self assert: result equals: 24
