@@ -190,6 +190,27 @@ DRMethodIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 	^ self resolveMessageSend: aRBMessageNode receiver: receiver
 ]
 
+{ #category : 'inlining' }
+DRMethodIRGenerator >> interpretinlinedCode: code receiver: receiver arguments: arguments [
+
+	| inlineGenerator lastFrame |
+	inlineGenerator := self inlineGenerator
+		                   numberOfArguments: arguments size;
+		                   yourself.
+	
+	"Jump to inlining block"
+	self currentBasicBlock jumpTo: inlineGenerator newBasicBlock.
+
+	lastFrame := inlineGenerator
+		             interpretCode: code
+		             receiver: receiver
+		             arguments: arguments.
+
+	"Jump back and restore the state"
+	inlineGenerator currentBasicBlock jumpTo: self newBasicBlock.
+	self executionState: inlineGenerator executionState
+]
+
 { #category : 'scope' }
 DRMethodIRGenerator >> lookupScopeDefiningVariable: aRBVariableNode [
 
