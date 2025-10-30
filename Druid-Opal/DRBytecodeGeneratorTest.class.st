@@ -568,24 +568,11 @@ DRBytecodeGeneratorTest >> testMethodWritingClassVariable [
 ]
 
 { #category : 'tests' }
-DRBytecodeGeneratorTest >> testOpalBlocksMethods [
-
-	self skip. "Fix me :("
-
-	OCOpalExamples methods
-		select: [ :opalMethod | opalMethod protocolName = #'examples - blocks' ]
-		thenDo: [ :opalMethod | 
-			self setUp.
-			opalMethod selector traceCr.
-			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
-]
-
-{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testOpalExamples [
 
 	| ignoredProtocols |
-	ignoredProtocols := #( #examples #'examples - blocks'
-	                       #'examples - pragmas' #'examples - blocks-optimized' ).
+	ignoredProtocols := #( #'examples - pragmas'
+	                       #'examples - blocks-optimized' ).
 
 	OCOpalExamples methods
 		reject: [ :opalMethod |
