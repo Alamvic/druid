@@ -80,3 +80,8 @@ OCOpalExamples >> singleRemoteTempVar [
 	[ index < 5 ] whileTrue: block.
 	^ collection
 ]
+
+{ #category : '*Druid-Opal' }
+OCOpalExamples >> exampleSuperReceiver [
+        super yourself 
+]
