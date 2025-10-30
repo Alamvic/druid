@@ -118,7 +118,7 @@ DRMethodIRGeneratorInline >> setupCFGScope: aCodeNode [
 	temporaries := aCodeNode temporaries collect: [ :t | t variable originalVar ].
 	arguments := aCodeNode arguments collect: [ :a | a variable ].
 
-	self scope addTempVariabless: temporaries , arguments.
+	self scope addTempVariables: temporaries , arguments.
 	self scope node: aCodeNode
 ]
 

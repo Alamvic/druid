@@ -2,10 +2,7 @@ Class {
 	#name : 'DRScope',
 	#superclass : 'Object',
 	#instVars : [
-		'argumentNames',
-		'numArgs',
 		'tempVars',
-		'tempVector',
 		'id',
 		'node',
 		'outerScope',
@@ -17,14 +14,13 @@ Class {
 	#tag : 'IR'
 }
 
-{ #category : 'adding' }
+{ #category : 'configure' }
 DRScope >> addArgumentVariables: variables [
 
-	arguments addAll: variables.
-	argumentNames addAll: (variables collect: [ :v | v name ])
+	arguments addAll: variables
 ]
 
-{ #category : 'adding' }
+{ #category : 'configure' }
 DRScope >> addInlinedScope: aDRScope [ 
 
 	self assert: aDRScope outerScope = self.
@@ -32,20 +28,20 @@ DRScope >> addInlinedScope: aDRScope [
 	inlinedScopes add: aDRScope 
 ]
 
-{ #category : 'adding' }
-DRScope >> addTempVariabless: variables [ 
+{ #category : 'configure' }
+DRScope >> addTempNames: names [
 
-	tempVars addAll: variables.
-	tempVector addAll: (variables collect: [:v | v name])
+	tempVars addAll:
+		(names collect: [ :name | TemporaryVariable named: name ])
 ]
 
-{ #category : 'accessing' }
-DRScope >> addTemps: aCollection [
+{ #category : 'configure' }
+DRScope >> addTempVariables: variables [ 
 
-	tempVector addAll: aCollection.
+	tempVars addAll: variables
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'query' }
 DRScope >> allTempVarNames [
 
 	^ inlinedScopes
@@ -53,25 +49,25 @@ DRScope >> allTempVarNames [
 		  into: [ :temps :scope | temps , scope allTempVarNames ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'query' }
 DRScope >> allTempsWithOuterTemps [
 
 	^ self tempVectorVarNames , self copiedVars values flattened
 ]
 
-{ #category : 'accessing' }
+{ #category : 'query' }
 DRScope >> argumentNames [
 
-	^ argumentNames asArray 
+	^ arguments collect: [ :v | v name ] as: Array
 ]
 
-{ #category : 'accessing' }
+{ #category : 'query' }
 DRScope >> copiedVarNames [ 
 	
 	^ self copiedVars keys
 ]
 
-{ #category : 'accessing' }
+{ #category : 'query' }
 DRScope >> copiedVars [
 
 	self outerScope ifNil: [ ^ OrderedDictionary new ].
@@ -79,7 +75,7 @@ DRScope >> copiedVars [
 	^ self outerScope copiedVars, self outerScope definedTempVectors
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'query' }
 DRScope >> defineTempVector [
 
 	| tempVec |
@@ -97,7 +93,7 @@ DRScope >> definedTempVectors [
 	^ self defineTempVector", self inlinedTempVectors"
 ]
 
-{ #category : 'accessing' }
+{ #category : 'testing' }
 DRScope >> hasTempVector [
 
 	^ true
@@ -119,12 +115,9 @@ DRScope >> id: anObject [
 DRScope >> initialize [
 
 	arguments := OrderedCollection new.
-	argumentNames := OrderedCollection new.
-	tempVars :=  OrderedCollection new. "local temporaries"
-	tempVector  := OrderedCollection new. "vars in the tempVector of this scope"
+	tempVars := OrderedCollection new.
+	inlinedScopes := OrderedCollection new.
 
-	inlinedScopes  := OrderedCollection new.
-	
 	id := 0
 ]
 
@@ -134,7 +127,7 @@ DRScope >> inlinedScopes [
 	^ inlinedScopes
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'query' }
 DRScope >> inlinedTempVectors [
 
 	^ inlinedScopes
@@ -142,27 +135,21 @@ DRScope >> inlinedTempVectors [
 		  into: [ :vectors :scope | vectors , scope definedTempVectors ]
 ]
 
-{ #category : 'as yet unclassified' }
-DRScope >> innerScopes [
-	self shouldBeImplemented.
-]
-
 { #category : 'testing' }
 DRScope >> isEmpty [
 
 	arguments isEmpty ifFalse: [ ^ false ].
 	tempVars isEmpty ifFalse: [ ^ false ].
-	tempVector isEmpty ifFalse: [ ^ false ].
 	^ true
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'query' }
 DRScope >> lookupScopeDefining: aVariable [
 
 	^ self lookupScopeDefining: aVariable ifNone: [ self unexplored ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'query' }
 DRScope >> lookupScopeDefining: aVariable ifNone: noneBlock [
 
 	((tempVars includes: aVariable) or: [ arguments includes: aVariable ])
@@ -191,18 +178,6 @@ DRScope >> node: anObject [
 ]
 
 { #category : 'accessing' }
-DRScope >> numArgs [
-
-	^ numArgs
-]
-
-{ #category : 'accessing' }
-DRScope >> numArgs: anObject [
-
-	numArgs := anObject
-]
-
-{ #category : 'accessing' }
 DRScope >> outerScope [
 
 	^ outerScope
@@ -214,21 +189,21 @@ DRScope >> outerScope: aScope [
 	outerScope := aScope.
 ]
 
-{ #category : 'accessing' }
-DRScope >> tempVarNames [ 
-	
-	^ tempVector asArray 
+{ #category : 'query' }
+DRScope >> tempVarNames [
+
+	^ tempVars collect: [ :v | v name ] as: Array
 ]
 
-{ #category : 'accessing' }
+{ #category : 'query' }
 DRScope >> tempVectorName [
 	"the name of the tempVector is not a valid name of a temp variable
 	 This way we avoid name clashes "
 	^'0vector', id asString
 ]
 
-{ #category : 'accessing' }
+{ #category : 'query' }
 DRScope >> tempVectorVarNames [ 
 	
-	^ (argumentNames , tempVector) asArray 
+	^ (self argumentNames , self tempVarNames) asArray 
 ]

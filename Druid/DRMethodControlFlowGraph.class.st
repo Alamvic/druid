@@ -18,7 +18,7 @@ DRMethodControlFlowGraph >> addScopeToInstructionIfNeeded: anInstruction [
 { #category : 'accessing' }
 DRMethodControlFlowGraph >> addTempNameToScope: aName [
 
-	scope addTemps: { aName }
+	scope addTempNames: { aName }
 ]
 
 { #category : 'queries' }

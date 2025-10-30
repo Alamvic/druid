@@ -171,10 +171,10 @@ DRMethodIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arg
 DRMethodIRGenerator >> interpretInlinedBlockBody: aRBBlockNode [
 	"We add new temporaries to the current scope"
 
-	self scope addTempVariabless:
+	self scope addTempVariables:
 		(aRBBlockNode temporaries collect: [ :temp |
 			 temp variable originalVar ]).
-	self scope addTempVariabless:
+	self scope addTempVariables:
 		(aRBBlockNode arguments collect: [ :temp | temp variable ]).
 
 	self interpretBlockBody: aRBBlockNode
@@ -320,9 +320,8 @@ DRMethodIRGenerator >> scope [
 DRMethodIRGenerator >> setupCFGScope: aCodeNode [ 
 	
 	self ir scope
-		numArgs: aCodeNode arguments size;
 		addArgumentVariables: (aCodeNode arguments collect: #variable);
-		addTempVariabless: (aCodeNode temporaries collect: [:temp | temp variable originalVar]);
+		addTempVariables: (aCodeNode temporaries collect: [:temp | temp variable originalVar]);
 		node: aCodeNode
 ]
 
