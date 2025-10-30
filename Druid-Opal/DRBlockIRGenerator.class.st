@@ -18,19 +18,6 @@ DRBlockIRGenerator >> finishCodeInterpretation: lastFrame [
 	
 ]
 
-{ #category : 'visiting' }
-DRBlockIRGenerator >> interpretBlockActivation: aRBBlockNode [
-
-	| result copy |
-	
-	self interpretBlockBody: aRBBlockNode.
-	
-	result := self operandStackTop.
-	copy := self instructionFor: result inNode: aRBBlockNode.
-	self topFrame returnValue: copy.
-	
-]
-
 { #category : 'testing' }
 DRBlockIRGenerator >> isEmpty [
 

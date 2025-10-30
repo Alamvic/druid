@@ -252,6 +252,12 @@ DRBytecodeGenerator >> visitGetConditionCode: aDRGetConditionCode [
 ]
 
 { #category : 'visiting' }
+DRBytecodeGenerator >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [
+
+	self sendMessage: #> fromInstruction: aDRBranchIfCondition
+]
+
+{ #category : 'visiting' }
 DRBytecodeGenerator >> visitInitializeScope: aDRInitializeScope [ 
 
 	self interpretInitializeScope: aDRInitializeScope scope

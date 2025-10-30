@@ -126,11 +126,14 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 						          aRBAssignmentNode variable name asDRValue. "Fix temporary names collisions"
 						          value }.
 
-			result scope: (self lookupScopeDefiningVariable: aRBAssignmentNode variable).
-			self topFrame
-				temporaryAt: aRBAssignmentNode variable name
-				put: result
-				withState: executionState.
+			result scope:
+				(self lookupScopeDefiningVariable: aRBAssignmentNode variable).
+
+			(self hasTemporary: aRBAssignmentNode variable name) ifTrue: [
+				self topFrame
+					temporaryAt: aRBAssignmentNode variable name
+					put: result
+					withState: executionState ].
 
 			^ result ].
 
@@ -164,6 +167,40 @@ DRMethodIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arg
 	^ self popFrame
 ]
 
+{ #category : 'as yet unclassified' }
+DRMethodIRGenerator >> interpretInlinedBlockBody: aRBBlockNode [
+	"We add new temporaries to the current scope"
+
+	self scope addTempVariabless:
+		(aRBBlockNode temporaries collect: [ :temp |
+			 temp variable originalVar ]).
+	self scope addTempVariabless:
+		(aRBBlockNode arguments collect: [ :temp | temp variable ]).
+
+	self interpretBlockBody: aRBBlockNode
+]
+
+{ #category : 'inlining' }
+DRMethodIRGenerator >> interpretInlinedCode: code receiver: receiver arguments: arguments [
+
+	| inlineGenerator lastFrame |
+	inlineGenerator := self inlineGenerator
+		                   numberOfArguments: arguments size;
+		                   yourself.
+	
+	"Jump to inlining block"
+	self currentBasicBlock jumpTo: inlineGenerator newBasicBlock.
+
+	lastFrame := inlineGenerator
+		             interpretCode: code
+		             receiver: receiver
+		             arguments: arguments.
+
+	"Jump back and restore the state"
+	inlineGenerator currentBasicBlock jumpTo: self newBasicBlock.
+	self executionState: inlineGenerator executionState
+]
+
 { #category : 'interpreting' }
 DRMethodIRGenerator >> interpretTemporaryVariable: aRBVariableNode [
 
@@ -188,27 +225,6 @@ DRMethodIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 	"Resolve it as a normal send"
 	receiver := self visitOperand: aRBMessageNode receiver.
 	^ self resolveMessageSend: aRBMessageNode receiver: receiver
-]
-
-{ #category : 'inlining' }
-DRMethodIRGenerator >> interpretinlinedCode: code receiver: receiver arguments: arguments [
-
-	| inlineGenerator lastFrame |
-	inlineGenerator := self inlineGenerator
-		                   numberOfArguments: arguments size;
-		                   yourself.
-	
-	"Jump to inlining block"
-	self currentBasicBlock jumpTo: inlineGenerator newBasicBlock.
-
-	lastFrame := inlineGenerator
-		             interpretCode: code
-		             receiver: receiver
-		             arguments: arguments.
-
-	"Jump back and restore the state"
-	inlineGenerator currentBasicBlock jumpTo: self newBasicBlock.
-	self executionState: inlineGenerator executionState
 ]
 
 { #category : 'scope' }

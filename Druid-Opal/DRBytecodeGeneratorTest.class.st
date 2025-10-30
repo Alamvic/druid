@@ -30,7 +30,7 @@ DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method arguments
 		^ self assertClosure: result equals: expectedResult ].
 
 	(expectedResult isCollection and: [
-		 expectedResult isNotEmpty and: [ expectedResult first isClosure ] ])
+		 expectedResult isNotEmpty and: [ expectedResult anyOne isClosure ] ])
 		ifTrue: [
 			self assert: result size equals: expectedResult size.
 			expectedResult doWithIndex: [ :elem :i |
@@ -576,6 +576,7 @@ DRBytecodeGeneratorTest >> testOpalBlocksMethods [
 		select: [ :opalMethod | opalMethod protocolName = #'examples - blocks' ]
 		thenDo: [ :opalMethod | 
 			self setUp.
+			opalMethod selector traceCr.
 			self assertCompilationFor: opalMethod selector fromClass: OCOpalExamples ]
 ]
 
