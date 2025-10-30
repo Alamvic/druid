@@ -5,23 +5,23 @@ Class {
 		'argumentNames',
 		'numArgs',
 		'tempVars',
-		'copiedVars',
 		'tempVector',
 		'id',
-		'tempVectorVar',
 		'node',
 		'outerScope',
-		'inlinedScopes'
+		'inlinedScopes',
+		'arguments'
 	],
 	#category : 'Druid-Opal-IR',
 	#package : 'Druid-Opal',
 	#tag : 'IR'
 }
 
-{ #category : 'accessing' }
-DRScope >> addArguments: anObject [
+{ #category : 'adding' }
+DRScope >> addArgumentVariables: variables [
 
-	argumentNames addAll: anObject.
+	arguments addAll: variables.
+	argumentNames addAll: (variables collect: [ :v | v name ])
 ]
 
 { #category : 'adding' }
@@ -32,10 +32,25 @@ DRScope >> addInlinedScope: aDRScope [
 	inlinedScopes add: aDRScope 
 ]
 
+{ #category : 'adding' }
+DRScope >> addTempVariabless: variables [ 
+
+	tempVars addAll: variables.
+	tempVector addAll: (variables collect: [:v | v name])
+]
+
 { #category : 'accessing' }
 DRScope >> addTemps: aCollection [
 
 	tempVector addAll: aCollection.
+]
+
+{ #category : 'as yet unclassified' }
+DRScope >> allTempVarNames [
+
+	^ inlinedScopes
+		  inject: self tempVarNames
+		  into: [ :temps :scope | temps , scope allTempVarNames ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -103,8 +118,7 @@ DRScope >> id: anObject [
 { #category : 'initialization' }
 DRScope >> initialize [
 
-	"For now, follow Opal structure, will change this incrementally"
-
+	arguments := OrderedCollection new.
 	argumentNames := OrderedCollection new.
 	tempVars :=  OrderedCollection new. "local temporaries"
 	tempVector  := OrderedCollection new. "vars in the tempVector of this scope"
@@ -128,42 +142,40 @@ DRScope >> inlinedTempVectors [
 		  into: [ :vectors :scope | vectors , scope definedTempVectors ]
 ]
 
+{ #category : 'as yet unclassified' }
+DRScope >> innerScopes [
+	self shouldBeImplemented.
+]
+
 { #category : 'testing' }
 DRScope >> isEmpty [
 
+	arguments isEmpty ifFalse: [ ^ false ].
 	tempVars isEmpty ifFalse: [ ^ false ].
 	tempVector isEmpty ifFalse: [ ^ false ].
 	^ true
 ]
 
-{ #category : 'accessing' }
-DRScope >> lookupVar: name [
+{ #category : 'as yet unclassified' }
+DRScope >> lookupScopeDefining: aVariable [
 
-	^ self lookupVar: name ifNone: [ self unexplored ]
+	^ self lookupScopeDefining: aVariable ifNone: [ self unexplored ]
 ]
 
-{ #category : 'accessing' }
-DRScope >> lookupVar: name ifNone: noneBlock [
+{ #category : 'as yet unclassified' }
+DRScope >> lookupScopeDefining: aVariable ifNone: noneBlock [
 
-	((tempVector includes: name) or: [ argumentNames includes: name ])
+	((tempVars includes: aVariable) or: [ arguments includes: aVariable ])
 		ifTrue: [ ^ self ].
 
 	^ outerScope
 		  ifNotNil: [ :os |
-			  os lookupVar: name ifNone: [
-				  noneBlock cull: name.
+			  os lookupScopeDefining: aVariable ifNone: [
+				  noneBlock cull: aVariable.
 				  ^ self ] ]
 		  ifNil: [
-			  noneBlock cull: name.
+			  noneBlock cull: aVariable.
 			  self ]
-]
-
-{ #category : 'accessing' }
-DRScope >> lookupVarOrAddNewTemp: name [
-
-	"Remove this?"
-
-	^ self lookupVar: name ifNone: [ self addTemps: { name } ]
 ]
 
 { #category : 'accessing' }

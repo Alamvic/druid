@@ -60,16 +60,17 @@ DRBlockIRGenerator >> variableFrame: aDRStackFrame [
 DRBlockIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 	"TODO: Repeat code"
 
-	| loadArg varName |
+	| loadArg varName scope |
 	varName := aRBVariableNode name.
+	scope := self lookupScopeDefiningVariable: aRBVariableNode.
 
 	loadArg := self
 		           addInstructionFrom: aRBVariableNode
 		           instructionKind: DRLoadArgument
 		           operands: { aRBVariableNode variable index asDRValue }.
 
-	loadArg argName: aRBVariableNode name.
-	loadArg scope: (self scope lookupVar: aRBVariableNode name).
+	loadArg argName: varName. "Is it required?"
+	loadArg scope: scope.
 
 	^ loadArg
 ]

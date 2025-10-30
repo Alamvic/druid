@@ -21,14 +21,21 @@ DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method [
 DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method arguments: arguments [
 
 	| result expectedResult |
-
 	compilerCompiler interpreter initialize.
 	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: arguments.
 	compilerCompiler interpreter initialize.
 	expectedResult := method valueWithReceiver: compilerCompiler interpreter arguments: arguments.
 
-	expectedResult isClosure ifTrue: [ 
+	expectedResult isClosure ifTrue: [
 		^ self assertClosure: result equals: expectedResult ].
+
+	(expectedResult isCollection and: [
+		 expectedResult isNotEmpty and: [ expectedResult first isClosure ] ])
+		ifTrue: [
+			self assert: result size equals: expectedResult size.
+			expectedResult doWithIndex: [ :elem :i |
+				self assertClosure: (result at: i) equals: elem ].
+			^ self ].
 
 	self assert: result equals: expectedResult
 ]

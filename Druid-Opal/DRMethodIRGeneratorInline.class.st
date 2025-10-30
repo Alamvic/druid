@@ -55,9 +55,7 @@ DRMethodIRGeneratorInline >> initializeArgumentsNames: aDRCode with: argumentsVa
 	| argumentNames |
 	super initializeArgumentsNames: aDRCode with: argumentsValues.
 
-	"Remove this if by a better support for inlined blocks"
-	aDRCode isDRBlockClosure ifFalse: [
-		self currentBasicBlock initializeScope: self scope ].
+	self currentBasicBlock initializeScope: self scope.
 
 	"Copy values to argument temps"
 	argumentNames := aDRCode codeNode argumentNames.
@@ -114,7 +112,14 @@ DRMethodIRGeneratorInline >> scope [
 { #category : 'visiting' }
 DRMethodIRGeneratorInline >> setupCFGScope: aCodeNode [
 
-	self scope addTemps: aCodeNode temporaryNames, aCodeNode argumentNames
+	| temporaries arguments |
+	self assert: self scope isEmpty.
+
+	temporaries := aCodeNode temporaries collect: [ :t | t variable originalVar ].
+	arguments := aCodeNode arguments collect: [ :a | a variable ].
+
+	self scope addTempVariabless: temporaries , arguments.
+	self scope node: aCodeNode
 ]
 
 { #category : 'visiting' }

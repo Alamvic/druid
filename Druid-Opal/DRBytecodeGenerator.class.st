@@ -291,7 +291,7 @@ DRBytecodeGenerator >> visitLessThan: aDRLessThanComparison inBranch: aDRBranchI
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 	
-	builder pushRemoteTemp: aDRLoadArgument argName inVector: aDRLoadArgument scope tempVectorName. 
+	builder pushRemoteTemp: aDRLoadArgument variableName inVector: aDRLoadArgument scope tempVectorName. 
 	
 ]
 
