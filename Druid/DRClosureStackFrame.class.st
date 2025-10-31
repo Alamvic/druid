@@ -71,14 +71,3 @@ DRClosureStackFrame >> temporaryAt: aName put: aValue withState: aState [
 	"We are compiling a block, temporary comes from temp vector. Simulates here"
 	self writeTemporaryNamed: aName withValue: aValue
 ]
-
-{ #category : 'temporaries' }
-DRClosureStackFrame >> temporaryAt: aName withState: aState [
-
-	aState baseFrame = self ifTrue: [
-		(temporaries includesKey: aName) ifFalse: [ 1halt.
-			"We are compiling a block, temporary comes from temp vector, not in this compilation scope"
-			^ DRNullValue new ] ].
-
-	^ super temporaryAt: aName withState: aState
-]
