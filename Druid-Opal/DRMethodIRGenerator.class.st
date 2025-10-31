@@ -332,19 +332,10 @@ DRMethodIRGenerator >> typeSystem: aDRTypeSystem [
 ]
 
 { #category : 'accessing' }
-DRMethodIRGenerator >> variableFrame [
-
-	^ self topFrame 
-]
-
-{ #category : 'accessing' }
 DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 
-	| loadArg frame varName |
+	| loadArg varName |
 	varName := aRBVariableNode name.
-
-	self flag: #TOCHECK. "Can we use the scope? And avoid to manage the variableFrame?"
-	frame := self variableFrame.
 
 	(self hasTemporary: varName) ifTrue: [
 		| value |

@@ -31,12 +31,6 @@ DRBlockIRGenerator >> temporariesListfrom: aNode [
 	^ self scope allTempsWithOuterTemps 
 ]
 
-{ #category : 'visiting' }
-DRBlockIRGenerator >> variableFrame [
-
-	^ variableFrame 
-]
-
 { #category : 'accessing' }
 DRBlockIRGenerator >> variableFrame: aDRStackFrame [
 
