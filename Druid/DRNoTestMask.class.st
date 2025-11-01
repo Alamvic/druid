@@ -13,6 +13,12 @@ DRNoTestMask >> acceptVisitor: aVisitor withBranch: parentBranch [
 ]
 
 { #category : 'testing' }
+DRNoTestMask >> asJitCompileTimeExpressionString [
+
+	^ ' noMask: '
+]
+
+{ #category : 'testing' }
 DRNoTestMask >> isNoTestMask [
 	
 	^ true
