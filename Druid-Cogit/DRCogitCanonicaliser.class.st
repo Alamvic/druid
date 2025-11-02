@@ -47,29 +47,34 @@ DRCogitCanonicaliser >> collapseConditionFor: aDRGetConditionCode ifNotPossible:
 ]
 
 { #category : 'visiting' }
-DRCogitCanonicaliser >> collapseLogicOrBitwiseOperationIfPossible: aDRGetConditionCode [
+DRCogitCanonicaliser >> collapseLogicOrBitwiseOperationIfPossible: aDRInstruction [
 	"Convert TestEqualsThan(BitAnd(a, b), 0)     into  TestNoMask(a, b)
 		and TestNotEqualsThan(BitAnd(a, b), 0)  into  TestMask(a, b)
-		and so on"
+		and so on
+		aDRInstruction has to be either a DRGetConditionCode or a DRBranchIfCondition
+	"
 
 	| oldCondition newInstruction |
-	oldCondition := aDRGetConditionCode condition.
+	oldCondition := aDRInstruction condition.
 	(oldCondition isEqualsThanComparison or:
-		 oldCondition isNotEqualsThanComparison) ifFalse: [ ^ aDRGetConditionCode ].
+		 oldCondition isNotEqualsThanComparison) ifFalse: [ ^ aDRInstruction ].
 
 	"Move constant, if present, to the right"
-	aDRGetConditionCode operand1 isConstant ifTrue: [
-		aDRGetConditionCode operands:
-			{ oldCondition reversed }, aDRGetConditionCode operands reverse ].
+	aDRInstruction operand1 isConstant ifTrue: [
+		aDRInstruction operands:
+			{ oldCondition reversed }, aDRInstruction operands reverse ].
 
 	"Validate there is a constant, and it's zero"
-	(aDRGetConditionCode operand2 isConstant and: [
-		 aDRGetConditionCode operand2 value == 0 ]) ifFalse: [ ^ aDRGetConditionCode ].
+	(aDRInstruction operand2 isConstant and: [
+		 aDRInstruction operand2 value == 0 ]) ifFalse: [ ^ aDRInstruction ].
 
-	newInstruction := self collapseConditionFor: aDRGetConditionCode
-									ifNotPossible: [ ^aDRGetConditionCode ].
+	newInstruction := self collapseConditionFor: aDRInstruction
+									ifNotPossible: [ ^aDRInstruction ].
 
-	aDRGetConditionCode replaceBy: newInstruction.
+	aDRInstruction isJump ifTrue: [ newInstruction targets: aDRInstruction targets ].
+
+	aDRInstruction replaceBy: newInstruction.
+	
 	^ newInstruction
 ]
 
@@ -197,6 +202,8 @@ DRCogitCanonicaliser >> visitBitXor: aDRBitXor [
 { #category : 'visiting' }
 DRCogitCanonicaliser >> visitBranchIfCondition: aDRConditionalBranch [
 	"Tail duplicate branches on (optimizable) phis"
+
+	self collapseLogicOrBitwiseOperationIfPossible: aDRConditionalBranch.
 
 	aDRConditionalBranch operands
 		detect: [ :op | op isPhiFunction and: [ op operands size > 1 ] ]
