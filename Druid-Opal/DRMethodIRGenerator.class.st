@@ -61,7 +61,6 @@ DRMethodIRGenerator >> initializeArgumentsNames: aDRCode with: argumentsValues [
 
 { #category : 'initialization' }
 DRMethodIRGenerator >> initializeIR [
-	"Initialize scope temps"
 
 	super initializeIR.
 	self currentBasicBlock initializeScope: self scope
@@ -123,7 +122,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 				          addInstructionWithNoResultFrom: aRBAssignmentNode
 				          instructionKind: DRStoreTemporaryVariable
 				          operands: {
-						          aRBAssignmentNode variable name asDRValue. "Fix temporary names collisions"
+						          aRBAssignmentNode variable name asDRValue.
 						          value }.
 
 			result scope:
