@@ -75,13 +75,16 @@ DRStackFrame >> entryBasicBlock: anObject [
 
 { #category : 'temporaries' }
 DRStackFrame >> frameDefining: aName withState: aState [
-	
-	(temporaries includesKey: aName)
-		ifTrue: [ ^ self ].
 
-	^ (self outerFrameWithState: aState)
-		frameDefining: aName
-		withState: aState
+	(temporaries includesKey: aName) ifFalse: [ ^ nil ].
+
+	^ self
+]
+
+{ #category : 'accessing' }
+DRStackFrame >> hasTemporaryAt: aName withState: aDRExecutionState [
+
+	^ (self frameDefining: aName withState: aDRExecutionState) isNotNil
 ]
 
 { #category : 'testing' }
@@ -262,7 +265,9 @@ DRStackFrame >> temporariesDo: aFullBlockClosure [
 { #category : 'temporaries' }
 DRStackFrame >> temporaryAt: aName put: aValue withState: aState [
 
-	(self frameDefining: aName withState: aState) writeTemporaryNamed: aName withValue: aValue
+	(self frameDefining: aName withState: aState)
+		writeTemporaryNamed: aName
+		withValue: aValue
 ]
 
 { #category : 'temporaries' }

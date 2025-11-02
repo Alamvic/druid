@@ -36,40 +36,9 @@ DRBytecodeGenerator >> generateJump: aDRBranch [
 
 { #category : 'API' }
 DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
-	
-	self handleTemporaryVariableFromCFG: aDRControlFlowGraph .
 
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
 		self visitBlock: block ]
-]
-
-{ #category : 'API' }
-DRBytecodeGenerator >> handleTemporaryVariableFromCFG: aDRControlFlowGraph [
-
-	| args temps copiedTemps allTemps aDRScope |
-	
-	aDRScope := aDRControlFlowGraph scope.
-	
-	args := aDRScope argumentNames.
-	copiedTemps := aDRScope copiedVarNames.
-	temps := aDRScope tempVarNames.
-	
-	args do: [ :arg| 
-		builder addTemp: arg ].
-	
-	copiedTemps do: [ :tmp| 
-		builder addTemp: tmp ].
-	
-	allTemps := args , temps.
-	
-	allTemps isNotEmpty ifTrue: [ 
-		self createTempVector: allTemps vectorName: aDRScope tempVectorName.
-		 ].
-	
-	args do: [ :arg | 
-		builder pushTemp: arg.
-		builder storeRemoteTemp: arg inVector: aDRScope tempVectorName .
-		builder popTop ].
 ]
 
 { #category : 'initialization' }
@@ -79,6 +48,32 @@ DRBytecodeGenerator >> initialize [
 	numArgs := 0.
 	
 	vectorTempIndex:= nil.
+]
+
+{ #category : 'API' }
+DRBytecodeGenerator >> interpretInitializeScope: scope [
+
+	| args  |	
+	args := scope argumentNames.
+	
+	"Add arguments"
+	args do: [ :arg| 
+		builder addTemp: arg ].
+	
+	"Add temps copied from outer"
+	scope copiedVarNames do: [ :tmp| 
+		builder addTemp: tmp ].
+		
+	"Add own temp vectors (could be many due to inlinings)"
+	scope definedTempVectors keysAndValuesDo: [ :vector :temps |
+		self createTempVector: temps vectorName: vector
+		 ].
+	
+	"Store arguments to temp vectors"
+	args do: [ :arg | 
+		builder pushTemp: arg.
+		builder storeRemoteTemp: arg inVector: scope tempVectorName .
+		builder popTop ].
 ]
 
 { #category : 'testing' }
@@ -114,13 +109,17 @@ DRBytecodeGenerator >> numArgs: anInteger [
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 
+	| sendAST |
 	aDRInstruction operands do: [ :o | o acceptVisitor: self ].
-	builder send: selector.
-	
-	aDRInstruction isConditionalBranch ifFalse: 
-		[ aDRInstruction users ifEmpty: [ 
-			builder popTop
-			 ]]
+
+	"TODO: Avoid come back to the AST. Include super in the IR."
+	sendAST := aDRInstruction originAST.
+	(sendAST ifNotNil: [sendAST superOf])
+		ifNil: [ builder send: selector ]
+		ifNotNil: [ :behavior |  builder send: selector toSuperOf: behavior ].
+
+	aDRInstruction isConditionalBranch ifFalse: [
+		aDRInstruction users ifEmpty: [ builder popTop ] ]
 ]
 
 { #category : 'building' }
@@ -181,16 +180,17 @@ DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 
 	| blockNode compiledBlock blockCFG blockBytecodeGenerator copiedValues |
-	
+
 	blockNode := aDRBlockClosure blockNode.
-	blockCFG := aDRBlockClosure generateCFG.
+	blockCFG := aDRBlockClosure ensureIR.
 	
 	blockCFG applyOptimisation: DRFrameInfoCleaner new.
 	blockCFG applyOptimisation: DRBranchCollapse new.
 	blockCFG applyOptimisation: DRPhiSimplication new.
 	blockCFG applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
 	DRLocalVariableInstructionScheluder new applyTo: blockCFG.
-
+	blockCFG applyOptimisation: DRDeadCodeElimination new.
+	
 	blockBytecodeGenerator := DRBytecodeBlockGenerator new.
 	blockBytecodeGenerator generateTargetASTFromIR: blockCFG.
 	
@@ -225,6 +225,8 @@ DRBytecodeGenerator >> visitBranchIfCondition: aDRConditionalBranch [
 DRBytecodeGenerator >> visitConstant: aDRConstantValue [
 
 	aDRConstantValue value isLiteral ifFalse: [
+		aDRConstantValue value isThisContextVariable ifTrue: [
+			^ builder pushThisContext ].
 		aDRConstantValue value isGlobalVariable ifTrue: [
 			^ builder pushLiteralVariable: aDRConstantValue value ] ].
 
@@ -247,6 +249,18 @@ DRBytecodeGenerator >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBra
 DRBytecodeGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
 
 	aDRGetConditionCode condition acceptVisitor: self withBranch: aDRGetConditionCode
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRBranchIfCondition [
+
+	self sendMessage: #> fromInstruction: aDRBranchIfCondition
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitInitializeScope: aDRInitializeScope [ 
+
+	self interpretInitializeScope: aDRInitializeScope scope
 ]
 
 { #category : 'ir-to-target' }
@@ -274,10 +288,16 @@ DRBytecodeGenerator >> visitLessOrEqualsThan: aDRLessOrEqualsThanComparison inBr
 	self sendMessage: #'<=' fromInstruction: aDRGetConditionCode
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitLessThan: aDRLessThanComparison inBranch: aDRBranchIfCondition [
+
+	self sendMessage: #< fromInstruction: aDRBranchIfCondition
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 	
-	builder pushRemoteTemp: aDRLoadArgument argName inVector: aDRLoadArgument scope tempVectorName. 
+	builder pushRemoteTemp: aDRLoadArgument variableName inVector: aDRLoadArgument scope tempVectorName. 
 	
 ]
 
@@ -391,8 +411,12 @@ DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 		inVector: aDRStoreTemporaryVariable scope tempVectorName.
 
 	(aDRStoreTemporaryVariable users reject: [ :each |
-		 each isLoadTemporaryVariable "or: [ each isCopy ]" ]) size = 0
-		ifTrue: [ builder popTop ]
+		 each isLoadTemporaryVariable or: [
+			 each isMessageSend or: [
+				"TODO: Check why this case"
+				 each isCopy and: [
+					 each simpleConstantFold = aDRStoreTemporaryVariable ] ] ] ])
+		isEmpty ifTrue: [ builder popTop ]
 ]
 
 { #category : 'ir-to-target' }

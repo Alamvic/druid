@@ -15,7 +15,7 @@ Class {
 { #category : 'as yet unclassified' }
 DrOpalExamples >> basicInlineMethod [
 
-	^ self lazyDouble: 42
+	^ self doubleOf: 42
 ]
 
 { #category : 'as yet unclassified' }
@@ -93,10 +93,18 @@ DrOpalExamples >> basicMethodWithBlockArg: aBlock [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> lazyDouble: n [
+DrOpalExamples >> blockWithValue: arg [
+	^ [ arg ]
+]
 
-	<druidDeferredInline>
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> doubleOf: n [
+
 	^ n * 2
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> empty [
 ]
 
 { #category : 'as yet unclassified' }
@@ -257,6 +265,15 @@ DrOpalExamples >> methodBlockNonLocalReturn [
 	temp:= self basicMethodWithBlock: [ ^ 2 ].
 	^ 5
 	
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodBlockTwoOuterScopes [
+
+	| temp block |
+	temp := 1.
+	block := self blockWithValue: temp.
+	^ block value
 ]
 
 { #category : 'as yet unclassified' }

@@ -601,6 +601,13 @@ DRBasicBlock >> initialize [
 	endInstruction basicBlock: self.
 ]
 
+{ #category : 'initialization' }
+DRBasicBlock >> initializeScope: aDRScope [
+
+	^ self addInstruction:
+		  (self instructionFactory initializeScope: aDRScope)
+]
+
 { #category : 'splitting' }
 DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicatedInstructions withFrontier: frontier withUsers: users [
 
@@ -1527,7 +1534,8 @@ DRBasicBlock >> validatePhiFunctions [
 						 dependency isNullValue or: [
 							 dependency isPhysicalRegister or: [
 								 dependency isDRBlockClosure or: [
-									 dependency isJITCompileTimeExpression ] ] ] ]).
+									 dependency isJITCompileTimeExpression or: [ 
+										dependency isInterpreterValue ] ] ] ] ]).
 				self assert: (dependency isInstruction not or: [
 						 ((self predecessors at: index) checkLivenessOf: dependency)
 							 or: [ e hasRecursiveUse ] ]) ] ] ]

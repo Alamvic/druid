@@ -68,3 +68,9 @@ DRLoadArgument >> typeWithAlreadySeen: _ [
 	
 	^ classType ifNil: [DRUndefinedType new]
 ]
+
+{ #category : 'accessing' }
+DRLoadArgument >> variableName [
+
+	^ self argName
+]

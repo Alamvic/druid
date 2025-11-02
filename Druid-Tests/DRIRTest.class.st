@@ -59,6 +59,7 @@ DRIRTest >> generateBasicDruidIRFor: methodSelector [
 
 	| method cfg |
 	method := self interpreterClass lookupSelector: methodSelector.
+	self assert: method isNotNil.
 	cfg := compilerCompiler generateDruidIRFor: method.
 	^ cfg
 ]

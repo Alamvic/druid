@@ -22,8 +22,6 @@ DRBytecodeBlockGenerator >> compileBlockFrom: aDRControlFlowGraph withScope: aSc
 { #category : 'code-generation' }
 DRBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 	
-	self handleTemporaryVariableFromCFG: aDRControlFlowGraph.
-	
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
 		self visitBlock: block ].
 	

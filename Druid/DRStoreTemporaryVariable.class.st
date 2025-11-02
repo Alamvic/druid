@@ -12,12 +12,6 @@ DRStoreTemporaryVariable >> acceptVisitor: aVisitor [
 	^ aVisitor visitStoreTempVar: self
 ]
 
-{ #category : 'accessing' }
-DRStoreTemporaryVariable >> address [
-	
-	^ self operand1
-]
-
 { #category : 'testing' }
 DRStoreTemporaryVariable >> isMandatoryInstruction [ 
 
@@ -49,7 +43,7 @@ DRStoreTemporaryVariable >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : 'accessing' }
-DRStoreTemporaryVariable >> variableName [
+DRStoreTemporaryVariable >> storeValue [
 
-	^ self operand1 value
+	^ self operand2
 ]

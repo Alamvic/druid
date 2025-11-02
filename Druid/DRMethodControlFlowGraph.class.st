@@ -18,36 +18,31 @@ DRMethodControlFlowGraph >> addScopeToInstructionIfNeeded: anInstruction [
 { #category : 'accessing' }
 DRMethodControlFlowGraph >> addTempNameToScope: aName [
 
-	scope addTemps: { aName }
+	scope addTempNames: { aName }
+]
+
+{ #category : 'queries' }
+DRMethodControlFlowGraph >> allBlockClosures [
+
+	| closures |
+	closures := OrderedCollection new.
+	self instructionsDo: [ :i |
+		i operands do: [ :op |
+			op isDRBlockClosure ifTrue: [ closures add: op ] ] ].
+	^ closures
 ]
 
 { #category : 'queries' }
 DRMethodControlFlowGraph >> allInstructionsWithScope: aDRScope [
 
-	^ self instructions select: [ :i |
-		  i isScopedInstruction and: [ i scope = aDRScope ] ]
-]
+	| cfgInstructions blockInstructions |
+	cfgInstructions := self instructions select: [ :i |
+		                   i isScopedInstruction and: [ i scope = aDRScope ] ].
 
-{ #category : 'scopes' }
-DRMethodControlFlowGraph >> mergeScope: innerScope into: outerScope [
+	blockInstructions := self allBlockClosures flatCollect: [ :b |
+		                     b ensureIR allInstructionsWithScope: aDRScope ].
 
-	| instructions |
-	outerScope addTemps: innerScope tempVarNames.
-
-	instructions := self allInstructionsWithScope: innerScope.
-	instructions do: [ :i | i scope: outerScope ]
-]
-
-{ #category : 'scopes' }
-DRMethodControlFlowGraph >> renameTempVar: originalName from: aDRScope into: newName [
-
-	| instructions |
-	instructions := self allInstructionsWithScope: aDRScope.
-	instructions do: [ :i |
-		i address value = originalName ifTrue: [
-			i address: newName asDRValue ] ].
-
-	aDRScope renameTempVar: originalName into: newName
+	^ cfgInstructions , blockInstructions
 ]
 
 { #category : 'accessing' }

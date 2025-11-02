@@ -6,6 +6,15 @@ Class {
 	#tag : 'CompilerCompiler'
 }
 
+{ #category : 'temporaries' }
+DRClosureStackFrame >> frameDefining: aName withState: aState [
+
+	^ (super frameDefining: aName withState: aState) ifNil: [
+		  (self outerFrameWithState: aState)
+			  frameDefining: aName
+			  withState: aState ]
+]
+
 { #category : 'accessing' }
 DRClosureStackFrame >> homeFrame [
 
@@ -50,4 +59,15 @@ DRClosureStackFrame >> receiver [
 DRClosureStackFrame >> receiverWithState: aState [
 
 	^ (self homeFrameWithState: aState) receiver
+]
+
+{ #category : 'temporaries' }
+DRClosureStackFrame >> temporaryAt: aName put: aValue withState: aState [
+
+	aState baseFrame = self ifFalse: [
+		^ super temporaryAt: aName put: aValue withState: aState ].
+
+
+	"We are compiling a block, temporary comes from temp vector. Simulates here"
+	self writeTemporaryNamed: aName withValue: aValue
 ]

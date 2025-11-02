@@ -18,16 +18,10 @@ DRBlockIRGenerator >> finishCodeInterpretation: lastFrame [
 	
 ]
 
-{ #category : 'visiting' }
-DRBlockIRGenerator >> interpretBlockActivation: aRBBlockNode [
+{ #category : 'testing' }
+DRBlockIRGenerator >> isEmpty [
 
-	| result copy |
-	
-	self interpretBlockBody: aRBBlockNode.
-	
-	result := self operandStackTop.
-	copy := self instructionFor: result inNode: aRBBlockNode.
-	self topFrame returnValue: copy.
+	^ self ir instructions last isNoop
 	
 ]
 
@@ -37,15 +31,29 @@ DRBlockIRGenerator >> temporariesListfrom: aNode [
 	^ self scope allTempsWithOuterTemps 
 ]
 
-{ #category : 'visiting' }
-DRBlockIRGenerator >> variableFrame [
+{ #category : 'accessing' }
+DRBlockIRGenerator >> variableFrame: aDRStackFrame [
 
-	^ variableFrame 
+	variableFrame := aDRStackFrame
 ]
 
 { #category : 'accessing' }
-DRBlockIRGenerator >> variableFrame: aDRStackFrame [ 
-	variableFrame := aDRStackFrame
+DRBlockIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
+	"TODO: Repeat code"
+
+	| loadArg varName scope |
+	varName := aRBVariableNode name.
+	scope := self lookupScopeDefiningVariable: aRBVariableNode.
+
+	loadArg := self
+		           addInstructionFrom: aRBVariableNode
+		           instructionKind: DRLoadArgument
+		           operands: { aRBVariableNode variable index asDRValue }.
+
+	loadArg argName: varName. "Is it required?"
+	loadArg scope: scope.
+
+	^ loadArg
 ]
 
 { #category : 'visiting' }

@@ -334,6 +334,12 @@ DRIRGenerator >> firstBasicBlock [
 	^ firstBasicBlock
 ]
 
+{ #category : 'testing' }
+DRIRGenerator >> hasTemporary: name [
+
+	^ self topFrame hasTemporaryAt: name withState: executionState
+]
+
 { #category : 'stack management' }
 DRIRGenerator >> homeFrame [
 	
@@ -399,6 +405,7 @@ DRIRGenerator >> initializeSpecialCases [
 
 	specialCases at: #value put: #interpretBlockValueWith:.
 	specialCases at: #value: put: #interpretBlockValueWith:.
+	specialCases at: #valueWithArguments: put: #interpretBlockValueWith:.
 	specialCases at: #cull: put: #interpretBlockCullWith:.
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
 	specialCases at: #whileTrue put: #interpretWhileTrueWith:.
@@ -735,25 +742,16 @@ DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 
 { #category : 'API' }
 DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
-
 	"Create the initial basic block"
 
-	| initialBasicBlock startBlock numArgs arguments |
-	
-	startBlock := self initialBasicBlock.
-	initialBasicBlock := self createInitialBasicBlock.
-	startBlock jumpTo: initialBasicBlock.
-
-
+	| numArgs |
 	numArgs := aDRBlockClosure numberOfArguments.
 	self numberOfArguments: numArgs.
-	
-	self
-		interpretCode: aDRBlockClosure
-		receiver: aDRBlockClosure.
-		
+
+	self interpretCode: aDRBlockClosure receiver: aDRBlockClosure.
+
 	self ir numArgs: numArgs.
-	
+
 	^ self ir
 ]
 
@@ -764,15 +762,17 @@ DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 	aRBMessageNode receiver acceptVisitor: self.
 	block := self popOperand simplify.
 
+	"If we cannot inline the block, then send the message"	
 	block isDRBlockClosure ifFalse: [
 		^ self resolveMessageSend: aRBMessageNode receiver: block ].
+
 	arguments := aRBMessageNode arguments collect: [ :e |
 		             e acceptVisitor: self.
 		             self popOperand ].
 
 	"cull: only pass the required number of arguments and ignore the rest"
 	self
-		interpretCode: block
+		interpretInlinedCode: block
 		receiver: block
 		arguments: (arguments first: block numberOfArguments)
 ]
@@ -781,16 +781,22 @@ DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 
 	| block arguments |
-	
 	aRBMessageNode receiver acceptVisitor: self.
 	block := self popOperand simplify.
+
+	"If we cannot inline the block, then send the message"
 	block isDRBlockClosure ifFalse: [
 		^ self resolveMessageSend: aRBMessageNode receiver: block ].
 
-	arguments := aRBMessageNode arguments collect: [ :e |
+	arguments := aRBMessageNode arguments.
+	(aRBMessageNode selector endsWith: 'WithArguments:') ifTrue: [
+		arguments := aRBMessageNode arguments first contents ].
+
+	arguments := arguments collect: [ :e |
 		             e acceptVisitor: self.
 		             self popOperand ].
-	self interpretCode: block receiver: block arguments: arguments
+
+	self interpretInlinedCode: block receiver: block arguments: arguments
 ]
 
 { #category : 'special cases' }
@@ -1036,13 +1042,26 @@ DRIRGenerator >> interpretIfTrueWith: aRBMessageNode [
 	currentASTNode := aRBMessageNode.
 	self
 		buildIfTrue: self popOperand
-		then: [ self interpretBlockBody: aRBMessageNode arguments first ]
+		then: [ self interpretInlinedBlockBody: aRBMessageNode arguments first ]
 ]
 
 { #category : 'special cases' }
 DRIRGenerator >> interpretInequalityComparisonWith: aRBMessageNode [
 	
 	^ self interpretCondition: aRBMessageNode conditionKind: DRNotEqualsThanComparison
+]
+
+{ #category : 'as yet unclassified' }
+DRIRGenerator >> interpretInlinedBlockBody: aRBBlockNode [
+
+	self interpretBlockBody: aRBBlockNode
+]
+
+{ #category : 'special cases' }
+DRIRGenerator >> interpretInlinedCode: code receiver: receiver arguments: arguments [
+
+	self interpretCode: code receiver: receiver arguments: arguments
+
 ]
 
 { #category : 'special cases' }
@@ -1587,7 +1606,7 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 		                         mergeAll: { executionState }.
 
 	executionState := executionStateAtEntry copy.
-	self interpretBlockBody: aRBMessageNode receiver.
+	self interpretInlinedBlockBody: aRBMessageNode receiver.
 
 	"Could happen that the loop header block had a non local return.
 	Otherwise, this block should back jump to the entry block of the loop"
@@ -1613,7 +1632,7 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 		                           doing: [
 			                           aRBMessageNode arguments size > 0
 				                           ifTrue: [
-					                           self interpretBlockBody:
+					                           self interpretInlinedBlockBody:
 						                           aRBMessageNode arguments first.
 					                           self popOperand ] ].
 

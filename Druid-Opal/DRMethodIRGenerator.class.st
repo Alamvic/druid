@@ -11,6 +11,7 @@ DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
 
 	^ (super blockClosureFor: aRBBlockNode)
 		  irGenerator: self blockClosureGenerator;
+		  ensureIR;
 		  yourself
 ]
 
@@ -24,9 +25,8 @@ DRMethodIRGenerator >> blockClosureGenerator [
 	blockGenerator variableFrame: self topFrame copy.
 	
 	blockGenerator ir scope
-		outerScope: self ir scope;
-		id: self ir scope id + 1;
-		addCopiedVarsFromOuterScope: self ir scope.
+		outerScope: self scope;
+		id: self scope id + 1.
 		
 	^ blockGenerator
 ]
@@ -47,6 +47,26 @@ DRMethodIRGenerator >> initialize [
 ]
 
 { #category : 'initialization' }
+DRMethodIRGenerator >> initializeArgumentsNames: aDRCode with: argumentsValues [
+
+	| argumentNames |
+	argumentNames := aDRCode codeNode argumentNames.
+	1 to: argumentNames size do: [ :i |
+		| name |
+		name := argumentNames at: i.
+		self topFrame
+			writeTemporaryNamed: name
+			withValue: (argumentsValues at: i) ]
+]
+
+{ #category : 'initialization' }
+DRMethodIRGenerator >> initializeIR [
+
+	super initializeIR.
+	self currentBasicBlock initializeScope: self scope
+]
+
+{ #category : 'initialization' }
 DRMethodIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
@@ -62,12 +82,13 @@ DRMethodIRGenerator >> inlineGenerator [
 	newIRGenerator := DRMethodIRGeneratorInline new
 		                  controlFlowGraph: controlFlowGraph;
 		                  typeSystem: typeSystem;
+		                  outerScope: self scope;
 		                  yourself.
 
 	executionStateCopy := executionState copy.
 	newIRGenerator executionState: executionStateCopy.
 
-	newIRGenerator ensureScope.
+	newIRGenerator generateScope.
 	^ newIRGenerator
 ]
 
@@ -75,9 +96,8 @@ DRMethodIRGenerator >> inlineGenerator [
 DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
 	| value |
-	
 	value := self visitOperand: aRBAssignmentNode value.
-	
+
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
 		^ self
 			  addInstructionWithNoResultFrom: aRBAssignmentNode
@@ -86,33 +106,36 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 					  self receiver.
 					  aRBAssignmentNode variable binding index asDRValue.
 					  value } ].
-			
+
 	aRBAssignmentNode variable binding isClassVariable ifTrue: [
-		
 		^ self
 			  addInstructionWithNoResultFrom: aRBAssignmentNode
-			  instructionKind: DRStoreLiteralVariable 
+			  instructionKind: DRStoreLiteralVariable
 			  operands: {
 					  aRBAssignmentNode variable binding asDRValue.
 					  value } ].
 
-	aRBAssignmentNode variable binding originalVar isTempVariable ifTrue: [
-		| result |
-		result := self
-			          addInstructionWithNoResultFrom: aRBAssignmentNode
-			          instructionKind: DRStoreTemporaryVariable
-			          operands: {
-					          aRBAssignmentNode variable name asDRValue. "Fix temporary names collisions"
-					          value }.
+	aRBAssignmentNode variable binding originalVar isTempVariable
+		ifTrue: [
+			| result |
+			result := self
+				          addInstructionWithNoResultFrom: aRBAssignmentNode
+				          instructionKind: DRStoreTemporaryVariable
+				          operands: {
+						          aRBAssignmentNode variable name asDRValue.
+						          value }.
 
-		result scope: (self scope lookupVarOrAddNewTemp: aRBAssignmentNode variable name).
-		self topFrame
-			temporaryAt: aRBAssignmentNode variable name
-			put: result
-			withState: executionState.
+			result scope:
+				(self lookupScopeDefiningVariable: aRBAssignmentNode variable).
 
-		^ result ].
-	
+			(self hasTemporary: aRBAssignmentNode variable name) ifTrue: [
+				self topFrame
+					temporaryAt: aRBAssignmentNode variable name
+					put: result
+					withState: executionState ].
+
+			^ result ].
+
 
 	self unexplored
 ]
@@ -130,20 +153,83 @@ DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [
 
 { #category : 'as yet unclassified' }
 DRMethodIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
-	
+
 	self setupCFGScope: aDRCode codeNode.
-	
+
 	self pushFrameForCode: aDRCode receiver: aReceiver.
-	
-	"Iterate based on the defined arguments.
-	In ifNotNil: arguments are optional"
-	1 to: aDRCode codeNode argumentNames size do: [ :i | | name |
-		name := aDRCode codeNode argumentNames at: i.
-		self topFrame writeTemporaryNamed: name withValue: (arguments at: i).
-	].
-	
+
+	self
+		initializeArgumentsNames: aDRCode
+		with: arguments.
+
 	aDRCode executeOn: self.
-	^ self popFrame.
+	^ self popFrame
+]
+
+{ #category : 'as yet unclassified' }
+DRMethodIRGenerator >> interpretInlinedBlockBody: aRBBlockNode [
+	"We add new temporaries to the current scope"
+
+	self scope addTempVariables:
+		(aRBBlockNode temporaries collect: [ :temp |
+			 temp variable originalVar ]).
+	self scope addTempVariables:
+		(aRBBlockNode arguments collect: [ :temp | temp variable ]).
+
+	self interpretBlockBody: aRBBlockNode
+]
+
+{ #category : 'inlining' }
+DRMethodIRGenerator >> interpretInlinedCode: code receiver: receiver arguments: arguments [
+
+	| inlineGenerator lastFrame |
+	inlineGenerator := self inlineGenerator
+		                   numberOfArguments: arguments size;
+		                   yourself.
+	
+	"Jump to inlining block"
+	self currentBasicBlock jumpTo: inlineGenerator newBasicBlock.
+
+	lastFrame := inlineGenerator
+		             interpretCode: code
+		             receiver: receiver
+		             arguments: arguments.
+
+	"Jump back and restore the state"
+	inlineGenerator currentBasicBlock jumpTo: self newBasicBlock.
+	self executionState: inlineGenerator executionState
+]
+
+{ #category : 'interpreting' }
+DRMethodIRGenerator >> interpretTemporaryVariable: aRBVariableNode [
+
+	| scope loadTemp |
+	scope := self lookupScopeDefiningVariable: aRBVariableNode.
+	loadTemp := self
+		            addInstructionFrom: aRBVariableNode
+		            instructionKind: DRLoadTemporaryVariable
+		            operands: { aRBVariableNode name asDRValue }.
+	loadTemp scope: scope.
+	^ loadTemp
+]
+
+{ #category : 'special cases' }
+DRMethodIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
+
+	| receiver |
+	(aRBMessageNode receiver isBlockNode and: [
+		 aRBMessageNode arguments first isBlockNode ]) ifTrue: [
+		^ super interpretWhileTrueWith: aRBMessageNode ].
+	
+	"Resolve it as a normal send"
+	receiver := self visitOperand: aRBMessageNode receiver.
+	^ self resolveMessageSend: aRBMessageNode receiver: receiver
+]
+
+{ #category : 'scope' }
+DRMethodIRGenerator >> lookupScopeDefiningVariable: aRBVariableNode [
+
+	^ self scope lookupScopeDefining: aRBVariableNode variable originalVar
 ]
 
 { #category : 'initialization' }
@@ -233,10 +319,8 @@ DRMethodIRGenerator >> scope [
 DRMethodIRGenerator >> setupCFGScope: aCodeNode [ 
 	
 	self ir scope
-		numArgs: aCodeNode arguments size;
-		addArguments: aCodeNode argumentNames;
-		addTemps: aCodeNode temporaryNames;
-		opalScope: aCodeNode scope;
+		addArgumentVariables: (aCodeNode arguments collect: #variable);
+		addTempVariables: (aCodeNode temporaries collect: [:temp | temp variable originalVar]);
 		node: aCodeNode
 ]
 
@@ -247,29 +331,18 @@ DRMethodIRGenerator >> typeSystem: aDRTypeSystem [
 ]
 
 { #category : 'accessing' }
-DRMethodIRGenerator >> variableFrame [
-
-	^ self topFrame 
-]
-
-{ #category : 'accessing' }
 DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 
-	| loadArg frame varName |
+	| loadArg varName |
 	varName := aRBVariableNode name.
 
-	self flag: #TOCHECK. "Can we use the scope? And avoid to manage the variableFrame?"
-	frame := self variableFrame.
-	((frame hasTemporaryNamed: varName) and: [
-		 (frame readTemporaryNamed: varName) isNullValue not ]) ifTrue: [
+	(self hasTemporary: varName) ifTrue: [
 		| value |
-		value := frame readTemporaryNamed: varName.
-		value isCopy ifTrue: [
-			^ self
-				  addInstructionFrom: value
-				  instructionKind: DRCopy
-				  operands: { value operand1 } ].
-		^ self pushOperand: value ].
+		value := self temporaryAt: varName.
+
+		"TODO: Avoid Nulls here (do not initialize)"
+		value simpleConstantFold asDRValue isNullValue ifFalse: [
+			^ self pushOperand: value ] ].
 
 	loadArg := self
 		           addInstructionFrom: aRBVariableNode
@@ -277,9 +350,7 @@ DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 		           operands: { aRBVariableNode variable index asDRValue }.
 
 	loadArg argName: aRBVariableNode name.
-	loadArg scope:
-		(self scope lookupVarOrAddNewTemp: aRBVariableNode name).
-
+	loadArg scope: (self lookupScopeDefiningVariable: aRBVariableNode).
 	^ loadArg
 ]
 
@@ -326,21 +397,20 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
 	| store loadTemp |
-	aRBVariableNode variable isEscaping ifFalse: [
+
+	"If the variable is in the current frame, then reuse directly the instruction"
+	(self hasTemporary: aRBVariableNode name) ifTrue: [
 		store := self topFrame
 			         temporaryAt: aRBVariableNode name
 			         withState: executionState ].
-	"		store ifNil: [ 1halt ].
-		store isStore ifFalse: [ 1halt ]."
-	loadTemp := self
-		            addInstructionFrom: aRBVariableNode
-		            instructionKind: DRLoadTemporaryVariable
-		            operands: {
-				            aRBVariableNode name asDRValue.
-				            store }.
+	
+	^ self interpretTemporaryVariable: aRBVariableNode.
+	
 
+]
 
-	loadTemp scope:
-		(self scope lookupVarOrAddNewTemp: aRBVariableNode name).
-	^ loadTemp
+{ #category : 'visiting' }
+DRMethodIRGenerator >> visitThisContextNode: aRBVariableNode [
+
+	self visitGlobalVariableNode: aRBVariableNode
 ]

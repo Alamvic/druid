@@ -11,7 +11,20 @@ DRLocalVariableInstructionScheluder >> applyTo: cfg [
 
 	self replacePhisByStores: cfg.
 	self storeResultsToBeReused: cfg.
+	self cleanRedundantStores: cfg
+]
 
+{ #category : 'as yet unclassified' }
+DRLocalVariableInstructionScheluder >> cleanRedundantStores: cfg [
+
+	cfg instructions copy
+		select: [ :i | i isStoreTemporaryVariable ]
+		thenDo: [ :store |
+			(store storeValue isInstruction and: [
+				 store storeValue isLoadTemporaryVariable ]) ifTrue: [
+				store address = store storeValue address ifTrue: [
+					store scope = store storeValue scope ifTrue: [
+						store removeFromCFG ] ] ] ]
 ]
 
 { #category : 'transformation' }
@@ -19,7 +32,7 @@ DRLocalVariableInstructionScheluder >> replacePhisByStores: aDRControlFlowGraph 
 	
 	aDRControlFlowGraph phiFunctions do: [ :phi |
 		
-		(phi operands reject:[ :op | op isNullValue ]) size = 1
+		phi operands size = 1
 			ifTrue: [ phi replaceByCopy ]
 			ifFalse: [ self storePhiOperands: phi ] ]
 ]
@@ -78,6 +91,10 @@ DRLocalVariableInstructionScheluder >> storeResultsToBeReused: aDRControlFlowGra
 DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
 
     | variableName storeInst cfg |
+
+	"If it is a Load then the variable is already stored (can be reused)"
+	aDRInstruction isLoadTemporaryVariable ifTrue: [ ^ self ].
+
     self assert: aDRInstruction result isRegister.
     cfg := aDRInstruction controlFlowGraph.
 
@@ -85,6 +102,7 @@ DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
                         ifTrue: [ aDRInstruction operand1 ]
                         ifFalse: [
                         aDRInstruction result name asLowercase asDRValue ].
+
     cfg addTempNameToScope: variableName value.
 
     aDRInstruction users copy do: [ :user |
@@ -101,6 +119,7 @@ DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
                              variableName.
                              aDRInstruction }
                      result: DRNoRegister new.
+
     cfg addScopeToInstructionIfNeeded: storeInst.
     aDRInstruction basicBlock add: storeInst after: aDRInstruction
 ]

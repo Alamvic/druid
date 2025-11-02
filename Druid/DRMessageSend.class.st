@@ -28,6 +28,12 @@ DRMessageSend >> dependencies [
 	^ super dependencies , self innerDependencies
 ]
 
+{ #category : 'testing' }
+DRMessageSend >> hasBlockArgument [
+
+	^ self arguments anySatisfy: [ :arg | arg isDRBlockClosure ]
+]
+
 { #category : 'optimizations' }
 DRMessageSend >> inline [
 	
@@ -51,6 +57,7 @@ DRMessageSend >> inlineGenerator: anIrGenerator [
 { #category : 'inline' }
 DRMessageSend >> innerDependencies [
 
+	self hasBlockArgument ifFalse: [ ^ #(  ) ].
 	inlineGenerator ifNil: [ ^ #(  ) ].
 	^ (inlineGenerator allTemporaryInstructions reject: #isDRBlockClosure)
 		  copyWithoutAll: self operands
