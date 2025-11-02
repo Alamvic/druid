@@ -57,5 +57,7 @@ DRPrimitiveCompilationTestResource >> compilePrimitive: primitiveSelector with: 
 		             perform: cogitStyle;
 		             configureForCompilerClass: compilerClass.
 
+	 ('Compiling: ' , generatorSelector , ' in style: ', cogitStyle) traceCr.
+
 	 compiler compile
 ]
