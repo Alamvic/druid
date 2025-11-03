@@ -3,7 +3,7 @@ Class {
 	#superclass : 'DROptimisation',
 	#instVars : [
 		'solver',
-		'initialPhis'
+		'previousPhis'
 	],
 	#category : 'Druid-Optimizations',
 	#package : 'Druid',
@@ -25,7 +25,7 @@ DRPiMessageSplitting >> applyTo: cfg [
 	solver := self solverFor: cfg.
 	
 	self doWhilePossible: [
-		initialPhis := cfg phiFunctions.
+		previousPhis := cfg phiFunctions.
 		anyChanged := false.
 		cfg blocksDo: [ :b |
 			(b piNodes anySatisfy: [ :pi | self trySplitWith: pi ]) ifTrue: [
@@ -69,7 +69,7 @@ DRPiMessageSplitting >> recursivePhiDependenciesOf: aDRValue do: aBlock [
 ]
 
 { #category : 'accessing' }
-DRPiMessageSplitting >> shouldConsiderSplitting: aDRPhiFunction toSplitWith: aDRPiNode [
+DRPiMessageSplitting >> shouldConsiderSplitting: aDRPhiFunction toOptimize: aDRPiNode [
 
 	"Makes no sense to split if there's only one predecessor"
 	aDRPhiFunction operands size = 1 ifTrue: [ ^ false ].
@@ -83,7 +83,7 @@ DRPiMessageSplitting >> shouldConsiderSplitting: aDRPhiFunction toSplitWith: aDR
 	aDRPhiFunction basicBlock = aDRPiNode basicBlock ifTrue: [ ^ false ].
 
 	"do not split to phis that were added by previous splits"
-	(initialPhis includes: aDRPhiFunction) ifFalse: [ ^ false ].
+	(previousPhis includes: aDRPhiFunction) ifFalse: [ ^ false ].
 
 	"if the pi is unsatisfiable, it'll be removed by DBE, no need to split"
 	^ solver isSatisfiable: aDRPiNode
@@ -127,7 +127,7 @@ DRPiMessageSplitting >> trySplitWith: pi [
 	| maxAttemptsPerPi |
 	maxAttemptsPerPi := 3.
 	self recursivePhiDependenciesOf: pi do: [ :phi |
-		(self shouldConsiderSplitting: phi toSplitWith: pi)
+		(self shouldConsiderSplitting: phi toOptimize: pi)
 			ifTrue: [
 				phi operands withIndexDo: [ :phiOp :i |
 					self trySplitPhi: phi toIndex: i with: pi ifSplit: [ ^true ]
