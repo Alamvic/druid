@@ -917,34 +917,40 @@ DRTailDuplicationTest >> testTailDuplicateWithPhiAtMergePointBigGraph [
 	cfg b4 tailDuplicate.
 	cfg validate.
 	
-	"Asserts?"
+	{ b10. b11. b12 } do: [ :block |
+		self deny: block phiFunctions isEmpty.
+		self assert: (block phiFunctions allSatisfy: [ :mergePhi | mergePhi simpleConstantFold = 4 ]).
+	]
 ]
 
 { #category : 'tests' }
 DRTailDuplicationTest >> testTailDuplicateWithPhiAtMergePointSmallGraph [
 	"'|1|-->|3|--->|4|-------->|6|--->|7|
-    \ ->|2|----^  \ ->|5|--^      ^
-                        \ -------^ '"
+    \ ->|2|-----^    \ ->|5|--^      ^
+                            \ -------^ '"
 
-	| cfg b4 b8 b10 b12 copy1 user |
+	| cfg b4 b5 b6 b7 copy1 user |
 	cfg := self setUpCFGWithConditional.
 	b4 := cfg b4.
-	b8 := cfg newBasicBlock.
-	b10 := cfg newBasicBlock.
-	b12 := cfg newBasicBlock.
+	b5 := cfg newBasicBlock.
+	b6 := cfg newBasicBlock.
+	b7 := cfg newBasicBlock.
 
-	b4 jumpIfTrueTo: b8 ifFalseTo: b10.
-	b8 jumpIfTrueTo: b10 ifFalseTo: b12.
-	b10 jumpTo: b12.
+	b4 jumpIfTrueTo: b5 ifFalseTo: b6.
+	b5 jumpIfTrueTo: b6 ifFalseTo: b7.
+	b6 jumpTo: b7.
 	
 	copy1 := b4 copy: 4.
-	user := b12 phiWithVariables: { copy1. copy1 }.
+	user := b7 phiWithVariables: { copy1. copy1 }.
 
 	cfg validate.
 	cfg b4 tailDuplicate.
 	cfg validate.
 
-	"Asserts?"
+	{ b6. b7 } do: [ :block |
+		self deny: block phiFunctions isEmpty.
+		self assert: (block phiFunctions allSatisfy: [ :mergePhi | mergePhi simpleConstantFold = 4 ]).
+	]
 ]
 
 { #category : 'tests' }

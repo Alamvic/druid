@@ -65,14 +65,16 @@ DRZ3ConstraintSolver >> addZ3ConstraintFrom: aDRValue [
 { #category : 'z3' }
 DRZ3ConstraintSolver >> drValAsZ3Val: aDRValue ifUnsupported: aBlock [
 
-	| converter |
+	| converter realValue |
+	
+	realValue := phiReplacements at: aDRValue ifAbsent: [aDRValue].
 	converter := self
-		             getZ3ValueConverterFor: aDRValue type
+		             getZ3ValueConverterFor: realValue type
 		             ifUnsupported: aBlock.
 	
-	^ converter value: (aDRValue isConstant
-			   ifTrue: [ aDRValue value ]
-			   ifFalse: [ aDRValue name ])
+	^ converter value: (realValue isConstant
+			   ifTrue: [ realValue value ]
+			   ifFalse: [ realValue name ])
 ]
 
 { #category : 'initialization' }
@@ -392,14 +394,12 @@ DRZ3ConstraintSolver >> visitPhiFunction: aDRPhiFunction [
 				signed: (type isIntegerType and: [ type isSigned])
 				andDo: [ :_res :_replacementZ3 |
 					assertions add: _res === _replacementZ3 ].
-			^ nil
+		] ifAbsent: [
+			opsConstraints := aDRPhiFunction operands collect: [ :op |
+		                  self recurseOnlyPis: op addingConstraintsOn: res ].
+
+			assertions add: (opsConstraints reduce: [ :a :b | a or: b ])
 		].
-	
-
-		opsConstraints := aDRPhiFunction operands collect: [ :op |
-			                  self recurseOnlyPis: op addingConstraintsOn: res ].
-
-		assertions add: (opsConstraints reduce: [ :a :b | a or: b ])
 	]
 ]
 

@@ -35,17 +35,19 @@ b0:
 ') parse.
 
 	blocks := cfg blocks.
-	b_if1_false := blocks at: 3.
-	b_if1_true := blocks at: 2.
 	b_if1 := blocks at: 1.
+	
+	self
+		assert: b_if1 successors first lastInstruction target
+		equals: b_if1 successors second lastInstruction target.
 
 	self optimize: cfg with: { DRPiZ3MessageSplitting }.
 
-	self skip. "Is this test finished?"
+	self
+		assert: b_if1 successors first lastInstruction targets size
+		equals: 2.
+	self
+		assert: b_if1 successors first lastInstruction targets
+		equals: b_if1 successors second lastInstruction targets.
 
-	self assert: b_if1_true lastInstruction target
-		~= b_if1_false lastInstruction target.
-	
-	b_merge1 := b_if1_true lastInstruction target.
-	b_merge2 := b_if1_false lastInstruction target.
 ]
