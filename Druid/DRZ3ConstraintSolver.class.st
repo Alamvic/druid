@@ -141,7 +141,7 @@ DRZ3ConstraintSolver >> recurseOnlyPis: aDRValue addingConstraintsOn: varForCons
 		currentVal isPhiFunction and: [ currentVal operands size = 1 ] ] ] whileTrue: [
 			currentVal isPiNode ifTrue: [
 				constraint := constraint and:
-					              (currentVal constraint asZ3ConstraintOnVar: varForConstraints) ].
+					              (currentVal asZ3ConstraintOnVar: varForConstraints) ].
 			currentVal := currentVal operand1
 	].
 
@@ -254,7 +254,7 @@ DRZ3ConstraintSolver >> visitGetConditionCode: aDRGetConditionCode [
 	piNode := piNodes at: 1 ifAbsent: [ ^ nil ].
 	operand := self drValAsZ3Val: piNode operand ifUnsupported: [ ^ nil ].
 
-	assertion := res === (piNode constraint asZ3ConstraintOnVar: operand).
+	assertion := res === (piNode asZ3ConstraintOnVar: operand).
 
 	assertions add: assertion.
 
