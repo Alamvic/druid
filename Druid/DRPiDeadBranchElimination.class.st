@@ -37,11 +37,13 @@ DRPiDeadBranchElimination >> applyTo: cfg [
 	deadEdges := self computeDeadEdges.
 
 	deadEdges ifNotEmpty: [
+		self validateDeadEdges: deadEdges.
+
 		self removeUnnecessaryConditionalJumps: deadEdges.
 		cfg
 			invalidateDominatorTree;
 			invalidatePostDominatorTree.
-		DRDeadBlockElimination new applyTo: cfg]
+		DRDeadBlockElimination new applyTo: cfg ]
 ]
 
 { #category : 'analysis' }
@@ -125,4 +127,14 @@ DRPiDeadBranchElimination >> piNodesOfBranchWithHeader: aDRBasicBlock [
 DRPiDeadBranchElimination >> removeUnnecessaryConditionalJumps: deadEdges [
 
 	deadEdges do: #kill
+]
+
+{ #category : 'operations' }
+DRPiDeadBranchElimination >> validateDeadEdges: deadEdges [
+		deadEdges do: [ :e |
+				(deadEdges anySatisfy: [ :e2 |
+					 e ~= e2 and: [ e source = e2 source ] ]) ifTrue: [
+					Error signal: 'Cannot remove both outgoing edges from a block'
+				]
+		]
 ]

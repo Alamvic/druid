@@ -1517,7 +1517,7 @@ DRBasicBlock >> validate [
 DRBasicBlock >> validateInstructions [
 
 	(self instructions allSatisfy: [ :i | i basicBlock = self ]) 
-		ifFalse: [ DRError signal: 'Block-instruction mismatch in block: ' , self asString ].
+		ifFalse: [ Error signal: 'Block-instruction mismatch in block: ' , self asString ].
 
 	self instructionsDo: [ :instruction | instruction validate ]
 ]
