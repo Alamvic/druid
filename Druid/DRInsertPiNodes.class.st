@@ -46,27 +46,21 @@ DRInsertPiNodes >> addPisForCustomizations: cfg [
 { #category : 'accessing' }
 DRInsertPiNodes >> applyTo: cfg [
 
+	"We need to break critical edges, because in that case, the inserted constraint may not be true in every possible path"
+	DRBreakCriticalEdges applyTo: cfg.
+
 	self addPisForCustomizations: cfg.
 
 	cfg allConditionalJumps do: [ :jump | self insertPiNodesFor: jump ]
 ]
 
 { #category : 'enumerating' }
-DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBlock ofCondition: aDRBranchIfCondition [
+DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBlock [
 
-	| newBlock |
-	"We need to break critical edges, because in that case, the constraint may not be true in every possible path"
 	currentBranchBasicBlock predecessors size == 1 ifTrue: [
 		^ currentBranchBasicBlock ].
 
-	newBlock := currentBranchBasicBlock breakCriticalEdgeToPredecessor:
-		            aDRBranchIfCondition basicBlock.
-
-	newBlock controlFlowGraph
-		invalidateDominatorTree;
-		invalidatePostDominatorTree.
-
-	^ newBlock
+	Error signal: 'Critical edge found when inserting PiNodes'
 ]
 
 { #category : 'as yet unclassified' }
@@ -131,14 +125,12 @@ DRInsertPiNodes >> insertPiNodesFor: aDRBranchIfCondition [
 	truePis := piNodeBuilder nodesForTrueBranch ifEmpty: [ ^ nil ].
 	self insertPiNodes: truePis in: (self
 			 getBasicBlockToInsertPiNodesForBranch:
-			 aDRBranchIfCondition trueBranch
-			 ofCondition: aDRBranchIfCondition).
+			 aDRBranchIfCondition trueBranch).
 
 	falsePis := piNodeBuilder nodesForFalseBranch.
 	self insertPiNodes: falsePis in: (self
 			 getBasicBlockToInsertPiNodesForBranch:
-			 aDRBranchIfCondition falseBranch
-			 ofCondition: aDRBranchIfCondition).
+			 aDRBranchIfCondition falseBranch).
 
 	self
 		insertPhiNodesFor: aDRBranchIfCondition

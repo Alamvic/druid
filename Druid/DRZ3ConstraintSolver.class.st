@@ -227,7 +227,11 @@ DRZ3ConstraintSolver >> visitCopy: aDRCopy [
 	res := self drValAsZ3Val: aDRCopy ifUnsupported: [ ^ nil ].
 	op := self drValAsZ3Val: aDRCopy operand ifUnsupported: [ ^ nil ].
 
-	assertions add: res === op.
+	self
+		adaptSize: res
+		with: op
+		signed: false
+		andDo: [ :adaptedRes :adaptedOp | assertions add: adaptedRes === adaptedOp ].
 
 	aDRCopy isPiNode ifTrue: [ assertions add: (aDRCopy asZ3Constraint: self) ]
 ]
