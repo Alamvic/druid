@@ -9,7 +9,7 @@ Class {
 { #category : 'tests' }
 DRPiMessageSplittingTest >> testTwiceSameConstantConditionWithSecondIfAtMergePoint [
 
-	| cfg blocks b_if1_false b_if1_true b_if1 b_merge1 b_merge2 |
+	| cfg blocks b_if1 |
 	cfg := (DRIRParser for: '[[b0]]
 b_if1:
 	_ := If(LessThan, 4, x; b_if1_true, b_if1_false)

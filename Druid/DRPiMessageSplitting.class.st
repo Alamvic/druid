@@ -14,13 +14,8 @@ Class {
 DRPiMessageSplitting >> applyTo: cfg [
 
 	| anyChanged |
-	"Simplify phis before to avoid entering border cases.
-	For example, if a we have a cyclic Phi node defined in terms of itself:
-	
-	  phi1 := phi(phi1, someValue)
-	
-	"
-	(DRPhiSimplication then: DRCleanControlFlow) applyTo: cfg.
+
+	self simplifyPhis: cfg.
 	
 	solver := self solverFor: cfg.
 	
@@ -32,7 +27,7 @@ DRPiMessageSplitting >> applyTo: cfg [
 				anyChanged := true
 			]
 		].
-		anyChanged ifTrue: [ (DRPhiSimplication then: DRCleanControlFlow) applyTo: cfg ].
+		anyChanged ifTrue: [ self simplifyPhis: cfg. ].
 		anyChanged
 	]
 ]
@@ -87,6 +82,18 @@ DRPiMessageSplitting >> shouldConsiderSplitting: aDRPhiFunction toOptimize: aDRP
 
 	"if the pi is unsatisfiable, it'll be removed by DBE, no need to split"
 	^ solver isSatisfiable: aDRPiNode
+]
+
+{ #category : 'accessing' }
+DRPiMessageSplitting >> simplifyPhis: cfg [
+	"Simplify phis before to avoid entering border cases.
+	For example, if a we have a cyclic Phi node defined in terms of itself:
+	
+	  phi1 := phi(phi1, someValue)
+	
+	"
+	((DRPhiSimplication shouldFoldCopies: false) then: DRCleanControlFlow) applyTo: cfg.
+
 ]
 
 { #category : 'accessing' }
