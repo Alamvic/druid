@@ -939,6 +939,13 @@ DRControlFlowGraph >> stackInstructions [
 	^ self instructions select: [ :i | i isStackInstruction ]
 ]
 
+{ #category : 'accessing - query' }
+DRControlFlowGraph >> stackInstructionsDo: aBlock [
+
+	^ self instructionsDo: [ :i |
+		  i isStackInstruction ifTrue: [ aBlock value: i ] ]
+]
+
 { #category : 'accessing' }
 DRControlFlowGraph >> stagedRegisters [
 	^ stagedRegisters
