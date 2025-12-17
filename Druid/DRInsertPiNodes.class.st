@@ -35,7 +35,7 @@ DRInsertPiNodes >> addPisForCustomizations: cfg [
 	initConstraint := cfg initialContrainst.
 	"We only support Receiver Constraints for now"
 	self assert: (initConstraint isKindOf: DRReceiverConstraint).
-	self assert: (initConstraint constraint isKindOf: DREqualsConstraint).
+	self assert: (initConstraint constraint isKindOf: DRAnyMaskConstraint).
 	constraint := initConstraint constraint.
 
 	cfg instructionsDo: [ :i |
