@@ -90,7 +90,8 @@ DRInsertPiNodes >> insertPhiNodesFor: aDRBranchIfCondition withTruePis: truePis 
 			replacableValues add: phi.
 			originalVariable users copy do: [ :user | (user isDominatedBy: phi) ifTrue: [
 					user replaceOperandIfDominated: originalVariable by: phi]
-			]
+			].
+			(phi operands noneSatisfy: #isNullValue) ifFalse: [ self error ]
 		]
 	]
 ]

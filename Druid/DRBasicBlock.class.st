@@ -1287,7 +1287,7 @@ DRBasicBlock >> removeInstruction: aDRInstruction [
 DRBasicBlock >> removePiNodes [
 
 	self piNodes do: [ :pi |
-		pi users do: [ :user | user replaceDependency: pi by: pi operand ].
+		pi users copy do: [ :user | user replaceDependency: pi by: pi operand ].
 		pi removeFromCFG ]
 ]
 
