@@ -159,8 +159,10 @@ DRZ3ConstraintSolver >> visitAddition: aDRAdd [
 		| op1 op2 |
 		op1 := self drValAsZ3Val: aDRAdd operand1 ifUnsupported: [ ^ nil ].
 		op2 := self drValAsZ3Val: aDRAdd operand2 ifUnsupported: [ ^ nil ].
-		assertions add: (Z3 mk_bvadd_no_overflow: ctxt _: op1 _: op2 _: true).
-		assertions add: (Z3 mk_bvadd_no_underflow: ctxt _: op1 _: op2) ].
+		
+		self adaptSize: op1 with: op2 signed: true andDo: [ :adaptedOp1 :adaptedOp2 |
+			assertions add: (Z3 mk_bvadd_no_overflow: ctxt _: adaptedOp1 _: adaptedOp2 _: true).
+			assertions add: (Z3 mk_bvadd_no_underflow: ctxt _: adaptedOp1 _: adaptedOp2) ] ].
 
 	^ self visitBinaryOp: aDRAdd with: #+
 ]
@@ -434,8 +436,10 @@ DRZ3ConstraintSolver >> visitSubstract: aDRSubtract [
 		| op1 op2 |
 		op1 := self drValAsZ3Val: aDRSubtract operand1 ifUnsupported: [ ^ nil ].
 		op2 := self drValAsZ3Val: aDRSubtract operand2 ifUnsupported: [ ^ nil ].
-		assertions add: (Z3 mk_bvsub_no_overflow: ctxt _: op1 _: op2).
-		assertions add: (Z3 mk_bvsub_no_underflow: ctxt _: op1 _: op2 _: true) ].
+		
+		self adaptSize: op1 with: op2 signed: true andDo: [ :adaptedOp1 :adaptedOp2 |
+			assertions add: (Z3 mk_bvsub_no_underflow: ctxt _: adaptedOp1 _: adaptedOp2 _: true).
+			assertions add: (Z3 mk_bvsub_no_overflow: ctxt _: adaptedOp1 _: adaptedOp2) ] ].
 
 	^ self visitBinaryOp: aDRSubtract with: #-
 ]
