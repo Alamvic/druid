@@ -2,15 +2,14 @@ Class {
 	#name : 'DRConstantConstraintSolver',
 	#superclass : 'DRConstraintSolver',
 	#instVars : [
-		'visited',
-		'phiReplacement'
+		'visited'
 	],
 	#category : 'Druid-IR-Paths',
 	#package : 'Druid',
 	#tag : 'IR-Paths'
 }
 
-{ #category : 'as yet unclassified' }
+{ #category : 'solving' }
 DRConstantConstraintSolver >> collectConstraintsFrom: aDRValue [
 
 	(aDRValue isNumberValue or: aDRValue value isBooleanValue) ifTrue: [
@@ -21,11 +20,11 @@ DRConstantConstraintSolver >> collectConstraintsFrom: aDRValue [
 		ifPresentDo: [ ^ DRFullConstraint new ].
 
 	aDRValue isPhiFunction ifTrue: [
-		^ (phiReplacement isNil or: [ phiReplacement key ~= aDRValue ]) ifTrue: [
+		^ phiReplacements at: aDRValue ifPresent: [ :phiReplacement |
+			self collectConstraintsFrom: phiReplacement
+		] ifAbsent: [
 			DRUnionConstraint constraints:
 			  (aDRValue operands collect: [ :op | self collectConstraintsFrom: op ])
-		] ifFalse: [
-			self collectConstraintsFrom: phiReplacement value
 		].
 	].
 
@@ -41,13 +40,13 @@ DRConstantConstraintSolver >> collectConstraintsFrom: aDRValue [
 	^ DRFullConstraint new
 ]
 
-{ #category : 'testing' }
+{ #category : 'solving' }
 DRConstantConstraintSolver >> isConstraint: piNodeConstraint satisfiableWith: collectedConstraint [
 
 	^ (piNodeConstraint negated includes: collectedConstraint) not
 ]
 
-{ #category : 'testing' }
+{ #category : 'solving' }
 DRConstantConstraintSolver >> isSatisfiable: aDRPiNode [
 
 	| constraint |
@@ -56,7 +55,7 @@ DRConstantConstraintSolver >> isSatisfiable: aDRPiNode [
 	^ self isSatisfiable: constraint onVar: aDRPiNode operand
 ]
 
-{ #category : 'testing' }
+{ #category : 'solving' }
 DRConstantConstraintSolver >> isSatisfiable: piNodeConstraint onVar: constrainedVariable [
 
 	| collectedConstraint |
@@ -68,15 +67,4 @@ DRConstantConstraintSolver >> isSatisfiable: piNodeConstraint onVar: constrained
 	^ self
 		  isConstraint: piNodeConstraint
 		  satisfiableWith: collectedConstraint
-]
-
-{ #category : 'testing' }
-DRConstantConstraintSolver >> isSatisfiable: aDRPiNode replacingPhi: phi for: phiOp [
-
-	| retval |
-	phiReplacement := phi -> phiOp.
-	retval := self isSatisfiable: aDRPiNode.
-	phiReplacement := nil.
-
-	^ retval
 ]

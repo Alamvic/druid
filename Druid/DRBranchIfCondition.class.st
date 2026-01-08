@@ -306,12 +306,15 @@ DRBranchIfCondition >> validate [
 
 	super validate.
 	
+	self basicBlock endInstruction = self ifFalse: [ 
+			Error signal: 'DRBranchIfCondition is not endInstruction' ].
+	
 	condition isComparison ifFalse: [ 
-			DRError signal: 'Invalid condition: ', condition asString, ' in: ' , self asString ].
+			Error signal: 'Invalid condition: ', condition asString, ' in: ' , self asString ].
 
 	(self basicBlock controlFlowGraph blocks includes: trueBranch) ifFalse: [ 
-			DRError signal: 'Invalid trueBranch target ', trueBranch id asString, ' in: ' , self prettyPrint ].
+			Error signal: 'Invalid trueBranch target ', trueBranch id asString, ' in: ' , self prettyPrint ].
 	
 	(self basicBlock controlFlowGraph blocks includes: falseBranch) ifFalse: [ 
-			DRError signal: 'Invalid falseBranch target ', falseBranch id asString, ' in: ' , self prettyPrint ]
+			Error signal: 'Invalid falseBranch target ', falseBranch id asString, ' in: ' , self prettyPrint ]
 ]

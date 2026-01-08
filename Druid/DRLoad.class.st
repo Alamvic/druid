@@ -105,7 +105,7 @@ DRLoad >> type: aType [
 ]
 
 { #category : 'accessing' }
-DRLoad >> typeWithAlreadySeen: _ [
+DRLoad >> typeWithAlreadySeen: aCollection [
 	
 	^ type
 ]

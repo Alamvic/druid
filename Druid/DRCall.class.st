@@ -87,6 +87,12 @@ DRCall >> operands: aCollection [
 	super operands: aCollection allButFirst
 ]
 
+{ #category : 'printing' }
+DRCall >> prettyPrint [
+
+	^ super prettyPrint , functionName asString
+]
+
 { #category : 'accessors' }
 DRCall >> saveLinkReg [
 

@@ -342,6 +342,12 @@ DRCogitOperandSorter >> visitReturn: aDRReturn [
 ]
 
 { #category : 'visiting' }
+DRCogitOperandSorter >> visitSignedCoercion: aDRSignedCoercion [ 
+
+	"Nothing"
+]
+
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitSignedRightShift: aDRRightShift [ 
 	
 	"Shift is not commutative!

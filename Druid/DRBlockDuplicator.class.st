@@ -89,7 +89,7 @@ DRBlockDuplicator >> patchInstructionsIn: aBasicBlock [
 			newInstruction removeUser: user.
 			newInstruction addUser: replacement.
 		].
-		newInstruction dependencies copy do: [ :operand | | replacement |
+		newInstruction dependencies asSet do: [ :operand | | replacement |
 			"If an operand comes from another block, keep using it"
 			replacement := instructionMap at: operand ifAbsent: [ operand ].
 			newInstruction replaceDependency: operand by: replacement.

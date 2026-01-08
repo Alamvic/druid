@@ -808,7 +808,18 @@ DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [
 { #category : 'accessing' }
 DRIRGenerator >> interpretCCoerceWith: aRBMessageNode [
 
-	^ aRBMessageNode arguments first acceptVisitor: self
+	| typeName inner |
+	aRBMessageNode arguments first acceptVisitor: self.
+	inner := self popOperand.
+
+	typeName := aRBMessageNode arguments second value.
+	(typeName = 'sqInt' and: [ inner type isUnsigned ]) ifTrue: [
+		^ self
+			  addInstructionFrom: aRBMessageNode arguments first
+			  instructionKind: DRSignedCoercion
+			  operands: { inner } ].
+
+	^ self pushOperand: inner
 ]
 
 { #category : 'special cases' }

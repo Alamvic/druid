@@ -95,6 +95,11 @@ DRPiNodeBuilder >> visitMultiplyOverflow: aDRCondition inBranch: aDRBranchIfCond
 ]
 
 { #category : 'visiting' }
+DRPiNodeBuilder >> visitNoOverflow: aDRNoOverflow inBranch: aDRBranchIfCondition [ 
+
+]
+
+{ #category : 'visiting' }
 DRPiNodeBuilder >> visitNoTestMask: aDRCondition inBranch: aDRBranchIfCondition [ 
 
 	self visitComparison: aDRBranchIfCondition withConstraint: DRPiNoneMaskConstraint.

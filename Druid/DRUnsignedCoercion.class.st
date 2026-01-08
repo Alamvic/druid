@@ -27,3 +27,10 @@ DRUnsignedCoercion >> sccpOperateOnLattice: operand [
 		operand twoComplementOfBitSize: self type numberOfBits ].
 	^ operand
 ]
+
+{ #category : 'printing' }
+DRUnsignedCoercion >> typeWithAlreadySeen: aCollection [
+
+	^ DRUnsignedIntegerType size:
+		  (self operand1 typeWithAlreadySeen: aCollection) size
+]

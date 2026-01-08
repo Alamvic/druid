@@ -35,7 +35,7 @@ DRIntToFloat >> simpleConstantFold [
 ]
 
 { #category : 'types' }
-DRIntToFloat >> typeWithAlreadySeen: _ [
+DRIntToFloat >> typeWithAlreadySeen: aCollection [
 	
 	^ DRFloatType new
 ]

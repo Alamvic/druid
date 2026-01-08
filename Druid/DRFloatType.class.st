@@ -19,6 +19,12 @@ DRFloatType >> isFloatType [
 ]
 
 { #category : 'accessing' }
+DRFloatType >> numberOfBits [
+
+	^ self size * 8
+]
+
+{ #category : 'accessing' }
 DRFloatType >> size [
 
 	"Floats are double-precision IEEE-754 floats"

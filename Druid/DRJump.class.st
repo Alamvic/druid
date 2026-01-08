@@ -200,7 +200,10 @@ DRJump >> validate [
 
 	super validate.
 
+	self basicBlock endInstruction = self ifFalse: [ 
+		Error signal: 'Jump is not endInstruction' ].
+
 	(self basicBlock controlFlowGraph blocks includes: target) ifFalse: [ 
-			DRError signal: 'Invalid jump target ', target id asString, ' in: ' , self prettyPrint ].
+			Error signal: 'Invalid jump target ', target id asString, ' in: ' , self prettyPrint ].
 
 ]

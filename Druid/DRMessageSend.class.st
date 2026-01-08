@@ -150,7 +150,7 @@ DRMessageSend >> supportConstantOperand [
 ]
 
 { #category : 'types' }
-DRMessageSend >> typeWithAlreadySeen: _ [
+DRMessageSend >> typeWithAlreadySeen: aCollection [
 
 	methodNode ifNotNil: [ "TODO: Connext with type system"
 		(methodNode hasPragmaNamed: #returnTypeC:) ifTrue: [ "TODO: Match Slang types"

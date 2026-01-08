@@ -12,6 +12,12 @@ DRPiGreaterThanConstraint >> asZ3ConstraintOnVar: aZ3Variable [
 	^ self binaryConstraint: #> on: aZ3Variable
 ]
 
+{ #category : 'arithmetic' }
+DRPiGreaterThanConstraint >> asZ3UnsignedConstraintOnVar: aZ3Variable [
+
+	^ self binaryConstraint: #>+ on: aZ3Variable
+]
+
 { #category : 'accessing' }
 DRPiGreaterThanConstraint >> constantConstraintClass [
 
