@@ -7,7 +7,8 @@ Class {
 		'assertions',
 		'ctxt',
 		'signedIntOverflowIsUB',
-		'phiReplacement'
+		'useFloats',
+		'visitedPhis'
 	],
 	#category : 'Druid-IR-Paths',
 	#package : 'Druid',
@@ -23,43 +24,72 @@ DRZ3ConstraintSolver class >> for: aDRControlFlowGraph [
 { #category : 'instance creation' }
 DRZ3ConstraintSolver class >> for: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean [
 
-	^ self new initializeFor: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean
+	^ self new for: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'z3' }
 DRZ3ConstraintSolver >> adaptSize: op1 with: op2 andDo: aBlock [
-	| _op1 _op2 |
-	op1 isBitVector ifFalse: [ ^ aBlock value: op1 value: op2 ].
 	
+	^ self adaptSize: op1 with: op2 signed: false andDo: aBlock
+]
+
+{ #category : 'z3' }
+DRZ3ConstraintSolver >> adaptSize: op1 with: op2 signed: aBoolean andDo: aBlock [
+
+	| _op1 _op2 selector |
+	op1 isBitVector ifFalse: [ ^ aBlock value: op1 value: op2 ].
+
+	selector := aBoolean
+		            ifTrue: [ #signExtend: ]
+		            ifFalse: [ #zeroExtend: ].
 	_op1 := op1.
 	_op2 := op2.
-	op1 sort length < op2 sort length ifTrue: [ _op1 := op1 "signExtend:" zeroExtend: op2 sort length - op1 sort length ].
-	op2 sort length < op1 sort length ifTrue: [ _op2 := op2 "signExtend:" zeroExtend: op1 sort length - op2 sort length ].
-	
-	^ aBlock value: _op1 value: _op2.
-	
+	op1 sort length < op2 sort length ifTrue: [
+		_op1 := op1
+			        perform: selector
+			        with: op2 sort length - op1 sort length ].
+	op2 sort length < op1 sort length ifTrue: [
+		_op2 := op2
+			        perform: selector
+			        with: op1 sort length - op2 sort length ].
+
+	^ aBlock value: _op1 value: _op2
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'solving' }
 DRZ3ConstraintSolver >> addZ3ConstraintFrom: aDRValue [
 
 	aDRValue acceptVisitor: self
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'z3' }
 DRZ3ConstraintSolver >> drValAsZ3Val: aDRValue ifUnsupported: aBlock [
 
-	| converter |
+	| converter realValue |
+	
+	realValue := phiReplacements at: aDRValue ifAbsent: [aDRValue].
 	converter := self
-		             getZ3ValueConverterFor: aDRValue type
+		             getZ3ValueConverterFor: realValue type
 		             ifUnsupported: aBlock.
 	
-	^ converter value: (aDRValue isConstant
-			   ifTrue: [ aDRValue value ]
-			   ifFalse: [ aDRValue name ])
+	^ converter value: (realValue isConstant
+			   ifTrue: [ realValue value ]
+			   ifFalse: [ realValue name ])
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'initialization' }
+DRZ3ConstraintSolver >> for: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean [
+
+	cfg := aDRControlFlowGraph.
+	
+	memo := IdentityDictionary new.
+	
+	signedIntOverflowIsUB := aBoolean.
+	
+	useFloats := false.
+]
+
+{ #category : 'z3' }
 DRZ3ConstraintSolver >> getZ3ValueConverterFor: type ifUnsupported: aBlock [
 
 	type isIntegerType ifTrue: [
@@ -67,24 +97,22 @@ DRZ3ConstraintSolver >> getZ3ValueConverterFor: type ifUnsupported: aBlock [
 
 	type isBooleanType ifTrue: [ ^ [ :val | val toBool ] ].
 
-	type isFloatType ifTrue: [ "TODO MachineArithmetic doesn't have floats yet? only Reals" ].
+	(useFloats and: [ type isFloatType ]) ifTrue: [
+		^ [ :val | val toFloatingPoint: type numberOfBits ] ].
 
 	(type isUndefined or: [ type isFloatType ]) ifTrue: [ ^ aBlock value ].
 
 	self error: 'Unsupported type'
 ]
 
-{ #category : 'initialization' }
-DRZ3ConstraintSolver >> initializeFor: aDRControlFlowGraph signedIntOverflowIsUB: aBoolean [
+{ #category : 'solving' }
+DRZ3ConstraintSolver >> initialize [
 
-	cfg := aDRControlFlowGraph.
-	
-	memo := IdentityDictionary new.
-	
-	signedIntOverflowIsUB := aBoolean.
+	super initialize.
+	visitedPhis := IdentitySet new.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'solving' }
 DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode [
 
 	| solver retval |
@@ -102,37 +130,21 @@ DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode [
 	^ retval ifNil: [ true ]
 ]
 
-{ #category : 'as yet unclassified' }
-DRZ3ConstraintSolver >> isSatisfiable: aDRPiNode replacingPhi: phi for: phiOp [
-
-	| retval |
-	phiReplacement := phi -> phiOp.
-	retval := self isSatisfiable: aDRPiNode.
-	phiReplacement := nil.
-
-	^ retval
-]
-
-{ #category : 'as yet unclassified' }
+{ #category : 'solving' }
 DRZ3ConstraintSolver >> recurseOnlyPis: aDRValue addingConstraintsOn: varForConstraints [
 
 	| currentVal constraint |
 	currentVal := aDRValue.
 	constraint := true toBool.
 
-	[ currentVal isPiNode and: [ currentVal operand isPhiFunction not ] ]
-		whileTrue: [
-			constraint := constraint and:
-				              (currentVal constraint asZ3ConstraintOnVar:
-					               varForConstraints).
-			currentVal := currentVal operand ].
+	[ currentVal isCopy or: [
+		currentVal isPhiFunction and: [ currentVal operands size = 1 ] ] ] whileTrue: [
+			currentVal isPiNode ifTrue: [
+				constraint := constraint and:
+					              (currentVal asZ3ConstraintOnVar: varForConstraints) ].
+			currentVal := currentVal operand1
+	].
 
-	(currentVal isCopy or: [
-		 currentVal isConstant or: [
-			 currentVal isPhiFunction and: currentVal operands size = 1 ] ])
-		ifFalse: [ ^ constraint ].
-
-	currentVal := currentVal simpleConstantFold asDRValue.
 	currentVal isConstant ifTrue: [
 		constraint := constraint and: varForConstraints === currentVal value ].
 
@@ -147,8 +159,10 @@ DRZ3ConstraintSolver >> visitAddition: aDRAdd [
 		| op1 op2 |
 		op1 := self drValAsZ3Val: aDRAdd operand1 ifUnsupported: [ ^ nil ].
 		op2 := self drValAsZ3Val: aDRAdd operand2 ifUnsupported: [ ^ nil ].
-		assertions add: (Z3 mk_bvadd_no_overflow: ctxt _: op1 _: op2 _: true).
-		assertions add: (Z3 mk_bvadd_no_underflow: ctxt _: op1 _: op2) ].
+		
+		self adaptSize: op1 with: op2 signed: true andDo: [ :adaptedOp1 :adaptedOp2 |
+			assertions add: (Z3 mk_bvadd_no_overflow: ctxt _: adaptedOp1 _: adaptedOp2 _: true).
+			assertions add: (Z3 mk_bvadd_no_underflow: ctxt _: adaptedOp1 _: adaptedOp2) ] ].
 
 	^ self visitBinaryOp: aDRAdd with: #+
 ]
@@ -156,22 +170,45 @@ DRZ3ConstraintSolver >> visitAddition: aDRAdd [
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitBinaryOp: aDRInstruction with: selector [
 
-	| constraints res op1 op2 |
-	constraints := aDRInstruction operands do: [ :op |
-		               self addZ3ConstraintFrom: op ].
+	| res op1 op2 afterOperation |
+	aDRInstruction operands do: [ :op | self addZ3ConstraintFrom: op ].
 
 	res := self drValAsZ3Val: aDRInstruction ifUnsupported: [ ^ nil ].
-	op1 := self drValAsZ3Val: aDRInstruction operand1 ifUnsupported: [ ^ nil ].
-	op2 := self drValAsZ3Val: aDRInstruction operand2 ifUnsupported: [ ^ nil ].
+	op1 := self
+		       drValAsZ3Val: aDRInstruction operand1
+		       ifUnsupported: [ ^ nil ].
+	op2 := self
+		       drValAsZ3Val: aDRInstruction operand2
+		       ifUnsupported: [ ^ nil ].
 
-	self adaptSize: op1 with: op2 andDo: [ :op1 :op2 |
-		assertions add: res === (op1 perform: selector with: op2) ]
+	self
+		adaptSize: op1
+		with: op2
+		signed: aDRInstruction type isSigned
+		andDo: [ :adaptedOp1 :adaptedOp2 |
+			afterOperation := adaptedOp1 perform: selector with: adaptedOp2.
+			self
+				adaptSize: res
+				with: afterOperation
+				signed: aDRInstruction type isSigned
+				andDo: [ :_res :_afterOp | assertions add: _res === _afterOp ] ]
 ]
 
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitBitAnd: aDRBitAnd [
 
 	^ self visitBinaryOp: aDRBitAnd with: #&
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitBitXor: aDRBitXor [ 
+	
+	^ self visitBinaryOp: aDRBitXor with: #bitXor:
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitCall: aDRCall [ 
+	
 ]
 
 { #category : 'visiting' }
@@ -192,9 +229,19 @@ DRZ3ConstraintSolver >> visitCopy: aDRCopy [
 	res := self drValAsZ3Val: aDRCopy ifUnsupported: [ ^ nil ].
 	op := self drValAsZ3Val: aDRCopy operand ifUnsupported: [ ^ nil ].
 
-	assertions add: res === op.
+	self
+		adaptSize: res
+		with: op
+		signed: false
+		andDo: [ :adaptedRes :adaptedOp | assertions add: adaptedRes === adaptedOp ].
 
 	aDRCopy isPiNode ifTrue: [ assertions add: (aDRCopy asZ3Constraint: self) ]
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitDivision: aDRDivision [
+
+	^ self visitBinaryOp: aDRDivision with: #/
 ]
 
 { #category : 'visiting' }
@@ -213,7 +260,7 @@ DRZ3ConstraintSolver >> visitGetConditionCode: aDRGetConditionCode [
 	piNode := piNodes at: 1 ifAbsent: [ ^ nil ].
 	operand := self drValAsZ3Val: piNode operand ifUnsupported: [ ^ nil ].
 
-	assertion := res === (piNode constraint asZ3ConstraintOnVar: operand).
+	assertion := res === (piNode asZ3ConstraintOnVar: operand).
 
 	assertions add: assertion.
 
@@ -225,7 +272,40 @@ DRZ3ConstraintSolver >> visitGetConditionCode: aDRGetConditionCode [
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitGetFloatBits: aDRGetFloatBits [
 
-	"TODO I think MachineArithmetic doesn't have floats yet? only Reals"
+	| res op1 |
+	res := self drValAsZ3Val: aDRGetFloatBits ifUnsupported: [ ^ nil ].
+	self addZ3ConstraintFrom: aDRGetFloatBits operand1.
+	
+	op1 := self
+		       drValAsZ3Val: aDRGetFloatBits operand1
+		       ifUnsupported: [ ^ nil ].
+	assertions add: res === op1 toBitVector
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitGetFloatFromBits: aDRGetFloatFromBits [
+
+	| res op1 sort opAsFloat |
+	res := self
+		       drValAsZ3Val: aDRGetFloatFromBits
+		       ifUnsupported: [ ^ nil ].
+	op1 := self
+		       drValAsZ3Val: aDRGetFloatFromBits operand1
+		       ifUnsupported: [ ^ nil ].
+	op1 sort length ~= 64 ifTrue: [
+		self error.
+		"op1 := op1 zeroExtend: 64 - op1 sort length" ].
+	self addZ3ConstraintFrom: aDRGetFloatFromBits operand1.
+
+	sort := ctxt mkFloatingPointSort64.
+	opAsFloat := (Z3 mk_fpa_to_fp_bv: ctxt _: op1 _: sort) simplify.
+	assertions add: res === opAsFloat
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitIntToFloatConversion: aDRIntToFloat [
+
+	self flag: #TODO
 ]
 
 { #category : 'visiting' }
@@ -273,29 +353,73 @@ DRZ3ConstraintSolver >> visitLoadReceiver: _ [
 ]
 
 { #category : 'visiting' }
+DRZ3ConstraintSolver >> visitLoadStackPointer: aDRLoadStackPointer [ 
+	
+	"Nothing"
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitLoadStackValue: aDRLoadStackValue [ 
+	self visitLoad: aDRLoadStackValue 
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitMod: aDRMod [ 
+	
+	"Assumes remainder of signed integer division"
+	^ self visitBinaryOp: aDRMod with: #srem:
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitMultiply: aDRMultiply [
+
+	^ self visitBinaryOp: aDRMultiply with: #*
+]
+
+{ #category : 'visiting' }
 DRZ3ConstraintSolver >> visitNullValue: _ [
 ]
 
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitPhiFunction: aDRPhiFunction [
 
-	| res opsConstraints |
-	res := self drValAsZ3Val: aDRPhiFunction ifUnsupported: [ ^ nil ].
+	| res opsConstraints type |
+	(visitedPhis includes: aDRPhiFunction) ifTrue: [ ^nil ].
+	
+	type := aDRPhiFunction type.
+	self visitingPhi: aDRPhiFunction do: [
+		res := self drValAsZ3Val: aDRPhiFunction ifUnsupported: [ ^ nil ].
 
-	phiReplacement ifNotNil: [
-		phiReplacement key = aDRPhiFunction ifTrue: [ | replacement replacementZ3 |
-			replacement := phiReplacement value.
-			replacementZ3 := self drValAsZ3Val: replacement ifUnsupported: [ ^ nil ].
-			self addZ3ConstraintFrom: replacement.
-			assertions add: res === replacementZ3.
-			^ nil
-		]
-	].
-
-	opsConstraints := aDRPhiFunction operands collect: [ :op |
+	
+		phiReplacements at: aDRPhiFunction ifPresent: [ :phiReplacement | | replacementZ3 |
+			replacementZ3 := self drValAsZ3Val: phiReplacement ifUnsupported: [ ^ nil ].
+			self addZ3ConstraintFrom: phiReplacement.
+			self
+				adaptSize: res
+				with: replacementZ3
+				signed: (type isIntegerType and: [ type isSigned])
+				andDo: [ :_res :_replacementZ3 |
+					assertions add: _res === _replacementZ3 ].
+		] ifAbsent: [
+			opsConstraints := aDRPhiFunction operands collect: [ :op |
 		                  self recurseOnlyPis: op addingConstraintsOn: res ].
 
-	assertions add: (opsConstraints reduce: [ :a :b | a or: b ])
+			assertions add: (opsConstraints reduce: [ :a :b | a or: b ])
+		].
+	]
+]
+
+{ #category : 'visiting' }
+DRZ3ConstraintSolver >> visitSignedCoercion: aDRSignedCoercion [
+	
+	| res op |
+	res := self drValAsZ3Val: aDRSignedCoercion ifUnsupported: [ ^ nil ].
+	op := self drValAsZ3Val: aDRSignedCoercion operand1 ifUnsupported: [ ^ nil ].
+
+	"Z3 bitvectors are unsigned, and you treat them as positive/negative when you operate on them"
+	self adaptSize: res with: op signed: true andDo: [ :_res :_op | assertions add: _res === _op ].
+	
+	self addZ3ConstraintFrom: aDRSignedCoercion operand1.
 ]
 
 { #category : 'visiting' }
@@ -312,8 +436,10 @@ DRZ3ConstraintSolver >> visitSubstract: aDRSubtract [
 		| op1 op2 |
 		op1 := self drValAsZ3Val: aDRSubtract operand1 ifUnsupported: [ ^ nil ].
 		op2 := self drValAsZ3Val: aDRSubtract operand2 ifUnsupported: [ ^ nil ].
-		assertions add: (Z3 mk_bvsub_no_overflow: ctxt _: op1 _: op2).
-		assertions add: (Z3 mk_bvsub_no_underflow: ctxt _: op1 _: op2 _: true) ].
+		
+		self adaptSize: op1 with: op2 signed: true andDo: [ :adaptedOp1 :adaptedOp2 |
+			assertions add: (Z3 mk_bvsub_no_underflow: ctxt _: adaptedOp1 _: adaptedOp2 _: true).
+			assertions add: (Z3 mk_bvsub_no_overflow: ctxt _: adaptedOp1 _: adaptedOp2) ] ].
 
 	^ self visitBinaryOp: aDRSubtract with: #-
 ]
@@ -326,11 +452,22 @@ DRZ3ConstraintSolver >> visitUnsignedCoercion: aDRUnsignedCoercion [
 	op := self drValAsZ3Val: aDRUnsignedCoercion operand1 ifUnsupported: [ ^ nil ].
 
 	"Z3 bitvectors are unsigned, and you treat them as positive/negative when you operate on them"
-	assertions add: res === op
+	self adaptSize: res with: op signed: false andDo: [ :_res :_op | assertions add: _res === _op ].
+	
+	self addZ3ConstraintFrom: aDRUnsignedCoercion operand1.
+	
 ]
 
 { #category : 'visiting' }
 DRZ3ConstraintSolver >> visitUnsignedRightShift: aDRUnsignedRightShift [
 
 	^ self visitBinaryOp: aDRUnsignedRightShift with: #bitShiftRight:
+]
+
+{ #category : 'as yet unclassified' }
+DRZ3ConstraintSolver >> visitingPhi: aDRPhiFunction do: aBlock [ 
+	
+	visitedPhis add: aDRPhiFunction.
+	aBlock value.
+	visitedPhis remove: aDRPhiFunction.
 ]

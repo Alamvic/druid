@@ -19,7 +19,7 @@ DRLogicalLeftShift >> sccpOperateOnLattice: anInteger and: anInteger2 [
 ]
 
 { #category : 'types' }
-DRLogicalLeftShift >> typeWithAlreadySeen: _ [
+DRLogicalLeftShift >> typeWithAlreadySeen: aCollection [
 
 	^ DRUnsignedIntegerType bits64
 ]

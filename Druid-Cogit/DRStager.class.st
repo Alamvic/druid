@@ -100,7 +100,7 @@ DRStager >> canStage: anInstruction modulo: aSetOfPotentiallyStagedInstructions 
 	anInstruction class = DRContinueNextBytecode ifTrue: [ ^ false ].
 	anInstruction isAnnotateBytecode ifTrue: [ ^ true ].
 	anInstruction isCall ifTrue: [ ^ false ].
-	anInstruction class = DRUnsignedCoercion ifTrue: [
+	({ DRUnsignedCoercion . DRSignedCoercion } includes: anInstruction class) ifTrue: [
 		^ anInstruction operands allSatisfy: [ :e |
 			  self
 				  canStage: e

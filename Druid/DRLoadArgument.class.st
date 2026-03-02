@@ -64,7 +64,7 @@ DRLoadArgument >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : 'accessing' }
-DRLoadArgument >> typeWithAlreadySeen: _ [
+DRLoadArgument >> typeWithAlreadySeen: aCollection [
 	
 	^ classType ifNil: [DRUndefinedType new]
 ]

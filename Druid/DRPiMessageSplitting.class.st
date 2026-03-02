@@ -2,7 +2,8 @@ Class {
 	#name : 'DRPiMessageSplitting',
 	#superclass : 'DROptimisation',
 	#instVars : [
-		'solver'
+		'solver',
+		'previousPhis'
 	],
 	#category : 'Druid-Optimizations',
 	#package : 'Druid',
@@ -13,17 +14,20 @@ Class {
 DRPiMessageSplitting >> applyTo: cfg [
 
 	| anyChanged |
-	solver := self solverFor: cfg.
 
+	self simplifyPhis: cfg.
+	
+	solver := self solverFor: cfg.
+	
 	self doWhilePossible: [
+		previousPhis := cfg phiFunctions.
 		anyChanged := false.
-		cfg allConditionalJumps do: [ :condJump |
-			condJump targets do: [ :b |
-				(b piNodes anySatisfy: [ :pi | self trySplitWith: pi ]) ifTrue: [
-					anyChanged := true
-				]
+		cfg blocksDo: [ :b |
+			(b piNodes anySatisfy: [ :pi | self trySplitWith: pi ]) ifTrue: [
+				anyChanged := true
 			]
 		].
+		anyChanged ifTrue: [ self simplifyPhis: cfg. ].
 		anyChanged
 	]
 ]
@@ -41,19 +45,55 @@ DRPiMessageSplitting >> doWhilePossible: aBlock [
 ]
 
 { #category : 'accessing' }
-DRPiMessageSplitting >> firstPhiDependencyOf: aDRValue do: aBlock ifNone: anotherBlock [
+DRPiMessageSplitting >> recursivePhiDependenciesOf: aDRValue do: aBlock [
 
-	| worklist |
+	| worklist visited |
 	worklist := OrderedCollection with: aDRValue.
-	
-	[ worklist isEmpty ] whileFalse: [ 
-		|current|
-		current := worklist removeFirst.
-		current isPhiFunction ifTrue: [ ^aBlock value: current ].
-		worklist addAll: current operands.
-	].
+	visited := Set new.
 
-	^ anotherBlock value
+	[ worklist isEmpty ] whileFalse: [
+		| current |
+		current := worklist removeFirst.
+		current isPhiFunction ifTrue: [ aBlock value: current ].
+		current operands do: [ :op |
+			(visited includes: op) ifFalse: [
+				worklist add: op.
+				visited add: op ]
+		]
+	]
+]
+
+{ #category : 'accessing' }
+DRPiMessageSplitting >> shouldConsiderSplitting: aDRPhiFunction toOptimize: aDRPiNode [
+
+	"Makes no sense to split if there's only one predecessor"
+	aDRPhiFunction operands size = 1 ifTrue: [ ^ false ].
+	
+	"Ignore blocks that are only phis and an unconditional jump, splitting them will only generate another similar block"
+	(aDRPhiFunction basicBlock instructions allSatisfy: [ :i |
+		 i isPhiFunction or: [ i isNonConditionalJump ] ]) ifTrue: [
+		^ false ].
+
+	"If they're in the same block, splitting will do nothing, at most DBE should delete the branch"
+	aDRPhiFunction basicBlock = aDRPiNode basicBlock ifTrue: [ ^ false ].
+
+	"do not split to phis that were added by previous splits"
+	(previousPhis includes: aDRPhiFunction) ifFalse: [ ^ false ].
+
+	"if the pi is unsatisfiable, it'll be removed by DBE, no need to split"
+	^ solver isSatisfiable: aDRPiNode
+]
+
+{ #category : 'accessing' }
+DRPiMessageSplitting >> simplifyPhis: cfg [
+	"Simplify phis before to avoid entering border cases.
+	For example, if a we have a cyclic Phi node defined in terms of itself:
+	
+	  phi1 := phi(phi1, someValue)
+	
+	"
+	((DRPhiSimplication shouldFoldCopies: false) then: DRCleanControlFlow) applyTo: cfg.
+
 ]
 
 { #category : 'accessing' }
@@ -63,21 +103,45 @@ DRPiMessageSplitting >> solverFor: cfg [
 ]
 
 { #category : 'accessing' }
-DRPiMessageSplitting >> trySplitWith: pi [
+DRPiMessageSplitting >> trySplitPhi: aDRPhiFunction toIndex: operandIdx with: aDRPiNode ifSplit: aBlock [
 
-	self
-		firstPhiDependencyOf: pi
-		do: [ :phi |
-			phi operands size > 1 and: [(solver isSatisfiable: pi) and: [
+	| op predecessor |
+	op := aDRPhiFunction operands at: operandIdx.
+	predecessor := aDRPhiFunction basicBlock predecessorAt: operandIdx.
+
+	"Avoid backjumps edges, they are difficult to fix"
+	(DREdge
+		 withSource: predecessor
+		 andDestination: aDRPhiFunction basicBlock) isBackJump ifTrue: [
+		^ self ].
+
+	"Evaluate profitability.
+	Split if either 
+	 - the operands is a setConditionCode instruction (for better code gen)
+	 - the branch is not satisfiable for that operand"
+	(op isSetConditionCode not and: [
+		 solver
+			 isSatisfiable: aDRPiNode
+			 replacingPhi: aDRPhiFunction
+			 for: op ]) ifTrue: [ ^ self ].
+
+	aDRPhiFunction basicBlock splitTo: predecessor.
+	aBlock value
+]
+
+{ #category : 'accessing' }
+DRPiMessageSplitting >> trySplitWith: pi [
+	| maxAttemptsPerPi |
+	maxAttemptsPerPi := 3.
+	self recursivePhiDependenciesOf: pi do: [ :phi |
+		(self shouldConsiderSplitting: phi toOptimize: pi)
+			ifTrue: [
 				phi operands withIndexDo: [ :phiOp :i |
-					(solver isSatisfiable: pi replacingPhi: phi for: phiOp)
-						ifFalse: [
-							phi basicBlock splitTo: (phi basicBlock predecessorAt: i).
-							^ true ]
-				]
-			]]
-		]
-		ifNone: [].
-		
+					self trySplitPhi: phi toIndex: i with: pi ifSplit: [ ^true ]
+				].
+				(maxAttemptsPerPi := maxAttemptsPerPi - 1) > 0 ifFalse: [ ^false ]
+			]
+		].
+
 	^ false
 ]

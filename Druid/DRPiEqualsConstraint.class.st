@@ -9,6 +9,10 @@ Class {
 { #category : 'arithmetic' }
 DRPiEqualsConstraint >> asZ3ConstraintOnVar: aZ3Variable [
 
+	| inner |
+	inner := self z3VarName.
+	(inner isBooleanValue and: [ aZ3Variable isBitVector ]) ifTrue: [
+		^ aZ3Variable ~== 0 === inner ].
 	^ self binaryConstraint: #'===' on: aZ3Variable
 ]
 

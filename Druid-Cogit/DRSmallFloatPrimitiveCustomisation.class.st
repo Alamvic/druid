@@ -21,7 +21,7 @@ DRSmallFloatPrimitiveCustomisation >> generateCustomisedPreamble: aGeneratorMeth
 { #category : 'generation-IR' }
 DRSmallFloatPrimitiveCustomisation >> initialConstraint [
 
-	^ DRReceiverConstraint with: (DREqualsConstraint withValue: 16r100)
+	^ DRReceiverConstraint with: (DRAnyMaskConstraint withValue: 2r100)
 ]
 
 { #category : 'api' }

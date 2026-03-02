@@ -7,29 +7,60 @@ Class {
 }
 
 { #category : 'accessing' }
+DRInsertPiNodes >> addCustomization: constraint forInstruction: i [
+
+	| basicBlock piNode cfg |
+	basicBlock := i basicBlock.
+	cfg := basicBlock controlFlowGraph.
+	piNode := (DRPiNode
+		           constraint:
+			           (DRPiAnyMaskConstraint withValue:
+					            constraint constantValue asDRValue)
+		           on: i)
+		          result: cfg instructionFactory allocateTemporaryRegister;
+		          yourself.
+	basicBlock addInstruction: piNode.
+	piNode operand users copy
+		reject: [ :u | u = piNode ]
+		thenDo: [ :user |
+		user replaceOperandIfDominated: piNode operand by: piNode ]
+]
+
+{ #category : 'accessing' }
+DRInsertPiNodes >> addPisForCustomizations: cfg [
+
+	| constraint initConstraint |
+	cfg initialContrainst ifNil: [ ^ self ].
+
+	initConstraint := cfg initialContrainst.
+	"We only support Receiver Constraints for now"
+	self assert: (initConstraint isKindOf: DRReceiverConstraint).
+	self assert: (initConstraint constraint isKindOf: DRAnyMaskConstraint).
+	constraint := initConstraint constraint.
+
+	cfg instructionsDo: [ :i |
+		i isLoadReceiver ifTrue: [
+			self addCustomization: constraint forInstruction: i ] ]
+]
+
+{ #category : 'accessing' }
 DRInsertPiNodes >> applyTo: cfg [
 
-	cfg allConditionalJumps do: [ :jump |
-		self insertPiNodesFor: jump
-	]
+	"We need to break critical edges, because in that case, the inserted constraint may not be true in every possible path"
+	DRBreakCriticalEdges applyTo: cfg.
+
+	self addPisForCustomizations: cfg.
+
+	cfg allConditionalJumps do: [ :jump | self insertPiNodesFor: jump ]
 ]
 
 { #category : 'enumerating' }
-DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBlock ofCondition: aDRBranchIfCondition [
+DRInsertPiNodes >> getBasicBlockToInsertPiNodesForBranch: currentBranchBasicBlock [
 
-	| newBlock |
-	"We need to break critical edges, because in that case, the constraint may not be true in every possible path"
 	currentBranchBasicBlock predecessors size == 1 ifTrue: [
 		^ currentBranchBasicBlock ].
 
-	newBlock := currentBranchBasicBlock breakCriticalEdgeToPredecessor:
-		            aDRBranchIfCondition basicBlock.
-
-	newBlock controlFlowGraph
-		invalidateDominatorTree;
-		invalidatePostDominatorTree.
-
-	^ newBlock
+	Error signal: 'Critical edge found when inserting PiNodes'
 ]
 
 { #category : 'as yet unclassified' }
@@ -59,7 +90,8 @@ DRInsertPiNodes >> insertPhiNodesFor: aDRBranchIfCondition withTruePis: truePis 
 			replacableValues add: phi.
 			originalVariable users copy do: [ :user | (user isDominatedBy: phi) ifTrue: [
 					user replaceOperandIfDominated: originalVariable by: phi]
-			]
+			].
+			(phi operands noneSatisfy: #isNullValue) ifFalse: [ self error ]
 		]
 	]
 ]
@@ -94,14 +126,12 @@ DRInsertPiNodes >> insertPiNodesFor: aDRBranchIfCondition [
 	truePis := piNodeBuilder nodesForTrueBranch ifEmpty: [ ^ nil ].
 	self insertPiNodes: truePis in: (self
 			 getBasicBlockToInsertPiNodesForBranch:
-			 aDRBranchIfCondition trueBranch
-			 ofCondition: aDRBranchIfCondition).
+			 aDRBranchIfCondition trueBranch).
 
 	falsePis := piNodeBuilder nodesForFalseBranch.
 	self insertPiNodes: falsePis in: (self
 			 getBasicBlockToInsertPiNodesForBranch:
-			 aDRBranchIfCondition falseBranch
-			 ofCondition: aDRBranchIfCondition).
+			 aDRBranchIfCondition falseBranch).
 
 	self
 		insertPhiNodesFor: aDRBranchIfCondition

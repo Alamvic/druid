@@ -514,7 +514,7 @@ DRInstruction >> postCopy [
 	super postCopy.
 
 	operands := operands copy.
-	operands do: [ :e | e addUser: self ].
+	self dependencies do: [ :e | e addUser: self ].
 	users := users copy.
 
 	result isSSARegister ifTrue: [
@@ -660,12 +660,10 @@ DRInstruction >> replaceOperandIfDominated: myOperand by: anotherOperand [
 { #category : 'replacing' }
 DRInstruction >> replaceOperandsIfDominated: myOperand withAll: newOperands [
 
-	| replaced |
-	replaced := nil.
-	newOperands do: [ :newOperand | 
-		(self replaceOperandIfDominated: myOperand by: newOperand) 
-			ifNotNil: [ replaced := self ] ].
-	^ replaced
+	newOperands do: [ :newOperand |
+		(self replaceOperandIfDominated: myOperand by: newOperand)
+			ifNotNil: [ ^ self ] ].
+	^ nil
 ]
 
 { #category : 'replacing' }
@@ -771,7 +769,7 @@ DRInstruction >> supportConstantOperand [
 ]
 
 { #category : 'types' }
-DRInstruction >> typeWithAlreadySeen: _ [
+DRInstruction >> typeWithAlreadySeen: aCollection [
 
 	^ DRSignedIntegerType size: 8 "Word size"
 ]

@@ -239,7 +239,7 @@ DRAbstractInstruction >> validate [
 			 (self isDominatedBy: o) or: [
 				 "this is to handle the case we have different CFG, block is interpreted with a new CFG"
 				 self controlFlowGraph ~= o controlFlowGraph ] ]) ifFalse: [
-			DRError signal:
+			Error signal:
 				'Invalid operand: ' , o asString , ' in: ' , self asString ] ]
 ]
 

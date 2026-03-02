@@ -33,9 +33,9 @@ DRPiNodeConstraint >> asConstantConstraint [
 { #category : 'converting' }
 DRPiNodeConstraint >> asDependencyList [
 
-	^ otherValue isConstant
-		  ifFalse: [ otherValue asDependencyList ]
-		  ifTrue: [ {  } ]
+	^ self
+		  ifImmediateConstantDo: [ {  } ]
+		  ifNot: [ otherValue asDependencyList ]
 ]
 
 { #category : 'accessing' }
@@ -45,12 +45,15 @@ DRPiNodeConstraint >> asZ3ConstraintOnVar: aZ3Variable [
 ]
 
 { #category : 'accessing' }
+DRPiNodeConstraint >> asZ3UnsignedConstraintOnVar: aZ3Variable [
+
+	^ self asZ3ConstraintOnVar: aZ3Variable 
+]
+
+{ #category : 'accessing' }
 DRPiNodeConstraint >> binaryConstraint: constraint on: aZ3Variable [
 
-	^ aZ3Variable
-		  perform: constraint
-		  with:
-		  (self ifConstantDo: #yourself ifNot: #name)
+	^ aZ3Variable perform: constraint with: self z3VarName
 ]
 
 { #category : 'accessing' }
@@ -69,9 +72,21 @@ DRPiNodeConstraint >> distanceForBuildingABCDGraph [
 DRPiNodeConstraint >> ifConstantDo: trueBlock ifNot: falseBlock [
 
 	| val |
-	val := otherValue asDRValue simpleConstantFold value.
-	(val isNumber or: val isBooleanValue)
-		ifTrue: [ ^ trueBlock cull: val ]
+	val := otherValue.
+	val isCopy ifTrue: [
+		val := val simpleConstantFold asDRValue.
+	].
+
+	(val isConstant and: [ val value isNotNil ])
+		ifTrue: [ ^ trueBlock cull: val value ]
+		ifFalse: [ ^ falseBlock cull: otherValue ]
+]
+
+{ #category : 'adding' }
+DRPiNodeConstraint >> ifImmediateConstantDo: trueBlock ifNot: falseBlock [
+
+	(otherValue isConstant)
+		ifTrue: [ ^ trueBlock cull: otherValue value ]
 		ifFalse: [ ^ falseBlock cull: otherValue ]
 ]
 
@@ -121,4 +136,10 @@ DRPiNodeConstraint >> replaceOperand: anOperand by: anotherOperand [
 DRPiNodeConstraint >> reversed [
 
 	self subclassResponsibility
+]
+
+{ #category : 'accessing' }
+DRPiNodeConstraint >> z3VarName [
+
+	^ self ifConstantDo: #yourself ifNot: #name
 ]

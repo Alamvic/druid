@@ -97,7 +97,7 @@ DRPhiSimplicationTest >> testSimplifyRecursivePhi [
 	cfg applyOptimisation: optimisation.
 
 	self assert: block firstInstruction isCopy.
-	self assert: block firstInstruction operand1 equals: t1
+	self assert: block firstInstruction operand1 equals: t1 operand
 ]
 
 { #category : 'tests' }
@@ -118,7 +118,7 @@ DRPhiSimplicationTest >> testSimplifyRedundantPhi [
 	cfg applyOptimisation: optimisation.
 
 	self assert: block firstInstruction isCopy.
-	self assert: block firstInstruction operand1 equals: t1
+	self assert: block firstInstruction operand1 equals: t1 operand
 ]
 
 { #category : 'tests' }
@@ -126,7 +126,6 @@ DRPhiSimplicationTest >> testSimplifyRedundantPhiFromDifferentCopies [
 
 	| cfg t1 t2 t3 block phi |
 	"Pattern not supported yet"
-	self skip.
 
 	cfg := self setUpCFGWithConditional.
 	block := cfg b4.
@@ -144,7 +143,7 @@ DRPhiSimplicationTest >> testSimplifyRedundantPhiFromDifferentCopies [
 	cfg applyOptimisation: optimisation.
 
 	self assert: block firstInstruction isCopy.
-	self assert: block firstInstruction operand1 equals: t1
+	self assert: block firstInstruction operand1 equals: t1 operand.
 ]
 
 { #category : 'tests' }
@@ -152,7 +151,6 @@ DRPhiSimplicationTest >> testSimplifyRedundantPhiFromDifferentPhis [
 
 	| cfg t1 t2 t3 block phi |
 	"Pattern not supported yet"
-	self skip.
 
 	cfg := self setUpCFGWithConditional.
 	block := cfg b4.
@@ -170,7 +168,7 @@ DRPhiSimplicationTest >> testSimplifyRedundantPhiFromDifferentPhis [
 	cfg applyOptimisation: optimisation.
 
 	self assert: block firstInstruction isCopy.
-	self assert: block firstInstruction operand1 equals: 1 asDRValue
+	self assert: block firstInstruction operand1 equals: t1 operand
 ]
 
 { #category : 'tests' }
@@ -186,8 +184,8 @@ DRPhiSimplicationTest >> testSimplifySimplePhi [
 	self assert: phi operands size equals: 1.
 	self assertCollection: phi operands hasSameElements: { t1 }.
 
-	DRPhiSimplication new applyTo: cfg.
+	cfg applyOptimisation: optimisation.
 
 	self assert: block firstInstruction isCopy.
-	self assert: block firstInstruction operand1 equals: t1
+	self assert: block firstInstruction operand1 equals: t1 operand
 ]

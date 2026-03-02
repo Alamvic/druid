@@ -676,6 +676,12 @@ DRCPSEdge >> visitReturn: aDRReturn [
 ]
 
 { #category : 'visiting' }
+DRCPSEdge >> visitSignedCoercion: aDRSignedCoercion [ 
+	
+	^ nil
+]
+
+{ #category : 'visiting' }
 DRCPSEdge >> visitSignedRightShift: aDRRightShift [ 
 
 	^ nil
