@@ -1,6 +1,11 @@
 Extension { #name : 'OCOpalExamples' }
 
 { #category : '*Druid-Opal' }
+OCOpalExamples >> exampleSuperReceiver [
+        super yourself 
+]
+
+{ #category : '*Druid-Opal' }
 OCOpalExamples >> foo [
 ]
 
@@ -79,9 +84,4 @@ OCOpalExamples >> singleRemoteTempVar [
 		index := index + 1 ].
 	[ index < 5 ] whileTrue: block.
 	^ collection
-]
-
-{ #category : '*Druid-Opal' }
-OCOpalExamples >> exampleSuperReceiver [
-        super yourself 
 ]
