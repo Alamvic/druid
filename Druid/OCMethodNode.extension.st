@@ -1,6 +1,6 @@
-Extension { #name : 'RBMethodNode' }
+Extension { #name : 'OCMethodNode' }
 
 { #category : '*Druid' }
-RBMethodNode >> allPragmasNamed: aSymbol [ 
+OCMethodNode >> allPragmasNamed: aSymbol [ 
 	^ pragmas select: [ :pragma| pragma selector = aSymbol ]
 ]
