@@ -207,7 +207,7 @@ DruidTestInterpreter >> lazyFail [
 { #category : 'as yet unclassified' }
 DruidTestInterpreter >> methodCollectionSize: aCollection [
 	<var: #aCollection type: #OrderedCollection>
-	<var: #aCollection type: #Array2D>
+	<var: #aCollection type: #Bag>
 	
 	^ aCollection size
 ]

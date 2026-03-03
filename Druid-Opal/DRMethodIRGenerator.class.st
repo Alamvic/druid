@@ -217,8 +217,8 @@ DRMethodIRGenerator >> interpretTemporaryVariable: aRBVariableNode [
 DRMethodIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 
 	| receiver |
-	(aRBMessageNode receiver isBlockNode and: [
-		 aRBMessageNode arguments first isBlockNode ]) ifTrue: [
+	(aRBMessageNode receiver isBlock and: [
+		 aRBMessageNode arguments first isBlock ]) ifTrue: [
 		^ super interpretWhileTrueWith: aRBMessageNode ].
 	
 	"Resolve it as a normal send"

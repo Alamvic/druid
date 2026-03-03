@@ -224,7 +224,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_polimorphic [
 	typeSystem
 		addReceiverInfo: OrderedCollection new
 		inMessage: messageSend originAST.
-	typeSystem addReceiverInfo: Array2D new inMessage: messageSend originAST.
+	typeSystem addReceiverInfo: Bag new inMessage: messageSend originAST.
 
 	self assert: messageSend selector equals: selector.
 
@@ -245,7 +245,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_polimorphic [
 
 	self
 		assert: inlinedSend originAST methodNode methodClass
-		equals: Array2D.
+		equals: Bag.
 
 	"Generic case"
 	self assert: cfg messageSends second selector equals: selector.
