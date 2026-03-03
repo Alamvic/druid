@@ -1,7 +1,7 @@
-Extension { #name : 'RBCommentToken' }
+Extension { #name : 'OCCommentToken' }
 
 { #category : '*Druid' }
-RBCommentToken class >> value: aString in: aStartPosition [
+OCCommentToken class >> value: aString in: aStartPosition [
 
 	^ self
 		  value: aString

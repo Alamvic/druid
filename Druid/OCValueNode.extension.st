@@ -1,7 +1,7 @@
-Extension { #name : 'RBValueNode' }
+Extension { #name : 'OCValueNode' }
 
 { #category : '*Druid' }
-RBValueNode >> inspectionSourceCode [
+OCValueNode >> inspectionSourceCode [
 	<inspectorPresentationOrder: 30 title: 'Source code'>
 
 	| sourceInterval |
