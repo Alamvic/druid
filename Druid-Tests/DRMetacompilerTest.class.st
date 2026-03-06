@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRMetacompilerTest',
-	#superclass : 'DRIRTest',
+	#superclass : 'DROptimisationTest',
 	#category : 'Druid-Tests',
 	#package : 'Druid-Tests'
 }
@@ -27,12 +27,6 @@ DRMetacompilerTest >> interpreterClass [
 DRMetacompilerTest >> newCompiler [
 
 	^ DRPrimitiveCompilerCompiler new
-]
-
-{ #category : 'test' }
-DRMetacompilerTest >> optimize: cfg [
-
-	compilerCompiler optimize: cfg
 ]
 
 { #category : 'running' }

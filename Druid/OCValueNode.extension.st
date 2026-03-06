@@ -1,7 +1,7 @@
 Extension { #name : 'OCValueNode' }
 
 { #category : '*Druid' }
-OCValueNode >> inspectionSourceCode [
+OCValueNode >> inspectionSourceCode: builder [
 	<inspectorPresentationOrder: 30 title: 'Source code'>
 
 	| sourceInterval |
