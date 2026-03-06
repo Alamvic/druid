@@ -12,6 +12,12 @@ DRMetacompilerTest >> configureInterpreter [
 ]
 
 { #category : 'test' }
+DRMetacompilerTest >> inputClass [
+
+	^ self interpreterClass
+]
+
+{ #category : 'test' }
 DRMetacompilerTest >> interpreterClass [
 
 	^ DruidTestInterpreter

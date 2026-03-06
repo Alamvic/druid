@@ -51,12 +51,28 @@ DRIRTest >> denyConstraint: aConstraint includes: includedConstraint [
 ]
 
 { #category : 'test' }
+DRIRTest >> generateBasicDruidIRFor: methodSelector [
+
+	| method cfg |
+	method := self inputClass lookupSelector: methodSelector.
+	self assert: method isNotNil.
+	cfg := compilerCompiler generateDruidIRFor: method.
+	^ cfg
+]
+
+{ #category : 'test' }
 DRIRTest >> generateDruidIRFor: methodSelector [
 
 	| cfg |
 	cfg := self generateBasicDruidIRFor: methodSelector.
 	self optimize: cfg.
 	^ cfg
+]
+
+{ #category : 'test' }
+DRIRTest >> inputClass [
+	
+	self subclassResponsibility 
 ]
 
 { #category : 'accessing' }
