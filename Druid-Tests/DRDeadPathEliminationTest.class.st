@@ -151,6 +151,7 @@ DRDeadPathEliminationTest >> testEliminateOnlyDeadPaths [
 
 	| cfg lastBlocks lastPaths lastPathsLeft lastPathsRight |
 	cfg := self generateDruidIRFor: #primitiveMultiplePathsOnlyOneDead.
+	self optimize: cfg.
 
 	optimisation applyTo: cfg.
 	cfg generatePaths.
@@ -171,9 +172,11 @@ DRDeadPathEliminationTest >> testEliminateSimpleDeadPaths [
 
 	| cfg lastBlocks lastPaths |
 	cfg := self generateDruidIRFor: #primitiveSandclock.
+	self optimize: cfg.
 
 	optimisation applyTo: cfg.
 	self optimize: cfg.
+
 	cfg generatePaths.
 
 	lastBlocks := cfg exitBasicBlocks.
