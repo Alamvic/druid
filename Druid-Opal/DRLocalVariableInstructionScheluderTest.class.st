@@ -6,6 +6,12 @@ Class {
 	#tag : 'Tests'
 }
 
+{ #category : 'running' }
+DRLocalVariableInstructionScheluderTest >> newCompiler [
+
+	^ DRMethodCompilerCompiler new
+]
+
 { #category : 'tests' }
 DRLocalVariableInstructionScheluderTest >> testOneUseDoNothing [
 

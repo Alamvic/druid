@@ -65,7 +65,6 @@ DRIRTest >> generateDruidIRFor: methodSelector [
 
 	| cfg |
 	cfg := self generateBasicDruidIRFor: methodSelector.
-	self optimize: cfg.
 	^ cfg
 ]
 

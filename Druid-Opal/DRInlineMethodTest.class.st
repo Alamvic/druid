@@ -7,7 +7,7 @@ Class {
 }
 
 { #category : 'tests - type systems' }
-DRInlineMethodTest >> interpreterClass [
+DRInlineMethodTest >> inputClass [
 
 	^ DrOpalExamples 
 ]

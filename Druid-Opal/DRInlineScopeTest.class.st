@@ -13,7 +13,7 @@ DRInlineScopeTest >> inline: aDRMessageSend [
 ]
 
 { #category : 'as yet unclassified' }
-DRInlineScopeTest >> interpreterClass [
+DRInlineScopeTest >> inputClass [
 
 	^ DrOpalExamples 
 ]
@@ -30,7 +30,7 @@ DRInlineScopeTest >> testInlineMethodBlock [
 	| cfg blockCFG inlinedBlockScope inlinedMethodScope |
 	compilerCompiler irGenerator typeSystem:
 		DRCustomisationTypeSystem new.
-	compilerCompiler interpreter: self interpreterClass new.
+	compilerCompiler interpreter: self inputClass new.
 
 	cfg := self generateDruidIRFor: #methodBlockNested2ReadAndWrite.
 	self inline: cfg messageSends first.
@@ -82,7 +82,7 @@ DRInlineScopeTest >> testInlineMethodBlockTwoOuterScopes [
 	| cfg blockCFG inlinedScope valueMessage blockScope blockReturn |
 	compilerCompiler irGenerator typeSystem:
 		DRCustomisationTypeSystem new.
-	compilerCompiler interpreter: self interpreterClass new.
+	compilerCompiler interpreter: self inputClass new.
 
 	cfg := self generateDruidIRFor: #methodBlockTwoOuterScopes.
 	self inline: cfg messageSends first.
@@ -128,7 +128,7 @@ DRInlineScopeTest >> testInlineMethodCollisionTemporaries [
 	| cfg inlinedMethodScope1 inlinedBlockScope1 inlinedStores inlinedMethodScope2 inlinedBlockScope2 |
 	compilerCompiler irGenerator typeSystem:
 		DRCustomisationTypeSystem new.
-	compilerCompiler interpreter: self interpreterClass new.
+	compilerCompiler interpreter: self inputClass new.
 
 	cfg := self generateDruidIRFor: #methodBlockNested2ReadAndWrite.
 	self inline: cfg messageSends first.

@@ -7,7 +7,7 @@ Class {
 }
 
 { #category : 'test' }
-DRScopeTest >> interpreterClass [
+DRScopeTest >> inputClass [
 
 	^ DrOpalExamples 
 ]
