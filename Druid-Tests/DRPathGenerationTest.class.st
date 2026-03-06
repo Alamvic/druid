@@ -1,9 +1,19 @@
 Class {
 	#name : 'DRPathGenerationTest',
-	#superclass : 'DRIRTest',
+	#superclass : 'DRMetacompilerTest',
 	#category : 'Druid-Tests',
 	#package : 'Druid-Tests'
 }
+
+{ #category : 'test' }
+DRPathGenerationTest >> generateBasicDruidIRFor: methodSelector [
+
+	| method cfg |
+	method := self interpreterClass lookupSelector: methodSelector.
+	self assert: method isNotNil.
+	cfg := compilerCompiler generateDruidIRFor: method.
+	^ cfg
+]
 
 { #category : 'api' }
 DRPathGenerationTest >> optimize: cfg [

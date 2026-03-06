@@ -2,7 +2,6 @@ Class {
 	#name : 'DRDeadBlockEliminationTest',
 	#superclass : 'DROptimisationTest',
 	#instVars : [
-		'instructionFactory',
 		'cfg',
 		'deadBlock',
 		'deadBlock2',

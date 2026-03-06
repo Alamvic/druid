@@ -2,7 +2,6 @@ Class {
 	#name : 'DRSCCPTest',
 	#superclass : 'DROptimisationTest',
 	#instVars : [
-		'instructionFactory',
 		'leftOperand1',
 		'leftOperand2',
 		'rightOperand1',

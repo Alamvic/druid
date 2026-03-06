@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRLoopTest',
-	#superclass : 'DRIRTest',
+	#superclass : 'DRMetacompilerTest',
 	#category : 'Druid-Tests',
 	#package : 'Druid-Tests'
 }
