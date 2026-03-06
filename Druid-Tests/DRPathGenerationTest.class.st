@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRPathGenerationTest',
-	#superclass : 'DRIRTest',
+	#superclass : 'DRMetacompilerTest',
 	#category : 'Druid-Tests',
 	#package : 'Druid-Tests'
 }

@@ -279,7 +279,7 @@ DrOpalExamples >> methodBlockTwoOuterScopes [
 { #category : 'as yet unclassified' }
 DrOpalExamples >> methodCollectionSize: aCollection [
 	<var: #aCollection type: #OrderedCollection>
-	<var: #aCollection type: #Array2D>
+	<var: #aCollection type: #Bag>
 	
 	^ aCollection size
 ]

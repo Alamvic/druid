@@ -1,6 +1,6 @@
 Class {
 	#name : #DRCompilerExplorerInspection,
-	#superclass : #StInspection,
+	#superclass : #StInspectionPresenter,
 	#instVars : [
 		'cfgPresenter',
 		'optimisationToolbar',

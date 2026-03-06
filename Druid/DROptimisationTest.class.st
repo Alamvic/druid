@@ -4,9 +4,9 @@ Class {
 	#instVars : [
 		'optimisation'
 	],
-	#category : 'Druid-Tests-Optimizations',
-	#package : 'Druid-Tests',
-	#tag : 'Optimizations'
+	#category : 'Druid-Tests',
+	#package : 'Druid',
+	#tag : 'Tests'
 }
 
 { #category : 'testing' }

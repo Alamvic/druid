@@ -562,7 +562,7 @@ DRControlFlowGraph >> initialize [
 ]
 
 { #category : 'inspecting' }
-DRControlFlowGraph >> inspectionCFG [
+DRControlFlowGraph >> inspectionCFG: aBuilder [
 
 	<inspectorPresentationOrder: 0 title: 'CFG'>
 	| view |

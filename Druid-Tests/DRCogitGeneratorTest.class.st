@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRCogitGeneratorTest',
-	#superclass : 'DRIRTest',
+	#superclass : 'DRMetacompilerTest',
 	#instVars : [
 		'generator'
 	],
