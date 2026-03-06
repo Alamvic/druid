@@ -13,9 +13,10 @@ DRScopeTest >> inputClass [
 ]
 
 { #category : 'running' }
-DRScopeTest >> newCompiler [
+DRScopeTest >> setUp [
 
-	^ DRMethodCompilerCompiler new
+	super setUp.
+	compilerCompiler := DRMethodCompilerCompiler new.
 ]
 
 { #category : 'tests' }

@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRLocalVariableInstructionScheluderTest',
-	#superclass : 'DRIRTest',
+	#superclass : 'DRMethodOptimizationTest',
 	#category : 'Druid-Opal-Tests',
 	#package : 'Druid-Opal',
 	#tag : 'Tests'

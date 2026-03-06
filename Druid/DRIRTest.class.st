@@ -80,12 +80,6 @@ DRIRTest >> instructionFactory [
 	^ instructionFactory
 ]
 
-{ #category : 'running' }
-DRIRTest >> newCompiler [
-
-	self subclassResponsibility
-]
-
 { #category : 'test' }
 DRIRTest >> newConditionalJump [
 
@@ -96,7 +90,6 @@ DRIRTest >> newConditionalJump [
 DRIRTest >> setUp [
 
 	super setUp.
-	compilerCompiler := self newCompiler.
 	instructionFactory := DRInstructionFactory new
 ]
 

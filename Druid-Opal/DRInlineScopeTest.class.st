@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRInlineScopeTest',
-	#superclass : 'DROptimisationTest',
+	#superclass : 'DRMethodOptimizationTest',
 	#category : 'Druid-Opal-Tests',
 	#package : 'Druid-Opal',
 	#tag : 'Tests'
@@ -10,18 +10,6 @@ Class {
 DRInlineScopeTest >> inline: aDRMessageSend [ 
 
 	DRInline new inline: aDRMessageSend 
-]
-
-{ #category : 'as yet unclassified' }
-DRInlineScopeTest >> inputClass [
-
-	^ DrOpalExamples 
-]
-
-{ #category : 'running' }
-DRInlineScopeTest >> newCompiler [
-
-	^ DRMethodCompilerCompiler new
 ]
 
 { #category : 'tests' }
