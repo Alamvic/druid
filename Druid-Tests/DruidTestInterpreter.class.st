@@ -205,14 +205,6 @@ DruidTestInterpreter >> lazyFail [
 ]
 
 { #category : 'as yet unclassified' }
-DruidTestInterpreter >> methodCollectionSize: aCollection [
-	<var: #aCollection type: #OrderedCollection>
-	<var: #aCollection type: #Array2D>
-	
-	^ aCollection size
-]
-
-{ #category : 'as yet unclassified' }
 DruidTestInterpreter >> methodWithEarlyReturn: n [
 
 	n = 0 ifTrue: [ ^ 42 ].
