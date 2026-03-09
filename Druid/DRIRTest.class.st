@@ -2,10 +2,12 @@ Class {
 	#name : 'DRIRTest',
 	#superclass : 'TestCase',
 	#instVars : [
-		'compilerCompiler'
+		'compilerCompiler',
+		'instructionFactory'
 	],
 	#category : 'Druid-Tests',
-	#package : 'Druid-Tests'
+	#package : 'Druid',
+	#tag : 'Tests'
 }
 
 { #category : 'edges' }
@@ -42,12 +44,6 @@ DRIRTest >> assertConstraint: aConstraint includes: includedConstraint [
 	self assert: (aConstraint includes: includedConstraint)
 ]
 
-{ #category : 'running' }
-DRIRTest >> configureInterpreter [
-
-	compilerCompiler interpreter: DruidTestInterpreter basicNew 
-]
-
 { #category : 'assertions' }
 DRIRTest >> denyConstraint: aConstraint includes: includedConstraint [
 
@@ -58,7 +54,7 @@ DRIRTest >> denyConstraint: aConstraint includes: includedConstraint [
 DRIRTest >> generateBasicDruidIRFor: methodSelector [
 
 	| method cfg |
-	method := self interpreterClass lookupSelector: methodSelector.
+	method := self inputClass lookupSelector: methodSelector.
 	self assert: method isNotNil.
 	cfg := compilerCompiler generateDruidIRFor: method.
 	^ cfg
@@ -69,39 +65,32 @@ DRIRTest >> generateDruidIRFor: methodSelector [
 
 	| cfg |
 	cfg := self generateBasicDruidIRFor: methodSelector.
-	self optimize: cfg.
 	^ cfg
 ]
 
 { #category : 'test' }
-DRIRTest >> interpreterClass [
-
-	^ DruidTestInterpreter
+DRIRTest >> inputClass [
+	
+	self subclassResponsibility 
 ]
 
-{ #category : 'running' }
-DRIRTest >> newCompiler [
+{ #category : 'accessing' }
+DRIRTest >> instructionFactory [
 
-	^ DRPrimitiveCompilerCompiler new
+	^ instructionFactory
 ]
 
 { #category : 'test' }
 DRIRTest >> newConditionalJump [
 
-	^ compilerCompiler instructionFactory jumpIf: false
-]
-
-{ #category : 'test' }
-DRIRTest >> optimize: cfg [
-
-	compilerCompiler optimize: cfg
+	^ self instructionFactory jumpIf: false
 ]
 
 { #category : 'running' }
 DRIRTest >> setUp [
 
 	super setUp.
-	compilerCompiler := self newCompiler
+	instructionFactory := DRInstructionFactory new
 ]
 
 { #category : 'test' }

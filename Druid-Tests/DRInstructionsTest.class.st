@@ -5,6 +5,12 @@ Class {
 	#package : 'Druid-Tests'
 }
 
+{ #category : 'test' }
+DRInstructionsTest >> inputClass [
+
+	^ DrOpalExamples 
+]
+
 { #category : 'tests' }
 DRInstructionsTest >> setUp [
 

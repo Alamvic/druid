@@ -705,7 +705,7 @@ DRBasicBlock >> inspectionInstructions: aBuilder [
 ]
 
 { #category : 'inspection' }
-DRBasicBlock >> inspectionSourceCode [
+DRBasicBlock >> inspectionSourceCode: builder [
 	<inspectorPresentationOrder: 30 title: 'Source code'>
 
 	| sourceInterval |

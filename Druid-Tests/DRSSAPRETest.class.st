@@ -2,7 +2,6 @@ Class {
 	#name : 'DRSSAPRETest',
 	#superclass : 'DROptimisationTest',
 	#instVars : [
-		'instructionFactory',
 		'valueNumberer'
 	],
 	#category : 'Druid-Tests-Optimizations',

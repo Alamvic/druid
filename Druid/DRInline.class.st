@@ -53,6 +53,11 @@ DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 					         aMessageSend receiver.
 					         classAndMethod key asDRValue }).
 		jump newTrueBranch: inlineGenerator newBasicBlock.
+		
+		"TODO: Here could be collisions between inlines"
+		self assert: inlineGenerator scope isEmpty.
+		"We should create a new scope (having the send's one as parent) per inlining"
+		
 		returnValues add: (self generateInlineIRForMethod: classAndMethod of: aMessageSend).
 		jump newFalseBranch: inlineGenerator newBasicBlock ].
 

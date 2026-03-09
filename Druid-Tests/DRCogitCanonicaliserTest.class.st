@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRCogitCanonicaliserTest',
-	#superclass : 'DROptimisationTest',
+	#superclass : 'DRMetacompilerTest',
 	#category : 'Druid-Tests',
 	#package : 'Druid-Tests'
 }

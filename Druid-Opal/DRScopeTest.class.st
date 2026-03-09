@@ -7,15 +7,16 @@ Class {
 }
 
 { #category : 'test' }
-DRScopeTest >> interpreterClass [
+DRScopeTest >> inputClass [
 
 	^ DrOpalExamples 
 ]
 
 { #category : 'running' }
-DRScopeTest >> newCompiler [
+DRScopeTest >> setUp [
 
-	^ DRMethodCompilerCompiler new
+	super setUp.
+	compilerCompiler := DRMethodCompilerCompiler new.
 ]
 
 { #category : 'tests' }

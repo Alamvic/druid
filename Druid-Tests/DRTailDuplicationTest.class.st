@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRTailDuplicationTest',
-	#superclass : 'DROptimisationTest',
+	#superclass : 'DRMetacompilerTest',
 	#category : 'Druid-Tests-Optimizations',
 	#package : 'Druid-Tests',
 	#tag : 'Optimizations'

@@ -1,6 +1,6 @@
 Extension { #name : 'Collection' }
 
-{ #category : '*Druid-Tests' }
+{ #category : '*Druid-Opal' }
 Collection >> slowCount [
 
 	| r |
