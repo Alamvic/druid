@@ -45,6 +45,8 @@ DRInlineScopeTest >> testInlineMethodBlock [
 	self assert: cfg scope definedTempVectors equals: {
 			('0vector0' -> #( #temp1 #temp2 )) } asOrderedDictionary.
 	self assert: cfg scope copiedVars isEmpty.
+	
+	self assert: send scope isEmpty.
 
 	self assert: inlinedMethodScope argumentNames isEmpty.
 	self assert: inlinedMethodScope tempVarNames equals: #( #tmp1 #aBlock ).
@@ -101,6 +103,8 @@ DRInlineScopeTest >> testInlineMethodBlockTwoOuterScopes [
 			('0vector0' -> #( temp block )) } asOrderedDictionary.
 	self assert: cfg scope copiedVars isEmpty.
 
+	self assert: send scope isEmpty.
+
 	self assert: inlinedScope argumentNames isEmpty.
 	self assert: inlinedScope tempVarNames equals: #( #arg ).
 	self assert: inlinedScope definedTempVectors equals: {
@@ -155,6 +159,8 @@ DRInlineScopeTest >> testInlineMethodCollisionTemporaries [
 			('0vector0' -> #( #temp1 #temp2 )) } asOrderedDictionary.
 	self assert: cfg scope copiedVars isEmpty.
 
+	self assert: send1 scope isEmpty.
+
 	self assert: inlinedMethodScope1 argumentNames isEmpty.
 	self assert: inlinedMethodScope1 tempVarNames equals: #( #tmp1 #aBlock ).
 	self assert: inlinedMethodScope1 definedTempVectors equals: {
@@ -169,6 +175,8 @@ DRInlineScopeTest >> testInlineMethodCollisionTemporaries [
 	self assert: inlinedBlockScope1 copiedVars equals: {
 			('0vector0' -> #( #temp1 #temp2 )).
 			('0vector2' -> #( #tmp1 #aBlock )) } asOrderedDictionary.
+
+	self assert: send2 scope isEmpty.
 
 	self assert: inlinedMethodScope2 argumentNames isEmpty.
 	self assert: inlinedMethodScope2 tempVarNames equals: #( #tmp1 #aBlock ).
@@ -230,6 +238,8 @@ DRInlineScopeTest >> testInlineMultiMethods [
 	self assert: cfg scope definedTempVectors equals: {
 			('0vector0' -> #( #aCollection )) } asOrderedDictionary.
 	self assert: cfg scope copiedVars isEmpty.
+
+	self assert: send scope isEmpty.
 
 	"Inline 1"
 	self assert: inlinedMethod1Scope argumentNames isEmpty.

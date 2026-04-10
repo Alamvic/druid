@@ -59,9 +59,6 @@ DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 	"Last case of the guard (if any)"
 	returnValues add: (self generateInlineIRForMethod: methodsToInline last of: aMessageSend).
 
-	"The scope of the send keep empty because each inlined method create its own scope"
-	self assert: inlineGenerator scope isEmpty.
-
 	returnValues size = 1 ifTrue: [ ^ returnValues first ].
 
 	lastBlock := inlineGenerator newBasicBlock.
