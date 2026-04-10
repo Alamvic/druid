@@ -1695,7 +1695,6 @@ DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver ar
 		               instantiate: DRMessageSend
 		               operands: { receiver } , arguments.
 	instruction inlineGenerator: inlineGenerator.
-	inlineGenerator scope node: instruction.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
 
 	"Set the send as user to the dependecies from inner blocks"

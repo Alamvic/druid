@@ -232,6 +232,19 @@ DRMethodIRGenerator >> lookupScopeDefiningVariable: aRBVariableNode [
 	^ self scope lookupScopeDefining: aRBVariableNode variable originalVar
 ]
 
+{ #category : 'visiting' }
+DRMethodIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver arguments: arguments method: method [
+
+	| instruction |
+	instruction := super
+		               messageSendInstructionFor: aRBMessageNode
+		               receiver: receiver
+		               arguments: arguments
+		               method: method.
+	instruction inlineGenerator scope node: instruction.
+	^ instruction
+]
+
 { #category : 'initialization' }
 DRMethodIRGenerator >> newCFG [
 	
