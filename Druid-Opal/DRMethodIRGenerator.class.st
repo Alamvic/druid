@@ -78,16 +78,14 @@ DRMethodIRGenerator >> initializeSpecialCases [
 { #category : 'inline' }
 DRMethodIRGenerator >> inlineGenerator [
 
-	| newIRGenerator executionStateCopy |
+	| newIRGenerator |
 	newIRGenerator := DRMethodIRGeneratorInline new
 		                  controlFlowGraph: controlFlowGraph;
 		                  typeSystem: typeSystem;
 		                  outerScope: self scope;
 		                  yourself.
 
-	executionStateCopy := executionState copy.
-	newIRGenerator executionState: executionStateCopy.
-
+	newIRGenerator executionState: executionState copy.
 	newIRGenerator generateScope.
 	^ newIRGenerator
 ]
@@ -186,7 +184,7 @@ DRMethodIRGenerator >> interpretInlinedCode: code receiver: receiver arguments: 
 	inlineGenerator := self inlineGenerator
 		                   numberOfArguments: arguments size;
 		                   yourself.
-	
+
 	"Jump to inlining block"
 	self currentBasicBlock jumpTo: inlineGenerator newBasicBlock.
 
@@ -197,7 +195,9 @@ DRMethodIRGenerator >> interpretInlinedCode: code receiver: receiver arguments: 
 
 	"Jump back and restore the state"
 	inlineGenerator currentBasicBlock jumpTo: self newBasicBlock.
-	self executionState: inlineGenerator executionState
+	self executionState: inlineGenerator executionState.
+
+	^ lastFrame
 ]
 
 { #category : 'interpreting' }

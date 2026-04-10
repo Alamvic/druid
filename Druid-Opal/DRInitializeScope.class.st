@@ -27,7 +27,7 @@ DRInitializeScope >> acceptVisitor: aVisitor [
 DRInitializeScope >> inspectionSource: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Source'>
 	
-	^ scope node inspectionSource
+	^ scope node inspectionSource: aBuilder
 ]
 
 { #category : 'visiting' }
