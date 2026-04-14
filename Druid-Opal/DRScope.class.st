@@ -42,14 +42,6 @@ DRScope >> addTempVariables: variables [
 ]
 
 { #category : 'query' }
-DRScope >> allTempVarNames [
-
-	^ inlinedScopes
-		  inject: self tempVarNames
-		  into: [ :temps :scope | temps , scope allTempVarNames ]
-]
-
-{ #category : 'query' }
 DRScope >> allTempsWithOuterTemps [
 
 	^ self tempVectorVarNames , self copiedVars values flattened
@@ -125,14 +117,6 @@ DRScope >> initialize [
 DRScope >> inlinedScopes [
 
 	^ inlinedScopes
-]
-
-{ #category : 'query' }
-DRScope >> inlinedTempVectors [
-
-	^ inlinedScopes
-		  inject: OrderedDictionary new
-		  into: [ :vectors :scope | vectors , scope definedTempVectors ]
 ]
 
 { #category : 'testing' }

@@ -1071,7 +1071,7 @@ DRIRGenerator >> interpretInlinedBlockBody: aRBBlockNode [
 { #category : 'special cases' }
 DRIRGenerator >> interpretInlinedCode: code receiver: receiver arguments: arguments [
 
-	self interpretCode: code receiver: receiver arguments: arguments
+	^ self interpretCode: code receiver: receiver arguments: arguments
 
 ]
 
@@ -1689,11 +1689,12 @@ DRIRGenerator >> mergeDeferredReturns: deferredMethodReturns in: aDRBasicBlock [
 { #category : 'visiting' }
 DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver arguments: arguments method: method [
 
-	| instruction |
+	| instruction inlineGenerator |
+	inlineGenerator := self inlineGenerator.
 	instruction := self
 		               instantiate: DRMessageSend
 		               operands: { receiver } , arguments.
-	instruction inlineGenerator: self inlineGenerator.
+	instruction inlineGenerator: inlineGenerator.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
 
 	"Set the send as user to the dependecies from inner blocks"

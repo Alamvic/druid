@@ -30,7 +30,7 @@ DRInline >> generateInlineIRForMethod: classAndMethodToInline of: aMessageSend [
 
 	methodToInline := classAndMethodToInline value.
 	lastFrame := inlineGenerator
-		             interpretCode: (DRMethod methodNode: methodToInline)
+		             interpretInlinedCode: (DRMethod methodNode: methodToInline)
 		             receiver: aMessageSend operands first
 		             arguments: aMessageSend operands allButFirst.
 
@@ -52,15 +52,11 @@ DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 					         (DRTypeOf typeClass: classAndMethod key).
 					         aMessageSend receiver.
 					         classAndMethod key asDRValue }).
-		jump newTrueBranch: inlineGenerator newBasicBlock.
-		
-		"TODO: Here could be collisions between inlines"
-		self assert: inlineGenerator scope isEmpty.
-		"We should create a new scope (having the send's one as parent) per inlining"
-		
+		jump newTrueBranch: inlineGenerator newBasicBlock.		
 		returnValues add: (self generateInlineIRForMethod: classAndMethod of: aMessageSend).
 		jump newFalseBranch: inlineGenerator newBasicBlock ].
 
+	"Last case of the guard (if any)"
 	returnValues add: (self generateInlineIRForMethod: methodsToInline last of: aMessageSend).
 
 	returnValues size = 1 ifTrue: [ ^ returnValues first ].

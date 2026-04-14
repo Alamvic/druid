@@ -6,6 +6,12 @@ Class {
 	#tag : 'Tests'
 }
 
+{ #category : 'asserting' }
+DRInlineMethodTest >> assert: aDRBasicBlock isDominatedBy: dominatorBlock [ 
+
+	self assert: (aDRBasicBlock isDominatedBy: dominatorBlock)
+]
+
 { #category : 'tests - type systems' }
 DRInlineMethodTest >> testImplementorsTypeSystem [
 
@@ -62,25 +68,34 @@ DRInlineMethodTest >> testInlineMethodKeepsMessageSendIfTypeIsUnknown [
 { #category : 'tests' }
 DRInlineMethodTest >> testInlineMethodWithMultiplePossibleTypesInlinesAllPossibleMethods [
 
-	| cfg |
-	self skip. "Fix multiple inlinings scopes"
-		
+	| cfg loads orderedCollection dictionary typeCheck phi |
 	cfg := self generateDruidIRFor: #methodWithMultipleTypeAnnotations:.
 	cfg applyOptimisation: DRInline new.
-	
-	self assert: cfg messageSends size equals: 4
-]
+	cfg applyOptimisation: (DRPhiSimplication then: DRDeadCodeElimination). "Clean code"
 
-{ #category : 'tests' }
-DRInlineMethodTest >> testInlineMethodWithNPossibleTypesMakesNMinus1TypeChecks [
+	self
+		denyCollection: (cfg messageSends collect: [ :send | send selector ])
+		includesAny: { #select: }.
 
-	| cfg |	
-	self skip. "Fix multiple inlinings scopes"
-		
-	cfg := self generateDruidIRFor: #methodWithMultipleTypeAnnotations:.
-	cfg applyOptimisation: DRInline new.
-	
-	self assert: (cfg allConditionalJumps count: [:jump | jump condition isTypeOf]) equals: 1
+	"Should create the type check for the guard"
+	typeCheck := cfg allConditionalJumps unique.
+	self assert: typeCheck condition isTypeOf.
+	self assert: typeCheck operand1 isLoadArgument.
+	self assert: typeCheck operand2 value isClassType.
+	self assert: typeCheck operand2 value classType equals: OrderedCollection.
+
+	"Get the collection result for both inlined cases"
+	phi := cfg phiFunctions unique.
+	loads := phi operands collect: [ :op | op simpleConstantFold ].
+	self assert: loads size equals: 2.
+	orderedCollection := loads first.
+	dictionary := loads last.
+
+	self assert: orderedCollection basicBlock isDominatedBy: typeCheck trueBranch.
+	self assert: dictionary basicBlock isDominatedBy: typeCheck falseBranch.
+
+	self assert: cfg lastBasicBlock endInstruction isReturn.
+	self assert: cfg lastBasicBlock endInstruction operand1 simpleConstantFold equals: phi
 ]
 
 { #category : 'tests' }
@@ -193,8 +208,6 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_monomorphic [
 DRInlineMethodTest >> testProfileBasedTypeSystem_polimorphic [
 
 	| cfg messageSend selector typeSystem inlinedSend |
-
-	self skip. "Fix multi-inlining scopes"
 
 	compilerCompiler irGenerator typeSystem: (typeSystem := DRProfileBasedTypeSystem new).
 

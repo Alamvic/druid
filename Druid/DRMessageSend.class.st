@@ -138,6 +138,12 @@ DRMessageSend >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : 'accessing' }
+DRMessageSend >> scope [
+
+	^ inlineGenerator scope
+]
+
+{ #category : 'accessing' }
 DRMessageSend >> selector [
 
 	^ self originAST selector
