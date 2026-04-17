@@ -97,6 +97,12 @@ DrOpalExamples >> blockWithValue: arg [
 	^ [ arg ]
 ]
 
+{ #category : 'displaying' }
+DrOpalExamples >> displayString [ 
+
+	^ super displayString , ' cool'
+]
+
 { #category : 'as yet unclassified' }
 DrOpalExamples >> doubleOf: n [
 

@@ -23,7 +23,7 @@ DRInitializeScope >> acceptVisitor: aVisitor [
 	aVisitor visitInitializeScope: self
 ]
 
-{ #category : 'nil' }
+{ #category : 'inspecting' }
 DRInitializeScope >> inspectionSource: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Source'>
 	

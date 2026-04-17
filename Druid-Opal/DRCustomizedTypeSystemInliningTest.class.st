@@ -101,6 +101,22 @@ DRCustomizedTypeSystemInliningTest >> testMethodCustomisationDifference [
 ]
 
 { #category : 'tests' }
+DRCustomizedTypeSystemInliningTest >> testMethodCustomisationDisplayString [
+
+	| method result cfg selector |
+	
+	selector := #displayString.
+	method := DrOpalExamples lookupSelector: selector.
+	compilerCompiler interpreter: DrOpalExamples new.
+
+	cfg := self generateDruidIRFor: method.
+	method := self generateMethodFromCFG: cfg withSelector: selector.
+
+	result := method valueWithReceiver: nil.
+	self assert: result equals: 'nil cool'
+]
+
+{ #category : 'tests' }
 DRCustomizedTypeSystemInliningTest >> testMethodCustomisationDo [
 
 	| method result cfg selector |
