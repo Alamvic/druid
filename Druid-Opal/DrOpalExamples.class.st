@@ -558,6 +558,16 @@ DrOpalExamples >> simpleMethodWithBlockReadingOuterVariable [
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> simpleMethodWithBlockWhileTrue [
+
+	| a |
+	a := true.
+	^ [a] whileTrue: [ | tmp | a:=false. tmp:=2. tmp]
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> simpleMethodWithBlockWithArg [
 	
 	^ self basicMethodWithBlockArg: [ :arg |

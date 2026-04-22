@@ -290,6 +290,12 @@ DRBytecodeGeneratorTest >> testMethodInlineToDoInner [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlinedWhileTrue [
+
+	self assertCompilationFor: #simpleMethodWithBlockWhileTrue fromClass: DrOpalExamples 
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodManyReturns [
 
 	self assertCompilationFor: #methodWithThreeNonLocalReturn fromClass: DrOpalExamples
