@@ -296,6 +296,12 @@ DRBytecodeGeneratorTest >> testMethodInlinedWhileTrue [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlinedWhileTrueWithTemp [
+
+	self assertCompilationFor: #simpleMethodWithBlockWhileTrueWithTemp fromClass: DrOpalExamples 
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodManyReturns [
 
 	self assertCompilationFor: #methodWithThreeNonLocalReturn fromClass: DrOpalExamples
@@ -305,6 +311,12 @@ DRBytecodeGeneratorTest >> testMethodManyReturns [
 DRBytecodeGeneratorTest >> testMethodReadingClassVariable [
 
 	self assertCompilationFor: #methodReadingClassVariable fromClass: DrOpalExamples
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodSimpleBlockLocalWhile [
+
+	self assertCompilationFor: #exampleWhileWithTemp fromClass: OCOpalExamples 
 ]
 
 { #category : 'tests' }

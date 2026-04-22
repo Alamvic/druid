@@ -568,6 +568,22 @@ DrOpalExamples >> simpleMethodWithBlockWhileTrue [
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> simpleMethodWithBlockWhileTrueWithTemp [
+
+	| index collection|
+	collection := OrderedCollection new.
+	index := 0.
+	[ index < 5 ] whileTrue: [
+		| temp var|
+		var :=0.
+		temp := index := index + 1.
+		collection add: [ temp ] ].
+	^collection "#(1 2 3 4 5)"
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> simpleMethodWithBlockWithArg [
 	
 	^ self basicMethodWithBlockArg: [ :arg |
