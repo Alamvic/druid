@@ -189,9 +189,11 @@ DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	blockCFG applyOptimisation: DRPhiSimplication new.
 	blockCFG applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
 	DRLocalVariableInstructionScheluder new applyTo: blockCFG.
+	blockCFG applyOptimisation: DRCleanScopes new.
 	blockCFG applyOptimisation: DRDeadCodeElimination new.
 	
 	blockBytecodeGenerator := DRBytecodeBlockGenerator new.
+	blockBytecodeGenerator sendScope: aDRBlockClosure users unique scope. 
 	blockBytecodeGenerator generateTargetASTFromIR: blockCFG.
 	
 	compiledBlock := blockBytecodeGenerator

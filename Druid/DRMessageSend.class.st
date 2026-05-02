@@ -75,6 +75,12 @@ DRMessageSend >> isMessageSend [
 	^ true
 ]
 
+{ #category : 'testing' }
+DRMessageSend >> isMethod [
+
+	^ false
+]
+
 { #category : 'accessing' }
 DRMessageSend >> methodNode [
 

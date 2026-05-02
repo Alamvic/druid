@@ -1,6 +1,9 @@
 Class {
 	#name : 'DRBytecodeBlockGenerator',
 	#superclass : 'DRBytecodeGenerator',
+	#instVars : [
+		'sendScope'
+	],
 	#category : 'Druid-Opal-BytecodeGeneration',
 	#package : 'Druid-Opal',
 	#tag : 'BytecodeGeneration'
@@ -31,7 +34,22 @@ DRBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 { #category : 'code-generation' }
 DRBytecodeBlockGenerator >> isResultInstruction: aDRInstruction [
 
-	^ aDRInstruction users isEmpty or: ([ aDRInstruction isStore and: [aDRInstruction users anySatisfy: [:i | i isReturn not]]])
-	
+	^ aDRInstruction users isEmpty or: [
+			  aDRInstruction isStore and: [
+				  aDRInstruction users anySatisfy: [ :i | i isReturn not ] ] ]
+]
 
+{ #category : 'as yet unclassified' }
+DRBytecodeBlockGenerator >> sendScope: aDRScope [
+
+	sendScope := aDRScope
+]
+
+{ #category : 'ir-to-target' }
+DRBytecodeBlockGenerator >> visitReturn: aDRReturn [ 
+
+	sendScope isInlined ifTrue: [ 
+		Error signal: 'Non-local return on inlined method breaks the semantics' ].
+
+	super visitReturn: aDRReturn
 ]
