@@ -143,6 +143,7 @@ DRConstantValue >> typeWithAlreadySeen: aCollection [
 	(#( true false ) includes: value) ifTrue: [ ^ DRBooleanType new ].
 	value isInteger ifTrue: [ ^ DRSignedIntegerType size: 8 "Word size" ].
 	value isFloat ifTrue: [ ^ DRFloatType new ].
+	value isGlobalVariable ifTrue: [ ^ value value class asDRType ].
 	^ value class
 ]
 
