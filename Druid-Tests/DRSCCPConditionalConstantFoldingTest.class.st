@@ -106,6 +106,22 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftReplacesC
 ]
 
 { #category : 'tests - conditional folding' }
+DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnNilValue [
+
+	| cfg jump |
+	jump := instructionFactory jumpIf: (instructionFactory
+			         equals: instructionFactory loadReceiver
+			         to: nil asDRValue).
+	cfg := self setUpControlFlowGraphWithConditionalJump: jump.
+
+	DRBranchCollapse new applyTo: cfg.
+	optimisation applyTo: cfg.
+
+	"Jump does not be folded"
+	self assert: (cfg b3 instructions at: 3) equals: rightAddInstruction
+]
+
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnRightAppliesFolding [
 
 	"This test asserts that SCCP optimises only the blocks that are used.
