@@ -9,29 +9,59 @@ Class {
 { #category : 'accessing' }
 DRCleanScopes >> applyTo: cfg [
 
-	self cleanInstructionsScope: cfg scope for: cfg
+	self cleanScope: cfg scope for: cfg
 ]
 
 { #category : 'as yet unclassified' }
-DRCleanScopes >> cleanInstructionsScope: aScope for: cfg [
+DRCleanScopes >> cleanInit: aDRScope [ 
+	self shouldBeImplemented.
+]
 
-	| allInstructions anyWrite anyRead |
+{ #category : 'as yet unclassified' }
+DRCleanScopes >> cleanInit: aScope for: cfg [
+
+	| scopedInstructions |
+	scopedInstructions := cfg allInstructionsWithScope: aScope.
+	scopedInstructions isEmpty ifTrue: [
+		aScope initInstruction ifNotNil: [:i | i removeFromCFG ] ]
+]
+
+{ #category : 'as yet unclassified' }
+DRCleanScopes >> cleanScope: aScope for: cfg [
+
+	| allInstructions |
 	allInstructions := cfg allInstructionsWithScope: aScope.
 
+	"After optimizations, some temporaries maybe are not used"
 	aScope tempVarNames do: [ :temp |
-		anyWrite := allInstructions anySatisfy: [ :i |
-			            i isStoreTemporaryVariable and: [
-				            i variableName = temp ] ].
+		self cleanTemporary: temp from: aScope withInstructions: allInstructions ].
 
-		anyRead := allInstructions anySatisfy: [ :i |
-			           (i isLoadTemporaryVariable or: [ i isLoadArgument ])
-				           and: [ i variableName = temp ] ].
+	"If all temporaries were optimized, then the scope is not needed"
+	self cleanInit: aScope for: cfg.
 
-		(anyWrite and: anyRead) ifFalse: [
-			allInstructions
-				select: [ :i | i variableName = temp ]
-				thenDo: [ :i | i hasUsers ifFalse: [ i removeFromCFG ] ] ] ].
-
+	"Continue deeper..."
 	aScope inlinedScopes do: [ :scope |
-		self cleanInstructionsScope: scope for: cfg ]
+		self cleanScope: scope for: cfg ]
+]
+
+{ #category : 'as yet unclassified' }
+DRCleanScopes >> cleanTemporary: temp from: aDRScope withInstructions: allInstructions [
+
+	| variableInstructions |
+	variableInstructions := allInstructions select: [ :i | i variableName = temp ].
+	(self isUsedVariable: variableInstructions) ifFalse: [
+			variableInstructions do: [ :i |
+				i hasUsers ifFalse: [ i removeFromCFG ] ] ]
+]
+
+{ #category : 'asserting' }
+DRCleanScopes >> isUsedVariable: variableInstructions [
+
+	| anyWrite anyRead |
+	anyWrite := variableInstructions anySatisfy: [ :i |
+		            i isStoreTemporaryVariable ].
+	anyRead := variableInstructions anySatisfy: [ :i |
+		           i isLoadTemporaryVariable or: [ i isLoadArgument ] ].
+	
+	^ anyWrite and: anyRead
 ]

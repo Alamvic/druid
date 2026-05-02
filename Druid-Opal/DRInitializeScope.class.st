@@ -12,7 +12,10 @@ Class {
 { #category : 'accessing' }
 DRInitializeScope class >> scope: aDRScope [
 
-	^ (self result: DRNoRegister new)
+	| instruction |
+	instruction := self result: DRNoRegister new.
+	aDRScope initInstruction: instruction.
+	^ instruction
 		  scope: aDRScope;
 		  yourself
 ]

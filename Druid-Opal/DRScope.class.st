@@ -7,7 +7,8 @@ Class {
 		'node',
 		'outerScope',
 		'inlinedScopes',
-		'arguments'
+		'arguments',
+		'initInstruction'
 	],
 	#category : 'Druid-Opal-IR',
 	#package : 'Druid-Opal',
@@ -101,6 +102,17 @@ DRScope >> id [
 DRScope >> id: anObject [
 
 	id := anObject
+]
+
+{ #category : 'accessing' }
+DRScope >> initInstruction [
+	^ initInstruction
+]
+
+{ #category : 'as yet unclassified' }
+DRScope >> initInstruction: aDRInitializeScope [
+
+	initInstruction := aDRInitializeScope
 ]
 
 { #category : 'initialization' }
