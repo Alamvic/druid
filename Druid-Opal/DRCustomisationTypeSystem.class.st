@@ -1,9 +1,9 @@
 Class {
 	#name : 'DRCustomisationTypeSystem',
 	#superclass : 'DRTypeSystem',
-	#category : 'Druid-IR-Types',
-	#package : 'Druid',
-	#tag : 'IR-Types'
+	#category : 'Druid-Opal-TypeSystem',
+	#package : 'Druid-Opal',
+	#tag : 'TypeSystem'
 }
 
 { #category : 'API' }
