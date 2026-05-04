@@ -1365,6 +1365,13 @@ DRBasicBlock >> replaceSuccessor: aDRBasicBlock by: aDRBasicBlock2 [
 	endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock2
 ]
 
+{ #category : 'handling' }
+DRBasicBlock >> return [
+
+	^ self endInstruction: DRReturn new 
+
+]
+
 { #category : 'building' }
 DRBasicBlock >> return: anInstruction [ 
 	^ self endInstruction: (DRReturn operands: { anInstruction } )
