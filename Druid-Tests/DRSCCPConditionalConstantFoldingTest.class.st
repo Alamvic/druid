@@ -106,7 +106,7 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftReplacesC
 ]
 
 { #category : 'tests - conditional folding' }
-DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnNilValue [
+DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnNilObject [
 
 	| cfg jump |
 	jump := instructionFactory jumpIf: (instructionFactory
@@ -118,7 +118,23 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnNilValue [
 	optimisation applyTo: cfg.
 
 	"Jump does not be folded"
-	self assert: (cfg b3 instructions at: 3) equals: rightAddInstruction
+	self assert: cfg b1 endInstruction isConditionalBranch
+]
+
+{ #category : 'tests - conditional folding' }
+DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnNullValue [
+
+	| cfg jump |
+	jump := instructionFactory jumpIf: (instructionFactory
+			         equals: instructionFactory loadReceiver
+			         to: DRNullValue new).
+	cfg := self setUpControlFlowGraphWithConditionalJump: jump.
+
+	DRBranchCollapse new applyTo: cfg.
+	optimisation applyTo: cfg.
+
+	"Jump must be folded"
+	self deny: cfg b1 endInstruction isConditionalBranch
 ]
 
 { #category : 'tests - conditional folding' }
