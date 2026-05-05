@@ -59,14 +59,14 @@ DRBytecodeCompilationTestResource >> compile [
 { #category : 'helpers' }
 DRBytecodeCompilationTestResource >> compileAll [
 
-	 self compileAllBytecodeForTesting
+	 self compileAllBytecodeForTestingIn: DRBytecodeCompilationTest
 ]
 
 { #category : 'compiling' }
-DRBytecodeCompilationTestResource >> compileAllBytecodeForTesting [
+DRBytecodeCompilationTestResource >> compileAllBytecodeForTestingIn: testCase [
 
 	 | descriptors |
-	 descriptors := DRBytecodeCompilationTest bytecodes.
+	 descriptors := testCase bytecodes.
 	 ('Compiling ' , descriptors size asString , ' bytecodes for testing...') traceCr.
 	 descriptors do: [ :desc | self compileBytecode: desc ]
 ]
