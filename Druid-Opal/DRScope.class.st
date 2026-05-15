@@ -145,7 +145,7 @@ DRScope >> isInlined [
 	outerScope ifNil: [ ^ false ].
 	node isMethod ifFalse: [ ^ outerScope isInlined ].
 	
-	"If we arrive to the method schope and is not the last one, it was inlined"
+	"If we arrive to a method scope and it's not the last one, it was inlined"
 	self assert: outerScope node isMessageSend.
 	^ true
 ]
