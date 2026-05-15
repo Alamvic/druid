@@ -196,7 +196,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationLeftWithPhiFunction [
 
 	optimisation applyTo: cfg.
 
-	self assert: cfg b4 instructions allButLast last operand1 value equals: 7
+	self assert: cfg b4 instructions allButLast last simpleConstantFold equals: 7
 ]
 
 { #category : 'tests - conditional folding' }
@@ -220,7 +220,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationRightWithPhiFunction 
 
 	optimisation applyTo: cfg.
 
-	self assert: cfg b4 instructions allButLast last operand1 value equals: 11
+	self assert: cfg b4 instructions allButLast last simpleConstantFold equals: 11
 ]
 
 { #category : 'tests - conditional folding' }

@@ -732,7 +732,7 @@ DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 	
 	"If the block had no statements, it has nil value"
 	aRBBlockNode statements ifEmpty: [
-		^ self pushOperand: nil asDRValue.
+		^ self pushOperand: DRNullValue new
 	].
 
 	"Otherwise the block value is the value of its last expression"
