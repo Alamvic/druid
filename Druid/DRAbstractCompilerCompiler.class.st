@@ -238,6 +238,12 @@ DRAbstractCompilerCompiler >> numberOfArgumentsForMethod: method [
 ]
 
 { #category : 'accessing' }
+DRAbstractCompilerCompiler >> optimisations [
+
+	^ optimisations
+]
+
+{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> optimisations: aCollection [
 
 	optimisations := aCollection

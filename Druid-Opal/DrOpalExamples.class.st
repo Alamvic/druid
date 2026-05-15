@@ -308,6 +308,12 @@ DrOpalExamples >> methodInlineThenSendClass: aCollection [
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> methodInlineUnresolvedBlockNonLocalReturn [
+
+	^ self methodBlockNonLocalReturn 
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> methodReadingClassVariable [
 
 	^ classVariable
