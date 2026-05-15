@@ -193,9 +193,11 @@ DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	blockCFG applyOptimisation: DRDeadCodeElimination new.
 	
 	blockBytecodeGenerator := DRBytecodeBlockGenerator new.
-	blockBytecodeGenerator sendScope: aDRBlockClosure users unique scope. 
-	blockBytecodeGenerator generateTargetASTFromIR: blockCFG.
 	
+	aDRBlockClosure users unique isScopedInstruction ifTrue: [ 
+		blockBytecodeGenerator sendScope: aDRBlockClosure users unique scope ]. 
+	
+	blockBytecodeGenerator generateTargetASTFromIR: blockCFG.	
 	compiledBlock := blockBytecodeGenerator
 		                 compileBlockFrom: blockCFG
 		                 withScope: blockCFG scope.
@@ -204,13 +206,6 @@ DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	builder
 		pushFullClosureCompiledBlock: compiledBlock
 		copiedValues: copiedValues
-]
-
-{ #category : 'ir-to-target' }
-DRBytecodeGenerator >> visitBlockReturn: aDBlockRReturn [ 
-
-	aDBlockRReturn operand1 acceptVisitor: self.
-	builder blockReturnTop.
 ]
 
 { #category : 'ir-to-target' }

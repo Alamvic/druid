@@ -46,6 +46,13 @@ DRBytecodeBlockGenerator >> sendScope: aDRScope [
 ]
 
 { #category : 'ir-to-target' }
+DRBytecodeBlockGenerator >> visitBlockReturn: aDBlockRReturn [ 
+
+	aDBlockRReturn operand1 acceptVisitor: self.
+	builder blockReturnTop.
+]
+
+{ #category : 'ir-to-target' }
 DRBytecodeBlockGenerator >> visitReturn: aDRReturn [ 
 
 	sendScope isInlined ifTrue: [ 
