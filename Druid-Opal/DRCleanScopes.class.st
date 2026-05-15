@@ -13,17 +13,17 @@ DRCleanScopes >> applyTo: cfg [
 ]
 
 { #category : 'as yet unclassified' }
-DRCleanScopes >> cleanInit: aDRScope [ 
-	self shouldBeImplemented.
-]
-
-{ #category : 'as yet unclassified' }
 DRCleanScopes >> cleanInit: aScope for: cfg [
 
 	| scopedInstructions |
+	"Avoid links from inner to outer scopes"
+	aScope inlinedScopes ifNotEmpty: [ ^ self ].
+	"Method must have a scope?"
+	cfg scope = aScope ifTrue: [ ^ self ].
+
 	scopedInstructions := cfg allInstructionsWithScope: aScope.
 	scopedInstructions isEmpty ifTrue: [
-		aScope initInstruction ifNotNil: [:i | i removeFromCFG ] ]
+		aScope initInstruction ifNotNil: [ :i | i removeFromCFG ] ]
 ]
 
 { #category : 'as yet unclassified' }
