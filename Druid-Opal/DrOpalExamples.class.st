@@ -97,6 +97,12 @@ DrOpalExamples >> blockWithValue: arg [
 	^ [ arg ]
 ]
 
+{ #category : 'displaying' }
+DrOpalExamples >> displayString [ 
+
+	^ super displayString , ' cool'
+]
+
 { #category : 'as yet unclassified' }
 DrOpalExamples >> doubleOf: n [
 
@@ -299,6 +305,12 @@ DrOpalExamples >> methodInlineThenSendClass: aCollection [
 
 	<var: #aCollection type: #Array>
 	^ aCollection className
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodInlineUnresolvedBlockNonLocalReturn [
+
+	^ self methodBlockNonLocalReturn 
 ]
 
 { #category : 'as yet unclassified' }

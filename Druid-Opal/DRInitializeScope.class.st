@@ -12,7 +12,10 @@ Class {
 { #category : 'accessing' }
 DRInitializeScope class >> scope: aDRScope [
 
-	^ (self result: DRNoRegister new)
+	| instruction |
+	instruction := self result: DRNoRegister new.
+	aDRScope initInstruction: instruction.
+	^ instruction
 		  scope: aDRScope;
 		  yourself
 ]
@@ -23,7 +26,7 @@ DRInitializeScope >> acceptVisitor: aVisitor [
 	aVisitor visitInitializeScope: self
 ]
 
-{ #category : 'nil' }
+{ #category : 'inspecting' }
 DRInitializeScope >> inspectionSource: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Source'>
 	

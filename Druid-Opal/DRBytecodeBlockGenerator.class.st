@@ -1,10 +1,19 @@
 Class {
 	#name : 'DRBytecodeBlockGenerator',
 	#superclass : 'DRBytecodeGenerator',
+	#instVars : [
+		'blockScope'
+	],
 	#category : 'Druid-Opal-BytecodeGeneration',
 	#package : 'Druid-Opal',
 	#tag : 'BytecodeGeneration'
 }
+
+{ #category : 'as yet unclassified' }
+DRBytecodeBlockGenerator >> blockScope: aDRScope [
+
+	blockScope := aDRScope
+]
 
 { #category : 'compiling' }
 DRBytecodeBlockGenerator >> compileBlockFrom: aDRControlFlowGraph withScope: aScope [ 
@@ -31,7 +40,23 @@ DRBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 { #category : 'code-generation' }
 DRBytecodeBlockGenerator >> isResultInstruction: aDRInstruction [
 
-	^ aDRInstruction users isEmpty or: ([ aDRInstruction isStore and: [aDRInstruction users anySatisfy: [:i | i isReturn not]]])
-	
+	^ aDRInstruction users isEmpty or: [
+			  aDRInstruction isStore and: [
+				  aDRInstruction users anySatisfy: [ :i | i isReturn not ] ] ]
+]
 
+{ #category : 'ir-to-target' }
+DRBytecodeBlockGenerator >> visitBlockReturn: aDBlockRReturn [ 
+
+	aDBlockRReturn operand1 acceptVisitor: self.
+	builder blockReturnTop.
+]
+
+{ #category : 'ir-to-target' }
+DRBytecodeBlockGenerator >> visitReturn: aDRReturn [ 
+
+	blockScope isInlined ifTrue: [ 
+		Error signal: 'Non-local return on inlined method breaks the semantics' ].
+
+	super visitReturn: aDRReturn
 ]

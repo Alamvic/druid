@@ -7,7 +7,8 @@ Class {
 		'node',
 		'outerScope',
 		'inlinedScopes',
-		'arguments'
+		'arguments',
+		'initInstruction'
 	],
 	#category : 'Druid-Opal-IR',
 	#package : 'Druid-Opal',
@@ -103,6 +104,17 @@ DRScope >> id: anObject [
 	id := anObject
 ]
 
+{ #category : 'accessing' }
+DRScope >> initInstruction [
+	^ initInstruction
+]
+
+{ #category : 'as yet unclassified' }
+DRScope >> initInstruction: aDRInitializeScope [
+
+	initInstruction := aDRInitializeScope
+]
+
 { #category : 'initialization' }
 DRScope >> initialize [
 
@@ -124,6 +136,17 @@ DRScope >> isEmpty [
 
 	arguments isEmpty ifFalse: [ ^ false ].
 	tempVars isEmpty ifFalse: [ ^ false ].
+	^ true
+]
+
+{ #category : 'testing' }
+DRScope >> isInlined [
+
+	outerScope ifNil: [ ^ false ].
+	node isMethod ifFalse: [ ^ outerScope isInlined ].
+	
+	"If we arrive to a method scope and it's not the last one, it was inlined"
+	self assert: outerScope node isMessageSend.
 	^ true
 ]
 

@@ -33,6 +33,17 @@ DRBytecodeScenarioCompilationTest class >> bytecodes [
 			   (192 -> #shortConditionalJumpFalse) } }
 ]
 
+{ #category : 'accessing' }
+DRBytecodeScenarioCompilationTest class >> compileAll [
+
+	<script>
+	DRBytecodeCompilationTestResource resetMode.
+	DRBytecodeCompilationTestResource new
+		setUp;
+		compileAllBytecodeForTestingIn: self.
+	DRBytecodeCompilationTestResource	modeNone
+]
+
 { #category : 'tests' }
 DRBytecodeScenarioCompilationTest >> testCoallescedPops [
 

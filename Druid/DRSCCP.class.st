@@ -216,7 +216,8 @@ DRSCCP >> latticeValueOfPhiFunction: phiFunction [
 	values := phiFunction operands
 		          collect: [ :e | self latticeValue: e ]
 		          as: Set.
-	(values includes: DRNullValue new) ifFalse: [
+		
+	(phiFunction operands includes: DRNullValue new) ifTrue: [
 		values remove: self top ifAbsent: [ "Nothing" ] ].
 	values size = 1 ifTrue: [
 		values anyOne ifNil: [ 1 halt ].
