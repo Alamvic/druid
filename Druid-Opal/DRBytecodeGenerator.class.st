@@ -160,6 +160,12 @@ DRBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 	builder pushConsArray: aDRArrayNode operands size
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitBitAnd: aDRBitAnd [ 
+
+	self sendMessage: #bitAnd: fromInstruction: aDRBitAnd 
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 
