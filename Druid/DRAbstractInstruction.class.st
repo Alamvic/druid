@@ -66,7 +66,7 @@ DRAbstractInstruction >> inspectionDependencies: aBuilder [
 DRAbstractInstruction >> inspectionSource: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'Source'>
 	
-	^ self originAST inspectionSourceCode: aBuilder
+	^ self originAST inspectionSource: aBuilder
 ]
 
 { #category : 'inspecting' }
