@@ -139,17 +139,6 @@ DRScope >> isEmpty [
 	^ true
 ]
 
-{ #category : 'testing' }
-DRScope >> isInlined [
-
-	outerScope ifNil: [ ^ false ].
-	node isMethod ifFalse: [ ^ outerScope isInlined ].
-	
-	"If we arrive to a method scope and it's not the last one, it was inlined"
-	self assert: outerScope node isMessageSend.
-	^ true
-]
-
 { #category : 'query' }
 DRScope >> lookupScopeDefining: aVariable [
 
@@ -213,4 +202,15 @@ DRScope >> tempVectorName [
 DRScope >> tempVectorVarNames [ 
 	
 	^ (self argumentNames , self tempVarNames) asArray 
+]
+
+{ #category : 'testing' }
+DRScope >> wasMethodInlined [
+
+	outerScope ifNil: [ ^ false ].
+	node isMethod ifFalse: [ ^ outerScope wasMethodInlined ].
+	
+	"If we arrive to a method scope and it's not the last one, it was inlined"
+	self assert: outerScope node isMessageSend.
+	^ true
 ]
