@@ -174,16 +174,6 @@ DRScope >> outerScope: aScope [
 ]
 
 { #category : 'query' }
-DRScope >> resolveScopeId [
-    "Increment own id and each outerScope"
-    id := id + 1.
-    
-    outerScope ifNotNil: [ 
-        outerScope resolveScopeId 
-    ].
-]
-
-{ #category : 'query' }
 DRScope >> tempVarNames [
 
 	^ tempVars collect: [ :v | v name ] as: Array

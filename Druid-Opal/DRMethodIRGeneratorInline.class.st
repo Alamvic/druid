@@ -55,7 +55,7 @@ DRMethodIRGeneratorInline >> initializeArgumentsNames: aDRCode with: argumentsVa
 	| argumentNames |
 	super initializeArgumentsNames: aDRCode with: argumentsValues.
 
-	self currentBasicBlock initializeScope: self scope.
+	self initializeScope.
 
 	"Copy values to argument temps"
 	argumentNames := aDRCode codeNode argumentNames.

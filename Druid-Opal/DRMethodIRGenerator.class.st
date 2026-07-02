@@ -63,7 +63,13 @@ DRMethodIRGenerator >> initializeArgumentsNames: aDRCode with: argumentsValues [
 DRMethodIRGenerator >> initializeIR [
 
 	super initializeIR.
-	self currentBasicBlock initializeScope: self scope
+	self initializeScope
+]
+
+{ #category : 'initialization' }
+DRMethodIRGenerator >> initializeScope [
+	
+	^ self currentBasicBlock initializeScope: self scope.
 ]
 
 { #category : 'initialization' }
@@ -166,46 +172,33 @@ DRMethodIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arg
 
 { #category : 'as yet unclassified' }
 DRMethodIRGenerator >> interpretInlinedBlockBody: aRBBlockNode [
-	"We add new temporaries to the current scope"
-	| currentScope newScope|
 	
-	currentScope := self scope.
-	
-	aRBBlockNode scope tempVector ifNotEmpty: [ | tempVectorVar |
-		"case where in the inlined block, a tempVector should be created"
-		newScope := DRScope new. "create new scope to handle the tempVector"
-		newScope outerScope: currentScope;
-			node: aRBBlockNode ;
-			id: currentScope id. 
-			
-		currentScope resolveScopeId. "shift each id by one"
-		
-		tempVectorVar := aRBBlockNode scope tempVector values.
-		newScope addTempVariables: tempVectorVar .
-		
-		newScope addTempVariables: 
-			((aRBBlockNode temporaries collect: [ :temp |
-			 	temp variable originalVar ]) difference: tempVectorVar) .
-		
-		self currentBasicBlock initializeScope: newScope.
-		self scope: newScope .
-		self interpretBlockBody: aRBBlockNode.
-		
-		self scope: currentScope.
-		
+	aRBBlockNode scope tempVector ifNotEmpty: [ | inlineGenerator  |
+		"case where the inlined block defines a scape temporary"
+		inlineGenerator := self inlineGenerator
+			                   numberOfArguments: aRBBlockNode arguments size;
+			                   yourself.
+
+		"Jump to inlining block"
+		self currentBasicBlock jumpTo: inlineGenerator newBasicBlock.
+		inlineGenerator setupCFGScope: aRBBlockNode.
+		inlineGenerator initializeScope.
+		inlineGenerator interpretBlockBody: aRBBlockNode.
+
+		"Jump back and restore the state"
+		inlineGenerator currentBasicBlock jumpTo: self newBasicBlock.
+		self executionState: inlineGenerator executionState.		
 	] 
 	ifEmpty: [ 
+		"We add new temporaries to the current scope"
 		self scope addTempVariables:
-		(aRBBlockNode temporaries collect: [ :temp |
-			 temp variable originalVar ]).
-	self scope addTempVariables:
-		(aRBBlockNode arguments collect: [ :temp | temp variable ]). 
+			(aRBBlockNode temporaries collect: [ :temp |
+				temp variable originalVar ]).
+		self scope addTempVariables:
+			(aRBBlockNode arguments collect: [ :temp | temp variable ]). 
 		
-	self interpretBlockBody: aRBBlockNode
-		].
-	
-
-	
+		self interpretBlockBody: aRBBlockNode
+	]
 ]
 
 { #category : 'inlining' }
