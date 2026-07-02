@@ -59,12 +59,7 @@ DRBytecodeGeneratorTest >> assertClosure: result equals: expected [
 DRBytecodeGeneratorTest >> assertCompilationFor: aSelector fromClass: aClass [
 
 	| compiledMethod expectedMethod |
-	
-	compilerCompiler configureForCompilerClass: nil.
 	expectedMethod := aClass >> aSelector.
-	"Ignore the methods with arguments"
-	expectedMethod numArgs = 0 ifFalse: [ ^ self ].
-	
 	compiledMethod := self compileSelector: aSelector fromClass: aClass.
 	
 	self assert: compiledMethod equalsResult: expectedMethod
@@ -75,29 +70,11 @@ DRBytecodeGeneratorTest >> assertCompilationFor: aSelector fromClass: aClass che
 
 	| compiledMethod expectedMethod |
 	self setUp.
-	compilerCompiler configureForCompilerClass: nil.
-	
+		
 	expectedMethod := aClass >> aSelector.
-	"Ignore the methods with arguments"
-	expectedMethod numArgs = 0 ifFalse: [ ^ self ].
 	compiledMethod := self compileSelector: aSelector fromClass: aClass.
 	
 	self assert: (self checkByteCode: byteCode in: compiledMethod ir).
-	self assert: compiledMethod equalsResult: expectedMethod
-]
-
-{ #category : 'assertion' }
-DRBytecodeGeneratorTest >> assertCompilationNoInlineFor: aSelector fromClass: aClass [
-
-	| compiledMethod expectedMethod |
-	self setUp.
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-	
-	expectedMethod := aClass >> aSelector.
-	"Ignore the methods with arguments"
-	expectedMethod numArgs = 0 ifFalse: [ ^ self ].
-	
-	compiledMethod := self compileSelector: aSelector fromClass: aClass.
 	self assert: compiledMethod equalsResult: expectedMethod
 ]
 
@@ -198,6 +175,7 @@ DRBytecodeGeneratorTest >> setUp [
 	
 	compilerCompiler := DRMethodCompilerCompiler new.
 	compilerCompiler interpreter: DrOpalExamples basicNew.
+	compilerCompiler configureForCompilerClass: nil.
 	
 	bytecodeGenerator := DRBytecodeGenerator new
 ]
@@ -249,6 +227,23 @@ DRBytecodeGeneratorTest >> testMethodInline [
 DRBytecodeGeneratorTest >> testMethodInlineBlockTwoOuterScopes [
 
 	self assertCompilationFor: #methodBlockTwoOuterScopes fromClass: DrOpalExamples
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineFailsWithUnresolvedNonLocalReturns [
+
+	| inline |
+	inline := compilerCompiler optimisations removeFirst.
+	self assert: inline class equals: DRInline.
+
+	self
+		should: [
+				self
+					assertCompilationFor: #methodInlineUnresolvedBlockNonLocalReturn
+					fromClass: DrOpalExamples ]
+		raise: Error
+		withExceptionDo: [ :err |
+			self assert: (err messageText beginsWith: 'Non-local return') ]
 ]
 
 { #category : 'tests' }
@@ -323,7 +318,6 @@ DRBytecodeGeneratorTest >> testMethodSimpleBlockLocalWhile [
 DRBytecodeGeneratorTest >> testMethodWithArg [
 
 	| method result |
-	compilerCompiler configureForCompilerClass: nil.
 	method := self generateMethodForSelector: #doubleOf:.
 	result := method valueWithReceiver: nil arguments: { 12 }.
 
@@ -542,7 +536,6 @@ DRBytecodeGeneratorTest >> testMethodWithDynamicArray [
 DRBytecodeGeneratorTest >> testMethodWithEarlyReturn [
 
 	| method result |
-	compilerCompiler configureForCompilerClass: nil.
 	method := self generateMethodForSelector: #methodWithEarlyReturn:.
 	result := method valueWithReceiver: nil arguments: { 0 }.
 
@@ -553,7 +546,6 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn [
 DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 
 	| method result |
-	compilerCompiler configureForCompilerClass: nil.
 	method := self generateMethodForSelector: #methodWithEarlyReturn:.
 	result := method valueWithReceiver: nil arguments: { 1 }.
 
@@ -564,8 +556,6 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 
 	| method result |
-	
-	compilerCompiler configureForCompilerClass: nil.
 	method := self generateMethodForSelector: #methodCollectionSize:.
 
 	result := method
@@ -589,25 +579,23 @@ DRBytecodeGeneratorTest >> testMethodWritingClassVariable [
 DRBytecodeGeneratorTest >> testOpalExamples [
 
 	| ignoredProtocols |
-	ignoredProtocols := #( #'examples - pragmas'
-	                       #'examples - blocks-optimized' ).
+	ignoredProtocols := #( #'examples - pragmas' #'examples - blocks-optimized' ).
 
 	OCOpalExamples methods
 		reject: [ :opalMethod |
-		ignoredProtocols includes: opalMethod protocolName ]
+				opalMethod numArgs > 0 or: [
+					ignoredProtocols includes: opalMethod protocolName ] ]
 		thenDo: [ :opalMethod |
-			self setUp.
-			self
-				assertCompilationFor: opalMethod selector
-				fromClass: OCOpalExamples ]
+				self setUp.
+				self
+					assertCompilationFor: opalMethod selector
+					fromClass: OCOpalExamples ]
 ]
 
 { #category : 'tests' }
 DRBytecodeGeneratorTest >> testSimpleMethod [
 	
 	| compiledMethod expectedMethod aSelector |
-
-	compilerCompiler configureForCompilerClass: nil.
 	aSelector:= #simpleMethod.
 	expectedMethod := DrOpalExamples >> aSelector.
 	
@@ -621,8 +609,6 @@ DRBytecodeGeneratorTest >> testSimpleMethod [
 DRBytecodeGeneratorTest >> testSimpleMethodReturnArg [
 	
 	| compiledMethod expectedMethod aSelector result |
-
-	compilerCompiler configureForCompilerClass: nil.
 	aSelector:= #simpleMethodReturnArg: .
 	expectedMethod := DrOpalExamples >> aSelector.
 	
@@ -640,8 +626,6 @@ DRBytecodeGeneratorTest >> testSimpleMethodReturnArg [
 DRBytecodeGeneratorTest >> testSimpleMethodWith1arg [
 	
 	| compiledMethod expectedMethod aSelector result|
-	
-	compilerCompiler configureForCompilerClass: nil.
 	aSelector:= #simpleMethodWith1Arg:.
 	expectedMethod := DrOpalExamples >> aSelector.
 	
@@ -658,8 +642,6 @@ DRBytecodeGeneratorTest >> testSimpleMethodWith1arg [
 DRBytecodeGeneratorTest >> testSimpleMethodWith2arg [
 	
 	| compiledMethod expectedMethod aSelector result |
-	
-	compilerCompiler configureForCompilerClass: nil.
 	aSelector:= #simpleMethodWith1Arg:arg2:.
 	expectedMethod := DrOpalExamples >> aSelector.
 	

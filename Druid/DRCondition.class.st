@@ -160,9 +160,9 @@ DRCondition >> sccpEvaluateFor: sccp branch: aBranch [
 		value2 := aBranch operand2 simpleConstantFold.
 		"Meta-compile time equality"
 		(value1 sccpEquals: value2) ifTrue: [ ^ true asDRValue ].
-		"Nil equality (after sccpEquals:)"
-		value1 ifNil: [ ^ false asDRValue ].
-		value2 ifNil: [ ^ false asDRValue ].
+		"Null equality (after sccpEquals:)"
+		value1 asDRValue isNullValue ifTrue: [ ^ false asDRValue ].
+		value2 asDRValue isNullValue ifTrue: [ ^ false asDRValue ].
 		"Boolean equality"
 		(value1 isBooleanValue and: [ value2 isBooleanValue ]) ifTrue: [
 			^ (value1 asBoolean = value2 asBoolean) asDRValue ] ].

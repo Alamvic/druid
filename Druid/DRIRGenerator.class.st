@@ -732,7 +732,7 @@ DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 	
 	"If the block had no statements, it has nil value"
 	aRBBlockNode statements ifEmpty: [
-		^ self pushOperand: nil asDRValue.
+		^ self pushOperand: DRNullValue new
 	].
 
 	"Otherwise the block value is the value of its last expression"
@@ -1586,6 +1586,12 @@ DRIRGenerator >> interpretUnaryInstruction: aRBMessageNode instructionKind: anIn
 	^ self addInstructionFrom: aRBMessageNode instructionKind: anInstructionKind operands: { receiver }
 ]
 
+{ #category : 'as yet unclassified' }
+DRIRGenerator >> interpretValue: anOCLiteralValueNode [
+
+	^ anOCLiteralValueNode value asDRValue
+]
+
 { #category : 'special cases' }
 DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 
@@ -2108,10 +2114,12 @@ DRIRGenerator >> visitLiteralArrayNode: aRBLiteralArrayNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitLiteralValueNode: aRBLiteralValueNode [
 
+	| value |
+	value := self interpretValue: aRBLiteralValueNode.
 	^ self
-		addInstructionFrom: aRBLiteralValueNode
-		instructionKind: DRCopy
-		operands: { (DRConstantValue value: aRBLiteralValueNode value) }
+		  addInstructionFrom: aRBLiteralValueNode
+		  instructionKind: DRCopy
+		  operands: { value }
 ]
 
 { #category : 'visiting' }

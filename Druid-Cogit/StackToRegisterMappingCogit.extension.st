@@ -33,7 +33,7 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 		optimisations add: (DRPhiSimplication then: DRCopyPropagation) ].
 
 	"Last Phase, make code coggable"
-	optimisations add: (DRCogitStackCanonicaliser then: DRSCCP).
+	optimisations add: (DRCogitStackCanonicaliser then: DRPhiSimplication then: DRSCCP).
 	optimisations add: DRCogitOperandSorter new.
 	optimisations add: DRCogitStager new.
 	optimisations add: DRCogitOperandSorter new.

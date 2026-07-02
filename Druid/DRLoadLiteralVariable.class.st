@@ -12,6 +12,12 @@ DRLoadLiteralVariable >> acceptVisitor: aVisitor [
 	^ aVisitor visitLoadLiteralVariable: self
 ]
 
+{ #category : 'accessing' }
+DRLoadLiteralVariable >> literal [
+
+	^ self operand1 value value
+]
+
 { #category : 'printing' }
 DRLoadLiteralVariable >> opcode [
 	
@@ -22,4 +28,10 @@ DRLoadLiteralVariable >> opcode [
 DRLoadLiteralVariable >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
+]
+
+{ #category : 'types' }
+DRLoadLiteralVariable >> type [
+
+	^ self literal class asDRType
 ]

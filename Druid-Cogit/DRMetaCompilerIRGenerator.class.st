@@ -103,6 +103,14 @@ DRMetaCompilerIRGenerator >> interpretRememberWith: aRBMessageNode [
 		   from: aRBMessageNode) beMapped saveLinkReg
 ]
 
+{ #category : 'as yet unclassified' }
+DRMetaCompilerIRGenerator >> interpretValue: anOCLiteralValueNode [
+
+	"Nil is interpreted as Null in the VM"
+	anOCLiteralValueNode isNodeNil ifTrue: [ ^ DRNullValue new ].
+	^ super interpretValue: anOCLiteralValueNode
+]
+
 { #category : 'visiting' }
 DRMetaCompilerIRGenerator >> methodFor: aRBMessageNode withReceiver: receiver [
 

@@ -19,6 +19,12 @@ Object >> isBooleanValue [
 ]
 
 { #category : '*Druid' }
+Object >> isGlobalVariable [
+	"To be polymorphic to DR types"
+	^false
+]
+
+{ #category : '*Druid' }
 Object >> isStaged [
 	
 	^ true

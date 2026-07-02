@@ -106,6 +106,38 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnLeftReplacesC
 ]
 
 { #category : 'tests - conditional folding' }
+DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnNilObject [
+
+	| cfg jump |
+	jump := instructionFactory jumpIf: (instructionFactory
+			         equals: instructionFactory loadReceiver
+			         to: nil asDRValue).
+	cfg := self setUpControlFlowGraphWithConditionalJump: jump.
+
+	DRBranchCollapse new applyTo: cfg.
+	optimisation applyTo: cfg.
+
+	"Jump does not be folded"
+	self assert: cfg b1 endInstruction isConditionalBranch
+]
+
+{ #category : 'tests - conditional folding' }
+DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnNullValue [
+
+	| cfg jump |
+	jump := instructionFactory jumpIf: (instructionFactory
+			         equals: instructionFactory loadReceiver
+			         to: DRNullValue new).
+	cfg := self setUpControlFlowGraphWithConditionalJump: jump.
+
+	DRBranchCollapse new applyTo: cfg.
+	optimisation applyTo: cfg.
+
+	"Jump must be folded"
+	self deny: cfg b1 endInstruction isConditionalBranch
+]
+
+{ #category : 'tests - conditional folding' }
 DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnRightAppliesFolding [
 
 	"This test asserts that SCCP optimises only the blocks that are used.
@@ -164,7 +196,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationLeftWithPhiFunction [
 
 	optimisation applyTo: cfg.
 
-	self assert: cfg b4 instructions allButLast last operand1 value equals: 7
+	self assert: cfg b4 instructions allButLast last simpleConstantFold equals: 7
 ]
 
 { #category : 'tests - conditional folding' }
@@ -188,7 +220,7 @@ DRSCCPConditionalConstantFoldingTest >> testSCCPPropagationRightWithPhiFunction 
 
 	optimisation applyTo: cfg.
 
-	self assert: cfg b4 instructions allButLast last operand1 value equals: 11
+	self assert: cfg b4 instructions allButLast last simpleConstantFold equals: 11
 ]
 
 { #category : 'tests - conditional folding' }

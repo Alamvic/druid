@@ -97,7 +97,7 @@ DRInline >> inline: messageSend [
 	inlineGenerator currentBasicBlock jumpTo:
 		messageSend basicBlock successor.
 	messageSend replaceUsesBy: inlinedMethodReturnValue.
-	(innerDependencies copyWithoutAll: messageSend innerDependencies)
+	(innerDependencies copyWithoutAll: messageSend innerDependencies) asSet
 		do: [ :i | i removeUser: messageSend ].
 
 	"Remove message send block"
