@@ -166,6 +166,12 @@ DRBytecodeGenerator >> visitBitAnd: aDRBitAnd [
 	self sendMessage: #bitAnd: fromInstruction: aDRBitAnd 
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitBitOr: aDRBitOr [ 
+
+		self sendMessage: #bitOr: fromInstruction: aDRBitOr 
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 
@@ -239,6 +245,12 @@ DRBytecodeGenerator >> visitCopy: aDRCopy [
 	aDRCopy operand1 acceptVisitor: self
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitDivision: aDRDivision [ 
+
+		self sendMessage: #/ fromInstruction: aDRDivision 
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBranchIfCondition [
 
@@ -249,6 +261,12 @@ DRBytecodeGenerator >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBra
 DRBytecodeGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
 
 	aDRGetConditionCode condition acceptVisitor: self withBranch: aDRGetConditionCode
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitGreaterOrEqualsThan: aDRGreaterOrEqualsThanComparison inBranch: aDRBranch [
+
+	self sendMessage: #'>=' fromInstruction: aDRBranch
 ]
 
 { #category : 'visiting' }
@@ -324,6 +342,12 @@ DRBytecodeGenerator >> visitLoadLiteralVariable: aDRLoadLiteralVariable [
 DRBytecodeGenerator >> visitMessageSend: aDRMessageSend [ 
 
 	self sendMessage: aDRMessageSend selector fromInstruction: aDRMessageSend
+]
+
+{ #category : 'ir-to-target' }
+DRBytecodeGenerator >> visitMod: aDRMod [
+
+	self sendMessage: #\\ fromInstruction: aDRMod
 ]
 
 { #category : 'ir-to-target' }
