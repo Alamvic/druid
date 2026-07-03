@@ -9,6 +9,14 @@ Class {
 	#tag : 'Objects'
 }
 
+{ #category : 'as yet unclassified' }
+DROpalCompiler class >> copyMethod: selector from: aClass to: newClass [
+
+	| method |
+	method := aClass >> selector.
+	newClass addSelector: selector withMethod: method copy
+]
+
 { #category : 'utilities' }
 DROpalCompiler class >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
 	
@@ -61,7 +69,13 @@ DROpalCompiler class >> recompile: selector from: oldClass to: newClass [
 { #category : 'as yet unclassified' }
 DROpalCompiler class >> recompileClass: aClass [ 
 	
-	| oldName _superclass slots packageName newName tag newClass |
+	self recompileClass: aClass except: #()
+]
+
+{ #category : 'as yet unclassified' }
+DROpalCompiler class >> recompileClass: aClass except: ignoredSelectors [
+	
+	| oldName _superclass slots packageName newName tag newClass n |
 	oldName := aClass name.
 	_superclass := aClass superclass.
 	slots := aClass slots collect: [ :slot | slot name ].
@@ -75,8 +89,17 @@ DROpalCompiler class >> recompileClass: aClass [
 		package: packageName;
 		install.
 		
-	aClass selectors do: [ :sel |
-		self recompile: sel from: aClass to: newClass ].
+	n := 0.	
 		
+	aClass selectors do: [ :sel |
+		[ self recompile: sel from: aClass to: newClass ]
+		on: Error do: [ :ex |
+			n := n + 1.
+			n trace. '. ' trace.
+			sel traceCr.
+			ex description traceCr.
+			self copyMethod: sel from: aClass to: newClass
+		]
+	].		
 	^ newClass
 ]

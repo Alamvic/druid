@@ -4,13 +4,30 @@ Class {
 	#instVars : [
 		'inlineGenerator'
 	],
+	#classInstVars : [
+		'enabled'
+	],
 	#category : 'Druid-Optimizations',
 	#package : 'Druid',
 	#tag : 'Optimizations'
 }
 
 { #category : 'accessing' }
+DRInline class >> enabled [
+
+	^ enabled
+]
+
+{ #category : 'accessing' }
+DRInline class >> enabled: aBoolean [ 
+
+	enabled := aBoolean 
+]
+
+{ #category : 'accessing' }
 DRInline >> doApply: cfg [
+
+	self class enabled ifFalse: [ ^ self ].
 
 	cfg messageSends copy do: [ :messageSend | 
 		self inline: messageSend ]
