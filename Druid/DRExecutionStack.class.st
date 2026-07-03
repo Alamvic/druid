@@ -41,7 +41,7 @@ DRExecutionStack >> baseFrame [
 { #category : 'enumerating' }
 DRExecutionStack >> detectFrame: aFullBlockClosure [ 
 	
-	^ stateStack detect: aFullBlockClosure
+	^ stateStack detect: aFullBlockClosure ifNone: [ ^ nil ]
 ]
 
 { #category : 'accessing' }
