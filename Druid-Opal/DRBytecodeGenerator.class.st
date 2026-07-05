@@ -172,6 +172,12 @@ DRBytecodeGenerator >> visitBitOr: aDRBitOr [
 		self sendMessage: #bitOr: fromInstruction: aDRBitOr 
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitBitShift: aDRBitShift [ 
+
+	self sendMessage: #bitShift: fromInstruction: aDRBitShift 
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 

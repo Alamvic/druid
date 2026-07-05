@@ -410,6 +410,8 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #ifTrue: put: #interpretIfTrueWith:.
 	specialCases at: #whileTrue put: #interpretWhileTrueWith:.
 	specialCases at: #whileTrue: put: #interpretWhileTrueWith:.
+	specialCases at: #whileFalse put: #interpretWhileTrueWith:.
+	specialCases at: #whileFalse: put: #interpretWhileTrueWith:.
 	specialCases at: #caseOf:otherwise: put: #interpretCaseOfWith:.
 	specialCases at: #cppIf:ifTrue: put: #interpretCppIfWith:.
 	specialCases at: #cppIf:ifTrue:ifFalse: put: #interpretCppIfWith:.
@@ -485,6 +487,7 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #bitXor: put: #interpretBitXorWith:.
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
 	specialCases at: #rotateLeft:by: put: #interpretRotateLeftBy:.
+	specialCases at: #bitShift: put: #interpretBitShiftWith:.
 		
 	"special simulation cases"
 	specialCases at: #cCode: put: #interpretCCodeInSmalltalkWith:.
@@ -1595,7 +1598,7 @@ DRIRGenerator >> interpretValue: anOCLiteralValueNode [
 { #category : 'special cases' }
 DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 
-	| trueBranchBasicBlockOut conditionalJump conditionEntryBlock executionStateAtEntry |
+	| trueBranchBasicBlockOut conditionalJump conditionEntryBlock executionStateAtEntry bool |
 	"Compile
 	
 	[ condition ] whileTrue: [ something ]
@@ -1631,13 +1634,14 @@ DRIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 		self notYetImplemented ].
 
 	"The conditional jump"
+	bool := aRBMessageNode selector includesSubstring: 'True'.
 	conditionalJump := self
 		                   instantiateNoResultInstruction:
 		                   DRBranchIfCondition
 		                   operands: {
 				                   DREqualsThanComparison new.
 				                   self popOperand.
-				                   true asDRValue }.
+				                   bool asDRValue }.
 	self currentBasicBlock endInstruction: conditionalJump.
 
 	"Loop body. whileTrue: => jump if true to body"
