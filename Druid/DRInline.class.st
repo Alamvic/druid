@@ -29,7 +29,7 @@ DRInline >> doApply: cfg [
 
 	self class enabled ifFalse: [ ^ self ].
 
-	cfg messageSends copy do: [ :messageSend | 
+	(cfg messageSends takeFirst: 5) do: [ :messageSend | 
 		self inline: messageSend ]
 ]
 

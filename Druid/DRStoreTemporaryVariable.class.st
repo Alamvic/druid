@@ -47,3 +47,9 @@ DRStoreTemporaryVariable >> storeValue [
 
 	^ self operand2
 ]
+
+{ #category : 'types' }
+DRStoreTemporaryVariable >> typeWithAlreadySeen: aCollection [
+
+	self error: 'Not implemented yet'
+]

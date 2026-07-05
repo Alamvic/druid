@@ -771,7 +771,7 @@ DRInstruction >> supportConstantOperand [
 { #category : 'types' }
 DRInstruction >> typeWithAlreadySeen: aCollection [
 
-	^ DRSignedIntegerType size: 8 "Word size"
+	^ self subclassResponsibility
 ]
 
 { #category : 'users-definitions' }
