@@ -460,17 +460,7 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
-	| store loadTemp |
-
-	"If the variable is in the current frame, then reuse directly the instruction"
-	(self hasTemporary: aRBVariableNode name) ifTrue: [
-		store := self topFrame
-			         temporaryAt: aRBVariableNode name
-			         withState: executionState ].
-	
-	^ self interpretTemporaryVariable: aRBVariableNode.
-	
-
+	^ self interpretTemporaryVariable: aRBVariableNode
 ]
 
 { #category : 'visiting' }
