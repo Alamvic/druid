@@ -29,6 +29,13 @@ DRTypeSystem >> receiverTypes: aDRMessageSend [
 	^ self subclassResponsibility
 ]
 
+{ #category : 'asserting' }
+DRTypeSystem >> shouldIgnore: aMethodNode [
+
+	^ aMethodNode isPrimitive or: [
+		aMethodNode sourceCode includesSubstring: #subclassResponsibility ]
+]
+
 { #category : 'as yet unclassified' }
 DRTypeSystem >> superMethodTupleForMessage: aDRMessageSend [
 

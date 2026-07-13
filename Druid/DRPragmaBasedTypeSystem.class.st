@@ -34,10 +34,3 @@ DRPragmaBasedTypeSystem >> receiverTypes: aDRMessageSend [
 			  ifFalse: [
 			  DRClassType for: (self class environment at: typeName) ] ]
 ]
-
-{ #category : 'asserting' }
-DRPragmaBasedTypeSystem >> shouldIgnore: aMethodNode [
-
-	^ aMethodNode isPrimitive or: [
-		aMethodNode sourceCode includesSubstring: #subclassResponsibility ]
-]
