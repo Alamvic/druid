@@ -81,8 +81,10 @@ DROpalCompiler class >> recompileClass: aClass except: ignoredSelectors [
 	slots := aClass slots collect: [ :slot | slot name ].
 	tag := aClass packageTag.
 	packageName := aClass package name.
-	
 	newName := #DR , oldName.
+
+	self removeClassIfNeeded: newName.
+
 	newClass := _superclass << newName 
 		slots: slots;
 		tag: tag;
@@ -102,4 +104,11 @@ DROpalCompiler class >> recompileClass: aClass except: ignoredSelectors [
 		]
 	].		
 	^ newClass
+]
+
+{ #category : 'removing' }
+DROpalCompiler class >> removeClassIfNeeded: newName [
+
+	(Smalltalk systemNavigation environment classNamed: newName)
+		ifNotNil: [ :class | Smalltalk systemNavigation removeClass: class ]
 ]
