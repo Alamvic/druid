@@ -253,8 +253,10 @@ DRBytecodeGenerator >> visitCopy: aDRCopy [
 
 { #category : 'visiting' }
 DRBytecodeGenerator >> visitDivision: aDRDivision [ 
-
-		self sendMessage: #/ fromInstruction: aDRDivision 
+	"TODO: / and // are compiled as this instruction"
+	| selector |
+	selector := 	aDRDivision originAST ifNotNil: [ :ast | ast selector ] ifNil: [ #/ ].
+	self sendMessage: selector fromInstruction: aDRDivision 
 ]
 
 { #category : 'ir-to-target' }
