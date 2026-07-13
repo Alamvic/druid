@@ -6,6 +6,12 @@ Class {
 	#tag : 'IR'
 }
 
+{ #category : 'as yet unclassified' }
+DRStoreTemporaryVariable class >> loadInstructionKind [
+
+	^ DRLoadTemporaryVariable 
+]
+
 { #category : 'visiting' }
 DRStoreTemporaryVariable >> acceptVisitor: aVisitor [
 

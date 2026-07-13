@@ -6,6 +6,30 @@ Class {
 	#tag : 'Compiler'
 }
 
+{ #category : 'adding' }
+DRMethodIRGenerator >> addAssignmentInstructionFrom: anAssignmentNode instructionKind: aClass operands: operands [
+
+	| store load scope |
+	store := self
+		         addInstructionWithNoResultFrom: anAssignmentNode
+		         instructionKind: aClass
+		         operands: operands.
+
+	self popOperand.
+
+	load := self
+		        addInstructionFrom: anAssignmentNode variable
+		        instructionKind: aClass loadInstructionKind
+		        operands: operands allButLast.
+
+	store isScopedInstruction ifTrue: [
+		scope := self lookupScopeDefiningVariable: anAssignmentNode variable.
+		store scope: scope.
+		load scope: scope ].
+
+	^ load
+]
+
 { #category : 'building' }
 DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
 
@@ -104,7 +128,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
 		^ self
-			  addInstructionWithNoResultFrom: aRBAssignmentNode
+			  addAssignmentInstructionFrom: aRBAssignmentNode
 			  instructionKind: DRStoreInstanceVariable
 			  operands: {
 					  self receiver.
@@ -113,7 +137,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
 	aRBAssignmentNode variable binding isClassVariable ifTrue: [
 		^ self
-			  addInstructionWithNoResultFrom: aRBAssignmentNode
+			  addAssignmentInstructionFrom: aRBAssignmentNode
 			  instructionKind: DRStoreLiteralVariable
 			  operands: {
 					  aRBAssignmentNode variable binding asDRValue.
@@ -123,14 +147,11 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 		ifTrue: [
 			| result |
 			result := self
-				          addInstructionWithNoResultFrom: aRBAssignmentNode
+				          addAssignmentInstructionFrom: aRBAssignmentNode
 				          instructionKind: DRStoreTemporaryVariable
 				          operands: {
 						          aRBAssignmentNode variable name asDRValue.
 						          value }.
-
-			result scope:
-				(self lookupScopeDefiningVariable: aRBAssignmentNode variable).
 
 			(self hasTemporary: aRBAssignmentNode variable name) ifTrue: [
 				self topFrame

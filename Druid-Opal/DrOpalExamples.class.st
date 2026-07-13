@@ -2,7 +2,9 @@ Class {
 	#name : 'DrOpalExamples',
 	#superclass : 'Object',
 	#instVars : [
-		'dummyVariable'
+		'dummyVariable',
+		'fillMask',
+		'ncol'
 	],
 	#classVars : [
 		'classVariable'
@@ -323,6 +325,15 @@ DrOpalExamples >> methodReadingClassVariable [
 DrOpalExamples >> methodWithArg: aCollection [
 	<var: #aCollection type: #OrderedCollection>
 	^ aCollection select: [ :element | element even ]
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodWithAssignmentExpression [
+
+	| irow |
+	dummyVariable := #(1 2 3).
+	irow := 0.
+	dummyVariable at: (irow := irow + 1)
 ]
 
 { #category : 'as yet unclassified' }

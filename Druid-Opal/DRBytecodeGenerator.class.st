@@ -403,7 +403,7 @@ DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 	(self isSelf: aDRStoreInstanceVariable operand1) ifTrue: [
 		aDRStoreInstanceVariable operand3 acceptVisitor: self.
 		builder storeInstVar: aDRStoreInstanceVariable operand2 value.
-		aDRStoreInstanceVariable users size = 0 ifTrue: [ 
+		aDRStoreInstanceVariable users isEmpty ifTrue: [ 
 			builder popTop.
 		].
 		^ self 

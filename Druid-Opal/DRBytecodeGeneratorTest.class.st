@@ -212,6 +212,12 @@ DRBytecodeGeneratorTest >> testCreateTempVectorInsideLoop [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodAssignmentExpression [
+
+	self assertCompilationFor: #methodWithAssignmentExpression fromClass: DrOpalExamples
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodEmpty [
 
 	self assertCompilationFor: #exampleEmptyMethod fromClass: OCOpalExamples
