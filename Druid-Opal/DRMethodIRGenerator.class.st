@@ -263,9 +263,10 @@ DRMethodIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 
 	| receiver |
 	(aRBMessageNode receiver isBlock and: [
-		 aRBMessageNode arguments first isBlock ]) ifTrue: [
+			 aRBMessageNode selector numArgs = 0 or: [
+				 aRBMessageNode arguments first isBlock ] ]) ifTrue: [
 		^ super interpretWhileTrueWith: aRBMessageNode ].
-	
+
 	"Resolve it as a normal send"
 	receiver := self visitOperand: aRBMessageNode receiver.
 	^ self resolveMessageSend: aRBMessageNode receiver: receiver

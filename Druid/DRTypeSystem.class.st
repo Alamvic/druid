@@ -11,14 +11,16 @@ DRTypeSystem >> methodsForMessage: aDRMessageSend [
 
 	| receiverTypes |
 	aDRMessageSend originAST isSuperSend ifTrue: [
-		^ { self superMethodTupleForMessage: aDRMessageSend } ].
+		^ { (self superMethodTupleForMessage: aDRMessageSend) } ].
 
 	receiverTypes := self receiverTypes: aDRMessageSend.
 	^ receiverTypes
 		  collect: [ :type |
-		  	type -> (type astForSelector: aDRMessageSend selector) ]
+		  type -> (type astForSelector: aDRMessageSend selector) ]
 		  thenReject: [ :assoc |
-		  	assoc value isNotNil and: [ assoc value isPrimitive ] ]
+			  assoc value
+				  ifNotNil: [ :m | self shouldIgnore: m ]
+				  ifNil: [ false ] ]
 ]
 
 { #category : 'API' }

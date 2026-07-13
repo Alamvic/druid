@@ -158,5 +158,5 @@ DRBlockClosure >> sccpLatticeValueFor: sccp [
 { #category : 'activation' }
 DRBlockClosure >> typeWithAlreadySeen: aCollection [
 
-	self error: 'Not implemented yet'
+	^ BlockClosure asDRType 
 ]
