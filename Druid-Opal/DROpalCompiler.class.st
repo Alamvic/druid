@@ -93,7 +93,8 @@ DROpalCompiler class >> recompileClass: aClass except: ignoredSelectors [
 		
 	n := 0.	
 		
-	aClass selectors do: [ :sel |
+	(aClass selectors copyWithoutAll: ignoredSelectors)
+	do: [ :sel |
 		[ self recompile: sel from: aClass to: newClass ]
 		on: Error do: [ :ex |
 			n := n + 1.
@@ -102,7 +103,14 @@ DROpalCompiler class >> recompileClass: aClass except: ignoredSelectors [
 			ex description traceCr.
 			self copyMethod: sel from: aClass to: newClass
 		]
-	].		
+	].
+
+	ignoredSelectors do: [ :sel | 
+		self copyMethod: sel from: aClass to: newClass ].
+	
+	aClass class selectors do: [ :sel |
+		self copyMethod: sel from: aClass class to: newClass class ].
+		
 	^ newClass
 ]
 
