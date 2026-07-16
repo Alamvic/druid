@@ -194,6 +194,12 @@ DRCogitCanonicaliser >> visitBitOr: aDRBitOr [
 ]
 
 { #category : 'visiting' }
+DRCogitCanonicaliser >> visitBitShift: aDRBitShift [ 
+	
+	self visitLeftShift: aDRBitShift
+]
+
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitBitXor: aDRBitXor [ 
 	
 	self sortOperandsInDoubleInstructionIfPossible: aDRBitXor 
@@ -321,7 +327,8 @@ DRCogitCanonicaliser >> visitJump: aDRJump [
 
 { #category : 'visiting' }
 DRCogitCanonicaliser >> visitLeftRotate: aDRRotate [ 
-	^ self
+	
+	"Nothing"
 ]
 
 { #category : 'visiting' }
