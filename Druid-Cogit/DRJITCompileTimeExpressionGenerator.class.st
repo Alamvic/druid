@@ -86,7 +86,7 @@ DRJITCompileTimeExpressionGenerator >> visitBitAnd: aDRBitAnd [
 { #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitBitShift: aDRBitShift [ 
 	
-	self visitLeftShift: aDRBitShift
+	^ self visitLeftShift: aDRBitShift
 ]
 
 { #category : 'visiting' }
