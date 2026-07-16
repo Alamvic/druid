@@ -30,3 +30,9 @@ DRLoadReceiver >> sccpLatticeValueFor: sccp [
 	"We know that we know nothing about the frame pointer"
 	^ sccp bottom
 ]
+
+{ #category : 'types' }
+DRLoadReceiver >> typeWithAlreadySeen: aCollection [
+
+	^ DRSignedIntegerType bits64
+]

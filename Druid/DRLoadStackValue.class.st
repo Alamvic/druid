@@ -58,3 +58,9 @@ DRLoadStackValue >> stackDepth [
 	stackDependencies ifEmpty: [ ^ 0 ].
 	^ stackDependencies anyOne stackDepth
 ]
+
+{ #category : 'types' }
+DRLoadStackValue >> typeWithAlreadySeen: aCollection [ 
+
+	^ DRSignedIntegerType bits64
+]

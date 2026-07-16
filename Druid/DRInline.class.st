@@ -24,6 +24,12 @@ DRInline class >> enabled: aBoolean [
 	enabled := aBoolean 
 ]
 
+{ #category : 'system startup' }
+DRInline class >> startUp [ 
+
+	enabled := true
+]
+
 { #category : 'accessing' }
 DRInline >> doApply: cfg [
 

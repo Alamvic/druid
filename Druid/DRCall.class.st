@@ -111,3 +111,9 @@ DRCall >> shouldSaveLinkReg [
 
 	^ shouldSaveLinkReg
 ]
+
+{ #category : 'types' }
+DRCall >> typeWithAlreadySeen: aCollection [
+
+	^ DRVoidType new
+]
