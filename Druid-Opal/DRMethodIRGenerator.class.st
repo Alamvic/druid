@@ -101,6 +101,8 @@ DRMethodIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 
+	specialCases at: #bitShift: put: #interpretBitShiftWith:.
+
 	specialCases at: #sendingMessageTo: put: #ignoreMessageWith:.
 
 ]

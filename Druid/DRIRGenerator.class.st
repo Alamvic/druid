@@ -487,7 +487,6 @@ DRIRGenerator >> initializeSpecialCases [
 	specialCases at: #bitXor: put: #interpretBitXorWith:.
 	specialCases at: #anyMask: put: #interpretAnyMaskWith:.
 	specialCases at: #rotateLeft:by: put: #interpretRotateLeftBy:.
-	specialCases at: #bitShift: put: #interpretBitShiftWith:.
 		
 	"special simulation cases"
 	specialCases at: #cCode: put: #interpretCCodeInSmalltalkWith:.
