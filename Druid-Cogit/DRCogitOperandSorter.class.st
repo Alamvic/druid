@@ -66,6 +66,12 @@ DRCogitOperandSorter >> visitBitOr: aDRBitOr [
 ]
 
 { #category : 'visiting' }
+DRCogitOperandSorter >> visitBitShift: aDRBitShift [ 
+
+	self visitLeftShift: aDRBitShift
+]
+
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitBitXor: aDRBitXor [ 
 	
 	^ self visitCommutativeInstruction: aDRBitXor

@@ -6,6 +6,12 @@ Class {
 	#tag : 'IR'
 }
 
+{ #category : 'as yet unclassified' }
+DRStoreInstanceVariable class >> loadInstructionKind [
+
+	^ DRLoadInstanceVariable 
+]
+
 { #category : 'visiting' }
 DRStoreInstanceVariable >> acceptVisitor: aVisitor [
 

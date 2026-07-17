@@ -160,6 +160,24 @@ DRBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 	builder pushConsArray: aDRArrayNode operands size
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitBitAnd: aDRBitAnd [ 
+
+	self sendMessage: #bitAnd: fromInstruction: aDRBitAnd 
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitBitOr: aDRBitOr [ 
+
+		self sendMessage: #bitOr: fromInstruction: aDRBitOr 
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitBitShift: aDRBitShift [ 
+
+	self sendMessage: #bitShift: fromInstruction: aDRBitShift 
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 
@@ -233,6 +251,14 @@ DRBytecodeGenerator >> visitCopy: aDRCopy [
 	aDRCopy operand1 acceptVisitor: self
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitDivision: aDRDivision [ 
+	"TODO: / and // are compiled as this instruction"
+	| selector |
+	selector := 	aDRDivision originAST ifNotNil: [ :ast | ast selector ] ifNil: [ #/ ].
+	self sendMessage: selector fromInstruction: aDRDivision 
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBranchIfCondition [
 
@@ -243,6 +269,12 @@ DRBytecodeGenerator >> visitEqualsThan: aDREqualsThanComparison inBranch: aDRBra
 DRBytecodeGenerator >> visitGetConditionCode: aDRGetConditionCode [ 
 
 	aDRGetConditionCode condition acceptVisitor: self withBranch: aDRGetConditionCode
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitGreaterOrEqualsThan: aDRGreaterOrEqualsThanComparison inBranch: aDRBranch [
+
+	self sendMessage: #'>=' fromInstruction: aDRBranch
 ]
 
 { #category : 'visiting' }
@@ -321,6 +353,12 @@ DRBytecodeGenerator >> visitMessageSend: aDRMessageSend [
 ]
 
 { #category : 'ir-to-target' }
+DRBytecodeGenerator >> visitMod: aDRMod [
+
+	self sendMessage: #\\ fromInstruction: aDRMod
+]
+
+{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitMultiply: aDRMultiply [
 
 	self sendMessage: #* fromInstruction: aDRMultiply
@@ -367,7 +405,7 @@ DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 	(self isSelf: aDRStoreInstanceVariable operand1) ifTrue: [
 		aDRStoreInstanceVariable operand3 acceptVisitor: self.
 		builder storeInstVar: aDRStoreInstanceVariable operand2 value.
-		aDRStoreInstanceVariable users size = 0 ifTrue: [ 
+		aDRStoreInstanceVariable users isEmpty ifTrue: [ 
 			builder popTop.
 		].
 		^ self 

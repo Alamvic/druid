@@ -29,3 +29,9 @@ DRNegate >> sccpOperateOnLattice: operand [
 	
 	^ operand negated
 ]
+
+{ #category : 'types' }
+DRNegate >> typeWithAlreadySeen: aCollection [
+
+	^ DRSignedIntegerType bits64
+]

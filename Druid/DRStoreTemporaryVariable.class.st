@@ -6,6 +6,12 @@ Class {
 	#tag : 'IR'
 }
 
+{ #category : 'as yet unclassified' }
+DRStoreTemporaryVariable class >> loadInstructionKind [
+
+	^ DRLoadTemporaryVariable 
+]
+
 { #category : 'visiting' }
 DRStoreTemporaryVariable >> acceptVisitor: aVisitor [
 
@@ -46,4 +52,10 @@ DRStoreTemporaryVariable >> sccpLatticeValueFor: sccp [
 DRStoreTemporaryVariable >> storeValue [
 
 	^ self operand2
+]
+
+{ #category : 'types' }
+DRStoreTemporaryVariable >> typeWithAlreadySeen: aCollection [
+
+	self error: 'Not implemented yet'
 ]

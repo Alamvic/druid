@@ -90,5 +90,5 @@ DRSSARegister >> rtlOperandQualifier [
 DRSSARegister >> typeWithAlreadySeen: aCollection [
 	"Maybe this should be parametrised"
 
-	^ DRSignedIntegerType size: 8 "Word size"
+	^ DRSignedIntegerType bits64
 ]

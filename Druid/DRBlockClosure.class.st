@@ -154,3 +154,9 @@ DRBlockClosure >> sccpLatticeValueFor: sccp [
 	"This instruction has no value"
 	^ sccp bottom
 ]
+
+{ #category : 'activation' }
+DRBlockClosure >> typeWithAlreadySeen: aCollection [
+
+	^ BlockClosure asDRType 
+]

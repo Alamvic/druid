@@ -797,6 +797,12 @@ DRCogitCodeGenerator >> visitBitOr: aDRCogitBitAnd [
 ]
 
 { #category : 'visiting' }
+DRCogitCodeGenerator >> visitBitShift: aDRBitShift [ 
+
+	self visitLeftShift: aDRBitShift
+]
+
+{ #category : 'visiting' }
 DRCogitCodeGenerator >> visitBitXor: aDRCogitBitXor [ 
 
 	^ self threeOperandCogitRTL: #Xor instruction: aDRCogitBitXor

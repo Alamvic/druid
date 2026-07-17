@@ -6,6 +6,30 @@ Class {
 	#tag : 'Compiler'
 }
 
+{ #category : 'adding' }
+DRMethodIRGenerator >> addAssignmentInstructionFrom: anAssignmentNode instructionKind: aClass operands: operands [
+
+	| store load scope |
+	store := self
+		         addInstructionWithNoResultFrom: anAssignmentNode
+		         instructionKind: aClass
+		         operands: operands.
+
+	self popOperand.
+
+	load := self
+		        addInstructionFrom: anAssignmentNode variable
+		        instructionKind: aClass loadInstructionKind
+		        operands: operands allButLast.
+
+	store isScopedInstruction ifTrue: [
+		scope := self lookupScopeDefiningVariable: anAssignmentNode variable.
+		store scope: scope.
+		load scope: scope ].
+
+	^ load
+]
+
 { #category : 'building' }
 DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
 
@@ -77,6 +101,8 @@ DRMethodIRGenerator >> initializeSpecialCases [
 
 	super initializeSpecialCases.
 
+	specialCases at: #bitShift: put: #interpretBitShiftWith:.
+
 	specialCases at: #sendingMessageTo: put: #ignoreMessageWith:.
 
 ]
@@ -104,7 +130,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
 		^ self
-			  addInstructionWithNoResultFrom: aRBAssignmentNode
+			  addAssignmentInstructionFrom: aRBAssignmentNode
 			  instructionKind: DRStoreInstanceVariable
 			  operands: {
 					  self receiver.
@@ -113,7 +139,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
 	aRBAssignmentNode variable binding isClassVariable ifTrue: [
 		^ self
-			  addInstructionWithNoResultFrom: aRBAssignmentNode
+			  addAssignmentInstructionFrom: aRBAssignmentNode
 			  instructionKind: DRStoreLiteralVariable
 			  operands: {
 					  aRBAssignmentNode variable binding asDRValue.
@@ -123,14 +149,11 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 		ifTrue: [
 			| result |
 			result := self
-				          addInstructionWithNoResultFrom: aRBAssignmentNode
+				          addAssignmentInstructionFrom: aRBAssignmentNode
 				          instructionKind: DRStoreTemporaryVariable
 				          operands: {
 						          aRBAssignmentNode variable name asDRValue.
 						          value }.
-
-			result scope:
-				(self lookupScopeDefiningVariable: aRBAssignmentNode variable).
 
 			(self hasTemporary: aRBAssignmentNode variable name) ifTrue: [
 				self topFrame
@@ -242,9 +265,10 @@ DRMethodIRGenerator >> interpretWhileTrueWith: aRBMessageNode [
 
 	| receiver |
 	(aRBMessageNode receiver isBlock and: [
-		 aRBMessageNode arguments first isBlock ]) ifTrue: [
+			 aRBMessageNode selector numArgs = 0 or: [
+				 aRBMessageNode arguments first isBlock ] ]) ifTrue: [
 		^ super interpretWhileTrueWith: aRBMessageNode ].
-	
+
 	"Resolve it as a normal send"
 	receiver := self visitOperand: aRBMessageNode receiver.
 	^ self resolveMessageSend: aRBMessageNode receiver: receiver
@@ -439,17 +463,7 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
-	| store loadTemp |
-
-	"If the variable is in the current frame, then reuse directly the instruction"
-	(self hasTemporary: aRBVariableNode name) ifTrue: [
-		store := self topFrame
-			         temporaryAt: aRBVariableNode name
-			         withState: executionState ].
-	
-	^ self interpretTemporaryVariable: aRBVariableNode.
-	
-
+	^ self interpretTemporaryVariable: aRBVariableNode
 ]
 
 { #category : 'visiting' }

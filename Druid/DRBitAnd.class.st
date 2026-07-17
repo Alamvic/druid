@@ -44,5 +44,5 @@ DRBitAnd >> sccpOperateOnLattice: operand and: operand2 [
 { #category : 'types' }
 DRBitAnd >> typeWithAlreadySeen: aCollection [
 
-	^ DRUnsignedIntegerType size: 8 "bytes per word"
+	^ DRUnsignedIntegerType bits64
 ]

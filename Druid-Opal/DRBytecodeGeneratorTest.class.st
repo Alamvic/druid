@@ -212,6 +212,12 @@ DRBytecodeGeneratorTest >> testCreateTempVectorInsideLoop [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodAssignmentExpression [
+
+	self assertCompilationFor: #methodWithAssignmentExpression fromClass: DrOpalExamples
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodEmpty [
 
 	self assertCompilationFor: #exampleEmptyMethod fromClass: OCOpalExamples
@@ -579,7 +585,7 @@ DRBytecodeGeneratorTest >> testMethodWritingClassVariable [
 DRBytecodeGeneratorTest >> testOpalExamples [
 
 	| ignoredProtocols |
-	ignoredProtocols := #( #'examples - pragmas' #'examples - blocks-optimized' ).
+	ignoredProtocols := #( #'examples - pragmas' ).
 
 	OCOpalExamples methods
 		reject: [ :opalMethod |

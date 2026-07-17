@@ -15,5 +15,5 @@ DRUnsignedRightShift >> acceptVisitor: aVisitor [
 { #category : 'types' }
 DRUnsignedRightShift >> typeWithAlreadySeen: aCollection [
 
-	^ DRUnsignedIntegerType size: 8 "bytes per word"
+	^ DRUnsignedIntegerType bits64
 ]

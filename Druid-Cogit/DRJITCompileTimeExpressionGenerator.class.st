@@ -84,6 +84,12 @@ DRJITCompileTimeExpressionGenerator >> visitBitAnd: aDRBitAnd [
 ]
 
 { #category : 'visiting' }
+DRJITCompileTimeExpressionGenerator >> visitBitShift: aDRBitShift [ 
+	
+	^ self visitLeftShift: aDRBitShift
+]
+
+{ #category : 'visiting' }
 DRJITCompileTimeExpressionGenerator >> visitBranchIfCondition: aDRBranchIfCondition [
 
 	^ aDRBranchIfCondition condition acceptVisitor: self withBranch: aDRBranchIfCondition

@@ -36,3 +36,9 @@ DRClosureCreation >> sccpLatticeValueFor: sccp [
 	"This instruction has no value"
 	^ sccp bottom
 ]
+
+{ #category : 'types' }
+DRClosureCreation >> typeWithAlreadySeen: aCollection [ 
+
+	^ DRVoidType new
+]

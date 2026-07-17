@@ -4,15 +4,38 @@ Class {
 	#instVars : [
 		'inlineGenerator'
 	],
+	#classInstVars : [
+		'enabled'
+	],
 	#category : 'Druid-Optimizations',
 	#package : 'Druid',
 	#tag : 'Optimizations'
 }
 
 { #category : 'accessing' }
+DRInline class >> enabled [
+
+	^ enabled
+]
+
+{ #category : 'accessing' }
+DRInline class >> enabled: aBoolean [ 
+
+	enabled := aBoolean 
+]
+
+{ #category : 'system startup' }
+DRInline class >> initialize [ 
+
+	enabled := true
+]
+
+{ #category : 'accessing' }
 DRInline >> doApply: cfg [
 
-	cfg messageSends copy do: [ :messageSend | 
+	self class enabled ifFalse: [ ^ self ].
+
+	(cfg messageSends takeFirst: 5) do: [ :messageSend | 
 		self inline: messageSend ]
 ]
 

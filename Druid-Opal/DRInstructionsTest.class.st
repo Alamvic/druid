@@ -1,8 +1,8 @@
 Class {
 	#name : 'DRInstructionsTest',
 	#superclass : 'DRIRTest',
-	#category : 'Druid-Tests',
-	#package : 'Druid-Tests'
+	#category : 'Druid-Opal',
+	#package : 'Druid-Opal'
 }
 
 { #category : 'test' }
@@ -62,8 +62,8 @@ DRInstructionsTest >> testReplaceMessageSendUpdateInnerDependencies [
 	| cfg instruction message newInstruction |
 	cfg := self generateDruidIRFor: #simpleMethodWithBlockReadingOuterVariable.
 	cfg applyOptimisation: DRCleanControlFlow new.
-	instruction := cfg firstBasicBlock instructions third.
-	message := cfg firstBasicBlock instructions fourth.
+	instruction := cfg firstBasicBlock instructions fourth.
+	message := cfg firstBasicBlock instructions fifth.
 	 
 	self assert: (instruction users includes: message).
 

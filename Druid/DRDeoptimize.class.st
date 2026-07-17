@@ -30,3 +30,9 @@ DRDeoptimize >> sccpEvaluateFor: sccp [
 
 	"Nothing to do"
 ]
+
+{ #category : 'types' }
+DRDeoptimize >> typeWithAlreadySeen: aCollection [ 
+
+	^ DRVoidType new
+]

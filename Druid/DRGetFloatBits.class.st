@@ -35,3 +35,9 @@ DRGetFloatBits >> simpleConstantFold [
 	folded isNumber ifTrue: [ ^ folded asIEEE64BitWord ].
 	^ folded
 ]
+
+{ #category : 'types' }
+DRGetFloatBits >> typeWithAlreadySeen: aCollection [ 
+
+	^ DRUnsignedIntegerType bits64
+]
