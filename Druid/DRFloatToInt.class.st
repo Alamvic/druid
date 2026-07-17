@@ -33,3 +33,9 @@ DRFloatToInt >> simpleConstantFold [
 	
 	^ self operand1 simpleConstantFold asInteger
 ]
+
+{ #category : 'types' }
+DRFloatToInt >> typeWithAlreadySeen: aCollection [
+
+	^ DRSignedIntegerType bits64
+]

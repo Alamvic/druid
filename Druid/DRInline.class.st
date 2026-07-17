@@ -25,7 +25,7 @@ DRInline class >> enabled: aBoolean [
 ]
 
 { #category : 'system startup' }
-DRInline class >> startUp [ 
+DRInline class >> initialize [ 
 
 	enabled := true
 ]
