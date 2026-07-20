@@ -143,30 +143,10 @@ DRBytecodeGeneratorTest >> generateMethodForSelector: aSelector [
 { #category : 'utilities' }
 DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector [
 
-	^ self
+	^ DROpalCompiler 
 		  generateMethodFromCFG: aDRControlFlowGraph
 		  withSelector: selector
 		  numArgs: compilerCompiler irGenerator numberOfArguments
-]
-
-{ #category : 'utilities' }
-DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector numArgs: numArgs [
-	
-	aDRControlFlowGraph applyOptimisation: DRFrameInfoCleaner new.
-	aDRControlFlowGraph applyOptimisation: DRBranchCollapse new.
-	
-	aDRControlFlowGraph applyOptimisation: DRPhiSimplication new.
-	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
-
-	DRUnconditionalBackJumpScheluder new applyTo: aDRControlFlowGraph.
-	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
-	aDRControlFlowGraph applyOptimisation: DRCleanScopes new.
-	aDRControlFlowGraph applyOptimisation: DRDeadCodeElimination new.
-
-	bytecodeGenerator numArgs: numArgs.
-	bytecodeGenerator methodName: selector.
-	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.
-	^ bytecodeGenerator targetAST
 ]
 
 { #category : 'running' }
@@ -199,7 +179,7 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 		cfg initialBasicBlock jumpTo: b.
 		b return: (b add: 3 to: 4) ].
 	cfg scope: DRScope new.
-	method := self generateMethodFromCFG: cfg withSelector: #m numArgs: 0.
+	method := DROpalCompiler generateMethodFromCFG: cfg withSelector: #m numArgs: 0.
 	result := method valueWithReceiver: nil arguments: {  }.
 
 	self assert: result equals: 7
