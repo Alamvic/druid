@@ -239,6 +239,12 @@ DRBytecodeGeneratorTest >> testMethodInlineFailsWithUnresolvedNonLocalReturns [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodInlineLoop [
+
+	self assertCompilationFor: #methodWithoutInnerDependencies fromClass: DrOpalExamples 
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectAccessInstVar [
 
 	self assertCompilationFor: #basicInlineMethodAccesInstVar fromClass: DrOpalExamples checkByteCode: 'send: #instVarAt:'

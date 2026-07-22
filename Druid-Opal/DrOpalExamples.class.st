@@ -416,6 +416,30 @@ DrOpalExamples >> methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotation: a
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> methodWithWhileAndIf [
+
+    | x |
+	[ x = 0]
+        whileFalse: [
+				x = nil
+                ifTrue: [x:=1]
+                ifFalse: [x:=0]
+         ]
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodWithoutInnerDependencies [
+
+	| x |
+	x := true.
+	self methodWithWhileAndIf
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> methodWritingClassVariable [
 	
 	classVariable := 1.

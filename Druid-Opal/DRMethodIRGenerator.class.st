@@ -27,7 +27,7 @@ DRMethodIRGenerator >> addAssignmentInstructionFrom: anAssignmentNode instructio
 		store scope: scope.
 		load scope: scope ].
 
-	^ load
+	^ store
 ]
 
 { #category : 'building' }
