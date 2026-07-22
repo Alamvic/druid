@@ -49,6 +49,8 @@ DRLocalVariableInstructionScheluder >> shouldIgnore: aDRInstruction [
 DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 
 	| variableName loadInst cfg|
+	aDRPhiFunction hasUsers ifFalse: [ ^ self ].
+	
 	variableName := aDRPhiFunction result name asLowercase asDRValue.
 	
 	"add the new created temporary variable to the scope"
@@ -64,11 +66,14 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 	(aDRPhiFunction operandsWithoutMe allSatisfy: [ :op |
 		 op result isNoResult  ]) ifTrue: [ "If they are already temporaries then it is ok"
 		^ self ].
+	
+	aDRPhiFunction operands do: [ :op | op isNullValue ifTrue: [ "1halt." ^self ] ].
 
 	aDRPhiFunction operandsWithoutMe 
 		select: [ :op | op isInstruction ]
 		thenDo: [ :op |
 		| storeInst |
+		"op isPhiFunction ifTrue: [1halt. ^ self ]."
 		storeInst := DRStoreTemporaryVariable
 			             operands: {
 					             variableName.

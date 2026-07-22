@@ -1944,8 +1944,7 @@ DRIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
 
 	| arguments |
 	arguments := aRBMessageNode arguments collect: [ :e | 
-		             e acceptVisitor: self.
-		             self popOperand ].
+		             self visitOperand: e ].
 
 	^ self
 		resolveMessageSend: aRBMessageNode

@@ -116,6 +116,15 @@ DrOpalExamples >> empty [
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> emptyIf [
+	| irow |
+	irow = nil
+		ifTrue: [ ]
+		ifFalse: [ ]
+
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> methodBlockConstant [
 	"a constant block closure"
 	

@@ -14,7 +14,7 @@ Class {
 { #category : 'comparing' }
 DRBlockClosure >> = otherCode [
 
-	self class = otherCode class ifTrue: [ ^ self blockNode = otherCode blockNode ].
+	self class = otherCode class ifTrue: [ ^ self blockNode == otherCode blockNode ].
 	^ false
 ]
 

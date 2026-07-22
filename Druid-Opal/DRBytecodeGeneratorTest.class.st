@@ -204,6 +204,12 @@ DRBytecodeGeneratorTest >> testMethodEmpty [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodEmptyIf [
+
+	self assertCompilationFor: #emptyIf fromClass: DrOpalExamples
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodInline [
 
 	self assertCompilationFor: #basicInlineMethod fromClass: DrOpalExamples
