@@ -38,6 +38,12 @@ DRExecutionStack >> baseFrame [
 	^ stateStack last
 ]
 
+{ #category : 'as yet unclassified' }
+DRExecutionStack >> clearTemporaryInstructions [
+
+	stateStack do: [ :stack | stack temporaries removeAll ]
+]
+
 { #category : 'enumerating' }
 DRExecutionStack >> detectFrame: aFullBlockClosure [ 
 	

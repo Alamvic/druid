@@ -13,6 +13,36 @@ DRLocalVariableInstructionScheluderTest >> newCompiler [
 ]
 
 { #category : 'tests' }
+DRLocalVariableInstructionScheluderTest >> testOnLoops [
+
+	| cfg variableName phi b5 |
+	
+	cfg := self setUpCFGWithLoop.
+	b5 := cfg b1 predecessors first.
+	phi := cfg phiFunctions unique.
+	cfg b1 endInstruction replaceOperandAtIndex: 1 by: phi.
+
+	variableName := 'ssa_', phi result id asString.	
+	DRLocalVariableInstructionScheluder new applyTo: cfg.
+
+	"Replace the Phi by a Load for the condition"
+	self assert: cfg b1 instructions first isLoadTemporaryVariable. 
+	self assert: cfg b1 instructions first operand1 value equals: variableName.
+	
+	"Store the initial value"
+	self assert: b5 instructions second isStoreTemporaryVariable.
+	self assert: b5 instructions second operand1 value equals: variableName.
+	self assert: b5 instructions second operand2 equals: phi operand1.
+	
+	"Store inside the loop"
+	self assert: cfg b2 endInstruction isBackJump.
+	self assert: cfg b2 instructions second isStoreTemporaryVariable.
+	self assert: cfg b2 instructions second operand1 value equals: variableName.
+	self assert: cfg b2 instructions second operand2 equals: phi operand2.
+	
+]
+
+{ #category : 'tests' }
 DRLocalVariableInstructionScheluderTest >> testOneUseDoNothing [
 
 	| cfg t0 t1|
@@ -33,6 +63,7 @@ DRLocalVariableInstructionScheluderTest >> testPhiBecomeLoadTemp [
 
 	| cfg variableName |
 	cfg := self setUpCFGWithConditionalWithPhi.
+	cfg b4 return: cfg phi.
 	
 	DRLocalVariableInstructionScheluder new applyTo: cfg.
 

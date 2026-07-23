@@ -99,6 +99,15 @@ DrOpalExamples >> blockWithValue: arg [
 	^ [ arg ]
 ]
 
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> complexInlineMethod [
+
+	| x |
+	x := 0.
+	x = 0 ifTrue: [ ].
+	self whileWithMessageWithBlock: 0
+]
+
 { #category : 'displaying' }
 DrOpalExamples >> displayString [ 
 
@@ -113,6 +122,15 @@ DrOpalExamples >> doubleOf: n [
 
 { #category : 'as yet unclassified' }
 DrOpalExamples >> empty [
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> emptyIf [
+	| irow |
+	irow = nil
+		ifTrue: [ ]
+		ifFalse: [ ]
+
 ]
 
 { #category : 'as yet unclassified' }
@@ -407,6 +425,30 @@ DrOpalExamples >> methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotation: a
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> methodWithWhileAndIf [
+
+    | x |
+	[ x = 0]
+        whileFalse: [
+				x = nil
+                ifTrue: [x:=1]
+                ifFalse: [x:=0]
+         ]
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodWithoutInnerDependencies [
+
+	| x |
+	x := true.
+	self methodWithWhileAndIf
+	
+	
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> methodWritingClassVariable [
 	
 	classVariable := 1.
@@ -662,4 +704,13 @@ DrOpalExamples >> simpleMethodWithTempAssignment [
 	^ x + y
 	
 	
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> whileWithMessageWithBlock: arg [
+
+   [arg = nil]
+    whileTrue: [	
+		self basicMethodWithBlock: [ dummyVariable := 1 ]
+	]
 ]
