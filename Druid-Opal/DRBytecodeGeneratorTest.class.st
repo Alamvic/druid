@@ -186,6 +186,12 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testComplexMethodInline [
+
+	self assertCompilationFor: #complexInlineMethod fromClass: DrOpalExamples
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testCreateTempVectorInsideLoop [
 
 	self assertCompilationFor: #exampleToDoInsideTemp fromClass: OCOpalExamples

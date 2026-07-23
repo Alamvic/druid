@@ -1706,8 +1706,14 @@ DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver ar
 	instruction inlineGenerator: inlineGenerator.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
 
-	"Set the send as user to the dependecies from inner blocks"
-	instruction innerDependencies do: [ :i | i addUser: instruction ].
+	"Sends with blocks must keep the context (temporaries in the stack)
+	  That is having all outer temporaries in the dependency-user chain.
+	 If not, we don't need them, and the state is clear from previous context
+	  This simplify the inlinings, the reason why the send has a inlineGenerator
+	"
+	instruction hasBlockOperand 
+		ifTrue: [ instruction innerDependencies do: [ :i | i addUser: instruction ] ] 
+		ifFalse: [ inlineGenerator clearTemporaryInstructions ].
 	
 	^ self addInstruction: instruction from: aRBMessageNode
 ]
