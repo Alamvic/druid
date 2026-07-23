@@ -67,7 +67,7 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 		 op result isNoResult  ]) ifTrue: [ "If they are already temporaries then it is ok"
 		^ self ].
 	
-	aDRPhiFunction operands do: [ :op | op isNullValue ifTrue: [ "1halt." ^self ] ].
+"	aDRPhiFunction operands do: [ :op | op isNullValue ifTrue: [ ""1halt."" ^self ] ]."
 
 	aDRPhiFunction operandsWithoutMe 
 		select: [ :op | op isInstruction ]
