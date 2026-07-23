@@ -104,6 +104,12 @@ DRIRGenerator >> addInstructionWithNoResultFrom: aNode instructionKind: instruct
 	^ self addInstruction: instruction from: aNode
 ]
 
+{ #category : 'accessing' }
+DRIRGenerator >> allTemporaryInstructions [
+
+	^ executionState allTemporaryInstructions
+]
+
 { #category : 'factory' }
 DRIRGenerator >> allocateTemporaryRegister [
 	
@@ -226,6 +232,12 @@ DRIRGenerator >> buildIfTrue: aCondition then: aBuildingBlock [
 						                  executionStateBeforeBranch.
 						                  executionState copy }.
 			trueBranchBasicBlockOut jumpTo: self currentBasicBlock ]
+]
+
+{ #category : 'as yet unclassified' }
+DRIRGenerator >> clearTemporaryInstructions [
+
+	executionState clearTemporaryInstructions
 ]
 
 { #category : 'accessing' }

@@ -11,18 +11,6 @@ Class {
 }
 
 { #category : 'accessing' }
-DRMethodIRGeneratorInline >> allTemporaryInstructions [
-
-	^ executionState allTemporaryInstructions
-]
-
-{ #category : 'as yet unclassified' }
-DRMethodIRGeneratorInline >> clearTemporaryInstructions [
-
-	executionState clearTemporaryInstructions
-]
-
-{ #category : 'accessing' }
 DRMethodIRGeneratorInline >> currentBasicBlock: aDRBasicBlock [
 
 	currentBasicBlock := aDRBasicBlock
