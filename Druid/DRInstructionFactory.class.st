@@ -2,7 +2,8 @@ Class {
 	#name : 'DRInstructionFactory',
 	#superclass : 'Object',
 	#instVars : [
-		'nextAvailableRegister'
+		'nextAvailableRegister',
+		'nextAvailableScopeId'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -15,6 +16,14 @@ DRInstructionFactory >> add: operand1 to: operand2 [
 	^ DRAdd
 		  operands: { operand1 asDRValue. operand2 asDRValue }
 		  result: self allocateTemporaryRegister
+]
+
+{ #category : 'as yet unclassified' }
+DRInstructionFactory >> allocateScopeId [
+	| scopeId |
+	scopeId := nextAvailableScopeId.
+	nextAvailableScopeId := nextAvailableScopeId + 1.
+	^ scopeId
 ]
 
 { #category : 'factory' }
@@ -125,7 +134,8 @@ DRInstructionFactory >> greater: operand1 than: operand2 [
 DRInstructionFactory >> initialize [
 
 	super initialize.
-	nextAvailableRegister := 0
+	nextAvailableRegister := 0.
+	nextAvailableScopeId := 0
 ]
 
 { #category : 'initialization' }

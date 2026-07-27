@@ -44,13 +44,14 @@ DRMethodIRGenerator >> blockClosureGenerator [
 
 	| blockGenerator |
 	blockGenerator := DRBlockIRGenerator new.
+	blockGenerator instructionFactory: self instructionFactory.
 	
-	"Review this decision..."
+	"For debugging?"
 	blockGenerator variableFrame: self topFrame copy.
 	
 	blockGenerator ir scope
 		outerScope: self scope;
-		id: self scope id + 1.
+		id: self instructionFactory allocateScopeId.
 		
 	^ blockGenerator
 ]
@@ -65,8 +66,7 @@ DRMethodIRGenerator >> finishCodeInterpretation: lastFrame [
 DRMethodIRGenerator >> initialize [
 
 	super initialize.
-	controlFlowGraph scope: DRScope new.
-
+	controlFlowGraph scope: self newScope.
 	typeSystem := DRPragmaBasedTypeSystem new
 ]
 
@@ -299,12 +299,28 @@ DRMethodIRGenerator >> newCFG [
 	^ DRMethodControlFlowGraph new
 ]
 
+{ #category : 'instance creation' }
+DRMethodIRGenerator >> newScope [
+
+	^ 	DRScope new
+		         outerScope: self outerScope;
+		         id: self instructionFactory allocateScopeId;
+		         yourself.
+
+]
+
 { #category : 'accessing' }
 DRMethodIRGenerator >> numberOfArguments: aValue [ 
 	
 	super numberOfArguments: aValue.
 "	0 to: numberOfArguments - 1 do: [ :i |
 		self push: (self currentBasicBlock loadArgument: i) ]"
+]
+
+{ #category : 'accessing' }
+DRMethodIRGenerator >> outerScope [
+
+	^ nil
 ]
 
 { #category : 'frame-access' }

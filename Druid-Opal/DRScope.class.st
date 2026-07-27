@@ -195,7 +195,9 @@ DRScope >> tempVarNames [
 DRScope >> tempVectorName [
 	"the name of the tempVector is not a valid name of a temp variable
 	 This way we avoid name clashes "
-	^'0vector', id asString
+	| parent |
+	parent := outerScope ifNotNil: [ outerScope id asString ] ifNil: [ '0' ].
+	^parent, 'vector', id asString
 ]
 
 { #category : 'query' }
