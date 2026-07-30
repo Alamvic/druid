@@ -121,6 +121,15 @@ DrOpalExamples >> doubleOf: n [
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> doubleWhileWithBlock: aBlock [
+    | x y |
+    [
+    	[ x > y ifFalse: [aBlock value: x].
+    x > y] whileTrue: [x := x + 1].
+    x < y] whileTrue: [y := y + 1]
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> empty [
 ]
 

@@ -407,6 +407,12 @@ DRMethodIRGenerator >> setupCFGScope: aCodeNode [
 		node: aCodeNode
 ]
 
+{ #category : 'as yet unclassified' }
+DRMethodIRGenerator >> temporariesListfrom: aNode [ 
+	
+	^ aNode temporaryNames.
+]
+
 { #category : 'accessing' }
 DRMethodIRGenerator >> typeSystem: aDRTypeSystem [
 
