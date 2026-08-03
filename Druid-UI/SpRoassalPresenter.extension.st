@@ -1,24 +1,24 @@
 Extension { #name : 'SpRoassalPresenter' }
 
-{ #category : '*Druid' }
+{ #category : '*Druid-UI' }
 SpRoassalPresenter >> defaultOutputPort [
 
 	^ self outputSelectionPort
 ]
 
-{ #category : '*Druid' }
+{ #category : '*Druid-UI' }
 SpRoassalPresenter >> outputActivationPort [
 
 	^ SpActivationPort newPresenter: self
 ]
 
-{ #category : '*Druid' }
+{ #category : '*Druid-UI' }
 SpRoassalPresenter >> outputSelectionPort [
 
 	^ SpActivationPort newPresenter: self
 ]
 
-{ #category : '*Druid' }
+{ #category : '*Druid-UI' }
 SpRoassalPresenter >> whenActivatedDo: aBlock [
 
 	| context |

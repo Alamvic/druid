@@ -1,6 +1,6 @@
 Extension { #name : 'OCValueNode' }
 
-{ #category : '*Druid' }
+{ #category : '*Druid-UI' }
 OCValueNode >> inspectionSourceCode: builder [
 	<inspectorPresentationOrder: 30 title: 'Source code'>
 
