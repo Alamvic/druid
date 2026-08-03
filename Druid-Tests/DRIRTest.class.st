@@ -6,8 +6,7 @@ Class {
 		'instructionFactory'
 	],
 	#category : 'Druid-Tests',
-	#package : 'Druid',
-	#tag : 'Tests'
+	#package : 'Druid-Tests'
 }
 
 { #category : 'edges' }
