@@ -1,6 +1,6 @@
 Extension { #name : 'OCAbstractMethodScope' }
 
-{ #category : '*Druid' }
+{ #category : '*Druid-Opal' }
 OCAbstractMethodScope >> hasTempDefinitionFor: tempName [ 
 
 	^ self tempVarNames includes: tempName 

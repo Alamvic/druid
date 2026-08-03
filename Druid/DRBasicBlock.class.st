@@ -601,13 +601,6 @@ DRBasicBlock >> initialize [
 	endInstruction basicBlock: self.
 ]
 
-{ #category : 'initialization' }
-DRBasicBlock >> initializeScope: aDRScope [
-
-	^ self addInstruction:
-		  (self instructionFactory initializeScope: aDRScope)
-]
-
 { #category : 'splitting' }
 DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicatedInstructions withFrontier: frontier withUsers: users [
 

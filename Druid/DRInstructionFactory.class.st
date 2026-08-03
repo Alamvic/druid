@@ -128,12 +128,6 @@ DRInstructionFactory >> initialize [
 	nextAvailableRegister := 0
 ]
 
-{ #category : 'initialization' }
-DRInstructionFactory >> initializeScope: aDRScope [
-
-	^ DRInitializeScope scope: aDRScope
-]
-
 { #category : 'factory' }
 DRInstructionFactory >> intToFloat: operand1 [
 

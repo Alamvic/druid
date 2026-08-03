@@ -1,32 +1,33 @@
 Class {
-	#name : #DROptimisationExperiment,
-	#superclass : #Object,
+	#name : 'DROptimisationExperiment',
+	#superclass : 'Object',
 	#instVars : [
 		'movie',
 		'timestamp'
 	],
-	#category : #'Druid-UI'
+	#category : 'Druid-UI',
+	#package : 'Druid-UI'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DROptimisationExperiment >> movie [
 
 	^ movie
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DROptimisationExperiment >> movie: anObject [
 
 	movie := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DROptimisationExperiment >> timestamp [
 
 	^ timestamp
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DROptimisationExperiment >> timestamp: anObject [
 
 	timestamp := anObject

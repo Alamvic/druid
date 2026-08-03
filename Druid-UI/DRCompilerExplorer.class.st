@@ -1,6 +1,6 @@
 Class {
-	#name : #DRCompilerExplorer,
-	#superclass : #Object,
+	#name : 'DRCompilerExplorer',
+	#superclass : 'Object',
 	#instVars : [
 		'interpreter',
 		'interpreterClass',
@@ -15,16 +15,17 @@ Class {
 	#classInstVars : [
 		'experiments'
 	],
-	#category : #'Druid-UI'
+	#category : 'Druid-UI',
+	#package : 'Druid-UI'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer class >> experiments [
 
 	^ experiments
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRCompilerExplorer class >> on: aSelector [
 
 	^ self new
@@ -32,7 +33,7 @@ DRCompilerExplorer class >> on: aSelector [
 		yourself
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRCompilerExplorer class >> onSelector: aSelector inClass: aClass [
 
 	^ self new
@@ -41,13 +42,13 @@ DRCompilerExplorer class >> onSelector: aSelector inClass: aClass [
 		yourself
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : 'as yet unclassified' }
 DRCompilerExplorer class >> saveNewExperiment: experiment [
 
 	experiments add: experiment
 ]
 
-{ #category : #optimising }
+{ #category : 'optimising' }
 DRCompilerExplorer >> apply: opt [
 
 	isRecording ifTrue: [ previousCfgs add: lastOpt -> self cfg veryDeepCopy ].
@@ -56,13 +57,13 @@ DRCompilerExplorer >> apply: opt [
 	shouldGeneratePaths ifTrue: [ self cfg generatePaths ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> blocks [
 	
 	^ self cfg blocks
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> cfg [
 
 	cfg ifNotNil: [ ^ cfg ].
@@ -72,19 +73,19 @@ DRCompilerExplorer >> cfg [
 		generateDruidIR
 ]
 
-{ #category : #optimising }
+{ #category : 'optimising' }
 DRCompilerExplorer >> goBack [
 
 	cfg := previousCfgs removeLast value
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> highlightePathAt: index [
 
 	path := cfg pathAt: index
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRCompilerExplorer >> initialize [
 
 	super initialize.
@@ -94,14 +95,14 @@ DRCompilerExplorer >> initialize [
 	path := OrderedCollection new.
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRCompilerExplorer >> inspectionCFG: aBuilder [
 	<inspectorPresentationOrder: 0 title: 'CFG'> 
 	
 	^ DRCompilerExplorerInspection on: self
 ]
 
-{ #category : #inspecting }
+{ #category : 'inspecting' }
 DRCompilerExplorer >> inspectionSource [
 	<inspectorPresentationOrder: 30 title: 'Source'>
 	
@@ -111,7 +112,7 @@ DRCompilerExplorer >> inspectionSource [
 		yourself
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRCompilerExplorer >> interpreter [
 
 	| theMemory |
@@ -132,49 +133,49 @@ DRCompilerExplorer >> interpreter [
 		                 basicInitialize
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> interpreterClass [
 
 	^ interpreterClass ifNil: [ DruidTestInterpreter ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> interpreterClass: anObject [
 
 	interpreterClass := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> isRecording [
 
 	^ isRecording
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> isRecording: anObject [
 
 	isRecording := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> method [
 
 	^ self interpreterClass lookupSelector: selector
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> methodClass [
 
 	^ self interpreter class
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> methodSource [
 
 	^ self method sourceCode
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> optimizations [
 
 	^ { 
@@ -193,25 +194,25 @@ DRCompilerExplorer >> optimizations [
 		  DRLoopInvariantCodeMotion }
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> path [
 
 	^ path
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> path: anObject [
 
 	path := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> previousCfgs [
 
 	^ previousCfgs
 ]
 
-{ #category : #optimising }
+{ #category : 'optimising' }
 DRCompilerExplorer >> saveExperiment [
 
 	self class saveNewExperiment: (DROptimisationExperiment new
@@ -220,25 +221,25 @@ DRCompilerExplorer >> saveExperiment [
 			 yourself)
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> selector [
 
 	^ selector
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> selector: aSelector [
 
 	selector := aSelector
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> shouldGeneratePaths [
 
 	^ shouldGeneratePaths
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorer >> shouldGeneratePaths: anObject [
 
 	shouldGeneratePaths := anObject
