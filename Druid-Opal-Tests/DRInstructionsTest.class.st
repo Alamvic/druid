@@ -1,8 +1,8 @@
 Class {
 	#name : 'DRInstructionsTest',
 	#superclass : 'DRIRTest',
-	#category : 'Druid-Opal',
-	#package : 'Druid-Opal'
+	#category : 'Druid-Opal-Tests',
+	#package : 'Druid-Opal-Tests'
 }
 
 { #category : 'test' }

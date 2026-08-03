@@ -2,8 +2,7 @@ Class {
 	#name : 'DRScopeTest',
 	#superclass : 'DRIRTest',
 	#category : 'Druid-Opal-Tests',
-	#package : 'Druid-Opal',
-	#tag : 'Tests'
+	#package : 'Druid-Opal-Tests'
 }
 
 { #category : 'test' }

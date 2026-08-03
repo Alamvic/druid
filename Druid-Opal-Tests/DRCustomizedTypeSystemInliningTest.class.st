@@ -2,8 +2,7 @@ Class {
 	#name : 'DRCustomizedTypeSystemInliningTest',
 	#superclass : 'DRBytecodeGeneratorTest',
 	#category : 'Druid-Opal-Tests',
-	#package : 'Druid-Opal',
-	#tag : 'Tests'
+	#package : 'Druid-Opal-Tests'
 }
 
 { #category : 'running' }

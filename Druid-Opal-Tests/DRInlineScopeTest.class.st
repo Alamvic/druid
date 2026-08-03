@@ -2,8 +2,7 @@ Class {
 	#name : 'DRInlineScopeTest',
 	#superclass : 'DRMethodOptimizationTest',
 	#category : 'Druid-Opal-Tests',
-	#package : 'Druid-Opal',
-	#tag : 'Tests'
+	#package : 'Druid-Opal-Tests'
 }
 
 { #category : 'transforming' }

@@ -2,8 +2,7 @@ Class {
 	#name : 'DRLocalVariableInstructionScheluderTest',
 	#superclass : 'DRMethodOptimizationTest',
 	#category : 'Druid-Opal-Tests',
-	#package : 'Druid-Opal',
-	#tag : 'Tests'
+	#package : 'Druid-Opal-Tests'
 }
 
 { #category : 'running' }
