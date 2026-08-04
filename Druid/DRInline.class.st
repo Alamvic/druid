@@ -35,7 +35,7 @@ DRInline >> doApply: cfg [
 
 	self class enabled ifFalse: [ ^ self ].
 
-	(cfg messageSends takeFirst: 5) do: [ :messageSend | 
+	(cfg messageSends takeFirst: 3) do: [ :messageSend | 
 		self inline: messageSend ]
 ]
 

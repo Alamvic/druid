@@ -23,3 +23,9 @@ DRArray >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]
+
+{ #category : 'types' }
+DRArray >> typeWithAlreadySeen: aCollection [ 
+
+	^ Array asDRType 
+]

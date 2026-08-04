@@ -31,6 +31,12 @@ DRExecutionState >> baseFrame [
 	^ executionStack baseFrame
 ]
 
+{ #category : 'as yet unclassified' }
+DRExecutionState >> clearTemporaryInstructions [
+
+	executionStack clearTemporaryInstructions
+]
+
 { #category : 'accessing' }
 DRExecutionState >> executionStack [
 

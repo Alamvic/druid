@@ -29,5 +29,5 @@ DRSignedIntegerType >> isUnsigned [
 { #category : 'accessing' }
 DRSignedIntegerType >> systemClass [
 	
-	^ Integer
+	^ SmallInteger
 ]
