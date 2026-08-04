@@ -410,7 +410,7 @@ DRMethodIRGenerator >> setupCFGScope: aCodeNode [
 { #category : 'as yet unclassified' }
 DRMethodIRGenerator >> temporariesListfrom: aNode [ 
 	
-	^ aNode temporaryNames.
+	^ aNode temporaryNames
 ]
 
 { #category : 'accessing' }
