@@ -42,6 +42,16 @@ DRScope >> addTempVariables: variables [
 	tempVars addAll: variables
 ]
 
+{ #category : 'inspecting' }
+DRScope >> addToScopeList: alreadyComputed [
+
+	(alreadyComputed includes: self) ifTrue: [ ^ alreadyComputed ].
+
+	alreadyComputed add: self.
+	self inlinedScopes do: [ :e |
+		e addToScopeList: alreadyComputed ]
+]
+
 { #category : 'query' }
 DRScope >> allTempsWithOuterTemps [
 
@@ -131,6 +141,54 @@ DRScope >> inlinedScopes [
 	^ inlinedScopes
 ]
 
+{ #category : 'inspecting' }
+DRScope >> inspectionInlines: aBuilder [
+	<inspectorPresentationOrder: 10 title: 'Inlining Graph'>
+	
+	| view blockViews eb |
+	view := RSCanvas new.
+	blockViews := self withAllInlinedScopes asSet collect: [ :aScope | | g label |
+		g := RSGroup new.
+		(label := (RSLabel new text: aScope node selector asString)
+			borderColor: Color black;
+			yourself).
+		g add: (RSBox new
+			color: Color white;
+			border: (RSBorder new color: Color purple; width: 2);
+			extent: label extent + 10;
+			yourself).
+		g add: label.
+		g asShape
+			@ RSDraggable;
+			model: aScope;
+			yourself ] as: Array.
+	view addAll: blockViews.
+	
+	eb := RSEdgeBuilder arrowedLine.
+	eb canvas: view.
+	eb withBorderAttachPoint.
+	eb 	shapes: blockViews.
+	eb connectToAll: #inlinedScopes.
+	
+	"All the characters are displayed using a grid layout"
+	RSDominanceTreeLayout new
+		horizontalGap: 50;
+		shouldValidateCycles;
+		applyOn: blockViews.
+	view @ RSCanvasController.
+	
+	^ SpRoassal3InspectorPresenter new
+		canvas: view;
+		yourself
+]
+
+{ #category : 'inspecting' }
+DRScope >> inspectionSource: aBuilder [
+	<inspectorPresentationOrder: 0 title: 'Source'>
+	
+	^ self node inspectionSource: aBuilder
+]
+
 { #category : 'testing' }
 DRScope >> isEmpty [
 
@@ -215,4 +273,13 @@ DRScope >> wasMethodInlined [
 	"If we arrive to a method scope and it's not the last one, it was inlined"
 	self assert: outerScope node isMessageSend.
 	^ true
+]
+
+{ #category : 'inspecting' }
+DRScope >> withAllInlinedScopes [
+	
+	| scopes |
+	scopes := OrderedCollection new.
+	self addToScopeList: scopes.
+	^ scopes
 ]
