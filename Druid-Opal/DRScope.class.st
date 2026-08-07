@@ -97,6 +97,14 @@ DRScope >> definedTempVectors [
 ]
 
 { #category : 'testing' }
+DRScope >> hasMissingInlines [
+
+	inlinedScopes ifNotEmpty: [ ^ false ].
+
+	^ self isSend and: [ node inliningMethods isNotEmpty ]
+]
+
+{ #category : 'testing' }
 DRScope >> hasTempVector [
 
 	^ true
@@ -149,12 +157,14 @@ DRScope >> inspectionInlines: aBuilder [
 	view := RSCanvas new.
 	blockViews := self withAllInlinedScopes asSet collect: [ :aScope | | g label |
 		g := RSGroup new.
-		(label := (RSLabel new text: aScope node selector asString)
+		(label := (RSLabel new text: aScope selector asString)
 			borderColor: Color black;
 			yourself).
 		g add: (RSBox new
-			color: Color white;
-			border: (RSBorder new color: Color purple; width: 2);
+			color: (aScope hasMissingInlines ifTrue: [ Color red muchLighter ] ifFalse: [ Color white ]);
+			border: (RSBorder new 
+				color: (aScope node isMessageSend ifTrue: [ Color orange ] ifFalse: [ Color purple ]); 
+				width: 2);
 			extent: label extent + 10;
 			yourself).
 		g add: label.
@@ -177,7 +187,7 @@ DRScope >> inspectionInlines: aBuilder [
 		applyOn: blockViews.
 	view @ RSCanvasController.
 	
-	^ SpRoassal3InspectorPresenter new
+	^ SpRoassalInspectorPresenter new
 		canvas: view;
 		yourself
 ]
@@ -195,6 +205,12 @@ DRScope >> isEmpty [
 	arguments isEmpty ifFalse: [ ^ false ].
 	tempVars isEmpty ifFalse: [ ^ false ].
 	^ true
+]
+
+{ #category : 'testing' }
+DRScope >> isSend [
+
+	^ node isMessageSend
 ]
 
 { #category : 'query' }
@@ -241,6 +257,14 @@ DRScope >> outerScope [
 DRScope >> outerScope: aScope [
 	
 	outerScope := aScope.
+]
+
+{ #category : 'accessing' }
+DRScope >> selector [
+
+	node isBlock ifTrue: [ ^ '[ ]' "??" ].
+
+	^ node selector 
 ]
 
 { #category : 'query' }
