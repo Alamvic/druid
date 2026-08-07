@@ -146,7 +146,7 @@ DRAbstractInstruction >> validateDependenciesAreUsedByMyself [
 
 	self dependencies do: [ :op | 
 		(op hasUser: self) ifFalse: [ 
-			DRError signal:
+			Error signal:
 				'Dependency-user mismatch between: ' , self asString , ' and: '
 				, op asString ] ]
 ]

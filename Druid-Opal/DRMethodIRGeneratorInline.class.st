@@ -11,12 +11,6 @@ Class {
 }
 
 { #category : 'accessing' }
-DRMethodIRGeneratorInline >> allTemporaryInstructions [
-
-	^ executionState allTemporaryInstructions
-]
-
-{ #category : 'accessing' }
 DRMethodIRGeneratorInline >> currentBasicBlock: aDRBasicBlock [
 
 	currentBasicBlock := aDRBasicBlock
@@ -35,11 +29,7 @@ DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 { #category : 'scopes' }
 DRMethodIRGeneratorInline >> generateScope [
 
-	scope := DRScope new
-		         outerScope: self outerScope;
-		         id: self outerScope id + 1;
-		         yourself.
-
+	scope := self newScope.
 	self outerScope addInlinedScope: scope
 ]
 

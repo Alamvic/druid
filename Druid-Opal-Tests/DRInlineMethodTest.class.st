@@ -64,6 +64,24 @@ DRInlineMethodTest >> testInlineMethodKeepsMessageSendIfTypeIsUnknown [
 	self assert: (cfg messageSends anySatisfy: [ :ms | ms originAST = messageSend originAST ])
 ]
 
+{ #category : 'tests - type systems' }
+DRInlineMethodTest >> testInlineMethodWithInlinedLoops [
+
+	| cfg messageSend selector blockSend |
+	cfg := self generateDruidIRFor: #doubleWhileWithBlock:.
+	selector := #ifFalse:.
+	messageSend := cfg messageSends unique.
+
+	self assert: messageSend selector equals: selector.
+
+	cfg applyOptimisation: DRInline new.
+
+	blockSend := cfg messageSends unique.
+
+	self assert: blockSend receiver isLoadArgument.
+	self assert: blockSend receiver argNum equals: 1
+]
+
 { #category : 'tests' }
 DRInlineMethodTest >> testInlineMethodWithMultiplePossibleTypesInlinesAllPossibleMethods [
 

@@ -129,13 +129,3 @@ DRStackInstruction >> stackSlotsDefiningAtDepth: anInteger [
 		  s stackSlotsDefiningAtDepth: anInteger + self stackDelta ].
 	^ definingSlots
 ]
-
-{ #category : 'validation' }
-DRStackInstruction >> validateDependenciesAreUsedByMyself [
-
-	self dataDependencies do: [ :op | 
-		(op hasUser: self) ifFalse: [ 
-			DRError signal:
-				'Dependency-user mismatch between: ' , self asString , ' and: '
-				, op asString ] ]
-]

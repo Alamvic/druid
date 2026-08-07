@@ -364,6 +364,12 @@ DRBytecodeGenerator >> visitMultiply: aDRMultiply [
 	self sendMessage: #* fromInstruction: aDRMultiply
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitNegate: aDRNegate [ 
+
+	self sendMessage: #negated fromInstruction: aDRNegate
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitNoop: aDRNoop [
 
