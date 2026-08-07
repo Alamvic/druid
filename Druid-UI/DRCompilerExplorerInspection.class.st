@@ -1,21 +1,22 @@
 Class {
-	#name : #DRCompilerExplorerInspection,
-	#superclass : #StInspectionPresenter,
+	#name : 'DRCompilerExplorerInspection',
+	#superclass : 'StInspectionPresenter',
 	#instVars : [
 		'cfgPresenter',
 		'optimisationToolbar',
 		'configToolbar'
 	],
-	#category : #'Druid-UI'
+	#category : 'Druid-UI',
+	#package : 'Druid-UI'
 }
 
-{ #category : #api }
+{ #category : 'api' }
 DRCompilerExplorerInspection >> activateOnDoubleClick [
 
 	cfgPresenter activateOnDoubleClick
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRCompilerExplorerInspection >> addConfigButtons [
 
 	configToolbar addItem: (self newToolbarToggleButton
@@ -41,7 +42,7 @@ DRCompilerExplorerInspection >> addConfigButtons [
 			 yourself)
 ]
 
-{ #category : #adding }
+{ #category : 'adding' }
 DRCompilerExplorerInspection >> addOptimisationButtons [
 
 	optimisationToolbar addItem: (self newToolbarButton
@@ -61,13 +62,13 @@ DRCompilerExplorerInspection >> addOptimisationButtons [
 		optimisationToolbar addItem: toolbarButtom ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DRCompilerExplorerInspection >> blocks [
 	
 	^ model blocks
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRCompilerExplorerInspection >> configureCFGCanvas: view [
 
 	model cfg configureVisualization: view.
@@ -77,13 +78,13 @@ DRCompilerExplorerInspection >> configureCFGCanvas: view [
 			self highlightLine: line ] ]
 ]
 
-{ #category : #api }
+{ #category : 'api' }
 DRCompilerExplorerInspection >> hasOutputActivationPort [
 
 	^ true
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRCompilerExplorerInspection >> highlightLine: line [
 
 	line border: (RSBorder new
@@ -92,7 +93,7 @@ DRCompilerExplorerInspection >> highlightLine: line [
 			 yourself)
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRCompilerExplorerInspection >> initializePresenters [
 
 	self layout: (SpBoxLayout newVertical
@@ -105,7 +106,7 @@ DRCompilerExplorerInspection >> initializePresenters [
 	self addOptimisationButtons
 ]
 
-{ #category : #'instance creation' }
+{ #category : 'instance creation' }
 DRCompilerExplorerInspection >> newCFGPresenter [
 
 	^ SpRoassalPresenter new
@@ -113,7 +114,7 @@ DRCompilerExplorerInspection >> newCFGPresenter [
 		yourself
 ]
 
-{ #category : #api }
+{ #category : 'api' }
 DRCompilerExplorerInspection >> outputActivationPort [
 	
 	^ (SpActivationPort newPresenter: self)
@@ -121,7 +122,7 @@ DRCompilerExplorerInspection >> outputActivationPort [
 		yourself
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DRCompilerExplorerInspection >> refresh [
 
 	"HACKSSSS"

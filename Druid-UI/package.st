@@ -1,1 +1,1 @@
-Package { #name : #'Druid-UI' }
+Package { #name : 'Druid-UI' }
