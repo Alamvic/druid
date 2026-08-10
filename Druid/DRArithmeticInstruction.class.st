@@ -44,5 +44,5 @@ DRArithmeticInstruction >> typeWithAlreadySeen: aCollection [
 		"If nil it means it's a recursive type, we continue with the next operand"
 		operandType isUndefined ifFalse: [ ^ operandType ] ].
 	
-	self error: 'Cannot compute instruction type'
+	^ DRSignedIntegerType bits64
 ]
