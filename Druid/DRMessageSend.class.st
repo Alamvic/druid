@@ -37,7 +37,7 @@ DRMessageSend >> hasBlockOperand [
 { #category : 'testing' }
 DRMessageSend >> hasMissingInlines [
 
-	^ self scope hasMissingInlines
+	^ self inliningMethods isNotEmpty 
 ]
 
 { #category : 'optimizations' }

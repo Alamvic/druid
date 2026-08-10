@@ -101,7 +101,7 @@ DRScope >> hasMissingInlines [
 
 	inlinedScopes ifNotEmpty: [ ^ false ].
 
-	^ self isSend and: [ node inliningMethods isNotEmpty ]
+	^ self isSend and: [ node hasMissingInlines ]
 ]
 
 { #category : 'testing' }
