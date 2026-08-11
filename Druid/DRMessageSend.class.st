@@ -34,6 +34,12 @@ DRMessageSend >> hasBlockOperand [
 	^ self operands anySatisfy: [ :arg | arg isDRBlockClosure ]
 ]
 
+{ #category : 'testing' }
+DRMessageSend >> hasMissingInlines [
+
+	^ self inliningMethods isNotEmpty 
+]
+
 { #category : 'optimizations' }
 DRMessageSend >> inline [
 	
@@ -52,6 +58,12 @@ DRMessageSend >> inlineGenerator [
 DRMessageSend >> inlineGenerator: anIrGenerator [ 
 
 	inlineGenerator := anIrGenerator
+]
+
+{ #category : 'as yet unclassified' }
+DRMessageSend >> inliningMethods [
+
+	^ inlineGenerator typeSystem methodsForMessage: self
 ]
 
 { #category : 'inline' }

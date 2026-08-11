@@ -7,13 +7,6 @@ Class {
 }
 
 { #category : 'testing' }
-DRFrameReturn >> inspectionSource: aBuilder [
-	<inspectorPresentationOrder: 0 title: 'Source'>
-	
-	^ self originAST inspectionSource: aBuilder
-]
-
-{ #category : 'testing' }
 DRFrameReturn >> isCopy [
 
 	^ self shouldKeepInCFG not

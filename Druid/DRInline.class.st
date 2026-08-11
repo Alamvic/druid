@@ -33,10 +33,12 @@ DRInline class >> initialize [
 { #category : 'accessing' }
 DRInline >> doApply: cfg [
 
+	| sends |
 	self class enabled ifFalse: [ ^ self ].
 
-	(cfg messageSends takeFirst: 3) do: [ :messageSend | 
-		self inline: messageSend ]
+	sends := cfg messageSends select: [ :send | send hasMissingInlines ].
+
+	(sends takeFirst: 3) do: [ :messageSend | self inline: messageSend ]
 ]
 
 { #category : 'inlining' }
@@ -141,5 +143,5 @@ DRInline >> methodsToInlineOf: messageSend [
 	messageSend methodNode ifNotNil: [ "If a method node was set during interpretation then the message send is statically binding to them"
 		^ { (#default -> messageSend methodNode) } ].
 
-	^ inlineGenerator typeSystem methodsForMessage: messageSend
+	^ messageSend inliningMethods
 ]
