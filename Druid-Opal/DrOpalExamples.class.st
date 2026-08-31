@@ -653,6 +653,12 @@ DrOpalExamples >> simpleMethodWithBlockWritingOuterVariable: arg [
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> simpleMethodWithPragmaPrimitive [
+	<primitive:1>
+	
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> simpleMethodWithTempAssignment [
 
 	| x y tmp| 

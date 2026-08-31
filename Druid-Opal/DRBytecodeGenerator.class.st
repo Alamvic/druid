@@ -36,6 +36,8 @@ DRBytecodeGenerator >> generateJump: aDRBranch [
 
 { #category : 'API' }
 DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
+	
+	self interpretPragmas: aDRControlFlowGraph .
 
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
 		self visitBlock: block ]
@@ -74,6 +76,14 @@ DRBytecodeGenerator >> interpretInitializeScope: scope [
 		builder pushTemp: arg.
 		builder storeRemoteTemp: arg inVector: scope tempVectorName .
 		builder popTop ].
+]
+
+{ #category : 'API' }
+DRBytecodeGenerator >> interpretPragmas: aDRControlFlowGraph [ 
+	
+	builder irPrimitive: aDRControlFlowGraph primitiveFromPragma .
+	
+	aDRControlFlowGraph pragmas do: [ :each | each acceptVisitor: self ]
 ]
 
 { #category : 'testing' }
@@ -390,6 +400,12 @@ DRBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 	self flag: #TODO. "Remove physical registers, use LoadReceiver / LoadArgument instructions"
 	aDRPhysicalRegister name = 'ReceiverResultReg' ifTrue: [ ^ builder pushReceiver ].
 	1 halt
+]
+
+{ #category : 'API' }
+DRBytecodeGenerator >> visitPragmaNode: aPragmaNode [ 
+	
+	builder addPragma: aPragmaNode pragma.
 ]
 
 { #category : 'ir-to-target' }

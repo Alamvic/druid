@@ -461,6 +461,12 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 ]
 
 { #category : 'visiting' }
+DRMethodIRGenerator >> visitPragmaNode: aPragmaNode [
+	
+	"treating error primitive"
+]
+
+{ #category : 'visiting' }
 DRMethodIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
 
 	^ self interpretTemporaryVariable: aRBVariableNode

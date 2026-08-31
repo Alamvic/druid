@@ -559,6 +559,15 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithPragmaPrimitive [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithPragmaPrimitive
+		fromClass: DrOpalExamples
+		arguments: {  }
+]
+
+{ #category : 'tests' }
 DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 
 	| method result |
