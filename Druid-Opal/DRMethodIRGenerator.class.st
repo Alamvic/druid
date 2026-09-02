@@ -473,7 +473,13 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitPragmaNode: aPragmaNode [
 	
-	"treating error primitive"
+	| var |
+	"if the pragma defines an error variable, we need to declare a temp and add it to scope"
+	
+	aPragmaNode isPrimitiveErrorPragma ifFalse: [ ^ self ].
+	var := TemporaryVariable named: aPragmaNode primitiveErrorVariableName.
+	self ir scope addTempVariables: { var }
+	
 ]
 
 { #category : 'visiting' }
