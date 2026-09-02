@@ -43,6 +43,16 @@ DRScope >> addTempVariables: variables [
 ]
 
 { #category : 'query' }
+DRScope >> addToScopeList: alreadyComputed [
+
+	(alreadyComputed includes: self) ifTrue: [ ^ alreadyComputed ].
+
+	alreadyComputed add: self.
+	self inlinedScopes do: [ :e |
+		e addToScopeList: alreadyComputed ]
+]
+
+{ #category : 'query' }
 DRScope >> allTempsWithOuterTemps [
 
 	^ self tempVectorVarNames , self copiedVars values flattened
@@ -87,6 +97,14 @@ DRScope >> definedTempVectors [
 ]
 
 { #category : 'testing' }
+DRScope >> hasMissingInlines [
+
+	inlinedScopes ifNotEmpty: [ ^ false ].
+
+	^ self isSend and: [ node hasMissingInlines ]
+]
+
+{ #category : 'testing' }
 DRScope >> hasTempVector [
 
 	^ true
@@ -109,7 +127,7 @@ DRScope >> initInstruction [
 	^ initInstruction
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 DRScope >> initInstruction: aDRInitializeScope [
 
 	initInstruction := aDRInitializeScope
@@ -137,6 +155,12 @@ DRScope >> isEmpty [
 	arguments isEmpty ifFalse: [ ^ false ].
 	tempVars isEmpty ifFalse: [ ^ false ].
 	^ true
+]
+
+{ #category : 'testing' }
+DRScope >> isSend [
+
+	^ node isMessageSend
 ]
 
 { #category : 'query' }
@@ -185,6 +209,14 @@ DRScope >> outerScope: aScope [
 	outerScope := aScope.
 ]
 
+{ #category : 'accessing' }
+DRScope >> selector [
+
+	node isBlock ifTrue: [ ^ '[ ]' "??" ].
+
+	^ node selector 
+]
+
 { #category : 'query' }
 DRScope >> tempVarNames [
 
@@ -195,7 +227,9 @@ DRScope >> tempVarNames [
 DRScope >> tempVectorName [
 	"the name of the tempVector is not a valid name of a temp variable
 	 This way we avoid name clashes "
-	^'0vector', id asString
+	| parent |
+	parent := outerScope ifNotNil: [ outerScope id asString ] ifNil: [ '0' ].
+	^parent, 'vector', id asString
 ]
 
 { #category : 'query' }
@@ -213,4 +247,13 @@ DRScope >> wasMethodInlined [
 	"If we arrive to a method scope and it's not the last one, it was inlined"
 	self assert: outerScope node isMessageSend.
 	^ true
+]
+
+{ #category : 'query' }
+DRScope >> withAllInlinedScopes [
+	
+	| scopes |
+	scopes := OrderedCollection new.
+	self addToScopeList: scopes.
+	^ scopes
 ]

@@ -29,9 +29,15 @@ DRMessageSend >> dependencies [
 ]
 
 { #category : 'testing' }
-DRMessageSend >> hasBlockArgument [
+DRMessageSend >> hasBlockOperand [
 
-	^ self arguments anySatisfy: [ :arg | arg isDRBlockClosure ]
+	^ self operands anySatisfy: [ :arg | arg isDRBlockClosure ]
+]
+
+{ #category : 'testing' }
+DRMessageSend >> hasMissingInlines [
+
+	^ self inliningMethods isNotEmpty 
 ]
 
 { #category : 'optimizations' }
@@ -54,10 +60,16 @@ DRMessageSend >> inlineGenerator: anIrGenerator [
 	inlineGenerator := anIrGenerator
 ]
 
+{ #category : 'as yet unclassified' }
+DRMessageSend >> inliningMethods [
+
+	^ inlineGenerator typeSystem methodsForMessage: self
+]
+
 { #category : 'inline' }
 DRMessageSend >> innerDependencies [
 
-	self hasBlockArgument ifFalse: [ ^ #(  ) ].
+	self hasBlockOperand ifFalse: [ ^ #(  ) ].
 	inlineGenerator ifNil: [ ^ #(  ) ].
 	^ (inlineGenerator allTemporaryInstructions reject: #isDRBlockClosure)
 		  copyWithoutAll: self operands
