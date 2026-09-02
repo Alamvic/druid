@@ -135,7 +135,7 @@ DRInstructionFactory >> initialize [
 
 	super initialize.
 	nextAvailableRegister := 0.
-	nenextAvailableScopeId := 0
+	nextAvailableScopeId := 0
 ]
 
 { #category : 'initialization' }
