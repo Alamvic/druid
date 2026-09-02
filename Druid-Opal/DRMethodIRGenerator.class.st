@@ -93,7 +93,11 @@ DRMethodIRGenerator >> initializeIR [
 { #category : 'initialization' }
 DRMethodIRGenerator >> initializePragma: pragmas [
 
-	super initializePragma: pragmas.
+	| instr |
+	instr := self currentBasicBlock initializePragma.
+	instr pragmas: pragmas.
+	instr scope: self scope.
+	pragmas do: [ :each | each acceptVisitor: self].
 ]
 
 { #category : 'initialization' }

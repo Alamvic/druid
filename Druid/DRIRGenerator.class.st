@@ -405,16 +405,6 @@ DRIRGenerator >> initializeIR [
 	startBlock jumpTo: initialBasicBlock
 ]
 
-{ #category : 'initialization' }
-DRIRGenerator >> initializePragma: pragmas [
-
-	| instr |
-	instr := self currentBasicBlock initializePragma.
-	instr pragmas: pragmas.
-	instr scope: self scope.
-	pragmas do: [ :each | each acceptVisitor: self].
-]
-
 { #category : 'special cases' }
 DRIRGenerator >> initializeSpecialCases [
 
@@ -2202,8 +2192,6 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 					executionState copy.
 					(self addFrameReturn: self topFrame) }.
 			^ self ].
-
-	self initializePragma: aRBMethodNode pragmas.
 	
 	aRBMethodNode statements do: [ :each |
 		self assert: self topFrame operandStack isEmpty.
