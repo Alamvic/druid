@@ -2,8 +2,7 @@ Class {
 	#name : 'DRMethodControlFlowGraph',
 	#superclass : 'DRControlFlowGraph',
 	#instVars : [
-		'scope',
-		'pragmas'
+		'scope'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -50,28 +49,6 @@ DRMethodControlFlowGraph >> allInstructionsWithScope: aDRScope [
 DRMethodControlFlowGraph >> initialize [ 
 
 	super initialize .
-	pragmas := OrderedCollection new.
-]
-
-{ #category : 'accessing' }
-DRMethodControlFlowGraph >> pragmas [
-
-	^ pragmas
-]
-
-{ #category : 'accessing' }
-DRMethodControlFlowGraph >> pragmas: anObject [
-
-	pragmas := anObject
-]
-
-{ #category : 'accessing' }
-DRMethodControlFlowGraph >> primitiveFromPragma [ 
-
-	^ pragmas
-		detect: [ :each | each isPrimitive ]
-		ifFound: [ :aPragmaPrimitive | aPragmaPrimitive asIRPrimitive ]
-		ifNone: [ OCIRPrimitive null ]
 ]
 
 { #category : 'accessing' }

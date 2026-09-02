@@ -602,6 +602,12 @@ DRBasicBlock >> initialize [
 ]
 
 { #category : 'initialization' }
+DRBasicBlock >> initializePragma [
+	
+	^ self addInstruction: self instructionFactory initializePragma
+]
+
+{ #category : 'initialization' }
 DRBasicBlock >> initializeScope: aDRScope [
 
 	^ self addInstruction:

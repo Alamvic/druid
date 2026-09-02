@@ -147,8 +147,8 @@ DRScope >> lookupScopeDefining: aVariable [
 
 { #category : 'query' }
 DRScope >> lookupScopeDefining: aVariable ifNone: noneBlock [
-
-	((tempVars includes: aVariable) or: [ arguments includes: aVariable ])
+	
+	(((tempVars includes: aVariable) or: [ arguments includes: aVariable ]) or: [ self tempVarNames includes: aVariable name ])
 		ifTrue: [ ^ self ].
 
 	^ outerScope

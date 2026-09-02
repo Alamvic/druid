@@ -129,6 +129,12 @@ DRInstructionFactory >> initialize [
 ]
 
 { #category : 'initialization' }
+DRInstructionFactory >> initializePragma [
+	
+	^ DRInitializePragma pragmas.
+]
+
+{ #category : 'initialization' }
 DRInstructionFactory >> initializeScope: aDRScope [
 
 	^ DRInitializeScope scope: aDRScope
