@@ -22,6 +22,12 @@ DRMessageSend >> arguments [
 	^ operands allButFirst
 ]
 
+{ #category : 'testing' }
+DRMessageSend >> blockOperandCount [
+
+	^ self operands count: [ :arg | arg simpleConstantFold isDRBlockClosure ]
+]
+
 { #category : 'accessing' }
 DRMessageSend >> dependencies [
 
