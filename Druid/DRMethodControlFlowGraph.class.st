@@ -45,12 +45,6 @@ DRMethodControlFlowGraph >> allInstructionsWithScope: aDRScope [
 	^ cfgInstructions , blockInstructions
 ]
 
-{ #category : 'queries' }
-DRMethodControlFlowGraph >> initialize [ 
-
-	super initialize .
-]
-
 { #category : 'accessing' }
 DRMethodControlFlowGraph >> scope [
 

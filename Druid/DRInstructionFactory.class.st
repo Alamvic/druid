@@ -138,18 +138,6 @@ DRInstructionFactory >> initialize [
 	nextAvailableScopeId := 0
 ]
 
-{ #category : 'initialization' }
-DRInstructionFactory >> initializePragma [
-	
-	^ DRInitializePragma pragmas.
-]
-
-{ #category : 'initialization' }
-DRInstructionFactory >> initializeScope: aDRScope [
-
-	^ DRInitializeScope scope: aDRScope
-]
-
 { #category : 'factory' }
 DRInstructionFactory >> intToFloat: operand1 [
 

@@ -55,15 +55,3 @@ DRInitializePragma >> sccpEvaluateFor: sccp [
 
 	"Nothing to do"
 ]
-
-{ #category : 'accessing' }
-DRInitializePragma >> scope [
-
-	^ scope
-]
-
-{ #category : 'accessing' }
-DRInitializePragma >> scope: anObject [
-
-	scope := anObject
-]

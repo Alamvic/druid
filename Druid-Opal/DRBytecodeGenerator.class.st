@@ -287,7 +287,7 @@ DRBytecodeGenerator >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRB
 DRBytecodeGenerator >> visitInitializePragma: aDRInitializePragma [ 
 	
 	builder irPrimitive: aDRInitializePragma primitiveFromPragma .
-	
+
 	aDRInitializePragma pragmas do: [ :each | 
 		each acceptVisitor: self .
 		
@@ -295,7 +295,7 @@ DRBytecodeGenerator >> visitInitializePragma: aDRInitializePragma [
 		each isPrimitiveErrorPragma ifTrue: [
 			builder
 				storeRemoteTemp: each primitiveErrorVariableName
-				inVector: aDRInitializePragma scope tempVectorName.]
+				inVector: aDRInitializePragma controlFlowGraph scope tempVectorName.]
 	].
 ]
 
