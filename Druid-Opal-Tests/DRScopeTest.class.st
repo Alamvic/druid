@@ -42,7 +42,7 @@ DRScopeTest >> testMethodNoArgsTwoLocals [
 DRScopeTest >> testMethodOneArgsNoLocals [
 
 	| cfg |
-	cfg := self generateDruidIRFor: #simpleMethodReturnArg:.
+	cfg := self generateDruidIRFor: #returnArgument:.
 	
 	self assert: cfg scope argumentNames equals: #( arg ).
 	self assert: cfg scope tempVarNames isEmpty.

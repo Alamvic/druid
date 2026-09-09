@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'compilerCompiler',
 		'bytecodeGenerator',
-		'typeSystem'
+		'typeSystem',
+		'counter'
 	],
 	#category : 'Druid-Opal-Tests',
 	#package : 'Druid-Opal-Tests'
@@ -19,11 +20,14 @@ DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method [
 { #category : 'asserting' }
 DRBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method arguments: arguments [
 
-	| result expectedResult |
-	compilerCompiler interpreter initialize.
-	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: arguments.
-	compilerCompiler interpreter initialize.
-	expectedResult := method valueWithReceiver: compilerCompiler interpreter arguments: arguments.
+	| result expectedResult receiver |
+	receiver := compiledMethod methodClass new.
+
+	receiver initialize.
+	result := compiledMethod valueWithReceiver: receiver arguments: arguments.
+
+	receiver initialize.
+	expectedResult := method valueWithReceiver: receiver arguments: arguments.
 
 	expectedResult isClosure ifTrue: [
 		^ self assertClosure: result equals: expectedResult ].
@@ -148,6 +152,12 @@ DRBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelect
 		  numArgs: compilerCompiler irGenerator numberOfArguments
 ]
 
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> incrementCounter [
+
+	counter := counter + 1
+]
+
 { #category : 'running' }
 DRBytecodeGeneratorTest >> setUp [
 	super setUp.
@@ -156,7 +166,9 @@ DRBytecodeGeneratorTest >> setUp [
 	compilerCompiler interpreter: DrOpalExamples basicNew.
 	compilerCompiler configureForCompilerClass: nil.
 	
-	bytecodeGenerator := DRBytecodeGenerator new
+	bytecodeGenerator := DRBytecodeGenerator new.
+	
+	counter := 0
 ]
 
 { #category : 'running' }
@@ -170,6 +182,144 @@ DRBytecodeGeneratorTest >> tearDown [
 ]
 
 { #category : 'tests' }
+DRBytecodeGeneratorTest >> test001_emptyMethodReturnsSelf [
+
+	| newMethod receiver result |
+	newMethod := self compileSelector: #empty fromClass: DrOpalExamples.
+	
+	receiver := DrOpalExamples new.
+	result := newMethod valueWithReceiver: receiver.
+	self assert: result identicalTo: receiver
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test002_returnLiteralInteger [
+
+	| newMethod receiver result |
+	newMethod := self compileSelector: #returnLiteralInteger fromClass: DrOpalExamples.
+	
+	receiver := DrOpalExamples new.
+	result := newMethod valueWithReceiver: receiver.
+	self assert: result equals: 1
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test003_returnArgument [
+
+	| newMethod receiver result |
+	newMethod := self compileSelector: #returnArgument: fromClass: DrOpalExamples.
+	
+	receiver := DrOpalExamples new.
+	result := newMethod valueWithReceiver: receiver arguments: {17}.
+	self assert: result equals: 17
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test004_returnUninitializedTemp [
+
+	| newMethod receiver result |
+	newMethod := self compileSelector: #returnUninitializedTemp fromClass: DrOpalExamples.
+	
+	receiver := DrOpalExamples new.
+	result := newMethod valueWithReceiver: receiver.
+	self assert: result equals: nil
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test005_returnInitializedTemp [
+
+	| newMethod receiver result |
+	newMethod := self compileSelector: #returnInitializedTemp fromClass: DrOpalExamples.
+	
+	receiver := DrOpalExamples new.
+	result := newMethod valueWithReceiver: receiver.
+	self assert: result equals: 17
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test006_returnTempAssignmentExpression [
+
+	| newMethod receiver result |
+	newMethod := self compileSelector: #returnTempAssignmentExpression fromClass: DrOpalExamples.
+	
+	receiver := DrOpalExamples new.
+	result := newMethod valueWithReceiver: receiver.
+	self assert: result equals: 17
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test007_returnNestedTempAssignmentExpression [
+
+	| newMethod receiver result |
+	newMethod := self compileSelector: #returnNestedTempAssignmentExpression fromClass: DrOpalExamples.
+	
+	receiver := DrOpalExamples new.
+	result := newMethod valueWithReceiver: receiver.
+	self assert: result equals: 17
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test008_returnInstanceVariable [
+
+	| newMethod receiver result |
+	newMethod := self compileSelector: #returnInstanceVariable fromClass: DrOpalExamples.
+	
+	receiver := DrOpalExamples new.
+	receiver dummyVariable: 178.
+	result := newMethod valueWithReceiver: receiver.
+	self assert: result equals: 178
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test009_setInstanceVariable [
+
+	| newMethod receiver result |
+	newMethod := self compileSelector: #setInstanceVariable fromClass: DrOpalExamples.
+	
+	receiver := DrOpalExamples new.
+	result := newMethod valueWithReceiver: receiver.
+	self assert: receiver dummyVariable equals: 179
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test010_returnInstanceVariableAssignmentExpression [
+
+	| newMethod receiver result |
+	newMethod := self compileSelector: #returnInstanceVariableAssignmentExpression fromClass: DrOpalExamples.
+	
+	receiver := DrOpalExamples new.
+	result := newMethod valueWithReceiver: receiver.
+	
+	self assert: result equals: 17.
+	self assert: receiver dummyVariable equals: 17
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test011_returnNestedInstanceVariableAssignmentExpression [
+
+	| newMethod receiver result |
+	newMethod := self compileSelector: #returnNestedInstanceVariableAssignmentExpression fromClass: DrOpalExamples.
+	
+	receiver := DrOpalExamples new.
+	result := newMethod valueWithReceiver: receiver.
+	
+	self assert: result equals: 17.
+	self assert: receiver dummyVariable equals: 17.
+	self assert: receiver fillMask equals: 17.
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test012_sendMessage [
+
+	| newMethod |
+	newMethod := self compileSelector: #sendMessage fromClass: DrOpalExamples.
+	
+	newMethod valueWithReceiver: self.
+	
+	self assert: counter equals: 1
+]
+
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testBasicControlFlow [
 
 	| cfg method result |
@@ -184,49 +334,43 @@ DRBytecodeGeneratorTest >> testBasicControlFlow [
 	self assert: result equals: 7
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testComplexMethodInline [
 
 	self assertCompilationFor: #complexInlineMethod fromClass: DrOpalExamples
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testCreateTempVectorInsideLoop [
 
 	self assertCompilationFor: #exampleToDoInsideTemp fromClass: OCOpalExamples
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodAssignmentExpression [
 
 	self assertCompilationFor: #methodWithAssignmentExpression fromClass: DrOpalExamples
 ]
 
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testMethodEmpty [
-
-	self assertCompilationFor: #exampleEmptyMethod fromClass: OCOpalExamples
-]
-
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodEmptyIf [
 
 	self assertCompilationFor: #emptyIf fromClass: DrOpalExamples
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodInline [
 
 	self assertCompilationFor: #basicInlineMethod fromClass: DrOpalExamples
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodInlineBlockTwoOuterScopes [
 
 	self assertCompilationFor: #methodBlockTwoOuterScopes fromClass: DrOpalExamples
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodInlineFailsWithUnresolvedNonLocalReturns [
 
 	| inline |
@@ -243,31 +387,31 @@ DRBytecodeGeneratorTest >> testMethodInlineFailsWithUnresolvedNonLocalReturns [
 			self assert: (err messageText beginsWith: 'Non-local return') ]
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodInlineLoop [
 
 	self assertCompilationFor: #methodWithoutInnerDependencies fromClass: DrOpalExamples 
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectAccessInstVar [
 
 	self assertCompilationFor: #basicInlineMethodAccesInstVar fromClass: DrOpalExamples checkByteCode: 'send: #instVarAt:'
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodInlineObjectSettingInstVar [
 
 	self assertCompilationFor: #basicInlineMethodSettingInstVar fromClass: DrOpalExamples checkByteCode: 'send: #instVarAt:put:'
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodInlineSelfAccessInstVar [
 
 	self assertCompilationFor: #basicInlineMethodSelfAccesInstVar fromClass: DrOpalExamples checkByteCode: 'pushInstVar:'
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodInlineSelfSettingInstVar [
 
 	self assertCompilationFor: #basicInlineMethodSelfSettingInstVar fromClass: DrOpalExamples checkByteCode: 'storeInstVar:'.
@@ -275,49 +419,49 @@ DRBytecodeGeneratorTest >> testMethodInlineSelfSettingInstVar [
 	self assertCompilationFor: #basicInlineMethodSelfSettingInstVarWithUsers fromClass: DrOpalExamples checkByteCode: 'storeInstVar:'.
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodInlineToDo [
 
 	self assertCompilationFor: #methodWithToDo fromClass: DrOpalExamples
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodInlineToDoInner [
 
 	self assertCompilationFor: #methodWithTwoToDos fromClass: DrOpalExamples
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodInlinedWhileTrue [
 
 	self assertCompilationFor: #simpleMethodWithBlockWhileTrue fromClass: DrOpalExamples 
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodInlinedWhileTrueWithTemp [
 
 	self assertCompilationFor: #simpleMethodWithBlockWhileTrueWithTemp fromClass: DrOpalExamples 
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodManyReturns [
 
 	self assertCompilationFor: #methodWithThreeNonLocalReturn fromClass: DrOpalExamples
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodReadingClassVariable [
 
 	self assertCompilationFor: #methodReadingClassVariable fromClass: DrOpalExamples
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodSimpleBlockLocalWhile [
 
 	self assertCompilationFor: #exampleWhileWithTemp fromClass: OCOpalExamples 
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithArg [
 
 	| method result |
@@ -327,7 +471,7 @@ DRBytecodeGeneratorTest >> testMethodWithArg [
 	self assert: result equals: 24
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockActivated [
 
 	self
@@ -336,7 +480,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockActivated [
 		arguments: {  }
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockActivatedArg [
 
 	self
@@ -345,7 +489,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockActivatedArg [
 		arguments: {  }
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockArg [
 	
 	self assertCompilationNoInlineFor: #simpleMethodWithBlockWithArg fromClass: DrOpalExamples arguments: {}.
@@ -353,7 +497,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockArg [
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockArgWithBlockArg [
 	
 	self assertCompilationNoInlineFor: #simpleMethodArgWithBlockWithArg: fromClass: DrOpalExamples arguments: { nil }.
@@ -361,7 +505,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockArgWithBlockArg [
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockConstant [
 	
 	self assertCompilationNoInlineFor: #methodBlockConstant fromClass: DrOpalExamples arguments: { }.
@@ -369,7 +513,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockConstant [
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockCulled [
 
 	self
@@ -378,7 +522,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockCulled [
 		arguments: {  }
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockCulled1Arg [
 
 	self
@@ -387,7 +531,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockCulled1Arg [
 		arguments: {  }
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockCulled2Arg [
 
 	self
@@ -396,7 +540,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockCulled2Arg [
 		arguments: {  }
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockEmpty [
 	
 	self assertCompilationNoInlineFor: #methodEmptyBlock fromClass: DrOpalExamples arguments: { }.
@@ -404,35 +548,35 @@ DRBytecodeGeneratorTest >> testMethodWithBlockEmpty [
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockLocalAndNonLocalReturn [
 	
 	self assertCompilationNoInlineFor: #methodBlockLocalAndNonLocalReturn fromClass: DrOpalExamples arguments: { }.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadAndWrite [
 	
 	self assertCompilationNoInlineFor: #methodBlockNested2ReadAndWrite fromClass: DrOpalExamples arguments: { }.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadAndWriteWithArg [
 	
 	self assertCompilationNoInlineFor: #methodBlockNested2ReadAndWriteWithArg: fromClass: DrOpalExamples arguments: { 5 }.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg [
 	
 	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterArg: fromClass: DrOpalExamples arguments: {1}.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg2 [
 
 	self
@@ -441,56 +585,56 @@ DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterArg2 [
 		arguments: { 1 }
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterTemp [
 	
 	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterTemp fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2ReadingOuterTemp2 [
 	
 	self assertCompilationNoInlineFor: #methodBlockNested2ReadingOuterTemp2 fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2Simple [
 	
 	self assertCompilationNoInlineFor: #methodBlockNested2Simple fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2WithArg [
 	
 	self assertCompilationNoInlineFor: #methodBlockNested2WithArg fromClass: DrOpalExamples arguments: { }.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2WithArg2 [
 	
 	self assertCompilationNoInlineFor: #methodBlockNested2WithArg2 fromClass: DrOpalExamples arguments: { }.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2WritingOuterTemp [
 	
 	self assertCompilationNoInlineFor: #methodBlockNested2WritingOuterTemp fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNested2WritingOuterTemp2 [
 	
 	self assertCompilationNoInlineFor: #methodBlockNested2WritingOuterTemp2 fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockNonLocalReturn [
 	
 	self assertCompilationNoInlineFor: #methodBlockNonLocalReturn fromClass: DrOpalExamples arguments: { }.
@@ -498,7 +642,7 @@ DRBytecodeGeneratorTest >> testMethodWithBlockNonLocalReturn [
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockReadingArgVar [
 	
 	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingArgVariable: fromClass: DrOpalExamples arguments: { 0 }.
@@ -506,14 +650,14 @@ DRBytecodeGeneratorTest >> testMethodWithBlockReadingArgVar [
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockReadingVar [
 
 	self assertCompilationNoInlineFor: #simpleMethodWithBlockReadingOuterVariable fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockTemp [
 
 	self
@@ -522,20 +666,20 @@ DRBytecodeGeneratorTest >> testMethodWithBlockTemp [
 		arguments: {  }
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithBlockWritingVar [
 	
 	self assertCompilationNoInlineFor: #simpleMethodWithBlockWritingOuterVariable fromClass: DrOpalExamples arguments: {}.
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithDynamicArray [
 
 	self assertCompilationFor: #methodWithDynamicArray fromClass: DrOpalExamples
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithEarlyReturn [
 
 	| method result |
@@ -545,7 +689,7 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn [
 	self assert: result equals: 42
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 
 	| method result |
@@ -555,7 +699,7 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 	self assert: result equals: 57
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 
 	| method result |
@@ -572,13 +716,13 @@ DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 	self assert: result equals: 3
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWritingClassVariable [
 
 	self assertCompilationFor: #methodWritingClassVariable fromClass: DrOpalExamples
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testOpalExamples [
 
 	| ignoredProtocols |
@@ -595,7 +739,7 @@ DRBytecodeGeneratorTest >> testOpalExamples [
 					fromClass: OCOpalExamples ]
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testSimpleMethod [
 	
 	| compiledMethod expectedMethod aSelector |
@@ -608,24 +752,7 @@ DRBytecodeGeneratorTest >> testSimpleMethod [
 	
 ]
 
-{ #category : 'tests' }
-DRBytecodeGeneratorTest >> testSimpleMethodReturnArg [
-	
-	| compiledMethod expectedMethod aSelector result |
-	aSelector:= #simpleMethodReturnArg: .
-	expectedMethod := DrOpalExamples >> aSelector.
-	
-	compiledMethod := self compileSelector: aSelector fromClass: DrOpalExamples.
-	
-	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { 5 }.
-	
-	self assert: result equals: 5.
-	self assert: compiledMethod equalsResult: expectedMethod arguments: { 5 }.
-	
-	
-]
-
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testSimpleMethodWith1arg [
 	
 	| compiledMethod expectedMethod aSelector result|
@@ -641,7 +768,7 @@ DRBytecodeGeneratorTest >> testSimpleMethodWith1arg [
 	
 ]
 
-{ #category : 'tests' }
+{ #category : 'vrac' }
 DRBytecodeGeneratorTest >> testSimpleMethodWith2arg [
 	
 	| compiledMethod expectedMethod aSelector result |
