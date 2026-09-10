@@ -37,21 +37,20 @@ DROpalCompiler class >> generateMethodFromCFG: aDRControlFlowGraph withSelector:
 ]
 
 { #category : 'as yet unclassified' }
-DROpalCompiler class >> patchLiteralsIn: method from: oldPackage [
-	
-	"TODO: Does it patch the literals inside blocks???"
+DROpalCompiler class >> patchLiteralsIn: methodOrBlock from: oldPackage [
 
-	| allGlobals |
-	allGlobals := OrderedCollection new.
-	method withAllNestedLiteralsDo: [ :each | 
-		(each isVariableBinding and: [ each isGlobalVariable ]) ifTrue: [ 
-			 allGlobals add: each ] ].
-	
-	allGlobals asSet do: [ :each |
-					each value package = oldPackage ifTrue: [ | index newClass |
-						index := method indexOfLiteral: each.
-						newClass := Smalltalk classNamed: (#DR , each name).
-						method literalAt: index put: newClass binding ] ]
+	methodOrBlock literalsDo: [ :lit |
+			(lit isVariableBinding and: [ lit isGlobalVariable ]) ifTrue: [
+					lit value package = oldPackage ifTrue: [
+							| index newClass |
+							index := methodOrBlock indexOfLiteral: lit.
+							newClass := Smalltalk classNamed: #DR , lit name.
+							methodOrBlock literalAt: index put: newClass binding ] ] ].
+
+	"Path inner blocks recursive"
+	methodOrBlock allBlocksDo: [ :block | 
+		self patchLiteralsIn: block from: oldPackage ]
+
 ]
 
 { #category : 'recompilation' }
