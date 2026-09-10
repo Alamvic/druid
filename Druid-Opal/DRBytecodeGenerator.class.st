@@ -197,9 +197,8 @@ DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 
-	| blockNode compiledBlock blockCFG blockBytecodeGenerator copiedValues |
+	| compiledBlock blockCFG blockBytecodeGenerator copiedValues |
 
-	blockNode := aDRBlockClosure blockNode.
 	blockCFG := aDRBlockClosure ensureIR.
 	
 	blockCFG applyOptimisation: DRFrameInfoCleaner new.
