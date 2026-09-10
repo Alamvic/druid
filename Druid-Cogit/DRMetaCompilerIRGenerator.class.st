@@ -50,6 +50,73 @@ DRMetaCompilerIRGenerator >> initializeSpecialCases [
 
 	specialCases at: #remember: put: #interpretRememberWith:.
 	specialCases at: #fixedPermSpaceStart put: #interpretFixedPermSpaceStartWith:.
+	
+	"Arithmetics for SmallIntegers"
+	specialCases at: #sumSmallInteger:withSmallInteger:ifOverflow: put: #interpretSumSmallIntegerWithOverflowWith:.
+	specialCases at: #sumSmallInteger:withSmallInteger:ifNotOverflow: put: #interpretSumSmallIntegerWithNoOverflowWith:.
+	specialCases at: #subSmallInteger:withSmallInteger:ifOverflow: put: #interpretSubSmallIntegerWithOverflowWith:.
+	specialCases at: #multiplySmallInteger:withSmallInteger:ifOverflow: put: #interpretMultiplySmallIntegerWithOverflowWith:.
+
+	"Types"
+	specialCases at: #asUnsignedInteger put: #interpretAsUnsignedIntegerWith:.
+	specialCases at: #sizeof: put: #interpretSizeofWith:.
+	specialCases at: #asFloat put: #interpretAsFloatWith:.
+	specialCases at: #rawFloatBitsOf: put: #interpretRawFloatBitsWith:.
+	specialCases at: #floatFromRawBits: put: #interpretFloat64FromRawBitsWith:.
+	specialCases at: #cCoerceSimple:to: put: #interpretCCoerceWith:.	
+	specialCases at: #cCoerce:to: put: #interpretCCoerceWith:.	
+	specialCases at: #asObjectReference put: #interpretObjectReferenceCoercionWith:.
+
+	"Memory accesses"
+	specialCases at: #longAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #byteAt:put: put: #interpretStoreUint8AtWith:.
+	self flag: #TODO. "Add types to Druid"
+	specialCases at: #uint8At: put: #interpretLoadUint8AtWith:.
+	specialCases at: #uint8At:put: put: #interpretStoreUint8AtWith:.
+	specialCases at: #uint16At: put: #interpretLoadUint16AtWith:.
+	specialCases at: #uint16At:put: put: #interpretStoreUint16AtWith:.
+	specialCases at: #uint32At: put: #interpretLoadUint32AtWith:.
+	specialCases at: #uint32At:put: put: #interpretStoreUint32AtWith:.
+	specialCases at: #uint32AtPointer: put: #interpretLoadUint32AtWith:.
+	specialCases at: #uint32AtPointer:put: put: #interpretStoreUint32AtWith:.
+	specialCases at: #uint64At: put: #interpretLoadUint64AtWith:.
+	specialCases at: #uint64At:put: put: #interpretStoreUint64AtWith:.
+	specialCases at: #float64At: put: #interpretLoadFloat64AtWith:.
+	specialCases at: #float64At:put: put: #interpretStoreFloat64AtWith:.
+	specialCases at: #unsignedLongAt: put: #interpretMachineWordAtWith:.
+	specialCases at: #unsignedLong64At: put: #interpretMachineWordAtWith:.
+	
+	specialCases at: #longAt:put: put: #interpretMachineWordAtPutWith:.
+	specialCases at: #unsignedLong64At:put: put: #interpretMachineWordAtPutWith:.
+	specialCases at: #unsignedLongAt:put: put: #interpretMachineWordAtPutWith:.
+	
+	"special simulation cases"
+	specialCases at: #cCode: put: #interpretCCodeInSmalltalkWith:.
+	specialCases at: #cCode:inSmalltalk: put: #interpretCCodeInSmalltalkWith:.
+	
+	"Special pharo things such as exceptions"
+	specialCases at: #error: put: #ignoreMessageWith:.
+	specialCases at: #assert: put: #ignoreMessageWith:.
+	specialCases at: #deny: put: #ignoreMessageWith:.
+	
+	"Interpreter variables"
+	variableSpecialCases at: #nilObj put: #interpretNilObjectWith:.
+	variableSpecialCases at: #falseObj put: #interpretFalseObjectWith:.
+	variableSpecialCases at: #trueObj put: #interpretTrueObjectWith:.
+
+	variableSpecialCases at: #argumentCount put: #interpretArgumentCountWith:.
+	variableSpecialCases at: #scavengeThreshold put: #interpretScavengeThresholdWith:.
+
+	variableSpecialCases at: #freeStart put: #interpretFreeStartWith:.
+	variableSpecialCases at: #newSpaceStart put: #interpretNewSpaceStartWith:.
+	variableSpecialCases at: #spaceMaskToUse put: #interpretSpaceMaskToUseWith:.
+	variableSpecialCases at: #newSpaceMask put: #interpretNewSpaceMaskWith:.
+	variableSpecialCases at: #oldSpaceMask put: #interpretOldSpaceMaskWith:.
+	variableSpecialCases at: #permSpaceMask put: #interpretPermSpaceMaskWith:.
+	
+	"Border case, this should not be defined here, it should be extensible"
+	variableSpecialCases at: #hiddenRootsObj put: #interpretHiddenRootsObjectWith:.
+	variableSpecialCases at: #classTableFirstPage put: #interpretClassTableRootsObjectWith:.	
 ]
 
 { #category : 'interpreting' }
