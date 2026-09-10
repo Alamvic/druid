@@ -10,8 +10,8 @@ Class {
 DROpalCompiler class >> copyMethod: selector from: aClass to: newClass [
 
 	| method |
-	method := aClass >> selector.
-	newClass addSelector: selector withMethod: method copy
+	method := aClass >> selector.	
+	newClass compile: method ast formattedCode
 ]
 
 { #category : 'utilities' }
@@ -34,6 +34,24 @@ DROpalCompiler class >> generateMethodFromCFG: aDRControlFlowGraph withSelector:
 	bytecodeGenerator methodName: selector.
 	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.
 	^ bytecodeGenerator targetAST
+]
+
+{ #category : 'as yet unclassified' }
+DROpalCompiler class >> patchLiteralsIn: method from: oldPackage [
+	
+	"TODO: Does it patch the literals inside blocks???"
+
+	| allGlobals |
+	allGlobals := OrderedCollection new.
+	method withAllNestedLiteralsDo: [ :each | 
+		(each isVariableBinding and: [ each isGlobalVariable ]) ifTrue: [ 
+			 allGlobals add: each ] ].
+	
+	allGlobals asSet do: [ :each |
+					each value package = oldPackage ifTrue: [ | index newClass |
+						index := method indexOfLiteral: each.
+						newClass := Smalltalk classNamed: (#DR , each name).
+						method literalAt: index put: newClass binding ] ]
 ]
 
 { #category : 'recompilation' }
@@ -73,21 +91,30 @@ DROpalCompiler class >> recompileClass: aClass [
 { #category : 'as yet unclassified' }
 DROpalCompiler class >> recompileClass: aClass except: ignoredSelectors [
 	
-	| oldName _superclass slots packageName newName tag newClass n |
+	| oldName _superclass slots packageName newClassName newPackageName tag newClass n sharedVariables |
 	oldName := aClass name.
 	_superclass := aClass superclass.
 	slots := aClass slots collect: [ :slot | slot name ].
+	sharedVariables := aClass classVariables collect: [ :slot | slot name ].
 	tag := aClass packageTag.
 	packageName := aClass package name.
-	newName := #DR , oldName.
 
-	self removeClassIfNeeded: newName.
+	newClassName := #DR , oldName.
+	newPackageName := packageName , '-Druid'.
 
-	newClass := _superclass << newName 
+	self removeClassIfNeeded: newClassName.
+	
+	('Recompiling ' , oldName , ' into ' , newClassName , ' in ' , newPackageName) traceCr.
+
+	newClass := _superclass << newClassName 
 		slots: slots;
 		tag: tag;
-		package: packageName;
+		sharedVariables: sharedVariables;
+		package: newPackageName;
 		install.
+		
+	"Copy class slots"		
+	aClass class slots do: [ :slot | newClass class addSlot: slot copy ]. 
 		
 	n := 0.	
 		
