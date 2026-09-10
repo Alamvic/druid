@@ -758,15 +758,20 @@ DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
 	"Create the initial basic block"
 
-	| numArgs |
+	| numArgs cfg |
 	numArgs := aDRBlockClosure numberOfArguments.
 	self numberOfArguments: numArgs.
-
 	self interpretCode: aDRBlockClosure receiver: aDRBlockClosure.
 
-	self ir numArgs: numArgs.
+	cfg := self ir.
+	cfg numArgs: numArgs.
 
-	^ self ir
+	"Clean garbage to generate a valid CFG"
+	DRDeadBlockElimination new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+	cfg validate.	
+
+	^ cfg
 ]
 
 { #category : 'special cases' }
