@@ -27,7 +27,7 @@ DRInlineScopeTest >> testInlineMethodBlock [
 	send := cfg messageSends first.
 	self inline: send.
 	cfg applyOptimisation: (DRCleanScopes then: DRDeadCodeElimination). "Clean a bit for quering"
-	blockCFG := cfg allBlockClosures unique ensureIR.
+	blockCFG := cfg allBlockClosures last blockCFG.
 
 	"Scopes: Block -> Inlined (block) -> Inlined (method) -> Send (empty) -> Method"
 	inlinedBlockScope := blockCFG scope outerScope.
@@ -71,7 +71,7 @@ DRInlineScopeTest >> testInlineMethodBlockTwoOuterScopes [
 	cfg := self generateDruidIRFor: #methodBlockTwoOuterScopes.
 	send := cfg messageSends first.
 	self inline: send.
-	blockCFG := 	cfg allBlockClosures unique ensureIR.
+	blockCFG := 	cfg allBlockClosures unique blockCFG.
 
 	"Scopes 1: Block -> Inlined -> Send (empty) -> Method"
 	blockScope := blockCFG scope.
@@ -190,8 +190,8 @@ DRInlineScopeTest >> testInlineMultiMethods [
 	send := cfg messageSends first.
 	self inline: send.
 	cfg applyOptimisation: (DRCleanScopes then: DRDeadCodeElimination then: DRPhiSimplication). "Clean a bit for quering"
-	block1CFG := cfg allBlockClosures second ensureIR.
-	block2CFG := cfg allBlockClosures last ensureIR.
+	block1CFG := cfg allBlockClosures second blockCFG.
+	block2CFG := cfg allBlockClosures last blockCFG.
 
 	"Scopes1: Block1 -> Inlined1 (method) -> Send (empty) -> Method"
 	inlinedMethod1Scope := block1CFG scope outerScope.

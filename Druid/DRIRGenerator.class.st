@@ -684,26 +684,6 @@ DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 	self assert: self topFrame operandStack size = 1.
 ]
 
-{ #category : 'API' }
-DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
-	"Create the initial basic block"
-
-	| numArgs cfg |
-	numArgs := aDRBlockClosure numberOfArguments.
-	self numberOfArguments: numArgs.
-	self interpretCode: aDRBlockClosure receiver: aDRBlockClosure.
-
-	cfg := self ir.
-	cfg numArgs: numArgs.
-
-	"Clean garbage to generate a valid CFG"
-	DRDeadBlockElimination new applyTo: cfg.
-	DRDeadCodeElimination new applyTo: cfg.
-	cfg validate.	
-
-	^ cfg
-]
-
 { #category : 'special cases' }
 DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 
@@ -734,7 +714,7 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 	block := self popOperand simplify.
 
 	"If we cannot inline the block, then send the message"
-	block isDRBlockClosure ifFalse: [
+	block isBlock ifFalse: [
 		^ self resolveMessageSend: aRBMessageNode receiver: block ].
 
 	arguments := aRBMessageNode arguments.
@@ -745,7 +725,8 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 		             e acceptVisitor: self.
 		             self popOperand ].
 
-	self interpretInlinedCode: block receiver: block arguments: arguments
+	
+	self interpretInlinedCode: (self blockClosureFor: block originAST) receiver: block arguments: arguments
 ]
 
 { #category : 'special cases' }
@@ -1652,15 +1633,6 @@ DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver ar
 		               operands: { receiver } , arguments.
 	instruction inlineGenerator: inlineGenerator.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
-
-	"Sends with blocks must keep the context (temporaries in the stack)
-	  That is having all outer temporaries in the dependency-user chain.
-	 If not, we don't need them, and the state is clear from previous context
-	  This simplify the inlinings, the reason why the send has a inlineGenerator
-	"
-	instruction hasBlockOperand 
-		ifTrue: [ instruction innerDependencies do: [ :i | i addUser: instruction ] ] 
-		ifFalse: [ inlineGenerator clearTemporaryInstructions ].
 	
 	^ self addInstruction: instruction from: aRBMessageNode
 ]

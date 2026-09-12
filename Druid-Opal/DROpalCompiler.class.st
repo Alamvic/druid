@@ -123,6 +123,8 @@ DROpalCompiler class >> recompileClass: aClass except: ignoredSelectors [
 		on: Error do: [ :ex |
 			n := n + 1.
 			n trace. '. ' trace.
+			aClass name trace.
+			' >> ' trace.
 			sel traceCr.
 			ex description traceCr.
 			self copyMethod: sel from: aClass to: newClass

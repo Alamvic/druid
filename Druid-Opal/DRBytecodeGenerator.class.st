@@ -199,7 +199,7 @@ DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 
 	| compiledBlock blockCFG blockBytecodeGenerator copiedValues |
 
-	blockCFG := aDRBlockClosure ensureIR.
+	blockCFG := aDRBlockClosure blockCFG.
 	
 	blockCFG applyOptimisation: DRFrameInfoCleaner new.
 	blockCFG applyOptimisation: DRBranchCollapse new.

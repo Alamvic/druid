@@ -19,6 +19,20 @@ DRInstructionsTest >> setUp [
 ]
 
 { #category : 'tests' }
+DRInstructionsTest >> testCreateBlockClosureUsesTemporaries [
+
+	| cfg instruction block |
+	cfg := self generateDruidIRFor: #simpleMethodWithBlockReadingOuterVariable.
+	cfg applyOptimisation: DRCleanControlFlow new.
+	instruction := cfg firstBasicBlock instructions third.
+	block := cfg firstBasicBlock instructions fourth.
+
+	self assert: block isCreateBlockClosure.
+	self assert: (instruction users includes: block).
+	self assert: block dependencies unique equals: instruction
+]
+
+{ #category : 'tests' }
 DRInstructionsTest >> testReplaceInstructionUpdateOperandAndUsers [
 
 	| cfg instruction user newInstruction |

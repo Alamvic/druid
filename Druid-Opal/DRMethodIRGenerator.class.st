@@ -31,15 +31,6 @@ DRMethodIRGenerator >> addAssignmentInstructionFrom: anAssignmentNode instructio
 ]
 
 { #category : 'building' }
-DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
-
-	^ (super blockClosureFor: aRBBlockNode)
-		  irGenerator: self blockClosureGenerator;
-		  ensureIR;
-		  yourself
-]
-
-{ #category : 'building' }
 DRMethodIRGenerator >> blockClosureGenerator [
 
 	| blockGenerator |
@@ -452,6 +443,26 @@ DRMethodIRGenerator >> visitArrayNode: aRBArrayNode [
 		addInstructionFrom: aRBArrayNode
 		instructionKind: DRArray 
 		operands: values asArray
+]
+
+{ #category : 'visiting' }
+DRMethodIRGenerator >> visitBlockNode: aRBBlockNode [
+
+	| block blockGenerator blockCFG createBlockInstruction |
+	block := self blockClosureFor: aRBBlockNode.
+	blockGenerator := self blockClosureGenerator.
+	blockGenerator initializeIR.
+	blockCFG := blockGenerator interpretBlockClosure: block.
+
+	createBlockInstruction := self
+		                          addInstructionFrom: aRBBlockNode
+		                          instructionKind: DRCreateBlockClosure
+		                          operands: self allTemporaryInstructions "TODO: this is wrong".
+
+	createBlockInstruction
+		blockCFG: blockCFG;
+		blockNode: aRBBlockNode;
+		outerContext: self topFrame
 ]
 
 { #category : 'visiting' }
