@@ -11,6 +11,12 @@ Class {
 	#tag : 'IR'
 }
 
+{ #category : 'visiting' }
+DRCreateBlockClosure >> acceptVisitor: aVisitor [
+
+	aVisitor visitCreateBlockClosure: self
+]
+
 { #category : 'accessing' }
 DRCreateBlockClosure >> blockCFG [
 	^ blockCFG
@@ -64,6 +70,13 @@ DRCreateBlockClosure >> outerContext [
 DRCreateBlockClosure >> outerContext: aDRClosureStackFrame [
 
 	outerContext := aDRClosureStackFrame
+]
+
+{ #category : 'SCCP' }
+DRCreateBlockClosure >> sccpLatticeValueFor: sccp [ 
+	
+	"This instruction has no value"
+	^ sccp bottom
 ]
 
 { #category : 'types' }
