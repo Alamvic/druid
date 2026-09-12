@@ -28,12 +28,6 @@ DRMessageSend >> blockOperandCount [
 	^ self operands count: [ :arg | arg simpleConstantFold isDRBlockClosure ]
 ]
 
-{ #category : 'accessing' }
-DRMessageSend >> dependencies [
-
-	^ super dependencies , self innerDependencies
-]
-
 { #category : 'testing' }
 DRMessageSend >> hasBlockOperand [
 
@@ -70,15 +64,6 @@ DRMessageSend >> inlineGenerator: anIrGenerator [
 DRMessageSend >> inliningMethods [
 
 	^ inlineGenerator typeSystem methodsForMessage: self
-]
-
-{ #category : 'inline' }
-DRMessageSend >> innerDependencies [
-
-	self hasBlockOperand ifFalse: [ ^ #(  ) ].
-	inlineGenerator ifNil: [ ^ #(  ) ].
-	^ (inlineGenerator allTemporaryInstructions reject: #isDRBlockClosure)
-		  copyWithoutAll: self operands
 ]
 
 { #category : 'accessing' }
@@ -136,23 +121,6 @@ DRMessageSend >> receiverType [
 		^ DRUndefinedType new ].
 
 	^ self receiver type
-]
-
-{ #category : 'replacing' }
-DRMessageSend >> replaceDependency: anOperand by: anotherOperand [
-
-	(self innerDependencies includes: anOperand) ifTrue: [
-		self replaceInnerDependencie: anOperand by: anotherOperand ].
-
-	super replaceDependency: anOperand by: anotherOperand
-]
-
-{ #category : 'replacement' }
-DRMessageSend >> replaceInnerDependencie: anInstructionDependency by: anotherInstruction [
-
-	self inlineGenerator executionStack
-		replaceTemporaries: anInstructionDependency
-		by: anotherInstruction
 ]
 
 { #category : 'SCCP' }
