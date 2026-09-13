@@ -445,21 +445,21 @@ DRBytecodeGenerator >> visitStoreLiteralVariable: aDRStoreLiteralVariable [
 DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
 	| value |
-	value := aDRStoreTemporaryVariable operand2 simpleConstantFold
-		         asDRValue.
-	value isStoreTemporaryVariable ifFalse: [ value acceptVisitor: self ].
+	value := aDRStoreTemporaryVariable operand2 simpleConstantFold asDRValue.
+	"Avoid store of stores, they should be compiled as store + read"	
+	self assert: value isStoreTemporaryVariable not.
+	
+	value acceptVisitor: self.
 
 	builder
 		storeRemoteTemp: aDRStoreTemporaryVariable operand1 value
 		inVector: aDRStoreTemporaryVariable scope tempVectorName.
 
-	(aDRStoreTemporaryVariable users reject: [ :each |
-		 each isLoadTemporaryVariable or: [
-			 each isMessageSend or: [
-				"TODO: Check why this case"
-				 each isCopy and: [
-					 each simpleConstantFold = aDRStoreTemporaryVariable ] ] ] ])
-		isEmpty ifTrue: [ builder popTop ]
+	"Stores should not have users, only block closures catch temporaries"	
+	self assert: (aDRStoreTemporaryVariable users allSatisfy: [ :each | each isBlock ]).		
+
+	builder popTop
+
 ]
 
 { #category : 'ir-to-target' }
