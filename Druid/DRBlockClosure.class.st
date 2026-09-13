@@ -65,7 +65,8 @@ DRBlockClosure >> ensureIR [
 
 	irGenerator isEmpty ifTrue: [
 		irGenerator initializeIR.
-		irGenerator interpretBlockClosure: self ].
+		irGenerator interpretBlockClosure: self.
+		irGenerator ir validate ].
 
 	^ irGenerator ir
 ]

@@ -107,7 +107,7 @@ DRBytecodeGeneratorTest >> compileSelector: selector fromClass: interpreterClass
 	method := interpreterClass >> selector.
 	interpreter := interpreterClass basicNew.
 	compilerCompiler interpreter: interpreter.
-	
+
 	cfg := self generateDruidIRFor: method.
 
 	method := self generateMethodFromCFG: cfg withSelector: selector.
