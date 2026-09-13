@@ -25,13 +25,7 @@ DRMessageSend >> arguments [
 { #category : 'testing' }
 DRMessageSend >> blockOperandCount [
 
-	^ self operands count: [ :arg | arg simpleConstantFold isDRBlockClosure ]
-]
-
-{ #category : 'testing' }
-DRMessageSend >> hasBlockOperand [
-
-	^ self operands anySatisfy: [ :arg | arg isDRBlockClosure ]
+	^ self operands count: [ :arg | arg simpleConstantFold isBlock ]
 ]
 
 { #category : 'testing' }

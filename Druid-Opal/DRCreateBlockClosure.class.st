@@ -62,6 +62,12 @@ DRCreateBlockClosure >> isCreateBlockClosure [
 ]
 
 { #category : 'accessing' }
+DRCreateBlockClosure >> numberOfArguments [
+
+	^ blockNode numArgs 
+]
+
+{ #category : 'accessing' }
 DRCreateBlockClosure >> outerContext [
 	^ outerContext
 ]

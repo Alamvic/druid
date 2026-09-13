@@ -399,6 +399,12 @@ DRMethodIRGenerator >> setupCFGScope: aCodeNode [
 ]
 
 { #category : 'as yet unclassified' }
+DRMethodIRGenerator >> temporariesFor: aOCNode [
+ 
+	^ executionState temporariesFor: aOCNode
+]
+
+{ #category : 'as yet unclassified' }
 DRMethodIRGenerator >> temporariesListfrom: aNode [ 
 	
 	^ aNode temporaryNames
@@ -448,16 +454,17 @@ DRMethodIRGenerator >> visitArrayNode: aRBArrayNode [
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitBlockNode: aRBBlockNode [
 
-	| block blockGenerator blockCFG createBlockInstruction |
+	| block blockGenerator blockCFG createBlockInstruction allTemporaries |
 	block := self blockClosureFor: aRBBlockNode.
 	blockGenerator := self blockClosureGenerator.
 	blockGenerator initializeIR.
 	blockCFG := blockGenerator interpretBlockClosure: block.
 
+	allTemporaries := self temporariesFor: aRBBlockNode.
 	createBlockInstruction := self
 		                          addInstructionFrom: aRBBlockNode
 		                          instructionKind: DRCreateBlockClosure
-		                          operands: self allTemporaryInstructions "TODO: this is wrong".
+		                          operands: allTemporaries values.
 
 	createBlockInstruction
 		blockCFG: blockCFG;

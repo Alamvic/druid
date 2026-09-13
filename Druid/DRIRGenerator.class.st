@@ -104,12 +104,6 @@ DRIRGenerator >> addInstructionWithNoResultFrom: aNode instructionKind: instruct
 	^ self addInstruction: instruction from: aNode
 ]
 
-{ #category : 'accessing' }
-DRIRGenerator >> allTemporaryInstructions [
-
-	^ executionState allTemporaryInstructions
-]
-
 { #category : 'factory' }
 DRIRGenerator >> allocateTemporaryRegister [
 	
@@ -692,7 +686,7 @@ DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 	block := self popOperand simplify.
 
 	"If we cannot inline the block, then send the message"	
-	block isDRBlockClosure ifFalse: [
+	block isBlock ifFalse: [
 		^ self resolveMessageSend: aRBMessageNode receiver: block ].
 
 	arguments := aRBMessageNode arguments collect: [ :e |
@@ -701,7 +695,7 @@ DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 
 	"cull: only pass the required number of arguments and ignore the rest"
 	self
-		interpretInlinedCode: block
+		interpretInlinedCode: (self blockClosureFor: block originAST)
 		receiver: block
 		arguments: (arguments first: block numberOfArguments)
 ]
