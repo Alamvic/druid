@@ -456,7 +456,7 @@ DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 		inVector: aDRStoreTemporaryVariable scope tempVectorName.
 
 	"Stores should not have users, only block closures catch temporaries"	
-	self assert: (aDRStoreTemporaryVariable users allSatisfy: [ :each | each isBlock ]).		
+	self assert: (aDRStoreTemporaryVariable users allSatisfy: [ :each | each isDRBlockClosure ]).		
 
 	builder popTop
 

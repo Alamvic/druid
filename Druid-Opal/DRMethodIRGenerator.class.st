@@ -30,12 +30,30 @@ DRMethodIRGenerator >> addAssignmentInstructionFrom: anAssignmentNode instructio
 	^ store
 ]
 
+{ #category : 'visiting' }
+DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
+
+	| allTemporaries block |
+	"Block closures could access to all temporaries, optimize it later"
+	allTemporaries := self temporariesFor: aRBBlockNode.
+	block := self
+		         addInstructionFrom: aRBBlockNode
+		         instructionKind: DRBlockClosure
+		         operands: allTemporaries values.
+
+	^ block
+		blockNode: aRBBlockNode;
+		outerContext: self topFrame;
+		yourself
+]
+
 { #category : 'building' }
 DRMethodIRGenerator >> blockClosureGenerator [
 
 	| blockGenerator |
 	blockGenerator := DRBlockIRGenerator new.
 	blockGenerator instructionFactory: self instructionFactory.
+	blockGenerator initializeIR.
 	
 	"For debugging?"
 	blockGenerator variableFrame: self topFrame copy.
@@ -454,22 +472,13 @@ DRMethodIRGenerator >> visitArrayNode: aRBArrayNode [
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitBlockNode: aRBBlockNode [
 
-	| block blockGenerator blockCFG createBlockInstruction allTemporaries |
-	block := self blockClosureFor: aRBBlockNode.
+	| blockClosure blockGenerator blockCFG |
+	blockClosure := self blockClosureFor: aRBBlockNode.
+	
+	"Generate the block CFG and attach it to the instruction"
 	blockGenerator := self blockClosureGenerator.
-	blockGenerator initializeIR.
-	blockCFG := blockGenerator interpretBlockClosure: block.
-
-	allTemporaries := self temporariesFor: aRBBlockNode.
-	createBlockInstruction := self
-		                          addInstructionFrom: aRBBlockNode
-		                          instructionKind: DRCreateBlockClosure
-		                          operands: allTemporaries values.
-
-	createBlockInstruction
-		blockCFG: blockCFG;
-		blockNode: aRBBlockNode;
-		outerContext: self topFrame
+	blockCFG := blockGenerator interpretBlockClosure: blockClosure.
+	blockClosure blockCFG: blockCFG
 ]
 
 { #category : 'visiting' }

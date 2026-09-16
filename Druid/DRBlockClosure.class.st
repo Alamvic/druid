@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'outerContext',
 		'blockNode',
-		'irGenerator'
+		'irGenerator',
+		'blockCFG'
 	],
 	#category : 'Druid-CompilerCompiler',
 	#package : 'Druid',
@@ -34,6 +35,17 @@ DRBlockClosure >> argName: index [
 DRBlockClosure >> basicNewFrame [
 
 	^ DRClosureStackFrame new
+]
+
+{ #category : 'accessing' }
+DRBlockClosure >> blockCFG [
+	^ blockCFG
+]
+
+{ #category : 'as yet unclassified' }
+DRBlockClosure >> blockCFG: aDRControlFlowGraph [
+
+	blockCFG := aDRControlFlowGraph
 ]
 
 { #category : 'accessing' }
@@ -117,7 +129,7 @@ DRBlockClosure >> numberOfArguments [
 { #category : 'printing' }
 DRBlockClosure >> opcode [
 	
-	^ blockNode asString 
+	^ 'DRBlock ', blockNode asString 
 ]
 
 { #category : 'inspecting' }

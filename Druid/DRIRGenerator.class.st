@@ -686,7 +686,7 @@ DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 	block := self popOperand simplify.
 
 	"If we cannot inline the block, then send the message"	
-	block isBlock ifFalse: [
+	block isDRBlockClosure ifFalse: [
 		^ self resolveMessageSend: aRBMessageNode receiver: block ].
 
 	arguments := aRBMessageNode arguments collect: [ :e |
@@ -695,7 +695,7 @@ DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 
 	"cull: only pass the required number of arguments and ignore the rest"
 	self
-		interpretInlinedCode: (self blockClosureFor: block originAST)
+		interpretInlinedCode: block
 		receiver: block
 		arguments: (arguments first: block numberOfArguments)
 ]
@@ -708,7 +708,7 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 	block := self popOperand simplify.
 
 	"If we cannot inline the block, then send the message"
-	block isBlock ifFalse: [
+	block isDRBlockClosure ifFalse: [
 		^ self resolveMessageSend: aRBMessageNode receiver: block ].
 
 	arguments := aRBMessageNode arguments.
@@ -720,7 +720,7 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 		             self popOperand ].
 
 	
-	self interpretInlinedCode: (self blockClosureFor: block originAST) receiver: block arguments: arguments
+	self interpretInlinedCode: block receiver: block arguments: arguments
 ]
 
 { #category : 'special cases' }
@@ -1993,7 +1993,7 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 
-	self pushOperand: (self blockClosureFor: aRBBlockNode )
+	self pushOperand: (self blockClosureFor: aRBBlockNode)
 ]
 
 { #category : 'visiting' }

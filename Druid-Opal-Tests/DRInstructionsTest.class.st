@@ -27,7 +27,7 @@ DRInstructionsTest >> testCreateBlockClosureUsesTemporaries [
 	instruction := cfg firstBasicBlock instructions third.
 	block := cfg firstBasicBlock instructions fourth.
 
-	self assert: block isCreateBlockClosure.
+	self assert: block isDRBlockClosure.
 	self assert: (instruction users includes: block).
 	self assert: block dependencies unique equals: instruction
 ]

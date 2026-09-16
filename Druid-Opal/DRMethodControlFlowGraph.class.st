@@ -27,7 +27,7 @@ DRMethodControlFlowGraph >> allBlockClosures [
 	| closures |
 	closures := OrderedCollection new.
 	self instructionsDo: [ :i |
-			i isCreateBlockClosure ifTrue: [ closures add: i ] ].
+			i isDRBlockClosure ifTrue: [ closures add: i ] ].
 	^ closures
 ]
 
