@@ -251,12 +251,6 @@ DRBytecodeGenerator >> visitCopy: aDRCopy [
 ]
 
 { #category : 'visiting' }
-DRBytecodeGenerator >> visitCreateBlockClosure: aDRCreateBlockClosure [ 
-
-	self visitBlockClosure: aDRCreateBlockClosure
-]
-
-{ #category : 'visiting' }
 DRBytecodeGenerator >> visitDivision: aDRDivision [ 
 	"TODO: / and // are compiled as this instruction"
 	| selector |
