@@ -247,12 +247,6 @@ DRInstruction >> isCopy [
 ]
 
 { #category : 'testing' }
-DRInstruction >> isCreateBlockClosure [
-
-	^ false
-]
-
-{ #category : 'testing' }
 DRInstruction >> isDivision [
 	
 	^ false

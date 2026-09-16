@@ -4,7 +4,6 @@ Class {
 	#instVars : [
 		'outerContext',
 		'blockNode',
-		'irGenerator',
 		'blockCFG'
 	],
 	#category : 'Druid-CompilerCompiler',
@@ -82,18 +81,6 @@ DRBlockClosure >> executeOn: interpreter [
 DRBlockClosure >> hash [
 
 	^ blockNode hash
-]
-
-{ #category : 'accessing' }
-DRBlockClosure >> irGenerator [
-1halt.
-	^ irGenerator
-]
-
-{ #category : 'accessing' }
-DRBlockClosure >> irGenerator: anIRGenerator [
-1halt.
-	irGenerator := anIRGenerator
 ]
 
 { #category : 'testing' }

@@ -30,7 +30,7 @@ DRMethodIRGenerator >> addAssignmentInstructionFrom: anAssignmentNode instructio
 	^ store
 ]
 
-{ #category : 'visiting' }
+{ #category : 'building' }
 DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
 
 	| allTemporaries block |
