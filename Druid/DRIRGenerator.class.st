@@ -196,7 +196,7 @@ DRIRGenerator >> buildIfTrue: aCondition then: aBuildingBlock [
 				                   true asDRValue }.
 	self addEndInstruction: conditionalJump.
 
-	self pushOperand: DRNullValue new.
+	self pushOperand: self nullValue.
 	executionStateBeforeBranch := executionState copy.
 	self popOperand.
 
@@ -1739,6 +1739,13 @@ DRIRGenerator >> noop: aRBMessageNode [
 		  addInstructionWithNoResultFrom: aRBMessageNode
 		  instructionKind: DRNoop
 		  operands: #(  )
+]
+
+{ #category : 'building' }
+DRIRGenerator >> nullValue [
+
+	"Move to Cogit hierarchy"
+	^ DRNullValue new
 ]
 
 { #category : 'accessing' }

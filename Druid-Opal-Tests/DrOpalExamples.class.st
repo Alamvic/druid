@@ -508,9 +508,29 @@ DrOpalExamples >> returnArgument: arg [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnIfTrueValue: value [
+DrOpalExamples >> returnIfNotNilValue: value [
+
+	value ifNotNil: [ :v | ^ v ].
+	^ 42
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> returnIfTrueIfFalseValue: value [
 
 	^ value ifTrue: [ 5 ] ifFalse: [ 42 ]
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> returnIfTrueNonLocalReturn: value [
+
+	value ifTrue: [ ^ 5 ].
+	^ 42
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> returnIfTrueValue: value [
+
+	^ value ifTrue: [ 5 ]
 ]
 
 { #category : 'as yet unclassified' }

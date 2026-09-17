@@ -318,6 +318,12 @@ DRMethodIRGenerator >> newScope [
 
 ]
 
+{ #category : 'building' }
+DRMethodIRGenerator >> nullValue [
+
+	^ nil asDRValue 
+]
+
 { #category : 'accessing' }
 DRMethodIRGenerator >> numberOfArguments: aValue [ 
 	

@@ -320,11 +320,33 @@ DRBytecodeGeneratorTest >> test012_sendMessage [
 ]
 
 { #category : 'tests' }
-DRBytecodeGeneratorTest >> test013_returnIfTrueValue [
+DRBytecodeGeneratorTest >> test013_returnIfTrueIfFalseValue [
+
+	| newMethod |
+	compilerCompiler irGenerator typeSystem: DRCustomisationTypeSystem new.
+	newMethod := self compileSelector: #returnIfTrueIfFalseValue: fromClass: DrOpalExamples.
+
+	self assert: (newMethod valueWithReceiver: self arguments: { true }) equals: 5.
+	self assert: (newMethod valueWithReceiver: self arguments: { false }) equals: 42
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test014_returnIfTrueValue [
 
 	| newMethod |
 	compilerCompiler irGenerator typeSystem: DRCustomisationTypeSystem new.
 	newMethod := self compileSelector: #returnIfTrueValue: fromClass: DrOpalExamples.
+
+	self assert: (newMethod valueWithReceiver: self arguments: { true }) equals: 5.
+	self assert: (newMethod valueWithReceiver: self arguments: { false }) equals: nil
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test015_returnIfTrueNonLocalReturn [
+
+	| newMethod |
+	compilerCompiler irGenerator typeSystem: DRCustomisationTypeSystem new.
+	newMethod := self compileSelector: #returnIfTrueNonLocalReturn: fromClass: DrOpalExamples.
 
 	self assert: (newMethod valueWithReceiver: self arguments: { true }) equals: 5.
 	self assert: (newMethod valueWithReceiver: self arguments: { false }) equals: 42
