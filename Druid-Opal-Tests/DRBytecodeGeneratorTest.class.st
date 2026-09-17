@@ -319,6 +319,17 @@ DRBytecodeGeneratorTest >> test012_sendMessage [
 	self assert: counter equals: 1
 ]
 
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test013_returnIfTrueValue [
+
+	| newMethod |
+	compilerCompiler irGenerator typeSystem: DRCustomisationTypeSystem new.
+	newMethod := self compileSelector: #returnIfTrueValue: fromClass: DrOpalExamples.
+
+	self assert: (newMethod valueWithReceiver: self arguments: { true }) equals: 5.
+	self assert: (newMethod valueWithReceiver: self arguments: { false }) equals: 42
+]
+
 { #category : 'vrac' }
 DRBytecodeGeneratorTest >> testBasicControlFlow [
 

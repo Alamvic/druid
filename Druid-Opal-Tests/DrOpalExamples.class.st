@@ -508,6 +508,12 @@ DrOpalExamples >> returnArgument: arg [
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> returnIfTrueValue: value [
+
+	^ value ifTrue: [ 5 ] ifFalse: [ 42 ]
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> returnInitializedTemp [
 
 	| temp |

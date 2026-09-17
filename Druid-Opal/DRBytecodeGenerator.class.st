@@ -397,6 +397,19 @@ DRBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 	1 halt
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitPop: aDRPop [ 
+
+	"The value is already in the stack, then do nothing"
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitPush: aDRPush [ 
+
+	"Values are pushed on visiting, do nothing here"
+	aDRPush operand1 acceptVisitor: self
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitReturn: aDRReturn [ 
 

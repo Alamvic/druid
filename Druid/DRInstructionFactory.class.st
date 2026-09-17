@@ -328,6 +328,12 @@ DRInstructionFactory >> pop: anInteger unspilled: aBoolean [
 ]
 
 { #category : 'factory' }
+DRInstructionFactory >> popIntoVariable [
+
+	^ (self pop: 1 unspilled: false) result: self allocateTemporaryRegister 
+]
+
+{ #category : 'factory' }
 DRInstructionFactory >> push: operand [
 
 	^ DRPush

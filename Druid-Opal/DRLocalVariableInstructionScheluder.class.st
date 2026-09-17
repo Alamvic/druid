@@ -29,12 +29,26 @@ DRLocalVariableInstructionScheluder >> cleanRedundantStores: cfg [
 
 { #category : 'transformation' }
 DRLocalVariableInstructionScheluder >> replacePhisByStores: aDRControlFlowGraph [
-	
+
 	aDRControlFlowGraph phiFunctions do: [ :phi |
-		
 		phi operands size = 1
 			ifTrue: [ phi replaceByCopy ]
-			ifFalse: [ self storePhiOperands: phi ] ]
+			ifFalse: [ self resolvePhiFunction: phi ] ]
+]
+
+{ #category : 'transformation' }
+DRLocalVariableInstructionScheluder >> resolvePhiFunction: aDRPhiFunction [
+
+	"We move out from SSA representation to a stack representation.
+	The operands are pushed as last instructions of the predecessors,
+	 and the phi is replaced by a pop."
+
+	| popInstruction |
+	aDRPhiFunction hasUsers ifFalse: [ ^ self ].
+
+	aDRPhiFunction operandsAndPredecessorsDo: [ :op :pred | pred push: op ].
+	popInstruction := aDRPhiFunction basicBlock instructionFactory popIntoVariable.
+	aDRPhiFunction replaceBy: popInstruction
 ]
 
 { #category : 'operations' }
@@ -43,43 +57,6 @@ DRLocalVariableInstructionScheluder >> shouldIgnore: aDRInstruction [
 	^ aDRInstruction isStore or: [
 		  aDRInstruction isPhiFunction and: [
 			  aDRInstruction operands allSatisfy: [ :op | op isStore ] ] ]
-]
-
-{ #category : 'transformation' }
-DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
-
-	| variableName loadInst cfg|
-	aDRPhiFunction hasUsers ifFalse: [ ^ self ].
-	
-	variableName := aDRPhiFunction result name asLowercase asDRValue.
-	
-	"add the new created temporary variable to the scope"
-	cfg := aDRPhiFunction controlFlowGraph.
-	cfg addTempNameToScope: aDRPhiFunction result name asLowercase.
-	
-	loadInst := DRLoadTemporaryVariable 
-			operands: { variableName }
-			result: aDRPhiFunction result.
-	cfg addScopeToInstructionIfNeeded: loadInst .
-	aDRPhiFunction replaceBy: loadInst.
-
-	(aDRPhiFunction operandsWithoutMe allSatisfy: [ :op |
-		 op result isNoResult  ]) ifTrue: [ "If they are already temporaries then it is ok"
-		^ self ].
-	
-
-	aDRPhiFunction operandsWithoutMe 
-		select: [ :op | op isInstruction ]
-		thenDo: [ :op |
-		| storeInst |
-		storeInst := DRStoreTemporaryVariable
-			             operands: {
-					             variableName.
-					             op }
-			             result: DRNoRegister new.
-		
-		cfg addScopeToInstructionIfNeeded: storeInst .
-		op basicBlock add: storeInst after: op ]
 ]
 
 { #category : 'transformation' }
