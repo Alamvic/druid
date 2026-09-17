@@ -851,9 +851,23 @@ DROpalExamples >> storeIfTrueIfFalseValue: value [
 ]
 
 { #category : 'as yet unclassified' }
+DROpalExamples >> storeIfTrueValue: value [
+
+	| t |
+	t := value ifTrue: [ 5 ].
+	^ t
+]
+
+{ #category : 'as yet unclassified' }
 DROpalExamples >> storeInstVarIfTrueIfFalseValue: value [
 
 	dummyVariable := value ifTrue: [ 5 ] ifFalse: [ 42 ]
+]
+
+{ #category : 'as yet unclassified' }
+DROpalExamples >> storeInstVarIfTrueValue: value [
+
+	dummyVariable := value ifTrue: [ 5 ]
 ]
 
 { #category : 'as yet unclassified' }
