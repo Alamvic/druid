@@ -405,6 +405,37 @@ DRBytecodeGeneratorTest >> test019_storeInstVarIfTrueValue [
 	self assert: instance dummyVariable equals: nil.
 ]
 
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test020_storeIfTrue [
+
+	| newMethod |
+	compilerCompiler irGenerator typeSystem: DRCustomisationTypeSystem new.
+	newMethod := self compileSelector: #storeIfTrue: fromClass: DROpalExamples.
+
+	self assert: (newMethod valueWithReceiver: self arguments: { true }) equals: 5.
+	self assert: (newMethod valueWithReceiver: self arguments: { false }) equals: 42
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test021_storeWhileTrue [
+
+	| newMethod |
+	compilerCompiler irGenerator typeSystem: DRCustomisationTypeSystem new.
+	newMethod := self compileSelector: #storeWhileTrue fromClass: DROpalExamples.
+
+	self assert: (newMethod valueWithReceiver: self) equals: 5
+]
+
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> test022_storeToDo [
+
+	| newMethod |
+	compilerCompiler irGenerator typeSystem: DRCustomisationTypeSystem new.
+	newMethod := self compileSelector: #storeToDo fromClass: DROpalExamples.
+
+	self assert: (newMethod valueWithReceiver: self) equals: 5
+]
+
 { #category : 'vrac' }
 DRBytecodeGeneratorTest >> testBasicControlFlow [
 

@@ -843,6 +843,15 @@ DROpalExamples >> simpleMethodWithTempAssignment [
 ]
 
 { #category : 'as yet unclassified' }
+DROpalExamples >> storeIfTrue: value [
+
+	| t |
+	t := 42.
+	value ifTrue: [ t := 5 ].
+	^ t
+]
+
+{ #category : 'as yet unclassified' }
 DROpalExamples >> storeIfTrueIfFalseValue: value [
 
 	| t |
@@ -868,6 +877,24 @@ DROpalExamples >> storeInstVarIfTrueIfFalseValue: value [
 DROpalExamples >> storeInstVarIfTrueValue: value [
 
 	dummyVariable := value ifTrue: [ 5 ]
+]
+
+{ #category : 'as yet unclassified' }
+DROpalExamples >> storeToDo [
+
+	| t |
+	t := 0.
+	1 to: 5 do: [ :n | t := n ].
+	^ t
+]
+
+{ #category : 'as yet unclassified' }
+DROpalExamples >> storeWhileTrue [
+
+	| t |
+	t := 0.
+	[ t < 5 ] whileTrue: [ t := t + 1 ].
+	^ t
 ]
 
 { #category : 'as yet unclassified' }
