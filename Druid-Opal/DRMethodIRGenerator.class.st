@@ -91,6 +91,15 @@ DRMethodIRGenerator >> initializeIR [
 ]
 
 { #category : 'initialization' }
+DRMethodIRGenerator >> initializePragma: pragmas [
+
+	| instr |
+	instr := self currentBasicBlock initializePragma.
+	instr pragmas: pragmas.
+	pragmas do: [ :each | each acceptVisitor: self].
+]
+
+{ #category : 'initialization' }
 DRMethodIRGenerator >> initializeScope [
 	
 	^ self currentBasicBlock initializeScope: self scope.
@@ -171,6 +180,10 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [ 
 	
 	self setupCFGScope: aDRMethod codeNode.
+	
+	(aDRMethod codeNode isMethod and: [ aDRMethod codeNode pragmas isNotEmpty ]) ifTrue: [
+		self initializePragma: aDRMethod codeNode pragmas.
+	].
 	
 	self pushFrameForCode: aDRMethod receiver: aReceiver.
 	aDRMethod executeOn: self.
@@ -480,6 +493,15 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 		operands: { 
 				self topFrame receiver.
 				aRBVariableNode variable index asDRValue }
+]
+
+{ #category : 'visiting' }
+DRMethodIRGenerator >> visitPragmaNode: aPragmaNode [
+	
+	"Nothing yet"
+	"if the pragma defines an error variable, we need to declare a temp and add it to scope"
+	
+	
 ]
 
 { #category : 'visiting' }

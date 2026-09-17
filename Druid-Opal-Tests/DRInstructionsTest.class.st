@@ -63,7 +63,7 @@ DRInstructionsTest >> testReplaceMessageSendUpdateInnerDependencies [
 	cfg := self generateDruidIRFor: #simpleMethodWithBlockReadingOuterVariable.
 	cfg applyOptimisation: DRCleanControlFlow new.
 	instruction := cfg firstBasicBlock instructions third.
-	message := cfg firstBasicBlock instructions fourth.
+	message := cfg firstBasicBlock instructions fourth .
 	 
 	self assert: (instruction users includes: message).
 

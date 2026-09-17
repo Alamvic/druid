@@ -601,6 +601,12 @@ DRBasicBlock >> initialize [
 	endInstruction basicBlock: self.
 ]
 
+{ #category : 'initialization' }
+DRBasicBlock >> initializePragma [
+	
+	^ self addInstruction: self instructionFactory initializePragma
+]
+
 { #category : 'splitting' }
 DRBasicBlock >> insertPhisAndReplaceUsersBetween: myInstruction andAll: duplicatedInstructions withFrontier: frontier withUsers: users [
 

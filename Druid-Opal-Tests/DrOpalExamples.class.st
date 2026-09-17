@@ -703,6 +703,14 @@ DrOpalExamples >> simpleMethodWithBlockWritingOuterVariable: arg [
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> simpleMethodWithPragmaPrimitive [
+	<primitive: 75>
+	
+	self primitiveFailed 
+	
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> simpleMethodWithTempAssignment [
 
 	| x y tmp| 
