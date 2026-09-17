@@ -290,12 +290,7 @@ DRBytecodeGenerator >> visitInitializePragma: aDRInitializePragma [
 
 	aDRInitializePragma pragmas do: [ :each | 
 		each acceptVisitor: self .
-		
-		"if the pragma is a primitive that defines an error variable, we need to store error value"
-		each isPrimitiveErrorPragma ifTrue: [
-			builder
-				storeRemoteTemp: each primitiveErrorVariableName
-				inVector: aDRInitializePragma controlFlowGraph scope tempVectorName.]
+		"TO DO: if the pragma is a primitive that defines an error variable, we need to store error value"
 	].
 ]
 
