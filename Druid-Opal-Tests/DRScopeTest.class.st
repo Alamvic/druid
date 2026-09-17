@@ -54,7 +54,7 @@ DRScopeTest >> testMethodOneArgsWithBlockOneLocals [
 
 	| cfg blockCFG |
 	cfg := self generateDruidIRFor: #simpleMethodWithBlockReadingArgVariable:.
-	blockCFG := cfg messageSends first arguments first ensureIR.
+	blockCFG := cfg messageSends first arguments first blockCFG.
 
 	self assert: blockCFG scope outerScope equals: cfg scope.
 	
@@ -84,7 +84,7 @@ DRScopeTest >> testMethodWithBlockNoArgsOneLocals [
 
 	| cfg blockCFG |
 	cfg := self generateDruidIRFor: #simpleMethodWithBlock.
-	blockCFG := cfg messageSends first arguments first ensureIR.
+	blockCFG := cfg messageSends first arguments first blockCFG.
 	
 	self assert: blockCFG scope outerScope equals: cfg scope.
 	
@@ -103,7 +103,7 @@ DRScopeTest >> testMethodWithBlockOneArgsOneLocals [
 
 	| cfg blockCFG |
 	cfg := self generateDruidIRFor: #simpleMethodWithBlockWithArg.
-	blockCFG := cfg messageSends first arguments first ensureIR.
+	blockCFG := cfg messageSends first arguments first blockCFG.
 	
 	self assert: blockCFG scope outerScope equals: cfg scope.
 	
@@ -120,8 +120,8 @@ DRScopeTest >> testMethodWithNestedBlocksOneLocals [
 
 	| cfg blockCFG innerBlockCFG |
 	cfg := self generateDruidIRFor: #methodBlockNested2ReadingOuterTemp.
-	blockCFG := cfg messageSends first arguments first ensureIR.
-	innerBlockCFG := blockCFG messageSends first arguments first ensureIR.
+	blockCFG := cfg messageSends first arguments first blockCFG.
+	innerBlockCFG := blockCFG messageSends first arguments first blockCFG.
 	
 	self assert: blockCFG scope outerScope equals: cfg scope.
 	self assert: innerBlockCFG scope outerScope equals: blockCFG scope.

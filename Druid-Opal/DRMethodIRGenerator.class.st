@@ -33,10 +33,18 @@ DRMethodIRGenerator >> addAssignmentInstructionFrom: anAssignmentNode instructio
 { #category : 'building' }
 DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
 
-	^ (super blockClosureFor: aRBBlockNode)
-		  irGenerator: self blockClosureGenerator;
-		  ensureIR;
-		  yourself
+	| allTemporaries block |
+	"Block closures could access to all temporaries, optimize it later"
+	allTemporaries := self temporariesFor: aRBBlockNode.
+	block := self
+		         addInstructionFrom: aRBBlockNode
+		         instructionKind: DRBlockClosure
+		         operands: allTemporaries values.
+
+	^ block
+		blockNode: aRBBlockNode;
+		outerContext: self topFrame;
+		yourself
 ]
 
 { #category : 'building' }
@@ -45,6 +53,7 @@ DRMethodIRGenerator >> blockClosureGenerator [
 	| blockGenerator |
 	blockGenerator := DRBlockIRGenerator new.
 	blockGenerator instructionFactory: self instructionFactory.
+	blockGenerator initializeIR.
 	
 	"For debugging?"
 	blockGenerator variableFrame: self topFrame copy.
@@ -408,6 +417,12 @@ DRMethodIRGenerator >> setupCFGScope: aCodeNode [
 ]
 
 { #category : 'as yet unclassified' }
+DRMethodIRGenerator >> temporariesFor: aOCNode [
+ 
+	^ executionState temporariesFor: aOCNode
+]
+
+{ #category : 'as yet unclassified' }
 DRMethodIRGenerator >> temporariesListfrom: aNode [ 
 	
 	^ aNode temporaryNames
@@ -452,6 +467,18 @@ DRMethodIRGenerator >> visitArrayNode: aRBArrayNode [
 		addInstructionFrom: aRBArrayNode
 		instructionKind: DRArray 
 		operands: values asArray
+]
+
+{ #category : 'visiting' }
+DRMethodIRGenerator >> visitBlockNode: aRBBlockNode [
+
+	| blockClosure blockGenerator blockCFG |
+	blockClosure := self blockClosureFor: aRBBlockNode.
+	
+	"Generate the block CFG and attach it to the instruction"
+	blockGenerator := self blockClosureGenerator.
+	blockCFG := blockGenerator interpretBlockClosure: blockClosure.
+	blockClosure blockCFG: blockCFG
 ]
 
 { #category : 'visiting' }

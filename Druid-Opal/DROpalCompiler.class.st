@@ -27,6 +27,7 @@ DROpalCompiler class >> generateMethodFromCFG: aDRControlFlowGraph withSelector:
 	DRUnconditionalBackJumpScheluder new applyTo: aDRControlFlowGraph.
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
 	aDRControlFlowGraph applyOptimisation: DRCleanScopes new.
+	aDRControlFlowGraph applyOptimisation: DRCleanInlinedClosures new.
 	aDRControlFlowGraph applyOptimisation: DRDeadCodeElimination new.
 
 	bytecodeGenerator := DRBytecodeGenerator new.
@@ -123,6 +124,8 @@ DROpalCompiler class >> recompileClass: aClass except: ignoredSelectors [
 		on: Error do: [ :ex |
 			n := n + 1.
 			n trace. '. ' trace.
+			aClass name trace.
+			' >> ' trace.
 			sel traceCr.
 			ex description traceCr.
 			self copyMethod: sel from: aClass to: newClass

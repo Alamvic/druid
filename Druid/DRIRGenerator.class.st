@@ -104,12 +104,6 @@ DRIRGenerator >> addInstructionWithNoResultFrom: aNode instructionKind: instruct
 	^ self addInstruction: instruction from: aNode
 ]
 
-{ #category : 'accessing' }
-DRIRGenerator >> allTemporaryInstructions [
-
-	^ executionState allTemporaryInstructions
-]
-
 { #category : 'factory' }
 DRIRGenerator >> allocateTemporaryRegister [
 	
@@ -684,26 +678,6 @@ DRIRGenerator >> interpretBlockBody: aRBBlockNode [
 	self assert: self topFrame operandStack size = 1.
 ]
 
-{ #category : 'API' }
-DRIRGenerator >> interpretBlockClosure: aDRBlockClosure [
-	"Create the initial basic block"
-
-	| numArgs cfg |
-	numArgs := aDRBlockClosure numberOfArguments.
-	self numberOfArguments: numArgs.
-	self interpretCode: aDRBlockClosure receiver: aDRBlockClosure.
-
-	cfg := self ir.
-	cfg numArgs: numArgs.
-
-	"Clean garbage to generate a valid CFG"
-	DRDeadBlockElimination new applyTo: cfg.
-	DRDeadCodeElimination new applyTo: cfg.
-	cfg validate.	
-
-	^ cfg
-]
-
 { #category : 'special cases' }
 DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 
@@ -745,6 +719,7 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 		             e acceptVisitor: self.
 		             self popOperand ].
 
+	
 	self interpretInlinedCode: block receiver: block arguments: arguments
 ]
 
@@ -1652,15 +1627,6 @@ DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver ar
 		               operands: { receiver } , arguments.
 	instruction inlineGenerator: inlineGenerator.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
-
-	"Sends with blocks must keep the context (temporaries in the stack)
-	  That is having all outer temporaries in the dependency-user chain.
-	 If not, we don't need them, and the state is clear from previous context
-	  This simplify the inlinings, the reason why the send has a inlineGenerator
-	"
-	instruction hasBlockOperand 
-		ifTrue: [ instruction innerDependencies do: [ :i | i addUser: instruction ] ] 
-		ifFalse: [ inlineGenerator clearTemporaryInstructions ].
 	
 	^ self addInstruction: instruction from: aRBMessageNode
 ]
@@ -2027,7 +1993,7 @@ DRIRGenerator >> visitAssignmentNode: aRBAssignmentNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitBlockNode: aRBBlockNode [
 
-	self pushOperand: (self blockClosureFor: aRBBlockNode )
+	self pushOperand: (self blockClosureFor: aRBBlockNode)
 ]
 
 { #category : 'visiting' }
