@@ -1,5 +1,5 @@
 Class {
-	#name : 'DrOpalExamples',
+	#name : 'DROpalExamples',
 	#superclass : 'Object',
 	#instVars : [
 		'dummyVariable',
@@ -14,13 +14,13 @@ Class {
 }
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> basicInlineMethod [
+DROpalExamples >> basicInlineMethod [
 
 	^ self doubleOf: 42
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> basicInlineMethodAccesInstVar [
+DROpalExamples >> basicInlineMethodAccesInstVar [
 	<var: #aStack type: #Stack >
 	
 	| aStack |
@@ -31,33 +31,33 @@ DrOpalExamples >> basicInlineMethodAccesInstVar [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> basicInlineMethodSelfAccesInstVar [
+DROpalExamples >> basicInlineMethodSelfAccesInstVar [
 	
 	^ dummyVariable
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> basicInlineMethodSelfSettingInstVar [
+DROpalExamples >> basicInlineMethodSelfSettingInstVar [
 
 	dummyVariable := 5.
 	^ dummyVariable
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> basicInlineMethodSelfSettingInstVarOnReturn [
+DROpalExamples >> basicInlineMethodSelfSettingInstVarOnReturn [
 
 	^ dummyVariable := 5
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> basicInlineMethodSelfSettingInstVarWithUsers [
+DROpalExamples >> basicInlineMethodSelfSettingInstVarWithUsers [
 
 	| tempVariable |
 	^ tempVariable := dummyVariable := 5
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> basicInlineMethodSettingInstVar [
+DROpalExamples >> basicInlineMethodSettingInstVar [
 	<var: #assoc type: #Association  >
 	
 	| assoc |
@@ -67,7 +67,7 @@ DrOpalExamples >> basicInlineMethodSettingInstVar [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> basicMethodWithBlock2: aBlock [
+DROpalExamples >> basicMethodWithBlock2: aBlock [
 
 	| tmp2 |
 	tmp2  := aBlock value.
@@ -76,7 +76,7 @@ DrOpalExamples >> basicMethodWithBlock2: aBlock [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> basicMethodWithBlock: aBlock [
+DROpalExamples >> basicMethodWithBlock: aBlock [
 
 	| tmp1 |
 	tmp1  := aBlock value.
@@ -85,7 +85,7 @@ DrOpalExamples >> basicMethodWithBlock: aBlock [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> basicMethodWithBlockArg: aBlock [
+DROpalExamples >> basicMethodWithBlockArg: aBlock [
 
 	| tmp1 |
 	tmp1  := aBlock value: 5.
@@ -94,12 +94,12 @@ DrOpalExamples >> basicMethodWithBlockArg: aBlock [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> blockWithValue: arg [
+DROpalExamples >> blockWithValue: arg [
 	^ [ arg ]
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> complexInlineMethod [
+DROpalExamples >> complexInlineMethod [
 
 	| x |
 	x := 0.
@@ -108,19 +108,19 @@ DrOpalExamples >> complexInlineMethod [
 ]
 
 { #category : 'displaying' }
-DrOpalExamples >> displayString [ 
+DROpalExamples >> displayString [ 
 
 	^ super displayString , ' cool'
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> doubleOf: n [
+DROpalExamples >> doubleOf: n [
 
 	^ n * 2
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> doubleWhileWithBlock: aBlock [
+DROpalExamples >> doubleWhileWithBlock: aBlock [
     | x y |
     [
     	[ x > y ifFalse: [aBlock value: x].
@@ -129,23 +129,23 @@ DrOpalExamples >> doubleWhileWithBlock: aBlock [
 ]
 
 { #category : 'accessing' }
-DrOpalExamples >> dummyVariable [
+DROpalExamples >> dummyVariable [
 
 	^ dummyVariable
 ]
 
 { #category : 'accessing' }
-DrOpalExamples >> dummyVariable: anObject [
+DROpalExamples >> dummyVariable: anObject [
 
 	dummyVariable := anObject
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> empty [
+DROpalExamples >> empty [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> emptyIf [
+DROpalExamples >> emptyIf [
 	| irow |
 	irow = nil
 		ifTrue: [ ]
@@ -154,19 +154,19 @@ DrOpalExamples >> emptyIf [
 ]
 
 { #category : 'accessing' }
-DrOpalExamples >> fillMask [
+DROpalExamples >> fillMask [
 
 	^ fillMask
 ]
 
 { #category : 'accessing' }
-DrOpalExamples >> fillMask: anObject [
+DROpalExamples >> fillMask: anObject [
 
 	fillMask := anObject
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockConstant [
+DROpalExamples >> methodBlockConstant [
 	"a constant block closure"
 	
 	| temp |
@@ -176,7 +176,7 @@ DrOpalExamples >> methodBlockConstant [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockLocalAndNonLocalReturn [
+DROpalExamples >> methodBlockLocalAndNonLocalReturn [
 	"a constant block closure"
 	
 	| temp |
@@ -188,7 +188,7 @@ DrOpalExamples >> methodBlockLocalAndNonLocalReturn [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockNested2ReadAndWrite [
+DROpalExamples >> methodBlockNested2ReadAndWrite [
 
 	| temp1 temp2|
 	temp1 := 1.
@@ -207,7 +207,7 @@ DrOpalExamples >> methodBlockNested2ReadAndWrite [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockNested2ReadAndWriteWithArg: arg [
+DROpalExamples >> methodBlockNested2ReadAndWriteWithArg: arg [
 
 	| temp1 temp2|
 	temp1 := 1.
@@ -227,7 +227,7 @@ DrOpalExamples >> methodBlockNested2ReadAndWriteWithArg: arg [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockNested2ReadingOuterArg2: arg1 [
+DROpalExamples >> methodBlockNested2ReadingOuterArg2: arg1 [
 
 	^ self basicMethodWithBlock: [
 		self basicMethodWithBlock: [
@@ -236,7 +236,7 @@ DrOpalExamples >> methodBlockNested2ReadingOuterArg2: arg1 [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockNested2ReadingOuterArg: arg1 [
+DROpalExamples >> methodBlockNested2ReadingOuterArg: arg1 [
 
 	^ self basicMethodWithBlock: [
 		| x |
@@ -247,7 +247,7 @@ DrOpalExamples >> methodBlockNested2ReadingOuterArg: arg1 [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockNested2ReadingOuterTemp [
+DROpalExamples >> methodBlockNested2ReadingOuterTemp [
 
 	| temp |
 	temp := 5.
@@ -260,7 +260,7 @@ DrOpalExamples >> methodBlockNested2ReadingOuterTemp [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockNested2ReadingOuterTemp2 [
+DROpalExamples >> methodBlockNested2ReadingOuterTemp2 [
 
 	| temp |
 	temp := 5.
@@ -271,13 +271,13 @@ DrOpalExamples >> methodBlockNested2ReadingOuterTemp2 [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockNested2Simple [
+DROpalExamples >> methodBlockNested2Simple [
 
 	^ self basicMethodWithBlock: [ self basicMethodWithBlock: [ 0 ] ]
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockNested2WithArg [
+DROpalExamples >> methodBlockNested2WithArg [
 
 	^ self basicMethodWithBlockArg: [ :arg1 |
 		  self basicMethodWithBlockArg: [ :arg2 | 
@@ -286,7 +286,7 @@ DrOpalExamples >> methodBlockNested2WithArg [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockNested2WithArg2 [
+DROpalExamples >> methodBlockNested2WithArg2 [
 
 	^ self basicMethodWithBlockArg: [ :arg1 |
 		  self basicMethodWithBlock: [ 
@@ -295,7 +295,7 @@ DrOpalExamples >> methodBlockNested2WithArg2 [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockNested2WritingOuterTemp [
+DROpalExamples >> methodBlockNested2WritingOuterTemp [
 
 	| temp |
 	temp := 0.
@@ -306,7 +306,7 @@ DrOpalExamples >> methodBlockNested2WritingOuterTemp [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockNested2WritingOuterTemp2 [
+DROpalExamples >> methodBlockNested2WritingOuterTemp2 [
 
 	| temp |
 	temp := 0.
@@ -316,7 +316,7 @@ DrOpalExamples >> methodBlockNested2WritingOuterTemp2 [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockNonLocalReturn [
+DROpalExamples >> methodBlockNonLocalReturn [
 	"a constant block closure"
 	
 	| temp |
@@ -326,7 +326,7 @@ DrOpalExamples >> methodBlockNonLocalReturn [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodBlockTwoOuterScopes [
+DROpalExamples >> methodBlockTwoOuterScopes [
 
 	| temp block |
 	temp := 1.
@@ -335,7 +335,7 @@ DrOpalExamples >> methodBlockTwoOuterScopes [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodCollectionSize: aCollection [
+DROpalExamples >> methodCollectionSize: aCollection [
 	<var: #aCollection type: #OrderedCollection>
 	<var: #aCollection type: #Bag>
 	
@@ -343,7 +343,7 @@ DrOpalExamples >> methodCollectionSize: aCollection [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodEmptyBlock [ 
+DROpalExamples >> methodEmptyBlock [ 
 	"a constant block closure"
 	
 	| temp |
@@ -353,32 +353,32 @@ DrOpalExamples >> methodEmptyBlock [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodInlineThenSendClass: aCollection [
+DROpalExamples >> methodInlineThenSendClass: aCollection [
 
 	<var: #aCollection type: #Array>
 	^ aCollection className
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodInlineUnresolvedBlockNonLocalReturn [
+DROpalExamples >> methodInlineUnresolvedBlockNonLocalReturn [
 
 	^ self methodBlockNonLocalReturn 
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodReadingClassVariable [
+DROpalExamples >> methodReadingClassVariable [
 
 	^ classVariable
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithArg: aCollection [
+DROpalExamples >> methodWithArg: aCollection [
 	<var: #aCollection type: #OrderedCollection>
 	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithAssignmentExpression [
+DROpalExamples >> methodWithAssignmentExpression [
 
 	| irow |
 	dummyVariable := #(1 2 3).
@@ -387,20 +387,20 @@ DrOpalExamples >> methodWithAssignmentExpression [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithDynamicArray [
+DROpalExamples >> methodWithDynamicArray [
 	
 	^ { 1 . 2 . 3+2 }
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithEarlyReturn: n [
+DROpalExamples >> methodWithEarlyReturn: n [
 
 	n = 0 ifTrue: [ ^ 42 ].
 	^ 57
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithMultipleTypeAnnotations: aCollection [
+DROpalExamples >> methodWithMultipleTypeAnnotations: aCollection [
 
 	<var: #aCollection type: #OrderedCollection>
 	<var: #aCollection type: #Dictionary>
@@ -408,13 +408,13 @@ DrOpalExamples >> methodWithMultipleTypeAnnotations: aCollection [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithNoTypeAnnotation: aCollection [
+DROpalExamples >> methodWithNoTypeAnnotation: aCollection [
 	
 	^ aCollection select: [ :element | element even ]
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithThreeNonLocalReturn [
+DROpalExamples >> methodWithThreeNonLocalReturn [
 
 	true
 		ifTrue: [ ^ 2 ]
@@ -423,7 +423,7 @@ DrOpalExamples >> methodWithThreeNonLocalReturn [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithToDo [
+DROpalExamples >> methodWithToDo [
 
 	| n |
 	n := 0.
@@ -432,7 +432,7 @@ DrOpalExamples >> methodWithToDo [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithTwoToDos [
+DROpalExamples >> methodWithTwoToDos [
 
 	| n |
 	n := 0.
@@ -441,7 +441,7 @@ DrOpalExamples >> methodWithTwoToDos [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithUnknownTypeAnnotation: aCollection [
+DROpalExamples >> methodWithUnknownTypeAnnotation: aCollection [
 
 	<var: #aCollection type: #OrderedCollection>
 	<var: #aCollection type: #Unknown>
@@ -449,7 +449,7 @@ DrOpalExamples >> methodWithUnknownTypeAnnotation: aCollection [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotation: aCollection [
+DROpalExamples >> methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotation: aCollection [
 
 	<var: #aCollection type: #Unknown>
 	<var: #aCollection type: #Dictionary>
@@ -457,7 +457,7 @@ DrOpalExamples >> methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotation: a
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithWhileAndIf [
+DROpalExamples >> methodWithWhileAndIf [
 
     | x |
 	[ x = 0]
@@ -471,7 +471,7 @@ DrOpalExamples >> methodWithWhileAndIf [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWithoutInnerDependencies [
+DROpalExamples >> methodWithoutInnerDependencies [
 
 	| x |
 	x := true.
@@ -481,7 +481,7 @@ DrOpalExamples >> methodWithoutInnerDependencies [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> methodWritingClassVariable [
+DROpalExamples >> methodWritingClassVariable [
 	
 	classVariable := 1.
 	
@@ -490,51 +490,51 @@ DrOpalExamples >> methodWritingClassVariable [
 ]
 
 { #category : 'accessing' }
-DrOpalExamples >> ncol [
+DROpalExamples >> ncol [
 
 	^ ncol
 ]
 
 { #category : 'accessing' }
-DrOpalExamples >> ncol: anObject [
+DROpalExamples >> ncol: anObject [
 
 	ncol := anObject
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnArgument: arg [
+DROpalExamples >> returnArgument: arg [
 
 	^ arg
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnIfNotNilValue: value [
+DROpalExamples >> returnIfNotNilValue: value [
 
 	value ifNotNil: [ :v | ^ v ].
 	^ 42
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnIfTrueIfFalseValue: value [
+DROpalExamples >> returnIfTrueIfFalseValue: value [
 
 	^ value ifTrue: [ 5 ] ifFalse: [ 42 ]
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnIfTrueNonLocalReturn: value [
+DROpalExamples >> returnIfTrueNonLocalReturn: value [
 
 	value ifTrue: [ ^ 5 ].
 	^ 42
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnIfTrueValue: value [
+DROpalExamples >> returnIfTrueValue: value [
 
 	^ value ifTrue: [ 5 ]
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnInitializedTemp [
+DROpalExamples >> returnInitializedTemp [
 
 	| temp |
 	temp := 17.
@@ -542,31 +542,31 @@ DrOpalExamples >> returnInitializedTemp [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnInstanceVariable [
+DROpalExamples >> returnInstanceVariable [
 
 	^ dummyVariable
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnInstanceVariableAssignmentExpression [
+DROpalExamples >> returnInstanceVariableAssignmentExpression [
 
 	^ dummyVariable := 17
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnLiteralInteger [
+DROpalExamples >> returnLiteralInteger [
 
 	^ 1
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnNestedInstanceVariableAssignmentExpression [
+DROpalExamples >> returnNestedInstanceVariableAssignmentExpression [
 
 	^ fillMask := dummyVariable := 17
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnNestedTempAssignmentExpression [
+DROpalExamples >> returnNestedTempAssignmentExpression [
 
 	| temp temp2 |
 	
@@ -574,7 +574,7 @@ DrOpalExamples >> returnNestedTempAssignmentExpression [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnTempAssignmentExpression [
+DROpalExamples >> returnTempAssignmentExpression [
 
 	| temp |
 	
@@ -582,7 +582,7 @@ DrOpalExamples >> returnTempAssignmentExpression [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> returnUninitializedTemp [
+DROpalExamples >> returnUninitializedTemp [
 
 	| temp |
 
@@ -590,19 +590,19 @@ DrOpalExamples >> returnUninitializedTemp [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> sendMessage [
+DROpalExamples >> sendMessage [
 
 	self incrementCounter
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> setInstanceVariable [
+DROpalExamples >> setInstanceVariable [
 
 	dummyVariable := 179
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethod [
+DROpalExamples >> simpleMethod [
 
 	| x y| 
 	x := 1.
@@ -614,7 +614,7 @@ DrOpalExamples >> simpleMethod [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodArgWithBlockWithArg: arg [
+DROpalExamples >> simpleMethodArgWithBlockWithArg: arg [
 	
 	self basicMethodWithBlockArg: [ :argBlock |
 		| x | 
@@ -625,7 +625,7 @@ DrOpalExamples >> simpleMethodArgWithBlockWithArg: arg [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWith1Arg: argument [
+DROpalExamples >> simpleMethodWith1Arg: argument [
 
 	| x | 
 	x := 1.
@@ -636,7 +636,7 @@ DrOpalExamples >> simpleMethodWith1Arg: argument [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWith1Arg: argument1 arg2: argument2 [
+DROpalExamples >> simpleMethodWith1Arg: argument1 arg2: argument2 [
 
 	| x| 
 	x := 1.
@@ -648,7 +648,7 @@ DrOpalExamples >> simpleMethodWith1Arg: argument1 arg2: argument2 [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlock [
+DROpalExamples >> simpleMethodWithBlock [
 
 	| tmp |
 	tmp := self basicMethodWithBlock: [ | x | 
@@ -661,7 +661,7 @@ DrOpalExamples >> simpleMethodWithBlock [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockActivated [
+DROpalExamples >> simpleMethodWithBlockActivated [
 
 	| tmp |
 	tmp := [ | x | 
@@ -674,7 +674,7 @@ DrOpalExamples >> simpleMethodWithBlockActivated [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockActivatedArg [
+DROpalExamples >> simpleMethodWithBlockActivatedArg [
 
 	| tmp |
 	tmp := [ :arg |
@@ -686,7 +686,7 @@ DrOpalExamples >> simpleMethodWithBlockActivatedArg [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockCull [
+DROpalExamples >> simpleMethodWithBlockCull [
 
 	| tmp |
 	tmp := [ 5 ] cull: 0.
@@ -697,7 +697,7 @@ DrOpalExamples >> simpleMethodWithBlockCull [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockCull1Arg [
+DROpalExamples >> simpleMethodWithBlockCull1Arg [
 
 	| tmp |
 	tmp := [ :arg1 |
@@ -709,7 +709,7 @@ DrOpalExamples >> simpleMethodWithBlockCull1Arg [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockCull2Arg [
+DROpalExamples >> simpleMethodWithBlockCull2Arg [
 
 	| tmp |
 	tmp := [ :arg1 |
@@ -721,7 +721,7 @@ DrOpalExamples >> simpleMethodWithBlockCull2Arg [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockExperimental: arg [
+DROpalExamples >> simpleMethodWithBlockExperimental: arg [
 
 	self basicMethodWithBlock: [ :arg2 |
 		|x|
@@ -736,7 +736,7 @@ DrOpalExamples >> simpleMethodWithBlockExperimental: arg [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockReadingArgVariable: arg [
+DROpalExamples >> simpleMethodWithBlockReadingArgVariable: arg [
 
 	self basicMethodWithBlock: [ |x|.
 		x:=arg.
@@ -746,7 +746,7 @@ DrOpalExamples >> simpleMethodWithBlockReadingArgVariable: arg [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockReadingOuterVariable [
+DROpalExamples >> simpleMethodWithBlockReadingOuterVariable [
 
 	| temp |
 	temp:=0.
@@ -759,7 +759,7 @@ DrOpalExamples >> simpleMethodWithBlockReadingOuterVariable [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockWhileTrue [
+DROpalExamples >> simpleMethodWithBlockWhileTrue [
 
 	| a |
 	a := true.
@@ -769,7 +769,7 @@ DrOpalExamples >> simpleMethodWithBlockWhileTrue [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockWhileTrueWithTemp [
+DROpalExamples >> simpleMethodWithBlockWhileTrueWithTemp [
 
 	| index collection|
 	collection := OrderedCollection new.
@@ -785,7 +785,7 @@ DrOpalExamples >> simpleMethodWithBlockWhileTrueWithTemp [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockWithArg [
+DROpalExamples >> simpleMethodWithBlockWithArg [
 	
 	^ self basicMethodWithBlockArg: [ :arg |
 		| x | 
@@ -796,7 +796,7 @@ DrOpalExamples >> simpleMethodWithBlockWithArg [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockWritingOuterVariable [
+DROpalExamples >> simpleMethodWithBlockWritingOuterVariable [
 
 	| temp |
 	temp:=0.
@@ -809,7 +809,7 @@ DrOpalExamples >> simpleMethodWithBlockWritingOuterVariable [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithBlockWritingOuterVariable: arg [
+DROpalExamples >> simpleMethodWithBlockWritingOuterVariable: arg [
 
 	| temp read|
 	temp:=0.
@@ -831,7 +831,7 @@ DrOpalExamples >> simpleMethodWithBlockWritingOuterVariable: arg [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodWithTempAssignment [
+DROpalExamples >> simpleMethodWithTempAssignment [
 
 	| x y tmp| 
 	x := 1.
@@ -843,7 +843,21 @@ DrOpalExamples >> simpleMethodWithTempAssignment [
 ]
 
 { #category : 'as yet unclassified' }
-DrOpalExamples >> whileWithMessageWithBlock: arg [
+DROpalExamples >> storeIfTrueIfFalseValue: value [
+
+	| t |
+	t := value ifTrue: [ 5 ] ifFalse: [ 42 ].
+	^ t
+]
+
+{ #category : 'as yet unclassified' }
+DROpalExamples >> storeInstVarIfTrueIfFalseValue: value [
+
+	dummyVariable := value ifTrue: [ 5 ] ifFalse: [ 42 ]
+]
+
+{ #category : 'as yet unclassified' }
+DROpalExamples >> whileWithMessageWithBlock: arg [
 
    [arg = nil]
     whileTrue: [	

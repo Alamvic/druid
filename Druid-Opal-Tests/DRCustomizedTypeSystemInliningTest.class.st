@@ -105,8 +105,8 @@ DRCustomizedTypeSystemInliningTest >> testMethodCustomisationDisplayString [
 	| method result cfg selector |
 	
 	selector := #displayString.
-	method := DrOpalExamples lookupSelector: selector.
-	compilerCompiler interpreter: DrOpalExamples new.
+	method := DROpalExamples lookupSelector: selector.
+	compilerCompiler interpreter: DROpalExamples new.
 
 	cfg := self generateDruidIRFor: method.
 	method := self generateMethodFromCFG: cfg withSelector: selector.
@@ -198,7 +198,7 @@ DRCustomizedTypeSystemInliningTest >> testMethodRecompilationWithProfile [
 	selector := #methodCollectionSize:.
 	method := self generateMethodForSelector: selector.
 
-	previousMethodSize := (DrOpalExamples >> selector) size.
+	previousMethodSize := (DROpalExamples >> selector) size.
 
 	self assert: method size > previousMethodSize. "Bigger than original"
 	previousMethodSize := method size.

@@ -8,7 +8,7 @@ Class {
 { #category : 'test' }
 DRInstructionsTest >> inputClass [
 
-	^ DrOpalExamples 
+	^ DROpalExamples 
 ]
 
 { #category : 'tests' }

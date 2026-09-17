@@ -8,7 +8,7 @@ Class {
 { #category : 'test' }
 DRScopeTest >> inputClass [
 
-	^ DrOpalExamples 
+	^ DROpalExamples 
 ]
 
 { #category : 'running' }
