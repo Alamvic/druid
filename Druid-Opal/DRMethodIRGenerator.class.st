@@ -180,7 +180,10 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [ 
 	
 	self setupCFGScope: aDRMethod codeNode.
-	self initializePragma: aDRMethod codeNode pragmas.
+	
+	(aDRMethod codeNode isMethod and: [ aDRMethod codeNode pragmas isNotEmpty ]) ifTrue: [
+		self initializePragma: aDRMethod codeNode pragmas.
+	].
 	
 	self pushFrameForCode: aDRMethod receiver: aReceiver.
 	aDRMethod executeOn: self.

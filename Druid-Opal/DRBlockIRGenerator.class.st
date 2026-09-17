@@ -18,18 +18,6 @@ DRBlockIRGenerator >> finishCodeInterpretation: lastFrame [
 	
 ]
 
-{ #category : 'visiting' }
-DRBlockIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [ 
-	
-	self setupCFGScope: aDRMethod codeNode.
-	
-	self pushFrameForCode: aDRMethod receiver: aReceiver.
-	aDRMethod executeOn: self.
-	
-	^ self popFrame.
-
-]
-
 { #category : 'testing' }
 DRBlockIRGenerator >> isEmpty [
 
