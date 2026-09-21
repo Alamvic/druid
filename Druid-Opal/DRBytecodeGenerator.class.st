@@ -119,7 +119,9 @@ DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 		ifNotNil: [ :behavior |  builder send: selector toSuperOf: behavior ].
 
 	aDRInstruction isConditionalBranch ifFalse: [
-		aDRInstruction users ifEmpty: [ builder popTop ] ]
+		aDRInstruction users ifEmpty: [ 
+			1halt.
+			builder popTop ] ]
 ]
 
 { #category : 'building' }

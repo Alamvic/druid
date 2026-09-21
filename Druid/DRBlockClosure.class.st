@@ -89,12 +89,6 @@ DRBlockClosure >> isDRBlockClosure [
 	^ true
 ]
 
-{ #category : 'testing' }
-DRBlockClosure >> isInstruction [
-
-	^ false
-]
-
 { #category : 'ir-generation' }
 DRBlockClosure >> methodTopFrame [
 

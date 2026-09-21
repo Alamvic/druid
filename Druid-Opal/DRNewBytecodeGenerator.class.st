@@ -13,6 +13,12 @@ Class {
 	#tag : 'BytecodeGeneration'
 }
 
+{ #category : 'ir-to-target' }
+DRNewBytecodeGenerator >> abstractPush: aValue [
+
+	generationStack push: aValue
+]
+
 { #category : 'API' }
 DRNewBytecodeGenerator >> createTempVector: temporariesList vectorName: vectorName [
 
@@ -115,22 +121,76 @@ DRNewBytecodeGenerator >> pop: aDRInstruction [
 ]
 
 { #category : 'ir-to-target' }
+DRNewBytecodeGenerator >> reorderOperands: aDRInstruction [
+
+	"Maybe there is nothing to do"
+	| operandStackMap stackDepthToReorder tempNames reorderedInstructions |
+	(generationStack first: aDRInstruction operands size) reversed = aDRInstruction operands asArray
+		ifTrue: [ ^ self ].
+	
+	operandStackMap := Dictionary new.
+	aDRInstruction operands do: [ :op |
+		operandStackMap at: op put: (generationStack indexOf: op asLink ifAbsent: [ self error ]).
+	].
+	stackDepthToReorder := operandStackMap values max.
+	1 to: stackDepthToReorder do: [ :i |
+		operandStackMap at: (generationStack at: i) put: i.
+	].
+	tempNames := (1 to: stackDepthToReorder) collect: [ :idx | ('swap', idx asString) asSymbol ].
+	self haltIf: [ stackDepthToReorder > 3 ].
+	"Store all values into temps"
+	builder addTemps: tempNames.
+	tempNames do: [ :n |
+		builder storeTemp: n.
+		builder popTop.
+	].
+	reorderedInstructions := (generationStack first: stackDepthToReorder) reversed.
+	stackDepthToReorder timesRepeat: [ 
+		self pop: generationStack top ].
+	"Push all but the ones we care about"
+	reorderedInstructions do: [ :i |
+		(aDRInstruction operands includes: i)
+			ifFalse: [
+				| index |
+				index := operandStackMap at: i.
+				builder pushTemp: ('swap', index asString) asSymbol.
+				self abstractPush: i.
+		] ].
+	"Finally push the ones we care about!"
+	aDRInstruction operands do: [ :i |
+		| index |
+		index := operandStackMap at: i.
+		builder pushTemp: ('swap', index asString) asSymbol.
+		self abstractPush: i.
+	].
+
+	"Let's see if swapping fixed the order"
+	self assert: (generationStack first: aDRInstruction operands size) reversed = aDRInstruction operands asArray
+]
+
+{ #category : 'ir-to-target' }
 DRNewBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 
 	| sendAST |
-
+	
 	aDRInstruction operands select: [ :o | o isInstruction not ] thenDo: [ :o | o acceptVisitor: self ].
 
-	self assert: (generationStack first: aDRInstruction operands size) = aDRInstruction operands asArray.
+	self reorderOperands: aDRInstruction.
 
 	"TODO: Avoid come back to the AST. Include super in the IR."
 	sendAST := aDRInstruction originAST.
-	(sendAST ifNotNil: [sendAST superOf])
+	(sendAST ifNotNil: [ sendAST superOf ])
 		ifNil: [ builder send: selector ]
-		ifNotNil: [ :behavior |  builder send: selector toSuperOf: behavior ].
+		ifNotNil: [ :behavior | builder send: selector toSuperOf: behavior ].
+
+	aDRInstruction operands reversed do: [ :op |
+		self pop: op ].
+	self abstractPush: aDRInstruction.
 
 	aDRInstruction isConditionalBranch ifFalse: [
-		aDRInstruction users ifEmpty: [ builder popTop ] ]
+		aDRInstruction users ifEmpty: [ builder popTop ] ].
+	aDRInstruction hasUsers	ifFalse: [ self pop: aDRInstruction ]
+
 ]
 
 { #category : 'building' }
@@ -155,6 +215,7 @@ DRNewBytecodeGenerator >> visitAddition: aDRAdd [
 DRNewBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 
 	aDRArrayNode operands size > 127 ifTrue: [ "Long form: using at:put:"
+		1error.
 		builder pushLiteralVariable: Array binding.
 		builder pushLiteral: aDRArrayNode operands size.
 		builder send: #new:.
@@ -167,8 +228,11 @@ DRNewBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 		^ self ].
 
 	aDRArrayNode operands do: [ :each | each acceptVisitor: self ].
+	aDRArrayNode operands reversed do: [ :e | self pop: e ].
 
-	builder pushConsArray: aDRArrayNode operands size
+	self abstractPush: aDRArrayNode.
+	builder pushConsArray: aDRArrayNode operands size.
+	
 ]
 
 { #category : 'visiting' }
@@ -219,7 +283,7 @@ DRNewBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	blockCFG applyOptimisation: DRCleanScopes new.
 	blockCFG applyOptimisation: DRDeadCodeElimination new.
 	
-	blockBytecodeGenerator := DRBytecodeBlockGenerator new.
+	blockBytecodeGenerator := DRNewBytecodeBlockGenerator new.
 	blockBytecodeGenerator blockScope: blockCFG scope.
 	blockBytecodeGenerator generateTargetASTFromIR: blockCFG.	
 	compiledBlock := blockBytecodeGenerator
@@ -227,6 +291,8 @@ DRNewBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 		                 withScope: blockCFG scope.
 
 	copiedValues := blockCFG scope copiedVarNames.
+
+	self abstractPush: aDRBlockClosure.
 	builder
 		pushFullClosureCompiledBlock: compiledBlock
 		copiedValues: copiedValues
@@ -246,7 +312,7 @@ DRNewBytecodeGenerator >> visitBranchIfCondition: aDRConditionalBranch [
 DRNewBytecodeGenerator >> visitConstant: aDRConstantValue [
 
 	"Push the constant to the internal stack to track when it was pushed"
-	generationStack push: aDRConstantValue.
+	self abstractPush: aDRConstantValue.
 	
 	aDRConstantValue value isLiteral ifFalse: [
 		aDRConstantValue value isThisContextVariable ifTrue: [
@@ -262,7 +328,7 @@ DRNewBytecodeGenerator >> visitCopy: aDRCopy [
 
 	aDRCopy operand1 isInstruction ifFalse: [ aDRCopy operand1 acceptVisitor: self ].
 	self pop: aDRCopy operand1.
-	generationStack push: aDRCopy
+	self abstractPush: aDRCopy
 ]
 
 { #category : 'visiting' }
@@ -307,7 +373,7 @@ DRNewBytecodeGenerator >> visitInitializeScope: aDRInitializeScope [
 DRNewBytecodeGenerator >> visitInterpreterValue: aDRInterpreterValue [ 
 
 	self flag: #TODO. "It is always self ?"
-	generationStack push: aDRInterpreterValue.
+	self abstractPush: aDRInterpreterValue.
 	builder pushReceiver
 ]
 
@@ -338,7 +404,7 @@ DRNewBytecodeGenerator >> visitLessThan: aDRLessThanComparison inBranch: aDRBran
 { #category : 'ir-to-target' }
 DRNewBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 
-	generationStack push: aDRLoadArgument.
+	self abstractPush: aDRLoadArgument.
 	builder pushRemoteTemp: aDRLoadArgument variableName inVector: aDRLoadArgument scope tempVectorName. 
 	
 ]
@@ -346,7 +412,7 @@ DRNewBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 { #category : 'ir-to-target' }
 DRNewBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 	
-	generationStack push: aDRLoadInstVar.
+	self abstractPush: aDRLoadInstVar.
 	(self isSelf: aDRLoadInstVar operand1) ifTrue: [
 		builder pushInstVar: aDRLoadInstVar index.
 		^ self 
@@ -360,16 +426,15 @@ DRNewBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitLoadLiteralVariable: aDRLoadLiteralVariable [ 
 
+	self abstractPush: aDRLoadLiteralVariable.
 	builder pushLiteralVariable: aDRLoadLiteralVariable operand1 value
 ]
 
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitLoadTemporaryVariable: aDRLoadTemporaryVariable [
 
-	generationStack push: aDRLoadTemporaryVariable.
-	builder
-		pushRemoteTemp: aDRLoadTemporaryVariable operand1 value
-		inVector: aDRLoadTemporaryVariable scope tempVectorName
+	self abstractPush: aDRLoadTemporaryVariable.
+	builder pushRemoteTemp: aDRLoadTemporaryVariable operand1 value inVector: aDRLoadTemporaryVariable scope tempVectorName
 ]
 
 { #category : 'ir-to-target' }
@@ -407,6 +472,7 @@ DRNewBytecodeGenerator >> visitNoop: aDRNoop [
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitNullValue: aDRNullValue [
 
+	self abstractPush: aDRNullValue.
 	builder pushLiteral: nil
 ]
 
@@ -427,8 +493,7 @@ DRNewBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitPop: aDRPop [ 
 
-	"The value is already in the stack, then do nothing"
-"	1halt."
+	self abstractPush: aDRPop
 ]
 
 { #category : 'visiting' }
@@ -450,20 +515,25 @@ DRNewBytecodeGenerator >> visitReturn: aDRReturn [
 
 { #category : 'ir-to-target' }
 DRNewBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
-	
+
 	(self isSelf: aDRStoreInstanceVariable operand1) ifTrue: [
-		aDRStoreInstanceVariable operand3 isInstruction ifFalse: [ aDRStoreInstanceVariable operand3 acceptVisitor: self ].
-		builder storeInstVar: aDRStoreInstanceVariable operand2 value.
-		aDRStoreInstanceVariable users isEmpty ifTrue: [ 
-			builder popTop.
-		].
-		^ self 
-	].
+			aDRStoreInstanceVariable operand3 isInstruction ifFalse: [ aDRStoreInstanceVariable operand3 acceptVisitor: self ].
+			builder storeInstVar: aDRStoreInstanceVariable operand2 value.
+
+			aDRStoreInstanceVariable users isEmpty ifTrue: [
+					self pop: aDRStoreInstanceVariable operand3.
+					builder popTop ].
+			^ self ].
 
 	aDRStoreInstanceVariable operand1 isInstruction ifFalse: [ aDRStoreInstanceVariable operand1 acceptVisitor: self ].
 	builder pushLiteral: aDRStoreInstanceVariable operand2 value.
 	aDRStoreInstanceVariable operand3 isInstruction ifFalse: [ aDRStoreInstanceVariable operand3 acceptVisitor: self ].
 	builder send: #instVarAt:put:.
+
+
+	self pop: aDRStoreInstanceVariable operands last.
+	self pop: aDRStoreInstanceVariable operands first.
+	self assert: aDRStoreInstanceVariable hasUsers not.
 	builder popTop
 ]
 
@@ -484,7 +554,7 @@ DRNewBytecodeGenerator >> visitStoreLiteralVariable: aDRStoreLiteralVariable [
 DRNewBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
 	| value |
-	value := aDRStoreTemporaryVariable operand2 simpleConstantFold asDRValue.
+	value := aDRStoreTemporaryVariable operand2 asDRValue.
 	"Avoid store of stores, they should be compiled as store + read"	
 	self assert: value isStoreTemporaryVariable not.
 	
