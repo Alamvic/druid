@@ -35,7 +35,7 @@ DROpalCompiler class >> generateMethodFromCFG: aDRControlFlowGraph withSelector:
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.
 	aDRControlFlowGraph applyOptimisation: DRDeadCodeElimination new.
 
-	bytecodeGenerator := DRBytecodeGenerator new.
+	bytecodeGenerator := DRNewBytecodeGenerator new.
 	bytecodeGenerator numArgs: numArgs.
 	bytecodeGenerator methodName: selector.
 	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.

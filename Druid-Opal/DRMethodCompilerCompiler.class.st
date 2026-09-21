@@ -66,7 +66,7 @@ DRMethodCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRRecei
 { #category : 'code-generation' }
 DRMethodCompilerCompiler >> newCodeGenerator [
 
-	^ DRBytecodeGenerator new
+	^ DRNewBytecodeGenerator new
 ]
 
 { #category : 'instance creation' }
