@@ -9,7 +9,7 @@ Class {
 { #category : 'visiting' }
 DRLoadTemporaryVariable >> acceptVisitor: aVisitor [
 
-	^ aVisitor visitTemporaryVariable: self
+	^ aVisitor visitLoadTemporaryVariable: self
 ]
 
 { #category : 'initialization' }

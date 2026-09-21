@@ -345,6 +345,14 @@ DRBytecodeGenerator >> visitLoadLiteralVariable: aDRLoadLiteralVariable [
 	builder pushLiteralVariable: aDRLoadLiteralVariable operand1 value
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitLoadTemporaryVariable: aDRLoadTemporaryVariable [
+
+	builder
+		pushRemoteTemp: aDRLoadTemporaryVariable operand1 value
+		inVector: aDRLoadTemporaryVariable scope tempVectorName .
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitMessageSend: aDRMessageSend [ 
 
@@ -473,14 +481,6 @@ DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 DRBytecodeGenerator >> visitSubstract: aDRSubstract [
 
 	self sendMessage: #- fromInstruction: aDRSubstract
-]
-
-{ #category : 'visiting' }
-DRBytecodeGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
-
-	builder
-		pushRemoteTemp: aDRLoadTemporaryVariable operand1 value
-		inVector: aDRLoadTemporaryVariable scope tempVectorName .
 ]
 
 { #category : 'visiting' }
