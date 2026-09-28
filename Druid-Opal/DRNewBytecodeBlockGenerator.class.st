@@ -19,9 +19,9 @@ DRNewBytecodeBlockGenerator >> blockScope: aDRScope [
 DRNewBytecodeBlockGenerator >> compileBlockFrom: aDRControlFlowGraph withScope: aScope [ 
 	
 	| ir compiledBlock |
-	builder numArgs: aDRControlFlowGraph numArgs.
+	opalBytecodeBuilder numArgs: aDRControlFlowGraph numArgs.
 	
-	ir := builder ir.
+	ir := opalBytecodeBuilder ir.
 	
 	compiledBlock := ir compiledBlock: aScope.
 	
@@ -49,7 +49,7 @@ DRNewBytecodeBlockGenerator >> isResultInstruction: aDRInstruction [
 DRNewBytecodeBlockGenerator >> visitBlockReturn: aDBlockRReturn [ 
 
 	aDBlockRReturn operand1 isInstruction ifFalse: [ aDBlockRReturn operand1 acceptVisitor: self ].
-	builder blockReturnTop.
+	opalBytecodeBuilder blockReturnTop.
 ]
 
 { #category : 'ir-to-target' }

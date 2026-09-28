@@ -22,7 +22,7 @@ DRNewBytecodeGenerator >> abstractPush: aValue [
 { #category : 'API' }
 DRNewBytecodeGenerator >> createTempVector: temporariesList vectorName: vectorName [
 
-	builder createTempVectorNamed: vectorName withVars: temporariesList
+	opalBytecodeBuilder createTempVectorNamed: vectorName withVars: temporariesList
 ]
 
 { #category : 'ir-to-target' }
@@ -30,13 +30,13 @@ DRNewBytecodeGenerator >> generateJump: aDRBranch [
 
 	| createJumpToEnd trueLabel falseLabel |
 	self flag: #TOCHECK. "Always ifTrue: ?"
-	builder addLiteral: #ifTrue:.
+	opalBytecodeBuilder addLiteral: #ifTrue:.
 
 	trueLabel := self labelBlock: aDRBranch trueBranch.
 	falseLabel := self labelBlock: aDRBranch falseBranch.
 		
-	builder jumpAheadTo: falseLabel if: false.
-	builder jumpAheadTo: trueLabel.
+	opalBytecodeBuilder jumpAheadTo: falseLabel if: false.
+	opalBytecodeBuilder jumpAheadTo: trueLabel.
 
 ]
 
@@ -50,7 +50,7 @@ DRNewBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodNam
 { #category : 'initialization' }
 DRNewBytecodeGenerator >> initialize [
 
-	builder := OCIRBuilder new.
+	opalBytecodeBuilder := OCIRBuilder new.
 	numArgs := 0.
 	
 	generationStack := Stack new.
@@ -64,11 +64,11 @@ DRNewBytecodeGenerator >> interpretInitializeScope: scope [
 	
 	"Add arguments"
 	args do: [ :arg| 
-		builder addTemp: arg ].
+		opalBytecodeBuilder addTemp: arg ].
 	
 	"Add temps copied from outer"
 	scope copiedVarNames do: [ :tmp| 
-		builder addTemp: tmp ].
+		opalBytecodeBuilder addTemp: tmp ].
 		
 	"Add own temp vectors (could be many due to inlinings)"
 	scope definedTempVectors keysAndValuesDo: [ :vector :temps |
@@ -77,9 +77,9 @@ DRNewBytecodeGenerator >> interpretInitializeScope: scope [
 	
 	"Store arguments to temp vectors"
 	args do: [ :arg | 
-		builder pushTemp: arg.
-		builder storeRemoteTemp: arg inVector: scope tempVectorName .
-		builder popTop ].
+		opalBytecodeBuilder pushTemp: arg.
+		opalBytecodeBuilder storeRemoteTemp: arg inVector: scope tempVectorName .
+		opalBytecodeBuilder popTop ].
 ]
 
 { #category : 'testing' }
@@ -139,10 +139,10 @@ DRNewBytecodeGenerator >> reorderOperands: aDRInstruction [
 	tempNames := (1 to: stackDepthToReorder) collect: [ :idx | ('swap', idx asString) asSymbol ].
 	self haltIf: [ stackDepthToReorder > 3 ].
 	"Store all values into temps"
-	builder addTemps: tempNames.
+	opalBytecodeBuilder addTemps: tempNames.
 	tempNames do: [ :n |
-		builder storeTemp: n.
-		builder popTop.
+		opalBytecodeBuilder storeTemp: n.
+		opalBytecodeBuilder popTop.
 	].
 	reorderedInstructions := (generationStack first: stackDepthToReorder) reversed.
 	stackDepthToReorder timesRepeat: [ 
@@ -153,14 +153,14 @@ DRNewBytecodeGenerator >> reorderOperands: aDRInstruction [
 			ifFalse: [
 				| index |
 				index := operandStackMap at: i.
-				builder pushTemp: ('swap', index asString) asSymbol.
+				opalBytecodeBuilder pushTemp: ('swap', index asString) asSymbol.
 				self abstractPush: i.
 		] ].
 	"Finally push the ones we care about!"
 	aDRInstruction operands do: [ :i |
 		| index |
 		index := operandStackMap at: i.
-		builder pushTemp: ('swap', index asString) asSymbol.
+		opalBytecodeBuilder pushTemp: ('swap', index asString) asSymbol.
 		self abstractPush: i.
 	].
 
@@ -180,15 +180,15 @@ DRNewBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction 
 	"TODO: Avoid come back to the AST. Include super in the IR."
 	sendAST := aDRInstruction originAST.
 	(sendAST ifNotNil: [ sendAST superOf ])
-		ifNil: [ builder send: selector ]
-		ifNotNil: [ :behavior | builder send: selector toSuperOf: behavior ].
+		ifNil: [ opalBytecodeBuilder send: selector ]
+		ifNotNil: [ :behavior | opalBytecodeBuilder send: selector toSuperOf: behavior ].
 
 	aDRInstruction operands reversed do: [ :op |
 		self pop: op ].
 	self abstractPush: aDRInstruction.
 
 	aDRInstruction isConditionalBranch ifFalse: [
-		aDRInstruction users ifEmpty: [ builder popTop ] ].
+		aDRInstruction users ifEmpty: [ opalBytecodeBuilder popTop ] ].
 	aDRInstruction hasUsers	ifFalse: [ self pop: aDRInstruction ]
 
 ]
@@ -197,7 +197,7 @@ DRNewBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction 
 DRNewBytecodeGenerator >> targetAST [
 
 	| method ir |
-	ir := builder ir.
+	ir := opalBytecodeBuilder ir.
 	ir numArgs: numArgs.
 
 	method := ir compiledMethod.
@@ -216,22 +216,22 @@ DRNewBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 
 	aDRArrayNode operands size > 127 ifTrue: [ "Long form: using at:put:"
 		1error.
-		builder pushLiteralVariable: Array binding.
-		builder pushLiteral: aDRArrayNode operands size.
-		builder send: #new:.
+		opalBytecodeBuilder pushLiteralVariable: Array binding.
+		opalBytecodeBuilder pushLiteral: aDRArrayNode operands size.
+		opalBytecodeBuilder send: #new:.
 		aDRArrayNode operands withIndexDo: [ :each :index |
-			builder pushDup.
-			builder pushLiteral: index.
+			opalBytecodeBuilder pushDup.
+			opalBytecodeBuilder pushLiteral: index.
 			each acceptVisitor: self.
-			builder send: #at:put:.
-			builder popTop ].
+			opalBytecodeBuilder send: #at:put:.
+			opalBytecodeBuilder popTop ].
 		^ self ].
 
 	aDRArrayNode operands do: [ :each | each acceptVisitor: self ].
 	aDRArrayNode operands reversed do: [ :e | self pop: e ].
 
 	self abstractPush: aDRArrayNode.
-	builder pushConsArray: aDRArrayNode operands size.
+	opalBytecodeBuilder pushConsArray: aDRArrayNode operands size.
 	
 ]
 
@@ -299,7 +299,7 @@ DRNewBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	copiedValues := blockCFG scope copiedVarNames.
 
 	self abstractPush: aDRBlockClosure.
-	builder
+	opalBytecodeBuilder
 		pushFullClosureCompiledBlock: compiledBlock
 		copiedValues: copiedValues
 ]
@@ -322,11 +322,11 @@ DRNewBytecodeGenerator >> visitConstant: aDRConstantValue [
 	
 	aDRConstantValue value isLiteral ifFalse: [
 		aDRConstantValue value isThisContextVariable ifTrue: [
-			^ builder pushThisContext ].
+			^ opalBytecodeBuilder pushThisContext ].
 		aDRConstantValue value isGlobalVariable ifTrue: [
-			^ builder pushLiteralVariable: aDRConstantValue value ] ].
+			^ opalBytecodeBuilder pushLiteralVariable: aDRConstantValue value ] ].
 
-	builder pushLiteral: aDRConstantValue value
+	opalBytecodeBuilder pushLiteral: aDRConstantValue value
 ]
 
 { #category : 'ir-to-target' }
@@ -380,7 +380,7 @@ DRNewBytecodeGenerator >> visitInterpreterValue: aDRInterpreterValue [
 
 	self flag: #TODO. "It is always self ?"
 	self abstractPush: aDRInterpreterValue.
-	builder pushReceiver
+	opalBytecodeBuilder pushReceiver
 ]
 
 { #category : 'ir-to-target' }
@@ -390,9 +390,9 @@ DRNewBytecodeGenerator >> visitJump: aDRJump [
 	targetLabel := self labelBlock: aDRJump target.
 
 	aDRJump isBackJump ifTrue: [
-		^ builder jumpBackTo: targetLabel ].
+		^ opalBytecodeBuilder jumpBackTo: targetLabel ].
 
-	^ builder jumpAheadTo: targetLabel
+	^ opalBytecodeBuilder jumpAheadTo: targetLabel
 ]
 
 { #category : 'visiting' }
@@ -411,7 +411,7 @@ DRNewBytecodeGenerator >> visitLessThan: aDRLessThanComparison inBranch: aDRBran
 DRNewBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 
 	self abstractPush: aDRLoadArgument.
-	builder pushRemoteTemp: aDRLoadArgument variableName inVector: aDRLoadArgument scope tempVectorName. 
+	opalBytecodeBuilder pushRemoteTemp: aDRLoadArgument variableName inVector: aDRLoadArgument scope tempVectorName. 
 	
 ]
 
@@ -420,27 +420,27 @@ DRNewBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 	
 	self abstractPush: aDRLoadInstVar.
 	(self isSelf: aDRLoadInstVar operand1) ifTrue: [
-		builder pushInstVar: aDRLoadInstVar index.
+		opalBytecodeBuilder pushInstVar: aDRLoadInstVar index.
 		^ self 
 	].
 
 	aDRLoadInstVar operand1 isInstruction ifFalse: [ aDRLoadInstVar operand1 acceptVisitor: self ].
-	builder pushLiteral: aDRLoadInstVar index.
-	builder send: #instVarAt:.
+	opalBytecodeBuilder pushLiteral: aDRLoadInstVar index.
+	opalBytecodeBuilder send: #instVarAt:.
 ]
 
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitLoadLiteralVariable: aDRLoadLiteralVariable [ 
 
 	self abstractPush: aDRLoadLiteralVariable.
-	builder pushLiteralVariable: aDRLoadLiteralVariable operand1 value
+	opalBytecodeBuilder pushLiteralVariable: aDRLoadLiteralVariable operand1 value
 ]
 
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitLoadTemporaryVariable: aDRLoadTemporaryVariable [
 
 	self abstractPush: aDRLoadTemporaryVariable.
-	builder pushRemoteTemp: aDRLoadTemporaryVariable operand1 value inVector: aDRLoadTemporaryVariable scope tempVectorName
+	opalBytecodeBuilder pushRemoteTemp: aDRLoadTemporaryVariable operand1 value inVector: aDRLoadTemporaryVariable scope tempVectorName
 ]
 
 { #category : 'ir-to-target' }
@@ -479,7 +479,7 @@ DRNewBytecodeGenerator >> visitNoop: aDRNoop [
 DRNewBytecodeGenerator >> visitNullValue: aDRNullValue [
 
 	self abstractPush: aDRNullValue.
-	builder pushLiteral: nil
+	opalBytecodeBuilder pushLiteral: nil
 ]
 
 { #category : 'ir-to-target' }
@@ -492,7 +492,7 @@ DRNewBytecodeGenerator >> visitPhiFunction: aDRPhiFunction [
 DRNewBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 
 	self flag: #TODO. "Remove physical registers, use LoadReceiver / LoadArgument instructions"
-	aDRPhysicalRegister name = 'ReceiverResultReg' ifTrue: [ ^ builder pushReceiver ].
+	aDRPhysicalRegister name = 'ReceiverResultReg' ifTrue: [ ^ opalBytecodeBuilder pushReceiver ].
 	1 halt
 ]
 
@@ -516,7 +516,7 @@ DRNewBytecodeGenerator >> visitReturn: aDRReturn [
 		1halt.aDRReturn operand1 acceptVisitor: self ].
 
 	self pop: aDRReturn operand1.
-	builder returnTop.
+	opalBytecodeBuilder returnTop.
 ]
 
 { #category : 'ir-to-target' }
@@ -524,23 +524,23 @@ DRNewBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 
 	(self isSelf: aDRStoreInstanceVariable operand1) ifTrue: [
 			aDRStoreInstanceVariable operand3 isInstruction ifFalse: [ aDRStoreInstanceVariable operand3 acceptVisitor: self ].
-			builder storeInstVar: aDRStoreInstanceVariable operand2 value.
+			opalBytecodeBuilder storeInstVar: aDRStoreInstanceVariable operand2 value.
 
 			aDRStoreInstanceVariable users isEmpty ifTrue: [
 					self pop: aDRStoreInstanceVariable operand3.
-					builder popTop ].
+					opalBytecodeBuilder popTop ].
 			^ self ].
 
 	aDRStoreInstanceVariable operand1 isInstruction ifFalse: [ aDRStoreInstanceVariable operand1 acceptVisitor: self ].
-	builder pushLiteral: aDRStoreInstanceVariable operand2 value.
+	opalBytecodeBuilder pushLiteral: aDRStoreInstanceVariable operand2 value.
 	aDRStoreInstanceVariable operand3 isInstruction ifFalse: [ aDRStoreInstanceVariable operand3 acceptVisitor: self ].
-	builder send: #instVarAt:put:.
+	opalBytecodeBuilder send: #instVarAt:put:.
 
 
 	self pop: aDRStoreInstanceVariable operands last.
 	self pop: aDRStoreInstanceVariable operands first.
 	self assert: aDRStoreInstanceVariable hasUsers not.
-	builder popTop
+	opalBytecodeBuilder popTop
 ]
 
 { #category : 'visiting' }
@@ -550,10 +550,10 @@ DRNewBytecodeGenerator >> visitStoreLiteralVariable: aDRStoreLiteralVariable [
 	value := aDRStoreLiteralVariable operand2.
 	value acceptVisitor: self.
 
-	builder storeIntoLiteralVariable:
+	opalBytecodeBuilder storeIntoLiteralVariable:
 		aDRStoreLiteralVariable operand1 value.
 
-	aDRStoreLiteralVariable hasUsers ifFalse: [ builder popTop ]
+	aDRStoreLiteralVariable hasUsers ifFalse: [ opalBytecodeBuilder popTop ]
 ]
 
 { #category : 'visiting' }
@@ -566,7 +566,7 @@ DRNewBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 	
 	value isInstruction ifFalse: [ value acceptVisitor: self ].
 
-	builder
+	opalBytecodeBuilder
 		storeRemoteTemp: aDRStoreTemporaryVariable operand1 value
 		inVector: aDRStoreTemporaryVariable scope tempVectorName.
 
@@ -574,7 +574,7 @@ DRNewBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 	self assert: (aDRStoreTemporaryVariable users allSatisfy: [ :each | each isDRBlockClosure ]).		
 
 	self pop: value.
-	builder popTop
+	opalBytecodeBuilder popTop
 
 ]
 
@@ -588,7 +588,7 @@ DRNewBytecodeGenerator >> visitSubstract: aDRSubstract [
 DRNewBytecodeGenerator >> visitTypeOf: aDRTypeOf inBranch: aDRBranchIfCondition [ 
 
 	aDRBranchIfCondition operand1 acceptVisitor: self.
-	builder send: #class.
-	builder pushLiteralVariable: aDRBranchIfCondition operand2 value classType binding.
-	builder send: #=.
+	opalBytecodeBuilder send: #class.
+	opalBytecodeBuilder pushLiteralVariable: aDRBranchIfCondition operand2 value classType binding.
+	opalBytecodeBuilder send: #=.
 ]
