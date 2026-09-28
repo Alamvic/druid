@@ -2123,7 +2123,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitSelfNode: aRBVariableNode [ 
 	
-	self pushOperand: (self topFrame receiverWithState: executionState)
+	self pushOperand: self receiver
 ]
 
 { #category : 'visiting' }

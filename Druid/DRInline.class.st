@@ -43,13 +43,14 @@ DRInline >> doApply: cfg [
 { #category : 'inlining' }
 DRInline >> generateInlineIRForMethod: classAndMethodToInline of: aMessageSend [
 
-	| lastFrame methodType methodNode |
+	| lastFrame methodType methodNode doInline |
 	methodType := classAndMethodToInline key.
-
+	doInline := methodType = #default or: [ methodType isUndefined not ].
+	
 	"Base on type inference, get the inlined or current method"
-	methodNode := methodType isUndefined
-		              ifTrue: [ aMessageSend originAST methodNode ]
-		              ifFalse: [ classAndMethodToInline value ].
+	methodNode := doInline
+		              ifTrue: [ classAndMethodToInline value ]
+		              ifFalse: [ aMessageSend originAST methodNode ].
 
 	"Push new frame"
 	(DRMethod methodNode: methodNode)
@@ -57,7 +58,7 @@ DRInline >> generateInlineIRForMethod: classAndMethodToInline of: aMessageSend [
 		receiver: aMessageSend receiver.
 
 	"If we don't know the receiver's type, copy the message send"
-	methodType isUndefined ifTrue: [
+	doInline ifFalse: [
 			^ inlineGenerator
 				  resolveMessageSend: aMessageSend originAST
 				  receiver: aMessageSend receiver
