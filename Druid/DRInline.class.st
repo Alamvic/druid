@@ -43,21 +43,32 @@ DRInline >> doApply: cfg [
 { #category : 'inlining' }
 DRInline >> generateInlineIRForMethod: classAndMethodToInline of: aMessageSend [
 
-	| lastFrame methodClass methodToInline |
-	"TODO: delegate generation to type?"
-	methodClass := classAndMethodToInline key.
-	(methodClass isKindOf: DRUndefinedType) ifTrue: [ "If we don't know the receiver's type, copy the message send"
-		(DRMethod methodNode: aMessageSend originAST methodNode) asDRValue
-			pushFrameIn: inlineGenerator
-			receiver: aMessageSend receiver.
-		^ inlineGenerator resolveMessageSend: aMessageSend originAST receiver: aMessageSend receiver arguments: aMessageSend arguments ].
+	| lastFrame methodType methodNode |
+	methodType := classAndMethodToInline key.
 
-	methodToInline := classAndMethodToInline value.
+	"Base on type inference, get the inlined or current method"
+	methodNode := methodType isUndefined
+		              ifTrue: [ aMessageSend originAST methodNode ]
+		              ifFalse: [ classAndMethodToInline value ].
+
+	"Push new frame"
+	(DRMethod methodNode: methodNode)
+		pushFrameIn: inlineGenerator
+		receiver: aMessageSend receiver.
+
+	"If we don't know the receiver's type, copy the message send"
+	methodType isUndefined ifTrue: [
+			^ inlineGenerator
+				  resolveMessageSend: aMessageSend originAST
+				  receiver: aMessageSend receiver
+				  arguments: aMessageSend arguments ].
+
+
+	"Else, interpret the inlined code"
 	lastFrame := inlineGenerator
-		             interpretInlinedCode: (DRMethod methodNode: methodToInline)
-		             receiver: aMessageSend operands first
-		             arguments: aMessageSend operands allButFirst.
-
+		             interpretInlinedCode: (DRMethod methodNode: methodNode)
+		             receiver: aMessageSend receiver
+		             arguments: aMessageSend arguments.
 	inlineGenerator finishCodeInterpretation: lastFrame.
 
 	^ lastFrame returnedValue

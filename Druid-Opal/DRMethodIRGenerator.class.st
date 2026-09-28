@@ -119,16 +119,12 @@ DRMethodIRGenerator >> initializeSpecialCases [
 { #category : 'inline' }
 DRMethodIRGenerator >> inlineGenerator [
 
-	| newIRGenerator |
-	newIRGenerator := DRMethodIRGeneratorInline new
-		                  controlFlowGraph: controlFlowGraph;
-		                  typeSystem: typeSystem;
-		                  outerScope: self scope;
-		                  yourself.
-
-	newIRGenerator executionState: executionState copy.
-	newIRGenerator generateScope.
-	^ newIRGenerator
+	^ DRMethodIRGeneratorInline new
+		  controlFlowGraph: controlFlowGraph;
+		  typeSystem: typeSystem;
+		  outerScope: self scope;
+		  generateScope;
+		  yourself
 ]
 
 { #category : 'interpreting' }
@@ -219,7 +215,6 @@ DRMethodIRGenerator >> interpretInlinedBlockBody: aRBBlockNode [
 
 		"Jump back and restore the state"
 		inlineGenerator currentBasicBlock jumpTo: self newBasicBlock.
-		self executionState: inlineGenerator executionState.		
 	] 
 	ifEmpty: [ 
 		"We add new temporaries to the current scope"
@@ -249,9 +244,9 @@ DRMethodIRGenerator >> interpretInlinedCode: code receiver: receiver arguments: 
 		             receiver: receiver
 		             arguments: arguments.
 
-	"Jump back and restore the state"
+	"Jump back and push return value"
 	inlineGenerator currentBasicBlock jumpTo: self newBasicBlock.
-	self executionState: inlineGenerator executionState.
+	self pushOperand: lastFrame returnValue.
 
 	^ lastFrame
 ]
@@ -316,14 +311,6 @@ DRMethodIRGenerator >> newScope [
 		         id: self instructionFactory allocateScopeId;
 		         yourself.
 
-]
-
-{ #category : 'accessing' }
-DRMethodIRGenerator >> numberOfArguments: aValue [ 
-	
-	super numberOfArguments: aValue.
-"	0 to: numberOfArguments - 1 do: [ :i |
-		self push: (self currentBasicBlock loadArgument: i) ]"
 ]
 
 { #category : 'accessing' }
