@@ -38,7 +38,7 @@ DRBytecodeGenerator >> generateJump: aDRBranch [
 DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
 
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
-		self visitBlock: block ]
+		self visitBasicBlock: block ]
 ]
 
 { #category : 'initialization' }
@@ -162,6 +162,22 @@ DRBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 	builder pushConsArray: aDRArrayNode operands size
 ]
 
+{ #category : 'ir-to-target' }
+DRBytecodeGenerator >> visitBasicBlock: aDRBasicBlock [
+
+	aDRBasicBlock hasPredecessors ifTrue: [
+		| label |
+		"Somebody will jump to me, set a target"
+		label := self labelBlock: aDRBasicBlock.
+		aDRBasicBlock predecessors do: [ :pred |
+			pred endInstruction isBackJump
+				ifTrue: [ builder jumpBackTarget: label ]
+				ifFalse: [ builder jumpAheadTarget: label ] ] ].
+
+	aDRBasicBlock instructionsDo: [ :i |
+		(self isResultInstruction: i) ifTrue: [ i acceptVisitor: self ] ]
+]
+
 { #category : 'visiting' }
 DRBytecodeGenerator >> visitBitAnd: aDRBitAnd [ 
 
@@ -178,22 +194,6 @@ DRBytecodeGenerator >> visitBitOr: aDRBitOr [
 DRBytecodeGenerator >> visitBitShift: aDRBitShift [ 
 
 	self sendMessage: #bitShift: fromInstruction: aDRBitShift 
-]
-
-{ #category : 'ir-to-target' }
-DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
-
-	aDRBasicBlock hasPredecessors ifTrue: [
-		| label |
-		"Somebody will jump to me, set a target"
-		label := self labelBlock: aDRBasicBlock.
-		aDRBasicBlock predecessors do: [ :pred |
-			pred endInstruction isBackJump
-				ifTrue: [ builder jumpBackTarget: label ]
-				ifFalse: [ builder jumpAheadTarget: label ] ] ].
-
-	aDRBasicBlock instructionsDo: [ :i |
-		(self isResultInstruction: i) ifTrue: [ i acceptVisitor: self ] ]
 ]
 
 { #category : 'ir-to-target' }

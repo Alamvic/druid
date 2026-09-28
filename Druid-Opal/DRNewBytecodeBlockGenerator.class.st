@@ -32,7 +32,7 @@ DRNewBytecodeBlockGenerator >> compileBlockFrom: aDRControlFlowGraph withScope: 
 DRNewBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 	
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
-		self visitBlock: block ].
+		self visitBasicBlock: block ].
 	
 
 ]

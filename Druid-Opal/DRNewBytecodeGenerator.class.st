@@ -2,11 +2,11 @@ Class {
 	#name : 'DRNewBytecodeGenerator',
 	#superclass : 'Object',
 	#instVars : [
-		'builder',
 		'methodName',
 		'numArgs',
 		'vectorTempIndex',
-		'generationStack'
+		'generationStack',
+		'opalBytecodeBuilder'
 	],
 	#category : 'Druid-Opal-BytecodeGeneration',
 	#package : 'Druid-Opal',
@@ -44,7 +44,7 @@ DRNewBytecodeGenerator >> generateJump: aDRBranch [
 DRNewBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
 
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
-		self visitBlock: block ]
+		self visitBasicBlock: block ]
 ]
 
 { #category : 'initialization' }
@@ -235,6 +235,27 @@ DRNewBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 	
 ]
 
+{ #category : 'ir-to-target' }
+DRNewBytecodeGenerator >> visitBasicBlock: aDRBasicBlock [
+
+	aDRBasicBlock hasPredecessors ifTrue: [
+		| label |
+		"Somebody will jump to me, set a target"
+		label := self labelBlock: aDRBasicBlock.
+		aDRBasicBlock predecessors do: [ :pred |
+			pred endInstruction isBackJump
+				ifTrue: [ opalBytecodeBuilder jumpBackTarget: label ]
+				ifFalse: [ opalBytecodeBuilder jumpAheadTarget: label ] ] ].
+
+	aDRBasicBlock instructionsDo: [ :i | 
+		self ensureOperandsOnStack: i.
+		self reorderOperands: i.
+		i acceptVisitor: self.
+		(i result isNoResult not and: [i hasUsers not]) ifTrue: [ 
+			self pop: i.
+			opalBytecodeBuilder popTop ]]
+]
+
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitBitAnd: aDRBitAnd [ 
 
@@ -251,21 +272,6 @@ DRNewBytecodeGenerator >> visitBitOr: aDRBitOr [
 DRNewBytecodeGenerator >> visitBitShift: aDRBitShift [ 
 
 	self sendMessage: #bitShift: fromInstruction: aDRBitShift 
-]
-
-{ #category : 'ir-to-target' }
-DRNewBytecodeGenerator >> visitBlock: aDRBasicBlock [
-
-	aDRBasicBlock hasPredecessors ifTrue: [
-		| label |
-		"Somebody will jump to me, set a target"
-		label := self labelBlock: aDRBasicBlock.
-		aDRBasicBlock predecessors do: [ :pred |
-			pred endInstruction isBackJump
-				ifTrue: [ builder jumpBackTarget: label ]
-				ifFalse: [ builder jumpAheadTarget: label ] ] ].
-
-	aDRBasicBlock instructionsDo: [ :i |	i acceptVisitor: self ]
 ]
 
 { #category : 'ir-to-target' }

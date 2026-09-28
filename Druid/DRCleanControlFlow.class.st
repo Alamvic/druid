@@ -57,7 +57,7 @@ DRCleanControlFlow >> doApply: aCFG [
 	[ didChange ] whileTrue: [
 		counter := counter + 1.
 		didChange := self step: aCFG.
-	]
+	].
 ]
 
 { #category : 'folding' }
@@ -65,6 +65,7 @@ DRCleanControlFlow >> foldRedundantBranch: aDRConditionalJump [
 	
 	aDRConditionalJump replaceBy: (DRJump new target: aDRConditionalJump trueBranch).
 	aDRConditionalJump trueBranch removePredecessor: aDRConditionalJump basicBlock.
+	^ true
 ]
 
 { #category : 'hoisting' }
@@ -74,6 +75,7 @@ DRCleanControlFlow >> hoistBranchInto: aDRBasicBlock [
 	And that jump targets an empty block with a conditional branch"
 	
 	| skippedBlock |
+	self assert: [ aDRBasicBlock endInstruction isBackJump not ].
 	skippedBlock := aDRBasicBlock successor.
 	aDRBasicBlock endInstruction: skippedBlock endInstruction copy.
 
@@ -89,12 +91,15 @@ DRCleanControlFlow >> removeEmptyBlock: aDRBasicBlock fromCfg: aCFG [
 	Require my single successor to have as predecessors all my predecessors"
 	
 	"Implement this by first duplicating all the predecessor links"
-	
-	aDRBasicBlock predecessors copy do: [ :predecessor |
+	aDRBasicBlock predecessors copy do: [ :predecessor |		
 		aDRBasicBlock basicRemovePredecessor: predecessor.
 		"Duplicate should keep the phi functions valid"
 		aDRBasicBlock successor duplicatePredecessor: aDRBasicBlock from: predecessor.
-		predecessor endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock successor
+		predecessor endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock successor.
+		
+		"If the removed jump was a backjump, move that property to the precedessor"
+		aDRBasicBlock endInstruction isBackJump
+			ifTrue: [ predecessor endInstruction ]
 	].
 
 	"Remove the predecessor from our successor at the end"
@@ -105,7 +110,7 @@ DRCleanControlFlow >> removeEmptyBlock: aDRBasicBlock fromCfg: aCFG [
 
 { #category : 'combining' }
 DRCleanControlFlow >> shouldCombineBlock: aDRBasicBlock [
-	
+
 	"Assume that
 	 - the first block contains a non conditional jump to the second block
 	 - the second block has as single predecessor the first block"
@@ -154,24 +159,25 @@ DRCleanControlFlow >> shouldHoistBranchInto: aDRBasicBlock [
 ]
 
 { #category : 'empty blocks' }
-DRCleanControlFlow >> shouldRemoveEmptyBlock: aDRBasicBlock [ 
-	
+DRCleanControlFlow >> shouldRemoveEmptyBlock: aDRBasicBlock [
+
 	aDRBasicBlock isExitBlock ifTrue: [ ^ false ].
-	
-	aDRBasicBlock instructions size > 1
-		ifTrue: [ ^ false ].
-	aDRBasicBlock endInstruction isNonConditionalJump
-		ifFalse: [ ^ false ].
-		
+
+	aDRBasicBlock instructions size > 1 ifTrue: [ ^ false ].
+	aDRBasicBlock endInstruction isNonConditionalJump ifFalse: [ ^ false ].
+
 	"If removing this block would make my predecessor point twice to the same successor, do not do it"
-	((aDRBasicBlock predecessors anySatisfy: [ :e |
-		e successors includes: aDRBasicBlock successor ])
-			and: [ aDRBasicBlock successor hasPhiFunctions ])
-				ifTrue: [ ^ false ].
-	
+	((aDRBasicBlock predecessors anySatisfy: [ :e | e successors includes: aDRBasicBlock successor ]) and: [
+		 aDRBasicBlock successor hasPhiFunctions ]) ifTrue: [ ^ false ].
+
 	"Avoid complex phi function rewriting"
-	(aDRBasicBlock predecessors size > 1 and: [ aDRBasicBlock successor hasPhiFunctions ])
-		ifTrue: [ ^ false ].
+	(aDRBasicBlock predecessors size > 1 and: [ aDRBasicBlock successor hasPhiFunctions ]) ifTrue: [ ^ false ].
+
+	"Avoid rewriting predecessors that have conditional jumps if I contain a back jump"
+	(aDRBasicBlock endInstruction isBackJump and: [ aDRBasicBlock predecessors anySatisfy: [ :p | p successors size > 1 ] ]) ifTrue: [
+			1 halt.
+			^ false ].
+
 	^ true
 ]
 
@@ -181,24 +187,26 @@ DRCleanControlFlow >> step: cfg [
 	| didChange |
 	didChange := false.
 	cfg postOrderBlocks allButLast do: [ :e |
-		didChange := didChange or: [ self stepBlock: e fromCfg: cfg ] ].
+		didChange := didChange | (self stepBlock: e fromCfg: cfg) ].
 	^ didChange
 ]
 
 { #category : 'executing' }
 DRCleanControlFlow >> stepBlock: aDRBasicBlock fromCfg: aCFG [
-	
-	(self shouldFoldRedundantBranchIn: aDRBasicBlock) ifTrue: [ 
-		self foldRedundantBranch: aDRBasicBlock endInstruction.
-		^ true ].
-	(self shouldRemoveEmptyBlock: aDRBasicBlock) ifTrue: [ 
-		self removeEmptyBlock: aDRBasicBlock fromCfg: aCFG.
-		^ true ].
-	(self shouldCombineBlock: aDRBasicBlock) ifTrue: [ 
-		self combineBlocks: aDRBasicBlock and: aDRBasicBlock successor fromCfg: aCFG.
-		^ true ].
-	(self shouldHoistBranchInto: aDRBasicBlock) ifTrue: [ 
-		self hoistBranchInto: aDRBasicBlock.
-		^ true ].
-	^ false
+
+	| changed |
+	changed := false.
+	(self shouldFoldRedundantBranchIn: aDRBasicBlock) ifTrue: [
+			self foldRedundantBranch: aDRBasicBlock endInstruction.
+			changed := true ].
+	(self shouldRemoveEmptyBlock: aDRBasicBlock) ifTrue: [
+			self removeEmptyBlock: aDRBasicBlock fromCfg: aCFG.
+			changed := true ].
+	(self shouldCombineBlock: aDRBasicBlock) ifTrue: [
+			self combineBlocks: aDRBasicBlock and: aDRBasicBlock successor fromCfg: aCFG.
+			changed := true ].
+	(self shouldHoistBranchInto: aDRBasicBlock) ifTrue: [
+			self hoistBranchInto: aDRBasicBlock.
+			changed := true ].
+	^ changed
 ]
