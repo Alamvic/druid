@@ -161,7 +161,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 				          addAssignmentInstructionFrom: aRBAssignmentNode
 				          instructionKind: DRStoreTemporaryVariable
 				          operands: {
-						          aRBAssignmentNode variable name asDRValue.
+						          aRBAssignmentNode variable name.
 						          value }.
 
 			(self hasTemporary: aRBAssignmentNode variable name) ifTrue: [
@@ -264,7 +264,7 @@ DRMethodIRGenerator >> interpretTemporaryVariable: aRBVariableNode [
 	loadTemp := self
 		            addInstructionFrom: aRBVariableNode
 		            instructionKind: DRLoadTemporaryVariable
-		            operands: { aRBVariableNode name asDRValue }.
+		            operands: { aRBVariableNode name }.
 	loadTemp scope: scope.
 	^ loadTemp
 ]
@@ -457,7 +457,7 @@ DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 	loadArg := self
 		           addInstructionFrom: aRBVariableNode
 		           instructionKind: DRLoadArgument
-		           operands: { aRBVariableNode variable index asDRValue }.
+		           operands: { aRBVariableNode variable index }.
 
 	loadArg argName: aRBVariableNode name.
 	loadArg scope: (self lookupScopeDefiningVariable: aRBVariableNode).

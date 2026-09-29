@@ -38,10 +38,10 @@ DRNewBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 ]
 
 { #category : 'visiting' }
-DRNewBytecodeBlockGenerator >> visitBlockReturn: aDBlockRReturn [ 
+DRNewBytecodeBlockGenerator >> visitBlockReturn: aDBlockRReturn [
 
-	aDBlockRReturn operand1 isInstruction ifFalse: [ aDBlockRReturn operand1 acceptVisitor: self ].
-	opalBytecodeBuilder blockReturnTop.
+	opalBytecodeBuilder blockReturnTop 
+	
 ]
 
 { #category : 'ir-to-target' }

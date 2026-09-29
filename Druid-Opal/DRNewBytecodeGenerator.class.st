@@ -333,9 +333,16 @@ DRNewBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	blockCFG applyOptimisation: DRBranchCollapse new.
 	blockCFG applyOptimisation: DRPhiSimplication new.
 	blockCFG applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
-	DRLocalVariableInstructionScheluder new applyTo: blockCFG.
+
 	blockCFG applyOptimisation: DRCleanScopes new.
 	blockCFG applyOptimisation: DRDeadCodeElimination new.
+	blockCFG applyOptimisation: DRCopyPropagation new.
+	
+	"First break critical edges so we can resolve phis into the right blocks"
+	DRBreakCriticalEdges new applyTo: blockCFG.
+	DRLocalVariableInstructionScheluder new applyTo: blockCFG.
+	blockCFG applyOptimisation: DRDeadCodeElimination new.
+
 	
 	blockBytecodeGenerator := DRNewBytecodeBlockGenerator new.
 	blockBytecodeGenerator blockScope: blockCFG scope.
