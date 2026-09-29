@@ -6,7 +6,9 @@ Class {
 		'numArgs',
 		'vectorTempIndex',
 		'generationStack',
-		'opalBytecodeBuilder'
+		'opalBytecodeBuilder',
+		'generationStacks',
+		'alreadyGenerated'
 	],
 	#category : 'Druid-Opal-BytecodeGeneration',
 	#package : 'Druid-Opal',
@@ -23,6 +25,16 @@ DRNewBytecodeGenerator >> abstractPush: aValue [
 DRNewBytecodeGenerator >> createTempVector: temporariesList vectorName: vectorName [
 
 	opalBytecodeBuilder createTempVectorNamed: vectorName withVars: temporariesList
+]
+
+{ #category : 'as yet unclassified' }
+DRNewBytecodeGenerator >> ensureOperandsOnStack: aDRInstruction [
+	
+	| operandsToGenerate |
+	operandsToGenerate := self instructionOperands: aDRInstruction.
+	operandsToGenerate do: [ :e | self visitInstruction: e ].
+	self reorderOperands: operandsToGenerate.
+	^ operandsToGenerate
 ]
 
 { #category : 'ir-to-target' }
@@ -53,7 +65,35 @@ DRNewBytecodeGenerator >> initialize [
 	opalBytecodeBuilder := OCIRBuilder new.
 	numArgs := 0.
 	
-	generationStack := Stack new.
+	generationStacks := Dictionary new.
+	alreadyGenerated := Set new.
+]
+
+{ #category : 'as yet unclassified' }
+DRNewBytecodeGenerator >> instructionOperands: aDRInstruction [
+
+	(aDRInstruction isInstruction and: [ aDRInstruction isDRBlockClosure ])
+		ifTrue: [ 
+			"We do not need to push anything, that's done by the builder itself.
+			Strange, huh?"
+			^ #(  ) ].
+	
+	"Pops really have no operands. Why do they have operands?
+	This is a leftover of a different Pop instruction from the Cogit"
+	(aDRInstruction isInstruction and: [ aDRInstruction isPop ])
+		ifTrue: [ ^ #(  ) ].
+	
+	"Load/Store i.v.s have different behavior depending on inlined or self accesses...
+	Check the corresponding visit methods, they expect different stack layouts"
+	(aDRInstruction isInstruction and: [ aDRInstruction isLoadInstanceVariable ]) ifTrue: [
+			^ (self isSelf: aDRInstruction operand1)
+				  ifTrue: [ #(  ) ]
+				  ifFalse: [ aDRInstruction operands ] ].
+	(aDRInstruction isInstruction and: [ aDRInstruction isStoreInstanceVariable ]) ifTrue: [
+			^ (self isSelf: aDRInstruction operand1)
+				  ifTrue: [ { aDRInstruction operands last } ]
+				  ifFalse: [ aDRInstruction operands ] ].
+	^ aDRInstruction operands
 ]
 
 { #category : 'API' }
@@ -80,12 +120,6 @@ DRNewBytecodeGenerator >> interpretInitializeScope: scope [
 		opalBytecodeBuilder pushTemp: arg.
 		opalBytecodeBuilder storeRemoteTemp: arg inVector: scope tempVectorName .
 		opalBytecodeBuilder popTop ].
-]
-
-{ #category : 'testing' }
-DRNewBytecodeGenerator >> isResultInstruction: aDRInstruction [
-
-	^ aDRInstruction users isEmpty or: [ aDRInstruction isStore ]
 ]
 
 { #category : 'testing' }
@@ -121,15 +155,15 @@ DRNewBytecodeGenerator >> pop: aDRInstruction [
 ]
 
 { #category : 'ir-to-target' }
-DRNewBytecodeGenerator >> reorderOperands: aDRInstruction [
+DRNewBytecodeGenerator >> reorderOperands: operands [
 
 	"Maybe there is nothing to do"
 	| operandStackMap stackDepthToReorder tempNames reorderedInstructions |
-	(generationStack first: aDRInstruction operands size) reversed = aDRInstruction operands asArray
+	(generationStack first: operands size) reversed = operands asArray
 		ifTrue: [ ^ self ].
 	
 	operandStackMap := Dictionary new.
-	aDRInstruction operands do: [ :op |
+	operands do: [ :op |
 		operandStackMap at: op put: (generationStack indexOf: op asLink ifAbsent: [ self error ]).
 	].
 	stackDepthToReorder := operandStackMap values max.
@@ -137,7 +171,7 @@ DRNewBytecodeGenerator >> reorderOperands: aDRInstruction [
 		operandStackMap at: (generationStack at: i) put: i.
 	].
 	tempNames := (1 to: stackDepthToReorder) collect: [ :idx | ('swap', idx asString) asSymbol ].
-	self haltIf: [ stackDepthToReorder > 3 ].
+	self haltIf: [ stackDepthToReorder > 9 ].
 	"Store all values into temps"
 	opalBytecodeBuilder addTemps: tempNames.
 	tempNames do: [ :n |
@@ -149,7 +183,7 @@ DRNewBytecodeGenerator >> reorderOperands: aDRInstruction [
 		self pop: generationStack top ].
 	"Push all but the ones we care about"
 	reorderedInstructions do: [ :i |
-		(aDRInstruction operands includes: i)
+		(operands includes: i)
 			ifFalse: [
 				| index |
 				index := operandStackMap at: i.
@@ -157,7 +191,7 @@ DRNewBytecodeGenerator >> reorderOperands: aDRInstruction [
 				self abstractPush: i.
 		] ].
 	"Finally push the ones we care about!"
-	aDRInstruction operands do: [ :i |
+	operands do: [ :i |
 		| index |
 		index := operandStackMap at: i.
 		opalBytecodeBuilder pushTemp: ('swap', index asString) asSymbol.
@@ -165,32 +199,19 @@ DRNewBytecodeGenerator >> reorderOperands: aDRInstruction [
 	].
 
 	"Let's see if swapping fixed the order"
-	self assert: (generationStack first: aDRInstruction operands size) reversed = aDRInstruction operands asArray
+	self assert: (generationStack first: operands size) reversed = operands asArray
 ]
 
 { #category : 'ir-to-target' }
 DRNewBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 
 	| sendAST |
-	
-	aDRInstruction operands select: [ :o | o isInstruction not ] thenDo: [ :o | o acceptVisitor: self ].
-
-	self reorderOperands: aDRInstruction.
 
 	"TODO: Avoid come back to the AST. Include super in the IR."
 	sendAST := aDRInstruction originAST.
 	(sendAST ifNotNil: [ sendAST superOf ])
 		ifNil: [ opalBytecodeBuilder send: selector ]
-		ifNotNil: [ :behavior | opalBytecodeBuilder send: selector toSuperOf: behavior ].
-
-	aDRInstruction operands reversed do: [ :op |
-		self pop: op ].
-	self abstractPush: aDRInstruction.
-
-	aDRInstruction isConditionalBranch ifFalse: [
-		aDRInstruction users ifEmpty: [ opalBytecodeBuilder popTop ] ].
-	aDRInstruction hasUsers	ifFalse: [ self pop: aDRInstruction ]
-
+		ifNotNil: [ :behavior | opalBytecodeBuilder send: selector toSuperOf: behavior ]
 ]
 
 { #category : 'building' }
@@ -227,10 +248,6 @@ DRNewBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 			opalBytecodeBuilder popTop ].
 		^ self ].
 
-	aDRArrayNode operands do: [ :each | each acceptVisitor: self ].
-	aDRArrayNode operands reversed do: [ :e | self pop: e ].
-
-	self abstractPush: aDRArrayNode.
 	opalBytecodeBuilder pushConsArray: aDRArrayNode operands size.
 	
 ]
@@ -239,21 +256,52 @@ DRNewBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 DRNewBytecodeGenerator >> visitBasicBlock: aDRBasicBlock [
 
 	aDRBasicBlock hasPredecessors ifTrue: [
-		| label |
-		"Somebody will jump to me, set a target"
-		label := self labelBlock: aDRBasicBlock.
-		aDRBasicBlock predecessors do: [ :pred |
-			pred endInstruction isBackJump
-				ifTrue: [ opalBytecodeBuilder jumpBackTarget: label ]
-				ifFalse: [ opalBytecodeBuilder jumpAheadTarget: label ] ] ].
+			| label |
+			"Somebody will jump to me, set a target"
+			label := self labelBlock: aDRBasicBlock.
+			aDRBasicBlock predecessors do: [ :pred |
+					pred endInstruction isBackJump
+						ifTrue: [ opalBytecodeBuilder jumpBackTarget: label ]
+						ifFalse: [ opalBytecodeBuilder jumpAheadTarget: label ] ] ].
 
-	aDRBasicBlock instructionsDo: [ :i | 
-		self ensureOperandsOnStack: i.
-		self reorderOperands: i.
-		i acceptVisitor: self.
-		(i result isNoResult not and: [i hasUsers not]) ifTrue: [ 
-			self pop: i.
-			opalBytecodeBuilder popTop ]]
+	"This is the tree graph algo.
+	We only start from the roots of the graph, i.e., mandatory instructions with side effects.
+	Then we visit depth first post order.
+	We only visit the current instruction if all dependencies are visited
+		- data dependencies
+		- effect dependencies
+	For each instruction,
+	 - consume the operands from the stack.
+	 - gen the instruction
+	 - pop it if no more users
+	"
+	"We enter a basic block. Each block has its own stack.
+	We should merge the stacks of the predecessors here, and validate that they are conherent: all same size"
+	generationStack := aDRBasicBlock predecessors ifEmpty: [ Stack new ] ifNotEmpty: [
+			                   (aDRBasicBlock predecessors size = 1 or: [
+				                    aDRBasicBlock predecessors anySatisfy: [ :p | (generationStacks includesKey: p) not ] ])
+				                   ifTrue: [
+				                   (generationStacks at: (aDRBasicBlock predecessors detect: [ :p | generationStacks includesKey: p ])) copy ]
+				                   ifFalse: [
+						                   | predecessorStacks newStack |
+						                   predecessorStacks := aDRBasicBlock predecessors collect: [ :p | generationStacks at: p ].
+						                   self assert: predecessorStacks size = 2.
+						                   self assert: predecessorStacks first size = predecessorStacks second size.
+						                   newStack := Stack new.
+						                   predecessorStacks first size > 0 ifTrue: [
+								                   predecessorStacks first size to: 1 do: [ :i |
+										                   | left right merged |
+										                   left := predecessorStacks first at: i.
+										                   right := predecessorStacks first at: i.
+										                   merged := left = right
+											                             ifTrue: [ left ]
+											                             ifFalse: [ DRNullValue new ].
+										                   newStack push: merged ] ].
+						                   newStack ] ].
+	generationStacks at: aDRBasicBlock put: generationStack.
+	aDRBasicBlock instructionsDo: [ :i | i isMandatoryInstruction ifTrue: [ self visitInstruction: i ] ].
+	"Remove it so we avoid stack confusion :)"
+	generationStack := nil
 ]
 
 { #category : 'visiting' }
@@ -298,7 +346,6 @@ DRNewBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 
 	copiedValues := blockCFG scope copiedVarNames.
 
-	self abstractPush: aDRBlockClosure.
 	opalBytecodeBuilder
 		pushFullClosureCompiledBlock: compiledBlock
 		copiedValues: copiedValues
@@ -317,14 +364,13 @@ DRNewBytecodeGenerator >> visitBranchIfCondition: aDRConditionalBranch [
 { #category : 'ir-to-target' }
 DRNewBytecodeGenerator >> visitConstant: aDRConstantValue [
 
-	"Push the constant to the internal stack to track when it was pushed"
-	self abstractPush: aDRConstantValue.
-	
 	aDRConstantValue value isLiteral ifFalse: [
-		aDRConstantValue value isThisContextVariable ifTrue: [
-			^ opalBytecodeBuilder pushThisContext ].
-		aDRConstantValue value isGlobalVariable ifTrue: [
-			^ opalBytecodeBuilder pushLiteralVariable: aDRConstantValue value ] ].
+			aDRConstantValue value isThisContextVariable
+				ifTrue: [ ^ opalBytecodeBuilder pushThisContext ].
+			aDRConstantValue value isGlobalVariable
+				ifTrue: [ ^ opalBytecodeBuilder pushLiteralVariable: aDRConstantValue value ].
+			(aDRConstantValue value isKindOf: DRClassType)
+				ifTrue: [ ^ opalBytecodeBuilder pushLiteralVariable: aDRConstantValue value binding ] ].
 
 	opalBytecodeBuilder pushLiteral: aDRConstantValue value
 ]
@@ -332,9 +378,7 @@ DRNewBytecodeGenerator >> visitConstant: aDRConstantValue [
 { #category : 'ir-to-target' }
 DRNewBytecodeGenerator >> visitCopy: aDRCopy [
 
-	aDRCopy operand1 isInstruction ifFalse: [ aDRCopy operand1 acceptVisitor: self ].
-	self pop: aDRCopy operand1.
-	self abstractPush: aDRCopy
+	"gen does nothing for a copy!"
 ]
 
 { #category : 'visiting' }
@@ -376,10 +420,53 @@ DRNewBytecodeGenerator >> visitInitializeScope: aDRInitializeScope [
 ]
 
 { #category : 'ir-to-target' }
+DRNewBytecodeGenerator >> visitInstruction: aDRInstruction [
+
+	| sizeBefore operands userSize |
+	"Make constant values pushed every time instead of fetched from the stack"
+	(aDRInstruction isInstruction and: [ alreadyGenerated includes: aDRInstruction ]) ifTrue: [ ^ self ].
+	alreadyGenerated add: aDRInstruction.
+
+	"Visit dependencies"
+	operands := self ensureOperandsOnStack: aDRInstruction.
+
+	sizeBefore := generationStack size.
+
+	"Do the instruction's GEN"
+	aDRInstruction acceptVisitor: self.
+
+	"Pop this instruction value if this is an instruction, not a value"
+	aDRInstruction isInstruction ifTrue: [
+			| users |
+			"Closures have a dependency to the value, but they do not need to be pushed,
+		so they are actually not popped either"
+			users := aDRInstruction users select: [ :u | u isDRBlockClosure not ].
+
+			"Return, jump, initscope, do not push a result, no need to pop."
+			(users size = 0 and: [
+					 aDRInstruction isReturn not and: [
+						 aDRInstruction isJump not and: [ (aDRInstruction class = DRInitializeScope) not and: [ aDRInstruction isPush not ] ] ] ])
+				ifTrue: [ opalBytecodeBuilder popTop ].
+			users size > 1 ifTrue: [ users size - 1 timesRepeat: [ opalBytecodeBuilder pushDup ] ] ].
+
+	"Maintain abstract stack.
+	First check nobody broke it.
+	Then pop the operands if I'm the last user.
+	Finally, push myself"
+	self assert: sizeBefore = generationStack size.
+	operands reversed do: [ :e | (e users allSatisfy: [ :u | alreadyGenerated includes: e ]) ifTrue: [ self pop: e ] ].
+
+	userSize := aDRInstruction isInstruction
+		ifTrue: [ aDRInstruction users size ]
+		ifFalse: [ 1 ].
+	
+	userSize timesRepeat: [ self abstractPush: aDRInstruction ]
+]
+
+{ #category : 'ir-to-target' }
 DRNewBytecodeGenerator >> visitInterpreterValue: aDRInterpreterValue [ 
 
 	self flag: #TODO. "It is always self ?"
-	self abstractPush: aDRInterpreterValue.
 	opalBytecodeBuilder pushReceiver
 ]
 
@@ -410,37 +497,31 @@ DRNewBytecodeGenerator >> visitLessThan: aDRLessThanComparison inBranch: aDRBran
 { #category : 'ir-to-target' }
 DRNewBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 
-	self abstractPush: aDRLoadArgument.
-	opalBytecodeBuilder pushRemoteTemp: aDRLoadArgument variableName inVector: aDRLoadArgument scope tempVectorName. 
-	
+	opalBytecodeBuilder pushRemoteTemp: aDRLoadArgument variableName inVector: aDRLoadArgument scope tempVectorName
 ]
 
 { #category : 'ir-to-target' }
 DRNewBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
-	
-	self abstractPush: aDRLoadInstVar.
-	(self isSelf: aDRLoadInstVar operand1) ifTrue: [
-		opalBytecodeBuilder pushInstVar: aDRLoadInstVar index.
-		^ self 
-	].
 
-	aDRLoadInstVar operand1 isInstruction ifFalse: [ aDRLoadInstVar operand1 acceptVisitor: self ].
-	opalBytecodeBuilder pushLiteral: aDRLoadInstVar index.
-	opalBytecodeBuilder send: #instVarAt:.
+	(self isSelf: aDRLoadInstVar operand1) ifTrue: [
+			opalBytecodeBuilder pushInstVar: aDRLoadInstVar index.
+			^ self ].
+
+	opalBytecodeBuilder send: #instVarAt:
 ]
 
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitLoadLiteralVariable: aDRLoadLiteralVariable [ 
 
-	self abstractPush: aDRLoadLiteralVariable.
 	opalBytecodeBuilder pushLiteralVariable: aDRLoadLiteralVariable operand1 value
 ]
 
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitLoadTemporaryVariable: aDRLoadTemporaryVariable [
 
-	self abstractPush: aDRLoadTemporaryVariable.
-	opalBytecodeBuilder pushRemoteTemp: aDRLoadTemporaryVariable operand1 value inVector: aDRLoadTemporaryVariable scope tempVectorName
+	opalBytecodeBuilder
+		pushRemoteTemp: aDRLoadTemporaryVariable variableName value
+		inVector: aDRLoadTemporaryVariable scope tempVectorName
 ]
 
 { #category : 'ir-to-target' }
@@ -478,7 +559,6 @@ DRNewBytecodeGenerator >> visitNoop: aDRNoop [
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitNullValue: aDRNullValue [
 
-	self abstractPush: aDRNullValue.
 	opalBytecodeBuilder pushLiteral: nil
 ]
 
@@ -497,85 +577,43 @@ DRNewBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 ]
 
 { #category : 'visiting' }
-DRNewBytecodeGenerator >> visitPop: aDRPop [ 
+DRNewBytecodeGenerator >> visitPop: aDRPop [
 
-	self abstractPush: aDRPop
+	"Does nothing"
 ]
 
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitPush: aDRPush [ 
 
-	"Values are pushed on visiting, do nothing here"
-	aDRPush operand1 isInstruction ifFalse: [ aDRPush operand1 acceptVisitor: self]
+	"gen does nothing for a push"
 ]
 
 { #category : 'ir-to-target' }
-DRNewBytecodeGenerator >> visitReturn: aDRReturn [ 
+DRNewBytecodeGenerator >> visitReturn: aDRReturn [
 
-	aDRReturn operand1 isInstruction ifFalse: [ 
-		1halt.aDRReturn operand1 acceptVisitor: self ].
-
-	self pop: aDRReturn operand1.
-	opalBytecodeBuilder returnTop.
+	opalBytecodeBuilder returnTop
 ]
 
 { #category : 'ir-to-target' }
 DRNewBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 
-	(self isSelf: aDRStoreInstanceVariable operand1) ifTrue: [
-			aDRStoreInstanceVariable operand3 isInstruction ifFalse: [ aDRStoreInstanceVariable operand3 acceptVisitor: self ].
-			opalBytecodeBuilder storeInstVar: aDRStoreInstanceVariable operand2 value.
-
-			aDRStoreInstanceVariable users isEmpty ifTrue: [
-					self pop: aDRStoreInstanceVariable operand3.
-					opalBytecodeBuilder popTop ].
-			^ self ].
-
-	aDRStoreInstanceVariable operand1 isInstruction ifFalse: [ aDRStoreInstanceVariable operand1 acceptVisitor: self ].
-	opalBytecodeBuilder pushLiteral: aDRStoreInstanceVariable operand2 value.
-	aDRStoreInstanceVariable operand3 isInstruction ifFalse: [ aDRStoreInstanceVariable operand3 acceptVisitor: self ].
-	opalBytecodeBuilder send: #instVarAt:put:.
-
-
-	self pop: aDRStoreInstanceVariable operands last.
-	self pop: aDRStoreInstanceVariable operands first.
-	self assert: aDRStoreInstanceVariable hasUsers not.
-	opalBytecodeBuilder popTop
+	(self isSelf: aDRStoreInstanceVariable operand1)
+		ifTrue: [ opalBytecodeBuilder storeInstVar: aDRStoreInstanceVariable operand2 value ]
+		ifFalse: [ opalBytecodeBuilder send: #instVarAt:put: ]
 ]
 
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitStoreLiteralVariable: aDRStoreLiteralVariable [
 
-	| value |
-	value := aDRStoreLiteralVariable operand2.
-	value acceptVisitor: self.
-
-	opalBytecodeBuilder storeIntoLiteralVariable:
-		aDRStoreLiteralVariable operand1 value.
-
-	aDRStoreLiteralVariable hasUsers ifFalse: [ opalBytecodeBuilder popTop ]
+	opalBytecodeBuilder storeIntoLiteralVariable: aDRStoreLiteralVariable operand1 value
 ]
 
 { #category : 'visiting' }
 DRNewBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
-	| value |
-	value := aDRStoreTemporaryVariable operand2 asDRValue.
-	"Avoid store of stores, they should be compiled as store + read"	
-	self assert: value isStoreTemporaryVariable not.
-	
-	value isInstruction ifFalse: [ value acceptVisitor: self ].
-
 	opalBytecodeBuilder
-		storeRemoteTemp: aDRStoreTemporaryVariable operand1 value
-		inVector: aDRStoreTemporaryVariable scope tempVectorName.
-
-	"Stores should not have users, only block closures catch temporaries"	
-	self assert: (aDRStoreTemporaryVariable users allSatisfy: [ :each | each isDRBlockClosure ]).		
-
-	self pop: value.
-	opalBytecodeBuilder popTop
-
+		storeRemoteTemp: aDRStoreTemporaryVariable variableName value
+		inVector: aDRStoreTemporaryVariable scope tempVectorName
 ]
 
 { #category : 'ir-to-target' }

@@ -37,14 +37,6 @@ DRNewBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 
 ]
 
-{ #category : 'testing' }
-DRNewBytecodeBlockGenerator >> isResultInstruction: aDRInstruction [
-
-	^ aDRInstruction users isEmpty or: [
-			  aDRInstruction isStore and: [
-				  aDRInstruction users anySatisfy: [ :i | i isReturn not ] ] ]
-]
-
 { #category : 'visiting' }
 DRNewBytecodeBlockGenerator >> visitBlockReturn: aDBlockRReturn [ 
 

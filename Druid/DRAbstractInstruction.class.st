@@ -81,6 +81,12 @@ DRAbstractInstruction >> isStackEffect [
 	^ false
 ]
 
+{ #category : 'testing' }
+DRAbstractInstruction >> isStoreInstanceVariable [
+
+	^ false
+]
+
 { #category : 'accessing' }
 DRAbstractInstruction >> nextInstruction [
 	

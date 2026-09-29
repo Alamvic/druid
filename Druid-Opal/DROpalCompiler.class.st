@@ -31,6 +31,8 @@ DROpalCompiler class >> generateMethodFromCFG: aDRControlFlowGraph withSelector:
 
 	aDRControlFlowGraph applyOptimisation: DRDeadCodeElimination new.
 	aDRControlFlowGraph applyOptimisation: DRCleanControlFlow new.
+	aDRControlFlowGraph applyOptimisation: DRCopyPropagation new.
+	
 	"First break critical edges so we can resolve phis into the right blocks"
 	DRBreakCriticalEdges new applyTo: aDRControlFlowGraph.
 	DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph.

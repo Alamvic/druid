@@ -2,7 +2,8 @@ Class {
 	#name : 'DRTemporaryVariableInstruction',
 	#superclass : 'DRInstruction',
 	#instVars : [
-		'scope'
+		'scope',
+		'variableName'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -22,9 +23,28 @@ DRTemporaryVariableInstruction >> address: aDRValue [
 ]
 
 { #category : 'testing' }
+DRTemporaryVariableInstruction >> isMandatory [
+
+	^ true
+]
+
+{ #category : 'testing' }
 DRTemporaryVariableInstruction >> isScopedInstruction [
 
 	^ true
+]
+
+{ #category : 'accessing' }
+DRTemporaryVariableInstruction >> operands: aCollection [
+
+	variableName := aCollection first.
+	super operands: aCollection allButFirst
+]
+
+{ #category : 'accessing' }
+DRTemporaryVariableInstruction >> prettyPrint [
+
+	^ super prettyPrint , ' ' , variableName asString
 ]
 
 { #category : 'accessing' }
@@ -42,5 +62,5 @@ DRTemporaryVariableInstruction >> scope: anObject [
 { #category : 'accessing' }
 DRTemporaryVariableInstruction >> variableName [
 
-	^ self address value
+	^ variableName
 ]

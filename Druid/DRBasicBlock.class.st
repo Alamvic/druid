@@ -309,6 +309,16 @@ DRBasicBlock >> copy: aValue [
 	^ self addInstruction: (self instructionFactory copy: aValue)
 ]
 
+{ #category : 'organization' }
+DRBasicBlock >> dependencies [
+	
+	"Return all the dependencies of this block to other blocks"
+	
+	^ self instructions flatCollect: [ :i |
+		i dependencies select: [ :d |
+			d isInstruction and: [ d basicBlock ~= self ] ] ]
+]
+
 { #category : 'building' }
 DRBasicBlock >> detectOperandForIteratedSuccessorPhiFrom: possibleOperands [
 
