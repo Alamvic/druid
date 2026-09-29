@@ -30,7 +30,7 @@ DRLoadArgument >> argName: selector [
 { #category : 'accessing' }
 DRLoadArgument >> argNum [
 
-	^ self operand1 value
+	^ variableName
 ]
 
 { #category : 'accessing' }
