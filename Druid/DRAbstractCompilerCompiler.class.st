@@ -178,9 +178,7 @@ DRAbstractCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRRec
 DRAbstractCompilerCompiler >> interpreteMethods: compiledMethods [
 
 	| receiver numArgs |
-	receiver := DRInterpreterValue value: interpreter.
-	numArgs := self numberOfArgumentsForManyMethods: compiledMethods.
-
+	1haltIf: [compiledMethods size > 1].
 	self
 		interpretMethods: compiledMethods
 		receiver: receiver

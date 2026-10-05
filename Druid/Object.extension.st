@@ -2,7 +2,8 @@ Extension { #name : 'Object' }
 
 { #category : '*Druid' }
 Object >> asDRInterpreterValue [
-	
+
+	self flag: #cogitSpecific.
 	^ DRInterpreterValue value: self
 ]
 

@@ -815,7 +815,7 @@ DRIRGenerator >> interpretClassTableRootsObjectWith: aRBVariableNode [
 { #category : 'API' }
 DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
 	
-	self pushFrameForCode: aDRCode receiver: aReceiver.
+	self pushFrameForCode: aDRCode maybeClosure: aReceiver.
 	
 	"Iterate based on the defined arguments.
 	In ifNotNil: arguments are optional"
@@ -1622,6 +1622,7 @@ DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver ar
 
 	| instruction inlineGenerator |
 	inlineGenerator := self inlineGenerator.
+	1haltIf:[receiver isNil].
 	instruction := self
 		               instantiate: DRMessageSend
 		               operands: { receiver } , arguments.
@@ -1835,9 +1836,9 @@ DRIRGenerator >> pushFrame: aDruidStackFrame [
 ]
 
 { #category : 'stack management' }
-DRIRGenerator >> pushFrameForCode: aDRCode receiver: aReceiver [
+DRIRGenerator >> pushFrameForCode: aDRCode maybeClosure: maybeClosure [
 
-	^ aDRCode pushFrameIn: self receiver: aReceiver
+	^ aDRCode pushFrameIn: self maybeClosure: maybeClosure
 ]
 
 { #category : 'frame-access' }
@@ -1849,7 +1850,7 @@ DRIRGenerator >> pushOperand: anOperand [
 { #category : 'frame-access' }
 DRIRGenerator >> receiver [
 	
-	^ self topFrame receiver
+	^ self homeFrame receiver
 ]
 
 { #category : 'factory' }
@@ -2053,7 +2054,7 @@ DRIRGenerator >> visitMessageNode: aRBMessageNode [
 
 	"Resolve it as a normal send"
 	aRBMessageNode receiver acceptVisitor: self.
-	receiver := self popOperand.
+	receiver := self popOperand ifNil: [self halt].
 	^ self resolveMessageSend: aRBMessageNode receiver: receiver
 ]
 
@@ -2120,7 +2121,6 @@ DRIRGenerator >> visitOperand: aDRValue [
 DRIRGenerator >> visitReturnNode: aRBReturnNode [
 
 	| value homeFrame fork |
-	
 	value := self visitOperand: aRBReturnNode value.
 	
 	"Create a fork, push value operand and create a FrameReturn to keep DeferredReturnState ready to merge"
@@ -2141,6 +2141,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitSelfNode: aRBVariableNode [ 
 	
+	self flag: #cogitSpecific.
 	self pushOperand: (self topFrame receiverWithState: executionState)
 ]
 

@@ -51,16 +51,10 @@ DRMethodCompilerCompiler >> configureForCompilerClassWithoutInline: aCompilerCla
 { #category : 'generation-IR' }
 DRMethodCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRReceiver numArgs: numArgs [
 
-	irGenerator receiver: aDRReceiver.
-	irGenerator numberOfArguments: numArgs.
-	
 	compiledMethods do: [ :method |
-		| aDRMethod |
-		aDRMethod := DRMethod methodNode: method ast.
-			
-		irGenerator
-			interpretCode: aDRMethod
-			receiver: aDRReceiver ]
+			| aDRMethod |
+			aDRMethod := DRMethod methodNode: method ast.
+			irGenerator interpretCode: aDRMethod maybeClosure: aDRReceiver ]
 ]
 
 { #category : 'code-generation' }

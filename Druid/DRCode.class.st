@@ -38,9 +38,9 @@ DRCode >> isMandatoryInstruction [
 ]
 
 { #category : 'activation' }
-DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
+DRCode >> pushFrame: frame In: interpreter maybeClosure: maybeClosure [
 
-	| newMethodEntry incomingBasicBlock |
+	| newMethodEntry incomingBasicBlock receiver |
 	"Store the current execution state before the call.
 	We will restore it just after the return"
 	incomingBasicBlock := interpreter currentBasicBlock.
@@ -48,20 +48,30 @@ DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
 	incomingBasicBlock jumpTo: newMethodEntry.
 
 	frame
-		receiver: aReceiver;
 		method: self codeNode;
 		irGenerator: interpreter;
-		entryBasicBlock: newMethodEntry.
+		entryBasicBlock: newMethodEntry;
+		maybeClosure: maybeClosure;
+		receiver: maybeClosure.
 
 	(interpreter temporariesListfrom: self codeNode) do: [ :e |
 		frame defineVariableNamed: e ].
-	frame returnValue: aReceiver.
 	interpreter pushFrame: frame.
+
+	"Initialize the default self for returns!
+	Let's not consider it as pushed to the stack"
+	receiver := interpreter
+		addInstructionFrom: self codeNode
+		instructionKind: DRLoadReceiver
+		operands: { interpreter scope initInstruction }.
+	interpreter popOperand.
+	frame returnValue: receiver.
+
 	^ frame
 ]
 
 { #category : 'activation' }
-DRCode >> pushFrameIn: interpreter receiver: aReceiver [
+DRCode >> pushFrameIn: interpreter maybeClosure: maybeClosure [
 
-	^ self pushFrame: self basicNewFrame In: interpreter receiver: aReceiver
+	^ self pushFrame: self basicNewFrame In: interpreter maybeClosure: maybeClosure
 ]

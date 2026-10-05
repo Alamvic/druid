@@ -113,7 +113,7 @@ DRBytecodeGeneratorTest >> compileSelector: selector fromClass: interpreterClass
 	compilerCompiler interpreter: interpreter.
 
 	cfg := self generateDruidIRFor: method.
-
+1halt.
 	method := self generateMethodFromCFG: cfg withSelector: selector.
 	method methodClass: interpreterClass.
 	^ method

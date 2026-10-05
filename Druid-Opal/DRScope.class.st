@@ -111,6 +111,13 @@ DRScope >> hasTempVector [
 ]
 
 { #category : 'accessing' }
+DRScope >> homeScope [
+
+	outerScope ifNil: [ ^ self ].
+	^ outerScope homeScope
+]
+
+{ #category : 'accessing' }
 DRScope >> id [
 
 	^ id

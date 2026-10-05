@@ -12,6 +12,7 @@ Class {
 { #category : 'accessing' }
 DRConstantValue class >> value: anInteger [
 	
+	self haltIf: [ anInteger class == DRMethodIRGeneratorInline ].
 	^ self new
 		value: anInteger;
 		yourself

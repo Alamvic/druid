@@ -49,7 +49,7 @@ DRInline >> generateInlineIRForMethod: classAndMethodToInline of: aMessageSend [
 	(methodClass isKindOf: DRUndefinedType) ifTrue: [ "If we don't know the receiver's type, copy the message send"
 		(DRMethod methodNode: aMessageSend originAST methodNode) asDRValue
 			pushFrameIn: inlineGenerator
-			receiver: aMessageSend receiver.
+			maybeClosure: aMessageSend receiver.
 		^ inlineGenerator resolveMessageSend: aMessageSend originAST receiver: aMessageSend receiver arguments: aMessageSend arguments ].
 
 	methodToInline := classAndMethodToInline value.

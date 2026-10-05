@@ -242,7 +242,7 @@ DRInstructionFactory >> loadStackValueAt: anInteger [
 
 { #category : 'factory' }
 DRInstructionFactory >> messageSend: selector withOperands: operands [
-
+1halt.
 	^ DRMessageSend
 		  operands: operands
 		  result: self allocateTemporaryRegister

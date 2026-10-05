@@ -97,6 +97,7 @@ DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
 
 	"If it is a Load then the variable is already stored (can be reused)"
 	aDRInstruction isLoadTemporaryVariable ifTrue: [ ^ self ].
+	aDRInstruction result isNoResult ifTrue: [ ^ self ].
 
     self assert: aDRInstruction result isRegister.
     cfg := aDRInstruction controlFlowGraph.

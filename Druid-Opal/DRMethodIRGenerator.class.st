@@ -138,11 +138,16 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	value := self visitOperand: aRBAssignmentNode value.
 
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
+		| receiver |
+		"Push self, and pop it.
+		We need it as a data dependency to the load inst var only."
+		receiver := self visitSelfNode: aRBAssignmentNode.
+		self popOperand.
 		^ self
 			  addAssignmentInstructionFrom: aRBAssignmentNode
 			  instructionKind: DRStoreInstanceVariable
 			  operands: {
-					  self receiver.
+					  receiver.
 					  aRBAssignmentNode variable binding index asDRValue.
 					  value } ].
 
@@ -177,11 +182,10 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 ]
 
 { #category : 'as yet unclassified' }
-DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [ 
+DRMethodIRGenerator >> interpretCode: aDRMethod maybeClosure: maybeClosure [ 
 	
 	self setupCFGScope: aDRMethod codeNode.
-	
-	self pushFrameForCode: aDRMethod receiver: aReceiver.
+	self pushFrameForCode: aDRMethod maybeClosure: maybeClosure.
 	aDRMethod executeOn: self.
 	
 	^ self popFrame.
@@ -192,7 +196,7 @@ DRMethodIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arg
 
 	self setupCFGScope: aDRCode codeNode.
 
-	self pushFrameForCode: aDRCode receiver: aReceiver.
+	self pushFrameForCode: aDRCode maybeClosure: aReceiver.
 
 	self
 		initializeArgumentsNames: aDRCode
@@ -243,7 +247,6 @@ DRMethodIRGenerator >> interpretInlinedCode: code receiver: receiver arguments: 
 
 	"Jump to inlining block"
 	self currentBasicBlock jumpTo: inlineGenerator newBasicBlock.
-
 	lastFrame := inlineGenerator
 		             interpretCode: code
 		             receiver: receiver
@@ -408,11 +411,12 @@ DRMethodIRGenerator >> scope: aDRScope [
 ]
 
 { #category : 'as yet unclassified' }
-DRMethodIRGenerator >> setupCFGScope: aCodeNode [ 
-	
+DRMethodIRGenerator >> setupCFGScope: aCodeNode [
+
+	self numberOfArguments: aCodeNode numArgs.
 	self ir scope
 		addArgumentVariables: (aCodeNode arguments collect: #variable);
-		addTempVariables: (aCodeNode temporaries collect: [:temp | temp variable originalVar]);
+		addTempVariables: (aCodeNode temporaries collect: [ :temp | temp variable originalVar ]);
 		node: aCodeNode
 ]
 
@@ -501,12 +505,37 @@ DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
+	| receiver |
+	1halt.
+	"Push self, and pop it.
+	We need it as a data dependency to the load inst var only."
+	receiver := self visitSelfNode: aRBVariableNode.
+	self popOperand.
+
 	self
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRLoadInstanceVariable
 		operands: { 
-				self topFrame receiver.
+				receiver.
 				aRBVariableNode variable index asDRValue }
+]
+
+{ #category : 'visiting' }
+DRMethodIRGenerator >> visitSelfNode: aRBVariableNode [
+	"Push a new self instruction bound to the current init instruction"
+
+	^ (self topFrame homeFrame receiverWithState: executionState)
+		  ifNil: [ 
+			self
+				addInstructionFrom: aRBVariableNode
+				instructionKind: DRLoadReceiver
+				operands: { self scope initInstruction } ]
+		  ifNotNil: [ 
+			| operand |
+			1halt.
+			operand := self topFrame homeFrame receiverWithState: executionState.
+			self pushOperand: operand.
+			operand ]
 ]
 
 { #category : 'visiting' }

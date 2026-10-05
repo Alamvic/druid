@@ -25,7 +25,7 @@ DRBlockIRGenerator >> interpretBlockClosure: aDRBlockClosure [
 	| numArgs cfg |
 	numArgs := aDRBlockClosure numberOfArguments.
 	self numberOfArguments: numArgs.
-	self interpretCode: aDRBlockClosure receiver: aDRBlockClosure.
+	self interpretCode: aDRBlockClosure maybeClosure: aDRBlockClosure.
 
 	cfg := self ir.
 	cfg numArgs: numArgs.
@@ -84,12 +84,5 @@ DRBlockIRGenerator >> visitReturnNode: aRBReturnNode [
 	value := self visitOperand: aRBReturnNode value.
 
 	self pushOperand:(currentBasicBlock return: value).
-
-]
-
-{ #category : 'visiting' }
-DRBlockIRGenerator >> visitSelfNode: aRBVariableNode [ 
-
-	self pushOperand: self receiver.
 
 ]
