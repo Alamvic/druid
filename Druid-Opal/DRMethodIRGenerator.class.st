@@ -210,20 +210,24 @@ DRMethodIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arg
 { #category : 'as yet unclassified' }
 DRMethodIRGenerator >> interpretInlinedBlockBody: aRBBlockNode [
 	
-	aRBBlockNode scope tempVector ifNotEmpty: [ | inlineGenerator  |
-		"case where the inlined block defines a scape temporary"
+	aRBBlockNode scope tempVector ifNotEmpty: [ | inlineGenerator |
+		"case when the inlined block uses outer variables.
+		  - We use an inline generator to manage block's scope variables
+		  - We copy the state to continue the interpretation from here"
 		inlineGenerator := self inlineGenerator
+			                   executionState: executionState copy;
 			                   numberOfArguments: aRBBlockNode arguments size;
+			                   setupCFGScope: aRBBlockNode;
+			                   initializeScope;
 			                   yourself.
 
 		"Jump to inlining block"
 		self currentBasicBlock jumpTo: inlineGenerator newBasicBlock.
-		inlineGenerator setupCFGScope: aRBBlockNode.
-		inlineGenerator initializeScope.
 		inlineGenerator interpretBlockBody: aRBBlockNode.
 
 		"Jump back and restore the state"
 		inlineGenerator currentBasicBlock jumpTo: self newBasicBlock.
+		self executionState: inlineGenerator executionState.		
 	] 
 	ifEmpty: [ 
 		"We add new temporaries to the current scope"
