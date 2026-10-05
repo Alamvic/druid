@@ -111,17 +111,3 @@ DRMethodIRGeneratorInline >> setupCFGScope: aCodeNode [
 	self scope addTempVariables: temporaries , arguments.
 	self scope node: aCodeNode
 ]
-
-{ #category : 'visiting' }
-DRMethodIRGeneratorInline >> visitArgumentVariableNode: aRBVariableNode [ 
-	
-	(self isBaseMethodArgument: aRBVariableNode)
-		ifTrue: [
-			super visitArgumentVariableNode: aRBVariableNode .]
-		ifFalse: [
-			| value |
-			"If it is not accesssing a method argument, 
-			then get the target instruction and push it"
-			value := self temporaryAt: aRBVariableNode name.
-			^ self pushOperand: value ]
-]
