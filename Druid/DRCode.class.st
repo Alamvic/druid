@@ -55,7 +55,7 @@ DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
 
 	(interpreter temporariesListfrom: self codeNode) do: [ :e |
 		frame defineVariableNamed: e ].
-	frame returnValue: (self defaultReturnValue: aReceiver).
+	frame returnValue: aReceiver.
 	interpreter pushFrame: frame.
 	^ frame
 ]

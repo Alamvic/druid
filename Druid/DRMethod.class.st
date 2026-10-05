@@ -29,13 +29,6 @@ DRMethod >> codeNode [
 	^ self methodNode
 ]
 
-{ #category : 'activation' }
-DRMethod >> defaultReturnValue: receiver [
-
-	receiver isInstruction ifTrue: [ ^ receiver ].
-	^ DRInterpreterValue value: receiver
-]
-
 { #category : 'executing' }
 DRMethod >> executeOn: interpreter [
 	
