@@ -1,6 +1,6 @@
 Class {
-	#name : 'DRNewBytecodeBlockGenerator',
-	#superclass : 'DRNewBytecodeGenerator',
+	#name : 'DRTreegraphBytecodeBlockGenerator',
+	#superclass : 'DRTreegraphBytecodeGenerator',
 	#instVars : [
 		'blockScope'
 	],
@@ -10,13 +10,13 @@ Class {
 }
 
 { #category : 'accessing' }
-DRNewBytecodeBlockGenerator >> blockScope: aDRScope [
+DRTreegraphBytecodeBlockGenerator >> blockScope: aDRScope [
 
 	blockScope := aDRScope
 ]
 
 { #category : 'compiling' }
-DRNewBytecodeBlockGenerator >> compileBlockFrom: aDRControlFlowGraph withScope: aScope [ 
+DRTreegraphBytecodeBlockGenerator >> compileBlockFrom: aDRControlFlowGraph withScope: aScope [ 
 	
 	| ir compiledBlock |
 	opalBytecodeBuilder numArgs: aDRControlFlowGraph numArgs.
@@ -29,7 +29,7 @@ DRNewBytecodeBlockGenerator >> compileBlockFrom: aDRControlFlowGraph withScope: 
 ]
 
 { #category : 'code-generation' }
-DRNewBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
+DRTreegraphBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 	
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
 		self visitBasicBlock: block ].
@@ -38,14 +38,14 @@ DRNewBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 ]
 
 { #category : 'visiting' }
-DRNewBytecodeBlockGenerator >> visitBlockReturn: aDBlockRReturn [
+DRTreegraphBytecodeBlockGenerator >> visitBlockReturn: aDBlockRReturn [
 
 	opalBytecodeBuilder blockReturnTop 
 	
 ]
 
 { #category : 'ir-to-target' }
-DRNewBytecodeBlockGenerator >> visitReturn: aDRReturn [ 
+DRTreegraphBytecodeBlockGenerator >> visitReturn: aDRReturn [ 
 
 	blockScope wasMethodInlined ifTrue: [ 
 		Error signal: 'Non-local return on inlined method breaks the semantics' ].
