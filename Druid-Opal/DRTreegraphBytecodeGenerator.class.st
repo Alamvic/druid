@@ -460,10 +460,10 @@ DRTreegraphBytecodeGenerator >> visitInstruction: aDRInstruction [
 
 	"Maintain abstract stack.
 	First check nobody broke it.
-	Then pop the operands if I'm the last user.
+	Then pop the operands -- we can do it unconditionally because they have been dupped by the pusher.
 	Finally, push myself"
 	self assert: sizeBefore = generationStack size.
-	operands reversed do: [ :e | (e users allSatisfy: [ :u | alreadyGenerated includes: e ]) ifTrue: [ self pop: e ] ].
+	operands reversed do: [ :e | self pop: e ].
 
 	userSize := aDRInstruction isInstruction
 		ifTrue: [ aDRInstruction users size ]
