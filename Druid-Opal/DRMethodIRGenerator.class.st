@@ -30,6 +30,15 @@ DRMethodIRGenerator >> addAssignmentInstructionFrom: anAssignmentNode instructio
 	^ store
 ]
 
+{ #category : 'execution state' }
+DRMethodIRGenerator >> addFrameReturn: aDRStackFrame [
+
+	| return |
+	return := super addFrameReturn: aDRStackFrame.
+	self scope returnInstruction: return.
+	^ return
+]
+
 { #category : 'building' }
 DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
 

@@ -111,3 +111,21 @@ DRMethodIRGeneratorInline >> setupCFGScope: aCodeNode [
 	self scope addTempVariables: temporaries , arguments.
 	self scope node: aCodeNode
 ]
+
+{ #category : 'visiting' }
+DRMethodIRGeneratorInline >> visitReturnNode: aRBReturnNode [
+
+	| isLocal returnValue returnScope |
+	isLocal := executionState baseFrame method = aRBReturnNode methodNode.
+	isLocal ifTrue: [ ^ super visitReturnNode: aRBReturnNode ].
+
+	returnValue := self visitOperand: aRBReturnNode value.
+	returnScope := self scope lookupScopeForNode:
+		               aRBReturnNode methodNode.
+
+	"Perform all the IR manipulation to add the new value as return in correct place"
+	returnScope returnInstruction addNewReturn: returnValue.
+	self newBasicBlock. "This basic block finish here"
+
+	self pushOperand: returnValue
+]

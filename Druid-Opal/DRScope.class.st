@@ -8,7 +8,8 @@ Class {
 		'outerScope',
 		'inlinedScopes',
 		'arguments',
-		'initInstruction'
+		'initInstruction',
+		'returnInstruction'
 	],
 	#category : 'Druid-Opal-IR',
 	#package : 'Druid-Opal',
@@ -163,6 +164,13 @@ DRScope >> isSend [
 	^ node isMessageSend
 ]
 
+{ #category : 'accessing' }
+DRScope >> lastScope [
+
+	outerScope ifNil: [ ^ self ].
+	^ outerScope lastScope
+]
+
 { #category : 'query' }
 DRScope >> lookupScopeDefining: aVariable [
 
@@ -183,6 +191,13 @@ DRScope >> lookupScopeDefining: aVariable ifNone: noneBlock [
 		  ifNil: [
 			  noneBlock cull: aVariable.
 			  self ]
+]
+
+{ #category : 'query' }
+DRScope >> lookupScopeForNode: anOCNode [
+
+	node = anOCNode ifTrue: [ ^ self ].
+	^ outerScope ifNotNil: [ :scope | scope lookupScopeForNode: anOCNode ]
 ]
 
 { #category : 'accessing' }
@@ -207,6 +222,17 @@ DRScope >> outerScope [
 DRScope >> outerScope: aScope [
 	
 	outerScope := aScope.
+]
+
+{ #category : 'accessing' }
+DRScope >> returnInstruction [
+	^ returnInstruction
+]
+
+{ #category : 'accessing' }
+DRScope >> returnInstruction: aDRFrameReturn [
+
+	returnInstruction := aDRFrameReturn
 ]
 
 { #category : 'accessing' }
