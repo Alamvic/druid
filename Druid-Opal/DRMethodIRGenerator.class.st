@@ -218,11 +218,10 @@ DRMethodIRGenerator >> interpretInlinedBlockBody: aRBBlockNode [
 			                   executionState: executionState copy;
 			                   numberOfArguments: aRBBlockNode arguments size;
 			                   setupCFGScope: aRBBlockNode;
-			                   initializeScope;
 			                   yourself.
-
 		"Jump to inlining block"
 		self currentBasicBlock jumpTo: inlineGenerator newBasicBlock.
+		inlineGenerator initializeScope.
 		inlineGenerator interpretBlockBody: aRBBlockNode.
 
 		"Jump back and restore the state"
