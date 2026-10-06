@@ -78,12 +78,16 @@ DRBlockIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 
 { #category : 'visiting' }
 DRBlockIRGenerator >> visitReturnNode: aRBReturnNode [
-	"Non-local return is attached to the compiled method (last scope)"
-	| value |
-	self assert: aRBReturnNode methodNode = self scope lastScope node.
-	
+
+	| value return scope |
+	scope := self scope lookupScopeForNode: aRBReturnNode methodNode.
+	scope ifNil: [ self unexplored ].	
+
 	value := self visitOperand: aRBReturnNode value.
-	self pushOperand: (currentBasicBlock return: value)
+	return := currentBasicBlock return: value.
+	return scope: scope.
+	return originAST: aRBReturnNode.
+	self pushOperand: return
 ]
 
 { #category : 'visiting' }
