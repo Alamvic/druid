@@ -582,7 +582,6 @@ DRTreegraphBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 
 	self flag: #TODO. "Remove physical registers, use LoadReceiver / LoadArgument instructions"
 	aDRPhysicalRegister name = 'ReceiverResultReg' ifTrue: [ ^ opalBytecodeBuilder pushReceiver ].
-	1 halt
 ]
 
 { #category : 'visiting' }

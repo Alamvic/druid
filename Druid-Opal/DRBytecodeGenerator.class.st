@@ -120,7 +120,6 @@ DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 
 	aDRInstruction isConditionalBranch ifFalse: [
 		aDRInstruction users ifEmpty: [ 
-			1halt.
 			builder popTop ] ]
 ]
 
@@ -332,11 +331,9 @@ DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 	
 	(self isSelf: aDRLoadInstVar operand1) ifTrue: [
-		1halt.
 		builder pushInstVar: aDRLoadInstVar index.
 		^ self 
 	].
-	1halt.
 	aDRLoadInstVar operand1 acceptVisitor: self.
 	builder pushLiteral: aDRLoadInstVar index.
 	builder send: #instVarAt:.
@@ -405,7 +402,6 @@ DRBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 
 	self flag: #TODO. "Remove physical registers, use LoadReceiver / LoadArgument instructions"
 	aDRPhysicalRegister name = 'ReceiverResultReg' ifTrue: [ ^ builder pushReceiver ].
-	1 halt
 ]
 
 { #category : 'visiting' }

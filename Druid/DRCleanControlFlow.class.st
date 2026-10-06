@@ -175,7 +175,6 @@ DRCleanControlFlow >> shouldRemoveEmptyBlock: aDRBasicBlock [
 
 	"Avoid rewriting predecessors that have conditional jumps if I contain a back jump"
 	(aDRBasicBlock endInstruction isBackJump and: [ aDRBasicBlock predecessors anySatisfy: [ :p | p successors size > 1 ] ]) ifTrue: [
-			1 halt.
 			^ false ].
 
 	^ true
