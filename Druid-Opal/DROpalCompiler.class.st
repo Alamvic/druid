@@ -35,7 +35,7 @@ DROpalCompiler class >> generateMethodFromCFG: aDRControlFlowGraph withSelector:
 
 	"First break critical edges so we can resolve phis into the right blocks"
 	DRBreakCriticalEdges new applyTo: aDRControlFlowGraph.
-	bytecodeGenerator := DRBytecodeGenerator new.
+	bytecodeGenerator := DRTreegraphBytecodeGenerator new.
 
 	bytecodeGenerator class = DRBytecodeGenerator
 		ifTrue: [ DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph ]

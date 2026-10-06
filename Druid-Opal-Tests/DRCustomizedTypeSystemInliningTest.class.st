@@ -15,7 +15,7 @@ DRCustomizedTypeSystemInliningTest >> setUp [
 	compilerCompiler configureForCompilerClass: nil.
 	compilerCompiler irGenerator typeSystem: typeSystem.
 	
-	bytecodeGenerator := DRBytecodeGenerator new.
+	bytecodeGenerator := DRTreegraphBytecodeGenerator new.
 	
 ]
 

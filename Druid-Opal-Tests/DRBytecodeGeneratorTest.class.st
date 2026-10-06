@@ -166,7 +166,7 @@ DRBytecodeGeneratorTest >> setUp [
 	compilerCompiler interpreter: DROpalExamples basicNew.
 	compilerCompiler configureForCompilerClass: nil.
 	
-	bytecodeGenerator := DRBytecodeGenerator new.
+	bytecodeGenerator := DRTreegraphBytecodeGenerator new.
 	
 	counter := 0
 ]
