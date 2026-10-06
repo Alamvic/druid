@@ -201,7 +201,7 @@ DRInstructionFactory >> load: anAdress [
 { #category : 'factory' }
 DRInstructionFactory >> loadArgument: index [
 
-	^ DRLoadArgument
+	^ DRBCLoadArgument
 		  operands: { index asDRValue }
 		  result: self allocateTemporaryRegister
 ]

@@ -57,7 +57,7 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 	cfg := aDRPhiFunction controlFlowGraph.
 	cfg addTempNameToScope: aDRPhiFunction result name asLowercase.
 	
-	loadInst := DRLoadTemporaryVariable 
+	loadInst := DRBCLoadTemporaryVariable 
 			operands: { variableName }
 			result: aDRPhiFunction result.
 	cfg addScopeToInstructionIfNeeded: loadInst .
@@ -72,7 +72,7 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 		select: [ :op | op isInstruction ]
 		thenDo: [ :op |
 		| storeInst |
-		storeInst := DRStoreTemporaryVariable
+		storeInst := DRBCStoreTemporaryVariable
 			             operands: {
 					             variableName.
 					             op }
@@ -110,14 +110,14 @@ DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
 
     aDRInstruction users copy do: [ :user |
         | loadInst |
-        loadInst := DRLoadTemporaryVariable 
+        loadInst := DRBCLoadTemporaryVariable 
                 operands: { variableName }
                 result: aDRInstruction controlFlowGraph allocateTemporaryRegister.
         aDRInstruction controlFlowGraph addScopeToInstructionIfNeeded: loadInst.
         user basicBlock add: loadInst before: user.
         user replaceDependency: aDRInstruction by: loadInst ].
 
-    storeInst := DRStoreTemporaryVariable
+    storeInst := DRBCStoreTemporaryVariable
                      operands: {
                              variableName.
                              aDRInstruction }

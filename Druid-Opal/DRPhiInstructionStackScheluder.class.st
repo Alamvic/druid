@@ -44,14 +44,14 @@ DRPhiInstructionStackScheluder >> pushNonLocalVarsInPredecessors: cfg [
 			localUsers ifNotEmpty: [
 				tempName := self newUniqueTempName.
 				cfg addTempNameToScope: tempName.
-				store := DRStoreTemporaryVariable
+				store := DRBCStoreTemporaryVariable
 	                     operands: {
 	                             tempName.
 	                             dep value }
 	                     result: DRNoRegister new.
 				cfg addScopeToInstructionIfNeeded: store.
 				dep addNext: store.
-				load := DRLoadTemporaryVariable 
+				load := DRBCLoadTemporaryVariable 
 	                     operands: { tempName }
 	                     result: cfg instructionFactory allocateTemporaryRegister.
 				cfg addScopeToInstructionIfNeeded: load.
@@ -121,14 +121,14 @@ DRPhiInstructionStackScheluder >> storeReusedResultOf: aDRInstruction [
 
     aDRInstruction users copy do: [ :user |
         | loadInst |
-        loadInst := DRLoadTemporaryVariable 
+        loadInst := DRBCLoadTemporaryVariable 
                 operands: { variableName }
                 result: aDRInstruction controlFlowGraph allocateTemporaryRegister.
         aDRInstruction controlFlowGraph addScopeToInstructionIfNeeded: loadInst.
         user basicBlock add: loadInst before: user.
         user replaceDependency: aDRInstruction by: loadInst ].
 
-    storeInst := DRStoreTemporaryVariable
+    storeInst := DRBCStoreTemporaryVariable
                      operands: {
                              variableName.
                              aDRInstruction }

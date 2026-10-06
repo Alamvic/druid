@@ -1,13 +1,13 @@
 Extension { #name : 'SimpleStackBasedCogit' }
 
 { #category : '*Druid-Cogit' }
-SimpleStackBasedCogit classSide >> druidNewCodeGenerator [
+SimpleStackBasedCogit class >> druidNewCodeGenerator [
 
 	^ DRCogitSimpleStackGenerator new
 ]
 
 { #category : '*Druid-Cogit' }
-SimpleStackBasedCogit classSide >> druidNewOptimizationList [
+SimpleStackBasedCogit class >> druidNewOptimizationList [
 
 	| optimisations |
 	optimisations := OrderedCollection new.
@@ -39,19 +39,19 @@ SimpleStackBasedCogit classSide >> druidNewOptimizationList [
 ]
 
 { #category : '*Druid-Cogit' }
-SimpleStackBasedCogit classSide >> druidNewPrimitiveCodeGenerator [
+SimpleStackBasedCogit class >> druidNewPrimitiveCodeGenerator [
 
 	^ DRCogitSimpleStackPrimitiveCodeGenerator new
 ]
 
 { #category : '*Druid-Cogit' }
-SimpleStackBasedCogit classSide >> druidNewRegisterAllocator [
+SimpleStackBasedCogit class >> druidNewRegisterAllocator [
 
 	^ DRCogitLinearScanRegisterAllocator new
 ]
 
 { #category : '*Druid-Cogit' }
-SimpleStackBasedCogit classSide >> isSimpleStack [
+SimpleStackBasedCogit class >> isSimpleStack [
 
 	^ true
 ]

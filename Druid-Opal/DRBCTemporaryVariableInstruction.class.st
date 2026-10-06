@@ -1,66 +1,66 @@
 Class {
-	#name : 'DRTemporaryVariableInstruction',
+	#name : 'DRBCTemporaryVariableInstruction',
 	#superclass : 'DRInstruction',
 	#instVars : [
 		'scope',
 		'variableName'
 	],
-	#category : 'Druid-IR',
-	#package : 'Druid',
+	#category : 'Druid-Opal-IR',
+	#package : 'Druid-Opal',
 	#tag : 'IR'
 }
 
 { #category : 'accessing' }
-DRTemporaryVariableInstruction >> address [
+DRBCTemporaryVariableInstruction >> address [
 
 	^ self variableName
 ]
 
 { #category : 'accessing' }
-DRTemporaryVariableInstruction >> address: aDRValue [
+DRBCTemporaryVariableInstruction >> address: aDRValue [
 
 	self replaceOperandAtIndex: 1 by: aDRValue
 ]
 
 { #category : 'testing' }
-DRTemporaryVariableInstruction >> isMandatory [
+DRBCTemporaryVariableInstruction >> isMandatory [
 
 	^ true
 ]
 
 { #category : 'testing' }
-DRTemporaryVariableInstruction >> isScopedInstruction [
+DRBCTemporaryVariableInstruction >> isScopedInstruction [
 
 	^ true
 ]
 
 { #category : 'accessing' }
-DRTemporaryVariableInstruction >> operands: aCollection [
+DRBCTemporaryVariableInstruction >> operands: aCollection [
 
 	variableName := aCollection first.
 	super operands: aCollection allButFirst
 ]
 
 { #category : 'accessing' }
-DRTemporaryVariableInstruction >> prettyPrint [
+DRBCTemporaryVariableInstruction >> prettyPrint [
 
 	^ super prettyPrint , ' ' , variableName asString
 ]
 
 { #category : 'accessing' }
-DRTemporaryVariableInstruction >> scope [
+DRBCTemporaryVariableInstruction >> scope [
 
 	^ scope
 ]
 
 { #category : 'accessing' }
-DRTemporaryVariableInstruction >> scope: anObject [
+DRBCTemporaryVariableInstruction >> scope: anObject [
 
 	scope := anObject
 ]
 
 { #category : 'accessing' }
-DRTemporaryVariableInstruction >> variableName [
+DRBCTemporaryVariableInstruction >> variableName [
 
 	^ variableName
 ]

@@ -67,7 +67,7 @@ DRBlockIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 
 	loadArg := self
 		           addInstructionFrom: aRBVariableNode
-		           instructionKind: DRLoadArgument
+		           instructionKind: DRBCLoadArgument
 		           operands: { aRBVariableNode variable index }.
 
 	loadArg argName: varName. "Is it required?"
