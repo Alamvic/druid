@@ -10,7 +10,8 @@ Class {
 DRLocalVariableInstructionScheluder >> applyTo: cfg [
 
 	self replacePhisByStores: cfg.
-	self pushNonLocalVarsInPredecessors: cfg
+	self storeResultsToBeReused: cfg.
+	self cleanRedundantStores: cfg
 ]
 
 { #category : 'as yet unclassified' }
@@ -26,63 +27,14 @@ DRLocalVariableInstructionScheluder >> cleanRedundantStores: cfg [
 						store removeFromCFG ] ] ] ]
 ]
 
-{ #category : 'instance creation' }
-DRLocalVariableInstructionScheluder >> newUniqueTempName [
-	
-	^ UUID new asString
-]
-
-{ #category : 'operations' }
-DRLocalVariableInstructionScheluder >> pushNonLocalVarsInPredecessors: cfg [
-
-	cfg blocksInReversePostOrderDo: [ :bb | 
-		"For each dependency, put it in a temp, and consume it locally as a temp read"
-		bb dependencies do: [ :dep |
-			| tempName store load localUsers |
-			localUsers := (dep users select: [ :u | u basicBlock = bb ])
-				sorted: [:a :b | a indexInBasicBlock < b indexInBasicBlock ].
-			localUsers ifNotEmpty: [
-				tempName := self newUniqueTempName.
-				cfg addTempNameToScope: tempName.
-				store := DRStoreTemporaryVariable
-	                     operands: {
-	                             tempName.
-	                             dep value }
-	                     result: DRNoRegister new.
-				cfg addScopeToInstructionIfNeeded: store.
-				dep addNext: store.
-				load := DRLoadTemporaryVariable 
-	                     operands: { tempName }
-	                     result: cfg instructionFactory allocateTemporaryRegister.
-				cfg addScopeToInstructionIfNeeded: load.
-
-				localUsers first addBefore: load.
-				localUsers do: [ :localUser | 
-					localUser replaceDependency: dep by: load ] ]] ]
-]
-
 { #category : 'transformation' }
 DRLocalVariableInstructionScheluder >> replacePhisByStores: aDRControlFlowGraph [
-
+	
 	aDRControlFlowGraph phiFunctions do: [ :phi |
+		
 		phi operands size = 1
 			ifTrue: [ phi replaceByCopy ]
-			ifFalse: [ self resolvePhiFunction: phi ] ]
-]
-
-{ #category : 'transformation' }
-DRLocalVariableInstructionScheluder >> resolvePhiFunction: aDRPhiFunction [
-
-	"We move out from SSA representation to a stack representation.
-	The operands are pushed as last instructions of the predecessors,
-	 and the phi is replaced by a pop."
-
-	| popInstruction |
-	aDRPhiFunction hasUsers ifFalse: [ ^ self ].
-
-	aDRPhiFunction operandsAndPredecessorsDo: [ :op :pred | pred push: op ].
-	popInstruction := aDRPhiFunction basicBlock instructionFactory popIntoVariable.
-	aDRPhiFunction replaceBy: popInstruction
+			ifFalse: [ self storePhiOperands: phi ] ]
 ]
 
 { #category : 'operations' }
@@ -91,6 +43,43 @@ DRLocalVariableInstructionScheluder >> shouldIgnore: aDRInstruction [
 	^ aDRInstruction isStore or: [
 		  aDRInstruction isPhiFunction and: [
 			  aDRInstruction operands allSatisfy: [ :op | op isStore ] ] ]
+]
+
+{ #category : 'transformation' }
+DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
+
+	| variableName loadInst cfg|
+	aDRPhiFunction hasUsers ifFalse: [ ^ self ].
+	
+	variableName := aDRPhiFunction result name asLowercase asDRValue.
+	
+	"add the new created temporary variable to the scope"
+	cfg := aDRPhiFunction controlFlowGraph.
+	cfg addTempNameToScope: aDRPhiFunction result name asLowercase.
+	
+	loadInst := DRLoadTemporaryVariable 
+			operands: { variableName }
+			result: aDRPhiFunction result.
+	cfg addScopeToInstructionIfNeeded: loadInst .
+	aDRPhiFunction replaceBy: loadInst.
+
+	(aDRPhiFunction operandsWithoutMe allSatisfy: [ :op |
+		 op result isNoResult  ]) ifTrue: [ "If they are already temporaries then it is ok"
+		^ self ].
+	
+
+	aDRPhiFunction operandsWithoutMe 
+		select: [ :op | op isInstruction ]
+		thenDo: [ :op |
+		| storeInst |
+		storeInst := DRStoreTemporaryVariable
+			             operands: {
+					             variableName.
+					             op }
+			             result: DRNoRegister new.
+		
+		cfg addScopeToInstructionIfNeeded: storeInst .
+		op basicBlock add: storeInst after: op ]
 ]
 
 { #category : 'transformation' }
