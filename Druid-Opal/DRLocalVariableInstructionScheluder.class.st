@@ -51,7 +51,7 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 	| variableName loadInst cfg|
 	aDRPhiFunction hasUsers ifFalse: [ ^ self ].
 	
-	variableName := aDRPhiFunction result name asLowercase asDRValue.
+	variableName := aDRPhiFunction result name asLowercase.
 	
 	"add the new created temporary variable to the scope"
 	cfg := aDRPhiFunction controlFlowGraph.
@@ -104,7 +104,7 @@ DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
     variableName := aDRInstruction isLoadTemporaryVariable
                         ifTrue: [ aDRInstruction operand1 ]
                         ifFalse: [
-                        aDRInstruction result name asLowercase asDRValue ].
+                        aDRInstruction result name asLowercase ].
 
     cfg addTempNameToScope: variableName value.
 

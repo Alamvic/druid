@@ -51,7 +51,7 @@ DRStoreTemporaryVariable >> sccpLatticeValueFor: sccp [
 { #category : 'accessing' }
 DRStoreTemporaryVariable >> storeValue [
 
-	^ self operand2
+	^ self operand1
 ]
 
 { #category : 'types' }

@@ -13,7 +13,7 @@ Class {
 { #category : 'accessing' }
 DRTemporaryVariableInstruction >> address [
 
-	^ self operand1
+	^ self variableName
 ]
 
 { #category : 'accessing' }
