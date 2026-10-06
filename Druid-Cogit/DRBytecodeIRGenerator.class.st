@@ -222,7 +222,7 @@ DRBytecodeIRGenerator >> interpretITemporaryInPutWith: aRBMessageNode [
 
 	^ self
 		  addInstructionWithNoResultFrom: aRBMessageNode
-		  instructionKind: DRBCStoreTemporaryVariable
+		  instructionKind: DRCGStoreTemporaryVariable
 		  operands: { index asDRValue . value asDRValue }
 ]
 
@@ -234,7 +234,7 @@ DRBytecodeIRGenerator >> interpretITemporaryInWith: aRBMessageNode [
 
 	^ self
 		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRBCLoadTemporaryVariable
+		  instructionKind: DRCGLoadTemporaryVariable
 		  operands: { index asDRValue }
 ]
 
