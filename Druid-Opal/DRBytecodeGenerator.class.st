@@ -349,8 +349,8 @@ DRBytecodeGenerator >> visitLoadLiteralVariable: aDRLoadLiteralVariable [
 DRBytecodeGenerator >> visitLoadTemporaryVariable: aDRLoadTemporaryVariable [
 
 	builder
-		pushRemoteTemp: aDRLoadTemporaryVariable operand1 value
-		inVector: aDRLoadTemporaryVariable scope tempVectorName .
+		pushRemoteTemp: aDRLoadTemporaryVariable variableName
+		inVector: aDRLoadTemporaryVariable scope tempVectorName
 ]
 
 { #category : 'ir-to-target' }
@@ -450,14 +450,14 @@ DRBytecodeGenerator >> visitStoreLiteralVariable: aDRStoreLiteralVariable [
 DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
 	| value |
-	value := aDRStoreTemporaryVariable operand2 simpleConstantFold asDRValue.
+	value := aDRStoreTemporaryVariable operand1 simpleConstantFold asDRValue.
 	"Avoid store of stores, they should be compiled as store + read"	
 	self assert: value isStoreTemporaryVariable not.
 	
 	value acceptVisitor: self.
 
 	builder
-		storeRemoteTemp: aDRStoreTemporaryVariable operand1 value
+		storeRemoteTemp: aDRStoreTemporaryVariable variableName value
 		inVector: aDRStoreTemporaryVariable scope tempVectorName.
 
 	"Stores should not have users, only block closures catch temporaries"	
