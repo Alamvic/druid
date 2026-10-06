@@ -342,7 +342,7 @@ DRTreegraphBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	
 	"First break critical edges so we can resolve phis into the right blocks"
 	DRBreakCriticalEdges new applyTo: blockCFG.
-	DRLocalVariableInstructionScheluder new applyTo: blockCFG.
+	DRPhiInstructionStackScheluder new applyTo: blockCFG.
 	blockCFG applyOptimisation: DRDeadCodeElimination new.
 
 	
