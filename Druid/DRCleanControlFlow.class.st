@@ -96,10 +96,6 @@ DRCleanControlFlow >> removeEmptyBlock: aDRBasicBlock fromCfg: aCFG [
 		"Duplicate should keep the phi functions valid"
 		aDRBasicBlock successor duplicatePredecessor: aDRBasicBlock from: predecessor.
 		predecessor endInstruction replaceTarget: aDRBasicBlock by: aDRBasicBlock successor.
-		
-		"If the removed jump was a backjump, move that property to the precedessor"
-		aDRBasicBlock endInstruction isBackJump
-			ifTrue: [ predecessor endInstruction ]
 	].
 
 	"Remove the predecessor from our successor at the end"
