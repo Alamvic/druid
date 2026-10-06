@@ -408,6 +408,12 @@ DRCogitCanonicaliser >> visitLoadStackValue: aDRLoadStackValue [
 ]
 
 { #category : 'visiting' }
+DRCogitCanonicaliser >> visitLoadTemporaryVariable: aDRLoadTemporaryVariable [ 
+
+	"Nothing?"
+]
+
+{ #category : 'visiting' }
 DRCogitCanonicaliser >> visitMessageSend: aDRMessageSend [ 
 	
 	"Nothing"
@@ -575,12 +581,6 @@ DRCogitCanonicaliser >> visitSubstract: aDRSubtract [
 			aDRSubtract minuend isAdd ifTrue: [
 				"Maybe the additions can be further canonicalised"
 				self addToWorklist: newInstruction ] ]
-]
-
-{ #category : 'visiting' }
-DRCogitCanonicaliser >> visitTemporaryVariable: aDRLoadTemporaryVariable [ 
-
-	"Nothing?"
 ]
 
 { #category : 'visiting' }

@@ -245,6 +245,24 @@ DRCogitSimpleStackGenerator >> visitLoadStackPointer: aDRLoadStackPointer [
 ]
 
 { #category : 'visiting' }
+DRCogitSimpleStackGenerator >> visitLoadTemporaryVariable: aDRLoadTemporaryVariable [ 
+
+	"self MoveMw: (self frameOffsetOfTemporary: index) r: FPReg R: TempReg."
+
+	generatorMethodBuilder addStatement: (RBMessageNode
+			 receiver: RBVariableNode selfNode
+			 selector: #MoveMw:r:R:
+			 arguments: {
+					 (RBMessageNode
+						  receiver: RBVariableNode selfNode
+						  selector: #frameOffsetOfTemporary:
+						  arguments:
+						  (aDRLoadTemporaryVariable operand1 rtlPushArgumentExpressions: self)).
+					 (RBVariableNode named: 'FPReg').
+					 (RBVariableNode named: aDRLoadTemporaryVariable result name) })
+]
+
+{ #category : 'visiting' }
 DRCogitSimpleStackGenerator >> visitPop: aDRPop [
 
 	aDRPop numberOfPoppedElements isNumber ifFalse: [ self halt ].
@@ -299,22 +317,4 @@ DRCogitSimpleStackGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 						  (aDRStoreTemporaryVariable operand1
 							   rtlPushArgumentExpressions: self)).
 					 (RBVariableNode named: 'FPReg') })
-]
-
-{ #category : 'visiting' }
-DRCogitSimpleStackGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [ 
-
-	"self MoveMw: (self frameOffsetOfTemporary: index) r: FPReg R: TempReg."
-
-	generatorMethodBuilder addStatement: (RBMessageNode
-			 receiver: RBVariableNode selfNode
-			 selector: #MoveMw:r:R:
-			 arguments: {
-					 (RBMessageNode
-						  receiver: RBVariableNode selfNode
-						  selector: #frameOffsetOfTemporary:
-						  arguments:
-						  (aDRLoadTemporaryVariable operand1 rtlPushArgumentExpressions: self)).
-					 (RBVariableNode named: 'FPReg').
-					 (RBVariableNode named: aDRLoadTemporaryVariable result name) })
 ]

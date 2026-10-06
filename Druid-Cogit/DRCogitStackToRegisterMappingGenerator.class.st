@@ -216,6 +216,21 @@ DRCogitStackToRegisterMappingGenerator >> visitLoadStackValue: aDRLoadStackValue
 ]
 
 { #category : 'visiting' }
+DRCogitStackToRegisterMappingGenerator >> visitLoadTemporaryVariable: aDRLoadTemporaryVariable [
+	"self simStackAt: index."
+
+	| sourceDescriptorAST |
+	sourceDescriptorAST := RBMessageNode
+		                       receiver: RBVariableNode selfNode
+		                       selector: #simStackTempAt:
+		                       arguments:
+		                       (aDRLoadTemporaryVariable operand1
+			                        rtlPushArgumentExpressions: self).
+
+	self moveToReg: sourceDescriptorAST from: aDRLoadTemporaryVariable
+]
+
+{ #category : 'visiting' }
 DRCogitStackToRegisterMappingGenerator >> visitPop: aDRPop [
 
 	generatorMethodBuilder addStatement: (RBMessageNode
@@ -250,21 +265,6 @@ DRCogitStackToRegisterMappingGenerator >> visitStoreTempVar: aDRStoreTemporaryVa
 				  self)).
 
 	super visitStoreTempVar: aDRStoreTemporaryVariable
-]
-
-{ #category : 'visiting' }
-DRCogitStackToRegisterMappingGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
-	"self simStackAt: index."
-
-	| sourceDescriptorAST |
-	sourceDescriptorAST := RBMessageNode
-		                       receiver: RBVariableNode selfNode
-		                       selector: #simStackTempAt:
-		                       arguments:
-		                       (aDRLoadTemporaryVariable operand1
-			                        rtlPushArgumentExpressions: self).
-
-	self moveToReg: sourceDescriptorAST from: aDRLoadTemporaryVariable
 ]
 
 { #category : 'visiting' }

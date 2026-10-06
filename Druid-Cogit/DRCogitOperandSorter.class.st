@@ -289,6 +289,12 @@ DRCogitOperandSorter >> visitLoadStackValue: aDRLoadStackValue [
 ]
 
 { #category : 'visiting' }
+DRCogitOperandSorter >> visitLoadTemporaryVariable: aDRLoadTemporaryVariable [ 
+
+	"Nothing?"
+]
+
+{ #category : 'visiting' }
 DRCogitOperandSorter >> visitMessageSend: aDRMessageSend [
 	"Nothing"
 
@@ -383,12 +389,6 @@ DRCogitOperandSorter >> visitSubstract: aDRSubtract [
 	=> extract its first operand into a copy instruction"
 	
 	self extractFirstOperandInCopyIfNecessaryFrom: aDRSubtract
-]
-
-{ #category : 'visiting' }
-DRCogitOperandSorter >> visitTemporaryVariable: aDRLoadTemporaryVariable [ 
-
-	"Nothing?"
 ]
 
 { #category : 'visiting' }

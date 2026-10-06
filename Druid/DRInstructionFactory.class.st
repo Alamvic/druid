@@ -199,14 +199,6 @@ DRInstructionFactory >> load: anAdress [
 ]
 
 { #category : 'factory' }
-DRInstructionFactory >> loadArgument: index [
-
-	^ DRBCLoadArgument
-		  operands: { index asDRValue }
-		  result: self allocateTemporaryRegister
-]
-
-{ #category : 'factory' }
 DRInstructionFactory >> loadFramePointer [
 
 	^ DRLoadFramePointer result: self allocateTemporaryRegister
