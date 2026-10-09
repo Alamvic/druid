@@ -65,6 +65,12 @@ DRClassType >> isGlobalVariable [
 	^ false
 ]
 
+{ #category : 'testing' }
+DRClassType >> isThisContextVariable [
+	
+	^ false
+]
+
 { #category : 'instance creation' }
 DRClassType >> lookupClass [
 	

@@ -549,6 +549,12 @@ DRCPSEdge >> visitLoadStackValue: aDRLoadStackValue [
 ]
 
 { #category : 'visiting' }
+DRCPSEdge >> visitLoadTemporaryVariable: aDRLoadTemporaryVariable [
+
+	^ nil
+]
+
+{ #category : 'visiting' }
 DRCPSEdge >> visitMessageSend: aDRMessageSend [
 
 	^ nil
@@ -701,12 +707,6 @@ DRCPSEdge >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
 { #category : 'visiting' }
 DRCPSEdge >> visitSubstract: aDRSubtract [ 
-
-	^ nil
-]
-
-{ #category : 'visiting' }
-DRCPSEdge >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 
 	^ nil
 ]

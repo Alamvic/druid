@@ -30,6 +30,12 @@ DRStoreInstanceVariable >> isStore [
 	^ true
 ]
 
+{ #category : 'testing' }
+DRStoreInstanceVariable >> isStoreInstanceVariable [
+
+	^ true
+]
+
 { #category : 'printing' }
 DRStoreInstanceVariable >> opcode [
 	

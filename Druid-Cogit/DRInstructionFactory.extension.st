@@ -11,3 +11,11 @@ DRInstructionFactory >> flushStackExceptTop: n [
 
 	^ DRFlushStack operands: { n } result: DRNoRegister new
 ]
+
+{ #category : '*Druid-Cogit' }
+DRInstructionFactory >> loadArgument: index [
+
+	^ DRCGLoadArgument
+		  operands: { index asDRValue }
+		  result: self allocateTemporaryRegister
+]

@@ -53,7 +53,7 @@ DRMethodIRGeneratorInline >> initializeArgumentsNames: aDRCode with: argumentsVa
 		| store |
 		store := self
 			         addInstructionWithNoResultFrom: self scope node
-			         instructionKind: DRStoreTemporaryVariable
+			         instructionKind: DRBCStoreTemporaryVariable
 			         operands: {
 					         name.
 					         (argumentsValues at: index) }.

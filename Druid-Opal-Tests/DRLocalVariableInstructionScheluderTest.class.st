@@ -26,18 +26,18 @@ DRLocalVariableInstructionScheluderTest >> testOnLoops [
 
 	"Replace the Phi by a Load for the condition"
 	self assert: cfg b1 instructions first isLoadTemporaryVariable. 
-	self assert: cfg b1 instructions first operand1 value equals: variableName.
+	self assert: cfg b1 instructions first variableName equals: variableName.
 	
 	"Store the initial value"
 	self assert: b5 instructions second isStoreTemporaryVariable.
-	self assert: b5 instructions second operand1 value equals: variableName.
-	self assert: b5 instructions second operand2 equals: phi operand1.
+	self assert: b5 instructions second variableName equals: variableName.
+	self assert: b5 instructions second operand1 equals: phi operand1.
 	
 	"Store inside the loop"
 	self assert: cfg b2 endInstruction isBackJump.
 	self assert: cfg b2 instructions second isStoreTemporaryVariable.
-	self assert: cfg b2 instructions second operand1 value equals: variableName.
-	self assert: cfg b2 instructions second operand2 equals: phi operand2.
+	self assert: cfg b2 instructions second variableName equals: variableName.
+	self assert: cfg b2 instructions second operand1 equals: phi operand2.
 	
 ]
 
@@ -70,22 +70,22 @@ DRLocalVariableInstructionScheluderTest >> testPhiBecomeLoadTemp [
 	
 	self assert: cfg b2 instructions second isStoreTemporaryVariable.
 	self
-		assert: cfg b2 instructions second operand1 value
+		assert: cfg b2 instructions second variableName
 		equals: variableName.
 	self
-		assert: cfg b2 instructions second operand2
+		assert: cfg b2 instructions second operand1
 		equals: cfg b2 instructions first.
 
 	self assert: cfg b3 instructions second isStoreTemporaryVariable.
 	self
-		assert: cfg b3 instructions second operand1 value
+		assert: cfg b3 instructions second variableName
 		equals: variableName.
 	self
-		assert: cfg b3 instructions second operand2
+		assert: cfg b3 instructions second operand1
 		equals: cfg b3 instructions first.
 
 	self assert: cfg b4 instructions first isLoadTemporaryVariable.
-	self assert: cfg b4 instructions first operand1 value equals: variableName.
+	self assert: cfg b4 instructions first variableName equals: variableName.
 	
 ]
 
@@ -118,14 +118,14 @@ DRLocalVariableInstructionScheluderTest >> testResultAreStored [
 	DRLocalVariableInstructionScheluder new applyTo: cfg.
 	
 	self assert: cfg b1 instructions second isStoreTemporaryVariable. 
-	self assert: cfg b1 instructions second operand1 value equals: variableName.
+	self assert: cfg b1 instructions second variableName equals: variableName.
 	
 	self assert: cfg b2 instructions first isLoadTemporaryVariable.
-	self assert: cfg b2 instructions first operand1 value equals: variableName.
+	self assert: cfg b2 instructions first variableName equals: variableName.
 	self assert: cfg b2 instructions second operand1 equals: cfg b2 instructions first.
 	
 	self assert: cfg b3 instructions first isLoadTemporaryVariable.
-	self assert: cfg b3 instructions first operand1 value equals: variableName.
+	self assert: cfg b3 instructions first variableName equals: variableName.
 	self assert: cfg b3 instructions second operand1 equals: cfg b3 instructions first.
 	
 ]
