@@ -1,13 +1,13 @@
 Extension { #name : 'StackToRegisterMappingCogit' }
 
 { #category : '*Druid-Cogit' }
-StackToRegisterMappingCogit class >> druidNewCodeGenerator [
+StackToRegisterMappingCogit classSide >> druidNewCodeGenerator [
 
 	^ DRCogitStackToRegisterMappingGenerator new
 ]
 
 { #category : '*Druid-Cogit' }
-StackToRegisterMappingCogit class >> druidNewOptimizationList [
+StackToRegisterMappingCogit classSide >> druidNewOptimizationList [
 
 	| optimisations |
 	optimisations := OrderedCollection new.
@@ -44,19 +44,19 @@ StackToRegisterMappingCogit class >> druidNewOptimizationList [
 ]
 
 { #category : '*Druid-Cogit' }
-StackToRegisterMappingCogit class >> druidNewPrimitiveCodeGenerator [
+StackToRegisterMappingCogit classSide >> druidNewPrimitiveCodeGenerator [
 
 	^ DRCogitStackToRegisterPrimitiveCodeGenerator new
 ]
 
 { #category : '*Druid-Cogit' }
-StackToRegisterMappingCogit class >> druidNewRegisterAllocator [
+StackToRegisterMappingCogit classSide >> druidNewRegisterAllocator [
 
 	^ DRCogitDynamicLinearScanRegisterAllocator new
 ]
 
 { #category : '*Druid-Cogit' }
-StackToRegisterMappingCogit class >> isSimpleStack [
+StackToRegisterMappingCogit classSide >> isSimpleStack [
 
 	^ false
 ]

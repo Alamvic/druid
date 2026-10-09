@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'outerContext',
 		'blockNode',
-		'irGenerator'
+		'blockCFG'
 	],
 	#category : 'Druid-CompilerCompiler',
 	#package : 'Druid',
@@ -37,6 +37,17 @@ DRBlockClosure >> basicNewFrame [
 ]
 
 { #category : 'accessing' }
+DRBlockClosure >> blockCFG [
+	^ blockCFG
+]
+
+{ #category : 'as yet unclassified' }
+DRBlockClosure >> blockCFG: aDRControlFlowGraph [
+
+	blockCFG := aDRControlFlowGraph
+]
+
+{ #category : 'accessing' }
 DRBlockClosure >> blockNode [
 
 	^ blockNode
@@ -60,16 +71,6 @@ DRBlockClosure >> defaultReturnValue: receiver [
 	^ DRNullValue new
 ]
 
-{ #category : 'ir-generation' }
-DRBlockClosure >> ensureIR [
-
-	irGenerator isEmpty ifTrue: [
-		irGenerator initializeIR.
-		irGenerator interpretBlockClosure: self ].
-
-	^ irGenerator ir
-]
-
 { #category : 'executing' }
 DRBlockClosure >> executeOn: interpreter [
 	
@@ -80,18 +81,6 @@ DRBlockClosure >> executeOn: interpreter [
 DRBlockClosure >> hash [
 
 	^ blockNode hash
-]
-
-{ #category : 'accessing' }
-DRBlockClosure >> irGenerator [
-
-	^ irGenerator
-]
-
-{ #category : 'accessing' }
-DRBlockClosure >> irGenerator: anIRGenerator [
-
-	irGenerator := anIRGenerator
 ]
 
 { #category : 'testing' }
@@ -127,7 +116,7 @@ DRBlockClosure >> numberOfArguments [
 { #category : 'printing' }
 DRBlockClosure >> opcode [
 	
-	^ blockNode asString 
+	^ 'DRBlock ', blockNode asString 
 ]
 
 { #category : 'inspecting' }

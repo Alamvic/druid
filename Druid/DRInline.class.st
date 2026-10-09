@@ -33,12 +33,11 @@ DRInline class >> initialize [
 { #category : 'accessing' }
 DRInline >> doApply: cfg [
 
-	| sends |
 	self class enabled ifFalse: [ ^ self ].
+	
+	self inlineDomainSends: cfg.
+	self inlineControlFlowSends: cfg
 
-	sends := cfg messageSends select: [ :send | send hasMissingInlines ].
-
-	(sends takeFirst: 3) do: [ :messageSend | self inline: messageSend ]
 ]
 
 { #category : 'inlining' }
@@ -97,14 +96,11 @@ DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 { #category : 'inlining' }
 DRInline >> inline: messageSend [
 
-	| methodsToInline inlinedMethodReturnValue innerDependencies |
+	| methodsToInline inlinedMethodReturnValue |
 	inlineGenerator := messageSend inlineGenerator.
 
 	methodsToInline := self methodsToInlineOf: messageSend.
 	methodsToInline ifEmpty: [ ^ self ].
-
-	"Keep the the dependecies from inner blocks to remove the message as user"
-	innerDependencies := messageSend innerDependencies.
 
 	"Break message send basic block"
 	messageSend basicBlock breakBy: messageSend.
@@ -122,8 +118,6 @@ DRInline >> inline: messageSend [
 	inlineGenerator currentBasicBlock jumpTo:
 		messageSend basicBlock successor.
 	messageSend replaceUsesBy: inlinedMethodReturnValue.
-	(innerDependencies copyWithoutAll: messageSend innerDependencies) asSet
-		do: [ :i | i removeUser: messageSend ].
 
 	"Remove message send block"
 	messageSend basicBlock removeFromCFGAndDisconnectSuccessors.
@@ -132,6 +126,32 @@ DRInline >> inline: messageSend [
 	DRDeadBlockElimination new applyTo: inlineGenerator ir.
 	DRDeadCodeElimination new applyTo: inlineGenerator ir.
 	inlineGenerator ir validate
+]
+
+{ #category : 'as yet unclassified' }
+DRInline >> inlineControlFlowSends: cfg [
+
+	| sends |
+	sends := cfg messageSends select: [ :send | send hasMissingInlines ].
+	sends := sends select: [ :send | self isControlFlowMessage: send ].
+	sends do: [ :messageSend | self inline: messageSend ]
+]
+
+{ #category : 'as yet unclassified' }
+DRInline >> inlineDomainSends: cfg [
+
+	| sends |
+	sends := cfg messageSends select: [ :send | send hasMissingInlines ].
+	sends := sends reject: [ :send | self isControlFlowMessage: send ].
+	sends sort: #blockOperandCount descending.
+	(sends takeFirst: 3) do: [ :messageSend | self inline: messageSend ]
+]
+
+{ #category : 'testing' }
+DRInline >> isControlFlowMessage: aDRMessageSend [
+
+	^ #( ifTrue: ifFalse: whileTrue: whileFalse: value: ) anySatisfy: [
+		  :sel | aDRMessageSend selector includesSubstring: sel ]
 ]
 
 { #category : 'inlining' }

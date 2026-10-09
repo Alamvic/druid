@@ -18,6 +18,26 @@ DRBlockIRGenerator >> finishCodeInterpretation: lastFrame [
 	
 ]
 
+{ #category : 'API' }
+DRBlockIRGenerator >> interpretBlockClosure: aDRBlockClosure [
+	"Create the initial basic block"
+
+	| numArgs cfg |
+	numArgs := aDRBlockClosure numberOfArguments.
+	self numberOfArguments: numArgs.
+	self interpretCode: aDRBlockClosure receiver: aDRBlockClosure.
+
+	cfg := self ir.
+	cfg numArgs: numArgs.
+
+	"Clean garbage to generate a valid CFG"
+	DRDeadBlockElimination new applyTo: cfg.
+	DRDeadCodeElimination new applyTo: cfg.
+	cfg validate.	
+
+	^ cfg
+]
+
 { #category : 'testing' }
 DRBlockIRGenerator >> isEmpty [
 

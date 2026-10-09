@@ -128,6 +128,18 @@ DrOpalExamples >> doubleWhileWithBlock: aBlock [
     x < y] whileTrue: [y := y + 1]
 ]
 
+{ #category : 'accessing' }
+DrOpalExamples >> dummyVariable [
+
+	^ dummyVariable
+]
+
+{ #category : 'accessing' }
+DrOpalExamples >> dummyVariable: anObject [
+
+	dummyVariable := anObject
+]
+
 { #category : 'as yet unclassified' }
 DrOpalExamples >> empty [
 ]
@@ -139,6 +151,18 @@ DrOpalExamples >> emptyIf [
 		ifTrue: [ ]
 		ifFalse: [ ]
 
+]
+
+{ #category : 'accessing' }
+DrOpalExamples >> fillMask [
+
+	^ fillMask
+]
+
+{ #category : 'accessing' }
+DrOpalExamples >> fillMask: anObject [
+
+	fillMask := anObject
 ]
 
 { #category : 'as yet unclassified' }
@@ -465,6 +489,92 @@ DrOpalExamples >> methodWritingClassVariable [
 	
 ]
 
+{ #category : 'accessing' }
+DrOpalExamples >> ncol [
+
+	^ ncol
+]
+
+{ #category : 'accessing' }
+DrOpalExamples >> ncol: anObject [
+
+	ncol := anObject
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> returnArgument: arg [
+
+	^ arg
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> returnInitializedTemp [
+
+	| temp |
+	temp := 17.
+	^ temp
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> returnInstanceVariable [
+
+	^ dummyVariable
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> returnInstanceVariableAssignmentExpression [
+
+	^ dummyVariable := 17
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> returnLiteralInteger [
+
+	^ 1
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> returnNestedInstanceVariableAssignmentExpression [
+
+	^ fillMask := dummyVariable := 17
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> returnNestedTempAssignmentExpression [
+
+	| temp temp2 |
+	
+	^ temp := temp2 := 17
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> returnTempAssignmentExpression [
+
+	| temp |
+	
+	^ temp := 17
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> returnUninitializedTemp [
+
+	| temp |
+
+	^ temp
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> sendMessage [
+
+	self incrementCounter
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> setInstanceVariable [
+
+	dummyVariable := 179
+]
+
 { #category : 'as yet unclassified' }
 DrOpalExamples >> simpleMethod [
 
@@ -484,14 +594,6 @@ DrOpalExamples >> simpleMethodArgWithBlockWithArg: arg [
 		| x | 
 		x:=arg.
 		x].
-	
-	
-]
-
-{ #category : 'as yet unclassified' }
-DrOpalExamples >> simpleMethodReturnArg: arg [
-	
-	^ arg
 	
 	
 ]

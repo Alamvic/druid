@@ -4,8 +4,8 @@ Class {
 	#instVars : [
 		'scope'
 	],
-	#category : 'Druid-IR',
-	#package : 'Druid',
+	#category : 'Druid-Opal-IR',
+	#package : 'Druid-Opal',
 	#tag : 'IR'
 }
 
@@ -27,8 +27,7 @@ DRMethodControlFlowGraph >> allBlockClosures [
 	| closures |
 	closures := OrderedCollection new.
 	self instructionsDo: [ :i |
-		i operands do: [ :op |
-			op isDRBlockClosure ifTrue: [ closures add: op ] ] ].
+			i isDRBlockClosure ifTrue: [ closures add: i ] ].
 	^ closures
 ]
 
@@ -40,7 +39,7 @@ DRMethodControlFlowGraph >> allInstructionsWithScope: aDRScope [
 		                   i isScopedInstruction and: [ i scope = aDRScope ] ].
 
 	blockInstructions := self allBlockClosures flatCollect: [ :b |
-		                     b ensureIR allInstructionsWithScope: aDRScope ].
+		                     b blockCFG allInstructionsWithScope: aDRScope ].
 
 	^ cfgInstructions , blockInstructions
 ]

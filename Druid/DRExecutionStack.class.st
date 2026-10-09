@@ -21,12 +21,6 @@ DRExecutionStack >> addTo: aDRExecutionStack [
 ]
 
 { #category : 'accessing' }
-DRExecutionStack >> allTemporaryInstructions [
-
-	^ (stateStack flatCollect: #temporaries) reject: #isNullValue
-]
-
-{ #category : 'accessing' }
 DRExecutionStack >> at: index [
 
 	^ stateStack at: index
@@ -140,6 +134,14 @@ DRExecutionStack >> replaceTemporaries: anInstruction by: anotherInstruction [
 DRExecutionStack >> size [
 
 	^ stateStack size
+]
+
+{ #category : 'as yet unclassified' }
+DRExecutionStack >> temporariesFor: aOCNode [
+ 
+	| allTemporaries |
+	allTemporaries := stateStack select: [ :frame | aOCNode allParents includes: frame method ] thenCollect: [ :frame | frame temporaries ].
+	^ allTemporaries inject: Dictionary new	into: [ :total :temps | total , temps ]
 ]
 
 { #category : 'accessing' }

@@ -19,12 +19,6 @@ DRExecutionState >> addTo: aDRExecutionState [
 	executionStack addTo: aDRExecutionState executionStack
 ]
 
-{ #category : 'accessing' }
-DRExecutionState >> allTemporaryInstructions [
-
-	^ executionStack allTemporaryInstructions
-]
-
 { #category : 'stack access' }
 DRExecutionState >> baseFrame [
 	
@@ -122,6 +116,12 @@ DRExecutionState >> simplify [
 	
 	vmState simplify.
 	frameState simplify.
+]
+
+{ #category : 'as yet unclassified' }
+DRExecutionState >> temporariesFor: aOCNode [
+ 
+	^ executionStack temporariesFor: aOCNode
 ]
 
 { #category : 'frames' }
