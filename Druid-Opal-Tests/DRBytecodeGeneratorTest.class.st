@@ -699,6 +699,15 @@ DRBytecodeGeneratorTest >> testMethodWithEarlyReturn2 [
 	self assert: result equals: 57
 ]
 
+{ #category : 'tests' }
+DRBytecodeGeneratorTest >> testMethodWithPragmaPrimitive [
+
+	self
+		assertCompilationNoInlineFor: #simpleMethodWithPragmaPrimitive
+		fromClass: DrOpalExamples
+		arguments: {  }
+]
+
 { #category : 'vrac' }
 DRBytecodeGeneratorTest >> testMethodWithTypeCheck [
 

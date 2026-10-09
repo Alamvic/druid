@@ -282,6 +282,17 @@ DRBytecodeGenerator >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRB
 	self sendMessage: #> fromInstruction: aDRBranchIfCondition
 ]
 
+{ #category : 'API' }
+DRBytecodeGenerator >> visitInitializePragma: aDRInitializePragma [ 
+	
+	builder irPrimitive: aDRInitializePragma primitiveFromPragma .
+
+	aDRInitializePragma pragmas do: [ :each | 
+		each acceptVisitor: self .
+		"TO DO: if the pragma is a primitive that defines an error variable, we need to store error value"
+	].
+]
+
 { #category : 'visiting' }
 DRBytecodeGenerator >> visitInitializeScope: aDRInitializeScope [ 
 
@@ -395,6 +406,12 @@ DRBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 	self flag: #TODO. "Remove physical registers, use LoadReceiver / LoadArgument instructions"
 	aDRPhysicalRegister name = 'ReceiverResultReg' ifTrue: [ ^ builder pushReceiver ].
 	1 halt
+]
+
+{ #category : 'API' }
+DRBytecodeGenerator >> visitPragmaNode: aPragmaNode [ 
+	
+	builder addPragma: aPragmaNode pragma.
 ]
 
 { #category : 'ir-to-target' }
