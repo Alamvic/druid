@@ -171,8 +171,9 @@ DRScope >> lookupScopeDefining: aVariable [
 
 { #category : 'query' }
 DRScope >> lookupScopeDefining: aVariable ifNone: noneBlock [
-
-	((tempVars includes: aVariable) or: [ arguments includes: aVariable ])
+	
+	(((tempVars includes: aVariable) or: [ arguments includes: aVariable ]) or: 
+	[ aVariable class == PrimitiveErrorVariable  and: [self tempVarNames includes: aVariable name]]) "for the case of primitive error variable"
 		ifTrue: [ ^ self ].
 
 	^ outerScope

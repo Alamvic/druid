@@ -2083,7 +2083,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 					executionState copy.
 					(self addFrameReturn: self topFrame) }.
 			^ self ].
-
+	
 	aRBMethodNode statements do: [ :each |
 		self assert: self topFrame operandStack isEmpty.
 		each acceptVisitor: self.

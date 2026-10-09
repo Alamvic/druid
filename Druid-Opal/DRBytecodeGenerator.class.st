@@ -284,6 +284,17 @@ DRBytecodeGenerator >> visitGreaterThan: aDRGreaterThanComparison inBranch: aDRB
 	self sendMessage: #> fromInstruction: aDRBranchIfCondition
 ]
 
+{ #category : 'API' }
+DRBytecodeGenerator >> visitInitializePragma: aDRInitializePragma [ 
+	
+	builder irPrimitive: aDRInitializePragma primitiveFromPragma .
+
+	aDRInitializePragma pragmas do: [ :each | 
+		each acceptVisitor: self .
+		"TO DO: if the pragma is a primitive that defines an error variable, we need to store error value"
+	].
+]
+
 { #category : 'visiting' }
 DRBytecodeGenerator >> visitInitializeScope: aDRInitializeScope [ 
 
@@ -410,6 +421,12 @@ DRBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 DRBytecodeGenerator >> visitPop: aDRPop [ 
 
 	"The value is already in the stack, then do nothing"
+]
+
+{ #category : 'API' }
+DRBytecodeGenerator >> visitPragmaNode: aPragmaNode [ 
+	
+	builder addPragma: aPragmaNode pragma.
 ]
 
 { #category : 'visiting' }
