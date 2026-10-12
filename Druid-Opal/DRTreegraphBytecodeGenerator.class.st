@@ -294,8 +294,11 @@ DRTreegraphBytecodeGenerator >> visitAddition: aDRAdd [
 { #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 
-	aDRArrayNode operands size > 127 ifTrue: [ "Long form: using at:put:"
-		1error.
+	aDRArrayNode operands size > 127 ifTrue: [ 
+		"The frame does not support this stack size!
+			Rollback pushed operands and use the long form"
+		aDRArrayNode operands size timesRepeat: [ opalBytecodeBuilder popTop ].
+		"Long form: using at:put:"
 		opalBytecodeBuilder pushLiteralVariable: Array binding.
 		opalBytecodeBuilder pushLiteral: aDRArrayNode operands size.
 		opalBytecodeBuilder send: #new:.
