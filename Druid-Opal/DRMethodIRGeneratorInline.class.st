@@ -133,7 +133,15 @@ DRMethodIRGeneratorInline >> visitReturnNode: aRBReturnNode [
 		               aRBReturnNode methodNode.
 
 	"Perform all the IR manipulation to add the new value as return in correct place"
-	returnScope returnInstruction addNewReturn: returnValue.
+
+	returnScope returnInstruction
+		ifNil: [ "There are not return yet and we arrived to one via inlines.
+			Create a final return"
+			self assert: returnScope = self scope lastScope.
+			self currentBasicBlock return: returnValue ]
+		ifNotNil: [ returnScope returnInstruction addNewReturn: returnValue ].
+
+
 	self newBasicBlock. "This basic block finish here"
 
 	self pushOperand: returnValue

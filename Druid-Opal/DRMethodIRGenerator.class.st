@@ -260,6 +260,7 @@ DRMethodIRGenerator >> interpretInlinedCode: code receiver: receiver arguments: 
 	| inlineGenerator lastFrame |
 	inlineGenerator := self inlineGenerator
 		                   numberOfArguments: arguments size;
+		                   executionState: executionState copy;
 		                   yourself.
 
 	"Jump to inlining block"
