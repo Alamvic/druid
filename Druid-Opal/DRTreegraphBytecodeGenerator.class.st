@@ -15,6 +15,14 @@ Class {
 	#tag : 'BytecodeGeneration'
 }
 
+{ #category : 'state stack' }
+DRTreegraphBytecodeGenerator >> abstractPop: aDRInstruction [
+	
+	"The top should be the given DRInstruction. Otherwise fail"
+	self assert: generationStack top == aDRInstruction description: 'The stack value is not what was expected'.
+	^ generationStack pop
+]
+
 { #category : 'ir-to-target' }
 DRTreegraphBytecodeGenerator >> abstractPush: aValue [
 
@@ -201,60 +209,56 @@ DRTreegraphBytecodeGenerator >> numArgs: anInteger [
 	numArgs := anInteger.
 ]
 
-{ #category : 'state stack' }
-DRTreegraphBytecodeGenerator >> pop: aDRInstruction [
-	
-	"The top should be the given DRInstruction. Otherwise fail"
-	self assert: generationStack top == aDRInstruction description: 'The stack value is not what was expected'.
-	^ generationStack pop
-]
-
 { #category : 'ir-to-target' }
 DRTreegraphBytecodeGenerator >> reorderOperands: operands [
-
 	"Maybe there is nothing to do"
-	| operandStackMap stackDepthToReorder tempNames reorderedInstructions |
+
+	| operandStackMap stackDepthToReorder tempNames reorderedInstructions otherInstructions |
+	self assert: generationStack size >= operands size.
 	(generationStack first: operands size) reversed = operands asArray
 		ifTrue: [ ^ self ].
-	
+
 	operandStackMap := Dictionary new.
 	operands do: [ :op |
-		operandStackMap at: op put: (generationStack indexOf: op asLink ifAbsent: [ self error ]).
-	].
+			operandStackMap
+				at: op
+				put: (generationStack indexOf: op asLink ifAbsent: [ self error ]) ].
 	stackDepthToReorder := operandStackMap values max.
 	1 to: stackDepthToReorder do: [ :i |
-		operandStackMap at: (generationStack at: i) put: i.
-	].
-	tempNames := (1 to: stackDepthToReorder) collect: [ :idx | ('swap', idx asString) asSymbol ].
+	operandStackMap at: (generationStack at: i) put: i ].
+	tempNames := (1 to: stackDepthToReorder) collect: [ :idx |
+		             ('swap' , idx asString) asSymbol ].
 	self haltIf: [ stackDepthToReorder > 9 ].
 	"Store all values into temps"
 	opalBytecodeBuilder addTemps: tempNames.
 	tempNames do: [ :n |
-		opalBytecodeBuilder storeTemp: n.
-		opalBytecodeBuilder popTop.
-	].
-	reorderedInstructions := (generationStack first: stackDepthToReorder) reversed.
-	stackDepthToReorder timesRepeat: [ 
-		self pop: generationStack top ].
+			opalBytecodeBuilder storeTemp: n.
+			opalBytecodeBuilder popTop ].
+	reorderedInstructions := (generationStack first: stackDepthToReorder)
+		                         reversed.
+	stackDepthToReorder timesRepeat: [
+		self abstractPop: generationStack top ].
+
+	"Take care of dups!"
+	otherInstructions := reorderedInstructions asOrderedCollection.
+	operands do: [ :op | otherInstructions remove: op ].
+
 	"Push all but the ones we care about"
-	reorderedInstructions do: [ :i |
-		(operands includes: i)
-			ifFalse: [
-				| index |
-				index := operandStackMap at: i.
-				opalBytecodeBuilder pushTemp: ('swap', index asString) asSymbol.
-				self abstractPush: i.
-		] ].
+	otherInstructions do: [ :i |
+			| index |
+			index := operandStackMap at: i.
+			opalBytecodeBuilder pushTemp: ('swap' , index asString) asSymbol.
+			self abstractPush: i ].
 	"Finally push the ones we care about!"
 	operands do: [ :i |
-		| index |
-		index := operandStackMap at: i.
-		opalBytecodeBuilder pushTemp: ('swap', index asString) asSymbol.
-		self abstractPush: i.
-	].
+			| index |
+			index := operandStackMap at: i.
+			opalBytecodeBuilder pushTemp: ('swap' , index asString) asSymbol.
+			self abstractPush: i ].
 
 	"Let's see if swapping fixed the order"
-	self assert: (generationStack first: operands size) reversed = operands asArray
+	self assert:
+		(generationStack first: operands size) reversed = operands asArray
 ]
 
 { #category : 'ir-to-target' }
@@ -468,26 +472,33 @@ DRTreegraphBytecodeGenerator >> visitInitializeScope: aDRInitializeScope [
 { #category : 'ir-to-target' }
 DRTreegraphBytecodeGenerator >> visitInstruction: aDRInstruction [
 
-	| sizeBefore operands userSize |
+	| sizeBefore operands userSize users |
 	"Make constant values pushed every time instead of fetched from the stack"
 	(aDRInstruction isInstruction and: [ alreadyGenerated includes: aDRInstruction ]) ifTrue: [ ^ self ].
 	alreadyGenerated add: aDRInstruction.
 
 	"Visit dependencies"
 	operands := self ensureOperandsOnStack: aDRInstruction.
+	"Closures have a dependency to the value, but they do not need to be pushed,
+		so they are actually not popped either"
+	users := aDRInstruction users reject: [ :u | u isDRBlockClosure ].
 
 	sizeBefore := generationStack size.
 
 	"Do the instruction's GEN"
 	aDRInstruction acceptVisitor: self.
+	
+	"Maintain abstract stack.
+	First check nobody broke it.
+	Then pop the operands -- we can do it unconditionally because they have been dupped by the pusher.
+	Finally, push myself"
+	self assert: sizeBefore = generationStack size.
+
+	"Sync abstract stack"
+	operands reversed do: [ :e | self abstractPop: e ].
 
 	"Pop this instruction value if this is an instruction, not a value"
 	aDRInstruction isInstruction ifTrue: [
-			| users |
-			"Closures have a dependency to the value, but they do not need to be pushed,
-		so they are actually not popped either"
-			users := aDRInstruction users select: [ :u | u isDRBlockClosure not ].
-
 			"Return, jump, initscope, do not push a result, no need to pop."
 			(users isEmpty and: [
 					 aDRInstruction isReturn not and: [
@@ -497,17 +508,10 @@ DRTreegraphBytecodeGenerator >> visitInstruction: aDRInstruction [
 				ifTrue: [ opalBytecodeBuilder popTop ].
 			users size > 1 ifTrue: [ users size - 1 timesRepeat: [ opalBytecodeBuilder pushDup ] ] ].
 
-	"Maintain abstract stack.
-	First check nobody broke it.
-	Then pop the operands -- we can do it unconditionally because they have been dupped by the pusher.
-	Finally, push myself"
-	self assert: sizeBefore = generationStack size.
-	operands reversed do: [ :e | self pop: e ].
-
+	"Push this instruction"
 	userSize := aDRInstruction isInstruction
-		ifTrue: [ aDRInstruction users size ]
+		ifTrue: [ users size ]
 		ifFalse: [ 1 ].
-	
 	userSize timesRepeat: [ self abstractPush: aDRInstruction ]
 ]
 
