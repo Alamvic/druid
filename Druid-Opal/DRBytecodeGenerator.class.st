@@ -38,7 +38,7 @@ DRBytecodeGenerator >> generateJump: aDRBranch [
 DRBytecodeGenerator >> generateTargetASTFromIR: aDRControlFlowGraph methodName: selector [
 
 	aDRControlFlowGraph reversePostOrderBlocks do: [ :block |
-		self visitBlock: block ]
+		self visitBasicBlock: block ]
 ]
 
 { #category : 'initialization' }
@@ -119,7 +119,8 @@ DRBytecodeGenerator >> sendMessage: selector fromInstruction: aDRInstruction [
 		ifNotNil: [ :behavior |  builder send: selector toSuperOf: behavior ].
 
 	aDRInstruction isConditionalBranch ifFalse: [
-		aDRInstruction users ifEmpty: [ builder popTop ] ]
+		aDRInstruction users ifEmpty: [ 
+			builder popTop ] ]
 ]
 
 { #category : 'building' }
@@ -160,6 +161,22 @@ DRBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 	builder pushConsArray: aDRArrayNode operands size
 ]
 
+{ #category : 'ir-to-target' }
+DRBytecodeGenerator >> visitBasicBlock: aDRBasicBlock [
+
+	aDRBasicBlock hasPredecessors ifTrue: [
+		| label |
+		"Somebody will jump to me, set a target"
+		label := self labelBlock: aDRBasicBlock.
+		aDRBasicBlock predecessors do: [ :pred |
+			pred endInstruction isBackJump
+				ifTrue: [ builder jumpBackTarget: label ]
+				ifFalse: [ builder jumpAheadTarget: label ] ] ].
+
+	aDRBasicBlock instructionsDo: [ :i |
+		(self isResultInstruction: i) ifTrue: [ i acceptVisitor: self ] ]
+]
+
 { #category : 'visiting' }
 DRBytecodeGenerator >> visitBitAnd: aDRBitAnd [ 
 
@@ -179,22 +196,6 @@ DRBytecodeGenerator >> visitBitShift: aDRBitShift [
 ]
 
 { #category : 'ir-to-target' }
-DRBytecodeGenerator >> visitBlock: aDRBasicBlock [
-
-	aDRBasicBlock hasPredecessors ifTrue: [
-		| label |
-		"Somebody will jump to me, set a target"
-		label := self labelBlock: aDRBasicBlock.
-		aDRBasicBlock predecessors do: [ :pred |
-			pred endInstruction isBackJump
-				ifTrue: [ builder jumpBackTarget: label ]
-				ifFalse: [ builder jumpAheadTarget: label ] ] ].
-
-	aDRBasicBlock instructionsDo: [ :i |
-		(self isResultInstruction: i) ifTrue: [ i acceptVisitor: self ] ]
-]
-
-{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 
 	| compiledBlock blockCFG blockBytecodeGenerator copiedValues |
@@ -205,6 +206,7 @@ DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	blockCFG applyOptimisation: DRBranchCollapse new.
 	blockCFG applyOptimisation: DRPhiSimplication new.
 	blockCFG applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
+	DRBreakCriticalEdges new applyTo: blockCFG.
 	DRLocalVariableInstructionScheluder new applyTo: blockCFG.
 	blockCFG applyOptimisation: DRCleanScopes new.
 	blockCFG applyOptimisation: DRDeadCodeElimination new.
@@ -356,6 +358,14 @@ DRBytecodeGenerator >> visitLoadLiteralVariable: aDRLoadLiteralVariable [
 	builder pushLiteralVariable: aDRLoadLiteralVariable operand1 value
 ]
 
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitLoadTemporaryVariable: aDRLoadTemporaryVariable [
+
+	builder
+		pushRemoteTemp: aDRLoadTemporaryVariable variableName
+		inVector: aDRLoadTemporaryVariable scope tempVectorName
+]
+
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitMessageSend: aDRMessageSend [ 
 
@@ -405,13 +415,25 @@ DRBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 
 	self flag: #TODO. "Remove physical registers, use LoadReceiver / LoadArgument instructions"
 	aDRPhysicalRegister name = 'ReceiverResultReg' ifTrue: [ ^ builder pushReceiver ].
-	1 halt
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitPop: aDRPop [ 
+
+	"The value is already in the stack, then do nothing"
 ]
 
 { #category : 'API' }
 DRBytecodeGenerator >> visitPragmaNode: aPragmaNode [ 
 	
 	builder addPragma: aPragmaNode pragma.
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitPush: aDRPush [ 
+
+	"Values are pushed on visiting, do nothing here"
+	aDRPush operand1 acceptVisitor: self
 ]
 
 { #category : 'ir-to-target' }
@@ -456,14 +478,14 @@ DRBytecodeGenerator >> visitStoreLiteralVariable: aDRStoreLiteralVariable [
 DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 
 	| value |
-	value := aDRStoreTemporaryVariable operand2 simpleConstantFold asDRValue.
+	value := aDRStoreTemporaryVariable operand1 simpleConstantFold asDRValue.
 	"Avoid store of stores, they should be compiled as store + read"	
 	self assert: value isStoreTemporaryVariable not.
 	
 	value acceptVisitor: self.
 
 	builder
-		storeRemoteTemp: aDRStoreTemporaryVariable operand1 value
+		storeRemoteTemp: aDRStoreTemporaryVariable variableName value
 		inVector: aDRStoreTemporaryVariable scope tempVectorName.
 
 	"Stores should not have users, only block closures catch temporaries"	
@@ -477,14 +499,6 @@ DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 DRBytecodeGenerator >> visitSubstract: aDRSubstract [
 
 	self sendMessage: #- fromInstruction: aDRSubstract
-]
-
-{ #category : 'visiting' }
-DRBytecodeGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
-
-	builder
-		pushRemoteTemp: aDRLoadTemporaryVariable operand1 value
-		inVector: aDRLoadTemporaryVariable scope tempVectorName .
 ]
 
 { #category : 'visiting' }

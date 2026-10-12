@@ -27,7 +27,7 @@ DRMethodIRGenerator >> addAssignmentInstructionFrom: anAssignmentNode instructio
 		store scope: scope.
 		load scope: scope ].
 
-	^ store
+	^ load
 ]
 
 { #category : 'building' }
@@ -168,9 +168,9 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 			| result |
 			result := self
 				          addAssignmentInstructionFrom: aRBAssignmentNode
-				          instructionKind: DRStoreTemporaryVariable
+				          instructionKind: DRBCStoreTemporaryVariable
 				          operands: {
-						          aRBAssignmentNode variable name asDRValue.
+						          aRBAssignmentNode variable name.
 						          value }.
 
 			(self hasTemporary: aRBAssignmentNode variable name) ifTrue: [
@@ -276,8 +276,8 @@ DRMethodIRGenerator >> interpretTemporaryVariable: aRBVariableNode [
 	scope := self lookupScopeDefiningVariable: aRBVariableNode.
 	loadTemp := self
 		            addInstructionFrom: aRBVariableNode
-		            instructionKind: DRLoadTemporaryVariable
-		            operands: { aRBVariableNode name asDRValue }.
+		            instructionKind: DRBCLoadTemporaryVariable
+		            operands: { aRBVariableNode name }.
 	loadTemp scope: scope.
 	^ loadTemp
 ]
@@ -329,6 +329,12 @@ DRMethodIRGenerator >> newScope [
 		         id: self instructionFactory allocateScopeId;
 		         yourself.
 
+]
+
+{ #category : 'building' }
+DRMethodIRGenerator >> nullValue [
+
+	^ nil asDRValue 
 ]
 
 { #category : 'accessing' }
@@ -463,8 +469,8 @@ DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 
 	loadArg := self
 		           addInstructionFrom: aRBVariableNode
-		           instructionKind: DRLoadArgument
-		           operands: { aRBVariableNode variable index asDRValue }.
+		           instructionKind: DRBCLoadArgument
+		           operands: { aRBVariableNode variable index }.
 
 	loadArg argName: aRBVariableNode name.
 	loadArg scope: (self lookupScopeDefiningVariable: aRBVariableNode).

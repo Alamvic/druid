@@ -8,7 +8,7 @@ Class {
 { #category : 'as yet unclassified' }
 DRMethodOptimizationTest >> inputClass [
 
-	^ DrOpalExamples 
+	^ DROpalExamples 
 ]
 
 { #category : 'initialization' }

@@ -1,9 +1,8 @@
 Class {
 	#name : 'DRFrameInfoCleanerTest',
 	#superclass : 'DROptimisationTest',
-	#category : 'Druid-Tests-Optimizations',
-	#package : 'Druid-Tests',
-	#tag : 'Optimizations'
+	#category : 'Druid-Opal-Tests',
+	#package : 'Druid-Opal-Tests'
 }
 
 { #category : 'tests' }
@@ -27,7 +26,7 @@ DRFrameInfoCleanerTest >> testLoadArgumentsNotUsedRemoved [
 	cfg := DRControlFlowGraph new.
 	anIndex := 2.
 	cfg newBasicBlockWith: [ :block |
-		t0 := block loadArgument: anIndex.].
+		t0 := block loadMethodArgument: anIndex.].
 	
 	DRFrameInfoCleaner new applyTo: cfg.
 
@@ -37,11 +36,11 @@ DRFrameInfoCleanerTest >> testLoadArgumentsNotUsedRemoved [
 { #category : 'tests' }
 DRFrameInfoCleanerTest >> testLoadArgumentsUsedNotRemoved [
 
-	| cfg t0 t1 anIndex |
+	| cfg t0 anIndex |
 	cfg := DRControlFlowGraph new.
 	anIndex := 2.
 	cfg newBasicBlockWith: [ :block |
-		t0 := block loadArgument: anIndex .
+		t0 := block loadMethodArgument: anIndex .
 		block return: t0 ].
 
 	DRFrameInfoCleaner new applyTo: cfg.

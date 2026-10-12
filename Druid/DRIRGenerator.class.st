@@ -111,23 +111,6 @@ DRIRGenerator >> allocateTemporaryRegister [
 ]
 
 { #category : 'factory' }
-DRIRGenerator >> argRegisterNumber: anInteger [
-
-	"TODO: Merge with #interpretStackValueWith: aRBMessageNode withValue: aValue ?"
-
-	| loadArgument |
-	numberOfArguments = anInteger ifTrue: [
-		^ self instructionFactory loadReceiver classType:
-			  (DRSignedIntegerType size: 8) ].
-
-	loadArgument := (self instructionFactory loadArgument: anInteger)
-		                classType: (DRSignedIntegerType size: 8).
-	loadArgument origin: thisContext sender stack.
-	self currentBasicBlock addInstruction: loadArgument.
-	^ loadArgument
-]
-
-{ #category : 'factory' }
 DRIRGenerator >> argumentOffsetForStackValue: stackValue [
 
 	"Arguments are pushed reversed in the stack (first argument is last in the stack).
@@ -196,7 +179,7 @@ DRIRGenerator >> buildIfTrue: aCondition then: aBuildingBlock [
 				                   true asDRValue }.
 	self addEndInstruction: conditionalJump.
 
-	self pushOperand: DRNullValue new.
+	self pushOperand: self nullValue.
 	executionStateBeforeBranch := executionState copy.
 	self popOperand.
 
@@ -1739,6 +1722,13 @@ DRIRGenerator >> noop: aRBMessageNode [
 		  addInstructionWithNoResultFrom: aRBMessageNode
 		  instructionKind: DRNoop
 		  operands: #(  )
+]
+
+{ #category : 'building' }
+DRIRGenerator >> nullValue [
+
+	"Move to Cogit hierarchy"
+	^ DRNullValue new
 ]
 
 { #category : 'accessing' }
