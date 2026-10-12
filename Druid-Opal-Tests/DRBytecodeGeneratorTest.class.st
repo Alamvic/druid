@@ -821,7 +821,7 @@ DRBytecodeGeneratorTest >> testMethodWithPragmaPrimitive [
 
 	self
 		assertCompilationNoInlineFor: #simpleMethodWithPragmaPrimitive
-		fromClass: DrOpalExamples
+		fromClass: DROpalExamples
 		arguments: {  }
 ]
 

@@ -423,6 +423,17 @@ DRTreegraphBytecodeGenerator >> visitGreaterThan: aDRGreaterThanComparison inBra
 ]
 
 { #category : 'visiting' }
+DRTreegraphBytecodeGenerator >> visitInitializePragma: aDRInitializePragma [ 
+	
+	opalBytecodeBuilder irPrimitive: aDRInitializePragma primitiveFromPragma .
+
+	aDRInitializePragma pragmas do: [ :each | 
+		each acceptVisitor: self .
+		"TO DO: if the pragma is a primitive that defines an error variable, we need to store error value"
+	].
+]
+
+{ #category : 'visiting' }
 DRTreegraphBytecodeGenerator >> visitInitializeScope: aDRInitializeScope [ 
 
 	self interpretInitializeScope: aDRInitializeScope scope
@@ -588,6 +599,12 @@ DRTreegraphBytecodeGenerator >> visitPhysicalRegister: aDRPhysicalRegister [
 DRTreegraphBytecodeGenerator >> visitPop: aDRPop [
 
 	"Does nothing"
+]
+
+{ #category : 'visiting' }
+DRTreegraphBytecodeGenerator >> visitPragmaNode: anOCPragmaNode [
+
+	opalBytecodeBuilder addPragma: anOCPragmaNode pragma
 ]
 
 { #category : 'visiting' }
