@@ -128,16 +128,71 @@ DRTreegraphBytecodeGenerator >> isSelf: aDRInstruction [
 	^ aDRInstruction simpleConstantFold asDRValue isInterpreterValue .
 ]
 
+{ #category : 'as yet unclassified' }
+DRTreegraphBytecodeGenerator >> jumpPredecessors: aDRBasicBlock [
+
+	| label |
+	"Somebody will jump to me, set a target"
+	label := self labelBlock: aDRBasicBlock.
+	aDRBasicBlock predecessors do: [ :pred |
+			pred endInstruction isBackJump
+				ifTrue: [ opalBytecodeBuilder jumpBackTarget: label ]
+				ifFalse: [ opalBytecodeBuilder jumpAheadTarget: label ] ]
+]
+
 { #category : 'jump' }
 DRTreegraphBytecodeGenerator >> labelBlock: aDRBasicBlock [
 
 	^ ('b' , aDRBasicBlock id asString) asSymbol
 ]
 
+{ #category : 'as yet unclassified' }
+DRTreegraphBytecodeGenerator >> mergeStacks: predecessorStacks [
+
+	| newStack stackSize |
+	self assert: predecessorStacks notEmpty.
+	stackSize := predecessorStacks first size.
+	self assert: (predecessorStacks allSatisfy: [ :stack |
+			stack size = stackSize ]).
+
+	newStack := Stack new.
+	stackSize > 0 ifTrue: [
+		stackSize to: 1 do: [ :i |
+			| firstValue merged |
+			firstValue := predecessorStacks first at: i.
+			"If all have the same value, keep it"
+			merged := (predecessorStacks allSatisfy: [ :stack |
+				(stack at: i) = firstValue ])
+					ifTrue: [ firstValue ]
+					ifFalse: [ DRNullValue new ].
+			newStack push: merged ] ].
+	^ newStack
+]
+
 { #category : 'accessing' }
 DRTreegraphBytecodeGenerator >> methodName: aString [
 
 	methodName := aString
+]
+
+{ #category : 'instance creation' }
+DRTreegraphBytecodeGenerator >> newStackFor: aDRBasicBlock [
+	"We enter a basic block. Each block has its own stack.
+	We should merge the stacks of the predecessors here, and validate that they are conherent: all same size"
+
+	^ aDRBasicBlock predecessors ifEmpty: [ Stack new ] ifNotEmpty: [
+			  (aDRBasicBlock predecessors size = 1 or: [
+					   aDRBasicBlock predecessors anySatisfy: [ :p |
+						   (generationStacks includesKey: p) not ] ])
+				  ifTrue: [
+						  (generationStacks at:
+							   (aDRBasicBlock predecessors detect: [ :p |
+								    generationStacks includesKey: p ])) copy ]
+				  ifFalse: [
+						  | predecessorStacks newStack |
+						  predecessorStacks := aDRBasicBlock predecessors collect: [ :p |
+							                       generationStacks at: p ].
+						  self mergeStacks: predecessorStacks ] ]
 ]
 
 { #category : 'accessing' }
@@ -255,15 +310,6 @@ DRTreegraphBytecodeGenerator >> visitArrayNode: aDRArrayNode [
 { #category : 'ir-to-target' }
 DRTreegraphBytecodeGenerator >> visitBasicBlock: aDRBasicBlock [
 
-	aDRBasicBlock hasPredecessors ifTrue: [
-			| label |
-			"Somebody will jump to me, set a target"
-			label := self labelBlock: aDRBasicBlock.
-			aDRBasicBlock predecessors do: [ :pred |
-					pred endInstruction isBackJump
-						ifTrue: [ opalBytecodeBuilder jumpBackTarget: label ]
-						ifFalse: [ opalBytecodeBuilder jumpAheadTarget: label ] ] ].
-
 	"This is the tree graph algo.
 	We only start from the roots of the graph, i.e., mandatory instructions with side effects.
 	Then we visit depth first post order.
@@ -275,33 +321,13 @@ DRTreegraphBytecodeGenerator >> visitBasicBlock: aDRBasicBlock [
 	 - gen the instruction
 	 - pop it if no more users
 	"
-	"We enter a basic block. Each block has its own stack.
-	We should merge the stacks of the predecessors here, and validate that they are conherent: all same size"
-	generationStack := aDRBasicBlock predecessors ifEmpty: [ Stack new ] ifNotEmpty: [
-			                   (aDRBasicBlock predecessors size = 1 or: [
-				                    aDRBasicBlock predecessors anySatisfy: [ :p | (generationStacks includesKey: p) not ] ])
-				                   ifTrue: [
-				                   (generationStacks at: (aDRBasicBlock predecessors detect: [ :p | generationStacks includesKey: p ])) copy ]
-				                   ifFalse: [
-						                   | predecessorStacks newStack |
-						                   predecessorStacks := aDRBasicBlock predecessors collect: [ :p | generationStacks at: p ].
-						                   self assert: predecessorStacks size = 2.
-						                   self assert: predecessorStacks first size = predecessorStacks second size.
-						                   newStack := Stack new.
-						                   predecessorStacks first size > 0 ifTrue: [
-								                   predecessorStacks first size to: 1 do: [ :i |
-										                   | left right merged |
-										                   left := predecessorStacks first at: i.
-										                   right := predecessorStacks first at: i.
-										                   merged := left = right
-											                             ifTrue: [ left ]
-											                             ifFalse: [ DRNullValue new ].
-										                   newStack push: merged ] ].
-						                   newStack ] ].
+	aDRBasicBlock hasPredecessors ifTrue: [ self jumpPredecessors: aDRBasicBlock ].
 
-
+	generationStack := self newStackFor: aDRBasicBlock.
 	generationStacks at: aDRBasicBlock put: generationStack.
+
 	aDRBasicBlock instructionsDo: [ :i | i isMandatoryInstruction ifTrue: [ self visitInstruction: i ] ].
+
 	"Remove it so we avoid stack confusion :)"
 	generationStack := nil
 ]
