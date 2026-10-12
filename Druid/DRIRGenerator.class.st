@@ -264,6 +264,13 @@ DRIRGenerator >> currentOperandStack [
 	^ executionState vmOperandStack
 ]
 
+{ #category : 'as yet unclassified' }
+DRIRGenerator >> defineTemporariesFrom: aDRCode on: aDRStackFrame [
+
+	(self temporariesListfrom: aDRCode codeNode) do: [ :e |
+		aDRStackFrame defineVariableNamed: e ]
+]
+
 { #category : 'accessing' }
 DRIRGenerator >> druidConditionalCompilationWith: aRBMessageNode [
 

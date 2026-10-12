@@ -80,3 +80,9 @@ DRMethod >> operands: aCollection [
 	"Do not track users from methods"
 	operands := aCollection asOrderedCollection
 ]
+
+{ #category : 'as yet unclassified' }
+DRMethod >> outerTemporaries [
+
+	^ #(  )
+]

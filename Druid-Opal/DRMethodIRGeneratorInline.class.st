@@ -16,6 +16,15 @@ DRMethodIRGeneratorInline >> currentBasicBlock: aDRBasicBlock [
 	currentBasicBlock := aDRBasicBlock
 ]
 
+{ #category : 'as yet unclassified' }
+DRMethodIRGeneratorInline >> defineTemporariesFrom: aDRCode on: aDRStackFrame [
+
+	super defineTemporariesFrom: aDRCode on: aDRStackFrame.
+
+	aDRCode outerTemporaries keysAndValuesDo: [ :name :instruction |
+		aDRStackFrame writeTemporaryNamed: name withValue: instruction ]
+]
+
 { #category : 'visiting' }
 DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 

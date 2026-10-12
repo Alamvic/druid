@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'outerContext',
 		'blockNode',
-		'blockCFG'
+		'blockCFG',
+		'outerTemporaries'
 	],
 	#category : 'Druid-CompilerCompiler',
 	#package : 'Druid',
@@ -84,6 +85,13 @@ DRBlockClosure >> hash [
 ]
 
 { #category : 'testing' }
+DRBlockClosure >> initialize [
+
+	super initialize.
+	outerTemporaries := Dictionary new
+]
+
+{ #category : 'testing' }
 DRBlockClosure >> isDRBlockClosure [
 	
 	^ true
@@ -113,12 +121,6 @@ DRBlockClosure >> opcode [
 	^ 'DRBlock ', blockNode asString 
 ]
 
-{ #category : 'inspecting' }
-DRBlockClosure >> originAST [
-
-	^ blockNode
-]
-
 { #category : 'accessing' }
 DRBlockClosure >> outerContext [
 
@@ -129,6 +131,25 @@ DRBlockClosure >> outerContext [
 DRBlockClosure >> outerContext: anObject [
 
 	outerContext := anObject
+]
+
+{ #category : 'accessing' }
+DRBlockClosure >> outerTemporaries [
+	^ outerTemporaries
+]
+
+{ #category : 'as yet unclassified' }
+DRBlockClosure >> outerTemporaries: aDictionary [
+
+	outerTemporaries := aDictionary.
+	self operands: aDictionary values
+]
+
+{ #category : 'activation' }
+DRBlockClosure >> pushFrame: frame In: interpreter receiver: aReceiver [
+
+"self operands ifNotEmpty: [ 1halt ]."
+	super pushFrame: frame In: interpreter receiver: aReceiver
 ]
 
 { #category : 'SCCP' }

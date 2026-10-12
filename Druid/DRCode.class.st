@@ -37,6 +37,12 @@ DRCode >> isMandatoryInstruction [
 	^ true
 ]
 
+{ #category : 'accessing' }
+DRCode >> originAST [
+
+	^ self codeNode 
+]
+
 { #category : 'activation' }
 DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
 
@@ -53,8 +59,8 @@ DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
 		irGenerator: interpreter;
 		entryBasicBlock: newMethodEntry.
 
-	(interpreter temporariesListfrom: self codeNode) do: [ :e |
-		frame defineVariableNamed: e ].
+	interpreter defineTemporariesFrom: self on: frame.
+
 	frame returnValue: (self defaultReturnValue: aReceiver).
 	interpreter pushFrame: frame.
 	^ frame

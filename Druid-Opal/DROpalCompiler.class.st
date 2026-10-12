@@ -26,8 +26,8 @@ DROpalCompiler class >> generateMethodFromCFG: aDRControlFlowGraph withSelector:
 
 	DRUnconditionalBackJumpScheluder new applyTo: aDRControlFlowGraph.
 
-	aDRControlFlowGraph applyOptimisation: DRCleanInlinedClosures new.
 	aDRControlFlowGraph applyOptimisation: DRCleanScopes new.
+	aDRControlFlowGraph applyOptimisation: DRCleanInlinedClosures new.
 
 	aDRControlFlowGraph applyOptimisation: DRDeadCodeElimination new.
 	aDRControlFlowGraph applyOptimisation: DRCleanControlFlow new.

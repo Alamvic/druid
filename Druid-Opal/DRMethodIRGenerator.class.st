@@ -45,14 +45,15 @@ DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
 	| allTemporaries block |
 	"Block closures could access to all temporaries, optimize it later"
 	allTemporaries := self temporariesFor: aRBBlockNode.
+
 	block := self
 		         addInstructionFrom: aRBBlockNode
-		         instructionKind: DRBlockClosure
-		         operands: allTemporaries values.
+		         instructionKind: DRBlockClosure.
 
 	^ block
 		blockNode: aRBBlockNode;
 		outerContext: self topFrame;
+		outerTemporaries: allTemporaries;
 		yourself
 ]
 
