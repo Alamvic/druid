@@ -662,7 +662,7 @@ DRIRGenerator >> interpretBlockCullWith: aRBMessageNode [
 
 	| block arguments |
 	aRBMessageNode receiver acceptVisitor: self.
-	block := self popOperand simplify.
+	block := self popOperand simpleConstantFold simplify.
 
 	"If we cannot inline the block, then send the message"	
 	block isDRBlockClosure ifFalse: [
@@ -684,7 +684,7 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 
 	| block arguments |
 	aRBMessageNode receiver acceptVisitor: self.
-	block := self popOperand simplify.
+	block := self popOperand simpleConstantFold simplify.
 
 	"If we cannot inline the block, then send the message"
 	block isDRBlockClosure ifFalse: [

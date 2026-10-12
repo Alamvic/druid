@@ -465,7 +465,7 @@ DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 
 		"TODO: Avoid Nulls here (do not initialize)"
 		value simpleConstantFold asDRValue isNullValue ifFalse: [
-			^ self pushOperand: value ] ].
+			^ self addCopy: aRBVariableNode with: value ] ].
 
 	loadArg := self
 		           addInstructionFrom: aRBVariableNode

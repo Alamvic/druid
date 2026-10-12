@@ -137,6 +137,7 @@ DRInline >> inline: messageSend [
 	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: inlineGenerator ir.
 	DRDeadCodeElimination new applyTo: inlineGenerator ir.
+	DRPhiSimplication new applyTo: inlineGenerator ir.
 	inlineGenerator ir validate
 ]
 
