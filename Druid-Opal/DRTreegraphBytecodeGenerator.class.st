@@ -463,9 +463,11 @@ DRTreegraphBytecodeGenerator >> visitInstruction: aDRInstruction [
 			users := aDRInstruction users select: [ :u | u isDRBlockClosure not ].
 
 			"Return, jump, initscope, do not push a result, no need to pop."
-			(users size = 0 and: [
+			(users isEmpty and: [
 					 aDRInstruction isReturn not and: [
-						 aDRInstruction isJump not and: [ (aDRInstruction class = DRInitializeScope) not and: [ aDRInstruction isPush not ] ] ] ])
+						 aDRInstruction isJump not and: [ 
+							({ DRInitializeScope . DRInitializePragma } includes: aDRInstruction class) not and: [ 
+								aDRInstruction isPush not ] ] ] ])
 				ifTrue: [ opalBytecodeBuilder popTop ].
 			users size > 1 ifTrue: [ users size - 1 timesRepeat: [ opalBytecodeBuilder pushDup ] ] ].
 
