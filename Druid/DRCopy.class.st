@@ -91,6 +91,12 @@ DRCopy >> simpleConstantFold [
 	^ self operand1 simpleConstantFold
 ]
 
+{ #category : 'constant folding' }
+DRCopy >> simplify [
+	
+	^ self operand simplify
+]
+
 { #category : 'type' }
 DRCopy >> typeWithAlreadySeen: aCollection [ 
 	
