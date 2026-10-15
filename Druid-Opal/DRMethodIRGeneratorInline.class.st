@@ -16,6 +16,15 @@ DRMethodIRGeneratorInline >> currentBasicBlock: aDRBasicBlock [
 	currentBasicBlock := aDRBasicBlock
 ]
 
+{ #category : 'as yet unclassified' }
+DRMethodIRGeneratorInline >> defineTemporariesFrom: aDRCode on: aDRStackFrame [
+
+	super defineTemporariesFrom: aDRCode on: aDRStackFrame.
+
+	aDRCode outerTemporaries keysAndValuesDo: [ :name :instruction |
+		aDRStackFrame writeTemporaryNamed: name withValue: instruction ]
+]
+
 { #category : 'visiting' }
 DRMethodIRGeneratorInline >> finishCodeInterpretation: lastFrame [
 
@@ -113,15 +122,27 @@ DRMethodIRGeneratorInline >> setupCFGScope: aCodeNode [
 ]
 
 { #category : 'visiting' }
-DRMethodIRGeneratorInline >> visitArgumentVariableNode: aRBVariableNode [ 
-	
-	(self isBaseMethodArgument: aRBVariableNode)
-		ifTrue: [
-			super visitArgumentVariableNode: aRBVariableNode .]
-		ifFalse: [
-			| value |
-			"If it is not accesssing a method argument, 
-			then get the target instruction and push it"
-			value := self temporaryAt: aRBVariableNode name.
-			^ self pushOperand: value ]
+DRMethodIRGeneratorInline >> visitReturnNode: aRBReturnNode [
+
+	| isLocal returnValue returnScope |
+	isLocal := executionState baseFrame method = aRBReturnNode methodNode.
+	isLocal ifTrue: [ ^ super visitReturnNode: aRBReturnNode ].
+
+	returnValue := self visitOperand: aRBReturnNode value.
+	returnScope := self scope lookupScopeForNode:
+		               aRBReturnNode methodNode.
+
+	"Perform all the IR manipulation to add the new value as return in correct place"
+
+	returnScope returnInstruction
+		ifNil: [ "There are not return yet and we arrived to one via inlines.
+			Create a final return"
+			self assert: returnScope = self scope lastScope.
+			self currentBasicBlock return: returnValue ]
+		ifNotNil: [ returnScope returnInstruction addNewReturn: returnValue ].
+
+
+	self newBasicBlock. "This basic block finish here"
+
+	self pushOperand: returnValue
 ]

@@ -10,10 +10,10 @@ Class {
 DRClosureStackFrame >> frameDefining: aName withState: aState [
 
 	^ (super frameDefining: aName withState: aState) ifNil: [
-		  (self outerFrameWithState: aState) ifNotNil: [ :frame | 
-			frame frameDefining: aName withState: aState ] 
-		ifNil: [ ^ nil ]
-		]
+			  (self outerFrameWithState: aState)
+				  ifNotNil: [ :frame |
+				  frame frameDefining: aName withState: aState ]
+				  ifNil: [ ^ nil ] ]
 ]
 
 { #category : 'accessing' }

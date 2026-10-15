@@ -208,6 +208,7 @@ DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	blockCFG applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
 	DRBreakCriticalEdges new applyTo: blockCFG.
 	DRLocalVariableInstructionScheluder new applyTo: blockCFG.
+	blockCFG applyOptimisation: DRCleanInlinedClosures new.
 	blockCFG applyOptimisation: DRCleanScopes new.
 	blockCFG applyOptimisation: DRDeadCodeElimination new.
 	

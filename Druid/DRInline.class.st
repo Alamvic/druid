@@ -43,21 +43,33 @@ DRInline >> doApply: cfg [
 { #category : 'inlining' }
 DRInline >> generateInlineIRForMethod: classAndMethodToInline of: aMessageSend [
 
-	| lastFrame methodClass methodToInline |
-	"TODO: delegate generation to type?"
-	methodClass := classAndMethodToInline key.
-	(methodClass isKindOf: DRUndefinedType) ifTrue: [ "If we don't know the receiver's type, copy the message send"
-		(DRMethod methodNode: aMessageSend originAST methodNode) asDRValue
-			pushFrameIn: inlineGenerator
-			receiver: aMessageSend receiver.
-		^ inlineGenerator resolveMessageSend: aMessageSend originAST receiver: aMessageSend receiver arguments: aMessageSend arguments ].
+	| lastFrame methodType methodNode doInline |
+	methodType := classAndMethodToInline key.
+	doInline := methodType = #default or: [ methodType isUndefined not ].
+	
+	"Base on type inference, get the inlined or current method"
+	methodNode := doInline
+		              ifTrue: [ classAndMethodToInline value ]
+		              ifFalse: [ aMessageSend originAST methodNode ].
 
-	methodToInline := classAndMethodToInline value.
+	"Push new frame"
+	(DRMethod methodNode: methodNode)
+		pushFrameIn: inlineGenerator
+		receiver: aMessageSend receiver.
+
+	"If we don't know the receiver's type, copy the message send"
+	doInline ifFalse: [
+			^ inlineGenerator
+				  resolveMessageSend: aMessageSend originAST
+				  receiver: aMessageSend receiver
+				  arguments: aMessageSend arguments ].
+
+
+	"Else, interpret the inlined code"
 	lastFrame := inlineGenerator
-		             interpretInlinedCode: (DRMethod methodNode: methodToInline)
-		             receiver: aMessageSend operands first
-		             arguments: aMessageSend operands allButFirst.
-
+		             interpretInlinedCode: (DRMethod methodNode: methodNode)
+		             receiver: aMessageSend receiver
+		             arguments: aMessageSend arguments.
 	inlineGenerator finishCodeInterpretation: lastFrame.
 
 	^ lastFrame returnedValue
@@ -125,6 +137,7 @@ DRInline >> inline: messageSend [
 	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: inlineGenerator ir.
 	DRDeadCodeElimination new applyTo: inlineGenerator ir.
+	DRPhiSimplication new applyTo: inlineGenerator ir.
 	inlineGenerator ir validate
 ]
 

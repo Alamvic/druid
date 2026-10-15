@@ -55,7 +55,8 @@ DRBytecodeBlockGenerator >> visitBlockReturn: aDBlockRReturn [
 { #category : 'ir-to-target' }
 DRBytecodeBlockGenerator >> visitReturn: aDRReturn [ 
 
-	blockScope wasMethodInlined ifTrue: [ 
+	"Non-local returns can only jump to the end of the method"
+	aDRReturn scope = blockScope lastScope ifFalse: [
 		Error signal: 'Non-local return on inlined method breaks the semantics' ].
 
 	super visitReturn: aDRReturn
