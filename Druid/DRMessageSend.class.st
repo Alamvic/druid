@@ -128,7 +128,7 @@ DRMessageSend >> scope [
 
 	^ parentScope inlinedScopes
 		  detect: [ :scope | scope node = self ]
-		  ifNone: [ self error: 'Message send not inlined' ]
+		  ifNone: [ nil "error?" ]
 ]
 
 { #category : 'accessing' }

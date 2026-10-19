@@ -2,7 +2,8 @@ Class {
 	#name : 'DRInline',
 	#superclass : 'DRControlFlowOptimisation',
 	#instVars : [
-		'inlineGenerator'
+		'inlineGenerator',
+		'typeSystem'
 	],
 	#classInstVars : [
 		'enabled'
@@ -111,6 +112,13 @@ DRInline >> hasMissingInlines: aDRMessageSend [
 	^ (self typeSystem methodsForMessage: aDRMessageSend) isNotEmpty 
 ]
 
+{ #category : 'accessing' }
+DRInline >> initialize [
+
+	super initialize.
+	typeSystem := DRPragmaBasedTypeSystem new
+]
+
 { #category : 'inlining' }
 DRInline >> inline: messageSend [
 
@@ -206,6 +214,12 @@ DRInline >> methodsToInlineOf: messageSend [
 
 { #category : 'accessing' }
 DRInline >> typeSystem [
- 	^ DRPragmaBasedTypeSystem new
-"	^ DRCustomisationTypeSystem new"
+ 
+	^ typeSystem 
+]
+
+{ #category : 'accessing' }
+DRInline >> typeSystem: aDRTypeSystem [
+
+	typeSystem := aDRTypeSystem
 ]

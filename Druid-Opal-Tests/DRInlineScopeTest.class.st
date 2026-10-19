@@ -41,9 +41,9 @@ DRInlineScopeTest >> testInlineMethodBlock [
 	
 	"Temp vectors"
 	vector1 := {	('0vector0' -> #( #temp1 #temp2 ))} asOrderedDictionary.
-	vector2 := {	('4vector5' -> #( #tmp1 #aBlock ))} asOrderedDictionary.
-	vector3 := {	('5vector6' -> #( x ))} asOrderedDictionary.
-	vector4 := {	('6vector7' -> #( y ))} asOrderedDictionary.
+	vector2 := {	('3vector4' -> #( #tmp1 #aBlock ))} asOrderedDictionary.
+	vector3 := {	('4vector5' -> #( x ))} asOrderedDictionary.
+	vector4 := {	('5vector6' -> #( y ))} asOrderedDictionary.
 	
 	self assert: cfg scope argumentNames isEmpty.
 	self assert: cfg scope definedTempVectors equals: vector1.
@@ -80,16 +80,13 @@ DRInlineScopeTest >> testInlineMethodBlockTwoOuterScopes [
 	self assert: send scope outerScope equals: cfg scope.
 	self assert: cfg scope inlinedScopes first equals: send scope.
 
-	"Scopes 2: Non-inlined (empty) -> Method"
+	"Scopes 2: Non-inlined (nil) -> Method"
 	valueMessage := cfg messageSends unique.
-	self
-		assert: cfg scope inlinedScopes second
-		equals: valueMessage inlineGenerator scope.
-	self assert: valueMessage inlineGenerator scope isEmpty.
+	self assert: valueMessage scope isNil.
 
 	"All temps are inlined in different vectors"
 	vector1 := {('0vector0' -> #( temp block ))} asOrderedDictionary.
-	vector2 := {('1vector3' -> #( #arg ))} asOrderedDictionary.
+	vector2 := {('1vector2' -> #( #arg ))} asOrderedDictionary.
 	
 	self assert: cfg scope argumentNames isEmpty.
 	self assert: cfg scope definedTempVectors equals: vector1.
@@ -143,10 +140,10 @@ DRInlineScopeTest >> testInlineMethodCollisionTemporaries [
 
 	"All temps are inlined in different vectors"
 	vector1 := {('0vector0' -> #( #temp1 #temp2 ))} asOrderedDictionary.
-	vector2 := {('4vector5' -> #( #tmp1 #aBlock ))} asOrderedDictionary.
-	vector3 := {('5vector6' -> #( x ))} asOrderedDictionary.
-	vector4 := {('8vector9' -> #( #tmp1 #aBlock ))} asOrderedDictionary.
-	vector5 := {('9vector10' -> #( y ))} asOrderedDictionary.
+	vector2 := {('3vector4' -> #( #tmp1 #aBlock ))} asOrderedDictionary.
+	vector3 := {('4vector5' -> #( x ))} asOrderedDictionary.
+	vector4 := {('7vector8' -> #( #tmp1 #aBlock ))} asOrderedDictionary.
+	vector5 := {('8vector9' -> #( y ))} asOrderedDictionary.
 	
 	self assert: cfg scope argumentNames isEmpty.
 	self assert: cfg scope definedTempVectors equals: vector1.
@@ -216,24 +213,24 @@ DRInlineScopeTest >> testInlineMultiMethods [
 	self assert: send scope isEmpty.
 
 	"Inline 1"
-	vector2a := {('3vector4' -> #( #newCollection #element #selectBlock ))} asOrderedDictionary.
+	vector2a := {('2vector3' -> #( #newCollection #element #selectBlock ))} asOrderedDictionary.
 	self assert: inlinedMethod1Scope argumentNames isEmpty.
 	self assert: inlinedMethod1Scope definedTempVectors equals: vector2a.
 	self assert: inlinedMethod1Scope copiedVars equals: vector1.
 
-	vector3a := {('4vector6' -> #( #index ))} asOrderedDictionary.
+	vector3a := {('3vector4' -> #( #index ))} asOrderedDictionary.
 	self assert: block1CFG scope argumentNames equals: #( index ).
 	self assert: block1CFG scope tempVarNames isEmpty.
 	self assert: block1CFG scope definedTempVectors equals: vector3a.
 	self assert: block1CFG scope copiedVars equals: vector1, vector2a.
 
 	"Inline 2"
-	vector2b := {('3vector11' -> #( #newCollection #aBlock ))} asOrderedDictionary.
+	vector2b := {('2vector5' -> #( #newCollection #aBlock ))} asOrderedDictionary.
 	self assert: inlinedMethod2Scope argumentNames isEmpty.
 	self assert: inlinedMethod2Scope definedTempVectors equals: vector2b.
 	self assert: inlinedMethod2Scope copiedVars equals: vector1.
 
-	vector3b := {('11vector13' -> #( #each ))} asOrderedDictionary.
+	vector3b := {('5vector6' -> #( #each ))} asOrderedDictionary.
 	self assert: block2CFG scope tempVarNames isEmpty.
 	self assert: block2CFG scope definedTempVectors equals: vector3b.
 	self assert: block2CFG scope copiedVars equals: vector1, vector2b.
