@@ -3,7 +3,7 @@ Class {
 	#superclass : 'DRInstruction',
 	#instVars : [
 		'methodNode',
-		'inlineGenerator'
+		'parentScope'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -42,22 +42,10 @@ DRMessageSend >> inline [
 	self controlFlowGraph applyOptimisation: (DRSingleInline forMessageSend: self)
 ]
 
-{ #category : 'accessing' }
-DRMessageSend >> inlineGenerator [
-
-	^ inlineGenerator
-]
-
-{ #category : 'accessing' }
-DRMessageSend >> inlineGenerator: anIrGenerator [ 
-
-	inlineGenerator := anIrGenerator
-]
-
 { #category : 'as yet unclassified' }
 DRMessageSend >> inliningMethods [
-
-	^ inlineGenerator typeSystem methodsForMessage: self
+1halt.
+	^ {  }
 ]
 
 { #category : 'accessing' }
@@ -78,12 +66,6 @@ DRMessageSend >> isMethod [
 	^ false
 ]
 
-{ #category : 'testing' }
-DRMessageSend >> isScopedInstruction [
-
-	^ true
-]
-
 { #category : 'accessing' }
 DRMessageSend >> methodNode [
 
@@ -100,6 +82,18 @@ DRMessageSend >> methodNode: anObject [
 DRMessageSend >> opcode [
 
 	^ '#' , self selector , ' '
+]
+
+{ #category : 'accessing' }
+DRMessageSend >> parentScope [
+
+	^ parentScope
+]
+
+{ #category : 'accessing' }
+DRMessageSend >> parentScope: aDRScope [
+
+	parentScope := aDRScope
 ]
 
 { #category : 'accessing' }
@@ -132,7 +126,9 @@ DRMessageSend >> sccpLatticeValueFor: sccp [
 { #category : 'accessing' }
 DRMessageSend >> scope [
 
-	^ inlineGenerator scope
+	^ parentScope inlinedScopes
+		  detect: [ :scope | scope node = self ]
+		  ifNone: [ self error: 'Message send not inlined' ]
 ]
 
 { #category : 'accessing' }

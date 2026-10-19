@@ -105,11 +105,17 @@ DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 		  (aMessageSend instructionFactory phiWithVariables: returnValues)
 ]
 
+{ #category : 'testing' }
+DRInline >> hasMissingInlines: aDRMessageSend [ 
+
+	^ (self typeSystem methodsForMessage: aDRMessageSend) isNotEmpty 
+]
+
 { #category : 'inlining' }
 DRInline >> inline: messageSend [
 
 	| methodsToInline inlinedMethodReturnValue |
-	inlineGenerator := messageSend inlineGenerator.
+	inlineGenerator := self inlineGeneratorFor: messageSend.
 
 	methodsToInline := self methodsToInlineOf: messageSend.
 	methodsToInline ifEmpty: [ ^ self ].
@@ -145,7 +151,7 @@ DRInline >> inline: messageSend [
 DRInline >> inlineControlFlowSends: cfg [
 
 	| sends |
-	sends := cfg messageSends select: [ :send | send hasMissingInlines ].
+	sends := cfg messageSends select: [ :send | self hasMissingInlines: send ].
 	sends := sends select: [ :send | self isControlFlowMessage: send ].
 	sends do: [ :messageSend | self inline: messageSend ]
 ]
@@ -154,10 +160,29 @@ DRInline >> inlineControlFlowSends: cfg [
 DRInline >> inlineDomainSends: cfg [
 
 	| sends |
-	sends := cfg messageSends select: [ :send | send hasMissingInlines ].
+	sends := cfg messageSends select: [ :send | self hasMissingInlines: send ].
 	sends := sends reject: [ :send | self isControlFlowMessage: send ].
 	sends sort: #blockOperandCount descending.
 	(sends takeFirst: 3) do: [ :messageSend | self inline: messageSend ]
+]
+
+{ #category : 'as yet unclassified' }
+DRInline >> inlineGeneratorFor: aDRMessageSend [ 
+
+	| generatorInline |
+	
+"1halt."
+
+	
+	generatorInline := DRMethodIRGeneratorInline new
+		  controlFlowGraph: aDRMessageSend controlFlowGraph;
+		  typeSystem: self typeSystem;
+		  outerScope: aDRMessageSend parentScope;
+		  generateScope;
+		  yourself.
+	
+	generatorInline scope node: aDRMessageSend.
+	^ generatorInline 
 ]
 
 { #category : 'testing' }
@@ -176,5 +201,11 @@ DRInline >> methodsToInlineOf: messageSend [
 	messageSend methodNode ifNotNil: [ "If a method node was set during interpretation then the message send is statically binding to them"
 		^ { (#default -> messageSend methodNode) } ].
 
-	^ messageSend inliningMethods
+	^ self typeSystem methodsForMessage: messageSend
+]
+
+{ #category : 'accessing' }
+DRInline >> typeSystem [
+ 	^ DRPragmaBasedTypeSystem new
+"	^ DRCustomisationTypeSystem new"
 ]

@@ -1599,14 +1599,12 @@ DRIRGenerator >> mergeDeferredReturns: deferredMethodReturns in: aDRBasicBlock [
 { #category : 'visiting' }
 DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver arguments: arguments method: method [
 
-	| instruction inlineGenerator |
-	inlineGenerator := self inlineGenerator.
+	| instruction |
 	instruction := self
 		               instantiate: DRMessageSend
 		               operands: { receiver } , arguments.
-	instruction inlineGenerator: inlineGenerator.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
-	
+
 	^ self addInstruction: instruction from: aRBMessageNode
 ]
 

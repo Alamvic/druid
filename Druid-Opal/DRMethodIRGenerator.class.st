@@ -320,7 +320,7 @@ DRMethodIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: recei
 		               receiver: receiver
 		               arguments: arguments
 		               method: method.
-	instruction inlineGenerator scope node: instruction.
+	instruction parentScope: self scope.
 	^ instruction
 ]
 
