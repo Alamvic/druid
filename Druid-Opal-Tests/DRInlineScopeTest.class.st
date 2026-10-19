@@ -41,7 +41,7 @@ DRInlineScopeTest >> testInlineMethodBlock [
 	
 	"Temp vectors"
 	vector1 := {	('0vector0' -> #( #temp1 #temp2 ))} asOrderedDictionary.
-	vector2 := {	('3vector4' -> #( #tmp1 #aBlock ))} asOrderedDictionary.
+	vector2 := {	('3vector4' -> #( #tmp1 "#aBlock" ))} asOrderedDictionary.
 	vector3 := {	('4vector5' -> #( x ))} asOrderedDictionary.
 	vector4 := {	('5vector6' -> #( y ))} asOrderedDictionary.
 	

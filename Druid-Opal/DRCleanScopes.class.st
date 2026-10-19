@@ -50,8 +50,14 @@ DRCleanScopes >> cleanTemporary: temp from: aDRScope withInstructions: allInstru
 	| variableInstructions |
 	variableInstructions := allInstructions select: [ :i | i variableName = temp ].
 	(self isUsedVariable: variableInstructions) ifFalse: [
+			| clean |
+			clean := true.
 			variableInstructions do: [ :i |
-				i hasUsers ifFalse: [ i removeFromCFG ] ] ]
+					i hasUsers
+						ifTrue: [ clean := false ]
+						ifFalse: [ i removeFromCFG ] ].
+
+			clean ifTrue: [ aDRScope removeVariableNamed: temp ] ]
 ]
 
 { #category : 'asserting' }

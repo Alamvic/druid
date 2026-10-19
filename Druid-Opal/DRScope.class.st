@@ -225,6 +225,12 @@ DRScope >> outerScope: aScope [
 	outerScope := aScope.
 ]
 
+{ #category : 'removing' }
+DRScope >> removeVariableNamed: name [ 
+
+	tempVars removeAllSuchThat: [ :temp | temp name = name ]
+]
+
 { #category : 'accessing' }
 DRScope >> returnInstruction [
 	^ returnInstruction
