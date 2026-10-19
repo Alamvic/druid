@@ -28,24 +28,12 @@ DRMessageSend >> blockOperandCount [
 	^ self operands count: [ :arg | arg simpleConstantFold isBlock ]
 ]
 
-{ #category : 'testing' }
-DRMessageSend >> hasMissingInlines [
-
-	^ self inliningMethods isNotEmpty 
-]
-
 { #category : 'optimizations' }
 DRMessageSend >> inline [
 	
 	"Used by the visualization"
 	
 	self controlFlowGraph applyOptimisation: (DRSingleInline forMessageSend: self)
-]
-
-{ #category : 'as yet unclassified' }
-DRMessageSend >> inliningMethods [
-1halt.
-	^ {  }
 ]
 
 { #category : 'accessing' }

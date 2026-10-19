@@ -98,14 +98,6 @@ DRScope >> definedTempVectors [
 ]
 
 { #category : 'testing' }
-DRScope >> hasMissingInlines [
-
-	inlinedScopes ifNotEmpty: [ ^ false ].
-
-	^ self isSend and: [ node hasMissingInlines ]
-]
-
-{ #category : 'testing' }
 DRScope >> hasTempVector [
 
 	^ true
