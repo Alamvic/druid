@@ -79,12 +79,15 @@ DRBlockIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 { #category : 'visiting' }
 DRBlockIRGenerator >> visitReturnNode: aRBReturnNode [
 
-	| value |
-	
+	| value return scope |
+	scope := self scope lookupScopeForNode: aRBReturnNode methodNode.
+	scope ifNil: [ self unexplored ].	
+
 	value := self visitOperand: aRBReturnNode value.
-
-	self pushOperand:(currentBasicBlock return: value).
-
+	return := currentBasicBlock return: value.
+	return scope: scope.
+	return originAST: aRBReturnNode.
+	self pushOperand: return
 ]
 
 { #category : 'visiting' }

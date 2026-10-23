@@ -8,7 +8,8 @@ Class {
 		'outerScope',
 		'inlinedScopes',
 		'arguments',
-		'initInstruction'
+		'initInstruction',
+		'returnInstruction'
 	],
 	#category : 'Druid-Opal-IR',
 	#package : 'Druid-Opal',
@@ -97,14 +98,6 @@ DRScope >> definedTempVectors [
 ]
 
 { #category : 'testing' }
-DRScope >> hasMissingInlines [
-
-	inlinedScopes ifNotEmpty: [ ^ false ].
-
-	^ self isSend and: [ node hasMissingInlines ]
-]
-
-{ #category : 'testing' }
 DRScope >> hasTempVector [
 
 	^ true
@@ -186,6 +179,13 @@ DRScope >> lookupScopeDefining: aVariable ifNone: noneBlock [
 			  self ]
 ]
 
+{ #category : 'query' }
+DRScope >> lookupScopeForNode: anOCNode [
+
+	node = anOCNode ifTrue: [ ^ self ].
+	^ outerScope ifNotNil: [ :scope | scope lookupScopeForNode: anOCNode ]
+]
+
 { #category : 'accessing' }
 DRScope >> node [
 
@@ -208,6 +208,30 @@ DRScope >> outerScope [
 DRScope >> outerScope: aScope [
 	
 	outerScope := aScope.
+]
+
+{ #category : 'removing' }
+DRScope >> removeVariableNamed: name [ 
+
+	tempVars removeAllSuchThat: [ :temp | temp name = name ]
+]
+
+{ #category : 'accessing' }
+DRScope >> returnInstruction [
+	^ returnInstruction
+]
+
+{ #category : 'accessing' }
+DRScope >> returnInstruction: aDRFrameReturn [
+
+	returnInstruction := aDRFrameReturn
+]
+
+{ #category : 'accessing' }
+DRScope >> rootScope [
+
+	outerScope ifNil: [ ^ self ].
+	^ outerScope rootScope
 ]
 
 { #category : 'accessing' }

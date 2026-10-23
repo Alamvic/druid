@@ -16,14 +16,14 @@ DRInlineMethodTest >> testImplementorsTypeSystem [
 
 	| cfg messageSend selector |
 
-	compilerCompiler irGenerator typeSystem: DRImplementorsTypeSystem new.
+	optimisation typeSystem: DRImplementorsTypeSystem new.
 	cfg := self generateDruidIRFor: #basicInlineMethod.
 	selector := #doubleOf:.
 	messageSend := cfg messageSends unique.
 
 	self assert: messageSend selector equals: selector.
 
-	cfg applyOptimisation: DRInline new. "Inline only one implementor"
+	self applyOptimisationOn: cfg.
 
 	self assert: cfg messageSends isEmpty.
 ]
@@ -34,7 +34,7 @@ DRInlineMethodTest >> testInlineMethodCopiesCalleeIntoCallerMethod [
 	| cfg messageSend |	
 	cfg := self generateDruidIRFor: #methodWithArg:.
 	messageSend := cfg messageSends first.
-	cfg applyOptimisation: DRInline new.
+	self applyOptimisationOn: cfg.
 
 	self assert: cfg messageSends size equals: 2
 ]
@@ -45,7 +45,7 @@ DRInlineMethodTest >> testInlineMethodKeepsMessageSendFallbackAsLastBranch [
 	| cfg messageSend inlinedCondition inlinedMessageSend |	
 	cfg := self generateDruidIRFor: #methodWithUnknownTypeAnnotationBeforeConcreteTypeAnnotation:.
 	messageSend := cfg messageSends first.
-	cfg applyOptimisation: DRInline new.
+	self applyOptimisationOn: cfg.
 	
 	inlinedCondition := cfg allConditionalJumps first.
 	inlinedMessageSend := cfg messageSends detect: [ :ms | ms originAST = messageSend originAST ].
@@ -58,8 +58,7 @@ DRInlineMethodTest >> testInlineMethodKeepsMessageSendIfTypeIsUnknown [
 	| cfg messageSend |	
 	cfg := self generateDruidIRFor: #methodWithUnknownTypeAnnotation:.
 	messageSend := cfg messageSends unique.
-
-	cfg applyOptimisation: DRInline new.
+	self applyOptimisationOn: cfg.
 	
 	self assert: (cfg messageSends anySatisfy: [ :ms | ms originAST = messageSend originAST ])
 ]
@@ -74,7 +73,7 @@ DRInlineMethodTest >> testInlineMethodWithInlinedLoops [
 
 	self assert: messageSend selector equals: selector.
 
-	cfg applyOptimisation: DRInline new.
+	self applyOptimisationOn: cfg.
 
 	blockSend := cfg messageSends unique.
 
@@ -87,7 +86,7 @@ DRInlineMethodTest >> testInlineMethodWithMultiplePossibleTypesInlinesAllPossibl
 
 	| cfg loads orderedCollection dictionary typeCheck phi |
 	cfg := self generateDruidIRFor: #methodWithMultipleTypeAnnotations:.
-	cfg applyOptimisation: DRInline new.
+	self applyOptimisationOn: cfg.
 	cfg applyOptimisation: (DRPhiSimplication then: DRDeadCodeElimination). "Clean code"
 
 	self
@@ -129,8 +128,7 @@ DRInlineMethodTest >> testMethodSendingIndirectClassGetToIt [
 	| cfg  |
 
 	cfg := self generateDruidIRFor: #methodInlineThenSendClass:.
-
-	cfg applyOptimisation: DRInline new. "Inline only one implementor"
+	self applyOptimisationOn: cfg.
 
 	self assert: cfg messageSends size > 1.
 	self assert: cfg messageSends first selector equals: #class.	
@@ -139,10 +137,9 @@ DRInlineMethodTest >> testMethodSendingIndirectClassGetToIt [
 { #category : 'tests' }
 DRInlineMethodTest >> testNotInlineMethodWithNoTypeAnnotation [
 
-	| cfg messageSend |	
+	| cfg |	
 	cfg := self generateDruidIRFor: #methodWithNoTypeAnnotation:.
-	messageSend := cfg messageSends first.
-	cfg applyOptimisation: DRInline new.
+	self applyOptimisationOn: cfg.
 
 	self assert: cfg messageSends size equals: 1
 ]
@@ -151,8 +148,6 @@ DRInlineMethodTest >> testNotInlineMethodWithNoTypeAnnotation [
 DRInlineMethodTest >> testPragmaBasedTypeSystem [
 
 	| cfg messageSend selector |
-	compilerCompiler irGenerator typeSystem: DRPragmaBasedTypeSystem new.
-	
 	cfg := self generateDruidIRFor: #methodWithArg:.
 	
 	selector := #select:.
@@ -160,7 +155,7 @@ DRInlineMethodTest >> testPragmaBasedTypeSystem [
 
 	self assert: messageSend selector equals: selector.
 
-	cfg applyOptimisation: DRInline new. "Inline only pragma"
+	self applyOptimisationOn: cfg.
 
 	self assert: cfg messageSends size equals: 2.
 	self
@@ -173,7 +168,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_empty [
 
 	| cfg messageSend selector |
 
-	compilerCompiler irGenerator typeSystem: DRProfileBasedTypeSystem new.
+	optimisation typeSystem: DRProfileBasedTypeSystem new.
 	
 	cfg := self generateDruidIRFor: #methodCollectionSize:.
 	selector := #size.
@@ -181,7 +176,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_empty [
 
 	self assert: messageSend selector equals: selector.
 
-	cfg applyOptimisation: DRInline new.  "Empty profile - not inline"
+	self applyOptimisationOn: cfg.
 
 	self assert: cfg messageSends unique selector equals: selector.
 
@@ -192,7 +187,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_monomorphic [
 
 	| cfg messageSend selector typeSystem |
 	
-	compilerCompiler irGenerator typeSystem: (typeSystem := DRProfileBasedTypeSystem new).
+	optimisation typeSystem: (typeSystem := DRProfileBasedTypeSystem new).
 	
 	cfg := self generateDruidIRFor: #methodCollectionSize:.
 	selector := #size.
@@ -205,7 +200,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_monomorphic [
 
 	self assert: messageSend selector equals: selector.
 
-	cfg applyOptimisation: DRInline new. "Inline profile + generic gueard"
+	self applyOptimisationOn: cfg.
 
 	"Guard"
 	self assert: cfg allConditionalJumps size equals: 1.
@@ -226,7 +221,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_polimorphic [
 
 	| cfg messageSend selector typeSystem inlinedSend |
 
-	compilerCompiler irGenerator typeSystem: (typeSystem := DRProfileBasedTypeSystem new).
+	optimisation typeSystem: (typeSystem := DRProfileBasedTypeSystem new).
 
 	cfg := self generateDruidIRFor: #methodCollectionSize:.
 	selector := #size.
@@ -240,7 +235,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_polimorphic [
 
 	self assert: messageSend selector equals: selector.
 
-	cfg applyOptimisation: DRInline new. "Inline profile + generic gueard"
+	self applyOptimisationOn: cfg.
 
 	"Guard"
 	self assert: cfg allConditionalJumps size equals: 2.
@@ -270,7 +265,7 @@ DRInlineMethodTest >> testProfileBasedTypeSystem_polimorphic [
 DRInlineMethodTest >> testUnknownTypeSystem [
 
 	| cfg messageSend selector |
-	compilerCompiler irGenerator typeSystem: DRUnknownTypeSystem new.
+	optimisation typeSystem: DRUnknownTypeSystem new.
 
 	cfg := self generateDruidIRFor: #methodWithArg:.
 	selector := #select:.
@@ -278,7 +273,7 @@ DRInlineMethodTest >> testUnknownTypeSystem [
 
 	self assert: messageSend selector equals: selector.
 
-	cfg applyOptimisation: DRInline new.
+	self applyOptimisationOn: cfg.
 
 	self assert: cfg messageSends unique selector equals: selector.
 

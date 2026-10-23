@@ -19,7 +19,7 @@ DRLoopTest >> setUp [
 	super setUp.
 
 	self configureInterpreter.
-	compilerCompiler irGenerator: DRPrimitiveIRGeneratorDeferredInline new.
+	compilerCompiler irGenerator: DRPrimitiveIRGenerator new.
 ]
 
 { #category : 'tests' }

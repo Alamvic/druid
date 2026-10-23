@@ -12,7 +12,7 @@ DRScope >> inspectionInlines: aBuilder [
 			borderColor: Color black;
 			yourself).
 		g add: (RSBox new
-			color: (aScope hasMissingInlines ifTrue: [ Color red muchLighter ] ifFalse: [ Color white ]);
+			color: (Color white);
 			border: (RSBorder new 
 				color: (aScope node isMessageSend ifTrue: [ Color orange ] ifFalse: [ Color purple ]); 
 				width: 2);

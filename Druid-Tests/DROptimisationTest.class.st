@@ -14,6 +14,12 @@ DROptimisationTest class >> isAbstract [
 	^ self class == DROptimisationTest
 ]
 
+{ #category : 'as yet unclassified' }
+DROptimisationTest >> applyOptimisationOn: aCFG [ 
+
+	aCFG applyOptimisation: optimisation
+]
+
 { #category : 'generation-IR' }
 DROptimisationTest >> generateDruidIRFor: methodSelector [
 
