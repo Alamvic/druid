@@ -37,6 +37,17 @@ DRMessageSend >> inline [
 ]
 
 { #category : 'accessing' }
+DRMessageSend >> inlinedScope [
+
+	"Search the inlined scope (between inlining and inlined methods) from the parent.
+	  Returns nil if this send was not inlined"
+
+	^ parentScope inlinedScopes
+		  detect: [ :scope | scope node = self ]
+		  ifNone: [ nil "error?" ]
+]
+
+{ #category : 'accessing' }
 DRMessageSend >> isMandatoryInstruction [
 
 	^ true
@@ -112,14 +123,6 @@ DRMessageSend >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : 'accessing' }
-DRMessageSend >> scope [
-
-	^ parentScope inlinedScopes
-		  detect: [ :scope | scope node = self ]
-		  ifNone: [ nil "error?" ]
-]
-
-{ #category : 'accessing' }
 DRMessageSend >> selector [
 
 	^ self originAST selector
@@ -133,10 +136,6 @@ DRMessageSend >> supportConstantOperand [
 
 { #category : 'types' }
 DRMessageSend >> typeWithAlreadySeen: aCollection [
-
-	methodNode ifNotNil: [ "TODO: Connext with type system"
-		(methodNode hasPragmaNamed: #returnTypeC:) ifTrue: [ "TODO: Match Slang types"
-			1 halt ] ].
 
 	^ DRUndefinedType new
 ]
