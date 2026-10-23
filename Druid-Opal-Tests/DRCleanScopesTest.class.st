@@ -42,6 +42,18 @@ DRCleanScopesTest >> store: tempName in: scope [
 ]
 
 { #category : 'tests' }
+DRCleanScopesTest >> testKeepInitializationForRootScope [
+
+	| cfg init |
+	cfg := self newCFGWithRootScopeContaining: #( ).
+	init := cfg scope initInstruction.
+
+	self applyOptimisationOn: cfg.
+
+	self assert: (cfg instructions includes: init)
+]
+
+{ #category : 'tests' }
 DRCleanScopesTest >> testKeepsInitializationForInlinedScopeWithNestedScope [
 
 	| cfg rootScope inlinedScope nestedScope block inlinedInit nestedInit |
@@ -78,6 +90,7 @@ DRCleanScopesTest >> testKeepsInitializationForInlinedScopeWithUsedTemporary [
 	inlinedScope addTempNames: #( used ).
 	rootScope addInlinedScope: inlinedScope.
 	inlinedInit := block initializeScope: inlinedScope.
+	
 	store := block addInstruction: (self store: #used in: inlinedScope).
 	load := block addInstruction: (self load: #used in: inlinedScope).
 
@@ -90,7 +103,7 @@ DRCleanScopesTest >> testKeepsInitializationForInlinedScopeWithUsedTemporary [
 ]
 
 { #category : 'tests' }
-DRCleanScopesTest >> testKeepsTemporaryThatIsReadAndWritten [
+DRCleanScopesTest >> testKeepsTemporaryReadAndWritten [
 
 	| cfg scope store load |
 	cfg := self newCFGWithRootScopeContaining: #( used ).
@@ -108,31 +121,40 @@ DRCleanScopesTest >> testKeepsTemporaryThatIsReadAndWritten [
 ]
 
 { #category : 'tests' }
-DRCleanScopesTest >> testRemovesUnusedTemporaryAndInitializationFromInlinedScope [
+DRCleanScopesTest >> testRemoveInitializationForInlinedScope [
 
-	| cfg rootScope inlinedScope block inlinedInit store rootInit |
+	| cfg rootScope inlinedScope block inlinedInit |
 	cfg := self newCFGWithRootScopeContaining: #().
 	rootScope := cfg scope.
 	block := cfg initialBasicBlock.
-	rootInit := rootScope initInstruction.
 
 	inlinedScope := DRScope new.
 	inlinedScope outerScope: rootScope.
-	inlinedScope addTempNames: #( unused ).
 	rootScope addInlinedScope: inlinedScope.
 	inlinedInit := block initializeScope: inlinedScope.
-	store := block addInstruction: (self store: #unused in: inlinedScope).
 
 	self applyOptimisationOn: cfg.
 
-	self assert: inlinedScope tempVarNames isEmpty.
-	self deny: (cfg instructions includes: store).
 	self deny: (cfg instructions includes: inlinedInit).
-	self assert: (cfg instructions includes: rootInit).
 ]
 
 { #category : 'tests' }
-DRCleanScopesTest >> testRemovesUnusedTemporaryAndStore [
+DRCleanScopesTest >> testRemoveTemporaryOnlyRead [
+
+	| cfg scope load |
+	cfg := self newCFGWithRootScopeContaining: #( unused ).
+	scope := cfg scope.
+	load := cfg initialBasicBlock addInstruction:
+		         (self load: #unused in: scope).
+
+	self applyOptimisationOn: cfg.
+
+	self assert: scope tempVarNames isEmpty.
+	self deny: (cfg instructions includes: load).
+]
+
+{ #category : 'tests' }
+DRCleanScopesTest >> testRemoveTemporaryOnlyWritten [
 
 	| cfg scope store |
 	cfg := self newCFGWithRootScopeContaining: #( unused ).
@@ -144,4 +166,15 @@ DRCleanScopesTest >> testRemovesUnusedTemporaryAndStore [
 
 	self assert: scope tempVarNames isEmpty.
 	self deny: (cfg instructions includes: store).
+]
+
+{ #category : 'tests' }
+DRCleanScopesTest >> testRemoveUnusedTemporary [
+
+	| cfg |
+	cfg := self newCFGWithRootScopeContaining: #( unused ).
+
+	self applyOptimisationOn: cfg.
+
+	self assert: cfg scope tempVarNames isEmpty
 ]
