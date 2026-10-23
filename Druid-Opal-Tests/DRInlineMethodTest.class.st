@@ -5,12 +5,6 @@ Class {
 	#package : 'Druid-Opal-Tests'
 }
 
-{ #category : 'as yet unclassified' }
-DRInlineMethodTest >> applyOptimisationOn: aCFG [ 
-
-	aCFG applyOptimisation: optimisation
-]
-
 { #category : 'asserting' }
 DRInlineMethodTest >> assert: aDRBasicBlock isDominatedBy: dominatorBlock [ 
 
