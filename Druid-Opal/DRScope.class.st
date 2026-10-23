@@ -156,13 +156,6 @@ DRScope >> isSend [
 	^ node isMessageSend
 ]
 
-{ #category : 'accessing' }
-DRScope >> lastScope [
-
-	outerScope ifNil: [ ^ self ].
-	^ outerScope lastScope
-]
-
 { #category : 'query' }
 DRScope >> lookupScopeDefining: aVariable [
 
@@ -232,6 +225,13 @@ DRScope >> returnInstruction [
 DRScope >> returnInstruction: aDRFrameReturn [
 
 	returnInstruction := aDRFrameReturn
+]
+
+{ #category : 'accessing' }
+DRScope >> rootScope [
+
+	outerScope ifNil: [ ^ self ].
+	^ outerScope rootScope
 ]
 
 { #category : 'accessing' }

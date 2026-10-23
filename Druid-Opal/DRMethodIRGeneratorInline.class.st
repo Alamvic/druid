@@ -137,7 +137,7 @@ DRMethodIRGeneratorInline >> visitReturnNode: aRBReturnNode [
 	returnScope returnInstruction
 		ifNil: [ "There are not return yet and we arrived to one via inlines.
 			Create a final return"
-			self assert: returnScope = self scope lastScope.
+			self assert: returnScope = self scope rootScope.
 			self currentBasicBlock return: returnValue ]
 		ifNotNil: [ returnScope returnInstruction addNewReturn: returnValue ].
 

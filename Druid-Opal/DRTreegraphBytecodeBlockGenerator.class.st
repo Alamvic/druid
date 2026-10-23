@@ -47,7 +47,7 @@ DRTreegraphBytecodeBlockGenerator >> visitBlockReturn: aDBlockRReturn [
 { #category : 'ir-to-target' }
 DRTreegraphBytecodeBlockGenerator >> visitReturn: aDRReturn [ 
 
-	aDRReturn scope = blockScope lastScope ifFalse: [ 
+	aDRReturn scope = blockScope rootScope ifFalse: [ 
 		Error signal: 'Non-local return on inlined method breaks the semantics' ].
 
 	super visitReturn: aDRReturn
