@@ -152,6 +152,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 		We need it as a data dependency to the load inst var only."
 		receiver := self visitSelfNode: aRBAssignmentNode.
 		self popOperand.
+		
 		^ self
 			  addAssignmentInstructionFrom: aRBAssignmentNode
 			  instructionKind: DRStoreInstanceVariable
@@ -173,9 +174,9 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 			| result |
 			result := self
 				          addAssignmentInstructionFrom: aRBAssignmentNode
-				          instructionKind: DRStoreTemporaryVariable
+				          instructionKind: DRBCStoreTemporaryVariable
 				          operands: {
-						          aRBAssignmentNode variable name asDRValue.
+						          aRBAssignmentNode variable name.
 						          value }.
 
 			(self hasTemporary: aRBAssignmentNode variable name) ifTrue: [
@@ -521,7 +522,6 @@ DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [
 DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
 	| receiver |
-	1halt.
 	"Push self, and pop it.
 	We need it as a data dependency to the load inst var only."
 	receiver := self visitSelfNode: aRBVariableNode.

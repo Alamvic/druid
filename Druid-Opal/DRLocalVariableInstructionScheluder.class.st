@@ -97,7 +97,6 @@ DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
 
 	"If it is a Load then the variable is already stored (can be reused)"
 	aDRInstruction isLoadTemporaryVariable ifTrue: [ ^ self ].
-	aDRInstruction result isNoResult ifTrue: [ ^ self ].
 
     self assert: aDRInstruction result isRegister.
     cfg := aDRInstruction controlFlowGraph.
@@ -105,20 +104,20 @@ DRLocalVariableInstructionScheluder >> storeReusedResultOf: aDRInstruction [
     variableName := aDRInstruction isLoadTemporaryVariable
                         ifTrue: [ aDRInstruction operand1 ]
                         ifFalse: [
-                        aDRInstruction result name asLowercase asDRValue ].
+                        aDRInstruction result name asLowercase ].
 
     cfg addTempNameToScope: variableName value.
 
     aDRInstruction users copy do: [ :user |
         | loadInst |
-        loadInst := DRLoadTemporaryVariable 
+        loadInst := DRBCLoadTemporaryVariable 
                 operands: { variableName }
                 result: aDRInstruction controlFlowGraph allocateTemporaryRegister.
         aDRInstruction controlFlowGraph addScopeToInstructionIfNeeded: loadInst.
         user basicBlock add: loadInst before: user.
         user replaceDependency: aDRInstruction by: loadInst ].
 
-    storeInst := DRStoreTemporaryVariable
+    storeInst := DRBCStoreTemporaryVariable
                      operands: {
                              variableName.
                              aDRInstruction }

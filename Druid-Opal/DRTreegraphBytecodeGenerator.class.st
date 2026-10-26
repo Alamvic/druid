@@ -133,7 +133,7 @@ DRTreegraphBytecodeGenerator >> interpretInitializeScope: scope [
 { #category : 'testing' }
 DRTreegraphBytecodeGenerator >> isSelf: aDRInstruction [
 
-	^ aDRInstruction simpleConstantFold asDRValue isInterpreterValue .
+	^ aDRInstruction simpleConstantFold asDRValue isLoadReceiver
 ]
 
 { #category : 'as yet unclassified' }
@@ -333,7 +333,9 @@ DRTreegraphBytecodeGenerator >> visitBasicBlock: aDRBasicBlock [
 	generationStack := self newStackFor: aDRBasicBlock.
 	generationStacks at: aDRBasicBlock put: generationStack.
 
-	aDRBasicBlock instructionsDo: [ :i | i isMandatoryInstruction ifTrue: [ self visitInstruction: i ] ].
+	aDRBasicBlock instructionsDo: [ :i |
+		i isMandatoryInstruction ifTrue: [ 
+			self visitInstruction: i ] ].
 
 	"Remove it so we avoid stack confusion :)"
 	generationStack := nil
@@ -569,6 +571,12 @@ DRTreegraphBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 DRTreegraphBytecodeGenerator >> visitLoadLiteralVariable: aDRLoadLiteralVariable [ 
 
 	opalBytecodeBuilder pushLiteralVariable: aDRLoadLiteralVariable operand1 value
+]
+
+{ #category : 'visiting' }
+DRTreegraphBytecodeGenerator >> visitLoadReceiver: aDRLoadReceiver [
+
+	opalBytecodeBuilder pushReceiver
 ]
 
 { #category : 'visiting' }
