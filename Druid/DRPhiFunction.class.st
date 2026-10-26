@@ -154,6 +154,12 @@ DRPhiFunction >> opcode [
 	 
 ]
 
+{ #category : 'enumerating' }
+DRPhiFunction >> operandsAndPredecessorsDo: aBlockClosure [
+
+	self operands do: [ :op | aBlockClosure value: op value: (self predecessorAtOperand: op) ]
+]
+
 { #category : 'accessing' }
 DRPhiFunction >> operandsWithoutMe [
 

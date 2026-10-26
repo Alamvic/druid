@@ -8,7 +8,7 @@ Class {
 { #category : 'test' }
 DRInstructionsTest >> inputClass [
 
-	^ DrOpalExamples 
+	^ DROpalExamples 
 ]
 
 { #category : 'tests' }
@@ -24,8 +24,8 @@ DRInstructionsTest >> testCreateBlockClosureUsesTemporaries [
 	| cfg instruction block |
 	cfg := self generateDruidIRFor: #simpleMethodWithBlockReadingOuterVariable.
 	cfg applyOptimisation: DRCleanControlFlow new.
-	instruction := cfg firstBasicBlock instructions third.
-	block := cfg firstBasicBlock instructions fourth.
+	instruction := cfg firstBasicBlock instructions fourth.
+	block := cfg firstBasicBlock instructions fifth.
 
 	self assert: block isDRBlockClosure.
 	self assert: (instruction users includes: block).

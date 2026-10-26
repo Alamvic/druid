@@ -309,6 +309,16 @@ DRBasicBlock >> copy: aValue [
 	^ self addInstruction: (self instructionFactory copy: aValue)
 ]
 
+{ #category : 'organization' }
+DRBasicBlock >> dependencies [
+	
+	"Return all the dependencies of this block to other blocks"
+	
+	^ self instructions flatCollect: [ :i |
+		i dependencies select: [ :d |
+			d isInstruction and: [ d basicBlock ~= self ] ] ]
+]
+
 { #category : 'building' }
 DRBasicBlock >> detectOperandForIteratedSuccessorPhiFrom: possibleOperands [
 
@@ -599,6 +609,12 @@ DRBasicBlock >> initialize [
 
 	endInstruction := DRNoop new.
 	endInstruction basicBlock: self.
+]
+
+{ #category : 'initialization' }
+DRBasicBlock >> initializePragma [
+	
+	^ self addInstruction: self instructionFactory initializePragma
 ]
 
 { #category : 'splitting' }
@@ -907,12 +923,6 @@ DRBasicBlock >> lessOrEquals: operand1 than: operand2 [
 DRBasicBlock >> load: anAddress [
 
 	^ self addInstruction: (self instructionFactory load: anAddress)
-]
-
-{ #category : 'building' }
-DRBasicBlock >> loadArgument: index [
-
-	^ self addInstruction: (self instructionFactory loadArgument: index)
 ]
 
 { #category : 'building' }

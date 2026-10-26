@@ -1,76 +1,76 @@
 Class {
-	#name : 'DRLoadArgument',
-	#superclass : 'DRTemporaryVariableInstruction',
+	#name : 'DRBCLoadArgument',
+	#superclass : 'DRBCTemporaryVariableInstruction',
 	#instVars : [
 		'argName'
 	],
-	#category : 'Druid-IR',
-	#package : 'Druid',
+	#category : 'Druid-Opal-IR',
+	#package : 'Druid-Opal',
 	#tag : 'IR'
 }
 
 { #category : 'visiting' }
-DRLoadArgument >> acceptVisitor: aVisitor [
+DRBCLoadArgument >> acceptVisitor: aVisitor [
 	
 	^ aVisitor visitLoadArgument: self
 ]
 
 { #category : 'accessing' }
-DRLoadArgument >> argName [
+DRBCLoadArgument >> argName [
 
 	^ argName
 ]
 
 { #category : 'accessing' }
-DRLoadArgument >> argName: selector [
+DRBCLoadArgument >> argName: selector [
 
 	argName := selector
 ]
 
 { #category : 'accessing' }
-DRLoadArgument >> argNum [
+DRBCLoadArgument >> argNum [
 
-	^ self operand1 value
+	^ variableName
 ]
 
 { #category : 'accessing' }
-DRLoadArgument >> argumentName [
+DRBCLoadArgument >> argumentName [
 
 	^ 'arg' , self argNum asString
 ]
 
 { #category : 'visiting' }
-DRLoadArgument >> isLoadArgument [
+DRBCLoadArgument >> isLoadArgument [
 
 	^ true
 ]
 
 { #category : 'visiting' }
-DRLoadArgument >> isMandatoryInstruction [
+DRBCLoadArgument >> isMandatoryInstruction [
 
 	^ true
 ]
 
 { #category : 'printing' }
-DRLoadArgument >> opcode [
+DRBCLoadArgument >> opcode [
 	
 	^ 'LoadArg'
 ]
 
 { #category : 'SCCP' }
-DRLoadArgument >> sccpLatticeValueFor: sccp [
+DRBCLoadArgument >> sccpLatticeValueFor: sccp [
 
 	^ sccp bottom
 ]
 
 { #category : 'accessing' }
-DRLoadArgument >> typeWithAlreadySeen: aCollection [
+DRBCLoadArgument >> typeWithAlreadySeen: aCollection [
 	
 	^ classType ifNil: [DRUndefinedType new]
 ]
 
 { #category : 'accessing' }
-DRLoadArgument >> variableName [
+DRBCLoadArgument >> variableName [
 
 	^ self argName
 ]

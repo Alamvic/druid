@@ -51,13 +51,13 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 	| variableName loadInst cfg|
 	aDRPhiFunction hasUsers ifFalse: [ ^ self ].
 	
-	variableName := aDRPhiFunction result name asLowercase asDRValue.
+	variableName := aDRPhiFunction result name asLowercase.
 	
 	"add the new created temporary variable to the scope"
 	cfg := aDRPhiFunction controlFlowGraph.
 	cfg addTempNameToScope: aDRPhiFunction result name asLowercase.
 	
-	loadInst := DRLoadTemporaryVariable 
+	loadInst := DRBCLoadTemporaryVariable 
 			operands: { variableName }
 			result: aDRPhiFunction result.
 	cfg addScopeToInstructionIfNeeded: loadInst .
@@ -72,7 +72,7 @@ DRLocalVariableInstructionScheluder >> storePhiOperands: aDRPhiFunction [
 		select: [ :op | op isInstruction ]
 		thenDo: [ :op |
 		| storeInst |
-		storeInst := DRStoreTemporaryVariable
+		storeInst := DRBCStoreTemporaryVariable
 			             operands: {
 					             variableName.
 					             op }

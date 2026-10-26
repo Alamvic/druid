@@ -27,7 +27,7 @@ DRMethodIRGenerator >> addAssignmentInstructionFrom: anAssignmentNode instructio
 		store scope: scope.
 		load scope: scope ].
 
-	^ store
+	^ load
 ]
 
 { #category : 'building' }
@@ -97,6 +97,15 @@ DRMethodIRGenerator >> initializeIR [
 
 	super initializeIR.
 	self initializeScope
+]
+
+{ #category : 'initialization' }
+DRMethodIRGenerator >> initializePragma: pragmas [
+
+	| instr |
+	instr := self currentBasicBlock initializePragma.
+	instr pragmas: pragmas.
+	pragmas do: [ :each | each acceptVisitor: self].
 ]
 
 { #category : 'initialization' }
@@ -266,8 +275,8 @@ DRMethodIRGenerator >> interpretTemporaryVariable: aRBVariableNode [
 	scope := self lookupScopeDefiningVariable: aRBVariableNode.
 	loadTemp := self
 		            addInstructionFrom: aRBVariableNode
-		            instructionKind: DRLoadTemporaryVariable
-		            operands: { aRBVariableNode name asDRValue }.
+		            instructionKind: DRBCLoadTemporaryVariable
+		            operands: { aRBVariableNode name }.
 	loadTemp scope: scope.
 	^ loadTemp
 ]
@@ -319,6 +328,12 @@ DRMethodIRGenerator >> newScope [
 		         id: self instructionFactory allocateScopeId;
 		         yourself.
 
+]
+
+{ #category : 'building' }
+DRMethodIRGenerator >> nullValue [
+
+	^ nil asDRValue 
 ]
 
 { #category : 'accessing' }
@@ -454,8 +469,8 @@ DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 
 	loadArg := self
 		           addInstructionFrom: aRBVariableNode
-		           instructionKind: DRLoadArgument
-		           operands: { aRBVariableNode variable index asDRValue }.
+		           instructionKind: DRBCLoadArgument
+		           operands: { aRBVariableNode variable index }.
 
 	loadArg argName: aRBVariableNode name.
 	loadArg scope: (self lookupScopeDefiningVariable: aRBVariableNode).
@@ -518,6 +533,15 @@ DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 		operands: { 
 				receiver.
 				aRBVariableNode variable index asDRValue }
+]
+
+{ #category : 'visiting' }
+DRMethodIRGenerator >> visitPragmaNode: aPragmaNode [
+	
+	"Nothing yet"
+	"if the pragma defines an error variable, we need to declare a temp and add it to scope"
+	
+	
 ]
 
 { #category : 'visiting' }
