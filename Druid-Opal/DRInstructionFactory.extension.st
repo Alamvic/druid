@@ -19,3 +19,9 @@ DRInstructionFactory >> loadMethodArgument: index [
 		  operands: { index }
 		  result: self allocateTemporaryRegister
 ]
+
+{ #category : '*Druid-Opal' }
+DRInstructionFactory >> loadReceiver [
+
+	^ DRBCLoadReceiver result: self allocateTemporaryRegister
+]

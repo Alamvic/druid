@@ -205,12 +205,6 @@ DRInstructionFactory >> loadFramePointer [
 ]
 
 { #category : 'factory' }
-DRInstructionFactory >> loadReceiver [
-
-	^ DRLoadReceiver result: self allocateTemporaryRegister
-]
-
-{ #category : 'factory' }
 DRInstructionFactory >> loadSInt64: operand [
 
 	^ DRLoad

@@ -1,5 +1,5 @@
 Class {
-	#name : 'DRLoadReceiver',
+	#name : 'DRBCLoadReceiver',
 	#superclass : 'DRInstruction',
 	#instVars : [
 		'scope'
@@ -10,26 +10,26 @@ Class {
 }
 
 { #category : 'visiting' }
-DRLoadReceiver >> acceptVisitor: aVisitor [
+DRBCLoadReceiver >> acceptVisitor: aVisitor [
 
 	^ aVisitor visitLoadReceiver: self
 ]
 
 { #category : 'testing' }
-DRLoadReceiver >> isLoadReceiver [
+DRBCLoadReceiver >> isLoadReceiver [
 
 	^ true
 ]
 
 { #category : 'SCCP' }
-DRLoadReceiver >> sccpLatticeValueFor: sccp [
+DRBCLoadReceiver >> sccpLatticeValueFor: sccp [
 
 	"We know that we know nothing about the frame pointer"
 	^ sccp bottom
 ]
 
 { #category : 'types' }
-DRLoadReceiver >> typeWithAlreadySeen: aCollection [ 
+DRBCLoadReceiver >> typeWithAlreadySeen: aCollection [ 
 
 	"self is of the type of the class where it is declared.
 	That is, it is an instance of that class or one of its subclasses"
