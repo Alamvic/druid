@@ -101,7 +101,7 @@ DRTreegraphBytecodeGenerator >> instructionOperands: aDRInstruction [
 			^ (self isSelf: aDRInstruction operand1)
 				  ifTrue: [ { aDRInstruction operands last } ]
 				  ifFalse: [ aDRInstruction operands ] ].
-	^ aDRInstruction operands
+	^ aDRInstruction operands select: [ :e | e class ~= DRInitializeScope ]
 ]
 
 { #category : 'API' }
@@ -364,6 +364,7 @@ DRTreegraphBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 
 	| compiledBlock blockCFG blockBytecodeGenerator copiedValues |
 
+
 	blockCFG := aDRBlockClosure blockCFG.
 	
 	blockCFG applyOptimisation: DRFrameInfoCleaner new.
@@ -486,7 +487,9 @@ DRTreegraphBytecodeGenerator >> visitInstruction: aDRInstruction [
 	operands := self ensureOperandsOnStack: aDRInstruction.
 	"Closures have a dependency to the value, but they do not need to be pushed,
 		so they are actually not popped either"
-	users := aDRInstruction users reject: [ :u | u isDRBlockClosure ].
+	users := aDRInstruction class = DRInitializeScope
+		ifTrue: [ #() ]
+		ifFalse: [ aDRInstruction users reject: [ :u | u isDRBlockClosure ]].
 
 	sizeBefore := generationStack size.
 
@@ -503,7 +506,7 @@ DRTreegraphBytecodeGenerator >> visitInstruction: aDRInstruction [
 	operands reversed do: [ :e | self abstractPop: e ].
 
 	"Pop this instruction value if this is an instruction, not a value"
-	aDRInstruction isInstruction ifTrue: [
+	((aDRInstruction class = DRInitializeScope) not and: [ aDRInstruction isInstruction ]) ifTrue: [
 			"Return, jump, initscope, do not push a result, no need to pop."
 			(users isEmpty and: [
 					 aDRInstruction isReturn not and: [

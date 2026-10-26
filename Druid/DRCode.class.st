@@ -62,7 +62,8 @@ DRCode >> pushFrame: frame In: interpreter maybeClosure: maybeClosure [
 	Let's not consider it as pushed to the stack"
 	receiver := interpreter
 		addInstructionFrom: self codeNode
-		instructionKind: DRBCLoadReceiver.
+		instructionKind: DRBCLoadReceiver
+		operands: { interpreter scope initInstruction }.
 	interpreter popOperand.
 	frame returnValue: receiver.
 

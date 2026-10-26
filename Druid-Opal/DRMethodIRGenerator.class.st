@@ -552,7 +552,8 @@ DRMethodIRGenerator >> visitSelfNode: aRBVariableNode [
 		  ifNil: [ 
 			self
 				addInstructionFrom: aRBVariableNode
-				instructionKind: DRBCLoadReceiver ]
+				instructionKind: DRBCLoadReceiver
+				operands: { self scope initInstruction } ]
 		  ifNotNil: [ 
 			| operand |
 			operand := self topFrame homeFrame receiverWithState: executionState.
