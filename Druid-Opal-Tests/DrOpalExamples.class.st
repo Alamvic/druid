@@ -166,6 +166,18 @@ DROpalExamples >> fillMask: anObject [
 ]
 
 { #category : 'as yet unclassified' }
+DROpalExamples >> messageSendWithExplicitReturn [
+
+	^ self doubleOf: 42
+]
+
+{ #category : 'as yet unclassified' }
+DROpalExamples >> messageSendWithImplicitReturn [
+
+	^ 2 timesRepeat: [ 27 ]
+]
+
+{ #category : 'as yet unclassified' }
 DROpalExamples >> methodBlockConstant [
 	"a constant block closure"
 	
@@ -579,6 +591,14 @@ DROpalExamples >> returnTempAssignmentExpression [
 	| temp |
 	
 	^ temp := 17
+]
+
+{ #category : 'as yet unclassified' }
+DROpalExamples >> returnToDo [
+
+	| t |
+	t := 0.
+	^ 1 to: 5 do: [ :n | t := n ]
 ]
 
 { #category : 'as yet unclassified' }

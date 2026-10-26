@@ -154,7 +154,7 @@ DRTreegraphBytecodeGenerator >> labelBlock: aDRBasicBlock [
 	^ ('b' , aDRBasicBlock id asString) asSymbol
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 DRTreegraphBytecodeGenerator >> mergeStacks: predecessorStacks [
 
 	| newStack stackSize |
