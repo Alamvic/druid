@@ -177,12 +177,7 @@ DRAbstractCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRRec
 { #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> interpreteMethods: compiledMethods [
 
-	| receiver numArgs |
-	1haltIf: [compiledMethods size > 1].
-	self
-		interpretMethods: compiledMethods
-		receiver: receiver
-		numArgs: numArgs
+	self subclassResponsibility
 ]
 
 { #category : 'accessing' }

@@ -32,6 +32,19 @@ DRMetaCompilerCompiler >> initialize [
 	customisation := DRNonePrimitiveCustomisation new
 ]
 
+{ #category : 'generation-IR' }
+DRMetaCompilerCompiler >> interpreteMethods: compiledMethods [
+
+	| receiver numArgs |
+	receiver := DRInterpreterValue value: interpreter.
+	numArgs := self numberOfArgumentsForManyMethods: compiledMethods.
+
+	self
+		interpretMethods: compiledMethods
+		receiver: receiver
+		numArgs: numArgs
+]
+
 { #category : 'code-generation' }
 DRMetaCompilerCompiler >> newCodeGenerator [
 

@@ -100,14 +100,6 @@ DRInstructionFactory >> equals: operand1 to: operand2 [
 ]
 
 { #category : 'factory' }
-DRInstructionFactory >> floatFromBits: operand1 [
-
-	^ DRGetFloatFromBits
-		  operands: { operand1 asDRValue. }
-		  result: self allocateTemporaryRegister
-]
-
-{ #category : 'factory' }
 DRInstructionFactory >> frameReturn: aValue [
 
 	^ DRFrameReturn operands: { aValue asDRValue } result: self allocateTemporaryRegister
@@ -139,21 +131,7 @@ DRInstructionFactory >> initialize [
 ]
 
 { #category : 'factory' }
-DRInstructionFactory >> intToFloat: operand1 [
-
-	^ DRIntToFloat
-		  operands: { operand1 asDRValue. }
-		  result: self allocateTemporaryRegister
-]
-
-{ #category : 'factory' }
 DRInstructionFactory >> jitCompileTimeExpression: aString [
-
-	^ DRInterpreterReference reference: aString
-]
-
-{ #category : 'factory' }
-DRInstructionFactory >> jitCompileTimeVariable: aString [ 
 
 	^ DRInterpreterReference reference: aString
 ]
@@ -199,12 +177,6 @@ DRInstructionFactory >> load: anAdress [
 ]
 
 { #category : 'factory' }
-DRInstructionFactory >> loadFramePointer [
-
-	^ DRLoadFramePointer result: self allocateTemporaryRegister
-]
-
-{ #category : 'factory' }
 DRInstructionFactory >> loadSInt64: operand [
 
 	^ DRLoad
@@ -228,7 +200,7 @@ DRInstructionFactory >> loadStackValueAt: anInteger [
 
 { #category : 'factory' }
 DRInstructionFactory >> messageSend: selector withOperands: operands [
-1halt.
+
 	^ DRMessageSend
 		  operands: operands
 		  result: self allocateTemporaryRegister
@@ -327,17 +299,6 @@ DRInstructionFactory >> push: operand [
 		  result: DRNoRegister new
 ]
 
-{ #category : 'factory' }
-DRInstructionFactory >> pushBase: base offset: offset [
-
-	^ DRPush
-		  operands: { (DRBaseOffsetMemoryAddress new
-				   base: base;
-				   offset: offset;
-				   yourself) }
-		  result: DRNoRegister new
-]
-
 { #category : 'building' }
 DRInstructionFactory >> rotateLeft: aValue by: anOffset [
 
@@ -346,14 +307,6 @@ DRInstructionFactory >> rotateLeft: aValue by: anOffset [
 				  aValue asDRValue.
 				  anOffset asDRValue }
 		  result: self allocateTemporaryRegister
-]
-
-{ #category : 'factory' }
-DRInstructionFactory >> setReturnValue: aValue [ 
-	
-	^ DRCopy
-		  operands: { aValue asDRValue }
-		  result: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg')
 ]
 
 { #category : 'factory' }
@@ -389,10 +342,4 @@ DRInstructionFactory >> subtract: subtrahend from: minuend [
 	^ DRSubtract
 		  operands: { minuend asDRValue. subtrahend asDRValue }
 		  result: self allocateTemporaryRegister
-]
-
-{ #category : 'building' }
-DRInstructionFactory >> unspill: anInteger [
-
-	^ DRUnspillStackSlot operands: { anInteger } result: DRNoRegister new
 ]

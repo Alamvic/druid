@@ -932,12 +932,6 @@ DRBasicBlock >> loadFramePointer [
 ]
 
 { #category : 'building' }
-DRBasicBlock >> loadReceiver [
-
-	^ self addInstruction: self instructionFactory loadReceiver
-]
-
-{ #category : 'building' }
 DRBasicBlock >> loadSInt64: operand [
 	
 	^ self addInstruction: (self instructionFactory loadSInt64: operand)

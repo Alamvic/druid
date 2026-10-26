@@ -57,6 +57,15 @@ DRMethodCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRRecei
 			irGenerator interpretCode: aDRMethod maybeClosure: aDRReceiver ]
 ]
 
+{ #category : 'generation-IR' }
+DRMethodCompilerCompiler >> interpreteMethods: compiledMethods [
+
+	self
+		interpretMethods: compiledMethods
+		receiver: nil
+		numArgs: nil
+]
+
 { #category : 'code-generation' }
 DRMethodCompilerCompiler >> newCodeGenerator [
 

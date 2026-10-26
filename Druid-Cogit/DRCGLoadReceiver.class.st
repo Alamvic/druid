@@ -31,8 +31,5 @@ DRCGLoadReceiver >> sccpLatticeValueFor: sccp [
 { #category : 'types' }
 DRCGLoadReceiver >> typeWithAlreadySeen: aCollection [ 
 
-	"self is of the type of the class where it is declared.
-	That is, it is an instance of that class or one of its subclasses"
-		
-	^ self operand1 scope node methodNode methodClass asDRType
+	^ DRSignedIntegerType bits64
 ]

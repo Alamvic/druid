@@ -66,15 +66,6 @@ DRIRGenerator >> addInstruction: instruction from: aNode [
 	^ instruction
 ]
 
-{ #category : 'adding' }
-DRIRGenerator >> addInstructionCall: operands from: aRBMessageNode [
-
-	^ self
-		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRCall
-		  operands: operands
-]
-
 { #category : 'visiting' }
 DRIRGenerator >> addInstructionFrom: aNode instructionKind: instructionClass [
 
@@ -527,48 +518,6 @@ DRIRGenerator >> interpretArithmeticRightShiftWith: aRBMessageNode [
 	^ self interpretBinaryInstruction: aRBMessageNode instructionKind: DRSignedRightShift
 ]
 
-{ #category : 'special cases' }
-DRIRGenerator >> interpretAsFloatWith: aRBMessageNode [
-
-	| receiver |
-	aRBMessageNode receiver acceptVisitor: self.
-	receiver := self popOperand.
-
-	"If it's already a float, do nothing"
-	receiver type isFloatType ifTrue: [ ^ self pushOperand: receiver ].
-
-	^ self
-		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRIntToFloat
-		  operands: { receiver }
-]
-
-{ #category : 'special cases' }
-DRIRGenerator >> interpretAsIntegerWith: aRBMessageNode [
-
-	| receiver |
-	aRBMessageNode receiver acceptVisitor: self.
-	receiver := self popOperand.
-
-	"If it's already an integer, do nothing"
-	receiver type isFloatType ifTrue: [ 
-		^ self
-			  addInstructionFrom: aRBMessageNode
-			  instructionKind: DRFloatToInt
-			  operands: { receiver } ].
-	receiver type isBooleanType ifTrue: [ 
-		^ self pushOperand: receiver].
-
-	"Otherwise"
-	^ self pushOperand: receiver
-]
-
-{ #category : 'special cases' }
-DRIRGenerator >> interpretAsUnsignedIntegerWith: aRBMessageNode [ 
-	
-	^ self interpretUnaryInstruction: aRBMessageNode instructionKind: DRUnsignedCoercion
-]
-
 { #category : 'interpreting' }
 DRIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 
@@ -710,23 +659,6 @@ DRIRGenerator >> interpretBlockValueWith: aRBMessageNode [
 DRIRGenerator >> interpretCCodeInSmalltalkWith: aRBMessageNode [ 
 
 	self interpretBlockBody: aRBMessageNode arguments first
-]
-
-{ #category : 'accessing' }
-DRIRGenerator >> interpretCCoerceWith: aRBMessageNode [
-
-	| typeName inner |
-	aRBMessageNode arguments first acceptVisitor: self.
-	inner := self popOperand.
-
-	typeName := aRBMessageNode arguments second value.
-	(typeName = 'sqInt' and: [ inner type isUnsigned ]) ifTrue: [
-		^ self
-			  addInstructionFrom: aRBMessageNode arguments first
-			  instructionKind: DRSignedCoercion
-			  operands: { inner } ].
-
-	^ self pushOperand: inner
 ]
 
 { #category : 'special cases' }
@@ -882,22 +814,6 @@ DRIRGenerator >> interpretEqualityComparisonWith: aRBMessageNode [
 DRIRGenerator >> interpretFalseObjectWith: aRBVariableNode [
 
 	^ self addCopy: aRBVariableNode with: DRInterpreterReference falseObject
-]
-
-{ #category : 'special cases' }
-DRIRGenerator >> interpretFloat64FromRawBitsWith: aRBMessageNode [
-
-	| receiver |
-	aRBMessageNode arguments first acceptVisitor: self.
-	receiver := self popOperand.
-
-	receiver type isIntegerType ifFalse: [
-		^ self error: 'cannot extract float bits from a non float value' ].
-
-	^ self
-		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRGetFloatFromBits
-		  operands: { receiver }
 ]
 
 { #category : 'special cases' }
@@ -1233,22 +1149,6 @@ DRIRGenerator >> interpretPopThenPushWith: aRBMessageNode [
 
 	"pop:[thenPush:] does not return an interesting value"
 	self pushOperand: DRNullValue new.
-]
-
-{ #category : 'special cases' }
-DRIRGenerator >> interpretRawFloatBitsWith: aRBMessageNode [ 
-
-	| receiver |
-	aRBMessageNode arguments first acceptVisitor: self.
-	receiver := self popOperand.
-
-	receiver type isFloatType
-		ifFalse: [ ^ self error: 'cannot extract float bits from a non float value' ].
-
-	^ self
-		  addInstructionFrom: aRBMessageNode
-		  instructionKind: DRGetFloatBits
-		  operands: { receiver }
 ]
 
 { #category : 'special cases' }
@@ -1841,12 +1741,6 @@ DRIRGenerator >> pushOperand: anOperand [
 DRIRGenerator >> receiver [
 	
 	^ self homeFrame receiver
-]
-
-{ #category : 'factory' }
-DRIRGenerator >> receiverRegister [
-
-	^ DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg'
 ]
 
 { #category : 'visiting' }

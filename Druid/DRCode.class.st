@@ -60,10 +60,16 @@ DRCode >> pushFrame: frame In: interpreter maybeClosure: maybeClosure [
 
 	"Initialize the default self for returns!
 	Let's not consider it as pushed to the stack"
-	receiver := interpreter
-		addInstructionFrom: self codeNode
-		instructionKind: DRBCLoadReceiver
-		operands: { interpreter scope initInstruction }.
+	(interpreter isKindOf: DRMetaCompilerIRGenerator)
+		ifTrue: [
+				receiver := interpreter
+					            addInstructionFrom: self codeNode
+					            instructionKind: DRCGLoadReceiver ]
+		ifFalse: [
+				receiver := interpreter
+					            addInstructionFrom: self codeNode
+					            instructionKind: DRBCLoadReceiver
+					            operands: { interpreter scope initInstruction } ].
 	interpreter popOperand.
 	frame returnValue: receiver.
 
