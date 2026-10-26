@@ -2,12 +2,33 @@ Class {
 	#name : 'DRMetaCompilerCompiler',
 	#superclass : 'DRAbstractCompilerCompiler',
 	#instVars : [
-		'customisation'
+		'customisation',
+		'interpreter',
+		'registerAllocator',
+		'compilerClass'
 	],
 	#category : 'Druid-Cogit-Metacompiler',
 	#package : 'Druid-Cogit',
 	#tag : 'Metacompiler'
 }
+
+{ #category : 'api' }
+DRMetaCompilerCompiler >> allocateRegistersIn: druidIR [
+
+	registerAllocator allocateRegistersIn: druidIR.
+]
+
+{ #category : 'accessing' }
+DRMetaCompilerCompiler >> compilerClass [
+
+	^ compilerClass
+]
+
+{ #category : 'accessing' }
+DRMetaCompilerCompiler >> compilerClass: anObject [
+
+	compilerClass := anObject
+]
 
 { #category : 'generation-IR' }
 DRMetaCompilerCompiler >> customiseFor: method [
@@ -45,6 +66,18 @@ DRMetaCompilerCompiler >> interpreteMethods: compiledMethods [
 		numArgs: numArgs
 ]
 
+{ #category : 'accessing' }
+DRMetaCompilerCompiler >> interpreter [
+
+	^ interpreter
+]
+
+{ #category : 'accessing' }
+DRMetaCompilerCompiler >> interpreter: anObject [
+
+	interpreter := anObject
+]
+
 { #category : 'code-generation' }
 DRMetaCompilerCompiler >> newCodeGenerator [
 
@@ -56,4 +89,30 @@ DRMetaCompilerCompiler >> optimize: anIR [
 
 	customisation optimize: anIR.
 	super optimize: anIR
+]
+
+{ #category : 'accessing' }
+DRMetaCompilerCompiler >> registerAllocator [
+	^ registerAllocator
+]
+
+{ #category : 'generation-IR' }
+DRMetaCompilerCompiler >> sourceMethod [
+	" Answer a <CompiledMethod> matching the current receiver's sourceName in the interpreter class "
+
+	^ interpreter class lookupSelector: sourceName
+]
+
+{ #category : 'generation-IR' }
+DRMetaCompilerCompiler >> targetMethod [
+
+	^ compilerClass lookupSelector: self targetName
+]
+
+{ #category : 'ast-to-source' }
+DRMetaCompilerCompiler >> writeAST: aRBMethodNode [ 
+	
+	compilerClass
+		compile: aRBMethodNode formattedCode
+		classified: #generated
 ]

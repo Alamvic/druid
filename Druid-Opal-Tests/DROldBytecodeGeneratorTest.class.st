@@ -1,184 +1,9 @@
 Class {
 	#name : 'DROldBytecodeGeneratorTest',
-	#superclass : 'TestCase',
-	#instVars : [
-		'compilerCompiler',
-		'bytecodeGenerator',
-		'typeSystem',
-		'counter'
-	],
+	#superclass : 'DRBytecodeGeneratorTest',
 	#category : 'Druid-Opal-Tests',
 	#package : 'Druid-Opal-Tests'
 }
-
-{ #category : 'assertion' }
-DROldBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method [
-
-	self assert: compiledMethod equalsResult: method arguments: {  }
-]
-
-{ #category : 'asserting' }
-DROldBytecodeGeneratorTest >> assert: compiledMethod equalsResult: method arguments: arguments [
-
-	| result expectedResult receiver |
-	receiver := compiledMethod methodClass new.
-
-	receiver initialize.
-	result := compiledMethod valueWithReceiver: receiver arguments: arguments.
-
-	receiver initialize.
-	expectedResult := method valueWithReceiver: receiver arguments: arguments.
-
-	expectedResult isClosure ifTrue: [
-		^ self assertClosure: result equals: expectedResult ].
-
-	(expectedResult isCollection and: [
-		 expectedResult isNotEmpty and: [ expectedResult anyOne isClosure ] ])
-		ifTrue: [
-			self assert: result size equals: expectedResult size.
-			expectedResult doWithIndex: [ :elem :i |
-				self assertClosure: (result at: i) equals: elem ].
-			^ self ].
-
-	self assert: result equals: expectedResult
-]
-
-{ #category : 'asserting' }
-DROldBytecodeGeneratorTest >> assertClosure: result equals: expected [
-
-	| blockResult blockExpected |
-
-	self assert: result isClosure.
-	self assert: expected isClosure.	
-	self assert: result argumentCount equals: expected argumentCount.
-	
-	"Try some value?"
-	blockResult := result valueWithArguments: (Array ofSize: result argumentCount).
-	blockExpected := result valueWithArguments: (Array ofSize: result argumentCount).
-	self assert: blockResult equals: blockExpected
-]
-
-{ #category : 'assertion' }
-DROldBytecodeGeneratorTest >> assertCompilationFor: aSelector fromClass: aClass [
-
-	| compiledMethod expectedMethod |
-	expectedMethod := aClass >> aSelector.
-	compiledMethod := self compileSelector: aSelector fromClass: aClass.
-	
-	self assert: compiledMethod equalsResult: expectedMethod
-]
-
-{ #category : 'assertion' }
-DROldBytecodeGeneratorTest >> assertCompilationFor: aSelector fromClass: aClass checkByteCode: byteCode [
-
-	| compiledMethod expectedMethod |
-	self setUp.
-		
-	expectedMethod := aClass >> aSelector.
-	compiledMethod := self compileSelector: aSelector fromClass: aClass.
-	
-	self assert: (self checkByteCode: byteCode in: compiledMethod ir).
-	self assert: compiledMethod equalsResult: expectedMethod
-]
-
-{ #category : 'assertion' }
-DROldBytecodeGeneratorTest >> assertCompilationNoInlineFor: aSelector fromClass: aClass arguments: args [
-
-	| compiledMethod expectedMethod |
-	compilerCompiler configureForCompilerClassWithoutInline: nil.
-
-	expectedMethod := aClass >> aSelector.
-
-	compiledMethod := self compileSelector: aSelector fromClass: aClass.
-
-	self
-		assert: compiledMethod
-		equalsResult: expectedMethod
-		arguments: args
-]
-
-{ #category : 'assertion' }
-DROldBytecodeGeneratorTest >> checkByteCode: byteCode in: compiledMethodIR [
-	"check if the provided bytecode exist in the compiledMethod IR"
-	
-	^ compiledMethodIR startSequence sequence anySatisfy: [ :each | each printString includesAll: byteCode]
-]
-
-{ #category : 'tests' }
-DROldBytecodeGeneratorTest >> compileSelector: selector fromClass: interpreterClass [
-
-	| method interpreter cfg |
-	method := interpreterClass >> selector.
-	interpreter := interpreterClass basicNew.
-	compilerCompiler interpreter: interpreter.
-
-	cfg := self generateDruidIRFor: method.
-	method := self generateMethodFromCFG: cfg withSelector: selector.
-	method methodClass: interpreterClass.
-	^ method
-]
-
-{ #category : 'tests' }
-DROldBytecodeGeneratorTest >> generateDruidIRFor: method [
-
-	| cfg |
-	cfg := compilerCompiler generateDruidIRFor: method.
-	compilerCompiler optimize: cfg.	
-	^ cfg
-]
-
-{ #category : 'tests' }
-DROldBytecodeGeneratorTest >> generateDruidIRForSelector: selector [
-
-	^ self generateDruidIRFor: (DROpalExamples lookupSelector: selector)
-]
-
-{ #category : 'helpers' }
-DROldBytecodeGeneratorTest >> generateMethodForSelector: aSelector [
-
-	| cfg method |
-	cfg := self generateDruidIRForSelector: aSelector.
-	method := self generateMethodFromCFG: cfg withSelector: aSelector.
-	^ method
-]
-
-{ #category : 'utilities' }
-DROldBytecodeGeneratorTest >> generateMethodFromCFG: aDRControlFlowGraph withSelector: selector [
-
-	^ DROpalCompiler 
-		  generateMethodFromCFG: aDRControlFlowGraph
-		  withSelector: selector
-		  numArgs: compilerCompiler irGenerator numberOfArguments
-]
-
-{ #category : 'tests' }
-DROldBytecodeGeneratorTest >> incrementCounter [
-
-	counter := counter + 1
-]
-
-{ #category : 'running' }
-DROldBytecodeGeneratorTest >> setUp [
-	super setUp.
-	
-	compilerCompiler := DRMethodCompilerCompiler new.
-	compilerCompiler interpreter: DROpalExamples basicNew.
-	compilerCompiler configureForCompilerClass: nil.
-	
-	bytecodeGenerator := DRTreegraphBytecodeGenerator new.
-	
-	counter := 0
-]
-
-{ #category : 'running' }
-DROldBytecodeGeneratorTest >> tearDown [
-
-	| aPackage |
-	aPackage := PackageOrganizer default packageNamed: 'DrOpal-Extensions' ifAbsent: nil.
-	aPackage ifNotNil: [ aPackage removeFromSystem ].
-	
-	super tearDown.
-]
 
 { #category : 'vrac' }
 DROldBytecodeGeneratorTest >> testBasicControlFlow [
@@ -631,7 +456,7 @@ DROldBytecodeGeneratorTest >> testSimpleMethodWith1arg [
 	
 	compiledMethod := self compileSelector: aSelector fromClass: DROpalExamples.
 	
-	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { 5 }.
+	result := compiledMethod valueWithReceiver: DROpalExamples new arguments: { 5 }.
 	
 	self assert: result equals: 6.
 	self assert: compiledMethod equalsResult: expectedMethod arguments: { 5 }.
@@ -647,7 +472,7 @@ DROldBytecodeGeneratorTest >> testSimpleMethodWith2arg [
 	
 	compiledMethod := self compileSelector: aSelector fromClass: DROpalExamples.
 	
-	result := compiledMethod valueWithReceiver: compilerCompiler interpreter arguments: { 5 . 6}.
+	result := compiledMethod valueWithReceiver: DROpalExamples new arguments: { 5 . 6}.
 	
 	self assert: result equals: 12.
 	self assert: compiledMethod equalsResult: expectedMethod arguments: { 5 . 6}.

@@ -2,10 +2,7 @@ Class {
 	#name : 'DRAbstractCompilerCompiler',
 	#superclass : 'Object',
 	#instVars : [
-		'interpreter',
-		'compilerClass',
 		'sourceName',
-		'registerAllocator',
 		'targetAST',
 		'optimisations',
 		'codeGenerator',
@@ -38,12 +35,6 @@ DRAbstractCompilerCompiler >> addCompilerOptions: aCollection [
 ]
 
 { #category : 'api' }
-DRAbstractCompilerCompiler >> allocateRegistersIn: druidIR [
-
-	registerAllocator allocateRegistersIn: druidIR.
-]
-
-{ #category : 'api' }
 DRAbstractCompilerCompiler >> compile [
 
 	| druidIR |
@@ -56,18 +47,6 @@ DRAbstractCompilerCompiler >> compile [
 
 	targetAST := self generateTargetASTFromIR: druidIR.
 	self writeAST: targetAST
-]
-
-{ #category : 'accessing' }
-DRAbstractCompilerCompiler >> compilerClass [
-
-	^ compilerClass
-]
-
-{ #category : 'accessing' }
-DRAbstractCompilerCompiler >> compilerClass: anObject [
-
-	compilerClass := anObject
 ]
 
 { #category : 'accessing' }
@@ -181,18 +160,6 @@ DRAbstractCompilerCompiler >> interpreteMethods: compiledMethods [
 ]
 
 { #category : 'accessing' }
-DRAbstractCompilerCompiler >> interpreter [
-
-	^ interpreter
-]
-
-{ #category : 'accessing' }
-DRAbstractCompilerCompiler >> interpreter: anObject [
-
-	interpreter := anObject
-]
-
-{ #category : 'accessing' }
 DRAbstractCompilerCompiler >> irGenerator [
 
 	^ irGenerator
@@ -248,18 +215,6 @@ DRAbstractCompilerCompiler >> optimize: anIR [
 	optimisations do: [ :optimization | anIR applyOptimisation: optimization ]
 ]
 
-{ #category : 'accessing' }
-DRAbstractCompilerCompiler >> registerAllocator [
-	^ registerAllocator
-]
-
-{ #category : 'generation-IR' }
-DRAbstractCompilerCompiler >> sourceMethod [
-	" Answer a <CompiledMethod> matching the current receiver's sourceName in the interpreter class "
-
-	^ interpreter class lookupSelector: sourceName
-]
-
 { #category : 'generation-IR' }
 DRAbstractCompilerCompiler >> sourceMethods [
 
@@ -278,22 +233,8 @@ DRAbstractCompilerCompiler >> sourceName: anObject [
 	sourceName := anObject
 ]
 
-{ #category : 'generation-IR' }
-DRAbstractCompilerCompiler >> targetMethod [
-
-	^ compilerClass lookupSelector: self targetName
-]
-
 { #category : 'code-generation' }
 DRAbstractCompilerCompiler >> targetName [
 
 	self subclassResponsibility
-]
-
-{ #category : 'ast-to-source' }
-DRAbstractCompilerCompiler >> writeAST: aRBMethodNode [ 
-	
-	compilerClass
-		compile: aRBMethodNode formattedCode
-		classified: #generated
 ]

@@ -13,7 +13,6 @@ Class {
 DRMethodCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 
 	super configureForCompilerClass: aCompilerClass.
-	self compilerClass: aCompilerClass.
 
 	irGenerator := self newIRGenerator.
 
@@ -34,7 +33,6 @@ DRMethodCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 DRMethodCompilerCompiler >> configureForCompilerClassWithoutInline: aCompilerClass [
 
 	super configureForCompilerClass: aCompilerClass.
-	self compilerClass: aCompilerClass.
 
 	irGenerator := self newIRGenerator.
 

@@ -105,16 +105,14 @@ DRBytecodeGeneratorTest >> checkByteCode: byteCode in: compiledMethodIR [
 ]
 
 { #category : 'tests' }
-DRBytecodeGeneratorTest >> compileSelector: selector fromClass: interpreterClass [
+DRBytecodeGeneratorTest >> compileSelector: selector fromClass: aClass [
 
 	| method interpreter cfg |
-	method := interpreterClass >> selector.
-	interpreter := interpreterClass basicNew.
-	compilerCompiler interpreter: interpreter.
+	method := aClass >> selector.
 
 	cfg := self generateDruidIRFor: method.
 	method := self generateMethodFromCFG: cfg withSelector: selector.
-	method methodClass: interpreterClass.
+	method methodClass: aClass.
 	^ method
 ]
 
@@ -162,7 +160,6 @@ DRBytecodeGeneratorTest >> setUp [
 	super setUp.
 	
 	compilerCompiler := DRMethodCompilerCompiler new.
-	compilerCompiler interpreter: DROpalExamples basicNew.
 	compilerCompiler configureForCompilerClass: nil.
 	
 	bytecodeGenerator := DRTreegraphBytecodeGenerator new.

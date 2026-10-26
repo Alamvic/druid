@@ -15,8 +15,8 @@ DRInlineScopeTest >> inline: aDRMessageSend [
 DRInlineScopeTest >> setUp [
 
 	super setUp.
-	compilerCompiler irGenerator typeSystem: DRCustomisationTypeSystem new.
-	compilerCompiler interpreter: self inputClass new
+	compilerCompiler irGenerator typeSystem:
+		DRCustomisationTypeSystem new
 ]
 
 { #category : 'tests' }
