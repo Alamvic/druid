@@ -195,6 +195,11 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 DRMethodIRGenerator >> interpretCode: aDRMethod maybeClosure: maybeClosure [ 
 	
 	self setupCFGScope: aDRMethod codeNode.
+	
+	(aDRMethod codeNode isMethod and: [ aDRMethod codeNode pragmas isNotEmpty ]) ifTrue: [
+		self initializePragma: aDRMethod codeNode pragmas.
+	].
+	
 	self pushFrameForCode: aDRMethod maybeClosure: maybeClosure.
 	aDRMethod executeOn: self.
 	
