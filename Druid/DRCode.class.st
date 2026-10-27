@@ -57,25 +57,31 @@ DRCode >> pushFrame: frame In: interpreter maybeClosure: maybeClosure receiver: 
 		receiver: aReceiver;
 		method: self codeNode;
 		irGenerator: interpreter;
-		entryBasicBlock: newMethodEntry;
-		maybeClosure: maybeClosure.
+		entryBasicBlock: newMethodEntry.
+	self setMaybeClosureTo: frame.
 
 	interpreter defineTemporariesFrom: self on: frame.
 	interpreter pushFrame: frame.
 
 	"Initialize the default self for returns!
 	Let's not consider it as pushed to the stack"
-	(interpreter isKindOf: DRMetaCompilerIRGenerator)
-		ifTrue: [
-				receiver := interpreter
-					            addInstructionFrom: self codeNode
-					            instructionKind: DRCGLoadReceiver ]
-		ifFalse: [
-				receiver := interpreter
-					            addInstructionFrom: self codeNode
-					            instructionKind: DRBCLoadReceiver
-					            operands: { interpreter scope initInstruction } ].
-	interpreter popOperand.
+	maybeClosure ifNotNil: [ receiver := DRNullValue new ] ifNil: [
+			(interpreter isKindOf: DRMetaCompilerIRGenerator)
+				ifTrue: [
+						receiver := interpreter
+							            addInstructionFrom: self codeNode
+							            instructionKind: DRCGLoadReceiver.
+						interpreter popOperand ]
+				ifFalse: [
+						receiver := aReceiver
+							            ifNil: [
+									            interpreter
+										            addInstructionFrom: self codeNode
+										            instructionKind: DRBCLoadReceiver
+										            operands: { interpreter scope initInstruction }.
+									            interpreter popOperand ]
+							            ifNotNil: [ aReceiver ] ] ].
+
 	frame returnValue: receiver.
 
 	^ frame

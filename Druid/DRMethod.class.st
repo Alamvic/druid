@@ -79,3 +79,9 @@ DRMethod >> outerTemporaries [
 
 	^ #(  )
 ]
+
+{ #category : 'initialization' }
+DRMethod >> setMaybeClosureTo: aDRStackFrame [ 
+	
+	aDRStackFrame maybeClosure: nil
+]

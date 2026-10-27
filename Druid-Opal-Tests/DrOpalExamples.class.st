@@ -153,6 +153,12 @@ DROpalExamples >> emptyIf [
 
 ]
 
+{ #category : 'as yet unclassified' }
+DROpalExamples >> evaluateEmptyBlock [
+
+	^ [  ] value
+]
+
 { #category : 'accessing' }
 DROpalExamples >> fillMask [
 

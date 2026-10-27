@@ -148,6 +148,12 @@ DRBlockClosure >> sccpLatticeValueFor: sccp [
 	^ sccp bottom
 ]
 
+{ #category : 'initialization' }
+DRBlockClosure >> setMaybeClosureTo: aDRStackFrame [ 
+	
+	aDRStackFrame maybeClosure: self
+]
+
 { #category : 'activation' }
 DRBlockClosure >> typeWithAlreadySeen: aCollection [
 

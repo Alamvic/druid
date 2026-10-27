@@ -1724,6 +1724,12 @@ DRIRGenerator >> pushFrameForCode: aDRCode maybeClosure: maybeClosure [
 	^ aDRCode pushFrameIn: self maybeClosure: maybeClosure
 ]
 
+{ #category : 'stack management' }
+DRIRGenerator >> pushFrameForCode: aDRCode receiver: aReceiver [
+
+	^ aDRCode pushFrameIn: self receiver: aReceiver
+]
+
 { #category : 'frame-access' }
 DRIRGenerator >> pushOperand: anOperand [
 
@@ -1971,6 +1977,7 @@ DRIRGenerator >> visitMethodNode: aRBMethodNode [
 		self popOperand.
 		self assert: self topFrame operandStack isEmpty.
 		each isReturn ifTrue: [ ^ self ] ].
+
 
 	self assert: self topFrame operandStack isEmpty.
 	"If the method has no return statement, it should return default value"

@@ -259,3 +259,12 @@ DRBasicBytecodeGeneratorTests >> test022_storeToDo [
 
 	self assert: (newMethod valueWithReceiver: self) equals: 5
 ]
+
+{ #category : 'tests' }
+DRBasicBytecodeGeneratorTests >> test023_evaluateEmptyBlockReturnsNil [
+
+	| newMethod |
+	newMethod := self compileSelector: #evaluateEmptyBlock fromClass: DROpalExamples.
+
+	self assert: (newMethod valueWithReceiver: self) equals: nil
+]

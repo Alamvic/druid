@@ -22,10 +22,10 @@ DROpalCompiler class >> generateMethodFromCFG: aDRControlFlowGraph withSelector:
 	aDRControlFlowGraph applyOptimisation: DRBranchCollapse new.
 
 	aDRControlFlowGraph applyOptimisation: DRPhiSimplication new.
-	aDRControlFlowGraph applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
+	aDRControlFlowGraph applyOptimisation:
+		(DRSCCP then: DRDeadCodeElimination).
 
 	DRUnconditionalBackJumpScheluder new applyTo: aDRControlFlowGraph.
-
 	aDRControlFlowGraph applyOptimisation: DRCleanScopes new.
 	aDRControlFlowGraph applyOptimisation: DRCleanInlinedClosures new.
 
@@ -33,18 +33,21 @@ DROpalCompiler class >> generateMethodFromCFG: aDRControlFlowGraph withSelector:
 	aDRControlFlowGraph applyOptimisation: DRCleanControlFlow new.
 	aDRControlFlowGraph applyOptimisation: DRCopyPropagation new.
 
-	"First break critical edges so we can resolve phis into the right blocks"
-	DRBreakCriticalEdges new applyTo: aDRControlFlowGraph.
 	bytecodeGenerator := DRTreegraphBytecodeGenerator new.
 	bytecodeGenerator class = DRBytecodeGenerator
-		ifTrue: [ DRLocalVariableInstructionScheluder new applyTo: aDRControlFlowGraph ]
-		ifFalse: [ 
-			DRPhiInstructionStackScheluder new applyTo: aDRControlFlowGraph ].
+		ifTrue: [
+			DRLocalVariableInstructionScheluder new applyTo:
+				aDRControlFlowGraph ]
+		ifFalse: [ "First break critical edges so we can resolve phis into the right blocks"
+				DRBreakCriticalEdges new applyTo: aDRControlFlowGraph.
+				DRPhiInstructionStackScheluder new applyTo: aDRControlFlowGraph ].
 	aDRControlFlowGraph applyOptimisation: DRDeadCodeElimination new.
 
 	bytecodeGenerator numArgs: numArgs.
 	bytecodeGenerator methodName: selector.
-	bytecodeGenerator generateTargetASTFromIR: aDRControlFlowGraph methodName: selector.
+	bytecodeGenerator
+		generateTargetASTFromIR: aDRControlFlowGraph
+		methodName: selector.
 	^ bytecodeGenerator targetAST
 ]
 

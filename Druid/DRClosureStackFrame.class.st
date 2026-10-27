@@ -34,6 +34,7 @@ DRClosureStackFrame >> homeFrameWithState: aState [
 { #category : 'accessing' }
 DRClosureStackFrame >> maybeClosure: aMaybeClosure [
 
+	self assert: aMaybeClosure notNil.
 	maybeClosure := aMaybeClosure
 ]
 

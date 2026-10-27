@@ -217,7 +217,7 @@ DRMethodIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arg
 
 	self setupCFGScope: aDRCode codeNode.
 
-	self pushFrameForCode: aDRCode maybeClosure: aReceiver.
+	self pushFrameForCode: aDRCode receiver: aReceiver.
 
 	self
 		initializeArgumentsNames: aDRCode
@@ -266,18 +266,20 @@ DRMethodIRGenerator >> interpretInlinedCode: code receiver: receiver arguments: 
 	| inlineGenerator lastFrame |
 	inlineGenerator := self inlineGenerator
 		                   numberOfArguments: arguments size;
+		                   executionState: executionState copy;
 		                   yourself.
 
 	"Jump to inlining block"
 	self currentBasicBlock jumpTo: inlineGenerator newBasicBlock.
+
 	lastFrame := inlineGenerator
 		             interpretCode: code
 		             receiver: receiver
 		             arguments: arguments.
 
-	"Jump back and restore the state"
+	"Jump back and push return value"
 	inlineGenerator currentBasicBlock jumpTo: self newBasicBlock.
-	self executionState: inlineGenerator executionState.
+	self pushOperand: lastFrame returnValue.
 
 	^ lastFrame
 ]
