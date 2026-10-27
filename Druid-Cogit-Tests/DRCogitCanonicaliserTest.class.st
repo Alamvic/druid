@@ -31,7 +31,7 @@ DRCogitCanonicaliserTest >> buildCFGWithEightShape [
 	jump falseBranch: b3.
 	b3 addPredecessor: b1.
 
-	r1 := b2 loadReceiver.
+	r1 := b2 loadBytecodeReceiver.
 	b2 jumpTo: b4.
 	r2 := b3 copy: 17 asDRValue.
 	b3 jumpTo: b4.
@@ -466,7 +466,7 @@ DRCogitCanonicaliserTest >> testSimplifyCopyLoadReceiver [
 	| cfg basicBlock |
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 |
-		r0 := block loadReceiver.
+		r0 := block loadBytecodeReceiver.
 		r1 := block copy: r0.
 		r1 result: (DRPhysicalGeneralPurposeRegister name: 'ReceiverResultReg') ].
 	cfg initialBasicBlock jumpTo: basicBlock.

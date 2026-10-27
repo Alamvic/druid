@@ -133,6 +133,12 @@ DRStackFrame >> irGenerator: anObject [
 	irGenerator := anObject
 ]
 
+{ #category : 'as yet unclassified' }
+DRStackFrame >> maybeClosure: maybeClosure [ 
+
+	"Nothing for normal frames"
+]
+
 { #category : 'accessing' }
 DRStackFrame >> method [
 

@@ -1,6 +1,9 @@
 Class {
 	#name : 'DRClosureStackFrame',
 	#superclass : 'DRStackFrame',
+	#instVars : [
+		'maybeClosure'
+	],
 	#category : 'Druid-CompilerCompiler',
 	#package : 'Druid',
 	#tag : 'CompilerCompiler'
@@ -19,13 +22,20 @@ DRClosureStackFrame >> frameDefining: aName withState: aState [
 { #category : 'accessing' }
 DRClosureStackFrame >> homeFrame [
 
-	^ receiver outerContext homeFrame
+	^ maybeClosure outerContext homeFrame
 ]
 
 { #category : 'accessing' }
 DRClosureStackFrame >> homeFrameWithState: aState [
 	
 	^ (self outerFrameWithState: aState) homeFrameWithState: aState
+]
+
+{ #category : 'accessing' }
+DRClosureStackFrame >> maybeClosure: aMaybeClosure [
+
+	self assert: aMaybeClosure notNil.
+	maybeClosure := aMaybeClosure
 ]
 
 { #category : 'instance creation' }

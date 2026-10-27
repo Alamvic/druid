@@ -153,6 +153,12 @@ DROpalExamples >> emptyIf [
 
 ]
 
+{ #category : 'as yet unclassified' }
+DROpalExamples >> evaluateEmptyBlock [
+
+	^ [  ] value
+]
+
 { #category : 'accessing' }
 DROpalExamples >> fillMask [
 
@@ -163,6 +169,18 @@ DROpalExamples >> fillMask [
 DROpalExamples >> fillMask: anObject [
 
 	fillMask := anObject
+]
+
+{ #category : 'as yet unclassified' }
+DROpalExamples >> messageSendWithExplicitReturn [
+
+	^ self doubleOf: 42
+]
+
+{ #category : 'as yet unclassified' }
+DROpalExamples >> messageSendWithImplicitReturn [
+
+	^ 2 timesRepeat: [ 27 ]
 ]
 
 { #category : 'as yet unclassified' }
@@ -579,6 +597,14 @@ DROpalExamples >> returnTempAssignmentExpression [
 	| temp |
 	
 	^ temp := 17
+]
+
+{ #category : 'as yet unclassified' }
+DROpalExamples >> returnToDo [
+
+	| t |
+	t := 0.
+	^ 1 to: 5 do: [ :n | t := n ]
 ]
 
 { #category : 'as yet unclassified' }

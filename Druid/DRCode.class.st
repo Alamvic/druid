@@ -19,9 +19,9 @@ DRCode >> codeNode [
 ]
 
 { #category : 'activation' }
-DRCode >> defaultReturnValue: receiver [
+DRCode >> defaultReturnValueForInterpreter: interpreter receiver: aReceiver [
 
-	^ self subclassResponsibility
+	self subclassResponsibility
 ]
 
 { #category : 'testing' }
@@ -46,7 +46,7 @@ DRCode >> originAST [
 { #category : 'activation' }
 DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
 
-	| newMethodEntry incomingBasicBlock |
+	| newMethodEntry incomingBasicBlock receiver |
 	"Store the current execution state before the call.
 	We will restore it just after the return"
 	incomingBasicBlock := interpreter currentBasicBlock.
@@ -58,16 +58,30 @@ DRCode >> pushFrame: frame In: interpreter receiver: aReceiver [
 		method: self codeNode;
 		irGenerator: interpreter;
 		entryBasicBlock: newMethodEntry.
+	self setMaybeClosureTo: frame.
 
 	interpreter defineTemporariesFrom: self on: frame.
-
-	frame returnValue: (self defaultReturnValue: aReceiver).
 	interpreter pushFrame: frame.
+
+	"Initialize the default self for returns!
+	Let's not consider it as pushed to the stack"
+	receiver := self defaultReturnValueForInterpreter: interpreter receiver: aReceiver.
+	frame returnValue: receiver.
+
 	^ frame
 ]
 
 { #category : 'activation' }
-DRCode >> pushFrameIn: interpreter receiver: aReceiver [
+DRCode >> pushFrameIn: interpreter receiver: receiver [
 
-	^ self pushFrame: self basicNewFrame In: interpreter receiver: aReceiver
+	^ self
+		  pushFrame: self basicNewFrame
+		  In: interpreter
+		  receiver: receiver
+]
+
+{ #category : 'initialization' }
+DRCode >> setMaybeClosureTo: aFrame [
+
+	self subclassResponsibility
 ]

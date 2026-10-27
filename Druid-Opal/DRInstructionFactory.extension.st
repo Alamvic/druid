@@ -13,6 +13,12 @@ DRInstructionFactory >> initializeScope: aDRScope [
 ]
 
 { #category : '*Druid-Opal' }
+DRInstructionFactory >> loadBytecodeReceiver [
+
+	^ DRBCLoadReceiver result: self allocateTemporaryRegister
+]
+
+{ #category : '*Druid-Opal' }
 DRInstructionFactory >> loadMethodArgument: index [
 
 	^ DRBCLoadArgument

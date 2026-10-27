@@ -39,26 +39,27 @@ DRPhiInstructionStackScheluder >> pushNonLocalVarsInPredecessors: cfg [
 		"For each dependency, put it in a temp, and consume it locally as a temp read"
 		bb dependencies do: [ :dep |
 			| tempName store load localUsers |
-			localUsers := (dep users select: [ :u | u basicBlock = bb ])
-				sorted: [:a :b | a indexInBasicBlock < b indexInBasicBlock ].
-			localUsers ifNotEmpty: [
-				tempName := self newUniqueTempName.
-				cfg addTempNameToScope: tempName.
-				store := DRBCStoreTemporaryVariable
-	                     operands: {
-	                             tempName.
-	                             dep value }
-	                     result: DRNoRegister new.
-				cfg addScopeToInstructionIfNeeded: store.
-				dep addNext: store.
-				load := DRBCLoadTemporaryVariable 
-	                     operands: { tempName }
-	                     result: cfg instructionFactory allocateTemporaryRegister.
-				cfg addScopeToInstructionIfNeeded: load.
+			dep result isNoResult ifFalse: [
+				localUsers := (dep users select: [ :u | u basicBlock = bb ])
+					sorted: [:a :b | a indexInBasicBlock < b indexInBasicBlock ].
+				localUsers ifNotEmpty: [
+					tempName := self newUniqueTempName.
+					cfg addTempNameToScope: tempName.
+					store := DRBCStoreTemporaryVariable
+		                     operands: {
+		                             tempName.
+		                             dep value }
+		                     result: DRNoRegister new.
+					cfg addScopeToInstructionIfNeeded: store.
+					dep addNext: store.
+					load := DRBCLoadTemporaryVariable 
+		                     operands: { tempName }
+		                     result: cfg instructionFactory allocateTemporaryRegister.
+					cfg addScopeToInstructionIfNeeded: load.
 
-				localUsers first addBefore: load.
-				localUsers do: [ :localUser | 
-					localUser replaceDependency: dep by: load ] ]] ]
+					localUsers first addBefore: load.
+					localUsers do: [ :localUser | 
+						localUser replaceDependency: dep by: load ] ] ] ] ]
 ]
 
 { #category : 'transformation' }

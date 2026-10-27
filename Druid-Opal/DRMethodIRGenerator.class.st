@@ -153,11 +153,17 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 	value := self visitOperand: aRBAssignmentNode value.
 
 	aRBAssignmentNode variable binding isInstanceVariable ifTrue: [
+		| receiver |
+		"Push self, and pop it.
+		We need it as a data dependency to the load inst var only."
+		receiver := self visitSelfNode: aRBAssignmentNode.
+		self popOperand.
+		
 		^ self
 			  addAssignmentInstructionFrom: aRBAssignmentNode
 			  instructionKind: DRStoreInstanceVariable
 			  operands: {
-					  self receiver.
+					  receiver.
 					  aRBAssignmentNode variable binding index asDRValue.
 					  value } ].
 
@@ -192,7 +198,7 @@ DRMethodIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
 ]
 
 { #category : 'as yet unclassified' }
-DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [ 
+DRMethodIRGenerator >> interpretCode: aDRMethod maybeClosure: maybeClosure [ 
 	
 	self setupCFGScope: aDRMethod codeNode.
 	
@@ -200,7 +206,7 @@ DRMethodIRGenerator >> interpretCode: aDRMethod receiver: aReceiver [
 		self initializePragma: aDRMethod codeNode pragmas.
 	].
 	
-	self pushFrameForCode: aDRMethod receiver: aReceiver.
+	self pushFrameForCode: aDRMethod receiver: maybeClosure.
 	aDRMethod executeOn: self.
 	
 	^ self popFrame.
@@ -428,11 +434,12 @@ DRMethodIRGenerator >> scope: aDRScope [
 ]
 
 { #category : 'as yet unclassified' }
-DRMethodIRGenerator >> setupCFGScope: aCodeNode [ 
-	
+DRMethodIRGenerator >> setupCFGScope: aCodeNode [
+
+	self numberOfArguments: aCodeNode numArgs.
 	self ir scope
 		addArgumentVariables: (aCodeNode arguments collect: #variable);
-		addTempVariables: (aCodeNode temporaries collect: [:temp | temp variable originalVar]);
+		addTempVariables: (aCodeNode temporaries collect: [ :temp | temp variable originalVar ]);
 		node: aCodeNode
 ]
 
@@ -521,11 +528,17 @@ DRMethodIRGenerator >> visitGlobalVariableNode: aRBVariableNode [
 { #category : 'visiting' }
 DRMethodIRGenerator >> visitInstanceVariableNode: aRBVariableNode [
 
+	| receiver |
+	"Push self, and pop it.
+	We need it as a data dependency to the load inst var only."
+	receiver := self visitSelfNode: aRBVariableNode.
+	self popOperand.
+
 	self
 		addInstructionFrom: aRBVariableNode
 		instructionKind: DRLoadInstanceVariable
 		operands: { 
-				self topFrame receiver.
+				receiver.
 				aRBVariableNode variable index asDRValue }
 ]
 
@@ -536,6 +549,23 @@ DRMethodIRGenerator >> visitPragmaNode: aPragmaNode [
 	"if the pragma defines an error variable, we need to declare a temp and add it to scope"
 	
 	
+]
+
+{ #category : 'visiting' }
+DRMethodIRGenerator >> visitSelfNode: aRBVariableNode [
+	"Push a new self instruction bound to the current init instruction"
+
+	^ (self topFrame homeFrame receiverWithState: executionState)
+		  ifNil: [ 
+			self
+				addInstructionFrom: aRBVariableNode
+				instructionKind: DRBCLoadReceiver
+				operands: { self scope initInstruction } ]
+		  ifNotNil: [ 
+			| operand |
+			operand := self topFrame homeFrame receiverWithState: executionState.
+			self pushOperand: operand.
+			operand ]
 ]
 
 { #category : 'visiting' }
