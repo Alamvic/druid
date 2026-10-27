@@ -68,12 +68,6 @@ DRBlockClosure >> codeNode [
 	^ blockNode
 ]
 
-{ #category : 'activation' }
-DRBlockClosure >> defaultReturnValue: receiver [
-
-	^ DRNullValue new
-]
-
 { #category : 'executing' }
 DRBlockClosure >> executeOn: interpreter [
 	
@@ -145,13 +139,6 @@ DRBlockClosure >> outerTemporaries: aDictionary [
 
 	outerTemporaries := aDictionary.
 	self operands: aDictionary values
-]
-
-{ #category : 'activation' }
-DRBlockClosure >> pushFrame: frame In: interpreter receiver: aReceiver [
-
-"self operands ifNotEmpty: [ 1halt ]."
-	super pushFrame: frame In: interpreter receiver: aReceiver
 ]
 
 { #category : 'SCCP' }

@@ -1499,15 +1499,12 @@ DRIRGenerator >> mergeDeferredReturns: deferredMethodReturns in: aDRBasicBlock [
 { #category : 'visiting' }
 DRIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: receiver arguments: arguments method: method [
 
-	| instruction inlineGenerator |
-	inlineGenerator := self inlineGenerator.
-	1haltIf:[receiver isNil].
+	| instruction |
 	instruction := self
 		               instantiate: DRMessageSend
 		               operands: { receiver } , arguments.
-	instruction inlineGenerator: inlineGenerator.
 	instruction methodNode: (method ifNotNil: [ method ast ]).
-	
+
 	^ self addInstruction: instruction from: aRBMessageNode
 ]
 
@@ -2014,8 +2011,7 @@ DRIRGenerator >> visitReturnNode: aRBReturnNode [
 { #category : 'visiting' }
 DRIRGenerator >> visitSelfNode: aRBVariableNode [ 
 	
-	self flag: #cogitSpecific.
-	self pushOperand: (self topFrame receiverWithState: executionState)
+	self pushOperand: self receiver
 ]
 
 { #category : 'visiting' }

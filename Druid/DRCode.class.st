@@ -18,12 +18,6 @@ DRCode >> codeNode [
 	self subclassResponsibility
 ]
 
-{ #category : 'activation' }
-DRCode >> defaultReturnValue: receiver [
-
-	^ self subclassResponsibility
-]
-
 { #category : 'testing' }
 DRCode >> initialize [
 
@@ -46,6 +40,12 @@ DRCode >> originAST [
 { #category : 'activation' }
 DRCode >> pushFrame: frame In: interpreter maybeClosure: maybeClosure [
 
+	^ self pushFrame: frame In: interpreter maybeClosure: maybeClosure receiver: maybeClosure
+]
+
+{ #category : 'activation' }
+DRCode >> pushFrame: frame In: interpreter maybeClosure: maybeClosure receiver: aReceiver [
+
 	| newMethodEntry incomingBasicBlock receiver |
 	"Store the current execution state before the call.
 	We will restore it just after the return"
@@ -54,14 +54,13 @@ DRCode >> pushFrame: frame In: interpreter maybeClosure: maybeClosure [
 	incomingBasicBlock jumpTo: newMethodEntry.
 
 	frame
+		receiver: aReceiver;
 		method: self codeNode;
 		irGenerator: interpreter;
 		entryBasicBlock: newMethodEntry;
-		maybeClosure: maybeClosure;
-		receiver: maybeClosure.
+		maybeClosure: maybeClosure.
 
-	(interpreter temporariesListfrom: self codeNode) do: [ :e |
-		frame defineVariableNamed: e ].
+	interpreter defineTemporariesFrom: self on: frame.
 	interpreter pushFrame: frame.
 
 	"Initialize the default self for returns!
@@ -86,4 +85,10 @@ DRCode >> pushFrame: frame In: interpreter maybeClosure: maybeClosure [
 DRCode >> pushFrameIn: interpreter maybeClosure: maybeClosure [
 
 	^ self pushFrame: self basicNewFrame In: interpreter maybeClosure: maybeClosure
+]
+
+{ #category : 'activation' }
+DRCode >> pushFrameIn: interpreter receiver: receiver [
+
+	^ self pushFrame: self basicNewFrame In: interpreter maybeClosure: nil receiver: receiver
 ]
