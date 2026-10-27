@@ -232,17 +232,6 @@ DRIRGenerator >> controlFlowGraph: aDRControlFlowGraph [
 	controlFlowGraph := aDRControlFlowGraph
 ]
 
-{ #category : 'special cases' }
-DRIRGenerator >> copyExecutionStateOf: startingBasicBlock [
-	
-	"Evaluate a block using a copy of the operand stack and temporary frame.
-	Copies are needed since branches make divergence points."
-	| copy |
-	copy := startingBasicBlock executionState copy.
-	self topFrame executionState: copy.
-	^ copy	
-]
-
 { #category : 'factory' }
 DRIRGenerator >> createInitialBasicBlock [
 
@@ -264,6 +253,13 @@ DRIRGenerator >> currentMethod [
 DRIRGenerator >> currentOperandStack [
 
 	^ executionState vmOperandStack
+]
+
+{ #category : 'as yet unclassified' }
+DRIRGenerator >> defineTemporariesFrom: aDRCode on: aDRStackFrame [
+
+	(self temporariesListfrom: aDRCode codeNode) do: [ :e |
+		aDRStackFrame defineVariableNamed: e ]
 ]
 
 { #category : 'accessing' }
@@ -1760,13 +1756,6 @@ DRIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver [
 DRIRGenerator >> resolveMessageSend: aRBMessageNode receiver: receiver arguments: arguments [
 
 	self subclassResponsibility 
-]
-
-{ #category : 'special cases' }
-DRIRGenerator >> setExecutionStateTo: aBlock [
-
-	self currentBasicBlock executionState: aBlock executionState.
-	self topFrame executionState: aBlock executionState.
 ]
 
 { #category : 'pharo-stack' }

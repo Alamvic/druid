@@ -1,6 +1,6 @@
 Class {
 	#name : 'DRPrimitiveIRGeneratorInline',
-	#superclass : 'DRPrimitiveIRGeneratorDeferredInline',
+	#superclass : 'DRPrimitiveIRGenerator',
 	#instVars : [
 		'previousBasicBlock',
 		'messageSend',

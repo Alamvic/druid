@@ -666,37 +666,6 @@ DRPrimitiveScenarioCompilationTest >> testDecrementConstantReceiver [
 	self assert: machineSimulator receiverRegisterValue equals: 37
 ]
 
-{ #category : 'tests-methodactivations' }
-DRPrimitiveScenarioCompilationTest >> testDeferredInline [
-
-	self skip.
-	self compileDruidDeferredInlinePrimitive: #primitiveDoubleDeferredInline.
-	
-	self executePrimitiveWithReceiver: 42.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 84
-]
-
-{ #category : 'tests-methodactivations' }
-DRPrimitiveScenarioCompilationTest >> testDeferredInlineFailedCode [
-
-	self skip.
-	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
-	
-	self executeUntilStopPrimitiveWithReceiver: 0
-]
-
-{ #category : 'tests-methodactivations' }
-DRPrimitiveScenarioCompilationTest >> testDeferredInlineTwice [
-
-	self skip.
-	self compileDruidDeferredInlinePrimitive: #primitiveAssertDeferredInline.
-	
-	self executePrimitiveWithReceiver: 1.
-	
-	self assert: machineSimulator receiverRegisterValue equals: 42
-]
-
 { #category : 'tests-arithmetic' }
 DRPrimitiveScenarioCompilationTest >> testDivision [
 

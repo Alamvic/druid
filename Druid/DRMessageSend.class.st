@@ -3,7 +3,7 @@ Class {
 	#superclass : 'DRInstruction',
 	#instVars : [
 		'methodNode',
-		'inlineGenerator'
+		'parentScope'
 	],
 	#category : 'Druid-IR',
 	#package : 'Druid',
@@ -35,12 +35,6 @@ DRMessageSend >> blockOperandCount [
 	^ self operands count: [ :arg | arg simpleConstantFold isBlock ]
 ]
 
-{ #category : 'testing' }
-DRMessageSend >> hasMissingInlines [
-
-	^ self inliningMethods isNotEmpty 
-]
-
 { #category : 'optimizations' }
 DRMessageSend >> inline [
 	
@@ -50,21 +44,14 @@ DRMessageSend >> inline [
 ]
 
 { #category : 'accessing' }
-DRMessageSend >> inlineGenerator [
+DRMessageSend >> inlinedScope [
 
-	^ inlineGenerator
-]
+	"Search the inlined scope (between inlining and inlined methods) from the parent.
+	  Returns nil if this send was not inlined"
 
-{ #category : 'accessing' }
-DRMessageSend >> inlineGenerator: anIrGenerator [ 
-
-	inlineGenerator := anIrGenerator
-]
-
-{ #category : 'as yet unclassified' }
-DRMessageSend >> inliningMethods [
-
-	^ inlineGenerator typeSystem methodsForMessage: self
+	^ parentScope inlinedScopes
+		  detect: [ :scope | scope node = self ]
+		  ifNone: [ nil "error?" ]
 ]
 
 { #category : 'accessing' }
@@ -85,12 +72,6 @@ DRMessageSend >> isMethod [
 	^ false
 ]
 
-{ #category : 'testing' }
-DRMessageSend >> isScopedInstruction [
-
-	^ true
-]
-
 { #category : 'accessing' }
 DRMessageSend >> methodNode [
 
@@ -107,6 +88,18 @@ DRMessageSend >> methodNode: anObject [
 DRMessageSend >> opcode [
 
 	^ '#' , self selector , ' '
+]
+
+{ #category : 'accessing' }
+DRMessageSend >> parentScope [
+
+	^ parentScope
+]
+
+{ #category : 'accessing' }
+DRMessageSend >> parentScope: aDRScope [
+
+	parentScope := aDRScope
 ]
 
 { #category : 'accessing' }
@@ -137,12 +130,6 @@ DRMessageSend >> sccpLatticeValueFor: sccp [
 ]
 
 { #category : 'accessing' }
-DRMessageSend >> scope [
-
-	^ inlineGenerator scope
-]
-
-{ #category : 'accessing' }
 DRMessageSend >> selector [
 
 	^ self originAST selector
@@ -156,10 +143,6 @@ DRMessageSend >> supportConstantOperand [
 
 { #category : 'types' }
 DRMessageSend >> typeWithAlreadySeen: aCollection [
-
-	methodNode ifNotNil: [ "TODO: Connext with type system"
-		(methodNode hasPragmaNamed: #returnTypeC:) ifTrue: [ "TODO: Match Slang types"
-			1 halt ] ].
 
 	^ DRUndefinedType new
 ]

@@ -30,20 +30,30 @@ DRMethodIRGenerator >> addAssignmentInstructionFrom: anAssignmentNode instructio
 	^ load
 ]
 
+{ #category : 'execution state' }
+DRMethodIRGenerator >> addFrameReturn: aDRStackFrame [
+
+	| return |
+	return := super addFrameReturn: aDRStackFrame.
+	self scope returnInstruction: return.
+	^ return
+]
+
 { #category : 'building' }
 DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
 
 	| allTemporaries block |
 	"Block closures could access to all temporaries, optimize it later"
 	allTemporaries := self temporariesFor: aRBBlockNode.
+
 	block := self
 		         addInstructionFrom: aRBBlockNode
-		         instructionKind: DRBlockClosure
-		         operands: allTemporaries values.
+		         instructionKind: DRBlockClosure.
 
 	^ block
 		blockNode: aRBBlockNode;
 		outerContext: self topFrame;
+		outerTemporaries: allTemporaries;
 		yourself
 ]
 
@@ -128,16 +138,12 @@ DRMethodIRGenerator >> initializeSpecialCases [
 { #category : 'inline' }
 DRMethodIRGenerator >> inlineGenerator [
 
-	| newIRGenerator |
-	newIRGenerator := DRMethodIRGeneratorInline new
-		                  controlFlowGraph: controlFlowGraph;
-		                  typeSystem: typeSystem;
-		                  outerScope: self scope;
-		                  yourself.
-
-	newIRGenerator executionState: executionState copy.
-	newIRGenerator generateScope.
-	^ newIRGenerator
+	^ DRMethodIRGeneratorInline new
+		  controlFlowGraph: controlFlowGraph;
+		  typeSystem: typeSystem;
+		  outerScope: self scope;
+		  generateScope;
+		  yourself
 ]
 
 { #category : 'interpreting' }
@@ -224,15 +230,17 @@ DRMethodIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arg
 { #category : 'as yet unclassified' }
 DRMethodIRGenerator >> interpretInlinedBlockBody: aRBBlockNode [
 	
-	aRBBlockNode scope tempVector ifNotEmpty: [ | inlineGenerator  |
-		"case where the inlined block defines a scape temporary"
+	aRBBlockNode scope tempVector ifNotEmpty: [ | inlineGenerator |
+		"case when the inlined block uses outer variables.
+		  - We use an inline generator to manage block's scope variables
+		  - We copy the state to continue the interpretation from here"
 		inlineGenerator := self inlineGenerator
+			                   executionState: executionState copy;
 			                   numberOfArguments: aRBBlockNode arguments size;
+			                   setupCFGScope: aRBBlockNode;
 			                   yourself.
-
 		"Jump to inlining block"
 		self currentBasicBlock jumpTo: inlineGenerator newBasicBlock.
-		inlineGenerator setupCFGScope: aRBBlockNode.
 		inlineGenerator initializeScope.
 		inlineGenerator interpretBlockBody: aRBBlockNode.
 
@@ -316,7 +324,7 @@ DRMethodIRGenerator >> messageSendInstructionFor: aRBMessageNode receiver: recei
 		               receiver: receiver
 		               arguments: arguments
 		               method: method.
-	instruction inlineGenerator scope node: instruction.
+	instruction parentScope: self scope.
 	^ instruction
 ]
 
@@ -340,14 +348,6 @@ DRMethodIRGenerator >> newScope [
 DRMethodIRGenerator >> nullValue [
 
 	^ nil asDRValue 
-]
-
-{ #category : 'accessing' }
-DRMethodIRGenerator >> numberOfArguments: aValue [ 
-	
-	super numberOfArguments: aValue.
-"	0 to: numberOfArguments - 1 do: [ :i |
-		self push: (self currentBasicBlock loadArgument: i) ]"
 ]
 
 { #category : 'accessing' }
@@ -471,7 +471,7 @@ DRMethodIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 
 		"TODO: Avoid Nulls here (do not initialize)"
 		value simpleConstantFold asDRValue isNullValue ifFalse: [
-			^ self pushOperand: value ] ].
+			^ self addCopy: aRBVariableNode with: value ] ].
 
 	loadArg := self
 		           addInstructionFrom: aRBVariableNode

@@ -37,6 +37,12 @@ DRCode >> isMandatoryInstruction [
 	^ true
 ]
 
+{ #category : 'accessing' }
+DRCode >> originAST [
+
+	^ self codeNode 
+]
+
 { #category : 'activation' }
 DRCode >> pushFrame: frame In: interpreter maybeClosure: maybeClosure [
 
