@@ -2,7 +2,8 @@ Class {
 	#name : 'DRInline',
 	#superclass : 'DRControlFlowOptimisation',
 	#instVars : [
-		'inlineGenerator'
+		'inlineGenerator',
+		'typeSystem'
 	],
 	#classInstVars : [
 		'enabled'
@@ -43,21 +44,33 @@ DRInline >> doApply: cfg [
 { #category : 'inlining' }
 DRInline >> generateInlineIRForMethod: classAndMethodToInline of: aMessageSend [
 
-	| lastFrame methodClass methodToInline |
-	"TODO: delegate generation to type?"
-	methodClass := classAndMethodToInline key.
-	(methodClass isKindOf: DRUndefinedType) ifTrue: [ "If we don't know the receiver's type, copy the message send"
-		(DRMethod methodNode: aMessageSend originAST methodNode) asDRValue
-			pushFrameIn: inlineGenerator
-			receiver: aMessageSend receiver.
-		^ inlineGenerator resolveMessageSend: aMessageSend originAST receiver: aMessageSend receiver arguments: aMessageSend arguments ].
+	| lastFrame methodType methodNode doInline |
+	methodType := classAndMethodToInline key.
+	doInline := methodType = #default or: [ methodType isUndefined not ].
+	
+	"Base on type inference, get the inlined or current method"
+	methodNode := doInline
+		              ifTrue: [ classAndMethodToInline value ]
+		              ifFalse: [ aMessageSend originAST methodNode ].
 
-	methodToInline := classAndMethodToInline value.
+	"Push new frame"
+	(DRMethod methodNode: methodNode)
+		pushFrameIn: inlineGenerator
+		receiver: aMessageSend receiver.
+
+	"If we don't know the receiver's type, copy the message send"
+	doInline ifFalse: [
+			^ inlineGenerator
+				  resolveMessageSend: aMessageSend originAST
+				  receiver: aMessageSend receiver
+				  arguments: aMessageSend arguments ].
+
+
+	"Else, interpret the inlined code"
 	lastFrame := inlineGenerator
-		             interpretInlinedCode: (DRMethod methodNode: methodToInline)
-		             receiver: aMessageSend operands first
-		             arguments: aMessageSend operands allButFirst.
-
+		             interpretInlinedCode: (DRMethod methodNode: methodNode)
+		             receiver: aMessageSend receiver
+		             arguments: aMessageSend arguments.
 	inlineGenerator finishCodeInterpretation: lastFrame.
 
 	^ lastFrame returnedValue
@@ -93,11 +106,24 @@ DRInline >> generateInlineIRForMethods: methodsToInline of: aMessageSend [
 		  (aMessageSend instructionFactory phiWithVariables: returnValues)
 ]
 
+{ #category : 'testing' }
+DRInline >> hasMissingInlines: aDRMessageSend [ 
+
+	^ (self typeSystem methodsForMessage: aDRMessageSend) isNotEmpty 
+]
+
+{ #category : 'accessing' }
+DRInline >> initialize [
+
+	super initialize.
+	typeSystem := DRPragmaBasedTypeSystem new
+]
+
 { #category : 'inlining' }
 DRInline >> inline: messageSend [
 
 	| methodsToInline inlinedMethodReturnValue |
-	inlineGenerator := messageSend inlineGenerator.
+	inlineGenerator := self inlineGeneratorFor: messageSend.
 
 	methodsToInline := self methodsToInlineOf: messageSend.
 	methodsToInline ifEmpty: [ ^ self ].
@@ -125,6 +151,7 @@ DRInline >> inline: messageSend [
 	"Clean garbage to generate a valid CFG"
 	DRDeadBlockElimination new applyTo: inlineGenerator ir.
 	DRDeadCodeElimination new applyTo: inlineGenerator ir.
+	DRPhiSimplication new applyTo: inlineGenerator ir.
 	inlineGenerator ir validate
 ]
 
@@ -132,7 +159,7 @@ DRInline >> inline: messageSend [
 DRInline >> inlineControlFlowSends: cfg [
 
 	| sends |
-	sends := cfg messageSends select: [ :send | send hasMissingInlines ].
+	sends := cfg messageSends select: [ :send | self hasMissingInlines: send ].
 	sends := sends select: [ :send | self isControlFlowMessage: send ].
 	sends do: [ :messageSend | self inline: messageSend ]
 ]
@@ -141,10 +168,29 @@ DRInline >> inlineControlFlowSends: cfg [
 DRInline >> inlineDomainSends: cfg [
 
 	| sends |
-	sends := cfg messageSends select: [ :send | send hasMissingInlines ].
+	sends := cfg messageSends select: [ :send | self hasMissingInlines: send ].
 	sends := sends reject: [ :send | self isControlFlowMessage: send ].
 	sends sort: #blockOperandCount descending.
 	(sends takeFirst: 3) do: [ :messageSend | self inline: messageSend ]
+]
+
+{ #category : 'as yet unclassified' }
+DRInline >> inlineGeneratorFor: aDRMessageSend [ 
+
+	| generatorInline |
+	
+"1halt."
+
+	
+	generatorInline := DRMethodIRGeneratorInline new
+		  controlFlowGraph: aDRMessageSend controlFlowGraph;
+		  typeSystem: self typeSystem;
+		  outerScope: aDRMessageSend parentScope;
+		  generateScope;
+		  yourself.
+	
+	generatorInline scope node: aDRMessageSend.
+	^ generatorInline 
 ]
 
 { #category : 'testing' }
@@ -163,5 +209,17 @@ DRInline >> methodsToInlineOf: messageSend [
 	messageSend methodNode ifNotNil: [ "If a method node was set during interpretation then the message send is statically binding to them"
 		^ { (#default -> messageSend methodNode) } ].
 
-	^ messageSend inliningMethods
+	^ self typeSystem methodsForMessage: messageSend
+]
+
+{ #category : 'accessing' }
+DRInline >> typeSystem [
+ 
+	^ typeSystem 
+]
+
+{ #category : 'accessing' }
+DRInline >> typeSystem: aDRTypeSystem [
+
+	typeSystem := aDRTypeSystem
 ]

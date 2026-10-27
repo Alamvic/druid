@@ -369,6 +369,7 @@ DRTreegraphBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	blockCFG applyOptimisation: DRPhiSimplication new.
 	blockCFG applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
 
+	blockCFG applyOptimisation: DRCleanInlinedClosures new.
 	blockCFG applyOptimisation: DRCleanScopes new.
 	blockCFG applyOptimisation: DRDeadCodeElimination new.
 	blockCFG applyOptimisation: DRCopyPropagation new.

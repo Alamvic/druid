@@ -34,13 +34,6 @@ DRPrimitiveCompilationTest >> compileCogitSelector: aSelector numArgs: argumentC
 ]
 
 { #category : 'helpers-compiling' }
-DRPrimitiveCompilationTest >> compileDruidDeferredInlinePrimitive: selector [
-
-	self compileDruidPrimitive: selector with: [ :compiler | 
-		compiler irGenerator: DRPrimitiveIRGeneratorDeferredInline new ]
-]
-
-{ #category : 'helpers-compiling' }
 DRPrimitiveCompilationTest >> compileDruidPrimitive: aSelector [
 	
 	| compiler |

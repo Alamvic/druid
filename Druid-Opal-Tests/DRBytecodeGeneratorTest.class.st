@@ -852,7 +852,7 @@ DRBytecodeGeneratorTest >> testMethodWritingClassVariable [
 DRBytecodeGeneratorTest >> testOpalExamples [
 
 	| ignoredProtocols |
-	ignoredProtocols := #( #'examples - pragmas'  #'*Druid-Opal').
+	ignoredProtocols := #( #'examples - pragmas' ).
 
 	OCOpalExamples methods
 		reject: [ :opalMethod |

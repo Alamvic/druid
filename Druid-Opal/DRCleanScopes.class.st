@@ -47,11 +47,16 @@ DRCleanScopes >> cleanScope: aScope for: cfg [
 { #category : 'as yet unclassified' }
 DRCleanScopes >> cleanTemporary: temp from: aDRScope withInstructions: allInstructions [
 
-	| variableInstructions |
+	| variableInstructions clean |
 	variableInstructions := allInstructions select: [ :i | i variableName = temp ].
-	(self isUsedVariable: variableInstructions) ifFalse: [
-			variableInstructions do: [ :i |
-				i hasUsers ifFalse: [ i removeFromCFG ] ] ]
+	(self isUsedVariable: variableInstructions) ifTrue: [ ^ self ].
+
+	clean := true.
+	variableInstructions do: [ :i |
+			i hasUsers
+				ifTrue: [ clean := false ]
+				ifFalse: [ i removeFromCFG ] ].
+	clean ifTrue: [ aDRScope removeVariableNamed: temp ]
 ]
 
 { #category : 'asserting' }
