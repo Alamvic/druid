@@ -206,7 +206,7 @@ DRMethodIRGenerator >> interpretCode: aDRMethod maybeClosure: maybeClosure [
 		self initializePragma: aDRMethod codeNode pragmas.
 	].
 	
-	self pushFrameForCode: aDRMethod maybeClosure: maybeClosure.
+	self pushFrameForCode: aDRMethod receiver: maybeClosure.
 	aDRMethod executeOn: self.
 	
 	^ self popFrame.

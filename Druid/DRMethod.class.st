@@ -29,6 +29,28 @@ DRMethod >> codeNode [
 	^ self methodNode
 ]
 
+{ #category : 'activation' }
+DRMethod >> defaultReturnValueForInterpreter: interpreter receiver: aReceiver [
+
+	| receiver |
+	(interpreter isKindOf: DRMetaCompilerIRGenerator)
+		ifTrue: [
+				receiver := interpreter
+					            addInstructionFrom: self codeNode
+					            instructionKind: DRCGLoadReceiver.
+				interpreter popOperand ]
+		ifFalse: [
+				receiver := aReceiver
+					            ifNil: [
+							            interpreter
+								            addInstructionFrom: self codeNode
+								            instructionKind: DRBCLoadReceiver
+								            operands: { interpreter scope initInstruction }.
+							            interpreter popOperand ]
+					            ifNotNil: [ aReceiver ] ].
+	^ receiver
+]
+
 { #category : 'executing' }
 DRMethod >> executeOn: interpreter [
 	

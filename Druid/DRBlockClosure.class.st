@@ -68,6 +68,12 @@ DRBlockClosure >> codeNode [
 	^ blockNode
 ]
 
+{ #category : 'activation' }
+DRBlockClosure >> defaultReturnValueForInterpreter: interpreter receiver: aReceiver [
+
+	^ DRNullValue new
+]
+
 { #category : 'executing' }
 DRBlockClosure >> executeOn: interpreter [
 	

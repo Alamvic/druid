@@ -726,7 +726,7 @@ DRIRGenerator >> interpretClassTableRootsObjectWith: aRBVariableNode [
 { #category : 'API' }
 DRIRGenerator >> interpretCode: aDRCode receiver: aReceiver arguments: arguments [
 	
-	self pushFrameForCode: aDRCode maybeClosure: aReceiver.
+	self pushFrameForCode: aDRCode receiver: aReceiver.
 	
 	"Iterate based on the defined arguments.
 	In ifNotNil: arguments are optional"
@@ -1716,12 +1716,6 @@ DRIRGenerator >> push: aValue [
 DRIRGenerator >> pushFrame: aDruidStackFrame [ 
 	
 	executionState pushFrame: aDruidStackFrame
-]
-
-{ #category : 'stack management' }
-DRIRGenerator >> pushFrameForCode: aDRCode maybeClosure: maybeClosure [
-
-	^ aDRCode pushFrameIn: self maybeClosure: maybeClosure
 ]
 
 { #category : 'stack management' }
