@@ -166,6 +166,16 @@ DrOpalExamples >> fillMask: anObject [
 ]
 
 { #category : 'as yet unclassified' }
+DrOpalExamples >> methodBlockConditionTempWritingAfter [
+
+	| t cond|
+	t := 1.
+	cond ifTrue: [ [t +1] ] ifFalse: [ "" ].
+	t := 17.
+	^ t
+]
+
+{ #category : 'as yet unclassified' }
 DrOpalExamples >> methodBlockConstant [
 	"a constant block closure"
 	
@@ -323,6 +333,45 @@ DrOpalExamples >> methodBlockNonLocalReturn [
 	temp:= self basicMethodWithBlock: [ ^ 2 ].
 	^ 5
 	
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodBlockTempConditionalWritingAfter [
+
+	| t cond|
+	t := 1.
+	cond ifTrue: [ [t +1 ] ] ifFalse: [ "" ].
+	cond ifTrue: [ t := 17 ].
+	^ t
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodBlockTempCopied [
+
+	| t b |
+	t := 1.
+	b := [ t + 1 ].
+	^ t
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodBlockTempWritingAfter [
+
+	| t b|
+	t := 1.
+	b := [ t + 1 ].
+	t := 17.
+	^ b
+]
+
+{ #category : 'as yet unclassified' }
+DrOpalExamples >> methodBlockTempWritingInside [
+
+	| t b |
+	t := 1.
+	b := [ t:= 17. 
+		t +1 ].
+	^ t.
 ]
 
 { #category : 'as yet unclassified' }
