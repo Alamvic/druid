@@ -8,12 +8,23 @@ Class {
 		'outerScope',
 		'inlinedScopes',
 		'arguments',
-		'initInstruction'
+		'initInstruction',
+		'tempVectorVars',
+		'outerCopiedVars'
 	],
 	#category : 'Druid-Opal-IR',
 	#package : 'Druid-Opal',
 	#tag : 'IR'
 }
+
+{ #category : 'query' }
+DRScope >> addArgumentIntoCopied: argName [
+	
+	
+	(outerCopiedVars anySatisfy: [ :var | var name = argName ]) ifTrue: [ ^ self ].
+	outerCopiedVars add: argName.
+	
+]
 
 { #category : 'configure' }
 DRScope >> addArgumentVariables: variables [
@@ -139,6 +150,8 @@ DRScope >> initialize [
 	arguments := OrderedCollection new.
 	tempVars := OrderedCollection new.
 	inlinedScopes := OrderedCollection new.
+	tempVectorVars := OrderedCollection new.
+	outerCopiedVars := OrderedCollection new.
 
 	id := 0
 ]
@@ -183,6 +196,38 @@ DRScope >> lookupScopeDefining: aVariable ifNone: noneBlock [
 		  ifNil: [
 			  noneBlock cull: aVariable.
 			  self ]
+]
+
+{ #category : 'query' }
+DRScope >> moveTempIntoCopied: tempName [
+	
+	| varToMove |
+	
+	(outerCopiedVars anySatisfy: [ :var | var name = tempName ]) ifTrue: [ ^ self ].
+		
+	varToMove := tempVars 
+		detect: [ :var | var name = tempName ]
+		ifNone: [ self error ].
+
+	tempVars remove: varToMove.
+	outerCopiedVars add: varToMove.
+	
+]
+
+{ #category : 'query' }
+DRScope >> moveTempIntoTempVector: tempName [
+	
+	| varToMove |
+	
+	(tempVectorVars anySatisfy: [ :var | var name = tempName ]) ifTrue: [ ^ self ].
+		
+	varToMove := tempVars 
+		detect: [ :var | var name = tempName ]
+		ifNone: [ self error ].
+
+	tempVars remove: varToMove.
+	tempVectorVars add: varToMove.
+	
 ]
 
 { #category : 'accessing' }
