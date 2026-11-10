@@ -1,8 +1,8 @@
 Class {
 	#name : 'DRPhysicalFloatingPointRegister',
 	#superclass : 'DRPhysicalRegister',
-	#category : 'Druid-IR',
-	#package : 'Druid',
+	#category : 'Druid-Cogit-IR',
+	#package : 'Druid-Cogit',
 	#tag : 'IR'
 }
 

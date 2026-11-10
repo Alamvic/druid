@@ -880,7 +880,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillLoadStackValue [
 	| cfg basicBlock |
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
-		r0 := block loadReceiver.
+		r0 := block loadCogitReceiver.
 		r1 := block loadStackValueAt: 0.
 		r2 := block loadStackValueAt: 1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.
@@ -963,7 +963,7 @@ DRLinearScanRegisterAllocatorTest >> testSpillReceiverAndArguments [
 	| cfg basicBlock |
 	cfg := DRControlFlowGraph new.
 	basicBlock := cfg newBasicBlockWith: [ :block | | r0 r1 r2 |
-		r0 := block loadReceiver.
+		r0 := block loadCogitReceiver.
 		r1 := block loadArgument: 0.
 		r2 := block loadArgument: 1 ].
 	cfg initialBasicBlock jumpTo: basicBlock.

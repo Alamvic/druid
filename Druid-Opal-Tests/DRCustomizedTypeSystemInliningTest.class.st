@@ -27,7 +27,6 @@ DRCustomizedTypeSystemInliningTest >> testMethodCustomisationAllSatisfy [
 	selector := #allSatisfy:.
 	method := Array lookupSelector: selector.
 	
-	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
 	
 	compilerCompiler optimize: cfg.
@@ -56,7 +55,6 @@ DRCustomizedTypeSystemInliningTest >> testMethodCustomisationAnySatisfy [
 	selector := #anySatisfy:.
 	method := Array lookupSelector: selector.
 
-	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
 	compilerCompiler optimize: cfg.
 	compilerCompiler optimize: cfg.
@@ -83,7 +81,6 @@ DRCustomizedTypeSystemInliningTest >> testMethodCustomisationDifference [
 	selector := #difference:.
 	method := Set >> selector.
 
-	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
 
 	method := self generateMethodFromCFG: cfg withSelector: selector.
@@ -106,7 +103,6 @@ DRCustomizedTypeSystemInliningTest >> testMethodCustomisationDisplayString [
 	
 	selector := #displayString.
 	method := DROpalExamples lookupSelector: selector.
-	compilerCompiler interpreter: DROpalExamples new.
 
 	cfg := self generateDruidIRFor: method.
 	method := self generateMethodFromCFG: cfg withSelector: selector.
@@ -123,7 +119,6 @@ DRCustomizedTypeSystemInliningTest >> testMethodCustomisationDo [
 	selector := #do:.
 	method := SequenceableCollection >> selector.
 
-	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
 
 	method := self generateMethodFromCFG: cfg withSelector: selector.
@@ -148,7 +143,6 @@ DRCustomizedTypeSystemInliningTest >> testMethodCustomisationSelect [
 	selector := #select:.
 	method := Collection >> selector.
 
-	compilerCompiler interpreter: {  }.
 	cfg := self generateDruidIRFor: method.
 	compilerCompiler optimize: cfg.
 
@@ -168,8 +162,6 @@ DRCustomizedTypeSystemInliningTest >> testMethodCustomisationSlowCount [
 	
 	selector := #slowCount.
 	method := Array lookupSelector: selector.
-	
-	compilerCompiler interpreter: Array new.
 
 	cfg := self generateDruidIRFor: method.
 

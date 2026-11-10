@@ -69,7 +69,7 @@ DRBlockClosure >> codeNode [
 ]
 
 { #category : 'activation' }
-DRBlockClosure >> defaultReturnValue: receiver [
+DRBlockClosure >> defaultReturnValueForInterpreter: interpreter receiver: aReceiver [
 
 	^ DRNullValue new
 ]
@@ -147,18 +147,17 @@ DRBlockClosure >> outerTemporaries: aDictionary [
 	self operands: aDictionary values
 ]
 
-{ #category : 'activation' }
-DRBlockClosure >> pushFrame: frame In: interpreter receiver: aReceiver [
-
-"self operands ifNotEmpty: [ 1halt ]."
-	super pushFrame: frame In: interpreter receiver: aReceiver
-]
-
 { #category : 'SCCP' }
 DRBlockClosure >> sccpLatticeValueFor: sccp [ 
 	
 	"This instruction has no value"
 	^ sccp bottom
+]
+
+{ #category : 'initialization' }
+DRBlockClosure >> setMaybeClosureTo: aDRStackFrame [ 
+	
+	aDRStackFrame maybeClosure: self
 ]
 
 { #category : 'activation' }

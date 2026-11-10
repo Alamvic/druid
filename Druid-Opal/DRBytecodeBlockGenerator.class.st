@@ -41,8 +41,8 @@ DRBytecodeBlockGenerator >> generateTargetASTFromIR: aDRControlFlowGraph [
 DRBytecodeBlockGenerator >> isResultInstruction: aDRInstruction [
 
 	^ aDRInstruction users isEmpty or: [
-			  aDRInstruction isStore and: [
-				  aDRInstruction users anySatisfy: [ :i | i isReturn not ] ] ]
+			  (aDRInstruction isStore and: [ aDRInstruction users anySatisfy: [ :i | i isReturn not ] ]) or: [
+				  aDRInstruction class = DRInitializeScope ] ]
 ]
 
 { #category : 'ir-to-target' }

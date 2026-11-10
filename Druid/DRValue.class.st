@@ -65,14 +65,6 @@ DRValue >> asDependencyList [
 	^ { self }
 ]
 
-{ #category : 'memory' }
-DRValue >> asMemoryAddress [
-
-	^ DRAbsoluteMemoryAddress new
-		  expression: self;
-		  yourself
-]
-
 { #category : 'copying' }
 DRValue >> copyToVariableIn: aDRIRGenerator inNode: aNode [
 	

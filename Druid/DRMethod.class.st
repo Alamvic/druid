@@ -30,10 +30,25 @@ DRMethod >> codeNode [
 ]
 
 { #category : 'activation' }
-DRMethod >> defaultReturnValue: receiver [
+DRMethod >> defaultReturnValueForInterpreter: interpreter receiver: aReceiver [
 
-	receiver isInstruction ifTrue: [ ^ receiver ].
-	^ DRInterpreterValue value: receiver
+	| receiver |
+	(interpreter isKindOf: DRMetaCompilerIRGenerator)
+		ifTrue: [
+				receiver := interpreter
+					            addInstructionFrom: self codeNode
+					            instructionKind: DRCGLoadReceiver.
+				interpreter popOperand ]
+		ifFalse: [
+				receiver := aReceiver
+					            ifNil: [
+							            interpreter
+								            addInstructionFrom: self codeNode
+								            instructionKind: DRBCLoadReceiver
+								            operands: { interpreter scope initInstruction }.
+							            interpreter popOperand ]
+					            ifNotNil: [ aReceiver ] ].
+	^ receiver
 ]
 
 { #category : 'executing' }
@@ -85,4 +100,10 @@ DRMethod >> operands: aCollection [
 DRMethod >> outerTemporaries [
 
 	^ #(  )
+]
+
+{ #category : 'initialization' }
+DRMethod >> setMaybeClosureTo: aDRStackFrame [ 
+	
+	aDRStackFrame maybeClosure: nil
 ]

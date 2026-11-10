@@ -110,7 +110,7 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnNilObject [
 
 	| cfg jump |
 	jump := instructionFactory jumpIf: (instructionFactory
-			         equals: instructionFactory loadReceiver
+			         equals: instructionFactory loadBytecodeReceiver
 			         to: nil asDRValue).
 	cfg := self setUpControlFlowGraphWithConditionalJump: jump.
 
@@ -126,7 +126,7 @@ DRSCCPConditionalConstantFoldingTest >> testConditionalEvaluationOnNullValue [
 
 	| cfg jump |
 	jump := instructionFactory jumpIf: (instructionFactory
-			         equals: instructionFactory loadReceiver
+			         equals: instructionFactory loadBytecodeReceiver
 			         to: DRNullValue new).
 	cfg := self setUpControlFlowGraphWithConditionalJump: jump.
 

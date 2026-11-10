@@ -1,8 +1,8 @@
 Class {
 	#name : 'DRStagedRegister',
 	#superclass : 'DRRegister',
-	#category : 'Druid-LinearScanRegisterAllocation',
-	#package : 'Druid',
+	#category : 'Druid-Cogit-LinearScanRegisterAllocation',
+	#package : 'Druid-Cogit',
 	#tag : 'LinearScanRegisterAllocation'
 }
 

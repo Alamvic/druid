@@ -353,7 +353,7 @@ DRCogitCanonicaliser >> visitLoad: aDRLoad [
 	(addressOperands first simpleConstantFold asDRValue isLoadFramePointer and: [
 		 addressOperands second simpleConstantFold asDRValue isJITCompileTimeExpression:
 			 'FrameReceiverOffset' ]) ifTrue: [
-		^ aDRLoad replaceBy: (DRLoadReceiver result: aDRLoad result) ].
+		^ aDRLoad replaceBy: (DRCGLoadReceiver result: aDRLoad result) ].
 
 	"General optimisation:
 	Simplify for now only patterns like

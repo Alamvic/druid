@@ -1,8 +1,8 @@
 Class {
 	#name : 'DRLoadFramePointer',
 	#superclass : 'DRAbstractLoad',
-	#category : 'Druid-IR',
-	#package : 'Druid',
+	#category : 'Druid-Cogit-IR',
+	#package : 'Druid-Cogit',
 	#tag : 'IR'
 }
 

@@ -101,7 +101,7 @@ DRTreegraphBytecodeGenerator >> instructionOperands: aDRInstruction [
 			^ (self isSelf: aDRInstruction operand1)
 				  ifTrue: [ { aDRInstruction operands last } ]
 				  ifFalse: [ aDRInstruction operands ] ].
-	^ aDRInstruction operands
+	^ aDRInstruction operands select: [ :e | e class ~= DRInitializeScope ]
 ]
 
 { #category : 'API' }
@@ -133,7 +133,7 @@ DRTreegraphBytecodeGenerator >> interpretInitializeScope: scope [
 { #category : 'testing' }
 DRTreegraphBytecodeGenerator >> isSelf: aDRInstruction [
 
-	^ aDRInstruction simpleConstantFold asDRValue isInterpreterValue .
+	^ aDRInstruction simpleConstantFold asDRValue isLoadReceiver
 ]
 
 { #category : 'as yet unclassified' }
@@ -154,7 +154,7 @@ DRTreegraphBytecodeGenerator >> labelBlock: aDRBasicBlock [
 	^ ('b' , aDRBasicBlock id asString) asSymbol
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 DRTreegraphBytecodeGenerator >> mergeStacks: predecessorStacks [
 
 	| newStack stackSize |
@@ -333,7 +333,9 @@ DRTreegraphBytecodeGenerator >> visitBasicBlock: aDRBasicBlock [
 	generationStack := self newStackFor: aDRBasicBlock.
 	generationStacks at: aDRBasicBlock put: generationStack.
 
-	aDRBasicBlock instructionsDo: [ :i | i isMandatoryInstruction ifTrue: [ self visitInstruction: i ] ].
+	aDRBasicBlock instructionsDo: [ :i |
+		i isMandatoryInstruction ifTrue: [ 
+			self visitInstruction: i ] ].
 
 	"Remove it so we avoid stack confusion :)"
 	generationStack := nil
@@ -485,7 +487,9 @@ DRTreegraphBytecodeGenerator >> visitInstruction: aDRInstruction [
 	operands := self ensureOperandsOnStack: aDRInstruction.
 	"Closures have a dependency to the value, but they do not need to be pushed,
 		so they are actually not popped either"
-	users := aDRInstruction users reject: [ :u | u isDRBlockClosure ].
+	users := aDRInstruction class = DRInitializeScope
+		ifTrue: [ #() ]
+		ifFalse: [ aDRInstruction users reject: [ :u | u isDRBlockClosure ]].
 
 	sizeBefore := generationStack size.
 
@@ -502,7 +506,7 @@ DRTreegraphBytecodeGenerator >> visitInstruction: aDRInstruction [
 	operands reversed do: [ :e | self abstractPop: e ].
 
 	"Pop this instruction value if this is an instruction, not a value"
-	aDRInstruction isInstruction ifTrue: [
+	((aDRInstruction class = DRInitializeScope) not and: [ aDRInstruction isInstruction ]) ifTrue: [
 			"Return, jump, initscope, do not push a result, no need to pop."
 			(users isEmpty and: [
 					 aDRInstruction isReturn not and: [
@@ -570,6 +574,12 @@ DRTreegraphBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 DRTreegraphBytecodeGenerator >> visitLoadLiteralVariable: aDRLoadLiteralVariable [ 
 
 	opalBytecodeBuilder pushLiteralVariable: aDRLoadLiteralVariable operand1 value
+]
+
+{ #category : 'visiting' }
+DRTreegraphBytecodeGenerator >> visitLoadReceiver: aDRLoadReceiver [
+
+	opalBytecodeBuilder pushReceiver
 ]
 
 { #category : 'visiting' }

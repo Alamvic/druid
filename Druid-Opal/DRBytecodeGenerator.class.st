@@ -79,13 +79,15 @@ DRBytecodeGenerator >> interpretInitializeScope: scope [
 { #category : 'testing' }
 DRBytecodeGenerator >> isResultInstruction: aDRInstruction [
 
-	^ aDRInstruction users isEmpty or: [ aDRInstruction isStore ]
+	^ aDRInstruction users isEmpty
+		or: [ aDRInstruction isStore
+			or: [ aDRInstruction class = DRInitializeScope ] ]
 ]
 
 { #category : 'testing' }
 DRBytecodeGenerator >> isSelf: aDRInstruction [
 
-	^ aDRInstruction simpleConstantFold asDRValue isInterpreterValue .
+	^ aDRInstruction simpleConstantFold asDRValue isLoadReceiver
 ]
 
 { #category : 'jump' }
@@ -303,13 +305,6 @@ DRBytecodeGenerator >> visitInitializeScope: aDRInitializeScope [
 ]
 
 { #category : 'ir-to-target' }
-DRBytecodeGenerator >> visitInterpreterValue: aDRInterpreterValue [ 
-
-	self flag: #TODO. "It is always self ?"
-	builder pushReceiver
-]
-
-{ #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitJump: aDRJump [
 
 	| targetLabel |
@@ -357,6 +352,16 @@ DRBytecodeGenerator >> visitLoadInstVar: aDRLoadInstVar [
 DRBytecodeGenerator >> visitLoadLiteralVariable: aDRLoadLiteralVariable [ 
 
 	builder pushLiteralVariable: aDRLoadLiteralVariable operand1 value
+]
+
+{ #category : 'visiting' }
+DRBytecodeGenerator >> visitLoadReceiver: aDRLoadReceiver [ 
+	
+	"We write the receiver as pushSelf only we are on the toplevel scope.
+	Otherwise this instruction should have been transformed before to another expression"
+	self assert: aDRLoadReceiver operand1 scope homeScope == aDRLoadReceiver controlFlowGraph scope homeScope.
+
+	builder pushReceiver
 ]
 
 { #category : 'visiting' }
@@ -447,6 +452,7 @@ DRBytecodeGenerator >> visitReturn: aDRReturn [
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitStoreInstVar: aDRStoreInstanceVariable [
 	
+	1halt.
 	(self isSelf: aDRStoreInstanceVariable operand1) ifTrue: [
 		aDRStoreInstanceVariable operand3 acceptVisitor: self.
 		builder storeInstVar: aDRStoreInstanceVariable operand2 value.

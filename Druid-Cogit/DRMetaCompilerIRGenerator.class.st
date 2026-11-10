@@ -235,7 +235,7 @@ DRMetaCompilerIRGenerator >> receiver: aDRValue [
 
 	| loadReceiver |
 	loadReceiver := self 
-		instantiate: DRLoadReceiver
+		instantiate: DRCGLoadReceiver
 		operands: { }.
 	loadReceiver origin: thisContext sender stack.
 	self currentBasicBlock addInstruction: loadReceiver.

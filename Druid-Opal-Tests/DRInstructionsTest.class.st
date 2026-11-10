@@ -25,7 +25,7 @@ DRInstructionsTest >> testCreateBlockClosureUsesTemporaries [
 	cfg := self generateDruidIRFor: #simpleMethodWithBlockReadingOuterVariable.
 	cfg applyOptimisation: DRCleanControlFlow new.
 	instruction := cfg firstBasicBlock instructions fourth.
-	block := cfg firstBasicBlock instructions fifth.
+	block := cfg firstBasicBlock instructions sixth.
 
 	self assert: block isDRBlockClosure.
 	self assert: (instruction users includes: block).
@@ -59,10 +59,12 @@ DRInstructionsTest >> testReplaceMessageSendUpdateArguments [
 	| cfg instruction message newInstruction |
 	cfg := self generateDruidIRFor: #basicInlineMethod.
 	cfg applyOptimisation: DRCleanControlFlow new.
-	instruction := cfg firstBasicBlock instructions second.
+	
+	"Take the third instruction, which is the first argument"
+	instruction := cfg firstBasicBlock instructions third.
 	message := instruction users unique.
-
 	self assert: message isMessageSend.
+	self assert: message arguments first identicalTo: instruction.
 
 	newInstruction := cfg instructionFactory copy: 2.
 	instruction replaceBy: newInstruction.

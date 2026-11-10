@@ -11,7 +11,7 @@ Class {
 
 { #category : 'accessing' }
 DRConstantValue class >> value: anInteger [
-	
+
 	^ self new
 		value: anInteger;
 		yourself

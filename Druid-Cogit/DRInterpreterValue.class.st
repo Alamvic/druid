@@ -4,8 +4,8 @@ Class {
 	#instVars : [
 		'value'
 	],
-	#category : 'Druid-IR',
-	#package : 'Druid',
+	#category : 'Druid-Cogit-IR',
+	#package : 'Druid-Cogit',
 	#tag : 'IR'
 }
 

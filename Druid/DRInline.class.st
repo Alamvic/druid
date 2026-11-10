@@ -35,7 +35,7 @@ DRInline class >> initialize [
 DRInline >> doApply: cfg [
 
 	self class enabled ifFalse: [ ^ self ].
-	
+
 	self inlineDomainSends: cfg.
 	self inlineControlFlowSends: cfg
 

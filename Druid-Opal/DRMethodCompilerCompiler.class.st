@@ -13,7 +13,6 @@ Class {
 DRMethodCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 
 	super configureForCompilerClass: aCompilerClass.
-	self compilerClass: aCompilerClass.
 
 	irGenerator := self newIRGenerator.
 
@@ -34,7 +33,6 @@ DRMethodCompilerCompiler >> configureForCompilerClass: aCompilerClass [
 DRMethodCompilerCompiler >> configureForCompilerClassWithoutInline: aCompilerClass [
 
 	super configureForCompilerClass: aCompilerClass.
-	self compilerClass: aCompilerClass.
 
 	irGenerator := self newIRGenerator.
 
@@ -51,16 +49,19 @@ DRMethodCompilerCompiler >> configureForCompilerClassWithoutInline: aCompilerCla
 { #category : 'generation-IR' }
 DRMethodCompilerCompiler >> interpretMethods: compiledMethods receiver: aDRReceiver numArgs: numArgs [
 
-	irGenerator receiver: aDRReceiver.
-	irGenerator numberOfArguments: numArgs.
-	
 	compiledMethods do: [ :method |
-		| aDRMethod |
-		aDRMethod := DRMethod methodNode: method ast.
-			
-		irGenerator
-			interpretCode: aDRMethod
-			receiver: aDRReceiver ]
+			| aDRMethod |
+			aDRMethod := DRMethod methodNode: method ast.
+			irGenerator interpretCode: aDRMethod maybeClosure: aDRReceiver ]
+]
+
+{ #category : 'generation-IR' }
+DRMethodCompilerCompiler >> interpreteMethods: compiledMethods [
+
+	self
+		interpretMethods: compiledMethods
+		receiver: nil
+		numArgs: nil
 ]
 
 { #category : 'code-generation' }
