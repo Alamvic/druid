@@ -10,13 +10,6 @@ Class {
 	#tag : 'IR'
 }
 
-{ #category : 'instance creation' }
-DRMessageSend class >> operands: ops [
-
-	self haltIf: [ ops first value = nil ].
-	super operands: ops.
-]
-
 { #category : 'visiting' }
 DRMessageSend >> acceptVisitor: aVisitor [
 
