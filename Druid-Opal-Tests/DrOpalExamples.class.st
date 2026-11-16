@@ -351,7 +351,7 @@ DrOpalExamples >> methodBlockTempCopied [
 	| t b |
 	t := 1.
 	b := [ t + 1 ].
-	^ t
+	^ b
 ]
 
 { #category : 'as yet unclassified' }
@@ -371,7 +371,7 @@ DrOpalExamples >> methodBlockTempWritingInside [
 	t := 1.
 	b := [ t:= 17. 
 		t +1 ].
-	^ t.
+	^ b.
 ]
 
 { #category : 'as yet unclassified' }
