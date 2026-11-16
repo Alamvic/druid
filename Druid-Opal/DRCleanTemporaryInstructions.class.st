@@ -22,9 +22,9 @@ DRCleanTemporaryInstructions >> applyTo: cfg [
 { #category : 'accessing' }
 DRCleanTemporaryInstructions >> cleanArgumentVariables: aDRMethodControlFlowGraph [ 
 	| args |
-	
-	args := aDRMethodControlFlowGraph allArgumentInstructions select: [ :instruction | 
-    instruction users anySatisfy: [ :each | each isDRBlockClosure ] ].
+
+	args := (aDRMethodControlFlowGraph blockClosures flatCollect: [ :each | each operands ]) 
+							select: [ : each | each scope = aDRMethodControlFlowGraph scope and: [ each isLoadArgument ]].
 
 	args do: [ :each | aDRMethodControlFlowGraph scope addArgumentIntoCopied: each ].
 ]

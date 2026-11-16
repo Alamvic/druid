@@ -330,6 +330,17 @@ DRInstruction >> isPop [
 ]
 
 { #category : 'testing' }
+DRInstruction >> isPostDominatedBy: anotherOperand [ 
+
+	self = anotherOperand ifTrue: [ ^ true ].
+
+	anotherOperand basicBlock = self basicBlock ifTrue: [
+		^ self indexInBasicBlock < anotherOperand indexInBasicBlock ].
+
+	^ self basicBlock isPostDominatedBy: anotherOperand basicBlock
+]
+
+{ #category : 'testing' }
 DRInstruction >> isStaged [
 
 	^ isStaged
