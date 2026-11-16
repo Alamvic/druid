@@ -83,7 +83,7 @@ DRScope >> copiedVarNames [
 
 { #category : 'query' }
 DRScope >> copiedVars [
-
+	
 	self outerScope ifNil: [ ^ OrderedDictionary new ].
 
 	^ self outerScope copiedVars, self outerScope definedTempVectors
@@ -171,6 +171,12 @@ DRScope >> isEmpty [
 ]
 
 { #category : 'testing' }
+DRScope >> isInTempVector: varName [
+
+	^ tempVectorVars anySatisfy: [ :var | var name = varName ]
+]
+
+{ #category : 'testing' }
 DRScope >> isSend [
 
 	^ node isMessageSend
@@ -243,6 +249,24 @@ DRScope >> node: anObject [
 ]
 
 { #category : 'accessing' }
+DRScope >> outerCopiedVarNames [
+
+	^ outerCopiedVars collect: [ :v | v name ] as: Array
+]
+
+{ #category : 'accessing' }
+DRScope >> outerCopiedVars [
+
+	^ outerCopiedVars
+]
+
+{ #category : 'accessing' }
+DRScope >> outerCopiedVars: anObject [
+
+	outerCopiedVars := anObject
+]
+
+{ #category : 'accessing' }
 DRScope >> outerScope [
 
 	^ outerScope
@@ -280,7 +304,13 @@ DRScope >> tempVectorName [
 { #category : 'query' }
 DRScope >> tempVectorVarNames [ 
 	
-	^ (self argumentNames , self tempVarNames) asArray 
+	^ tempVectorVars collect: [ :v | v name ] as: Array 
+]
+
+{ #category : 'accessing' }
+DRScope >> tempVectorVars [
+
+	^ tempVectorVars
 ]
 
 { #category : 'testing' }
