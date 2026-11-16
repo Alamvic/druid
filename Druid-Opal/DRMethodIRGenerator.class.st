@@ -39,7 +39,7 @@ DRMethodIRGenerator >> blockClosureFor: aRBBlockNode [
 	block := self
 		         addInstructionFrom: aRBBlockNode
 		         instructionKind: DRBlockClosure
-		         operands: allTemporaries values.
+		         operands: {}.
 
 	^ block
 		blockNode: aRBBlockNode;
@@ -477,6 +477,7 @@ DRMethodIRGenerator >> visitBlockNode: aRBBlockNode [
 	
 	"Generate the block CFG and attach it to the instruction"
 	blockGenerator := self blockClosureGenerator.
+	blockGenerator closureInstruction: blockClosure.
 	blockCFG := blockGenerator interpretBlockClosure: blockClosure.
 	blockClosure blockCFG: blockCFG
 ]

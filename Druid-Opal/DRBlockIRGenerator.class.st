@@ -2,12 +2,25 @@ Class {
 	#name : 'DRBlockIRGenerator',
 	#superclass : 'DRMethodIRGenerator',
 	#instVars : [
-		'variableFrame'
+		'variableFrame',
+		'closureInstruction'
 	],
 	#category : 'Druid-Opal-Compiler',
 	#package : 'Druid-Opal',
 	#tag : 'Compiler'
 }
+
+{ #category : 'accessing' }
+DRBlockIRGenerator >> closureInstruction [
+
+	^ closureInstruction
+]
+
+{ #category : 'accessing' }
+DRBlockIRGenerator >> closureInstruction: anObject [
+
+	closureInstruction := anObject
+]
 
 { #category : 'visiting' }
 DRBlockIRGenerator >> finishCodeInterpretation: lastFrame [
@@ -16,6 +29,20 @@ DRBlockIRGenerator >> finishCodeInterpretation: lastFrame [
 		currentBasicBlock blockReturn: lastFrame returnedValue.
 	]
 	
+]
+
+{ #category : 'accessing' }
+DRBlockIRGenerator >> interpretAssignmentNode: aRBAssignmentNode [
+
+	| value |
+	
+	value := super interpretAssignmentNode: aRBAssignmentNode.
+	
+	value isStoreTemporaryVariable ifTrue: [ 
+		self closureInstruction addOperand: value.
+		 ].
+	
+	^ value.
 ]
 
 { #category : 'API' }
@@ -64,7 +91,6 @@ DRBlockIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 	| loadArg varName scope |
 	varName := aRBVariableNode name.
 	scope := self lookupScopeDefiningVariable: aRBVariableNode.
-
 	loadArg := self
 		           addInstructionFrom: aRBVariableNode
 		           instructionKind: DRLoadArgument
@@ -72,7 +98,9 @@ DRBlockIRGenerator >> visitArgumentVariableNode: aRBVariableNode [
 
 	loadArg argName: varName. "Is it required?"
 	loadArg scope: scope.
-
+	
+	self closureInstruction addOperand: loadArg.
+	
 	^ loadArg
 ]
 
@@ -92,4 +120,16 @@ DRBlockIRGenerator >> visitSelfNode: aRBVariableNode [
 
 	self pushOperand: self receiver.
 
+]
+
+{ #category : 'accessing' }
+DRBlockIRGenerator >> visitTemporaryVariableNode: aRBVariableNode [
+
+	| loadTemp |
+	
+	loadTemp := super visitTemporaryVariableNode: aRBVariableNode.
+	
+	self closureInstruction addOperand: loadTemp .
+	
+	^ loadTemp.
 ]

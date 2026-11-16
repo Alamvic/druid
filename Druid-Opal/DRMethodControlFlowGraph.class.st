@@ -44,6 +44,22 @@ DRMethodControlFlowGraph >> allInstructionsWithScope: aDRScope [
 	^ cfgInstructions , blockInstructions
 ]
 
+{ #category : 'queries' }
+DRMethodControlFlowGraph >> argumentInstructions [
+
+	^ self instructions select: [ :i | i isLoadArgument ].
+]
+
+{ #category : 'queries' }
+DRMethodControlFlowGraph >> blockClosures [
+
+	| closures |
+	closures := OrderedCollection new.
+	self instructionsDo: [ :i |
+			i isDRBlockClosure ifTrue: [ closures add: i ] ].
+	^ closures
+]
+
 { #category : 'accessing' }
 DRMethodControlFlowGraph >> scope [
 
