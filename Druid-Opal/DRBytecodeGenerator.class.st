@@ -60,20 +60,20 @@ DRBytecodeGenerator >> interpretInitializeScope: scope [
 	args do: [ :arg| 
 		builder addTemp: arg ].
 	
-	"Add temps copied from outer"
 	scope copiedVarNames do: [ :tmp| 
 		builder addTemp: tmp ].
+	
+	scope outerCopiedVarNames do: [ :var |
+		builder addTemp: var ].
+	
+	"Add local temp"
+	scope tempVarNames do: [ :var |
+		builder addTemp: var ].
 		
 	"Add own temp vectors (could be many due to inlinings)"
 	scope definedTempVectors keysAndValuesDo: [ :vector :temps |
 		self createTempVector: temps vectorName: vector
 		 ].
-	
-	"Store arguments to temp vectors"
-	args do: [ :arg | 
-		builder pushTemp: arg.
-		builder storeRemoteTemp: arg inVector: scope tempVectorName .
-		builder popTop ].
 ]
 
 { #category : 'testing' }
@@ -205,6 +205,7 @@ DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	blockCFG applyOptimisation: DRBranchCollapse new.
 	blockCFG applyOptimisation: DRPhiSimplication new.
 	blockCFG applyOptimisation: (DRSCCP then: DRDeadCodeElimination).
+	"blockCFG applyOptimisation: DRCleanTemporaryInstructions new."
 	DRLocalVariableInstructionScheluder new applyTo: blockCFG.
 	blockCFG applyOptimisation: DRCleanScopes new.
 	blockCFG applyOptimisation: DRDeadCodeElimination new.
@@ -215,8 +216,8 @@ DRBytecodeGenerator >> visitBlockClosure: aDRBlockClosure [
 	compiledBlock := blockBytecodeGenerator
 		                 compileBlockFrom: blockCFG
 		                 withScope: blockCFG scope.
-
-	copiedValues := blockCFG scope copiedVarNames.
+	
+	copiedValues := blockCFG scope outerScope outerCopiedVarNames, blockCFG scope copiedVarNames. "copied vars + temp vector"
 	builder
 		pushFullClosureCompiledBlock: compiledBlock
 		copiedValues: copiedValues

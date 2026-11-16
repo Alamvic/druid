@@ -51,6 +51,12 @@ DRLoadArgument >> isMandatoryInstruction [
 	^ true
 ]
 
+{ #category : 'accessing' }
+DRLoadArgument >> name [
+
+	^ self argName
+]
+
 { #category : 'printing' }
 DRLoadArgument >> opcode [
 	

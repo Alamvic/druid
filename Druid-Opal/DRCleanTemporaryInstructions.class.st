@@ -10,7 +10,6 @@ Class {
 DRCleanTemporaryInstructions >> applyTo: cfg [
 
 	| escapingVars |
-	1 halt.
 	
 	"If we use name in scope instead of TemporaryVariable, we can merge these two"
 	self cleanArgumentVariables: cfg. 
@@ -27,6 +26,7 @@ DRCleanTemporaryInstructions >> cleanArgumentVariables: aDRMethodControlFlowGrap
 							select: [ : each | each scope = aDRMethodControlFlowGraph scope and: [ each isLoadArgument ]].
 
 	args do: [ :each | aDRMethodControlFlowGraph scope addArgumentIntoCopied: each ].
+	
 ]
 
 { #category : 'accessing' }
@@ -39,7 +39,7 @@ DRCleanTemporaryInstructions >> cleanEscapingVars: temps in: aDRScope [
 DRCleanTemporaryInstructions >> cleanTemporaryVariables: aDRMethodControlFlowGraph [ 
 	
 	| blockClosures blockOperands tempVectorVars copiedVars storesAfter|
-	1 halt.
+	
 	blockClosures := aDRMethodControlFlowGraph blockClosures.
 	
 	blockOperands := (blockClosures flatCollect: [ :each | each operands ]) 
