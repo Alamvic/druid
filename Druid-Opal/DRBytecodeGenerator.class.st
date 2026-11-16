@@ -322,7 +322,7 @@ DRBytecodeGenerator >> visitLessThan: aDRLessThanComparison inBranch: aDRBranchI
 { #category : 'ir-to-target' }
 DRBytecodeGenerator >> visitLoadArgument: aDRLoadArgument [
 	
-	builder pushRemoteTemp: aDRLoadArgument variableName inVector: aDRLoadArgument scope tempVectorName. 
+	builder pushTemp: aDRLoadArgument variableName 
 	
 ]
 
@@ -444,10 +444,13 @@ DRBytecodeGenerator >> visitStoreTempVar: aDRStoreTemporaryVariable [
 	self assert: value isStoreTemporaryVariable not.
 	
 	value acceptVisitor: self.
-
-	builder
+	
+	aDRStoreTemporaryVariable isInTempVector
+	 ifTrue: [  builder
 		storeRemoteTemp: aDRStoreTemporaryVariable operand1 value
 		inVector: aDRStoreTemporaryVariable scope tempVectorName.
+	] 
+	ifFalse: [ builder storeTemp: aDRStoreTemporaryVariable operand1 value. ].
 
 	"Stores should not have users, only block closures catch temporaries"	
 	self assert: (aDRStoreTemporaryVariable users allSatisfy: [ :each | each isDRBlockClosure ]).		
@@ -465,9 +468,15 @@ DRBytecodeGenerator >> visitSubstract: aDRSubstract [
 { #category : 'visiting' }
 DRBytecodeGenerator >> visitTemporaryVariable: aDRLoadTemporaryVariable [
 
-	builder
-		pushRemoteTemp: aDRLoadTemporaryVariable operand1 value
-		inVector: aDRLoadTemporaryVariable scope tempVectorName .
+
+	aDRLoadTemporaryVariable isInTempVector 
+	ifTrue: [ builder pushRemoteTemp: aDRLoadTemporaryVariable operand1 value
+		inVector: aDRLoadTemporaryVariable scope tempVectorName 
+	] 
+	ifFalse: [ builder pushTemp: aDRLoadTemporaryVariable operand1 value
+	]
+
+	
 ]
 
 { #category : 'visiting' }
